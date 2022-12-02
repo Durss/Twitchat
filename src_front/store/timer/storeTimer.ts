@@ -3,6 +3,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
 
@@ -86,7 +87,6 @@ export const storeTimer = defineStore('timer', {
 				duration:Utils.formatDuration(duration_ms, true),
 				duration_ms:duration_ms,
 			};
-			console.log(this.countdown);
 
 			const message:TwitchatDataTypes.MessageCountdownData = {
 				type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
@@ -104,7 +104,7 @@ export const storeTimer = defineStore('timer', {
 			if(this.countdown) {
 				clearTimeout(this.countdown.timeoutRef);
 
-				const cd = {
+				const cd:TwitchatDataTypes.CountdownData = {
 					timeoutRef:-1,
 					startAt:this.countdown.startAt,
 					startAt_ms:this.countdown.startAt_ms,
@@ -123,7 +123,7 @@ export const storeTimer = defineStore('timer', {
 				};
 				StoreProxy.chat.addMessage(message);
 	
-				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdown);
+				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, (cd as unknown) as JsonObject);
 			}
 
 			this.countdown = null;

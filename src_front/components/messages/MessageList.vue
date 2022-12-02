@@ -248,6 +248,7 @@ export default class MessageList extends Vue {
 	private updateDebounce = -1;
 	private conversationPos = 0;
 	private hoverActionsPos = 0;
+	private prevHeight = 0;
 	private openConvTimeout!: number;
 	private closeConvTimeout!: number;
 	private prevTouchMove!: TouchEvent;
@@ -474,24 +475,20 @@ export default class MessageList extends Vue {
 					} else {
 						//Ignore /me messages if requested
 						if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
-							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"slashMe"});
 							canAdd = false;
 						} else {
 							//Ignore self if requested
 							if (sParams.filters.showSelf.value === false && m.user.id == meUID) {
-								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"self"});
 								canAdd = false;
 							} else {
 								//Ignore bot messages if requested
 								if (sParams.filters.showBots.value === false
 									&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
 									&& m.bypassBotFilter !== true) {
-									// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"bot"});
 									canAdd = false;
 								} else {
 									//Ignore custom users
 									if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
-										// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"user"});
 										canAdd = false;
 									} else {
 
@@ -501,14 +498,10 @@ export default class MessageList extends Vue {
 												//Ignore specific commands
 												const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
 												if (blockedSpecificCmds.includes(cmd)) {
-													//TODO Broadcast to OBS-ws
-													// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
 													canAdd = false;
 												}
 											} else {
 												//Ignore all commands
-												//TODO Broadcast to OBS-ws
-												// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FILTERED, {message:wsMessage, reason:"command"});
 												canAdd = false;
 											}
 										}
@@ -806,13 +799,14 @@ export default class MessageList extends Vue {
 		const messageHolder	= this.$refs.chatMessageHolder as HTMLDivElement;
 		if (!messageHolder) return;
 		const holderHeight	= messageHolder.offsetHeight;
+		const hasResized	= this.prevHeight != holderHeight;
 		const maxScroll		= (messageHolder.scrollHeight - holderHeight);
 		const messageItems	= messageHolder.getElementsByClassName("subHolder");
 		
 		if (messageItems.length === 0) return;//No message yet, just stop here
 		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
-		let easeValue		= .3;
+		let easeValue		= hasResized? 1 : .3;
 
 		if (!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
@@ -1134,11 +1128,15 @@ export default class MessageList extends Vue {
 		}
 
 		if (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			//TODO broadcast message
+		|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			const message = {
-				channel: m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE ? m.channel_id : m.to.id,
-				message: m.message,
+				channel: m.channel_id,
+				message: m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER? "<not set for privacy reasons>" : m.message,
+				user: {
+					id: m.user.id,
+					login: m.user.login,
+					displayName: m.user.displayName,
+				}
 			}
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, { manual: event != null, selected: m.markedAsRead === true, message });
 		}

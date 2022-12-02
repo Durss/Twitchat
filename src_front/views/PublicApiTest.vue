@@ -20,10 +20,6 @@
 		</div>
 
 		<div class="lists">
-			<div class="list actions">
-				<div class="head">Actions</div>
-				<Button class="action" v-for="a in actionList" :title="a.key" small />
-			</div>
 			<div class="list events">
 				<div class="head">Events</div>
   				<transition-group name="list" tag="p">
@@ -36,6 +32,10 @@
 						<div v-else class="empty">- no data -</div>
 					</ToggleBlock>
 				</transition-group>
+			</div>
+			<div class="list actions">
+				<div class="head">Actions</div>
+				<Button class="action" v-for="a in actionList" :title="a.key" small />
 			</div>
 		</div>
 	</div>

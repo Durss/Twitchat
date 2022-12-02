@@ -16,7 +16,6 @@ import VoicemodWebSocket from "./voice/VoicemodWebSocket";
 
 /**
 * Created : 22/04/2022 
-TODO remove the mapping message type => trigger type via method calls and replace it by a hashmap
 */
 export default class TriggerActionHandler {
 
@@ -456,11 +455,13 @@ export default class TriggerActionHandler {
 							let text = await this.parseText(eventType, message, step.text as string, false, subEvent, true);
 							//Remove command name from message
 							if(subEvent) text = text.replace(subEvent, "").trim();
-							const user = null;
-							const m = message as TwitchatDataTypes.MessageChatHighlightData;
-							//TODO this event is probably broken
-							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (m as unknown) as JsonObject)
-							StoreProxy.chat.isChatMessageHighlighted = true;
+							let info:TwitchatDataTypes.ChatHighlightInfo = {
+								message:text,
+								user:message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE? message.user : undefined,
+								params:StoreProxy.chat.chatHighlightOverlayParams,
+							};
+							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
+							StoreProxy.chat.highlightChatMessageOverlay(message);
 						}else{
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
 							StoreProxy.chat.isChatMessageHighlighted = false;
@@ -556,7 +557,7 @@ export default class TriggerActionHandler {
 									type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 									track:data,
 								}
-								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (message as unknown) as JsonObject);
+								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
 								//Execute "TRACK_ADDED_TO_QUEUE" trigger
 								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, trigger, false, guid);
 

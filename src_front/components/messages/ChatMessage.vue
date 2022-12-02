@@ -35,14 +35,14 @@
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<div class="infos" v-if="channelInfo.is_blocked !== true">
-			<!-- <img v-if="messageData.type == 'whisper'" class="icon" src="@/assets/icons/whispers.svg" data-tooltip="Whisper"> -->
+			
+			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
+
 			<img v-if="!disableConversation && isConversation && $store('params').features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
 				src="@/assets/icons/conversation.svg"
 				alt="conversation"
 				@click.stop="$emit('showConversation', $event, messageData)">
-			
-			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
 			<ChatMessageInfos class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
@@ -212,7 +212,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get showModTools():boolean {
-		return this.showModToolsPreCalc && this.$store("params").features.showModTools.value === true;
+		return this.showModToolsPreCalc && this.$store("params").features.showModTools.value === true && this.messageData.user.id != this.messageData.channel_id;
 	}
 
 	public get time():string {

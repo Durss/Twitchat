@@ -1,9 +1,10 @@
+import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerActionHandler from '@/utils/TriggerActionHandler';
+import PublicAPI from '@/utils/PublicAPI';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } from '../StoreProxy';
-
 
 export const storePoll = defineStore('poll', {
 	state: () => ({
@@ -21,9 +22,12 @@ export const storePoll = defineStore('poll', {
 
 	actions: {
 		setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean) {
-			if(this.data != null && postOnChat) {
-				StoreProxy.chat.addMessage(this.data);
-				TriggerActionHandler.instance.onMessage(this.data);
+			if(data) {
+				if(postOnChat) {
+					StoreProxy.chat.addMessage(data);
+				}
+
+				PublicAPI.instance.broadcast(TwitchatEvent.POLL_PROGRESS, {poll: (data as unknown) as JsonObject});
 			}
 
 			this.data = data;

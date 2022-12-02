@@ -1,5 +1,7 @@
+import TwitchatEvent from "@/events/TwitchatEvent";
 import { reactive } from "vue";
 import { EventDispatcher } from "../../events/EventDispatcher";
+import PublicAPI from "../PublicAPI";
 import Utils from "../Utils";
 import VoicemodEvent from "./VoicemodEvent";
 
@@ -354,7 +356,9 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				break;
 
 			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT:
-				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, json.actionObject.voiceID as string))
+				const voice = json.actionObject.voiceID as string;
+				PublicAPI.instance.broadcast(TwitchatEvent.VOICEMOD_CHANGE, {voice});
+				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice));
 				break;
 
 			case VoicemodWebSocket.EVENT_TOGGLE_VOICE_CHANGER:

@@ -10,9 +10,20 @@
 					<img src="@/assets/icons/bits.svg" class="icon">
 					<span class="label">{{bits}}</span>
 				</div>
-				<div class="row" v-if="subs > 0" data-tooltip="Subs">
+				<div class="row" v-if="subs1 > 0" data-tooltip="Subs tier 1">
 					<img src="@/assets/icons/sub.svg" class="icon">
-					<span class="label">{{subs}}</span>
+					<span class="tier">T1</span>
+					<span class="label">x{{subs1}}</span>
+				</div>
+				<div class="row" v-if="subs2 > 0" data-tooltip="Subs tier 2">
+					<img src="@/assets/icons/sub.svg" class="icon">
+					<span class="tier">T2</span>
+					<span class="label">x{{subs2}}</span>
+				</div>
+				<div class="row" v-if="subs3 > 0" data-tooltip="Subs tier 3">
+					<img src="@/assets/icons/sub.svg" class="icon">
+					<span class="tier">T3</span>
+					<span class="label">x{{subs3}}</span>
 				</div>
 				<div class="row" v-if="primes > 0" data-tooltip="Primes">
 					<img src="@/assets/icons/prime.svg" class="icon">
@@ -49,15 +60,15 @@ import Button from '../Button.vue';
 	emits:["setCustomActivities", "onRead"]
 })
 
-//TODO fix filter activities
-//TODO split subs and subgifts by tiers
 export default class ChatHypeTrainResult extends Vue {
 
 	public filtering!:boolean;
 	public messageData!:TwitchatDataTypes.MessageHypeTrainSummaryData;
 
 	public reachPercent:number = 0;
-	public subs:number = 0;
+	public subs1:number = 0;
+	public subs2:number = 0;
+	public subs3:number = 0;
 	public subgifts:number = 0;
 	public primes:number = 0;
 	public bits:number = 0;
@@ -84,7 +95,9 @@ export default class ChatHypeTrainResult extends Vue {
 						let count = el.gift_recipients!.length ?? 1;
 						this.subgifts += count;
 					}else {
-						this.subs ++;
+						if(el.tier == 1) this.subs1 ++;
+						if(el.tier == 2) this.subs2 ++;
+						if(el.tier == 3) this.subs3 ++;
 					}
 					break;
 				}
@@ -142,6 +155,17 @@ export default class ChatHypeTrainResult extends Vue {
 			}
 			.label {
 				font-weight: bold;
+			}
+			.tier {
+				font-weight: bold;
+				display: inline-block;
+				border-radius: .25em;
+				padding: 0 .2em;
+				font-size: .7em;
+				vertical-align: top;
+				margin-right: .5em;
+				color: @mainColor_normal;
+				background-color: @mainColor_light;
 			}
 		}
 	}

@@ -336,16 +336,13 @@ export const storeChat = defineStore('chat', {
 					if(!this.whispers[correspondantId]) this.whispers[correspondantId] = [];
 					this.whispers[correspondantId].push(message);
 					this.whispersUnreadCount ++;
-					//TODO Broadcast to OBS-ws
-					// const wsUser = {
-					// 	id: data.tags['user-id'],
-					// 	login: data.tags.username,
-					// 	color: data.tags.color,
-					// 	badges: data.tags.badges as {[key:string]:JsonObject | JsonArray | JsonValue},
-					// 	'display-name': data.tags['display-name'],
-					// 	'message-id': data.tags['message-id'],
-					// }
-					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:sChat.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+					const wsUser = {
+						id:message.user.id,
+						login:message.user.login,
+						displayName:message.user.displayName,
+					};
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+					
 				}else if(message.user.greeted !== true
 				&& (!greetedUsers[message.user.id] || greetedUsers[message.user.id] < Date.now())) {
 					message.todayFirst = true;
@@ -438,28 +435,34 @@ export const storeChat = defineStore('chat', {
 					SchedulerHelper.instance.resetAdSchedule(message);
 				}
 
+				const wsMessage = {
+					channel:message.channel_id,
+					message:message.message,
+					user: {
+						id:message.user.id,
+						login:message.user.login,
+						displayName:message.user.displayName,
+					}
+				}
+
 				//If it's a text message and user isn't a follower, broadcast to WS
-				if(message.user.channelInfo[message.channel_id].is_following) {
-					//TODO Broadcast to OBS-ws
-					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, {message:wsMessage});
+				if(message.user.channelInfo[message.channel_id].is_following === false) {
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
 				}
 	
 				//Check if the message contains a mention
 				if(message.hasMention) {
-					//TODO Broadcast to OBS-ws
-					// PublicAPI.instance.broadcast(TwitchatEvent.MENTION, {message:wsMessage});
+					PublicAPI.instance.broadcast(TwitchatEvent.MENTION, wsMessage);
 				}
 	
 				//If it's the first message today for this user
 				if(message.todayFirst === true) {
-					//TODO Broadcast to OBS-ws
-					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, {message:wsMessage});
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, wsMessage);
 				}
 	
 				//If it's the first message all time of the user
 				if(message.twitch_isFirstMessage) {
-					//TODO Broadcast to OBS-ws
-					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, {message:wsMessage});
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
 				}
 				
 				const cmd = message.message.trim().split(" ")[0].toLowerCase();
@@ -657,13 +660,14 @@ export const storeChat = defineStore('chat', {
 					}
 					if(!postMessage) return;
 				}else{
-					// TODO Broadcast to OBS-ws
 					const wsMessage = {
-						display_name: message.user.displayName,
-						username: message.user.login,
-						user_id: message.user.id,
+						user:{
+							id: message.user.id,
+							login: message.user.login,
+							displayName: message.user.displayName,
+						}
 					}
-					PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, {user:wsMessage});
+					PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, wsMessage);
 				}
 
 			}
@@ -728,14 +732,7 @@ export const storeChat = defineStore('chat', {
 				messageList = messageList.slice(-maxMessages);
 			}
 
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.PREDICTION) {
-				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION, {prediction: (message as unknown) as JsonObject});
-			}
-
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.POLL) {
-				PublicAPI.instance.broadcast(TwitchatEvent.POLL, {poll: (message as unknown) as JsonObject});
-			}
-
+			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
@@ -773,13 +770,16 @@ export const storeChat = defineStore('chat', {
 						//Called if closing an ad
 						messageList.splice(i, 1);
 					}else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						//TODO Broadcast to OBS-ws
-						// const wsMessage = {
-						// 	channel:m.channel,
-						// 	message:m.message,
-						// 	tags:m.tags,
-						// }
-						// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+						const wsMessage = {
+							channel:m.channel_id,
+							message:m.message,
+							user:{
+								id:m.user.id,
+								login:m.user.login,
+								displayName:m.user.displayName,
+							}
+						}
+						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 	
 						//Don't keep automod form message
 						if(m.twitch_automod) {
@@ -807,13 +807,16 @@ export const storeChat = defineStore('chat', {
 				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				&& m.user.id == uid
 				&& !m.deleted) {
-					//TODO Broadcast to OBS-ws
-					// const wsMessage = {
-					// 	channel:list[i].channel,
-					// 	message:list[i].message,
-					// 	tags:list[i].tags,
-					// }
-					// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, {message:wsMessage});
+					const wsMessage = {
+						channel:m.channel_id,
+						message:m.message,
+						user:{
+							id:m.user.id,
+							login:m.user.login,
+							displayName:m.user.displayName,
+						}
+					}
+					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 
 					m.deleted = true;
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
@@ -926,7 +929,7 @@ export const storeChat = defineStore('chat', {
 					info,
 				};
 				this.addMessage(m);
-				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (m as unknown) as JsonObject);
+				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject);
 			}else{
 				this.isChatMessageHighlighted = false;
 			}

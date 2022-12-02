@@ -131,8 +131,8 @@ export default class VoiceTriggerList extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.triggerHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.triggerHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_CREATE, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_CREATE, this.triggerHandler);
 	}
 
 	public beforeUnmount():void {
@@ -146,8 +146,8 @@ export default class VoiceTriggerList extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.triggerHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.triggerHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_CREATE, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_CREATE, this.triggerHandler);
 	}
 
 	public addAction():void {

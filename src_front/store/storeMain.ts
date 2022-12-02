@@ -192,7 +192,7 @@ export const storeMain = defineStore("main", {
 				}
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_COMPLETE, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent)=> {
 				const data = (e.data as unknown) as {winner:TwitchatDataTypes.EntryItem};
 				StoreProxy.raffle.onRaffleComplete(data.winner);
 			});

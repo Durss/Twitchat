@@ -315,12 +315,12 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_RAFFLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_START, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_END, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_START, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_END, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
@@ -414,12 +414,12 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_RAFFLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_RAFFLE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_START, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_END, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_START, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_END, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
@@ -465,12 +465,12 @@ export default class Chat extends Vue {
 				this.$store("params").updateParams()
 				break;
 
-			case TwitchatEvent.CREATE_POLL:
+			case TwitchatEvent.POLL_START:
 				this.currentModal = 'poll';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
-			case TwitchatEvent.STOP_POLL:{
+			case TwitchatEvent.POLL_CREATE:{
 				const poll = this.$store("poll").data;
 				if(!poll) return;
 				try {
@@ -481,12 +481,12 @@ export default class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.CREATE_PREDICTION:
+			case TwitchatEvent.PREDICTION_START:
 				this.currentModal = 'pred';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
-			case TwitchatEvent.STOP_PREDICTION:{
+			case TwitchatEvent.PREDICTION_CREATE:{
 				const prediction = this.$store("prediction").data;
 				if(!prediction) return;
 				try {
@@ -497,12 +497,12 @@ export default class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.CREATE_RAFFLE:
+			case TwitchatEvent.RAFFLE_START:
 				this.currentModal = 'raffle';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
-			case TwitchatEvent.STOP_RAFFLE:{
+			case TwitchatEvent.RAFFLE_END:{
 				this.$confirm("Close raffle", "All raffle entries will be lost", undefined, undefined, undefined, true)
 				.then(async ()=> {
 					this.$store("raffle").stopRaffle();

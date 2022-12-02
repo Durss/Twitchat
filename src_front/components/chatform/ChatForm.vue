@@ -4,7 +4,7 @@
 			<div class="leftForm">
 				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
 				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" @mouseover="(e)=>updateOnlineUsersTooltip()" :data-tooltip="onlineUsersTooltip" />
+				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" :data-tooltip="onlineUsersTooltip" />
 				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
@@ -421,7 +421,7 @@ export default class ChatForm extends Vue {
 	 * if the method was a getter, its value wouldn't automatically be
 	 * updated when user list changes.
 	 */
-	public updateOnlineUsersTooltip():void {
+	public updateOnlineUsersTooltip(e:MouseEvent):void {
 		let followCount = 0;
 		let onlineCount = 0;
 		const users = this.$store("users").users;

@@ -405,6 +405,7 @@ export const storeUsers = defineStore('users', {
 					StoreProxy.users.flagUnbanned("twitch", channelId, uid);
 				}, duration_s*1000)
 			}
+			StoreProxy.chat.delUserMessages(uid);
 		},
 		
 		flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {

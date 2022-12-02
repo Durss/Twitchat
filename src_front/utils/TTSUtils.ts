@@ -189,6 +189,7 @@ export default class TTSUtils {
 		if(!id) id = Utils.getUUID();
 
 		const m:SpokenMessage = {message, id, force:true, date: Date.now()};
+		console.log("READ NOW", m);
 		this.pendingMessages.splice(1, 0, m);
 		if(this.sTTS.speaking) {
 			this.stop();//This triggers the next message play
@@ -275,8 +276,8 @@ export default class TTSUtils {
 				//Stop if didn't ask to read this kind of message
 				if(!paramsTTS.readMessages && force!==true) return "";
 
-				//Stop there if the user isn't part of the permissions
-				if(!Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
+				//Stop there if the user isn't part of the permissions and message isn't forced
+				if(!force && !Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 				//Ignore automoded messages
 				if(message.twitch_automod) return "";
 

@@ -21,24 +21,18 @@ export default class TwitchatEvent extends Event {
 	public static MESSAGE_FIRST_ALL_TIME:TwitchatEventType = "MESSAGE_FIRST_ALL_TIME";
 	public static MESSAGE_WHISPER:TwitchatEventType = "MESSAGE_WHISPER";
 	public static FOLLOW:TwitchatEventType = "FOLLOW";
-	public static POLL:TwitchatEventType = "POLL";
-	public static PREDICTION:TwitchatEventType = "PREDICTION";
+	public static POLL_PROGRESS:TwitchatEventType = "POLL_PROGRESS";
+	public static PREDICTION_PROGRESS:TwitchatEventType = "PREDICTION_PROGRESS";
 	public static MENTION:TwitchatEventType = "MENTION";
 	public static CURRENT_TRACK:TwitchatEventType = "CURRENT_TRACK";
 	public static TRACK_ADDED_TO_QUEUE:TwitchatEventType = "TRACK_ADDED_TO_QUEUE";
 	public static WHEEL_OVERLAY_PRESENCE:TwitchatEventType = "WHEEL_OVERLAY_PRESENCE";
-	public static RAFFLE_COMPLETE:TwitchatEventType = "RAFFLE_COMPLETE";
 	public static COUNTDOWN_START:TwitchatEventType = "COUNTDOWN_START";
 	public static COUNTDOWN_COMPLETE:TwitchatEventType = "COUNTDOWN_COMPLETE";
 	public static TIMER_START:TwitchatEventType = "TIMER_START";
 	public static TIMER_STOP:TwitchatEventType = "TIMER_STOP";
 	public static TIMER_OVERLAY_PRESENCE:TwitchatEventType = "TIMER_OVERLAY_PRESENCE";
-	public static CREATE_POLL:TwitchatEventType = "CREATE_POLL";
-	public static STOP_POLL:TwitchatEventType = "STOP_POLL";
-	public static CREATE_PREDICTION:TwitchatEventType = "CREATE_PREDICTION";
-	public static STOP_PREDICTION:TwitchatEventType = "STOP_PREDICTION";
-	public static CREATE_RAFFLE:TwitchatEventType = "CREATE_RAFFLE";
-	public static STOP_RAFFLE:TwitchatEventType = "STOP_RAFFLE";
+	public static RAFFLE_RESULT:TwitchatEventType = "RAFFLE_RESULT";
 	public static EMERGENCY_MODE:TwitchatEventType = "EMERGENCY_MODE";
 	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 	public static VOICEMOD_CHANGE:TwitchatEventType = "VOICEMOD_CHANGE";
@@ -53,7 +47,9 @@ export default class TwitchatEvent extends Event {
 	public static CHAT_FEED_SCROLL_UP:TwitchatActionType = "CHAT_FEED_SCROLL_UP";
 	public static CHAT_FEED_SCROLL_DOWN:TwitchatActionType = "CHAT_FEED_SCROLL_DOWN";
 	public static POLL_TOGGLE:TwitchatActionType = "POLL_TOGGLE";
+	public static POLL_CREATE:TwitchatActionType = "POLL_CREATE";
 	public static PREDICTION_TOGGLE:TwitchatActionType = "PREDICTION_TOGGLE";
+	public static PREDICTION_CREATE:TwitchatActionType = "PREDICTION_CREATE";
 	public static BINGO_TOGGLE:TwitchatActionType = "BINGO_TOGGLE";
 	public static RAFFLE_TOGGLE:TwitchatActionType = "RAFFLE_TOGGLE";
 	public static VIEWERS_COUNT_TOGGLE:TwitchatActionType = "VIEWERS_COUNT_TOGGLE";
@@ -74,6 +70,12 @@ export default class TwitchatEvent extends Event {
 	public static STOP_TTS:TwitchatActionType = "STOP_TTS";
 	public static ENABLE_STT:TwitchatActionType = "ENABLE_STT";
 	public static DISABLE_STT:TwitchatActionType = "DISABLE_STT";
+	public static POLL_START:TwitchatActionType = "POLL_START";
+	public static POLL_END:TwitchatActionType = "POLL_END";
+	public static PREDICTION_START:TwitchatActionType = "PREDICTION_START";
+	public static PREDICTION_END:TwitchatActionType = "PREDICTION_END";
+	public static RAFFLE_START:TwitchatActionType = "RAFFLE_START";
+	public static RAFFLE_END:TwitchatActionType = "RAFFLE_END";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -94,24 +96,18 @@ export const TwitchatEventTypeList = [
 	"MESSAGE_FIRST_ALL_TIME",
 	"MESSAGE_WHISPER",
 	"FOLLOW",
-	"POLL",
-	"PREDICTION",
 	"MENTION",
 	"CURRENT_TRACK",
 	"TRACK_ADDED_TO_QUEUE",
 	"WHEEL_OVERLAY_PRESENCE",
-	"RAFFLE_COMPLETE",
 	"COUNTDOWN_START",
 	"COUNTDOWN_COMPLETE",
 	"TIMER_START",
 	"TIMER_STOP",
 	"TIMER_OVERLAY_PRESENCE",
-	"CREATE_POLL",
-	"STOP_POLL",
-	"CREATE_RAFFLE",
-	"STOP_RAFFLE",
-	"CREATE_PREDICTION",
-	"STOP_PREDICTION",
+	"POLL_PROGRESS",
+	"PREDICTION_PROGRESS",
+	"RAFFLE_RESULT",
 	"EMERGENCY_MODE",
 	"CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
 	"VOICEMOD_CHANGE"
@@ -129,7 +125,9 @@ export const TwitchatActionTypeList = [
 	"CHAT_FEED_SCROLL_UP",
 	"CHAT_FEED_SCROLL_DOWN",
 	"POLL_TOGGLE",
+	"POLL_CREATE",
 	"PREDICTION_TOGGLE",
+	"PREDICTION_CREATE",
 	"BINGO_TOGGLE",
 	"RAFFLE_TOGGLE",
 	"VIEWERS_COUNT_TOGGLE",
@@ -149,6 +147,12 @@ export const TwitchatActionTypeList = [
 	"SHOUTOUT",
 	"STOP_TTS",
 	"ENABLE_STT",
-	"DISABLE_STT"
+	"DISABLE_STT",
+	"POLL_START",
+	"POLL_END",
+	"PREDICTION_START",
+	"PREDICTION_END",
+	"RAFFLE_START",
+	"RAFFLE_END",
 ];
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

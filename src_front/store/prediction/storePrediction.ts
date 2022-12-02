@@ -1,6 +1,8 @@
+import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerActionHandler from '@/utils/TriggerActionHandler';
+import PublicAPI from '@/utils/PublicAPI';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IPredictionActions, type IPredictionGetters, type IPredictionState } from '../StoreProxy';
 
@@ -20,9 +22,12 @@ export const storePrediction = defineStore('prediction', {
 
 	actions: {
 		setPrediction(data:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean) {
-			if(this.data != null && postOnChat) {
-				StoreProxy.chat.addMessage(this.data);
-				TriggerActionHandler.instance.onMessage(this.data);
+			if(data != null) {
+				if(postOnChat) {
+					StoreProxy.chat.addMessage(data);
+				}
+
+				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION_PROGRESS, {prediction: (data as unknown) as JsonObject});
 			}
 
 			this.data = data;

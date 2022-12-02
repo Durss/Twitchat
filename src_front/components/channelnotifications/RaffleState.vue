@@ -24,7 +24,7 @@
 			title="Pick a winner"
 			@click="pickWinner()"
 			:loading="picking"
-			:disabled="!raffleData.entries || raffleData.entries.length == 0 || raffleData.winners?.length == raffleData.entries.length" />
+			:disabled="canPick" />
 
 		<PostOnChatParam botMessageKey="raffle" class="item postChat" :placeholders="winnerPlaceholders" />
 
@@ -62,13 +62,19 @@ export default class RaffleState extends Vue {
 
 	public picking = false;
 	public progressPercent = 0;
-	public raffleData:TwitchatDataTypes.RaffleData = this.$store("raffle").data!;
+	public raffleData!:TwitchatDataTypes.RaffleData;
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
 	
 	private wheelOverlayPresenceHandler!:()=>void;
 	private wheelOverlayExists = false;
 
-	public mounted():void {
+	public get canPick():boolean {
+		return !this.raffleData.entries || this.raffleData.entries.length == 0
+		|| (this.raffleData.winners != undefined && this.raffleData.winners?.length >= this.raffleData.entries.length)
+	}
+
+	public beforeMount():void {
+		this.raffleData = this.$store("raffle").data!;
 		const ellapsed = Date.now() - new Date(this.raffleData.created_at).getTime();
 		const duration = this.raffleData.duration_s*60000;
 		const timeLeft = duration - ellapsed;

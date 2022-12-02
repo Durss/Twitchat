@@ -481,10 +481,6 @@ export default class PubSub extends EventDispatcher {
 			const localObj = data.data as PubSubDataTypes.PollData;
 			const isComplete = data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE";
 			this.pollEvent(localObj, isComplete);
-			if(isComplete) {
-				//Clear poll
-				StoreProxy.poll.setCurrentPoll(null);
-			}
 
 			
 
@@ -856,10 +852,10 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a poll event occurs (create/update/close)
 	 * @param localObj
 	 */
-	private pollEvent(localObj:PubSubDataTypes.PollData, postOnChat:boolean):void {
+	private pollEvent(localObj:PubSubDataTypes.PollData, isComplete:boolean):void {
 		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 		let winner!:TwitchatDataTypes.MessagePollDataChoice;
-		let winnerValue = 0;
+		let winnerValue = -1;
 		for (let i = 0; i < localObj.poll.choices.length; i++) {
 			const c = localObj.poll.choices[i];
 			const entry = { id: c.choice_id, label: c.title, votes: c.votes.total };
@@ -867,7 +863,7 @@ export default class PubSub extends EventDispatcher {
 				winner = entry;
 				winnerValue = entry.votes;
 			}
-			choices.push()
+			choices.push(entry);
 		}
 		const poll:TwitchatDataTypes.MessagePollData = {
 			date:Date.now(),
@@ -883,7 +879,11 @@ export default class PubSub extends EventDispatcher {
 			winner, 
 		};
 
-		StoreProxy.poll.setCurrentPoll(poll, postOnChat);
+		StoreProxy.poll.setCurrentPoll(poll, isComplete);
+		if(isComplete) {
+			//Clear poll
+			StoreProxy.poll.setCurrentPoll(null);
+		}
 	}
 
 	/**

@@ -158,7 +158,7 @@ export const storeRaffle = defineStore('raffle', {
 
 			//Publish the result on the public API
 			if(publish !== false) {
-				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_COMPLETE, (winner as unknown) as JsonObject);
+				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, (winner as unknown) as JsonObject);
 			}
 		},
 

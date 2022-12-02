@@ -116,6 +116,7 @@ export default class OverlayChatHighlight extends Vue {
 		await this.hideCurrent();
 
 		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
+		console.log(data);
 		this.message = data.message!;
 		this.user = data.user!;
 		this.params = data.params!;

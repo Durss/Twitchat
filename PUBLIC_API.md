@@ -125,12 +125,16 @@ export type TwitchatEventType =
 	| "MESSAGE_FIRST_ALL_TIME"
 	| "MESSAGE_WHISPER"
 	| "FOLLOW"
+	| "POLL_START"
 	| "POLL_END"
+	| "PREDICTION_START"
 	| "PREDICTION_END"
 	| "MENTION"
 	| "CURRENT_TRACK"
 	| "TRACK_ADDED_TO_QUEUE"
-	| "RAFFLE_COMPLETE"
+	| "RAFFLE_CREATE",
+	| "RAFFLE_STOP",
+	| "RAFFLE_COMPLETE",
 	| "COUNTDOWN_COMPLETE"
 	| "COUNTDOWN_START"
 	| "TIMER_START"
@@ -139,6 +143,7 @@ export type TwitchatEventType =
 	| "WHEEL_OVERLAY_PRESENCE"
 	| "EMERGENCY_MODE"
 	| "CHAT_HIGHLIGHT_OVERLAY_PRESENCE"
+	| "VOICEMOD_CHANGE"
 
 //Actions you can request to Twitchat
 export type TwitchatActionType =
@@ -194,7 +199,6 @@ Poll results, sub/bits/.. alerts, notices, etc... won't fire this event
 {
 	channel:string,
 	message:string,
-	tags:any,//IRC tags data
 }
 ```
 ## **MESSAGE_NON_FOLLOWER**
@@ -203,7 +207,11 @@ Sent when a non-follower sends a message
 {
 	channel:string,
 	message:string,
-	tags:any,//IRC tags data
+	user: {
+		id:string,
+		login:string,
+		displayName:string,
+	}
 }
 ```
 ## **MESSAGE_DELETED**
@@ -212,7 +220,11 @@ Sent when a message is deleted.
 {
 	channel:string,
 	message:string,
-	tags:any,//IRC tags data
+	user: {
+		id:string,
+		login:string,
+		displayName:string,
+	}
 }
 ```
 ## **MESSAGE_FIRST**
@@ -241,10 +253,7 @@ The actual message received isn't sent for privacy reasons.
 	user:{
 		id: string,
 		login: string,
-		color: string,
-		badges: any,//IRC parsed badges infos
-		'display-name': string,
-		'message-id': string,
+		displayName: string,
 	},
 }
 ```
@@ -252,62 +261,56 @@ The actual message received isn't sent for privacy reasons.
 Sent when a user follows the channel
 ```typescript
 {
-	display_name: string,
-	username: string,
-	user_id: string,
+	user: {
+		id: string,
+		login: string,
+		displayName: string,
+	}
 }
 ```
-## **POLL**
+## **POLL_PROGRESS**
 Sent when a poll starts, updates (when someone votes) and ends.
 ```typescript
 {
+	channel_id: string;
 	id: string,
-	broadcaster_id: string,
-	broadcaster_name: string,
-	broadcaster_login: string,
-	title: string,
+	duration_s: number,
+	started_at: number,
+	ended_at?: number,
 	choices: {
-				id: string,
-				title: string,
-				votes: number,
-				channel_points_votes: number,
-			},
-	channel_points_voting_enabled: boolean,
-	channel_points_per_vote: number,
-	status: "ACTIVE" | "COMPLETED" | "TERMINATED" | "ARCHIVED" | "MODERATED" | "INVALID",
-	duration: number,
-	started_at: string,
-	ended_at: string | undefined,
+		id: string,
+		label: string,
+		votes: number,
+	}[],
+	winner?:{
+		id: string,
+		label: string,
+		votes: number,
+	},
 };
 ```
-## **PREDICTION**
+## **PREDICTION_PROGRESS**
 Sent when a prediction starts, updates (when someone votes) and ends.
 ```typescript
 {
-	id: string,
-	broadcaster_id: string,
-	broadcaster_name: string,
-	broadcaster_login: string,
+	channel_id: string,
 	title: string,
+	duration_s: number,
 	outcomes: {
-				id: string,
-				title: string,
-				users: number,
-				channel_points: number,
-				color:string,
-				top_predictors:{
-					id:string,
-					name:string,
-					login:string,
-					channel_points_used:number,
-					channel_points_won:number | undefined,
-				},
-			},
-	prediction_window: number,
-	status: "ACTIVE" | "RESOLVED" | "CANCELED" | "LOCKED",
-	created_at: string,
-	ended_at: string | undefined,
-	locked_at: string | undefined,
+		id: string;
+		label: string;
+		votes: number;
+		voters: number;
+	}[],
+	pendingAnswer: boolean,
+	started_at: number,
+	ended_at?: number,
+	winner?:{
+		id: string;
+		label: string;
+		votes: number;
+		voters: number;
+	},
 }
 ```
 ## **MENTION**
@@ -332,7 +335,7 @@ Sent when a new track is playing on spotify or when playback is stopped
 ```
 ## **TRACK_ADDED_TO_QUEUE**
 Sent when a new track is added to the queue\
-### JSON param *(optional)*
+### JSON param
 ```typescript
 {
 	title:string,
@@ -340,11 +343,12 @@ Sent when a new track is added to the queue\
 	album:string,
 	cover:string,
 	duration:number,
+	url:string,
 }
 ```
 ## **RAFFLE_COMPLETE**
 Sent when a raffle completes
-### JSON param *(optional)*
+### JSON param
 ```typescript
 {
 	winner:{
@@ -356,25 +360,31 @@ Sent when a raffle completes
 ```
 ## **COUNTDOWN_START**
 Sent when a countdown start
-### JSON param *(optional)*
+### JSON param
 ```typescript
 {
-	startAt:number,//Timestamp in ms
-	duration:number,//Duration in ms
+	startAt:string,//formated date
+	startAt_ms:number,//Timestamp in ms
+	duration:number,//Duration formated
+	duration_ms:number,//Duration in ms
 }
 ```
 ## **COUNTDOWN_COMPLETE**
 Sent when a countdown completes
-### JSON param *(optional)*
+### JSON param
 ```typescript
 {
-	startAt:number,//Timestamp in ms
-	duration:number,//Duration in ms
+	startAt:string,//formated date
+	startAt_ms:number,//Timestamp in ms
+	endAt:string,//formated date
+	endAt_ms:number,//Timestamp in ms
+	duration:number,//Duration formated
+	duration_ms:number,//Duration in ms
 }
 ```
 ## **TIMER_START**
 Sent when a timer is started
-### JSON param *(optional)*
+### JSON param
 ```typescript
 {
 	startAt:number,//Timestamp in ms
@@ -382,7 +392,7 @@ Sent when a timer is started
 ```
 ## **TIMER_STOP**
 Sent when stoping a timer
-### JSON param *(optional)*
+### JSON param
 ```typescript
 {
 	startAt:number,//Timestamp in ms
@@ -415,6 +425,14 @@ Sent when a chat highlight overlay advertises its presence
 ```typescript
 {
 	enabled:boolean
+}
+```
+## **VOICEMOD_CHANGE**
+Sent when changing voicemod voice effect
+### JSON param
+```typescript
+{
+	voice:string
 }
 ```
 <br>
