@@ -251,7 +251,7 @@ export const storeMain = defineStore("main", {
 		loadDataFromStorage() {
 			/**
 			 * CAREFUL THIS METHOD CAN BE CALLED MULTIPLE TIMES
-			 * Don't do anything that could break if not multiple times!
+			 * Don't do anything that could break if called multiple times!
 			 */
 			const sOBS = StoreProxy.obs;
 			const sTTS = StoreProxy.tts;

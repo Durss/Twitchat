@@ -972,20 +972,24 @@ export default class TwitchUtils {
 	 * Get the moderators list of a channel
 	 * Not much useful as it's restricted to the channel m
 	 */
-	public static async getModerators():Promise<TwitchDataTypes.ModeratorUser[]> {
+	public static async getModerators(channelId:string):Promise<TwitchDataTypes.ModeratorUser[]> {
 		let list:TwitchDataTypes.ModeratorUser[] = [];
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"moderation/moderators?first=100&broadcaster_id="+StoreProxy.auth.twitch.user.id+pCursor, {
+			const res = await fetch(Config.instance.TWITCH_API_PATH+"moderation/moderators?first=100&broadcaster_id="+channelId+pCursor, {
 				method:"GET",
 				headers:this.headers,
 			});
-			const json:{data:TwitchDataTypes.ModeratorUser[], pagination?:{cursor?:string}} = await res.json();
-			list = list.concat(json.data);
-			cursor = null;
-			if(json.pagination?.cursor) {
-				cursor = json.pagination.cursor;
+			if(res.status == 200) {
+				const json:{data:TwitchDataTypes.ModeratorUser[], pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			}else{
+				return [];
 			}
 		}while(cursor != null)
 		return list;
@@ -2075,7 +2079,7 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
-			const json:{data:{user_login:string}[]} = await res.json();
+			const json:{data:{user_id:string, user_login:string, user_name:string}[]} = await res.json();
 			return json.data.map(v => v.user_login);
 		}else 
 		if(res.status == 429){

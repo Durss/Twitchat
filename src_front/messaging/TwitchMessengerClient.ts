@@ -99,9 +99,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				StoreProxy.main.alert("Unable to load user info: "+ this._channelList);
 				return;
 			}
-			chans.forEach(v=> {
+			chans.forEach(async v=> {
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
+				await StoreProxy.users.preloadTwitchModerators(v.id);
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
 				const meId = StoreProxy.auth.twitch.user.id;

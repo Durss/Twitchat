@@ -178,22 +178,25 @@ export const storeAuth = defineStore('auth', {
 						//Force data sync popup to show up if remote
 						//data have been deleted
 						DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
+					}else{
+						//Parse data from storage
+						sMain.loadDataFromStorage();
 					}
 				}
-
-				//Parse data from storage
-				sMain.loadDataFromStorage();
 
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
 				EventSub.instance.connect();
 	
 				sChat.sendTwitchatAd();
+
+				//Warn the user about the automatic "ad" message sent every 2h
 				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {
 					setTimeout(()=>{
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 					}, 5000)
 				}else
+				//Ask the user if they want to make their donation public
 				if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && this.twitch.user.donor.state) {
 					setTimeout(()=>{
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);

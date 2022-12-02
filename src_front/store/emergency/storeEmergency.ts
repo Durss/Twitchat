@@ -11,7 +11,9 @@ import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
-//TODO makes this platform agnostic
+let userToPrevModState:{[key:string]:{[key:string]:boolean}} = {}
+
+//TODO make this platform agnostic
 export const storeEmergency = defineStore('emergency', {
 	state: () => ({
 		emergencyStarted:false,
@@ -90,10 +92,14 @@ export const storeEmergency = defineStore('emergency', {
 					}
 				}
 				if(this.params.toUsers) {
+					if(!userToPrevModState[channelId]) {
+						userToPrevModState[channelId] = {};
+					}
 					const usersNames = this.params.toUsers.split(/[^a-z0-9_]+/gi);
 					for (let i = 0; i < usersNames.length; i++) {
 						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
-							TwitchUtils.banUser(u, channelId, 600, "Timed out because the emergency mode has been triggers on Twitchat");
+							userToPrevModState[channelId][u.id] = u.channelInfo[channelId].is_moderator === true;
+							TwitchUtils.banUser(u, channelId, 600, "Timed out because the emergency mode has been triggered on Twitchat");
 						});
 					}
 				}
@@ -122,9 +128,17 @@ export const storeEmergency = defineStore('emergency', {
 				}
 				if(this.params.toUsers) {
 					const usersNames = this.params.toUsers.split(/[^a-z0-9_]+/gi);
+					console.log(userToPrevModState[channelId]);
 					for (let i = 0; i < usersNames.length; i++) {
-						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
-							TwitchUtils.unbanUser(u, channelId);
+						await StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, async (u)=> {
+							await TwitchUtils.unbanUser(u, channelId);
+							console.log("Reset mod role to ", u.id,"?");
+							//Reset mod role if user was a mod before
+							if(userToPrevModState[channelId][u.id] === true) {
+								console.log("RESET MOD ROLE");
+								delete userToPrevModState[channelId];
+								TwitchUtils.addRemoveModerator(false, channelId, u);
+							}
 						});
 					}
 				}

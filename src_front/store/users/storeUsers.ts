@@ -6,6 +6,17 @@ import { reactive, type UnwrapRef } from 'vue';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
+interface BatchItem {
+	channelId?:string;
+	user:TwitchatDataTypes.TwitchatUser
+	cb?:(user:TwitchatDataTypes.TwitchatUser) => void;
+}
+
+//Don't store this as a state prop.
+//Having this list reactive kills performances while being
+//unnecessary
+const userList:TwitchatDataTypes.TwitchatUser[] = [];
+
 const unbanFlagTimeouts:{[key:string]:number} = {};
 const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 	idToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
@@ -13,22 +24,12 @@ const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 	displayNameToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},
 }}> = {};
 
-//Do'nt store this as a state prop.
-//Having this list reactive kills performances while being
-//unnecessary
-const userList:TwitchatDataTypes.TwitchatUser[] = [];
-
-interface BatchItem {
-	channelId?:string;
-	user:TwitchatDataTypes.TwitchatUser
-	cb?:(user:TwitchatDataTypes.TwitchatUser) => void;
-}
-
 const twitchUserBatchLoginToLoad:BatchItem[] = [];
 const twitchUserBatchIdToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser, cb?:(user:TwitchatDataTypes.TwitchatUser) => void}[] = [];
+const tmpDisplayName = "...loading...";
+let moderatorsCache:{[key:string]:{[key:string]:true}} = {}
 let twitchUserBatchLoginTimeout = -1;
 let twitchUserBatchIdTimeout = -1;
-const tmpDisplayName = "...loading...";
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
@@ -77,8 +78,19 @@ export const storeUsers = defineStore('users', {
 		},
 
 		/**
+		 * Preloads twitch moderators
+		 */
+		async preloadTwitchModerators(channelId:string):Promise<void> {
+			const users = await TwitchUtils.getModerators(channelId);
+			moderatorsCache[channelId] = {};
+			users.forEach(v => {
+				moderatorsCache[channelId][v.user_id] = true;
+			})
+		},
+
+		/**
 		 * Gets a user by their source from their ID nor login.
-		 * It registers the user on the local DB "usersTESSST" to get them back later.
+		 * It registers the user on the local DB to get them back later.
 		 * If only the login is given, the user's data are loaded asynchronously from
 		 * remote API then added to the local DB while returning a temporary user object.
 		 * 
@@ -170,13 +182,14 @@ export const storeUsers = defineStore('users', {
 			if(channelId) {
 				//Init channel data for this user if not already existing
 				if(!user.channelInfo[channelId]) {
+					console.log("Is", user.id,"a mod?",moderatorsCache[channelId]);
 					user.channelInfo[channelId] = {
 						online:false,
 						is_following:channelId == user.id || forcedFollowState===true? true : null,
 						is_blocked:false,
 						is_banned:false,
 						is_vip:false,
-						is_moderator:false,
+						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true,
 						is_broadcaster:channelId == user.id,
 						is_subscriber:false,
 						is_gifter:false,
@@ -272,7 +285,10 @@ export const storeUsers = defineStore('users', {
 								//If user was temporary, load more info
 								delete userLocal.temporary;
 								if(getPronouns && userLocal.id && userLocal.login) this.checkPronouns(userLocal);
-								if(batchItem.channelId && userLocal.id) this.checkFollowerState(userLocal, batchItem.channelId);
+								if(batchItem.channelId && userLocal.id) {
+									userLocal.channelInfo[batchItem.channelId].is_moderator		= moderatorsCache[batchItem.channelId] && moderatorsCache[batchItem.channelId][userLocal.id] === true,
+									this.checkFollowerState(userLocal, batchItem.channelId);
+								}
 							}
 							if(batchItem.cb) batchItem.cb(userLocal);
 						}while(batch.length > 0);
@@ -390,6 +406,7 @@ export const storeUsers = defineStore('users', {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
 					userList[i].channelInfo[channelId].is_banned = true;
+					userList[i].channelInfo[channelId].is_moderator = false;//When baned or timed out tiwtch removes the mod role
 					if(duration_s) {
 						userList[i].channelInfo[channelId].banEndDate = Date.now() + duration_s*1000;
 					}
