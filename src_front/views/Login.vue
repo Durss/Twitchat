@@ -139,6 +139,7 @@ export default class Login extends Vue {
 		"moderator:manage:chat_messages": "Delete chat messages",
 		"moderator:manage:chat_settings": "Updating room settings (follow only, sub only, etc...)",
 		"moderator:read:chatters": "Read users on your chatroom",
+		"moderator:manage:shield_mode": "Enable/disable shield mode",
 	}
 
 	public get permissions():string[] {

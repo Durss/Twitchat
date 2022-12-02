@@ -469,6 +469,7 @@ import Ajv from "ajv";
 					items:[{type:"string", maxLength:100}],
 				},
 				autoEnableOnFollowbot:{type:"boolean"},
+				enableShieldMode:{type:"boolean"},
 			}
 		},
 		emergencyFollowers: {

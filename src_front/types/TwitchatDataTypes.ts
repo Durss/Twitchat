@@ -439,6 +439,7 @@ export namespace TwitchatDataTypes {
 		toUsers:string;
 		obsScene:string;
 		obsSources:string[];
+		enableShieldMode:boolean;
 		/**
 		 * @deprecated Only here for typings on data migration. Removed in favor of manual blocking after disabling emergency mode
 		 */
@@ -772,6 +773,7 @@ export namespace TwitchatDataTypes {
 		BAN:"ban",//When banning a user
 		UNBAN:"unban",//When unbanning a user
 		MOD:"mod",//When granting mod role to a user
+		SHIELD_MODE:"shieldMode",//When starting/stopping shield mode
 		UNMOD:"unmod",//When removing mod role from a user
 		UNBLOCK:"unblock",//When unblocking a user
 		VIP:"vip",///When granting VIP role to a user
@@ -1222,6 +1224,14 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageModerationAction extends MessageNoticeData {
 		user:TwitchatUser;
+	}
+	
+	/**
+	 * Represents a mod/unbon/vip/unvip/ban/timeout/unban event
+	 */
+	export interface MessageShieldMode extends MessageNoticeData {
+		user:TwitchatUser;
+		enabled:boolean;
 	}
 
 	/**

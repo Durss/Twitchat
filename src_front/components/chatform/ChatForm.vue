@@ -654,7 +654,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/countdown") {
-			const chunks = params[0].split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
+			const chunks = params[0].split(/[^a-z0-9_]+/gi);
 			let duration = 0;
 			for(let i = 0; i < chunks.length; i++) {
 				let value = parseInt(chunks[i]);
@@ -731,7 +731,7 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/ttsoff" || cmd == "/tts") {
 			this.loading = true;
-			const username = params[0].toLowerCase().replace(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi, "").trim();
+			const username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
 			try {
 				const res = await TwitchUtils.loadUserInfo(undefined, [username]);
 				if(res.length == 0) {

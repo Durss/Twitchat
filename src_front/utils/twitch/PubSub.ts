@@ -63,6 +63,7 @@ export default class PubSub extends EventDispatcher {
 			const myUID = StoreProxy.auth.twitch.user.id;
 			const subscriptions = [
 				"channel-points-channel-v1."+myUID,
+				// "shield-mode."+myUID+"."+myUID,//Not available with that token :(
 				"chat_moderator_actions."+myUID+"."+myUID,
 				"automod-queue."+myUID+"."+myUID,
 				"user-moderation-notifications."+myUID+"."+myUID,

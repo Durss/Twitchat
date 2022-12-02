@@ -124,7 +124,8 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"moderator:manage:announcements",
 		"moderator:manage:chat_messages",
 		"moderator:manage:chat_settings",
-		"moderator:read:chatters"
+		"moderator:read:chatters",
+		"moderator:manage:shield_mode"
 	],
 	
 	"spotify_client_id": "",

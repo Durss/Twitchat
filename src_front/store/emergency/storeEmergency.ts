@@ -1,11 +1,10 @@
+import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerActionHandler from '@/utils/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
@@ -39,6 +38,7 @@ export const storeEmergency = defineStore('emergency', {
 				users:""
 			},
 			autoEnableOnFollowbot:true,
+			enableShieldMode:false,
 		},
 
 		//Stores all the people that followed during an emergency
@@ -77,17 +77,20 @@ export const storeEmergency = defineStore('emergency', {
 
 			if(enable) {
 				//ENABLE EMERGENCY MODE
-				const roomSettings:TwitchatDataTypes.IRoomSettings = {};
-				if(this.params.slowMode) roomSettings.slowMode = this.params.slowModeDuration;
-				if(this.params.emotesOnly) roomSettings.emotesOnly = true;
-				if(this.params.subOnly) roomSettings.subOnly = true;
-				if(this.params.followOnly) roomSettings.followOnly = this.params.followOnlyDuration;
-				if(Object.keys(roomSettings).length > 0) {
-					TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, roomSettings);
+				if(this.params.enableShieldMode) {
+					TwitchUtils.setShieldMode(channelId, true);
+				}else{
+					const roomSettings:TwitchatDataTypes.IRoomSettings = {};
+					if(this.params.slowMode) roomSettings.slowMode = this.params.slowModeDuration;
+					if(this.params.emotesOnly) roomSettings.emotesOnly = true;
+					if(this.params.subOnly) roomSettings.subOnly = true;
+					if(this.params.followOnly) roomSettings.followOnly = this.params.followOnlyDuration;
+					if(Object.keys(roomSettings).length > 0) {
+						TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, roomSettings);
+					}
 				}
 				if(this.params.toUsers) {
-					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
-					//TODO make sure it still works
+					const usersNames = this.params.toUsers.split(/[^a-z0-9_]+/gi);
 					for (let i = 0; i < usersNames.length; i++) {
 						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
 							TwitchUtils.banUser(u, channelId, 600, "Timed out because the emergency mode has been triggers on Twitchat");
@@ -105,17 +108,20 @@ export const storeEmergency = defineStore('emergency', {
 			}else{
 				//DISABLE EMERGENCY MODE
 				//Unset all changes
-				const roomSettings:TwitchatDataTypes.IRoomSettings = {};
-				if(this.params.slowMode) roomSettings.slowMode = 0;
-				if(this.params.emotesOnly) roomSettings.emotesOnly = false;
-				if(this.params.subOnly) roomSettings.subOnly = false;
-				if(this.params.followOnly) roomSettings.followOnly = false;
-				if(Object.keys(roomSettings).length > 0) {
-					TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, roomSettings);
+				if(this.params.enableShieldMode) {
+					TwitchUtils.setShieldMode(channelId, false);
+				}else{
+					const roomSettings:TwitchatDataTypes.IRoomSettings = {};
+					if(this.params.slowMode) roomSettings.slowMode = 0;
+					if(this.params.emotesOnly) roomSettings.emotesOnly = false;
+					if(this.params.subOnly) roomSettings.subOnly = false;
+					if(this.params.followOnly) roomSettings.followOnly = false;
+					if(Object.keys(roomSettings).length > 0) {
+						TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, roomSettings);
+					}
 				}
 				if(this.params.toUsers) {
-					const usersNames = this.params.toUsers.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);
-					//TODO make sure it still works
+					const usersNames = this.params.toUsers.split(/[^a-z0-9_]+/gi);
 					for (let i = 0; i < usersNames.length; i++) {
 						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
 							TwitchUtils.unbanUser(u, channelId);

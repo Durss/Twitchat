@@ -1695,6 +1695,34 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Sets the shield mode state
+	 */
+	public static async setShieldMode(channelId:string, enabled:boolean):Promise<boolean> {
+		const options = {
+			method:"PUT",
+			headers: this.headers,
+			body:JSON.stringify({
+				is_active:enabled
+			})
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/shield_mode");
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
+			return true;
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.setShieldMode(channelId, enabled);
+		}else {
+			return false;
+		}
+	}
+
+	/**
 	 * Change the user's chat color
 	 */
 	public static async setColor(color:"blue"|"blue_violet"|"cadet_blue"|"chocolate"|"coral"|"dodger_blue"|"firebrick"|"golden_rod"|"green"|"hot_pink"|"orange_red"|"red"|"sea_green"|"spring_green"|"yellow_green"|string):Promise<boolean> {
@@ -2070,6 +2098,42 @@ export default class TwitchUtils {
 			users = users.concat(json.data.chatters.staff);
 			users = users.concat(json.data.chatters.viewers);
 			return users;
+		}
+		return false;
+	}
+
+	/**
+	 * Subscribe to an eventsub topic
+	 */
+	public static async eventsubSubscribe(channelId:string, userId:string, session_id:string, topic:string, version:"1"|"beta"):Promise<false|string[]> {
+		const options = {
+			method:"POST",
+			headers: this.headers,
+			body:JSON.stringify({
+				type:topic,
+				version,
+				condition: {
+					broadcaster_user_id:channelId,
+					moderator_user_id:userId,
+				},
+				transport: {
+					method:"websocket",
+					session_id,
+				}
+			})
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH+"eventsub/subscriptions");
+		
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
+			const json:{data:{user_login:string}[]} = await res.json();
+			return json.data.map(v => v.user_login);
+		}else 
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.eventsubSubscribe(channelId, userId, session_id, topic, version);
 		}
 		return false;
 	}

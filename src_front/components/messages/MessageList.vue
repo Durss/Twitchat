@@ -283,7 +283,7 @@ export default class MessageList extends Vue {
 		const username = this.conversation[0].user.displayName.toLowerCase();
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		let label = "";
-		if (permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1) {
+		if (permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1) {
 			label = "Read " + username + "'s future messages";
 		} else {
 			label = "Stop reading " + username + "'s messages";
@@ -392,7 +392,7 @@ export default class MessageList extends Vue {
 	public toggleReadUser(): void {
 		const username = this.conversation[0].user.login?.toLowerCase();
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
-		const read = permissions.users.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi).indexOf(username) == -1;
+		const read = permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1;
 		this.$store("tts").ttsReadUser(this.conversation[0].user, read);
 	}
 
@@ -457,7 +457,7 @@ export default class MessageList extends Vue {
 		const sUsers = StoreProxy.users;
 		const meUID = StoreProxy.auth.twitch.user.id;
 		const blockedCmds = sParams.filters.blockedCommands.value as string;
-		let blockedSpecificCmds = blockedCmds.split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split commands by non-alphanumeric characters
+		let blockedSpecificCmds = blockedCmds.split(/[^a-z0-9_]+/gi);//Split commands by non-alphanumeric characters
 		blockedSpecificCmds = blockedSpecificCmds.map(v => v.replace(/^!/gi, ""))//Remove "!" at the beginning
 
 		switch (m.type) {

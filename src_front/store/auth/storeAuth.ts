@@ -5,6 +5,7 @@ import DataStore from "@/store/DataStore";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import EventSub from "@/utils/twitch/EventSub";
 import PubSub from "@/utils/twitch/PubSub";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
@@ -185,6 +186,7 @@ export const storeAuth = defineStore('auth', {
 
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
+				EventSub.instance.connect();
 	
 				sChat.sendTwitchatAd();
 				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {

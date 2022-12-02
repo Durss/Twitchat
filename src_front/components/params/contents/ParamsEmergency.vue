@@ -20,10 +20,16 @@
 
 			<section>
 				<Splitter class="item splitter">Chat params</Splitter>
-				<ParamItem class="item" :paramData="param_followersOnly" />
-				<ParamItem class="item" :paramData="param_subsOnly" />
-				<ParamItem class="item" :paramData="param_emotesOnly" />
-				<ParamItem class="item" :paramData="param_slowMode" />
+				<ParamItem class="item" :paramData="param_enableShieldMode" />
+				<div class="twitchParams item">
+					<div :class="param_enableShieldMode.value? 'disabled' : ''">
+						<ParamItem class="item" :paramData="param_followersOnly" />
+						<ParamItem class="item" :paramData="param_subsOnly" />
+						<ParamItem class="item" :paramData="param_emotesOnly" />
+						<ParamItem class="item" :paramData="param_slowMode" />
+					</div>
+					<div v-if="param_enableShieldMode.value" class="disabledLabel">Configure these options on your <a :href="'https://www.twitch.tv/popout/moderator/'+userName+'/shield-mode'" target="_blank">Shield mode</a></div>
+				</div>
 				<ParamItem class="item" :paramData="param_noTrigger" />
 				<ParamItem class="item" :paramData="param_autoTO" />
 			</section>
@@ -33,7 +39,6 @@
 				<ParamItem class="item" :paramData="param_autoEnableOnFollowbot" />
 				<div class="item infos">
 					<p>You will get a list of all the users that followed you during an emergency whether this feature is enabled or not.</p>
-					<p>You can also find a <a href="https://www.twitch.tv/settings/security" target="_blank">list of all your blocked users</a> on Twitch.</p>
 				</div>
 			</section>
 
@@ -100,15 +105,16 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 export default class ParamsEmergency extends Vue {
 
 	public param_enable:TwitchatDataTypes.ParameterData						= {type:"toggle", label:"Enabled", value:false};
+	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"toggle", label:"Enable Twitch shield mode", value:false, icon:"shieldMode_purple.svg"};
 	public param_chatCommand:TwitchatDataTypes.ParameterData				= {type:"text", label:"Chat command", value:"!emergency"};
 	public param_obsScene:TwitchatDataTypes.ParameterData					= {type:"list", label:"Switch to scene", value:""};
 	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData		= {type:"toggle", value:false, label:"Automatically start emergency mode on followbot raid", icon:"follow_purple.svg", tooltip:"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow"};
-	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Slow mode"};
+	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Slow mode", icon:"timer_purple.svg"};
 	public param_slowModeDuration:TwitchatDataTypes.ParameterData			= {type:"number", value:10, label:"Cooldown (seconds)", max:1800, min:1};
-	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	label:"Followers only"};
+	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	label:"Followers only", icon:"follow_purple.svg"};
 	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData		= {type:"number", value:30, label:"Must follow your channel for (minutes)", max:129600, min:1};
-	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Subs only"};
-	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Emotes only"};
+	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Subs only", icon:"sub_purple.svg"};
+	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Emotes only", icon:"emote_purple.svg"};
 	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
 	public param_noTrigger:TwitchatDataTypes.ParameterData					= {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
 	public obsSources:OBSSourceItem[] = [];	
@@ -132,6 +138,7 @@ export default class ParamsEmergency extends Vue {
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
+	public get userName():string { return this.$store('auth').twitch.user.login; } 
 	
 	public get obsSources_filtered():OBSSourceItem[] {
 		let sources = this.obsSources.concat();
@@ -157,6 +164,7 @@ export default class ParamsEmergency extends Vue {
 			obsScene:this.selectedOBSScene? this.selectedOBSScene.value as string : "",
 			obsSources:this.selectedOBSSources? this.selectedOBSSources.map(v=>v.sourceName) : [],
 			autoEnableOnFollowbot:this.param_autoEnableOnFollowbot.value === true,
+			enableShieldMode:this.param_enableShieldMode.value === true,
 		};
 	}
 
@@ -170,6 +178,7 @@ export default class ParamsEmergency extends Vue {
 		this.param_followersOnlyDuration.value	= this.$store("emergency").params.followOnlyDuration;
 		this.param_slowMode.value				= this.$store("emergency").params.slowMode;
 		this.param_slowModeDuration.value		= this.$store("emergency").params.slowModeDuration;
+		this.param_enableShieldMode.value		= this.$store("emergency").params.enableShieldMode;
 
 		this.param_slowMode.children			= [this.param_slowModeDuration];
 		this.param_followersOnly.children		= [this.param_followersOnlyDuration];
@@ -318,6 +327,29 @@ export default class ParamsEmergency extends Vue {
 			padding: .5em;
 			&:not(:first-of-type) {
 				margin-top: 2em;
+			}
+
+			.twitchParams {
+				position: relative;
+				.disabled {
+					opacity: .35;
+					pointer-events: none;
+					// border: 1px solid @mainColor_normal;
+					background-color: #fff;
+					padding: .5em;
+				}
+	
+				.disabledLabel {
+					position: absolute;
+					top: 50%;
+					text-align: center;
+					width: 100%;
+					padding: 3em 0;
+					transform: translateY(-50%);
+					background: radial-gradient(rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.9) 30%, rgba(255,255,255,0) 80%);
+					background-size: 120% 100%;
+					background-position-x: 50%;
+				}
 			}
 			
 			.warn {

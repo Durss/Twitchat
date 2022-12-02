@@ -178,7 +178,7 @@ export default class Utils {
 	 * Check if a user matches a permission criterias
 	 */
 	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
-		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-zA-ZÀ-ÖØ-öø-ÿ0-9_]+/gi);//Split users by non-alphanumeric characters
+		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
 		const allowed = (permissions.mods && user.channelInfo[channelId].is_moderator) ||
 						(permissions.vips && user.channelInfo[channelId].is_vip) ||
 						(permissions.subs && user.channelInfo[channelId].is_subscriber) ||
