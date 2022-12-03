@@ -183,8 +183,8 @@ export const storeMain = defineStore("main", {
 
 			//Listen for twitch API event
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				if(sTimer.timerStart > 0) {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:sTimer.timerStart });
+				if(sTimer.timerStartDate > 0) {
+					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, { startAt:sTimer.timerStartDate });
 				}
 				
 				if(sTimer.countdown) {

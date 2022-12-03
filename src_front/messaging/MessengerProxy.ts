@@ -36,9 +36,20 @@ export default class MessengerProxy {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	/**
+	 * Sends a message
+	 * 
+	 * @param message 
+	 * @param targetPlatforms 
+	 * @param channelId 
+	 * @return if the message has been sent properly (chat field is cleared if this returns true)
+	 */
 	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):boolean {
 		const hasPlatform = targetPlatforms && targetPlatforms.length>0;
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
+
+		if(this.handleTwitchatCommands(message, targetPlatforms, channelId)) return true;
+
 		// console.log("Send message:", message);
 		// console.log("          to:", channelId);
 		// console.log("          on:", targetPlatforms);
@@ -173,5 +184,74 @@ export default class MessengerProxy {
 	 */
 	private onRefreshToken(e:MessengerClientEvent):void {
 		StoreProxy.auth.twitch_tokenRefresh(true);
+	}
+
+	private handleTwitchatCommands(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):boolean {
+		
+		const params = message.split(/\s/gi).filter(v => v != "");
+		const cmd = params.shift()?.toLowerCase();
+		params.forEach((v, i) => { params[i] = v.trim() });
+		console.log("MMDFMFDMMDF");
+		console.log(message);
+		console.log(cmd);
+		console.log(params);
+
+		if(cmd == "/countdown") {
+			let duration = this.paramsToDuration(params[0]);
+			StoreProxy.timer.countdownStart(duration * 1000);
+			return true;
+		}else
+
+		if(cmd == "/countdownadd") {
+			let duration = this.paramsToDuration(params[0]);
+			StoreProxy.timer.countdownAdd(duration * 1000);
+			return true;
+		}else
+
+		if(cmd == "/countdownremove") {
+			let duration = this.paramsToDuration(params[0]);
+			StoreProxy.timer.countdownRemove(duration * 1000);
+			return true;
+		}else
+
+		if(cmd == "/countdownstop") {
+			StoreProxy.timer.countdownStop();
+			return true;
+		}else
+
+		if(cmd == "/timerstart") {
+			StoreProxy.timer.timerStart();
+			return true;
+		}else
+
+		if(cmd == "/timeradd") {
+			let duration = this.paramsToDuration(params[0]);
+			StoreProxy.timer.timerAdd(duration * 1000);
+			return true;
+		}else
+		
+		if(cmd == "/timerremove") {
+			let duration = this.paramsToDuration(params[0]);
+			StoreProxy.timer.timerRemove(duration * 1000);
+			return true;
+		}else
+
+		if(cmd == "/timerstop") {
+			StoreProxy.timer.timerStop();
+			return true;
+		}
+		return false;
+	}
+
+	private paramsToDuration(param:string):number {
+		const chunks = param.split(/[^a-z0-9_]+/gi);
+		let duration = 0;
+		for(let i = 0; i < chunks.length; i++) {
+			let value = parseInt(chunks[i]);
+			let coeff = chunks.length - i;
+			if(coeff > 1) coeff = Math.pow(60, coeff-1);
+			duration += value * coeff;
+		}
+		return duration
 	}
 }

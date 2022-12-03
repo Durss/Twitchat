@@ -9,7 +9,8 @@ import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } 
 
 export const storeTimer = defineStore('timer', {
 	state: () => ({
-		timerStart: -1,
+		timerStartDate: -1,
+		timerOffset: 0,
 		countdown: null as TwitchatDataTypes.CountdownData|null,
 	} as ITimerState),
 
@@ -24,11 +25,11 @@ export const storeTimer = defineStore('timer', {
 
 	actions: {
 
-		startTimer() {
-			this.timerStart = Date.now();
+		timerStart() {
+			this.timerStartDate = Date.now();
 			const data = {
 				startAt:Utils.formatDate(new Date()),
-				startAt_ms:this.timerStart,
+				startAt_ms:this.timerStartDate,
 			};
 			
 			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, data);
@@ -45,10 +46,20 @@ export const storeTimer = defineStore('timer', {
 			StoreProxy.chat.addMessage(message);
 		},
 
-		stopTimer() {
+		timerAdd(duration:number) {
+			this.timerOffset += duration;
+		},
+
+		timerRemove(duration:number) {
+			const ellapsed = Date.now() - this.timerStartDate;
+			this.timerOffset -= duration;
+			if(ellapsed + this.timerOffset < 0) this.timerOffset = -ellapsed;
+		},
+
+		timerStop() {
 			const data = {
-				startAt:Utils.formatDate(new Date(this.timerStart)),
-				startAt_ms:this.timerStart,
+				startAt:Utils.formatDate(new Date(this.timerStartDate)),
+				startAt_ms:this.timerStartDate,
 				stopAt:Utils.formatDate(new Date()),
 				stopAt_ms:Date.now(),
 			};
@@ -63,17 +74,18 @@ export const storeTimer = defineStore('timer', {
 				date:Date.now(),
 				startAt:Utils.formatDuration(Date.now(), true),
 				startAt_ms:Date.now(),
-				duration:Utils.formatDuration(Date.now() - this.timerStart, true),
-				duration_ms:Date.now() - this.timerStart,
+				duration:Utils.formatDuration(Date.now() - this.timerStartDate, true),
+				duration_ms:Date.now() - this.timerStartDate,
 			};
 			StoreProxy.chat.addMessage(message);
 
-			this.timerStart = -1;
+			this.timerStartDate = -1;
 		},
 
-		startCountdown(duration_ms:number) {
+		countdownStart(duration_ms:number) {
+			if(this.countdown) clearTimeout(this.countdown.timeoutRef);
 			const timeout = setTimeout(()=> {
-				this.stopCountdown();
+				this.countdownStop();
 			}, Math.max(duration_ms, 1000));
 
 			if(this.countdown) {
@@ -100,7 +112,36 @@ export const storeTimer = defineStore('timer', {
 			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, this.countdown);
 		},
 
-		stopCountdown() {
+		countdownAdd(duration:number) {
+			if(this.countdown) {
+				this.countdown.duration_ms += duration;
+				this.countdown.duration = Utils.formatDuration(this.countdown.duration_ms, true);
+				
+				//Reset end timeout
+				const remaining = this.countdown.duration_ms - (Date.now() - this.countdown.startAt_ms);
+				if(this.countdown) clearTimeout(this.countdown.timeoutRef);
+				this.countdown.timeoutRef = setTimeout(()=> {
+					this.countdownStop();
+				}, remaining);
+			}
+		},
+
+		countdownRemove(duration:number) {
+			if(this.countdown) {
+				this.countdown.duration_ms -= duration;
+				if(this.countdown.duration_ms < 0) this.countdown.duration_ms = 0;
+				this.countdown.duration = Utils.formatDuration(this.countdown.duration_ms, true);
+				
+				//Reset end timeout
+				const remaining = this.countdown.duration_ms - (Date.now() - this.countdown.startAt_ms);
+				if(this.countdown) clearTimeout(this.countdown.timeoutRef);
+				this.countdown.timeoutRef = setTimeout(()=> {
+					this.countdownStop();
+				}, remaining);
+			}
+		},
+
+		countdownStop() {
 			if(this.countdown) {
 				clearTimeout(this.countdown.timeoutRef);
 

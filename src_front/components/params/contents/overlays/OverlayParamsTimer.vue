@@ -42,8 +42,8 @@ export default class OverlayParamsTimer extends Vue {
 	public open = false;
 	public get overlayUrl():string { return this.$overlayURL("timer"); }
 
-	public startTimer():void { this.$store("timer").startTimer(); }
-	public startCountdown():void { this.$store("timer").startCountdown(2 * 60 * 1000); }
+	public startTimer():void { this.$store("timer").timerStartDate(); }
+	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
 
 }
 </script>

@@ -135,7 +135,7 @@
 
 				<CommunityBoostInfo v-if="$store('stream').communityBoostState" />
 
-				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timerStart > 0" />
+				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timerStartDate > 0" />
 
 				<CommercialTimer v-if="isCommercial" />
 
@@ -210,6 +210,7 @@
 </template>
 
 <script lang="ts">
+import MessengerProxy from '@/messaging/MessengerProxy';
 import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
@@ -471,6 +472,11 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
+			this.$emit("liveStreams");
+			this.message = "";
+		}else
+
 		if(cmd == "/poll") {
 			event.preventDefault();//avoid auto submit of the opening form
 			//Open poll form
@@ -536,11 +542,6 @@ export default class ChatForm extends Vue {
 			const user = await this.$store("users").getUserFrom("twitch", this.channelId, undefined, params[0]);
 			//Make a shoutout
 			await sChat.shoutout(user);
-			this.message = "";
-		}else
-
-		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
-			this.$emit("liveStreams");
 			this.message = "";
 		}else
 
@@ -633,39 +634,6 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/alphatest1") {
-			this.$emit("debug", 1);
-			this.message = "";
-		}else
-
-		if(cmd == "/alphatest2") {
-			this.$emit("debug", 2);
-			this.message = "";
-		}else
-
-		if(cmd == "/timerstart") {
-			this.$store("timer").startTimer();
-			this.message = "";
-		}else
-
-		if(cmd == "/timerstop") {
-			this.$store("timer").stopTimer();
-			this.message = "";
-		}else
-
-		if(cmd == "/countdown") {
-			const chunks = params[0].split(/[^a-z0-9_]+/gi);
-			let duration = 0;
-			for(let i = 0; i < chunks.length; i++) {
-				let value = parseInt(chunks[i]);
-				let coeff = chunks.length - i;
-				if(coeff > 1) coeff = Math.pow(60, coeff-1);
-				duration += value * coeff;
-			}
-			this.$store("timer").startCountdown(duration * 1000);
-			this.message = "";
-		}else
-
 		if(cmd == "/userinfo" || cmd == "/user") {
 			if(!params[0]) {
 				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
@@ -711,8 +679,7 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
-		if(cmd == "/me") {
-			//Delete a chat message from its ID
+		if(cmd == "/logself") {
 			console.log(this.$store("auth").twitch.user);
 			this.message = "";
 		}else
@@ -805,9 +772,8 @@ export default class ChatForm extends Vue {
 				if(this.$store("main").cypherEnabled) {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
-				let mess = this.message;
 				this.loading = true;
-				if(await TwitchMessengerClient.instance.sendMessage(this.channelId, mess)) {
+				if(await MessengerProxy.instance.sendMessage(this.message)) {
 					this.message = "";
 				}
 				this.loading = false;

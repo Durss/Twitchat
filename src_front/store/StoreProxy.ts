@@ -370,7 +370,8 @@ export interface IStreamActions {
 
 
 export interface ITimerState {
-	timerStart: number;
+	timerStartDate: number;
+	timerOffset: number;
 	countdown: TwitchatDataTypes.CountdownData|null;
 }
 
@@ -378,10 +379,14 @@ export interface ITimerGetters {
 }
 
 export interface ITimerActions {
-	startTimer():void;
-	stopTimer():void;
-	startCountdown(duration:number):void;
-	stopCountdown():void;
+	timerStart():void;
+	timerAdd(duration:number):void;
+	timerRemove(duration:number):void;
+	timerStop():void;
+	countdownStart(duration:number):void;
+	countdownAdd(duration:number):void;
+	countdownRemove(duration:number):void;
+	countdownStop():void;
 }
 
 

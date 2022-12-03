@@ -64,7 +64,6 @@
 				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
-				@debug="(v:number)=>debug(v)"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
 				v-model:showRewards="showRewards" @update:showRewards="(v:boolean) => showRewards = v"
 				v-model:showCommands="showCommands" @update:showCommands="(v:boolean) => showCommands = v"
@@ -594,20 +593,6 @@ export default class Chat extends Vue {
 	 */
 	public searchMessage(str:string):void {
 		this.currentModal = 'search';
-	}
-
-	/**
-	 * Temporary debug command to try targetting a fadeout issue of the chat
-	 * @param index 
-	 */
-	public debug(index:number):void {
-		let div = (this.$refs.messages as Vue).$el as HTMLDivElement;
-		if(index == 1) {
-			gsap.to(div, {opacity:1, duration:.5});
-		}
-		if(index == 2) {
-			gsap.to(div.getElementsByClassName("holder")[0], {opacity:1, duration:.5});
-		}
 	}
 
 	/**

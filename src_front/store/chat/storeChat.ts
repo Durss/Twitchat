@@ -81,6 +81,16 @@ export const storeChat = defineStore('chat', {
 				details:"Start a timer",
 			},
 			{
+				id:"timerAdd",
+				cmd:"/timerAdd {(hh:)(mm:)ss}",
+				details:"Add time to the current timer",
+			},
+			{
+				id:"timerRemove",
+				cmd:"/timerRemove {(hh:)(mm:)ss}",
+				details:"Remove time from the current timer",
+			},
+			{
 				id:"timerStop",
 				cmd:"/timerStop",
 				details:"Stop the timer",
@@ -89,6 +99,21 @@ export const storeChat = defineStore('chat', {
 				id:"countdown",
 				cmd:"/countdown {(hh:)(mm:)ss}",
 				details:"Start a countdown",
+			},
+			{
+				id:"countdownAdd",
+				cmd:"/countdownAdd {(hh:)(mm:)ss}",
+				details:"Add time to the current countdown",
+			},
+			{
+				id:"countdownRemove",
+				cmd:"/countdownRemove {(hh:)(mm:)ss}",
+				details:"Remove time from the current countdown",
+			},
+			{
+				id:"countdownStop",
+				cmd:"/countdownStop",
+				details:"Stops the countdown",
 			},
 			{
 				id:"search",
@@ -574,7 +599,6 @@ export const storeChat = defineStore('chat', {
 					const user = message.users[i];
 					const rule = Utils.isAutomoded(user.displayName, user, message.channel_id);
 					if(rule != null) {
-						MessengerProxy.instance.sendMessage(user.platform, )
 						if(user.platform == "twitch") {
 							TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
 						}
