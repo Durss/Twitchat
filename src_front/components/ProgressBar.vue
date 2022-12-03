@@ -75,7 +75,7 @@ export default class ProgressBar extends Vue {
 	}
 
 	.timer {
-		font-family: "Azeret";
+		font-family: var(--font-azeret);
 		position: absolute;
 		left: 50%;
 		transform: translate(-50%, -50%);

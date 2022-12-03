@@ -522,7 +522,7 @@ export default class NewUsers extends Vue {
 		.message {
 			cursor: pointer;
 			overflow: hidden;
-			font-family: "Inter";
+			font-family: var(--font-inter);
 			color: #fff;
 			padding: .5em 0;
 			transition: background-color .25s;

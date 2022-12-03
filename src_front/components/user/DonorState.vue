@@ -252,7 +252,7 @@ interface StarData {
 		.center();
 		position: absolute;
 		pointer-events: none;
-		font-family: "Nunito";
+		font-family: var(--font-nunito);
 		font-size: 3em;
 		text-align: center;
 		margin: auto;
@@ -298,7 +298,7 @@ interface StarData {
 
 		.level {
 			.center();
-			font-family: "Nunito";
+			font-family: var(--font-nunito);
 			position: absolute;
 			// color: @mainColor_alert;
 			color:rgba(0, 0, 0, .4);

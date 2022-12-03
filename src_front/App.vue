@@ -31,8 +31,11 @@ export default class App extends Vue {
 	private resizeHandler!:() => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 
+	public get dyslexicFont():boolean { return this.$store("params").appearance.dyslexicFont.value as boolean; }
+
 	public get classes():string[] {
 		let res = ["app"];
+		if(this.dyslexicFont === true) res.push("dyslexicFont");
 		if(this.$route.meta.overflow === true) res.push("overflow");
 		res.push("messageSize_"+this.$store("params").appearance.defaultSize.value);
 		return res;
@@ -60,7 +63,7 @@ export default class App extends Vue {
 		watch(()=> this.$store("main").initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
 	}
-
+	
 	public beforeUnmount():void {
 		window.removeEventListener("resize", this.resizeHandler);
 		window.removeEventListener("keydown", this.keyDownHandler);
@@ -89,7 +92,6 @@ export default class App extends Vue {
 			closeInitLoader();//Method declared on index.html
 		}
 	}
-
 }
 </script>
 
@@ -98,46 +100,40 @@ export default class App extends Vue {
 	width: 100%;
 	height: var(--vh);
 	font-size: 1.25em;
+	font-family: var(--font-inter);
 	overflow: hidden;
+
+	&.dyslexicFont {
+		--font-inter: "OpenDyslexic" !important;
+		--font-nunito: "OpenDyslexic" !important;
+		--font-roboto: "OpenDyslexic" !important;
+		--font-azeret: "OpenDyslexic" !important;
+	}
 	
 	&.overflow {
 		overflow: auto;
 	}
 
 	&.messageSize_1 {
-		:root & {
-			--messageSize: .55em;
-		}
+		--messageSize: .55em;
 	}
 	&.messageSize_2 {
-		:root & {
-			--messageSize: .65em;
-		}
+		--messageSize: .65em;
 	}
 	&.messageSize_3 {
-		:root & {
-			--messageSize: .9em;
-		}
+		--messageSize: .9em;
 	}
 	&.messageSize_4 {
-		:root & {
-			--messageSize: 1.25em;
-		}
+		--messageSize: 1.25em;
 	}
 	&.messageSize_5 {
-		:root & {
-			--messageSize: 1.5em;
-		}
+		--messageSize: 1.5em;
 	}
 	&.messageSize_6 {
-		:root & {
-			--messageSize: 2em;
-		}
+		--messageSize: 2em;
 	}
 	&.messageSize_7 {
-		:root & {
-			--messageSize: 2.5em;
-		}
+		--messageSize: 2.5em;
 	}
 }
 @media only screen and (max-width: 500px) {

@@ -518,7 +518,7 @@ export default class UserCard extends Vue {
 			font-size: .8em;
 			&::before {
 				content: "“";
-				font-family: "Nunito";
+				font-family: var(--font-nunito);
 				font-style: normal;
 				font-size: 2em;
 				line-height: .25em;
@@ -528,7 +528,7 @@ export default class UserCard extends Vue {
 			}
 			&::after {
 				content: "”";
-				font-family: "Nunito";
+				font-family: var(--font-nunito);
 				font-style: normal;
 				font-size: 2em;
 				line-height: .25em;

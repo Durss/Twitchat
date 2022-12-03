@@ -3,12 +3,19 @@
 @import "reset.less";
 @import "form.less";
 
+:root {
+	--font-inter: "Inter";
+	--font-nunito: "Nunito";
+	--font-roboto: "Roboto";
+	--font-azeret: "Azeret";
+}
+
 body, html {
 	padding: 0;
 	margin: 0;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	font-family: "Inter", Helvetica, Arial, sans-serif;
+	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
 	color: @mainColor_normal;
 	min-width: 100%;
 	min-height: var(--vh);

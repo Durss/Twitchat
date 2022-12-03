@@ -91,7 +91,7 @@ export default class RaidState extends Vue {
 		margin-left: 10px;
 		font-style: italic;
 		font-size: .8em;
-		font-family: "Azeret";
+		font-family: var(--font-azeret);
 	}
 
 	.cancelBt {

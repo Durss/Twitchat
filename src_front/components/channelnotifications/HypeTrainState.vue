@@ -179,7 +179,7 @@ export default class HypeTrainState extends Vue {
 		}
 
 		.percent {
-			font-family: "Azeret";
+			font-family: var(--font-azeret);
 			font-size: 1.25em;
 			margin-left: 15px;
 			background-color: fade(@mainColor_light, 25%);

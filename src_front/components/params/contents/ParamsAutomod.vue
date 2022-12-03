@@ -406,7 +406,7 @@ export default class ParamsAutomod extends Vue {
 
 					.rule {
 						:deep(textarea) {
-							font-family: "Inter";
+							font-family: var(--font-inter);
 							font-size: .9em;
 						}
 					}

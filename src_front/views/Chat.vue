@@ -662,9 +662,9 @@ export default class Chat extends Vue {
 				const el = (this.$refs["column_"+c.order] as HTMLDivElement[])[0];
 				const bounds = el.getBoundingClientRect();
 				if(this.splitViewVertical) {
-					c.size = Math.max(215, this.mouseY - bounds.top + 14) / holderBounds.height;
+					c.size = Math.max(215, this.mouseY - bounds.top + 7) / holderBounds.height;
 				}else{
-					c.size = Math.max(215, this.mouseX - bounds.left + 14) / holderBounds.width;
+					c.size = Math.max(215, this.mouseX - bounds.left + 7) / holderBounds.width;
 				}
 				this.computeWindowsSizes()
 			}

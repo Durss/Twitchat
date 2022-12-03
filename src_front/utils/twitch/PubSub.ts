@@ -287,10 +287,14 @@ export default class PubSub extends EventDispatcher {
 		}else if(topic && /video-playback-by-id\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.PlaybackInfo;
 			if(localObj.type == "viewcount") {
-				StoreProxy.stream.setPlaybackState(localObj);
+				StoreProxy.stream.setPlaybackState(channelId, localObj);
 			}else 
 			if(localObj.type == "stream-down") {
-				StoreProxy.stream.setPlaybackState(undefined);
+				StoreProxy.stream.setPlaybackState(channelId, undefined);
+				StoreProxy.stream.setStreamStop(channelId);
+			}else 
+			if(localObj.type == "stream-up") {
+				StoreProxy.stream.setStreamStart(channelId);
 			}
 
 

@@ -359,7 +359,9 @@ export interface IStreamActions {
 	setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined):void;
 	setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings):void;
 	setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined):void;
-	setPlaybackState(value:PubSubDataTypes.PlaybackInfo|undefined):void;
+	setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined):void;
+	setStreamStart(channelId:string):void;
+	setStreamStop(channelId:string):void;
 	setCommunityBoost(value:TwitchatDataTypes.CommunityBoost|undefined):void;
 	saveStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;
 	deleteStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;

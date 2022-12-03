@@ -1,6 +1,7 @@
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
@@ -74,7 +75,23 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 
-		setPlaybackState(value:PubSubDataTypes.PlaybackInfo|undefined) { this.playbackState = value; },
+		setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined) { this.playbackState = value; },
+
+		setStreamStart(channelId:string):void{
+			const emoteOnly = StoreProxy.params.features.offlineEmoteOnly.value;
+			const uid = StoreProxy.auth.twitch.user.id;
+			if(emoteOnly && channelId === uid){
+				TwitchUtils.setRoomSettings(uid, {emotesOnly:false});
+			}
+		},
+		
+		setStreamStop(channelId:string):void{
+			const emoteOnly = StoreProxy.params.features.offlineEmoteOnly.value;
+			const uid = StoreProxy.auth.twitch.user.id;
+			if(emoteOnly && channelId === uid){
+				TwitchUtils.setRoomSettings(uid, {emotesOnly:true});
+			}
+		},
 
 		setCommunityBoost(value:TwitchatDataTypes.CommunityBoost|undefined) { this.communityBoostState = value; },
 

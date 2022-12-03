@@ -375,7 +375,7 @@ export default class Parameters extends Vue {
 						align-items: center;
 						padding: 0 1em 0 .35em;
 						font-size: .8em;
-						font-family: "Nunito";
+						font-family: var(--font-nunito);
 						text-transform: uppercase;
 					}
 					&.beta2 {

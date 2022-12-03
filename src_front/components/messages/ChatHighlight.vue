@@ -395,7 +395,7 @@ export default class ChatHighlight extends Vue {
 			}
 			&::before, &::after {
 				content: "“";
-				font-family: "Nunito";
+				font-family: var(--font-nunito);
 				font-style: normal;
 				font-size: 2em;
 				line-height: .25em;
