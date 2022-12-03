@@ -131,7 +131,7 @@ export default class OverlayTimer extends Vue {
 		border-bottom-left-radius: 1em;
 		border-bottom-right-radius: 1em;
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
-		font-family: 'Roboto';
+		font-family: var(--font-roboto);
 
 		img {
 			height: 1em;

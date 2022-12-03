@@ -68,7 +68,7 @@ export default class AlertView extends Vue {
 		text-align: center;
 		&::after {
 			content: "X";
-			font-family: "Arial";
+			font-family: var(--font-inter);
 			color: #fff;
 			position: absolute;
 			top: 10px;

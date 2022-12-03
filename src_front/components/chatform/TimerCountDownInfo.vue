@@ -87,7 +87,7 @@ export default class TimerCountDownInfo extends Vue {
 		padding: 5px;
 		border-radius: 5px;
 		background-color: fade(@mainColor_dark, 50%);
-		font-family: 'Roboto';
+		font-family: var(--font-roboto);
 
 		img {
 			height: 1em;

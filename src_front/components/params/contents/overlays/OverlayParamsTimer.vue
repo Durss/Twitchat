@@ -42,7 +42,7 @@ export default class OverlayParamsTimer extends Vue {
 	public open = false;
 	public get overlayUrl():string { return this.$overlayURL("timer"); }
 
-	public startTimer():void { this.$store("timer").timerStartDate(); }
+	public startTimer():void { this.$store("timer").timerStart(); }
 	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
 
 }

@@ -71,7 +71,7 @@ export default class CommunityBoostInfo extends Vue {
 	padding: 5px;
 	border-radius: 5px;
 	background-color: darken(#00f0f0, 20%);
-	font-family: 'Azeret';
+	font-family: var(--font-azeret);
 	cursor:pointer;
 
 	img {

@@ -104,10 +104,11 @@ export default class App extends Vue {
 	overflow: hidden;
 
 	&.dyslexicFont {
-		--font-inter: "OpenDyslexic" !important;
-		--font-nunito: "OpenDyslexic" !important;
-		--font-roboto: "OpenDyslexic" !important;
-		--font-azeret: "OpenDyslexic" !important;
+		font-size: 1.1em !important;
+		--font-inter: "OpenDyslexic";
+		--font-nunito: "OpenDyslexic";
+		--font-roboto: "OpenDyslexic";
+		--font-azeret: "OpenDyslexic";
 	}
 	
 	&.overflow {
