@@ -21,7 +21,7 @@ import { Options, Vue } from 'vue-class-component';
 		messageData:Object,
 	},
 	components:{},
-	emits:["click"]
+	emits:["onRead"]
 })
 export default class ChatRaffleResult extends Vue {
 

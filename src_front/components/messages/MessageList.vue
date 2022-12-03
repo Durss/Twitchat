@@ -86,6 +86,12 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
+				<ChatRoomSettings class="message"
+					v-else-if="m.type == 'room_settings'"
+					lightMode
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					lightMode
 					@onRead="toggleMarkRead"
@@ -184,6 +190,7 @@ import ChatNotice from './ChatNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
+import ChatRoomSettings from './ChatRoomSettings.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
 
@@ -198,6 +205,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 		ChatJoinLeave,
 		ChatPollResult,
 		ChatBingoResult,
+		ChatRoomSettings,
 		ChatRaffleResult,
 		MessageListFilter,
 		ChatFollowbotEvents,
@@ -595,6 +603,7 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
+			case TwitchatDataTypes.TwitchatMessageType.ROOM_SETTINGS:
 			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT: {
 				return this.config.filters.message === true;
 			}

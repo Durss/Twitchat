@@ -700,6 +700,7 @@ export namespace TwitchatDataTypes {
 		TWITCHAT_AD:"twitchat_ad",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
+		ROOM_SETTINGS:"room_settings",
 		CHAT_HIGHLIGHT:"chat_highlight",
 		FOLLOWBOT_LIST:"followbot_list",
 		HYPE_TRAIN_START:"hype_train_start",
@@ -744,6 +745,7 @@ export namespace TwitchatDataTypes {
 		twitchat_ad:true,
 		subscription:true,
 		autoban_join:true,
+		room_settings:true,
 		chat_highlight:false,
 		followbot_list:true,
 		hype_train_start:false,
@@ -829,7 +831,8 @@ export namespace TwitchatDataTypes {
 									MessageConnectData |
 									MessageDisconnectData |
 									MessageFollowbotData |
-									MessageNoticeData
+									MessageNoticeData |
+									MessageRoomSettingsData
 	;
 
 	/**
@@ -1334,6 +1337,18 @@ export namespace TwitchatDataTypes {
 	export interface MessageFollowbotData extends AbstractTwitchatMessage {
 		type:"followbot_list";
 		users:TwitchatUser[];
+	}
+
+	/**
+	 * Represents a followbot message
+	 * When getting followboted, all follow events are merge into one
+	 * single MessageFollowbotData
+	 */
+	export interface MessageRoomSettingsData extends AbstractTwitchatMessage {
+		type:"room_settings";
+		channel_id: string;
+		channel_name: string;
+		settings:IRoomSettings;
 	}
 
 }

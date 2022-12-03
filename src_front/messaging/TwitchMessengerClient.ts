@@ -109,7 +109,22 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
 				TwitchUtils.getRoomSettings(v.id).then(settings=> {
-					if(settings) StoreProxy.stream.setRoomSettings(v.id, settings);
+					if(settings) {
+						StoreProxy.stream.setRoomSettings(v.id, settings);
+						if(settings.chatDelay || settings.emotesOnly || settings.subOnly || settings.followOnly) {
+
+							const message:TwitchatDataTypes.MessageRoomSettingsData = {
+								id:Utils.getUUID(),
+								date:Date.now(),
+								type:"room_settings",
+								platform:"twitch",
+								channel_id:v.id,
+								channel_name:v.login,
+								settings
+							}
+							StoreProxy.chat.addMessage(message);
+						}
+					}
 				});
 				//Load chatters list if we have necessary rights
 				TwitchUtils.getChatters(v.id, v.login).then(res => {

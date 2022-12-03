@@ -276,7 +276,7 @@ export default class PubSub extends EventDispatcher {
 			channelId = channelId.replace(/\.|-/g, "");
 		}
 
-		console.log(data);
+		// console.log(data);
 		
 		if(topic && /following\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Following;

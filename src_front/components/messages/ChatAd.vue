@@ -180,7 +180,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 		ToggleBlock,
 		ChatTipAndTrickAd,
 	},
-	emits:["showModal", "ariaMessage"]
+	emits:["showModal"]
 })
 export default class ChatAd extends Vue {
 

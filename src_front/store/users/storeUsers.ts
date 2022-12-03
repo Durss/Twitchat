@@ -285,7 +285,9 @@ export const storeUsers = defineStore('users', {
 								delete userLocal.temporary;
 								if(getPronouns && userLocal.id && userLocal.login) this.checkPronouns(userLocal);
 								if(batchItem.channelId && userLocal.id) {
-									userLocal.channelInfo[batchItem.channelId].is_moderator		= moderatorsCache[batchItem.channelId] && moderatorsCache[batchItem.channelId][userLocal.id] === true,
+									const cache = moderatorsCache[batchItem.channelId];
+									console.log("Test",userLocal.login, cache);
+									userLocal.channelInfo[batchItem.channelId].is_moderator = cache && cache[userLocal.id] === true,
 									this.checkFollowerState(userLocal, batchItem.channelId);
 								}
 							}

@@ -132,7 +132,7 @@ import ChatModTools from './components/ChatModTools.vue';
 		disableConversation:{type:Boolean, default:false},
 		enableWordHighlight:{type:Boolean, default:false},
 	},
-	emits:['showConversation', 'showUserMessages', 'ariaMessage', 'onOverMessage', 'onRead'],
+	emits:['showConversation', 'showUserMessages', 'onOverMessage', 'onRead'],
 })
 export default class ChatMessage extends Vue {
  

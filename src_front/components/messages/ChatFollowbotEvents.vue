@@ -29,7 +29,7 @@ import { Options, Vue } from 'vue-class-component';
 	},
 	components:{
 	},
-	emits:["click", "onRead"]
+	emits:["onRead"]
 })
 export default class ChatFollowbotEvents extends Vue {
 	public messageData!:TwitchatDataTypes.MessageFollowbotData;

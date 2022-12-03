@@ -19,7 +19,7 @@ import { Options, Vue } from 'vue-class-component';
 		messageData:Object,
 	},
 	components:{},
-	emits:["ariaMessage", "onRead"]
+	emits:["onRead"]
 })
 export default class ChatNotice extends Vue {
 	

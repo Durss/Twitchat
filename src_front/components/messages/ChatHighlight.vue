@@ -72,7 +72,7 @@ import ChatMessageInfos from './components/ChatMessageInfos.vue';
 		Button,
 		ChatMessageInfos,
 	},
-	emits:["ariaMessage", "onRead"]
+	emits:["onRead"]
 })
 export default class ChatHighlight extends Vue {
 	public messageData!:TwitchatDataTypes.MessageChatData
