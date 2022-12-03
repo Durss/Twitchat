@@ -85,7 +85,7 @@ export const storeUsers = defineStore('users', {
 			moderatorsCache[channelId] = {};
 			users.forEach(v => {
 				moderatorsCache[channelId][v.user_id] = true;
-			})
+			});
 		},
 
 		/**
@@ -237,7 +237,7 @@ export const storeUsers = defineStore('users', {
 					}
 
 					const logins:string[]|undefined	= batchType == "login"? batch.map(v=>v.user.login) : undefined;
-					const ids:string[]|undefined		= batchType == "login"? undefined : batch.map(v=>v.user.id);
+					const ids:string[]|undefined	= batchType == "login"? undefined : batch.map(v=>v.user.id);
 
 					if((ids?.length == 0 || ids == undefined) && (logins?.length == 0 || logins == undefined)) return;
 
@@ -284,10 +284,16 @@ export const storeUsers = defineStore('users', {
 								//If user was temporary, load more info
 								delete userLocal.temporary;
 								if(getPronouns && userLocal.id && userLocal.login) this.checkPronouns(userLocal);
+
+								//Set moderator state for all connected channels
+								for (const chan in moderatorsCache) {
+									if(!userLocal.channelInfo[chan]) continue;
+
+									const cache = moderatorsCache[chan];
+									userLocal.channelInfo[chan].is_moderator = cache && cache[userLocal.id] === true;
+								}
+								//Check follower state
 								if(batchItem.channelId && userLocal.id) {
-									const cache = moderatorsCache[batchItem.channelId];
-									console.log("Test",userLocal.login, cache);
-									userLocal.channelInfo[batchItem.channelId].is_moderator = cache && cache[userLocal.id] === true,
 									this.checkFollowerState(userLocal, batchItem.channelId);
 								}
 							}

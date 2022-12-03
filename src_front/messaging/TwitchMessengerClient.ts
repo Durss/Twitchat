@@ -103,6 +103,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
 				await StoreProxy.users.preloadTwitchModerators(v.id);
+				console.log("ROom", v.login, "initialiazed !");
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
 				const meId = StoreProxy.auth.twitch.user.id;
