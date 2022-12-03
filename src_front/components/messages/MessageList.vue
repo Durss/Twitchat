@@ -468,47 +468,45 @@ export default class MessageList extends Vue {
 				//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
 				if (this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
 					canAdd = false;
-				} else {
-					//Ignore deleted messages if requested
-					if (sParams.filters.keepDeletedMessages.value === false && m.deleted) {
-						canAdd = false;
-					} else {
-						//Ignore /me messages if requested
-						if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
-							canAdd = false;
-						} else {
-							//Ignore self if requested
-							if (sParams.filters.showSelf.value === false && m.user.id == meUID) {
-								canAdd = false;
-							} else {
-								//Ignore bot messages if requested
-								if (sParams.filters.showBots.value === false
-									&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
-									&& m.bypassBotFilter !== true) {
-									canAdd = false;
-								} else {
-									//Ignore custom users
-									if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
-										canAdd = false;
-									} else {
+				} else 
+				//Ignore automod messages if requested
+				if (sParams.filters.hideAutomodMessage.value === true && m.twitch_automod) {
+					canAdd = false;
+				} else
+				//Ignore deleted messages if requested
+				if (sParams.filters.keepDeletedMessages.value === false && m.deleted) {
+					canAdd = false;
+				} else
+				//Ignore /me messages if requested
+				if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
+					canAdd = false;
+				} else
+				//Ignore self if requested
+				if (sParams.filters.showSelf.value === false && m.user.id == meUID) {
+					canAdd = false;
+				} else
+				//Ignore bot messages if requested
+				if (sParams.filters.showBots.value === false
+					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
+					&& m.bypassBotFilter !== true) {
+					canAdd = false;
+				} else
+				//Ignore custom users
+				if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
+					canAdd = false;
+				} else
 
-										//Ignore commands
-										if (sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(m.message)) {
-											if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
-												//Ignore specific commands
-												const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
-												if (blockedSpecificCmds.includes(cmd)) {
-													canAdd = false;
-												}
-											} else {
-												//Ignore all commands
-												canAdd = false;
-											}
-										}
-									}
-								}
-							}
+				//Ignore commands
+				if (sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(m.message)) {
+					if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
+						//Ignore specific commands
+						const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
+						if (blockedSpecificCmds.includes(cmd)) {
+							canAdd = false;
 						}
+					} else {
+						//Ignore all commands
+						canAdd = false;
 					}
 				}
 				return canAdd;

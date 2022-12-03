@@ -182,7 +182,6 @@ export const storeUsers = defineStore('users', {
 			if(channelId) {
 				//Init channel data for this user if not already existing
 				if(!user.channelInfo[channelId]) {
-					console.log("Is", user.id,"a mod?",moderatorsCache[channelId]);
 					user.channelInfo[channelId] = {
 						online:false,
 						is_following:channelId == user.id || forcedFollowState===true? true : null,

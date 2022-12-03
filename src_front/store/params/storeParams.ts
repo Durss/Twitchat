@@ -24,7 +24,7 @@ export const storeParams = defineStore('params', {
 			showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
 		},
 		appearance: {
-			splitViewVertical: 			{save:true, type:"toggle", value:false, label:"Split columns vertically", id:21},
+			splitViewVertical: 			{save:true, type:"toggle", value:false, label:"Vertical layout", id:21, tooltip:"Order message lists vertically"},
 			highlightMods: 				{save:true, type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 			highlightVips: 				{save:true, type:"toggle", value:false, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 			highlightSubs: 				{save:true, type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
@@ -43,6 +43,7 @@ export const storeParams = defineStore('params', {
 			defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size ({VALUE})", min:1, max:7, step:1, id:12},
 		},
 		filters: {
+			hideAutomodMessage:			{save:true, type:"toggle", value:false, label:"Hide messages held by automod", id:117, icon:"automod_purple.svg", tooltip:"If you have moderators that<br>can handle these messages for you<br>and want to protect yourself<br>from reading potentially<br>rough messages, enable this option"},
 			showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
 			keepDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Keep deleted messages", id:113},
 			censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Censor deleted messages", id:116, parent:113},

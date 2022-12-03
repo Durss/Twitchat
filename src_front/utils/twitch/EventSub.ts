@@ -110,7 +110,7 @@ export default class EventSub {
 			// alert(`[message] Data received from server: ${event.data}`);
 			const e = event as {data:string};
 			const message = JSON.parse(e.data);// as PubSubDataTypes.SocketMessage;
-			console.log(message);
+			// console.log(message);
 			if(message.metadata.message_type == "session_welcome") {
 				this.keepalive_timeout_seconds = message.payload.session.keepalive_timeout_seconds;
 				TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.begin", "beta");
