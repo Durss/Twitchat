@@ -89,25 +89,20 @@ export const storeTTS = defineStore('tts', {
 			this.params.ttsPerms.users = list.join(",");
 			this.setTTSParams(this.params);//Triggers a server save
 
+			let message = "";
 			if(read) {
-				StoreProxy.chat.addMessage({
-					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:user.platform,
-					message:"<mark>"+user.displayName+"</mark>'s messages will be read out loud.",
-					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
-				});
+				message = "<mark>"+user.displayName+"</mark>'s messages will be read out loud.";
 			}else{
-				StoreProxy.chat.addMessage({
-					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:user.platform,
-					message:"<mark>"+user.displayName+"</mark>'s messages won't be read out loud anymore.",
-					noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS
-				});
+				message = "<mark>"+user.displayName+"</mark>'s messages won't be read out loud anymore.";
 			}
+			StoreProxy.chat.addMessage({
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:user.platform,
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS,
+				message,
+			});
 		},
 
 		setTTSParams(params:TwitchatDataTypes.TTSParamsData) {

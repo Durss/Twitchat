@@ -301,7 +301,6 @@ import Ajv from "ajv";
 				}
 			]
 		},
-		"p:blockedCommands": {type:"string"},
 		"p:bttvEmotes": {type:"boolean"},
 		"p:ffzEmotes": {type:"boolean"},
 		"p:sevenTVEmotes": {type:"boolean"},
@@ -319,19 +318,15 @@ import Ajv from "ajv";
 		"p:highlightNonFollowers": {type:"boolean"},
 		"p:highlightSubs": {type:"boolean"},
 		"p:highlightVips": {type:"boolean"},
-		"p:ignoreCommands": {type:"boolean"},
-		"p:ignoreListCommands": {type:"boolean"},
 		"p:lockAutoScroll": {type:"boolean"},
 		"p:markAsRead": {type:"boolean"},
 		"p:minimalistBadges": {type:"boolean"},
 		"p:raidHighlightUser": {type:"boolean"},
 		"p:showBadges": {type:"boolean"},
-		"p:showBots": {type:"boolean"},
 		"p:showEmotes": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},
 		"p:splitViewVertical": {type:"boolean"},
 		"p:showSelf": {type:"boolean"},
-		"p:showSlashMe": {type:"boolean"},
 		"p:showUserPronouns": {type:"boolean"},
 		"p:showViewersCount": {type:"boolean"},
 		"p:offlineEmoteOnly": {type:"boolean"},
@@ -340,6 +335,11 @@ import Ajv from "ajv";
 		"p:translateNames": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
+		"p:blockedCommands": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:ignoreListCommands": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:ignoreCommands": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showSlashMe": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showBots": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:keepDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:firstTimeMessage": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:keepHighlightMyMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
@@ -618,6 +618,13 @@ import Ajv from "ajv";
 				order: {type:"number", minimum:0, maximum:1000},
 				size: {type:"number", minimum:0, maximum:10},
 				filters:{
+					type:"object",
+					additionalProperties: true,
+					patternProperties: {
+						".*": { type:"boolean" }
+					}
+				},
+				messageFilters:{
 					type:"object",
 					additionalProperties: true,
 					patternProperties: {

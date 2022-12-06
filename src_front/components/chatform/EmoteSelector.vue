@@ -134,6 +134,7 @@ export default class EmoteSelector extends Vue {
 				pronounsTooltip:false,
 				channelInfo:{},
 				donor:{state:false, level:0, upgrade:false},
+				is_bot:false,
 			});
 	
 			//Build emotes list for each sorted user
@@ -169,6 +170,7 @@ export default class EmoteSelector extends Vue {
 						pronounsTooltip:false,
 						channelInfo:{},
 						donor:{state:false, level:0, upgrade:false},
+						is_bot:true,
 					},
 					emotes: BTTVUtils.instance.emotes,
 				});
@@ -193,6 +195,7 @@ export default class EmoteSelector extends Vue {
 						pronounsTooltip:false,
 						channelInfo:{},
 						donor:{state:false, level:0, upgrade:false},
+						is_bot:true,
 					},
 					emotes: SevenTVUtils.instance.emotes,
 				});
@@ -217,6 +220,7 @@ export default class EmoteSelector extends Vue {
 						pronounsTooltip:false,
 						channelInfo:{},
 						donor:{state:false, level:0, upgrade:false},
+						is_bot:true,
 					},
 					emotes: FFZUtils.instance.emotes,
 				});

@@ -47,12 +47,7 @@ export const storeParams = defineStore('params', {
 		filters: {
 			showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
 			censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Censor deleted messages", id:116},
-			showSlashMe: 				{save:true, type:"toggle", value:true, label:"Show /me messages", id:101},
-			showBots: 					{save:true, type:"toggle", value:true, label:"Show known bot's messages", id:102},
 			hideUsers: 					{save:true, type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg", longText:true},
-			ignoreCommands: 			{save:true, type:"toggle", value:false, label:"Hide commands (messages starting with \"!\")", id:104, icon:"commands_purple.svg"},
-			ignoreListCommands: 		{save:true, type:"toggle", value:false, label:"Block only specific commands", id:114, parent:104},
-			blockedCommands: 			{save:true, type:"text", value:"", label:"", placeholder:"example: so, myuptime, ", id:115, parent:114, longText:true},
 		},
 		chatColumnsConfig:[],
 	} as IParamsState),

@@ -17,6 +17,7 @@ import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } fro
 import EventBus from '@/events/EventBus'
 import GlobalEvent from '@/events/GlobalEvent'
 import { LoremIpsum } from "lorem-ipsum";
+import TTSUtils from '@/utils/TTSUtils'
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -352,6 +353,8 @@ export const storeChat = defineStore('chat', {
 				messageList = [];
 				return;
 			}
+
+			TTSUtils.instance.addMessageToQueue(message);
 
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {

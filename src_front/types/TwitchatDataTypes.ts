@@ -595,6 +595,7 @@ export namespace TwitchatDataTypes {
 		is_partner:boolean;//Is Twitch partner
 		is_affiliate:boolean;//Is Twitch affiliat
 		is_tracked:boolean;
+		is_bot:boolean;
 		donor:{//Donor state of the user
 			state:boolean,
 			level:number,

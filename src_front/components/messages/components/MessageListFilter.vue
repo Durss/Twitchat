@@ -510,8 +510,8 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.MESSAGE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD );
-				ids.push( TwitchatDataTypes.TwitchatMessageType.JOIN );
-				ids.push( TwitchatDataTypes.TwitchatMessageType.LEAVE );
+				// ids.push( TwitchatDataTypes.TwitchatMessageType.JOIN );
+				// ids.push( TwitchatDataTypes.TwitchatMessageType.LEAVE );
 				for (const key in this.config.messageFilters) {
 					const k = key as messageFilterTypes;
 					this.config.messageFilters[k] = true;

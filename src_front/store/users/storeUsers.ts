@@ -136,6 +136,7 @@ export const storeUsers = defineStore('users', {
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
+						is_bot:this.knownBots[platform][login ?? ""] === true,
 						donor:{
 							state:false,
 							level:0,
@@ -161,6 +162,7 @@ export const storeUsers = defineStore('users', {
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
+						is_bot:this.knownBots[platform][login ?? ""] === true,
 						donor:{
 							state:false,
 							level:0,

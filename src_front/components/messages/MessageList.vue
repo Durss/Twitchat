@@ -465,9 +465,9 @@ export default class MessageList extends Vue {
 		const sParams = StoreProxy.params;
 		const sUsers = StoreProxy.users;
 		const meUID = StoreProxy.auth.twitch.user.id;
-		const blockedCmds = sParams.filters.blockedCommands.value as string;
-		let blockedSpecificCmds = blockedCmds.split(/[^a-z0-9_]+/gi);//Split commands by non-alphanumeric characters
-		blockedSpecificCmds = blockedSpecificCmds.map(v => v.replace(/^!/gi, ""))//Remove "!" at the beginning
+		// const blockedCmds = sParams.filters.blockedCommands.value as string;
+		// let blockedSpecificCmds = blockedCmds.split(/[^a-z0-9_]+/gi);//Split commands by non-alphanumeric characters
+		// blockedSpecificCmds = blockedSpecificCmds.map(v => v.replace(/^!/gi, ""))//Remove "!" at the beginning
 
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
@@ -489,9 +489,9 @@ export default class MessageList extends Vue {
 					return false;
 				} else
 				//Ignore /me messages if requested
-				if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
-					return false;
-				} else
+				// if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
+				// 	return false;
+				// } else
 				//Ignore self if requested
 				if (sParams.filters.showSelf.value === false && m.user.id == meUID) {
 					return false;
@@ -509,16 +509,18 @@ export default class MessageList extends Vue {
 
 				//Ignore commands
 				if (this.config.messageFilters.commands !== true && /^ *!.*/gi.test(m.message)) {
-					if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
-						//Ignore specific commands
-						const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
-						if (blockedSpecificCmds.includes(cmd)) {
-							return false;
-						}
-					} else {
+					// if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
+					// 	//Ignore specific commands
+					// 	const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
+					// 	if (blockedSpecificCmds.includes(cmd)) {
+					// 		return false;
+					// 	}
+					// } else {
 						//Ignore all commands
 						return false;
-					}
+					// }
+				}else if(m.user.is_bot) {
+					return this.config.messageFilters.bots !== false;
 				}else if(chanInfo.is_moderator) {
 					return this.config.messageFilters.moderators !== false;
 				}else if(chanInfo.is_vip) {
@@ -1071,13 +1073,14 @@ export default class MessageList extends Vue {
 		if (this.conversation.length == 0) return;
 		await this.$nextTick();
 		clearTimeout(this.closeConvTimeout);
+		const holderBounds = this.$el.getBoundingClientRect();
 		const messageHolder = (this.$refs["message_" + m.id] as HTMLDivElement[])[0];
 		const messageBounds = messageHolder.getBoundingClientRect();
 		const chatMessagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 		const conversationHolder = this.$refs.conversationHolder as HTMLDivElement;
 		const convMessagesholder = this.$refs.conversationMessages as HTMLDivElement;
 
-		this.conversationPos = Math.max(conversationHolder.getBoundingClientRect().height, messageBounds.top);
+		this.conversationPos = Math.max(conversationHolder.getBoundingClientRect().height, messageBounds.top - holderBounds.top);
 
 		//Scroll history to top
 		convMessagesholder.scrollTop = convMessagesholder.scrollHeight;
@@ -1393,6 +1396,9 @@ export default class MessageList extends Vue {
 
 		.TTSreadBt {
 			.clearButton();
+			height: unset;
+			line-height: 1.5em;
+			overflow: unset;
 			font-size: .7em;
 			display: block;
 			margin: auto;

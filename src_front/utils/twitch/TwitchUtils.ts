@@ -874,6 +874,7 @@ export default class TwitchUtils {
 					is_partner:false,
 					is_tracked:false,
 					pronouns:false,
+					is_bot:true,
 					pronounsLabel:"",
 					pronounsTooltip:"",
 					channelInfo:{},

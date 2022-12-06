@@ -343,7 +343,8 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 
 	//If requesting chat command helpers and there is a music
 	//service available, concat the music service helpers
-	if(key != TriggerTypes.MUSIC_START
+	if(map[key]
+	&& key != TriggerTypes.MUSIC_START
 	&& key != TriggerTypes.TRACK_ADDED_TO_QUEUE
 	&& Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
 		map[key] = map[key].concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]);
