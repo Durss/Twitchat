@@ -554,6 +554,7 @@ export default class MessageList extends Vue {
 				return this.config.filters.cheer === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST:
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 				return this.config.filters.following === true;
 			}

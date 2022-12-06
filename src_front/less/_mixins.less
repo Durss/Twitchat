@@ -25,12 +25,7 @@
 	}
 	
 	&>.time {
-		color: fade(#ffffff, 75%);
-		font-size: .8em;
-		vertical-align: middle;
-		display: inline-block;
-		margin-right: .7em;
-		font-variant-numeric: tabular-nums;
+		.chatMessageTime();
 	}
 	
 	:deep( .emote ) {
@@ -39,6 +34,15 @@
 		vertical-align: middle;
 		object-fit: contain;
 	}
+}
+
+.chatMessageTime() {
+	color: fade(#ffffff, 75%);
+	font-size: .8em;
+	vertical-align: middle;
+	display: inline-block;
+	margin-right: .7em;
+	font-variant-numeric: tabular-nums;
 }
 
 .chatMessageHighlight(){

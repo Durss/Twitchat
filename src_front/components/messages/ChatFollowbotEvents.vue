@@ -77,6 +77,9 @@ export default class ChatFollowbotEvents extends Vue {
 		.label {
 			flex-grow: 1;
 		}
+		.time {
+			.chatMessageTime();
+		}
 	}
 
 	.userList {
@@ -94,13 +97,13 @@ export default class ChatFollowbotEvents extends Vue {
 		.user {
 			padding: .25em .25em;
 			.login {
-				background-color: fade(@mainColor_dark, 20%);
+				background-color: fade(@mainColor_dark, 10%);
 				padding: .1em .25em;
 				transition: background-color .15s;
 			}
 			&:nth-child(odd) {
 				.login {
-					background-color: fade(@mainColor_alert_light, 100%);
+					background-color: fade(@mainColor_alert_light, 40%);
 				}
 			}
 			&:hover {

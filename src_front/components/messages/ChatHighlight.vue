@@ -8,11 +8,11 @@
 		
 		<div class="messageHolder">
 			<span class="reason">
-				<span class="username" v-if="user" @click.stop="openUserCard(user!)">{{user.displayName}}</span>
+				<a class="username" v-if="user" @click.stop="openUserCard(user!)">{{user.displayName}}</a>
 				<span class="text" v-html="reason"></span>
 				<span class="additionalUsers" v-if="additionalUsers?.length > 0"
 					v-for="u, index in additionalUsers" :key="u.id">
-					<span class="username" @click.stop="openUserCard(u)">{{u.displayName}}</span>
+					<a class="username" @click.stop="openUserCard(u)">{{u.displayName}}</a>
 					<span v-if="index < additionalUsers.length-1">, </span>
 				</span>
 			</span>
