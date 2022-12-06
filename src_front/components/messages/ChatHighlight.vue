@@ -8,11 +8,11 @@
 		
 		<div class="messageHolder">
 			<span class="reason">
-				<span class="username" v-if="user" @click="openUserCard(user!)">{{user.displayName}}</span>
+				<span class="username" v-if="user" @click.stop="openUserCard(user!)">{{user.displayName}}</span>
 				<span class="text" v-html="reason"></span>
 				<span class="additionalUsers" v-if="additionalUsers?.length > 0"
 					v-for="u, index in additionalUsers" :key="u.id">
-					<span class="username" @click="openUserCard(u)">{{u.displayName}}</span>
+					<span class="username" @click.stop="openUserCard(u)">{{u.displayName}}</span>
 					<span v-if="index < additionalUsers.length-1">, </span>
 				</span>
 			</span>
@@ -29,8 +29,8 @@
 			<div v-if="streamInfoError" class="streamInfo error">Unable to load last stream info :(</div>
 
 			<div class="automodActions" v-if="canUnban ||canBlock">
-				<Button highlight v-if="canUnban" :loading="moderating" :icon="$image('icons/mod.svg')" :title="'Unban user'" @click="unbanUser()" />
-				<Button highlight v-if="canBlock" :loading="moderating" :icon="$image('icons/block.svg')" :title="'Block user'" @click="blockUser()" />
+				<Button highlight v-if="canUnban" :loading="moderating" :icon="$image('icons/mod.svg')" :title="'Unban user'" @click.stop="unbanUser()" />
+				<Button highlight v-if="canBlock" :loading="moderating" :icon="$image('icons/block.svg')" :title="'Block user'" @click.stop="blockUser()" />
 			</div>
 		</div>
 		<Button v-if="isRaid"

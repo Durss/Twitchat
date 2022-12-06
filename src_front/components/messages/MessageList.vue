@@ -1124,8 +1124,11 @@ export default class MessageList extends Vue {
 	 */
 	public toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEvent): void {
 		if (event) {
-			const target = event.target as HTMLElement;
-			if (target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
+			let target = event.target as HTMLElement;
+			do {
+				if (target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
+				target = target.parentNode as HTMLElement;
+			}while(target != document.body);
 		}
 		
 		//Do not mark as read if there's a selection
