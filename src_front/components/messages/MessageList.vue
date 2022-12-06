@@ -6,7 +6,7 @@
 		@touchmove="onTouchMove">
 		
 		<MessageListFilter class="filters"
-		:open="hovered || openFilters"
+		:open="hovered || openFilters || true"
 		:forceExpand="openFilters"
 		:config="config"
 		@delete="deleteColumn()"
@@ -317,6 +317,7 @@ export default class MessageList extends Vue {
 		//If one is updated, the chat is completely rebuilt.
 		watch(() => this.$store("params").filters, () => this.fullListRefresh(), { deep: true });
 		watch(() => this.config.filters, () => this.fullListRefresh(), {deep: true});
+		watch(() => this.config.messageFilters, () => this.fullListRefresh(), {deep: true});
 
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
@@ -470,54 +471,63 @@ export default class MessageList extends Vue {
 
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
+				const chanInfo = m.user.channelInfo[m.channel_id];
+
 				if(this.config.filters.message === false) return false;
 				
-				let canAdd = true;
 				//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
 				if (this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
-					canAdd = false;
+					return false;
 				} else 
-				//Ignore automod messages if requested
-				if (sParams.filters.hideAutomodMessage.value === true && m.twitch_automod) {
-					canAdd = false;
+				//Ignore automod/restricted messages if requested
+				if (this.config.messageFilters.automod !== true === true &&
+				(m.twitch_automod || m.twitch_isRestricted)) {
+					return false;
 				} else
 				//Ignore deleted messages if requested
-				if (sParams.filters.keepDeletedMessages.value === false && m.deleted) {
-					canAdd = false;
+				if (this.config.messageFilters.deleted !== true && m.deleted) {
+					return false;
 				} else
 				//Ignore /me messages if requested
 				if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
-					canAdd = false;
+					return false;
 				} else
 				//Ignore self if requested
 				if (sParams.filters.showSelf.value === false && m.user.id == meUID) {
-					canAdd = false;
+					return false;
 				} else
 				//Ignore bot messages if requested
-				if (sParams.filters.showBots.value === false
+				if (this.config.messageFilters.bots !== true
 					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
 					&& m.bypassBotFilter !== true) {
-					canAdd = false;
+					return false;
 				} else
 				//Ignore custom users
 				if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
-					canAdd = false;
+					return false;
 				} else
 
 				//Ignore commands
-				if (sParams.filters.ignoreCommands.value === true && /^ *!.*/gi.test(m.message)) {
+				if (this.config.messageFilters.commands !== true && /^ *!.*/gi.test(m.message)) {
 					if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
 						//Ignore specific commands
 						const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
 						if (blockedSpecificCmds.includes(cmd)) {
-							canAdd = false;
+							return false;
 						}
 					} else {
 						//Ignore all commands
-						canAdd = false;
+						return false;
 					}
+				}else if(chanInfo.is_moderator) {
+					return this.config.messageFilters.moderators !== false;
+				}else if(chanInfo.is_vip) {
+					return this.config.messageFilters.vips !== false;
+				}else if(chanInfo.is_subscriber) {
+					return this.config.messageFilters.subs !== false;
 				}
-				return canAdd;
+
+				return this.config.messageFilters.viewers !== false;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
@@ -651,7 +661,7 @@ export default class MessageList extends Vue {
 		
 		if (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			//Do not remove if not requested
-			if(this.$store("params").filters.keepDeletedMessages.value === true) return;
+			if(this.config.messageFilters.deleted !== false) return;
 		}
 
 		//remove from displayed messages

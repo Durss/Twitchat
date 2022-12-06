@@ -22,6 +22,7 @@
 				
 				<div class="presets">
 					<Button @click="preset('chat')" title="Chat" :icon="$image('icons/whispers_purple.svg')" small white />
+					<Button @click="preset('chatSafe')" title="Chat safe" :icon="$image('icons/shield_purple.svg')" small white />
 					<Button @click="preset('activities')" title="Activities" :icon="$image('icons/stars_purple.svg')" small white />
 					<Button @click="preset('games')" title="Games" :icon="$image('icons/bingo_purple.svg')" small white />
 					<Button @click="preset('revenues')" title="Revenues" :icon="$image('icons/coin_purple.svg')" small white />
@@ -39,7 +40,22 @@
 						@change="saveData()"
 						@mouseleave="mouseLeaveItem($event)"
 						@mouseenter="previewMessage(f.storage as 'message'/* couldn't find a way to strongly cast storage type */)"
-						v-model="config.filters[f.storage as 'message']" />
+						v-model="config.filters[f.storage as 'message']">
+
+						<div v-if="f.storage === 'message'" class="children">
+							<ParamItem class="item" v-for="f in messageFilters"
+								:key="f.storage"
+								:paramData="f"
+								clearToggle
+								@click.stop
+								@change="saveData()"
+								@mouseleave="mouseLeaveItem($event)"
+								@mouseenter="previewSubMessage(f.storage as 'bots'/* couldn't find a way to strongly cast storage type */)"
+								v-model="config.messageFilters[f.storage as 'bots']" />
+						</div>
+
+					</ParamItem>
+					
 				</div>
 
 				<div class="error" v-if="error" @click="error=false">Please select at least one filter</div>
@@ -119,6 +135,7 @@ import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ChatAd from '../ChatAd.vue';
@@ -175,6 +192,7 @@ export default class MessageListFilter extends Vue {
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
+	public messageFilters:TwitchatDataTypes.ParameterData[] = [];
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public loadingPreview:boolean = false;
 	public previewIndex:number = 0;
@@ -185,6 +203,7 @@ export default class MessageListFilter extends Vue {
 	private clickHandler!:(e:MouseEvent|TouchEvent) => void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private messagesCache:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchatDataTypes.ChatMessageTypes[]}> = {}
+	private subMessagesCache:Partial<{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchatDataTypes.ChatMessageTypes[]}> = {}
 
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
@@ -193,6 +212,8 @@ export default class MessageListFilter extends Vue {
 	}
 
 	public beforeMount(): void {
+		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
+
 		//@ts-ignore
 		this.typeToLabel = {};
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = "Twitchat updates and tips";
@@ -265,6 +286,41 @@ export default class MessageListFilter extends Vue {
 		this.filters = [];
 		for (let i = 0; i < sortedFilters.length; i++) {
 			const f = sortedFilters[i];
+			const children:TwitchatDataTypes.ParameterData[] = [];
+			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
+			if(f === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				const keyToLabel:{[key in messageFilterTypes]:string} = {
+					viewers:"Sent by viewers",
+					vips:"Sent by VIPs",
+					subs:"Sent by VISubs",
+					moderators:"Sent by Moderators",
+					bots:"Sent by bots",
+					deleted:"Deleted messages",
+					automod:"Automoded messages",
+					suspiciousUsers:"Sent by suspicious users",
+					commands:"Commands (starting with \"!\")",
+				}
+				if(!this.config.messageFilters) this.config.messageFilters = {
+					bots:true,
+					automod:true,
+					commands:true,
+					deleted:true,
+					suspiciousUsers:true,
+					viewers:true,
+					vips:true,
+					subs:true,
+					moderators:true,
+				};
+				for (const key in keyToLabel) {
+					const k = key as messageFilterTypes;
+					if(this.config.messageFilters[k] == undefined) {
+						this.config.messageFilters[k] = true;
+					}
+					children.push({type:"toggle", value:this.config.messageFilters[k], label:keyToLabel[k], storage:key});
+				}
+				this.messageFilters = children;
+			}
+
 			this.filters.push({type:"toggle", value:this.config.filters[f], label:this.typeToLabel[f] ?? f, storage:f, icon:this.typeToIcon[f]});
 		}
 		
@@ -280,6 +336,10 @@ export default class MessageListFilter extends Vue {
 		watch(()=>this.toggleAll, ()=>{
 			for (let i = 0; i < this.filters.length; i++) {
 				this.filters[i].value = this.toggleAll;
+			}
+			for (const key in this.config.messageFilters) {
+				const k = key as messageFilterTypes;
+				this.config.messageFilters[k] = this.toggleAll;
 			}
 		});
 		requestAnimationFrame(()=>this.renderFrame());
@@ -350,6 +410,50 @@ export default class MessageListFilter extends Vue {
 		}
 	}
 
+	public async previewSubMessage(type:keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters):Promise<void> {
+		this.previewData = [];
+		this.loadingPreview = true;
+		this.previewIndex ++;
+		const previewIndexLoc = this.previewIndex;
+		const cached = this.subMessagesCache[type];
+		if(cached && cached.length > 0) {
+			this.previewData = cached;
+			this.loadingPreview = false;
+			return;
+		}
+
+		await this.$nextTick();
+
+		this.subMessagesCache[type] = [];
+		this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.loadingPreview = false;
+			const dataCast = data as TwitchatDataTypes.MessageChatData;
+
+			if(!data) return;
+			if(type == "automod") {
+				let words:string[] = [];
+				do {
+					words.push( Utils.pickRand(dataCast.message.split(" ")) );
+				}while(Math.random() > .5)
+
+				dataCast.twitch_automod = { reasons:["bullying"], words };
+			}else if(type == "deleted") {
+				dataCast.deleted = true;
+			}else if(type == "suspiciousUsers") {
+				dataCast.twitch_isSuspicious = true;
+			}else if(type == "commands") {
+				dataCast.message = dataCast.message_html = "!cucumber"
+			}else {
+				return;
+			}
+
+			this.subMessagesCache[type] = [data];
+
+			if(previewIndexLoc != this.previewIndex) return;
+			this.previewData = [data];
+		}, false);
+	}
+
 	/**
 	 * Called when preview message is clicked.
 	 * ONly usefull for touch interface so we can close it by clicking it
@@ -392,12 +496,13 @@ export default class MessageListFilter extends Vue {
 	/**
 	 * Called when clicking a preset
 	 */
-	public preset(id:"chat"|"activities"|"games"|"revenues"):void {
+	public preset(id:"chat"|"chatSafe"|"activities"|"games"|"revenues"):void {
 		this.toggleAll = false;
 		//Unselect all
 		for (let i = 0; i < this.filters.length; i++) {
 			this.filters[i].value = false;
 		}
+		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
 		const ids:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [];
 		switch(id) {
 			case "chat": {
@@ -407,6 +512,21 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.JOIN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.LEAVE );
+				for (const key in this.config.messageFilters) {
+					const k = key as messageFilterTypes;
+					this.config.messageFilters[k] = true;
+				}
+				break;
+			}
+			case "chatSafe": {
+				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.MESSAGE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD );
+				for (const key in this.config.messageFilters) {
+					const k = key as messageFilterTypes;
+					this.config.messageFilters[k] = k != "automod" && k != "deleted" && k != "suspiciousUsers";
+				}
 				break;
 			}
 			case "activities": {
@@ -495,9 +615,10 @@ export default class MessageListFilter extends Vue {
 		
 		const parentBounds = (this.$el as HTMLDivElement).getBoundingClientRect()
 		const bounds = holder.getBoundingClientRect();
-		let py = this.mouseY - parentBounds.top + 20;
+		const margin = 50;
+		let py = this.mouseY - parentBounds.top + margin;
 		if(py + bounds.height > (this.$el as HTMLDivElement).offsetHeight) {
-			py = this.mouseY - parentBounds.top - bounds.height - 20;
+			py = this.mouseY - parentBounds.top - bounds.height - margin;
 		}
 
 		holder.style.top = py+"px";
@@ -611,7 +732,7 @@ export default class MessageListFilter extends Vue {
 				flex-grow: 1;
 				overflow: auto;
 				margin: auto;
-				.item{
+				&>.item{
 					margin: auto;
 					font-size: .8em;
 					&:not(:first-child) {
@@ -623,6 +744,14 @@ export default class MessageListFilter extends Vue {
 
 					&.toggleAll {
 						margin-right: 0;
+					}
+				}
+				.children {
+					margin-bottom: .5em;
+					.item {
+						&:hover {
+							background-color: fade(@mainColor_light, 10%);
+						}
 					}
 				}
 			}

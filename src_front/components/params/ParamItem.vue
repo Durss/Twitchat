@@ -87,6 +87,7 @@
 			ref="param_child"
 			:key="'child_'+index+c.id"
 			:paramData="c"
+			:clearToggle="clearToggle"
 			:childLevel="childLevel+1" />
 
 		<div class="child" ref="param_child_slot" v-if="showSlot && $slots.default">
@@ -354,7 +355,7 @@ export default class ParamItem extends Vue {
 			width: 1em;
 			height: 1em;
 			object-fit: contain;
-			margin-right: 10px;
+			margin-right: .5em;
 		}
 		
 
@@ -457,16 +458,15 @@ export default class ParamItem extends Vue {
 		margin-left: auto;
 		margin-right: 0;
 		margin-top: 5px;
-		@padding:7%;
+		@padding:1.5em;
 		width: calc(100% - @padding);
 		position: relative;
 		:deep(.holder) {
 			&::before {
 				position: absolute;
-				left: -15px;
+				left: -1em;
 				content: "⤷";
 				display: block;
-				// margin-right: 5px;
 			}
 			label {
 				font-size: .9em;

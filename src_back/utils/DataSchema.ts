@@ -321,7 +321,6 @@ import Ajv from "ajv";
 		"p:highlightVips": {type:"boolean"},
 		"p:ignoreCommands": {type:"boolean"},
 		"p:ignoreListCommands": {type:"boolean"},
-		"p:keepDeletedMessages": {type:"boolean"},
 		"p:lockAutoScroll": {type:"boolean"},
 		"p:markAsRead": {type:"boolean"},
 		"p:minimalistBadges": {type:"boolean"},
@@ -341,7 +340,7 @@ import Ajv from "ajv";
 		"p:translateNames": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
-		"p:hideAutomodMessage": {type:"boolean"},
+		"p:keepDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:firstTimeMessage": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:keepHighlightMyMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:historySize": {type:"integer", minimum:50, maximum:500},//Keep it a little, remove it once most of the users have migrated their data

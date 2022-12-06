@@ -31,10 +31,27 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Contains config about a chat column
 	 */
-	export interface ChatColumnsConfig {
+	 export interface ChatColumnsConfig {
 		order:number;
 		size:number;
 		filters:{[key in typeof MessageListFilterTypes[number]]:boolean};
+		//Specific sub filters for chat messages
+		messageFilters:ChatColumnsConfigMessageFilters;
+	}
+	
+	/**
+	 * Contains chat message sub filters
+	 */
+	export interface ChatColumnsConfigMessageFilters {
+		automod:boolean;
+		suspiciousUsers:boolean;
+		deleted:boolean;
+		bots:boolean;
+		commands:boolean;
+		viewers:boolean;
+		moderators:boolean;
+		vips:boolean;
+		subs:boolean;
 	}
 
 	/**
@@ -903,7 +920,7 @@ export namespace TwitchatDataTypes {
 		highlightWord?: string;
 		hasMention?: boolean;
 		spoiler?: boolean;
-		bypassBotFilter?: boolean;
+		bypassBotFilter?: boolean;//used so messages sent by extensions are displayed
 		elevatedInfo?:{duration_s:number, amount:number};
 		
 		twitch_automod?: AutomodData;
@@ -913,7 +930,7 @@ export namespace TwitchatDataTypes {
 		twitch_isPresentation?:boolean;//True if user used the presentation feature
 		twitch_isSuspicious?: boolean;//True when user is flagged as suspicious
 		twitch_isRestricted?: boolean;//True when user is flagged as restricted
-		twitch_isHighlighted?: boolean;//True when using "hihglight my message" reward
+		twitch_isHighlighted?: boolean;//True when using "highlight my message" reward
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";//Announcement color
 	}
 

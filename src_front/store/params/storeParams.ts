@@ -45,10 +45,8 @@ export const storeParams = defineStore('params', {
 			defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size ({VALUE})", min:1, max:7, step:1, id:12},
 		},
 		filters: {
-			hideAutomodMessage:			{save:true, type:"toggle", value:false, label:"Hide messages held by automod", id:117, icon:"automod_purple.svg", tooltip:"If you have moderators that<br>can handle these messages for you<br>and want to protect yourself<br>from reading potentially<br>rough messages, enable this option"},
 			showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
-			keepDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Keep deleted messages", id:113},
-			censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Censor deleted messages", id:116, parent:113},
+			censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Censor deleted messages", id:116},
 			showSlashMe: 				{save:true, type:"toggle", value:true, label:"Show /me messages", id:101},
 			showBots: 					{save:true, type:"toggle", value:true, label:"Show known bot's messages", id:102},
 			hideUsers: 					{save:true, type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg", longText:true},
@@ -127,6 +125,17 @@ export const storeParams = defineStore('params', {
 					community_boost_complete:false,
 					community_challenge_contribution:false,
 				},
+				messageFilters:{
+					automod:true,
+					suspiciousUsers:true,
+					deleted:true,
+					bots:true,
+					commands:true,
+					moderators:true,
+					subs:true,
+					viewers:true,
+					vips:true,
+				}
 			}
 			this.chatColumnsConfig.push(col);
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
