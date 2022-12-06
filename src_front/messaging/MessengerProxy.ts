@@ -191,10 +191,6 @@ export default class MessengerProxy {
 		const params = message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
 		params.forEach((v, i) => { params[i] = v.trim() });
-		console.log("MMDFMFDMMDF");
-		console.log(message);
-		console.log(cmd);
-		console.log(params);
 
 		if(cmd == "/countdown") {
 			let duration = this.paramsToDuration(params[0]);
