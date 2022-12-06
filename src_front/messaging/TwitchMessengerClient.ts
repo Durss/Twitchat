@@ -103,7 +103,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
 				await StoreProxy.users.preloadTwitchModerators(v.id);
-				console.log("ROom", v.login, "initialiazed !");
+				//Check if we're a mod on this channel by testing if the get chatters endpoint
+				//returns something or not
+				const amIModThere = (await TwitchUtils.getChatters(v.id)) !== false;
+				if(amIModThere) {
+					let meObj = StoreProxy.auth.twitch.user;
+					//Go through getUserFrom() that will init the channelInfo property for later use
+					let me = StoreProxy.users.getUserFrom("twitch", v.id, meObj.id, meObj.login, meObj.displayName)
+					//Flag self as mod of that channel
+					me.channelInfo[v.id].is_moderator = true;
+				}
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
 				const meId = StoreProxy.auth.twitch.user.id;

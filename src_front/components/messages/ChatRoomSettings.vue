@@ -9,23 +9,23 @@
 			</div>
 			<div class="restriction" v-if="messageData.settings.subOnly" ref="sub">
 				<span><img class="icon" src="@/assets/icons/sub.svg" />Sub only</span>
-				<Button title="unset" small class="unsetBt" @click="unset('sub')" />
+				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('sub')" />
 			</div>
 			<div class="restriction" v-if="messageData.settings.emotesOnly" ref="emote">
 				<span><img class="icon" src="@/assets/icons/emote.svg" />Emotes only</span>
-				<Button title="unset" small class="unsetBt" @click="unset('emote')" />
+				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('emote')" />
 			</div>
 			<div class="restriction" v-if="messageData.settings.followOnly" ref="follow">
 				<span><img class="icon" src="@/assets/icons/follow.svg" />Followers only</span>
-				<Button title="unset" small class="unsetBt" @click="unset('follow')" />
+				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('follow')" />
 			</div>
 			<div class="restriction" v-if="messageData.settings.slowMode" ref="slow">
 				<span><img class="icon" src="@/assets/icons/slow.svg" />Slow mode ({{messageData.settings.slowMode}}s)</span>
-				<Button title="unset" small class="unsetBt" @click="unset('slow')" />
+				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('slow')" />
 			</div>
 			<div class="restriction" v-if="messageData.settings.chatDelay" ref="delay">
 				<span><img class="icon" src="@/assets/icons/timer.svg" />Chat delay ({{messageData.settings.chatDelay}}s)</span>
-				<Button title="unset" small class="unsetBt" @click="unset('delay')" />
+				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('delay')" />
 			</div>
 		</div>
 	</div>
@@ -56,15 +56,18 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 export default class ChatRoomSettings extends Vue {
 
 	public messageData!:TwitchatDataTypes.MessageRoomSettingsData;
+	public isMod:boolean = false;
 
 	public get time():string {
 		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
-	public mounted():void {
-		// console.log("OFKDOKFD");
-		// console.log(this.messageData);
+	public beforeMount(): void {
+		const authUser = this.$store("auth")[this.messageData.platform].user;
+		//Go through getUserFrom() method so the channelInfo is properly initialised
+		const user = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, authUser.id, authUser.login, authUser.displayName)
+		this.isMod = user.channelInfo[this.messageData.channel_id].is_moderator;
 	}
 
 	public unset(prop:"sub"|"follow"|"delay"|"slow"|"emote"):void {
