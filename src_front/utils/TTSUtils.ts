@@ -283,7 +283,9 @@ export default class TTSUtils {
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					mess = message.message_html.replace(/<[^>]*?>/gi, "");//Remove all HTML tags
+					mess = message.message_html.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");//Remove all HTML tags
+					console.log(message.message_html);
+					console.log(mess);
 				}
 				if(paramsTTS.removeURL) {
 					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
@@ -308,7 +310,7 @@ export default class TTSUtils {
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					mess = message.message_html.replace(/<[^>]*?>/gi, "");//Remove all HTML tags
+					mess = message.message_html.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");//Remove all HTML tags
 				}
 				if(paramsTTS.removeURL) {
 					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
@@ -327,7 +329,7 @@ export default class TTSUtils {
 
 				if(!message.message) return "";
 
-				const mess: string = message.message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
+				const mess: string = message.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gim, "");//Strip HTML tags;
 				const txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
 				return txt;
 			}
