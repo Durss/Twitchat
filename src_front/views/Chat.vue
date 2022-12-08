@@ -116,7 +116,7 @@
 
 		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
 
-		<DonorState ref="donor" class="donorState" v-if="isDonor" @click="closeDonorCard()" />
+		<DonorState ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 
 		<UserCard />
 
@@ -217,7 +217,7 @@ import type { StyleValue } from 'vue';
 })
 export default class Chat extends Vue {
 
-	public isDonor = true;
+	public showDonorBadge = true;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;
@@ -283,7 +283,7 @@ export default class Chat extends Vue {
 	public beforeMount():void {
 
 		//Check user reached a new donor level
-		this.isDonor = StoreProxy.auth.twitch.user.donor.upgrade===true;
+		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
 
 		//Define if store sync modal should be displayed
 		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
@@ -392,7 +392,7 @@ export default class Chat extends Vue {
 	}
 
 	public mounted():void {
-		if(this.isDonor) {
+		if(this.showDonorBadge) {
 			//Show donor badge
 			const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
 			gsap.from(el, {bottom:"-350px", duration:2, ease:"back.out", delay:1});
@@ -430,7 +430,7 @@ export default class Chat extends Vue {
 		this.closingDonorState = true;
 		const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
 		gsap.to(el, {bottom:"-350px", duration:1, ease:"back.in", onComplete:()=>{
-			this.isDonor = false;
+			this.showDonorBadge = false;
 		}});
 	}
 
