@@ -1016,8 +1016,32 @@ export default class PubSub extends EventDispatcher {
 	 * Called when sending or receiving a shoutout
 	 * @param data 
 	 */
-	private shoutoutEvent(data:PubSubDataTypes.Shoutout):void {
+	private async shoutoutEvent(data:PubSubDataTypes.Shoutout):Promise<void> {
+		const me = StoreProxy.auth.twitch.user;
+		const received = me.id == data.data.targetUserID;
+		let user!:TwitchatDataTypes.TwitchatUser;
+		if(received) {
+			user = StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.sourceUserID, data.data.sourceLogin);
+		}else{
+			user = StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.broadcasterUserID, data.data.targetLogin, data.data.targetUserDisplayName);
+		}
 		
+		const stream = (await TwitchUtils.loadCurrentStreamInfo([user.id]))[0];
+		
+		const message:TwitchatDataTypes.MessageShoutoutData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
+			user,
+			viewerCount:stream?.viewer_count ?? 0,
+			stream: {
+				category:stream?.game_name ?? "",
+				title:stream?.title ?? "",
+			},
+			received,
+		};
+		StoreProxy.chat.addMessage(message);
 	}
 	
 

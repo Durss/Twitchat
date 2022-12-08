@@ -6,7 +6,7 @@
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 
 		<span v-if="userList.length > 0" v-for="u, index in userList" :key="u.id">
-			<a @click.prevent="openUserCard(u)">{{u.displayName}}</a>
+			<a class="userlink" @click.prevent="openUserCard(u)">{{u.displayName}}</a>
 			<span v-if="index < userList.length - 2 + remainingOffset">,&nbsp;</span>
 			<span v-else-if="index < userList.length - 1 + remainingOffset">&nbsp;and&nbsp;</span>
 		</span>
@@ -107,12 +107,9 @@ export default class ChatJoinLeave extends Vue {
 		background-color: fade(@mainColor_warn, 20%);
 	}
 
-	a, strong {
+	strong {
 		color: @mainColor_warn_light;
 		opacity: .7;
-	}
-	a:hover {
-		background-color: @mainColor_dark;
 	}
 
 	&.alert {

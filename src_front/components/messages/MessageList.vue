@@ -21,17 +21,17 @@
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
 				<ChatAd class="message"
-					v-if="m.type == 'twitchat_ad' && !lightMode"
+					v-if="m.type == 'twitchat_ad'"
 					@showModal="(v: string) => $emit('showModal', v)"
 					:messageData="m" />
 
 				<ChatJoinLeave class="message"
-					v-else-if="(m.type == 'join' || m.type == 'leave') && !lightMode"
+					v-else-if="(m.type == 'join' || m.type == 'leave')"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
 				<ChatConnect class="message"
-					v-else-if="(m.type == 'connect' || m.type == 'disconnect') && !lightMode"
+					v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
@@ -88,18 +88,20 @@
 
 				<ChatRoomSettings class="message"
 					v-else-if="m.type == 'room_settings'"
-					lightMode
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
 				<ChatClear class="message"
 					v-else-if="m.type == 'clear_chat'"
-					lightMode
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
+				<ChatShoutout class="message"
+					v-else-if="m.type == 'shoutout'"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
 				<ChatHighlight v-else class="message"
-					lightMode
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
@@ -198,6 +200,7 @@ import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatRoomSettings from './ChatRoomSettings.vue';
+import ChatShoutout from './ChatShoutout.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
 
@@ -209,6 +212,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 		ChatNotice,
 		ChatConnect,
 		ChatMessage,
+		ChatShoutout,
 		ChatHighlight,
 		ChatJoinLeave,
 		ChatPollResult,
@@ -477,16 +481,22 @@ export default class MessageList extends Vue {
 		// let blockedSpecificCmds = blockedCmds.split(/[^a-z0-9_]+/gi);//Split commands by non-alphanumeric characters
 		// blockedSpecificCmds = blockedSpecificCmds.map(v => v.replace(/^!/gi, ""))//Remove "!" at the beginning
 
+		if(this.lightMode) {
+			//If in light mode, only allow normal chat messages that are not deleted/moded/...
+			return m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				&& !m.automod
+				&& !m.deleted
+				&& !m.twitch_automod
+				&& !m.twitch_isSuspicious
+				&& !m.twitch_isRestricted
+				&& !m.user.channelInfo[m.channel_id].is_blocked;
+		}
+
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				const chanInfo = m.user.channelInfo[m.channel_id];
 
 				if(this.config.filters.message === false) return false;
-				
-				//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
-				if (this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
-					return false;
-				}
 
 				//Ignore /me messages if requested
 				// if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
@@ -634,6 +644,10 @@ export default class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				return this.config.filters.notice === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
+				return this.config.filters.shoutout === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {

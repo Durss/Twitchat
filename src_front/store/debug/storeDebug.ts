@@ -497,11 +497,30 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
 					const m:TwitchatDataTypes.MessageClearChatData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
+						type,
 						id:Utils.getUUID(),
 						channel_id:uid,
 						date:Date.now(),
 						fromAutomod:true,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
+					const stream = (await TwitchUtils.loadChannelInfo([user.id]))[0];
+					const m:TwitchatDataTypes.MessageShoutoutData = {
+						platform:"twitch",
+						type,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						received:false,
+						user:fakeUser,
+						viewerCount: Math.round(Math.random()*999),
+						stream: {
+							title:stream.title,
+							category:stream.game_name,
+						}
 					};
 					data = m;
 					break;

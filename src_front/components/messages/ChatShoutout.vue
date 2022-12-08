@@ -1,10 +1,12 @@
 <template>
-	<div class="chatclear" @click.capture.ctrl.stop="copyJSON()"
+	<div class="chatshoutout" @click.capture.ctrl.stop="copyJSON()"
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<span>Chat room <strong>#{{room}}</strong> cleared&nbsp;</span>
-		<span v-if="messageData.user">by <a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a></span>
-		<span v-if="messageData.fromAutomod">by <strong>automod</strong></span>
+
+		<img src="@/assets/icons/shoutout.svg" alt="shoutout" class="icon">
+
+		<span v-if="messageData.received"><a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a> gave you a shoutout to <strong>{{messageData.viewerCount}}</strong> viewers</span>
+		<span v-else>You gave you a shoutout to <a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a></span>
 	</div>
 </template>
 
@@ -21,10 +23,9 @@ import { Options, Vue } from 'vue-class-component';
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatClear extends Vue {
-
-	public messageData!:TwitchatDataTypes.MessageClearChatData;
-	public room:string = "";
+export default class ChatShoutout extends Vue {
+	
+	public messageData!:TwitchatDataTypes.MessageShoutoutData;
 
 	public get time():string {
 		const d = new Date(this.messageData.date);
@@ -32,7 +33,7 @@ export default class ChatClear extends Vue {
 	}
 
 	public mounted():void {
-		this.room = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id).login;
+		
 	}
 
 	public openUserCard():void {
@@ -49,7 +50,8 @@ export default class ChatClear extends Vue {
 </script>
 
 <style scoped lang="less">
-.chatclear{
+.chatshoutout{
 	.chatMessageHighlight();
+	
 }
 </style>

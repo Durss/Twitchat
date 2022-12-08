@@ -942,7 +942,7 @@ export const storeChat = defineStore('chat', {
 				await MessengerProxy.instance.sendMessage(message);
 				
 				if(user) {
-					const trigger:TwitchatDataTypes.MessageShoutoutData = {
+					const so:TwitchatDataTypes.MessageShoutoutData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:user.platform,
@@ -952,8 +952,10 @@ export const storeChat = defineStore('chat', {
 							title:streamTitle,
 							category:streamCategory,
 						},
+						received:false,
+						viewerCount:StoreProxy.stream.playbackState?.viewers ?? 0,
 					};
-					TriggerActionHandler.instance.onMessage(trigger)
+					this.addMessage(so);
 				}
 			}else{
 				//Warn user doesn't exist

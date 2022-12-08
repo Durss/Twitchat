@@ -166,6 +166,7 @@ export const storeAuth = defineStore('auth', {
 					const prevLevel = isNaN(storeLevel)? -1 : storeLevel;
 					const donorRes = await fetch(Config.instance.API_PATH+"/user/donor", options);
 					const donorJSON = await donorRes.json();
+					
 					this.twitch.user.donor.state	= donorJSON.data?.isDonor === true;
 					this.twitch.user.donor.level	= donorJSON.data?.level;
 					this.twitch.user.donor.upgrade	= donorJSON.data?.level != prevLevel;

@@ -751,7 +751,7 @@ export namespace TwitchatDataTypes {
 		whisper:true,
 		connect:true,
 		voicemod:false,
-		shoutout:false,
+		shoutout:true,
 		following:true,
 		countdown:true,
 		clear_chat:true,
@@ -875,6 +875,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.NOTICE,
 		TwitchatMessageType.MESSAGE,
 		TwitchatMessageType.WHISPER,
+		TwitchatMessageType.SHOUTOUT,
 		TwitchatMessageType.FOLLOWING,
 		TwitchatMessageType.COUNTDOWN,
 		TwitchatMessageType.PREDICTION,
@@ -1334,6 +1335,8 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageShoutoutData extends AbstractTwitchatMessage {
 		type:"shoutout";
+		received:boolean;//If true it means that the shoutout has been given to self on another channel
+		viewerCount:number;
 		user:TwitchatDataTypes.TwitchatUser;
 		stream:{
 			title: string;

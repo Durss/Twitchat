@@ -233,6 +233,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE] = "Notices";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = "Chat messages";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.WHISPER] = "Whispers";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT] = "Shoutouts";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING] = "Follows";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN] = "Countdown";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = "Predictions";
@@ -256,6 +257,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.NOTICE] = "info.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = "user.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.WHISPER] = "whispers.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT] = "shoutout.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.FOLLOWING] = "follow.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN] = "countdown.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = "prediction.svg";
@@ -280,6 +282,7 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
 			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
 			TwitchatDataTypes.TwitchatMessageType.RAID,
+			TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
 			TwitchatDataTypes.TwitchatMessageType.REWARD,
 			TwitchatDataTypes.TwitchatMessageType.POLL,
 			TwitchatDataTypes.TwitchatMessageType.PREDICTION,
@@ -571,6 +574,8 @@ export default class MessageListFilter extends Vue {
 			}
 			case "moderation": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.RAID );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.MESSAGE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
 				for (const key in this.config.messageFilters) {
@@ -586,6 +591,7 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BINGO );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAFFLE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.REWARD );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.FOLLOWING );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );

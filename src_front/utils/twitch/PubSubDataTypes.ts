@@ -16,6 +16,22 @@ export namespace PubSubDataTypes {
 		user_id: string;
 	}
 
+	export interface Shoutout {
+		type: "create";
+		data: {
+			broadcasterUserID:string;
+			targetUserID:string;//user a shoutout has been given to
+			targetLogin:string;
+			targetUserProfileImageURL:string;
+			sourceUserID:string;//user that made the shoutout
+			sourceLogin:string;
+			shoutoutID:string;
+			targetUserDisplayName:string;
+			targetUserCTAInfo:string;
+			targetUserPrimaryColorHex:string;
+		}
+	}
+
 	export interface PlaybackInfo {
 		type: string;
 		server_time: number;

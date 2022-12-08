@@ -145,7 +145,7 @@ export default class ChatHypeTrainResult extends Vue {
 			.highlight();
 			padding-top: .25em;
 			padding-bottom: .25em;
-			cursor: pointer;
+			cursor: default;
 			
 			.icon {
 				height: 1em;

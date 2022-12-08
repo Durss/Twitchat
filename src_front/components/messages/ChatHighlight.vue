@@ -2,18 +2,20 @@
 	<div class="chathighlight" @click.capture.ctrl.stop="copyJSON()"
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 
 		<ChatMessageInfos :infos="badgeInfos" />
 		
 		<div class="messageHolder">
 			<span class="reason">
-				<a class="username" v-if="user" @click.stop="openUserCard(user!)">{{user.displayName}}</a>
+				<a class="userlink" v-if="user" @click.stop="openUserCard(user!)">{{user.displayName}}</a>
 				<span class="text" v-html="reason"></span>
 				<span class="additionalUsers" v-if="additionalUsers?.length > 0"
 					v-for="u, index in additionalUsers" :key="u.id">
-					<a class="username" @click.stop="openUserCard(u)">{{u.displayName}}</a>
-					<span v-if="index < additionalUsers.length-1">, </span>
+					<a class="userlink" @click.stop="openUserCard(u)">{{u.displayName}}</a>
+					<span v-if="(index == additionalUsers.length-2)">and </span>
+					<span v-else-if="index < additionalUsers.length-1">, </span>
 				</span>
 			</span>
 			<div class="info" v-if="info" v-html="info"></div>
@@ -361,11 +363,6 @@ export default class ChatHighlight extends Vue {
 			color: #fff;
 			:deep(.small) {
 				font-size: .6em;
-			}
-			.username {
-				font-weight: bold;
-				color: @mainColor_warn;
-				margin-right: .25em;
 			}
 
 			.additionalUsers:not(.additionalUsers ~ .additionalUsers) {

@@ -25,7 +25,6 @@ import { Options, Vue } from 'vue-class-component';
 @Options({
 	props:{
 		messageData:Object,
-		lightMode:Boolean,
 	},
 	components:{
 	},
@@ -33,7 +32,6 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class ChatFollowbotEvents extends Vue {
 	public messageData!:TwitchatDataTypes.MessageFollowbotData;
-	public lightMode!:boolean;
 
 	public expand:boolean = false;
 

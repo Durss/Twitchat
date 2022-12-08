@@ -33,6 +33,8 @@
 			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Restricted user" @click="simulateRestricted()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
+			<Button small title="Send shoutout" @click="simulateEvent('shoutout')" :icon="$image('icons/shoutout.svg')" />
+			<Button small title="Receive shoutout" @click="simulateEvent('shoutout', 'soReceived')" :icon="$image('icons/shoutout.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
 		</div>
@@ -103,6 +105,7 @@ export default class DevmodeMenu extends Vue {
 	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
 		this.$store("debug").simulateMessage(type, async (message)=> {
 			switch(subAction) {
+				case "soReceived":		(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;
 				case "first":			(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
 				case "returning":		(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
 				case "presentation":	(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
@@ -200,7 +203,7 @@ export default class DevmodeMenu extends Vue {
 
 }
 
-type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "giftpaidupgrade";
+type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "giftpaidupgrade" | "soReceived";
 
 </script>
 
