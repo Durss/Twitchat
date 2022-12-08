@@ -82,6 +82,7 @@ export default class MessengerProxy {
 	*******************/
 	private initialize():void {
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.MESSAGE, (e:MessengerClientEvent)=> this.onMessage(e));
+		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.DELETE_MESSAGE, (e:MessengerClientEvent)=> this.onDeleteMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.WHISPER, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.SUB, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.CHEER, (e:MessengerClientEvent)=> this.onMessage(e));
@@ -99,9 +100,22 @@ export default class MessengerProxy {
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REFRESH_TOKEN, (e:MessengerClientEvent)=> this.onRefreshToken(e));
 	}
 
+	/**
+	 * Called when a new message is received
+	 * @param e 
+	 */
 	private onMessage(e:MessengerClientEvent):void {
-		if(e.data) {
+		if(e.data && typeof e.data != "string") {//Typeof check only here for linting
 			StoreProxy.chat.addMessage(e.data);
+		}
+	}
+
+	/**
+	 * Called when a message is deleted
+	 */
+	private onDeleteMessage(e:MessengerClientEvent):void {
+		if(e.data && typeof e.data == "string") {//Typeof check only here for linting
+			StoreProxy.chat.deleteMessageByID(e.data, undefined, false);
 		}
 	}
 

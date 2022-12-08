@@ -4,6 +4,7 @@ import { Event } from '@/events/EventDispatcher';
 export default class MessengerClientEvent extends Event {
 
 	public static MESSAGE = "MESSAGE";
+	public static DELETE_MESSAGE = "DELETE_MESSAGE";
 	public static WHISPER = "WHISPER";
 	public static SUB = "SUB";
 	public static CHEER = "CHEER";
@@ -32,10 +33,12 @@ export default class MessengerClientEvent extends Event {
 					TwitchatDataTypes.MessageClearChatData |
 					TwitchatDataTypes.MessageRewardRedeemData |
 					TwitchatDataTypes.MessageNoticeData |
-					TwitchatDataTypes.MessageTimeoutData
+					TwitchatDataTypes.MessageTimeoutData |
+					string
 					;
 	
 	constructor(type:"MESSAGE", data:TwitchatDataTypes.MessageChatData);
+	constructor(type:"DELETE_MESSAGE", data:string);
 	constructor(type:"WHISPER", data:TwitchatDataTypes.MessageWhisperData);
 	constructor(type:"CHEER", data:TwitchatDataTypes.MessageCheerData);
 	constructor(type:"CONNECTED", data:TwitchatDataTypes.MessageConnectData);
