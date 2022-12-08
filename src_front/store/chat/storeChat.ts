@@ -963,16 +963,17 @@ export const storeChat = defineStore('chat', {
 			
 		},
 
-		flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number) {
-			const sChat = storeChat();
-			//Ignore message if user is "restricted"
-			if(data.low_trust_user.treatment == 'RESTRICTED') return;
-
-			const list = sChat.messages;
+		async flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void> {
+			const list = this.messages;
 			for (let i = 0; i < list.length; i++) {
 				const m = list[i];
 				if(m.id == data.message_id && m.type == "message") {
+					if(data.low_trust_user.shared_ban_channel_ids?.length > 0) {
+						const users = await TwitchUtils.loadUserInfo(data.low_trust_user.shared_ban_channel_ids);
+						m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
+					}
 					m.twitch_isSuspicious = true;
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
 					return;
 				}
 			}

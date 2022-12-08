@@ -292,11 +292,11 @@ export default class MessageListFilter extends Vue {
 				const keyToLabel:{[key in messageFilterTypes]:string} = {
 					viewers:"Sent by viewers",
 					vips:"Sent by VIPs",
-					subs:"Sent by VISubs",
+					subs:"Sent by Subs",
 					moderators:"Sent by Moderators",
 					bots:"Sent by bots",
 					deleted:"Deleted messages",
-					automod:"Automoded messages",
+					automod:"Blocked messages",
 					suspiciousUsers:"Sent by suspicious users",
 					commands:"Commands (starting with \"!\")",
 				}
@@ -427,9 +427,10 @@ export default class MessageListFilter extends Vue {
 		this.subMessagesCache[type] = [];
 		this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 			this.loadingPreview = false;
+			if(!data) return;
+			
 			const dataCast = data as TwitchatDataTypes.MessageChatData;
 
-			if(!data) return;
 			if(type == "automod") {
 				let words:string[] = [];
 				do {
@@ -447,11 +448,34 @@ export default class MessageListFilter extends Vue {
 				return;
 			}
 
-			this.subMessagesCache[type] = [data];
-
 			if(previewIndexLoc != this.previewIndex) return;
-			this.previewData = [data];
+
+			this.previewData.push(data);
+			this.subMessagesCache[type] = this.previewData;
+
 		}, false);
+		
+		if(type == "automod") {
+			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+				if(!data) return;
+
+				const dataCast = data as TwitchatDataTypes.MessageChatData;
+				dataCast.twitch_isRestricted = true;
+				const users:TwitchatDataTypes.TwitchatUser[] = [];
+				const list = this.$store("users").users;
+				for (let i = 0; i < list.length; i++) {
+					users.push(list[i]);
+					if(Math.random() > .3) break;
+				}
+
+				dataCast.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })
+
+				if(previewIndexLoc != this.previewIndex) return;
+
+				this.previewData.push(data);
+				this.subMessagesCache[type] = this.previewData;
+			}, false);
+		}
 	}
 
 	/**

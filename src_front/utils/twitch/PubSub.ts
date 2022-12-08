@@ -752,7 +752,7 @@ export default class PubSub extends EventDispatcher {
 	 * 
 	 * @param localObj
 	 */
-	private lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):void {
+	private async lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):Promise<void> {
 		if(localObj.low_trust_user.treatment == 'RESTRICTED') {
 			//Rebuild message
 			let textMessage = "";
@@ -782,6 +782,8 @@ export default class PubSub extends EventDispatcher {
 				message_html:textMessage,
 				twitch_isRestricted:true,
 			}
+			const users = await TwitchUtils.loadUserInfo(localObj.low_trust_user.shared_ban_channel_ids);
+			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 			StoreProxy.chat.addMessage(m);
 
 		}else{

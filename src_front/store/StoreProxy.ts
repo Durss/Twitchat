@@ -180,7 +180,7 @@ export interface IChatActions {
 	pinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
 	unpinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
 	highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null):Promise<void>;
-	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):void;
+	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void>;
 	gigaSpam():Promise<void>;
 }
 

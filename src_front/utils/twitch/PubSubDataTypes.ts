@@ -476,6 +476,8 @@ export namespace PubSubDataTypes {
 			login: string;
 			display_name: string;
 		};
+		shared_ban_channel_ids: string[];
+		types: "BANNED_IN_SHARED_CHANNEL"[];
 	}
 
 	export interface RaidInfos {

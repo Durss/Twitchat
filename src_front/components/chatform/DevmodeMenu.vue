@@ -30,6 +30,7 @@
 			<Button small title="Raffle result" @click="simulateEvent('raffle')" :icon="$image('icons/ticket.svg')" />
 			<Button small title="Countdown result" @click="simulateEvent('countdown')" :icon="$image('icons/timer.svg')" />
 			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
+			<Button small title="Restricted user" @click="simulateRestricted()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
@@ -176,6 +177,22 @@ export default class DevmodeMenu extends Vue {
 		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageChatData);
 			m.twitch_isSuspicious = true;
+			return true;
+		});
+	}
+
+	public simulateRestricted():void {
+		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+			const m = (message as TwitchatDataTypes.MessageChatData);
+			m.twitch_isRestricted = true;
+			const users:TwitchatDataTypes.TwitchatUser[] = [];
+			const list = StoreProxy.users.users;
+			for (let i = 0; i < list.length; i++) {
+				users.push(list[i]);
+				if(Math.random() > .3) break;
+			}
+
+			m.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })
 			return true;
 		});
 	}

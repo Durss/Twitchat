@@ -74,7 +74,10 @@
 			@click.stop="openUserCard(recipient!)"> &gt; {{recipient.displayName}}</span>
 		</div>
 		
+		<span class="sharedBan" v-if="userBannedOnChannels"> • Banned in {{userBannedOnChannels}}</span>
+		
 		<span v-if="channelInfo.is_blocked !== true">: </span>
+		
 		<span class="message" v-if="channelInfo.is_blocked !== true">
 			<span class="text" v-html="text" @click="clickMessage"></span>
 			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
@@ -111,7 +114,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { watch, watchEffect } from '@vue/runtime-core';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
@@ -155,6 +158,7 @@ export default class ChatMessage extends Vue {
 	public isPresentation:boolean = false;
 	public isReturning:boolean = false;
 	public automodInProgress:boolean = false;
+	public userBannedOnChannels:string = "";
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
@@ -350,11 +354,9 @@ export default class ChatMessage extends Vue {
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
-			watchEffect(()=> {
-				if(mess.twitch_isSuspicious) {
-					infoBadges.push({type:"suspiciousUser", label:"suspicious", tooltip:"User is flaged as suspicious"});
-				}
-			})
+			watch(()=> mess.twitch_isSuspicious, () =>{
+				this.updateSuspiciousState();
+			});
 			if(mess.twitch_isRestricted) {
 				infoBadges.push({type:"restrictedUser", label:"restricted", tooltip:"Message only visible by<br>you and your mods"});
 			}
@@ -432,6 +434,7 @@ export default class ChatMessage extends Vue {
 		this.infoBadges = infoBadges;
 		this.staticClasses = staticClasses;
 		this.$store("accessibility").setAriaPolite(this.messageData.message);
+		this.updateSuspiciousState();
 	}
 
 	/**
@@ -533,8 +536,26 @@ export default class ChatMessage extends Vue {
 		this.showTools = false;
 		this.$emit('onMouseOut', this.messageData)
 	}
+	
 	public onMouseEnter():void{
 		this.showTools = true;
+	}
+	
+	private updateSuspiciousState():void{
+		if(this.messageData.type === TwitchatDataTypes.TwitchatMessageType.WHISPER) return;
+		
+		if(this.messageData.twitch_isSuspicious && this.infoBadges.findIndex(v=> v.type == "suspiciousUser") == -1) {
+			this.infoBadges.push({type:"suspiciousUser", label:"suspicious", tooltip:"User is flaged as suspicious"});
+		}
+		
+		if(this.messageData.twitch_isRestricted && this.infoBadges.findIndex(v=> v.type == "restrictedUser") == -1) {
+			this.infoBadges.push({type:"restrictedUser", label:"restricted", tooltip:"Message only visible by<br>you and your mods"});
+		}
+		
+		let users = (this.messageData.twitch_sharedBanChannels?.map(v=>v.login) ?? []);
+		if(users.length > 0) {
+			this.userBannedOnChannels = users.join(", ").replace(/(.*),/, "$1 and");
+		}
 	}
 }
 </script>
@@ -624,7 +645,7 @@ export default class ChatMessage extends Vue {
 			vertical-align: middle;
 
 			&:not(:last-child) {
-				margin-right: 5px;
+				margin-right: .25em;
 			}
 
 			&.convBt {
@@ -640,7 +661,7 @@ export default class ChatMessage extends Vue {
 		}
 
 		.infoBadges {
-			margin: 0 .4em;
+			margin-right: .4em;
 		}
 
 		.userBadges {
@@ -699,7 +720,7 @@ export default class ChatMessage extends Vue {
 			display: inline-block;
 			background: @mainColor_warn;
 			padding: .2em .4em;
-			margin-right: 5px;
+			margin-right: .25em;
 			font-weight: bold;
 			border-radius: 10px;
 			color:@mainColor_dark;
@@ -711,9 +732,15 @@ export default class ChatMessage extends Vue {
 			color: @mainColor_light;
 			border: 1px solid @mainColor_light;
 			padding: 0 .1em;
-			margin-right: 5px;
+			margin-right: .25em;
 			vertical-align: middle;
 		}
+	}
+
+	.sharedBan {
+		color: @mainColor_alert;
+		font-weight: bold;
+		margin-right: .25em;
 	}
 
 	.message {
@@ -792,8 +819,8 @@ export default class ChatMessage extends Vue {
 	&.hasHeader {
 		color: #fff;
 		background-color: rgba(255, 255, 255, .15);
-		border-radius: 5px;
-		margin: 5px 0;
+		border-radius: .25em;
+		margin: .25em 0;
 		padding-top: 0;
 		.header {
 			display: flex;
@@ -802,14 +829,14 @@ export default class ChatMessage extends Vue {
 			justify-content: center;
 			.icon {
 				height: 1.2em;
-				margin: 5px;
+				margin: .25em;
 			}
 		}
 	}
 
 	&.automod {
-		margin-top: 5px;
-		border-radius: 5px;
+		margin-top: .25em;
+		border-radius: .25em;
 		padding-top: 0;
 		background-color: fade(@mainColor_alert, 50%);
 
@@ -861,7 +888,7 @@ export default class ChatMessage extends Vue {
 
 	.noFollowBadge {
 		height: 1em;
-		margin-right: 5px;
+		margin-right: .25em;
 		vertical-align: middle;
 	}
 

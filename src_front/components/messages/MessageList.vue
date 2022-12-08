@@ -478,16 +478,8 @@ export default class MessageList extends Vue {
 				//If in light mode, ignore automoded and deleted messages or messages sent by blocked users
 				if (this.lightMode && (m.automod || m.deleted || m.user.channelInfo[m.channel_id].is_blocked)) {
 					return false;
-				} else 
-				//Ignore automod/restricted messages if requested
-				if (this.config.messageFilters.automod !== true === true &&
-				(m.twitch_automod || m.twitch_isRestricted)) {
-					return false;
-				} else
-				//Ignore deleted messages if requested
-				if (this.config.messageFilters.deleted !== true && m.deleted) {
-					return false;
-				} else
+				}
+
 				//Ignore /me messages if requested
 				// if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
 				// 	return false;
@@ -495,37 +487,60 @@ export default class MessageList extends Vue {
 				//Ignore self if requested
 				if (sParams.filters.showSelf.value === false && m.user.id == meUID) {
 					return false;
-				} else
+				}
+
 				//Ignore bot messages if requested
 				if (this.config.messageFilters.bots !== true
 					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
 					&& m.bypassBotFilter !== true) {
 					return false;
-				} else
+				}
+
 				//Ignore custom users
 				if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
 					return false;
-				} else
+				}
 
 				//Ignore commands
-				if (this.config.messageFilters.commands !== true && /^ *!.*/gi.test(m.message)) {
-					// if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
-					// 	//Ignore specific commands
-					// 	const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
-					// 	if (blockedSpecificCmds.includes(cmd)) {
-					// 		return false;
-					// 	}
-					// } else {
-						//Ignore all commands
-						return false;
-					// }
-				}else if(m.user.is_bot) {
+				// if (this.config.messageFilters.commands !== true && m.message.trim().charAt(0) == "!") {
+				// 	// if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
+				// 	// 	//Ignore specific commands
+				// 	// 	const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
+				// 	// 	if (blockedSpecificCmds.includes(cmd)) {
+				// 	// 		return false;
+				// 	// 	}
+				// 	// } else {
+				// 		//Ignore all commands
+				// 		return false;
+				// 	// }
+				// }
+
+				//Second test for some types so deleted/automoded/... messages can still be
+				//displayed even if all the viewers/mod/vip/sub filters are off
+				if ((m.twitch_automod || m.twitch_isRestricted)) {
+					return this.config.messageFilters.automod !== false;
+				}
+				if (m.deleted) {
+					return this.config.messageFilters.deleted !== false;
+				}
+				if (m.twitch_isSuspicious) {
+					return this.config.messageFilters.suspiciousUsers !== false;
+				}
+				if (m.message.trim().charAt(0) == "!") {
+					return this.config.messageFilters.commands !== false;
+				}
+
+				//User types filters
+				if(m.user.is_bot) {
 					return this.config.messageFilters.bots !== false;
-				}else if(chanInfo.is_moderator) {
+				}
+				if(chanInfo.is_moderator) {
 					return this.config.messageFilters.moderators !== false;
-				}else if(chanInfo.is_vip) {
+				}
+				if(chanInfo.is_vip) {
 					return this.config.messageFilters.vips !== false;
-				}else if(chanInfo.is_subscriber) {
+				}
+				if(chanInfo.is_subscriber) {
 					return this.config.messageFilters.subs !== false;
 				}
 
@@ -639,7 +654,7 @@ export default class MessageList extends Vue {
 		//add the new messages to the pending list
 		const chatPaused = this.lockScroll;// || this.pendingMessages.length > 0 || el.scrollTop < maxScroll;
 		if (chatPaused) {
-			this.pendingMessages.push(m);
+			if(this.shouldShowMessage(m)) this.pendingMessages.push(m);
 			if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 				this.lockedLiveMessages.push(m);
@@ -661,27 +676,29 @@ export default class MessageList extends Vue {
 	 */
 	private onDeleteMessage(e: GlobalEvent): void {
 		const message = e.data as TwitchatDataTypes.ChatMessageTypes;
-		
-		if (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			//Do not remove if not requested
-			if(this.config.messageFilters.deleted !== false) return;
-		}
 
 		//remove from displayed messages
 		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
 			const m = this.filteredMessages[i];
 			if (m.id == message.id) {
-				this.filteredMessages.splice(i, 1);
-				break;
+				if(!this.shouldShowMessage(m)) {
+					this.filteredMessages.splice(i, 1);
+				}
+				return;
 			}
 		}
 
-		//Remove from pending messages
+		//Check if it's in the pending messages
 		for (let i = this.pendingMessages.length - 1; i >= 0; i--) {
 			const m = this.pendingMessages[i];
-			if (m.id == message.id) {
-				this.pendingMessages.splice(i, 1);
-				break;
+			if (m.id == message.id) return
+		}
+
+		if(this.shouldShowMessage(message)) {
+			if(this.pendingMessages.length > 0) {
+				this.pendingMessages.push(message);
+			}else{
+				this.filteredMessages.push(message);
 			}
 		}
 	}

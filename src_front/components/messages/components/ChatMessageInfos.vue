@@ -1,7 +1,8 @@
 <template>
 	<div class="chatmessageinfos">
 		<div v-for="i in infos" :class="['item', i.type].join(' ')" :data-tooltip="i.tooltip">
-			<img :src="getIcon(i)" alt="emergency" v-if="getIcon(i)"> {{getLabel(i)}}
+			<img :src="getIcon(i)" alt="emergency" v-if="getIcon(i)">
+			<span>{{getLabel(i)}}</span>
 		</div>
 	</div>
 </template>
@@ -60,17 +61,13 @@ export default class ChatMessageInfos extends Vue {
 	display: inline-flex;
 	flex-direction: row;
 	align-items: center;
-	justify-content: center;
 
 	.item {
-		font-size: 1em;
-		border-radius: 3px;
+		border-radius: .25em;
 		padding: .085em .4em;
-		vertical-align: middle;
 		color: @mainColor_light;
 		background-color: @mainColor_normal;
 		white-space: nowrap;
-		display: inline;
 		cursor: default;
 
 		&:not(:last-child) {
@@ -82,7 +79,7 @@ export default class ChatMessageInfos extends Vue {
 			background-color: @mainColor_light;
 		}
 
-		&.automod, &.emergencyBlocked, &.restrictedUser, &.suspiciousUser {
+		&.automod, &.emergencyBlocked, &.restrictedUser {
 			background-color: @mainColor_alert;
 		}
 
@@ -95,6 +92,7 @@ export default class ChatMessageInfos extends Vue {
 		img {
 			height: 1em;
 			vertical-align: middle;
+			margin-right: .25em;
 		}
 	}
 }
