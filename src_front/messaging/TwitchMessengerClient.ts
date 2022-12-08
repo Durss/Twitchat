@@ -446,8 +446,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on('anonsubgift', this.anonsubgift.bind(this));
 		this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
 		this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade.bind(this));
-		// this._client.on("ban", this.ban.bind(this));
-		// this._client.on("timeout", this.timeout.bind(this));
+		this._client.on("ban", this.onBanUser.bind(this));
+		this._client.on("timeout", this.onTimeoutUser.bind(this));
 		this._client.on("raided", this.raided.bind(this));
 		this._client.on("disconnected", this.disconnected.bind(this));
 		this._client.on("clearchat", this.clearchat.bind(this));
@@ -824,18 +824,61 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private clearchat(channel:string):void {
-		console.log("CLEAR CHAT", channel);
+		const channel_id = this.getChannelID(channel);
+		const me = StoreProxy.auth.twitch.user;
+		
+		//If we're the broadcaster we get clear details from pubsub
+		if(channel_id == me.id) return;
+
 		this.dispatchEvent(new MessengerClientEvent("CLEAR_CHAT", {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
 			id:Utils.getUUID(),
-			channel_id:this.getChannelID(channel),
+			channel_id,
 			date:Date.now(),
 		}));
 	}
+	
+	
+	private onDeleteMessage(channel: string, username: string, deletedMessage: string, tags:tmi.DeleteUserstate):void {
+		const msgID = tags["target-msg-id"];
+		if(!msgID) return;
+		this.dispatchEvent(new MessengerClientEvent("DELETE_MESSAGE", msgID));
+	}
 
-	private onDeleteMessage(channel:string, username:string, deletedMessage:string, tags:tmi.ChatUserstate):void {
-		this.dispatchEvent(new MessengerClientEvent("DELETE_MESSAGE", tags["target-msg-id"]));
+	private onBanUser(channel: string, username: string, reason: string):void {
+		const channel_id = this.getChannelID(channel);
+		const user = this.getUserFromLogin(username, channel_id).user;
+		const message:TwitchatDataTypes.MessageBanData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			message:user.displayName+" has been banned.",
+			platform:"twitch",
+			type:"notice",
+			user,
+			channel_id,
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.BAN,
+			reason:"",
+		}
+		this.dispatchEvent(new MessengerClientEvent("BAN", message));
+	}
+
+	private onTimeoutUser(channel: string, username: string, reason: string, duration: number):void {
+		const channel_id = this.getChannelID(channel);
+		const user = this.getUserFromLogin(username, channel_id).user;
+		const message:TwitchatDataTypes.MessageTimeoutData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			message:user.displayName+" has been timed out for "+duration+" seconds.",
+			platform:"twitch",
+			type:"notice",
+			user,
+			duration_s:duration,
+			channel_id,
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.TIMEOUT,
+			reason:"",
+		}
+		this.dispatchEvent(new MessengerClientEvent("TIMEOUT", message));
 	}
 
 	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {

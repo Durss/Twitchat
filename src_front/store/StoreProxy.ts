@@ -169,6 +169,7 @@ export interface IChatActions {
 	addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
 	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	deleteMessageByID(messageID:string, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
+	delChannelMessages(channelId:string):void;
 	delUserMessages(uid:string):void;
 	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]):void;
 	closeWhispers( userID:string):void;

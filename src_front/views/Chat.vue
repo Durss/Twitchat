@@ -683,6 +683,7 @@ export default class Chat extends Vue {
 	 */
 	private computeWindowsSizes():void {
 		const cols = this.$store('params').chatColumnsConfig;
+		cols.sort((a,b)=> a.order - b.order);
 		let selectedCol!:HTMLDivElement;
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
@@ -698,7 +699,7 @@ export default class Chat extends Vue {
 			}
 		}
 		if(!this.formsColumnTarget) {
-			selectedCol = (this.$refs["column_0"] as HTMLDivElement[])[0];
+			selectedCol = (this.$refs["column_"+cols[0].order] as HTMLDivElement[])[0];
 			this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 		}
 	}

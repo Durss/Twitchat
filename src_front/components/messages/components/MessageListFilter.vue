@@ -4,7 +4,7 @@
 			<button class="openBt" @click="expand = true" data-tooltip="Edit filters">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
-			<button class="deleteBt" @click="$emit('delete')" v-if="config.order != 0" data-tooltip="Delete column">
+			<button class="deleteBt" @click="$emit('delete')" v-if="canDelete" data-tooltip="Delete column">
 				<img src="@/assets/icons/cross_white.svg" alt="delete column" class="icon">
 			</button>
 		</div>
@@ -23,6 +23,7 @@
 				<div class="presets">
 					<Button @click="preset('chat')" title="Chat" :icon="$image('icons/whispers_purple.svg')" small white />
 					<Button @click="preset('chatSafe')" title="Chat safe" :icon="$image('icons/shield_purple.svg')" small white />
+					<Button @click="preset('moderation')" title="Moderation" :icon="$image('icons/mod_purple.svg')" small white />
 					<Button @click="preset('activities')" title="Activities" :icon="$image('icons/stars_purple.svg')" small white />
 					<Button @click="preset('games')" title="Games" :icon="$image('icons/bingo_purple.svg')" small white />
 					<Button @click="preset('revenues')" title="Revenues" :icon="$image('icons/coin_purple.svg')" small white />
@@ -184,7 +185,7 @@ export default class MessageListFilter extends Vue {
 	public open!:boolean;
 	public forceExpand!:boolean;
 	public config!:TwitchatDataTypes.ChatColumnsConfig;
-
+	
 	public error:boolean = false;
 	public expand:boolean = false;
 	public toggleAll:boolean = false;
@@ -209,6 +210,10 @@ export default class MessageListFilter extends Vue {
 		const res = ["messagelistfilter"];
 		if(this.debugForceOpen || this.expand || this.forceExpand) res.push("expand");
 		return res;
+	}
+
+	public get canDelete():boolean {
+		return this.$store('params').chatColumnsConfig.length > 1;
 	}
 
 	public beforeMount(): void {
@@ -300,6 +305,17 @@ export default class MessageListFilter extends Vue {
 					suspiciousUsers:"Sent by suspicious users",
 					commands:"Commands (starting with \"!\")",
 				}
+				const keyToIcon:{[key in messageFilterTypes]:string} = {
+					viewers:"user.svg",
+					vips:"vip.svg",
+					subs:"sub.svg",
+					moderators:"mod.svg",
+					bots:"bot.svg",
+					deleted:"delete.svg",
+					automod:"shield.svg",
+					suspiciousUsers:"shield.svg",
+					commands:"commands.svg",
+				}
 				if(!this.config.messageFilters) this.config.messageFilters = {
 					bots:true,
 					automod:true,
@@ -316,7 +332,7 @@ export default class MessageListFilter extends Vue {
 					if(this.config.messageFilters[k] == undefined) {
 						this.config.messageFilters[k] = true;
 					}
-					children.push({type:"toggle", value:this.config.messageFilters[k], label:keyToLabel[k], storage:key});
+					children.push({type:"toggle", value:this.config.messageFilters[k], label:keyToLabel[k], storage:key, icon:keyToIcon[k]});
 				}
 				this.messageFilters = children;
 			}
@@ -520,7 +536,7 @@ export default class MessageListFilter extends Vue {
 	/**
 	 * Called when clicking a preset
 	 */
-	public preset(id:"chat"|"chatSafe"|"activities"|"games"|"revenues"):void {
+	public preset(id:"chat"|"chatSafe"|"moderation"|"activities"|"games"|"revenues"):void {
 		this.toggleAll = false;
 		//Unselect all
 		for (let i = 0; i < this.filters.length; i++) {
@@ -550,6 +566,16 @@ export default class MessageListFilter extends Vue {
 				for (const key in this.config.messageFilters) {
 					const k = key as messageFilterTypes;
 					this.config.messageFilters[k] = k != "automod" && k != "deleted" && k != "suspiciousUsers";
+				}
+				break;
+			}
+			case "moderation": {
+				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.MESSAGE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
+				for (const key in this.config.messageFilters) {
+					const k = key as messageFilterTypes;
+					this.config.messageFilters[k] = k == "automod" || k == "deleted" || k == "suspiciousUsers" || k == "moderators";
 				}
 				break;
 			}
@@ -775,6 +801,9 @@ export default class MessageListFilter extends Vue {
 					.item {
 						&:hover {
 							background-color: fade(@mainColor_light, 10%);
+						}
+						:deep(.icon) {
+							height: .7em;
 						}
 					}
 				}

@@ -366,7 +366,6 @@ export default class ChatHighlight extends Vue {
 				font-weight: bold;
 				color: @mainColor_warn;
 				margin-right: .25em;
-				cursor: pointer;
 			}
 
 			.additionalUsers:not(.additionalUsers ~ .additionalUsers) {

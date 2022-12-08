@@ -96,7 +96,7 @@ export const storeParams = defineStore('params', {
 
 		addChatColumn():TwitchatDataTypes.ChatColumnsConfig {
 			const col:TwitchatDataTypes.ChatColumnsConfig = {
-				order:this.chatColumnsConfig.length,
+				order:this.chatColumnsConfig[this.chatColumnsConfig.length-1].order+1,
 				size:1/2,
 				filters:{
 					join:false,
@@ -138,12 +138,15 @@ export const storeParams = defineStore('params', {
 		},
 
 		delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void {
+			let decrement = false;
 			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
 				const e = this.chatColumnsConfig[i];
 				if(e == column) {
 					this.chatColumnsConfig.splice(i, 1);
-					break;
-				}
+					decrement = true;
+					i--;
+				}else
+				if(decrement) e.order--;
 			}
 			this.saveChatColumnConfs();
 		},

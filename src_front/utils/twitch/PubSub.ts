@@ -284,6 +284,12 @@ export default class PubSub extends EventDispatcher {
 
 
 
+		}else if(topic && /shoutout\.[0-9]+/.test(topic)) {
+			const localObj = (data as unknown) as PubSubDataTypes.Shoutout;
+			this.shoutoutEvent(localObj);
+
+
+
 		}else if(topic && /video-playback-by-id\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.PlaybackInfo;
 			if(localObj.type == "viewcount") {
@@ -590,8 +596,21 @@ export default class PubSub extends EventDispatcher {
 
 			switch(localObj.moderation_action) {
 				case "clear": {
-					noticeId = TwitchatDataTypes.TwitchatNoticeType.CLEAR_CHAT;
-					noticeText = "Chat cleared by "+localObj.created_by;
+					const message:TwitchatDataTypes.MessageClearChatData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
+						id:Utils.getUUID(),
+						channel_id:channelId,
+						date:Date.now(),
+						fromAutomod:false,
+					};
+					if(localObj.created_by) {
+						message.user = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by)
+					}
+					if(localObj.from_automod) {
+						message.fromAutomod = true;
+					}
+					StoreProxy.chat.addMessage(message);
 					break;
 				}
 				case "timeout": {
@@ -991,6 +1010,16 @@ export default class PubSub extends EventDispatcher {
 
 		StoreProxy.chat.addMessage(message);
 	}
+	
+
+	/**
+	 * Called when sending or receiving a shoutout
+	 * @param data 
+	 */
+	private shoutoutEvent(data:PubSubDataTypes.Shoutout):void {
+		
+	}
+	
 
 	/**
 	 * Called when a hype train approaches

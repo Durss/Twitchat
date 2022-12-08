@@ -462,14 +462,13 @@ export default class ParamItem extends Vue {
 		width: calc(100% - @padding);
 		position: relative;
 		:deep(.holder) {
+			font-size: .9em;
 			&::before {
 				position: absolute;
 				left: -1em;
+				font-size: 1.1em;
 				content: "⤷";
 				display: block;
-			}
-			label {
-				font-size: .9em;
 			}
 		}
 	}

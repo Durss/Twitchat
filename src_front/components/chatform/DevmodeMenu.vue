@@ -29,6 +29,7 @@
 			<Button small title="Bingo result" @click="simulateEvent('bingo')" :icon="$image('icons/bingo.svg')" />
 			<Button small title="Raffle result" @click="simulateEvent('raffle')" :icon="$image('icons/ticket.svg')" />
 			<Button small title="Countdown result" @click="simulateEvent('countdown')" :icon="$image('icons/timer.svg')" />
+			<Button small title="Clear chat" @click="simulateEvent('clear_chat')" :icon="$image('icons/delete.svg')" />
 			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Restricted user" @click="simulateRestricted()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />

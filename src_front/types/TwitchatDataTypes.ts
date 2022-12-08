@@ -788,7 +788,6 @@ export namespace TwitchatDataTypes {
 		ERROR:"error",//For any error message
 		TTS:"tts",//For TTS releated messages. Ex:"User's message will be read out loud"
 		APP_VERSION:"appVersion",//When using command "/version"
-		CLEAR_CHAT:"clearChat",//When clearing a chat room
 		TIMEOUT:"timeout",//When timingout a user
 		BAN:"ban",//When banning a user
 		UNBAN:"unban",//When unbanning a user
@@ -1164,6 +1163,8 @@ export namespace TwitchatDataTypes {
 	export interface MessageClearChatData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"clear_chat";
+		user?:TwitchatUser;
+		fromAutomod:boolean;
 	}
 
 	/**
@@ -1242,14 +1243,14 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a mod/unbon/vip/unvip/ban/timeout/unban event
+	 * Represents a mod/unmod/vip/unvip/ban/unban/timeout event
 	 */
 	export interface MessageModerationAction extends MessageNoticeData {
-		user:TwitchatUser;
+		user:TwitchatUser;//User moderated
 	}
 	
 	/**
-	 * Represents a mod/unbon/vip/unvip/ban/timeout/unban event
+	 * Represents a status change of the shield mode
 	 */
 	export interface MessageShieldMode extends MessageNoticeData {
 		user:TwitchatUser;

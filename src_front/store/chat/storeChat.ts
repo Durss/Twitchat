@@ -349,356 +349,379 @@ export const storeChat = defineStore('chat', {
 
 			message = reactive(message);
 
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT) {
-				messageList = [];
-				return;
-			}
-
 			TTSUtils.instance.addMessageToQueue(message);
 
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			
-				if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-					const correspondantId = message.user.id == sAuth.twitch.user.id? message.to.id : message.user.id
-					if(!this.whispers[correspondantId]) this.whispers[correspondantId] = [];
-					this.whispers[correspondantId].push(message);
-					this.whispersUnreadCount ++;
-					const wsUser = {
-						id:message.user.id,
-						login:message.user.login,
-						displayName:message.user.displayName,
-					};
-					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
-					
-				}else if(message.user.greeted !== true
-				&& (!greetedUsers[message.user.id] || greetedUsers[message.user.id] < Date.now())) {
-					message.todayFirst = true;
-					message.user.greeted = true;
-					greetedUsers[message.user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
-					DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
-				}
-				
-				// todayFirst:user.greeted===false,
-				//Check if the message contains a mention
-				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& StoreProxy.params.appearance.highlightMentions.value === true) {
-					const login = StoreProxy.auth.twitch.user.login;
-					message.hasMention = login != null
-										&& new RegExp("(^| |@)("+login+")($|\\s)", "gim")
-										.test(message.message ?? "");
-					if(message.hasMention) {
-						message.highlightWord = login;
-					}
-				}
-
-				//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-				if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
-					const original = message.message;
-					message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
-					message.cyphered = message.message != original;
-				}
-			}
-
-			//If it's a raid, save it so we can do an SO with dedicated streamdeck button
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.RAID) sStream.lastRaider = message.user;
-
-
-			//If it's a subgift, merge it with potential previous ones
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
-				const len = Math.max(0, messageList.length-20);//Only check within the last 20 messages
-				for (let i = messageList.length-1; i > len; i--) {
-					const m = messageList[i];
-					if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
-					//If the message is a subgift from the same user and happened with the same tier
-					//in the last 5s, merge it.
-					if(m.tier == message.tier && m.user.id == message.user.id
-					&& Date.now() - m.date < 5000) {
-						if(!m.gift_recipients) m.gift_recipients = [];
-						m.date = Date.now();//Update timestamp
-						for (let i = 0; i < message.gift_recipients.length; i++) {
-							m.gift_recipients.push(message.gift_recipients[i]);
-						}
-						return;
-					}
-				}
-			}
-
-			//Search in the last 30 messages if this message has already been sent
-			//If so, just increment the previous one
-			if(sParams.features.groupIdenticalMessage.value === true &&
-			(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)) {
-				const len = messageList.length;
-				const end = Math.max(0, len - 30);
-				for (let i = len-1; i > end; i--) {
-					const m = messageList[i];
-					if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
-					if(m.user.id == message.user.id
-					&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
-					&& message.message.toLowerCase() == m.message.toLowerCase()
-					&& message.type == m.type) {
-						if(!m.occurrenceCount) m.occurrenceCount = 0;
-						//Remove message
-						messageList.splice(i, 1);
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
-						m.occurrenceCount ++;
-						//Update timestamp
-						m.date = Date.now();
-						//Bring it back to bottom
-						messageList.push(m);
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, m));
-						messageList = messageList;	
-						return;
-					}
-				}
-			}
-			
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				//Reset ad schedule if necessary
-				if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
-					SchedulerHelper.instance.incrementMessageCount();
-				}
-				if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
-					SchedulerHelper.instance.resetAdSchedule(message);
-				}
-
-				const wsMessage = {
-					channel:message.channel_id,
-					message:message.message,
-					user: {
-						id:message.user.id,
-						login:message.user.login,
-						displayName:message.user.displayName,
-					}
-				}
-
-				//If it's a text message and user isn't a follower, broadcast to WS
-				if(message.user.channelInfo[message.channel_id].is_following === false) {
-					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
-				}
-	
-				//Check if the message contains a mention
-				if(message.hasMention) {
-					PublicAPI.instance.broadcast(TwitchatEvent.MENTION, wsMessage);
-				}
-	
-				//If it's the first message today for this user
-				if(message.todayFirst === true) {
-					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, wsMessage);
-				}
-	
-				//If it's the first message all time of the user
-				if(message.twitch_isFirstMessage) {
-					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
-				}
-				
-				const cmd = message.message.trim().split(" ")[0].toLowerCase();
-
-				//If a raffle is in progress, check if the user can enter
-				const raffle = sRaffle.data;
-				if(raffle && raffle.mode == "chat" && cmd == raffle.command.trim().toLowerCase()) {
-					sRaffle.checkRaffleJoin(message);
-				}
-
-				//If a raffle is in progress, check if the user can enter
-				if(sBingo.data?.winners?.length == 0) {
-					sBingo.checkBingoWinner(message);
-				}
-	
-				//If there's a suggestion poll and the timer isn't over
-				const suggestionPoll = sChatSuggestion.data;
-				if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
-					sChatSuggestion.addChatSuggestion(message);
-				}
-
-				//Handle OBS commands
-				sOBS.handleChatCommand(message, cmd);
-				
-				//Handle Emergency commands
-				sEmergency.handleChatCommand(message, cmd);
-				
-				//Handle spoiler command
-				if(message.answersTo && Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
-					const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
-					if(cmd.indexOf("!spoiler") === 0) {
-						message.answersTo.spoiler = true;
-					}
-				}
-
-				//Flag as spoiler
-				if(message.message.indexOf("||") == 0) message.spoiler = true;
-
-				//check if it's a chat alert command
-				if(sParams.features.alertMode.value === true && 
-				Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
-					if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
-						//Remove command from message to make later things easier
-						sMain.chatAlert = message;
-						const trigger:TwitchatDataTypes.MessageChatAlertData = {
-							date:Date.now(),
-							id:Utils.getUUID(),
-							platform:message.platform,
-							type:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT,
-							message:message,
-						}
-						TriggerActionHandler.instance.onMessage(trigger);
-					}
-				}
-				
-				//Check if it's a voicemod command
-				if(sVoice.voicemodParams.enabled
-				&& sVoice.voicemodParams.commandToVoiceID[cmd]
-				&& Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user, message.channel_id)) {
-					VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
-				}
-					
-				//If there's a mention, search for last messages within
-				//a max timeframe to find if the message may be a reply to
-				//a message that was sent by the mentionned user
-				if(/@\w/gi.test(message.message)) {
-					// console.log("Mention found");
-					const ts = Date.now();
-					const messages = this.messages;
-					const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
-					const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
-					for (let i = 0; i < matches.length; i++) {
-						const match = matches[i].replace("@", "").toLowerCase();
-						// console.log("Search for message from ", match);
-						const candidates = messages.filter(m => {
-							if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return false;
-							return m.user.login == match
-						}) as TwitchatDataTypes.MessageChatData[];
-						//Search for oldest matching candidate
-						for (let j = 0; j < candidates.length; j++) {
-							const c = candidates[j];
-							// console.log("Found candidate", c);
-							if(ts - c.date < timeframe) {
-								// console.log("Timeframe is OK !");
-								if(c.answers) {
-									//If it's the root message of a conversation
-									c.answers.push( message );
-									message.answersTo = c;
-								}else if(c.answersTo && c.answersTo.answers) {
-									//If the messages answers to a message itself answering to another message
-									c.answersTo.answers.push( message );
-									message.answersTo = c.answersTo;
-								}else{
-									//If message answers to a message not from a conversation
-									message.answersTo = c;
-									if(!c.answers) c.answers = [];
-									c.answers.push( message );
-								}
-								break;
-							}
-						}
-					}
-				}
-			}
-			
-			//People joined the chat, check if any need to be autobaned
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.JOIN) {
-				for (let i = 0; i < message.users.length; i++) {
-					const user = message.users[i];
-					const rule = Utils.isAutomoded(user.displayName, user, message.channel_id);
-					if(rule != null) {
-						if(user.platform == "twitch") {
-							TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
-						}
-						//Most message on chat to alert the stream
-						const mess:TwitchatDataTypes.MessageAutobanJoinData = {
-							platform:user.platform,
-							channel_id: message.channel_id,
-							type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
-							date:Date.now(),
-							id:Utils.getUUID(),
-							user,
-							rule:rule,
+			switch(message.type) {
+				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
+				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+						const correspondantId = message.user.id == sAuth.twitch.user.id? message.to.id : message.user.id
+						if(!this.whispers[correspondantId]) this.whispers[correspondantId] = [];
+						this.whispers[correspondantId].push(message);
+						this.whispersUnreadCount ++;
+						const wsUser = {
+							id:message.user.id,
+							login:message.user.login,
+							displayName:message.user.displayName,
 						};
-						this.addMessage(mess);
+						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+						
+					}else if(message.user.greeted !== true
+					&& (!greetedUsers[message.user.id] || greetedUsers[message.user.id] < Date.now())) {
+						message.todayFirst = true;
+						message.user.greeted = true;
+						greetedUsers[message.user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
+						DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
 					}
-				}
-			}
-
-			//If it's a following event
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
-				sUsers.flagAsFollower(message.user, message.channel_id)
-
-				//Merge all followbot events into one
-				if(message.followbot === true) {
-					const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
-					const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
-					let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
 					
-					//Search for any existing followbot event, delete them and group
-					//them into a single followbot alert with all the users in it
-					//Only search within the last 100 messages
-					const maxIndex = Math.max(0, messageList.length - 100);
-					let postMessage = true;
-					for (let i = messageList.length-1; i >= maxIndex; i--) {
-						const m = messageList[i];
-						//Found a follow event, delete it
-						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
-						&& m.followbot === true
-						&& m.platform == message.platform) {
-							m.deleted = true;
-							deletedMessages.push(m);
-							prevFollowbots.push(m);
-							messageList.splice(i, 1);
-							i--;
-						}else
-						//Found an existing bulk message not older than 1min, keep it aside
-						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
-						&& m.date > Date.now() - 1 * 60 * 1000
-						&& m.platform == message.platform) {
-							bulkMessage = m;
-							if(i == messageList.length-1) {
-								//Message already at the bottom, no need to delete/repost it
-								postMessage = false;
-							}else{
-								postMessage = true;
-								deletedMessages.push(m);
-								messageList.splice(i, 1);//remove it, it will be pushed again later
-								i--;
+					//Check if the message contains a mention
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+					&& StoreProxy.params.appearance.highlightMentions.value === true) {
+						const login = StoreProxy.auth.twitch.user.login;
+						message.hasMention = login != null
+											&& new RegExp("(^| |@)("+login+")($|\\s)", "gim")
+											.test(message.message ?? "");
+						if(message.hasMention) {
+							message.highlightWord = login;
+						}
+					}
+	
+					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
+					if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
+						const original = message.message;
+						message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
+						message.cyphered = message.message != original;
+					}
+
+					//Search in the last 30 messages if this message has already been sent
+					//If so, just increment the previous one
+					if(sParams.features.groupIdenticalMessage.value === true) {
+						const len = messageList.length;
+						const end = Math.max(0, len - 30);
+						for (let i = len-1; i > end; i--) {
+							const m = messageList[i];
+							if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
+							if(m.user.id == message.user.id
+							&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
+							&& message.message.toLowerCase() == m.message.toLowerCase()
+							&& message.type == m.type) {
+								if(!m.occurrenceCount) m.occurrenceCount = 0;
+								//Remove message
+								messageList.splice(i, 1);
+								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+								m.occurrenceCount ++;
+								//Update timestamp
+								m.date = Date.now();
+								//Bring it back to bottom
+								messageList.push(m);
+								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, m));
+								messageList = messageList;	
+								return;
 							}
 						}
 					}
-					if(!bulkMessage) {
-						bulkMessage = reactive({
-							id:Utils.getUUID(),
-							date:Date.now(),
-							platform:message.platform,
-							type:TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST,
-							users:[],
-						});
-					}
-					if(prevFollowbots.length > 0) {
-						bulkMessage.users = bulkMessage.users.concat(prevFollowbots.map(v=>v.user));
-					}
-					bulkMessage.date = Date.now();
-					bulkMessage.users.push(message.user);
-					message = bulkMessage;
 
-					//Broadcast DELETE events
-					while(deletedMessages.length > 0) {
-						const m = deletedMessages.pop();
-						if(!m) continue;
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
-					}
-					if(!postMessage) return;
-				}else{
-					const wsMessage = {
-						user:{
-							id: message.user.id,
-							login: message.user.login,
-							displayName: message.user.displayName,
+
+
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						//Reset ad schedule if necessary
+						if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
+							SchedulerHelper.instance.incrementMessageCount();
+						}
+						if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
+							SchedulerHelper.instance.resetAdSchedule(message);
+						}
+	
+						const wsMessage = {
+							channel:message.channel_id,
+							message:message.message,
+							user: {
+								id:message.user.id,
+								login:message.user.login,
+								displayName:message.user.displayName,
+							}
+						}
+	
+						//If it's a text message and user isn't a follower, broadcast to WS
+						if(message.user.channelInfo[message.channel_id].is_following === false) {
+							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
+						}
+			
+						//Check if the message contains a mention
+						if(message.hasMention) {
+							PublicAPI.instance.broadcast(TwitchatEvent.MENTION, wsMessage);
+						}
+			
+						//If it's the first message today for this user
+						if(message.todayFirst === true) {
+							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, wsMessage);
+						}
+			
+						//If it's the first message all time of the user
+						if(message.twitch_isFirstMessage) {
+							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
+						}
+						
+						const cmd = message.message.trim().split(" ")[0].toLowerCase();
+	
+						//If a raffle is in progress, check if the user can enter
+						const raffle = sRaffle.data;
+						if(raffle && raffle.mode == "chat" && cmd == raffle.command.trim().toLowerCase()) {
+							sRaffle.checkRaffleJoin(message);
+						}
+	
+						//If a raffle is in progress, check if the user can enter
+						if(sBingo.data?.winners?.length == 0) {
+							sBingo.checkBingoWinner(message);
+						}
+			
+						//If there's a suggestion poll and the timer isn't over
+						const suggestionPoll = sChatSuggestion.data;
+						if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
+							sChatSuggestion.addChatSuggestion(message);
+						}
+	
+						//Handle OBS commands
+						sOBS.handleChatCommand(message, cmd);
+						
+						//Handle Emergency commands
+						sEmergency.handleChatCommand(message, cmd);
+						
+						//Handle spoiler command
+						if(message.answersTo && Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
+							const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
+							if(cmd.indexOf("!spoiler") === 0) {
+								message.answersTo.spoiler = true;
+							}
+						}
+	
+						//Flag as spoiler
+						if(message.message.indexOf("||") == 0) message.spoiler = true;
+	
+						//check if it's a chat alert command
+						if(sParams.features.alertMode.value === true && 
+						Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
+							if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
+								//Remove command from message to make later things easier
+								sMain.chatAlert = message;
+								const trigger:TwitchatDataTypes.MessageChatAlertData = {
+									date:Date.now(),
+									id:Utils.getUUID(),
+									platform:message.platform,
+									type:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT,
+									message:message,
+								}
+								TriggerActionHandler.instance.onMessage(trigger);
+							}
+						}
+						
+						//Check if it's a voicemod command
+						if(sVoice.voicemodParams.enabled
+						&& sVoice.voicemodParams.commandToVoiceID[cmd]
+						&& Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user, message.channel_id)) {
+							VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
+						}
+							
+						//If there's a mention, search for last messages within
+						//a max timeframe to find if the message may be a reply to
+						//a message that was sent by the mentionned user
+						if(/@\w/gi.test(message.message)) {
+							// console.log("Mention found");
+							const ts = Date.now();
+							const messages = this.messages;
+							const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
+							const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
+							for (let i = 0; i < matches.length; i++) {
+								const match = matches[i].replace("@", "").toLowerCase();
+								// console.log("Search for message from ", match);
+								const candidates = messages.filter(m => {
+									if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return false;
+									return m.user.login == match
+								}) as TwitchatDataTypes.MessageChatData[];
+								//Search for oldest matching candidate
+								for (let j = 0; j < candidates.length; j++) {
+									const c = candidates[j];
+									// console.log("Found candidate", c);
+									if(ts - c.date < timeframe) {
+										// console.log("Timeframe is OK !");
+										if(c.answers) {
+											//If it's the root message of a conversation
+											c.answers.push( message );
+											message.answersTo = c;
+										}else if(c.answersTo && c.answersTo.answers) {
+											//If the messages answers to a message itself answering to another message
+											c.answersTo.answers.push( message );
+											message.answersTo = c.answersTo;
+										}else{
+											//If message answers to a message not from a conversation
+											message.answersTo = c;
+											if(!c.answers) c.answers = [];
+											c.answers.push( message );
+										}
+										break;
+									}
+								}
+							}
 						}
 					}
-					PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, wsMessage);
+					break;
 				}
 
+				//Incomming raid
+				case TwitchatDataTypes.TwitchatMessageType.RAID: {
+					sStream.lastRaider = message.user;
+					break;
+				}
+
+				//New sub
+				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+					//If it's a subgift, merge it with potential previous ones
+					if(message.is_gift) {
+						const len = Math.max(0, messageList.length-20);//Only check within the last 20 messages
+						for (let i = messageList.length-1; i > len; i--) {
+							const m = messageList[i];
+							if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
+							//If the message is a subgift from the same user and happened with the same tier
+							//in the last 5s, merge it.
+							if(m.tier == message.tier && m.user.id == message.user.id
+							&& Date.now() - m.date < 5000) {
+								if(!m.gift_recipients) m.gift_recipients = [];
+								m.date = Date.now();//Update timestamp
+								for (let i = 0; i < message.gift_recipients.length; i++) {
+									m.gift_recipients.push(message.gift_recipients[i]);
+								}
+								return;
+							}
+						}
+					}
+					break;
+				}
+
+				//Users joined, check if any need to be autobanned
+				case TwitchatDataTypes.TwitchatMessageType.JOIN: {
+					for (let i = 0; i < message.users.length; i++) {
+						const user = message.users[i];
+						const rule = Utils.isAutomoded(user.displayName, user, message.channel_id);
+						if(rule != null) {
+							if(user.platform == "twitch") {
+								TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
+							}
+							//Most message on chat to alert the stream
+							const mess:TwitchatDataTypes.MessageAutobanJoinData = {
+								platform:user.platform,
+								channel_id: message.channel_id,
+								type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
+								date:Date.now(),
+								id:Utils.getUUID(),
+								user,
+								rule:rule,
+							};
+							this.addMessage(mess);
+						}
+					}
+					break;
+				}
+
+				//New follower
+				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
+					
+					sUsers.flagAsFollower(message.user, message.channel_id)
+
+					//Merge all followbot events into one
+					if(message.followbot === true) {
+						const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
+						const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
+						let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
+						
+						//Search for any existing followbot event, delete them and group
+						//them into a single followbot alert with all the users in it
+						//Only search within the last 100 messages
+						const maxIndex = Math.max(0, messageList.length - 100);
+						let postMessage = true;
+						for (let i = messageList.length-1; i >= maxIndex; i--) {
+							const m = messageList[i];
+							//Found a follow event, delete it
+							if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+							&& m.followbot === true
+							&& m.platform == message.platform) {
+								m.deleted = true;
+								deletedMessages.push(m);
+								prevFollowbots.push(m);
+								messageList.splice(i, 1);
+								i--;
+							}else
+							//Found an existing bulk message not older than 1min, keep it aside
+							if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
+							&& m.date > Date.now() - 1 * 60 * 1000
+							&& m.platform == message.platform) {
+								bulkMessage = m;
+								if(i == messageList.length-1) {
+									//Message already at the bottom, no need to delete/repost it
+									postMessage = false;
+								}else{
+									postMessage = true;
+									deletedMessages.push(m);
+									messageList.splice(i, 1);//remove it, it will be pushed again later
+									i--;
+								}
+							}
+						}
+						if(!bulkMessage) {
+							bulkMessage = reactive({
+								id:Utils.getUUID(),
+								date:Date.now(),
+								platform:message.platform,
+								type:TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST,
+								users:[],
+							});
+						}
+						if(prevFollowbots.length > 0) {
+							bulkMessage.users = bulkMessage.users.concat(prevFollowbots.map(v=>v.user));
+						}
+						bulkMessage.date = Date.now();
+						bulkMessage.users.push(message.user);
+						message = bulkMessage;
+
+						//Broadcast DELETE events
+						while(deletedMessages.length > 0) {
+							const m = deletedMessages.pop();
+							if(!m) continue;
+							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+						}
+						if(!postMessage) return;
+					}else{
+						const wsMessage = {
+							user:{
+								id: message.user.id,
+								login: message.user.login,
+								displayName: message.user.displayName,
+							}
+						}
+						PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, wsMessage);
+					}
+					break;
+				}
+
+				//Request to clear chat
+				case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
+					if(message.channel_id) this.delChannelMessages(message.channel_id);
+					break;
+				}
+
+				//Notice
+				case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
+					switch(message.noticeId) {
+						case TwitchatDataTypes.TwitchatNoticeType.BAN:
+						case TwitchatDataTypes.TwitchatNoticeType.TIMEOUT:
+							this.delUserMessages((message as TwitchatDataTypes.MessageModerationAction).user.id);
+							break;
+					}
+					break;
+				}
 			}
 
+
+			//Apply automod rules if requested
 			if(sAutomod.params.enabled === true) {
 				if( message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
@@ -834,16 +857,45 @@ export const storeChat = defineStore('chat', {
 				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				&& m.user.id == uid
 				&& !m.deleted) {
-					const wsMessage = {
-						channel:m.channel_id,
-						message:m.message,
-						user:{
-							id:m.user.id,
-							login:m.user.login,
-							displayName:m.user.displayName,
+					//Send public API events by batches of 5 to avoid clogging it
+					setTimeout(()=> {
+						const wsMessage = {
+							channel:m.channel_id,
+							message:m.message,
+							user:{
+								id:m.user.id,
+								login:m.user.login,
+								displayName:m.user.displayName,
+							}
 						}
-					}
-					PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+					}, Math.floor(i/5)*50)
+
+					m.deleted = true;
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+				}
+			}
+		},
+
+		delChannelMessages(channelId:string):void {
+			for (let i = 0; i < messageList.length; i++) {
+				const m = messageList[i];
+				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				&& m.channel_id == channelId
+				&& !m.deleted) {
+					//Send public API events by batches of 5 to avoid clogging it
+					setTimeout(()=> {
+						const wsMessage = {
+							channel:m.channel_id,
+							message:m.message,
+							user:{
+								id:m.user.id,
+								login:m.user.login,
+								displayName:m.user.displayName,
+							}
+						}
+						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+					}, Math.floor(i/5)*50)
 
 					m.deleted = true;
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));

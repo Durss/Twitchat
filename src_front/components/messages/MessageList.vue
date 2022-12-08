@@ -92,6 +92,12 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
+				<ChatClear class="message"
+					v-else-if="m.type == 'clear_chat'"
+					lightMode
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					lightMode
 					@onRead="toggleMarkRead"
@@ -180,6 +186,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatAd from './ChatAd.vue';
 import ChatBingoResult from './ChatBingoResult.vue';
+import ChatClear from './ChatClear.vue';
 import ChatConnect from './ChatConnect.vue';
 import ChatCountdownResult from './ChatCountdownResult.vue';
 import ChatFollowbotEvents from './ChatFollowbotEvents.vue';
@@ -198,6 +205,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 	components: {
 		Button,
 		ChatAd,
+		ChatClear,
 		ChatNotice,
 		ChatConnect,
 		ChatMessage,
@@ -549,6 +557,10 @@ export default class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
 				return this.config.filters.whisper === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
+				return this.config.filters.message === true && this.config.messageFilters.viewers === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {

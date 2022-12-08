@@ -493,6 +493,19 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
+					const m:TwitchatDataTypes.MessageClearChatData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
+						id:Utils.getUUID(),
+						channel_id:uid,
+						date:Date.now(),
+						fromAutomod:true,
+					};
+					data = m;
+					break;
+				}
 			}
 			if(hook) {
 				if(hook(data) === false) return;

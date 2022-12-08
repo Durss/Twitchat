@@ -79,8 +79,10 @@ export default class MessageSearch extends Vue {
 			const m = list[i];
 			if(m.type != "message") continue;
 			//Remove any HTML tag to avoid wrong search results
-			// const text = m.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
-			const text = m.message.replace(/<[^>]*?>/gi, "");
+			//This regex takes care of html tags inside tag attributes:
+			//ex: <div data-tooltip="hello <strong>world</strong>">hey!</div>
+			const text = m.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");
+			// const text = m.message.replace(/<[^>]*?>/gi, "");
 			if(new RegExp(this.search, "gim").test(text)
 			|| m.user.displayName.toLowerCase() == this.search.toLowerCase()) {
 				m.highlightWord = this.search;
