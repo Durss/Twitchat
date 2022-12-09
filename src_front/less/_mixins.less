@@ -196,7 +196,11 @@
 	}
 	:deep(.label) {
 		font-weight: normal;
-		margin-left: .5em;
+	}
+	&:has(.icon) {
+		:deep(.label) {
+			margin-left: .5em;
+		}
 	}
 	&:hover {
 		background-color: fade(@mainColor_light, 20%) !important;

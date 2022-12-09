@@ -129,9 +129,6 @@ export default class ChatModTools extends Vue {
 			.clearButton();
 			padding: 0 .2em;
 			margin-right: 1px;
-			:deep(.label) {
-				margin-left: 0;
-			}
 		}
 	}
 }

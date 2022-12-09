@@ -113,9 +113,6 @@ export default class ChatRoomSettings extends Vue {
 				.clearButton();
 				margin-left: 1em;
 				padding: .75em;
-				:deep(.label) {
-					margin-left: 0;
-				}
 			}
 		}
 		.icon {

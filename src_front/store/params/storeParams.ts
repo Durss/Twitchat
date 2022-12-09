@@ -98,6 +98,7 @@ export const storeParams = defineStore('params', {
 			const col:TwitchatDataTypes.ChatColumnsConfig = {
 				order:this.chatColumnsConfig[this.chatColumnsConfig.length-1].order+1,
 				size:1/2,
+				liveLockCount:3,
 				filters:{
 					join:false,
 					message:false,

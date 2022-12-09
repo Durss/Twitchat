@@ -34,6 +34,7 @@ export namespace TwitchatDataTypes {
 	 export interface ChatColumnsConfig {
 		order:number;
 		size:number;
+		liveLockCount:number
 		filters:{[key in typeof MessageListFilterTypes[number]]:boolean};
 		//Specific sub filters for chat messages
 		messageFilters:ChatColumnsConfigMessageFilters;

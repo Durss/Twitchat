@@ -121,9 +121,17 @@
 			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>
 
-		<div class="lockedLiveHolder" v-if="lockScroll && lockedLiveMessages.length > 0">
-			<div class="title">live chat</div>
-			<div v-for="m in lockedLiveMessages"
+		<div class="lockedLiveHolder" v-if="!lightMode && lockScroll && lockedLiveMessages.length > 0">
+			<div class="title">
+				<Button :icon="$image('icons/minus.svg')"
+					:disabled="config.liveLockCount == 1"
+					@click="incrementLockedLiveCount(-1)"/>
+				<span class="label">live chat</span>
+				<Button :icon="$image('icons/add.svg')"
+					:disabled="config.liveLockCount == 10"
+					@click="incrementLockedLiveCount(1)"/>
+			</div>
+			<div class="subHolder" v-for="m in lockedLiveMessages"
 			:key="m.id" :ref="'message_live_' + m.id">
 				<ChatJoinLeave class="message"
 					v-if="(m.type == 'join' || m.type == 'leave')"
@@ -135,7 +143,6 @@
 
 				<ChatMessage class="message"
 					v-else-if="m.type == 'message' || m.type == 'whisper'"
-					:lightMode="true"
 					disableConversation
 					:messageData="m" />
 
@@ -752,11 +759,8 @@ export default class MessageList extends Vue {
 		const chatPaused = this.lockScroll;// || this.pendingMessages.length > 0 || el.scrollTop < maxScroll;
 		if (chatPaused) {
 			this.pendingMessages.push(m);
-			// if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			// || m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-				this.lockedLiveMessages.push(m);
-				this.lockedLiveMessages = this.lockedLiveMessages.slice(-3);//Only keep last 3
-			// }
+			this.lockedLiveMessages.push(m);
+			this.lockedLiveMessages = this.lockedLiveMessages.slice(-(this.config.liveLockCount ?? 3));//Only keep last N messages
 		} else {
 			this.lockedLiveMessages = [];
 			let list = this.filteredMessages.concat();
@@ -1298,6 +1302,29 @@ export default class MessageList extends Vue {
 		this.virtualScrollY = -1;//Forces utoscroll to bottom
 		this.fullListRefresh();
 	}
+
+	/**
+	 * Increments/Decrements the number of live messages displayed at the
+	 * bottom when the chat is paused
+	 */
+	public incrementLockedLiveCount(count:number):void {
+		let v = this.config.liveLockCount;
+		if(!v || isNaN(v)) v = 3;
+		v += count;
+		if(v < 1) v = 1;
+		if(v > 10) v = 10;
+		this.config.liveLockCount = v;
+		const list = this.pendingMessages;
+		const finalList:TwitchatDataTypes.ChatMessageTypes[] = [];
+		for (let i = this.pendingMessages.length-1; i > 0; i--) {
+			const m = this.pendingMessages[i];
+			if(this.shouldShowMessage(m)) {
+				finalList.unshift(m);
+				if(finalList.length === v) break;
+			}
+		}
+		this.lockedLiveMessages = finalList
+	}
 }
 
 </script>
@@ -1418,14 +1445,34 @@ export default class MessageList extends Vue {
 
 	.lockedLiveHolder {
 		// background: fade(@mainColor_normal, 20%);
+		background: @mainColor_dark_light;
 		border-top: 1px solid fade(#000, 50%);
 		padding-top: .25em;
 
 		.title {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
 			color: fade(@mainColor_light, 50%);
-			font-size: .5em;
-			text-align: center;
-			font-style: italic;
+			font-size: .6em;
+			.label {
+				font-style: italic;
+				margin: 0 .5em;
+			}
+			.button {
+				.clearButton();
+				width: 2em;
+				color: @mainColor_light;
+				background-color: fade(@mainColor_light, 20%);
+				&:hover {
+					background-color: fade(@mainColor_light, 30%) !important;
+				}
+			}
+		}
+
+		.subHolder:nth-child(odd) {
+			background-color: rgba(255, 255, 255, .025);
 		}
 	}
 
