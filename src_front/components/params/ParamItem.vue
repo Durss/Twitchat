@@ -1,5 +1,7 @@
 <template>
-	<div :class="classes" :data-tooltip="paramData.tooltip">
+	<div :class="classes" :data-tooltip="paramData.tooltip"
+	@mouseenter="$emit('mouseenter', $event, paramData)"
+	@mouseleave="$emit('mouseleave', $event, paramData)">
 		<div class="content">
 			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="icon">
@@ -135,7 +137,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 		ToggleButton,
 		PlaceholderSelector,
 	},
-	emits: ["change", "update:modelValue"]
+	emits: ["change", "update:modelValue", "mouseenter", "mouseleave"]
 })
 export default class ParamItem extends Vue {
 	
@@ -158,6 +160,7 @@ export default class ParamItem extends Vue {
 		if(this.error !== false) res.push("error");
 		if(this.paramData.longText) res.push("longText");
 		if(this.paramData.label == '') res.push("noLabel");
+		if(this.childLevel > 0) res.push("child");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -184,7 +187,7 @@ export default class ParamItem extends Vue {
 	}
 
 	public beforeUpdate(): void {
-		console.log("ok");//TODO remove
+		
 	}
 
 	public mounted():void {
@@ -458,7 +461,7 @@ export default class ParamItem extends Vue {
 		}
 	}
 
-	.child {
+	&.child, .child {
 		margin-left: auto;
 		margin-right: 0;
 		margin-top: 5px;

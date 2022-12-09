@@ -40,22 +40,20 @@
 						@click.stop
 						@change="saveData()"
 						@mouseleave="mouseLeaveItem"
-						@mouseenter="previewMessage(f.storage as 'message'/* couldn't find a way to strongly cast storage type */)"
-						v-model="config.filters[f.storage as 'message']">
-
-						<div v-if="f.storage === 'message'" class="children">
-							<ParamItem class="item" v-for="f in messageFilters"
-								:key="'subfilter_'+f.storage"
-								:paramData="f"
-								clearToggle
-								@click.stop
-								@change="saveData()"
-								@mouseleave="mouseLeaveItem"
-								@mouseenter="previewSubMessage(f.storage as 'bots'/* couldn't find a way to strongly cast storage type */)"
-								v-model="config.messageFilters[f.storage as 'bots']" />
-						</div>
-
-					</ParamItem>
+						@mouseenter="mouseEnterItem"
+						v-model="config.filters[f.storage as 'message']" />
+				
+					<ParamItem class="item child" v-for="f in messageFilters"
+						v-if="config.filters.message === true"
+						:key="'subfilter_'+f.storage"
+						:childLevel="1"
+						:paramData="f"
+						clearToggle
+						@click.stop
+						@change="saveData()"
+						@mouseleave="mouseLeaveItem"
+						@mouseenter="previewSubMessage(f.storage as 'bots'/* couldn't find a way to strongly cast storage type */)"
+						v-model="config.messageFilters[f.storage as 'bots']" />
 					
 				</div>
 
@@ -274,12 +272,6 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "channelpoints.svg";
 
 		const sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
-			TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
-			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			TwitchatDataTypes.TwitchatMessageType.WHISPER,
-			TwitchatDataTypes.TwitchatMessageType.JOIN,
-			TwitchatDataTypes.TwitchatMessageType.LEAVE,
-			TwitchatDataTypes.TwitchatMessageType.NOTICE,
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
 			TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 			TwitchatDataTypes.TwitchatMessageType.CHEER,
@@ -295,6 +287,12 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.BINGO,
 			TwitchatDataTypes.TwitchatMessageType.RAFFLE,
 			TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
+			TwitchatDataTypes.TwitchatMessageType.JOIN,
+			TwitchatDataTypes.TwitchatMessageType.LEAVE,
+			TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
+			TwitchatDataTypes.TwitchatMessageType.WHISPER,
+			TwitchatDataTypes.TwitchatMessageType.NOTICE,
+			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		];
 
 		this.filters = [];
@@ -376,6 +374,10 @@ export default class MessageListFilter extends Vue {
 		document.removeEventListener("mousedown", this.clickHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
+	}
+
+	public mouseEnterItem(event:MouseEvent, data:TwitchatDataTypes.ParameterData):void {
+		this.previewMessage(data.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]);
 	}
 
 	public mouseLeaveItem(event:MouseEvent):void {
@@ -806,16 +808,10 @@ export default class MessageListFilter extends Vue {
 					&.toggleAll {
 						margin-right: 0;
 					}
-				}
-				.children {
-					margin-bottom: .5em;
-					.item {
-						&:hover {
-							background-color: fade(@mainColor_light, 10%);
-						}
-						:deep(.icon) {
-							height: .7em;
-						}
+					&.child {
+						@offset:1.25em;
+						margin-left: @offset;
+						width: calc(100% - @offset);
 					}
 				}
 			}
