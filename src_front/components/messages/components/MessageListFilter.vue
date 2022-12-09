@@ -193,7 +193,7 @@ export default class MessageListFilter extends Vue {
 	public error:boolean = false;
 	public expand:boolean = false;
 	public toggleAll:boolean = false;
-	public debugForceOpen:boolean = true;//Allows to force opening when debugging the form
+	public debugForceOpen:boolean = false;//Allows to force opening when debugging the form
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
@@ -705,6 +705,7 @@ export default class MessageListFilter extends Vue {
 	transition: transform .25s;
 	position: relative;
 	// opacity: .9;
+	// opacity: .4;
 	pointer-events: none;
 
 	&.expand {

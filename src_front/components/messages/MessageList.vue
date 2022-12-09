@@ -335,7 +335,7 @@ export default class MessageList extends Vue {
 			clearTimeout(refreshDebounce);
 			refreshDebounce = setTimeout(()=>{
 				this.fullListRefresh();
-			}, 1000);
+			}, 250);
 		}, {deep: true});
 		
 		//Update list when message filters are changed
@@ -343,7 +343,7 @@ export default class MessageList extends Vue {
 			clearTimeout(refreshDebounce);
 			refreshDebounce = setTimeout(()=>{
 				this.fullListRefresh();
-			}, 1000);
+			}, 250);
 		}, {deep: true});
 
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
