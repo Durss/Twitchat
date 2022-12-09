@@ -6,11 +6,11 @@
 		@touchmove="onTouchMove">
 		
 		<MessageListFilter class="filters"
-		:open="hovered || openFilters || true"
-		:forceExpand="openFilters"
-		:config="config"
-		@delete="deleteColumn()"
-		@submit="openFilters = false"/>
+			:open="hovered || openFilters"
+			:forceExpand="openFilters"
+			:config="config"
+			@delete="deleteColumn()"
+			@submit="openFilters = false"/>
 
 		<button class="filteredMessages" v-if="lockedListRefresh" @click="unlockListRefresh()">
 			<img src="@/assets/icons/back.svg" alt="back">
@@ -325,11 +325,26 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY = maxScroll;
 		});
 
+		let refreshDebounce = -1;
+
 		//Listen for specific params change.
 		//If one is updated, the chat is completely rebuilt.
 		watch(() => this.$store("params").filters, () => this.fullListRefresh(), { deep: true });
-		watch(() => this.config.filters, () => this.fullListRefresh(), {deep: true});
-		watch(() => this.config.messageFilters, () => this.fullListRefresh(), {deep: true});
+		//Update list when filters are changed
+		watch(() => this.config.filters, () => {
+			clearTimeout(refreshDebounce);
+			refreshDebounce = setTimeout(()=>{
+				this.fullListRefresh();
+			}, 1000);
+		}, {deep: true});
+		
+		//Update list when message filters are changed
+		watch(() => this.config.messageFilters, () => {
+			clearTimeout(refreshDebounce);
+			refreshDebounce = setTimeout(()=>{
+				this.fullListRefresh();
+			}, 1000);
+		}, {deep: true});
 
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
@@ -707,7 +722,7 @@ export default class MessageList extends Vue {
 		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
 			const m = this.filteredMessages[i];
 			if (m.id == message.id) {
-				if(!this.shouldShowMessage(m)) {
+				if(!this.shouldShowMessage(m) || m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 					this.filteredMessages.splice(i, 1);
 				}
 				return;
@@ -720,7 +735,7 @@ export default class MessageList extends Vue {
 			if (m.id == message.id) return
 		}
 
-		if(this.shouldShowMessage(message)) {
+		if(this.shouldShowMessage(message) && message.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 			if(this.pendingMessages.length > 0) {
 				this.pendingMessages.push(message);
 			}else{

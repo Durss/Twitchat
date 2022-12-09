@@ -1,4 +1,4 @@
-<template class="cffdfdf">
+<template>
 	<div :class="classes" :data-tooltip="paramData.tooltip">
 		<div class="content">
 			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
@@ -181,6 +181,10 @@ export default class ParamItem extends Vue {
 
 	public set textValue(value:string) {
 		this.paramData.value = value;
+	}
+
+	public beforeUpdate(): void {
+		console.log("ok");//TODO remove
 	}
 
 	public mounted():void {

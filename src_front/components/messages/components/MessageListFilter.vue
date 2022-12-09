@@ -34,23 +34,23 @@
 					<ToggleButton class="item toggleAll" v-model="toggleAll" clear />
 
 					<ParamItem class="item" v-for="f in filters"
-						:key="f.storage"
-						:paramData="f"
 						clearToggle
+						:key="'filter_'+f.storage"
+						:paramData="f"
 						@click.stop
 						@change="saveData()"
-						@mouseleave="mouseLeaveItem($event)"
+						@mouseleave="mouseLeaveItem"
 						@mouseenter="previewMessage(f.storage as 'message'/* couldn't find a way to strongly cast storage type */)"
 						v-model="config.filters[f.storage as 'message']">
 
 						<div v-if="f.storage === 'message'" class="children">
 							<ParamItem class="item" v-for="f in messageFilters"
-								:key="f.storage"
+								:key="'subfilter_'+f.storage"
 								:paramData="f"
 								clearToggle
 								@click.stop
 								@change="saveData()"
-								@mouseleave="mouseLeaveItem($event)"
+								@mouseleave="mouseLeaveItem"
 								@mouseenter="previewSubMessage(f.storage as 'bots'/* couldn't find a way to strongly cast storage type */)"
 								v-model="config.messageFilters[f.storage as 'bots']" />
 						</div>
@@ -72,7 +72,7 @@
 					<img src="@/assets/loader/loader_white.svg" alt="loading" class="loader">
 				</div>
 	
-				<div class="preview" v-for="m in previewData" :key="m.id" @click="clickPreview($event)">
+				<div class="preview" v-for="m in previewData" :key="'preview_'+m.id" @click="clickPreview($event)">
 					
 					<ChatAd class="message"
 						v-if="m.type == 'twitchat_ad'"
@@ -122,6 +122,10 @@
 						v-else-if="m.type == 'followbot_list'"
 						:messageData="m" />
 	
+					<ChatShoutout class="message"
+						v-else-if="m.type == 'shoutout'"
+						:messageData="m" />
+	
 					<ChatHighlight v-else class="message"
 						lightMode
 						:messageData="m" />
@@ -152,6 +156,7 @@ import ChatNotice from '../ChatNotice.vue';
 import ChatPollResult from '../ChatPollResult.vue';
 import ChatPredictionResult from '../ChatPredictionResult.vue';
 import ChatRaffleResult from '../ChatRaffleResult.vue';
+import ChatShoutout from '../ChatShoutout.vue';
 
 @Options({
 	props:{
@@ -166,6 +171,7 @@ import ChatRaffleResult from '../ChatRaffleResult.vue';
 		ToggleButton,
 		ChatAd,
 		ChatConnect,
+		ChatShoutout,
 		ChatBingoResult,
 		ChatCountdownResult,
 		ChatFollowbotEvents,
@@ -189,7 +195,7 @@ export default class MessageListFilter extends Vue {
 	public error:boolean = false;
 	public expand:boolean = false;
 	public toggleAll:boolean = false;
-	public debugForceOpen:boolean = false;//Allows to force opening when debugging the form
+	public debugForceOpen:boolean = true;//Allows to force opening when debugging the form
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
@@ -393,7 +399,6 @@ export default class MessageListFilter extends Vue {
 
 		this.messagesCache[type] = [];
 		if(type == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
-			this.previewData = [];
 			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.BAN, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data) return;
 				this.messagesCache[type]?.push(data);
@@ -420,7 +425,7 @@ export default class MessageListFilter extends Vue {
 				this.loadingPreview = false;
 	
 				if(!data) return;
-	
+
 				this.messagesCache[type] = [data];
 	
 				if(previewIndexLoc != this.previewIndex) return;
