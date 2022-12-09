@@ -125,10 +125,66 @@
 			<div class="title">live chat</div>
 			<div v-for="m in lockedLiveMessages"
 			:key="m.id" :ref="'message_live_' + m.id">
+				<ChatJoinLeave class="message"
+					v-if="(m.type == 'join' || m.type == 'leave')"
+					:messageData="m" />
+
+				<ChatConnect class="message"
+					v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
+					:messageData="m" />
+
 				<ChatMessage class="message"
-					:lightMode="lightMode"
-					:messageData="m"
-					disableConversation />
+					v-else-if="m.type == 'message' || m.type == 'whisper'"
+					:lightMode="true"
+					disableConversation
+					:messageData="m" />
+
+				<ChatNotice class="message"
+					v-else-if="m.type == 'notice'" 
+					:messageData="m" />
+
+				<ChatPollResult class="message"
+					v-else-if="m.type == 'poll'"
+					:messageData="m" />
+
+				<ChatPredictionResult class="message"
+					v-else-if="m.type == 'prediction'"
+					:messageData="m" />
+
+				<ChatBingoResult class="message"
+					v-else-if="m.type == 'bingo'"
+					:messageData="m" />
+
+				<ChatRaffleResult class="message"
+					v-else-if="m.type == 'raffle'"
+					:messageData="m" />
+
+				<ChatCountdownResult class="message"
+					v-else-if="m.type == 'countdown'"
+					:messageData="m" />
+
+				<ChatHypeTrainResult class="message"
+					v-else-if="m.type == 'hype_train_summary'"
+					:messageData="m" />
+
+				<ChatFollowbotEvents class="message"
+					v-else-if="m.type == 'followbot_list'"
+					:messageData="m" />
+
+				<ChatRoomSettings class="message"
+					v-else-if="m.type == 'room_settings'"
+					:messageData="m" />
+
+				<ChatClear class="message"
+					v-else-if="m.type == 'clear_chat'"
+					:messageData="m" />
+
+				<ChatShoutout class="message"
+					v-else-if="m.type == 'shoutout'"
+					:messageData="m" />
+
+				<ChatHighlight v-else class="message"
+					:messageData="m" />
 			</div>
 		</div>
 
@@ -695,12 +751,12 @@ export default class MessageList extends Vue {
 		//add the new messages to the pending list
 		const chatPaused = this.lockScroll;// || this.pendingMessages.length > 0 || el.scrollTop < maxScroll;
 		if (chatPaused) {
-			if(this.shouldShowMessage(m)) this.pendingMessages.push(m);
-			if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			this.pendingMessages.push(m);
+			// if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			// || m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 				this.lockedLiveMessages.push(m);
 				this.lockedLiveMessages = this.lockedLiveMessages.slice(-3);//Only keep last 3
-			}
+			// }
 		} else {
 			this.lockedLiveMessages = [];
 			let list = this.filteredMessages.concat();
@@ -885,6 +941,7 @@ export default class MessageList extends Vue {
 		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
 		let easeValue		= hasResized? 1 : .3;
+		if(hasResized) this.prevHeight = holderHeight;
 
 		if (!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
@@ -1360,7 +1417,7 @@ export default class MessageList extends Vue {
 	}
 
 	.lockedLiveHolder {
-		background: fade(@mainColor_normal, 40%);
+		// background: fade(@mainColor_normal, 20%);
 		border-top: 1px solid fade(#000, 50%);
 		padding-top: .25em;
 

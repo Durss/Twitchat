@@ -177,6 +177,16 @@ export const storeChat = defineStore('chat', {
 				needTTS:true,
 			},
 			{
+				id:"simulatechat",
+				cmd:"/simulateChat",
+				details:"Simulate chat activity",
+			},
+			{
+				id:"simulatechatstop",
+				cmd:"/simulateChatStop",
+				details:"Stop chat activity simulation",
+			},
+			{
 				id:"announce",
 				cmd:"/announce {message}",
 				details:"Makes an announcement",

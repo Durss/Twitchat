@@ -49,6 +49,17 @@ export const storeDebug = defineStore('debug', {
 						message_html:message,
 						user:fakeUser
 					};
+					const messageList = StoreProxy.chat.messages;
+					if(messageList.length > 0 && Math.random() < .5) {
+						for (let i = messageList.length-1; i > Math.max(0, messageList.length-50); i--) {
+							const om = messageList[i];
+							if(om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+								m.answersTo = om;
+								om.answers.push(m);
+								break;
+							}
+						}
+					}
 					data = m;
 					break;
 				}

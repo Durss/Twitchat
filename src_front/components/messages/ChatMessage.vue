@@ -175,7 +175,7 @@ export default class ChatMessage extends Vue {
 	public get deletedMessage():string {
 		if(this.messageData.type != "message") return "";
 
-		const censor = (this.$store("params").filters.censorDeletedMessages.value===true)
+		const censor = (this.$store("params").appearance.censorDeletedMessages.value===true)
 		if(this.messageData.deletedData) {
 			return censor ? "<deleted by "+this.messageData.deletedData.deleter.displayName+">" : "";
 		}else if(this.messageData.deleted){
@@ -192,7 +192,7 @@ export default class ChatMessage extends Vue {
 		const highlightVips			= sParams.appearance.highlightVips.value === true;
 		const highlightSubs			= sParams.appearance.highlightSubs.value === true;
 		const spoilersEnabled		= sParams.features.spoilersEnabled.value === true;
-		const censorDeletedMessages	= sParams.filters.censorDeletedMessages.value === true;
+		const censorDeletedMessages	= sParams.appearance.censorDeletedMessages.value === true;
 
 		if(this.automodReasons)					res.push("automod");
 		if(this.channelInfo.is_blocked)			res.push("blockedUser");

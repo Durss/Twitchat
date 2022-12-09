@@ -26,6 +26,7 @@ export const storeParams = defineStore('params', {
 		},
 		appearance: {
 			splitViewVertical: 			{save:true, type:"toggle", value:false, label:"Vertical layout", id:21, tooltip:"Order message lists vertically"},
+			censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Censor deleted messages", id:25, icon:"hide_purple.svg"},
 			highlightMods: 				{save:true, type:"toggle", value:true, label:"Highlight Mods", id:9, icon:"mod_purple.svg"},
 			highlightVips: 				{save:true, type:"toggle", value:false, label:"Highlight VIPs", id:10, icon:"vip_purple.svg"},
 			highlightSubs: 				{save:true, type:"toggle", value:false, label:"Highlight Subs", id:11, icon:"sub_purple.svg"},
@@ -46,7 +47,6 @@ export const storeParams = defineStore('params', {
 		},
 		filters: {
 			showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
-			censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Censor deleted messages", id:116},
 			hideUsers: 					{save:true, type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg", longText:true},
 		},
 		chatColumnsConfig:[],
@@ -110,6 +110,7 @@ export const storeParams = defineStore('params', {
 					raffle:false,
 					reward:false,
 					notice:false,
+					shoutout:false,
 					following:false,
 					countdown:false,
 					prediction:false,

@@ -545,7 +545,7 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/spam" || cmd == "/megaspam" || cmd == "/fake") {
+		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam" || cmd == "/fake") {
 			this.loading = true;
 			clearInterval(this.spamInterval);
 			const lorem = new LoremIpsum({
@@ -553,51 +553,51 @@ export default class ChatForm extends Vue {
 				wordsPerSentence: { max: 8, min: 2 }
 			});
 
-			const followers = (await TwitchUtils.getFollowers(this.channelId, 100));
-			while(followers.length<50) {
-				const id = Math.round(Math.random()*99999999).toString();
-				followers.push({
-					from_id:id,
-					from_login:"",
-					from_name:"",
-					to_id:this.channelId,
-					to_login:"",
-					to_name:"",
-					followed_at:"",
-				});
+			const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
+				{type:TwitchatDataTypes.TwitchatMessageType.MESSAGE, probability:100},
+				{type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING, probability:5},
+				{type:TwitchatDataTypes.TwitchatMessageType.REWARD, probability:4},
+				{type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, probability:3},
+				{type:TwitchatDataTypes.TwitchatMessageType.CHEER, probability:3},
+				{type:TwitchatDataTypes.TwitchatMessageType.RAID, probability:1},
+				{type:TwitchatDataTypes.TwitchatMessageType.POLL, probability:1},
+				{type:TwitchatDataTypes.TwitchatMessageType.PREDICTION, probability:1},
+				{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, probability:1},
+				{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN, probability:1},
+			];
+			const ponderatedList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
+			for (let i = 0; i < spamTypes.length; i++) {
+				for (let j = 0; j < spamTypes[i].probability; j++) {
+					ponderatedList.push(spamTypes[i].type);
+				}
 			}
-			const users:TwitchatDataTypes.TwitchatUser[] = [];
-			followers.forEach(v=> {
-				const u = StoreProxy.users.getUserFrom("twitch", this.channelId, v.from_id, v.from_login, v.from_name, undefined, true);
-				users.push(u);
-			})
 			
 			this.spamInterval = window.setInterval(()=> {
-				let message = params[0] ?? lorem.generateSentences(Math.round(Math.random()*2) + 1);
-				const mess:TwitchatDataTypes.MessageChatData = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					user: Utils.pickRand(users),
-					channel_id:this.channelId,
-					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-					message,
-					message_html:message,
-					answers:[],
-				};
-
-				const messageList = sChat.messages;
-				if(messageList.length > 0 && Math.random() < .5) {
-					for (let i = 0; i < messageList.length; i++) {
-						const m = messageList[i];
-						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-							mess.answersTo = m;
-							m.answers.push(mess);
-							break;
+				this.$store("debug").simulateMessage(Utils.pickRand(ponderatedList), (data)=> {
+					if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						if(Math.random() > .1) return;
+						if(Math.random() > .5) {
+							data.twitch_isFirstMessage = true;
+						}else if(Math.random() > .5) {
+							data.twitch_isPresentation = true;
+						}else if(Math.random() > .5) {
+							data.deleted = true;
+						}else if(Math.random() > .5) {
+							if(Math.random() > .35) {
+								data.twitch_isSuspicious = true;
+							}else{
+								data.twitch_isRestricted = true;
+							}
+							const users:TwitchatDataTypes.TwitchatUser[] = [];
+							const list = this.$store("users").users;
+							for (let i = 0; i < list.length; i++) {
+								users.push(list[i]);
+								if(Math.random() > .3) break;
+							}
+							data.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })
 						}
 					}
-				}
-				sChat.addMessage(mess);
+				});
 				if(cmd == "/fake") clearInterval(this.spamInterval);
 			}, cmd == "/megaspam"? 50 :  250);
 			this.message = "";
@@ -609,7 +609,7 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/spamstop") {
+		if(cmd == "/spamstop" || cmd == "/simulatechatstop") {
 			clearInterval(this.spamInterval);
 			this.message = "";
 		}else

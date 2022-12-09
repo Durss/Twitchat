@@ -460,7 +460,7 @@ export default class Chat extends Vue {
 				break;
 
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
-				this.$store("params").filters.censorDeletedMessages.value = !this.$store("params").filters.censorDeletedMessages.value;
+				this.$store("params").appearance.censorDeletedMessages.value = !this.$store("params").appearance.censorDeletedMessages.value;
 				this.$store("params").updateParams()
 				break;
 
