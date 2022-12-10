@@ -45,10 +45,6 @@ export const storeParams = defineStore('params', {
 			dyslexicFont: 				{save:true, type:"toggle", value:false, label:"Use dyslexic-friendly font", id:24},
 			defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size ({VALUE})", min:1, max:7, step:1, id:12},
 		},
-		filters: {
-			showSelf: 					{save:true, type:"toggle", value:true, label:"Show my messages", id:100},
-			hideUsers: 					{save:true, type:"text", value:"", label:"Hide specific users (coma seperated)", id:103, placeholder:"example: user1, user2, user3", icon:"user_purple.svg", longText:true},
-		},
 		chatColumnsConfig:[],
 	} as IParamsState),
 
@@ -99,6 +95,8 @@ export const storeParams = defineStore('params', {
 				order:this.chatColumnsConfig[this.chatColumnsConfig.length-1].order+1,
 				size:1/2,
 				liveLockCount:3,
+				commandsBlockList:"",
+				userBlockList:"",
 				filters:{
 					join:false,
 					message:false,
@@ -123,6 +121,7 @@ export const storeParams = defineStore('params', {
 					community_challenge_contribution:false,
 				},
 				messageFilters:{
+					me:true,
 					automod:true,
 					suspiciousUsers:true,
 					deleted:true,

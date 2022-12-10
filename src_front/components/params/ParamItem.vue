@@ -187,7 +187,7 @@ export default class ParamItem extends Vue {
 	}
 
 	public beforeUpdate(): void {
-		
+		// console.log("rerender");
 	}
 
 	public mounted():void {
@@ -208,6 +208,9 @@ export default class ParamItem extends Vue {
 			}
 			this.$emit("update:modelValue", this.paramData.value);
 			this.$emit("change");
+			if(this.paramData.editCallback) {
+				this.paramData.editCallback(this.paramData.value);
+			}
 			this.buildChildren();
 		});
 		

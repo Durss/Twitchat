@@ -204,7 +204,8 @@ export default class NewUsers extends Vue {
 		//Ignore bot messages
 		if(StoreProxy.users.knownBots[m.platform][m.user.login.toLowerCase()] === true) return;
 		//Ignore hidden users from params
-		if((this.$store("params").filters.hideUsers.value as string).toLowerCase().indexOf(m.user.login.toLowerCase()) > -1) return;
+		//TODO replace that
+		// if((this.$store("params").filters.hideUsers.value as string).toLowerCase().indexOf(m.user.login.toLowerCase()) > -1) return;
 		
 		this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {

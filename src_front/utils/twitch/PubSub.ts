@@ -318,10 +318,8 @@ export default class PubSub extends EventDispatcher {
 				const list = (localObj.tags.emotes as unknown) as {emote_id:string, start:number, end:number}[];
 				emotes = TwitchUtils.parsedEmoteDataToRawEmoteData(list);
 			}
-			console.log(senderID, receiverID, meID);
 
 			const sender = StoreProxy.users.getUserFrom("twitch", meID, senderID);
-			console.log(sender);
 			const whisper:TwitchatDataTypes.MessageWhisperData = {
 				date:Date.now(),
 				id:Utils.getUUID(),

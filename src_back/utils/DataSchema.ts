@@ -304,15 +304,12 @@ import Ajv from "ajv";
 		"p:bttvEmotes": {type:"boolean"},
 		"p:ffzEmotes": {type:"boolean"},
 		"p:sevenTVEmotes": {type:"boolean"},
-		"p:censorDeletedMessages": {type:"boolean"},
-		"p:censoreDeletedMessages": {type:"boolean"},
 		"p:conversationsEnabled": {type:"boolean"},
 		"p:defaultSize": {type:"integer", minimum:0, maximum:5},
 		"p:displayTime": {type:"boolean"},
 		"p:dyslexicFont": {type:"boolean"},
 		"p:firstMessage": {type:"boolean"},
 		"p:groupIdenticalMessage": {type:"boolean"},
-		"p:hideUsers": {type:"string"},
 		"p:highlightMentions": {type:"boolean"},
 		"p:highlightMods": {type:"boolean"},
 		"p:highlightNonFollowers": {type:"boolean"},
@@ -326,7 +323,6 @@ import Ajv from "ajv";
 		"p:showEmotes": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},
 		"p:splitViewVertical": {type:"boolean"},
-		"p:showSelf": {type:"boolean"},
 		"p:showUserPronouns": {type:"boolean"},
 		"p:showViewersCount": {type:"boolean"},
 		"p:offlineEmoteOnly": {type:"boolean"},
@@ -335,6 +331,9 @@ import Ajv from "ajv";
 		"p:translateNames": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
+		"p:hideUsers": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:censorDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
+		"p:showSelf": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:blockedCommands": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:ignoreListCommands": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:ignoreCommands": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data

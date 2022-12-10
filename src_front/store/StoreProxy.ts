@@ -280,7 +280,6 @@ export interface IOBSActions {
 export interface IParamsState {
 	features:{[key:string]:TwitchatDataTypes.ParameterData};
 	appearance:{[key:string]:TwitchatDataTypes.ParameterData};
-	filters:{[key:string]:TwitchatDataTypes.ParameterData};
 	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
 }
 

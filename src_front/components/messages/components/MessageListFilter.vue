@@ -43,6 +43,16 @@
 						@mouseenter="mouseEnterItem"
 						v-model="config.filters[f.storage as 'message']" />
 				
+					<ParamItem class="item child"
+						v-if="config.filters.message === true"
+						key="subfilter_blockUsers"
+						:childLevel="1"
+						:paramData="param_blockUsers"
+						clearToggle
+						@click.stop
+						@change="saveData()"
+						v-model="config.userBlockList" />
+				
 					<ParamItem class="item child" v-for="f in messageFilters"
 						v-if="config.filters.message === true"
 						:key="'subfilter_'+f.storage"
@@ -54,7 +64,7 @@
 						@mouseleave="mouseLeaveItem"
 						@mouseenter="previewSubMessage(f.storage as 'bots'/* couldn't find a way to strongly cast storage type */)"
 						v-model="config.messageFilters[f.storage as 'bots']" />
-					
+						
 				</div>
 
 				<div class="error" v-if="error" @click="error=false">Please select at least one filter</div>
@@ -193,7 +203,7 @@ export default class MessageListFilter extends Vue {
 	public error:boolean = false;
 	public expand:boolean = false;
 	public toggleAll:boolean = false;
-	public debugForceOpen:boolean = false;//Allows to force opening when debugging the form
+	public debugForceOpen:boolean = true;//Allows to force opening when debugging the form
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
@@ -201,6 +211,7 @@ export default class MessageListFilter extends Vue {
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public loadingPreview:boolean = false;
 	public previewIndex:number = 0;
+	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", label:"Hide specific users", placeholder:"bot1, bot2, ....", icon:"hide.svg"};
 	
 	private mouseY = 0;
 	private disposed = false;
@@ -222,6 +233,7 @@ export default class MessageListFilter extends Vue {
 
 	public beforeMount(): void {
 		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
+		this.param_blockUsers.value = this.config.userBlockList;
 
 		//@ts-ignore
 		this.typeToLabel = {};
@@ -302,6 +314,7 @@ export default class MessageListFilter extends Vue {
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
 			if(f === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const keyToLabel:{[key in messageFilterTypes]:string} = {
+					me:"Sent by me",
 					viewers:"Sent by viewers",
 					vips:"Sent by VIPs",
 					subs:"Sent by Subs",
@@ -313,6 +326,7 @@ export default class MessageListFilter extends Vue {
 					commands:"Commands (starting with \"!\")",
 				}
 				const keyToIcon:{[key in messageFilterTypes]:string} = {
+					me:"user.svg",
 					viewers:"user.svg",
 					vips:"vip.svg",
 					subs:"sub.svg",
@@ -324,6 +338,7 @@ export default class MessageListFilter extends Vue {
 					commands:"commands.svg",
 				}
 				if(!this.config.messageFilters) this.config.messageFilters = {
+					me:true,
 					bots:true,
 					automod:true,
 					commands:true,
@@ -339,7 +354,21 @@ export default class MessageListFilter extends Vue {
 					if(this.config.messageFilters[k] == undefined) {
 						this.config.messageFilters[k] = true;
 					}
-					children.push({type:"toggle", value:this.config.messageFilters[k], label:keyToLabel[k], storage:key, icon:keyToIcon[k]});
+					const param:TwitchatDataTypes.ParameterData = {type:"toggle", value:this.config.messageFilters[k], label:keyToLabel[k], storage:key, icon:keyToIcon[k]};
+					if(k == 'commands') {
+						const subParam:TwitchatDataTypes.ParameterData = {type:"text",
+									longText:true,
+									value:this.config.commandsBlockList,
+									label:"Hide specific commands",
+									placeholder:"!example, !so, !myuptime, ...",
+									icon:"hide.svg",
+									editCallback:(data:string)=> {
+										this.config.commandsBlockList = data;
+										this.saveData();
+									}};
+						param.children = [subParam];
+					}
+					children.push(param);
 				}
 				this.messageFilters = children;
 			}
@@ -796,9 +825,10 @@ export default class MessageListFilter extends Vue {
 				flex-grow: 1;
 				overflow: auto;
 				margin: auto;
+				padding: 0 .25em;
 				&>.item{
 					margin: auto;
-					font-size: .8em;
+					// font-size: .8em;
 					&:not(:first-child) {
 						margin-top: .25em;
 					}
@@ -810,6 +840,7 @@ export default class MessageListFilter extends Vue {
 						margin-right: 0;
 					}
 					&.child {
+						font-size: .95em;
 						@offset:1.25em;
 						margin-left: @offset;
 						width: calc(100% - @offset);

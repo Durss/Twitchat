@@ -38,6 +38,8 @@ export namespace TwitchatDataTypes {
 		filters:{[key in typeof MessageListFilterTypes[number]]:boolean};
 		//Specific sub filters for chat messages
 		messageFilters:ChatColumnsConfigMessageFilters;
+		commandsBlockList:string;
+		userBlockList:string;
 	}
 	
 	/**
@@ -53,6 +55,7 @@ export namespace TwitchatDataTypes {
 		moderators:boolean;
 		vips:boolean;
 		subs:boolean;
+		me:boolean;
 	}
 
 	/**
@@ -90,7 +93,6 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface IParameterCategory {
 		appearance:{[key:string]:ParameterData};
-		filters:{[key:string]:ParameterData};
 		features:{[key:string]:ParameterData};
 	}
 	export type ParameterCategory = keyof IParameterCategory;
@@ -170,9 +172,10 @@ export namespace TwitchatDataTypes {
 		storage?:unknown;//Just a field to allow storage of random data if necessary
 		children?:ParameterData[];
 		accept?:string;//File types for browse inputs
-		fieldName?:string;
+		fieldName?:string;//INput's "name" attribute
 		save?:boolean;//Save configuration to storage on change?
 		tooltip?:string;//Tooltip displayed on hover
+		editCallback?:(data:any) => void;//Callback called when value is changed (if v-model can't be used)
 	}
 	export interface ParameterDataListValue {
 		label:string;

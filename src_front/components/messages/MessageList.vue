@@ -390,9 +390,6 @@ export default class MessageList extends Vue {
 
 		let refreshDebounce = -1;
 
-		//Listen for specific params change.
-		//If one is updated, the chat is completely rebuilt.
-		watch(() => this.$store("params").filters, () => this.fullListRefresh(), { deep: true });
 		//Update list when filters are changed
 		watch(() => this.config.filters, () => {
 			clearTimeout(refreshDebounce);
@@ -576,26 +573,11 @@ export default class MessageList extends Vue {
 
 				if(this.config.filters.message === false) return false;
 
-				//Ignore /me messages if requested
-				// if (sParams.filters.showSlashMe.value === false && m.twitch_isSlashMe) {
-				// 	return false;
-				// } else
-				//Ignore self if requested
-				if (sParams.filters.showSelf.value === false && m.user.id == meUID) {
-					return false;
-				}
-
-				//Ignore bot messages if requested
-				if (this.config.messageFilters.bots !== true
-					&& sUsers.knownBots[m.platform][m.user.login.toLowerCase()] === true
-					&& m.bypassBotFilter !== true) {
-					return false;
-				}
 
 				//Ignore custom users
-				if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
-					return false;
-				}
+				// if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
+				// 	return false;
+				// }
 
 				//Ignore commands
 				// if (this.config.messageFilters.commands !== true && m.message.trim().charAt(0) == "!") {
@@ -627,7 +609,10 @@ export default class MessageList extends Vue {
 				}
 
 				//User types filters
-				if(m.user.is_bot) {
+				if(m.user.id == meUID) {
+					return this.config.messageFilters.me !== false;
+				}
+				if(m.user.is_bot && m.bypassBotFilter !== true) {
 					return this.config.messageFilters.bots !== false;
 				}
 				if(chanInfo.is_moderator) {
