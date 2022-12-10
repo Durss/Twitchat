@@ -55,7 +55,6 @@ export namespace TwitchatDataTypes {
 		moderators:boolean;
 		vips:boolean;
 		subs:boolean;
-		me:boolean;
 	}
 
 	/**

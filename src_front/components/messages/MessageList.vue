@@ -10,6 +10,7 @@
 			:forceExpand="openFilters"
 			:config="config"
 			@delete="deleteColumn()"
+			@change="fullListRefresh()"
 			@submit="openFilters = false"/>
 
 		<button class="filteredMessages" v-if="lockedListRefresh" @click="unlockListRefresh()">
@@ -506,7 +507,7 @@ export default class MessageList extends Vue {
 	/**
 	 * Cleans up all messages and rebuild the list
 	 */
-	private fullListRefresh(): void {
+	public fullListRefresh(): void {
 		if(this.lockedListRefresh) return;
 
 		clearTimeout(this.updateDebounce);
@@ -549,12 +550,8 @@ export default class MessageList extends Vue {
 	 * @param m 
 	 */
 	private shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
-		const sParams = StoreProxy.params;
-		const sUsers = StoreProxy.users;
-		const meUID = StoreProxy.auth.twitch.user.id;
-		// const blockedCmds = sParams.filters.blockedCommands.value as string;
-		// let blockedSpecificCmds = blockedCmds.split(/[^a-z0-9_]+/gi);//Split commands by non-alphanumeric characters
-		// blockedSpecificCmds = blockedSpecificCmds.map(v => v.replace(/^!/gi, ""))//Remove "!" at the beginning
+		let blockedSpecificCmds = this.config.commandsBlockList.toLowerCase().split(",").map(v=>v.trim());//Split commands by non-alphanumeric characters
+		let blockedSpecificUsers = this.config.userBlockList.toLowerCase().split(/[^a-z0-9_]+/gi);//Split commands by non-alphanumeric characters
 
 		if(this.lightMode) {
 			//If in light mode, only allow normal chat messages that are not deleted/moded/...
@@ -573,25 +570,22 @@ export default class MessageList extends Vue {
 
 				if(this.config.filters.message === false) return false;
 
+				//Ignore specific users
+				if (m.user.displayName.length > 0 && blockedSpecificUsers.includes(m.user.login.toLowerCase())) {
+					return false;
+				}
 
-				//Ignore custom users
-				// if (m.user.displayName.length > 0 && (sParams.filters.hideUsers.value as string).toLowerCase().indexOf(m.user.displayName.toLowerCase()) > -1) {
-				// 	return false;
-				// }
+				//Ignore specific commands
+				if (this.config.messageFilters.commands === true && blockedSpecificCmds.length > 0) {
+					const cleanMess = m.message.trim().toLowerCase();
+					for (let i = 0; i < blockedSpecificCmds.length; i++) {
+						const cmd = blockedSpecificCmds[i];
+						if(cmd.length > 0 && cleanMess.indexOf(cmd) > -1) {
+							return false;
+						}
+					}
+				}
 
-				//Ignore commands
-				// if (this.config.messageFilters.commands !== true && m.message.trim().charAt(0) == "!") {
-				// 	// if (sParams.filters.ignoreListCommands.value === true && blockedSpecificCmds.length > 0) {
-				// 	// 	//Ignore specific commands
-				// 	// 	const cmd = m.message.split(" ")[0].substring(1).trim().toLowerCase();
-				// 	// 	if (blockedSpecificCmds.includes(cmd)) {
-				// 	// 		return false;
-				// 	// 	}
-				// 	// } else {
-				// 		//Ignore all commands
-				// 		return false;
-				// 	// }
-				// }
 
 				//Second test for some types so deleted/automoded/... messages can still be
 				//displayed even if all the viewers/mod/vip/sub filters are off
@@ -609,9 +603,6 @@ export default class MessageList extends Vue {
 				}
 
 				//User types filters
-				if(m.user.id == meUID) {
-					return this.config.messageFilters.me !== false;
-				}
 				if(m.user.is_bot && m.bypassBotFilter !== true) {
 					return this.config.messageFilters.bots !== false;
 				}

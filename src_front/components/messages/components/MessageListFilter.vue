@@ -192,7 +192,7 @@ import ChatShoutout from '../ChatShoutout.vue';
 		ChatPredictionResult,
 		ChatRaffleResult,
 	},
-	emits: ['update:modelValue', 'submit', 'delete'],
+	emits: ['update:modelValue', 'submit', 'delete', 'change'],
 })
 export default class MessageListFilter extends Vue {
 	
@@ -203,7 +203,7 @@ export default class MessageListFilter extends Vue {
 	public error:boolean = false;
 	public expand:boolean = false;
 	public toggleAll:boolean = false;
-	public debugForceOpen:boolean = true;//Allows to force opening when debugging the form
+	public debugForceOpen:boolean = false;//Allows to force opening when debugging the form
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
@@ -314,7 +314,6 @@ export default class MessageListFilter extends Vue {
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
 			if(f === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const keyToLabel:{[key in messageFilterTypes]:string} = {
-					me:"Sent by me",
 					viewers:"Sent by viewers",
 					vips:"Sent by VIPs",
 					subs:"Sent by Subs",
@@ -326,7 +325,6 @@ export default class MessageListFilter extends Vue {
 					commands:"Commands (starting with \"!\")",
 				}
 				const keyToIcon:{[key in messageFilterTypes]:string} = {
-					me:"user.svg",
 					viewers:"user.svg",
 					vips:"vip.svg",
 					subs:"sub.svg",
@@ -338,7 +336,6 @@ export default class MessageListFilter extends Vue {
 					commands:"commands.svg",
 				}
 				if(!this.config.messageFilters) this.config.messageFilters = {
-					me:true,
 					bots:true,
 					automod:true,
 					commands:true,
@@ -497,8 +494,6 @@ export default class MessageListFilter extends Vue {
 				dataCast.deleted = true;
 			}else if(type == "suspiciousUsers") {
 				dataCast.twitch_isSuspicious = true;
-			}else if(type == "commands") {
-				dataCast.message = dataCast.message_html = "!cucumber"
 			}else {
 				return;
 			}
@@ -569,6 +564,7 @@ export default class MessageListFilter extends Vue {
 	 * Force data save
 	 */
 	public saveData():void {
+		this.$emit("change");
 		this.$store("params").saveChatColumnConfs();
 	}
 
@@ -733,7 +729,7 @@ export default class MessageListFilter extends Vue {
 	transform: translateX(100%);
 	transition: transform .25s;
 	position: relative;
-	// opacity: .9;
+	opacity: .9;
 	// opacity: .4;
 	pointer-events: none;
 
