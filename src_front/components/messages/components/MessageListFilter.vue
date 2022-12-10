@@ -824,7 +824,7 @@ export default class MessageListFilter extends Vue {
 				padding: 0 .25em;
 				&>.item{
 					margin: auto;
-					// font-size: .8em;
+					font-size: .8em;
 					&:not(:first-child) {
 						margin-top: .25em;
 					}
@@ -836,10 +836,17 @@ export default class MessageListFilter extends Vue {
 						margin-right: 0;
 					}
 					&.child {
-						font-size: .95em;
+						font-size: .9em;
 						@offset:1.25em;
 						margin-left: @offset;
 						width: calc(100% - @offset);
+						:deep(textarea) {
+							position: relative;
+							font-size: .95em;
+							//Offset to the left to give it a bit more space
+							left: -2em;
+							width: calc(100% + 2em);
+						}
 					}
 				}
 			}
