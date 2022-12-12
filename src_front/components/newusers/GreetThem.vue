@@ -3,7 +3,7 @@
 		<div class="header" @click="toggleList()">
 			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
 				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
-				class="scrollBt"
+				class="scrollBt clearButton"
 				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
 				@click.stop="toggleScroll()" />
 
@@ -11,7 +11,7 @@
 
 			<Button aria-label=""
 				:icon="$image('icons/delete.svg')"
-				class="clearBt"
+				class="clearBt clearButton"
 				data-tooltip="Clear all messages"
 				@click.stop="clearAll()" />
 		</div>
@@ -506,13 +506,18 @@ export default class NewUsers extends Vue {
 				img {
 					height: .8em;
 					margin-right: 3px;
-					// vertical-align: middle;
 				}
 			}
 			select {
 				font-size: .8em;
 				padding: 0px 2px;
 				border-radius: 5px;
+				color: @mainColor_light;
+				background-color: rgba(0,0,0,.5);
+				border-color:  rgba(0, 0, 0, .8);
+				option {
+					background-color: @mainColor_dark;
+				}
 			}
 		}
 	}
