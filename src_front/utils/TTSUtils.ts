@@ -291,6 +291,7 @@ export default class TTSUtils {
 				if(paramsTTS.maxLength > 0) {
 					mess = mess.substring(0, paramsTTS.maxLength);
 				}
+				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				let txt = paramsTTS.readMessagePatern.replace(/\{USER\}/gi, message.user.displayName)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
 				return txt;
@@ -316,6 +317,7 @@ export default class TTSUtils {
 				if(paramsTTS.maxLength > 0) {
 					mess = mess.substring(0, paramsTTS.maxLength);
 				}
+				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				let txt = paramsTTS.readWhispersPattern.replace(/\{USER\}/gi, message.user.displayName)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
 				return txt;
@@ -328,6 +330,7 @@ export default class TTSUtils {
 				if(!message.message) return "";
 
 				const mess: string = message.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gim, "");//Strip HTML tags;
+				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				const txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
 				return txt;
 			}
@@ -391,8 +394,9 @@ export default class TTSUtils {
 				
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					mess = message.message_html.replace(/<[^>]*>/gim, "");//Strip HTML tags;
+					mess = message.message_html.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");//Remove all HTML tags
 				}
+				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				let txt = paramsTTS.readBitsPattern.replace(/\{USER\}/gi, message.user.displayName);
 				txt = txt.replace(/\{BITS\}/gi, bits.toString());
 				txt = txt.replace(/\{MESSAGE\}/gi, mess);
