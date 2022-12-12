@@ -792,6 +792,8 @@ export default class MessageList extends Vue {
 		let scrollBy = (data?.scrollBy && !isNaN(data.scrollBy as number)) ? data.scrollBy : 100;
 		switch (e.type) {
 			case TwitchatEvent.CHAT_FEED_READ: {
+				if(!this.config.filters.message) return;
+				if(!this.config.messageFilters.viewers) return;
 				if (readCount === 0) readCount = 1;
 				const offset = this.filteredMessages.findIndex(v => {
 					return v.markedAsRead === true
@@ -800,6 +802,8 @@ export default class MessageList extends Vue {
 			}
 			/* falls through */
 			case TwitchatEvent.CHAT_FEED_READ_ALL: {
+				if(!this.config.filters.message) return;
+				if(!this.config.messageFilters.viewers) return;
 				if (readCount === 0 || readCount > this.filteredMessages.length - 1) {
 					readCount = this.filteredMessages.length - 1;
 				}
