@@ -7,7 +7,7 @@
 		<div class="emote" v-if="bingoData.guessEmote">
 			Emote to find
 			<img :src="bingoData.emoteValue?.twitch?.image.hd">
-			<span class="code">({{bingoData.emoteValue?.twitch?.image}})</span>
+			<span class="code">({{bingoData.emoteValue?.twitch?.code}})</span>
 		</div>
 
 		<div class="winner" v-if="bingoData.winners && bingoData.winners.length > 0">
@@ -95,7 +95,7 @@ export default class BingoState extends Vue {
 	}
 
 	.postChat {
-		width: 70%;
+		max-width: 250px;
 		margin-top: 10px;
 		font-size: .8em;
 		:deep(.togglebutton) {
