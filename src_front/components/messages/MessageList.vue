@@ -6,12 +6,13 @@
 		@touchmove="onTouchMove">
 		
 		<MessageListFilter class="filters"
-			:open="hovered || openFilters"
-			:forceExpand="openFilters"
+			:open="hovered || firstConfig"
+			:forceConfig="firstConfig"
 			:config="config"
+			@add="$emit('addColumn', config)"
 			@delete="deleteColumn()"
 			@change="fullListRefresh()"
-			@submit="openFilters = false"/>
+			@submit="firstConfig = false"/>
 
 		<button class="filteredMessages" v-if="lockedListRefresh" @click="unlockListRefresh()">
 			<img src="@/assets/icons/back.svg" alt="back">
@@ -299,7 +300,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 			default: false,
 		},//Used by OBS chat
 	},
-	emits: ["showModal"]
+	emits: ["showModal", 'addColumn']
 })
 export default class MessageList extends Vue {
 
@@ -314,7 +315,7 @@ export default class MessageList extends Vue {
 	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
 	public hovered = false;
-	public openFilters = false;
+	public firstConfig = false;
 	public lockScroll = false;
 	public lockedListRefresh = false;
 	public showLoadingGradient = false;
@@ -429,7 +430,7 @@ export default class MessageList extends Vue {
 				break;
 			}
 		}
-		this.openFilters = noConfig;
+		this.firstConfig = noConfig;
 
 		this.prevTs = Date.now() - 1000 / 60;
 		this.renderFrame(Date.now());
@@ -566,10 +567,8 @@ export default class MessageList extends Vue {
 
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
-				const chanInfo = m.user.channelInfo[m.channel_id];
-
 				if(this.config.filters.message === false) return false;
-
+				
 				//Ignore specific users
 				if (m.user.displayName.length > 0 && blockedSpecificUsers.includes(m.user.login.toLowerCase())) {
 					return false;
@@ -605,6 +604,10 @@ export default class MessageList extends Vue {
 				//User types filters
 				if(m.user.is_bot && m.bypassBotFilter !== true) {
 					return this.config.messageFilters.bots !== false;
+				}
+				const chanInfo = m.user.channelInfo[m.channel_id];
+				if(m.user.is_partner) {
+					return this.config.messageFilters.partners !== false;
 				}
 				if(chanInfo.is_moderator) {
 					return this.config.messageFilters.moderators !== false;

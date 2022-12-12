@@ -32,6 +32,7 @@ export namespace TwitchatDataTypes {
 	 * Contains config about a chat column
 	 */
 	 export interface ChatColumnsConfig {
+		id:string;
 		order:number;
 		size:number;
 		liveLockCount:number
@@ -55,6 +56,7 @@ export namespace TwitchatDataTypes {
 		moderators:boolean;
 		vips:boolean;
 		subs:boolean;
+		partners:boolean;
 	}
 
 	/**

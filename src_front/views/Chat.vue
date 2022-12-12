@@ -3,7 +3,7 @@
 		<div class="top" ref="top">
 			<div class="scrollable" ref="scrollable">
 				<div class="column" v-for="c, index in $store('params').chatColumnsConfig"
-				:ref="'column_'+c.order"
+				:ref="'column_'+c.id"
 				:key="c.order"
 				:style="getColStyles(c)">
 					<div class="subHolder">
@@ -13,6 +13,7 @@
 	
 						<MessageList ref="messages" class="messages"
 							@showModal="(v:string) => currentModal = v"
+							@addColumn="addColumn"
 							:maxMessages="50"
 							:config="c"
 							filterId="chat"/>
@@ -20,15 +21,12 @@
 		
 					<div class="dragBt" ref="splitter"
 					v-if="$store('params').chatColumnsConfig.length > 1"
+					@dblclick="expandCol(c)"
 					@pointerdown="startDrag($event, c)"
 					@pointerup="startDrag($event, c)">
 						<div class="grip"></div>
 					</div>
 				</div>
-			</div>
-				
-			<div class="addCol">
-				<Button :icon="$image('icons/add_purple.svg')" small white @click="addColumn()" data-tooltip="Add column" />
 			</div>
 		</div>
 
@@ -263,15 +261,14 @@ export default class Chat extends Vue {
 				height:"100%",
 			}
 		}
+		const value = `${size}%`;
 		if(this.splitViewVertical) {
-			const value = `calc(${size}% - 7px)`;//7px => dragbar size
 			return {
 				"height": value,
 				"min-height": value,
 				"max-height": value,
 			}
 		}else{
-			const value = `${size}%`;
 			return {
 				"width": value,
 				"min-width": value,
@@ -605,10 +602,10 @@ export default class Chat extends Vue {
 	}
 
 	/**
-	 * Add a chat column
+	 * Expand the selected col
+	 * @param col 
 	 */
-	public addColumn():void {
-		const col = this.$store("params").addChatColumn();
+	public expandCol(col:TwitchatDataTypes.ChatColumnsConfig):void{
 		const colList = this.$store("params").chatColumnsConfig;
 		let totalSize = 0;
 		for (let i = 0; i < colList.length; i++) {
@@ -616,16 +613,38 @@ export default class Chat extends Vue {
 			totalSize += c.size;
 		}
 
-		const holder = this.$refs.scrollable as HTMLDivElement;
+		//If there's available space on the screen
+		//expand the col to fill it
 		if(totalSize < 1) {
-			for (let i = 0; i < colList.length; i++) {
-				const c = colList[i];
-				c.size = 1 - totalSize;
-			}
+			col.size += 1 - totalSize;
+		}
+	}
+
+	/**
+	 * Add a chat column
+	 */
+	public addColumn(ref:TwitchatDataTypes.ChatColumnsConfig):void {
+		let col = this.$store("params").addChatColumn(ref);
+		const colList = this.$store("params").chatColumnsConfig;
+		let totalSize = 0;
+		for (let i = 0; i < colList.length; i++) {
+			const c = colList[i];
+			totalSize += c.size;
+		}
+
+		//If after adding a new column if there's still some remaining space
+		//expand the new col to fill that space
+		if(totalSize < 1) {
+			col.size += 1 - totalSize;
 		}
 		
+		const holder = this.$refs.scrollable as HTMLDivElement;
 		this.$nextTick().then(()=>{
-			let scrollTo = this.splitViewVertical? {y:holder.scrollHeight-holder.offsetHeight} : {x:holder.scrollWidth-holder.offsetWidth};
+			//Scroll to to the new col
+			let colHolder = this.$refs["column_"+col.id] as HTMLDivElement[];
+			let bounds = colHolder[0].getBoundingClientRect();
+			
+			let scrollTo = this.splitViewVertical? {y:bounds.top + bounds.height - holder.offsetHeight} : {x:bounds.left + bounds.width - holder.offsetWidth};
 			gsap.to(holder, {duration:.75, ease:"sine.inOut", scrollTo});
 			this.computeWindowsSizes();
 		});
@@ -659,7 +678,7 @@ export default class Chat extends Vue {
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c == this.draggedCol) {
-				const el = (this.$refs["column_"+c.order] as HTMLDivElement[])[0];
+				const el = (this.$refs["column_"+c.id] as HTMLDivElement[])[0];
 				const bounds = el.getBoundingClientRect();
 				if(this.splitViewVertical) {
 					c.size = Math.max(215, this.mouseY - bounds.top + 7) / holderBounds.height;
@@ -688,7 +707,7 @@ export default class Chat extends Vue {
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c.messageFilters.viewers !== true) {
-				const colHolders = this.$refs["column_"+c.order] as HTMLDivElement[];
+				const colHolders = this.$refs["column_"+c.id] as HTMLDivElement[];
 				if(!colHolders) continue; 
 				const colHolder = colHolders[0];
 				if(colHolder) {
@@ -698,8 +717,9 @@ export default class Chat extends Vue {
 				}
 			}
 		}
+
 		if(!this.formsColumnTarget) {
-			selectedCol = (this.$refs["column_"+cols[cols.length-1].order] as HTMLDivElement[])[0];
+			selectedCol = (this.$refs["column_"+cols[cols.length-1].id] as HTMLDivElement[])[0];
 			this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 		}
 	}
@@ -736,12 +756,11 @@ export default class Chat extends Vue {
 					flex-direction: column;
 					
 					.subHolder {
-						height: 100%;
+						height: calc(100% - 14px);//14px => dragbar height
 					}
 					.dragBt {
 						padding: 3px 0;
 						cursor: ns-resize;
-						height: 14px;
 						width: 100%;
 						.grip {
 							position: relative;
@@ -756,23 +775,6 @@ export default class Chat extends Vue {
 							}
 						}
 					}
-				}
-			}
-
-			.addCol {
-				min-width: unset;
-				min-height: 1em;
-				.button {
-					position: absolute;
-					right: unset;
-					top: unset;
-					left: 50%;
-					padding-right: .2em;
-					padding-bottom: .12em;
-					transform: translateX(-50%);
-					border-radius: .3em;
-					border-bottom-right-radius: 0;
-					border-bottom-left-radius: 0;
 				}
 			}
 		}
@@ -832,7 +834,7 @@ export default class Chat extends Vue {
 					user-select: none;
 					z-index: 2;
 					height: 100%;
-					width: 14px;
+					flex-basis: 14px;
 					.grip {
 						position: relative;
 						left: 50%;
@@ -850,17 +852,6 @@ export default class Chat extends Vue {
 						}
 					}
 				}
-	
-				// &:nth-last-child(2) {
-				// 	.dragBt {
-				// 		.grip {
-				// 			background: transparent;
-				// 			&::before {
-				// 				width: 2px;
-				// 			}
-				// 		}
-				// 	}
-				// }
 			}
 		}
 

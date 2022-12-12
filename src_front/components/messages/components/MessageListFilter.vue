@@ -7,18 +7,21 @@
 			<button class="deleteBt" @click="$emit('delete')" v-if="canDelete" data-tooltip="Delete column">
 				<img src="@/assets/icons/cross_white.svg" alt="delete column" class="icon">
 			</button>
+			<button class="addBt" @click="$emit('add')" v-if="canDelete" data-tooltip="Add column">
+				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
+			</button>
 		</div>
 
-		<div class="holder" v-if="debugForceOpen || expand || forceExpand" @click="clickPreview($event)">
+		<div class="holder" v-if="debugForceOpen || expand || forceConfig" @click="clickPreview($event)">
 			<div class="content">
 				<div class="head">
 					<h1 class="title">Filters</h1>
-					<button class="closeBt" @click="expand = false" v-if="!forceExpand">
+					<button class="closeBt" @click="expand = false" v-if="!forceConfig">
 						<img src="@/assets/icons/cross_white.svg" alt="close filters" class="icon">
 					</button>
 				</div>
 				
-				<div class="info" v-if="debugForceOpen || expand || forceExpand">Choose which message types to display on this column</div>
+				<div class="info" v-if="debugForceOpen || expand || forceConfig">Choose which message types to display on this column</div>
 				
 				<div class="presets">
 					<Button @click="preset('chat')" title="Chat" :icon="$image('icons/whispers_purple.svg')" small white />
@@ -43,35 +46,37 @@
 						@mouseenter="mouseEnterItem"
 						v-model="config.filters[f.storage as 'message']" />
 				
-					<ParamItem class="item child"
-						v-if="config.filters.message === true"
-						key="subfilter_blockUsers"
-						:childLevel="1"
-						:paramData="param_blockUsers"
-						clearToggle
-						@click.stop
-						@change="saveData()"
-						v-model="config.userBlockList" />
-				
-					<ParamItem class="item child" v-for="f in messageFilters"
-						v-if="config.filters.message === true"
-						:key="'subfilter_'+f.storage"
-						:childLevel="1"
-						:paramData="f"
-						clearToggle
-						@click.stop
-						@change="saveData()"
-						@mouseleave="mouseLeaveItem"
-						@mouseenter="previewSubMessage(f.storage as 'bots'/* couldn't find a way to strongly cast storage type */)"
-						v-model="config.messageFilters[f.storage as 'bots']" />
+					<div class="subFilters">
+						<ParamItem class="item child"
+							v-if="config.filters.message === true"
+							key="subfilter_blockUsers"
+							:childLevel="1"
+							:paramData="param_blockUsers"
+							clearToggle
+							@click.stop
+							@change="saveData()"
+							v-model="config.userBlockList" />
+					
+						<ParamItem class="item child" v-for="f in messageFilters"
+							v-if="config.filters.message === true"
+							:key="'subfilter_'+f.storage"
+							:childLevel="1"
+							:paramData="f"
+							clearToggle
+							@click.stop
+							@change="saveData()"
+							@mouseleave="mouseLeaveItem"
+							@mouseenter="previewSubMessage(f.storage as 'bots'/* couldn't find a way to strongly cast storage type */)"
+							v-model="config.messageFilters[f.storage as 'bots']" />
+					</div>
 						
 				</div>
 
 				<div class="error" v-if="error" @click="error=false">Please select at least one filter</div>
 
 				<div class="ctas">
-					<Button title="Cancel" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceExpand" @click="$emit('delete')" />
-					<Button title="Create" small :icon="$image('icons/add_purple.svg')" white v-if="forceExpand" @click="submitForm()" />
+					<Button title="Cancel" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceConfig" @click="$emit('delete')" />
+					<Button title="Create" small :icon="$image('icons/add_purple.svg')" white v-if="forceConfig" @click="submitForm()" />
 				</div>
 			</div>
 
@@ -170,7 +175,7 @@ import ChatShoutout from '../ChatShoutout.vue';
 	props:{
 		modelValue:{type:Object, default: {}},
 		open:{type:Boolean, default: false},
-		forceExpand:{type:Boolean, default: false},
+		forceConfig:{type:Boolean, default: false},
 		config:Object,
 	},
 	components:{
@@ -192,12 +197,12 @@ import ChatShoutout from '../ChatShoutout.vue';
 		ChatPredictionResult,
 		ChatRaffleResult,
 	},
-	emits: ['update:modelValue', 'submit', 'delete', 'change'],
+	emits: ['update:modelValue', 'submit', 'add', 'delete', 'change'],
 })
 export default class MessageListFilter extends Vue {
 	
 	public open!:boolean;
-	public forceExpand!:boolean;
+	public forceConfig!:boolean;
 	public config!:TwitchatDataTypes.ChatColumnsConfig;
 	
 	public error:boolean = false;
@@ -223,7 +228,8 @@ export default class MessageListFilter extends Vue {
 
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
-		if(this.debugForceOpen || this.expand || this.forceExpand) res.push("expand");
+		if(this.$store("params").appearance.splitViewVertical) res.push("verticalSplitMode");
+		if(this.debugForceOpen || this.expand || this.forceConfig) res.push("expand");
 		return res;
 	}
 
@@ -257,7 +263,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = "Hype train summaries";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = "Hype train cooldown";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE] = "Community boosts";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "Community challenge<br>contributions";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "Community challenge";
 		
 		//@ts-ignore
 		this.typeToIcon = {};
@@ -318,6 +324,7 @@ export default class MessageListFilter extends Vue {
 					vips:"Sent by VIPs",
 					subs:"Sent by Subs",
 					moderators:"Sent by Moderators",
+					partners:"Sent by Partners",
 					bots:"Sent by bots",
 					deleted:"Deleted messages",
 					automod:"Blocked messages",
@@ -329,6 +336,7 @@ export default class MessageListFilter extends Vue {
 					vips:"vip.svg",
 					subs:"sub.svg",
 					moderators:"mod.svg",
+					partners:"partner.svg",
 					bots:"bot.svg",
 					deleted:"delete.svg",
 					automod:"shield.svg",
@@ -345,6 +353,7 @@ export default class MessageListFilter extends Vue {
 					vips:true,
 					subs:true,
 					moderators:true,
+					partners:true,
 				};
 				for (const key in keyToLabel) {
 					const k = key as messageFilterTypes;
@@ -454,7 +463,25 @@ export default class MessageListFilter extends Vue {
 			}, false);
 			this.loadingPreview = false;
 
-		}else{
+		}else
+			if(type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT) {
+				this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+					if(!data) return;
+					const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
+					dataCast.received = false;
+					this.messagesCache[type]?.push(data);
+					this.previewData.push(data);
+				}, false);
+				this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+					if(!data) return;
+					const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
+					dataCast.received = true;
+					this.messagesCache[type]?.push(data);
+					this.previewData.push(dataCast);
+				}, false);
+				this.loadingPreview = false;
+
+			}else{
 
 			this.$store('debug').simulateMessage(type, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				this.loadingPreview = false;
@@ -744,6 +771,52 @@ export default class MessageListFilter extends Vue {
 		transform: translateX(0);
 	}
 
+	&.verticalSplitMode {
+		.holder {
+			.content {
+				width: 100%;
+				max-width: 100%;
+				.paramsList {
+					display: flex;
+					flex-direction: row;
+					align-items: flex-start;
+					justify-content: center;
+					flex-wrap: wrap;
+					flex-grow: 0;
+					margin: unset;
+					.item {
+						margin: unset;
+					}
+					.item:not(.toggleAll) {
+						margin-right: 1em;
+						width: 300px;
+						max-width: 300px;
+					}
+					.item.toggleAll {
+						margin-left: 268px;
+						margin-right: 1em;
+						width: 32px;
+					}
+					.subFilters {
+						flex-basis: 100%;
+						// margin: 0 auto;
+						// justify-self: center;
+						// margin-right: 0;
+						// margin-left: auto;
+						&>.item {
+							margin-left: auto;
+							margin-right: auto;
+							max-width: 280px;
+							&:deep(.holder)::before{
+								display: none;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	.hoverActions {
 		@size: 1.25em;
 		margin-left: -@size;
@@ -829,7 +902,7 @@ export default class MessageListFilter extends Vue {
 				overflow: auto;
 				margin: auto;
 				padding: 0 .25em;
-				&>.item{
+				.item{
 					margin: auto;
 					font-size: .8em;
 					&:not(:first-child) {

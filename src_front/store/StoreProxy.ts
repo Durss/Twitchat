@@ -288,7 +288,7 @@ export interface IParamsGetters {
 
 export interface IParamsActions {
 	updateParams():void;
-	addChatColumn():TwitchatDataTypes.ChatColumnsConfig;
+	addChatColumn(after?:TwitchatDataTypes.ChatColumnsConfig):TwitchatDataTypes.ChatColumnsConfig;
 	delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void;
 	saveChatColumnConfs():void;
 }

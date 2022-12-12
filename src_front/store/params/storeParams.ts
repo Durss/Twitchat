@@ -3,6 +3,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
+import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';
@@ -90,9 +91,14 @@ export const storeParams = defineStore('params', {
 			}
 		},
 
-		addChatColumn():TwitchatDataTypes.ChatColumnsConfig {
+		addChatColumn(after?:TwitchatDataTypes.ChatColumnsConfig):TwitchatDataTypes.ChatColumnsConfig {
+			let order = 0;
+			if(this.chatColumnsConfig?.length > 0) {
+				order = this.chatColumnsConfig[this.chatColumnsConfig.length-1].order + 1;
+			}
 			const col:TwitchatDataTypes.ChatColumnsConfig = {
-				order:this.chatColumnsConfig[this.chatColumnsConfig.length-1].order+1,
+				id:Utils.getUUID(),
+				order,
 				size:1/2,
 				liveLockCount:3,
 				commandsBlockList:"",
@@ -130,9 +136,18 @@ export const storeParams = defineStore('params', {
 					subs:true,
 					viewers:true,
 					vips:true,
+					partners:true,
 				}
 			}
-			this.chatColumnsConfig.push(col);
+			if(after) {
+				const index = this.chatColumnsConfig.findIndex(v=>v.order==after.order);
+				this.chatColumnsConfig.splice(index+1, 0, col);
+				for (let i = 0; i < this.chatColumnsConfig.length; i++) {
+					this.chatColumnsConfig[i].order = i;
+				}
+			}else{
+				this.chatColumnsConfig.push(col);
+			}
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 			return col;
 		},

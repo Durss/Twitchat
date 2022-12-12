@@ -414,6 +414,10 @@ export const storeMain = defineStore("main", {
 			const chatColConfs = DataStore.get(DataStore.CHAT_COLUMNS_CONF);
 			if(chatColConfs) {
 				sParams.chatColumnsConfig = JSON.parse(chatColConfs);
+				for (let i = 0; i < sParams.chatColumnsConfig.length; i++) {
+					sParams.chatColumnsConfig[i].id = Utils.getUUID();
+				}
+				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
 			}else{
 				//Default cols configs
 				sParams.chatColumnsConfig = []
@@ -425,7 +429,6 @@ export const storeMain = defineStore("main", {
 				col.filters.message = true;
 				col.filters.whisper = true;
 				col.filters.leave = true;
-				col.filters.notice = true;
 				col.filters.twitchat_ad = true;
 				
 				//Activity feed
@@ -446,6 +449,8 @@ export const storeMain = defineStore("main", {
 				col.filters.hype_train_cooled_down = true;
 				col.filters.community_boost_complete = true;
 				col.filters.community_challenge_contribution = true;
+				
+				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
 			}
 			
 			//Reload devmode state

@@ -5,8 +5,14 @@
 
 		<img src="@/assets/icons/shoutout.svg" alt="shoutout" class="icon">
 
-		<span v-if="messageData.received"><a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a> gave you a shoutout to <strong>{{messageData.viewerCount}}</strong> viewers</span>
-		<span v-else>You gave you a shoutout to <a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a></span>
+		<div class="info">
+			<span v-if="messageData.received"><a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a> gave you a shoutout to <strong>{{messageData.viewerCount}}</strong> viewers</span>
+			<span v-else>You gave you a shoutout to <a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a></span>
+			<div v-if="messageData.received" class="streamInfo">
+				<p>Streaming <strong>{{messageData.stream.category}}</strong>:</p>
+				<p class="title">{{messageData.stream.title}}</p>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -53,5 +59,15 @@ export default class ChatShoutout extends Vue {
 .chatshoutout{
 	.chatMessageHighlight();
 	
+	align-items: flex-start;
+	
+	.info {
+		.streamInfo {
+			width: 100%;
+			.title {
+				font-style: italic;
+			}
+		}
+	}
 }
 </style>
