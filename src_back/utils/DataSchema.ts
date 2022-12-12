@@ -360,6 +360,7 @@ import Ajv from "ajv";
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		leftColSize: {type:"number"},//Keep it a little to avoid loosing data, remove it later
 		v: {type:"integer"},
+		collapseParamAdInfo: {type:"boolean"},
 		obsIP: {type:"string"},
 		obsPort: {type:"integer"},
 		updateIndex: {type:"integer"},

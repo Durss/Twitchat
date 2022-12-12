@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsvoicebot">
 		<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
-		<div class="title">Control <strong>Twitchat</strong> with your voice</div>
+		<div class="head">Control <strong>Twitchat</strong> with your voice</div>
 		
 		<div v-if="!voiceApiAvailable" class="noApi">
 			<p>This browser does not support voice recognition</p>
@@ -62,16 +62,8 @@ export default class ParamsVoiceBot extends Vue {
 
 <style scoped lang="less">
 .paramsvoicebot{
-	.icon {
-		height: 5em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
-	.title {
-		text-align: center;
-		margin-bottom: 1em;
-	}
+	.parameterContent();
+	
 	.infos {
 		font-size: .9em;
 		text-align: center;

@@ -351,7 +351,7 @@ export default class UserCard extends Vue {
 		background-color: @mainColor_light_extralight;
 		padding: 1em;
 		max-width: 800px;
-		min-width: 50%;
+		width: 80%;
 		max-height: 100vh;
 		box-sizing: border-box;
 		border-radius: 1em;
@@ -628,7 +628,7 @@ export default class UserCard extends Vue {
 	}
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 600px) {
 		
 	.usercard{
 

@@ -2,8 +2,8 @@
 	<div class="paramsemergency">
 		<img src="@/assets/icons/emergency_purple.svg" alt="emergency icon" class="icon">
 		
-		<p class="header">Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.</p>
-		<p class="header small" v-if="param_enable.value === true">Start an emergency with the <img src="@/assets/icons/emergency.svg" class="btExample"> button on the chat bar <i>(see bottom right of screen)</i> or with a chat command</p>
+		<p class="head">Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.</p>
+		<p class="head small" v-if="param_enable.value === true">Start an emergency with the <img src="@/assets/icons/emergency.svg" class="btExample"> button on the chat bar <i>(see bottom right of screen)</i> or with a chat command</p>
 		<ParamItem class="enableBt" :paramData="param_enable" />
 
 		<div class="fadeHolder" :style="holderStyles">
@@ -28,7 +28,7 @@
 						<ParamItem class="item" :paramData="param_emotesOnly" />
 						<ParamItem class="item" :paramData="param_slowMode" />
 					</div>
-					<div v-if="param_enableShieldMode.value" class="disabledLabel">Configure these options on your <a :href="'https://www.twitch.tv/popout/moderator/'+userName+'/shield-mode'" target="_blank">Shield mode</a></div>
+					<div v-if="param_enableShieldMode.value" class="disabledLabel">Configure these options <a :href="'https://www.twitch.tv/popout/moderator/'+userName+'/shield-mode'" target="_blank">on Twitch</a></div>
 				</div>
 				<ParamItem class="item" :paramData="param_noTrigger" />
 				<ParamItem class="item" :paramData="param_autoTO" />
@@ -276,20 +276,9 @@ export default class ParamsEmergency extends Vue {
 
 <style scoped lang="less">
 .paramsemergency{
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	padding-top: 0;
+	.parameterContent();
 
-	&>.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
-
-	.header {
-		text-align: center;
+	.head {
 		margin-bottom: .5em;
 		&.small {
 			font-size: .8em;

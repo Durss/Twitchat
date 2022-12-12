@@ -1,12 +1,12 @@
 <template>
 	<div :class="classes">
 		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/whispers.svg">Whispers</h1>
-		<h1 class="title" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
+		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
 
 		<div class="content">
 		
 			<div class="whispers" v-if="selectedUser">
-				<div class="messages">
+				<div class="messages" ref="messageList">
 					<div v-for="m in $store('chat').whispers[selectedUser.id]" :key="m.id" :class="messageClasses(m)">
 						<span class="time" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
 						<div v-html="m.message_html"></div>
@@ -29,8 +29,9 @@
 				:key="uid">
 					<Button class="login"
 						@click="selectUser(w[0])"
-						:title="'('+w.length+') '+($store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName)"
+						:title="'<i>('+w.length+')</i> '+($store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName)"
 						bounce
+						white
 						:data-tooltip="$store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName" />
 						
 					<Button :icon="$image('icons/cross_white.svg')"
@@ -44,7 +45,6 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -88,6 +88,10 @@ export default class WhispersState extends Vue {
 
 	public selectUser(m:TwitchatDataTypes.MessageWhisperData):void {
 		this.selectedUser = this.$store("auth").twitch.user.id == m.to.id? m.user : m.to;
+		this.$nextTick().then(()=>{
+			const div = this.$refs.messageList as HTMLDivElement;
+			div.scrollTo(0, div.scrollHeight);
+		})
 	}
 
 	public async sendWhisper():Promise<void> {
@@ -109,6 +113,10 @@ export default class WhispersState extends Vue {
 		this.selectedUser = null;
 	}
 
+	public openUserCard():void {
+		this.$store("users").openUserCard(this.selectedUser);
+	}
+
 }
 </script>
 
@@ -124,6 +132,11 @@ export default class WhispersState extends Vue {
 		img {
 			height: 20px;
 			margin-right: 10px;
+			vertical-align: middle;
+		}
+
+		&.clickable {
+			cursor: pointer;
 		}
 	}
 
@@ -140,23 +153,25 @@ export default class WhispersState extends Vue {
 			padding-left: 5px;
 			position: sticky;
 			top	: 0;
+			max-width: 20%;
 			.user {
 				display: flex;
 				flex-direction: row;
 				margin-bottom: 1px;
-				width: 130px;
-				max-width: 130px;
+				width: 100%;
+				max-width: 100%;
 				.login {
-					color: #fff;
 					flex-grow: 1;
-					padding: 2px 5px;
+					padding: .15em .25em;
 					transform-origin: right center;
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
+					justify-content: flex-start;
+					:deep(i) {
+						font-size: .8em;
+					}
 					:deep(.label) {
-						width: 80px;
-						font-size: 15px;
-						text-align: left;
+						font-size: .8em;
 						text-overflow: ellipsis;
 						overflow: hidden;
 					}
@@ -198,19 +213,21 @@ export default class WhispersState extends Vue {
 				.message {
 					display: flex;
 					flex-direction: row;
-					align-items: center;
-					padding: 0px 5px 2px 5px;
+					padding: .5em;
 					margin: .5em 0;
-					
-					&:nth-child(even) {
-						background-color: rgba(255, 255, 25, .1);
-					}
+					width: auto;
+					max-width: 80%;
+					border-radius: .5em;
+					background-color: rgba(255, 255, 255, .2);
 
 					&.isMe {
-						background-color: @mainColor_light;
-						color: @mainColor_normal;
+						flex-direction: row-reverse;
+						margin-left: auto;
+						margin-right: 0;
+						background-color: rgba(0, 0, 0, .2);
 						.time {
-							color: fade(@mainColor_normal, 75%);
+							margin-left: .5em;
+							margin-right: 0;
 						}
 					}
 		
@@ -223,9 +240,9 @@ export default class WhispersState extends Vue {
 					.time {
 						color: fade(#ffffff, 75%);
 						font-size: 13px;
-						margin-right: 5px;
-						margin-top: 3px;
-						min-width: 36px;
+						margin-right: .5em;
+						margin-top: .25em;
+						min-width: 2.6em;
 						font-variant-numeric: tabular-nums;
 					}
 				}
@@ -246,11 +263,15 @@ export default class WhispersState extends Vue {
 				input {
 					width: 100%;
 					flex-grow: 1;
+					border-radius: .5em;
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
+					border: none;
+					background-color: rgba(0, 0, 0, .3);
 				}
 				.submit {
-					padding: 2px;
+					padding: .25em;
+					border-radius: .5em;
 					border-top-left-radius: 0;
 					border-bottom-left-radius: 0;
 					:deep(img) {

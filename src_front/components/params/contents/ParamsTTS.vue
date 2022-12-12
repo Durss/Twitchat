@@ -2,7 +2,7 @@
 	<div class="paramstts">
 		<img src="@/assets/icons/tts_purple.svg" alt="emergency icon" class="icon">
 
-		<p class="header">Read your messages out loud</p>
+		<p class="head">Read your messages out loud</p>
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
 
 
@@ -99,7 +99,7 @@ export default class ParamsTTS extends Vue {
 	public param_maxLengthToggle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"Limit message size" };
 	public param_maxLength:TwitchatDataTypes.ParameterData = {type:"slider", value:200, label:"Read {VALUE} chars max", min:10, max:500, step:10};
 	public param_maxDurationToggle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"Limit message duration" };
-	public param_maxDuration:TwitchatDataTypes.ParameterData = {type:"slider", value:200, label:"Stop reading a message after {VALUE} seconds", min:0, max:120, step:1};
+	public param_maxDuration:TwitchatDataTypes.ParameterData = {type:"slider", value:30, label:"Stop reading a message after {VALUE} seconds", min:0, max:60, step:1};
 	public param_timeoutToggle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"Remove message from queue if they're not read within..." };
 	public param_timeout:TwitchatDataTypes.ParameterData = {type:"slider", value:60, label:"{VALUE} minutes", min:0, max:30, step:1};
 	public param_inactivityPeriodToggle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"Read messages only if no message has been received for..." };
@@ -295,7 +295,6 @@ export default class ParamsTTS extends Vue {
 			message_html: this.testStr,
 			answers: [],
 		};
-		console.log(m);
 		TTSUtils.instance.readNow(m);
 	}
 
@@ -318,42 +317,17 @@ export default class ParamsTTS extends Vue {
 
 <style scoped lang="less">
 .paramstts{
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	padding-top: 0;
-
-	&>.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
+	.parameterContent();
 
 	.enableBt {
 		width: min-content;
 		margin: auto;
-		margin-top: 1.5em;
 		border: 1px solid @mainColor_normal;
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: fade(@mainColor_normal_extralight, 30%);
 		:deep(label) {
 			white-space: nowrap;
-		}
-	}
-
-	.header {
-		text-align: center;
-		&.small {
-			font-size: .8em;
-			.btExample {
-				height: 1.25em;
-				padding: .25em;
-				border-radius: .25em;
-				background-color: @mainColor_alert;
-				vertical-align: middle;
-			}
 		}
 	}
 

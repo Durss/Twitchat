@@ -229,17 +229,7 @@ export default class ParamsAutomod extends Vue {
 
 <style scoped lang="less">
 .paramsautomod{
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	padding-top: 0;
-
-	&>.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
+	.parameterContent();
 
 	&>.enableBt {
 		width: min-content;

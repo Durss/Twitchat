@@ -79,6 +79,7 @@ export default class ParamsAbout extends Vue {
 		flex-direction: column;
 		justify-content: flex-start;
 		margin-top: 1em;
+		min-width: 400px;
 	
 		p {
 			font-size: .85em;

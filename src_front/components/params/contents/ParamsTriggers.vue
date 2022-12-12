@@ -2,7 +2,7 @@
 	<div class="paramstriggers">
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
-		<p class="header" v-if="!currentEvent">Execute custom actions based on twitch events.<br></p>
+		<p class="head" v-if="!currentEvent">Execute custom actions based on twitch events.<br></p>
 
 		<div class="menu">
 			<Button class="backBt" v-if="currentEvent"
@@ -717,23 +717,7 @@ export default class ParamsTriggers extends Vue {
 
 <style scoped lang="less">
 .paramstriggers{
-	// font-size: .9em;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	padding-top: 0;
-
-	.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
-
-	.header {
-		text-align: center;
-		margin-bottom: 1em;
-	}
+	.parameterContent();
 
 	.useCase {
 		font-size: .8em;

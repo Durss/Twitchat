@@ -183,7 +183,7 @@ export default class ParamsDonorList extends Vue {
 	}
 
 	.list {
-		height: 300px;
+		height: 500px;
 		overflow: hidden;
 
 		.item {

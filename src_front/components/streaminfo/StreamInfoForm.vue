@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Stream info</span>
-				<Button aria-label="Close prediction form" :icon="$image('icons/cross_white.svg')" @click="close()" class="close" bounce/>
+				<Button aria-label="Close prediction form" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			
 			<div class="content">
@@ -81,7 +81,7 @@ export default class StreamInfoForm extends Vue {
 
 	public saving:boolean = false;
 	public loading:boolean = true;
-	public forceOpenForm:boolean = false;
+	public forceOpenForm:boolean = true;
 	public tags:TwitchDataTypes.StreamTag[] = [];
 	public categories:TwitchDataTypes.StreamCategory[] = [];
 	public presetEditing:TwitchatDataTypes.StreamInfoPreset|null = null;
@@ -239,10 +239,14 @@ export default class StreamInfoForm extends Vue {
 				border-bottom-right-radius: 0;
 				margin-right: 1px;
 				transform-origin: right center;
+				width: 1.5em;
+				min-width: 1.5em;
 			}
 			.button:nth-child(2) {
 				border-radius: 0;
 				margin-right: 1px;
+				width: 1.5em;
+				min-width: 1.5em;
 			}
 			.button:nth-child(3) {
 				border-top-left-radius: 0;

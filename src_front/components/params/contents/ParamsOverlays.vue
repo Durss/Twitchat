@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsoverlays">
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
-		<div class="title">Add overlays to your stream</div>
+		<div class="head">Add overlays to your stream</div>
 
 		<div class="unified" v-if="exchangeChannelAvailable">
 			Include all overlays in one single browser source:
@@ -69,16 +69,8 @@ export default class ParamsOverlays extends Vue {
 
 <style scoped lang="less">
 .paramsoverlays{
-	.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
-	.title {
-		text-align: center;
-		margin-bottom: 1em;
-	}
+	.parameterContent();
+
 	.infos {
 		font-size: .9em;
 		text-align: center;

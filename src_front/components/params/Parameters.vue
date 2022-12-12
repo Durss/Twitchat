@@ -3,9 +3,9 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<Button aria-label="Back to menu" :icon="$image('icons/back_purple.svg')" @click="back()" class="bt clearButton" bounce v-if="content != null" />
+				<Button aria-label="Back to menu" :icon="$image('icons/back_purple.svg')" @click="back()" class="clearButton" bounce v-if="content != null" />
 				<h1 class="title">Parameters</h1>
-				<Button aria-label="Close parameters" :icon="$image('icons/cross.svg')" @click="close()" class="bt clearButton" bounce />
+				<Button aria-label="Close parameters" :icon="$image('icons/cross.svg')" @click="close()" class="clearButton" bounce />
 			</div>
 
 			<div class="search" v-if="content == null">
@@ -13,49 +13,56 @@
 			</div>
 			
 			<div class="content menu" v-if="content == null && !search">
-				<div class="ad" v-if="!isDonor">
-					<div class="row">
-						<img src="@/assets/icons/twitchat.svg" alt="twitchat" style="height:2em;">
-						<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
-							@click="showAdInfo=true"
-							title="Disable this ad"
-							v-if="!showAdInfo" />
-						<div v-if="showAdInfo" class="donateDetails">
-							<p class="title">To disable this ad, make any donation :)</p>
-							<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
-							<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" title="Donate 💝" />
-						</div>
-						<PostOnChatParam
-							botMessageKey="twitchatAd"
-							:noToggle="true"
-							title="The following message will be posted on your chat every 2 hours (if you received at least 100 messages)"
-						/>
-						<ToggleBlock class="tip" :open="false" title="Can this message be sent by nightbot / wizebot / ... ? " small>
-							Yes.<br>
-							<br>
-							By default the message is posted with your account.<br>
-							But you can configure any other bot to send that message if you wish.<br>
-							<br>
-							Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.<br>
-							<br>
-							The 2h timer starts when Twitchat is opened and reset to zero anytime a message containing <strong>twitchat.fr</strong> is received.
-						</ToggleBlock>
+				<div :class="collapse? 'ad collapse' : 'ad'" v-if="!isDonor">
+					<Button v-if="!collapse"
+						aria-label="collapse content"
+						:icon="$image('icons/cross_white.svg')"
+						@click="collapse = true"
+						class="close clearButton" bounce />
+					<img src="@/assets/icons/twitchat.svg"
+						alt="twitchat"
+						style="height:2em;"
+						@click="collapse = false">
+					<PostOnChatParam
+						botMessageKey="twitchatAd"
+						:noToggle="true"
+						title="The following message will be posted on your chat every 2 hours (if you received at least 100 messages)"
+						v-if="!collapse"
+					/>
+					<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
+						@click="showAdInfo=true"
+						title="Disable this ad"
+						v-if="!showAdInfo && !collapse" />
+					<div v-if="showAdInfo && !collapse" class="donateDetails">
+						<p class="title">To disable this ad, make any donation :)</p>
+						<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
+						<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" title="Donate 💝" />
 					</div>
+					<ToggleBlock v-if="!collapse" class="tip" :open="false" title="Can this message be sent by nightbot / wizebot / ... ? " small>
+						Yes.<br>
+						<br>
+						By default the message is posted with your account.<br>
+						But you can configure any other bot to send that message if you wish.<br>
+						<br>
+						Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.<br>
+					</ToggleBlock>
 				</div>
 
-				<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent(contentFeatures)" />
-				<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
-				<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
-				<Button class="beta1" bounce white :icon="$image('icons/mod_purple.svg')" title="Automod messages" @click="setContent(contentAutomod)" />
-				<Button class="beta2" bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
-				<Button class="beta2" bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
-				<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
-				<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
-				<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
-				<Button class="beta2" bounce white :icon="$image('icons/voicemod_purple.svg')" title="Voicemod" @click="setContent(contentVoicemod)" />
-				<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent(contentStreamdeck)" />
-				<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent(contentAccount)" />
-				<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent(contentAbout)" />
+				<div class="buttonList">
+					<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent(contentFeatures)" />
+					<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
+					<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
+					<Button class="beta1" bounce white :icon="$image('icons/mod_purple.svg')" title="Automod messages" @click="setContent(contentAutomod)" />
+					<Button class="beta2" bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
+					<Button class="beta2" bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
+					<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
+					<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
+					<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
+					<Button class="beta2" bounce white :icon="$image('icons/voicemod_purple.svg')" title="Voicemod" @click="setContent(contentVoicemod)" />
+					<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent(contentStreamdeck)" />
+					<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent(contentAccount)" />
+					<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent(contentAbout)" />
+				</div>
 
 				<div class="ad" v-if="isDonor">
 					<PostOnChatParam class="row"
@@ -96,7 +103,7 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
+import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -151,6 +158,7 @@ import PostOnChatParam from './PostOnChatParam.vue';
 export default class Parameters extends Vue {
 
 	public search = "";
+	public collapse = true;
 	public showMenu = false;
 	public filteredParams:TwitchatDataTypes.ParameterData[] = [];
 	public content:TwitchatDataTypes.ParamsContentStringType = null;
@@ -158,7 +166,7 @@ export default class Parameters extends Vue {
 
 	private prevContent:TwitchatDataTypes.ParamsContentStringType = null;
 
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
+	public get isDonor():boolean { return false; }
 	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.APPEARANCE; } 
 	public get contentFilters():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.FILTERS; } 
 	public get contentAccount():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ACCOUNT; } 
@@ -212,6 +220,8 @@ export default class Parameters extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true";
+
 		watch(() => this.content, () => {
 			if(this.content) this.filteredParams = [];
 		});
@@ -219,6 +229,10 @@ export default class Parameters extends Vue {
 		watch(() => this.search, (value:string) => {
 			this.content = null;
 			this.filterParams(this.search);
+		});
+
+		watch(() => this.collapse, (value:boolean) => {
+			DataStore.set(DataStore.COLLAPSE_PARAM_AD_INFO, value);
 		});
 
 		await this.$nextTick();
@@ -302,8 +316,8 @@ export default class Parameters extends Vue {
 	.modal();
 	
 	.holder {
-		top: 0;
-		transform: translate(-50%, 0);
+		// top: 0;
+		// transform: translate(-50%, 0);
 		z-index: 1;
 
 		.head {
@@ -318,6 +332,24 @@ export default class Parameters extends Vue {
 			margin-top: 1em;
 			padding: 1em;
 			border-radius: 1em;
+			position: relative;
+			transition: padding .25s;
+			&.collapse {
+				width: min-content;
+				margin: auto;
+				padding: .5em;
+				cursor: pointer;
+				&:hover {
+					background-color: @mainColor_normal;
+				}
+			}
+			.close {
+				position: absolute;
+				top: 0;
+				right: 0;
+				height: 2em;
+				margin: .15em;
+			}
 			&:first-child {
 				margin-top: 0;
 				margin-bottom: .5em;
@@ -334,12 +366,12 @@ export default class Parameters extends Vue {
 				font-size: .8em;
 			}
 			.donateBt {
-				display: block;
-				margin: .5em auto;
+				display: flex;
+				margin: .5em auto 0 auto;
 			}
 			.donateDetails {
 				display: block;
-				margin: .5em auto;
+				margin: .5em auto 0 auto;
 			}
 			.tip {
 				margin-top: 1em;
@@ -351,35 +383,48 @@ export default class Parameters extends Vue {
 		}
 
 		.menu {
-			padding: 1em;
-			display: flex;
-			flex-direction: column;
-			flex-grow: 1;
-			.button {
-				box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-				&:not(:first-child) {
-					margin-top: 10px;
-				}
-
-				&.beta1, &.beta2 {
-					&::before {
-						content: "beta";
-						position: absolute;
-						left: 0;
-						color:@mainColor_light;
-						background-color: @mainColor_normal;
-						background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 30%, fade(@mainColor_normal, 100%) 100%);
-						height: 100%;
-						display: flex;
-						align-items: center;
-						padding: 0 1em 0 .35em;
-						font-size: .8em;
-						font-family: var(--font-nunito);
-						text-transform: uppercase;
+			max-width: 810px;
+			margin: auto;
+			.buttonList {
+				padding: 1em;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				justify-content: center;
+				&>.button {
+					box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+					flex-direction: column;
+					width: 180px;
+					margin: 1px;
+					padding: 1em;
+					:deep(.icon) {
+						height: 3em;
+						width: 3em;
+						max-height: unset;
+						max-width: unset;
+						margin: 0 0 .5em 0;
+						object-fit: fill;
+						object-position: center center;
 					}
-					&.beta2 {
+	
+					&.beta1, &.beta2 {
 						&::before {
-							background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
+							content: "beta";
+							position: absolute;
+							top: 10px;
+							right: -50px;
+							background-color: @mainColor_normal;
+							color: @mainColor_light;
+							padding: 5px 50px;
+							border-radius: 10px;
+							text-transform: uppercase;
+							font-size: 18px;
+							transform: rotate(45deg);
+						}
+						&.beta2 {
+							&::before {
+								background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
+							}
 						}
 					}
 				}
@@ -412,6 +457,10 @@ export default class Parameters extends Vue {
 		.content {
 			//This avoids black space over sticky items inside the content
 			padding: 20px;
+			&:not(.menu) {
+				max-width: 600px;
+				margin: auto;
+			}
 		}
 	}
 

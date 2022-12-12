@@ -87,23 +87,23 @@
 				</form>
 
 				<ToggleBlock title="Configs" class="configs" :open="false" small v-if="mode=='chat' || triggerMode === false">
-					<ParamItem class="chatParam" :paramData="showCountdownOverlay" v-if="mode=='chat'" />
+					<ParamItem class="row" :paramData="showCountdownOverlay" v-if="mode=='chat'" />
 					<div class="details" v-if="showCountdownOverlay.value === true && mode=='chat'">
-						<a @click="openParam('overlays')">Configure a timer overlay</a>
-						on your OBS to display the remaining time on your stream
+						<a @click="openParam('overlays')">Add a timer overlay</a>
+						on your OBS scenes to display the remaining time on your stream
 					</div>
 	
-					<PostOnChatParam class="chatParam" botMessageKey="raffleStart"
+					<PostOnChatParam class="row" botMessageKey="raffleStart"
 						v-if="mode=='chat' && triggerMode === false"
 						:placeholders="startPlaceholders"
 						title="Announce raffle start on chat"
 					/>
-					<PostOnChatParam class="chatParam" botMessageKey="raffle"
+					<PostOnChatParam class="row" botMessageKey="raffle"
 						v-if="triggerMode === false"
 						:placeholders="winnerPlaceholders"
 						title="Post raffle winner on chat"
 					/>
-					<PostOnChatParam class="chatParam" botMessageKey="raffleJoin"
+					<PostOnChatParam class="row" botMessageKey="raffleJoin"
 						v-if="mode=='chat' && triggerMode === false"
 						:placeholders="joinPlaceholders"
 						title="Confirm when joining the raffle"
@@ -386,7 +386,7 @@ export default class RaffleForm extends Vue {
 		.form {
 			display: flex;
 			flex-direction: column;
-			.row {
+			&>.row {
 				display: flex;
 				flex-direction: column;
 				&:not(:first-child) {
@@ -449,11 +449,15 @@ export default class RaffleForm extends Vue {
 
 		.configs {
 			margin: 1em 0;
+			font-size: 1em;
+			:deep(.header) {
+				font-size: .8em;
+			}
+			.row {
+				margin-bottom: .25em;
+			}
 		}
 
-		.chatParam {
-			margin-top: .5em;
-		}
 	}
 }
 </style>

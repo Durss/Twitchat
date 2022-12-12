@@ -43,12 +43,12 @@
 				</form>
 
 				<ToggleBlock title="Configs" class="configs" :open="false" small v-if="triggerMode === false">
-					<PostOnChatParam botMessageKey="bingoStart"
+					<PostOnChatParam class="row" botMessageKey="bingoStart"
 						:placeholderEnabled="false"
 						title="Announce bingo start on chat"
 						:placeholders="startPlaceholders"
 					/>
-					<PostOnChatParam botMessageKey="bingo"
+					<PostOnChatParam class="row" botMessageKey="bingo"
 						title="Post bingo winner on chat"
 						:placeholders="winnerPlaceholders"
 					/>
@@ -232,6 +232,13 @@ export default class BingoForm extends Vue {
 
 		.configs {
 			margin: 1em 0;
+			font-size: 1em;
+			:deep(.header) {
+				font-size: .8em;
+			}
+			.row {
+				margin-bottom: .25em;
+			}
 		}
 	}
 	

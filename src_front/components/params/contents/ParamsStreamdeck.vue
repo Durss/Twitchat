@@ -57,18 +57,7 @@ export default class ParamsStreamdeck extends Vue {
 
 <style scoped lang="less">
 .paramsstreamdeck{
-
-	.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
-
-	.head {
-		margin-bottom: 1em;
-		text-align: center;
-	}
+	.parameterContent();
 	
 	ol {
 		list-style-position: inside;

@@ -19,11 +19,6 @@ export default class DataStore {
 	public static GREET_AUTO_DELETE_AFTER:string = "greetAutoDeleteAfter";
 	public static GREET_AUTO_SCROLL_DOWN:string = "greetScrollDownAuto";
 	public static GREET_AUTO_HEIGHT:string = "greetHeight";
-	/**
-	 * //TODO remove
-	 * @deprecated Only here for typings on data migration
-	 */
-	public static LEFT_COL_SIZE:string = "leftColSize";
 	public static OBS_PORT:string = "obsPort";
 	public static OBS_PASS:string = "obsPass";
 	public static OBS_IP:string = "obsIP";
@@ -57,6 +52,12 @@ export default class DataStore {
 	public static TWITCHAT_SPONSOR_PUBLIC_PROMPT:string = "sponsorPublicPrompt";
 	public static INTERFACE_SCALE:string = "interfaceScale";
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
+	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
+	/**
+	 * //TODO remove
+	 * @deprecated Only here for typings on data migration
+	 */
+	public static LEFT_COL_SIZE:string = "leftColSize";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

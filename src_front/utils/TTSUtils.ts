@@ -189,7 +189,7 @@ export default class TTSUtils {
 		if(!id) id = Utils.getUUID();
 
 		const m:SpokenMessage = {message, id, force:true, date: Date.now()};
-		console.log("READ NOW", m);
+		
 		this.pendingMessages.splice(1, 0, m);
 		if(this.sTTS.speaking) {
 			this.stop();//This triggers the next message play
@@ -284,8 +284,6 @@ export default class TTSUtils {
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
 					mess = message.message_html.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");//Remove all HTML tags
-					console.log(message.message_html);
-					console.log(mess);
 				}
 				if(paramsTTS.removeURL) {
 					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);

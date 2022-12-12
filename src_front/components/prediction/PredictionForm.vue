@@ -33,7 +33,7 @@
 							/>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row shrink">
 						<ParamItem :paramData="voteDuration" />
 					</div>
 					<div class="row">
@@ -207,6 +207,11 @@ export default class PredictionForm extends Vue {
 				}
 				&.right {
 					align-self: flex-end;
+				}
+				&.shrink {
+					:deep(input) {
+						width: auto;
+					}
 				}
 				.error {
 					margin-top: 5px;

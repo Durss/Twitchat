@@ -38,6 +38,7 @@ export default class ParamsSponsor extends Vue {
 
 <style scoped lang="less">
 .paramssponsor{
+	
 	h1 {
 		text-align: center;
 		margin-bottom: 1em;
