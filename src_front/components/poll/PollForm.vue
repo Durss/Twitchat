@@ -159,7 +159,14 @@ export default class PollForm extends Vue {
 									this.pointsVoteParam.value as number);
 		}catch(error:unknown) {
 			this.loading = false;
-			this.error = (error as {message:string}).message;
+			let message = (error as {message:string}).message;
+			if(message.toLowerCase().indexOf("pollalreadyactive") > -1) {
+				message = "A poll is already active";
+			}else
+			if(message.toLowerCase().indexOf("illegal_argument") > -1) {
+				message = "Poll contains an automoded term";
+			}
+			this.error = message;
 			return;
 		}
 		this.loading = false;
