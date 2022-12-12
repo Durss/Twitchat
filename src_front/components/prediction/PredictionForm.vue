@@ -248,6 +248,7 @@ export default class PredictionForm extends Vue {
 						}
 						input {
 							flex-grow: 1;
+							min-width: 0;
 							border-width: 3px;
 							@c:#387aff;
 							color: @c;

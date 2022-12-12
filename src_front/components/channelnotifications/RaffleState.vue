@@ -20,9 +20,10 @@
 		</div>
 
 		<Button class="item"
-			:icon="$image('icons/ticket.svg')"
+			:icon="$image('icons/ticket_purple.svg')"
 			title="Pick a winner"
 			@click="pickWinner()"
+			white
 			:loading="picking"
 			:disabled="canPick" />
 
@@ -182,7 +183,7 @@ export default class RaffleState extends Vue {
 			margin-right: 10px;
 		}
 		.highlight {
-			color: @mainColor_normal;
+			color: @windowStateColor;
 			background: @mainColor_light;
 			padding: 2px 5px;
 			border-radius: 5px;
@@ -191,7 +192,7 @@ export default class RaffleState extends Vue {
 	}
 
 	.progress {
-		color: @mainColor_normal;
+		color: @windowStateColor;
 		margin-bottom: 20px;
 	}
 
@@ -218,7 +219,7 @@ export default class RaffleState extends Vue {
 		}
 
 		&.postChat {
-			width: 70%;
+			max-width: 250px;
 			margin-top: 10px;
 			font-size: .8em;
 			:deep(.togglebutton) {

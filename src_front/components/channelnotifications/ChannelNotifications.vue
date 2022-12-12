@@ -24,12 +24,10 @@
 				<HypeTrainState class="content" v-if="showHypeTrain" />
 			</transition>
 
-			<div class="closeBt" v-if="showClose">
-				<Button small white
+				<Button class="closeBt clearButton" v-if="showClose"
 					aria-label="Close current content"
-					:icon="$image('icons/cross.svg')"
+					:icon="$image('icons/cross_white.svg')"
 					@click="$emit('close')" />
-			</div>
 		</div>
 	</div>
 </template>
@@ -164,6 +162,9 @@ export default class ChannelNotifications extends Vue {
 			position: absolute;
 			top:10px;
 			right:10px;
+			width: 1.5em;
+			height: 1.5em;
+			padding: 0;
 			z-index: 1;
 			pointer-events:all;
 		}

@@ -243,6 +243,14 @@ export default class Button extends Vue {
 			color: fade(#000, 25%);
 			background-color: fade(@mainColor_dark_extralight, 50%);
 		}
+		&.white {
+			opacity: .5;
+			color: @mainColor_normal;
+			background-color: @mainColor_light;
+			.icon {
+				opacity: 1;
+			}
+		}
 	}
 
 	&.loading {
