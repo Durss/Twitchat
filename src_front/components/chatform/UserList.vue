@@ -2,10 +2,16 @@
 	<div class="userlist">
 		
 		<div v-if="currentChan">
-			<div v-for="chan, key in currentChan" :class="'userList '+key">
-				<div class="title" v-if="currentChan[key].length > 0">{{{broadcaster:"Broadcaster", mods:"Moderators", vips:"VIPs", viewers:"Chatters"}[key]}} <i>({{currentChan[key].length}})</i></div>
-				<div class="list" v-if="currentChan[key].length > 0">
-					<a :class="userClasses(u)" @click="openUserCard(u)" target="_blank" v-for="u in currentChan[key]" :key="u.id">
+			<div v-for="chan, key in currentChan.users" :class="'userList '+key">
+				<div class="title" v-if="currentChan.users[key].length > 0">
+					{{{broadcaster:"Broadcaster", mods:"Moderators", vips:"VIPs", viewers:"Chatters"}[key]}}
+					<i>({{currentChan.users[key].length}})</i>
+				</div>
+				<div class="list" v-if="currentChan.users[key].length > 0">
+					<a :class="userClasses(u)"
+					@click="openUserCard(u)"
+					target="_blank"
+					v-for="u in currentChan.users[key]" :key="u.id">
 						<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
 							<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
 								src="@/assets/icons/timeout.svg"
@@ -28,12 +34,12 @@
 		</div>
 
 		<div class="users">
-			<Button v-for="(chan, name) in channels" :key="name"
+			<Button v-for="(chan, uid) in channels" :key="uid"
 			v-if="Object.keys(channels).length > 1"
 			white
-			:class="currentChanId == name? 'current' : ''"
-			@click="currentChan = chan; currentChanId = name as string;"
-			:title="chan.broadcaster[0].displayName+'<i>('+(chan.broadcaster.length+chan.viewers.length+chan.vips.length+chan.mods.length)+')</i>'"
+			:class="currentChanId == uid? 'current' : ''"
+			@click="currentChan = chan; currentChanId = uid as string;"
+			:title="getBraodcasterTitle(chan)"
 			/>
 		</div>
 	</div>
@@ -64,6 +70,11 @@ export default class UserList extends Vue {
 	public currentChan:ChannelUserList|null = null;
 
 	private debounceTo:number = -1;
+
+	public getBraodcasterTitle(chan:ChannelUserList):string {
+		const user = this.$store("users").getUserFrom(chan.platform, chan.channelId, chan.channelId);
+		return user.displayName + '<i>('+(chan.users.broadcaster.length+chan.users.viewers.length+chan.users.vips.length+chan.users.mods.length)+')</i>'
+	}
 
 	public getBanDuration(chanInfo:TwitchatDataTypes.UserChannelInfo):string {
 		const remaining = chanInfo.banEndDate! - Date.now();
@@ -159,23 +170,28 @@ export default class UserList extends Vue {
 					if(user.channelInfo[chan].online && user.temporary !== true) {
 						if(!channels[chan]) {
 							channels[chan] = {
-								broadcaster:[],
-								mods:[],
-								vips:[],
-								viewers:[],
+								channelId:chan,
+								platform:user.platform,
+								users:{
+									broadcaster:[],
+									mods:[],
+									vips:[],
+									viewers:[],
+								}
 							}
 						}
 						const chanData = channels[chan];
-						if(user.channelInfo[chan].is_broadcaster) chanData.broadcaster = [user];
-						else if(user.channelInfo[chan].is_moderator) chanData.mods.push(user);
-						else if(user.channelInfo[chan].is_vip) chanData.vips.push(user);
-						else chanData.viewers.push(user);
+						if(user.channelInfo[chan].is_broadcaster) chanData.users.broadcaster = [user];
+						else if(user.channelInfo[chan].is_moderator) chanData.users.mods.push(user);
+						else if(user.channelInfo[chan].is_vip) chanData.users.vips.push(user);
+						else chanData.users.viewers.push(user);
 					}
 				}
 			}
 	
 			for (const chan in channels) {
-				const chanData = channels[chan];
+				//Sort users by their names
+				const chanData = channels[chan].users;
 				type keys = keyof typeof chanData;
 				for (const cat in chanData) {
 					chanData[cat as keys].sort((a,b) => {
@@ -198,10 +214,14 @@ export default class UserList extends Vue {
 }
 
 interface ChannelUserList {
-	broadcaster:TwitchatDataTypes.TwitchatUser[],
-	mods:TwitchatDataTypes.TwitchatUser[],
-	vips:TwitchatDataTypes.TwitchatUser[],
-	viewers:TwitchatDataTypes.TwitchatUser[]
+	channelId:string;
+	platform:TwitchatDataTypes.ChatPlatform;
+	users:{
+		broadcaster:TwitchatDataTypes.TwitchatUser[],
+		mods:TwitchatDataTypes.TwitchatUser[],
+		vips:TwitchatDataTypes.TwitchatUser[],
+		viewers:TwitchatDataTypes.TwitchatUser[]
+	}
 }
 </script>
 
