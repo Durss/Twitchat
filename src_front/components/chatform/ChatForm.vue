@@ -210,8 +210,9 @@
 </template>
 
 <script lang="ts">
+import EventBus from '@/events/EventBus';
+import GlobalEvent from '@/events/GlobalEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
@@ -288,9 +289,12 @@ export default class ChatForm extends Vue {
 	public autoCompleteEmotes = false;
 	public autoCompleteUsers = false;
 	public autoCompleteCommands = false;
+	public trackedUserCount = 0;
 	public spamInterval = 0;
 	public channelId:string = "";
 	public onlineUsersTooltip:string = "";
+
+	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
 	
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
@@ -336,15 +340,6 @@ export default class ChatForm extends Vue {
 		return false;
 	}
 
-	public get trackedUserCount():number {
-		let count = 0;
-		const users = this.$store('users').users;
-		for (let i = 0; i < users.length; i++) {
-			if(users[i].is_tracked) count ++;
-		}
-		return count;
-	}
-
 	public get classes():string[] {
 		let res = ["chatform"];
 		if(this.loading) res.push("loading");
@@ -358,7 +353,10 @@ export default class ChatForm extends Vue {
 	public get isCommercial():boolean { return this.$store("stream").commercialEnd != 0; }
 
 	public beforeMount(): void {
+		this.updateTrackedUserListHandler = (e:GlobalEvent) => this.onUpdateTrackedUserList();
+		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		this.channelId = StoreProxy.auth.twitch.user.id;
+		this.onUpdateTrackedUserList();
 	}
 
 	public async mounted():Promise<void> {
@@ -407,6 +405,7 @@ export default class ChatForm extends Vue {
 
 	public beforeUnmount():void {
 		clearInterval(this.spamInterval);
+		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 	}
 	
 	public toggleParams():void {
@@ -944,6 +943,15 @@ export default class ChatForm extends Vue {
 	 */
 	public resetVoiceEffect():void {
 		VoicemodWebSocket.instance.disableVoiceEffect();
+	}
+
+	private onUpdateTrackedUserList():void {
+		const res = [];
+		for (let i = 0; i < this.$store("users").users.length; i++) {
+			const u = this.$store("users").users[i];
+			if(u.is_tracked) res.push(u);
+		}
+		this.trackedUserCount = res.length;
 	}
 
 }

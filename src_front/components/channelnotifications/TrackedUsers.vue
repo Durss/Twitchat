@@ -1,6 +1,7 @@
 <template>
 	<div :class="classes">
-		<h1 class="title"><img src="@/assets/icons/magnet.svg">Tracked users</h1>
+		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/magnet.svg">Tracked users</h1>
+		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
 
 		<div class="content">
 
@@ -24,6 +25,7 @@
 						@click="selectUser(u)"
 						:title="u.displayName"
 						:selected="selectedUser?.id == u.id"
+						white
 						bounce />
 					<Button :icon="$image('icons/cross_white.svg')"
 						class="deleteBt"
@@ -37,6 +39,8 @@
 </template>
 
 <script lang="ts">
+import EventBus from '@/events/EventBus';
+import GlobalEvent from '@/events/GlobalEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -53,18 +57,12 @@ export default class TrackedUsers extends Vue {
 
 	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
 	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
+	public trackedUsers:TwitchatDataTypes.TwitchatUser[] = [];
+
+	private updateListHandler!:(e:GlobalEvent)=>void;
 
 	public get classes():string[] {
 		let res = ["trackedusers"];
-		return res;
-	}
-
-	public get trackedUsers():TwitchatDataTypes.TwitchatUser[] {
-		const res = [];
-		for (let i = 0; i < this.$store("users").users.length; i++) {
-			const u = this.$store("users").users[i];
-			if(u.is_tracked) res.push(u);
-		}
 		return res;
 	}
 
@@ -84,6 +82,29 @@ export default class TrackedUsers extends Vue {
 		user.is_tracked = false;
 	}
 
+	public beforeMount(): void {
+		this.updateListHandler = (e:GlobalEvent) => this.onUpdateList();
+		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateListHandler);
+		this.onUpdateList();
+	}
+
+	public beforeUnmount(): void {
+		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateListHandler);
+	}
+
+	private onUpdateList():void {
+		const res = [];
+		for (let i = 0; i < this.$store("users").users.length; i++) {
+			const u = this.$store("users").users[i];
+			if(u.is_tracked) res.push(u);
+		}
+		this.trackedUsers = res;
+	}
+
+	public openUserCard():void {
+		this.$store("users").openUserCard(this.selectedUser);
+	}
+
 }
 </script>
 
@@ -99,6 +120,11 @@ export default class TrackedUsers extends Vue {
 		img {
 			height: 20px;
 			margin-right: 10px;
+			vertical-align: middle;
+		}
+
+		&.clickable {
+			cursor: pointer;
 		}
 	}
 
@@ -112,25 +138,27 @@ export default class TrackedUsers extends Vue {
 			flex-direction: column;
 			border-left: 1px solid #fff;
 			padding-left: 5px;
-			position: sticky;
-			top	: 0;
+			max-width: 20%;
+			max-height: 300px;
+			overflow-y: auto;
 			.user {
 				display: flex;
 				flex-direction: row;
 				margin-bottom: 1px;
-				width: 130px;
-				max-width: 130px;
+				width: 100%;
+				max-width: 100%;
 				.login {
-					color: #fff;
 					flex-grow: 1;
-					padding: 2px 5px;
+					padding: .15em .25em;
 					transform-origin: right center;
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
+					justify-content: flex-start;
+					:deep(i) {
+						font-size: .8em;
+					}
 					:deep(.label) {
-						width: 80px;
-						font-size: 15px;
-						text-align: left;
+						font-size: .8em;
 						text-overflow: ellipsis;
 						overflow: hidden;
 					}
@@ -164,6 +192,8 @@ export default class TrackedUsers extends Vue {
 			display: flex;
 			flex-direction: column;
 			justify-content: flex-start;
+			max-height: 300px;
+			overflow-y: auto;
 	
 			.message {
 				margin: .25em 0;

@@ -16,7 +16,7 @@
 				<div v-if="error" class="error" @click="error = false">Unable to send whisper.<br>You must be at least affiliate but even if you are Twitch can randomly block whispers sent from outside of Twitch.</div>
 
 				<form @submit.prevent="sendWhisper()">
-					<input type="text" placeholder="answer..." class="dark" v-model="whisper">
+					<input type="text" placeholder="answer..." class="dark" v-model="whisper" maxlength="500">
 					<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
 				</form>
 			</div>
@@ -30,6 +30,7 @@
 					<Button class="login"
 						@click="selectUser(w[0])"
 						:title="'<i>('+w.length+')</i> '+($store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName)"
+						:selected="selectedUser?.id == uid"
 						bounce
 						white
 						:data-tooltip="$store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName" />
@@ -151,9 +152,9 @@ export default class WhispersState extends Vue {
 			flex-direction: column;
 			border-left: 1px solid #fff;
 			padding-left: 5px;
-			position: sticky;
-			top	: 0;
 			max-width: 20%;
+			max-height: 300px;
+			overflow-y: auto;
 			.user {
 				display: flex;
 				flex-direction: row;

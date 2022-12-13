@@ -1,3 +1,5 @@
+import EventBus from '@/events/EventBus';
+import GlobalEvent from '@/events/GlobalEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -133,6 +135,7 @@ export const storeUsers = defineStore('users', {
 						pronouns:null,
 						pronounsLabel:false,
 						pronounsTooltip:false,
+						is_raider:false,
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
@@ -159,6 +162,7 @@ export const storeUsers = defineStore('users', {
 						pronouns:null,
 						pronounsLabel:false,
 						pronounsTooltip:false,
+						is_raider:false,
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
@@ -570,9 +574,15 @@ export const storeUsers = defineStore('users', {
 			this.myFollowings["twitch"] = hashmap;
 		},
 
-		trackUser(user:TwitchatDataTypes.TwitchatUser):void { user.is_tracked = true; },
+		trackUser(user:TwitchatDataTypes.TwitchatUser):void {
+			user.is_tracked = true;
+			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.TRACK_USER, user));
+		},
 
-		untrackUser(user:TwitchatDataTypes.TwitchatUser):void { user.is_tracked = false; },
+		untrackUser(user:TwitchatDataTypes.TwitchatUser):void {
+			user.is_tracked = false;
+			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNTRACK_USER, user));
+		},
 
 	} as IUsersActions
 	& ThisType<IUsersActions
