@@ -124,6 +124,7 @@ export default class Login extends Vue {
 		"channel:manage:redemptions": "Manage rewards",
 		"channel:manage:moderators": "Use /mod and /unmod commands",
 		"channel:manage:vips": "Use /vip and /unvip commands",
+		"channel:manage:raids": "Use /raid command",
 		"channel:read:hype_train": "Read hype train state",
 		"channel:edit:commercial": "Start an ad",
 		"channel:read:goals": "Read current goals (sub/follow)",

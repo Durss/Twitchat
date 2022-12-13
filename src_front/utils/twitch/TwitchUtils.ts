@@ -1985,11 +1985,17 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
+			//Rate limit reached, try again after it's reset
 			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.raidChannel(channel);
 		}else {
+			let message = "Unable to raid "+channel+"."
+			try {
+				const json = await res.json();
+				if(json.message) message = json.message;
+			}catch(error) {}
+			StoreProxy.main.alert(message);
 			return false;
 		}
 	}
