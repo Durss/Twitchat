@@ -94,6 +94,10 @@ export default class ChatRoomSettings extends Vue {
 <style scoped lang="less">
 .chatroomsettings{
 	.chatMessageHighlight();
+	background-color: fade(@mainColor_alert, 50%);
+	&:hover {
+		background-color: fade(@mainColor_alert, 60%);
+	}
 
 	.content {
 		display: flex;
@@ -111,6 +115,7 @@ export default class ChatRoomSettings extends Vue {
 
 			.unsetBt {
 				.clearButton();
+				background-color: rgba(255, 255, 255, .1);
 				margin-left: 1em;
 				padding: .75em;
 			}

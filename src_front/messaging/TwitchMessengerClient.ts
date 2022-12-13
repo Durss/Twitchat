@@ -661,26 +661,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const channel_id = this.getChannelID(channelName);
 		const data = this.getUserFromLogin(username, channel_id);
 
-		if(username.toLowerCase() == channelName.replace("#", "").toLowerCase()) {
-			const d:TwitchatDataTypes.MessageDisconnectData = {
-				platform:"twitch",
-				type:TwitchatDataTypes.TwitchatMessageType.DISCONNECT,
-				id:Utils.getUUID(),
-				date:Date.now(),
-				channel_id,
-				user:data.user,
-			};
-			this.dispatchEvent(new MessengerClientEvent("DISCONNECTED", d));
-		}else{
-			this.dispatchEvent(new MessengerClientEvent("LEAVE", {
-				platform:"twitch",
-				type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
-				id:Utils.getUUID(),
-				channel_id,
-				date:Date.now(),
-				users:[data.user],
-			}));
-		}
+		this.dispatchEvent(new MessengerClientEvent("LEAVE", {
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
+			id:Utils.getUUID(),
+			channel_id,
+			date:Date.now(),
+			users:[data.user],
+		}));
 	}
 
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
@@ -742,13 +730,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private raided(channel: string, username: string, viewers: number):void {
 		const channel_id = this.getChannelID(channel);
+		const user = this.getUserFromLogin(username, channel_id).user;
 		this.dispatchEvent(new MessengerClientEvent("RAID", {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.RAID,
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
-			user:this.getUserFromLogin(username, channel_id).user,
+			user,
 			viewers
 		}));
 	}

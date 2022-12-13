@@ -44,7 +44,7 @@
 				alt="conversation"
 				@click.stop="$emit('showConversation', $event, messageData)">
 
-			<ChatMessageInfos class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
+			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
 				<img :src="b.icon.sd" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
@@ -120,14 +120,14 @@ import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ChatMessageInfos from './components/ChatMessageInfos.vue';
+import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
 
 @Options({
 	components:{
 		Button,
 		ChatModTools,
-		ChatMessageInfos,
+		ChatMessageInfoBadges,
 	},
 	props:{
 		messageData:Object,
@@ -327,8 +327,20 @@ export default class ChatMessage extends Vue {
 		const infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
 		let highlightedWords:string[] = [];
 
-		if(mess.cyphered) {
-			infoBadges.push({type:"cyphered"});
+		if(mess.cyphered) infoBadges.push({type:"cyphered"});
+
+		if(mess.user.is_raider) {
+			infoBadges.push({type:"raider"});
+			//Remove badges from the list if user is unflaged from raider
+			watch(()=> mess.user.is_raider, () =>{
+				for (let i = 0; i < this.infoBadges.length; i++) {
+					const b = this.infoBadges[i];
+					if(b.type == "raider") {
+						this.infoBadges.splice(i,1);
+						break;
+					}
+				}
+			});
 		}
 	
 		//Define message badges (these are different from user badges!)
@@ -358,7 +370,7 @@ export default class ChatMessage extends Vue {
 				this.updateSuspiciousState();
 			});
 			if(mess.twitch_isRestricted) {
-				infoBadges.push({type:"restrictedUser", label:"restricted", tooltip:"Message only visible by<br>you and your mods"});
+				infoBadges.push({type:"restrictedUser"});
 			}
 		}
 
@@ -608,10 +620,10 @@ export default class ChatMessage extends Vue {
 	}
 
 	&.tracked {
-		border-image-slice: 1;
-		border: 1px solid rgba(255, 255, 255, 1);
-		border-left-width: 1em;
-		background-color: rgba(255, 255, 255, .2);
+		border-radius: .25em;
+		background-color: fade(@mainColor_light, 20%);
+		border: 0 solid rgba(255, 255, 255, 1);
+		border-left-width: .75em;
 		padding-left: .3em;
 		.message {
 			color: #fff;

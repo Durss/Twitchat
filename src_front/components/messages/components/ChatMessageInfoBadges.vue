@@ -1,6 +1,6 @@
 <template>
-	<div class="chatmessageinfos">
-		<div v-for="i in infos" :class="['item', i.type].join(' ')" :data-tooltip="i.tooltip">
+	<div class="chatmessageinfobadges">
+		<div v-for="i in infos" :class="['item', i.type].join(' ')" :data-tooltip="getTooltip(i)">
 			<img :src="getIcon(i)" alt="emergency" v-if="getIcon(i)">
 			<span>{{getLabel(i)}}</span>
 		</div>
@@ -17,7 +17,7 @@ import { Options, Vue } from 'vue-class-component';
 	},
 	components:{}
 })
-export default class ChatMessageInfos extends Vue {
+export default class ChatMessageInfoBadges extends Vue {
 
 	public infos!:TwitchatDataTypes.MessageBadgeData[];
 
@@ -28,10 +28,11 @@ export default class ChatMessageInfos extends Vue {
 	public getLabel(info:TwitchatDataTypes.MessageBadgeData):string {
 		if(info.label) return info.label;
 		const hashmap:{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string} = {
+			raider:"raider",
 			automod:"automod",
 			whisper:"whisper",
 			cyphered:"cyphered",
-			restrictedUser:"restrcited",
+			restrictedUser:"restricted",
 			suspiciousUser:"suspicious",
 			emergencyBlocked:"blocked",
 		}
@@ -41,6 +42,7 @@ export default class ChatMessageInfos extends Vue {
 
 	public getIcon(info:TwitchatDataTypes.MessageBadgeData):string {
 		const hashmap:Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}> = {
+			raider:"train",
 			automod:"shield",
 			cyphered:"lock_fit",
 			restrictedUser:"shield",
@@ -53,11 +55,18 @@ export default class ChatMessageInfos extends Vue {
 		return "";
 	}
 
+	public getTooltip(info:TwitchatDataTypes.MessageBadgeData):string {
+		const hashmap:Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}> = {
+			restrictedUser:"Message only visible by<br>you and your mods",
+		};
+		return hashmap[info.type] ?? info.tooltip ?? "";
+	}
+
 }
 </script>
 
 <style scoped lang="less">
-.chatmessageinfos{
+.chatmessageinfobadges{
 	display: inline-flex;
 	flex-direction: row;
 	align-items: center;

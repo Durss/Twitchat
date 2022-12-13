@@ -228,7 +228,7 @@ export default class MessageListFilter extends Vue {
 
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
-		if(this.$store("params").appearance.splitViewVertical) res.push("verticalSplitMode");
+		if(this.$store("params").appearance.splitViewVertical.value === true) res.push("verticalSplitMode");
 		if(this.debugForceOpen || this.expand || this.forceConfig) res.push("expand");
 		return res;
 	}

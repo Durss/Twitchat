@@ -580,6 +580,17 @@ export const storeChat = defineStore('chat', {
 				//Incomming raid
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					sStream.lastRaider = message.user;
+					message.user.is_raider = true;
+					if(sParams.features.raidHighlightUser.value) {
+						message.user.is_tracked = true;
+					}
+					setTimeout(()=> {
+						const localMess = message as TwitchatDataTypes.MessageRaidData;
+						localMess.user.is_raider = false;
+						if(sParams.features.raidHighlightUser.value) {
+							localMess.user.is_tracked = false;
+						}
+					}, 5 * 60 * 1000)
 					break;
 				}
 
@@ -769,10 +780,26 @@ export const storeChat = defineStore('chat', {
 						const rule = Utils.isAutomoded(message.message, message.user, message.channel_id);
 						if(rule) {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-								message.automod = rule;
-								if(message.user.platform == "twitch") {
-									TwitchUtils.deleteMessages(message.channel_id, message.id);
-									//No need to call this.deleteMessageByID(), IRC will call it when request completes
+								//If rule does not requests to be applied only to first time chatters
+								//or if it's a first time chatter
+								if(rule.firstTimeChatters !== true || 
+									(rule.firstTimeChatters === true &&
+										(
+										message.twitch_isFirstMessage ||
+										message.twitch_isPresentation
+										)
+									)
+								) {
+									message.automod = rule;
+									if(message.user.platform == "twitch") {
+										TwitchUtils.deleteMessages(message.channel_id, message.id);
+										//No need to call this.deleteMessageByID(), IRC will call it when request completes
+									}
+
+									//Start emergency if requested
+									if(rule.emergency === true && sEmergency.params.enabled === true) {
+										sEmergency.setEmergencyMode(true);
+									}
 								}
 							}
 						}

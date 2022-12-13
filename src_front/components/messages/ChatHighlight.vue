@@ -5,7 +5,7 @@
 		
 		<img :src="icon" :alt="icon" v-if="icon" class="icon">
 
-		<ChatMessageInfos :infos="badgeInfos" />
+		<ChatMessageInfoBadges :infos="badgeInfos" />
 		
 		<div class="messageHolder">
 			<span class="reason">
@@ -64,7 +64,7 @@ import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import ChatMessageInfos from './components/ChatMessageInfos.vue';
+import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 
 @Options({
 	props:{
@@ -72,7 +72,7 @@ import ChatMessageInfos from './components/ChatMessageInfos.vue';
 	},
 	components:{
 		Button,
-		ChatMessageInfos,
+		ChatMessageInfoBadges,
 	},
 	emits:["onRead"]
 })

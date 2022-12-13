@@ -135,6 +135,7 @@ export namespace TwitchatDataTypes {
 	 * to indicate things like "whisper" or "automod" info
 	 */
 	export const MessageBadgeDataType = {
+		RAIDER: "raider",
 		AUTOMOD: "automod",
 		WHISPER: "whisper",
 		CYPHERED: "cyphered",
@@ -554,6 +555,8 @@ export namespace TwitchatDataTypes {
 		label:string;
 		regex:string;
 		serverSync:boolean;
+		emergency:boolean;
+		firstTimeChatters:boolean;
 	}
 
 	/**
@@ -597,6 +600,7 @@ export namespace TwitchatDataTypes {
 		greeted:boolean;//Already displayed on the "greet them" section ?
 		color?:string;//Chat color of their nickname
 		avatarPath?:string;
+		is_raider:boolean;//Is the user raided use recently
 		is_partner:boolean;//Is Twitch partner
 		is_affiliate:boolean;//Is Twitch affiliat
 		is_tracked:boolean;
