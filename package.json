@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
+		"build": "npm run front/build && npm run server/build",
 		"front/serve": "vite --host",
 		"front/build": "vue-tsc --noEmit && vite build",
 		"server/watch": "tsc -w -p ./tsconfig_server.json",

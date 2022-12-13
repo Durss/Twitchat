@@ -171,7 +171,9 @@ export default class DevmodeMenu extends Vue {
 				id:Utils.getUUID(),
 				label:"durss filter",
 				regex:"durss",
-				serverSync:false
+				serverSync:false,
+				emergency:false,
+				firstTimeChatters:false,
 			}
 			return true;
 		});

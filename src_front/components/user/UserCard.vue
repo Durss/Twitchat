@@ -216,7 +216,9 @@ export default class UserCard extends Vue {
 					channel_id: this.channelId,
 					message: "",
 					message_html: "",
+					message_no_emotes: "",
 					answers:[],
+					is_short:false,
 				}
 			}else{
 				this.error = true;

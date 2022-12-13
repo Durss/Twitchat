@@ -137,6 +137,7 @@ export const storeParams = defineStore('params', {
 					viewers:true,
 					vips:true,
 					partners:true,
+					short:true,
 				}
 			}
 			if(after) {

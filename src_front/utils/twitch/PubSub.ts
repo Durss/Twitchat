@@ -200,6 +200,7 @@ export default class PubSub extends EventDispatcher {
 
 	public async simulateLowTrustUser():Promise<void> {
 		const uid = StoreProxy.auth.twitch.user.id;
+		const message = "This is a message sent by a low trusted user";
 		const m: TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -208,9 +209,11 @@ export default class PubSub extends EventDispatcher {
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			answers:[],
 			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
-			message:"This is a message sent by a low trusted user",
-			message_html:"This is a message sent by a low trusted user",
+			message,
+			message_html:message,
+			message_no_emotes:message,
 			twitch_isSuspicious:true,
+			is_short:false,
 		}
 		StoreProxy.chat.addMessage(m)
 
@@ -468,7 +471,6 @@ export default class PubSub extends EventDispatcher {
 
 				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, mess.sender.display_name.replace(/\s/g, ""), mess.sender.display_name);
 				user.color = mess.sender.chat_color;
-
 				const m:TwitchatDataTypes.MessageChatData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -480,6 +482,8 @@ export default class PubSub extends EventDispatcher {
 					bypassBotFilter:true,
 					message:mess.content.text,
 					message_html:TwitchUtils.parseEmotes(mess.content.text, undefined, false, true),
+					message_no_emotes: mess.content.text,
+					is_short:false,
 				};
 				StoreProxy.chat.addMessage(m);
 			}
@@ -737,6 +741,7 @@ export default class PubSub extends EventDispatcher {
 			const user = localObj.message.sender;
 			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
 			userData.color = user.chat_color;
+			const messageClean = Utils.stripHTMLTags(textMessage);
 			const m:TwitchatDataTypes.MessageChatData = {
 				id:localObj.message.id,
 				channel_id:channelId,
@@ -745,9 +750,11 @@ export default class PubSub extends EventDispatcher {
 				platform:"twitch",
 				user:userData,
 				answers:[],
-				message:textMessage.replace(/<[^>]*>/gi, ""),
+				message:messageClean,
 				message_html:textMessage,
+				message_no_emotes:messageClean,
 				twitch_automod:{ reasons, words },
+				is_short:false,
 			}
 			StoreProxy.chat.addMessage(m);
 
@@ -787,6 +794,7 @@ export default class PubSub extends EventDispatcher {
 			const channelId = localObj.low_trust_user.channel_id;
 			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
 			userData.color = user.chat_color;
+			const messageClean = Utils.stripHTMLTags(textMessage);
 			const m:TwitchatDataTypes.MessageChatData = {
 				id:localObj.message_id,
 				channel_id:channelId,
@@ -795,9 +803,11 @@ export default class PubSub extends EventDispatcher {
 				platform:"twitch",
 				user:userData,
 				answers:[],
-				message:textMessage.replace(/<[^>]*>/gi, ""),
+				message:messageClean,
 				message_html:textMessage,
+				message_no_emotes:messageClean,
 				twitch_isRestricted:true,
+				is_short:false,
 			}
 			const users = await TwitchUtils.loadUserInfo(localObj.low_trust_user.shared_ban_channel_ids);
 			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];

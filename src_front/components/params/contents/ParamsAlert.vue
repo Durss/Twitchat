@@ -107,6 +107,8 @@ export default class ParamsAlert extends Vue {
 			channel_id:uid,
 			message: "ItsBoshyTime Read your chat !!! ItsBoshyTime",
 			message_html: emoteTag+" Read your chat !!! "+emoteTag,
+			message_no_emotes: "",
+			is_short:false,
 		}
 		this.$store("main").executeChatAlert(message);
 	}

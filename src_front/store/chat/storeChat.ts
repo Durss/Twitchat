@@ -1119,7 +1119,9 @@ export const storeChat = defineStore('chat', {
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					message,
 					message_html:message,
+					message_no_emotes:message,
 					answers:[],
+					is_short:false,
 				};
 				messageList.push(mess);
 				if(i >= this.realHistorySize-50) {

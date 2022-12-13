@@ -293,7 +293,9 @@ export default class ParamsTTS extends Vue {
 			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
 			message: this.testStr,
 			message_html: this.testStr,
+			message_no_emotes: this.testStr,
 			answers: [],
+			is_short:false,
 		};
 		TTSUtils.instance.readNow(m);
 	}

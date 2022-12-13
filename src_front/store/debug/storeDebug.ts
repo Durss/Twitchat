@@ -47,7 +47,9 @@ export const storeDebug = defineStore('debug', {
 						answers:[],
 						message,
 						message_html:message,
-						user:fakeUser
+						message_no_emotes:message,
+						user:fakeUser,
+						is_short:false,
 					};
 					const messageList = StoreProxy.chat.messages;
 					if(messageList.length > 0 && Math.random() < .5) {
@@ -406,7 +408,9 @@ export const storeDebug = defineStore('debug', {
 							id:Utils.getUUID(),
 							label:"Ban "+user.login+" è_é",
 							regex:user.login,
-							serverSync:false
+							serverSync:false,
+							emergency:false,
+							firstTimeChatters:false,
 						},
 					};
 					data = m;

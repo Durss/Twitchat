@@ -182,6 +182,8 @@ export default class OverlayParamsHighlight extends Vue {
 			channel_id:uid,
 			message: text,
 			message_html: text,
+			message_no_emotes: text,
+			is_short: false,
 		}
 		this.$store("chat").highlightChatMessageOverlay(message);
 	}

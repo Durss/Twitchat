@@ -82,8 +82,7 @@ export default class ParamsList extends Vue {
 		switch(this.category) {
 			case 'features': return "Features";
 			case 'appearance': return "Appearance";
-			case 'filters': return "Filters";
-		}
+		}   
 		return ""
 	}
 
@@ -92,7 +91,6 @@ export default class ParamsList extends Vue {
 		switch(this.category) {
 			case 'features': code = "params_purple"; break;
 			case 'appearance': code = "show_purple"; break;
-			case 'filters': code = "filters_purple"; break;
 		}
 		if(!code) return "";
 		return this.$image("icons/"+code+".svg");
