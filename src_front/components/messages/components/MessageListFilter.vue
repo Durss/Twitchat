@@ -429,7 +429,7 @@ export default class MessageListFilter extends Vue {
 		this.mouseOverToggle = true;
 		this.previewMessage(data.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]);
 	}
-
+	
 	public mouseLeaveItem(event:MouseEvent):void {
 		if(this.touchMode) return;
 		this.mouseOverToggle = false;
@@ -509,6 +509,7 @@ export default class MessageListFilter extends Vue {
 		this.previewData = [];
 		this.loadingPreview = true;
 		this.previewIndex ++;
+		this.mouseOverToggle = true;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.subMessagesCache[type];
 		if(cached && cached.length > 0) {
