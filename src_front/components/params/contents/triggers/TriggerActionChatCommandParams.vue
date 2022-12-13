@@ -16,6 +16,7 @@
 		<ToggleBlock :open="false" class="row" small title="Cooldowns" v-if="triggerData.cooldown">
 			<ParamItem class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown.global" />
 			<ParamItem class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown.user" />
+			<ParamItem class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown.alert" />
 		</ToggleBlock>
 
 	</ToggleBlock>
@@ -50,6 +51,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 	public param_cmd:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
 	public param_globalCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"Global cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
 	public param_userCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"User cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
+	public param_alertCD:TwitchatDataTypes.ParameterData = { type:"toggle", value:true, label:"Tell users if they're cooled down", icon:"whispers_purple.svg" };
 
 	private originalCmd!:string;
 
@@ -68,6 +70,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 			this.triggerData.cooldown = {
 				global:0,
 				user:0,
+				alert:true,
 			}
 		}
 		this.populate();

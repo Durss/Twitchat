@@ -21,7 +21,7 @@ export interface TriggerData {
 	name?:string;
 	prevKey?:string;
 	permissions?:TwitchatDataTypes.PermissionsData;
-	cooldown?:{global:number, user:number};
+	cooldown?:{global:number, user:number, alert:boolean};
 	scheduleParams?:TriggerScheduleData;
 	/**
 	 * @deprecated Only here for typings on data migration. Use "name" property

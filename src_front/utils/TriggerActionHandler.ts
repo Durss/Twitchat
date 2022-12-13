@@ -378,10 +378,22 @@ export default class TriggerActionHandler {
 					canExecute = false;
 				}else{
 					//Apply cooldowns if any
-					if(this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) canExecute = false;
+					if(this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) {
+						const remaining_s = Utils.formatDuration(this.globalCooldowns[eventType] - now + 1000) + "s";
+						canExecute = false;
+						if(data.cooldown.alert !== false) {
+							MessengerProxy.instance.sendMessage("📛 @"+message.user.login+": "+remaining_s+" cooldown", [message.platform], message.channel_id);
+						}
+					}
 					else if(data.cooldown.global > 0) this.globalCooldowns[eventType] = now + data.cooldown.global * 1000;
 	
-					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) canExecute = false;
+					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
+						const remaining_s = Utils.formatDuration(this.userCooldowns[key] - now + 1000) + "s";
+						canExecute = false;
+						if(data.cooldown.alert !== false) {
+							MessengerProxy.instance.sendMessage("📛 @"+message.user.login+" "+remaining_s+" cooldown", [message.platform], message.channel_id);
+						}
+					}
 					else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;
 				}
 			}

@@ -17,8 +17,9 @@ export default class Utils {
 	public static stripHTMLTags(message:string):string {
 		// return message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gim, "");//Strip HTML tags
 
-		//The following 2 replace() are more efficient than the above one with the same effect as
-		//long as no HTML is defined on an attribute other than "data-xxx"
+		//The following 2 replace() are twice more efficient than the single above one
+		//with the same effect as long as no HTML tags are defined on an attribute other
+		//than data attributes (ex: data-xxx='lorem ipsum')
 		message = message.replace(/data-.*?=".*?"/gim, "");//Strip data-attributes that can contain HTML
 		return message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
 	}
@@ -191,6 +192,15 @@ export default class Utils {
 	 */
 	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+		const chanInfo = user.channelInfo[channelId];
+		if(chanInfo.is_vip && permissions.vips === false) return false;
+		if(chanInfo.is_subscriber && permissions.subs === false) return false;
+		if(chanInfo.is_moderator && permissions.mods === false) return false;
+		if(chanInfo.is_broadcaster && permissions.broadcaster === false) return false;
+		return permissions.all || allowedUsers?.indexOf(user.login.toLowerCase()) > -1;
+		
+		//Old behavior
+		/*
 		const allowed = (permissions.mods && user.channelInfo[channelId].is_moderator) ||
 						(permissions.vips && user.channelInfo[channelId].is_vip) ||
 						(permissions.subs && user.channelInfo[channelId].is_subscriber) ||
@@ -198,6 +208,7 @@ export default class Utils {
 						permissions.all ||
 						allowedUsers?.indexOf(user.login.toLowerCase()) != -1;
 		return allowed;
+		//*/
 	}
 
 	/**

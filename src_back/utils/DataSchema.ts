@@ -131,6 +131,7 @@ import Ajv from "ajv";
 							properties: {
 								global: {type:"number", minimum:0, maximum:60*60*12},
 								user: {type:"number", minimum:0, maximum:60*60*12},
+								alert: {type:"boolean"},
 							}
 						},
 						actions:{
