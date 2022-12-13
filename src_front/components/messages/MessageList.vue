@@ -6,13 +6,13 @@
 		@touchmove="onTouchMove">
 		
 		<MessageListFilter class="filters"
-			:open="hovered || firstConfig"
-			:forceConfig="firstConfig"
+			:open="hovered || forceConfig"
+			:forceConfig="forceConfig"
 			:config="config"
 			@add="$emit('addColumn', config)"
 			@delete="deleteColumn()"
 			@change="fullListRefresh()"
-			@submit="firstConfig = false"/>
+			@submit="forceConfig = false"/>
 
 		<button class="filteredMessages" v-if="lockedListRefresh" @click="unlockListRefresh()">
 			<img src="@/assets/icons/back.svg" alt="back">
@@ -315,7 +315,7 @@ export default class MessageList extends Vue {
 	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
 	public hovered = false;
-	public firstConfig = false;
+	public forceConfig = false;
 	public lockScroll = false;
 	public lockedListRefresh = false;
 	public showLoadingGradient = false;
@@ -430,7 +430,7 @@ export default class MessageList extends Vue {
 				break;
 			}
 		}
-		this.firstConfig = noConfig;
+		this.forceConfig = noConfig;
 
 		this.prevTs = Date.now() - 1000 / 60;
 		this.renderFrame(Date.now());

@@ -4,7 +4,7 @@
 			<div class="scrollable" ref="scrollable">
 				<div class="column" v-for="c, index in $store('params').chatColumnsConfig"
 				:ref="'column_'+c.id"
-				:key="c.order"
+				:key="c.id"
 				:style="getColStyles(c)">
 					<div class="subHolder">
 						<GreetThem class="greetThem"
