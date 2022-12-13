@@ -131,6 +131,9 @@ export default class TriggerActionChatCommandParams extends Vue {
 		}
 
 		.cooldown {
+			&:not(:first-child) {
+				margin-top: .5em;
+			}
 			:deep(input) {
 				width: 75px;
 				flex-grow: unset;

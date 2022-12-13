@@ -870,6 +870,7 @@ export default class TwitchUtils {
 					login:"Global",
 					donor:{level:0, state:false, upgrade:false},
 					greeted:true,
+					is_raider:false,
 					is_affiliate:false,
 					is_partner:false,
 					is_tracked:false,

@@ -301,11 +301,8 @@ export default class TriggerActionEntry extends Vue {
 			&:not(:last-child) {
 				margin-bottom: .25em;
 			}
-			&.disabled {
-				color: fade(@mainColor_light, 50%);
-			}
 			:deep(.icon) {
-				max-width: 1.5em;
+				max-width: 2em;
 			}
 		}
 	}
