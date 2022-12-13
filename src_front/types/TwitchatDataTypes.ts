@@ -57,6 +57,7 @@ export namespace TwitchatDataTypes {
 		vips:boolean;
 		subs:boolean;
 		partners:boolean;
+		short:boolean;
 	}
 
 	/**
@@ -917,7 +918,9 @@ export namespace TwitchatDataTypes {
 		user: TwitchatUser;
 		message:string;
 		message_html:string;
+		message_no_emotes:string;
 		answers: MessageChatData[];
+		is_short: boolean;//true if message is short or contains mostly emotes
 		
 		todayFirst?: boolean;
 		automod?: AutomodParamsKeywordFilterData;

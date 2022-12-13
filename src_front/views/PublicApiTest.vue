@@ -35,7 +35,7 @@
 			</div>
 			<div class="list actions">
 				<div class="head">Actions</div>
-				<Button class="action" v-for="a in actionList" :title="a.key" small />
+				<Button class="action" v-for="a in actionList" :title="a.key" small @click="executeAction(a)" />
 			</div>
 		</div>
 	</div>
@@ -49,6 +49,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatActionTypeList, TwitchatEventTypeList, type TwitchatActionType } from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import PublicAPI from '@/utils/PublicAPI';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { Options, Vue } from 'vue-class-component';
 
@@ -105,6 +106,10 @@ export default class PublicApiTest extends Vue {
 		this.loading = true;
 		this.connectSuccess = false;
 		this.connectError = false;
+
+		//Make sure OBS will connect
+		this.$store("obs").connectionEnabled = true;
+		
 		const connected = await OBSWebsocket.instance.connect(
 							(this.obsPort_conf.value as number).toString(),
 							this.obsPass_conf.value as string,
@@ -127,6 +132,11 @@ export default class PublicApiTest extends Vue {
 
 	public async disconnect():Promise<void> {
 		OBSWebsocket.instance.disconnect();
+	}
+
+	public async executeAction(action:{key:string}):Promise<void> {
+		console.log(action);
+		PublicAPI.instance.broadcast(action.key);
 	}
 
 	private initAPI():void {

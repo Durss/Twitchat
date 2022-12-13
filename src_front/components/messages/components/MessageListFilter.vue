@@ -214,6 +214,7 @@ export default class MessageListFilter extends Vue {
 	public filters:TwitchatDataTypes.ParameterData[] = [];
 	public messageFilters:TwitchatDataTypes.ParameterData[] = [];
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
+	public mouseOverToggle:boolean = false;
 	public loadingPreview:boolean = false;
 	public previewIndex:number = 0;
 	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", label:"Hide specific users", placeholder:"bot1, bot2, ....", icon:"hide.svg"};
@@ -330,6 +331,7 @@ export default class MessageListFilter extends Vue {
 					automod:"Blocked messages",
 					suspiciousUsers:"Sent by suspicious users",
 					commands:"Commands (starting with \"!\")",
+					short:"Short messages",
 				}
 				const keyToIcon:{[key in messageFilterTypes]:string} = {
 					viewers:"user.svg",
@@ -342,6 +344,7 @@ export default class MessageListFilter extends Vue {
 					automod:"shield.svg",
 					suspiciousUsers:"shield.svg",
 					commands:"commands.svg",
+					short:"",
 				}
 				if(!this.config.messageFilters) this.config.messageFilters = {
 					bots:true,
@@ -354,6 +357,7 @@ export default class MessageListFilter extends Vue {
 					subs:true,
 					moderators:true,
 					partners:true,
+					short:true,
 				};
 				for (const key in keyToLabel) {
 					const k = key as messageFilterTypes;
@@ -373,6 +377,9 @@ export default class MessageListFilter extends Vue {
 										this.saveData();
 									}};
 						param.children = [subParam];
+					}
+					if(k == "short") {
+						param.tooltip = "Messages shorter than 4 chars<br>or containing mostly emotes";
 					}
 					children.push(param);
 				}
@@ -419,11 +426,13 @@ export default class MessageListFilter extends Vue {
 	}
 
 	public mouseEnterItem(event:MouseEvent, data:TwitchatDataTypes.ParameterData):void {
+		this.mouseOverToggle = true;
 		this.previewMessage(data.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]);
 	}
 
 	public mouseLeaveItem(event:MouseEvent):void {
 		if(this.touchMode) return;
+		this.mouseOverToggle = false;
 		this.previewData = [];
 	}
 
@@ -444,19 +453,19 @@ export default class MessageListFilter extends Vue {
 		this.messagesCache[type] = [];
 		if(type == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
 			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.BAN, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-				if(!data) return;
+				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
 			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-				if(!data) return;
+				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
 			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-				if(!data) return;
+				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
@@ -466,14 +475,14 @@ export default class MessageListFilter extends Vue {
 		}else
 			if(type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT) {
 				this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-					if(!data) return;
+					if(!data || !this.mouseOverToggle) return;
 					const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 					dataCast.received = false;
 					this.messagesCache[type]?.push(data);
 					this.previewData.push(data);
 				}, false);
 				this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-					if(!data) return;
+					if(!data || !this.mouseOverToggle) return;
 					const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 					dataCast.received = true;
 					this.messagesCache[type]?.push(data);
@@ -486,7 +495,7 @@ export default class MessageListFilter extends Vue {
 			this.$store('debug').simulateMessage(type, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				this.loadingPreview = false;
 	
-				if(!data) return;
+				if(!data || !this.mouseOverToggle) return;
 
 				this.messagesCache[type] = [data];
 	
@@ -513,7 +522,7 @@ export default class MessageListFilter extends Vue {
 		this.subMessagesCache[type] = [];
 		this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 			this.loadingPreview = false;
-			if(!data) return;
+			if(!data || !this.mouseOverToggle) return;
 			
 			const dataCast = data as TwitchatDataTypes.MessageChatData;
 
@@ -541,7 +550,7 @@ export default class MessageListFilter extends Vue {
 		
 		if(type == "automod") {
 			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-				if(!data) return;
+				if(!data || !this.mouseOverToggle) return;
 
 				const dataCast = data as TwitchatDataTypes.MessageChatData;
 				dataCast.twitch_isRestricted = true;

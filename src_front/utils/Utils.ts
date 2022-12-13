@@ -10,6 +10,18 @@ export default class Utils {
 	public static getUUID():string {
 		return crypto.randomUUID();
 	}
+
+	/**
+	 * Strip HTML tags from a string
+	 */
+	public static stripHTMLTags(message:string):string {
+		// return message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gim, "");//Strip HTML tags
+
+		//The following 2 replace() are more efficient than the above one with the same effect as
+		//long as no HTML is defined on an attribute other than "data-xxx"
+		message = message.replace(/data-.*?=".*?"/gim, "");//Strip data-attributes that can contain HTML
+		return message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
+	}
 		
 	/**
 	 * Picks random entry

@@ -1,3 +1,4 @@
+import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { IAccessibilityActions, IAccessibilityGetters, IAccessibilityState } from '../StoreProxy'
@@ -20,9 +21,7 @@ export const storeAccessibility = defineStore('Accessibility', {
 
 	actions: {
 		setAriaPolite(message:string) {
-			message = message.replace(/data-.*?=".*?"/gim, "");//Strip data-attributes that can contain HTML
-			message = message.replace(/<[^>]*>/gim, "");//Strip HTML tags
-			this.ariaPolite = message;
+			this.ariaPolite = Utils.stripHTMLTags(message);
 			clearTimeout(ariaPoliteTimeout);
 			//Clear it after 10s
 			ariaPoliteTimeout = setTimeout(()=> {

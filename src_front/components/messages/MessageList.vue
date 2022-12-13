@@ -597,6 +597,9 @@ export default class MessageList extends Vue {
 				if (m.twitch_isSuspicious) {
 					return this.config.messageFilters.suspiciousUsers !== false;
 				}
+				if (m.is_short) {
+					return this.config.messageFilters.short !== false;
+				}
 				if (m.message.trim().charAt(0) == "!") {
 					return this.config.messageFilters.commands !== false;
 				}

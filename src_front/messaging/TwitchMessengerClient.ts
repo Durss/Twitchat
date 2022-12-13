@@ -559,9 +559,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message,
 			answers:[],
 			message_html:"",
+			message_no_emotes:"",
+			is_short:false,
 		};
 
 		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"], false, fromQueue);
+		data.message_no_emotes = Utils.stripHTMLTags(data.message_html);
+		data.is_short = data.message_no_emotes.length / data.message.length < .6 || data.message.length < 4;
 				
 		// If message is an answer, set original message's ref to the answer
 		// Called when using the "answer feature" on twitch chat

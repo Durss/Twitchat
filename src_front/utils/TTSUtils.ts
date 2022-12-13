@@ -283,7 +283,7 @@ export default class TTSUtils {
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					mess = message.message_html.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");//Remove all HTML tags
+					mess = Utils.stripHTMLTags(message.message_html);
 				}
 				if(paramsTTS.removeURL) {
 					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
@@ -309,7 +309,7 @@ export default class TTSUtils {
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					mess = message.message_html.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");//Remove all HTML tags
+					mess = Utils.stripHTMLTags(message.message_html);
 				}
 				if(paramsTTS.removeURL) {
 					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
@@ -329,7 +329,7 @@ export default class TTSUtils {
 
 				if(!message.message) return "";
 
-				const mess: string = message.message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gim, "");//Strip HTML tags;
+				const mess: string = Utils.stripHTMLTags(message.message);
 				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				const txt = paramsTTS.readNoticesPattern.replace(/\{MESSAGE\}/gi, mess);
 				return txt;
@@ -394,7 +394,7 @@ export default class TTSUtils {
 				
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
-					mess = message.message_html.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gi, "");//Remove all HTML tags
+					mess = Utils.stripHTMLTags(message.message_html);
 				}
 				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				let txt = paramsTTS.readBitsPattern.replace(/\{USER\}/gi, message.user.displayName);
