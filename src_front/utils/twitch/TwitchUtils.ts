@@ -1046,7 +1046,7 @@ export default class TwitchUtils {
 		});
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getFollowInfo(uid, channelId);
 		}
@@ -1149,7 +1149,7 @@ export default class TwitchUtils {
 		});
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getSubscriptionState(userId, channelId);
 		}
@@ -1251,7 +1251,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"search/categories?first=50&query="+encodeURIComponent(search), options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.searchCategory(search);
 		}
@@ -1276,7 +1276,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"games?id="+encodeURIComponent(id), options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getCategoryByID(id);
 		}
@@ -1367,7 +1367,7 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getStreamInfos(channelId);
 		}
@@ -1398,7 +1398,7 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.setStreamInfos(title, categoryID, channelId);
 		}
@@ -1422,7 +1422,7 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getStreamTags(channelId);
 		}
@@ -1450,7 +1450,7 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.setStreamTags(tagIDs, channelId);
 		}
@@ -1485,7 +1485,7 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.banUser(user, channelId, duration, reason);
 		}
@@ -1521,7 +1521,7 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.unbanUser(user, channelId);
 		}else {
@@ -1552,7 +1552,7 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.blockUser(user, channelId, reason);
 		}else {
@@ -1582,7 +1582,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.unblockUser(user, channelId);
 		} else {
@@ -1611,7 +1611,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getClipById(clipId);
 		} else {
@@ -1665,7 +1665,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.sendAnnouncement(channelId, message, color);
 		}else{
@@ -1692,7 +1692,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.deleteMessages(channelId, messageId);
 		}else{
@@ -1720,7 +1720,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.setShieldMode(channelId, enabled);
 		}else {
@@ -1745,7 +1745,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.setColor(color);
 		}else {
@@ -1791,7 +1791,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getRoomSettings(channelId);
 		}else {
@@ -1843,7 +1843,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.setRoomSettings(channelId, settings);
 		}else {
@@ -1898,7 +1898,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.addRemoveModerator(removeMod, channelId, user);
 		}else {
@@ -1952,7 +1952,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.addRemoveVIP(removeVip, channelId, user);
 		}else {
@@ -1987,7 +1987,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.raidChannel(channel);
 		}else {
@@ -2017,7 +2017,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.raidCancel();
 		}else {
@@ -2054,7 +2054,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.whisper(message, toLogin, toId);
 		}else {
@@ -2093,7 +2093,7 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getChatters(channelId, channelName);
 
@@ -2144,7 +2144,7 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Date.now().toString()) * 1000 + 1000;
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.eventsubSubscribe(channelId, userId, session_id, topic, version);
 		}
