@@ -9,11 +9,11 @@
 		<Button small @click="$emit('streamInfo'); close();" :icon="$image('icons/info.svg')" title="Stream info" bounce />
 
 		<div class="commercial">
-			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="$emit('ad', 30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!hasChannelPoints" />
-			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click="$emit('ad', 60); close();" title="60s" bounce :disabled="!hasChannelPoints" />
-			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click="$emit('ad', 90); close();" title="90s" bounce :disabled="!hasChannelPoints" />
-			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click="$emit('ad', 120); close();" title="120s" bounce :disabled="!hasChannelPoints" />
-			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click="$emit('ad', 180); close();" title="180s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="startAd(30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click="startAd(60); close();" title="60s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click="startAd(90); close();" title="90s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click="startAd(120); close();" title="120s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click="startAd(180); close();" title="180s" bounce :disabled="!hasChannelPoints" />
 			<div v-if="adCooldown > 0" class="cooldown">You can start a new<br>commercial in {{adCooldownFormated}}</div>
 		</div>
 		
@@ -50,14 +50,12 @@ import ParamItem from '../params/ParamItem.vue';
 
 @Options({
 	props:{
-		startAdCooldown:Number,
 	},
 	components:{
 		Button,
 		ParamItem,
 	},
 	emits:[
-		"ad",
 		"poll",
 		"pred",
 		"clear",
@@ -71,7 +69,6 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class CommandHelper extends Vue {
 	
-	public startAdCooldown!:number;
 	public raidUser:string = "";
 	public adCooldown:number = 0;
 	public channelId:string = "";
@@ -108,8 +105,8 @@ export default class CommandHelper extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 
-		watch(()=>this.startAdCooldown, ()=>{
-			this.adCooldown = this.startAdCooldown - Date.now();
+		watch(()=>this.$store("stream").startAdCooldown, ()=>{
+			this.adCooldown = this.$store("stream").startAdCooldown - Date.now();
 		});
 
 		const channelId = this.$store("auth").twitch.user.id;
@@ -117,7 +114,7 @@ export default class CommandHelper extends Vue {
 			this.populateSettings();
 		}, {deep:true});
 
-		this.adCooldown = Math.max(0, this.startAdCooldown - Date.now());
+		this.adCooldown = Math.max(0, this.$store("stream").startAdCooldown - Date.now());
 		this.adCooldownInterval = window.setInterval(()=>{
 			this.adCooldown -= 1000;
 			if(this.adCooldown < 0) this.adCooldown = 0;
@@ -134,6 +131,10 @@ export default class CommandHelper extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.adCooldownInterval);
 		document.removeEventListener("mousedown", this.clickHandler);
+	}
+
+	public startAd(duration:number):void {
+		this.$store("stream").startAd(duration);
 	}
 
 	private open():void {

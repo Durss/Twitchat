@@ -59,7 +59,6 @@
 				@liveStreams="currentModal = 'liveStreams'"
 				@TTuserList="currentModal = 'TTuserList'"
 				@pins="currentModal = 'pins'"
-				@ad="startAd"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
@@ -86,7 +85,6 @@
 
 		<CommandHelper class="contentWindows actions"
 			v-if="showCommands"
-			:startAdCooldown="startAdCooldown"
 			@poll="currentModal = 'poll'"
 			@chatpoll="currentModal = 'chatpoll'"
 			@pred="currentModal = 'pred'"
@@ -94,7 +92,6 @@
 			@bingo="currentModal = 'bingo'"
 			@liveStreams="currentModal = 'liveStreams'"
 			@streamInfo="currentModal = 'streamInfo'"
-			@ad="startAd"
 			@clear="clearChat()"
 			@close="showCommands = false"
 		/>
@@ -156,15 +153,14 @@ import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -177,7 +173,6 @@ import DonorState from '../components/user/DonorState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
-import type { StyleValue } from 'vue';
 
 @Options({
 	components:{
@@ -225,7 +220,6 @@ export default class Chat extends Vue {
 	public showBlinkLayer = false;
 	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
-	public startAdCooldown = 0;
 	public currentModal = "";
 	public currentNotificationContent = "";
 	public formsColumnTarget:HTMLDivElement|null = null;
@@ -234,7 +228,6 @@ export default class Chat extends Vue {
 	private mouseX = 0;
 	private mouseY = 0;
 	private resizing = false;
-	private canStartAd = true;
 	private closingDonorState = false;
 	private draggedCol:TwitchatDataTypes.ChatColumnsConfig|null = null;
 	
@@ -534,40 +527,6 @@ export default class Chat extends Vue {
 				this.currentModal = modal;
 			}
 		}
-	}
-
-	public startAd(duration:number):void {
-		if(!this.canStartAd) return;
-
-		if(isNaN(duration)) duration = 30;
-		this.$confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
-			try {
-				const res = await TwitchUtils.startCommercial(duration, StoreProxy.auth.twitch.user.id);
-				if(res.length > 0) {
-					this.canStartAd = false;
-					this.startAdCooldown = Date.now() + res.retry_after * 1000;
-					setTimeout(()=>{
-						this.canStartAd = true;
-						this.startAdCooldown = 0;
-					}, this.startAdCooldown);
-					this.$store("stream").setCommercialEnd( Date.now() + res.length * 1000 );
-				}
-			}catch(error) {
-				const e = (error as unknown) as {error:string, message:string, status:number}
-				console.log(error);
-				
-				const notice:TwitchatDataTypes.MessageNoticeData = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-					platform:"twitchat",
-					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
-					message:"An error occured whens tarting the commercial : " + e.message,
-				}
-				StoreProxy.chat.addMessage(notice);
-				// this.$store("store").state.alert = "An unknown error occured when starting commercial"
-			}
-		}).catch(()=>{/*ignore*/});
 	}
 
 	public onResize():void {

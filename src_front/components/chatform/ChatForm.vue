@@ -252,19 +252,15 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 		AutocompleteChatForm,
 	},
 	emits: [
-		"debug",
-		"ad",
 		"pins",
 		"poll",
 		"pred",
-		"clear",
 		"raffle",
 		"search",
 		"bingo",
 		"chatpoll",
 		"TTuserList",
 		"liveStreams",
-		"showUpdates",
 		"update:showFeed",
 		"update:showEmotes",
 		"update:showCommands",
@@ -454,15 +450,6 @@ export default class ChatForm extends Vue {
 		let noticeMessage:string|undefined;
 		params.forEach((v, i) => { params[i] = v.trim() });
 
-		if(cmd == "/devmode") {
-			this.message = "";
-			this.$store("main").toggleDevMode();
-		}else
-
-		if(cmd == "/error") {
-			this.message = "";
-			throw(new Error("Test error"));
-		}else
 
 		if(cmd == "/chatsugg") {
 			event.preventDefault();//avoid auto submit of the opening form
@@ -519,28 +506,6 @@ export default class ChatForm extends Vue {
 				event.preventDefault();//avoid auto submit of the opening form
 				this.$emit("bingo");
 			}
-			this.message = "";
-		}else
-
-		if(cmd == "/voice") {
-			//change voicemod voice
-			//TODO
-			this.message = "";
-		}else
-
-		if(cmd == "/search") {
-			//Search a for messages
-			const search = params.join(" ");
-			// this.$emit("search", search);
-			sChat.doSearchMessages(search);
-			this.message = "";
-		}else
-
-		if(cmd == "/so" || cmd == "/shoutout") {
-			this.message = "...";
-			const user = await this.$store("users").getUserFrom("twitch", this.channelId, undefined, params[0]);
-			//Make a shoutout
-			await sChat.shoutout(user);
 			this.message = "";
 		}else
 
@@ -612,41 +577,6 @@ export default class ChatForm extends Vue {
 			clearInterval(this.spamInterval);
 			this.message = "";
 		}else
-
-		if(cmd == "/messagecount") {
-			console.log(this.$store("chat").messages.length);
-			this.message = "";
-		}else
-
-		if(cmd == "/commercial") {
-			this.$emit("ad", params.length > 0? parseInt(params[0]) : 30);
-			this.message = "";
-		}else
-
-		if(cmd == "/updates") {
-			sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
-			this.message = "";
-		}else
-
-		if(cmd == "/tip") {
-			sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
-			this.message = "";
-		}else
-
-		if(cmd == "/userinfo" || cmd == "/user") {
-			if(!params[0]) {
-				noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
-				noticeMessage = "Missing user name param";
-			}else{
-				if(parseInt(params[0]).toString() === params[0]) {
-					const user = await TwitchUtils.loadUserInfo([params[0]]);
-					params[0] = user[0].login;
-				}
-				const user = this.$store("users").getUserFrom("twitch", this.channelId, undefined, params[0]);
-				this.$store("users").openUserCard( user );
-			}
-			this.message = "";
-		}else
 		
 		if(cmd == "/cypherkey") {
 			//Secret feature hehehe ( ͡~ ͜ʖ ͡°)
@@ -678,11 +608,6 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
-		if(cmd == "/logself") {
-			console.log(this.$store("auth").twitch.user);
-			this.message = "";
-		}else
-		
 		if(cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {
@@ -695,32 +620,9 @@ export default class ChatForm extends Vue {
 			}
 		}else
 
-		if(cmd == "/ttsoff" || cmd == "/tts") {
-			this.loading = true;
-			const username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
-			try {
-				const res = await TwitchUtils.loadUserInfo(undefined, [username]);
-				if(res.length == 0) {
-					noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
-					noticeMessage = "User <mark>"+username+"</mark> not found...";
-					this.loading = false;
-				}else{
-					const user = this.$store("users").getUserFrom("twitch", this.channelId, res[0].id, res[0].login, res[0].display_name);
-					this.$store("tts").ttsReadUser(user, cmd == "/tts");
-				}
-			}catch(error) {}
-			this.message = "";
-			this.loading = false;
-		}else
-
 		if(cmd == "/userlist") {
 			this.$store("main").tempStoreValue = params[0];
 			this.$emit('TTuserList');
-			this.message = "";
-		}else
-
-		if(cmd == "/logusers") {
-			console.log(this.$store("users").users);
 			this.message = "";
 		}else
 

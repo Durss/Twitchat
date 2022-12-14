@@ -15,8 +15,9 @@ export const storeStream = defineStore('stream', {
 		communityBoostState: undefined,
 		streamInfoPreset: [],
 		lastRaider: undefined,
+		canStartAd: true,
 		commercialEnd: 0,//Date.now() + 120000,
-
+		startAdCooldown: 0,
 		roomSettings:{},//channelId => settings
 	} as IStreamState),
 
@@ -138,6 +139,40 @@ export const storeStream = defineStore('stream', {
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
 				});
 			}
+		},
+
+		startAd(duration:number):void {
+			if(!this.canStartAd) return;
+	
+			if(isNaN(duration)) duration = 30;
+			StoreProxy.main.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
+				try {
+					const res = await TwitchUtils.startCommercial(duration, StoreProxy.auth.twitch.user.id);
+					if(res.length > 0) {
+						this.canStartAd = false;
+						this.startAdCooldown = Date.now() + res.retry_after * 1000;
+						setTimeout(()=>{
+							this.canStartAd = true;
+							this.startAdCooldown = 0;
+						}, this.startAdCooldown);
+						this.setCommercialEnd( Date.now() + res.length * 1000 );
+					}
+				}catch(error) {
+					const e = (error as unknown) as {error:string, message:string, status:number}
+					console.log(error);
+					
+					const notice:TwitchatDataTypes.MessageNoticeData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						platform:"twitchat",
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+						message:"An error occured whens tarting the commercial : " + e.message,
+					}
+					StoreProxy.chat.addMessage(notice);
+					// this.$store("store").state.alert = "An unknown error occured when starting commercial"
+				}
+			}).catch(()=>{/*ignore*/});
 		},
 		
 	} as IStreamActions

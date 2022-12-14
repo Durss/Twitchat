@@ -1,6 +1,7 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
@@ -44,11 +45,11 @@ export default class MessengerProxy {
 	 * @param channelId 
 	 * @return if the message has been sent properly (chat field is cleared if this returns true)
 	 */
-	public sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):boolean {
+	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):Promise<boolean> {
 		const hasPlatform = targetPlatforms && targetPlatforms.length>0;
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
 
-		if(this.handleTwitchatCommands(message, targetPlatforms, channelId)) return true;
+		if(await this.handleTwitchatCommands(message, targetPlatforms, channelId)) return true;
 
 		// console.log("Send message:", message);
 		// console.log("          to:", channelId);
@@ -200,11 +201,15 @@ export default class MessengerProxy {
 		StoreProxy.auth.twitch_tokenRefresh(true);
 	}
 
-	private handleTwitchatCommands(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):boolean {
+	private async handleTwitchatCommands(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):Promise<boolean> {
 		
 		const params = message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
 		params.forEach((v, i) => { params[i] = v.trim() });
+
+		if(cmd == "/devmode") {
+			StoreProxy.main.toggleDevMode();
+		}else
 
 		if(cmd == "/countdown") {
 			let duration = this.paramsToDuration(params[0]);
@@ -249,7 +254,88 @@ export default class MessengerProxy {
 		if(cmd == "/timerstop") {
 			StoreProxy.timer.timerStop();
 			return true;
+		}else
+
+		if(cmd == "/voice") {
+			//change voicemod voice
+			//TODO
+		}else
+
+		if(cmd == "/search") {
+			//Search a for messages
+			const search = params.join(" ");
+			// this.$emit("search", search);
+			StoreProxy.chat.doSearchMessages(search);
+		}else
+
+		if(cmd == "/so" || cmd == "/shoutout") {
+			const user = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]);
+			//Make a shoutout
+			await StoreProxy.chat.shoutout(user);
+		}else
+
+		if(cmd == "/commercial") {
+			StoreProxy.stream.startAd(params.length > 0? parseInt(params[0]) : 30);
+		}else
+
+		if(cmd == "/updates") {
+			StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+		}else
+
+		if(cmd == "/tip") {
+			StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
+		}else
+
+		if(cmd == "/userinfo" || cmd == "/user") {
+			if(!params[0]) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:"Missing user name param",
+				}
+				StoreProxy.chat.addMessage(notice);
+			}else{
+				if(parseInt(params[0]).toString() === params[0]) {
+					const user = await TwitchUtils.loadUserInfo([params[0]]);
+					params[0] = user[0].login;
+				}
+				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]);
+				StoreProxy.users.openUserCard( user );
+			}
+		}else
+				
+		if(cmd == "/logself") {
+			console.log(StoreProxy.auth.twitch.user);
+		}else
+
+		if(cmd == "/ttsoff" || cmd == "/tts") {
+			const username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
+			try {
+				const res = await TwitchUtils.loadUserInfo(undefined, [username]);
+				if(res.length == 0) {
+					const notice:TwitchatDataTypes.MessageNoticeData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						platform:"twitchat",
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+						message:"User <mark>"+username+"</mark> not found...",
+					}
+					StoreProxy.chat.addMessage(notice);
+				}else{
+					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0].id, res[0].login, res[0].display_name);
+					StoreProxy.tts.ttsReadUser(user, cmd == "/tts");
+				}
+			}catch(error) {}
+		}else
+
+		if(cmd == "/logusers") {
+			console.log(StoreProxy.users.users);
 		}
+		
 		return false;
 	}
 

@@ -349,6 +349,8 @@ export interface IStreamState {
 	streamInfoPreset: TwitchatDataTypes.StreamInfoPreset[];
 	lastRaider: TwitchatDataTypes.TwitchatUser|undefined;
 	commercialEnd: number;
+	startAdCooldown: number,
+	canStartAd: boolean,
 	roomSettings:{[key in string]:TwitchatDataTypes.IRoomSettings|undefined};
 }
 
@@ -366,6 +368,7 @@ export interface IStreamActions {
 	saveStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;
 	deleteStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;
 	setCommercialEnd(date:number):void;
+	startAd(duration:number):void;
 }
 
 
