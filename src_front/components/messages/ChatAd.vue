@@ -241,7 +241,6 @@ export default class ChatAd extends Vue {
 		this.elgatoIcon = await this.getSvgIcon("elgato");
 		this.followIcon = await this.getSvgIcon("follow");
 		this.kofiIcon = await this.getSvgIcon("kofi");
-		console.log(this.messageData);
 	}
 
 	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {

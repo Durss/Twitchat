@@ -1,6 +1,6 @@
 <template >
-	<div :class="classes" v-show="debugForceOpen || open" @wheel.stop>
-		<div class="hoverActions">
+	<div :class="classes" v-show="open || expand" @wheel.stop>
+		<div class="hoverActions" v-if="!expand">
 			<button class="openBt" @click="expand = true" data-tooltip="Edit filters">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
@@ -12,7 +12,7 @@
 			</button>
 		</div>
 
-		<div class="holder" v-if="debugForceOpen || expand || forceConfig" @click="clickPreview($event)">
+		<div class="holder" v-if="expand || forceConfig" @click="clickPreview($event)">
 			<div class="content">
 				<div class="head">
 					<h1 class="title">Filters</h1>
@@ -21,7 +21,7 @@
 					</button>
 				</div>
 				
-				<div class="info" v-if="debugForceOpen || expand || forceConfig">Choose which message types to display on this column</div>
+				<div class="info" v-if="expand || forceConfig">Choose which message types to display on this column</div>
 				
 				<div class="presets">
 					<Button @click="preset('chat')" title="Chat" :icon="$image('icons/whispers_purple.svg')" small white />
@@ -208,7 +208,6 @@ export default class MessageListFilter extends Vue {
 	public error:boolean = false;
 	public expand:boolean = false;
 	public toggleAll:boolean = false;
-	public debugForceOpen:boolean = false;//Allows to force opening when debugging the form
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
@@ -230,7 +229,7 @@ export default class MessageListFilter extends Vue {
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
 		if(this.$store("params").appearance.splitViewVertical.value === true) res.push("verticalSplitMode");
-		if(this.debugForceOpen || this.expand || this.forceConfig) res.push("expand");
+		if(this.expand || this.forceConfig) res.push("expand");
 		return res;
 	}
 
@@ -398,7 +397,6 @@ export default class MessageListFilter extends Vue {
 		
 		//Close when rolling out col
 		watch(()=>this.open, ()=>{
-			this.expand = false;
 			//This makes sure any data written on a text input is saved.
 			//<ParamItem> uses a "lazy" update that is triggerd only when input
 			//looses focus. THis is why we remove the focus of the current
@@ -776,16 +774,24 @@ export default class MessageListFilter extends Vue {
 	opacity: .9;
 	// opacity: .4;
 	pointer-events: none;
+	max-width: 400px;
 
 	&.expand {
 		transform: translateX(0);
 	}
 
 	&.verticalSplitMode {
+		max-width: 700px;
 		.holder {
 			.content {
 				width: 100%;
 				max-width: 100%;
+				.presets {
+					justify-content: center;
+					.button:not(:first-child) {
+						margin-left: .5em;
+					}
+				}
 				.paramsList {
 					display: flex;
 					flex-direction: row;
@@ -868,7 +874,6 @@ export default class MessageListFilter extends Vue {
 			flex-direction: column;
 			height: 100%;
 			margin: auto;
-			max-width: 500px;
 
 			.head {
 				display: flex;
