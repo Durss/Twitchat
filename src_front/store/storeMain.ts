@@ -21,6 +21,7 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
+import router from '@/router';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -162,7 +163,12 @@ export const storeMain = defineStore("main", {
 
 				try {
 					await new Promise((resolve,reject)=> {
-						sAuth.twitch_autenticate(undefined, (success:boolean)=>{
+						sAuth.twitch_autenticate(undefined, (success:boolean, betaRefused?:boolean)=>{
+							if(betaRefused == true) {
+								this.initComplete = true;
+								router.push({name:"closed"});
+								return;
+							}
 							if(success) {
 								resolve(null);
 							}else{

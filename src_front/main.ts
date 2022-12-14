@@ -13,6 +13,7 @@ import './less/index.less';
 import router from './router';
 import { storeAccessibility } from './store/accessibility/storeAccessibility';
 import { storeAccount } from './store/account/storeAccount';
+import { storeAdmin } from './store/admin/storeAdmin';
 import { storeAuth } from './store/auth/storeAuth';
 import { storeAutomod } from './store/automod/storeAutomod';
 import { storeBingo } from './store/bingo/storeBingo';
@@ -71,7 +72,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 
 	if (!sAuth.authenticated) {
 		//Not authenticated, reroute to login
-		if(needAuth !== false && to.name != "login" && to.name != "oauth") {
+		if(needAuth !== false && to.name != "login" && to.name != "closed" && to.name != "oauth") {
 			next({name: 'login', params: {redirect: to.name?.toString()}});
 			return;
 		}
@@ -129,7 +130,7 @@ const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width
 /**
  * Global helper to place a dropdown list
  */
-const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility") => {
+const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin") => {
 	switch(id) {
 		case "main": return StoreProxy.main;
 		case "account": return StoreProxy.account;
@@ -153,6 +154,7 @@ const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSu
 		case "voice": return StoreProxy.voice;
 		case "debug": return StoreProxy.debug;
 		case "accessibility": return StoreProxy.accessibility;
+		case "admin": return StoreProxy.admin;
 	}
 }
 
@@ -185,6 +187,7 @@ StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IU
 StoreProxy.voice = storeVoice();
 StoreProxy.debug = storeDebug();
 StoreProxy.accessibility = storeAccessibility();
+StoreProxy.admin = storeAdmin();
 
 app.use(router)
 .component("country-flag", CountryFlag)

@@ -1,14 +1,15 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 16/10/2022 
 */
-export default class DonorController {
+export default class DonorController extends AbstractController {
 	
 	constructor(public server:FastifyInstance) {
-		
+		super();
 	}
 	
 	/********************

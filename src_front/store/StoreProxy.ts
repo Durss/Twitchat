@@ -34,6 +34,7 @@ export default class StoreProxy {
 	public static main:IMainState & IMainGetters & IMainActions & {$state:IMainState};
 	public static debug:IDebugState & IDebugGetters & IDebugActions & {$state:IDebugState};
 	public static accessibility:IAccessibilityState & IAccessibilityGetters & IAccessibilityActions & {$state:IAccessibilityState};
+	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState};
 	
 }
 
@@ -109,7 +110,7 @@ export interface IAuthGetters {
 
 export interface IAuthActions {
 	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult>;
-	twitch_autenticate(code?:string, cb?:(success:boolean)=>void):Promise<void>;
+	twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void):Promise<void>;
 	logout():void;
 }
 
@@ -503,4 +504,19 @@ export interface IAccessibilityGetters {
 
 export interface IAccessibilityActions {
 	setAriaPolite(value:string):void;
+}
+
+
+
+
+export interface IAdminState {
+	ariaPolite:string;
+}
+
+export interface IAdminGetters {
+}
+
+export interface IAdminActions {
+	addBetaUser(login:string):Promise<void>;
+	removeBetaUser(login:string):Promise<void>;
 }

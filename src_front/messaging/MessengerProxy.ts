@@ -266,24 +266,29 @@ export default class MessengerProxy {
 			const search = params.join(" ");
 			// this.$emit("search", search);
 			StoreProxy.chat.doSearchMessages(search);
+			return true;
 		}else
 
 		if(cmd == "/so" || cmd == "/shoutout") {
 			const user = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]);
 			//Make a shoutout
 			await StoreProxy.chat.shoutout(user);
+			return true;
 		}else
 
 		if(cmd == "/commercial") {
 			StoreProxy.stream.startAd(params.length > 0? parseInt(params[0]) : 30);
+			return true;
 		}else
 
 		if(cmd == "/updates") {
 			StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+			return true;
 		}else
 
 		if(cmd == "/tip") {
 			StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
+			return true;
 		}else
 
 		if(cmd == "/userinfo" || cmd == "/user") {
@@ -305,10 +310,12 @@ export default class MessengerProxy {
 				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]);
 				StoreProxy.users.openUserCard( user );
 			}
+			return true;
 		}else
 				
 		if(cmd == "/logself") {
 			console.log(StoreProxy.auth.twitch.user);
+			return true;
 		}else
 
 		if(cmd == "/ttsoff" || cmd == "/tts") {
@@ -330,10 +337,22 @@ export default class MessengerProxy {
 					StoreProxy.tts.ttsReadUser(user, cmd == "/tts");
 				}
 			}catch(error) {}
+			return true;
 		}else
 
 		if(cmd == "/logusers") {
 			console.log(StoreProxy.users.users);
+			return true;
+		}else
+
+		if(cmd == "/beta_add") {
+			StoreProxy.admin.addBetaUser(params[0]);
+			return true;
+		}else
+
+		if(cmd == "/beta_del") {
+			StoreProxy.admin.removeBetaUser(params[0]);
+			return true;
 		}
 		
 		return false;

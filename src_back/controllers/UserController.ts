@@ -5,14 +5,16 @@ import Config from '../utils/Config';
 import { schemaValidator } from '../utils/DataSchema';
 import * as JsonPatch from 'fast-json-patch';
 import * as fetch from "node-fetch";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 13/03/2022 
 */
-export default class UserController {
+export default class UserController extends AbstractController {
 
 	
 	constructor(public server:FastifyInstance) {
+		super();
 	}
 	
 	/********************
@@ -149,29 +151,7 @@ export default class UserController {
 	 * Get users list
 	 */
 	private async getUsers(request:FastifyRequest, response:FastifyReply) {
-		//Missing auth token
-		if(!request.headers.authorization) {
-			response.header('Content-Type', 'application/json');
-			response.status(500);
-			response.send(JSON.stringify({success:false}));
-			return;
-		}
-		
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(500);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
-	
-		//Only allow admins
-		if(Config.credentials.admin_ids.indexOf(userInfo.user_id) == -1) {
-			response.header('Content-Type', 'application/json');
-			response.status(500);
-			response.send(JSON.stringify({message:"You're not allowed to call this endpoint", success:false}));
-			return;
-		}
+		if(!await this.adminGuard(request, response)) return;
 	
 		const files = fs.readdirSync(Config.USER_DATA_PATH);
 		const list = files.filter(v => v.indexOf("_cleanup") == -1);

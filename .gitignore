@@ -5,6 +5,7 @@ node_modules
 /server
 credentials.json
 donors
+beta
 env.conf
 
 

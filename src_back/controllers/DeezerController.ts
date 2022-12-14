@@ -2,15 +2,17 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import Config from "../utils/Config";
 import Logger from "../utils/Logger";
 import * as fetch from "node-fetch";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 17/10/2022 
 * Not actually used as deezer API is terrible shit... using iframe "api" instead
 * Keeping it just in case ¯\_(ツ)_/¯
 */
-export default class DeezerController {
+export default class DeezerController extends AbstractController {
 	
 	constructor(public server:FastifyInstance) {
+		super();
 	}
 	
 	/********************

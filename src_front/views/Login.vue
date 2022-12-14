@@ -2,9 +2,13 @@
 	<div class="login">
 		<div class="head">
 			<img class="icon" src="@/assets/logo.svg" alt="twitch">
-			<!-- <div class="beta">beta</div> -->
+			<div class="beta">beta</div>
 		</div>
 
+		<div class="content betaWarn" v-if="closedBeta === true">
+			Beta is closed to a few people sorry :)
+		</div>
+		
 		<div class="content">
 			<div class="description" v-if="!authenticating">
 				<b>Twitchat</b> aims to fill gaps from the official Twitch chat for the streamers
@@ -95,6 +99,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Login extends Vue {
 
+	public closedBeta = false;
 	public generatingCSRF = false;
 	public authenticating = false;
 	public showPermissions = false;
@@ -158,6 +163,9 @@ export default class Login extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		if(this.$router.currentRoute.value.name === "closed") {
+			this.closedBeta = true;
+		}
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
 		let redirect = this.$router.currentRoute.value.params?.redirect;
@@ -177,7 +185,7 @@ export default class Login extends Vue {
 					this.$store("main").alertData = csrf.message;
 					this.authenticating = false;
 				}else{
-					this.$store("auth").twitch_autenticate(code, (success:boolean)=> {
+					this.$store("auth").twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
 						this.authenticating = false;
 						if(success) {
 							redirect = DataStore.get("redirect");
@@ -188,7 +196,11 @@ export default class Login extends Vue {
 								this.$router.push({name:"chat"});
 							}
 						}else{
-							this.$store("main").alertData = "Invalid credentials";
+							if(betaRefused === true) {
+								this.closedBeta = true;
+							}else{
+								this.$store("main").alertData = "Invalid credentials";
+							}
 							this.authenticating = false;
 						}
 					});
@@ -253,6 +265,12 @@ export default class Login extends Vue {
 
 	.content {
 		text-align: center;
+
+		&.betaWarn {
+			background: @mainColor_normal;
+			color: @mainColor_light;
+			margin: 1em 0;
+		}
 
 		.description {
 			margin-bottom: 20px;

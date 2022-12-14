@@ -60,6 +60,11 @@ export default class Config {
 		}
 	}
 
+	public get BETA_MODE():boolean {
+		// return true;//Simulate beta env on local
+		return document.location.host.indexOf("beta") > -1;
+	}
+
 	public get TWITCH_CLIENT_ID():string { return this._serverConfig.twitch_client_id; }
 	public get TWITCH_APP_SCOPES():string[] { return this._serverConfig.twitch_scopes; }
 	public get SPOTIFY_CLIENT_ID():string { return this._serverConfig.spotify_client_id; }

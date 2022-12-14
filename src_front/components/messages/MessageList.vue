@@ -551,8 +551,8 @@ export default class MessageList extends Vue {
 	 * @param m 
 	 */
 	private shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
-		let blockedSpecificCmds = this.config.commandsBlockList.toLowerCase().split(",").map(v=>v.trim());//Split commands by non-alphanumeric characters
-		let blockedSpecificUsers = this.config.userBlockList.toLowerCase().split(/[^a-z0-9_]+/gi);//Split commands by non-alphanumeric characters
+		let blockedSpecificCmds = this.config.commandsBlockList?.toLowerCase().split(",").map(v=>v.trim()) ?? [];//Split commands by non-alphanumeric characters
+		let blockedSpecificUsers = this.config.userBlockList?.toLowerCase().split(/[^a-z0-9_]+/gi) ?? [];//Split commands by non-alphanumeric characters
 
 		if(this.lightMode) {
 			//If in light mode, only allow normal chat messages that are not deleted/moded/...

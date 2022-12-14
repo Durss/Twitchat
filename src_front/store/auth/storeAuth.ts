@@ -75,7 +75,7 @@ export const storeAuth = defineStore('auth', {
 			}
 		},
 
-		async twitch_autenticate(code?:string, cb?:(success:boolean)=>void) {
+		async twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void) {
 			const sChat = StoreProxy.chat;
 			const sMain = StoreProxy.main;
 
@@ -125,6 +125,15 @@ export const storeAuth = defineStore('auth', {
 				this.twitch.access_token	= twitchAuthResult.access_token;
 				this.twitch.scopes			= (userRes as TwitchDataTypes.Token).scopes;
 				this.twitch.expires_in		= userRes.expires_in;
+
+				if(Config.instance.BETA_MODE) {
+					const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+userRes.user_id, {method:"GET"});
+					if(res.status != 200 || (await res.json()).data.beta !== true) {
+						if(cb) cb(false, true);
+						else router.push({name:"closed"});
+						return;
+					}
+				}
 				
 
 				//Load the current user data

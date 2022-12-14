@@ -2,13 +2,15 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import Config from "../utils/Config";
 import Logger from "../utils/Logger";
 import * as fetch from "node-fetch";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 17/10/2022 
 */
-export default class SpotifyController {
+export default class SpotifyController extends AbstractController {
 	
 	constructor(public server:FastifyInstance) {
+		super();
 	}
 	
 	/********************

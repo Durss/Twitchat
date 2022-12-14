@@ -7,6 +7,7 @@ import AuthController from './controllers/AuthController';
 import DonorController from './controllers/DonorController';
 import UserController from './controllers/UserController';
 import SpotifyController from './controllers/SpotifyController';
+import BetaController from './controllers/BetaController';
 const mime = require('mime-types');
 
 const server: FastifyInstance = Fastify({logger: false});
@@ -31,7 +32,7 @@ server.register(require('@fastify/rate-limit'), {
 
 server.register(require('@fastify/cors'), { 
 	origin:[/localhost/i, /twitchat\.fr/i],
-	methods:['GET', 'PUT', 'POST'],
+	methods:['GET', 'PUT', 'POST', 'DELETE'],
 	decorateReply: true,
 	exposedHeaders:["x-ratelimit-reset"]
 })
@@ -125,11 +126,15 @@ const start = async () => {
 	Logger.success("=========================");
 }
 
+fs.mkdirSync(Config.betaDataFolder, { recursive: true });
+fs.mkdirSync(Config.donorsDataFolder, { recursive: true });
+
 //Create controllers
 new AuthController(server).initialize();
 new DonorController(server).initialize();
 new UserController(server).initialize();
 new SpotifyController(server).initialize();
+new BetaController(server).initialize();
 
 //Start server
 start();

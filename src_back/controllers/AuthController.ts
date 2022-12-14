@@ -4,14 +4,16 @@ import * as URL from "url";
 import Config from '../utils/Config';
 import * as jwt from 'jsonwebtoken';
 import * as fetch from "node-fetch";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 13/03/2022 
 */
-export default class AuthController {
+export default class AuthController extends AbstractController {
 
 	
 	constructor(public server:FastifyInstance) {
+		super();
 	}
 	
 	/********************

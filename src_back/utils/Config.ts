@@ -8,9 +8,12 @@ export default class Config {
 
 	private static envName: EnvName;
 	private static confPath: string = "env.conf";
-	private static donorsDataFolder = "./donors/";
 	private static credentialsCache:Credentials;
+	
+	public static betaDataFolder = "./beta/";
+	public static donorsDataFolder = "./donors/";
 
+	public static get betaList(): string { return this.betaDataFolder + "betaUsers.json"; }
 	public static get donorsList(): string { return this.donorsDataFolder + "donors.json"; }
 	public static get donorsAnonStates(): string { return this.donorsDataFolder + "public_states.json"; }
 	public static get donorsPublicList(): string { return this.donorsDataFolder + "public_cache.json"; }

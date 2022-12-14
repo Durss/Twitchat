@@ -1,4 +1,4 @@
-import type { IAccessibilityActions, IAccessibilityGetters, IAccessibilityState, IAccountActions, IAccountGetters, IAccountState, IAuthActions, IAuthGetters, IAuthState, IAutomodActions, IAutomodGetters, IAutomodState, IBingoActions, IBingoGetters, IBingoState, IChatActions, IChatGetters, IChatState, IChatSuggestionActions, IChatSuggestionGetters, IChatSuggestionState, IDebugActions, IDebugGetters, IDebugState, IEmergencyActions, IEmergencyGetters, IEmergencyState, IMainActions, IMainGetters, IMainState, IMusicActions, IMusicGetters, IMusicState, IOBSActions, IOBSGetters, IOBSState, IParamsActions, IParamsGetters, IParamsState, IPollActions, IPollGetters, IPollState, IPredictionActions, IPredictionGetters, IPredictionState, IRaffleActions, IRaffleGetters, IRaffleState, IStreamActions, IStreamGetters, IStreamState, ITimerActions, ITimerGetters, ITimerState, ITriggersActions, ITriggersGetters, ITriggersState, ITTSActions, ITTSState, IUsersActions, IUsersGetters, IUsersState, IVoiceActions, IVoiceGetters, IVoiceState } from "./store/StoreProxy";
+import type { IAccessibilityActions, IAccessibilityGetters, IAccessibilityState, IAccountActions, IAccountGetters, IAccountState, IAdminActions, IAdminGetters, IAdminState, IAuthActions, IAuthGetters, IAuthState, IAutomodActions, IAutomodGetters, IAutomodState, IBingoActions, IBingoGetters, IBingoState, IChatActions, IChatGetters, IChatState, IChatSuggestionActions, IChatSuggestionGetters, IChatSuggestionState, IDebugActions, IDebugGetters, IDebugState, IEmergencyActions, IEmergencyGetters, IEmergencyState, IMainActions, IMainGetters, IMainState, IMusicActions, IMusicGetters, IMusicState, IOBSActions, IOBSGetters, IOBSState, IParamsActions, IParamsGetters, IParamsState, IPollActions, IPollGetters, IPollState, IPredictionActions, IPredictionGetters, IPredictionState, IRaffleActions, IRaffleGetters, IRaffleState, IStreamActions, IStreamGetters, IStreamState, ITimerActions, ITimerGetters, ITimerState, ITriggersActions, ITriggersGetters, ITriggersState, ITTSActions, ITTSState, IUsersActions, IUsersGetters, IUsersState, IVoiceActions, IVoiceGetters, IVoiceState } from "./store/StoreProxy";
 
 declare module '@vue/runtime-core' {
 	interface IStore {
@@ -24,6 +24,7 @@ declare module '@vue/runtime-core' {
 		(id:"debug"):(IDebugState & IDebugGetters & IDebugActions) & {$state:IDebugState};
 		(id:"main"):(IMainState & IMainGetters & IMainActions) & {$state:IMainState};
 		(id:"accessibility"):(IAccessibilityState & IAccessibilityGetters & IAccessibilityActions) & {$state:IAccessibilityState};
+		(id:"admin"):(IAdminState & IAdminGetters & IAdminActions) & {$state:IAdminState};
 	}
 
 	interface ComponentCustomProperties {

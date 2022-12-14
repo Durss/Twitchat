@@ -7,7 +7,7 @@
 			<button class="deleteBt" @click="$emit('delete')" v-if="canDelete" data-tooltip="Delete column">
 				<img src="@/assets/icons/cross_white.svg" alt="delete column" class="icon">
 			</button>
-			<button class="addBt" @click="$emit('add')" v-if="canDelete" data-tooltip="Add column">
+			<button class="addBt" @click="$emit('add')" data-tooltip="Add column">
 				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
 			</button>
 		</div>
