@@ -126,6 +126,7 @@ const start = async () => {
 	Logger.success("=========================");
 }
 
+fs.mkdirSync(Config.USER_DATA_PATH, { recursive: true });
 fs.mkdirSync(Config.betaDataFolder, { recursive: true });
 fs.mkdirSync(Config.donorsDataFolder, { recursive: true });
 
