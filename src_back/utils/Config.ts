@@ -1,6 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { LogStyle } from "../utils/Logger";
+import * as fetch from "node-fetch";
+
 /**
  * Created by Durss
  */

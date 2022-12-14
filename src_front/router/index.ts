@@ -75,11 +75,6 @@ const routes: Array<RouteRecordRaw> = [
 		component: Login
 	},
 	{
-		path: '/closed',
-		name: 'closed',
-		component: Login
-	},
-	{
 		path: '/logout',
 		name: 'logout',
 		component: Logout

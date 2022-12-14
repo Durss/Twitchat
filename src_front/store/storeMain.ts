@@ -166,7 +166,7 @@ export const storeMain = defineStore("main", {
 						sAuth.twitch_autenticate(undefined, (success:boolean, betaRefused?:boolean)=>{
 							if(betaRefused == true) {
 								this.initComplete = true;
-								router.push({name:"closed"});
+								router.push({name:"login", params:{betaReason:"true"}});
 								return;
 							}
 							if(success) {

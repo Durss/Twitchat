@@ -163,7 +163,7 @@ export default class Login extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		if(this.$router.currentRoute.value.name === "closed") {
+		if(this.$router.currentRoute.value.params.betaReason) {
 			this.closedBeta = true;
 		}
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
