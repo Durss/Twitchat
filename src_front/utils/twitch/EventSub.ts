@@ -158,17 +158,27 @@ export default class EventSub {
 			case "channel.shield_mode.end":
 			case "channel.shield_mode.begin": {
 				const enabled = topic === "channel.shield_mode.begin";
-				const m:TwitchatDataTypes.MessageModerationAction = {
+				
+				if(StoreProxy.stream.shieldModeEnabled == enabled) return;
+
+				const m:TwitchatDataTypes.MessageShieldMode = {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitch",
 					channel_id:payload.event.broadcaster_user_id,
 					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					user:StoreProxy.users.getUserFrom("twitch", payload.event.broadcaster_user_id, payload.event.moderator_user_id, payload.event.moderator_user_login, payload.event.moderator_user_name),
-					noticeId:TwitchatDataTypes.TwitchatNoticeType.MOD,
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE,
 					message: "Shield mode "+(enabled? "started" : "stoped")+" by "+payload.event.moderator_user_name,
+					enabled,
 				};
 				StoreProxy.chat.addMessage(m);
+				StoreProxy.stream.shieldModeEnabled = enabled;
+
+				//Sync emergency mod if requested
+				if(StoreProxy.emergency.params.autoEnableOnShieldmode) {
+					StoreProxy.emergency.setEmergencyMode( enabled );
+				}
 				break;
 			}
 

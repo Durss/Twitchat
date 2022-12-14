@@ -303,6 +303,30 @@ export const storeChat = defineStore('chat', {
 				cmd:"/devmode",
 				details:"Toggle dev mode",
 				needAdmin:true,
+			},
+			{
+				id:"mod",
+				cmd:"/mod {user}",
+				details:"Grant moderator role",
+				needAdmin:true,
+			},
+			{
+				id:"unmod",
+				cmd:"/unmod {user}",
+				details:"Remove moderator role",
+				needAdmin:true,
+			},
+			{
+				id:"vip",
+				cmd:"/vip {user}",
+				details:"Grant VIP role",
+				needAdmin:true,
+			},
+			{
+				id:"unvip",
+				cmd:"/unvip {user}",
+				details:"Remove VIP role",
+				needAdmin:true,
 			}
 		],
 

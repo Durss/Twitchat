@@ -351,6 +351,7 @@ export interface IStreamState {
 	lastRaider: TwitchatDataTypes.TwitchatUser|undefined;
 	commercialEnd: number;
 	startAdCooldown: number,
+	shieldModeEnabled: boolean,
 	canStartAd: boolean,
 	roomSettings:{[key in string]:TwitchatDataTypes.IRoomSettings|undefined};
 }

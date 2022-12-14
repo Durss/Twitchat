@@ -472,6 +472,7 @@ import Ajv from "ajv";
 					items:[{type:"string", maxLength:100}],
 				},
 				autoEnableOnFollowbot:{type:"boolean"},
+				autoEnableOnShieldmode:{type:"boolean"},
 				enableShieldMode:{type:"boolean"},
 			}
 		},

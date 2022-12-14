@@ -345,12 +345,12 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/beta_add") {
+		if(cmd == "/betaadd") {
 			StoreProxy.admin.addBetaUser(params[0]);
 			return true;
 		}else
 
-		if(cmd == "/beta_del") {
+		if(cmd == "/betadel") {
 			StoreProxy.admin.removeBetaUser(params[0]);
 			return true;
 		}

@@ -39,6 +39,7 @@ export const storeEmergency = defineStore('emergency', {
 				all:false,
 				users:""
 			},
+			autoEnableOnShieldmode:true,
 			autoEnableOnFollowbot:true,
 			enableShieldMode:false,
 		},
@@ -64,6 +65,7 @@ export const storeEmergency = defineStore('emergency', {
 		},
 
 		async setEmergencyMode(enable:boolean):Promise<void> {
+			if(this.emergencyStarted == enable) return;//Ignore useless change
 			const channelId = StoreProxy.auth.twitch.user.id;
 			this.emergencyStarted = enable;
 			const message:TwitchatDataTypes.MessageEmergencyModeInfo = {
@@ -111,7 +113,7 @@ export const storeEmergency = defineStore('emergency', {
 						OBSWebsocket.instance.setSourceState(s, false);
 					}
 				}
-			}else{
+			}else {
 				//DISABLE EMERGENCY MODE
 				//Unset all changes
 				if(this.params.enableShieldMode) {
@@ -128,14 +130,11 @@ export const storeEmergency = defineStore('emergency', {
 				}
 				if(this.params.toUsers) {
 					const usersNames = this.params.toUsers.split(/[^a-z0-9_]+/gi);
-					console.log(userToPrevModState[channelId]);
 					for (let i = 0; i < usersNames.length; i++) {
 						await StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, async (u)=> {
 							await TwitchUtils.unbanUser(u, channelId);
-							console.log("Reset mod role to ", u.id,"?");
 							//Reset mod role if user was a mod before
 							if(userToPrevModState[channelId][u.id] === true) {
-								console.log("RESET MOD ROLE");
 								delete userToPrevModState[channelId];
 								TwitchUtils.addRemoveModerator(false, channelId, u);
 							}

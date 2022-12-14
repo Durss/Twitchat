@@ -32,29 +32,9 @@
 		</div>
 	
 		<div class="fadeHolder" :style="holderStyles">
-
-			<ToggleBlock medium class="options" title="Options" :icons="['params']" :open="false">
-				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" />
-				<div class="permsTitle">Exclude users from automod rules:</div>
-				<PermissionsForm class="perms" v-model="automodData.exludedUsers" />
-			</ToggleBlock>
 	
-			<div class="testForm">
-				<div>Test rules:</div>
-				<input type="text" v-model="testStr" placeholder="write text...">
-				<div class="result" v-if="testClean" data-tooltip="Cleaned up message<br>with special chars replaced<br>by their latin equivalent">{{testClean}}</div>
-				<div class="matchingRules" v-if="blockedBy.length > 0">
-					<p class="title">Message blocked by rule(s):</p>
-					<ul>
-						<li v-for="r in blockedBy">{{r.label}}</li>
-					</ul>
-				</div>
-				<div class="pass" v-else-if="testStr.length > 0">This message passes automod</div>
-			</div>
-	
-			<div class="holder">
-				<Button title="Add rule" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
-		
+			<section>
+				<Splitter class="item splitter">Rules</Splitter>
 				<div class="list" v-if="automodData.keywordsFilters.length > 0">
 					<ToggleBlock class="block" medium
 					v-for="f in automodData.keywordsFilters"
@@ -73,13 +53,35 @@
 						<div class="regError" v-if="keywordToValid[f.id] === false">Invalid rule</div>
 					</ToggleBlock>
 				</div>
-			</div>
+				<Button title="Add rule" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
+			</section>
+			
+			<section class="testForm">
+				<Splitter class="item splitter">Test rules</Splitter>
+				<input type="text" v-model="testStr" placeholder="write text...">
+				<div class="result" v-if="testClean" data-tooltip="Cleaned up message<br>with special chars replaced<br>by their latin equivalent">{{testClean}}</div>
+				<div class="matchingRules" v-if="blockedBy.length > 0">
+					<p class="title">Message blocked by rule(s):</p>
+					<ul>
+						<li v-for="r in blockedBy">{{r.label}}</li>
+					</ul>
+				</div>
+				<div class="pass" v-else-if="testStr.length > 0">This message passes automod</div>
+			</section>
+
+			<section class="options">
+				<Splitter class="item splitter">Options</Splitter>
+				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" />
+				<div class="permsTitle">Exclude users from automod rules:</div>
+				<PermissionsForm class="perms" v-model="automodData.exludedUsers" />
+			</section>
 		</div>
 
 	</div>
 </template>
 
 <script lang="ts">
+import Splitter from '@/components/Splitter.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UnicodeUtils from '@/utils/UnicodeUtils';
 import Utils from '@/utils/Utils';
@@ -95,6 +97,7 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 	props:{},
 	components:{
 		Button,
+		Splitter,
 		ParamItem,
 		ToggleBlock,
 		ToggleButton,
@@ -271,7 +274,7 @@ export default class ParamsAutomod extends Vue {
 	.options{
 		margin-top: 1.5em;
 		.permsTitle {
-			margin-top: 1em;
+			margin-top: .5em;
 			margin-bottom: .5em;
 		}
 		.perms {
@@ -354,17 +357,23 @@ export default class ParamsAutomod extends Vue {
 		&:not(:first-child) {
 			margin-top: .5em;
 		}
+		&.splitter {
+			margin: .25em 0 1em 0;
+		}
 	}
 
 	.fadeHolder {
 		transition: opacity .2s;
 
-		.holder {
-			margin-top: 1em;
-			width: 100%;
+		section {
+			border-radius: .5em;
+			background-color: fade(@mainColor_normal_extralight, 30%);
+			padding: .5em;
+			margin-top: 2em;
 	
 			.addBt {
 				margin: auto;
+				margin-top: 1em;
 				display: block;
 			}
 	

@@ -40,6 +40,12 @@ export default class ChatNotice extends Vue {
 	public get classes():string[] {
 		let res = ["chatnotice"];
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR) res.push("alert");
+		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE) {
+			res.push("shield");
+			if((this.messageData as TwitchatDataTypes.MessageShieldMode).enabled) {
+				res.push("enabled");
+			}
+		}
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE) {
 			res.push("emergency");
 			if((this.messageData as TwitchatDataTypes.MessageEmergencyModeInfo).enabled) {
@@ -56,6 +62,7 @@ export default class ChatNotice extends Vue {
 
 	public mounted():void {
 		switch(this.messageData.noticeId) {
+			case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:	this.icon = "shield"; break;
 			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; break;
 		}
 		this.$store("accessibility").setAriaPolite(this.message);
@@ -90,7 +97,7 @@ export default class ChatNotice extends Vue {
 		}
 	}
 
-	&.emergency {
+	&.emergency, &.shield {
 		padding: .5em;
 		border-radius: .5em;
 		background-color: rgba(255, 255, 255, .15);

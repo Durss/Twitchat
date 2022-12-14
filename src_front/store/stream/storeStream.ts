@@ -15,6 +15,7 @@ export const storeStream = defineStore('stream', {
 		communityBoostState: undefined,
 		streamInfoPreset: [],
 		lastRaider: undefined,
+		shieldModeEnabled: false,
 		canStartAd: true,
 		commercialEnd: 0,//Date.now() + 120000,
 		startAdCooldown: 0,

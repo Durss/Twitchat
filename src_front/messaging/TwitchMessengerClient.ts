@@ -343,6 +343,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}).catch(()=>{/*ignore*/});
 					return true;
 				}
+				case "/shield": return await TwitchUtils.setShieldMode(channelId, true);
+				case "/shieldoff": return await TwitchUtils.setShieldMode(channelId, false);
 				case "/delete": return await TwitchUtils.deleteMessages(channelId, chunks[0]);
 				case "/clear": return await TwitchUtils.deleteMessages(channelId);
 				case "/color": return await TwitchUtils.setColor(chunks[0]);
