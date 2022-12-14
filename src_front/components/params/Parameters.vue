@@ -163,6 +163,7 @@ export default class Parameters extends Vue {
 	public content:TwitchatDataTypes.ParamsContentStringType = null;
 	public showAdInfo:boolean = false;
 
+	private closing:boolean = false;
 	private prevContent:TwitchatDataTypes.ParamsContentStringType = null;
 
 	public get isDonor():boolean { return false; }
@@ -256,9 +257,12 @@ export default class Parameters extends Vue {
 	}
 
 	public async close():Promise<void> {
+		if(this.closing) return;
+		this.closing = true;
 		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
 		gsap.to(this.$refs.holder as HTMLElement, {duration:.5, x:"100%", ease:"back.in", onComplete:()=> {
+			this.closing = false;
 			this.filteredParams = [];
 			this.$store("main").setShowParams(false);
 		}});
@@ -472,6 +476,10 @@ export default class Parameters extends Vue {
 			&:not(.menu) {
 				max-width: 600px;
 				margin: auto;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background-color: @mainColor_normal_extralight;
 			}
 		}
 	}

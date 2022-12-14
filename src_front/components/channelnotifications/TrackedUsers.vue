@@ -1,40 +1,42 @@
 <template>
 	<div :class="classes">
+		<Button class="backBt clearButton" v-if="selectedUser" :icon="$image('icons/back.svg')" @click="selectedUser = null" />
 		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/magnet.svg">Tracked users</h1>
 		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
 
-		<div class="content">
+		<div class="noMessage" v-if="selectedUser && messages.length == 0">no message</div>
 
-			<div v-if="selectedUser && messages.length == 0" class="noMessage">no message</div>
-
-			<div class="messages" v-else-if="selectedUser">
-				<ChatMessage v-for="(m, index) in messages" :key="index"
-					:messageData="m"
-					:lightMode="true"
-					:disableConversation="true"
-					class="message" />
-			</div>
-
-			<div v-if="!selectedUser" class="selectInfo">select a user ➡</div>
+		<div class="content messages" v-else-if="selectedUser" ref="messageList">
+			<ChatMessage v-for="(m, index) in messages" :key="index"
+				:messageData="m"
+				:lightMode="true"
+				:disableConversation="true"
+				class="message" />
 			
-			<div class="users">
-				<div class="user"
-				v-for="u in trackedUsers"
-				:key="u.id">
-					<Button class="login"
-						@click="selectUser(u)"
-						:title="u.displayName"
-						:selected="selectedUser?.id == u.id"
-						white
-						bounce />
-					<Button :icon="$image('icons/cross_white.svg')"
-						class="deleteBt"
-						bounce highlight
-					@click="untrackUser(u)" />
-				</div>
-			</div>
-
+			<Button class="refreshBt clearButton"
+				@click="refreshMessages()"
+				:icon="$image('icons/refresh.svg')"
+				:loading="refreshing" />
 		</div>
+
+		<div class="content users" v-else>
+			<div class="user"
+			v-for="u in trackedUsers"
+			:key="u.id">
+				<Button class="login"
+					@click="selectUser(u)"
+					:title="u.displayName"
+					white
+					small
+					bounce />
+				<Button :icon="$image('icons/cross_white.svg')"
+					class="deleteBt"
+					@click="untrackUser(u)"
+					small
+					bounce highlight />
+			</div>
+		</div>
+
 	</div>
 </template>
 
@@ -42,6 +44,7 @@
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
@@ -55,6 +58,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 })
 export default class TrackedUsers extends Vue {
 
+	public refreshing:boolean = false;
 	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
 	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public trackedUsers:TwitchatDataTypes.TwitchatUser[] = [];
@@ -76,10 +80,15 @@ export default class TrackedUsers extends Vue {
 			&& m.user.id == user.id) list.push(m);
 		}
 		this.messages = list;
+
+		this.$nextTick().then(()=>{
+			this.scrollToBottom();
+		})
 	}
 
 	public untrackUser(user:TwitchatDataTypes.TwitchatUser):void {
 		user.is_tracked = false;
+		this.onUpdateList();
 	}
 
 	public beforeMount(): void {
@@ -90,6 +99,13 @@ export default class TrackedUsers extends Vue {
 
 	public beforeUnmount(): void {
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateListHandler);
+	}
+
+	public async refreshMessages(): Promise<void> {
+		this.refreshing = true;
+		await Utils.promisedTimeout(250);
+		this.selectUser(this.selectedUser!);
+		this.refreshing = false;
 	}
 
 	private onUpdateList():void {
@@ -105,15 +121,28 @@ export default class TrackedUsers extends Vue {
 		this.$store("users").openUserCard(this.selectedUser);
 	}
 
+	private scrollToBottom():void {
+		const div = this.$refs.messageList as HTMLDivElement;
+		div.scrollTo(0, div.scrollHeight);
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .trackedusers{
 
+	.backBt {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		width: 1.5em;
+		height: 1.5em;
+	}
+
 	.title {
 		color: @mainColor_light;
-		width: 100%;
+		margin: auto;
 		text-align: center;
 		padding-bottom: 10px;
 		word-break: break-word;
@@ -129,24 +158,22 @@ export default class TrackedUsers extends Vue {
 	}
 
 	.content {
-
+		max-height: 300px;
+		overflow-y: auto;
 		display: flex;
-		flex-direction: row !important;
-		color: #fff;
-		.users {
-			display: flex;
-			flex-direction: column;
-			border-left: 1px solid #fff;
+		flex-direction: column;
+		
+		&.users {
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap:.5em;
 			padding-left: 5px;
-			max-width: 20%;
-			max-height: 300px;
-			overflow-y: auto;
+			flex-grow: 1;
 			.user {
 				display: flex;
 				flex-direction: row;
 				margin-bottom: 1px;
-				width: 100%;
-				max-width: 100%;
 				.login {
 					flex-grow: 1;
 					padding: .15em .25em;
@@ -154,14 +181,6 @@ export default class TrackedUsers extends Vue {
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
 					justify-content: flex-start;
-					:deep(i) {
-						font-size: .8em;
-					}
-					:deep(.label) {
-						font-size: .8em;
-						text-overflow: ellipsis;
-						overflow: hidden;
-					}
 				}
 	
 				.deleteBt {
@@ -176,40 +195,30 @@ export default class TrackedUsers extends Vue {
 			}
 		}
 	
-		.selectInfo {
-			align-self: center;
-			font-style: italic;
-			opacity: 0.5;
+		&.messages {
+			color: #fff;
 			padding-right: 5px;
-			flex-grow: 1;
-			text-align: right;
-		}
-	
-		.messages {
-			flex-grow: 1;
-			padding-right: 5px;
-			flex-grow: 1;
 			display: flex;
 			flex-direction: column;
 			justify-content: flex-start;
-			max-height: 300px;
-			overflow-y: auto;
 	
 			.message {
 				margin: .25em 0;
 			}
+
+			.refreshBt {
+				display: flex;
+				margin: auto;
+			}
 		}
-		.noMessage {
-			flex-grow: 1;
-			align-self: center;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-	
-			font-style: italic;
-			opacity: 0.5;
-		}
+	}
+
+	.noMessage {
+		display: block;
+		margin:auto;
+		color: @mainColor_light;
+		font-style: italic;
+		opacity: 0.5;
 	}
 
 

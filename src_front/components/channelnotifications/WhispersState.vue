@@ -1,45 +1,42 @@
 <template>
 	<div :class="classes">
+		<Button class="backBt clearButton" v-if="selectedUser" :icon="$image('icons/back.svg')" @click="selectedUser = null" />
 		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/whispers.svg">Whispers</h1>
 		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
-
-		<div class="content">
-		
-			<div class="whispers" v-if="selectedUser">
-				<div class="messages" ref="messageList">
-					<div v-for="m in $store('chat').whispers[selectedUser.id]" :key="m.id" :class="messageClasses(m)">
-						<span class="time" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
-						<div v-html="m.message_html"></div>
-					</div>
+	
+		<div class="content messages" v-if="selectedUser">
+			<div class="messageList" ref="messageList">
+				<div v-for="m in $store('chat').whispers[selectedUser.id]" :key="m.id" :class="messageClasses(m)">
+					<span class="time" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
+					<div v-html="m.message_html"></div>
 				</div>
-
-				<div v-if="error" class="error" @click="error = false">Unable to send whisper.<br>You must be at least affiliate but even if you are Twitch can randomly block whispers sent from outside of Twitch.</div>
-
-				<form @submit.prevent="sendWhisper()">
-					<input type="text" placeholder="answer..." class="dark" v-model="whisper" maxlength="500">
-					<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
-				</form>
 			</div>
 
-			<div v-if="!selectedUser" class="selectInfo">select a user ➡</div>
+			<div v-if="error" class="error" @click="error = false">Unable to send whisper.<br>You must be at least affiliate but even if you are Twitch can randomly block whispers sent from outside of Twitch.</div>
 
-			<div class="users">
-				<div class="user"
-				v-for="(w, uid) in $store('chat').whispers"
-				:key="uid">
-					<Button class="login"
-						@click="selectUser(w[0])"
-						:title="'<i>('+w.length+')</i> '+($store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName)"
-						:selected="selectedUser?.id == uid"
-						bounce
-						white
-						:data-tooltip="$store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName" />
-						
-					<Button :icon="$image('icons/cross_white.svg')"
-						class="deleteBt"
-						bounce highlight
-						@click="deleteWhispers(uid as string)" />
-				</div>
+			<form @submit.prevent="sendWhisper()">
+				<input type="text" placeholder="answer..." class="dark" v-model="whisper" maxlength="500">
+				<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
+			</form>
+		</div>
+
+		<div class="content users" v-else>
+			<div class="user"
+			v-for="(w, uid) in $store('chat').whispers"
+			:key="uid">
+				<Button class="login"
+					@click="selectUser(w[0])"
+					:title="'<i>('+w.length+')</i> '+($store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName)"
+					bounce
+					small
+					white
+					:data-tooltip="$store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName" />
+					
+				<Button :icon="$image('icons/cross_white.svg')"
+					class="deleteBt"
+					small
+					bounce highlight
+					@click="deleteWhispers(uid as string)" />
 			</div>
 		</div>
 	</div>
@@ -71,9 +68,6 @@ export default class WhispersState extends Vue {
 
 	public mounted():void {
 		this.$store("chat").whispersUnreadCount = 0;
-		// watch(() => this.$store("chat").whispers, () => {
-		// 	this.$store("chat").whispersUnreadCount = 0;
-		// }, {deep:true})
 	}
 
 	public messageClasses(whisper:TwitchatDataTypes.MessageWhisperData):string[] {
@@ -90,8 +84,7 @@ export default class WhispersState extends Vue {
 	public selectUser(m:TwitchatDataTypes.MessageWhisperData):void {
 		this.selectedUser = this.$store("auth").twitch.user.id == m.to.id? m.user : m.to;
 		this.$nextTick().then(()=>{
-			const div = this.$refs.messageList as HTMLDivElement;
-			div.scrollTo(0, div.scrollHeight);
+			this.scrollToBottom();
 		})
 	}
 
@@ -118,15 +111,28 @@ export default class WhispersState extends Vue {
 		this.$store("users").openUserCard(this.selectedUser);
 	}
 
+	private scrollToBottom():void {
+		const div = this.$refs.messageList as HTMLDivElement;
+		div.scrollTo(0, div.scrollHeight);
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .whispersstate{
 
+	.backBt {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		width: 1.5em;
+		height: 1.5em;
+	}
+
 	.title {
 		color: @mainColor_light;
-		width: 100%;
+		margin: auto;
 		text-align: center;
 		padding-bottom: 10px;
 		word-break: break-word;
@@ -142,25 +148,22 @@ export default class WhispersState extends Vue {
 	}
 
 	.content {
+		max-height: 300px;
+		overflow-y: auto;
 		display: flex;
-		flex-direction: row !important;
-		color: #fff;
-
+		flex-direction: column;
 		
-		.users {
-			display: flex;
-			flex-direction: column;
-			border-left: 1px solid #fff;
+		&.users {
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap:.5em;
 			padding-left: 5px;
-			max-width: 20%;
-			max-height: 300px;
-			overflow-y: auto;
+			flex-grow: 1;
 			.user {
 				display: flex;
 				flex-direction: row;
 				margin-bottom: 1px;
-				width: 100%;
-				max-width: 100%;
 				.login {
 					flex-grow: 1;
 					padding: .15em .25em;
@@ -168,14 +171,6 @@ export default class WhispersState extends Vue {
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
 					justify-content: flex-start;
-					:deep(i) {
-						font-size: .8em;
-					}
-					:deep(.label) {
-						font-size: .8em;
-						text-overflow: ellipsis;
-						overflow: hidden;
-					}
 				}
 	
 				.deleteBt {
@@ -190,25 +185,14 @@ export default class WhispersState extends Vue {
 			}
 		}
 
-		.selectInfo {
-			align-self: center;
-			font-style: italic;
-			opacity: 0.5;
-			padding-right: 5px;
-			flex-grow: 1;
-			text-align: right;
-		}
-
-		.whispers {
-			flex-grow: 1;
+		&.messages {
+			color: #fff;
 			padding-right: 5px;
 			display: flex;
-			font-size: 16px;
 			flex-direction: column;
 			justify-content: flex-start;
 
-			.messages {
-				max-height: 300px;
+			.messageList {
 				overflow-y: auto;
 
 				.message {

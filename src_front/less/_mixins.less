@@ -127,15 +127,7 @@
 
 	@media only screen and (max-width: 500px) {
 		&>.holder {
-			left: 0;
-			top: 0;
-			transform: none !important;
 			width: 100%;
-			height: 100%;
-		}
-
-		.dimmer {
-			display: none;
 		}
 	}
 }
@@ -205,6 +197,9 @@
 	}
 	&:hover {
 		background-color: fade(@mainColor_light, 20%) !important;
+	}
+	&:disabled {
+		background: none;
 	}
 }
 

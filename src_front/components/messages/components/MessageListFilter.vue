@@ -230,6 +230,7 @@ export default class MessageListFilter extends Vue {
 		const res = ["messagelistfilter"];
 		if(this.$store("params").appearance.splitViewVertical.value === true) res.push("verticalSplitMode");
 		if(this.expand || this.forceConfig) res.push("expand");
+		if(this.forceConfig) res.push("fullSize");
 		return res;
 	}
 
@@ -786,12 +787,6 @@ export default class MessageListFilter extends Vue {
 			.content {
 				width: 100%;
 				max-width: 100%;
-				.presets {
-					justify-content: center;
-					.button:not(:first-child) {
-						margin-left: .5em;
-					}
-				}
 				.paramsList {
 					display: flex;
 					flex-direction: row;
@@ -831,6 +826,10 @@ export default class MessageListFilter extends Vue {
 				}
 			}
 		}
+	}
+
+	&.fullSize {
+		max-width: 100%;
 	}
 
 	.hoverActions {
@@ -907,8 +906,12 @@ export default class MessageListFilter extends Vue {
 				flex-direction: row;
 				justify-content: space-around;
 				flex-wrap: wrap;
+				justify-content: center;
 				button {
 					margin-bottom: .5em;
+					&:not(:first-child) {
+						margin-left: .5em;
+					}
 				}
 			}
 

@@ -345,6 +345,7 @@ export default class ParamItem extends Vue {
 	.content {
 		display: flex;
 		flex-direction: row;
+		align-items: baseline;
 		transition: background-color .1s;
 
 		&:hover {
