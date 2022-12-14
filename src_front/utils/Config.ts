@@ -61,7 +61,7 @@ export default class Config {
 	}
 
 	public get BETA_MODE():boolean {
-		// return true;//Simulate beta env on local
+		return true;//Simulate beta env on local
 		return document.location.host.indexOf("beta") > -1;
 	}
 

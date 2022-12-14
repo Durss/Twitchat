@@ -16,7 +16,8 @@
 				<Button aria-label="Remove message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
 				<div class="title">🎉 Latest updates 🎉</div>
 				<div class="version">Version {{appVersion}}</div>
-				<div class="infos">Use <mark>/updates</mark> command to open this back</div>
+				<div>TODO :3</div>
+				<!-- <div class="infos">Use <mark>/updates</mark> command to open this back</div>
 				<div class="important">
 					<Splitter class="title">Important</Splitter>
 					<div class="details">
@@ -71,7 +72,7 @@
 				</div>
 				<div class="cta">
 					<Button aria-label="Close updates" @click.stop="deleteMessage()" title="OK got it" />
-				</div>
+				</div> -->
 			</div>
 	
 			<div v-if="isTip" class="tip">

@@ -9,8 +9,14 @@
 				<div class="message" id="highlight_message" v-html="message"></div>
 			</div>
 		</div>
-		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder" v-if="clipData" v-show="!loadingClip">
-			<iframe
+		
+		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder" v-if="clipData && clipData.mp4">
+			<video ref="video" id="clip_player" :src="clipData.mp4" autoplay @loadedmetadata="onClipStart()"></video>
+			<div class="clipProgress" id="clip_progressbar" :style="clipStyles"></div>
+		</div>
+		
+		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder" v-else-if="clipData" v-show="!loadingClip">
+			<iframe 
 				id="clip_player"
 				:src="clipData.url"
 				width="990"
@@ -116,7 +122,7 @@ export default class OverlayChatHighlight extends Vue {
 		await this.hideCurrent();
 
 		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
-		console.log(data);
+		
 		this.message = data.message!;
 		this.user = data.user!;
 		this.params = data.params!;
@@ -166,6 +172,24 @@ export default class OverlayChatHighlight extends Vue {
 				}
 			}, 50);
 		}, 500);
+	}
+
+	public async onClipStart():Promise<void> {
+		clearInterval(this.progressBarInterval);
+		this.loadingClip = false;
+		await this.$nextTick();
+		this.showCurrent();
+		let video = this.$refs.video as HTMLVideoElement;
+		const duration = this.clipData!.duration;
+		this.progressBarInterval = setInterval(()=> {
+			// this.clipPercent = (Date.now() - startTime) / (duration*1000);
+			this.clipPercent = video.currentTime/duration;
+			
+			if(this.clipPercent >= 1) {
+				clearInterval(this.progressBarInterval);
+				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {}, true);
+			}
+		}, 50);
 	}
 
 	private async hideCurrent():Promise<void> {
@@ -353,6 +377,9 @@ export default class OverlayChatHighlight extends Vue {
 			width: 100%;
 			height: 100%;
 			// aspect-ratio: 16/9;
+		}
+		video {
+			object-fit: cover;
 		}
 
 		.clipProgress {

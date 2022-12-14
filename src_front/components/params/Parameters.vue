@@ -1,6 +1,6 @@
 <template>
 	<div class="parameters">
-		<div class="dimmer" ref="dimmer" @click="close()"></div>
+		<div class="dimmer" ref="dimmer" @click="close()" v-if="$store('main').showParams"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
 				<Button aria-label="Back to menu" :icon="$image('icons/back_purple.svg')" @click="back()" class="clearButton" bounce v-if="content != null" />
@@ -159,7 +159,6 @@ export default class Parameters extends Vue {
 
 	public search = "";
 	public collapse = true;
-	public showMenu = false;
 	public filteredParams:TwitchatDataTypes.ParameterData[] = [];
 	public content:TwitchatDataTypes.ParamsContentStringType = null;
 	public showAdInfo:boolean = false;
@@ -222,6 +221,11 @@ export default class Parameters extends Vue {
 	public async mounted():Promise<void> {
 		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true";
 
+		watch(() => this.$store('main').showParams, (value) => {
+			if(value) this.open();
+			else this.close();
+		});
+
 		watch(() => this.content, () => {
 			if(this.content) this.filteredParams = [];
 		});
@@ -235,12 +239,15 @@ export default class Parameters extends Vue {
 			DataStore.set(DataStore.COLLAPSE_PARAM_AD_INFO, value);
 		});
 
+	}
+
+	public async open():Promise<void> {
 		await this.$nextTick();
-	
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
+
+		gsap.set(this.$refs.holder as HTMLElement, {x:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
-		
+		gsap.from(this.$refs.holder as HTMLElement, {duration:.5, x:"100%", ease:"back.out"});
+
 		if(this.search) {
 			await this.$nextTick();
 			this.content = null;
@@ -251,8 +258,7 @@ export default class Parameters extends Vue {
 	public async close():Promise<void> {
 		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.showMenu = false;
+		gsap.to(this.$refs.holder as HTMLElement, {duration:.5, x:"100%", ease:"back.in", onComplete:()=> {
 			this.filteredParams = [];
 			this.$store("main").setShowParams(false);
 		}});
@@ -314,11 +320,17 @@ export default class Parameters extends Vue {
 .parameters{
 	z-index: 3;
 	.modal();
+
+	.dimmer {
+		opacity: 0;
+	}
 	
 	.holder {
-		// top: 0;
-		// transform: translate(-50%, 0);
+		right: 0;
+		left: auto;
+		transform: translateX(100%);
 		z-index: 1;
+		max-width: 900px;
 
 		.head {
 			border-bottom: 1px solid @mainColor_normal;

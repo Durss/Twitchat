@@ -105,7 +105,7 @@
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
 		
-		<Parameters v-if="$store('main').showParams" />
+		<Parameters />
 		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 

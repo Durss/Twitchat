@@ -108,15 +108,15 @@ export default class DataServerSyncModal extends Vue {
 .dataserversyncmodal{
 	// visibility: hidden;
 	.modal();
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
 	z-index: 2;
 
 	.holder {
+		max-width: 600px;
+		height: auto;
 		z-index: 2;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
 		.head {
 			.title {
 				padding-left: 0;

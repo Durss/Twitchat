@@ -94,13 +94,13 @@
 				<div class="subtitle">Channel: {{clipInfo.broadcaster_name}}</div>
 				<div class="subtitle">Duration: {{clipInfo.duration}}s</div>
 				<div class="subtitle">Views: {{clipInfo.view_count}}</div>
+				<Button class="highlightBt" :aria-label="'Highlight message'" small
+					:icon="$image('icons/highlight.svg')"
+					data-tooltip="Show on stream<br><i>(needs overlay)</i>"
+					@click.stop="clipHighlight()"
+					:loading="clipHighlightLoading"
+				/>
 			</div>
-			<Button class="highlightBt" :aria-label="'Highlight message'" small
-				:icon="$image('icons/highlight.svg')"
-				data-tooltip="Show on stream<br><i>(needs overlay)</i>"
-				@click.stop="clipHighlight()"
-				:loading="clipHighlightLoading"
-			/>
 		</div>
 	</div>
 
@@ -535,6 +535,7 @@ export default class ChatMessage extends Vue {
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
 			clip:{
 				url:this.clipInfo!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
+				mp4:this.clipInfo!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 				duration:this.clipInfo!.duration,
 			},
 			params:this.$store("chat").chatHighlightOverlayParams,
@@ -778,27 +779,15 @@ export default class ChatMessage extends Vue {
 
 	.clip {
 		align-self: center;
-		display: inline-flex;
+		display: flex;
 		flex-direction: row;
-		align-items: center;
 		border-radius: .25em;
 		padding: .5em;
-		overflow: hidden;
-		margin: auto;
-		width: 100%;
 		cursor: pointer;
 		position: relative;
 
 		img {
-			width: 50%;
-			object-fit: cover;
-		}
-		.highlightBt {
-			position: absolute;
-			bottom: 0;
-			right: 0;
-			font-size: 1.25em;
-			border-bottom-right-radius: 0;
+			max-width: min(50%, 200px);
 		}
 
 		.infos {
@@ -811,6 +800,9 @@ export default class ChatMessage extends Vue {
 			.subtitle {
 				font-size: .8em;
 				color: fade(@mainColor_light, 70%);
+			}
+			.highlightBt {
+				font-size: 1.25em;
 			}
 		}
 	}
