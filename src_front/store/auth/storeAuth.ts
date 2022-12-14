@@ -162,7 +162,7 @@ export const storeAuth = defineStore('auth', {
 
 				this.authenticated = true;
 
-				//Check if user is part of the donors
+				//Check if user is part of the donors nor an admin
 				try {
 					const options = {
 						method: "GET",
@@ -171,14 +171,16 @@ export const storeAuth = defineStore('auth', {
 							"Authorization": "Bearer "+this.twitch.access_token,
 						},
 					}
-					const storeLevel = parseInt(DataStore.get(DataStore.DONOR_LEVEL))
-					const prevLevel = isNaN(storeLevel)? -1 : storeLevel;
-					const donorRes = await fetch(Config.instance.API_PATH+"/user/donor", options);
-					const donorJSON = await donorRes.json();
 					
-					this.twitch.user.donor.state	= donorJSON.data?.isDonor === true;
-					this.twitch.user.donor.level	= donorJSON.data?.level;
-					this.twitch.user.donor.upgrade	= donorJSON.data?.level != prevLevel;
+					const userStateRes = await fetch(Config.instance.API_PATH+"/user", options);
+
+					const storeLevel				= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
+					const prevLevel					= isNaN(storeLevel)? -1 : storeLevel;
+					const userJSON					= await userStateRes.json();
+					this.twitch.user.donor.state	= userJSON.data?.isDonor === true;
+					this.twitch.user.donor.level	= userJSON.data?.level;
+					this.twitch.user.donor.upgrade	= userJSON.data?.level != prevLevel;
+					if(userJSON.data?.isAdmin === true) this.twitch.user.is_admin = true;
 					DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
 				}catch(error) {}
 	

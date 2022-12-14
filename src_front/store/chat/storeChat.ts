@@ -145,6 +145,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"so",
 				cmd:"/so {user}",
+				alias:"/shoutout {user}",
 				details:"Shoutout a user",
 			},
 			{
@@ -264,6 +265,44 @@ export const storeChat = defineStore('chat', {
 				cmd:"/w {recipient} {message}",
 				alias:"/whisper {recipient} {message}",
 				details:"Send a whisper",
+			},
+			{
+				id:"shieldOn",
+				cmd:"/shield",
+				details:"Starts shield mode",
+			},
+			{
+				id:"shieldOff",
+				cmd:"/shieldoff",
+				details:"Stops shield mode",
+			},
+			{
+				id:"ttsOn",
+				cmd:"/tts {user}",
+				details:"Reads a user's messages",
+			},
+			{
+				id:"ttsOff",
+				cmd:"/ttsoff {user}",
+				details:"Stop reading a user's messages",
+			},
+			{
+				id:"betaadd",
+				cmd:"/betaAdd {user}",
+				details:"Add a user to the beta-testers",
+				needAdmin:true,
+			},
+			{
+				id:"betadel",
+				cmd:"/betaDel {user}",
+				details:"Removes a user from the beta-testers",
+				needAdmin:true,
+			},
+			{
+				id:"devmode",
+				cmd:"/devmode",
+				details:"Toggle dev mode",
+				needAdmin:true,
 			}
 		],
 

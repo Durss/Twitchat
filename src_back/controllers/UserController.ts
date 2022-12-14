@@ -27,6 +27,7 @@ export default class UserController extends AbstractController {
 	* PUBLIC METHODS *
 	******************/
 	public async initialize():Promise<void> {
+		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
 		this.server.get('/api/user/chatters', async (request, response) => await this.getChatters(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
@@ -38,6 +39,53 @@ export default class UserController extends AbstractController {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+
+	/**
+	 * Get a user's donor/admin state
+	 */
+	private async getUserState(request:FastifyRequest, response:FastifyReply) {
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		if(!userInfo) {
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send(JSON.stringify({message:"Invalid access token", success:false}));
+			return;
+		}
+
+		let user, level = -1;
+		if(fs.existsSync( Config.donorsList )) {
+			let json = [];
+			try {
+				json = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
+			}catch(error){
+				response.header('Content-Type', 'application/json');
+				response.status(404);
+				response.send(JSON.stringify({success:false, message:"Unable to load donors data file"}));
+				return;
+			}
+			user = json.hasOwnProperty(userInfo.user_id);
+			if(user) {
+				level = Config.donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
+			}
+		}
+
+		//Update user's storage file to get a little idea on how many people use twitchat
+		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
+		if(!fs.existsSync(userFilePath)) {
+			fs.writeFileSync(userFilePath, JSON.stringify({}), "utf8");
+		}else{
+			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
+		}
+
+		const data:{isDonor:boolean, level:number, isAdmin?:true} = {isDonor:user != undefined && level > -1, level};
+		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
+			data.isAdmin = true;
+		}
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, data}));
+	}
 
 	/**
 	 * Get/set a user's data

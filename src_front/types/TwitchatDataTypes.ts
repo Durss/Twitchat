@@ -288,6 +288,7 @@ export namespace TwitchatDataTypes {
 		details:string;
 		needChannelPoints?:boolean;
 		needTTS?:boolean;
+		needAdmin?:boolean;
 	}
 
 	/**
@@ -464,6 +465,7 @@ export namespace TwitchatDataTypes {
 		toUsers:string;
 		obsScene:string;
 		obsSources:string[];
+		autoEnableOnShieldmode:boolean;
 		enableShieldMode:boolean;
 		/**
 		 * @deprecated Only here for typings on data migration. Removed in favor of manual blocking after disabling emergency mode
@@ -607,6 +609,7 @@ export namespace TwitchatDataTypes {
 		is_affiliate:boolean;//Is Twitch affiliat
 		is_tracked:boolean;
 		is_bot:boolean;
+		is_admin?:boolean;
 		donor:{//Donor state of the user
 			state:boolean,
 			level:number,

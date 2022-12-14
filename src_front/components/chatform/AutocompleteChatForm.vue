@@ -20,6 +20,7 @@
 
 			<div class="name">{{i.label}}</div>
 			<div class="infos" v-if="i.type == 'cmd' && i.infos">{{i.infos}}</div>
+			<div class="name alias" v-if="i.type=='cmd' && i.alias">(alias: {{i.alias}})</div>
 		</div>
 	</div>
 </template>
@@ -182,32 +183,38 @@ export default class AutocompleteChatForm extends Vue {
 			if(this.commands) {
 				const cmds = sChat.commands;
 				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
+				const isAdmin = sAuth.twitch.user.is_admin === true;
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
-					if(e.cmd.toLowerCase().indexOf(s) > -1) {
+					if(e.cmd.toLowerCase().indexOf(s) > -1
+					|| e.alias?.toLowerCase().indexOf(s) > -1) {
+
 						//Remove TTS related commands if TTS isn't enabled
 						if(e.needTTS === true && !sTTS.params.enabled) continue;
+						
+						//Remove channel point related commands if user isn't affiliate or partner
+						if(e.needAdmin === true && !isAdmin) continue;
+						
 						//Remove channel point related commands if user isn't affiliate or partner
 						if(e.needChannelPoints === true && !hasChannelPoints) continue;
+
 						res.push({
 							type:"cmd",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),
 							cmd:e.cmd,
 							infos:e.details,
 							id:e.id,
+							alias:e.alias?.replace(/{(.*?)\}/gi, "$1"),
 						});
-						if(e.alias) {
-							res.push({
-								type:"cmd",
-								label:e.alias.replace(/{(.*?)\}/gi, "$1"),
-								cmd:e.alias,
-								infos:e.details,
-								id:e.id+"_alias",
-							});
-						}
 					}
 				}
 			}
+
+			res.sort((a,b)=> {
+				if(a.label < b.label) return -1;
+				if(a.label > b.label) return 1;
+				return 0;
+			})
 
 			this.filteredItems = res;
 		}
@@ -239,6 +246,7 @@ interface CommandItem {
 	label:string;
 	cmd:string;
 	infos:string;
+	alias?:string
 }
 </script>
 
@@ -264,6 +272,7 @@ interface CommandItem {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		flex-wrap: wrap;
 		cursor: pointer;
 
 		&.selected, &:hover {
@@ -304,6 +313,12 @@ interface CommandItem {
 			padding: 3px;
 			object-fit: contain;
 			margin-right: 10px;
+		}
+		.alias {
+			flex-basis: 100%;
+			margin-left: 3em;
+			font-style: italic;
+			opacity: .8;
 		}
 	}
 }
