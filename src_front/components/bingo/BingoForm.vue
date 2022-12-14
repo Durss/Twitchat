@@ -1,6 +1,5 @@
 <template>
 	<div :class="classes">
-		<div class="dimmer" ref="dimmer" @click="close()" v-if="triggerMode === false"></div>
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
 				<span class="title">Create Bingo</span>
@@ -127,7 +126,6 @@ export default class BingoForm extends Vue {
 		
 		if(!this.triggerMode) {
 			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		}
 		
@@ -140,8 +138,6 @@ export default class BingoForm extends Vue {
 	 * Close bingo form
 	 */
 	public async close():Promise<void> {
-		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
-		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
 		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
 			this.$emit('close');
 		}});

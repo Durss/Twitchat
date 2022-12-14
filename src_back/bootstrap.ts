@@ -113,7 +113,7 @@ server.setNotFoundHandler({
 // Run the server!
 const start = async () => {
 	try {
-		await server.listen({port:Config.SERVER_PORT, host:'0.0.0.0'});
+		await server.listen({port:Config.credentials.server_port, host:'0.0.0.0'});
 	} catch (err) {
 		server.log.error(err)
 		process.exit(1)
@@ -121,7 +121,7 @@ const start = async () => {
 	
 
 	Logger.success("=========================");
-	Logger.success("Server ready on port "+Config.SERVER_PORT);
+	Logger.success("Server ready on port "+Config.credentials.server_port);
 	Logger.success("=========================");
 }
 

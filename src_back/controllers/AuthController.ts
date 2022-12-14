@@ -3,6 +3,7 @@ import Logger from '../utils/Logger';
 import * as URL from "url";
 import Config from '../utils/Config';
 import * as jwt from 'jsonwebtoken';
+import * as fetch from "node-fetch";
 
 /**
 * Created : 13/03/2022 

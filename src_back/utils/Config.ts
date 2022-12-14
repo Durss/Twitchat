@@ -67,24 +67,17 @@ export default class Config {
 		});
 	}
 
-	public static get SERVER_PORT(): number {
-		return this.getEnvData({
-			dev: 3018,
-			prod: 3018,
-		});
-	}
-
 	public static get PUBLIC_ROOT(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../dist/"),
-			prod: path.join(__dirname, "/../../public/"),
+			prod: path.join(__dirname, "../public/"),
 		});
 	}
 
 	public static get USER_DATA_PATH(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../userData/"),
-			prod: path.join(__dirname, "/../../userData/"),
+			prod: path.join(__dirname, "../userData/"),
 		});
 	}
 
@@ -130,6 +123,8 @@ export default class Config {
 type EnvName = "dev" | "prod";
 
 interface Credentials {
+	server_port:number;
+
 	admin_ids: string[];
 	csrf_key: string;
 

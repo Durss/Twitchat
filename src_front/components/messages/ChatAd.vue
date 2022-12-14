@@ -101,13 +101,12 @@
 				</div>
 			</div>
 	
-			<div v-if="isAdWarning" class="adWarning">
+			<div v-if="isAdWarning">
 				<Button aria-label="Close message" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
 				<div class="title">IMPORTANT MESSAGE</div>
 				<div class="content left">
 					<img src="@/assets/icons/twitchat_purple.svg" alt="discord" class="icon">
-					<div v-if="isFreshAdWarning">This is a friendly reminder that, as stated in the previous update info, Twitchat will now send a message on your chat to let people know about it.</div>
-					<div v-if="!isFreshAdWarning">Twitchat is free for you to use but:</div>
+					<div>Twitchat is free for you to use but:</div>
 					<div>A message with a link to Twitchat will be sent every 2 hours on your chat <strong>with your account</strong> <i>(only if you received at least 100 messages during that timeframe)</i>.</div>
 					<div>The message won't be sent as long as a link to twitchat is sent by anyone on your chat during that 2h timeframe.</div>
 					<br>
@@ -204,7 +203,6 @@ export default class ChatAd extends Vue {
 	public get isDiscord():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DISCORD; }
 	public get isAdWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; }
 	public get isSponsorPublicPrompt():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
-	public get isFreshAdWarning():boolean { return this.appVersion == "6.1.3"; }
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 	
@@ -242,6 +240,7 @@ export default class ChatAd extends Vue {
 		this.elgatoIcon = await this.getSvgIcon("elgato");
 		this.followIcon = await this.getSvgIcon("follow");
 		this.kofiIcon = await this.getSvgIcon("kofi");
+		console.log(this.messageData);
 	}
 
 	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
@@ -338,6 +337,7 @@ export default class ChatAd extends Vue {
 			font-size: 2em;
 			text-shadow: 1px 1px 1px @mainColor_dark;
 			text-align: center;
+			line-height: 1.2em;
 			.ctaConfirm {
 				width: 100%;
 				max-width: 250px;

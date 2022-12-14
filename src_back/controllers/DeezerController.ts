@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import Config from "../utils/Config";
 import Logger from "../utils/Logger";
+import * as fetch from "node-fetch";
 
 /**
 * Created : 17/10/2022 

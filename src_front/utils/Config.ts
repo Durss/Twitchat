@@ -6,12 +6,6 @@ import StoreProxy from "@/store/StoreProxy";
 
 /**
  * Created by Durss
- * 
- * !!!!! IMPORTANT !!!!!
- * Do NOT use any reference to the store in this file.
- * This would generate a circular dependency as the store
- * uses this Config file.
- * 
  */
 export default class Config {
 

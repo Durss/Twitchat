@@ -4,6 +4,7 @@ import * as fs from "fs";
 import Config from '../utils/Config';
 import { schemaValidator } from '../utils/DataSchema';
 import * as JsonPatch from 'fast-json-patch';
+import * as fetch from "node-fetch";
 
 /**
 * Created : 13/03/2022 

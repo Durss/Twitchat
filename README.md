@@ -92,6 +92,7 @@ Documentation can be found [here](PUBLIC_API.md).
 First create a `credentials.json` file on the root directory and fill in these values :
 ```json
 {
+	"server_port": 3018,
 	"admin_ids": ["YOUR_TWITCH_ID"],
 	"csrf_key": "",
 
@@ -144,7 +145,7 @@ http://localhost:8080/oauth
 ```
 You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
 <br>
-By default the server listens on port 3018, you can change it on `server/utils/Config.js` and `src_front/utils/Config.ts`.
+By default the server listens on port 3018, you can change it on `credentials.json` and `src_front/utils/Config.ts`.
 
 <br>
 <br>
