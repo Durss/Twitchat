@@ -219,12 +219,12 @@ export default class NewUsers extends Vue {
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e:GlobalEvent):void {
-		const message = e.data as TwitchatDataTypes.MessageChatData;
+		const data = e.data as {message:TwitchatDataTypes.MessageChatData, force:boolean};
 		
 		//remove from displayed messages
 		for (let i = this.localMessages.length-1; i >= 0; i--) {
 			const m = this.localMessages[i];
-			if(m.id == message.id) {
+			if(m.id == data.message.id) {
 				this.localMessages.splice(i, 1);
 				break;
 			}

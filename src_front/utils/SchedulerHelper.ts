@@ -2,6 +2,7 @@ import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { TriggerScheduleTypes, TriggerTypes, type TriggerData, type TriggerScheduleData } from "../types/TriggerActionDataTypes";
+import Config from "./Config";
 import TriggerActionHandler from "./TriggerActionHandler";
 
 /**
@@ -206,6 +207,7 @@ export default class SchedulerHelper {
 			let schedule = trigger?.scheduleParams;
 			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				//No ad for donors unless requested
+				if(Config.instance.BETA_MODE) continue;//No ad on beta
 				if(StoreProxy.auth.twitch.user.donor.state
 				&& !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;
 				schedule = this._adSchedule;

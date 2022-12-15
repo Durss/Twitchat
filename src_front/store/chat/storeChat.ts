@@ -481,14 +481,14 @@ export const storeChat = defineStore('chat', {
 								if(!m.occurrenceCount) m.occurrenceCount = 0;
 								//Remove message
 								messageList.splice(i, 1);
-								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
 								m.occurrenceCount ++;
 								//Update timestamp
 								m.date = Date.now();
 								//Bring it back to bottom
 								messageList.push(m);
 								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, m));
-								messageList = messageList;	
+								messageList = messageList;
 								return;
 							}
 						}
@@ -770,7 +770,7 @@ export const storeChat = defineStore('chat', {
 						while(deletedMessages.length > 0) {
 							const m = deletedMessages.pop();
 							if(!m) continue;
-							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 						}
 						if(!postMessage) return;
 					}else{
@@ -919,7 +919,7 @@ export const storeChat = defineStore('chat', {
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 						//Called if closing an ad
 						messageList.splice(i, 1);
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 					}else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						const wsMessage = {
 							channel:m.channel_id,
@@ -946,7 +946,7 @@ export const storeChat = defineStore('chat', {
 						}
 					}
 					
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 					break;
 				}
 			}
@@ -973,7 +973,7 @@ export const storeChat = defineStore('chat', {
 					}, Math.floor(i/5)*50)
 
 					m.deleted = true;
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}
 		},
@@ -999,7 +999,7 @@ export const storeChat = defineStore('chat', {
 					}, Math.floor(i/5)*50)
 
 					m.deleted = true;
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}
 		},
@@ -1128,7 +1128,7 @@ export const storeChat = defineStore('chat', {
 						m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 					}
 					m.twitch_isSuspicious = true;
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, m));
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 					return;
 				}
 			}

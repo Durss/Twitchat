@@ -758,13 +758,25 @@ export default class MessageList extends Vue {
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e: GlobalEvent): void {
-		const message = e.data as TwitchatDataTypes.ChatMessageTypes;
+		const data = e.data as {message:TwitchatDataTypes.ChatMessageTypes, force:boolean};
 
 		//remove from displayed messages
 		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
 			const m = this.filteredMessages[i];
-			if (m.id == message.id) {
-				if(!this.shouldShowMessage(m) || m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
+			if (m.id == data.message.id) {
+				if(data.force===true
+				|| !this.shouldShowMessage(m)
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
+					if(m.markedAsRead) {
+						m.markedAsRead = false;
+						if(i>0) {
+							console.log("Mark next ?");
+							const newMessage = this.filteredMessages[i-1];
+							newMessage.markedAsRead = true;
+							const div = (this.$refs["message_" + newMessage.id] as HTMLDivElement[])[0];
+							this.markedReadItem = div;
+						}
+					}
 					this.filteredMessages.splice(i, 1);
 				}
 				return;
@@ -774,14 +786,14 @@ export default class MessageList extends Vue {
 		//Check if it's in the pending messages
 		for (let i = this.pendingMessages.length - 1; i >= 0; i--) {
 			const m = this.pendingMessages[i];
-			if (m.id == message.id) return
+			if (m.id == data.message.id) return
 		}
 
-		if(this.shouldShowMessage(message) && message.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
+		if(this.shouldShowMessage(data.message) && data.message.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 			if(this.pendingMessages.length > 0) {
-				this.pendingMessages.push(message);
+				this.pendingMessages.push(data.message);
 			}else{
-				this.filteredMessages.push(message);
+				this.filteredMessages.push(data.message);
 			}
 		}
 	}
