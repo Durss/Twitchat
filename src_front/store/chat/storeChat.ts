@@ -224,18 +224,6 @@ export const storeChat = defineStore('chat', {
 				needChannelPoints:false,
 			},
 			{
-				id:"vip",
-				cmd:"/vip {user}",
-				details:"Give VIP status to a user",
-				needChannelPoints:true,
-			},
-			{
-				id:"unvip",
-				cmd:"/unvip {user}",
-				details:"Remove VIP status from a user",
-				needChannelPoints:true,
-			},
-			{
 				id:"to",
 				cmd:"/timeout {user} {duration} {reason}",
 				details:"Ban a user temporarily",

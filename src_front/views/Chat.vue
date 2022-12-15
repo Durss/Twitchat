@@ -287,34 +287,6 @@ export default class Chat extends Vue {
 				console.error(`${error.name}, ${error.message}`);
 			}
 		};
-		requestWakeLock();
-
-		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
-		this.mouseUpHandler = () => this.resizing = false;
-		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
-
-		document.addEventListener("mouseup", this.mouseUpHandler);
-		document.addEventListener("touchend", this.mouseUpHandler);
-		document.addEventListener("mousemove", this.mouseMoveHandler);
-		document.addEventListener("touchmove", this.mouseMoveHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_START, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_END, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_START, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_END, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
-		this.onResize();
-		this.renderFrame();
 
 		//Auto opens the prediction status if pending for completion
 		watch(() => this.$store("prediction").data, (newValue, prevValue) => {
@@ -341,6 +313,11 @@ export default class Chat extends Vue {
 			let raffle = this.$store("raffle").data;
 			if(raffle && raffle.command) this.setCurrentNotification("raffle");
 		});
+
+		//Watch for columsn changes
+		watch(() => this.$store('params').chatColumnsConfig, () => {
+			this.computeWindowsSizes();
+		}, {deep:true});
 
 		watch(()=>this.currentModal, ()=>{
 			this.voiceControl = false;
@@ -379,6 +356,34 @@ export default class Chat extends Vue {
 				}
 			}
 		});
+
+		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
+		this.mouseUpHandler = () => this.resizing = false;
+		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
+
+		document.addEventListener("mouseup", this.mouseUpHandler);
+		document.addEventListener("touchend", this.mouseUpHandler);
+		document.addEventListener("mousemove", this.mouseMoveHandler);
+		document.addEventListener("touchmove", this.mouseMoveHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_START, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_END, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_START, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_END, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
+		this.onResize();
+		this.renderFrame();
+		requestWakeLock();
 	}
 
 	public mounted():void {
@@ -644,13 +649,12 @@ export default class Chat extends Vue {
 				}else{
 					c.size = Math.max(215, this.mouseX - bounds.left + 7) / holderBounds.width;
 				}
-				this.computeWindowsSizes()
 			}
 		}
 		
 		this.$store('params').saveChatColumnConfs();
 
-		await this.$nextTick();
+		this.computeWindowsSizes();
 	}
 
 	/**
@@ -659,28 +663,28 @@ export default class Chat extends Vue {
 	 * its size if any so the messages stay visible.
 	 * If none found, the windows will just be displayed full screen.
 	 */
-	private computeWindowsSizes():void {
+	private async computeWindowsSizes():Promise<void> {
+		await this.$nextTick();
 		const cols = this.$store('params').chatColumnsConfig;
 		cols.sort((a,b)=> a.order - b.order);
 		let selectedCol!:HTMLDivElement;
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
-			if(c.messageFilters.viewers !== true) {
+			if(c.messageFilters.viewers !== true || c.filters.message !== true) {
 				const colHolders = this.$refs["column_"+c.id] as HTMLDivElement[];
 				if(!colHolders) continue; 
 				const colHolder = colHolders[0];
 				if(colHolder) {
 					selectedCol = colHolder;
-					this.formsColumnTarget = colHolder.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 					break;
 				}
 			}
 		}
 
-		if(!this.formsColumnTarget) {
+		if(!selectedCol) {
 			selectedCol = (this.$refs["column_"+cols[cols.length-1].id] as HTMLDivElement[])[0];
-			this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 		}
+		this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 	}
 }
 

@@ -431,10 +431,8 @@ export const storeMain = defineStore("main", {
 				//Chat feed
 				let col = sParams.addChatColumn();
 				col.size = 1/2;
-				col.filters.join = true;
 				col.filters.message = true;
 				col.filters.whisper = true;
-				col.filters.leave = true;
 				col.filters.twitchat_ad = true;
 				
 				//Activity feed
