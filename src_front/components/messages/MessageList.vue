@@ -770,7 +770,6 @@ export default class MessageList extends Vue {
 					if(m.markedAsRead) {
 						m.markedAsRead = false;
 						if(i>0) {
-							console.log("Mark next ?");
 							const newMessage = this.filteredMessages[i-1];
 							newMessage.markedAsRead = true;
 							const div = (this.$refs["message_" + newMessage.id] as HTMLDivElement[])[0];
