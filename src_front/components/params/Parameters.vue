@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()" v-if="$store('main').showParams"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<Button aria-label="Back to menu" :icon="$image('icons/back_purple.svg')" @click="back()" class="clearButton" bounce v-if="content != null" />
+				<Button aria-label="Back to menu" :icon="$image('icons/back_purple.svg')" @click="back()" class="backBt clearButton" bounce v-if="content != null" />
 				<h1 class="title">{{(title ?? "Parameters")}}</h1>
 				<Button aria-label="Close parameters" :icon="$image('icons/cross.svg')" @click="close()" class="clearButton" bounce />
 			</div>
@@ -412,6 +412,11 @@ export default class Parameters extends Vue {
 		.head {
 			border-bottom: 1px solid @mainColor_normal;
 			padding-bottom: .5em;
+			&:has(.backBt) {
+				h1 {
+					padding-left: 0;
+				}
+			}
 		}
 
 		.ad {
@@ -476,9 +481,6 @@ export default class Parameters extends Vue {
 				padding: .25em .5em;
 				border-radius: .5em;
 				background-color: @mainColor_dark;
-				.message {
-					// background-color: @mainColor_dark;
-				}
 			}
 		}
 
