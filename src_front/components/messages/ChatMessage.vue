@@ -216,7 +216,8 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get showModTools():boolean {
-		return this.showModToolsPreCalc && this.$store("params").features.showModTools.value === true && this.messageData.user.id != this.messageData.channel_id;
+		return this.showModToolsPreCalc
+		&& this.$store("params").features.showModTools.value === true;
 	}
 
 	public get time():string {
@@ -361,8 +362,8 @@ export default class ChatMessage extends Vue {
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id
-									// && (this.channelInfo.is_moderator===true || this.channelInfo.is_broadcaster===true);
+									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id//if not broadcaster
+									&& StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator;//If mod
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
