@@ -94,7 +94,7 @@ export default class PostOnChatParam extends Vue {
 
 		this.error = ""
 		if(this.botMessageKey == "twitchatAd") {
-			if(!/(^|\s|\.|,|https?:\/\/)twitchat\.fr($|\s|\.|,)/gi.test(this.textParam.value as string)) {
+			if(!/(^|\s|\.|,|!|\:|;|\*|https?:\/\/)twitchat\.fr($|\s|\.|,|!|\:|;|\*)/gi.test(this.textParam.value as string)) {
 				this.error = "Message must contain \"twitchat.fr\"";
 			}
 		}
