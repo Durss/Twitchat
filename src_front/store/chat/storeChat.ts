@@ -1031,17 +1031,16 @@ export const storeChat = defineStore('chat', {
 				await MessengerProxy.instance.sendMessage(message);
 				
 				if(user) {
-					const so:TwitchatDataTypes.MessageShoutoutData = {
+					const so:TwitchatDataTypes.MessageShoutoutTwitchatData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:user.platform,
-						type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
+						type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT_TWITCHAT,
 						user,
 						stream:{
 							title:streamTitle,
 							category:streamCategory,
 						},
-						received:false,
 						viewerCount:StoreProxy.stream.playbackState?.viewers ?? 0,
 					};
 					this.addMessage(so);

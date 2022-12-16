@@ -4,7 +4,7 @@
 		<div class="row" v-for="(p) in params" :key="p.id">
 
 			<!-- Special case for shoutout label -->
-			<PostOnChatParam class="item" v-if="p.id==21"
+			<PostOnChatParam class="item" v-if="p.id==25"
 				icon="shoutout_purple.svg"
 				botMessageKey="shoutout"
 				:noToggle="true"
@@ -12,38 +12,38 @@
 				:placeholders="soPlaceholders"
 			/>
 
-			<ParamItem class="item" :paramData="p" save>
-			
-			<transition
-				@enter="onShowItem"
-				@leave="onHideItem"
-			>
-				<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
-					<img src="@/assets/icons/infos.svg" alt="info">
-					<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentObs)">OBS tab</a></p>
-				</div>
-				
-				<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
-					<p class="label">based on
-						<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
-						and
-						<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
-					</p>
-				</div>
-
-				<div v-else-if="p.id == 215 && p.value === true" class="info config">
-					<Button small title="Configure" @click="$emit('setContent', contentEmergency)" />
-				</div>
-
-				<div v-else-if="p.id == 216 && p.value === true" class="info config">
-					<Button small title="Configure" @click="$emit('setContent', contentSpoiler)" />
-				</div>
-
-				<div v-else-if="p.id == 217 && p.value === true" class="info config">
-					<Button small title="Configure" @click="$emit('setContent', contentAlert)" />
-				</div>
-			</transition>
-			</ParamItem>
+			<div class="item">
+				<ParamItem :paramData="p" save />
+				<transition
+					@enter="onShowItem"
+					@leave="onHideItem"
+				>
+					<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
+						<img src="@/assets/icons/infos.svg" alt="info">
+						<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentObs)">OBS tab</a></p>
+					</div>
+					
+					<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
+						<p class="label">based on
+							<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
+							and
+							<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
+						</p>
+					</div>
+	
+					<div v-else-if="p.id == 215 && p.value === true" class="info config">
+						<Button small title="Configure" @click="$emit('setContent', contentEmergency)" />
+					</div>
+	
+					<div v-else-if="p.id == 216 && p.value === true" class="info config">
+						<Button small title="Configure" @click="$emit('setContent', contentSpoiler)" />
+					</div>
+	
+					<div v-else-if="p.id == 217 && p.value === true" class="info config">
+						<Button small title="Configure" @click="$emit('setContent', contentAlert)" />
+					</div>
+				</transition>
+			</div>
 
 		</div>
 	</div>
@@ -85,7 +85,6 @@ export default class ParamsList extends Vue {
 			case 'features': return "Features";
 			case 'appearance': return "Appearance";
 		}   
-		return ""
 	}
 
 	public get icon():string {
@@ -204,9 +203,6 @@ export default class ParamsList extends Vue {
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
 			}
-			// &:not(:has(.icon)) {
-			// 	padding-left: 1.75em;
-			// }
 		}
 		
 		:deep(input[type='range']) {
@@ -247,9 +243,6 @@ export default class ParamsList extends Vue {
 				}
 			}
 	
-			&.info {
-				padding-left: 0;
-			}
 		}
 	}
 }

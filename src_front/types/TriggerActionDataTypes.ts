@@ -172,6 +172,8 @@ export const TriggerTypes = {
 	COMMUNITY_CHALLENGE_PROGRESS:"43",
 	COMMUNITY_CHALLENGE_COMPLETE:"44",
 	PRESENTATION:"46",
+	SHOUTOUT_IN:"47",
+	SHOUTOUT_OUT:"48",
 
 	TWITCHAT_AD:"ad",
 } as const;
@@ -238,6 +240,13 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.RAID] = [
 		{tag:"USER", desc:"User name of the new follower", pointer:"user.displayName"},
 		{tag:"VIEWERS", desc:"Number of viewers", pointer:"viewers"},
+	];
+	
+	map[TriggerTypes.SHOUTOUT_IN] = [
+		{tag:"USER", desc:"User that gave us a shoutout", pointer:"user.displayName"},
+	];
+	map[TriggerTypes.SHOUTOUT_OUT] = [
+		{tag:"USER", desc:"User you gave a shoutout to", pointer:"user.displayName"},
 	];
 	
 	map[TriggerTypes.REWARD_REDEEM] = [
@@ -366,6 +375,8 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.USER, icon:"presentation", label:"User presentation", value:TriggerTypes.PRESENTATION, description:"Execute an action when a user sends a presentation message.", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 	{category:TriggerEventTypeCategories.USER, icon:"follow", label:"Follow", value:TriggerTypes.FOLLOW, description:"Execute an action when someone follows the channel", testMessageType:TwitchatDataTypes.TwitchatMessageType.FOLLOWING},
 	{category:TriggerEventTypeCategories.USER, icon:"raid", label:"Raid", value:TriggerTypes.RAID, description:"Execute an action when someone raids the channel", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID},
+	{category:TriggerEventTypeCategories.USER, icon:"shoutout", label:"Shoutout given", value:TriggerTypes.SHOUTOUT_OUT, description:"Execute an action when giving a shoutout to someone", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
+	{category:TriggerEventTypeCategories.USER, icon:"shoutout", label:"Shoutout received", value:TriggerTypes.SHOUTOUT_IN, description:"Execute an action when given a shoutout on another channel", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
 	{category:TriggerEventTypeCategories.GAMES, icon:"poll", label:"Poll result", value:TriggerTypes.POLL_RESULT, description:"Execute an action when a poll completes", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},
 	{category:TriggerEventTypeCategories.GAMES, icon:"prediction", label:"Prediction result", value:TriggerTypes.PREDICTION_RESULT, description:"Execute an action when a prediction completes", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
 	{category:TriggerEventTypeCategories.GAMES, icon:"ticket", label:"Raffle result", value:TriggerTypes.RAFFLE_RESULT, description:"Execute an action when a raffle completes", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},

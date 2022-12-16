@@ -735,6 +735,7 @@ export namespace TwitchatDataTypes {
 		CHAT_HIGHLIGHT:"chat_highlight",
 		FOLLOWBOT_LIST:"followbot_list",
 		HYPE_TRAIN_START:"hype_train_start",
+		SHOUTOUT_TWITCHAT:"shoutout_twitchat",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
@@ -781,6 +782,7 @@ export namespace TwitchatDataTypes {
 		followbot_list:true,
 		hype_train_start:false,
 		hype_train_cancel:false,
+		shoutout_twitchat:false,
 		hype_train_summary:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
@@ -856,6 +858,7 @@ export namespace TwitchatDataTypes {
 									MessageMusicStartData |
 									MessageMusicAddedToQueueData |
 									MessageShoutoutData |
+									MessageShoutoutTwitchatData |
 									MessageVoicemodData |
 									MessageChatHighlightData |
 									MessageConnectData |
@@ -1351,6 +1354,19 @@ export namespace TwitchatDataTypes {
 	export interface MessageShoutoutData extends AbstractTwitchatMessage {
 		type:"shoutout";
 		received:boolean;//If true it means that the shoutout has been given to self on another channel
+		viewerCount:number;
+		user:TwitchatDataTypes.TwitchatUser;
+		stream:{
+			title: string;
+			category: string;
+		};
+	}
+
+	/**
+	 * Represents a twitchat's shoutout data
+	 */
+	export interface MessageShoutoutTwitchatData extends AbstractTwitchatMessage {
+		type:"shoutout_twitchat";
 		viewerCount:number;
 		user:TwitchatDataTypes.TwitchatUser;
 		stream:{
