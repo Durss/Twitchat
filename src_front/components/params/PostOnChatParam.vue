@@ -1,11 +1,16 @@
 <template>
 	<div class="postonchatparam">
 
-		<ParamItem :clearToggle="clearToggle" class="parameter" :paramData="enabledParam" ref="paramItem" :error="error != ''" />
+		<ParamItem class="parameter" ref="paramItem"
+			:clearToggle="clearToggle"
+			:paramData="enabledParam"
+			:error="error != ''"
+		/>
 
 		<div v-if="error" class="errorMessage">{{error}}</div>
 		
-		<PlaceholderSelector class="placeholders" v-if="placeholderTarget && placeholders && enabledParam.value===true"
+		<PlaceholderSelector class="placeholders"
+			v-if="placeholderTarget && placeholders && enabledParam.value===true"
 			:target="placeholderTarget"
 			:placeholders="placeholders"
 			v-model="textParam.value"
@@ -89,7 +94,7 @@ export default class PostOnChatParam extends Vue {
 
 		this.error = ""
 		if(this.botMessageKey == "twitchatAd") {
-			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(this.textParam.value as string)) {
+			if(!/(^|\s|\.|,|https?:\/\/)twitchat\.fr($|\s|\.|,)/gi.test(this.textParam.value as string)) {
 				this.error = "Message must contain \"twitchat.fr\"";
 			}
 		}

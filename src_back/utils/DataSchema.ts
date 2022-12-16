@@ -7,39 +7,6 @@ import Ajv from "ajv";
 	type:"object",
 	additionalProperties: false,
 	properties:{
-		activityFeedFilters: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				sub:{
-					type:"boolean",
-				},
-				follow:{
-					type:"boolean",
-				},
-				bits:{
-					type:"boolean",
-				},
-				raid:{
-					type:"boolean",
-				},
-				rewards:{
-					type:"boolean",
-				},
-				poll:{
-					type:"boolean",
-				},
-				prediction:{
-					type:"boolean",
-				},
-				bingo:{
-					type:"boolean",
-				},
-				raffle:{
-					type:"boolean",
-				}
-			}
-		},
 		obsConnectionEnabled: {type:"boolean"},
 		obsConf_muteUnmute: {
 			type:"object",
@@ -360,6 +327,39 @@ import Ajv from "ajv";
 		"p:splitViewSwitch": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
 		leftColSize: {type:"number"},//Keep it a little to avoid loosing data, remove it later
+		activityFeedFilters: {//Keep it a little to avoid loosing data, remove it later
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				sub:{
+					type:"boolean",
+				},
+				follow:{
+					type:"boolean",
+				},
+				bits:{
+					type:"boolean",
+				},
+				raid:{
+					type:"boolean",
+				},
+				rewards:{
+					type:"boolean",
+				},
+				poll:{
+					type:"boolean",
+				},
+				prediction:{
+					type:"boolean",
+				},
+				bingo:{
+					type:"boolean",
+				},
+				raffle:{
+					type:"boolean",
+				}
+			}
+		},
 		v: {type:"integer"},
 		collapseParamAdInfo: {type:"boolean"},
 		obsIP: {type:"string"},

@@ -205,10 +205,12 @@ export default class ChatMessage extends Vue {
 				res.push("deleted");
 				if(censorDeletedMessages) res.push("censor");
 			}
-			if(this.channelInfo.is_moderator && highlightMods)			res.push("highlightMods");
-			else if(this.channelInfo.is_vip && highlightVips)			res.push("highlightVips");
-			else if(this.channelInfo.is_subscriber && 
-			!this.channelInfo.is_broadcaster && highlightSubs)			res.push("highlightSubs");
+			if(!this.lightMode) {
+				if(this.channelInfo.is_moderator && highlightMods)		res.push("highlightMods");
+				else if(this.channelInfo.is_vip && highlightVips)		res.push("highlightVips");
+				else if(this.channelInfo.is_subscriber && 
+				!this.channelInfo.is_broadcaster && highlightSubs)		res.push("highlightSubs");
+			}
 			if(spoilersEnabled && this.messageData.spoiler === true)	res.push("spoiler");
 		}
 
@@ -913,6 +915,8 @@ export default class ChatMessage extends Vue {
 			flex-direction: row;
 			justify-content: center;
 			background-color: rgba(255, 255, 255, .1);
+			width: calc(100% + .5em);
+			margin-left: -.25em;
 
 			img {
 				height: 1em;
@@ -935,6 +939,8 @@ export default class ChatMessage extends Vue {
 		&.orange {
 			border-image-source: linear-gradient(#ffb31a,#e0e000);
 		}
+
+		padding: 0 .25em;
 	}
 }
 </style>

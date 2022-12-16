@@ -259,8 +259,8 @@ export default class TwitchUtils {
 
 		if(!emotes || emotes.length == 0) {
 			//Attempt to parse emotes manually.
-			//Darn IRC that doesn't sends back proper emotes tag 
-			//to its sender...
+			//TMI doesn't sends back proper emotes tag when sending
+			//a message...
 			//Parses for all emotes and generates a fake "emotes"
 			//tag as if it was sent by IRC.
 			if(customParsing && this.emotesCacheHashmap) {
@@ -270,11 +270,12 @@ export default class TwitchUtils {
 				// const start = Date.now();
 				const chunks = message.split(/\s/);
 				for (let i = 0; i < chunks.length; i++) {
-					const txt = chunks[i];
+					const txt = chunks[i].replace(/[^a-z0-9]+$/gi, "").replace(/^[^a-z0-9]+/gi, "");
 					if(emoteListHashmap[txt]) {
 						emoteList.push( emoteListHashmap[txt] );
 					}
 				}
+				console.log(emoteList);
 				
 				//Parse emotes
 				const tagsDone:{[key:string]:boolean} = {};
@@ -298,8 +299,8 @@ export default class TwitchUtils {
 
 							if(range[start] === true || range[end] === true) continue;
 							
-							const prevOK = start == 0 || /\s/.test(message.charAt(start-1));
-							const nextOK = end == message.length-1 || /\s/.test(message.charAt(end+1));
+							const prevOK = start == 0 || /[^0-9a-z]/i.test(message.charAt(start-1));
+							const nextOK = end == message.length-1 || /[^0-9a-z]/i.test(message.charAt(end+1));
 							//Emote has no space before or after or is not at the start or end of the message
 							//ignore it.
 							if(!prevOK || !nextOK) continue;

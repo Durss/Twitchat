@@ -13,65 +13,25 @@
 			</div>
 			
 			<div class="content menu" v-if="content == null && !search">
-				<div :class="collapse? 'ad collapse' : 'ad'" v-if="!isDonor">
-					<Button v-if="!collapse"
-						aria-label="collapse content"
-						:icon="$image('icons/cross_white.svg')"
-						@click="collapse = true"
-						class="close clearButton" bounce />
-					<img src="@/assets/icons/twitchat.svg"
-						alt="twitchat"
-						style="height:2em;"
-						@click="collapse = false">
-					<PostOnChatParam
-						botMessageKey="twitchatAd"
-						:noToggle="true"
-						title="The following message will be posted on your chat every 2 hours (if you received at least 100 messages)"
-						v-if="!collapse"
-					/>
-					<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
-						@click="showAdInfo=true"
-						title="Disable this ad"
-						v-if="!showAdInfo && !collapse" />
-					<div v-if="showAdInfo && !collapse" class="donateDetails">
-						<p class="title">To disable this ad, make any donation :)</p>
-						<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
-						<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" title="Donate 💝" />
-					</div>
-					<ToggleBlock v-if="!collapse" class="tip" :open="false" title="Can this message be sent by nightbot / wizebot / ... ? " small>
-						Yes.<br>
-						<br>
-						By default the message is posted with your account.<br>
-						But you can configure any other bot to send that message if you wish.<br>
-						<br>
-						Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.<br>
-					</ToggleBlock>
-				</div>
+				<div ref="adNoDonor"></div>
 
 				<div class="buttonList">
 					<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent(contentFeatures)" />
 					<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
 					<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
-					<Button class="beta1" bounce white :icon="$image('icons/mod_purple.svg')" title="Automod messages" @click="setContent(contentAutomod)" />
-					<Button class="beta2" bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
-					<Button class="beta2" bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
-					<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
+					<Button bounce white :icon="$image('icons/mod_purple.svg')" title="Automod messages" @click="setContent(contentAutomod)" />
 					<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
+					<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
+					<Button bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
+					<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
 					<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
-					<Button class="beta2" bounce white :icon="$image('icons/voicemod_purple.svg')" title="Voicemod" @click="setContent(contentVoicemod)" />
+					<Button bounce white :icon="$image('icons/voicemod_purple.svg')" title="Voicemod" @click="setContent(contentVoicemod)" />
 					<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent(contentStreamdeck)" />
 					<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent(contentAccount)" />
 					<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent(contentAbout)" />
 				</div>
 
-				<div class="ad" v-if="isDonor">
-					<PostOnChatParam class="row"
-						clearToggle
-						icon="twitchat.svg"
-						botMessageKey="twitchatAd"
-						title="Share a Twitchat link every 2 hours on your chat (if you received at least 100 messages)"
-					/>
-				</div>
+				<div ref="adDonor"></div>
 
 				<div class="version">v {{appVersion}}</div>
 			</div>
@@ -98,6 +58,51 @@
 					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
 				</div>
 			</div>
+
+			<teleport :to="adTarget" v-if="adTarget">
+				<div :class="collapse? 'ad collapse' : 'ad'">
+					<Button v-if="!collapse"
+						aria-label="collapse content"
+						:icon="$image('icons/cross_white.svg')"
+						@click="collapse = true"
+						class="close clearButton" bounce />
+					<img src="@/assets/icons/twitchat.svg"
+						alt="twitchat"
+						style="height:2em;"
+						@click="collapse = false">
+					<PostOnChatParam
+						botMessageKey="twitchatAd"
+						:noToggle="true"
+						title="The following message will be posted on your chat every 2 hours (if you received at least 100 messages)"
+						v-if="!collapse"
+					/>
+
+					<div class="adPreview" v-if="!collapse">
+						<ChatMessage class="message"
+							v-if="adPreview"
+							lightMode
+							:messageData="adPreview" />
+					</div>
+
+					<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
+						@click="showAdInfo=true"
+						title="Disable this ad"
+						v-if="!showAdInfo && !collapse && !isDonor" />
+					<div v-if="showAdInfo && !collapse && !isDonor" class="donateDetails">
+						<p class="title">To disable this ad, make any donation :)</p>
+						<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
+						<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" title="Donate 💝" />
+					</div>
+					<ToggleBlock v-if="!collapse && !isDonor" class="tip" :open="false" title="Can this message be sent by nightbot / wizebot / ... ? " small>
+						Yes.<br>
+						<br>
+						By default the message is posted with your account.<br>
+						But you can configure any other bot to send that message if you wish.<br>
+						<br>
+						Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.<br>
+					</ToggleBlock>
+				</div>
+			</teleport>
 		</div>
 	</div>
 </template>
@@ -105,10 +110,13 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
+import ChatMessage from '../messages/ChatMessage.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamsAbout from './contents/ParamsAbout.vue';
@@ -137,6 +145,7 @@ import PostOnChatParam from './PostOnChatParam.vue';
 		ParamsOBS,
 		ParamsTTS,
 		ParamsList,
+		ChatMessage,
 		ParamsAbout,
 		ParamsAlert,
 		ToggleBlock,
@@ -162,11 +171,13 @@ export default class Parameters extends Vue {
 	public filteredParams:TwitchatDataTypes.ParameterData[] = [];
 	public content:TwitchatDataTypes.ParamsContentStringType = null;
 	public showAdInfo:boolean = false;
+	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
+	public adTarget:HTMLDivElement | null = null;
 
 	private closing:boolean = false;
 	private prevContent:TwitchatDataTypes.ParamsContentStringType = null;
 
-	public get isDonor():boolean { return false; }
+	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
 	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.APPEARANCE; } 
 	public get contentFilters():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.FILTERS; } 
 	public get contentAccount():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ACCOUNT; } 
@@ -199,6 +210,7 @@ export default class Parameters extends Vue {
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public async beforeMount():Promise<void> {
+		this.updateAdPreview();
 		const v = this.$store("main").tempStoreValue as string;
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
@@ -221,6 +233,8 @@ export default class Parameters extends Vue {
 
 	public async mounted():Promise<void> {
 		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true";
+		this.adTarget = this.$refs[this.isDonor? "adDonor" : "adNoDonor"] as HTMLDivElement;
+		console.log(">>>>", this.adTarget);
 
 		watch(() => this.$store('main').showParams, (value) => {
 			if(value) this.open();
@@ -238,6 +252,10 @@ export default class Parameters extends Vue {
 
 		watch(() => this.collapse, (value:boolean) => {
 			DataStore.set(DataStore.COLLAPSE_PARAM_AD_INFO, value);
+		});
+
+		watch(() => this.$store("chat").botMessages.twitchatAd.message, () => {
+			this.updateAdPreview();
 		});
 
 	}
@@ -317,6 +335,34 @@ export default class Parameters extends Vue {
 			}
 		}
 	}
+	public async updateAdPreview():Promise<void> {
+		this.adPreview = null;
+		await this.$nextTick();
+		// await Utils.promisedTimeout(500);
+		const me = this.$store("auth").twitch.user;
+		let rawMessage = this.$store("chat").botMessages.twitchatAd.message;
+		let announcementColor:"primary" | "purple" | "blue" | "green" | "orange" | undefined = undefined;
+		if(rawMessage.indexOf("/announce") == 0) {
+			announcementColor = rawMessage.replace(/\/announce([a-z]+)?\s.*/i, "$1") as "primary" | "purple" | "blue" | "green" | "orange";
+			rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
+		}
+		console.log(rawMessage);
+		const message = TwitchUtils.parseEmotes(rawMessage, undefined, false, true);
+		this.adPreview = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			channel_id:me.id,
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			answers:[],
+			user:me,
+			twitch_announcementColor:announcementColor,
+			is_short:false,
+			message:rawMessage,
+			message_html:message,
+			message_no_emotes:Utils.stripHTMLTags(message),
+		};
+	}
 }
 </script>
 
@@ -387,6 +433,7 @@ export default class Parameters extends Vue {
 			}
 			.donateDetails {
 				display: block;
+				line-height: 1.25em;
 				margin: .5em auto 0 auto;
 			}
 			.tip {
@@ -395,6 +442,16 @@ export default class Parameters extends Vue {
 			
 			a {
 				color:@mainColor_warn_extralight;
+			}
+			.adPreview {
+				max-width: 400px;
+				margin:1em auto;
+				padding: .25em .5em;
+				border-radius: .5em;
+				background-color: @mainColor_dark;
+				.message {
+					// background-color: @mainColor_dark;
+				}
 			}
 		}
 
