@@ -260,6 +260,11 @@ export default class Parameters extends Vue {
 
 		watch(() => this.content, () => {
 			if(this.content) this.filteredParams = [];
+			if(!this.content) {
+				this.$nextTick().then(()=>{
+					this.adTarget = this.$refs[this.isDonor? "adDonor" : "adNoDonor"] as HTMLDivElement;
+				})
+			}
 		});
 
 		watch(() => this.search, (value:string) => {
