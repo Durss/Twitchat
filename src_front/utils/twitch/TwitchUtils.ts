@@ -275,7 +275,6 @@ export default class TwitchUtils {
 						emoteList.push( emoteListHashmap[txt] );
 					}
 				}
-				console.log(emoteList);
 				
 				//Parse emotes
 				const tagsDone:{[key:string]:boolean} = {};

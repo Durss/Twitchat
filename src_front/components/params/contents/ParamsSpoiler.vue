@@ -4,31 +4,37 @@
 		
 		<p class="header">Messages starting with <mark>||</mark> will be masked by default and revealed on hover</p>
 
-		<strong>Example:</strong>
-		<ChatMessage :messageData="spoilerExample" class="example" lightMode />
+		<section>
+			<p>Message example:</p>
+			<ChatMessage :messageData="spoilerExample" class="example" lightMode />
+		</section>
 
-		<Splitter class="splitter">Spoil somone else's message</Splitter>
-		<div class="item">You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the <mark>!spoiler</mark> command</div>
-		<div class="item">Users allowed to use <mark>!spoiler</mark> command:</div>
-		<PermissionsForm class="item perms" v-model="chatCommandPerms" />
+		<section>
+			<Splitter class="splitter">Spoil somone else's message</Splitter>
+			<div class="item">You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the <mark>!spoiler</mark> command</div>
+			<div class="item">Users allowed to use <mark>!spoiler</mark> command:</div>
+			<PermissionsForm class="item perms" v-model="chatCommandPerms" />
+		</section>
 		
-		<Splitter class="splitter">How to spoil another message</Splitter>
-		<img class="item" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
-
-		<div class="item disclaimer">
-			<div><strong>WARNING:</strong> Twitch's answer system being terribly bad, if you try to use <mark>!spoiler</mark> on an answer, it will actually make the original message <i>(the one the user answered to)</i> as a spoiler instead of its answer.</div>
-			<div>For example, bellow, if you try to spoil the <mark>Answer 1</mark> by answering to it, it will actually spoil the <mark>Original message</mark> instead:</div>
-		</div>
-		<ul>
-			<li>
-				<span>Original message</span>
-				<ul>
-					<li>Answer 1</li>
-					<li>Answer 2</li>
-					<li>Answer 3</li>
-				</ul>
-			</li>
-		</ul>
+		<section>
+			<Splitter class="splitter">How to spoil another message</Splitter>
+			<img class="item" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
+	
+			<div class="item disclaimer">
+				<div><strong>WARNING:</strong> Twitch's answer system being terribly bad, if you try to use <mark>!spoiler</mark> on an answer, it will actually make the original message <i>(the one the user answered to)</i> as a spoiler instead of its answer.</div>
+				<div>For example, bellow, if you try to spoil the <mark>Answer 1</mark> by answering to it, it will actually spoil the <mark>Original message</mark> instead:</div>
+			</div>
+			<ul>
+				<li>
+					<span>Original message</span>
+					<ul>
+						<li>Answer 1</li>
+						<li>Answer 2</li>
+						<li>Answer 3</li>
+					</ul>
+				</li>
+			</ul>
+		</section>
 	</div>
 </template>
 
@@ -89,6 +95,16 @@ export default class ParamsSpoiler extends Vue {
 	flex-direction: column;
 	justify-content: center;
 	padding-top: 0;
+	
+	section {
+		border-radius: .5em;
+		background-color: fade(@mainColor_normal_extralight, 30%);
+		padding: .5em;
+		margin-top: 2em;
+		.splitter {
+			margin: .25em 0 1em 0;
+		}
+	}
 
 	&>.icon {
 		height: 4em;
@@ -99,7 +115,6 @@ export default class ParamsSpoiler extends Vue {
 
 	.header {
 		text-align: center;
-		margin-bottom: .5em;
 	}
 
 	mark {
@@ -116,38 +131,15 @@ export default class ParamsSpoiler extends Vue {
 		border-radius: .5em;
 	}
 
-	.splitter {
-		margin-top: 2em;
-		margin-bottom: .5em;
-	}
 
 	.item {
-		margin-top: .5em;
-		&.label {
-			i {
-				font-size: .8em;
-			}
-			.icon {
-				width: 1.2em;
-				max-height: 1.2em;
-				margin-right: .5em;
-				margin-bottom: 2px;
-				display: inline;
-				vertical-align: middle;
-			}
-			p {
-				display: inline;
-			}
+		&:not(:nth-child(2)) {
+			margin-top: .5em;
 		}
 
 		&.perms {
 			margin: 0 10%;
 			margin-top: 1em;
-		}
-
-		&.splitter {
-			margin-top: 1em;
-			margin-bottom: 2em;
 		}
 
 		&.disclaimer {
@@ -173,6 +165,8 @@ export default class ParamsSpoiler extends Vue {
 
 	img {
 		max-width: 100%;
+		margin: auto;
+		display: block;
 	}
 }
 </style>

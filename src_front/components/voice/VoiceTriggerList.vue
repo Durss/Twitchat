@@ -1,16 +1,18 @@
 <template>
 	<div class="voicetriggerlist">
 
-		<Button :icon="$image('icons/add.svg')" title="Add voice action" class="addBt"
-			@click="addAction()"
-			:disabled="getActionIDs().length == 0 || !globalCommandsOK"
-		/>
-
 		<VoiceGlobalCommands class="action global"
 			v-model="globalCommands"
 			v-model:complete="globalCommandsOK"
 			:open="actions.length == 0"
 		/>
+
+		<Button :icon="$image('icons/add.svg')" title="Add voice action" class="addBt"
+			@click="addAction()"
+			v-if="getActionIDs().length > 0 && globalCommandsOK"
+		/>
+
+		<div class="globalWarn" v-else>Fill in all global commands above</div>
 
 		<draggable 
 		v-if="actions"
@@ -98,6 +100,7 @@ export default class VoiceTriggerList extends Vue {
 
 	public mounted():void {
 		type VAKeys = keyof typeof VoiceAction;
+		this.actions = [];
 		this.actions = JSON.parse(JSON.stringify(this.$store("voice").voiceActions));
 
 		for (let i = 0; i < this.actions.length; i++) {
@@ -256,11 +259,20 @@ export default class VoiceTriggerList extends Vue {
 		display: block;
 	}
 
+	.globalWarn {
+		color: @mainColor_light;
+		background-color: @mainColor_warn;
+		padding: .5em;
+		border-radius: .5em;
+		text-align: center;
+	}
+
 	.action {
-		&>:deep(.content) {
-			border: 1px solid @mainColor_normal;
-			border-top: none;
-			border-radius: 0 0 .5em .5em;
+		&:not(.global)>:deep(.content) {
+			// border: 1px solid @mainColor_normal;
+			// border-top: none;
+			// border-radius: 0 0 .5em .5em;
+			background-color: @mainColor_light;
 		}
 
 		&:not(:first-of-type) {
@@ -269,9 +281,9 @@ export default class VoiceTriggerList extends Vue {
 
 		&.global {
 			margin-bottom: 1em;
-			:deep(.header) {
-				background-color: darken(@mainColor_normal, 20%);
-			}
+			// :deep(.header) {
+				// background-color: darken(@mainColor_normal, 20%);
+			// }
 		}
 		
 		:deep(.content) {

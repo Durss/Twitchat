@@ -58,14 +58,14 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param autoReconnect 
 	 * @returns 
 	 */
-	public async connect(port:string, pass:string = "", autoReconnect = true, ip = "127.0.0.1"):Promise<boolean> {
+	public async connect(port:string, pass:string = "", autoReconnect = true, ip = "127.0.0.1", forceConnect:boolean = false):Promise<boolean> {
 		if(this.connected) return true;
 		
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
-		if(StoreProxy.obs.connectionEnabled !== true) return false;
+		if(!forceConnect && StoreProxy.obs.connectionEnabled !== true) return false;
 		if(!ip || ip.length < 5) return false;
-
+		
 		try {
 			const protocol = ip == "127.0.0.1" ? "ws://" : "wss://";
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";

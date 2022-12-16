@@ -4,25 +4,29 @@
 		
 		<div class="header">Let your mods alert you if something's urgent</div>
 
-		<Splitter class="item splitter">Chat command</Splitter>
-		
-		<div>
-			<ParamItem class="item" :paramData="param_chatCommand" />
-			<ToggleBlock title="Allowed users" :open="false" small class="item">
-				<PermissionsForm v-model="chatCommandPerms" />
-			</ToggleBlock>
-		</div>
+		<section>
+			<Splitter class="item splitter">Chat command</Splitter>
+			
+			<div>
+				<ParamItem class="item" :paramData="param_chatCommand" />
+				<ToggleBlock title="Allowed users" :open="false" small class="item">
+					<PermissionsForm v-model="chatCommandPerms" />
+				</ToggleBlock>
+			</div>
+		</section>
 
-		<Splitter class="item splitter">Actions</Splitter>
-
-		<ParamItem class="item" :paramData="param_message" />
-		<ParamItem class="item" :paramData="param_shake" />
-		<ParamItem class="item" :paramData="param_sound" />
-		<ParamItem class="item" :paramData="param_blink" />
-
-		<div class="item infos">Do more actions with the <a @click="$emit('setContent', contentTriggers)">Triggers</a> system.</div>
-
-		<Button title="Test" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
+		<section>
+			<Splitter class="item splitter">Actions</Splitter>
+	
+			<ParamItem class="item" :paramData="param_message" />
+			<ParamItem class="item" :paramData="param_shake" />
+			<ParamItem class="item" :paramData="param_sound" />
+			<ParamItem class="item" :paramData="param_blink" />
+	
+			<div class="item infos">Do more actions with the <a @click="$emit('setContent', contentTriggers)">Triggers</a> system.</div>
+	
+			<Button title="Test" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
+		</section>
 	</div>
 </template>
 
@@ -122,6 +126,16 @@ export default class ParamsAlert extends Vue {
 	flex-direction: column;
 	justify-content: center;
 	padding-top: 0;
+	
+	section {
+		border-radius: .5em;
+		background-color: fade(@mainColor_normal_extralight, 30%);
+		padding: .5em;
+		margin-top: 2em;
+		.splitter {
+			margin: .25em 0 1em 0;
+		}
+	}
 
 	&>.icon {
 		height: 4em;
@@ -132,22 +146,11 @@ export default class ParamsAlert extends Vue {
 
 	.header {
 		text-align: center;
-		margin-bottom: .5em;
-	}
-
-	mark {
-		font-weight: bold;
-		padding: .25em .5em;
-		border-radius: .5em;
-		font-size: .8em;
-		background: fade(@mainColor_normal, 15%);
 	}
 
 	.item {
-		margin-top: .5em;
-
-		&.splitter {
-			margin-top: 1em;
+		&:not(:nth-child(2)) {
+			margin-top: .5em;
 		}
 
 		&.testBt {
@@ -162,13 +165,8 @@ export default class ParamsAlert extends Vue {
 		}
 
 		:deep(input) {
-			width: auto;
 			max-width: 150px;
 		}
-	}
-
-	img {
-		max-width: 100%;
 	}
 }
 </style>

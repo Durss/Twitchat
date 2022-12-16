@@ -91,7 +91,8 @@ export default class OBSConnectForm extends Vue {
 							(this.obsPort_conf.value as number).toString(),
 							this.obsPass_conf.value as string,
 							false,
-							this.obsIP_conf.value as string
+							this.obsIP_conf.value as string,
+							true
 						);
 		if(connected) {
 			this.paramUpdate();

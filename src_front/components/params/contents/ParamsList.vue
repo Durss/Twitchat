@@ -1,10 +1,10 @@
 <template>
 	<div class="paramslist">
-		<h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1>
+		<!-- <h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1> -->
 		<div class="row" v-for="(p) in params" :key="p.id">
 
 			<!-- Special case for shoutout label -->
-			<PostOnChatParam class="row" v-if="p.id==21"
+			<PostOnChatParam class="item" v-if="p.id==21"
 				icon="shoutout_purple.svg"
 				botMessageKey="shoutout"
 				:noToggle="true"
@@ -12,7 +12,7 @@
 				:placeholders="soPlaceholders"
 			/>
 
-			<ParamItem :paramData="p" save />
+			<ParamItem class="item" :paramData="p" save>
 			
 			<transition
 				@enter="onShowItem"
@@ -32,17 +32,19 @@
 				</div>
 
 				<div v-else-if="p.id == 215 && p.value === true" class="info config">
-					<Button white small title="Configure" @click="$emit('setContent', contentEmergency)" />
+					<Button small title="Configure" @click="$emit('setContent', contentEmergency)" />
 				</div>
 
 				<div v-else-if="p.id == 216 && p.value === true" class="info config">
-					<Button white small title="Configure" @click="$emit('setContent', contentSpoiler)" />
+					<Button small title="Configure" @click="$emit('setContent', contentSpoiler)" />
 				</div>
 
 				<div v-else-if="p.id == 217 && p.value === true" class="info config">
-					<Button white small title="Configure" @click="$emit('setContent', contentAlert)" />
+					<Button small title="Configure" @click="$emit('setContent', contentAlert)" />
 				</div>
 			</transition>
+			</ParamItem>
+
 		</div>
 	</div>
 </template>
@@ -177,11 +179,38 @@ export default class ParamsList extends Vue {
 	}
 
 	.row {
+		position: relative;
+
+		&>.item {
+			border-radius: .5em;
+			background-color: fade(@mainColor_normal_extralight, 30%);
+			padding: .25em;
+			position: relative;
+			&:not(:first-of-type) {
+				margin-top: 10px;
+			}
+			:deep(.icon) {
+				z-index: 1;
+			}
+			&:has(.icon)::before {
+				content: "";
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 1.5em;
+				height: 100%;
+				background: @mainColor_light;
+				z-index: 0;
+				border-top-left-radius: .5em;
+				border-bottom-left-radius: .5em;
+			}
+			// &:not(:has(.icon)) {
+			// 	padding-left: 1.75em;
+			// }
+		}
+		
 		:deep(input[type='range']) {
 			width: 100%;
-		}
-		&:not(:first-of-type) {
-			margin-top: 10px;
 		}
 
 		&:not(:last-child) {
@@ -218,18 +247,8 @@ export default class ParamsList extends Vue {
 				}
 			}
 	
-			&.config {
-				// text-align: center;
-				// margin-top: -8px;
-	
-				.button {
-					border: 1px solid @mainColor_normal;
-					border-top: none;
-					border-top-left-radius: 0;
-					border-top-right-radius: 0;
-					position: relative;
-					overflow: visible;
-				}
+			&.info {
+				padding-left: 0;
 			}
 		}
 	}

@@ -191,6 +191,7 @@ export default class ChatMessage extends Vue {
 		const highlightMods			= sParams.appearance.highlightMods.value === true;
 		const highlightVips			= sParams.appearance.highlightVips.value === true;
 		const highlightSubs			= sParams.appearance.highlightSubs.value === true;
+		const highlightPartners		= sParams.appearance.highlightPartners.value === true;
 		const spoilersEnabled		= sParams.features.spoilersEnabled.value === true;
 		const censorDeletedMessages	= sParams.appearance.censorDeletedMessages.value === true;
 
@@ -206,12 +207,13 @@ export default class ChatMessage extends Vue {
 				if(censorDeletedMessages) res.push("censor");
 			}
 			if(!this.lightMode) {
-				if(this.channelInfo.is_moderator && highlightMods)		res.push("highlightMods");
-				else if(this.channelInfo.is_vip && highlightVips)		res.push("highlightVips");
+				if(this.channelInfo.is_moderator && highlightMods)				res.push("highlightMods");
+				else if(this.channelInfo.is_vip && highlightVips)				res.push("highlightVips");
+				else if(this.messageData.user.is_partner && highlightPartners)	res.push("highlightPartners");
 				else if(this.channelInfo.is_subscriber && 
-				!this.channelInfo.is_broadcaster && highlightSubs)		res.push("highlightSubs");
+				!this.channelInfo.is_broadcaster && highlightSubs)				res.push("highlightSubs");
 			}
-			if(spoilersEnabled && this.messageData.spoiler === true)	res.push("spoiler");
+			if(spoilersEnabled && this.messageData.spoiler === true)			res.push("spoiler");
 		}
 
 		return res;
@@ -583,6 +585,7 @@ export default class ChatMessage extends Vue {
 	&.highlightSubs { background-color: fade(#528bff, 20%); }
 	&.highlightVips { background-color: fade(#db00b3, 20%); }
 	&.highlightMods { background-color: fade(#00a865, 20%); }
+	&.highlightPartners { background-color: fade(#ffb452, 20%); }
 	&.mention { background-color: rgba(255, 0, 0, 20%);}
 	
 	// &.highlightSubs { border: 1px solid #528bff; }

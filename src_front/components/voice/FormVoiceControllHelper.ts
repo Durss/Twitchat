@@ -28,7 +28,7 @@ export default class FormVoiceControllHelper {
 		this.initialize();
 	}
 
-	private get currentInput():HTMLInputElement {
+	private get currentInput():HTMLInputElement|null {
 		return this.voiceInputs[this.tabIndex-1];
 	}
 
@@ -56,7 +56,6 @@ export default class FormVoiceControllHelper {
 		PublicAPI.instance.addEventListener(VoiceAction.ACTION_BATCH, this.batchVoiceActionHandler);
 		
 		this.updateVoiceInputList();
-		console.log(this.voiceInputs);
 		this.voiceInputs.forEach(v => {
 			v.addEventListener("focus", ()=>{
 				this.tabIndex = v.tabIndex;
@@ -72,7 +71,9 @@ export default class FormVoiceControllHelper {
 	}
 
 	private onText(text:string = ""):void {
-		const maxLength = this.currentInput.maxLength;
+		if(!this.currentInput) return;
+
+		const maxLength = this.currentInput.maxLength ?? 9999;
 
 		// text too long, shake the field
 		if(text.length > maxLength) {
@@ -93,8 +94,10 @@ export default class FormVoiceControllHelper {
 				break;
 			}
 			case VoiceAction.ERASE: {
-				this.currentInput.value = "";
-				this.currentInput.dispatchEvent(new Event("input"));
+				if(this.currentInput) {
+					this.currentInput.value = "";
+					this.currentInput.dispatchEvent(new Event("input"));
+				}
 				break;
 			}
 			case VoiceAction.SUBMIT: this.submitCallback(); break;
@@ -121,7 +124,7 @@ export default class FormVoiceControllHelper {
 			this.prevField.dispatchEvent(new Event("input"));
 			this.prevField = null;
 			this.prevFieldValue = "";
-		}else{
+		}else if(this.currentInput){
 			this.prevField = this.currentInput;
 			this.prevFieldValue = this.currentInput.value;
 		}

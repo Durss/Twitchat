@@ -76,7 +76,9 @@ export default class ParamsStreamdeck extends Vue {
 			}
 
 			&>:deep(img) {
+				display: block;
 				max-width: 100%;
+				margin: auto;
 				margin-top: .5em;
 			}
 		}

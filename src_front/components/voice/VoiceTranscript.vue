@@ -69,7 +69,7 @@ export default class VoiceTranscript extends Vue {
 	color:@mainColor_light;
 	// overflow-x: hidden;
 	overflow-y: hidden;
-	z-index: 10;
+	z-index: 3;
 	line-height: 1.1em;
 	height: fit-content;
 	max-height: 3em;
@@ -98,6 +98,7 @@ export default class VoiceTranscript extends Vue {
 
 			.icon {
 				height: 1em;
+				margin-right: .5em;
 				align-self: flex-start;
 			}
 		}

@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<Button aria-label="Back to menu" :icon="$image('icons/back_purple.svg')" @click="back()" class="clearButton" bounce v-if="content != null" />
-				<h1 class="title">Parameters</h1>
+				<h1 class="title">{{(title ?? "Parameters")}}</h1>
 				<Button aria-label="Close parameters" :icon="$image('icons/cross.svg')" @click="close()" class="clearButton" bounce />
 			</div>
 
@@ -16,19 +16,19 @@
 				<div ref="adNoDonor"></div>
 
 				<div class="buttonList">
-					<Button bounce white :icon="$image('icons/params_purple.svg')" title="Features" @click="setContent(contentFeatures)" />
-					<Button bounce white :icon="$image('icons/show_purple.svg')" title="Appearance" @click="setContent(contentAppearance)" />
-					<Button bounce white :icon="$image('icons/emergency_purple.svg')" title="Emergency button" @click="setContent(contentEmergency)" />
-					<Button bounce white :icon="$image('icons/mod_purple.svg')" title="Automod messages" @click="setContent(contentAutomod)" />
-					<Button bounce white :icon="$image('icons/broadcast_purple.svg')" title="Triggers" @click="setContent(contentTriggers)" />
-					<Button bounce white :icon="$image('icons/overlay_purple.svg')" title="Overlays" @click="setContent(contentOverlays)" />
-					<Button bounce white :icon="$image('icons/tts_purple.svg')" title="Text to speech" @click="setContent(contentTts)" />
-					<Button bounce white :icon="$image('icons/voice_purple.svg')" title="Voice control" @click="setContent(contentVoice)" />
-					<Button bounce white :icon="$image('icons/obs_purple.svg')" title="OBS" @click="setContent(contentObs)" />
-					<Button bounce white :icon="$image('icons/voicemod_purple.svg')" title="Voicemod" @click="setContent(contentVoicemod)" />
-					<Button bounce white :icon="$image('icons/elgato_purple.svg')" title="Stream Deck" @click="setContent(contentStreamdeck)" />
-					<Button bounce white :icon="$image('icons/user_purple.svg')" title="Account" @click="setContent(contentAccount)" />
-					<Button bounce white :icon="$image('icons/info_purple.svg')" title="About" @click="setContent(contentAbout)" />
+					<Button bounce white :icon="$image('icons/params_purple.svg')"		:title="idToTitle['features']"		@click="setContent(contentFeatures)" />
+					<Button bounce white :icon="$image('icons/show_purple.svg')"		:title="idToTitle['appearance']"	@click="setContent(contentAppearance)" />
+					<Button bounce white :icon="$image('icons/emergency_purple.svg')"	:title="idToTitle['emergency']"		@click="setContent(contentEmergency)" />
+					<Button bounce white :icon="$image('icons/mod_purple.svg')"			:title="idToTitle['automod']"		@click="setContent(contentAutomod)" />
+					<Button bounce white :icon="$image('icons/broadcast_purple.svg')"	:title="idToTitle['triggers']"		@click="setContent(contentTriggers)" />
+					<Button bounce white :icon="$image('icons/overlay_purple.svg')"		:title="idToTitle['overlays']"		@click="setContent(contentOverlays)" />
+					<Button bounce white :icon="$image('icons/tts_purple.svg')"			:title="idToTitle['tts']"			@click="setContent(contentTts)" />
+					<Button bounce white :icon="$image('icons/voice_purple.svg')"		:title="idToTitle['voice']"			@click="setContent(contentVoice)" />
+					<Button bounce white :icon="$image('icons/obs_purple.svg')"			:title="idToTitle['obs']"			@click="setContent(contentObs)" />
+					<Button bounce white :icon="$image('icons/voicemod_purple.svg')"	:title="idToTitle['voicemod']"		@click="setContent(contentVoicemod)" />
+					<Button bounce white :icon="$image('icons/elgato_purple.svg')"		:title="idToTitle['streamdeck']"	@click="setContent(contentStreamdeck)" />
+					<Button bounce white :icon="$image('icons/user_purple.svg')"		:title="idToTitle['account']"		@click="setContent(contentAccount)" />
+					<Button bounce white :icon="$image('icons/info_purple.svg')"		:title="idToTitle['about']"			@click="setContent(contentAbout)" />
 				</div>
 
 				<div ref="adDonor"></div>
@@ -166,20 +166,39 @@ import PostOnChatParam from './PostOnChatParam.vue';
 
 export default class Parameters extends Vue {
 
-	public search = "";
-	public collapse = true;
+	public search:string = "";
+	public title:string|null = null;
+	public collapse:boolean = true;
 	public filteredParams:TwitchatDataTypes.ParameterData[] = [];
-	public content:TwitchatDataTypes.ParamsContentStringType = null;
+	public content:TwitchatDataTypes.ParamsContentStringType|null = null;
 	public showAdInfo:boolean = false;
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 	public adTarget:HTMLDivElement | null = null;
+	public idToTitle:{[key in TwitchatDataTypes.ParamsContentStringType]:string} = {
+		"":"",
+		about:"About",
+		account:"Account",
+		alert:"Chat alerts",
+		appearance:"Chat appearance",
+		automod:"Automod",
+		emergency:"Emergency button",
+		features:"Chat features",
+		obs:"OBS",
+		overlays:"Overlays",
+		spoiler:"Spoiler",
+		sponsor:"Donate",
+		streamdeck:"Stream Deck",
+		triggers:"Triggers",
+		tts:"Text to speech",
+		voice:"Voice control",
+		voicemod:"Voicemod"
+	};
 
 	private closing:boolean = false;
-	private prevContent:TwitchatDataTypes.ParamsContentStringType = null;
+	private prevContent:TwitchatDataTypes.ParamsContentStringType|null = null;
 
 	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
 	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.APPEARANCE; } 
-	public get contentFilters():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.FILTERS; } 
 	public get contentAccount():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ACCOUNT; } 
 	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ABOUT; } 
 	public get contentFeatures():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.FEATURES; } 
@@ -203,7 +222,6 @@ export default class Parameters extends Vue {
 	public get isGenericListContent():boolean {
 		return this.content == "features"
 			|| this.content == "appearance"
-			|| this.content == "filters"
 			|| this.search.length>0;
 	}
 
@@ -215,7 +233,7 @@ export default class Parameters extends Vue {
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
 			//Requesting sponsor page
-			let pageId = v.replace("CONTENT:", "") as TwitchatDataTypes.ParamsContentStringType;
+			let pageId = v.replace("CONTENT:", "") as TwitchatDataTypes.ParamsContentStringType|null;
 			if(pageId == TwitchatDataTypes.ParamsCategories.MAIN_MENU) pageId = null;
 			this.content = pageId;
 
@@ -234,7 +252,6 @@ export default class Parameters extends Vue {
 	public async mounted():Promise<void> {
 		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true";
 		this.adTarget = this.$refs[this.isDonor? "adDonor" : "adNoDonor"] as HTMLDivElement;
-		console.log(">>>>", this.adTarget);
 
 		watch(() => this.$store('main').showParams, (value) => {
 			if(value) this.open();
@@ -247,6 +264,7 @@ export default class Parameters extends Vue {
 
 		watch(() => this.search, (value:string) => {
 			this.content = null;
+			this.title = null;
 			this.filterParams(this.search);
 		});
 
@@ -270,6 +288,7 @@ export default class Parameters extends Vue {
 		if(this.search) {
 			await this.$nextTick();
 			this.content = null;
+			this.title = null;
 			this.filterParams(this.search);
 		}
 	}
@@ -288,6 +307,7 @@ export default class Parameters extends Vue {
 
 	public back():void {
 		this.content = this.prevContent;
+		this.title = this.idToTitle[this.prevContent!];
 		this.prevContent = null;
 	}
 
@@ -298,9 +318,11 @@ export default class Parameters extends Vue {
 			this.content = null;
 			this.$nextTick().then(()=>{
 				this.content = id;
+				this.title = this.idToTitle[id];
 			})
 		}else{
 			this.content = id;
+			this.title = this.idToTitle[id];
 		}
 		if(id == null && this.search.length > 0) {
 			this.search = "";
@@ -346,7 +368,7 @@ export default class Parameters extends Vue {
 			announcementColor = rawMessage.replace(/\/announce([a-z]+)?\s.*/i, "$1") as "primary" | "purple" | "blue" | "green" | "orange";
 			rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
 		}
-		console.log(rawMessage);
+		
 		const message = TwitchUtils.parseEmotes(rawMessage, undefined, false, true);
 		this.adPreview = {
 			id:Utils.getUUID(),

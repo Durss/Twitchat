@@ -9,7 +9,6 @@ export namespace TwitchatDataTypes {
 	export const ParamsCategories = {
 		MAIN_MENU: "",
 		APPEARANCE: "appearance",
-		FILTERS: "filters",
 		ACCOUNT: "account",
 		ABOUT: "about",
 		FEATURES: "features",
@@ -23,10 +22,10 @@ export namespace TwitchatDataTypes {
 		ALERT: "alert",
 		TTS: "tts",
 		VOICE: "voice",
-		AUTOMOD: "autmod",
+		AUTOMOD: "automod",
 		VOICEMOD: "voicemod",
 	} as const;
-	export type ParamsContentStringType = typeof ParamsCategories[keyof typeof ParamsCategories]|null;
+	export type ParamsContentStringType = typeof ParamsCategories[keyof typeof ParamsCategories];
 
 	/**
 	 * Contains config about a chat column

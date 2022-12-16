@@ -454,6 +454,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			user.is_partner		= true;
 			user.is_affiliate	= true;
 		}
+		if(login=="durssbot") user.is_partner = true;
 
 		if(tags.badges && tags["room-id"]) {
 			user.channelInfo[channelId].badges = TwitchUtils.getBadgesFromRawBadges(tags["room-id"], tags["badge-info"], tags.badges);

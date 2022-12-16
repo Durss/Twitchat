@@ -15,7 +15,6 @@ export default class DataStore {
 
 	public static DATA_VERSION:string = "v";
 	public static UPDATE_INDEX:string = "updateIndex";
-	public static ACTIVITY_FEED_FILTERS:string = "activityFeedFilters";
 	public static GREET_AUTO_DELETE_AFTER:string = "greetAutoDeleteAfter";
 	public static GREET_AUTO_SCROLL_DOWN:string = "greetScrollDownAuto";
 	public static GREET_AUTO_HEIGHT:string = "greetHeight";

@@ -102,6 +102,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
+import { useSlots } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
@@ -466,6 +467,13 @@ export default class ParamItem extends Vue {
 	}
 
 	&.child, .child {
+		//Makes sure the children holder is not displayed
+		//if it does not contain anything
+		display: none;
+		&:has(*) {
+			display: block;
+		}
+		
 		margin-left: auto;
 		margin-right: 0;
 		margin-top: 5px;

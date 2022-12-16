@@ -283,6 +283,7 @@ import Ajv from "ajv";
 		"p:highlightNonFollowers": {type:"boolean"},
 		"p:highlightSubs": {type:"boolean"},
 		"p:highlightVips": {type:"boolean"},
+		"p:highlightPartners": {type:"boolean"},
 		"p:lockAutoScroll": {type:"boolean"},
 		"p:markAsRead": {type:"boolean"},
 		"p:minimalistBadges": {type:"boolean"},

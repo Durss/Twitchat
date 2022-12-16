@@ -534,12 +534,6 @@ Toggle current raffle's visibility
 ```typescript
 -none-
 ```
-## **ACTIVITY_FEED_TOGGLE**
-Toggle activity feed's visibility
-### JSON param *(optional)*
-```typescript
--none-
-```
 ## **VIEWERS_COUNT_TOGGLE**
 Toggle viewer count's visibility
 ### JSON param *(optional)*

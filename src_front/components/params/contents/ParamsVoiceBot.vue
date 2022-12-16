@@ -9,8 +9,8 @@
 		</div>
 		<div v-else class="infos">Only works with Google Chrome, Microsoft Edge or Safari</div>
 
-		<div v-if="!voiceApiAvailable" class="fallback">
-			<p>If you still want to use Twitchat on the current browser, you can open the following page on one of the compatible browsers:</p>
+		<div v-if="!voiceApiAvailable || true" class="fallback">
+			<p>If you want to use Twitchat on an incompatible browser, you can open the following page on one of the compatible browsers to capture your voice:</p>
 			<a :href="voicePageUrl" target="_blank">{{voicePageUrl}}</a>
 		</div>
 
@@ -87,9 +87,11 @@ export default class ParamsVoiceBot extends Vue {
 	}
 
 	.fallback {
+		font-size: .8em;
+		line-height: 1.2em;
 		margin-top: 1em;
 		border: 1px solid @mainColor_normal;
-		border-radius: 1em;
+		border-radius: .5em;
 		padding: .5em;
 	}
 }

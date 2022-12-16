@@ -1,17 +1,23 @@
 <template>
 	<div class="voicecontrolform">
-		<label v-if="voiceApiAvailable" for="langSelector">Select your language:</label>
-		<LangSelector v-if="voiceApiAvailable" id="langSelector" v-model:lang="lang" class="langSelector" />
+		<section>
+			<label v-if="voiceApiAvailable" for="langSelector">Select your language:</label>
+			<LangSelector v-if="voiceApiAvailable" id="langSelector" v-model:lang="lang" class="langSelector" />
+			<Button v-if="voiceApiAvailable && !started && lang" title="Start voice bot" class="startBt" @click="startBot()" :icon="$image('icons/voice.svg')" />
+			<Button v-if="voiceApiAvailable && started" title="Stop voice bot" class="stopBt" @click="stopBot()" highlight :icon="$image('icons/stop.svg')" />
+		</section>
 		
-		<Button v-if="voiceApiAvailable && !started && lang" title="Start voice bot" class="startBt" @click="startBot()" :icon="$image('icons/voice.svg')" />
-		<Button v-if="voiceApiAvailable && started" title="Stop voice bot" class="stopBt" @click="stopBot()" highlight :icon="$image('icons/stop.svg')" />
-		
-		<ToggleBlock title="Speak to see the result" :enabled="false" class="block" v-if="!voiceApiAvailable || started">
+		<section class="block" v-if="!voiceApiAvailable || started || tempText || finalText">
+			<Splitter>Live text to speech</Splitter>
 			<div class="temp" v-if="tempText && !finalText">{{tempText}}</div>
 			<div class="final" v-if="finalText">{{finalText}}</div>
-		</ToggleBlock>
+			<div class="empty" v-if="!tempText && !finalText">_</div>
+		</section>
 
-		<VoiceTriggerList class="block" v-if="sttOnly === false" />
+		<section v-if="sttOnly === false">
+			<Splitter>Voice actions</Splitter>
+			<VoiceTriggerList class="block" />
+		</section>
 	</div>
 </template>
 
@@ -22,6 +28,7 @@ import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import LangSelector from '../LangSelector.vue';
+import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceTriggerList from './VoiceTriggerList.vue';
 
@@ -38,6 +45,7 @@ import VoiceTriggerList from './VoiceTriggerList.vue';
 	},
 	components:{
 		Button,
+		Splitter,
 		ToggleBlock,
 		LangSelector,
 		VoiceTriggerList,
@@ -89,8 +97,7 @@ export default class VoiceControlForm extends Vue {
 
 	.langSelector {
 		width:100%;
-		margin-top: .5em;
-		margin-bottom: 1em;
+		margin: .5em 0;
 	}
 	
 	.startBt, .stopBt{
@@ -103,6 +110,21 @@ export default class VoiceControlForm extends Vue {
 
 		.temp {
 			font-style: italic;
+		}
+		.empty {
+			text-align: center;
+		}
+	}
+
+	section {
+		border-radius: .5em;
+		background-color: fade(@mainColor_normal_extralight, 30%);
+		padding: .5em;
+		&:not(:first-of-type) {
+			margin-top: 2em;
+		}
+		.splitter {
+			margin: .25em 0 .5em 0;
 		}
 	}
 

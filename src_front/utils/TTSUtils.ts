@@ -114,22 +114,6 @@ export default class TTSUtils {
 				return;
 		});
 		
-		watch(() => this.sChat.activityFeed, async (value) => {
-				//There should be no need to read more than 100 new messages at a time
-				//Unless the chat is ultra spammy in which case we wouldn't notice
-				//messages are missing from the list anyway...
-				const len = this.sChat.activityFeed.length;
-				let i = Math.max(0, len - 100);
-				for (; i < len; i++) {
-					const m = this.sChat.activityFeed[i];
-					if(this.idsParsed[m.id as string] !== true) {
-						this.idsParsed[m.id as string] = true;
-						this.addMessageToQueue(m);
-					}
-				}
-				return;
-		});
-
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_TTS, ()=> {
 			this.stop();
 		})
