@@ -158,7 +158,10 @@ export default class TTSUtils {
 	/**
 	 * Stops currently playing speech
 	 */
-	public stop():void {
+	public stop(clearQueue:boolean = false):void {
+		if(clearQueue) {
+			this.pendingMessages = [];
+		}
 		window.speechSynthesis.cancel();
 	}
 

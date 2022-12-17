@@ -184,7 +184,15 @@
 						:icon="$image('icons/mute.svg')"
 						v-if="$store('tts').speaking"
 						data-tooltip="Stop speaking"
-						@click="stopTTS()" />
+						@click="stopTTS(false)" />
+				</transition>
+
+				<transition name="slide">
+					<Button small class="muteBt" aria-label="clear text to speech queue"
+						:icon="$image('icons/muteAll.svg')"
+						v-if="$store('tts').speaking"
+						data-tooltip="Clear TTS queue"
+						@click="stopTTS(true)" />
 				</transition>
 
 				<transition name="slide">
@@ -227,7 +235,6 @@ import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { LoremIpsum } from "lorem-ipsum";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
@@ -512,10 +519,6 @@ export default class ChatForm extends Vue {
 		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam" || cmd == "/fake") {
 			this.loading = true;
 			clearInterval(this.spamInterval);
-			const lorem = new LoremIpsum({
-				sentencesPerParagraph: { max: 8, min: 4 },
-				wordsPerSentence: { max: 8, min: 2 }
-			});
 
 			const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
 				{type:TwitchatDataTypes.TwitchatMessageType.MESSAGE, probability:100},
@@ -536,9 +539,14 @@ export default class ChatForm extends Vue {
 				}
 			}
 			
+			const forcedMessage = params.join(" ");
+			console.log(forcedMessage);
 			this.spamInterval = window.setInterval(()=> {
 				this.$store("debug").simulateMessage(Utils.pickRand(ponderatedList), (data)=> {
 					if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						if(forcedMessage) {
+							data.message = data.message_html = data.message_no_emotes = forcedMessage;
+						}
 						if(Math.random() > .1) return;
 						if(Math.random() > .5) {
 							data.twitch_isFirstMessage = true;
@@ -836,8 +844,8 @@ export default class ChatForm extends Vue {
 	/**
 	 * Interrupts the TTS
 	 */
-	public stopTTS():void {
-		TTSUtils.instance.stop();
+	public stopTTS(all:boolean):void {
+		TTSUtils.instance.stop(all);
 	}
 
 	/**
@@ -1026,6 +1034,7 @@ export default class ChatForm extends Vue {
 			height: 2em;
 			transform: translate(0, 0);
 			transition: transform .25s;
+			margin-top: .25em;
 		}
 
 		.voicemodBt {
