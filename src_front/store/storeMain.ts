@@ -22,6 +22,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
 import router from '@/router';
+import { useI18n } from 'vue-i18n';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -72,17 +73,13 @@ export const storeMain = defineStore("main", {
 			const sChat = StoreProxy.chat;
 			const sAuth = StoreProxy.auth;
 			const sTimer = StoreProxy.timer;
-			const sUsers = StoreProxy.users;
 			const sVoice = StoreProxy.voice;
 			const sMusic = StoreProxy.music;
-			const sBingo = StoreProxy.bingo;
 			const sStream = StoreProxy.stream;
-			const sRaffle = StoreProxy.raffle;
 			const sParams = StoreProxy.params;
-			const sAutomod = StoreProxy.automod;
 			const sEmergency = StoreProxy.emergency;
-			const sChatSugg = StoreProxy.chatSuggestion;
 
+			//Load app configs (cliend ID, scopes, ...)
 			try {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
 				jsonConfigs = await res.json();
@@ -92,6 +89,19 @@ export const storeMain = defineStore("main", {
 				return;
 			}
 			Config.instance.populateServerConfigs(jsonConfigs);
+
+			//Load labels
+			try {
+				const labelsRes = await fetch("/labels.json");
+				const labelsJSON = await labelsRes.json();
+				for (const lang in labelsJSON) {
+					StoreProxy.i18n.setLocaleMessage(lang, labelsJSON[lang]);
+				}
+			}catch(error) {
+				console.log(error);
+				this.alertData = "An error occured when loading labels :(";
+				this.initComplete = true;
+			}
 			
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};

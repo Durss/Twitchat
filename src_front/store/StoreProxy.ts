@@ -5,6 +5,7 @@ import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyD
 import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodWebSocket";
+import type { Composer, I18n, VueI18n } from "vue-i18n";
 
 /**
 * Created : 23/09/2022 
@@ -35,6 +36,7 @@ export default class StoreProxy {
 	public static debug:IDebugState & IDebugGetters & IDebugActions & {$state:IDebugState, $reset:()=>void};
 	public static accessibility:IAccessibilityState & IAccessibilityGetters & IAccessibilityActions & {$state:IAccessibilityState, $reset:()=>void};
 	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState, $reset:()=>void};
+	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	
 }
 

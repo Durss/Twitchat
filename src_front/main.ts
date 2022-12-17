@@ -37,9 +37,20 @@ import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
+import { createI18n } from 'vue-i18n'
 
 const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin);
+
+let lang: string = navigator.language || (<any>navigator)['userLanguage'];
+lang = lang.substring(0, 2).toLowerCase();
+// lang = "fr";
+const i18n = createI18n({
+	locale:lang,
+	fallbackLocale: 'en',
+	fallbackWarn:false,
+	// messages: labels,
+});
 
 /**
  * Add route guards for login
@@ -188,8 +199,10 @@ StoreProxy.voice = storeVoice();
 StoreProxy.debug = storeDebug();
 StoreProxy.accessibility = storeAccessibility();
 StoreProxy.admin = storeAdmin();
+StoreProxy.i18n = i18n.global;
 
 app.use(router)
+app.use(i18n)
 .component("country-flag", CountryFlag)
 .component("vue-select", VueSelect)
 .provide("$image", image)
@@ -210,6 +223,7 @@ app.use(router)
 		}
 	}
 });
+app.config.globalProperties.$i18n = i18n;
 app.config.globalProperties.$image = image;
 app.config.globalProperties.$store = storeAccess;
 app.config.globalProperties.$confirm = confirm;
