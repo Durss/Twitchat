@@ -1,7 +1,7 @@
 <template>
 	<div class="paramslist">
 		<!-- <h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1> -->
-		<div class="row" v-for="(p) in params" :key="p.id">
+		<div class="row" v-for="(p, key) in params" :key="key">
 
 			<!-- Special case for shoutout label -->
 			<PostOnChatParam class="item" v-if="p.id==25"
@@ -12,7 +12,7 @@
 				:placeholders="soPlaceholders"
 			/>
 
-			<div class="item">
+			<div :class="'item '+key">
 				<ParamItem :paramData="p" save />
 				<transition
 					@enter="onShowItem"
@@ -202,6 +202,23 @@ export default class ParamsList extends Vue {
 				z-index: 0;
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
+			}
+			
+
+			&.highlightMods {
+				background-color: @highlight_mods;
+			}
+			&.highlightVips {
+				background-color: @highlight_vips;
+			}
+			&.highlightSubs {
+				background-color: @highlight_subs;
+			}
+			&.highlightPartners {
+				background-color: @highlight_partners;
+			}
+			&.highlightMentions {
+				background-color: @highlight_mention;
 			}
 		}
 		

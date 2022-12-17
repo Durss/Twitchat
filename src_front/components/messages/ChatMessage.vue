@@ -582,11 +582,11 @@ export default class ChatMessage extends Vue {
 .chatmessage{
 	.chatMessage();
 
-	&.highlightSubs { background-color: fade(#528bff, 20%); }
-	&.highlightVips { background-color: fade(#db00b3, 20%); }
-	&.highlightMods { background-color: fade(#00a865, 20%); }
-	&.highlightPartners { background-color: fade(#ffb452, 20%); }
-	&.mention { background-color: rgba(255, 0, 0, 20%);}
+	&.highlightSubs { background-color: @highlight_subs; }
+	&.highlightVips { background-color: @highlight_vips; }
+	&.highlightMods { background-color: @highlight_mods; }
+	&.highlightPartners { background-color: @highlight_partners; }
+	&.mention { background-color: @highlight_mention; }
 	
 	// &.highlightSubs { border: 1px solid #528bff; }
 	// &.highlightVips { border: 1px solid #db00b3; }
