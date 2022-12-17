@@ -8,7 +8,7 @@
 			<div class="messageList" ref="messageList">
 				<div v-for="m in $store('chat').whispers[selectedUser.id]" :key="m.id" :class="messageClasses(m)">
 					<span class="time" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
-					<div v-html="m.message_html"></div>
+					<div class="text" v-html="m.message_html"></div>
 				</div>
 			</div>
 
@@ -194,20 +194,29 @@ export default class WhispersState extends Vue {
 
 			.messageList {
 				overflow-y: auto;
+				display: flex;
+				flex-direction: column;
 
 				.message {
 					display: flex;
 					flex-direction: row;
+					align-items: baseline;
+					align-self: flex-start;
 					padding: .5em;
 					margin: .5em 0;
-					width: auto;
+					// width: auto;
 					max-width: 80%;
 					border-radius: .5em;
 					background-color: rgba(255, 255, 255, .2);
+					font-size: var(--messageSize);
+					
+					.text {
+						word-break: break-word;
+					}
 
 					&.isMe {
 						flex-direction: row-reverse;
-						margin-left: auto;
+						align-self: flex-end;
 						margin-right: 0;
 						background-color: rgba(0, 0, 0, .2);
 						.time {
@@ -223,12 +232,7 @@ export default class WhispersState extends Vue {
 					}
 		
 					.time {
-						color: fade(#ffffff, 75%);
-						font-size: 13px;
-						margin-right: .5em;
-						margin-top: .25em;
-						min-width: 2.6em;
-						font-variant-numeric: tabular-nums;
+						.chatMessageTime();
 					}
 				}
 			}
