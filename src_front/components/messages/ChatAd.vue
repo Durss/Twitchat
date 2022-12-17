@@ -332,7 +332,6 @@ export default class ChatAd extends Vue {
 	.innerHolder {
 		border-radius: 1em;
 		overflow: hidden;
-		margin: .5em 0;
 		position: relative;
 		background-color: @mainColor_light;
 	

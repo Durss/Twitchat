@@ -359,6 +359,7 @@ export default class TriggerActionHandler {
 			}
 			trigger = {
 				enabled:true,
+				name:"ad",
 				actions:[
 					{
 						id:Utils.getUUID(),
