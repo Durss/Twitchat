@@ -134,7 +134,7 @@ export type TwitchatEventType =
 	| "TRACK_ADDED_TO_QUEUE"
 	| "RAFFLE_CREATE",
 	| "RAFFLE_STOP",
-	| "RAFFLE_COMPLETE",
+	| "RAFFLE_RESULT",
 	| "COUNTDOWN_COMPLETE"
 	| "COUNTDOWN_START"
 	| "TIMER_START"
@@ -346,7 +346,7 @@ Sent when a new track is added to the queue\
 	url:string,
 }
 ```
-## **RAFFLE_COMPLETE**
+## **RAFFLE_RESULT**
 Sent when a raffle completes
 ### JSON param
 ```typescript

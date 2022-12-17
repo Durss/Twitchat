@@ -566,8 +566,9 @@ export default class Parameters extends Vue {
 
 		.content {
 			//This avoids black space over sticky items inside the content
-			padding: 20px;
+			padding: 30px;
 			&:not(.menu) {
+				width: 100%;
 				max-width: 600px;
 				margin: auto;
 			}

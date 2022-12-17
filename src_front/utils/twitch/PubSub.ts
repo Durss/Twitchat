@@ -1091,7 +1091,7 @@ export default class PubSub extends EventDispatcher {
 				level:0,
 				percent:0,
 			}
-			TriggerActionHandler.instance.onMessage(message);
+			StoreProxy.chat.addMessage(message);
 		}
 	}
 
@@ -1131,7 +1131,7 @@ export default class PubSub extends EventDispatcher {
 			level:train.level,
 			percent:Math.round(train.currentValue/train.goal * 100),
 		}
-		TriggerActionHandler.instance.onMessage(message);
+		StoreProxy.chat.addMessage(message);
 	}
 	
 	/**
@@ -1184,7 +1184,7 @@ export default class PubSub extends EventDispatcher {
 				level:train.level,
 				percent:Math.round(train.currentValue/train.goal * 100),
 			}
-			TriggerActionHandler.instance.onMessage(message);
+			StoreProxy.chat.addMessage(message);
 		}, 1000)
 	}
 	
@@ -1226,7 +1226,7 @@ export default class PubSub extends EventDispatcher {
 			level:train.level,
 			percent:Math.round(train.currentValue/train.goal * 100),
 		}
-		TriggerActionHandler.instance.onMessage(message);
+		StoreProxy.chat.addMessage(message);
 	}
 	
 	/**
@@ -1272,7 +1272,7 @@ export default class PubSub extends EventDispatcher {
 			level:storeTrain.level,
 			percent:Math.round(storeTrain.currentValue/storeTrain.goal * 100),
 		}
-		TriggerActionHandler.instance.onMessage(message);
+		StoreProxy.chat.addMessage(message);
 	}
 	
 	/**

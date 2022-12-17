@@ -302,14 +302,14 @@ export default class SpotifyHelper extends EventDispatcher {
 				|| this._lastTrackInfo?.duration != this.currentTrack.duration 
 				|| this._lastTrackInfo?.title != this.currentTrack.title
 				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
-					const triggerData:TwitchatDataTypes.MessageMusicStartData = {
+					const message:TwitchatDataTypes.MessageMusicStartData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_START,
 						platform:"twitchat",
 						track:this.currentTrack
 					};
-					TriggerActionHandler.instance.onMessage(triggerData);
+					StoreProxy.chat.addMessage(message);
 				}
 				
 				//Broadcast to the overlays
@@ -333,14 +333,14 @@ export default class SpotifyHelper extends EventDispatcher {
 					});
 
 					//Broadcast to the triggers
-					const triggerData:TwitchatDataTypes.MessageMusicStopData = {
+					const message:TwitchatDataTypes.MessageMusicStopData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP,
 						platform:"twitchat",
 						track:this.currentTrack
 					};
-					TriggerActionHandler.instance.onMessage(triggerData);
+					StoreProxy.chat.addMessage(message);
 
 					this._lastTrackInfo = null;
 				}

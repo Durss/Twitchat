@@ -7,6 +7,7 @@ import TriggerActionHandler from "../TriggerActionHandler";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import Utils from "../Utils";
 import DeezerHelperEvent from "./DeezerHelperEvent";
+import StoreProxy from "@/store/StoreProxy";
 
 /**
 * Created : 23/05/2022 
@@ -199,14 +200,14 @@ export default class DeezerHelper extends EventDispatcher{
 					this.playing = false;
 					
 					//Broadcast to the triggers
-					const triggerData:TwitchatDataTypes.MessageMusicStopData = {
+					const message:TwitchatDataTypes.MessageMusicStopData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP,
 						platform:"twitchat",
 						track:this.currentTrack
 					}
-					TriggerActionHandler.instance.onMessage(triggerData);
+					StoreProxy.chat.addMessage(message);
 				});
 				DZ.Event.subscribe('player_play', () => { this.playing = true; });
 				DZ.Event.subscribe('track_end', () => {
@@ -383,14 +384,14 @@ export default class DeezerHelper extends EventDispatcher{
 				cover: this.currentTrack.cover,
 			});
 
-			const triggerData:TwitchatDataTypes.MessageMusicStartData = {
+			const message:TwitchatDataTypes.MessageMusicStartData = {
 				id:Utils.getUUID(),
 				date:Date.now(),
 				type:TwitchatDataTypes.TwitchatMessageType.MUSIC_START,
 				platform:"twitchat",
 				track:this.currentTrack
 			};
-			TriggerActionHandler.instance.onMessage(triggerData);
+			StoreProxy.chat.addMessage(message);
 		}
 	}
 

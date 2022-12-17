@@ -2,7 +2,7 @@
 	<div class="login">
 		<div class="head">
 			<img class="icon" src="@/assets/logo.svg" alt="twitch">
-			<div class="beta">beta</div>
+			<div class="beta" v-if="isBeta === true">beta</div>
 		</div>
 
 		<div class="content betaWarn" v-if="closedBeta === true">
@@ -99,6 +99,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class Login extends Vue {
 
+	public isBeta = false;
 	public closedBeta = false;
 	public generatingCSRF = false;
 	public authenticating = false;
@@ -166,6 +167,7 @@ export default class Login extends Vue {
 		if(this.$router.currentRoute.value.params.betaReason) {
 			this.closedBeta = true;
 		}
+		this.isBeta = Config.instance.BETA_MODE;
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
 		let redirect = this.$router.currentRoute.value.params?.redirect;

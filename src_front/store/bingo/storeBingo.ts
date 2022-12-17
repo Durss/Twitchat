@@ -86,7 +86,6 @@ export const storeBingo = defineStore('bingo', {
 					bingoData:bingo,
 				}
 				sChat.addMessage(m);
-				TriggerActionHandler.instance.onMessage(m);
 			}
 		},
 	} as IBingoActions

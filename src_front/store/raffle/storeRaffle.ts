@@ -146,7 +146,6 @@ export const storeRaffle = defineStore('raffle', {
 				date:Date.now(),
 				raffleData:this.data,
 			}
-			TriggerActionHandler.instance.onMessage(message);
 			StoreProxy.chat.addMessage(message);
 
 			//Post result on chat

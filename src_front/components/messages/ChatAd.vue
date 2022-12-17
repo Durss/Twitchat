@@ -16,63 +16,79 @@
 				<Button aria-label="Remove message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
 				<div class="title">🎉 Latest updates 🎉</div>
 				<div class="version">Version {{appVersion}}</div>
-				<div>TODO :3</div>
-				<!-- <div class="infos">Use <mark>/updates</mark> command to open this back</div>
-				<div class="important">
-					<Splitter class="title">Important</Splitter>
-					<div class="details">
-						<p>Twitchat will now post a message on your chat to let your viewers know about it.</p>
-						<p>One message will be posted every 2 hours if at least 100 messages have been received.</p>
-						<p>The message won't be posted if a link to Twitchat has been posted within the past hour so you can advertise about it by yourself.</p>
-						<Button title="Customize message" small :icon="$image('icons/edit.svg')" @click="openParamPage(contentMainMenu)" />
-						<p class="spacing"><strong>Donors are not concerned</strong><br>If you donated, go under <a @click="openParamPage(contentAccount)">account section</a> to make sure you have the donor badge. If you don't see it, contact me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a> so I give it to you.</p>
-						<p>This feature is <strong>disabled for donors</strong> but you can enable it back if you'd still like to let your viewers know about Twitchat 💝</p>
-					</div>
-				</div>
+				
 				<div class="content">
-					<ToggleBlock class="block new" title="New features" :icons="['new']">
+					<ToggleBlock class="block new" title="New features" :open="false" :icons="['new']">
 						<ul>
 							<li>
-								<img src="@/assets/icons/overlay.svg" class="icon" />
-								<Button aria-label="open overlays params" small title="try it" @click.stop="openParamPage(contentOverlays)" />
-								<span><strong>Unified overlays</strong>. Include all the available overlays in one single browser source for a lesser memory footprint</span>
+								<img src="@/assets/icons/list.svg" class="icon" />
+								<span><strong>New message list</strong>. You can now create as many message list as you want and choose which message types display on each with fine granularity</span>
 							</li>
 							<li>
-								<img src="@/assets/icons/channelPoints.svg" class="icon" />
-								<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-								<span><strong>Highlight my message</strong> channel point reward available on the triggers section. Do anything you want when viewers use it!</span>
+								<img src="@/assets/icons/font.svg" class="icon" />
+								<Button aria-label="open appearance params" small title="try it" @click.stop="openParamPage(contentAppearance)" />
+								<span><strong>Dyslexic-friendly</strong> font added to the parameters</span>
+							</li>
+							<li>
+								<img src="@/assets/icons/emote.svg" class="icon" />
+								<Button aria-label="open features params" small title="try it" @click.stop="openParamPage(contentFeatures)" />
+								<span><strong>Emote-only</strong>: Automatically set your chat on emote-only when stopping your stream</span>
+							</li>
+							<li>
+								<img src="@/assets/icons/hand.svg" class="icon" />
+								<span><strong>Chat restrictions</strong>: At launch, a message will remind you if your chat has any restrictions <i>(follow-only, sub-only, slow-mode,...)</i></span>
+							</li>
+							<li>
+								<img src="@/assets/icons/list.svg" class="icon" />
+								<span><strong>Dont miss new messages</strong> even when reading old messages thanks to a live view of the 3 latest new messages at the bottom</span>
+							</li>
+							<li>
+								<img src="@/assets/icons/shield.svg" class="icon" />
+								<Button aria-label="open emergency button params" small title="try it" @click.stop="openParamPage(contentEmergency)" />
+								<span>Sync <strong>shield mode</strong> with the emergency button</span>
+							</li>
+							<li>
+								<img src="@/assets/icons/shoutout.svg" class="icon" />
+								<span>You'll get notiffied when giving and receiving a <strong>shoutout</strong></span>
 							</li>
 							<li>
 								<img src="@/assets/icons/broadcast.svg" class="icon" />
 								<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-								<span><strong>1 new trigger</strong>: Repeat any actions regularly or execute them at specific dates (see: Triggers => Timers => <strong>Schedule actions</strong>)</span>
+								<span><strong>4 new trigger</strong> events when someone send a "presentation", when the hype train can be started again, when giving a shoutout, when given a shoutout</span>
 							</li>
 							<li>
-								<img src="@/assets/icons/broadcast.svg" class="icon" />
-								<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-								<span><strong>1 new trigger action</strong>: Call another trigger from any trigger</span>
+								<img src="@/assets/icons/commands.svg" class="icon" />
+								<span><strong>4 new commands</strong> to add or remove time to a timer or a countdown <mark>/timeradd</mark>, <mark>/timerremove</mark>, <mark>/countdownadd</mark>, <mark>/countdownremove</mark></span>
 							</li>
 						</ul>
 					</ToggleBlock>
 					<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
 						<ul>
-							<li>Users cannot spam follow/unfollow anymore. Only one notification will be displayed in such case.</li>
-							<li>Cumulative months sub info now displayed <i>(if a viewer buys multiple months at once)</i></li>
-							<li>Open user card from their ID with the <mark>/userinfo</mark> command</li>
+							<li>All commands can now be used from triggers</li>
+							<li>User list will show you the <strong>remaining timeout duration</strong> for every timed out users</li>
+							<li>Messages blocked due to <strong>shared ban info</strong> and waiting for approval will now be displayed</li>
+							<li>When <strong>follow botted</strong>, all follow events will be merged into 1 single expandable notification</li>
+							<li>Start <strong>shield mode</strong> from the emergency button</li>
+							<li>Maximum <strong>raffle</strong> duration extended to 10h</li>
+							<li>Possibility to <strong>highlight partners'</strong> messages</li>
+							<li>BTTV/FFZ/7TV now displayed on emote selectors</li>
+							<li>Notify users if they try to use a cooling down chat command trigger</li>
+							<li>When a message is read by TTS, a button shows up to clear the whole TTS queue</li>
+							<li><strong>Hype train</strong> summaries now show T1, T2 and T3 subs count seperatly</li>
 						</ul>
 					</ToggleBlock>
 					<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
 						<ul>
-							<li>Lots of minor fixes on the triggers parameters. Many "Test trigger" buttons weren't implemented</li>
-							<li>Overlays weren't working if used from an external browser</li>
-							<li>More stable voice control if running multiple twitchat instances</li>
-							<li>Test button of the Wheel overlay was broken</li>
+							<li>TTS for prediction result was  sometimes not saying the winning outcome label</li>
+							<li>Current music track info was not properly filled on triggers</li>
+							<li> Whispers conversation names were wrong when initiating a conversation</li>
+							<li>A conflict between the "group identical messages" and "mark as read" feature. If a message was marked as read and later on the same message was sent, the read mark was moving with it to the bottom</li>
 						</ul>
 					</ToggleBlock>
 				</div>
 				<div class="cta">
 					<Button aria-label="Close updates" @click.stop="deleteMessage()" title="OK got it" />
-				</div> -->
+				</div>
 			</div>
 	
 			<div v-if="isTip" class="tip">
@@ -407,8 +423,8 @@ export default class ChatAd extends Vue {
 			&:not(.left) {
 				text-align: center;
 			}
-	
-			.icon {
+			
+			&>.icon {
 				height: 4em;
 				width: 4em;
 				margin: 0 auto .5em auto;
@@ -427,7 +443,7 @@ export default class ChatAd extends Vue {
 					}
 					:deep(.content){
 						color: @mainColor_warn;
-						background-color: lighten(@mainColor_warn_extralight, 15%);
+						background-color: fade(@mainColor_warn_extralight, 25%);
 					}
 					.button {
 						border-color: @mainColor_warn;
@@ -520,7 +536,7 @@ export default class ChatAd extends Vue {
 						padding: .25em;
 						display: inline;
 						margin-right: .5em;
-						vertical-align: middle;
+						vertical-align: bottom;
 						background: @mainColor_normal;
 					}
 				}

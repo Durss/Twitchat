@@ -47,6 +47,7 @@ export interface TriggerEventTypes extends TwitchatDataTypes.ParameterDataListVa
 	label:string;
 	value:TriggerTypesValue|"0";
 	icon:string;
+	beta?:boolean;
 	description?:string;
 	isCategory?:boolean;
 	testMessageType?:TwitchatDataTypes.TwitchatMessageStringType;
@@ -400,12 +401,12 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Music starts playing", value:TriggerTypes.MUSIC_START, description:"Execute an action when a music starts playing", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Music stops playing", value:TriggerTypes.MUSIC_STOP, description:"Execute an action when a music stops playing", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
-	{category:TriggerEventTypeCategories.TIMER, icon:"date", label:"Scheduled actions", value:TriggerTypes.SCHEDULE, isCategory:true, description:"Execute actions regularly or at specific date/time", noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
+	{beta:true, category:TriggerEventTypeCategories.TIMER, icon:"date", label:"Scheduled actions", value:TriggerTypes.SCHEDULE, isCategory:true, description:"Execute actions regularly or at specific date/time", noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
 	{category:TriggerEventTypeCategories.TIMER, icon:"timer", label:"Timer start", value:TriggerTypes.TIMER_START, description:"Execute an action when a timer is started with the command <mark>/timerStart</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 	{category:TriggerEventTypeCategories.TIMER, icon:"timer", label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped with the command <mark>/timerStop</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 	{category:TriggerEventTypeCategories.TIMER, icon:"countdown", label:"Countdown start", value:TriggerTypes.COUNTDOWN_START, description:"Execute an action when a countdown is started with the command <mark>/countdown</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
 	{category:TriggerEventTypeCategories.TIMER, icon:"countdown", label:"Countdown stop", value:TriggerTypes.COUNTDOWN_STOP, description:"Execute an action when a countdown completes or is stoped", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
-	{category:TriggerEventTypeCategories.TWITCHAT, icon:"shoutout", label:"Shoutout", value:TriggerTypes.SHOUTOUT, description:"Execute an action when doing a shoutout via <mark>/so</mark> command or shoutout button", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
+	{category:TriggerEventTypeCategories.TWITCHAT, icon:"shoutout", label:"Shoutout (Twitchat)", value:TriggerTypes.SHOUTOUT, description:"Execute an action when doing a shoutout via <mark>/so</mark> command or shoutout button", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", label:"Emergency start", value:TriggerTypes.EMERGENCY_MODE_START, description:"Execute an action when enabling the emergency mode", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", label:"Emergency stop", value:TriggerTypes.EMERGENCY_MODE_STOP, description:"Execute an action when stopping the emergency mode", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", label:"Highlighted message", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, description:"Execute an action when requesting to highlight a message", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},

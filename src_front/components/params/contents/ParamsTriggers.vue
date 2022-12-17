@@ -23,7 +23,7 @@
 				:icons="[c.icon]">
 					<div class="disclaimer" v-if="musicServiceAvailable && isMusicCategory(c.category)">These triggers need you to connect with a music service <i>(spotify or deezer)</i> under the <a @click="openOverlays()">overlays section</a>.</div>
 
-					<div v-for="e in c.events" :key="(e.value as string)" :class="e.value=='41'? 'item beta' : 'item'">
+					<div v-for="e in c.events" :key="(e.value as string)" :class="e.beta? 'item beta' : 'item'">
 						<Button class="triggerBt"
 							white
 							:title="e.label"
@@ -86,6 +86,10 @@
 					/>
 				</div>
 			</div>
+		</div>
+		
+		<div class="empty" v-if="triggerData && !currentSubEvent && subeventsList.length == 0 && actionList.length === 0 && !showLoading">
+			- no entry -
 		</div>
 
 		<div class="triggerDescription" v-if="((currentEvent && ! isSublist) || (isSublist && (currentSubEvent || actionList.length > 0))) && !showLoading">
@@ -732,9 +736,13 @@ export default class ParamsTriggers extends Vue {
 		z-index: 1;
 		background-color: #eee;
 		padding-bottom: 1em;
+		margin-top: 1em;
 
 		.backBt {
 			min-width: 30px;
+			height: 30px;
+			flex-basis: 30px;
+			margin-left: -30px;
 		}
 
 		.mainCategoryTitle, .subCategoryTitle {
@@ -756,6 +764,13 @@ export default class ParamsTriggers extends Vue {
 			}
 			.label {
 				flex-grow: 1;
+				line-height: .8em;
+			}
+			&.mainCategoryTitle {
+				padding-right: 2em;
+				.label {
+					text-align: center;
+				}
 			}
 		}
 
@@ -794,11 +809,11 @@ export default class ParamsTriggers extends Vue {
 							left: 0;
 							color:@mainColor_light;
 							background-color: @mainColor_normal;
-							background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 30%, fade(@mainColor_normal, 100%) 100%);
+							background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 0%, fade(@mainColor_normal, 100%) 100%);
 							height: 100%;
 							display: flex;
 							align-items: center;
-							padding: 0 1em 0 .35em;
+							padding: 0 .35em;
 							font-size: .8em;
 							font-family: var(--font-nunito);
 							text-transform: uppercase;
@@ -843,6 +858,11 @@ export default class ParamsTriggers extends Vue {
 				}
 			}
 		}
+	}
+	.empty {
+		font-style: italic;
+		text-align: center;
+		margin-bottom: 1.5em;
 	}
 
 	.triggerDescription {
