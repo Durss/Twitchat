@@ -12,12 +12,12 @@
 		<div class="messages" v-if="messages.length > 0">
 			<ChatMessage
 				v-for="m in messages"
-				:key="m.id"
 				class="message"
-				:messageData="m"
 				:ref="'message_'+m.id"
-				:lightMode="true"
-				:disableConversation="true"
+				:key="m.id"
+				:messageData="m"
+				lightMode
+				:highlightedWords="[search]"
 				:enableWordHighlight="true"
 			/>
 		</div>
@@ -84,7 +84,6 @@ export default class MessageSearch extends Vue {
 			// const text = m.message.replace(/<[^>]*?>/gi, "");
 			if(new RegExp(this.search, "gim").test(text)
 			|| m.user.displayName.toLowerCase() == this.search.toLowerCase()) {
-				m.highlightWord = this.search;
 				result.push(m);
 			}
 		}
@@ -127,15 +126,6 @@ export default class MessageSearch extends Vue {
 
 	.messages {
 		overflow-y: auto;
-
-		:deep(.time) {
-			color: fade(#ffffff, 75%);
-			font-size: .8em;
-			vertical-align: middle;
-			display: inline-block;
-			margin-right: .7em;
-			font-variant-numeric: tabular-nums;
-		}
 
 		.message {
 			margin: .25em 0;

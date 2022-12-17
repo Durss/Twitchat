@@ -442,9 +442,6 @@ export const storeChat = defineStore('chat', {
 						message.hasMention = login != null
 											&& new RegExp("(^| |@)("+login+")($|\\s)", "gim")
 											.test(message.message ?? "");
-						if(message.hasMention) {
-							message.highlightWord = login;
-						}
 					}
 	
 					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)

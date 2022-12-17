@@ -133,7 +133,7 @@ import ChatModTools from './components/ChatModTools.vue';
 		messageData:Object,
 		lightMode:{type:Boolean, default:false},
 		disableConversation:{type:Boolean, default:false},
-		enableWordHighlight:{type:Boolean, default:false},
+		highlightedWords:{type:Array, default:[]},
 	},
 	emits:['showConversation', 'showUserMessages', 'onOverMessage', 'onRead'],
 })
@@ -142,7 +142,7 @@ export default class ChatMessage extends Vue {
 	public messageData!:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
 	public lightMode!:boolean;
 	public disableConversation!:boolean;
-	public enableWordHighlight!:boolean;
+	public highlightedWords!:string[];
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	
 	public text = "";
@@ -330,7 +330,7 @@ export default class ChatMessage extends Vue {
 
 		const mess			= this.messageData;
 		const infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
-		let highlightedWords:string[] = [];
+		let highlightedWords:string[] = this.highlightedWords.concat();
 
 		if(mess.cyphered) infoBadges.push({type:"cyphered"});
 
@@ -361,7 +361,7 @@ export default class ChatMessage extends Vue {
 			//Manage twitch automod content
 			if(!this.lightMode && mess.twitch_automod) {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
-				highlightedWords = mess.twitch_automod.words;
+				highlightedWords = highlightedWords.concat(mess.twitch_automod.words);
 			}
 
 			//Precompute static flag
@@ -389,7 +389,10 @@ export default class ChatMessage extends Vue {
 			if(this.messageData.twitch_isSlashMe)		staticClasses.push("slashMe");
 			if(this.messageData.twitch_isHighlighted)	staticClasses.push("highlighted");
 			if(this.messageData.type == "message"
-				&& this.messageData.hasMention)			staticClasses.push("mention");
+			&& this.messageData.hasMention)	{
+				staticClasses.push("mention");
+				highlightedWords.push(StoreProxy.auth.twitch.user.login);
+			}
 			if(this.isAnnouncement) {
 				const color = this.messageData.twitch_announcementColor!;
 				staticClasses.push("announcement", color);
@@ -426,12 +429,15 @@ export default class ChatMessage extends Vue {
 		}
 		
 
-		let txt = "";
+		let txt = this.messageData.message_html;
 		if(this.$store("params").appearance.showEmotes.value !== true) {
 			txt = this.messageData.message;
-		}else{
+		}
+		
+		if(txt.indexOf("<a") > -1) {
+			//Add copy butotn next to links
 			const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
-			txt = this.messageData.message_html.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
+			txt = txt.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
 		}
 		
 		if(highlightedWords.length > 0) {
@@ -588,13 +594,6 @@ export default class ChatMessage extends Vue {
 	&.highlightPartners { background-color: @highlight_partners; }
 	&.mention { background-color: @highlight_mention; }
 	
-	// &.highlightSubs { border: 1px solid #528bff; }
-	// &.highlightVips { border: 1px solid #db00b3; }
-	// &.highlightMods { border: 1px solid #00a865; }
-
-	// &.highlightSubs { border-right: 1em solid #528bff; }
-	// &.highlightVips { border-right: 1em solid #db00b3; }
-	// &.highlightMods { border-right: 1em solid #00a865; }
 	&.highlighted { 
 		.message {
 			background-color: @mainColor_normal;

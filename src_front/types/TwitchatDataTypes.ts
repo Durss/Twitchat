@@ -936,7 +936,6 @@ export namespace TwitchatDataTypes {
 			deleter:TwitchatUser;
 		};
 		occurrenceCount?: number;
-		highlightWord?: string;
 		hasMention?: boolean;
 		spoiler?: boolean;
 		bypassBotFilter?: boolean;//used so messages sent by extensions are displayed
