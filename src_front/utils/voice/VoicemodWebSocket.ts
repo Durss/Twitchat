@@ -128,7 +128,15 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			}
 		});
 	}
+
+	/**
+	 * Disconnects socket
+	 */
 	public disconnect():void {
+		this._memesList = [];
+		this._voicesList = [];
+		this._voiceIdToImage = {};
+		this._voiceIdImageToPromise = {};
 		this._autoReconnect = false;
 		this._socket.close();
 	}

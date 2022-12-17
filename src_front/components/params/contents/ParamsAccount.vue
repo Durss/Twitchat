@@ -2,11 +2,9 @@
 	<div class="paramsaccount">
 		<img :src="userPP" alt="profile pic" class="profilePic">
 
-		<div class="title">Connected as <strong>{{userName}}</strong></div>
+		<div class="head">Connected as <strong>{{userName}}</strong></div>
 
-		<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" />
-
-		<div v-if="isDonor" class="donorHolder">
+		<section v-if="isDonor" class="donorHolder">
 			<DonorState class="donorBadge" />
 			<div class="badgesList">
 				<img src="@/assets/icons/donor_placeholder.svg" class="badge" v-for="i in 9-donorLevel" />
@@ -16,10 +14,17 @@
 			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
 			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
 			<div class="infos" v-if="publicDonation_loaded">Makes your login visible by everyone on the donor list under <a @click="$emit('setContent', contentAbout)">About section</a>.</div>
-		</div>
+		</section>
 
-		<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
-		<Button class="button logoutBt" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
+		<section class="actions">
+			<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
+			<Button class="button" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
+		</section>
+		
+		<section class="dataSync">
+			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" />
+			<Button class="button" @click="eraseData()" bounce title="Erase local data" highlight :icon="$image('icons/delete.svg')" />
+		</section>
 	</div>
 </template>
 
@@ -112,6 +117,9 @@ export default class ParamsAccount extends Vue {
 		ahsInstaller.prompt();
 	}
 
+	public eraseData():void {
+	}
+
 	private async updateDonationState():Promise<void> {
 		try {
 			const options = {
@@ -135,12 +143,8 @@ export default class ParamsAccount extends Vue {
 
 <style scoped lang="less">
 .paramsaccount{
-	display: flex;
-	flex-direction: column;
+	.parameterContent();
 	align-items: center;
-	&>* {
-		margin-bottom: 1em;
-	}
 
 	.profilePic {
 		height: 4em;
@@ -161,10 +165,6 @@ export default class ParamsAccount extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		border: 1px solid @mainColor_normal;
-		background-color: fade(@mainColor_normal, 10%);
-		border-radius: 1em;
-		// max-width: 420px;
 		padding: 1em 0;
 		.donorBadge {
 			margin-top: 1em;
@@ -191,6 +191,24 @@ export default class ParamsAccount extends Vue {
 			margin-top: .25em;
 			max-width: 300px;
 			font-size: .8em;
+		}
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		&>*:not(:first-child) {
+			margin-top: .5em;
+		}
+	}
+
+	.dataSync {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		&>*:not(:first-child) {
+			margin-top: .5em;
 		}
 	}
 

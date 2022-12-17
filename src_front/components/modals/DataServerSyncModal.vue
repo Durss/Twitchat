@@ -60,6 +60,14 @@ import ToggleBlock from '../ToggleBlock.vue';
 	},
 	emits:['close'],
 })
+
+/**
+ * NOT USED ANYMORE
+ * This was too confusing for post people, i've removed it.
+ * The goal of this view was to let user choose whether they wanted to
+ * sync their data with the server or not. I switched that to "yes" by
+ * default and removed the choice.
+ */
 export default class DataServerSyncModal extends Vue {
 
 	public isNewUser:boolean = true;

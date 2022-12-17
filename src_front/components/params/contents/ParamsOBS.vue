@@ -4,7 +4,7 @@
 
 		<div class="head">
 			<p>Create your own twitch alerts, allow your mods basic control over your OBS and much more</p>
-			<p class="install">In order to work, this needs <strong>OBS v28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
+			<p class="small">In order to work, this needs <strong>OBS v28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
 		</div>
 
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
@@ -230,21 +230,7 @@ export default class ParamsOBS extends Vue {
 
 <style scoped lang="less">
 .paramsobs{
-
-	.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
-	.head {
-		text-align: center;
-		margin-bottom: 20px;
-		
-		.install {
-			font-size: .8em;
-		}
-	}
+	.parameterContent();
 
 	.loader {
 		display: block;
@@ -252,20 +238,11 @@ export default class ParamsOBS extends Vue {
 		margin-top: 10px;
 	}
 
-	.enableBt {
-		width: min-content;
-		margin: 1.5em auto;
-		border: 1px solid @mainColor_normal;
-		border-radius: 1em;
-		padding: .5em 1em !important;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		:deep(label) {
-			white-space: nowrap;
-		}
-	}
-
 	.block:not(:first-of-type) {
 		margin-top: .5em;
+	}
+	.block:first-of-type {
+		margin-top: 1em;
 	}
 
 	.fadeHolder {

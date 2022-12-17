@@ -109,7 +109,7 @@
 		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
-		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
+		<!-- <DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" /> -->
 
 		<DonorState ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 

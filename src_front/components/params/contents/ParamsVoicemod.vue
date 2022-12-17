@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsvoicemod">
 		<img src="@/assets/icons/voicemod_purple.svg" alt="voicemod icon" class="icon">
-		<div class="title">Control <strong>Voicemod</strong> from Twitchat</div>
+		<div class="head">Control <strong>Voicemod</strong> from Twitchat</div>
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting">
@@ -129,6 +129,7 @@ export default class ParamsVoicemod extends Vue {
 	 */
 	public async populate():Promise<void> {
 		this.voices = VoicemodWebSocket.instance.voices;
+		this.voiceParams = [];
 		const storeParams = this.$store("voice").voicemodParams as TwitchatDataTypes.VoicemodParamsData;
 
 		//Build hashmap for faster access
@@ -205,41 +206,13 @@ export default class ParamsVoicemod extends Vue {
 
 <style scoped lang="less">
 .paramsvoicemod{
-	.icon {
-		height: 5em;
-		display: block;
-		margin: auto;
-		margin-bottom: 1em;
-	}
-
-	.title {
-		text-align: center;
-		margin-bottom: 1em;
-	}
-
-	.enableBt {
-		width: min-content;
-		margin: auto;
-		margin-top: 1.5em;
-		border: 1px solid @mainColor_normal;
-		border-radius: 1em;
-		padding: .5em 1em !important;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		:deep(label) {
-			white-space: nowrap;
-		}
-	}
+	.parameterContent();
 
 	.fadeHolder {
 		transition: opacity .2s;
 	}
 
 	section {
-		overflow: hidden;
-		border-radius: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
-		margin-top: 1.5em;
 		
 		.item {
 			&:not(:first-child) {
@@ -284,6 +257,9 @@ export default class ParamsVoicemod extends Vue {
 				:deep(.icon) {
 					width: 2em;
 					height: 2em;
+				}
+				:deep(.content) {
+					align-items: center;
 				}
 			}
 		}

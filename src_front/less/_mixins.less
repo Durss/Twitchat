@@ -213,11 +213,73 @@
 		height: 4em;
 		display: block;
 		margin: auto;
-		margin-bottom: 1em;
 	}
 
 	&>.head {
-		margin-bottom: 1em;
+		margin-top: 1em;
 		text-align: center;
+		&.small, &>.small {
+			font-size: .8em;
+			.btExample {
+				height: 1.25em;
+				padding: .25em;
+				border-radius: .25em;
+				background-color: @mainColor_alert;
+				vertical-align: middle;
+			}
+		}
+		&>.small {
+			margin-top: .5em;
+		}
+	}
+
+	&>.enableBt {
+		width: min-content;
+		margin: auto;
+		margin-top: 1em;
+		border: 1px solid @mainColor_normal;
+		border-radius: 1em;
+		padding: .5em 1em !important;
+		background-color: fade(@mainColor_normal_extralight, 30%);
+		:deep(label) {
+			white-space: nowrap;
+		}
+	}
+
+	section {
+		border-radius: .5em;
+		background-color: fade(@mainColor_normal_extralight, 30%);
+		padding: .5em;
+		margin: 1em auto 1em auto;
+			
+		.warn {
+			overflow: hidden;
+			padding: .5em;
+			padding-left: calc(1em + 10px);
+			background-color: @mainColor_light;
+			border-radius: .5em;
+			margin-bottom: .5em;
+			img {
+				height: 1em;
+				margin-right: .5em;
+				vertical-align: middle;
+			}
+			.label {
+				display: inline;
+				color: @mainColor_warn;
+			}
+		}
+		
+		.splitter {
+			margin: .25em 0 1em 0;
+		}
+	}
+
+	mark {
+		font-weight: bold;
+		padding: .25em .5em;
+		border-radius: .5em;
+		font-size: .8em;
+		background: fade(@mainColor_normal, 15%);
 	}
 }

@@ -291,7 +291,7 @@
 	"SDKVersion": 2,
 	"Author": "Durss",
 	"CodePath": "index.html",
-	"Description": "Manage twitchat",
+	"Description": "Control Twitchat. Scroll messages, marke them as read, send a shoutout to the latest raider, un/censor deleted messages, open/close current poll, prediction, bingo or raffle, stop current text to speech, ...",
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",

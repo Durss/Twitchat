@@ -4,10 +4,12 @@
 
 		<p class="head">A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button</p>
 		
-		<Splitter>Install steps</Splitter>
-
 		<ol>
-			<li><span class="index">1.</span>This plugin needs <strong>OBS 28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket V5+</a> plugin to be installed</li>
+			<li>
+				<span class="index">1.</span>This plugin needs <strong>OBS 28+</strong>
+				<br>
+				<i>(or <a :href="obswsInstaller" target="_blank">OBS-websocket V5+</a> plugin to be installed on OBS 27)</i>
+			</li>
 			
 			<li><span class="index">2.</span> 
 				<Button :icon="$image('icons/elgato.svg')"
@@ -22,7 +24,7 @@
 			<li><span class="index">3.</span>Head over the <a @click="$emit('setContent', contentObs)">OBS tab</a> and set the OBS-Websocket credentials to link Twitchat with OBS.</li>
 
 			<li><span class="index">4.</span>On your Stream Deck™ software, drop any action from the Twitchat library, and watch the properties panel.
-			<br>You should be asked to enter your OBS-Websocket credentials:
+			<br>You should be prompted to set OBS-Websocket credentials:
 			<img src="@/assets/img/streamdeck_credentials.png" alt="credentials"></li>
 
 			<li><span class="index">5.</span>Once everything is done you should be able to control Twitchat from your Stream Deck™ 🥳🎉</li>
@@ -68,6 +70,7 @@ export default class ParamsStreamdeck extends Vue {
 			background-color: fade(@mainColor_normal_extralight, 30%);
 			padding: .5em;
 			width: 100%;
+			line-height: 1.2em;
 			.index {
 				display: blo;
 				font-weight: bold;
@@ -75,11 +78,14 @@ export default class ParamsStreamdeck extends Vue {
 				margin-right: .5em;
 			}
 
-			&>:deep(img) {
+			&>img {
 				display: block;
 				max-width: 100%;
 				margin: auto;
 				margin-top: .5em;
+			}
+			i {
+				font-size: .9em;
 			}
 		}
 	}

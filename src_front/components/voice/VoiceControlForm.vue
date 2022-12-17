@@ -92,8 +92,6 @@ export default class VoiceControlForm extends Vue {
 
 <style scoped lang="less">
 .voicecontrolform{
-	width: 100%;
-	height: 100%;
 
 	.langSelector {
 		width:100%;
@@ -106,7 +104,7 @@ export default class VoiceControlForm extends Vue {
 	}
 
 	.block {
-		margin-top: 1em;
+		margin-top: .5em;
 
 		.temp {
 			font-style: italic;
@@ -121,10 +119,7 @@ export default class VoiceControlForm extends Vue {
 		background-color: fade(@mainColor_normal_extralight, 30%);
 		padding: .5em;
 		&:not(:first-of-type) {
-			margin-top: 2em;
-		}
-		.splitter {
-			margin: .25em 0 .5em 0;
+			margin-top: 1em;
 		}
 	}
 

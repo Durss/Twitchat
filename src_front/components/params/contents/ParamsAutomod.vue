@@ -2,7 +2,7 @@
 	<div class="paramsautomod">
 		<img src="@/assets/icons/mod_purple.svg" alt="emergency icon" class="icon">
 		
-		<div class="header">Automatically delete messages</div>
+		<div class="head">Automatically delete messages</div>
 		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
 	
 		<div class="disclaimers">
@@ -242,37 +242,16 @@ export default class ParamsAutomod extends Vue {
 .paramsautomod{
 	.parameterContent();
 
-	&>.enableBt {
-		width: min-content;
-		margin: auto;
-		margin-top: 1.5em;
-		border: 1px solid @mainColor_normal;
-		border-radius: 1em;
-		padding: .5em 1em !important;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		:deep(label) {
-			white-space: nowrap;
-		}
-	}
-
-	.header {
-		text-align: center;
-		.small {
-			font-size: .8em;
-		}
-	}
-
 	.disclaimers {
 		display: flex;
 		flex-direction: column;
-		margin-top: 1.5em;
+		margin-top: 1em;
 		padding: .5em;
 		border-radius: .5em;
 		background-color: fade(@mainColor_normal, 10%);
 	}
 
 	.options{
-		margin-top: 1.5em;
 		.permsTitle {
 			margin-top: .5em;
 			margin-bottom: .5em;
@@ -285,7 +264,6 @@ export default class ParamsAutomod extends Vue {
 	.testForm {
 		display: flex;
 		flex-direction: column;
-		margin: 1.5em auto 0 auto;
 		width: 100%;
 		max-width: 300px;
 		padding: .5em;
@@ -345,20 +323,10 @@ export default class ParamsAutomod extends Vue {
 		}
 	}
 
-	mark {
-		line-height: 1.5em;
-		background-color: fade(@mainColor_normal, 15%);
-		padding: .1em .5em;
-		border-radius: .5em;
-	}
-	
 
 	.item {
 		&:not(:first-child) {
 			margin-top: .5em;
-		}
-		&.splitter {
-			margin: .25em 0 1em 0;
 		}
 	}
 
@@ -366,10 +334,6 @@ export default class ParamsAutomod extends Vue {
 		transition: opacity .2s;
 
 		section {
-			border-radius: .5em;
-			background-color: fade(@mainColor_normal_extralight, 30%);
-			padding: .5em;
-			margin-top: 2em;
 	
 			.addBt {
 				margin: auto;
@@ -381,12 +345,12 @@ export default class ParamsAutomod extends Vue {
 				margin-top: 1em;
 
 				.block {
-					&:not(:last-child) {
-						margin-bottom: .5em;
-					}
 
 					&:deep(h2) {
-						margin-left: calc(2em + 20px + .5em);
+						margin-left: calc(2em + 20px + .5em);//Make sure title is centered
+					}
+					&:deep(.content) {
+						background-color: @mainColor_light;
 					}
 
 					.deleteBt {

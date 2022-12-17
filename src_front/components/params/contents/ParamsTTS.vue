@@ -321,34 +321,14 @@ export default class ParamsTTS extends Vue {
 .paramstts{
 	.parameterContent();
 
-	.enableBt {
-		width: min-content;
-		margin: auto;
-		border: 1px solid @mainColor_normal;
-		border-radius: 1em;
-		padding: .5em 1em !important;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		:deep(label) {
-			white-space: nowrap;
-		}
-	}
-
 	.fadeHolder {
 		transition: opacity .2s;
 
 		section {
-			overflow: hidden;
-			border-radius: .5em;
-			background-color: fade(@mainColor_normal_extralight, 30%);
-			padding: .5em;
-			margin-top: 1.5em;
 			
 			.item {
 				&:not(:first-child) {
 					margin-top: .5em;
-				}
-				&.splitter {
-					margin: .5em 0 1em 0;
 				}
 				&.label {
 					i {
@@ -397,14 +377,6 @@ export default class ParamsTTS extends Vue {
 				fill: @mainColor_light;
 			}
 		}
-	}
-
-	mark {
-		font-weight: bold;
-		padding: .25em .5em;
-		border-radius: .5em;
-		font-size: .8em;
-		background: fade(@mainColor_normal, 15%);
 	}
 	
 }

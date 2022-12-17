@@ -4,7 +4,7 @@ import type { IAccountActions, IAccountGetters, IAccountState } from '../StorePr
 
 export const storeAccount = defineStore('account', {
 	state: () => ({
-		syncDataWithServer: { type:"toggle", value:false, label:"Sync parameters to server", id:401 },
+		syncDataWithServer: { type:"toggle", value:true, label:"Sync parameters to server", id:401 },
 		publicDonation: { type:"toggle", value:false, label:"Make my donation public", id:402 },
 	} as IAccountState),
 

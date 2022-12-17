@@ -307,6 +307,13 @@ export default class Parameters extends Vue {
 			this.closing = false;
 			this.filteredParams = [];
 			this.$store("main").setShowParams(false);
+			if(this.content == "overlays") {
+				//Go back to home if on the overlays section.
+				//That section fires lots of OBS-WS events to check for overlays
+				//presence, we want to avoid this from continuing when params are
+				//closed.
+				this.content = null;
+			}
 		}});
 	}
 

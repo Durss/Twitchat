@@ -19,7 +19,7 @@
 
 		<VoiceControlForm class="block" v-if="connected" sttOnly />
 		
-		<DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" />
+		<!-- <DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" /> -->
 	</div>
 </template>
 

@@ -283,45 +283,10 @@ export default class ParamsEmergency extends Vue {
 .paramsemergency{
 	.parameterContent();
 
-	.head {
-		margin-bottom: .5em;
-		&.small {
-			font-size: .8em;
-			margin-bottom: 0;
-			.btExample {
-				height: 1.25em;
-				padding: .25em;
-				border-radius: .25em;
-				background-color: @mainColor_alert;
-				vertical-align: middle;
-			}
-		}
-	}
-
-	.enableBt {
-		width: min-content;
-		margin: auto;
-		margin-top: 1.5em;
-		margin-bottom: 1.5em;
-		border: 1px solid @mainColor_normal;
-		border-radius: 1em;
-		padding: .5em 1em !important;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		:deep(label) {
-			white-space: nowrap;
-		}
-	}
-
 	.fadeHolder {
 		transition: opacity .2s;
 
 		section {
-			border-radius: .5em;
-			background-color: fade(@mainColor_normal_extralight, 30%);
-			padding: .5em;
-			&:not(:first-of-type) {
-				margin-top: 2em;
-			}
 
 			.twitchParams {
 				position: relative;
@@ -345,31 +310,10 @@ export default class ParamsEmergency extends Vue {
 					background-position-x: 50%;
 				}
 			}
-			
-			.warn {
-				overflow: hidden;
-				padding: .5em;
-				padding-left: calc(1em + 10px);
-				background-color: @mainColor_light;
-				border-radius: .5em;
-				margin-bottom: .5em;
-				img {
-					height: 1em;
-					margin-right: .5em;
-					vertical-align: middle;
-				}
-				.label {
-					display: inline;
-					color: @mainColor_warn;
-				}
-			}
 
 			.item {
 				&:not(:first-child) {
 					margin-top: .5em;
-				}
-				&.splitter {
-					margin: .25em 0 1em 0;
 				}
 				&.label {
 					margin-bottom: .5em;
@@ -425,13 +369,5 @@ export default class ParamsEmergency extends Vue {
 		}
 	}
 
-	mark {
-		font-weight: bold;
-		padding: .25em .5em;
-		border-radius: .5em;
-		font-size: .8em;
-		background: fade(@mainColor_normal, 15%);
-	}
-	
 }
 </style>

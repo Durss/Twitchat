@@ -59,7 +59,7 @@ export default class OverlayParamsMusic extends Vue {
 
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
-	public mounted():void {
+	public beforeMount():void {
 		const params = this.$store("music").musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		this.param_autoHide.children = [this.param_autoHideErase];
 		this.param_autoHideErase.value = params.erase;
