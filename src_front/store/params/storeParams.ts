@@ -79,9 +79,9 @@ export const storeParams = defineStore('params', {
 					community_challenge_contribution: false
 				},
 				messageFilters: {
-					automod: true,
-					suspiciousUsers: true,
-					deleted: true,
+					automod: false,
+					suspiciousUsers: false,
+					deleted: false,
 					bots: true,
 					commands: true,
 					moderators: true,
