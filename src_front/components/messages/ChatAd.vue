@@ -129,12 +129,12 @@
 	
 			<div v-if="isSponsorPublicPrompt" class="sponsorPrompt">
 				<Button aria-label="Close message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">❤ Hey lovely donator ❤</div>
+				<div class="title">❤ Hey lovely donor ❤</div>
 				<div class="content">
 					<img src="@/assets/icons/follow_purple.svg" alt="discord" class="icon">
 					<div>Thank you again for supporting Twitchat with your donation.</div>
-					<div>A list of all the donators is now visible under <a @click="openParamPage(contentAbout)">About section</a>.</div>
-					<div>Donation are anonymous by default but you can chose to make it public if you wish!</div>
+					<div>A list of all the donor is visible by everyone under <a @click="openParamPage(contentAbout)">About section</a>.</div>
+					<div>Donation are anonymous by default but you can chose to make yours public if you wish!</div>
 					<div v-if="madeDonationPublic"><br>Thank you ❤.<br>You can change your mind anytime under <a @click="openParamPage(contentAccount)">Account section</a>.</div>
 				</div>
 				<div class="cta">

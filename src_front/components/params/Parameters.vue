@@ -228,25 +228,6 @@ export default class Parameters extends Vue {
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public async beforeMount():Promise<void> {
-		this.updateAdPreview();
-		const v = this.$store("main").tempStoreValue as string;
-		if(!v) return;
-		if(v.indexOf("CONTENT:") === 0) {
-			//Requesting sponsor page
-			let pageId = v.replace("CONTENT:", "") as TwitchatDataTypes.ParamsContentStringType|null;
-			if(pageId == TwitchatDataTypes.ParamsCategories.MAIN_MENU) pageId = null;
-			this.content = pageId;
-
-		}else if(v.indexOf("SEARCH:") === 0) {
-			//Prefilled search
-			const chunks = v.replace("SEARCH:", "").split(".");
-			if(chunks.length == 2) {
-				const cat = chunks[0] as TwitchatDataTypes.ParameterCategory;
-				const paramKey = chunks[1];
-				this.search = this.$store("params").$state[cat][paramKey].label;
-			}
-		}
-		this.$store("main").tempStoreValue = null;
 	}
 
 	public async mounted():Promise<void> {
@@ -296,6 +277,26 @@ export default class Parameters extends Vue {
 			this.title = null;
 			this.filterParams(this.search);
 		}
+		
+		this.updateAdPreview();
+		const v = this.$store("main").tempStoreValue as string;
+		if(!v) return;
+		if(v.indexOf("CONTENT:") === 0) {
+			//Requesting sponsor page
+			let pageId = v.replace("CONTENT:", "") as TwitchatDataTypes.ParamsContentStringType|null;
+			if(pageId == TwitchatDataTypes.ParamsCategories.MAIN_MENU) pageId = null;
+			this.content = pageId;
+
+		}else if(v.indexOf("SEARCH:") === 0) {
+			//Prefilled search
+			const chunks = v.replace("SEARCH:", "").split(".");
+			if(chunks.length == 2) {
+				const cat = chunks[0] as TwitchatDataTypes.ParameterCategory;
+				const paramKey = chunks[1];
+				this.search = this.$store("params").$state[cat][paramKey].label;
+			}
+		}
+		this.$store("main").tempStoreValue = null;
 	}
 
 	public async close():Promise<void> {

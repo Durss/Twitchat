@@ -204,6 +204,7 @@ export default class WhispersState extends Vue {
 					align-self: flex-start;
 					padding: .5em;
 					margin: .5em 0;
+					line-height: 1.25em;
 					// width: auto;
 					max-width: 80%;
 					border-radius: .5em;
