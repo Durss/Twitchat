@@ -102,7 +102,7 @@
 		</div>
 
 		<div class="floatingLetters">
-			<img v-for="i of 40"
+			<img v-for="i of 20"
 			ref="letter"
 			:src="$image('img/homepage/letters/'+getLetter()+'.svg')">
 		</div>
@@ -137,6 +137,7 @@ export default class Home extends Vue {
 	private index = 0;
 	private disposed = false;
 	private prevTs = 0;
+	private letterParams:{x:number, y:number, s:number, r:number, o:number}[] = [];
 
 	public get hasAuthToken():boolean { return DataStore.get(DataStore.TWITCH_AUTH_TOKEN) != null; }
 	public get nextIndex():number { return this.index ++; }
@@ -281,19 +282,22 @@ export default class Home extends Vue {
 		for (let i = 0; i < letters.length; i++) {
 			const l = letters[i];
 			const pageH = this.$el.offsetHeight;
-			let py = parseFloat(l.style.top);
-			if(isNaN(py)) {
-				py = -Math.random()*pageH;
+			if(this.letterParams.length <= i) {
+				this.letterParams.push({
+					y:-Math.random()*pageH,
+					x:Math.random()*document.body.offsetWidth,
+					s:Math.random()*3 + .5,
+					o:Math.random()*.1 + .025,
+					r:Math.random()*360,
+				})
 				l.style.left = (Math.random()*document.body.offsetWidth)+"px";
-				l.style.opacity = (Math.random()*.1 + .025).toString();
-				l.style.transform = "scale("+(Math.random()*3 + .5)+") rotate("+(Math.random()*360)+"deg)";
 			}
-			if(py < - pageH - 200) py = 200;
-			l.style.top = (py - i*.1)+"px";
-			let r = parseFloat(l.style.transform.replace(/.*rotate\(([0-9.]+)deg\).*/gi, "$1"));
-			if(i %2 == 0) r += .01 * i * timeScale;
-			else  r -= .01 * i * timeScale;
-			l.style.transform = l.style.transform.replace(/[0-9.]+deg/gi, r+"deg")
+			const param = this.letterParams[i];
+			if(param.y < - pageH - 200) param.y = 200;
+			param.y = param.y - i*.1;
+			if(i %2 == 0) param.r += .01 * i * timeScale;
+			else  param.r -= .01 * i * timeScale;
+			gsap.set(l, {y:param.y, x:param.x, rotate:param.r+"deg", scale:param.s, opacity:param.o})
 		}
 	}
 }
@@ -536,6 +540,7 @@ export default class Home extends Vue {
 
 				.description {
 					font-size: .6em;
+					line-height: 1.25em;
 					
 					:deep(mark) {
 						background-color: @mainColor_normal;
