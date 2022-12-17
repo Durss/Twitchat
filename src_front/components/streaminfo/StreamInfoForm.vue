@@ -221,6 +221,9 @@ export default class StreamInfoForm extends Vue {
 
 	.item {
 		margin-top: .5em;
+		background-color: fade(@mainColor_normal_extralight, 30%);
+		padding: .5em;
+		border-radius: .5em;
 	}
 
 	.presets {
@@ -295,6 +298,14 @@ export default class StreamInfoForm extends Vue {
 				background-position: center;
 				transition: .25s all;
 			}
+		}
+	}
+
+	.category :deep(.selected) {
+		width: 100%;
+		.button {
+			display: flex;
+			margin: auto;
 		}
 	}
 

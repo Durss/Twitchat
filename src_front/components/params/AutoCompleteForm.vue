@@ -154,12 +154,14 @@ export default class AutoCompleteForm extends Vue {
 	.form {
 		display: flex;
 		flex-direction: row;
+		flex-wrap: wrap;
 		label {
 			flex-grow: 1;
 		}
 		.inputHolder {
 			position: relative;
 			width: auto;
+			flex-basis: 300px;
 			.loader {
 				height: 1em;
 				width: 1em;

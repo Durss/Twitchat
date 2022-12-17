@@ -214,9 +214,12 @@ export default class BingoForm extends Vue {
 			.row {
 				display: flex;
 				flex-direction: column;
+				background-color: fade(@mainColor_normal_extralight, 30%);
+				padding: .5em;
+				border-radius: .5em;
 				
 				:deep(input) {
-					width: 100px;
+					flex-basis: 100px;
 					text-align: center;
 				}
 			}

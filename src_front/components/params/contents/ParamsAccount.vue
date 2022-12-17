@@ -118,6 +118,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public eraseData():void {
+		this.$store("main").confirm("Erase local data?","This will ")
 	}
 
 	private async updateDonationState():Promise<void> {

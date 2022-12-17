@@ -18,7 +18,7 @@ export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bing
 export interface TriggerData {
 	enabled:boolean;
 	actions:TriggerActionTypes[];
-	name?:string;
+	name:string;
 	prevKey?:string;
 	permissions?:TwitchatDataTypes.PermissionsData;
 	cooldown?:{global:number, user:number, alert:boolean};

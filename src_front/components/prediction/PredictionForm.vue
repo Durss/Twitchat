@@ -198,6 +198,9 @@ export default class PredictionForm extends Vue {
 				margin-top: 10px;
 				display: flex;
 				flex-direction: column;
+				background-color: fade(@mainColor_normal_extralight, 30%);
+				padding: .5em;
+				border-radius: .5em;
 				&.inline {
 					flex-direction: row;
 				}
@@ -206,7 +209,7 @@ export default class PredictionForm extends Vue {
 				}
 				&.shrink {
 					:deep(input) {
-						width: auto;
+						flex-basis: 80px;
 					}
 				}
 				.error {

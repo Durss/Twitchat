@@ -50,7 +50,7 @@
 					title="Control music"
 					:icon="$image('icons/music_purple.svg')"
 					:disabled="!musicServiceConfigured"
-					:data-tooltip="musicServiceConfigured? '' : 'You need to connect<br>Spotify or Deezer<br>on the Overlays section'"/>
+					:data-tooltip="musicServiceConfigured? '' : 'You need to connect<br>Spotify or Deezer<br>on the <strong>Overlays</strong> section'"/>
 				
 				<Button class="button" white
 				@click="selectActionType('voicemod')"
@@ -261,11 +261,11 @@ export default class TriggerActionEntry extends Vue {
 				left: 0;
 				color:@mainColor_light;
 				background-color: @mainColor_normal;
-				background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 30%, fade(@mainColor_normal, 100%) 100%);
+				background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 0%, fade(@mainColor_normal, 100%) 100%);
 				height: 100%;
 				display: flex;
 				align-items: center;
-				padding: 0 1em 0 .35em;
+				padding: .35em;
 				font-size: .8em;
 				font-family: var(--font-nunito);
 				text-transform: uppercase;

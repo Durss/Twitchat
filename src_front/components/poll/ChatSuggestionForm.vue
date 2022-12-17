@@ -126,6 +126,9 @@ export default class ChatSuggestionForm extends Vue {
 				margin-top: 10px;
 				display: flex;
 				flex-direction: column;
+				background-color: fade(@mainColor_normal_extralight, 30%);
+				padding: .5em;
+				border-radius: .5em;
 				&.permissions {
 					margin: auto;
 					// max-width: 500px;
@@ -139,8 +142,7 @@ export default class ChatSuggestionForm extends Vue {
 					background-color: @mainColor_alert;
 				}
 				:deep(input) {
-					width: 100px;
-					max-width: 100px;
+					flex-basis: 100px;
 					text-align: center;
 				}
 			}

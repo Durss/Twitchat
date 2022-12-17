@@ -329,6 +329,9 @@ export default class ParamItem extends Vue {
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
+				textarea {
+					flex-basis: unset;
+				}
 			}
 		}
 	}
@@ -360,6 +363,9 @@ export default class ParamItem extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+			&:has(input) {
+				flex-wrap: wrap;
+			}
 		}
 
 		.icon {
@@ -415,6 +421,9 @@ export default class ParamItem extends Vue {
 			flex-grow: 1;
 			display: flex;
 			flex-direction: column;
+			input {
+				flex-basis: unset;
+			}
 			&:not(.text)>label {
 				text-align: center;
 			}
@@ -448,6 +457,7 @@ export default class ParamItem extends Vue {
 
 		input, select, textarea{
 			transition: background-color .25s;
+			flex-basis: 300px;
 		}
 
 	}

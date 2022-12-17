@@ -21,7 +21,10 @@
 				:title="c.label"
 				:open="false"
 				:icons="[c.icon]">
-					<div class="disclaimer" v-if="musicServiceAvailable && isMusicCategory(c.category)">These triggers need you to connect with a music service <i>(spotify or deezer)</i> under the <a @click="openOverlays()">overlays section</a>.</div>
+					<div class="disclaimer" v-if="!musicServiceAvailable && isMusicCategory(c.category)">
+						These triggers need you to connect with a music service <i>(spotify or deezer)</i>
+						under the <a @click="openOverlays()">overlays section</a>.
+					</div>
 
 					<div v-for="e in c.events" :key="(e.value as string)" :class="e.beta? 'item beta' : 'item'">
 						<Button class="triggerBt"
@@ -88,7 +91,7 @@
 			</div>
 		</div>
 		
-		<div class="empty" v-if="triggerData && !currentSubEvent && subeventsList.length == 0 && actionList.length === 0 && !showLoading">
+		<div class="empty" v-if="isSublist && subeventsList.length == 0 && actionList.length === 0 && !showLoading">
 			- no entry -
 		</div>
 
@@ -216,10 +219,7 @@ export default class ParamsTriggers extends Vue {
 	public isSublist = false;
 	public showLoading = false;
 	public rewards:TwitchDataTypes.Reward[] = [];
-	public triggerData:TriggerData = {
-						enabled:true,
-						actions:[],
-					};
+	public triggerData:TriggerData | null = null
 
 	public get musicServiceAvailable():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
@@ -230,10 +230,11 @@ export default class ParamsTriggers extends Vue {
 	public get isSchedule():boolean { return this.currentEvent?.value === TriggerTypes.SCHEDULE; }
 
 	public get triggerKey():string {
+		if(!this.triggerData) return "";
 		let key = this.currentEvent?.value as string;
 		let subkey = this.currentSubEvent?.value as string;
 		if(this.currentEvent?.isCategory && key !== TriggerTypes.REWARD_REDEEM) {
-			subkey = this.triggerData.name as string;
+			subkey = this.triggerData.name;
 		}
 		if(subkey != "0" && subkey) key = key+"_"+subkey;
 		return key;
@@ -473,7 +474,7 @@ export default class ParamsTriggers extends Vue {
 	 * Saves the data to storage
 	 */
 	public async saveData():Promise<void> {
-		if(!this.canSave) return;
+		if(!this.canSave || !this.triggerData) return;
 		this.canSave = false;
 
 		//Format chat commands
@@ -505,7 +506,7 @@ export default class ParamsTriggers extends Vue {
 		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
 		const entry = TriggerEvents.find(v=>v.value == key);
 		
-		if(entry?.testMessageType) {
+		if(this.triggerData && entry?.testMessageType) {
 			if(this.isSchedule) {
 				TriggerActionHandler.instance.parseScheduleTrigger(this.triggerKey);
 			}else
@@ -525,8 +526,8 @@ export default class ParamsTriggers extends Vue {
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 					&& key == TriggerTypes.CHAT_COMMAND) {
 						//Add the command to the fake text message
-						m.message = this.triggerData.name + " " + m.message;
-						m.message_html = this.triggerData.name + " " + m.message_html;
+						m.message = this.triggerData!.name + " " + m.message;
+						m.message_html = this.triggerData!.name + " " + m.message_html;
 					}
 					console.log(m);
 					TriggerActionHandler.instance.onMessage(m, true);
@@ -593,6 +594,7 @@ export default class ParamsTriggers extends Vue {
 			let key = this.currentEvent.value as string;
 
 			const entry = TriggerEvents.find(v=> v.value == key);
+			console.log(this.triggerData);
 			if(entry?.isCategory === true) {
 				//Chat commands and channel point rewards are stored differently to avoid
 				//flooding the main trigger list. Main trigger elements are stored with
@@ -625,7 +627,7 @@ export default class ParamsTriggers extends Vue {
 							enabled:v.enabled
 						}
 					});
-					const select = this.subeventsList.find(v=>v.value == this.triggerData.name);
+					const select = this.subeventsList.find(v=>v.value == this.triggerData?.name);
 					if(select) {
 						this.currentSubEvent = select;
 					}
@@ -711,10 +713,7 @@ export default class ParamsTriggers extends Vue {
 	 * Resets the chat command sub category params
 	 */
 	private resetTriggerData():void {
-		this.triggerData = {
-			enabled:true,
-			actions:[],
-		}
+		this.triggerData = null;
 	}
 }
 </script>

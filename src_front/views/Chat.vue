@@ -314,11 +314,12 @@ export default class Chat extends Vue {
 			if(raffle && raffle.command) this.setCurrentNotification("raffle");
 		});
 
-		//Watch for columsn changes
+		//Watch for columns changes
 		watch(() => this.$store('params').chatColumnsConfig, () => {
 			this.computeWindowsSizes();
 		}, {deep:true});
 
+		//Watch for current modal to be displayed
 		watch(()=>this.currentModal, ()=>{
 			this.voiceControl = false;
 
@@ -356,6 +357,17 @@ export default class Chat extends Vue {
 				}
 			}
 		});
+
+		//Reset emotes cache if changing BTTV/FFZ/7TV states
+		watch(()=> this.$store("params").appearance.bttvEmotes.value, ()=> {
+			this.$store("chat").emoteSelectorCache = [];
+		})
+		watch(()=> this.$store("params").appearance.ffzEmotes.value, ()=> {
+			this.$store("chat").emoteSelectorCache = [];
+		})
+		watch(()=> this.$store("params").appearance.sevenTVEmotes.value, ()=> {
+			this.$store("chat").emoteSelectorCache = [];
+		})
 
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;

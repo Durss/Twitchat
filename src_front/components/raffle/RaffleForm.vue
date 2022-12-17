@@ -385,6 +385,9 @@ export default class RaffleForm extends Vue {
 			&>.row {
 				display: flex;
 				flex-direction: column;
+				background-color: fade(@mainColor_normal_extralight, 30%);
+				padding: .5em;
+				border-radius: .5em;
 				&:not(:first-child) {
 					margin-top: .5em;
 				}
@@ -396,7 +399,7 @@ export default class RaffleForm extends Vue {
 					}
 				}
 				:deep(input) {
-					width: 100px;
+					flex-basis: 100px;
 					text-align: center;
 				}
 

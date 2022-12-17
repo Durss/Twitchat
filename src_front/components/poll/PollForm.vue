@@ -41,10 +41,10 @@
 							<div class="len">{{answer5.length}}/25</div>
 						</div>
 					</div>
-					<div class="row right">
+					<div class="row">
 						<ParamItem :paramData="extraVotesParam" />
 					</div>
-					<div class="row inline right" v-if="extraVotesParam.value === true">
+					<div class="row shrink" v-if="extraVotesParam.value === true">
 						<ParamItem :paramData="pointsVoteParam" />
 					</div>
 					<div class="row shrink">
@@ -192,15 +192,15 @@ export default class PollForm extends Vue {
 				margin-top: 10px;
 				display: flex;
 				flex-direction: column;
-				&.inline {
-					flex-direction: row;
-				}
+				background-color: fade(@mainColor_normal_extralight, 30%);
+				padding: .5em;
+				border-radius: .5em;
 				&.right {
 					align-self: flex-end;
 				}
 				&.shrink {
 					:deep(input) {
-						width: auto;
+						flex-basis: 80px;
 					}
 				}
 				.error {

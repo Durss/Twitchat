@@ -173,6 +173,10 @@ export default class OverlayParamsSpotify extends Vue {
 		}
 		form {
 			margin-top: .5em;
+			// :deep(input) {
+			// 	width: 0;
+			// 	flex-basis: 300px;
+			// }
 		}
 	}
 
