@@ -1,7 +1,6 @@
 import { TriggerTypes, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
-import Utils from "@/utils/Utils";
 import type { JsonValue } from "type-fest";
 import StoreProxy from "./StoreProxy";
 
@@ -11,7 +10,7 @@ import StoreProxy from "./StoreProxy";
  */
 export default class DataStore {
 	
-	public static syncToServer:boolean = false;
+	public static syncToServer:boolean = true;
 
 	public static DATA_VERSION:string = "v";
 	public static UPDATE_INDEX:string = "updateIndex";
@@ -53,7 +52,6 @@ export default class DataStore {
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
 	/**
-	 * //TODO remove
 	 * @deprecated Only here for typings on data migration
 	 */
 	public static LEFT_COL_SIZE:string = "leftColSize";
@@ -80,7 +78,7 @@ export default class DataStore {
 	 */
 	public static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
-		this.syncToServer = this.get(this.SYNC_DATA_TO_SERVER) == "true";
+		this.syncToServer = this.get(this.SYNC_DATA_TO_SERVER) !== "false";
 		let v = this.get(this.DATA_VERSION);
 		
 		if(v=="1" || v=="2") {
@@ -340,13 +338,19 @@ export default class DataStore {
 	/**
 	 * Clear all values
 	 */
-	public static clear():void {
+	public static clear(keepSession:boolean = false):void {
 		if(!this.store) this.init();
 		//Remove only the data with the proper prefix
 		for (let i = 0; i < this.store.length; i++) {
 			const key = this.store.key(i);
 			if(!key || key.indexOf(this.dataPrefix) == -1) continue;
+			if(keepSession) {
+				const cleanKey = key.replace(this.dataPrefix, "");
+				if(cleanKey === this.TWITCH_AUTH_TOKEN) continue;
+			}
+			delete this.rawStore[key];
 			this.store.removeItem(key);
+			i--;
 		}
 		this.rawStore = {};
 	}
@@ -545,7 +549,7 @@ export default class DataStore {
 			if(key.indexOf(TriggerTypes.CHAT_COMMAND) === 0
 			&& triggers[key].chatCommand) {
 				//Check if it's not full lowercased
-				triggers[key].name = triggers[key].chatCommand;
+				triggers[key].name = triggers[key].chatCommand as string;
 				delete triggers[key].chatCommand
 			}
 		}

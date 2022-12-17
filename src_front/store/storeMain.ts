@@ -424,37 +424,6 @@ export const storeMain = defineStore("main", {
 					sParams.chatColumnsConfig[i].id = Utils.getUUID();
 				}
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
-			}else{
-				//Default cols configs
-				sParams.chatColumnsConfig = []
-
-				//Chat feed
-				let col = sParams.addChatColumn();
-				col.size = 1/2;
-				col.filters.message = true;
-				col.filters.whisper = true;
-				col.filters.twitchat_ad = true;
-				
-				//Activity feed
-				col = sParams.addChatColumn();
-				col.size = 1/2;
-				col.filters.raid = true;
-				col.filters.poll = true;
-				col.filters.cheer = true;
-				col.filters.bingo = true;
-				col.filters.raffle = true;
-				col.filters.reward = true;
-				col.filters.notice = true;
-				col.filters.following = true;
-				col.filters.countdown = true;
-				col.filters.prediction = true;
-				col.filters.subscription = true;
-				col.filters.hype_train_summary = true;
-				col.filters.hype_train_cooled_down = true;
-				col.filters.community_boost_complete = true;
-				col.filters.community_challenge_contribution = true;
-				
-				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
 			}
 			
 			//Reload devmode state

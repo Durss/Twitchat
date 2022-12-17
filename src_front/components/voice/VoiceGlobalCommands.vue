@@ -1,7 +1,7 @@
 <template>
 	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" small :open="openLocal">
 		<div class="head">
-			You'll use these to navigate through forms
+			These are the words you'll have to say to navigate through forms
 		</div>
 		<ParamItem v-for="(i,index) in items"
 			:key="itemsID[index]"
@@ -99,7 +99,7 @@ export default class VoiceGlobalCommands extends Vue {
 		align-items: center;
 	}
 	.head {
-		margin-bottom: 1em;
+		margin: .5em 0;
 	}
 	:deep(label) {
 		width:130px;

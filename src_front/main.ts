@@ -169,7 +169,7 @@ StoreProxy.auth = storeAuth();
 StoreProxy.automod = storeAutomod();
 StoreProxy.bingo = storeBingo();
 //Dirty typing. Couldn't figure out how to properly type pinia getters
-StoreProxy.chat = (storeChat() as unknown) as IChatState & IChatGetters & IChatActions & { $state: IChatState; };
+StoreProxy.chat = (storeChat() as unknown) as IChatState & IChatGetters & IChatActions & { $state: IChatState; $reset:()=>void };
 StoreProxy.chatSuggestion = storeChatSuggestion();
 StoreProxy.emergency = storeEmergency();
 StoreProxy.music = storeMusic();
@@ -183,7 +183,7 @@ StoreProxy.timer = storeTimer();
 StoreProxy.triggers = storeTriggers();
 StoreProxy.tts = storeTTS();
 //Dirty typing. Couldn't figure out how to properly type pinia getters
-StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; };
+StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; $reset:()=>void };
 StoreProxy.voice = storeVoice();
 StoreProxy.debug = storeDebug();
 StoreProxy.accessibility = storeAccessibility();

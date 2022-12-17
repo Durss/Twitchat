@@ -138,7 +138,10 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		this._voiceIdToImage = {};
 		this._voiceIdImageToPromise = {};
 		this._autoReconnect = false;
-		this._socket.close();
+		if(this.connected) {
+			this._socket.close();
+		}
+		this.connected = false;
 	}
 
 	/**

@@ -185,11 +185,11 @@ export const storeAuth = defineStore('auth', {
 				}catch(error) {}
 	
 				//If asked to sync data with server, load them
-				if(DataStore.syncToServer === true) {
+				if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
 					if(!await DataStore.loadRemoteData()) {
 						//Force data sync popup to show up if remote
 						//data have been deleted
-						DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
+						// DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
 					}else{
 						//Parse data from storage
 						sMain.loadDataFromStorage();

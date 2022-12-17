@@ -4,7 +4,15 @@
 		<p>It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.</p>
 		<p><strong>If you can afford it</strong>, feel free to thank me and make my day brighter with one of the options bellow!</p>
 
-		<p class="important"><strong>IMPORTANT</strong>, I have no simple way to know your Twitch login from your donation info, <strong>please specify your Twitch login</strong> on your message when possible or <a href="https://twitch.tv/durss" target="_blank">send me a whisper on Twitch</a> so I can give you a shiny donor badge that allows you to disable the automatic ad message!</p>
+		<div class="important">
+			<p>
+				<strong>IMPORTANT</strong>, specify <strong>your Twitch login</strong>
+				on your donation message when possible or
+				<a href="https://twitch.tv/durss" target="_blank">send me in a whisper on Twitch</a>
+				so I know which twitch user you are !
+			</p>
+			<p>This is necessary if you want to have the ability to disable the automatic message :)</p>
+		</div>
 
 		<img src="@/assets/img/eating.gif" alt="eating" />
 

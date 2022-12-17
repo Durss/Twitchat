@@ -540,6 +540,18 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CONNECT: {
+					const m:TwitchatDataTypes.MessageConnectData = {
+						platform:"twitch",
+						type,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						user:user,
+						channel_id:user.id
+					};
+					data = m;
+				}
 			}
 			if(hook) {
 				if(hook(data) === false) return;
@@ -570,7 +582,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					const m:TwitchatDataTypes.MessageBanData = {
 						platform:"twitchat",
-						type:"notice",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						noticeId:noticeType,
@@ -589,7 +601,7 @@ export const storeDebug = defineStore('debug', {
 					const category = "Just chatting";
 					const m:TwitchatDataTypes.MessageStreamInfoUpdate = {
 						platform:"twitchat",
-						type:"notice",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						noticeId:noticeType,
@@ -605,7 +617,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE: {
 					const m:TwitchatDataTypes.MessageEmergencyModeInfo = {
 						platform:"twitchat",
-						type:"notice",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						noticeId:noticeType,
@@ -617,10 +629,26 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE: {
+					const m:TwitchatDataTypes.MessageShieldMode = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message:"Shield mode enabled",
+						channel_id:uid,
+						enabled:true,
+						user,
+					};
+					data = m;
+					break;
+				}
+
 				default: {
 					const m:TwitchatDataTypes.MessageNoticeData = {
 						platform:"twitchat",
-						type:"notice",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,

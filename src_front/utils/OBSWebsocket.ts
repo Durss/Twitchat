@@ -47,7 +47,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public async disconnect():Promise<void> {
 		this.autoReconnect = false;
-		this.obs.disconnect();
+		if(this.connected) {
+			this.obs.disconnect();
+		}
+		this.connected = false;
 	}
 
 	/**

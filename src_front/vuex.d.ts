@@ -2,29 +2,29 @@ import type { IAccessibilityActions, IAccessibilityGetters, IAccessibilityState,
 
 declare module '@vue/runtime-core' {
 	interface IStore {
-		(id:"account"):(IAccountState & IAccountGetters & IAccountActions) & {$state:IAccountState};
-		(id:"auth"):(IAuthState & IAuthGetters & IAuthActions) & {$state:IAuthState};
-		(id:"automod"):(IAutomodState & IAutomodGetters & IAutomodActions) & {$state:IAutomodState};
-		(id:"bingo"):(IBingoState & IBingoGetters & IBingoActions) & {$state:IBingoState};
-		(id:"chat"):(IChatState & IChatGetters & IChatActions) & {$state:IChatState};
-		(id:"chatSuggestion"):(IChatSuggestionState & IChatSuggestionGetters & IChatSuggestionActions) & {$state:IChatSuggestionState};
-		(id:"emergency"):(IEmergencyState & IEmergencyGetters & IEmergencyActions) & {$state:IEmergencyState};
-		(id:"music"):(IMusicState & IMusicGetters & IMusicActions) & {$state:IMusicState};
-		(id:"obs"):(IOBSState & IOBSGetters & IOBSActions) & {$state:IOBSState };
-		(id:"params"):(IParamsState & IParamsGetters & IParamsActions) & {$state:IParamsState};
-		(id:"poll"):(IPollState & IPollGetters & IPollActions) & {$state:IPollState};
-		(id:"prediction"):(IPredictionState & IPredictionGetters & IPredictionActions) & {$state:IPredictionState};
-		(id:"raffle"):(IRaffleState & IRaffleGetters & IRaffleActions) & {$state:IRaffleState};
-		(id:"stream"):(IStreamState & IStreamGetters & IStreamActions) & {$state:IStreamState};
-		(id:"timer"):(ITimerState & ITimerGetters & ITimerActions) & {$state:ITimerState};
-		(id:"triggers"):(ITriggersState & ITriggersGetters & ITriggersActions) & {$state:ITriggersState};
-		(id:"tts"):(ITTSState & ITTSGetters & ITTSActions) & {$state:ITTSState };
-		(id:"users"):(IUsersState & IUsersGetters & IUsersActions) & {$state:IUsersState};
-		(id:"voice"):(IVoiceState & IVoiceGetters & IVoiceActions) & {$state:IVoiceState};
-		(id:"debug"):(IDebugState & IDebugGetters & IDebugActions) & {$state:IDebugState};
-		(id:"main"):(IMainState & IMainGetters & IMainActions) & {$state:IMainState};
-		(id:"accessibility"):(IAccessibilityState & IAccessibilityGetters & IAccessibilityActions) & {$state:IAccessibilityState};
-		(id:"admin"):(IAdminState & IAdminGetters & IAdminActions) & {$state:IAdminState};
+		(id:"account"):(IAccountState & IAccountGetters & IAccountActions) & {$state:IAccountState; $reset:()=>void};
+		(id:"auth"):(IAuthState & IAuthGetters & IAuthActions) & {$state:IAuthState; $reset:()=>void};
+		(id:"automod"):(IAutomodState & IAutomodGetters & IAutomodActions) & {$state:IAutomodState; $reset:()=>void};
+		(id:"bingo"):(IBingoState & IBingoGetters & IBingoActions) & {$state:IBingoState; $reset:()=>void};
+		(id:"chat"):(IChatState & IChatGetters & IChatActions) & {$state:IChatState; $reset:()=>void};
+		(id:"chatSuggestion"):(IChatSuggestionState & IChatSuggestionGetters & IChatSuggestionActions) & {$state:IChatSuggestionState; $reset:()=>void};
+		(id:"emergency"):(IEmergencyState & IEmergencyGetters & IEmergencyActions) & {$state:IEmergencyState; $reset:()=>void};
+		(id:"music"):(IMusicState & IMusicGetters & IMusicActions) & {$state:IMusicState; $reset:()=>void};
+		(id:"obs"):(IOBSState & IOBSGetters & IOBSActions) & {$state:IOBSState ; $reset:()=>void};
+		(id:"params"):(IParamsState & IParamsGetters & IParamsActions) & {$state:IParamsState; $reset:()=>void};
+		(id:"poll"):(IPollState & IPollGetters & IPollActions) & {$state:IPollState; $reset:()=>void};
+		(id:"prediction"):(IPredictionState & IPredictionGetters & IPredictionActions) & {$state:IPredictionState; $reset:()=>void};
+		(id:"raffle"):(IRaffleState & IRaffleGetters & IRaffleActions) & {$state:IRaffleState; $reset:()=>void};
+		(id:"stream"):(IStreamState & IStreamGetters & IStreamActions) & {$state:IStreamState; $reset:()=>void};
+		(id:"timer"):(ITimerState & ITimerGetters & ITimerActions) & {$state:ITimerState; $reset:()=>void};
+		(id:"triggers"):(ITriggersState & ITriggersGetters & ITriggersActions) & {$state:ITriggersState; $reset:()=>void};
+		(id:"tts"):(ITTSState & ITTSGetters & ITTSActions) & {$state:ITTSState ; $reset:()=>void};
+		(id:"users"):(IUsersState & IUsersGetters & IUsersActions) & {$state:IUsersState; $reset:()=>void};
+		(id:"voice"):(IVoiceState & IVoiceGetters & IVoiceActions) & {$state:IVoiceState; $reset:()=>void};
+		(id:"debug"):(IDebugState & IDebugGetters & IDebugActions) & {$state:IDebugState; $reset:()=>void};
+		(id:"main"):(IMainState & IMainGetters & IMainActions) & {$state:IMainState; $reset:()=>void};
+		(id:"accessibility"):(IAccessibilityState & IAccessibilityGetters & IAccessibilityActions) & {$state:IAccessibilityState; $reset:()=>void};
+		(id:"admin"):(IAdminState & IAdminGetters & IAdminActions) & {$state:IAdminState; $reset:()=>void};
 	}
 
 	interface ComponentCustomProperties {

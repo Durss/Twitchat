@@ -702,6 +702,8 @@ export default class MessageList extends Vue {
 				return this.config.filters.leave === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
+			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				return this.config.filters.notice === true;
 			}
@@ -716,10 +718,8 @@ export default class MessageList extends Vue {
 				|| (m.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR && this.config.filters.message === true);
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
-			case TwitchatDataTypes.TwitchatMessageType.ROOM_SETTINGS:
-			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT: {
-				return this.config.filters.message === true;
+			case TwitchatDataTypes.TwitchatMessageType.ROOM_SETTINGS: {
+				return this.config.filters.message === true && this.config.messageFilters.viewers === true;
 			}
 			default: return false;
 		}

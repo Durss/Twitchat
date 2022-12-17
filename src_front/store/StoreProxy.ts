@@ -12,29 +12,29 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodWebSocket";
 */
 export default class StoreProxy {
 	
-	public static account:IAccountState & IAccountGetters & IAccountActions & {$state:IAccountState};
-	public static auth:IAuthState & IAuthGetters & IAuthActions & {$state:IAuthState};
-	public static automod:IAutomodState & IAutomodGetters & IAutomodActions & {$state:IAutomodState};
-	public static bingo:IBingoState & IBingoGetters & IBingoActions & {$state:IBingoState};
-	public static chat:IChatState & IChatGetters & IChatActions & {$state:IChatState};
-	public static chatSuggestion:IChatSuggestionState & IChatSuggestionGetters & IChatSuggestionActions & {$state:IChatSuggestionState};
-	public static emergency:IEmergencyState & IEmergencyGetters & IEmergencyActions & {$state:IEmergencyState};
-	public static music:IMusicState & IMusicGetters & IMusicActions & {$state:IMusicState};
-	public static obs:IOBSState & IOBSGetters & IOBSActions & {$state:IOBSState };
-	public static params:IParamsState & IParamsGetters & IParamsActions & {$state:IParamsState};
-	public static poll:IPollState & IPollGetters & IPollActions & {$state:IPollState};
-	public static prediction:IPredictionState & IPredictionGetters & IPredictionActions & {$state:IPredictionState};
-	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState};
-	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState};
-	public static timer:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState};
-	public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState};
-	public static tts:ITTSState & ITTSGetters & ITTSActions & {$state:ITTSState };
-	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState};
-	public static voice:IVoiceState & IVoiceGetters & IVoiceActions & {$state:IVoiceState};
-	public static main:IMainState & IMainGetters & IMainActions & {$state:IMainState};
-	public static debug:IDebugState & IDebugGetters & IDebugActions & {$state:IDebugState};
-	public static accessibility:IAccessibilityState & IAccessibilityGetters & IAccessibilityActions & {$state:IAccessibilityState};
-	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState};
+	public static account:IAccountState & IAccountGetters & IAccountActions & {$state:IAccountState, $reset:()=>void};
+	public static auth:IAuthState & IAuthGetters & IAuthActions & {$state:IAuthState, $reset:()=>void};
+	public static automod:IAutomodState & IAutomodGetters & IAutomodActions & {$state:IAutomodState, $reset:()=>void};
+	public static bingo:IBingoState & IBingoGetters & IBingoActions & {$state:IBingoState, $reset:()=>void};
+	public static chat:IChatState & IChatGetters & IChatActions & {$state:IChatState, $reset:()=>void};
+	public static chatSuggestion:IChatSuggestionState & IChatSuggestionGetters & IChatSuggestionActions & {$state:IChatSuggestionState, $reset:()=>void};
+	public static emergency:IEmergencyState & IEmergencyGetters & IEmergencyActions & {$state:IEmergencyState, $reset:()=>void};
+	public static music:IMusicState & IMusicGetters & IMusicActions & {$state:IMusicState, $reset:()=>void};
+	public static obs:IOBSState & IOBSGetters & IOBSActions & {$state:IOBSState , $reset:()=>void};
+	public static params:IParamsState & IParamsGetters & IParamsActions & {$state:IParamsState, $reset:()=>void};
+	public static poll:IPollState & IPollGetters & IPollActions & {$state:IPollState, $reset:()=>void};
+	public static prediction:IPredictionState & IPredictionGetters & IPredictionActions & {$state:IPredictionState, $reset:()=>void};
+	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState, $reset:()=>void};
+	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState, $reset:()=>void};
+	public static timer:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
+	public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState, $reset:()=>void};
+	public static tts:ITTSState & ITTSGetters & ITTSActions & {$state:ITTSState , $reset:()=>void};
+	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState, $reset:()=>void};
+	public static voice:IVoiceState & IVoiceGetters & IVoiceActions & {$state:IVoiceState, $reset:()=>void};
+	public static main:IMainState & IMainGetters & IMainActions & {$state:IMainState, $reset:()=>void};
+	public static debug:IDebugState & IDebugGetters & IDebugActions & {$state:IDebugState, $reset:()=>void};
+	public static accessibility:IAccessibilityState & IAccessibilityGetters & IAccessibilityActions & {$state:IAccessibilityState, $reset:()=>void};
+	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState, $reset:()=>void};
 	
 }
 

@@ -23,7 +23,7 @@
 		
 		<section class="dataSync">
 			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" />
-			<Button class="button" @click="eraseData()" bounce title="Erase local data" highlight :icon="$image('icons/delete.svg')" />
+			<Button class="button" v-if="!syncEnabled" @click="eraseData()" bounce title="Erase local parameters" highlight :icon="$image('icons/delete.svg')" />
 		</section>
 	</div>
 </template>
@@ -34,6 +34,10 @@ import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import TriggerActionHandler from '@/utils/TriggerActionHandler';
+import TTSUtils from '@/utils/TTSUtils';
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
@@ -79,7 +83,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.syncEnabled = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == "true";
+		this.syncEnabled = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false";
 		this.publicDonation = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == "true";
 		watch(()=> this.syncEnabled, ()=> DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
 
@@ -118,7 +122,23 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public eraseData():void {
-		this.$store("main").confirm("Erase local data?","This will ")
+		this.$store("main").confirm("Erase local parameters?","This will only erase parameters from this browser.<br>Triggers, ")
+		.then(()=>{
+			DataStore.clear(true);
+			this.$store("params").$reset();
+			this.$store("automod").$reset();
+			this.$store("emergency").$reset();
+			this.$store("music").$reset();
+			this.$store("obs").$reset();
+			this.$store("triggers").$reset();
+			this.$store("tts").$reset();
+			this.$store("voice").$reset();
+			OBSWebsocket.instance.disconnect();
+			VoicemodWebSocket.instance.disconnect();
+			TTSUtils.instance.enabled = false;
+			TriggerActionHandler.instance.populate({});
+			DataStore.set(DataStore.SYNC_DATA_TO_SERVER, false);
+		})
 	}
 
 	private async updateDonationState():Promise<void> {

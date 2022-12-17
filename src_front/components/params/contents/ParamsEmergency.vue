@@ -32,10 +32,10 @@
 				<ParamItem class="item" :paramData="param_enableShieldMode" />
 				<div class="twitchParams item" v-if="param_enableShieldMode.value == false">
 					<div :class="param_enableShieldMode.value? 'disabled' : ''">
-						<ParamItem class="item" :paramData="param_followersOnly" />
+						<ParamItem class="item hasDurationChild" :paramData="param_followersOnly" />
 						<ParamItem class="item" :paramData="param_subsOnly" />
 						<ParamItem class="item" :paramData="param_emotesOnly" />
-						<ParamItem class="item" :paramData="param_slowMode" />
+						<ParamItem class="item hasDurationChild" :paramData="param_slowMode" />
 					</div>
 					<div v-if="param_enableShieldMode.value" class="disabledLabel">Configure these options <a :href="'https://www.twitch.tv/popout/moderator/'+userName+'/shield-mode'" target="_blank">on Twitch</a></div>
 				</div>
@@ -308,6 +308,13 @@ export default class ParamsEmergency extends Vue {
 					background: radial-gradient(rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.9) 30%, rgba(255,255,255,0) 80%);
 					background-size: 120% 100%;
 					background-position-x: 50%;
+				}
+				.hasDurationChild {
+					:deep(.child) {
+						input {
+							flex-basis: 100px;
+						}
+					}
 				}
 			}
 
