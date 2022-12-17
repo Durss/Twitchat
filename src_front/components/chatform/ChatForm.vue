@@ -14,13 +14,19 @@
 				<input type="text"
 					class="dark"
 					v-model="message"
-					v-if="!error"
+					v-if="!error && !spamming"
 					ref="input"
 					placeholder="message..."
 					:maxlength="maxLength"
 					@keyup.capture.tab="(e)=>onTab(e)"
 					@keydown.enter="(e:Event)=>sendMessage(e)"
 					@keydown="onKeyDown">
+
+				<Button class="noClear spam" highlight
+					v-if="spamming"
+					title="Stop spam"
+					:icon="$image('icons/cross_white.svg')"
+					@click="stopSpam()" />
 				
 				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
 				
@@ -168,7 +174,7 @@
 				</transition>
 
 				<transition name="blink">
-				<Button small highlight class="emergency" aria-label="emergency button"
+				<Button small highlight class="noClear" aria-label="emergency button"
 					v-if="emergencyButtonEnabled"
 					:icon="$image('icons/emergency.svg')"
 					bounce
@@ -287,6 +293,7 @@ export default class ChatForm extends Vue {
 	public message = "";
 	public error = false;
 	public loading = false;
+	public spamming = false;
 	public censoredViewCount = false;
 	public autoCompleteSearch = "";
 	public autoCompleteEmotes = false;
@@ -518,6 +525,7 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam" || cmd == "/fake") {
 			this.loading = true;
+			this.spamming = true;
 			clearInterval(this.spamInterval);
 
 			const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
@@ -532,6 +540,7 @@ export default class ChatForm extends Vue {
 				{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, probability:1},
 				{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN, probability:1},
 			];
+
 			const ponderatedList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
 			for (let i = 0; i < spamTypes.length; i++) {
 				for (let j = 0; j < spamTypes[i].probability; j++) {
@@ -540,7 +549,6 @@ export default class ChatForm extends Vue {
 			}
 			
 			const forcedMessage = params.join(" ");
-			console.log(forcedMessage);
 			this.spamInterval = window.setInterval(()=> {
 				this.$store("debug").simulateMessage(Utils.pickRand(ponderatedList), (data)=> {
 					if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
@@ -571,7 +579,7 @@ export default class ChatForm extends Vue {
 					}
 				});
 				if(cmd == "/fake") clearInterval(this.spamInterval);
-			}, cmd == "/megaspam"? 50 :  250);
+			}, cmd == "/megaspam"? 50 :  200);
 			this.message = "";
 			this.loading = false;
 		}else
@@ -582,8 +590,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/spamstop" || cmd == "/simulatechatstop") {
-			clearInterval(this.spamInterval);
-			this.message = "";
+			this.stopSpam();
 		}else
 		
 		if(cmd == "/cypherkey") {
@@ -703,6 +710,15 @@ export default class ChatForm extends Vue {
 			}
 			sChat.addMessage(notice);
 		}
+	}
+
+	/**
+	 * Stop spamming fake messages
+	 */
+	public stopSpam():void {
+		clearInterval(this.spamInterval);
+		this.message = "";
+		this.spamming = false;
 	}
 
 	/**
@@ -970,9 +986,12 @@ export default class ChatForm extends Vue {
 				}
 			}
 
-			.button:not(.emergency) {
+			.button:not(.noClear) {
 				.clearButton() !important;
 				border-radius: 50%;
+			}
+			.spam {
+				flex-grow: 1;
 			}
 			.button.emergency {
 				margin-left: .5em;

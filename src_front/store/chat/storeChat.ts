@@ -180,12 +180,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"simulatechat",
 				cmd:"/simulateChat",
-				details:"Simulate chat activity",
-			},
-			{
-				id:"simulatechatstop",
-				cmd:"/simulateChatStop",
-				details:"Stop chat activity simulation",
+				details:"Simulate fake chat activity",
 			},
 			{
 				id:"announce",
