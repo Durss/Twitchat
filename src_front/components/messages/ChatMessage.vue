@@ -207,7 +207,8 @@ export default class ChatMessage extends Vue {
 				if(censorDeletedMessages) res.push("censor");
 			}
 			if(!this.lightMode) {
-				if(this.channelInfo.is_moderator && highlightMods)				res.push("highlightMods");
+				if(this.channelInfo.is_moderator
+				&& !this.channelInfo.is_broadcaster && highlightMods)			res.push("highlightMods");
 				else if(this.channelInfo.is_vip && highlightVips)				res.push("highlightVips");
 				else if(this.messageData.user.is_partner && highlightPartners)	res.push("highlightPartners");
 				else if(this.channelInfo.is_subscriber && 
