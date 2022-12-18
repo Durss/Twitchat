@@ -1,7 +1,8 @@
 {
-	"script": "./server/bootstrap.js",
-	"name": "Twitchat",
+	"script": "./src_labels/index.js",
+	"name": "Twitchat_labels",
 	"env": {},
+	"args": "--pm2",
 	"merge_logs": true,
 	"vizion": true,
 	"autorestart": true,
@@ -18,13 +19,14 @@
 		"node_modules",
 		"public",
 		"src_back",
-		"src_labels",
+		"src_front",
 		"userData",
 		".git",
 		"donors.json"
 	],
 	"watch": [
-		"./server"
+		"./src_labels",
+		"./i18n"
 	],
 	"exec_mode": "fork"
 }

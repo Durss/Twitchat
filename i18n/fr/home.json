@@ -1,0 +1,125 @@
+{
+	"info":"Fait avec 💘 par",
+	"head":"Twitchat est une alternative gratuite et open-source au chat de Twitch pour streamers",
+	"openBt":"Lancer Twitchat",
+	"loginBt":"Connexion Twitch",
+	"streamdeckBt":"Plugin Stream Deck™",
+	"discordBt":"Rejoins Discord",
+	"sponsorBt":"Nourris-moi 🍔",
+	"features":{
+		"title":"Fonctionnalités",
+		"list":[
+			{
+				"icon":"emergency",
+				"video":"emergency.mp4",
+				"title":"Button d'urgence",
+				"description":"Protégez-vous du doxxing, des raids haineux et des raids de follow bots"
+			},
+			{
+				"icon":"pin",
+				"video":"pin.mp4",
+				"title":"Épingler des messages",
+				"description":"Épinglez des messages et retrouvez-les tous dans une liste dédiée"
+			},
+			{
+				"icon":"elgato",
+				"image":"streamdeck.png",
+				"title":"Stream Deck™",
+				"description":"Mettez le chat en pause, faites-le défiler, marquez des messages comme lus, déclenchez le mode urgence..."
+			},
+			{
+				"icon":"show",
+				"image":"spoiler.png",
+				"title":"Commande de spoil",
+				"description":"Les messages débutant par <mark>||</mark> seront affichés comme des spoiler.<br>Vos modérateurices peuvent réponde à des messages avec la commande <mark>!spoiler</mark> pour les flagger comme spoilers"
+			},
+			{
+				"icon":"search",
+				"image":"search.png",
+				"title":"Rechercher des messages",
+				"description":"Retrouvez des messages avec la commande <mark>/search</mark>"
+			},
+			{
+				"icon":"alert",
+				"video":"alert.mp4",
+				"title":"Commande d'alerte",
+				"description":"Permettez à vos modérateurices de vous alerter en cas d'urgence"
+			},
+			{
+				"icon":"voice",
+				"video":"voiceControl.mp4",
+				"title":"Contrôle vocal",
+				"description":"Utilisez votre voix pour contrôlez le chat, gérer vos sondages et prédictions, déclancher le mode urgence, ..."
+			},
+			{
+				"icon":"tts",
+				"image":"tts.png",
+				"title":"Lire les messages",
+				"description":"Faites lire n'importe quel message à haute voix"
+			},
+			{
+				"icon":"hand",
+				"image":"greet.png",
+				"title":"Saluez vos viewers",
+				"description":"Twitchat conserve le 1er message de chaque viewer dans une liste dédiée pour que vous n'oubliiez pas de les saluer"
+			},
+			{
+				"icon":"checkmark_white",
+				"image":"readMark.gif",
+				"title":"Marque page",
+				"description":"Cliquez n'importe quel message pour place le marque page et vous souvenir où vous avez arreté votre lecture"
+			},
+			{
+				"icon":"conversation",
+				"image":"conversation.gif",
+				"title":"Conversations",
+				"description":"Suivez les conversations entre viewer plus efficacement"
+			},
+			{
+				"icon":"ticket",
+				"image":"raffle.gif",
+				"title":"Tirage au sort",
+				"description":"Permettez à vos viewer de rejoindre un tirage au sort et sélectionnez 1 ou plusieurs gagnant·es"
+			},
+			{
+				"icon":"bingo",
+				"image":"bingo.gif",
+				"title":"Bingo",
+				"description":"Faites deviner un nombre ou une emote aléatoire à vos viewers"
+			},
+			{
+				"icon":"notification",
+				"video":"triggers.mp4",
+				"title":"Alertes personnalisés",
+				"description":"Twitchat propose un système de <strong>Triggers</strong> permettant de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'événement comme un sub, des bits, un résultat de sondage, une récompense de points de chaîne, ..."
+			},
+			{
+				"icon":"music",
+				"image":"musicPlayer.png",
+				"title":"Spotify & Deezer",
+				"description":"Lier Twitchat à Spotify ou Deezer pour afficher la musique en cours et les contrôle depuis des Triggers"
+			},
+			{
+				"icon":"params",
+				"title":"Twitchat permet aussi",
+				"items":[
+					"Recevoir et répondre aux whispers",
+					"Voir qui ne vous follow pas",
+					"Afficher les pronoms de vos viewers",
+					"Afficher les emotes BTTV, FFZ and 7TV",
+					"Masquer les messages envoyés par des bots",
+					"Voir qui est en live parmis vos followings",
+					"Envoyer un shoutout en 1 click",
+					"Avoir les infos de stream de la personne qui vous raid",
+					"Savoir quand des personnes entrent ou quittent votre chat",
+					"Remplacer les badges par des versions minifiés",
+					"And much more..."
+				]
+			}
+		]
+	},
+	"footer":{
+		"title":"Sources sur",
+		"disclaimer":"Twitchat n'est PAS affilié avec <a href=\"https://twitch.tv\" target=\"_blank\">Twitch</a>"
+	}
+}

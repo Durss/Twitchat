@@ -97,7 +97,7 @@
 		</div>
 
 		<div class="footer">
-			<p><span v-t="'home.footer.title'"></span><a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+			<p><span v-t="'home.footer.title'"></span> <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
 			<p class="note" v-html="$t('home.footer.disclaimer')"></p>
 		</div>
 

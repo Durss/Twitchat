@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
-		"build": "npm run front/build && npm run server/build",
+		"build": "npm run i18n && npm run front/build && npm run server/build",
 		"front/serve": "vite --host",
 		"front/build": "vue-tsc --noEmit && vite build",
 		"server/watch": "tsc -w -p ./tsconfig_server.json",
@@ -13,6 +13,7 @@
 		"patch": "npm version patch -m \"Upgrade version to v%s\"",
 		"minor": "npm version minor -m \"Upgrade version to v%s\"",
 		"major": "npm version major -m \"Upgrade version to v%s\"",
+		"i18n": "node src_labels/index.js",
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
 		"streamdeck_package": "DistributionTool.exe -b -i streamdeck_plugin/fr.twitchat.sdPlugin -o streamdeck_plugin",
 		"check-circular-dependencies": "dpdm ./src_front/main.ts"

@@ -49,7 +49,7 @@ const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',
 	fallbackWarn:false,
-	// messages: labels,
+	warnHtmlInMessage: 'off'
 });
 
 /**
