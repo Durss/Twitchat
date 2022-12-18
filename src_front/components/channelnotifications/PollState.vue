@@ -16,7 +16,7 @@
 				<div>{{getPercent(c)}}% ({{c.votes}})</div>
 			</div>
 		</div>
-		<div class="actions">
+		<div class="item actions">
 			<Button title="End poll" @click="endPoll()" :loading="loading" />
 		</div>
 	</div>
@@ -107,22 +107,7 @@ export default class PollState extends Vue {
 
 <style scoped lang="less">
 .pollstate{
-
-	.title {
-		color: @mainColor_light;
-		width: 100%;
-		text-align: center;
-		padding-bottom: 10px;
-		word-break: break-word;
-		img {
-			height: 20px;
-			margin-right: 10px;
-		}
-	}
-
-	.progress {
-		margin-bottom: 20px;
-	}
+	.gameStateWindow();
 
 	.choices {
 		.choice {
@@ -154,13 +139,6 @@ export default class PollState extends Vue {
 				// border: 1px solid #cc0000;
 			}
 		}
-	}
-
-	.actions {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		margin-top: 10px;
 	}
 }
 </style>

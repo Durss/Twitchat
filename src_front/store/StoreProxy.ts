@@ -338,7 +338,7 @@ export interface IRaffleGetters {
 export interface IRaffleActions {
 	startRaffle(payload:TwitchatDataTypes.RaffleData):Promise<void>;
 	stopRaffle():void;
-	onRaffleComplete(winner:TwitchatDataTypes.EntryItem, publish?:boolean):void;
+	onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish?:boolean):void;
 	checkRaffleJoin(message:TwitchatDataTypes.MessageChatData):Promise<void>;
 }
 

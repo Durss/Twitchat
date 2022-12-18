@@ -522,17 +522,15 @@ export const storeChat = defineStore('chat', {
 						if(raffle && raffle.mode == "chat" && cmd == raffle.command.trim().toLowerCase()) {
 							sRaffle.checkRaffleJoin(message);
 						}
-	
-						//If a raffle is in progress, check if the user can enter
-						if(sBingo.data?.winners?.length == 0) {
-							sBingo.checkBingoWinner(message);
-						}
 			
 						//If there's a suggestion poll and the timer isn't over
 						const suggestionPoll = sChatSuggestion.data;
 						if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
 							sChatSuggestion.addChatSuggestion(message);
 						}
+	
+						//Check if it's the winning choice of a bingo
+						sBingo.checkBingoWinner(message);
 	
 						//Handle OBS commands
 						sOBS.handleChatCommand(message, cmd);

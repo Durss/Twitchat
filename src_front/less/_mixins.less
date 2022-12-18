@@ -283,3 +283,53 @@
 		background: fade(@mainColor_normal, 15%);
 	}
 }
+
+.gameStateWindow() {
+	color: @mainColor_light;
+
+	&>.title {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		color: @mainColor_light;
+		width: 100%;
+		padding-bottom: .5em;
+		word-break: break-word;
+		img {
+			width: 1em;
+			margin-right: .5em;
+		}
+		.highlight {
+			font-size: .8em;
+			color: @windowStateColor;
+		}
+	}
+	
+	.highlight:not(.button) {
+		background: @mainColor_light;
+		padding: .2em .5em;
+		border-radius: .5em;
+	}
+
+	.progress {
+		color: @windowStateColor;
+		margin-bottom: 1em;
+	}
+
+	.item {
+		margin: auto;
+		margin-top: 1em;
+
+		&.postChat {
+			max-width: 300px;
+			font-size: .8em;
+		}
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
+}

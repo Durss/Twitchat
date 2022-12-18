@@ -9,7 +9,7 @@
 				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
 				
 				<div class="description" v-if="triggerMode === false">
-					<ToggleBlock :icons="['infos']" small title="Legal concerns" :open="false" class="legal">
+					<ToggleBlock :icons="['infos_red']" small title="Legal concerns" :open="false" class="legal">
 						<div>Depending on your country's legislation, making your viewers win something while using the "sub" ponderation option or randomly picking a winner amongst your subs might be illegal.</div>
 						<div>You may want to check this out before doing a giveaway.</div>
 					</ToggleBlock>
@@ -366,10 +366,10 @@ export default class RaffleForm extends Vue {
 			}
 			.legal {
 				text-align: justify;
-				color: @mainColor_warn;
+				color: @mainColor_alert;
 				:deep(.header),
 				:deep(.content) {
-					background-color: fade(@mainColor_warn, 10%);
+					background-color: fade(@mainColor_alert, 10%);
 				}
 			}
 		}

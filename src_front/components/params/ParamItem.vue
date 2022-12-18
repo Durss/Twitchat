@@ -158,6 +158,7 @@ export default class ParamItem extends Vue {
 	public get classes():string[] {
 		const res = ["paramitem"];
 		if(this.error !== false) res.push("error");
+		if(this.clearToggle !== false) res.push("clear");
 		if(this.paramData.longText) res.push("longText");
 		if(this.paramData.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
@@ -318,6 +319,17 @@ export default class ParamItem extends Vue {
 			border-color: @mainColor_alert;
 			&::placeholder {
 				color:fade(@mainColor_light, 50%);
+			}
+		}
+	}
+
+	&.clear {
+		textarea {
+			color: @mainColor_light;
+			border-color: @mainColor_light;
+			background: fade(@mainColor_light, 20%);
+			&::-webkit-scrollbar-thumb {
+				background-color: @mainColor_light;
 			}
 		}
 	}

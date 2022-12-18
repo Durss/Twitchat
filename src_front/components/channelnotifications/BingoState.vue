@@ -2,23 +2,26 @@
 	<div class="bingostate">
 		<h1 class="title"><img src="@/assets/icons/bingo.svg">Bingo</h1>
 
-		<div class="number" v-if="bingoData.guessNumber">Number to find<strong>{{bingoData.numberValue}}</strong></div>
+		<div class="item number highlight" v-if="bingoData.guessNumber">
+			<p>Number to find</p>
+			<strong class="guess">{{bingoData.numberValue}}</strong>
+		</div>
 		
-		<div class="emote" v-if="bingoData.guessEmote">
-			Emote to find
+		<div class="item emote highlight" v-if="bingoData.guessEmote">
+			<strong>Emote to find</strong>
 			<img :src="bingoData.emoteValue?.twitch?.image.hd">
-			<span class="code">({{bingoData.emoteValue?.twitch?.code}})</span>
+			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
 		</div>
 
-		<div class="winner" v-if="bingoData.winners && bingoData.winners.length > 0">
+		<div class="item winner" v-if="bingoData.winners && bingoData.winners.length > 0">
 			🎉 {{bingoData.winners[0].displayName}} won 🎉
 		</div>
 
-		<PostOnChatParam class="postChat" botMessageKey="bingo" :placeholders="winnerPlaceholders" />
+		<PostOnChatParam class="item postChat" botMessageKey="bingo" :placeholders="winnerPlaceholders" clearToggle />
 
-		<Button class="deleteBt"
+		<Button class="item"
 			:icon="$image('icons/cross_white.svg')"
-			title="Stop Bingo"
+			title="Close bingo"
 			highlight
 			@click="closeBingo()" />
 	</div>
@@ -56,74 +59,47 @@ export default class BingoState extends Vue {
 
 <style scoped lang="less">
 .bingostate{
-	color: @mainColor_light;
-	align-items: center;
-
-	&>.title {
-		color: @mainColor_light;
-		width: 100%;
-		text-align: center;
-		padding-bottom: 10px;
-		word-break: break-word;
-		img {
-			width: 20px;
-			margin-right: 10px;
-		}
-	}
+	.gameStateWindow();
 
 	.emote, .number {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		color: @mainColor_normal;
 		
-		strong {
-			margin-top: 10px;
+		.guess {
+			margin-top: .25em;
 			font-size: 1.5em;
 		}
 
 		img {
 			height: 2em;
-			margin-top: 10px;
+			margin-top: .5em;
 			object-fit: contain;
+			transition: transform .25s;
+			&:hover {
+				transform: scale(2.5);
+			}
 		}
 
 		.code {
 			font-style: italic;
 			font-size: .8em;
-			margin-top: 10px;
+			margin-top: .5em;
 		}
 	}
 
 	.postChat {
-		max-width: 250px;
-		margin-top: 10px;
+		max-width: 300px;
 		font-size: .8em;
-		:deep(.togglebutton) {
-			border-color: @mainColor_light;
-			.circle {
-				background-color: @mainColor_light;
-			}
-		}
-		:deep(.togglebutton.selected) {
-			background-color: fade(@mainColor_light, 40%);
-		}
-		:deep(.togglebutton:hover) {
-			background-color: fade(@mainColor_light, 50%);
-		}
 	}
 
 	.winner {
-		margin-top: 20px;
 		background: @mainColor_light;
-		padding: 2px 5px;
-		border-radius: 5px;
+		padding: .2em .5em;
+		border-radius: .5em;
 		color: @mainColor_normal;
 		font-weight: bold;
-	}
-
-	.deleteBt {
-		margin-top: 20px;
-		min-height: 2em;
 	}
 
 }

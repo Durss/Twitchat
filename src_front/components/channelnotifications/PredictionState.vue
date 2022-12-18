@@ -27,7 +27,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="actions">
+		<div class="item actions">
 			<Button title="Cancel prediction" @click="deletePrediction()" :loading="loading" highlight />
 		</div>
 	</div>
@@ -82,11 +82,13 @@ export default class PredictionState extends Vue {
 	}
 
 	public mounted():void {
-		const ellapsed = Date.now() - this.prediction.started_at;
-		const duration = this.prediction.duration_s*1000;
-		const timeLeft = duration - ellapsed
-		this.progressPercent = ellapsed/duration;
-		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
+		// const ellapsed = Date.now() - this.prediction.started_at;
+		// const duration = this.prediction.duration_s*1000;
+		// const timeLeft = duration - ellapsed
+		// this.progressPercent = ellapsed/duration;
+		// gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
+
+		this.renderFrame();
 	}
 
 	public beforeUnmount():void {
@@ -125,27 +127,21 @@ export default class PredictionState extends Vue {
 		});
 	}
 
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+		const ellapsed = Date.now() - this.prediction.started_at;
+		const duration = this.prediction.duration_s * 1000;
+		// const timeLeft = duration - ellapsed
+		this.progressPercent = ellapsed/duration;
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .predictionstate{
-
-	.title {
-		color: @mainColor_light;
-		width: 100%;
-		text-align: center;
-		padding-bottom: 10px;
-		word-break: break-word;
-		img {
-			width: 20px;
-			margin-right: 10px;
-		}
-	}
-
-	.progress {
-		margin-bottom: 20px;
-	}
+	.gameStateWindow();
 
 	.outcomeTitle {
 		color: @mainColor_light;
@@ -259,12 +255,5 @@ export default class PredictionState extends Vue {
 		}
 	}
 
-	.actions {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		margin-top: 10px;
-	}
-	
 }
 </style>

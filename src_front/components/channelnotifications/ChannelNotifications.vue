@@ -3,7 +3,7 @@
 		<div ref="content" class="holder">
 			<transition name="slide">
 				<PollState class="content" v-if="showPoll" />
-				<ChatPollState class="content" v-else-if="showChatPoll" />
+				<ChatSuggestionState class="content" v-else-if="showChatPoll" />
 				<PredictionState class="content" v-else-if="showPrediction" />
 				<TrackedUsers class="content" v-else-if="showTrackedUsers" />
 				<RaffleState class="content" v-else-if="showRaffle" />
@@ -38,7 +38,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import MessageSearch from '../chatform/MessageSearch.vue';
 import BingoState from './BingoState.vue';
-import ChatPollState from './ChatPollState.vue';
+import ChatSuggestionState from './ChatSuggestionState.vue';
 import DeezerState from './DeezerState.vue';
 import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
@@ -60,11 +60,11 @@ import WhispersState from './WhispersState.vue';
 		DeezerState,
 		RaffleState,
 		TrackedUsers,
-		ChatPollState,
 		MessageSearch,
 		WhispersState,
 		HypeTrainState,
 		PredictionState,
+		ChatSuggestionState,
 	},
 	emits:['close','showDimmer', 'hideDimmer'],
 })

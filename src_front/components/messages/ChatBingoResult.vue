@@ -4,7 +4,7 @@
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/bingo.svg" alt="icon" class="icon">
 		<div>
-			<strong>{{messageData.bingoData.winners![0].displayName}}</strong> won the bingo with answer
+			<a class="userlink" v-if="messageData.bingoData.winners![0]" @click.stop="openUserCard(messageData.bingoData.winners![0])">{{messageData.bingoData.winners![0].displayName}}</a> won the bingo with answer
 			<img class="answer emote" :src="messageData.bingoData.emoteValue?.twitch?.image.hd" v-if="messageData.bingoData.guessEmote">
 			<strong class="answer" v-else>{{messageData.bingoData.numberValue}}</strong>
 		</div>
@@ -38,6 +38,11 @@ export default class ChatBingoResult extends Vue {
 		console.log(this.messageData);
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
+
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user);
+	}
+
 
 }
 </script>

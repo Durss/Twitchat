@@ -52,7 +52,7 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
-				<ChatPollResult class="message"
+				<ChatSuggestionResult class="message"
 					v-else-if="m.type == 'poll'"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
@@ -152,7 +152,7 @@
 					v-else-if="m.type == 'notice'" 
 					:messageData="m" />
 
-				<ChatPollResult class="message"
+				<ChatSuggestionResult class="message"
 					v-else-if="m.type == 'poll'"
 					:messageData="m" />
 
@@ -261,7 +261,7 @@ import ChatHighlight from './ChatHighlight.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
 import ChatJoinLeave from './ChatJoinLeave.vue';
 import ChatNotice from './ChatNotice.vue';
-import ChatPollResult from './ChatPollResult.vue';
+import ChatSuggestionResult from './ChatSuggestionResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatRoomSettings from './ChatRoomSettings.vue';
@@ -280,7 +280,6 @@ import MessageListFilter from './components/MessageListFilter.vue';
 		ChatShoutout,
 		ChatHighlight,
 		ChatJoinLeave,
-		ChatPollResult,
 		ChatBingoResult,
 		ChatRoomSettings,
 		ChatRaffleResult,
@@ -289,6 +288,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 		ChatHypeTrainResult,
 		ChatCountdownResult,
 		ChatPredictionResult,
+		ChatSuggestionResult,
 		ChatMessageHoverActions,
 	},
 	props: {

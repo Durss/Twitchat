@@ -24,6 +24,7 @@ export const storePrediction = defineStore('prediction', {
 		setPrediction(data:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean) {
 			if(data != null) {
 				if(postOnChat) {
+					console.log("POST MESSAGE", data);
 					StoreProxy.chat.addMessage(data);
 				}
 

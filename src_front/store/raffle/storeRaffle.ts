@@ -85,7 +85,7 @@ export const storeRaffle = defineStore('raffle', {
 						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 					}else{
 						//No wheel overlay found, announce on chat
-						const winner:TwitchatDataTypes.EntryItem = Utils.pickRand(items);
+						const winner:TwitchatDataTypes.RaffleEntry = Utils.pickRand(items);
 						this.onRaffleComplete(winner, true)
 					}
 					break;
@@ -118,7 +118,7 @@ export const storeRaffle = defineStore('raffle', {
 						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 					}else{
 						//No wheel overlay found, announce on chat
-						const winner:TwitchatDataTypes.EntryItem = Utils.pickRand(items);
+						const winner:TwitchatDataTypes.RaffleEntry = Utils.pickRand(items);
 						this.onRaffleComplete(winner, true);
 					}
 					break;
@@ -128,7 +128,7 @@ export const storeRaffle = defineStore('raffle', {
 
 		stopRaffle() { this.data = null; },
 
-		onRaffleComplete(winner:TwitchatDataTypes.EntryItem, publish:boolean = false) {
+		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish:boolean = false) {
 			// this.raffle = null;
 			if(!this.data) return;
 
@@ -145,6 +145,7 @@ export const storeRaffle = defineStore('raffle', {
 				id:Utils.getUUID(),
 				date:Date.now(),
 				raffleData:this.data,
+				winner,
 			}
 			StoreProxy.chat.addMessage(message);
 

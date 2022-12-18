@@ -1191,6 +1191,7 @@ export namespace TwitchatDataTypes {
 	export interface MessageRaffleData extends AbstractTwitchatMessage {
 		type:"raffle";
 		raffleData:RaffleData;
+		winner:RaffleEntry;
 	}
 
 	/**

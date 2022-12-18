@@ -1,10 +1,11 @@
 <template>
 	<div class="rafflestate">
-		<h1 class="title"><img src="@/assets/icons/ticket.svg">Raffle - <span class="highlight">{{raffleData.command}}</span></h1>
+		<h1 class="title"><img src="@/assets/icons/ticket.svg">Raffle - <span class="cmd highlight">{{raffleData.command}}</span></h1>
 
 		<ProgressBar class="progress"
-		:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
-		:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s*60000" />
+			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
+			:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s*60000"
+		/>
 
 		<div class="item entries">
 			<img src="@/assets/icons/user.svg" alt="user">
@@ -12,10 +13,11 @@
 			<p class="max" v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</p>
 			<p>entered</p>
 		</div>
-		<div class="item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
+
+		<div class="item winners highlight" v-if="raffleData.winners && raffleData.winners.length > 0">
 			<span class="title">Winners <span class="count">({{raffleData.winners.length}})</span> :</span>
 			<div class="entries">
-				<span v-for="w in raffleData.winners" :key="w.label" @click="openUserCard(w)">{{w.label}}</span>
+				<Button v-for="w in raffleData.winners" :key="w.label" :title="w.label" small @click="openUserCard(w)" />
 			</div>
 		</div>
 
@@ -27,7 +29,9 @@
 			:loading="picking"
 			:disabled="canPick" />
 
-		<PostOnChatParam botMessageKey="raffle" class="item postChat" :placeholders="winnerPlaceholders" />
+		<PostOnChatParam class="item postChat" botMessageKey="raffle"
+			:placeholders="winnerPlaceholders"
+			clearToggle />
 
 		<Button class="item"
 			:icon="$image('icons/cross_white.svg')"
@@ -154,11 +158,7 @@ export default class RaffleState extends Vue {
 		}else{
 
 			//no wheel overlay found, just announce the winner
-			const winnerData:TwitchatDataTypes.EntryItem = {
-				id:winner.id,
-				label:winner.label,
-			}
-			this.$store("raffle").onRaffleComplete(winnerData);
+			this.$store("raffle").onRaffleComplete(winner);
 		}
 
 		this.picking = false;
@@ -170,90 +170,43 @@ export default class RaffleState extends Vue {
 
 <style scoped lang="less">
 .rafflestate{
-	color: @mainColor_light;
+	.gameStateWindow();
 
-	&>.title {
-		color: @mainColor_light;
-		width: 100%;
-		text-align: center;
-		padding-bottom: 10px;
-		word-break: break-word;
-		img {
-			width: 20px;
-			margin-right: 10px;
-		}
-		.highlight {
-			color: @windowStateColor;
-			background: @mainColor_light;
-			padding: 2px 5px;
-			border-radius: 5px;
-			font-size: .8em;
-		}
-	}
-
-	.progress {
-		color: @windowStateColor;
-		margin-bottom: 20px;
+	.cmd {
+		margin-left: .5em;
 	}
 
 	.item {
-		margin: auto;
-		&:not(:last-child) {
-			margin-bottom: 10px;
-		}
 
 		&.entries {
 			display: flex;
 			flex-direction: row;
+			align-items: center;
 			font-style: italic;
 			opacity: .7;
-			font-size: 15px;
+			font-size: .8em;
 			.count, .max {
-				margin-right: 5px;
+				margin-right: .5em;
 			}
 			img {
-				height: 14px;
-				align-self: baseline;
-				margin-right: 5px;
-			}
-		}
-
-		&.postChat {
-			max-width: 250px;
-			margin-top: 10px;
-			font-size: .8em;
-			:deep(.togglebutton) {
-				border-color: @mainColor_light;
-				.circle {
-					background-color: @mainColor_light;
-				}
-			}
-			:deep(.togglebutton.selected) {
-				background-color: fade(@mainColor_light, 40%);
-			}
-			:deep(.togglebutton:hover) {
-				background-color: fade(@mainColor_light, 50%);
+				height: 1em;
+				margin-right: .5em;
 			}
 		}
 
 		&.winners {
-			display: block;
-			margin: auto;
-			margin-bottom: 10px;
-			background: @mainColor_light;
-			padding: 2px 5px;
-			border-radius: 5px;
+			font-size: 1em;
 			color: @mainColor_normal;
 			max-width: 100%;
 			display: flex;
 			flex-direction: column;
 			.title {
-				// flex-grow: 1;
 				font-weight: bold;
 				align-self: center;
-				margin-bottom: 10px;
+				margin-bottom: .5em;
 				.count {
 					font-size: .75em;
+					font-weight: normal;
 					font-style: italic;
 				}
 			}
@@ -262,15 +215,7 @@ export default class RaffleState extends Vue {
 				flex-direction: row;
 				flex-wrap: wrap;
 				justify-content: center;
-				span {
-					cursor: pointer;
-					margin-left: 5px;
-					text-decoration: underline;
-					&:hover {
-						color: @mainColor_alert;
-						text-decoration: none;
-					}
-				}
+				gap: .25em;
 			}
 		}
 	}

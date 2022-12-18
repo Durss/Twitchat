@@ -1,5 +1,5 @@
 <template>
-	<div class="chatpollresult" @click.capture.ctrl.stop="copyJSON()"
+	<div class="chattsuggresult" @click.capture.ctrl.stop="copyJSON()"
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
@@ -35,7 +35,7 @@ import { Options, Vue } from 'vue-class-component';
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatPollResult extends Vue {
+export default class ChatSuggestionResult extends Vue {
 
 	public messageData!:TwitchatDataTypes.MessagePollData;
 
@@ -67,7 +67,7 @@ export default class ChatPollResult extends Vue {
 </script>
 
 <style scoped lang="less">
-.chatpollresult{
+.chattsuggresult{
 	.chatMessageHighlight();
 	text-align: center;
 

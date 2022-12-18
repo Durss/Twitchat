@@ -59,6 +59,7 @@ export const storeBingo = defineStore('bingo', {
 		
 		checkBingoWinner(message:TwitchatDataTypes.MessageChatData):void {
 			if(!this.data) return;
+			if(this.data.winners && this.data.winners.length > 0) return;
 
 			const sChat = StoreProxy.chat;
 			const bingo = this.data;

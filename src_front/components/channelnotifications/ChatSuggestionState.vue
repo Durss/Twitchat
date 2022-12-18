@@ -1,35 +1,32 @@
 <template>
-	<div class="chatpollstate">
-		<h1 class="title"><img src="@/assets/icons/chatPoll.svg">{{poll.command}}</h1>
+	<div class="chatsuggstate">
+		<h1 class="title"><img src="@/assets/icons/chatPoll.svg">Chat suggestion - <span class="highlight">{{poll.command}}</span></h1>
 
 		<ProgressBar class="progress"
 			:percent="progressPercent"
 			:duration="poll.duration*1000 * 60" />
 		
-		<ToggleBlock medium :open="false" :title="entries.length+' entries'" class="row choices" v-if="entries.length > 0" :icons="['user']">
-			<div class="holder">
-				<div class="choice" v-for="(c,index) in poll.choices" :key="c.user.id+'_'+index">
-					<div class="username">{{c.user.displayName}}</div>
-					<div class="text">{{c.label}}</div>
-				</div>
-				<div class="choice win" v-for="(c,index) in poll.winners" :key="c.user.id+'_'+index">
-					<img src="@/assets/icons/checkmark_white.svg" alt="check">
-					<div class="username">{{c.user.displayName}}</div>
+		<div class="item">{{entries.length}} suggestions</div>
+		<div class="item choices">
+			<div class="choice win" v-for="(c,index) in poll.winners" :key="c.user.id+'_'+index">
+				<img :src="$image('icons/sub'+(index>0?'_purple':'')+'.svg')" alt="star">
+				<div class="info">
+					<a class="user" @click="openUserCard(c.user)" target="_blank">{{c.user.displayName}}</a>
 					<div class="text">{{c.label}}</div>
 				</div>
 			</div>
-		</ToggleBlock>
-
-		<div class="row winner" v-if="poll.winners.length > 0">
-			<span class="user">{{poll.winners[0].user.displayName}}</span>
-			<span class="message">{{poll.winners[0].label}}</span>
+			<div class="choice" v-for="(c,index) in poll.choices" :key="c.user.id+'_'+index">
+				<a class="user" @click="openUserCard(c.user)" target="_blank">{{c.user.displayName}}</a>
+				<div class="text">{{c.label}}</div>
+			</div>
 		</div>
 
 		<div class="actions">
 			<Button class="item"
-				:icon="$image('icons/chatPoll.svg')"
+				:icon="$image('icons/chatPoll_purple.svg')"
 				title="Pick a random entry"
 				@click="pickEntry()"
+				white
 				:disabled="poll.choices.length === 0" />
 
 			<Button class="item"
@@ -57,7 +54,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		ProgressBar,
 	}
 })
-export default class ChatPollState extends Vue {
+export default class ChatSuggestionState extends Vue {
 
 	public loading = false;
 	public progressPercent = 0;
@@ -87,32 +84,22 @@ export default class ChatPollState extends Vue {
 		this.$store("chatSuggestion").setChatSuggestion(null);
 	}
 
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user);
+	}
+
 }
 </script>
 
 <style scoped lang="less">
-.chatpollstate{
-	color: @mainColor_light;
+.chatsuggstate{
+	.gameStateWindow();
 
-	.title {
-		width: 100%;
-		text-align: center;
-		padding-bottom: 10px;
-		word-break: break-word;
-		img {
-			height: 20px;
-			margin-right: 10px;
-		}
+	.title>.highlight {
+		margin-left: .5em;
 	}
 
-	.progress {
-		margin-bottom: 20px;
-	}
-
-	.row {
-		margin: auto;
-		margin-bottom: 1em;
-
+	.item {
 		&.winner {
 			padding: 0;
 			border-radius: 5px;
@@ -134,41 +121,57 @@ export default class ChatPollState extends Vue {
 	}
 
 	.choices {
-		:deep(.content){
-			background-color: fade(@mainColor_normal, 10%);
-		}
-		.holder {
-			max-height: 200px;
-			overflow-y: auto;
-			
-			.choice {
+		padding: .5em;
+		border-radius: .5em;
+		background-color: @mainColor_light;
+		color: @mainColor_normal;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
+		
+		.choice {
+			display: flex;
+			flex-direction: column;
+			padding: .25em;
+			border-radius: .5em;
+			background-color: fade(@mainColor_normal_extralight, 30%);
+
+			&.win {
 				display: flex;
 				flex-direction: row;
-
-				&.win {
+				gap:.25em;
+				img {
+					height: 1em;
+				}
+				&:first-of-type{
+					color: @mainColor_light;
 					background-color: @mainColor_normal;
-					img {
-						height: 1em;
-						margin-right: .25em;
+					a {
+						color: @mainColor_light;
+						&:hover {
+							color: @mainColor_alert_extralight;
+						}
 					}
 				}
-
-				.username {
-					font-weight: bold;
-					margin-right: 1em;
+				&:not(:first-of-type) {
+					border: 1px solid @mainColor_normal;
 				}
+			}
+			.user {
+				font-weight: bold
+			}
+
+			.text {
+				padding-left: .5em;
 			}
 		}
 	}
 
 	.actions {
-		margin: auto;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		.button:not(:first-child) {
-			margin-top: .25em;
-		}
+		align-items: center;
 	}
 }
 </style>

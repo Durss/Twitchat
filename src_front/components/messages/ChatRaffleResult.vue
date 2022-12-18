@@ -4,7 +4,7 @@
 		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		<div>
-			<strong>{{messageData.raffleData.winners![0].label}}</strong> won the raffle
+			<strong>{{messageData.winner.label}}</strong> won the raffle
 		</div>
 	</div>
 </template>
