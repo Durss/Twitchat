@@ -1,17 +1,16 @@
-import { storeChat } from "@/store/chat/storeChat";
 import StoreProxy from "@/store/StoreProxy";
 import { storeTTS } from "@/store/tts/storeTTS";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { watch } from "vue";
-import PublicAPI from "./PublicAPI";
 import TwitchatEvent from "../events/TwitchatEvent";
+import PublicAPI from "./PublicAPI";
 import Utils from "./Utils";
 
 interface SpokenMessage {
-	message: TwitchatDataTypes.ChatMessageTypes,
-	date: number,
-	id: string,
-	force?: boolean,
+	message?: TwitchatDataTypes.ChatMessageTypes;
+	text?:string;
+	date: number;
+	id: string;
+	force?: boolean;
 }
 
 export default class TTSUtils {
@@ -84,10 +83,8 @@ export default class TTSUtils {
 	private pendingMessages:SpokenMessage[] = [];
 	private lastMessageTime:number = 0;
 	private stopTimeout:number = -1;
-	private idsParsed:{[key:string]:boolean} = {};
 
 	private sTTS = storeTTS();
-	private sChat = storeChat();
 
 	/***********
 	* HANDLERS *
@@ -97,22 +94,6 @@ export default class TTSUtils {
 		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
 			this.voices = window.speechSynthesis.getVoices();
 		};
-		
-		watch(() => this.sChat.messages, async (value) => {
-				//There should be no need to read more than 100 new messages at a time
-				//Unless the chat is ultra spammy in which case we wouldn't notice
-				//messages are missing from the list anyway...
-				const len = this.sChat.messages.length;
-				let i = Math.max(0, len - 100);
-				for (; i < len; i++) {
-					const m = this.sChat.messages[i];
-					if(this.idsParsed[m.id as string] !== true) {
-						this.idsParsed[m.id as string] = true;
-						this.addMessageToQueue(m);
-					}
-				}
-				return;
-		});
 		
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_TTS, ()=> {
 			this.stop();
@@ -174,7 +155,7 @@ export default class TTSUtils {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
-
+		
 		const m:SpokenMessage = {message, id, force:true, date: Date.now()};
 		
 		this.pendingMessages.splice(1, 0, m);
@@ -190,12 +171,12 @@ export default class TTSUtils {
 	 * Reads a string message after the current one.
 	 * @param text 
 	 */
-	public readNext(message: TwitchatDataTypes.ChatMessageTypes, id?:string):void {
+	public readNext(text: string, id?:string):void {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
-		
-		const m:SpokenMessage = {message, id, date: Date.now()};
+
+		const m:SpokenMessage = {text, id, date: Date.now()};
 		if(this.pendingMessages.length == 0) {
 			this.pendingMessages.push(m);
 			this.readNextMessage();
@@ -474,9 +455,11 @@ export default class TTSUtils {
 		let skipMessage = false;
 
 		//Message deleted?
-		if(TwitchatDataTypes.DeletableMessageTypes.includes(message.message.type)) {
-			const m = message.message as TwitchatDataTypes.MessageChatData;//Cast to one of the deletable types for the sake of typing. Couldn't find a cleaner way to achieve that :(
-			if(m.deleted == true) skipMessage = true;
+		if(message.message) {
+			if(TwitchatDataTypes.DeletableMessageTypes.includes(message.message.type)) {
+				const m = message.message as TwitchatDataTypes.MessageChatData;//Cast to one of the deletable types for the sake of typing. Couldn't find a cleaner way to achieve that :(
+				if(m.deleted == true) skipMessage = true;
+			}
 		}
 		const paramsTTS = this.sTTS.params;
 		this.lastMessageTime = Date.now();
@@ -495,7 +478,7 @@ export default class TTSUtils {
 			return;
 		}
 		
-		const text = await this.parseMessage(message.message, message.force);
+		const text = message.message? await this.parseMessage(message.message, message.force) : message.text ?? "";
 		if(text.length > 0) {
 			const voice = this.voices.find(x => x.name == paramsTTS.voice);
 			const mess = new SpeechSynthesisUtterance(text);

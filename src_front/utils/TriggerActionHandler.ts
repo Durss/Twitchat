@@ -493,7 +493,8 @@ export default class TriggerActionHandler {
 					
 					//Handle TTS action
 					if(step.type == "tts" && message) {
-						TTSUtils.instance.readNext(message, ttsID ?? eventType);
+						let text = await this.parseText(eventType, message, step.text);
+						TTSUtils.instance.readNext(text, ttsID ?? eventType);
 					}else
 					
 					//Handle raffle action
