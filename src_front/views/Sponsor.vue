@@ -4,7 +4,9 @@
 			<img src="@/assets/logo.svg" alt="Twitchat">
 		</div>
 
-		<Button :icon="$image('icons/back.svg')" title="Back" class="backBt" :to="{name:'home_forced'}" />
+		<Button :icon="$image('icons/back.svg')"
+			:title="$t('global.back')"
+			class="backBt" :to="{name:'home_forced'}" />
 
 		<ParamsSponsor class="content" />
 	</div>

@@ -67,6 +67,20 @@ export const storeMain = defineStore("main", {
 	
 	actions: {
 
+		/**
+		 * Here for debug purpose.
+		 * Called when doing CTRL+Shift+L to reload the app labels
+		 * this makes a little easier testing labels updates to
+		 * avoid refreshing the full app
+		 */
+		async reloadLabels():void {
+			const labelsRes = await fetch("/labels.json");
+			const labelsJSON = await labelsRes.json();
+			for (const lang in labelsJSON) {
+				StoreProxy.i18n.setLocaleMessage(lang, labelsJSON[lang]);
+			}
+		},
+
 		async startApp(authenticate:boolean, callback:(value:unknown)=>void) {
 			let jsonConfigs:ServerConfig;
 			const sOBS = StoreProxy.obs;

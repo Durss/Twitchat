@@ -239,3 +239,9 @@ window.addEventListener("beforeinstallprompt", (e:Event)=> {
 });
 
 app.mount('#app')
+
+document.addEventListener("keyup", (e:KeyboardEvent)=> {
+	if(e.code == "KeyL" && e.ctrlKey && e.shiftKey) {
+		StoreProxy.main.reloadLabels();
+	}
+})

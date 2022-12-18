@@ -1,5 +1,6 @@
 {
 	"beta":"beta",
+	"back":"back",
 	"twitch_scopes":{
 		"bits:read": "Read bits leaderboard",
 		

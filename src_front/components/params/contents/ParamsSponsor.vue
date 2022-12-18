@@ -1,28 +1,40 @@
 <template>
 	<div class="paramssponsor">
-		<p>Twitchat took <strong>MONTHS</strong> of my personnal time to create.</p>
-		<p>It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.</p>
-		<p><strong>If you can afford it</strong>, feel free to thank me and make my day brighter with one of the options bellow!</p>
+		<p v-for="i in $tm('sponsor.head')" v-html="i"></p>
 
 		<div class="important">
-			<p>
-				<strong>IMPORTANT</strong>, specify <strong>your Twitch login</strong>
-				on your donation message when possible or
-				<a href="https://twitch.tv/durss" target="_blank">send me in a whisper on Twitch</a>
-				so I know which twitch user you are !
-			</p>
-			<p>This is necessary if you want to have the ability to disable the automatic message :)</p>
+			<strong>IMPORTANT</strong>
+			<p v-html="$t('sponsor.important_content1')"></p>
+			<p v-html="$t('sponsor.important_content2')"></p>
 		</div>
 
 		<img src="@/assets/img/eating.gif" alt="eating" />
 
 		<div class="buttons">
-			<Button big type="link" href="https://paypal.me/durss" target="_blank" title="Donate on Paypal <i data-tooltip='Donation percent<br>I receive'>(95-100%)</i>" :icon="$image('icons/paypal_white.svg')" />
-			<Button big type="link" href="https://ko-fi.com/durss" target="_blank" title="Donate on Ko-fi <i data-tooltip='Donation percent<br>I receive'>(90%)</i>" :icon="$image('icons/kofi_white.svg')" class="kofiBt" />
-			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank" title="Donate on Github <i data-tooltip='Donation percent<br>I receive'>(85-95%)</i>" :icon="$image('icons/github_white.svg')" />
-			<Button big type="link" href="https://www.buymeacoffee.com/durss" target="_blank" title="Buy me a <span class='erase'>coffee</span> grenadine <i data-tooltip='Donation percent<br>I receive'>(90%)</i>" :icon="$image('icons/coffee_white.svg')" class="coffeeBt" />
-			<Button big type="link" href="https://www.patreon.com/durss" target="_blank" title="Become a Patron <i data-tooltip='Donation percent<br>I receive'>(80-85%)</i>" :icon="$image('icons/patreon_white.svg')" />
-			<Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank" title="Subscribe on Twitch <i data-tooltip='Donation percent<br>I receive'>(50%)</i>" :icon="$image('icons/twitch_white.svg')" />
+			<Button big type="link" href="https://paypal.me/durss" target="_blank"
+				:title="getTitle('paypal')"
+				:icon="$image('icons/paypal_white.svg')" />
+
+			<Button big type="link" href="https://ko-fi.com/durss" target="_blank"
+				:title="getTitle('kofi')"
+				:icon="$image('icons/kofi_white.svg')" class="kofiBt" />
+
+			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank"
+				:title="getTitle('github')"
+				:icon="$image('icons/github_white.svg')" />
+
+			<Button big type="link" href="https://www.buymeacoffee.com/durss" target="_blank"
+				:title="getTitle('coffee')"
+				:icon="$image('icons/coffee_white.svg')" class="coffeeBt" />
+
+			<Button big type="link" href="https://www.patreon.com/durss" target="_blank"
+				:title="getTitle('patreon')"
+				:icon="$image('icons/patreon_white.svg')" />
+
+			<Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank"
+				:title="getTitle('twitch')"
+				:icon="$image('icons/twitch_white.svg')" />
+
 		</div>
 	</div>
 </template>
@@ -40,6 +52,14 @@ import { Options, Vue } from 'vue-class-component';
 	}
 })
 export default class ParamsSponsor extends Vue {
+
+	public getTitle(key:string):string {
+		let res = this.$t("sponsor.donate_option."+key);
+		res += "<i data-tooltip=\'";
+		res += this.$t("sponsor.donate_rate").replace(/'/g, "\'").replace(/"/g, "\"");
+		res += "\'>("+this.$t("sponsor.donate_option."+key+"_rate")+")</i>";
+		return res;
+	}
 
 }
 </script>

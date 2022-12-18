@@ -156,14 +156,14 @@ export default class Login extends Vue {
 							if(betaRefused === true) {
 								this.closedBeta = true;
 							}else{
-								this.$store("main").alertData = "Invalid credentials";
+								this.$store("main").alertData = this.$t("error.invalid_credentials");
 							}
 							this.authenticating = false;
 						}
 					});
 				}
 			}else{
-				this.$store("main").alertData = "You refused access to the Twitch application.";
+				this.$store("main").alertData = this.$t("error.authorization_refused");
 				this.authenticating = false;
 			}
 		}
@@ -180,7 +180,7 @@ export default class Login extends Vue {
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
 		}catch(e) {
-			this.$store("main").alertData = "An error occured while generating a CSRF token";
+			this.$store("main").alertData = $t("error.csrf_failed");
 		}
 		this.generatingCSRF = false;
 	}

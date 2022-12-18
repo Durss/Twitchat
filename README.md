@@ -208,6 +208,39 @@ Here is the expected file structure:\
 <br>
 <br>
 
+# Localization
+App labels can be found under `i18n` folder.\
+They are splitted by language then by sections.\
+Any new file or folder structure can be added to this.\
+These are all merged into `public/labels.json` during the build process, keep all folder names as keys.\
+Example:\
+```
+─ en\
+  ├─ global.json\
+  ├─ subFolder/\
+  ├─── hello.json/\
+```
+Will output this JSON file:
+```
+{
+	"en":{
+		"global":{...},
+		"subFolder":{
+			"hello":{...}
+		}
+	}
+}
+```
+\
+To make localization easier you can start the following PM2 process that will watch for any file change under `i18n` folder and rebuild the `labels.json` file.
+```
+pm2 start labels-pom2/json
+```
+Labels won't automatically be updated on the frontend though _(if anyone knows how to make Vite detect that...)_. To force labels refresh you can use this keyboard short on the app `CTRL+Shift+L`
+<br>
+<br>
+<br>
+
 # Package Stream Deck™ plugin
 Delete the following file:
 ```

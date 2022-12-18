@@ -60,6 +60,7 @@ export interface IMainGetters {
 }
 
 export interface IMainActions {
+	reloadLabels();
 	startApp(authenticate:boolean, callback:(value:unknown)=>void):Promise<void>
 	loadDataFromStorage():void;
 	alert(message:string):void;
