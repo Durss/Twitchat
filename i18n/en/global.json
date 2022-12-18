@@ -1,6 +1,9 @@
 {
 	"beta":"beta",
 	"back":"back",
+	"yes":"yes",
+	"no":"no",
+	"click":"click",
 	"log_in":"Log in",
 	"connect":"Connect",
 	"disconnect":"Disonnect",

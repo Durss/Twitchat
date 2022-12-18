@@ -120,8 +120,8 @@
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
 				<img src="@/assets/icons/deezer_color.svg" alt="deezer" class="icon">
-				<div class="title">Click</div>
-				<div class="message">Deezer needs you to click here to be able to play music.</div>
+				<div class="title" v-t="'global.click'"></div>
+				<div class="message" v-t="'deezer.interact'"></div>
 			</div>
 		</Teleport>
 
@@ -482,7 +482,7 @@ export default class Chat extends Vue {
 				try {
 					await TwitchUtils.endPoll(poll.id, poll.channel_id);
 				}catch(error) {
-					this.$store("main").alertData = "An error occurred while deleting the poll";
+					this.$store("main").alertData = this.$t("error.twitch_poll_delete");
 				}
 				break;
 			}
@@ -498,7 +498,7 @@ export default class Chat extends Vue {
 				try {
 					await TwitchUtils.endPrediction(prediction.channel_id, prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {
-					this.$store("main").alertData = "An error occurred while deleting the prediction";
+					this.$store("main").alertData = this.$t("error.twitch_prediction_delete")
 				}
 				break;
 			}
@@ -509,7 +509,7 @@ export default class Chat extends Vue {
 				this.voiceControl = true;
 				break;
 			case TwitchatEvent.RAFFLE_END:{
-				this.$confirm("Close raffle", "All raffle entries will be lost", undefined, undefined, undefined, true)
+				this.$confirm(this.$t("raffle.delete_confirm.title"), this.$t("raffle.delete_confirm.description"), undefined, undefined, undefined, true)
 				.then(async ()=> {
 					this.$store("raffle").stopRaffle();
 				}).catch(()=> {
@@ -519,7 +519,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.START_EMERGENCY:
-				this.$confirm("Enable emergency mode ?", undefined, undefined, undefined, undefined, true).then(()=>{
+				this.$confirm(this.$t("emergency.enable_confirm"), undefined, undefined, undefined, undefined, true).then(()=>{
 					this.$store("emergency").setEmergencyMode(true);
 				}).catch(()=>{});
 				break;

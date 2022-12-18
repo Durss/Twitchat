@@ -733,7 +733,7 @@ export default class ChatForm extends Vue {
 	 */
 	public toggleEmergencyMode():void {
 		if(!this.$store("emergency").emergencyStarted) {
-			this.$confirm("Enable emergency mode ?").then(()=>{
+			this.$confirm(this.$t("emergency.enable_confirm")).then(()=>{
 				this.$store("emergency").setEmergencyMode(true);
 			}).catch(()=>{});
 		}else{

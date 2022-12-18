@@ -1,0 +1,6 @@
+{
+	"delete_confirm":{
+		"title":"Close raffle",
+		"description":"All raffle entries will be lost"
+	}
+}

@@ -8,8 +8,8 @@
 
 			<div class="description" v-html="confirmData.description"></div>
 			<div class="buttons">
-				<Button class="cancel" type="cancel" @click.stop="answer()" :title="confirmData.noLabel ?? 'No'" highlight />
-				<Button class="confirm" @click.stop="answer(true)" :title="confirmData.yesLabel ?? 'Yes'" />
+				<Button class="cancel" type="cancel" @click.stop="answer()" :title="confirmData.noLabel ?? $t('global.yes')" highlight />
+				<Button class="confirm" @click.stop="answer(true)" :title="confirmData.yesLabel ?? $t('global.no')" />
 			</div>
 		</div>
 	</div>
