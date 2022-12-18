@@ -6,7 +6,7 @@
 		</div>
 
 		<div ref="heart" class="beatingHeart" @click="burstStars(true);">
-			<div class="level"><span class="small" v-if="light === false">level</span><br v-if="light === false">{{donorLevel+1}}</div>
+			<div class="level"><span class="small" v-if="light === false" v-t="'donor.level'"></span><br v-if="light === false">{{donorLevel+1}}</div>
 			<svg class="image" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 208.6 202.5" xml:space="preserve">
 				<defs>

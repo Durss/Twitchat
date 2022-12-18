@@ -76,6 +76,7 @@ export default class App extends Vue {
 	}
 
 	private onKeyDown(e:KeyboardEvent):void {
+		//Allow to zoom interface via "Shift +/-/0" key
 		if(!e.shiftKey && e.key !== "Insert") return;
 		let scale = this.scale;
 		if(e.key === "=" || e.key === "+") scale += .1;

@@ -2,19 +2,20 @@
 	<div class="voicecontrol">
 		<div class="block head">
 			<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
-			<p>This page allows you to control <strong>Twitchat</strong> and some twitch features with your voice</p>
-			<p class="install">In order to work, this needs <strong>OBS v28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
+			<p v-t="'voice.remote.title'"></p>
+			<p class="install"><span v-t="'voice.remote.install'"></span> <strong>OBS v28+</strong>
+				<i>(or OBS 27 with </i><a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a> installed)</p>
 		</div>
 
 		<ToggleBlock class="block conf"
 		:open="!connected"
 		icon="info_purple"
-		title="OBS credentials">
+		:title="$t('obs.credentials_form_title')">
 			<OBSConnectForm  class="connectForm" />
 		</ToggleBlock>
 
 		<div class="block tuto">
-			<p>Create your voice commands on Twitchat under <strong>Parameters => Voice control</strong> section</p>
+			<p v-html="$t('voice.remote.commands')"></p>
 		</div>
 
 		<VoiceControlForm class="block" v-if="connected" sttOnly />

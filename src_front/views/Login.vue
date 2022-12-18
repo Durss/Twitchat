@@ -180,7 +180,7 @@ export default class Login extends Vue {
 			const json = await res.json();
 			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
 		}catch(e) {
-			this.$store("main").alertData = $t("error.csrf_failed");
+			this.$store("main").alertData = this.$t("error.csrf_failed");
 		}
 		this.generatingCSRF = false;
 	}

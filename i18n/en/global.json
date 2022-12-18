@@ -1,6 +1,8 @@
 {
 	"beta":"beta",
 	"back":"back",
+	"connect":"Connect",
+	"disconnect":"Disonnect",
 	"twitch_scopes":{
 		"bits:read": "Read bits leaderboard",
 		

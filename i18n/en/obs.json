@@ -1,0 +1,11 @@
+{
+	"connection_success":"Connected with OBS",
+	"how_to_title":"Where can i find these values?",
+	"how_to1":"On OBS, open to \"Tools => obs-websocket Settings\".",
+	"how_to2":"You'll probably want to leave the IP to",
+	"ip_advice":"You may want to set the IP to 127.0.0.1 instead of what OBS shows you",
+	"form_port":"OBS websocket server port",
+	"form_pass":"OBS websocket password",
+	"form_ip":"OBS websocket IP",
+	"credentials_form_title":"OBS credentials"
+}

@@ -1,27 +1,25 @@
 <template>
 	<form @submit.prevent="connect()" class="obsconnectform">
 		<transition name="fade">
-			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success">Connected with OBS</div>
+			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success" v-t="'obs.connection_success'"></div>
 		</transition>
 		<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
 		<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
 		<ParamItem :paramData="obsIP_conf" class="row" v-if="!connected" />
 		
-		<ToggleBlock class="info" small :open="false" title="Where can i find these values?" v-if="!connected">
-			After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
-			<br>
-			<br>This window will open with the credentials:
-			<br><span class="warn">You'll probably want to leave the IP to <strong>127.0.0.1</strong>!</span>
+		<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')" v-if="!connected">
+			<p v-t="'obs.how_to1'"></p>
+			<p class="warn"><span v-t="'obs.how_to2'"></span> <strong>127.0.0.1</strong></p>
 			<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
 		</ToggleBlock>
 
-		<Button title="Connect" type="submit" class="connectBt" v-if="!connected" :loading="loading" />
-		<Button title="Disconnect" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="$image('icons/cross_white.svg')" />
+		<Button :title="$t('global.connect')" type="submit" class="connectBt" v-if="!connected" :loading="loading" />
+		<Button :title="$t('global.disconnect')" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="$image('icons/cross_white.svg')" />
 
 		<transition name="fade">
 			<div v-if="connectError" @click="connectError = false" class="error">
-				<div>Unable to connect with OBS. Double check the port and password and make sure you have OBS 28 or installed <a :href="obswsInstaller" target="_blank">OBS-websocket plugin (v5)</a></div>
-				<div v-if="obsIP_conf.value != '127.0.0.1'">You may want to set the IP to <strong>127.0.0.1</strong> instead of what OBS shows you</div>
+				<div v-t="'error.obs_ws_connect'"></div>
+				<div v-if="obsIP_conf.value != '127.0.0.1'" v-t="'obs.ip_advice'"></div>
 			</div>
 		</transition>
 	</form>
@@ -53,11 +51,17 @@ export default class OBSConnectForm extends Vue {
 	public connected:boolean = false;
 	public connectError:boolean = false;
 	public connectSuccess:boolean = false;
-	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
-	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP" };
+	public obsPort_conf!:TwitchatDataTypes.ParameterData;
+	public obsPass_conf!:TwitchatDataTypes.ParameterData;
+	public obsIP_conf!:TwitchatDataTypes.ParameterData;
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
+
+	beforeMount(): void {
+		this.obsPort_conf = { type:"number", value:4455, label:this.$t("obs.form_port"), min:0, max:65535, step:1 };
+		this.obsPass_conf = { type:"password", value:"", label:this.$t("obs.form_pass") };
+		this.obsIP_conf = { type:"text", value:"127.0.0.1", label:this.$t("obs.form_ip") };
+	}
 
 	public mounted():void {
 		const port = DataStore.get("obsPort");
@@ -150,6 +154,7 @@ export default class OBSConnectForm extends Vue {
 		border-radius: 5px;
 		margin: auto;
 		margin-top: 10px;
+		font-size: .9em;
 
 		&.error {
 			background-color: @mainColor_alert;
@@ -174,6 +179,10 @@ export default class OBSConnectForm extends Vue {
 			padding: 0 0.25em;
 			border-radius: 0.25em;
 		}
+	}
+	.warn {
+		margin-top: 1em;
+		font-style: italic;
 	}
 
 	.fade-enter-active {

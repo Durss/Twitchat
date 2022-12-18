@@ -3,7 +3,7 @@
 		<p v-for="i in $tm('sponsor.head')" v-html="i"></p>
 
 		<div class="important">
-			<strong>IMPORTANT</strong>
+			<strong v-t="'sponsor.important'"></strong>
 			<p v-html="$t('sponsor.important_content1')"></p>
 			<p v-html="$t('sponsor.important_content2')"></p>
 		</div>
@@ -121,7 +121,7 @@ export default class ParamsSponsor extends Vue {
 		font-size: .9em;
 		padding: .5em;
 		border-radius: .5em;
-		a {
+		:deep(a) {
 			color: @mainColor_highlight;
 		}
 	}
