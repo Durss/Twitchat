@@ -83,7 +83,7 @@ router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: Navigatio
 
 	if (!sAuth.authenticated) {
 		//Not authenticated, reroute to login
-		if(needAuth !== false && to.name != "login" && to.name != "closed" && to.name != "oauth") {
+		if(needAuth !== false && to.name != "login" && to.name != "logout" && to.name != "oauth") {
 			next({name: 'login', params: {redirect: to.name?.toString()}});
 			return;
 		}

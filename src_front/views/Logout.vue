@@ -5,27 +5,25 @@
 		</div>
 
 		<div class="content">
-			<div>You are now logged out.</div>
+			<div v-t="'logout.title'"></div>
 			<div class="link">
-				<a @click="showDetails = !showDetails" v-if="!showDetails">Or, are you...?</a>
+				<a @click="showDetails = !showDetails" v-if="!showDetails" v-t="'logout.are_you'"></a>
 			</div>
 			<div class="details" v-if="showDetails">
-				<b>Other apps won't tell you but logging out is not enough.</b>
-				Twitchat app still, theoretically, has access to your account.
-				<br>
-				<br>
-				You may want to also revoke access to the app from your Twitch account.
-				<br>
-				<br>
-				<Button type="link" href="https://www.twitch.tv/settings/connections" target=_blank title="Open settings" />
-				<br>
-				<br>
-				Scroll down to the <b>Other Connections</b> section, find <b>TwichatApp</b> entry and click <b>Disconnect</b> button.
-				<br>
-				<br>
+				<p class="row"><strong v-t="'logout.details_head'"></strong></p>
+				<p class="row" v-t="'logout.details_1'"></p>
+				<p class="row" v-t="'logout.details_2'"></p>
+				
+				<Button class="row" type="link"
+					href="https://www.twitch.tv/settings/connections"
+					target=_blank
+					:title="$t('logout.settingBt')"
+				/>
+				<p class="row" v-html="$t('logout.details_3')"></p>
+				
 				<img src="@/assets/img/logout.png" alt="logout">
 			</div>
-			<Button :to="{name:'login'}" title="Log-in" class="login" />
+			<Button :to="{name:'login'}" :title="$t('global.log_in')" class="login" />
 		</div>
 	</div>
 </template>
@@ -67,6 +65,9 @@ export default class Logout extends Vue {
 		}
 		img {
 			max-width: 100%;
+		}
+		.row {
+			margin-bottom: 1em;
 		}
 	}
 

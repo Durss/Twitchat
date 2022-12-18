@@ -1,6 +1,7 @@
 {
 	"beta":"beta",
 	"back":"back",
+	"log_in":"Log in",
 	"connect":"Connect",
 	"disconnect":"Disonnect",
 	"twitch_scopes":{
