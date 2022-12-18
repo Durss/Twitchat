@@ -7,7 +7,7 @@
 			:duration="poll.duration*1000 * 60" />
 		
 		<div class="item">{{entries.length}} suggestions</div>
-		<div class="item choices">
+		<div class="item choices" v-if="poll.winners.length > 0 || poll.choices.length > 0">
 			<div class="choice win" v-for="(c,index) in poll.winners" :key="c.user.id+'_'+index">
 				<img :src="$image('icons/sub'+(index>0?'_purple':'')+'.svg')" alt="star">
 				<div class="info">

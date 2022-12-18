@@ -17,7 +17,7 @@
 			🎉 {{bingoData.winners[0].displayName}} won 🎉
 		</div>
 
-		<PostOnChatParam class="item postChat" botMessageKey="bingo" :placeholders="winnerPlaceholders" clearToggle />
+		<PostOnChatParam class="item postChat highlight" botMessageKey="bingo" :placeholders="winnerPlaceholders"  />
 
 		<Button class="item"
 			:icon="$image('icons/cross_white.svg')"
@@ -92,6 +92,7 @@ export default class BingoState extends Vue {
 	.postChat {
 		max-width: 300px;
 		font-size: .8em;
+		color: @mainColor_normal;
 	}
 
 	.winner {

@@ -77,13 +77,6 @@
 						v-if="!collapse"
 					/>
 
-					<div class="adPreview" v-if="!collapse">
-						<ChatMessage class="message"
-							v-if="adPreview"
-							lightMode
-							:messageData="adPreview" />
-					</div>
-
 					<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
 						@click="showAdInfo=true"
 						title="Disable this ad"
@@ -172,7 +165,6 @@ export default class Parameters extends Vue {
 	public filteredParams:TwitchatDataTypes.ParameterData[] = [];
 	public content:TwitchatDataTypes.ParamsContentStringType|null = null;
 	public showAdInfo:boolean = false;
-	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 	public adTarget:HTMLDivElement | null = null;
 	public idToTitle:{[key in TwitchatDataTypes.ParamsContentStringType]:string} = {
 		"":"",
@@ -258,10 +250,6 @@ export default class Parameters extends Vue {
 			DataStore.set(DataStore.COLLAPSE_PARAM_AD_INFO, value);
 		});
 
-		watch(() => this.$store("chat").botMessages.twitchatAd.message, () => {
-			this.updateAdPreview();
-		});
-
 	}
 
 	public async open():Promise<void> {
@@ -278,7 +266,6 @@ export default class Parameters extends Vue {
 			this.filterParams(this.search);
 		}
 		
-		this.updateAdPreview();
 		const v = this.$store("main").tempStoreValue as string;
 		if(!v) return;
 		if(v.indexOf("CONTENT:") === 0) {
@@ -363,34 +350,6 @@ export default class Parameters extends Vue {
 				}
 			}
 		}
-	}
-	public async updateAdPreview():Promise<void> {
-		this.adPreview = null;
-		await this.$nextTick();
-		// await Utils.promisedTimeout(500);
-		const me = this.$store("auth").twitch.user;
-		let rawMessage = this.$store("chat").botMessages.twitchatAd.message;
-		let announcementColor:"primary" | "purple" | "blue" | "green" | "orange" | undefined = undefined;
-		if(rawMessage.indexOf("/announce") == 0) {
-			announcementColor = rawMessage.replace(/\/announce([a-z]+)?\s.*/i, "$1") as "primary" | "purple" | "blue" | "green" | "orange";
-			rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
-		}
-		
-		const message = TwitchUtils.parseEmotes(rawMessage, undefined, false, true);
-		this.adPreview = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			channel_id:me.id,
-			platform:"twitch",
-			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			answers:[],
-			user:me,
-			twitch_announcementColor:announcementColor,
-			is_short:false,
-			message:rawMessage,
-			message_html:message,
-			message_no_emotes:Utils.stripHTMLTags(message),
-		};
 	}
 }
 </script>
@@ -477,17 +436,10 @@ export default class Parameters extends Vue {
 			a {
 				color:@mainColor_warn_extralight;
 			}
-			.adPreview {
-				max-width: 400px;
-				margin:1em auto;
-				padding: .25em .5em;
-				border-radius: .5em;
-				background-color: @mainColor_dark;
-			}
 		}
 
 		.menu {
-			max-width: 810px;
+			max-width: 840px;
 			margin: auto;
 			.buttonList {
 				padding: 1em;

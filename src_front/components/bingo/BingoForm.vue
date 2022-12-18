@@ -211,21 +211,24 @@ export default class BingoForm extends Vue {
 				margin-top: 10px;
 			}
 
-			.row {
-				display: flex;
-				flex-direction: column;
-				background-color: fade(@mainColor_normal_extralight, 30%);
-				padding: .5em;
-				border-radius: .5em;
-				
-				:deep(input) {
-					flex-basis: 100px;
-					text-align: center;
-				}
-			}
-
 			.submit {
 				margin-top: 20px;
+			}
+		}
+
+		.row {
+			display: flex;
+			flex-direction: column;
+			background-color: fade(@mainColor_normal_extralight, 30%);
+			padding: .5em;
+			border-radius: .5em;
+			
+			:deep(input) {
+				flex-basis: 100px;
+				text-align: center;
+			}
+			&:not(:first-child) {
+				margin-top: .5em;
 			}
 		}
 
@@ -234,9 +237,6 @@ export default class BingoForm extends Vue {
 			font-size: 1em;
 			:deep(.header) {
 				font-size: .8em;
-			}
-			.row {
-				margin-bottom: .25em;
 			}
 		}
 	}

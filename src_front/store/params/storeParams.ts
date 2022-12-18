@@ -16,7 +16,7 @@ export const storeParams = defineStore('params', {
 			firstMessage: 				{save:true, type:"toggle", value:true, label:"Show the first message of every viewer on a seperate list so you don't forget to say hello", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
 			markAsRead: 				{save:true, type:"toggle", value:true, label:"Click a message to remember where you stopped reading", id:204, icon:"read_purple.svg"},
 			conversationsEnabled: 		{save:true, type:"toggle", value:true, label:"Group conversations<br>(allows to display conversations between users seperately)", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
-			userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"Group a user's messages when hovering their name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
+			userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:"See all user's messages when hovering their name", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
 			lockAutoScroll: 			{save:true, type:"toggle", value:false, label:"Pause chat on hover", id:205, icon:"pause_purple.svg"},
 			showModTools: 				{save:true, type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
 			raidHighlightUser: 			{save:true, type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"raid_purple.svg", example:"raidHighlightUser.png"},
@@ -24,6 +24,7 @@ export const storeParams = defineStore('params', {
 			offlineEmoteOnly:			{save:true, type:"toggle", value:false, label:"Enable emote-only when not live", id:214, icon:"emote_purple.svg"},
 			stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
 			showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
+			chatShoutout:				{save:true, type:"toggle", value:false, label:"Chat message shoutout", id:215, icon:"shoutout_purple.svg"},
 		},
 		appearance: {
 			censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:"Censor deleted messages", id:25, icon:"hide_purple.svg"},
@@ -45,7 +46,7 @@ export const storeParams = defineStore('params', {
 			displayTime: 				{save:true, type:"toggle", value:false, label:"Display time", id:6, icon:"timeout_purple.svg"},
 			splitViewVertical: 			{save:true, type:"toggle", value:false, label:"Vertical layout", id:21, tooltip:"Order message lists vertically"},
 			dyslexicFont: 				{save:true, type:"toggle", value:false, label:"Use dyslexic-friendly font", id:24},
-			defaultSize: 				{save:true, type:"slider", value:2, label:"Default text size ({VALUE})", min:1, max:7, step:1, id:12},
+			defaultSize: 				{save:true, type:"slider", value:2, label:"Text size ({VALUE})", min:1, max:7, step:1, id:12},
 		},
 		chatColumnsConfig:[
 			{

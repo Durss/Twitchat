@@ -219,7 +219,11 @@ export default class ParamsTriggers extends Vue {
 	public isSublist = false;
 	public showLoading = false;
 	public rewards:TwitchDataTypes.Reward[] = [];
-	public triggerData:TriggerData | null = null
+	public triggerData:TriggerData = {
+						name:"",
+						enabled:true,
+						actions:[],
+					};
 
 	public get musicServiceAvailable():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
@@ -474,7 +478,7 @@ export default class ParamsTriggers extends Vue {
 	 * Saves the data to storage
 	 */
 	public async saveData():Promise<void> {
-		if(!this.canSave || !this.triggerData) return;
+		if(!this.canSave) return;
 		this.canSave = false;
 
 		//Format chat commands
@@ -483,7 +487,6 @@ export default class ParamsTriggers extends Vue {
 		//Save the trigger only if it can be tested which means it
 		//has the minimum necessary data defined
 		// if(this.canTestAction) {
-			// console.log(this.triggerKey, this.triggerData);
 			this.$store("triggers").setTrigger(this.triggerKey, this.triggerData);
 		// }
 		// if(this.isChatCmd || this.isSchedule) {
@@ -506,7 +509,7 @@ export default class ParamsTriggers extends Vue {
 		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
 		const entry = TriggerEvents.find(v=>v.value == key);
 		
-		if(this.triggerData && entry?.testMessageType) {
+		if(entry?.testMessageType) {
 			if(this.isSchedule) {
 				TriggerActionHandler.instance.parseScheduleTrigger(this.triggerKey);
 			}else
@@ -526,9 +529,20 @@ export default class ParamsTriggers extends Vue {
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 					&& key == TriggerTypes.CHAT_COMMAND) {
 						//Add the command to the fake text message
-						m.message = this.triggerData!.name + " " + m.message;
-						m.message_html = this.triggerData!.name + " " + m.message_html;
+						m.message = this.triggerData.name + " " + m.message;
+						m.message_html = this.triggerData.name + " " + m.message_html;
 					}
+					if(entry.value == TriggerTypes.TIMER_STOP) {
+						//Set the timer as stopped
+						(m as TwitchatDataTypes.MessageTimerData).started = false;
+					}
+					if(entry.value == TriggerTypes.COUNTDOWN_START) {
+						//Remove end date so it counts as a countdown start not an end
+						const cd = (m as TwitchatDataTypes.MessageCountdownData).countdown;
+						delete cd.endAt;
+						delete cd.endAt_ms;
+					}
+
 					console.log(m);
 					TriggerActionHandler.instance.onMessage(m, true);
 				}, false);
@@ -560,9 +574,10 @@ export default class ParamsTriggers extends Vue {
 	public onToggleEnable(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue|null):void {
 		if(!e) return;
 		let key = e.value as string;
-		if(this.currentEvent) {
-			key = this.currentEvent.value+"_"+(e.value as string).toLowerCase();
+		if(this.currentEvent && this.currentEvent.value != key) {
+			key = this.currentEvent.value+"_"+key.toLowerCase();
 		}
+		
 		if(this.$store("triggers").triggers[key]) {
 			const trigger = this.$store("triggers").triggers[key];
 			trigger.enabled = e.enabled as boolean;
@@ -594,7 +609,6 @@ export default class ParamsTriggers extends Vue {
 			let key = this.currentEvent.value as string;
 
 			const entry = TriggerEvents.find(v=> v.value == key);
-			console.log(this.triggerData);
 			if(entry?.isCategory === true) {
 				//Chat commands and channel point rewards are stored differently to avoid
 				//flooding the main trigger list. Main trigger elements are stored with
@@ -602,7 +616,6 @@ export default class ParamsTriggers extends Vue {
 				this.isSublist = true;
 				this.subeventsList = [];
 				if(!onlypopulateSublist) this.actionList = [];
-				
 
 				if(key == TriggerTypes.REWARD_REDEEM) {
 					this.listRewards();
@@ -635,6 +648,7 @@ export default class ParamsTriggers extends Vue {
 			}else if(this.$store("triggers").triggers[key.toLowerCase()]){
 				const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggers[key.toLowerCase()]));//Avoid modifying the original data
 				this.actionList = (trigger as TriggerData).actions;
+				this.triggerData = trigger;
 			}else{
 				this.actionList = [];
 			}
@@ -713,7 +727,11 @@ export default class ParamsTriggers extends Vue {
 	 * Resets the chat command sub category params
 	 */
 	private resetTriggerData():void {
-		this.triggerData = null;
+		this.triggerData = {
+			name:"",
+			enabled:true,
+			actions:[],
+		}
 	}
 }
 </script>

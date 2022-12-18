@@ -15,7 +15,10 @@
 					class="helpBt"
 				/>
 				<label :for="'toggle'+key" v-if="label" v-html="label" @click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
-				<ToggleButton class="toggleButton" :id="'toggle'+key" v-model="paramData.value" v-if="!paramData.noInput" :clear="clearToggle" />
+				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
+					v-model="paramData.value"
+					:id="'toggle'+key"
+					:clear="clearToggle" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -25,7 +28,15 @@
 					class="helpBt"
 				/>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
-				<input ref="input" :id="'number'+key" type="number" v-model.number="paramData.value" :min="paramData.min" :max="paramData.max" :step="paramData.step" v-autofocus="autofocus" @blur="clampValue()" v-if="!paramData.noInput">
+				<input v-if="!paramData.noInput" ref="input"
+					type="number"
+					v-model.number="paramData.value"
+					v-autofocus="autofocus"
+					:id="'number'+key"
+					:min="paramData.min"
+					:max="paramData.max"
+					:step="paramData.step"
+					@blur="clampValue()">
 			</div>
 			
 			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
@@ -35,8 +46,22 @@
 					class="helpBt"
 				/>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea ref="input" :name="paramData.fieldName" v-if="paramData.longText===true && !paramData.noInput" :id="'text'+key" v-model.lazy="textValue" :placeholder="paramData.placeholder" rows="2" v-autofocus="autofocus"></textarea>
-				<input ref="input" :name="paramData.fieldName" v-if="paramData.longText!==true && !paramData.noInput" :id="'text'+key" :type="paramData.type" v-model.lazy="paramData.value" :placeholder="paramData.placeholder" v-autofocus="autofocus" :maxlength="paramData.maxLength? paramData.maxLength : 524288" autocomplete="new-password">
+				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
+					v-model.lazy="textValue"
+					rows="2"
+					:id="'text'+key"
+					:name="paramData.fieldName"
+					:placeholder="paramData.placeholder"
+					v-autofocus="autofocus"></textarea>
+				<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
+					v-model.lazy="paramData.value"
+					v-autofocus="autofocus"
+					:name="paramData.fieldName"
+					:id="'text'+key"
+					:type="paramData.type"
+					:placeholder="paramData.placeholder"
+					:maxlength="paramData.maxLength? paramData.maxLength : 524288"
+					autocomplete="new-password">
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -46,7 +71,13 @@
 					class="helpBt"
 				/>
 				<label :for="'slider'+key" v-html="label"></label>
-				<input ref="input" type="range" :min="paramData.min" :max="paramData.max" :step="paramData.step" :id="'slider'+key" v-model.number="paramData.value" v-autofocus="autofocus" v-if="!paramData.noInput">
+				<input v-if="!paramData.noInput" ref="input" type="range"
+					:min="paramData.min"
+					:max="paramData.max"
+					:step="paramData.step"
+					:id="'slider'+key"
+					v-model.number="paramData.value"
+					v-autofocus="autofocus">
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
@@ -56,7 +87,10 @@
 					class="helpBt"
 				/>
 				<label :for="'list'+key">{{paramData.label}}</label>
-				<select ref="input" v-model="paramData.value" :id="'list'+key" v-autofocus="autofocus" v-if="!paramData.noInput">
+				<select v-if="!paramData.noInput" ref="input"
+					:id="'list'+key"
+					v-model="paramData.value"
+					v-autofocus="autofocus">
 					<option v-for="a in paramData.listValues" :key="a.label" :value="a.value">{{a.label}}</option>
 				</select>
 			</div>
@@ -68,7 +102,12 @@
 					class="helpBt"
 				/>
 				<label :for="'browse'+key" v-if="label" v-html="label"></label>
-				<input type="text" :name="paramData.fieldName" class="filePath" :id="'browse'+key" v-model="paramData.value" :placeholder="paramData.placeholder" v-if="!paramData.noInput">
+				<input v-if="!paramData.noInput" type="text"
+					class="filePath"
+					v-model="paramData.value"
+					:name="paramData.fieldName"
+					:id="'browse'+key"
+					:placeholder="paramData.placeholder">
 				<Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
@@ -252,7 +291,7 @@ export default class ParamItem extends Vue {
 					const childrenItems = this.$refs.param_child as Vue[];
 					divs = childrenItems.map(v => v.$el);
 				}
-				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
+				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all",
 						onComplete:()=> {
 							this.showSlot = false;
 							this.children = [];

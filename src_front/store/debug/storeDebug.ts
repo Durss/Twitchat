@@ -456,6 +456,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
+						winner:Utils.pickRand(entries),
 						raffleData: {
 							command:"",
 							created_at:Date.now()-30000,
@@ -473,25 +474,6 @@ export const storeDebug = defineStore('debug', {
 							customEntries:entries.map(v=>v.label).join(","),
 							winners:[Utils.pickRand(entries)],
 						},
-					};
-					data = m;
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
-					const duration = Math.round(Math.random() *60*60)*1000;
-					const m:TwitchatDataTypes.MessageCountdownData = {
-						platform:"twitchat",
-						type,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						countdown: {
-							duration:Utils.formatDuration(duration, true),
-							duration_ms:duration,
-							startAt:Utils.formatDate(new Date()),
-							startAt_ms:Date.now(),
-							timeoutRef:-1,
-						}
 					};
 					data = m;
 					break;
@@ -541,6 +523,24 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT_TWITCHAT: {
+					const stream = (await TwitchUtils.loadChannelInfo([user.id]))[0];
+					const m:TwitchatDataTypes.MessageShoutoutTwitchatData = {
+						platform:"twitch",
+						type,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						user:user,
+						viewerCount: Math.round(Math.random()*999),
+						stream: {
+							title:stream.title,
+							category:stream.game_name,
+						}
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.CONNECT: {
 					const m:TwitchatDataTypes.MessageConnectData = {
 						platform:"twitch",
@@ -551,6 +551,47 @@ export const storeDebug = defineStore('debug', {
 						channel_id:user.id
 					};
 					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIMER: {
+					const duration = Math.round(Math.random()*60*10)*1000;
+					const start = new Date(Date.now() - duration);
+					const m:TwitchatDataTypes.MessageTimerData = {
+						platform:"twitch",
+						type,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						startAt:Utils.formatDate(start),
+						startAt_ms:start.getTime(),
+						started:true,
+						duration:Utils.formatDuration(duration, true),
+						duration_ms:duration,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
+					const duration = Math.round(Math.random() *60*60)*1000;
+					const start = new Date(Date.now() - duration);
+					const m:TwitchatDataTypes.MessageCountdownData = {
+						platform:"twitchat",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						countdown: {
+							duration:Utils.formatDuration(duration, true),
+							duration_ms:duration,
+							startAt:Utils.formatDate(start),
+							startAt_ms:start.getTime(),
+							endAt:Utils.formatDate(new Date()),
+							endAt_ms:Date.now(),
+							timeoutRef:-1,
+						}
+					};
+					data = m;
+					break;
 				}
 			}
 			if(hook) {

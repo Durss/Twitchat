@@ -371,13 +371,12 @@ export default class TriggerActionHandler {
 			}
 		}
 		
-		if(!trigger || !trigger.enabled || !trigger.actions || trigger.actions.length == 0) {
+		if(!trigger || (!trigger.enabled && !testMode) || !trigger.actions || trigger.actions.length == 0) {
 			return false;
 		}else{
 			// console.log("PARSE STEPS", eventType);
 			// console.log("PARSE STEPS", eventType, trigger, message);
 			const data = trigger as TriggerData;
-			if(!data.enabled) return false;
 			let canExecute = true;
 
 			if(data.permissions && data.cooldown && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {

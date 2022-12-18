@@ -4,13 +4,13 @@
 		<div class="row" v-for="(p, key) in params" :key="key">
 
 			<!-- Special case for shoutout label -->
-			<PostOnChatParam class="item" v-if="p.id==25"
+			<!-- <PostOnChatParam class="item" v-if="p.id==25"
 				icon="shoutout_purple.svg"
 				botMessageKey="shoutout"
 				:noToggle="true"
 				title="Shoutout message"
 				:placeholders="soPlaceholders"
-			/>
+			/> -->
 
 			<div :class="'item '+key">
 				<ParamItem :paramData="p" save />
@@ -19,7 +19,6 @@
 					@leave="onHideItem"
 				>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
-						<img src="@/assets/icons/infos.svg" alt="info">
 						<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentObs)">OBS tab</a></p>
 					</div>
 					
@@ -32,7 +31,12 @@
 					</div>
 	
 					<div v-else-if="p.id == 215 && p.value === true" class="info config">
-						<Button small title="Configure" @click="$emit('setContent', contentEmergency)" />
+						<PostOnChatParam class="item"
+							botMessageKey="shoutout"
+							:noToggle="true"
+							title="Send this message when doing a shoutout"
+							:placeholders="soPlaceholders"
+						/>
 					</div>
 	
 					<div v-else-if="p.id == 216 && p.value === true" class="info config">
@@ -42,6 +46,10 @@
 					<div v-else-if="p.id == 217 && p.value === true" class="info config">
 						<Button small title="Configure" @click="$emit('setContent', contentAlert)" />
 					</div>
+	
+					<div v-else-if="p.id == 12">
+						<ChatMessage class="chatMessage" :messageData="fakeMessageData" />
+					</div>
 				</transition>
 			</div>
 
@@ -50,6 +58,7 @@
 </template>
 
 <script lang="ts">
+import ChatMessage from '@/components/messages/ChatMessage.vue';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -67,6 +76,7 @@ import PostOnChatParam from '../PostOnChatParam.vue';
 	components:{
 		Button,
 		ParamItem,
+		ChatMessage,
 		PostOnChatParam,
 	},
 	emits:['setContent'],
@@ -77,6 +87,7 @@ export default class ParamsList extends Vue {
 	public filteredParams!:TwitchatDataTypes.ParameterData[];
 
 	public showAdInfo:boolean = false;
+	public fakeMessageData!:TwitchatDataTypes.MessageChatData;
 
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 
@@ -147,8 +158,14 @@ export default class ParamsList extends Vue {
 	public get contentAlert():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ALERT; } 
 	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPONSOR; } 
 
-	public onShowItem(el:HTMLDivElement, done:()=>void):void {
-		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
+	public async beforeMount(): Promise<void> {
+		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data)=>{
+			this.fakeMessageData = data as TwitchatDataTypes.MessageChatData;
+		}, false)
+	}
+
+	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {
+		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", clearProps:"all", onComplete:()=>{
 			done();
 		}});
 	}
@@ -220,6 +237,13 @@ export default class ParamsList extends Vue {
 			&.highlightMentions {
 				background-color: @highlight_mention;
 			}
+
+			.chatMessage {
+				background-color: @mainColor_dark;
+				padding: 1em;
+				border-radius: .5em;
+				transition: font-size .25s;
+			}
 		}
 		
 		:deep(input[type='range']) {
@@ -250,7 +274,16 @@ export default class ParamsList extends Vue {
 	
 			&.obsConnect {
 				.label {
-					color: @mainColor_warn;
+					display: block;
+					width: fit-content;
+					border-radius: .25em;
+					margin:auto;
+					background-color: @mainColor_warn;
+					color: @mainColor_light;
+					padding: .25em .5em;
+					a{
+						font-weight: bold;
+					}
 				}
 			}
 	

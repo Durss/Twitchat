@@ -29,9 +29,8 @@
 			:loading="picking"
 			:disabled="canPick" />
 
-		<PostOnChatParam class="item postChat" botMessageKey="raffle"
-			:placeholders="winnerPlaceholders"
-			clearToggle />
+		<PostOnChatParam class="item postChat highlight" botMessageKey="raffle"
+			:placeholders="winnerPlaceholders" />
 
 		<Button class="item"
 			:icon="$image('icons/cross_white.svg')"
@@ -219,6 +218,11 @@ export default class RaffleState extends Vue {
 			}
 		}
 	}
-	
+
+	.postChat {
+		max-width: 300px;
+		font-size: .8em;
+		color: @mainColor_normal;
+	}
 }
 </style>

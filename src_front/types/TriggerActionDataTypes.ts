@@ -240,7 +240,13 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	
 	map[TriggerTypes.RAID] = [
 		{tag:"USER", desc:"User name of the new follower", pointer:"user.displayName"},
-		{tag:"VIEWERS", desc:"Number of viewers", pointer:"viewers"},
+		{tag:"TITLE", desc:"Stream title", pointer:"stream.title"},
+		{tag:"CATEGORY", desc:"Stream category", pointer:"stream.category"},
+	];
+	
+	map[TriggerTypes.SHOUTOUT] = [
+		{tag:"USER", desc:"User that gave us a shoutout", pointer:"user.displayName"},
+		{tag:"USER", desc:"User that gave us a shoutout", pointer:"user.displayName"},
 	];
 	
 	map[TriggerTypes.SHOUTOUT_IN] = [
@@ -272,24 +278,6 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"CATEGORY", desc:"Stream category", pointer:"category"},
 	];
 	
-	// map[TriggerTypes.TIMER_START] = 
-	map[TriggerTypes.TIMER_STOP] = [
-		{tag:"DURATION", desc:"Timer's final duration formated", pointer:"duration"},
-		{tag:"DURATION_MS", desc:"Timer's final duration in milliseconds", pointer:"duration_ms"},
-	];
-
-	map[TriggerTypes.COUNTDOWN_START] = [
-		{tag:"START_AT", desc:"Start date fromated", pointer:"countdown.startAt"},
-		{tag:"START_AT_MS", desc:"Start date in milliseconds", pointer:"countdown.startAt_ms"},
-		{tag:"DURATION", desc:"Countdown's duration formated", pointer:"countdown.duration"},
-		{tag:"DURATION_MS", desc:"Countdown's duration in milliseconds", pointer:"countdown.duration_ms"},
-	]; 
-	map[TriggerTypes.COUNTDOWN_STOP] = JSON.parse(JSON.stringify(map[TriggerTypes.COUNTDOWN_START]));
-	map[TriggerTypes.COUNTDOWN_STOP].push(
-		{tag:"END_AT", desc:"End date fromated", pointer:"countdown.endAt"},
-		{tag:"END_AT_MS", desc:"End date in milliseconds", pointer:"countdown.endAt_ms"},
-	)
-	
 	map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = [
 		{tag:"AVATAR", desc:"User's avatar", pointer:"info.user.avatarPath"},
 		{tag:"USER", desc:"User's name", pointer:"info.user.displayName"},
@@ -320,6 +308,23 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"USER", desc:"User name", pointer:"user.displayName"},
 		{tag:"DURATION", desc:"Timeout duration in seconds", pointer:"duration_s"},
 	];
+	
+	map[TriggerTypes.TIMER_START] = [
+		{tag:"START_DATE", desc:"Formated start date", pointer:"startAt"},
+	];
+	map[TriggerTypes.TIMER_STOP] = [
+		{tag:"START_DATE", desc:"Formated start date", pointer:"startAt"},
+		{tag:"DURATION", desc:"Timer's final duration formated", pointer:"duration"},
+	];
+
+	map[TriggerTypes.COUNTDOWN_START] = [
+		{tag:"START_AT", desc:"Start date fromated", pointer:"countdown.startAt"},
+		{tag:"DURATION", desc:"Countdown's duration formated", pointer:"countdown.duration"},
+	]; 
+	map[TriggerTypes.COUNTDOWN_STOP] = JSON.parse(JSON.stringify(map[TriggerTypes.COUNTDOWN_START]));
+	map[TriggerTypes.COUNTDOWN_STOP].push(
+		{tag:"END_AT", desc:"End date fromated", pointer:"countdown.endAt"},
+	)
 
 	map[TriggerTypes.VIP] = 
 	map[TriggerTypes.UNVIP] = 
@@ -406,7 +411,7 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.TIMER, icon:"timer", label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped with the command <mark>/timerStop</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 	{category:TriggerEventTypeCategories.TIMER, icon:"countdown", label:"Countdown start", value:TriggerTypes.COUNTDOWN_START, description:"Execute an action when a countdown is started with the command <mark>/countdown</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
 	{category:TriggerEventTypeCategories.TIMER, icon:"countdown", label:"Countdown stop", value:TriggerTypes.COUNTDOWN_STOP, description:"Execute an action when a countdown completes or is stoped", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
-	{category:TriggerEventTypeCategories.TWITCHAT, icon:"shoutout", label:"Shoutout (Twitchat)", value:TriggerTypes.SHOUTOUT, description:"Execute an action when doing a shoutout via <mark>/so</mark> command or shoutout button", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
+	{category:TriggerEventTypeCategories.TWITCHAT, icon:"shoutout", label:"Shoutout (Twitchat)", value:TriggerTypes.SHOUTOUT, description:"Execute an action when doing a shoutout via <mark>/so</mark> command or shoutout button", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT_TWITCHAT},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", label:"Emergency start", value:TriggerTypes.EMERGENCY_MODE_START, description:"Execute an action when enabling the emergency mode", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", label:"Emergency stop", value:TriggerTypes.EMERGENCY_MODE_STOP, description:"Execute an action when stopping the emergency mode", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", label:"Highlighted message", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, description:"Execute an action when requesting to highlight a message", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},

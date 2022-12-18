@@ -16,13 +16,24 @@
 			v-model="textParam.value"
 			@change="saveParams()"
 		/>
+
+		<div class="preview" ref="preview" v-if="enabledParam.value === true">
+			<ChatMessage class="message"
+				v-if="adPreview"
+				lightMode
+				:messageData="adPreview" />
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
+import ChatMessage from '../messages/ChatMessage.vue';
 import ParamItem from './ParamItem.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 
@@ -46,6 +57,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 	},
 	components:{
 		ParamItem,
+		ChatMessage,
 		PlaceholderSelector,
 	}
 })
@@ -57,6 +69,7 @@ export default class PostOnChatParam extends Vue {
 	public clearToggle!:boolean;
 	public botMessageKey!:TwitchatDataTypes.BotMessageField;
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";
 	public enabledParam:TwitchatDataTypes.ParameterData = { label:"", value:false, type:"toggle", maxLength:500};
@@ -102,7 +115,40 @@ export default class PostOnChatParam extends Vue {
 		if(this.enabledParam.value) {
 			await this.$nextTick();
 			this.placeholderTarget = (this.$refs.paramItem as ParamItem).$el.getElementsByTagName("textarea")[0];
+			const holder = this.$refs.preview as HTMLDivElement;
+			gsap.from(holder, {duration:.25, height:0, margin:0, paddingTop:0, paddingBottom:0, clearProps:"all"});
 		}
+		this.updatePreview();
+	}
+
+	public async updatePreview():Promise<void> {
+		console.log("update");
+		this.adPreview = null;
+		await this.$nextTick();
+
+		const me = this.$store("auth").twitch.user;
+		let rawMessage = this.textParam.value as string;
+		let announcementColor:"primary" | "purple" | "blue" | "green" | "orange" | undefined = undefined;
+		if(rawMessage.indexOf("/announce") == 0) {
+			announcementColor = rawMessage.replace(/\/announce([a-z]+)?\s.*/i, "$1") as "primary" | "purple" | "blue" | "green" | "orange";
+			rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
+		}
+		
+		const message = TwitchUtils.parseEmotes(rawMessage, undefined, false, true);
+		this.adPreview = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			channel_id:me.id,
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			answers:[],
+			user:me,
+			twitch_announcementColor:announcementColor,
+			is_short:false,
+			message:rawMessage,
+			message_html:message,
+			message_no_emotes:Utils.stripHTMLTags(message),
+		};
 	}
 }
 </script>
@@ -121,6 +167,14 @@ export default class PostOnChatParam extends Vue {
 		border-radius: 0 0 .5em .5em;
 		text-align: center;
 		cursor: pointer;
+	}
+	.preview {
+		max-width: 400px;
+		margin:1em auto;
+		padding: .25em .5em;
+		border-radius: .5em;
+		background-color: @mainColor_dark;
+		overflow: hidden;
 	}
 }
 </style>

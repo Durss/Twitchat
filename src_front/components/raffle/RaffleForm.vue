@@ -378,20 +378,21 @@ export default class RaffleForm extends Vue {
 			text-align: center;
 			opacity: .8;
 		}
+		.row {
+			display: flex;
+			flex-direction: column;
+			background-color: fade(@mainColor_normal_extralight, 30%);
+			padding: .5em;
+			border-radius: .5em;
+			&:not(:first-child) {
+				margin-top: .5em;
+			}
+		}
 
 		.form {
 			display: flex;
 			flex-direction: column;
 			&>.row {
-				display: flex;
-				flex-direction: column;
-				background-color: fade(@mainColor_normal_extralight, 30%);
-				padding: .5em;
-				border-radius: .5em;
-				&:not(:first-child) {
-					margin-top: .5em;
-				}
-
 				:deep(.list) {
 					flex-direction: row;
 					label {
@@ -451,9 +452,6 @@ export default class RaffleForm extends Vue {
 			font-size: 1em;
 			:deep(.header) {
 				font-size: .8em;
-			}
-			.row {
-				margin-bottom: .25em;
 			}
 		}
 
