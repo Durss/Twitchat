@@ -1062,7 +1062,7 @@ export default class PubSub extends EventDispatcher {
 			approached_at:StoreProxy.stream.hypeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
 			updated_at:Date.now(),
-			timeLeft:data.events_remaining_durations[key],
+			timeLeft_s:data.events_remaining_durations[key],
 			state: "APPROACHING",
 			is_boost_train:data.is_boost_train,
 			is_new_record:false,
@@ -1072,7 +1072,7 @@ export default class PubSub extends EventDispatcher {
 		//Hide "hypetrain approaching" notification if expired
 		this.hypeTrainApproachingTimer = setTimeout(()=> {
 			StoreProxy.stream.setHypeTrain(undefined);
-		}, train.timeLeft * 1000);
+		}, train.timeLeft_s * 1000);
 
 		if(!wasAlreadyApproaching) {
 			const message:TwitchatDataTypes.MessageHypeTrainEventData = {
@@ -1104,7 +1104,7 @@ export default class PubSub extends EventDispatcher {
 			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
 			updated_at:Date.now(),
-			timeLeft:data.progress.remaining_seconds,
+			timeLeft_s:data.progress.remaining_seconds,
 			state: "START",
 			is_boost_train:data.is_boost_train,
 			is_new_record:false,
@@ -1156,7 +1156,7 @@ export default class PubSub extends EventDispatcher {
 				approached_at:storeTrain?.approached_at ?? Date.now(),
 				started_at:storeTrain?.started_at ?? Date.now(),
 				updated_at:Date.now(),
-				timeLeft:data.progress.remaining_seconds,
+				timeLeft_s:data.progress.remaining_seconds,
 				state: "PROGRESSING",
 				is_boost_train:data.is_boost_train,
 				is_new_record:data.is_large_event,
@@ -1198,7 +1198,7 @@ export default class PubSub extends EventDispatcher {
 			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:storeTrain?.started_at ?? Date.now(),
 			updated_at:Date.now(),
-			timeLeft:data.progress.remaining_seconds,
+			timeLeft_s:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
 			is_new_record:storeTrain?.is_new_record ?? false,
@@ -1238,7 +1238,7 @@ export default class PubSub extends EventDispatcher {
 			approached_at: storeTrain.approached_at,
 			started_at: storeTrain.started_at,
 			updated_at: storeTrain.updated_at,
-			timeLeft: storeTrain.timeLeft,
+			timeLeft_s: storeTrain.timeLeft_s,
 			state: data.ending_reason,
 			is_boost_train: storeTrain.is_boost_train,
 			is_new_record:storeTrain.is_new_record,

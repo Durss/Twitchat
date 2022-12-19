@@ -247,6 +247,42 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL: 
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START: 
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS: 
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE:
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING: {
+					const value = Math.ceil(Math.random()*20+10)*1000;
+					const currentValue = Math.round(value*Math.random());
+					const level = Math.ceil(Math.random()*10);
+					const approached_at = Date.now() - 3 * 60 * 1000;
+					const train:TwitchatDataTypes.HypeTrainStateData = {
+						channel_id:uid,
+						level,
+						currentValue,
+						goal:value,
+						approached_at,
+						started_at:approached_at + Math.round(Math.random()*2*60*1000),
+						updated_at:Date.now(),
+						timeLeft_s:Math.ceil(Math.random()*5*60),
+						state: "START",
+						is_boost_train:false,
+						is_new_record:false,
+					};
+					const m:TwitchatDataTypes.MessageHypeTrainEventData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id:uid,
+						type,
+						train,
+						level,
+						percent:Math.round(currentValue/value * 100),
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: {
 					const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
 						id:Utils.getUUID(),
@@ -311,7 +347,7 @@ export const storeDebug = defineStore('debug', {
 							approached_at,
 							started_at:approached_at + 30000,
 							updated_at:approached_at + 30000,
-							timeLeft:0,
+							timeLeft_s:0,
 							goal:100,
 							currentValue:Math.floor(Math.random() * 100),
 							level:Math.round(sum/8000),
@@ -615,6 +651,30 @@ export const storeDebug = defineStore('debug', {
 			// const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 
 			switch(noticeType) {
+				case TwitchatDataTypes.TwitchatNoticeType.TIMEOUT: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const duration = Math.ceil(Math.random()*666);
+					const m:TwitchatDataTypes.MessageTimeoutData = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						user:fakeUser,
+						message:"User "+fakeUser.displayName+" has been timed out for "+duration+" seconds.",
+						reason:"",
+						channel_id:uid,
+						moderator:user,
+						duration_s:duration,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatNoticeType.BAN: {
 					if(fakeUser.temporary) {
 						await new Promise((resolve)=> {
@@ -632,6 +692,108 @@ export const storeDebug = defineStore('debug', {
 						reason:"",
 						channel_id:uid,
 						moderator:user,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.UNBAN: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageBanData = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						user:fakeUser,
+						message:"User "+fakeUser.displayName+" has been unbanned",
+						reason:"",
+						channel_id:uid,
+						moderator:user,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.VIP: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageModerationAction = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message: "User "+fakeUser.displayName+" has been added to VIPs by "+user.displayName,
+						channel_id:uid,
+						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.UNVIP: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageModerationAction = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message:"User "+fakeUser.displayName+" has been removed from VIPs",
+						channel_id:uid,
+						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.MOD: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageModerationAction = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message: "User "+fakeUser.displayName+" has been added to your mods by "+user.displayName,
+						channel_id:uid,
+						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.UNMOD: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageModerationAction = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message: "User "+fakeUser.displayName+" has been unmod",
+						channel_id:uid,
+						user:fakeUser,
 					};
 					data = m;
 					break;

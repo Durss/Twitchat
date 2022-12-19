@@ -86,7 +86,7 @@ export default class HypeTrainState extends Vue {
 	}
 
 	public get duration():string {
-		return Utils.formatDuration(this.trainData.timeLeft * (1-this.timerPercent) * 1000);
+		return Utils.formatDuration(this.trainData.timeLeft_s * (1-this.timerPercent) * 1000);
 	}
 
 	public get roundProgressPercent():number {
@@ -122,7 +122,7 @@ export default class HypeTrainState extends Vue {
 	public dataChange():void {
 		gsap.killTweensOf(this);
 
-		this.timerDuration = this.trainData.state == "APPROACHING"? this.trainData.timeLeft * 1000 : 5*60*1000
+		this.timerDuration = this.trainData.state == "APPROACHING"? this.trainData.timeLeft_s * 1000 : 5*60*1000
 
 		const p = Math.round(this.trainData.currentValue/this.trainData.goal * 100);
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
@@ -132,7 +132,7 @@ export default class HypeTrainState extends Vue {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 		const ellapsed = Date.now() - this.trainData.updated_at;
-		const duration = this.trainData.timeLeft * 1000;
+		const duration = this.trainData.timeLeft_s * 1000;
 		this.timerPercent = 1 - (duration-ellapsed)/this.timerDuration;
 	}
 

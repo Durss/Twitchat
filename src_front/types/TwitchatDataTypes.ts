@@ -270,7 +270,7 @@ export namespace TwitchatDataTypes {
 		approached_at:number;
 		started_at:number;
 		updated_at:number;
-		timeLeft:number;
+		timeLeft_s:number;
 		state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 		is_boost_train:boolean;
 		is_new_record:boolean;
