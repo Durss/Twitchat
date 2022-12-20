@@ -4,6 +4,32 @@
 			"title":"This page allows you to control Twitchat and some twitch features with your voice",
 			"install":"In order to work, this needs",
 			"commands":"Create your voice commands on Twitchat under <strong>Parameters => Voice control</strong> section"
+		},
+		"commands":{
+			"ERASE":"Erase",
+			"NEXT":"Next",
+			"PREVIOUS":"Previous",
+			"SUBMIT":"Submit",
+			"CANCEL":"Cancel",
+			"CREATE_POLL":"Create a poll",
+			"STOP_POLL":"Close current poll",
+			"CREATE_PREDICTION":"Create a prediction",
+			"STOP_PREDICTION":"Cancel current prediction",
+			"CREATE_RAFFLE":"Create a raffle",
+			"STOP_RAFFLE":"Cancel current raffle",
+			"GREET_FEED_READ":"Mark 10 \"Greet them\" messages as read",
+			"GREET_FEED_READ_ALL":"Mark all \"Greet them\" messages as read",
+			"CHAT_FEED_READ":"Mark 10 chat messages as read",
+			"CHAT_FEED_READ_ALL":"Mark all chat messages as read",
+			"CHAT_FEED_PAUSE":"Pause chat",
+			"CHAT_FEED_UNPAUSE":"Unpause chat",
+			"CHAT_FEED_SCROLL_UP":"Scroll chat up",
+			"CHAT_FEED_SCROLL_DOWN":"Scroll chat down",
+			"START_EMERGENCY":"Start the emergency mode",
+			"STOP_EMERGENCY":"Stop the emergency mode",
+			"CENSOR_DELETED_MESSAGES_TOGGLE":"Show/hide deleted message content",
+			"VIEWERS_COUNT_TOGGLE":"Show/hide viewers count",
+			"MOD_TOOLS_TOGGLE":"Show/hide moderation tools"
 		}
 	}
 }

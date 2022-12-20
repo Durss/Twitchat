@@ -48,7 +48,7 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 				|| (this.confirmMode && (id == VoiceAction.SUBMIT || id == VoiceAction.CANCEL))) {
 					this.actions.push({
 						action,
-						label:VoiceAction[id+"_DESCRIPTION" as VAKeys] as string,
+						label:this.$t("voice.commands."+id),
 					});
 				}
 			}

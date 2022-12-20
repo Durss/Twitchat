@@ -62,7 +62,7 @@ export default class VoiceGlobalCommands extends Vue {
 			this.items.push({
 				type:"text",
 				value:text,
-				label:VoiceAction[id+"_DESCRIPTION" as VAKeys] as string,
+				label:this.$t("voice.commands."+id),
 			});
 			this.itemsID.push(id);
 		}

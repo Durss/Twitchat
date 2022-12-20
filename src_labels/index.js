@@ -28,8 +28,8 @@ const output = {};
 for(let i=0; i < files.length; i++) {
 	const f = files[i];
 	const keys = f.replace(/\\+/g, "\\").replace(rootDir, "").replace(/\.json$/gi, "").split("\\");
+	const lang = keys[0];
 	// keys.pop()
-	console.log(keys);
 	let json = {};
 	try {
 		json = JSON.parse(fs.readFileSync(f, "utf-8"));
@@ -37,19 +37,14 @@ for(let i=0; i < files.length; i++) {
 		console.log("Invalid JSON", f)
 		continue;
 	}
-	
-	let pointer = output;
-	for (let j = 0; j < keys.length; j++) {
-		const k = keys[j];
-		if(!pointer.hasOwnProperty(k)) {
-			pointer[k] = {};
-		}
-		if(j==keys.length-1) {
-			pointer[k] = json[k];
-		}else{
-			pointer = pointer[k];
-		}
+
+	if(!output[lang]) {
+		output[lang] = {};
 	}
+	for (const k in json) {
+		output[lang][k] = json[k];
+	}
+	
 }
 const dest = path.join(__dirname, "../public/labels.json");
 fs.writeFileSync(dest, JSON.stringify(output));

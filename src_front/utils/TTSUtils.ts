@@ -215,7 +215,7 @@ export default class TTSUtils {
 		TTSUtils.placeholderRewards = [
 			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
 			{ tag:"REWARD_NAME", desc:StoreProxy.i18n.t("tts.placeholders.reward_name") },
-			{ tag:"REWARD_DESC", desc:StoreProxy.i18n.t("tts.placeholders.description") },
+			{ tag:"REWARD_DESC", desc:StoreProxy.i18n.t("tts.placeholders.reward_description") },
 		];
 
 		TTSUtils.placeholderBits = [

@@ -170,9 +170,9 @@ export default class VoiceTriggerList extends Vue {
 	public getActionIDs(action?:VoiceAction):{label:string, value:string}[] {
 		type VAKeys = keyof typeof VoiceAction;
 		let availableActions = Object.keys(VoiceAction);
-		availableActions = availableActions.filter(v=> v.indexOf("_DESCRIPTION") == -1);
 		availableActions = availableActions.filter(v=> v.indexOf("_ICON") == -1);
 		availableActions = availableActions.filter(v=> v.indexOf("_IS_GLOBAL") == -1);
+		availableActions = availableActions.filter(v=> v.indexOf("_IS_PRIVATE") == -1);
 
 		//Remove actions that are already in use
 		for (let i = 0; i < this.actions.length; i++) {
@@ -187,19 +187,17 @@ export default class VoiceTriggerList extends Vue {
 		//Remove global commands (erase, prev, next, submit)
 		for (let i = 0; i < availableActions.length; i++) {
 			const isGlobal = VoiceAction[availableActions[i]+"_IS_GLOBAL" as VAKeys] === true;
-			if(isGlobal) {
+			const isPrivate = VoiceAction[availableActions[i]+"_IS_PRIVATE" as VAKeys] === true;
+			if(isGlobal || isPrivate) {
 				availableActions.splice(i, 1);
 				i--;
 			}
 		}
 
-		//Ignore items with no description
-		availableActions = availableActions.filter(v=> { return VoiceAction[v+"_DESCRIPTION" as VAKeys] as string; });
-
 		return availableActions.map(v=> {
 			const icon = VoiceAction[v+"_ICON" as VAKeys] as string;
 			return {
-				label:VoiceAction[v+"_DESCRIPTION" as VAKeys] as string,
+				label:this.$t("voice.commands."+v),
 				value:v,
 				icon,
 			}
@@ -209,8 +207,10 @@ export default class VoiceTriggerList extends Vue {
 	public getLabelFromID(id:string|undefined):string {
 		type VAKeys = keyof typeof VoiceAction;
 		if(!id===null) return "ACTION ID NOT FOUND : "+id;
-		let label = VoiceAction[id+"_DESCRIPTION" as VAKeys] as string;
-		if(!label) label = "...select action..."
+		let label = "...select action...";
+		if(id) {
+			label = this.$t("voice.commands."+id);
+		}
 		return label;
 	}
 

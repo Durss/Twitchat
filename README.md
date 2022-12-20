@@ -212,7 +212,8 @@ Here is the expected file structure:\
 App labels can be found under `i18n` folder.\
 They are splitted by language then by sections.\
 Any new file or folder structure can be added to this.\
-These are all merged into `public/labels.json` during the build process, keep all folder names as keys.\
+These are all merged into `public/labels.json` during the build process.\
+Files can have any name but should have full JSON structure so the plugin i18n-ally can check for label keys on the code.
 Example:\
 ```
 ─ en\
@@ -220,13 +221,35 @@ Example:\
   ├─ subFolder/\
   ├─── hello.json/\
 ```
-Will output this JSON file:
+`global.json` example:
+```json
+{
+	"global":{
+		"hello":"World"
+	}
+}
 ```
+`hello.json` example:
+```json
+{
+	"subFolder":{
+		"hello":{
+			"lorem":"ipsum dolor sit amet"
+		}
+	}
+}
+```
+Will output this JSON file:
+```json
 {
 	"en":{
-		"global":{...},
+		"global":{
+			"hello":"World"
+		},
 		"subFolder":{
-			"hello":{...}
+			"hello":{
+				"lorem":"ipsum dolor sit amet"
+			}
 		}
 	}
 }
