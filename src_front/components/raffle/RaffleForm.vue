@@ -86,11 +86,12 @@
 				</form>
 
 				<ToggleBlock title="Configs" class="configs" :open="false" small v-if="mode=='chat' || triggerMode === false">
-					<ParamItem class="row" :paramData="showCountdownOverlay" v-if="mode=='chat'" />
-					<div class="details" v-if="showCountdownOverlay.value === true && mode=='chat'">
-						<a @click="openParam('overlays')">Add a timer overlay</a>
-						on your OBS scenes to display the remaining time on your stream
-					</div>
+					<ParamItem class="row" :paramData="showCountdownOverlay" v-if="mode=='chat'">
+						<div class="details" v-if="showCountdownOverlay.value === true && mode=='chat'">
+							<a @click="openParam('overlays')">Add a timer overlay</a>
+							on your OBS scenes to display the remaining time on your stream
+						</div>
+					</ParamItem>
 	
 					<PostOnChatParam class="row" botMessageKey="raffleStart"
 						v-if="mode=='chat' && triggerMode === false"
@@ -449,7 +450,6 @@ export default class RaffleForm extends Vue {
 
 		.details {
 			font-size: .8em;
-			margin-left: 2em;
 		}
 
 		.configs {

@@ -72,7 +72,8 @@
 						@click="collapse = false">
 					<PostOnChatParam
 						botMessageKey="twitchatAd"
-						:noToggle="true"
+						:noToggle="!isDonor"
+						clearToggle
 						title="The following message will be posted on your chat every 2 hours (if you received at least 100 messages)"
 						v-if="!collapse"
 					/>

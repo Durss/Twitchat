@@ -291,7 +291,7 @@ export default class ParamItem extends Vue {
 					const childrenItems = this.$refs.param_child as Vue[];
 					divs = childrenItems.map(v => v.$el);
 				}
-				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all",
+				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
 						onComplete:()=> {
 							this.showSlot = false;
 							this.children = [];

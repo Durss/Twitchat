@@ -21,7 +21,7 @@ export const storeParams = defineStore('params', {
 			showModTools: 				{save:true, type:"toggle", value:true, label:"Show mod tools (TO,ban,delete)", id:206, icon:"ban_purple.svg"},
 			raidHighlightUser: 			{save:true, type:"toggle", value:true, label:"Highlight raider's messages for 5 minutes", id:209, icon:"raid_purple.svg", example:"raidHighlightUser.png"},
 			groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:"Group identical messages of a user<br>(sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
-			offlineEmoteOnly:			{save:true, type:"toggle", value:false, label:"Enable emote-only when not live", id:214, icon:"emote_purple.svg"},
+			offlineEmoteOnly:			{save:true, type:"toggle", value:false, label:"Set chat on emote-only when not live", id:214, icon:"emote_purple.svg"},
 			stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:"Cut OBS stream after a raid", id:212, icon:"obs_purple.svg"},
 			showUserPronouns:			{save:true, type:"toggle", value:false, label:"Show user pronouns", id:213, icon:"user_purple.svg"},
 			chatShoutout:				{save:true, type:"toggle", value:false, label:"Chat message shoutout", id:215, icon:"shoutout_purple.svg"},
