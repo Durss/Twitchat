@@ -1,7 +1,11 @@
+/**
+ * This process takes all the JSON files within the "i18n" folder,
+ * compiles them all together and output the public/labels.json file
+ */
 const fs = require("fs");
 const path = require("path");
 
-console.log("Compiling all label files into one");
+console.log("\x1b[36m \n Compiling all label files into one... \x1b[0m");
 function getLabelFilesFrom(p) {
 	const entries = fs.readdirSync(p);
 	let files = [];
@@ -24,6 +28,8 @@ const output = {};
 for(let i=0; i < files.length; i++) {
 	const f = files[i];
 	const keys = f.replace(/\\+/g, "\\").replace(rootDir, "").replace(/\.json$/gi, "").split("\\");
+	// keys.pop()
+	console.log(keys);
 	let json = {};
 	try {
 		json = JSON.parse(fs.readFileSync(f, "utf-8"));
@@ -39,7 +45,7 @@ for(let i=0; i < files.length; i++) {
 			pointer[k] = {};
 		}
 		if(j==keys.length-1) {
-			pointer[k] = json;
+			pointer[k] = json[k];
 		}else{
 			pointer = pointer[k];
 		}
@@ -47,7 +53,8 @@ for(let i=0; i < files.length; i++) {
 }
 const dest = path.join(__dirname, "../public/labels.json");
 fs.writeFileSync(dest, JSON.stringify(output));
-console.log("All files compile to:", dest);
+
+console.log("\x1b[32m All files compiled to:", dest, "\x1b[0m");
 
 if(process.argv.includes("--pm2")) {
 	//avoid infinite reoot in pm2 execution context

@@ -1,19 +1,19 @@
 {
-	"closedBeta":"Beta is closed to a few people sorry :)",
-	"head":"<strong>Twitchat</strong> aims to fill gaps from the official Twitch chat for the streamers",
-	"update_title1":"An update needs these new permissions",
-	"update_title2":"An update needs this new permission",
-	"permissions_title":"Twitchat needs <b>{count}</b> permissions",
-	"moreInfo":"More info",
-	"permissions":{
-		"head1":"Twitchat needs these permissions to offer you as much Twitch features as possible.",
-		"head2":"Your authentication token will never be stored on our server.",
-		"head3":"Here are the permissions needed:"
-	},
-	"authorizeBt":"Authorize",
-	"generatingCSRF":"Generating CSRF token...",
-	"retryBt":"Try again",
-	"authenticating":"Authenticating...",
-	"":"",
-	"":""
+	"login":{
+		"closedBeta":"Beta is closed to a few people sorry :)",
+		"head":"<strong>Twitchat</strong> aims to fill gaps from the official Twitch chat for the streamers",
+		"update_title1":"An update needs these new permissions",
+		"update_title2":"An update needs this new permission",
+		"permissions_title":"Twitchat needs <b>{count}</b> permissions",
+		"moreInfo":"More info",
+		"permissions":{
+			"head1":"Twitchat needs these permissions to offer you as much Twitch features as possible.",
+			"head2":"Your authentication token will never be stored on our server.",
+			"head3":"Here are the permissions needed:"
+		},
+		"authorizeBt":"Authorize",
+		"generatingCSRF":"Generating CSRF token...",
+		"retryBt":"Try again",
+		"authenticating":"Authenticating..."
+	}
 }

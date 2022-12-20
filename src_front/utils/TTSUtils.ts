@@ -15,66 +15,18 @@ interface SpokenMessage {
 
 export default class TTSUtils {
 
-	public static placeholderMessages:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"USER", desc:"User name" },
-			{ tag:"MESSAGE", desc:"User's message" },
-		];
-
-	public static placeholderNotices:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"MESSAGE", desc:"User's message" },
-		];
-
-	public static placeholderFollows:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"USER", desc:"User name" },
-		];
-
-	public static placeholderSubs:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"USER", desc:"User name" },
-			{ tag:"TIER", desc:"Sub tier" },
-			{ tag:"MESSAGE", desc:"User's message" },
-		];
-
-	public static placeholderSubgifts:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"USER", desc:"Subgifter's name" },
-			{ tag:"TIER", desc:"Sub tier" },
-			{ tag:"COUNT", desc:"Sub gift count" },
-			{ tag:"RECIPIENTS", desc:"Sub gift recipients" },
-		];
-
-	public static placeholderRaids:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"USER", desc:"User name" },
-			{ tag:"VIEWERS", desc:"Sub tier" },
-		];
-
-	public static placeholderRewards:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"USER", desc:"User name" },
-			{ tag:"REWARD_NAME", desc:"Reward name" },
-			{ tag:"REWARD_DESC", desc:"Reward description" },
-		];
-
-	public static placeholderBits:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"USER", desc:"User name" },
-			{ tag:"BITS", desc:"Bits sent" },
-			{ tag:"MESSAGE", desc:"User's message" },
-		];
-
-	public static placeholderPolls:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"TITLE", desc:"Poll title" },
-			{ tag:"WINNER", desc:"Winning choice" },
-		];
-
-	public static placeholderPredictions:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"TITLE", desc:"Poll title" },
-			{ tag:"WINNER", desc:"Winning choice" },
-		];
-
-	public static placeholderRaffles:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"WINNER", desc:"Winning user" },
-		];
-
-	public static placeholderBingo:TwitchatDataTypes.PlaceholderEntry[] = [
-			{ tag:"WINNER", desc:"Winning user" },
-		];
+	public static placeholderMessages:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderNotices:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderFollows:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderSubs:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderSubgifts:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderRaids:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderRewards:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderBits:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderPolls:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderPredictions:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderRaffles:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderBingo:TwitchatDataTypes.PlaceholderEntry[];
 
 	private static _instance:TTSUtils;
 
@@ -90,14 +42,7 @@ export default class TTSUtils {
 	* HANDLERS *
 	************/
 	constructor() {
-		this.voices = window.speechSynthesis.getVoices();
-		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
-			this.voices = window.speechSynthesis.getVoices();
-		};
-		
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_TTS, ()=> {
-			this.stop();
-		})
+		this.initialize()
 	}
 	
 	/********************
@@ -226,6 +171,77 @@ export default class TTSUtils {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+	private initialize():void {
+		this.voices = window.speechSynthesis.getVoices();
+		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
+			this.voices = window.speechSynthesis.getVoices();
+		};
+		
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_TTS, ()=> {
+			this.stop();
+		});
+
+		TTSUtils.placeholderMessages = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+		];
+
+		TTSUtils.placeholderNotices = [
+			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+		];
+
+		TTSUtils.placeholderFollows = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+		];
+
+		TTSUtils.placeholderSubs = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"TIER", desc:StoreProxy.i18n.t("tts.placeholders.sub_tier") },
+			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+		];
+
+		TTSUtils.placeholderSubgifts = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.sub_gifter") },
+			{ tag:"TIER", desc:StoreProxy.i18n.t("tts.placeholders.sub_tier") },
+			{ tag:"COUNT", desc:StoreProxy.i18n.t("tts.placeholders.subgift_count") },
+			{ tag:"RECIPIENTS", desc:StoreProxy.i18n.t("tts.placeholders.subgift_recipients") },
+		];
+
+		TTSUtils.placeholderRaids = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"VIEWERS", desc:StoreProxy.i18n.t("tts.placeholders.viewers_count") },
+		];
+
+		TTSUtils.placeholderRewards = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"REWARD_NAME", desc:StoreProxy.i18n.t("tts.placeholders.reward_name") },
+			{ tag:"REWARD_DESC", desc:StoreProxy.i18n.t("tts.placeholders.description") },
+		];
+
+		TTSUtils.placeholderBits = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"BITS", desc:StoreProxy.i18n.t("tts.placeholders.bits_amount") },
+			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+		];
+
+		TTSUtils.placeholderPolls = [
+			{ tag:"TITLE", desc:StoreProxy.i18n.t("tts.placeholders.poll_title") },
+			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_choice") },
+		];
+
+		TTSUtils.placeholderPredictions = [
+			{ tag:"TITLE", desc:StoreProxy.i18n.t("tts.placeholders.prediction_title") },
+			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_choice") },
+		];
+
+		TTSUtils.placeholderRaffles = [
+			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_user") },
+		];
+
+		TTSUtils.placeholderBingo = [
+			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_user") },
+		];
+	}
 
 	/**
 	 * Parse a message and add it to the queue

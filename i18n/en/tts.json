@@ -1,0 +1,20 @@
+{
+	"tts":{
+		"placeholders":{
+			"user":"User name",
+			"message":"user message",
+			"sub_tier":"Sub tier",
+			"sub_gifter":"Subgifter's name",
+			"subgift_count":"Subgift count",
+			"subgift_recipients":"Subgift recipient",
+			"reward_name":"Reward name",
+			"reward_description":"Reward description",
+			"bits_amount":"Bits amount",
+			"poll_title":"Poll title",
+			"prediction_title":"Prediction title",
+			"winning_choice":"Winning choice",
+			"winning_user":"Winning user",
+			"viewers_count":"Viewers count"
+		}
+	}
+}

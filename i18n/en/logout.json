@@ -1,9 +1,11 @@
 {
-	"title":"You are now logged out.",
-	"are_you":"Or, are you...?",
-	"details_head":"Other apps won't tell you but logging out is not enough.",
-	"details_1":"Twitchat app still, theoretically, has access to your account.",
-	"details_2":"You may want to also revoke access to the app from your Twitch account.",
-	"settingBt":"Open settings",
-	"details_3":"Scroll down to the <strong>Other Connections</strong> section, find <strong>TwichatApp</strong> entry and click <strong>Disconnect</strong> button."
+	"logout":{
+		"title":"You are now logged out.",
+		"are_you":"Or, are you...?",
+		"details_head":"Other apps won't tell you but logging out is not enough.",
+		"details_1":"Twitchat app still, theoretically, has access to your account.",
+		"details_2":"You may want to also revoke access to the app from your Twitch account.",
+		"settingBt":"Open settings",
+		"details_3":"Scroll down to the <strong>Other Connections</strong> section, find <strong>TwichatApp</strong> entry and click <strong>Disconnect</strong> button."
+	}
 }

@@ -17,7 +17,7 @@ export default class Utils {
 	public static stripHTMLTags(message:string):string {
 		// return message.replace(/<\/?\w+(?:\s+[^\s/>"'=]+(?:\s*=\s*(?:".*?[^"\\]"|'.*?[^'\\]'|[^\s>"']+))?)*?>/gim, "");//Strip HTML tags
 
-		//The following 2 replace() are twice more efficient than the single above one
+		//The following 2 replace() are twice more efficient than the single one above
 		//with the same effect as long as no HTML tags are defined on an attribute other
 		//than data attributes (ex: data-xxx='lorem ipsum')
 		message = message.replace(/data-.*?=".*?"/gim, "");//Strip data-attributes that can contain HTML
@@ -211,6 +211,7 @@ export default class Utils {
 		//*/
 	}
 
+	private static cachedVars:{[key:string]:string|number}|null = null;
 	/**
 	* getLessVars parses your LESS variables to Javascript (provided you make a dummy node in LESS)
 	* @param {String} id The CSS-id your variables are listed under.
@@ -225,7 +226,6 @@ export default class Utils {
 	* returns:
 	* 	{myLessVariable:123}
 	*/
-	private static cachedVars:{[key:string]:string|number}|null = null;
 	public static getLessVars(id = "lessVars", parseNumbers = true): {[key:string]:string|number} {
 		if(this.cachedVars) return this.cachedVars;
 

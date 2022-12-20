@@ -1,25 +1,27 @@
 {
-	"head":[
-		"Twitchat took <strong>MONTHS</strong> of my personnal time to create.",
-		"It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.",
-		"<strong>If you can afford it</strong>, feel free to thank me and make my day brighter with one of the options bellow!"
-	],
-	"important":"IMPORTANT",
-	"important_content1":"Specify <strong>your Twitch login</strong> on your donation message when possible or <a href=\"https://twitch.tv/durss\" target=\"_blank\">send me in a whisper on Twitch</a> so I know which twitch user you are !",
-	"important_content2":"This is necessary if you want to have the ability to disable the automatic message :)",
-	"donate_rate":"Donation percent<br>I receive",
-	"donate_option":{
-		"paypal":"Donate on Paypal",
-		"paypal_rate":"95-100%",
-		"kofi":"Donate on Ko-fi",
-		"kofi_rate":"90%",
-		"github":"Donate on Github",
-		"github_rate":"80%-95%",
-		"coffee":"Buy me a <span class='erase'>coffee</span> grenadine",
-		"coffee_rate":"90%",
-		"patreon":"Become a Patron",
-		"patreon_rate":"80%",
-		"twitch":"Subscribe on Twitch",
-		"twitch_rate":"50%"
+	"sponsor":{
+		"head":[
+			"Twitchat took <strong>MONTHS</strong> of my personnal time to create.",
+			"It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.",
+			"<strong>If you can afford it</strong>, feel free to thank me and make my day brighter with one of the options bellow!"
+		],
+		"important":"IMPORTANT",
+		"important_content1":"Specify <strong>your Twitch login</strong> on your donation message when possible or <a href=\"https://twitch.tv/durss\" target=\"_blank\">send me in a whisper on Twitch</a> so I know which twitch user you are !",
+		"important_content2":"This is necessary if you want to have the ability to disable the automatic message :)",
+		"donate_rate":"Donation percent<br>I receive",
+		"donate_option":{
+			"paypal":"Donate on Paypal",
+			"paypal_rate":"95-100%",
+			"kofi":"Donate on Ko-fi",
+			"kofi_rate":"90%",
+			"github":"Donate on Github",
+			"github_rate":"80%-95%",
+			"coffee":"Buy me a <span class='erase'>coffee</span> grenadine",
+			"coffee_rate":"90%",
+			"patreon":"Become a Patron",
+			"patreon_rate":"80%",
+			"twitch":"Subscribe on Twitch",
+			"twitch_rate":"50%"
+		}
 	}
 }
