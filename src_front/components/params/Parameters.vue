@@ -60,17 +60,18 @@
 			</div>
 
 			<teleport :to="adTarget" v-if="adTarget">
-				<div :class="collapse? 'ad collapse' : 'ad'">
+				<div :class="collapse? 'ad collapse' : 'ad'" @click="collapse = false">
 					<Button v-if="!collapse"
 						aria-label="collapse content"
 						:icon="$image('icons/cross_white.svg')"
 						@click="collapse = true"
 						class="close clearButton" bounce />
+
 					<img src="@/assets/icons/twitchat.svg"
 						alt="twitchat"
-						style="height:2em;"
-						@click="collapse = false">
-					<PostOnChatParam
+						style="height:2em;">
+
+					<PostOnChatParam class="param"
 						botMessageKey="twitchatAd"
 						:noToggle="!isDonor"
 						clearToggle
@@ -405,6 +406,9 @@ export default class Parameters extends Vue {
 				right: 0;
 				height: 2em;
 				margin: .15em;
+			}
+			.param {
+				margin-top: .5em;
 			}
 			&:first-child {
 				margin-top: 0;
