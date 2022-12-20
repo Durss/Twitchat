@@ -88,6 +88,7 @@ export default class ParamsList extends Vue {
 
 	public showAdInfo:boolean = false;
 	public fakeMessageData!:TwitchatDataTypes.MessageChatData;
+	public soPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 
@@ -110,27 +111,6 @@ export default class ParamsList extends Vue {
 
 	public get isOBSConnected():boolean {
 		return OBSWebsocket.instance.connected;
-	}
-
-	public get soPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
-		return [
-			{
-				tag:"USER",
-				desc:"User name",
-			},
-			{
-				tag:"URL",
-				desc:"User channel URL",
-			},
-			{
-				tag:"TITLE",
-				desc:"Last stream's title",
-			},
-			{
-				tag:"CATEGORY",
-				desc:"Last stream's category",
-			},
-		];
 	}
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData} {
@@ -161,7 +141,30 @@ export default class ParamsList extends Vue {
 	public async beforeMount(): Promise<void> {
 		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data)=>{
 			this.fakeMessageData = data as TwitchatDataTypes.MessageChatData;
-		}, false)
+		}, false);
+		const me = this.$store("auth").twitch.user;
+		this.soPlaceholders = [
+			{
+				tag:"USER",
+				desc:"User name",
+				example:me.displayName,
+			},
+			{
+				tag:"URL",
+				desc:"User channel URL",
+				example:"twitch.tv/"+me.login,
+			},
+			{
+				tag:"TITLE",
+				desc:"Last stream's title",
+				example:"Lorem ipsum",
+			},
+			{
+				tag:"CATEGORY",
+				desc:"Last stream's category",
+				example:"Just chatting",
+			},
+		];
 	}
 
 	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {

@@ -42,11 +42,12 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 })
 export default class BingoState extends Vue {
 
-	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get bingoData():TwitchatDataTypes.BingoConfig { return this.$store("bingo").data!; }
 
 	public mounted():void {
+		this.winnerPlaceholders = [{tag:"USER", desc:"User name", example:this.$store("auth").twitch.user.displayName}]
 	}
 
 	public closeBingo():void {

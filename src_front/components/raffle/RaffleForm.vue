@@ -181,9 +181,8 @@ export default class RaffleForm extends Vue {
 	public showCountdownOverlay:TwitchatDataTypes.ParameterData = {label:"Show overlay countdown", value:false, type:"toggle", icon:"countdown_purple.svg"};
 	public customEntries:TwitchatDataTypes.ParameterData = {label:"", value:"", type:"text", placeholder:"entry 1, entry 2, entry 3, ...", longText:true};
 
-	public startPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"CMD", desc:"Command users have to send"}];
-	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
-	public joinPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private voiceController!:FormVoiceControllHelper;
@@ -227,7 +226,13 @@ export default class RaffleForm extends Vue {
 		}
 	}
 
+	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
+		return [{tag:"CMD", desc:"Command users have to send", example:this.finalData.command}];
+	}
+
 	public async mounted():Promise<void> {
+		this.winnerPlaceholders= [{tag:"USER", desc:"User name", example:this.$store("auth").twitch.user.displayName}];
+		this.joinPlaceholders= [{tag:"USER", desc:"User name", example:this.$store("auth").twitch.user.displayName}];
 		watch(()=>this.voiceControl, ()=>{
 			if(this.voiceControl && !this.voiceController) {
 				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);

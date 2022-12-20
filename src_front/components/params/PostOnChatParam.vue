@@ -77,6 +77,8 @@ export default class PostOnChatParam extends Vue {
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 
+	private isFirstRender:boolean = true;
+
 	public async mounted():Promise<void> {
 		const data					= this.$store("chat").botMessages[ this.botMessageKey ];
 		this.textParam.value		= data.message;
@@ -90,6 +92,7 @@ export default class PostOnChatParam extends Vue {
 
 		watch(()=>this.textParam.value, ()=> this.saveParams())
 		watch(()=>this.enabledParam.value, ()=> this.saveParams())
+		watch(()=>this.placeholders, ()=> this.updatePreview(), {deep:true})
 
 		await this.$nextTick();
 		this.saveParams(false);
@@ -112,7 +115,8 @@ export default class PostOnChatParam extends Vue {
 			}
 		}
 
-		if(this.enabledParam.value) {
+		if(this.enabledParam.value && this.isFirstRender) {
+			this.isFirstRender = false;
 			await this.$nextTick();
 			this.placeholderTarget = (this.$refs.paramItem as ParamItem).$el.getElementsByTagName("textarea")[0];
 			const holder = this.$refs.preview as HTMLDivElement;
@@ -122,12 +126,22 @@ export default class PostOnChatParam extends Vue {
 	}
 
 	public async updatePreview():Promise<void> {
-		console.log("update");
 		this.adPreview = null;
 		await this.$nextTick();
 
 		const me = this.$store("auth").twitch.user;
 		let rawMessage = this.textParam.value as string;
+
+		if(this.placeholders) {
+			for (let i = 0; i < this.placeholders.length; i++) {
+				const p = this.placeholders[i];
+				if(p.example) {
+					rawMessage = rawMessage.replace(new RegExp("\{"+p.tag+"\}", "gi"), p.example);
+				}
+			}
+		}
+
+
 		let announcementColor:"primary" | "purple" | "blue" | "green" | "orange" | undefined = undefined;
 		if(rawMessage.indexOf("/announce") == 0) {
 			announcementColor = rawMessage.replace(/\/announce([a-z]+)?\s.*/i, "$1") as "primary" | "purple" | "blue" | "green" | "orange";

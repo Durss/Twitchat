@@ -67,7 +67,7 @@ export default class RaffleState extends Vue {
 	public picking = false;
 	public progressPercent = 0;
 	public raffleData!:TwitchatDataTypes.RaffleData;
-	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	
 	private wheelOverlayPresenceHandler!:()=>void;
 	private wheelOverlayExists = false;
@@ -78,11 +78,12 @@ export default class RaffleState extends Vue {
 	}
 
 	public beforeMount():void {
-		this.raffleData = this.$store("raffle").data!;
-		const ellapsed = Date.now() - new Date(this.raffleData.created_at).getTime();
-		const duration = this.raffleData.duration_s*60000;
-		const timeLeft = duration - ellapsed;
-		this.progressPercent = ellapsed/duration;
+		this.winnerPlaceholders	= [{tag:"USER", desc:"User name", example:this.$store("auth").twitch.user.displayName}]
+		this.raffleData			= this.$store("raffle").data!;
+		const ellapsed			= Date.now() - new Date(this.raffleData.created_at).getTime();
+		const duration			= this.raffleData.duration_s*60000;
+		const timeLeft			= duration - ellapsed;
+		this.progressPercent	= ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 
 		this.wheelOverlayPresenceHandler = ()=> { this.wheelOverlayExists = true; };

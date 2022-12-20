@@ -98,8 +98,7 @@ export default class BingoForm extends Vue {
 	public guessEmote = false;
 	public minValue:TwitchatDataTypes.ParameterData = {label:"Min value", value:0, type:"number", min:0, max:999999999};
 	public maxValue:TwitchatDataTypes.ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
-	public startPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"GOAL", desc:"Explain what to find"}];
-	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [{tag:"USER", desc:"User name"}];
+	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {
 		const res = ["bingoform"];
@@ -116,7 +115,18 @@ export default class BingoForm extends Vue {
 		}
 	}
 
-	public async mounted():Promise<void> {
+	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
+		return [
+			{
+				tag:"GOAL", desc:"Explain what to find",
+				example:this.guessEmote? " one of the global Twitch emotes"
+					: " a number between "+this.minValue.value+" and "+this.maxValue.value+" included"
+			}
+		];
+	}
+
+	public async beforeMount():Promise<void> {
+		this.winnerPlaceholders = [{tag:"USER", desc:"User name", example:this.$store("auth").twitch.user.displayName}];
 		if(this.triggerMode && this.action.bingoData) {
 			this.guessNumber = this.action.bingoData.guessNumber;
 			this.guessEmote = this.action.bingoData.guessEmote;

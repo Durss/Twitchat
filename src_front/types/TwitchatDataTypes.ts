@@ -310,6 +310,7 @@ export namespace TwitchatDataTypes {
 	export interface PlaceholderEntry {
 		tag:string;
 		desc:string;
+		example?:string;
 	}
 
 	/**
