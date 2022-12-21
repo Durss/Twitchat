@@ -299,7 +299,7 @@ export default class MessengerProxy {
 					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					platform:"twitchat",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
-					message:"Missing user name param",
+					message:StoreProxy.i18n.t("error.user_param_missing"),
 				}
 				StoreProxy.chat.addMessage(notice);
 			}else{
@@ -329,7 +329,7 @@ export default class MessengerProxy {
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						platform:"twitchat",
 						noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
-						message:"User <mark>"+username+"</mark> not found...",
+						message:StoreProxy.i18n.t("error.user_param_not_found", {USER:"<mark>"+username+"</mark>"})
 					}
 					StoreProxy.chat.addMessage(notice);
 				}else{

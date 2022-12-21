@@ -329,18 +329,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 				case "/commercial": {
 					const duration = parseInt(chunks[0]);
-					StoreProxy.main.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
-						try {
-							const res = await TwitchUtils.startCommercial(duration, channelId);
-							if(res.length > 0) {
-								StoreProxy.stream.setCommercialEnd( Date.now() + res.length * 1000 );
-							}
-						}catch(error) {
-							const e = (error as unknown) as {error:string, message:string, status:number}
-							console.log(error);
-							this.notice(TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR, StoreProxy.auth.twitch.user.id, e.message);
-						}
-					}).catch(()=>{/*ignore*/});
+					StoreProxy.stream.startAd(duration);
 					return true;
 				}
 				case "/shield": return await TwitchUtils.setShieldMode(channelId, true);
@@ -796,7 +785,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const message:TwitchatDataTypes.MessageBanData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
-			message:user.displayName+" has been banned.",
+			message:StoreProxy.i18n.t("global.moderation_action.ban", {USER:user.displayName}),
 			platform:"twitch",
 			type:"notice",
 			user,
@@ -813,7 +802,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const message:TwitchatDataTypes.MessageTimeoutData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
-			message:user.displayName+" has been timed out for "+duration+" seconds.",
+			message:StoreProxy.i18n.t("global.moderation_action.timeout", {USER:user.displayName, DURATION:duration}),
 			platform:"twitch",
 			type:"notice",
 			user,
@@ -872,11 +861,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = TwitchatDataTypes.TwitchatNoticeType.GENERIC;
 				if(!message) {
 					if(msgid.indexOf("bad_delete_message_error") > -1) {
-						message = "You cannot delete this message.";
+						message = StoreProxy.i18n.t("error.delete_message")
 						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 					}
 					if(msgid.indexOf("authentication failed") > -1) {
-						message = "Authentication failed. Refreshing token and trying again...";
+						message = StoreProxy.i18n.t("error.irc_reconect");
 						this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
 						noticeId = TwitchatDataTypes.TwitchatNoticeType.ERROR;
 					}

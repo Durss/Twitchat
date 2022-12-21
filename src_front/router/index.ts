@@ -107,7 +107,7 @@ const routes: Array<RouteRecordRaw> = [
 				}
 				sMusic.setSpotifyAuthResult(params);
 			}else{
-				sMain.alertData = "You refused to grant access to your Spotify account";
+				sMain.alertData = StoreProxy.i18n.t("music.spotify_refused");
 			}
 			return {name:"chat"}
 		},

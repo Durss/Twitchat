@@ -1,6 +1,7 @@
 {
 	"music":{
 		"deezer_interact":"Deezer needs you to click here to be able to play music.",
-		"spotify_play":"Spotify requires you to first play some music before trying to use it from Twitchat"
+		"spotify_play":"Spotify requires you to first play some music before trying to use it from Twitchat",
+		"spotify_refused":"You refused to grant access to your Spotify account"
 	}
 }
