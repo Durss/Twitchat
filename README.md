@@ -156,7 +156,9 @@ This project has been coded with VSCode with Volar plugin.\
 It is recommended to install these plugins:\
 Vue Language Features (Volar): https://marketplace.visualstudio.com/items?itemName=Vue.volar
 
-TypeScript Vue Plugin (Volar): https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin
+TypeScript Vue Plugin: https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin
+
+I18n-ally Plugin: https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally
 
 For correct typings and better lint performance, it is advised to the enable the `Take over mode` by disabling the native VSCode's Typescript and Javascript features.
 [Read how to](https://github.com/johnsoncodehk/volar/discussions/471).
