@@ -184,6 +184,7 @@ export default class AutocompleteChatForm extends Vue {
 				const cmds = sChat.commands;
 				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
 				const isAdmin = sAuth.twitch.user.is_admin === true;
+				const isMod = true;
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1
@@ -192,8 +193,11 @@ export default class AutocompleteChatForm extends Vue {
 						//Remove TTS related commands if TTS isn't enabled
 						if(e.needTTS === true && !sTTS.params.enabled) continue;
 						
-						//Remove channel point related commands if user isn't affiliate or partner
+						//Remove admin specific commands if we're not an admin
 						if(e.needAdmin === true && !isAdmin) continue;
+
+						//Remove moderator specific commands if we're not a mod
+						if(e.needModerator === true && !isMod) continue;
 						
 						//Remove channel point related commands if user isn't affiliate or partner
 						if(e.needChannelPoints === true && !hasChannelPoints) continue;

@@ -15,6 +15,21 @@
 			"winning_choice":"Winning choice",
 			"winning_user":"Winning user",
 			"viewers_count":"Viewers count"
+		},
+		"paterns":{
+			"readMessagePatern":"{USER} says: {MESSAGE}",
+			"readWhispersPattern":"{USER} whispers: {MESSAGE}",
+			"readNoticePattern":"{MESSAGE}",
+			"readRewardsPattern":"{USER} redeemed reward {REWARD_NAME}",
+			"readSubsPattern":"{USER} subscribed at tier {TIER}",
+			"readSubgiftsPattern":"{USER} gifted {COUNT} sub tier {TIER} to {RECIPIENTS}",
+			"readBitsPattern":"{USER} sent {BITS} bits",
+			"readRaidsPattern":"{USER} raided with {VIEWERS} viewers",
+			"readFollowPattern":"{USER} is now following",
+			"readPollsPattern":"Poll \"{TITLE}\" ended. Winning choice is, {WINNER}",
+			"readPredictionsPattern":"Prediction \"{TITLE}\" ended. Winning choice is, {WINNER}",
+			"readBingosPattern":"{WINNER} won the bingo",
+			"readRafflePattern":"{WINNER} won the raffle"
 		}
 	}
 }

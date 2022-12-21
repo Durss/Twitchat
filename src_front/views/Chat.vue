@@ -121,7 +121,7 @@
 			<div class="deezerCTA" v-if="needUserInteraction">
 				<img src="@/assets/icons/deezer_color.svg" alt="deezer" class="icon">
 				<div class="title" v-t="'global.click'"></div>
-				<div class="message" v-t="'deezer.interact'"></div>
+				<div class="message" v-t="'music.deezer_interact'"></div>
 			</div>
 		</Teleport>
 

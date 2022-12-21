@@ -103,19 +103,6 @@ export const storeMain = defineStore("main", {
 				return;
 			}
 			Config.instance.populateServerConfigs(jsonConfigs);
-
-			//Load labels
-			try {
-				const labelsRes = await fetch("/labels.json");
-				const labelsJSON = await labelsRes.json();
-				for (const lang in labelsJSON) {
-					StoreProxy.i18n.setLocaleMessage(lang, labelsJSON[lang]);
-				}
-			}catch(error) {
-				console.log(error);
-				this.alertData = "An error occured when loading labels :(";
-				this.initComplete = true;
-			}
 			
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};
@@ -162,7 +149,7 @@ export const storeMain = defineStore("main", {
 				});
 				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
 					sMusic.setDeezerConnected(false);
-					this.alertData = "Deezer authentication failed";
+					this.alertData = StoreProxy.i18n.t("error.deezer.auth_failed");//"Deezer authentication failed";
 				});
 				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
 					//Execute trigger
@@ -232,7 +219,7 @@ export const storeMain = defineStore("main", {
 				if(raider) {
 					sChat.shoutout(raider);
 				}else{
-					this.alert("You have not been raided yet");
+					this.alert(StoreProxy.i18n.t("error.auto_shoutout"));
 				}
 			});
 			
@@ -531,13 +518,17 @@ export const storeMain = defineStore("main", {
 				DataStore.set(DataStore.DEVMODE, this.devmode);
 			}
 			if(notify) {
+				let str = StoreProxy.i18n.t("global.dev_mode.enabled");
+				if(!this.devmode) {
+					str = StoreProxy.i18n.t("global.dev_mode.disabled");
+				}
 				const message:TwitchatDataTypes.MessageNoticeData = {
 					id: Utils.getUUID(),
 					date: Date.now(),
 					platform: "twitchat",
 					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.DEVMODE,
-					message:"Developer mode "+(this.devmode?"enabled":"disabled"),
+					message:str,
 				}
 				StoreProxy.chat.addMessage(message);
 			}

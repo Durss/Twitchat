@@ -146,7 +146,7 @@ export default class SpotifyHelper extends EventDispatcher {
 				"Authorization":"Bearer "+this._token.access_token,
 			}
 		}else{
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] token refresh failed"));
+			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.token_refresh")));
 		}
 	}
 
@@ -230,7 +230,7 @@ export default class SpotifyHelper extends EventDispatcher {
 			return true;
 		}
 		if(res.status == 409) {
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] API rate limits exceeded"));
+			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
 			return false;
 		}
 		if(res.status == 404) {
@@ -459,14 +459,14 @@ export default class SpotifyHelper extends EventDispatcher {
 			try {
 				const json = await res.json();
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
-					StoreProxy.main.alertData = "Spotify requires you to first play some music before trying to use it from Twitchat"
+					StoreProxy.main.alertData = StoreProxy.i18n.t("music.spotify_play");
 				}
 			}catch(error){}
 
 			return false;
 		}
 		if(res.status == 409) {
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] API rate limits exceeded"));
+			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
 			return false;
 		}
 		return false;

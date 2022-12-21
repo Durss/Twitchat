@@ -49,8 +49,24 @@ const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',
 	fallbackWarn:false,
-	warnHtmlInMessage: 'off'
+	warnHtmlInMessage: 'off',
 });
+
+//Load labels before everything else so they are available when
+//initializing stores data
+try {
+	const labelsRes = await fetch("/labels.json");
+	const labelsJSON = await labelsRes.json();
+	for (const lang in labelsJSON) {
+		i18n.global.setLocaleMessage(lang, labelsJSON[lang]);
+	}
+}catch(error) {
+	console.log(error);
+	setTimeout(() => {
+		storeMain().alertData = "An error occured when loading labels :(";
+		storeMain().initComplete = true;
+	}, 1000);
+}
 
 /**
  * Add route guards for login
@@ -174,6 +190,7 @@ const app = createApp(App)
 
 //Init stores before instanciating the router because the
 //router needs to access some stores
+StoreProxy.i18n = i18n.global;
 StoreProxy.main = storeMain();
 StoreProxy.account = storeAccount();
 StoreProxy.auth = storeAuth();
@@ -199,7 +216,6 @@ StoreProxy.voice = storeVoice();
 StoreProxy.debug = storeDebug();
 StoreProxy.accessibility = storeAccessibility();
 StoreProxy.admin = storeAdmin();
-StoreProxy.i18n = i18n.global;
 
 app.use(router)
 app.use(i18n)

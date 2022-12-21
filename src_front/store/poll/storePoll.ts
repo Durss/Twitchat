@@ -22,7 +22,7 @@ export const storePoll = defineStore('poll', {
 
 	actions: {
 		setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean) {
-			if(data) {
+			if(data != null) {
 				if(postOnChat) {
 					StoreProxy.chat.addMessage(data);
 				}

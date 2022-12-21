@@ -288,6 +288,7 @@ export namespace TwitchatDataTypes {
 		needChannelPoints?:boolean;
 		needTTS?:boolean;
 		needAdmin?:boolean;
+		needModerator?:boolean,
 	}
 
 	/**

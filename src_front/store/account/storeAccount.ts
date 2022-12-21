@@ -1,11 +1,12 @@
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { IAccountActions, IAccountGetters, IAccountState } from '../StoreProxy'
+import StoreProxy from '../StoreProxy'
 
 export const storeAccount = defineStore('account', {
 	state: () => ({
-		syncDataWithServer: { type:"toggle", value:true, label:"Sync parameters to server", id:401 },
-		publicDonation: { type:"toggle", value:false, label:"Make my donation public", id:402 },
+		syncDataWithServer: { type:"toggle", value:true, label:StoreProxy.i18n.t("params.sync_server"), id:401 },
+		publicDonation: { type:"toggle", value:false, label:StoreProxy.i18n.t("donor.make_public"), id:402 },
 	} as IAccountState),
 
 

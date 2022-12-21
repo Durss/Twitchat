@@ -1,5 +1,6 @@
 {
 	"donor":{
-		"level":"level"
+		"level":"level",
+		"make_public":"Make my donation public"
 	}
 }

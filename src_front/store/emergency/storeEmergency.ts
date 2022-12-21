@@ -68,12 +68,14 @@ export const storeEmergency = defineStore('emergency', {
 			if(this.emergencyStarted == enable) return;//Ignore useless change
 			const channelId = StoreProxy.auth.twitch.user.id;
 			this.emergencyStarted = enable;
+			const str = StoreProxy.i18n.t("emergency.disabled");
+			if(enable) StoreProxy.i18n.t("emergency.enabled");
 			const message:TwitchatDataTypes.MessageEmergencyModeInfo = {
 				id:Utils.getUUID(),
 				date:Date.now(),
 				platform:"twitchat",
 				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-				message:"Emergency mode "+(enable? "enabled" : "disabled"),
+				message:str,
 				noticeId:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
 				enabled: enable,
 			};

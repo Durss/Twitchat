@@ -126,7 +126,7 @@ export const storeStream = defineStore('stream', {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitch",
-					message:"Commercial break complete",
+					message:StoreProxy.i18n.t("global.moderation_action.commercial_complete"),
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
 				});
 			}else{
@@ -136,7 +136,7 @@ export const storeStream = defineStore('stream', {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitch",
-					message:"A commercial just started for "+duration+" seconds",
+					message:StoreProxy.i18n.t("global.moderation_action.commercial_start", {DURATION:duration}),
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
 				});
 			}
@@ -146,7 +146,10 @@ export const storeStream = defineStore('stream', {
 			if(!this.canStartAd) return;
 	
 			if(isNaN(duration)) duration = 30;
-			StoreProxy.main.confirm("Start a commercial?", "The commercial break will last "+duration+"s. It's not guaranteed that a commercial actually starts.").then(async () => {
+			StoreProxy.main.confirm(
+				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.title"),
+				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.description")
+			).then(async () => {
 				try {
 					const res = await TwitchUtils.startCommercial(duration, StoreProxy.auth.twitch.user.id);
 					if(res.length > 0) {
@@ -168,7 +171,7 @@ export const storeStream = defineStore('stream', {
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						platform:"twitchat",
 						noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
-						message:"An error occured whens tarting the commercial : " + e.message,
+						message:StoreProxy.i18n.t("error.commercial_start", {DETAILS:e.message}),
 					}
 					StoreProxy.chat.addMessage(notice);
 					// this.$store("store").state.alert = "An unknown error occured when starting commercial"

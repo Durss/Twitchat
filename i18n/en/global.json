@@ -8,6 +8,7 @@
 		"log_in":"Log in",
 		"connect":"Connect",
 		"disconnect":"Disonnect",
+		"cooldown":"📛 @{USER} wait {DURATION}",
 		"badges":{
 			"subscriber":"{DURATION} subscriber",
 			"subgift":"{COUNT} sub-gifts",
@@ -21,7 +22,8 @@
 			"year":"year | years"
 		},
 		"moderation_action":{
-			"timeout":"{MODERATOR} has banned {USER} for {DURATION} seconds",
+			"timeout":"{USER} has been banned for {DURATION} seconds",
+			"timeout_by":"{MODERATOR} has banned {USER} for {DURATION} seconds",
 			"ban":"{USER} has been banned",
 			"banned_by":"{USER} has been banned by {MODERATOR}",
 			"unbanned":"{USER} has been unbanned",
@@ -32,10 +34,21 @@
 			"unmodded_by":"{USER} has been removed from your mods by {MODERATOR}",
 			"vip":"{USER} has been added to VIPs",
 			"viped_by":"{USER} has been added to VIPs by {MODERATOR}",
-			"unviped":"{USER} has been removed from youy VIPs",
-			"unviped_by":"{USER} has been removed from youy VIPs by {MODERATOR}",
+			"unviped":"{USER} has been removed from your VIPs",
+			"unviped_by":"{USER} has been removed from your VIPs by {MODERATOR}",
 			"shield_on":"Shield mode started by {MODERATOR}",
-			"shield_off":"Shield mode stopped by {MODERATOR}"
+			"shield_off":"Shield mode stopped by {MODERATOR}",
+			"commercial_start":"A commercial just started for {DURATION} seconds",
+			"commercial_complete":"Commercial break complete",
+			"commercial_start_confirm":{
+				"title":"Start a commercial?",
+				"description":"The commercial break will last {DURATION}s. It's not guaranteed that a commercial actually starts."
+			},
+			"stream_title_changed":"Stream title changed to \"{TITLE}\""
+		},
+		"dev_mode":{
+			"enabled":"Developer mode enabled",
+			"disabled":"Developer mode disabled"
 		},
 		"twitch_scopes":{
 			"bits:read": "Read bits leaderboard",

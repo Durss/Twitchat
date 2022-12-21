@@ -1,5 +1,6 @@
 {
 	"bingo": {
-		
+		"goal_emote":"Find one of the global Twitch emotes",
+		"goal_number":"Find a number between {MIN} and {MAX}"
 	}
 }

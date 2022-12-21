@@ -497,52 +497,10 @@ export const storeUsers = defineStore('users', {
 			return new Promise((resolve, reject)=> {
 				TwitchUtils.getPronouns(user.id, user.login).then((res: TwitchatDataTypes.Pronoun | null) => {
 					if (res !== null) {
-						const hashmapLabel:{[key:string]:string} = {
-							// https://pronouns.alejo.io
-							"aeaer" : "Ae/Aer",
-							"any" : "Any",
-							"eem" : "E/Em",
-							"faefaer" : "Fae/Faer",
-							"hehim" : "He/Him",
-							"heshe" : "He/She",
-							"hethem" : "He/They",
-							"itits" : "It/Its",
-							"other" : "Other",
-							"perper" : "Per/Per",
-							"sheher" : "She/Her",
-							"shethem" : "She/They",
-							"theythem" : "They/Them",
-							"vever" : "Ve/Ver",
-							"xexem" : "Xe/Xem",
-							"ziehir" : "Zie/Hir",
-							// https://pronoundb.org
-							"hh": "he/him",
-							"hi": "he/it",
-							"hs": "he/she",
-							"ih": "it/him",
-							"ii": "it/its",
-							"is": "it/she",
-							"shh": "she/he",
-							"sh": "she/her",
-							"si": "she/it",
-							"st": "she/they",
-							"th": "they/he",
-							"ti": "they/it",
-							"ts": "they/she",
-							"tt": "they/them",
-						};
-						const hashmapTooltip: {[key: string]: string} = {
-							// https://pronoundb.org
-							"any": "Any pronouns",
-							"other": "Other pronouns",
-							"ask": "Ask me my pronouns",
-							"avoid": "Avoid pronouns, use my name",
-						};
 						user.pronouns = res.pronoun_id;
-						user.pronounsLabel = hashmapLabel[user.pronouns] ?? user.pronouns;
-						if(hashmapTooltip[user.pronouns]) {
-							user.pronounsTooltip = hashmapTooltip[user.pronouns];
-						}
+						user.pronounsLabel = StoreProxy.i18n.tm("pronouns")[user.pronouns] ?? user.pronouns;
+						const tt = StoreProxy.i18n.tm("pronouns")["tooltip_"+user.pronouns];
+						if(tt) user.pronounsTooltip = tt;
 					}else{
 						user.pronouns = false;
 					}

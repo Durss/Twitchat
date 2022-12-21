@@ -392,7 +392,7 @@ export default class TriggerActionHandler {
 						const remaining_s = Utils.formatDuration(this.globalCooldowns[eventType] - now + 1000) + "s";
 						canExecute = false;
 						if(data.cooldown.alert !== false) {
-							MessengerProxy.instance.sendMessage("📛 @"+message.user.login+" wait "+remaining_s, [message.platform], message.channel_id);
+							MessengerProxy.instance.sendMessage(StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s}), [message.platform], message.channel_id);
 						}
 					}
 					else if(data.cooldown.global > 0) this.globalCooldowns[eventType] = now + data.cooldown.global * 1000;
@@ -401,7 +401,7 @@ export default class TriggerActionHandler {
 						const remaining_s = Utils.formatDuration(this.userCooldowns[key] - now + 1000) + "s";
 						canExecute = false;
 						if(data.cooldown.alert !== false) {
-							MessengerProxy.instance.sendMessage("📛 @"+message.user.login+" wait "+remaining_s, [message.platform], message.channel_id);
+							MessengerProxy.instance.sendMessage(StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s}), [message.platform], message.channel_id);
 						}
 					}
 					else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;

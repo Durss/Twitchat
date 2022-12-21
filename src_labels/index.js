@@ -34,7 +34,7 @@ for(let i=0; i < files.length; i++) {
 	try {
 		json = JSON.parse(fs.readFileSync(f, "utf-8"));
 	}catch(erro) {
-		console.log("Invalid JSON", f)
+		console.log("\x1b[41m Invalid JSON ", f, "\x1b[0m");
 		continue;
 	}
 

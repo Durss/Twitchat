@@ -1,6 +1,5 @@
 import MessengerProxy from '@/messaging/MessengerProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -24,9 +23,10 @@ export const storeBingo = defineStore('bingo', {
 	actions: {
 		async startBingo(data:TwitchatDataTypes.BingoConfig) {
 			const sChat = StoreProxy.chat;
-
+			let emoteCount = 0;
 			if(data.guessEmote==true) {
 				let emotes = await TwitchUtils.getEmotes();
+				emoteCount = emotes.length;
 				emotes = emotes.filter(v => v.is_public === true);
 				const twitch = Utils.pickRand(emotes);
 				data.emoteValue={twitch:undefined, facebook:undefined, youtube:undefined, instagram:undefined, tiktok:undefined, twitchat:undefined}
@@ -44,11 +44,11 @@ export const storeBingo = defineStore('bingo', {
 			
 			if(sChat.botMessages.bingoStart.enabled) {
 				let message = sChat.botMessages.bingoStart.message;
-				let goal = "Find ";
+				let goal = "";
 				if(data.guessEmote) {
-					goal += " one of the global Twitch emotes";
+					goal = StoreProxy.i18n.t("bingo.goal_emote", {COUNT:emoteCount});
 				}else{
-					goal += " a number between "+data.min+" and "+data.max+" included";
+					goal = StoreProxy.i18n.t("bingo.goal_number", {MIN:data.min, MAX:data.max});
 				}
 				message = message.replace(/\{GOAL\}/gi, goal as string);
 				MessengerProxy.instance.sendMessage(message);

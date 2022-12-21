@@ -1,5 +1,7 @@
 {
 	"emergency":{
-		"enable_confirm":"Enable emergency mode?"
+		"enable_confirm":"Enable emergency mode?",
+		"enabled":"Emergency mode enabled",
+		"disabled":"Emergency mode disabled"
 	}
 }
