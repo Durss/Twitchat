@@ -3,7 +3,7 @@ import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { TriggerScheduleTypes, TriggerTypes, type TriggerData, type TriggerScheduleData } from "../types/TriggerActionDataTypes";
 import Config from "./Config";
-import TriggerActionHandler from "./TriggerActionHandler";
+import TriggerActionHandler from "./triggers/TriggerActionHandler";
 
 /**
 * Created : 02/09/2022 

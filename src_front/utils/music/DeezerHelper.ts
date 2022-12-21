@@ -3,7 +3,7 @@ import { reactive } from "vue";
 import Config from "../Config";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import PublicAPI from "../PublicAPI";
-import TriggerActionHandler from "../TriggerActionHandler";
+import TriggerActionHandler from "../triggers/TriggerActionHandler";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import Utils from "../Utils";
 import DeezerHelperEvent from "./DeezerHelperEvent";

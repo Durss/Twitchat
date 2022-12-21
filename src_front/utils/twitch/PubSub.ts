@@ -5,7 +5,7 @@ import { LoremIpsum } from "lorem-ipsum";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import Config from '../Config';
 import OBSWebsocket from "../OBSWebsocket";
-import TriggerActionHandler from "../TriggerActionHandler";
+import TriggerActionHandler from "../triggers/TriggerActionHandler";
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 
@@ -583,6 +583,7 @@ export default class PubSub extends EventDispatcher {
 				message:"",
 				noticeId,
 			};
+			const t = StoreProxy.i18n.t;
 			const username = localObj.args?.[0];
 			let user!:TwitchatDataTypes.TwitchatUser;
 			if(username) {
@@ -614,6 +615,7 @@ export default class PubSub extends EventDispatcher {
 					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "600";
 					moderatedUser = user;
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.TIMEOUT;
+					noticeText = t("global.moderation_action.timeout", {MODERATOR:localObj.created_by, USER:user.displayName, DURATION:duration});
 					noticeText = localObj.created_by+" has banned "+user.displayName+" for "+duration+" seconds";
 					(m as TwitchatDataTypes.MessageTimeoutData).duration_s = parseInt(duration);
 					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
@@ -623,7 +625,7 @@ export default class PubSub extends EventDispatcher {
 				case "ban": {
 					moderatedUser = user;
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.BAN;
-					noticeText = "User "+user.displayName+" has been banned by "+localObj.created_by;
+					noticeText = t("global.moderation_action.banned_by", {USER:user.displayName, MODERATOR:localObj.created_by});
 					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
 					StoreProxy.users.flagBanned("twitch", channelId, user.id);
 					break;
@@ -632,7 +634,7 @@ export default class PubSub extends EventDispatcher {
 				case "unban": {
 					moderatedUser = user;
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBAN;
-					noticeText = "User "+user.displayName+" has been unbanned by "+localObj.created_by;
+					noticeText = t("global.moderation_action.unbanned_by", {USER:user.displayName, MODERATOR:localObj.created_by});
 					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
 					StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
 					break;
@@ -640,7 +642,7 @@ export default class PubSub extends EventDispatcher {
 				case "mod": {
 					moderatedUser = user;
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.MOD;
-					noticeText = "User "+user.displayName+" has been added to your mods by "+localObj.created_by;
+					noticeText = t("global.moderation_action.modded_by", {USER:user.displayName, MODERATOR:localObj.created_by});
 					StoreProxy.users.flagMod("twitch", channelId, user.id);
 					break;
 				}
@@ -654,7 +656,7 @@ export default class PubSub extends EventDispatcher {
 				case "vip": {
 					moderatedUser = user;
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.VIP;
-					noticeText = "User "+user.displayName+" has been added to VIPs by "+localObj.created_by;
+					noticeText = t("global.moderation_action.viped_by", {USER:user.displayName, MODERATOR:localObj.created_by});
 					StoreProxy.users.flagVip("twitch", channelId, user.id);
 					break;
 				}

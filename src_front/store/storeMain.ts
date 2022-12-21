@@ -9,7 +9,7 @@ import SpotifyHelperEvent from '@/utils/music/SpotifyHelperEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
-import TriggerActionHandler from '@/utils/TriggerActionHandler';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';

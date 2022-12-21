@@ -2,17 +2,17 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
-import TwitchatEvent from "../events/TwitchatEvent";
-import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerData, type TriggerTypesValue } from "../types/TriggerActionDataTypes";
-import Config from "./Config";
-import DeezerHelper from "./music/DeezerHelper";
-import type { SearchTrackItem } from "./music/SpotifyDataTypes";
-import SpotifyHelper from "./music/SpotifyHelper";
-import OBSWebsocket from "./OBSWebsocket";
-import PublicAPI from "./PublicAPI";
-import TTSUtils from "./TTSUtils";
-import Utils from "./Utils";
-import VoicemodWebSocket from "./voice/VoicemodWebSocket";
+import TwitchatEvent from "../../events/TwitchatEvent";
+import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerData, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
+import Config from "../Config";
+import DeezerHelper from "../music/DeezerHelper";
+import type { SearchTrackItem } from "../music/SpotifyDataTypes";
+import SpotifyHelper from "../music/SpotifyHelper";
+import OBSWebsocket from "../OBSWebsocket";
+import PublicAPI from "../PublicAPI";
+import TTSUtils from "../TTSUtils";
+import Utils from "../Utils";
+import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 
 /**
 * Created : 22/04/2022 

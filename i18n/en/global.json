@@ -8,6 +8,35 @@
 		"log_in":"Log in",
 		"connect":"Connect",
 		"disconnect":"Disonnect",
+		"badges":{
+			"subscriber":"{DURATION} subscriber",
+			"subgift":"{COUNT} sub-gifts",
+			"prediction":"Prediction: {VALUE}",
+			"bits":"{COUNT} bits",
+			"moments":"{COUNT} moments"
+		},
+		"date":{
+			"day":"day | days",
+			"month":"month | months",
+			"year":"year | years"
+		},
+		"moderation_action":{
+			"timeout":"{MODERATOR} has banned {USER} for {DURATION} seconds",
+			"ban":"{USER} has been banned",
+			"banned_by":"{USER} has been banned by {MODERATOR}",
+			"unbanned":"{USER} has been unbanned",
+			"unbanned_by":"{USER} has been unbanned by {MODERATOR}",
+			"mod":"{USER} has been added to your mods",
+			"modded_by":"{USER} has been added to your mods by {MODERATOR}",
+			"unmodded":"{USER} has been removed from your mods",
+			"unmodded_by":"{USER} has been removed from your mods by {MODERATOR}",
+			"vip":"{USER} has been added to VIPs",
+			"viped_by":"{USER} has been added to VIPs by {MODERATOR}",
+			"unviped":"{USER} has been removed from youy VIPs",
+			"unviped_by":"{USER} has been removed from youy VIPs by {MODERATOR}",
+			"shield_on":"Shield mode started by {MODERATOR}",
+			"shield_off":"Shield mode stopped by {MODERATOR}"
+		},
 		"twitch_scopes":{
 			"bits:read": "Read bits leaderboard",
 			

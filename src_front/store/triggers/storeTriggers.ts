@@ -1,7 +1,7 @@
 import DataStore from '@/store/DataStore';
 import { TriggerTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import SchedulerHelper from '@/utils/SchedulerHelper';
-import TriggerActionHandler from '@/utils/TriggerActionHandler';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';

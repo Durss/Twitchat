@@ -7,7 +7,7 @@ import { EventDispatcher } from "@/events/EventDispatcher";
 import PublicAPI from "@/utils/PublicAPI";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
-import TriggerActionHandler from "@/utils/TriggerActionHandler";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchatEvent from "@/events/TwitchatEvent";
 import Utils from "@/utils/Utils";
 

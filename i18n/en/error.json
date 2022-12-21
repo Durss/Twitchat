@@ -5,6 +5,7 @@
 		"csrf_failed":"An error occured while generating a CSRF token",
 		"obs_ws_connect":"Unable to connect with OBS. Double check the port and password and make sure you have OBS 28+ or OBS 27 with OBS-websocket plugin (v5)",
 		"twitch_poll_delete":"An error occurred while deleting the poll",
-		"twitch_prediction_delete":"An error occurred while deleting the prediction"
+		"twitch_prediction_delete":"An error occurred while deleting the prediction",
+		"load_user_info":"Unable to load user info: "
 	}
 }

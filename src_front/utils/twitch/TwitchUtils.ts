@@ -1,6 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { remove } from "@vue/shared";
 import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import Config from "../Config";
@@ -78,6 +77,7 @@ export default class TwitchUtils {
 	 */
 	public static getBadgeTitle(setId:String, versionID:string):string {
 		let title = "";
+		const i18n = StoreProxy.i18n;
 		//If it's the subscriber badge, create the title form its ID.
 		//ID is in the form "XYYY" where X=tier and YYY the number of months
 		if(setId === "subscriber") {
@@ -85,33 +85,31 @@ export default class TwitchUtils {
 			const years = Math.floor(months/12);
 			//Create title from the number of months
 			if(years > 0) {
-				months = (months-years*12)
-				const mPlural = months > 1? "s" : "";
-				const yPlural = years > 1? "s" : "";
-				title = years+" year"+yPlural;
-				if(months > 0) title += " and "+months+" month"+mPlural;
+				months = (months-years*12);
+				let duration = years+" "+i18n.tc("global.date.year", years);
+				if(months > 0) duration += " and "+months+" "+i18n.tc("global.date.month", months);
+				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
 			}else{
-				const mPlural = months > 1? "s" : "";
-				title += months+" month"+mPlural;
+				let duration = months+" "+i18n.tc("global.date.month", months);
+				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
 			}
-			title += " subscriber";
 		}else
 		//If it's the prediction badge, use the ID as the title.
 		//ID is like "blue-6". We replace the dashes by spaces
 		if(setId === "predictions") {
-			title = "Prediction: "+ versionID.replace("-", " ");
+			title = i18n.tc("global.badges.prediction", {"VALUE":versionID.replace("-", " ")});
 		}else
 		//If it's the sub-gift badge, use the ID as the number of gifts
 		if(setId === "sub-gifter") {
-			title = versionID+" sub gifts";
+			title = i18n.tc("global.badges.subgift", {"COUNT":versionID});
 		}else
 		//If it's the bits badge, use the ID as the number of bits
 		if(setId === "bits") {
-			title += versionID+" bits";
+			title = i18n.tc("global.badges.bits", {"COUNT":versionID});
 		}else
 		//If it's the moments badge, use the ID as the number of moments
 		if(setId === "moments") {
-			title += versionID+" moments";
+			title = i18n.tc("global.badges.moments", {"COUNT":versionID});
 		} else {
 			//Use the set ID as the title after.
 			//It's in the form "this-is-the-label_X". Remove "_X" value if it's a number
@@ -521,7 +519,7 @@ export default class TwitchUtils {
 			}
 		}
 		if(fails.length > 0) {
-			StoreProxy.main.alert("Unable to load user info: "+ fails);
+			StoreProxy.main.alert(StoreProxy.i18n.t("error.load_user_info") + fails);
 		}
 		return channels;
 	}
@@ -1330,7 +1328,7 @@ export default class TwitchUtils {
 	
 			
 			//@ts-ignore
-			let userLang:string = navigator.language || navigator.userLanguage; 
+			let userLang:string = navigator.language ?? navigator.userLanguage; 
 			userLang = userLang.toLowerCase();
 			if(userLang.indexOf("-") == -1) {
 				userLang += "-"+userLang;
