@@ -148,7 +148,7 @@ import UserList from '@/components/chatform/UserList.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
 import Parameters from '@/components/params/Parameters.vue';
-import ChatSuggestionForm from '@/components/poll/ChatSuggestionForm.vue';
+import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';

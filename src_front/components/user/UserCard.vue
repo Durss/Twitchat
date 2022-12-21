@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
 		<div class="holder" ref="holder" v-if="loading">
-			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button :aria-label="$t('usercard.closeBt_aria')" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
@@ -13,18 +13,18 @@
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="error">
-			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button :aria-label="$t('usercard.closeBt_aria')" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
 				</div>
 			</div>
 
-			<div class="error">Something went wrong while loading user's profile...</div>
+			<div class="error" v-t="'error.user_profile'"></div>
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="!loading && !error">
-			<Button aria-label="Close live users list" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button :aria-label="$t('usercard.closeBt_aria')" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
 				<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 				<div class="live" v-if="currentStream">LIVE</div>
@@ -34,13 +34,13 @@
 				</div>
 				<span class="translation" v-if="translateUsername">({{user.login}})</span>
 				<div class="subtitle" data-tooltip="copy" @click="copyID()" ref="userID">ID: {{user.id}}</div>
-				<div class="date" data-tooltip="Account creation date"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
-				<div class="date" data-tooltip="Follows you since" v-if="followDate"><img src="@/assets/icons/follow_purple.svg" alt="account creation date" class="icon">{{followDate}}</div>
-				<div class="date" v-else><img src="@/assets/icons/unfollow_purple.svg" alt="account creation date" class="icon">Not following you</div>
+				<div class="date" :data-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
+				<div class="date" :data-tooltip="$t('usercard.follow_date_tt')" v-if="followDate"><img src="@/assets/icons/follow_purple.svg" alt="follow date" class="icon">{{followDate}}</div>
+				<div class="date" v-else><img src="@/assets/icons/unfollow_purple.svg" alt="no follow" class="icon" v-t="'usercard.not_following'"></div>
 			</div>
 
 			<div class="liveInfo" v-if="currentStream">
-				<div class="head">Streaming</div>
+				<div class="head" v-t="'usercard.streaming'"></div>
 				<div class="infos">
 					<div class="title">{{currentStream.title}}</div>
 					<div class="game">{{currentStream.game_name}}</div>

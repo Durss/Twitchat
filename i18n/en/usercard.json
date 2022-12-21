@@ -1,0 +1,9 @@
+{
+	"usercard":{
+		"closeBt_aria":"Close live users list",
+		"creation_date_tt":"Account creation date",
+		"follow_date_tt":"Follows you since",
+		"not_following":"Not following you",
+		"streaming":"Streaming"
+	}
+}

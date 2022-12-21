@@ -14,6 +14,12 @@
 		"user_param_missing":"Missing user name param",
 		"user_param_not_found":"User {USER} not found",
 		"delete_message":"You cannot delete this message",
+		"user_profile":"Something went wrong while loading user's profile...",
+		"stream_info_loading":"Error loading current stream info",
+		"stream_info_updating":"Error updating current stream info",
+		"stream_info_preset_edit":"Error editing stream info preset",
+		"poll_active":"A poll is already active",
+		"poll_automod":"Poll contains an automoded term",
 		"spotify":{
 			"api_rate":"[SPOTIFY] API rate limits exceeded",
 			"token_refresh":"[SPOTIFY] token refresh failed"

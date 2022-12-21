@@ -2,29 +2,29 @@
 	<div class="predictionform">
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">Create prediction</span>
-				<Button aria-label="Close prediction form" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<span class="title" v-t="'prediction.form.title'"></span>
+				<Button :aria-label="$t('prediction.form.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
 
 				<form  @submit.prevent="submitForm()">
 					<div class="row">
-						<label for="prediction_title">Question</label>
+						<label for="prediction_title" v-t="'prediction.form.question'"></label>
 						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''" tabindex="1">
 					</div>
 					<div class="row answers">
-						<label for="prediction_answer">Answers</label>
+						<label for="prediction_answer" v-t="'prediction.form.outcomes'"></label>
 						<div v-for="(a, index) in answers"
 						:class="getAnswerClasses(index)"
 						:key="'answer'+index">
 							<input type="text"
-								v-model="answers[index]"
 								maxlength="25"
+								v-model="answers[index]"
 								v-autofocus="index == 0 && title != ''"
 								:tabindex="index + 2"
 							>
-							<Button aria-label="Delte outcome option" class="deleteBt" small
+							<Button :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt" small
 								:icon="$image('icons/cross.svg')"
 								type="button"
 								v-if="answers.length > 2"
@@ -36,7 +36,7 @@
 						<ParamItem :paramData="voteDuration" />
 					</div>
 					<div class="row">
-						<Button title="Submit" type="submit" :loading="loading" :disabled="!canSubmit" />
+						<Button :title="$t('global.submit')" type="submit" :loading="loading" :disabled="!canSubmit" />
 						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
 					</div>
 				</form>
@@ -81,7 +81,7 @@ export default class PredictionForm extends Vue {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["", ""];
-	public voteDuration:TwitchatDataTypes.ParameterData = {label:"Vote duration (minutes)", value:10, type:"number", min:1, max:30};
+	public voteDuration!:TwitchatDataTypes.ParameterData;
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -105,6 +105,7 @@ export default class PredictionForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
+		this.voteDuration = {label:this.$t('prediction.form.vote_duration'), value:10, type:"number", min:1, max:30};
 		if(this.$store("main").tempStoreValue) {
 			const titlePrefill = this.$store("main").tempStoreValue as string;
 			if(titlePrefill) this.title = titlePrefill;
@@ -169,9 +170,6 @@ export default class PredictionForm extends Vue {
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;
-			if(this.error.indexOf("or equal to 2") > -1) {
-				this.error = "Twitch API still not allows to create predictions with more than 2 items, sorry :(";
-			}
 			return;
 		}
 		this.loading = false;

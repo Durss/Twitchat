@@ -3,8 +3,8 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">Create poll</span>
-				<Button aria-label="Close poll form" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<span class="title" v-t="'poll.form.title'"></span>
+				<Button :aria-label="$t('poll.form.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 
 			<div class="content">
@@ -12,14 +12,14 @@
 
 				<form  @submit.prevent="submitForm()">
 					<div class="row">
-						<label for="poll_title">Question</label>
+						<label for="poll_title" v-t="'poll.form.question'"></label>
 						<div class="field">
 							<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="1">
 							<div class="len">{{title.length}}/60</div>
 						</div>
 					</div>
 					<div class="row">
-						<label for="poll_answer">Answers (at least 2)</label>
+						<label for="poll_answer" v-t="'poll.form.answers'"></label>
 						<div class="field">
 							<input type="text" id="poll_answer" v-model="answer1" maxlength="25" v-autofocus="title != ''" tabindex="2">
 							<div class="len">{{answer1.length}}/25</div>
@@ -51,7 +51,7 @@
 						<ParamItem :paramData="voteDuration" />
 					</div>
 					<div class="row">
-						<Button title="Submit" type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2" />
+						<Button :title="$t('global.submit')" type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2" />
 						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
 					</div>
 				</form>
@@ -99,9 +99,9 @@ export default class PollForm extends Vue {
 	public answer3 = "";
 	public answer4 = "";
 	public answer5 = "";
-	public extraVotesParam:TwitchatDataTypes.ParameterData = {label:"Allow additional votes", value:false, type:"toggle"};
-	public pointsVoteParam:TwitchatDataTypes.ParameterData = {label:"Points per vote", value:0, type:"number", min:0, max:99999, step:1};
-	public voteDuration:TwitchatDataTypes.ParameterData = {label:"Vote duration (minutes)", value:2, type:"number", min:1, max:30};
+	public extraVotesParam!:TwitchatDataTypes.ParameterData;
+	public pointsVoteParam!:TwitchatDataTypes.ParameterData;
+	public voteDuration!:TwitchatDataTypes.ParameterData;
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -116,6 +116,10 @@ export default class PollForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
+		this.extraVotesParam = {label:this.$t("poll.form.additional_votes"), value:false, type:"toggle"};
+		this.pointsVoteParam = {label:this.$t('poll.form.additional_votes_amount'), value:0, type:"number", min:0, max:99999, step:1};
+		this.voteDuration = {label:this.$t('poll.form.vote_duration'), value:2, type:"number", min:1, max:30};
+
 		if(this.$store("main").tempStoreValue) {
 			const titlePrefill = this.$store("main").tempStoreValue as string;
 			if(titlePrefill) this.title = titlePrefill;
@@ -161,10 +165,10 @@ export default class PollForm extends Vue {
 			this.loading = false;
 			let message = (error as {message:string}).message;
 			if(message.toLowerCase().indexOf("pollalreadyactive") > -1) {
-				message = "A poll is already active";
+				message = this.$t("error.poll_active");
 			}else
 			if(message.toLowerCase().indexOf("illegal_argument") > -1) {
-				message = "Poll contains an automoded term";
+				message = this.$t("error.poll_automod");
 			}
 			this.error = message;
 			return;

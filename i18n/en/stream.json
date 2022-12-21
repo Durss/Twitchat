@@ -1,0 +1,19 @@
+{
+	"stream":{
+		"closeBt_aria":"Close form",
+		"presets_title":"Presets",
+		"preset_deleteBt_tt":"Delete preset",
+		"preset_editBt_tt":"Edit preset",
+		"preset_setBt_tt":"Click to set<br>stream infos",
+		"form_title":"Update infos",
+		"form_title_preset":"Preset: {TITLE}",
+		"form_stream_title":"Title",
+		"form_stream_title_placeholder":"title...",
+		"form_stream_category":"Category",
+		"form_stream_tags":"Tags",
+		"form_save_preset":"Save to presets",
+		"form_save_preset_name":"Preset name",
+		"form_save_preset_name_placeholder":"name...",
+		"form_custom_tags_warn":"Custom tags are not yet allowed by Twitch API"
+	}
+}

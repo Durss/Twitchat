@@ -1,0 +1,12 @@
+{
+	"prediction":{
+		"form": {
+			"title":"Create prediction",
+			"closeBt_aria":"Close prediction form",
+			"question":"Question",
+			"outcomes":"Answers",
+			"outcome_delete_aria":"Delete outcome option",
+			"vote_duration":"Vote duration (minutes)"
+		}
+	}
+}

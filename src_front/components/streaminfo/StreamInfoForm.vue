@@ -3,15 +3,23 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Stream info</span>
-				<Button aria-label="Close prediction form" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('stream.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			
 			<div class="content">
-				<ToggleBlock title="Presets" v-if="presets.length > 0" class="presets">
+				<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
 					<div v-for="p in presets" :key="p.id" class="preset">
-						<Button class="button" @click="deletePreset(p)" :icon="$image('icons/trash.svg')" data-tooltip="Delete preset" highlight bounce />
-						<Button class="button" @click="editPreset(p)" :icon="$image('icons/edit.svg')" data-tooltip="Edit preset" bounce />
-						<Button class="button" @click="applyPreset(p)" :title="p.name" data-tooltip="Click to set<br>stream infos" :loading="saving" bounce />
+						<Button class="button" @click="deletePreset(p)"
+							:icon="$image('icons/trash.svg')"
+							:data-tooltip="$t('stream.preset_deleteBt_tt')" highlight bounce />
+							
+						<Button class="button" @click="editPreset(p)"
+							:icon="$image('icons/edit.svg')"
+							:data-tooltip="$t('stream.preset_editBt_tt')" bounce />
+
+						<Button class="button" @click="applyPreset(p)"
+							:title="p.name"
+							:data-tooltip="$t('stream.preset_setBt_tt'))" :loading="saving" bounce />
 					</div>
 				</ToggleBlock>
 				
@@ -20,27 +28,27 @@
 					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
 				</div>
 
-				<ToggleBlock v-else :title="presetEditing? 'Preset: '+presetEditing.name : 'Update infos'"
+				<ToggleBlock v-else :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title')"
 				:open="presets.length == 0 || forceOpenForm" icon="update">
 					<ParamItem class="item" :paramData="param_title" autofocus />
 	
-					<AutoCompleteForm class="item category" title="Category" @search="searchCategory" v-slot="{ item }" v-model="categories" :maxItems="1" idKey="id">
+					<AutoCompleteForm class="item category" :title="$t('stream.form_stream_category')" @search="searchCategory" v-slot="{ item }" v-model="categories" :maxItems="1" idKey="id">
 						<Button class="autoComplete-item" small :title="item.name" :icon="item.box_art_url" />
 					</AutoCompleteForm>
 	
-					<AutoCompleteForm class="item" title="Tags" @search="searchTags" v-slot="{ item }" :delay="0" v-model="tags" :maxItems="5" idKey="tag_id">
+					<AutoCompleteForm class="item" :title="$t('stream.form_stream_tags')" @search="searchTags" v-slot="{ item }" :delay="0" v-model="tags" :maxItems="5" idKey="tag_id">
 						<Button class="autoComplete-item" small :title="item.localization_names['en-us']" />
 					</AutoCompleteForm>
 					<div class="info">
 						<img src="@/assets/icons/infos.svg" alt="info">
-						<p class="label">Custom tags are not yet allowed by Twitch API</p>
+						<p class="label" v-t="'stream.form_custom_tags_warn'"></p>
 					</div>
 					
 					<ParamItem class="item" :paramData="param_savePreset" v-if="!presetEditing" />
 					
 					<div class="actions">
-						<Button title="Cancel" class="submitBt" @click="cancelPresetEdit()" :loading="saving" highlight v-if="presetEditing" />
-						<Button title="Submit" class="submitBt" @click="updateStreamInfo()" :loading="saving" />
+						<Button :title="$t('global.cancel')" class="submitBt" @click="cancelPresetEdit()" :loading="saving" highlight v-if="presetEditing" />
+						<Button :title="$t('global.submit')" class="submitBt" @click="updateStreamInfo()" :loading="saving" />
 					</div>
 				</ToggleBlock>
 			</div>
@@ -74,9 +82,9 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class StreamInfoForm extends Vue {
 
-	public param_title:TwitchatDataTypes.ParameterData = {label:"Title", value:"", type:"text", placeholder:"title...", maxLength:140};
-	public param_savePreset:TwitchatDataTypes.ParameterData = {label:"Save to presets", value:false, type:"toggle"};
-	public param_namePreset:TwitchatDataTypes.ParameterData = {label:"Preset name", value:"", type:"text", placeholder:"name...", maxLength:50};
+	public param_title!:TwitchatDataTypes.ParameterData;
+	public param_savePreset!:TwitchatDataTypes.ParameterData;
+	public param_namePreset!:TwitchatDataTypes.ParameterData;
 
 	public saving:boolean = false;
 	public loading:boolean = true;
@@ -87,6 +95,12 @@ export default class StreamInfoForm extends Vue {
 
 	public get presets():TwitchatDataTypes.StreamInfoPreset[] {
 		return this.$store("stream").streamInfoPreset;
+	}
+
+	public beforeMount(): void {
+		this.param_title		= {label:this.$t('stream.form_stream_title'), value:"", type:"text", placeholder:this.$t('stream.form_stream_title_placeholder'), maxLength:140};
+		this.param_savePreset	= {label:this.$t('stream.form_save_preset'), value:false, type:"toggle"};
+		this.param_namePreset	= {label:this.$t('stream.form_save_preset_name'), value:"", type:"text", placeholder:this.$t('stream.form_save_preset_name_placeholder'), maxLength:50};
 	}
 
 	public async mounted():Promise<void> {
@@ -109,7 +123,7 @@ export default class StreamInfoForm extends Vue {
 			const tags = await TwitchUtils.getStreamTags(channelId);
 			this.tags = tags;
 		}catch(error) {
-			this.$store("main").alert("Error loading current stream info");
+			this.$store("main").alert( this.$t("error.stream_info_loading") );
 		}
 
 		this.loading = false;
@@ -157,7 +171,7 @@ export default class StreamInfoForm extends Vue {
 				await TwitchUtils.setStreamTags(this.tags.map(t => t.tag_id), channelId);
 				await TwitchUtils.setStreamInfos(this.param_title.value as string, this.categories[0].id, channelId);
 			}catch(error) {
-				this.$store("main").alert("Error updating stream info");
+				this.$store("main").alert( this.$t("error.stream_info_updating") );
 			}
 		}else {
 			this.presetEditing = null;
@@ -194,7 +208,7 @@ export default class StreamInfoForm extends Vue {
 				this.tags = [];
 			}
 		}catch(error) {
-			this.$store("main").alert("Error loading current stream info");
+			this.$store("main").alert( this.$t("error.stream_info_preset_edit") );
 		}
 
 		this.loading = false;
@@ -207,7 +221,7 @@ export default class StreamInfoForm extends Vue {
 			await TwitchUtils.setStreamTags(p.tagIDs as string[], channelId);
 			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string, channelId);
 		}catch(error) {
-			this.$store("main").alert("Error updating stream info");
+			this.$store("main").alert( this.$t("error.stream_info_updating") );
 		}
 		this.saving = false;
 	}
