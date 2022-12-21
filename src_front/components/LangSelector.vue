@@ -32,7 +32,7 @@ import { Languages } from '@/Languages';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import CountryFlag from 'vue3-country-flag-icon';
-import 'vue3-country-flag-icon/dist/CountryFlag.css'; // import stylesheet
+import 'vue3-country-flag-icon/dist/CountryFlag.css';
 
 @Options({
 	props:{

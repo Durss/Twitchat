@@ -1,8 +1,6 @@
 <template>
 	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" small :open="openLocal">
-		<div class="head">
-			These are the words you'll have to say to navigate through forms
-		</div>
+		<div class="head" v-t="'voice.global_commands'"></div>
 		<ParamItem v-for="(i,index) in items"
 			:key="itemsID[index]"
 			:paramData="i"

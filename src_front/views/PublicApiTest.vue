@@ -22,7 +22,7 @@
 		<div class="lists">
 			<div class="list events">
 				<div class="head">Events</div>
-  				<transition-group name="list" tag="p">
+				<transition-group name="list" tag="p">
 					<ToggleBlock v-for="e in eventList" :class="e.active? 'event active' : 'event'"
 					:key="e.key"
 					:icons="e.active? ['checkmark'] : []"

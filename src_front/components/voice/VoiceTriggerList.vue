@@ -7,12 +7,12 @@
 			:open="actions.length == 0"
 		/>
 
-		<Button :icon="$image('icons/add.svg')" title="Add voice action" class="addBt"
+		<Button :icon="$image('icons/add.svg')" :title="$t('voice.addBt')" class="addBt"
 			@click="addAction()"
 			v-if="getActionIDs().length > 0 && globalCommandsOK"
 		/>
 
-		<div class="globalWarn" v-else>Fill in all global commands above</div>
+		<div class="globalWarn" v-else v-t="'voice.fill_global'"></div>
 
 		<draggable 
 		v-if="actions"
@@ -42,9 +42,9 @@
 						/>
 					</template>
 
-					<label :for="'select'+index">Action to execute</label>
+					<label :for="'select'+index" v-t="'voice.select_action'"></label>
 					<vue-select :id="'select'+index"
-						placeholder="Select an action..."
+						:placeholder="$t('voice.select_action_placeholder')"
 						v-model="element.id"
 						:reduce="reduceSelectData"
 						:options="getActionIDs(element)"
@@ -57,7 +57,7 @@
 						</template>
 					</vue-select>
 
-					<label v-if="element.id" :for="'text'+index">Trigger sentences <i>(1 per line)</i></label>
+					<label v-if="element.id" :for="'text'+index"><span v-t="'voice.sentences'"></span> <i v-t="'voice.sentences_count'"></i></label>
 					<textarea v-if="element.id" :id="'text'+index" v-model="element.sentences" rows="5" maxlength="1000"></textarea>
 					
 				</ToggleBlock>
@@ -207,7 +207,7 @@ export default class VoiceTriggerList extends Vue {
 	public getLabelFromID(id:string|undefined):string {
 		type VAKeys = keyof typeof VoiceAction;
 		if(!id===null) return "ACTION ID NOT FOUND : "+id;
-		let label = "...select action...";
+		let label = this.$t("voice.select_action_placeholder");
 		if(id) {
 			label = this.$t("voice.commands."+id);
 		}

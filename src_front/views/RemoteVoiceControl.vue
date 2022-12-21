@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
 			<p v-t="'voice.remote.title'"></p>
 			<p class="install"><span v-t="'voice.remote.install'"></span> <strong>OBS v28+</strong>
-				<i>(or OBS 27 with </i><a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a> installed)</p>
+				<i>{{$t("voice.remote.install_option", {PLUGIN_URL:obswsInstaller}) }}</i></p>
 		</div>
 
 		<ToggleBlock class="block conf"

@@ -1,8 +1,21 @@
 {
 	"voice":{
+		"addBt":"Add voice action",
+		"startBt":"Start voice bot",
+		"stopBt":"Stop voice bot",
+		"tts_preview":"Live text to speech",
+		"tts_actions":"Voice actions",
+		"select_action":"Action to execute",
+		"select_action_placeholder":"...select action...",
+		"select_language":"Select your language:",
+		"sentences":"Trigger sentences",
+		"sentences_count":"(1 per line)",
+		"global_commands":"These are the words you'll have to say to navigate through forms",
+		"fill_global":"Fill in all global commands above",
 		"remote":{
 			"title":"This page allows you to control Twitchat and some twitch features with your voice",
 			"install":"In order to work, this needs",
+			"install_option":"(or OBS 27 with <a :href=\"{PLUGIN_URL}\" target=\"_blank\">OBS-websocket&nbsp;plugin&nbsp;V5</a> installed)",
 			"commands":"Create your voice commands on Twitchat under <strong>Parameters => Voice control</strong> section"
 		},
 		"commands":{

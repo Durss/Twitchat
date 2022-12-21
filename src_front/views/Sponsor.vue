@@ -34,7 +34,6 @@ export default class Sponsor extends Vue {
 	text-align: center;
 	color: @mainColor_light;
 	min-height: 100%;
-	// background-image: url("../assets/img/homepage.jpg");
 	background: linear-gradient(180deg, darken(@mainColor_normal, 40%) 0%, @mainColor_dark 100%);
 	background-size: contain;
 	background-repeat: no-repeat;
