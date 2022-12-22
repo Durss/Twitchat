@@ -135,7 +135,7 @@ export default class DonorController extends AbstractController {
 		try {
 			const donors = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
 			const anonStates = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
-			let res = [];
+			let res:{uid:string, v:number}[] = [];
 			for (let uid in donors) {
 				const v = donors[uid];
 				if(anonStates[uid] !== true) uid = "-1";

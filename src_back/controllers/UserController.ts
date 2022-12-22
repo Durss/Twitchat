@@ -52,9 +52,9 @@ export default class UserController extends AbstractController {
 			return;
 		}
 
-		let user, level = -1;
+		let isDonor:boolean = false, level:number = -1;
 		if(fs.existsSync( Config.donorsList )) {
-			let json = [];
+			let json:{[key:string]:number} = {};
 			try {
 				json = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
 			}catch(error){
@@ -63,8 +63,8 @@ export default class UserController extends AbstractController {
 				response.send(JSON.stringify({success:false, message:"Unable to load donors data file"}));
 				return;
 			}
-			user = json.hasOwnProperty(userInfo.user_id);
-			if(user) {
+			isDonor = json.hasOwnProperty(userInfo.user_id);
+			if(isDonor) {
 				level = Config.donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
 			}
 		}
@@ -77,7 +77,7 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		const data:{isDonor:boolean, level:number, isAdmin?:true} = {isDonor:user != undefined && level > -1, level};
+		const data:{isDonor:boolean, level:number, isAdmin?:true} = {isDonor:isDonor && level > -1, level};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
 		}
@@ -99,7 +99,7 @@ export default class UserController extends AbstractController {
 			return;
 		}
 
-		const uid = (request.query as any).uid ?? userInfo.user_id;
+		const uid:string = (request.query as any).uid ?? userInfo.user_id;
 
 		//Get users' data
 		const userFilePath = Config.USER_DATA_PATH + uid+".json";
@@ -119,7 +119,7 @@ export default class UserController extends AbstractController {
 	 * Get chatters list
 	 */
 	private async getChatters(request:FastifyRequest, response:FastifyReply) {
-		const channel = (request.query as any).channel;
+		const channel:string = (request.query as any).channel;
 		const chattersRes = await fetch("https://tmi.twitch.tv/group/user/"+channel.toLowerCase()+"/chatters", {method:"GET"});
 		let chatters = [];
 		if(chattersRes.status === 200) {
@@ -203,7 +203,7 @@ export default class UserController extends AbstractController {
 	
 		const files = fs.readdirSync(Config.USER_DATA_PATH);
 		const list = files.filter(v => v.indexOf("_cleanup") == -1);
-		const users = []
+		const users:{id:String, date:number}[] = []
 		list.forEach(v => {
 			users.push({
 				id: v.replace(".json", ""),
