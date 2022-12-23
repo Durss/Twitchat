@@ -2,28 +2,28 @@
 	<div class="paramsalert">
 		<img src="@/assets/icons/alert_purple.svg" alt="emergency icon" class="icon">
 		
-		<div class="header">Let your mods alert you if something's urgent</div>
+		<div class="header" v-t="'alert.header'"></div>
 
 		<section>
-			<Splitter class="item splitter">Chat command</Splitter>
+			<Splitter class="item splitter">{{$t('alert.command') }}</Splitter>
 			
 			<div>
 				<ParamItem class="item" :paramData="param_chatCommand" />
-				<ToggleBlock title="Allowed users" :open="false" small class="item">
+				<ToggleBlock :title="$t('global.allowed_users')" :open="false" small class="item">
 					<PermissionsForm v-model="chatCommandPerms" />
 				</ToggleBlock>
 			</div>
 		</section>
 
 		<section>
-			<Splitter class="item splitter">Actions</Splitter>
+			<Splitter class="item splitter">{{ $t('alert.actions') }}</Splitter>
 	
 			<ParamItem class="item" :paramData="param_message" />
 			<ParamItem class="item" :paramData="param_shake" />
 			<ParamItem class="item" :paramData="param_sound" />
 			<ParamItem class="item" :paramData="param_blink" />
 	
-			<div class="item infos">Do more actions with the <a @click="$emit('setContent', contentTriggers)">Triggers</a> system.</div>
+			<div class="item infos"><span v-t="'alert.actions_triggers'"></span> <a @click="$emit('setContent', contentTriggers)">Triggers</a>.</div>
 	
 			<Button title="Test" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
 		</section>

@@ -2,42 +2,49 @@
 	<div :class="classes">
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
-				<span class="title">Create Bingo</span>
-				<Button aria-label="Close bingo form" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<span class="title" v-t="'bingo.title'"></span>
+				<Button :aria-label="$t('bingo.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
-				<div class="description" v-if="triggerMode === false">
-					<p>A bingo is a small game in which your viewers have to find a specific value to win.</p>
-				</div>
+				<div class="description" v-if="triggerMode === false" v-t="'bingo.description'"></div>
 				<form @submit.prevent="onSubmit()">
 					<div class="tabs">
-						<Button title="Number" bounce
+						<Button :title="$t('bingo.title_number')" bounce
 							:selected="guessNumber"
-							@click="guessNumber = true; guessEmote = false; onValueChange();"
+							@click="guessNumber = true; guessEmote = false; guessCustom = false; onValueChange();"
 							:icon="$image('icons/number.svg')"
 						/>
-						<Button title="Emote" bounce
+						<Button :title="$t('bingo.title_emote')" bounce
 							:selected="guessEmote"
-							@click="guessNumber = false; guessEmote = true; onValueChange();"
+							@click="guessNumber = false; guessEmote = true; guessCustom = false; onValueChange();"
+							:icon="$image('icons/emote.svg')"
+						/>
+						<Button :title="$t('bingo.title_custom')" bounce
+							:selected="guessCustom"
+							@click="guessNumber = false; guessEmote = false; guessCustom = true; onValueChange();"
 							:icon="$image('icons/emote.svg')"
 						/>
 					</div>
 					
-					<div class="info" v-if="guessNumber">
-						Your viewers will have to send a number between the min and max values <i>(included)</i> in the chat
-					</div>
+					<div class="info" v-if="guessNumber" v-html="$t('bingo.number_info')"></div>
 					<div class="row" v-if="guessNumber">
 						<ParamItem class="item" :paramData="minValue" autofocus @change="onValueChange()" />
 					</div>
+					
 					<div class="row" v-if="guessNumber">
 						<ParamItem class="item" :paramData="maxValue" @change="onValueChange()" />
 					</div>
 
-					<div class="info" v-if="guessEmote">
-						Your viewers will have to send one of the <strong>{{globalEmotes.length}} global</strong> twitch emotes on your chat <i>(smileys excluded)</i>
+					<div class="info" v-if="guessEmote" v-html="$t('bingo.emote_info', {COUNT:globalEmotes.length})"></div>
+
+					<div class="info" v-if="guessCustom" v-t="'bingo.custom_info'"></div>
+
+					<div class="row" v-if="guessCustom">
+						<ParamItem class="item custom" :paramData="customValue" @change="onValueChange()" />
 					</div>
+
 					<div class="row submit" v-if="triggerMode === false">
-						<Button type="submit" title="Start" />
+						<Button type="submit" :title="$t('global.start')" />
 					</div>
 				</form>
 
@@ -96,8 +103,10 @@ export default class BingoForm extends Vue {
 	public globalEmotes:TwitchatDataTypes.Emote[] = [];
 	public guessNumber = true;
 	public guessEmote = false;
-	public minValue:TwitchatDataTypes.ParameterData = {label:"Min value", value:0, type:"number", min:0, max:999999999};
-	public maxValue:TwitchatDataTypes.ParameterData = {label:"Max value", value:100, type:"number", min:0, max:999999999};
+	public guessCustom = false;
+	public minValue:TwitchatDataTypes.ParameterData = {label:"", value:0, type:"number", min:0, max:999999999};
+	public maxValue:TwitchatDataTypes.ParameterData = {label:"", value:100, type:"number", min:0, max:999999999};
+	public customValue:TwitchatDataTypes.ParameterData = {label:"", value:"", type:"text"};
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {
@@ -110,28 +119,36 @@ export default class BingoForm extends Vue {
 		return  {
 			guessNumber: this.guessNumber,
 			guessEmote: this.guessEmote,
+			guessCustom: this.guessCustom,
 			min: this.minValue.value as number,
 			max: this.maxValue.value as number,
+			customValue: this.customValue.value as string,
 		}
 	}
 
 	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
 		return [
 			{
-				tag:"GOAL", desc:"Explain what to find",
-				example:this.guessEmote? " one of the global Twitch emotes"
-					: " a number between "+this.minValue.value+" and "+this.maxValue.value+" included"
+				tag:"GOAL", desc:this.$t('bingo.goal_placeholder'),
+				example:this.guessEmote? this.$t('bingo.goal_emote')
+					: this.$t('bingo.goal_number', {MIN:this.minValue.value, MAX:this.maxValue.value})
 			}
 		];
 	}
 
 	public async beforeMount():Promise<void> {
-		this.winnerPlaceholders = [{tag:"USER", desc:"User name", example:this.$store("auth").twitch.user.displayName}];
+		this.minValue.label = this.$t("bingo.min_value");
+		this.maxValue.label = this.$t("bingo.max_value");
+		this.customValue.label = this.$t("bingo.custom_value");
+
+		this.winnerPlaceholders = [{tag:"USER", desc:this.$t("bingo.winner_placeholder"), example:this.$store("auth").twitch.user.displayName}];
 		if(this.triggerMode && this.action.bingoData) {
 			this.guessNumber = this.action.bingoData.guessNumber;
 			this.guessEmote = this.action.bingoData.guessEmote;
+			this.guessCustom = this.action.bingoData.guessCustom;
 			this.minValue.value = this.action.bingoData.min;
 			this.maxValue.value = this.action.bingoData.max;
+			this.customValue.value = this.action.bingoData.customValue;
 		}
 		
 		if(!this.triggerMode) {
@@ -161,6 +178,9 @@ export default class BingoForm extends Vue {
 		this.close();
 	}
 
+	/**
+	 * Called when any value is changed
+	 */
 	public onValueChange():void {
 		if(this.action) {
 			this.action.bingoData = this.finalData;
@@ -195,6 +215,7 @@ export default class BingoForm extends Vue {
 
 				.button {
 					background-color: @mainColor_normal;
+					border-radius: 0;
 					&:not(.selected) {
 						background-color: fade(@mainColor_normal, 50%);
 					}
@@ -204,14 +225,14 @@ export default class BingoForm extends Vue {
 					}
 
 					&:first-child {
-						border-top-right-radius: 0;
-						border-bottom-right-radius: 0;
+						border-top-left-radius: @border_radius;
+						border-bottom-left-radius: @border_radius;
 						transform-origin: right center;
 					}
 
 					&:last-child {
-						border-top-left-radius: 0;
-						border-bottom-left-radius: 0;
+						border-top-right-radius: @border_radius;
+						border-bottom-right-radius: @border_radius;
 						transform-origin: left center;
 					}
 				}
@@ -239,6 +260,12 @@ export default class BingoForm extends Vue {
 			}
 			&:not(:first-child) {
 				margin-top: .5em;
+			}
+
+			.custom {
+				:deep(input) {
+					flex-basis: 220px;
+				}
 			}
 		}
 

@@ -11,9 +11,9 @@
 		
 		<PlaceholderSelector class="placeholders"
 			v-if="placeholderTarget && placeholders && enabledParam.value===true"
+			v-model="textParam.value"
 			:target="placeholderTarget"
 			:placeholders="placeholders"
-			v-model="textParam.value"
 			@change="saveParams()"
 		/>
 

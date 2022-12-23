@@ -208,9 +208,11 @@ export namespace TwitchatDataTypes {
 	export interface BingoConfig {
 		guessNumber:boolean;
 		guessEmote:boolean;
+		guessCustom:boolean;
 		min:number;
 		max:number;
 		numberValue?:number;
+		customValue?:string;
 		emoteValue?:{[key in ChatPlatform]:{
 			code:string,
 			image:TwitchatImage,

@@ -47,7 +47,7 @@ export const storeBingo = defineStore('bingo', {
 				let goal = "";
 				if(data.guessEmote) {
 					goal = StoreProxy.i18n.t("bingo.goal_emote", {COUNT:emoteCount});
-				}else{
+				}else if(data.guessNumber) {
 					goal = StoreProxy.i18n.t("bingo.goal_number", {MIN:data.min, MAX:data.max});
 				}
 				message = message.replace(/\{GOAL\}/gi, goal as string);
@@ -65,8 +65,11 @@ export const storeBingo = defineStore('bingo', {
 			const bingo = this.data;
 			const num = bingo.numberValue;
 			const emote = bingo.emoteValue && bingo.emoteValue[message.user.platform];
+			const custom = bingo.customValue;
+			const cleanMess = message.message.trim().toLowerCase();
 			let win = parseInt(message.message) == num;
-			win ||= emote != undefined && message.message.trim().toLowerCase().indexOf(emote.code.toLowerCase()) === 0;
+			win ||= cleanMess == custom?.trim().toLowerCase()
+			win ||= emote != undefined && cleanMess.indexOf(emote.code.toLowerCase()) === 0;
 			if(win) {
 				//Someone won
 				bingo.winners = [message.user];

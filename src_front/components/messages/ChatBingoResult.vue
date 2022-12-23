@@ -6,7 +6,8 @@
 		<div>
 			<a class="userlink" v-if="messageData.bingoData.winners![0]" @click.stop="openUserCard(messageData.bingoData.winners![0])">{{messageData.bingoData.winners![0].displayName}}</a> won the bingo with answer
 			<img class="answer emote" :src="messageData.bingoData.emoteValue?.twitch?.image.hd" v-if="messageData.bingoData.guessEmote">
-			<strong class="answer" v-else>{{messageData.bingoData.numberValue}}</strong>
+			<strong class="answer" v-else-if="messageData.bingoData.guessNumber">{{messageData.bingoData.numberValue}}</strong>
+			<strong class="answer" v-else>{{messageData.bingoData.customValue}}</strong>
 		</div>
 	</div>
 </template>

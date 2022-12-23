@@ -15,6 +15,8 @@
 		"search_placeholder":"search...",
 		"disconnect":"Disonnect",
 		"cooldown":"📛 @{USER} wait {DURATION}",
+		"allowed_users":"Allowed users",
+		"post_winner":"Post winner on chat",
 		"badges":{
 			"subscriber":"{DURATION} subscriber",
 			"subgift":"{COUNT} sub-gifts",

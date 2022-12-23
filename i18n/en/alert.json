@@ -1,0 +1,8 @@
+{
+	"alert": {
+		"header":"Let your mods alert you if something's urgent",
+		"command":"Chat command",
+		"actions":"Actions",
+		"actions_triggers":"Do more actions with the"
+	}
+}

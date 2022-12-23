@@ -2,7 +2,6 @@
 	"raffle":{
 		"form_title":"Create Raffle",
 		"closeBt_aria":"Close raffle form",
-		"post_winner":"Post winner on chat",
 		"chat":{
 			"title":"Chat",
 			"startBt_aria":"Start raffle",
