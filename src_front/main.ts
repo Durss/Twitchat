@@ -54,210 +54,215 @@ const i18n = createI18n({
 
 //Load labels before everything else so they are available when
 //initializing stores data
-try {
-	const labelsRes = await fetch("/labels.json");
-	const labelsJSON = await labelsRes.json();
-	for (const lang in labelsJSON) {
-		i18n.global.setLocaleMessage(lang, labelsJSON[lang]);
-	}
-}catch(error) {
-	console.log(error);
-	setTimeout(() => {
-		storeMain().alertData = "An error occured when loading labels :(";
-		storeMain().initComplete = true;
-	}, 1000);
-}
-
-/**
- * Add route guards for login
- */
-router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
-	const sMain = StoreProxy.main;
-	const sAuth = StoreProxy.auth;
-	const needAuth = to.meta.needAuth !== false;
-	const transparent = to.meta.noBG;
-	if(transparent) {
-		document.body.style.backgroundColor = "transparent";
-	}else{
-		document.body.style.backgroundColor = "#18181b";//Utils.getLessVars().mainColor_dark as string;
-	}
-
-	//If landing on homepage, redirect to chat if an auth token is available
-	const authToken = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
-	if(authToken && to.name === "home") {
-		next({name:"chat"});
-		return;
-	}
-	
-	if (!sMain.initComplete) {
-		try {
-			await new Promise((resolve) => { sMain.startApp(needAuth, resolve); });
-		}catch(error) {
-			console.log(error);
+(async()=> {
+	try {
+		const labelsRes = await fetch("/labels.json");
+		const labelsJSON = await labelsRes.json();
+		for (const lang in labelsJSON) {
+			i18n.global.setLocaleMessage(lang, labelsJSON[lang]);
 		}
+	}catch(error) {
+		console.log(error);
+		setTimeout(() => {
+			storeMain().alertData = "An error occured when loading labels :(";
+			storeMain().initComplete = true;
+		}, 1000);
 	}
+	buildApp();
+})()
 
-	if (!sAuth.authenticated) {
-		//Not authenticated, reroute to login
-		if(needAuth !== false && to.name != "login" && to.name != "logout" && to.name != "oauth") {
-			next({name: 'login', params: {redirect: to.name?.toString()}});
+function buildApp() {
+	/**
+	 * Add route guards for login
+	 */
+	router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
+		const sMain = StoreProxy.main;
+		const sAuth = StoreProxy.auth;
+		const needAuth = to.meta.needAuth !== false;
+		const transparent = to.meta.noBG;
+		if(transparent) {
+			document.body.style.backgroundColor = "transparent";
+		}else{
+			document.body.style.backgroundColor = "#18181b";//Utils.getLessVars().mainColor_dark as string;
+		}
+	
+		//If landing on homepage, redirect to chat if an auth token is available
+		const authToken = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
+		if(authToken && to.name === "home") {
+			next({name:"chat"});
 			return;
 		}
+		
+		if (!sMain.initComplete) {
+			try {
+				await new Promise((resolve) => { sMain.startApp(needAuth, resolve); });
+			}catch(error) {
+				console.log(error);
+			}
+		}
+	
+		if (!sAuth.authenticated) {
+			//Not authenticated, reroute to login
+			if(needAuth !== false && to.name != "login" && to.name != "logout" && to.name != "oauth") {
+				next({name: 'login', params: {redirect: to.name?.toString()}});
+				return;
+			}
+		}
+	
+		next();
+	});
+	
+	/**
+	 * Include an image from the asset folder
+	 */
+	const image = (path:string):string => {
+		return new URL(`/src_front/assets/${path}`, import.meta.url).href;
 	}
-
-	next();
-});
-
-/**
- * Include an image from the asset folder
- */
-const image = (path:string):string => {
-	return new URL(`/src_front/assets/${path}`, import.meta.url).href;
-}
-
-/**
- * Opens up a confirm window so the user can confirm or cancel an action.
- */
-const confirm = <T>(title: string,
-	description?: string,
-	data?: T,
-	yesLabel?:string,
-	noLabel?:string,
-	STTOrigin?:boolean): Promise<T|undefined> => {
-	return StoreProxy.main.confirm(title, description, data, yesLabel, noLabel, STTOrigin);
-}
-
-/**
- * Gets an overlay's URL
- * @param id overlay ID
- * @returns 
- */
-const overlayURL = (id:string):string => {
-	const port = DataStore.get(DataStore.OBS_PORT);
-	const pass = DataStore.get(DataStore.OBS_PASS);
-	const ip = DataStore.get(DataStore.OBS_IP);
-	const params = new URLSearchParams()
-	if(port) params.append("obs_port", port);
-	if(pass) params.append("obs_pass", pass);
-	if(ip) params.append("obs_ip", ip);
-	let suffix = params.toString()
-	if(suffix) suffix = "?" + suffix;
-	return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + suffix;
-}
-
-/**
- * Global helper to place a dropdown list
- */
-const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width:string, left:string, top:string}) => {
-	dropdownList.style.width = params.width;
-	const popper = createPopper(component.$refs.toggle as HTMLElement, dropdownList, { placement: "top" })
-	return () => popper.destroy()
-}
-
-/**
- * Global helper to place a dropdown list
- */
-const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin") => {
-	switch(id) {
-		case "main": return StoreProxy.main;
-		case "account": return StoreProxy.account;
-		case "auth": return StoreProxy.auth;
-		case "automod": return StoreProxy.automod;
-		case "bingo": return StoreProxy.bingo;
-		case "chat": return StoreProxy.chat;
-		case "chatSuggestion": return StoreProxy.chatSuggestion;
-		case "emergency": return StoreProxy.emergency;
-		case "music": return StoreProxy.music;
-		case "obs": return StoreProxy.obs;
-		case "params": return StoreProxy.params;
-		case "poll": return StoreProxy.poll;
-		case "prediction": return StoreProxy.prediction;
-		case "raffle": return StoreProxy.raffle;
-		case "stream": return StoreProxy.stream;
-		case "timer": return StoreProxy.timer;
-		case "triggers": return StoreProxy.triggers;
-		case "tts": return StoreProxy.tts;
-		case "users": return StoreProxy.users;
-		case "voice": return StoreProxy.voice;
-		case "debug": return StoreProxy.debug;
-		case "accessibility": return StoreProxy.accessibility;
-		case "admin": return StoreProxy.admin;
+	
+	/**
+	 * Opens up a confirm window so the user can confirm or cancel an action.
+	 */
+	const confirm = <T>(title: string,
+		description?: string,
+		data?: T,
+		yesLabel?:string,
+		noLabel?:string,
+		STTOrigin?:boolean): Promise<T|undefined> => {
+		return StoreProxy.main.confirm(title, description, data, yesLabel, noLabel, STTOrigin);
 	}
-}
-
-const app = createApp(App)
-.use(pinia);
-
-//Init stores before instanciating the router because the
-//router needs to access some stores
-StoreProxy.i18n = i18n.global;
-StoreProxy.main = storeMain();
-StoreProxy.account = storeAccount();
-StoreProxy.auth = storeAuth();
-StoreProxy.automod = storeAutomod();
-StoreProxy.bingo = storeBingo();
-//Dirty typing. Couldn't figure out how to properly type pinia getters
-StoreProxy.chat = (storeChat() as unknown) as IChatState & IChatGetters & IChatActions & { $state: IChatState; $reset:()=>void };
-StoreProxy.chatSuggestion = storeChatSuggestion();
-StoreProxy.emergency = storeEmergency();
-StoreProxy.music = storeMusic();
-StoreProxy.obs = storeOBS();
-StoreProxy.params = storeParams();
-StoreProxy.poll = storePoll();
-StoreProxy.prediction = storePrediction();
-StoreProxy.raffle = storeRaffle();
-StoreProxy.stream = storeStream();
-StoreProxy.timer = storeTimer();
-StoreProxy.triggers = storeTriggers();
-StoreProxy.tts = storeTTS();
-//Dirty typing. Couldn't figure out how to properly type pinia getters
-StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; $reset:()=>void };
-StoreProxy.voice = storeVoice();
-StoreProxy.debug = storeDebug();
-StoreProxy.accessibility = storeAccessibility();
-StoreProxy.admin = storeAdmin();
-
-app.use(router)
-app.use(i18n)
-.component("country-flag", CountryFlag)
-.component("vue-select", VueSelect)
-.provide("$image", image)
-.provide("$store", storeAccess)
-.provide("$confirm", confirm)
-.provide("$overlayURL", overlayURL)
-.provide("$placeDropdown", placeDropdown)
-.directive('autofocus', {
-	mounted(el:HTMLDivElement, binding:unknown) {
-		if((binding as {[key:string]:boolean}).value !== false) {
-			//Disabling scroll avoids breaking layout when opening
-			//a ChannelNotifications content that has an autofocus element.
-			//In such case, if the focus is given during the opening
-			//transition, it completely breaks the chat layout, adding
-			//lots of space under the chat and activities.
-			//The "preventScroll" flag avoids this.
-			el.focus({preventScroll:true});
+	
+	/**
+	 * Gets an overlay's URL
+	 * @param id overlay ID
+	 * @returns 
+	 */
+	const overlayURL = (id:string):string => {
+		const port = DataStore.get(DataStore.OBS_PORT);
+		const pass = DataStore.get(DataStore.OBS_PASS);
+		const ip = DataStore.get(DataStore.OBS_IP);
+		const params = new URLSearchParams()
+		if(port) params.append("obs_port", port);
+		if(pass) params.append("obs_pass", pass);
+		if(ip) params.append("obs_ip", ip);
+		let suffix = params.toString()
+		if(suffix) suffix = "?" + suffix;
+		return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + suffix;
+	}
+	
+	/**
+	 * Global helper to place a dropdown list
+	 */
+	const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width:string, left:string, top:string}) => {
+		dropdownList.style.width = params.width;
+		const popper = createPopper(component.$refs.toggle as HTMLElement, dropdownList, { placement: "top" })
+		return () => popper.destroy()
+	}
+	
+	/**
+	 * Global helper to place a dropdown list
+	 */
+	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin") => {
+		switch(id) {
+			case "main": return StoreProxy.main;
+			case "account": return StoreProxy.account;
+			case "auth": return StoreProxy.auth;
+			case "automod": return StoreProxy.automod;
+			case "bingo": return StoreProxy.bingo;
+			case "chat": return StoreProxy.chat;
+			case "chatSuggestion": return StoreProxy.chatSuggestion;
+			case "emergency": return StoreProxy.emergency;
+			case "music": return StoreProxy.music;
+			case "obs": return StoreProxy.obs;
+			case "params": return StoreProxy.params;
+			case "poll": return StoreProxy.poll;
+			case "prediction": return StoreProxy.prediction;
+			case "raffle": return StoreProxy.raffle;
+			case "stream": return StoreProxy.stream;
+			case "timer": return StoreProxy.timer;
+			case "triggers": return StoreProxy.triggers;
+			case "tts": return StoreProxy.tts;
+			case "users": return StoreProxy.users;
+			case "voice": return StoreProxy.voice;
+			case "debug": return StoreProxy.debug;
+			case "accessibility": return StoreProxy.accessibility;
+			case "admin": return StoreProxy.admin;
 		}
 	}
-});
-app.config.globalProperties.$i18n = i18n;
-app.config.globalProperties.$image = image;
-app.config.globalProperties.$store = storeAccess;
-app.config.globalProperties.$confirm = confirm;
-app.config.globalProperties.$overlayURL = overlayURL;
-app.config.globalProperties.$placeDropdown = placeDropdown;
-
-
-DataStore.init();
-
-window.addEventListener("beforeinstallprompt", (e:Event)=> {
-	e.preventDefault();
-	StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
-});
-
-app.mount('#app')
-
-document.addEventListener("keyup", (e:KeyboardEvent)=> {
-	if(e.code == "KeyL" && e.ctrlKey && e.shiftKey) {
-		StoreProxy.main.reloadLabels();
-	}
-})
+	
+	const app = createApp(App)
+	.use(pinia);
+	
+	//Init stores before instanciating the router because the
+	//router needs to access some stores
+	StoreProxy.i18n = i18n.global;
+	StoreProxy.main = storeMain();
+	StoreProxy.account = storeAccount();
+	StoreProxy.auth = storeAuth();
+	StoreProxy.automod = storeAutomod();
+	StoreProxy.bingo = storeBingo();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
+	StoreProxy.chat = (storeChat() as unknown) as IChatState & IChatGetters & IChatActions & { $state: IChatState; $reset:()=>void };
+	StoreProxy.chatSuggestion = storeChatSuggestion();
+	StoreProxy.emergency = storeEmergency();
+	StoreProxy.music = storeMusic();
+	StoreProxy.obs = storeOBS();
+	StoreProxy.params = storeParams();
+	StoreProxy.poll = storePoll();
+	StoreProxy.prediction = storePrediction();
+	StoreProxy.raffle = storeRaffle();
+	StoreProxy.stream = storeStream();
+	StoreProxy.timer = storeTimer();
+	StoreProxy.triggers = storeTriggers();
+	StoreProxy.tts = storeTTS();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
+	StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; $reset:()=>void };
+	StoreProxy.voice = storeVoice();
+	StoreProxy.debug = storeDebug();
+	StoreProxy.accessibility = storeAccessibility();
+	StoreProxy.admin = storeAdmin();
+	
+	app.use(router)
+	app.use(i18n)
+	.component("country-flag", CountryFlag)
+	.component("vue-select", VueSelect)
+	.provide("$image", image)
+	.provide("$store", storeAccess)
+	.provide("$confirm", confirm)
+	.provide("$overlayURL", overlayURL)
+	.provide("$placeDropdown", placeDropdown)
+	.directive('autofocus', {
+		mounted(el:HTMLDivElement, binding:unknown) {
+			if((binding as {[key:string]:boolean}).value !== false) {
+				//Disabling scroll avoids breaking layout when opening
+				//a ChannelNotifications content that has an autofocus element.
+				//In such case, if the focus is given during the opening
+				//transition, it completely breaks the chat layout, adding
+				//lots of space under the chat and activities.
+				//The "preventScroll" flag avoids this.
+				el.focus({preventScroll:true});
+			}
+		}
+	});
+	app.config.globalProperties.$i18n = i18n;
+	app.config.globalProperties.$image = image;
+	app.config.globalProperties.$store = storeAccess;
+	app.config.globalProperties.$confirm = confirm;
+	app.config.globalProperties.$overlayURL = overlayURL;
+	app.config.globalProperties.$placeDropdown = placeDropdown;
+	
+	
+	DataStore.init();
+	
+	window.addEventListener("beforeinstallprompt", (e:Event)=> {
+		e.preventDefault();
+		StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
+	});
+	
+	app.mount('#app')
+	
+	document.addEventListener("keyup", (e:KeyboardEvent)=> {
+		if(e.code == "KeyL" && e.ctrlKey && e.shiftKey) {
+			StoreProxy.main.reloadLabels();
+		}
+	})
+}

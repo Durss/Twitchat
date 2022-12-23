@@ -14,7 +14,12 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpBt"
 				/>
-				<label :for="'toggle'+key" v-if="label" v-html="label" @click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
+				
+				<label :for="'toggle'+key"
+					v-if="label"
+					v-html="label"
+					@click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
+				
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
 					v-model="paramData.value"
 					:id="'toggle'+key"

@@ -9,6 +9,7 @@
 		"click":"click",
 		"log_in":"Log in",
 		"connect":"Connect",
+		"start":"Start",
 		"disconnect":"Disonnect",
 		"cooldown":"📛 @{USER} wait {DURATION}",
 		"badges":{
@@ -90,7 +91,7 @@
 			"moderator:manage:banned_users": "Manage banned users",
 			"moderator:manage:announcements": "Use /announce chat command",
 			"moderator:manage:chat_messages": "Delete chat messages",
-			"moderator:manage:chat_settings": "Updating room settings (follow only, sub only, etc...)",
+			"moderator:manage:chat_settings": "Update room settings (follow only, sub only, etc...)",
 			"moderator:read:chatters": "Read users on your chatroom",
 			"moderator:manage:shield_mode": "Enable/disable shield mode"
 		}

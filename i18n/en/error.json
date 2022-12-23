@@ -20,6 +20,7 @@
 		"stream_info_preset_edit":"Error editing stream info preset",
 		"poll_active":"A poll is already active",
 		"poll_automod":"Poll contains an automoded term",
+		"ad_url_required":"Message must contain \"twitchat.fr\"",
 		"spotify":{
 			"api_rate":"[SPOTIFY] API rate limits exceeded",
 			"token_refresh":"[SPOTIFY] token refresh failed"

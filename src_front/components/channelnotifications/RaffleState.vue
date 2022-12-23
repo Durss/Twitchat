@@ -30,6 +30,7 @@
 			:disabled="canPick" />
 
 		<PostOnChatParam class="item postChat highlight" botMessageKey="raffle"
+			:title="$t('raffle.post_winner')"
 			:placeholders="winnerPlaceholders" />
 
 		<Button class="item"

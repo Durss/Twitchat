@@ -38,31 +38,31 @@ export const storeChat = defineStore('chat', {
 		botMessages: {
 			raffleStart: {
 				enabled:true,
-				message:StoreProxy.i18n.t("params.botMessages.raffleStart"),
+				message:StoreProxy.i18n.tm("params.botMessages.raffleStart"),
 			},
 			raffle: {
 				enabled:true,
-				message:StoreProxy.i18n.t("params.botMessages.raffle"),
+				message:StoreProxy.i18n.tm("params.botMessages.raffle"),
 			},
 			raffleJoin: {
 				enabled:true,
-				message:StoreProxy.i18n.t("params.botMessages.raffleJoin"),
+				message:StoreProxy.i18n.tm("params.botMessages.raffleJoin"),
 			},
 			bingoStart: {
 				enabled:true,
-				message:StoreProxy.i18n.t("params.botMessages.bingoStart"),
+				message:StoreProxy.i18n.tm("params.botMessages.bingoStart"),
 			},
 			bingo: {
 				enabled:true,
-				message:StoreProxy.i18n.t("params.botMessages.bingo"),
+				message:StoreProxy.i18n.tm("params.botMessages.bingo"),
 			},
 			shoutout: {
 				enabled:true,
-				message:StoreProxy.i18n.t("params.botMessages.shoutout"),
+				message:StoreProxy.i18n.tm("params.botMessages.shoutout"),
 			},
 			twitchatAd: {
 				enabled:false,
-				message:StoreProxy.i18n.t("params.botMessages.twitchatAd"),
+				message:StoreProxy.i18n.tm("params.botMessages.twitchatAd"),
 			},
 		},
 		commands: [

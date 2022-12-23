@@ -1,8 +1,61 @@
 {
 	"raffle":{
+		"form_title":"Create Raffle",
+		"closeBt_aria":"Close raffle form",
+		"post_winner":"Post winner on chat",
+		"chat":{
+			"title":"Chat",
+			"startBt_aria":"Start raffle",
+			"description":"Randomly pick someone amongst users that sent a chat command"
+		},
+		"subs":{
+			"title":"Subs",
+			"description":"Randomly pick someone amongst all your current subscribers",
+			"startBt_aria":"Pick a sub",
+			"startBt":"Pick a sub <i>({COUNT})</i>"
+		},
+		"list":{
+			"title":"list",
+			"description":"Set a custom list of entries and randomly pick one",
+			"instructions":"(Seperate entries with a coma or a line break)",
+			"startBt_aria":"Pick an item",
+			"startBt":"Pick an item <i>({COUNT})</i>"
+		},
+		"legal":{
+			"title":"Legal concerns",
+			"contents":[
+				"Depending on your country's legislation, making your viewers win something while using the \"sub\" ponderation option or randomly picking a winner amongst your subs might be illegal.",
+				"You may want to check this out before doing a giveaway."
+			]
+		},
+		"configs":{
+			"title":"Configs",
+			"timer_overlay_add":"on your OBS scenes to display the remaining time on your stream",
+			"timer_overlay_addBt":"Add a timer overlay",
+			"postOnChat_start":"Announce raffle start on chat",
+			"postOnChat_join":"Confirm when joining the raffle",
+			"postOnChat_winner":"Post raffle winner on chat"
+		},
 		"delete_confirm":{
 			"title":"Close raffle",
 			"description":"All raffle entries will be lost"
+		},
+		"params":{
+			"command":"Command",
+			"command_placeholder":"!raffle",
+			"duration":"Raffle duration (minutes)",
+			"limit_users":"Limit users count",
+			"max_users":"Max user count",
+			"ponderate":"Ponderate votes (additional points given for every matching criteria)",
+			"ponderate_VIP":"VIP",
+			"ponderate_sub":"Subscriber",
+			"ponderate_subgifter":"Sub gifter",
+			"ponderate_follower":"Follower",
+			"ponderate_include_gifter":"Include sub gifters (user not sub but that subgifted someone else)",
+			"ponderate_exclude_gifted":"Excluded sub gifted users (user that only got subgifted)",
+			"countdown":"Show overlay countdown",
+			"list_placeholder":"entry 1, entry 2, entry 3, ...",
+			"username_placeholder":"User name"
 		}
 	}
 }

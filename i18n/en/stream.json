@@ -1,11 +1,12 @@
 {
 	"stream":{
+		"form_title":"Stream info",
 		"closeBt_aria":"Close form",
 		"presets_title":"Presets",
 		"preset_deleteBt_tt":"Delete preset",
 		"preset_editBt_tt":"Edit preset",
 		"preset_setBt_tt":"Click to set<br>stream infos",
-		"form_title":"Update infos",
+		"form_title_update":"Update infos",
 		"form_title_preset":"Preset: {TITLE}",
 		"form_stream_title":"Title",
 		"form_stream_title_placeholder":"title...",

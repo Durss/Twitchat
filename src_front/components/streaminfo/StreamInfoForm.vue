@@ -2,7 +2,7 @@
 	<div class="streaminfo">
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">Stream info</span>
+				<span class="title" v-t="'stream.form_title'"></span>
 				<Button :aria-label="$t('stream.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			
@@ -19,7 +19,7 @@
 
 						<Button class="button" @click="applyPreset(p)"
 							:title="p.name"
-							:data-tooltip="$t('stream.preset_setBt_tt'))" :loading="saving" bounce />
+							:data-tooltip="$t('stream.preset_setBt_tt')" :loading="saving" bounce />
 					</div>
 				</ToggleBlock>
 				
@@ -28,7 +28,7 @@
 					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
 				</div>
 
-				<ToggleBlock v-else :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title')"
+				<ToggleBlock v-else :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
 				:open="presets.length == 0 || forceOpenForm" icon="update">
 					<ParamItem class="item" :paramData="param_title" autofocus />
 	
@@ -82,9 +82,9 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class StreamInfoForm extends Vue {
 
-	public param_title!:TwitchatDataTypes.ParameterData;
-	public param_savePreset!:TwitchatDataTypes.ParameterData;
-	public param_namePreset!:TwitchatDataTypes.ParameterData;
+	public param_title:TwitchatDataTypes.ParameterData			= {label:"", value:"", type:"text", placeholder:"", maxLength:140};
+	public param_savePreset:TwitchatDataTypes.ParameterData		= {label:"", value:false, type:"toggle"};
+	public param_namePreset:TwitchatDataTypes.ParameterData		= {label:"", value:"", type:"text", placeholder:"", maxLength:50};
 
 	public saving:boolean = false;
 	public loading:boolean = true;
@@ -98,9 +98,11 @@ export default class StreamInfoForm extends Vue {
 	}
 
 	public beforeMount(): void {
-		this.param_title		= {label:this.$t('stream.form_stream_title'), value:"", type:"text", placeholder:this.$t('stream.form_stream_title_placeholder'), maxLength:140};
-		this.param_savePreset	= {label:this.$t('stream.form_save_preset'), value:false, type:"toggle"};
-		this.param_namePreset	= {label:this.$t('stream.form_save_preset_name'), value:"", type:"text", placeholder:this.$t('stream.form_save_preset_name_placeholder'), maxLength:50};
+		this.param_title.label				= this.$t('stream.form_stream_title')
+		this.param_title.placeholder		= this.$t('stream.form_stream_title_placeholder');
+		this.param_savePreset.label			= this.$t('stream.form_save_preset')
+		this.param_namePreset.label			= this.$t('stream.form_save_preset_name')
+		this.param_namePreset.placeholder	=this.$t('stream.form_save_preset_name_placeholder');
 	}
 
 	public async mounted():Promise<void> {
