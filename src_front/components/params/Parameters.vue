@@ -3,13 +3,13 @@
 		<div class="dimmer" ref="dimmer" @click="close()" v-if="$store('main').showParams"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<Button aria-label="Back to menu" :icon="$image('icons/back_purple.svg')" @click="back()" class="backBt clearButton" bounce v-if="content != null" />
-				<h1 class="title">{{(title ?? "Parameters")}}</h1>
-				<Button aria-label="Close parameters" :icon="$image('icons/cross.svg')" @click="close()" class="clearButton" bounce />
+				<Button :aria-label="$t('params.backBt_aria')" :icon="$image('icons/back_purple.svg')" @click="back()" class="backBt clearButton" bounce v-if="content != null" />
+				<h1 class="title">{{(title ?? $t('params.title_default'))}}</h1>
+				<Button :aria-label="$t('params.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="clearButton" bounce />
 			</div>
 
 			<div class="search" v-if="content == null">
-				<input type="text" placeholder="Search a parameter..." v-model="search" v-autofocus>
+				<input type="text" :placeholder="$t('params.search')" v-model="search" v-autofocus>
 			</div>
 			
 			<div class="content menu" v-if="content == null && !search">
@@ -55,14 +55,14 @@
 				<ParamsSponsor v-if="content == contentSponsor" @setContent="setContent" />
 
 				<div class="searchResult" v-if="search">
-					<div class="noResult" v-if="filteredParams.length == 0">No result</div>
+					<div class="noResult" v-if="filteredParams.length == 0" v-t="'params.search_no_result'"></div>
 				</div>
 			</div>
 
 			<teleport :to="adTarget" v-if="adTarget">
 				<div :class="collapse? 'ad collapse' : 'ad'" @click="collapse = false">
 					<Button v-if="!collapse"
-						aria-label="collapse content"
+						:aria-label="$t('params.ad_collapse')"
 						:icon="$image('icons/cross_white.svg')"
 						@click="collapse = true"
 						class="close clearButton" bounce />
@@ -75,26 +75,21 @@
 						botMessageKey="twitchatAd"
 						:noToggle="!isDonor"
 						clearToggle
-						title="The following message will be posted on your chat every 2 hours (if you received at least 100 messages)"
+						:title="$t('params.ad_info')"
 						v-if="!collapse"
 					/>
 
 					<Button class="donateBt" white small :icon="$image('icons/info_purple.svg')"
 						@click="showAdInfo=true"
-						title="Disable this ad"
+						:title="$t('params.ad_disableBt')"
 						v-if="!showAdInfo && !collapse && !isDonor" />
 					<div v-if="showAdInfo && !collapse && !isDonor" class="donateDetails">
-						<p class="title">To disable this ad, make any donation :)</p>
-						<p class="details">Please specify your twitch profile on your donation details when possible so I can disable ads for your account. Or DM me on <a href="https://twitch.tv/durss" target="_blank" aria-label="DM me on twitter">Twitch</a>, <a href="https://discord.com/users/612270129652301838" target="_blank" aria-label="DM me on discord">Discord <i>(Durss#9864)</i></a> or <a href="https://twitter.com/_durss" target="_blank" aria-label="DM me on twitter">Twitter</a></p>
-						<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" title="Donate 💝" />
+						<p class="title" v-html="$t('params.ad_disable_info1')"></p>
+						<p class="details" v-html="$t('params.ad_disable_info2')"></p>
+						<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" :title="$t('params.ad_donateBt')" />
 					</div>
-					<ToggleBlock v-if="!collapse && !isDonor" class="tip" :open="false" title="Can this message be sent by nightbot / wizebot / ... ? " small>
-						Yes.<br>
-						<br>
-						By default the message is posted with your account.<br>
-						But you can configure any other bot to send that message if you wish.<br>
-						<br>
-						Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.<br>
+					<ToggleBlock v-if="!collapse && !isDonor" class="tip" :open="false" :title="$t('params.ad_bot_info_title')" small>
+						<div v-html="$t('params.ad_bot_info_content')"></div>
 					</ToggleBlock>
 				</div>
 			</teleport>
@@ -168,25 +163,7 @@ export default class Parameters extends Vue {
 	public content:TwitchatDataTypes.ParamsContentStringType|null = null;
 	public showAdInfo:boolean = false;
 	public adTarget:HTMLDivElement | null = null;
-	public idToTitle:{[key in TwitchatDataTypes.ParamsContentStringType]:string} = {
-		"":"",
-		about:"About",
-		account:"Account",
-		alert:"Chat alerts",
-		appearance:"Chat appearance",
-		automod:"Automod",
-		emergency:"Emergency button",
-		features:"Chat features",
-		obs:"OBS",
-		overlays:"Overlays",
-		spoiler:"Spoiler",
-		sponsor:"Donate",
-		streamdeck:"Stream Deck",
-		triggers:"Triggers",
-		tts:"Text to speech",
-		voice:"Voice control",
-		voicemod:"Voicemod"
-	};
+	public idToTitle!:{[key in TwitchatDataTypes.ParamsContentStringType]:string};
 
 	private closing:boolean = false;
 	private prevContent:TwitchatDataTypes.ParamsContentStringType|null = null;
@@ -222,6 +199,7 @@ export default class Parameters extends Vue {
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public async beforeMount():Promise<void> {
+		this.idToTitle = this.$tm("params.categories") as {[key in TwitchatDataTypes.ParamsContentStringType]:string};
 	}
 
 	public async mounted():Promise<void> {
