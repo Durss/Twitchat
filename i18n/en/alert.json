@@ -1,8 +1,14 @@
 {
 	"alert": {
 		"header":"Let your mods alert you if something's urgent",
-		"command":"Chat command",
+		"command_title":"Chat command",
 		"actions":"Actions",
-		"actions_triggers":"Do more actions with the"
+		"actions_triggers":"Do more actions with the",
+		"command":"Command",
+		"option_popin":"Show message on popin",
+		"option_shake":"Shake Twitchat",
+		"option_blink":"Blink Twitchat",
+		"option_sound":"Play sound",
+		"testBt":"Test"
 	}
 }

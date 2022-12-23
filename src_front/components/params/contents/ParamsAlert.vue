@@ -5,7 +5,7 @@
 		<div class="header" v-t="'alert.header'"></div>
 
 		<section>
-			<Splitter class="item splitter">{{$t('alert.command') }}</Splitter>
+			<Splitter class="item splitter">{{$t('alert.command_title') }}</Splitter>
 			
 			<div>
 				<ParamItem class="item" :paramData="param_chatCommand" />
@@ -25,7 +25,7 @@
 	
 			<div class="item infos"><span v-t="'alert.actions_triggers'"></span> <a @click="$emit('setContent', contentTriggers)">Triggers</a>.</div>
 	
-			<Button title="Test" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
+			<Button :title="$t('alert.testBt')" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
 		</section>
 	</div>
 </template>
@@ -54,11 +54,11 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 })
 export default class ParamsAlert extends Vue {
 	
-	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"text", label:"Chat command", value:"!alert"};
-	public param_message:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Show message on popin", value:true};
-	public param_shake:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Shake Twitchat", value:true};
-	public param_blink:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Blink Twitchat", value:false};
-	public param_sound:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Play sound", value:true};
+	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"text", label:"", value:"!alert"};
+	public param_message:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:true};
+	public param_shake:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:true};
+	public param_blink:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:false};
+	public param_sound:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:true};
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -82,6 +82,11 @@ export default class ParamsAlert extends Vue {
 	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
 
 	public mounted():void {
+		this.param_chatCommand.label	= this.$t("alert.command");
+		this.param_message.label		= this.$t("alert.option_popin");
+		this.param_shake.label			= this.$t("alert.option_shake");
+		this.param_blink.label			= this.$t("alert.option_blink");
+		this.param_sound.label			= this.$t("alert.option_sound");
 		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.$store("main").chatAlertParams));
 		if(params) {
 			//Prefill forms from storage
