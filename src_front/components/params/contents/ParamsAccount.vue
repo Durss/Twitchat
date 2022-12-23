@@ -1,8 +1,12 @@
 <template>
 	<div class="paramsaccount">
-		<img :src="userPP" alt="profile pic" class="profilePic">
-
-		<div class="head">Connected as <strong>{{userName}}</strong></div>
+		
+		<section class="profilePic">
+			<img :src="userPP" alt="profile pic">
+		</section>
+		<section class="head">
+			<div v-html="$t('account.connected_as', {USER:'<strong>'+userName+'</strong>'})"></div>
+		</section>
 
 		<section v-if="isDonor" class="donorHolder">
 			<DonorState class="donorBadge" />
@@ -13,17 +17,17 @@
 
 			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
 			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
-			<div class="infos" v-if="publicDonation_loaded">Makes your login visible by everyone on the donor list under <a @click="$emit('setContent', contentAbout)">About section</a>.</div>
+			<div class="infos" v-if="publicDonation_loaded">{{$t('account.donation_public')}} <a @click="$emit('setContent', contentAbout)" v-t="'account.about_link'">.</a></div>
 		</section>
 
 		<section class="actions">
-			<Button class="button" v-if="canInstall" @click="ahs()" title="Add Twitchat to home screen" :icon="$image('icons/twitchat.svg')" />
-			<Button class="button" @click="logout()" bounce title="Logout" highlight :icon="$image('icons/logout.svg')" />
+			<Button class="button" @click="ahs()" :title="$t('account.installBt')" :icon="$image('icons/twitchat.svg')" v-if="canInstall" />
+			<Button class="button" @click="logout()" :title="$t('global.log_out')" :icon="$image('icons/logout.svg')" highlight bounce />
 		</section>
 		
 		<section class="dataSync">
 			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" />
-			<Button class="button" v-if="!syncEnabled" @click="eraseData()" bounce title="Erase local parameters" highlight :icon="$image('icons/delete.svg')" />
+			<Button class="button" v-if="!syncEnabled" @click="eraseData()" bounce :title="$t('account.erase_dataBt')" highlight :icon="$image('icons/delete.svg')" />
 		</section>
 	</div>
 </template>
@@ -122,7 +126,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public eraseData():void {
-		this.$store("main").confirm("Erase local parameters?","This will only erase parameters from this browser.<br>Triggers, ")
+		this.$store("main").confirm(this.$t('account.erase_confirm_title'), this.$t('account.erase_confirm_description'))
 		.then(()=>{
 			DataStore.clear(true);
 			this.$store("params").$reset();
@@ -168,10 +172,23 @@ export default class ParamsAccount extends Vue {
 	align-items: center;
 
 	.profilePic {
-		height: 4em;
-		width: 4em;
-		display: block;
-		border-radius: 50%;
+		img {
+			height: 5em;
+			width: 5em;
+			display: block;
+			border-radius: 50%;
+		}
+		margin: auto;
+		padding: .5em;
+		border-top-left-radius: 50%;
+		border-top-right-radius: 50%;
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+		background-color: fade(@mainColor_normal_extralight, 30%);
+	}
+
+	.head {
+		margin-top: 0;
 	}
 	
 	.button {
