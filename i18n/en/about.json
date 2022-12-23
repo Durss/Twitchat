@@ -1,0 +1,22 @@
+{
+	"about":{
+		"suggestion":"Suggestions and issues",
+		"suggestion_content1":"If you have a feature idea or are experiencing an issue:",
+		"suggestion_content2":"I want this tool to be as good as possible, <strong>if anything annoys you</strong> when using it, <strong>I want to know</strong>!",
+		"discordBt":"Tell me on Discord",
+
+		"api":"Twitchat API",
+		"api_content1":"If you're a developper you can interface with Twitchat.",
+		"api_content2":"Twitchat API uses OBS-Websocket as a communication channel.",
+		"documentationBt":"Read documentation",
+
+		"sponsor":"Support Twitchat",
+
+		"credits":"Credits",
+		"credits_author":"App made by {USER}",
+		"credits_sources":"Sources on {URL}",
+		"credits_sites":"Check out some of my other works:",
+		
+		"donors":"Donor list"
+	}
+}

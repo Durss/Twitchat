@@ -8,7 +8,7 @@
 					@keyup="onSearchChange()" @focus="onFocus()"
 					v-model="search"
 					:disabled="!canSelect"
-					placeholder="search..."
+					:placeholder="$t('global.search_placeholder')"
 				>
 			</div>
 		</div>

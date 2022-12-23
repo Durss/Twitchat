@@ -10,6 +10,8 @@
 		"log_in":"Log in",
 		"connect":"Connect",
 		"start":"Start",
+		"search":"Search",
+		"search_placeholder":"search...",
 		"disconnect":"Disonnect",
 		"cooldown":"📛 @{USER} wait {DURATION}",
 		"badges":{

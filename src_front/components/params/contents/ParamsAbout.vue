@@ -1,26 +1,26 @@
 <template>
 	<div class="paramsabout">
 
-		<ToggleBlock class="block" title="Suggestions and issues" :icons="['idea_purple']" :open="false">
-			<p class="item">If you have a feature idea or are experiencing an issue:</p>
-			<Button class="item" :icon="$image('icons/discord.svg')" title="Tell me on Discord" :href="discordURL" target="_blank" type="link" />
-			<p class="item">I want this tool to be as good as possible, <strong>if anything annoys you</strong> when using it, <strong>I want to know</strong>!</p>
+		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea_purple']" :open="false">
+			<p class="item" v-t="'about.suggestion_content1'"></p>
+			<Button class="item" :title="$t('about.discordBt')" :icon="$image('icons/discord.svg')" :href="discordURL" target="_blank" type="link" />
+			<p class="item" v-html="$t('about.suggestion_content2')"></p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" title="Twitchat API" :icons="['api_purple']" :open="false">
-			<p class="item">If you're a developper you can interface with Twitchat.</p>
-			<p class="item">Twitchat API uses OBS-Websocket as a communication channel.</p>
-			<Button class="item" :icon="$image('icons/github_white.svg')" title="Read documentation" :href="apiURL" target="_blank" type="link"/>
+		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api_purple']" :open="false">
+			<p class="item" v-t="'about.api_content1'"></p>
+			<p class="item" v-t="'about.api_content2'"></p>
+			<Button class="item" :title="$t('about.documentationBt')" :icon="$image('icons/github_white.svg')" :href="apiURL" target="_blank" type="link"/>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" title="Support Twitchat" :icons="['coin_purple']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin_purple']" :open="false">
 			<ParamsSponsor />
 		</ToggleBlock>
 
-		<ToggleBlock class="block" title="Credits" :icons="['info_purple']" :open="true">
-			<p class="item">App made by <a href="https://twitch.tv/durss" target="_blank">Durss</a></p>
-			<p class="item">Sources on <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
-			<p class="item">Check out some of my other works:</p>
+		<ToggleBlock class="block" :title="$t('about.credits')" :icons="['info_purple']" :open="true">
+			<p class="item" v-html="$t('about.credits_author', {USER:'<a href=\'https://twitch.tv/durss\' target=\'_blank\'>Durss</a>'})"></p>
+			<p class="item" v-html="$t('about.credits_sources', {URL:'<a href=\'https://github.com/Durss/Twitchat\' target=\'_blank\'>Github</a>'})"></p>
+			<p class="item" v-t="'about.credits_sites'"></p>
 			<p class="item socials">
 				<a class="link" href="https://box.durss.ninja" target="_blank"><img src="@/assets/img/boxes.svg" data-tooltip="Durss puzzle boxes" alt="puzzle boxes"></a>
 				<a class="link" href="https://multiblindtest.com" target="_blank"><img src="@/assets/img/multiblindtest.png" data-tooltip="Multiblindtest" alt="multi blindtest"></a>
@@ -32,7 +32,7 @@
 			</p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" title="Donors list" :icons="['follow_purple']">
+		<ToggleBlock class="block" :title="$t('about.donors')" :icons="['follow_purple']">
 			<ParamsDonorList />
 		</ToggleBlock>
 
