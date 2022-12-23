@@ -51,16 +51,16 @@ export default class OBSConnectForm extends Vue {
 	public connected:boolean = false;
 	public connectError:boolean = false;
 	public connectSuccess:boolean = false;
-	public obsPort_conf!:TwitchatDataTypes.ParameterData;
-	public obsPass_conf!:TwitchatDataTypes.ParameterData;
-	public obsIP_conf!:TwitchatDataTypes.ParameterData;
+	public obsPort_conf:TwitchatDataTypes.ParameterData	= { type:"number", value:4455, label:"", min:0, max:65535, step:1 };
+	public obsPass_conf:TwitchatDataTypes.ParameterData	= { type:"password", value:"", label:"" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData	= { type:"text", value:"127.0.0.1", label:"" };
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	beforeMount(): void {
-		this.obsPort_conf = { type:"number", value:4455, label:this.$t("obs.form_port"), min:0, max:65535, step:1 };
-		this.obsPass_conf = { type:"password", value:"", label:this.$t("obs.form_pass") };
-		this.obsIP_conf = { type:"text", value:"127.0.0.1", label:this.$t("obs.form_ip") };
+		this.obsPort_conf.label = this.$t("obs.form_port");
+		this.obsPass_conf.label = this.$t("obs.form_pass");
+		this.obsIP_conf.label = this.$t("obs.form_ip");
 	}
 
 	public mounted():void {

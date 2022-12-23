@@ -99,9 +99,9 @@ export default class PollForm extends Vue {
 	public answer3 = "";
 	public answer4 = "";
 	public answer5 = "";
-	public extraVotesParam!:TwitchatDataTypes.ParameterData;
-	public pointsVoteParam!:TwitchatDataTypes.ParameterData;
-	public voteDuration!:TwitchatDataTypes.ParameterData;
+	public extraVotesParam:TwitchatDataTypes.ParameterData = {label:"", value:false, type:"toggle"};;
+	public pointsVoteParam:TwitchatDataTypes.ParameterData = {label:"", value:0, type:"number", min:0, max:99999, step:1};;
+	public voteDuration:TwitchatDataTypes.ParameterData = {label:"", value:2, type:"number", min:1, max:30};;
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -116,9 +116,9 @@ export default class PollForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.extraVotesParam = {label:this.$t("poll.form.additional_votes"), value:false, type:"toggle"};
-		this.pointsVoteParam = {label:this.$t('poll.form.additional_votes_amount'), value:0, type:"number", min:0, max:99999, step:1};
-		this.voteDuration = {label:this.$t('poll.form.vote_duration'), value:2, type:"number", min:1, max:30};
+		this.extraVotesParam.label	= this.$t("poll.form.additional_votes");
+		this.pointsVoteParam.label	= this.$t('poll.form.additional_votes_amount');
+		this.voteDuration.label		= this.$t('poll.form.vote_duration');
 
 		if(this.$store("main").tempStoreValue) {
 			const titlePrefill = this.$store("main").tempStoreValue as string;

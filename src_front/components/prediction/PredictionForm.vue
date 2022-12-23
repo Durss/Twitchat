@@ -81,7 +81,7 @@ export default class PredictionForm extends Vue {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["", ""];
-	public voteDuration!:TwitchatDataTypes.ParameterData;
+	public voteDuration:TwitchatDataTypes.ParameterData = {label:"", value:10, type:"number", min:1, max:30};
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -105,7 +105,7 @@ export default class PredictionForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.voteDuration = {label:this.$t('prediction.form.vote_duration'), value:10, type:"number", min:1, max:30};
+		this.voteDuration.label = this.$t('prediction.form.vote_duration');
 		if(this.$store("main").tempStoreValue) {
 			const titlePrefill = this.$store("main").tempStoreValue as string;
 			if(titlePrefill) this.title = titlePrefill;
