@@ -444,7 +444,7 @@ export default class ParamsTriggers extends Vue {
 			type:null,
 		});
 
-		//Because we watch for any modifications on "actionList" to fires a
+		//Because we watch for any modifications on "actionList" to fire a
 		//save process, we want to avoid that save process to occure as
 		//it cleans up any empty action (like this new one).
 		//If we were not waiting for a frame the save process would clean
@@ -560,11 +560,13 @@ export default class ParamsTriggers extends Vue {
 			//Reset menu selection
 			if(this.isSublist) {
 				this.currentSubEvent = null;
+				this.triggerData
 			}else{
 				this.currentEvent = null;
 			}
 			this.resetTriggerData();
 			this.onSelectTrigger();
+			console.log(this.currentEvent);
 		}).catch(()=> {});
 	}
 
@@ -670,6 +672,7 @@ export default class ParamsTriggers extends Vue {
 		if(this.currentSubEvent?.value !== undefined) {
 			key += (this.currentSubEvent.value as string).toLowerCase();
 		}
+		if(this.currentSubEvent) this.currentSubEvent.enabled = true;
 		
 		//Load actions for the selected sub event
 		let json = this.$store("triggers").triggers[key];
@@ -679,9 +682,12 @@ export default class ParamsTriggers extends Vue {
 			this.actionList = this.triggerData.actions;
 
 		}else if(this.isSublist){
-			//If going up the sublist, clear actions
+			//If going back to the sublist, clear actions
 			this.actionList = [];
 			this.resetTriggerData();
+			if(this.currentSubEvent) {
+				this.addAction();
+			}
 		}
 		await this.$nextTick();
 		this.canSave = true;
@@ -858,6 +864,7 @@ export default class ParamsTriggers extends Vue {
 				:deep(.cost) {
 					font-size: .8em;
 					font-style: italic;
+					margin-right: 3em;
 				}
 
 				&.subItem.hasIcon {
