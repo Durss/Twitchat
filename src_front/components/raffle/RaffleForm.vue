@@ -84,7 +84,7 @@
 					</div>
 				</form>
 
-				<ToggleBlock :title="$t('raffle.configs.title')" class="configs" :open="false" small v-if="mode=='chat' || triggerMode === false">
+				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="mode=='chat' || triggerMode === false">
 					<ParamItem class="row"
 					:paramData="showCountdownOverlay"
 					v-if="mode=='chat'">

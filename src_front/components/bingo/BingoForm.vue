@@ -48,14 +48,14 @@
 					</div>
 				</form>
 
-				<ToggleBlock title="Configs" class="configs" :open="false" small v-if="triggerMode === false">
+				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="triggerMode === false">
 					<PostOnChatParam class="row" botMessageKey="bingoStart"
 						:placeholderEnabled="false"
-						title="Announce bingo start on chat"
+						:title="$t('bingo.announce_start')"
 						:placeholders="startPlaceholders"
 					/>
 					<PostOnChatParam class="row" botMessageKey="bingo"
-						title="Post bingo winner on chat"
+						:title="$t('bingo.announce_winner')"
 						:placeholders="winnerPlaceholders"
 					/>
 				</ToggleBlock>

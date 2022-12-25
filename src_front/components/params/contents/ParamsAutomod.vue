@@ -2,77 +2,60 @@
 	<div class="paramsautomod">
 		<img src="@/assets/icons/mod_purple.svg" alt="emergency icon" class="icon">
 		
-		<div class="head">Automatically delete messages</div>
+		<div class="head" v-t="'automod.header'"></div>
 		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
 	
 		<div class="disclaimers">
-			<ToggleBlock class="infos first" title="Why this feature? <span>(important read)</span>" small :open="false">
-				Twitch already has a blocked terms feature, but it's very basic and cannot do complex filtering.<br>
-				If you block the word <mark>twitchat</mark>, chatters can easily bypass this restriction by sending <mark>twit_chat</mark> or <mark>twitch🅐t</mark> and many other alternatives.<br>
-				<br>
-				Bots like <a href="https://nightbot.tv" target="_blank">Nightbot</a> or <a href="https://wizebot.tv/index" target="_blank">Wizebot</a> allow you to filter messages with complex rules via what's called <a href="https://en.wikipedia.org/wiki/Regular_expression" target="_blank">Regular Expressions</a>.<br>
-				<br>
-				<strong>Twitchat's</strong> automod feature allows you to use Regular Expressions but also tries to make usage of alternative chars useless for bypassing automod rules.<br>
-				Before applying a rule it will replace all alternative chars, including accented ones, by their latin equivalent.
-				For example, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> will be replaced by <mark>twitchat</mark> before applying automod rules on it.<br>
-				<br>
-				<strong>Warning</strong> though, this process has its cost on performances and may slowdown twitchat a little if you receive lots of messages.
+			<ToggleBlock class="infos first" :title="$t('automod.disclaimers.why.title')" small :open="false">
+				<p v-for="label in $tm('automod.disclaimers.why.contents')" v-html="label"></p>
 			</ToggleBlock>
-			<ToggleBlock class="infos" title="Is deleting a message efficient against doxxing?" small :open="false">
-				No.<br>
-				<br>
-				But it's the only way to moderate a message after it's sent.<br>
-				The main problem is that extensions like <a href="https://betterttv.com" target="_blank">BetterTTV</a> allow users to keep deleted message.<br>
-				<br>
-				<strong>If you want to avoid this</strong>, you'll have to configure a chat delay <i>(<a href="https://dashboard.twitch.tv/settings/moderation" target="_blank">see Chat Options</a>)</i>. If a message is deleted during this time lapse, it won't be displayed anywhere, even for BTTV users.<br>
-				<i>Note that the message is still sent to everyone so it's technically possible to get it. Just more complicated.</i><br>
-				<br>
-				The only safe way of filtering a message is when Twitch deletes it based on blocked terms before sending it to everyone. But as explained before, it's very limited :/
+			<ToggleBlock class="infos" :title="$t('automod.disclaimers.delete.title')" small :open="false">
+				<p v-for="label in $tm('automod.disclaimers.delete.contents')" v-html="label"></p>
 			</ToggleBlock>
 		</div>
 	
 		<div class="fadeHolder" :style="holderStyles">
 	
 			<section>
-				<Splitter class="item splitter">Rules</Splitter>
+				<Splitter class="item splitter">{{ $t("automod.rule.title") }}</Splitter>
 				<div class="list" v-if="automodData.keywordsFilters.length > 0">
 					<ToggleBlock class="block" medium
 					v-for="f in automodData.keywordsFilters"
 					:key="f.id"
-					:title="f.label.length > 0? f.label : 'New rule'"
+					:title="f.label.length > 0? f.label : $t('automod.rule.new')"
 					:open="keywordToOpen[f.id]">
 						<template #actions>
-							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear data-tooltip="Enable/Disable rule" />
+							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear :data-tooltip="$t('automod.rule.toggle_tt')" />
 							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
 						</template>
-						<ParamItem class="item sync" :paramData="param_keywordsSync[f.id]" v-model="f.serverSync" data-tooltip="If the rule contains personnal information<br>you can choose not to save it on server.<br>You'll loose it if you clean your cookies." />
-							<ParamItem class="item emergency" :paramData="param_keywordsEmergency[f.id]" v-model="f.emergency" data-tooltip="If a message matches this rule,<br>the emergency mode will be enabled" />
-						<ParamItem class="item onlyFirst" :paramData="param_keywordsOnlyFirst[f.id]" v-model="f.firstTimeChatters" data-tooltip="Apply this rule only to first<br>message ever of a user on your chat" />
-						<ParamItem class="item ruleName" :paramData="param_keywordsLabel[f.id]" v-model="f.label" />
-						<ParamItem class="item rule" :paramData="param_keywordsRegex[f.id]" v-model="f.regex" :error="keywordToValid[f.id] === false" @change="onRegexChange(f)" />
-						<div class="regError" v-if="keywordToValid[f.id] === false">Invalid rule</div>
+						<ParamItem class="item sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" :data-tooltip="$t('automod.rule.sync_tt')" />
+							<ParamItem class="item emergency" :paramData="param_ruleEmergency[f.id]" v-model="f.emergency" :data-tooltip="$t('automod.rule.emergency_tt')" />
+						<ParamItem class="item onlyFirst" :paramData="param_ruleOnlyFirst[f.id]" v-model="f.firstTimeChatters" data-tooltip="$t('automod.rule.firstTime_tt')" />
+						<ParamItem class="item ruleName" :paramData="param_ruleLabel[f.id]" v-model="f.label" />
+						<ParamItem class="item rule" :paramData="param_ruleRegex[f.id]" v-model="f.regex" :error="keywordToValid[f.id] === false" @change="onRegexChange(f)" />
+						<div class="regError" v-if="keywordToValid[f.id] === false" v-t="'automod.rule.invalid_rule'"></div>
 					</ToggleBlock>
 				</div>
-				<Button title="Add rule" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
+				<Button :title="$t('automod.rule.add')" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
 			</section>
 			
 			<section class="testForm">
-				<Splitter class="item splitter">Test rules</Splitter>
-				<input type="text" v-model="testStr" placeholder="write text...">
-				<div class="result" v-if="testClean" data-tooltip="Cleaned up message<br>with special chars replaced<br>by their latin equivalent">{{testClean}}</div>
+				<Splitter class="item splitter">{{ $t("automod.test.title") }}</Splitter>
+				<input type="text" v-model="testStr" :placeholder="$t('automod.test.input_placeholder')">
+				<div class="result" v-if="testClean" :data-tooltip="$t('automod.test.result_tt')">{{testClean}}</div>
 				<div class="matchingRules" v-if="blockedBy.length > 0">
-					<p class="title">Message blocked by rule(s):</p>
+					<p class="title">{{ $t("automod.test.blocked_title", blockedBy.length) }}</p>
 					<ul>
 						<li v-for="r in blockedBy">{{r.label}}</li>
 					</ul>
 				</div>
-				<div class="pass" v-else-if="testStr.length > 0">This message passes automod</div>
+				<div class="pass" v-else-if="testStr.length > 0" v-t="'automod.test.no_block'"></div>
 			</section>
 
 			<section class="options">
-				<Splitter class="item splitter">Options</Splitter>
+				<Splitter class="item splitter">{{ $t("automod.options.title") }}</Splitter>
 				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" />
-				<div class="permsTitle">Exclude users from automod rules:</div>
+				<div class="permsTitle" v-t="'automod.options.exclude_users'"></div>
 				<PermissionsForm class="perms" v-model="automodData.exludedUsers" />
 			</section>
 		</div>
@@ -107,15 +90,15 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 export default class ParamsAutomod extends Vue {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Enabled", value:false};
-	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Ban users whose names match a rule", value:false};
-	public param_keywordsLabel:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_keywordsRegex:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_keywordsSync:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:false};
+	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:false};
+	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_ruleEmergency:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_ruleOnlyFirst:{[key:string]:TwitchatDataTypes.ParameterData} = {};
 	public keywordToValid:{[key:string]:boolean} = {};
 	public keywordToOpen:{[key:string]:boolean} = {};
-	public param_keywordsEmergency:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_keywordsOnlyFirst:{[key:string]:TwitchatDataTypes.ParameterData} = {};
 	public automodData!:TwitchatDataTypes.AutomodParamsData;
 
 	/**
@@ -157,9 +140,11 @@ export default class ParamsAutomod extends Vue {
 	}
 
 	public beforeMount():void {
-		this.automodData = reactive(JSON.parse(JSON.stringify(this.$store("automod").params)));
-		this.param_enabled.value = this.automodData.enabled;
-		this.param_banUserNames.value = this.automodData.banUserNames;
+		this.param_enabled.label		= this.$t("global.enabled");
+		this.automodData				= reactive(JSON.parse(JSON.stringify(this.$store("automod").params)));
+		this.param_enabled.value		= this.automodData.enabled;
+		this.param_banUserNames.value	= this.automodData.banUserNames;
+		this.param_banUserNames.label	= this.$t("automod.ban_usernames")
 		this.automodData.keywordsFilters.forEach(v=> {
 			this.initRule(v);
 		});
@@ -194,7 +179,7 @@ export default class ParamsAutomod extends Vue {
 	 * Delete a rule
 	 */
 	public deleteRule(rule:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
-		this.$confirm("Delete rule?", "This cannot be undone").then(()=> {
+		this.$confirm(this.$t("automod.delete_confirm_title"), this.$t("automod.delete_confirm_description")).then(()=> {
 			for (let i = 0; i < this.automodData.keywordsFilters.length; i++) {
 				const f = this.automodData.keywordsFilters[i];
 				if(f.id == rule.id) {
@@ -226,13 +211,13 @@ export default class ParamsAutomod extends Vue {
 	}
 
 	private initRule(data:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
-		this.keywordToOpen[data.id]				= data.label.length === 0 || data.regex.length === 0;
-		this.keywordToValid[data.id]			= true;
-		this.param_keywordsLabel[data.id]		= {label:'Rule name', type:'text', value:'', maxLength:100};
-		this.param_keywordsRegex[data.id]		= {label:'Rule (accepts <a href="https://en.wikipedia.org/wiki/Regular_expression" target="_blank">Regexp</a> - <a href="https://regexr.com" target="_blank">Test your regexp</a>)', type:'text', value:'', maxLength:5000, longText:true};
-		this.param_keywordsSync[data.id]		= {label:'Save to server', type:'toggle', value:false};
-		this.param_keywordsEmergency[data.id]	= {label:'Start emergency mode', type:'toggle', value:false, icon:"emergency_purple.svg"};
-		this.param_keywordsOnlyFirst[data.id]	= {label:'Apply only to first time chatters', type:'toggle', value:false, icon:"firstTime_purple.svg"};
+		this.keywordToOpen[data.id]			= data.label.length === 0 || data.regex.length === 0;
+		this.keywordToValid[data.id]		= true;
+		this.param_ruleLabel[data.id]		= {label:this.$t("automod.rule.name"), type:'text', value:'', maxLength:100};
+		this.param_ruleRegex[data.id]		= {label:this.$t("automod.rule.keywords"), type:'text', value:'', maxLength:5000, longText:true};
+		this.param_ruleSync[data.id]		= {label:this.$t("automod.rule.sync"), type:'toggle', value:false};
+		this.param_ruleEmergency[data.id]	= {label:this.$t("automod.rule.emergency"), type:'toggle', value:false, icon:"emergency_purple.svg"};
+		this.param_ruleOnlyFirst[data.id]	= {label:this.$t("automod.rule.firstTime"), type:'toggle', value:false, icon:"firstTime_purple.svg"};
 	}
 
 }
@@ -249,6 +234,12 @@ export default class ParamsAutomod extends Vue {
 		padding: .5em;
 		border-radius: .5em;
 		background-color: fade(@mainColor_normal, 10%);
+
+		.infos {
+			p {
+				min-height: 1em;
+			}
+		}
 	}
 
 	.options{

@@ -17,6 +17,8 @@
 		"cooldown":"📛 @{USER} wait {DURATION}",
 		"allowed_users":"Allowed users",
 		"post_winner":"Post winner on chat",
+		"configs":"Configs",
+		"enabled":"Enabled",
 		"badges":{
 			"subscriber":"{DURATION} subscriber",
 			"subgift":"{COUNT} sub-gifts",

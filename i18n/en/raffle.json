@@ -28,7 +28,6 @@
 			]
 		},
 		"configs":{
-			"title":"Configs",
 			"timer_overlay_add":"on your OBS scenes to display the remaining time on your stream",
 			"timer_overlay_addBt":"Add a timer overlay",
 			"postOnChat_start":"Announce raffle start on chat",

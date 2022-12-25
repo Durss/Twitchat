@@ -26,6 +26,9 @@
 		"closeBt":"Close bingo",
 		"find_custom":"Message to find",
 		"find_number":"Number to find",
-		"find_emote":"Emote to find"
+		"find_emote":"Emote to find",
+
+		"announce_start":"Announce bingo start on chat",
+		"announce_winner":"Post bingo winner on chat"
 	}
 }
