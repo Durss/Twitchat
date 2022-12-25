@@ -2,42 +2,36 @@
 	<div class="paramsemergency">
 		<img src="@/assets/icons/emergency_purple.svg" alt="emergency icon" class="icon">
 		
-		<p class="head">Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.</p>
-		<p class="head small" v-if="param_enable.value === true">Start an emergency with the <img src="@/assets/icons/emergency.svg" class="btExample"> button on the chat bar <i>(see bottom right of screen)</i> or with a chat command</p>
+		<p class="head" v-t="'emergency.header'"></p>
 		<ParamItem class="enableBt" :paramData="param_enable" />
 
 		<div class="fadeHolder" :style="holderStyles">
 
 			<section>
-				<Splitter class="item splitter">Start condition</Splitter>
+				<Splitter class="item splitter">{{ $t("emergency.start.title") }}</Splitter>
 				<ParamItem class="item" :paramData="param_autoEnableOnShieldmode" />
 				<ParamItem class="item" :paramData="param_autoEnableOnFollowbot" />
 				<div class="item">
 					<ParamItem :paramData="param_chatCommand" />
-					<ToggleBlock title="Allowed users" :open="false" small class="item">
+					<ToggleBlock :title="$t('emergency.start.chatCommand_users')" :open="false" small class="item">
 						<PermissionsForm v-model="chatCommandPerms" />
 					</ToggleBlock>
 				</div>
 				<div class="item label">
 					<img src="@/assets/icons/mod_purple.svg" alt="scene icon" class="icon">
-					<p>You can also start it from <a @click="$emit('setContent', contentAutomod)">automod rules</a></p>
+					<p><span v-t="'emergency.start.also'"></span> <a @click="$emit('setContent', contentAutomod)" v-t="'emergency.start.also_link'"></a></p>
 				</div>
-				<div class="item infos">
-					<p>After the emergency is stopped you'll get a list of all the users who followed you during the emergency.</p>
-				</div>
+				<div class="item infos" v-t="'emergency.start.followbot_info'"></div>
 			</section>
 
 			<section>
-				<Splitter class="item splitter">Actions</Splitter>
+				<Splitter class="item splitter">{{ $t("emergency.actions.title") }}</Splitter>
 				<ParamItem class="item" :paramData="param_enableShieldMode" />
 				<div class="twitchParams item" v-if="param_enableShieldMode.value == false">
-					<div :class="param_enableShieldMode.value? 'disabled' : ''">
-						<ParamItem class="item hasDurationChild" :paramData="param_followersOnly" />
-						<ParamItem class="item" :paramData="param_subsOnly" />
-						<ParamItem class="item" :paramData="param_emotesOnly" />
-						<ParamItem class="item hasDurationChild" :paramData="param_slowMode" />
-					</div>
-					<div v-if="param_enableShieldMode.value" class="disabledLabel">Configure these options <a :href="'https://www.twitch.tv/popout/moderator/'+userName+'/shield-mode'" target="_blank">on Twitch</a></div>
+					<ParamItem class="item hasDurationChild" :paramData="param_followersOnly" />
+					<ParamItem class="item" :paramData="param_subsOnly" />
+					<ParamItem class="item" :paramData="param_emotesOnly" />
+					<ParamItem class="item hasDurationChild" :paramData="param_slowMode" />
 				</div>
 				<ParamItem class="item" :paramData="param_noTrigger" />
 				<ParamItem class="item" :paramData="param_autoTO" />
@@ -45,17 +39,17 @@
 				<div class="item" v-if="!obsConnected">
 					<div class="warn">
 						<img src="@/assets/icons/infos.svg" alt="info">
-						<p class="label"><a @click="$emit('setContent', contentObs)">Connect with OBS</a> to switch to a specific scene and hide sources <i>(ex: alerts)</i></p>
+						<p class="label"><a @click="$emit('setContent', contentObs)" v-t="'emergency.actions.obs_connect_link'"></a> <span v-html="$t('emergency.actions.obs_connect')"></span></p>
 					</div>
 				</div>
 				
 				<div v-else class="item">
 					<div class="item label">
 						<img src="@/assets/icons/list_purple.svg" alt="scene icon" class="icon">
-						<p>Switch OBS to the following scene</p>
+						<p v-t="'emergency.actions.obs_scene'"></p>
 					</div>
 					<vue-select class="sourceSelector" label="label"
-						placeholder="Select a scene..."
+						:placeholder="$t('emergency.actions.obs_scene_select')"
 						v-model="selectedOBSScene"
 						:options="param_obsScene.listValues"
 						:calculate-position="$placeDropdown"
@@ -64,10 +58,10 @@
 					
 					<div class="item label">
 						<img src="@/assets/icons/show_purple.svg" alt="sources icon" class="icon">
-						<p>Hide following OBS sources <br><i>(ex: streamelements alerts)</i></p>
+						<p>{{ $t("emergency.actions.obs_sources") }} <br><i v-t="'emergency.actions.obs_sources_example'"></i></p>
 					</div>
 					<vue-select class="sourceSelector" label="sourceName"
-						placeholder="Select one or more sources..."
+						:placeholder="$t('emergency.actions.obs_sources_select')"
 						v-model="selectedOBSSources"
 						:options="obsSources_filtered"
 						:calculate-position="$placeDropdown"
@@ -102,20 +96,20 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 })
 export default class ParamsEmergency extends Vue {
 
-	public param_enable:TwitchatDataTypes.ParameterData						= {type:"toggle", label:"Enabled", value:false};
-	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"toggle", label:"Enable Twitch shield mode", value:false, icon:"shieldMode_purple.svg"};
-	public param_chatCommand:TwitchatDataTypes.ParameterData				= {type:"text", label:"Chat command", value:"!emergency", icon:"commands_purple.svg"};
-	public param_obsScene:TwitchatDataTypes.ParameterData					= {type:"list", label:"Switch to scene", value:""};
-	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData		= {type:"toggle", value:false, label:"Automatically start on followbot raid", icon:"follow_purple.svg", tooltip:"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow"};
-	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"toggle", value:true, label:"Sync with Twitch's shield mode", icon:"shield_purple.svg", tooltip:"Start/stop emergency mode<br>from Twitch's shield mode"};
-	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Slow mode", icon:"timer_purple.svg"};
-	public param_slowModeDuration:TwitchatDataTypes.ParameterData			= {type:"number", value:10, label:"Cooldown (seconds)", max:1800, min:1};
-	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	label:"Followers only", icon:"follow_purple.svg"};
-	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData		= {type:"number", value:30, label:"Must follow your channel for (minutes)", max:129600, min:1};
-	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Subs only", icon:"sub_purple.svg"};
-	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"Emotes only", icon:"emote_purple.svg"};
-	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"text", longText:true, value:"", label:"Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)", placeholder:"user1, user2, user3, ...", icon:"timeout_purple.svg"};
-	public param_noTrigger:TwitchatDataTypes.ParameterData					= {type:"toggle", value:true, label:"Disable Twitchat triggers (follow, subs, bits, raid)", icon:"broadcast_purple.svg"};
+	public param_enable:TwitchatDataTypes.ParameterData						= {type:"toggle", label:"", value:false};
+	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"toggle", label:"", value:false, icon:"shieldMode_purple.svg"};
+	public param_chatCommand:TwitchatDataTypes.ParameterData				= {type:"text", label:"", value:"!emergency", icon:"commands_purple.svg"};
+	public param_obsScene:TwitchatDataTypes.ParameterData					= {type:"list", label:"", value:""};
+	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData		= {type:"toggle", value:false, label:"", icon:"follow_purple.svg", tooltip:""};
+	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"toggle", value:true, label:"", icon:"shield_purple.svg", tooltip:""};
+	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"timer_purple.svg"};
+	public param_slowModeDuration:TwitchatDataTypes.ParameterData			= {type:"number", value:10, label:"", max:1800, min:1};
+	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	label:"", icon:"follow_purple.svg"};
+	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData		= {type:"number", value:30, label:"", max:129600, min:1};
+	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"sub_purple.svg"};
+	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"emote_purple.svg"};
+	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"text", longText:true, value:"", label:"", placeholder:"", icon:"timeout_purple.svg"};
+	public param_noTrigger:TwitchatDataTypes.ParameterData					= {type:"toggle", value:true, label:"", icon:"broadcast_purple.svg"};
 	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue|null = null;
@@ -170,6 +164,24 @@ export default class ParamsEmergency extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
+		this.param_enable.label						= this.$t("global.enabled");
+		this.param_enableShieldMode.label			= this.$t("emergency.params.shieldmode");
+		this.param_chatCommand.label				= this.$t("emergency.params.chatCommand");
+		this.param_obsScene.label					= this.$t("emergency.params.obsScene");
+		this.param_autoEnableOnFollowbot.label		= this.$t("emergency.params.autoEnableOnFollowbot");
+		this.param_autoEnableOnFollowbot.tooltip	= this.$t("emergency.params.autoEnableOnFollowbot_tt");
+		this.param_autoEnableOnShieldmode.label		= this.$t("emergency.params.autoEnableOnShieldmode");
+		this.param_autoEnableOnShieldmode.tooltip	= this.$t("emergency.params.autoEnableOnShieldmode_tt");
+		this.param_slowMode.label					= this.$t("emergency.params.slowMode");
+		this.param_slowModeDuration.label			= this.$t("emergency.params.slowModeDuration");
+		this.param_followersOnly.label				= this.$t("emergency.params.followersOnly");
+		this.param_followersOnlyDuration.label		= this.$t("emergency.params.followersOnlyDuration");
+		this.param_subsOnly.label					= this.$t("emergency.params.subsOnly");
+		this.param_emotesOnly.label					= this.$t("emergency.params.emotesOnly");
+		this.param_autoTO.label						= this.$t("emergency.params.autoTO");
+		this.param_autoTO.placeholder				= this.$t("emergency.params.autoTO_placeholder");
+		this.param_noTrigger.label					= this.$t("emergency.params.noTrigger");
+
 		const storeParams						= this.$store("emergency").params;
 		this.param_enable.value					= storeParams.enabled;
 		this.param_noTrigger.value				= storeParams.noTriggers;
@@ -288,36 +300,6 @@ export default class ParamsEmergency extends Vue {
 
 		section {
 
-			.twitchParams {
-				position: relative;
-				.disabled {
-					opacity: .35;
-					pointer-events: none;
-					// border: 1px solid @mainColor_normal;
-					background-color: #fff;
-					padding: .5em;
-				}
-	
-				.disabledLabel {
-					position: absolute;
-					top: 50%;
-					text-align: center;
-					width: 100%;
-					padding: 3em 0;
-					transform: translateY(-50%);
-					background: radial-gradient(rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.9) 30%, rgba(255,255,255,0) 80%);
-					background-size: 120% 100%;
-					background-position-x: 50%;
-				}
-				.hasDurationChild {
-					:deep(.child) {
-						input {
-							flex-basis: 100px;
-						}
-					}
-				}
-			}
-
 			.item {
 				&:not(:first-child) {
 					margin-top: .5em;
@@ -337,6 +319,14 @@ export default class ParamsEmergency extends Vue {
 					}
 					p {
 						display: inline;
+					}
+				}
+
+				&.hasDurationChild {
+					:deep(.child) {
+						input {
+							flex-basis: 100px;
+						}
 					}
 				}
 

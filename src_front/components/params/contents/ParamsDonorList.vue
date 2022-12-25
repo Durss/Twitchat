@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsdonorlist">
-		<div v-if="error">An error occured when loading donors list :(</div>
+		<div v-if="error" v-t="'error.donor_loading'"></div>
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
 
 		<div class="stats" v-if="!loading">
@@ -105,7 +105,7 @@ export default class ParamsDonorList extends Vue {
 			const item = {
 							uid:items[i].uid,
 							v:items[i].v,
-							login:users.find(v => v.id === items[i].uid)?.display_name ?? "Anonymous",
+							login:users.find(v => v.id === items[i].uid)?.display_name ?? this.$t("donor.anon"),
 							index:res.length + this.itemList.length,
 						};
 			res.push(item)

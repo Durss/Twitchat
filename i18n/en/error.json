@@ -21,6 +21,7 @@
 		"poll_active":"A poll is already active",
 		"poll_automod":"Poll contains an automoded term",
 		"ad_url_required":"Message must contain \"twitchat.fr\"",
+		"donor_loading":"An error occured when loading donors list :(",
 		"spotify":{
 			"api_rate":"[SPOTIFY] API rate limits exceeded",
 			"token_refresh":"[SPOTIFY] token refresh failed"

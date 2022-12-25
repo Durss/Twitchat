@@ -1,7 +1,43 @@
 {
 	"emergency":{
+		"header":"Perform custom actions to protect yourself in case of a hate raid, doxxing or any other toxic behavior.",
 		"enable_confirm":"Enable emergency mode?",
 		"enabled":"Emergency mode enabled",
-		"disabled":"Emergency mode disabled"
+		"disabled":"Emergency mode disabled",
+		"start": {
+			"title":"Start condition",
+			"chatCommand_users":"Users allowed to use chat command",
+			"also":"You can also start it from",
+			"also_link":"automod rule",
+			"followbot_info":"After the emergency is stopped you'll get a list of all the users who followed you during the emergency."
+		},
+		"actions": {
+			"title":"Actions",
+			"obs_connect_link":"Connect with OBS",
+			"obs_connect":"to switch to a specific scene and hide sources <i>(ex: alerts)</i>",
+			"obs_scene":"Switch OBS to the following scene",
+			"obs_scene_select":"Select a scene...",
+			"obs_sources":"Hide following OBS sources",
+			"obs_sources_example":"(ex: streamelements alerts)",
+			"obs_sources_select":"Select one or more sources..."
+		},
+		"params": {
+			"shieldmode": "Enable Twitch shield mode",
+			"chatCommand":"Chat command",
+			"obsScene":"Switch to scene",
+			"autoEnableOnFollowbot":"Automatically start on followbot raid",
+			"autoEnableOnFollowbot_tt":"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow",
+			"autoEnableOnShieldmode":"Sync with Twitch's shield mode",
+			"autoEnableOnShieldmode_tt":"Start/stop emergency mode<br>from Twitch's shield mode",
+			"slowMode": "Slow mode",
+			"slowModeDuration": "Cooldown (seconds)",
+			"followersOnly": "Followers only",
+			"followersOnlyDuration": "Must follow your channel for (minutes)",
+			"subsOnly": "Subs only",
+			"emotesOnly": "Emotes only",
+			"autoTO": "Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)",
+			"autoTO_placeholder": "user1, user2, user3, ...",
+			"noTrigger": "Disable Twitchat triggers (follow, subs, bits, raid)"
+		}
 	}
 }
