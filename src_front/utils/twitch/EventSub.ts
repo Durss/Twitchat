@@ -42,22 +42,32 @@ export default class EventSub {
 		};
 		
 		this.socket.onmessage = (event:unknown) => {
-			// alert(`[message] Data received from server: ${event.data}`);
 			const e = event as {data:string};
-			const message = JSON.parse(e.data);// as PubSubDataTypes.SocketMessage;
-			// console.log(message);
-			if(message.metadata.message_type == "session_welcome") {
-				this.keepalive_timeout_seconds = message.payload.session.keepalive_timeout_seconds;
-				TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.begin", "beta");
-				TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.end", "beta");
-			}else
-			if(message.metadata.message_type == "session_keepalive") {
-				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = setTimeout(()=>{
-					this.connect();
-				}, (this.keepalive_timeout_seconds+2) * 1000);
-			}else{
-				this.parseEvent(message.metadata.subscription_type, message.payload);
+			const message = JSON.parse(e.data);
+			switch(message.metadata.message_type) {
+				case "session_welcome": {
+					this.keepalive_timeout_seconds = message.payload.session.keepalive_timeout_seconds;
+					TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.begin", "beta");
+					TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.end", "beta");
+					break;
+				}
+
+				case "session_keepalive": {
+					clearTimeout(this.reconnectTimeout);
+					this.reconnectTimeout = setTimeout(()=>{
+						this.connect();
+					}, (this.keepalive_timeout_seconds+2) * 1000);
+					break;
+				}
+
+				case "notification": {
+					this.parseEvent(message.metadata.subscription_type, message.payload);
+					break;
+				}
+				
+				default: {
+					console.warn(`Unknown eventsub message type: ${message.metadata.message_type}`);
+				  }
 			}
 		};
 		
