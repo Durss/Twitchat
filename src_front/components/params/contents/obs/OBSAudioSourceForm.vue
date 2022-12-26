@@ -1,14 +1,14 @@
 <template>
 	<div class="obsaudiosourceform">
-		<p class="info">Give control over your microphone so some users can mute or unmute you from the chat</p>
+		<p class="info" v-t="'obs.microphone_head'"></p>
 		<div v-if="!noAudioSource">
 			<ParamItem :paramData="obsAllowed_audioSources" class="row" @change="onAudioParamChange()"/>
 			<ParamItem :paramData="obsAllowed_muteCommand" class="row" @change="onAudioParamChange()"/>
 			<ParamItem :paramData="obsAllowed_unmuteCommand" class="row" @change="onAudioParamChange()"/>
 		</div>
 		<div v-else class="noAudioSource">
-			<div class="label">- no audio source found -</div>
-			<Button title="Check again" @click="listAudioSources(true)" class="connectBt" :loading="loadingAudioSources" />
+			<div class="label" v-t="'obs.microphone_empty'"></div>
+			<Button :title="$t('obs.microphone_reCheck')" @click="listAudioSources(true)" class="connectBt" :loading="loadingAudioSources" />
 		</div>
 	</div>
 </template>
@@ -36,13 +36,17 @@ export default class OBSAudioSourceForm extends Vue {
 	public noAudioSource = false;
 	public loadingAudioSources = false;
 	public audioSources:OBSInputItem[] = [];
-	public obsAllowed_audioSources:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], label:"Audio source" };
-	public obsAllowed_muteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Mute command", placeholder:"!mute" };
-	public obsAllowed_unmuteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Unmute command", placeholder:"!unmute" };
+	public obsAllowed_audioSources:TwitchatDataTypes.ParameterData = { type:"list", value:"", label:"", listValues:[] };
+	public obsAllowed_muteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"", placeholder:"!mute" };
+	public obsAllowed_unmuteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"", placeholder:"!unmute" };
 
-	private defaultEntry = {label:"- none -", value:"- none -"};
+	private defaultEntry = {label:"", value:""};
 
 	public mounted():void {
+		this.defaultEntry.label = this.defaultEntry.value = this.$t("obs.microphone_default_entry");
+		this.obsAllowed_audioSources.label	= this.$t("obs.microphone_source")
+		this.obsAllowed_muteCommand.label	= this.$t("obs.microphone_mute")
+		this.obsAllowed_unmuteCommand.label	= this.$t("obs.microphone_unmute")
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			if(OBSWebsocket.instance.connected) {
 				this.listAudioSources();

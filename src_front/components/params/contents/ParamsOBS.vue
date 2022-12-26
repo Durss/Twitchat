@@ -3,8 +3,9 @@
 		<img src="@/assets/icons/obs_purple.svg" alt="overlay icon" class="icon">
 
 		<div class="head">
-			<p>Create your own twitch alerts, allow your mods basic control over your OBS and much more</p>
-			<p class="small">In order to work, this needs <strong>OBS v28+</strong> or <a :href="obswsInstaller" target="_blank">OBS-websocket&nbsp;plugin&nbsp;V5</a><i>(scroll to bottom)</i> to be installed.</p>
+			<p v-t="'obs.header'"></p>
+			<p class="install"><span v-t="'obs.install'"></span> <strong>OBS v28+</strong>
+				<br><i v-html="$t('obs.install_option', {PLUGIN_URL:obswsInstaller})"></i></p>
 		</div>
 
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
@@ -13,43 +14,16 @@
 			<ToggleBlock class="block conf"
 			:open="openConnectForm"
 			:icons="['info_purple']"
-			title="OBS credentials">
-				<transition name="fade">
-					<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success">Connected with OBS</div>
-				</transition>
-				<form @submit.prevent="connect()" v-if="!connected">
-					<ParamItem :paramData="obsPort_conf" class="row" />
-					<ParamItem :paramData="obsPass_conf" class="row" />
-					<ParamItem :paramData="obsIP_conf" class="row" />
-					
-					<ToggleBlock class="info" small :open="false" title="Where can i find these values?">
-						After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
-						<br>
-						<br>This window will open with the credentials:
-						<br><span class="warn">You'll probably want to leave the IP to <strong>127.0.0.1</strong>!</span>
-						<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
-					</ToggleBlock>
-
-					<Button title="Connect" type="submit" class="connectBt" :loading="loading" />
-				</form>
-				
-				<Button v-else title="Disconnect" @click="disconnect()" class="connectBt" :loading="loading" :icon="$image('icons/cross_white.svg')" />
-
-				<transition name="fade">
-					<div v-if="connectError" @click="connectError = false" class="error">
-						<div>Unable to connect with OBS. Double check the port and password and make sure you have OBS 28 or installed <a :href="obswsInstaller" target="_blank">OBS-websocket plugin (v5)</a></div>
-						<div v-if="obsIP_conf.value != '127.0.0.1'">You may want to set the IP to <strong>127.0.0.1</strong> instead of what OBS shows you</div>
-					</div>
-				</transition>
-
+			:title="$t('obs.credentials_form_title')">
+				<OBSConnectForm  class="connectForm" />
 			</ToggleBlock>
 
 			<ToggleBlock class="block permissions"
 			v-if="connected"
 			:open="false"
 			:icons="['lock_purple']"
-			title="Permissions">
-				<p class="info">Users allowed to use the chat commands</p>
+			:title="$t('obs.permissions_title')">
+				<p class="info" v-t="'obs.permissions_head'"></p>
 				<PermissionsForm class="content" v-model="permissions" />
 			</ToggleBlock>
 
@@ -57,7 +31,7 @@
 			v-if="connected"
 			:open="false"
 			:icons="['microphone_purple']"
-			title="Control microphone">
+			:title="$t('obs.microphone_title')">
 				<OBSAudioSourceForm />
 			</ToggleBlock>
 
@@ -65,7 +39,7 @@
 			v-if="connected"
 			:open="false"
 			:icons="['list_purple']"
-			title="Control scenes">
+			:title="$t('obs.scenes_title')">
 				<OBSScenes />
 			</ToggleBlock>
 
@@ -81,7 +55,6 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -92,6 +65,7 @@ import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
+import OBSConnectForm from './obs/OBSConnectForm.vue';
 import OBSFilters from './obs/OBSFilters.vue';
 import OBSScenes from './obs/OBSScenes.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
@@ -100,11 +74,11 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 @Options({
 	props:{},
 	components:{
-		Button,
 		ParamItem,
 		OBSScenes,
 		OBSFilters,
 		ToggleBlock,
+		OBSConnectForm,
 		PermissionsForm,
 		OBSAudioSourceForm,
 	},
@@ -224,6 +198,9 @@ export default class ParamsOBS extends Vue {
 		DataStore.set(DataStore.OBS_PASS, this.obsPass_conf.value);
 		DataStore.set(DataStore.OBS_IP, this.obsIP_conf.value);
 		DataStore.set(DataStore.OBS_CONNECTION_ENABLED, this.param_enabled.value);
+		if(!this.param_enabled.value) {
+			OBSWebsocket.instance.disconnect();
+		}
 	}
 }
 </script>
@@ -247,6 +224,11 @@ export default class ParamsOBS extends Vue {
 
 	.fadeHolder {
 		transition: opacity .2s;
+	}
+	
+	.install {
+		margin-top: 1em;
+		font-size: .8em;
 	}
 
 	.block {

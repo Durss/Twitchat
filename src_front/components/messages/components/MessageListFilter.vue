@@ -346,7 +346,7 @@ export default class MessageListFilter extends Vue {
 					suspiciousUsers:"shield.svg",
 					commands:"commands.svg",
 					short:"",
-					tracked:"",
+					tracked:"magnet.svg",
 				}
 				if(!this.config.messageFilters) this.config.messageFilters = {
 					bots:true,

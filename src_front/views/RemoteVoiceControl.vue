@@ -3,8 +3,8 @@
 		<div class="block head">
 			<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
 			<p v-t="'voice.remote.title'"></p>
-			<p class="install"><span v-t="'voice.remote.install'"></span> <strong>OBS v28+</strong>
-				<i>{{$t("voice.remote.install_option", {PLUGIN_URL:obswsInstaller}) }}</i></p>
+			<p class="install"><span v-t="'obs.install'"></span> <strong>OBS v28+</strong>
+				<br><i v-html="$t('obs.install_option', {PLUGIN_URL:obswsInstaller})"></i></p>
 		</div>
 
 		<ToggleBlock class="block conf"

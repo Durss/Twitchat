@@ -1,10 +1,10 @@
 <template>
 	<div class="obsscenes">
-		<div v-if="sceneParams.length == 0" class="noScene">You have no scene on OBS</div>
+		<div v-if="sceneParams.length == 0" class="noScene" v-t="'obs.scenes_empty'"></div>
 		<div class="list" v-else>
 			<div class="header">
-				<div>OBS Scene</div>
-				<div>Chat command</div>
+				<div v-t="'obs.scenes_col_name'"></div>
+				<div v-t="'obs.scenes_col_cmd'"></div>
 			</div>
 			<ParamItem v-for="p in sceneParams"
 				class="row"
