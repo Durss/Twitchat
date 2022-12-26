@@ -91,7 +91,8 @@ export const storeParams = defineStore('params', {
 					viewers: true,
 					vips: true,
 					partners: true,
-					short: true
+					short: true,
+					tracked: true,
 				}
 			},
 			{
@@ -135,7 +136,8 @@ export const storeParams = defineStore('params', {
 					viewers: false,
 					vips: false,
 					partners: false,
-					short: false
+					short: false,
+					tracked: true,
 				}
 			}
 		],
@@ -230,6 +232,7 @@ export const storeParams = defineStore('params', {
 					vips:true,
 					partners:true,
 					short:true,
+					tracked: true,
 				}
 			}
 			if(after) {

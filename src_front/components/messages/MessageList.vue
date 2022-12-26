@@ -569,6 +569,11 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				if(this.config.filters.message === false) return false;
 				
+				//Force tracked users if requested
+				if (m.user.is_tracked && this.config.messageFilters.tracked) {
+					return true;
+				}
+				
 				//Ignore specific users
 				if (m.user.displayName.length > 0 && blockedSpecificUsers.includes(m.user.login.toLowerCase())) {
 					return false;

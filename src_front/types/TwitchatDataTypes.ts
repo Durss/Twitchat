@@ -57,6 +57,7 @@ export namespace TwitchatDataTypes {
 		subs:boolean;
 		partners:boolean;
 		short:boolean;
+		tracked:boolean;
 	}
 
 	/**

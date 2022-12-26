@@ -327,6 +327,7 @@ export default class MessageListFilter extends Vue {
 					moderators:"Sent by Moderators",
 					partners:"Sent by Partners",
 					bots:"Sent by bots",
+					tracked:"Sent by tracked users",
 					deleted:"Deleted messages",
 					automod:"Blocked messages",
 					suspiciousUsers:"Sent by suspicious users",
@@ -345,6 +346,7 @@ export default class MessageListFilter extends Vue {
 					suspiciousUsers:"shield.svg",
 					commands:"commands.svg",
 					short:"",
+					tracked:"",
 				}
 				if(!this.config.messageFilters) this.config.messageFilters = {
 					bots:true,
@@ -358,6 +360,7 @@ export default class MessageListFilter extends Vue {
 					moderators:true,
 					partners:true,
 					short:true,
+					tracked:true,
 				};
 				for (const key in keyToLabel) {
 					const k = key as messageFilterTypes;
@@ -655,7 +658,9 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD );
 				for (const key in this.config.messageFilters) {
 					const k = key as messageFilterTypes;
-					this.config.messageFilters[k] = k != "automod" && k != "deleted" && k != "suspiciousUsers";
+					this.config.messageFilters[k] = k != "automod"
+												 && k != "deleted"
+												 && k != "suspiciousUsers";
 				}
 				break;
 			}
@@ -667,7 +672,11 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
 				for (const key in this.config.messageFilters) {
 					const k = key as messageFilterTypes;
-					this.config.messageFilters[k] = k == "automod" || k == "deleted" || k == "suspiciousUsers" || k == "moderators";
+					this.config.messageFilters[k] = k == "automod"
+												 || k == "deleted"
+												 || k == "tracked"
+												 || k == "suspiciousUsers"
+												 || k == "moderators";
 				}
 				break;
 			}
