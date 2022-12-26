@@ -3,15 +3,6 @@
 		<!-- <h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1> -->
 		<div class="row" v-for="(p, key) in params" :key="key">
 
-			<!-- Special case for shoutout label -->
-			<!-- <PostOnChatParam class="item" v-if="p.id==25"
-				icon="shoutout_purple.svg"
-				botMessageKey="shoutout"
-				:noToggle="true"
-				title="Shoutout message"
-				:placeholders="soPlaceholders"
-			/> -->
-
 			<div :class="'item '+key">
 				<ParamItem :paramData="p" save />
 				<transition
@@ -19,13 +10,14 @@
 					@leave="onHideItem"
 				>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
-						<p class="label">This feature needs you to connect on <a @click="$emit('setContent', contentObs)">OBS tab</a></p>
+						<p class="label"><span v-t="'global.obs_connect'"></span> <a @click="$emit('setContent', contentObs)" v-t="'global.obs_connect_link'"></a></p>
 					</div>
 					
 					<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
-						<p class="label">based on
+						<p class="label">
+							<span v-t="'params.showUserPronouns_based'"></span>
 							<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
-							and
+							<span v-t="'params.showUserPronouns_based_and'"></span>
 							<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
 						</p>
 					</div>
@@ -34,7 +26,7 @@
 						<PostOnChatParam class="item"
 							botMessageKey="shoutout"
 							:noToggle="true"
-							title="Send this message when doing a shoutout"
+							:title="$t('params.chatShoutout_info')"
 							:placeholders="soPlaceholders"
 						/>
 					</div>
@@ -92,23 +84,6 @@ export default class ParamsList extends Vue {
 
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 
-	public get title():string {
-		switch(this.category) {
-			case 'features': return "Features";
-			case 'appearance': return "Appearance";
-		}   
-	}
-
-	public get icon():string {
-		let code = "";
-		switch(this.category) {
-			case 'features': code = "params_purple"; break;
-			case 'appearance': code = "show_purple"; break;
-		}
-		if(!code) return "";
-		return this.$image("icons/"+code+".svg");
-	}
-
 	public get isOBSConnected():boolean {
 		return OBSWebsocket.instance.connected;
 	}
@@ -146,22 +121,22 @@ export default class ParamsList extends Vue {
 		this.soPlaceholders = [
 			{
 				tag:"USER",
-				desc:"User name",
+				desc:this.$t("params.chatShoutout_placeholders.user"),
 				example:me.displayName,
 			},
 			{
 				tag:"URL",
-				desc:"User channel URL",
+				desc:this.$t("params.chatShoutout_placeholders.user_link"),
 				example:"twitch.tv/"+me.login,
 			},
 			{
 				tag:"TITLE",
-				desc:"Last stream's title",
+				desc:this.$t("params.chatShoutout_placeholders.stream_title"),
 				example:"Lorem ipsum",
 			},
 			{
 				tag:"CATEGORY",
-				desc:"Last stream's category",
+				desc:this.$t("params.chatShoutout_placeholders.stream_category"),
 				example:"Just chatting",
 			},
 		];

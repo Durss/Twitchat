@@ -434,7 +434,7 @@ export default class NewUsers extends Vue {
 		}
 	}
 
-	private async renderFrame():Promise<void> {
+	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 

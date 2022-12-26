@@ -116,7 +116,8 @@ const start = async () => {
 	try {
 		await server.listen({port:Config.credentials.server_port, host:'0.0.0.0'});
 	} catch (err) {
-		server.log.error(err)
+		Logger.error("Server init error");
+		console.log(err);
 		process.exit(1)
 	}
 	

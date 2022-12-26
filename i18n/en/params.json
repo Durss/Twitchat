@@ -15,7 +15,16 @@
 		"offlineEmoteOnly":"Set chat on emote-only when not live",
 		"stopStreamOnRaid":"Cut OBS stream after a raid",
 		"showUserPronouns":"Show user pronouns",
+		"showUserPronouns_based":"based on",
+		"showUserPronouns_based_and":"and",
 		"chatShoutout":"Chat message shoutout",
+		"chatShoutout_info":"Send this message when doing a shoutout",
+		"chatShoutout_placeholders":{
+			"user":"User name",
+			"user_link":"User channel URL",
+			"stream_title":"Last stream title",
+			"stream_category":"Last stream category"
+		},
 
 		"censorDeletedMessages": "Censor deleted messages",
 		"highlightMods": "Highlight Mods",
