@@ -1,4 +1,3 @@
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
@@ -45,6 +44,7 @@ export default class SevenTVUtils {
 					url_4x: e.urls[e.urls.length-1][0]?.[1],
 				},
 				platform:"twitch",
+				source:"7TV"
 			});
 		}
 		for (const chanId in this.channelEmotesHashmaps) {
@@ -61,6 +61,7 @@ export default class SevenTVUtils {
 						url_4x: e.urls[e.urls.length-1][0]?.[1],
 					},
 					platform:"twitch",
+					source:"7TV"
 				});
 			}
 		}

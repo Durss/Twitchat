@@ -44,6 +44,7 @@ export default class BTTVUtils {
 					url_4x: "https://cdn.betterttv.net/emote/"+e.id+"/3x",
 				},
 				platform:"twitch",
+				source:"BTTV"
 			});
 		}
 		for (const chanId in this.channelEmotesHashmaps) {
@@ -60,6 +61,7 @@ export default class BTTVUtils {
 						url_4x: "https://cdn.betterttv.net/emote/"+e.id+"/3x",
 					},
 					platform:"twitch",
+					source:"BTTV"
 				});
 			}
 		}

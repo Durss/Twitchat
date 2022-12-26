@@ -19,8 +19,9 @@
 			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="user">
 
 			<div class="name">{{i.label}}</div>
+			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
 			<div class="infos" v-if="i.type == 'cmd' && i.infos">{{i.infos}}</div>
-			<div class="name alias" v-if="i.type=='cmd' && i.alias">(alias: {{i.alias}})</div>
+			<div class="name alias" v-else-if="i.type=='cmd' && i.alias">(alias: {{i.alias}})</div>
 		</div>
 	</div>
 </template>
@@ -156,11 +157,11 @@ export default class AutocompleteChatForm extends Vue {
 				if(this.$store("params").appearance.bttvEmotes.value === true) {
 					emotes = emotes.concat(BTTVUtils.instance.emotes);
 				}
-
+				
 				if(this.$store("params").appearance.sevenTVEmotes.value === true) {
 					emotes = emotes.concat(SevenTVUtils.instance.emotes);
 				}
-
+				
 				if(this.$store("params").appearance.ffzEmotes.value === true) {
 					emotes = emotes.concat(FFZUtils.instance.emotes);
 				}
@@ -174,6 +175,7 @@ export default class AutocompleteChatForm extends Vue {
 								label:e.code,
 								emote:e.images.url_1x,
 								id:e.id,
+								source:e.source
 							});
 						}
 					}
@@ -242,6 +244,7 @@ interface EmoteItem {
 	id:string;
 	label:string;
 	emote:string;
+	source?:"BTTV"|"FFZ"|"7TV";
 }
 
 interface CommandItem {
@@ -298,9 +301,14 @@ interface CommandItem {
 			}
 		}
 
-		.name {
+		.name, .source {
 			color: #fff;
-			font-size: 14px;
+			font-size: .7em;
+		}
+
+		.source {
+			opacity: .5;
+			margin-left: .5em;
 		}
 
 		.infos {

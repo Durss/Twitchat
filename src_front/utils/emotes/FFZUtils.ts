@@ -1,4 +1,3 @@
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
@@ -45,6 +44,7 @@ export default class FFZUtils {
 					url_4x: e.urls[4] ?? e.urls[2] ?? e.urls[1] ?? "",
 				},
 				platform:"twitch",
+				source:"FFZ"
 			});
 		}
 		for (const chanId in this.channelEmotesHashmaps) {
@@ -61,6 +61,7 @@ export default class FFZUtils {
 						url_4x: e.urls[4] ?? e.urls[2] ?? e.urls[1] ?? "",
 					},
 					platform:"twitch",
+					source:"FFZ"
 				});
 			}
 		}

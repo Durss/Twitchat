@@ -699,6 +699,7 @@ export namespace TwitchatDataTypes {
 		};
 		platform: ChatPlatform;
 		is_public: boolean;//Defines is anyone can use it
+		source?: "BTTV"|"7TV"|"FFZ";
 		owner?: TwitchatUser;
 	}
 
