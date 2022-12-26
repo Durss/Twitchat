@@ -139,7 +139,9 @@ export default class ChatHypeTrainResult extends Vue {
 		display: flex;
 		flex-direction: row;
 		margin: .5em 0;
-		justify-content: space-evenly;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: .5em;
 
 		.row {
 			.highlight();

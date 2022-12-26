@@ -28,6 +28,7 @@ export const storeParams = defineStore('params', {
 			chatShoutout:				{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.chatShoutout"), id:215, icon:"shoutout_purple.svg"},
 		},
 		appearance: {
+			splitViewVertical: 			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.splitViewVertical"), id:21, icon:"layout_purple.svg", example:"verticalLayout.png"},
 			censorDeletedMessages: 		{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.censorDeletedMessages"), id:25, icon:"hide_purple.svg"},
 			highlightMods: 				{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.highlightMods"), id:9, icon:"mod_purple.svg"},
 			highlightVips: 				{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.highlightVips"), id:10, icon:"vip_purple.svg"},
@@ -36,7 +37,7 @@ export const storeParams = defineStore('params', {
 			highlightMentions: 			{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.highlightMentions"), id:1, icon:"broadcaster_purple.svg"},
 			highlightNonFollowers: 		{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.highlightNonFollowers"), id:16, icon:"unfollow_purple.svg", example:"nofollow.png"},
 			translateNames:				{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.translateNames"), id:22, icon:"translate_purple.svg", example:"translate.png"},
-			showRewardsInfos: 			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.showRewardsInfos"), id:23,example:"rewardDetails.png"},
+			showRewardsInfos: 			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.showRewardsInfos"), id:23, icon:"channelPoints_purple.svg", example:"rewardDetails.png"},
 			showViewersCount: 			{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.showViewersCount"), id:17, icon:"user_purple.svg"},
 			showEmotes: 				{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.showEmotes"), id:2, icon:"emote_purple.svg"},
 			bttvEmotes: 				{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.bttvEmotes"), id:3, icon:"emote_purple.svg", parent:2},
@@ -45,8 +46,7 @@ export const storeParams = defineStore('params', {
 			showBadges: 				{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.showBadges"), id:4, icon:"badge_purple.svg"},
 			minimalistBadges: 			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.minimalistBadges"), id:5, parent:4, example:"minibadges.png"},
 			displayTime: 				{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.displayTime"), id:6, icon:"timeout_purple.svg"},
-			splitViewVertical: 			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.splitViewVertical"), id:21, tooltip:"Order message lists vertically"},
-			dyslexicFont: 				{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.dyslexicFont"), id:24},
+			dyslexicFont: 				{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.dyslexicFont"), id:24, icon:"font_purple.svg"},
 			defaultSize: 				{save:true, type:"slider", value:2, label:StoreProxy.i18n.tm("params.defaultSize"), min:1, max:7, step:1, id:12},
 		},
 		chatColumnsConfig:[

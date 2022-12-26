@@ -9,11 +9,11 @@
 			<div v-if="paramData.type == 'toggle'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
-				<Button v-if="paramData.example"
-					:icon="$image('icons/help_purple.svg')"
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help_purple.svg"
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpBt"
-				/>
+					class="helpIcon"
+				>
 				
 				<label :for="'toggle'+key"
 					v-if="label"
@@ -27,11 +27,11 @@
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
-				<Button v-if="paramData.example"
-					:icon="$image('icons/help_purple.svg')"
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help_purple.svg"
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpBt"
-				/>
+					class="helpIcon"
+				>
 				<label :for="'number'+key" v-if="label" v-html="label"></label>
 				<input v-if="!paramData.noInput" ref="input"
 					type="number"
@@ -45,11 +45,11 @@
 			</div>
 			
 			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
-				<Button v-if="paramData.example"
-					:icon="$image('icons/help_purple.svg')"
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help_purple.svg"
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpBt"
-				/>
+					class="helpIcon"
+				>
 				<label :for="'text'+key" v-if="label" v-html="label"></label>
 				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
 					v-model.lazy="textValue"
@@ -70,11 +70,11 @@
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
-				<Button v-if="paramData.example"
-					:icon="$image('icons/help_purple.svg')"
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help_purple.svg"
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpBt"
-				/>
+					class="helpIcon"
+				>
 				<label :for="'slider'+key" v-html="label"></label>
 				<input v-if="!paramData.noInput" ref="input" type="range"
 					:min="paramData.min"
@@ -86,11 +86,11 @@
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
-				<Button v-if="paramData.example"
-					:icon="$image('icons/help_purple.svg')"
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help_purple.svg"
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpBt"
-				/>
+					class="helpIcon"
+				>
 				<label :for="'list'+key">{{paramData.label}}</label>
 				<select v-if="!paramData.noInput" ref="input"
 					:id="'list'+key"
@@ -101,11 +101,11 @@
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
-				<Button v-if="paramData.example"
-					:icon="$image('icons/help_purple.svg')"
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help_purple.svg"
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpBt"
-				/>
+					class="helpIcon"
+				>
 				<label :for="'browse'+key" v-if="label" v-html="label"></label>
 				<input v-if="!paramData.noInput" type="text"
 					class="filePath"
@@ -432,23 +432,10 @@ export default class ParamItem extends Vue {
 		}
 		
 
-		.helpBt {
-			align-self: flex-start;
-			background: none;
+		.helpIcon {
 			@size: 20px;
 			width: @size;
-			min-width: @size;
-			height: @size;
-			min-height: @size;
-			padding: 0;
-			margin: 0;
-			margin-right: 10px;
-			:deep(.icon) {
-				width: 100%;
-				height: 100%;
-				max-width: 100%;
-				max-height: 100%;
-			}
+			margin-right: .25em;
 		}
 
 		.toggleButton {
