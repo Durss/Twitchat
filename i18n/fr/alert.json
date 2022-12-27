@@ -1,0 +1,14 @@
+{
+	"alert": {
+		"header":"Laissez vos modérateurs vous alerter si quelque chose est urgent",
+		"command_title":"Commande de chat",
+		"actions":"Actions",
+		"actions_triggers":"Faire plus d'actions avec le",
+		"command":"Commande",
+		"option_popin":"Afficher le message en Pop-in",
+		"option_shake":"Secouez Twitchat",
+		"option_blink":"Clignotez Twitchat",
+		"option_sound":"Jouer le son",
+		"testBt":"Test"
+	}
+}
