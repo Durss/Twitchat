@@ -89,6 +89,36 @@ export const storeAdmin = defineStore('Admin', {
 			};
 			StoreProxy.chat.addMessage(message);
 		},
+		
+		async removeAllBetaUser():Promise<void> {
+			const headers = {
+				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
+			};
+			const res = await fetch(Config.instance.API_PATH+"/beta/user/all", {method:"DELETE", headers});
+			try {
+				if(res.status === 200 && (await res.json()).success) {
+					const message:TwitchatDataTypes.MessageNoticeData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						message:"All beta-testers successfully removed",
+						platform:"twitchat",
+					};
+					StoreProxy.chat.addMessage(message);
+					return;
+				}
+			}catch(error){}
+			const message:TwitchatDataTypes.MessageNoticeData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				message:"An error occured when removing all beta-testers",
+				platform:"twitchat",
+			};
+			StoreProxy.chat.addMessage(message);
+		},
 	} as IAdminActions
 	& ThisType<IAdminActions
 		& UnwrapRef<IAdminState>

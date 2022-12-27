@@ -11,6 +11,7 @@ import StoreProxy from '../StoreProxy';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
+		greetThemAutoDelete: 600,
 		features: {
 			spoilersEnabled: 			{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.spoilersEnabled"), id:216, icon:"show_purple.svg"},
 			alertMode: 					{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.alertMode"), id:217, icon:"alert_purple.svg"},

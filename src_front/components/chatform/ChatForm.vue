@@ -550,7 +550,12 @@ export default class ChatForm extends Vue {
 			this.loading = true;
 			const count = this.$store("chat").realHistorySize;
 			for (let i = 0; i < count; i++) {
-				await this.$store("debug").sendRandomFakeMessage(i > count - 50);
+				const post = i > count - 100;
+				await this.$store("debug").sendRandomFakeMessage(post, undefined,(message:TwitchatDataTypes.ChatMessageTypes)=>{
+					if(!post) {
+						this.$store("chat").messages.push(message);
+					}
+				});
 			}
 			this.message = "";
 			this.loading = false;

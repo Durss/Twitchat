@@ -153,7 +153,7 @@
 					:action="element"
 					:index="index"
 					:totalItems="actionList.length"
-					:sources="sources"
+					:sources="obsSources"
 					:event="currentEvent"
 					:triggerData="triggerData"
 					:triggerKey="triggerKey"
@@ -179,7 +179,7 @@ import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerAc
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
+import OBSWebsocket, { type OBSSceneItem, type OBSSourceItem } from '@/utils/OBSWebsocket';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -213,12 +213,13 @@ export default class ParamsTriggers extends Vue {
 	public subeventsList:TwitchatDataTypes.ParameterDataListValue[] = [];
 	public eventCategories:{category:TriggerEventTypeCategoryValue, label:string, icon:string, events:TriggerEventTypes[]}[] = [];
 	public actionList:TriggerActionTypes[] = [];
-	public sources:OBSSourceItem[] = [];
 	public canSave = true;
 	public syncing = false;
 	public isSublist = false;
 	public showLoading = false;
 	public rewards:TwitchDataTypes.Reward[] = [];
+	public obsScenes:OBSSceneItem[] = [];
+	public obsSources:OBSSourceItem[] = [];
 	public triggerData:TriggerData = {
 						name:"",
 						enabled:true,
@@ -236,9 +237,13 @@ export default class ParamsTriggers extends Vue {
 	public get triggerKey():string {
 		if(!this.triggerData) return "";
 		let key = this.currentEvent?.value as string;
-		let subkey = this.currentSubEvent?.value as string;
-		if(this.currentEvent?.isCategory && key !== TriggerTypes.REWARD_REDEEM) {
-			subkey = this.triggerData.name;
+		let subkey = this.triggerData.name;
+		if(this.currentEvent?.isCategory &&
+		(key === TriggerTypes.REWARD_REDEEM
+		|| key === TriggerTypes.OBS_SCENE
+		|| key === TriggerTypes.OBS_SOURCE_ON
+		|| key === TriggerTypes.OBS_SOURCE_OFF)) {
+			subkey = this.currentSubEvent?.value as string;
 		}
 		if(subkey != "0" && subkey) key = key+"_"+subkey;
 		return key;
@@ -322,7 +327,7 @@ export default class ParamsTriggers extends Vue {
 	public canToggle(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):boolean {
 		let key = e.value as string;
 		if(this.isSublist) {
-			key = this.currentEvent!.value+"_"+key;
+			key = this.currentEvent!.value+"_"+key.toLowerCase();
 		}
 		
 		if(this.$store("triggers").triggers[key]) {
@@ -371,6 +376,7 @@ export default class ParamsTriggers extends Vue {
 		catToLabel[ TriggerEventTypeCategories.GAMES ] = "Games";
 		catToLabel[ TriggerEventTypeCategories.MUSIC ] = "Music";
 		catToLabel[ TriggerEventTypeCategories.TIMER ] = "Timers";
+		catToLabel[ TriggerEventTypeCategories.OBS ] = "OBS";
 		
 		const catToIcon:{[key:number]:string} = {};
 		catToIcon[ TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";
@@ -382,6 +388,7 @@ export default class ParamsTriggers extends Vue {
 		catToIcon[ TriggerEventTypeCategories.GAMES ] = "ticket_purple";
 		catToIcon[ TriggerEventTypeCategories.MUSIC ] = "music_purple";
 		catToIcon[ TriggerEventTypeCategories.TIMER ] = "timer_purple";
+		catToIcon[ TriggerEventTypeCategories.OBS ] = "obs_purple";
 
 		for (let i = 0; i < events.length; i++) {
 			const ev = events[i];
@@ -418,11 +425,11 @@ export default class ParamsTriggers extends Vue {
 	public async listSources(refreshVue = false):Promise<void> {
 		this.syncing = true;
 		try {
-			this.sources = await OBSWebsocket.instance.getSources();
+			this.obsSources = await OBSWebsocket.instance.getSources();
 		}catch(error){
 			//
 		}
-		this.sources = this.sources.sort((a, b) => {
+		this.obsSources = this.obsSources.sort((a, b) => {
 			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
 			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
 			return 0;
@@ -543,7 +550,6 @@ export default class ParamsTriggers extends Vue {
 						delete cd.endAt_ms;
 					}
 
-					console.log(m);
 					TriggerActionHandler.instance.onMessage(m, true);
 				}, false);
 			}
@@ -566,7 +572,6 @@ export default class ParamsTriggers extends Vue {
 			}
 			this.resetTriggerData();
 			this.onSelectTrigger();
-			console.log(this.currentEvent);
 		}).catch(()=> {});
 	}
 
@@ -621,6 +626,14 @@ export default class ParamsTriggers extends Vue {
 
 				if(key == TriggerTypes.REWARD_REDEEM) {
 					this.listRewards();
+				}else
+
+				if(key == TriggerTypes.OBS_SCENE) {
+					this.listOBSScenes();
+				}else
+
+				if(key == TriggerTypes.OBS_SOURCE_ON || key == TriggerTypes.OBS_SOURCE_OFF) {
+					this.listOBSSources(key);
 				}
 				else
 				{
@@ -672,7 +685,6 @@ export default class ParamsTriggers extends Vue {
 		if(this.currentSubEvent?.value !== undefined) {
 			key += (this.currentSubEvent.value as string).toLowerCase();
 		}
-		if(this.currentSubEvent) this.currentSubEvent.enabled = true;
 		
 		//Load actions for the selected sub event
 		let json = this.$store("triggers").triggers[key];
@@ -687,6 +699,7 @@ export default class ParamsTriggers extends Vue {
 			this.resetTriggerData();
 			if(this.currentSubEvent) {
 				this.addAction();
+				if(this.currentSubEvent) this.currentSubEvent.enabled = true;
 			}
 		}
 		await this.$nextTick();
@@ -723,6 +736,64 @@ export default class ParamsTriggers extends Vue {
 				value:v.id,
 				enabled,
 				icon:v.image?.url_2x
+			};
+		})
+		this.subeventsList = this.subeventsList?.concat(list);
+		this.showLoading = false;
+	}
+
+	/**
+	 * Lists OBS Scenes
+	 */
+	private async listOBSScenes():Promise<void> {
+		this.showLoading = true;
+		try {
+			this.obsScenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
+		}catch(error) {
+			this.obsScenes = [];
+			this.$store("main").alert("An error occurred while loading your OBS scenes");
+			this.showLoading = false;
+			return;
+		}
+		const list = this.obsScenes.sort((a,b)=> {
+			if(a.sceneName.toLowerCase() < b.sceneName.toLowerCase()) return -1;
+			if(a.sceneName.toLowerCase() > b.sceneName.toLowerCase()) return 1;
+			return 0;
+		}).map(v => {
+			const enabled = this.$store("triggers").triggers[TriggerTypes.OBS_SCENE+"_"+v.sceneName.toLowerCase()]?.enabled;
+			return {
+				label:v.sceneName,
+				value:v.sceneName,
+				enabled
+			};
+		})
+		this.subeventsList = this.subeventsList?.concat(list);
+		this.showLoading = false;
+	}
+
+	/**
+	 * Lists OBS Sources
+	 */
+	private async listOBSSources(key:string):Promise<void> {
+		this.showLoading = true;
+		try {
+			this.obsSources = await OBSWebsocket.instance.getSources();
+		}catch(error) {
+			this.obsSources = [];
+			this.$store("main").alert("An error occurred while loading your OBS sources");
+			this.showLoading = false;
+			return;
+		}
+		const list = this.obsSources.sort((a,b)=> {
+			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
+			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
+			return 0;
+		}).map(v => {
+			const enabled = this.$store("triggers").triggers[key+"_"+v.sourceName.toLowerCase()]?.enabled;
+			return {
+				label:v.sourceName,
+				value:v.sourceName,
+				enabled
 			};
 		})
 		this.subeventsList = this.subeventsList?.concat(list);

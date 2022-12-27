@@ -1,3 +1,5 @@
+import TwitchatEvent from '@/events/TwitchatEvent';
+import router from '@/router';
 import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
@@ -11,7 +13,6 @@ import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodEvent from '@/utils/voice/VoicemodEvent';
@@ -21,8 +22,6 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
-import router from '@/router';
-import { useI18n } from 'vue-i18n';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -287,7 +286,8 @@ export const storeMain = defineStore("main", {
 				for (const key in props) {
 					const k = key.replace(/^p:/gi, "");
 					if(props[key] == null) continue;
-					if(/^p:/gi.test(key) && k in sParams.$state[c]) {
+					const t = typeof sParams.$state[c];
+					if(t == "object" && /^p:/gi.test(key) && k in sParams.$state[c]) {
 						const v:string = props[key] as string;
 						/* eslint-disable-next-line */
 						const pointer = sParams.$state[c][k as TwitchatDataTypes.ParameterCategory];

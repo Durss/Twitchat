@@ -10,19 +10,19 @@
 					<img src="@/assets/icons/bits.svg" class="icon">
 					<span class="label">{{bits}}</span>
 				</div>
-				<div class="row" v-if="subs1 > 0" data-tooltip="Subs tier 1">
+				<div class="row t1" v-if="subs1 > 0" data-tooltip="Subs tier 1">
 					<img src="@/assets/icons/sub.svg" class="icon">
-					<span class="tier">T1</span>
+					<!-- <span class="tier">T1</span> -->
 					<span class="label">x{{subs1}}</span>
 				</div>
-				<div class="row" v-if="subs2 > 0" data-tooltip="Subs tier 2">
-					<img src="@/assets/icons/sub.svg" class="icon">
-					<span class="tier">T2</span>
+				<div class="row t2" v-if="subs2 > 0" data-tooltip="Subs tier 2">
+					<img src="@/assets/icons/sub_purple.svg" class="icon">
+					<!-- <span class="tier">T2</span> -->
 					<span class="label">x{{subs2}}</span>
 				</div>
-				<div class="row" v-if="subs3 > 0" data-tooltip="Subs tier 3">
-					<img src="@/assets/icons/sub.svg" class="icon">
-					<span class="tier">T3</span>
+				<div class="row t3" v-if="subs3 > 0" data-tooltip="Subs tier 3">
+					<img src="@/assets/icons/sub_purple.svg" class="icon">
+					<!-- <span class="tier">T3</span> -->
 					<span class="label">x{{subs3}}</span>
 				</div>
 				<div class="row" v-if="primes > 0" data-tooltip="Primes">
@@ -168,6 +168,20 @@ export default class ChatHypeTrainResult extends Vue {
 				margin-right: .5em;
 				color: @mainColor_normal;
 				background-color: @mainColor_light;
+			}
+
+			// &.t1 {
+				// background-color: #996f21;
+			// }
+
+			&.t2 {
+				background-color: #E6E8FA;
+				color:@mainColor_normal;
+			}
+
+			&.t3 {
+				background-color: #FFD700;
+				color:@mainColor_normal;
 			}
 		}
 	}

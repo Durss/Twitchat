@@ -256,6 +256,19 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE: {
+				if(await this.parseSteps(TriggerTypes.OBS_SCENE, message, testMode, this.currentSpoolGUID, message.sceneName.toLowerCase())) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE: {
+				const event = message.visible? TriggerTypes.OBS_SOURCE_ON : TriggerTypes.OBS_SOURCE_OFF;
+				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID, message.sourceName.toLowerCase())) {
+					return;
+				}break;
+			}
+
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING:
@@ -374,7 +387,6 @@ export default class TriggerActionHandler {
 		if(!trigger || (!trigger.enabled && !testMode) || !trigger.actions || trigger.actions.length == 0) {
 			return false;
 		}else{
-			// console.log("PARSE STEPS", eventType);
 			// console.log("PARSE STEPS", eventType, trigger, message);
 			const data = trigger as TriggerData;
 			let canExecute = true;

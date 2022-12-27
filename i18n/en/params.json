@@ -134,11 +134,13 @@
 			"userlist":"List users",
 			"betaadd":"Add a user to the beta-testers",
 			"betadel":"Remove a user from the beta-testers",
+			"betareset":"Remove all beta-testers",
 			"devmode":"Toggle dev mode",
 			"mod":"Grant moderator role",
 			"unmod":"Remove moderator role",
 			"vip":"Grant VIP role",
-			"unvip":"Remove VIP role"
+			"unvip":"Remove VIP role",
+			"greetduration":"Sets the greet them auto delete duration"
 		}
 	}
 }

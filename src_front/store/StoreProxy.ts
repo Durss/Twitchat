@@ -215,7 +215,7 @@ export interface IDebugGetters {
 export interface IDebugActions {
 	simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, postOnChat?:boolean):Promise<void>;
 	simulateNotice(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, postOnChat?:boolean):Promise<void>;
-	sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string):Promise<void>;
+	sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<void>;
 }
 
 
@@ -282,6 +282,7 @@ export interface IOBSActions {
 
 
 export interface IParamsState {
+	greetThemAutoDelete:number;
 	features:{[key:string]:TwitchatDataTypes.ParameterData};
 	appearance:{[key:string]:TwitchatDataTypes.ParameterData};
 	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
@@ -523,4 +524,5 @@ export interface IAdminGetters {
 export interface IAdminActions {
 	addBetaUser(login:string):Promise<void>;
 	removeBetaUser(login:string):Promise<void>;
+	removeAllBetaUser():Promise<void>;
 }

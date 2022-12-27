@@ -19,18 +19,8 @@
 		<div class="topForm" v-if="showList">
 			<div class="row">
 				<label><img src="@/assets/icons/timeout.svg" alt="timer">Auto delete after</label>
-				<select v-model.number="autoDeleteAfter">
-					<option value="-1">never</option>
-					<option value="60">1m</option>
-					<option value="120">2m</option>
-					<option value="180">3m</option>
-					<option value="240">4m</option>
-					<option value="300">5m</option>
-					<option value="600">10m</option>
-					<option value="900">15m</option>
-					<option value="1200">20m</option>
-					<option value="1800">30m</option>
-					<option value="3600">1h</option>
+				<select v-model.number="$store('params').greetThemAutoDelete">
+					<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
 				</select>
 			</div>
 		</div>
@@ -84,7 +74,6 @@ export default class NewUsers extends Vue {
 	public showList = true;
 	public scrollDownAuto = false;
 	public indexOffset = 0;
-	public autoDeleteAfter = 600;
 	public deleteInterval = -1;
 	public windowHeight = .3;
 	public localMessages:(TwitchatDataTypes.MessageChatData)[] = [];
@@ -109,28 +98,54 @@ export default class NewUsers extends Vue {
 		}
 	}
 
+	public get autoDeleteOptions():{seconds:number, label:string}[]{
+		const durations = [60, 120, 180, 240, 300, 600 ,900 ,1200, 1800, 3600];
+		const res:{seconds:number, label:string}[] = [];
+		for (let i = 0; i < durations.length; i++) {
+			res.unshift({seconds:durations[i], label:Utils.formatDuration(durations[i]*1000)});
+		}
+		const v = this.$store("params").greetThemAutoDelete
+		if(!durations.includes(v)) {
+			res.unshift({seconds:v, label:Utils.formatDuration(v*1000)});
+		}
+		// <option value="-1">never</option>
+		// <option value="60">1m</option>
+		// <option value="120">2m</option>
+		// <option value="180">3m</option>
+		// <option value="240">4m</option>
+		// <option value="300">5m</option>
+		// <option value="600">10m</option>
+		// <option value="900">15m</option>
+		// <option value="1200">20m</option>
+		// <option value="1800">30m</option>
+		// <option value="3600">1h</option>
+		res.unshift({seconds:-1, label:"never"});
+		res.sort((a,b)=> a.seconds - b.seconds);
+		return res;
+	}
 
 	public beforeMount():void {
 		const storeValue = DataStore.get(DataStore.GREET_AUTO_SCROLL_DOWN);
 		if(storeValue == "true") this.scrollDownAuto = true;
 		let height = DataStore.get(DataStore.GREET_AUTO_HEIGHT)
 		if(height) this.windowHeight = parseFloat(height);
-
+		
 		const autoDeleteStore = DataStore.get(DataStore.GREET_AUTO_DELETE_AFTER);
 		if(autoDeleteStore != null) {
-			this.autoDeleteAfter = parseInt(autoDeleteStore);
+			this.$store("params").greetThemAutoDelete = parseInt(autoDeleteStore);
 		}
 
 		//Save new "auto delete after" value when changed
-		watch(()=>this.autoDeleteAfter, ()=>{
-			DataStore.set(DataStore.GREET_AUTO_DELETE_AFTER, this.autoDeleteAfter);
+		watch(()=>this.$store("params").greetThemAutoDelete, ()=>{
+			DataStore.set(DataStore.GREET_AUTO_DELETE_AFTER, this.$store("params").greetThemAutoDelete);
 		});
 
 		//Automatically deletes messages after the configured delay
 		this.deleteInterval = setInterval(()=> {
-			if(this.autoDeleteAfter == -1) return;
+			const delay = this.$store("params").greetThemAutoDelete;
+			if(delay == -1) return;
 
-			const clearTimeoffset = Date.now() - this.autoDeleteAfter * 1000;
+			const clearTimeoffset = Date.now() - delay * 1000;
 			for (let i = 0; i < this.localMessages.length; i++) {
 				const m = this.localMessages[i];
 				if(m.date < clearTimeoffset) {

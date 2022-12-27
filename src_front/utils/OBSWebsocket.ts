@@ -1,10 +1,12 @@
 import StoreProxy from '@/store/StoreProxy';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
+import TriggerActionHandler from './triggers/TriggerActionHandler';
 import Utils from './Utils';
 
 /**
@@ -100,7 +102,39 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
-		})
+		});
+
+		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {
+			const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitchat",
+				type:'obs_scene_change',
+				sceneName:e.sceneName,
+			}
+			TriggerActionHandler.instance.onMessage(m);
+		});
+
+		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
+			const res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
+			const items = (res.sceneItems as unknown) as OBSSourceItem[];
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if(item.sceneItemId == e.sceneItemId) {
+					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:'obs_source_toggle',
+						sourceName:item.sourceName,
+						sourceItemId:e.sceneItemId,
+						visible:e.sceneItemEnabled,
+					}
+					TriggerActionHandler.instance.onMessage(m);
+					break;
+				}
+			}
+		});
 
 		// console.log(await this.obs.call("GetInputList"));
 
@@ -188,8 +222,15 @@ export default class OBSWebsocket extends EventDispatcher {
 			const scene = scenes.scenes[i] as {sceneIndex:number, sceneName:string};
 			const list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
 			let items = (list.sceneItems as unknown) as OBSSourceItem[];
-			items = items.filter(v => idsDone[v.sourceName] !== true);
-			items.forEach(v => idsDone[v.sourceName] = true);
+			for (let i = 0; i < items.length; i++) {
+				const v = items[i];
+				if(idsDone[v.sourceName] == true) {
+					items.splice(i, 1);
+					i--;
+					continue;
+				}
+				idsDone[v.sourceName] = true
+			}
 			sources = sources.concat(items);
 		}
 		return sources;
@@ -402,6 +443,10 @@ export interface OBSSourceItem {
 	sceneItemIndex:number;
 	sourceName:string;
 	sourceType:OBSSourceType;
+}
+export interface OBSSceneItem {
+	sceneIndex:number;
+	sceneName:string;
 }
 
 export interface OBSInputItem {

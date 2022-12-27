@@ -885,7 +885,7 @@ export const storeDebug = defineStore('debug', {
 			if(postOnChat) StoreProxy.chat.addMessage(data);
 		},
 		
-		async sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string):Promise<void> {
+		async sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<void> {
 			if(ponderatedRandomList.length === 0) {
 				const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
 					{type:TwitchatDataTypes.TwitchatMessageType.MESSAGE, probability:100},
@@ -908,7 +908,7 @@ export const storeDebug = defineStore('debug', {
 				}
 			}
 
-			await this.simulateMessage(Utils.pickRand(ponderatedRandomList), (data)=> {
+			return this.simulateMessage(Utils.pickRand(ponderatedRandomList), (data)=> {
 				if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(forcedMessage) {
 						data.message = data.message_html = data.message_no_emotes = forcedMessage;
@@ -933,6 +933,9 @@ export const storeDebug = defineStore('debug', {
 							if(Math.random() > .3) break;
 						}
 						data.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })
+					}
+					if(hook) {
+						hook(data);
 					}
 				}
 			}, postOnChat);

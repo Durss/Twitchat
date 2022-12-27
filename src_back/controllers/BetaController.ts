@@ -27,6 +27,7 @@ export default class BetaController extends AbstractController {
 		this.server.get('/api/beta/user', async (request, response) => await this.getUser(request, response));
 		this.server.post('/api/beta/user', async (request, response) => await this.addUser(request, response));
 		this.server.delete('/api/beta/user', async (request, response) => await this.delUser(request, response));
+		this.server.delete('/api/beta/user/all', async (request, response) => await this.removeAllUsers(request, response));
 	}
 	
 	
@@ -93,5 +94,18 @@ export default class BetaController extends AbstractController {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, userList}));
+	}
+
+	/**
+	 * Removes all users from the beta list
+	 */
+	private async removeAllUsers(request:FastifyRequest, response:FastifyReply) {
+		if(!await this.adminGuard(request, response)) return;
+		
+		fs.writeFileSync(Config.betaList, JSON.stringify([]));
+	
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, userList:[]}));
 	}
 }

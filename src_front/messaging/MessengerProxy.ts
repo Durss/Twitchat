@@ -353,6 +353,17 @@ export default class MessengerProxy {
 		if(cmd == "/betadel") {
 			StoreProxy.admin.removeBetaUser(params[0]);
 			return true;
+		}else
+
+		if(cmd == "/betaclose") {
+			StoreProxy.admin.removeAllBetaUser();
+			return true;
+		}else
+
+		if(cmd == "/greetduration") {
+			let duration = this.paramsToDuration(params[0]);
+			StoreProxy.params.greetThemAutoDelete = duration;
+			return true;
 		}
 		
 		return false;

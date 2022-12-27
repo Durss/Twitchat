@@ -741,6 +741,8 @@ export namespace TwitchatDataTypes {
 		CHAT_HIGHLIGHT:"chat_highlight",
 		FOLLOWBOT_LIST:"followbot_list",
 		HYPE_TRAIN_START:"hype_train_start",
+		OBS_SCENE_CHANGE:"obs_scene_change",
+		OBS_SOURCE_TOGGLE:"obs_source_toggle",
 		SHOUTOUT_TWITCHAT:"shoutout_twitchat",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
@@ -786,12 +788,14 @@ export namespace TwitchatDataTypes {
 		autoban_join:true,
 		room_settings:true,
 		followbot_list:true,
-		low_trust_treatment:true,
 		chat_highlight:false,
 		hype_train_start:false,
+		obs_scene_change:false,
+		obs_source_toggle:false,
 		hype_train_cancel:false,
 		shoutout_twitchat:false,
 		hype_train_summary:true,
+		low_trust_treatment:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
 		music_added_to_queue:false,
@@ -874,6 +878,8 @@ export namespace TwitchatDataTypes {
 									MessageFollowbotData |
 									MessageNoticeData |
 									MessageLowtrustTreatmentData |
+									MessageOBSSceneChangedData |
+									MessageOBSSourceToggleData |
 									MessageRoomSettingsData
 	;
 
@@ -1414,7 +1420,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Respresents a low trust user update
+	 * Represents a low trust user update
 	 * Sent when monitoring, restricting, or removing monitoring/restriction
 	 * on a user
 	 */
@@ -1425,6 +1431,24 @@ export namespace TwitchatDataTypes {
 		restricted:boolean;
 		monitored:boolean;
 		moderator:TwitchatUser;
+	}
+
+	/**
+	 * Respresents an OBS scene change event
+	 */
+	export interface MessageOBSSceneChangedData extends AbstractTwitchatMessage {
+		type:"obs_scene_change",
+		sceneName:string;
+	}
+
+	/**
+	 * Respresents an OBS scene change event
+	 */
+	export interface MessageOBSSourceToggleData extends AbstractTwitchatMessage {
+		type:"obs_source_toggle",
+		sourceName:string;
+		sourceItemId:number;
+		visible:boolean;
 	}
 
 }

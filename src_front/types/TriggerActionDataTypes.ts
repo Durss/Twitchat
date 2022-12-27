@@ -40,6 +40,7 @@ export const TriggerEventTypeCategories = {
 	HYPETRAIN: 7,
 	GAMES: 8,
 	MUSIC: 9,
+	OBS: 10,
 } as const;
 export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
 export interface TriggerEventTypes extends TwitchatDataTypes.ParameterDataListValue {
@@ -175,6 +176,9 @@ export const TriggerTypes = {
 	PRESENTATION:"46",
 	SHOUTOUT_IN:"47",
 	SHOUTOUT_OUT:"48",
+	OBS_SCENE:"49",
+	OBS_SOURCE_ON:"50",
+	OBS_SOURCE_OFF:"51",
 
 	TWITCHAT_AD:"ad",
 } as const;
@@ -370,10 +374,10 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 
 export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", label:"Chat command", value:TriggerTypes.CHAT_COMMAND, isCategory:true, description:"Execute actions when sending a command on your chat", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
-	{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", label:"Any message", value:TriggerTypes.ANY_MESSAGE, isCategory:false, description:"Execute actions everytime a message is received on chat", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+	{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", label:"Any message", value:TriggerTypes.ANY_MESSAGE, description:"Execute actions everytime a message is received on chat", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 	{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", label:"Channel point reward", value:TriggerTypes.REWARD_REDEEM, isCategory:true, description:"Execute an action when the following channel point reward is redeemed<br><mark>{SUB_ITEM_NAME}</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD, noToggle:true},
-	{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", label:"Community challenge progress", value:TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS, isCategory:false, description:"Execute an action when a user contributes to a community challenge", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
-	{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", label:"Community challenge complete", value:TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE, isCategory:false, description:"Execute an action when a community challenge completes", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
+	{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", label:"Community challenge progress", value:TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS, description:"Execute an action when a user contributes to a community challenge", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
+	{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", label:"Community challenge complete", value:TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE, description:"Execute an action when a community challenge completes", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
 	{category:TriggerEventTypeCategories.GLOBAL, icon:"info", label:"Stream info update", value:TriggerTypes.STREAM_INFO_UPDATE, description:"Execute an action when the stream info are updated", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE},
 	{category:TriggerEventTypeCategories.USER, icon:"firstTime", label:"First message of a user all time", value:TriggerTypes.FIRST_ALL_TIME, description:"Execute an action when a user sends a message for the first time on your channel", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 	{category:TriggerEventTypeCategories.USER, icon:"firstTime", label:"First message of a user today", value:TriggerTypes.FIRST_TODAY, description:"Execute an action when a user sends a message for the first time today", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
@@ -406,7 +410,7 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute an action when a music is added to the queue", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Music starts playing", value:TriggerTypes.MUSIC_START, description:"Execute an action when a music starts playing", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Music stops playing", value:TriggerTypes.MUSIC_STOP, description:"Execute an action when a music stops playing", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
-	{beta:true, category:TriggerEventTypeCategories.TIMER, icon:"date", label:"Scheduled actions", value:TriggerTypes.SCHEDULE, isCategory:true, description:"Execute actions regularly or at specific date/time", noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
+	{beta:true, category:TriggerEventTypeCategories.TIMER, icon:"date", label:"Scheduled actions", value:TriggerTypes.SCHEDULE, description:"Execute actions regularly or at specific date/time", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
 	{category:TriggerEventTypeCategories.TIMER, icon:"timer", label:"Timer start", value:TriggerTypes.TIMER_START, description:"Execute an action when a timer is started with the command <mark>/timerStart</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 	{category:TriggerEventTypeCategories.TIMER, icon:"timer", label:"Timer stop", value:TriggerTypes.TIMER_STOP, description:"Execute an action when a timer is stoped with the command <mark>/timerStop</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 	{category:TriggerEventTypeCategories.TIMER, icon:"countdown", label:"Countdown start", value:TriggerTypes.COUNTDOWN_START, description:"Execute an action when a countdown is started with the command <mark>/countdown</mark>", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
@@ -417,6 +421,9 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", label:"Highlighted message", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, description:"Execute an action when requesting to highlight a message", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", label:"Chat alert", value:TriggerTypes.CHAT_ALERT, description:"Execute an action when the Chat Alert feature is triggered <i>(Parameters => Features => Enable chat alert)</i>", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
 	{category:TriggerEventTypeCategories.TWITCHAT, icon:"voicemod", label:"Voicemod - voice changed", value:TriggerTypes.VOICEMOD, description:"Execute an action when changing the voice effect on voicemod", testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
+	{beta:true, category:TriggerEventTypeCategories.OBS, icon:"list", label:"Switch to scene", value:TriggerTypes.OBS_SCENE, description:"Execute an action when switching to <mark>{SUB_ITEM_NAME}</mark> OBS scene", isCategory:true, noToggle:true},
+	{beta:true, category:TriggerEventTypeCategories.OBS, icon:"show", label:"Source show", value:TriggerTypes.OBS_SOURCE_ON, description:"Execute an action when showing <mark>{SUB_ITEM_NAME}</mark> OBS source", isCategory:true, noToggle:true},
+	{beta:true, category:TriggerEventTypeCategories.OBS, icon:"hide", label:"Source hide", value:TriggerTypes.OBS_SOURCE_OFF, description:"Execute an action when hiding <mark>{SUB_ITEM_NAME}</mark> OBS source", isCategory:true, noToggle:true},
 ]
 
 export const TriggerMusicTypes = {
