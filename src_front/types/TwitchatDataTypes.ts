@@ -746,6 +746,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
+		LOW_TRUST_TREATMENT:"low_trust_treatment",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
@@ -770,22 +771,23 @@ export namespace TwitchatDataTypes {
 		message:true,
 		whisper:true,
 		connect:true,
-		voicemod:false,
 		shoutout:true,
+		voicemod:false,
 		following:true,
 		countdown:true,
 		clear_chat:true,
-		chat_alert:false,
 		disconnect:true,
 		prediction:true,
+		chat_alert:false,
 		music_stop:false,
-		music_start:false,
 		twitchat_ad:true,
+		music_start:false,
 		subscription:true,
 		autoban_join:true,
 		room_settings:true,
-		chat_highlight:false,
 		followbot_list:true,
+		low_trust_treatment:true,
+		chat_highlight:false,
 		hype_train_start:false,
 		hype_train_cancel:false,
 		shoutout_twitchat:false,
@@ -793,8 +795,8 @@ export namespace TwitchatDataTypes {
 		hype_train_progress:false,
 		hype_train_complete:false,
 		music_added_to_queue:false,
-		hype_train_approaching:false,
 		hype_train_cooled_down:true,
+		hype_train_approaching:false,
 		community_boost_complete:true,
 		community_challenge_contribution:true,
 	} as const;
@@ -871,6 +873,7 @@ export namespace TwitchatDataTypes {
 									MessageDisconnectData |
 									MessageFollowbotData |
 									MessageNoticeData |
+									MessageLowtrustTreatmentData |
 									MessageRoomSettingsData
 	;
 
@@ -1400,15 +1403,28 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a followbot message
-	 * When getting followboted, all follow events are merge into one
-	 * single MessageFollowbotData
+	 * Represents a room settings message
+	 * Sent on channel connexion to show current room's restrictions
 	 */
 	export interface MessageRoomSettingsData extends AbstractTwitchatMessage {
 		type:"room_settings";
 		channel_id: string;
 		channel_name: string;
 		settings:IRoomSettings;
+	}
+
+	/**
+	 * Respresents a low trust user update
+	 * Sent when monitoring, restricting, or removing monitoring/restriction
+	 * on a user
+	 */
+	export interface MessageLowtrustTreatmentData extends AbstractTwitchatMessage {
+		type:"low_trust_treatment";
+		channel_id: string;
+		user:TwitchatUser;
+		restricted:boolean;
+		monitored:boolean;
+		moderator:TwitchatUser;
 	}
 
 }

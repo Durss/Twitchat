@@ -463,6 +463,7 @@ export const storeDebug = defineStore('debug', {
 						bingoData: {
 							guessEmote:false,
 							guessNumber:true,
+							guessCustom:false,
 							min:0,
 							max:1000,
 							numberValue:Math.round(Math.random()*999),
@@ -625,6 +626,22 @@ export const storeDebug = defineStore('debug', {
 							endAt_ms:Date.now(),
 							timeoutRef:-1,
 						}
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT: {
+					const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id:uid,
+						type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
+						user:fakeUser,
+						moderator:user,
+						restricted:Math.random() > .5,
+						monitored:Math.random() > .5,
 					};
 					data = m;
 					break;

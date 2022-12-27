@@ -57,7 +57,10 @@
 				"title":"Start a commercial?",
 				"description":"The commercial break will last {DURATION}s. It's not guaranteed that a commercial actually starts."
 			},
-			"stream_title_changed":"Stream title changed to \"{TITLE}\""
+			"stream_title_changed":"Stream title changed to \"{TITLE}\"",
+			"user_monitored":"{USER} has been flagged as suspicious by {MODERATOR}",
+			"user_restricted":"{USER} has been restricted by {MODERATOR}",
+			"user_unflagged":"{USER} monitoring has been disabled by {MODERATOR}"
 		},
 		"dev_mode":{
 			"enabled":"Developer mode enabled",

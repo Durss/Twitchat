@@ -103,6 +103,11 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
+				<ChatLowTrustTreatment class="message"
+					v-else-if="m.type == 'low_trust_treatment'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
@@ -192,6 +197,10 @@
 					v-else-if="m.type == 'shoutout'"
 					:messageData="m" />
 
+				<ChatLowTrustTreatment class="message"
+					v-else-if="m.type == 'low_trust_treatment'"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					:messageData="m" />
 			</div>
@@ -267,6 +276,7 @@ import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatRoomSettings from './ChatRoomSettings.vue';
 import ChatShoutout from './ChatShoutout.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
+import ChatLowTrustTreatment from './ChatLowTrustTreatment.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
 
 @Options({
@@ -289,6 +299,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 		ChatCountdownResult,
 		ChatPredictionResult,
 		ChatSuggestionResult,
+		ChatLowTrustTreatment,
 		ChatMessageHoverActions,
 	},
 	props: {
@@ -391,7 +402,7 @@ export default class MessageList extends Vue {
 		});
 
 		let refreshDebounce = -1;
-
+ChatLowTrustTreatment
 		//Update list when filters are changed
 		watch(() => this.config.filters, () => {
 			clearTimeout(refreshDebounce);
@@ -707,6 +718,7 @@ export default class MessageList extends Vue {
 				return this.config.filters.leave === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT:
 			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {

@@ -5,7 +5,6 @@ import { LoremIpsum } from "lorem-ipsum";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import Config from '../Config';
 import OBSWebsocket from "../OBSWebsocket";
-import TriggerActionHandler from "../triggers/TriggerActionHandler";
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 
@@ -83,14 +82,15 @@ export default class PubSub extends EventDispatcher {
 				"stream-chat-room-v1."+myUID,//Host events; room settings; extension messages
 				"broadcast-settings-update."+myUID,//Stream info update
 				"shoutout."+myUID,//when receiving a shoutout
+				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
 				// "user-drop-events."+uid,
 				// "community-points-user-v1."+uid,
 				// "presence."+uid,
 				// "user-properties-update."+uid,
 				// "onsite-notifications."+uid,
 
-				"low-trust-users."+StoreProxy.auth.twitch.user.id+"."+StoreProxy.auth.twitch.user.id,
-				// "stream-change-v1."+StoreProxy.auth.twitch.user.id,
+				"low-trust-users."+myUID+"."+myUID,
+				// "stream-change-v1."+myUID,
 			];
 
 			
@@ -102,6 +102,8 @@ export default class PubSub extends EventDispatcher {
 					const uid = uids[i];
 					if(uid == myUID) continue;
 					subscriptions.push("raid."+uid);
+					subscriptions.push("chat_moderator_actions."+myUID+"."+uid);//TODO remove this if we're not mod of the channel
+					subscriptions.push("low-trust-users."+myUID+"."+uid);//TODO remove this if we're not mod of the channel
 					subscriptions.push("hype-train-events-v1."+uid);
 					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
 					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards
@@ -280,19 +282,21 @@ export default class PubSub extends EventDispatcher {
 		}
 
 		// console.log(data);
-		
+		//New follower
 		if(topic && /following\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Following;
 			this.followingEvent(localObj);
 
 
 
+		//Shoutout sent/received
 		}else if(topic && /shoutout\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Shoutout;
 			this.shoutoutEvent(localObj);
 
 
-
+		
+		//Viewer count and stream start/stop events
 		}else if(topic && /video-playback-by-id\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.PlaybackInfo;
 			if(localObj.type == "viewcount") {
@@ -334,27 +338,45 @@ export default class PubSub extends EventDispatcher {
 				message: localObj.body,
 				message_html: TwitchUtils.parseEmotes(localObj.body, emotes),
 			}
-			StoreProxy.chat.addMessage(whisper)
+			StoreProxy.chat.addMessage(whisper);
 
 
 
+		//Un/Pin message events
+		}else if(data.type == "pin-message") {
+			const localObj = (data as unknown) as PubSubDataTypes.PinMessage;
+			this.pinMessageEvent(localObj);
+
+		}else if(data.type == "update-message") {
+			const localObj = (data as unknown) as PubSubDataTypes.PinUpdateMessage;
+			this.updatePinnedMessageEvent(localObj);
+
+		}else if(data.type == "unpin-message") {
+			const localObj = (data as unknown) as PubSubDataTypes.UnpinMessage;
+			this.unpinMessageEvent(localObj);
+
+
+
+		//Sent when room settings are updated
 		}else if(data.type == "updated_room") {
 			this.roomSettingsUpdate(data.data as PubSubDataTypes.RoomSettingsUpdate);
 
 
 
+		//sent when a clip is sent on chat (see ChatRichEmbed JSON example).
 		}else if(data.type == "chat_rich_embed") {
-			//sent when a clip is sent on chat (see ChatRichEmbed JSON example).
 			//Warning: JSON might be mostly empty/incomplete. Example bellow:
 			//{"type":"chat_rich_embed","data":{"message_id":"1fda6833-d53c-44d2-958b-389dd2289ff8","request_url":"https://clips.twitch.tv/","thumbnail_url":"https://clips-media-assets2.twitch.tv/-preview-86x45.jpg","twitch_metadata":{"clip_metadata":{"game":"","channel_display_name":"","slug":"","id":"0","broadcaster_id":"","curator_id":""}}}}
 
 
-
+		
+		//Sent when stream settings are updated
 		}else if(data.type == "broadcast_settings_update") {
 			this.streamInfoUpdate(data as PubSubDataTypes.StreamInfo);
 
 
-
+		
+		//Sent when a whisper is read
 		}else if(data.type == "thread") {
 			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
 			this.whisperRead(data.data as PubSubDataTypes.WhisperRead);
@@ -364,27 +386,17 @@ export default class PubSub extends EventDispatcher {
 		}else if(data.type == "hype-train-approaching") {
 			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching);
 
-
-
 		}else if(data.type == "hype-train-start") {
 			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart);
-
-
 
 		}else if(data.type == "hype-train-progression") {
 			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress, channelId);
 
-
-
 		}else if(data.type == "hype-train-level-up") {
 			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp, channelId);
 
-
-
 		}else if(data.type == "hype-train-end") {
 			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd, channelId);
-
-
 
 		}else if(data.type == "hype-train-cooldown-expiration") {
 			const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
@@ -403,8 +415,10 @@ export default class PubSub extends EventDispatcher {
 
 
 
+		//Called when un/flagging a user as suspicious/restrcited
 		}else if(data.type == "low_trust_user_treatment_update") {
-			//Called when flagging a user as suspicious
+			const localObj = data.data as PubSubDataTypes.LowTrustTreatmentUpdate;
+			this.lowTrustUserUpdate(localObj)
 
 
 
@@ -413,15 +427,15 @@ export default class PubSub extends EventDispatcher {
 
 
 
+		//Manage rewards
 		}else if(data.type == "reward-redeemed") {
-			//Manage rewards
 			const localObj = data.data as  PubSubDataTypes.RewardData;
 			this.rewardEvent(localObj);
 
 
 
+		//Channel points challenge progress
 		}else if(data.type == "community-goal-contribution") {
-			//Channel points challenge progress
 			const contrib = (data.data as {timpestamp:string, contribution:PubSubDataTypes.ChannelPointChallengeContribution}).contribution
 			this.communityChallengeContributionEvent(contrib);
 
@@ -766,6 +780,26 @@ export default class PubSub extends EventDispatcher {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Called when a low trust user is detected
+	 * 
+	 * @param localObj
+	 */
+	private async lowTrustUserUpdate(localObj:PubSubDataTypes.LowTrustTreatmentUpdate):Promise<void> {
+		const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:localObj.channel_id,
+			type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
+			user:StoreProxy.users.getUserFrom("twitch", localObj.channel_id, localObj.target_user_id, localObj.target_user),
+			moderator:StoreProxy.users.getUserFrom("twitch", localObj.channel_id, localObj.updated_by.id, localObj.updated_by.login, localObj.updated_by.display_name),
+			restricted:localObj.treatment == "RESTRICTED",
+			monitored:localObj.treatment == "ACTIVE_MONITORING",
+		};
+		StoreProxy.chat.addMessage(m);
 	}
 
 	/**
@@ -1309,6 +1343,27 @@ export default class PubSub extends EventDispatcher {
 		settings.subOnly = modes.subscribers_only_mode_enabled === true;
 		settings.slowMode = modes.slow_mode_duration_seconds ?? false;
 		StoreProxy.stream.setRoomSettings(data.room.channel_id, settings);
+	}
+	
+	/**
+	 * Called when a message is pinned
+	 */
+	private pinMessageEvent(data:PubSubDataTypes.PinMessage):void {
+
+	}
+
+	/**
+	 * Called when a message is unpinned
+	 */
+	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage):void {
+
+	}
+
+	/**
+	 * Called when a pinned message param is update
+	 */
+	private updatePinnedMessageEvent(data:PubSubDataTypes.PinUpdateMessage):void {
+
 	}
 }
 

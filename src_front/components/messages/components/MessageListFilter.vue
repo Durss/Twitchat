@@ -138,6 +138,10 @@
 					<ChatShoutout class="message"
 						v-else-if="m.type == 'shoutout'"
 						:messageData="m" />
+
+					<ChatLowTrustTreatment class="message"
+						v-else-if="m.type == 'low_trust_treatment'"
+						:messageData="m" />
 	
 					<ChatHighlight v-else class="message"
 						lightMode
@@ -170,6 +174,7 @@ import ChatSuggestionResult from '../ChatSuggestionResult.vue';
 import ChatPredictionResult from '../ChatPredictionResult.vue';
 import ChatRaffleResult from '../ChatRaffleResult.vue';
 import ChatShoutout from '../ChatShoutout.vue';
+import ChatLowTrustTreatment from '../ChatLowTrustTreatment.vue';
 
 @Options({
 	props:{
@@ -195,6 +200,7 @@ import ChatShoutout from '../ChatShoutout.vue';
 		ChatNotice,
 		ChatSuggestionResult,
 		ChatPredictionResult,
+		ChatLowTrustTreatment,
 		ChatRaffleResult,
 	},
 	emits: ['update:modelValue', 'submit', 'add', 'delete', 'change'],
@@ -479,6 +485,12 @@ export default class MessageListFilter extends Vue {
 				this.previewData.push(data);
 			}, false);
 			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.CONNECT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;

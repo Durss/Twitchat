@@ -32,6 +32,52 @@ export namespace PubSubDataTypes {
 		}
 	}
 
+	export interface PinMessage {
+        id: string;
+        pinned_by: {
+			id: string;
+			display_name: string;
+		};
+        message: {
+			id: string;
+			sender: {
+				id: string;
+				display_name: string;
+				badges: {
+					id: string;
+					version: string;
+				}[];
+				chat_color: string;
+			};
+			content: {
+				text: string;
+				fragments: {
+					text: string;
+				}[];
+			};
+			type: string;
+			starts_at: number;
+			updated_at: number;
+			ends_at: number;
+			sent_at: number;
+		}
+	}
+
+	export interface PinUpdateMessage {
+		id: string;
+		ends_at: number;
+		updated_at: number;
+	}
+
+	export interface UnpinMessage {
+        id: string;
+        unpinned_by: {
+			id: string;
+			display_name: string;
+		};
+        reason: string;
+	}
+
 	export interface PlaybackInfo {
 		type: string;
 		server_time: number;
@@ -469,7 +515,7 @@ export namespace PubSubDataTypes {
 		sent_at: Date;
 	}
 
-	interface LowTrustUser {
+	export interface LowTrustUser {
 		id: string;
 		low_trust_id: string;
 		channel_id: string;
@@ -495,6 +541,24 @@ export namespace PubSubDataTypes {
 		shared_ban_channel_ids: string[];
 		types: "BANNED_IN_SHARED_CHANNEL"[];
 	}
+
+
+    export interface LowTrustTreatmentUpdate {
+        low_trust_id: string;
+        channel_id: string;
+        updated_by: {
+			id: string;
+			login: string;
+			display_name: string;
+		};
+        updated_at: Date;
+        target_user_id: string;
+        target_user: string;
+		treatment: "RESTRICTED" | "ACTIVE_MONITORING" | "NO_TREATMENT";
+        types: string[];
+        ban_evasion_evaluation: string;
+        evaluated_at: Date;
+    }
 
 	export interface RaidInfos {
 		id: string;

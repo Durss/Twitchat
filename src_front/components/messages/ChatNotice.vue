@@ -80,12 +80,6 @@ export default class ChatNotice extends Vue {
 .chatnotice{
 	.chatMessage();
 
-	.icon {
-		width: 1.25em;
-		height: 1.25em;
-		margin-right: 5px;
-		vertical-align: middle;
-	}
 	.message {
 		font-style: italic;
 		opacity: .7;
@@ -102,7 +96,7 @@ export default class ChatNotice extends Vue {
 		border-radius: .5em;
 		background-color: rgba(255, 255, 255, .15);
 		&:hover {
-		background-color: rgba(255, 255, 255, .25);
+			background-color: rgba(255, 255, 255, .25);
 		}
 		&.enabled {
 			background-color: @mainColor_alert;
