@@ -2,7 +2,7 @@
 	<div class="paramstriggers">
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
-		<p class="head" v-if="!currentEvent">Execute custom actions based on twitch events.<br></p>
+		<p class="head" v-if="!currentEvent">Execute custom actions based on <strong>{{eventsCount}} event</strong> types.<br></p>
 
 		<div class="menu">
 			<Button class="backBt" v-if="currentEvent"
@@ -24,6 +24,10 @@
 					<div class="disclaimer" v-if="!musicServiceAvailable && isMusicCategory(c.category)">
 						These triggers need you to connect with a music service <i>(spotify or deezer)</i>
 						under the <a @click="openOverlays()">overlays section</a>.
+					</div>
+
+					<div class="disclaimer" v-if="!obsConnected && isOBSCategory(c.category)">
+						These triggers need you to <a @click="openOverlays()">connect with OBS</a>.
 					</div>
 
 					<div v-for="e in c.events" :key="(e.value as string)" :class="e.beta? 'item beta' : 'item'">
@@ -213,6 +217,7 @@ export default class ParamsTriggers extends Vue {
 	public subeventsList:TwitchatDataTypes.ParameterDataListValue[] = [];
 	public eventCategories:{category:TriggerEventTypeCategoryValue, label:string, icon:string, events:TriggerEventTypes[]}[] = [];
 	public actionList:TriggerActionTypes[] = [];
+	public eventsCount = 0;
 	public canSave = true;
 	public syncing = false;
 	public isSublist = false;
@@ -350,6 +355,7 @@ export default class ParamsTriggers extends Vue {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [];
 		events = events.concat(TriggerEvents);
+		this.eventsCount = events.length
 
 		//Define select states
 		events.forEach(v=>{
@@ -594,6 +600,10 @@ export default class ParamsTriggers extends Vue {
 
 	public isMusicCategory(category:TriggerEventTypeCategoryValue):boolean {
 		return category == TriggerEventTypeCategories.MUSIC;
+	}
+
+	public isOBSCategory(category:TriggerEventTypeCategoryValue):boolean {
+		return category == TriggerEventTypeCategories.OBS;
 	}
 
 	public openOverlays():void {

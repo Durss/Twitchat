@@ -339,6 +339,13 @@ export default class TriggerActionHandler {
 							return;
 						}break;
 					}
+					case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:{
+						const m = message as TwitchatDataTypes.MessageShieldMode;
+						const event = m.enabled? TriggerTypes.SHIELD_MODE_ON : TriggerTypes.SHIELD_MODE_OFF;
+						if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+							return;
+						}break;
+					}
 				}
 				break;
 			}
