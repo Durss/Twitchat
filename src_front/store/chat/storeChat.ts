@@ -1,3 +1,6 @@
+import EventBus from '@/events/EventBus'
+import GlobalEvent from '@/events/GlobalEvent'
+import TwitchatEvent from '@/events/TwitchatEvent'
 import MessengerProxy from '@/messaging/MessengerProxy'
 import DataStore from '@/store/DataStore'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
@@ -5,19 +8,15 @@ import ChatCypherPlugin from '@/utils/ChatCypherPlugin'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler'
+import TTSUtils from '@/utils/TTSUtils'
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
-import TwitchatEvent from '@/events/TwitchatEvent'
 import Utils from '@/utils/Utils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonObject } from 'type-fest'
 import { reactive, type UnwrapRef } from 'vue'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
-import EventBus from '@/events/EventBus'
-import GlobalEvent from '@/events/GlobalEvent'
-import { LoremIpsum } from "lorem-ipsum";
-import TTSUtils from '@/utils/TTSUtils'
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -28,7 +27,7 @@ let subgiftTriggerTimeout:number = -1;
 export const storeChat = defineStore('chat', {
 	state: () => ({
 		searchMessages: "",
-		realHistorySize: 10000,
+		realHistorySize: 20000,
 		whispersUnreadCount: 0,
 		pinedMessages: [],
 		whispers: {},
@@ -1136,58 +1135,6 @@ export const storeChat = defineStore('chat', {
 					this.flagSuspiciousMessage(data, retryCount);
 				}, 100);
 			}
-		},
-		
-		async gigaSpam():Promise<void> {
-			const lorem = new LoremIpsum({
-				sentencesPerParagraph: { max: 8, min: 4 },
-				wordsPerSentence: { max: 8, min: 2 }
-			});
-			const channel_id = StoreProxy.auth.twitch.user.id;
-
-			const followers = (await TwitchUtils.getFollowers(channel_id, 100));
-			while(followers.length<50) {
-				const id = Math.round(Math.random()*99999999).toString();
-				followers.push({
-					from_id:id,
-					from_login:"",
-					from_name:"",
-					to_id:channel_id,
-					to_login:"",
-					to_name:"",
-					followed_at:"",
-				});
-			}
-
-			const users:TwitchatDataTypes.TwitchatUser[] = [];
-			followers.forEach(v=> {
-				const u = StoreProxy.users.getUserFrom("twitch", channel_id, v.from_id, v.from_login, v.from_name, undefined, true);
-				users.push(u);
-			})
-
-			let mess!:TwitchatDataTypes.MessageChatData;
-			for (let i = 0; i < this.realHistorySize; i++) {
-				let message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
-				mess = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					user: Utils.pickRand(users),
-					channel_id,
-					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-					message,
-					message_html:message,
-					message_no_emotes:message,
-					answers:[],
-					is_short:false,
-				};
-				messageList.push(mess);
-				if(i >= this.realHistorySize-50) {
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, mess));
-				}
-			}
-			
-
 		},
 	} as IChatActions
 	& ThisType<IChatActions

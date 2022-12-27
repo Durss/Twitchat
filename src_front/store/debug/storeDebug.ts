@@ -8,6 +8,9 @@ import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import rewardImg from '@/assets/icons/channelPoints.svg';
 
+const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
+const fakeUsers:TwitchatDataTypes.TwitchatUser[] = [];
+
 export const storeDebug = defineStore('debug', {
 	state: () => ({
 	} as IDebugState),
@@ -25,10 +28,15 @@ export const storeDebug = defineStore('debug', {
 		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
+			if(fakeUsers.length === 0) {
+				const followers = await TwitchUtils.getFollowers(uid, 100);
+				for (let i = 0; i < followers.length; i++) {
+					fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
+				}
+			}
+
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);
-			const tmpFake = Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true));
-			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
-			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName, undefined, true, false);
+			const fakeUser:TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers);
 			
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: { max: 8, min: 4 },
@@ -99,7 +107,7 @@ export const storeDebug = defineStore('debug', {
 						is_gift:false,
 						is_giftUpgrade:false,
 						is_resub:false,
-						gift_upgradeSender:StoreProxy.users.getUserFrom("twitch", uid, (Math.round(Math.random() * 999999999).toString()), undefined, undefined, undefined, true, false),
+						gift_upgradeSender:Utils.pickRand(fakeUsers)
 					};
 					data = m;
 					break;
@@ -137,12 +145,8 @@ export const storeDebug = defineStore('debug', {
 					
 				case TwitchatDataTypes.TwitchatMessageType.JOIN:
 				case TwitchatDataTypes.TwitchatMessageType.LEAVE: {
-					const users:TwitchatDataTypes.TwitchatUser[] = [];
-					const count = Math.round(Math.random() * 50) + 1;
-					const followers = await TwitchUtils.getFollowers(uid, count);
-					for (let i = 0; i < followers.length; i++) {
-						users.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
-					}
+					const count = Math.min(fakeUsers.length, Math.round(Math.random() * 50) + 1);
+					const users = Utils.shuffle(fakeUsers.concat()).splice(0, count);
 					const m:TwitchatDataTypes.MessageJoinData|TwitchatDataTypes.MessageLeaveData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -165,7 +169,7 @@ export const storeDebug = defineStore('debug', {
 							channel_id:uid,
 							date:Date.now(),
 							type,
-							user,
+							user:Utils.pickRand(fakeUsers),
 							reward: {
 								id:Utils.getUUID(),
 								cost:50,
@@ -188,7 +192,7 @@ export const storeDebug = defineStore('debug', {
 							channel_id:uid,
 							date:Date.now(),
 							type,
-							user,
+							user:Utils.pickRand(fakeUsers),
 							reward: {
 								id:reward.id,
 								cost:reward.cost,
@@ -314,12 +318,9 @@ export const storeDebug = defineStore('debug', {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 								//Simulate subgifts
 								if(Math.random() > .8) {
-									const recipients:TwitchatDataTypes.TwitchatUser[] = [];
-									const count = Math.round(Math.random() * 50) + 1;
+									const count = Math.min(fakeUsers.length, Math.round(Math.random() * 50) + 1);
+									const recipients:TwitchatDataTypes.TwitchatUser[] = fakeUsers.concat().splice(0, count);
 									const m = (message as TwitchatDataTypes.MessageSubscriptionData);
-									for (let i = 0; i < count; i++) {
-										recipients.push(StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, (Math.round(Math.random() * 999999999)).toString(), undefined, undefined, undefined, true, false))
-									}
 									m.gift_recipients = recipients;
 									m.is_gift = true;
 									sum += count * parseInt(m.tier.toString().replace("prime", "1")) * 250;
@@ -656,16 +657,14 @@ export const storeDebug = defineStore('debug', {
 		async simulateNotice(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
 			let data!:TwitchatDataTypes.MessageNoticeData;
 			const uid:string = StoreProxy.auth.twitch.user.id;
+			if(fakeUsers.length === 0) {
+				const followers = await TwitchUtils.getFollowers(uid, 100);
+				for (let i = 0; i < followers.length; i++) {
+					fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
+				}
+			}
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);
-			const tmpFake = Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true));
-			//Reloading the user from getUserFrom() to make sure the channel specific data are initialized
-			const fakeUser:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, tmpFake.id, tmpFake.login, tmpFake.displayName, undefined, true, false);
-
-			// const lorem = new LoremIpsum({
-			// 	sentencesPerParagraph: { max: 8, min: 4 },
-			// 	wordsPerSentence: { max: 8, min: 2 }
-			// });
-			// const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			const fakeUser:TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers);
 
 			switch(noticeType) {
 				case TwitchatDataTypes.TwitchatNoticeType.TIMEOUT: {
@@ -884,6 +883,59 @@ export const storeDebug = defineStore('debug', {
 				if(hook(data) === false) return;
 			}
 			if(postOnChat) StoreProxy.chat.addMessage(data);
+		},
+		
+		async sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string):Promise<void> {
+			if(ponderatedRandomList.length === 0) {
+				const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
+					{type:TwitchatDataTypes.TwitchatMessageType.MESSAGE, probability:100},
+					{type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING, probability:5},
+					{type:TwitchatDataTypes.TwitchatMessageType.REWARD, probability:4},
+					{type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, probability:3},
+					{type:TwitchatDataTypes.TwitchatMessageType.CHEER, probability:3},
+					{type:TwitchatDataTypes.TwitchatMessageType.RAID, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.POLL, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.PREDICTION, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, probability:1},
+				];
+	
+				for (let i = 0; i < spamTypes.length; i++) {
+					for (let j = 0; j < spamTypes[i].probability; j++) {
+						ponderatedRandomList.push(spamTypes[i].type);
+					}
+				}
+			}
+
+			await this.simulateMessage(Utils.pickRand(ponderatedRandomList), (data)=> {
+				if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					if(forcedMessage) {
+						data.message = data.message_html = data.message_no_emotes = forcedMessage;
+					}
+					if(Math.random() > .1) return;
+					if(Math.random() > .5) {
+						data.twitch_isFirstMessage = true;
+					}else if(Math.random() > .5) {
+						data.twitch_isPresentation = true;
+					}else if(Math.random() > .5) {
+						data.deleted = true;
+					}else if(Math.random() > .5) {
+						if(Math.random() > .35) {
+							data.twitch_isSuspicious = true;
+						}else{
+							data.twitch_isRestricted = true;
+						}
+						const users:TwitchatDataTypes.TwitchatUser[] = [];
+						const list = StoreProxy.users.users;
+						for (let i = 0; i < list.length; i++) {
+							users.push(list[i]);
+							if(Math.random() > .3) break;
+						}
+						data.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })
+					}
+				}
+			}, postOnChat);
 		},
 	} as IDebugActions
 	& ThisType<IDebugActions

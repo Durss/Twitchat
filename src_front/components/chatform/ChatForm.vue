@@ -526,73 +526,37 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam" || cmd == "/fake") {
+		if(cmd == "/fake") {
+			this.loading = true;
+			const forcedMessage = params.join(" ");
+			await this.$store("debug").sendRandomFakeMessage(true, forcedMessage);
+			this.loading = false;
+		}else
+
+		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam") {
 			this.loading = true;
 			this.spamming = true;
 			clearInterval(this.spamInterval);
-
-			const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
-				{type:TwitchatDataTypes.TwitchatMessageType.MESSAGE, probability:100},
-				{type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING, probability:5},
-				{type:TwitchatDataTypes.TwitchatMessageType.REWARD, probability:4},
-				{type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, probability:3},
-				{type:TwitchatDataTypes.TwitchatMessageType.CHEER, probability:3},
-				{type:TwitchatDataTypes.TwitchatMessageType.RAID, probability:1},
-				{type:TwitchatDataTypes.TwitchatMessageType.POLL, probability:1},
-				{type:TwitchatDataTypes.TwitchatMessageType.PREDICTION, probability:1},
-				{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, probability:1},
-				{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN, probability:1},
-			];
-
-			const ponderatedList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
-			for (let i = 0; i < spamTypes.length; i++) {
-				for (let j = 0; j < spamTypes[i].probability; j++) {
-					ponderatedList.push(spamTypes[i].type);
-				}
-			}
 			
 			const forcedMessage = params.join(" ");
 			this.spamInterval = window.setInterval(()=> {
-				this.$store("debug").simulateMessage(Utils.pickRand(ponderatedList), (data)=> {
-					if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						if(forcedMessage) {
-							data.message = data.message_html = data.message_no_emotes = forcedMessage;
-						}
-						if(Math.random() > .1) return;
-						if(Math.random() > .5) {
-							data.twitch_isFirstMessage = true;
-						}else if(Math.random() > .5) {
-							data.twitch_isPresentation = true;
-						}else if(Math.random() > .5) {
-							data.deleted = true;
-						}else if(Math.random() > .5) {
-							if(Math.random() > .35) {
-								data.twitch_isSuspicious = true;
-							}else{
-								data.twitch_isRestricted = true;
-							}
-							const users:TwitchatDataTypes.TwitchatUser[] = [];
-							const list = this.$store("users").users;
-							for (let i = 0; i < list.length; i++) {
-								users.push(list[i]);
-								if(Math.random() > .3) break;
-							}
-							data.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })
-						}
-					}
-				});
-				if(cmd == "/fake") clearInterval(this.spamInterval);
+				this.$store("debug").sendRandomFakeMessage(true, forcedMessage);
 			}, cmd == "/megaspam"? 50 :  200);
 			this.message = "";
 			this.loading = false;
 		}else
 
 		if(cmd == "/gigaspam") {
-			this.$store("chat").gigaSpam();
+			this.loading = true;
+			const count = this.$store("chat").realHistorySize;
+			for (let i = 0; i < count; i++) {
+				await this.$store("debug").sendRandomFakeMessage(i > count - 50);
+			}
 			this.message = "";
+			this.loading = false;
 		}else
 
-		if(cmd == "/spamstop" || cmd == "/simulatechatstop") {
+		if(cmd == "/spamstop") {
 			this.stopSpam();
 		}else
 		
