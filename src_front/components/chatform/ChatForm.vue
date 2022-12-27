@@ -174,7 +174,7 @@
 				</transition>
 
 				<transition name="blink">
-				<Button small highlight class="noClear" aria-label="emergency button"
+				<Button small highlight class="noClear emergency" aria-label="emergency button"
 					v-if="emergencyButtonEnabled"
 					:icon="$image('icons/emergency.svg')"
 					bounce
@@ -961,6 +961,7 @@ export default class ChatForm extends Vue {
 			.button:not(.noClear) {
 				.clearButton() !important;
 				border-radius: 50%;
+				min-height: 100%;
 			}
 			.spam {
 				flex-grow: 1;
