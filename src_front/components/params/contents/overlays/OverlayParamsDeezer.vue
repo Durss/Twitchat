@@ -1,30 +1,32 @@
 <template>
 	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer_purple']">
 
-		<div v-if="!deezerConnected">Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.</div>
+		<div v-if="!deezerConnected" v-t="'overlay.music_common.music'"></div>
 		
 		<div class="player">
-			<div class="label">Example</div>
+			<div class="label" v-t="'global.example'"></div>
 			<OverlayMusicPlayer v-if="currentTrack" :staticTrackData="currentTrack" embed />
 		</div>
 		
-		<div v-if="!deezerConnected" class="infos">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.</div>
+		<div v-if="!deezerConnected" class="warning" v-t="'overlay.deezer.shit_api'"></div>
 	
-		<Button v-if="!deezerConnected" title="Authenticate" @click="authenticate()" class="authBt" :loading="authenticating" />
+		<Button v-if="!deezerConnected" :title="$t('overlay.deezer.authBt')" @click="authenticate()" class="authBt" :loading="authenticating" />
 
 		<div v-if="deezerConnected" class="content">
 			<div class="row">
-				<label for="deezer_overlay_url">Set this URL in an OBS browser source to display currently playing Deezer track:</label>
+				<label for="deezer_overlay_url" v-t="$t('overlay.music_url')"></label>
 				<OverlayParamsMusic />
 				
 			</div>
 			<div class="row">
-				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
-				<div>Head over the <a @click="$emit('setContent', contentTriggers)">Triggers tab</a></div>
-				<div class="infos">Click on the <strong>Deezer icon</strong> <img src="@/assets/icons/deezer_purple.svg" alt="deezer" class="icon"> on the bottom right of the screen to add tracks, view the queue, and control the playback !</div>
-				<div class="warning">Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.</div>
+				<div>
+					<span v-t="'overlay.music_common.infos'"></span>
+					<a @click="$emit('setContent', contentTriggers)" v-t="'overlay.music_common.triggerBt'"></a>.
+				</div>
+				<div class="infos" v-html="$t('overlay.deezer.control', {ICON:$image('icons/deezer_purple.svg')})"></div>
+				<div class="warning" v-t="'overlay.deezer.shit_api'"></div>
 			</div>
-			<Button v-if="deezerConnected" title="Disconnect" @click="disconnect()" class="authBt" highlight />
+			<Button v-if="deezerConnected" :title="$t('global.disconnect')" @click="disconnect()" class="authBt" highlight />
 		</div>
 
 	</ToggleBlock>
@@ -88,6 +90,7 @@ export default class OverlayParamsDeezer extends Vue {
 	}
 
 	.content {
+		margin-top: 1em;
 		.row {
 			display: flex;
 			flex-direction: column;
@@ -107,7 +110,7 @@ export default class OverlayParamsDeezer extends Vue {
 		color: @mainColor_alert;
 	}
 
-	.icon {
+	:deep(.icon) {
 		height: 1em;
 		vertical-align: middle;
 	}

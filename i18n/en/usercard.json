@@ -4,6 +4,10 @@
 		"creation_date_tt":"Account creation date",
 		"follow_date_tt":"Follows you since",
 		"not_following":"Not following you",
-		"streaming":"Streaming"
+		"streaming":"Streaming",
+		"profileBt":"profile",
+		"viewercardBt":"viewer card",
+		"trackBt":"track user",
+		"untrackBt":"untrack user"
 	}
 }

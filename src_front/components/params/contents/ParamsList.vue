@@ -12,6 +12,13 @@
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
 						<p class="label"><span v-t="'global.obs_connect'"></span> <a @click="$emit('setContent', contentObs)" v-t="'global.obs_connect_link'"></a></p>
 					</div>
+				
+					<div v-else-if="p.id == 201 && p.value === true" class="info greetThem">
+						<p class="label">
+							<span v-t="'params.firstMessage_info'"></span>
+							<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
+						</p>
+					</div>
 					
 					<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
 						<p class="label">
@@ -265,7 +272,7 @@ export default class ParamsList extends Vue {
 				}
 			}
 	
-			&.pronouns, &.spoiler {
+			&.pronouns, &.spoiler, &.greetThem {
 				.label {
 					font-size: .8em;
 				}

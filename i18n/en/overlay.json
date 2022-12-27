@@ -1,0 +1,79 @@
+{
+	"overlay":{
+		"header": "Add overlays to your stream",
+		"unified": "Include all overlays in one single browser source:",
+		"css_customization": "CSS customization",
+
+		"connection":{
+			"title":"The overlays need you to",
+			"obsBt":"Connect with OBS",
+			"or":"or",
+			"dockBt":"Dock Twitchat on OBS",
+			"closeBt":"Close",
+			"dock_tutorial": "On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong> and add Twitchat this way"
+		},
+
+		"raffle":{
+			"title":"Wheel",
+			"head":"When doing a raffle, this page will display a wheel that'll animate to pick a winner.",
+			"css":"You can change the appearance of the wheel by overriding these CSS values on OBS browser source params",
+			"no_overlay":"- overlay not configured or hidden -",
+			"start":"To start a raffle, open the commands menu <img src=\"{ICON}\" class=\"icon\"> or use the <strong>/raffle</strong> command.",
+			"testBt":"Test with some<br>of your followers"
+		},
+
+		"timer":{
+			"title":"Timer & Countdown",
+			"head":"When starting a countdown or a timer with <mark>/countdown</mark> or <mark>/timerStart</mark> commands, this overlay will display the ellapsed or remaining time.",
+			"css":"You can change the appearance of the timers by overriding these CSS values on OBS browser source params",
+			"try_timerBt":"Try timer",
+			"try_countdownBt":"Try countdown (2min)"
+		},
+		
+		"highlight":{
+			"title":"Message highlight",
+			"head":"If you add this overlay on OBS you'll be able to display any chat message and clips on your stream like this:",
+			"instruction":"Set this in an OBS browser source to display the highlighted message:",
+			"css":"You can change the appearance of the message by overriding these CSS IDs on OBS browser source params",
+			"message_pos":"Message position",
+			"clear_instruction":"To clear the currently highlighted message click this button on the chat bar",
+			"testBt":"Send test message",
+			"no_overlay":"- overlay not configured or hidden -",
+			"alternative_tool":"Check out <a href=\"https://featured.chat\" target=\"_blank\">featured.chat</a> for a dedicated tool doing this with much more options"
+		},
+
+		"music_common":{
+			"music":"Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.",
+			"music_url":"Set this URL in an OBS browser source to display currently playing track:",
+			"css":"You can change the appearance of the player by overriding these CSS IDs on OBS browser source params",
+			"no_scroll":"Disable scrolling",
+			"open_from_left":"Open from left",
+			"auto_hide":"Keep player visible if nothing is playing",
+			"auto_hide_erase":"Erase track infos when nothing is playing",
+			"show_cover":"Show cover",
+			"show_artist":"Show artist",
+			"show_title":"Show title",
+			"show_progress":"Show progress bar",
+			"custom_template_toggle":"Use custom template",
+			"custom_template":"Template (HTML accepted)",
+			"custom_template_placeholders":{
+				"title":"Track title",
+				"artist":"Track artist"
+			},
+			"infos":"You can allow your viewers to control playback or add musics to the queue from chat commands thanks to the ",
+			"triggerBt":"triggers"
+		},
+
+		"spotify":{
+			"refused":"Sadly, <strong>Spotify is refusing</strong> Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.",
+			"how_to":"To use it you'll have to <a href=\"https://github.com/durss/twitchat/blob/main/SPOTIFY.md\" target=\"_blank\"><strong>READ THIS TUTORIAL</strong></a> and fill-in the values bellow:",
+			"authBt":"Authenticate"
+		},
+
+		"deezer":{
+			"shit_api":"Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.",
+			"authBt":"Authenticate",
+			"control":"Click on the <img src=\"{ICON}\" alt=\"deezer\" class=\"icon\"> icon deezer on the bottom right of the screen to add tracks, view the queue, and control the playback !"
+		}
+	}
+}

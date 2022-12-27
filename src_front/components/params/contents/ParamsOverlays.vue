@@ -1,30 +1,42 @@
 <template>
 	<div class="paramsoverlays">
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
-		<div class="head">Add overlays to your stream</div>
-
-		<div class="unified" v-if="exchangeChannelAvailable">
-			Include all overlays in one single browser source:
-			<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
-		</div>
-		
-		<OverlayParamsRaffle class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsTimer class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsHighlight class="block" v-if="exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsSpotify class="block" v-if="exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsDeezer class="block" v-if="exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
+		<div class="head" v-t="'overlay.header'"></div>
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
-			<div>These features need you to</div>
-			<Button class="button" :icon="$image('icons/obs_purple.svg')" title="Connect with OBS" white @click="$emit('setContent', contentObs)" />
+			<div v-t="'overlay.connection.title'"></div>
+			<Button class="button"
+				:icon="$image('icons/obs_purple.svg')"
+				:title="$t('overlay.connection.obsBt')"
+				white
+				@click="$emit('setContent', contentObs)" />
 			<div class="or">or</div>
-			<Button class="button" :icon="$image('icons/twitchat_purple.svg')" title="Dock Twitchat on OBS" white @click="showDockTutorial = true" v-if="!showDockTutorial" />
-			<Button class="button" :icon="$image('icons/cross.svg')" title="Close" white @click="showDockTutorial = false" v-if="showDockTutorial" />
+			<Button class="button"
+				:icon="$image('icons/twitchat_purple.svg')"
+				:title="$t('overlay.connection.dockBt')"
+				white
+				@click="showDockTutorial = true" v-if="!showDockTutorial" />
+			<Button class="button"
+				:icon="$image('icons/cross.svg')"
+				:title="$t('overlay.connection.closeBt')"
+				white
+				@click="showDockTutorial = false" v-if="showDockTutorial" />
 			<div v-if="showDockTutorial" class="dockTuto">
-				<div class="row">On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong> and add Twitchat this way</div>
+				<div class="row" v-html="$t('overlay.connection.dock_tutorial')"></div>
 				<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
 			</div>
 		</div>
+
+		<div class="unified" v-if="true || exchangeChannelAvailable">
+			<span v-t="'overlay.unified'"></span>
+			<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+		</div>
+		
+		<OverlayParamsRaffle class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsTimer class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsHighlight class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsSpotify class="block" v-if="true || exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsDeezer class="block" v-if="true || exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 	</div>
 </template>
 
@@ -71,12 +83,6 @@ export default class ParamsOverlays extends Vue {
 .paramsoverlays{
 	.parameterContent();
 
-	.infos {
-		font-size: .9em;
-		text-align: center;
-		margin-bottom: 1em;
-	}
-
 	.connectObs {
 		text-align: center;
 		color: @mainColor_light;
@@ -105,6 +111,10 @@ export default class ParamsOverlays extends Vue {
 		&:not(:first-of-type) {
 			margin-top: .5em;
 		}
+		:deep(.icon) {
+			width: 1.5em;
+			height: 1.5em;
+		}
 	}
 
 	.unified {
@@ -113,6 +123,7 @@ export default class ParamsOverlays extends Vue {
 		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 		padding: .5em;
 		text-align: center;
+		margin-top: 1em;
 		input {
 			margin: .5em;
 			width: 90%;

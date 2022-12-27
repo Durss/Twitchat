@@ -5,6 +5,7 @@
 		"spoilersEnabled": "Enable spoiler tag",
 		"alertMode": "Enable chat alert",
 		"firstMessage": "Show the first message of every viewer on a seperate list so you don't forget to say hello",
+		"firstMessage_info": "For a standalone alternative check out ",
 		"markAsRead": "Click a message to remember where you stopped reading",
 		"conversationsEnabled": "Group conversations<br>(allows to display conversations between users seperately)",
 		"userHistoryEnabled": "See all user's messages when hovering their name",
@@ -15,8 +16,8 @@
 		"offlineEmoteOnly":"Set chat on emote-only when not live",
 		"stopStreamOnRaid":"Cut OBS stream after a raid",
 		"showUserPronouns":"Show user pronouns",
-		"showUserPronouns_based":"based on",
-		"showUserPronouns_based_and":"and",
+		"showUserPronouns_based":"based on ",
+		"showUserPronouns_based_and":" and ",
 		"chatShoutout":"Chat message shoutout",
 		"chatShoutout_info":"Send this message when doing a shoutout",
 		"chatShoutout_placeholders":{

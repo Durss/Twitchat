@@ -1,11 +1,11 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamsraffle" title="Wheel" :icons="['ticket_purple']">
-		<div>When doing a raffle, this page will display a wheel that'll animate to pick a winner.</div>
+	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket_purple']">
+		<div v-t="'overlay.raffle.head'"></div>
 		<div class="content">
 			<div class="row">
 				<input type="text" v-model="overlayUrl">
-				<ToggleBlock small title="CSS customization" :open="false">
-					<div>You can change the appearance of the wheel by overriding these CSS values on OBS browser source params</div>
+				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
+					<div v-t="'overlay.raffle.css'"></div>
 					<ul>
 						<li>.wheel-item { ... }</li>
 						<li>.wheel-item.selected { ... }</li>
@@ -13,13 +13,13 @@
 				</ToggleBlock>
 			</div>
 			<div class="row center" v-if="overlayExists">
-				<Button :loading="loading" @click="testWheel()" title="Test with some<br>of your followers" :icon="$image('icons/test.svg')" />
+				<Button :loading="loading" @click="testWheel()" :title="$t('overlay.raffle.testBt')" :icon="$image('icons/test.svg')" />
 			</div>
 			<div class="row center" v-if="!overlayExists">
-				<span class="error">- overlay not configured or hidden -</span>
+				<span class="error" v-t="'overlay.raffle.no_overlay'"></span>
 			</div>
 			<div class="row">
-				<span>To start a raffle, open the commands menu <img src="@/assets/icons/commands_purple.svg" class="icon"> or use the <strong>/raffle</strong> command.</span>
+				<span v-html="$t('overlay.raffle.start', {ICON:$image('icons/commands_purple.svg')})"></span>
 			</div>
 		</div>
 	</ToggleBlock>
@@ -112,7 +112,7 @@ export default class OverlayParamsRaffle extends Vue {
 				align-items: center;
 			}
 
-			.icon {
+			:deep(.icon) {
 				height: 1em;
 				vertical-align: middle;
 			}

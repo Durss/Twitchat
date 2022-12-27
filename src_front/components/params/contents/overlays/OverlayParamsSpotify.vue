@@ -2,38 +2,40 @@
 	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify_purple']">
 		<div v-if="error" class="error" @click="error=''">{{error}}</div>
 
-		<div v-if="!spotifyConnected && !authenticating">
-			Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback from chat.
-		</div>
+		<div v-if="!spotifyConnected && !authenticating" v-t="'overlay.music_common.music'"></div>
 		
 		<div class="player">
-			<div class="label">Example</div>
+			<div class="label" v-t="'global.example'"></div>
 			<OverlayMusicPlayer v-if="currentTrack" :staticTrackData="currentTrack" embed />
 		</div>
 
 		<div class="spotifasshole" v-if="!spotifyConnected && !authenticating">
-			<div class="info">Sadly, <strong>Spotify</strong> is refusing Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.<br>
-			To use it you'll have to <a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank"><strong>READ THIS TUTORIAL</strong></a> and fill-in the values bellow:</div>
+			<div class="info">
+				<div v-html="$t('overlay.spotify.refused')"></div>
+				<div v-html="$t('overlay.spotify.how_to')"></div>
+			</div>
 			<form>
 				<ParamItem class="item" :paramData="paramClient" autofocus />
 				<ParamItem class="item" :paramData="paramSecret" />
 			</form>
 		</div>
 		<Button v-if="!spotifyConnected && !authenticating"
-			title="Autenticate"
+			:title="$t('overlay.spotify.authBt')"
 			@click="authenticate()"
 			:loading="loading" class="authBt"
 			:disabled="!canConnect" />
 
 		<div v-if="spotifyConnected" class="content">
 			<div class="row">
-				<label for="spotify_overlay_url">Set this URL in an OBS browser source to display currently playing spotify track:</label>
+				<label for="spotify_overlay_url" v-t="'overlay.music_common.music_url'"></label>
 				<OverlayParamsMusic />
 				
 			</div>
 			<div class="row">
-				<div>You can allow your viewers to control playback or add musics to the queue from chat commands !</div>
-				<div>Head over the <a @click="$emit('setContent', contentTriggers)">Triggers tab</a></div>
+				<div>
+					<span v-t="'overlay.music_common.infos'"></span>
+					<a @click="$emit('setContent', contentTriggers)" v-t="'overlay.music_common.triggerBt'"></a>.
+				</div>
 			</div>
 			<Button title="Disconnect" @click="disconnect()" class="authBt" highlight />
 		</div>
@@ -156,6 +158,7 @@ export default class OverlayParamsSpotify extends Vue {
 	}
 
 	.content {
+		margin-top: 1em;
 		.row {
 			display: flex;
 			flex-direction: column;
@@ -173,10 +176,6 @@ export default class OverlayParamsSpotify extends Vue {
 		}
 		form {
 			margin-top: .5em;
-			// :deep(input) {
-			// 	width: 0;
-			// 	flex-basis: 300px;
-			// }
 		}
 	}
 

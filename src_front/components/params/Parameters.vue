@@ -206,6 +206,10 @@ export default class Parameters extends Vue {
 		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true";
 		this.adTarget = this.$refs[this.isDonor? "adDonor" : "adNoDonor"] as HTMLDivElement;
 
+		if(this.$store('main').showParams) {
+			this.open();
+		}
+
 		watch(() => this.$store('main').showParams, (value) => {
 			if(value) this.open();
 			else this.close();

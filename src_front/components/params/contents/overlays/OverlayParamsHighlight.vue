@@ -1,15 +1,15 @@
 }<template>
-	<ToggleBlock :open="false" class="overlayparamshighlight" title="Message highlight" :icons="['highlight_purple']">
-		<div>If you add this overlay on OBS you'll be able to display any chat message and clips on your stream like this:</div>
+	<ToggleBlock :open="false" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight_purple']">
+		<div v-t="'overlay.highlight.head'"></div>
 		
 		<iframe src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		
 		<div class="content">
 			<div class="row">
-				<label for="spotify_overlay_url">Set this in an OBS browser source to display the highlighted message:</label>
-				<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
-				<ToggleBlock small title="CSS customization" :open="false">
-					<div>You can change the appearance of the message by overriding these CSS IDs on OBS browser source params</div>
+				<label for="highlight_overlay_url" v-t="'overlay.highlight.instruction'"></label>
+				<input type="text" id="highlight_overlay_url" v-model="overlayUrl">
+				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
+					<div v-t="'overlay.highlight.css'"></div>
 					<ul>
 						<li>#highlight_holder { ... }</li>
 					</ul>
@@ -39,7 +39,7 @@
 			</div>
 
 			<div class="row center placement">
-				Message position
+				<p v-t="'overlay.highlight.message_pos'"></p>
 				<div class="table">
 					<div class="item" :class="placement=='tl'? 'selected' : ''">
 						<input type="radio" v-model="placement" value="tl" id="mazePos_tl">
@@ -81,20 +81,20 @@
 			</div>
 
 			<div class="row center">
-				<div>To clear the currently highlighted message click this button on the chat bar</div>
+				<div v-t="'overlay.highlight.clear_instruction'"></div>
 				<img src="@/assets/img/clearHighlightedMessage.png" alt="example">
 			</div>
 
 			<div class="row center" v-if="overlayExists">
-				<Button @click="testOverlay()" title="Send test message" :icon="$image('icons/test.svg')" />
+				<Button @click="testOverlay()" :title="$t('overlay.highlight.testBt')" :icon="$image('icons/test.svg')" />
 			</div>
 			
 			<div class="row center" v-if="!overlayExists">
-				<span class="error">- overlay not configured or hidden -</span>
+				<span class="error" v-t="'overlay.highlight.no_overlay'"></span>
 			</div>
 			
 			<div class="row footer">
-				<div>Check out <a href="https://featured.chat" target="_blank">featured.chat</a> for a dedicated tool doing this with much more options</div>
+				<div v-html="$t('overlay.highlight.alternative_tool')"></div>
 			</div>
 		</div>
 

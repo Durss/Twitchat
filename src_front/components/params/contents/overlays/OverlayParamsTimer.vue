@@ -1,11 +1,11 @@
 <template>
-	<ToggleBlock :open="open" class="overlaytimer" title="Timer & Countdown" :icons="['countdown_purple']">
-		<div>When starting a countdown or a timer with <span class="cmd">/countdown</span> or <span class="cmd">/timerStart</span> commands, this overlay will display the ellapsed or remaining time.</div>
+	<ToggleBlock :open="open" class="overlaytimer" :title="$t('overlay.timer.title')" :icons="['countdown_purple']">
+		<div v-html="$t('overlay.timer.head')"></div>
 		<div class="content">
 			<div class="row">
 				<input type="text" v-model="overlayUrl">
-				<ToggleBlock small title="CSS customization" :open="false">
-					<div>You can change the appearance of the timers by overriding these CSS values on OBS browser source params</div>
+				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
+					<div v-t="'overlay.timer.css'"></div>
 					<ul>
 						<li>#timer { ... }</li>
 						<li>#timer_icon { ... }</li>
@@ -18,8 +18,8 @@
 				</ToggleBlock>
 			</div>
 			<div class="row center">
-				<Button :icon="$image('icons/timer.svg')" title="Try timer" @click.stop="startTimer()" />
-				<Button :icon="$image('icons/countdown.svg')" title="Try 2min countdown" @click.stop="startCountdown()" />
+				<Button :icon="$image('icons/timer.svg')" :title="$t('overlay.timer.try_timerBt')" @click.stop="startTimer()" />
+				<Button :icon="$image('icons/countdown.svg')" :title="$t('overlay.timer.try_countdownBt')" @click.stop="startCountdown()" />
 			</div>
 		</div>
 	</ToggleBlock>
@@ -69,12 +69,6 @@ export default class OverlayParamsTimer extends Vue {
 				}
 			}
 		}
-		.cmd {
-			background-color: fade(@mainColor_normal, 15%);
-			border-radius: .5em;
-			padding: 0 .5em;
-			font-family: 'Courier New', Courier, monospace;
-		}
 
 		ul {
 				margin-top: .5em;
@@ -84,5 +78,6 @@ export default class OverlayParamsTimer extends Vue {
 			}
 		}
 	}
+	
 }
 </style>
