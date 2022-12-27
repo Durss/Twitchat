@@ -269,6 +269,18 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.PINNED: {
+				if(await this.parseSteps(TriggerTypes.PIN_MESSAGE, message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
+				if(await this.parseSteps(TriggerTypes.UNPIN_MESSAGE, message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING:

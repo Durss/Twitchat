@@ -344,16 +344,16 @@ export default class PubSub extends EventDispatcher {
 
 		//Un/Pin message events
 		}else if(data.type == "pin-message") {
-			const localObj = (data as unknown) as PubSubDataTypes.PinMessage;
-			this.pinMessageEvent(localObj);
+			const localObj = (data.data as unknown) as PubSubDataTypes.PinMessage;
+			this.pinMessageEvent(localObj, channelId);
 
 		}else if(data.type == "update-message") {
-			const localObj = (data as unknown) as PubSubDataTypes.PinUpdateMessage;
-			this.updatePinnedMessageEvent(localObj);
+			const localObj = (data.data as unknown) as PubSubDataTypes.PinUpdateMessage;
+			this.updatePinnedMessageEvent(localObj, channelId);
 
 		}else if(data.type == "unpin-message") {
-			const localObj = (data as unknown) as PubSubDataTypes.UnpinMessage;
-			this.unpinMessageEvent(localObj);
+			const localObj = (data.data as unknown) as PubSubDataTypes.UnpinMessage;
+			this.unpinMessageEvent(localObj, channelId);
 
 
 
@@ -1348,22 +1348,73 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when a message is pinned
 	 */
-	private pinMessageEvent(data:PubSubDataTypes.PinMessage):void {
+	private async pinMessageEvent(data:PubSubDataTypes.PinMessage, channel_id:string):Promise<void> {
+		let message:TwitchatDataTypes.MessageChatData|undefined;
+		let attempts = 5;
+		
+		do {
+			message = StoreProxy.chat.messages.find(v=>v.id == data.message.id) as TwitchatDataTypes.MessageChatData|undefined;
+			if(!message) {
+				//Message not found because probably not received yet.
+				//Wait a little and try again
+				attempts --;
+				await Utils.promisedTimeout(200);
+			}
+		}while(!message && attempts > 0)
 
+		if(message) {
+			const m:TwitchatDataTypes.MessagePinData = {
+				id:data.id,
+				date:Date.now(),
+				platform:"twitch",
+				type:"pinned",
+				pinnedAt_ms:data.message.starts_at * 1000,
+				updatedAt_ms:data.message.starts_at * 1000,
+				unpinAt_ms:data.message.ends_at * 1000,
+				chatMessage: message,
+				moderator:StoreProxy.users.getUserFrom("twitch", channel_id, data.pinned_by.id, data.pinned_by.display_name.toLowerCase(), data.pinned_by.display_name),
+			};
+			StoreProxy.chat.addMessage(m);
+			StoreProxy.chat.pinMessage(m.chatMessage);
+		}
 	}
 
 	/**
 	 * Called when a message is unpinned
 	 */
-	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage):void {
-
+	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage, channel_id:string):void {
+		let message = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
+		
+		if(message) {
+			const m:TwitchatDataTypes.MessageUnpinData = {
+				id:data.id,
+				date:Date.now(),
+				platform:"twitch",
+				type:"unpinned",
+				pinnedAt_ms: message.pinnedAt_ms,
+				updatedAt_ms: message.updatedAt_ms,
+				unpinAt_ms: message.unpinAt_ms,
+				chatMessage:message.chatMessage,
+				moderator:StoreProxy.users.getUserFrom("twitch", channel_id, data.unpinned_by.id, data.unpinned_by.display_name.toLowerCase(), data.unpinned_by.display_name),
+			};
+			StoreProxy.chat.addMessage(m);
+			StoreProxy.chat.unpinMessage(m.chatMessage);
+		}
 	}
 
 	/**
-	 * Called when a pinned message param is update
+	 * Called when a pinned message param is updated
 	 */
-	private updatePinnedMessageEvent(data:PubSubDataTypes.PinUpdateMessage):void {
-
+	private updatePinnedMessageEvent(data:PubSubDataTypes.PinUpdateMessage, channel_id:string):void {
+		let message = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
+		if(message) {
+			if(data.ends_at) {
+				message.unpinAt_ms = data.ends_at * 1000;
+			}else{
+				message.unpinAt_ms = -1;
+			}
+			message.updatedAt_ms = data.updated_at * 1000;
+		}
 	}
 }
 
@@ -1411,14 +1462,6 @@ namespace PubsubJSON {
 		new Date("Wed Aug 17 2022 21:15:33 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"hype-train-conductor-update\",\"data\":{\"source\":\"SUBS\",\"user\":{\"id\":\"534165905\",\"login\":\"besso___\",\"display_name\":\"Besso___\",\"profile_image_url\":\"https://static-cdn.jtvnw.net/jtv_user_pictures/f61ad8bb-293d-465a-a7f4-5757cf1b4b2e-profile_image-50x50.png\"},\"participations\":{\"SUBS.TIER_1_GIFTED_SUB\":1}}}"}},
 		new Date("Wed Aug 17 2022 21:15:33 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"community-points-user-v1.29961813","message":"{\"type\":\"points-earned\",\"data\":{\"timestamp\":\"2022-08-17T19:15:38.055558707Z\",\"channel_id\":\"44345043\",\"point_gain\":{\"user_id\":\"29961813\",\"channel_id\":\"44345043\",\"total_points\":10,\"baseline_points\":10,\"reason_code\":\"WATCH\",\"multipliers\":[]},\"balance\":{\"user_id\":\"29961813\",\"channel_id\":\"44345043\",\"balance\":162559}}}"}},
-		new Date("Wed Aug 17 2022 21:15:38 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660763760.148000,\"viewers\":127}"}},
-		new Date("Wed Aug 17 2022 21:16:00 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660763789.884083,\"viewers\":129}"}},
-		new Date("Wed Aug 17 2022 21:16:30 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"community-points-user-v1.29961813","message":"{\"type\":\"points-earned\",\"data\":{\"timestamp\":\"2022-08-17T19:16:46.751085263Z\",\"channel_id\":\"589180903\",\"point_gain\":{\"user_id\":\"29961813\",\"channel_id\":\"589180903\",\"total_points\":12,\"baseline_points\":10,\"reason_code\":\"WATCH\",\"multipliers\":[{\"reason_code\":\"SUB_T1\",\"factor\":0.2}]},\"balance\":{\"user_id\":\"29961813\",\"channel_id\":\"589180903\",\"balance\":1954}}}"}},
-		new Date("Wed Aug 17 2022 21:16:47 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"last-x-experiment-event\",\"data\":{\"channel_id\":\"402890635\",\"event_id\":\"amzn1.twitch.payments.order.45417bf0-07e9-4f4b-8f3b-338abcecc6ce\",\"user_id\":\"668696809\",\"user_login\":\"dazzlingrainb0w\",\"user_display_name\":\"dazzlingrainb0w\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/jtv_user_pictures/bf9b672f-9e96-40f1-b49a-7d50d6504aea-profile_image-50x50.png\",\"action\":\"TIER_1_GIFTED_SUB\",\"source\":\"SUBS\",\"quantity\":2}}"}},
 		new Date("Wed Aug 17 2022 21:16:49 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"hype-train-progression\",\"data\":{\"user_id\":\"668696809\",\"user_login\":\"dazzlingrainb0w\",\"user_display_name\":\"dazzlingrainb0w\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/jtv_user_pictures/bf9b672f-9e96-40f1-b49a-7d50d6504aea-profile_image-50x50.png\",\"sequence_id\":2500,\"action\":\"TIER_1_GIFTED_SUB\",\"source\":\"SUBS\",\"quantity\":2,\"progress\":{\"level\":{\"value\":2,\"goal\":3400,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_0457808073314f62962554c12ebb6b4d\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeHands1\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_8c40cd16027f48c0a70ac7b1fa1c397e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeHands2\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_0330a84e75ad48c1821c1d29a7dadd4d\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeFail\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_9b68a8fa2f1d457496ac016b251e06b6\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeHai\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_9bcc622c0b2a48b180a159c25a2b8245\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeNom\"}],\"impressions\":600},\"value\":900,\"goal\":1800,\"total\":2500,\"remaining_seconds\":223},\"is_boost_train\":false}}"}},
@@ -1433,14 +1476,8 @@ namespace PubsubJSON {
 		new Date("Wed Aug 17 2022 21:16:50 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"user-subscribe-events-v1.29961813","message":"{\"user_id\":\"29961813\",\"channel_id\":\"402890635\"}"}},
 		new Date("Wed Aug 17 2022 21:16:57 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"community-points-user-v1.29961813","message":"{\"type\":\"active-multipliers-updated\",\"data\":{\"timestamp\":\"2022-08-17T19:16:57.70052134Z\",\"active_multipliers\":{\"user_id\":\"29961813\",\"channel_id\":\"402890635\",\"multipliers\":[{\"reason_code\":\"SUB_T1\",\"factor\":0.2}]}}}"}},
-		new Date("Wed Aug 17 2022 21:16:57 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660763819.884909,\"viewers\":131}"}},
-		new Date("Wed Aug 17 2022 21:17:00 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"user-subscribe-events-v1.29961813","message":"{\"user_id\":\"29961813\",\"channel_id\":\"402890635\"}"}},
 		new Date("Wed Aug 17 2022 21:17:02 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660763850.069607,\"viewers\":134}"}},
-		new Date("Wed Aug 17 2022 21:17:30 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"channel-sub-gifts-v1.402890635","message":"{\"count\":5,\"tier\":\"1000\",\"user_id\":\"579372764\",\"channel_id\":\"402890635\",\"uuid\":\"08348f24-39b8-45e3-9bff-f492927b6f47\",\"type\":\"mystery-gift-purchase\",\"user_name\":\"trevorblue_b\",\"display_name\":\"TrevorBlue_B\"}"}},
 		new Date("Wed Aug 17 2022 21:17:36 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"last-x-experiment-event\",\"data\":{\"channel_id\":\"402890635\",\"event_id\":\"amzn1.twitch.payments.order.c8074e45-b149-46f2-8bb3-011b7d5b5318\",\"user_id\":\"579372764\",\"user_login\":\"trevorblue_b\",\"user_display_name\":\"TrevorBlue_B\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/jtv_user_pictures/014fb71b-6fb0-4212-aad1-4e475cc89b44-profile_image-50x50.png\",\"action\":\"TIER_1_GIFTED_SUB\",\"source\":\"SUBS\",\"quantity\":5}}"}},
@@ -1461,8 +1498,6 @@ namespace PubsubJSON {
 		new Date("Wed Aug 17 2022 21:17:38 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"leaderboard-events-v1.sub-gifts-sent-402890635-MONTH","message":"{\"identifier\":{\"domain\":\"sub-gifts-sent\",\"grouping_key\":\"402890635\",\"time_aggregation_unit\":\"MONTH\",\"time_bucket\":\"2022-08-01T00:00:00-07:00\"},\"top\":[{\"rank\":1,\"score\":28,\"entry_key\":\"681324004\"},{\"rank\":2,\"score\":20,\"entry_key\":\"101050759\"},{\"rank\":3,\"score\":17,\"entry_key\":\"131162212\"},{\"rank\":4,\"score\":10,\"entry_key\":\"116496636\"},{\"rank\":5,\"score\":7,\"entry_key\":\"38046330\"},{\"rank\":6,\"score\":6,\"entry_key\":\"503688568\"},{\"rank\":7,\"score\":6,\"entry_key\":\"579372764\"},{\"rank\":8,\"score\":5,\"entry_key\":\"177260299\"},{\"rank\":9,\"score\":5,\"entry_key\":\"148474909\"},{\"rank\":10,\"score\":4,\"entry_key\":\"534165905\"}],\"entry_context\":{\"entry\":{\"rank\":7,\"score\":6,\"entry_key\":\"579372764\"},\"context\":[{\"rank\":6,\"score\":6,\"entry_key\":\"503688568\"},{\"rank\":7,\"score\":6,\"entry_key\":\"579372764\"},{\"rank\":8,\"score\":5,\"entry_key\":\"177260299\"}]},\"event\":{\"domain\":\"sub-gifts-sent\",\"id\":\"amzn1.twitch.payments.order.c8074e45-b149-46f2-8bb3-011b7d5b5318:402890635:67885371\",\"time_of_event\":1660763857942779019,\"grouping_key\":\"402890635\",\"entry_key\":\"579372764\",\"event_value\":1,\"metadata\":{\"display_name\":\"TrevorBlue_B\",\"login\":\"trevorblue_b\"}}}"}},
 		new Date("Wed Aug 17 2022 21:17:38 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660763880.049570,\"viewers\":134}"}},
-		new Date("Wed Aug 17 2022 21:18:00 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"last-x-experiment-event\",\"data\":{\"channel_id\":\"402890635\",\"event_id\":\"amzn1.twitch.payments.order.61d0d07a-08ab-4df2-8af7-1e2ca192321a\",\"user_id\":\"467416058\",\"user_login\":\"yaga77\",\"user_display_name\":\"yaga77\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/user-default-pictures-uv/75305d54-c7cc-40d1-bb9c-91fbe85943c7-profile_image-50x50.png\",\"action\":\"TIER_1_SUB\",\"source\":\"SUBS\",\"quantity\":1}}"}},
 		new Date("Wed Aug 17 2022 21:18:13 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"hype-train-progression\",\"data\":{\"user_id\":\"467416058\",\"user_login\":\"yaga77\",\"user_display_name\":\"yaga77\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/user-default-pictures-uv/75305d54-c7cc-40d1-bb9c-91fbe85943c7-profile_image-50x50.png\",\"sequence_id\":5500,\"action\":\"TIER_1_SUB\",\"source\":\"SUBS\",\"quantity\":1,\"progress\":{\"level\":{\"value\":4,\"goal\":7800,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_663dbd72c3ae48c585ffd61f3c348fa9\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeWave\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_271ea48a09ca418baad2ea1f734ab09e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeReading\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_1337536bcecf49f4bb9cd1a699341ee2\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeShock\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_8c1d964bd7e14fe1b8bd61d29ee0eb8c\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeStress\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_cdc7a602ee08462e81fb6cc0e3e8de61\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCry\"}],\"impressions\":1200},\"value\":0,\"goal\":2300,\"total\":5500,\"remaining_seconds\":263},\"is_boost_train\":false}}"}},
@@ -1483,8 +1518,6 @@ namespace PubsubJSON {
 		new Date("Wed Aug 17 2022 21:18:26 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"hype-train-conductor-update\",\"data\":{\"source\":\"SUBS\",\"user\":{\"id\":\"579372764\",\"login\":\"trevorblue_b\",\"display_name\":\"TrevorBlue_B\",\"profile_image_url\":\"https://static-cdn.jtvnw.net/jtv_user_pictures/014fb71b-6fb0-4212-aad1-4e475cc89b44-profile_image-50x50.png\"},\"participations\":{\"SUBS.TIER_1_GIFTED_SUB\":5}}}"}},
 		new Date("Wed Aug 17 2022 21:18:26 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660763910.318152,\"viewers\":142}"}},
-		new Date("Wed Aug 17 2022 21:18:30 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"channel-sub-gifts-v1.402890635","message":"{\"count\":5,\"tier\":\"1000\",\"user_id\":\"681324004\",\"channel_id\":\"402890635\",\"uuid\":\"26796151-e5a9-40b4-a323-dfd3d359f3bc\",\"type\":\"mystery-gift-purchase\",\"user_name\":\"blood_swords\",\"display_name\":\"blood_swords\"}"}},
 		new Date("Wed Aug 17 2022 21:18:49 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"last-x-experiment-event\",\"data\":{\"channel_id\":\"402890635\",\"event_id\":\"amzn1.twitch.payments.order.076d012c-0044-4f66-9213-a244dd05a4d3\",\"user_id\":\"681324004\",\"user_login\":\"blood_swords\",\"user_display_name\":\"blood_swords\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-50x50.png\",\"action\":\"TIER_1_GIFTED_SUB\",\"source\":\"SUBS\",\"quantity\":5}}"}},
@@ -1505,8 +1538,6 @@ namespace PubsubJSON {
 		new Date("Wed Aug 17 2022 21:18:50 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"leaderboard-events-v1.sub-gifts-sent-402890635-MONTH","message":"{\"identifier\":{\"domain\":\"sub-gifts-sent\",\"grouping_key\":\"402890635\",\"time_aggregation_unit\":\"MONTH\",\"time_bucket\":\"2022-08-01T00:00:00-07:00\"},\"top\":[{\"rank\":1,\"score\":33,\"entry_key\":\"681324004\"},{\"rank\":2,\"score\":20,\"entry_key\":\"101050759\"},{\"rank\":3,\"score\":17,\"entry_key\":\"131162212\"},{\"rank\":4,\"score\":10,\"entry_key\":\"116496636\"},{\"rank\":5,\"score\":7,\"entry_key\":\"38046330\"},{\"rank\":6,\"score\":6,\"entry_key\":\"503688568\"},{\"rank\":7,\"score\":6,\"entry_key\":\"579372764\"},{\"rank\":8,\"score\":5,\"entry_key\":\"177260299\"},{\"rank\":9,\"score\":5,\"entry_key\":\"148474909\"},{\"rank\":10,\"score\":4,\"entry_key\":\"534165905\"}],\"entry_context\":{\"entry\":{\"rank\":1,\"score\":33,\"entry_key\":\"681324004\"},\"context\":[{\"rank\":1,\"score\":33,\"entry_key\":\"681324004\"},{\"rank\":2,\"score\":20,\"entry_key\":\"101050759\"}]},\"event\":{\"domain\":\"sub-gifts-sent\",\"id\":\"amzn1.twitch.payments.order.076d012c-0044-4f66-9213-a244dd05a4d3:402890635:88546090\",\"time_of_event\":1660763930423317633,\"grouping_key\":\"402890635\",\"entry_key\":\"681324004\",\"event_value\":1,\"metadata\":{\"display_name\":\"blood_swords\",\"login\":\"blood_swords\"}}}"}},
 		new Date("Wed Aug 17 2022 21:18:50 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660763940.345852,\"viewers\":144}"}},
-		new Date("Wed Aug 17 2022 21:19:00 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"channel-sub-gifts-v1.402890635","message":"{\"count\":5,\"tier\":\"1000\",\"user_id\":\"503688568\",\"channel_id\":\"402890635\",\"uuid\":\"929660df-4c1c-4a2d-81df-f3f7134f4e70\",\"type\":\"mystery-gift-purchase\",\"user_name\":\"saberan31\",\"display_name\":\"saberan31\"}"}},
 		new Date("Wed Aug 17 2022 21:19:05 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"last-x-experiment-event\",\"data\":{\"channel_id\":\"402890635\",\"event_id\":\"amzn1.twitch.payments.order.0ea37662-0a53-43f6-96d7-daf694c95ecb\",\"user_id\":\"503688568\",\"user_login\":\"saberan31\",\"user_display_name\":\"saberan31\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/jtv_user_pictures/772ee170-14f5-4ade-a285-c252d350e9a8-profile_image-50x50.png\",\"action\":\"TIER_1_GIFTED_SUB\",\"source\":\"SUBS\",\"quantity\":5}}"}},
@@ -1545,24 +1576,6 @@ namespace PubsubJSON {
 		new Date("Wed Aug 17 2022 21:19:29 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"leaderboard-events-v1.sub-gifts-sent-402890635-MONTH","message":"{\"identifier\":{\"domain\":\"sub-gifts-sent\",\"grouping_key\":\"402890635\",\"time_aggregation_unit\":\"MONTH\",\"time_bucket\":\"2022-08-01T00:00:00-07:00\"},\"top\":[{\"rank\":1,\"score\":33,\"entry_key\":\"681324004\"},{\"rank\":2,\"score\":20,\"entry_key\":\"101050759\"},{\"rank\":3,\"score\":17,\"entry_key\":\"131162212\"},{\"rank\":4,\"score\":11,\"entry_key\":\"503688568\"},{\"rank\":5,\"score\":10,\"entry_key\":\"116496636\"},{\"rank\":6,\"score\":7,\"entry_key\":\"38046330\"},{\"rank\":7,\"score\":6,\"entry_key\":\"579372764\"},{\"rank\":8,\"score\":5,\"entry_key\":\"177260299\"},{\"rank\":9,\"score\":5,\"entry_key\":\"148474909\"},{\"rank\":10,\"score\":5,\"entry_key\":\"49723676\"}],\"entry_context\":{\"entry\":{\"rank\":10,\"score\":5,\"entry_key\":\"49723676\"},\"context\":[{\"rank\":9,\"score\":5,\"entry_key\":\"148474909\"},{\"rank\":10,\"score\":5,\"entry_key\":\"49723676\"},{\"rank\":11,\"score\":4,\"entry_key\":\"534165905\"}]},\"event\":{\"domain\":\"sub-gifts-sent\",\"id\":\"amzn1.twitch.payments.order.14ed3148-dd62-41b0-acdf-f84007075d58:402890635:93163383\",\"time_of_event\":1660763968619374877,\"grouping_key\":\"402890635\",\"entry_key\":\"49723676\",\"event_value\":1,\"metadata\":{\"display_name\":\"JohnyFicus\",\"login\":\"johnyficus\"}}}"}},
 		new Date("Wed Aug 17 2022 21:19:29 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660763970.354575,\"viewers\":142}"}},
-		new Date("Wed Aug 17 2022 21:19:30 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660764000.358501,\"viewers\":138}"}},
-		new Date("Wed Aug 17 2022 21:20:00 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660764030.445111,\"viewers\":151}"}},
-		new Date("Wed Aug 17 2022 21:20:30 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"community-points-user-v1.29961813","message":"{\"type\":\"points-earned\",\"data\":{\"timestamp\":\"2022-08-17T19:20:39.848018275Z\",\"channel_id\":\"44345043\",\"point_gain\":{\"user_id\":\"29961813\",\"channel_id\":\"44345043\",\"total_points\":10,\"baseline_points\":10,\"reason_code\":\"WATCH\",\"multipliers\":[]},\"balance\":{\"user_id\":\"29961813\",\"channel_id\":\"44345043\",\"balance\":162569}}}"}},
-		new Date("Wed Aug 17 2022 21:20:40 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660764060.394171,\"viewers\":174}"}},
-		new Date("Wed Aug 17 2022 21:21:00 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660764089.930541,\"viewers\":202}"}},
-		new Date("Wed Aug 17 2022 21:21:30 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"community-points-user-v1.29961813","message":"{\"type\":\"points-earned\",\"data\":{\"timestamp\":\"2022-08-17T19:21:45.534271536Z\",\"channel_id\":\"589180903\",\"point_gain\":{\"user_id\":\"29961813\",\"channel_id\":\"589180903\",\"total_points\":12,\"baseline_points\":10,\"reason_code\":\"WATCH\",\"multipliers\":[{\"reason_code\":\"SUB_T1\",\"factor\":0.2}]},\"balance\":{\"user_id\":\"29961813\",\"channel_id\":\"589180903\",\"balance\":1966}}}"}},
-		new Date("Wed Aug 17 2022 21:21:45 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660764119.974692,\"viewers\":219}"}},
-		new Date("Wed Aug 17 2022 21:22:00 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660764150.213241,\"viewers\":230}"}},
-		new Date("Wed Aug 17 2022 21:22:30 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"channel-sub-gifts-v1.402890635","message":"{\"count\":10,\"tier\":\"1000\",\"user_id\":\"681324004\",\"channel_id\":\"402890635\",\"uuid\":\"2c319317-a839-403b-8f98-2f85f3591f23\",\"type\":\"mystery-gift-purchase\",\"user_name\":\"blood_swords\",\"display_name\":\"blood_swords\"}"}},
 		new Date("Wed Aug 17 2022 21:22:49 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"last-x-experiment-event\",\"data\":{\"channel_id\":\"402890635\",\"event_id\":\"amzn1.twitch.payments.order.5fa47561-f90b-46eb-a8b9-84644780b56a\",\"user_id\":\"681324004\",\"user_login\":\"blood_swords\",\"user_display_name\":\"blood_swords\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-50x50.png\",\"action\":\"TIER_1_GIFTED_SUB\",\"source\":\"SUBS\",\"quantity\":10}}"}},
@@ -1591,16 +1604,12 @@ namespace PubsubJSON {
 		new Date("Wed Aug 17 2022 21:22:50 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"leaderboard-events-v1.sub-gifts-sent-402890635-MONTH","message":"{\"identifier\":{\"domain\":\"sub-gifts-sent\",\"grouping_key\":\"402890635\",\"time_aggregation_unit\":\"MONTH\",\"time_bucket\":\"2022-08-01T00:00:00-07:00\"},\"top\":[{\"rank\":1,\"score\":43,\"entry_key\":\"681324004\"},{\"rank\":2,\"score\":20,\"entry_key\":\"101050759\"},{\"rank\":3,\"score\":17,\"entry_key\":\"131162212\"},{\"rank\":4,\"score\":11,\"entry_key\":\"503688568\"},{\"rank\":5,\"score\":10,\"entry_key\":\"116496636\"},{\"rank\":6,\"score\":7,\"entry_key\":\"38046330\"},{\"rank\":7,\"score\":6,\"entry_key\":\"579372764\"},{\"rank\":8,\"score\":5,\"entry_key\":\"177260299\"},{\"rank\":9,\"score\":5,\"entry_key\":\"148474909\"},{\"rank\":10,\"score\":5,\"entry_key\":\"49723676\"}],\"entry_context\":{\"entry\":{\"rank\":1,\"score\":43,\"entry_key\":\"681324004\"},\"context\":[{\"rank\":1,\"score\":43,\"entry_key\":\"681324004\"},{\"rank\":2,\"score\":20,\"entry_key\":\"101050759\"}]},\"event\":{\"domain\":\"sub-gifts-sent\",\"id\":\"amzn1.twitch.payments.order.5fa47561-f90b-46eb-a8b9-84644780b56a:402890635:57503116\",\"time_of_event\":1660764169718523857,\"grouping_key\":\"402890635\",\"entry_key\":\"681324004\",\"event_value\":1,\"metadata\":{\"display_name\":\"blood_swords\",\"login\":\"blood_swords\"}}}"}},
 		new Date("Wed Aug 17 2022 21:22:50 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660764180.207342,\"viewers\":2657}"}},
-		new Date("Wed Aug 17 2022 21:23:00 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"last-x-experiment-event\",\"data\":{\"channel_id\":\"402890635\",\"event_id\":\"amzn1.twitch.payments.sub.158b5395-4c61-4c1e-bb71-afd36addfae7\",\"user_id\":\"187412887\",\"user_login\":\"dindonluisant\",\"user_display_name\":\"dindonluisant\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/jtv_user_pictures/2058ed5b-dddd-42ff-b61c-eb80b929bb22-profile_image-50x50.png\",\"action\":\"TIER_1_SUB\",\"source\":\"SUBS\",\"quantity\":1}}"}},
 		new Date("Wed Aug 17 2022 21:23:04 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"hype-train-progression\",\"data\":{\"user_id\":\"187412887\",\"user_login\":\"dindonluisant\",\"user_display_name\":\"dindonluisant\",\"user_profile_image_url\":\"https://static-cdn.jtvnw.net/jtv_user_pictures/2058ed5b-dddd-42ff-b61c-eb80b929bb22-profile_image-50x50.png\",\"sequence_id\":19500,\"action\":\"TIER_1_SUB\",\"source\":\"SUBS\",\"quantity\":1,\"progress\":{\"level\":{\"value\":5,\"goal\":10800,\"rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_dd4f4f9cea1a4039ad3390e20900abe4\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCheer\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_1630ff0e5ff34a808f4b25320a540ee7\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLurk\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7b8e74be7bd64601a2608c2ff5f6eb7a\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePopcorn\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_1885b5088372466b800789b02daf7b65\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeEvil\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_85a13cc47247425fa152b9292c4589a9\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeAwww\"}],\"impressions\":1500},\"value\":11700,\"goal\":3000,\"total\":19500,\"remaining_seconds\":45},\"is_boost_train\":false}}"}},
 		new Date("Wed Aug 17 2022 21:23:04 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"hype-train-conductor-update\",\"data\":{\"source\":\"SUBS\",\"user\":{\"id\":\"681324004\",\"login\":\"blood_swords\",\"display_name\":\"blood_swords\",\"profile_image_url\":\"https://static-cdn.jtvnw.net/user-default-pictures-uv/ead5c8b2-a4c9-4724-b1dd-9f00b46cbd3d-profile_image-50x50.png\"},\"participations\":{\"SUBS.TIER_1_GIFTED_SUB\":15}}}"}},
 		new Date("Wed Aug 17 2022 21:23:04 GMT+0200"),
-		{"type":"MESSAGE","data":{"topic":"video-playback-by-id.402890635","message":"{\"type\":\"viewcount\",\"server_time\":1660764209.985546,\"viewers\":2610}"}},
-		new Date("Wed Aug 17 2022 21:23:30 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"hype-train-events-v1.402890635","message":"{\"type\":\"hype-train-end\",\"data\":{\"ended_at\":1660764230000,\"ending_reason\":\"COMPLETED\",\"is_boost_train\":false}}"}},
 		new Date("Wed Aug 17 2022 21:23:50 GMT+0200"),
 		{"type":"MESSAGE","data":{"topic":"user-subscribe-events-v1.29961813","message":"{\"user_id\":\"29961813\",\"channel_id\":\"0\"}"}},

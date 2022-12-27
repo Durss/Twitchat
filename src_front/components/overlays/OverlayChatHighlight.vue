@@ -181,8 +181,8 @@ export default class OverlayChatHighlight extends Vue {
 		this.showCurrent();
 		let video = this.$refs.video as HTMLVideoElement;
 		const duration = this.clipData!.duration;
+		video.play();
 		this.progressBarInterval = setInterval(()=> {
-			// this.clipPercent = (Date.now() - startTime) / (duration*1000);
 			this.clipPercent = video.currentTime/duration;
 			
 			if(this.clipPercent >= 1) {

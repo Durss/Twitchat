@@ -181,6 +181,8 @@ export const TriggerTypes = {
 	OBS_SOURCE_OFF:"51",
 	SHIELD_MODE_ON:"52",
 	SHIELD_MODE_OFF:"53",
+	PIN_MESSAGE:"54",
+	UNPIN_MESSAGE:"55",
 
 	TWITCHAT_AD:"ad",
 } as const;
@@ -411,6 +413,8 @@ export const TriggerEvents:TriggerEventTypes[] = [
 	{category:TriggerEventTypeCategories.MOD, icon:"unmod", label:"User /unmod", value:TriggerTypes.UNMOD, description:"Execute actions when a user is removed from your mods <i>(only works when using <mark>/unmod</mark> command from twitchat</i>", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNMOD},
 	{category:TriggerEventTypeCategories.MOD, icon:"shield", label:"Shield mode enabled", value:TriggerTypes.SHIELD_MODE_ON, description:"Execute actions when shield mode is enabled", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE},
 	{category:TriggerEventTypeCategories.MOD, icon:"shield", label:"Shield mode disabled", value:TriggerTypes.SHIELD_MODE_OFF, description:"Execute actions when shield mode is disabled", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE},
+	{category:TriggerEventTypeCategories.MOD, icon:"pin", label:"Pin message", value:TriggerTypes.PIN_MESSAGE, description:"Execute actions when shield mode is disabled", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE},
+	{category:TriggerEventTypeCategories.MOD, icon:"pin", label:"Unpin message", value:TriggerTypes.UNPIN_MESSAGE, description:"Execute actions when shield mode is disabled", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Track added to queue", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, description:"Execute actions when a music is added to the queue", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Music starts playing", value:TriggerTypes.MUSIC_START, description:"Execute actions when a music starts playing", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 	{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:"Music stops playing", value:TriggerTypes.MUSIC_STOP, description:"Execute actions when a music stops playing", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},

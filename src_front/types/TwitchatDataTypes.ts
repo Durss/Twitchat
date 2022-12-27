@@ -718,12 +718,14 @@ export namespace TwitchatDataTypes {
 		CHEER:"cheer",
 		TIMER:"timer",
 		BINGO:"bingo",
+		PINNED:"pinned",
 		RAFFLE:"raffle",
 		REWARD:"reward",
 		NOTICE:"notice",
 		MESSAGE:"message",
 		WHISPER:"whisper",
 		CONNECT:"connect",
+		UNPINNED:"unpinned",
 		SHOUTOUT:"shoutout",
 		VOICEMOD:"voicemod",
 		FOLLOWING:"following",
@@ -770,10 +772,12 @@ export namespace TwitchatDataTypes {
 		raffle:true,
 		reward:true,
 		notice:true,
+		pinned:true,//Don't set it to false! we need to find it back when unpinning a message
 		message:true,
 		whisper:true,
 		connect:true,
 		shoutout:true,
+		unpinned:false,
 		voicemod:false,
 		following:true,
 		countdown:true,
@@ -880,7 +884,9 @@ export namespace TwitchatDataTypes {
 									MessageLowtrustTreatmentData |
 									MessageOBSSceneChangedData |
 									MessageOBSSourceToggleData |
-									MessageRoomSettingsData
+									MessageRoomSettingsData |
+									MessageUnpinData |
+									MessagePinData
 	;
 
 	/**
@@ -1449,6 +1455,30 @@ export namespace TwitchatDataTypes {
 		sourceName:string;
 		sourceItemId:number;
 		visible:boolean;
+	}
+
+	/**
+	 * Respresents an OBS scene change event
+	 */
+	export interface MessagePinData extends AbstractTwitchatMessage {
+		type:"pinned",
+		moderator:TwitchatUser;
+		chatMessage:MessageChatData;
+		pinnedAt_ms: number;
+		updatedAt_ms: number;
+		unpinAt_ms: number;
+	}
+
+	/**
+	 * Respresents an OBS scene change event
+	 */
+	export interface MessageUnpinData extends AbstractTwitchatMessage {
+		type:"unpinned",
+		moderator:TwitchatUser;
+		chatMessage:MessageChatData;
+		pinnedAt_ms: number;
+		updatedAt_ms: number;
+		unpinAt_ms: number;
 	}
 
 }
