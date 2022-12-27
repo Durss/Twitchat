@@ -635,6 +635,14 @@ export default class ChatMessage extends Vue {
 		.message {
 			color: #fff;
 		}
+		&:hover {
+			>.infos {
+				background-color: @mainColor_dark;
+				.login:hover {
+					background-color: @mainColor_dark;
+				}
+			}
+		}
 	}
 
 	&.spoiler {

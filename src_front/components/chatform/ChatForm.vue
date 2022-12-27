@@ -365,6 +365,7 @@ export default class ChatForm extends Vue {
 	public beforeMount(): void {
 		this.updateTrackedUserListHandler = (e:GlobalEvent) => this.onUpdateTrackedUserList();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
 		this.channelId = StoreProxy.auth.twitch.user.id;
 		this.onUpdateTrackedUserList();
 	}
@@ -416,6 +417,7 @@ export default class ChatForm extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.spamInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
 	}
 	
 	public toggleParams():void {
@@ -512,6 +514,7 @@ export default class ChatForm extends Vue {
 				const payload:TwitchatDataTypes.BingoConfig = {
 					guessNumber: params[0] == "number",
 					guessEmote: params[0] == "emote",
+					guessCustom: false,
 					min: 0,
 					max: 100,
 				};

@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
 		<div class="holder" ref="holder" v-if="loading">
-			<Button :aria-label="$t('usercard.closeBt_aria')" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
@@ -13,7 +13,7 @@
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="error">
-			<Button :aria-label="$t('usercard.closeBt_aria')" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
@@ -24,7 +24,7 @@
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="!loading && !error">
-			<Button :aria-label="$t('usercard.closeBt_aria')" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
 				<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 				<div class="live" v-if="currentStream">LIVE</div>
@@ -36,9 +36,9 @@
 				<div class="subtitle" data-tooltip="copy" @click="copyID()" ref="userID">ID: {{user.id}}</div>
 				<div class="date" :data-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
 				<div class="date" :data-tooltip="$t('usercard.follow_date_tt')" v-if="followDate"><img src="@/assets/icons/follow_purple.svg" alt="follow date" class="icon">{{followDate}}</div>
-				<div class="date" v-else><img src="@/assets/icons/unfollow_purple.svg" alt="no follow" class="icon" v-t="'usercard.not_following'"></div>
+				<div class="date" v-else><img src="@/assets/icons/unfollow_purple.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
 			</div>
-
+			
 			<div class="liveInfo" v-if="currentStream">
 				<div class="head" v-t="'usercard.streaming'"></div>
 				<div class="infos">
@@ -50,8 +50,10 @@
 			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
 			
 			<div class="ctas">
-				<Button title="twitch profile" type="link" small :icon="$image('icons/newtab.svg')" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
-				<Button title="viewer card" small :icon="$image('icons/newtab.svg')" @click="openViewerCard()" />
+				<Button :title="$t('usercard.profileBt')" type="link" small :icon="$image('icons/newtab.svg')" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
+				<Button :title="$t('usercard.viewercardBt')" small :icon="$image('icons/newtab.svg')" @click="openUserCard()" />
+				<Button :title="$t('usercard.trackBt')" type="link" v-if="!is_tracked" small :icon="$image('icons/magnet.svg')" @click="trackUser()" />
+				<Button :title="$t('usercard.untrackBt')" type="link" v-if="is_tracked" small :icon="$image('icons/magnet.svg')" @click="untrackUser()" />
 			</div>
 
 			<div class="description" v-if="userDescription">{{userDescription}}</div>
@@ -132,6 +134,8 @@ export default class UserCard extends Vue {
 		//display name's chars ar not latin chars, translate it
 		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
 	}
+
+	public get is_tracked():boolean{ return this.user!.is_tracked; }
 
 	public getFormatedDate(f:TwitchDataTypes.Following):string {
 		return Utils.formatDate(new Date(f.followed_at));
@@ -244,7 +248,7 @@ export default class UserCard extends Vue {
 					this.computeCommonFollows();
 					if(firstPage) {
 						await this.$nextTick();
-						gsap.from(this.$refs.list as HTMLDivElement, {duration:.5, height:0, ease:"sin.inOut"});
+						gsap.from(this.$refs.list as HTMLDivElement, {duration:.5, height:0, ease:"sin.inOut", clearProps:"all"});
 					}
 				});
 				this.checkFollowBotting();
@@ -256,11 +260,19 @@ export default class UserCard extends Vue {
 		}
 	}
 
-	public openViewerCard():void {
+	public openUserCard():void {
 		let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
 		width=350,height=500,left=100,top=100`;
 		const url ="https://www.twitch.tv/popout/"+StoreProxy.auth.twitch.user.login+"/viewercard/"+this.user!.login;
 		window.open(url, 'profilePage', params);
+	}
+
+	public trackUser():void {
+		this.$store("users").trackUser(this.user!);
+	}
+	
+	public untrackUser():void {
+		this.$store("users").untrackUser(this.user!);
 	}
 
 	public copyID():void {
@@ -359,6 +371,7 @@ export default class UserCard extends Vue {
 		border-radius: 1em;
 		display: flex;
 		flex-direction: column;
+		overflow: auto;
 
 		.closeBt {
 			.clearButton();
@@ -511,7 +524,9 @@ export default class UserCard extends Vue {
 		.ctas {
 			display: flex;
 			flex-direction: row;
-			justify-content: space-evenly;
+			justify-content: center;
+			flex-wrap: wrap;
+			gap: .5em
 		}
 
 		.description {
@@ -595,12 +610,13 @@ export default class UserCard extends Vue {
 					margin: 0 auto;
 				}
 			}
-
+			
 			.list {
-				@itemWidth: 150px;
 				overflow-y: auto;
+				@itemWidth: 150px;
 				padding: .5em;
 				display: grid;
+				// min-height: 13em;
 				grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 
 				.user {
@@ -640,7 +656,15 @@ export default class UserCard extends Vue {
 
 		&>.holder {
 			max-width: unset;
+			height: 100%;
 			width: 100vw;
+	
+			.followings {
+				min-height: unset;
+				.list {
+					overflow-y: unset;
+				}
+			}
 		}
 	}
 }

@@ -29,21 +29,21 @@
 			</div>
 
 			<div v-if="streamInfoError" class="streamInfo error">Unable to load last stream info :(</div>
-
-			<div class="automodActions" v-if="canUnban ||canBlock">
+			
+			<div class="ctas" v-if="canUnban ||canBlock || isRaid">
 				<Button highlight v-if="canUnban" :loading="moderating" :icon="$image('icons/mod.svg')" :title="'Unban user'" @click.stop="unbanUser()" />
 				<Button highlight v-if="canBlock" :loading="moderating" :icon="$image('icons/block.svg')" :title="'Block user'" @click.stop="blockUser()" />
+				<Button v-if="isRaid"
+					aria-label="Send a shoutout"
+					:icon="$image('icons/shoutout.svg')"
+					@click.stop="shoutout()"
+					:loading="shoutoutLoading"
+					title="Shoutout"
+					data-tooltip="Send a shoutout"
+					class="soButton"
+				/>
 			</div>
 		</div>
-		<Button v-if="isRaid"
-			aria-label="Send a shoutout"
-			small 
-			:icon="$image('icons/shoutout.svg')"
-			@click.stop="shoutout()"
-			:loading="shoutoutLoading"
-			data-tooltip="Send a shoutout"
-			class="soButton"
-		/>
 
 		<div class="communityChallenge" v-if="messageData.type === 'community_challenge_contribution'">
 			<div class="values">
@@ -61,7 +61,6 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
@@ -408,7 +407,7 @@ export default class ChatHighlight extends Vue {
 			height: 2em;
 		}
 
-		.automodActions {
+		.ctas {
 			width: 100%;
 			display: flex;
 			flex-direction: row;
@@ -424,7 +423,7 @@ export default class ChatHighlight extends Vue {
 			background-color: rgba(255, 255, 255, .15);
 			border-radius: .5em;
 			overflow: hidden;
-			width: 90%;
+			width: 100%;
 			.head {
 				padding: .5em;
 				font-weight: bold;
@@ -448,17 +447,6 @@ export default class ChatHighlight extends Vue {
 				text-align: center;
 				padding:.5em;
 			}
-		}
-	}
-
-	.soButton {
-		width: 2.5em;
-		min-width: 2.5em;
-		height: 2.5em;
-		min-height: 2.5em;
-		:deep(.icon) {
-			height: 1.5em;
-			min-height: 1.5em;
 		}
 	}
 
