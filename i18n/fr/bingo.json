@@ -1,5 +1,34 @@
 {
 	"bingo": {
+		"title":"Créer un Bingo",
+		"closeBt_aria":"Ferme la création du Bingo",
+		"description":"Un bongo est un petit jeu dans lequel vos viewiers doivent trouver une valeur spécifique pour gagner",
+		"title_emote":"Emote",
+		"title_number":"Nombre",
+		"title_custom":"Personnaliser",
+		"min_value":"Valeur minimale",
+		"max_value":"Valeur maximale",
+		"custom_value":"Message",
 		
+		"winner_placeholder":"Pseudo",
+		"goal_placeholder":"Explique ce qu'il faut trouver",
+
+		"number_info":"Vos viewers doivent envoyer un nombre entre la valeur minimale et maximale <i>(included)</i> dans le chat",
+		"emote_info":"Vos viewers doivent envoyer <strong>{COUNT}</strong> émotes Twitch dans le chat <i>(smileys excluded)</i>",
+		"custom_info":"Vos viewers doivent envoyer le message suivant",
+		
+		"goal_emote":"Trouver l'une des émotes de Twitch",
+		"goal_number":"Trouver un nombre compris entre {MIN} et {MAX}",
+		"goal_custom":"",
+
+		"state_title":"Bingo",
+		"username_placeholder":"Pseudo",
+		"closeBt":"Fermer le Bingo",
+		"find_custom":"Message à trouver",
+		"find_number":"Number à trouver",
+		"find_emote":"Emote à trouver",
+
+		"announce_start":"Annonce le début du Bingo dans le chat",
+		"announce_winner":"Annonce le gagnant du Bingo dans le chat"
 	}
 }
