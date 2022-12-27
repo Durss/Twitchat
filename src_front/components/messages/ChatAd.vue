@@ -54,7 +54,7 @@
 							<li>
 								<img src="@/assets/icons/broadcast.svg" class="icon" />
 								<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-								<span><strong>4 new trigger</strong> events when someone send a "presentation", when the hype train can be started again, when giving a shoutout, when given a shoutout</span>
+								<span><strong>11 new trigger</strong> events when someone send a "presentation", when the hype train can be started again, when giving a shoutout, when given a shoutout, when switching OBS scene, when showing/hiding an OBS source, when pinning or unpinning a message and when starting/stoping the shield mode</span>
 							</li>
 							<li>
 								<img src="@/assets/icons/commands.svg" class="icon" />
@@ -75,6 +75,7 @@
 							<li>Notify users if they try to use a cooling down chat command trigger</li>
 							<li>When a message is read by TTS, a button shows up to clear the whole TTS queue</li>
 							<li><strong>Hype train</strong> summaries now show T1, T2 and T3 subs count seperatly</li>
+							<li>New <strong>/greetduration</strong> command to change the "auto delete after" duration of the greet them section</li>
 						</ul>
 					</ToggleBlock>
 					<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
