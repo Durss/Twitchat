@@ -60,19 +60,15 @@ const obs = new OBSWebSocket();
 /**
  * Connect to OBS-websocket
  */
-async function connect(port:string, pass:string):Promise<boolean> {
+async function connect():Promise<boolean> {
 	try {
 		await obs.connect("ws://127.0.0.1:"+port, pass, {rpcVersion:1});
 	}catch(error) {
-		setTimeout(()=> {
-			//try again later
-			connect(port, pass);
-		}, 5000);
 		return false;
 	}
 	obs.addListener("ConnectionClosed", ()=> {
 		//Reconnect
-		connect(port, pass);
+		connect();
 	});
 
 	//@ts-ignore ("CustomEvent" not yet declared in obs-websocket-js types. Need ts-ignore to avoid compilation error)
