@@ -32,7 +32,7 @@
 					"icon":"show",
 					"image":"spoiler.png",
 					"title":"Commande de spoil",
-					"description":"Les messages débutant par <mark>||</mark> seront affichés comme des spoiler.<br>Vos modérateurices peuvent réponde à des messages avec la commande <mark>!spoiler</mark> pour les flagger comme spoilers"
+					"description":"Les messages débutant par <mark>{'|'}{'|'}</mark> seront affichés comme des spoiler.<br>Vos modérateurices peuvent réponde à des messages avec la commande <mark>!spoiler</mark> pour les flagger comme spoilers"
 				},
 				{
 					"icon":"search",

@@ -14,7 +14,7 @@
 		"start":"Start",
 		"search":"Search",
 		"search_placeholder":"search...",
-		"cooldown":"📛 @{USER} wait {DURATION}",
+		"cooldown":"📛 {'@'}{USER} wait {DURATION}",
 		"allowed_users":"Allowed users",
 		"post_winner":"Post winner on chat",
 		"configs":"Configs",

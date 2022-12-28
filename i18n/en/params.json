@@ -84,10 +84,10 @@
 
 		"botMessages":{
 			"raffleStart":"/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",
-			"raffle":"/announce 🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉",
-			"raffleJoin":"VoteYea @{USER} you entered the raffle.",
+			"raffle":"/announce 🎉🎉🎉 Congrats {'@'}{USER} you won the raffle 🎉🎉🎉",
+			"raffleJoin":"VoteYea {'@'}{USER} you entered the raffle.",
 			"bingoStart":"/announce 🎉🎉🎉 Bingo has started 🎉🎉🎉 {GOAL}",
-			"bingo":"/announce 🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
+			"bingo":"/announce 🎉🎉🎉 Congrats {'@'}{USER} you won the bingo 🎉🎉🎉",
 			"shoutout":"/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			"twitchatAd":"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype"
 		},

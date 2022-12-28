@@ -502,6 +502,7 @@ export const storeChat = defineStore('chat', {
 								messageList.push(m);
 								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, m));
 								messageList = messageList;
+								TriggerActionHandler.instance.onMessage(message);
 								return;
 							}
 						}
