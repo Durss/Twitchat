@@ -25,7 +25,7 @@ export const storeDebug = defineStore('debug', {
 
 
 	actions: {
-		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
+		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<TwitchatDataTypes.ChatMessageTypes> {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			if(fakeUsers.length === 0) {
@@ -638,7 +638,7 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						platform:"twitch",
 						channel_id:uid,
-						type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
+						type,
 						user:fakeUser,
 						moderator:user,
 						restricted:Math.random() > .5,
@@ -647,14 +647,46 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.PINNED: {
+					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, true) ;
+					const m:TwitchatDataTypes.MessagePinData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						type,
+						moderator:user,
+						chatMessage:pin as TwitchatDataTypes.MessageChatData,
+						pinnedAt_ms:Date.now(),
+						updatedAt_ms:Date.now(),
+						unpinAt_ms:Date.now() + 2 * 60 * 1000,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
+					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, true) ;
+					const m:TwitchatDataTypes.MessageUnpinData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						type,
+						moderator:user,
+						chatMessage:pin as TwitchatDataTypes.MessageChatData,
+					};
+					data = m;
+					break;
+				}
 			}
 			if(hook) {
-				if(hook(data) === false) return;
+				if(hook(data) === false) return data;
 			}
 			if(postOnChat) StoreProxy.chat.addMessage(data);
+			return data;
 		},
 
-		async simulateNotice(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<void> {
+		async simulateNotice(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<TwitchatDataTypes.ChatMessageTypes> {
 			let data!:TwitchatDataTypes.MessageNoticeData;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			if(fakeUsers.length === 0) {
@@ -880,12 +912,13 @@ export const storeDebug = defineStore('debug', {
 			}
 
 			if(hook) {
-				if(hook(data) === false) return;
+				if(hook(data) === false) return data;
 			}
 			if(postOnChat) StoreProxy.chat.addMessage(data);
+			return data;
 		},
 		
-		async sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<void> {
+		async sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<TwitchatDataTypes.ChatMessageTypes> {
 			if(ponderatedRandomList.length === 0) {
 				const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
 					{type:TwitchatDataTypes.TwitchatMessageType.MESSAGE, probability:100},
@@ -908,7 +941,7 @@ export const storeDebug = defineStore('debug', {
 				}
 			}
 
-			return this.simulateMessage(Utils.pickRand(ponderatedRandomList), (data)=> {
+			return await this.simulateMessage(Utils.pickRand(ponderatedRandomList), (data)=> {
 				if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(forcedMessage) {
 						data.message = data.message_html = data.message_no_emotes = forcedMessage;
