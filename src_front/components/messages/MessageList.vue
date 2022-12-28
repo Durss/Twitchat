@@ -351,6 +351,8 @@ export default class MessageList extends Vue {
 	private publicApiEventHandler!: (e: TwitchatEvent) => void;
 	private deleteMessageHandler!: (e: GlobalEvent) => void;
 	private addMessageHandler!: (e: GlobalEvent) => void;
+	private updateMessageStateHandler!: (e: GlobalEvent) => void;
+	private trackUntrackUserHandler!: (e: GlobalEvent) => void;
 
 	public get classes(): string[] {
 		let res = ["messagelist"];
@@ -422,9 +424,16 @@ ChatLowTrustTreatment
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
 		this.addMessageHandler = (e: GlobalEvent) => this.onAddMessage(e);
+		this.updateMessageStateHandler = (e: GlobalEvent) => this.onUpdateMessageState(e);
+		this.trackUntrackUserHandler = (e: GlobalEvent) => this.onTrackUntrackUser(e);
 
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
+		EventBus.instance.addEventListener(GlobalEvent.PIN_MESSAGE, this.updateMessageStateHandler);
+		EventBus.instance.addEventListener(GlobalEvent.UNPIN_MESSAGE, this.updateMessageStateHandler);
+		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.trackUntrackUserHandler);
+		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.trackUntrackUserHandler);
+
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
@@ -452,6 +461,11 @@ ChatLowTrustTreatment
 
 		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.PIN_MESSAGE, this.updateMessageStateHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.UNPIN_MESSAGE, this.updateMessageStateHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.trackUntrackUserHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.trackUntrackUserHandler);
+
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
@@ -582,6 +596,11 @@ ChatLowTrustTreatment
 				
 				//Force tracked users if requested
 				if (m.user.is_tracked && this.config.messageFilters.tracked) {
+					return true;
+				}
+				
+				//Force pinned messages if requested
+				if (m.is_pinned && this.config.messageFilters.pinned) {
 					return true;
 				}
 				
@@ -755,12 +774,13 @@ ChatLowTrustTreatment
 
 		//If scrolling is locked or there are still messages pending,
 		//add the new messages to the pending list
-		const chatPaused = this.lockScroll;// || this.pendingMessages.length > 0 || el.scrollTop < maxScroll;
-		if (chatPaused) {
+		if (this.lockScroll) {
 			this.pendingMessages.push(m);
 			this.lockedLiveMessages.push(m);
 			this.lockedLiveMessages = this.lockedLiveMessages.slice(-(this.config.liveLockCount ?? 3));//Only keep last N messages
+
 		} else {
+
 			this.lockedLiveMessages = [];
 			let list = this.filteredMessages.concat();
 			list.push(m);
@@ -769,6 +789,53 @@ ChatLowTrustTreatment
 			this.showLoadingGradient = false;
 			this.scrollToPrevMessage();
 		}
+	}
+
+	/**
+	 * Called when the state of a message is changed (pin/unpin)
+	 */
+	private onUpdateMessageState(e: GlobalEvent): void {
+		this.fullListRefresh();
+		// const message = e.data as TwitchatDataTypes.ChatMessageTypes
+		// const shouldShow = this.shouldShowMessage(message);
+		// const displayedIndex = this.filteredMessages.findIndex(v=>v.id == message.id);
+		// const pendingIndex = this.pendingMessages.findIndex(v=>v.id == message.id);
+		// const lockedIndex = this.lockedLiveMessages.findIndex(v=>v.id == message.id);
+		// if(!shouldShow) {
+		// 	if(pendingIndex > -1)  this.pendingMessages.splice(pendingIndex, 1);
+		// 	if(displayedIndex > -1)  this.filteredMessages.splice(displayedIndex, 1);
+		// 	if(lockedIndex > -1)  this.lockedLiveMessages.splice(lockedIndex, 1);
+		// }else{
+		// 	if(this.lockScroll) {
+		// 		if(pendingIndex == -1)  this.pendingMessages.push(message);
+		// 		if(lockedIndex == -1)  this.lockedLiveMessages.push(message);
+		// 	}else{
+		// 		if(displayedIndex == -1)  this.filteredMessages.push(message);
+		// 	}
+		// }
+	}
+
+	/**
+	 * Called when changing the tracking state of a user
+	 */
+	private onTrackUntrackUser(e: GlobalEvent): void {
+		this.fullListRefresh();
+		// const user = e.data as TwitchatDataTypes.TwitchatUser;
+		// const lists = [this.filteredMessages, this.pendingMessages, this.lockedLiveMessages];
+		// for (let i = 0; i < lists.length; i++) {
+		// 	const list = lists[i];
+		// 	for (let j = 0; j < list.length; j++) {
+		// 		const message = list[j];
+		// 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+		// 			const shouldShow = this.shouldShowMessage(message);
+		// 			if(!shouldShow) {
+		// 				list.splice(j, 1);
+		// 			}else{
+		// 				list.push(message);
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}
 
 	/**

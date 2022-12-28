@@ -1087,6 +1087,7 @@ export const storeChat = defineStore('chat', {
 		pinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			message.is_pinned = true;
 			this.pinedMessages.push(message);
+			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.PIN_MESSAGE, message));
 		},
 		
 		unpinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
@@ -1094,6 +1095,7 @@ export const storeChat = defineStore('chat', {
 				if(v.id == message.id) {
 					message.is_pinned = false;
 					this.pinedMessages.splice(index, 1);
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNPIN_MESSAGE, message));
 				}
 			})
 		},

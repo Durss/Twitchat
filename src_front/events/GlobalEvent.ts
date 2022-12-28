@@ -9,6 +9,8 @@ export default class GlobalEvent extends Event {
 	public static DELETE_MESSAGE = "DELETE_MESSAGE";
 	public static TRACK_USER = "TRACK_USER";
 	public static UNTRACK_USER = "UNTRACK_USER";
+	public static PIN_MESSAGE = "PIN_MESSAGE";
+	public static UNPIN_MESSAGE = "UNPIN_MESSAGE";
 	
 	constructor(eventType:string, public data?:any) {
 		super(eventType);
