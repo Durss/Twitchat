@@ -29,7 +29,7 @@ export default class ChatMessageInfoBadges extends Vue {
 		if(info.label) return info.label;
 		const hashmap:{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string} = {
 			pinned:"",
-			raider:"raider",
+			raider:"",
 			automod:"automod",
 			whisper:"whisper",
 			cyphered:"cyphered",
@@ -58,6 +58,7 @@ export default class ChatMessageInfoBadges extends Vue {
 
 	public getTooltip(info:TwitchatDataTypes.MessageBadgeData):string {
 		const hashmap:Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}> = {
+			raider:"Raider",
 			pinned:"Pinned",
 			restrictedUser:"Message only visible by<br>you and your mods",
 			suspiciousUser:"User is flaged as suspicious",
