@@ -1,0 +1,12 @@
+{
+	"triggers":{
+		"actions": {
+			"http":{
+				"url":"URL to call",
+				"method":"Method",
+				"select_param":"Select parameters to send:",
+				"protocol_error":"Due to browser security restrictions, only 127.0.0.1 or localhost domains can ben called with HTTP protocol. Use HTTPS for other domains."
+			}
+		}
+	}
+}

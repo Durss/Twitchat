@@ -26,17 +26,29 @@
 		<div>
 			<div v-if="action.type===null" class="typeSelector">
 				<div class="info">Select the action type to execute</div>
-				<Button class="button" white @click="selectActionType('chat')" title="Send chat message" :icon="$image('icons/whispers_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('chat')"
+					title="Send chat message"
+					:icon="$image('icons/whispers_purple.svg')"/>
 					
-				<Button class="button" white @click="selectActionType('bingo')" title="Start a bingo" :icon="$image('icons/bingo_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('bingo')"
+					title="Start a bingo"
+					:icon="$image('icons/bingo_purple.svg')"/>
 				
-				<Button class="button" white @click="selectActionType('raffle')" title="Start a raffle" :icon="$image('icons/ticket_purple.svg')"/>
+				<Button class="button" white @click="selectActionType('raffle')"
+					title="Start a raffle"
+					:icon="$image('icons/ticket_purple.svg')"/>
 				
-				<Button class="button" white @click="selectActionType('highlight')" title="Highlight on stream" :icon="$image('icons/highlight_purple.svg')" />
+				<Button class="button" white @click="selectActionType('highlight')"
+					title="Highlight on stream"
+					:icon="$image('icons/highlight_purple.svg')" />
 				
-				<Button class="button beta" white @click="selectActionType('trigger')" title="Trigger" :icon="$image('icons/broadcast_purple.svg')" />
+				<Button class="button beta" white @click="selectActionType('trigger')"
+					title="Trigger"
+					:icon="$image('icons/broadcast_purple.svg')" />
 				
-				<Button class="button" white @click="selectActionType('obs')" title="Control OBS" :icon="$image('icons/obs_purple.svg')"
+				<Button class="button" white @click="selectActionType('obs')"
+					title="Control OBS"
+					:icon="$image('icons/obs_purple.svg')"
 					:disabled="!obsConnected"
 					:data-tooltip="obsConnected? '' : 'You need to connect with OBS<br>on the OBS section'"/>
 				
@@ -52,12 +64,15 @@
 					:disabled="!musicServiceConfigured"
 					:data-tooltip="musicServiceConfigured? '' : 'You need to connect<br>Spotify or Deezer<br>on the <strong>Overlays</strong> section'"/>
 				
-				<Button class="button" white
-				@click="selectActionType('voicemod')"
+				<Button class="button" white @click="selectActionType('voicemod')"
 					title="Control Voicemod"
 					:icon="$image('icons/voicemod_purple.svg')"
 					:disabled="!voicemodEnabled"
 					:data-tooltip="voicemodEnabled? '' : 'You need to connect<br>with Voicemod'"/>
+				
+				<Button class="button" white @click="selectActionType('http')"
+					title="HTTP call"
+					:icon="$image('icons/url_purple.svg')"/>
 			</div>
 
 			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" :triggerKey="triggerKey" />
@@ -67,6 +82,7 @@
 			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" :event="event" />
 			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :event="event" />
 			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
+			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :event="event" triggerMode />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			
@@ -91,6 +107,7 @@ import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
+import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
@@ -115,6 +132,7 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 		ToggleBlock,
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
+		TriggerActionHTTPCall,
 		TriggerActionChatEntry,
 		TriggerActionMusicEntry,
 		TriggerActionTriggerEntry,
@@ -184,6 +202,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "voicemod") icons.push( 'voicemod' );
 		if(this.action.type == "trigger") icons.push( 'broadcast' );
 		if(this.action.type == "highlight") icons.push( 'highlight' );
+		if(this.action.type == "http") icons.push( 'url' );
 		return icons;
 	}
 
@@ -246,7 +265,7 @@ export default class TriggerActionEntry extends Vue {
 		}
 		&>.icon {
 			height: 1.5em !important;
-			max-width: 2em !important;
+			max-width: 1.25em !important;
 			padding: .15em 0;
 			width: unset !important;
 			vertical-align: middle;
@@ -302,7 +321,7 @@ export default class TriggerActionEntry extends Vue {
 				margin-bottom: .25em;
 			}
 			:deep(.icon) {
-				max-width: 2em;
+				max-width: 1.25em;
 			}
 		}
 	}

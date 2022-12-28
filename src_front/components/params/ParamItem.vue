@@ -494,9 +494,9 @@ export default class ParamItem extends Vue {
 			}
 		}
 
-		select {
-			max-width: 250px;
-		}
+		// select {
+		// 	max-width: 250px;
+		// }
 
 		input, select, textarea{
 			transition: background-color .25s;

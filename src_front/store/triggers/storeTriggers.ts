@@ -38,6 +38,7 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "voicemod") return true;
 					if(v.type == "highlight") return true;
 					if(v.type == "trigger") return true;
+					if(v.type == "http") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;

@@ -123,6 +123,11 @@ import Ajv from "ajv";
 										playlist: {type:"string", maxLength:500},
 										voiceID: {type:"string", maxLength:100},
 										triggerKey: {type:"string", maxLength:100},
+										method: {type:"string", maxLength:10},
+										queryParams: {
+											type:"array",
+											items:[{type:"string", maxLength:50}],
+										},
 										raffleData: {
 											type: "object",
 											additionalProperties: false,

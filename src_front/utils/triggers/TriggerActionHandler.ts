@@ -554,6 +554,21 @@ export default class TriggerActionHandler {
 							}
 						}
 					}else
+					
+					//Handle sub trigger action
+					if(step.type == "http") {
+						const options = {
+							method:step.method,
+						};
+						const url = new URL(step.url);
+						for (let i = 0; i < step.queryParams.length; i++) {
+							const tag = step.queryParams[i];
+							const text = await this.parseText(eventType, message, "{"+tag+"}");
+							url.searchParams.append(tag.toLowerCase(), text);
+						}
+						console.log(options);
+						await fetch(url, options);
+					}else
 
 					//Handle music actions
 					if(step.type == "music") {
