@@ -335,6 +335,7 @@ export default class MessageListFilter extends Vue {
 					bots:"Sent by bots",
 					tracked:"Sent by tracked users",
 					deleted:"Deleted messages",
+					pinned:"Pinned messages",
 					automod:"Blocked messages",
 					suspiciousUsers:"Sent by suspicious users",
 					commands:"Commands (starting with \"!\")",
@@ -353,6 +354,7 @@ export default class MessageListFilter extends Vue {
 					commands:"commands.svg",
 					short:"",
 					tracked:"magnet.svg",
+					pinned:"pin.svg",
 				}
 				if(!this.config.messageFilters) this.config.messageFilters = {
 					bots:true,
@@ -367,6 +369,7 @@ export default class MessageListFilter extends Vue {
 					partners:true,
 					short:true,
 					tracked:true,
+					pinned:true,
 				};
 				for (const key in keyToLabel) {
 					const k = key as messageFilterTypes;
@@ -689,6 +692,7 @@ export default class MessageListFilter extends Vue {
 					this.config.messageFilters[k] = k == "automod"
 												 || k == "deleted"
 												 || k == "tracked"
+												 || k == "pinned"
 												 || k == "suspiciousUsers"
 												 || k == "moderators";
 				}

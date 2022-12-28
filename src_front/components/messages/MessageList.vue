@@ -1230,9 +1230,6 @@ ChatLowTrustTreatment
 		const messageHolder = (this.$refs["message_" + data.id] as HTMLDivElement[])[0];
 		const holderBounds = this.$el.getBoundingClientRect();
 		const messageBounds = messageHolder.getBoundingClientRect();
-		// const chatMessagesHolder	= this.$refs.chatMessageHolder as HTMLDivElement;
-		// const conversationHolder	= this.$refs.conversationHolder as HTMLDivElement;
-		// const convMessagesholder	= this.$refs.conversationMessages as HTMLDivElement;
 
 		this.hoverActionsPos = messageBounds.top - holderBounds.top;
 

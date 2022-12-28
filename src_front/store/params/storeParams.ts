@@ -94,6 +94,7 @@ export const storeParams = defineStore('params', {
 					partners: true,
 					short: true,
 					tracked: true,
+					pinned: true,
 				}
 			},
 			{
@@ -105,11 +106,11 @@ export const storeParams = defineStore('params', {
 				userBlockList: "",
 				filters: {
 					join: false,
+					leave: false,
 					message: true,
 					whisper: false,
 					raid: true,
 					poll: true,
-					leave: false,
 					cheer: true,
 					bingo: true,
 					raffle: true,
@@ -139,6 +140,7 @@ export const storeParams = defineStore('params', {
 					partners: false,
 					short: false,
 					tracked: true,
+					pinned:true,
 				}
 			}
 		],
@@ -234,6 +236,7 @@ export const storeParams = defineStore('params', {
 					partners:true,
 					short:true,
 					tracked: true,
+					pinned: true,
 				}
 			}
 			if(after) {

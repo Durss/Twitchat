@@ -51,14 +51,14 @@ export default class PinedMessages extends Vue {
 		this.$emit('close');
 	}
 
-	public async unpin(m:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
+	public async unpin(m:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):Promise<void> {
 		this.$store("chat").unpinMessage(m);
 		if(this.$store("chat").pinedMessages.length === 0) {
 			this.close();
 		}
 	}
 	
-	public async chatHighlight(m:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
+	public async chatHighlight(m:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):Promise<void> {
 		this.highlightLoading = true;
 		this.$store("chat").highlightChatMessageOverlay(m);
 		await Utils.promisedTimeout(1000);

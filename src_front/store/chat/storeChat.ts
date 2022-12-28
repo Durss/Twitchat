@@ -1079,12 +1079,12 @@ export const storeChat = defineStore('chat', {
 			DataStore.set(DataStore.SPOILER_PARAMS, params);
 		},
 		
-		pinMessage(message:TwitchatDataTypes.MessageChatData) {
+		pinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			message.is_pinned = true;
 			this.pinedMessages.push(message);
 		},
 		
-		unpinMessage(message:TwitchatDataTypes.MessageChatData) {
+		unpinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			this.pinedMessages.forEach((v, index)=> {
 				if(v.id == message.id) {
 					message.is_pinned = false;

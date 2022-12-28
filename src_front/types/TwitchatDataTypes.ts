@@ -58,6 +58,7 @@ export namespace TwitchatDataTypes {
 		partners:boolean;
 		short:boolean;
 		tracked:boolean;
+		pinned:boolean;
 	}
 
 	/**
@@ -989,6 +990,7 @@ export namespace TwitchatDataTypes {
 		occurrenceCount?: number;
 		cyphered?: boolean;
 		spoiler?: boolean;
+		is_pinned?: boolean;
 	}
 
 	/**

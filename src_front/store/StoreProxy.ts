@@ -154,7 +154,7 @@ export interface IChatState {
 	searchMessages:string;
 	realHistorySize:number;
 	whispersUnreadCount:number;
-	pinedMessages:TwitchatDataTypes.ChatMessageTypes[];
+	pinedMessages:(TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData)[];
 	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[],
 	whispers:{[key:string]:TwitchatDataTypes.MessageWhisperData[]};
 	botMessages:TwitchatDataTypes.IBotMessage,
@@ -182,8 +182,8 @@ export interface IChatActions {
 	shoutout(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams):void;
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
-	pinMessage(message:TwitchatDataTypes.MessageChatData):void;
-	unpinMessage(message:TwitchatDataTypes.MessageChatData):void;
+	pinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
+	unpinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
 	highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null):Promise<void>;
 	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void>;
 }
