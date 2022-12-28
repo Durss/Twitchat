@@ -191,6 +191,8 @@ export default class WhispersState extends Vue {
 			display: flex;
 			flex-direction: column;
 			justify-content: flex-start;
+			max-width: 800px;
+			margin:auto;
 
 			.messageList {
 				overflow-y: auto;

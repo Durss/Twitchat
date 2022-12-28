@@ -448,7 +448,7 @@ export default class ChatMessage extends Vue {
 			for (let i = 0; i < highlightedWords.length; i++) {
 				let word = highlightedWords[i];
 				word = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				txt = txt.replace(new RegExp("("+word+")", "gim"), "<span class='highlightedWord'>$1</span>");
+				txt = txt.replace(new RegExp("("+word+")(?!([^<]+)?>)", "gim"), "<span class='highlightedWord'>$1</span>");
 			}
 		}
 
@@ -556,6 +556,7 @@ export default class ChatMessage extends Vue {
 			params:this.$store("chat").chatHighlightOverlayParams,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+		this.$store("chat").isChatMessageHighlighted = true;
 		await Utils.promisedTimeout(2000);
 		this.clipHighlightLoading = false;
 	}

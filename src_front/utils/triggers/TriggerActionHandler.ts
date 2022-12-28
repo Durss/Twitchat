@@ -771,6 +771,6 @@ export default class TriggerActionHandler {
 				res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
 			}
 		}
-		return res;
+		return Utils.stripHTMLTags(res);
 	}
 }

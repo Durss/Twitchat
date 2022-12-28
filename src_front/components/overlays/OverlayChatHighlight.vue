@@ -10,12 +10,15 @@
 			</div>
 		</div>
 		
-		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder" v-if="clipData && clipData.mp4">
+		{{ loadingClip }}
+		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder"
+		v-if="clipData && clipData.mp4" v-show="!loadingClip">
 			<video ref="video" id="clip_player" :src="clipData.mp4" autoplay @loadedmetadata="onClipStart()"></video>
 			<div class="clipProgress" id="clip_progressbar" :style="clipStyles"></div>
 		</div>
 		
-		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder" v-else-if="clipData" v-show="!loadingClip">
+		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder"
+		v-else-if="clipData" v-show="!loadingClip">
 			<iframe 
 				id="clip_player"
 				:src="clipData.url"
@@ -138,6 +141,7 @@ export default class OverlayChatHighlight extends Vue {
 
 	private async onShowClip(e:TwitchatEvent):Promise<void> {
 		await this.hideCurrent();
+		this.loadingClip = true;
 		
 		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
 		this.clipData = data.clip!;
@@ -145,12 +149,6 @@ export default class OverlayChatHighlight extends Vue {
 		this.message = "";
 		this.user = null;
 		this.clipPercent = 0;
-		this.loadingClip = true;
-		// const res = await fetch(Config.instance.API_PATH+"/clip?id=CrowdedCrispyLettuceUnSane-H5_AtpejPgPcvBGC", {method:"GET"});
-		// const html = await res.text();
-		// await this.$nextTick();
-		// if(this.clipData) {
-		// }
 	}
 
 	public onIFrameLoaded(e:unknown):void {

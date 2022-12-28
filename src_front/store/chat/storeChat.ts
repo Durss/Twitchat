@@ -1130,6 +1130,7 @@ export const storeChat = defineStore('chat', {
 				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject);
 			}else{
 				this.isChatMessageHighlighted = false;
+				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE);
 			}
 			
 		},
