@@ -566,7 +566,6 @@ export default class TriggerActionHandler {
 							const text = await this.parseText(eventType, message, "{"+tag+"}");
 							url.searchParams.append(tag.toLowerCase(), text);
 						}
-						console.log(options);
 						await fetch(url, options);
 					}else
 
