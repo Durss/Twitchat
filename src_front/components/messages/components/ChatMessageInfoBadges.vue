@@ -2,7 +2,7 @@
 	<div class="chatmessageinfobadges">
 		<div v-for="i in infos" :class="['item', i.type].join(' ')" :data-tooltip="getTooltip(i)">
 			<img :src="getIcon(i)" alt="emergency" v-if="getIcon(i)">
-			<span>{{getLabel(i)}}</span>
+			<span class="label" v-if="getLabel(i)">{{getLabel(i)}}</span>
 		</div>
 	</div>
 </template>
@@ -28,6 +28,7 @@ export default class ChatMessageInfoBadges extends Vue {
 	public getLabel(info:TwitchatDataTypes.MessageBadgeData):string {
 		if(info.label) return info.label;
 		const hashmap:{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string} = {
+			pinned:"",
 			raider:"raider",
 			automod:"automod",
 			whisper:"whisper",
@@ -36,12 +37,12 @@ export default class ChatMessageInfoBadges extends Vue {
 			suspiciousUser:"suspicious",
 			emergencyBlocked:"blocked",
 		}
-		if(hashmap[info.type]) return hashmap[info.type];
-		return info.type;
+		return hashmap[info.type];
 	}
 
 	public getIcon(info:TwitchatDataTypes.MessageBadgeData):string {
 		const hashmap:Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}> = {
+			pinned:"pin",
 			raider:"train",
 			automod:"shield",
 			cyphered:"lock_fit",
@@ -57,7 +58,9 @@ export default class ChatMessageInfoBadges extends Vue {
 
 	public getTooltip(info:TwitchatDataTypes.MessageBadgeData):string {
 		const hashmap:Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}> = {
+			pinned:"Pinned",
 			restrictedUser:"Message only visible by<br>you and your mods",
+			suspiciousUser:"User is flaged as suspicious",
 		};
 		return hashmap[info.type] ?? info.tooltip ?? "";
 	}
@@ -101,7 +104,10 @@ export default class ChatMessageInfoBadges extends Vue {
 		img {
 			height: 1em;
 			vertical-align: middle;
-			margin-right: .25em;
+		}
+
+		.label {
+			margin-left: .25em;
 		}
 	}
 }

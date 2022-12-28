@@ -375,6 +375,9 @@ export default class ChatMessage extends Vue {
 			watch(()=> mess.twitch_isSuspicious, () =>{
 				this.updateSuspiciousState();
 			});
+			watch(()=> mess.is_pinned, () =>{
+				this.updatePinnedState();
+			});
 			if(mess.twitch_isRestricted) {
 				infoBadges.push({type:"restrictedUser"});
 			}
@@ -569,17 +572,34 @@ export default class ChatMessage extends Vue {
 	private updateSuspiciousState():void{
 		if(this.messageData.type === TwitchatDataTypes.TwitchatMessageType.WHISPER) return;
 		
-		if(this.messageData.twitch_isSuspicious && this.infoBadges.findIndex(v=> v.type == "suspiciousUser") == -1) {
-			this.infoBadges.push({type:"suspiciousUser", label:"suspicious", tooltip:"User is flaged as suspicious"});
+		if(this.messageData.twitch_isSuspicious
+		&& this.infoBadges.findIndex(v=> v.type == "suspiciousUser") == -1) {
+			this.infoBadges.push({type:"suspiciousUser"});
 		}
 		
-		if(this.messageData.twitch_isRestricted && this.infoBadges.findIndex(v=> v.type == "restrictedUser") == -1) {
-			this.infoBadges.push({type:"restrictedUser", label:"restricted", tooltip:"Message only visible by<br>you and your mods"});
+		if(this.messageData.twitch_isRestricted
+		&& this.infoBadges.findIndex(v=> v.type == "restrictedUser") == -1) {
+			this.infoBadges.push({type:"restrictedUser"});
 		}
 		
 		let users = (this.messageData.twitch_sharedBanChannels?.map(v=>v.login) ?? []);
 		if(users.length > 0) {
 			this.userBannedOnChannels = users.join(", ").replace(/(.*),/, "$1 and");
+		}
+	}
+	
+	private updatePinnedState():void{
+		const m = this.messageData as TwitchatDataTypes.MessageChatData;
+		const badgeIndex = this.infoBadges.findIndex(v=> v.type == "pinned");
+
+		if(m.is_pinned) {
+			if(badgeIndex == -1) {
+				this.infoBadges.push({type:"pinned"});
+			}
+		}else{
+			if(badgeIndex > -1) {
+				this.infoBadges.splice(badgeIndex, 1);
+			}
 		}
 	}
 }

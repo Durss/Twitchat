@@ -1355,7 +1355,7 @@ export default class PubSub extends EventDispatcher {
 		do {
 			message = StoreProxy.chat.messages.find(v=>v.id == data.message.id) as TwitchatDataTypes.MessageChatData|undefined;
 			if(!message) {
-				//Message not found because probably not received yet.
+				//Message not found because probably not received on IRC yet.
 				//Wait a little and try again
 				attempts --;
 				await Utils.promisedTimeout(200);
@@ -1374,6 +1374,15 @@ export default class PubSub extends EventDispatcher {
 				chatMessage: message,
 				moderator:StoreProxy.users.getUserFrom("twitch", channel_id, data.pinned_by.id, data.pinned_by.display_name.toLowerCase(), data.pinned_by.display_name),
 			};
+			let timeoutRef = -1;
+			if(data.message.ends_at*1000 > Date.now()) {
+				//Schedule automatic unpin
+				timeoutRef = setTimeout(()=> {
+					this.unpinMessageEvent(m, channel_id);
+				}, data.message.ends_at*1000 - Date.now());
+
+				m.timeoutRef = timeoutRef;
+			}
 			StoreProxy.chat.addMessage(m);
 			StoreProxy.chat.pinMessage(m.chatMessage);
 		}
@@ -1382,20 +1391,21 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when a message is unpinned
 	 */
-	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage, channel_id:string):void {
+	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage|TwitchatDataTypes.MessagePinData, channel_id:string):void {
 		let message = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
 		
 		if(message) {
+			let moderator:TwitchatDataTypes.TwitchatUser|undefined;
+			if("unpinned_by" in data) {
+				moderator = StoreProxy.users.getUserFrom("twitch", channel_id, data.unpinned_by.id, data.unpinned_by.display_name.toLowerCase(), data.unpinned_by.display_name)
+			}
 			const m:TwitchatDataTypes.MessageUnpinData = {
 				id:data.id,
 				date:Date.now(),
 				platform:"twitch",
 				type:"unpinned",
-				pinnedAt_ms: message.pinnedAt_ms,
-				updatedAt_ms: message.updatedAt_ms,
-				unpinAt_ms: message.unpinAt_ms,
 				chatMessage:message.chatMessage,
-				moderator:StoreProxy.users.getUserFrom("twitch", channel_id, data.unpinned_by.id, data.unpinned_by.display_name.toLowerCase(), data.unpinned_by.display_name),
+				moderator,
 			};
 			StoreProxy.chat.addMessage(m);
 			StoreProxy.chat.unpinMessage(m.chatMessage);
@@ -1414,6 +1424,15 @@ export default class PubSub extends EventDispatcher {
 				message.unpinAt_ms = -1;
 			}
 			message.updatedAt_ms = data.updated_at * 1000;
+			if(message.unpinAt_ms > Date.now()) {
+				//Schedule automatic unpin
+				clearTimeout(message.timeoutRef);
+				message.timeoutRef = setTimeout(()=> {
+					if(message!.chatMessage){
+						this.unpinMessageEvent(message!, channel_id);
+					}
+				}, message.unpinAt_ms - Date.now());
+			}
 		}
 	}
 }

@@ -137,6 +137,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export const MessageBadgeDataType = {
 		RAIDER: "raider",
+		PINNED: "pinned",
 		AUTOMOD: "automod",
 		WHISPER: "whisper",
 		CYPHERED: "cyphered",
@@ -948,6 +949,7 @@ export namespace TwitchatDataTypes {
 		message_no_emotes:string;
 		answers: MessageChatData[];
 		is_short: boolean;//true if message is short or contains mostly emotes
+		is_pinned?: boolean;
 		
 		todayFirst?: boolean;
 		automod?: AutomodParamsKeywordFilterData;
@@ -1467,6 +1469,7 @@ export namespace TwitchatDataTypes {
 		pinnedAt_ms: number;
 		updatedAt_ms: number;
 		unpinAt_ms: number;
+		timeoutRef?: number;
 	}
 
 	/**
@@ -1474,11 +1477,8 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageUnpinData extends AbstractTwitchatMessage {
 		type:"unpinned",
-		moderator:TwitchatUser;
+		moderator?:TwitchatUser;
 		chatMessage:MessageChatData;
-		pinnedAt_ms: number;
-		updatedAt_ms: number;
-		unpinAt_ms: number;
 	}
 
 }

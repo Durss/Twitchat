@@ -182,8 +182,8 @@ export interface IChatActions {
 	shoutout(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams):void;
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
-	pinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
-	unpinMessage(message:TwitchatDataTypes.ChatMessageTypes):void;
+	pinMessage(message:TwitchatDataTypes.MessageChatData):void;
+	unpinMessage(message:TwitchatDataTypes.MessageChatData):void;
 	highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null):Promise<void>;
 	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void>;
 }

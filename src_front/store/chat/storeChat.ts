@@ -1079,11 +1079,15 @@ export const storeChat = defineStore('chat', {
 			DataStore.set(DataStore.SPOILER_PARAMS, params);
 		},
 		
-		pinMessage(message:TwitchatDataTypes.ChatMessageTypes) { this.pinedMessages.push(message); },
+		pinMessage(message:TwitchatDataTypes.MessageChatData) {
+			message.is_pinned = true;
+			this.pinedMessages.push(message);
+		},
 		
-		unpinMessage(message:TwitchatDataTypes.ChatMessageTypes) {
+		unpinMessage(message:TwitchatDataTypes.MessageChatData) {
 			this.pinedMessages.forEach((v, index)=> {
 				if(v.id == message.id) {
+					message.is_pinned = false;
 					this.pinedMessages.splice(index, 1);
 				}
 			})

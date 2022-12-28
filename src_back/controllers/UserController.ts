@@ -29,7 +29,7 @@ export default class UserController extends AbstractController {
 	public async initialize():Promise<void> {
 		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
 		this.server.get('/api/user/chatters', async (request, response) => await this.getChatters(request, response));
-		this.server.get('/api/user/all', async (request, response) => await this.getUsers(request, response));
+		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.setUserData(request, response));
 	}
@@ -198,7 +198,7 @@ export default class UserController extends AbstractController {
 	/**
 	 * Get users list
 	 */
-	private async getUsers(request:FastifyRequest, response:FastifyReply) {
+	private async getAllUsers(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.adminGuard(request, response)) return;
 	
 		const files = fs.readdirSync(Config.USER_DATA_PATH);

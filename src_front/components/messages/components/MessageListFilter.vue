@@ -505,6 +505,7 @@ export default class MessageListFilter extends Vue {
 					const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 					dataCast.received = false;
 					this.messagesCache[type]?.push(data);
+					if(previewIndexLoc != this.previewIndex) return;
 					this.previewData.push(data);
 				}, false);
 				this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
@@ -512,6 +513,7 @@ export default class MessageListFilter extends Vue {
 					const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 					dataCast.received = true;
 					this.messagesCache[type]?.push(data);
+					if(previewIndexLoc != this.previewIndex) return;
 					this.previewData.push(dataCast);
 				}, false);
 				this.loadingPreview = false;
