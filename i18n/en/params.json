@@ -140,6 +140,7 @@
 			"unmod":"Remove moderator role",
 			"vip":"Grant VIP role",
 			"unvip":"Remove VIP role",
+			"pin":"Send and pin the message",
 			"greetduration":"Sets the greet them auto delete duration"
 		}
 	}

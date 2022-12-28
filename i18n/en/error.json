@@ -22,6 +22,7 @@
 		"poll_automod":"Poll contains an automoded term",
 		"ad_url_required":"Message must contain \"twitchat.fr\"",
 		"donor_loading":"An error occured when loading donors list :(",
+		"cmd_missing_api":"This command cannot be used outside of official Twitch chat yet :(",
 		"spotify":{
 			"api_rate":"[SPOTIFY] API rate limits exceeded",
 			"token_refresh":"[SPOTIFY] token refresh failed"

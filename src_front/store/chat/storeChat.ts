@@ -339,6 +339,11 @@ export const storeChat = defineStore('chat', {
 				cmd:"/greetDuration {(hh:)(mm:)ss}",
 				details:StoreProxy.i18n.t("params.commands.greetduration"),
 			},
+			{
+				id:"pin",
+				cmd:"/pin {message}",
+				details:StoreProxy.i18n.t("params.commands.pin"),
+			},
 		],
 
 		spoilerParams: {

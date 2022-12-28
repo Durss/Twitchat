@@ -269,7 +269,12 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/so" || cmd == "/shoutout") {
+		if(cmd == "/shoutout" || cmd == "/pin") {
+			StoreProxy.main.alert(StoreProxy.i18n.t("error.cmd_missing_api"));
+			return true;
+		}else
+
+		if(cmd == "/so") {
 			const user = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]);
 			//Make a shoutout
 			await StoreProxy.chat.shoutout(user);
