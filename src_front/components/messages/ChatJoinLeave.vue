@@ -8,13 +8,22 @@
 		<span v-if="userList.length > 0" v-for="u, index in userList" :key="u.id">
 			<a class="userlink" @click.prevent="openUserCard(u)">{{u.displayName}}</a>
 			<span v-if="index < userList.length - 2 + remainingOffset">,&nbsp;</span>
-			<span v-else-if="index < userList.length - 1 + remainingOffset">&nbsp;and&nbsp;</span>
+			<span v-else-if="index < userList.length - 1 + remainingOffset">&nbsp;{{$t("global.and")}}&nbsp;</span>
 		</span>
 
-		<span v-if="remainingCount > 0"><strong>{{remainingCount}}</strong> more</span>
+		<i18n-t v-if="remainingCount > 0" tag="span" keypath="chat.join_leave.more">
+			<template #COUNT><strong>{{remainingCount}}</strong></template>
+		</i18n-t>
 
-		<span v-if="messageData.type=='join'">&nbsp;joined the chat room<strong>{{channelName}}</strong></span>
-		<span v-else>&nbsp;left the chat room<strong>{{channelName}}</strong></span>
+		<span v-if="remainingCount > 0">&nbsp;</span>
+
+		<i18n-t v-if="messageData.type=='join'" tag="span" keypath="chat.join_leave.join">
+			<template #CHANNEL><strong>{{channelName}}</strong></template>
+		</i18n-t>
+
+		<i18n-t v-else tag="span" keypath="chat.join_leave.leave">
+			<template #CHANNEL><strong>{{channelName}}</strong></template>
+		</i18n-t>
 	</div>
 </template>
 
@@ -60,21 +69,21 @@ export default class ChatJoinLeave extends Vue {
 		this.remainingCount = usersClone.length;
 		if(this.remainingCount > 0) this.remainingOffset = 1;
 		
-		let message = this.messageData.users.length+" users";
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.JOIN) {
-			message += " joined the chat room";
-			this.icon = "enter";
-		}else{
-			message += " left the chat room";
-			this.icon = "leave";
-		}
-
+		let message = "";
+		this.channelName = "---";
 		const chan = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
 		if(chan) {
-			this.channelName = " #"+chan.login;
-			message += this.channelName;
+			this.channelName = "#"+chan.login;
 		}
 
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.JOIN) {
+			message = this.$t("chat.join_leave.join_aria", {COUNT:this.messageData.users.length, CHANNEL:this.channelName})
+			this.icon = "enter";
+		}else{
+			message = this.$t("chat.join_leave.leave_aria", {COUNT:this.messageData.users.length, CHANNEL:this.channelName})
+			this.icon = "leave";
+		}
+		console.log(message);
 		this.$store("accessibility").setAriaPolite(message);
 	}
 

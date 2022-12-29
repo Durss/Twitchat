@@ -52,6 +52,13 @@
 				"founder":"Founder",
 				"ambassador":"Ambassador"
 			}
+		},
+		"join_leave":{
+			"join":"joined the chat room {CHANNEL}",
+			"join_aria":"{COUNT} users joined the chat room {CHANNEL}",
+			"leave":"left the chat room {CHANNEL}",
+			"leave_aria":"{COUNT} users left the chat room {CHANNEL}",
+			"more":"{COUNT} more"
 		}
 	}
 }
