@@ -1,10 +1,10 @@
 <template>
 	<ToggleBlock small class="placeholderselector"
-		title="Special placeholders dynamically replaced"
+		:title="$t('global.placeholder_selector_title')"
 		:open="false"
 	>
 		<ul class="list">
-			<li v-for="(h,index) in placeholders" :key="h.tag+index" @click="insert(h)" data-tooltip="Insert">
+			<li v-for="(h,index) in placeholders" :key="h.tag+index" @click="insert(h)" :data-tooltip="$t('global.placeholder_selector_insert')">
 				<strong>&#123;{{h.tag}}&#125;</strong>
 				{{h.desc}}
 			</li>

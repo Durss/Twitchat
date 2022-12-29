@@ -24,6 +24,8 @@
 		"hide":"Hide",
 		"obs_connect":"This feature needs you to",
 		"obs_connect_link":"connect with OBS",
+		"placeholder_selector_title":"Special placeholders dynamically replaced",
+		"placeholder_selector_insert":"Insert",
 		"badges":{
 			"subscriber":"{DURATION} subscriber",
 			"subgift":"{COUNT} sub-gifts",
