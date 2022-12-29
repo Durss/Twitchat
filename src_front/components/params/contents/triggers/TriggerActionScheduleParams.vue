@@ -85,7 +85,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		let events:TriggerEventTypes[] = [
 			{label:"Select an action...", icon:"date", value:"0", category:TriggerEventTypeCategories.TWITCHAT},
 		];
-		events = events.concat(ScheduleTriggerEvents);
+		events = events.concat(ScheduleTriggerEvents());
 		if(!this.triggerData.scheduleParams) {
 			this.triggerData.scheduleParams = {
 				type:events[1].value as TriggerScheduleTypesValue,

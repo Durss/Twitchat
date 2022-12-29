@@ -300,7 +300,7 @@ export default class ParamsTriggers extends Vue {
 			break;
 		}
 		//Check if a JSON example is available
-		const entry = TriggerEvents.find(v=>v.value == this.currentEvent?.value);
+		const entry = TriggerEvents().find(v=>v.value == this.currentEvent?.value);
 		const hasJSON = entry ? entry.testMessageType != undefined : false;
 		return canTest && hasJSON;
 	}
@@ -376,7 +376,7 @@ export default class ParamsTriggers extends Vue {
 
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [];
-		events = events.concat(TriggerEvents);
+		events = events.concat(TriggerEvents());
 		this.eventsCount = events.length
 
 		//Define select states
@@ -542,7 +542,7 @@ export default class ParamsTriggers extends Vue {
 	public testTrigger():void {
 		let key = this.currentEvent?.value as string;
 		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
-		const entry = TriggerEvents.find(v=>v.value == key);
+		const entry = TriggerEvents().find(v=>v.value == key);
 		
 		if(entry?.testMessageType) {
 			if(this.isSchedule) {
@@ -651,7 +651,7 @@ export default class ParamsTriggers extends Vue {
 		}else {
 			let key = this.currentEvent.value as string;
 
-			const entry = TriggerEvents.find(v=> v.value == key);
+			const entry = TriggerEvents().find(v=> v.value == key);
 			if(entry?.isCategory === true) {
 				//Chat commands and channel point rewards are stored differently to avoid
 				//flooding the main trigger list. Main trigger elements are stored with

@@ -104,7 +104,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 		const list = [];
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
-			const info:TriggerEventTypes|undefined = TriggerEvents.find(v=> v.value === mainKey);
+			const info:TriggerEventTypes|undefined = TriggerEvents().find(v=> v.value === mainKey);
 			if(!info) continue;
 			if(info.isCategory) {
 				const subKey = key.split("_")[1];
@@ -175,7 +175,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 			this.dependencyLoopInfos = links.map(v => {
 				const chunks = v.split("_");
 				const type = chunks[0];
-				const event = TriggerEvents.find(v=> v.value === type);
+				const event = TriggerEvents().find(v=> v.value === type);
 				return {
 					event: event,
 					label: chunks[1],

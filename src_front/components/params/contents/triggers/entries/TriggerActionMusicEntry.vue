@@ -61,7 +61,7 @@ export default class TriggerActionMusicEntry extends Vue {
 		let events:TriggerEventTypes[] = [
 			{label:"Select an action...", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC},
 		];
-		events = events.concat(MusicTriggerEvents);
+		events = events.concat(MusicTriggerEvents());
 		this.actions_conf.value = this.action.musicAction? this.action.musicAction : events[0].value;
 		this.actions_conf.listValues = events;
 
