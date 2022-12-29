@@ -1,0 +1,14 @@
+{
+	"greet":{
+		"title":"Greet them",
+		"never":"never",
+		"clearBt":"Clear all messages",
+		"clear_confirm_title":"Clear all",
+		"clear_confirm_description":"Do you want to clear all messages?",
+		"auto_scroll_on_aria":"Enable auto scroll down",
+		"auto_scroll_off_aria":"Disable auto scroll down",
+		"auto_scroll_down":"Auto scroll down",
+		"auto_scroll_up":"Auto scroll up",
+		"auto_delete":"Auto delete after"
+	}
+}

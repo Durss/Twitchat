@@ -53,14 +53,6 @@
 			:title="$t('obs.scenes_title')">
 				<OBSScenes />
 			</ToggleBlock>
-
-			<!-- <ToggleBlock class="block filters"
-			v-if="connected"
-			:open="false"
-			:icons="['graphicFilters_purple']"
-			title="Control filters">
-				<OBSFilters />
-			</ToggleBlock> -->
 		</div>
 	</div>
 </template>
@@ -77,7 +69,6 @@ import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
-import OBSFilters from './obs/OBSFilters.vue';
 import OBSScenes from './obs/OBSScenes.vue';
 import PermissionsForm from './obs/PermissionsForm.vue';
 
@@ -87,7 +78,6 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 	components:{
 		ParamItem,
 		OBSScenes,
-		OBSFilters,
 		ToggleBlock,
 		OBSConnectForm,
 		PermissionsForm,

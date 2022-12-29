@@ -42,7 +42,7 @@
 					<a @click="$emit('setContent', contentTriggers)" v-t="'overlay.music_common.triggerBt'"></a>.
 				</div>
 			</div>
-			<Button title="Disconnect" @click="disconnect()" class="authBt" highlight />
+			<Button :title="$t('global.disconnect')" @click="disconnect()" class="authBt" highlight />
 		</div>
 
 		<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">

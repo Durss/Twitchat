@@ -1,24 +1,23 @@
 <template>
 	<div class="greetThem" v-show="localMessages.length > 0" :style="styles">
 		<div class="header" @click="toggleList()">
-			<Button :aria-label="(scrollDownAuto? 'Disable' : 'Enable')+' auto scroll down'"
+			<Button class="scrollBt clearButton"
+				:aria-label="$t(scrollDownAuto? 'greet.auto_scroll_off_aria' : 'greet.auto_scroll_on_aria')"
 				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
-				class="scrollBt clearButton"
-				:data-tooltip="'Auto scroll '+(scrollDownAuto? 'Down' : 'Up')"
+				:data-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
 				@click.stop="toggleScroll()" />
 
-			<h1>Greet them <span class="count">({{localMessages.length}})</span></h1>
+			<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
 
-			<Button aria-label=""
+			<Button class="clearBt clearButton"
 				:icon="$image('icons/delete.svg')"
-				class="clearBt clearButton"
-				data-tooltip="Clear all messages"
+				:data-tooltip="$t('greet.clearBt')"
 				@click.stop="clearAll()" />
 		</div>
 
 		<div class="topForm" v-if="showList">
 			<div class="row">
-				<label><img src="@/assets/icons/timeout.svg" alt="timer">Auto delete after</label>
+				<label><img src="@/assets/icons/timeout.svg" alt="timer" v-t="'greet.auto_delete'"></label>
 				<select v-model.number="$store('params').greetThemAutoDelete">
 					<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
 				</select>
@@ -108,18 +107,7 @@ export default class NewUsers extends Vue {
 		if(!durations.includes(v)) {
 			res.unshift({seconds:v, label:Utils.formatDuration(v*1000)});
 		}
-		// <option value="-1">never</option>
-		// <option value="60">1m</option>
-		// <option value="120">2m</option>
-		// <option value="180">3m</option>
-		// <option value="240">4m</option>
-		// <option value="300">5m</option>
-		// <option value="600">10m</option>
-		// <option value="900">15m</option>
-		// <option value="1200">20m</option>
-		// <option value="1800">30m</option>
-		// <option value="3600">1h</option>
-		res.unshift({seconds:-1, label:"never"});
+		res.unshift({seconds:-1, label:this.$t("greet.never")});
 		res.sort((a,b)=> a.seconds - b.seconds);
 		return res;
 	}
@@ -301,7 +289,7 @@ export default class NewUsers extends Vue {
 		//Store the count of messages to delete so if new messages are added
 		//while confirming the clear, these new messages are kept
 		let deleteCount = this.localMessages.length;
-		this.$confirm("Clear all", "You are about to clear all messages.", null, "Confirm", "Cancel").then(() => {
+		this.$confirm(this.$t("greet.clear_confirm_title"), this.$t("greet.clear_confirm_description"), null).then(() => {
 			this.localMessages.splice(0, deleteCount);
 		});
 	}
