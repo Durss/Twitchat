@@ -32,6 +32,7 @@
 			<Button small title="Clear chat" @click="simulateEvent('clear_chat')" :icon="$image('icons/delete.svg')" />
 			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Restricted user" @click="simulateRestricted()" :icon="$image('icons/shield.svg')" />
+			<Button small title="Follow bot item" @click="simulateFollowbotItem()" :icon="$image('icons/block.svg')" />
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
 			<Button small title="Send shoutout" @click="simulateEvent('shoutout')" :icon="$image('icons/shoutout.svg')" />
 			<Button small title="Receive shoutout" @click="simulateEvent('shoutout', 'soReceived')" :icon="$image('icons/shoutout.svg')" />
@@ -143,6 +144,10 @@ export default class DevmodeMenu extends Vue {
 
 	public simulateFollowbotRaid():void {
 		PubSub.instance.simulateFollowbotRaid();
+	}
+
+	public simulateFollowbotItem():void {
+		PubSub.instance.simulateFollowbotItem();
 	}
 	
 	public simulateHypeTrain():void {

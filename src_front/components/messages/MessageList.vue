@@ -545,7 +545,7 @@ ChatLowTrustTreatment
 			// const s = Date.now();
 
 			const sChat = StoreProxy.chat;
-			const messages = sChat.messages.concat();
+			const messages = sChat.messages;
 
 			let result: TwitchatDataTypes.ChatMessageTypes[] = [];
 			for (let i = messages.length - 1; i >= 0; i--) {
@@ -842,43 +842,44 @@ ChatLowTrustTreatment
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e: GlobalEvent): void {
-		const data = e.data as {message:TwitchatDataTypes.ChatMessageTypes, force:boolean};
+		this.fullListRefresh();
+		// const data = e.data as {message:TwitchatDataTypes.ChatMessageTypes, force:boolean};
 
-		//remove from displayed messages
-		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
-			const m = this.filteredMessages[i];
-			if (m.id == data.message.id) {
-				if(data.force===true
-				|| !this.shouldShowMessage(m)
-				|| m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
-					if(m.markedAsRead) {
-						m.markedAsRead = false;
-						if(i>0) {
-							const newMessage = this.filteredMessages[i-1];
-							newMessage.markedAsRead = true;
-							const div = (this.$refs["message_" + newMessage.id] as HTMLDivElement[])[0];
-							this.markedReadItem = div;
-						}
-					}
-					this.filteredMessages.splice(i, 1);
-				}
-				return;
-			}
-		}
+		// //remove from displayed messages
+		// for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
+		// 	const m = this.filteredMessages[i];
+		// 	if (m.id == data.message.id) {
+		// 		if(data.force===true
+		// 		|| !this.shouldShowMessage(m)
+		// 		|| m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
+		// 			if(m.markedAsRead) {
+		// 				m.markedAsRead = false;
+		// 				if(i>0) {
+		// 					const newMessage = this.filteredMessages[i-1];
+		// 					newMessage.markedAsRead = true;
+		// 					const div = (this.$refs["message_" + newMessage.id] as HTMLDivElement[])[0];
+		// 					this.markedReadItem = div;
+		// 				}
+		// 			}
+		// 			this.filteredMessages.splice(i, 1);
+		// 		}
+		// 		return;
+		// 	}
+		// }
 
-		//Check if it's in the pending messages
-		for (let i = this.pendingMessages.length - 1; i >= 0; i--) {
-			const m = this.pendingMessages[i];
-			if (m.id == data.message.id) return
-		}
+		// //Check if it's in the pending messages
+		// for (let i = this.pendingMessages.length - 1; i >= 0; i--) {
+		// 	const m = this.pendingMessages[i];
+		// 	if (m.id == data.message.id) return
+		// }
 
-		if(this.shouldShowMessage(data.message) && data.message.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
-			if(this.pendingMessages.length > 0) {
-				this.pendingMessages.push(data.message);
-			}else{
-				this.filteredMessages.push(data.message);
-			}
-		}
+		// if(this.shouldShowMessage(data.message) && data.message.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
+		// 	if(this.pendingMessages.length > 0) {
+		// 		this.pendingMessages.push(data.message);
+		// 	}else{
+		// 		this.filteredMessages.push(data.message);
+		// 	}
+		// }
 	}
 
 	/**

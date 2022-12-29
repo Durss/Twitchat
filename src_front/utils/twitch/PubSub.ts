@@ -238,6 +238,24 @@ export default class PubSub extends EventDispatcher {
 			}
 		}
 	}
+
+	public async simulateFollowbotItem():Promise<void> {
+		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
+		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
+		const channelId = StoreProxy.auth.twitch.user.id;
+		const uid = Math.round(Math.random()*99999999999).toString();
+		const message:TwitchatDataTypes.MessageFollowingData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id: channelId,
+			type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+			user: StoreProxy.users.getUserFrom("twitch", channelId, uid, login, login , undefined, true),
+			followed_at: Date.now(),
+			followbot:true,
+		};
+		StoreProxy.chat.addMessage(message);
+	}
 	
 	
 	/*******************
@@ -1009,7 +1027,7 @@ export default class PubSub extends EventDispatcher {
 			user: StoreProxy.users.getUserFrom("twitch", channelId, data.user_id, data.username, data.display_name, undefined, true),
 			followed_at: Date.now(),
 		};
-		message.user.channelInfo[channelId].online = true;
+		// message.user.channelInfo[channelId].online = true;
 		
 		this.lastRecentFollowers.push( message );
 		if(this.lastRecentFollowers.length > 1) {

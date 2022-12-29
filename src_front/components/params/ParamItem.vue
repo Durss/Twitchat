@@ -259,7 +259,6 @@ export default class ParamItem extends Vue {
 		});
 		
 		watch(() => this.paramData.children, (value) => {
-			console.log("CHILDREN", value?.length);
 			this.buildChildren();
 		});
 		

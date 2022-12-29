@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<img src="@/assets/icons/emergency_purple.svg" alt="emergency" class="icon">
 			<div class="head">
-				<i18n-t keypath="followbot.title" tag="span" class="title">
+				<i18n-t scope="global" keypath="followbot.title" tag="span" class="title">
 					<template #COUNT>{{ followers.length }}</template>
 				</i18n-t>
 			</div>
@@ -14,7 +14,7 @@
 					<span v-t="'global.search'"></span>
 					<input type="text" v-model="search" :placeholder="$t('followbot.search_placeholder')">
 				</div>
-				<ul class="list" :style="{height:(27*followers.length)+'px'}">
+				<div class="list" :style="{height:(27*followers.length)+'px'}">
 					<InfiniteList class="list" ref="list"
 					v-if="followers.length > 0"
 					:dataset="followers"
@@ -22,14 +22,14 @@
 					:itemMargin="itemMargin"
 					v-model:scrollOffset="scrollOffset"
 					lockScroll
-					nodeType="li"
+					nodeType="div"
 					:style="{height:'100%'}"
 					v-slot="{ item }">
 						<div :class="userClasses(item)">
 							<div class="infos">
 								<span class="date">{{ formatDate(item.date) }}</span>
-								<a class="name" data-tooltip="Open profile"
-								:href="'https://twitch.tv/'+item.user.login" target="_blank">
+								<a class="name" target="_blank"
+								:href="'https://twitch.tv/'+item.user.login">
 									{{ item.user.displayName }}
 								</a>
 							</div>
@@ -67,7 +67,7 @@
 							</div>
 						</div>
 					</InfiniteList>
-				</ul>
+				</div>
 				<div class="batchActions">
 					<Button small @click="banAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.banBt')" :icon="$image('icons/ban.svg')" />
 					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.unfollowBt')" :icon="$image('icons/unfollow_white.svg')" />
@@ -242,7 +242,6 @@ export default class EmergencyFollowsListModal extends Vue {
 <style scoped lang="less">
 .emergencyfollowslistmodal{
 	
-	// visibility: hidden;
 	.modal();
 	position: absolute;
 	top: 0;
@@ -284,8 +283,10 @@ export default class EmergencyFollowsListModal extends Vue {
 			}
 
 			&>.list {
-				margin: 1em 0;
+				margin: 1em auto;
 				overflow: hidden;
+				width: 100%;
+				max-width: 800px;
 
 				.user {
 					display: flex;
@@ -317,18 +318,12 @@ export default class EmergencyFollowsListModal extends Vue {
 	
 						.icon {
 							height: 1em;
-							margin-left: .25em;
-						}
-						.cardBt {
-							margin-left: .5em;
 						}
 					}
 					.ctas {
 						display: flex;
 						flex-direction: row;
-						.button:not(:last-child) {
-							margin-right: 2px;
-						}
+						gap:2px;
 					}
 				}
 			}
@@ -337,32 +332,23 @@ export default class EmergencyFollowsListModal extends Vue {
 				text-align: center;
 			}
 
-			ul {
-				li {
-					&:not(:last-child) {
-						margin-bottom:.5em;
-					}
-				}
-			}
 			&>.batchActions {
 				display: flex;
 				flex-direction: row;
-				justify-content: space-evenly;
+				justify-content: center;
 				flex-wrap: wrap;
-				margin-bottom: .25em;
-				.button  {
-					margin-bottom: .25em;
-				}
+				margin-bottom: .5em;
+				gap:.5em;
 			}
 
 			&>.ctas {
 				// text-align: center;
 				display: flex;
-				flex-direction: column;
+				flex-direction: row;
+				justify-content: center;
 				align-items: center;
-				.button:not(:first-child) {
-					margin-top: .5em;
-				}
+				flex-wrap: wrap;
+				gap:.5em;
 				.later {
 					background-color: @mainColor_warn;
 					&:hover {
@@ -374,15 +360,5 @@ export default class EmergencyFollowsListModal extends Vue {
 		}
 	}
 
-	.dimmer {
-		z-index: 1;
-	}
-
-	mark {
-		border: 1px dashed @mainColor_normal;
-		background-color: fade(@mainColor_normal, 15%);
-		padding: .1em .5em;
-		border-radius: .5em;
-	}
 }
 </style>

@@ -751,15 +751,7 @@ export const storeChat = defineStore('chat', {
 							&& m.date > Date.now() - 1 * 60 * 1000
 							&& m.platform == message.platform) {
 								bulkMessage = m;
-								if(i == messageList.length-1) {
-									//Message already at the bottom, no need to delete/repost it
-									postMessage = false;
-								}else{
-									postMessage = true;
-									deletedMessages.push(m);
-									messageList.splice(i, 1);//remove it, it will be pushed again later
-									i--;
-								}
+								postMessage = false;
 							}
 						}
 						if(!bulkMessage) {
