@@ -4,13 +4,15 @@
 		<div class="holder" ref="holder">
 			<img src="@/assets/icons/emergency_purple.svg" alt="emergency" class="icon">
 			<div class="head">
-				<span class="title">Review {{followers.length}} follower(s)</span>
+				<i18n-t keypath="followbot.title" tag="span" class="title">
+					<template #COUNT>{{ followers.length }}</template>
+				</i18n-t>
 			</div>
 			<div class="content">
-				<div>Here is a list of all the users that followed you during the emergency:</div>
+				<div class="info" v-t="'followbot.header'"></div>
 				<div class="searchField">
-					<span>Search</span>
-					<input type="text" v-model="search" placeholder="username...">
+					<span v-t="'global.search'"></span>
+					<input type="text" v-model="search" :placeholder="$t('followbot.search_placeholder')">
 				</div>
 				<ul class="list" :style="{height:(27*followers.length)+'px'}">
 					<InfiniteList class="list" ref="list"
@@ -35,7 +37,7 @@
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="ban(item)"
-									data-tooltip="Permaban user"
+									:data-tooltip="$t('followbot.ban_tt')"
 									highlight
 									:icon="$image('icons/ban.svg')"
 									v-if="item.user.channelInfo[item.channel_id].is_banned !== true" />
@@ -43,37 +45,37 @@
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="unban(item)"
-									data-tooltip="Unban user"
+									:data-tooltip="$t('followbot.unban_tt')"
 									:icon="$image('icons/unban.svg')"
 									v-if="item.user.channelInfo[item.channel_id].is_banned === true" />
 
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="unfollow(item)"
-									data-tooltip="Remove from<br>my followers"
+									:data-tooltip="$t('followbot.unfollow_tt')"
 									highlight
 									:icon="$image('icons/unfollow_white.svg')"
 									v-if="item.user.channelInfo[item.channel_id].is_following == true" />
 
 								<Button class="cardBt" small
-									data-tooltip="Open viewer details"
+									:data-tooltip="$t('followbot.details_tt')"
 									@click="openCard(item)" :icon="$image('icons/info.svg')" />
 
 								<Button small @click="removeEntry(item)"
-									data-tooltip="Ignore this user"
+								:data-tooltip="$t('followbot.ignore_tt')"
 									:icon="$image('icons/trash.svg')" />
 							</div>
 						</div>
 					</InfiniteList>
 				</ul>
 				<div class="batchActions">
-					<Button small @click="banAll()" bounce :loading="batchActionInProgress" title="Ban all users" :icon="$image('icons/ban.svg')" />
-					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" title="Remove all followers" :icon="$image('icons/unfollow_white.svg')" />
-					<Button small @click="exportCSV()" bounce :loading="batchActionInProgress" title="Export CSV" :icon="$image('icons/save.svg')" />
+					<Button small @click="banAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.banBt')" :icon="$image('icons/ban.svg')" />
+					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.unfollowBt')" :icon="$image('icons/unfollow_white.svg')" />
+					<Button small @click="exportCSV()" bounce :loading="batchActionInProgress" :title="$t('followbot.exportBt')" :icon="$image('icons/save.svg')" />
 				</div>
 				<div class="ctas">
-					<Button class="later" @click="reviewLater()" title="Review later" :icon="$image('icons/countdown.svg')" />
-					<Button highlight @click="clearList()" title="Finish & clear list" :icon="$image('icons/checkmark_white.svg')" />
+					<Button class="later" @click="reviewLater()" :title="$t('followbot.laterBt')" :icon="$image('icons/countdown.svg')" />
+					<Button highlight @click="clearList()" :title="$t('followbot.finishBt')" :icon="$image('icons/checkmark_white.svg')" />
 				</div>
 			</div>
 		</div>
@@ -174,8 +176,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 		
 	public async banAll():Promise<void> {
-		let label = `This will ban all the remaining users of the list from your channel.`;
-		this.$confirm("Ban all?", label).then(async ()=>{
+		this.$confirm(this.$t("followbot.ban_all_confirm_title"), this.$t("followbot.ban_all_confirm_desc")).then(async ()=>{
 			this.batchActionInProgress = true;
 			const list = this.followers;
 			const bounds = (this.$refs["list"] as Vue).$el.getBoundingClientRect();
@@ -189,8 +190,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 	
 	public unfollowAll():void {
-		let label = `This will remove all the remaining users of the list from your followers.`;
-		this.$confirm("Remove followers?", label).then(async ()=>{
+		this.$confirm(this.$t("followbot.unfollow_confirm_title"), this.$t("followbot.unfollow_confirm_desc")).then(async ()=>{
 			this.batchActionInProgress = true;
 			const list = this.followers;
 			const bounds = (this.$refs["list"] as Vue).$el.getBoundingClientRect();
@@ -204,16 +204,13 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 
 	public clearList():void {
-		let label = "This list of followers will be lost forever!<br>";
-		label += "You'll still be able to find the "
-		label += "<a href=\"https://www.twitch.tv/settings/security\" target=\"_blank\">list of all blocked users here</a>";
-		this.$confirm("Complete review?", label).then(()=>{
+		this.$confirm(this.$t("followbot.clear_confirm_title"), this.$t("followbot.clear_confirm_desc")).then(()=>{
 			this.$store("emergency").clearEmergencyFollows();
 		}).catch(()=>{/*ignore*/});
 	}
 
 	public reviewLater():void {
-		this.$confirm("Review later?", "You'll be asked again next time you start Twitchat").then(()=>{
+		this.$confirm(this.$t("followbot.later_confirm_title"), this.$t("followbot.later_confirm_desc")).then(()=>{
 			this.$emit("close");
 		}).catch(()=>{/*ignore*/});
 	}
@@ -334,6 +331,10 @@ export default class EmergencyFollowsListModal extends Vue {
 						}
 					}
 				}
+			}
+
+			.info {
+				text-align: center;
 			}
 
 			ul {
