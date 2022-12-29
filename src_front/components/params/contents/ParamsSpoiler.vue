@@ -3,47 +3,47 @@
 		<img src="@/assets/icons/show_purple.svg" alt="emergency icon" class="icon">
 		
 		<p class="header"></p>
-		<i18n-t tag="p" class="header" keypath="params.spoiler.head">
+		<i18n-t scope="global" tag="p" class="header" keypath="spoiler.header">
 			<template #TAG><mark>||</mark></template>
 		</i18n-t>
 
 		<section>
-			<p v-t="'params.spoiler.message_example'"></p>
+			<p v-t="'spoiler.message_example'"></p>
 			<ChatMessage :messageData="spoilerExample" class="example" lightMode />
 		</section>
 
 		<section>
-			<Splitter class="splitter">{{ $t("params.spoiler.command.title") }}</Splitter>
+			<Splitter class="splitter">{{ $t("spoiler.command.title") }}</Splitter>
 			
-			<i18n-t tag="div" class="item" keypath="params.spoiler.command.how_to">
+			<i18n-t scope="global" tag="div" class="item" keypath="spoiler.command.how_to">
 				<template #CMD><mark>!spoiler</mark></template>
 			</i18n-t>
 			<img class="item" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
-			<i18n-t tag="div" class="item" keypath="params.spoiler.command.allowed">
+			<i18n-t scope="global" tag="div" class="item" keypath="spoiler.command.allowed">
 				<template #CMD><mark>!spoiler</mark></template>
 			</i18n-t>
 			<PermissionsForm class="item perms" v-model="chatCommandPerms" />
 		</section>
 		
 		<section>
-			<Splitter class="splitter">{{ $t('params.spoiler.warning.title') }}</Splitter>
+			<Splitter class="splitter">{{ $t('spoiler.warning.title') }}</Splitter>
 	
 			<div class="item disclaimer">
-				<i18n-t tag="div" class="item" keypath="params.spoiler.warning.head">
+				<i18n-t scope="global" tag="div" class="item" keypath="spoiler.warning.head">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
-				<i18n-t tag="div" class="item" keypath="params.spoiler.warning.example">
-					<template #ANSWER><mark v-t="'params.spoiler.warning.example_2'"></mark></template>
-					<template #ROOT><mark v-t="'params.spoiler.warning.example_1'"></mark></template>
+				<i18n-t scope="global" tag="div" class="item" keypath="spoiler.warning.example">
+					<template #ANSWER><mark v-t="'spoiler.warning.example_2'"></mark></template>
+					<template #ROOT><mark v-t="'spoiler.warning.example_1'"></mark></template>
 				</i18n-t>
 			</div>
 			<ul>
 				<li>
-					<span v-t="'params.spoiler.warning.example_1'"></span>
+					<span v-t="'spoiler.warning.example_1'"></span>
 					<ul>
-						<li v-t="'params.spoiler.warning.example_2'"></li>
-						<li v-t="'params.spoiler.warning.example_2'"></li>
-						<li v-t="'params.spoiler.warning.example_3'"></li>
+						<li v-t="'spoiler.warning.example_2'"></li>
+						<li v-t="'spoiler.warning.example_2'"></li>
+						<li v-t="'spoiler.warning.example_3'"></li>
 					</ul>
 				</li>
 			</ul>

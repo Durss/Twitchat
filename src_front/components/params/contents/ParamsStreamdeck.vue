@@ -2,18 +2,28 @@
 	<div class="paramsstreamdeck">
 		<img src="@/assets/icons/elgato_purple.svg" alt="overlay icon" class="icon">
 
-		<p class="head">A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button</p>
+		<p class="head"></p>
 		
 		<ol>
 			<li>
-				<span class="index">1.</span>This plugin needs <strong>OBS 28+</strong>
+				<span class="index">1.</span>
+				<i18n-t scope="global" tag="span" keypath="streamdeck.step_1.install">
+					<template #OBS_VERSION>
+						<strong>OBS v28+</strong>
+					</template>
+				</i18n-t>
 				<br>
-				<i>(or <a :href="obswsInstaller" target="_blank">OBS-websocket V5+</a> plugin to be installed on OBS 27)</i>
+				<i18n-t scope="global" tag="i" keypath="streamdeck.step_1.install_option">
+					<template #PLUGIN_LINK>
+						<a :href="obswsInstaller" target="_blank" v-t="'obs.install_plugin_name'"></a>
+					</template>
+				</i18n-t>
 			</li>
 			
-			<li><span class="index">2.</span> 
+			<li>
+				<span class="index">2.</span> 
 				<Button :icon="$image('icons/elgato.svg')"
-					title="Download Stream Deck™ plugin"
+					:title="$t('streamdeck.step_2')"
 					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"
 					type="link"
@@ -21,13 +31,26 @@
 				/>
 			</li>
 
-			<li><span class="index">3.</span>Head over the <a @click="$emit('setContent', contentObs)">OBS tab</a> and set the OBS-Websocket credentials to link Twitchat with OBS.</li>
+			<li>
+				<span class="index">3.</span>
+				<i18n-t scope="global" tag="span" keypath="streamdeck.step_3">
+					<template #TAB_LINK>
+						<a @click="$emit('setContent', contentObs)" v-t="'streamdeck.step_3_tab_link'"></a>
+					</template>
+				</i18n-t>
+			</li>
 
-			<li><span class="index">4.</span>On your Stream Deck™ software, drop any action from the Twitchat library, and watch the properties panel.
-			<br>You should be prompted to set OBS-Websocket credentials:
-			<img src="@/assets/img/streamdeck_credentials.png" alt="credentials"></li>
+			<li>
+				<span class="index">4.</span>
+				<span v-t="'streamdeck.step_4_1'"></span>
+				<span v-t="'streamdeck.step_4_2'"></span>
+				<img src="@/assets/img/streamdeck_credentials.png" alt="credentials">
+			</li>
 
-			<li><span class="index">5.</span>Once everything is done you should be able to control Twitchat from your Stream Deck™ 🥳🎉</li>
+			<li>
+				<span class="index">5.</span>
+				<span v-t="'streamdeck.step_5'"></span>
+			</li>
 		</ol>
 
 	</div>

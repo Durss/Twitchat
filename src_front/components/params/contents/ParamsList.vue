@@ -14,7 +14,7 @@
 					</div>
 				
 					<div v-else-if="p.id == 201 && p.value === true" class="info greetThem">
-						<i18n-t tag="p" class="label"
+						<i18n-t scope="global" tag="p" class="label"
 						keypath="params.firstMessage_info">
 							<template #URL>
 								<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
@@ -23,7 +23,7 @@
 					</div>
 					
 					<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
-						<i18n-t tag="p" class="label"
+						<i18n-t scope="global" tag="p" class="label"
 						keypath="params.showUserPronouns_based_on">
 							<template #URL1>
 								<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
