@@ -3,13 +3,13 @@
 	medium
 	class="TriggerActionchatcommandparams"
 	:open="true"
-	title="Parameters"
+	:title="$t('triggers.actions.chat.params_title')"
 	:icons="['params']">
 
 		<ParamItem class="row" :paramData="param_cmd" @focusout="onUpdateCommand()" :error="cmdNameConflict" />
-		<div v-if="cmdNameConflict" class="cmdNameConflict">A command with this name already exists</div>
+		<div v-if="cmdNameConflict" class="cmdNameConflict" v-t="'triggers.actions.chat.conflict'"></div>
 
-		<ToggleBlock :open="false" class="row" small title="Users allowed to use this command">
+		<ToggleBlock :open="false" class="row" small :title="$t('triggers.actions.chat.allowed_users')">
 			<PermissionsForm v-model="triggerData.permissions" />
 		</ToggleBlock>
 
@@ -48,10 +48,10 @@ export default class TriggerActionChatCommandParams extends Vue {
 	public triggerData!:TriggerData;
 
 	public cmdNameConflict = false;
-	public param_cmd:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"Command", icon:"commands_purple.svg", placeholder:"!command" };
-	public param_globalCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"Global cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
-	public param_userCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"User cooldown (sec)", icon:"timeout_purple.svg", min:0, max:60*60*12 };
-	public param_alertCD:TwitchatDataTypes.ParameterData = { type:"toggle", value:true, label:"Tell users if they're cooled down", icon:"whispers_purple.svg" };
+	public param_cmd:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"", icon:"commands_purple.svg", placeholder:"!command" };
+	public param_globalCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"G", icon:"timeout_purple.svg", min:0, max:60*60*12 };
+	public param_userCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, label:"", icon:"timeout_purple.svg", min:0, max:60*60*12 };
+	public param_alertCD:TwitchatDataTypes.ParameterData = { type:"toggle", value:true, label:"", icon:"whispers_purple.svg" };
 
 	private originalCmd!:string;
 
@@ -73,6 +73,10 @@ export default class TriggerActionChatCommandParams extends Vue {
 				alert:true,
 			}
 		}
+		this.param_cmd.label = this.$t("triggers.actions.chat.param_cmd");
+		this.param_globalCD.label = this.$t("triggers.actions.chat.param_globalCD");
+		this.param_userCD.label = this.$t("triggers.actions.chat.param_userCD");
+		this.param_alertCD.label = this.$t("triggers.actions.chat.param_alertCD");
 		this.populate();
 		watch(()=> this.triggerData, ()=> { this.populate(); }, { deep:true });
 	}

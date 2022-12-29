@@ -24,7 +24,14 @@
 		"actions": {
 			"chat":{
 				"loop":"The message starts with the actual command name, this will lead to infinite message loop!",
-				"param_message":"Message to send on your chat"
+				"param_message":"Message to send on your chat",
+				"conflict":"A command with this name already exists",
+				"allowed_users":"Users allowed to use this command",
+				"params_title":"Parameters",
+				"param_cmd":"Command",
+				"param_globalCD":"Global cooldown (sec)",
+				"param_userCD":"User cooldown (sec)",
+				"param_alertCD":"Tell users if they're cooled down"
 			},
 			"highlight":{
 				"header":"You need to configure the {LINK} to use this action.",
