@@ -7,19 +7,15 @@
 			:duration="poll.duration*1000 * 60" />
 		
 		<div class="item">{{entries.length}} suggestions</div>
-		<div class="item choices" v-if="poll.winners.length > 0 || poll.choices.length > 0">
-			<div class="choice win" v-for="(c,index) in poll.winners" :key="c.user.id+'_'+index">
-				<img :src="$image('icons/sub'+(index>0?'_purple':'')+'.svg')" alt="star">
-				<div class="info">
-					<a class="user" @click="openUserCard(c.user)" target="_blank">{{c.user.displayName}}</a>
-					<div class="text">{{c.label}}</div>
-				</div>
-			</div>
-			<div class="choice" v-for="(c,index) in poll.choices" :key="c.user.id+'_'+index">
-				<a class="user" @click="openUserCard(c.user)" target="_blank">{{c.user.displayName}}</a>
-				<div class="text">{{c.label}}</div>
+		<TransitionGroup name="list" tag="div" ref="list" class="item choices" v-if="entries.length > 0">
+		<div :class="c.selected? 'choice win' : 'choice'" v-for="(c,index) in entries" :key="c.data.id">
+			<img v-if="c.selected" :src="$image('icons/sub'+(index>0?'_purple':'')+'.svg')" alt="star">
+			<div class="info">
+				<a class="user" @click="openUserCard(c.data.user)" target="_blank">{{c.data.user.displayName}}</a>
+				<div class="text">{{c.data.label}}</div>
 			</div>
 		</div>
+		</TransitionGroup>
 
 		<div class="actions">
 			<Button class="item"
@@ -61,9 +57,9 @@ export default class ChatSuggestionState extends Vue {
 
 	public get poll():TwitchatDataTypes.ChatSuggestionData { return this.$store("chatSuggestion").data!; }
 
-	public get entries():TwitchatDataTypes.ChatSuggestionDataChoice[] {
-		let list = this.poll.choices;
-		list = list.concat(this.poll.winners);
+	public get entries():{data:TwitchatDataTypes.ChatSuggestionDataChoice, selected:boolean}[] {
+		let list = this.poll.winners.map(v=> { return {data:v, selected:true} });
+		list = list.concat(this.poll.choices.map(v=> { return {data:v, selected:false} }));
 		return list;
 	}
 
@@ -78,6 +74,9 @@ export default class ChatSuggestionState extends Vue {
 		const index =  Math.floor(Math.random() * choices.length)
 		const choice = choices.splice(index, 1)[0];
 		this.poll.winners.unshift(choice);
+
+		const list = (this.$refs.list as Vue).$el;
+		gsap.to(list, {duration:.25, scrollTo:{y:0}});
 	}
 
 	public closePoll():void {
@@ -127,12 +126,16 @@ export default class ChatSuggestionState extends Vue {
 		color: @mainColor_normal;
 		overflow-y: auto;
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
+		flex-wrap: wrap;
 		gap: .5em;
+		min-width: 300px;
+		max-width: 600px;
 		
 		.choice {
 			display: flex;
 			flex-direction: column;
+			font-size: .9em;
 			padding: .25em;
 			border-radius: .5em;
 			background-color: fade(@mainColor_normal_extralight, 30%);
@@ -141,6 +144,7 @@ export default class ChatSuggestionState extends Vue {
 				display: flex;
 				flex-direction: row;
 				gap:.25em;
+				background-color: fade(@mainColor_normal_extralight, 50%);
 				img {
 					height: 1em;
 				}
@@ -159,7 +163,8 @@ export default class ChatSuggestionState extends Vue {
 				}
 			}
 			.user {
-				font-weight: bold
+				font-size: .9em;
+				font-weight: bold;
 			}
 
 			.text {
@@ -172,6 +177,22 @@ export default class ChatSuggestionState extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	.list-move,
+	.list-enter-active,
+	.list-leave-active {
+		transition: all 0.5s ease;
+	}
+
+	.list-enter-from,
+	.list-leave-to {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+
+	.list-leave-active {
+		position: absolute;
 	}
 }
 </style>

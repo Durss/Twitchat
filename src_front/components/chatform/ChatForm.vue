@@ -241,6 +241,7 @@ import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
+import { LoremIpsum } from 'lorem-ipsum';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
@@ -528,7 +529,11 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/fake") {
 			this.loading = true;
-			const forcedMessage = params.join(" ");
+			let forcedMessage = params.join(" ");
+
+			const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
+			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			forcedMessage = forcedMessage.replace(/\{LOREM\}/gi, message);
 			await this.$store("debug").sendRandomFakeMessage(true, forcedMessage);
 			this.loading = false;
 		}else
@@ -538,9 +543,12 @@ export default class ChatForm extends Vue {
 			this.spamming = true;
 			clearInterval(this.spamInterval);
 			
-			const forcedMessage = params.join(" ");
+			let forcedMessage = params.join(" ");
+
 			this.spamInterval = window.setInterval(()=> {
-				this.$store("debug").sendRandomFakeMessage(true, forcedMessage);
+				const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
+				const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+				this.$store("debug").sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message));
 			}, cmd == "/megaspam"? 50 :  200);
 			this.message = "";
 			this.loading = false;
