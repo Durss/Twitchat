@@ -67,6 +67,12 @@
 				"loop":"Dependency loop detected",
 				"loop_delails":"This may make twitchat unstable."
 			},
+			"tts":{
+				"header":"This feature needs you to enable {LINK} feature",
+				"header_link":"text to speech",
+				"param_message":"Message to read with text to speech"
+
+			},
 			"http":{
 				"url":"URL to call",
 				"method":"Method",
