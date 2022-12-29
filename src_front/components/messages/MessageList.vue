@@ -16,7 +16,7 @@
 
 		<button class="filteredMessages" v-if="lockedListRefresh" @click="unlockListRefresh()">
 			<img src="@/assets/icons/back.svg" alt="back">
-			<span><img src="@/assets/icons/train.svg" alt="train" class="icon">Hype train activities</span>
+			<span><img src="@/assets/icons/train.svg" alt="train" class="icon" v-t="'chat.hype_train.filtered_title'"></span>
 		</button>
 
 		
@@ -115,7 +115,7 @@
 			</div>
 
 			<div key="empty" class="subHolder" ref="message_0" v-if="filteredMessages?.length===0">
-				<div class="message empty">- no message -</div>
+				<div class="message empty" v-t="'chat.no_message'"></div>
 			</div>
 		</div>
 
@@ -124,20 +124,25 @@
 		</teleport>
 
 		<div class="locked" ref="locked" v-if="lockScroll && !lightMode" @click.stop="unPause">
-			<span v-if="lockScroll">Chat paused</span>
+			<span v-if="lockScroll" v-t="'chat.paused'"></span>
 			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>
 
 		<div class="lockedLiveHolder" v-if="!lightMode && lockScroll && lockedLiveMessages.length > 0">
 			<div class="title">
-				<Button :icon="$image('icons/minus.svg')"
+				<Button	:aria-label="$t('chat.live_chat_less_aria')"
+					:icon="$image('icons/minus.svg')"
 					:disabled="config.liveLockCount == 1"
 					@click="incrementLockedLiveCount(-1)"/>
-				<span class="label">live chat</span>
-				<Button :icon="$image('icons/add.svg')"
+
+				<span class="label" v-t="'chat.live_chat'"></span>
+
+				<Button	:aria-label="$t('chat.live_chat_more_aria')"
+					:icon="$image('icons/add.svg')"
 					:disabled="config.liveLockCount == 10"
 					@click="incrementLockedLiveCount(1)"/>
 			</div>
+
 			<div class="subHolder" v-for="m in lockedLiveMessages"
 			:key="m.id" :ref="'message_live_' + m.id">
 				<ChatJoinLeave class="message"
@@ -212,10 +217,10 @@
 			@mouseleave="onLeaveMessage"
 			@wheel.stop="">
 			<div class="head">
-				<h1 v-if="conversationMode">Conversation</h1>
-				<h1 v-if="!conversationMode">{{ conversation[0].user.displayName }} history</h1>
+				<h1 v-if="conversationMode" v-t="'chat.conversation'"></h1>
+				<h1 v-if="!conversationMode" v-t="{path:'chat.history', args:{USER:conversation[0].user.displayName}}"></h1>
 				<Button class="button"
-					aria-label="close conversation"
+					:aria-label="$t('chat.conversation_closeBt_aria')"
 					:icon="$image('icons/cross_white.svg')"
 					@click="onLeaveMessage" />
 			</div>
@@ -227,7 +232,7 @@
 			</div>
 
 			<Button class="TTSreadBt" small bounce
-				aria-label="read this user's messages"
+				:aria-label="$t('chat.ttsBt')"
 				:title="readLabel"
 				:icon="$image('icons/tts.svg')"
 				@click="toggleReadUser"
@@ -360,13 +365,6 @@ export default class MessageList extends Vue {
 		if (this.lockScroll) res.push("lockScroll");
 		return res;
 	}
-
-	// public get holderStyles():StyleValue {
-	// 	if(this.holderOffsetY == 0) return {};
-	// 	return {
-	// 		transform:"translateY(calc("+this.holderOffsetY+"px - .25em))",
-	// 	};
-	// }
 
 	public get conversationStyles(): StyleValue {
 		return { top: this.conversationPos + "px" }

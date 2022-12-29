@@ -4,7 +4,11 @@
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/train.svg" alt="icon" class="icon">
 		<div class="infoHolder">
-			<strong>Hype Train completed at <mark>level {{messageData.train.level}}</mark> <mark>{{reachPercent}}%</mark></strong>
+			<i18n-t scope="global" tag="strong" keypath="chat.hype_train.summary_title">
+				<template #LEVEL><mark>{{$t("chat.hype_train.summary_level")}} {{messageData.train.level}}</mark></template>
+				<template #PERCENT><mark>{{reachPercent}}%</mark></template>
+			</i18n-t>
+			
 			<div class="details">
 				<div class="row" v-if="bits > 0" data-tooltip="Bits">
 					<img src="@/assets/icons/bits.svg" class="icon">
@@ -34,7 +38,7 @@
 					<span class="label">{{subgifts}}</span>
 				</div>
 			</div>
-			<Button v-if="!filtering && messageData.activities.length > 0" title="Filter activities" :icon="$image('icons/filters.svg')" @click="filter()" />
+			<Button v-if="!filtering && messageData.activities.length > 0" :title="$t('chat.hype_train.filterBt')" :icon="$image('icons/filters.svg')" @click="filter()" />
 		</div>
 	</div>
 </template>

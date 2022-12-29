@@ -2,6 +2,15 @@
 	"chat": {
 		"delete_col_confirm_title": "Delete column?",
 		"delete_col_confirm_desc": "Do you want to delete this column? This cannot be undone.",
+		"paused": "Chat paused",
+		"no_message": "- no message -",
+		"conversation": "Conversation",
+		"history": "{USER} history",
+		"live_chat": "live chat",
+		"live_chat_more_aria": "show 1 more message",
+		"live_chat_less_aria": "show 1 less message",
+		"conversation_closeBt_aria": "close conversation",
+		"ttsBt": "Read this user's messages",
 		"shoutout": {
 			"given": "{USER} gave you a shoutout to {VIEWERS} viewers",
 			"received": "You gave a shoutout to {USER}"
@@ -59,6 +68,12 @@
 			"leave":"left the chat room {CHANNEL}",
 			"leave_aria":"{COUNT} users left the chat room {CHANNEL}",
 			"more":"{COUNT} more"
+		},
+		"hype_train":{
+			"summary_title":"Hype train completed at {LEVEL} {PERCENT}",
+			"summary_level":"level",
+			"filterBt":"Show activities",
+			"filtered_title":"Hype train activities"
 		}
 	}
 }
