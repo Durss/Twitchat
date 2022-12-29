@@ -57,6 +57,16 @@
 				"param_media":"Media file",
 				"param_media_img":"Image file"
 			},
+			"trigger":{
+				"beta":"This is a beta feature! If you experience any unexpected behavior with it please {LINK}",
+				"beta_link":"let me know on Discord",
+				"warning":"Placeholders may not be available on the selected trigger.",
+				"warning_example":": If you execute a <strong>Chat command</strong> trigger from a <strong>Scheduled action</strong> trigger, the {'{'}USER{'}'} and {'{'}MESSAGE{'}'} placeholders won't be available as it won't be executed from an actual chat message.",
+				"no_trigger":"You don't have any existing trigger yet",
+				"select":"Select a trigger to execute...",
+				"loop":"Dependency loop detected",
+				"loop_delails":"This may make twitchat unstable."
+			},
 			"http":{
 				"url":"URL to call",
 				"method":"Method",

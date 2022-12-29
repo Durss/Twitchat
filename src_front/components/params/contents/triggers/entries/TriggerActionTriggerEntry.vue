@@ -1,19 +1,25 @@
 <template>
 	<div class="triggeractiontriggerentry">
-		<div class="item">Execute another trigger.</div>
-		<div class="info">This is a beta feature! If you experience any unexpected behavior with it please <a :href="discordURL" target="_blank">let me know on Discord</a>!</div>
+			
+		<i18n-t scope="global" class="info" tag="p" keypath="triggers.actions.trigger.beta">
+			<template #LINK>
+				<a :href="discordURL" target="_blank" v-t="'triggers.actions.trigger.beta_link'"></a>
+			</template>
+		</i18n-t>
+		
 		<ToggleBlock class="item" title="Important warning" :open="false" small>
-			Placeholders may not be available on the selected trigger.<br>
-			<u>Example:</u> If you execute a <strong>Chat command</strong> trigger from a <strong>Scheduled action</strong> trigger, the {USER} and {MESSAGE} placeholders won't be available as it won't be executed from an actual chat message.
+			<p v-t="'triggers.actions.trigger.warning'"></p>
+			<strong v-t="'global.example'"></strong>
+			<span v-html="$t('triggers.actions.trigger.warning_example')"></span>
 		</ToggleBlock>
 
 		<img src="@/assets/loader/loader.svg" alt="loading" class="loader" v-if="loading">
 
-		<div v-if="!triggerList || triggerList.length===0" class="noTrigger">You don't have any existing trigger yet</div>
+		<div v-if="!triggerList || triggerList.length===0" class="noTrigger" v-t="'triggers.actions.trigger.no_trigger'"></div>
 		
 		<vue-select class="item list" v-model="action.triggerKey"
 		v-if="triggerList?.length > 1"
-		placeholder="Select a trigger..."
+		:placeholder="$t('triggers.actions.trigger.select')"
 		:options="triggerList"
 		:appendToBody="true"
 		:calculate-position="$placeDropdown"
@@ -26,7 +32,8 @@
 		</vue-select>
 		
 		<div v-if="dependencyLoopInfos.length > 0" class="dependencyLoop">
-			<div class="title">Dependency loop detected.<br>This may make twitchat unstable</div>
+			<div class="title" v-t="'triggers.actions.trigger.loop'"></div>
+			<div class="head" v-t="'triggers.actions.trigger.loop_delails'"></div>
 			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="loopItem" :data-tooltip="d.event?.label">
 				<div class="loopInfo">
 					<img v-if="d.event?.icon" :src="$image('icons/'+d.event?.icon+'.svg')"
@@ -221,7 +228,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 .triggeractiontriggerentry{
 
 	//.listIcon style is on index.less.
-	//Couldn't make it work from the template even in a unscoped tag
+	//Couldn't make it work from the template even in an unscoped tag
 
 	.info, .noTrigger {
 		overflow: hidden;
@@ -278,6 +285,11 @@ export default class TriggerActionTriggerEntry extends Vue {
 		text-align: center;
 
 		.title {
+			font-weight: bold;
+			margin-bottom: .25em;
+		}
+
+		.head {
 			margin-bottom: .5em;
 		}
 
