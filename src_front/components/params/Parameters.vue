@@ -319,7 +319,7 @@ export default class Parameters extends Vue {
 				//Already done (via its parent probably), ignore it
 				if(IDsDone[data.id as number] === true) continue;
 
-				if(new RegExp(safeSearch, "gi").test(data.label)) {
+				if(data.label && new RegExp(safeSearch, "gi").test(data.label)) {
 					if(data.parent) {
 						for (const key in category) {
 							if(category[key].id == data.parent && IDsDone[category[key].id as number] !== true) {
