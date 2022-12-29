@@ -5,13 +5,13 @@
 		<div class="head">
 			<p v-t="'obs.header'"></p>
 			<p class="install">
-				<i18n-t tag="i" keypath="obs.install">
+				<i18n-t scope="global"  tag="i" keypath="obs.install">
 					<template #OBS_VERSION>
 						<strong>OBS v28+</strong>
 					</template>
 				</i18n-t>
 				<br>
-				<i18n-t tag="i" keypath="obs.install_option">
+				<i18n-t scope="global"  tag="i" keypath="obs.install_option">
 					<template #PLUGIN_LINK>
 						<a :href="obswsInstaller" target="_blank" v-t="'obs.install_plugin_name'"></a>
 					</template>

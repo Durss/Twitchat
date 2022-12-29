@@ -23,6 +23,9 @@
 		"ad_url_required":"Message must contain \"twitchat.fr\"",
 		"donor_loading":"An error occured when loading donors list :(",
 		"cmd_missing_api":"This command cannot be used outside of official Twitch chat yet :(",
+		"rewards_loading":"An error occurred while loading your rewards",
+		"obs_scenes_loading":"An error occurred while loading your OBS scenes",
+		"obs_sources_loading":"An error occurred while loading your OBS sources",
 		"spotify":{
 			"api_rate":"[SPOTIFY] API rate limits exceeded",
 			"token_refresh":"[SPOTIFY] token refresh failed"

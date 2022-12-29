@@ -1,5 +1,26 @@
 {
 	"triggers":{
+		"header":"Execute custom actions based on {COUNT} event types",
+		"add_actionBt":"Add action",
+		"create_chat_cmdBt":"Create chat command",
+		"create_scheduleBt":"Add scheduled action",
+		"testBt":"Test trigger",
+		"deleteBt":"Delete trigger",
+		"resyncBt":"Resync OBS sources",
+		"resyncBt_tt":"If you changed something<br>on OBS, click this to see it<br>listed on OBS actions",
+
+		"delete_confirm": "Delete trigger?",
+		
+		"music":{
+			"require":"These triggers need you to connect with Spotify or Deezer under the {URL}",
+			"require_url":"overlays section"
+		},
+		
+		"obs":{
+			"require":"These triggers need you to {URL}",
+			"require_url":"connect with OBS"
+		},
+
 		"actions": {
 			"http":{
 				"url":"URL to call",
@@ -7,6 +28,19 @@
 				"select_param":"Select parameters to send:",
 				"protocol_error":"Due to browser security restrictions, only 127.0.0.1 or localhost domains can ben called with HTTP protocol. Use HTTPS for other domains."
 			}
+		},
+
+		"categories":{
+			"global":"Chat - Channel points - Stream",
+			"user":"User event",
+			"subits":"Sub & bits",
+			"mod":"Moderation actions",
+			"twitchat":"Twitchat",
+			"hypetrain":"Hype train",
+			"games":"Games",
+			"music":"Music",
+			"timer":"Timers",
+			"obs":"OBS"
 		}
 	}
 }

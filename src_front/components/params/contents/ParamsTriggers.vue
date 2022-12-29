@@ -2,7 +2,9 @@
 	<div class="paramstriggers">
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
-		<p class="head" v-if="!currentEvent">Execute custom actions based on <strong>{{eventsCount}} event</strong> types.<br></p>
+		<i18n-t scope="global" tag="p" class="head" v-if="!currentEvent" keypath="triggers.header">
+			<template #COUNT><strong>{{ eventsCount }}</strong></template>
+		</i18n-t>
 
 		<div class="menu">
 			<Button class="backBt" v-if="currentEvent"
@@ -21,14 +23,21 @@
 				:title="c.label"
 				:open="false"
 				:icons="[c.icon]">
-					<div class="disclaimer" v-if="!musicServiceAvailable && isMusicCategory(c.category)">
-						These triggers need you to connect with a music service <i>(spotify or deezer)</i>
-						under the <a @click="openOverlays()">overlays section</a>.
-					</div>
+					<i18n-t scope="global" tag="div" class="require"
+					v-if="!musicServiceAvailable && isMusicCategory(c.category)"
+					keypath="triggers.music.require">
+						<template #URL>
+							<a @click="openOverlays()" v-t="'triggers.music.require_url'"></a>
+						</template>
+					</i18n-t>
 
-					<div class="disclaimer" v-if="!obsConnected && isOBSCategory(c.category)">
-						These triggers need you to <a @click="openOverlays()">connect with OBS</a>.
-					</div>
+					<i18n-t scope="global" tag="div" class="require"
+					v-if="!obsConnected && isOBSCategory(c.category)"
+					keypath="triggers.obs.require">
+						<template #URL>
+							<a @click="openOBS()" v-t="'triggers.obs.require_url'"></a>
+						</template>
+					</i18n-t>
 
 					<div v-for="e in c.events" :key="(e.value as string)" :class="e.beta? 'item beta' : 'item'">
 						<Button class="triggerBt"
@@ -103,17 +112,27 @@
 			<div class="text" v-html="triggerDescription"></div>
 
 			<div class="ctas" v-if="currentEvent && obsConnected && obsActions">
-				<Button :icon="$image('icons/refresh.svg')" title="Resync OBS sources"
+				<Button :icon="$image('icons/refresh.svg')"
+					:title="$t('triggers.resyncBt')"
 					class="cta resyncBt"
 					@click="listSources(true)"
-					data-tooltip="If you changed something<br>on OBS, click this to see it<br>listed on OBS actions"
+					:data-tooltip="$t('triggers.resyncBt_tt')"
 					:loading="syncing"
 				/>
 			</div>
 
 			<div class="ctas">
-				<Button v-if="canTestAction" title="Test trigger" class="cta" @click="testTrigger()" :icon="$image('icons/test.svg')" />
-				<Button title="Delete trigger" class="cta" @click="deleteTrigger()" highlight :icon="$image('icons/delete.svg')" />
+				<Button class="cta"
+					v-if="canTestAction"
+					:title="$t('triggers.testBt')"
+					:icon="$image('icons/test.svg')"
+					@click="testTrigger()" />
+
+				<Button class="cta"
+					highlight
+					:title="$t('triggers.deleteBt')"
+					:icon="$image('icons/delete.svg')"
+					@click="deleteTrigger()" />
 			</div>
 		</div>
 
@@ -124,9 +143,10 @@
 			:triggerData="triggerData"
 		/>
 
-		<Button :icon="$image('icons/whispers.svg')" title="Create chat command"
+		<Button class="addBt"
+			:icon="$image('icons/whispers.svg')"
+			:title="$t('triggers.create_chat_cmdBt')"
 			v-if="isChatCmd && !currentSubEvent && actionList.length == 0"
-			class="addBt"
 			@click="addAction()"
 		/>
 
@@ -136,9 +156,10 @@
 			:triggerData="triggerData"
 		/>
 
-		<Button :icon="$image('icons/date.svg')" title="Add scheduled action"
+		<Button class="addBt"
+			:icon="$image('icons/date.svg')"
+			:title="$t('triggers.create_scheduleBt')"
 			v-if="isSchedule && !currentSubEvent && actionList.length == 0"
-			class="addBt"
 			@click="addAction()"
 		/>
 
@@ -169,8 +190,9 @@
 		</draggable>
 
 		<div class="bottomCTAS" v-if="((currentEvent && ! isSublist) || (isSublist && (currentSubEvent || actionList.length > 0))) && !showLoading">
-			<Button :icon="$image('icons/add.svg')" title="Add action"
-				class="addBt"
+			<Button class="addBt"
+				:icon="$image('icons/add.svg')"
+				:title="$t('triggers.add_actionBt')"
 				@click="addAction()"
 			/>
 		</div>
@@ -373,16 +395,16 @@ export default class ParamsTriggers extends Vue {
 		let currCat = events[0].category;
 		let catEvents:TriggerEventTypes[] = [];
 		const catToLabel:{[key:number]:string} = {};
-		catToLabel[ TriggerEventTypeCategories.GLOBAL ] = "Chat - Channel points - Stream";
-		catToLabel[ TriggerEventTypeCategories.USER ] = "User event";
-		catToLabel[ TriggerEventTypeCategories.SUBITS ] = "Sub & bits";
-		catToLabel[ TriggerEventTypeCategories.MOD ] = "Moderation actions";
-		catToLabel[ TriggerEventTypeCategories.TWITCHAT ] = "Twitchat";
-		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ] = "Hype train";
-		catToLabel[ TriggerEventTypeCategories.GAMES ] = "Games";
-		catToLabel[ TriggerEventTypeCategories.MUSIC ] = "Music";
-		catToLabel[ TriggerEventTypeCategories.TIMER ] = "Timers";
-		catToLabel[ TriggerEventTypeCategories.OBS ] = "OBS";
+		catToLabel[ TriggerEventTypeCategories.GLOBAL ] = this.$t("triggers.categories.global")
+		catToLabel[ TriggerEventTypeCategories.USER ] = this.$t("triggers.categories.user")
+		catToLabel[ TriggerEventTypeCategories.SUBITS ] = this.$t("triggers.categories.subits")
+		catToLabel[ TriggerEventTypeCategories.MOD ] = this.$t("triggers.categories.mod")
+		catToLabel[ TriggerEventTypeCategories.TWITCHAT ] = this.$t("triggers.categories.twitchat")
+		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ] = this.$t("triggers.categories.hypetrain")
+		catToLabel[ TriggerEventTypeCategories.GAMES ] = this.$t("triggers.categories.games")
+		catToLabel[ TriggerEventTypeCategories.MUSIC ] = this.$t("triggers.categories.music")
+		catToLabel[ TriggerEventTypeCategories.TIMER ] = this.$t("triggers.categories.timer")
+		catToLabel[ TriggerEventTypeCategories.OBS ] = this.$t("triggers.categories.obs")
 		
 		const catToIcon:{[key:number]:string} = {};
 		catToIcon[ TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";
@@ -566,7 +588,7 @@ export default class ParamsTriggers extends Vue {
 	 * Called to delete the actions sequence
 	 */
 	public deleteTrigger():void {
-		this.$confirm("Delete trigger ?").then(()=> {
+		this.$confirm(this.$t("triggers.delete_confirm")).then(()=> {
 			//Delete trigger from storage
 			this.$store("triggers").deleteTrigger(this.triggerKey);
 			//Reset menu selection
@@ -608,6 +630,10 @@ export default class ParamsTriggers extends Vue {
 
 	public openOverlays():void {
 		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OVERLAYS);
+	}
+
+	public openOBS():void {
+		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OBS);
 	}
 
 	/**
@@ -725,7 +751,7 @@ export default class ParamsTriggers extends Vue {
 			this.rewards = await TwitchUtils.getRewards(true);
 		}catch(error) {
 			this.rewards = [];
-			this.$store("main").alert("An error occurred while loading your rewards");
+			this.$store("main").alert(this.$t("error.rewards_loading"));
 			this.showLoading = false;
 			return;
 		}
@@ -761,7 +787,7 @@ export default class ParamsTriggers extends Vue {
 			this.obsScenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
 		}catch(error) {
 			this.obsScenes = [];
-			this.$store("main").alert("An error occurred while loading your OBS scenes");
+			this.$store("main").alert(this.$t('error.obs_scenes_loading'));
 			this.showLoading = false;
 			return;
 		}
@@ -790,7 +816,7 @@ export default class ParamsTriggers extends Vue {
 			this.obsSources = await OBSWebsocket.instance.getSources();
 		}catch(error) {
 			this.obsSources = [];
-			this.$store("main").alert("An error occurred while loading your OBS sources");
+			this.$store("main").alert(this.$t('error.obs_sources_loading'));
 			this.showLoading = false;
 			return;
 		}
@@ -887,7 +913,7 @@ export default class ParamsTriggers extends Vue {
 				&:not(:last-of-type) {
 					margin-bottom: 1em;
 				}
-				.disclaimer {
+				.require {
 					font-size: .8em;
 					text-align: center;
 					margin-bottom: 1em;
