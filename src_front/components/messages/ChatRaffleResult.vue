@@ -3,9 +3,10 @@
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
-		<div>
-			<strong>{{messageData.winner.label}}</strong> won the raffle
-		</div>
+		
+		<i18n-t scope="global" tag="div" keypath="chat.raffle.title">
+			<template #USER><strong>{{messageData.winner.label}}</strong></template>
+		</i18n-t>
 	</div>
 </template>
 

@@ -26,6 +26,8 @@
 		"rewards_loading":"An error occurred while loading your rewards",
 		"obs_scenes_loading":"An error occurred while loading your OBS scenes",
 		"obs_sources_loading":"An error occurred while loading your OBS sources",
+		"room_settings_update":"An error occured when updating room's settings",
+		"mod_message":"Something went wrong when moderating the message...",
 		"spotify":{
 			"api_rate":"[SPOTIFY] API rate limits exceeded",
 			"token_refresh":"[SPOTIFY] token refresh failed"

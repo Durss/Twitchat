@@ -5,31 +5,42 @@
 	>
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
-			<p>First time on your channel</p>
+			<p>{{ $t('chat.message.first_time') }}</p>
 		</div>
 
 		<div v-if="isPresentation" class="header">
 			<img src="@/assets/icons/presentation.svg" alt="new" class="icon">
-			<p>Welcome on this channel <strong>{{messageData.user.displayName}}</strong></p>
+			<i18n-t scope="global" keypath="chat.message.presentation" tag="p">
+				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
+			</i18n-t>
 		</div>
 
 		<div v-if="isReturning" class="header">
 			<img src="@/assets/icons/returning.svg" alt="new" class="icon">
-			<p><strong>{{messageData.user.displayName}}</strong> is returning after chatting twice the last 30 days</p>
+			<i18n-t scope="global" keypath="chat.message.returning_user" tag="p">
+				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
+			</i18n-t>
 		</div>
 
 		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod.svg">
-			<div class="header"><strong>Automod</strong> : {{automodReasons}}</div>
+			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
 			<div class="actions">
-				<Button aria-label="Accept automoded message" title="Accept" @click.stop="modMessage(true)" :loading="automodInProgress" />
-				<Button aria-label="Reject automoded message" title="Reject" @click.stop="modMessage(false)" highlight :loading="automodInProgress" />
+				<Button :aria-label="$t('chat.message.automod_acceptBt_aria')"
+					:title="$t('chat.message.automod_acceptBt')"
+					@click.stop="modMessage(true)"
+					:loading="automodInProgress" />
+				<Button :aria-label="$t('chat.message.automod_rejectBt_aria')"
+				highlight
+					:title="$t('chat.message.automod_rejectBt')"
+					@click.stop="modMessage(false)"
+					:loading="automodInProgress" />
 			</div>
 		</div>
 		
 		<div v-if="isAnnouncement" class="announcementHolder">
 			<img src="@/assets/icons/announcement.svg">
-			<div class="header"><strong>Announcement</strong></div>
+			<div class="header"><strong>{{ $t('chat.message.announcement') }}</strong></div>
 		</div>
 
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
@@ -55,11 +66,14 @@
 					:data-tooltip="b.label"></span>
 			</div>
 			
-			<img class="noFollowBadge" src="@/assets/icons/unfollow.svg" alt="no follow" v-if="showNofollow" data-tooltip="Not a follower">
+			<img class="noFollowBadge" v-if="showNofollow"
+				src="@/assets/icons/unfollow.svg"
+				:alt="$t('chat.message.no_follow')"
+				:data-tooltip="$t('chat.message.no_follow')">
 
 			<div class="occurrenceCount"
 				ref="occurrenceCount"
-				data-tooltip="Number of times this message has been sent"
+				:data-tooltip="$t('chat.message.occurrences')"
 				v-if="messageData.occurrenceCount != undefined && messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
 			<span class="pronoun"
@@ -68,13 +82,17 @@
 			
 			<span @click.stop="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
-				class="login" :style="loginStyles">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></span>
-
+				class="login" :style="getLoginStyles(messageData.user)">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></span>
+			<span v-if="recipient"> ➔ </span>
 			<span v-if="recipient" class="login"
-			@click.stop="openUserCard(recipient!)"> &gt; {{recipient.displayName}}</span>
+			:style="getLoginStyles(recipient)"
+			@click.stop="openUserCard(recipient!)">{{recipient.displayName}}</span>
 		</div>
 		
-		<span class="sharedBan" v-if="userBannedOnChannels"> • Banned in {{userBannedOnChannels}}</span>
+		<i18n-t class="sharedBan" tag="span"
+		v-if="userBannedOnChannels" keypath="chat.message.banned_in">
+			<template #CHANNELS>{{userBannedOnChannels}}</template>
+		</i18n-t>
 		
 		<span v-if="channelInfo.is_blocked !== true">: </span>
 		
@@ -83,22 +101,25 @@
 			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 		</span>
 
-		<div v-if="channelInfo.is_blocked === true" class="blockedMessage" @click.stop="channelInfo.is_blocked = false">This message has been sent by a blocked user. Click to reveal.</div>
+		<span class="blockedMessage"
+		v-if="channelInfo.is_blocked === true"
+		@click.stop="channelInfo.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
 		
 		<br v-if="clipInfo && channelInfo.is_blocked !== true">
 		<div v-if="clipInfo && channelInfo.is_blocked !== true" class="clip" @click.stop="openClip()">
 			<img :src="clipInfo.thumbnail_url" alt="thumbnail">
 			<div class="infos">
 				<div class="title">{{clipInfo.title}}</div>
-				<div class="subtitle">Created by {{clipInfo.creator_name}}</div>
-				<div class="subtitle">Channel: {{clipInfo.broadcaster_name}}</div>
-				<div class="subtitle">Duration: {{clipInfo.duration}}s</div>
-				<div class="subtitle">Views: {{clipInfo.view_count}}</div>
-				<Button class="highlightBt" :aria-label="'Highlight message'" small
+				<div class="subtitle">{{$t("chat.message.clip_created_by")}} {{clipInfo.creator_name}}</div>
+				<div class="subtitle">{{$t("chat.message.clip_channel")}} {{clipInfo.broadcaster_name}}</div>
+				<div class="subtitle">{{$t("chat.message.clip_duration")}} {{clipInfo.duration}}s</div>
+				<div class="subtitle">{{$t("chat.message.clip_views")}} {{clipInfo.view_count}}</div>
+				<Button class="highlightBt" small
+					:aria-label="$t('chat.message.highlightBt_aria')"
 					:icon="$image('icons/highlight.svg')"
-					data-tooltip="Show on stream<br><i>(needs overlay)</i>"
-					@click.stop="clipHighlight()"
+					:data-tooltip="$t('chat.message.highlightBt_tt')"
 					:loading="clipHighlightLoading"
+					@click.stop="clipHighlight()"
 				/>
 			</div>
 		</div>
@@ -177,9 +198,9 @@ export default class ChatMessage extends Vue {
 
 		const censor = (this.$store("params").appearance.censorDeletedMessages.value===true)
 		if(this.messageData.deletedData) {
-			return censor ? "<deleted by "+this.messageData.deletedData.deleter.displayName+">" : "";
+			return censor ? this.$t("chat.message.deleted_by", {USER:this.messageData.deletedData.deleter.displayName}) : "";
 		}else if(this.messageData.deleted){
-			return censor ? "<message deleted>" : "";
+			return censor ? this.$t("chat.message.deleted") : "";
 		}
 		return "";
 	}
@@ -255,10 +276,10 @@ export default class ChatMessage extends Vue {
 	/**
 	 * Set login color
 	 */
-	public get loginStyles():StyleValue {
+	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):StyleValue {
 		let color = 0xb454ff;
-		if(this.messageData.user.color) {
-			color = parseInt(this.messageData.user.color.replace("#", ""), 16);
+		if(user.color) {
+			color = parseInt(user.color.replace("#", ""), 16);
 		}
 		const hsl = Utils.rgb2hsl(color);
 		const minL = this.isPresentation || this.isAnnouncement || this.firstTime || this.isReturning? .75 : .65;
@@ -302,18 +323,18 @@ export default class ChatMessage extends Vue {
 				switch(b.id) {
 					case "predictions": {
 						const color = (b.version ?? "").indexOf("pink") > -1? "pink" : "blue";
-						badges.push({label:b.title??"Prediction", class:"prediction "+color});
+						badges.push({label:b.title?? "Prediction", class:"prediction "+color});
 						break;
 					}
-					case "subscriber":	badges.push({label:b.title ?? "Subscriber", class:"subscriber"}); break;
-					case "vip":			badges.push({label:"VIP", class:"vip"}); break;
-					case "premium":		badges.push({label:"Prime", class:"premium"}); break;
-					case "moderator":	badges.push({label:"Moderator", class:"moderator"}); break;
-					case "staff":		badges.push({label:"Twitch staff", class:"staff"}); break;
-					case "broadcaster":	badges.push({label:"Broadcaster", class:"broadcaster"}); break;
-					case "partner":		badges.push({label:"Partner", class:"partner"}); break;
-					case "founder":		badges.push({label:"Founder", class:"founder"}); break;
-					case "ambassador":	badges.push({label:"Ambassador", class:"ambassador"}); break;
+					case "subscriber":	badges.push({label:b.title ?? this.$t("chat.message.badges.subscriber"), class:"subscriber"}); break;
+					case "vip":			badges.push({label:this.$t("chat.message.badges.vip"), class:"vip"}); break;
+					case "premium":		badges.push({label:this.$t("chat.message.badges.prime"), class:"premium"}); break;
+					case "moderator":	badges.push({label:this.$t("chat.message.badges.moderator"), class:"moderator"}); break;
+					case "staff":		badges.push({label:this.$t("chat.message.badges.twitch_staff"), class:"staff"}); break;
+					case "broadcaster":	badges.push({label:this.$t("chat.message.badges.broadcaster"), class:"broadcaster"}); break;
+					case "partner":		badges.push({label:this.$t("chat.message.badges.partner"), class:"partner"}); break;
+					case "founder":		badges.push({label:this.$t("chat.message.badges.founder"), class:"founder"}); break;
+					case "ambassador":	badges.push({label:this.$t("chat.message.badges.ambassador"), class:"ambassador"}); break;
 				}
 			}
 		}
@@ -357,7 +378,7 @@ export default class ChatMessage extends Vue {
 			this.firstTime = mess.twitch_isFirstMessage === true;
 			//Add twitchat's automod badge
 			if(mess.automod) {
-				infoBadges.push({type:"automod", tooltip:"<strong>Rule:</strong> "+mess.automod.label});
+				infoBadges.push({type:"automod", tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
 			}
 			//Manage twitch automod content
 			if(!this.lightMode && mess.twitch_automod) {
@@ -440,7 +461,7 @@ export default class ChatMessage extends Vue {
 		
 		if(txt.indexOf("<a") > -1) {
 			//Add copy butotn next to links
-			const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='Copy'>";
+			const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='"+this.$t("global.copy")+"'>";
 			txt = txt.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
 		}
 		
@@ -508,7 +529,7 @@ export default class ChatMessage extends Vue {
 		this.automodInProgress = true;
 		let success = await TwitchUtils.modMessage(accept, this.messageData.id);
 		if(!success) {
-			this.$store("main").alert("Woops... something went wrong :(...");
+			this.$store("main").alert(this.$t("error.mod_message"));
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.

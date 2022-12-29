@@ -30,6 +30,7 @@
 			<Button small title="Raffle result" @click="simulateEvent('raffle')" :icon="$image('icons/ticket.svg')" />
 			<Button small title="Countdown result" @click="simulateEvent('countdown')" :icon="$image('icons/timer.svg')" />
 			<Button small title="Clear chat" @click="simulateEvent('clear_chat')" :icon="$image('icons/delete.svg')" />
+			<Button small title="Blocked user" @click="simulateBlockedUser()" :icon="$image('icons/block.svg')" />
 			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Restricted user" @click="simulateRestricted()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Follow bot item" @click="simulateFollowbotItem()" :icon="$image('icons/block.svg')" />
@@ -183,6 +184,14 @@ export default class DevmodeMenu extends Vue {
 				emergency:false,
 				firstTimeChatters:false,
 			}
+			return true;
+		});
+	}
+
+	public simulateBlockedUser():void {
+		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+			const m = (message as TwitchatDataTypes.MessageChatData);
+			m.user.channelInfo[m.channel_id].is_blocked = true;
 			return true;
 		});
 	}

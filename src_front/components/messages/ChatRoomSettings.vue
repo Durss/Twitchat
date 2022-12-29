@@ -5,26 +5,28 @@
 		<img class="icon lock" src="@/assets/icons/lock.svg" />
 		<div class="content">
 			<div>
-				<span><strong>#{{messageData.channel_name}}</strong> room has the following restrictions:</span>
+				<i18n-t scope="global" tag="span" keypath="chat.room_settings.title">
+					<template #ROOM><strong>#{{messageData.channel_name}}</strong></template>
+				</i18n-t>
 			</div>
 			<div class="restriction" v-if="messageData.settings.subOnly" ref="sub">
-				<span><img class="icon" src="@/assets/icons/sub.svg" />Sub only</span>
+				<span><img class="icon" src="@/assets/icons/sub.svg" />{{$t("chat.room_settings.sub_only")}}</span>
 				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('sub')" />
 			</div>
 			<div class="restriction" v-if="messageData.settings.emotesOnly" ref="emote">
-				<span><img class="icon" src="@/assets/icons/emote.svg" />Emotes only</span>
+				<span><img class="icon" src="@/assets/icons/emote.svg" />{{$t("chat.room_settings.emote_only")}}</span>
 				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('emote')" />
 			</div>
 			<div class="restriction" v-if="messageData.settings.followOnly" ref="follow">
-				<span><img class="icon" src="@/assets/icons/follow.svg" />Followers only</span>
+				<span><img class="icon" src="@/assets/icons/follow.svg" />{{$t("chat.room_settings.follow_only")}}</span>
 				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('follow')" />
 			</div>
 			<div class="restriction" v-if="messageData.settings.slowMode" ref="slow">
-				<span><img class="icon" src="@/assets/icons/slow.svg" />Slow mode ({{messageData.settings.slowMode}}s)</span>
+				<span><img class="icon" src="@/assets/icons/slow.svg" />{{$t("chat.room_settings.slow_mode")}} ({{messageData.settings.slowMode}}s)</span>
 				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('slow')" />
 			</div>
 			<div class="restriction" v-if="messageData.settings.chatDelay" ref="delay">
-				<span><img class="icon" src="@/assets/icons/timer.svg" />Chat delay ({{messageData.settings.chatDelay}}s)</span>
+				<span><img class="icon" src="@/assets/icons/timer.svg" />{{$t("chat.room_settings.chat_delay")}} ({{messageData.settings.chatDelay}}s)</span>
 				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('delay')" />
 			</div>
 		</div>
@@ -83,7 +85,7 @@ export default class ChatRoomSettings extends Vue {
 			if(res) {
 				(this.$refs[prop] as HTMLDivElement).classList.add("disabled");
 			}else {
-				this.$store("main").alert("An error occured when updating room's settings");
+				this.$store("main").alert(this.$t("error.room_settings_update"));
 			}
 		});
 	}

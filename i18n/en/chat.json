@@ -1,10 +1,57 @@
 {
-	"chat":{
-		"delete_col_confirm_title":"Delete column?",
-		"delete_col_confirm_desc":"Do you want to delete this column? This cannot be undone.",
-		"shoutout":{
-			"given":"{USER} gave you a shoutout to {VIEWERS} viewers",
-			"received":"You gave a shoutout to {USER}"
+	"chat": {
+		"delete_col_confirm_title": "Delete column?",
+		"delete_col_confirm_desc": "Do you want to delete this column? This cannot be undone.",
+		"shoutout": {
+			"given": "{USER} gave you a shoutout to {VIEWERS} viewers",
+			"received": "You gave a shoutout to {USER}"
+		},
+		"room_settings": {
+			"title": "{ROOM} room has the following restrictions:",
+			"sub_only": "Sub only",
+			"emote_only": "Emote only",
+			"follow_only": "Followers only",
+			"slow_mode": "Slow mode",
+			"chat_delay": "Chat delay"
+		},
+		"raffle": {
+			"title": "{USER} won the raffle"
+		},
+		"message": {
+			"first_time": "First time on your channel",
+			"presentation": "Welcome on this channel {USER}",
+			"returning_user": "{USER} is returning after chatting twice the last 30 days",
+			"automod": "Automod:",
+			"automod_acceptBt_aria": "Accept automoded message",
+			"automod_acceptBt": "Accept",
+			"automod_rejectBt_aria": "Reject automoded message",
+			"automod_rejectBt": "Reject",
+			"automod_rule": "Rule:",
+			"announcement": "Announcement",
+			"occurrences": "Number of times this message has been sent",
+			"no_follow": "Not a follower",
+			"banned_in": " • Banned in {CHANNELS}",
+			"blocked_user": "This message has been sent by a blocked user. Click to reveal.",
+			"clip_created_by": "Created by:",
+			"clip_channel": "Channel:",
+			"clip_duration": "Duration:",
+			"clip_views": "Views:",
+			"highlightBt_aria": "Highlight message",
+			"highlightBt_tt": "Show on stream<br><i>(needs overlay)</i>",
+			"deleted": "<message deleted>",
+			"deleted_by": "<message deleted by {USER}>",
+			"badges": {
+				"prediction":"Prediction",
+				"subscriber":"Subscriber",
+				"vip":"VIP",
+				"prime":"Prime",
+				"moderator":"Moderator",
+				"twitch_staff":"Twitch staff",
+				"broadcaster":"Broadcaster",
+				"partner":"Partner",
+				"founder":"Founder",
+				"ambassador":"Ambassador"
+			}
 		}
 	}
 }
