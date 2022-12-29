@@ -1,24 +1,24 @@
 <template>
 	<div class="paramsvoicebot">
 		<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
-		<div class="head">Control <strong>Twitchat</strong> with your voice</div>
+		<div class="head" v-t="'voice.header'"></div>
 		
 		<div v-if="!voiceApiAvailable" class="noApi">
-			<p>This browser does not support voice recognition</p>
-			<p class="infos">Please use Google Chrome, Microsoft Edge or Safari.</p>
+			<p v-t="'voice.unsupported_browser'"></p>
+			<p class="infos" v-t="'voice.unsupported_browser_detail'"></p>
 		</div>
-		<div v-else class="infos">Only works with Google Chrome, Microsoft Edge or Safari</div>
+		<div v-else class="infos" v-t="'voice.supported_browsers'"></div>
 
 		<div v-if="!voiceApiAvailable || true" class="fallback">
-			<p>If you want to use Twitchat on an incompatible browser, you can open the following page on one of the compatible browsers to capture your voice:</p>
+			<p v-t="'voice.remote_control'"></p>
 			<a :href="voicePageUrl" target="_blank">{{voicePageUrl}}</a>
 		</div>
 
 		<div>
 			<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
 			<div class="connectObs" v-if="!obsConnected">
-				<div>This features needs you to connect with OBS.</div>
-				<Button class="button" title="Connect with OBS" white @click="$emit('setContent', contentObs)" />
+				<div v-t="'voice.need_OBS'"></div>
+				<Button class="button" :title="$t('voice.obs_connectBt')" white @click="$emit('setContent', contentObs)" />
 			</div>
 		</div>
 	</div>
