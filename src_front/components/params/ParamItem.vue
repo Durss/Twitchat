@@ -136,7 +136,7 @@
 			:clearToggle="clearToggle"
 			:childLevel="childLevel+1" />
 
-		<div class="child" ref="param_child_slot" v-if="showSlot && $slots.default">
+		<div class="child" ref="param_child_slot" v-if="$slots.default">
 			<slot></slot>
 		</div>
 	</div>
@@ -193,7 +193,6 @@ export default class ParamItem extends Vue {
 	public modelValue!:string|boolean|number|string[];
 
 	public key:string = Math.random().toString();
-	public showSlot:boolean = false;
 	public children:TwitchatDataTypes.ParameterData[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
@@ -259,7 +258,8 @@ export default class ParamItem extends Vue {
 			this.buildChildren();
 		});
 		
-		watch(() => this.paramData.children, () => {
+		watch(() => this.paramData.children, (value) => {
+			console.log("CHILDREN", value?.length);
 			this.buildChildren();
 		});
 		
@@ -298,7 +298,6 @@ export default class ParamItem extends Vue {
 				}
 				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
 						onComplete:()=> {
-							this.showSlot = false;
 							this.children = [];
 						}});
 			}
@@ -320,10 +319,9 @@ export default class ParamItem extends Vue {
 			children = children.concat(this.paramData.children);
 		}
 		
-		if(this.showSlot || this.children == children) return;
+		if(this.children == children) return;
 		
 		this.children = children;
-		this.showSlot = true;
 		await this.$nextTick();
 
 		if(children.length > 0 || this.$refs.param_child_slot){

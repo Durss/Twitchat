@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionchatentry">
 		<ParamItem class="item" :paramData="message_conf" ref="textContent" v-model="action.text" :error="cmdNameConflict" />
-		<div v-if="cmdNameConflict" class="cmdNameConflict">The message starts with the actual command name, this will lead to infinite message loop!</div>
+		<div v-if="cmdNameConflict" class="cmdNameConflict" v-t="'triggers.actions.chat.loop'"></div>
 	</div>
 </template>
 
@@ -28,7 +28,7 @@ export default class TriggerActionChatEntry extends Vue {
 	public event!:TriggerEventTypes;
 	public triggerKey!:string;
 	
-	public message_conf:TwitchatDataTypes.ParameterData = { label:"Message to send on your chat", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get cmdNameConflict():boolean {
 		if(this.event.value != TriggerTypes.CHAT_COMMAND) return false;
@@ -42,6 +42,7 @@ export default class TriggerActionChatEntry extends Vue {
 	}
 
 	public beforeMount():void {
+		this.message_conf.label = this.$t("triggers.actions.chat.param_message");
 		this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);
 	}
 

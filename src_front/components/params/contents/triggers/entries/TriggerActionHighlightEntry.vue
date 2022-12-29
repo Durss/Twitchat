@@ -1,13 +1,18 @@
 <template>
 	<div class="triggeractionhighlightentry">
-		<div class="item">You need to configure the <strong>"Message highlight"</strong> overlay to use this action.</div>
+		<div class="item"></div>
+		<i18n-t scope="global" tag="div" class="item" keypath="triggers.actions.highlight.header">
+			<template #LINK>
+				<a @click="openHighlightParams()" v-t="'triggers.actions.highlight.header_link'"></a>
+			</template>
+		</i18n-t>
 		<ParamItem class="item show" :paramData="show_conf" v-model="action.show" />
 		<ParamItem class="item" v-if="show_conf.value === true" :paramData="message_conf" ref="textContent" v-model="action.text" />
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerActionHelpers, type TriggerActionHighlightData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../../ParamItem.vue';
@@ -21,7 +26,7 @@ import ParamItem from '../../../ParamItem.vue';
 	components:{
 		ParamItem,
 	},
-	emits:["update"]
+	emits:["update", "setContent"]
 })
 export default class TriggerActionHighlightEntry extends Vue {
 
@@ -33,12 +38,18 @@ export default class TriggerActionHighlightEntry extends Vue {
 		{label:"Show", value:true},
 	];
 	
-	public show_conf:TwitchatDataTypes.ParameterData = { label:"Highlight visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
-	public message_conf:TwitchatDataTypes.ParameterData = { label:"Message to send on your stream", type:"text", longText:true, value:"", icon:"highlight_purple.svg", maxLength:500};
+	public show_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
+	public message_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"highlight_purple.svg", maxLength:500};
 	
 	public beforeMount():void {
 		if(this.action.show == undefined) this.action.show = true;
 		this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);
+		this.show_conf.label		= this.$t("triggers.actions.highlight.param_visibility");
+		this.message_conf.label		= this.$t("triggers.actions.highlight.param_message");
+	}
+
+	public openHighlightParams(){
+		this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
 	}
 
 }

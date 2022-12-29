@@ -20,6 +20,8 @@
 		"configs":"Configs",
 		"enabled":"Enabled",
 		"example":"Example",
+		"show":"Show",
+		"hide":"Hide",
 		"obs_connect":"This feature needs you to",
 		"obs_connect_link":"connect with OBS",
 		"badges":{

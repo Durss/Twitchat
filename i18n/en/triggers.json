@@ -22,6 +22,41 @@
 		},
 
 		"actions": {
+			"chat":{
+				"loop":"The message starts with the actual command name, this will lead to infinite message loop!",
+				"param_message":"Message to send on your chat"
+			},
+			"highlight":{
+				"header":"You need to configure the {LINK} to use this action.",
+				"header_link":"Message highlight overlay",
+				"param_visibility":"Highlight visibility",
+				"param_message":"Message to send on your stream"
+			},
+			"music":{
+				"header":"This feature needs you to connect with Spotify or Deezer under the {LINK}",
+				"header_link":"overlays section",
+				"param_actions":"Action",
+				"param_actions_default":"Select an action...",
+				"param_track":"Track (name or URL)",
+				"param_confirmSongRequest":"Send confirmation message",
+				"param_playlist":"Playlist name, link or ID",
+				"spotify_only":"Only works with Spotify"
+			},
+			"obs":{
+				"header":"This feature needs you to {LINK}",
+				"header_link":"connect with OBS",
+				"media_source":"If using a placeholder on the Media file path, folder navigation chars like {CMD1} and {CMD2} will be removed for security reasons.",
+				"media_source_example":": if setting this as the path {PATH1}, users won't be able to send {PATH2}",
+				"param_show":"Source visibility",
+				"param_show_filter":"Filter visibility",
+				"param_source":"OBS Source",
+				"param_filter":"Source filter",
+				"param_filter_none":"- none -",
+				"param_text":"Text to write on source",
+				"param_url":"Browser URL",
+				"param_media":"Media file",
+				"param_media_img":"Image file"
+			},
 			"http":{
 				"url":"URL to call",
 				"method":"Method",

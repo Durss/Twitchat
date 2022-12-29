@@ -2,7 +2,11 @@
 	<div :class="classes" v-if="!obsConnected">
 		<div class="info">
 			<img src="@/assets/icons/infos.svg" alt="info">
-			<p class="label">This feature needs you to <a @click="$emit('setContent', contentObs)">connect with OBS</a></p>
+			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
+				<template #LINK>
+					<a @click="$emit('setContent', contentObs)" v-t="'triggers.actions.obs.header_link'"></a>
+				</template>
+			</i18n-t>
 		</div>
 	</div>
 
@@ -13,8 +17,15 @@
 		<ParamItem class="item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
 		<ParamItem class="item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
 		<div v-if="isMediaSource" class="security">
-			If using a placeholder on the Media file path, folder navigation chars like <mark>..</mark> and <mark>/</mark> will be removed for security reasons.
-			<br><u>Example</u>: if setting this as the path <mark>C:/sounds/{MESSAGE}.mp3</mark>, users won't be able to send <mark>../secretfolder/somesecretfile</mark>
+			<i18n-t scope="global" class="label" tag="div" keypath="triggers.actions.obs.media_source">
+				<template #CMD1><mark>..</mark></template>
+				<template #CMD2><mark>/</mark></template>
+			</i18n-t>
+			<strong v-t="'global.example'"></strong>
+			<i18n-t scope="global" class="label" tag="spanp" keypath="triggers.actions.obs.media_source_example">
+				<template #PATH1><mark>C:/sounds/{MESSAGE}.mp3</mark></template>
+				<template #PATH2><mark>../secretfolder/somesecretfile</mark></template>
+			</i18n-t>
 		</div>
 	</div>
 </template>
@@ -44,18 +55,13 @@ export default class TriggerActionOBSEntry extends Vue {
 	public action!:TriggerActionObsData;
 	public sources!:OBSSourceItem[];
 	public event!:TriggerEventTypes;
-
-	private showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [
-		{label:"Hide", value:false},
-		{label:"Show", value:true},
-	];
 	
-	public show_conf:TwitchatDataTypes.ParameterData = { label:"Source visibility", type:"list", value:this.showHideValues[1].value, listValues:this.showHideValues, icon:"show_purple.svg" };
-	public source_conf:TwitchatDataTypes.ParameterData = { label:"OBS Source", type:"list", value:"", listValues:[], icon:"list_purple.svg" };
-	public filter_conf:TwitchatDataTypes.ParameterData = { label:"Source filter", type:"list", value:"", listValues:[] };
-	public text_conf:TwitchatDataTypes.ParameterData = { label:"Text to write on source", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public url_conf:TwitchatDataTypes.ParameterData = { label:"Browser URL", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
-	public media_conf:TwitchatDataTypes.ParameterData = { label:"Media file", type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
+	public show_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"", listValues:[], icon:"show_purple.svg" };
+	public source_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"", listValues:[], icon:"list_purple.svg", children:[] };
+	public filter_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"", listValues:[] };
+	public text_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public url_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
+	public media_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
 	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];
@@ -92,8 +98,8 @@ export default class TriggerActionOBSEntry extends Vue {
 	 */
 	public get isMediaSource():boolean {
 		const inputKind = this.sources.find(v=> v.sourceName == this.source_conf.value as string)?.inputKind;
-		this.media_conf.label = "Media file";
-		if(inputKind === "image_source") this.media_conf.label = "Image file";
+		this.media_conf.label = this.$t("triggers.actions.obs.param_media");
+		if(inputKind === "image_source") this.media_conf.label = this.$t("triggers.actions.obs.param_media_img");
 		return (inputKind === 'ffmpeg_source' || inputKind === "image_source")
 				&& this.show_conf.value === true;
 	}
@@ -104,6 +110,20 @@ export default class TriggerActionOBSEntry extends Vue {
 		this.text_conf.placeholderList = TriggerActionHelpers(this.event.value);
 		this.url_conf.placeholderList = TriggerActionHelpers(this.event.value);
 		this.media_conf.placeholderList = TriggerActionHelpers(this.event.value);
+
+		this.show_conf.label	= this.$t("triggers.actions.obs.param_show");
+		this.source_conf.label	= this.$t("triggers.actions.obs.param_source");
+		this.filter_conf.label	= this.$t("triggers.actions.obs.param_filter");
+		this.text_conf.label	= this.$t("triggers.actions.obs.param_text");
+		this.url_conf.label		= this.$t("triggers.actions.obs.param_url");
+		this.media_conf.label	= this.$t("triggers.actions.obs.param_media");
+
+		const showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [
+			{label:this.$t("global.hide"), value:false},
+			{label:this.$t("global.show"), value:true},
+		];
+		this.show_conf.value	= showHideValues[1].value
+		this.show_conf.listValues= showHideValues;
 
 		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
@@ -157,7 +177,7 @@ export default class TriggerActionOBSEntry extends Vue {
 		}
 		if(this.filters.length > 0) {
 			const list = this.filters.map(v => {return {label:v.filterName, value:v.filterName}});
-			list.unshift({label:"- none -", value:""})
+			list.unshift({label:this.$t("triggers.actions.obs.param_filter_none"), value:""});
 			this.filter_conf.value = list[0].value;
 			this.filter_conf.listValues = list;
 			this.source_conf.children = [this.filter_conf];
@@ -173,10 +193,10 @@ export default class TriggerActionOBSEntry extends Vue {
 	private updateFilter():void {
 		if(this.source_conf.children && this.source_conf.children?.length > 0
 		&& this.filter_conf.value != "") {
-			this.show_conf.label = "Filter visibility";
+			this.show_conf.label = this.$t("triggers.actions.obs.param_show_filter");
 			this.action.filterName = this.filter_conf.value as string;
 		}else{
-			this.show_conf.label = "Source visibility";
+			this.show_conf.label = this.$t("triggers.actions.obs.param_show");
 			delete this.action.filterName;
 		}
 	}
