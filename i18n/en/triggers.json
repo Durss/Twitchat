@@ -22,6 +22,25 @@
 		},
 
 		"actions": {
+			"common":{
+				"duplicate_tt":"Duplicate",
+				"next_delay":"Delay before next step (seconds)",
+				"delete":"Delete",
+				"action_chat":"Send chat message",
+				"action_bingo":"Start a bingo",
+				"action_raffle":"Start a raffle",
+				"action_highlight":"Highlight on stream",
+				"action_trigger":"Trigger",
+				"action_obs":"Control OBS",
+				"action_obs_tt":"You need to connect with OBS<br>on the OBS section",
+				"action_tts":"Text to speech",
+				"action_tts_tt":"This needs the <strong>text to speech</strong><br>feature to be enabled",
+				"action_music":"Control music",
+				"action_music_tt":"You need to connect<br>Spotify or Deezer<br>on the <strong>Overlays</strong> section",
+				"action_voicemod":"Control Voicemod",
+				"action_voicemod_tt":"You need to connect<br>with Voicemod",
+				"action_http":"HTTP call"
+			},
 			"chat":{
 				"loop":"The message starts with the actual command name, this will lead to infinite message loop!",
 				"param_message":"Message to send on your chat",

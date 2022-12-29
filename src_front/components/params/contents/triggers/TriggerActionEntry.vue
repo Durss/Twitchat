@@ -14,7 +14,7 @@
 				:icon="$image('icons/copy.svg')"
 				class="toggleAction"
 				@click="$emit('duplicate')"
-				data-tooltip="Duplicate"
+				:data-tooltip="$t('triggers.actions.common.duplicate_tt')"
 			/>
 			<Button small highlight
 				:icon="$image('icons/cross_white.svg')"
@@ -27,51 +27,51 @@
 			<div v-if="action.type===null" class="typeSelector">
 				<div class="info">Select the action type to execute</div>
 				<Button class="button" white @click="selectActionType('chat')"
-					title="Send chat message"
+					:title="$t('triggers.actions.common.action_chat')"
 					:icon="$image('icons/whispers_purple.svg')"/>
 					
 				<Button class="button" white @click="selectActionType('bingo')"
-					title="Start a bingo"
+					:title="$t('triggers.actions.common.action_bingo')"
 					:icon="$image('icons/bingo_purple.svg')"/>
 				
 				<Button class="button" white @click="selectActionType('raffle')"
-					title="Start a raffle"
+					:title="$t('triggers.actions.common.action_raffle')"
 					:icon="$image('icons/ticket_purple.svg')"/>
 				
 				<Button class="button" white @click="selectActionType('highlight')"
-					title="Highlight on stream"
+					:title="$t('triggers.actions.common.action_highlight')"
 					:icon="$image('icons/highlight_purple.svg')" />
 				
 				<Button class="button beta" white @click="selectActionType('trigger')"
-					title="Trigger"
+					:title="$t('triggers.actions.common.action_trigger')"
 					:icon="$image('icons/broadcast_purple.svg')" />
 				
 				<Button class="button" white @click="selectActionType('obs')"
-					title="Control OBS"
+					:title="$t('triggers.actions.common.action_obs')"
 					:icon="$image('icons/obs_purple.svg')"
 					:disabled="!obsConnected"
-					:data-tooltip="obsConnected? '' : 'You need to connect with OBS<br>on the OBS section'"/>
+					:data-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')"/>
 				
 				<Button class="button" white @click="selectActionType('tts')"
-					title="Text to speech"
+					:title="$t('triggers.actions.common.action_tts')"
 					:icon="$image('icons/tts_purple.svg')"
 					:disabled="!$store('tts').params.enabled"
-					:data-tooltip="$store('tts').params.enabled? '' : 'This needs the <strong>text to speech</strong><br>feature to be enabled'"/>
+					:data-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')"/>
 				
 				<Button class="button" white @click="selectActionType('music')"
-					title="Control music"
+					:title="$t('triggers.actions.common.action_music')"
 					:icon="$image('icons/music_purple.svg')"
 					:disabled="!musicServiceConfigured"
-					:data-tooltip="musicServiceConfigured? '' : 'You need to connect<br>Spotify or Deezer<br>on the <strong>Overlays</strong> section'"/>
+					:data-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')"/>
 				
 				<Button class="button" white @click="selectActionType('voicemod')"
-					title="Control Voicemod"
+					:title="$t('triggers.actions.common.action_voicemod')"
 					:icon="$image('icons/voicemod_purple.svg')"
 					:disabled="!voicemodEnabled"
-					:data-tooltip="voicemodEnabled? '' : 'You need to connect<br>with Voicemod'"/>
+					:data-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')"/>
 				
 				<Button class="button" white @click="selectActionType('http')"
-					title="HTTP call"
+					:title="$t('triggers.actions.common.action_http')"
 					:icon="$image('icons/url_purple.svg')"/>
 			</div>
 
@@ -153,7 +153,7 @@ export default class TriggerActionEntry extends Vue {
 
 	public opened = false;
 	public isError = false;
-	public delay_conf:TwitchatDataTypes.ParameterData = { label:"Delay before next step (seconds)", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
+	public delay_conf:TwitchatDataTypes.ParameterData = { label:"", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
@@ -234,6 +234,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
+		this.delay_conf.label = this.$t("triggers.actions.common.next_delay");
 		this.opened = !this.action.type || this.totalItems <= 2;
 	}
 
