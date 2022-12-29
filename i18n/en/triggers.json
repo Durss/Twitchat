@@ -71,7 +71,11 @@
 				"header":"This feature needs you to enable {LINK} feature",
 				"header_link":"text to speech",
 				"param_message":"Message to read with text to speech"
-
+			},
+			"voicemod":{
+				"header":"This feature needs you to  {LINK}",
+				"header_link":"connect with Voicemod",
+				"param_voice":"Voice"
 			},
 			"http":{
 				"url":"URL to call",

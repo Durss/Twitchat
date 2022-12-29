@@ -2,7 +2,11 @@
 	<div class="triggeractionvoicemodentry" v-if="!vmConnected">
 		<div class="info">
 			<img src="@/assets/icons/infos.svg" alt="info">
-			<p class="label">This feature needs you to <a @click="$emit('setContent', contentVM)">connect with Voicemod</a></p>
+			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.voicemod.header">
+				<template #LINK>
+					<a @click="$emit('setContent', contentVM)" v-t="'triggers.actions.voicemod.header_link'"></a>
+				</template>
+			</i18n-t>
 		</div>
 	</div>
 
@@ -33,13 +37,13 @@ export default class TriggerActionVoicemodEntry extends Vue {
 	public action!:TriggerActionVoicemodData;
 	public event!:TriggerEventTypes;
 
-	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"Voice", listValues:[], value:""}
+	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"", listValues:[], value:""}
 	
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
 	public get contentVM():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.VOICEMOD; } 
 
 	public beforeMount():void {
-		// this.message_conf.placeholderList = TriggerActionHelpers(this.event);
+		this.param_voiceList.label = this.$t("triggers.actions.voicemod.param_voice");
 		if(this.vmConnected) {
 			this.param_voiceList.listValues = VoicemodWebSocket.instance.voices.map(v=>{
 				return {
