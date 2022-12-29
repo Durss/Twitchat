@@ -6,8 +6,26 @@
 		<img src="@/assets/icons/shoutout.svg" alt="shoutout" class="icon">
 
 		<div class="info">
-			<span v-if="messageData.received"><a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a> gave you a shoutout to <strong>{{messageData.viewerCount}}</strong> viewers</span>
-			<span v-else>You gave you a shoutout to <a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a></span>
+			<i18n-t scope="global" tag="span"
+			v-if="messageData.received" keypath="chat.shoutout.given">
+				<template #USER>
+					<a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a>
+				</template>
+				<template #VIEWERS>
+					<strong>{{messageData.viewerCount}}</strong>
+				</template>
+			</i18n-t>
+			
+			<i18n-t scope="global" tag="span" v-else
+			keypath="chat.shoutout.received">
+				<template #USER>
+					<a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a>
+				</template>
+				<template #VIEWERS>
+					<strong>{{messageData.viewerCount}}</strong>
+				</template>
+			</i18n-t>
+
 			<div v-if="messageData.received" class="streamInfo">
 				<p>Streaming <strong>{{messageData.stream.category}}</strong>:</p>
 				<p class="title">{{messageData.stream.title}}</p>

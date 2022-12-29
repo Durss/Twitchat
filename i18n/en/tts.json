@@ -1,6 +1,8 @@
 {
 	"tts":{
 		"header":"Read your messages out loud",
+		"read_user_start":"Read {USER}'s future messages",
+		"read_user_stop":"Stop reading {USER}'s messages",
 		"chat_perms":{
 			"title":"Read permissions",
 			"head":"Choose who's messages you want to read.",

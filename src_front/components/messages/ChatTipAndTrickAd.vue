@@ -2,59 +2,59 @@
 	<div class="chattipandtrickad">
 		<div v-if="tipIndex===0" class="entry">
 			<img src="@/assets/icons/obs_purple.svg" alt="elgato" class="icon">
-			<h1 class="row">Create your own alerts</h1>
-			<div class="row">With <strong>Twitchat</strong> you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.</div>
-			<div class="row">Add texts, images, videos or sounds on your OBS scene and let Twitchat control them when a specific event occurs. Twitchat can update text sources content with values like the subscriber's name.</div>
-			<Button title="Try it now" @click.stop="openParam(contentTriggers)" />
+			<h1 class="row" v-t="'tips.alerts.title'"></h1>
+			<div class="row" v-t="'tips.alerts.info_1'"></div>
+			<div class="row">{{ $t('tips.alerts.info_2') }}</div>
+			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentTriggers)" />
 		</div>
 		
 		<div v-if="tipIndex===1" class="entry">
 			<img src="@/assets/icons/elgato_purple.svg" alt="elgato" class="icon">
-			<h1 class="row">Stream Deck™ plugin</h1>
-			<div class="row"><strong>Twitchat</strong> can be controlled from your Stream Deck™.</div>
-			<div class="row">You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button.</div>
-			<Button title="Try it now" @click.stop="openParam(contentStreamdeck)" />
+			<h1 class="row">{{ $t('tips.streamdeck.title') }}</h1>
+			<div class="row">{{ $t('tips.streamdeck.info_1') }}</div>
+			<div class="row">{{ $t('tips.streamdeck.info_2') }}</div>
+			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentStreamdeck)" />
 		</div>
 		
 		<div v-if="tipIndex===2" class="entry">
 			<img src="@/assets/icons/raid_purple.svg" alt="raid" class="icon">
-			<h1 class="row">Stop your stream on raid</h1>
-			<div class="row"><strong>Twitchat</strong> can automatically stop your OBS stream after you raided someone.</div>
-			<Button title="Try it now" @click.stop="openParamItem('features.stopStreamOnRaid')" />
+			<h1 class="row">{{ $t('tips.obs_stop.title') }}</h1>
+			<div class="row">{{ $t('tips.obs_stop.info_1') }}</div>
+			<Button :title="$t('tips.tryBt')" @click.stop="openParamItem('features.stopStreamOnRaid')" />
 		</div>
 		
 		<div v-if="tipIndex===3" class="entry">
 			<img src="@/assets/icons/bingo_purple.svg" alt="bingo" class="icon">
-			<h1 class="row">Create a bingo</h1>
-			<div class="row">You can create a bingo in which your viewers will have to be the first to guess a number or a global emote.</div>
-			<Button title="Try it now" @click.stop="openModal('bingo')" />
+			<h1 class="row">{{ $t('tips.bingo.title') }}</h1>
+			<div class="row">{{ $t('tips.bingo.info_1') }}</div>
+			<Button :title="$t('tips.tryBt')" @click.stop="openModal('bingo')" />
 		</div>
 		
 		<div v-if="tipIndex===4" class="entry">
 			<img src="@/assets/icons/ticket_purple.svg" alt="raffle" class="icon">
-			<h1 class="row">Create a raffle</h1>
-			<div class="row">You can create a raffle in which your viewers can enter by sending a command on chat.</div>
-			<div class="row">You can then randomly pick one of them.</div>
-			<div class="row">There's also an option to randomly pick one of your current subscribers/subgifters.</div>
-			<Button title="Try it now" @click.stop="openModal('raffle')" />
+			<h1 class="row">{{ $t('tips.raffle.title') }}</h1>
+			<div class="row">{{ $t('tips.raffle.info_1') }}</div>
+			<div class="row">{{ $t('tips.raffle.info_2') }}</div>
+			<div class="row">{{ $t('tips.raffle.info_3') }}</div>
+			<Button :title="$t('tips.tryBt')" @click.stop="openModal('raffle')" />
 		</div>
 		
 		<div v-if="tipIndex===5" class="entry">
 			<img src="@/assets/icons/obs_purple.svg" alt="obs" class="icon">
-			<h1 class="row">Control OBS from chat</h1>
-			<div class="row"><strong>Twitchat</strong> can change your current scene and mute/unmute your microphone from a chat command.</div>
-			<div class="row">If you forget to switch scene or unmute yourself, a mod can be there and do it for you as a backup.</div>
-			<Button title="Try it now" @click.stop="openParam(contentObs)" />
+			<h1 class="row">{{ $t('tips.obs.title') }}</h1>
+			<div class="row">{{ $t('tips.obs.info_1') }}</div>
+			<div class="row">{{ $t('tips.obs.info_2') }}</div>
+			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentObs)" />
 		</div>
 		
 		<div v-if="tipIndex===6" class="entry">
 			<img src="@/assets/icons/api_purple.svg" alt="api" class="icon">
-			<h1 class="row">Twitchat API</h1>
-			<div class="row">Did you know Twitchat exposes an API?</div>
-			<div class="row">If you're a developer, you can control and get events from Twitchat.</div>
+			<h1 class="row">{{ $t('tips.api.title') }}</h1>
+			<div class="row">{{ $t('tips.api.info_1') }}</div>
+			<div class="row">{{ $t('tips.api.info_2') }}</div>
 			<Button :icon="$image('icons/github_white.svg')"
 				style="display: inline-block;"
-				title="Read documentation"
+				:title="$t('tips.api.readBt')"
 				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
 				target="_blank"
 				type="link"
@@ -63,49 +63,52 @@
 		
 		<div v-if="tipIndex===7" class="entry">
 			<img src="@/assets/icons/music_purple.svg" alt="music" class="icon">
-			<h1 class="row">Control music</h1>
-			<div class="row"><strong>Twitchat</strong> provides a <strong>Spotify</strong> and <strong>Deezer</strong> integrations.</div>
-			<div class="row">This allows you to display the track currently playing on your stream as well as give your viewers control over the playback.</div>
-			<div class="row">You can create your own song request system.</div>
-			<Button title="Try it now" @click.stop="openParam(contentOverlays)" />
+			<h1 class="row">{{ $t('tips.music.title') }}</h1>
+			<div class="row" v-html="$t('tips.music.info_1')"></div>
+			<div class="row">{{ $t('tips.music.info_2') }}</div>
+			<div class="row">{{ $t('tips.music.info_3') }}</div>
+			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentOverlays)" />
 		</div>
 		
 		<div v-if="tipIndex===8" class="entry">
 			<img src="@/assets/icons/overlay_purple.svg" alt="overlay" class="icon">
-			<h1 class="row">Twitchat overlays</h1>
-			<div class="row"><strong>Twitchat</strong> provides a some <strong>overlays</strong> for your stream.</div>
-			<div class="row">It can display your <strong>currently playing music</strong> or a <strong>animated wheel</strong> to pick a raffle's winner.</div>
-			<Button title="Try it now" @click.stop="openParam(contentOverlays)" />
+			<h1 class="row">{{ $t('tips.overlays.title') }}</h1>
+			<div class="row" v-t="$t('tips.overlays.info_1')"></div>
+			<div class="row" v-t="$t('tips.overlays.info_2')"></div>
+			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentOverlays)" />
 		</div>
 		
 		<div v-if="tipIndex===9" class="entry">
 			<img src="@/assets/icons/countdown_purple.svg" alt="timer" class="icon">
-			<h1 class="row">Timer and Countdown</h1>
-			<div class="row">You can start a timer or a coutdown with dedicated commands <span class="cmd">/timerStart</span> and <span class="cmd">/countdown</span>.</div>
-			<Button :icon="$image('icons/timer.svg')" title="Try timer" @click.stop="startTimer()" />
-			<Button :icon="$image('icons/countdown.svg')" title="Try 2min countdown" @click.stop="startCountdown()" />
+			<h1 class="row">{{ $t('tips.countdown.title') }}</h1>
+			<i18n-t scope="global" class="row" tag="div" keypath="tips.countdown.info_1">
+				<template #CMD1><span class="cmd">/timerStart</span></template>
+				<template #CMD2><span class="cmd">/countdown</span></template>
+			</i18n-t>
+			<Button :icon="$image('icons/timer.svg')" :title="$t('tips.countdown.timer_tryBt')" @click.stop="startTimer()" />
+			<Button :icon="$image('icons/countdown.svg')" :title="$t('tips.countdown.countdown_tryBt')" @click.stop="startCountdown()" />
 		</div>
 		
 		<div v-if="tipIndex===10" class="entry">
 			<img src="@/assets/icons/obs_purple.svg" alt="obs dock" class="icon">
-			<h1 class="row">OBS Dock</h1>
-			<div class="row">Did you know you can add Twitchat as an <strong>OBS Dock</strong>?</div>
-			<div class="row">On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong></div>
+			<h1 class="row">{{ $t('tips.dock.title') }}</h1>
+			<div class="row" v-html="$t('tips.dock.info_1')"></div>
+			<div class="row" v-html="$t('tips.dock.info_2')"></div>
 			<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
 		</div>
 		
 		<div v-if="tipIndex===11" class="entry">
 			<img src="@/assets/icons/highlight_purple.svg" alt="chat highlight" class="icon">
-			<h1 class="row">Highlight chat message</h1>
-			<div class="row">You want to show a viewer's message on your stream?</div>
-			<div class="row">You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on a button</div>
+			<h1 class="row">{{ $t('tips.highlight.title') }}</h1>
+			<div class="row">{{ $t('tips.highlight.info_1') }}</div>
+			<div class="row">{{ $t('tips.highlight.info_2') }}</div>
 			
 			<!-- <img class="row" src="@/assets/img/chatHighlightedMessage.png" alt="obs dock screen"> -->
 			<iframe class="row" src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-			<Button class="row" title="Configure overlay" @click.stop="openParam(contentOverlays)" :icon="$image('icons/overlay.svg')" />
-			<div class="row">OR</div>
-			<Button class="row" title="Configure trigger" @click.stop="openParam(contentTriggers)" :icon="$image('icons/broadcast.svg')" />
+			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParam(contentOverlays)" :icon="$image('icons/overlay.svg')" />
+			<div class="row or" v-t="'global.or'"></div>
+			<Button class="row" :title="$t('tips.highlight.configure_triggerBt')" @click.stop="openParam(contentTriggers)" :icon="$image('icons/broadcast.svg')" />
 		</div>
 	</div>
 </template>
@@ -175,9 +178,13 @@ export default class ChatTipAndTrickAd extends Vue {
 		img {
 			max-width: 100%;
 		}
+
 		iframe {
 			width: 80%;
 			aspect-ratio: 16/9;
+		}
+		.or {
+			text-transform: uppercase;
 		}
 	}
 }

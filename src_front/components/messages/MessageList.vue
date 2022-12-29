@@ -382,9 +382,9 @@ export default class MessageList extends Vue {
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		let label = "";
 		if (permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1) {
-			label = "Read " + username + "'s future messages";
+			label = this.$t("tts.read_user_start", {USER:username})
 		} else {
-			label = "Stop reading " + username + "'s messages";
+			label = this.$t("tts.read_user_stop", {USER:username})
 		}
 		return label;
 	}
@@ -404,7 +404,7 @@ export default class MessageList extends Vue {
 		});
 
 		let refreshDebounce = -1;
-ChatLowTrustTreatment
+
 		//Update list when filters are changed
 		watch(() => this.config.filters, () => {
 			clearTimeout(refreshDebounce);
@@ -524,7 +524,7 @@ ChatLowTrustTreatment
 	 */
 	public deleteColumn():void {
 		this.$store("main")
-		.confirm("Delete column?", "Do you want to delete this column? This cannot be undone.")
+		.confirm(this.$t("chat.delete_col_confirm_title"), this.$t("chat.delete_col_confirm_desc"))
 		.then(()=> {
 			this.$store("params").delChatColumn(this.config);
 		})

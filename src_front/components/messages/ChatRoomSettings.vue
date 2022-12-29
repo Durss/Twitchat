@@ -2,9 +2,9 @@
 	<div class="chatroomsettings"
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<img class="icon lock" src="@/assets/icons/lock.svg" />
 		<div class="content">
 			<div>
-				<img class="icon" src="@/assets/icons/alert.svg" />
 				<span><strong>#{{messageData.channel_name}}</strong> room has the following restrictions:</span>
 			</div>
 			<div class="restriction" v-if="messageData.settings.subOnly" ref="sub">
@@ -105,7 +105,7 @@ export default class ChatRoomSettings extends Vue {
 		flex-direction: column;
 
 		.restriction {
-			margin-left: 1.5em;
+			margin-left: 1em;
 			margin-top: .25em;
 			&.disabled {
 				text-decoration: line-through;
@@ -126,6 +126,11 @@ export default class ChatRoomSettings extends Vue {
 			margin-right: .5em;
 			vertical-align: middle;
 		}
+	}
+	&>.icon {
+		height: 2.5em;
+		width: auto;
+		// align-self: flex-start;
 	}
 }
 </style>
