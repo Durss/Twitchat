@@ -1,5 +1,53 @@
 {
 	"tts":{
+		"header":"Read your messages out loud",
+		"chat_perms":{
+			"title":"Read permissions",
+			"head":"Choose who's messages you want to read.",
+			"infos":"It only filters out the chat messages and whispers. It won't affect sub alerts, cheers, raid, channel points, etc..."
+		},
+		"mesages":{
+			"title":"Messages to read",
+			"param_format": "Format",
+			"param_readMessages": "Chat messages",
+			"param_readWhispers": "Whispers",
+			"param_readNotices": "Notices (TO, ban, join/leave, emote-only,...)",
+			"param_readRewards": "Channel point rewards",
+			"param_readSubs": "Sub alerts",
+			"param_readSubgifts": "Subgift alerts",
+			"param_readBits": "Bits alerts",
+			"param_readRaids": "Raid alerts",
+			"param_readFollow": "Follow alerts",
+			"param_readPolls": "Poll results",
+			"param_readPredictions": "Prediction results",
+			"param_readBingos": "Bingo results",
+			"param_readRaffle": "Raffle results",
+			"param_readUsers": "Users to read out loud"
+		},
+		"params":{
+			"title":"Voice parameters",
+			"param_enabled":"Enabled",
+			"param_volume":"Volume {VALUE}",
+			"param_rate":"Speed {VALUE}",
+			"param_pitch":"Pitch {VALUE}",
+			"param_voice":"Voice",
+			"param_removeEmotes":"Remove emotes",
+			"test_message":"This is a test message",
+			"test_placeholder":"message...",
+			"testBt":"Test"
+		},
+		"filters":{
+			"title":"Filters",
+			"param_maxLengthToggle":"Limit message size",
+			"param_maxLength":"Read {VALUE} chars max",
+			"param_maxDurationToggle":"Limit message duration",
+			"param_maxDuration":"Stop reading a message after {VALUE} seconds",
+			"param_timeoutToggle":"Remove message from queue if they're not read within...",
+			"param_timeout":"{VALUE} minutes",
+			"param_inactivityPeriodToggle":"Read messages only if no message has been received for...",
+			"param_removeURL":"Remove links",
+			"param_replaceURL":"Replace by"
+		},
 		"placeholders":{
 			"user":"User name",
 			"message":"user message",
