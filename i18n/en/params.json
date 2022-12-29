@@ -5,7 +5,7 @@
 		"spoilersEnabled": "Enable spoiler tag",
 		"alertMode": "Enable chat alert",
 		"firstMessage": "Show the first message of every viewer on a seperate list so you don't forget to say hello",
-		"firstMessage_info": "For a standalone alternative check out ",
+		"firstMessage_info": "For a standalone alternative check out {URL}",
 		"markAsRead": "Click a message to remember where you stopped reading",
 		"conversationsEnabled": "Group conversations<br>(allows to display conversations between users seperately)",
 		"userHistoryEnabled": "See all user's messages when hovering their name",
@@ -16,8 +16,7 @@
 		"offlineEmoteOnly":"Set chat on emote-only when not live",
 		"stopStreamOnRaid":"Cut OBS stream after a raid",
 		"showUserPronouns":"Show user pronouns",
-		"showUserPronouns_based":"based on ",
-		"showUserPronouns_based_and":" and ",
+		"showUserPronouns_based_on":"based on {URL1} and {URL2}",
 		"chatShoutout":"Chat message shoutout",
 		"chatShoutout_info":"Send this message when doing a shoutout",
 		"chatShoutout_placeholders":{
@@ -63,7 +62,6 @@
 		"ad_bot_info_content":"Yes<br><br>By default the message is posted with your account.<br>But you can configure any other bot to send that message if you wish.<br><br>Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.",
 
 		"categories":{
-			"":"",
 			"about":"About",
 			"account":"Account",
 			"alert":"Chat alerts",
@@ -142,6 +140,25 @@
 			"unvip":"Remove VIP role",
 			"pin":"Send and pin the message",
 			"greetduration":"Sets the greet them auto delete duration"
+		},
+
+		"spoiler":{
+			"head":"Messages starting with {TAG} will be masked by default and revealed on hover",
+			"message_example":"Messages example:",
+			"command":{
+				"title":"Spoil someone's message",
+				"how_to":"You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the {CMD} command",
+				"allowed":"Users allowed to use {CMD} command:"
+			},
+			"warning":{
+				"title":"Warning",
+				"head":"Twitch's answer system being terribly bad, if you try to use {CMD} on an answer, it will actually make the the one the user answered to as a spoiler instead.",
+				"example":"For example, bellow, if you try to spoil the {ANSWER} by answering to it, it will actually spoil the {ROOT} instead:",
+				"example_1":"Original message",
+				"example_2":"Answer 1",
+				"example_3":"Answer 2",
+				"example_4":"Answer 3"
+			}
 		}
 	}
 }

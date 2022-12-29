@@ -50,6 +50,9 @@ const i18n = createI18n({
 	fallbackLocale: 'en',
 	fallbackWarn:false,
 	warnHtmlInMessage: 'off',
+	// modifiers:{
+	// 	strong:(str)=> "<strong>"+str+"</strong>",
+	// }
 });
 
 //Load labels before everything else so they are available when

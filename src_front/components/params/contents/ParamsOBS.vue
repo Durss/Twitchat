@@ -4,8 +4,19 @@
 
 		<div class="head">
 			<p v-t="'obs.header'"></p>
-			<p class="install"><span v-t="'obs.install'"></span> <strong>OBS v28+</strong>
-				<br><i v-html="$t('obs.install_option', {PLUGIN_URL:obswsInstaller})"></i></p>
+			<p class="install">
+				<i18n-t tag="i" keypath="obs.install">
+					<template #OBS_VERSION>
+						<strong>OBS v28+</strong>
+					</template>
+				</i18n-t>
+				<br>
+				<i18n-t tag="i" keypath="obs.install_option">
+					<template #PLUGIN_LINK>
+						<a :href="obswsInstaller" target="_blank" v-t="'obs.install_plugin_name'"></a>
+					</template>
+				</i18n-t>
+			</p>
 		</div>
 
 		<ParamItem class="item enableBt" :paramData="param_enabled" />

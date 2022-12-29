@@ -9,30 +9,30 @@
 		
 		<i18n-t v-if="messageData.restricted"
 		keypath="global.moderation_action.user_restricted" tag="p">
-			<template v-slot:USER>
+			<template #USER>
 				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
 			</template>
-			<template v-slot:MODERATOR>
+			<template #MODERATOR>
 				<a @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>
 		
 		<i18n-t v-else-if="messageData.monitored"
 		keypath="global.moderation_action.user_monitored" tag="p">
-			<template v-slot:USER>
+			<template #USER>
 				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
 			</template>
-			<template v-slot:MODERATOR>
+			<template #MODERATOR>
 				<a @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>
 		
 		<i18n-t v-else
 		keypath="global.moderation_action.user_unflagged" tag="p">
-			<template v-slot:USER>
+			<template #USER>
 				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
 			</template>
-			<template v-slot:MODERATOR>
+			<template #MODERATOR>
 				<a @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>

@@ -2,35 +2,48 @@
 	<div class="paramsspoiler">
 		<img src="@/assets/icons/show_purple.svg" alt="emergency icon" class="icon">
 		
-		<p class="header">Messages starting with <mark>||</mark> will be masked by default and revealed on hover</p>
+		<p class="header"></p>
+		<i18n-t tag="p" class="header" keypath="params.spoiler.head">
+			<template #TAG><mark>||</mark></template>
+		</i18n-t>
 
 		<section>
-			<p>Message example:</p>
+			<p v-t="'params.spoiler.message_example'"></p>
 			<ChatMessage :messageData="spoilerExample" class="example" lightMode />
 		</section>
 
 		<section>
-			<Splitter class="splitter">Spoil somone else's message</Splitter>
-			<div class="item">You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the <mark>!spoiler</mark> command</div>
-			<div class="item">Users allowed to use <mark>!spoiler</mark> command:</div>
+			<Splitter class="splitter">{{ $t("params.spoiler.command.title") }}</Splitter>
+			
+			<i18n-t tag="div" class="item" keypath="params.spoiler.command.how_to">
+				<template #CMD><mark>!spoiler</mark></template>
+			</i18n-t>
+			<img class="item" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
+			<i18n-t tag="div" class="item" keypath="params.spoiler.command.allowed">
+				<template #CMD><mark>!spoiler</mark></template>
+			</i18n-t>
 			<PermissionsForm class="item perms" v-model="chatCommandPerms" />
 		</section>
 		
 		<section>
-			<Splitter class="splitter">How to spoil another message</Splitter>
-			<img class="item" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
+			<Splitter class="splitter">{{ $t('params.spoiler.warning.title') }}</Splitter>
 	
 			<div class="item disclaimer">
-				<div><strong>WARNING:</strong> Twitch's answer system being terribly bad, if you try to use <mark>!spoiler</mark> on an answer, it will actually make the original message <i>(the one the user answered to)</i> as a spoiler instead of its answer.</div>
-				<div>For example, bellow, if you try to spoil the <mark>Answer 1</mark> by answering to it, it will actually spoil the <mark>Original message</mark> instead:</div>
+				<i18n-t tag="div" class="item" keypath="params.spoiler.warning.head">
+					<template #CMD><mark>!spoiler</mark></template>
+				</i18n-t>
+				<i18n-t tag="div" class="item" keypath="params.spoiler.warning.example">
+					<template #ANSWER><mark v-t="'params.spoiler.warning.example_2'"></mark></template>
+					<template #ROOT><mark v-t="'params.spoiler.warning.example_1'"></mark></template>
+				</i18n-t>
 			</div>
 			<ul>
 				<li>
-					<span>Original message</span>
+					<span v-t="'params.spoiler.warning.example_1'"></span>
 					<ul>
-						<li>Answer 1</li>
-						<li>Answer 2</li>
-						<li>Answer 3</li>
+						<li v-t="'params.spoiler.warning.example_2'"></li>
+						<li v-t="'params.spoiler.warning.example_2'"></li>
+						<li v-t="'params.spoiler.warning.example_3'"></li>
 					</ul>
 				</li>
 			</ul>

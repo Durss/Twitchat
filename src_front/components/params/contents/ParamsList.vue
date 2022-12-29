@@ -14,19 +14,24 @@
 					</div>
 				
 					<div v-else-if="p.id == 201 && p.value === true" class="info greetThem">
-						<p class="label">
-							<span v-t="'params.firstMessage_info'"></span>
-							<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
-						</p>
+						<i18n-t tag="p" class="label"
+						keypath="params.firstMessage_info">
+							<template #URL>
+								<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
+							</template>
+						</i18n-t>
 					</div>
 					
 					<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
-						<p class="label">
-							<span v-t="'params.showUserPronouns_based'"></span>
-							<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
-							<span v-t="'params.showUserPronouns_based_and'"></span>
-							<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
-						</p>
+						<i18n-t tag="p" class="label"
+						keypath="params.showUserPronouns_based_on">
+							<template #URL1>
+								<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
+							</template>
+							<template #URL2>
+								<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
+							</template>
+						</i18n-t>
 					</div>
 	
 					<div v-else-if="p.id == 215 && p.value === true" class="info config">

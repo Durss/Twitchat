@@ -11,8 +11,9 @@
 		"credentials_form_title":"OBS credentials",
 
 		"header":"Create your own twitch alerts, allow your mods basic control over your OBS and much more",
-		"install":"In order to work, this needs",
-		"install_option":"(or OBS 27 with <a :href=\"{PLUGIN_URL}\" target=\"_blank\">OBS-websocket&nbsp;plugin&nbsp;V5</a> installed)",
+		"install":"In order to work, this needs {OBS_VERSION}",
+		"install_option":"(or OBS 27 with {PLUGIN_LINK} installed)",
+		"install_plugin_name":"OBS-websocket plugin V5",
 		
 		"permissions_title":"Permissions",
 		"permissions_head":"Users allowed to use the chat commands",

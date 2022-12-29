@@ -39,7 +39,7 @@
 			"clear_instruction":"To clear the currently highlighted message click this button on the chat bar",
 			"testBt":"Send test message",
 			"no_overlay":"- overlay not configured or hidden -",
-			"alternative_tool":"Check out <a href=\"https://featured.chat\" target=\"_blank\">featured.chat</a> for a dedicated tool doing this with much more options"
+			"alternative_tool":"Check out {URL} for a dedicated tool doing this with much more options"
 		},
 
 		"music_common":{
@@ -66,7 +66,8 @@
 
 		"spotify":{
 			"refused":"Sadly, <strong>Spotify is refusing</strong> Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.",
-			"how_to":"To use it you'll have to <a href=\"https://github.com/durss/twitchat/blob/main/SPOTIFY.md\" target=\"_blank\"><strong>READ THIS TUTORIAL</strong></a> and fill-in the values bellow:",
+			"how_to":"To use it you'll have to {URL} and fill-in the values bellow:",
+			"how_to_read":"READ THIS TUTORIAL",
 			"authBt":"Authenticate"
 		},
 

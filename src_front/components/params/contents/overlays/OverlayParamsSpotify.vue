@@ -11,8 +11,13 @@
 
 		<div class="spotifasshole" v-if="!spotifyConnected && !authenticating">
 			<div class="info">
-				<div v-html="$t('overlay.spotify.refused')"></div>
-				<div v-html="$t('overlay.spotify.how_to')"></div>
+				<i18n-t tag="div" keypath="overlay.spotify.how_to">
+					<template #URL>
+						<strong>
+							<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank" v-t="'overlay.spotify.how_to_read'"></a>
+						</strong>
+					</template>
+				</i18n-t>
 			</div>
 			<form>
 				<ParamItem class="item" :paramData="paramClient" autofocus />

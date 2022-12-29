@@ -94,7 +94,11 @@
 			</div>
 			
 			<div class="row footer">
-				<div v-html="$t('overlay.highlight.alternative_tool')"></div>
+				<i18n-t tag="div" keypath="overlay.highlight.alternative_tool">
+					<template #URL>
+						<a href="https://featured.chat" target="_blank">featured.chat</a>
+					</template>
+				</i18n-t>
 			</div>
 		</div>
 
