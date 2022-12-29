@@ -20,7 +20,23 @@
 			"require":"These triggers need you to {URL}",
 			"require_url":"connect with OBS"
 		},
-
+		
+		"schedule":{
+			"conflict":"A schedule with this name already exists",
+			"params_title":"Parameters",
+			"repeat":"Repeat:",
+			"add_dateBt":"Add date",
+			"default_action":"Select an action...",
+			"param_name":"Schedule name",
+			"param_daily":"Daily",
+			"param_yearly":"Yearly",
+			"param_action":"Schedule type",
+			"param_repeatDurationCondition":"Time based repeat",
+			"param_repeatDurationValue":"Execute every {'{'}VALUE{'}'} minutes",
+			"param_repeatMessageCondition":"Message based repeat",
+			"param_repeatMessageValue":"Must receive at least {'{'}VALUE{'}'} message"
+		},
+		
 		"actions": {
 			"common":{
 				"duplicate_tt":"Duplicate",
