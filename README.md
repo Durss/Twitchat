@@ -261,7 +261,7 @@ To make localization easier you can start the following PM2 process that will wa
 ```
 pm2 start labels-pom2/json
 ```
-Labels won't automatically be updated on the frontend though _(if anyone knows how to make Vite detect that...)_. To force labels refresh you can use this keyboard short on the app `CTRL+Shift+L`
+Labels won't automatically be updated on the frontend though _(if anyone knows how to make Vite detect that...)_. To force labels refresh you can use this keyboard shortcut on Twitchat `CTRL+Shift+L`
 <br>
 <br>
 <br>
