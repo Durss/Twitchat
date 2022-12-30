@@ -15,21 +15,21 @@
 		<div class="holder" v-if="expand || forceConfig" @click="clickPreview($event)">
 			<div class="content">
 				<div class="head">
-					<h1 class="title">Filters</h1>
-					<button class="closeBt" @click="expand = false" v-if="!forceConfig">
-						<img src="@/assets/icons/cross_white.svg" alt="close filters" class="icon">
+					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
+					<button :aria-label="$t('chat.filters.closeBt_aria')" class="closeBt" @click="expand = false" v-if="!forceConfig">
+						<img src="@/assets/icons/cross_white.svg" :alt="$t('chat.filters.closeBt_aria')" class="icon">
 					</button>
 				</div>
 				
-				<div class="info" v-if="expand || forceConfig">Choose which message types to display on this column</div>
+				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
 				
 				<div class="presets">
-					<Button @click="preset('chat')" title="Chat" :icon="$image('icons/whispers_purple.svg')" small white />
-					<Button @click="preset('chatSafe')" title="Chat safe" :icon="$image('icons/shield_purple.svg')" small white />
-					<Button @click="preset('moderation')" title="Moderation" :icon="$image('icons/mod_purple.svg')" small white />
-					<Button @click="preset('activities')" title="Activities" :icon="$image('icons/stars_purple.svg')" small white />
-					<Button @click="preset('games')" title="Games" :icon="$image('icons/bingo_purple.svg')" small white />
-					<Button @click="preset('revenues')" title="Revenues" :icon="$image('icons/coin_purple.svg')" small white />
+					<Button @click="preset('chat')" :title="$t('chat.filters.preset_chat')" :icon="$image('icons/whispers_purple.svg')" small white />
+					<Button @click="preset('chatSafe')" :title="$t('chat.filters.preset_chatSafe')" :icon="$image('icons/shield_purple.svg')" small white />
+					<Button @click="preset('moderation')" :title="$t('chat.filters.preset_moderation')" :icon="$image('icons/mod_purple.svg')" small white />
+					<Button @click="preset('activities')" :title="$t('chat.filters.preset_activities')" :icon="$image('icons/stars_purple.svg')" small white />
+					<Button @click="preset('games')" :title="$t('chat.filters.preset_games')" :icon="$image('icons/bingo_purple.svg')" small white />
+					<Button @click="preset('revenues')" :title="$t('chat.filters.preset_revenues')" :icon="$image('icons/coin_purple.svg')" small white />
 				</div>
 				
 				<div class="paramsList">
@@ -72,11 +72,11 @@
 						
 				</div>
 
-				<div class="error" v-if="error" @click="error=false">Please select at least one filter</div>
+				<div class="error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
 
 				<div class="ctas">
-					<Button title="Cancel" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceConfig" @click="$emit('delete')" />
-					<Button title="Create" small :icon="$image('icons/add_purple.svg')" white v-if="forceConfig" @click="submitForm()" />
+					<Button :title="$t('global.cancel')" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceConfig" @click="$emit('delete')" />
+					<Button :title="$t('global.create')" small :icon="$image('icons/add_purple.svg')" white v-if="forceConfig" @click="submitForm()" />
 				</div>
 			</div>
 
@@ -222,7 +222,7 @@ export default class MessageListFilter extends Vue {
 	public mouseOverToggle:boolean = false;
 	public loadingPreview:boolean = false;
 	public previewIndex:number = 0;
-	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", label:"Hide specific users", placeholder:"bot1, bot2, ....", icon:"hide.svg"};
+	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", label:"", placeholder:"bot1, bot2, ....", icon:"hide.svg"};
 	
 	private mouseY = 0;
 	private disposed = false;
@@ -247,30 +247,31 @@ export default class MessageListFilter extends Vue {
 	public beforeMount(): void {
 		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
 		this.param_blockUsers.value = this.config.userBlockList;
+		this.param_blockUsers.label = this.$t("chat.filters.hide_users");
 
 		//@ts-ignore
 		this.typeToLabel = {};
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = "Twitchat updates and tips";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID] = "Raids";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL] = "Polls";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN] = "Users join";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.LEAVE] = "Users leave";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER] = "Bits";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO] = "Bingos";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAFFLE] = "Raffles";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.REWARD] = "Rewards";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE] = "Notices";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = "Chat messages";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.WHISPER] = "Whispers";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT] = "Shoutouts";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING] = "Follows";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN] = "Countdown";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = "Predictions";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = "Subs";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = "Hype train summaries";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = "Hype train cooldown";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE] = "Community boosts";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "Community challenge";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = this.$t("chat.filters.message_types.twitchat_ad");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID] = this.$t("chat.filters.message_types.raid");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL] = this.$t("chat.filters.message_types.poll");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN] = this.$t("chat.filters.message_types.join");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.LEAVE] = this.$t("chat.filters.message_types.leave");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER] = this.$t("chat.filters.message_types.cheer");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO] = this.$t("chat.filters.message_types.bingo");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAFFLE] = this.$t("chat.filters.message_types.raffle");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.REWARD] = this.$t("chat.filters.message_types.reward");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE] = this.$t("chat.filters.message_types.notice");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = this.$t("chat.filters.message_types.message");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.WHISPER] = this.$t("chat.filters.message_types.whisper");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT] = this.$t("chat.filters.message_types.shoutout");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING] = this.$t("chat.filters.message_types.following");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN] = this.$t("chat.filters.message_types.countdown");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = this.$t("chat.filters.message_types.prediction");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = this.$t("chat.filters.message_types.subscription");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = this.$t("chat.filters.message_types.hype_train_summary");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = this.$t("chat.filters.message_types.hype_train_cooled_down");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE] = this.$t("chat.filters.message_types.community_boost_complete");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = this.$t("chat.filters.message_types.community_challenge_contribution");
 		
 		//@ts-ignore
 		this.typeToIcon = {};
@@ -326,21 +327,7 @@ export default class MessageListFilter extends Vue {
 			const children:TwitchatDataTypes.ParameterData[] = [];
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
 			if(f === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				const keyToLabel:{[key in messageFilterTypes]:string} = {
-					viewers:"Sent by viewers",
-					vips:"Sent by VIPs",
-					subs:"Sent by Subs",
-					moderators:"Sent by Moderators",
-					partners:"Sent by Partners",
-					bots:"Sent by bots",
-					tracked:"Sent by tracked users",
-					deleted:"Deleted messages",
-					pinned:"Pinned messages",
-					automod:"Blocked messages",
-					suspiciousUsers:"Sent by suspicious users",
-					commands:"Commands (starting with \"!\")",
-					short:"Short messages",
-				}
+				const keyToLabel = this.$tm("chat.filters.message_filters") as {[key in messageFilterTypes]:string}
 				const keyToIcon:{[key in messageFilterTypes]:string} = {
 					viewers:"user.svg",
 					vips:"vip.svg",
@@ -381,7 +368,7 @@ export default class MessageListFilter extends Vue {
 						const subParam:TwitchatDataTypes.ParameterData = {type:"text",
 									longText:true,
 									value:this.config.commandsBlockList,
-									label:"Hide specific commands",
+									label:this.$t('chat.filters.commands'),
 									placeholder:"!example, !so, !myuptime, ...",
 									icon:"hide.svg",
 									editCallback:(data:string)=> {
@@ -391,7 +378,7 @@ export default class MessageListFilter extends Vue {
 						param.children = [subParam];
 					}
 					if(k == "short") {
-						param.tooltip = "Messages shorter than 4 chars<br>or containing mostly emotes";
+						param.tooltip = this.$t('chat.filters.short');
 					}
 					children.push(param);
 				}
