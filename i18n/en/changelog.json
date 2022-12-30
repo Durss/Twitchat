@@ -1,0 +1,88 @@
+{
+	"changelog": {
+		"title": "🎉 Latest updates 🎉",
+		"closeBt_aria": "Remove message",
+		"version": "Version {VERSION}",
+		"major_title": "New featutres",
+		"minor_title": "Other updates",
+		"fixes_title": "Fixes",
+		"major": [
+			{
+				"i": "list",
+				"l": "<strong>New message list</strong>. You can now create as many message list as you want and choose which message types display on each with fine granularity"
+			},
+			{
+				"i": "font",
+				"a": {
+					"a": "open appearance params",
+					"l": "try it",
+					"p": "appearance"
+				},
+				"l": "<strong>Dyslexic-friendly</strong> font added to the parameters"
+			},
+			{
+				"i": "emote",
+				"a": {
+					"a": "open features params",
+					"l": "try it",
+					"p": "features"
+				},
+				"l": "<strong>Emote-only</strong>: Automatically set your chat on emote-only when stopping your stream"
+			},
+			{
+				"i": "hand",
+				"l": "<strong>Chat restrictions</strong>: At launch, a message will remind you if your chat has any restrictions <i>(follow-only, sub-only, slow-mode,...)</i>"
+			},
+			{
+				"i": "list",
+				"l": "<strong>Dont miss new messages</strong> even when reading old messages thanks to a live view of the 3 latest new messages at the bottom"
+			},
+			{
+				"i": "shield",
+				"a": {
+					"a": "open emergency button params",
+					"l": "try it",
+					"p": "emergency"
+				},
+				"l": "Sync <strong>shield mode</strong> with the emergency button"
+			},
+			{
+				"i": "shoutout",
+				"l": "You'll get notiffied when giving and receiving a <strong>shoutout</strong>"
+			},
+			{
+				"i": "broadcast",
+				"a": {
+					"a": "open triggers params",
+					"l": "try it",
+					"p": "triggers"
+				},
+				"l": "<strong>11 new trigger</strong> events when someone send a \"presentation\", when the hype train can be started again, when giving a shoutout, when given a shoutout, when switching OBS scene, when showing/hiding an OBS source, when pinning or unpinning a message and when starting/stoping the shield mode"
+			},
+			{
+				"i": "commands",
+				"l": "<strong>4 new commands</strong> to add or remove time to a timer or a countdown <mark>/timeradd</mark>, <mark>/timerremove</mark>, <mark>/countdownadd</mark>, <mark>/countdownremove</mark>"
+			}
+		],
+		"minor": [
+			{"l":"All commands can now be used from triggers"},
+			{"l":"User list will show you the <strong>remaining timeout duration</strong> for every timed out users"},
+			{"l":"Messages blocked due to <strong>shared ban info</strong> and waiting for approval will now be displayed"},
+			{"l":"When <strong>follow botted</strong>, all follow events will be merged into 1 single expandable notification"},
+			{"l":"Start <strong>shield mode</strong> from the emergency button"},
+			{"l":"Maximum <strong>raffle</strong> duration extended to 10h"},
+			{"l":"Possibility to <strong>highlight partners'</strong> messages"},
+			{"l":"BTTV/FFZ/7TV now displayed on emote selectors"},
+			{"l":"Notify users if they try to use a cooling down chat command trigger"},
+			{"l":"When a message is read by TTS, a button shows up to clear the whole TTS queue"},
+			{"l":"<strong>Hype train</strong> summaries now show T1, T2 and T3 subs count seperatly"},
+			{"l":"New <strong>/greetduration</strong> command to change the \"auto delete after\" duration of the greet them section"}
+		],
+		"fixes": [
+			{"l":"TTS for prediction result was  sometimes not saying the winning outcome label"},
+			{"l":"Current music track info was not properly filled on triggers"},
+			{"l":" Whispers conversation names were wrong when initiating a conversation"},
+			{"l":"A conflict between the \"group identical messages\" and \"mark as read\" feature. If a message was marked as read and later on the same message was sent, the read mark was moving with it to the bottom"}
+		]
+	}
+}

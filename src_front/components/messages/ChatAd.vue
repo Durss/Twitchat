@@ -2,88 +2,53 @@
 	<div class="chatad">
 		<div class="innerHolder">
 			<div v-if="isSponsor" class="sponsor">
-				<div class="title">🍔 I like food 🍔</div>
-				<div class="content">Are you enjoying <strong>Twitchat</strong> ?<br>
-				It took <strong>months</strong> of my life to create.<br>
-				Twitchat is free, but <strong>if you can afford it</strong>, any tip would really make my day brighter!</div>
+				<div class="title">{{ $t('chat.sponsor.title') }}</div>
+				<div class="content" v-html="$t('chat.sponsor.head')"></div>
 				<div class="cta">
 					<img @click.stop="openParamPage(contentSponsor)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
-					<Button aria-label="Open tip options" @click.stop="openParamPage(contentSponsor)" title="🌞 Make my day brighter 🌞" />
+					
+					<Button :aria-label="$t('chat.sponsor.tipBt_aria')"
+					@click.stop="openParamPage(contentSponsor)"
+					:title="$t('chat.sponsor.tipBt')" />
 				</div>
 			</div>
 	
 			<div v-else-if="isUpdate" class="updates">
-				<Button aria-label="Remove message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">🎉 Latest updates 🎉</div>
-				<div class="version">Version {{appVersion}}</div>
+				<Button class="closeBt"
+					:aria-label="$t('changelog.closeBt_aria')"
+					@click.stop="deleteMessage()"
+					:icon="$image('icons/cross_white.svg')" />
+
+				<div class="title">{{ $t('changelog.title') }}</div>
+				
+				<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
 				
 				<div class="content">
-					<ToggleBlock class="block new" title="New features" :open="false" :icons="['new']">
+					<ToggleBlock class="block new" :title="$t('changelog.major_title')" :open="false" :icons="['new']">
 						<ul>
-							<li>
-								<img src="@/assets/icons/list.svg" class="icon" />
-								<span><strong>New message list</strong>. You can now create as many message list as you want and choose which message types display on each with fine granularity</span>
-							</li>
-							<li>
-								<img src="@/assets/icons/font.svg" class="icon" />
-								<Button aria-label="open appearance params" small title="try it" @click.stop="openParamPage(contentAppearance)" />
-								<span><strong>Dyslexic-friendly</strong> font added to the parameters</span>
-							</li>
-							<li>
-								<img src="@/assets/icons/emote.svg" class="icon" />
-								<Button aria-label="open features params" small title="try it" @click.stop="openParamPage(contentFeatures)" />
-								<span><strong>Emote-only</strong>: Automatically set your chat on emote-only when stopping your stream</span>
-							</li>
-							<li>
-								<img src="@/assets/icons/hand.svg" class="icon" />
-								<span><strong>Chat restrictions</strong>: At launch, a message will remind you if your chat has any restrictions <i>(follow-only, sub-only, slow-mode,...)</i></span>
-							</li>
-							<li>
-								<img src="@/assets/icons/list.svg" class="icon" />
-								<span><strong>Dont miss new messages</strong> even when reading old messages thanks to a live view of the 3 latest new messages at the bottom</span>
-							</li>
-							<li>
-								<img src="@/assets/icons/shield.svg" class="icon" />
-								<Button aria-label="open emergency button params" small title="try it" @click.stop="openParamPage(contentEmergency)" />
-								<span>Sync <strong>shield mode</strong> with the emergency button</span>
-							</li>
-							<li>
-								<img src="@/assets/icons/shoutout.svg" class="icon" />
-								<span>You'll get notiffied when giving and receiving a <strong>shoutout</strong></span>
-							</li>
-							<li>
-								<img src="@/assets/icons/broadcast.svg" class="icon" />
-								<Button aria-label="open triggers params" small title="try it" @click.stop="openParamPage(contentTriggers)" />
-								<span><strong>11 new trigger</strong> events when someone send a "presentation", when the hype train can be started again, when giving a shoutout, when given a shoutout, when switching OBS scene, when showing/hiding an OBS source, when pinning or unpinning a message and when starting/stoping the shield mode</span>
-							</li>
-							<li>
-								<img src="@/assets/icons/commands.svg" class="icon" />
-								<span><strong>4 new commands</strong> to add or remove time to a timer or a countdown <mark>/timeradd</mark>, <mark>/timerremove</mark>, <mark>/countdownadd</mark>, <mark>/countdownremove</mark></span>
+							<li v-for="e in entriesMajor">
+								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
+								<Button v-if="e.a" :aria-label="e.a.a ?? ''" small :title="e.a.l" @click.stop="openParamPage(e.a!.p)" />
+								<span v-html="e.l"></span>
 							</li>
 						</ul>
 					</ToggleBlock>
-					<ToggleBlock class="block other" title="Other updates" :open="false" :icons="['change']">
+					<ToggleBlock class="block other" :title="$t('changelog.minor_title')" :open="false" :icons="['change']">
 						<ul>
-							<li>All commands can now be used from triggers</li>
-							<li>User list will show you the <strong>remaining timeout duration</strong> for every timed out users</li>
-							<li>Messages blocked due to <strong>shared ban info</strong> and waiting for approval will now be displayed</li>
-							<li>When <strong>follow botted</strong>, all follow events will be merged into 1 single expandable notification</li>
-							<li>Start <strong>shield mode</strong> from the emergency button</li>
-							<li>Maximum <strong>raffle</strong> duration extended to 10h</li>
-							<li>Possibility to <strong>highlight partners'</strong> messages</li>
-							<li>BTTV/FFZ/7TV now displayed on emote selectors</li>
-							<li>Notify users if they try to use a cooling down chat command trigger</li>
-							<li>When a message is read by TTS, a button shows up to clear the whole TTS queue</li>
-							<li><strong>Hype train</strong> summaries now show T1, T2 and T3 subs count seperatly</li>
-							<li>New <strong>/greetduration</strong> command to change the "auto delete after" duration of the greet them section</li>
+							<li v-for="e in entriesMinor">
+								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
+								<Button v-if="e.a" :aria-label="e.a.a ?? ''" small :title="e.a.l" @click.stop="openParamPage(e.a!.p)" />
+								<span v-html="e.l"></span>
+							</li>
 						</ul>
 					</ToggleBlock>
-					<ToggleBlock class="block fix" title="Fixes" :open="false" :icons="['fix']">
+					<ToggleBlock class="block fix" :title="$t('changelog.fixes_title')" :open="false" :icons="['fix']">
 						<ul>
-							<li>TTS for prediction result was  sometimes not saying the winning outcome label</li>
-							<li>Current music track info was not properly filled on triggers</li>
-							<li> Whispers conversation names were wrong when initiating a conversation</li>
-							<li>A conflict between the "group identical messages" and "mark as read" feature. If a message was marked as read and later on the same message was sent, the read mark was moving with it to the bottom</li>
+							<li v-for="e in entriesFixes">
+								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
+								<Button v-if="e.a" :aria-label="e.a.a ?? ''" small :title="e.a.l" @click.stop="openParamPage(e.a!.p)" />
+								<span v-html="e.l"></span>
+							</li>
 						</ul>
 					</ToggleBlock>
 				</div>
@@ -250,6 +215,18 @@ export default class ChatAd extends Vue {
 		return module.default
 	}
 
+	public get entriesMajor():ChangelogEntry[] {
+		return this.$tm("changelog.major") as ChangelogEntry[];
+	}
+
+	public get entriesMinor():ChangelogEntry[] {
+		return this.$tm("changelog.minor") as ChangelogEntry[];
+	}
+
+	public get entriesFixes():ChangelogEntry[] {
+		return this.$tm("changelog.fixes") as ChangelogEntry[];
+	}
+
 	public async mounted():Promise<void> {
 		this.voiceIcon = await this.getSvgIcon("voice");
 		this.ttsIcon = await this.getSvgIcon("tts");
@@ -257,9 +234,28 @@ export default class ChatAd extends Vue {
 		this.elgatoIcon = await this.getSvgIcon("elgato");
 		this.followIcon = await this.getSvgIcon("follow");
 		this.kofiIcon = await this.getSvgIcon("kofi");
+
+		//Make sure changelog entrues are valid.
+		//Checks for all the button actions to make sure their values
+		//are correct
+		const changelogs:ChangelogEntry[][] = [
+						this.$tm("changelog.major") as ChangelogEntry[],
+						this.$tm("changelog.minor") as ChangelogEntry[],
+						this.$tm("changelog.fix") as ChangelogEntry[],
+					];
+		const allowedTypes = Object.values(TwitchatDataTypes.ParamsCategories) as TwitchatDataTypes.ParamsContentStringType[];
+		changelogs.forEach(v=> {
+			if(!Array.isArray(v))return;
+			v.forEach(v=>{
+				if(v.a && v.a.p && !allowedTypes.includes(v.a.p)) {
+					this.$store("main").alert("Invalid parameter type \""+v.a.p+"\" for changelog entry \""+v.l+"\"");
+				}
+			})
+		})
 	}
 
 	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
+		console.log("OPEN="+page+"=");
 		this.$store("main").tempStoreValue = "CONTENT:"+page;
 		this.$store("main").setShowParams(true);
 	}
@@ -322,6 +318,16 @@ export default class ChatAd extends Vue {
 		DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 	}
 
+}
+
+export interface ChangelogEntry {
+	i?:string;//icon name
+	l:string;//label
+	a?:{
+		l:string;//label of the button
+		a?:string;//aria-label value of the button
+		p:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
+	}
 }
 </script>
 
@@ -444,24 +450,24 @@ export default class ChatAd extends Vue {
 					:deep(.content){
 						color: @mainColor_warn;
 						background-color: fade(@mainColor_warn_extralight, 25%);
-					}
-					.button {
-						border-color: @mainColor_warn;
-						color: @mainColor_warn !important;
-						&:hover {
-							background: fade(@mainColor_warn, 10%);
+						.button {
+							border-color: @mainColor_warn;
+							color: @mainColor_warn !important;
+							&:hover {
+								background: fade(@mainColor_warn, 10%);
+							}
 						}
-					}
-					.icon {
-						background: @mainColor_warn;
-					}
-	
-					.cmd {
-						background-color: fade(@mainColor_warn, 15%);
-					}
-					mark {
-						border: 1px dashed darken(@mainColor_warn_light, 10%);
-						background-color: fade(@mainColor_warn_extralight, 50%);
+						.icon {
+							background: @mainColor_warn;
+						}
+		
+						.cmd {
+							background-color: fade(@mainColor_warn, 15%);
+						}
+						mark {
+							border: 1px dashed darken(@mainColor_warn_light, 10%);
+							background-color: fade(@mainColor_warn_extralight, 50%);
+						}
 					}
 				}
 				&.fix {
@@ -476,45 +482,45 @@ export default class ChatAd extends Vue {
 					:deep(.content){
 						color: @mainColor_alert;
 						background-color: lighten(@mainColor_alert_extralight, 5%);
-					}
-					.button {
-						border-color: @mainColor_alert;
-						color: @mainColor_alert !important;
-						&:hover {
-							background: fade(@mainColor_alert, 10%);
+						.button {
+							border-color: @mainColor_alert;
+							color: @mainColor_alert !important;
+							&:hover {
+								background: fade(@mainColor_alert, 10%);
+							}
 						}
-					}
-					.icon {
-						background: @mainColor_alert;
-					}
-	
-					.cmd {
-						background-color: fade(@mainColor_alert, 15%);
+						.icon {
+							background: @mainColor_alert;
+						}
+		
+						.cmd {
+							background-color: fade(@mainColor_alert, 15%);
+						}
 					}
 				}
 				&:not(:last-of-type) {
 					margin-bottom: .5em;
 				}
 				:deep(.header){
-						color: @mainColor_light;
-						background-color: @mainColor_normal;
-						&:hover {
-							background-color: lighten(@mainColor_normal, 5%);
-						}
-				}
-	
-				.cmd {
-					background-color: fade(@mainColor_normal, 15%);
-					border-radius: .5em;
-					padding: 0 .5em;
-					font-family: 'Courier New', Courier, monospace;
+					color: @mainColor_light;
+					background-color: @mainColor_normal;
+					&:hover {
+						background-color: lighten(@mainColor_normal, 5%);
+					}
+		
+					.cmd {
+						background-color: fade(@mainColor_normal, 15%);
+						border-radius: .5em;
+						padding: 0 .5em;
+						font-family: 'Courier New', Courier, monospace;
+					}
 				}
 			}
 	
 			ul {
 				text-align: left;
 				margin-left: 2em;
-				li {
+				:deep(li) {
 					&:not(:last-child) {
 						margin-bottom:.5em;
 					}
@@ -541,7 +547,7 @@ export default class ChatAd extends Vue {
 					}
 				}
 			}
-			mark {
+			:deep(mark) {
 				border: 1px dashed fade(#000, 20);
 				background-color: fade(#000, 5);
 				border-radius: .5em;
