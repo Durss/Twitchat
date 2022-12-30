@@ -1,0 +1,19 @@
+{
+  "userlist": {
+    "roles": {
+      "broadcaster": "Broadcaster",
+      "mods": "Moderators",
+      "vips": "VIPs",
+      "viewers": "Chatters"
+    },
+    "banned_tt": "Banned",
+    "infoBt": "Why is the chat users count different from the viewer count?",
+	"infos":[
+		"Chat user count shows people actually connected to your chat. Viewers count tells how many people are watching your stream.",
+		"It's possible to be on a chat without watching the stream <i>(like bots)</i> and it's possibler to watch the stream without being on the chat <i>(when watching from homepage or after closing the chat, ...)</i>",
+		"Also, nothing's official, but it's almost certain that Twitch removes you from the viewers count if you keep the stream on a background tab for some time.",
+		"This usually makes your chatters count higher than your viewers count after a raid.",
+		"When promoted on homepage though, your viewer count will be MUCH higher than your chatters count."
+	]
+  }
+}

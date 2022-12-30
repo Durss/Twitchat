@@ -4,7 +4,7 @@
 		<div v-if="currentChan">
 			<div v-for="chan, key in currentChan.users" :class="'userList '+key">
 				<div class="title" v-if="currentChan.users[key].length > 0">
-					{{{broadcaster:"Broadcaster", mods:"Moderators", vips:"VIPs", viewers:"Chatters"}[key]}}
+					{{getRole(key)}}
 					<i>({{currentChan.users[key].length}})</i>
 				</div>
 				<div class="list" v-if="currentChan.users[key].length > 0">
@@ -16,7 +16,7 @@
 							<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
 								src="@/assets/icons/timeout.svg"
 								:data-tooltip="getBanDuration(u.channelInfo[currentChanId])">
-							<img v-else src="@/assets/icons/ban.svg" data-tooltip="Banned">
+							<img v-else src="@/assets/icons/ban.svg" :data-tooltip="$t('userlist.banned_tt')">
 						</div>
 						{{u.displayName}}
 					</a>
@@ -24,13 +24,9 @@
 			</div>
 		</div>
 
-		<a v-if="currentChanId == channelId" @click="toggleInfos()" class="infoBt">Why is the chat users count different from the viewer count?</a>
+		<a v-if="currentChanId == channelId" @click="toggleInfos()" class="infoBt">{{ $t('userlist.infoBt') }}</a>
 		<div v-if="showInfo" class="infos" ref="infos">
-			<p>Chat user count shows people actually connected to your chat. Viewers count tells how many people are watching your stream.</p>
-			<p>It's possible to be on a chat without watching the stream <i>(like bots)</i> and it's possibler to watch the stream without being on the chat <i>(when watching from homepage or after closing the chat, ...)</i></p>
-			<p>Also, nothing's official, but it's almost certain that Twitch removes you from the viewers count if you keep the stream on a background tab for some time.</p>
-			<p>This usually makes your chatters count higher than your viewers count after a raid.</p>
-			<p>When promoted on homepage though, your viewer count will be MUCH higher than your chatters count.</p>
+			<p v-for="e in $tm('userlist.infos')">{{e}}</p>
 		</div>
 
 		<div class="users">
@@ -71,6 +67,10 @@ export default class UserList extends Vue {
 
 	private debounceTo:number = -1;
 
+	public getRole(key:string):string {
+		return (this.$tm("userlist.roles") as {[key:string]:string})[key];
+	}
+
 	public getBraodcasterTitle(chan:ChannelUserList):string {
 		const user = this.$store("users").getUserFrom(chan.platform, chan.channelId, chan.channelId);
 		return user.displayName + '<i>('+(chan.users.broadcaster.length+chan.users.viewers.length+chan.users.vips.length+chan.users.mods.length)+')</i>'
@@ -78,7 +78,6 @@ export default class UserList extends Vue {
 
 	public getBanDuration(chanInfo:TwitchatDataTypes.UserChannelInfo):string {
 		const remaining = chanInfo.banEndDate! - Date.now();
-		console.log(remaining);
 		return Utils.formatDuration(remaining)+"s";
 	}
 	
