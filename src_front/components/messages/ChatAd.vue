@@ -83,13 +83,15 @@
 					</ToggleBlock>
 				</div>
 				<div class="cta">
-					<Button aria-label="Close updates" @click.stop="deleteMessage()" title="OK got it" />
+					<Button @click.stop="deleteMessage()"
+					:aria-label="$t('changelog.closeBt_aria')"
+					:title="$t('changelog.closeBt')" />
 				</div>
 			</div>
 	
 			<div v-if="isTip" class="tip">
-				<Button aria-label="Close tips &amp; tricks message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">💡 Tips &amp; tricks 💡</div>
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+				<div class="title" v-t="'tips.title'"></div>
 				<ChatTipAndTrickAd class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
 					@openParam="(v:any)=> openParamPage(v)"
@@ -98,15 +100,15 @@
 			</div>
 	
 			<div v-if="isDiscord" class="discord">
-				<Button aria-label="Close discord message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">Join us on Discord</div>
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+				<div class="title">{{ $t('chat.discord.title') }}</div>
 				<div class="content">
 					<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">
-					<div>You have a feature suggestion or an issue to report?<br>Join us on discord!</div>
+					<div v-html="$t('chat.discord.content')"></div>
 				</div>
 				<div class="cta">
 					<Button :icon="$image('icons/discord.svg')"
-						title="Join Discord"
+						:title="$t('chat.discord.joinBt')"
 						:href="discordURL"
 						target="_blank"
 						type="link"
@@ -115,43 +117,46 @@
 			</div>
 	
 			<div v-if="isAdWarning">
-				<Button aria-label="Close message" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">IMPORTANT MESSAGE</div>
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+				<div class="title">{{ $t('chat.adalert.title') }}</div>
 				<div class="content left">
-					<img src="@/assets/icons/twitchat_purple.svg" alt="discord" class="icon">
-					<div>Twitchat is free for you to use but:</div>
-					<div>A message with a link to Twitchat will be sent every 2 hours on your chat <strong>with your account</strong> <i>(only if you received at least 100 messages during that timeframe)</i>.</div>
-					<div>The message won't be sent as long as a link to twitchat is sent by anyone on your chat during that 2h timeframe.</div>
-					<br>
-					<div>You can customize the message on the Parameters menu.</div>
-					<div>Or you can donate any amount to remove it</div>
+					<img src="@/assets/icons/twitchat_purple.svg" alt="twitchat" class="icon">
+					<div v-for="e in $tm('chat.adalert.contents')" v-html="e"></div>
 				</div>
 				<div class="cta">
-					<Button title="😡😡😡 THAT'S UNACCEPTABLE 😡😡😡" @click="openModal('gngngn')" />
+					<Button :title="$t('chat.adalert.unacceptableBt')" @click="openModal('gngngn')" />
 					<Button :icon="$image('icons/edit.svg')"
-						title="Customize message"
+						:title="$t('chat.adalert.customizeBt')"
 						@click="openParamPage(contentMainMenu)"
 					/>
 					<Button :icon="$image('icons/follow.svg')"
-						title="Donate to remove"
+						:title="$t('chat.adalert.donateBt')"
 						@click="openParamPage(contentSponsor)"
 					/>
 				</div>
 			</div>
 	
 			<div v-if="isSponsorPublicPrompt" class="sponsorPrompt">
-				<Button aria-label="Close message" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">❤ Hey lovely donor ❤</div>
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+				<div class="title">{{$t('chat.donor.title')}}</div>
 				<div class="content">
-					<img src="@/assets/icons/follow_purple.svg" alt="discord" class="icon">
-					<div>Thank you again for supporting Twitchat with your donation.</div>
-					<div>A list of all the donor is visible by everyone under <a @click="openParamPage(contentAbout)">About section</a>.</div>
-					<div>Donation are anonymous by default but you can chose to make yours public if you wish!</div>
-					<div v-if="madeDonationPublic"><br>Thank you ❤.<br>You can change your mind anytime under <a @click="openParamPage(contentAccount)">Account section</a>.</div>
+					<img src="@/assets/icons/follow_purple.svg" alt="heart" class="icon">
+					<div>{{ $t('chat.donor.info_1') }}</div>
+					<div>{{ $t('chat.donor.info_2') }}</div>
+					<i18n-t scope="global" tag="div" keypath="chat.donor.info_2">
+						<template #LINK><a @click="openParamPage(contentAbout)">{{ $t('chat.donor.info_2_link') }}</a></template>
+					</i18n-t>
+					<div>{{ $t('chat.donor.info_3') }}</div>
+					<div v-if="madeDonationPublic">
+						<div>{{ $t('chat.donor.thanks') }}</div>
+						<i18n-t scope="global" tag="div" keypath="chat.donor.thanks_change">
+							<template #LINK><a @click="openParamPage(contentAccount)">{{ $t('chat.donor.thanks_change_link') }}</a></template>
+						</i18n-t>
+					</div>
 				</div>
 				<div class="cta">
 					<Button :icon="$image('icons/follow.svg')"
-						title="Make my donation public"
+						:title="$t('chat.donor.publicBt')"
 						:loading="loading"
 						@click="makeDonationPublic()"
 						v-if="!madeDonationPublic"
@@ -160,11 +165,11 @@
 			</div>
 	
 			<div class="confirmClose" ref="confirmClose" v-if="showConfirm">
-				<p>Are you sure you read the message?</p>
-				<p>It's important</p>
+				<p>{{ $t('chat.donor.close_confirm.info_1') }}</p>
+				<p>{{ $t('chat.donor.close_confirm.info_2') }}</p>
 				<div class="ctaConfirm">
-					<Button :loading="confirmDelay" title="Cancel" @click="showConfirm=false" small highlight />
-					<Button :loading="confirmDelay" title="Yes close" @click="deleteMessage()" small />
+					<Button :loading="confirmDelay" :title="$t('chat.donor.close_confirm.cancelBt')" @click="showConfirm=false" small highlight />
+					<Button :loading="confirmDelay" :title="$t('chat.donor.close_confirm.confirmBt')" @click="deleteMessage()" small />
 				</div>
 			</div>
 		</div>

@@ -1,6 +1,7 @@
 {
 	"tips": {
 		"tryBt": "Try it now",
+		"title":"💡 Tips & tricks 💡",
 		"alerts": {
 			"title": "Create your own alerts",
 			"info_1": "With Twitchat you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.",

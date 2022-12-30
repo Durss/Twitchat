@@ -1,6 +1,7 @@
 {
 	"changelog": {
 		"title": "🎉 Latest updates 🎉",
+		"closeBt": "Ok got it",
 		"closeBt_aria": "Remove message",
 		"version": "Version {VERSION}",
 		"major_title": "New featutres",
