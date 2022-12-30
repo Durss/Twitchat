@@ -7,7 +7,7 @@
 		
 		<img src="@/assets/icons/shield.svg" alt="notice" class="icon">
 		
-		<i18n-t v-if="messageData.restricted"
+		<i18n-t scope="global" v-if="messageData.restricted"
 		keypath="global.moderation_action.user_restricted" tag="p">
 			<template #USER>
 				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
@@ -17,7 +17,7 @@
 			</template>
 		</i18n-t>
 		
-		<i18n-t v-else-if="messageData.monitored"
+		<i18n-t scope="global" v-else-if="messageData.monitored"
 		keypath="global.moderation_action.user_monitored" tag="p">
 			<template #USER>
 				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
@@ -27,7 +27,7 @@
 			</template>
 		</i18n-t>
 		
-		<i18n-t v-else
+		<i18n-t scope="global" v-else
 		keypath="global.moderation_action.user_unflagged" tag="p">
 			<template #USER>
 				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>

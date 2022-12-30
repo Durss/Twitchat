@@ -83,7 +83,6 @@ export default class ChatJoinLeave extends Vue {
 			message = this.$t("chat.join_leave.leave_aria", {COUNT:this.messageData.users.length, CHANNEL:this.channelName})
 			this.icon = "leave";
 		}
-		console.log(message);
 		this.$store("accessibility").setAriaPolite(message);
 	}
 

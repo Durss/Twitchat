@@ -1,68 +1,69 @@
 {
-  "tips": {
-    "tryBt": "Try it now",
-    "alerts": {
-      "title": "Create your own alerts",
-      "info_1": "With Twitchat you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.",
-      "info_2": "Add texts, images, videos or sounds on your OBS scene and let Twitchat control them when a specific event occurs. Twitchat can update text sources content with values like the subscriber's name."
-    },
-    "streamdeck": {
-      "title": "Stream Deck™ plugin",
-      "info_1": "Twitchat can be controlled from your Stream Deck™.",
-      "info_2": "You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button."
-    },
-    "obs_stop": {
-      "title": "Stop your stream on raid",
-      "info_1": "Twitchat can automatically stop your OBS stream after you raided someone."
-    },
-    "bingo": {
-      "title": "Create a bingo",
-      "info_1": "You can create a bingo in which your viewers will have to be the first to guess a number or a global emote."
-    },
-    "raffle": {
-      "title": "Create a raffle",
-      "info_1": "You can create a raffle in which your viewers can enter by sending a command on chat.",
-      "info_2": "You can then randomly pick one of them.",
-      "info_3": "There's also an option to randomly pick one of your current subscribers/subgifters."
-    },
-    "obs": {
-      "title": "Control OBS from chat",
-      "info_1": "Twitchat can change your current scene and mute/unmute your microphone from a chat command.",
-      "info_2": "If you forget to switch scene or unmute yourself, a mod can be there and do it for you as a backup."
-    },
-    "api": {
-      "title": "Twitchat API",
-      "info_1": "Did you know Twitchat exposes an API?",
-      "info_2": "If you're a developer, you can control and get events from Twitchat.",
-      "readBt": "Read documentation"
-    },
-    "music": {
-      "title": "Control music",
-      "info_1": "Twitchat provides a <strong>Spotify</strong> and <strong>Deezer</strong> integrations.",
-      "info_2": "This allows you to display the track currently playing on your stream as well as give your viewers control over the playback.",
-      "info_3": "You can create your own song request system."
-    },
-    "overlays": {
-      "title": "Twitchat overlays",
-      "info_1": "Twitchat provides a some <strong>overlays</strong> for your stream.",
-      "info_2": "It can display your <strong>currently playing music</strong> or a <strong>animated wheel</strong> to pick a raffle's winner."
-    },
-    "countdown": {
-      "title": "Timer and Countdown",
-      "timer_tryBt": "Try timer",
-      "countdown_tryBt": "Try 2min countdown"
-    },
-    "dock": {
-      "title": "Obs dock",
-      "info_1": "Did you know you can add Twitchat as an <strong>OBS Dock</strong>?",
-      "info_2": "On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong>"
-    },
-    "highlight": {
-      "title": "Highlight chat message",
-      "info_1": "You want to show a viewer's message on your stream?",
-      "info_2": "You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on a button",
-      "config_overlayBt": "Configure overlay",
-      "configure_triggerBt": "Configure trigger"
-    }
-  }
+	"tips": {
+		"tryBt": "Try it now",
+		"alerts": {
+			"title": "Create your own alerts",
+			"info_1": "With Twitchat you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.",
+			"info_2": "Add texts, images, videos or sounds on your OBS scene and let Twitchat control them when a specific event occurs. Twitchat can update text sources content with values like the subscriber's name."
+		},
+		"streamdeck": {
+			"title": "Stream Deck™ plugin",
+			"info_1": "Twitchat can be controlled from your Stream Deck™.",
+			"info_2": "You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button."
+		},
+		"obs_stop": {
+			"title": "Stop your stream on raid",
+			"info_1": "Twitchat can automatically stop your OBS stream after you raided someone."
+		},
+		"bingo": {
+			"title": "Create a bingo",
+			"info_1": "You can create a bingo in which your viewers will have to be the first to guess a number or a global emote."
+		},
+		"raffle": {
+			"title": "Create a raffle",
+			"info_1": "You can create a raffle in which your viewers can enter by sending a command on chat.",
+			"info_2": "You can then randomly pick one of them.",
+			"info_3": "There's also an option to randomly pick one of your current subscribers/subgifters."
+		},
+		"obs": {
+			"title": "Control OBS from chat",
+			"info_1": "Twitchat can change your current scene and mute/unmute your microphone from a chat command.",
+			"info_2": "If you forget to switch scene or unmute yourself, a mod can be there and do it for you as a backup."
+		},
+		"api": {
+			"title": "Twitchat API",
+			"info_1": "Did you know Twitchat exposes an API?",
+			"info_2": "If you're a developer, you can control and get events from Twitchat.",
+			"readBt": "Read documentation"
+		},
+		"music": {
+			"title": "Control music",
+			"info_1": "Twitchat provides a <strong>Spotify</strong> and <strong>Deezer</strong> integrations.",
+			"info_2": "This allows you to display the track currently playing on your stream as well as give your viewers control over the playback.",
+			"info_3": "You can create your own song request system."
+		},
+		"overlays": {
+			"title": "Twitchat overlays",
+			"info_1": "Twitchat provides some <strong>overlays</strong> for your stream.",
+			"info_2": "It can display your <strong>currently playing music</strong> or a <strong>animated wheel</strong> to pick a raffle's winner."
+		},
+		"countdown": {
+			"title": "Timer and Countdown",
+			"info_1": "You can start a timer or a coutdown with dedicated commands {CMD1} and {CMD2}",
+			"timer_tryBt": "Try timer",
+			"countdown_tryBt": "Try 2min countdown"
+		},
+		"dock": {
+			"title": "Obs dock",
+			"info_1": "Did you know you can add Twitchat as an <strong>OBS Dock</strong>?",
+			"info_2": "On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong>"
+		},
+		"highlight": {
+			"title": "Highlight chat message",
+			"info_1": "You want to show a viewer's message on your stream?",
+			"info_2": "You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on a button",
+			"config_overlayBt": "Configure overlay",
+			"configure_triggerBt": "Configure trigger"
+		}
+	}
 }

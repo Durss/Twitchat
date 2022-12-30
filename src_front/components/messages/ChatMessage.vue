@@ -89,7 +89,7 @@
 			@click.stop="openUserCard(recipient!)">{{recipient.displayName}}</span>
 		</div>
 		
-		<i18n-t class="sharedBan" tag="span"
+		<i18n-t scope="global" class="sharedBan" tag="span"
 		v-if="userBannedOnChannels" keypath="chat.message.banned_in">
 			<template #CHANNELS>{{userBannedOnChannels}}</template>
 		</i18n-t>

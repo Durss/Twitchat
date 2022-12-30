@@ -117,6 +117,9 @@
 		},
 		"bingo":{
 			"title":"{WINNER} won the bingo with answer {ANSWER}"
+		},
+		"sponsor":{
+			
 		}
 	}
 }
