@@ -2,20 +2,20 @@
 	<div class="pinedmessages">
 		<div class="content">
 			<div class="title">
-				<p><img src="@/assets/icons/pin.svg" class="icon" />Pined messages</p>
-				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
+				<p><img src="@/assets/icons/pin.svg" class="icon" />{{ $t('pin.title') }}</p>
+				<Button :aria-label="$t('pin.closeBt_aria')" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 			</div>
 
 			<div class="list">
 				<div v-for="m in $store('chat').pinedMessages" :key="m.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
-					<Button aria-label="Highlight message"
+					<Button :aria-label="$t('pin.highlightBt_aria')"
 						:icon="$image('icons/highlight.svg')"
-						data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
+						:data-tooltip="$t('pin.highlightBt_tt')"
 						@click="chatHighlight(m)"
 						:loading="highlightLoading"
 						/>
-					<Button class="deleteBt" small @click="unpin(m)" highlight :icon="$image('icons/delete.svg')" />
+					<Button :aria-label="$t('pin.unpinBt_aria')" class="deleteBt" small @click="unpin(m)" highlight :icon="$image('icons/delete.svg')" />
 				</div>
 			</div>
 		</div>
