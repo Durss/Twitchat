@@ -2,9 +2,20 @@
 	<div class="chatclear" @click.capture.ctrl.stop="copyJSON()"
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<span>Chat room <strong>#{{room}}</strong> cleared&nbsp;</span>
-		<span v-if="messageData.user">by <a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a></span>
-		<span v-if="messageData.fromAutomod">by <strong>automod</strong></span>
+		
+		<i18n-t scope="global" tag="span" keypath="chat.clear.title">
+			<template #ROOM><strong>#{{room}}</strong></template>
+			<template #USER>
+				<i18n-t scope="global" tag="span" v-if="messageData.user" keypath="chat.clear.title_by">
+					<template #USER>
+						<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
+					</template>
+				</i18n-t>
+				<i18n-t scope="global" tag="span" v-else-if="messageData.fromAutomod" keypath="chat.clear.title_by">
+					<template #USER><strong>automod</strong></template>
+				</i18n-t>
+			</template>
+		</i18n-t>
 	</div>
 </template>
 

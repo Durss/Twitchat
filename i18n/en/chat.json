@@ -110,6 +110,10 @@
 		"connect": {
 			"on":"Welcome to the {PLATFORM} chat room {ROOM}",
 			"off":"You have been disconnectd from {PLATFORM} chat"
+		},
+		"clear": {
+			"title":"Chat room {ROOM} cleared{USER}",
+			"title_by":" by {USER}"
 		}
 	}
 }
