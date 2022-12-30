@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<Button class="backBt clearButton" v-if="selectedUser" :icon="$image('icons/back.svg')" @click="selectedUser = null" />
-		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/whispers.svg">Whispers</h1>
+		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/whispers.svg">{{ $t('whispers.title') }}</h1>
 		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
 	
 		<div class="content messages" v-if="selectedUser">
@@ -12,10 +12,14 @@
 				</div>
 			</div>
 
-			<div v-if="error" class="error" @click="error = false">Unable to send whisper.<br>You must be at least affiliate but even if you are Twitch can randomly block whispers sent from outside of Twitch.</div>
+			<div v-if="error" class="error" @click="error = false">
+				{{ $t('whispers.cant_send_1') }}
+				<br>
+				{{ $t('whispers.cant_send_2') }}
+			</div>
 
 			<form @submit.prevent="sendWhisper()">
-				<input type="text" placeholder="answer..." class="dark" v-model="whisper" maxlength="500">
+				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500">
 				<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
 			</form>
 		</div>

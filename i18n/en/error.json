@@ -1,42 +1,44 @@
 {
-	"error": {
-		"irc_reconect": "Authentication failed. Refreshing token and trying again...",
-		"authorization_refused": "You refused access to the Twitch application.",
-		"invalid_credentials": "Invalid credentials",
-		"csrf_failed": "An error occured while generating a CSRF token",
-		"obs_ws_connect": "Unable to connect with OBS. Double check the port and password and make sure you have OBS 28+ or OBS 27 with OBS-websocket plugin (v5)",
-		"twitch_poll_delete": "An error occurred while deleting the poll",
-		"twitch_prediction_delete": "An error occurred while deleting the prediction",
-		"load_user_info": "Unable to load user info: ",
-		"shoutout": "Shoutout failed",
-		"auto_shoutout": "You have not been raided yet",
-		"commercial_start": "An error occured whens tarting the commercial:{DETAILS}",
-		"no_stream": "no stream found",
-		"user_param_missing": "Missing user name param",
-		"user_param_not_found": "User {USER} not found",
-		"delete_message": "You cannot delete this message",
-		"user_profile": "Something went wrong while loading user's profile...",
-		"stream_info_loading": "Error loading current stream info",
-		"stream_info_updating": "Error updating current stream info",
-		"stream_info_preset_edit": "Error editing stream info preset",
-		"poll_active": "A poll is already active",
-		"poll_automod": "Poll contains an automoded term",
-		"ad_url_required": "Message must contain \"twitchat.fr\"",
-		"donor_loading": "An error occured when loading donors list :(",
-		"cmd_missing_api": "This command cannot be used outside of official Twitch chat yet :(",
-		"rewards_loading": "An error occurred while loading your rewards",
-		"obs_scenes_loading": "An error occurred while loading your OBS scenes",
-		"obs_sources_loading": "An error occurred while loading your OBS sources",
-		"room_settings_update": "An error occured when updating room's settings",
-		"mod_message": "Something went wrong when moderating the message...",
-		"spotify": {
-			"api_rate": "[SPOTIFY] API rate limits exceeded",
-			"token_refresh": "[SPOTIFY] token refresh failed"
-		},
-		"deezer": {
-			"auth_failed": "Deezer authentication failed"
-		},
-		"message_send": "Woops... something went wrong when sending the message :(",
-		"username_missing": "Missing user name"
-	}
+  "error": {
+    "irc_reconect": "Authentication failed. Refreshing token and trying again...",
+    "authorization_refused": "You refused access to the Twitch application.",
+    "invalid_credentials": "Invalid credentials",
+    "csrf_failed": "An error occured while generating a CSRF token",
+    "obs_ws_connect": "Unable to connect with OBS. Double check the port and password and make sure you have OBS 28+ or OBS 27 with OBS-websocket plugin (v5)",
+    "twitch_poll_delete": "An error occurred while deleting the poll",
+    "twitch_prediction_delete": "An error occurred while deleting the prediction",
+    "load_user_info": "Unable to load user info: ",
+    "shoutout": "Shoutout failed",
+    "auto_shoutout": "You have not been raided yet",
+    "commercial_start": "An error occured whens tarting the commercial:{DETAILS}",
+    "no_stream": "no stream found",
+    "user_param_missing": "Missing user name param",
+    "user_param_not_found": "User {USER} not found",
+    "delete_message": "You cannot delete this message",
+    "user_profile": "Something went wrong while loading user's profile...",
+    "stream_info_loading": "Error loading current stream info",
+    "stream_info_updating": "Error updating current stream info",
+    "stream_info_preset_edit": "Error editing stream info preset",
+    "poll_active": "A poll is already active",
+    "poll_automod": "Poll contains an automoded term",
+    "ad_url_required": "Message must contain \"twitchat.fr\"",
+    "donor_loading": "An error occured when loading donors list :(",
+    "cmd_missing_api": "This command cannot be used outside of official Twitch chat yet :(",
+    "rewards_loading": "An error occurred while loading your rewards",
+    "obs_scenes_loading": "An error occurred while loading your OBS scenes",
+    "obs_sources_loading": "An error occurred while loading your OBS sources",
+    "room_settings_update": "An error occured when updating room's settings",
+    "mod_message": "Something went wrong when moderating the message...",
+    "spotify": {
+      "api_rate": "[SPOTIFY] API rate limits exceeded",
+      "token_refresh": "[SPOTIFY] token refresh failed"
+    },
+    "deezer": {
+      "auth_failed": "Deezer authentication failed"
+    },
+    "message_send": "Woops... something went wrong when sending the message :(",
+    "username_missing": "Missing user name",
+    "prediction_outcome": "An error occurred while chosing prediction's outcome",
+    "prediction_delete": "An error occurred while deleting the prediction"
+  }
 }

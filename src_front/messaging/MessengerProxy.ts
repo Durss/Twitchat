@@ -369,6 +369,43 @@ export default class MessengerProxy {
 			let duration = this.paramsToDuration(params[0]);
 			StoreProxy.params.greetThemAutoDelete = duration;
 			return true;
+		}else
+
+		if(cmd == "/bingo") {
+			//Open bingo form
+			const payload:TwitchatDataTypes.BingoConfig = {
+				guessNumber: false,
+				guessEmote: false,
+				guessCustom: false,
+				min: 0,
+				max: 100,
+			};
+			if(params[0] == "number") {
+				if(params.length < 3
+				|| parseInt(params[1]).toString() != params[1]
+				|| parseInt(params[2]).toString() != params[2]){
+					StoreProxy.main.alert("Invalid bingo parameters: "+params);
+					return false;
+				}else{
+					payload.guessNumber = true;
+					payload.min = Math.min(parseInt(params[1]), parseInt(params[2]));
+					payload.max = Math.max(parseInt(params[1]), parseInt(params[2]));
+				}
+
+			}else if(params[0] == "emote") {
+				payload.guessEmote = true;
+
+			}else if(params[0] == "custom") {
+				if(params.length < 2) {
+					StoreProxy.main.alert("Invalid bingo parameters: "+params);
+					return false;
+				}
+				payload.guessCustom = true;
+				payload.customValue = params[1];
+			}
+			
+			StoreProxy.bingo.startBingo(payload);
+			return true;
 		}
 		
 		return false;

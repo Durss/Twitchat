@@ -7,7 +7,7 @@
 			:duration="prediction.duration_s*1000"
 			v-if="!prediction.pendingAnswer" />
 		
-		<div class="outcomeTitle" v-if="prediction.pendingAnswer"><span class="arrow">⤺</span> Choose outcome</div>
+		<div class="outcomeTitle" v-if="prediction.pendingAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
 		
 		<div class="choices">
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<div class="item actions">
-			<Button title="Cancel prediction" @click="deletePrediction()" :loading="loading" highlight />
+			<Button :title="$t('prediction.state.cancelBt')" @click="deletePrediction()" :loading="loading" highlight />
 		</div>
 	</div>
 </template>
@@ -97,13 +97,13 @@ export default class PredictionState extends Vue {
 
 	public setOutcome(c:TwitchatDataTypes.MessagePredictionDataOutcome):void {
 		this.loading = true;
-		this.$confirm("\""+c.label+"\" wins?", "Do you confirm this outcome?")
+		this.$confirm(this.$t('prediction.state.outcome_confirm_title', {CHOICE:c.label}), this.$t('prediction.state.outcome_confirm_desc'))
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, c.id);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alertData = "An error occurred while chosing prediction's outcome";
+				this.$store("main").alertData = this.$t('error.prediction_outcome');
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -113,13 +113,13 @@ export default class PredictionState extends Vue {
 
 	public deletePrediction():void {
 		this.loading = true;
-		this.$confirm("Delete Prediction", "Are you sure you want to delete this prediction ? Users will be refund.")
+		this.$confirm(this.$t('prediction.state.delete_title'), this.$t('prediction.state.delete_desc'))
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alertData = "An error occurred while deleting the prediction";
+				this.$store("main").alertData = this.$t('error.prediction_delete');
 			}
 			this.loading = false;
 		}).catch(()=> {

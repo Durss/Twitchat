@@ -132,8 +132,18 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.raffle"),
 			},
 			{
-				id:"bingo",
-				cmd:"/bingo {number|emote}",
+				id:"bingoemote",
+				cmd:"/bingo emote",
+				details:StoreProxy.i18n.t("params.commands.bingo"),
+			},
+			{
+				id:"bingonumber",
+				cmd:"/bingo number {min} {max}",
+				details:StoreProxy.i18n.t("params.commands.bingo"),
+			},
+			{
+				id:"bingocustom",
+				cmd:"/bingo custom {message}",
 				details:StoreProxy.i18n.t("params.commands.bingo"),
 			},
 			{

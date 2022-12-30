@@ -1,10 +1,10 @@
 <template>
 	<div :class="classes">
 		<Button class="backBt clearButton" v-if="selectedUser" :icon="$image('icons/back.svg')" @click="selectedUser = null" />
-		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/magnet.svg">Tracked users</h1>
+		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/magnet.svg">{{ $t('tracked.title') }}</h1>
 		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
 
-		<div class="noMessage" v-if="selectedUser && messages.length == 0">no message</div>
+		<div class="noMessage" v-if="selectedUser && messages.length == 0">{{ $t('tracked.no_message') }}</div>
 
 		<div class="content messages" v-else-if="selectedUser" ref="messageList">
 			<ChatMessage v-for="(m, index) in messages" :key="index"

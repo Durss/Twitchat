@@ -1,6 +1,6 @@
 <template>
 	<div class="rafflestate">
-		<h1 class="title"><img src="@/assets/icons/ticket.svg">Raffle - <span class="cmd highlight">{{raffleData.command}}</span></h1>
+		<h1 class="title"><img src="@/assets/icons/ticket.svg">{{ $t('raffle.state_title') }} <span class="cmd highlight">{{raffleData.command}}</span></h1>
 
 		<ProgressBar class="progress"
 			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
@@ -9,13 +9,20 @@
 
 		<div class="item entries">
 			<img src="@/assets/icons/user.svg" alt="user">
-			<p class="count">{{raffleData.entries?.length}}</p>
-			<p class="max" v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</p>
-			<p>entered</p>
+			<i18n-t scope="global" tag="p" keypath="raffle.state_users">
+				<template #COUNT>
+					<span>{{raffleData.entries?.length}}</span>
+					<span v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</span>
+				</template>
+			</i18n-t>
 		</div>
 
 		<div class="item winners highlight" v-if="raffleData.winners && raffleData.winners.length > 0">
-			<span class="title">Winners <span class="count">({{raffleData.winners.length}})</span> :</span>
+			<i18n-t class="title" scope="global" tag="p" keypath="raffle.state_winners">
+				<template #COUNT>
+					<span class="count">({{raffleData.winners.length}})</span>
+				</template>
+			</i18n-t>
 			<div class="entries">
 				<Button v-for="w in raffleData.winners" :key="w.label" :title="w.label" small @click="openUserCard(w)" />
 			</div>
@@ -23,11 +30,11 @@
 
 		<Button class="item"
 			:icon="$image('icons/ticket_purple.svg')"
-			title="Pick a winner"
+			:title="$t('raffle.state_pickBt')"
 			@click="pickWinner()"
 			white
 			:loading="picking"
-			:disabled="canPick" />
+			v-if="canPick" />
 
 		<PostOnChatParam class="item postChat highlight" botMessageKey="raffle"
 			:title="$t('global.post_winner')"
@@ -35,7 +42,7 @@
 
 		<Button class="item"
 			:icon="$image('icons/cross_white.svg')"
-			title="Stop Raffle"
+			:title="$t('raffle.state_stopBt')"
 			highlight
 			@click="closeRaffle()" />
 	</div>
@@ -74,12 +81,13 @@ export default class RaffleState extends Vue {
 	private wheelOverlayExists = false;
 
 	public get canPick():boolean {
-		return !this.raffleData.entries || this.raffleData.entries.length == 0
-		|| (this.raffleData.winners != undefined && this.raffleData.winners?.length >= this.raffleData.entries.length)
+		return (this.raffleData.entries && this.raffleData.entries.length > 0)
+		 && (this.raffleData.winners == undefined
+		 || this.raffleData.winners?.length < this.raffleData.entries.length)
 	}
 
 	public beforeMount():void {
-		this.winnerPlaceholders	= [{tag:"USER", desc:"User name", example:this.$store("auth").twitch.user.displayName}]
+		this.winnerPlaceholders	= [{tag:"USER", desc:this.$t("raffle.params.username_placeholder"), example:this.$store("auth").twitch.user.displayName}];
 		this.raffleData			= this.$store("raffle").data!;
 		const ellapsed			= Date.now() - new Date(this.raffleData.created_at).getTime();
 		const duration			= this.raffleData.duration_s*60000;
@@ -96,7 +104,7 @@ export default class RaffleState extends Vue {
 	}
 
 	public closeRaffle():void {
-		this.$confirm("Close raffle", "All raffle entries will be lost")
+		this.$confirm(this.$t('raffle.state_close_confirm_title'), this.$t('raffle.state_close_confirm_desc'))
 		.then(async ()=> {
 			this.$store("raffle").stopRaffle();
 			this.$emit("close");
@@ -186,9 +194,6 @@ export default class RaffleState extends Vue {
 			font-style: italic;
 			opacity: .7;
 			font-size: .8em;
-			.count, .max {
-				margin-right: .5em;
-			}
 			img {
 				height: 1em;
 				margin-right: .5em;

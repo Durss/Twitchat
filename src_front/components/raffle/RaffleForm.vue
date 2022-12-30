@@ -332,7 +332,6 @@ export default class RaffleForm extends Vue {
 	}
 
 	public onValueChange():void {
-		console.log("ofkdokfd");
 		if(this.action) {
 			this.action.raffleData = this.finalData;
 		}

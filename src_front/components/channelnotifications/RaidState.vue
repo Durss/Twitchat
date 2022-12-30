@@ -2,12 +2,20 @@
 	<div class="raidstate">
 		<img v-if="user && user.avatarPath" :src="user.avatarPath" alt="avatar" class="avatar">
 		<div>
-			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">Raiding <strong>{{raidInfo.user.displayName}}</strong> with <strong>{{raidInfo.viewerCount}}</strong> viewers<span class="timer">({{timeLeft}}s)</span>
+			<i18n-t scope="global" tag="span" keypath="raid.raiding">
+				<template #USER><strong>{{raidInfo.user.displayName}}</strong></template>
+				<template #VIEWERS><strong>{{raidInfo.viewerCount}}</strong></template>
+				<template #TIMER><span class="timer">({{timeLeft}}s)</span></template>
+			</i18n-t>
 		</div>
 
 		<!-- <Button class="startBt" type="button" :icon="$image('icons/cross_white.svg')" bounce title="Start now" data-tooltip="not possible" /> -->
-		<div class="alert">Twitch provides no API to start the raid before the timer ends sorry you'll have to wait {{timeLeft}}s :(</div>
-		<Button class="cancelBt" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" @click="cancelRaid()" />
+		<div class="alert" v-t="{path:'raid.cant_force', args:{TIMER:timeLeft}}"></div>
+		<Button class="cancelBt" type="button"
+			:icon="$image('icons/cross_white.svg')"
+			bounce highlight
+			:title="$t('global.cancel')"
+			@click="cancelRaid()" />
 
 	</div>
 </template>

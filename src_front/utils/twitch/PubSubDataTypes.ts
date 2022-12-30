@@ -278,7 +278,7 @@ export namespace PubSubDataTypes {
 				};
 			}[];
 			prediction_window_seconds: number;
-			status: "RESOLVE_PENDING" | "RESOLVED" | "LOCKED" | "ACTIVE" | "CANCELED";
+			status: "RESOLVE_PENDING" | "RESOLVED" | "LOCKED" | "ACTIVE" | "CANCEL_PENDING" | "CANCELED";
 			title: string;
 			winning_outcome_id?: string;
 		};

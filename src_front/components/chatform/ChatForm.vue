@@ -512,24 +512,6 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/bingo") {
-			//Open bingo form
-			if(params[0] == "number" || params[0] == "emote") {
-				const payload:TwitchatDataTypes.BingoConfig = {
-					guessNumber: params[0] == "number",
-					guessEmote: params[0] == "emote",
-					guessCustom: false,
-					min: 0,
-					max: 100,
-				};
-				this.$store("bingo").startBingo(payload);
-			}else{
-				event.preventDefault();//avoid auto submit of the opening form
-				this.$emit("bingo");
-			}
-			this.message = "";
-		}else
-
 		if(cmd == "/fake") {
 			this.loading = true;
 			let forcedMessage = params.join(" ");
@@ -663,9 +645,16 @@ export default class ChatForm extends Vue {
 				this.loading = false;
 			}
 			this.message = "";
-		}else
 		
-		{
+		}else{
+			
+			if(cmd == "/bingo") {
+				if(params[0] != "number" && params[0] != "emote" && params[0] != "custom") {
+					event.preventDefault();//avoid auto submit of the opening form
+					this.$emit("bingo");
+				}
+			}
+
 			//Send message
 			try {
 				if(this.$store("main").cypherEnabled) {

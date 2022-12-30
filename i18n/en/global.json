@@ -33,6 +33,7 @@
 		"obs_connect_link":"connect with OBS",
 		"placeholder_selector_title":"Special placeholders dynamically replaced",
 		"placeholder_selector_insert":"Insert",
+		"chat_alert_title":"{USER} says",
 		"badges":{
 			"subscriber":"{DURATION} subscriber",
 			"subgift":"{COUNT} sub-gifts",
