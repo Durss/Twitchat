@@ -3,15 +3,18 @@
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/countdown.svg" alt="icon" class="icon">
-		<div v-if="aborted">
-			<strong>{{messageData.countdown.duration}}</strong> countdown aborted after <strong>{{abortDuration}}</strong> !
-		</div>
-		<div v-else-if="messageData.countdown.endAt">
-			<strong>{{messageData.countdown.duration}}</strong> countdown complete !
-		</div>
-		<div v-else>
-			countdown started for <strong>{{messageData.countdown.duration}}</strong> !
-		</div>
+		<i18n-t scope="global" tag="div" v-if="aborted" keypath="chat.countdown.abort">
+			<template #DURATION><strong>{{messageData.countdown.duration}}</strong></template>
+			<template #ABORT_DURATION><strong>{{abortDuration}}</strong></template>
+		</i18n-t>
+		
+		<i18n-t scope="global" tag="div" v-else-if="messageData.countdown.endAt" keypath="chat.countdown.complete">
+			<template #DURATION><strong>{{messageData.countdown.duration}}</strong></template>
+		</i18n-t>
+		
+		<i18n-t scope="global" tag="div" v-else keypath="chat.countdown.start">
+			<template #DURATION><strong>{{messageData.countdown.duration}}</strong></template>
+		</i18n-t>
 	</div>
 </template>
 

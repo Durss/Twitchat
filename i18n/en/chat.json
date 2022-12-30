@@ -101,6 +101,11 @@
 		},
 		"followbot":{
 			"title":"{COUNT} potential follow bot events"
+		},
+		"countdown":{
+			"start":"Countdown started for {DURATION}",
+			"complete":"{DURATION} countdown complete",
+			"abort":"{DURATION} countdown aborted after {ABORT_DURATION}"
 		}
 	}
 }
