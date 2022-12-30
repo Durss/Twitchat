@@ -1,19 +1,19 @@
 <template>
 	<div class="chatmodtools" @mouseleave="closeToOptions()">
-		<img src="@/assets/icons/ban.svg" alt="ban" data-tooltip="Ban" @click.stop="banUser()">
+		<img src="@/assets/icons/ban.svg" alt="ban" :data-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()">
 		<img src="@/assets/icons/timeout.svg" alt="timeout"
 		@click.stop="openToOptions()"
 		data-tooltip="Timeout">
 		<div class="toOptions" v-if="showToOptions" ref="toOptions" @mouseenter="resetCloseTimeout()">
-			<Button  aria-label="Timeout for 10 seconds" @click.stop="timeoutUser(10)" title="10s" small />
-			<Button  aria-label="Timeout for 2 minutes" @click.stop="timeoutUser(120)" title="2m" small />
-			<Button  aria-label="Timeout for 30 minutes" @click.stop="timeoutUser(1800)" title="30m" small />
-			<Button  aria-label="Timeout for 1 hour" @click.stop="timeoutUser(3600)" title="1h" small />
-			<Button  aria-label="Timeout for 12 hours" @click.stop="timeoutUser(3600*12)" title="12h" small />
-			<Button  aria-label="Timeout for 1 week" @click.stop="timeoutUser(3600*24*7)" title="1w" small />
+			<Button :aria-label="$t('chat.mod_tools.to10_aria')" @click.stop="timeoutUser(10)" :title="$t('chat.mod_tools.to10')" small />
+			<Button :aria-label="$t('chat.mod_tools.to120_aria')" @click.stop="timeoutUser(120)" :title="$t('chat.mod_tools.to120')" small />
+			<Button :aria-label="$t('chat.mod_tools.to30_aria')" @click.stop="timeoutUser(1800)" :title="$t('chat.mod_tools.to30')" small />
+			<Button :aria-label="$t('chat.mod_tools.to3600_aria')" @click.stop="timeoutUser(3600)" :title="$t('chat.mod_tools.to3600')" small />
+			<Button :aria-label="$t('chat.mod_tools.to43200_aria')" @click.stop="timeoutUser(3600*12)" :title="$t('chat.mod_tools.to43200')" small />
+			<Button :aria-label="$t('chat.mod_tools.to1w_aria')" @click.stop="timeoutUser(3600*24*7)" :title="$t('chat.mod_tools.to1w')" small />
 		</div>
-		<img src="@/assets/icons/trash.svg" alt="trash" data-tooltip="Delete" @click.stop="deleteMessage()" v-if="canDelete">
-		<img src="@/assets/icons/block.svg" alt="trash" data-tooltip="Block" @click.stop="blockUser()" v-if="canBlock !== false">
+		<img src="@/assets/icons/trash.svg" alt="trash" :data-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete">
+		<img src="@/assets/icons/block.svg" alt="trash" :data-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false">
 	</div>
 </template>
 
@@ -53,7 +53,7 @@ export default class ChatModTools extends Vue {
 	private closeTimeout = 0;
 
 	public banUser():void {
-		this.$confirm("Ban "+(this.messageData.user.displayName), "Are you sure you want to ban this user ?")
+		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
 			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, "manually banned from Twitchat");
@@ -61,7 +61,7 @@ export default class ChatModTools extends Vue {
 	}
 
 	public blockUser():void {
-		this.$confirm("Block "+(this.messageData.user.displayName), "Are you sure you want to block this user ?<br>They will be removed from your followers.")
+		this.$confirm(this.$t("chat.mod_tools.block_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.block_confirm_desc"))
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
 			TwitchUtils.blockUser(this.messageData.user, this.messageData.channel_id);

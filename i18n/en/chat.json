@@ -213,6 +213,26 @@
         "cancelBt": "Cancel",
         "confirmBt": "Yes close"
       }
+    },
+    "mod_tools": {
+      "to10": "10s",
+      "to10_aria": "Timeout for 10 seconds",
+      "to120": "2m",
+      "to120_aria": "Timeout for 2 minutes",
+      "to30": "30m",
+      "to30_aria": "Timeout for 30 minutes",
+      "to3600": "1h",
+      "to3600_aria": "Timeout for 1 hour",
+      "to43200": "12h",
+      "to43200_aria": "Timeout for 12 hours",
+      "to1w": "1w",
+      "to1w_aria": "Timeout for 1 week",
+      "banBt": "Ban",
+      "blockBt": "Block",
+      "ban_confirm_title": "Ban {USER}",
+      "ban_confirm_desc": "Are you sure you want to ban this user?",
+      "block_confirm_title": "Block {USER}",
+      "block_confirm_desc": "Are you sure you want to block this user?<br>They will be removed from your followers."
     }
   }
 }
