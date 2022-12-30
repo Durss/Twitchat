@@ -233,6 +233,24 @@
       "ban_confirm_desc": "Are you sure you want to ban this user?",
       "block_confirm_title": "Block {USER}",
       "block_confirm_desc": "Are you sure you want to block this user?<br>They will be removed from your followers."
-    }
+    },
+	"custom_badge":{
+		"label":{
+			"pinned":"",
+			"raider":"",
+			"automod":"automod",
+			"whisper":"whisper",
+			"cyphered":"cyphered",
+			"restrictedUser":"restricted",
+			"suspiciousUser":"suspicious",
+			"emergencyBlocked":"blocked"
+		},
+		"tooltip":{
+			"raider":"Raider",
+			"pinned":"Pinned",
+			"restrictedUser":"Message only visible by<br>you and your mods",
+			"suspiciousUser":"User is flaged as suspicious"
+		}
+	}
   }
 }
