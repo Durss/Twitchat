@@ -8,6 +8,7 @@
 		"twitch_poll_delete":"An error occurred while deleting the poll",
 		"twitch_prediction_delete":"An error occurred while deleting the prediction",
 		"load_user_info":"Unable to load user info: ",
+		"shoutout":"Shoutout failed",
 		"auto_shoutout":"You have not been raided yet",
 		"commercial_start":"An error occured whens tarting the commercial:{DETAILS}",
 		"no_stream":"no stream found",

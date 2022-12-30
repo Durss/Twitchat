@@ -62,6 +62,30 @@
 				"ambassador":"Ambassador"
 			}
 		},
+		"highlight":{
+			"stream_info_title":"Last stream infos",
+			"unbanBt":"Unban user",
+			"banBt":"Ban user",
+			"soBt":"Shoutout",
+			"follow":"followed you",
+			"train_cooldown":"Hype train can be started again!",
+			"boosted":"Your channel has been boosted to {COUNT} people",
+			"raid":"is raiding with a party of {COUNT}.",
+			"bits":"sent {BITS} bit | {USER} sent {BITS} bits",
+			"sub":"subscribed at tier {TIER}",
+			"sub_prime":"subscribed with Prime",
+			"resub":"resubscribed at tier {TIER}",
+			"resub_prime":"resubscribed with Prime",
+			"sub_duration":"for {COUNT} month | for {COUNT} months",
+			"sub_streak":"{COUNT} month streak | {COUNT} months streak",
+			"sub_advanced":"for {COUNT} month in advance | for {COUNT} months in advance",
+			"sub_gift":"gifted {COUNT} Tier {TIER} to",
+			"sub_gift_upgrade":"is continuing the Gift Sub they got from {USER}",
+			"reward":"redeemed the reward {TITLE}",
+			"challenge_contrib":"contributed {COUNT}pts{TOTAL} to the challenge {TITLE}",
+			"challenge_contrib_total":"{COUNT}pts total",
+			"autoban":"has been banned by automod after joining the chat as their nickname matches the following rule: \"{RULE}\""
+		},
 		"join_leave":{
 			"join":"joined the chat room {CHANNEL}",
 			"join_aria":"{COUNT} users joined the chat room {CHANNEL}",

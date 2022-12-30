@@ -10,36 +10,49 @@
 		<div class="messageHolder">
 			<span class="reason">
 				<a class="userlink" v-if="user" @click.stop="openUserCard(user!)">{{user.displayName}}</a>
+
 				<span class="text" v-html="reason"></span>
+				
 				<span class="additionalUsers" v-if="additionalUsers?.length > 0"
 					v-for="u, index in additionalUsers" :key="u.id">
 					<a class="userlink" @click.stop="openUserCard(u)">{{u.displayName}}</a>
-					<span v-if="(index == additionalUsers.length-2)">and </span>
+					<span v-if="(index == additionalUsers.length-2)">{{$t("global.and")}} </span>
 					<span v-else-if="index < additionalUsers.length-1">, </span>
 				</span>
 			</span>
+			
 			<div class="info" v-if="info" v-html="info"></div>
+			
 			<div class="message" v-if="messageText" v-html="messageText"></div>
+
 			<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
 
 			<div v-if="streamInfo" class="streamInfo">
-				<div class="head">Last stream infos</div>
+				<div class="head" v-t="'chat.highlight.stream_info_title'"></div>
 				<div class="title">{{streamInfo.title}}</div>
 				<div class="game">{{streamInfo.game_name}}</div>
 			</div>
 
-			<div v-if="streamInfoError" class="streamInfo error">Unable to load last stream info :(</div>
+			<div v-if="streamInfoError" class="streamInfo error" v-t="'error.stream_info_loading'"></div>
 			
 			<div class="ctas" v-if="canUnban ||canBlock || isRaid">
-				<Button highlight v-if="canUnban" :loading="moderating" :icon="$image('icons/mod.svg')" :title="'Unban user'" @click.stop="unbanUser()" />
-				<Button highlight v-if="canBlock" :loading="moderating" :icon="$image('icons/block.svg')" :title="'Block user'" @click.stop="blockUser()" />
+				<Button highlight v-if="canUnban"
+					:loading="moderating"
+					:icon="$image('icons/mod.svg')"
+					:title="$t('chat.highlight.unbanBt')"
+					@click.stop="unbanUser()" />
+
+				<Button highlight v-if="canBlock"
+					:loading="moderating"
+					:icon="$image('icons/block.svg')"
+					:title="$t('chat.highlight.banBt')"
+					@click.stop="blockUser()" />
+
 				<Button v-if="isRaid"
-					aria-label="Send a shoutout"
-					:icon="$image('icons/shoutout.svg')"
 					@click.stop="shoutout()"
+					:title="$t('chat.highlight.soBt')"
+					:icon="$image('icons/shoutout.svg')"
 					:loading="shoutoutLoading"
-					title="Shoutout"
-					data-tooltip="Send a shoutout"
 					class="soButton"
 				/>
 			</div>
@@ -115,25 +128,25 @@ export default class ChatHighlight extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING:
 				this.icon = this.$image('icons/follow.svg');
 				this.user = this.messageData.user;
-				res = `followed your channel!`;
+				res = this.$t("chat.highlight.follow");
 				break;
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 				this.icon = this.$image('icons/train.svg');
-				res = "Hype train can be started again!";
+				res = this.$t("chat.highlight.train_cooldown");
 				break;
 
 			case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
 				this.icon = this.$image('icons/mod.svg');
 				this.user = this.messageData.user;
-				res = "has been banned by automod after joining the chat as their nickname matches the following rule: \"<i>"+this.messageData.rule.label+"</i>\"";
+				res = this.$t("chat.highlight.autoban", {RULE:"<i>"+this.messageData.rule.label+"</i>"});
 				this.canUnban = true;
 				this.canBlock = true;
 				break;
 
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE:
 				this.icon = this.$image('icons/boost.svg');
-				res = `Your channel has been boosted to ${this.messageData.viewers} people`;
+				res = this.$t("chat.highlight.boosted", {COUNT:this.messageData.viewers});
 				break;
 
 			case TwitchatDataTypes.TwitchatMessageType.RAID:
@@ -141,7 +154,7 @@ export default class ChatHighlight extends Vue {
 				this.isRaid = true;
 				this.icon = this.$image('icons/raid.svg');
 				this.user = this.messageData.user;
-				res = `is raiding with a party of ${value}.`;
+				res = this.$t("chat.highlight.raid", {COUNT:value});
 
 				this.loadLastStreamInfos();
 				break;
@@ -149,7 +162,7 @@ export default class ChatHighlight extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.CHEER:
 				value = this.messageData.bits;
 				this.user = this.messageData.user;
-				res = `sent <strong>${value}</strong> bits`;
+				res = this.$tc("chat.highlight.bits", value, {BITS:value});
 				this.icon = this.$image('icons/bits.svg');
 				break;
 
@@ -161,38 +174,48 @@ export default class ChatHighlight extends Vue {
 					this.user = this.messageData.user;
 					if(this.messageData.gift_recipients) {
 						this.additionalUsers = this.messageData.gift_recipients.filter(v=> v.temporary !== true);
-						// const recipientsStr = `<strong>${users.map(v=>v.displayName).join("</strong>, <strong>")}</strong>`;
-						res = `gifted <strong>${(this.messageData.gift_recipients.length)}</strong> Tier ${value} to`;// ${recipientsStr}`;
+						res = this.$t("chat.highlight.sub_gift", {COUNT:"<strong>"+this.messageData.gift_recipients.length+"</strong>", TIER:value});
 					}
 
 				}else if(this.messageData.is_giftUpgrade) {
 					this.icon = this.$image('icons/sub.svg');
 					this.user = this.messageData.user;
-					res = `is continuing the Gift Sub they got from <strong>${this.messageData.gift_upgradeSender!.displayName}</strong>`;
+					res = this.$t("chat.highlight.sub_gift_upgrade", {USER:this.messageData.gift_upgradeSender!.displayName})
 
 				}else{
 					const method = this.messageData.is_resub ? "resubscribed" : "subscribed";
 					this.user = this.messageData.user;
-					if(this.messageData.tier == "prime") {
-						res = `${method} with Prime`;
-						this.icon = this.$image('icons/prime.svg');
+					if(this.messageData.is_resub) {
+						if(this.messageData.tier == "prime") {
+							res = this.$t("chat.highlight.resub_prime")
+						}else{
+							value = this.messageData.tier;
+							res = this.$t("chat.highlight.resub", {TIER:value})
+						}
 					}else{
-						value = this.messageData.tier;
-						res = `${method} at Tier ${value}`;
-						this.icon = this.$image('icons/sub.svg');
+						if(this.messageData.tier == "prime") {
+							res = this.$t("chat.highlight.sub_prime")
+						}else{
+							value = this.messageData.tier;
+							res = this.$t("chat.highlight.sub", {TIER:value})
+						}
 					}
+					this.icon = this.messageData.tier == "prime"? this.$image('icons/prime.svg') : this.$image('icons/sub.svg')
 	
+					let months = 1;
 					if(typeof this.messageData.totalSubDuration === "string") {
-						res += ` for ${this.messageData.totalSubDuration} months`;
-					} else {
-						res += ` for 1 month`;
+						months = parseInt(this.messageData.totalSubDuration);
 					}
+					res += " "+this.$tc("chat.highlight.sub_duration", months, {COUNT:months});
+
 					let extras:string[] = [];
 					if(this.messageData.months > 1) {
-						extras.push(`for ${this.messageData.months} months in advance`);
+						const months = this.messageData.months;
+						extras.push(this.$tc("chat.highlight.sub_advanced", months, {COUNT:months}));
 					}
 					if(typeof this.messageData.streakMonths === "string") {
-						extras.push(`${this.messageData.streakMonths} months streak`);
+						const months = parseInt(this.messageData.streakMonths);
+						extras.push(this.$tc("chat.highlight.sub_streak", months, {COUNT:months}));
 					}
 					if(extras.length) {
 						res += " <i>("+extras.join(" ")+")</i>"
@@ -205,8 +228,7 @@ export default class ChatHighlight extends Vue {
 				this.messageText = "";
 				this.icon = this.$image('icons/channelPoints.svg');
 				this.user = this.messageData.user;
-				res = "";
-				res += ` redeemed the reward <strong>${this.messageData.reward.title}</strong>`;
+				res = this.$t("chat.highlight.reward", {TITLE:`<strong>${this.messageData.reward.title}</strong>`})
 				if(this.messageData.reward.cost > -1) {//It's set to -1 for "highlight my message" reward
 					res += ` <span class='small'>(${this.messageData.reward.cost} pts)</span>`;
 				}
@@ -219,33 +241,20 @@ export default class ChatHighlight extends Vue {
 					this.messageText += this.messageData.message;
 				}
 				
-				let chunks = TwitchUtils.parseEmotesToChunks(this.messageText, "", false, true);
-				let result = "";
-				for (let i = 0; i < chunks.length; i++) {
-					const v = chunks[i];
-					if(v.type == "text") {
-						v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-						result += Utils.parseURLs(v.value);
-					}else if(v.type == "emote") {
-						let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-						url = url.replace(/1x$/gi, "3x");//BTTV format
-						url = url.replace(/2x$/gi, "3x");//7TV format
-						url = url.replace(/1$/gi, "4");//FFZ format
-						let tt = "<img src='"+url+"' width='112' height='112'><br><center>"+v.label+"</center>";
-						result += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
-					}
-					this.messageText = result;
-				}
+				this.messageText = TwitchUtils.parseEmotes(this.messageText, "", false, true);
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
 				this.user = this.messageData.user;
-				res = "Contributed "+this.messageData.contribution+"pts";
+				let total = "";
 				if(this.messageData.contribution != this.messageData.total_contribution) {
-					res += " <i>("+this.messageData.total_contribution+"pts total)</i>";
+					total = " <i>("+this.$t("chat.highlight.challenge_contrib_total", {COUNT:this.messageData.total_contribution})+")</i>";
 				}
-				res += " to the challenge \"<strong>"+this.messageData.challenge.title+"</strong>\"";
+				res = this.$t("chat.highlight.challenge_contrib", {
+						COUNT:`<strong>${this.messageData.contribution}</strong>`, 
+						TOTAL:total, 
+						TITLE:"<strong>"+this.messageData.challenge.title+"</strong>"})
 				this.icon = this.$image('icons/channelPoints.svg');
 				const img = this.messageData.challenge.icon;
 				if(img) this.icon = img.hd ?? img.sd;
@@ -294,7 +303,7 @@ export default class ChatHighlight extends Vue {
 		try {
 			await this.$store("chat").shoutout(this.messageData.user);
 		}catch(error) {
-			this.$store("main").alert("Shoutout failed :(");
+			this.$store("main").alert(this.$t("error.shoutout"));
 			console.log(error);
 		}
 		this.shoutoutLoading = false;
@@ -456,6 +465,7 @@ export default class ChatHighlight extends Vue {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		margin-left: 1em;
 		.values {
 			text-align: right;
 			margin-right: .25em;
