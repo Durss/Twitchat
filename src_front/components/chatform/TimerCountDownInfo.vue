@@ -5,7 +5,7 @@
 		@mouseleave="hoverTimer = false">
 			<img src="@/assets/icons/timer.svg" alt="timer">
 			<div v-if="!hoverTimer">{{timer}}</div>
-			<div v-if="hoverTimer" @click="stopTimer()">STOP</div>
+			<div v-if="hoverTimer" @click="stopTimer()" v-t="'global.stop'"></div>
 		</div>
 
 		<div class="countdown" v-if="$store('timer').countdown"
@@ -13,7 +13,7 @@
 		@mouseleave="hoverCountdown = false">
 			<img src="@/assets/icons/countdown.svg" alt="countdown">
 			<div v-if="!hoverCountdown">{{countdown}}</div>
-			<div v-if="hoverCountdown" @click="stopCountdown()">STOP</div>
+			<div v-if="hoverCountdown" @click="stopCountdown()" v-t="'global.stop'"></div>
 		</div>
 	</div>
 </template>
@@ -88,6 +88,7 @@ export default class TimerCountDownInfo extends Vue {
 		border-radius: 5px;
 		background-color: fade(@mainColor_dark, 50%);
 		font-family: var(--font-roboto);
+		text-transform: uppercase;
 
 		img {
 			height: 1em;

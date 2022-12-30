@@ -60,7 +60,7 @@ export const storeDebug = defineStore('debug', {
 						is_short:false,
 					};
 					const messageList = StoreProxy.chat.messages;
-					if(messageList.length > 0 && Math.random() < .5) {
+					if(messageList.length > 0 && Math.random() < .1) {
 						for (let i = messageList.length-1; i > Math.max(0, messageList.length-50); i--) {
 							const om = messageList[i];
 							if(om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
