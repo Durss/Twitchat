@@ -106,6 +106,10 @@
 			"start":"Countdown started for {DURATION}",
 			"complete":"{DURATION} countdown complete",
 			"abort":"{DURATION} countdown aborted after {ABORT_DURATION}"
+		},
+		"connect": {
+			"on":"Welcome to the {PLATFORM} chat room {ROOM}",
+			"off":"You have been disconnectd from {PLATFORM} chat"
 		}
 	}
 }

@@ -3,8 +3,15 @@
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark_white' : 'cross_alert')+'.svg')" alt="notice" class="icon">
-		<span v-if="messageData.type == 'connect'">Welcome to the <strong>{{messageData.platform}}</strong> chat room <strong>{{channelName}}</strong></span>
-		<span v-else>You have been disconnected from the <strong>{{messageData.platform}}</strong> chat</span>
+		
+		<i18n-t scope="global" tag="span" v-if="messageData.type == 'connect'" keypath="chat.connect.on">
+			<template #PLATFORM><strong>{{messageData.platform}}</strong></template>
+			<template #ROOM><strong>{{channelName}}</strong></template>
+		</i18n-t>
+
+		<i18n-t scope="global" tag="span" v-else keypath="chat.connect.off">
+			<template #PLATFORM><strong>{{messageData.platform}}</strong></template>
+		</i18n-t>
 	</div>
 </template>
 
@@ -45,9 +52,9 @@ export default class ChatConnect extends Vue {
 		if(chan) {
 			this.channelName = " #"+chan.login;
 			if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.CONNECT) {
-				this.message = "Welcome to the "+this.messageData.platform+" chat room "+this.channelName;
+				this.message = this.$t("chat.connect.on", {PLATFORM:this.messageData.platform, ROOM:this.channelName})
 			}else{
-				this.message = "You have been disconnected from the "+this.messageData.platform+" chat";
+				this.message = this.$t("chat.connect.off", {PLATFORM:this.messageData.platform})
 			}
 			this.$store("accessibility").setAriaPolite(this.message);
 		}
