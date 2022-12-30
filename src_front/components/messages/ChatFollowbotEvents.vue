@@ -5,7 +5,7 @@
 			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			<img src="@/assets/icons/shield.svg" class="icon">
 			<img src="@/assets/icons/follow.svg" class="icon">
-			<span class="label">{{messageData?.users.length}} potential follow bot events !</span>
+			<span class="label" v-t="{path:'chat.followbot.title', args:{COUNT:messageData?.users.length}}"></span>
 		</div>
 		<div v-if="expand" class="userList">
 			<div class="user" v-for="u, index in messageData?.users" :key="u.id" @click.stop="openUserCard(u)">
@@ -92,6 +92,7 @@ export default class ChatFollowbotEvents extends Vue {
 		max-height: 20vh;
 		overflow-y: auto;
 		margin-top: .5em;
+		width: 100%;
 		.user {
 			padding: .25em .25em;
 			.login {

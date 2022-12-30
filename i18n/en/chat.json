@@ -98,6 +98,9 @@
 			"summary_level":"level",
 			"filterBt":"Show activities",
 			"filtered_title":"Hype train activities"
+		},
+		"followbot":{
+			"title":"{COUNT} potential follow bot events"
 		}
 	}
 }
