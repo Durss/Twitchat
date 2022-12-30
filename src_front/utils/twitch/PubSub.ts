@@ -973,6 +973,11 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a prediction event occurs (create/update/close)
 	 */
 	private predictionEvent(localObj:PubSubDataTypes.PredictionData):void {
+		if(localObj.event.status === "CANCEL_PENDING") return;
+		if(localObj.event.status === "CANCELED") {
+			StoreProxy.prediction.setPrediction(null);
+			return;
+		}
 		const isComplete = localObj.event.status == "RESOLVED";
 		const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
 		for (let i = 0; i < localObj.event.outcomes.length; i++) {
@@ -1005,7 +1010,7 @@ export default class PubSub extends EventDispatcher {
 
 		StoreProxy.prediction.setPrediction(prediction, isComplete);
 		if(isComplete) {
-			//Clear poll
+			//Clear prediction
 			StoreProxy.prediction.setPrediction(null);
 		}
 	}
