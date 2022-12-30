@@ -2,13 +2,19 @@
 	<div class="chatpollform">
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title">Chat Suggestions</span>
-				<Button aria-label="Close chat poll form" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<span class="title">{{ $t('suggestion.title') }}</span>
+				<Button :aria-label="$t('suggestion.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">
-					<p>Get suggestions from your audience.</p>
-					<p class="example">Ex: <span>{{example}} <strong>user's suggestion</strong></span></p>
+					<p>{{ $t('suggestion.info') }}</p>
+					<div class="example">
+						<span v-t="'global.example'"></span>: 
+						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
+							<template #CMD>{{example}}</template>
+							<template #SUGG><strong>{{$t("suggestion.example_sugg")}}</strong></template>
+						</i18n-t>
+					</div>
 				</div>
 				<form  @submit.prevent="submitChatPoll()">
 					<div class="row">
@@ -28,7 +34,7 @@
 					</ToggleBlock> -->
 
 					<div class="row">
-						<Button title="Submit" type="submit" />
+						<Button :title="$t('global.submit')" type="submit" />
 					</div>
 				</form>
 			</div>
@@ -56,9 +62,9 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class ChatSuggestionForm extends Vue {
 	
-	public command:TwitchatDataTypes.ParameterData = {type:"text", value:"!sugg", label:"Command", placeholder:"!sugg", maxLength:31};
-	public duration:TwitchatDataTypes.ParameterData = {label:"Poll duration (minutes)", value:2, type:"number", min:1, max:30};
-	public multiAnswers:TwitchatDataTypes.ParameterData = {label:"Users can submit multiple entries", value:false, type:"toggle"};
+	public command:TwitchatDataTypes.ParameterData = {label:"", type:"text", value:"!sugg", placeholder:"!sugg", maxLength:31};
+	public duration:TwitchatDataTypes.ParameterData = {label:"", value:2, type:"number", min:1, max:30};
+	public multiAnswers:TwitchatDataTypes.ParameterData = {label:"", value:false, type:"toggle"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -71,6 +77,12 @@ export default class ChatSuggestionForm extends Vue {
 	public get example():string {
 		if(this.command.value) return this.command.value as string;
 		return "!sugg";
+	}
+
+	beforeMount(): void {
+		this.command.label = this.$t("suggestion.command")
+		this.duration.label = this.$t("suggestion.duration")
+		this.multiAnswers.label = this.$t("suggestion.multiAnswers")
 	}
 
 	public async mounted():Promise<void> {
@@ -111,7 +123,7 @@ export default class ChatSuggestionForm extends Vue {
 			.example {
 				margin-top: .5em;
 				font-style: italic;
-				span {
+				:deep(mark) {
 					border: 1px dashed @mainColor_normal;
 					background-color: fade(@mainColor_normal, 15%);
 					padding: 2px;

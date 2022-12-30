@@ -1,0 +1,12 @@
+{
+  "suggestion": {
+    "title": "Chat Suggestions",
+    "closeBt_aria": "Close suggestion form",
+    "info": "Get suggestions from your audience.",
+    "example": "{CMD} {SUGG}",
+    "example_sugg": "user suggestion",
+	"command":"Command",
+	"duration":"Poll duration (minutes)",
+	"multiAnswers":"Users can submit multiple entries"
+  }
+}
