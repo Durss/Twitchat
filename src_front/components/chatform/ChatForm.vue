@@ -2,9 +2,9 @@
 	<div :class="classes">
 		<div class="holder">
 			<div class="leftForm">
-				<Button aria-label="Open parameters" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
-				<Button aria-label="Open chat commands" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button aria-label="Open users list" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" :data-tooltip="onlineUsersTooltip" />
+				<Button :aria-label="$t('chat.form.paramsBt_aria')" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
+				<Button :aria-label="$t('chat.form.cmdsBt_aria')" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
+				<Button :aria-label="$t('chat.form.usersBt_aria')" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" :data-tooltip="onlineUsersTooltip" />
 				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
@@ -16,7 +16,7 @@
 					v-model="message"
 					v-if="!error && !spamming"
 					ref="input"
-					placeholder="message..."
+					:placeholder="$t('chat.form.input_placeholder')"
 					:maxlength="maxLength"
 					@keyup.capture.tab="(e)=>onTab(e)"
 					@keydown.enter="(e:Event)=>sendMessage(e)"
@@ -24,19 +24,19 @@
 
 				<Button class="noClear spam" highlight
 					v-if="spamming"
-					title="Stop spam"
+					:title="$t('chat.form.stop_spamBt')"
 					:icon="$image('icons/cross_white.svg')"
 					@click="stopSpam()" />
 				
-				<span @click="error=false" v-if="error" class="error">Woops... something went wrong when sending the message :(</span>
+				<span @click="error=false" v-if="error" class="error">{{ $t('error.message_send') }}</span>
 				
-				<Button aria-label="Open emotes list"
+				<Button :aria-label="$t('chat.form.emoteBt_aria')"
 					:icon="$image('icons/emote.svg')"
 					bounce 
 					@click="$emit('update:showEmotes',true);" />
 
 				<transition name="blink">
-				<Button aria-label="Open current poll"
+				<Button :aria-label="$t('chat.form.pollBt_aria')"
 					:icon="$image('icons/poll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'poll')"
@@ -44,7 +44,7 @@
 				</transition>
 
 				<transition name="blink">
-				<Button aria-label="Open current chat poll"
+				<Button :aria-label="$t('chat.form.suggBt_aria')"
 					:icon="$image('icons/chatPoll.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'chatpoll')"
@@ -52,7 +52,7 @@
 				</transition>
 
 				<transition name="blink">
-				<Button aria-label="Open current prediction"
+				<Button :aria-label="$t('chat.form.predictionBt_aria')"
 					:icon="$image('icons/prediction.svg')"
 					bounce
 					@click="$emit('setCurrentNotification', 'prediction')"
@@ -60,41 +60,41 @@
 				</transition>
 
 				<transition name="blink">
-				<Button aria-label="Open tracked users"
+				<Button :aria-label="$t('chat.form.trackedBt_aria')"
 					:icon="$image('icons/magnet.svg')"
 					bounce
 					v-if="trackedUserCount > 0"
-					data-tooltip="View tracked users"
+					:data-tooltip="$t('chat.form.trackedBt_aria')"
 					@click="$emit('setCurrentNotification', 'trackedUsers')" />
 				</transition>
 
 				<transition name="blink">
 				<div class="whispers" v-if="$store('raffle').data?.mode == 'chat'">
-					<Button aria-label="Open current raffle"
+					<Button :aria-label="$t('chat.form.raffleBt_aria')"
 						:icon="$image('icons/ticket.svg')"
 						bounce
-						data-tooltip="Raffle"
+						:data-tooltip="$t('chat.form.raffleBt_aria')"
 						@click="$emit('setCurrentNotification', 'raffle')" />
 					<div class="count" v-if="$store('raffle').data!.entries && $store('raffle').data!.entries.length > 0">{{$store('raffle').data?.entries.length}}</div>
 				</div>
 				</transition>
 
 				<transition name="blink">
-				<Button aria-label="Open current bingo"
+				<Button :aria-label="$t('chat.form.bingoBt_aria')"
 					:icon="$image('icons/bingo.svg')"
 					bounce
 					v-if="$store('bingo').data"
-					data-tooltip="Bingo"
+					:data-tooltip="$t('chat.form.bingoBt_aria')"
 					@click="$emit('setCurrentNotification', 'bingo')" />
 				</transition>
 
 				<transition name="blink">
 				<div class="whispers" v-if="whispersAvailable">
-					<Button aria-label="Open whispers"
+					<Button :aria-label="$t('chat.form.whispersBt_aria')"
 						:icon="$image('icons/whispers.svg')"
 						bounce
 						small
-						data-tooltip="Whispers"
+						:data-tooltip="$t('chat.form.whispersBt_aria')"
 						@click="$emit('setCurrentNotification', 'whispers')" />
 					<div class="count" v-if="$store('chat').whispersUnreadCount > 0">{{$store('chat').whispersUnreadCount}}</div>
 				</div>
@@ -102,11 +102,11 @@
 
 				<transition name="blink">
 				<div class="pins" v-if="$store('chat').pinedMessages.length > 0">
-					<Button aria-label="Open pined messages"
+					<Button :aria-label="$t('chat.form.pinsBt_aria')"
 						:icon="$image('icons/pin.svg')"
 						bounce
 						small
-						data-tooltip="Pined messages"
+						:data-tooltip="$t('chat.form.pinsBt_aria')"
 						@click="$emit('pins')" />
 					<div class="count">{{$store('chat').pinedMessages.length}}</div>
 				</div>
@@ -122,20 +122,21 @@
 				</transition>
 
 				<transition name="blink">
-				<Button aria-label="Open deezer player"
+				<Button :aria-label="$t('chat.form.deezerBt_aria')"
 					:icon="$image('icons/deezer.svg')"
 					bounce
 					v-if="$store('music').deezerConnected"
-					data-tooltip="Deezer"
+					:data-tooltip="$t('chat.form.deezerBt_aria')"
 					@click="$emit('setCurrentNotification', 'deezer')" />
 				</transition>
 
 				<transition name="blink">
-				<Button small highlight class="chatHighlight" aria-label="chatHighlight button"
+				<Button :aria-label="$t('chat.form.highlightBt_aria')"
+					class="chatHighlight"
+					bounce small highlight
 					:icon="$image('icons/highlight_del.svg')"
-					bounce
 					v-if="chatHighlightEnabled"
-					data-tooltip="Remove currently<br>highlighted message"
+					:data-tooltip="$t('chat.form.highlightBt_aria')"
 					@click="removeChatHighlight()" />
 				</transition>
 
@@ -147,7 +148,7 @@
 
 				<div v-if="$store('params').appearance.showViewersCount.value === true
 					&& $store('stream').playbackState && $store('stream').playbackState!.viewers > 0"
-					data-tooltip="Viewer count"
+					:data-tooltip="$t('chat.form.viewer_count')"
 					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
@@ -157,16 +158,17 @@
 				</div>
 
 				<transition name="blink">
-				<Button small highlight class="voice" aria-label="start voice bot"
+				<Button small highlight class="voice"
 					:icon="$image('icons/microphone'+(voiceBotStarted? '_recording' : '')+'.svg')"
 					bounce
 					v-if="voiceBotConfigured"
-					:data-tooltip="voiceBotStarted? 'Stop voice bot' : 'Start voice bot'"
+					:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
+					:data-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
 					@click="toggleVoiceBot()" />
 				</transition>
 
 				<transition name="blink">
-				<Button aria-label="Open dev mode options"
+				<Button :aria-label="$t('chat.form.devmodeBt_aria')"
 					:icon="$image('icons/debug.svg')"
 					bounce
 					@click="$emit('update:showDevMenu',true);"
@@ -174,11 +176,12 @@
 				</transition>
 
 				<transition name="blink">
-				<Button small highlight class="noClear emergency" aria-label="emergency button"
+				<Button small highlight class="noClear emergency"
 					v-if="emergencyButtonEnabled"
 					:icon="$image('icons/emergency.svg')"
 					bounce
-					:data-tooltip="$store('emergency').emergencyStarted? 'Stop emergency mode' : 'Start emergency'"
+					:aria-label="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
+					:data-tooltip="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
 					@click="toggleEmergencyMode()" />
 				</transition>
 
@@ -186,26 +189,26 @@
 
 			<div class="floatingButtons">
 				<transition name="slide">
-					<Button small class="muteBt" aria-label="mute text to speech"
+					<Button small class="muteBt" :aria-label="$t('chat.form.muteTTSBt_aria')"
 						:icon="$image('icons/mute.svg')"
 						v-if="$store('tts').speaking"
-						data-tooltip="Stop speaking"
+						:data-tooltip="$t('chat.form.muteTTSBt_aria')"
 						@click="stopTTS(false)" />
 				</transition>
 
 				<transition name="slide">
-					<Button small class="muteBt" aria-label="clear text to speech queue"
+					<Button small class="muteBt" :aria-label="$t('chat.form.clearTTSBt_aria')"
 						:icon="$image('icons/muteAll.svg')"
 						v-if="$store('tts').speaking"
-						data-tooltip="Clear TTS queue"
+						:data-tooltip="$t('chat.form.clearTTSBt_aria')"
 						@click="stopTTS(true)" />
 				</transition>
 
 				<transition name="slide">
-					<Button small class="voicemodBt" aria-label="Reset voice effect"
+					<Button small class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
 						v-if="$store('voice').voicemodParams.voiceIndicator && $store('voice').voicemodCurrentVoice.voiceID != 'nofx'"
 						:icon="'data:image/png;base64,' + $store('voice').voicemodCurrentVoice.image"
-						data-tooltip="Reset voice effect"
+						:data-tooltip="$t('chat.form.resetVoiceBt_aria')"
 						@click="resetVoiceEffect()" />
 				</transition>
 			</div>
@@ -623,7 +626,7 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/userdata" || cmd == "/loaduserdata") {
 			if(params.length == 0) {
-				this.$store("main").alert("Missing user name");
+				this.$store("main").alert(this.$t('error.username_missing'));
 			}else{
 				this.loading = true;
 				let users:TwitchDataTypes.UserInfo[] = [];
@@ -632,7 +635,7 @@ export default class ChatForm extends Vue {
 				}catch(error) {}
 
 				if(users.length == 0) {
-					this.$store("main").alert("User not found");
+					this.$store("main").alert(this.$t("error.user_param_not_found", {USER:params[0]}));
 				}else{
 					const options = {
 						method: "GET",
