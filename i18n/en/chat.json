@@ -234,23 +234,31 @@
       "block_confirm_title": "Block {USER}",
       "block_confirm_desc": "Are you sure you want to block this user?<br>They will be removed from your followers."
     },
-	"custom_badge":{
-		"label":{
-			"pinned":"",
-			"raider":"",
-			"automod":"automod",
-			"whisper":"whisper",
-			"cyphered":"cyphered",
-			"restrictedUser":"restricted",
-			"suspiciousUser":"suspicious",
-			"emergencyBlocked":"blocked"
-		},
-		"tooltip":{
-			"raider":"Raider",
-			"pinned":"Pinned",
-			"restrictedUser":"Message only visible by<br>you and your mods",
-			"suspiciousUser":"User is flaged as suspicious"
-		}
-	}
+    "custom_badge": {
+      "label": {
+        "pinned": "",
+        "raider": "",
+        "automod": "automod",
+        "whisper": "whisper",
+        "cyphered": "cyphered",
+        "restrictedUser": "restricted",
+        "suspiciousUser": "suspicious",
+        "emergencyBlocked": "blocked"
+      },
+      "tooltip": {
+        "raider": "Raider",
+        "pinned": "Pinned",
+        "restrictedUser": "Message only visible by<br>you and your mods",
+        "suspiciousUser": "User is flaged as suspicious"
+      }
+    },
+    "hover_actions": {
+      "track_user": "Track user",
+      "so": "Shoutout user",
+      "tts": "Read message with TTS",
+      "highlight": "Highlight message",
+      "highlight_tt": "Highlight on stream<br><i>(needs overlay)</i>",
+      "pin": "Pin message"
+    }
   }
 }

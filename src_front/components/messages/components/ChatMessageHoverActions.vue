@@ -1,41 +1,41 @@
 <template>
 	<div class="ChatMessageHoverActions">
-		<Button aria-label="Track user"
+		<Button :aria-label="$t('chat.hover_actions.track_user')"
 			bounce
 			:icon="$image('icons/magnet.svg')"
-			data-tooltip="Track user"
+			:data-tooltip="$t('chat.hover_actions.track_user')"
 			@click="toggleTrackUser()"
 			/>
 			
-		<Button aria-label="Shoutout user"
+		<Button :aria-label="$t('chat.hover_actions.so')"
 			bounce
 			:icon="$image('icons/shoutout.svg')"
-			data-tooltip="Shoutout"
+			:data-tooltip="$t('chat.hover_actions.so')"
 			@click="shoutout()"
 			v-show="!isBroadcaster"
 			:loading="shoutoutLoading"
 			/>
 
-		<Button aria-label="Read message with TTS"
+		<Button :aria-label="$t('chat.hover_actions.tts')"
 			:icon="$image('icons/tts.svg')"
-			data-tooltip="TTS"
+			:data-tooltip="$t('chat.hover_actions.tts')"
 			@click="ttsRead()"
 			v-show="ttsEnabled"
 			/>
 
-		<Button aria-label="Highlight message"
+		<Button :aria-label="$t('chat.hover_actions.highlight')"
 			bounce
 			:icon="$image('icons/highlight.svg')"
-			data-tooltip="Highlight on stream<br><i>(needs overlay)</i>"
+			:data-tooltip="$t('chat.hover_actions.highlight_tt')"
 			@click="chatHighlight()"
 			:loading="highlightLoading"
 			v-show="!messageData || !messageData.automod"
 			/>
 
-		<Button aria-label="Pin message"
+		<Button :aria-label="$t('chat.hover_actions.pin')"
 			bounce
 			:icon="$image('icons/pin.svg')"
-			data-tooltip="Pin message"
+			:data-tooltip="$t('chat.hover_actions.pin')"
 			@click="pinMessage()"
 			v-show="!messageData || !messageData.automod"
 			/>
@@ -80,7 +80,7 @@ export default class ChatMessageHoverActions extends Vue {
 		try {
 			await this.$store("chat").shoutout(this.messageData.user);
 		}catch(error) {
-			this.$store("main").alertData = "Shoutout failed :(";
+			this.$store("main").alertData = this.$t("error.shoutout");
 			console.log(error);
 		}
 		this.shoutoutLoading = false;
