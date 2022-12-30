@@ -114,6 +114,9 @@
 		"clear": {
 			"title":"Chat room {ROOM} cleared{USER}",
 			"title_by":" by {USER}"
+		},
+		"bingo":{
+			"title":"{WINNER} won the bingo with answer {ANSWER}"
 		}
 	}
 }
