@@ -3,9 +3,9 @@
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
-			<Button aria-label="Close live users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
+			<Button :aria-label="$t('liveusers.closeBt_aria')" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 
-			<div class="noResult" v-if="!loading && streams?.length == 0">None of the people you follow is streaming :(</div>
+			<div class="noResult" v-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 			
 			<div class="list">
 				<div v-for="s in streams" :key="s.id" class="stream" ref="streamCard" @click="raid(s)">
@@ -54,9 +54,6 @@ export default class LiveFollowings extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-		// gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		// gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-		// gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		this.updateList();
 	}
 
@@ -86,11 +83,7 @@ export default class LiveFollowings extends Vue {
 	}
 
 	public async close():Promise<void> {
-		// gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
-		// gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
-		// gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		// }});
+		this.$emit('close');
 	}
 
 
@@ -107,7 +100,7 @@ export default class LiveFollowings extends Vue {
 	}
 
 	public raid(s:TwitchDataTypes.StreamInfo):void {
-		this.$confirm("Raid ?", "Are you sure you want to raid " + s.user_login + " ?").then(async () => {
+		this.$confirm(this.$t("liveusers.raid_confirm_title"), this.$t('liveusers.raid_confirm_desc', {USER:s.user_login})).then(async () => {
 			TwitchUtils.raidChannel(s.user_login);
 			this.close();
 		}).catch(()=> { });
