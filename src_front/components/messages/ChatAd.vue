@@ -28,7 +28,17 @@
 						<ul>
 							<li v-for="e in entriesMajor">
 								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
-								<Button v-if="e.a" :aria-label="e.a.a ?? ''" small :title="e.a.l" @click.stop="openParamPage(e.a!.p)" />
+
+								<Button v-if="e.a && e.a.param"
+									:aria-label="e.a.a ?? ''" small
+									:title="e.a.l"
+									@click.stop="openSpecificParam(e.a!.param!)" />
+									
+								<Button v-if="e.a && e.a.page"
+									:aria-label="e.a.a ?? ''" small
+									:title="e.a.l"
+									@click.stop="openParamPage(e.a!.page!)" />
+
 								<span v-html="e.l"></span>
 							</li>
 						</ul>
@@ -37,7 +47,17 @@
 						<ul>
 							<li v-for="e in entriesMinor">
 								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
-								<Button v-if="e.a" :aria-label="e.a.a ?? ''" small :title="e.a.l" @click.stop="openParamPage(e.a!.p)" />
+
+								<Button v-if="e.a && e.a.param"
+									:aria-label="e.a.a ?? ''" small
+									:title="e.a.l"
+									@click.stop="openSpecificParam(e.a!.param!)" />
+									
+								<Button v-if="e.a && e.a.page"
+									:aria-label="e.a.a ?? ''" small
+									:title="e.a.l"
+									@click.stop="openParamPage(e.a!.page!)" />
+
 								<span v-html="e.l"></span>
 							</li>
 						</ul>
@@ -46,7 +66,17 @@
 						<ul>
 							<li v-for="e in entriesFixes">
 								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
-								<Button v-if="e.a" :aria-label="e.a.a ?? ''" small :title="e.a.l" @click.stop="openParamPage(e.a!.p)" />
+
+								<Button v-if="e.a && e.a.param"
+									:aria-label="e.a.a ?? ''" small
+									:title="e.a.l"
+									@click.stop="openSpecificParam(e.a!.param!)" />
+									
+								<Button v-if="e.a && e.a.page"
+									:aria-label="e.a.a ?? ''" small
+									:title="e.a.l"
+									@click.stop="openParamPage(e.a!.page!)" />
+
 								<span v-html="e.l"></span>
 							</li>
 						</ul>
@@ -244,18 +274,28 @@ export default class ChatAd extends Vue {
 						this.$tm("changelog.fix") as ChangelogEntry[],
 					];
 		const allowedTypes = Object.values(TwitchatDataTypes.ParamsCategories) as TwitchatDataTypes.ParamsContentStringType[];
+		const sParams = this.$store("params");
+		let allowedParams:string[] = [];
+		allowedParams = allowedParams.concat(Object.keys(this.$store("params").features));
+		allowedParams = allowedParams.concat(Object.keys(this.$store("params").appearance));
 		changelogs.forEach(v=> {
 			if(!Array.isArray(v))return;
 			v.forEach(v=>{
-				if(v.a && v.a.p && !allowedTypes.includes(v.a.p)) {
-					this.$store("main").alert("Invalid parameter type \""+v.a.p+"\" for changelog entry \""+v.l+"\"");
+				if(v.a && v.a.page && !allowedTypes.includes(v.a.page)) {
+					this.$store("main").alert("Invalid parameter page \""+v.a.page+"\" for changelog entry \""+v.l+"\"");
+				}
+				if(v.a && v.a.param) {
+					const chunks:string[] = v.a.param.split(".");
+					//@ts-ignore
+					if(!sParams[chunks[0]]?.[chunks[1]]) {
+						this.$store("main").alert("Invalid parameter value \""+v.a.param+"\" for changelog entry \""+v.l+"\"");
+					}
 				}
 			})
 		})
 	}
 
 	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
-		console.log("OPEN="+page+"=");
 		this.$store("main").tempStoreValue = "CONTENT:"+page;
 		this.$store("main").setShowParams(true);
 	}
@@ -326,7 +366,8 @@ export interface ChangelogEntry {
 	a?:{
 		l:string;//label of the button
 		a?:string;//aria-label value of the button
-		p:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
+		page?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
+		param?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
 	}
 }
 </script>
@@ -544,6 +585,9 @@ export interface ChangelogEntry {
 						margin-right: .5em;
 						vertical-align: bottom;
 						background: @mainColor_normal;
+					}
+					ul {
+						padding-left: 2.5em;
 					}
 				}
 			}

@@ -9,14 +9,14 @@
 		"major": [
 			{
 				"i": "list",
-				"l": "<strong>New message list</strong>. You can now create as many message list as you want and choose which message types display on each with fine granularity"
+				"l": "<strong>New message list</strong>. You can now create as many message lists as you want and choose which message types display on each with very fine granularity"
 			},
 			{
 				"i": "font",
 				"a": {
 					"a": "open appearance params",
 					"l": "try it",
-					"p": "appearance"
+					"param": "appearance.dyslexicFont"
 				},
 				"l": "<strong>Dyslexic-friendly</strong> font added to the parameters"
 			},
@@ -25,7 +25,7 @@
 				"a": {
 					"a": "open features params",
 					"l": "try it",
-					"p": "features"
+					"param": "features.offlineEmoteOnly"
 				},
 				"l": "<strong>Emote-only</strong>: Automatically set your chat on emote-only when stopping your stream"
 			},
@@ -42,7 +42,7 @@
 				"a": {
 					"a": "open emergency button params",
 					"l": "try it",
-					"p": "emergency"
+					"page": "emergency"
 				},
 				"l": "Sync <strong>shield mode</strong> with the emergency button"
 			},
@@ -55,9 +55,9 @@
 				"a": {
 					"a": "open triggers params",
 					"l": "try it",
-					"p": "triggers"
+					"page": "triggers"
 				},
-				"l": "<strong>11 new trigger</strong> events when someone send a \"presentation\", when the hype train can be started again, when giving a shoutout, when given a shoutout, when switching OBS scene, when showing/hiding an OBS source, when pinning or unpinning a message and when starting/stoping the shield mode"
+				"l": "<strong>11 new trigger</strong> events:<ul><li>when someone send a \"presentation\"</li><li>when the hype train can be started again</li><li>when giving a shoutout</li><li>when given a shoutout</li><li>when switching OBS scene</li><li>when showing/hiding an OBS source</li><li>when pinning/unpinning a message</li><li>when starting/stoping the shield mode</li></ul>"
 			},
 			{
 				"i": "commands",
@@ -66,7 +66,9 @@
 		],
 		"minor": [
 			{"l":"All commands can now be used from triggers"},
+			{"l":"1 new trigger action <strong>\"HTTP call\"</strong> for developpers if you want to call anything on any event"},
 			{"l":"User list will show you the <strong>remaining timeout duration</strong> for every timed out users"},
+			{"l":"You can start a <strong>bingo</strong> with any custom value"},
 			{"l":"Messages blocked due to <strong>shared ban info</strong> and waiting for approval will now be displayed"},
 			{"l":"When <strong>follow botted</strong>, all follow events will be merged into 1 single expandable notification"},
 			{"l":"Start <strong>shield mode</strong> from the emergency button"},
@@ -74,7 +76,7 @@
 			{"l":"Possibility to <strong>highlight partners'</strong> messages"},
 			{"l":"BTTV/FFZ/7TV now displayed on emote selectors"},
 			{"l":"Notify users if they try to use a cooling down chat command trigger"},
-			{"l":"When a message is read by TTS, a button shows up to clear the whole TTS queue"},
+			{"l":"When TTS is reading messages, a button shows up to clear the whole TTS queue"},
 			{"l":"<strong>Hype train</strong> summaries now show T1, T2 and T3 subs count seperatly"},
 			{"l":"New <strong>/greetduration</strong> command to change the \"auto delete after\" duration of the greet them section"}
 		],
