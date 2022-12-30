@@ -1,9 +1,9 @@
 {
-  "pin": {
-    "title": "Pined messages",
-    "closeBt_aria": "Close list",
-    "unpinBt_aria": "Unpin message",
-    "highlightBt_tt": "Highlight on stream<br><i>(needs overlay)</i>",
-    "highlightBt_aria": "Highlight message"
-  }
+	"pin": {
+		"title": "Pined messages",
+		"closeBt_aria": "Close list",
+		"unpinBt_aria": "Unpin message",
+		"highlightBt_tt": "Highlight on stream<br><i>(needs overlay)</i>",
+		"highlightBt_aria": "Highlight message"
+	}
 }

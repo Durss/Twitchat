@@ -8,7 +8,9 @@
 			class="closeBt"
 		/>
 		
-		<h1>Search results <span class="count" v-if="messages.length > 0">({{messages.length}})</span></h1>
+		<i18n-t scope="global" tag="h1" keypath="search.title">
+			<template #COUNT><span class="count" v-if="messages.length > 0">({{messages.length}})</span></template>
+		</i18n-t>
 		<div class="messages" v-if="messages.length > 0">
 			<ChatMessage
 				v-for="m in messages"
@@ -23,7 +25,7 @@
 		</div>
 
 		<div class="noResult" v-if="messages.length == 0">
-			No result for search "{{search}}"
+			{{ $t("search.no_result", {SEARCH:search}) }}
 		</div>
 	</div>
 </template>
