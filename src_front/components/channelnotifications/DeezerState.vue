@@ -1,6 +1,6 @@
 <template>
 	<div class="fsdfdsfsdfdsfsd">
-		<h1 class="title"><img src="@/assets/icons/deezer.svg">Deezer</h1>
+		<h1 class="title"><img src="@/assets/icons/deezer.svg">{{ $t("music.state_title") }}</h1>
 
 		<OverlayMusicPlayer class="player" v-if="currentTrack" @seek="(percent:number)=>onSeek(percent)" embed />
 
@@ -28,7 +28,7 @@
 		</div>
 		
 		<div class="form">
-			<input type="text" placeholder="search track..." v-model="search">
+			<input type="text" :placeholder="$t('music.search_track')" v-model="search">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="searching">
 		</div>
 
@@ -41,8 +41,8 @@
 					<span class="duration">{{formatDuration(t.duration)}}</span>
 				</div>
 				<div class="actions">
-					<Button @click="play(t)" :icon="$image('icons/play.svg')" small data-tooltip="Play" />
-					<Button @click="addToQueue(t)" :icon="$image('icons/list.svg')" small data-tooltip="Add to queue" />
+					<Button @click="play(t)" :icon="$image('icons/play.svg')" small :data-tooltip="$t('music.playBt')" />
+					<Button @click="addToQueue(t)" :icon="$image('icons/list.svg')" small :data-tooltip="$t('music.add_queueBt')" />
 				</div>
 			</div>
 		</div>

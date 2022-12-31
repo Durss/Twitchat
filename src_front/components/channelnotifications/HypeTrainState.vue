@@ -4,29 +4,39 @@
 		<div class="content" v-if="trainData.state == 'APPROACHING'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1>{{label}} train Approaching!</h1>
+			<h1 v-if="!boostMode" v-t="'train.hype_approaching'"></h1>
+			<h1 v-else v-t="'train.boost_approaching'"></h1>
+		</div>
+		
+		<div class="content" v-if="trainProgress">
+			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<i18n-t scope="global" tag="h1"
+			:keypath="boostMode?'train.boost_progress':'train.hype_progress'">
+				<template #LEVEL>{{ trainData.level }}</template>
+				<template #PERCENT><span class="percent">{{roundProgressPercent}}%</span></template>
+			</i18n-t>
 		</div>
 		
 		<div class="content" v-if="trainData.state == 'COMPLETED'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>
-				{{label}} train complete<br />
-				<span class="subtitle">Level <strong>{{completeLevel}}</strong> reached</span>
+				<span v-if="!boostMode" v-t="'train.hype_complete'"></span>
+				<span v-else v-t="'train.boost_complete'"></span>
+				<br />
+				<i18n-t scope="global" tag="span" class="subtitle"
+				keypath="train.hype_complete_details">
+					<template #LEVEL><strong>{{completeLevel}}</strong></template>
+				</i18n-t>
 			</h1>
 		</div>
 		
 		<div class="content" v-if="trainData.state == 'EXPIRE'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1>{{label}} train went away...</h1>
-		</div>
-		
-		<div class="content" v-if="trainProgress">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
-			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1>{{label}} train level {{trainData.level}}</h1>
-			<p class="percent">{{roundProgressPercent}}%</p>
+			<h1 v-if="!boostMode" v-t="'train.boost_cancel'"></h1>
+			<h1 v-else v-t="'train.boost_cancel'"></h1>
 		</div>
 
 		<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"
@@ -66,10 +76,6 @@ export default class HypeTrainState extends Vue {
 		return this.trainData.is_boost_train;
 	}
 
-	public get label():string {
-		return this.boostMode? "Boost" : "Hype";
-	}
-
 	public get completeLevel():number {
 		let level = this.trainData.level;
 		if(this.progressPercent < 100) level --;
@@ -96,7 +102,7 @@ export default class HypeTrainState extends Vue {
 	public get styles():StyleValue {
 		if(this.trainProgress) {
 			return {
-				backgroundSize: `${this.progressPercent}% 100%`,
+				backgroundSize: this.progressPercent+" 100%",
 			}
 		}
 		return {};
@@ -178,9 +184,10 @@ export default class HypeTrainState extends Vue {
 			margin-left: 15px;
 		}
 
-		.percent {
+		:deep(.percent) {
 			font-family: var(--font-azeret);
-			font-size: 1.25em;
+			font-size: .7em;
+			vertical-align: middle;
 			margin-left: 15px;
 			background-color: fade(@mainColor_light, 25%);
 			padding: 5px;

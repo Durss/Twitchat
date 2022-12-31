@@ -24,10 +24,10 @@
 				<HypeTrainState class="content" v-if="showHypeTrain" />
 			</transition>
 
-				<Button class="closeBt clearButton" v-if="showClose"
-					aria-label="Close current content"
-					:icon="$image('icons/cross_white.svg')"
-					@click="$emit('close')" />
+			<Button class="closeBt clearButton" v-if="showClose"
+				aria-label="close"
+				:icon="$image('icons/cross_white.svg')"
+				@click="$emit('close')" />
 		</div>
 	</div>
 </template>

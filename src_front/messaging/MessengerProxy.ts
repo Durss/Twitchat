@@ -384,7 +384,7 @@ export default class MessengerProxy {
 				if(params.length < 3
 				|| parseInt(params[1]).toString() != params[1]
 				|| parseInt(params[2]).toString() != params[2]){
-					StoreProxy.main.alert("Invalid bingo parameters: "+params);
+					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo')+params);
 					return false;
 				}else{
 					payload.guessNumber = true;
@@ -397,7 +397,7 @@ export default class MessengerProxy {
 
 			}else if(params[0] == "custom") {
 				if(params.length < 2) {
-					StoreProxy.main.alert("Invalid bingo parameters: "+params);
+					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo')+params);
 					return false;
 				}
 				payload.guessCustom = true;

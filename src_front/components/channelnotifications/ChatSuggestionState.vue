@@ -1,12 +1,12 @@
 <template>
 	<div class="chatsuggstate">
-		<h1 class="title"><img src="@/assets/icons/chatPoll.svg">Chat suggestion - <span class="highlight">{{poll.command}}</span></h1>
+		<h1 class="title"><img src="@/assets/icons/chatPoll.svg">{{ $t('suggestion.state_title') }} <span class="highlight">{{poll.command}}</span></h1>
 
 		<ProgressBar class="progress"
 			:percent="progressPercent"
 			:duration="poll.duration*1000 * 60" />
 		
-		<div class="item">{{entries.length}} suggestions</div>
+		<div class="item">{{ $t('suggestion.state_header', [entries.length]) }}</div>
 		<TransitionGroup name="list" tag="div" ref="list" class="item choices" v-if="entries.length > 0">
 		<div :class="c.selected? 'choice win' : 'choice'" v-for="(c,index) in entries" :key="c.data.id">
 			<img v-if="c.selected" :src="$image('icons/sub'+(index>0?'_purple':'')+'.svg')" alt="star">
@@ -20,14 +20,14 @@
 		<div class="actions">
 			<Button class="item"
 				:icon="$image('icons/chatPoll_purple.svg')"
-				title="Pick a random entry"
+				:title="$t('suggestion.state_pickBt')"
 				@click="pickEntry()"
 				white
 				:disabled="poll.choices.length === 0" />
 
 			<Button class="item"
 				:icon="$image('icons/cross_white.svg')"
-				title="Close chat poll"
+				:title="$t('suggestion.state_closeBt')"
 				highlight
 				@click="closePoll()" />
 		</div>
