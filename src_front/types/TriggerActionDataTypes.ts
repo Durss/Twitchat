@@ -275,6 +275,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
 		{tag:"TITLE", desc:t('triggers.placeholders.stream_title'), pointer:"stream.title"},
 		{tag:"CATEGORY", desc:t('triggers.placeholders.stream_category'), pointer:"stream.category"},
+		{tag:"VIEWERS", desc:t('triggers.placeholders.stream_category'), pointer:"viewers"},
 	];
 	
 	map[TriggerTypes.SHOUTOUT] = [

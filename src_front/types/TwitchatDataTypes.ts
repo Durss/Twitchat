@@ -1162,6 +1162,10 @@ export namespace TwitchatDataTypes {
 		type:"raid";
 		user:TwitchatUser;
 		viewers:number;
+		stream:{
+			title: string;
+			category: string;
+		};
 	}
 
 	/**

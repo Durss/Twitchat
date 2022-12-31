@@ -158,6 +158,7 @@
 			"bits": "Number of bits",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
+			"viewers": "Viewers count",
 			"reward_title": "Reward name",
 			"reward_description": "Reward description",
 			"reward_cost": "Reward cost",

@@ -724,18 +724,24 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 
-	private raided(channel: string, username: string, viewers: number):void {
+	private async raided(channel: string, username: string, viewers: number):Promise<void> {
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserFromLogin(username, channel_id).user;
-		this.dispatchEvent(new MessengerClientEvent("RAID", {
+		const streamInfo = await TwitchUtils.loadChannelInfo([user.id]);
+		const message:TwitchatDataTypes.MessageRaidData = {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.RAID,
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
 			user,
-			viewers
-		}));
+			viewers,
+			stream:{
+				title:streamInfo[0].title,
+				category:streamInfo[0].game_name,
+			}
+		};
+		this.dispatchEvent(new MessengerClientEvent("RAID", message));
 	}
 	
 	private disconnected(reason:string):void {

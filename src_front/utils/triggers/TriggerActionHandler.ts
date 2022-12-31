@@ -471,8 +471,7 @@ export default class TriggerActionHandler {
 						}
 						if(step.mediaPath) {
 							// console.log("MEDIA");
-							let url = await this.parseText(eventType, message, step.mediaPath as string);
-							url = url.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
+							let url = await this.parseText(eventType, message, step.mediaPath as string, false, null, true, true);
 							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 						}
 			
@@ -730,7 +729,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, urlEncode = false, subEvent?:string|null, cleanupRemainingTags:boolean = true):Promise<string> {
+	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, urlEncode = false, subEvent?:string|null, replaceTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
@@ -786,8 +785,12 @@ export default class TriggerActionHandler {
 			if(subEvent && value) {
 				value = value.replace(new RegExp(subEvent, "i"), "").trim();
 			}
+
+			if(removeFolderNavigation) {
+				value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
+			}
 			
-			if(cleanupRemainingTags) {
+			if(replaceTags) {
 				res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
 			}
 		}

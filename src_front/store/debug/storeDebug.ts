@@ -245,7 +245,11 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						user,
-						viewers:Math.round(Math.random() * 1500)
+						viewers:Math.round(Math.random() * 1500),
+						stream:{
+							title: "Hello world",
+							category: "Just chatting",
+						}
 					};
 					data = m;
 					break;
