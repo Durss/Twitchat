@@ -167,8 +167,10 @@ import Ajv from "ajv";
 											properties: {
 												guessNumber: {type:"boolean"},
 												guessEmote: {type:"boolean"},
+												guessCustom: {type:"boolean"},
 												min: {type:"number", minimum:0, maximum:999999999},
 												max: {type:"number", minimum:0, maximum:999999999},
+												custom: {type:"string", maxLength:500},
 											}
 										}
 									}
