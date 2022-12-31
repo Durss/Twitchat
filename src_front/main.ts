@@ -38,13 +38,14 @@ import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import { createI18n } from 'vue-i18n'
+import Config from './utils/Config';
 
 const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin);
 
 let lang: string = navigator.language || (<any>navigator)['userLanguage'];
 lang = lang.substring(0, 2).toLowerCase();
-// lang = "fr";
+if(!Config.instance.IS_PROD) lang = "fr";
 const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',

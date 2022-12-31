@@ -23,7 +23,11 @@
 			<ParamItem class="item" :paramData="param_sound" />
 			<ParamItem class="item" :paramData="param_blink" />
 	
-			<div class="item infos"><span v-t="'alert.actions_triggers'"></span> <a @click="$emit('setContent', contentTriggers)">Triggers</a>.</div>
+			<i18n-t scope="global" tag="div" class="item infos" keypath="alert.actions_triggers">
+				<template #LINK>
+					<a @click="$emit('setContent', contentTriggers)" v-t="'alert.actions_triggers_link'"></a>
+				</template>
+			</i18n-t>
 	
 			<Button :title="$t('alert.testBt')" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
 		</section>

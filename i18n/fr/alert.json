@@ -1,14 +1,15 @@
 {
 	"alert": {
-		"header":"Laissez vos modérateurs vous alerter si quelque chose est urgent",
+		"header":"Laissez vos modérateurs vous alerter en cas d'urgence",
 		"command_title":"Commande de chat",
 		"actions":"Actions",
-		"actions_triggers":"Faire plus d'actions avec le",
+		"actions_triggers":"Faire plus d'actions avec les {LINK}",
+		"actions_triggers_link":"Triggers",
 		"command":"Commande",
 		"option_popin":"Afficher le message en Pop-in",
-		"option_shake":"Secouez Twitchat",
-		"option_blink":"Clignotez Twitchat",
-		"option_sound":"Jouer le son",
-		"testBt":"Test"
+		"option_shake":"Faire trembler Twitchat",
+		"option_blink":"Faire clignoter Twitchat",
+		"option_sound":"Son de wizz",
+		"testBt":"Tester"
 	}
 }

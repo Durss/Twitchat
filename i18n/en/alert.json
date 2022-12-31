@@ -3,12 +3,13 @@
 		"header":"Let your mods alert you if something's urgent",
 		"command_title":"Chat command",
 		"actions":"Actions",
-		"actions_triggers":"Do more actions with the",
+		"actions_triggers":"Do more actions with the {LINK}",
+		"actions_triggers_link":"Triggers system",
 		"command":"Command",
 		"option_popin":"Show message on popin",
 		"option_shake":"Shake Twitchat",
 		"option_blink":"Blink Twitchat",
-		"option_sound":"Play sound",
+		"option_sound":"Play wizz sound",
 		"testBt":"Test"
 	}
 }

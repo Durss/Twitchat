@@ -3,7 +3,7 @@
 		"connection_success":"Connected with OBS",
 		"how_to_title":"Where can i find these values?",
 		"how_to1":"On OBS, open to \"Tools => obs-websocket Settings\".",
-		"how_to2":"You'll probably want to leave the IP to",
+		"how_to2":"You'll probably want to leave the IP to {IP}",
 		"ip_advice":"You may want to set the IP to 127.0.0.1 instead of what OBS shows you",
 		"form_port":"OBS websocket server port",
 		"form_pass":"OBS websocket password",
@@ -30,7 +30,6 @@
 		"scenes_title":"Control scenes",
 		"scenes_empty":"You have no scene on OBS",
 		"scenes_col_name":"OBS Scene",
-		"scenes_col_cmd":"Chat command",
-		"":""
+		"scenes_col_cmd":"Chat command"
 	}
 }

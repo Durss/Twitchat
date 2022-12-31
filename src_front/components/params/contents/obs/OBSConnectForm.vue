@@ -9,7 +9,9 @@
 		
 		<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')" v-if="!connected">
 			<p v-t="'obs.how_to1'"></p>
-			<p class="warn"><span v-t="'obs.how_to2'"></span> <strong>127.0.0.1</strong></p>
+			<i18n-t scope="global" tag="p" class="warn" keypath="obs.how_to2">
+				<template #IP><strong>127.0.0.1</strong></template>
+			</i18n-t>
 			<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
 		</ToggleBlock>
 
