@@ -13,15 +13,18 @@
 
 			<div v-if="!authenticating && newScopes.length > 0" class="newScopes">
 				<img src="@/assets/icons/update.svg" alt="update" class="icon">
-				<div class="title" v-if="newScopes.length > 1" v-t="'login.update_title1'"></div>
-				<div class="title" v-else v-t="'login.update_title1'"></div>
+				<div class="title" v-if="newScopes.length > 0">
+					{{ $tc('login.update_title', newScopes) }}
+				</div>
 				<ul>
 					<li v-for="p in newScopes" :key="p">{{p}}</li>
 				</ul>
 			</div>
 
 			<div class="infos" v-if="!authenticating">
-				<div v-html="$t('login.permissions_title', {count:permissions.length})"></div>
+				<i18n-t scope="global" tag="div" keypath="login.permissions_title">
+					<template #COUNT><strong>{{ permissions.length }}</strong></template>
+				</i18n-t>
 				<Button small :title="$t('login.moreInfo')"
 					class="moreInfoBt"
 					v-if="!showPermissions"

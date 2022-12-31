@@ -10,7 +10,11 @@
 					@leave="onHideItem"
 				>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
-						<p class="label"><span v-t="'global.obs_connect'"></span> <a @click="$emit('setContent', contentObs)" v-t="'global.obs_connect_link'"></a></p>
+						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
+							<template #LINK>
+								<a @click="$emit('setContent', contentObs)" v-t="'global.obs_connect_link'"></a>
+							</template>
+						</i18n-t>
 					</div>
 				
 					<div v-else-if="p.id == 201 && p.value === true" class="info greetThem">

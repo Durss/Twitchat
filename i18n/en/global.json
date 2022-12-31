@@ -29,7 +29,7 @@
 		"copy":"Copy",
 		"stop":"Stop",
 		"loading":"Loading...",
-		"obs_connect":"This feature needs you to",
+		"obs_connect":"This feature needs you to {LINK}",
 		"obs_connect_link":"connect with OBS",
 		"placeholder_selector_title":"Special placeholders dynamically replaced",
 		"placeholder_selector_insert":"Insert",
@@ -93,7 +93,7 @@
 			"user:manage:whispers": "Receive and send whispers",
 			"user:manage:blocked_users": "Block or unblock users",
 
-			"channel_editor": "Start a raid/host",
+			"channel_editor": "Start a raid",
 			"channel:read:redemptions": "Read redemptions",
 			"channel:moderate": "Perform moderation actions",
 			"channel:manage:polls": "Manage polls",
