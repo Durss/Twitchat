@@ -1,0 +1,14 @@
+{
+	"greet":{
+		"title":"Saluez-les",
+		"never":"jamais",
+		"clearBt":"Effacer tous les messages",
+		"clear_confirm_title":"Tout effacer",
+		"clear_confirm_description":"VOuslez-vous effacer tous les messages ?",
+		"auto_scroll_on_aria":"Activer le défilement automatique vers le bas",
+		"auto_scroll_off_aria":"Désactiver le défilement automatique vers le bas",
+		"auto_scroll_down":"Faites défiler automatiquement vers le bas",
+		"auto_scroll_up":"Défilement automatique vers le haut",
+		"auto_delete":"Suppression automatique après"
+	}
+}
