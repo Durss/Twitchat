@@ -558,7 +558,16 @@ export default class ParamsTriggers extends Vue {
 					let m = data
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
 						//Update the fake ID of the reward to the current one
-						m.reward.id = this.currentSubEvent?.value as string;
+						let reward = this.rewards.find(v=>v.id == this.currentSubEvent?.value)!;
+						m.reward.id = reward.id;
+						m.reward.cost = reward.cost;
+						m.reward.description = reward.prompt;
+						m.reward.icon = {
+							sd:reward.image?.url_1x ?? "",
+							hd:reward.image?.url_4x ?? "",
+						};
+
+						m.reward.title = reward.title;
 						m.message = "Lorem ipsum dolor sit amet";
 					}
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE

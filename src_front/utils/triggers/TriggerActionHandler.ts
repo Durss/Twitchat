@@ -114,7 +114,6 @@ export default class TriggerActionHandler {
 
 				if(message.message) {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
-					console.log(cmd);
 					await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, this.currentSpoolGUID, cmd);
 				}
 				
@@ -733,15 +732,15 @@ export default class TriggerActionHandler {
 	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
 
-		console.log("===== PARSE TEXT =====");
-		console.log(eventType);
-		console.log(message);
-		console.log(src);
-		console.log(subEvent);
+		// console.log("===== PARSE TEXT =====");
+		// console.log(eventType);
+		// console.log(message);
+		// console.log(src);
+		// console.log(subEvent);
 
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
-		console.log(helpers);
+		// console.log(helpers);
 		//No placeholders for this event type, just send back the source text
 		if(!helpers) return res;
 		
@@ -788,7 +787,7 @@ export default class TriggerActionHandler {
 				}
 			}
 
-			console.log("Pointer:", h.tag, "=>", h.pointer, "=> value:", value);
+			// console.log("Pointer:", h.tag, "=>", h.pointer, "=> value:", value);
 
 			//Remove command from final text
 			if(typeof value == "string" && subEvent) {
@@ -797,7 +796,6 @@ export default class TriggerActionHandler {
 			}
 		
 			if(typeof value == "string" && removeFolderNavigation) {
-				console.log(res);
 				value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
 			}
 			
@@ -808,7 +806,7 @@ export default class TriggerActionHandler {
 			res = res.replace(/\{[^}]+\}/g, "");
 		}
 		
-		console.log("RESULT = ",res);
+		// console.log("RESULT = ",res);
 		return Utils.stripHTMLTags(res);
 	}
 }

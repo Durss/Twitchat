@@ -199,7 +199,7 @@
 			},
 			"REWARD_REDEEM": {
 				"label": "Channel point reward",
-				"description": "Execute actions when the following channel point reward is redeemed<br><mark>{SUB_ITEM_NAME}</mark>"
+				"description": "Execute actions when the following channel point reward is redeemed<br><mark>{'{'}SUB_ITEM_NAME{'}'}</mark>"
 			},
 			"COMMUNITY_CHALLENGE_PROGRESS": {
 				"label": "Community challenge progress",
@@ -399,15 +399,15 @@
 			},
 			"OBS_SCENE": {
 				"label": "Switch to scene",
-				"description": "Execute actions when switching to <mark>{SUB_ITEM_NAME}</mark> OBS scene"
+				"description": "Execute actions when switching to <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> OBS scene"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source show",
-				"description": "Execute actions when showing <mark>{SUB_ITEM_NAME}</mark> OBS source"
+				"description": "Execute actions when showing <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> OBS source"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source hide",
-				"description": "Execute actions when hiding <mark>{SUB_ITEM_NAME}</mark> OBS source"
+				"description": "Execute actions when hiding <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> OBS source"
 			}
 		},
 
