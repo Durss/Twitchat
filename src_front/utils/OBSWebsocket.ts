@@ -16,11 +16,11 @@ export default class OBSWebsocket extends EventDispatcher {
 
 	private static _instance:OBSWebsocket;
 
-	public connected = false;
+	public connected:boolean = false;
 	
 	private obs!:OBSWebSocket;
 	private reconnectTimeout!:number;
-	private autoReconnect = false;
+	private autoReconnect:boolean = false;
 	
 	constructor() {
 		super();
@@ -37,7 +37,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		return OBSWebsocket._instance;
 	}
 
-	public get obsSocket():OBSWebSocket { return this.obs; }
+	public get socket():OBSWebSocket { return this.obs; }
 	
 	
 	

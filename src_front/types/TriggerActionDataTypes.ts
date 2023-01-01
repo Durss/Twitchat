@@ -206,7 +206,11 @@ export interface ITriggerActionHelper {
 	pointer:string;
 }
 
+let helpersCache:{[key:string]:ITriggerActionHelper[]};
 export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
+	if(helpersCache) {
+		return helpersCache[key];
+	}
 	const t = StoreProxy.i18n.t;
 
 	const map:{[key:string]:ITriggerActionHelper[]} = {}
@@ -398,12 +402,16 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		map[key] = map[key].concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]);
 	}
 
+	helpersCache = map;
 	return map[key] ?? [];
 }
 
+let eventsCache:TriggerEventTypes[];
 export function TriggerEvents():TriggerEventTypes[] {
+	if(eventsCache) return eventsCache;
+
 	const t = StoreProxy.i18n.t;
-	return [
+	eventsCache = [
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", label:t("triggers.events.CHAT_COMMAND.label"), value:TriggerTypes.CHAT_COMMAND, isCategory:true, description:t("triggers.events.CHAT_COMMAND.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", label:t("triggers.events.ANY_MESSAGE.label"), value:TriggerTypes.ANY_MESSAGE, description:t("triggers.events.ANY_MESSAGE.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", label:t("triggers.events.REWARD_REDEEM.label"), value:TriggerTypes.REWARD_REDEEM, isCategory:true, description:t("triggers.events.REWARD_REDEEM.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD, noToggle:true},
@@ -459,7 +467,8 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"list", label:t("triggers.events.OBS_SCENE.label"), value:TriggerTypes.OBS_SCENE, description:t("triggers.events.OBS_SCENE.description"), isCategory:true, noToggle:true},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"show", label:t("triggers.events.OBS_SOURCE_ON.label"), value:TriggerTypes.OBS_SOURCE_ON, description:t("triggers.events.OBS_SOURCE_ON.description"), isCategory:true, noToggle:true},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"hide", label:t("triggers.events.OBS_SOURCE_OFF.label"), value:TriggerTypes.OBS_SOURCE_OFF, description:t("triggers.events.OBS_SOURCE_OFF.description"), isCategory:true, noToggle:true},
-	]
+	];
+	return eventsCache;
 }
 
 export const TriggerMusicTypes = {
@@ -472,15 +481,19 @@ export const TriggerMusicTypes = {
 } as const;
 export type TriggerMusicTypesValue = typeof TriggerMusicTypes[keyof typeof TriggerMusicTypes];
 
+let musicCache:TriggerEventTypes[];
 export function MusicTriggerEvents():TriggerEventTypes[] {
+	if(musicCache) return musicCache;
+
 	const t = StoreProxy.i18n.t;
-	return [
+	musicCache = [
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:t("triggers.musicEvents.ADD_TRACK_TO_QUEUE"), value:TriggerMusicTypes.ADD_TRACK_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:t("triggers.musicEvents.NEXT_TRACK"), value:TriggerMusicTypes.NEXT_TRACK},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:t("triggers.musicEvents.PAUSE_PLAYBACK"), value:TriggerMusicTypes.PAUSE_PLAYBACK},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:t("triggers.musicEvents.RESUME_PLAYBACK"), value:TriggerMusicTypes.RESUME_PLAYBACK},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", label:t("triggers.musicEvents.START_PLAYLIST"), value:TriggerMusicTypes.START_PLAYLIST},
-	]
+	];
+	return musicCache;
 }
 
 export const TriggerScheduleTypes = {
@@ -488,10 +501,14 @@ export const TriggerScheduleTypes = {
 	SPECIFIC_DATES:"2",
 } as const;
 
+let scheduleCache:TriggerEventTypes[];
 export function ScheduleTriggerEvents():TriggerEventTypes[] {
+	if(scheduleCache) return scheduleCache;
+
 	const t = StoreProxy.i18n.t;
-	return [
+	scheduleCache = [
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", label:t("triggers.scheduleEvents.REGULAR_REPEAT"), value:TriggerScheduleTypes.REGULAR_REPEAT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", label:t("triggers.scheduleEvents.SPECIFIC_DATES"), value:TriggerScheduleTypes.SPECIFIC_DATES},
-	]
+	];
+	return scheduleCache;
 }

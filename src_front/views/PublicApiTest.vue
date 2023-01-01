@@ -141,7 +141,7 @@ export default class PublicApiTest extends Vue {
 
 	private initAPI():void {
 		//@ts-ignore
-		OBSWebsocket.instance.obsSocket.on("CustomEvent",
+		OBSWebsocket.instance.socket.on("CustomEvent",
 		(e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;

@@ -45,7 +45,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 		ParamItem,
 		ToggleBlock,
 	},
-	emits:['onConnect','onDisconnect'],
+	emits:[],
 })
 export default class OBSConnectForm extends Vue {
 
@@ -82,7 +82,6 @@ export default class OBSConnectForm extends Vue {
 		watch(()=> this.obsIP_conf.value, () => { this.paramUpdate(); })
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			this.connected = OBSWebsocket.instance.connected;
-			if(!this.connected) this.$emit("onDisconnect");
 		});
 	}
 
@@ -106,7 +105,6 @@ export default class OBSConnectForm extends Vue {
 			this.connectSuccess = true;
 			setTimeout(()=> {
 				this.connectSuccess = false;
-				this.$emit("onConnect");
 			}, 3000);
 		}else{
 			this.connectError = true;
@@ -116,7 +114,6 @@ export default class OBSConnectForm extends Vue {
 
 	public async disconnect():Promise<void> {
 		OBSWebsocket.instance.disconnect();
-		this.$emit("onDisconnect");
 	}
 
 	/**

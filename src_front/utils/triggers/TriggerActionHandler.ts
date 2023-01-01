@@ -114,6 +114,7 @@ export default class TriggerActionHandler {
 
 				if(message.message) {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
+					console.log(cmd);
 					await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, this.currentSpoolGUID, cmd);
 				}
 				
@@ -459,19 +460,19 @@ export default class TriggerActionHandler {
 					if(step.type == "obs") {
 						if(step.text) {
 							// console.log("TEXT");
-							const text = await this.parseText(eventType, message, step.text as string);
+							const text = await this.parseText(eventType, message, step.text as string, subEvent);
 							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 						}
 						if(step.url) {
 							//Last param of the parseText() forces urlEncode of the placeholder values to
 							//avoid URL injections.
-							const url = await this.parseText(eventType, message, step.url as string, true);
+							const url = await this.parseText(eventType, message, step.url as string, subEvent);
 							// console.log("URL", url);
 							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 						}
 						if(step.mediaPath) {
 							// console.log("MEDIA");
-							let url = await this.parseText(eventType, message, step.mediaPath as string, false, null, true, true);
+							let url = await this.parseText(eventType, message, step.mediaPath as string, subEvent, true, true);
 							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 						}
 			
@@ -493,7 +494,7 @@ export default class TriggerActionHandler {
 					//Handle Chat action
 					if(step.type == "chat") {
 						// console.log("CHAT ACTION");
-						const text = await this.parseText(eventType, message, step.text as string, false, subEvent);
+						const text = await this.parseText(eventType, message, step.text as string, subEvent);
 						const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 						if(message.platform != "twitchat") platforms.push(message.platform);
 						// console.log(platforms, text);
@@ -506,7 +507,7 @@ export default class TriggerActionHandler {
 					//Handle highlight action
 					if(step.type == "highlight") {
 						if(step.show) {
-							let text = await this.parseText(eventType, message, step.text as string, false, subEvent, true);
+							let text = await this.parseText(eventType, message, step.text as string, subEvent, true);
 							//Remove command name from message
 							if(subEvent) text = text.replace(subEvent, "").trim();
 							let info:TwitchatDataTypes.ChatHighlightInfo = {
@@ -524,7 +525,7 @@ export default class TriggerActionHandler {
 					
 					//Handle TTS action
 					if(step.type == "tts" && message) {
-						let text = await this.parseText(eventType, message, step.text);
+						let text = await this.parseText(eventType, message, step.text, subEvent);
 						TTSUtils.instance.readNext(text, ttsID ?? eventType);
 					}else
 					
@@ -564,7 +565,7 @@ export default class TriggerActionHandler {
 						const url = new URL(step.url);
 						for (let i = 0; i < step.queryParams.length; i++) {
 							const tag = step.queryParams[i];
-							const text = await this.parseText(eventType, message, "{"+tag+"}");
+							const text = await this.parseText(eventType, message, "{"+tag+"}", subEvent);
 							url.searchParams.append(tag.toLowerCase(), text);
 						}
 						try {
@@ -579,7 +580,7 @@ export default class TriggerActionHandler {
 						//Adding a track to the queue
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 							//Convert placeholders if any
-							const m = await this.parseText(eventType, message, step.track);
+							const m = await this.parseText(eventType, message, step.track, subEvent);
 							let data:TwitchatDataTypes.MusicTrackData|null = null;
 							if(Config.instance.SPOTIFY_CONNECTED) {
 								let track:SearchTrackItem|null = null;
@@ -647,9 +648,9 @@ export default class TriggerActionHandler {
 										user:messageLoc.user,
 									}
 									//First pass to inject track info
-									let chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, false, subEvent, false);
+									let chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, subEvent, false);
 									//Second pass to inject trigger specifics
-									chatMessage = await this.parseText(eventType, message, chatMessage, false, subEvent);
+									chatMessage = await this.parseText(eventType, message, chatMessage, subEvent);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 							}
@@ -685,7 +686,7 @@ export default class TriggerActionHandler {
 						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 							let m:string = step.playlist;
 							if(message.type == "message") {
-								m = await this.parseText(eventType, message, m);
+								m = await this.parseText(eventType, message, m, subEvent);
 							}
 							if(Config.instance.SPOTIFY_CONNECTED) {
 								let id:string|null = null;
@@ -729,10 +730,18 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, urlEncode = false, subEvent?:string|null, replaceTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
+	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
+
+		console.log("===== PARSE TEXT =====");
+		console.log(eventType);
+		console.log(message);
+		console.log(src);
+		console.log(subEvent);
+
 		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 		const helpers = TriggerActionHelpers(eventType);
+		console.log(helpers);
 		//No placeholders for this event type, just send back the source text
 		if(!helpers) return res;
 		
@@ -741,6 +750,8 @@ export default class TriggerActionHandler {
 			const chunks:string[] = h.pointer.split(".");
 			let root = message as unknown;
 			let value:string = "";
+			h.tag = h.tag.toUpperCase();
+
 			try {
 				//Dynamically search for the requested prop's value within the object
 				for (let i = 0; i < chunks.length; i++) {
@@ -762,7 +773,7 @@ export default class TriggerActionHandler {
 				//If the placeholder requests for the current track and we're ending up here
 				//this means that the message does not contain the actual track.
 				//In this case we go get the currently playing track
-				if(h.tag.indexOf("CURRENT_TRACK") == 0) {
+				if(h.tag.indexOf("current_track") == 0) {
 					//That replace() is dirty but I'm too lazy to do that in a more generic way :(
 					const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
 					if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
@@ -777,23 +788,27 @@ export default class TriggerActionHandler {
 				}
 			}
 
-			// console.log("Pointer:", h, "_ value:", value);
-			
-			h.tag = h.tag.toUpperCase();
+			console.log("Pointer:", h.tag, "=>", h.pointer, "=> value:", value);
 
 			//Remove command from final text
-			if(subEvent && value) {
+			if(typeof value == "string" && subEvent) {
+				subEvent = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 				value = value.replace(new RegExp(subEvent, "i"), "").trim();
 			}
-
-			if(removeFolderNavigation) {
+		
+			if(typeof value == "string" && removeFolderNavigation) {
+				console.log(res);
 				value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
 			}
 			
-			if(replaceTags) {
-				res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
-			}
+			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
 		}
+
+		if(removeRemainingTags) {
+			res = res.replace(/\{[^}]+\}/g, "");
+		}
+		
+		console.log("RESULT = ",res);
 		return Utils.stripHTMLTags(res);
 	}
 }

@@ -38,7 +38,7 @@
 					<div>
 						<p v-t="'login.permissions.head1'"></p>
 						<p v-t="'login.permissions.head2'"></p>
-						<p v-t="'login.permissions.head3'" class="spacer"></p>
+						<p v-t="'login.permissions.head3'" class="listTitle"></p>
 					</div>
 					<ul>
 						<li v-for="p in permissions" :key="p">{{p}}</li>
@@ -280,10 +280,11 @@ export default class Login extends Vue {
 				text-align: left;
 				color: @mainColor_warn;
 				font-size: .9em;
-				max-height: 150px;
+				max-height: 200px;
 				overflow-y: auto;
-				.spacer {
+				.listTitle {
 					margin-top: 1em;
+					font-weight: bold;
 				}
 			}
 		}
@@ -326,11 +327,12 @@ export default class Login extends Vue {
 	}
 
 	ul {
-		width: 200px;
+		// width: 300px;
 		margin: auto;
-		margin-top: 10px;
+		margin-top: .5em;
 		list-style: inside;
 		li {
+			margin-top: .25em;
 			text-align: left;
 			padding-left: 0;
 			font-size: .9em;

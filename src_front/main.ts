@@ -45,7 +45,7 @@ gsap.registerPlugin(ScrollToPlugin);
 
 let lang: string = navigator.language || (<any>navigator)['userLanguage'];
 lang = lang.substring(0, 2).toLowerCase();
-if(!Config.instance.IS_PROD) lang = "fr";
+// if(!Config.instance.IS_PROD) lang = "fr";
 const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',

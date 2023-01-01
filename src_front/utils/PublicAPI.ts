@@ -92,15 +92,15 @@ export default class PublicAPI extends EventDispatcher {
 	*******************/
 	private listenOBS():void {
 		//OBS api not ready yet, wait for it
-		if(!OBSWebsocket.instance.obsSocket) {
-			watch(()=>OBSWebsocket.instance.obsSocket, ()=> {
+		if(!OBSWebsocket.instance.socket) {
+			watch(()=>OBSWebsocket.instance.socket, ()=> {
 				this.listenOBS();
 			});
 			return;
 		}
 		
 		//@ts-ignore
-		OBSWebsocket.instance.obsSocket.on("CustomEvent",
+		OBSWebsocket.instance.socket.on("CustomEvent",
 		(e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;

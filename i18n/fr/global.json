@@ -88,13 +88,13 @@
 			"whispers:read": "Recevoir des chuchottements",
 
 			"user:read:blocked_users": "Lister les personnes bloquées",
-			"user:read:follows": "Lister vos followings en live",
+			"user:read:follows": "Savoir qui est en stream dans vos follows",
 			"user:read:subscriptions": "Vérifier si une personne est abonnée à vous",
 			"user:manage:whispers": "Envoyer des chuchottements",
 			"user:manage:blocked_users": "Bloquer/débloquer des personnnes",
 
-			"channel:read:redemptions": "Lire vos récompenses de points de chaîne",
-			"channel:moderate": "Effectuer des actions de modération",
+			"channel:read:redemptions": "Lister vos récompenses de points de chaîne",
+			"channel:moderate": "Savoir quand une action de modération est effectuée",
 			"channel:manage:polls": "Gérer les sondages",
 			"channel:manage:predictions": "Gérer les prédictions",
 			"channel:manage:broadcast": "Mettre à jour vos infos de stream",
@@ -104,29 +104,29 @@
 			"channel:manage:raids": "Lancer un raid",
 			"channel:read:hype_train": "Lire l'état du train de la hype",
 			"channel:edit:commercial": "Lancer une pub",
-			"channel:read:goals": "Lire les objectifs (follow/sub)",
+			"channel:read:goals": "Lister les objectifs (follow/sub)",
 			"channel:read:subscriptions": "Lister vos abonné·es",
 
 			"moderation:read": "Lister vos moderateur·ices",
-			"moderator:read:blocked_terms": "Lire vos banwords",
+			"moderator:read:blocked_terms": "Lister vos banwords",
 			"moderator:read:chat_settings": "Lire les paramètres (follow only, sub only, etc...)",
 			"moderator:manage:automod": "Gérer les messages retenus par l'automod",
 			"moderator:manage:blocked_terms": "Gérer les banwords",
 			"moderator:manage:banned_users": "Gérer les personnes bannies",
 			"moderator:manage:announcements": "Utiliser la commande /announce",
 			"moderator:manage:chat_messages": "Supprimer des messages",
-			"moderator:manage:chat_settings": "Modifier les paramètres de chat (follow only, sub only, etc...)",
-			"moderator:read:chatters": "Read users on your chatroom",
+			"moderator:manage:chat_settings": "Passer en follow only, sub only, etc...",
+			"moderator:read:chatters": "List users on your chatroom",
 			"moderator:manage:shield_mode": "Enable/disable shield mode"
 		},
 		"permissions": {
-			"broadcaster":"Broadcaster",
-			"mods":"Moderators",
+			"broadcaster":"Diffuseur",
+			"mods":"Modos",
 			"vips":"VIPs",
-			"subs":"Subscribers",
-			"all":"Everyone",
-			"users":"Specific users",
-			"nobody":"Nobody is allowed by the current selection"
+			"subs":"Abonné·es",
+			"all":"Tout le monde",
+			"users":"Personnes spécifiques",
+			"nobody":"Personne n'est autorisé par la sélection actuelle"
 		}
 	}
 }
