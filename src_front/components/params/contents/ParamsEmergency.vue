@@ -11,7 +11,7 @@
 				<Splitter class="item splitter">{{ $t("emergency.start.title") }}</Splitter>
 				<ParamItem class="item" :paramData="param_autoEnableOnShieldmode" />
 				<ParamItem class="item" :paramData="param_autoEnableOnFollowbot" />
-				<div class="item">
+				<div class="item chatCommand">
 					<ParamItem :paramData="param_chatCommand" />
 					<ToggleBlock :title="$t('emergency.start.chatCommand_users')" :open="false" small class="item">
 						<PermissionsForm v-model="chatCommandPerms" />
@@ -19,7 +19,11 @@
 				</div>
 				<div class="item label">
 					<img src="@/assets/icons/mod_purple.svg" alt="scene icon" class="icon">
-					<p><span v-t="'emergency.start.also'"></span> <a @click="$emit('setContent', contentAutomod)" v-t="'emergency.start.also_link'"></a></p>
+					<i18n-t scope="global" class="label" tag="p" keypath="emergency.start.also">
+						<template #LINK>
+							<a @click="$emit('setContent', contentAutomod)" v-t="'emergency.start.also_link'"></a>
+						</template>
+					</i18n-t>
 				</div>
 				<div class="item infos" v-t="'emergency.start.followbot_info'"></div>
 			</section>
@@ -39,7 +43,11 @@
 				<div class="item" v-if="!obsConnected">
 					<div class="warn">
 						<img src="@/assets/icons/infos.svg" alt="info">
-						<p class="label"><a @click="$emit('setContent', contentObs)" v-t="'emergency.actions.obs_connect_link'"></a> <span v-html="$t('emergency.actions.obs_connect')"></span></p>
+						<i18n-t scope="global" class="label" tag="p" keypath="emergency.actions.obs_connect">
+							<template #LINK>
+								<a @click="$emit('setContent', contentObs)" v-t="'emergency.actions.obs_connect_link'"></a>
+							</template>
+						</i18n-t>
 					</div>
 				</div>
 				
@@ -167,7 +175,6 @@ export default class ParamsEmergency extends Vue {
 		this.param_enable.label						= this.$t("global.enabled");
 		this.param_enableShieldMode.label			= this.$t("emergency.params.shieldmode");
 		this.param_chatCommand.label				= this.$t("emergency.params.chatCommand");
-		this.param_obsScene.label					= this.$t("emergency.params.obsScene");
 		this.param_autoEnableOnFollowbot.label		= this.$t("emergency.params.autoEnableOnFollowbot");
 		this.param_autoEnableOnFollowbot.tooltip	= this.$t("emergency.params.autoEnableOnFollowbot_tt");
 		this.param_autoEnableOnShieldmode.label		= this.$t("emergency.params.autoEnableOnShieldmode");
@@ -327,6 +334,12 @@ export default class ParamsEmergency extends Vue {
 						input {
 							flex-basis: 100px;
 						}
+					}
+				}
+
+				&.chatCommand {
+					:deep(input) {
+						flex-basis:150px;
 					}
 				}
 

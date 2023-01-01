@@ -7,14 +7,14 @@
 		"start": {
 			"title":"Start condition",
 			"chatCommand_users":"Users allowed to use chat command",
-			"also":"You can also start it from",
+			"also":"You can also start it from {LINK}",
 			"also_link":"automod rule",
 			"followbot_info":"After the emergency is stopped you'll get a list of all the users who followed you during the emergency."
 		},
 		"actions": {
 			"title":"Actions",
+			"obs_connect":"{LINK} to switch to a specific scene and hide sources (ex: alerts)",
 			"obs_connect_link":"Connect with OBS",
-			"obs_connect":"to switch to a specific scene and hide sources <i>(ex: alerts)</i>",
 			"obs_scene":"Switch OBS to the following scene",
 			"obs_scene_select":"Select a scene...",
 			"obs_sources":"Hide following OBS sources",
@@ -23,8 +23,7 @@
 		},
 		"params": {
 			"shieldmode": "Enable Twitch shield mode",
-			"chatCommand":"Chat command",
-			"obsScene":"Switch to scene",
+			"chatCommand":"Chat command",
 			"autoEnableOnFollowbot":"Automatically start on followbot raid",
 			"autoEnableOnFollowbot_tt":"A raid is detected when receiving<br>30 follow events with less than<br>0,5s between each follow",
 			"autoEnableOnShieldmode":"Sync with Twitch's shield mode",

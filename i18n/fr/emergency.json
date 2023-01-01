@@ -1,0 +1,42 @@
+{
+	"emergency":{
+		"header":"Effectuez des actions automatiques pour vous protéger en cas de raid haineux, doxxing ou tout comportement toxique.",
+		"enable_confirm":"Activer le mode urgence ?",
+		"enabled":"Mode urgence activé",
+		"disabled":"Mode urgence désactivé",
+		"start": {
+			"title":"Condition de déclenchement",
+			"chatCommand_users":"Personnes autorisées à utiliser la commande",
+			"also":"Vous pouvez aussi le déclencher depuis une {LINK}",
+			"also_link":"règle d'automod",
+			"followbot_info":"Une fois le mode urgence terminé, vous aurez un récapitulatif de toutes les personnes vous ayant suivi durant l'urgence."
+		},
+		"actions": {
+			"title":"Actions",
+			"obs_connect":"{LINK} pour changer de scène ou masquer des sources (ex: vos alertes)",
+			"obs_connect_link":"Liez OBS",
+			"obs_scene":"Changer de scène OBS",
+			"obs_scene_select":"Selectionnez une scène...",
+			"obs_sources":"Masquer les sources OBS",
+			"obs_sources_example":"(ex: alertes streamelements)",
+			"obs_sources_select":"Sélectionnez 1 ou plusieurs sources..."
+		},
+		"params": {
+			"shieldmode": "Activer le mode bouclier Twitch",
+			"chatCommand":"Commande de chat",
+			"autoEnableOnFollowbot":"Activer en cas de raid de followbot",
+			"autoEnableOnFollowbot_tt":"Un raid est détecté si<br>30 follows ont lieu avec moins<br>de 0,5s entre chaque",
+			"autoEnableOnShieldmode":"Synchroniser avec le mode bouclier",
+			"autoEnableOnShieldmode_tt":"Activer/Désactiver le mode bouclier<br>activera/désactivera le mode urgence",
+			"slowMode": "Mode lent",
+			"slowModeDuration": "Cooldown (secondes)",
+			"followersOnly": "Followers only",
+			"followersOnlyDuration": "Doit vous suivre depuis (minutes)",
+			"subsOnly": "Subs only",
+			"emotesOnly": "Emotes only",
+			"autoTO": "Timeout pour 30min (ex: wizebot, streamelements, etc si vous souhatiez les empêcher d'annoncer les nouveaux follow dans le tchat)",
+			"autoTO_placeholder": "login1, login2, login3, ...",
+			"noTrigger": "Désactiver les triggers Twitchat (follow, subs, bits, raid)"
+		}
+	}
+}
