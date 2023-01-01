@@ -68,7 +68,7 @@ export default class ParamsAccount extends Vue {
 	public publicDonation = false;
 	public publicDonation_loaded = false;
 
-	public get canInstall():boolean { return this.$store("main").ahsInstaller != null || true; }
+	public get canInstall():boolean { return this.$store("main").ahsInstaller != null; }
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
