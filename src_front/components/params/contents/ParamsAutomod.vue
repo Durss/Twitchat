@@ -30,7 +30,7 @@
 						</template>
 						<ParamItem class="item sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" :data-tooltip="$t('automod.rule.sync_tt')" />
 							<ParamItem class="item emergency" :paramData="param_ruleEmergency[f.id]" v-model="f.emergency" :data-tooltip="$t('automod.rule.emergency_tt')" />
-						<ParamItem class="item onlyFirst" :paramData="param_ruleOnlyFirst[f.id]" v-model="f.firstTimeChatters" data-tooltip="$t('automod.rule.firstTime_tt')" />
+						<ParamItem class="item onlyFirst" :paramData="param_ruleOnlyFirst[f.id]" v-model="f.firstTimeChatters" :data-tooltip="$t('automod.rule.firstTime_tt')" />
 						<ParamItem class="item ruleName" :paramData="param_ruleLabel[f.id]" v-model="f.label" />
 						<ParamItem class="item rule" :paramData="param_ruleRegex[f.id]" v-model="f.regex" :error="keywordToValid[f.id] === false" @change="onRegexChange(f)" />
 						<div class="regError" v-if="keywordToValid[f.id] === false" v-t="'automod.rule.invalid_rule'"></div>

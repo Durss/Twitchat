@@ -22,7 +22,7 @@
 						<Button :title="$t('bingo.title_custom')" bounce
 							:selected="guessCustom"
 							@click="guessNumber = false; guessEmote = false; guessCustom = true; onValueChange();"
-							:icon="$image('icons/emote.svg')"
+							:icon="$image('icons/edit.svg')"
 						/>
 					</div>
 					

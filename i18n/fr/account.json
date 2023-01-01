@@ -1,11 +1,11 @@
 {
 	"account":{
 		"connected_as":"Connecté en tant que {USER}",
-		"donation_public":"Rend votre pseudo visible pour tous les autres donateurs dans la liste des donateurs dans",
+		"donation_public":"Rend votre pseudo visible dans la liste des donateurices dans la section {LINK}",
 		"about_link":"À propos",
 		"installBt":"Installer Twitchat",
 		"erase_dataBt":"Effacer les paramètres locaux",
-		"erase_confirm_title":"Effacer les paramètres locaux ?",
-		"erase_confirm_description":"Cela effacera uniquement les paramètres de ce navigateur.<br>Les déclencheurs, les commandes vocales, les actions de synthèse vocale, les paramètres automod, les paramètres d’urgence, etc. seront réinitialisés."
+		"erase_confirm_title":"Effacer vos paramètres ?",
+		"erase_confirm_description":"Cela effacera uniquement les paramètres de ce navigateur.<br>Les triggers, les commandes vocales, les paramètres automod, les paramètres du mode urgence, etc... seront réinitialisés."
 	}
 }

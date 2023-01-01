@@ -1,6 +1,6 @@
 <template>
 	<div class="bingostate">
-		<h1 class="title"><img src="@/assets/icons/bingo.svg" v-t="'bingo.state_title'"></h1>
+		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state_title") }}</h1>
 
 		<div class="item number highlight" v-if="bingoData.guessNumber">
 			<p v-t="'bingo.find_number'"></p>
@@ -98,7 +98,7 @@ export default class BingoState extends Vue {
 	}
 
 	.postChat {
-		max-width: 300px;
+		max-width: 320px;
 		font-size: .8em;
 		color: @mainColor_normal;
 	}

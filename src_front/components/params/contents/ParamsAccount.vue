@@ -17,7 +17,11 @@
 
 			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
 			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
-			<div class="infos" v-if="publicDonation_loaded">{{$t('account.donation_public')}} <a @click="$emit('setContent', contentAbout)" v-t="'account.about_link'">.</a></div>
+			<i18n-t scope="global" class="infos" tag="div" v-if="publicDonation_loaded" keypath="account.donation_public">
+				<template #LINK>
+					<a @click="$emit('setContent', contentAbout)" v-t="'account.about_link'">.</a>
+				</template>
+			</i18n-t>
 		</section>
 
 		<section class="actions">
