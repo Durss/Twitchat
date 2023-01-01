@@ -367,7 +367,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/greetduration") {
 			let duration = this.paramsToDuration(params[0]);
-			StoreProxy.params.greetThemAutoDelete = duration;
+			StoreProxy.params.setGreetThemAutoDelete(duration);
 			return true;
 		}else
 

@@ -269,6 +269,12 @@ export const storeParams = defineStore('params', {
 		saveChatColumnConfs():void {
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 		},
+
+		setGreetThemAutoDelete(value:number):void {
+			//Rounding the value to the nearest minute so the selector doesn't endup with
+			//two identical entries as it only displays minutes, not seconds
+			this.greetThemAutoDelete = Math.round(value/60)*60;
+		},
 	} as IParamsActions
 	& ThisType<IParamsActions
 		& UnwrapRef<IParamsState>

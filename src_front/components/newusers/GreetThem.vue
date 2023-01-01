@@ -17,7 +17,7 @@
 
 		<div class="topForm" v-if="showList">
 			<div class="row">
-				<label><img src="@/assets/icons/timeout.svg" alt="timer" v-t="'greet.auto_delete'"></label>
+				<label><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
 				<select v-model.number="$store('params').greetThemAutoDelete">
 					<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
 				</select>
@@ -101,11 +101,11 @@ export default class NewUsers extends Vue {
 		const durations = [60, 120, 180, 240, 300, 600 ,900 ,1200, 1800, 3600];
 		const res:{seconds:number, label:string}[] = [];
 		for (let i = 0; i < durations.length; i++) {
-			res.unshift({seconds:durations[i], label:Utils.formatDuration(durations[i]*1000)});
+			res.unshift({seconds:durations[i], label:Math.round(durations[i]/60).toString()+"m"});
 		}
 		const v = this.$store("params").greetThemAutoDelete
 		if(!durations.includes(v)) {
-			res.unshift({seconds:v, label:Utils.formatDuration(v*1000)});
+			res.unshift({seconds:v, label:Math.round(v/60).toString()+"m"});
 		}
 		res.unshift({seconds:-1, label:this.$t("greet.never")});
 		res.sort((a,b)=> a.seconds - b.seconds);
