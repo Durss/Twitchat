@@ -1,0 +1,65 @@
+{
+	"automod": {
+		"header": "Supprimer automatiquement les messages",
+		"ban_usernames": "annir les utilisateurs dont les noms correspondent à une règle",
+		"delete_confirm_title": "Supprimer la règle ?",
+		"delete_confirm_description": "Cela ne peut pas être annulé",
+		"disclaimers":{
+			"why":{
+				"title":"Pourquoi cette fonctionnalité ? <span>(important à lire)</span>",
+				"contents":[
+					"Twitch a déjà une fonctionnalité de mots bloqués, mais elle est très basique et ne peut pas faire de filtrage complexe.",
+					"Si vous bloquez le mot <mark>twitchat</mark>, les viewers peuvent facilement contourner cette restriction en envoyant <mark>twit_chat</mark> ou <mark>twitch🅐t</mark> et de nombreuses autres alternatives.",
+					"",
+					"Des bots comme <a href=\"https://nightbot.tv\" target=\"_blank\">Nightbot</a> ou <a href=\"https://wizebot.tv/index\" target=\"_blank\">Wizebot</a> vous permettent de filtrer les messages avec des règles complexes via ce qu’on appelle <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Expressions régulières</a>.",
+					"",
+					"La fonction automod de <strong>Twitchat'</strong> vous permet d’utiliser des expressions régulières, mais tente également de rendre l’utilisation de caractères alternatifs inutile pour contourner les règles automod.",
+					"Avant d’appliquer une règle, elle remplacera tous les caractères alternatifs, y compris les caractères accentués, par leur équivalent latin.",
+					"Par exemple, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> sera remplacé par <mark>twitchat</mark> avant d’y appliquer les règles automod.",
+					"",
+					"<strong>Attention</strong> Cependant, ce processus a un coût sur les performances et peut ralentir un peu les contractions si vous recevez beaucoup de messages."
+				]
+			},
+			"delete":{
+				"title":"La suppression d’un message est-elle efficace contre le doxxing ?",
+				"contents":[
+					"Non.", 
+					"",
+					"Mais c’est le seul moyen de modérer un message après son envoi.",
+					"Le principal problème est que des extensions comme <a href=\"https://betterttv.com\ » target=\"_blank\">BetterTTV</a> permettent aux utilisateurs de conserver les messages supprimés.",
+					"",
+					"<strong>Si vous voulez éviter cela</strong>, vous devrez configurer un délai de chat <i>(<a href=\"https://dashboard.twitch.tv/settings/moderation\ » target=\"_blank\">voir Options de chat</a>)</i>. Si un message est supprimé pendant ce laps de temps, il ne sera affiché nulle part, même pour les utilisateurs de BTTV.",
+					"<i>Notez que le message est toujours envoyé à tout le monde, il est donc techniquement possible de l’obtenir. Juste plus compliqué.</i>",
+					"",
+					"Le seul moyen sûr de filtrer un message est lorsque Twitch le supprime en fonction de termes bloqués avant de l’envoyer à tout le monde. Mais comme expliqué précédemment, c’est très limité :/"
+				]
+			}
+		},
+		"rule":{
+			"title":"Règles",
+			"new":"Nouvelle règle",
+			"add":"Ajouter règle",
+			"toggle_tt":"Activer/désactiver la règle",
+			"name":"Nom de la règle",
+			"keywords":"Règle (accepte <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regexp</a> - <a href=\"https://regexr.com\" target=\"_blank\">Test your regexp</a>)",
+			"sync":"Enregistrer sur le serveur,
+			"sync_tt":"Si la règle contient des informations personnelles<br>vous pouvez choisir de ne pas l’enregistrer sur le serveur.<br>Vous les perdrez si vous nettoyez vos cookies.",
+			"emergency":"Démarrer le mode d’urgence",
+			"emergency_tt":"Si un message correspond à cette règle,<br>le mode d’urgence sera activé",
+			"firstTime":"Appliquer uniquement aux nouveaux chatteurs",
+			"firstTime_tt":"Appliquez cette règle uniquement au premier<br>message d’un utilisateur sur votre chat",
+			"invalid_rule":"Règle non valide"
+		},
+		"test": {
+			"title":"Règles de test",
+			"input_placeholder":"écrire du texte...",
+			"result_tt":"Message nettoyé<br>avec caractères spéciaux remplacés<br>par leur équivalent latin",
+			"blocked_title":"Message bloqué par la règle : | Message bloqué par des règles : ",
+			"no_block":"Ce message passe automod"
+		},
+		"options": {
+			"title":"Options",
+			"exclude_users":"Exclure les utilisateurs des règles automod: "
+		}
+	}
+}
