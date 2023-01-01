@@ -7,7 +7,7 @@ import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import CountryFlag from 'vue3-country-flag-icon';
-import 'vue3-country-flag-icon/dist/CountryFlag.css'; // import stylesheet
+import 'vue3-country-flag-icon/dist/CountryFlag.css';
 import App from './App.vue';
 import './less/index.less';
 import router from './router';
@@ -45,7 +45,7 @@ gsap.registerPlugin(ScrollToPlugin);
 
 let lang: string = navigator.language || (<any>navigator)['userLanguage'];
 lang = lang.substring(0, 2).toLowerCase();
-// if(!Config.instance.IS_PROD) lang = "fr";
+if(!Config.instance.IS_PROD) lang = "fr";
 const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',

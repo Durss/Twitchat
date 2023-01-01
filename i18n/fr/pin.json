@@ -1,9 +1,9 @@
 {
 	"pin": {
-		"title": "Message épinglés
+		"title": "Message épinglés",
 		"closeBt_aria": "Fermer la liste",
-		"unpinBt_aria": "Détacher le message",
-		"highlightBt_tt": "Mettre en avant le message sur le stream<br><i>(nécessite une superposition)</i>",
-		"highlightBt_aria": "Mettre en avant le message"
+		"unpinBt_aria": "Retirer le message",
+		"highlightBt_tt": "Mettre en avant sur le stream<br><i>(nécessite l'overlay dédié)</i>",
+		"highlightBt_aria": "Mettre le message en avant"
 	}
 }
