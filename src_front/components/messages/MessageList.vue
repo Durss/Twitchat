@@ -232,7 +232,6 @@
 			</div>
 
 			<Button class="TTSreadBt" small bounce
-				:aria-label="$t('chat.ttsBt')"
 				:title="readLabel"
 				:icon="$image('icons/tts.svg')"
 				@click="toggleReadUser"

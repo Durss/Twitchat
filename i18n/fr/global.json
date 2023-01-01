@@ -84,13 +84,13 @@
 			"chat:read": "Lire le tchat",
 			"chat:edit": "Ecrire dans le tchat",
 
-			"whispers:edit": "Envoyer des chuchottements",
-			"whispers:read": "Recevoir des chuchottements",
+			"whispers:edit": "Envoyer des chuchotements",
+			"whispers:read": "Recevoir des chuchotements",
 
 			"user:read:blocked_users": "Lister les personnes bloquées",
 			"user:read:follows": "Savoir qui est en stream dans vos follows",
 			"user:read:subscriptions": "Vérifier si une personne est abonnée à vous",
-			"user:manage:whispers": "Envoyer des chuchottements",
+			"user:manage:whispers": "Envoyer des chuchotements",
 			"user:manage:blocked_users": "Bloquer/débloquer des personnnes",
 
 			"channel:read:redemptions": "Lister vos récompenses de points de chaîne",
