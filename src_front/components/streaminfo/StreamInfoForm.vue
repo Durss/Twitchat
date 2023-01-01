@@ -210,7 +210,7 @@ export default class StreamInfoForm extends Vue {
 				this.tags = [];
 			}
 		}catch(error) {
-			this.$store("main").alert( this.$t("error.stream_info_preset_edit") );
+			this.$store("main").alert( this.$t("stream.stream_info_preset_edit") );
 		}
 
 		this.loading = false;

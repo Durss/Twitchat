@@ -519,7 +519,7 @@ export default class TwitchUtils {
 			}
 		}
 		if(fails.length > 0) {
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.load_user_info") + fails);
+			StoreProxy.main.alert(StoreProxy.i18n.t("error.load_user_info", {ERROR:fails}));
 		}
 		return channels;
 	}
