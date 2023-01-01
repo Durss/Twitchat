@@ -1,0 +1,13 @@
+{
+	"poll":{
+		"form":{
+			"title":"Créer un sondage",
+			"closeBt_aria":"Ferme la création du sondage",
+			"question":"Question",
+			"answers":"Réponses (minimun 2)",
+			"additional_votes":"Autoriser des votes supplémentaires",
+			"additional_votes_amount":"Points par vote",
+			"vote_duration":"Durée du vote (minutes)"
+		}
+	}
+}
