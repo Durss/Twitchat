@@ -279,6 +279,7 @@ export const storeUsers = defineStore('users', {
 								// console.log("User found", apiUser.login, apiUser.id);
 								userLocal.id				= apiUser.id;
 								userLocal.login				= apiUser.login;
+								userLocal.displayName		= apiUser.display_name;
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
 								userLocal.avatarPath		= apiUser.profile_image_url;
