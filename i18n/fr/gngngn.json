@@ -1,0 +1,43 @@
+{
+	"gngngn": {
+		"title": "😡 Innacceptable 😡",
+		"closeBt_aria": "Fermer",
+		"contents": [
+			"Tu es donc en colère.",
+			"Je peux le comprendre.",
+			"Puis-je te partager mon point de vue ?",
+			"<br>",
+			"Twitchat est créé par une seule personne <i>(<a href=\"http://twitch.tv/durss\" target=\"_blank\">coucou 👋</a>)</i>) et a nécessité quasi 1 an de travail à temps plein à l'heure actuelle <i>(dec. 2022)</i>.",
+			"<br>",
+			"J'offre ce travail à tout le monde mais ça me coûte du temps, et de l'argent. Je ne reçois aucun revenu de Twitchat à part quelques rares dons <i>(sur lesquels je paye 30% de taxes)</i>.",
+			"Je ne suis <strong>pas</strong> sponsorisé par une marque, Je ne collecte <strong>aucune</strong> donné personnelle, et je ne mets aucune publicité.",
+			"strong>On ne parle pas réellement de publicité</strong> ici. Je ne fais pas de pub pour des produits qui me rapportent de l'argent.",
+			"Je partage simplement un lien vers Twitchat.",
+			"<br>",
+			"strong>Tu peux le désactiver avec un don libre.</strong>",
+			"Tu peux même ne donner qu'1€, si tu estime que mon travail ne mérite pas plus, et il te sera possible de désactiver le message automatique.",
+			"<br>",
+			"Et si tu ne souhaite pas payer, Twitchat est <a href=\"https://github.com/Durss/Twitchat\" target=\"_blank\">open-source</a>. Tu es libre de créer ta propre instance.",
+			"<br>",
+			"Pour toutes ces raisons, je ne crois pas que ce soit si terrible d'avoir un lien posté de temps en temps.",
+			"<br>",
+			"Si tu estimes tout de même que c'est Innacceptable, libre à toi de ne pas utiliser Twitchat !",
+			"Mais, s'il te plait, <strong>ne prends pas les services gratuits pour acquis</strong>. Ils demandent beaucoup de temps et de connaissances pour être créés.",
+			"<br>",
+			"J'espère que les choses semblent moins scnadaleuses et que tu comprends mon point de vue :)",
+			"❤ Bons streams à toi ❤",
+			"<br>",
+			"Cordialement,",
+			"Durss"
+		],
+		"why_title": "Pourquoi poster en mon nom ?",
+		"why_info": "Soyons honnêtes, si je postais avec un autre compte tout le monde le bannirait dans la foulée pour ne pas avoir les message.",
+		"angry": "Je parle déjà de Twitchat à mes viewers, je n'aime pas ce message intrusif!",
+		"angry_contents": [
+			"Et bien, merci.",
+			"Mais je n'ai aucun moyen de le savoir.",
+			"En revanche il est possible de personnealiser le message, et chaque fois que  \"twitchat.fr\" est envoyé dans le tchat <i>(par un viewer, un bot, ...)</i> le timer de 2h est remis à 0.",
+			"Cela signifique que du moment qu'un lien vers twitchat est envoyé dans le tchat toutes les 2h, le message automatique ne sera pas envoyé."
+		]
+	}
+}
