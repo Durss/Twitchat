@@ -1,6 +1,6 @@
 {
 	"followbot": {
-		"title":"Review {COUNT} follower(s)",
+		"title":"Review {COUNT} follower | Review {COUNT} followers",
 		"header":"List of user that followed you during the emergency",
 		"search_placeholder":"username...",
 		"banBt":"Ban all users",
