@@ -73,7 +73,7 @@
 			{"l":"Messages blocked due to <strong>shared ban info</strong> and waiting for approval will now be displayed"},
 			{"l":"When <strong>follow botted</strong>, all follow events will be merged into 1 single expandable notification"},
 			{"l":"Start <strong>shield mode</strong> from the emergency button"},
-			{"l":"Maximum <strong>raffle</strong> duration extended to 10h"},
+			{"l":"Maximum <strong>raffle</strong> duration extended to 24h"},
 			{"l":"Possibility to <strong>highlight partners'</strong> messages"},
 			{"l":"BTTV/FFZ/7TV now displayed on emote selectors"},
 			{"l":"Notify users if they try to use a cooling down chat command trigger"},
@@ -83,9 +83,7 @@
 		],
 		"fixes": [
 			{"l":"TTS for prediction result was  sometimes not saying the winning outcome label"},
-			{"l":"Current music track info was not properly filled on triggers"},
-			{"l":" Whispers conversation names were wrong when initiating a conversation"},
-			{"l":"A conflict between the \"group identical messages\" and \"mark as read\" feature. If a message was marked as read and later on the same message was sent, the read mark was moving with it to the bottom"}
+			{"l":"Current music track info was not properly filled on triggers"}
 		]
 	}
 }

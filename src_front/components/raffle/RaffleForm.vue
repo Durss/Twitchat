@@ -169,7 +169,7 @@ export default class RaffleForm extends Vue {
 	public mode:"chat"|"sub"|"manual" = "chat";
 
 	public command:TwitchatDataTypes.ParameterData					= {label:"", value:"", type:"text"};
-	public enterDuration:TwitchatDataTypes.ParameterData			= {label:"", value:10, type:"number", min:1, max:600};
+	public enterDuration:TwitchatDataTypes.ParameterData			= {label:"", value:10, type:"number", min:1, max:1440};
 	public maxUsersToggle:TwitchatDataTypes.ParameterData			= {label:"", value:false, type:"toggle"};
 	public maxEntries:TwitchatDataTypes.ParameterData				= {label:"", value:10, type:"number", min:0, max:1000000};
 	public ponderateVotes:TwitchatDataTypes.ParameterData			= {label:"", value:false, type:"toggle"};
