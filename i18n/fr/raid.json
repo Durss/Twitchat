@@ -1,0 +1,6 @@
+{
+	"raid": {
+		"raiding": "Raid vers {USER} avec {VIEWERS} dans {TIMER}",
+		"cant_force": "Twitch ne fournit aucune API pour démarrer le raid avant la fin du chronomètre, désolé, vous devrez attendre {TIMER}s :("
+	}
+}
