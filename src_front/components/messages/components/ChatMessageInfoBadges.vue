@@ -34,7 +34,7 @@ export default class ChatMessageInfoBadges extends Vue {
 	public getIcon(info:TwitchatDataTypes.MessageBadgeData):string {
 		const hashmap:Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}> = {
 			pinned:"pin",
-			raider:"train",
+			raider:"raid",
 			automod:"shield",
 			cyphered:"lock_fit",
 			restrictedUser:"shield",
