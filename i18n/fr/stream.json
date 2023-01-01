@@ -1,0 +1,20 @@
+{
+	"stream":{
+		"form_title":"Infos du stream",
+		"closeBt_aria":"Close form",
+		"presets_title":"Presets",
+		"preset_deleteBt_tt":"Supprimer les préréglages",
+		"preset_editBt_tt":"Mettre à jour les préréglages",
+		"preset_setBt_tt":"Clique pour mettre à jour les <br>infos du stream",
+		"form_title_update":"Mettre à jour les infos",
+		"form_title_preset":"Préréglages: {TITLE}",
+		"form_stream_title":"Titre",
+		"form_stream_title_placeholder":"Titre...",
+		"form_stream_category":"Catégorie",
+		"form_stream_tags":"Tags",
+		"form_save_preset":"Enregistrer dans les préréglages",
+		"form_save_preset_name":"Nom prédéfini",
+		"form_save_preset_name_placeholder":"nom...",
+		"form_custom_tags_warn":"Les tags personnalisés ne sont pas encore autorisés par l’API Twitch"
+	}
+}
