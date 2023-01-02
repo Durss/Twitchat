@@ -9,7 +9,7 @@
 
 		<div class="item entries">
 			<img src="@/assets/icons/user.svg" alt="user">
-			<i18n-t scope="global" tag="p" keypath="raffle.state_users">
+			<i18n-t scope="global" tag="p" keypath="raffle.state_users.plural" :plural="raffleData.entries.length">
 				<template #COUNT>
 					<span>{{raffleData.entries?.length}}</span>
 					<span v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</span>
@@ -104,7 +104,7 @@ export default class RaffleState extends Vue {
 	}
 
 	public closeRaffle():void {
-		this.$confirm(this.$t('raffle.state_close_confirm_title'), this.$t('raffle.state_close_confirm_desc'))
+		this.$confirm(this.$t('raffle.delete_confirm.title'), this.$t('raffle.delete_confirm.description'))
 		.then(async ()=> {
 			this.$store("raffle").stopRaffle();
 			this.$emit("close");

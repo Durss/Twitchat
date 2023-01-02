@@ -1,0 +1,64 @@
+{
+	"raffle": {
+		"form_title": "Tirage au sort",
+		"closeBt_aria": "Fermer la fnêtre",
+		"chat": {
+			"title": "Chat",
+			"startBt_aria": "Lancer le tirage au sort",
+			"description": "Sélectionner une personne au hasard parmis celles ayant envoyé un commande dans le tchat"
+		},
+		"subs": {
+			"title": "Subs",
+			"description": "Sélectionner une personne parmis vos abonné·es",
+			"startBt_aria": "Lancer le tirage au sort",
+			"startBt": "Lancer <i>({COUNT}) subs</i>"
+		},
+		"list": {
+			"title": "Liste",
+			"description": "Définissez une liste personnalisée d'entrée pour le tirage au sort",
+			"instructions": "(Séparez les entrées par une virgule ou un retour à la ligne)",
+			"startBt_aria": "Lancer le tirage au sort",
+			"startBt": "Lancer <i>({COUNT})</i>"
+		},
+		"legal": {
+			"title": "Informations juridiques",
+			"contents": [
+				"Selon la loi en vigueur dans votre pays, effectuer un tirage au sort parmis vos subs peut s'avérer être illégal.",
+				"Il est conseillé de vous renseigner avant d'utiliser ce type de tirage au sort."
+			]
+		},
+		"configs": {
+			"timer_overlay_add": "{LINK} de compte à rebours à vos scènes OBS pour afficher le temps restant sur votre stream",
+			"timer_overlay_add_link": "Ajoutez l'overlay",
+			"postOnChat_start": "Annoncer l'ouverture dans le tchat'",
+			"postOnChat_join": "Confirmer l'entrée dans le tirage",
+			"postOnChat_winner": "Annoncer la/le gagnant·e dans le tchat",
+			"countdown": "Afficher le compte à rebours"
+		},
+		"delete_confirm": {
+			"title": "Fermer le tirage ?",
+			"description": "La liste des participant·es sera perdue."
+		},
+		"params": {
+			"command": "Commande",
+			"command_placeholder": "!raffle",
+			"duration": "Durée du tirage (minutes)",
+			"limit_users": "Limiter le nombre de participant·es",
+			"max_users": "Maximum",
+			"ponderate": "Pondérer les participations (chaque critère rempli comptera pour X participations)",
+			"ponderate_VIP": "VIP",
+			"ponderate_sub": "Subs",
+			"ponderate_subgifter": "Sub gifter",
+			"ponderate_follower": "Follower",
+			"ponderate_include_gifter": "Inclure les sub gifters (a offert des abonnements sans forcément être abonné·e)",
+			"ponderate_exclude_gifted": "Exclure les gens ayant reçu un sub",
+			"list_placeholder": "entrée 1, entrée 2, entrée 3, ...",
+			"username_placeholder": "Pseudo"
+		},
+		"state_title": "Tirage au sort -",
+		"state_users": "{COUNT} entrée | {COUNT} entrées",
+		"state_winners": "Gagnan{COUNT} :",
+		"state_pickBt": "Tirer au sort",
+		"state_stopBt": "Fermer le tirage"
+	}
+}

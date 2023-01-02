@@ -88,9 +88,13 @@
 					<ParamItem class="row"
 					:paramData="showCountdownOverlay"
 					v-if="mode=='chat'">
-						<div class="details" v-if="showCountdownOverlay.value === true && mode=='chat'">
-							<a @click="openParam('overlays')" v-t="'raffle.configs.timer_overlay_addBt'"></a>&nbsp;<span v-t="'raffle.configs.timer_overlay_add'"></span>
-						</div>
+						<i18n-t scope="global" tag="div" class="details"
+						v-if="showCountdownOverlay.value === true && mode=='chat'"
+						keypath="raffle.configs.timer_overlay_add">
+							<template #LINK>
+								<a @click="openParam('overlays')" v-t="'raffle.configs.timer_overlay_addBt'"></a>
+							</template>
+						</i18n-t>
 					</ParamItem>
 	
 					<PostOnChatParam class="row" botMessageKey="raffleStart"
@@ -245,8 +249,8 @@ export default class RaffleForm extends Vue {
 		this.ponderateVotes_follower.label	= this.$t("raffle.params.ponderate_follower");
 		this.subs_includeGifters.label		= this.$t("raffle.params.ponderate_include_gifter");
 		this.subs_excludeGifted.label		= this.$t("raffle.params.ponderate_exclude_gifted");
-		this.showCountdownOverlay.label		= this.$t("raffle.params.countdown");
 		this.customEntries.placeholder		= this.$t("raffle.params.list_placeholder");
+		this.showCountdownOverlay.label		= this.$t("raffle.configs.countdown");
 		
 		this.winnerPlaceholders		= [{tag:"USER", desc:this.$t("raffle.params.username_placeholder"), example:this.$store("auth").twitch.user.displayName}];
 		this.joinPlaceholders		= [{tag:"USER", desc:this.$t("raffle.params.username_placeholder"), example:this.$store("auth").twitch.user.displayName}];
