@@ -1,7 +1,12 @@
 <template>
 	<ToggleBlock :open="open" class="overlaytimer" :title="$t('overlay.timer.title')" :icons="['countdown_purple']">
-		<div v-html="$t('overlay.timer.head')"></div>
-		<div class="content">
+		<div class="holder">
+			<div class="row">
+				<i18n-t scope="global" tag="div" keypath="overlay.timer.head">
+					<template #CMD1><mark>/countdown</mark></template>
+					<template #CMD2><mark>/timerStart</mark></template>
+				</i18n-t>
+			</div>
 			<div class="row">
 				<input type="text" v-model="overlayUrl">
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
@@ -51,14 +56,13 @@ export default class OverlayParamsTimer extends Vue {
 <style scoped lang="less">
 .overlaytimer{
 
-	.content {
+	.holder {
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
 		.row {
 			display: flex;
 			flex-direction: column;
-
-			&:not(:first-of-type) {
-				margin-top: .5em;
-			}
 
 			&.center {
 				align-items: center;

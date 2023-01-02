@@ -1,51 +1,54 @@
 <template>
 	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify_purple']">
-		<div v-if="error" class="error" @click="error=''">{{error}}</div>
-
-		<div v-if="!spotifyConnected && !authenticating" v-t="'overlay.music_common.music'"></div>
-		
-		<div class="player">
-			<div class="label" v-t="'global.example'"></div>
-			<OverlayMusicPlayer v-if="currentTrack" :staticTrackData="currentTrack" embed />
-		</div>
-
-		<div class="spotifasshole" v-if="!spotifyConnected && !authenticating">
-			<div class="info">
-				<i18n-t tag="div" keypath="overlay.spotify.how_to">
-					<template #URL>
-						<strong>
-							<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank" v-t="'overlay.spotify.how_to_read'"></a>
-						</strong>
+		<div class="holder">
+			<div class="error" v-if="error" @click="error=''">{{error}}</div>
+	
+			<div v-if="!spotifyConnected && !authenticating" v-t="'overlay.music_common.music'"></div>
+	
+			<div class="row player_holder">
+				<div class="label" v-t="'global.example'"></div>
+				<OverlayMusicPlayer class="player" v-if="currentTrack" :staticTrackData="currentTrack" embed />
+			</div>
+	
+			<div class="spotifasshole" v-if="!spotifyConnected && !authenticating">
+				<div class="info">
+					<i18n-t tag="div" keypath="overlay.spotify.how_to">
+						<template #URL>
+							<strong>
+								<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank" v-t="'overlay.spotify.how_to_read'"></a>
+							</strong>
+						</template>
+					</i18n-t>
+				</div>
+				<form>
+					<ParamItem class="item" :paramData="paramClient" autofocus />
+					<ParamItem class="item" :paramData="paramSecret" />
+				</form>
+			</div>
+	
+			<Button v-if="!spotifyConnected && !authenticating"
+				:title="$t('overlay.spotify.authBt')"
+				@click="authenticate()"
+				:loading="loading"
+				:disabled="!canConnect" />
+	
+			<div class="row" v-if="spotifyConnected">
+				<label for="spotify_overlay_url" v-t="'overlay.music_common.music_url'"></label>
+				<OverlayParamsMusic />
+			</div>
+			
+			<div v-if="spotifyConnected">
+				<i18n-t scope="global" tag="div" keypath="overlay.music_common.infos">
+					<template #TRIGGERS>
+						<a @click="$emit('setContent', contentTriggers)" v-t="'overlay.music_common.triggerBt'"></a>
 					</template>
 				</i18n-t>
 			</div>
-			<form>
-				<ParamItem class="item" :paramData="paramClient" autofocus />
-				<ParamItem class="item" :paramData="paramSecret" />
-			</form>
-		</div>
-		<Button v-if="!spotifyConnected && !authenticating"
-			:title="$t('overlay.spotify.authBt')"
-			@click="authenticate()"
-			:loading="loading" class="authBt"
-			:disabled="!canConnect" />
 
-		<div v-if="spotifyConnected" class="content">
-			<div class="row">
-				<label for="spotify_overlay_url" v-t="'overlay.music_common.music_url'"></label>
-				<OverlayParamsMusic />
-				
-			</div>
-			<div class="row">
-				<div>
-					<span v-t="'overlay.music_common.infos'"></span>
-					<a @click="$emit('setContent', contentTriggers)" v-t="'overlay.music_common.triggerBt'"></a>.
-				</div>
-			</div>
-			<Button :title="$t('global.disconnect')" @click="disconnect()" class="authBt" highlight />
+			<Button v-if="spotifyConnected" :title="$t('global.disconnect')" @click="disconnect()" highlight />
+	
+			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">
 		</div>
-
-		<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">
 
 	</ToggleBlock>
 </template>
@@ -142,68 +145,61 @@ export default class OverlayParamsSpotify extends Vue {
 
 <style scoped lang="less">
 .OverlayParamsSpotify{
+
+	.holder {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
 	
-	.authBt, .loader {
-		display: block;
-		margin:auto;
-		margin-top: 1em;
-	}
-
-	.error {
-		justify-self: center;
-		color: @mainColor_light;
-		display: block;
-		text-align: center;
-		padding: 5px;
-		border-radius: 5px;
-		margin: auto;
-		margin-top: 10px;
-		background-color: @mainColor_alert;
-		cursor: pointer;
-	}
-
-	.content {
-		margin-top: 1em;
+		.error {
+			justify-self: center;
+			color: @mainColor_light;
+			display: block;
+			text-align: center;
+			padding: 5px;
+			border-radius: 5px;
+			margin: auto;
+			margin-top: 10px;
+			background-color: @mainColor_alert;
+			cursor: pointer;
+		}
+	
 		.row {
 			display: flex;
 			flex-direction: column;
-			&:not(:first-child) {
-				margin-top: 1em;
+			gap:1em;
+		}
+	
+		&.spotifasshole {
+			margin-top: .5em;
+			.info {
+				color: @mainColor_alert;
+				font-size: .9em;
+			}
+			form {
+				margin-top: .5em;
 			}
 		}
-	}
-
-	.spotifasshole {
-		margin-top: .5em;
-		.info {
-			color: @mainColor_alert;
-			font-size: .9em;
-		}
-		form {
-			margin-top: .5em;
-		}
-	}
-
-	.player {
-		border: 1px dashed @mainColor_normal;
-		background: fade(@mainColor_normal, 15%);
-		border-radius: .25em;
-		overflow: hidden;
-		display: inline-block;
-		left: auto;
-		right: auto;
-		padding: .5em;
-		position: relative;
-		left: 50%;
-		transform: translateX(-50%);
-
-		.label {
-			text-align: center;
-			margin-bottom: .5em;
-		}
-
-		:deep(.overlaymusicplayer) {
-			margin: 0;
+	
+		.player_holder {
+			border: 1px dashed @mainColor_normal;
+			background: fade(@mainColor_normal, 15%);
+			border-radius: .25em;
+			margin-left: auto;
+			margin-right: auto;
+			padding: .5em;
+			
+			.label {
+				text-align: center;
+				margin: 0;
+				margin-bottom: .5em;
+			}
+			
+			.player {
+				margin: 0;
+				margin-top: -1em;//No idea why i need that...
+			}
 		}
 	}
 }

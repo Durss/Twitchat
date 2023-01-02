@@ -4,23 +4,27 @@
 		<div class="head" v-t="'overlay.header'"></div>
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
-			<div v-t="'overlay.connection.title'"></div>
-			<Button class="button"
-				:icon="$image('icons/obs_purple.svg')"
-				:title="$t('overlay.connection.obsBt')"
-				white
-				@click="$emit('setContent', contentObs)" />
-			<div class="or">or</div>
-			<Button class="button"
-				:icon="$image('icons/twitchat_purple.svg')"
-				:title="$t('overlay.connection.dockBt')"
-				white
-				@click="showDockTutorial = true" v-if="!showDockTutorial" />
-			<Button class="button"
-				:icon="$image('icons/cross.svg')"
-				:title="$t('overlay.connection.closeBt')"
-				white
-				@click="showDockTutorial = false" v-if="showDockTutorial" />
+			<i18n-t scope="global" tag="div" keypath="overlay.connection.title">
+				<template #OBS>
+					<Button class="button"
+						:icon="$image('icons/obs_purple.svg')"
+						:title="$t('overlay.connection.obsBt')"
+						white
+						@click="$emit('setContent', contentObs)" />
+				</template>
+				<template #DOCK>
+					<Button class="button"
+						:icon="$image('icons/twitchat_purple.svg')"
+						:title="$t('overlay.connection.dockBt')"
+						white
+						@click="showDockTutorial = true" v-if="!showDockTutorial" />
+					<Button class="button"
+						:icon="$image('icons/cross.svg')"
+						:title="$t('overlay.connection.closeBt')"
+						white
+						@click="showDockTutorial = false" v-if="showDockTutorial" />
+				</template>
+			</i18n-t>
 			<div v-if="showDockTutorial" class="dockTuto">
 				<div class="row" v-html="$t('overlay.connection.dock_tutorial')"></div>
 				<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
@@ -28,8 +32,8 @@
 		</div>
 
 		<div class="unified" v-if="true || exchangeChannelAvailable">
-			<span v-t="'overlay.unified'"></span>
-			<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+			<label for="unified_overlays" v-t="'overlay.unified'"></label>
+			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
 		
 		<OverlayParamsRaffle class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />

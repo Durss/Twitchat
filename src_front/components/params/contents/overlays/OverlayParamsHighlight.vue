@@ -1,10 +1,10 @@
 }<template>
 	<ToggleBlock :open="false" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight_purple']">
-		<div v-t="'overlay.highlight.head'"></div>
+		<div class="row" v-t="'overlay.highlight.head'"></div>
 		
 		<iframe src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		
-		<div class="content">
+		<div class="holder">
 			<div class="row">
 				<label for="highlight_overlay_url" v-t="'overlay.highlight.instruction'"></label>
 				<input type="text" id="highlight_overlay_url" v-model="overlayUrl">
@@ -197,15 +197,23 @@ export default class OverlayParamsHighlight extends Vue {
 
 <style scoped lang="less">
 .overlayparamshighlight{
+	iframe {
+		margin:auto;
+		display: block;
+		margin-top: .5em;
+		max-height: 200px;
+		aspect-ratio: 16 / 9;
+	}
 	
-	.content {
+	.holder {
 		margin-top: 1em;
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+
 		.row {
 			display: flex;
 			flex-direction: column;
-			&:not(:first-child) {
-				margin-top: 1em;
-			}
 
 			&.center {
 				align-items: center;
@@ -272,12 +280,6 @@ export default class OverlayParamsHighlight extends Vue {
 			img {
 				margin-top: .5em;
 			}
-		}
-
-		iframe {
-			margin-top: .5em;
-			width: 100%;
-			aspect-ratio: 16 / 9;
 		}
 	}
 }

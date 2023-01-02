@@ -1,7 +1,8 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket_purple']">
-		<div v-t="'overlay.raffle.head'"></div>
-		<div class="content">
+		<div class="holder">
+			<div class="row" v-t="'overlay.raffle.head'"></div>
+
 			<div class="row">
 				<input type="text" v-model="overlayUrl">
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
@@ -12,14 +13,20 @@
 					</ul>
 				</ToggleBlock>
 			</div>
+
 			<div class="row center" v-if="overlayExists">
 				<Button :loading="loading" @click="testWheel()" :title="$t('overlay.raffle.testBt')" :icon="$image('icons/test.svg')" />
 			</div>
+
 			<div class="row center" v-if="!overlayExists">
 				<span class="error" v-t="'overlay.raffle.no_overlay'"></span>
 			</div>
+			
 			<div class="row">
-				<span v-html="$t('overlay.raffle.start', {ICON:$image('icons/commands_purple.svg')})"></span>
+				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
+					<template #MENU><img src="@/assets/icons/commands_purple.svg" class="icon"></template>
+					<template #CMD><strong>/raffle</strong></template>
+				</i18n-t>
 			</div>
 		</div>
 	</ToggleBlock>
@@ -99,14 +106,13 @@ export default class OverlayParamsRaffle extends Vue {
 
 <style scoped lang="less">
 .overlayparamsraffle{
-	.content {
+	.holder {
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
 		.row {
 			display: flex;
 			flex-direction: column;
-
-			&:not(:first-of-type) {
-				margin-top: .5em;
-			}
 
 			&.center {
 				align-items: center;

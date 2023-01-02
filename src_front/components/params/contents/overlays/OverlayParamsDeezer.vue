@@ -1,31 +1,39 @@
 <template>
 	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer_purple']">
+		<div class="holder">
 
-		<div v-if="!deezerConnected" v-t="'overlay.music_common.music'"></div>
-		
-		<div class="player">
-			<div class="label" v-t="'global.example'"></div>
-			<OverlayMusicPlayer v-if="currentTrack" :staticTrackData="currentTrack" embed />
-		</div>
-		
-		<div v-if="!deezerConnected" class="warning" v-t="'overlay.deezer.shit_api'"></div>
-	
-		<Button v-if="!deezerConnected" :title="$t('overlay.deezer.authBt')" @click="authenticate()" class="authBt" :loading="authenticating" />
-
-		<div v-if="deezerConnected" class="content">
-			<div class="row">
-				<label for="deezer_overlay_url" v-t="$t('overlay.music_url')"></label>
-				<OverlayParamsMusic />
-				
+			<div v-if="!deezerConnected" v-t="'overlay.music_common.music'"></div>
+			
+			<div class="row player_holder">
+				<div class="label" v-t="'global.example'"></div>
+				<OverlayMusicPlayer class="player" v-if="currentTrack" :staticTrackData="currentTrack" embed />
 			</div>
-			<div class="row">
-				<div>
-					<span v-t="'overlay.music_common.infos'"></span>
-					<a @click="$emit('setContent', contentTriggers)" v-t="'overlay.music_common.triggerBt'"></a>.
-				</div>
-				<div class="infos" v-html="$t('overlay.deezer.control', {ICON:$image('icons/deezer_purple.svg')})"></div>
+			
+			<div v-if="!deezerConnected" class="warning" v-t="'overlay.deezer.shit_api'"></div>
+		
+			<Button v-if="!deezerConnected" :title="$t('overlay.deezer.authBt')" @click="authenticate()" class="authBt" :loading="authenticating" />
+	
+			<div v-if="deezerConnected" class="row">
+				<label for="deezer_overlay_url" v-t="$t('overlay.music_common.music_url')"></label>
+				<OverlayParamsMusic />
+			</div>
+			
+			<div v-if="deezerConnected" class="row">
+				<i18n-t scope="global" tag="div" keypath="overlay.music_common.infos">
+					<template #TRIGGERS>
+						<a @click="$emit('setContent', contentTriggers)" v-t="'overlay.music_common.triggerBt'"></a>
+					</template>
+				</i18n-t>
+
+				<i18n-t scope="global" tag="div" keypath="overlay.deezer.control">
+					<template #ICON>
+						<img src="@/assets/icons/deezer_purple.svg" alt="deezer" class="icon">
+					</template>
+				</i18n-t>
+
 				<div class="warning" v-t="'overlay.deezer.shit_api'"></div>
 			</div>
+
 			<Button v-if="deezerConnected" :title="$t('global.disconnect')" @click="disconnect()" class="authBt" highlight />
 		</div>
 
@@ -83,60 +91,62 @@ export default class OverlayParamsDeezer extends Vue {
 
 <style scoped lang="less">
 .OverlayParamsDeezer{
-	.authBt {
+
+.holder {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1em;
+
+	.error {
+		justify-self: center;
+		color: @mainColor_light;
 		display: block;
-		margin:auto;
-		margin-top: 1em;
+		text-align: center;
+		padding: 5px;
+		border-radius: 5px;
+		margin: auto;
+		margin-top: 10px;
+		background-color: @mainColor_alert;
+		cursor: pointer;
 	}
 
-	.content {
-		margin-top: 1em;
-		.row {
-			display: flex;
-			flex-direction: column;
-			&:not(:first-child) {
-				margin-top: 1em;
-			}
+	.row {
+		display: flex;
+		flex-direction: column;
+		gap:1em;
+	}
+
+	&.spotifasshole {
+		margin-top: .5em;
+		.info {
+			color: @mainColor_alert;
+			font-size: .9em;
+		}
+		form {
+			margin-top: .5em;
 		}
 	}
 
-	.infos {
-		margin-top: .5em;
-	}
-
-	.warning {
-		margin-top: .5em;
-		font-size: .9em;
-		color: @mainColor_alert;
-	}
-
-	:deep(.icon) {
-		height: 1em;
-		vertical-align: middle;
-	}
-
-	.player {
+	.player_holder {
 		border: 1px dashed @mainColor_normal;
 		background: fade(@mainColor_normal, 15%);
 		border-radius: .25em;
-		overflow: hidden;
-		display: inline-block;
-		left: auto;
-		right: auto;
+		margin-left: auto;
+		margin-right: auto;
 		padding: .5em;
-		position: relative;
-		left: 50%;
-		transform: translateX(-50%);
-
+		
 		.label {
 			text-align: center;
+			margin: 0;
 			margin-bottom: .5em;
 		}
-
-		:deep(.overlaymusicplayer) {
+		
+		.player {
 			margin: 0;
+			margin-top: -1em;//No idea why i need that...
 		}
 	}
-
+}
 }
 </style>
