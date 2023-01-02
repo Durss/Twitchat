@@ -1,0 +1,20 @@
+{
+  "prediction": {
+    "form": {
+      "title": "Créer une prédiction",
+      "closeBt_aria": "Fermer la fenêtre",
+      "question": "Question",
+      "outcomes": "Réponses",
+      "outcome_delete_aria": "Supprimer l'option",
+      "vote_duration": "Durée (minutes)"
+    },
+    "state": {
+      "choose_outcome": "Choisissez le résultat",
+      "cancelBt": "Annuler la prédiction",
+      "outcome_confirm_title": "Résultat: \"{CHOICE}\" ?",
+      "outcome_confirm_desc": "Confirmez-vous ce choix de résultat ?",
+      "delete_title": "Supprimer la prédiction",
+      "delete_desc": "Voulez-vous vraiment supprimer cette prédiction ? Les participant·es seront remboursé·es."
+    }
+  }
+}
