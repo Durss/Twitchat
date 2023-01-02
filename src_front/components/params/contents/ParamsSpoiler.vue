@@ -42,8 +42,8 @@
 					<span v-t="'spoiler.warning.example_1'"></span>
 					<ul>
 						<li v-t="'spoiler.warning.example_2'"></li>
-						<li v-t="'spoiler.warning.example_2'"></li>
 						<li v-t="'spoiler.warning.example_3'"></li>
+						<li v-t="'spoiler.warning.example_4'"></li>
 					</ul>
 				</li>
 			</ul>

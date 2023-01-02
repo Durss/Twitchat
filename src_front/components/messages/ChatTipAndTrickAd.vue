@@ -73,8 +73,8 @@
 		<div v-if="tipIndex===8" class="entry">
 			<img src="@/assets/icons/overlay_purple.svg" alt="overlay" class="icon">
 			<h1 class="row">{{ $t('tips.overlays.title') }}</h1>
-			<div class="row" v-t="'tips.overlays.info_1'"></div>
-			<div class="row" v-t="'tips.overlays.info_2'"></div>
+			<div class="row" v-html="$t('tips.overlays.info_1')"></div>
+			<div class="row" v-html="$t('tips.overlays.info_2')"></div>
 			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentOverlays)" />
 		</div>
 		
@@ -181,6 +181,7 @@ export default class ChatTipAndTrickAd extends Vue {
 
 		iframe {
 			width: 80%;
+			max-width: 300px;
 			aspect-ratio: 16/9;
 		}
 		.or {

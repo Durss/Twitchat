@@ -168,7 +168,7 @@ export const storeChat = defineStore('chat', {
 			},
 			{
 				id:"chatsugg",
-				cmd:"/chatsugg",
+				cmd:"/suggestion",
 				details:StoreProxy.i18n.t("params.commands.chatsugg"),
 			},
 			{
@@ -353,6 +353,11 @@ export const storeChat = defineStore('chat', {
 				id:"pin",
 				cmd:"/pin {message}",
 				details:StoreProxy.i18n.t("params.commands.pin"),
+			},
+			{
+				id:"clear",
+				cmd:"/clear",
+				details:StoreProxy.i18n.t("params.commands.clear"),
 			},
 		],
 

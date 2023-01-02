@@ -6,7 +6,7 @@
 			:percent="progressPercent"
 			:duration="poll.duration*1000 * 60" />
 		
-		<div class="item">{{ $t('suggestion.state_header', [entries.length]) }}</div>
+		<div class="item">{{ $tc('suggestion.state_header', entries.length, [entries.length]) }}</div>
 		<TransitionGroup name="list" tag="div" ref="list" class="item choices" v-if="entries.length > 0">
 		<div :class="c.selected? 'choice win' : 'choice'" v-for="(c,index) in entries" :key="c.data.id">
 			<img v-if="c.selected" :src="$image('icons/sub'+(index>0?'_purple':'')+'.svg')" alt="star">
@@ -80,7 +80,11 @@ export default class ChatSuggestionState extends Vue {
 	}
 
 	public closePoll():void {
-		this.$store("chatSuggestion").setChatSuggestion(null);
+		this.$confirm(this.$t("suggestion.state_close_confirm_title"),
+					this.$t("suggestion.state_close_confirm_desc"))
+		.then(()=> {
+			this.$store("chatSuggestion").setChatSuggestion(null);
+		}).catch(()=>{});
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {

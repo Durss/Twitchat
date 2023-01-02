@@ -1,0 +1,8 @@
+{
+  "whispers": {
+    "title": "Whispers",
+    "cant_send_1": "Unable to send whisper.",
+    "cant_send_2": "You must be at least affiliate but even if you are Twitch can randomly block whispers sent from outside of Twitch.",
+    "input_placeholder": "answer..."
+  }
+}

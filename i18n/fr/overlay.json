@@ -9,7 +9,7 @@
 			"obsBt":"Lier OBS",
 			"dockBt":"Docker Twitchat dans OBS",
 			"closeBt":"Fermer",
-			"dock_tutorial": "Dans OBS, ouvrez <strong>Docks</strong> => <strong>Docks personnalisés</strong> puis ajoutez Twitchat comme ceci"
+			"dock_tutorial": "Dans OBS, ouvrez <strong>Docks</strong> => <strong>Docks internet personnalisés</strong> puis ajoutez Twitchat comme ceci"
 		},
 
 		"raffle":{

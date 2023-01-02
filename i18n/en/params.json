@@ -138,6 +138,7 @@
 			"vip":"Grant VIP role",
 			"unvip":"Remove VIP role",
 			"pin":"Send and pin the message",
+			"clear":"Clear chat content",
 			"greetduration":"Sets the greet them auto delete duration"
 		}
 	}

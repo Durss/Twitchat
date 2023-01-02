@@ -9,8 +9,10 @@
 		"duration": "Poll duration (minutes)",
 		"multiAnswers": "Users can submit multiple entries",
 		"state_title": "Chat suggestion -",
-		"state_header": "{0} suggestions",
+		"state_header": "{0} suggestion | {0} suggestions",
 		"state_pickBt": "Pick a random entry",
-		"state_closeBt": "Close suggestions"
+		"state_closeBt": "Close suggestions",
+		"state_close_confirm_title": "Close ?",
+		"state_close_confirm_desc": "All suggestions will be lost."
 	}
 }

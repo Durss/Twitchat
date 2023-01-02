@@ -16,7 +16,7 @@
 
 		<button class="filteredMessages" v-if="lockedListRefresh" @click="unlockListRefresh()">
 			<img src="@/assets/icons/back.svg" alt="back">
-			<span><img src="@/assets/icons/train.svg" alt="train" class="icon" v-t="'chat.hype_train.filtered_title'"></span>
+			<span><img src="@/assets/icons/train.svg" alt="train" class="icon">{{$t('chat.hype_train.filtered_title')}}</span>
 		</button>
 
 		
@@ -245,6 +245,7 @@
 		<ChatMessageHoverActions class="hoverActions" 
 			v-if="hoveredMessage"
 			:style="hoverActionsStyles"
+			@close="onLeaveMessage"
 			@mouseleave="onLeaveMessage"
 			@mouseenter="reopenLastHoverActions"
 			:messageData="hoveredMessage" />
@@ -1648,7 +1649,6 @@ export default class MessageList extends Vue {
 		font-size: var(--messageSize);
 		position: absolute;
 		z-index: 1;
-		top: 0;
 		right: 10px;
 		transform: translateY(-100%);
 	}

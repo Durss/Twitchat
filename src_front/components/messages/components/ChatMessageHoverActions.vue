@@ -1,44 +1,47 @@
 <template>
-	<div class="ChatMessageHoverActions">
-		<Button :aria-label="$t('chat.hover_actions.track_user')"
-			bounce
-			:icon="$image('icons/magnet.svg')"
-			:data-tooltip="$t('chat.hover_actions.track_user')"
-			@click="toggleTrackUser()"
-			/>
-			
-		<Button :aria-label="$t('chat.hover_actions.so')"
-			bounce
-			:icon="$image('icons/shoutout.svg')"
-			:data-tooltip="$t('chat.hover_actions.so')"
-			@click="shoutout()"
-			v-show="!isBroadcaster"
-			:loading="shoutoutLoading"
-			/>
+	<div class="ChatMessageHoverActions" @click="onClickHolder">
+		<div class="innerHolder">
 
-		<Button :aria-label="$t('chat.hover_actions.tts')"
-			:icon="$image('icons/tts.svg')"
-			:data-tooltip="$t('chat.hover_actions.tts')"
-			@click="ttsRead()"
-			v-show="ttsEnabled"
-			/>
-
-		<Button :aria-label="$t('chat.hover_actions.highlight')"
-			bounce
-			:icon="$image('icons/highlight.svg')"
-			:data-tooltip="$t('chat.hover_actions.highlight_tt')"
-			@click="chatHighlight()"
-			:loading="highlightLoading"
-			v-show="!messageData || !messageData.automod"
-			/>
-
-		<Button :aria-label="$t('chat.hover_actions.pin')"
-			bounce
-			:icon="$image('icons/pin.svg')"
-			:data-tooltip="$t('chat.hover_actions.pin')"
-			@click="pinMessage()"
-			v-show="!messageData || !messageData.automod"
-			/>
+			<Button :aria-label="$t('chat.hover_actions.track_user')"
+				bounce
+				:icon="$image('icons/magnet.svg')"
+				:data-tooltip="$t('chat.hover_actions.track_user')"
+				@click="toggleTrackUser()"
+				/>
+				
+			<Button :aria-label="$t('chat.hover_actions.so')"
+				bounce
+				:icon="$image('icons/shoutout.svg')"
+				:data-tooltip="$t('chat.hover_actions.so')"
+				@click="shoutout()"
+				v-show="!isBroadcaster"
+				:loading="shoutoutLoading"
+				/>
+	
+			<Button :aria-label="$t('chat.hover_actions.tts')"
+				:icon="$image('icons/tts.svg')"
+				:data-tooltip="$t('chat.hover_actions.tts')"
+				@click="ttsRead()"
+				v-show="ttsEnabled"
+				/>
+	
+			<Button :aria-label="$t('chat.hover_actions.highlight')"
+				bounce
+				:icon="$image('icons/highlight.svg')"
+				:data-tooltip="$t('chat.hover_actions.highlight_tt')"
+				@click="chatHighlight()"
+				:loading="highlightLoading"
+				v-show="!messageData || !messageData.automod"
+				/>
+	
+			<Button :aria-label="$t('chat.hover_actions.pin')"
+				bounce
+				:icon="$image('icons/pin.svg')"
+				:data-tooltip="$t('chat.hover_actions.pin')"
+				@click="pinMessage()"
+				v-show="!messageData || !messageData.automod"
+				/>
+		</div>
 	</div>
 </template>
 
@@ -106,36 +109,50 @@ export default class ChatMessageHoverActions extends Vue {
 			this.$store("chat").pinMessage(this.messageData);
 		}
 	}
+
+	/**
+	 * Allows to close the options when clicking on safe "mouse out"
+	 * gap around the popin
+	 */
+	public onClickHolder(e:MouseEvent):void{
+		if(e.target == this.$el) {
+			this.$emit("close");
+		}
+	}
 }
 </script>
 
 <style scoped lang="less">
 .ChatMessageHoverActions{
-	display: flex;
-	flex-direction: row;
-	align-items: flex-end;
-	justify-content: space-around;
-	flex-wrap: wrap;
+	@mouseGap:1em;
+	padding: @mouseGap 0 0 calc(@mouseGap / 2);
+	.innerHolder {
+		display: flex;
+		flex-direction: row;
+		align-items: flex-end;
+		justify-content: space-around;
+		flex-wrap: wrap;
+		
+		background-color: @mainColor_light;
+		padding: 2px;
+		border-top-left-radius: .5em;
+		border-top-right-radius: .5em;
+		// box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 	
-	background-color: @mainColor_light;
-	padding: 2px;
-	border-top-left-radius: .5em;
-	border-top-right-radius: .5em;
-	// box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
-
-	.button {
-		width: 1.5em;
-		height: 1.5em;
-		min-width: 20px;
-		min-height: 20px;
-		border-radius: .5em;
-		padding: 0;
-		// font-size: 20px;
-		:deep(.icon) {
-			min-width: 100%;
-		}
-		&:not(:last-child) {
-			margin-right: 2px;
+		.button {
+			width: 1.5em;
+			height: 1.5em;
+			min-width: 20px;
+			min-height: 20px;
+			border-radius: .5em;
+			padding: 0;
+			// font-size: 20px;
+			:deep(.icon) {
+				min-width: 100%;
+			}
+			&:not(:last-child) {
+				margin-right: 2px;
+			}
 		}
 	}
 }

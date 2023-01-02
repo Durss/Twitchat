@@ -18,7 +18,7 @@
 		},
 		"bingo": {
 			"title": "Create a bingo",
-			"info_1": "You can create a bingo in which your viewers will have to be the first to guess a number or a global emote."
+			"info_1": "You can create a bingo in which your viewers will have to be the first to guess a number, a global emote, or any custom word."
 		},
 		"raffle": {
 			"title": "Create a raffle",
@@ -46,7 +46,7 @@
 		"overlays": {
 			"title": "Twitchat overlays",
 			"info_1": "Twitchat provides some <strong>overlays</strong> for your stream.",
-			"info_2": "It can display your <strong>currently playing music</strong> or a <strong>animated wheel</strong> to pick a raffle's winner."
+			"info_2": "It can display your <strong>currently playing music</strong>, an <strong>animated wheel</strong> to pick a raffle's winner and a <strong>timer</strong> or a <strong>countdown</strong>."
 		},
 		"countdown": {
 			"title": "Timer and Countdown",
@@ -64,7 +64,7 @@
 			"info_1": "You want to show a viewer's message on your stream?",
 			"info_2": "You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on a button",
 			"config_overlayBt": "Configure overlay",
-			"configure_triggerBt": "Configure trigger"
+			"configure_triggerBt": "Create triggers"
 		}
 	}
 }

@@ -136,6 +136,7 @@
 			"vip":"Attribuer le rôle VIP",
 			"unvip":"Retirer le rôle VIP",
 			"pin":"Envoyer un message et l'épingler",
+			"clear":"Effacer le tchat",
 			"greetduration":"Définir la durée de conservation des messages de la section \" @:greet.title \""
 		}
 	}

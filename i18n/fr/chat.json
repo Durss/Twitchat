@@ -177,7 +177,7 @@
 			"summary_title": "Train de la hype terminé au {LEVEL} {PERCENT}",
 			"summary_level": "niveau",
 			"filterBt": "Voir les activités",
-			"filtered_title": "Acitvités du train"
+			"filtered_title": "Activités du train"
 		},
 		"followbot": {
 			"title": "{COUNT} follow bot potentiels"
