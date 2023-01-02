@@ -62,7 +62,7 @@
 			<teleport :to="adTarget" v-if="adTarget">
 				<div :class="collapse? 'ad collapse' : 'ad'" @click="collapse = false">
 					<Button v-if="!collapse"
-						:aria-label="$t('params.ad_collapse')"
+						:aria-label="$t('params.ad_collapse_aria')"
 						:icon="$image('icons/cross_white.svg')"
 						@click="collapse = true"
 						class="close clearButton" bounce />
@@ -85,7 +85,6 @@
 						v-if="!showAdInfo && !collapse && !isDonor" />
 					<div v-if="showAdInfo && !collapse && !isDonor" class="donateDetails">
 						<p class="title" v-html="$t('params.ad_disable_info1')"></p>
-						<p class="details" v-html="$t('params.ad_disable_info2')"></p>
 						<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" :title="$t('params.ad_donateBt')" />
 					</div>
 					<ToggleBlock v-if="!collapse && !isDonor" class="tip" :open="false" :title="$t('params.ad_bot_info_title')" small>
@@ -439,7 +438,8 @@ export default class Parameters extends Vue {
 					flex-direction: column;
 					width: 180px;
 					margin: 1px;
-					padding: 1em;
+					padding: 1em .25em;
+					justify-content: flex-start;
 					:deep(.icon) {
 						height: 3em;
 						width: 3em;
@@ -448,6 +448,9 @@ export default class Parameters extends Vue {
 						margin: 0 0 .5em 0;
 						object-fit: fill;
 						object-position: center center;
+					}
+					:deep(.label) {
+						white-space: normal;
 					}
 	
 					&.beta1, &.beta2 {
