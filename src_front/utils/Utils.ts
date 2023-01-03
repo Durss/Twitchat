@@ -191,13 +191,22 @@ export default class Utils {
 	 * Check if a user matches a permission criterias
 	 */
 	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
-		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
 		const chanInfo = user.channelInfo[channelId];
-		if(chanInfo.is_vip && permissions.vips === false) return false;
-		if(chanInfo.is_subscriber && permissions.subs === false) return false;
-		if(chanInfo.is_moderator && permissions.mods === false) return false;
-		if(chanInfo.is_broadcaster && permissions.broadcaster === false) return false;
-		return permissions.all || allowedUsers?.indexOf(user.login.toLowerCase()) > -1;
+
+		if(chanInfo.is_vip && permissions.vips === true) return true;
+		if(chanInfo.is_subscriber && permissions.subs === true) return true;
+		if(chanInfo.is_moderator && permissions.mods === true) return true;
+		if(chanInfo.is_broadcaster && permissions.broadcaster === true) return true;
+		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+		if(allowedUsers?.indexOf(user.login.toLowerCase()) > -1) return true;
+
+		if(permissions.all
+			&& !chanInfo.is_vip
+			&& !chanInfo.is_moderator
+			&& !chanInfo.is_broadcaster
+			&& !chanInfo.is_subscriber) return true;
+
+		return false;
 		
 		//Old behavior
 		/*
