@@ -196,6 +196,64 @@ export const storeRaffle = defineStore('raffle', {
 					MessengerProxy.instance.sendMessage(message, [user.platform]);
 				}
 			}
+		},
+
+		async pickWinner():Promise<void> {
+			if(!this.data) return;
+
+			let winner:TwitchatDataTypes.RaffleEntry;
+			
+			const list = [];
+			//Ponderate votes by adding one user many times if their
+			//score is greater than 1
+			for (let i = 0; i < this.data.entries.length; i++) {
+				const u = this.data.entries[i];
+				if(u.score==1) list.push(u);
+				else {
+					for (let j = 0; j < u.score; j++) {
+						list.push(u);
+					}
+				}
+			}
+			if(!this.data.winners) {
+				this.data.winners = [];
+			}
+			
+			//Pick a winner that has not already be picked
+			do{
+				winner = Utils.pickRand(list);
+			}while(this.data.winners.find(w => w.id == winner.id));
+			
+			//Ask if a wheel overlay exists
+			let wheelOverlayExists = false;
+
+			const wheelOverlayPresenceHandler = ()=> { wheelOverlayExists = true; };
+			PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, wheelOverlayPresenceHandler);
+
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+			await Utils.promisedTimeout(500);//Give the overlay some time to answer
+			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, wheelOverlayPresenceHandler);
+	
+			//A wheel overlay exists, send it data and wait for it to complete
+			if(wheelOverlayExists){
+				const list:TwitchatDataTypes.EntryItem[] = this.data.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.EntryItem=>{
+											return {
+												id:v.id,
+												label:v.label,
+											}
+										});
+				const data:TwitchatDataTypes.WheelData = {
+					items:list,
+					winner:winner.id,
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
+	
+			}else{
+	
+				//no wheel overlay found, just announce the winner
+				this.onRaffleComplete(winner);
+			}
+	
 		}
 	} as IRaffleActions
 	& ThisType<IRaffleActions

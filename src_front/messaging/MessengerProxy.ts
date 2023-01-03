@@ -371,6 +371,11 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/startraffle") {
+			await StoreProxy.raffle.pickWinner();
+			return true;
+		}else
+
 		if(cmd == "/bingo") {
 			//Open bingo form
 			const payload:TwitchatDataTypes.BingoConfig = {

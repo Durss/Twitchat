@@ -77,7 +77,6 @@ export default class RaffleState extends Vue {
 	public raffleData!:TwitchatDataTypes.RaffleData;
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	
-	private wheelOverlayPresenceHandler!:()=>void;
 	private wheelOverlayExists = false;
 
 	public get canPick():boolean {
@@ -95,10 +94,6 @@ export default class RaffleState extends Vue {
 		this.progressPercent	= ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 
-		this.wheelOverlayPresenceHandler = ()=> { this.wheelOverlayExists = true; };
-
-		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
-		
 		//Check if wheel's overlay exists
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 	}
@@ -108,7 +103,6 @@ export default class RaffleState extends Vue {
 		.then(async ()=> {
 			this.$store("raffle").stopRaffle();
 			this.$emit("close");
-			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.wheelOverlayPresenceHandler);
 		}).catch(()=> {
 			//ignore
 		});
@@ -124,54 +118,9 @@ export default class RaffleState extends Vue {
 		let winner:TwitchatDataTypes.RaffleEntry;
 		this.picking = true;
 		
-		const list = [];
-		//Ponderate votes by adding one user many times if their
-		//score is greater than 1
-		for (let i = 0; i < this.raffleData.entries.length; i++) {
-			const u = this.raffleData.entries[i];
-			if(u.score==1) list.push(u);
-			else {
-				for (let j = 0; j < u.score; j++) {
-					list.push(u);
-				}
-			}
-		}
-		if(!this.raffleData.winners) {
-			this.raffleData.winners = [];
-		}
-		
-		//Pick a winner that has not already be picked
-		do{
-			winner = Utils.pickRand(list);
-		}while(this.raffleData.winners.find(w => w.id == winner.id));
-		
-		//Ask if a wheel overlay exists
-		this.wheelOverlayExists = false;
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
-		await Utils.promisedTimeout(500);//Give the overlay some time to answer
-
-		//A wheel overlay exists, send it data and wait for it to complete
-		if(this.wheelOverlayExists){
-			const list:TwitchatDataTypes.EntryItem[] = this.raffleData.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.EntryItem=>{
-										return {
-											id:v.id,
-											label:v.label,
-										}
-									});
-			const data:TwitchatDataTypes.WheelData = {
-				items:list,
-				winner:winner.id,
-			}
-			PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
-
-		}else{
-
-			//no wheel overlay found, just announce the winner
-			this.$store("raffle").onRaffleComplete(winner);
-		}
+		await this.$store("raffle").pickWinner();
 
 		this.picking = false;
-
 	}
 
 }
