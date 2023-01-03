@@ -44,6 +44,7 @@ export default class OverlaysRaffleWheel extends Vue {
 	private animStep = 0;
 	private frameIndex = 0;
 	private selectedItemIndex = 0;
+	private endOffset = 0;
 	private winnerData!:TwitchatDataTypes.EntryItem;
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
@@ -205,10 +206,10 @@ export default class OverlaysRaffleWheel extends Vue {
 				if(i == 0){
 					tween.eventCallback("onComplete", ()=>{
 						this.animStep = 2;
-						const endOffset = this.selectedItemIndex*this.itemSize - this.listHeight/2 + this.itemSize/2;
-						const duration = Math.abs(endOffset - this.scrollOffset)*.001;
+						this.endOffset = this.selectedItemIndex*this.itemSize - this.listHeight/2 + this.itemSize/2;
+						const duration = Math.abs(this.endOffset - this.scrollOffset)*.001;
 						//Scroll down after last item has appeared
-						gsap.to(this, {scrollOffset: endOffset, duration, ease:"sine.inOut", onComplete:()=>{
+						gsap.to(this, {scrollOffset: this.endOffset, duration, ease:"sine.inOut", onComplete:()=>{
 							this.onAnimationComplete();
 						}});
 					});
@@ -234,8 +235,10 @@ export default class OverlaysRaffleWheel extends Vue {
 			this.prevBiggestItem.getElementsByClassName("wheel-item")[0].classList.remove("selected");
 		}
 		if(biggestItem) {
-			biggestItem.classList.add("selected");
-			biggestItem.getElementsByClassName("wheel-item")[0].classList.add("selected");
+			if(this.scrollOffset > this.endOffset*.8) {
+				biggestItem.classList.add("selected");
+				biggestItem.getElementsByClassName("wheel-item")[0].classList.add("selected");
+			}
 			this.prevBiggestItem = biggestItem;
 		}
 	}
