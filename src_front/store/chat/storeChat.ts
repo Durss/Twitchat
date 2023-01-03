@@ -503,12 +503,7 @@ export const storeChat = defineStore('chat', {
 								m.occurrenceCount ++;
 								//Update timestamp
 								m.date = Date.now();
-								//Bring it back to bottom
-								messageList.push(m);
-								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, m));
-								messageList = messageList;
-								TriggerActionHandler.instance.onMessage(message);
-								return;
+								message = m;
 							}
 						}
 					}

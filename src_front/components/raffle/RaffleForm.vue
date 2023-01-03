@@ -92,7 +92,7 @@
 						v-if="showCountdownOverlay.value === true && mode=='chat'"
 						keypath="raffle.configs.timer_overlay_add">
 							<template #LINK>
-								<a @click="openParam('overlays')" v-t="'raffle.configs.timer_overlay_addBt'"></a>
+								<a @click="openParam('overlays')" v-t="'raffle.configs.timer_overlay_add_link'"></a>
 							</template>
 						</i18n-t>
 					</ParamItem>
@@ -123,7 +123,7 @@ import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionRaffleData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -331,8 +331,12 @@ export default class RaffleForm extends Vue {
 	}
 	
 	public openParam(page:TwitchatDataTypes.ParamsContentStringType):void {
-		this.$store("main").tempStoreValue = "CONTENT:"+page;
-		this.$store("main").setShowParams(true);
+		if(this.triggerMode) {
+			this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
+		}else{
+			this.$store("main").tempStoreValue = "CONTENT:"+page;
+			this.$store("main").setShowParams(true);
+		}
 	}
 
 	public onValueChange():void {

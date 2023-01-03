@@ -193,10 +193,10 @@ export default class Utils {
 	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
 		const chanInfo = user.channelInfo[channelId];
 
-		if(chanInfo.is_vip && permissions.vips === true) return true;
-		if(chanInfo.is_subscriber && permissions.subs === true) return true;
-		if(chanInfo.is_moderator && permissions.mods === true) return true;
-		if(chanInfo.is_broadcaster && permissions.broadcaster === true) return true;
+		if(chanInfo.is_vip && permissions.vips !== false) return true;//Check for "x !== false" instead of "x === true" as the prop might be missing
+		if(chanInfo.is_subscriber && permissions.subs !== false) return true;
+		if(chanInfo.is_moderator && permissions.mods !== false) return true;
+		if(chanInfo.is_broadcaster && permissions.broadcaster !== false) return true;
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
 		if(allowedUsers?.indexOf(user.login.toLowerCase()) > -1) return true;
 
