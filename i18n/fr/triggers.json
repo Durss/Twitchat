@@ -207,8 +207,8 @@
 				"description": "Exécuter des actions quand quelqu'un contribue à un défi communautaire"
 			},
 			"COMMUNITY_CHALLENGE_COMPLETE": {
-				"label": "Objectif de défi communautaire remplit",
-				"description": "Exécuter des actions lorsqu'un défi communautaire est remplit"
+				"label": "Objectif de défi communautaire rempli",
+				"description": "Exécuter des actions lorsqu'un défi communautaire est rempli"
 			},
 			"STREAM_INFO_UPDATE": {
 				"label": "Infos de streams mises à jour",

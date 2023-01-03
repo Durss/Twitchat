@@ -32,7 +32,7 @@
 		"obs_connect":"Cette fonctionnalité nécessite de {LINK}",
 		"obs_connect_link":"se connecter à OBS",
 		"placeholder_selector_title":"Tag spéciaux remplacés dynamiquement",
-		"placeholder_selector_insert":"Inserrer",
+		"placeholder_selector_insert":"Insérer",
 		"chat_alert_title":"{USER} dit",
 		"badges":{
 			"subscriber":"Abonné·e depuis {DURATION}",

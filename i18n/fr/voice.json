@@ -1,7 +1,7 @@
 {
 	"voice":{
 		"header":"Contrôlez Twitchat avec votre voix",
-		"unsupported_browser":"The navigateur ne prend pas en charge la reconnaissance vocale",
+		"unsupported_browser":"Ce navigateur ne prend pas en charge la reconnaissance vocale",
 		"unsupported_browser_detail":"Veuillez utiliser Google Chrome, Microsoft Edge ou Safari.",
 		"supported_browsers":"Fonctionne seulement avec Google Chrome, Microsoft Edge ou Safari",
 		"remote_control":"Si vous souhaitez utiliser Twitchat dans un navigateur ne prenant pas en charge la reconnaissance vocale, vous pouvez ouvrir cette page dans un navigateur compatible pour gérer la reconnaissance vocale :",
