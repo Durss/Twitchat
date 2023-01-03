@@ -81,10 +81,10 @@
 
 		"botMessages":{
 			"raffleStart":"/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} !",
-			"raffle":"/announce 🎉🎉🎉 Bravo {'@'}{USER} tu remporte le tirage au sort 🎉🎉🎉",
+			"raffle":"/announce 🎉🎉🎉 Bravo {'@'}{USER} tu remportes le tirage au sort 🎉🎉🎉",
 			"raffleJoin":"VoteYea {'@'}{USER} tu as rejoint le tirage au sort.",
 			"bingoStart":"/announce 🎉🎉🎉 Un bingo a débuté 🎉🎉🎉 {GOAL}",
-			"bingo":"/announce 🎉🎉🎉 Bravo {'@'}{USER} tu a s remporté le bingo 🎉🎉🎉",
+			"bingo":"/announce 🎉🎉🎉 Bravo {'@'}{USER} tu as remporté le bingo 🎉🎉🎉",
 			"shoutout":"/announce Allez voir {USER} {URL} . Son dernier stream était \"{TITLE}\" dans la catagorie \"{CATEGORY}\".",
 			"twitchatAd":"/announcepurple Tu stream sur Twitch ? J'utilise GivePLZ twitchat.fr TakeNRG, une alternative au tchat Twitch pour streamer. Jetes-y un oeil KomodoHype"
 		},

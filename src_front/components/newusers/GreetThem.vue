@@ -313,18 +313,12 @@ export default class NewUsers extends Vue {
 					//Because it's drastically faster this way. There's a huge
 					//rendering pipeline performance issue i couldn't solve
 					//by any other method.
-					let color = Utils.getLessVars().mainColor_light as string;
-					color = color.replace(/\)/gi, ", .5)");
-					// (items[i].$el as HTMLDivElement).style.borderColor = color as string;
 					(items[i].$el as HTMLDivElement).style.opacity = ".3";
 				}
 				
 			}
 		}else{
 			this.highlightState[this.localMessages[index].id as string] = true;
-			let color = Utils.getLessVars().mainColor_light as string;
-			color = color.replace(/\)/gi, ", .5)");
-			// (items[index].$el as HTMLDivElement).style.borderColor = color as string;
 			(items[index].$el as HTMLDivElement).style.opacity = ".3";
 		}
 	}

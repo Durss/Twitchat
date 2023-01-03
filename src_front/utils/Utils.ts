@@ -220,68 +220,6 @@ export default class Utils {
 		//*/
 	}
 
-	private static cachedVars:{[key:string]:string|number}|null = null;
-	/**
-	* getLessVars parses your LESS variables to Javascript (provided you make a dummy node in LESS)
-	* @param {String} id The CSS-id your variables are listed under.
-	* @param {Boolean} [parseNumbers=true] Try to parse units as numbers.
-	* @return {Object} A value object containing your LESS variables.
-	* @example
-	* LESS:
-	* 	@myLessVariable: 123px;
-	* 	#dummyLessId { width: @myLessVariable; }
-	* Javascript:
-	* 	getLessVars('dummyLessId');
-	* returns:
-	* 	{myLessVariable:123}
-	*/
-	public static getLessVars(id = "lessVars", parseNumbers = true): {[key:string]:string|number} {
-		if(this.cachedVars) return this.cachedVars;
-
-		const bNumbers:boolean = parseNumbers === undefined ? true : parseNumbers;
-		const oLess:{[key:string]:string|number} = {}
-		const rgId = /#[\w-]+/
-		const rgKey = /\.([\w-]+)/
-		const rgUnit = /[a-z]+$/
-		const aUnits:string[] = 'em,ex,ch,rem,vw,vh,vmin,cm,mm,in,pt,pc,px,deg,grad,rad,turn,s,ms,Hz,kHz,dpi,dpcm,dppx'.split(',')
-		const rgValue = /:\s?(.*)\s?;\s?\}/
-		const rgStr = /^'([^']+)'$/
-		const sId:string = '#' + id
-		const oStyles = document.styleSheets;
-		for (let i = 0, l = oStyles.length; i < l; i++) {
-			let oRules:CSSRuleList;
-			try { oRules = (oStyles[i]).cssRules; }
-			catch (e) { continue; }
-			if (oRules) {
-				for (let j = 0, k = oRules.length; j < k; j++) {
-					let sRule:string;
-					try { sRule = oRules[j].cssText; }
-					catch (e) { continue; }
-					const aMatchId = sRule.match(rgId);
-					if (aMatchId && aMatchId[0] == sId) {
-						const aKey = sRule.match(rgKey);
-						const aVal = sRule.match(rgValue);
-						if (aKey && aVal) {
-							const sKey:string = aKey[1];
-							let oVal:string|number = aVal[1];
-							let aUnit:RegExpMatchArray | null
-							let aStr:RegExpMatchArray | null;
-							if (bNumbers && (aUnit = oVal.match(rgUnit)) && aUnits.indexOf(aUnit[0]) !== -1) {
-								oVal = parseFloat(oVal);
-							} else {
-								aStr = oVal.match(rgStr)
-								if(aStr) oVal = aStr[1];
-							}
-							oLess[sKey] = oVal;
-						}
-					}
-				}
-			}
-		}
-		this.cachedVars = oLess;
-		return oLess;
-	}
-
 	/**
 	 * Computes distance between two strings
 	 *

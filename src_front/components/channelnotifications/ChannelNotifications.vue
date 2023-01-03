@@ -5,7 +5,7 @@
 				<PollState class="content" v-if="showPoll" />
 				<ChatSuggestionState class="content" v-else-if="showChatPoll" />
 				<PredictionState class="content" v-else-if="showPrediction" />
-				<TrackedUsers class="content" v-else-if="showTrackedUsers" />
+				<TrackedUsers class="content" v-else-if="showTrackedUsers" @close="$emit('close')" />
 				<RaffleState class="content" v-else-if="showRaffle" />
 				<WhispersState class="content" v-else-if="showWhispers" />
 				<BingoState class="content" v-else-if="showBingo" />

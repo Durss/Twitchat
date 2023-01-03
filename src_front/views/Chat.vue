@@ -12,7 +12,7 @@
 						|| ($store('params').features.firstMessage.value && index == 1)" />
 	
 						<MessageList ref="messages" class="messages"
-							@showModal="(v:string) => currentModal = v"
+							@showModal="(v:modalTypes) => currentModal = v"
 							@addColumn="addColumn"
 							:maxMessages="50"
 							:config="c"
@@ -220,7 +220,7 @@ export default class Chat extends Vue {
 	public showBlinkLayer = false;
 	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
-	public currentModal = "";
+	public currentModal:modalTypes = "";
 	public currentNotificationContent = "";
 	public formsColumnTarget:HTMLDivElement|null = null;
 	
@@ -450,7 +450,7 @@ export default class Chat extends Vue {
 	 */
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif = "";
-		let modal = "";
+		let modal:modalTypes = "";
 		switch(e.type) {
 			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
 			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'pred'; break;
@@ -700,6 +700,8 @@ export default class Chat extends Vue {
 	}
 }
 
+
+type modalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins";
 </script>
 
 <style scoped lang="less">

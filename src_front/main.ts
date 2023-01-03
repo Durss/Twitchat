@@ -87,7 +87,7 @@ function buildApp() {
 		if(transparent) {
 			document.body.style.backgroundColor = "transparent";
 		}else{
-			document.body.style.backgroundColor = "#18181b";//Utils.getLessVars().mainColor_dark as string;
+			document.body.style.backgroundColor = "#18181b";
 		}
 	
 		//If landing on homepage, redirect to chat if an auth token is available

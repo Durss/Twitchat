@@ -125,7 +125,8 @@ export default class ChatMessageHoverActions extends Vue {
 <style scoped lang="less">
 .ChatMessageHoverActions{
 	@mouseGap:1em;
-	padding: @mouseGap 0 0 calc(@mouseGap / 2);
+	padding: @mouseGap calc(@mouseGap / 2) 0 calc(@mouseGap / 2);
+	margin-right: calc(-@mouseGap / 2);
 	.innerHolder {
 		display: flex;
 		flex-direction: row;

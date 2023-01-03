@@ -54,7 +54,8 @@ import ChatMessage from '../messages/ChatMessage.vue';
 	components:{
 		Button,
 		ChatMessage
-	}
+	},
+	emits:["close"]
 })
 export default class TrackedUsers extends Vue {
 
@@ -87,7 +88,7 @@ export default class TrackedUsers extends Vue {
 	}
 
 	public untrackUser(user:TwitchatDataTypes.TwitchatUser):void {
-		user.is_tracked = false;
+		this.$store("users").untrackUser(user);
 		this.onUpdateList();
 	}
 
@@ -115,6 +116,9 @@ export default class TrackedUsers extends Vue {
 			if(u.is_tracked) res.push(u);
 		}
 		this.trackedUsers = res;
+		if(res.length == 0) {
+			this.$emit("close");
+		}
 	}
 
 	public openUserCard():void {

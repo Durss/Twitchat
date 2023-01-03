@@ -398,7 +398,7 @@ export namespace TwitchatDataTypes {
 
 	/**
 	 * Stores the install callback sent by the browser
-	 * This callback is used to "install" Tiwtchat on the device
+	 * This callback is used to "install" Twitchat on the device
 	 * (mostly made for mobile but also work on desktop)
 	 */
 	export interface InstallHandler extends Event {
