@@ -65,6 +65,39 @@
 				callTwitchat(actionName, params)
 			},
 
+			onRotate: (action, settings) => {
+				const actionName = action.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				let params;
+				switch(actionName) {
+					case "GREET_FEED_READ":{
+						params = {
+									"count": Math.abs(settings.ticks),
+								}
+						break;
+					}
+					case "CHAT_FEED_READ":{
+						params = {
+									"count": Math.abs(settings.ticks),
+								}
+						break;
+					}
+					case "CHAT_FEED_SCROLL_UP":{
+						params = {
+									"scrollBy": Math.abs(settings.ticks),
+								}
+						break;
+					}
+					case "CHAT_FEED_SCROLL_DOWN":{
+						params = {
+									"scrollBy": Math.abs(settings.ticks),
+								}
+						break;
+					}
+				}
+				// console.log(actionName, params);
+				callTwitchat(actionName, params)
+			},
+
 			SetTitle: (context, value) => {
 				var json = {
 					"event": "setTitle",
@@ -155,10 +188,16 @@
 
 				//Called when a streamdeck button is released
 				else if (event == "keyUp") {
-					var settings = jsonPayload['settings'];
+					// var settings = jsonPayload['settings'];
 					// var coordinates = jsonPayload['coordinates'];
 					// var userDesiredState = jsonPayload['userDesiredState'];
 					actions.onKeyUp(action);
+				}
+
+				//Called when a streamdeck+ dial button is rotated
+				else if (event == "dialRotate") {
+					var settings = jsonPayload['settings'];
+					actions.onRotate(action, settings);
 				}
 
 				//Called when property inspector sends data

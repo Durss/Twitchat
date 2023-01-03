@@ -72,7 +72,7 @@ export default class TriggerActionScheduleParams extends Vue {
 	public param_name:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"", icon:"date_purple.svg", placeholder:"..." };
 	public param_action:TwitchatDataTypes.ParameterData = { type:"list", value:"", label:"", icon:"date_purple.svg" };
 	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"", icon:"timeout_purple.svg" };
-	public param_repeatDurationValue:TwitchatDataTypes.ParameterData = { type:"number", value:20, label:"", icon:"timeout_purple.svg", min:.1, max:48*60 };
+	public param_repeatDurationValue:TwitchatDataTypes.ParameterData = { type:"number", value:20, label:"", icon:"timeout_purple.svg", min:0, max:48*60 };
 	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"", icon:"whispers_purple.svg" };
 	public param_repeatMessageValue:TwitchatDataTypes.ParameterData = { type:"number", value:100, label:"", icon:"whispers_purple.svg", min:1, max:9999 };
 	public params_daily:TwitchatDataTypes.ParameterData[] = [];
@@ -201,9 +201,9 @@ export default class TriggerActionScheduleParams extends Vue {
 
 		:deep(input),
 		:deep(select) {
-			width: 225px;
+			flex-basis: 225px;
 			&[type="number"] {
-				width: 80px;
+				flex-basis: 80px;
 			}
 		}
 

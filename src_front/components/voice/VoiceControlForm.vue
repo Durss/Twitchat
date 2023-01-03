@@ -8,14 +8,14 @@
 		</section>
 		
 		<section class="block" v-if="!voiceApiAvailable || started || tempText || finalText">
-			<Splitter v-t="'voice.tts_preview'"></Splitter>
+			<Splitter v-t="'voice.stt_preview'"></Splitter>
 			<div class="temp" v-if="tempText && !finalText">{{tempText}}</div>
 			<div class="final" v-if="finalText">{{finalText}}</div>
 			<div class="empty" v-if="!tempText && !finalText">_</div>
 		</section>
 
 		<section v-if="sttOnly === false">
-			<Splitter v-t="'voice.tts_actions'"></Splitter>
+			<Splitter v-t="'voice.stt_actions'"></Splitter>
 			<VoiceTriggerList class="block" />
 		</section>
 	</div>

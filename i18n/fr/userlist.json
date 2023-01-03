@@ -1,19 +1,17 @@
 {
 	"userlist": {
 		"roles": {
-			"broadcaster": "Broadcaster",
-			"mods": "Moderators",
+			"broadcaster": "Diffuseur",
+			"mods": "Modérateurs·ices",
 			"vips": "VIPs",
-			"viewers": "Chatters"
+			"viewers": "Autres"
 		},
-		"banned_tt": "Banned",
-		"infoBt": "Why is the chat users count different from the viewer count?",
+		"banned_tt": "Banni·e",
+		"infoBt": "Pourquoi le nombre de personne dans le chat diffère du compteur de viewers ?",
 		"infos": [
-			"Chat user count shows people actually connected to your chat. Viewers count tells how many people are watching your stream.",
-			"It's possible to be on a chat without watching the stream <i>(like bots)</i> and it's possibler to watch the stream without being on the chat <i>(when watching from homepage or after closing the chat, ...)</i>",
-			"Also, nothing's official, but it's almost certain that Twitch removes you from the viewers count if you keep the stream on a background tab for some time.",
-			"This usually makes your chatters count higher than your viewers count after a raid.",
-			"When promoted on homepage though, your viewer count will be MUCH higher than your chatters count."
+			"Cette fenêtre liste les personnes présentes dans votre tchat. Le compteur de viewer liste les personnes qui vous regardent.",
+			"Il est possible d'être dans le tchat sans voir le stream <i>(ex: les bots)</i> et il est possible de voir le stream sans être dans le tchat <i>(via la homepage, audio only sur mobile, embed sur un site externe, ...)</i>",
+			"Aussi, rien d'officiel, mais il est très probable que Twitch nous retire des viewers si on laisse le stream en arrière plan trop longtemps."
 		]
 	}
 }

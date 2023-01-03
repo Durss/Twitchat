@@ -825,9 +825,8 @@ export namespace TwitchatDataTypes {
 		BAN:"ban",//When banning a user
 		UNBAN:"unban",//When unbanning a user
 		MOD:"mod",//When granting mod role to a user
-		SHIELD_MODE:"shieldMode",//When starting/stopping shield mode
 		UNMOD:"unmod",//When removing mod role from a user
-		UNBLOCK:"unblock",//When unblocking a user
+		SHIELD_MODE:"shieldMode",//When starting/stopping shield mode
 		VIP:"vip",///When granting VIP role to a user
 		UNVIP:"unvip",//When removing VIP role from a user
 		EMERGENCY_MODE:"emergencyMode",//When emergency mode is started/stoped

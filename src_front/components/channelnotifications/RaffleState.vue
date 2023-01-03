@@ -9,7 +9,7 @@
 
 		<div class="item entries">
 			<img src="@/assets/icons/user.svg" alt="user">
-			<i18n-t scope="global" tag="p" keypath="raffle.state_users.plural" :plural="raffleData.entries.length">
+			<i18n-t scope="global" tag="p" keypath="raffle.state_users" :plural="raffleData.entries?.length">
 				<template #COUNT>
 					<span>{{raffleData.entries?.length}}</span>
 					<span v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</span>

@@ -16,6 +16,7 @@
 		"form_save_preset_name":"",
 		"form_save_preset_name_placeholder":"nom...",
 		"form_custom_tags_warn":"Twitch ne permet pas encore l'utilisation de tags personnalisés pour les outils externes",
-		"stream_info_preset_edit": "Mise à jour du preset échoué"
+		"stream_info_preset_edit": "Mise à jour du preset échouée",
+		"notification":"Le titre du stream a été mis à jour pour \"{TITLE}\""
 	}
 }

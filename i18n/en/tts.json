@@ -3,12 +3,14 @@
 		"header":"Read your messages out loud",
 		"read_user_start":"Read {USER}'s future messages",
 		"read_user_stop":"Stop reading {USER}'s messages",
+		"on_notice":"<mark>{USER}</mark>'s messages will be read out loud.",
+		"off_notice":"<mark>{USER}</mark>'s messages won't be read out loud anymore.",
 		"chat_perms":{
 			"title":"Read permissions",
 			"head":"Choose who's messages you want to read.",
 			"infos":"It only filters out the chat messages and whispers. It won't affect sub alerts, cheers, raid, channel points, etc..."
 		},
-		"mesages":{
+		"messages":{
 			"title":"Messages to read",
 			"param_format": "Format",
 			"param_readMessages": "Chat messages",
@@ -24,7 +26,8 @@
 			"param_readPredictions": "Prediction results",
 			"param_readBingos": "Bingo results",
 			"param_readRaffle": "Raffle results",
-			"param_readUsers": "Users to read out loud"
+			"param_readUsers": "Users to read out loud",
+			"param_readUsers_add": "username..."
 		},
 		"params":{
 			"title":"Voice parameters",

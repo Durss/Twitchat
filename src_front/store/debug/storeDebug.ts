@@ -379,6 +379,29 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.MUSIC_START:
+				case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP:
+				case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
+					const m:TwitchatDataTypes.MessageMusicAddedToQueueData
+					| TwitchatDataTypes.MessageMusicStartData
+					| TwitchatDataTypes.MessageMusicStopData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						date:Date.now(),
+						type,
+						track: {
+							title: "Mitchiri Neko march",
+							artist: "Mitchiri MitchiriNeko",
+							album: "MitchiriNeko",
+							cover: "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",
+							duration: 1812,
+							url: "https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"
+						}
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.POLL: {
 					const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 					const count = Math.ceil(Math.random()*10);
@@ -596,6 +619,32 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE: {
+					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
+						platform:"twitch",
+						type,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						sourceItemId:0,
+						sourceName:"loram ipsum",
+						visible:Math.random() > .5
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE: {
+					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
+						platform:"twitch",
+						type,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						sceneName:"Lorem ipsum"
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.TIMER: {
 					const duration = Math.round(Math.random()*60*10)*1000;
 					const start = new Date(Date.now() - duration);
@@ -678,6 +727,47 @@ export const storeDebug = defineStore('debug', {
 						type,
 						moderator:user,
 						chatMessage:pin as TwitchatDataTypes.MessageChatData,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT: {
+					const message = (await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, true)) as TwitchatDataTypes.MessageChatData;
+					const m:TwitchatDataTypes.MessageChatHighlightData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						type,
+						info:{
+							message:message.message,
+							user:message.user,
+						}
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT: {
+					const message = (await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, true)) as TwitchatDataTypes.MessageChatData;
+					const m:TwitchatDataTypes.MessageChatAlertData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						type,
+						message
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.VOICEMOD: {
+					const m:TwitchatDataTypes.MessageVoicemodData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						type,
+						voiceID:Utils.pickRand(["nofx", "robot", "baby"])
 					};
 					data = m;
 					break;
@@ -891,10 +981,46 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						noticeId:noticeType,
-						message:StoreProxy.i18n.t("global.moderation_action.shield_on"),
+						message:StoreProxy.i18n.t("global.moderation_action.shield_on", {USER:user.displayName}),
 						channel_id:uid,
 						enabled:true,
 						user,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.TTS: {
+					const keys = ["tts.on_notice", "tts.off_notice"];
+					const m:TwitchatDataTypes.MessageNoticeData = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message:StoreProxy.i18n.t(Utils.pickRand(keys), {USER:user.displayName}),
+						channel_id:uid,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE: {
+					const lorem = new LoremIpsum({
+						sentencesPerParagraph: { max: 8, min: 4 },
+						wordsPerSentence: { max: 8, min: 2 }
+					});
+					const title = lorem.generateSentences(1);
+					const m:TwitchatDataTypes.MessageStreamInfoUpdate = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:noticeType,
+						message:StoreProxy.i18n.t("stream.notification", {TITLE:title}),
+						channel_id:uid,
+						category:"Just chatting",
+						title,
 					};
 					data = m;
 					break;

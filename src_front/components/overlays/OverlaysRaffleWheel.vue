@@ -278,8 +278,10 @@ export default class OverlaysRaffleWheel extends Vue {
 		}});
 
 		//Tell twitchat animation completed
-		const data = (this.winnerData as unknown) as JsonObject;
-		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data});
+		setTimeout(()=> {
+			const data = (this.winnerData as unknown) as JsonObject;
+			PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data});
+		}, 5000);
 	}
 }
 </script>

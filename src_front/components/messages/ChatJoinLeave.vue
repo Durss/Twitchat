@@ -11,17 +11,17 @@
 			<span v-else-if="index < userList.length - 1 + remainingOffset">&nbsp;{{$t("global.and")}}&nbsp;</span>
 		</span>
 
-		<i18n-t scope="global" v-if="remainingCount > 0" tag="span" keypath="chat.join_leave.more.plural" :plural="remainingCount">
+		<i18n-t scope="global" v-if="remainingCount > 0" tag="span" keypath="chat.join_leave.more" :plural="remainingCount">
 			<template #COUNT><strong>{{remainingCount}}</strong></template>
 		</i18n-t>
 
 		<span v-if="remainingCount > 0">&nbsp;</span>
 
-		<i18n-t scope="global" v-if="messageData.type=='join'" tag="span" keypath="chat.join_leave.join.plural" :plural="userList.length">
+		<i18n-t scope="global" v-if="messageData.type=='join'" tag="span" keypath="chat.join_leave.join" :plural="userList.length">
 			<template #CHANNEL><strong>{{channelName}}</strong></template>
 		</i18n-t>
 
-		<i18n-t scope="global" v-else tag="span" keypath="chat.join_leave.leave.plural" :plural="userList.length">
+		<i18n-t scope="global" v-else tag="span" keypath="chat.join_leave.leave" :plural="userList.length">
 			<template #CHANNEL><strong>{{channelName}}</strong></template>
 		</i18n-t>
 	</div>

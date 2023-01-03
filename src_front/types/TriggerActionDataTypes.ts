@@ -209,7 +209,7 @@ export interface ITriggerActionHelper {
 let helpersCache:{[key:string]:ITriggerActionHelper[]};
 export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	if(helpersCache) {
-		return helpersCache[key];
+		return helpersCache[key] ?? [];
 	}
 	const t = StoreProxy.i18n.t;
 

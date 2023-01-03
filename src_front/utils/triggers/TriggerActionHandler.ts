@@ -380,7 +380,6 @@ export default class TriggerActionHandler {
 	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
 		if(subEvent) eventType += "_"+subEvent
 		let trigger:TriggerData = this.triggers[ eventType ];
-
 		
 		//Special case for twitchat's ad, generate trigger data
 		if(eventType == TriggerTypes.TWITCHAT_AD) {
@@ -407,53 +406,52 @@ export default class TriggerActionHandler {
 			return false;
 		}else{
 			// console.log("PARSE STEPS", eventType, trigger, message);
-			const data = trigger as TriggerData;
 			let canExecute = true;
 
-			if(data.permissions && data.cooldown && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			if(trigger.permissions && trigger.cooldown && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const key = eventType+"_"+message.user.id;
 				const now = Date.now();
 				
 				//check permissions
-				if(!Utils.checkPermissions(data.permissions, message.user, message.channel_id)) {
+				if(!Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
 					canExecute = false;
 				}else{
 					//Apply cooldowns if any
 					if(this.globalCooldowns[eventType] > 0 && this.globalCooldowns[eventType] > now) {
 						const remaining_s = Utils.formatDuration(this.globalCooldowns[eventType] - now + 1000) + "s";
 						canExecute = false;
-						if(data.cooldown.alert !== false) {
+						if(trigger.cooldown.alert !== false) {
 							const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
 							MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
 						}
 					}
-					else if(data.cooldown.global > 0) this.globalCooldowns[eventType] = now + data.cooldown.global * 1000;
+					else if(trigger.cooldown.global > 0) this.globalCooldowns[eventType] = now + trigger.cooldown.global * 1000;
 	
 					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
 						const remaining_s = Utils.formatDuration(this.userCooldowns[key] - now + 1000) + "s";
 						canExecute = false;
-						if(data.cooldown.alert !== false) {
+						if(trigger.cooldown.alert !== false) {
 							const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
 							MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
 						}
 					}
-					else if(canExecute && data.cooldown.user > 0) this.userCooldowns[key] = now + data.cooldown.user * 1000;
+					else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 				}
 			}
 
 			if(testMode) canExecute = true;
 			
-			if(!trigger || data.actions.length == 0) canExecute = false;
-			// console.log(data);
+			if(!trigger || trigger.actions.length == 0) canExecute = false;
+			// console.log(trigger);
 			// console.log(message);
 			// console.log(canExecute);
 
 			if(canExecute) {
-				for (let i = 0; i < data.actions.length; i++) {
+				for (let i = 0; i < trigger.actions.length; i++) {
 					if(autoExecuteNext && guid != this.currentSpoolGUID) {
 						return true;//Stop there, something asked to override the current exec sequence
 					}
-					const step = data.actions[i];
+					const step = trigger.actions[i];
 					// console.log("	Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
@@ -558,6 +556,7 @@ export default class TriggerActionHandler {
 					
 					//Handle sub trigger action
 					if(step.type == "http") {
+						console.log("HTTP CALL");
 						const options = {
 							method:step.method,
 						};
@@ -567,6 +566,7 @@ export default class TriggerActionHandler {
 							const text = await this.parseText(eventType, message, "{"+tag+"}", subEvent);
 							url.searchParams.append(tag.toLowerCase(), text);
 						}
+						console.log("HTTP CALL > ", url);
 						try {
 							await fetch(url, options);
 						}catch(error) {

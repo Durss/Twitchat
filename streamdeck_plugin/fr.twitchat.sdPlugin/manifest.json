@@ -55,7 +55,13 @@
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
-			"UUID": "fr.twitchat.action.chat-feed-read"
+			"UUID": "fr.twitchat.action.chat-feed-read",
+			"Controllers": ["Keypad", "Encoder"],
+			"Encoder":{
+				"TriggerDescription": {
+					"Rotate": "Move the read mark"
+				}
+			}
 		},
 		{
 			"Icon": "icons/CHAT_FEED_PAUSE_default",
@@ -97,7 +103,13 @@
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
-			"UUID": "fr.twitchat.action.chat-feed-scroll-up"
+			"UUID": "fr.twitchat.action.chat-feed-scroll-up",
+			"Controllers": ["Keypad", "Encoder"],
+			"Encoder":{
+				"TriggerDescription": {
+					"Rotate": "Scroll chat"
+				}
+			}
 		},
 		{
 			"Icon": "icons/CHAT_FEED_SCROLL_DOWN_default",
@@ -111,7 +123,13 @@
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
-			"UUID": "fr.twitchat.action.chat-feed-scroll-down"
+			"UUID": "fr.twitchat.action.chat-feed-scroll-down",
+			"Controllers": ["Keypad", "Encoder"],
+			"Encoder":{
+				"TriggerDescription": {
+					"Rotate": "Scroll chat"
+				}
+			}
 		},
 		{
 			"Icon": "icons/POLL_TOGGLE_default",

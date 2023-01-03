@@ -7,7 +7,7 @@
 			</template>
 		</i18n-t>
 		
-		<ToggleBlock class="item" title="Important warning" :open="false" small>
+		<ToggleBlock class="item" :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
 			<p v-t="'triggers.actions.trigger.warning'"></p>
 			<strong v-t="'global.example'"></strong>
 			<span v-html="$t('triggers.actions.trigger.warning_example')"></span>
@@ -15,7 +15,7 @@
 
 		<img src="@/assets/loader/loader.svg" alt="loading" class="loader" v-if="loading">
 
-		<div v-if="!triggerList || triggerList.length===0" class="noTrigger" v-t="'triggers.actions.trigger.no_trigger'"></div>
+		<div v-if="!triggerList || triggerList.length === 0" class="noTrigger" v-t="'triggers.actions.trigger.no_trigger'"></div>
 		
 		<vue-select class="item list" v-model="action.triggerKey"
 		v-if="triggerList?.length > 1"
@@ -161,6 +161,11 @@ export default class TriggerActionTriggerEntry extends Vue {
 				});
 			}
 		}
+		
+		//Remove current trigger from the list
+		const thisIndex = list.findIndex(v=> v.triggerKey == this.triggerKey)
+		list.splice(thisIndex, 1);
+		
 		list.sort((a, b)=> {
 			const ka = a.triggerKey.split("_")[0];
 			const kb = b.triggerKey.split("_")[0];

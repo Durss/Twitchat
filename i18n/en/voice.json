@@ -11,8 +11,8 @@
 		"addBt":"Add voice action",
 		"startBt":"Start voice bot",
 		"stopBt":"Stop voice bot",
-		"tts_preview":"Live text to speech",
-		"tts_actions":"Voice actions",
+		"stt_preview":"Live text to speech",
+		"stt_actions":"Voice actions",
 		"select_action":"Action to execute",
 		"select_action_placeholder":"...select action...",
 		"select_language":"Select your language:",
@@ -22,7 +22,7 @@
 		"fill_global":"Fill in all global commands above",
 		"remote":{
 			"title":"This page allows you to control Twitchat and some twitch features with your voice",
-			"commands":"Create your voice commands on Twitchat under <strong>Parameters => Voice control</strong> section"
+			"commands":"Create your voice commands on Twitchat under <strong>Parameters => @:params.categories.voice </strong> section"
 		},
 		"commands":{
 			"ERASE":"Erase",
@@ -36,8 +36,8 @@
 			"STOP_PREDICTION":"Cancel current prediction",
 			"CREATE_RAFFLE":"Create a raffle",
 			"STOP_RAFFLE":"Cancel current raffle",
-			"GREET_FEED_READ":"Mark 10 \"Greet them\" messages as read",
-			"GREET_FEED_READ_ALL":"Mark all \"Greet them\" messages as read",
+			"GREET_FEED_READ":"Mark 10 \" @:greet.title \" messages as read",
+			"GREET_FEED_READ_ALL":"Mark all \" @:greet.title \" messages as read",
 			"CHAT_FEED_READ":"Mark 10 chat messages as read",
 			"CHAT_FEED_READ_ALL":"Mark all chat messages as read",
 			"CHAT_FEED_PAUSE":"Pause chat",

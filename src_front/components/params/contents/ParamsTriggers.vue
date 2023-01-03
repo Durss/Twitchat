@@ -550,6 +550,15 @@ export default class ParamsTriggers extends Vue {
 			}else
 			if(entry.testMessageType == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
 				this.$store("debug").simulateNotice(entry.testNoticeType, (data)=> {
+					const m = data as TwitchatDataTypes.MessageNoticeData;
+					switch(m.noticeId) {
+						case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
+							(m as TwitchatDataTypes.MessageEmergencyModeInfo).enabled = (key == TriggerTypes.EMERGENCY_MODE_START);
+						}
+						case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:{
+							(m as TwitchatDataTypes.MessageShieldMode).enabled = (key == TriggerTypes.SHIELD_MODE_ON);
+						}
+					}
 					TriggerActionHandler.instance.onMessage(data, true);
 				}, false);
 			}else{

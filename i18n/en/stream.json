@@ -16,6 +16,7 @@
 		"form_save_preset_name":"Preset name",
 		"form_save_preset_name_placeholder":"name...",
 		"form_custom_tags_warn":"Custom tags are not yet allowed by Twitch API",
-		"stream_info_preset_edit": "Error editing stream info preset"
+		"stream_info_preset_edit": "Error editing stream info preset",
+		"notification":"Stream title changed to \"{TITLE}\""
 	}
 }

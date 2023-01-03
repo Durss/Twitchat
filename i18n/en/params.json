@@ -81,10 +81,10 @@
 
 		"botMessages":{
 			"raffleStart":"/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",
-			"raffle":"/announce 🎉🎉🎉 Congrats {'@'}{USER} you won the raffle 🎉🎉🎉",
-			"raffleJoin":"VoteYea {'@'}{USER} you entered the raffle.",
+			"raffle":"/announce 🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉",
+			"raffleJoin":"VoteYea @{USER} you entered the raffle.",
 			"bingoStart":"/announce 🎉🎉🎉 Bingo has started 🎉🎉🎉 {GOAL}",
-			"bingo":"/announce 🎉🎉🎉 Congrats {'@'}{USER} you won the bingo 🎉🎉🎉",
+			"bingo":"/announce 🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
 			"shoutout":"/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			"twitchatAd":"/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype"
 		},
@@ -109,8 +109,6 @@
 			"poll":"Start a poll",
 			"chatsugg":"Start a chat suggestion",
 			"prediction":"Start a prediction",
-			"tts":"Start reading the messages of a user",
-			"ttsoff":"Stop reading the messages of a user",
 			"simulatechat":"Simulate fake chat activity",
 			"announce":"Make an announcement",
 			"announceblue":"Make an announcement",
@@ -126,8 +124,8 @@
 			"Whisper":"Send a whisper",
 			"shieldOn":"Start shield mode",
 			"shieldOff":"Stop shield mode",
-			"ttsOn":"Read a user's messages",
-			"ttsOff":"Stop reading a user's messages",
+			"tts":"Start reading the messages of a user",
+			"ttsoff":"Stop reading a user's messages",
 			"userlist":"List users",
 			"betaadd":"Add a user to the beta-testers",
 			"betadel":"Remove a user from the beta-testers",

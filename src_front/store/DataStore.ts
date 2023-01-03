@@ -1,5 +1,5 @@
 import { TriggerTypes, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type {TwitchatDataTypes} from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import type { JsonValue } from "type-fest";
 import StoreProxy from "./StoreProxy";
@@ -79,7 +79,7 @@ export default class DataStore {
 	public static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
 		this.syncToServer = this.get(this.SYNC_DATA_TO_SERVER) !== "false";
-		let v = this.get(this.DATA_VERSION);
+		let v = this.get(this.DATA_VERSION) ?? "1";
 		
 		if(v=="1" || v=="2") {
 			this.cleanupOldData();
@@ -144,6 +144,10 @@ export default class DataStore {
 		if(v=="16") {
 			this.remove("p:historySize");
 			v = "17";
+		}
+		if(v=="17") {
+			this.fixLocalization();
+			v = "18";
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -320,6 +324,7 @@ export default class DataStore {
 		this.rawStore[key] = value;
 		const str = typeof value == "string"? value : JSON.stringify(value);
 		this.store.setItem(this.dataPrefix + key, str);
+		
 		if(save) this.save(false, saveDelay);
 	}
 
@@ -565,5 +570,17 @@ export default class DataStore {
 		delete value.autoBlockFollows;
 		delete value.autoUnblockFollows;
 		this.set(this.EMERGENCY_PARAMS, value);
+	}
+
+	/**
+	 * Removes " {'@'} " from labels after a mistake
+	 */
+	private static fixLocalization():void {
+		const list = StoreProxy.chat.botMessages;
+		for (const key in list) {
+			const entry = (list[key as TwitchatDataTypes.BotMessageField] as TwitchatDataTypes.BotMessageEntry);
+			entry.message = entry.message.replace(/\{'@'\}/gi, "@");
+		}
+		this.set(this.BOT_MESSAGES, list);
 	}
 }

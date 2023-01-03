@@ -1,13 +1,13 @@
 {
 	"usercard":{
-		"closeBt_aria":"Close live users list",
-		"creation_date_tt":"Account creation date",
-		"follow_date_tt":"Follows you since",
-		"not_following":"Not following you",
-		"streaming":"Streaming",
-		"profileBt":"profile",
-		"viewercardBt":"viewer card",
-		"trackBt":"track user",
-		"untrackBt":"untrack user"
+		"closeBt_aria":"Fermer la fenêtre",
+		"creation_date_tt":"Date de création",
+		"follow_date_tt":"Follower depuis",
+		"not_following":"Ne vous follow pas",
+		"streaming":"Live en cours",
+		"profileBt":"profil",
+		"viewercardBt":"infos viewer",
+		"trackBt":"suivre",
+		"untrackBt":"ne plus suivre"
 	}
 }

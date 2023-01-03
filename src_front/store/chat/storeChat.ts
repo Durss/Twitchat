@@ -281,16 +281,6 @@ export const storeChat = defineStore('chat', {
 				needModerator:true,
 			},
 			{
-				id:"ttsOn",
-				cmd:"/tts {user}",
-				details:StoreProxy.i18n.t("params.commands.ttsOn"),
-			},
-			{
-				id:"ttsOff",
-				cmd:"/ttsoff {user}",
-				details:StoreProxy.i18n.t("params.commands.ttsOff"),
-			},
-			{
 				id:"betaadd",
 				cmd:"/betaAdd {user}",
 				details:StoreProxy.i18n.t("params.commands.betaadd"),

@@ -1346,7 +1346,7 @@ export default class PubSub extends EventDispatcher {
 			platform:"twitch",
 			channel_id:data.channel_id,
 			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			message:"Stream title changed to \""+data.status+"\"",
+			message:StoreProxy.i18n.t("stream.notification", {TITLE:data.status}),
 			noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
 			title:data.status,
 			category:data.game,

@@ -91,9 +91,9 @@ export const storeTTS = defineStore('tts', {
 
 			let message = "";
 			if(read) {
-				message = "<mark>"+user.displayName+"</mark>'s messages will be read out loud.";
+				message = StoreProxy.i18n.t("tts.on_notice", {USER:user.displayName});
 			}else{
-				message = "<mark>"+user.displayName+"</mark>'s messages won't be read out loud anymore.";
+				message = StoreProxy.i18n.t("tts.on_notice", {USER:user.displayName});
 			}
 			StoreProxy.chat.addMessage({
 				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,

@@ -53,7 +53,7 @@ export default class TriggerActionMusicEntry extends Vue {
 	public actions_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
 	public track_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:false, value:"", icon:"music_purple.svg", maxLength:500 };
 	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public playlist_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"info_purple.svg", maxLength:500 };
+	public playlist_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", value:"", icon:"info_purple.svg", maxLength:500 };
 
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
@@ -117,6 +117,7 @@ export default class TriggerActionMusicEntry extends Vue {
 		width: fit-content;
 		border-radius: .25em;
 		margin:auto;
+		margin-bottom: .5em;
 		background-color: @mainColor_warn;
 		color: @mainColor_light;
 		padding: .25em .5em;

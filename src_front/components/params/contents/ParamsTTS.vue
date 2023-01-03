@@ -2,9 +2,8 @@
 	<div class="paramstts">
 		<img src="@/assets/icons/tts_purple.svg" alt="emergency icon" class="icon">
 
-		<p class="head"></p>
+		<p class="head" v-t="'tts.header'"></p>
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
-
 
 		<div class="fadeHolder" :style="holderStyles">
 			<transition
@@ -12,7 +11,7 @@
 				@leave="onHideItem"
 			>
 				<section class="permissions" v-if="param_readMessages.value === true || param_readWhispers.value === true">
-					<Splitter class="item splitter" v-t="'tts.chat_perms.title'"></Splitter>
+					<Splitter class="item splitter">{{ $t("tts.chat_perms.title") }}</Splitter>
 					<p class="item" v-t="'tts.chat_perms.head'"></p>
 					<p class="item small" v-t="'tts.chat_perms.infos'"></p>
 					<PermissionsForm class="item" v-model="param_ttsPerms" />
@@ -20,7 +19,7 @@
 			</transition>
 
 			<section>
-				<Splitter class="item splitter">{{ $t("tts.mesages.title") }}</Splitter>
+				<Splitter class="item splitter">{{ $t("tts.messages.title") }}</Splitter>
 				<ParamItem class="item" :paramData="param_readMessages" />
 				<ParamItem class="item" :paramData="param_readWhispers" />
 				<ParamItem class="item" :paramData="param_readFollow" />
@@ -34,7 +33,21 @@
 				<ParamItem class="item" :paramData="param_readBingos" />
 				<ParamItem class="item" :paramData="param_readRaffle" />
 				<ParamItem class="item" :paramData="param_readNotices" />
-				<ParamItem class="item" :paramData="param_readUsers" />
+				<div class="item">
+					<img class="icon" src="@/assets/icons/user_purple.svg">
+					<label class="item">{{ param_readUsers.label }}</label>
+					<vue-select class="item itemSelector" label="label"
+						:placeholder="$t('tts.messages.param_readUsers_add')"
+						v-model="param_readUsers.listValues"
+						:options="param_readUsers.listValues"
+						:create-option="(v:string) => { return {label: v, value: v} }"
+						:calculate-position="$placeDropdown"
+						appendToBody
+						taggable
+						push-tags
+						multiple
+					></vue-select>
+				</div>
 			</section>
 			
 			<section>
@@ -135,7 +148,7 @@ export default class ParamsTTS extends Vue {
 	public param_readBingosPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderBingo};
 	public param_readRaffle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"ticket_purple.svg" };
 	public param_readRafflePattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRaffles};
-	public param_readUsers:TwitchatDataTypes.ParameterData = {type:"list", value:"", label:""};
+	public param_readUsers:TwitchatDataTypes.ParameterData = {type:"list", listValues:[], value:"", label:""};
 	public param_ttsPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -216,20 +229,20 @@ export default class ParamsTTS extends Vue {
 		this.param_voice.label					= this.$t("tts.params.param_voice");
 		this.param_removeEmotes.label			= this.$t("tts.params.param_removeEmotes");
 
-		this.param_readMessages.label			= this.$t("tts.mesages.param_readMessages");
-		this.param_readWhispers.label			= this.$t("tts.mesages.param_readWhispers");
-		this.param_readNotices.label			= this.$t("tts.mesages.param_readNotices");
-		this.param_readRewards.label			= this.$t("tts.mesages.param_readRewards");
-		this.param_readSubs.label				= this.$t("tts.mesages.param_readSubs");
-		this.param_readSubgifts.label			= this.$t("tts.mesages.param_readSubgifts");
-		this.param_readBits.label				= this.$t("tts.mesages.param_readBits");
-		this.param_readRaids.label				= this.$t("tts.mesages.param_readRaids");
-		this.param_readFollow.label				= this.$t("tts.mesages.param_readFollow");
-		this.param_readPolls.label				= this.$t("tts.mesages.param_readPolls");
-		this.param_readPredictions.label		= this.$t("tts.mesages.param_readPredictions");
-		this.param_readBingos.label				= this.$t("tts.mesages.param_readBingos");
-		this.param_readRaffle.label				= this.$t("tts.mesages.param_readRaffle");
-		this.param_readUsers.label				= this.$t("tts.mesages.param_readUsers");
+		this.param_readMessages.label			= this.$t("tts.messages.param_readMessages");
+		this.param_readWhispers.label			= this.$t("tts.messages.param_readWhispers");
+		this.param_readNotices.label			= this.$t("tts.messages.param_readNotices");
+		this.param_readRewards.label			= this.$t("tts.messages.param_readRewards");
+		this.param_readSubs.label				= this.$t("tts.messages.param_readSubs");
+		this.param_readSubgifts.label			= this.$t("tts.messages.param_readSubgifts");
+		this.param_readBits.label				= this.$t("tts.messages.param_readBits");
+		this.param_readRaids.label				= this.$t("tts.messages.param_readRaids");
+		this.param_readFollow.label				= this.$t("tts.messages.param_readFollow");
+		this.param_readPolls.label				= this.$t("tts.messages.param_readPolls");
+		this.param_readPredictions.label		= this.$t("tts.messages.param_readPredictions");
+		this.param_readBingos.label				= this.$t("tts.messages.param_readBingos");
+		this.param_readRaffle.label				= this.$t("tts.messages.param_readRaffle");
+		this.param_readUsers.label				= this.$t("tts.messages.param_readUsers");
 
 		this.param_maxLengthToggle.label		= this.$t("tts.filters.param_maxLengthToggle");
 		this.param_maxLength.label				= this.$t("tts.filters.param_maxLength");
@@ -253,7 +266,7 @@ export default class ParamsTTS extends Vue {
 		this.param_readPollsPattern.label		= 
 		this.param_readPredictionsPattern.label	= 
 		this.param_readBingosPattern.label		= 
-		this.param_readRafflePattern.label		= this.$t("tts.mesages.param_format");
+		this.param_readRafflePattern.label		= this.$t("tts.messages.param_format");
 
 		this.param_enabled.value = params.enabled;
 		this.param_volume.value = params.volume;
@@ -415,15 +428,21 @@ export default class ParamsTTS extends Vue {
 				:deep(input[type="range"]) {
 					width: 100%;
 				}
+
+				.icon {
+					width: 1em;
+					height: 1em;
+					object-fit: contain;
+					margin-right: 0.5em;
+				}
 			}
 		}
 	}
 
-	.sourceSelector {
-		background-color: @mainColor_light;
+	.itemSelector {
 		:deep(.vs__selected) {
-			color: @mainColor_light;
-			background-color: @mainColor_normal;
+			color: @mainColor_light !important;
+			background-color: @mainColor_normal !important;
 			border: none;
 			svg {
 				fill: @mainColor_light;

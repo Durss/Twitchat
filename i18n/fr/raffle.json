@@ -56,8 +56,8 @@
 			"username_placeholder": "Pseudo"
 		},
 		"state_title": "Tirage au sort -",
-		"state_users": "{COUNT} entrée | {COUNT} entrées",
-		"state_winners": "Gagnan{COUNT} :",
+		"state_users": "0 entrée | 1 entrée | {COUNT} entrées",
+		"state_winners": "Gagnants{COUNT} :",
 		"state_pickBt": "Tirer au sort",
 		"state_stopBt": "Fermer le tirage"
 	}
