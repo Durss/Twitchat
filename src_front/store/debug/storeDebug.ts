@@ -573,12 +573,14 @@ export const storeDebug = defineStore('debug', {
 					const stream = (await TwitchUtils.loadChannelInfo([user.id]))[0];
 					const m:TwitchatDataTypes.MessageShoutoutData = {
 						platform:"twitch",
+						channel_id:user.id,
 						type,
 						id:Utils.getUUID(),
 						date:Date.now(),
 						received:false,
 						user:user,
 						viewerCount: Math.round(Math.random()*999),
+						moderator:user,
 						stream: {
 							title:stream.title,
 							category:stream.game_name,

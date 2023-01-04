@@ -7,7 +7,10 @@
 
 		<div class="info">
 			<i18n-t scope="global" tag="span"
-			v-if="messageData.received" keypath="chat.shoutout.given">
+			v-if="messageData.received" keypath="chat.shoutout.received">
+				<template #CHANNEL>
+					<a class="userlink" @click.stop="openUserCard">{{channel.displayName}}</a>
+				</template>
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a>
 				</template>
@@ -17,7 +20,13 @@
 			</i18n-t>
 			
 			<i18n-t scope="global" tag="span" v-else
-			keypath="chat.shoutout.received">
+			keypath="chat.shoutout.given">
+				<template #MODERATOR>
+					<a class="userlink" @click.stop="openUserCard">{{messageData.moderator.displayName}}</a>
+				</template>
+				<template #CHANNEL>
+					<strong>#{{channel.displayName}}</strong>
+				</template>
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a>
 				</template>
@@ -54,6 +63,10 @@ export default class ChatShoutout extends Vue {
 	public get time():string {
 		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
+	}
+
+	public get channel():TwitchatDataTypes.TwitchatUser {
+		return this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
 	}
 
 	public mounted():void {

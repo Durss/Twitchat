@@ -37,10 +37,10 @@
 			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
 			<Button small title="Send shoutout" @click="simulateEvent('shoutout')" :icon="$image('icons/shoutout.svg')" />
 			<Button small title="Receive shoutout" @click="simulateEvent('shoutout', 'soReceived')" :icon="$image('icons/shoutout.svg')" />
+			<Button small title="Restrict user" @click="restrictUser()" :icon="$image('icons/shield.svg')" :loading="generatingHistory" />
+			<Button small title="Monitor user" @click="monitorUser()" :icon="$image('icons/shield.svg')" :loading="generatingHistory" />
+			<Button small title="Unflag user" @click="unflagUser()" :icon="$image('icons/shield.svg')" :loading="generatingHistory" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
-			<Button small title="Restrict user" @click="restrictUser()" :icon="$image('icons/shield.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
-			<Button small title="Monitor user" @click="monitorUser()" :icon="$image('icons/shield.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
-			<Button small title="Unflag user" @click="unflagUser()" :icon="$image('icons/shield.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
 		</div>
 	</div>

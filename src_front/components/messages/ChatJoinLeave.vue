@@ -15,7 +15,7 @@
 			<template #COUNT><span class="count">{{remainingCount}}</span></template>
 		</i18n-t>
 
-		<span v-if="remainingCount > 0">&nbsp;</span>
+		<span>&nbsp;</span>
 
 		<i18n-t scope="global" v-if="messageData.type=='join'" tag="span" keypath="chat.join_leave.join" :plural="userList.length">
 			<template #CHANNEL><span class="channel">{{channelName}}</span></template>
@@ -115,7 +115,7 @@ export default class ChatJoinLeave extends Vue {
 		background-color: fade(@mainColor_warn, 20%);
 	}
 
-	.channel {
+	.channel, .count {
 		color: @mainColor_warn_light;
 		opacity: .7;
 	}
@@ -125,7 +125,7 @@ export default class ChatJoinLeave extends Vue {
 		&:hover {
 			background-color: fade(@mainColor_alert, 20%);
 		}
-		a, .channel {
+		a, .channel, .count {
 			color: @mainColor_alert_light;
 			opacity: .9;
 		}

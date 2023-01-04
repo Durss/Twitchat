@@ -54,11 +54,11 @@
 			"unbanned":"Le bannissmenet de {USER} a été levé",
 			"unbanned_by":"{MODERATOR} a levé le bannissement de {USER}",
 			"mod":"{USER} ajouté comme modérateur·ice de cette chaîne",
-			"modded_by":"{USER} ajouté·e comme modérateur·ices de cette chaîne par {MODERATOR}",
+			"modded_by":"{USER} a été ajouté·e comme modérateur·ices de cette chaîne par {MODERATOR}",
 			"unmodded":"{USER} a été retiré·e des modérateurs·ices de cette chaîne",
 			"unmodded_by":"{USER} a été retiré des modérateurs·ices de cette chaîne par {MODERATOR}",
-			"vip":"{USER} ajouté·e comme VIP de cette chaîne",
-			"viped_by":"{USER} ajouté·e comme VIP de cette chaîne par {MODERATOR}",
+			"vip":"{USER} a été ajouté·e comme VIP de cette chaîne",
+			"viped_by":"{USER} a été ajouté·e comme VIP de cette chaîne par {MODERATOR}",
 			"unviped":"{USER} a été retiré des VIPs de cette chaîne",
 			"unviped_by":"{USER} a été retiré des VIPs de cette chaîne par {MODERATOR}",
 			"shield_on":"Le mode bouclier a été activé par {MODERATOR}",
@@ -70,8 +70,8 @@
 				"description":"La pub durera {DURATION}s. Il n'est pas garanti qu'une pub soit réellement lancée."
 			},
 			"stream_title_changed":"Titre du stream mise à jour : \"{TITLE}\"",
-			"user_monitored":"{USER} ajouté·e aux personnes suspectes par {MODERATOR}",
-			"user_restricted":"{USER} ajouté·e aux personnes restreintes par {MODERATOR}",
+			"user_monitored":"{USER} a été ajouté·e aux personnes suspectes par {MODERATOR}",
+			"user_restricted":"{USER} a été ajouté·e aux personnes restreintes par {MODERATOR}",
 			"user_unflagged":"{USER} retiré·e des personnes surveillées par {MODERATOR}"
 		},
 		"dev_mode":{

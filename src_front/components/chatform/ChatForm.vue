@@ -582,6 +582,12 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
+		if(cmd == "/logmessages") {
+			//App version
+			console.log(this.$store("chat").messages)
+			this.message = "";
+		}else
+		
 		if(cmd == "/deletemessage") {
 			//Delete a chat message from its ID
 			TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id, params[0])

@@ -38,13 +38,13 @@
 			<div class="ctas" v-if="canUnban ||canBlock || isRaid">
 				<Button highlight v-if="canUnban"
 					:loading="moderating"
-					:icon="$image('icons/mod.svg')"
+					:icon="$image('icons/unban.svg')"
 					:title="$t('chat.highlight.unbanBt')"
 					@click.stop="unbanUser()" />
 
 				<Button highlight v-if="canBlock"
 					:loading="moderating"
-					:icon="$image('icons/block.svg')"
+					:icon="$image('icons/ban.svg')"
 					:title="$t('chat.highlight.banBt')"
 					@click.stop="blockUser()" />
 
@@ -469,6 +469,10 @@ export default class ChatHighlight extends Vue {
 				border-bottom: 1px solid @mainColor_light;
 			}
 		}
+	}
+
+	.userlink {
+		margin-right: .25em;
 	}
 }
 </style>

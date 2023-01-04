@@ -92,8 +92,8 @@
 			"short": "Messages shorter than 4 chars<br>or containing mostly emotes"
 		},
 		"shoutout": {
-			"given": "{USER} gave you a shoutout to {VIEWERS} viewers",
-			"received": "You gave a shoutout to {USER}"
+			"received": "{USER} gave you a shoutout to {VIEWERS} viewers",
+			"given": "{MODERATOR} gave a shoutout to {USER} on room {CHANNEL}"
 		},
 		"room_settings": {
 			"title": "{ROOM} room has the following restrictions:",

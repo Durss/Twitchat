@@ -131,7 +131,7 @@ export default class PubSub extends EventDispatcher {
 				const data = JSON.parse(message.data.message);
 				if(StoreProxy.main.devmode) {
 					//Ignore viewers count to avoid massive logs
-					if(message.data.topic != "video-playback-by-id."+StoreProxy.auth.twitch.user.id) {
+					if(!/"video-playback-by-id\."/i.test(message.data.topic)) {
 						this.history.push(message);
 					}
 				}
@@ -310,7 +310,7 @@ export default class PubSub extends EventDispatcher {
 		//Shoutout sent/received
 		}else if(topic && /shoutout\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Shoutout;
-			this.shoutoutEvent(localObj);
+			this.shoutoutEvent(localObj, channelId);
 
 
 		
@@ -1077,7 +1077,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when sending or receiving a shoutout
 	 * @param data 
 	 */
-	private async shoutoutEvent(data:PubSubDataTypes.Shoutout):Promise<void> {
+	private async shoutoutEvent(data:PubSubDataTypes.Shoutout, channel_id:string):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
 		const received = me.id == data.data.targetUserID;
 		let user!:TwitchatDataTypes.TwitchatUser;
@@ -1093,6 +1093,7 @@ export default class PubSub extends EventDispatcher {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitch",
+			channel_id,
 			type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
 			user,
 			viewerCount:stream?.viewer_count ?? 0,
@@ -1100,6 +1101,7 @@ export default class PubSub extends EventDispatcher {
 				category:stream?.game_name ?? "",
 				title:stream?.title ?? "",
 			},
+			moderator:StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.sourceUserID, data.data.sourceLogin),
 			received,
 		};
 		StoreProxy.chat.addMessage(message);

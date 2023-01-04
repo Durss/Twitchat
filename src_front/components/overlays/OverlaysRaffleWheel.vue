@@ -318,8 +318,7 @@ export default class OverlaysRaffleWheel extends Vue {
 		//Tell twitchat animation completed
 		setTimeout(()=> {
 			const data = (this.winnerData as unknown) as JsonObject;
-			//TODO enable this back
-			// PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data});
+			PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data});
 		}, 5000);
 	}
 
@@ -366,7 +365,6 @@ interface StarData {
 	height: 100%;
 	@borderWidth: 3px;
 	@numberOfItems: 15;
-	background-color: red;
 	.list {
 		// background-color: white;
 		// border-top-right-radius: 50%;

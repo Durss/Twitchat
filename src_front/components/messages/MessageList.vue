@@ -735,6 +735,7 @@ export default class MessageList extends Vue {
 				return this.config.filters.leave === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
 			case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT:
 			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:

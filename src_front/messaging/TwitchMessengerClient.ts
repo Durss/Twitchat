@@ -380,6 +380,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on('cheer', this.onCheer.bind(this));
 		this._client.on('resub', this.resub.bind(this));
 		this._client.on('subscription', this.subscription.bind(this));
+		this._client.on('primepaidupgrade', this.subscriptionPrimeUpgrade.bind(this));
 		this._client.on('subgift', this.subgift.bind(this));
 		this._client.on('anonsubgift', this.anonsubgift.bind(this));
 		this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
@@ -420,7 +421,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param tags 
 	 * @returns 
 	 */
-	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate, channelId:string):TwitchatDataTypes.TwitchatUser {
+	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, channelId:string):TwitchatDataTypes.TwitchatUser {
 		const login			= tags.username ?? tags["display-name"];
 		const user			= StoreProxy.users.getUserFrom("twitch", channelId, tags["user-id"], login, tags["display-name"], undefined, false, true);
 		const isMod			= tags.badges?.moderator != undefined || tags.mod === true;
@@ -484,7 +485,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param message 
 	 * @returns 
 	 */
-	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
+	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
 		const channel_id = this.getChannelID(channel);
 		const res:TwitchatDataTypes.MessageSubscriptionData = {
 			platform:"twitch",
@@ -697,6 +698,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 
+	private subscriptionPrimeUpgrade(channel:string, username:string, methods:tmi.SubMethods, tags:tmi.PrimeUpgradeUserstate):void {
+		const data = this.getCommonSubObject(channel, tags, methods);
+		this.dispatchEvent(new MessengerClientEvent("SUB", data));
+	}
+
 	private subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
@@ -728,7 +734,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private async raided(channel: string, username: string, viewers: number):Promise<void> {
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserFromLogin(username, channel_id).user;
-		const streamInfo = await TwitchUtils.loadChannelInfo([user.id]);
+		let uid = user.id;
+		if(user.temporary) {
+			//Safe fallback in case user info are not loaded yet.
+			uid = (await TwitchUtils.loadUserInfo(undefined, [username]))[0].id;
+		}
+		const streamInfo = await TwitchUtils.loadChannelInfo([uid]);
 		const message:TwitchatDataTypes.MessageRaidData = {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.RAID,
@@ -738,8 +749,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			user,
 			viewers,
 			stream:{
-				title:streamInfo[0].title,
-				category:streamInfo[0].game_name,
+				title:streamInfo[0]?.title ?? "loading error :(",
+				category:streamInfo[0]?.game_name ?? "loading error :(",
 			}
 		};
 		this.dispatchEvent(new MessengerClientEvent("RAID", message));

@@ -1387,7 +1387,9 @@ export namespace TwitchatDataTypes {
 		type:"shoutout";
 		received:boolean;//If true it means that the shoutout has been given to self on another channel
 		viewerCount:number;
+		channel_id:string;
 		user:TwitchatDataTypes.TwitchatUser;
+		moderator:TwitchatDataTypes.TwitchatUser;
 		stream:{
 			title: string;
 			category: string;

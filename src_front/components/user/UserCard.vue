@@ -201,7 +201,7 @@ export default class UserCard extends Vue {
 				// 	//Missing channel info (probably because we're requesting a user via the /userinfo command)
 				// 	//Ask
 				// }
-				if(this.user.channelInfo[this.channelId].badges.length == 0) {
+				if(this.user.channelInfo[this.channelId]?.badges.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
 					this.user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
