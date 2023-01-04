@@ -117,7 +117,7 @@
 			"automod_rejectBt": "Refuser",
 			"automod_rule": "Règle:",
 			"announcement": "Annonce",
-			"occurrences": "Nombre de fois que ce message a été envoyé",
+			"occurrences": "Nombre de fois que<br>ce message a été envoyé",
 			"no_follow": "Ne vous follow pas",
 			"banned_in": " • Banni·e chez {CHANNELS}",
 			"blocked_user": "Ce message a été envoyé par une personne bloquée. Cliquez pour afficher.",
