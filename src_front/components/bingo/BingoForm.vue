@@ -151,14 +151,16 @@ export default class BingoForm extends Vue {
 			this.customValue.value = this.action.bingoData.customValue;
 		}
 		
+		let emotes = await TwitchUtils.getEmotes();
+		emotes = emotes.filter(v => v.is_public === true);
+		this.globalEmotes = emotes;
+	}
+
+	public mounted(): void {
 		if(!this.triggerMode) {
 			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 		}
-		
-		let emotes = await TwitchUtils.getEmotes();
-		emotes = emotes.filter(v => v.is_public === true);
-		this.globalEmotes = emotes;
 	}
 
 	/**

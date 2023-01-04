@@ -1,0 +1,16 @@
+{
+	"cmdmenu":{
+		"poll":"Create poll",
+		"prediction":"Create prediction",
+		"raffle":"Create raffle",
+		"bingo":"Create bingo",
+		"suggestions":"Chat suggestions",
+		"timer":"Timer",
+		"chat":"Clear chat",
+		"info":"Stream info",
+		"commercial":"You can start a new commercial in {DURATION}",
+		"raid":"Raid someone",
+		"whoslive":"Who's live ?",
+		"whoslive_title":"Followed users streaming"
+	}
+}

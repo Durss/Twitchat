@@ -1,12 +1,13 @@
 <template>
 	<div class="commandhelper">
-		<Button small @click="$emit('poll'); close();" :icon="$image('icons/poll.svg')" title="Create poll" bounce :disabled="!canCreatePoll" />
-		<Button small @click="$emit('pred'); close();" :icon="$image('icons/prediction.svg')" title="Create prediction" bounce :disabled="!canCreatePrediction" />
-		<Button small @click="$emit('raffle'); close();" :icon="$image('icons/ticket.svg')" title="Create raffle" bounce />
-		<Button small @click="$emit('bingo'); close();" :icon="$image('icons/bingo.svg')" title="Create bingo" bounce />
-		<Button small @click="$emit('chatpoll'); close();" :icon="$image('icons/chatPoll.svg')" title="Chat suggestions" bounce />
-		<Button small @click="$emit('clear'); close();" :icon="$image('icons/clearChat.svg')" title="Clear chat" bounce />
-		<Button small @click="$emit('streamInfo'); close();" :icon="$image('icons/info.svg')" title="Stream info" bounce />
+		<Button small @click="$emit('poll'); close();"			:icon="$image('icons/poll.svg')"		:title="$t('cmdmenu.poll')" bounce :disabled="!canCreatePoll" />
+		<Button small @click="$emit('pred'); close();"			:icon="$image('icons/prediction.svg')"	:title="$t('cmdmenu.prediction')" bounce :disabled="!canCreatePrediction" />
+		<Button small @click="$emit('raffle'); close();"		:icon="$image('icons/ticket.svg')"		:title="$t('cmdmenu.raffle')" bounce />
+		<Button small @click="$emit('bingo'); close();"			:icon="$image('icons/bingo.svg')"		:title="$t('cmdmenu.bingo')" bounce />
+		<Button small @click="$emit('chatpoll'); close();"		:icon="$image('icons/chatPoll.svg')"	:title="$t('cmdmenu.suggestions')" bounce />
+		<Button small @click="$emit('timer'); close();"			:icon="$image('icons/timer.svg')"		:title="$t('cmdmenu.timer')" bounce />
+		<Button small @click="$emit('clear'); close();"			:icon="$image('icons/clearChat.svg')"	:title="$t('cmdmenu.chat')" bounce />
+		<Button small @click="$emit('streamInfo'); close();"	:icon="$image('icons/info.svg')"		:title="$t('cmdmenu.info')" bounce />
 
 		<div class="commercial">
 			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="startAd(30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!hasChannelPoints" />
@@ -14,25 +15,25 @@
 			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click="startAd(90); close();" title="90s" bounce :disabled="!hasChannelPoints" />
 			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click="startAd(120); close();" title="120s" bounce :disabled="!hasChannelPoints" />
 			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click="startAd(180); close();" title="180s" bounce :disabled="!hasChannelPoints" />
-			<div v-if="adCooldown > 0" class="cooldown">You can start a new<br>commercial in {{adCooldownFormated}}</div>
+			<div v-if="adCooldown > 0" class="cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
-		<ParamItem :paramData="param_followOnly" @change="updateRoomSettings()" />
-		<ParamItem :paramData="param_subOnly" @change="updateRoomSettings()" />
-		<ParamItem :paramData="param_emotesOnly" @change="updateRoomSettings()" />
-		<ParamItem :paramData="param_slowMode" @change="updateRoomSettings()" />
+		<ParamItem class="roomParam" :paramData="param_followOnly" @change="updateRoomSettings()" clearToggle />
+		<ParamItem class="roomParam" :paramData="param_subOnly" @change="updateRoomSettings()" clearToggle />
+		<ParamItem class="roomParam" :paramData="param_emotesOnly" @change="updateRoomSettings()" clearToggle />
+		<ParamItem class="roomParam" :paramData="param_slowMode" @change="updateRoomSettings()" clearToggle />
 		
 		<div class="raid" v-if="$store('stream').currentRaid">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
 			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
 		<div class="raid" v-else>
-			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raid someone</label>
+			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">{{$t('cmdmenu.raid')}}</label>
 			<form @submit.prevent="raid()">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
 				<Button aria-label="Start raid" type="submit" :icon="$image('icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
 			</form>
-			<a class="followings" @click.prevent="openLiveFollowings()">Who's live ?</a>
+			<a class="followings" @click.prevent="openLiveFollowings()" v-t="'cmdmenu.whoslive'"></a>
 		</div>
 	</div>
 </template>
@@ -116,6 +117,7 @@ export default class CommandHelper extends Vue {
 
 		this.adCooldown = Math.max(0, this.$store("stream").startAdCooldown - Date.now());
 		this.adCooldownInterval = window.setInterval(()=>{
+			if(this.adCooldown === 0) return;
 			this.adCooldown -= 1000;
 			if(this.adCooldown < 0) this.adCooldown = 0;
 		}, 1000);
@@ -221,13 +223,14 @@ export default class CommandHelper extends Vue {
 <style scoped lang="less">
 .commandhelper{
 	.window();
+	gap:.25em;
 	
-	&>*:not(:last-child) {
-		margin-bottom: .25em;
-	}
 	.button {
 		:deep(img) {
 			max-width: 20px;
+		}
+		:deep(.label) {
+			white-space: normal;
 		}
 	}
 
@@ -235,11 +238,23 @@ export default class CommandHelper extends Vue {
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
-		margin-bottom: .5em;
 		.cooldown {
+			max-width: 300px;
 			font-size: .8em;
 			margin: auto;
+			background: fade(@mainColor_normal, 20%);
+			padding: .5em;
+			border-radius: @border_radius;
+			text-align: center;
 		}
+	}
+
+	.roomParam {
+		background: fade(@mainColor_normal, 20%);
+		padding: .3em;
+		font-size: .8em;
+		color: @mainColor_light;
+		border-radius: @border_radius;
 	}
 
 	.raid {
@@ -249,12 +264,15 @@ export default class CommandHelper extends Vue {
 		padding: 10px;
 		border-radius: 10px;
 		label {
+			align-self: center;
 			color: @mainColor_light;
+			font-size: .9em;
 			img {
-				height: 20px;
-				margin-right: 10px;
+				height: .9em;
+				margin-right: .5em;
 			}
 		}
+
 		form {
 			display: flex;
 			flex-direction: row;
@@ -274,7 +292,8 @@ export default class CommandHelper extends Vue {
 		.followings {
 			text-align: center;
 			font-size: .8em;
-			color: @mainColor_normal;
+			margin-top: .5em;
+			color: @mainColor_light;
 			&:hover {
 				color: @mainColor_normal_light;
 			}

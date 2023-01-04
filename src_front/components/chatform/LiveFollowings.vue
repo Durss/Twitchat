@@ -3,7 +3,10 @@
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 			
-			<Button :aria-label="$t('liveusers.closeBt_aria')" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
+			<button class="header" @click="close()" :aria-label="$t('liveusers.closeBt_aria')">
+				<img src="@/assets/icons/cross_white.svg" alt="close">
+				<span><img src="@/assets/icons/user.svg" alt="user" class="icon">{{$t('cmdmenu.whoslive_title')}}</span>
+			</button>
 
 			<div class="noResult" v-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 			
@@ -112,15 +115,6 @@ export default class LiveFollowings extends Vue {
 .livefollowings{
 	.modal();
 
-	.closeBt {
-		position: absolute;
-		top: 0;
-		right: 0;
-		z-index: 1;
-		border-top-right-radius: 0;
-		box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
-	}
-
 	.loader {
 		.center();
 		position: absolute;
@@ -137,8 +131,28 @@ export default class LiveFollowings extends Vue {
 		height: 100%;
 		overflow: auto;
 		background-color: @mainColor_dark;
-		padding: 10px;
-		@gap: 5px;
+		@gap: .5em;
+
+		&>.header {
+			color: @mainColor_light;
+			background-color: @mainColor_normal;
+			padding: .5em;
+			display: flex;
+			align-items: center;
+			width: 100%;
+			margin-bottom: .5em;
+			img {
+				height: 1em;
+			}
+			span {
+				flex-grow: 1;
+				text-align: center;
+				.icon {
+					height: .7em;
+					margin-right: .5em;
+				}
+			}
+		}
 
 		.list {
 			display: flex;

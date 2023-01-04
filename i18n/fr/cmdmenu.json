@@ -1,0 +1,16 @@
+{
+	"cmdmenu":{
+		"poll":"Créer un sondage",
+		"prediction":"Créer un prédiction",
+		"raffle":"Créer un tirage au sort",
+		"bingo":"Créer un bingo",
+		"suggestions":"Demander des suggestions",
+		"timer":"Chronomètre",
+		"chat":"Effacer le tchat",
+		"info":"Titre du stream",
+		"commercial":"Vous pouvez lancer une publicité dans {DURATION}",
+		"raid":"Lancer un raid",
+		"whoslive":"Qui stream ?",
+		"whoslive_title":"Personnes suivies en live"
+	}
+}
