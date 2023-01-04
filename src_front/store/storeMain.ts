@@ -207,28 +207,6 @@ export const storeMain = defineStore("main", {
 					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, (sTimer.countdown as unknown) as JsonObject);
 				}
 			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent)=> {
-				const data = (e.data as unknown) as {winner:TwitchatDataTypes.RaffleEntry};
-				StoreProxy.raffle.onRaffleComplete(data.winner);
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
-				const raider = sStream.lastRaider;
-				if(raider) {
-					sChat.shoutout(raider);
-				}else{
-					this.alert(StoreProxy.i18n.t("error.auto_shoutout"));
-				}
-			});
-			
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
-				const enable = (e.data as unknown) as {enabled:boolean};
-				let enabled = enable.enabled;
-				//If no JSON is specified, just toggle the state
-				if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
-				sEmergency.setEmergencyMode(enabled)
-			});
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 				sChat.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
@@ -246,6 +224,32 @@ export const storeMain = defineStore("main", {
 			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
 				sVoice.voiceText.finalText = (e.data as {text:string}).text;
 			});
+			
+			if(authenticate) {
+				//Avoid listening for these events on the overlays
+				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent)=> {
+					const data = (e.data as unknown) as {winner:TwitchatDataTypes.RaffleEntry};
+					StoreProxy.raffle.onRaffleComplete(data.winner);
+				});
+				
+				PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
+					const raider = sStream.lastRaider;
+					if(raider) {
+						sChat.shoutout(raider);
+					}else{
+						this.alert(StoreProxy.i18n.t("error.auto_shoutout"));
+					}
+				});
+				
+				PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
+					const enable = (e.data as unknown) as {enabled:boolean};
+					let enabled = enable.enabled;
+					//If no JSON is specified, just toggle the state
+					if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
+					sEmergency.setEmergencyMode(enabled)
+				});
+			}
+
 			PublicAPI.instance.initialize();
 			
 			//Init OBS connection
