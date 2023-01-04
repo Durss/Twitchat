@@ -69,24 +69,14 @@
 				const actionName = action.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				let params;
 				switch(actionName) {
-					case "GREET_FEED_READ":{
-						params = {
-									"count": Math.abs(settings.ticks),
-								}
-						break;
-					}
+					case "GREET_FEED_READ":
 					case "CHAT_FEED_READ":{
 						params = {
 									"count": Math.abs(settings.ticks),
 								}
 						break;
 					}
-					case "CHAT_FEED_SCROLL_UP":{
-						params = {
-									"scrollBy": Math.abs(settings.ticks),
-								}
-						break;
-					}
+					case "CHAT_FEED_SCROLL_UP":
 					case "CHAT_FEED_SCROLL_DOWN":{
 						params = {
 									"scrollBy": Math.abs(settings.ticks),

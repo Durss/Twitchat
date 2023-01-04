@@ -12,7 +12,7 @@
 						|| ($store('params').features.firstMessage.value && index == 1)" />
 	
 						<MessageList ref="messages" class="messages"
-							@showModal="(v:modalTypes) => currentModal = v"
+							@showModal="(v:TwitchatDataTypes.ModalTypes) => currentModal = v"
 							@addColumn="addColumn"
 							:maxMessages="50"
 							:config="c"
@@ -42,6 +42,7 @@
 			<StreamInfoForm		class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
 			<TTUserList			class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
 			<PinedMessages		class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
+			<TimerForm			class="popin" v-if="currentModal == 'timer'" @close="currentModal = ''" />
 		</Teleport>
 
 		<ChannelNotifications
@@ -85,14 +86,7 @@
 
 		<CommandHelper class="contentWindows actions"
 			v-if="showCommands"
-			@poll="currentModal = 'poll'"
-			@chatpoll="currentModal = 'chatpoll'"
-			@pred="currentModal = 'pred'"
-			@raffle="currentModal = 'raffle'"
-			@bingo="currentModal = 'bingo'"
-			@liveStreams="currentModal = 'liveStreams'"
-			@streamInfo="currentModal = 'streamInfo'"
-			@clear="clearChat()"
+			@openModal="openModal"
 			@close="showCommands = false"
 		/>
 
@@ -167,6 +161,7 @@ import { Options, Vue } from 'vue-class-component';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
+import TimerForm from '../components/timer/TimerForm.vue';
 import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 import DonorState from '../components/user/DonorState.vue';
@@ -178,11 +173,12 @@ import Accessibility from './Accessibility.vue';
 	components:{
 		Button,
 		Gngngn,
-		GreetThem,
 		ChatForm,
 		UserList,
 		UserCard,
 		PollForm,
+		TimerForm,
+		GreetThem,
 		BingoForm,
 		DonorState,
 		Parameters,
@@ -220,7 +216,7 @@ export default class Chat extends Vue {
 	public showBlinkLayer = false;
 	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
-	public currentModal:modalTypes = "";
+	public currentModal:TwitchatDataTypes.ModalTypes = "";
 	public currentNotificationContent = "";
 	public formsColumnTarget:HTMLDivElement|null = null;
 	
@@ -441,8 +437,8 @@ export default class Chat extends Vue {
 		}});
 	}
 
-	public clearChat():void {
-		TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id);
+	public openModal(type:TwitchatDataTypes.ModalTypes):void {
+		this.currentModal = type;
 	}
 
 	/**
@@ -450,7 +446,7 @@ export default class Chat extends Vue {
 	 */
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif = "";
-		let modal:modalTypes = "";
+		let modal:TwitchatDataTypes.ModalTypes = "";
 		switch(e.type) {
 			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
 			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'pred'; break;
@@ -701,7 +697,7 @@ export default class Chat extends Vue {
 }
 
 
-type modalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins";
+
 </script>
 
 <style scoped lang="less">

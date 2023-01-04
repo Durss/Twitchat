@@ -362,37 +362,6 @@ export default class RaffleForm extends Vue {
 			margin: auto;
 		}
 
-		.tabs {
-			display: flex;
-			flex-direction: row;
-			justify-content: center;
-			margin-bottom: 1em;
-
-			.button {
-				background-color: @mainColor_normal;
-				border-radius: 0;
-				&:not(.selected) {
-					background-color: fade(@mainColor_normal, 50%);
-				}
-
-				&:not(:last-child) {
-					margin-right: 1px;
-				}
-
-				&:first-child {
-					border-top-left-radius: .5em;
-					border-bottom-left-radius: .5em;
-					transform-origin: right center;
-				}
-
-				&:last-child {
-					border-top-right-radius: .5em;
-					border-bottom-right-radius: .5em;
-					transform-origin: left center;
-				}
-			}
-		}
-
 		.description {
 			text-align: center;
 			font-size: .8em;

@@ -209,6 +209,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/devmode") {
 			StoreProxy.main.toggleDevMode();
+			return true;
 		}else
 
 		if(cmd == "/countdown") {

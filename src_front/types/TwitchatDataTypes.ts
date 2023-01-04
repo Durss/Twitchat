@@ -3,6 +3,8 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer";
+
 	/**
 	 * Parameters menue categories
 	 */
@@ -974,6 +976,7 @@ export namespace TwitchatDataTypes {
 		twitch_isRestricted?: boolean;//True when user is flagged as restricted
 		twitch_isHighlighted?: boolean;//True when using "highlight my message" reward
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";//Announcement color
+		raw_data?:any;
 	}
 
 	/**
@@ -1063,6 +1066,7 @@ export namespace TwitchatDataTypes {
 		totalSubDuration:number;//Number of months the user has been subscribed for
 		message?:string;
 		message_html?:string;
+		raw_data?:any;
 	}
 
 	/**

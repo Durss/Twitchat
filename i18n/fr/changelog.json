@@ -20,7 +20,7 @@
 				"i": "font",
 				"a": {
 					"a": "ouvrir le paramètre",
-					"l": "tester",
+					"l": "test",
 					"param": "appearance.dyslexicFont"
 				},
 				"l": "Possibilité d'afficher les textes avec une <strong>police d'écriture pour dyslexiques</strong>"

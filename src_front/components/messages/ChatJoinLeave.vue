@@ -12,17 +12,17 @@
 		</span>
 
 		<i18n-t scope="global" v-if="remainingCount > 0" tag="span" keypath="chat.join_leave.more" :plural="remainingCount">
-			<template #COUNT><strong>{{remainingCount}}</strong></template>
+			<template #COUNT><span class="count">{{remainingCount}}</span></template>
 		</i18n-t>
 
 		<span v-if="remainingCount > 0">&nbsp;</span>
 
 		<i18n-t scope="global" v-if="messageData.type=='join'" tag="span" keypath="chat.join_leave.join" :plural="userList.length">
-			<template #CHANNEL><strong>{{channelName}}</strong></template>
+			<template #CHANNEL><span class="channel">{{channelName}}</span></template>
 		</i18n-t>
 
 		<i18n-t scope="global" v-else tag="span" keypath="chat.join_leave.leave" :plural="userList.length">
-			<template #CHANNEL><strong>{{channelName}}</strong></template>
+			<template #CHANNEL><span class="channel">{{channelName}}</span></template>
 		</i18n-t>
 	</div>
 </template>
@@ -115,7 +115,7 @@ export default class ChatJoinLeave extends Vue {
 		background-color: fade(@mainColor_warn, 20%);
 	}
 
-	strong {
+	.channel {
 		color: @mainColor_warn_light;
 		opacity: .7;
 	}
@@ -125,10 +125,15 @@ export default class ChatJoinLeave extends Vue {
 		&:hover {
 			background-color: fade(@mainColor_alert, 20%);
 		}
-		a, strong {
+		a, .channel {
 			color: @mainColor_alert_light;
 			opacity: .9;
 		}
 	}
+
+	.userlink {
+		font-weight: normal;
+	}
+
 }
 </style>

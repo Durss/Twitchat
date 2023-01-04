@@ -127,8 +127,8 @@ import Button from '../Button.vue';
 })
 export default class ChatTipAndTrickAd extends Vue {
 
-	public tipIndex = 11;
-	private maxIndex = this.tipIndex;
+	public tipIndex = 0;
+	private maxIndex = 11;
 
 	public get contentOverlays() { return TwitchatDataTypes.ParamsCategories.OVERLAYS; }
 	public get contentTriggers() { return TwitchatDataTypes.ParamsCategories.TRIGGERS; }

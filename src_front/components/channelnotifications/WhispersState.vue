@@ -102,6 +102,7 @@ export default class WhispersState extends Vue {
 		}catch(error) {
 			this.error = true;
 		}
+		this.scrollToBottom();
 
 		this.whisper = "";
 	}

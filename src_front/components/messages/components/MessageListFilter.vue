@@ -395,13 +395,19 @@ export default class MessageListFilter extends Vue {
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
 		
-		//Close when rolling out col
+		//Force focus out of input when rolling out
 		watch(()=>this.open, ()=>{
 			//This makes sure any data written on a text input is saved.
-			//<ParamItem> uses a "lazy" update that is triggerd only when input
+			//<ParamItem> uses a "lazy" update that is triggered only when input
 			//looses focus. THis is why we remove the focus of the current
 			//element here, just in case.
-			(document.activeElement as HTMLElement).blur();
+			let root = document.activeElement as HTMLElement;
+			while(root && root != this.$el && root != document.body) {
+				root = root.parentElement as HTMLElement;
+			}
+			if(root == this.$el) {
+				(document.activeElement as HTMLElement).blur();
+			}
 		});
 		watch(()=>this.toggleAll, ()=>{
 			for (let i = 0; i < this.filters.length; i++) {

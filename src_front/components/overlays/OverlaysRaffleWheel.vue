@@ -2,6 +2,7 @@
 	<div class="overlaysrafflewheel">
 		<InfiniteList class="list"
 		v-if="itemList.length > 0"
+		ref="listHolder"
 		:dataset="itemList"
 		:itemSize="itemSize"
 		:scrollOffset="scrollOffset"
@@ -12,6 +13,21 @@
 				<span class="label">{{ item.label }}</span>
 			</div>
 		</InfiniteList>
+	
+		<div class="stars">
+			<div class="starHolder" v-for="s in stars" :style="getStarStyles(s)">
+				<svg version="1.1"
+				viewBox="0 0 445.2 426.2" style="enable-background:new 0 0 445.2 426.2;"
+				xmlns="http://www.w3.org/2000/svg"
+				xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+				xml:space="preserve">
+					<path class="wheel-star" d="M247.5,16l47.2,95.6c4,8.2,11.8,13.9,20.9,15.2L421,142c22.7,3.3,31.8,31.3,15.4,47.3L360,263.7
+						c-6.5,6.4-9.5,15.5-8,24.5l18,105c3.9,22.7-19.9,39.9-40.2,29.2l-94.3-49.6c-8.1-4.2-17.7-4.2-25.8,0l-94.3,49.6
+						c-20.3,10.7-44.1-6.6-40.2-29.2l18-105c1.5-9-1.4-18.2-8-24.5L8.9,189.3c-16.5-16-7.4-44,15.4-47.3l105.4-15.3
+						c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/>
+				</svg>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -24,6 +40,7 @@ import { Options, Vue } from 'vue-class-component';
 import InfiniteList from '../InfiniteList.vue';
 import type { JsonObject } from "type-fest";
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { StyleValue } from 'vue';
 
 @Options({
 	props:{},
@@ -38,13 +55,15 @@ export default class OverlaysRaffleWheel extends Vue {
 	public scrollOffset = 0;
 	public listHeight = 100;
 	public listDisplayed = false;
+	public stars:StarData[] = [];
 
-	private itemsCount = 15;
 	private rafID = 0;
+	private prevTs = 0;
 	private animStep = 0;
-	private frameIndex = 0;
-	private selectedItemIndex = 0;
 	private endOffset = 0;
+	private frameIndex = 0;
+	private itemsCount = 15;
+	private selectedItemIndex = 0;
 	private winnerData!:TwitchatDataTypes.EntryItem;
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
@@ -55,6 +74,13 @@ export default class OverlaysRaffleWheel extends Vue {
 	public get listStyles():{[key:string]:string|number} {
 		return {
 			opacity:this.listDisplayed? 1 : 0,
+		}
+	}
+	
+	public getStarStyles(s:StarData):StyleValue {
+		return {
+			opacity: s.a.toString(),
+			transform: "translate("+s.x+"px, "+s.y+"px) rotate("+s.r+"deg) scale("+s.s+")",
 		}
 	}
 
@@ -79,25 +105,16 @@ export default class OverlaysRaffleWheel extends Vue {
 		
 		//Populate with fake data
 		/*
-		let list:WheelItem[] = [];
-		// for (let i = 0; i < 90000; i++) {
-		// 	let id = i.toString();
-		// 	list.push({id, label:i+"wwwwwwwwwwwwwwwwwwwwwwww", data:{id}});
-		// }
-		list.push({id:"1", label:"Jujulasurprise", data:{id:"1"}});
-		// list.push({id:"2", label:"elodieshare", data:{id:"2"}});
-		// list.push({id:"3", label:"AnneSo_Alia", data:{id:"3"}});
-		// list.push({id:"4", label:"filanie_couture", data:{id:"4"}});
-		// list.push({id:"5", label:"Virtalia", data:{id:"5"}});
-		// list.push({id:"6", label:"maounbuntu", data:{id:"6"}});
-		// list.push({id:"7", label:"Notablueta", data:{id:"7"}});
-		list.push({id:"8", label:"Hootie_L", data:{id:"8"}});
-		list.push({id:"9", label:"Durss", data:{id:"9"}});
-		this.winnerData = {id:"8", label:"Hootie_L", data:{id:"8"}};
+		let list:TwitchatDataTypes.EntryItem[] = [];
+		for (let i = 0; i < 90000; i++) {
+			let id = i.toString();
+			list.push({id, label:"Item "+i});
+			// list.push({id, label:i+"wwwwwwwwwwwwwwwwwwwwwwww", data:{id}});
+		}
+		this.winnerData = Utils.pickRand(list);
 		this.itemList = list;
-		// gsap.to(this, {scrollOffset:10000, duration:10});
 		this.populate();
-		//*/
+		/*/
 	}
 
 	public beforeUnmount():void {
@@ -164,25 +181,37 @@ export default class OverlaysRaffleWheel extends Vue {
 		this.selectedItemIndex = winnerIndex;
 
 		gsap.killTweensOf(this);
-		this.renderFrame(this.rafID);
+		
+		this.prevTs = Date.now();
+		this.renderFrame(this.prevTs, this.rafID);
 	}
 
-	private renderFrame(id:number):void {
+	private renderFrame(ts:number, id:number):void {
 		if(id != this.rafID) return;
-		requestAnimationFrame(()=>this.renderFrame(id));
+		requestAnimationFrame((ts:number)=>this.renderFrame(ts, id));
+
+		const timeScale = (60/1000) * (ts - this.prevTs);
+		this.prevTs = ts;
+
+		if(this.stars.length > 0) {
+			for (let i = 0; i < this.stars.length; i++) {
+				const s = this.stars[i];
+				s.x += s.vx;//Do not multiply by timescale. If perfs are low the hearts run out of screen
+				s.y += s.vy * timeScale;
+				s.r += s.vr * timeScale;
+				s.vx *= .94;//Do not multiply by timescale. If perfs are low the hearts run out of screen
+				s.a -= s.va * timeScale;
+				if(s.a < .01) {
+					this.stars.splice(i, 1);
+					i--;
+				}
+			}
+			return;
+		}
 
 		const items = this.$el.querySelectorAll(".list-item");
 		if(items.length == 0) return;
 
-		// if(items.length < this.itemsCount) {
-		// 	console.log("Wait a little !", items.length, this.itemsCount);
-		// 	this.scrollOffset +=10;
-		// 	return;
-		// }
-		// const list = this.$refs.list as Vue;
-		// const sublistHolder = (list.$el as HTMLDivElement).getElementsByTagName("div")[0] as HTMLDivElement;
-		// let offsetY = sublistHolder.getBoundingClientRect().top;
-		// sublistHolder.style.perspectiveOrigin = "center "+(-offsetY + this.listHeight/2)+"px";
 		const h = this.listHeight;
 		let biggestItem!:HTMLDivElement;
 		let biggestItemScale = 0;
@@ -261,31 +290,74 @@ export default class OverlaysRaffleWheel extends Vue {
 	}
 
 	private async onAnimationComplete():Promise<void> {
-		this.rafID ++;
 		await this.$nextTick();
 
 		const items = [...(this.$el as HTMLDivElement).querySelectorAll(".list-item")];
 		const selectedItem = (this.$el as HTMLDivElement).querySelector(".list-item.selected") as HTMLDivElement;
 
+
 		gsap.set(selectedItem, {scale:"1", rotate:0, x:0, y:0});
-		gsap.from(selectedItem, {scaleY:"2", scaleX:"1.25", rotate:0, x:0, duration:1, delay:.5, immediateRender:false, ease:"elastic.out"});
+		gsap.from(selectedItem, {scaleY:"2", scaleX:"1.25", rotate:0, x:0, duration:1,
+								onStart:()=> {
+									this.burstStars(selectedItem);
+								},
+								delay:.5, immediateRender:false, ease:"elastic.out"});
 
 		items.sort((itemA, itemB) => {
 			const rectA = itemA.getBoundingClientRect();
 			const rectB = itemB.getBoundingClientRect();
 			return rectA.top - rectB.top;
 		});
-		gsap.to(items, {left:"-110%", duration:.35, ease:"quad.in", stagger:.035, delay:3, onComplete:()=>{
-			//Reset everything to free up memory
-			this.itemList = [];
-		}});
+		gsap.to(items, {left:"-110%", duration:.35, ease:"quad.in", stagger:.035, delay:3,
+						onComplete:()=>{
+							//Reset everything to free up memory
+							this.itemList = [];
+							this.rafID ++;
+						}});
 
 		//Tell twitchat animation completed
 		setTimeout(()=> {
 			const data = (this.winnerData as unknown) as JsonObject;
-			PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data});
+			//TODO enable this back
+			// PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data});
 		}, 5000);
 	}
+
+	public burstStars(heart:HTMLDivElement):void {
+		const holder = (this.$refs.listHolder as Vue).$el as HTMLDivElement;
+		const bounds = heart.getBoundingClientRect();
+
+		// console.log(bounds);
+		for (let i = 0; i < 40; i++) {
+			const s:StarData = { x:0, vx:0, y:0, vy:0, r:0, vr:0, a:1, va:0, s:0};
+			const cx = (holder.offsetWidth)/2;
+			const cy = (holder.offsetHeight)/2;
+			s.x = cx + (Math.random()-Math.random()) * (bounds.width/2);
+			s.y = cy + (Math.random()-Math.random()) * (bounds.height/2);
+
+			const a = Math.atan2(s.y - cy, s.x - cx);
+
+			s.r = Math.random() * 360;
+			s.vx = Math.cos(a)*(Math.random() * 4 + 2);
+			s.vy = Math.sin(a)*(Math.random() * 10 + 5);
+			s.vr = (Math.random() - Math.random()) * 20;
+			s.va = Math.random()*.025+.01;
+			s.s = Math.random()*1+.15;
+			this.stars.push(s);
+		}
+	}
+}
+
+interface StarData {
+	x:number;
+	y:number;
+	vx:number;
+	vy:number;
+	r:number;
+	vr:number;
+	a:number;
+	va:number;
+	s:number;
 }
 </script>
 
@@ -294,6 +366,7 @@ export default class OverlaysRaffleWheel extends Vue {
 	height: 100%;
 	@borderWidth: 3px;
 	@numberOfItems: 15;
+	background-color: red;
 	.list {
 		// background-color: white;
 		// border-top-right-radius: 50%;
@@ -342,6 +415,23 @@ export default class OverlaysRaffleWheel extends Vue {
 		// 	perspective: 800px;
 		// 	perspective-origin: center top;
 		// }
+	}
+
+	.stars {
+		position: absolute;
+		top:0;
+		left:0;
+		z-index: 1;
+
+		.starHolder {
+			position: fixed;
+			pointer-events: none;
+			width: 50px;
+			height: 50px;
+			.wheel-star {
+				fill:#fff;
+			}
+		}
 	}
 }
 </style>

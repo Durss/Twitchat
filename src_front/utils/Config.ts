@@ -46,10 +46,9 @@ export default class Config {
 		return [
 			{platform:"twitch", login:"durss"},
 			// {platform:"twitch", login:"mewstelle"},
-			// {platform:"twitch", login:"jeansimonlapointe"},
 			// {platform:"twitch", login:"durssbot"},
 			// {platform:"twitch", login:"littlebigwhale"},
-			// {platform:"twitch", login:"andythefrenchy"},
+			{platform:"twitch", login:"andythefrenchy"},
 		];
 	}
 

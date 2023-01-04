@@ -158,7 +158,7 @@
 			"resub_prime": "resubscribed with Prime",
 			"sub_duration": "for {COUNT} month | for {COUNT} months",
 			"sub_streak": "{COUNT} month streak | {COUNT} months streak",
-			"sub_advanced": "for {COUNT} month in advance | for {COUNT} months in advance",
+			"sub_advance": "for {COUNT} month in advance | for {COUNT} months in advance",
 			"sub_gift": "gifted {COUNT} Tier {TIER} to",
 			"sub_gift_upgrade": "is continuing the Gift Sub they got from {USER}",
 			"reward": "redeemed the reward {TITLE}",

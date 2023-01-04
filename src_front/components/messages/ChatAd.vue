@@ -20,73 +20,13 @@
 					:icon="$image('icons/cross_white.svg')" />
 
 				<div class="title">{{ $t('changelog.title') }}</div>
-				
-				<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
-				
-				<div class="content">
-					<ToggleBlock class="block new" :title="$t('changelog.major_title')" :open="false" :icons="['new']">
-						<ul>
-							<li v-for="e in entriesMajor">
-								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
 
-								<Button v-if="e.a && e.a.param"
-									:aria-label="e.a.a ?? ''" small
-									:title="e.a.l"
-									@click.stop="openSpecificParam(e.a!.param!)" />
-									
-								<Button v-if="e.a && e.a.page"
-									:aria-label="e.a.a ?? ''" small
-									:title="e.a.l"
-									@click.stop="openParamPage(e.a!.page!)" />
-
-								<span v-html="e.l"></span>
-							</li>
-						</ul>
-					</ToggleBlock>
-					<ToggleBlock class="block other" :title="$t('changelog.minor_title')" :open="false" :icons="['change']">
-						<ul>
-							<li v-for="e in entriesMinor">
-								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
-
-								<Button v-if="e.a && e.a.param"
-									:aria-label="e.a.a ?? ''" small
-									:title="e.a.l"
-									@click.stop="openSpecificParam(e.a!.param!)" />
-									
-								<Button v-if="e.a && e.a.page"
-									:aria-label="e.a.a ?? ''" small
-									:title="e.a.l"
-									@click.stop="openParamPage(e.a!.page!)" />
-
-								<span v-html="e.l"></span>
-							</li>
-						</ul>
-					</ToggleBlock>
-					<ToggleBlock class="block fix" :title="$t('changelog.fixes_title')" :open="false" :icons="['fix']">
-						<ul>
-							<li v-for="e in entriesFixes">
-								<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
-
-								<Button v-if="e.a && e.a.param"
-									:aria-label="e.a.a ?? ''" small
-									:title="e.a.l"
-									@click.stop="openSpecificParam(e.a!.param!)" />
-									
-								<Button v-if="e.a && e.a.page"
-									:aria-label="e.a.a ?? ''" small
-									:title="e.a.l"
-									@click.stop="openParamPage(e.a!.page!)" />
-
-								<span v-html="e.l"></span>
-							</li>
-						</ul>
-					</ToggleBlock>
-				</div>
-				<div class="cta">
-					<Button @click.stop="deleteMessage()"
-					:aria-label="$t('changelog.closeBt_aria')"
-					:title="$t('changelog.closeBt')" />
-				</div>
+				<ChatChangelog class="content"
+					@showModal="(v:string)=> $emit('showModal', v)"
+					@close="(v:any)=> deleteMessage()"
+					@openParam="(v:any)=> openParamPage(v)"
+					@openParamItem="(v:string)=> openSpecificParam(v)"
+				/>
 			</div>
 	
 			<div v-if="isTip" class="tip">
@@ -185,6 +125,7 @@ import Config from '@/utils/Config';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import ChatChangelog from './ChatChangelog.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
 @Options({
@@ -195,6 +136,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 		Button,
 		Splitter,
 		ToggleBlock,
+		ChatChangelog,
 		ChatTipAndTrickAd,
 	},
 	emits:["showModal"]
@@ -221,8 +163,6 @@ export default class ChatAd extends Vue {
 	public get isDiscord():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DISCORD; }
 	public get isAdWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; }
 	public get isSponsorPublicPrompt():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
-
-	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	
@@ -250,18 +190,6 @@ export default class ChatAd extends Vue {
 		return module.default
 	}
 
-	public get entriesMajor():ChangelogEntry[] {
-		return this.$tm("changelog.major") as ChangelogEntry[];
-	}
-
-	public get entriesMinor():ChangelogEntry[] {
-		return this.$tm("changelog.minor") as ChangelogEntry[];
-	}
-
-	public get entriesFixes():ChangelogEntry[] {
-		return this.$tm("changelog.fixes") as ChangelogEntry[];
-	}
-
 	public async mounted():Promise<void> {
 		this.voiceIcon = await this.getSvgIcon("voice");
 		this.ttsIcon = await this.getSvgIcon("tts");
@@ -269,35 +197,6 @@ export default class ChatAd extends Vue {
 		this.elgatoIcon = await this.getSvgIcon("elgato");
 		this.followIcon = await this.getSvgIcon("follow");
 		this.kofiIcon = await this.getSvgIcon("kofi");
-
-		//Make sure changelog entrues are valid.
-		//Checks for all the button actions to make sure their values
-		//are correct
-		const changelogs:ChangelogEntry[][] = [
-						this.$tm("changelog.major") as ChangelogEntry[],
-						this.$tm("changelog.minor") as ChangelogEntry[],
-						this.$tm("changelog.fix") as ChangelogEntry[],
-					];
-		const allowedTypes = Object.values(TwitchatDataTypes.ParamsCategories) as TwitchatDataTypes.ParamsContentStringType[];
-		const sParams = this.$store("params");
-		let allowedParams:string[] = [];
-		allowedParams = allowedParams.concat(Object.keys(this.$store("params").features));
-		allowedParams = allowedParams.concat(Object.keys(this.$store("params").appearance));
-		changelogs.forEach(v=> {
-			if(!Array.isArray(v))return;
-			v.forEach(v=>{
-				if(v.a && v.a.page && !allowedTypes.includes(v.a.page)) {
-					this.$store("main").alert("Invalid parameter page \""+v.a.page+"\" for changelog entry \""+v.l+"\"");
-				}
-				if(v.a && v.a.param) {
-					const chunks:string[] = v.a.param.split(".");
-					//@ts-ignore
-					if(!sParams[chunks[0]]?.[chunks[1]]) {
-						this.$store("main").alert("Invalid parameter value \""+v.a.param+"\" for changelog entry \""+v.l+"\"");
-					}
-				}
-			})
-		})
 	}
 
 	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
@@ -484,66 +383,6 @@ export interface ChangelogEntry {
 			}
 	
 			.block {
-				&.new {
-					:deep(.header){
-						color: @mainColor_light;
-						background-color: @mainColor_warn;
-						border-bottom-color: darken(@mainColor_warn, 10%);
-						&:hover {
-							background-color: lighten(@mainColor_warn, 5%);
-						}
-					}
-					:deep(.content){
-						color: @mainColor_warn;
-						background-color: fade(@mainColor_warn_extralight, 25%);
-						.button {
-							border-color: @mainColor_warn;
-							color: @mainColor_warn !important;
-							&:hover {
-								background: fade(@mainColor_warn, 10%);
-							}
-						}
-						.icon {
-							background: @mainColor_warn;
-						}
-		
-						.cmd {
-							background-color: fade(@mainColor_warn, 15%);
-						}
-						mark {
-							border: 1px dashed darken(@mainColor_warn_light, 10%);
-							background-color: fade(@mainColor_warn_extralight, 50%);
-						}
-					}
-				}
-				&.fix {
-					:deep(.header){
-						color: @mainColor_light;
-						background-color: @mainColor_alert;
-						border-bottom-color: darken(@mainColor_alert, 10%);
-						&:hover {
-							background-color: lighten(@mainColor_alert, 5%);
-						}
-					}
-					:deep(.content){
-						color: @mainColor_alert;
-						background-color: lighten(@mainColor_alert_extralight, 5%);
-						.button {
-							border-color: @mainColor_alert;
-							color: @mainColor_alert !important;
-							&:hover {
-								background: fade(@mainColor_alert, 10%);
-							}
-						}
-						.icon {
-							background: @mainColor_alert;
-						}
-		
-						.cmd {
-							background-color: fade(@mainColor_alert, 15%);
-						}
-					}
-				}
 				&:not(:last-of-type) {
 					margin-bottom: .5em;
 				}
@@ -562,40 +401,7 @@ export interface ChangelogEntry {
 					}
 				}
 			}
-	
-			ul {
-				text-align: left;
-				margin-left: 2em;
-				:deep(li) {
-					&:not(:last-child) {
-						margin-bottom:.5em;
-					}
-	
-					.button {
-						background: transparent;
-						border: 1px solid @mainColor_normal;
-						padding: .16em .3em;
-						margin-right: .5em;
-						color: @mainColor_normal !important;
-						&:hover {
-							background: fade(@mainColor_normal, 10%);
-						}
-					}
-					.icon {
-						border-radius: .5em;
-						height: 2em;
-						width: 2em;
-						padding: .25em;
-						display: inline;
-						margin-right: .5em;
-						vertical-align: bottom;
-						background: @mainColor_normal;
-					}
-					ul {
-						padding-left: 2.5em;
-					}
-				}
-			}
+
 			:deep(mark) {
 				border: 1px dashed fade(#000, 20);
 				background-color: fade(#000, 5);

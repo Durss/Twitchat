@@ -16,7 +16,7 @@
 		},
 		{
 			"Icon": "icons/GREET_FEED_READ_default",
-			"Name": "Clear 'Greet them' messages",
+			"Name": "Remove X 'Greet them' message",
 			"Tooltip": "Clear some messages from 'Greet them' section", 
 			"States": [
 				{

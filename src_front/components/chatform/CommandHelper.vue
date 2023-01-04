@@ -1,13 +1,13 @@
 <template>
 	<div class="commandhelper">
-		<Button small @click="$emit('poll'); close();"			:icon="$image('icons/poll.svg')"		:title="$t('cmdmenu.poll')" bounce :disabled="!canCreatePoll" />
-		<Button small @click="$emit('pred'); close();"			:icon="$image('icons/prediction.svg')"	:title="$t('cmdmenu.prediction')" bounce :disabled="!canCreatePrediction" />
-		<Button small @click="$emit('raffle'); close();"		:icon="$image('icons/ticket.svg')"		:title="$t('cmdmenu.raffle')" bounce />
-		<Button small @click="$emit('bingo'); close();"			:icon="$image('icons/bingo.svg')"		:title="$t('cmdmenu.bingo')" bounce />
-		<Button small @click="$emit('chatpoll'); close();"		:icon="$image('icons/chatPoll.svg')"	:title="$t('cmdmenu.suggestions')" bounce />
-		<Button small @click="$emit('timer'); close();"			:icon="$image('icons/timer.svg')"		:title="$t('cmdmenu.timer')" bounce />
-		<Button small @click="$emit('clear'); close();"			:icon="$image('icons/clearChat.svg')"	:title="$t('cmdmenu.chat')" bounce />
-		<Button small @click="$emit('streamInfo'); close();"	:icon="$image('icons/info.svg')"		:title="$t('cmdmenu.info')" bounce />
+		<Button small @click="openModal('poll');"		:icon="$image('icons/poll.svg')"		:title="$t('cmdmenu.poll')" :disabled="!canCreatePoll" />
+		<Button small @click="openModal('pred');"		:icon="$image('icons/prediction.svg')"	:title="$t('cmdmenu.prediction')" :disabled="!canCreatePrediction" />
+		<Button small @click="openModal('raffle');"		:icon="$image('icons/ticket.svg')"		:title="$t('cmdmenu.raffle')" />
+		<Button small @click="openModal('bingo');"		:icon="$image('icons/bingo.svg')"		:title="$t('cmdmenu.bingo')" />
+		<Button small @click="openModal('chatpoll');"	:icon="$image('icons/chatPoll.svg')"	:title="$t('cmdmenu.suggestions')" />
+		<Button small @click="openModal('timer');"		:icon="$image('icons/timer.svg')"		:title="$t('cmdmenu.timer')" />
+		<Button small @click="clearChat();"				:icon="$image('icons/clearChat.svg')"	:title="$t('cmdmenu.chat')" />
+		<Button small @click="openModal('streamInfo');"	:icon="$image('icons/info.svg')"		:title="$t('cmdmenu.info')" />
 
 		<div class="commercial">
 			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="startAd(30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!hasChannelPoints" />
@@ -56,28 +56,18 @@ import ParamItem from '../params/ParamItem.vue';
 		Button,
 		ParamItem,
 	},
-	emits:[
-		"poll",
-		"pred",
-		"clear",
-		"bingo",
-		"close",
-		"raffle",
-		"chatpoll",
-		"streamInfo",
-		"liveStreams",
-	]
+	emits:[ "openModal" ]
 })
 export default class CommandHelper extends Vue {
 	
 	public raidUser:string = "";
-	public adCooldown:number = 0;
 	public channelId:string = "";
+	public adCooldown:number = 0;
 	
-	public param_followOnly:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Followers only" };
-	public param_subOnly:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Subs only" };
-	public param_emotesOnly:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Emotes only" };
-	public param_slowMode:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"Slow mode" };
+	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Followers only" };
+	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Subs only" };
+	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Emotes only" };
+	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Slow mode" };
 
 	private ignoreUpdates = false;
 	private adCooldownInterval = 0;
@@ -137,6 +127,15 @@ export default class CommandHelper extends Vue {
 
 	public startAd(duration:number):void {
 		this.$store("stream").startAd(duration);
+	}
+
+	public openModal(type:TwitchatDataTypes.ModalTypes):void {
+		this.$emit("openModal", type);
+		this.close();
+	}
+
+	public clearChat():void {
+		TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id);
 	}
 
 	private open():void {
@@ -224,6 +223,7 @@ export default class CommandHelper extends Vue {
 .commandhelper{
 	.window();
 	gap:.25em;
+	overflow-x: hidden;
 	
 	.button {
 		:deep(img) {

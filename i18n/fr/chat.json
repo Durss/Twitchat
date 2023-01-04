@@ -89,7 +89,7 @@
 				"short": "Messages courts"
 			},
 			"commands": "Masquer des commandes spécifiques",
-			"short": "Messages plus courts que 4 caractères<br>or contenant principalement des emotes"
+			"short": "Messages plus courts que 4 caractères<br>ou contenant principalement des emotes"
 		},
 		"shoutout": {
 			"given": "{USER} vous a fait une dédicasse auprès de {VIEWERS} viewers",
@@ -151,14 +151,14 @@
 			"train_cooldown": "Le train de la hype peut de nouveau être déclanché !",
 			"boosted": "Votre chaîne a été mise en avant auprès de {COUNT} personnes",
 			"raid": "a lancé un raid sur votre chaîne avec {COUNT} personnes.",
-			"bits": "a envoyé {BITS} bit | {USER} a envoyé {BITS} bits",
+			"bits": "a envoyé 1 bit | {USER} a envoyé {BITS} bits",
 			"sub": "a pris un abonnement de niveau {TIER}",
 			"sub_prime": "a pris un abonnement avec Prime",
-			"resub": "a renouvelé son abonnement de niveau {TIER}",
-			"resub_prime": "a pris un abonnement avec Prime",
-			"sub_duration": "pour {COUNT} mois | pour {COUNT} mois",
-			"sub_streak": "{COUNT} mois d'affilé | {COUNT} mois d'affilé",
-			"sub_advanced": "pour {COUNT} mois en avance | pour {COUNT} mois en avance",
+			"resub": "a renouvelé son abonnement de niveau {TIER}.",
+			"resub_prime": "a pris un abonnement avec Prime.",
+			"sub_duration": "Abonné·e depuis {COUNT} mois.",
+			"sub_streak": "{COUNT} mois d'affilé",
+			"sub_advance": "pour {COUNT} mois en avance",
 			"sub_gift": "a offert {COUNT} abonnement de niveau {TIER} à",
 			"sub_gift_upgrade": "continue l'abonnement offert par {USER}",
 			"reward": "a acheté la récompense {TITLE}",
