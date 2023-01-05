@@ -82,8 +82,6 @@ export default class RaffleState extends Vue {
 	}
 
 	public beforeMount():void {
-		console.log(this.raffleData);
-		console.log(this.$store("raffle").data);
 
 		this.winnerPlaceholders	= [{tag:"USER", desc:this.$t("raffle.params.username_placeholder"), example:this.$store("auth").twitch.user.displayName}];
 		this.raffleData			= this.$store("raffle").data!;
@@ -172,12 +170,12 @@ export default class RaffleState extends Vue {
 				gap: .25em;
 			}
 		}
-	}
 
-	.postChat {
-		max-width: 300px;
-		font-size: .8em;
-		color: @mainColor_normal;
+		&.postChat {
+			max-width: 320px;
+			font-size: .8em;
+			color: @mainColor_normal;
+		}
 	}
 }
 </style>

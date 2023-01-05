@@ -8,7 +8,7 @@
 			"allowed":"Personnes autorisées à utiliser la commande {CMD} :"
 		},
 		"warning":{
-			"title":"Attentiont",
+			"title":"Attention",
 			"head":"Le système de réponse de Twitch étant bancal, si vous utilisez la commande {CMD} sur une réponse de conversation, le message mis en spoiler sera celui à l'origine de la conversation.",
 			"example":"Exemple ci-dessous, si vous cherchez à spoiler {ANSWER} en y répondant, ça mettra en réalité {ROOT} en spoiler à la place :",
 			"example_1":"Origine de la conversation",

@@ -154,7 +154,7 @@ import Ajv from "ajv";
 												followRatio: {type:"number", minimum:0, maximum:100},
 												vipRatio: {type:"number", minimum:0, maximum:100},
 												subRatio: {type:"number", minimum:0, maximum:100},
-												subgitRatio: {type:"number", minimum:0, maximum:100},
+												subgiftRatio: {type:"number", minimum:0, maximum:100},
 												subMode_includeGifters: {type:"boolean"},
 												subMode_excludeGifted: {type:"boolean"},
 												showCountdownOverlay: {type:"boolean"},

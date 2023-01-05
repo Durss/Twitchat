@@ -529,7 +529,7 @@ export const storeDebug = defineStore('debug', {
 							followRatio:0,
 							subRatio:0,
 							vipRatio:0,
-							subgitRatio:0,
+							subgiftRatio:0,
 							mode:'manual',
 							subMode_excludeGifted:false,
 							subMode_includeGifters:false,

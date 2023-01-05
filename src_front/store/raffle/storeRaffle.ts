@@ -28,6 +28,7 @@ export const storeRaffle = defineStore('raffle', {
 		async startRaffle(payload:TwitchatDataTypes.RaffleData) {
 			this.data = payload;
 			
+			payload.created_at = Date.now();
 			let overlayAvailable = false;
 			const callback = (e:TwitchatEvent) => {overlayAvailable = true;}
 			PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, callback);
@@ -178,7 +179,7 @@ export const storeRaffle = defineStore('raffle', {
 				//Apply ratios if any is defined
 				if(raffle.vipRatio > 0 && user.channelInfo[message.channel_id].is_vip)			score += raffle.vipRatio;
 				if(raffle.subRatio > 0 && user.channelInfo[message.channel_id].is_subscriber)	score += raffle.subRatio;
-				if(raffle.subgitRatio > 0 && user.channelInfo[message.channel_id].is_gifter)	score += raffle.subgitRatio;
+				if(raffle.subgiftRatio > 0 && user.channelInfo[message.channel_id].is_gifter)	score += raffle.subgiftRatio;
 				if(raffle.followRatio > 0) {
 					//Check if user is following
 					if(user.channelInfo[message.channel_id].is_following === undefined) sUsers.checkFollowerState(user, message.channel_id);

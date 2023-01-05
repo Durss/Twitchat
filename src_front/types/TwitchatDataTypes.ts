@@ -257,7 +257,7 @@ export namespace TwitchatDataTypes {
 		vipRatio:number;
 		followRatio:number;
 		subRatio:number;
-		subgitRatio:number;
+		subgiftRatio:number;
 		subMode_includeGifters:boolean;
 		subMode_excludeGifted:boolean;
 		showCountdownOverlay:boolean;

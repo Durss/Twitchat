@@ -223,7 +223,7 @@ export default class RaffleForm extends Vue {
 			followRatio: this.ponderateVotes_follower.value as number,
 			vipRatio: this.ponderateVotes_vip.value as number,
 			subRatio: this.ponderateVotes_sub.value as number,
-			subgitRatio: this.ponderateVotes_subgift.value as number,
+			subgiftRatio: this.ponderateVotes_subgift.value as number,
 			subMode_includeGifters: this.subs_includeGifters.value as boolean,
 			subMode_excludeGifted: this.subs_excludeGifted.value as boolean,
 			showCountdownOverlay: this.showCountdownOverlay.value as boolean,
@@ -259,14 +259,14 @@ export default class RaffleForm extends Vue {
 			this.mode = this.action.raffleData.mode;
 			this.command.value = this.action.raffleData.command
 			this.enterDuration.value = this.action.raffleData.duration_s/60000;
-			this.maxEntries.value = this.action.raffleData.maxEntries
+			this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
 			this.maxUsersToggle.value = this.maxEntries.value > 0;
-			this.ponderateVotes_follower.value = this.action.raffleData.followRatio;
-			this.ponderateVotes_vip.value = this.action.raffleData.vipRatio;
-			this.ponderateVotes_sub.value = this.action.raffleData.subRatio;
-			this.ponderateVotes_subgift.value = this.action.raffleData.subgitRatio;
-			this.subs_includeGifters.value = this.action.raffleData.subMode_includeGifters;
-			this.subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted;
+			this.ponderateVotes_follower.value = this.action.raffleData.followRatio ?? 0;
+			this.ponderateVotes_vip.value = this.action.raffleData.vipRatio ?? 0;
+			this.ponderateVotes_sub.value = this.action.raffleData.subRatio ?? 0;
+			this.ponderateVotes_subgift.value = this.action.raffleData.subgiftRatio ?? 0;
+			this.subs_includeGifters.value = this.action.raffleData.subMode_includeGifters ?? false;
+			this.subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
 			// this.showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
 			this.customEntries.value = this.action.raffleData.customEntries;
 		}else{

@@ -1,6 +1,5 @@
 <template>
 	<div class="paramslist">
-		<!-- <h1 v-if="title"><img :src="icon" v-if="icon" class="icon">{{title}}</h1> -->
 		<div class="row" v-for="(p, key) in params" :key="key">
 
 			<div :class="'item '+key">
@@ -10,6 +9,7 @@
 					@leave="onHideItem"
 				>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
+						<img src="@/assets/icons/alert_purple.svg">
 						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 							<template #LINK>
 								<a @click="$emit('setContent', contentObs)" v-t="'global.obs_connect_link'"></a>
@@ -272,17 +272,20 @@ export default class ParamsList extends Vue {
 			}
 	
 			&.obsConnect {
-				.label {
-					display: block;
-					width: fit-content;
-					border-radius: .25em;
-					margin:auto;
-					background-color: @mainColor_warn;
-					color: @mainColor_light;
-					padding: .25em .5em;
-					a{
-						font-weight: bold;
-					}
+				display: inline-block;
+				width: fit-content;
+				border-radius: .25em;
+				margin: .25em auto;
+				margin-left: 1.5em;
+				background-color: @mainColor_light;
+				padding: .25em .5em;
+				img {
+					height: .8em;
+					margin-right: .25em;
+					vertical-align: middle;
+				}
+				a{
+					color: @mainColor_alert;
 				}
 			}
 	

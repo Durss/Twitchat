@@ -1098,14 +1098,16 @@ export default class TwitchUtils {
 				method:"GET",
 				headers:this.headers,
 			});
-			const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
-			list = list.concat(json.data);
-			cursor = null;
-			if(json.pagination?.cursor) {
-				cursor = json.pagination.cursor;
-			}
-			if(tempDataCallback) {
-				tempDataCallback(list);
+			if(res.status == 200) {
+				const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+				if(tempDataCallback) {
+					tempDataCallback(list);
+				}
 			}
 		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
 		return list;

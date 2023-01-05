@@ -153,6 +153,10 @@ export default class DataStore {
 			this.migrateRaffleTriggerDuration();
 			v = "19";
 		}
+		if(v=="19") {
+			this.migrateRaffleTriggerTypo();
+			v = "20";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
@@ -602,6 +606,30 @@ export default class DataStore {
 				if(a.type == "raffle" && a.raffleData) {
 					console.log("convert", a.raffleData.duration_s, "to", a.raffleData.duration_s * 60000);
 					a.raffleData.duration_s = a.raffleData.duration_s * 60000;
+				}
+			}
+		}
+
+		this.set("triggers", triggers);
+	}
+
+	/**
+	 * Made a mistake storing minutes instead of seconds
+	 */
+	private static migrateRaffleTriggerTypo():void {
+		const txt = this.get("triggers");
+		if(!txt) return;
+		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
+		for (const key in triggers) {
+			const actions = triggers[key].actions;
+			for (let i = 0; i < actions.length; i++) {
+				const a = actions[i];
+				if(a.type == "raffle" && a.raffleData) {
+					//@ts-ignore
+					if(a.raffleData.subgitRatio) {
+						//@ts-ignore
+						a.raffleData.subgiftRatio = a.raffleData.subgitRatio;
+					}
 				}
 			}
 		}
