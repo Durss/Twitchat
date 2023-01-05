@@ -9,6 +9,7 @@
 		"resyncBt": "Resynchroniser OBS",
 		"resyncBt_tt": "Si vous avez ajouté des sources<br>dans OBS, cliquez pour les voir<br>listées dans les actions OBS",
 		"delete_confirm": "Supprimer ce trigger ?",
+		"reorder_tt": "Réordonner",
 		"music": {
 			"require": "Ces événements nécessitent de lier Spotify ou Deezer avec Twitchat dans {URL}",
 			"require_url": "les overlays"
@@ -73,7 +74,7 @@
 			},
 			"music": {
 				"header": "Veuillez lier Spotify ou Deezer dans la {LINK}",
-				"header_link": "sectoin overlays",
+				"header_link": "section overlays",
 				"param_actions": "Action",
 				"param_actions_default": "Selectionnez une action...",
 				"param_track": "Morceau (nom, URL ou ID)",
@@ -84,8 +85,8 @@
 			"obs": {
 				"header": "Veuillez {LINK}",
 				"header_link": "connecter OBS",
-				"media_source": "Siv ous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} and {CMD2} supprimés pour des raisons de sécurité.",
-				"media_source_example": ": si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
+				"media_source": "Si vous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} et {CMD2} supprimés pour des raisons de sécurité.",
+				"media_source_example": " : si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
 				"param_show": "Visibilité de la source",
 				"param_show_filter": "Visibilité du filtre",
 				"param_source": "Source OBS",
@@ -97,7 +98,7 @@
 				"param_media_img": "Fichier image"
 			},
 			"trigger": {
-				"beta": "Fonctionnalité expérimentale ! Si vous rencontrez un problème {LINK}",
+				"beta": "Fonctionnalité expérimentale !{BR} Si vous rencontrez un problème {LINK}",
 				"beta_link": "faites-le moi savoir sur Discord",
 				"warning_title": "Information importante",
 				"warning": "Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",

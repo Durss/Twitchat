@@ -1,6 +1,6 @@
 <template>
 	<div class="TriggerActionMusicEntry" v-if="!musicServiceConfigured">
-		<div class="info">
+		<div class="item warn info">
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
@@ -11,18 +11,18 @@
 	</div>
 
 	<div class="TriggerActionMusicEntry" v-else>
-		<ParamItem class="item file" :paramData="actions_conf" v-model="action.musicAction" />
+		<ParamItem class="row item file" :paramData="actions_conf" v-model="action.musicAction" />
 
-		<div class="item" v-if="showTrackInput" >
+		<div class="row item" v-if="showTrackInput" >
 			<ParamItem :paramData="track_conf" v-model="action.track" />
 		</div>
 
-		<div class="item" v-if="showTrackInput">
+		<div class="row item" v-if="showTrackInput">
 			<ParamItem :paramData="confirmSongRequest_conf" v-model="action.confirmMessage" />
 		</div>
 
-		<div class="item" v-if="showPlaylistInput">
-			<div class="item warn" v-t="'triggers.actions.music.spotify_only'"></div>
+		<div class="row item" v-if="showPlaylistInput">
+			<div class="item alert" v-t="'triggers.actions.music.spotify_only'"></div>
 			<ParamItem :paramData="playlist_conf" v-model="action.playlist" />
 		</div>
 	</div>
@@ -51,7 +51,7 @@ export default class TriggerActionMusicEntry extends Vue {
 	public event!:TriggerEventTypes;
 
 	public actions_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
-	public track_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:false, value:"", icon:"music_purple.svg", maxLength:500 };
+	public track_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"music_purple.svg", maxLength:500 };
 	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	public playlist_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", value:"", icon:"info_purple.svg", maxLength:500 };
 
@@ -84,61 +84,18 @@ export default class TriggerActionMusicEntry extends Vue {
 
 <style scoped lang="less">
 .TriggerActionMusicEntry{
-	.helper {
-		font-size: .8em;
-		padding-left: 2em;
-		.list {
-			list-style-type: none;
-			// padding-left: 1em;
-			li {
-				padding: .25em;
-				cursor: pointer;
-				&:hover {
-					background-color: fade(@mainColor_normal, 10%);
-				}
-				&:not(:last-child) {
-					border-bottom: 1px solid @mainColor_normal;
-				}
-				strong {
-					display: inline-block;
-					min-width: 82px;
-					border-right: 1px solid @mainColor_normal;
-				}
-			}
-		}
-	}
+	.triggerActionForm();
 
-	.item:not(:first-child) {
-		margin-top: .5em;
-	}
-
-	.warn {
+	.item.alert {
 		display: block;
 		width: fit-content;
 		border-radius: .25em;
 		margin:auto;
 		margin-bottom: .5em;
-		background-color: @mainColor_warn;
+		background-color: @mainColor_alert;
 		color: @mainColor_light;
 		padding: .25em .5em;
 	}
 
-	.info {
-		overflow: hidden;
-		padding: .5em;
-		padding-left: calc(1em + 10px);
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		margin-bottom: .5em;
-		img {
-			height: 1em;
-			margin-right: .5em;
-			vertical-align: middle;
-		}
-		.label {
-			display: inline;
-			color: @mainColor_warn;
-		}
-	}
 }
 </style>

@@ -1,10 +1,14 @@
 <template>
 	<div class="triggeractionhttpcall">
-		<ParamItem class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
-		<p class="item securityError" v-if="securityError" v-t="'triggers.actions.http.protocol_error'"></p>
-		<ParamItem class="item" :paramData="param_method" v-model="action.method" />
-		<p class="item" v-if="param_options.length > 0" v-t="'triggers.actions.http.select_param'"></p>
-		<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />
+		<div class="row item">
+			<ParamItem class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
+			<p class="item securityError" v-if="securityError" v-t="'triggers.actions.http.protocol_error'"></p>
+		</div>
+		<ParamItem class="row item" :paramData="param_method" v-model="action.method" />
+		<div class="row">
+			<p class="item" v-if="param_options.length > 0" v-t="'triggers.actions.http.select_param'"></p>
+			<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />
+		</div>
 	</div>
 </template>
 
@@ -81,14 +85,10 @@ export default class TriggerActionHTTPCall extends Vue {
 
 <style scoped lang="less">
 .triggeractionhttpcall{
+	.triggerActionForm();
 
 	.argument {
-		font-size: .9em;
 		padding-left: 1em;
-	}
-
-	.item {
-		margin-bottom: .25em;
 	}
 
 	.securityError {

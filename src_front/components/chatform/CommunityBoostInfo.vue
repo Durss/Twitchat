@@ -1,5 +1,5 @@
 <template>
-	<div class="communityboostinfo" data-tooltip="Channel boosted" @click="smallMode=!smallMode">
+	<div class="communityboostinfo" :data-tooltip="$t('global.tooltips.boost')" @click="smallMode=!smallMode">
 		<div class="col">
 			<img src="@/assets/icons/boost.svg" alt="boost">{{roundProgressPercent}}%
 		</div>

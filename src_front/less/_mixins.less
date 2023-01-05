@@ -360,3 +360,35 @@
 		justify-content: center;
 	}
 }
+
+.triggerActionForm() {
+	.row {
+		border-radius: .5em;
+		background-color: fade(@mainColor_normal_extralight, 30%);
+		padding: .5em;
+	}
+	
+	.item {
+		margin-bottom: .25em;
+	}
+
+	.info {
+		overflow: hidden;
+		padding: .5em 1em;
+		background-color: @mainColor_light;
+		border-radius: .5em;
+		margin-bottom: .5em;
+		font-size: .8em;
+		img {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
+		}
+		.label {
+			display: inline;
+		}
+		&.warn>.label {
+			color: @mainColor_warn;
+		}
+	}
+}

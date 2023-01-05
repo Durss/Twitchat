@@ -33,7 +33,7 @@
 					<span class="label">{{user.displayName}}</span>
 				</div>
 				<span class="translation" v-if="translateUsername">({{user.login}})</span>
-				<div class="subtitle" data-tooltip="copy" @click="copyID()" ref="userID">ID: {{user.id}}</div>
+				<div class="subtitle" :data-tooltip="$t('global.copy')" @click="copyID()" ref="userID">ID: {{user.id}}</div>
 				<div class="date" :data-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
 				<div class="date" :data-tooltip="$t('usercard.follow_date_tt')" v-if="followDate"><img src="@/assets/icons/follow_purple.svg" alt="follow date" class="icon">{{followDate}}</div>
 				<div class="date" v-else><img src="@/assets/icons/unfollow_purple.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>

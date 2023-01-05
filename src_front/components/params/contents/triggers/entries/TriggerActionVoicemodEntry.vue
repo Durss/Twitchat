@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionvoicemodentry" v-if="!vmConnected">
-		<div class="info">
+		<div class="item info warn">
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.voicemod.header">
 				<template #LINK>
@@ -59,21 +59,6 @@ export default class TriggerActionVoicemodEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionvoicemodentry{
-	.info {
-		overflow: hidden;
-		padding: .5em;
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		margin-bottom: .5em;
-		img {
-			height: 1em;
-			margin-right: .5em;
-			vertical-align: middle;
-		}
-		.label {
-			display: inline;
-			color: @mainColor_warn;
-		}
-	}
+	.triggerActionForm();
 }
 </style>

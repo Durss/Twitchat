@@ -10,7 +10,6 @@
 			</div>
 		</div>
 		
-		{{ loadingClip }}
 		<div :class="classes" class="clipHolder" ref="clip_holder" id="clip_holder"
 		v-if="clipData && clipData.mp4" v-show="!loadingClip">
 			<video ref="video" id="clip_player" :src="clipData.mp4" autoplay @loadedmetadata="onClipStart()"></video>

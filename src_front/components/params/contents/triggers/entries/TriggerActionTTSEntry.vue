@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionttsentry" v-if="!$store('tts').params.enabled">
-		<div class="info">
+		<div class="row info warn">
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.tts.header">
 				<template #LINK>
@@ -11,7 +11,7 @@
 	</div>
 
 	<div v-else class="triggeractionttsentry">
-		<ParamItem class="item file" :paramData="message_conf" ref="textContent" v-model="action.text" />
+		<ParamItem class="row item file" :paramData="message_conf" ref="textContent" v-model="action.text" />
 	</div>
 </template>
 
@@ -50,22 +50,6 @@ export default class TriggerActionTTSEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionttsentry{
-	.info {
-		overflow: hidden;
-		padding: .5em;
-		padding-left: calc(1em + 10px);
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		margin-bottom: .5em;
-		img {
-			height: 1em;
-			margin-right: .5em;
-			vertical-align: middle;
-		}
-		.label {
-			display: inline;
-			color: @mainColor_warn;
-		}
-	}
+	.triggerActionForm();
 }
 </style>

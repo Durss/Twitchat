@@ -1,7 +1,9 @@
 <template>
 	<div class="triggeractionchatentry">
-		<ParamItem class="item" :paramData="message_conf" ref="textContent" v-model="action.text" :error="cmdNameConflict" />
-		<div v-if="cmdNameConflict" class="cmdNameConflict" v-t="'triggers.actions.chat.loop'"></div>
+		<div class="row item">
+			<ParamItem :paramData="message_conf" ref="textContent" v-model="action.text" :error="cmdNameConflict" />
+			<div v-if="cmdNameConflict" class="cmdNameConflict" v-t="'triggers.actions.chat.loop'"></div>
+		</div>
 	</div>
 </template>
 
@@ -51,6 +53,7 @@ export default class TriggerActionChatEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionchatentry{
+	.triggerActionForm();
 	.cmdNameConflict {
 		background-color: @mainColor_alert;
 		color: @mainColor_light;

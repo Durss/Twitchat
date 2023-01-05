@@ -1,13 +1,13 @@
 <template >
 	<div :class="classes" v-show="open || expand" @wheel.stop>
 		<div class="hoverActions" v-if="!expand">
-			<button class="openBt" @click="expand = true" data-tooltip="Edit filters">
+			<button class="openBt" @click="expand = true" :data-tooltip="$t('global.tooltips.column_edit')">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
-			<button class="deleteBt" @click="$emit('delete')" v-if="canDelete" data-tooltip="Delete column">
+			<button class="deleteBt" @click="$emit('delete')" v-if="canDelete" :data-tooltip="$t('global.tooltips.column_delete')">
 				<img src="@/assets/icons/cross_white.svg" alt="delete column" class="icon">
 			</button>
-			<button class="addBt" @click="$emit('add')" data-tooltip="Add column">
+			<button class="addBt" @click="$emit('add')" :data-tooltip="$t('global.tooltips.column_add')">
 				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
 			</button>
 		</div>

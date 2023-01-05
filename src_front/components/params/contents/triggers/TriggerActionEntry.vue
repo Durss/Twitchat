@@ -222,6 +222,8 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "trigger") icons.push( 'broadcast' );
 		if(this.action.type == "highlight") icons.push( 'highlight' );
 		if(this.action.type == "http") icons.push( 'url' );
+		if(this.action.type == "poll") icons.push( 'poll' );
+		if(this.action.type == "prediction") icons.push( 'prediction' );
 		return icons;
 	}
 

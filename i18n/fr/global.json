@@ -17,6 +17,7 @@
 		"disconnect":"Déconnexion",
 		"start":"Démarrer",
 		"search":"Chercher",
+		"close":"Fermer",
 		"search_placeholder":"recherche...",
 		"cooldown":"📛 {'@'}{USER} attends {DURATION}",
 		"allowed_users":"Personnes autorisées",
@@ -34,6 +35,19 @@
 		"placeholder_selector_title":"Tag spéciaux remplacés dynamiquement",
 		"placeholder_selector_insert":"Insérer",
 		"chat_alert_title":"{USER} dit",
+		"tooltips": {
+			"commercial":"Publicité",
+			"boost":"Chaîne boostée",
+			"bits":"Bits",
+			"subs1":"Abonnements<br>niveau 1",
+			"subs2":"Abonnements<br>niveau 2",
+			"subs3":"Abonnements<br>niveau 3",
+			"primes":"Abonnements prime",
+			"gifts":"Abonnements offerts",
+			"column_edit":"Editer les<br>filtres",
+			"column_add":"Ajouter une<br>colonne",
+			"column_delete":"Supprimer<br>une colonne"
+		},
 		"badges":{
 			"subscriber":"Abonné·e depuis {DURATION}",
 			"subgift":"{COUNT} abonnements offerts",

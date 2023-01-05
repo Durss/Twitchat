@@ -121,7 +121,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				TwitchUtils.getRoomSettings(v.id).then(settings=> {
 					if(settings) {
 						StoreProxy.stream.setRoomSettings(v.id, settings);
-						if(settings.chatDelay || settings.emotesOnly || settings.subOnly || settings.followOnly) {
+						if(settings.chatDelay || settings.emotesOnly || settings.subOnly || typeof settings.followOnly === "number") {
 
 							const message:TwitchatDataTypes.MessageRoomSettingsData = {
 								id:Utils.getUUID(),

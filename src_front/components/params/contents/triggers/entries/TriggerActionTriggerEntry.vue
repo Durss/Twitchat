@@ -5,9 +5,12 @@
 			<template #LINK>
 				<a :href="discordURL" target="_blank" v-t="'triggers.actions.trigger.beta_link'"></a>
 			</template>
+			<template #BR>
+				<br>
+			</template>
 		</i18n-t>
 		
-		<ToggleBlock class="item" :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
+		<ToggleBlock class="row item" :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
 			<p v-t="'triggers.actions.trigger.warning'"></p>
 			<strong v-t="'global.example'"></strong>
 			<span v-html="$t('triggers.actions.trigger.warning_example')"></span>
@@ -15,9 +18,9 @@
 
 		<img src="@/assets/loader/loader.svg" alt="loading" class="loader" v-if="loading">
 
-		<div v-if="!triggerList || triggerList.length === 0" class="noTrigger" v-t="'triggers.actions.trigger.no_trigger'"></div>
+		<div v-if="!triggerList || triggerList.length === 0" class="noinfo Trigger" v-t="'triggers.actions.trigger.no_trigger'"></div>
 		
-		<vue-select class="item list" v-model="action.triggerKey"
+		<vue-select class="row item list" v-model="action.triggerKey"
 		v-if="triggerList?.length > 1"
 		:placeholder="$t('triggers.actions.trigger.select')"
 		:options="triggerList"
@@ -231,34 +234,17 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractiontriggerentry{
+	.triggerActionForm();
 
 	//.listIcon style is on index.less.
 	//Couldn't make it work from the template even in an unscoped tag
 
-	.info, .noTrigger {
-		overflow: hidden;
-		padding: .5em 1em;
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		margin-bottom: .5em;
-		font-size: .8em;
-		img {
-			height: 1em;
-			margin-right: .5em;
-			vertical-align: middle;
-		}
-		.label {
-			display: inline;
-			color: @mainColor_warn;
-		}
-
-		&.noTrigger {
-			color: @mainColor_light;
-			background-color: @mainColor_alert;
-			text-align: center;
-			font-size: 1.1em;
-			margin: 1em;
-		}
+	.noTrigger {
+		color: @mainColor_light;
+		background-color: @mainColor_alert;
+		text-align: center;
+		font-size: 1.1em;
+		margin: 1em;
 	}
 
 
@@ -270,17 +256,10 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	.paramitem  {
 		:deep(select), :deep(input) {
-			max-width: 200px;
+			flex-basis: 200px;
 		}
 	}
 
-	.item {
-		margin-bottom: .25em;
-		&.list {
-			margin-top: .5em;
-			margin-bottom: .5em;
-		}
-	}
 
 	.dependencyLoop{
 		background-color: @mainColor_warn;

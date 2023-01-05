@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" v-if="!obsConnected">
-		<div class="info">
+		<div class="item info warn">
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
 				<template #LINK>
@@ -11,18 +11,20 @@
 	</div>
 
 	<div :class="classes" v-else>
-		<ParamItem class="item source" :paramData="source_conf" v-model="action.sourceName" />
-		<ParamItem class="item show" :paramData="show_conf" v-model="action.show" />
-		<ParamItem class="item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
-		<ParamItem class="item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
-		<ParamItem class="item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
-		<div v-if="isMediaSource" class="security">
+		<ParamItem class="row item source" :paramData="source_conf" v-model="action.sourceName" />
+		<ParamItem class="row item show" :paramData="show_conf" v-model="action.show" />
+		<ParamItem class="row item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
+		<ParamItem class="row item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
+		<ParamItem class="row item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
+		<div v-if="isMediaSource" class="row info security">
+			<img src="@/assets/icons/alert_purple.svg" alt="info" class="">
 			<i18n-t scope="global" class="label" tag="div" keypath="triggers.actions.obs.media_source">
 				<template #CMD1><mark>..</mark></template>
 				<template #CMD2><mark>/</mark></template>
 			</i18n-t>
+			<br>
 			<strong v-t="'global.example'"></strong>
-			<i18n-t scope="global" class="label" tag="spanp" keypath="triggers.actions.obs.media_source_example">
+			<i18n-t scope="global" class="label" tag="span" keypath="triggers.actions.obs.media_source_example">
 				<template #PATH1><mark>C:/sounds/{MESSAGE}.mp3</mark></template>
 				<template #PATH2><mark>../secretfolder/somesecretfile</mark></template>
 			</i18n-t>
@@ -206,35 +208,15 @@ export default class TriggerActionOBSEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionobsentry{
-	.info {
-		overflow: hidden;
-		padding: .5em;
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		margin-bottom: .5em;
-		img {
-			height: 1em;
-			margin-right: .5em;
-			vertical-align: middle;
-		}
-		.label {
-			display: inline;
-			color: @mainColor_warn;
-		}
-	}
+	.triggerActionForm();
 
 	.paramitem  {
 		:deep(select), :deep(input) {
-			width: 250px;
+			flex-basis: 250px;
 		}
 	}
 
-	.item {
-		margin-bottom: .25em;
-	}
-
 	.security {
-		padding: 0 2em;
 		font-size: .8em;
 		mark {
 			font-weight: bold;

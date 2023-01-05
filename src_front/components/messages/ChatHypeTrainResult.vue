@@ -10,30 +10,30 @@
 			</i18n-t>
 			
 			<div class="details">
-				<div class="row" v-if="bits > 0" data-tooltip="Bits">
+				<div class="row" v-if="bits > 0" :data-tooltip="$t('global.tooltips.bits')">
 					<img src="@/assets/icons/bits.svg" class="icon">
 					<span class="label">{{bits}}</span>
 				</div>
-				<div class="row t1" v-if="subs1 > 0" data-tooltip="Subs tier 1">
+				<div class="row t1" v-if="subs1 > 0" :data-tooltip="$t('global.tooltips.subs1')">
 					<img src="@/assets/icons/sub.svg" class="icon">
 					<!-- <span class="tier">T1</span> -->
 					<span class="label">x{{subs1}}</span>
 				</div>
-				<div class="row t2" v-if="subs2 > 0" data-tooltip="Subs tier 2">
+				<div class="row t2" v-if="subs2 > 0" :data-tooltip="$t('global.tooltips.subs2')">
 					<img src="@/assets/icons/sub_purple.svg" class="icon">
 					<!-- <span class="tier">T2</span> -->
 					<span class="label">x{{subs2}}</span>
 				</div>
-				<div class="row t3" v-if="subs3 > 0" data-tooltip="Subs tier 3">
+				<div class="row t3" v-if="subs3 > 0" :data-tooltip="$t('global.tooltips.subs3')">
 					<img src="@/assets/icons/sub_purple.svg" class="icon">
 					<!-- <span class="tier">T3</span> -->
 					<span class="label">x{{subs3}}</span>
 				</div>
-				<div class="row" v-if="primes > 0" data-tooltip="Primes">
+				<div class="row" v-if="primes > 0" :data-tooltip="$t('global.tooltips.primes')">
 					<img src="@/assets/icons/prime.svg" class="icon">
 					<span class="label">{{primes}}</span>
 				</div>
-				<div class="row" v-if="subgifts > 0" data-tooltip="Subgifts">
+				<div class="row" v-if="subgifts > 0" :data-tooltip="$t('global.tooltips.subgifts')">
 					<img src="@/assets/icons/gift.svg" class="icon">
 					<span class="label">{{subgifts}}</span>
 				</div>

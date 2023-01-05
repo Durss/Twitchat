@@ -17,7 +17,7 @@
 				<span><img class="icon" src="@/assets/icons/emote.svg" />{{$t("chat.room_settings.emote_only")}}</span>
 				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('emote')" />
 			</div>
-			<div class="restriction" v-if="messageData.settings.followOnly" ref="follow">
+			<div class="restriction" v-if="typeof messageData.settings.followOnly == 'number'" ref="follow">
 				<span><img class="icon" src="@/assets/icons/follow.svg" />{{$t("chat.room_settings.follow_only")}}</span>
 				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('follow')" />
 			</div>

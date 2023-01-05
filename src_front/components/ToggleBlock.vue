@@ -7,7 +7,7 @@
 				warn
 				v-if="orderable!==false"
 				@mousedown="$emit('startDrag', $event)"
-				data-tooltip="Reorder"
+				:data-tooltip="$t('triggers.reorder_tt')"
 			/>
 			<img v-for="icon in localIcons" :src="$image('icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
 			<h2 v-html="localTitle"></h2>

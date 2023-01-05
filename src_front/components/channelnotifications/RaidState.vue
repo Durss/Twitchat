@@ -9,7 +9,6 @@
 			</i18n-t>
 		</div>
 
-		<!-- <Button class="startBt" type="button" :icon="$image('icons/cross_white.svg')" bounce title="Start now" data-tooltip="not possible" /> -->
 		<div class="alert" v-t="{path:'raid.cant_force', args:{TIMER:timeLeft}}"></div>
 		<Button class="cancelBt" type="button"
 			:icon="$image('icons/cross_white.svg')"

@@ -1,5 +1,5 @@
 <template>
-	<div class="chatalertmessage" @click="message = null" v-if="message" data-tooltip="Close">
+	<div class="chatalertmessage" @click="message = null" v-if="message" :data-tooltip="$t('global.close')">
 		<div class="user" v-t="{path:'global.chat_alert_title', args:{USER:user}}"></div>
 		<div class="message" v-html="message"></div>
 	</div>
