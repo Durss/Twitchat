@@ -86,6 +86,13 @@ export default class Config {
 		});
 	}
 
+	public static get PRODUCTION_USER_DATA_PATH_FROM_BETA(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../userData_fake_production/"),
+			prod: path.join(__dirname, "../userData/"),
+		});
+	}
+
 	/**
 	 * Extract a data from an hasmap depending on the current environment.
 	 * @param map

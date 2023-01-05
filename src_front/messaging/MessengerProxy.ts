@@ -366,6 +366,11 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/betamigrate") {
+			StoreProxy.admin.migrateUserDataToProd(params[0]);
+			return true;
+		}else
+
 		if(cmd == "/greetduration") {
 			let duration = this.paramsToDuration(params[0]);
 			StoreProxy.params.setGreetThemAutoDelete(duration);

@@ -526,5 +526,6 @@ export interface IAdminGetters {
 export interface IAdminActions {
 	addBetaUser(login:string):Promise<void>;
 	removeBetaUser(login:string):Promise<void>;
+	migrateUserDataToProd(login:string):Promise<void>;
 	removeAllBetaUser():Promise<void>;
 }

@@ -3,6 +3,7 @@ node_modules
 /dist
 /userData
 /server
+/userData_fake_production
 credentials.json
 donors
 beta

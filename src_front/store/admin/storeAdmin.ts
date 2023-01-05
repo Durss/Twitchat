@@ -119,6 +119,41 @@ export const storeAdmin = defineStore('Admin', {
 			};
 			StoreProxy.chat.addMessage(message);
 		},
+		
+		async migrateUserDataToProd(login:string):Promise<void> {
+			const users = await TwitchUtils.loadUserInfo(undefined, [login]);
+			if(users.length ===0 ) {
+				StoreProxy.main.alert("User "+login+" not found");
+				return;
+			}
+			const headers = {
+				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
+			};
+			const res = await fetch(Config.instance.API_PATH+"/beta/user/migrateToProduction?uid="+users[0].id, {method:"POST", headers});
+			try {
+				if(res.status === 200 && (await res.json()).success) {
+					const message:TwitchatDataTypes.MessageNoticeData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						message:login+" data migrated successfully from beta to production",
+						platform:"twitchat",
+					};
+					StoreProxy.chat.addMessage(message);
+					return;
+				}
+			}catch(error){}
+			const message:TwitchatDataTypes.MessageNoticeData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				message:"An error occured when migrating "+login+" data from beta to production",
+				platform:"twitchat",
+			};
+			StoreProxy.chat.addMessage(message);
+		},
 	} as IAdminActions
 	& ThisType<IAdminActions
 		& UnwrapRef<IAdminState>

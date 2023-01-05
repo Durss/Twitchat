@@ -293,6 +293,12 @@ export const storeChat = defineStore('chat', {
 				needAdmin:true,
 			},
 			{
+				id:"betamigrate",
+				cmd:"/betaMigrate {user}",
+				details:StoreProxy.i18n.t("params.commands.betamigrate"),
+				needAdmin:true,
+			},
+			{
 				id:"betaclose",
 				cmd:"/betaClose",
 				details:StoreProxy.i18n.t("params.commands.betareset"),

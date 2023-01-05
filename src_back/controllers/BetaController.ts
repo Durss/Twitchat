@@ -1,9 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import Config from '../utils/Config';
-import Logger from "../utils/Logger";
-import * as fetch from "node-fetch";
 import AbstractController from "./AbstractController";
 import * as fs from "fs";
+import * as path from "path";
 
 /**
 * Created : 14/12/2022 
@@ -26,6 +25,7 @@ export default class BetaController extends AbstractController {
 	public async initialize():Promise<void> {
 		this.server.get('/api/beta/user', async (request, response) => await this.getUser(request, response));
 		this.server.post('/api/beta/user', async (request, response) => await this.addUser(request, response));
+		this.server.post('/api/beta/user/migrateToProduction', async (request, response) => await this.migrateUser(request, response));
 		this.server.delete('/api/beta/user', async (request, response) => await this.delUser(request, response));
 		this.server.delete('/api/beta/user/all', async (request, response) => await this.removeAllUsers(request, response));
 	}
@@ -67,10 +67,37 @@ export default class BetaController extends AbstractController {
 		if(!userList.includes(params.uid)) userList.push(params.uid);
 
 		fs.writeFileSync(Config.betaList, JSON.stringify(userList));
+
+		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, params.uid+".json");
+		const betaFile = path.join(Config.USER_DATA_PATH, +params.uid+".json");
+
+		if(fs.existsSync(prodFile)) {
+			fs.copyFileSync(prodFile, betaFile);
+		}
 	
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, userList}));
+	}
+
+	/**
+	 * Migrate a user's data from beta to production
+	 */
+	private async migrateUser(request:FastifyRequest, response:FastifyReply) {
+		if(!await this.adminGuard(request, response)) return;
+		
+		const params = request.query as any;
+
+		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, params.uid+".json");
+		const betaFile = path.join(Config.USER_DATA_PATH, +params.uid+".json");
+		
+		if(fs.existsSync(betaFile)) {
+			fs.copyFileSync(betaFile, prodFile);
+		}
+	
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true}));
 	}
 
 	/**
