@@ -522,15 +522,12 @@ export default class TriggerActionHandler {
 					if(step.type == "highlight") {
 						if(step.show) {
 							let text = await this.parseText(eventType, message, step.text as string, subEvent, true);
-							//Remove command name from message
-							if(subEvent) text = text.replace(subEvent, "").trim();
 							let info:TwitchatDataTypes.ChatHighlightInfo = {
 								message:text,
 								user:message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE? message.user : undefined,
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							};
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
-							StoreProxy.chat.highlightChatMessageOverlay(message);
 						}else{
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
 							StoreProxy.chat.isChatMessageHighlighted = false;
@@ -852,7 +849,7 @@ export default class TriggerActionHandler {
 			}
 
 			if(removeRemainingTags) {
-				res = res.replace(/\{[^}]+\}/g, "");
+				res = res.replace(/\{[^ }]+\}/g, "");
 			}
 			
 			// console.log("RESULT = ",res);
