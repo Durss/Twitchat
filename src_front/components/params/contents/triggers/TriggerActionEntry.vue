@@ -31,10 +31,12 @@
 					:icon="$image('icons/whispers_purple.svg')"/>
 					
 				<Button class="button" white @click="selectActionType('poll')"
+					v-if="hasChannelPoints"
 					:title="$t('triggers.actions.common.action_poll')"
 					:icon="$image('icons/poll_purple.svg')"/>
 				
 				<Button class="button" white @click="selectActionType('prediction')"
+					v-if="hasChannelPoints"
 					:title="$t('triggers.actions.common.action_prediction')"
 					:icon="$image('icons/prediction_purple.svg')"/>
 					
@@ -172,6 +174,9 @@ export default class TriggerActionEntry extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
+	public get hasChannelPoints():boolean {
+		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
+	}
 
 	public get errorTitle():string {
 		let res = "ERROR - MISSING OBS SOURCE";
