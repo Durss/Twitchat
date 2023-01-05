@@ -1,8 +1,8 @@
 <template>
-	<div class="pollform">
+	<div :class="classes">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
-			<div class="head">
+			<div class="head" v-if="triggerMode === false">
 				<span class="title" v-t="'poll.form.title'"></span>
 				<Button :aria-label="$t('poll.form.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
@@ -14,43 +14,28 @@
 					<div class="row">
 						<label for="poll_title" v-t="'poll.form.question'"></label>
 						<div class="field">
-							<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="1">
+							<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="1" @change="onValueChange()">
 							<div class="len">{{title.length}}/60</div>
 						</div>
 					</div>
 					<div class="row">
 						<label for="poll_answer" v-t="'poll.form.answers'"></label>
-						<div class="field">
-							<input type="text" id="poll_answer" v-model="answer1" maxlength="25" v-autofocus="title != ''" tabindex="2">
-							<div class="len">{{answer1.length}}/25</div>
-						</div>
-						<div class="field">
-							<input type="text" v-model="answer2" maxlength="25" tabIndex="3">
-							<div class="len">{{answer2.length}}/25</div>
-						</div>
-						<div class="field">
-							<input type="text" v-model="answer3" maxlength="25" tabIndex="4">
-							<div class="len">{{answer3.length}}/25</div>
-						</div>
-						<div class="field">
-							<input type="text" v-model="answer4" maxlength="25" tabIndex="5">
-							<div class="len">{{answer4.length}}/25</div>
-						</div>
-						<div class="field">
-							<input type="text" v-model="answer5" maxlength="25" tabIndex="6">
-							<div class="len">{{answer5.length}}/25</div>
+
+						<div class="field" v-for="(a, index) in answers.length" :key="index">
+							<input type="text" id="poll_answer" v-model="answers[index]" maxlength="25" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
+							<div class="len">{{answers[index].length}}/25</div>
 						</div>
 					</div>
 					<div class="row">
-						<ParamItem :paramData="extraVotesParam" />
+						<ParamItem :paramData="extraVotesParam" @change="onValueChange()" />
 					</div>
 					<div class="row shrink" v-if="extraVotesParam.value === true">
-						<ParamItem :paramData="pointsVoteParam" />
+						<ParamItem :paramData="pointsVoteParam" @change="onValueChange()" />
 					</div>
 					<div class="row shrink">
-						<ParamItem :paramData="voteDuration" />
+						<ParamItem :paramData="voteDuration" @change="onValueChange()" />
 					</div>
-					<div class="row">
+					<div class="row" v-if="triggerMode === false">
 						<Button :title="$t('global.submit')" type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2" />
 						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
 					</div>
@@ -63,6 +48,7 @@
 <script lang="ts">
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
 import StoreProxy from '@/store/StoreProxy';
+import type { TriggerActionPollData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
@@ -74,6 +60,14 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Options({
 	props:{
+		action: {
+			type: Object,
+			default:{},
+		},
+		triggerMode: {
+			type: Boolean,
+			default: false
+		},
 		voiceControl: {
 			type: Boolean,
 			default: false
@@ -89,29 +83,24 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 export default class PollForm extends Vue {
 
 	public voiceControl!:boolean;
+	public triggerMode!:boolean;
+	//This is used by the trigger action form.
+	public action!:TriggerActionPollData;
 
 	public loading:boolean = false;
 
 	public error = "";
 	public title = "";
-	public answer1 = "";
-	public answer2 = "";
-	public answer3 = "";
-	public answer4 = "";
-	public answer5 = "";
+	public answers:string[] = ["","","","",""];
 	public extraVotesParam:TwitchatDataTypes.ParameterData = {label:"", value:false, type:"toggle"};;
 	public pointsVoteParam:TwitchatDataTypes.ParameterData = {label:"", value:0, type:"number", min:0, max:99999, step:1};;
 	public voteDuration:TwitchatDataTypes.ParameterData = {label:"", value:2, type:"number", min:1, max:30};;
 
 	private voiceController!:FormVoiceControllHelper;
 
-	public get answers():string[] {
-		let res = [];
-		if(this.answer1) res.push(this.answer1);
-		if(this.answer2) res.push(this.answer2);
-		if(this.answer3) res.push(this.answer3);
-		if(this.answer4) res.push(this.answer4);
-		if(this.answer5) res.push(this.answer5);
+	public get classes():string[] {
+		const res = ["pollform"];
+		if(this.triggerMode !== false) res.push("triggerMode");
 		return res;
 	}
 
@@ -133,10 +122,22 @@ export default class PollForm extends Vue {
 				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
 			}
 		});
+
+		if(this.triggerMode && this.action.pollData) {
+			this.extraVotesParam.value = this.action.pollData.pointsPerVote > 0;
+			this.pointsVoteParam.value = this.action.pollData.pointsPerVote ?? 1;
+			this.voteDuration.value = this.action.pollData.voteDuration;
+			this.title = this.action.pollData.title;
+			for (let i = 0; i < this.action.pollData.answers.length; i++) {
+				this.answers[i] = this.action.pollData.answers[i];
+			}
+		}
 		
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		if(!this.triggerMode) {
+			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
+			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
+			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		}
 	}
 
 	public beforeUnmount():void {
@@ -176,12 +177,29 @@ export default class PollForm extends Vue {
 		this.loading = false;
 		this.close(); 
 	}
+
+	/**
+	 * Called when any value is changed
+	 */
+	public onValueChange():void {
+		if(this.action) {
+			this.action.pollData = {
+				title:this.title,
+				answers:this.answers.filter(v=> v.length > 0),
+				pointsPerVote:this.pointsVoteParam.value as number,
+				voteDuration:this.voteDuration.value as number,
+			};
+		}
+	}
 }
 </script>
 
 <style scoped lang="less">
 .pollform{
-	.modal();
+
+	&:not(.triggerMode) {
+		.modal();
+	}
 
 	.content {
 

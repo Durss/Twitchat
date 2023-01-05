@@ -20,6 +20,7 @@
 		"stream_info_updating": "Error updating current stream info",
 		"poll_active": "A poll is already active",
 		"poll_automod": "Poll contains an automoded term",
+		"poll_error": "Unable to create poll: {MESSAGE}",
 		"ad_url_required": "Message must contain \"twitchat.fr\"",
 		"donor_loading": "An error occured when loading donors list :(",
 		"cmd_missing_api": "This command cannot be used outside of official Twitch chat yet :(",
@@ -39,6 +40,7 @@
 		"username_missing": "Missing user name",
 		"prediction_outcome": "An error occurred while chosing prediction's outcome",
 		"prediction_delete": "An error occurred while deleting the prediction",
+		"prediction_error": "Unable to create prediction: {MESSAGE}",
 		"invalid_bingo": "Invalid bingo parameters: "
 	}
 }

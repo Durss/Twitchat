@@ -1,147 +1,142 @@
 {
-	"triggers":{
-		"header":"Exécute des actions en réaction à {COUNT} types d'événements",
-		"add_actionBt":"Ajouter une action",
-		"create_chat_cmdBt":"Créer une commande de tchat",
-		"create_scheduleBt":"Programmer des actions",
-		"testBt":"Tester",
-		"deleteBt":"Supprimer",
-		"resyncBt":"Resynchroniser OBS",
-		"resyncBt_tt":"Si vous avez ajouté des sources<br>dans OBS, cliquez pour les voir<br>listées dans les actions OBS",
-
+	"triggers": {
+		"header": "Exécute des actions en réaction à {COUNT} types d'événements",
+		"add_actionBt": "Ajouter une action",
+		"create_chat_cmdBt": "Créer une commande de tchat",
+		"create_scheduleBt": "Programmer des actions",
+		"testBt": "Tester",
+		"deleteBt": "Supprimer",
+		"resyncBt": "Resynchroniser OBS",
+		"resyncBt_tt": "Si vous avez ajouté des sources<br>dans OBS, cliquez pour les voir<br>listées dans les actions OBS",
 		"delete_confirm": "Supprimer ce trigger ?",
-		
-		"music":{
-			"require":"Ces événements nécessitent de lier Spotify ou Deezer avec Twitchat dans {URL}",
-			"require_url":"les overlays"
+		"music": {
+			"require": "Ces événements nécessitent de lier Spotify ou Deezer avec Twitchat dans {URL}",
+			"require_url": "les overlays"
 		},
-		
-		"obs":{
-			"require":"Ces événéments nécessitent de {URL}",
-			"require_url":"lier twitchat à OBS"
+		"obs": {
+			"require": "Ces événéments nécessitent de {URL}",
+			"require_url": "lier twitchat à OBS"
 		},
-		
-		"schedule":{
-			"conflict":"Une action programmée du même nom existe déjà",
-			"params_title":"Paramètres",
-			"repeat":"Répéter:",
-			"add_dateBt":"Ajouter une date",
-			"default_action":"Selectionnez une action...",
-			"param_name":"Nom de l'événément",
-			"param_daily":"Journalier",
-			"param_yearly":"Annuel",
-			"param_action":"Type de programme",
-			"param_repeatDurationCondition":"Répéter dans le temps",
-			"param_repeatDurationValue":"Exécuter toutes les {'{'}VALUE{'}'} minutes",
-			"param_repeatMessageCondition":"Répéter après réception de messages",
-			"param_repeatMessageValue":"Exécuter après {'{'}VALUE{'}'} messages reçus"
+		"schedule": {
+			"conflict": "Une action programmée du même nom existe déjà",
+			"params_title": "Paramètres",
+			"repeat": "Répéter:",
+			"add_dateBt": "Ajouter une date",
+			"default_action": "Selectionnez une action...",
+			"param_name": "Nom de l'événément",
+			"param_daily": "Journalier",
+			"param_yearly": "Annuel",
+			"param_action": "Type de programme",
+			"param_repeatDurationCondition": "Répéter dans le temps",
+			"param_repeatDurationValue": "Exécuter toutes les {'{'}VALUE{'}'} minutes",
+			"param_repeatMessageCondition": "Répéter après réception de messages",
+			"param_repeatMessageValue": "Exécuter après {'{'}VALUE{'}'} messages reçus"
 		},
-		
 		"actions": {
-			"common":{
-				"duplicate_tt":"Dupliquer",
-				"next_delay":"Delais avant l'action suivante (seconds)",
-				"delete":"Supprimer",
-				"action_chat":"Envoyer un message",
-				"action_bingo":"Lancer un bingo",
-				"action_raffle":"Lancer un tirage au sort",
-				"action_highlight":"Mettre en avant sur le stream",
-				"action_trigger":"Trigger",
-				"action_obs":"Contrôler OBS",
-				"action_obs_tt":"Vous devez connecter OBS<br>dans la section OBS",
-				"action_tts":"Text to speech",
-				"action_tts_tt":"Vous devez activer la fonctionnalité<br>de <strong>text to speech</strong> dans les paramètres",
-				"action_music":"Controler la musique",
-				"action_music_tt":"Vous devez connecter<br>Spotify ou Deezer<br>dans les <strong>Overlays</strong>",
-				"action_voicemod":"Contrôler Voicemod",
-				"action_voicemod_tt":"Vous devez connecter<br>Voicemod dans les paramètres",
-				"action_http":"Appel HTTP"
+			"common": {
+				"duplicate_tt": "Dupliquer",
+				"next_delay": "Delais avant l'action suivante (seconds)",
+				"delete": "Supprimer",
+				"action_chat": "Envoyer un message",
+				"action_bingo": "Lancer un bingo",
+				"action_raffle": "Lancer un tirage au sort",
+				"action_highlight": "Mettre en avant sur le stream",
+				"action_trigger": "Trigger",
+				"action_obs": "Contrôler OBS",
+				"action_obs_tt": "Vous devez connecter OBS<br>dans la section OBS",
+				"action_tts": "Text to speech",
+				"action_tts_tt": "Vous devez activer la fonctionnalité<br>de <strong>text to speech</strong> dans les paramètres",
+				"action_music": "Controler la musique",
+				"action_music_tt": "Vous devez connecter<br>Spotify ou Deezer<br>dans les <strong>Overlays</strong>",
+				"action_voicemod": "Contrôler Voicemod",
+				"action_voicemod_tt": "Vous devez connecter<br>Voicemod dans les paramètres",
+				"action_http": "Appel HTTP",
+				"action_poll": "Lancer un sondage",
+				"action_prediction": "Lancer une prédiction"
 			},
-			"chat":{
-				"loop":"Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
-				"param_message":"Message à envoyer dans le tchat",
-				"conflict":"Une commande avec le même nom existe déjà",
-				"allowed_users":"Personnes autorisées à utiliser la commande",
-				"params_title":"Paramètres",
-				"param_cmd":"Commande",
-				"param_globalCD":"Cooldown global (sec)",
-				"param_userCD":"Cooldown utilisateur (sec)",
-				"param_alertCD":"Prévenir la personne si un cooldown est en cours"
+			"chat": {
+				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
+				"param_message": "Message à envoyer dans le tchat",
+				"conflict": "Une commande avec le même nom existe déjà",
+				"allowed_users": "Personnes autorisées à utiliser la commande",
+				"params_title": "Paramètres",
+				"param_cmd": "Commande",
+				"param_globalCD": "Cooldown global (sec)",
+				"param_userCD": "Cooldown utilisateur (sec)",
+				"param_alertCD": "Prévenir la personne si un cooldown est en cours"
 			},
-			"highlight":{
-				"header":"{LINK} de mise en avant pour utiliser cette action.",
-				"header_link":"Configurez l'overlay",
-				"param_visibility":"Visibilité de la mise en avant",
-				"param_message":"Message à mettre en avant"
+			"highlight": {
+				"header": "{LINK} de mise en avant pour utiliser cette action.",
+				"header_link": "Configurez l'overlay",
+				"param_visibility": "Visibilité de la mise en avant",
+				"param_message": "Message à mettre en avant"
 			},
-			"music":{
-				"header":"Veuillez lier Spotify ou Deezer dans la {LINK}",
-				"header_link":"sectoin overlays",
-				"param_actions":"Action",
-				"param_actions_default":"Selectionnez une action...",
-				"param_track":"Morceau (nom, URL ou ID)",
-				"param_confirmSongRequest":"Envoyer un message de confirmation",
-				"param_playlist":"Playlist (nom, URL ou ID)",
-				"spotify_only":"Fonctionne uniquement avec Spotify"
+			"music": {
+				"header": "Veuillez lier Spotify ou Deezer dans la {LINK}",
+				"header_link": "sectoin overlays",
+				"param_actions": "Action",
+				"param_actions_default": "Selectionnez une action...",
+				"param_track": "Morceau (nom, URL ou ID)",
+				"param_confirmSongRequest": "Envoyer un message de confirmation",
+				"param_playlist": "Playlist (nom, URL ou ID)",
+				"spotify_only": "Fonctionne uniquement avec Spotify"
 			},
-			"obs":{
-				"header":"Veuillez {LINK}",
-				"header_link":"connecter OBS",
-				"media_source":"Siv ous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} and {CMD2} supprimés pour des raisons de sécurité.",
-				"media_source_example":": si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
-				"param_show":"Visibilité de la source",
-				"param_show_filter":"Visibilité du filtre",
-				"param_source":"Source OBS",
-				"param_filter":"Filtre",
-				"param_filter_none":"- aucun -",
-				"param_text":"Texte à écrire dans la source",
-				"param_url":"URL de la source",
-				"param_media":"Fichier",
-				"param_media_img":"Fichier image"
+			"obs": {
+				"header": "Veuillez {LINK}",
+				"header_link": "connecter OBS",
+				"media_source": "Siv ous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} and {CMD2} supprimés pour des raisons de sécurité.",
+				"media_source_example": ": si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
+				"param_show": "Visibilité de la source",
+				"param_show_filter": "Visibilité du filtre",
+				"param_source": "Source OBS",
+				"param_filter": "Filtre",
+				"param_filter_none": "- aucun -",
+				"param_text": "Texte à écrire dans la source",
+				"param_url": "URL de la source",
+				"param_media": "Fichier",
+				"param_media_img": "Fichier image"
 			},
-			"trigger":{
-				"beta":"Fonctionnalité expérimentale ! Si vous rencontrez un problème {LINK}",
-				"beta_link":"faites-le moi savoir sur Discord",
-				"warning_title":"Information importante",
-				"warning":"Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",
-				"warning_example":": Si vous exécutez une <strong>Commande de tchat</strong> depuis <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponible car le trigger ne sera pas exécuté par un message de tchat.",
-				"no_trigger":"Vous n'avez créé aucun trigger pour l'instant",
-				"select":"Sélectionnez un trigger à exéctuer...",
-				"loop":"Boucle de dépendance détectée",
-				"loop_delails":"Ceci risque de rendre Twitchat instable."
+			"trigger": {
+				"beta": "Fonctionnalité expérimentale ! Si vous rencontrez un problème {LINK}",
+				"beta_link": "faites-le moi savoir sur Discord",
+				"warning_title": "Information importante",
+				"warning": "Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",
+				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponible car le trigger ne sera pas exécuté par un message de tchat.",
+				"no_trigger": "Vous n'avez créé aucun trigger pour l'instant",
+				"select": "Sélectionnez un trigger à exéctuer...",
+				"loop": "Boucle de dépendance détectée",
+				"loop_delails": "Ceci risque de rendre Twitchat instable."
 			},
-			"tts":{
-				"header":"Veuillez activer la fonctionnalité {LINK}",
-				"header_link":"text to speech",
-				"param_message":"Message à lire à haute voix"
+			"tts": {
+				"header": "Veuillez activer la fonctionnalité {LINK}",
+				"header_link": "text to speech",
+				"param_message": "Message à lire à haute voix"
 			},
-			"voicemod":{
-				"header":"Veuillez {LINK}",
-				"header_link":"connecter Voicemod",
-				"param_voice":"Voix"
+			"voicemod": {
+				"header": "Veuillez {LINK}",
+				"header_link": "connecter Voicemod",
+				"param_voice": "Voix"
 			},
-			"http":{
-				"url":"URL à appeler",
-				"method":"Méthode",
-				"select_param":"Choisissez les paramètres à inclure :",
-				"protocol_error":"A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
+			"http": {
+				"url": "URL à appeler",
+				"method": "Méthode",
+				"select_param": "Choisissez les paramètres à inclure :",
+				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
 			}
 		},
-
-		"categories":{
-			"global":"Chat - Pts de chaîne - Stream",
-			"user":"Evénement utilisateur",
-			"subits":"Sub & bits",
-			"mod":"Actions de modération",
-			"twitchat":"Twitchat",
-			"hypetrain":"Train de la hype",
-			"games":"Jeux",
-			"music":"Musique",
-			"timer":"Chronomètre & Compte à rebours",
-			"obs":"OBS"
+		"categories": {
+			"global": "Chat - Pts de chaîne - Stream",
+			"user": "Evénement utilisateur",
+			"subits": "Sub & bits",
+			"mod": "Actions de modération",
+			"twitchat": "Twitchat",
+			"hypetrain": "Train de la hype",
+			"games": "Jeux",
+			"music": "Musique",
+			"timer": "Chronomètre & Compte à rebours",
+			"obs": "OBS"
 		},
-
-		"placeholders":{
+		"placeholders": {
 			"user": "Pseudo",
 			"user_avatar": "URL de l'avatar",
 			"chatter": "Pseudo",
@@ -164,32 +159,31 @@
 			"reward_description": "Description de la récompense",
 			"reward_cost": "Prix de la récompense",
 			"reward_message": "Message de la personne",
-			"track_artist":"Artiste du morceau en cours",
-			"track_title":"TItre du morceau en cours",
-			"track_album":"Album du morceau en cours",
-			"track_cover":"Image du morceau en cours",
-			"track_url":"URL du morceau en cours",
-			"train_level":"Niveau actuel",
-			"train_percent":"Progression du niveau actuel (0 -> 100)",
-			"train_end_level":"Niveau atteint",
-			"train_end_percent":"Pourcentage atteint",
-			"voicemod_voice":"ID de la voix",
-			"timeout":"Duration du ban en secondes",
-			"start_date":"Date de début formatée",
-			"timer_duration":"Durée finale du Chronomètre",
-			"countdown_duration":"Durée du compte à rebours",
-			"countdown_end_date":"Date de fin du compte à rebours",
-			"challenge_title":"Titre du défi",
-			"challenge_description":"Description du défi",
-			"challenge_goal":"Objectif du défi",
-			"challenge_current":"Progression du défi",
-			"challenge_contribution":"Contribution de la personne",
-			"challenge_contribution_total":"Contribution totale de la personne",
-			"shoutout_in":"Chaîne vous ayant fait un shoutout",
-			"shoutout_out":"Chaîne que vous avez shoutout"
+			"track_artist": "Artiste du morceau en cours",
+			"track_title": "Titre du morceau en cours",
+			"track_album": "Album du morceau en cours",
+			"track_cover": "Image du morceau en cours",
+			"track_url": "URL du morceau en cours",
+			"train_level": "Niveau actuel",
+			"train_percent": "Progression du niveau actuel (0 -> 100)",
+			"train_end_level": "Niveau atteint",
+			"train_end_percent": "Pourcentage atteint",
+			"voicemod_voice": "ID de la voix",
+			"timeout": "Duration du ban en secondes",
+			"start_date": "Date de début formatée",
+			"timer_duration": "Durée finale du Chronomètre",
+			"countdown_duration": "Durée du compte à rebours",
+			"countdown_end_date": "Date de fin du compte à rebours",
+			"challenge_title": "Titre du défi",
+			"challenge_description": "Description du défi",
+			"challenge_goal": "Objectif du défi",
+			"challenge_current": "Progression du défi",
+			"challenge_contribution": "Contribution de la personne",
+			"challenge_contribution_total": "Contribution totale de la personne",
+			"shoutout_in": "Chaîne vous ayant fait un shoutout",
+			"shoutout_out": "Chaîne que vous avez shoutout"
 		},
-
-		"events":{
+		"events": {
 			"CHAT_COMMAND": {
 				"label": "Commande de tchat",
 				"description": "Exécuter des actions en réponse à des commandes de tchat"
@@ -411,18 +405,16 @@
 				"description": "Executer des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est masquée"
 			}
 		},
-
-		"musicEvents":{
-			"ADD_TRACK_TO_QUEUE":"Ajouter un morceau dans la file",
-			"NEXT_TRACK":"Morceau suivant",
-			"PAUSE_PLAYBACK":"Mettre en pause",
-			"RESUME_PLAYBACK":"Relancer la lecture",
-			"START_PLAYLIST":"Lancer une playlist"
+		"musicEvents": {
+			"ADD_TRACK_TO_QUEUE": "Ajouter un morceau dans la file",
+			"NEXT_TRACK": "Morceau suivant",
+			"PAUSE_PLAYBACK": "Mettre en pause",
+			"RESUME_PLAYBACK": "Relancer la lecture",
+			"START_PLAYLIST": "Lancer une playlist"
 		},
-
-		"scheduleEvents":{
-			"REGULAR_REPEAT":"Répéter régulièrement",
-			"SPECIFIC_DATES":"Calendrier"
+		"scheduleEvents": {
+			"REGULAR_REPEAT": "Répéter régulièrement",
+			"SPECIFIC_DATES": "Calendrier"
 		}
 	}
 }

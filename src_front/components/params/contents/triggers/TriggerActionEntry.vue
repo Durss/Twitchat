@@ -30,6 +30,14 @@
 					:title="$t('triggers.actions.common.action_chat')"
 					:icon="$image('icons/whispers_purple.svg')"/>
 					
+				<Button class="button" white @click="selectActionType('poll')"
+					:title="$t('triggers.actions.common.action_poll')"
+					:icon="$image('icons/poll_purple.svg')"/>
+				
+				<Button class="button" white @click="selectActionType('prediction')"
+					:title="$t('triggers.actions.common.action_prediction')"
+					:icon="$image('icons/prediction_purple.svg')"/>
+					
 				<Button class="button" white @click="selectActionType('bingo')"
 					:title="$t('triggers.actions.common.action_bingo')"
 					:icon="$image('icons/bingo_purple.svg')"/>
@@ -85,6 +93,8 @@
 			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :event="event" triggerMode />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
+			<PollForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='poll'" :action="action" :event="event" triggerMode />
+			<PredictionForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='prediction'" :action="action" :event="event" triggerMode />
 			
 			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==null" v-model="action.delay" />
 
@@ -95,6 +105,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
+import PollForm from '@/components/poll/PollForm.vue';
+import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerActionStringTypes, TriggerActionTypes, TriggerData, TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -126,10 +138,12 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 	},
 	components:{
 		Button,
+		PollForm,
 		ParamItem,
 		BingoForm,
 		RaffleForm,
 		ToggleBlock,
+		PredictionForm,
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,

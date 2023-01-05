@@ -14,10 +14,12 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionHighlightData
 								| TriggerActionTriggerData
 								| TriggerActionHTTPCallData
+								| TriggerActionPollData
+								| TriggerActionPredictionData
 ;
 
 
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|null;
 
 export interface TriggerData {
 	enabled:boolean;
@@ -129,6 +131,16 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	url:string;
 	method:"GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
 	queryParams:string[];
+}
+
+export interface TriggerActionPollData extends TriggerActionData{
+	type:"poll";
+	pollData:TwitchatDataTypes.PollConfig;
+}
+
+export interface TriggerActionPredictionData extends TriggerActionData{
+	type:"prediction";
+	predictionData:TwitchatDataTypes.PredictionConfig;
 }
 
 export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];

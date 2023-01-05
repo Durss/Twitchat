@@ -1,147 +1,142 @@
 {
-	"triggers":{
-		"header":"Execute custom actions based on {COUNT} event types",
-		"add_actionBt":"Add action",
-		"create_chat_cmdBt":"Create chat command",
-		"create_scheduleBt":"Add scheduled action",
-		"testBt":"Test trigger",
-		"deleteBt":"Delete trigger",
-		"resyncBt":"Resync OBS sources",
-		"resyncBt_tt":"If you changed something<br>on OBS, click this to see it<br>listed on OBS actions",
-
+	"triggers": {
+		"header": "Execute custom actions based on {COUNT} event types",
+		"add_actionBt": "Add action",
+		"create_chat_cmdBt": "Create chat command",
+		"create_scheduleBt": "Add scheduled action",
+		"testBt": "Test trigger",
+		"deleteBt": "Delete trigger",
+		"resyncBt": "Resync OBS sources",
+		"resyncBt_tt": "If you changed something<br>on OBS, click this to see it<br>listed on OBS actions",
 		"delete_confirm": "Delete trigger?",
-		
-		"music":{
-			"require":"These triggers need you to connect with Spotify or Deezer under the {URL}",
-			"require_url":"overlays section"
+		"music": {
+			"require": "These triggers need you to connect with Spotify or Deezer under the {URL}",
+			"require_url": "overlays section"
 		},
-		
-		"obs":{
-			"require":"These triggers need you to {URL}",
-			"require_url":"connect with OBS"
+		"obs": {
+			"require": "These triggers need you to {URL}",
+			"require_url": "connect with OBS"
 		},
-		
-		"schedule":{
-			"conflict":"A schedule with this name already exists",
-			"params_title":"Parameters",
-			"repeat":"Repeat:",
-			"add_dateBt":"Add date",
-			"default_action":"Select an action...",
-			"param_name":"Schedule name",
-			"param_daily":"Daily",
-			"param_yearly":"Yearly",
-			"param_action":"Schedule type",
-			"param_repeatDurationCondition":"Time based repeat",
-			"param_repeatDurationValue":"Execute every {'{'}VALUE{'}'} minutes",
-			"param_repeatMessageCondition":"Message based repeat",
-			"param_repeatMessageValue":"Must receive at least {'{'}VALUE{'}'} message"
+		"schedule": {
+			"conflict": "A schedule with this name already exists",
+			"params_title": "Parameters",
+			"repeat": "Repeat:",
+			"add_dateBt": "Add date",
+			"default_action": "Select an action...",
+			"param_name": "Schedule name",
+			"param_daily": "Daily",
+			"param_yearly": "Yearly",
+			"param_action": "Schedule type",
+			"param_repeatDurationCondition": "Time based repeat",
+			"param_repeatDurationValue": "Execute every {'{'}VALUE{'}'} minutes",
+			"param_repeatMessageCondition": "Message based repeat",
+			"param_repeatMessageValue": "Must receive at least {'{'}VALUE{'}'} message"
 		},
-		
 		"actions": {
-			"common":{
-				"duplicate_tt":"Duplicate",
-				"next_delay":"Delay before next step (seconds)",
-				"delete":"Delete",
-				"action_chat":"Send chat message",
-				"action_bingo":"Start a bingo",
-				"action_raffle":"Start a raffle",
-				"action_highlight":"Highlight on stream",
-				"action_trigger":"Trigger",
-				"action_obs":"Control OBS",
-				"action_obs_tt":"You need to connect with OBS<br>on the OBS section",
-				"action_tts":"Text to speech",
-				"action_tts_tt":"This needs the <strong>text to speech</strong><br>feature to be enabled",
-				"action_music":"Control music",
-				"action_music_tt":"You need to connect<br>Spotify or Deezer<br>on the <strong>Overlays</strong> section",
-				"action_voicemod":"Control Voicemod",
-				"action_voicemod_tt":"You need to connect<br>with Voicemod",
-				"action_http":"HTTP call"
+			"common": {
+				"duplicate_tt": "Duplicate",
+				"next_delay": "Delay before next step (seconds)",
+				"delete": "Delete",
+				"action_chat": "Send chat message",
+				"action_bingo": "Start a bingo",
+				"action_raffle": "Start a raffle",
+				"action_highlight": "Highlight on stream",
+				"action_trigger": "Trigger",
+				"action_obs": "Control OBS",
+				"action_obs_tt": "You need to connect with OBS<br>on the OBS section",
+				"action_tts": "Text to speech",
+				"action_tts_tt": "This needs the <strong>text to speech</strong><br>feature to be enabled",
+				"action_music": "Control music",
+				"action_music_tt": "You need to connect<br>Spotify or Deezer<br>on the <strong>Overlays</strong> section",
+				"action_voicemod": "Control Voicemod",
+				"action_voicemod_tt": "You need to connect<br>with Voicemod",
+				"action_http": "HTTP call",
+				"action_poll": "Start poll",
+				"action_prediction": "Start prediction"
 			},
-			"chat":{
-				"loop":"The message starts with the actual command name, this will lead to infinite message loop!",
-				"param_message":"Message to send on your chat",
-				"conflict":"A command with this name already exists",
-				"allowed_users":"Users allowed to use this command",
-				"params_title":"Parameters",
-				"param_cmd":"Command",
-				"param_globalCD":"Global cooldown (sec)",
-				"param_userCD":"User cooldown (sec)",
-				"param_alertCD":"Tell users if they're cooled down"
+			"chat": {
+				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
+				"param_message": "Message to send on your chat",
+				"conflict": "A command with this name already exists",
+				"allowed_users": "Users allowed to use this command",
+				"params_title": "Parameters",
+				"param_cmd": "Command",
+				"param_globalCD": "Global cooldown (sec)",
+				"param_userCD": "User cooldown (sec)",
+				"param_alertCD": "Tell users if they're cooled down"
 			},
-			"highlight":{
-				"header":"You need to configure the {LINK} to use this action.",
-				"header_link":"Message highlight overlay",
-				"param_visibility":"Highlight visibility",
-				"param_message":"Message to display"
+			"highlight": {
+				"header": "You need to configure the {LINK} to use this action.",
+				"header_link": "Message highlight overlay",
+				"param_visibility": "Highlight visibility",
+				"param_message": "Message to display"
 			},
-			"music":{
-				"header":"This feature needs you to connect with Spotify or Deezer under the {LINK}",
-				"header_link":"overlays section",
-				"param_actions":"Action",
-				"param_actions_default":"Select an action...",
-				"param_track":"Track (name or URL)",
-				"param_confirmSongRequest":"Send confirmation message",
-				"param_playlist":"Playlist name, link or ID",
-				"spotify_only":"Only works with Spotify"
+			"music": {
+				"header": "This feature needs you to connect with Spotify or Deezer under the {LINK}",
+				"header_link": "overlays section",
+				"param_actions": "Action",
+				"param_actions_default": "Select an action...",
+				"param_track": "Track (name or URL)",
+				"param_confirmSongRequest": "Send confirmation message",
+				"param_playlist": "Playlist name, link or ID",
+				"spotify_only": "Only works with Spotify"
 			},
-			"obs":{
-				"header":"This feature needs you to {LINK}",
-				"header_link":"connect with OBS",
-				"media_source":"If using a placeholder on the Media file path, folder navigation chars like {CMD1} and {CMD2} will be removed for security reasons.",
-				"media_source_example":": if setting this as the path {PATH1}, users won't be able to send {PATH2}",
-				"param_show":"Source visibility",
-				"param_show_filter":"Filter visibility",
-				"param_source":"OBS Source",
-				"param_filter":"Source filter",
-				"param_filter_none":"- none -",
-				"param_text":"Text to write on source",
-				"param_url":"Browser URL",
-				"param_media":"Media file",
-				"param_media_img":"Image file"
+			"obs": {
+				"header": "This feature needs you to {LINK}",
+				"header_link": "connect with OBS",
+				"media_source": "If using a placeholder on the Media file path, folder navigation chars like {CMD1} and {CMD2} will be removed for security reasons.",
+				"media_source_example": ": if setting this as the path {PATH1}, users won't be able to send {PATH2}",
+				"param_show": "Source visibility",
+				"param_show_filter": "Filter visibility",
+				"param_source": "OBS Source",
+				"param_filter": "Source filter",
+				"param_filter_none": "- none -",
+				"param_text": "Text to write on source",
+				"param_url": "Browser URL",
+				"param_media": "Media file",
+				"param_media_img": "Image file"
 			},
-			"trigger":{
-				"beta":"This is a beta feature! If you experience any unexpected behavior with it please {LINK}",
-				"beta_link":"let me know on Discord",
-				"warning_title":"Important warning",
-				"warning":"Placeholders may not be available on the selected trigger.",
-				"warning_example":": If you execute a <strong>Chat command</strong> trigger from a <strong>Scheduled action</strong> trigger, the {'{'}USER{'}'} and {'{'}MESSAGE{'}'} placeholders won't be available as it won't be executed from an actual chat message.",
-				"no_trigger":"You don't have any existing trigger yet",
-				"select":"Select a trigger to execute...",
-				"loop":"Dependency loop detected",
-				"loop_delails":"This may make twitchat unstable."
+			"trigger": {
+				"beta": "This is a beta feature! If you experience any unexpected behavior with it please {LINK}",
+				"beta_link": "let me know on Discord",
+				"warning_title": "Important warning",
+				"warning": "Placeholders may not be available on the selected trigger.",
+				"warning_example": ": If you execute a <strong>Chat command</strong> trigger from a <strong>Scheduled action</strong> trigger, the {'{'}USER{'}'} and {'{'}MESSAGE{'}'} placeholders won't be available as it won't be executed from an actual chat message.",
+				"no_trigger": "You don't have any existing trigger yet",
+				"select": "Select a trigger to execute...",
+				"loop": "Dependency loop detected",
+				"loop_delails": "This may make twitchat unstable."
 			},
-			"tts":{
-				"header":"This feature needs you to enable {LINK} feature",
-				"header_link":"text to speech",
-				"param_message":"Message to read with text to speech"
+			"tts": {
+				"header": "This feature needs you to enable {LINK} feature",
+				"header_link": "text to speech",
+				"param_message": "Message to read with text to speech"
 			},
-			"voicemod":{
-				"header":"This feature needs you to {LINK}",
-				"header_link":"connect with Voicemod",
-				"param_voice":"Voice"
+			"voicemod": {
+				"header": "This feature needs you to {LINK}",
+				"header_link": "connect with Voicemod",
+				"param_voice": "Voice"
 			},
-			"http":{
-				"url":"URL to call",
-				"method":"Method",
-				"select_param":"Select parameters to send:",
-				"protocol_error":"Due to browser security restrictions, only 127.0.0.1 or localhost domains can ben called with HTTP protocol. Use HTTPS for other domains."
+			"http": {
+				"url": "URL to call",
+				"method": "Method",
+				"select_param": "Select parameters to send:",
+				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can ben called with HTTP protocol. Use HTTPS for other domains."
 			}
 		},
-
-		"categories":{
-			"global":"Chat - Channel points - Stream",
-			"user":"User event",
-			"subits":"Sub & bits",
-			"mod":"Moderation actions",
-			"twitchat":"Twitchat",
-			"hypetrain":"Hype train",
-			"games":"Games",
-			"music":"Music",
-			"timer":"Timers",
-			"obs":"OBS"
+		"categories": {
+			"global": "Chat - Channel points - Stream",
+			"user": "User event",
+			"subits": "Sub & bits",
+			"mod": "Moderation actions",
+			"twitchat": "Twitchat",
+			"hypetrain": "Hype train",
+			"games": "Games",
+			"music": "Music",
+			"timer": "Timers",
+			"obs": "OBS"
 		},
-
-		"placeholders":{
+		"placeholders": {
 			"user": "User name",
 			"user_avatar": "User avatar URL",
 			"chatter": "Chatter name",
@@ -164,32 +159,31 @@
 			"reward_description": "Reward description",
 			"reward_cost": "Reward cost",
 			"reward_message": "User message if any",
-			"track_artist":"Current track artist name",
-			"track_title":"Current track's title",
-			"track_album":"Current track's album name",
-			"track_cover":"Current track's cover",
-			"track_url":"Current track URL",
-			"train_level":"Current level",
-			"train_percent":"Current level progression (0 -> 100)",
-			"train_end_level":"Level reached",
-			"train_end_percent":"Percent reached",
-			"voicemod_voice":"Voice's ID",
-			"timeout":"Timeout duration in seconds",
-			"start_date":"Formated start date",
-			"timer_duration":"Formated timer's final duration",
-			"countdown_duration":"Formated countdown's duration",
-			"countdown_end_date":"Formated end date",
-			"challenge_title":"Challenge title",
-			"challenge_description":"Challenge description",
-			"challenge_goal":"Challenge goal",
-			"challenge_current":"Challenge current progress",
-			"challenge_contribution":"User contribution",
-			"challenge_contribution_total":"User total contribution",
-			"shoutout_in":"User that gave you a shoutout",
-			"shoutout_out":"User you gave a shoutout to"
+			"track_artist": "Current track artist name",
+			"track_title": "Current track's title",
+			"track_album": "Current track's album name",
+			"track_cover": "Current track's cover",
+			"track_url": "Current track URL",
+			"train_level": "Current level",
+			"train_percent": "Current level progression (0 -> 100)",
+			"train_end_level": "Level reached",
+			"train_end_percent": "Percent reached",
+			"voicemod_voice": "Voice's ID",
+			"timeout": "Timeout duration in seconds",
+			"start_date": "Formated start date",
+			"timer_duration": "Formated timer's final duration",
+			"countdown_duration": "Formated countdown's duration",
+			"countdown_end_date": "Formated end date",
+			"challenge_title": "Challenge title",
+			"challenge_description": "Challenge description",
+			"challenge_goal": "Challenge goal",
+			"challenge_current": "Challenge current progress",
+			"challenge_contribution": "User contribution",
+			"challenge_contribution_total": "User total contribution",
+			"shoutout_in": "User that gave you a shoutout",
+			"shoutout_out": "User you gave a shoutout to"
 		},
-
-		"events":{
+		"events": {
 			"CHAT_COMMAND": {
 				"label": "Chat command",
 				"description": "Execute actions when sending a command on your chat"
@@ -411,18 +405,16 @@
 				"description": "Execute actions when hiding <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> OBS source"
 			}
 		},
-
-		"musicEvents":{
-			"ADD_TRACK_TO_QUEUE":"Add a track to the queue",
-			"NEXT_TRACK":"Play next track",
-			"PAUSE_PLAYBACK":"Pause playback",
-			"RESUME_PLAYBACK":"Resume playback",
-			"START_PLAYLIST":"Start playlist"
+		"musicEvents": {
+			"ADD_TRACK_TO_QUEUE": "Add a track to the queue",
+			"NEXT_TRACK": "Play next track",
+			"PAUSE_PLAYBACK": "Pause playback",
+			"RESUME_PLAYBACK": "Resume playback",
+			"START_PLAYLIST": "Start playlist"
 		},
-
-		"scheduleEvents":{
-			"REGULAR_REPEAT":"Regular repeat",
-			"SPECIFIC_DATES":"Specific dates"
+		"scheduleEvents": {
+			"REGULAR_REPEAT": "Regular repeat",
+			"SPECIFIC_DATES": "Specific dates"
 		}
 	}
 }

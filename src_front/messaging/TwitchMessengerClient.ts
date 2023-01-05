@@ -498,9 +498,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			is_gift: false,
 			is_giftUpgrade: false,
 			is_resub: false,
-			months:typeof tags["msg-param-multimonth-duration"] == "string"? parseInt(tags["msg-param-multimonth-duration"]) : tags["msg-param-multimonth-duration"] ?? -1,
-			streakMonths:typeof tags["msg-param-streak-months"] == "string"? parseInt(tags["msg-param-streak-months"]) : tags["msg-param-streak-months"] ?? -1,
-			totalSubDuration:typeof tags["msg-param-cumulative-months"] == "string"? parseInt(tags["msg-param-cumulative-months"]) : tags["msg-param-cumulative-months"] ?? -1,
+			months:typeof tags["msg-param-multimonth-duration"] == "string"? parseInt(tags["msg-param-multimonth-duration"]) : -1,
+			streakMonths:typeof tags["msg-param-streak-months"] == "string"? parseInt(tags["msg-param-streak-months"]) : -1,
+			totalSubDuration:typeof tags["msg-param-cumulative-months"] == "string"? parseInt(tags["msg-param-cumulative-months"]) : -1,
 			raw_data:{tags, methods, message}
 		}
 		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) ?? 1000)/1000) as (1|2|3);

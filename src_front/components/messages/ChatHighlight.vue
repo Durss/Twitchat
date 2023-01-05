@@ -203,7 +203,9 @@ export default class ChatHighlight extends Vue {
 					this.icon = this.messageData.tier == "prime"? this.$image('icons/prime.svg') : this.$image('icons/sub.svg')
 	
 					let months = this.messageData.totalSubDuration;
-					res += " "+this.$tc("chat.highlight.sub_duration", months, {COUNT:months});
+					if(months > 0) {
+						res += " "+this.$tc("chat.highlight.sub_duration", months, {COUNT:months});
+					}
 
 					let extras:string[] = [];
 					

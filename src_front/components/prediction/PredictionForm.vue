@@ -1,7 +1,7 @@
 <template>
-	<div class="predictionform">
+	<div :class="classes">
 		<div class="holder" ref="holder">
-			<div class="head">
+			<div class="head" v-if="triggerMode === false">
 				<span class="title" v-t="'prediction.form.title'"></span>
 				<Button :aria-label="$t('prediction.form.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
@@ -11,7 +11,7 @@
 				<form  @submit.prevent="submitForm()">
 					<div class="row">
 						<label for="prediction_title" v-t="'prediction.form.question'"></label>
-						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''" tabindex="1">
+						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''" tabindex="1" @change="onValueChange()">
 					</div>
 					<div class="row answers">
 						<label for="prediction_answer" v-t="'prediction.form.outcomes'"></label>
@@ -23,6 +23,7 @@
 								v-model="answers[index]"
 								v-autofocus="index == 0 && title != ''"
 								:tabindex="index + 2"
+								@change="onValueChange()"
 							>
 							<Button :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt" small
 								:icon="$image('icons/cross.svg')"
@@ -33,9 +34,9 @@
 						</div>
 					</div>
 					<div class="row shrink">
-						<ParamItem :paramData="voteDuration" />
+						<ParamItem :paramData="voteDuration" @change="onValueChange()" />
 					</div>
-					<div class="row">
+					<div class="row" v-if="triggerMode === false">
 						<Button :title="$t('global.submit')" type="submit" :loading="loading" :disabled="!canSubmit" />
 						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
 					</div>
@@ -47,6 +48,7 @@
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
+import type { TriggerActionPredictionData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -60,6 +62,14 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Options({
 	props:{
+		action: {
+			type: Object,
+			default:{},
+		},
+		triggerMode: {
+			type: Boolean,
+			default: false
+		},
 		voiceControl: {
 			type: Boolean,
 			default: false
@@ -75,6 +85,9 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 export default class PredictionForm extends Vue {
 
 	public voiceControl!:boolean;
+	public triggerMode!:boolean;
+	//This is used by the trigger action form.
+	public action!:TriggerActionPredictionData;
 
 	public loading = false;
 
@@ -84,6 +97,12 @@ export default class PredictionForm extends Vue {
 	public voteDuration:TwitchatDataTypes.ParameterData = {label:"", value:10, type:"number", min:1, max:30};
 
 	private voiceController!:FormVoiceControllHelper;
+
+	public get classes():string[] {
+		const res = ["predictionform"];
+		if(this.triggerMode !== false) res.push("triggerMode");
+		return res;
+	}
 
 	public get canSubmit():boolean {
 		return this.title.length > 1 && this.answers[0].length > 0 && this.answers[1].length > 0;
@@ -120,8 +139,18 @@ export default class PredictionForm extends Vue {
 			}
 		});
 
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		if(this.triggerMode && this.action.predictionData) {
+			this.voteDuration.value = this.action.predictionData.voteDuration;
+			this.title = this.action.predictionData.title;
+			for (let i = 0; i < this.action.predictionData.answers.length; i++) {
+				this.answers[i] = this.action.predictionData.answers[i];
+			}
+		}
+
+		if(!this.triggerMode) {
+			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
+			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		}
 
 		watch(()=>this.answers, ()=> {
 			let emptyCount = 0;
@@ -176,12 +205,28 @@ export default class PredictionForm extends Vue {
 		this.close();
 	}
 
+	/**
+	 * Called when any value is changed
+	 */
+	public onValueChange():void {
+		if(this.action) {
+			this.action.predictionData = {
+				title:this.title,
+				answers:this.answers.filter(v=> v.length > 0),
+				voteDuration:this.voteDuration.value as number,
+			};
+		}
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .predictionform{
-	.modal();
+
+	&:not(.triggerMode) {
+		.modal();
+	}
 
 	.content {
 

@@ -358,6 +358,10 @@ export default class RaffleForm extends Vue {
 
 	.content {
 
+		.tabs {
+			.tabMenu();
+		}
+
 		.voiceHelper {
 			margin: auto;
 		}

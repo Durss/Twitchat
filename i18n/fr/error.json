@@ -20,6 +20,7 @@
 		"stream_info_updating": "Mise à jour des infos de stream échouée",
 		"poll_active": "Un sondage est déjà actif",
 		"poll_automod": "Le sondage contient des termes bloqués",
+		"poll_error": "Unable to create poll: {MESSAGE}",
 		"ad_url_required": "Le message doit contenir \"twitchat.fr\"",
 		"donor_loading": "Chargement des donateurs·ices échoué :(",
 		"cmd_missing_api": "Cette commande ne peut pas encore être utilisée en dehors du tchat officiel de Twitch :(",
@@ -39,6 +40,7 @@
 		"username_missing": "Nom d'utilisateur manquant",
 		"prediction_outcome": "Une erreur a eu lieu lors de la sélection de l'entrée gagnante",
 		"prediction_delete": "Une erreur a eu lieu lors de la suppression de la prédiction",
+		"prediction_error": "Unable to create prediction: {MESSAGE}",
 		"invalid_bingo": "Paramètres de bingo invalides: "
 	}
 }

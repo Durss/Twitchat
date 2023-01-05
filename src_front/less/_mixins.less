@@ -121,40 +121,40 @@
 		&>.content {
 			flex-grow: 1;
 			overflow-y: auto;
-	
-			&>.tabs {
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				margin-bottom: 1em;
-				gap:1px;
-		
-				.button {
-					background-color: @mainColor_normal;
-					border-radius: 0;
-					&:not(.selected) {
-						background-color: fade(@mainColor_normal, 50%);
-					}
-		
-					&:first-child {
-						border-top-left-radius: .5em;
-						border-bottom-left-radius: .5em;
-						transform-origin: right center;
-					}
-		
-					&:last-child {
-						border-top-right-radius: .5em;
-						border-bottom-right-radius: .5em;
-						transform-origin: left center;
-					}
-				}
-			}
 		}
 	}
 
 	@media only screen and (max-width: 500px) {
 		&>.holder {
 			width: 100%;
+		}
+	}
+}
+
+.tabMenu() {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	margin-bottom: 1em;
+	gap:1px;
+
+	.button {
+		background-color: @mainColor_normal;
+		border-radius: 0;
+		&:not(.selected) {
+			background-color: fade(@mainColor_normal, 50%);
+		}
+
+		&:first-child {
+			border-top-left-radius: .5em;
+			border-bottom-left-radius: .5em;
+			transform-origin: right center;
+		}
+
+		&:last-child {
+			border-top-right-radius: .5em;
+			border-bottom-right-radius: .5em;
+			transform-origin: left center;
 		}
 	}
 }

@@ -11,6 +11,7 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import OBSWebsocket from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import TTSUtils from "../TTSUtils";
+import TwitchUtils from "../twitch/TwitchUtils";
 import Utils from "../Utils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 
@@ -456,25 +457,37 @@ export default class TriggerActionHandler {
 					//Handle OBS action
 					if(step.type == "obs") {
 						if(step.text) {
-							// console.log("TEXT");
-							const text = await this.parseText(eventType, message, step.text as string, subEvent);
-							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+							try {
+								const text = await this.parseText(eventType, message, step.text as string, subEvent);
+								await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+							}catch(error) {
+								console.error(error);
+							}
 						}
 						if(step.url) {
-							//Last param of the parseText() forces urlEncode of the placeholder values to
-							//avoid URL injections.
-							const url = await this.parseText(eventType, message, step.url as string, subEvent);
-							// console.log("URL", url);
-							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
+							try {
+								const url = await this.parseText(eventType, message, step.url as string, subEvent);
+								// console.log("URL", url);
+								await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
+							}catch(error) {
+								console.error(error);
+							}
 						}
 						if(step.mediaPath) {
-							// console.log("MEDIA");
-							let url = await this.parseText(eventType, message, step.mediaPath as string, subEvent, true, true);
-							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
+							try {
+								let url = await this.parseText(eventType, message, step.mediaPath as string, subEvent, true, true);
+								await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
+							}catch(error) {
+								console.error(error);
+							}
 						}
 			
 						if(step.filterName) {
-							await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
+							try {
+								await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
+							}catch(error) {
+								console.error(error);
+							}
 						}else{
 							let show = step.show;
 							//If requesting to show an highlighted message but the message
@@ -484,7 +497,11 @@ export default class TriggerActionHandler {
 							&& (!message.info.message || message.info.message.length===0)) {
 								show = false;
 							}
-							await OBSWebsocket.instance.setSourceState(step.sourceName, show);
+							try {
+								await OBSWebsocket.instance.setSourceState(step.sourceName, show);
+							}catch(error) {
+								console.error(error);
+							}
 						}
 					}else
 					
@@ -524,6 +541,33 @@ export default class TriggerActionHandler {
 					if(step.type == "tts" && message) {
 						let text = await this.parseText(eventType, message, step.text, subEvent);
 						TTSUtils.instance.readNext(text, ttsID ?? eventType);
+					}else
+					
+					//Handle poll action
+					if(step.type == "poll") {
+						try {
+							await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
+							step.pollData.title,
+							step.pollData.answers.concat(),
+							step.pollData.voteDuration * 60,
+							step.pollData.pointsPerVote);
+						}catch(error:any) {
+							const message = error.message ?? error.toString()
+							StoreProxy.main.alert(StoreProxy.i18n.t("error.poll_error", {MESSAGE:message}))
+						}
+					}else
+					
+					//Handle poll action
+					if(step.type == "prediction") {
+						try {
+							await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id,
+								step.predictionData.title,
+								step.predictionData.answers.concat(),
+								step.predictionData.voteDuration * 60);
+						}catch(error:any) {
+							const message = error.message ?? error.toString()
+							StoreProxy.main.alert(StoreProxy.i18n.t("error.prediction_error", {MESSAGE:message}))
+						}
 					}else
 					
 					//Handle raffle action
@@ -570,139 +614,143 @@ export default class TriggerActionHandler {
 						try {
 							await fetch(url, options);
 						}catch(error) {
-							//ignore
+							console.error(error);
 						}
 					}else
 
 					//Handle music actions
 					if(step.type == "music") {
-						//Adding a track to the queue
-						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
-							//Convert placeholders if any
-							const m = await this.parseText(eventType, message, step.track, subEvent);
-							let data:TwitchatDataTypes.MusicTrackData|null = null;
-							if(Config.instance.SPOTIFY_CONNECTED) {
-								let track:SearchTrackItem|null = null;
-								if(/open\.spotify\.com\/track\/.*/gi.test(m)) {
-									//Full URL specified, extract the ID from it
-									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-									const id = chunks[2];
-									track = await SpotifyHelper.instance.getTrackByID(id);
-								}else{
-									//No URL given, send earch to API
-									track = await SpotifyHelper.instance.searchTrack(m);
+						try {
+							//Adding a track to the queue
+							if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
+								//Convert placeholders if any
+								const m = await this.parseText(eventType, message, step.track, subEvent);
+								let data:TwitchatDataTypes.MusicTrackData|null = null;
+								if(Config.instance.SPOTIFY_CONNECTED) {
+									let track:SearchTrackItem|null = null;
+									if(/open\.spotify\.com\/track\/.*/gi.test(m)) {
+										//Full URL specified, extract the ID from it
+										const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+										const id = chunks[2];
+										track = await SpotifyHelper.instance.getTrackByID(id);
+									}else{
+										//No URL given, send earch to API
+										track = await SpotifyHelper.instance.searchTrack(m);
+									}
+									if(track) {
+										if(await SpotifyHelper.instance.addToQueue(track.uri)) {
+											data = {
+												title:track.name,
+												artist:track.artists[0].name,
+												album:track.album.name,
+												cover:track.album.images[0].url,
+												duration:track.duration_ms,
+												url:track.external_urls.spotify,
+											};
+										}
+									}
 								}
-								if(track) {
-									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
+								if(Config.instance.DEEZER_CONNECTED) {
+									const tracks = await DeezerHelper.instance.searchTracks(m);
+									if(tracks) {
+										const track = tracks[0];
+										DeezerHelper.instance.addToQueue(track);
 										data = {
-											title:track.name,
-											artist:track.artists[0].name,
-											album:track.album.name,
-											cover:track.album.images[0].url,
-											duration:track.duration_ms,
-											url:track.external_urls.spotify,
+											title:track.title,
+											artist:track.artist.name,
+											album:track.album.title,
+											cover:track.album.cover_medium,
+											duration:track.duration,
+											url:track.link,
 										};
 									}
 								}
-							}
-							if(Config.instance.DEEZER_CONNECTED) {
-								const tracks = await DeezerHelper.instance.searchTracks(m);
-								if(tracks) {
-									const track = tracks[0];
-									DeezerHelper.instance.addToQueue(track);
-									data = {
-										title:track.title,
-										artist:track.artist.name,
-										album:track.album.title,
-										cover:track.album.cover_medium,
-										duration:track.duration,
-										url:track.link,
-									};
-								}
-							}
 
-							//A track has been found and added
-							if(data) {
-								const trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
-									id:Utils.getUUID(),
-									date:Date.now(),
-									platform:"twitchat",
-									type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-									track:data,
-								}
-								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
-								//Execute "TRACK_ADDED_TO_QUEUE" trigger
-								this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, trigger, false, guid);
-
-								//The step is requesting to confirm on chat when a track has been added
-								if(step.confirmMessage) {
-									const messageLoc = message as TwitchatDataTypes.MessageChatData;
+								//A track has been found and added
+								if(data) {
 									const trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
 										id:Utils.getUUID(),
 										date:Date.now(),
 										platform:"twitchat",
 										type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 										track:data,
-										message:messageLoc.message,
-										user:messageLoc.user,
 									}
-									//First pass to inject track info
-									let chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, subEvent, false);
-									//Second pass to inject trigger specifics
-									chatMessage = await this.parseText(eventType, message, chatMessage, subEvent);
-									MessengerProxy.instance.sendMessage(chatMessage);
+									PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
+									//Execute "TRACK_ADDED_TO_QUEUE" trigger
+									this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, trigger, false, guid);
+
+									//The step is requesting to confirm on chat when a track has been added
+									if(step.confirmMessage) {
+										const messageLoc = message as TwitchatDataTypes.MessageChatData;
+										const trigger:TwitchatDataTypes.MessageMusicAddedToQueueData = {
+											id:Utils.getUUID(),
+											date:Date.now(),
+											platform:"twitchat",
+											type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
+											track:data,
+											message:messageLoc.message,
+											user:messageLoc.user,
+										}
+										//First pass to inject track info
+										let chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, subEvent, false);
+										//Second pass to inject trigger specifics
+										chatMessage = await this.parseText(eventType, message, chatMessage, subEvent);
+										MessengerProxy.instance.sendMessage(chatMessage);
+									}
 								}
-							}
-						}else
-						
-						if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
-							if(Config.instance.SPOTIFY_CONNECTED) {
-								SpotifyHelper.instance.nextTrack();
-							}
-							if(Config.instance.DEEZER_CONNECTED) {
-								DeezerHelper.instance.nextTrack();
-							}
-						}else
-						
-						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
-							if(Config.instance.SPOTIFY_CONNECTED) {
-								SpotifyHelper.instance.pause();
-							}
-							if(Config.instance.DEEZER_CONNECTED) {
-								DeezerHelper.instance.pause();
-							}
-						}else
-						
-						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
-							if(Config.instance.SPOTIFY_CONNECTED) {
-								SpotifyHelper.instance.resume();
-							}
-							if(Config.instance.DEEZER_CONNECTED) {
-								DeezerHelper.instance.resume();
-							}
-						}else
-						
-						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
-							let m:string = step.playlist;
-							if(message.type == "message") {
-								m = await this.parseText(eventType, message, m, subEvent);
-							}
-							if(Config.instance.SPOTIFY_CONNECTED) {
-								let id:string|null = null;
-								if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
-									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-									id = chunks[2];
+							}else
+							
+							if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
+								if(Config.instance.SPOTIFY_CONNECTED) {
+									SpotifyHelper.instance.nextTrack();
 								}
-								const success = await SpotifyHelper.instance.startPlaylist(id, m);
-								if(!success) {
-									const platforms:TwitchatDataTypes.ChatPlatform[] = [];
-									if(message.platform) platforms.push(message.platform);
-									MessengerProxy.instance.sendMessage("Playlist not found", platforms);
+								if(Config.instance.DEEZER_CONNECTED) {
+									DeezerHelper.instance.nextTrack();
 								}
+							}else
+							
+							if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
+								if(Config.instance.SPOTIFY_CONNECTED) {
+									SpotifyHelper.instance.pause();
+								}
+								if(Config.instance.DEEZER_CONNECTED) {
+									DeezerHelper.instance.pause();
+								}
+							}else
+							
+							if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
+								if(Config.instance.SPOTIFY_CONNECTED) {
+									SpotifyHelper.instance.resume();
+								}
+								if(Config.instance.DEEZER_CONNECTED) {
+									DeezerHelper.instance.resume();
+								}
+							}else
+							
+							if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
+								let m:string = step.playlist;
+								if(message.type == "message") {
+									m = await this.parseText(eventType, message, m, subEvent);
+								}
+								if(Config.instance.SPOTIFY_CONNECTED) {
+									let id:string|null = null;
+									if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
+										const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+										id = chunks[2];
+									}
+									const success = await SpotifyHelper.instance.startPlaylist(id, m);
+									if(!success) {
+										const platforms:TwitchatDataTypes.ChatPlatform[] = [];
+										if(message.platform) platforms.push(message.platform);
+										MessengerProxy.instance.sendMessage("Playlist not found", platforms);
+									}
+								}
+								// if(Config.instance.DEEZER_CONNECTED) {
+								// 	DeezerHelper.instance.resume();
+								// }
 							}
-							// if(Config.instance.DEEZER_CONNECTED) {
-							// 	DeezerHelper.instance.resume();
-							// }
+						}catch(error) {
+							console.error(error);
 						}
 					}
 
@@ -732,81 +780,87 @@ export default class TriggerActionHandler {
 	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
 
-		// console.log("===== PARSE TEXT =====");
-		// console.log(eventType);
-		// console.log(message);
-		// console.log(src);
-		// console.log(subEvent);
+		try {
+			// console.log("===== PARSE TEXT =====");
+			// console.log(eventType);
+			// console.log(message);
+			// console.log(src);
+			// console.log(subEvent);
 
-		eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
-		const helpers = TriggerActionHelpers(eventType);
-		// console.log(helpers);
-		//No placeholders for this event type, just send back the source text
-		if(!helpers) return res;
-		
-		for (let i = 0; i < helpers.length; i++) {
-			const h = helpers[i];
-			const chunks:string[] = h.pointer.split(".");
-			let root = message as unknown;
-			let value:string = "";
-			h.tag = h.tag.toUpperCase();
+			eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
+			const helpers = TriggerActionHelpers(eventType);
+			// console.log(helpers);
+			//No placeholders for this event type, just send back the source text
+			if(!helpers) return res;
+			
+			for (let i = 0; i < helpers.length; i++) {
+				const h = helpers[i];
+				const chunks:string[] = h.pointer.split(".");
+				let root = message as unknown;
+				let value:string = "";
+				h.tag = h.tag.toUpperCase();
 
-			try {
-				//Dynamically search for the requested prop's value within the object
-				for (let i = 0; i < chunks.length; i++) {
-					let isArray = false;
-					//key ends by [] it's because it's an array
-					if(/\[\]$/g.test(chunks[i])){
-						chunks[i] = chunks[i].replace("[]", "");
-						isArray = true;
+				try {
+					//Dynamically search for the requested prop's value within the object
+					for (let i = 0; i < chunks.length; i++) {
+						let isArray = false;
+						//key ends by [] it's because it's an array
+						if(/\[\]$/g.test(chunks[i])){
+							chunks[i] = chunks[i].replace("[]", "");
+							isArray = true;
+						}
+						root = (root as {[key:string]:unknown})[chunks[i]];
+						if(isArray) {
+							root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+1]]).join(", ");
+							break;
+						}
 					}
-					root = (root as {[key:string]:unknown})[chunks[i]];
-					if(isArray) {
-						root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+1]]).join(", ");
-						break;
+					if(typeof root === "number") root = root.toString();
+					value = root as string;
+				}catch(error) {
+					//If the placeholder requests for the current track and we're ending up here
+					//this means that the message does not contain the actual track.
+					//In this case we go get the currently playing track
+					if(h.tag.indexOf("current_track") == 0) {
+						//That replace() is dirty but I'm too lazy to do that in a more generic way :(
+						const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
+						if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
+							value = SpotifyHelper.instance.currentTrack[pointer]?.toString();
+						}else if(Config.instance.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
+							value = DeezerHelper.instance.currentTrack[pointer]?.toString();
+						}
+						if(!value) value = "-none-";
+					}else{
+						console.warn("Unable to find pointer for helper", h);
+						value = "";
 					}
 				}
-				if(typeof root === "number") root = root.toString();
-				value = root as string;
-			}catch(error) {
-				//If the placeholder requests for the current track and we're ending up here
-				//this means that the message does not contain the actual track.
-				//In this case we go get the currently playing track
-				if(h.tag.indexOf("current_track") == 0) {
-					//That replace() is dirty but I'm too lazy to do that in a more generic way :(
-					const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
-					if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
-						value = SpotifyHelper.instance.currentTrack[pointer]?.toString();
-					}else if(Config.instance.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
-						value = DeezerHelper.instance.currentTrack[pointer]?.toString();
-					}
-					if(!value) value = "-none-";
-				}else{
-					console.warn("Unable to find pointer for helper", h);
-					value = "";
+
+				// console.log("Pointer:", h.tag, "=>", h.pointer, "=> value:", value);
+
+				//Remove command from final text
+				if(typeof value == "string" && subEvent) {
+					subEvent = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+					value = value.replace(new RegExp(subEvent, "i"), "").trim();
 				}
+			
+				if(typeof value == "string" && removeFolderNavigation) {
+					value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
+				}
+				
+				res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
 			}
 
-			// console.log("Pointer:", h.tag, "=>", h.pointer, "=> value:", value);
-
-			//Remove command from final text
-			if(typeof value == "string" && subEvent) {
-				subEvent = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				value = value.replace(new RegExp(subEvent, "i"), "").trim();
-			}
-		
-			if(typeof value == "string" && removeFolderNavigation) {
-				value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
+			if(removeRemainingTags) {
+				res = res.replace(/\{[^}]+\}/g, "");
 			}
 			
-			res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
+			// console.log("RESULT = ",res);
+			return Utils.stripHTMLTags(res);
+			
+		}catch(error) {
+			console.error(error);
+			return res;
 		}
-
-		if(removeRemainingTags) {
-			res = res.replace(/\{[^}]+\}/g, "");
-		}
-		
-		// console.log("RESULT = ",res);
-		return Utils.stripHTMLTags(res);
 	}
 }

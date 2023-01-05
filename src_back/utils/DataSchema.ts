@@ -172,6 +172,31 @@ import Ajv from "ajv";
 												max: {type:"number", minimum:0, maximum:999999999},
 												custom: {type:"string", maxLength:500},
 											}
+										},
+										pollData: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												pointsPerVote: {type:"number", minimum:0, maximum:999999999},
+												voteDuration: {type:"number", minimum:0, maximum:999999999},
+												title: {type:"string", maxLength:60},
+												answers: {
+													type:"array",
+													items:[{type:"string", maxLength:25}],
+												},
+											}
+										},
+										predictionData: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												voteDuration: {type:"number", minimum:0, maximum:999999999},
+												title: {type:"string", maxLength:60},
+												answers: {
+													type:"array",
+													items:[{type:"string", maxLength:25}],
+												},
+											}
 										}
 									}
 								},

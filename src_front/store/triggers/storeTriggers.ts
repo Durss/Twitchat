@@ -39,6 +39,8 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "highlight") return true;
 					if(v.type == "trigger") return true;
 					if(v.type == "http") return true;
+					if(v.type == "poll") return true;
+					if(v.type == "prediction") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;

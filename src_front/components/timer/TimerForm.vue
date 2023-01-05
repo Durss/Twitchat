@@ -121,5 +121,11 @@ export default class TimerForm extends Vue {
 		}
 	}
 
+	.content {
+		.tabs {
+			.tabMenu();
+		}
+	}
+
 }
 </style>

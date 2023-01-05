@@ -208,6 +208,25 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Config for a poll game (used by triggers)
+	 */
+	export interface PollConfig {
+		pointsPerVote:number;
+		voteDuration:number;
+		title:string;
+		answers:string[];
+	}
+
+	/**
+	 * Config for a prediction game (used by triggers)
+	 */
+	export interface PredictionConfig {
+		voteDuration:number;
+		title:string;
+		answers:string[];
+	}
+
+	/**
 	 * Config for a bingo game
 	 */
 	export interface BingoConfig {
