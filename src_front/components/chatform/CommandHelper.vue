@@ -33,7 +33,7 @@
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
 				<Button aria-label="Start raid" type="submit" :icon="$image('icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
 			</form>
-			<a class="followings" @click.prevent="openLiveFollowings()" v-t="'cmdmenu.whoslive'"></a>
+			<a class="followings" @click.prevent="openModal('liveStreams')" v-t="'cmdmenu.whoslive'"></a>
 		</div>
 	</div>
 </template>
@@ -210,11 +210,6 @@ export default class CommandHelper extends Vue {
 		settings.slowMode = this.param_slowMode.value === true? 5 : 0;
 
 		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
-	}
-
-	public openLiveFollowings():void {
-		this.close();
-		this.$emit("liveStreams");
 	}
 }
 </script>
