@@ -1067,7 +1067,7 @@ export default class MessageList extends Vue {
 			&& !this.lockScroll
 			&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
-		}else if(messageHolder.scrollTop < 50) {
+		}else if(messageHolder.scrollTop < 150) {
 			this.showPrevMessage();
 		}
 	}
@@ -1132,6 +1132,8 @@ export default class MessageList extends Vue {
 		let addNext = false;
 		let messageAdded = false;
 		let i = list.length - this.scrollUpIndexOffset - 1;
+
+		let addCount = 10;
 		
 		for (; i > 0; i--) {
 			let m = list[i];
@@ -1143,7 +1145,7 @@ export default class MessageList extends Vue {
 					this.scrollUpIndexOffset = list.length - i;
 					this.filteredMessages.unshift(m);
 					messageAdded = true;
-					break;
+					if(--addCount == 0) break;
 				}
 			}
 		}
@@ -1151,7 +1153,7 @@ export default class MessageList extends Vue {
 		if(messageAdded) {
 			// await this.$nextTick();
 			const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
-			this.virtualScrollY = 51;
+			this.virtualScrollY = 151;
 			messagesHolder.scrollTop = this.virtualScrollY;
 			if(popped) this.pendingMessages.unshift( popped );
 		}else if(popped){
