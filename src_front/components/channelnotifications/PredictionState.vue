@@ -7,15 +7,15 @@
 			:duration="prediction.duration_s*1000"
 			v-if="!prediction.pendingAnswer" />
 		
-		<div class="outcomeTitle" v-if="prediction.pendingAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
+		<div class="outcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
 		
 		<div class="choices">
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
-				<div class="color" v-if="!prediction.pendingAnswer"></div>
+				<div class="color" v-if="!prediction.pendingAnswer || !canAnswer"></div>
 				<Button class="winBt"
 					@click="setOutcome(c)"
 					:icon="$image('icons/checkmark_white.svg')"
-					v-if="prediction.pendingAnswer"
+					v-if="prediction.pendingAnswer && canAnswer"
 					:loading="loading" />
 				<div class="bar" :style="getAnswerStyles(c)">
 					<div>{{c.label}}</div>
@@ -56,6 +56,10 @@ export default class PredictionState extends Vue {
 
 	public get prediction():TwitchatDataTypes.MessagePredictionData {
 		return this.$store("prediction").data!;
+	}
+
+	public get canAnswer():boolean {
+		return this.prediction.channel_id == this.$store("auth").twitch.user.id;
 	}
 
 	public get classes():string[] {

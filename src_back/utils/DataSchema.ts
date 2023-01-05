@@ -134,7 +134,7 @@ import Ajv from "ajv";
 											properties: {
 												mode: {type:"string", maxLength:20},
 												command: {type:"string", maxLength:100},
-												duration_s: {type:"number", minimum:0, maximum:120},
+												duration_s: {type:"number", minimum:0, maximum:120 * 60000},
 												maxEntries: {type:"number", minimum:0, maximum:1000000},
 												created_at: {type:"number", minimum:0, maximum:9999999999999},
 												entries: {

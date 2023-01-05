@@ -4,7 +4,7 @@
 
 		<ProgressBar class="progress"
 			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
-			:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s*60000"
+			:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s"
 		/>
 
 		<div class="item entries">
@@ -49,13 +49,11 @@
 </template>
 
 <script lang="ts">
+import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import type { JsonObject } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
@@ -77,8 +75,6 @@ export default class RaffleState extends Vue {
 	public raffleData!:TwitchatDataTypes.RaffleData;
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	
-	private wheelOverlayExists = false;
-
 	public get canPick():boolean {
 		return (this.raffleData.entries && this.raffleData.entries.length > 0)
 		 && (this.raffleData.winners == undefined
@@ -86,10 +82,13 @@ export default class RaffleState extends Vue {
 	}
 
 	public beforeMount():void {
+		console.log(this.raffleData);
+		console.log(this.$store("raffle").data);
+
 		this.winnerPlaceholders	= [{tag:"USER", desc:this.$t("raffle.params.username_placeholder"), example:this.$store("auth").twitch.user.displayName}];
 		this.raffleData			= this.$store("raffle").data!;
 		const ellapsed			= Date.now() - new Date(this.raffleData.created_at).getTime();
-		const duration			= this.raffleData.duration_s*60000;
+		const duration			= this.raffleData.duration_s;
 		const timeLeft			= duration - ellapsed;
 		this.progressPercent	= ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});

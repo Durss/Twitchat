@@ -149,6 +149,10 @@ export default class DataStore {
 			this.fixLocalization();
 			v = "18";
 		}
+		if(v=="18") {
+			this.migrateRaffleTriggerDuration();
+			v = "19";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
@@ -311,11 +315,11 @@ export default class DataStore {
 	 * @param save 	schedule a save to the server
 	 * @returns 
 	 */
-	public static set(key:string, value:JsonValue|unknown, save = true, saveDelay:number = 1500):void {
+	public static async set(key:string, value:JsonValue|unknown, save = true, saveDelay:number = 1500):Promise<void> {
 		if(key == this.SYNC_DATA_TO_SERVER) {
 			this.syncToServer = value as boolean;
 			if(!this.dataImported) {
-				this.loadRemoteData();
+				await this.loadRemoteData();
 			}
 		}
 		
@@ -582,5 +586,26 @@ export default class DataStore {
 			entry.message = entry.message.replace(/\{'@'\}/gi, "@");
 		}
 		this.set(this.BOT_MESSAGES, list);
+	}
+
+	/**
+	 * Made a mistake storing minutes instead of seconds
+	 */
+	private static migrateRaffleTriggerDuration():void {
+		const txt = this.get("triggers");
+		if(!txt) return;
+		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
+		for (const key in triggers) {
+			const actions = triggers[key].actions;
+			for (let i = 0; i < actions.length; i++) {
+				const a = actions[i];
+				if(a.type == "raffle" && a.raffleData) {
+					console.log("convert", a.raffleData.duration_s, "to", a.raffleData.duration_s * 60000);
+					a.raffleData.duration_s = a.raffleData.duration_s * 60000;
+				}
+			}
+		}
+
+		this.set("triggers", triggers);
 	}
 }

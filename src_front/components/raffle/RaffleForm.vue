@@ -216,7 +216,7 @@ export default class RaffleForm extends Vue {
 		return  {
 			mode:this.mode,
 			command:cmd,
-			duration_s:this.enterDuration.value as number,
+			duration_s:this.enterDuration.value as number * 60000,
 			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value as number : 0,
 			created_at:Date.now(),
 			entries:[],
@@ -258,7 +258,7 @@ export default class RaffleForm extends Vue {
 		if(this.triggerMode && this.action.raffleData) {
 			this.mode = this.action.raffleData.mode;
 			this.command.value = this.action.raffleData.command
-			this.enterDuration.value = this.action.raffleData.duration_s;
+			this.enterDuration.value = this.action.raffleData.duration_s/60000;
 			this.maxEntries.value = this.action.raffleData.maxEntries
 			this.maxUsersToggle.value = this.maxEntries.value > 0;
 			this.ponderateVotes_follower.value = this.action.raffleData.followRatio;

@@ -89,7 +89,7 @@ export default class Config {
 	public static get PRODUCTION_USER_DATA_PATH_FROM_BETA(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../userData_fake_production/"),
-			prod: path.join(__dirname, "../userData/"),
+			prod: path.join(__dirname, "../../twitchat/userData/"),
 		});
 	}
 

@@ -229,7 +229,9 @@ export const storeAuth = defineStore('auth', {
 	
 		logout() {
 			this.authenticated = false;
-			DataStore.remove("oAuthToken");
+			if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
+				DataStore.clear();//Remove everything to avoid mixing data if switching with another account
+			}
 			MessengerProxy.instance.disconnect();
 		},
 	} as IAuthActions
