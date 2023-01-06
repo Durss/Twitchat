@@ -841,8 +841,20 @@ export default class MessageList extends Vue {
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e: GlobalEvent): void {
+		//Force delete right now to avoid duplicate IDs if it's added
+		//back before the fullListRefresh().
+		//If a message occurence count is incremented, the message is deleted
+		//then added back. Deleting is asynchronous bnut adding is synchronous
+		//which opens possibilities for a message to be twice on the list
+		const data = e.data as {message:TwitchatDataTypes.ChatMessageTypes, force:boolean};
+		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
+			const m = this.filteredMessages[i];
+			if (m.id == data.message.id) {
+				this.filteredMessages.splice(i,1);
+				return;
+			}
+		}
 		this.fullListRefresh();
-		// const data = e.data as {message:TwitchatDataTypes.ChatMessageTypes, force:boolean};
 
 		// //remove from displayed messages
 		// for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
@@ -1123,7 +1135,7 @@ export default class MessageList extends Vue {
 
 		this.loadingOldMessage = true;
 
-		const popped	= this.filteredMessages.pop();
+		const removed:TwitchatDataTypes.ChatMessageTypes[]	= [];
 		const lastId	= this.filteredMessages[0].id;
 		if(this.scrollUpIndexOffset == -1) {
 			this.scrollUpIndexOffset = this.pendingMessages.length + this.filteredMessages.length;
@@ -1143,6 +1155,7 @@ export default class MessageList extends Vue {
 				m = list[i-1];
 				if(this.shouldShowMessage(m)) {
 					this.scrollUpIndexOffset = list.length - i;
+					removed.push(this.filteredMessages.pop()!);
 					this.filteredMessages.unshift(m);
 					messageAdded = true;
 					if(--addCount == 0) break;
@@ -1155,10 +1168,10 @@ export default class MessageList extends Vue {
 			const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 			this.virtualScrollY = 151;
 			messagesHolder.scrollTop = this.virtualScrollY;
-			if(popped) this.pendingMessages.unshift( popped );
-		}else if(popped){
+			removed.forEach(v=> this.pendingMessages.unshift( v ));
+		}else if(removed){
 			//We reached the first message of the history, stop there
-			this.filteredMessages.push( popped );
+			removed.forEach(v=> this.filteredMessages.push( v ));
 		}
 		this.loadingOldMessage = false;
 	}

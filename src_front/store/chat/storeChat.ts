@@ -510,6 +510,7 @@ export const storeChat = defineStore('chat', {
 								//Update timestamp
 								m.date = Date.now();
 								message = m;
+								break;
 							}
 						}
 					}

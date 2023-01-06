@@ -10,6 +10,12 @@
 			<button class="addBt" @click="$emit('add')" :data-tooltip="$t('global.tooltips.column_add')">
 				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
 			</button>
+			<!-- <button class="addBt" @click="$emit('moveLeft')" :data-tooltip="$t('global.tooltips.column_add')">
+				<img src="@/assets/icons/left.svg" alt="add column" class="icon">
+			</button>
+			<button class="addBt" @click="$emit('moveRight')" :data-tooltip="$t('global.tooltips.column_add')">
+				<img src="@/assets/icons/right.svg" alt="add column" class="icon">
+			</button> -->
 		</div>
 
 		<div class="holder" v-if="expand || forceConfig" @click="clickPreview($event)">
@@ -866,23 +872,28 @@ export default class MessageListFilter extends Vue {
 
 	.hoverActions {
 		@size: 1.25em;
-		margin-left: -@size;
-		width: @size;
+		@padding: .25em;
+		margin-left: -@size - @padding * 2;
+		width: @size + @padding * 2;
 		display: flex;
 		flex-direction: column;
+		background: @mainColor_light;
+		gap: 1px;
+		top:50%;
+		padding: @padding;
+		border-bottom-left-radius: .25em;
+		height: fit-content;
 		button {
 			display: flex;
 			align-items: center;
 			pointer-events: all;
 			padding: calc(@size/4);
-			margin-bottom: .25em;
 			width: @size;
 			height: @size;
 			min-width: @size;
 			min-height: @size;
 			background-color: @mainColor_normal;
-			border-top-left-radius: .25em;
-			border-bottom-left-radius: .25em;
+			border-radius: .25em;
 			.icon {
 				height: 100%;
 				width: 100%;

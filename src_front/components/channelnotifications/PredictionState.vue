@@ -27,7 +27,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="item actions">
+		<div class="item actions" v-if="canAnswer">
 			<Button :title="$t('prediction.state.cancelBt')" @click="deletePrediction()" :loading="loading" highlight />
 		</div>
 	</div>
