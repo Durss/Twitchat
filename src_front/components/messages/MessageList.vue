@@ -850,6 +850,13 @@ export default class MessageList extends Vue {
 		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
 			const m = this.filteredMessages[i];
 			if (m.id == data.message.id) {
+				if(m.markedAsRead && i>0) {
+					m.markedAsRead = false;
+					const newMessage = this.filteredMessages[i-1];
+					newMessage.markedAsRead = true;
+					const div = (this.$refs["message_" + newMessage.id] as HTMLDivElement[])[0];
+					this.markedReadItem = div;
+				}
 				this.filteredMessages.splice(i,1);
 				return;
 			}
