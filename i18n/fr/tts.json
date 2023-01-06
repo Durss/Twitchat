@@ -1,17 +1,17 @@
 {
-	"tts":{
-		"header":"Lire des messages à voix haute",
-		"read_user_start":"Lire les messages de {USER}",
-		"read_user_stop":"Arrêter de lire les messages de {USER}",
-		"on_notice":"Les messages de <mark>{USER}</mark> seront lus à voix haute.",
-		"off_notice":"Les messages de <mark>{USER}</mark> seront lus à voix haute.",
-		"chat_perms":{
-			"title":"Permissions",
-			"head":"Sélectionnés les personnes desquelles lire les messages.",
-			"infos":"Ceci ne filtre que les messages et les chuchotements. Ca n'affectera pas les abonnements, les raids, les récompenses de points de chaîne, etc..."
+	"tts": {
+		"header": "Lire des messages à voix haute",
+		"read_user_start": "Lire les messages de {USER}",
+		"read_user_stop": "Arrêter de lire les messages de {USER}",
+		"on_notice": "Les messages de <mark>{USER}</mark> seront lus à voix haute.",
+		"off_notice": "Les messages de <mark>{USER}</mark> seront lus à voix haute.",
+		"chat_perms": {
+			"title": "Permissions",
+			"head": "Sélectionnés les personnes desquelles lire les messages.",
+			"infos": "Ceci ne filtre que les messages et les chuchotements. Ca n'affectera pas les abonnements, les raids, les récompenses de points de chaîne, etc..."
 		},
-		"messages":{
-			"title":"Messages à lire",
+		"messages": {
+			"title": "Messages à lire",
 			"param_format": "Format",
 			"param_readMessages": "Messages de tchat",
 			"param_readWhispers": "Chuchotements",
@@ -27,62 +27,66 @@
 			"param_readBingos": "Résultat de bingo",
 			"param_readRaffle": "Résultats de tirage au sort",
 			"param_readUsers": "Messages de ces personnes",
-			"param_readUsers_add": "pseudo..."
+			"param_readUsers_add": "pseudo...",
+			"param_read1stTimeChatters": "1er message sur la chaîne",
+			"param_readAutomod": "Messages retenus par l'automod"
 		},
-		"params":{
-			"title":"Voice parameters",
-			"param_enabled":"Enabled",
-			"param_volume":"Volume {VALUE}",
-			"param_rate":"Speed {VALUE}",
-			"param_pitch":"Pitch {VALUE}",
-			"param_voice":"Voice",
-			"param_removeEmotes":"Remove emotes",
-			"test_message":"This is a test message",
-			"test_placeholder":"message...",
-			"testBt":"Test"
+		"params": {
+			"title": "Voice parameters",
+			"param_enabled": "Enabled",
+			"param_volume": "Volume {VALUE}",
+			"param_rate": "Speed {VALUE}",
+			"param_pitch": "Pitch {VALUE}",
+			"param_voice": "Voice",
+			"param_removeEmotes": "Remove emotes",
+			"test_message": "This is a test message",
+			"test_placeholder": "message...",
+			"testBt": "Test"
 		},
-		"filters":{
-			"title":"Filters",
-			"param_maxLengthToggle":"Limit message size",
-			"param_maxLength":"Read {VALUE} chars max",
-			"param_maxDurationToggle":"Limit message duration",
-			"param_maxDuration":"Stop reading a message after {VALUE} seconds",
-			"param_timeoutToggle":"Remove message from queue if they're not read within...",
-			"param_timeout":"{VALUE} minutes",
-			"param_inactivityPeriodToggle":"Read messages only if no message has been received for...",
-			"param_removeURL":"Remove links",
-			"param_replaceURL":"Replace by"
+		"filters": {
+			"title": "Filters",
+			"param_maxLengthToggle": "Limit message size",
+			"param_maxLength": "Read {VALUE} chars max",
+			"param_maxDurationToggle": "Limit message duration",
+			"param_maxDuration": "Stop reading a message after {VALUE} seconds",
+			"param_timeoutToggle": "Remove message from queue if they're not read within...",
+			"param_timeout": "{VALUE} minutes",
+			"param_inactivityPeriodToggle": "Read messages only if no message has been received for...",
+			"param_removeURL": "Remove links",
+			"param_replaceURL": "Replace by"
 		},
-		"placeholders":{
-			"user":"User name",
-			"message":"user message",
-			"sub_tier":"Sub tier",
-			"sub_gifter":"Subgifter's name",
-			"subgift_count":"Subgift count",
-			"subgift_recipients":"Subgift recipient",
-			"reward_name":"Reward name",
-			"reward_description":"Reward description",
-			"bits_amount":"Bits amount",
-			"poll_title":"Poll title",
-			"prediction_title":"Prediction title",
-			"winning_choice":"Winning choice",
-			"winning_user":"Winning user",
-			"viewers_count":"Viewers count"
+		"placeholders": {
+			"user": "User name",
+			"message": "user message",
+			"sub_tier": "Sub tier",
+			"sub_gifter": "Subgifter's name",
+			"subgift_count": "Subgift count",
+			"subgift_recipients": "Subgift recipient",
+			"reward_name": "Reward name",
+			"reward_description": "Reward description",
+			"bits_amount": "Bits amount",
+			"poll_title": "Poll title",
+			"prediction_title": "Prediction title",
+			"winning_choice": "Winning choice",
+			"winning_user": "Winning user",
+			"viewers_count": "Viewers count"
 		},
-		"paterns":{
-			"readMessagePatern":"{USER} says: {MESSAGE}",
-			"readWhispersPattern":"{USER} whispers: {MESSAGE}",
-			"readNoticePattern":"{MESSAGE}",
-			"readRewardsPattern":"{USER} redeemed reward {REWARD_NAME}",
-			"readSubsPattern":"{USER} subscribed at tier {TIER}",
-			"readSubgiftsPattern":"{USER} gifted {COUNT} sub tier {TIER} to {RECIPIENTS}",
-			"readBitsPattern":"{USER} sent {BITS} bits",
-			"readRaidsPattern":"{USER} raided with {VIEWERS} viewers",
-			"readFollowPattern":"{USER} is now following",
-			"readPollsPattern":"Poll \"{TITLE}\" ended. Winning choice is, {WINNER}",
-			"readPredictionsPattern":"Prediction \"{TITLE}\" ended. Winning choice is, {WINNER}",
-			"readBingosPattern":"{WINNER} won the bingo",
-			"readRafflePattern":"{WINNER} won the raffle"
+		"patterns": {
+			"readMessagePatern": "{USER} says: {MESSAGE}",
+			"readWhispersPattern": "{USER} whispers: {MESSAGE}",
+			"readNoticesPattern": "{MESSAGE}",
+			"readRewardsPattern": "{USER} redeemed reward {REWARD_NAME}",
+			"readSubsPattern": "{USER} subscribed at tier {TIER}",
+			"readSubgiftsPattern": "{USER} gifted {COUNT} sub tier {TIER} to {RECIPIENTS}",
+			"readBitsPattern": "{USER} sent {BITS} bits",
+			"readRaidsPattern": "{USER} raided with {VIEWERS} viewers",
+			"readFollowPattern": "{USER} is now following",
+			"readPollsPattern": "Poll \"{TITLE}\" ended. Winning choice is, {WINNER}",
+			"readPredictionsPattern": "Prediction \"{TITLE}\" ended. Winning choice is, {WINNER}",
+			"readBingosPattern": "{WINNER} won the bingo",
+			"readRafflePattern": "{WINNER} won the raffle",
+			"read1stTimeChattersPattern": "1er message de {USER} : {MESSAGE}",
+			"readAutomodPattern": "Message de {USER} retenu par l'automod : {MESSAGE}"
 		}
 	}
 }

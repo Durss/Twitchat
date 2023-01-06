@@ -115,7 +115,7 @@
 				<Button :icon="$image('icons/refresh.svg')"
 					:title="$t('triggers.resyncBt')"
 					class="cta resyncBt"
-					@click="listSources(true)"
+					@click="listOBSSources(undefined, true)"
 					:data-tooltip="$t('triggers.resyncBt_tt')"
 					:loading="syncing"
 				/>
@@ -366,14 +366,12 @@ export default class ParamsTriggers extends Vue {
 		return false;
 	}
 	
-	public async mounted():Promise<void> {
-		watch(()=> OBSWebsocket.instance.connected, () => { this.listSources(); });
+	public mounted():void {
+		watch(()=> OBSWebsocket.instance.connected, () => { this.listOBSSources(undefined, true); });
 		watch(()=> this.currentEvent, () => { this.onSelectTrigger(); });
 		watch(()=> this.currentSubEvent, () => { this.onSelectsubTrigger(); });
 		watch(()=> this.actionList, () => { this.saveData(); }, { deep:true });
 		watch(()=> this.triggerData, () => { this.saveData(); }, { deep:true });
-		await this.listSources();
-
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [];
 		events = events.concat(TriggerEvents());
@@ -445,27 +443,6 @@ export default class ParamsTriggers extends Vue {
 	public goBack():void {
 		if(this.currentSubEvent) this.currentSubEvent = null;
 		else this.currentEvent = null;
-	}
-
-	/**
-	 * Gets all the available OBS sources and sort them alphabetically
-	 */
-	public async listSources(refreshVue = false):Promise<void> {
-		this.syncing = true;
-		try {
-			this.obsSources = await OBSWebsocket.instance.getSources();
-		}catch(error){
-			//
-		}
-		this.obsSources = this.obsSources.sort((a, b) => {
-			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
-			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
-			return 0;
-		});
-		if(refreshVue) {
-			await Utils.promisedTimeout(500)
-		}
-		this.syncing = false;
 	}
 
 	/**
@@ -834,7 +811,7 @@ export default class ParamsTriggers extends Vue {
 	/**
 	 * Lists OBS Sources
 	 */
-	private async listOBSSources(key:string):Promise<void> {
+	public async listOBSSources(key?:string, fullRefreshMode:boolean = false):Promise<void> {
 		this.showLoading = true;
 		try {
 			this.obsSources = await OBSWebsocket.instance.getSources();
@@ -844,20 +821,29 @@ export default class ParamsTriggers extends Vue {
 			this.showLoading = false;
 			return;
 		}
-		const list = this.obsSources.sort((a,b)=> {
+
+		this.obsSources.sort((a,b)=> {
 			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
 			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
 			return 0;
-		}).map(v => {
-			const enabled = this.$store("triggers").triggers[key+"_"+v.sourceName.toLowerCase()]?.enabled;
-			return {
-				label:v.sourceName,
-				value:v.sourceName,
-				enabled
-			};
-		})
-		this.subeventsList = this.subeventsList?.concat(list);
+		});
+
+		if(fullRefreshMode) {
+			//Fake await to make sure loader is displayed
+			await Utils.promisedTimeout(500);
+		}else{
+			const list = this.obsSources.map(v => {
+				const enabled = this.$store("triggers").triggers[key+"_"+v.sourceName.toLowerCase()]?.enabled;
+				return {
+					label:v.sourceName,
+					value:v.sourceName,
+					enabled
+				};
+			});
+			this.subeventsList = this.subeventsList?.concat(list);
+		}
 		this.showLoading = false;
+		
 	}
 
 	/**

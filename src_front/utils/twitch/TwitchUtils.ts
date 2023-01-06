@@ -2145,7 +2145,7 @@ export default class TwitchUtils {
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
 			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now());
+			await Utils.promisedTimeout(Math.max(1000, resetDate - Date.now()));
 			return await this.eventsubSubscribe(channelId, userId, session_id, topic, version);
 		}
 		return false;

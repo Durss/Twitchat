@@ -470,6 +470,10 @@ export namespace TwitchatDataTypes {
 		readRafflePattern:string;
 		readPredictions: boolean;
 		readPredictionsPattern:string;
+		read1stTimeChatters: boolean;
+		read1stTimeChattersPattern:string;
+		readAutomod: boolean;
+		readAutomodPattern:string;
 		ttsPerms:PermissionsData;
 		readUsers:string[];
 	}

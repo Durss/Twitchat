@@ -27,6 +27,8 @@ export default class TTSUtils {
 	public static placeholderPredictions:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderRaffles:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderBingo:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholder1stTimeChatters:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderAutomod:TwitchatDataTypes.PlaceholderEntry[];
 
 	private static _instance:TTSUtils;
 
@@ -241,6 +243,16 @@ export default class TTSUtils {
 		TTSUtils.placeholderBingo = [
 			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_user") },
 		];
+
+		TTSUtils.placeholder1stTimeChatters = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+		];
+
+		TTSUtils.placeholderAutomod = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+		];
 	}
 
 	/**
@@ -257,13 +269,15 @@ export default class TTSUtils {
 
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
+				const canRead = (paramsTTS.readMessages && !message.automod && !message.twitch_automod)
+							|| (paramsTTS.read1stTimeChatters && message.twitch_isFirstMessage)
+							|| (paramsTTS.readAutomod && (message.twitch_automod || message.automod));
+				
 				//Stop if didn't ask to read this kind of message
-				if(!paramsTTS.readMessages && force!==true) return "";
+				if(!canRead && force!==true) return "";
 
 				//Stop there if the user isn't part of the permissions and message isn't forced
 				if(!force && !Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
-				//Ignore automoded messages
-				if(message.twitch_automod) return "";
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
@@ -276,7 +290,13 @@ export default class TTSUtils {
 					mess = mess.substring(0, paramsTTS.maxLength);
 				}
 				if(mess.trim().length == 0) return "";//Avoids reading empty message
-				let txt = paramsTTS.readMessagePatern.replace(/\{USER\}/gi, message.user.displayName)
+				
+				let pattern	= paramsTTS.readMessagePatern;
+				if(message.twitch_automod)				pattern = paramsTTS.readAutomodPattern;
+				else if(message.automod)				pattern = paramsTTS.readAutomodPattern;
+				else if(message.twitch_isFirstMessage)	pattern = paramsTTS.read1stTimeChattersPattern;
+
+				let txt = pattern.replace(/\{USER\}/gi, message.user.displayName)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)
 				return txt;
 			}
