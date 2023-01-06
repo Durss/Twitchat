@@ -342,7 +342,7 @@ export interface IRaffleActions {
 	stopRaffle():void;
 	onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish?:boolean):void;
 	checkRaffleJoin(message:TwitchatDataTypes.MessageChatData):Promise<void>;
-	pickWinner():Promise<void>;
+	pickWinner(forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void>;
 }
 
 

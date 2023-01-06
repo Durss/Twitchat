@@ -1,11 +1,10 @@
 import rewardImg from '@/assets/icons/reward_highlight.svg';
+import { EventDispatcher } from "@/events/EventDispatcher";
 import StoreProxy from "@/store/StoreProxy";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
-import { EventDispatcher } from "@/events/EventDispatcher";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
@@ -714,6 +713,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths
+		//"recipient" contains the display name, not the login. This can break things
+		//if loading a batch of users with a display name containing chineese chars.
+		const recipientName = tags["msg-param-recipient-user-name"] ?? recipient;
 		data.gift_recipients = [this.getUserFromLogin(recipient, data.channel_id).user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}

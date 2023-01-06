@@ -54,73 +54,12 @@ export const storeRaffle = defineStore('raffle', {
 				}
 
 				case "sub": {
-					const idToExists:{[key:string]:boolean} = {};
-					let subs = await TwitchUtils.getSubsList();
-					subs = subs.filter(v => {
-						//Avoid duplicates
-						if(idToExists[v.user_id] == true) return false;
-						if(idToExists[v.gifter_id] == true && v.gifter_id) return false;
-						idToExists[v.user_id] = true;
-						idToExists[v.gifter_id] = true;
-						//Filter based on params
-						if(payload.subMode_includeGifters == true && subs.find(v2=> v2.gifter_id == v.user_id)) return true;
-						if(payload.subMode_excludeGifted == true && v.is_gift) return false;
-						if(v.user_id == v.broadcaster_id) return false;//Exclude self
-						return true;
-					});
-					
-					const items:TwitchatDataTypes.RaffleEntry[] = subs.map(v=>{
-						return {
-							id:v.user_id,
-							label:v.user_name,
-							score:1,
-						}
-					});
-					this.data.entries = items;
-					
-					if(overlayAvailable) {
-						//A wheel overlay exists, ask it to animate
-						const winner = Utils.pickRand(items).id;
-						const data:{items:TwitchatDataTypes.EntryItem[], winner:string} = { items, winner };
-						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
-					}else{
-						//No wheel overlay found, announce on chat
-						const winner:TwitchatDataTypes.RaffleEntry = Utils.pickRand(items);
-						this.onRaffleComplete(winner, true)
-					}
+					this.pickWinner();
 					break;
 				}
 
 				case "manual": {
-					let id = 0;
-					let customEntries:string[] = [];
-					const customEntriesStr = payload.customEntries;
-					if(customEntriesStr?.length > 0) {
-						const splitter = customEntriesStr.split(/\r|\n/).length > 1? "\r|\n" : ",";
-						customEntries = customEntriesStr.split(new RegExp(splitter, ""));
-						customEntries = customEntries.map(v=> v.trim());
-					}else{
-						customEntries = ["invalid custom entries"];
-					}
-					const items:TwitchatDataTypes.RaffleEntry[] = customEntries.map(v=> {
-						return {
-							id:(id++).toString(),
-							label:v,
-							score:1,
-						}
-					});
-					this.data.entries = items;
-					
-					if(overlayAvailable) {
-						//A wheel overlay exists, ask it to animate
-						const winner = Utils.pickRand(items).id;
-						const data:{items:TwitchatDataTypes.EntryItem[], winner:string} = { items, winner };
-						PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
-					}else{
-						//No wheel overlay found, announce on chat
-						const winner:TwitchatDataTypes.RaffleEntry = Utils.pickRand(items);
-						this.onRaffleComplete(winner, true);
-					}
+					this.pickWinner();
 					break;
 				}
 			}
@@ -130,13 +69,32 @@ export const storeRaffle = defineStore('raffle', {
 
 		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish:boolean = false) {
 			// this.raffle = null;
-			if(!this.data) return;
-
-			const winnerLoc = this.data.entries.find(v=> v.id == winner.id);
-			if(!winnerLoc) return;
-
-			if(!this.data.winners) this.data.winners = [];
-			this.data.winners.push(winnerLoc);
+			let data:TwitchatDataTypes.RaffleData|null = this.data;
+			if(data) {
+				const winnerLoc = data.entries.find(v=> v.id == winner.id);
+				if(winnerLoc) {
+					if(!data.winners) data.winners = [];
+					data.winners.push(winnerLoc);
+				}
+			}else{
+				data = {
+					command:"",
+					created_at:Date.now(),
+					entries:[winner],
+					winners:[winner],
+					customEntries:"",
+					duration_s:0,
+					followRatio:1,
+					subgiftRatio:1,
+					subRatio:1,
+					vipRatio:1,
+					subMode_excludeGifted:false,
+					subMode_includeGifters:false,
+					maxEntries:0,
+					mode:"chat",
+					showCountdownOverlay:false,
+				};
+			}
 			
 			//Execute triggers
 			const message:TwitchatDataTypes.MessageRaffleData = {
@@ -144,7 +102,7 @@ export const storeRaffle = defineStore('raffle', {
 				platform:"twitchat",
 				id:Utils.getUUID(),
 				date:Date.now(),
-				raffleData:this.data,
+				raffleData:data,
 				winner,
 			}
 			StoreProxy.chat.addMessage(message);
@@ -199,16 +157,65 @@ export const storeRaffle = defineStore('raffle', {
 			}
 		},
 
-		async pickWinner():Promise<void> {
-			if(!this.data) return;
+		async pickWinner(forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void> {
+			const data = forcedData ?? this.data;
+			if(!data) return;
 
 			let winner:TwitchatDataTypes.RaffleEntry;
+
+			//Pick from a custom list
+			if(data.mode == "manual") {
+				let id = 0;
+				let customEntries:string[] = [];
+				const customEntriesStr = data.customEntries;
+				if(customEntriesStr?.length > 0) {
+					const splitter = customEntriesStr.split(/\r|\n/).length > 1? "\r|\n" : ",";
+					customEntries = customEntriesStr.split(new RegExp(splitter, ""));
+					customEntries = customEntries.map(v=> v.trim());
+				}else{
+					customEntries = ["invalid custom entries"];
+				}
+				const items:TwitchatDataTypes.RaffleEntry[] = customEntries.map(v=> {
+					return {
+						id:(id++).toString(),
+						label:v,
+						score:1,
+					}
+				});
+				data.entries = items;
+
+			//Pick from subs
+			}else if(data.mode == "sub") {
+				const idToExists:{[key:string]:boolean} = {};
+				let subs = await TwitchUtils.getSubsList();
+				subs = subs.filter(v => {
+					//Avoid duplicates
+					if(idToExists[v.user_id] == true) return false;
+					if(idToExists[v.gifter_id] == true && v.gifter_id) return false;
+					idToExists[v.user_id] = true;
+					idToExists[v.gifter_id] = true;
+					//Filter based on params
+					if(data.subMode_includeGifters == true && subs.find(v2=> v2.gifter_id == v.user_id)) return true;
+					if(data.subMode_excludeGifted == true && v.is_gift) return false;
+					if(v.user_id == v.broadcaster_id) return false;//Exclude self
+					return true;
+				});
+				
+				const items:TwitchatDataTypes.RaffleEntry[] = subs.map(v=>{
+					return {
+						id:v.user_id,
+						label:v.user_name,
+						score:1,
+					}
+				});
+				data.entries = items;
+			}
 			
 			const list = [];
 			//Ponderate votes by adding one user many times if their
 			//score is greater than 1
-			for (let i = 0; i < this.data.entries.length; i++) {
-				const u = this.data.entries[i];
+			for (let i = 0; i < data.entries.length; i++) {
+				const u = data.entries[i];
 				if(u.score==1) list.push(u);
 				else {
 					for (let j = 0; j < u.score; j++) {
@@ -216,14 +223,18 @@ export const storeRaffle = defineStore('raffle', {
 					}
 				}
 			}
-			if(!this.data.winners) {
-				this.data.winners = [];
+			if(!data.winners) {
+				data.winners = [];
 			}
 			
 			//Pick a winner that has not already be picked
-			do{
-				winner = Utils.pickRand(list);
-			}while(this.data.winners.find(w => w.id == winner.id));
+			if(forcedWinner) {
+				winner = forcedWinner;
+			}else{
+				do{
+					winner = Utils.pickRand(list);
+				}while(data.winners.find(w => w.id == winner.id));
+			}
 			
 			//Ask if a wheel overlay exists
 			let wheelOverlayExists = false;
@@ -235,19 +246,19 @@ export const storeRaffle = defineStore('raffle', {
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, wheelOverlayPresenceHandler);
 	
-			//A wheel overlay exists, send it data and wait for it to complete
+			//A wheel overlay exists, send its data and wait for it to complete
 			if(wheelOverlayExists){
-				const list:TwitchatDataTypes.EntryItem[] = this.data.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.EntryItem=>{
+				const list:TwitchatDataTypes.EntryItem[] = data.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.EntryItem=>{
 											return {
 												id:v.id,
 												label:v.label,
 											}
 										});
-				const data:TwitchatDataTypes.WheelData = {
+				const apiData:TwitchatDataTypes.WheelData = {
 					items:list,
 					winner:winner.id,
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
+				PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (apiData as unknown) as JsonObject);
 	
 			}else{
 	

@@ -24,16 +24,20 @@ export const storeChatSuggestion = defineStore('chatSuggestion', {
 			if(!this.data) return;
 
 			if(Date.now() - this.data.startTime < this.data.duration * 60 * 1000) {
-				if(this.data.allowMultipleAnswers
-				|| this.data.choices.findIndex(v=>v.user.id == message.user.id)==-1) {
-					const text = message.message.replace(this.data.command, "").trim();
-					if(text.length > 0) {
-						this.data.choices.push({
-							id: Utils.getUUID(),
-							user: message.user,
-							label: text
-						});
-					}
+				//If message is too long, stop there
+				if(message.message.length > this.data.maxLength) return;
+				
+				//If already participated when not allowed, stop there
+				if(!this.data.allowMultipleAnswers
+				&& this.data.choices.find(v=>v.user.id == message.user.id)) return;
+
+				const text = message.message.replace(this.data.command, "").trim();
+				if(text.length > 0) {
+					this.data.choices.push({
+						id: Utils.getUUID(),
+						user: message.user,
+						label: text
+					});
 				}
 			}
 		},

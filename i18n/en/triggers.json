@@ -9,6 +9,7 @@
 		"resyncBt": "Resync OBS sources",
 		"resyncBt_tt": "If you changed something<br>on OBS, click this to see it<br>listed on OBS actions",
 		"delete_confirm": "Delete trigger?",
+		"delete_action_confirm": "Delete action?",
 		"reorder_tt": "Reorder",
 		"music": {
 			"require": "These triggers need you to connect with Spotify or Deezer under the {URL}",

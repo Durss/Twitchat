@@ -108,13 +108,13 @@ export default class OverlaysRaffleWheel extends Vue {
 		let list:TwitchatDataTypes.EntryItem[] = [];
 		for (let i = 0; i < 90000; i++) {
 			let id = i.toString();
-			list.push({id, label:"Item "+i});
-			// list.push({id, label:i+"wwwwwwwwwwwwwwwwwwwwwwww", data:{id}});
+			// list.push({id, label:"Item "+i});
+			list.push({id, label:i+"wwwwwwwwd psqkfpdsoj, flsd,fsdk fsdmf,sd fsdfffsdflmflmksdslfm;w"});
 		}
 		this.winnerData = Utils.pickRand(list);
 		this.itemList = list;
 		this.populate();
-		/*/
+		//*/
 	}
 
 	public beforeUnmount():void {
@@ -308,6 +308,7 @@ export default class OverlaysRaffleWheel extends Vue {
 			const rectB = itemB.getBoundingClientRect();
 			return rectA.top - rectB.top;
 		});
+		
 		gsap.to(items, {left:"-110%", duration:.35, ease:"quad.in", stagger:.035, delay:3,
 						onComplete:()=>{
 							//Reset everything to free up memory
@@ -394,6 +395,7 @@ interface StarData {
 					overflow: hidden;
 					width: 100%;
 					padding: 0 .5em;
+					white-space: nowrap;
 					text-align: center;
 				}
 			}

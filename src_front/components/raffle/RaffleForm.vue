@@ -79,7 +79,7 @@
 					<div class="row" v-if="triggerMode === false">
 						<Button type="submit"
 						:aria-label="$t('raffle.list.startBt_aria')"
-						:title="$t('raffle.list.startBt', {COUNT:finalData.customEntries.length})"
+						:title="$t('raffle.list.startBt', {COUNT:customEntriesCount})"
 						:icon="$image('icons/list.svg')" />
 					</div>
 				</form>
@@ -184,7 +184,7 @@ export default class RaffleForm extends Vue {
 	public subs_includeGifters:TwitchatDataTypes.ParameterData		= {label:"", value:true, type:"toggle", icon:"gift_purple.svg"};
 	public subs_excludeGifted:TwitchatDataTypes.ParameterData		= {label:"", value:true, type:"toggle", icon:"sub_purple.svg"};
 	public showCountdownOverlay:TwitchatDataTypes.ParameterData		= {label:"", value:false, type:"toggle", icon:"countdown_purple.svg"};
-	public customEntries:TwitchatDataTypes.ParameterData			= {label:"", value:"", type:"text", longText:true};
+	public customEntries:TwitchatDataTypes.ParameterData			= {label:"", value:"", type:"text", longText:true, maxLength:1000000};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
@@ -208,6 +208,12 @@ export default class RaffleForm extends Vue {
 		const res = ["raffleform"];
 		if(this.triggerMode !== false) res.push("triggerMode");
 		return res;
+	}
+
+	public get customEntriesCount():number {
+		const splitter = (this.customEntries.value as string).split(/\r|\n/).length > 1? "\r|\n" : ",";
+		const list = (this.customEntries.value as string).split(new RegExp(splitter, ""));
+		return list.length;
 	}
 
 	public get finalData():TwitchatDataTypes.RaffleData {

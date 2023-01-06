@@ -48,11 +48,11 @@
 					</div>
 	
 					<div v-else-if="p.id == 216 && p.value === true" class="info config">
-						<Button small title="Configure" @click="$emit('setContent', contentSpoiler)" />
+						<Button small :title="$t('global.configure')" @click="$emit('setContent', contentSpoiler)" />
 					</div>
 	
 					<div v-else-if="p.id == 217 && p.value === true" class="info config">
-						<Button small title="Configure" @click="$emit('setContent', contentAlert)" />
+						<Button small :title="$t('global.configure')" @click="$emit('setContent', contentAlert)" />
 					</div>
 	
 					<div v-else-if="p.id == 12" v-if="fakeMessageData">

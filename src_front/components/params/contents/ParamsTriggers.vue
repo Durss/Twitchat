@@ -469,7 +469,7 @@ export default class ParamsTriggers extends Vue {
 	 * Called when deleting an action item
 	 */
 	public deleteAction(index:number):void {
-		this.$confirm("Delete action ?").then(async ()=> {
+		this.$confirm(this.$t("triggers.delete_action_confirm")).then(async ()=> {
 			// if(this.actionList.length == 1) this.canSave = false;
 			this.actionList.splice(index, 1);
 			// await this.$nextTick();

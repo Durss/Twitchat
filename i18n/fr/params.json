@@ -22,7 +22,7 @@
       "user": "Nom de la chaîne",
       "user_link": "URL de la chaîne",
       "stream_title": "Titre du dernier stream",
-      "stream_category": "Categorie du dernier stream"
+      "stream_category": "Catégorie du dernier stream"
     },
     "censorDeletedMessages": "Censurer les messages supprimés",
     "highlightMods": "Surligner les Mods",

@@ -9,6 +9,7 @@
 		"resyncBt": "Resynchroniser OBS",
 		"resyncBt_tt": "Si vous avez ajouté des sources<br>dans OBS, cliquez pour les voir<br>listées dans les actions OBS",
 		"delete_confirm": "Supprimer ce trigger ?",
+		"delete_action_confirm": "Supprimer l'action ?",
 		"reorder_tt": "Réordonner",
 		"music": {
 			"require": "Ces événements nécessitent de lier Spotify ou Deezer avec Twitchat dans {URL}",
@@ -36,7 +37,7 @@
 		"actions": {
 			"common": {
 				"duplicate_tt": "Dupliquer",
-				"next_delay": "Delais avant l'action suivante (seconds)",
+				"next_delay": "Délai avant l'action suivante (secondes)",
 				"delete": "Supprimer",
 				"action_chat": "Envoyer un message",
 				"action_bingo": "Lancer un bingo",
@@ -104,7 +105,7 @@
 				"warning": "Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",
 				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponible car le trigger ne sera pas exécuté par un message de tchat.",
 				"no_trigger": "Vous n'avez créé aucun trigger pour l'instant",
-				"select": "Sélectionnez un trigger à exéctuer...",
+				"select": "Sélectionnez un trigger à exécuter...",
 				"loop": "Boucle de dépendance détectée",
 				"loop_delails": "Ceci risque de rendre Twitchat instable."
 			},
@@ -154,7 +155,7 @@
 			"sub_gift_recipient": "Personne recevant le sub",
 			"bits": "Nombre de bits",
 			"stream_title": "Titre du stream",
-			"stream_category": "Categorie du stream",
+			"stream_category": "Catégorie du stream",
 			"viewers": "Nombre de viewers",
 			"reward_title": "Nom de la récompense",
 			"reward_description": "Description de la récompense",

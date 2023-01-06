@@ -274,6 +274,7 @@ export namespace TwitchatDataTypes {
 	export interface ChatSuggestionData {
 		command:string;
 		startTime:number;
+		maxLength:number;
 		duration:number;
 		allowMultipleAnswers:boolean;
 		choices:ChatSuggestionDataChoice[];

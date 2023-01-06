@@ -13,11 +13,11 @@
 					"",
 					"Des bots comme <a href=\"https://nightbot.tv\" target=\"_blank\">Nightbot</a> ou <a href=\"https://wizebot.tv/index\" target=\"_blank\">Wizebot</a> permettent de filtrer les messages avec des règles plus complexes via ce que l'on appelle des <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Expressions régulières</a>.",
 					"",
-					"La fonction automod de <strong>Twitchat'</strong> vous permet également d'utiliser des expressions régulières, mais tente également de rendre l'utilisation de caractères alternatifs innéficace pour contourner les règles de filtrage.",
-					"Avant d'appliquer une règle, Twitcaht remplacera tous les caractères alternatifs, y compris les caractères accentués, par leur équivalent latin.",
+					"La fonction automod de <strong>Twitchat'</strong> vous permet également d'utiliser des expressions régulières, mais tente également de rendre l'utilisation de caractères alternatifs inéficace pour contourner les règles de filtrage.",
+					"Avant d'appliquer une règle, Twitchat remplacera tous les caractères alternatifs, y compris les caractères accentués, par leur équivalent latin.",
 					"Par exemple, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> sera remplacé par <mark>twitchat</mark> avant de lui appliquer les règles de filtrage.",
 					"",
-					"<strong>Attention</strong> Cependant, ce processus a un coût sur les performances et peut ralentir un peu les Twitchat si vous avez beaucoup de règles et que vous recevez beaucoup de messages."
+					"<strong>Attention</strong> Cependant, ce processus a un coût sur les performances et peut ralentir un peu Twitchat si vous avez beaucoup de règles et que vous recevez beaucoup de messages."
 				]
 			},
 			"delete":{
@@ -28,12 +28,12 @@
 					"Mais c'est le seul moyen de modérer un message après son envoi.",
 					"Le principal problème est que des extensions comme <a href=\"https://betterttv.com\" target=\"_blank\">BetterTTV</a> permettent aux viewers de conserver les messages supprimés.",
 					"",
-					"<strong>Si vous voulez éviter cela</strong>, vous devrez configurer un délais de chat <i>(<a href=\"https://dashboard.twitch.tv/settings/moderation\" target=\"_blank\">voir Options de chat</a>)</i>. Si un message est supprimé pendant ce laps de temps, il ne sera affiché nulle part, même pour les personnes utilisant BTTV.",
+					"<strong>Si vous voulez éviter cela</strong>, vous devrez configurer un délai de chat <i>(<a href=\"https://dashboard.twitch.tv/settings/moderation\" target=\"_blank\">voir Options de chat</a>)</i>. Si un message est supprimé pendant ce laps de temps, il ne sera affiché nulle part, même pour les personnes utilisant BTTV.",
 					"<i>Notez que le message est tout de même envoyé à tout le monde, il reste donc techniquement possible de le consulter. Mais cela demande des connaissances en développement.</i>",
 					"",
 					"Le seul moyen sûr de filtrer un message est de faire en sorte que Twitch le supprime avant de l'envoyer à tout le monde. C'est ce que font les \"termes bloqués\". Mais comme expliqué précédemment, leur fonctionnement est très limité :/",
 					"",
-					"*Le doxxing est l'acte de révéler des données personnelles d'autruit publiquement."
+					"*Le doxxing est l'acte de révéler des données personnelles d'autrui publiquement."
 				]
 			}
 		},

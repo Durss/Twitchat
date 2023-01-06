@@ -72,11 +72,43 @@ export default class ChatSuggestionState extends Vue {
 	public pickEntry():void {
 		const choices = this.poll.choices;
 		const index =  Math.floor(Math.random() * choices.length)
-		const choice = choices.splice(index, 1)[0];
-		this.poll.winners.unshift(choice);
 
 		const list = (this.$refs.list as Vue).$el;
 		gsap.to(list, {duration:.25, scrollTo:{y:0}});
+
+		const choice = choices.splice(index, 1)[0];
+		this.poll.winners.unshift(choice);
+
+		const data:TwitchatDataTypes.RaffleData = {
+			command:"",
+			created_at:Date.now(),
+			entries:this.entries.map(v=> {
+				return {
+					id:v.data.id,
+					label:v.data.user.displayName+" : "+v.data.label,
+					score:1,
+				}
+			}),
+			customEntries:"",
+			duration_s:0,
+			followRatio:1,
+			subgiftRatio:1,
+			subRatio:1,
+			vipRatio:1,
+			subMode_excludeGifted:false,
+			subMode_includeGifters:false,
+			maxEntries:0,
+			mode:"chat",
+			showCountdownOverlay:false,
+		};
+
+		const winner = {
+					id:choice.id,
+					label:choice.user.displayName+" : "+choice.label,
+					score:1,
+				};
+
+		this.$store("raffle").pickWinner(data, winner);
 	}
 
 	public closePoll():void {
@@ -129,6 +161,7 @@ export default class ChatSuggestionState extends Vue {
 		background-color: @mainColor_light;
 		color: @mainColor_normal;
 		overflow-y: auto;
+		overflow-x: hidden;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;

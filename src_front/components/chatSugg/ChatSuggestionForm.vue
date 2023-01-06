@@ -20,6 +20,9 @@
 					<div class="row">
 						<ParamItem :paramData="command" autofocus />
 					</div>
+					<div class="row">
+						<ParamItem :paramData="maxLength" />
+					</div>
 
 					<div class="row">
 						<ParamItem :paramData="duration" />
@@ -37,6 +40,11 @@
 						<Button :title="$t('global.submit')" type="submit" />
 					</div>
 				</form>
+				<i18n-t scope="global" tag="div" keypath="suggestion.alternative_tool" class="alternativeTool">
+					<template #LINK>
+						<a href="https://www.janvier.tv/sondage" target="_blank" v-t="'suggestion.alternative_tool_link'"></a>
+					</template>
+				</i18n-t>
 			</div>
 		</div>
 	</div>
@@ -65,6 +73,7 @@ export default class ChatSuggestionForm extends Vue {
 	public command:TwitchatDataTypes.ParameterData = {label:"", type:"text", value:"!sugg", placeholder:"!sugg", maxLength:31};
 	public duration:TwitchatDataTypes.ParameterData = {label:"", value:2, type:"number", min:1, max:30};
 	public multiAnswers:TwitchatDataTypes.ParameterData = {label:"", value:false, type:"toggle"};
+	public maxLength:TwitchatDataTypes.ParameterData = {label:"", value:100, type:"number", min:1, max:500};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -80,9 +89,10 @@ export default class ChatSuggestionForm extends Vue {
 	}
 
 	beforeMount(): void {
-		this.command.label = this.$t("suggestion.command")
-		this.duration.label = this.$t("suggestion.duration")
-		this.multiAnswers.label = this.$t("suggestion.multiAnswers")
+		this.command.label = this.$t("suggestion.command");
+		this.maxLength.label = this.$t("suggestion.maxLength");
+		this.duration.label = this.$t("suggestion.duration");
+		this.multiAnswers.label = this.$t("suggestion.multiAnswers");
 	}
 
 	public async mounted():Promise<void> {
@@ -100,6 +110,7 @@ export default class ChatSuggestionForm extends Vue {
 		const data:TwitchatDataTypes.ChatSuggestionData = {
 			startTime:Date.now(),
 			command:(this.command.value as string).trim(),
+			maxLength:this.maxLength.value as number,
 			duration:this.duration.value as number,
 			allowMultipleAnswers:this.multiAnswers.value as boolean,
 			choices:[],
@@ -158,6 +169,12 @@ export default class ChatSuggestionForm extends Vue {
 					text-align: center;
 				}
 			}
+		}
+
+		.alternativeTool {
+			margin-top: 1em;
+			text-align: center;
+			font-size: .95em;
 		}
 	}
 }
