@@ -50,6 +50,10 @@ export const storeTTS = defineStore('tts', {
 			readBingosPattern:StoreProxy.i18n.tm("tts.paterns.readBingosPattern"),
 			readRaffle:false,
 			readRafflePattern:StoreProxy.i18n.tm("tts.paterns.readRafflePattern"),
+			read1stTimeChatters:false,
+			read1stTimeChattersPattern:StoreProxy.i18n.tm("tts.paterns.read1stTimeChattersPattern"),
+			readAutomod:false,
+			readAutomodPattern:StoreProxy.i18n.tm("tts.paterns.readAutomodPattern"),
 			ttsPerms:{
 				broadcaster:true,
 				mods:true,

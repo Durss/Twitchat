@@ -556,11 +556,31 @@ export default class ParamsTriggers extends Vue {
 						m.reward.title = reward.title;
 						m.message = "Lorem ipsum dolor sit amet";
 					}
-					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-					&& key == TriggerTypes.CHAT_COMMAND) {
-						//Add the command to the fake text message
-						m.message = this.triggerData.name + " " + m.message;
-						m.message_html = this.triggerData.name + " " + m.message_html;
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						switch(key) {
+							case TriggerTypes.CHAT_COMMAND:{
+								//Add the command to the fake text message
+								m.message = this.triggerData.name + " " + m.message;
+								m.message_html = this.triggerData.name + " " + m.message_html;
+								break;
+							}
+							case TriggerTypes.FIRST_ALL_TIME:{
+								m.twitch_isFirstMessage = true;
+								break;
+							}
+							case TriggerTypes.FIRST_TODAY:{
+								m.todayFirst = true;
+								break;
+							}
+							case TriggerTypes.RETURNING_USER:{
+								m.twitch_isReturning = true;
+								break;
+							}
+							case TriggerTypes.PRESENTATION:{
+								m.twitch_isPresentation = true;
+								break;
+							}
+						} 
 					}
 					if(entry.value == TriggerTypes.TIMER_STOP) {
 						//Set the timer as stopped
