@@ -40,6 +40,14 @@
 						<Button :title="$t('global.submit')" type="submit" />
 					</div>
 				</form>
+
+				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small>
+					<PostOnChatParam class="row" botMessageKey="chatSuggStart"
+						:placeholderEnabled="false"
+						:title="$t('suggestion.announce_start')"
+						:placeholders="startPlaceholders"
+					/>
+				</ToggleBlock>
 				<i18n-t scope="global" tag="div" keypath="suggestion.alternative_tool" class="alternativeTool">
 					<template #LINK>
 						<a href="https://www.janvier.tv/sondage" target="_blank" v-t="'suggestion.alternative_tool_link'"></a>
@@ -57,6 +65,7 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import PermissionsForm from '../params/contents/obs/PermissionsForm.vue';
 import ParamItem from '../params/ParamItem.vue';
+import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
 @Options({
@@ -66,6 +75,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		ParamItem,
 		ToggleBlock,
 		PermissionsForm,
+		PostOnChatParam,
 	}
 })
 export default class ChatSuggestionForm extends Vue {
@@ -88,7 +98,18 @@ export default class ChatSuggestionForm extends Vue {
 		return "!sugg";
 	}
 
-	beforeMount(): void {
+	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
+		return [
+			{
+				tag:"CMD", desc:this.$t('suggestion.placeholder_cmd'),
+			},
+			{
+				tag:"LENGTH", desc:this.$t('suggestion.placeholder_length'),
+			}
+		];
+	}
+
+	public beforeMount(): void {
 		this.command.label = this.$t("suggestion.command");
 		this.maxLength.label = this.$t("suggestion.maxLength");
 		this.duration.label = this.$t("suggestion.duration");
@@ -175,6 +196,14 @@ export default class ChatSuggestionForm extends Vue {
 			margin-top: 1em;
 			text-align: center;
 			font-size: .95em;
+		}
+
+		.configs {
+			margin: 1em 0;
+			font-size: 1em;
+			:deep(.header) {
+				font-size: .8em;
+			}
 		}
 	}
 }

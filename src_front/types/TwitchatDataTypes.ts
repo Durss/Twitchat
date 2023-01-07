@@ -74,6 +74,7 @@ export namespace TwitchatDataTypes {
 		raffleStart:BotMessageEntry;
 		shoutout:BotMessageEntry;
 		twitchatAd:BotMessageEntry;
+		chatSuggStart:BotMessageEntry;
 	}
 	export interface BotMessageEntry {
 		enabled:boolean;

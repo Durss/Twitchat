@@ -81,7 +81,8 @@
       "bingoStart": "/announce 🎉🎉🎉 Un bingo a débuté 🎉🎉🎉 {GOAL}",
       "bingo": "/announce 🎉🎉🎉 Bravo {'@'}{USER} tu as remporté le bingo 🎉🎉🎉",
       "shoutout": "/announce Allez voir {USER} {URL} . Son dernier stream était \"{TITLE}\" dans la catagorie \"{CATEGORY}\".",
-      "twitchatAd": "/announcepurple Tu stream sur Twitch ? J'utilise GivePLZ twitchat.fr TakeNRG, une alternative de chat complète pour streamer. Jetes-y un oeil KomodoHype"
+      "twitchatAd": "/announcepurple Tu stream sur Twitch ? J'utilise GivePLZ twitchat.fr TakeNRG, une alternative de chat complète pour streamer. Jetes-y un oeil KomodoHype",
+      "chatSuggStart": "/announce Faites votre suggestion envoyant \"{CMD} votre suggestion\". Votre suggestion doit faire moins de {LENGTH} caractères."
     },
     "commands": {
       "updates": "Dernirèes mises à jour",

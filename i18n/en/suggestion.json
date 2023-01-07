@@ -16,6 +16,9 @@
 		"state_close_confirm_desc": "All suggestions will be lost.",
 		"maxLength": "Max message length",
 		"alternative_tool":"For a standalone tool with more options, check out {LINK}",
-		"alternative_tool_link":"this tool"
+		"alternative_tool_link":"this tool",
+		"announce_start":"Announce start of suggestion",
+		"placeholder_cmd":"Chat command to use",
+		"placeholder_length":"Maximum suggestion length"
 	}
 }

@@ -1,8 +1,10 @@
+import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IChatSuggestionActions, IChatSuggestionGetters, IChatSuggestionState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
 export const storeChatSuggestion = defineStore('chatSuggestion', {
 	state: () => ({
@@ -19,7 +21,20 @@ export const storeChatSuggestion = defineStore('chatSuggestion', {
 
 
 	actions: {
-		setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null) { this.data = payload; },
+		setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null) {
+			this.data = payload;
+			if(payload) {
+				const sChat = StoreProxy.chat;
+				if(sChat.botMessages.chatSuggStart.enabled === true) {
+					
+					let message = sChat.botMessages.chatSuggStart.message;
+					message = message.replace(/\{CMD\}/gi, payload.command);
+					message = message.replace(/\{LENGTH\}/gi, payload.maxLength.toString());
+					MessengerProxy.instance.sendMessage(message);
+				}
+			}
+		},
+
 		addChatSuggestion(message:TwitchatDataTypes.MessageChatData):void {
 			if(!this.data) return;
 

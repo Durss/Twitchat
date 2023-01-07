@@ -16,6 +16,9 @@
 		"state_close_confirm_desc": "Toutes les suggestions seront perdues.",
 		"maxLength": "Longueur max du texte",
 		"alternative_tool":"Pour une solution dédiée plus complète, jetez-un oeil à {LINK}",
-		"alternative_tool_link":"cet outil"
+		"alternative_tool_link":"cet outil",
+		"announce_start":"Annoncer le début des suggestions",
+		"placeholder_cmd":"Commande de tchat à utiliser",
+		"placeholder_length":"Taille maximum de la suggestion"
 	}
 }

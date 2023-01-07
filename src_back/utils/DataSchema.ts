@@ -266,6 +266,14 @@ import Ajv from "ajv";
 						message: {type:"string", maxLength:500},
 					}
 				},
+				chatSuggStart: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:500},
+					}
+				},
 			}
 		},
 		voiceActions: {

@@ -63,6 +63,10 @@ export const storeChat = defineStore('chat', {
 				enabled:false,
 				message:StoreProxy.i18n.tm("params.botMessages.twitchatAd"),
 			},
+			chatSuggStart: {
+				enabled:false,
+				message:StoreProxy.i18n.tm("params.botMessages.chatSuggStart"),
+			},
 		},
 		commands: [
 			{
