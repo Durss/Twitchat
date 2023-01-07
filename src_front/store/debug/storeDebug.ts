@@ -704,7 +704,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.PINNED: {
-					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, true) ;
+					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false) ;
 					const m:TwitchatDataTypes.MessagePinData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -721,7 +721,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
-					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, true) ;
+					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false) ;
 					const m:TwitchatDataTypes.MessageUnpinData = {
 						id:Utils.getUUID(),
 						date:Date.now(),

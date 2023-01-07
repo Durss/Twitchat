@@ -19,6 +19,7 @@
 		"search":"Chercher",
 		"close":"Fermer",
 		"search_placeholder":"recherche...",
+		"select_placeholder":"sélectionner...",
 		"cooldown":"📛 {'@'}{USER} attends {DURATION}",
 		"allowed_users":"Personnes autorisées",
 		"post_winner":"Annoncer gagnant·e dans le tchat",

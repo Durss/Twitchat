@@ -159,7 +159,7 @@ export default class PollForm extends Vue {
 		try {
 			await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
 									this.title,
-									this.answers,
+									this.answers.filter(v=> v.trim().length > 0),
 									this.voteDuration.value as number * 60,
 									this.pointsVoteParam.value as number);
 		}catch(error:unknown) {

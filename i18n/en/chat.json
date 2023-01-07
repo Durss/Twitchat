@@ -71,7 +71,8 @@
 				"hype_train_summary": "Hype train summaries",
 				"hype_train_cooled_down": "Hype train cooldown",
 				"community_boost_complete": "Community boosts",
-				"community_challenge_contribution": "Community challenge"
+				"community_challenge_contribution": "Community challenge",
+				"pinned": "Un/Pinned message notices"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -165,6 +166,11 @@
 			"challenge_contrib": "contributed {COUNT}pts{TOTAL} to the challenge {TITLE}",
 			"challenge_contrib_total": "{COUNT}pts total",
 			"autoban": "has been banned by automod after joining the chat as their nickname matches the following rule: \"{RULE}\""
+		},
+		"pin": {
+			"pinned":"{MODERATOR} pinned the following message:",
+			"unpinned":"The following message has been automatically unpinned:",
+			"unpinned_by":"{MODERATOR} unpinned the following message:"
 		},
 		"join_leave": {
 			"join": "joined the chat room {CHANNEL}",

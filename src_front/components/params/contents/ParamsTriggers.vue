@@ -435,6 +435,7 @@ export default class ParamsTriggers extends Vue {
 		}
 		
 		this.eventsList = events;
+		this.listOBSSources(undefined, true);
 	}
 
 	/**
@@ -832,7 +833,8 @@ export default class ParamsTriggers extends Vue {
 	 * Lists OBS Sources
 	 */
 	public async listOBSSources(key?:string, fullRefreshMode:boolean = false):Promise<void> {
-		this.showLoading = true;
+		this.syncing		= fullRefreshMode;
+		this.showLoading	= !fullRefreshMode;
 		try {
 			this.obsSources = await OBSWebsocket.instance.getSources();
 		}catch(error) {
@@ -862,7 +864,8 @@ export default class ParamsTriggers extends Vue {
 			});
 			this.subeventsList = this.subeventsList?.concat(list);
 		}
-		this.showLoading = false;
+		this.syncing		= false;
+		this.showLoading	= false;
 		
 	}
 

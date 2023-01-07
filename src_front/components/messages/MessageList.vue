@@ -108,6 +108,11 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
+				<ChatPinNotice class="message"
+					v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
@@ -206,6 +211,10 @@
 					v-else-if="m.type == 'low_trust_treatment'"
 					:messageData="m" />
 
+				<ChatPinNotice class="message"
+					v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					:messageData="m" />
 			</div>
@@ -283,6 +292,7 @@ import ChatShoutout from './ChatShoutout.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 import ChatLowTrustTreatment from './ChatLowTrustTreatment.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
+import ChatPinNotice from './ChatPinNotice.vue';
 
 @Options({
 	components: {
@@ -293,6 +303,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 		ChatConnect,
 		ChatMessage,
 		ChatShoutout,
+		ChatPinNotice,
 		ChatHighlight,
 		ChatJoinLeave,
 		ChatBingoResult,
@@ -733,6 +744,11 @@ export default class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.LEAVE: {
 				return this.config.filters.leave === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.PINNED:
+			case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
+				return this.config.filters.pinned === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:

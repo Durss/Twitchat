@@ -71,7 +71,8 @@
 				"hype_train_summary": "Résultats du train de la hype",
 				"hype_train_cooled_down": "Train de la hype prêt",
 				"community_boost_complete": "Boost de stream",
-				"community_challenge_contribution": "Défis de communauté"
+				"community_challenge_contribution": "Défis de communauté",
+				"pinned": "Alertes de messages épinglés"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -165,6 +166,11 @@
 			"challenge_contrib": "a contribué avec {COUNT}pts{TOTAL} au défis de communauté {TITLE}",
 			"challenge_contrib_total": "{COUNT}pts au total",
 			"autoban": "a été banni par l'automod après avoir rejoint le tchat parce que son pseudo correspond à la règle : \"{RULE}\""
+		},
+		"pin": {
+			"pinned":"{MODERATOR} a épinglé le message suivant :",
+			"unpinned":"Le message suivant a été automatiquement désépinglé :",
+			"unpinned_by":"{MODERATOR} a désépinglé le message suivant :"
 		},
 		"join_leave": {
 			"join": "a rejoint la chaîne {CHANNEL} | ont rejoint la chaîne {CHANNEL}",

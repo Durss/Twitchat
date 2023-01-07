@@ -95,7 +95,7 @@
 				"param_filter_none": "- aucun -",
 				"param_text": "Texte à écrire dans la source",
 				"param_url": "URL de la source",
-				"param_media": "Fichier",
+				"param_media": "Fichier (optionel)",
 				"param_media_img": "Fichier image"
 			},
 			"trigger": {

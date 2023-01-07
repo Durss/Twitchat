@@ -1432,6 +1432,7 @@ export default class PubSub extends EventDispatcher {
 				chatMessage:message.chatMessage,
 				moderator,
 			};
+			clearTimeout(message.timeoutRef);
 			StoreProxy.chat.addMessage(m);
 			StoreProxy.chat.unpinMessage(m.chatMessage);
 		}

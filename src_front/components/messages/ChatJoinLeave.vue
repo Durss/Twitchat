@@ -2,7 +2,7 @@
 	<div :class="classes" @click.capture.ctrl.stop="copyJSON()"
 	@click="$emit('onRead', messageData, $event)">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<!-- {{messageData.channel}} -->
+		
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 
 		<span v-if="userList.length > 0" v-for="u, index in userList" :key="u.id">

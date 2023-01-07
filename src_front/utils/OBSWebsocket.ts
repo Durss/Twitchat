@@ -97,7 +97,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 		});
 
-		//@ts-ignore
+		//@ts-ignore "CustomEvent" not yet defined on OBS-ws signatures
 		this.obs.on("CustomEvent", (e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
@@ -141,13 +141,18 @@ export default class OBSWebsocket extends EventDispatcher {
 		/* LIST ALL INPUT KINDS
 		const sources = await this.getSources();
 		const inputKinds:{[key:string]:boolean} = {}
+		const sourceKinds:{[key:string]:boolean} = {}
 		for (let i = 0; i < sources.length; i++) {
 			const e = sources[i];
 			if(inputKinds[e.inputKind] !== true) {
 				inputKinds[e.inputKind] = true;
 			}
+			if(sourceKinds[e.sourceType] !== true) {
+				sourceKinds[e.sourceType] = true;
+			}
 		}
 		console.log(inputKinds);
+		console.log(sourceKinds);
 		//*/
 
 		/* GET A SOURCE SETTINGS
@@ -217,19 +222,26 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return [];
 		const scenes = await this.getScenes();
 		let sources:OBSSourceItem[] = [];
-		const idsDone:{[key:string]:boolean} = {};
+		const idsSourceDone:{[key:string]:boolean} = {};
+		const idsScenesDone:{[key:string]:boolean} = {};
 		for (let i = 0; i < scenes.scenes.length; i++) {
 			const scene = scenes.scenes[i] as {sceneIndex:number, sceneName:string};
 			const list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
 			let items = (list.sceneItems as unknown) as OBSSourceItem[];
 			for (let i = 0; i < items.length; i++) {
 				const v = items[i];
-				if(idsDone[v.sourceName] == true) {
+				if(idsSourceDone[v.sourceName] == true) {
 					items.splice(i, 1);
 					i--;
 					continue;
 				}
-				idsDone[v.sourceName] = true
+				idsSourceDone[v.sourceName] = true;
+				if(v.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+					console.log("Scene:", v.sourceName);
+				}
+				if(v.sourceType == "OBS_SOURCE_TYPE_INPUT") {
+					console.log("Input:", v.sourceName);
+				}
 			}
 			sources = sources.concat(items);
 		}
@@ -321,7 +333,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setFilterState(sourceName:string, filterName:string, visible:boolean):Promise<void> {
 		if(!this.connected) return;
 		
-		//@ts-ignore ("SetSourceFilterEnabled" not yet defined on obs-websocket-js)
 		await this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
 		await Utils.promisedTimeout(20);
 	}

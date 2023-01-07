@@ -1,7 +1,7 @@
 <template>
 	<div class="chatmessageinfobadges">
 		<div v-for="i in infos" :class="['item', i.type].join(' ')" :data-tooltip="getTooltip(i)">
-			<img :src="getIcon(i)" alt="emergency" v-if="getIcon(i)">
+			<img :src="getIcon(i)" :alt="i.label" v-if="getIcon(i)">
 			<span class="label" v-if="getLabel(i)">{{getLabel(i)}}</span>
 		</div>
 	</div>

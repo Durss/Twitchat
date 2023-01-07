@@ -148,6 +148,10 @@
 					<ChatLowTrustTreatment class="message"
 						v-else-if="m.type == 'low_trust_treatment'"
 						:messageData="m" />
+
+					<ChatPinNotice class="message"
+						v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
+						:messageData="m" />
 	
 					<ChatHighlight v-else class="message"
 						lightMode
@@ -181,6 +185,7 @@ import ChatPredictionResult from '../ChatPredictionResult.vue';
 import ChatRaffleResult from '../ChatRaffleResult.vue';
 import ChatShoutout from '../ChatShoutout.vue';
 import ChatLowTrustTreatment from '../ChatLowTrustTreatment.vue';
+import ChatPinNotice from '../ChatPinNotice.vue';
 
 @Options({
 	props:{
@@ -208,6 +213,7 @@ import ChatLowTrustTreatment from '../ChatLowTrustTreatment.vue';
 		ChatPredictionResult,
 		ChatLowTrustTreatment,
 		ChatRaffleResult,
+		ChatPinNotice,
 	},
 	emits: ['update:modelValue', 'submit', 'add', 'delete', 'change'],
 })
@@ -265,6 +271,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER] = this.$t("chat.filters.message_types.cheer");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO] = this.$t("chat.filters.message_types.bingo");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAFFLE] = this.$t("chat.filters.message_types.raffle");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PINNED] = this.$t("chat.filters.message_types.pinned");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.REWARD] = this.$t("chat.filters.message_types.reward");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE] = this.$t("chat.filters.message_types.notice");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = this.$t("chat.filters.message_types.message");
@@ -289,6 +296,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.CHEER] = "bits.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BINGO] = "bingo.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAFFLE] = "ticket.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PINNED] = "pin.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.REWARD] = "channelPoints.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.NOTICE] = "info.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = "user.svg";
@@ -312,6 +320,7 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
 			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
 			TwitchatDataTypes.TwitchatMessageType.RAID,
+			TwitchatDataTypes.TwitchatMessageType.PINNED,
 			TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
 			TwitchatDataTypes.TwitchatMessageType.REWARD,
 			TwitchatDataTypes.TwitchatMessageType.POLL,
@@ -686,6 +695,7 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.MESSAGE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.PINNED );
 				for (const key in this.config.messageFilters) {
 					const k = key as messageFilterTypes;
 					this.config.messageFilters[k] = k == "automod"

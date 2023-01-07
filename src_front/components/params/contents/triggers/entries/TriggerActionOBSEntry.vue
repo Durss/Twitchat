@@ -16,7 +16,7 @@
 		<ParamItem class="row item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
 		<ParamItem class="row item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
 		<ParamItem class="row item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource" ref="textContent" />
-		<div v-if="isMediaSource" class="row info security">
+		<div v-if="showPlaceholderWarning" class="row info security">
 			<img src="@/assets/icons/alert_purple.svg" alt="info" class="">
 			<i18n-t scope="global" class="label" tag="div" keypath="triggers.actions.obs.media_source">
 				<template #CMD1><mark>..</mark></template>
@@ -70,6 +70,10 @@ export default class TriggerActionOBSEntry extends Vue {
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
+	public get showPlaceholderWarning():boolean {
+		if(!this.isMediaSource) return false;
+		return /\{[^ }]+\}/gi.test((this.media_conf.value as string));
+	} 
 
 	public getHelpers(key:string):ITriggerActionHelper[] { return TriggerActionHelpers(key); }
 
@@ -130,6 +134,11 @@ export default class TriggerActionOBSEntry extends Vue {
 		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
+		// watch(()=>this.action, ()=> {
+		// 	//TODO remove that debug
+		// 	console.log("ACTION UPDATE");
+		// 	console.log(this.action);
+		// }, {deep:true});
 	}
 
 	public mounted():void {
@@ -143,7 +152,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	 */
 	private async prefillForm():Promise<void> {
 		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
-		this.source_conf.listValues.unshift({label:"Select...", value:""});
+		this.source_conf.listValues.unshift({label:this.$t("global.select_placeholder"), value:""});
 		
 		this.isMissingObsEntry = false;
 		this.filter_conf.value = ""

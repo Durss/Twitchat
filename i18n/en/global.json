@@ -19,6 +19,7 @@
 		"search":"Search",
 		"close":"Close",
 		"search_placeholder":"search...",
+		"select_placeholder":"select...",
 		"cooldown":"📛 {'@'}{USER} wait {DURATION}",
 		"allowed_users":"Allowed users",
 		"post_winner":"Post winner on chat",
