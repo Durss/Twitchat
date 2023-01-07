@@ -5,11 +5,11 @@
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Lancer le tirage au sort",
-			"description": "Sélectionner une personne au hasard parmis celles ayant envoyé un commande dans le tchat"
+			"description": "Sélectionner une personne au hasard parmi celles ayant envoyé un commande dans le tchat"
 		},
 		"subs": {
 			"title": "Subs",
-			"description": "Sélectionner une personne parmis vos abonné·es",
+			"description": "Sélectionner une personne parmi vos abonné·es",
 			"startBt_aria": "Lancer le tirage au sort",
 			"startBt": "Lancer <i>({COUNT}) subs</i>"
 		},
@@ -23,7 +23,7 @@
 		"legal": {
 			"title": "Informations juridiques",
 			"contents": [
-				"Selon la loi en vigueur dans votre pays, effectuer un tirage au sort parmis vos subs peut s'avérer être illégal.",
+				"Selon la loi en vigueur dans votre pays, effectuer un tirage au sort parmi vos subs peut s'avérer être illégal.",
 				"Il est conseillé de vous renseigner avant d'utiliser ce type de tirage au sort."
 			]
 		},

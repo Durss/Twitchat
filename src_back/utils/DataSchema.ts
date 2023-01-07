@@ -456,6 +456,11 @@ import Ajv from "ajv";
 				readBingosPattern:{type:"string", maxLength:300},
 				readRaffle: {type:"boolean"},
 				readRafflePattern:{type:"string", maxLength:300},
+				readAutomod: {type:"boolean"},
+				readAutomodPattern:{type:"string", maxLength:300},
+				read1stTimeChatters: {type:"boolean"},
+				read1stTimeChattersPattern:{type:"string", maxLength:300},
+			  
 				readUsers:{
 					type:"array",
 					items:[{type:"string", maxLength:50}],

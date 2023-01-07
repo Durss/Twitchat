@@ -582,6 +582,13 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
+		if(cmd == "/dataversion") {
+			//App version
+			noticeId = TwitchatDataTypes.TwitchatNoticeType.APP_VERSION;
+			noticeMessage = "Twitchat data version "+DataStore.get(DataStore.DATA_VERSION);
+			this.message = "";
+		}else
+		
 		if(cmd == "/logmessages") {
 			//App version
 			console.log(this.$store("chat").messages)
