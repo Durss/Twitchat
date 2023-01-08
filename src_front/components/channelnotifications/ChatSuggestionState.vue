@@ -10,6 +10,7 @@
 		<TransitionGroup name="list" tag="div" ref="list" class="item choices" v-if="entries.length > 0">
 		<div :class="c.selected? 'choice win' : 'choice'" v-for="(c,index) in entries" :key="c.data.id">
 			<img v-if="c.selected" :src="$image('icons/sub'+(index>0?'_purple':'')+'.svg')" alt="star">
+			<button v-if="!c.selected" @click="deleteEntery(c.data)" class="deleteBt"><img src="@/assets/icons/trash_purple.svg?v="></button>
 			<div class="info">
 				<a class="user" @click="openUserCard(c.data.user)" target="_blank">{{c.data.user.displayName}}</a>
 				<div class="text">{{c.data.label}}</div>
@@ -123,6 +124,11 @@ export default class ChatSuggestionState extends Vue {
 		this.$store("users").openUserCard(user);
 	}
 
+	public deleteEntery(entry:TwitchatDataTypes.ChatSuggestionDataChoice):void {
+		console.log(entry);
+		this.poll.choices = this.poll.choices.filter(v=> v.id != entry.id);
+	}
+
 }
 </script>
 
@@ -171,16 +177,14 @@ export default class ChatSuggestionState extends Vue {
 		
 		.choice {
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
+			gap:.25em;
 			font-size: .9em;
 			padding: .25em;
 			border-radius: .5em;
 			background-color: fade(@mainColor_normal_extralight, 30%);
 
 			&.win {
-				display: flex;
-				flex-direction: row;
-				gap:.25em;
 				background-color: fade(@mainColor_normal_extralight, 50%);
 				img {
 					height: 1em;
@@ -206,6 +210,14 @@ export default class ChatSuggestionState extends Vue {
 
 			.text {
 				padding-left: .5em;
+			}
+
+			.deleteBt {
+				height: 1em;
+				padding: 0 .25em;
+				img {
+					height: 100%;
+				}
 			}
 		}
 	}
