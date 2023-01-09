@@ -79,17 +79,20 @@ export default class CommandHelper extends Vue {
 		return Utils.formatDuration(this.adCooldown);
 	}
 
-	public get canCreatePrediction():boolean {
-		return this.$store("prediction").data?.id == undefined && this.hasChannelPoints === true;
-	}
-
 	public get hasChannelPoints():boolean {
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
 
+	public get canCreatePrediction():boolean {
+		if(!this.hasChannelPoints) return false;
+		return this.$store("prediction").data?.id == undefined
+			|| this.$store("prediction").data?.channel_id !== StoreProxy.auth.twitch.user.id;
+	}
+
 	public get canCreatePoll():boolean {
 		if(!this.hasChannelPoints) return false;
-		return this.$store("poll").data == null;
+		return this.$store("poll").data?.id == undefined
+			|| this.$store("poll").data?.channel_id !== StoreProxy.auth.twitch.user.id;
 	}
 
 	public async beforeMount():Promise<void> {
