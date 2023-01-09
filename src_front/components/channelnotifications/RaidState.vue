@@ -5,7 +5,7 @@
 			<i18n-t scope="global" tag="span" keypath="raid.raiding">
 				<template #USER><strong>{{raidInfo.user.displayName}}</strong></template>
 				<template #VIEWERS><strong>{{raidInfo.viewerCount}}</strong></template>
-				<template #TIMER><span class="timer">({{timeLeft}}s)</span></template>
+				<template #TIMER><span class="timer">{{timeLeft}}s</span></template>
 			</i18n-t>
 		</div>
 
@@ -95,8 +95,6 @@ export default class RaidState extends Vue {
 	}
 
 	.timer {
-		margin-left: 10px;
-		font-style: italic;
 		font-size: .8em;
 		font-family: var(--font-azeret);
 	}

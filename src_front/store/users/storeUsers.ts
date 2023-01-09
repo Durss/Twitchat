@@ -569,7 +569,6 @@ export const storeUsers = defineStore('users', {
 			await TwitchUtils.getFollowers(StoreProxy.auth.twitch.user.id, -1, async(list)=> {
 				for (let i = parseOffset; i < list.length; i++) {
 					hashmap[list[i].from_id] = new Date(list[i].followed_at).getTime();
-					if(list[i].from_login=="durssbot") console.log(new Date(list[i].followed_at).getTime());
 				}
 				parseOffset = list.length
 				this.myFollowers["twitch"] = hashmap;

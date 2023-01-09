@@ -16,7 +16,7 @@
 				<span class="additionalUsers" v-if="additionalUsers?.length > 0"
 					v-for="u, index in additionalUsers" :key="u.id">
 					<a class="userlink" @click.stop="openUserCard(u)">{{u.displayName}}</a>
-					<span v-if="(index == additionalUsers.length-2)">{{$t("global.and")}} </span>
+					<span v-if="(index == additionalUsers.length-2)">{{$t("global.and")}}&nbsp;</span>
 					<span v-else-if="index < additionalUsers.length-1">, </span>
 				</span>
 			</span>

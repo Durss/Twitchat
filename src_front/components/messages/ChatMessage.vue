@@ -751,6 +751,7 @@ export default class ChatMessage extends Vue {
 					&.prediction {
 						width: 1em;
 						border-radius: 50%;
+						margin-right: .25em;
 						&.pink{ background-color: #f50e9b;}
 						&.blue{ background-color: #387aff;}
 					}

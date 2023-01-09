@@ -175,7 +175,7 @@ export default class UserController extends AbstractController {
 			schemaValidator(body);
 			const diff = JsonPatch.compare(clone, body, false);
 			if(diff?.length > 0) {
-				Logger.error("Invalid format, some data has been removed from "+userInfo.login+"'s data");
+				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data");
 				console.log(diff);
 				fs.writeFileSync(Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
 			}
