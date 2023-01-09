@@ -1892,13 +1892,19 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 400){
 			const json = await res.json();
-			StoreProxy.main.alert(json.message);
+			if(/.*already.*mod.*/gi.test(json.message as string)){
+				StoreProxy.main.alert("User "+user.login+" is already a moderator on this channel.");
+			}else{
+				StoreProxy.main.alert(json.message);
+			}
 			return false
 		}else
 		if(res.status == 422){
+			const json = await res.json();
+			const mess = json.message as string;
 			if(removeMod) {
 				StoreProxy.main.alert("User "+user.login+" is not a moderator of this channel");
-			}else{
+			}else if(/.*is.*vip.*/gi.test(mess)){
 				StoreProxy.main.alert("User "+user.login+" is a VIP of this channel. You first need to remove them from your VIPs");
 			}
 			return false
@@ -1950,10 +1956,14 @@ export default class TwitchUtils {
 			return false
 		}else
 		if(res.status == 422){
+			const json = await res.json();
+			const mess = json.message as string;
 			if(removeVip) {
 				StoreProxy.main.alert("User "+user.login+" is not a VIP of this channel");
-			}else{
+			}else if(/.*is.*moderator.*/gi.test(mess)){
 				StoreProxy.main.alert("User "+user.login+" is a moderator of this channel. You first need to remove them from your mods");
+			}else if(/.*is.*vip.*/gi.test(mess)){
+				StoreProxy.main.alert("User "+user.login+" is already a VIP on this channel.");
 			}
 			return false
 		}else
