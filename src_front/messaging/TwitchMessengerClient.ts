@@ -706,7 +706,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
-		data.gift_recipients = [this.getUserFromLogin(recipient, data.channel_id).user];
+		//"recipient" contains the display name, not the login. This can break things
+		//if loading a batch of users with a display name containing chineese chars.
+		const recipientName = tags["msg-param-recipient-user-name"] ?? recipient;
+		data.gift_recipients = [this.getUserFromLogin(recipientName, data.channel_id).user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
@@ -717,7 +720,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//"recipient" contains the display name, not the login. This can break things
 		//if loading a batch of users with a display name containing chineese chars.
 		const recipientName = tags["msg-param-recipient-user-name"] ?? recipient;
-		data.gift_recipients = [this.getUserFromLogin(recipient, data.channel_id).user];
+		data.gift_recipients = [this.getUserFromLogin(recipientName, data.channel_id).user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
