@@ -24,6 +24,8 @@ import Ajv from "ajv";
 				mods: {type:"boolean"},
 				vips: {type:"boolean"},
 				subs: {type:"boolean"},
+				follower: {type:"boolean"},
+				follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 				all: {type:"boolean"},
 				users: {type:"string", maxLength:1000},
 			}
@@ -89,6 +91,8 @@ import Ajv from "ajv";
 								mods: {type:"boolean"},
 								vips: {type:"boolean"},
 								subs: {type:"boolean"},
+								follower: {type:"boolean"},
+								follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 								all: {type:"boolean"},
 								users: {type:"string", maxLength:1000000},
 							}
@@ -466,6 +470,8 @@ import Ajv from "ajv";
 				readRafflePattern:{type:"string", maxLength:300},
 				readAutomod: {type:"boolean"},
 				readAutomodPattern:{type:"string", maxLength:300},
+				read1stMessageToday: {type:"boolean"},
+				read1stMessageTodayPattern:{type:"string", maxLength:300},
 				read1stTimeChatters: {type:"boolean"},
 				read1stTimeChattersPattern:{type:"string", maxLength:300},
 			  
@@ -481,6 +487,8 @@ import Ajv from "ajv";
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
+						follower: {type:"boolean"},
+						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 						all: {type:"boolean"},
 						users: {type:"string", maxLength:1000000},
 					}
@@ -501,6 +509,8 @@ import Ajv from "ajv";
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
+						follower: {type:"boolean"},
+						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 						all: {type:"boolean"},
 						users: {type:"string", maxLength:1000000},
 					}
@@ -546,6 +556,8 @@ import Ajv from "ajv";
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
+						follower: {type:"boolean"},
+						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 						all: {type:"boolean"},
 						users: {type:"string", maxLength:1000000},
 					}
@@ -577,6 +589,8 @@ import Ajv from "ajv";
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
+						follower: {type:"boolean"},
+						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 						all: {type:"boolean"},
 						users: {type:"string", maxLength:1000000},
 					}
@@ -621,6 +635,8 @@ import Ajv from "ajv";
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
+						follower: {type:"boolean"},
+						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 						all: {type:"boolean"},
 						users: {type:"string", maxLength:1000000},
 					}
@@ -642,6 +658,8 @@ import Ajv from "ajv";
 						mods: {type:"boolean"},
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
+						follower: {type:"boolean"},
+						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 						all: {type:"boolean"},
 						users: {type:"string", maxLength:1000000},
 					}
@@ -685,5 +703,5 @@ import Ajv from "ajv";
 	}
 }
 
-const ajv = new Ajv({strictTuples: false, verbose:true, removeAdditional:true, discriminator:true });
+const ajv = new Ajv({strictTuples: false, verbose:true, removeAdditional:true, discriminator:true, allErrors:true });
 export const schemaValidator = ajv.compile( UserDataSchema );

@@ -33,6 +33,7 @@
 				<ParamItem class="item" :paramData="param_readBingos" />
 				<ParamItem class="item" :paramData="param_readRaffle" />
 				<ParamItem class="item" :paramData="param_readNotices" />
+				<ParamItem class="item" :paramData="param_read1stMessageToday" />
 				<ParamItem class="item" :paramData="param_read1stTimeChatters" />
 				<ParamItem class="item" :paramData="param_readAutomod" />
 				<div class="item">
@@ -150,6 +151,8 @@ export default class ParamsTTS extends Vue {
 	public param_readBingosPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderBingo, maxLength:300};
 	public param_readRaffle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"ticket_purple.svg" };
 	public param_readRafflePattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRaffles, maxLength:300};
+	public param_read1stMessageToday:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"firstTime_purple.svg" };
+	public param_read1stMessageTodayPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholder1stMessageToday, maxLength:300};
 	public param_read1stTimeChatters:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"firstTime_purple.svg" };
 	public param_read1stTimeChattersPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholder1stTimeChatters, maxLength:300};
 	public param_readAutomod:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"automod_purple.svg" };
@@ -215,6 +218,8 @@ export default class ParamsTTS extends Vue {
 			readRafflePattern:this.param_readRafflePattern.value as string,
 			readPredictions:this.param_readPredictions.value as boolean,
 			readPredictionsPattern:this.param_readPredictionsPattern.value as string,
+			read1stMessageToday:this.param_read1stMessageToday.value as boolean,
+			read1stMessageTodayPattern:this.param_read1stMessageTodayPattern.value as string,
 			read1stTimeChatters:this.param_read1stTimeChatters.value as boolean,
 			read1stTimeChattersPattern:this.param_read1stTimeChattersPattern.value as string,
 			readAutomod:this.param_readAutomod.value as boolean,
@@ -255,6 +260,7 @@ export default class ParamsTTS extends Vue {
 		this.param_readBingos.label				= this.$t("tts.messages.param_readBingos");
 		this.param_readRaffle.label				= this.$t("tts.messages.param_readRaffle");
 		this.param_readUsers.label				= this.$t("tts.messages.param_readUsers");
+		this.param_read1stMessageToday.label	= this.$t("tts.messages.param_read1stMessageToday");
 		this.param_read1stTimeChatters.label	= this.$t("tts.messages.param_read1stTimeChatters");
 		this.param_readAutomod.label			= this.$t("tts.messages.param_readAutomod");
 
@@ -282,6 +288,7 @@ export default class ParamsTTS extends Vue {
 		this.param_readBingosPattern.label		= 
 		this.param_readRafflePattern.label		= 
 		this.param_readAutomodPattern.label		=
+		this.param_read1stMessageTodayPattern.label	= 
 		this.param_read1stTimeChattersPattern.label	= this.$t("tts.messages.param_format");
 
 		this.param_enabled.value = params.enabled;
@@ -326,6 +333,8 @@ export default class ParamsTTS extends Vue {
 		this.param_readRafflePattern.value = params.readRafflePattern ?? this.$tm("tts.patterns.readRafflePattern");
 		this.param_readPredictions.value = params.readPredictions === true;
 		this.param_readPredictionsPattern.value = params.readPredictionsPattern ?? this.$tm("tts.patterns.readPredictionsPattern");
+		this.param_read1stMessageToday.value = params.read1stMessageToday === true;
+		this.param_read1stMessageTodayPattern.value = params.read1stMessageTodayPattern ?? this.$tm("tts.patterns.read1stMessageTodayPattern");
 		this.param_read1stTimeChatters.value = params.read1stTimeChatters === true;
 		this.param_read1stTimeChattersPattern.value = params.read1stTimeChattersPattern ?? this.$tm("tts.patterns.read1stTimeChattersPattern");
 		this.param_readAutomod.value = params.readAutomod === true;
@@ -346,6 +355,7 @@ export default class ParamsTTS extends Vue {
 		this.param_readBingos.children = [this.param_readBingosPattern];
 		this.param_readRaffle.children = [this.param_readRafflePattern];
 		this.param_readPredictions.children = [this.param_readPredictionsPattern];
+		this.param_read1stMessageToday.children = [this.param_read1stMessageTodayPattern];
 		this.param_read1stTimeChatters.children = [this.param_read1stTimeChattersPattern];
 		this.param_readAutomod.children = [this.param_readAutomodPattern];
 
