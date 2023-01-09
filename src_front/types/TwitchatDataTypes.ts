@@ -324,6 +324,8 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface PermissionsData {
 		broadcaster:boolean;
+		follower:boolean;
+		follower_duration_ms:number;
 		mods:boolean;
 		vips:boolean;
 		subs:boolean;
@@ -370,8 +372,10 @@ export namespace TwitchatDataTypes {
 	 * Contains info about a timer
 	 */
 	export interface TimerData {
-		startAt:number;
-		duration?:number;
+		startAt:string;
+		startAt_ms:number;
+		endAt?:string;
+		endAt_ms?:number;
 	}
 
 	/**
@@ -669,6 +673,7 @@ export namespace TwitchatDataTypes {
 		is_broadcaster:boolean;
 		is_subscriber:boolean;
 		is_gifter:boolean;
+		following_date_ms:number;
 		banEndDate?:number;
 		badges:TwitchatUserBadge[];
 	}

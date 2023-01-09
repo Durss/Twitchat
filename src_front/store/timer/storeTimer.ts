@@ -27,12 +27,12 @@ export const storeTimer = defineStore('timer', {
 
 		timerStart() {
 			this.timerStartDate = Date.now();
-			const data = {
+			const data:TwitchatDataTypes.TimerData = {
 				startAt:Utils.formatDate(new Date()),
 				startAt_ms:this.timerStartDate,
 			};
 			
-			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, data);
+			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, (data as unknown) as JsonObject);
 
 			const message:TwitchatDataTypes.MessageTimerData = {
 				type:TwitchatDataTypes.TwitchatMessageType.TIMER,
@@ -57,14 +57,14 @@ export const storeTimer = defineStore('timer', {
 		},
 
 		timerStop() {
-			const data = {
+			const data:TwitchatDataTypes.TimerData = {
 				startAt:Utils.formatDate(new Date(this.timerStartDate)),
 				startAt_ms:this.timerStartDate,
-				stopAt:Utils.formatDate(new Date()),
-				stopAt_ms:Date.now(),
+				endAt:Utils.formatDate(new Date()),
+				endAt_ms:Date.now(),
 			};
 
-			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, data);
+			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, (data as unknown) as JsonObject);
 
 			const message:TwitchatDataTypes.MessageTimerData = {
 				type:TwitchatDataTypes.TwitchatMessageType.TIMER,

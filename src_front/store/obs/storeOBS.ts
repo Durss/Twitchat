@@ -11,7 +11,16 @@ export const storeOBS = defineStore('obs', {
 		connectionEnabled: null,
 		sceneCommands: [],
 		muteUnmuteCommands: {audioSourceName:"", muteCommand:"!mute", unmuteCommand:"!unmute"},
-		commandsPermissions: {broadcaster:true, mods:false, vips:false, subs:false, all:false, users:""},
+		commandsPermissions: {
+			broadcaster:true,
+			mods:false,
+			vips:false,
+			subs:false,
+			all:false,
+			follower:false,
+			follower_duration_ms:0,
+			users:""
+		},
 	} as IOBSState),
 
 

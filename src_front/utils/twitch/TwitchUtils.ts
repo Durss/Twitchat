@@ -1060,22 +1060,29 @@ export default class TwitchUtils {
 	 * Gets a followers list
 	 * 
 	 * @param channelId channelId to get followers list
+	 * @param tempDataCallback optional callback method to get results as they're loading
 	 */
-	public static async getFollowers(channelId?:string|null, maxCount=-1):Promise<TwitchDataTypes.Following[]> {
+	public static async getFollowers(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
 		let list:TwitchDataTypes.Following[] = [];
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first="+Math.min(maxCount, 100)+"&to_id="+channelId+pCursor, {
+			const count = maxCount==-1? 100 : Math.min(maxCount-list.length, 100);
+			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first="+count+"&to_id="+channelId+pCursor, {
 				method:"GET",
 				headers:this.headers,
 			});
-			const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
-			list = list.concat(json.data);
-			cursor = null;
-			if(json.pagination?.cursor) {
-				cursor = json.pagination.cursor;
+			if(res.status == 200) {
+				const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+				if(tempDataCallback) {
+					tempDataCallback(list);
+				}
 			}
 		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
 		return list;

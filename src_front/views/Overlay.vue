@@ -2,8 +2,8 @@
 	<div :class="classes">
 		<OverlaysRaffleWheel v-if="overlay=='wheel' || overlay=='unified'" />
 		<OverlayMusicPlayer class="music" v-if="overlay=='music' || overlay=='unified'" :embed="overlay=='unified'" keepEmbedTransitions />
-		<OverlayTimer v-if="overlay=='timer' || overlay=='unified'" />
 		<OverlayChatHighlight v-if="overlay=='chathighlight' || overlay=='unified'" />
+		<OverlayTimer v-if="overlay=='timer' || overlay=='unified'" />
 	</div>
 </template>
 

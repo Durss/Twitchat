@@ -30,7 +30,7 @@
     "highlightSubs": "Surligner les Subs",
     "highlightPartners": "Surligner les partenaires",
     "highlightMentions": "Surligner les messages me mentionnant",
-    "highlightNonFollowers": "Indiquer les non-followers (network intensive)",
+    "highlightNonFollowers": "Indiquer les non-followers",
     "translateNames": "Traduire les pseudos",
     "showRewardsInfos": "Afficher la description des récompenses",
     "showViewersCount": "Afficher le nombre de viewers",
@@ -76,7 +76,7 @@
     },
     "botMessages": {
       "raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} !",
-      "raffle": "/announce 🎉🎉🎉 Bravo {'@'}{USER} tu remportes le tirage au sort 🎉🎉🎉",
+      "raffle": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort 🎉🎉🎉",
       "raffleJoin": "VoteYea {'@'}{USER} tu as rejoint le tirage au sort.",
       "bingoStart": "/announce 🎉🎉🎉 Un bingo a débuté 🎉🎉🎉 {GOAL}",
       "bingo": "/announce 🎉🎉🎉 Bravo {'@'}{USER} tu as remporté le bingo 🎉🎉🎉",

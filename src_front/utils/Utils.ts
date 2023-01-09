@@ -197,6 +197,10 @@ export default class Utils {
 		if(chanInfo.is_subscriber && permissions.subs !== false) return true;
 		if(chanInfo.is_moderator && permissions.mods !== false) return true;
 		if(chanInfo.is_broadcaster && permissions.broadcaster !== false) return true;
+		if(chanInfo.is_following && permissions.follower !== false) {
+			const duration = Date.now() - chanInfo.following_date_ms;
+			return duration >= permissions.follower_duration_ms;
+		}
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
 		if(allowedUsers?.indexOf(user.login.toLowerCase()) > -1) return true;
 

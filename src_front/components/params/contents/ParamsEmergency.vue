@@ -11,8 +11,8 @@
 				<Splitter class="item splitter">{{ $t("emergency.start.title") }}</Splitter>
 				<ParamItem class="item" :paramData="param_autoEnableOnShieldmode" />
 				<ParamItem class="item" :paramData="param_autoEnableOnFollowbot" />
-				<div class="item chatCommand">
-					<ParamItem :paramData="param_chatCommand" />
+				<div class="item">
+					<ParamItem class="chatCommand" :paramData="param_chatCommand" />
 					<ToggleBlock :title="$t('emergency.start.chatCommand_users')" :open="false" small class="item">
 						<PermissionsForm v-model="chatCommandPerms" />
 					</ToggleBlock>
@@ -127,6 +127,8 @@ export default class ParamsEmergency extends Vue {
 		vips:false,
 		subs:false,
 		all:false,
+		follower:true,
+		follower_duration_ms:0,
 		users:"",
 	};
 
@@ -332,12 +334,12 @@ export default class ParamsEmergency extends Vue {
 				&.hasDurationChild {
 					:deep(.child) {
 						input {
-							flex-basis: 100px;
+							flex-basis: 90px;
 						}
 					}
 				}
 
-				&.chatCommand {
+				.chatCommand {
 					:deep(input) {
 						flex-basis:150px;
 					}
@@ -359,9 +361,6 @@ export default class ParamsEmergency extends Vue {
 					.togglable {
 						overflow: hidden;
 					}
-				}
-				:deep(input[type="number"]) {
-					width: 90px;
 				}
 			}
 		}

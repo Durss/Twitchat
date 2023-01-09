@@ -34,9 +34,9 @@
 		"params": {
 			"title": "Paramètres de la voix",
 			"param_enabled": "Activer",
-			"param_volume": "Volume {VALUE}",
-			"param_rate": "Vitesse {VALUE}",
-			"param_pitch": "Pitch {VALUE}",
+			"param_volume": "Volume {'{'}VALUE{'}'}",
+			"param_rate": "Vitesse {'{'}VALUE{'}'}",
+			"param_pitch": "Pitch {'{'}VALUE{'}'}",
 			"param_voice": "Voix",
 			"param_removeEmotes": "Supprimer les emotes",
 			"test_message": "Ceci est un test",
@@ -46,11 +46,11 @@
 		"filters": {
 			"title": "Filtres",
 			"param_maxLengthToggle": "Limiter la taille des messages",
-			"param_maxLength": "Lire {VALUE} caractères maximum",
+			"param_maxLength": "Lire {'{'}VALUE{'}'} caractères maximum",
 			"param_maxDurationToggle": "Limiter la durée de lecture",
-			"param_maxDuration": "Arrêter de lire après {VALUE} secondes",
+			"param_maxDuration": "Arrêter de lire après {'{'}VALUE{'}'} secondes",
 			"param_timeoutToggle": "Supprimer un message de la file d'attente s'il nest pas lu avant...",
-			"param_timeout": "{VALUE} minutes",
+			"param_timeout": "{'{'}VALUE{'}'} minutes",
 			"param_inactivityPeriodToggle": "Lire un message seulement si aucun message n'a été lu depuis...",
 			"param_removeURL": "Supprimer les liens",
 			"param_replaceURL": "Remplacer par"

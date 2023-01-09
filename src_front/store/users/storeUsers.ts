@@ -52,6 +52,14 @@ export const storeUsers = defineStore('users', {
 			tiktok:{},
 			facebook:{},
 		},
+		myFollowers:{
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+		},
 		knownBots: {
 			twitchat:{},
 			twitch:{},
@@ -77,6 +85,14 @@ export const storeUsers = defineStore('users', {
 		 */
 		setBotsMap(platform:TwitchatDataTypes.ChatPlatform, hashmap:{[key:string]:boolean}):void {
 			this.knownBots[platform] = hashmap;
+		},
+
+		/**
+		 * Registers the bots hashmap of a platform
+		 * Maps a lowercased login to a boolean (true)
+		 */
+		isAlreadyFollower(platform:TwitchatDataTypes.ChatPlatform, login:string):boolean {
+			return  this.myFollowers[platform][login] != undefined;
 		},
 
 		/**
@@ -188,9 +204,20 @@ export const storeUsers = defineStore('users', {
 			if(channelId) {
 				//Init channel data for this user if not already existing
 				if(!user.channelInfo[channelId]) {
+					let following_date_ms = 0;
+					let is_following:boolean|null = channelId == user.id || forcedFollowState===true;
+					if(!is_following) {
+						if(this.myFollowers[platform][user.id] !== undefined) {
+							is_following = true;
+							following_date_ms = this.myFollowers[platform][user.id];
+						}else{
+							is_following = null;
+						}
+					}
 					user.channelInfo[channelId] = {
 						online:false,
-						is_following:channelId == user.id || forcedFollowState===true? true : null,
+						following_date_ms,
+						is_following,
 						is_blocked:false,
 						is_banned:false,
 						is_vip:false,
@@ -481,8 +508,11 @@ export const storeUsers = defineStore('users', {
 				if(user.channelInfo[channelId].is_following == null) {
 					try {
 						// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
-						const res = await TwitchUtils.getFollowInfo(user.id, channelId ?? StoreProxy.auth.twitch.user.id)
-						user.channelInfo[channelId].is_following = res != null;
+						const res = await TwitchUtils.getFollowInfo(user.id, channelId ?? StoreProxy.auth.twitch.user.id);
+						if(res) {
+							user.channelInfo[channelId].following_date_ms = new Date(res.followed_at).getTime();
+							user.channelInfo[channelId].is_following = res != null;
+						}
 						return true;
 					}catch(error){}
 				}
@@ -531,6 +561,19 @@ export const storeUsers = defineStore('users', {
 			const hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => { hashmap[v.to_id] = true; });
 			this.myFollowings["twitch"] = hashmap;
+		},
+
+		async loadMyFollowers():Promise<void> {
+			let parseOffset = 0;
+			const hashmap:{[key:string]:number} = {};
+			await TwitchUtils.getFollowers(StoreProxy.auth.twitch.user.id, -1, async(list)=> {
+				for (let i = parseOffset; i < list.length; i++) {
+					hashmap[list[i].from_id] = new Date(list[i].followed_at).getTime();
+					if(list[i].from_login=="durssbot") console.log(new Date(list[i].followed_at).getTime());
+				}
+				parseOffset = list.length
+				this.myFollowers["twitch"] = hashmap;
+			});
 		},
 
 		trackUser(user:TwitchatDataTypes.TwitchatUser):void {

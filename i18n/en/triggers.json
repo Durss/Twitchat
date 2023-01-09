@@ -11,6 +11,7 @@
 		"delete_confirm": "Delete trigger?",
 		"delete_action_confirm": "Delete action?",
 		"reorder_tt": "Reorder",
+		"noChannelPoints_tt": "You don't have<br>channel points",
 		"music": {
 			"require": "These triggers need you to connect with Spotify or Deezer under the {URL}",
 			"require_url": "overlays section"

@@ -236,12 +236,12 @@ export default class OBSWebsocket extends EventDispatcher {
 					continue;
 				}
 				idsSourceDone[v.sourceName] = true;
-				if(v.sourceType == "OBS_SOURCE_TYPE_SCENE") {
-					console.log("Scene:", v.sourceName);
-				}
-				if(v.sourceType == "OBS_SOURCE_TYPE_INPUT") {
-					console.log("Input:", v.sourceName);
-				}
+				// if(v.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+				// 	console.log("Scene:", v.sourceName);
+				// }
+				// if(v.sourceType == "OBS_SOURCE_TYPE_INPUT") {
+				// 	console.log("Input:", v.sourceName);
+				// }
 			}
 			sources = sources.concat(items);
 		}

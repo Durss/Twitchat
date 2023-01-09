@@ -117,25 +117,64 @@ export default class App extends Vue {
 	}
 
 	&.messageSize_1 {
-		--messageSize: .55em;
+		--messageSize: .4em;
 	}
 	&.messageSize_2 {
-		--messageSize: .65em;
+		--messageSize: .5em;
 	}
 	&.messageSize_3 {
-		--messageSize: .9em;
+		--messageSize: .6em;
 	}
 	&.messageSize_4 {
-		--messageSize: 1.25em;
+		--messageSize: .7em;
 	}
 	&.messageSize_5 {
-		--messageSize: 1.5em;
+		--messageSize: .8em;
 	}
 	&.messageSize_6 {
-		--messageSize: 2em;
+		--messageSize: .9em;
 	}
 	&.messageSize_7 {
-		--messageSize: 2.5em;
+		--messageSize: 1em;
+	}
+	&.messageSize_8 {
+		--messageSize: 1.1em;
+	}
+	&.messageSize_9 {
+		--messageSize: 1.2em;
+	}
+	&.messageSize_10 {
+		--messageSize: 1.3em;
+	}
+	&.messageSize_11 {
+		--messageSize: 1.4em;
+	}
+	&.messageSize_12 {
+		--messageSize: 1.5em;
+	}
+	&.messageSize_13 {
+		--messageSize: 1.6em;
+	}
+	&.messageSize_14 {
+		--messageSize: 1.7em;
+	}
+	&.messageSize_15 {
+		--messageSize: 1.8em;
+	}
+	&.messageSize_16 {
+		--messageSize: 1.9em;
+	}
+	&.messageSize_17 {
+		--messageSize: 2em;
+	}
+	&.messageSize_18 {
+		--messageSize: 2.1em;
+	}
+	&.messageSize_19 {
+		--messageSize: 2.2em;
+	}
+	&.messageSize_20 {
+		--messageSize: 2.3em;
 	}
 }
 @media only screen and (max-width: 500px) {

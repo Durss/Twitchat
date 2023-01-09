@@ -153,9 +153,9 @@ export default class DataStore {
 			this.migrateRaffleTriggerDuration();
 			v = "19";
 		}
-		if(v=="19") {
-			this.migrateRaffleTriggerTypo();
-			v = "20";
+		if(v=="19" || v=="20") {
+			this.migrateRaffleTriggerTypoAndTextSize();
+			v = "21";
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -616,7 +616,7 @@ export default class DataStore {
 	/**
 	 * Made a mistake storing minutes instead of seconds
 	 */
-	private static migrateRaffleTriggerTypo():void {
+	private static migrateRaffleTriggerTypoAndTextSize():void {
 		const txt = this.get("triggers");
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
@@ -625,15 +625,27 @@ export default class DataStore {
 			for (let i = 0; i < actions.length; i++) {
 				const a = actions[i];
 				if(a.type == "raffle" && a.raffleData) {
+					//renaming "subgitRatio" to "subgiftRatio"
 					//@ts-ignore
-					if(a.raffleData.subgitRatio) {
+					if(a.raffleData.subgitRatio != undefined) {
 						//@ts-ignore
 						a.raffleData.subgiftRatio = a.raffleData.subgitRatio;
+						//@ts-ignore
+						delete a.raffleData.subgitRatio;
+						console.log("FIX", a);
 					}
 				}
 			}
 		}
-
 		this.set("triggers", triggers);
+		this.remove("leftColSize");//Remaining old data
+
+		//Convert old size scale to the new one
+		const sizeStr = this.get("p:defaultSize");
+		let size = parseFloat(sizeStr);
+		if(isNaN(size)) size = 2;
+		const converTable:{[key:number]:number} = {1:2, 2:3, 3:6, 4:9, 5:12, 6:17, 7:20}
+		size = converTable[size]
+		this.set("p:defaultSize", size);
 	}
 }

@@ -16,6 +16,8 @@ export const storeAutomod = defineStore('automod', {
 				vips:true,
 				subs:false,
 				all:false,
+				follower:false,
+				follower_duration_ms:0,
 				users:""
 			},
 		}

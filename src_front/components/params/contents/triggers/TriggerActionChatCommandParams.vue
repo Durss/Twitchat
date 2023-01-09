@@ -63,6 +63,8 @@ export default class TriggerActionChatCommandParams extends Vue {
 				vips:true,
 				subs:true,
 				all:true,
+				follower:true,
+				follower_duration_ms:0,
 				users:"",
 			}
 		}

@@ -103,6 +103,8 @@ export default class ParamsOBS extends Vue {
 		vips: false,
 		subs: false,
 		all: false,
+		follower:true,
+		follower_duration_ms:0,
 		users: ""
 	}
 

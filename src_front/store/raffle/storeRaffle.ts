@@ -29,14 +29,6 @@ export const storeRaffle = defineStore('raffle', {
 			this.data = payload;
 			
 			payload.created_at = Date.now();
-			let overlayAvailable = false;
-			const callback = (e:TwitchatEvent) => {overlayAvailable = true;}
-			PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, callback);
-			
-			//Ask if the wheel overlay exists
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
-			await Utils.promisedTimeout(1000);//Give the overlay some time to answer
-			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, callback);
 			
 			switch(payload.mode) {
 				case "chat": {
@@ -54,12 +46,12 @@ export const storeRaffle = defineStore('raffle', {
 				}
 
 				case "sub": {
-					this.pickWinner();
+					this.pickWinner(payload);
 					break;
 				}
 
 				case "manual": {
-					this.pickWinner();
+					this.pickWinner(payload);
 					break;
 				}
 			}

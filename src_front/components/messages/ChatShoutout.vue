@@ -9,10 +9,10 @@
 			<i18n-t scope="global" tag="span"
 			v-if="messageData.received" keypath="chat.shoutout.received">
 				<template #CHANNEL>
-					<a class="userlink" @click.stop="openUserCard">{{channel.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(channel)">{{channel.displayName}}</a>
 				</template>
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #VIEWERS>
 					<strong>{{messageData.viewerCount}}</strong>
@@ -22,13 +22,13 @@
 			<i18n-t scope="global" tag="span" v-else
 			keypath="chat.shoutout.given">
 				<template #MODERATOR>
-					<a class="userlink" @click.stop="openUserCard">{{messageData.moderator.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.moderator)">{{messageData.moderator.displayName}}</a>
 				</template>
 				<template #CHANNEL>
 					<strong>#{{channel.displayName}}</strong>
 				</template>
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #VIEWERS>
 					<strong>{{messageData.viewerCount}}</strong>
@@ -73,8 +73,8 @@ export default class ChatShoutout extends Vue {
 		
 	}
 
-	public openUserCard():void {
-		this.$store("users").openUserCard(this.messageData.user!);
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user);
 	}
 
 	public copyJSON():void {

@@ -13,7 +13,7 @@
 					"",
 					"Des bots comme <a href=\"https://nightbot.tv\" target=\"_blank\">Nightbot</a> ou <a href=\"https://wizebot.tv/index\" target=\"_blank\">Wizebot</a> permettent de filtrer les messages avec des règles plus complexes via ce que l'on appelle des <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Expressions régulières</a>.",
 					"",
-					"La fonction automod de <strong>Twitchat'</strong> vous permet également d'utiliser des expressions régulières, mais tente également de rendre l'utilisation de caractères alternatifs inéficace pour contourner les règles de filtrage.",
+					"La fonction automod de <strong>Twitchat'</strong> vous permet également d'utiliser des expressions régulières, mais tente également de rendre l'utilisation de caractères alternatifs inefficace pour contourner les règles de filtrage.",
 					"Avant d'appliquer une règle, Twitchat remplacera tous les caractères alternatifs, y compris les caractères accentués, par leur équivalent latin.",
 					"Par exemple, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> sera remplacé par <mark>twitchat</mark> avant de lui appliquer les règles de filtrage.",
 					"",

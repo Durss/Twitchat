@@ -124,36 +124,36 @@ export default class ParamsTTS extends Vue {
 	public param_replaceURL:TwitchatDataTypes.ParameterData = {type:"text", value:'link', label:""};
 
 	public param_readMessages:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"user_purple.svg" };
-	public param_readMessagesPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderMessages};
+	public param_readMessagesPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderMessages, maxLength:300};
 	public param_readWhispers:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"whispers_purple.svg" };
-	public param_readWhispersPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderMessages};
+	public param_readWhispersPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderMessages, maxLength:300};
 	public param_readNotices:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"info_purple.svg" };
-	public param_readNoticesPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderNotices};
+	public param_readNoticesPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderNotices, maxLength:300};
 	public param_readRewards:TwitchatDataTypes.ParameterData = {type:"toggle", value:true, label:"", icon:"channelPoints_purple.svg"};
-	public param_readRewardsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRewards};
+	public param_readRewardsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRewards, maxLength:300};
 	public param_readSubs:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"sub_purple.svg" };
-	public param_readSubsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderSubs};
+	public param_readSubsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderSubs, maxLength:300};
 	public param_readSubgifts:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"gift_purple.svg" };
-	public param_readSubgiftsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderSubgifts};
+	public param_readSubgiftsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderSubgifts, maxLength:300};
 	public param_readBits:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"bits_purple.svg" };
 	public param_readBitsMinAmount:TwitchatDataTypes.ParameterData = {type:"number", value:0, label:"Minimum bits amount", min:0, max:1000000 };
-	public param_readBitsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderBits};
+	public param_readBitsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderBits, maxLength:300};
 	public param_readRaids:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"raid_purple.svg" };
-	public param_readRaidsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRaids};
+	public param_readRaidsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRaids, maxLength:300};
 	public param_readFollow:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"follow_purple.svg" };
-	public param_readFollowPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderFollows};
+	public param_readFollowPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderFollows, maxLength:300};
 	public param_readPolls:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"poll_purple.svg" };
-	public param_readPollsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderPolls};
+	public param_readPollsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderPolls, maxLength:300};
 	public param_readPredictions:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"prediction_purple.svg" };
-	public param_readPredictionsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderPredictions};
+	public param_readPredictionsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderPredictions, maxLength:300};
 	public param_readBingos:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"bingo_purple.svg" };
-	public param_readBingosPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderBingo};
+	public param_readBingosPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderBingo, maxLength:300};
 	public param_readRaffle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"ticket_purple.svg" };
-	public param_readRafflePattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRaffles};
+	public param_readRafflePattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRaffles, maxLength:300};
 	public param_read1stTimeChatters:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"firstTime_purple.svg" };
-	public param_read1stTimeChattersPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholder1stTimeChatters};
+	public param_read1stTimeChattersPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholder1stTimeChatters, maxLength:300};
 	public param_readAutomod:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"automod_purple.svg" };
-	public param_readAutomodPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderAutomod};
+	public param_readAutomodPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderAutomod, maxLength:300};
 	public param_readUsers:TwitchatDataTypes.ParameterData = {type:"list", listValues:[], value:"", label:""};
 	public param_ttsPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
@@ -161,6 +161,8 @@ export default class ParamsTTS extends Vue {
 		vips:false,
 		subs:false,
 		all:false,
+		follower:true,
+		follower_duration_ms:0,
 		users:"",
 	};
 

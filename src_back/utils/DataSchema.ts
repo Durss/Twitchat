@@ -63,7 +63,7 @@ import Ajv from "ajv";
 						scheduleParams: {
 							type:"object",
 							properties: {
-								type: {type:"string", maxLength:100},
+								type: {type:"string", maxLength:10},
 								repeatDuration: {type:"number", minimum:0, maximum:48*60},
 								repeatMinMessages: {type:"number", minimum:0, maximum:9999},
 								dates:{
@@ -90,7 +90,7 @@ import Ajv from "ajv";
 								vips: {type:"boolean"},
 								subs: {type:"boolean"},
 								all: {type:"boolean"},
-								users: {type:"string", maxLength:1000},
+								users: {type:"string", maxLength:1000000},
 							}
 						},
 						cooldown: {
@@ -170,7 +170,7 @@ import Ajv from "ajv";
 												guessCustom: {type:"boolean"},
 												min: {type:"number", minimum:0, maximum:999999999},
 												max: {type:"number", minimum:0, maximum:999999999},
-												custom: {type:"string", maxLength:500},
+												customValue: {type:"string", maxLength:1000000},
 											}
 										},
 										pollData: {
@@ -284,7 +284,7 @@ import Ajv from "ajv";
 					additionalProperties: false,
 					properties: {
 						id: {type:"string", maxLength:100},
-						sentences: {type:"string", maxLength:1000},
+						sentences: {type:"string", maxLength:1000000},
 					}
 				},
 			]
@@ -482,7 +482,7 @@ import Ajv from "ajv";
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
 						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000},
+						users: {type:"string", maxLength:1000000},
 					}
 				},
 			}
@@ -502,7 +502,7 @@ import Ajv from "ajv";
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
 						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000},
+						users: {type:"string", maxLength:1000000},
 					}
 				},
 				slowMode:{type:"boolean"},
@@ -547,7 +547,7 @@ import Ajv from "ajv";
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
 						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000},
+						users: {type:"string", maxLength:1000000},
 					}
 				},
 			}
@@ -578,7 +578,7 @@ import Ajv from "ajv";
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
 						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000},
+						users: {type:"string", maxLength:1000000},
 					}
 				},
 			}
@@ -596,7 +596,7 @@ import Ajv from "ajv";
 				showTitle: {type:"boolean"},
 				showProgressbar: {type:"boolean"},
 				openFromLeft: {type:"boolean"},
-				customInfoTemplate: {type:"string", maxLength:5000},
+				customInfoTemplate: {type:"string", maxLength:1000000},
 			}
 		},
 
@@ -622,7 +622,7 @@ import Ajv from "ajv";
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
 						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000},
+						users: {type:"string", maxLength:1000000},
 					}
 				},
 			}
@@ -643,7 +643,7 @@ import Ajv from "ajv";
 						vips: {type:"boolean"},
 						subs: {type:"boolean"},
 						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000},
+						users: {type:"string", maxLength:1000000},
 					}
 				},
 				keywordsFilters:{

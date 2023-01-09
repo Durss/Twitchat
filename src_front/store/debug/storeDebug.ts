@@ -33,6 +33,18 @@ export const storeDebug = defineStore('debug', {
 				for (let i = 0; i < followers.length; i++) {
 					fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
 				}
+				if(fakeUsers.length < 10) {
+					const additional:{id:string,login:string,displayName:string}[] = [
+						{id:"12826",login:"twitch", displayName:"Twitch"},
+						{id:"527115020",login:"twitchgaming", displayName:"twitchgaming"},
+						{id:"141981764",login:"twitchdev", displayName:"TwitchDev"},
+						{id:"29961813",login:"durss", displayName:"Durss"},
+						{id:"44445592",login:"pokimane", displayName:"pokimane"},
+					]
+					for (let i = 0; i < additional.length; i++) {
+						fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, additional[i].id, additional[i].login, additional[i].displayName,undefined, false, false));
+					}
+				}
 			}
 
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);

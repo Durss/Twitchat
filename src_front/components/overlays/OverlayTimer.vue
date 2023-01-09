@@ -99,7 +99,7 @@ export default class OverlayTimer extends Vue {
 			this.countdown = "";
 		}
 		if(this.timerData) {
-			let ellapsed = Math.floor((Date.now() - this.timerData.startAt)/1000)*1000;
+			let ellapsed = Math.floor((Date.now() - this.timerData.startAt_ms)/1000)*1000;
 			this.timer = Utils.formatDuration(ellapsed);
 		}else{
 			this.timer = "";

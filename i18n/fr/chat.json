@@ -225,7 +225,7 @@
 				"Vous pouvez personnaliser le message dans les paramètres.",
 				"Ou faire un don libre pour le supprimer."
 			],
-			"unacceptableBt": "😡😡😡 C'EST INNACCEPTABLE 😡😡😡",
+			"unacceptableBt": "😡😡😡 C'EST INACCEPTABLE 😡😡😡",
 			"customizeBt": "Personnaliser le message",
 			"donateBt": "Faire un don"
 		},
@@ -274,7 +274,7 @@
 				"whisper": "chuchotement",
 				"cyphered": "chiffré",
 				"restrictedUser": "restreint·e",
-				"suspiciousUser": "suspicieux·es",
+				"suspiciousUser": "suspicieux·se",
 				"emergencyBlocked": "bloqué·e"
 			},
 			"tooltip": {

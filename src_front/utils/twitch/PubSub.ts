@@ -1021,6 +1021,9 @@ export default class PubSub extends EventDispatcher {
 	private followingEvent(data:PubSubDataTypes.Following):void {
 		if(this.followCache[data.username] === true) return;
 		this.followCache[data.username] = true;
+
+		if(StoreProxy.users.isAlreadyFollower("twitch", data.username)) return;
+		
 		const channelId = StoreProxy.auth.twitch.user.id;
 
 		const message:TwitchatDataTypes.MessageFollowingData = {

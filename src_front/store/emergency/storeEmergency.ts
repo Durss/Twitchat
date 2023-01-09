@@ -37,6 +37,8 @@ export const storeEmergency = defineStore('emergency', {
 				vips:false,
 				subs:false,
 				all:false,
+				follower:false,
+				follower_duration_ms:0,
 				users:""
 			},
 			autoEnableOnShieldmode:true,

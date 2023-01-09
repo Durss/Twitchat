@@ -45,6 +45,8 @@
 							:title="e.label"
 							:icon="getIcon(e)"
 							@click="currentEvent = e"
+							:disabled="disabledEntry(e)"
+							:data-tooltip="disabledEntry(e)? $t('triggers.noChannelPoints_tt') : ''"
 						/>
 
 						<ToggleButton class="toggle"
@@ -201,6 +203,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import StoreProxy from '@/store/StoreProxy';
 import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -260,6 +263,8 @@ export default class ParamsTriggers extends Vue {
 	public get isChatCmd():boolean { return this.currentEvent?.value === TriggerTypes.CHAT_COMMAND; }
 	
 	public get isSchedule():boolean { return this.currentEvent?.value === TriggerTypes.SCHEDULE; }
+	
+	public get hasChannelPoints():boolean { return StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner; }
 
 	public get triggerKey():string {
 		if(!this.triggerData) return "";
@@ -362,6 +367,17 @@ export default class ParamsTriggers extends Vue {
 			let list = trigger as TriggerData;
 			return e.noToggle !== true && list.actions.length > 0;
 		}
+
+		if(e.value == TriggerTypes.REWARD_REDEEM && !this.hasChannelPoints) return false;
+
+		return false;
+	}
+
+	/**
+	 * Get if a trigger entry should be disabled
+	 */
+	public disabledEntry(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):boolean {
+		if(e.value == TriggerTypes.REWARD_REDEEM && !this.hasChannelPoints) return true;
 
 		return false;
 	}

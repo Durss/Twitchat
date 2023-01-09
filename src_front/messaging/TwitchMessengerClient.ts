@@ -46,6 +46,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	public loadMeta():void {
 		TwitchUtils.loadGlobalBadges();
 		StoreProxy.users.loadMyFollowings();
+		StoreProxy.users.loadMyFollowers();
 		StoreProxy.users.initBlockedUsers();
 
 		const sParams = StoreProxy.params;

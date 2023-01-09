@@ -125,7 +125,6 @@ export default class ChatSuggestionState extends Vue {
 	}
 
 	public deleteEntery(entry:TwitchatDataTypes.ChatSuggestionDataChoice):void {
-		console.log(entry);
 		this.poll.choices = this.poll.choices.filter(v=> v.id != entry.id);
 	}
 

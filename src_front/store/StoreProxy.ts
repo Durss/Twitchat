@@ -444,6 +444,7 @@ export interface IUsersState {
 	}|null;
 	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 	myFollowings: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
+	myFollowers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:number}};
 	knownBots: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 }
 
@@ -453,6 +454,7 @@ export interface IUsersGetters {
 
 export interface IUsersActions {
 	setBotsMap(platform:TwitchatDataTypes.ChatPlatform, hashmap:{[key:string]:boolean}):void;
+	isAlreadyFollower(platform:TwitchatDataTypes.ChatPlatform, login:string):boolean;
 	preloadTwitchModerators(channelId:string):Promise<void>;
 	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean):TwitchatDataTypes.TwitchatUser;
 	initBlockedUsers():Promise<void>;
@@ -471,6 +473,7 @@ export interface IUsersActions {
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser, channelId:string):void;
 	openUserCard(user:TwitchatDataTypes.TwitchatUser|null, channelId?:string):void;
 	loadMyFollowings():Promise<void>;
+	loadMyFollowers():Promise<void>;
 	trackUser(user:TwitchatDataTypes.TwitchatUser):void;
 	untrackUser(user:TwitchatDataTypes.TwitchatUser):void;
 }

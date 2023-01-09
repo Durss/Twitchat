@@ -714,6 +714,7 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BINGO );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAFFLE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.REWARD );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.PINNED );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.FOLLOWING );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
