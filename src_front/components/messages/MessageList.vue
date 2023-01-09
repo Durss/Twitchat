@@ -144,7 +144,7 @@
 
 				<Button	:aria-label="$t('chat.live_chat_more_aria')"
 					:icon="$image('icons/add.svg')"
-					:disabled="config.liveLockCount == 10"
+					:disabled="config.liveLockCount == 10 || config.liveLockCount>=pendingMessages.length"
 					@click="incrementLockedLiveCount(1)"/>
 			</div>
 
@@ -1432,8 +1432,8 @@ export default class MessageList extends Vue {
 		this.config.liveLockCount = v;
 		const list = this.pendingMessages;
 		const finalList:TwitchatDataTypes.ChatMessageTypes[] = [];
-		for (let i = this.pendingMessages.length-1; i > 0; i--) {
-			const m = this.pendingMessages[i];
+		for (let i = list.length-1; i >= 0; i--) {
+			const m = list[i];
 			if(this.shouldShowMessage(m)) {
 				finalList.unshift(m);
 				if(finalList.length === v) break;
