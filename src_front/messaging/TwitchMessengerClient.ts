@@ -256,6 +256,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 			async function getUserFromLogin(login:string, channelId:string):Promise<TwitchatDataTypes.TwitchatUser|null>{
+				login = login.replace(/^@/gi, "");
 				return new Promise((resolve)=>{
 					StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, (user)=> {
 						if(user.errored) {

@@ -85,7 +85,7 @@ export const storeParams = defineStore('params', {
 				messageFilters: {
 					automod: false,
 					suspiciousUsers: false,
-					deleted: false,
+					deleted: true,
 					bots: true,
 					commands: true,
 					moderators: true,
