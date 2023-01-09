@@ -28,6 +28,7 @@
 			"param_readRaffle": "Raffle results",
 			"param_readUsers": "Users to read out loud",
 			"param_readUsers_add": "username...",
+			"param_read1stMessageToday": "1st message today",
 			"param_read1stTimeChatters": "First-time chatters",
 			"param_readAutomod": "Automoded messages"
 		},
@@ -85,8 +86,9 @@
 			"readPredictionsPattern": "Prediction \"{TITLE}\" ended. Winning choice is, {WINNER}",
 			"readBingosPattern": "Bingo won by: {WINNER}",
 			"readRafflePattern": "Raffle won by: {WINNER}",
-			"read1stTimeChattersPattern": "1st message of {USER} : {MESSAGE}",
-			"readAutomodPattern": "{USER} message held by automod : {MESSAGE}"
+			"read1stMessageTodayPattern": "1st message of {USER} today: {MESSAGE}",
+			"read1stTimeChattersPattern": "1st message of {USER}: {MESSAGE}",
+			"readAutomodPattern": "{USER} message held by automod: {MESSAGE}"
 		}
 	}
 }

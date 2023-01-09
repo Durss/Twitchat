@@ -157,6 +157,10 @@ export default class DataStore {
 			this.migrateRaffleTriggerTypoAndTextSize();
 			v = "21";
 		}
+		if(v=="21") {
+			this.migrateTriggerSubgiftPlaceholder();
+			v = "22";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
@@ -647,5 +651,31 @@ export default class DataStore {
 		const converTable:{[key:number]:number} = {1:2, 2:3, 3:6, 4:9, 5:12, 6:17, 7:20}
 		size = converTable[size]
 		this.set("p:defaultSize", size);
+	}
+
+	/**
+	 * Renamed placeholder "RECIPIENT" to "RECIPIENTS"
+	 */
+	private static migrateTriggerSubgiftPlaceholder():void {
+		const txt = this.get("triggers");
+		if(!txt) return;
+		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
+		for (const key in triggers) {
+			const actions = triggers[key].actions;
+			for (let i = 0; i < actions.length; i++) {
+				const a = actions[i];
+
+				if(a.type == "http") {
+					a.queryParams.map(v=> v=="RECIPIENT"? "RECIPIENTS" : v);
+				}else{
+					//Nuclear way to replace other placeholders
+					let json = JSON.stringify(a);
+					json = json.replace(/\{RECIPIENT\}/gi, "{RECIPIENTS}");
+					actions[i] = JSON.parse(json);
+				}
+			}
+		}
+
+		this.set("triggers", triggers);
 	}
 }

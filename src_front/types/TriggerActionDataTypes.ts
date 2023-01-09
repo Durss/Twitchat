@@ -233,17 +233,21 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.PRESENTATION] =
 	map[TriggerTypes.CHAT_COMMAND] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"MESSAGE", desc:t('triggers.placeholders.message'), pointer:"message"},
 	];
 	
 	map[TriggerTypes.PIN_MESSAGE] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"chatMessage.user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"MESSAGE", desc:t('triggers.placeholders.message'), pointer:"chatMessage.message"},
 		{tag:"MODERATOR", desc:t('triggers.placeholders.pinned_by'), pointer:"moderator.displayName"},
+		{tag:"MODERATOR_ID", desc:t('triggers.placeholders.pinned_by_id'), pointer:"moderator.id"},
 	];
 
 	map[TriggerTypes.UNPIN_MESSAGE] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"chatMessage.user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"MESSAGE", desc:t('triggers.placeholders.message'), pointer:"chatMessage.message"},
 	];
 	
@@ -267,28 +271,34 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	
 	map[TriggerTypes.SUB] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"SUB_TIER", desc:t('triggers.placeholders.sub_tier'), pointer:"tier"},
 		{tag:"MESSAGE", desc:t('triggers.placeholders.sub_message'), pointer:"message"},
 	];
 	
 	map[TriggerTypes.SUBGIFT] = [
 		{tag:"USER", desc:t('triggers.placeholders.sub_gifter'), pointer:"user.displayName"},
-		{tag:"RECIPIENT", desc:t('triggers.placeholders.sub_gift_recipient'), pointer:"gift_recipients[].displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
+		{tag:"RECIPIENTS", desc:t('triggers.placeholders.sub_gift_recipient'), pointer:"gift_recipients[].displayName"},
+		{tag:"RECIPIENTS_ID", desc:t('triggers.placeholders.sub_gift_recipient_id'), pointer:"gift_recipients[].id"},
 		{tag:"SUB_TIER", desc:t('triggers.placeholders.sub_tier'), pointer:"tier"},
 	];
 	
 	map[TriggerTypes.CHEER] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"BITS", desc:t('triggers.placeholders.bits'), pointer:"bits"},
 		{tag:"MESSAGE", desc:t('triggers.placeholders.message'), pointer:"message"},
 	];
 	
 	map[TriggerTypes.FOLLOW] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 	];
 	
 	map[TriggerTypes.RAID] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"TITLE", desc:t('triggers.placeholders.stream_title'), pointer:"stream.title"},
 		{tag:"CATEGORY", desc:t('triggers.placeholders.stream_category'), pointer:"stream.category"},
 		{tag:"VIEWERS", desc:t('triggers.placeholders.stream_category'), pointer:"viewers"},
@@ -296,17 +306,21 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	
 	map[TriggerTypes.SHOUTOUT] = [
 		{tag:"USER", desc:"User that gave us a shoutout", pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 	];
 	
 	map[TriggerTypes.SHOUTOUT_IN] = [
 		{tag:"USER", desc:t('triggers.placeholders.shoutout_in'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 	];
 	map[TriggerTypes.SHOUTOUT_OUT] = [
 		{tag:"USER", desc:t('triggers.placeholders.shoutout_out'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 	];
 	
 	map[TriggerTypes.REWARD_REDEEM] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"TITLE", desc:t('triggers.placeholders.reward_title'), pointer:"reward.title"},
 		{tag:"DESCRIPTION", desc:t('triggers.placeholders.reward_description'), pointer:"reward.description"},
 		{tag:"COST", desc:t('triggers.placeholders.reward_cost'), pointer:"reward.cost"},
@@ -330,11 +344,13 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = [
 		{tag:"AVATAR", desc:t('triggers.placeholders.user_avatar'), pointer:"info.user.avatarPath"},
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"info.user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"info.user.id"},
 		{tag:"MESSAGE", desc:t('triggers.placeholders.message'), pointer:"info.message"},
 	];
 	
 	map[TriggerTypes.CHAT_ALERT] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"message.user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"message.user.id"},
 		{tag:"ALERT", desc:t('triggers.placeholders.message'), pointer:"message.message"},
 	];
 	
@@ -355,6 +371,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 
 	map[TriggerTypes.TIMEOUT] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"DURATION", desc:t('triggers.placeholders.timer_duration'), pointer:"duration_s"},
 	];
 	
@@ -382,10 +399,12 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.UNBAN] = 
 	map[TriggerTypes.BAN] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 	];
 
 	map[TriggerTypes.SHOUTOUT] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"AVATAR", desc:t('triggers.placeholders.user_avatar'), pointer:"user.avatarPath"},
 		{tag:"TITLE", desc:t('triggers.placeholders.stream_title'), pointer:"stream.title"},
 		{tag:"CATEGORY", desc:t('triggers.placeholders.stream_category'), pointer:"stream.category"},
@@ -401,6 +420,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS] = JSON.parse(JSON.stringify(map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE]));
 	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS].push(
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
+		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 		{tag:"CONTRIBUTION", desc:t('triggers.placeholders.challenge_contribution'), pointer:"contribution"},
 		{tag:"CONTRIBUTION_TOTAL", desc:t('triggers.placeholders.challenge_contribution_total'), pointer:"total_contribution"},
 	);

@@ -28,6 +28,7 @@
 			"param_readRaffle": "Résultats de tirage au sort",
 			"param_readUsers": "Messages de ces personnes",
 			"param_readUsers_add": "pseudo...",
+			"param_read1stMessageToday": "1er message du jour",
 			"param_read1stTimeChatters": "1er message sur la chaîne",
 			"param_readAutomod": "Messages retenus par l'automod"
 		},
@@ -85,6 +86,7 @@
 			"readPredictionsPattern": "La prédiction \"{TITLE}\" est terminée. L'entrée gagnante est : {WINNER}",
 			"readBingosPattern": "Bingo remporté par : {WINNER}",
 			"readRafflePattern": "Tirage au sort remporté par : {WINNER}",
+			"read1stMessageTodayPattern": "1er message de {USER} aujourd'hui : {MESSAGE}",
 			"read1stTimeChattersPattern": "1er message de {USER} : {MESSAGE}",
 			"readAutomodPattern": "Message de {USER} retenu par l'automod : {MESSAGE}"
 		}
