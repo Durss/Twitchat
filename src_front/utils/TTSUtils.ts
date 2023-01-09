@@ -27,6 +27,7 @@ export default class TTSUtils {
 	public static placeholderPredictions:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderRaffles:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderBingo:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholder1stMessageToday:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholder1stTimeChatters:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderAutomod:TwitchatDataTypes.PlaceholderEntry[];
 
@@ -249,6 +250,11 @@ export default class TTSUtils {
 			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
 
+		TTSUtils.placeholder1stMessageToday = [
+			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+		];
+
 		TTSUtils.placeholderAutomod = [
 			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
 			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
@@ -269,15 +275,23 @@ export default class TTSUtils {
 
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE:{
-				const canRead = (paramsTTS.readMessages && !message.automod && !message.twitch_automod)
-							|| (paramsTTS.read1stTimeChatters && message.twitch_isFirstMessage)
-							|| (paramsTTS.readAutomod && (message.twitch_automod || message.automod));
+				const is_automod = paramsTTS.readAutomod == true && (message.twitch_automod != undefined || message.automod != undefined);
+				const is_firstToday = paramsTTS.read1stMessageToday === true && message.todayFirst === true;
+				const is_1stTimeChatter = paramsTTS.read1stTimeChatters === true && message.twitch_isFirstMessage === true;
+				const canRead = (paramsTTS.readMessages && message.automod == undefined && message.twitch_automod == undefined)
+							|| is_firstToday
+							|| is_1stTimeChatter
+							|| is_automod;
+					
+				if(is_firstToday || is_1stTimeChatter || is_automod) {
+					force = true;
+				}
 				
 				//Stop if didn't ask to read this kind of message
-				if(!canRead && force!==true) return "";
+				if(!canRead && force !== true) return "";
 
 				//Stop there if the user isn't part of the permissions and message isn't forced
-				if(!force && !Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
+				if(force !== true && !Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
@@ -295,6 +309,7 @@ export default class TTSUtils {
 				if(message.twitch_automod)				pattern = paramsTTS.readAutomodPattern;
 				else if(message.automod)				pattern = paramsTTS.readAutomodPattern;
 				else if(message.twitch_isFirstMessage)	pattern = paramsTTS.read1stTimeChattersPattern;
+				else if(message.todayFirst)				pattern = paramsTTS.read1stMessageTodayPattern;
 
 				let txt = pattern.replace(/\{USER\}/gi, message.user.displayName)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)

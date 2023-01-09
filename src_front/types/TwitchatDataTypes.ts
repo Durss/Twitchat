@@ -476,6 +476,8 @@ export namespace TwitchatDataTypes {
 		readRafflePattern:string;
 		readPredictions: boolean;
 		readPredictionsPattern:string;
+		read1stMessageToday: boolean;
+		read1stMessageTodayPattern:string;
 		read1stTimeChatters: boolean;
 		read1stTimeChattersPattern:string;
 		readAutomod: boolean;
