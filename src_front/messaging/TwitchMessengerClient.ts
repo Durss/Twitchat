@@ -568,7 +568,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(tags["reply-parent-msg-id"]) {
 			const messages = StoreProxy.chat.messages;
 			//Search for original message the user answered to
-			for (let i = 0; i < messages.length; i++) {
+			for (let i = messages.length-1; i >= 0; i--) {
 				let m = messages[i];
 				if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 				if(m.id === tags["reply-parent-msg-id"]) {
@@ -728,7 +728,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private giftpaidupgrade(channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
-		data.gift_upgradeSender = this.getUserFromLogin(username, data.channel_id).user;
+		data.gift_upgradeSender = this.getUserFromLogin(sender, data.channel_id).user;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
