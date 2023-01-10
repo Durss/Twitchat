@@ -89,10 +89,9 @@ export const storeUsers = defineStore('users', {
 
 		/**
 		 * Registers the bots hashmap of a platform
-		 * Maps a lowercased login to a boolean (true)
 		 */
-		isAlreadyFollower(platform:TwitchatDataTypes.ChatPlatform, login:string):boolean {
-			return  this.myFollowers[platform][login] != undefined;
+		isAlreadyFollower(platform:TwitchatDataTypes.ChatPlatform, id:string):boolean {
+			return  this.myFollowers[platform][id] != undefined;
 		},
 
 		/**
@@ -548,6 +547,7 @@ export const storeUsers = defineStore('users', {
 
 		flagAsFollower(user:TwitchatDataTypes.TwitchatUser, channelId:string):void {
 			user.channelInfo[channelId].is_following = true;
+			this.myFollowers[user.platform][user.id] = Date.now();
 		},
 
 		openUserCard(user:TwitchatDataTypes.TwitchatUser, channelId?:string) {

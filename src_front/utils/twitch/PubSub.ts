@@ -22,7 +22,6 @@ export default class PubSub extends EventDispatcher {
 	private history:PubSubDataTypes.SocketMessage[] = [];
 	private raidTimeout!:number;
 	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
-	private followCache:{[key:string]:boolean} = {};
 	
 	constructor() {
 		super();
@@ -1019,10 +1018,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when having a new follower
 	 */
 	private followingEvent(data:PubSubDataTypes.Following):void {
-		if(this.followCache[data.username] === true) return;
-		this.followCache[data.username] = true;
-
-		if(StoreProxy.users.isAlreadyFollower("twitch", data.username)) return;
+		if(StoreProxy.users.isAlreadyFollower("twitch", data.user_id)) return;
 		
 		const channelId = StoreProxy.auth.twitch.user.id;
 
