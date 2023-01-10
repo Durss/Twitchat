@@ -327,7 +327,7 @@ export const storeUsers = defineStore('users', {
 									userLocal.channelInfo[chan].is_moderator = cache && cache[userLocal.id] === true;
 								}
 								//Check follower state
-								if(batchItem.channelId && userLocal.id) {
+								if(batchItem.channelId && userLocal.id && userLocal.channelInfo[batchItem.channelId].is_following == null) {
 									this.checkFollowerState(userLocal, batchItem.channelId);
 								}
 							}
@@ -495,7 +495,7 @@ export const storeUsers = defineStore('users', {
 		//Check if user is following
 		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
 			if(channelId != StoreProxy.auth.twitch.user.id) {
-				//Only get follower state for our own chan
+				//Only get follower state for our own chan, ignore others as it won't be possible in the future
 				user.channelInfo[channelId].is_following = true;
 				return true;
 			}
@@ -509,9 +509,11 @@ export const storeUsers = defineStore('users', {
 					try {
 						// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
 						const res = await TwitchUtils.getFollowInfo(user.id, channelId ?? StoreProxy.auth.twitch.user.id);
-						if(res) {
+						if(res != null) {
+							user.channelInfo[channelId].is_following = true;
 							user.channelInfo[channelId].following_date_ms = new Date(res.followed_at).getTime();
-							user.channelInfo[channelId].is_following = res != null;
+						}else{
+							user.channelInfo[channelId].is_following = false;
 						}
 						return true;
 					}catch(error){}

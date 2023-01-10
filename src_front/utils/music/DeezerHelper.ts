@@ -1,13 +1,12 @@
+import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
-import Config from "../Config";
 import { EventDispatcher } from "../../events/EventDispatcher";
-import PublicAPI from "../PublicAPI";
-import TriggerActionHandler from "../triggers/TriggerActionHandler";
 import TwitchatEvent from "../../events/TwitchatEvent";
+import Config from "../Config";
+import PublicAPI from "../PublicAPI";
 import Utils from "../Utils";
 import DeezerHelperEvent from "./DeezerHelperEvent";
-import StoreProxy from "@/store/StoreProxy";
 
 /**
 * Created : 23/05/2022 

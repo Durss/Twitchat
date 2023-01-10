@@ -231,7 +231,7 @@ export default class AutocompleteChatForm extends Vue {
 	}
 }
 
-export type ListItem = UserItem | EmoteItem | CommandItem;
+type ListItem = UserItem | EmoteItem | CommandItem;
 
 interface UserItem {
 	type:"user";
