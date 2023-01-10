@@ -344,6 +344,9 @@ export default class PubSub extends EventDispatcher {
 			}
 
 			const sender = StoreProxy.users.getUserFrom("twitch", meID, senderID);
+			const receiver = StoreProxy.users.getUserFrom("twitch", meID, receiverID);
+			sender.color = localObj.tags.color;
+			receiver.color = localObj.recipient.color;
 			const whisper:TwitchatDataTypes.MessageWhisperData = {
 				date:Date.now(),
 				id:Utils.getUUID(),
@@ -351,7 +354,7 @@ export default class PubSub extends EventDispatcher {
 				type:TwitchatDataTypes.TwitchatMessageType.WHISPER,
 				channel_id:meID,
 				user:sender,
-				to: StoreProxy.users.getUserFrom("twitch", meID, receiverID),
+				to: receiver,
 				message: localObj.body,
 				message_html: TwitchUtils.parseEmotes(localObj.body, emotes),
 			}

@@ -598,8 +598,10 @@ export const storeChat = defineStore('chat', {
 						if(sParams.features.alertMode.value === true && 
 						Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
 							if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
-								//Remove command from message to make later things easier
+								//Execute alert
 								sMain.chatAlert = message;
+
+								//Execute trigger
 								const trigger:TwitchatDataTypes.MessageChatAlertData = {
 									date:Date.now(),
 									id:Utils.getUUID(),
