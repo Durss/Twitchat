@@ -45,10 +45,14 @@
 			<TimerForm			class="popin" v-if="currentModal == 'timer'" @close="currentModal = ''" />
 		</Teleport>
 
-		<ChannelNotifications
-			:currentContent="currentNotificationContent"
-			@close="currentNotificationContent=''"
-		/>
+
+		<Teleport v-if="formsColumnTarget" :to="formsColumnTarget">
+			<ChannelNotifications
+				:currentContent="currentNotificationContent"
+				@close="currentNotificationContent=''"
+			/>
+		</Teleport>
+
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"

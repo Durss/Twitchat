@@ -455,8 +455,6 @@ export const storeChat = defineStore('chat', {
 
 			message = reactive(message);
 
-			TTSUtils.instance.addMessageToQueue(message);
-
 			switch(message.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
@@ -623,7 +621,7 @@ export const storeChat = defineStore('chat', {
 						//If there's a mention, search for last messages within
 						//a max timeframe to find if the message may be a reply to
 						//a message that was sent by the mentionned user
-						if(/@\w/gi.test(message.message)) {
+						if(/@\w/gi.test(message.message) && !message.answersTo) {
 							// console.log("Mention found");
 							const ts = Date.now();
 							const messages = this.messages;
@@ -632,32 +630,31 @@ export const storeChat = defineStore('chat', {
 							for (let i = 0; i < matches.length; i++) {
 								const match = matches[i].replace("@", "").toLowerCase();
 								// console.log("Search for message from ", match);
-								const candidates = messages.filter(m => {
-									if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return false;
-									return m.user.login == match
-								}) as TwitchatDataTypes.MessageChatData[];
-								//Search for oldest matching candidate
-								for (let j = 0; j < candidates.length; j++) {
-									const c = candidates[j];
-									// console.log("Found candidate", c);
-									if(ts - c.date < timeframe) {
-										// console.log("Timeframe is OK !");
-										if(c.answers) {
-											//If it's the root message of a conversation
-											c.answers.push( message );
-											message.answersTo = c;
-										}else if(c.answersTo && c.answersTo.answers) {
-											//If the messages answers to a message itself answering to another message
-											c.answersTo.answers.push( message );
-											message.answersTo = c.answersTo;
-										}else{
-											//If message answers to a message not from a conversation
-											message.answersTo = c;
-											if(!c.answers) c.answers = [];
-											c.answers.push( message );
-										}
-										break;
+								for (let j = messages.length-1; j >= 0; j--) {
+									const m = messages[j];
+									//Not a user message, ignore it
+									if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
+									//Not sent from the mentionned user, ignore it
+									if(m.user.login != match && m.user.displayName.toLowerCase() != match) continue;
+									//If message is too old, stop there
+									if(ts - m.date < timeframe) break;
+
+									if(m.answers) {
+										//If it's the root message of a conversation
+										m.answers.push( message );
+										message.answersTo = m;
+									}else if(m.answersTo && m.answersTo.answers) {
+										//If the messages answers to a message itself
+										//answering to another message
+										m.answersTo.answers.push( message );
+										message.answersTo = m.answersTo;
+									}else{
+										//If message answers to a message not from a conversation
+										message.answersTo = m;
+										if(!m.answers) m.answers = [];
+										m.answers.push( message );
 									}
+									break;
 								}
 							}
 						}
@@ -921,6 +918,8 @@ export const storeChat = defineStore('chat', {
 			}else{
 				TriggerActionHandler.instance.onMessage(message);
 			}
+
+			TTSUtils.instance.addMessageToQueue(message);
 		},
 		
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) { 
