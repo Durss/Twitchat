@@ -45,6 +45,7 @@ export namespace TwitchDataTypes {
 		game_name: string;
 		title: string;
 		delay: number;
+		tags: string[];
 	}
 
 	export interface UserInfo {

@@ -74,7 +74,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				TwitchUtils.getPolls(channelId);
 				TwitchUtils.getPredictions(channelId);
 			}
-			TwitchUtils.searchTag("");//Preload tags to build local cache
 		}catch(e) {
 			//User is probably not an affiliate
 		}

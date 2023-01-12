@@ -19,12 +19,7 @@ export default class TwitchUtils {
 	public static rewardsCache:TwitchDataTypes.Reward[] = [];
 
 	private static tagsLoadingPromise:((value: TwitchDataTypes.StreamTag[] | PromiseLike<TwitchDataTypes.StreamTag[]>) => void) | null;
-	private static tagsCache:TwitchDataTypes.StreamTag[] = [];
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
-
-	public static get allTags():TwitchDataTypes.StreamTag[] {
-		return this.tagsCache.concat();
-	}
 
 	private static get headers():{[key:string]:string} {
 		return {
@@ -1296,72 +1291,6 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Search for a stream tag
-	 * 
-	 * @param search search term
-	 */
-	public static async searchTag(search:string):Promise<TwitchDataTypes.StreamTag[]> {
-		return new Promise(async (resolve, reject)=> {
-
-			search = search.toLowerCase();
-			
-			//If tags list is already loing, wait for it to avoid multiple
-			//parallel loading.
-			if(this.tagsLoadingPromise) return this.tagsLoadingPromise;
-			
-			//Tags aren't loaded yet, load them all
-			if(this.tagsCache.length == 0){
-				this.tagsLoadingPromise = resolve;
-	
-				const options = {
-					method:"GET",
-					headers: this.headers,
-				}
-		
-				let list:TwitchDataTypes.StreamTag[] = [];
-				let cursor:string|null = null;
-				do {
-					const pCursor = cursor? "&after="+cursor : "";
-					const res = await fetch(Config.instance.TWITCH_API_PATH+"tags/streams?first=100&"+pCursor, options);
-					const json:{data:TwitchDataTypes.StreamTag[], pagination?:{cursor?:string}} = await res.json();
-					list = list.concat(json.data);
-					cursor = null;
-					if(json.pagination?.cursor) {
-						cursor = json.pagination.cursor;
-					}
-				}while(cursor != null);
-				
-				list = list.filter(v => !v.is_auto);
-				this.tagsCache = list;
-			}
-	
-			
-			//@ts-ignore
-			let userLang:string = navigator.language ?? navigator.userLanguage; 
-			userLang = userLang.toLowerCase();
-			if(userLang.indexOf("-") == -1) {
-				userLang += "-"+userLang;
-			}
-	
-			const result:TwitchDataTypes.StreamTag[] = [];
-			for (let i = 0; i < this.tagsCache.length; i++) {
-				const t = this.tagsCache[i];
-				if(t.localization_names["en-us"].toLowerCase().indexOf(search) > -1) {
-					result.push(t);
-	
-				}else if(userLang != 'en-us'
-				&& t.localization_names[userLang]?.toLowerCase().indexOf(search) > -1) {
-					result.push(t);
-				}
-			}
-
-			this.tagsLoadingPromise = null;
-	
-			resolve(result);
-		})
-	}
-
-	/**
 	 * Get current stream's infos
 	 */
 	public static async getStreamInfos(channelId:string):Promise<TwitchDataTypes.ChannelInfo> {
@@ -1389,13 +1318,14 @@ export default class TwitchUtils {
 	/**
 	 * Update stream's title and game
 	 */
-	public static async setStreamInfos(title:string, categoryID:string, channelId:string):Promise<boolean> {
+	public static async setStreamInfos(title:string, categoryID:string, channelId:string, tags:string[] = []):Promise<boolean> {
 		const options = {
 			method:"PATCH",
 			headers: this.headers,
 			body: JSON.stringify({
 				title,
 				game_id:categoryID,
+				tags,
 				// delay:"0",
 				// broadcaster_language:"en",
 			})
@@ -1407,59 +1337,7 @@ export default class TwitchUtils {
 			//Rate limit reached, try again after it's reset to fulle
 			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now());
-			return await this.setStreamInfos(title, categoryID, channelId);
-		}
-		if(res.status == 204) {
-			return true;
-		}else{
-			return false;
-		}
-	}
-
-	/**
-	 * Get channel's tags
-	 */
-	public static async getStreamTags(channelId:string):Promise<TwitchDataTypes.StreamTag[]> {
-		const options = {
-			method:"GET",
-			headers: this.headers
-		}
-		const url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
-		url.searchParams.append("broadcaster_id", channelId);
-		const res = await fetch(url.href, options);
-		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now());
-			return await this.getStreamTags(channelId);
-		}
-		const json = await res.json();
-		if(json.error) {
-			throw(json);
-		}else{
-			return (json.data as TwitchDataTypes.StreamTag[]).filter(v => !v.is_auto);
-		}
-	}
-
-	/**
-	 * Update channel's tags
-	 */
-	public static async setStreamTags(tagIDs:string[], channelId:string):Promise<boolean> {
-		const options = {
-			method:"PUT",
-			headers: this.headers,
-			body: JSON.stringify({
-				tag_ids:tagIDs,
-			})
-		}
-		const url = new URL(Config.instance.TWITCH_API_PATH+"streams/tags");
-		url.searchParams.append("broadcaster_id", channelId);
-		const res = await fetch(url.href, options);
-		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now());
-			return await this.setStreamTags(tagIDs, channelId);
+			return await this.setStreamInfos(title, categoryID, channelId, tags);
 		}
 		if(res.status == 204) {
 			return true;
@@ -2166,5 +2044,49 @@ export default class TwitchUtils {
 			return await this.eventsubSubscribe(channelId, userId, session_id, topic, version);
 		}
 		return false;
+	}
+
+	/**
+	 * @deprecated Endpoint to be removed in 2023!
+	 * Search for a stream tag
+	 * 
+	 * @param search search term
+	 */
+	public static async searchTag(ids:string[]):Promise<{id:string, label:string}[]> {
+		const result:{id:string, label:string}[] = [];
+
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+
+		let list:TwitchDataTypes.StreamTag[] = [];
+		do {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"tags/streams");
+			for (let i = 0; i < Math.min(100, ids.length); i++) {
+				url.searchParams.append("tag_id", ids.pop()!);
+			}
+			url.searchParams.append("first", "100");
+
+			const res = await fetch(url, options);
+			const json:{data:TwitchDataTypes.StreamTag[], pagination?:{cursor?:string}} = await res.json();
+			list = list.concat(json.data);
+		}while(ids.length > 0);
+		
+		//@ts-ignore
+		let userLang:string = navigator.language ?? navigator.userLanguage; 
+		userLang = userLang.toLowerCase();
+		if(userLang.indexOf("-") == -1) {
+			userLang += "-"+userLang;
+		}
+
+		for (let i = 0; i < list.length; i++) {
+			const t = list[i];
+			let label = t.localization_names[userLang];
+			if(!label) label = t.localization_names["en-us"];
+			result.push({id:t.tag_id, label});
+		}
+		
+		return result;
 	}
 }

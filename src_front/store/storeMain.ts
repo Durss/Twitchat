@@ -188,6 +188,7 @@ export const storeMain = defineStore("main", {
 							}
 						});
 					});
+					await DataStore.asyncMigration();
 				}catch(error) {
 					console.log(error);
 					sAuth.authenticated = false;

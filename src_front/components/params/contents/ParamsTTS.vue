@@ -42,12 +42,10 @@
 					<vue-select class="item itemSelector" label="label"
 						:placeholder="$t('tts.messages.param_readUsers_add')"
 						v-model="param_readUsers.listValues"
-						:options="param_readUsers.listValues"
 						:create-option="(v:string) => { return {label: v, value: v} }"
 						:calculate-position="$placeDropdown"
 						appendToBody
 						taggable
-						push-tags
 						multiple
 					></vue-select>
 				</div>

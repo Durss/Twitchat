@@ -305,7 +305,7 @@ import Ajv from "ajv";
 						id:{type:"string", maxLength:10},
 						title:{type:"string", maxLength:200},
 						categoryID:{type:"string", maxLength:10},
-						tagIDs:{
+						tags:{
 							type:"array",
 							items:[{type:"string", maxLength:100}],
 						},

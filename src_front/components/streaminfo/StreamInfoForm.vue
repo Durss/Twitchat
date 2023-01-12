@@ -36,12 +36,27 @@
 						<Button class="autoComplete-item" small :title="item.name" :icon="item.box_art_url" />
 					</AutoCompleteForm>
 	
-					<AutoCompleteForm class="item" :title="$t('stream.form_stream_tags')" @search="searchTags" v-slot="{ item }" :delay="0" v-model="tags" :maxItems="5" idKey="tag_id">
-						<Button class="autoComplete-item" small :title="item.localization_names['en-us']" />
-					</AutoCompleteForm>
-					<div class="info">
-						<img src="@/assets/icons/infos.svg" alt="info">
-						<p class="label" v-t="'stream.form_custom_tags_warn'"></p>
+					<div class="item">
+						<label>{{ param_tags.label }}</label>
+						<vue-select class="itemSelector" label="label"
+							placeholder="tag..."
+							v-model="param_tags.listValues"
+							:create-option="(v:string) => { return {label: v, value: v} }"
+							:calculate-position="$placeDropdown"
+							appendToBody
+							taggable
+							multiple
+							v-if="param_tags.listValues!.length < 10"
+						></vue-select>
+						
+						<div v-else class="tagList">
+							<button type="button" class="tagItem" aria-label="delete tag"
+							v-for="i in param_tags.listValues"
+							@click="deleteTag(i)">
+								<span>{{ i.label }}</span>
+								<img src="@/assets/icons/cross.svg" class="icon">
+							</button>
+						</div>
 					</div>
 					
 					<ParamItem class="item" :paramData="param_savePreset" v-if="!presetEditing" />
@@ -83,13 +98,13 @@ import ToggleBlock from '../ToggleBlock.vue';
 export default class StreamInfoForm extends Vue {
 
 	public param_title:TwitchatDataTypes.ParameterData			= {label:"", value:"", type:"text", placeholder:"", maxLength:140};
+	public param_tags:TwitchatDataTypes.ParameterData			= {label:"", value:"", listValues:[], type:"list"};
 	public param_savePreset:TwitchatDataTypes.ParameterData		= {label:"", value:false, type:"toggle"};
 	public param_namePreset:TwitchatDataTypes.ParameterData		= {label:"", value:"", type:"text", placeholder:"", maxLength:50};
 
 	public saving:boolean = false;
 	public loading:boolean = true;
 	public forceOpenForm:boolean = true;
-	public tags:TwitchDataTypes.StreamTag[] = [];
 	public categories:TwitchDataTypes.StreamCategory[] = [];
 	public presetEditing:TwitchatDataTypes.StreamInfoPreset|null = null;
 
@@ -102,7 +117,8 @@ export default class StreamInfoForm extends Vue {
 		this.param_title.placeholder		= this.$t('stream.form_stream_title_placeholder');
 		this.param_savePreset.label			= this.$t('stream.form_save_preset')
 		this.param_namePreset.label			= this.$t('stream.form_save_preset_name')
-		this.param_namePreset.placeholder	=this.$t('stream.form_save_preset_name_placeholder');
+		this.param_namePreset.placeholder	= this.$t('stream.form_save_preset_name_placeholder');
+		this.param_tags.label				= this.$t('stream.form_stream_tags');
 	}
 
 	public async mounted():Promise<void> {
@@ -122,8 +138,7 @@ export default class StreamInfoForm extends Vue {
 				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
 				this.categories = [game];
 			}
-			const tags = await TwitchUtils.getStreamTags(channelId);
-			this.tags = tags;
+			this.param_tags.listValues = infos.tags.map(v=> {return {label:v, value:v}});
 		}catch(error) {
 			this.$store("main").alert( this.$t("error.stream_info_loading") );
 		}
@@ -145,14 +160,6 @@ export default class StreamInfoForm extends Vue {
 		callback(res);
 	}
 
-	public async searchTags(search:string, callback:(data:unknown[])=>{}):Promise<void> {
-		const res = await TwitchUtils.searchTag(search);
-		res.sort((a, b) => {
-			return a.localization_names['en-us'] > b.localization_names['en-us'] ? 1 : -1;
-		});
-		callback(res);
-	}
-
 	public async updateStreamInfo():Promise<void> {
 		this.saving = true;
 		if(this.param_savePreset.value === true || this.presetEditing) {
@@ -162,7 +169,8 @@ export default class StreamInfoForm extends Vue {
 				title:this.param_title.value as string,
 			}
 			if(this.categories.length >0) preset.categoryID = this.categories[0].id
-			if(this.tags.length >0) preset.tagIDs = this.tags.map(t => t.tag_id);
+			if(this.param_tags.listValues
+			&& this.param_tags.listValues.length > 0) preset.tags = this.param_tags.listValues.map(v=>v.label);
 			if(this.presetEditing) preset.id = this.presetEditing.id;
 			this.$store("stream").saveStreamInfoPreset(preset)
 		}
@@ -170,7 +178,6 @@ export default class StreamInfoForm extends Vue {
 		if(!this.presetEditing) {
 			try {
 				const channelId = StoreProxy.auth.twitch.user.id;
-				await TwitchUtils.setStreamTags(this.tags.map(t => t.tag_id), channelId);
 				await TwitchUtils.setStreamInfos(this.param_title.value as string, this.categories[0].id, channelId);
 			}catch(error) {
 				this.$store("main").alert( this.$t("error.stream_info_updating") );
@@ -202,13 +209,11 @@ export default class StreamInfoForm extends Vue {
 				const game = await TwitchUtils.getCategoryByID(p.categoryID);
 				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
 				this.categories = [game];
+				if(p.tags){
+					this.param_tags.listValues = p.tags.map(v=> { return {label:v, value:v}});
+				}
 			}
-			const tags = await TwitchUtils.allTags;
-			if(p.tagIDs) {
-				this.tags = tags.filter(t => p.tagIDs && p.tagIDs.indexOf(t.tag_id) > -1);
-			}else{
-				this.tags = [];
-			}
+			const tags = p.tags;
 		}catch(error) {
 			this.$store("main").alert( this.$t("stream.stream_info_preset_edit") );
 		}
@@ -220,12 +225,16 @@ export default class StreamInfoForm extends Vue {
 		this.saving = true;
 		try {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			await TwitchUtils.setStreamTags(p.tagIDs as string[], channelId);
-			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string, channelId);
+			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string, channelId, p.tags);
 		}catch(error) {
 			this.$store("main").alert( this.$t("error.stream_info_updating") );
 		}
 		this.saving = false;
+	}
+
+	public deleteTag(p:TwitchatDataTypes.ParameterDataListValue):void {
+		if(!this.param_tags.listValues) this.param_tags.listValues = [];
+		this.param_tags.listValues = this.param_tags.listValues.filter(v=> v.value != p.value);
 	}
 
 }
@@ -325,25 +334,6 @@ export default class StreamInfoForm extends Vue {
 		}
 	}
 
-	.info {
-		overflow: hidden;
-		padding: .5em;
-		padding-left: calc(1em + 10px);
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		margin: .5em 0;
-		font-size: .8em;
-		text-align: center;
-		img {
-			height: 1em;
-			margin-right: .5em;
-			vertical-align: middle;
-		}
-		.label {
-			display: inline;
-			color: @mainColor_warn;
-		}
-	}
 
 	.loader {
 		width: 3em;
@@ -361,7 +351,36 @@ export default class StreamInfoForm extends Vue {
 				margin-right: .5em;
 			}
 		}
+	}
 
+	.itemSelector {
+		margin-top: .5em;
+	}
+
+	.tagList {
+		margin-top: .8em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 5px;
+		.tagItem {
+			display: inline;
+			background-color: rgb(240, 240, 240);
+			color: @mainColor_normal;
+			font-size: .9em;
+			padding: .25em;
+			border-radius: 4px;
+			transition: all .25s;
+
+			.icon {
+				height: .6em;
+				margin-left: .25em;
+			}
+			&:hover {
+				background: @mainColor_alert;
+				color: @mainColor_light;
+			}
+		}
 	}
 }
 </style>

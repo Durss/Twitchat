@@ -352,6 +352,10 @@ export namespace TwitchatDataTypes {
 		name: string;
 		title: string;
 		categoryID?: string;
+		tags?: string[];
+		/**
+		 * @deprecated Only here for typings on data migration. Removed in favor of the new "tags" prop
+		 */
 		tagIDs?: string[];
 	}
 

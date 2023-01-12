@@ -1,6 +1,7 @@
 import { TriggerTypes, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import type {TwitchatDataTypes} from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { JsonValue } from "type-fest";
 import StoreProxy from "./StoreProxy";
 
@@ -160,6 +161,31 @@ export default class DataStore {
 		if(v=="21") {
 			this.migrateTriggerSubgiftPlaceholder();
 			v = "22";
+		}
+		//v 22 migration is asynchronous, see asyncMigration()
+
+		this.set(this.DATA_VERSION, v);
+
+		const items = this.getAll();
+		for (const key in items) {
+			try{
+				items[key] = JSON.parse(items[key] as string);
+			}catch(error) {
+				//parsing failed, that's because it's a simple string, just keep it
+			}
+		}
+		this.rawStore = items;
+		this.save();
+	}
+
+	/**
+	 * Makes asynchronous data migrations after being authenticated
+	 */
+	public static async asyncMigration():Promise<void> {
+		let v = this.get(this.DATA_VERSION) ?? "1";
+		if(v=="22") {
+			this.migrateStreamTags();
+			v = "23";
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -485,7 +511,7 @@ export default class DataStore {
 					}
 				}
 			}
-			this.set("triggers", actions);
+			this.set(DataStore.TRIGGERS, actions);
 			this.remove("obsConf_sources");
 		}
 	}
@@ -495,7 +521,7 @@ export default class DataStore {
 	 * properly no matter how the user writes it.
 	 */
 	private static fixTriggersCase():void {
-		const txt = this.get("triggers");
+		const txt = this.get(DataStore.TRIGGERS);
 		if(!txt) return;
 		const triggers = JSON.parse(txt);
 		for (const key in triggers) {
@@ -508,14 +534,14 @@ export default class DataStore {
 			}
 		}
 		
-		this.set("triggers", triggers);
+		this.set(DataStore.TRIGGERS, triggers);
 	}
 
 	/**
 	 * Encapsulate simple triggers (not chat commands) inside a new object
 	 */
 	private static migrateTriggers2():void {
-		const txt = this.get("triggers");
+		const txt = this.get(DataStore.TRIGGERS);
 		if(!txt) return;
 		const triggers = JSON.parse(txt);
 		for (const key in triggers) {
@@ -529,7 +555,7 @@ export default class DataStore {
 			}
 		}
 		
-		this.set("triggers", triggers);
+		this.set(DataStore.TRIGGERS, triggers);
 	}
 
 	/**
@@ -559,7 +585,7 @@ export default class DataStore {
 	 * Changes the "chatCommand" trigger prop to more generic "name"
 	 */
 	private static migrateChatCommandTriggers():void {
-		const txt = this.get("triggers");
+		const txt = this.get(DataStore.TRIGGERS);
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
@@ -571,7 +597,7 @@ export default class DataStore {
 			}
 		}
 
-		this.set("triggers", triggers);
+		this.set(DataStore.TRIGGERS, triggers);
 	}
 
 	/**
@@ -600,7 +626,7 @@ export default class DataStore {
 	 * Made a mistake storing minutes instead of seconds
 	 */
 	private static migrateRaffleTriggerDuration():void {
-		const txt = this.get("triggers");
+		const txt = this.get(DataStore.TRIGGERS);
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
@@ -614,14 +640,14 @@ export default class DataStore {
 			}
 		}
 
-		this.set("triggers", triggers);
+		this.set(DataStore.TRIGGERS, triggers);
 	}
 
 	/**
 	 * Made a mistake storing minutes instead of seconds
 	 */
 	private static migrateRaffleTriggerTypoAndTextSize():void {
-		const txt = this.get("triggers");
+		const txt = this.get(DataStore.TRIGGERS);
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
@@ -641,7 +667,7 @@ export default class DataStore {
 				}
 			}
 		}
-		this.set("triggers", triggers);
+		this.set(DataStore.TRIGGERS, triggers);
 		this.remove("leftColSize");//Remaining old data
 
 		//Convert old size scale to the new one
@@ -657,7 +683,7 @@ export default class DataStore {
 	 * Renamed placeholder "RECIPIENT" to "RECIPIENTS"
 	 */
 	private static migrateTriggerSubgiftPlaceholder():void {
-		const txt = this.get("triggers");
+		const txt = this.get(DataStore.TRIGGERS);
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
@@ -676,6 +702,41 @@ export default class DataStore {
 			}
 		}
 
-		this.set("triggers", triggers);
+		this.set(DataStore.TRIGGERS, triggers);
+	}
+
+	/**
+	 * Migrate stream tags following the new open tags endpoint
+	 */
+	private static async migrateStreamTags():Promise<void> {
+		const txt = this.get(DataStore.STREAM_INFO_PRESETS);
+		if(!txt) return;
+		const presets:TwitchatDataTypes.StreamInfoPreset[] = JSON.parse(txt);
+		let tags:string[] = [];
+		for (let i = 0; i < presets.length; i++) {
+			const p = presets[i];
+			if(p.tagIDs) {
+				tags = tags.concat(p.tagIDs);
+			}
+		}
+
+		const result = await TwitchUtils.searchTag(tags);
+
+		for (let i = 0; i < presets.length; i++) {
+			const p = presets[i];
+			p.tags = [];
+			if(p.tagIDs) {
+				for (let j = 0; j < p.tagIDs.length; j++) {
+					const id = p.tagIDs[j];
+					const tag = result.find(v=> v.id == id);
+					if(tag) {
+						p.tags.push(tag.label)
+					}
+				}
+				delete p.tagIDs;
+			}
+		}
+
+		this.set(DataStore.STREAM_INFO_PRESETS, presets);
 	}
 }
