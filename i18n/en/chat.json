@@ -90,7 +90,8 @@
 				"short": "Short messages"
 			},
 			"commands": "Hide specific commands",
-			"short": "Messages shorter than 4 chars<br>or containing mostly emotes"
+			"tracked_tt": "Messages sent by viewers<br>you added to the tracked users",
+			"short_tt": "Messages shorter than 4 chars<br>or containing mostly emotes"
 		},
 		"shoutout": {
 			"received": "{USER} gave you a shoutout to {VIEWERS} viewers",

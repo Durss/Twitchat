@@ -21,7 +21,7 @@
 			"pollBt_aria": "Ouvrir le sondage",
 			"suggBt_aria": "Ouvrir les suggestions",
 			"predictionBt_aria": "Ouvrir la prédiction",
-			"trackedBt_aria": "Ouvrir les viewers suivis",
+			"trackedBt_aria": "Ouvrir les personnes suivies",
 			"raffleBt_aria": "Ouvrir le tirage au sort",
 			"bingoBt_aria": "Ouvrir le bingo",
 			"whispersBt_aria": "Ouvrir les chuchotements",
@@ -81,7 +81,7 @@
 				"moderators": "Envoyé par des modérateurices",
 				"partners": "Envoyé par des partnaires",
 				"bots": "Envoyé par des bots",
-				"tracked": "Envoyé par des personnes suivies",
+				"tracked": "Envoyé par une personne suivie",
 				"deleted": "Messages supprimés",
 				"pinned": "Messages épinglés",
 				"automod": "Messages bloqués",
@@ -90,7 +90,8 @@
 				"short": "Messages courts"
 			},
 			"commands": "Masquer des commandes spécifiques",
-			"short": "Messages plus courts que 4 caractères<br>ou contenant principalement des emotes"
+			"tracked_tt": "Messages envoyés par des personnes<br>pour lesquelles vous avez activé<br>le suivit de messages",
+			"short_tt": "Messages plus courts que 4 caractères<br>ou contenant principalement des emotes"
 		},
 		"shoutout": {
 			"received": "{USER} vous a fait une dédicasse auprès de {VIEWERS} viewers",
@@ -287,7 +288,7 @@
 		"hover_actions": {
 			"track_user": "Suivre ses messages",
 			"so": "Faire un shoutout",
-			"tts": "Lire ses messages vua TTS",
+			"tts": "Lire le message<br>à voix haute",
 			"highlight": "Mettre en avant",
 			"highlight_tt": "Afficher sur votre stream<br><i>(nécessite l'overlay dédié)</i>",
 			"pin": "Epingler le message"

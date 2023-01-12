@@ -3,6 +3,8 @@
 		"header": "Lire des messages à voix haute",
 		"read_user_start": "Lire les messages de {USER}",
 		"read_user_stop": "Arrêter de lire les messages de {USER}",
+		"read_user_start_light": "Lire ses messages",
+		"read_user_stop_light": "Ne plus lire ses messages",
 		"on_notice": "Les messages de <mark>{USER}</mark> seront lus à voix haute.",
 		"off_notice": "Les messages de <mark>{USER}</mark> seront lus à voix haute.",
 		"chat_perms": {

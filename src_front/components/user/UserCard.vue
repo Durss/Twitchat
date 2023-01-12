@@ -52,8 +52,9 @@
 			<div class="ctas">
 				<Button :title="$t('usercard.profileBt')" type="link" small :icon="$image('icons/newtab.svg')" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
 				<Button :title="$t('usercard.viewercardBt')" small :icon="$image('icons/newtab.svg')" @click="openUserCard()" />
-				<Button :title="$t('usercard.trackBt')" type="link" v-if="!is_tracked" small :icon="$image('icons/magnet.svg')" @click="trackUser()" />
-				<Button :title="$t('usercard.untrackBt')" type="link" v-if="is_tracked" small :icon="$image('icons/magnet.svg')" @click="untrackUser()" />
+				<Button :title="$t('usercard.trackBt')" v-if="!is_tracked" small :icon="$image('icons/magnet.svg')" @click="trackUser()" />
+				<Button :title="$t('usercard.untrackBt')" v-if="is_tracked" small :icon="$image('icons/magnet.svg')" @click="untrackUser()" />
+				<Button :title="ttsReadBtLabel"  v-if="$store('tts').params.enabled === true" small :icon="$image('icons/tts.svg')" @click="toggleReadUser()" />
 			</div>
 
 			<div class="description" v-if="userDescription">{{userDescription}}</div>
@@ -136,6 +137,19 @@ export default class UserCard extends Vue {
 	}
 
 	public get is_tracked():boolean{ return this.user!.is_tracked; }
+
+	public get ttsReadBtLabel(): string {
+		if(!this.user) return "";
+		const username = this.user.login.toLowerCase();
+		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
+		let label = "";
+		if (permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1) {
+			label = this.$t("tts.read_user_start_light", {USER:username})
+		} else {
+			label = this.$t("tts.read_user_stop_light", {USER:username})
+		}
+		return label;
+	}
 
 	public getFormatedDate(f:TwitchDataTypes.Following):string {
 		return Utils.formatDate(new Date(f.followed_at));
@@ -273,6 +287,15 @@ export default class UserCard extends Vue {
 	
 	public untrackUser():void {
 		this.$store("users").untrackUser(this.user!);
+	}
+
+	/**
+	 * Toggles whether the TTS should read this user's messages
+	 */
+	public toggleReadUser(): void {
+		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
+		const read = permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(this.user!.login) == -1;
+		this.$store("tts").ttsReadUser(this.user!, read);
 	}
 
 	public copyID():void {

@@ -386,8 +386,8 @@ export default class MessageList extends Vue {
 	}
 
 	public get readLabel(): string {
-		if (!this.conversation[0].user.displayName) return "";
-		const username = this.conversation[0].user.displayName.toLowerCase();
+		if (!this.conversation[0].user.login) return "";
+		const username = this.conversation[0].user.login.toLowerCase();
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		let label = "";
 		if (permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1) {

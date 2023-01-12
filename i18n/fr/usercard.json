@@ -7,7 +7,7 @@
 		"streaming":"Live en cours",
 		"profileBt":"profil",
 		"viewercardBt":"infos viewer",
-		"trackBt":"suivre",
-		"untrackBt":"ne plus suivre"
+		"trackBt":"Activer le suivit",
+		"untrackBt":"Désactiver le suivit"
 	}
 }

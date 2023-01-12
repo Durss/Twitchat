@@ -393,7 +393,10 @@ export default class MessageListFilter extends Vue {
 						param.children = [subParam];
 					}
 					if(k == "short") {
-						param.tooltip = this.$t('chat.filters.short');
+						param.tooltip = this.$t('chat.filters.short_tt');
+					}
+					if(k == "tracked") {
+						param.tooltip = this.$t('chat.filters.tracked_tt');
 					}
 					children.push(param);
 				}
