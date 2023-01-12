@@ -470,12 +470,8 @@ export const storeChat = defineStore('chat', {
 						};
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 						
-					}else if(message.user.greeted !== true
-					&& (!greetedUsers[message.user.id] || greetedUsers[message.user.id] < Date.now())) {
-						message.todayFirst = true;
-						message.user.greeted = true;
-						greetedUsers[message.user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
-						DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
+					}else {
+						this.flagMessageAsFirstToday(message, message.user);
 					}
 					
 					//Check if the message contains a mention
@@ -664,6 +660,12 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 
+				//Reward redeem
+				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
+					this.flagMessageAsFirstToday(message, message.user);
+					break;
+				}
+
 				//Incomming raid
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					sStream.lastRaider = message.user;
@@ -733,7 +735,8 @@ export const storeChat = defineStore('chat', {
 				//New follower
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 					
-					sUsers.flagAsFollower(message.user, message.channel_id)
+					sUsers.flagAsFollower(message.user, message.channel_id);
+					this.flagMessageAsFirstToday(message, message.user);
 
 					//Merge all followbot events into one
 					if(message.followbot === true) {
@@ -833,11 +836,12 @@ export const storeChat = defineStore('chat', {
 						//Check if nickname passes the automod
 						const rule = Utils.isAutomoded(message.user.displayName, message.user, message.channel_id);
 						if(rule) {
+							//User blocked by automod
 							if(message.user.platform == "twitch") {
 								message.user.channelInfo[message.channel_id].is_banned = true;
 								TwitchUtils.banUser(message.user, message.channel_id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
 							}
-							//Most message on chat to alert the stream
+							//Post message on chat to alert the streamer
 							const mess:TwitchatDataTypes.MessageAutobanJoinData = {
 								platform:"twitchat",
 								channel_id: message.channel_id,
@@ -1166,6 +1170,17 @@ export const storeChat = defineStore('chat', {
 				}, 100);
 			}
 		},
+
+		flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void {
+			if(user.greeted === true) return;
+			if(greetedUsers[user.id] && greetedUsers[user.id] > Date.now()) return;
+			if(user.channelInfo[message.channel_id].is_blocked === true) return;//Ignore blocked users
+
+			message.todayFirst = true;
+			user.greeted = true;
+			greetedUsers[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
+			DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
+		}
 	} as IChatActions
 	& ThisType<IChatActions
 		& UnwrapRef<IChatState>

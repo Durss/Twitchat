@@ -972,10 +972,16 @@ export namespace TwitchatDataTypes {
 		markedAsRead?:boolean;
 	}
 
+	export interface GreetableMessage extends AbstractTwitchatMessage {
+		todayFirst?: boolean;
+		channel_id:string;
+		user:TwitchatUser;
+	}
+
 	/**
 	 * A regular user's message 
 	 */
-	export interface MessageChatData extends AbstractTwitchatMessage {
+	export interface MessageChatData extends GreetableMessage {
 		channel_id: string;
 		type:"message";
 		user: TwitchatUser;
@@ -986,7 +992,7 @@ export namespace TwitchatDataTypes {
 		is_short: boolean;//true if message is short or contains mostly emotes
 		is_pinned?: boolean;
 		
-		todayFirst?: boolean;
+		
 		automod?: AutomodParamsKeywordFilterData;
 		answersTo?: MessageChatData;
 		cyphered?: boolean;
@@ -1071,7 +1077,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a "new follower" message
 	 */
-	export interface MessageFollowingData extends AbstractTwitchatMessage {
+	export interface MessageFollowingData extends GreetableMessage {
 		channel_id: string;
 		type:"following";
 		user:TwitchatUser;
@@ -1117,7 +1123,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a reward redeem message
 	 */
-	export interface MessageRewardRedeemData extends AbstractTwitchatMessage {
+	export interface MessageRewardRedeemData extends GreetableMessage {
 		channel_id: string;
 		type:"reward";
 		user: TwitchatUser;

@@ -25,18 +25,31 @@
 		</div>
 		
 		<div class="messageList" v-if="showList" ref="messageList">
-			<ChatMessage
-				v-for="(m,index) in localMessages" :key="m.id"
-				class="message"
-				ref="message"
-				:messageData="m"
-				:data-index="index"
-				:lightMode="true"
-				:disableConversation="true"
-				@mouseover="onMouseOver($event, index)"
-				@mouseout="onMouseOut()"
-				@click="deleteMessage(m, index)"
-				@click.right.prevent="deleteMessage(m, index, true)" />
+			<template v-for="(m,index) in localMessages" :key="m.id">
+				<ChatMessage
+					v-if="m.type == 'message' || m.type == 'whisper'"
+					class="message"
+					ref="message"
+					:messageData="m"
+					:data-index="index"
+					:lightMode="true"
+					:disableConversation="true"
+					@mouseover="onMouseOver($event, index)"
+					@mouseout="onMouseOut()"
+					@click="deleteMessage(m, index)"
+					@click.right.prevent="deleteMessage(m, index, true)" />
+				
+
+				<ChatHighlight v-else 
+					class="message"
+					ref="message"
+					:messageData="m"
+					:data-index="index"
+					@mouseover="onMouseOver($event, index)"
+					@mouseout="onMouseOut()"
+					@click="deleteMessage(m, index)"
+					@click.right.prevent="deleteMessage(m, index, true)" />
+			</template>
 		</div>
 		<div class="grip" @mousedown="startDrag()" @touchstart="startDrag()"></div>
 	</div>
@@ -44,20 +57,19 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
+import EventBus from '@/events/EventBus';
+import GlobalEvent from '@/events/GlobalEvent';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ChatHighlight from '../messages/ChatHighlight.vue';
-import GlobalEvent from '@/events/GlobalEvent';
-import EventBus from '@/events/EventBus';
 
 @Options({
 	props:{},
@@ -75,7 +87,7 @@ export default class NewUsers extends Vue {
 	public indexOffset = 0;
 	public deleteInterval = -1;
 	public windowHeight = .3;
-	public localMessages:(TwitchatDataTypes.MessageChatData)[] = [];
+	public localMessages:(TwitchatDataTypes.GreetableMessage)[] = [];
 
 	private disposed = false;
 	private resizing = false;
@@ -147,7 +159,7 @@ export default class NewUsers extends Vue {
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
 		if(!Config.instance.IS_PROD) {
-			const history = this.$store("chat").messages.filter(m => m.type == "message") as TwitchatDataTypes.MessageChatData[];
+			const history = this.$store("chat").messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
 			this.localMessages = this.localMessages.concat(history).splice(0,50);
 		}
 
@@ -198,17 +210,14 @@ export default class NewUsers extends Vue {
 	 */
 	private async onAddMessage(event:GlobalEvent):Promise<void> {
 		const maxLength = 100;
-		const m = (event.data as TwitchatDataTypes.ChatMessageTypes);
-		if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE || !m.todayFirst) return;
+		const m = (event.data as TwitchatDataTypes.GreetableMessage);
+		if(!m.todayFirst) return;
 		
 		if(m.user.channelInfo[m.channel_id].is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
 		if(m.user.id == StoreProxy.auth.twitch.user.id) return;
 		//Ignore bot messages
 		if(StoreProxy.users.knownBots[m.platform][m.user.login.toLowerCase()] === true) return;
-		//Ignore hidden users from params
-		//TODO replace that
-		// if((this.$store("params").filters.hideUsers.value as string).toLowerCase().indexOf(m.user.login.toLowerCase()) > -1) return;
 		
 		this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {
@@ -222,7 +231,7 @@ export default class NewUsers extends Vue {
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e:GlobalEvent):void {
-		const data = e.data as {message:TwitchatDataTypes.MessageChatData, force:boolean};
+		const data = e.data as {message:TwitchatDataTypes.GreetableMessage, force:boolean};
 		
 		//remove from displayed messages
 		for (let i = this.localMessages.length-1; i >= 0; i--) {
@@ -266,7 +275,7 @@ export default class NewUsers extends Vue {
 	 * Called when clicking a message
 	 * Either removes a streak of messages or one single message
 	 */
-	public deleteMessage(m:TwitchatDataTypes.MessageChatData, index:number, singleMode = false):void {
+	public deleteMessage(m:TwitchatDataTypes.GreetableMessage, index:number, singleMode = false):void {
 		if(!this.streakMode || singleMode) {
 			let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
 			this.indexOffset = parseInt(el.$el.dataset.index as string);
@@ -527,10 +536,9 @@ export default class NewUsers extends Vue {
 			overflow: hidden;
 			font-family: var(--font-inter);
 			color: #fff;
-			padding: .5em 0;
 			transition: background-color .25s;
 			border: 1px solid transparent;
-			padding-left: .5em;
+			padding: 0 0 0 .5em;
 
 			&:nth-child(odd) {
 				background-color: fade(#ffffff, 5%);
