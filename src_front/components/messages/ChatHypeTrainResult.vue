@@ -20,12 +20,12 @@
 					<span class="label">x{{subs1}}</span>
 				</div>
 				<div class="row t2" v-if="subs2 > 0" :data-tooltip="$t('global.tooltips.subs2')">
-					<img src="@/assets/icons/sub_purple.svg" class="icon">
+					<img src="@/assets/icons/sub.svg" class="icon">
 					<!-- <span class="tier">T2</span> -->
 					<span class="label">x{{subs2}}</span>
 				</div>
 				<div class="row t3" v-if="subs3 > 0" :data-tooltip="$t('global.tooltips.subs3')">
-					<img src="@/assets/icons/sub_purple.svg" class="icon">
+					<img src="@/assets/icons/sub.svg" class="icon">
 					<!-- <span class="tier">T3</span> -->
 					<span class="label">x{{subs3}}</span>
 				</div>
@@ -179,13 +179,13 @@ export default class ChatHypeTrainResult extends Vue {
 			// }
 
 			&.t2 {
-				background-color: #E6E8FA;
-				color:@mainColor_normal;
+				background-color: #c247ff;
+				color:@mainColor_light;
 			}
 
 			&.t3 {
-				background-color: #FFD700;
-				color:@mainColor_normal;
+				background-color: #fc47ff;
+				color:@mainColor_light;
 			}
 		}
 	}

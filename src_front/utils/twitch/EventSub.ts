@@ -47,8 +47,8 @@ export default class EventSub {
 			switch(message.metadata.message_type) {
 				case "session_welcome": {
 					this.keepalive_timeout_seconds = message.payload.session.keepalive_timeout_seconds;
-					TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.begin", "beta");
-					TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.end", "beta");
+					TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.begin", "1");
+					TwitchUtils.eventsubSubscribe(myUID, myUID, message.payload.session.id, "channel.shield_mode.end", "1");
 					break;
 				}
 
