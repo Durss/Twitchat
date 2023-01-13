@@ -604,7 +604,6 @@ export default class ParamsTriggers extends Vue {
 						(m as TwitchatDataTypes.MessageTimerData).started = false;
 					}
 					if(entry.value == TriggerTypes.SUBGIFT) {
-						console.log("fodofkdokdf");
 						const sub = (m as TwitchatDataTypes.MessageSubscriptionData);
 						sub.is_gift = true;
 						sub.gift_recipients = [Utils.pickRand(this.$store("users").users)];
@@ -614,6 +613,14 @@ export default class ParamsTriggers extends Vue {
 						const cd = (m as TwitchatDataTypes.MessageCountdownData).countdown;
 						delete cd.endAt;
 						delete cd.endAt_ms;
+					}
+					if(entry.value == TriggerTypes.TIMEOUT) {
+						//Remove end date so it counts as a countdown start not an end
+						(m as TwitchatDataTypes.MessageBanData).duration_s = Math.round(Math.random()*666);
+					}
+					if(entry.value == TriggerTypes.BAN) {
+						//Remove end date so it counts as a countdown start not an end
+						delete (m as TwitchatDataTypes.MessageBanData).duration_s;
 					}
 
 					TriggerActionHandler.instance.onMessage(m, true);

@@ -10,8 +10,6 @@ export default class MessengerClientEvent extends Event {
 	public static CHEER = "CHEER";
 	public static JOIN = "JOIN";
 	public static LEAVE = "LEAVE";
-	public static BAN = "BAN";
-	public static TIMEOUT = "TIMEOUT";
 	public static RAID = "RAID";
 	public static DISCONNECT = "DISCONNECT";
 	public static CLEAR_CHAT = "CLEAR_CHAT";
@@ -33,7 +31,6 @@ export default class MessengerClientEvent extends Event {
 					TwitchatDataTypes.MessageClearChatData |
 					TwitchatDataTypes.MessageRewardRedeemData |
 					TwitchatDataTypes.MessageNoticeData |
-					TwitchatDataTypes.MessageTimeoutData |
 					string
 					;
 	
@@ -45,13 +42,11 @@ export default class MessengerClientEvent extends Event {
 	constructor(type:"DISCONNECTED", data:TwitchatDataTypes.MessageDisconnectData);
 	constructor(type:"JOIN", data:TwitchatDataTypes.MessageJoinData);
 	constructor(type:"LEAVE", data:TwitchatDataTypes.MessageLeaveData);
-	constructor(type:"BAN", data:TwitchatDataTypes.MessageBanData);
-	constructor(type:"TIMEOUT", data:TwitchatDataTypes.MessageTimeoutData);
 	constructor(type:"RAID", data:TwitchatDataTypes.MessageRaidData);
 	constructor(type:"CLEAR_CHAT", data:TwitchatDataTypes.MessageClearChatData);
 	constructor(type:"SUB", data:TwitchatDataTypes.MessageSubscriptionData);
 	constructor(type:"REWARD", data:TwitchatDataTypes.MessageRewardRedeemData);
-	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData|TwitchatDataTypes.MessageBanData|TwitchatDataTypes.MessageTimeoutData);
+	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
 	constructor(type:"REFRESH_TOKEN");
 	
 	constructor(...params:any[]) {

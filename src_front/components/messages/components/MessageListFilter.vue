@@ -480,12 +480,6 @@ export default class MessageListFilter extends Vue {
 
 		this.messagesCache[type] = [];
 		if(type == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
-			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.BAN, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-				if(!data || !this.mouseOverToggle) return;
-				this.messagesCache[type]?.push(data);
-				if(previewIndexLoc != this.previewIndex) return;
-				this.previewData.push(data);
-			}, false);
 			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
@@ -719,10 +713,13 @@ export default class MessageListFilter extends Vue {
 				break;
 			}
 			case "activities": {
+				ids.push( TwitchatDataTypes.TwitchatMessageType.BAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAID );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.POLL );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BINGO );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAFFLE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.REWARD );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PINNED );

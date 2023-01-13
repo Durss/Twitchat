@@ -59,10 +59,10 @@ export default class ChatBan extends Vue {
 <style scoped lang="less">
 .chatunban{
 	.chatMessageHighlight();
-	background-color: fade(@mainColor_normal, 15%);
+	background-color: fade(@mainColor_normal, 10%);
 	
 	.userlink {
-		color: @mainColor_normal;
+		color: @mainColor_normal_light;
 	}
 }
 </style>

@@ -872,9 +872,6 @@ export namespace TwitchatDataTypes {
 		ERROR:"error",//For any error message
 		TTS:"tts",//For TTS releated messages. Ex:"User's message will be read out loud"
 		APP_VERSION:"appVersion",//When using command "/version"
-		TIMEOUT:"timeout",//When timingout a user
-		BAN:"ban",//When banning a user
-		UNBAN:"unban",//When unbanning a user
 		MOD:"mod",//When granting mod role to a user
 		UNMOD:"unmod",//When removing mod role from a user
 		SHIELD_MODE:"shieldMode",//When starting/stopping shield mode

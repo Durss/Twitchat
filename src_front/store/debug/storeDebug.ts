@@ -786,6 +786,47 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.BAN: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageBanData = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.BAN,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user:fakeUser,
+						channel_id:uid,
+						moderator:user,
+					};
+					if(Math.random()> .5) {
+						m.duration_s = Math.ceil(Math.random()*666);
+					}
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.UNBAN: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageUnbanData = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.UNBAN,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user:fakeUser,
+						channel_id:uid,
+						moderator:user,
+					};
+					data = m;
+					break;
+				}
 			}
 			if(hook) {
 				if(hook(data) === false) return data;
@@ -807,73 +848,6 @@ export const storeDebug = defineStore('debug', {
 			const fakeUser:TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers);
 
 			switch(noticeType) {
-				case TwitchatDataTypes.TwitchatNoticeType.TIMEOUT: {
-					if(fakeUser.temporary) {
-						await new Promise((resolve)=> {
-							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
-						})
-					}
-					const duration = Math.ceil(Math.random()*666);
-					const m:TwitchatDataTypes.MessageTimeoutData = {
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						noticeId:noticeType,
-						user:fakeUser,
-						message:StoreProxy.i18n.t("global.moderation_action.timeout", {USER:fakeUser.displayName, DURATION:duration}),
-						reason:"",
-						channel_id:uid,
-						moderator:user,
-						duration_s:duration,
-					};
-					data = m;
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatNoticeType.BAN: {
-					if(fakeUser.temporary) {
-						await new Promise((resolve)=> {
-							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
-						})
-					}
-					const m:TwitchatDataTypes.MessageBanData = {
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						noticeId:noticeType,
-						user:fakeUser,
-						message:StoreProxy.i18n.t("global.moderation_action.banned_by", {USER:fakeUser.displayName, MODERATOR:user.displayName}),
-						reason:"",
-						channel_id:uid,
-						moderator:user,
-					};
-					data = m;
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatNoticeType.UNBAN: {
-					if(fakeUser.temporary) {
-						await new Promise((resolve)=> {
-							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
-						})
-					}
-					const m:TwitchatDataTypes.MessageBanData = {
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						noticeId:noticeType,
-						user:fakeUser,
-						message:StoreProxy.i18n.t("global.moderation_action.unbanned", {USER:fakeUser.displayName}),
-						reason:"",
-						channel_id:uid,
-						moderator:user,
-					};
-					data = m;
-					break;
-				}
 
 				case TwitchatDataTypes.TwitchatNoticeType.VIP: {
 					if(fakeUser.temporary) {
@@ -1066,10 +1040,12 @@ export const storeDebug = defineStore('debug', {
 			if(ponderatedRandomList.length === 0) {
 				const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
 					{type:TwitchatDataTypes.TwitchatMessageType.MESSAGE, probability:100},
-					{type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING, probability:5},
 					{type:TwitchatDataTypes.TwitchatMessageType.REWARD, probability:4},
-					{type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, probability:3},
-					{type:TwitchatDataTypes.TwitchatMessageType.CHEER, probability:3},
+					{type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING, probability:3},
+					{type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, probability:2},
+					{type:TwitchatDataTypes.TwitchatMessageType.CHEER, probability:2},
+					{type:TwitchatDataTypes.TwitchatMessageType.BAN, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.UNBAN, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.RAID, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.POLL, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.PREDICTION, probability:1},

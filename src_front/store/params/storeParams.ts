@@ -59,6 +59,8 @@ export const storeParams = defineStore('params', {
 				commandsBlockList: "",
 				userBlockList: "",
 				filters: {
+					ban:false,
+					unban:false,
 					join: false,
 					message: true,
 					whisper: true,
@@ -106,6 +108,8 @@ export const storeParams = defineStore('params', {
 				commandsBlockList: "",
 				userBlockList: "",
 				filters: {
+					ban:true,
+					unban:true,
 					join: false,
 					leave: false,
 					message: true,
@@ -203,6 +207,8 @@ export const storeParams = defineStore('params', {
 				commandsBlockList:"",
 				userBlockList:"",
 				filters:{
+					ban:false,
+					unban:false,
 					join:false,
 					message:false,
 					whisper:false,

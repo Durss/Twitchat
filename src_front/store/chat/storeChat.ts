@@ -811,14 +811,9 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 
-				//Notice
-				case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
-					switch(message.noticeId) {
-						case TwitchatDataTypes.TwitchatNoticeType.BAN:
-						case TwitchatDataTypes.TwitchatNoticeType.TIMEOUT:
-							this.delUserMessages((message as TwitchatDataTypes.MessageModerationAction).user.id);
-							break;
-					}
+				//Ban user
+				case TwitchatDataTypes.TwitchatMessageType.BAN: {
+					this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id);
 					break;
 				}
 			}

@@ -282,6 +282,18 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.BAN:{
+				const event = message.duration_s? TriggerTypes.TIMEOUT : TriggerTypes.BAN
+				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.UNBAN:{
+				if(await this.parseSteps(TriggerTypes.UNBAN, message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING:
@@ -317,16 +329,6 @@ export default class TriggerActionHandler {
 							return;
 						}break;
 					}
-					case TwitchatDataTypes.TwitchatNoticeType.BAN:{
-						if(await this.parseSteps(TriggerTypes.BAN, message, testMode, this.currentSpoolGUID)) {
-							return;
-						}break;
-					}
-					case TwitchatDataTypes.TwitchatNoticeType.UNBAN:{
-						if(await this.parseSteps(TriggerTypes.UNBAN, message, testMode, this.currentSpoolGUID)) {
-							return;
-						}break;
-					}
 					case TwitchatDataTypes.TwitchatNoticeType.MOD:{
 						if(await this.parseSteps(TriggerTypes.MOD, message, testMode, this.currentSpoolGUID)) {
 							return;
@@ -344,11 +346,6 @@ export default class TriggerActionHandler {
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.UNVIP:{
 						if(await this.parseSteps(TriggerTypes.UNVIP, message, testMode, this.currentSpoolGUID)) {
-							return;
-						}break;
-					}
-					case TwitchatDataTypes.TwitchatNoticeType.TIMEOUT:{
-						if(await this.parseSteps(TriggerTypes.TIMEOUT, message, testMode, this.currentSpoolGUID)) {
 							return;
 						}break;
 					}
