@@ -236,7 +236,7 @@ export default class OverlaysRaffleWheel extends Vue {
 					tween.eventCallback("onComplete", ()=>{
 						this.animStep = 2;
 						this.endOffset = this.selectedItemIndex*this.itemSize - this.listHeight/2 + this.itemSize/2;
-						const duration = Math.abs(this.endOffset - this.scrollOffset)*.001;
+						const duration = 9;//Math.abs(this.endOffset - this.scrollOffset)*.001;
 						//Scroll down after last item has appeared
 						gsap.to(this, {scrollOffset: this.endOffset, duration, ease:"sine.inOut", onComplete:()=>{
 							this.onAnimationComplete();

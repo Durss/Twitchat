@@ -332,6 +332,7 @@ import Ajv from "ajv";
 		"p:markAsRead": {type:"boolean"},
 		"p:minimalistBadges": {type:"boolean"},
 		"p:raidHighlightUser": {type:"boolean"},
+		"p:raffleHighlightUser": {type:"boolean"},
 		"p:showBadges": {type:"boolean"},
 		"p:showEmotes": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},

@@ -42,6 +42,7 @@
 					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
+					@unscheduleMessageOpen="unscheduleHistoryOpen"
 					@onOverMessage="onEnterMessage"
 					@mouseleave="onLeaveMessage"
 					@onRead="toggleMarkRead"
@@ -1331,6 +1332,18 @@ export default class MessageList extends Vue {
 
 			this.openConversationHolder(m);
 		}, 350)
+	}
+
+	/**
+	 * Called to unschedule the user message history opening.
+	 * When rolling hover the nickname, the opening is done only after a delay to
+	 * avoid the winodw from opening everytime the mouse goes over a username.
+	 * Here we kill that delay to avoid opening it even if rolloing out the username
+	 * while staying inside the message bounds
+	 */
+	public async unscheduleHistoryOpen(event: MouseEvent, m: TwitchatDataTypes.MessageChatData): Promise<void> {
+		if (this.lightMode || !m) return;
+		clearTimeout(this.openConvTimeout);
 	}
 
 	/**

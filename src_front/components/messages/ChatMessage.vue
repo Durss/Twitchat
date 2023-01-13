@@ -82,6 +82,7 @@
 			
 			<span @click.stop="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
+				@mouseleave="outNickName($event)"
 				class="login" :style="getLoginStyles(messageData.user)">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></span>
 			<span v-if="recipient"> ➔ </span>
 			<span v-if="recipient" class="login"
@@ -156,7 +157,7 @@ import ChatModTools from './components/ChatModTools.vue';
 		disableConversation:{type:Boolean, default:false},
 		highlightedWords:{type:Array, default:[]},
 	},
-	emits:['showConversation', 'showUserMessages', 'onOverMessage', 'onRead'],
+	emits:['showConversation', 'showUserMessages', 'unscheduleMessageOpen', 'onOverMessage', 'onRead'],
 })
 export default class ChatMessage extends Vue {
  
@@ -499,6 +500,16 @@ export default class ChatMessage extends Vue {
 		if(this.messageData.type == "whisper") return;
 		if(this.$store("params").features.userHistoryEnabled.value) {
 			this.$emit('showUserMessages', event, this.messageData);
+		}
+	}
+
+	/**
+	 * Called when rolling out the nick name
+	 */
+	public outNickName(event:MouseEvent):void {
+		if(this.messageData.type == "whisper") return;
+		if(this.$store("params").features.userHistoryEnabled.value) {
+			this.$emit('unscheduleMessageOpen', event, this.messageData);
 		}
 	}
 

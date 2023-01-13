@@ -11,6 +11,7 @@
     "lockAutoScroll": "Pause chat on hover",
     "showModTools": "Show mod tools (TO,ban,delete)",
     "raidHighlightUser": "Highlight raider's messages for 5 minutes",
+    "raffleHighlightUser": "Highlight raffle winner's messages for 5 minutes",
     "groupIdenticalMessage": "Group identical messages of a user<br>(sending the exact same message less than 30s later brings it back to bottom and increments a counter on it)",
     "offlineEmoteOnly": "Set chat on emote-only when not live",
     "stopStreamOnRaid": "Cut OBS stream after a raid",

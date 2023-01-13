@@ -24,7 +24,10 @@
 				</template>
 			</i18n-t>
 			<div class="entries">
-				<Button v-for="w in raffleData.winners" :key="w.label" :title="w.label" small @click="openUserCard(w)" />
+				<template v-for="w in raffleData.winners" :key="w.label">
+					<Button v-if="!w.user" :title="w.label" small @click="openUserCard(getUserFromEntry(w))" />
+					<div class="entry" v-else>{{ w.label }}</div>
+				</template>
 			</div>
 		</div>
 
@@ -50,7 +53,6 @@
 
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
@@ -80,6 +82,12 @@ export default class RaffleState extends Vue {
 		 && (this.raffleData.winners == undefined
 		 || this.raffleData.winners?.length < this.raffleData.entries.length)
 	}
+	
+	public getUserFromEntry(entry:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.TwitchatUser|null {
+		if(!entry.user) return null;
+		return this.$store("users").getUserFrom(entry.user.platform, entry.user.channel_id, entry.user.id);
+
+	}
 
 	public beforeMount():void {
 
@@ -105,9 +113,8 @@ export default class RaffleState extends Vue {
 		});
 	}
 
-	public openUserCard(entry:TwitchatDataTypes.RaffleEntry):void {
-		const uid = StoreProxy.auth.twitch.user.id;
-		const user = this.$store("users").getUserFrom("twitch", uid, undefined, entry.id)
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser | null):void {
+		if(!user) return;
 		this.$store("users").openUserCard(user);
 	}
 
@@ -168,6 +175,14 @@ export default class RaffleState extends Vue {
 				flex-wrap: wrap;
 				justify-content: center;
 				gap: .25em;
+				.entry {
+					color: @mainColor_light;
+					background-color: @mainColor_normal;
+					padding: .2em;
+					border-radius: .3em;
+					font-size: .85em;
+					min-height: calc(.85em + .1em);
+				}
 			}
 		}
 

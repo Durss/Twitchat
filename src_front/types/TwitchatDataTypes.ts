@@ -267,6 +267,11 @@ export namespace TwitchatDataTypes {
 	}
 	export interface RaffleEntry extends EntryItem {
 		score:number;
+		user?:{
+			id:string;
+			channel_id:string;
+			platform:ChatPlatform;
+		}
 	}
 	
 	/**

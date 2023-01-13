@@ -11,6 +11,7 @@
     "lockAutoScroll": "Mettre le tchat en pause au survol",
     "showModTools": "Icônes de modération (TO,ban,suppression)",
     "raidHighlightUser": "Mettre en avant les message d'un·e raider pendant 5min",
+    "raffleHighlightUser": "Mettre en avant les message d'un·e gagnant·e de tirage au sort pendant 5min",
     "groupIdenticalMessage": "Grouper les messages identique d'une personne<br>(envoyer un message identique redescendra le message en bas en incrémentant un compteur)",
     "offlineEmoteOnly": "Passer le tchat en emote only en fin de stream",
     "stopStreamOnRaid": "Couper le stream OBS après avoir effectué un raid",

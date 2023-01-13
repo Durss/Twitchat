@@ -671,15 +671,16 @@ export const storeChat = defineStore('chat', {
 					sStream.lastRaider = message.user;
 					message.user.is_raider = true;
 					if(sParams.features.raidHighlightUser.value) {
-						message.user.is_tracked = true;
+						StoreProxy.users.trackUser(message.user);
 					}
 					setTimeout(()=> {
 						const localMess = message as TwitchatDataTypes.MessageRaidData;
 						localMess.user.is_raider = false;
 						if(sParams.features.raidHighlightUser.value) {
 							localMess.user.is_tracked = false;
+							StoreProxy.users.untrackUser(localMess.user);
 						}
-					}, 5 * 60 * 1000)
+					}, 5 * 60 * 1000);
 					break;
 				}
 

@@ -62,12 +62,28 @@ export const storeRaffle = defineStore('raffle', {
 		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish:boolean = false) {
 			// this.raffle = null;
 			let data:TwitchatDataTypes.RaffleData|null = this.data;
+			console.log("WINNER:", winner);
+			console.log("      :", data);
 			if(data) {
 				const winnerLoc = data.entries.find(v=> v.id == winner.id);
 				if(winnerLoc) {
+					winner = winnerLoc;
+					
 					if(!data.winners) data.winners = [];
 					data.winners.push(winnerLoc);
+
+					if(winnerLoc.user) {
+						if(StoreProxy.params.features.raffleHighlightUser.value) {
+							const user = StoreProxy.users.getUserFrom(winnerLoc.user.platform, winnerLoc.user.channel_id, winnerLoc.user.id);
+							console.log("RAFFLE WINNER:", user);
+							StoreProxy.users.trackUser(user);
+							setTimeout(()=> {
+								StoreProxy.users.untrackUser(user);
+							}, 5 * 60 * 1000);
+						}
+					}
 				}
+
 			}else{
 				data = {
 					command:"",
@@ -139,6 +155,11 @@ export const storeRaffle = defineStore('raffle', {
 					score,
 					label:user.displayName,
 					id:user.id,
+					user:{
+						id:message.user.id,
+						platform:message.platform,
+						channel_id:message.channel_id,
+					}
 				} );
 				
 				if(sChat.botMessages.raffleJoin.enabled) {

@@ -22,6 +22,7 @@ export const storeParams = defineStore('params', {
 			lockAutoScroll: 			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.lockAutoScroll"), id:205, icon:"pause_purple.svg"},
 			showModTools: 				{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.showModTools"), id:206, icon:"ban_purple.svg"},
 			raidHighlightUser: 			{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.raidHighlightUser"), id:209, icon:"raid_purple.svg", example:"raidHighlightUser.png"},
+			raffleHighlightUser:		{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.raffleHighlightUser"), id:218, icon:"ticket_purple.svg", example:"raidHighlightUser.png"},
 			groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.groupIdenticalMessage"), id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
 			offlineEmoteOnly:			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.offlineEmoteOnly"), id:214, icon:"emote_purple.svg"},
 			stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.stopStreamOnRaid"), id:212, icon:"obs_purple.svg"},

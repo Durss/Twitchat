@@ -5,7 +5,10 @@
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		
 		<i18n-t scope="global" tag="div" keypath="chat.raffle.title">
-			<template #USER><strong>{{messageData.winner.label}}</strong></template>
+			<template #USER v-if="user">
+				<a class="userlink" @click.stop="openUserCard(user!)">{{user!.displayName}}</a>
+			</template>
+			<template #USER v-else><strong>{{messageData.winner.label}}</strong></template>
 		</i18n-t>
 	</div>
 </template>
@@ -32,6 +35,18 @@ export default class ChatRaffleResult extends Vue {
 	public get time():string {
 		const d = new Date(this.messageData.date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
+	}
+
+	public get user():TwitchatDataTypes.TwitchatUser|null {
+		const w = this.messageData.winner;
+		if(!w.user) return null;
+		const user = this.$store("users").getUserFrom(w.user.platform, w.user.channel_id, w.user.id);
+
+		return user;
+	}
+
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user, this.messageData.winner.user?.channel_id);
 	}
 
 	public copyJSON():void {
