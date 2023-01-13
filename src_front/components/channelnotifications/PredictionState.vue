@@ -135,7 +135,6 @@ export default class PredictionState extends Vue {
 		requestAnimationFrame(()=>this.renderFrame());
 		const ellapsed = Date.now() - this.prediction.started_at;
 		const duration = this.prediction.duration_s * 1000;
-		// const timeLeft = duration - ellapsed
 		this.progressPercent = ellapsed/duration;
 	}
 

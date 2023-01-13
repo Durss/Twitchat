@@ -41,6 +41,8 @@ export default class PollState extends Vue {
 
 	public loading = false;
 	public progressPercent = 0;
+	
+	private disposed = false;
 
 	public get poll():TwitchatDataTypes.MessagePollData {
 		return this.$store("poll").data!;
@@ -74,16 +76,11 @@ export default class PollState extends Vue {
 	}
 
 	public mounted():void {
-		// this.loadPolls();
-		const ellapsed = Date.now() - this.poll.started_at;
-		const duration = this.poll.duration_s*1000;
-		const timeLeft = duration - ellapsed
-		this.progressPercent = ellapsed/duration;
-		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
+		this.renderFrame();
 	}
 
 	public beforeUnmount():void {
-		
+		this.disposed = true;
 	}
 
 	public endPoll():void {
@@ -101,6 +98,14 @@ export default class PollState extends Vue {
 		}).catch(()=> {
 			this.loading = false;
 		});
+	}
+
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+		const ellapsed = Date.now() - this.poll.started_at;
+		const duration = this.poll.duration_s * 1000;
+		this.progressPercent = ellapsed/duration;
 	}
 }
 </script>
