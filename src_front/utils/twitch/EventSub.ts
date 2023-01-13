@@ -373,10 +373,11 @@ export default class EventSub {
 		const sub = event as TwitchEventSubDataTypes.SubEvent;
 		const renew = event as TwitchEventSubDataTypes.SubRenewEvent;
 
-		//*
+		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT BECAUSE IRC DOES IT BETTER
+
 		const channel_id = event.broadcaster_user_id;
 		const tier_n = parseInt(event.tier);
-		const res:TwitchatDataTypes.MessageSubscriptionData = {
+		const message:TwitchatDataTypes.MessageSubscriptionData = {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 			id:Utils.getUUID(),
@@ -393,10 +394,10 @@ export default class EventSub {
 		}
 
 		if(renew.message) {
-			res.message = renew.message.text;
-			res.message_html = TwitchUtils.parseEmotesFromObject(renew.message.text, undefined, false, false);
+			message.message = renew.message.text;
+			message.message_html = TwitchUtils.parseEmotesFromObject(renew.message.text, undefined, false, false);
 		}
-		//*/
+		StoreProxy.chat.addMessage(message);
 	}
 
 	/**
@@ -406,11 +407,14 @@ export default class EventSub {
 	 * @param event 
 	 */
 	public async bitsEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsEvent):Promise<void> {
+
+		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT BECAUSE IRC DOES IT BETTER
+
 		let message_html = TwitchUtils.parseEmotes(event.message, undefined, false, true);
 		message_html = await TwitchUtils.parseCheermotes(message_html, StoreProxy.auth.twitch.user.id);
 		const channel_id = event.broadcaster_user_id;
 		const user = StoreProxy.users.getUserFrom("twitch", channel_id, event.user_id, event.user_login, event.user_name);
-		const res:TwitchatDataTypes.MessageCheerData = {
+		const message:TwitchatDataTypes.MessageCheerData = {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.CHEER,
 			id:Utils.getUUID(),
@@ -421,6 +425,7 @@ export default class EventSub {
 			message:event.message,
 			message_html,
 		}
+		StoreProxy.chat.addMessage(message);
 	}
 
 	/**

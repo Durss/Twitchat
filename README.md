@@ -93,7 +93,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 ```json
 {
 	"server_port": 3018,
-	"admin_ids": ["YOUR_TWITCH_ID"],
+	"admin_ids": ["YOUR_TWITCH_USER_ID"],
 	"csrf_key": "",
 
 	"twitch_client_id": "",
@@ -102,7 +102,6 @@ First create a `credentials.json` file on the root directory and fill in these v
 	"twitch_scopes": [
 		"chat:read",
 		"chat:edit",
-		"bits:read",
 		"channel:read:redemptions",
 		"channel:manage:polls",
 		"channel:manage:predictions",
@@ -114,6 +113,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:manage:moderators",
 		"channel:manage:vips",
 		"channel:manage:raids",
+		"channel:manage:broadcast",
 		"channel:read:hype_train",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
