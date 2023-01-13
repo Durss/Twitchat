@@ -16,7 +16,9 @@
 			
 			<img v-else-if="i.type == 'user'" class="image" src="@/assets/icons/user.svg" alt="user">
 
-			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="user">
+			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="cmd">
+			<img v-if="i.type == 'cmd' && i.admin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" :data-tooltip="$t('global.cmd_admin')">
+			<img v-if="i.type == 'cmd' && i.mod" class="image small" src="@/assets/icons/twitch_white.svg" alt="user" :data-tooltip="$t('global.cmd_mod')">
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
@@ -61,7 +63,9 @@ export default class AutocompleteChatForm extends Vue {
 
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
-		if(index == this.selectedIndex) res.push('selected');
+		if(index == this.selectedIndex)			res.push('selected');
+		if(item.type == "cmd" && item.admin)	res.push('admin');
+		if(item.type == "cmd" && item.mod)		res.push('mod');
 		res.push(item.type);
 		return res;
 	}
@@ -211,12 +215,20 @@ export default class AutocompleteChatForm extends Vue {
 							infos:e.details,
 							id:e.id,
 							alias:e.alias?.replace(/{(.*?)\}/gi, "$1"),
+							admin:e.needAdmin === true,
+							mod:e.needModerator === true,
 						});
 					}
 				}
 			}
 
 			res.sort((a,b)=> {
+				if(a.type == "cmd" && b.type == "cmd") {
+					if(a.admin && !b.admin) return -1;
+					if(!a.admin && b.admin) return 1;
+					if(a.mod && !b.mod) return -1;
+					if(!a.mod && b.mod) return 1;
+				}
 				if(a.label < b.label) return -1;
 				if(a.label > b.label) return 1;
 				return 0;
@@ -253,7 +265,9 @@ interface CommandItem {
 	label:string;
 	cmd:string;
 	infos:string;
-	alias?:string
+	alias?:string;
+	admin?:boolean;
+	mod?:boolean;
 }
 </script>
 
@@ -299,6 +313,22 @@ interface CommandItem {
 			.image {
 				padding: 5px;
 			}
+
+			&.admin {
+				background-color: fade(@mainColor_warn, 15%);
+
+				&.selected, &:hover {
+					background-color: fade(@mainColor_warn, 50%);
+				}
+			}
+
+			&.mod {
+				background-color: fade(@mainColor_normal, 15%);
+
+				&.selected, &:hover {
+					background-color: fade(@mainColor_normal, 50%);
+				}
+			}
 		}
 
 		.name, .source {
@@ -320,11 +350,18 @@ interface CommandItem {
 		}
 
 		.image {
-			height: 33px;
-			width: 33px;
-			padding: 3px;
+			height: 1.5em;
+			width: 1.5em;
+			padding: .25em;
 			object-fit: contain;
-			margin-right: 10px;
+			&.small {
+				height: 1em;
+				width: 1em;
+				padding: .15em;
+				margin-right: .25em;
+				// border: 1px solid white;
+				// border-radius: 50%;
+			}
 		}
 		.alias {
 			flex-basis: 100%;

@@ -346,6 +346,7 @@ export namespace TwitchatDataTypes {
 		needTTS?:boolean;
 		needAdmin?:boolean;
 		needModerator?:boolean,
+		chatUsable?:boolean,
 	}
 
 	/**

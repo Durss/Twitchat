@@ -66,7 +66,12 @@
 				"param_cmd": "Command",
 				"param_globalCD": "Global cooldown (sec)",
 				"param_userCD": "User cooldown (sec)",
-				"param_alertCD": "Tell users if they're cooled down"
+				"param_alertCD": "Tell users if they're cooled down",
+				"tip_title":"TIP :",
+				"tip":"{TITLE} You can use chat commands",
+				"tip_example_title":"Example:",
+				"tip_example":"{TITLE} {CMD} will set your chat in 30 minutes followers only",
+				"commands_list":"Usable commands"
 			},
 			"highlight": {
 				"header": "You need to configure the {LINK} to use this action.",

@@ -38,6 +38,9 @@
 		"placeholder_selector_insert": "Insérer",
 		"chat_alert_title": "{USER} dit",
 		"date_days": "j",
+		"ad_default": "J'utilise GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",
+		"cmd_mod":"Commande<br>Twitch",
+		"cmd_admin":"Commande<br>d'admin",
 		"tooltips": {
 			"commercial": "Publicité",
 			"boost": "Chaîne boostée",

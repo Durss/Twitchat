@@ -66,7 +66,12 @@
 				"param_cmd": "Commande",
 				"param_globalCD": "Cooldown global (sec)",
 				"param_userCD": "Cooldown utilisateur (sec)",
-				"param_alertCD": "Prévenir la personne si un cooldown est en cours"
+				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
+				"tip_title":"ASTUCE :",
+				"tip":"{TITLE} Vous pouvez utiliser les commandes de tchat",
+				"tip_example_title":"Exemple :",
+				"tip_example":"{TITLE} {CMD} passera le tchat en followers only de 30 minutes",
+				"commands_list":"Commandes utilisables"
 			},
 			"highlight": {
 				"header": "{LINK} de mise en avant pour utiliser cette action.",

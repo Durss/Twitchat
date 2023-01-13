@@ -384,7 +384,7 @@ export default class TriggerActionHandler {
 			let text:string = StoreProxy.chat.botMessages.twitchatAd.message;
 			//If no link is found on the message, force it at the begining
 			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
-				text = "Checkout twitchat.fr : "+text;
+				text = StoreProxy.i18n.t("global.ad_default", {USER_MESSAGE:text});
 			}
 			trigger = {
 				enabled:true,

@@ -505,7 +505,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			totalSubDuration:typeof tags["msg-param-cumulative-months"] == "string"? parseInt(tags["msg-param-cumulative-months"]) : -1,
 			raw_data:{tags, methods, message}
 		}
-		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) ?? 1000)/1000) as (1|2|3);
+		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) || "1000")/1000) as (1|2|3);
 		if(message) {
 			res.message = message;
 			res.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
