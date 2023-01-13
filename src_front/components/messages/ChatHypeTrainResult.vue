@@ -203,6 +203,7 @@ export default class ChatHypeTrainResult extends Vue {
 	.infoHolder {
 		flex-grow: 1;
 		text-align: center;
+			color:@mainColor_light;
 	}
 
 	.details {
@@ -246,12 +247,10 @@ export default class ChatHypeTrainResult extends Vue {
 
 			&.t2 {
 				background-color: #c247ff;
-				color:@mainColor_light;
 			}
 
 			&.t3 {
 				background-color: #fc47ff;
-				color:@mainColor_light;
 			}
 		}
 	}
