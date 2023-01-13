@@ -232,141 +232,147 @@ export default class TwitchUtils {
 	/**
 	 * Splits the message in chunks of type emote" and "text"
 	 */
-	public static parseEmotesToChunks(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):TwitchDataTypes.ParseMessageChunk[] {
+	public static parseEmotesToChunks(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false, parsedEmotes?:TwitchatDataTypes.EmoteDef[]):TwitchDataTypes.ParseMessageChunk[] {
 
-		function getProtectedRange(emotes:string):boolean[] {
-			const protectedRanges:boolean[] = [];
-			if(emotes) {
-				const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
-				if(ranges) {
-					for (let i = 0; i < ranges.length; i++) {
-						const range = ranges[i];
-						for (let j = range[0]; j <= range[1]; j++) {
-							protectedRanges[j] = true;
+		let emotesList:TwitchatDataTypes.EmoteDef[] = [];
+
+		if(!parsedEmotes) {
+
+			function getProtectedRange(emotes:string):boolean[] {
+				const protectedRanges:boolean[] = [];
+				if(emotes) {
+					const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
+					if(ranges) {
+						for (let i = 0; i < ranges.length; i++) {
+							const range = ranges[i];
+							for (let j = range[0]; j <= range[1]; j++) {
+								protectedRanges[j] = true;
+							}
 						}
 					}
 				}
+				return protectedRanges;
 			}
-			return protectedRanges;
-		}
-
-		if(!emotes || emotes.length == 0) {
-			//Attempt to parse emotes manually.
-			//TMI doesn't sends back proper emotes tag when sending
-			//a message...
-			//Parses for all emotes and generates a fake "emotes"
-			//tag as if it was sent by IRC.
-			if(customParsing && this.emotesCacheHashmap) {
-				let fakeTag = "";
-				const emoteList:TwitchatDataTypes.Emote[] = [];
-				const emoteListHashmap = this.emotesCacheHashmap;
-				// const start = Date.now();
-				const chunks = message.split(/\s/);
+	
+			if(!emotes || emotes.length == 0) {
+				//Attempt to parse emotes manually.
+				//TMI doesn't sends back proper emotes tag when sending
+				//a message...
+				//Parses for all emotes and generates a fake "emotes"
+				//tag as if it was sent by IRC.
+				if(customParsing && this.emotesCacheHashmap) {
+					let fakeTag = "";
+					const emoteList:TwitchatDataTypes.Emote[] = [];
+					const emoteListHashmap = this.emotesCacheHashmap;
+					// const start = Date.now();
+					const chunks = message.split(/\s/);
+					for (let i = 0; i < chunks.length; i++) {
+						const txt = chunks[i].replace(/[^a-z0-9]+$/gi, "").replace(/^[^a-z0-9]+/gi, "");
+						if(emoteListHashmap[txt]) {
+							emoteList.push( emoteListHashmap[txt] );
+						}
+					}
+					
+					//Parse emotes
+					const tagsDone:{[key:string]:boolean} = {};
+					for (let i = 0; i < emoteList.length; i++) {
+						const e = emoteList[i];
+						const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+						if(tagsDone[name]) continue;
+						tagsDone[name] = true;
+						// const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
+						const matches = Array.from( message.matchAll(new RegExp(name, "gi")) );
+						if(matches && matches.length > 0) {
+							// //Current emote has been found
+							// //Generate fake emotes data in the expected format:
+							// //  ID:start-end,start-end/ID:start-end,start-end
+							let tmpTag = e.id+":";
+							let emoteCount = 0;
+							for (let j = 0; j < matches.length; j++) {
+								const start = (matches[j].index as number);
+								const end = start+e.code.length-1;
+								const range = getProtectedRange(fakeTag);
+	
+								if(range[start] === true || range[end] === true) continue;
+								
+								const prevOK = start == 0 || /[^0-9a-z]/i.test(message.charAt(start-1));
+								const nextOK = end == message.length-1 || /[^0-9a-z]/i.test(message.charAt(end+1));
+								//Emote has no space before or after or is not at the start or end of the message
+								//ignore it.
+								if(!prevOK || !nextOK) continue;
+								emoteCount++;
+								tmpTag += start+"-"+end;
+	
+								if(j < matches.length-1) tmpTag+=",";
+							}
+							if(emoteCount > 0) {
+								fakeTag += tmpTag;
+								if(i < emoteList.length -1 ) fakeTag +="/"
+							}
+						}
+					}
+					// const end = Date.now();
+					// console.log((end-start)+"ms");
+					if(fakeTag.length > 0) fakeTag +=";";
+					emotes = fakeTag;
+				}
+			}
+	
+			if(!emotes) emotes = "";
+			// ID:start-end,start-end/ID:start-end,start-end
+			let bttvTag = BTTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+			if(bttvTag) {
+				if(emotes.length > 0) bttvTag += "/";
+				emotes = bttvTag + emotes;
+			}
+			let ffzTag = FFZUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+			if(ffzTag) {
+				if(emotes.length > 0) ffzTag += "/";
+				emotes = ffzTag + emotes;
+			}
+			let seventvTag = SevenTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+			if(seventvTag) {
+				if(emotes.length > 0) seventvTag += "/";
+				emotes = seventvTag + emotes;
+			}
+			
+			if(!emotes || emotes.length == 0) {
+				return [{type:"text", value:message}];
+			}
+	
+			//Parse raw emotes data
+			const chunks = (emotes as string).split("/");
+			if(chunks.length > 0) {
 				for (let i = 0; i < chunks.length; i++) {
-					const txt = chunks[i].replace(/[^a-z0-9]+$/gi, "").replace(/^[^a-z0-9]+/gi, "");
-					if(emoteListHashmap[txt]) {
-						emoteList.push( emoteListHashmap[txt] );
+					const c = chunks[i];
+					if(c.indexOf(":") == -1) continue;
+					const id = c.split(":")[0];
+					const positions = c.split(":")[1].split(",");
+					for (let j = 0; j < positions.length; j++) {
+						const p = positions[j];
+						const begin = parseInt(p.split("-")[0]);
+						const end = parseInt(p.split("-")[1]);
+						if(isNaN(begin) || isNaN(end)) continue;
+						emotesList.push({id, begin, end});
 					}
 				}
-				
-				//Parse emotes
-				const tagsDone:{[key:string]:boolean} = {};
-				for (let i = 0; i < emoteList.length; i++) {
-					const e = emoteList[i];
-					const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-					if(tagsDone[name]) continue;
-					tagsDone[name] = true;
-					// const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
-					const matches = Array.from( message.matchAll(new RegExp(name, "gi")) );
-					if(matches && matches.length > 0) {
-						// //Current emote has been found
-						// //Generate fake emotes data in the expected format:
-						// //  ID:start-end,start-end/ID:start-end,start-end
-						let tmpTag = e.id+":";
-						let emoteCount = 0;
-						for (let j = 0; j < matches.length; j++) {
-							const start = (matches[j].index as number);
-							const end = start+e.code.length-1;
-							const range = getProtectedRange(fakeTag);
-
-							if(range[start] === true || range[end] === true) continue;
-							
-							const prevOK = start == 0 || /[^0-9a-z]/i.test(message.charAt(start-1));
-							const nextOK = end == message.length-1 || /[^0-9a-z]/i.test(message.charAt(end+1));
-							//Emote has no space before or after or is not at the start or end of the message
-							//ignore it.
-							if(!prevOK || !nextOK) continue;
-							emoteCount++;
-							tmpTag += start+"-"+end;
-
-							if(j < matches.length-1) tmpTag+=",";
-						}
-						if(emoteCount > 0) {
-							fakeTag += tmpTag;
-							if(i < emoteList.length -1 ) fakeTag +="/"
-						}
-					}
-				}
-				// const end = Date.now();
-				// console.log((end-start)+"ms");
-				if(fakeTag.length > 0) fakeTag +=";";
-				emotes = fakeTag;
 			}
+			//Sort emotes by start position
+			emotesList.sort((a,b) => a.begin - b.begin);
+		}else{
+			emotesList = parsedEmotes;
 		}
-
-		if(!emotes) emotes = "";
-		// ID:start-end,start-end/ID:start-end,start-end
-		let bttvTag = BTTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-		if(bttvTag) {
-			if(emotes.length > 0) bttvTag += "/";
-			emotes = bttvTag + emotes;
-		}
-		let ffzTag = FFZUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-		if(ffzTag) {
-			if(emotes.length > 0) ffzTag += "/";
-			emotes = ffzTag + emotes;
-		}
-		let seventvTag = SevenTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-		if(seventvTag) {
-			if(emotes.length > 0) seventvTag += "/";
-			emotes = seventvTag + emotes;
-		}
-		
-		if(!emotes || emotes.length == 0) {
-			return [{type:"text", value:message}];
-		}
-
-		const emotesList:{id:string, start:number, end:number}[] = [];
-		//Parse raw emotes data
-		const chunks = (emotes as string).split("/");
-		if(chunks.length > 0) {
-			for (let i = 0; i < chunks.length; i++) {
-				const c = chunks[i];
-				if(c.indexOf(":") == -1) continue;
-				const id = c.split(":")[0];
-				const positions = c.split(":")[1].split(",");
-				for (let j = 0; j < positions.length; j++) {
-					const p = positions[j];
-					const start = parseInt(p.split("-")[0]);
-					const end = parseInt(p.split("-")[1]);
-					if(isNaN(start) || isNaN(end)) continue;
-					emotesList.push({id, start, end});
-				}
-			}
-		}
-		//Sort emotes by start position
-		emotesList.sort((a,b) => a.start - b.start);
 
 		let cursor = 0;
 		const result:TwitchDataTypes.ParseMessageChunk[] = [];
 		//Convert emotes to image tags
 		for (let i = 0; i < emotesList.length; i++) {
 			const e = emotesList[i];
-			if(cursor < e.start) {
-				result.push( {type:"text", value: Array.from(message).slice(cursor, e.start).join("")} );
+			if(cursor < e.begin) {
+				result.push( {type:"text", value: Array.from(message).slice(cursor, e.begin).join("")} );
 			}
 			if(!removeEmotes) {
-				const code = Array.from(message).slice(e.start, e.end + 1).join("").trim();
+				const code = Array.from(message).slice(e.begin, e.end + 1).join("").trim();
 				if(e.id.indexOf("BTTV_") == 0) {
 					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
 					if(bttvE) {
@@ -406,6 +412,29 @@ export default class TwitchUtils {
 	 */
 	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):string {
 		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, emotes, removeEmotes, customParsing);
+		let message_html = "";
+		for (let i = 0; i < emoteChunks.length; i++) {
+			const v = emoteChunks[i];
+			if(v.type == "text") {
+				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+				message_html += Utils.parseURLs(v.value);
+			}else if(v.type == "emote") {
+				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+				url = url.replace(/1x$/gi, "3x");//BTTV format
+				url = url.replace(/2x$/gi, "3x");//7TV format
+				url = url.replace(/1$/gi, "4");//FFZ format
+				const tt = "<img src='"+url+"' width='112' class='emote'><br><center>"+v.label+"</center>";
+				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+			}
+		}
+		return message_html;
+	}
+
+	/**
+	 * Replaces emotes by image tags on the message
+	 */
+	public static parseEmotesFromObject(message:string, emotes:TwitchatDataTypes.EmoteDef[]|undefined, removeEmotes = false, customParsing = false):string {
+		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, undefined, removeEmotes, customParsing, emotes);
 		let message_html = "";
 		for (let i = 0; i < emoteChunks.length; i++) {
 			const v = emoteChunks[i];
@@ -2013,22 +2042,30 @@ export default class TwitchUtils {
 	/**
 	 * Subscribe to an eventsub topic
 	 */
-	public static async eventsubSubscribe(channelId:string, userId:string, session_id:string, topic:string, version:"1"|"beta"):Promise<false|string[]> {
+	public static async eventsubSubscribe(channelId:string, userId:string, session_id:string, topic:string, version:"1"|"beta", additionalCondition?:{[key:string]:any}):Promise<false|string[]> {
+		const body ={
+			type:topic,
+			version,
+			condition: {
+				broadcaster_user_id:channelId,
+				moderator_user_id:userId,
+			}as {[key:string]:any},
+			transport: {
+				method:"websocket",
+				session_id,
+			}
+		};
+
+		if(additionalCondition) {
+			for (const key in additionalCondition) {
+				body.condition[key] = additionalCondition[key];
+			}
+		}
+
 		const options = {
 			method:"POST",
 			headers: this.headers,
-			body:JSON.stringify({
-				type:topic,
-				version,
-				condition: {
-					broadcaster_user_id:channelId,
-					moderator_user_id:userId,
-				},
-				transport: {
-					method:"websocket",
-					session_id,
-				}
-			})
+			body:JSON.stringify(body)
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"eventsub/subscriptions");
 		

@@ -63,11 +63,15 @@ export default class ChatMessageInfoBadges extends Vue {
 
 	.item {
 		border-radius: .25em;
-		padding: .085em .4em;
+		padding: .1em .4em;
 		color: @mainColor_light;
 		background-color: @mainColor_normal;
 		white-space: nowrap;
 		cursor: default;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: .25em;
 
 		&:not(:last-child) {
 			margin-right: .25em;
@@ -89,12 +93,7 @@ export default class ChatMessageInfoBadges extends Vue {
 		}
 
 		img {
-			height: 1em;
-			vertical-align: middle;
-		}
-
-		.label {
-			margin-left: .25em;
+			height: .8em;
 		}
 	}
 }

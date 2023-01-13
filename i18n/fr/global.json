@@ -37,6 +37,7 @@
 		"placeholder_selector_title": "Tag spéciaux remplacés dynamiquement",
 		"placeholder_selector_insert": "Insérer",
 		"chat_alert_title": "{USER} dit",
+		"date_days": "j",
 		"tooltips": {
 			"commercial": "Publicité",
 			"boost": "Chaîne boostée",
@@ -63,8 +64,8 @@
 			"year": "an | ans"
 		},
 		"moderation_action": {
-			"timeout": "{USER} banni·e pour {DURATION} secondes",
-			"timeout_by": "{MODERATOR} a banni {USER} pour {DURATION} secondes",
+			"timeout": "{USER} banni·e pour {DURATION}s",
+			"timeout_by": "{MODERATOR} a banni {USER} pour {DURATION}s",
 			"ban": "{USER} a été banni·e",
 			"banned_by": "{MODERATOR} a banni {USER}",
 			"unbanned": "Le bannissmenet de {USER} a été levé",
@@ -80,10 +81,10 @@
 			"shield_on": "Le mode bouclier a été activé par {MODERATOR}",
 			"shield_off": "Le mode bouclier a été désactivé par {MODERATOR}",
 			"commercial_start": "Une pub a été lancée pour {DURATION} secondes",
-			"commercial_complete": "La pub est terminée",
+			"commercial_complete": "La publicité est terminée",
 			"commercial_start_confirm": {
 				"title": "Lancer une pub ?",
-				"description": "La pub durera {DURATION}s. Il n'est pas garanti qu'une pub soit réellement lancée."
+				"description": "La publicité durera {DURATION}s. Il n'est pas garanti qu'une pub soit réellement lancée."
 			},
 			"stream_title_changed": "Titre du stream mise à jour : \"{TITLE}\"",
 			"user_monitored": "{USER} a été ajouté·e aux personnes suspectes par {MODERATOR}",

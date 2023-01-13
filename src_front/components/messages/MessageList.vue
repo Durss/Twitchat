@@ -113,6 +113,16 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
+				<ChatBan class="message"
+					v-else-if="m.type == 'ban'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
+				<ChatUnban class="message"
+					v-else-if="m.type == 'unban'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
@@ -215,6 +225,14 @@
 					v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
 					:messageData="m" />
 
+				<ChatBan class="message"
+					v-else-if="m.type == 'ban'"
+					:messageData="m" />
+
+				<ChatUnban class="message"
+					v-else-if="m.type == 'unban'"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					:messageData="m" />
 			</div>
@@ -293,11 +311,15 @@ import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 import ChatLowTrustTreatment from './ChatLowTrustTreatment.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
 import ChatPinNotice from './ChatPinNotice.vue';
+import ChatBan from './ChatBan.vue';
+import ChatUnban from './ChatUnban.vue';
 
 @Options({
 	components: {
 		Button,
 		ChatAd,
+		ChatBan,
+		ChatUnban,
 		ChatClear,
 		ChatNotice,
 		ChatConnect,
@@ -744,6 +766,14 @@ export default class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.LEAVE: {
 				return this.config.filters.leave === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.BAN: {
+				return this.config.filters.ban === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.UNBAN: {
+				return this.config.filters.unban === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PINNED:

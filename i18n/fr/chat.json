@@ -52,6 +52,8 @@
 			"hide_users": "Masquer des personnes spécifiques",
 			"message_types": {
 				"twitchat_ad": "MàJ et astuces Twitchat",
+				"ban": "Bans",
+				"unban": "Unbans",
 				"raid": "Raids",
 				"poll": "Sondages",
 				"join": "Entrées",

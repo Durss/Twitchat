@@ -88,16 +88,6 @@ export default class Utils {
 		// return decodeURIComponent(results[2].replace(/\+/g, " "));
 	}
 
-	public static secondsToInputValue(millis: number, forceMinutes:boolean = false): string {
-		const h = Math.floor(millis / 3600000);
-		const m = Math.floor((millis - h * 3600000) / 60000);
-		const s = Math.floor((millis - h * 3600000 - m * 60000) / 1000);
-		let res = this.toDigits(s);
-		if(m > 0 || h > 0 || forceMinutes) res = this.toDigits(m) + ":" + res;
-		if(h > 0) res = this.toDigits(h) + ":" + res;
-		return res;
-	}
-
 	public static promisedTimeout(delay: number): Promise<void> {
 		return new Promise(function (resolve) {
 			setTimeout(() => resolve(), delay);
@@ -131,11 +121,17 @@ export default class Utils {
 	 * @returns 
 	 */
 	public static formatDuration(millis: number, forceMinutes:boolean = false): string {
-		let res = this.secondsToInputValue(millis, forceMinutes);
-		const days = Math.floor(millis / (24 * 3600 * 1000));
-		if(days > 1) {
-			res = days+"j "+res;
-		}
+		const d_ms = 24 * 3600 * 1000;
+		const h_ms = 3600 * 1000;
+		const m_ms = 60 * 1000;
+		const d = Math.floor(millis / d_ms);
+		const h = Math.floor((millis - d * d_ms) / h_ms);
+		const m = Math.floor((millis - d * d_ms - h * h_ms) / m_ms);
+		const s = Math.floor((millis - d * d_ms - h * h_ms - m * m_ms) / 1000);
+		let res = this.toDigits(s);
+		if(m > 0 || h > 0 || forceMinutes) res = this.toDigits(m) + ":" + res;
+		if(h > 0) res = this.toDigits(h) + ":" + res;
+		if(d > 0) res = d+StoreProxy.i18n.t("global.date_days")+" "+res;
 		return res;
 	}
 

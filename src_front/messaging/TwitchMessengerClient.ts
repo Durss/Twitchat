@@ -114,6 +114,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
+				
 				const meId = StoreProxy.auth.twitch.user.id;
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
@@ -137,11 +138,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				});
 				//Load chatters list if we have necessary rights
 				TwitchUtils.getChatters(v.id, v.login).then(res => {
-					if(res != false) res.forEach((login) => {
+					(res || []).forEach((login) => {
 						//Don't notify when joining our own room.
 						//There's a "connect" notification for that
 						if(v.login != login || v.id != StoreProxy.auth.twitch.user.id) {
-							this.onJoin(v.login, login, v.id == meId, true)
+							this.onJoin(v.login, login, v.id == meId, true);
 						}
 					});
 				});
@@ -431,7 +432,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const isBroadcaster	= tags.badges?.broadcaster != undefined;
 		const isPartner		= tags.badges?.partner != undefined;
 
-		user.channelInfo[channelId].online	= true;
+		// user.channelInfo[channelId].online	= true;
 		delete user.temporary;//Avoids useless server call
 		
 		if(tags.color)		user.color = tags.color;
@@ -461,18 +462,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	/**
-	 * Gets a user object from its login
+	 * Gets a user's state object from its login
 	 * 
 	 * @param login 
+	 * @param channelId 
 	 * @returns 
 	 */
-	private getUserFromLogin(login:string, channelId:string):{user:TwitchatDataTypes.TwitchatUser, wasOnline:boolean} {
+	private getUserStateFromLogin(login:string, channelId:string):{user:TwitchatDataTypes.TwitchatUser, wasOnline:boolean} {
 		//Search if a user with this name and source exists on store
 		//If no user exists a temporary user object will be returned and
 		//populated asynchronously via an API call
 		const user		= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, undefined);
 		const wasOnline	= user.channelInfo[channelId].online === true;
-		user.channelInfo[channelId].online = true;
+		// user.channelInfo[channelId].online = true;
 		return {user, wasOnline};
 	}
 	
@@ -618,7 +620,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("MESSAGE", data));
 	}
 
-	private onJoin(channelName:string, username:string, self:boolean, fakeJoin = false):void {
+	private onJoin(channelName:string, username:string, self:boolean, isFakeJoin:boolean = false):void {
 		if(this._refreshingToken && self) {
 			//Don't show join info during a reconnect
 			this._refreshingToken = ++this._connectedChannelCount < this._channelList.length;
@@ -626,39 +628,38 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 
 		const channel_id = this.getChannelID(channelName);
-		const user = this.getUserFromLogin(username, channel_id);
+		const userState = this.getUserStateFromLogin(username, channel_id);
+		userState.user.channelInfo[channel_id].online = true;
 
 		if(self) {
-			//When we are on someonelse's room before connecting to IRC the "chatters"
-			//service returns our nickname but it's not an actual IRC connection.
-			//Ignore it as the actual connection event will come
-			if(fakeJoin === true) return;
+			//Avoid sending a connect message on chat when joining others channels
+			if(isFakeJoin) return;
 			const d:TwitchatDataTypes.MessageConnectData = {
 				platform:"twitch",
 				type:TwitchatDataTypes.TwitchatMessageType.CONNECT,
 				id:Utils.getUUID(),
 				date:Date.now(),
 				channel_id,
-				user:user.user,
+				user:userState.user,
 			};
 			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
 		}else{
 
-			if(user.wasOnline === true) return;//User was already here, don't send join notification
+			if(userState.wasOnline === true) return;//User was already here, don't send join notification
 			this.dispatchEvent(new MessengerClientEvent("JOIN", {
 				platform:"twitch",
 				type:TwitchatDataTypes.TwitchatMessageType.JOIN,
 				id:Utils.getUUID(),
 				channel_id,
 				date:Date.now(),
-				users:[user.user],
+				users:[userState.user],
 			}));
 		}
 	}
 
 	private onLeave(channelName:string, username:string):void {
 		const channel_id = this.getChannelID(channelName);
-		const data = this.getUserFromLogin(username, channel_id);
+		const userState = this.getUserStateFromLogin(username, channel_id);
 
 		this.dispatchEvent(new MessengerClientEvent("LEAVE", {
 			platform:"twitch",
@@ -666,7 +667,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
-			users:[data.user],
+			users:[userState.user],
 		}));
 	}
 
@@ -709,7 +710,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//"recipient" contains the display name, not the login. This can break things
 		//if loading a batch of users with a display name containing chineese chars.
 		const recipientName = tags["msg-param-recipient-user-name"] ?? recipient;
-		data.gift_recipients = [this.getUserFromLogin(recipientName, data.channel_id).user];
+		data.gift_recipients = [this.getUserStateFromLogin(recipientName, data.channel_id).user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
@@ -720,14 +721,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//"recipient" contains the display name, not the login. This can break things
 		//if loading a batch of users with a display name containing chineese chars.
 		const recipientName = tags["msg-param-recipient-user-name"] ?? recipient;
-		data.gift_recipients = [this.getUserFromLogin(recipientName, data.channel_id).user];
+		data.gift_recipients = [this.getUserStateFromLogin(recipientName, data.channel_id).user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
 	private giftpaidupgrade(channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
-		data.gift_upgradeSender = this.getUserFromLogin(sender, data.channel_id).user;
+		data.gift_upgradeSender = this.getUserStateFromLogin(sender, data.channel_id).user;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
@@ -738,6 +739,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async raided(channel: string, username: string, viewers: number):Promise<void> {
+		/*
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserFromLogin(username, channel_id).user;
 		let uid = user.id;
@@ -760,6 +762,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 		};
 		this.dispatchEvent(new MessengerClientEvent("RAID", message));
+		//*/
 	}
 	
 	private disconnected(reason:string):void {
@@ -805,37 +808,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private onBanUser(channel: string, username: string, reason: string):void {
 		const channel_id = this.getChannelID(channel);
-		const user = this.getUserFromLogin(username, channel_id).user;
-		const message:TwitchatDataTypes.MessageBanData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			message:StoreProxy.i18n.t("global.moderation_action.ban", {USER:user.displayName}),
-			platform:"twitch",
-			type:"notice",
-			user,
-			channel_id,
-			noticeId:TwitchatDataTypes.TwitchatNoticeType.BAN,
-			reason:"",
-		}
-		this.dispatchEvent(new MessengerClientEvent("BAN", message));
+		const user = this.getUserStateFromLogin(username, channel_id).user;
+		StoreProxy.users.flagBanned("twitch", channel_id, user.id);
 	}
 
 	private onTimeoutUser(channel: string, username: string, reason: string, duration: number):void {
 		const channel_id = this.getChannelID(channel);
-		const user = this.getUserFromLogin(username, channel_id).user;
-		const message:TwitchatDataTypes.MessageTimeoutData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			message:StoreProxy.i18n.t("global.moderation_action.timeout", {USER:user.displayName, DURATION:duration}),
-			platform:"twitch",
-			type:"notice",
-			user,
-			duration_s:duration,
-			channel_id,
-			noticeId:TwitchatDataTypes.TwitchatNoticeType.TIMEOUT,
-			reason:"",
-		}
-		this.dispatchEvent(new MessengerClientEvent("TIMEOUT", message));
+		const user = this.getUserStateFromLogin(username, channel_id).user;
+		StoreProxy.users.flagBanned("twitch", channel_id, user.id, duration);
 	}
 
 	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {

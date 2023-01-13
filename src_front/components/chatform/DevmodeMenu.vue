@@ -49,6 +49,7 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import EventSub from '@/utils/twitch/EventSub';
 import PubSub from '@/utils/twitch/PubSub';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -144,7 +145,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public simulateFollowbotRaid():void {
-		PubSub.instance.simulateFollowbotRaid();
+		EventSub.instance.simulateFollowbotRaid();
 	}
 
 	public simulateFollowbotItem():void {

@@ -52,6 +52,8 @@
 			"hide_users": "Hide specific users",
 			"message_types": {
 				"twitchat_ad": "Twitchat updates and tips",
+				"ban": "Bans",
+				"unban": "Unbans",
 				"raid": "Raids",
 				"poll": "Polls",
 				"join": "Users join",

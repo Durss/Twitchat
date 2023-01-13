@@ -637,6 +637,15 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Represents an emote's position on a text
+	 */
+	export interface EmoteDef {
+		begin: number;
+		end: number;
+		id: string;
+	}
+
+	/**
 	 * Represents a user
 	 */
 	export interface TwitchatUser {
@@ -751,9 +760,11 @@ export namespace TwitchatDataTypes {
 	 * Available message types 
 	 */
 	export const TwitchatMessageType = {
+		BAN:"ban",
 		RAID:"raid",
 		POLL:"poll",
 		JOIN:"join",
+		UNBAN:"unban",
 		LEAVE:"leave",
 		CHEER:"cheer",
 		TIMER:"timer",
@@ -802,7 +813,9 @@ export namespace TwitchatDataTypes {
 	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
 	
 	export const DisplayableMessageTypes:{[key in TwitchatMessageStringType]:boolean} = {
+		ban:true,
 		raid:true,
+		unban:true,
 		poll:true,
 		join:true,
 		leave:true,
@@ -896,7 +909,7 @@ export namespace TwitchatDataTypes {
 									MessageJoinData |
 									MessageLeaveData |
 									MessageBanData |
-									MessageTimeoutData |
+									MessageUnbanData |
 									MessageModerationAction |
 									MessageClearChatData |
 									MessageRaffleData |
@@ -940,9 +953,11 @@ export namespace TwitchatDataTypes {
 	 * Defines the filters
 	 */
 	export const MessageListFilterTypes = [
+		TwitchatMessageType.BAN,
 		TwitchatMessageType.RAID,
 		TwitchatMessageType.POLL,
 		TwitchatMessageType.JOIN,
+		TwitchatMessageType.UNBAN,
 		TwitchatMessageType.LEAVE,
 		TwitchatMessageType.CHEER,
 		TwitchatMessageType.BINGO,
@@ -1354,22 +1369,22 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a user baned message
 	 */
-	export interface MessageBanData extends MessageModerationAction {
+	export interface MessageBanData extends AbstractTwitchatMessage {
+		type:"ban",
 		channel_id: string;
-		noticeId:"ban"|"unban";
-		moderator?:TwitchatUser;
-		reason:string;
+		moderator:TwitchatUser;
+		user:TwitchatUser;//User moderated
+		duration_s?:number;
 	}
-	
+
 	/**
-	 * Represents a user timedout data
+	 * Represents a user unbaned message
 	 */
-	export interface MessageTimeoutData extends MessageModerationAction {
+	export interface MessageUnbanData extends AbstractTwitchatMessage {
+		type:"unban",
 		channel_id: string;
-		noticeId:"timeout";
-		moderator?:TwitchatUser;
-		reason:string;
-		duration_s:number;
+		moderator:TwitchatUser;
+		user:TwitchatUser;//User moderated
 	}
 
 	/**

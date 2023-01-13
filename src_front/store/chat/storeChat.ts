@@ -936,7 +936,7 @@ export const storeChat = defineStore('chat', {
 			//Start from most recent messages to find it faster
 			for (let i = messageList.length-1; i > -1; i--) {
 				const m = messageList[i];
-				if(messageID == m.id) {
+				if(messageID == m.id && !m.deleted) {
 					m.deleted = true;
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
 						//Called if closing an ad

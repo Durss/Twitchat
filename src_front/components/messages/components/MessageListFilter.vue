@@ -264,9 +264,11 @@ export default class MessageListFilter extends Vue {
 		//@ts-ignore
 		this.typeToLabel = {};
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = this.$t("chat.filters.message_types.twitchat_ad");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BAN] = this.$t("chat.filters.message_types.ban");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID] = this.$t("chat.filters.message_types.raid");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL] = this.$t("chat.filters.message_types.poll");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN] = this.$t("chat.filters.message_types.join");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.UNBAN] = this.$t("chat.filters.message_types.unban");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.LEAVE] = this.$t("chat.filters.message_types.leave");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER] = this.$t("chat.filters.message_types.cheer");
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO] = this.$t("chat.filters.message_types.bingo");
@@ -289,6 +291,8 @@ export default class MessageListFilter extends Vue {
 		//@ts-ignore
 		this.typeToIcon = {};
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = "twitchat.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BAN] = "ban.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.UNBAN] = "unban.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAID] = "raid.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.POLL] = "poll.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN] = "enter_white.svg";
@@ -322,6 +326,8 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.RAID,
 			TwitchatDataTypes.TwitchatMessageType.PINNED,
 			TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
+			TwitchatDataTypes.TwitchatMessageType.BAN,
+			TwitchatDataTypes.TwitchatMessageType.UNBAN,
 			TwitchatDataTypes.TwitchatMessageType.REWARD,
 			TwitchatDataTypes.TwitchatMessageType.POLL,
 			TwitchatDataTypes.TwitchatMessageType.PREDICTION,
@@ -693,6 +699,8 @@ export default class MessageListFilter extends Vue {
 				break;
 			}
 			case "moderation": {
+				ids.push( TwitchatDataTypes.TwitchatMessageType.BAN );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAID );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );

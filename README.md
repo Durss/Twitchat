@@ -102,6 +102,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 	"twitch_scopes": [
 		"chat:read",
 		"chat:edit",
+		"bits:read",
 		"channel:read:redemptions",
 		"channel:manage:polls",
 		"channel:manage:predictions",
@@ -116,6 +117,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:read:hype_train",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
+		"channel:read:goals",
 		"user:read:follows",
 		"user:read:blocked_users",
 		"user:manage:blocked_users",

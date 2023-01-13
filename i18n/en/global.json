@@ -37,6 +37,7 @@
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
 		"placeholder_selector_insert": "Insert",
 		"chat_alert_title": "{USER} says",
+		"date_days": "d",
 		"tooltips": {
 			"commercial": "Commercial",
 			"boost": "Channel boosted",
@@ -63,8 +64,8 @@
 			"year": "year | years"
 		},
 		"moderation_action": {
-			"timeout": "{USER} has been banned for {DURATION} seconds",
-			"timeout_by": "{MODERATOR} has banned {USER} for {DURATION} seconds",
+			"timeout": "{USER} has been banned for {DURATION}s",
+			"timeout_by": "{MODERATOR} has banned {USER} for {DURATION}s",
 			"ban": "{USER} has been banned",
 			"banned_by": "{USER} has been banned by {MODERATOR}",
 			"unbanned": "{USER} has been unbanned",

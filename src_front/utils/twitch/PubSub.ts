@@ -71,7 +71,6 @@ export default class PubSub extends EventDispatcher {
 				"predictions-channel-v1."+myUID,
 				"polls."+myUID,
 				"hype-train-events-v1."+myUID,
-				"following."+myUID,
 				"ads."+myUID,
 				"video-playback-by-id."+myUID,//Get viewer count
 				"community-boost-events-v1."+myUID,//Boost after a boost train complete
@@ -79,7 +78,6 @@ export default class PubSub extends EventDispatcher {
 				"whispers."+myUID,
 				"chatrooms-user-v1."+myUID,//TO or ban events
 				"stream-chat-room-v1."+myUID,//Host events; room settings; extension messages
-				"broadcast-settings-update."+myUID,//Stream info update
 				"shoutout."+myUID,//when receiving a shoutout
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
 				// "user-drop-events."+uid,
@@ -222,22 +220,6 @@ export default class PubSub extends EventDispatcher {
 		this.parseEvent(m);
 	}
 
-	public async simulateFollowbotRaid():Promise<void> {
-		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
-		for (let i = 0; i < 200; i++) {
-			const id = i;//Math.round(Math.random()*1000000);
-			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
-			this.followingEvent({
-				display_name: login,
-				username: login,
-				user_id:id.toString(),
-			})
-			if(Math.random() > .5) {
-				await Utils.promisedTimeout(Math.random()*40);
-			}
-		}
-	}
-
 	public async simulateFollowbotItem():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
 		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
@@ -299,15 +281,7 @@ export default class PubSub extends EventDispatcher {
 		}
 
 		// console.log(data);
-		//New follower
-		if(topic && /following\.[0-9]+/.test(topic)) {
-			const localObj = (data as unknown) as PubSubDataTypes.Following;
-			this.followingEvent(localObj);
-
-
-
-		//Shoutout sent/received
-		}else if(topic && /shoutout\.[0-9]+/.test(topic)) {
+		if(topic && /shoutout\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.Shoutout;
 			this.shoutoutEvent(localObj, channelId);
 
@@ -390,12 +364,6 @@ export default class PubSub extends EventDispatcher {
 
 
 		
-		//Sent when stream settings are updated
-		}else if(data.type == "broadcast_settings_update") {
-			this.streamInfoUpdate(data as PubSubDataTypes.StreamInfo);
-
-
-		
 		//Sent when a whisper is read
 		}else if(data.type == "thread") {
 			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
@@ -414,6 +382,9 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "hype-train-level-up") {
 			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp, channelId);
+
+		}else if(data.type == "hype-train-conductor-update") {
+			//TODO
 
 		}else if(data.type == "hype-train-end") {
 			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd, channelId);
@@ -554,15 +525,6 @@ export default class PubSub extends EventDispatcher {
 			};
 			StoreProxy.stream.setRaiding(m);
 
-		}else if(data.type == "raid_go_v2") {
-			if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
-				clearTimeout(this.raidTimeout)
-				this.raidTimeout = setTimeout(() => {
-					OBSWebsocket.instance.stopStreaming();
-				}, 1000);
-			}
-			StoreProxy.stream.setRaiding(undefined);
-
 		}else if(data.type == "raid_cancel_v2") {
 			StoreProxy.stream.setRaiding(undefined);
 
@@ -646,31 +608,33 @@ export default class PubSub extends EventDispatcher {
 					break;
 				}
 				case "timeout": {
-					const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "600";
-					moderatedUser = user;
-					noticeId = TwitchatDataTypes.TwitchatNoticeType.TIMEOUT;
-					noticeText = t("global.moderation_action.timeout", {MODERATOR:localObj.created_by, USER:user.displayName, DURATION:duration});
-					noticeText = localObj.created_by+" has banned "+user.displayName+" for "+duration+" seconds";
-					(m as TwitchatDataTypes.MessageTimeoutData).duration_s = parseInt(duration);
-					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
-					StoreProxy.users.flagBanned("twitch", channelId, user.id, parseInt(duration));
-					break;
+					return;//Moved to EventSub
+					// const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "600";
+					// moderatedUser = user;
+					// noticeId = TwitchatDataTypes.TwitchatNoticeType.TIMEOUT;
+					// noticeText = t("global.moderation_action.timeout", {MODERATOR:localObj.created_by, USER:user.displayName, DURATION:duration});
+					// noticeText = localObj.created_by+" has banned "+user.displayName+" for "+duration+" seconds";
+					// (m as TwitchatDataTypes.MessageTimeoutData).duration_s = parseInt(duration);
+					// (m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
+					// StoreProxy.users.flagBanned("twitch", channelId, user.id, parseInt(duration));
+					// break;
 				}
 				case "ban": {
-					moderatedUser = user;
-					noticeId = TwitchatDataTypes.TwitchatNoticeType.BAN;
-					noticeText = t("global.moderation_action.banned_by", {USER:user.displayName, MODERATOR:localObj.created_by});
-					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
-					StoreProxy.users.flagBanned("twitch", channelId, user.id);
-					break;
+					return;//Moved to EventSub
+					// moderatedUser = user;
+					// noticeId = TwitchatDataTypes.TwitchatNoticeType.BAN;
+					// noticeText = t("global.moderation_action.banned_by", {USER:user.displayName, MODERATOR:localObj.created_by});
+					// (m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
+					// StoreProxy.users.flagBanned("twitch", channelId, user.id);
+					// break;
 				}
 				case "untimeout":
 				case "unban": {
-					moderatedUser = user;
-					noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBAN;
-					noticeText = t("global.moderation_action.unbanned_by", {USER:user.displayName, MODERATOR:localObj.created_by});
-					(m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
-					StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
+					return;//Moved to EventSub
+					// moderatedUser = user;
+					// noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBAN;
+					// noticeText = t("global.moderation_action.unbanned_by", {USER:user.displayName, MODERATOR:localObj.created_by});
+					// StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
 					break;
 				}
 				case "mod": {
@@ -893,7 +857,7 @@ export default class PubSub extends EventDispatcher {
 			},
 			user:StoreProxy.users.getUserFrom("twitch", channelId, localObj.redemption.user.id, localObj.redemption.user.login, localObj.redemption.user.display_name),
 		};
-		m.user.channelInfo[channelId].online = true;
+		// m.user.channelInfo[channelId].online = true;
 		if(localObj.redemption.user_input) {
 			m.message		= localObj.redemption.user_input;
 			m.message_html	= TwitchUtils.parseEmotes(localObj.redemption.user_input, undefined, false, true);
@@ -929,7 +893,7 @@ export default class PubSub extends EventDispatcher {
 				},
 			}
 		};
-		m.user.channelInfo[localObj.channel_id].online = true;
+		// m.user.channelInfo[localObj.channel_id].online = true;
 		StoreProxy.chat.addMessage(m);
 	}
 
@@ -1017,63 +981,6 @@ export default class PubSub extends EventDispatcher {
 		}
 	}
 
-	/**
-	 * Called when having a new follower
-	 */
-	private followingEvent(data:PubSubDataTypes.Following):void {
-		if(StoreProxy.users.isAlreadyFollower("twitch", data.user_id)) return;
-		
-		const channelId = StoreProxy.auth.twitch.user.id;
-
-		const message:TwitchatDataTypes.MessageFollowingData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id: channelId,
-			type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-			user: StoreProxy.users.getUserFrom("twitch", channelId, data.user_id, data.username, data.display_name, undefined, true),
-			followed_at: Date.now(),
-		};
-		// message.user.channelInfo[channelId].online = true;
-		
-		this.lastRecentFollowers.push( message );
-		if(this.lastRecentFollowers.length > 1) {
-			//duration between 2 follow events to consider them as a follow streak
-			const minDuration = 500;
-			let dateOffset:number = this.lastRecentFollowers[0].followed_at;
-			for (let i = 1; i < this.lastRecentFollowers.length; i++) {
-				const f = this.lastRecentFollowers[i];
-				//more than the minDuration has past, reset the streak
-				if(f.followed_at - dateOffset > minDuration) {
-					this.lastRecentFollowers = [];
-					break;
-				}
-				dateOffset = f.followed_at;
-			}
-		}
-
-		if(this.lastRecentFollowers.length > 30
-		&& StoreProxy.emergency.params.enabled === true
-		&& StoreProxy.emergency.emergencyStarted !== true
-		&& StoreProxy.emergency.params.autoEnableOnFollowbot === true) {
-			//Start emergency mode
-			StoreProxy.emergency.setEmergencyMode(true);
-		}
-
-
-		//If emergency mode is enabled and we asked to automatically block
-		//any new followser during that time, do it
-		if(StoreProxy.emergency.emergencyStarted === true) {
-			for (let i = 0; i < this.lastRecentFollowers.length; i++) {
-				const followData = this.lastRecentFollowers[i];
-				StoreProxy.emergency.addEmergencyFollower(followData);
-			}
-			this.lastRecentFollowers = [];
-		}
-
-		StoreProxy.chat.addMessage(message);
-	}
-	
 
 	/**
 	 * Called when sending or receiving a shoutout
@@ -1341,24 +1248,6 @@ export default class PubSub extends EventDispatcher {
 	}
 	
 	/**
-	 * Called when stream info are updated
-	 */
-	private streamInfoUpdate(data:PubSubDataTypes.StreamInfo):void {
-		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id:data.channel_id,
-			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			message:StoreProxy.i18n.t("stream.notification", {TITLE:data.status}),
-			noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
-			title:data.status,
-			category:data.game,
-		}
-		StoreProxy.chat.addMessage(message);
-	}
-
-	/**
 	 * Called when room settings are updated
 	 * @param data 
 	 */
@@ -1416,6 +1305,30 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	/**
+	 * Called when a pinned message param is updated
+	 */
+	private updatePinnedMessageEvent(data:PubSubDataTypes.PinUpdateMessage, channel_id:string):void {
+		let message = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
+		if(message) {
+			if(data.ends_at) {
+				message.unpinAt_ms = data.ends_at * 1000;
+			}else{
+				message.unpinAt_ms = -1;
+			}
+			message.updatedAt_ms = data.updated_at * 1000;
+			clearTimeout(message.timeoutRef);
+			if(message.unpinAt_ms > Date.now()) {
+				//Schedule automatic unpin
+				message.timeoutRef = setTimeout(()=> {
+					if(message!.chatMessage){
+						this.unpinMessageEvent(message!, channel_id);
+					}
+				}, message.unpinAt_ms - Date.now());
+			}
+		}
+	}
+
+	/**
 	 * Called when a message is unpinned
 	 */
 	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage|TwitchatDataTypes.MessagePinData, channel_id:string):void {
@@ -1437,30 +1350,6 @@ export default class PubSub extends EventDispatcher {
 			clearTimeout(message.timeoutRef);
 			StoreProxy.chat.addMessage(m);
 			StoreProxy.chat.unpinMessage(m.chatMessage);
-		}
-	}
-
-	/**
-	 * Called when a pinned message param is updated
-	 */
-	private updatePinnedMessageEvent(data:PubSubDataTypes.PinUpdateMessage, channel_id:string):void {
-		let message = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
-		if(message) {
-			if(data.ends_at) {
-				message.unpinAt_ms = data.ends_at * 1000;
-			}else{
-				message.unpinAt_ms = -1;
-			}
-			message.updatedAt_ms = data.updated_at * 1000;
-			if(message.unpinAt_ms > Date.now()) {
-				//Schedule automatic unpin
-				clearTimeout(message.timeoutRef);
-				message.timeoutRef = setTimeout(()=> {
-					if(message!.chatMessage){
-						this.unpinMessageEvent(message!, channel_id);
-					}
-				}, message.unpinAt_ms - Date.now());
-			}
 		}
 	}
 }
