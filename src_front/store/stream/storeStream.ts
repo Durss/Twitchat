@@ -46,7 +46,7 @@ export const storeStream = defineStore('stream', {
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
 			this.hypeTrain = data;
-			
+			if(data) console.log("SET", data.state);
 			if(data && data.state == "COMPLETED" && data.approached_at) {
 				const threshold = 5*60*1000;
 				const offset = data.approached_at;
@@ -57,11 +57,13 @@ export const storeStream = defineStore('stream', {
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.CHEER
 					|| m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 						//If message is within the train time frame and on the proper channel
-						if(m.channel_id == data.channel_id && m.date > offset - threshold) {
+						if(m.date > offset - threshold) {
 							activities.push( m );
 						}
 					}
 				}
+
+				console.log("ACTIVITIES LEN", activities.length);
 				
 				if(activities.length > 0) {
 					const res:TwitchatDataTypes.MessageHypeTrainSummaryData = {

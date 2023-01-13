@@ -302,8 +302,30 @@ export namespace TwitchatDataTypes {
 		state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 		is_boost_train:boolean;
 		is_new_record:boolean;
-		conductor_subs?:TwitchatUser;
-		conductor_bits?:TwitchatUser;
+		conductor_subs?:HypeTrainConductorData;
+		conductor_bits?:HypeTrainConductorData;
+	}
+
+	/**
+	 * Stores the data about one of the hype train's conductors
+	 */
+	export interface HypeTrainConductorData {
+		type:"SUBS" | "BITS";
+		user:TwitchatUser;
+		contributions:HypeTrainConductorContributionsData[];
+	}
+
+	/**
+	 * Stores contributions of a hype train conductor
+	 */
+	export interface HypeTrainConductorContributionsData {
+		bits?:number;
+		sub_t1?:number;
+		sub_t2?:number;
+		sub_t3?:number;
+		subgift_t1?:number;
+		subgift_t2?:number;
+		subgift_t3?:number;
 	}
 
 	/**

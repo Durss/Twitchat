@@ -38,6 +38,45 @@
 					<span class="label">{{subgifts}}</span>
 				</div>
 			</div>
+
+			<div class="conductors">
+				<div v-if="messageData.train.conductor_subs" class="conductor" ref="conductor_subs_holder" :data-tooltip="$t('train.conductor_subs_tt')">
+					<div class="head">
+						<div class="icon"><img src="@/assets/icons/sub.svg"></div>
+					</div>
+
+					<img :src="messageData.train.conductor_subs.user.avatarPath" class="avatar">
+
+					<div>
+						<a class="userlink" @click.stop="openUserCard(messageData.train.conductor_subs!.user)">{{messageData.train.conductor_subs.user.displayName}}</a>
+	
+						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
+							<template #COUNT>
+								<span class="count">{{ getConductorSubCount() }}</span>
+							</template>
+						</i18n-t>
+					</div>
+				</div>
+
+				<div v-if="messageData.train.conductor_bits" class="conductor" ref="conductor_bits_holder" :data-tooltip="$t('train.conductor_bits_tt')">
+					<div class="head">
+						<div class="icon"><img src="@/assets/icons/bits.svg"></div>
+					</div>
+
+					<img :src="messageData.train.conductor_bits.user.avatarPath" class="avatar">
+
+					<div>
+						<a class="userlink" @click.stop="openUserCard(messageData.train.conductor_bits!.user)">{{messageData.train.conductor_bits.user.displayName}}</a>
+						
+						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="getConductorBitsCount()">
+							<template #COUNT>
+								<span class="count">{{ getConductorBitsCount() }}</span>
+							</template>
+						</i18n-t>
+					</div>
+				</div>
+			</div>
+			
 			<Button v-if="!filtering && messageData.activities.length > 0" :title="$t('chat.hype_train.filterBt')" :icon="$image('icons/filters.svg')" @click="filter()" />
 		</div>
 	</div>
@@ -88,6 +127,29 @@ export default class ChatHypeTrainResult extends Vue {
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
+	public getConductorSubCount():number {
+		let count = 0;
+		for (let i = 0; i < this.messageData.train.conductor_subs!.contributions.length; i++) {
+			const c = this.messageData.train.conductor_subs!.contributions[i];
+			if(c.sub_t1) count += c.sub_t1;
+			if(c.sub_t2) count += c.sub_t2;
+			if(c.sub_t3) count += c.sub_t3;
+			if(c.subgift_t1) count += c.subgift_t1;
+			if(c.subgift_t2) count += c.subgift_t2;
+			if(c.subgift_t3) count += c.subgift_t3;
+		}
+		return count;
+	}
+
+	public getConductorBitsCount():number {
+		let count = 0;
+		for (let i = 0; i < this.messageData.train.conductor_bits!.contributions.length; i++) {
+			const c = this.messageData.train.conductor_bits!.contributions[i];
+			if(c.bits) count += c.bits;
+		}
+		return count;
+	}
+
 	public mounted():void {
 		this.reachPercent = Math.round(this.messageData.train.currentValue / this.messageData.train.goal * 100);
 		for (let i = 0; i < this.messageData.activities.length; i++) {
@@ -115,6 +177,10 @@ export default class ChatHypeTrainResult extends Vue {
 
 	public filter():void {
 		this.$emit("setCustomActivities", [...this.messageData.activities, this.messageData]);
+	}
+
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 }
@@ -186,6 +252,59 @@ export default class ChatHypeTrainResult extends Vue {
 			&.t3 {
 				background-color: #fc47ff;
 				color:@mainColor_light;
+			}
+		}
+	}
+
+	.conductors{
+		margin: .5em 0;
+		
+		.conductor {
+			display: inline-flex;
+			align-items: center;
+			flex-direction: row;
+			gap:.25em;
+			background-color: @mainColor_dark_extralight;
+			border-radius: @border_radius;
+			padding: .5em;
+			min-width: 6em;
+
+			&:not(:first-child) {
+				margin-left: 1em;
+			}
+			
+			.head {
+				position: absolute;
+				display: flex;
+				flex-direction: column;
+				align-self: flex-start;
+				margin-top: -1em;
+				margin-left: -1em;
+				.icon {
+					background-color: @mainColor_dark_extralight;
+					padding: .25em;
+					border-radius: 50%;
+					img {
+						width: 1em;
+						height: 1em;
+					}
+				}
+			}
+			.avatar {
+				width: 2em;
+				height: 2em;
+				border-radius: 50%;
+				margin: auto;
+				display: block;
+				border: 1px solid @mainColor_normal;
+			}
+			.userlink {
+				font-size: .9em;
+			}
+			.label {
+				.count {
+					font-weight: bold;
+				}
 			}
 		}
 	}

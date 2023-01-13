@@ -461,15 +461,17 @@ export namespace PubSubDataTypes {
 			display_name: string;
 			profile_image_url: string;
 		};
-		participations: {
-			"BITS.CHEER": number;
-			"SUBS.TIER_1_SUB": number;
-			"SUBS.TIER_2_SUB": number;
-			"SUBS.TIER_3_SUB": number;
-			"SUBS.TIER_1_GIFTED_SUB": number;
-			"SUBS.TIER_2_GIFTED_SUB": number;
-			"SUBS.TIER_3_GIFTED_SUB": number;
-		};
+		participations: HypeTrainConductorContribution;
+	}
+
+	export interface HypeTrainConductorContribution {
+		"BITS.CHEER": number;
+		"SUBS.TIER_1_SUB": number;
+		"SUBS.TIER_2_SUB": number;
+		"SUBS.TIER_3_SUB": number;
+		"SUBS.TIER_1_GIFTED_SUB": number;
+		"SUBS.TIER_2_GIFTED_SUB": number;
+		"SUBS.TIER_3_GIFTED_SUB": number;
 	}
 
 	export interface HypeTrainLevelUp {

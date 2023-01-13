@@ -8,6 +8,10 @@
 		"boost_progress": "Boost train level {LEVEL} {PERCENT}",
 		"boost_complete": "Boost train complete {LEVEL} {PERCENT}",
 		"boost_cancel": "Boost train went away",
-		"hype_complete_details": "Level {LEVEL} reached"
+		"hype_complete_details": "Level {LEVEL} reached",
+		"conductor_subs": "{COUNT} sub | {COUNT} subs",
+		"conductor_subs_tt": "subs leader",
+		"conductor_bits": "{COUNT} bit | {COUNT} bits",
+		"conductor_bits_tt": "bits leader"
 	}
 }
