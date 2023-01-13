@@ -1,7 +1,7 @@
 {
 	"raffle": {
 		"form_title": "Tirage au sort",
-		"closeBt_aria": "Fermer la fnêtre",
+		"closeBt_aria": "Fermer la fenêtre",
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Lancer le tirage au sort",
@@ -59,6 +59,6 @@
 		"state_users": "0 entrée | 1 entrée | {COUNT} entrées",
 		"state_winners": "Gagnants{COUNT} :",
 		"state_pickBt": "Tirer au sort",
-		"state_stopBt": "Fermer le tirage"
+		"state_stopBt": "Clore le tirage"
 	}
 }

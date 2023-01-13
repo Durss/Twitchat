@@ -168,10 +168,14 @@ export default class ChatHighlight extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION:{
 				if(this.messageData.is_gift) {
-
 					this.icon = this.$image('icons/gift.svg');
 					value = this.messageData.tier;
 					this.user = this.messageData.user;
+					if(this.messageData.id == "44a1f0c6-af5e-4c08-a3db-b53b6c13c66c")
+					if(this.messageData.gift_recipients?.length == 1 && this.messageData.months > 0) {
+						this.additionalUsers = this.messageData.gift_recipients.filter(v=> v.temporary !== true);
+						res = this.$t("chat.highlight.sub_gift_months", {COUNT:"<strong>"+this.messageData.months+"</strong>", TIER:value});
+					}else
 					if(this.messageData.gift_recipients) {
 						this.additionalUsers = this.messageData.gift_recipients.filter(v=> v.temporary !== true);
 						res = this.$t("chat.highlight.sub_gift", {COUNT:"<strong>"+this.messageData.gift_recipients.length+"</strong>", TIER:value});

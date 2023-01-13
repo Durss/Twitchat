@@ -263,7 +263,7 @@ export default class ChatHypeTrainResult extends Vue {
 			align-items: center;
 			flex-direction: row;
 			gap:.25em;
-			background-color: @mainColor_dark_extralight;
+			background-color: fade(@mainColor_normal, 50%);
 			border-radius: @border_radius;
 			padding: .5em;
 			min-width: 6em;
@@ -280,7 +280,7 @@ export default class ChatHypeTrainResult extends Vue {
 				margin-top: -1em;
 				margin-left: -1em;
 				.icon {
-					background-color: @mainColor_dark_extralight;
+					background-color: fade(@mainColor_normal, 50%);
 					padding: .25em;
 					border-radius: 50%;
 					img {

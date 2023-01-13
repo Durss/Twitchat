@@ -164,6 +164,7 @@
 			"sub_streak": "{COUNT} month streak | {COUNT} months streak",
 			"sub_advance": "for {COUNT} month in advance | for {COUNT} months in advance",
 			"sub_gift": "gifted {COUNT} Tier {TIER} to",
+			"sub_gift_months": "gifted {COUNT} months of Tier {TIER} to",
 			"sub_gift_upgrade": "is continuing the Gift Sub they got from {USER}",
 			"reward": "redeemed the reward {TITLE}",
 			"challenge_contrib": "contributed {COUNT}pts{TOTAL} to the challenge {TITLE}",

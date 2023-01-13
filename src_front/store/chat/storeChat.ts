@@ -999,12 +999,18 @@ export const storeChat = defineStore('chat', {
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
 				//If it's a subgift, wait a little before calling the trigger as subgifts do not
 				//come all at once but sequentially.
-				//We wait a second to give them time to arrive so the trigger has all the
-				//recipients references.
-				clearTimeout(subgiftTriggerTimeout);
-				subgiftTriggerTimeout = setTimeout(()=>{
-					TriggerActionHandler.instance.onMessage(message);
-				}, 1000);
+				//We wait a second and check if the count changed, if nothing changed after a second
+				//consider that everything arrived and call the trigger
+				function checkForChange(message:TwitchatDataTypes.MessageSubscriptionData, prevCount:number):void {
+					const recipientCount = message.gift_recipients?.length ?? 0;
+					if(recipientCount != prevCount) {
+						//Wait a little more
+						setTimeout(()=>checkForChange(message, recipientCount), 1000);
+					}else{
+						TriggerActionHandler.instance.onMessage(message);
+					}
+				}
+				checkForChange(message, message.gift_recipients?.length ?? 0);
 			}else{
 				TriggerActionHandler.instance.onMessage(message);
 			}

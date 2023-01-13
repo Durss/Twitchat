@@ -423,7 +423,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @returns 
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, channelId:string):TwitchatDataTypes.TwitchatUser {
-		const login			= tags.username ?? tags["display-name"];
+		const login			= tags.login ?? tags.username ?? tags["display-name"];
 		const user			= StoreProxy.users.getUserFrom("twitch", channelId, tags["user-id"], login, tags["display-name"], undefined, false, true);
 		const isMod			= tags.badges?.moderator != undefined || tags.mod === true;
 		const isVip			= tags.badges?.vip != undefined;
@@ -445,7 +445,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			user.is_partner		= true;
 			user.is_affiliate	= true;
 		}
-		if(login=="durssbot") user.is_partner = true;
 
 		if(tags.badges && tags["room-id"]) {
 			user.channelInfo[channelId].badges = TwitchUtils.getBadgesFromRawBadges(tags["room-id"], tags["badge-info"], tags.badges);
@@ -707,10 +706,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
-		//"recipient" contains the display name, not the login. This can break things
-		//if loading a batch of users with a display name containing chineese chars.
-		const recipientName = tags["msg-param-recipient-user-name"] ?? recipient;
-		data.gift_recipients = [this.getUserStateFromLogin(recipientName, data.channel_id).user];
+		data.streakMonths = streakMonths
+		if(typeof tags["msg-param-gift-months"] == "string") {
+			data.months = parseInt(tags["msg-param-gift-months"] ?? "1");
+		}
+		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
+		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
+		const recipientId = tags["msg-param-recipient-id"];
+		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName);
+		data.gift_recipients = [user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
@@ -718,10 +722,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths
-		//"recipient" contains the display name, not the login. This can break things
-		//if loading a batch of users with a display name containing chineese chars.
-		const recipientName = tags["msg-param-recipient-user-name"] ?? recipient;
-		data.gift_recipients = [this.getUserStateFromLogin(recipientName, data.channel_id).user];
+		if(typeof tags["msg-param-sender-count"] == "string") {
+			data.months = parseInt(tags["msg-param-sender-count"] ?? "1");
+		}
+		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
+		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
+		const recipientId = tags["msg-param-recipient-id"];
+		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName);
+		data.gift_recipients = [user];
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
