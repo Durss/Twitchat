@@ -128,7 +128,7 @@ export default class PubSub extends EventDispatcher {
 				const data = JSON.parse(message.data.message);
 				if(StoreProxy.main.devmode) {
 					//Ignore viewers count to avoid massive logs
-					if(!/"video-playback-by-id\."/i.test(message.data.topic)) {
+					if(!/video-playback-by-id\./i.test(message.data.topic)) {
 						this.history.push(message);
 					}
 				}
@@ -384,7 +384,7 @@ export default class PubSub extends EventDispatcher {
 			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp, channelId);
 
 		}else if(data.type == "hype-train-conductor-update") {
-			//TODO
+			this.hypeTrainConductorUpdate(data.data as  PubSubDataTypes.HypeTrainConductorUpdate, channelId);
 
 		}else if(data.type == "hype-train-end") {
 			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd, channelId);
@@ -1191,6 +1191,22 @@ export default class PubSub extends EventDispatcher {
 			percent:Math.round(train.currentValue/train.goal * 100),
 		}
 		StoreProxy.chat.addMessage(message);
+	}
+	
+	/**
+	 * Called when a hype train levels up
+	 * @param data 
+	 */
+	private hypeTrainConductorUpdate(data:PubSubDataTypes.HypeTrainConductorUpdate, channelId:string):void {
+		const storeTrain = StoreProxy.stream.hypeTrain!;
+		if(storeTrain) {
+			if(data.source === "BITS") {
+				storeTrain.conductor_bits = StoreProxy.users.getUserFrom("twitch", channelId, data.user.id, data.user.login, data.user.display_name);
+			}
+			if(data.source === "SUBS") {
+				storeTrain.conductor_subs = StoreProxy.users.getUserFrom("twitch", channelId, data.user.id, data.user.login, data.user.display_name);
+			}
+		}
 	}
 	
 	/**

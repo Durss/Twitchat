@@ -39,8 +39,8 @@ export default class EventSub {
 	* PUBLIC METHODS *
 	******************/
 
-	public connect():void {
-		console.log("EVENTSUB : Connect");
+	public async connect():Promise<void> {
+		// console.log("EVENTSUB : Connect");
 
 		if(this.socket) {
 			clearTimeout(this.reconnectTimeout)
@@ -49,6 +49,18 @@ export default class EventSub {
 			this.socket.onclose = null;
 			this.socket.onopen = null;
 			this.socket.close();
+		}
+
+		//Delete all previous event sub subscriptions
+		const subscriptions = await TwitchUtils.eventsubGetSubscriptions();
+		await Utils.promisedTimeout(5000);
+		for (let i = 0; i < subscriptions.length; i++) {
+			const v = subscriptions[i];
+			if(i%10 === 9) {
+				await TwitchUtils.eventsubDeleteSubscriptions(v.id);
+			}else{
+				TwitchUtils.eventsubDeleteSubscriptions(v.id);
+			}
 		}
 
 		this.socket = new WebSocket("wss://eventsub-beta.wss.twitch.tv/ws");
@@ -67,7 +79,7 @@ export default class EventSub {
 				case "session_keepalive": {
 					clearTimeout(this.reconnectTimeout);
 					this.reconnectTimeout = setTimeout(()=>{
-						console.log("EVENTSUB : Session keep alive not received");
+						// console.log("EVENTSUB : Session keep alive not received");
 						this.connect();
 					}, (this.keepalive_timeout_seconds + 5) * 1000);
 					break;
@@ -85,7 +97,7 @@ export default class EventSub {
 		};
 		
 		this.socket.onclose = (event) => {
-			console.log("EVENTSUB : Closed");
+			// console.log("EVENTSUB : Closed");
 			clearTimeout(this.reconnectTimeout)
 			this.reconnectTimeout = setTimeout(()=>{
 				this.connect();
@@ -136,6 +148,7 @@ export default class EventSub {
 			uids = uids.concat( users.map(v=> v.id) );
 		}
 
+		//Create new event sub subscriptions
 		const doneUids:{[key:string]:boolean} = {};
 		for (let i = 0; i < uids.length; i++) {
 			const uid = uids[i];
@@ -164,23 +177,30 @@ export default class EventSub {
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "1");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
+				
+				//Don't need to listen for thie event for anyone else but the broadcaster
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
+
+				//This one is accessible by mods
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
+				
 				//Not using those as IRC does it better
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RESUB, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
+				
 				//Don't need it
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_DELETE, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
 			}
-			TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
-			TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
-			TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
-			TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+			//Receive raid
 			TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:uid});
-			TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
 		}
 	}
 

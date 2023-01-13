@@ -378,4 +378,23 @@ export namespace TwitchDataTypes {
 			viewers: string[];
 		};
 	}
+
+	export interface EventsubSubscription {
+        id: string;
+        status: "enabled" | "user_removed" | "moderator_removed" | "version_removed" | "websocket_disconnected" | "websocket_failed_ping_pong" | "websocket_received_inbound_traffic" | "websocket_connection_unused" | "websocket_internal_error" | "websocket_network_timeout" | "websocket_network_error";
+        type: string;
+        version: string;
+        condition: {
+			broadcaster_user_id: string;
+			moderator_user_id: string;
+		};
+        created_at: string;
+        transport: {
+			method: string;
+			session_id: string;
+			connected_at: Date;
+			disconnected_at: Date;
+		};
+        cost: number;
+	}
 }

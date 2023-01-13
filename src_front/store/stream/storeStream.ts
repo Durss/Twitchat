@@ -56,7 +56,8 @@ export const storeStream = defineStore('stream', {
 					const m = StoreProxy.chat.messages[i];
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.CHEER
 					|| m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
-						if(m.date > offset - threshold) {
+						//If message is within the train time frame and on the proper channel
+						if(m.channel_id == data.channel_id && m.date > offset - threshold) {
 							activities.push( m );
 						}
 					}

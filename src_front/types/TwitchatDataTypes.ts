@@ -302,6 +302,8 @@ export namespace TwitchatDataTypes {
 		state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 		is_boost_train:boolean;
 		is_new_record:boolean;
+		conductor_subs?:TwitchatUser;
+		conductor_bits?:TwitchatUser;
 	}
 
 	/**

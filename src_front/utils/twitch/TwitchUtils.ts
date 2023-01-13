@@ -2042,7 +2042,7 @@ export default class TwitchUtils {
 	/**
 	 * Subscribe to an eventsub topic
 	 */
-	public static async eventsubSubscribe(channelId:string, userId:string, session_id:string, topic:string, version:"1"|"beta", additionalCondition?:{[key:string]:any}):Promise<false|string[]> {
+	public static async eventsubSubscribe(channelId:string, userId:string, session_id:string, topic:string, version:"1"|"beta", additionalCondition?:{[key:string]:any}, attemptCount:number = 0):Promise<false|string[]> {
 		const body ={
 			type:topic,
 			version,
@@ -2076,9 +2076,62 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
+			let resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000;
+			resetDate += 1000 * Math.pow(2,attemptCount);//Scale up the time frame 
+			console.log("Try again in ", resetDate - Date.now());
 			await Utils.promisedTimeout(Math.max(1000, resetDate - Date.now()));
-			return await this.eventsubSubscribe(channelId, userId, session_id, topic, version);
+			if(attemptCount<8) {
+				return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, ++attemptCount);
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get all eventsub subscriptions
+	 */
+	public static async eventsubGetSubscriptions():Promise<TwitchDataTypes.EventsubSubscription[]> {
+		let cursor:string|null = null;
+		let list:TwitchDataTypes.EventsubSubscription[] = [];
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		
+		do {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"eventsub/subscriptions");
+			if(cursor) {
+				url.searchParams.append("after", cursor)
+			}
+			const res = await fetch(url, options);
+			if(res.status == 200 || res.status == 204) {
+				const json:{data:TwitchDataTypes.EventsubSubscription[], pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			}else{
+				return [];
+			}
+		}while(cursor != null)
+		return list;
+	}
+
+	/**
+	 * Delete an eventsub subscription
+	 */
+	public static async eventsubDeleteSubscriptions(id:string):Promise<boolean> {
+		const options = {
+			method:"DELETE",
+			headers: this.headers,
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH+"eventsub/subscriptions");
+		url.searchParams.append("id", id);
+		
+		const res = await fetch(url.href, options);
+		if(res.status == 200 || res.status == 204) {
+			return true;
 		}
 		return false;
 	}

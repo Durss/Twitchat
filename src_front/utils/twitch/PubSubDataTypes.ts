@@ -454,7 +454,7 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface HypeTrainConductorUpdate {
-		source: string;
+		source: "SUBS" | "BITS";
 		user: {
 			id: string;
 			login: string;
@@ -464,6 +464,11 @@ export namespace PubSubDataTypes {
 		participations: {
 			"BITS.CHEER": number;
 			"SUBS.TIER_1_SUB": number;
+			"SUBS.TIER_2_SUB": number;
+			"SUBS.TIER_3_SUB": number;
+			"SUBS.TIER_1_GIFTED_SUB": number;
+			"SUBS.TIER_2_GIFTED_SUB": number;
+			"SUBS.TIER_3_GIFTED_SUB": number;
 		};
 	}
 

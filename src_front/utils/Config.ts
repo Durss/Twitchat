@@ -44,6 +44,10 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
+			// {platform:"twitch", login:"pyka"},
+			// {platform:"twitch", login:"clairepics"},
+			// {platform:"twitch", login:"magdahalina"},
+			// {platform:"twitch", login:"heymunmusic"},
 			// {platform:"twitch", login:"durssbot"},
 			// {platform:"twitch", login:"durss"},
 			// {platform:"twitch", login:"gom4rt"},
