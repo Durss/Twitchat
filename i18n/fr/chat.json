@@ -87,7 +87,7 @@
 				"deleted": "Messages supprimés",
 				"pinned": "Messages épinglés",
 				"automod": "Messages bloqués",
-				"suspiciousUsers": "Envoyé par des personnes suspicieuses",
+				"suspiciousUsers": "Envoyé par des personnes suspectes",
 				"commands": "Commandes (commançant par \"!\")",
 				"short": "Messages courts"
 			},
@@ -278,14 +278,14 @@
 				"whisper": "chuchotement",
 				"cyphered": "chiffré",
 				"restrictedUser": "restreint·e",
-				"suspiciousUser": "suspicieux·se",
+				"suspiciousUser": "suspect·e",
 				"emergencyBlocked": "bloqué·e"
 			},
 			"tooltip": {
 				"raider": "Raider",
 				"pinned": "Epinglé",
 				"restrictedUser": "Message visible uniquement<br>par vous et vos modérateur·ices",
-				"suspiciousUser": "Personne marquée<br>comme suspicieuse"
+				"suspiciousUser": "Personne marquée<br>comme suspecte"
 			}
 		},
 		"hover_actions": {
