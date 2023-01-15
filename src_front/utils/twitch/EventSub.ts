@@ -494,6 +494,7 @@ export default class EventSub {
 					category:streamInfo[0]?.game_name ?? "loading error :(",
 				}
 			};
+			StoreProxy.chat.addMessage(message);
 		}
 	}
 

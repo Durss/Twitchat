@@ -994,7 +994,7 @@ export default class PubSub extends EventDispatcher {
 		if(received) {
 			user = StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.sourceUserID, data.data.sourceLogin);
 		}else{
-			user = StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.broadcasterUserID, data.data.targetLogin, data.data.targetUserDisplayName);
+			user = StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.targetUserID, data.data.targetLogin, data.data.targetUserDisplayName);
 		}
 		
 		const stream = (await TwitchUtils.loadCurrentStreamInfo([user.id]))[0];
