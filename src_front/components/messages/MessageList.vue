@@ -622,6 +622,9 @@ export default class MessageList extends Vue {
 				&& !m.user.channelInfo[m.channel_id].is_blocked;
 		}
 
+		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
+		if(this.lockedListRefresh) return false;
+
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				if(this.config.filters.message === false) return false;
