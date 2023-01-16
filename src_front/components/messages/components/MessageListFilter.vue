@@ -152,6 +152,14 @@
 					<ChatPinNotice class="message"
 						v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
 						:messageData="m" />
+
+					<ChatBan class="message"
+						v-else-if="m.type == 'ban'"
+						:messageData="m" />
+
+					<ChatUnban class="message"
+						v-else-if="m.type == 'unban'"
+						:messageData="m" />
 	
 					<ChatHighlight v-else class="message"
 						lightMode
@@ -186,6 +194,8 @@ import ChatRaffleResult from '../ChatRaffleResult.vue';
 import ChatShoutout from '../ChatShoutout.vue';
 import ChatLowTrustTreatment from '../ChatLowTrustTreatment.vue';
 import ChatPinNotice from '../ChatPinNotice.vue';
+import ChatBan from '../ChatBan.vue';
+import ChatUnban from '../ChatUnban.vue';
 
 @Options({
 	props:{
@@ -199,6 +209,8 @@ import ChatPinNotice from '../ChatPinNotice.vue';
 		ParamItem,
 		ToggleButton,
 		ChatAd,
+		ChatBan,
+		ChatUnban,
 		ChatConnect,
 		ChatShoutout,
 		ChatBingoResult,
