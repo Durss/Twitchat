@@ -243,7 +243,9 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get showModTools():boolean {
+		const isAnnounce = this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && this.messageData.twitch_announcementColor != undefined;
 		return this.showModToolsPreCalc
+		&& !isAnnounce
 		&& this.$store("params").features.showModTools.value === true;
 	}
 
