@@ -73,6 +73,9 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/oauth',
 		name: 'oauth',
 		component: Login,
+		meta: {
+			needAuth:false,
+		}
 	},
 	{
 		path: '/publicapi',
