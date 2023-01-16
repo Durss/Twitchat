@@ -1,6 +1,6 @@
 {
 	"params": {
-		"sync_server": "Enregistrer sur le serveur",
+		"sync_server": "Enregistrer les données sur le serveur",
 		"spoilersEnabled": "Activer le tag spoiler",
 		"alertMode": "Activer la fenêtre d'alerte",
 		"firstMessage": "Afficher le premier message de chaque viewer pour ne pas manquer de les saluer",

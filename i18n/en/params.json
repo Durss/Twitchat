@@ -1,6 +1,6 @@
 {
 	"params": {
-		"sync_server": "Sync parameters with server",
+		"sync_server": "Save all parameters to server",
 		"spoilersEnabled": "Enable spoiler tag",
 		"alertMode": "Enable chat alert",
 		"firstMessage": "Show the first message of every viewer on a seperate list so you don't forget to say hello",
