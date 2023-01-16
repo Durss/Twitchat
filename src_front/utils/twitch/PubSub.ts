@@ -138,11 +138,11 @@ export default class PubSub extends EventDispatcher {
 		
 		this.socket.onclose = (event) => {
 			clearInterval(this.pingInterval);
-			if (event.wasClean) {
-				// alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-			} else {
-				// alert('[close] Connection died');
-			}
+			// if (event.wasClean) {
+			// 	alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+			// } else {
+			// 	alert('[close] Connection died');
+			// }
 			clearTimeout(this.reconnectTimeout)
 			this.reconnectTimeout = setTimeout(()=>{
 				this.connect();

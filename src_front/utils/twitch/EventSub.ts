@@ -52,15 +52,20 @@ export default class EventSub {
 		}
 
 		//Delete all previous event sub subscriptions
-		const subscriptions = await TwitchUtils.eventsubGetSubscriptions();
-		await Utils.promisedTimeout(5000);
-		for (let i = 0; i < subscriptions.length; i++) {
-			const v = subscriptions[i];
-			if(i%10 === 9) {
-				await TwitchUtils.eventsubDeleteSubscriptions(v.id);
-			}else{
-				TwitchUtils.eventsubDeleteSubscriptions(v.id);
+		try {
+			const subscriptions = await TwitchUtils.eventsubGetSubscriptions();
+			await Utils.promisedTimeout(5000);
+			for (let i = 0; i < subscriptions.length; i++) {
+				const v = subscriptions[i];
+				//Delete by batch of 10
+				if(i%10 === 9) {
+					await TwitchUtils.eventsubDeleteSubscriptions(v.id);
+				}else{
+					TwitchUtils.eventsubDeleteSubscriptions(v.id);
+				}
 			}
+		}catch(error) {
+			//It's not a big deal if this crashes, it's safe to ignore
 		}
 
 		this.socket = new WebSocket("wss://eventsub-beta.wss.twitch.tv/ws");
