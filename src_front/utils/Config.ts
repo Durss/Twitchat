@@ -13,7 +13,7 @@ export default class Config {
 
 	public SERVER_PORT = 3018;
 	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;
-	public IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10";
+	public IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10" && document.location.hostname.indexOf("ngrok") == -1;
 	public TWITCH_API_PATH = "https://api.twitch.tv/helix/";
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
 	public OBS_WEBSOCKET_INSTALLER = "https://github.com/obsproject/obs-websocket/releases/tag/5.0.1";
@@ -44,11 +44,8 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			{platform:"twitch", login:"hortyunderscore"},
-			{platform:"twitch", login:"TheSushiDragon"},
-			// {platform:"twitch", login:"clairepics"},
-			// {platform:"twitch", login:"magdahalina"},
-			// {platform:"twitch", login:"heymunmusic"},
+			// {platform:"twitch", login:"encremecanique"},
+			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"durssbot"},
 			// {platform:"twitch", login:"durss"},
 			// {platform:"twitch", login:"gom4rt"},

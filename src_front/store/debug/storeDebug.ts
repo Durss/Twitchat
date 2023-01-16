@@ -526,6 +526,11 @@ export const storeDebug = defineStore('debug', {
 							id:Utils.getUUID(),
 							label:fakeUser.login,
 							score:1,
+							user: {
+								channel_id:user.id,
+								platform:"twitch",
+								id:fakeUser.id,
+							}
 						});
 					}
 					const m:TwitchatDataTypes.MessageRaffleData = {

@@ -108,7 +108,7 @@
 			"chat_delay": "Délai de tchat"
 		},
 		"raffle": {
-			"title": "{USER} a gagné le tirage au sort"
+			"title": "{USER} a remporté le tirage au sort"
 		},
 		"message": {
 			"first_time": "1er message ici",
@@ -156,8 +156,8 @@
 			"boosted": "Votre chaîne a été mise en avant auprès de {COUNT} personnes",
 			"raid": "a lancé un raid sur votre chaîne avec {COUNT} personnes.",
 			"bits": "a envoyé 1 bit | a envoyé {BITS} bits",
-			"sub": "a pris un abonnement de niveau {TIER}",
-			"sub_prime": "a pris un abonnement avec Prime",
+			"sub": "a pris un abonnement de niveau {TIER}.",
+			"sub_prime": "a pris un abonnement avec Prime.",
 			"resub": "a renouvelé son abonnement de niveau {TIER}.",
 			"resub_prime": "a pris un abonnement avec Prime.",
 			"sub_duration": "Abonné·e depuis {COUNT} mois.",
@@ -194,7 +194,7 @@
 		},
 		"countdown": {
 			"start": "Compte à rebours lancé pour {DURATION}",
-			"complete": "Le compte à rebours de {DURATION} terminé",
+			"complete": "Le compte à rebours de {DURATION} est terminé",
 			"abort": "Le compte à rebours de {DURATION} a été arrêté après {ABORT_DURATION}"
 		},
 		"connect": {

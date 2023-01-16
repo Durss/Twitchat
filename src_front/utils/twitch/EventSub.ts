@@ -156,6 +156,7 @@ export default class EventSub {
 			doneUids[uid] = true;
 			if(uid == myUID) {
 				//These events are available only by the broadcaster
+				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, "shoutout", "beta");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "1");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "1");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1");

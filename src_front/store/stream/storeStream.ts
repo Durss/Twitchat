@@ -46,7 +46,6 @@ export const storeStream = defineStore('stream', {
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
 			this.hypeTrain = data;
-			if(data) console.log("SET", data.state);
 			if(data && data.state == "COMPLETED" && data.approached_at) {
 				const threshold = 5*60*1000;
 				const offset = data.approached_at;
@@ -63,8 +62,6 @@ export const storeStream = defineStore('stream', {
 					}
 				}
 
-				console.log("ACTIVITIES LEN", activities.length);
-				
 				if(activities.length > 0) {
 					const res:TwitchatDataTypes.MessageHypeTrainSummaryData = {
 						type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY,

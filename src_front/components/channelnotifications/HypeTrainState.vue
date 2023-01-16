@@ -186,6 +186,8 @@ export default class HypeTrainState extends Vue {
 		}
 
 		watch(() => this.trainData, () => {
+			if(!this.trainData) return;
+			
 			try {
 				if(this.conductor_subs && this.trainData.conductor_subs && JSON.stringify(this.conductor_subs) == JSON.stringify(this.trainData.conductor_subs)) return;
 	
