@@ -61,7 +61,7 @@
 			
 			<div class="followings">
 				<h2>Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
-				<div class="commonFollow">{{commonFollowCount}} followings in common</div>
+				<div class="commonFollow" v-if="canListFollowers">{{commonFollowCount}} followings in common</div>
 				<transition name="scale">
 					<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
 				</transition>
@@ -85,6 +85,7 @@ import StoreProxy from '@/store/StoreProxy';
 import { storeUsers } from '@/store/users/storeUsers';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -137,6 +138,8 @@ export default class UserCard extends Vue {
 	}
 
 	public get is_tracked():boolean{ return this.user!.is_tracked; }
+
+	public get canListFollowers():boolean{ return TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS); }
 
 	public get ttsReadBtLabel(): string {
 		if(!this.user) return "";
