@@ -4,7 +4,7 @@
 		"head":"Choisissez ce que vous souhaitez permettre à Twitchat d'effectuer",
 		"update_title":"Une Màj nécessite un nouvelle permission | Une Màj nécessite ces nouvelles permissions",
 		"specific_scope":"L'action demandée nécessite la permission supplémentaire suivante | L'action demandée nécessite les permissions supplémentaires suivantes",
-		"specific_scope_moreBt":"Accorder plus autorisations",
+		"specific_scope_moreBt":"Accorder plus d'autorisations",
 		"permissions_title":"Twitchat nécessite {COUNT} permissions",
 		"authorizeBt":"Autoriser",
 		"generatingCSRF":"Patientez...",
