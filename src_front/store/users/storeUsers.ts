@@ -221,7 +221,7 @@ export const storeUsers = defineStore('users', {
 						is_blocked:false,
 						is_banned:false,
 						is_vip:false,
-						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true,
+						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true || channelId == user.id,
 						is_broadcaster:channelId == user.id,
 						is_subscriber:false,
 						is_gifter:false,

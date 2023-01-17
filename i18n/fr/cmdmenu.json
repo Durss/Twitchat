@@ -11,6 +11,8 @@
 		"commercial":"Vous pouvez lancer une publicité dans {DURATION}",
 		"raid":"Lancer un raid",
 		"whoslive":"Qui stream ?",
-		"whoslive_title":"Personnes suivies en live"
+		"whoslive_title":"Personnes suivies en live",
+		"scope_grant": "Vous n'avez pas accordé la permission à Twitchat de lancer un raid.",
+		"scope_grantBt": "Accorder la permission"
 	}
 }

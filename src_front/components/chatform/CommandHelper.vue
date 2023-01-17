@@ -10,11 +10,11 @@
 		<Button small @click.capture="openModal('streamInfo');"	:icon="$image('icons/info.svg')"		:title="$t('cmdmenu.info')" :disabled="!canEditStreamInfos" />
 
 		<div class="commercial">
-			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click.capture="startAd(30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!hasChannelPoints" />
-			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click.capture="startAd(60); close();" title="60s" bounce :disabled="!hasChannelPoints" />
-			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click.capture="startAd(90); close();" title="90s" bounce :disabled="!hasChannelPoints" />
-			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click.capture="startAd(120); close();" title="120s" bounce :disabled="!hasChannelPoints" />
-			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click.capture="startAd(180); close();" title="180s" bounce :disabled="!hasChannelPoints" />
+			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click.capture="startAd(30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!canStartCommercial" />
+			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click.capture="startAd(60); close();" title="60s" bounce :disabled="!canStartCommercial" />
+			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click.capture="startAd(90); close();" title="90s" bounce :disabled="!canStartCommercial" />
+			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click.capture="startAd(120); close();" title="120s" bounce :disabled="!canStartCommercial" />
+			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click.capture="startAd(180); close();" title="180s" bounce :disabled="!canStartCommercial" />
 			<div v-if="adCooldown > 0" class="cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
@@ -29,10 +29,14 @@
 		</div>
 		<div class="raid" v-else>
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">{{$t('cmdmenu.raid')}}</label>
-			<form @submit.prevent="raid()">
+			<form @submit.prevent="raid()" v-if="canRaid">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
 				<Button aria-label="Start raid" type="submit" :icon="$image('icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
 			</form>
+			<div v-else class="missingScope">
+				<p>{{ $t('cmdmenu.scope_grant') }}</p>
+				<Button :icon="$image('icons/unlock.svg')" bounce highlight small :title="$t('cmdmenu.scope_grantBt')" />
+			</div>
 			<a class="followings" @click.prevent="openModal('liveStreams')" v-t="'cmdmenu.whoslive'"></a>
 		</div>
 	</div>
@@ -82,21 +86,12 @@ export default class CommandHelper extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public get params():TwitchatDataTypes.IRoomSettings { return this.$store("stream").roomSettings["twitch"]!; }
-	public get adCooldownFormated():string {
-		return Utils.formatDuration(this.adCooldown);
-	}
-
-	public get hasChannelPoints():boolean {
-		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
-	}
-
-	public get canEditStreamInfos():boolean {
-		return TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS);
-	}
-
-	public get canClearChat():boolean {
-		return TwitchUtils.hasScope(TwitchScopes.DELETE_MESSAGES);
-	}
+	public get adCooldownFormated():string { return Utils.formatDuration(this.adCooldown); }
+	public get hasChannelPoints():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
+	public get canEditStreamInfos():boolean { return TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS); }
+	public get canStartCommercial():boolean { return TwitchUtils.hasScope(TwitchScopes.START_COMMERCIAL) && this.hasChannelPoints; }
+	public get canClearChat():boolean { return TwitchUtils.hasScope(TwitchScopes.DELETE_MESSAGES); }
+	public get canRaid():boolean { return TwitchUtils.hasScope(TwitchScopes.START_RAID); }
 
 	public get canCreatePrediction():boolean {
 		if(!this.hasChannelPoints) return false;
@@ -365,6 +360,22 @@ export default class CommandHelper extends Vue {
 			color: @mainColor_light;
 			&:hover {
 				color: @mainColor_normal_light;
+			}
+		}
+
+		.missingScope {
+			max-width: 300px;
+			background-color: @mainColor_warn;
+			border-radius: @border_radius;
+			padding: .5em;
+			p {
+				font-size: .7em;
+				color: @mainColor_light;
+				text-align: center;
+			}
+			.button {
+				margin: .5em auto 0 auto;
+				display: block;
 			}
 		}
 	}

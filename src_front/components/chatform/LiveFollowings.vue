@@ -8,7 +8,11 @@
 				<span><img src="@/assets/icons/user.svg" alt="user" class="icon">{{$t('cmdmenu.whoslive_title')}}</span>
 			</button>
 
-			<div class="noResult" v-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
+			<div class="noResult" v-if="needScope">
+				<div>{{ $t("liveusers.scope_grant") }}</div>
+				<Button highlight :icon="$image('icons/unlock.svg')" :title="$t('liveusers.scope_grantBt')" @click="grantPermission()" />
+			</div>
+			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 			
 			<div class="list">
 				<div v-for="s in streams" :key="s.id" class="stream" ref="streamCard" @click="raid(s)">
@@ -36,6 +40,7 @@
 
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -52,6 +57,8 @@ export default class LiveFollowings extends Vue {
 
 	public streams:TwitchDataTypes.StreamInfo[] = [];
 	public loading = true;
+	public needScope = true;
+
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public mounted():void {
@@ -89,6 +96,9 @@ export default class LiveFollowings extends Vue {
 		this.$emit('close');
 	}
 
+	public async grantPermission():Promise<void> {
+		this.$store("auth").requestTwitchScope(TwitchScopes.LIST_FOLLOWERS);
+	}
 
 	private async updateList():Promise<void> {
 		let res = await TwitchUtils.getActiveFollowedStreams();
@@ -124,6 +134,12 @@ export default class LiveFollowings extends Vue {
 		.center();
 		position: absolute;
 		text-align: center;
+		padding: 1em;
+		border-radius: @border_radius;
+		background-color: @mainColor_light;
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
 	}
 
 	.content {
