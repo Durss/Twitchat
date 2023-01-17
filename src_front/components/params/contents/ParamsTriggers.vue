@@ -44,7 +44,7 @@
 							white
 							:title="e.label"
 							:icon="getIcon(e)"
-							@click="currentEvent = e"
+							@click.capture="disabledEntry(e)? requestScope(e) : currentEvent = e"
 							:disabled="disabledEntry(e)"
 							:data-tooltip="disabledEntry(e)? $t('triggers.noChannelPoints_tt') : ''"
 						/>
@@ -210,6 +210,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket, { type OBSSceneItem, type OBSSourceItem } from '@/utils/OBSWebsocket';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -377,9 +378,58 @@ export default class ParamsTriggers extends Vue {
 	 * Get if a trigger entry should be disabled
 	 */
 	public disabledEntry(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):boolean {
-		if(e.value == TriggerTypes.REWARD_REDEEM && !this.hasChannelPoints) return true;
+		if(e.value == TriggerTypes.REWARD_REDEEM && (!this.hasChannelPoints || !TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS))) return true;
+		if(e.value == TriggerTypes.POLL_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS))) return true;
+		if(e.value == TriggerTypes.PREDICTION_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS))) return true;
+		if(e.value == TriggerTypes.SHIELD_MODE_ON && !TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) return true;
+		if(e.value == TriggerTypes.SHIELD_MODE_OFF && !TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) return true;
+		if(e.value == TriggerTypes.TIMEOUT && !TwitchUtils.hasScope(TwitchScopes.READ_MODS_AND_BANNED)) return true;
+		if(e.value == TriggerTypes.BAN && !TwitchUtils.hasScope(TwitchScopes.READ_MODS_AND_BANNED)) return true;
+		if(e.value == TriggerTypes.UNBAN && !TwitchUtils.hasScope(TwitchScopes.READ_MODS_AND_BANNED)) return true;
+		if(e.value == TriggerTypes.VIP && !TwitchUtils.hasScope(TwitchScopes.EDIT_VIPS)) return true;
+		if(e.value == TriggerTypes.UNVIP && !TwitchUtils.hasScope(TwitchScopes.EDIT_VIPS)) return true;
+		if(e.value == TriggerTypes.MOD && !TwitchUtils.hasScope(TwitchScopes.EDIT_MODS)) return true;
+		if(e.value == TriggerTypes.UNMOD && !TwitchUtils.hasScope(TwitchScopes.EDIT_MODS)) return true;
+		if(e.value == TriggerTypes.STREAM_INFO_UPDATE && !TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS)) return true;
+
+		if(!TwitchUtils.hasScope(TwitchScopes.READ_HYPE_TRAIN)
+		&& (e.value == TriggerTypes.HYPE_TRAIN_CANCELED
+		|| e.value == TriggerTypes.HYPE_TRAIN_APPROACHING
+		|| e.value == TriggerTypes.HYPE_TRAIN_COOLDOWN
+		|| e.value == TriggerTypes.HYPE_TRAIN_END
+		|| e.value == TriggerTypes.HYPE_TRAIN_PROGRESS
+		|| e.value == TriggerTypes.HYPE_TRAIN_START)) return true;
 
 		return false;
+	}
+
+	public requestScope(e:TriggerEventTypes):void {
+		let scope:TwitchScopesString|"" = "";
+		if(e.value == TriggerTypes.REWARD_REDEEM && this.hasChannelPoints && !TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS)) scope = TwitchScopes.LIST_REWARDS;
+		if(e.value == TriggerTypes.POLL_RESULT && this.hasChannelPoints && !TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS)) scope = TwitchScopes.MANAGE_POLLS;
+		if(e.value == TriggerTypes.PREDICTION_RESULT && this.hasChannelPoints && !TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS)) scope = TwitchScopes.MANAGE_PREDICTIONS;
+		if(e.value == TriggerTypes.SHIELD_MODE_ON && !TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) scope = TwitchScopes.SHIELD_MODE;
+		if(e.value == TriggerTypes.SHIELD_MODE_OFF && !TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) scope = TwitchScopes.SHIELD_MODE;
+		if(e.value == TriggerTypes.TIMEOUT && !TwitchUtils.hasScope(TwitchScopes.READ_MODS_AND_BANNED)) scope = TwitchScopes.READ_MODS_AND_BANNED;
+		if(e.value == TriggerTypes.BAN && !TwitchUtils.hasScope(TwitchScopes.READ_MODS_AND_BANNED)) scope = TwitchScopes.READ_MODS_AND_BANNED;
+		if(e.value == TriggerTypes.UNBAN && !TwitchUtils.hasScope(TwitchScopes.READ_MODS_AND_BANNED)) scope = TwitchScopes.READ_MODS_AND_BANNED;
+		if(e.value == TriggerTypes.VIP && !TwitchUtils.hasScope(TwitchScopes.EDIT_VIPS)) scope = TwitchScopes.EDIT_VIPS;
+		if(e.value == TriggerTypes.UNVIP && !TwitchUtils.hasScope(TwitchScopes.EDIT_VIPS)) scope = TwitchScopes.EDIT_VIPS;
+		if(e.value == TriggerTypes.MOD && !TwitchUtils.hasScope(TwitchScopes.EDIT_MODS)) scope = TwitchScopes.EDIT_MODS;
+		if(e.value == TriggerTypes.UNMOD && !TwitchUtils.hasScope(TwitchScopes.EDIT_MODS)) scope = TwitchScopes.EDIT_MODS;
+		if(e.value == TriggerTypes.STREAM_INFO_UPDATE && !TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS)) scope = TwitchScopes.SET_STREAM_INFOS;
+
+		if(!TwitchUtils.hasScope(TwitchScopes.READ_HYPE_TRAIN)
+			&& (e.value == TriggerTypes.HYPE_TRAIN_CANCELED
+			|| e.value == TriggerTypes.HYPE_TRAIN_APPROACHING
+			|| e.value == TriggerTypes.HYPE_TRAIN_COOLDOWN
+			|| e.value == TriggerTypes.HYPE_TRAIN_END
+			|| e.value == TriggerTypes.HYPE_TRAIN_PROGRESS
+			|| e.value == TriggerTypes.HYPE_TRAIN_START)) scope = TwitchScopes.READ_HYPE_TRAIN;
+		
+		if(scope) {
+			this.$store("auth").requestTwitchScope(scope);
+		}
 	}
 	
 	public mounted():void {

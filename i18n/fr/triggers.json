@@ -11,7 +11,7 @@
 		"delete_confirm": "Supprimer ce trigger ?",
 		"delete_action_confirm": "Supprimer l'action ?",
 		"reorder_tt": "Réordonner",
-		"noChannelPoints_tt": "Vous ne possédez pas<br>de points de chaîne",
+		"noChannelPoints_tt": "Vous n'êtes pas affilié·e<br>ou n'avez pas autorisé<br>Twitchat à contrôler ceci",
 		"music": {
 			"require": "Ces événements nécessitent de lier Spotify ou Deezer avec Twitchat dans {URL}",
 			"require_url": "les overlays"

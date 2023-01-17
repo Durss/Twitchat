@@ -30,15 +30,17 @@
 					:title="$t('triggers.actions.common.action_chat')"
 					:icon="$image('icons/whispers_purple.svg')"/>
 					
-				<Button class="button" white @click="selectActionType('poll')"
+				<Button class="button" white @click.capture="selectActionType('poll')"
 					v-if="hasChannelPoints"
 					:title="$t('triggers.actions.common.action_poll')"
-					:icon="$image('icons/poll_purple.svg')"/>
+					:icon="$image('icons/poll_purple.svg')"
+					:disabled="!canCreatePoll"/>
 				
-				<Button class="button" white @click="selectActionType('prediction')"
+				<Button class="button" white @click.capture="selectActionType('prediction')"
 					v-if="hasChannelPoints"
 					:title="$t('triggers.actions.common.action_prediction')"
-					:icon="$image('icons/prediction_purple.svg')"/>
+					:icon="$image('icons/prediction_purple.svg')"
+					:disabled="!canCreatePrediction"/>
 					
 				<Button class="button" white @click="selectActionType('bingo')"
 					:title="$t('triggers.actions.common.action_bingo')"
@@ -56,25 +58,25 @@
 					:title="$t('triggers.actions.common.action_trigger')"
 					:icon="$image('icons/broadcast_purple.svg')" />
 				
-				<Button class="button" white @click="selectActionType('obs')"
+				<Button class="button" white @click.capture="selectActionType('obs')"
 					:title="$t('triggers.actions.common.action_obs')"
 					:icon="$image('icons/obs_purple.svg')"
 					:disabled="!obsConnected"
 					:data-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')"/>
 				
-				<Button class="button" white @click="selectActionType('tts')"
+				<Button class="button" white @click.capture="selectActionType('tts')"
 					:title="$t('triggers.actions.common.action_tts')"
 					:icon="$image('icons/tts_purple.svg')"
 					:disabled="!$store('tts').params.enabled"
 					:data-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')"/>
 				
-				<Button class="button" white @click="selectActionType('music')"
+				<Button class="button" white @click.capture="selectActionType('music')"
 					:title="$t('triggers.actions.common.action_music')"
 					:icon="$image('icons/music_purple.svg')"
 					:disabled="!musicServiceConfigured"
 					:data-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')"/>
 				
-				<Button class="button" white @click="selectActionType('voicemod')"
+				<Button class="button" white @click.capture="selectActionType('voicemod')"
 					:title="$t('triggers.actions.common.action_voicemod')"
 					:icon="$image('icons/voicemod_purple.svg')"
 					:disabled="!voicemodEnabled"
@@ -111,10 +113,12 @@ import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerActionStringTypes, TriggerActionTypes, TriggerData, TriggerEventTypes } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { Options, Vue } from 'vue-class-component';
 import BingoForm from '../../../bingo/BingoForm.vue';
@@ -174,6 +178,8 @@ export default class TriggerActionEntry extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
+	public get canCreatePoll():boolean { return TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS); }
+	public get canCreatePrediction():boolean { return TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS); }
 	public get hasChannelPoints():boolean {
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
@@ -270,6 +276,38 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public selectActionType(type:TriggerActionStringTypes):void {
+		switch(type) {
+			case "poll": {
+				if(!this.canCreatePoll) {
+					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_POLLS);
+					return;
+				}break
+			}
+			case "prediction": {
+				if(!this.canCreatePrediction) {
+					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_PREDICTIONS);
+					return;
+				}break
+			}
+			case "music": {
+				if(!this.musicServiceConfigured) {
+					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
+					return;
+				}break
+			}
+			case "voicemod": {
+				if(!this.voicemodEnabled) {
+					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.VOICEMOD);
+					return;
+				}break
+			}
+			case "obs": {
+				if(!this.obsConnected) {
+					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OBS);
+					return;
+				}break
+			}
+		}
 		this.action.type = type;
 	}
 

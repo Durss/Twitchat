@@ -6,7 +6,7 @@
 		<Button small @click="openModal('bingo');"				:icon="$image('icons/bingo.svg')"		:title="$t('cmdmenu.bingo')" />
 		<Button small @click="openModal('chatpoll');"			:icon="$image('icons/chatPoll.svg')"	:title="$t('cmdmenu.suggestions')" />
 		<Button small @click="openModal('timer');"				:icon="$image('icons/timer.svg')"		:title="$t('cmdmenu.timer')" />
-		<Button small @click="clearChat();"						:icon="$image('icons/clearChat.svg')"	:title="$t('cmdmenu.chat')" />
+		<Button small @click.capture="clearChat();"				:icon="$image('icons/clearChat.svg')"	:title="$t('cmdmenu.chat')" :disabled="!canClearChat" />
 		<Button small @click.capture="openModal('streamInfo');"	:icon="$image('icons/info.svg')"		:title="$t('cmdmenu.info')" :disabled="!canEditStreamInfos" />
 
 		<div class="commercial">
@@ -85,8 +85,11 @@ export default class CommandHelper extends Vue {
 	}
 
 	public get canEditStreamInfos():boolean {
-		if(!TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS)) return false;
-		return true;
+		return TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS);
+	}
+
+	public get canClearChat():boolean {
+		return TwitchUtils.hasScope(TwitchScopes.DELETE_MESSAGES);
 	}
 
 	public get canCreatePrediction():boolean {
@@ -163,7 +166,11 @@ export default class CommandHelper extends Vue {
 	}
 
 	public clearChat():void {
-		TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id);
+		if(!TwitchUtils.hasScope(TwitchScopes.DELETE_MESSAGES)) {
+			this.$store("auth").requestTwitchScope(TwitchScopes.DELETE_MESSAGES);
+		}else{
+			TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id);
+		}
 	}
 
 	private open():void {
