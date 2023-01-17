@@ -63,7 +63,7 @@
 				<div :class="collapse? 'ad collapse' : 'ad'" @click="collapse = false">
 					<Button v-if="!collapse"
 						:aria-label="$t('params.ad_collapse_aria')"
-						:icon="$image('icons/cross_white.svg')"
+						:icon="$image('icons/minus.svg')"
 						@click="collapse = true"
 						class="close clearButton" bounce />
 

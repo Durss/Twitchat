@@ -379,14 +379,12 @@ export default class MessageListFilter extends Vue {
 			const f = sortedFilters[i];
 			const children:TwitchatDataTypes.ParameterData[] = [];
 
-			const disabled = this.typeToScope[f] && !TwitchUtils.hasScope(this.typeToScope[f]);
 			this.filters.push({type:"toggle",
 								value:this.config.filters[f],
 								label:this.typeToLabel[f] ?? f,
 								icon:this.typeToIcon[f],
 								twitch_scope:this.typeToScope[f],
 								storage:f,
-								disabled
 							});
 
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
@@ -450,9 +448,10 @@ export default class MessageListFilter extends Vue {
 						label:keyToLabel[k],
 						storage:key,
 						icon:keyToIcon[k],
-						twitch_scope:this.messageKeyToScope[k],
-						disabled:this.messageKeyToScope[k] && !TwitchUtils.hasScope(this.messageKeyToScope[k]),
 					};
+					if(this.messageKeyToScope[k] && this.messageKeyToScope[k].length > 0) {
+						param.twitch_scope = this.messageKeyToScope[k];
+					}
 					if(k == 'commands') {
 						const subParam:TwitchatDataTypes.ParameterData = {type:"text",
 									longText:true,

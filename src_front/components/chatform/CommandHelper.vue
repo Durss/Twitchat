@@ -70,10 +70,10 @@ export default class CommandHelper extends Vue {
 	public channelId:string = "";
 	public adCooldown:number = 0;
 	
-	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Followers only" };
-	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Subs only" };
-	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Emotes only" };
-	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Slow mode" };
+	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Followers only", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
+	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Subs only", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
+	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Emotes only", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
+	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Slow mode", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
 
 	private ignoreUpdates = false;
 	private adCooldownInterval = 0;
@@ -111,11 +111,6 @@ export default class CommandHelper extends Vue {
 	public async beforeMount():Promise<void> {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-
-		this.param_followOnly.disabled	= !TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
-		this.param_subOnly.disabled		= !TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
-		this.param_emotesOnly.disabled	= !TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
-		this.param_slowMode.disabled	= !TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
 
 		watch(()=>this.$store("stream").startAdCooldown, ()=>{
 			this.adCooldown = this.$store("stream").startAdCooldown - Date.now();
