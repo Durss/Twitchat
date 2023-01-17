@@ -1,6 +1,7 @@
 <template>
 	<div class="scopeselector">
 		<div class="forced optionList" v-if="param_items_requested.length > 0">
+			<img src="@/assets/icons/unlock_purple.svg" class="unlockIcon">
 			<p class="head">{{ $tc("login.specific_scope", param_items_requested.length) }}</p>
 			<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :paramData="p" @change="onSelectionUpdate()" />
 		</div>
@@ -206,10 +207,17 @@ export default class ScopeSelector extends Vue {
 			border-radius: .5em;
 			padding: .5em;
 			.head {
+				display: flex;
+				flex-direction: row;
 				font-size: .8em;
 			}
 			.item {
 				background-color: @mainColor_light;
+			}
+			.unlockIcon {
+				height: 2em;
+				margin: auto;
+				display: block;
 			}
 		}
 	}
