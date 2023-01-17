@@ -8,6 +8,7 @@
 		"and": "et",
 		"submit": "Valider",
 		"cancel": "Annuler",
+		"continue": "Continuer",
 		"create": "Créer",
 		"delete": "Supprimer",
 		"click": "click",
@@ -27,6 +28,7 @@
 		"configure": "Configurer",
 		"enabled": "Activé",
 		"example": "Exemple",
+		"grant_scope": "Accorder l'accès",
 		"show": "Afficher",
 		"hide": "Masquer",
 		"copy": "Copier",
@@ -99,6 +101,8 @@
 			"enabled": "Mode développeur activé",
 			"disabled": "Mode développeur désactivé"
 		},
+		"twitch_scopes_grant_title": "Autorization",
+		"twitch_scopes_grant_description": "Vous allez être redirigé·e vers la page de login pour accorder cette nouvelle permission.",
 		"twitch_scopes": {
 			"bits:read": "Lire le classement des bits",
 			"chat:read": "Lire le tchat",
@@ -111,7 +115,7 @@
 			"user:manage:whispers": "Envoyer des chuchotements",
 			"user:manage:blocked_users": "Bloquer/débloquer des personnnes",
 			"channel:read:redemptions": "Lister vos récompenses de points de chaîne",
-			"channel:moderate": "Savoir quand une action de modération est effectuée",
+			"channel:moderate": "Effectuer des actions de modération",
 			"channel:manage:polls": "Gérer les sondages",
 			"channel:manage:predictions": "Gérer les prédictions",
 			"channel:manage:broadcast": "Mettre à jour vos infos de stream",

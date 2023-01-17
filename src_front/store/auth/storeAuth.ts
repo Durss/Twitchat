@@ -239,7 +239,10 @@ export const storeAuth = defineStore('auth', {
 		},
 	
 		requestTwitchScope(scope:TwitchScopesString) {
-			router.push({name: 'login', params:{scope:scope}});//Redirect to login with request scope as param
+			const t = StoreProxy.i18n.t;
+			StoreProxy.main.confirm(t("global.twitch_scopes_grant_title"), t("global.twitch_scopes_grant_description"), null, t("global.continue"), t("global.cancel")).then(()=> {
+				router.push({name: 'login', params:{scope:scope}});//Redirect to login with request scope as param
+			}).catch(()=>{});
 		},
 	} as IAuthActions
 	& ThisType<IAuthActions

@@ -88,10 +88,7 @@ export default class Login extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		
 		this.isBeta = Config.instance.BETA_MODE;
-		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
-		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
 		let redirect = this.$router.currentRoute.value.params?.redirect;
 
 		if(redirect && redirect != "logout") {
@@ -138,6 +135,11 @@ export default class Login extends Vue {
 		if(!this.authenticating){
 			this.generateCSRF();
 		}
+
+		await this.$nextTick();
+
+		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
+		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1, clearProps:"all"});
 	}
 
 	public async generateCSRF():Promise<void> {
@@ -197,15 +199,15 @@ export default class Login extends Vue {
 
 	.content {
 		text-align: center;
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+		align-items: center;
 
 		&.betaWarn {
 			background: @mainColor_normal;
 			color: @mainColor_light;
 			margin: 1em 0;
-		}
-
-		.row {
-			margin-bottom: 1em;
 		}
 
 		.description {

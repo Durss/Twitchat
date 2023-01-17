@@ -3,6 +3,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
@@ -20,11 +21,11 @@ export const storeParams = defineStore('params', {
 			conversationsEnabled: 		{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.conversationsEnabled"), id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
 			userHistoryEnabled: 		{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.userHistoryEnabled"), id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
 			lockAutoScroll: 			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.lockAutoScroll"), id:205, icon:"pause_purple.svg"},
-			showModTools: 				{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.showModTools"), id:206, icon:"ban_purple.svg"},
+			showModTools: 				{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.showModTools"), id:206, icon:"ban_purple.svg", twitch_scope:TwitchScopes.MODERATE},
 			raidHighlightUser: 			{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.raidHighlightUser"), id:209, icon:"raid_purple.svg", example:"raidHighlightUser.png"},
 			raffleHighlightUser:		{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.raffleHighlightUser"), id:218, icon:"ticket_purple.svg", example:"raidHighlightUser.png"},
 			groupIdenticalMessage:		{save:true, type:"toggle", value:true, label:StoreProxy.i18n.tm("params.groupIdenticalMessage"), id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
-			offlineEmoteOnly:			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.offlineEmoteOnly"), id:214, icon:"emote_purple.svg"},
+			offlineEmoteOnly:			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.offlineEmoteOnly"), id:214, icon:"emote_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS},
 			stopStreamOnRaid:			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.stopStreamOnRaid"), id:212, icon:"obs_purple.svg"},
 			showUserPronouns:			{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.showUserPronouns"), id:213, icon:"user_purple.svg"},
 			chatShoutout:				{save:true, type:"toggle", value:false, label:StoreProxy.i18n.tm("params.chatShoutout"), id:215, icon:"shoutout_purple.svg"},

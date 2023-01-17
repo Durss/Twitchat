@@ -8,15 +8,17 @@
 		<Button class="allowMoreBt"
 			v-if="!forceFullList && param_items_requested.length > 0"
 			:title="$t('login.specific_scope_moreBt')"
-			:icon="$image('icons/lock_fit.svg')"
-			small
-			@click="forceFullList = true" />
+			:icon="$image('icons/lock_fit_purple.svg')"
+			small white
+			@click="expandList()" />
 
-		<div class="allBt" v-if="param_items_requested.length == 0">
-			<ToggleButton class="bt" v-model="allBt" />
-		</div>
-		<div class="optionList" v-if="forceFullList || param_items_requested.length == 0">
-			<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items" :paramData="p" @change="onSelectionUpdate()" />
+		<div ref="permsList" class="permsHolder" v-if="forceFullList || param_items_requested.length == 0">
+			<div class="allBt">
+				<ToggleButton class="bt" v-model="allBt" />
+			</div>
+			<div class="optionList">
+				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items" :paramData="p" @change="onSelectionUpdate()" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -25,6 +27,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
+import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
@@ -91,7 +94,7 @@ export default class ScopeSelector extends Vue {
 			"moderator:manage:shield_mode": "shield_purple.svg",
 		};
 		const disabled:string[] = ["chat:read", "chat:edit", "moderator:manage:announcements"];
-		const userScopes = this.$store("auth").twitch.scopes;
+		const userScopes = this.$store("auth").twitch.scopes ?? [];
 		for (let i = 0; i < disabled.length; i++) {
 			if(userScopes.indexOf(disabled[i]) == -1) {
 				userScopes.unshift(disabled[i]);
@@ -125,6 +128,7 @@ export default class ScopeSelector extends Vue {
 				});
 			}
 		}
+		this.allBt = forceSelect;
 	}
 
 	public mounted(): void {
@@ -154,11 +158,27 @@ export default class ScopeSelector extends Vue {
 			this.$emit("update", scopes);
 		}, 50)
 	}
+
+	public async expandList():Promise<void> {
+		this.forceFullList = true;
+
+		await this.$nextTick();
+		
+		gsap.from(this.$refs.permsList as HTMLDivElement, {height:"1.5em", duration:.5, ease:"sine.inOut", clearProps:"all"});
+	}
 }
 </script>
 
 <style scoped lang="less">
 .scopeselector{
+	display: flex;
+	flex-direction: column;
+	gap: .5em;
+	align-items: center;
+
+	.permsHolder {
+		overflow: hidden;
+	}
 
 	.optionList {
 		max-height: 250px;
@@ -195,7 +215,7 @@ export default class ScopeSelector extends Vue {
 	}
 
 	.allowMoreBt {
-		margin-top: .5em;
+		border: 1px solid @mainColor_normal;
 	}
 
 	.allBt {

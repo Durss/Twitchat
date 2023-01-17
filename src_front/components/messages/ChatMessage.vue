@@ -134,6 +134,7 @@ import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -243,10 +244,7 @@ export default class ChatMessage extends Vue {
 	}
 
 	public get showModTools():boolean {
-		const isAnnounce = this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && this.messageData.twitch_announcementColor != undefined;
-		return this.showModToolsPreCalc
-		&& !isAnnounce
-		&& this.$store("params").features.showModTools.value === true;
+		return this.showModToolsPreCalc && this.$store("params").features.showModTools.value === true;
 	}
 
 	public get time():string {
@@ -391,8 +389,16 @@ export default class ChatMessage extends Vue {
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id//if not broadcaster
-									&& StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator;//If mod
+									&& TwitchUtils.hasScope(TwitchScopes.MODERATE)//If necessary scope is granted
+									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
+									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id//if not sent by broadcaster
+									&& (
+										StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator ||
+										StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster
+									);//If we're a bod or the broadcaster
+									
+
+
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;

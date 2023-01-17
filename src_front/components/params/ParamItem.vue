@@ -175,6 +175,10 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 			type:Boolean,
 			default:false,
 		},
+		disabled:{
+			type:Boolean,
+			default:false,
+		},
 	},
 	components:{
 		Button,
@@ -186,6 +190,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 export default class ParamItem extends Vue {
 	
 	public error!:boolean;
+	public disabled!:boolean;
 	public autofocus!:boolean;
 	public clearToggle!:boolean;
 	public childLevel!:number;
@@ -205,7 +210,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.longText) res.push("longText");
 		if(this.paramData.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
-		if(this.paramData.disabled) res.push("disabled");
+		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -400,8 +405,15 @@ export default class ParamItem extends Vue {
 	}
 
 	&.disabled {
-		pointer-events: none;
 		filter: grayscale();
+		cursor: default;
+		.toggleButton, input, textarea, label {
+			pointer-events: none;
+		}
+	}
+	
+	&:not(.disabled)>.content:hover {
+		background-color: fade(@mainColor_normal, 10%);
 	}
 	
 	.content {
@@ -410,9 +422,6 @@ export default class ParamItem extends Vue {
 		align-items: baseline;
 		transition: background-color .1s;
 
-		&:hover {
-			background-color: fade(@mainColor_normal, 10%);
-		}
 		textarea {
 			width: 100%;
 		}

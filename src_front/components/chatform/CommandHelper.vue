@@ -148,16 +148,19 @@ export default class CommandHelper extends Vue {
 			case "poll": {
 				if(!TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS)) {
 					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_POLLS);
+					return;
 				}break;
 			}
 			case "pred": {
 				if(!TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS)) {
 					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_PREDICTIONS);
+					return;
 				}break;
 			}
 			case "streamInfo": {
 				if(!TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS)) {
 					this.$store("auth").requestTwitchScope(TwitchScopes.SET_STREAM_INFOS);
+					return;
 				}break;
 			}
 		}

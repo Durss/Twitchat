@@ -8,6 +8,7 @@
 		"and": "and",
 		"submit": "Submit",
 		"cancel": "Cancel",
+		"continue": "Continue",
 		"create": "Create",
 		"delete": "Delete",
 		"click": "click",
@@ -27,6 +28,7 @@
 		"configure": "Configure",
 		"enabled": "Enabled",
 		"example": "Example",
+		"grant_scope": "Grant access",
 		"show": "Show",
 		"hide": "Hide",
 		"copy": "Copy",
@@ -99,6 +101,8 @@
 			"enabled": "Developer mode enabled",
 			"disabled": "Developer mode disabled"
 		},
+		"twitch_scopes_grant_title": "Authorisation",
+		"twitch_scopes_grant_description": "You're going to be redirected to login to grant this new permission.",
 		"twitch_scopes": {
 			"bits:read": "Read bits leaderboard",
 			"chat:read": "Read your chat",

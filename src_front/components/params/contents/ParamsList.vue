@@ -2,8 +2,8 @@
 	<div class="paramslist">
 		<div class="row" v-for="(p, key) in params" :key="key">
 
-			<div :class="'item '+key">
-				<ParamItem :paramData="p" save />
+			<div :class="getClasses(p, key as string)">
+				<ParamItem :paramData="p" save :disabled="isDisabled(p)" />
 				<transition
 					@enter="onShowItem"
 					@leave="onHideItem"
@@ -55,8 +55,18 @@
 						<Button small :title="$t('global.configure')" @click="$emit('setContent', contentAlert)" />
 					</div>
 	
-					<div v-else-if="p.id == 12" v-if="fakeMessageData">
+					<div v-else-if="p.id == 12 && fakeMessageData">
 						<ChatMessage class="chatMessage" :messageData="fakeMessageData" />
+					</div>
+	
+					<div v-else-if="isDisabled(p) && p.twitch_scope" class="info scope">
+						<img src="@/assets/icons/lock_fit_purple.svg">
+						<p class="label">{{ $t("params.scope_missing") }}</p>
+						<Button small highlight
+							class="grantBt"
+							:title="$t('global.grant_scope')"
+							:icon="$image('icons/unlock.svg')"
+							@click="requestPermission(p.twitch_scope!)" />
 					</div>
 				</transition>
 			</div>
@@ -70,6 +80,8 @@ import ChatMessage from '@/components/messages/ChatMessage.vue';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
@@ -99,10 +111,7 @@ export default class ParamsList extends Vue {
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
-
-	public get isOBSConnected():boolean {
-		return OBSWebsocket.instance.connected;
-	}
+	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData} {
 		let res:{[key:string]:TwitchatDataTypes.ParameterData} = {};
@@ -163,6 +172,22 @@ export default class ParamsList extends Vue {
 		];
 	}
 
+	public isDisabled(p:TwitchatDataTypes.ParameterData):boolean {
+		if(p.id == 212 && !this.isOBSConnected) return true;
+		if(!p.twitch_scope) return false;
+		return !TwitchUtils.hasScope(p.twitch_scope);
+	}
+
+	public getClasses(p:TwitchatDataTypes.ParameterData, key:string):string[] {
+		let res = ["item", key];
+		if(this.isDisabled(p)) res.push("disabled");
+		return res;
+	}
+
+	public requestPermission(scope:TwitchScopesString):void {
+		this.$store("auth").requestTwitchScope(scope);
+	}
+
 	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {
 		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", clearProps:"all", onComplete:()=>{
 			done();
@@ -219,6 +244,10 @@ export default class ParamsList extends Vue {
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
 			}
+
+			&.disabled {
+				background-color: fade(@mainColor_dark, 15%);
+			}
 			
 
 			&.highlightMods {
@@ -271,14 +300,18 @@ export default class ParamsList extends Vue {
 				}
 			}
 	
-			&.obsConnect {
-				display: inline-block;
-				width: fit-content;
+			&.obsConnect, &.scope {
+				display: block;
 				border-radius: .25em;
 				margin: .25em auto;
 				margin-left: 1.5em;
 				background-color: @mainColor_light;
+				border: 1px solid @mainColor_alert;
 				padding: .25em .5em;
+				text-align: center;
+				p {
+					font-size: .8em;
+				}
 				img {
 					height: .8em;
 					margin-right: .25em;
@@ -286,6 +319,10 @@ export default class ParamsList extends Vue {
 				}
 				a{
 					color: @mainColor_alert;
+				}
+				.grantBt {
+					margin: .5em auto;
+					display: block;
 				}
 			}
 	

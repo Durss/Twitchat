@@ -4,7 +4,7 @@
 		"spoilersEnabled": "Activer le tag spoiler",
 		"alertMode": "Activer la fenêtre d'alerte",
 		"firstMessage": "Afficher le premier message de chaque viewer pour ne pas manquer de les saluer",
-		"firstMessage_info": "Pour une alternative dédiée jetez un oeil à {URL}",
+		"firstMessage_info": "Pour une alternative dédiée, jetez un oeil à {URL}",
 		"markAsRead": "Cliquez un message pour placer un marque page",
 		"conversationsEnabled": "Grouper conversations<br>(Permet de consulter les conversation entre viewers)",
 		"userHistoryEnabled": "Voir tous les messages d'une personne en survolant son pseudo",
@@ -19,6 +19,7 @@
 		"showUserPronouns_based_on": "basé sur {URL1} et {URL2}",
 		"chatShoutout": "Message de shoutout",
 		"chatShoutout_info": "Envoyer ce message lorsque vous effectuez un shoutout",
+		"scope_missing":"Nécessite une autorisation Twitch supplémentaire",
 		"chatShoutout_placeholders": {
 			"user": "Nom de la chaîne",
 			"user_link": "URL de la chaîne",
