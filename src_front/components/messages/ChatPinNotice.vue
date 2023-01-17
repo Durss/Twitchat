@@ -1,5 +1,5 @@
 <template>
-	<div class="chatpinnotice">
+	<div :class="classes">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<img :src="$image(messageData.type=='pinned'? 'icons/pin.svg' : 'icons/unpin.svg')" alt="notice" class="icon">
@@ -35,6 +35,14 @@ import ChatMessage from './ChatMessage.vue';
 export default class ChatPinNotice extends Vue {
 	
 	public messageData!:TwitchatDataTypes.MessagePinData|TwitchatDataTypes.MessageUnpinData;
+
+	public get classes():string[] {
+		const res = ["chatpinnotice"];
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.UNPINNED) {
+			res.push("unpinned");
+		}
+		return res;
+	}
 
 	public get labelKey():string {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.PINNED) {
@@ -79,6 +87,16 @@ export default class ChatPinNotice extends Vue {
 			flex-grow: 1;
 			font-size: 1em;
 			background-color: @mainColor_dark;
+		}
+	}
+
+	&.unpinned {
+		.holder {
+			.message {
+				text-decoration: line-through;
+				opacity: .75;
+				font-style: italic;
+			}
 		}
 	}
 }

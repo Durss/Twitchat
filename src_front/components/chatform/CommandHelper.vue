@@ -1,13 +1,13 @@
 <template>
 	<div class="commandhelper">
-		<Button small @click="openModal('poll');"		:icon="$image('icons/poll.svg')"		:title="$t('cmdmenu.poll')" :disabled="!canCreatePoll" />
-		<Button small @click="openModal('pred');"		:icon="$image('icons/prediction.svg')"	:title="$t('cmdmenu.prediction')" :disabled="!canCreatePrediction" />
-		<Button small @click="openModal('raffle');"		:icon="$image('icons/ticket.svg')"		:title="$t('cmdmenu.raffle')" />
-		<Button small @click="openModal('bingo');"		:icon="$image('icons/bingo.svg')"		:title="$t('cmdmenu.bingo')" />
-		<Button small @click="openModal('chatpoll');"	:icon="$image('icons/chatPoll.svg')"	:title="$t('cmdmenu.suggestions')" />
-		<Button small @click="openModal('timer');"		:icon="$image('icons/timer.svg')"		:title="$t('cmdmenu.timer')" />
-		<Button small @click="clearChat();"				:icon="$image('icons/clearChat.svg')"	:title="$t('cmdmenu.chat')" />
-		<Button small @click="openModal('streamInfo');"	:icon="$image('icons/info.svg')"		:title="$t('cmdmenu.info')" />
+		<Button small @click.capture="openModal('poll');"		:icon="$image('icons/poll.svg')"		:title="$t('cmdmenu.poll')" :disabled="!canCreatePoll" />
+		<Button small @click.capture="openModal('pred');"		:icon="$image('icons/prediction.svg')"	:title="$t('cmdmenu.prediction')" :disabled="!canCreatePrediction" />
+		<Button small @click="openModal('raffle');"				:icon="$image('icons/ticket.svg')"		:title="$t('cmdmenu.raffle')" />
+		<Button small @click="openModal('bingo');"				:icon="$image('icons/bingo.svg')"		:title="$t('cmdmenu.bingo')" />
+		<Button small @click="openModal('chatpoll');"			:icon="$image('icons/chatPoll.svg')"	:title="$t('cmdmenu.suggestions')" />
+		<Button small @click="openModal('timer');"				:icon="$image('icons/timer.svg')"		:title="$t('cmdmenu.timer')" />
+		<Button small @click="clearChat();"						:icon="$image('icons/clearChat.svg')"	:title="$t('cmdmenu.chat')" />
+		<Button small @click.capture="openModal('streamInfo');"	:icon="$image('icons/info.svg')"		:title="$t('cmdmenu.info')" :disabled="!canEditStreamInfos" />
 
 		<div class="commercial">
 			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click="startAd(30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!hasChannelPoints" />
@@ -41,6 +41,7 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -83,14 +84,21 @@ export default class CommandHelper extends Vue {
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
 
+	public get canEditStreamInfos():boolean {
+		if(!TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS)) return false;
+		return true;
+	}
+
 	public get canCreatePrediction():boolean {
 		if(!this.hasChannelPoints) return false;
+		if(!TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS)) return false;
 		return this.$store("prediction").data?.id == undefined
 			|| this.$store("prediction").data?.channel_id !== StoreProxy.auth.twitch.user.id;
 	}
 
 	public get canCreatePoll():boolean {
 		if(!this.hasChannelPoints) return false;
+		if(!TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS)) return false;
 		return this.$store("poll").data?.id == undefined
 			|| this.$store("poll").data?.channel_id !== StoreProxy.auth.twitch.user.id;
 	}
@@ -133,6 +141,23 @@ export default class CommandHelper extends Vue {
 	}
 
 	public openModal(type:TwitchatDataTypes.ModalTypes):void {
+		switch(type) {
+			case "poll": {
+				if(!TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS)) {
+					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_POLLS);
+				}break;
+			}
+			case "pred": {
+				if(!TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS)) {
+					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_PREDICTIONS);
+				}break;
+			}
+			case "streamInfo": {
+				if(!TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS)) {
+					this.$store("auth").requestTwitchScope(TwitchScopes.SET_STREAM_INFOS);
+				}break;
+			}
+		}
 		this.$emit("openModal", type);
 		this.close();
 	}

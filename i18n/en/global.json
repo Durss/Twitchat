@@ -39,8 +39,9 @@
 		"chat_alert_title": "{USER} says",
 		"date_days": "d",
 		"ad_default": "Hey, i'm using GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",
-		"cmd_mod":"Twitch command",
+		"cmd_mod":"Moderator command",
 		"cmd_admin":"Admin command",
+		"cmd_twitch":"Twtich command",
 		"tooltips": {
 			"commercial": "Commercial",
 			"boost": "Channel boosted",
@@ -132,7 +133,7 @@
 			"moderator:manage:announcements": "Use /announce chat command",
 			"moderator:manage:chat_messages": "Delete chat messages",
 			"moderator:manage:chat_settings": "Update room settings (follow only, sub only, etc...)",
-			"moderator:read:chatters": "Read users on your chatroom",
+			"moderator:read:chatters": "List users on your chatroom",
 			"moderator:manage:shield_mode": "Enable/disable shield mode"
 		},
 		"permissions": {

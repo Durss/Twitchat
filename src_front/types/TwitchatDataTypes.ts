@@ -1,3 +1,4 @@
+import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 
 export namespace TwitchatDataTypes {
 
@@ -183,6 +184,7 @@ export namespace TwitchatDataTypes {
 		fieldName?:string;//INput's "name" attribute
 		save?:boolean;//Save configuration to storage on change?
 		tooltip?:string;//Tooltip displayed on hover
+		disabled?:boolean;//Disable possibility to change the value
 		editCallback?:(data:any) => void;//Callback called when value is changed (if v-model can't be used)
 	}
 	export interface ParameterDataListValue {
@@ -346,7 +348,8 @@ export namespace TwitchatDataTypes {
 		needTTS?:boolean;
 		needAdmin?:boolean;
 		needModerator?:boolean,
-		chatUsable?:boolean,
+		twitchCmd?:boolean,
+		twitch_scope?:TwitchScopesString,
 	}
 
 	/**

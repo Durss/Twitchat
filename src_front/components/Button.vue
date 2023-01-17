@@ -482,7 +482,7 @@ export default class Button extends Vue {
 	}
 	
 	&.disabled {
-		color: fade(@mainColor_normal, 45%);
+		color: fade(@mainColor_light, 45%);
 		background-color: fade(@mainColor_normal, 30%);
 		&:hover {
 			background-color: fade(@mainColor_normal, 30%);

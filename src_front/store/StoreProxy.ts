@@ -3,6 +3,7 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
 import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
+import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodWebSocket";
 import type { Composer, I18n, VueI18n } from "vue-i18n";
@@ -115,6 +116,7 @@ export interface IAuthActions {
 	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult>;
 	twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void):Promise<void>;
 	logout():void;
+	requestTwitchScope(scope:TwitchScopesString):void;
 }
 
 

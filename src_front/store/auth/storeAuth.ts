@@ -7,6 +7,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import EventSub from "@/utils/twitch/EventSub";
 import PubSub from "@/utils/twitch/PubSub";
+import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -145,6 +146,7 @@ export const storeAuth = defineStore('auth', {
 					this.twitch.user = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, resolve);
 				})
 
+				/*
 				//Check if all scopes are allowed
 				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
 					if(StoreProxy.auth.twitch.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
@@ -159,6 +161,7 @@ export const storeAuth = defineStore('auth', {
 					if(cb) cb(false);
 					return;
 				}
+				//*/
 
 				this.authenticated = true;
 
@@ -233,6 +236,10 @@ export const storeAuth = defineStore('auth', {
 				DataStore.clear();//Remove everything to avoid mixing data if switching with another account
 			}
 			MessengerProxy.instance.disconnect();
+		},
+	
+		requestTwitchScope(scope:TwitchScopesString) {
+			router.push({name: 'login', params:{scope:scope}});//Redirect to login with request scope as param
 		},
 	} as IAuthActions
 	& ThisType<IAuthActions

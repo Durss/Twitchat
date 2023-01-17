@@ -594,7 +594,6 @@ export default class TriggerActionHandler {
 					
 					//Handle sub trigger action
 					if(step.type == "http") {
-						console.log("HTTP CALL");
 						const options = {
 							method:step.method,
 						};
@@ -604,7 +603,6 @@ export default class TriggerActionHandler {
 							const text = await this.parseText(eventType, message, "{"+tag+"}", subEvent);
 							url.searchParams.append(tag.toLowerCase(), text);
 						}
-						console.log("HTTP CALL > ", url);
 						try {
 							await fetch(url, options);
 						}catch(error) {

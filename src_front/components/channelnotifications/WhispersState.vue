@@ -18,10 +18,11 @@
 				{{ $t('whispers.cant_send_2') }}
 			</div>
 
-			<form @submit.prevent="sendWhisper()">
+			<form @submit.prevent="sendWhisper()" v-if="canAnswer">
 				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500">
 				<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
 			</form>
+			<Button v-else small highlight :title="$t('whispers.add_scope_bt')" :icon="$image('icons/unlock.svg')" @click="allowAnswerScope()" />
 		</div>
 
 		<div class="content users" v-else>
@@ -48,6 +49,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Options, Vue } from 'vue-class-component';
@@ -70,6 +72,10 @@ export default class WhispersState extends Vue {
 		return res;
 	}
 
+	public get canAnswer():boolean {
+		return TwitchUtils.hasScope(TwitchScopes.WHISPER_WRITE);
+	}
+ 
 	public mounted():void {
 		this.$store("chat").whispersUnreadCount = 0;
 	}
@@ -90,6 +96,10 @@ export default class WhispersState extends Vue {
 		this.$nextTick().then(()=>{
 			this.scrollToBottom();
 		})
+	}
+
+	public allowAnswerScope():void {
+		this.$store("auth").requestTwitchScope(TwitchScopes.WHISPER_WRITE);
 	}
 
 	public async sendWhisper():Promise<void> {
@@ -197,6 +207,7 @@ export default class WhispersState extends Vue {
 			flex-direction: column;
 			justify-content: flex-start;
 			max-width: 800px;
+			width: 100%;
 			margin:auto;
 
 			.messageList {

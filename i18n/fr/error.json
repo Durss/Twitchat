@@ -1,7 +1,7 @@
 {
 	"error": {
 		"irc_reconect": "Connexion échouée. Tentative de renouvellement de session...",
-		"authorization_refused": "Vous avez refusé l'accès à l'applicaiton Twitch",
+		"authorization_refused": "Vous avez refusé l'accès à l'application Twitch",
 		"invalid_credentials": "Identifiants invalides",
 		"csrf_failed": "Une erreur a eu lieu lors de la génération du token de sécurité (CSRF)",
 		"obs_ws_connect": "Connexion à OBS échouée. Assurez-vous d'utiliser OBS 28+ ou OBS 27 avec le plugin OBS-websocket v5",

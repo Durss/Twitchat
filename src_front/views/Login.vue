@@ -9,44 +9,11 @@
 		</div>
 		
 		<div class="content">
-			<div class="description" v-if="!authenticating" v-html="$t('login.head')"></div>
+			<div class="row description" v-if="!authenticating && !requestedScope">{{ $t('login.head') }}</div>
 
-			<div v-if="!authenticating && newScopes.length > 0" class="newScopes">
-				<img src="@/assets/icons/update.svg" alt="update" class="icon">
-				<div class="title" v-if="newScopes.length > 0">
-					{{ $tc('login.update_title', newScopes) }}
-				</div>
-				<ul>
-					<li v-for="p in newScopes" :key="p">{{p}}</li>
-				</ul>
-			</div>
+			<ScopeSelector v-if="!authenticating" class="row" @update="onScopesUpdate" :requestedScope="requestedScope" />
 
-			<div class="infos" v-if="!authenticating">
-				<i18n-t scope="global" tag="div" keypath="login.permissions_title">
-					<template #COUNT><strong>{{ permissions.length }}</strong></template>
-				</i18n-t>
-				<Button small :title="$t('login.moreInfo')"
-					class="moreInfoBt"
-					v-if="!showPermissions"
-					@click.prevent="showPermissions = !showPermissions"
-					:icon="$image('icons/help.svg')"
-				/>
-			</div>
-			
-			<div class="permissions" v-if="!authenticating">
-				<div class="details" v-if="showPermissions">
-					<div>
-						<p v-t="'login.permissions.head1'"></p>
-						<p v-t="'login.permissions.head2'"></p>
-						<p v-t="'login.permissions.head3'" class="listTitle"></p>
-					</div>
-					<ul>
-						<li v-for="p in permissions" :key="p">{{p}}</li>
-					</ul>
-				</div>
-			</div>
-
-			<Button class="authorizeBt"
+			<Button class="row authorizeBt"
 				type="link"
 				:href="oAuthURL"
 				:title="$t('login.authorizeBt')"
@@ -82,8 +49,10 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
+import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -92,7 +61,8 @@ import { Options, Vue } from 'vue-class-component';
 @Options({
 	props:{},
 	components:{
-		Button
+		Button,
+		ScopeSelector
 	}
 })
 export default class Login extends Vue {
@@ -103,28 +73,22 @@ export default class Login extends Vue {
 	public authenticating = false;
 	public showPermissions = false;
 	public oAuthURL = "";
+	public scopes:string[] = [];
+	public CSRFToken:string = "";
+	public requestedScope:TwitchScopesString|"" = "";
 
-	private scopeToInfos:{[key:string]:string} = {};
-
-	public get permissions():string[] {
-		return Config.instance.TWITCH_APP_SCOPES.map(v => {
-			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
-			return v;
-		});
-	}
-
-	public get newScopes():string[] {
-		return this.$store("auth").newScopesToRequest.map((v:string) => {
-			if(this.scopeToInfos[v]) return this.scopeToInfos[v];
-			return v;
-		});
-	}
-
-	public async mounted():Promise<void> {
+	public beforeMount():void {
 		if(this.$router.currentRoute.value.params.betaReason) {
 			this.closedBeta = true;
 		}
-		this.scopeToInfos = this.$tm('global.twitch_scopes') as {[key:string]:string};
+
+		if(this.$router.currentRoute.value.params.scope) {
+			this.requestedScope = this.$router.currentRoute.value.params.scope as TwitchScopesString;
+		}
+	}
+
+	public async mounted():Promise<void> {
+		
 		this.isBeta = Config.instance.BETA_MODE;
 		gsap.from(this.$el, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$el, {scaleY:0, ease:"elastic.out", duration:1, delay:.1});
@@ -181,11 +145,19 @@ export default class Login extends Vue {
 		try {
 			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET"});
 			const json = await res.json();
-			this.oAuthURL = TwitchUtils.getOAuthURL(json.token);
+			this.CSRFToken = json.token;
 		}catch(e) {
 			this.$store("main").alertData = this.$t("error.csrf_failed");
 		}
 		this.generatingCSRF = false;
+	}
+
+	public async onScopesUpdate(list:string[]):Promise<void> {
+		if(!this.CSRFToken) {
+			await this.generateCSRF();
+		}
+		this.scopes = list;
+		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 	}
 
 }
@@ -232,13 +204,15 @@ export default class Login extends Vue {
 			margin: 1em 0;
 		}
 
+		.row {
+			margin-bottom: 1em;
+		}
+
 		.description {
-			margin-bottom: 20px;
 			min-width: 250px;
 		}
 
 		.newScopes {
-			margin-bottom: 1em;
 			background-color: @mainColor_normal;
 			color: @mainColor_light;
 			border-radius: .5em;
@@ -256,35 +230,6 @@ export default class Login extends Vue {
 				max-width: 90%;
 				li {
 					font-size: .8em;
-				}
-			}
-		}
-
-		.infos {
-			margin-bottom: 20px;
-			min-width: 250px;
-			color: @mainColor_warn;
-
-			.moreInfoBt {
-				margin-top: 5px;
-				background-color: @mainColor_warn;
-				&:hover {
-					background-color: @mainColor_warn_light;
-				}
-			}
-		}
-
-		.permissions {
-			margin-bottom: 20px;
-			.details {
-				text-align: left;
-				color: @mainColor_warn;
-				font-size: .9em;
-				max-height: 200px;
-				overflow-y: auto;
-				.listTitle {
-					margin-top: 1em;
-					font-weight: bold;
 				}
 			}
 		}

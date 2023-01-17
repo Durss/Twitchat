@@ -16,7 +16,7 @@
 				</template>
 			</i18n-t>
 			<ToggleBlock class="commands" :title="$t('triggers.actions.chat.commands_list')" small :open="false">
-				<div class="cmd" v-for="c in $store('chat').commands.filter(v=>v.chatUsable)"
+				<div class="cmd" v-for="c in $store('chat').commands.filter(v=>v.twitchCmd)"
 					@click="insertCommand(c)"
 					v-html="c.cmd.replace(/(\/\S+)/gi, '<mark>$1</mark>').replace(/(?:\{([^}]+)\}?)/gi, ' [$1]')"></div>
 			</ToggleBlock>

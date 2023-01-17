@@ -1,8 +1,8 @@
 {
 	"logout":{
-		"title":"Vous êtes déconnecté·e.",
-		"are_you":"Vraiment...?",
-		"details_head":"D'autre ne vous le disent pas mais vous déconnecter n'est pas suffisant.",
+		"title":"Vous êtes maintenant déconnecté·e.",
+		"are_you":"L'êtes-vous vraiment...?",
+		"details_head":"Peu d'applications vous le disent, mais vous déconnecter n'est pas suffisant.",
 		"details_1":"Twitchat a théoriquement toujours accès à votre compte Twitch.",
 		"details_2":"Pour éviter cela, révoquez l'accès de Twitchat à votre compte.",
 		"settingBt":"Ouvrir les paramètres",

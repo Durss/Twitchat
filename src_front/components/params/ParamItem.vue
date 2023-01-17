@@ -205,6 +205,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.longText) res.push("longText");
 		if(this.paramData.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
+		if(this.paramData.disabled) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -396,6 +397,11 @@ export default class ParamItem extends Vue {
 		input, select, textarea {
 			width: 100%;
 		}
+	}
+
+	&.disabled {
+		pointer-events: none;
+		filter: grayscale();
 	}
 	
 	.content {

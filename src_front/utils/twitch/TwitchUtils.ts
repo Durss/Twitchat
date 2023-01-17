@@ -7,6 +7,7 @@ import BTTVUtils from "../emotes/BTTVUtils";
 import FFZUtils from "../emotes/FFZUtils";
 import SevenTVUtils from "../emotes/SevenTVUtils";
 import Utils from "../Utils";
+import type { TwitchScopesString } from "./TwitchScopes";
 
 /**
 * Created : 19/01/2021 
@@ -18,7 +19,6 @@ export default class TwitchUtils {
 	public static emotesCache:TwitchatDataTypes.Emote[] = [];
 	public static rewardsCache:TwitchDataTypes.Reward[] = [];
 
-	private static tagsLoadingPromise:((value: TwitchDataTypes.StreamTag[] | PromiseLike<TwitchDataTypes.StreamTag[]>) => void) | null;
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
 
 	private static get headers():{[key:string]:string} {
@@ -29,15 +29,15 @@ export default class TwitchUtils {
 		};
 	}
 
-	public static getOAuthURL(csrfToken:string):string {
+	public static getOAuthURL(csrfToken:string, scopes:string[]):string {
 		const redirect = encodeURIComponent( document.location.origin+"/oauth" );
-		const scopes = encodeURIComponent( Config.instance.TWITCH_APP_SCOPES.join(" ") );
+		const scopesStr = encodeURIComponent( scopes.join(" ") );
 
 		let url = "https://id.twitch.tv/oauth2/authorize?";
 		url += "client_id="+Config.instance.TWITCH_CLIENT_ID
 		url += "&redirect_uri="+redirect;
 		url += "&response_type=code";
-		url += "&scope="+scopes;
+		url += "&scope="+scopesStr;
 		url += "&state="+csrfToken;
 		url += "&force_verify=true";
 		return url;
@@ -2178,5 +2178,13 @@ export default class TwitchUtils {
 		}
 		
 		return result;
+	}
+
+	/**
+	 * Returns if current session has a specific scope
+	 * @param scope
+	 */
+	public static hasScope(scope:TwitchScopesString):boolean {
+		return StoreProxy.auth.twitch.scopes.indexOf(scope) > -1;
 	}
 }

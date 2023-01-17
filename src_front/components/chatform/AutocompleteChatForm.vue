@@ -17,8 +17,9 @@
 			<img v-else-if="i.type == 'user'" class="image" src="@/assets/icons/user.svg" alt="user">
 
 			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="cmd">
-			<img v-if="i.type == 'cmd' && i.admin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" :data-tooltip="$t('global.cmd_admin')">
-			<img v-if="i.type == 'cmd' && i.mod" class="image small" src="@/assets/icons/twitch_white.svg" alt="user" :data-tooltip="$t('global.cmd_mod')">
+			<img v-if="i.type == 'cmd' && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" :data-tooltip="$t('global.cmd_admin')">
+			<img v-if="i.type == 'cmd' && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch_white.svg" alt="user" :data-tooltip="$t('global.cmd_twitch')">
+			<img v-if="i.type == 'cmd' && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" :data-tooltip="$t('global.cmd_mod')">
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
@@ -63,9 +64,10 @@ export default class AutocompleteChatForm extends Vue {
 
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
-		if(index == this.selectedIndex)			res.push('selected');
-		if(item.type == "cmd" && item.admin)	res.push('admin');
-		if(item.type == "cmd" && item.mod)		res.push('mod');
+		if(index == this.selectedIndex)						res.push('selected');
+		if(item.type == "cmd" && item.rawCmd.needAdmin)		res.push('admin');
+		if(item.type == "cmd" && item.rawCmd.needModerator)	res.push('mod');
+		if(item.type == "cmd" && item.disabled)				res.push('disabled');
 		res.push(item.type);
 		return res;
 	}
@@ -88,7 +90,13 @@ export default class AutocompleteChatForm extends Vue {
 
 	public selectItem(item:ListItem):void {
 		if(item.type == "cmd") {
-			this.$emit("selectItem", item.cmd);
+			if(item.disabled) {
+				if(item.rawCmd.twitch_scope) {
+					this.$store("auth").requestTwitchScope(item.rawCmd.twitch_scope);
+				}
+			}else{
+				this.$emit("selectItem", item.cmd);
+			}
 		}else{
 			const prefix = (item.type == "user")? "@": "";
 			this.$emit("selectItem", prefix + item.label);
@@ -191,6 +199,7 @@ export default class AutocompleteChatForm extends Vue {
 				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
 				const isAdmin = sAuth.twitch.user.is_admin === true;
 				const isMod = true;
+				
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1
@@ -207,7 +216,7 @@ export default class AutocompleteChatForm extends Vue {
 						
 						//Remove channel point related commands if user isn't affiliate or partner
 						if(e.needChannelPoints === true && !hasChannelPoints) continue;
-
+						
 						res.push({
 							type:"cmd",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),
@@ -215,8 +224,8 @@ export default class AutocompleteChatForm extends Vue {
 							infos:e.details,
 							id:e.id,
 							alias:e.alias?.replace(/{(.*?)\}/gi, "$1"),
-							admin:e.needAdmin === true,
-							mod:e.needModerator === true,
+							disabled: e.twitch_scope !== undefined && !TwitchUtils.hasScope(e.twitch_scope),
+							rawCmd:e,
 						});
 					}
 				}
@@ -224,10 +233,12 @@ export default class AutocompleteChatForm extends Vue {
 
 			res.sort((a,b)=> {
 				if(a.type == "cmd" && b.type == "cmd") {
-					if(a.admin && !b.admin) return -1;
-					if(!a.admin && b.admin) return 1;
-					if(a.mod && !b.mod) return -1;
-					if(!a.mod && b.mod) return 1;
+					if(a.disabled && !b.disabled) return 1;
+					if(!a.disabled && b.disabled) return -1;
+					if(a.rawCmd.needAdmin && !b.rawCmd.needAdmin) return -1;
+					if(!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
+					if(a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
+					if(!a.rawCmd.needModerator && b.rawCmd.needModerator) return 1;
 				}
 				if(a.label < b.label) return -1;
 				if(a.label > b.label) return 1;
@@ -266,8 +277,8 @@ interface CommandItem {
 	cmd:string;
 	infos:string;
 	alias?:string;
-	admin?:boolean;
-	mod?:boolean;
+	disabled?:boolean;
+	rawCmd:TwitchatDataTypes.CommandData;
 }
 </script>
 
@@ -329,6 +340,11 @@ interface CommandItem {
 					background-color: fade(@mainColor_normal, 50%);
 				}
 			}
+			&.disabled {
+				// pointer-events: none;
+				opacity: .5;
+				font-style: italic;
+			}
 		}
 
 		.name, .source {
@@ -358,7 +374,7 @@ interface CommandItem {
 				height: 1em;
 				width: 1em;
 				padding: .15em;
-				margin-right: .25em;
+				// margin-right: .25em;
 				// border: 1px solid white;
 				// border-radius: 50%;
 			}

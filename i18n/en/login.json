@@ -1,15 +1,11 @@
 {
 	"login":{
 		"closedBeta":"Beta is closed to a few people sorry :)",
-		"head":"<strong>Twitchat</strong> aims to fill gaps from the official Twitch chat for the streamers",
+		"head":"Choose what you want to allow Twitchat to do",
 		"update_title":"An update needs this new permission | An update needs these new permissions",
+		"specific_scope":"The requested action needs the following additional permission",
+		"specific_scope_moreBt":"Allow more actions",
 		"permissions_title":"Twitchat needs {COUNT} permissions",
-		"moreInfo":"More info",
-		"permissions":{
-			"head1":"Twitchat needs these permissions to offer you as much Twitch features as possible.",
-			"head2":"Your authentication token will never be stored on our server.",
-			"head3":"Here are the permissions needed:"
-		},
 		"authorizeBt":"Authorize",
 		"generatingCSRF":"Generating CSRF token...",
 		"retryBt":"Try again",

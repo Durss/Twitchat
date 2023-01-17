@@ -7,6 +7,7 @@ import Config from '../Config';
 import OBSWebsocket from "../OBSWebsocket";
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
+import { TwitchScopes } from './TwitchScopes';
 
 /**
 * Created : 13/01/2022 
@@ -58,47 +59,52 @@ export default class PubSub extends EventDispatcher {
 
 			const myUID = StoreProxy.auth.twitch.user.id;
 			const subscriptions = [
-				"channel-points-channel-v1."+myUID,
-				// "shield-mode."+myUID+"."+myUID,//Not available with that token :(
-				"chat_moderator_actions."+myUID+"."+myUID,
-				"automod-queue."+myUID+"."+myUID,
-				"user-moderation-notifications."+myUID+"."+myUID,
 				// "leaderboard-events-v1.bits-usage-by-channel-v1-"+uid+"-WEEK",
 				// "leaderboard-events-v1.sub-gifts-sent-"+uid+"-WEEK",
-				"raid."+myUID,
-				"predictions-channel-v1."+myUID,
-				"polls."+myUID,
-				"hype-train-events-v1."+myUID,
-				"ads."+myUID,
 				"video-playback-by-id."+myUID,//Get viewer count
 				"community-boost-events-v1."+myUID,//Boost after a boost train complete
 				"ad-property-refresh."+myUID,
-				"whispers."+myUID,
-				"chatrooms-user-v1."+myUID,//TO or ban events
-				"stream-chat-room-v1."+myUID,//Host events; room settings; extension messages
 				"shoutout."+myUID,//when receiving a shoutout
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
+				"predictions-channel-v1."+myUID,
+				"polls."+myUID,
+				"raid."+myUID,
+				"ads."+myUID,
+				"stream-chat-room-v1."+myUID,
+				"hype-train-events-v1."+myUID,
+				"user-moderation-notifications."+myUID+"."+myUID,
+				"chatrooms-user-v1."+myUID,
 				// "user-drop-events."+uid,
 				// "community-points-user-v1."+uid,
 				// "presence."+uid,
 				// "user-properties-update."+uid,
 				// "onsite-notifications."+uid,
-
-				"low-trust-users."+myUID+"."+myUID,
 				// "stream-change-v1."+myUID,
 			];
+			if(TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS)){
+				subscriptions.push("channel-points-channel-v1."+myUID);
+			}
+			if(TwitchUtils.hasScope(TwitchScopes.WHISPER_READ)){
+				subscriptions.push("whispers."+myUID);
+			}
+			if(TwitchUtils.hasScope(TwitchScopes.PUBSUB_MODERATE)){
+				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
+				subscriptions.push("automod-queue."+myUID+"."+myUID);
+				subscriptions.push("low-trust-users."+myUID+"."+myUID);
+			}
 
 			
 			if(Config.instance.debugChans.length > 0) {
-				//Subscribe to someone else's channel points
+				//Subscribe to someone else's channel pointevents
 				const users = await TwitchUtils.loadUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
 				const uids = users.map(v=> v.id);
 				for (let i = 0; i < uids.length; i++) {
 					const uid = uids[i];
 					if(uid == myUID) continue;
 					subscriptions.push("raid."+uid);
-					subscriptions.push("chat_moderator_actions."+myUID+"."+uid);//TODO remove this if we're not mod of the channel
-					subscriptions.push("low-trust-users."+myUID+"."+uid);//TODO remove this if we're not mod of the channel
+					subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
+					subscriptions.push("low-trust-users."+myUID+"."+uid);
+					subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
 					subscriptions.push("hype-train-events-v1."+uid);
 					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
 					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards

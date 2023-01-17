@@ -1,15 +1,11 @@
 {
 	"login":{
 		"closedBeta":"La beta est restreinte à quelques personnes :)",
-		"head":"<strong>Twitchat</strong> cherche à combler les manques du tchat officiel",
+		"head":"Choisissez ce que vous souhaitez permettre à Twitchat d'effectuer",
 		"update_title":"Une Màj nécessite un nouvelle permission | Une Màj nécessite ces nouvelles permissions",
+		"specific_scope":"L'action demandée nécessite la permission supplémentaire suivante",
+		"specific_scope_moreBt":"Ajouter plus autorisations",
 		"permissions_title":"Twitchat nécessite {COUNT} permissions",
-		"moreInfo":"Infos",
-		"permissions":{
-			"head1":"Twitchat a besoin de ces autorisation pour vous offrir un maximum de fonctionnalités.",
-			"head2":"Votre token d'authentification ne sera jamais enregistré sur nos serveurs.",
-			"head3":"Permissions nécessaires:"
-		},
 		"authorizeBt":"Autoriser",
 		"generatingCSRF":"Patientez...",
 		"retryBt":"Réessayer",
