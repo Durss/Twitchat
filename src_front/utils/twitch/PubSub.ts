@@ -87,7 +87,7 @@ export default class PubSub extends EventDispatcher {
 			if(TwitchUtils.hasScope(TwitchScopes.WHISPER_READ)){
 				subscriptions.push("whispers."+myUID);
 			}
-			if(TwitchUtils.hasScope(TwitchScopes.PUBSUB_MODERATE)){
+			if(TwitchUtils.hasScope(TwitchScopes.MODERATE)){
 				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
 				subscriptions.push("automod-queue."+myUID+"."+myUID);
 				subscriptions.push("low-trust-users."+myUID+"."+myUID);

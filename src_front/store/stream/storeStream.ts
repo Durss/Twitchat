@@ -152,7 +152,7 @@ export const storeStream = defineStore('stream', {
 			).then(async () => {
 				try {
 					const res = await TwitchUtils.startCommercial(duration, StoreProxy.auth.twitch.user.id);
-					if(res.length > 0) {
+					if(res && res.length > 0) {
 						this.canStartAd = false;
 						this.startAdCooldown = Date.now() + res.retry_after * 1000;
 						setTimeout(()=>{

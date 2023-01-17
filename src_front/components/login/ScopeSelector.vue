@@ -65,9 +65,9 @@ export default class ScopeSelector extends Vue {
 		const scopeToIcon:{[key:string]:string} = {
 			"chat:read": "whispers_purple.svg",
 			"chat:edit": "whispers_purple.svg",
+			"moderator:manage:announcements": "announcement_purple.svg",
 			"whispers:read": "whispers_purple.svg",
 			"user:manage:whispers": "whispers_purple.svg",
-			"moderator:manage:announcements": "announcement_purple.svg",
 			"moderator:manage:chat_messages": "trash_purple.svg",
 			"moderator:read:chatters": "user_purple.svg",
 			"channel:read:redemptions": "channelPoints_purple.svg",
@@ -90,8 +90,13 @@ export default class ScopeSelector extends Vue {
 			"moderator:manage:automod": "automod_purple.svg",
 			"moderator:manage:shield_mode": "shield_purple.svg",
 		};
-		const disabled:string[] = ["chat:read", "chat:edit"];
+		const disabled:string[] = ["chat:read", "chat:edit", "moderator:manage:announcements"];
 		const userScopes = this.$store("auth").twitch.scopes;
+		for (let i = 0; i < disabled.length; i++) {
+			if(userScopes.indexOf(disabled[i]) == -1) {
+				userScopes.unshift(disabled[i]);
+			}
+		}
 
 		scopes.sort((a, b)=> {
 			if(a == this.requestedScope) return -1;

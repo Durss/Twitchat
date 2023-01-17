@@ -1,6 +1,7 @@
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -370,6 +371,8 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async initBlockedUsers():Promise<void> {
+			if(!TwitchUtils.hasScope(TwitchScopes.LIST_BLOCKED)) return;
+
 			//Get list of all blocked users and build a hashmap out of it
 			try {
 				const blockedUsers = await TwitchUtils.getBlockedUsers();
@@ -559,6 +562,8 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async loadMyFollowings():Promise<void> {
+			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) return;
+			
 			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
 			const hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => { hashmap[v.to_id] = true; });
@@ -566,6 +571,8 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async loadMyFollowers():Promise<void> {
+			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) return;
+
 			let parseOffset = 0;
 			const hashmap:{[key:string]:number} = {};
 			await TwitchUtils.getFollowers(StoreProxy.auth.twitch.user.id, -1, async(list)=> {
