@@ -3,7 +3,7 @@
 		"closedBeta":"Beta is closed to a few people sorry :)",
 		"head":"Choose what you want to allow Twitchat to do",
 		"update_title":"An update needs this new permission | An update needs these new permissions",
-		"specific_scope":"The requested action needs the following additional permission",
+		"specific_scope":"The requested action needs the following additional permission | The requested action needs the following additional permissions",
 		"specific_scope_moreBt":"Grant more permissions",
 		"permissions_title":"Twitchat needs {COUNT} permissions",
 		"authorizeBt":"Authorize",

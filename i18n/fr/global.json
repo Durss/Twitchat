@@ -101,7 +101,7 @@
 			"enabled": "Mode développeur activé",
 			"disabled": "Mode développeur désactivé"
 		},
-		"twitch_scopes_grant_title": "Autorization",
+		"twitch_scopes_grant_title": "Permission requise",
 		"twitch_scopes_grant_description": "Vous allez être redirigé·e vers la page de login pour accorder cette nouvelle permission.",
 		"twitch_scopes": {
 			"bits:read": "Lire le classement des bits",

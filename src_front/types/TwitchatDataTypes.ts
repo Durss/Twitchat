@@ -183,7 +183,7 @@ export namespace TwitchatDataTypes {
 		accept?:string;//File types for browse inputs
 		fieldName?:string;//INput's "name" attribute
 		save?:boolean;//Save configuration to storage on change?
-		twitch_scope?:TwitchScopesString;//Twitch scope necessary for this feature
+		twitch_scope?:TwitchScopesString|TwitchScopesString[];//Twitch scope necessary for this feature
 		tooltip?:string;//Tooltip displayed on hover
 		disabled?:boolean;//Disable possibility to change the value
 		editCallback?:(data:any) => void;//Callback called when value is changed (if v-model can't be used)

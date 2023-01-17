@@ -1,7 +1,7 @@
 <template>
 	<div class="scopeselector">
 		<div class="forced optionList" v-if="param_items_requested.length > 0">
-			<p class="head">{{ $t("login.specific_scope") }}</p>
+			<p class="head">{{ $tc("login.specific_scope", param_items_requested.length) }}</p>
 			<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :paramData="p" @change="onSelectionUpdate()" />
 		</div>
 		
@@ -36,7 +36,7 @@ import ToggleButton from '../ToggleButton.vue';
 
 @Options({
 	props:{
-		requestedScope:String,
+		requestedScopes:Array,
 	},
 	components:{
 		Button,
@@ -47,7 +47,7 @@ import ToggleButton from '../ToggleButton.vue';
 })
 export default class ScopeSelector extends Vue {
 
-	public requestedScope!:TwitchScopesString;
+	public requestedScopes!:TwitchScopesString[];
 
 	public allBt:boolean = true;
 	public forceFullList:boolean = false;
@@ -58,13 +58,13 @@ export default class ScopeSelector extends Vue {
 
 	public getClasses(p:TwitchatDataTypes.ParameterData):string[] {
 		let res:string[] = [];
-		if(p.storage == this.requestedScope) res.push("forced");
+		if(this.requestedScopes?.indexOf(p.storage as TwitchScopesString) > -1) res.push("forced");
 		return res;
 	}
 
 	public beforeMount():void {
 		const scopeToInfos = this.$tm('global.twitch_scopes') as {[key:string]:string};
-		const scopes:string[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
+		const scopes:TwitchScopesString[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
 		const scopeToIcon:{[key:string]:string} = {
 			"chat:read": "whispers_purple.svg",
 			"chat:edit": "whispers_purple.svg",
@@ -102,14 +102,14 @@ export default class ScopeSelector extends Vue {
 		}
 
 		scopes.sort((a, b)=> {
-			if(a == this.requestedScope) return -1;
+			if(this.requestedScopes.indexOf(a) > -1) return -1;
 			return 0;
 		});
 		
 		const forceSelect = !userScopes || userScopes.length < disabled.length;
 		for (let i = 0; i < scopes.length; i++) {
-			const s = scopes[i];
-			if(s == this.requestedScope) {
+			const s:TwitchScopesString = scopes[i];
+			if(this.requestedScopes.indexOf(s) > -1) {
 				this.param_items_requested.push({
 					label:scopeToInfos[s],
 					type:"toggle",
@@ -163,7 +163,7 @@ export default class ScopeSelector extends Vue {
 		this.forceFullList = true;
 
 		await this.$nextTick();
-		
+
 		gsap.from(this.$refs.permsList as HTMLDivElement, {height:"1.5em", duration:.5, ease:"sine.inOut", clearProps:"all"});
 	}
 }

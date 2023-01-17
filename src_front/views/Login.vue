@@ -9,9 +9,9 @@
 		</div>
 		
 		<div class="content">
-			<div class="row description" v-if="!authenticating && !requestedScope">{{ $t('login.head') }}</div>
+			<div class="row description" v-if="!authenticating && !requestedScopes">{{ $t('login.head') }}</div>
 
-			<ScopeSelector v-if="!authenticating" class="row" @update="onScopesUpdate" :requestedScope="requestedScope" />
+			<ScopeSelector v-if="!authenticating" class="row" @update="onScopesUpdate" :requestedScopes="requestedScopes" />
 
 			<Button class="row authorizeBt"
 				type="link"
@@ -75,7 +75,7 @@ export default class Login extends Vue {
 	public oAuthURL = "";
 	public scopes:string[] = [];
 	public CSRFToken:string = "";
-	public requestedScope:TwitchScopesString|"" = "";
+	public requestedScopes:TwitchScopesString[] = [];
 
 	public beforeMount():void {
 		if(this.$router.currentRoute.value.params.betaReason) {
@@ -83,7 +83,11 @@ export default class Login extends Vue {
 		}
 
 		if(this.$router.currentRoute.value.params.scope) {
-			this.requestedScope = this.$router.currentRoute.value.params.scope as TwitchScopesString;
+			if(Array.isArray(this.$router.currentRoute.value.params.scope)) {
+				this.requestedScopes = this.$router.currentRoute.value.params.scope as TwitchScopesString[];
+			}else{
+				this.requestedScopes = [this.$router.currentRoute.value.params.scope as TwitchScopesString];
+			}
 		}
 	}
 

@@ -2238,10 +2238,22 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Returns if current session has a specific scope
-	 * @param scope
+	 * Returns if current session has 1 or multiple scopes granted.
+	 * All given scopes must be granted for this function to return true
+	 * 
+	 * @param scopes
 	 */
-	public static hasScope(scope:TwitchScopesString):boolean {
-		return StoreProxy.auth.twitch.scopes.indexOf(scope) > -1;
+	public static hasScope(scopes:TwitchScopesString|TwitchScopesString[]):boolean {
+		if(!Array.isArray(scopes)) {
+			scopes = [scopes];
+		}
+
+		for (let i = 0; i < scopes.length; i++) {
+			if(StoreProxy.auth.twitch.scopes.indexOf(scopes[i]) == -1) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

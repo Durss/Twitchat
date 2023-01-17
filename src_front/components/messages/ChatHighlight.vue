@@ -371,7 +371,7 @@ export default class ChatHighlight extends Vue {
 		.reason {
 			color: #fff;
 			:deep(.small) {
-				font-size: .6em;
+				font-size: .7em;
 			}
 
 			.additionalUsers:not(.additionalUsers ~ .additionalUsers) {

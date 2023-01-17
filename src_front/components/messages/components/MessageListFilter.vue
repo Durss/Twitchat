@@ -46,7 +46,6 @@
 						clearToggle
 						:key="'filter_'+f.storage"
 						:paramData="f"
-						@click.stop
 						@change="saveData()"
 						@mouseleave="mouseLeaveItem"
 						@mouseenter="mouseEnterItem"
@@ -86,7 +85,12 @@
 				</div>
 			</div>
 
-			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0">
+			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
+				<div class="preview missingScope" v-if="missingScope">
+					<img src="@/assets/icons/unlock_dark.svg">
+					<p>{{ $t("chat.filters.scope_missing") }}</p>
+				</div>
+
 				<div class="preview" v-if="loadingPreview">
 					<img src="@/assets/loader/loader_white.svg" alt="loading" class="loader">
 				</div>
@@ -196,6 +200,8 @@ import ChatLowTrustTreatment from '../ChatLowTrustTreatment.vue';
 import ChatPinNotice from '../ChatPinNotice.vue';
 import ChatBan from '../ChatBan.vue';
 import ChatUnban from '../ChatUnban.vue';
+import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Options({
 	props:{
@@ -240,13 +246,16 @@ export default class MessageListFilter extends Vue {
 	public toggleAll:boolean = false;
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
+	public typeToScope!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchScopesString};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
 	public messageFilters:TwitchatDataTypes.ParameterData[] = [];
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public mouseOverToggle:boolean = false;
 	public loadingPreview:boolean = false;
+	public missingScope:boolean = false;
 	public previewIndex:number = 0;
 	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", label:"", placeholder:"bot1, bot2, ....", icon:"hide.svg"};
+	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
 	private disposed = false;
@@ -326,6 +335,17 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = "train.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE] = "boost.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "channelPoints.svg";
+		
+		//@ts-ignore
+		this.typeToScope = {};
+		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.BAN] = TwitchScopes.MODERATE;
+		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.UNBAN] = TwitchScopes.MODERATE;
+		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.REWARD] = TwitchScopes.LIST_REWARDS;
+		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.WHISPER] = TwitchScopes.WHISPER_READ;
+		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = TwitchScopes.MANAGE_PREDICTIONS;
+		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = TwitchScopes.LIST_SUBS;
+		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = TwitchScopes.READ_HYPE_TRAIN;
+		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = TwitchScopes.READ_HYPE_TRAIN;
 
 		const sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
@@ -358,6 +378,17 @@ export default class MessageListFilter extends Vue {
 		for (let i = 0; i < sortedFilters.length; i++) {
 			const f = sortedFilters[i];
 			const children:TwitchatDataTypes.ParameterData[] = [];
+
+			const disabled = this.typeToScope[f] && !TwitchUtils.hasScope(this.typeToScope[f]);
+			this.filters.push({type:"toggle",
+								value:this.config.filters[f],
+								label:this.typeToLabel[f] ?? f,
+								icon:this.typeToIcon[f],
+								twitch_scope:this.typeToScope[f],
+								storage:f,
+								disabled
+							});
+
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
 			if(f === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const keyToLabel = this.$tm("chat.filters.message_filters") as {[key in messageFilterTypes]:string}
@@ -375,28 +406,53 @@ export default class MessageListFilter extends Vue {
 					short:"",
 					tracked:"magnet.svg",
 					pinned:"pin.svg",
-				}
-				if(!this.config.messageFilters) this.config.messageFilters = {
-					bots:true,
-					automod:true,
-					commands:true,
-					deleted:true,
-					suspiciousUsers:true,
-					viewers:true,
-					vips:true,
-					subs:true,
-					moderators:true,
-					partners:true,
-					short:true,
-					tracked:true,
-					pinned:true,
 				};
+				this.messageKeyToScope = {
+					viewers:[],
+					vips:[],
+					subs:[],
+					moderators:[],
+					partners:[],
+					bots:[],
+					deleted:[],
+					automod:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATE],
+					suspiciousUsers:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATE],
+					commands:[],
+					short:[],
+					tracked:[],
+					pinned:[],
+				};
+				//Create parent toggle
+				if(!this.config.messageFilters) {
+					this.config.messageFilters = {
+						bots:true,
+						automod:true,
+						commands:true,
+						deleted:true,
+						suspiciousUsers:true,
+						viewers:true,
+						vips:true,
+						subs:true,
+						moderators:true,
+						partners:true,
+						short:true,
+						tracked:true,
+						pinned:true,
+					};
+				}
 				for (const key in keyToLabel) {
 					const k = key as messageFilterTypes;
 					if(this.config.messageFilters[k] == undefined) {
 						this.config.messageFilters[k] = true;
 					}
-					const param:TwitchatDataTypes.ParameterData = {type:"toggle", value:this.config.messageFilters[k], label:keyToLabel[k], storage:key, icon:keyToIcon[k]};
+					const param:TwitchatDataTypes.ParameterData = {type:"toggle",
+						value:this.config.messageFilters[k],
+						label:keyToLabel[k],
+						storage:key,
+						icon:keyToIcon[k],
+						twitch_scope:this.messageKeyToScope[k],
+						disabled:this.messageKeyToScope[k] && !TwitchUtils.hasScope(this.messageKeyToScope[k]),
+					};
 					if(k == 'commands') {
 						const subParam:TwitchatDataTypes.ParameterData = {type:"text",
 									longText:true,
@@ -420,8 +476,6 @@ export default class MessageListFilter extends Vue {
 				}
 				this.messageFilters = children;
 			}
-
-			this.filters.push({type:"toggle", value:this.config.filters[f], label:this.typeToLabel[f] ?? f, storage:f, icon:this.typeToIcon[f]});
 		}
 		
 		this.clickHandler		= (e:MouseEvent|TouchEvent) => this.onMouseDown(e);
@@ -473,12 +527,14 @@ export default class MessageListFilter extends Vue {
 	public mouseLeaveItem(event:MouseEvent):void {
 		if(this.touchMode) return;
 		this.mouseOverToggle = false;
+		this.missingScope = false;
 		this.previewData = [];
 	}
 
 	public async previewMessage(type:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
 		this.previewData = [];
 		this.loadingPreview = true;
+		this.missingScope = this.typeToScope[type] && !TwitchUtils.hasScope(this.typeToScope[type]);
 		this.previewIndex ++;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.messagesCache[type];
@@ -563,6 +619,7 @@ export default class MessageListFilter extends Vue {
 		this.previewData = [];
 		this.loadingPreview = true;
 		this.previewIndex ++;
+		this.missingScope = this.messageKeyToScope != null && this.messageKeyToScope[type] && !TwitchUtils.hasScope(this.messageKeyToScope[type]);
 		this.mouseOverToggle = true;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.subMessagesCache[type];
@@ -841,7 +898,7 @@ export default class MessageListFilter extends Vue {
 	transform: translateX(100%);
 	transition: transform .25s;
 	position: relative;
-	opacity: .9;
+	opacity: .95;
 	// opacity: .4;
 	pointer-events: none;
 	max-width: 400px;
@@ -1003,18 +1060,25 @@ export default class MessageListFilter extends Vue {
 					&:hover {
 						background-color: fade(@mainColor_light, 10%);
 					}
+					&.disabled {
+						opacity: .75;
+						font-style: italic;
+						color: #ccc;
+						cursor: not-allowed;
+						cursor: help;
+					}
 
 					&.toggleAll {
 						margin-right: 0;
 					}
 					&.child {
-						font-size: .9em;
+						font-size: .8em;
 						@offset:1.25em;
 						margin-left: @offset;
 						width: calc(100% - @offset);
 						:deep(textarea) {
 							position: relative;
-							font-size: .95em;
+							font-size: .9em;
 							//Offset to the left to give it a bit more space
 							left: -2em;
 							width: calc(100% + 2em);
@@ -1065,6 +1129,17 @@ export default class MessageListFilter extends Vue {
 	
 				&:not(:last-child) {
 					margin-bottom: .25em;
+				}
+				&.missingScope {
+					font-size: .8em;
+					padding: .75em;
+					text-align: center;
+					background-color: @mainColor_warn;
+					color: @mainColor_dark;
+					font-weight: bold;
+					img {
+						height: 1.5em;
+					}
 				}
 			}
 		}

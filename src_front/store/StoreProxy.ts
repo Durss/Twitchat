@@ -116,7 +116,7 @@ export interface IAuthActions {
 	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult>;
 	twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void):Promise<void>;
 	logout():void;
-	requestTwitchScope(scope:TwitchScopesString):void;
+	requestTwitchScope(scope:TwitchScopesString|TwitchScopesString[]):void;
 }
 
 

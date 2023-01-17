@@ -1,7 +1,8 @@
 <template>
 	<div :class="classes" :data-tooltip="paramData.tooltip"
 	@mouseenter="$emit('mouseenter', $event, paramData)"
-	@mouseleave="$emit('mouseleave', $event, paramData)">
+	@mouseleave="$emit('mouseleave', $event, paramData)"
+	@click.capture="clickItem($event)">
 		<div class="content">
 			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="icon">
@@ -144,6 +145,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -287,6 +289,14 @@ export default class ParamItem extends Vue {
 				throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
 			}
 			this.placeholderTarget = this.$el.querySelector("textarea,input");
+		}
+	}
+
+	public clickItem(event:MouseEvent):void {
+		if(this.paramData.twitch_scope) {
+			if(TwitchUtils.hasScope(this.paramData.twitch_scope)) return;
+			event.stopPropagation();
+			this.$store("auth").requestTwitchScope(this.paramData.twitch_scope);
 		}
 	}
 
