@@ -5,7 +5,7 @@
 		"css_customization": "Personnalisation CSS",
 
 		"connection":{
-			"title":"Cet overlay nécessite de {OBS} ou {DOCK}",
+			"title":"Les overlays nécessitent de {OBS} ou {DOCK}",
 			"obsBt":"Lier OBS",
 			"dockBt":"Docker Twitchat dans OBS",
 			"closeBt":"Fermer",

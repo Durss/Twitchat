@@ -18,15 +18,16 @@
 			<div v-if="adCooldown > 0" class="cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
-		<ParamItem class="roomParam" :paramData="param_followOnly" @change="updateRoomSettings()" clearToggle @click="requestScopes()" />
-		<ParamItem class="roomParam" :paramData="param_subOnly" @change="updateRoomSettings()" clearToggle @click="requestScopes()" />
-		<ParamItem class="roomParam" :paramData="param_emotesOnly" @change="updateRoomSettings()" clearToggle @click="requestScopes()" />
-		<ParamItem class="roomParam" :paramData="param_slowMode" @change="updateRoomSettings()" clearToggle @click="requestScopes()" />
+		<ParamItem class="roomParam" :paramData="param_followOnly" @change="updateRoomSettings()" clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_subOnly" @change="updateRoomSettings()" clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_emotesOnly" @change="updateRoomSettings()" clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_slowMode" @change="updateRoomSettings()" clearToggle @click="requestRoomSettingsScopes()" />
 		
 		<div class="raid" v-if="$store('stream').currentRaid">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
 			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
 		</div>
+
 		<div class="raid" v-else>
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">{{$t('cmdmenu.raid')}}</label>
 			<form @submit.prevent="raid()" v-if="canRaid">
@@ -35,7 +36,7 @@
 			</form>
 			<div v-else class="missingScope">
 				<p>{{ $t('cmdmenu.scope_grant') }}</p>
-				<Button :icon="$image('icons/unlock.svg')" bounce highlight small :title="$t('cmdmenu.scope_grantBt')" />
+				<Button :icon="$image('icons/unlock.svg')" bounce highlight small :title="$t('cmdmenu.scope_grantBt')" @click="requestRaidScopes()" />
 			</div>
 			<a class="followings" @click.prevent="openModal('liveStreams')" v-t="'cmdmenu.whoslive'"></a>
 		</div>
@@ -45,7 +46,7 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -262,10 +263,14 @@ export default class CommandHelper extends Vue {
 		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
 	}
 
-	public requestScopes():void {
+	public requestRoomSettingsScopes():void {
 		if(TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS)) return;
-
 		this.$store("auth").requestTwitchScope(TwitchScopes.SET_ROOM_SETTINGS);
+	}
+
+	public requestRaidScopes():void {
+		if(TwitchUtils.hasScope(TwitchScopes.START_RAID)) return;
+		this.$store("auth").requestTwitchScope(TwitchScopes.START_RAID);
 	}
 }
 </script>

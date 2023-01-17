@@ -4,7 +4,7 @@
 		<div class="head" v-t="'overlay.header'"></div>
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
-			<i18n-t scope="global" tag="div" keypath="overlay.connection.title">
+			<i18n-t scope="global" keypath="overlay.connection.title">
 				<template #OBS>
 					<Button class="button"
 						:icon="$image('icons/obs_purple.svg')"
@@ -88,23 +88,21 @@ export default class ParamsOverlays extends Vue {
 	.parameterContent();
 
 	.connectObs {
-		text-align: center;
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
+		align-items: center;
 		color: @mainColor_light;
 		background-color: @mainColor_alert;
 		padding: .5em;
 		border-radius: .5em;
 		margin-top: 1em;
 		.button {
-			margin-top: .5em;
 			display: block;
 			margin-left: auto;
 			margin-right: auto;
 		}
-		.or {
-			margin-top: .5em;
-		}
 		.dockTuto {
-			margin-top: 1em;
 			img {
 				margin-top: .5em;
 				max-width: 100%;

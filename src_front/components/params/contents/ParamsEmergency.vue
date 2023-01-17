@@ -85,6 +85,8 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -105,18 +107,18 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 export default class ParamsEmergency extends Vue {
 
 	public param_enable:TwitchatDataTypes.ParameterData						= {type:"toggle", label:"", value:false};
-	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"toggle", label:"", value:false, icon:"shieldMode_purple.svg"};
+	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"toggle", label:"", value:false, icon:"shieldMode_purple.svg", twitch_scope:TwitchScopes.SHIELD_MODE};
 	public param_chatCommand:TwitchatDataTypes.ParameterData				= {type:"text", label:"", value:"!emergency", icon:"commands_purple.svg"};
 	public param_obsScene:TwitchatDataTypes.ParameterData					= {type:"list", label:"", value:""};
 	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData		= {type:"toggle", value:false, label:"", icon:"follow_purple.svg", tooltip:""};
-	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"toggle", value:true, label:"", icon:"shield_purple.svg", tooltip:""};
-	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"timer_purple.svg"};
+	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"toggle", value:true, label:"", icon:"shield_purple.svg", tooltip:"", twitch_scope:TwitchScopes.SHIELD_MODE};
+	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"timer_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
 	public param_slowModeDuration:TwitchatDataTypes.ParameterData			= {type:"number", value:10, label:"", max:1800, min:1};
-	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	label:"", icon:"follow_purple.svg"};
+	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	label:"", icon:"follow_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
 	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData		= {type:"number", value:30, label:"", max:129600, min:1};
-	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"sub_purple.svg"};
-	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"emote_purple.svg"};
-	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"text", longText:true, value:"", label:"", placeholder:"", icon:"timeout_purple.svg"};
+	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"sub_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
+	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"emote_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
+	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"text", longText:true, value:"", label:"", placeholder:"", icon:"timeout_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
 	public param_noTrigger:TwitchatDataTypes.ParameterData					= {type:"toggle", value:true, label:"", icon:"broadcast_purple.svg"};
 	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];
@@ -195,11 +197,11 @@ export default class ParamsEmergency extends Vue {
 		this.param_enable.value					= storeParams.enabled;
 		this.param_noTrigger.value				= storeParams.noTriggers;
 		this.param_autoTO.value					= storeParams.toUsers;
-		this.param_subsOnly.value				= storeParams.subOnly;
-		this.param_emotesOnly.value				= storeParams.emotesOnly;
-		this.param_followersOnly.value			= storeParams.followOnly;
+		this.param_subsOnly.value				= storeParams.subOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
+		this.param_emotesOnly.value				= storeParams.emotesOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
+		this.param_followersOnly.value			= storeParams.followOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
 		this.param_followersOnlyDuration.value	= storeParams.followOnlyDuration;
-		this.param_slowMode.value				= storeParams.slowMode;
+		this.param_slowMode.value				= storeParams.slowMode && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
 		this.param_slowModeDuration.value		= storeParams.slowModeDuration;
 		this.param_enableShieldMode.value		= storeParams.enableShieldMode;
 
@@ -215,7 +217,9 @@ export default class ParamsEmergency extends Vue {
 		if(storeParams.autoEnableOnFollowbot != undefined) {
 			this.param_autoEnableOnFollowbot.value = storeParams.autoEnableOnFollowbot;
 		}
-		if(storeParams.autoEnableOnShieldmode != undefined) {
+
+		this.param_autoEnableOnShieldmode.value = TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE);
+		if(storeParams.autoEnableOnShieldmode != undefined && TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) {
 			this.param_autoEnableOnShieldmode.value = storeParams.autoEnableOnShieldmode;
 		}
 

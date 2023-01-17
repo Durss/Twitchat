@@ -212,7 +212,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.longText) res.push("longText");
 		if(this.paramData.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
-		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
+		if(this.paramData.disabled || this.disabled == true || this.paramData.twitch_scope) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
