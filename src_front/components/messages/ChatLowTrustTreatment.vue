@@ -5,7 +5,8 @@
 	>
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img src="@/assets/icons/shield.svg" alt="notice" class="icon">
+		<img v-if="messageData.restricted" src="@/assets/icons/lock_fit.svg" alt="notice" class="icon">
+		<img v-else src="@/assets/icons/shield.svg" alt="notice" class="icon">
 		
 		<i18n-t scope="global" v-if="messageData.restricted"
 		keypath="global.moderation_action.user_restricted" tag="p">
@@ -42,6 +43,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
@@ -85,9 +87,10 @@ export default class ChatLowTrustTreatment extends Vue {
 <style scoped lang="less">
 .chatlowtrusttreatment{
 	.chatMessageHighlight();
+	background-color: fade(@mainColor_normal, 10%);
 
 	a {
-		color:@mainColor_warn;
+		color: @mainColor_normal_light;
 		font-weight: bold;
 	}
 	

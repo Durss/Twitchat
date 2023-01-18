@@ -111,7 +111,7 @@ export default class ParamsEmergency extends Vue {
 	public param_chatCommand:TwitchatDataTypes.ParameterData				= {type:"text", label:"", value:"!emergency", icon:"commands_purple.svg"};
 	public param_obsScene:TwitchatDataTypes.ParameterData					= {type:"list", label:"", value:""};
 	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData		= {type:"toggle", value:false, label:"", icon:"follow_purple.svg", tooltip:""};
-	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"toggle", value:true, label:"", icon:"shield_purple.svg", tooltip:"", twitch_scope:TwitchScopes.SHIELD_MODE};
+	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"toggle", value:true, label:"", icon:"shieldMode_purple.svg", tooltip:"", twitch_scope:TwitchScopes.SHIELD_MODE};
 	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	label:"", icon:"timer_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
 	public param_slowModeDuration:TwitchatDataTypes.ParameterData			= {type:"number", value:10, label:"", max:1800, min:1};
 	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	label:"", icon:"follow_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};

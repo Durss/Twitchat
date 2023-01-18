@@ -95,7 +95,7 @@
 			"stream_title_changed": "Titre du stream mise à jour : \"{TITLE}\"",
 			"user_monitored": "{USER} a été ajouté·e aux personnes suspectes par {MODERATOR}",
 			"user_restricted": "{USER} a été ajouté·e aux personnes restreintes par {MODERATOR}",
-			"user_unflagged": "{USER} retiré·e des personnes surveillées par {MODERATOR}"
+			"user_unflagged": "{USER} a été retiré·e des personnes surveillées par {MODERATOR}"
 		},
 		"dev_mode": {
 			"enabled": "Mode développeur activé",

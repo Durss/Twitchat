@@ -62,7 +62,7 @@ export default class ChatNotice extends Vue {
 
 	public mounted():void {
 		switch(this.messageData.noticeId) {
-			case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:	this.icon = "shield"; break;
+			case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:		this.icon = "shield"; break;
 			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; break;
 		}
 		this.$store("accessibility").setAriaPolite(this.message);
