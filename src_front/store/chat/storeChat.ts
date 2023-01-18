@@ -1267,14 +1267,15 @@ export const storeChat = defineStore('chat', {
 		async flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void> {
 			const list = this.messages;
 			for (let i = 0; i < list.length; i++) {
-				const m = list[i];
-				if(m.id == data.message_id && m.type == "message") {
+				const message = list[i];
+				if(message.id == data.message_id && message.type == "message") {
 					if(data.low_trust_user.shared_ban_channel_ids?.length > 0) {
 						const users = await TwitchUtils.loadUserInfo(data.low_trust_user.shared_ban_channel_ids);
-						m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
+						message.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 					}
-					m.twitch_isSuspicious = true;
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
+					message.twitch_isSuspicious = true;
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
+					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
 					return;
 				}
 			}
