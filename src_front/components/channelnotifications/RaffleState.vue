@@ -4,7 +4,7 @@
 
 		<ProgressBar class="progress"
 			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
-			:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s"
+			:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
 		/>
 
 		<div class="item entries">
@@ -94,7 +94,7 @@ export default class RaffleState extends Vue {
 		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
 		this.raffleData			= this.$store("raffle").data!;
 		const ellapsed			= Date.now() - new Date(this.raffleData.created_at).getTime();
-		const duration			= this.raffleData.duration_s;
+		const duration			= this.raffleData.duration_s * 1000;
 		const timeLeft			= duration - ellapsed;
 		this.progressPercent	= ellapsed/duration;
 		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
@@ -119,7 +119,6 @@ export default class RaffleState extends Vue {
 	}
 
 	public async pickWinner():Promise<void> {
-		let winner:TwitchatDataTypes.RaffleEntry;
 		this.picking = true;
 		
 		await this.$store("raffle").pickWinner();

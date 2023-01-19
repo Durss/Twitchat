@@ -87,7 +87,7 @@
 				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="mode=='chat' || triggerMode === false">
 					<ParamItem class="row"
 					:paramData="showCountdownOverlay"
-					v-if="mode=='chat'">
+					v-if="mode=='chat'" @change="onValueChange()">
 						<i18n-t scope="global" tag="div" class="details"
 						v-if="showCountdownOverlay.value === true && mode=='chat'"
 						keypath="raffle.configs.timer_overlay_add">
@@ -222,7 +222,7 @@ export default class RaffleForm extends Vue {
 		return  {
 			mode:this.mode,
 			command:cmd,
-			duration_s:this.enterDuration.value as number * 60000,
+			duration_s:this.enterDuration.value as number * 60,
 			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value as number : 0,
 			created_at:Date.now(),
 			entries:[],
@@ -262,9 +262,10 @@ export default class RaffleForm extends Vue {
 		this.joinPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
 
 		if(this.triggerMode && this.action.raffleData) {
+			console.log( this.action.raffleData);
 			this.mode = this.action.raffleData.mode;
 			this.command.value = this.action.raffleData.command
-			this.enterDuration.value = this.action.raffleData.duration_s/60000;
+			this.enterDuration.value = this.action.raffleData.duration_s/60;
 			this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
 			this.maxUsersToggle.value = this.maxEntries.value > 0;
 			this.ponderateVotes_follower.value = this.action.raffleData.followRatio ?? 0;
@@ -273,10 +274,10 @@ export default class RaffleForm extends Vue {
 			this.ponderateVotes_subgift.value = this.action.raffleData.subgiftRatio ?? 0;
 			this.subs_includeGifters.value = this.action.raffleData.subMode_includeGifters ?? false;
 			this.subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
-			// this.showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
+			this.showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
 			this.customEntries.value = this.action.raffleData.customEntries;
 		}else{
-			// this.showCountdownOverlay.value = DataStore.get(DataStore.RAFFLE_OVERLAY_COUNTDOWN) === "true";
+			this.showCountdownOverlay.value = DataStore.get(DataStore.RAFFLE_OVERLAY_COUNTDOWN) === "true";
 		}
 
 		this.maxUsersToggle.children = [this.maxEntries];
@@ -297,6 +298,8 @@ export default class RaffleForm extends Vue {
 		});
 
 		watch(()=>this.showCountdownOverlay.value, ()=>{
+			if(this.triggerMode) return;
+			
 			DataStore.set(DataStore.RAFFLE_OVERLAY_COUNTDOWN, this.showCountdownOverlay.value)
 		})
 		

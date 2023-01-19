@@ -162,6 +162,14 @@ export default class DataStore {
 			this.migrateTriggerSubgiftPlaceholder();
 			v = "22";
 		}
+		if(v=="22") {
+			//See asyncMigration();
+			v = "23";
+		}
+		if(v=="23") {
+			this.migrateRaffleTriggerDurationAgain();
+			v = "24";
+		}
 		//v 22 migration is asynchronous, see asyncMigration()
 
 		this.set(this.DATA_VERSION, v);
@@ -738,5 +746,26 @@ export default class DataStore {
 		}
 
 		this.set(DataStore.STREAM_INFO_PRESETS, presets);
+	}
+
+	/**
+	 * Made a second mistake storing ms instead of seconds
+	 */
+	private static migrateRaffleTriggerDurationAgain():void {
+		const txt = this.get(DataStore.TRIGGERS);
+		if(!txt) return;
+		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
+		for (const key in triggers) {
+			const actions = triggers[key].actions;
+			for (let i = 0; i < actions.length; i++) {
+				const a = actions[i];
+				if(a.type == "raffle" && a.raffleData) {
+					console.log("convert", a.raffleData.duration_s, "to", a.raffleData.duration_s / 1000);
+					a.raffleData.duration_s = Math.round(a.raffleData.duration_s / 1000);
+				}
+			}
+		}
+
+		this.set(DataStore.TRIGGERS, triggers);
 	}
 }

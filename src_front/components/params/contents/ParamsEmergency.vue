@@ -266,8 +266,8 @@ export default class ParamsEmergency extends Vue {
 			list.push({label:scene.sceneName, value:scene.sceneName});
 		}
 		list.sort((a, b) => {
-			if(a.label.toLowerCase() < b.label.toLowerCase()) return -1;
-			if(a.label.toLowerCase() > b.label.toLowerCase()) return 1;
+			if(a.label!.toLowerCase() < b.label!.toLowerCase()) return -1;
+			if(a.label!.toLowerCase() > b.label!.toLowerCase()) return 1;
 			return 0;
 		});
 
