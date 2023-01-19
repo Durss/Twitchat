@@ -142,7 +142,8 @@
 			"games": "Jeux",
 			"music": "Musique",
 			"timer": "Chronomètre & Compte à rebours",
-			"obs": "OBS"
+			"obs": "OBS",
+			"misc": "Autres"
 		},
 		"placeholders": {
 			"user": "Pseudo",
@@ -321,7 +322,7 @@
 			},
 			"UNVIP": {
 				"label": "Rôle VIP retiré",
-				"description": "Executer des actions lorsqu'une personne est retirée de vos VIPs <i>(fonctionne seulement en utilisant la commande <mark>/unvip</mark> depuis twitchat</i>"
+				"description": "Executer des actions lorsqu'une personne est retirée de vos VIPs<br><i>(fonctionne seulement en utilisant la commande <mark>/unvip</mark> depuis twitchat</i>"
 			},
 			"MOD": {
 				"label": "Rôle modérateur attribué",
@@ -329,7 +330,7 @@
 			},
 			"UNMOD": {
 				"label": "Rôle modérateur retiré",
-				"description": "Executer des actions lorsqu'une personne est retirée de vos modérateurs <i>(fonctionne seulement en utilisant la commande <mark>/unmod</mark> depuis twitchat</i>"
+				"description": "Executer des actions lorsqu'une personne est retirée de vos modérateurs<br><i>(fonctionne seulement en utilisant la commande <mark>/unmod</mark> depuis twitchat</i>"
 			},
 			"SHIELD_MODE_ON": {
 				"label": "Mode bouclier activé",
@@ -397,10 +398,10 @@
 			},
 			"CHAT_ALERT": {
 				"label": "Alerte",
-				"description": "Executer des actions lorsque la fenêtre d'alerte est déclanchée <i>(Paramètres => @:params.categories.features => @:params.alertMode)</i>"
+				"description": "Executer des actions lorsque la fenêtre d'alerte est déclanchée<br><i>(Paramètres => @:params.categories.features => @:params.alertMode)</i>"
 			},
 			"VOICEMOD": {
-				"label": "Voicemod - effet changé",
+				"label": "Voicemod - changement de voix",
 				"description": "Executer des actions lorsqu'un nouveau filtre de voix est appliqué"
 			},
 			"OBS_SCENE": {
@@ -414,6 +415,14 @@
 			"OBS_SOURCE_OFF": {
 				"label": "Source masquée",
 				"description": "Executer des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est masquée"
+			},
+			"STREAM_ONLINE": {
+				"label": "Début de stream",
+				"description": "Executer des actions lorsque le stream débute<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
+			},
+			"STREAM_OFFLINE": {
+				"label": "Arrêt du stream",
+				"description": "Executer des actions lorsque le stream est arrêté<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
 			}
 		},
 		"musicEvents": {

@@ -469,6 +469,7 @@ export default class ParamsTriggers extends Vue {
 		catToLabel[ TriggerEventTypeCategories.MUSIC ] = this.$t("triggers.categories.music")
 		catToLabel[ TriggerEventTypeCategories.TIMER ] = this.$t("triggers.categories.timer")
 		catToLabel[ TriggerEventTypeCategories.OBS ] = this.$t("triggers.categories.obs")
+		catToLabel[ TriggerEventTypeCategories.MISC ] = this.$t("triggers.categories.misc")
 		
 		const catToIcon:{[key:number]:string} = {};
 		catToIcon[ TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";
@@ -481,6 +482,7 @@ export default class ParamsTriggers extends Vue {
 		catToIcon[ TriggerEventTypeCategories.MUSIC ] = "music_purple";
 		catToIcon[ TriggerEventTypeCategories.TIMER ] = "timer_purple";
 		catToIcon[ TriggerEventTypeCategories.OBS ] = "obs_purple";
+		catToIcon[ TriggerEventTypeCategories.MISC ] = "broadcast_purple";
 
 		for (let i = 0; i < events.length; i++) {
 			const ev = events[i];

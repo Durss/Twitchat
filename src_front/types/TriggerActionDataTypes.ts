@@ -47,6 +47,7 @@ export const TriggerEventTypeCategories = {
 	GAMES: 8,
 	MUSIC: 9,
 	OBS: 10,
+	MISC: 11,
 } as const;
 export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
 export interface TriggerEventTypes extends TwitchatDataTypes.ParameterDataListValue {
@@ -207,6 +208,8 @@ export const TriggerTypes = {
 	SHIELD_MODE_OFF:"53",
 	PIN_MESSAGE:"54",
 	UNPIN_MESSAGE:"55",
+	STREAM_ONLINE:"56",
+	STREAM_OFFLINE:"57",
 
 	TWITCHAT_AD:"ad",
 } as const;
@@ -397,7 +400,9 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.MOD] = 
 	map[TriggerTypes.UNMOD] = 
 	map[TriggerTypes.UNBAN] = 
-	map[TriggerTypes.BAN] = [
+	map[TriggerTypes.BAN] = 
+	map[TriggerTypes.STREAM_ONLINE] =
+	map[TriggerTypes.STREAM_OFFLINE] = [
 		{tag:"USER", desc:t('triggers.placeholders.user'), pointer:"user.displayName"},
 		{tag:"USER_ID", desc:t('triggers.placeholders.user_id'), pointer:"user.id"},
 	];
@@ -424,6 +429,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"CONTRIBUTION", desc:t('triggers.placeholders.challenge_contribution'), pointer:"contribution"},
 		{tag:"CONTRIBUTION_TOTAL", desc:t('triggers.placeholders.challenge_contribution_total'), pointer:"total_contribution"},
 	);
+
 
 	//If requesting chat command helpers and there is a music
 	//service available, concat the music service helpers
@@ -470,7 +476,7 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:t("triggers.events.HYPE_TRAIN_CANCELED.label"), value:TriggerTypes.HYPE_TRAIN_CANCELED, description:t("triggers.events.HYPE_TRAIN_CANCELED.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", label:t("triggers.events.HYPE_TRAIN_COOLDOWN.label"), value:TriggerTypes.HYPE_TRAIN_COOLDOWN, description:t("triggers.events.HYPE_TRAIN_COOLDOWN.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN},
 		{category:TriggerEventTypeCategories.MOD, icon:"shoutout", label:t("triggers.events.SHOUTOUT_OUT.label"), value:TriggerTypes.SHOUTOUT_OUT, description:t("triggers.events.SHOUTOUT_OUT.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
-		{category:TriggerEventTypeCategories.MOD, icon:"shoutout", label:t("triggers.events.SHOUTOUT_IN.label"), value:TriggerTypes.SHOUTOUT_IN, description:t("triggers.events.SHOUTOUT_IN.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
+		// {category:TriggerEventTypeCategories.MOD, icon:"shoutout", label:t("triggers.events.SHOUTOUT_IN.label"), value:TriggerTypes.SHOUTOUT_IN, description:t("triggers.events.SHOUTOUT_IN.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
 		{category:TriggerEventTypeCategories.MOD, icon:"shield", label:t("triggers.events.SHIELD_MODE_ON.label"), value:TriggerTypes.SHIELD_MODE_ON, description:t("triggers.events.SHIELD_MODE_ON.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE},
 		{category:TriggerEventTypeCategories.MOD, icon:"shield", label:t("triggers.events.SHIELD_MODE_OFF.label"), value:TriggerTypes.SHIELD_MODE_OFF, description:t("triggers.events.SHIELD_MODE_OFF.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE},
 		{category:TriggerEventTypeCategories.MOD, icon:"pin", label:t("triggers.events.PIN_MESSAGE.label"), value:TriggerTypes.PIN_MESSAGE, description:t("triggers.events.PIN_MESSAGE.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.PINNED},
@@ -495,10 +501,12 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", label:t("triggers.events.EMERGENCY_MODE_STOP.label"), value:TriggerTypes.EMERGENCY_MODE_STOP, description:t("triggers.events.EMERGENCY_MODE_STOP.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", label:t("triggers.events.HIGHLIGHT_CHAT_MESSAGE.label"), value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, description:t("triggers.events.HIGHLIGHT_CHAT_MESSAGE.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", label:t("triggers.events.CHAT_ALERT.label"), value:TriggerTypes.CHAT_ALERT, description:t("triggers.events.CHAT_ALERT.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"voicemod", label:t("triggers.events.VOICEMOD.label"), value:TriggerTypes.VOICEMOD, description:t("triggers.events.VOICEMOD.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"list", label:t("triggers.events.OBS_SCENE.label"), value:TriggerTypes.OBS_SCENE, description:t("triggers.events.OBS_SCENE.description"), isCategory:true, noToggle:true},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"show", label:t("triggers.events.OBS_SOURCE_ON.label"), value:TriggerTypes.OBS_SOURCE_ON, description:t("triggers.events.OBS_SOURCE_ON.description"), isCategory:true, noToggle:true},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"hide", label:t("triggers.events.OBS_SOURCE_OFF.label"), value:TriggerTypes.OBS_SOURCE_OFF, description:t("triggers.events.OBS_SOURCE_OFF.description"), isCategory:true, noToggle:true},
+		{category:TriggerEventTypeCategories.MISC, icon:"voicemod", label:t("triggers.events.VOICEMOD.label"), value:TriggerTypes.VOICEMOD, description:t("triggers.events.VOICEMOD.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
+		{beta:true, category:TriggerEventTypeCategories.MISC, icon:"online", label:t("triggers.events.STREAM_ONLINE.label"), value:TriggerTypes.STREAM_ONLINE, description:t("triggers.events.STREAM_ONLINE.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE},
+		{beta:true, category:TriggerEventTypeCategories.MISC, icon:"offline", label:t("triggers.events.STREAM_OFFLINE.label"), value:TriggerTypes.STREAM_OFFLINE, description:t("triggers.events.STREAM_OFFLINE.description"), testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},
 	];
 	return eventsCache;
 }

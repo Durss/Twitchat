@@ -215,6 +215,10 @@
 			"tipBt_aria": "Open tip options",
 			"tipBt": "🌞 Make my day brighter 🌞"
 		},
+		"stream": {
+			"online": "Channel {USER} is now live",
+			"offline": "Channel {USER} is now offline"
+		},
 		"discord": {
 			"title": "Join us on Discord",
 			"content": "You have a feature suggestion or an issue to report?<br>Join us on discord!",

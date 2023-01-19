@@ -295,6 +295,18 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:{
+				if(await this.parseSteps(TriggerTypes.STREAM_ONLINE, message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE:{
+				if(await this.parseSteps(TriggerTypes.STREAM_OFFLINE, message, testMode, this.currentSpoolGUID)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START:

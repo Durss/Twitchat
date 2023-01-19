@@ -14,6 +14,7 @@ export default class Config {
 	public SERVER_PORT = 3018;
 	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;
 	public IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10" && document.location.hostname.indexOf("ngrok") == -1;
+	// public TWITCH_API_PATH = "http://localhost:8000/mock/";
 	public TWITCH_API_PATH = "https://api.twitch.tv/helix/";
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
 	public OBS_WEBSOCKET_INSTALLER = "https://github.com/obsproject/obs-websocket/releases/tag/5.0.1";

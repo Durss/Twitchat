@@ -14,7 +14,6 @@
 						<MessageList ref="messages" class="messages"
 							@showModal="(v:TwitchatDataTypes.ModalTypes) => currentModal = v"
 							@addColumn="addColumn"
-							:maxMessages="50"
 							:config="c"
 							filterId="chat"/>
 					</div>

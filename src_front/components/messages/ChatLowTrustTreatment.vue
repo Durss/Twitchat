@@ -96,6 +96,7 @@ export default class ChatLowTrustTreatment extends Vue {
 	
 	&.alert {
 		background-color: @mainColor_alert;
+		color:@mainColor_light;
 		&:hover {
 			background-color: @mainColor_alert_light;
 		}

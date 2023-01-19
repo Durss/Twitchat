@@ -142,7 +142,8 @@
 			"games": "Games",
 			"music": "Music",
 			"timer": "Timers",
-			"obs": "OBS"
+			"obs": "OBS",
+			"misc": "Miscellaneous"
 		},
 		"placeholders": {
 			"user": "User name",
@@ -321,7 +322,7 @@
 			},
 			"UNVIP": {
 				"label": "User /unvip",
-				"description": "Execute actions when a user is removed from your VIPs <i>(only works when using <mark>/unvip</mark> command from twitchat</i>"
+				"description": "Execute actions when a user is removed from your VIPs<br><i>(only works when using <mark>/unvip</mark> command from twitchat</i>"
 			},
 			"MOD": {
 				"label": "User /mod",
@@ -329,7 +330,7 @@
 			},
 			"UNMOD": {
 				"label": "User /unmod",
-				"description": "Execute actions when a user is removed from your mods <i>(only works when using <mark>/unmod</mark> command from twitchat</i>"
+				"description": "Execute actions when a user is removed from your mods<br><i>(only works when using <mark>/unmod</mark> command from twitchat</i>"
 			},
 			"SHIELD_MODE_ON": {
 				"label": "Shield mode enabled",
@@ -397,7 +398,7 @@
 			},
 			"CHAT_ALERT": {
 				"label": "Chat alert",
-				"description": "Execute actions when the Chat Alert feature is triggered <i>(Parameters => @:params.categories.features => @:params.alertMode)</i>"
+				"description": "Execute actions when the Chat Alert feature is triggered<br><i>(Parameters => @:params.categories.features => @:params.alertMode)</i>"
 			},
 			"VOICEMOD": {
 				"label": "Voicemod - voice changed",
@@ -414,6 +415,14 @@
 			"OBS_SOURCE_OFF": {
 				"label": "Source hide",
 				"description": "Execute actions when hiding <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> OBS source"
+			},
+			"STREAM_ONLINE": {
+				"label": "Stream start",
+				"description": "Execute actions when stream starts<br><i>(you might have to wait +1min before receiving that info)</i>"
+			},
+			"STREAM_OFFLINE": {
+				"label": "Stream stop",
+				"description": "Execute actions when stream stops<br><i>(you might have to wait +1min before receiving that info)</i>"
 			}
 		},
 		"musicEvents": {

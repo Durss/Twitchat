@@ -44,6 +44,8 @@
 			<Button small title="Restrict user" @click="restrictUser()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Monitor user" @click="monitorUser()" :icon="$image('icons/shield.svg')" />
 			<Button small title="Unflag user" @click="unflagUser()" :icon="$image('icons/shield.svg')" />
+			<Button small title="Stream online" @click="simulateEvent('stream_online')" :icon="$image('icons/online.svg')" />
+			<Button small title="Stream offline" @click="simulateEvent('stream_offline')" :icon="$image('icons/offline.svg')" />
 			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
 			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
 		</div>

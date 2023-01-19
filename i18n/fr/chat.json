@@ -215,6 +215,10 @@
 			"tipBt_aria": "Voir les options de dons",
 			"tipBt": "🌞 Emerveiller ma journée 🌞"
 		},
+		"stream": {
+			"online": "La chaîne {USER} est live",
+			"offline": "La chaîne {USER} n'est plus en live"
+		},
 		"discord": {
 			"title": "Rejoins-nous sur Discord",
 			"content": "Tu as une idée d'ajout ou un problème à remonter ?<br>Dis-le moi sur Discord!",

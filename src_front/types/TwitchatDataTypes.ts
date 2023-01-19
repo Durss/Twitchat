@@ -825,6 +825,8 @@ export namespace TwitchatDataTypes {
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
 		ROOM_SETTINGS:"room_settings",
+		STREAM_ONLINE:"stream_online",
+		STREAM_OFFLINE:"stream_offline",
 		CHAT_HIGHLIGHT:"chat_highlight",
 		FOLLOWBOT_LIST:"followbot_list",
 		HYPE_TRAIN_START:"hype_train_start",
@@ -879,7 +881,9 @@ export namespace TwitchatDataTypes {
 		autoban_join:true,
 		room_settings:true,
 		followbot_list:true,
-		chat_highlight:false,
+		stream_online:true,
+		stream_offline:true,
+		chat_highlight:false,//Used for "highlight on overlay" events
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_source_toggle:false,
@@ -968,6 +972,8 @@ export namespace TwitchatDataTypes {
 									MessageOBSSceneChangedData |
 									MessageOBSSourceToggleData |
 									MessageRoomSettingsData |
+									MessageStreamOnlineData |
+									MessageStreamOfflineData |
 									MessageUnpinData |
 									MessagePinData
 	;
@@ -1579,6 +1585,22 @@ export namespace TwitchatDataTypes {
 		type:"unpinned",
 		moderator?:TwitchatUser;
 		chatMessage:MessageChatData;
+	}
+
+	/**
+	 * Respresents an stream start event
+	 */
+	export interface MessageStreamOnlineData extends AbstractTwitchatMessage {
+		type:"stream_online",
+		user:TwitchatUser;
+	}
+
+	/**
+	 * Respresents an stream start event
+	 */
+	export interface MessageStreamOfflineData extends AbstractTwitchatMessage {
+		type:"stream_offline",
+		user:TwitchatUser;
 	}
 
 }

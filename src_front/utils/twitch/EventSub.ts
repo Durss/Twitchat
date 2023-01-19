@@ -205,6 +205,10 @@ export default class EventSub {
 				//Don't need to listen for this event for anyone else but the broadcaster
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
 				
+				//Used by online/offline triggers
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+				
 				//Not using those as IRC does it better
 				// if(TwitchUtils.hasScope(TwitchScopes.LIST_SUBS)) {
 					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
@@ -222,8 +226,6 @@ export default class EventSub {
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_DELETE, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_START, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_PROGRESS, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_END, "1");
@@ -287,6 +289,12 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.RAID: {
 				this.raidEvent(topic, payload.event as TwitchEventSubDataTypes.RaidEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON:
+			case TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF: {
+				this.streamStartStopEvent(topic, payload.event as TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent);
 				break;
 			}
 			
@@ -571,11 +579,32 @@ export default class EventSub {
 	}
 	
 	public modAddEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorAddEvent):void {
-
+		//TODO
 	}
 	
 	public modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
+		//TODO
+	}
 
+	/**
+	 * Called when stream starts or stops
+	 * @param topic 
+	 * @param payload 
+	 */
+	private streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, payload:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):void {
+		const me = StoreProxy.auth.twitch.user;
+		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
+			date:Date.now(),
+			id:Utils.getUUID(),
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
+			user: StoreProxy.users.getUserFrom("twitch", me.id, payload.broadcaster_user_id, payload.broadcaster_user_login, payload.broadcaster_user_name),
+		}
+		if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF) {
+			((message as unknown) as TwitchatDataTypes.MessageStreamOfflineData).type = TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE;
+		}
+		console.log("START / STOP", message);
+		StoreProxy.chat.addMessage(message);
 	}
 	
 }

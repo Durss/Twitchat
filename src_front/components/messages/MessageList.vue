@@ -124,6 +124,11 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
+				<ChatStreamOnOff class="message"
+					v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
@@ -234,6 +239,10 @@
 					v-else-if="m.type == 'unban'"
 					:messageData="m" />
 
+				<ChatStreamOnOff class="message"
+					v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					:messageData="m" />
 			</div>
@@ -314,6 +323,7 @@ import MessageListFilter from './components/MessageListFilter.vue';
 import ChatPinNotice from './ChatPinNotice.vue';
 import ChatBan from './ChatBan.vue';
 import ChatUnban from './ChatUnban.vue';
+import ChatStreamOnOff from './ChatStreamOnOff.vue';
 
 @Options({
 	components: {
@@ -329,6 +339,7 @@ import ChatUnban from './ChatUnban.vue';
 		ChatPinNotice,
 		ChatHighlight,
 		ChatJoinLeave,
+		ChatStreamOnOff,
 		ChatBingoResult,
 		ChatRoomSettings,
 		ChatRaffleResult,
@@ -344,7 +355,6 @@ import ChatUnban from './ChatUnban.vue';
 	props: {
 		config: Object,
 		filterId: String,
-		maxMessages: Number,
 		lightMode: {
 			type: Boolean,
 			default: false,
@@ -354,7 +364,6 @@ import ChatUnban from './ChatUnban.vue';
 })
 export default class MessageList extends Vue {
 
-	public maxMessages!: number;
 	public lightMode!: boolean;
 	public filterId!: string;
 	public config!: TwitchatDataTypes.ChatColumnsConfig;
@@ -372,6 +381,8 @@ export default class MessageList extends Vue {
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 	public markedReadItem: HTMLDivElement | null = null;
 
+	private maxMessages:number = 50;
+	private virtualMessageHeight:number = 32;
 	private prevTs = 0;
 	private counter = 0;
 	private disposed = false;
@@ -433,25 +444,8 @@ export default class MessageList extends Vue {
 			const el = this.$refs.chatMessageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			el.scrollTop = this.virtualScrollY = maxScroll;
+			this.computeMaxMessageCount();
 		});
-
-		let refreshDebounce = -1;
-
-		//Update list when filters are changed
-		watch(() => this.config.filters, () => {
-			clearTimeout(refreshDebounce);
-			refreshDebounce = setTimeout(()=>{
-				this.fullListRefresh();
-			}, 250);
-		}, {deep: true});
-		
-		//Update list when message filters are changed
-		watch(() => this.config.messageFilters, () => {
-			clearTimeout(refreshDebounce);
-			refreshDebounce = setTimeout(()=>{
-				this.fullListRefresh();
-			}, 250);
-		}, {deep: true});
 
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
@@ -789,7 +783,9 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT:
 			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:
-			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
+			case TwitchatDataTypes.TwitchatMessageType.NOTICE:
+			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:
+			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE: {
 				return this.config.filters.notice === true;
 			}
 
@@ -1095,7 +1091,14 @@ export default class MessageList extends Vue {
 		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
 		let easeValue		= hasResized? 1 : .3;
-		if(hasResized) this.prevHeight = holderHeight;
+		if(hasResized) {
+			//If enhancing size, refresh max message count
+			if(this.prevHeight < holderHeight) {
+				console.log("RESIZED");
+				this.computeMaxMessageCount();
+			}
+			this.prevHeight = holderHeight;
+		}
 
 		if (!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
@@ -1136,7 +1139,7 @@ export default class MessageList extends Vue {
 			&& !this.lockScroll
 			&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
-		}else if(messageHolder.scrollTop < 150) {
+		}else if(messageHolder.scrollTop < this.virtualMessageHeight * 5) {
 			this.showPrevMessage();
 		}
 	}
@@ -1202,7 +1205,7 @@ export default class MessageList extends Vue {
 		let messageAdded = false;
 		let i = list.length - this.scrollUpIndexOffset - 1;
 
-		let addCount = 10;
+		let addCount = 5;
 		
 		for (; i > 0; i--) {
 			let m = list[i];
@@ -1223,7 +1226,7 @@ export default class MessageList extends Vue {
 		if(messageAdded) {
 			// await this.$nextTick();
 			const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
-			this.virtualScrollY = 151;
+			this.virtualScrollY = this.virtualMessageHeight * 5 + 2;
 			messagesHolder.scrollTop = this.virtualScrollY;
 			removed.forEach(v=> this.pendingMessages.unshift( v ));
 		}else if(removed){
@@ -1486,6 +1489,25 @@ export default class MessageList extends Vue {
 			}
 		}
 		this.lockedLiveMessages = finalList
+	}
+
+	/**
+	 * Computes the maximum messages to display depending on the
+	 * configured text size.
+	 * /!\ Ratios are hardcoded which is far from secure. For a better
+	 * solution create a fake message out of dom and measure its
+	 * sizes instead of this.
+	 */
+	private computeMaxMessageCount():void {
+		const el = this.$refs.chatMessageHolder as HTMLDivElement;
+		const sizesRatio = [.4,.5,.6,.7,.8,.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3];
+		const size = this.$store("params").appearance.defaultSize.value as number;
+		this.virtualMessageHeight = (32 + 9) * sizesRatio[size];//32 = min content height ; 9 = top+bottom padding
+		const newCount = Math.ceil(el.offsetHeight/this.virtualMessageHeight) + 10;
+		if(newCount != this.maxMessages) {
+			this.fullListRefresh();
+		}
+		this.maxMessages = newCount;
 	}
 }
 

@@ -2,6 +2,8 @@
 	<div class="confirmView" v-if="confirmData">
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
 		<div class="holder" ref="holder">
+			<img src="@/assets/icons/lock_fit_purple.svg" class="icon">
+
 			<div class="title" v-html="confirmData.title"></div>
 			
 			<VoiceGlobalCommandsHelper v-if="voiceControl" :confirmMode="true" />
@@ -174,6 +176,13 @@ export default class Confirm extends Vue {
 		box-sizing: border-box;
 		border-radius: 1em;
 
+		.icon {
+			display: block;
+			margin: auto;
+			margin-bottom: .5em;
+			height: 3em;
+		}
+
 		.title {
 			font-size: 2em;
 			text-align: center;
@@ -197,7 +206,7 @@ export default class Confirm extends Vue {
 			flex-direction: row;
 			// max-width: 220px;
 			margin: auto;
-			margin-top: 30px;
+			margin-top: 1em;
 			justify-content: space-evenly;
 		}
 	}
@@ -206,43 +215,31 @@ export default class Confirm extends Vue {
 @media only screen and (max-width: 500px) {
 	.confirmView {
 		&>.holder {
-			padding: 15px;
+			padding: .75em;
 			width: 90vw;
 
+			.icon {
+				height: 2em;
+			}
+
 			.title {
-				font-size: 30px;
+				font-size: 1.5em;
 			}
 
 			.description {
-				font-size: 20px;
-				margin-top: 10px;
+				font-size: 1em;
+				margin-top: .5em;
 			}
 
 			.buttons {
-				margin-top: 15px;
+				margin-top: 1em;
 				button {
-					font-size: 18px;
-					padding: 10px;
+					font-size: Em;
+					padding: .5em;
 				}
 			}
 		}
 	}
 }
 
-@media only screen and (max-width: 360px) {
-	.confirmView {
-		&>.holder {
-			padding: 15px;
-			width: 90vw;
-
-			.buttons {
-				margin-top: 15px;
-				button {
-					font-size: 15px;
-					padding: 10px;
-				}
-			}
-		}
-	}
-}
 </style>

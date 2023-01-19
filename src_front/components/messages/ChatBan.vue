@@ -44,7 +44,6 @@ import { Options, Vue } from 'vue-class-component';
 export default class ChatBan extends Vue {
 	
 	public messageData!:TwitchatDataTypes.MessageBanData;
-	
 
 	public get time():string {
 		const d = new Date(this.messageData.date);
