@@ -6,7 +6,7 @@
 		<ul class="list">
 			<li v-for="(h,index) in placeholders" :key="h.tag+index" @click="insert(h)" :data-tooltip="$t('global.placeholder_selector_insert')">
 				<strong>&#123;{{h.tag}}&#125;</strong>
-				{{h.desc}}
+				{{$t(h.descKey)}}
 			</li>
 		</ul>
 	</ToggleBlock>
@@ -37,7 +37,7 @@ export default class PlaceholderSelector extends Vue {
 	/**
 	 * Add a token on the text
 	 */
-	public async insert(h:{tag:string, desc:string}):Promise<void> {
+	public async insert(h:TwitchatDataTypes.PlaceholderEntry):Promise<void> {
 		let target = this.target as HTMLInputElement | HTMLTextAreaElement;
 		if((this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then) {
 			target = await(new Promise((resolve)=>{

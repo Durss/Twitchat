@@ -31,7 +31,7 @@
 	
 			<div v-if="isTip" class="tip">
 				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title" v-t="'tips.title'"></div>
+				<div class="title">{{ $t("tips.title") }}</div>
 				<ChatTipAndTrickAd class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
 					@openParam="(v:any)=> openParamPage(v)"
@@ -262,17 +262,6 @@ export default class ChatAd extends Vue {
 		DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 	}
 
-}
-
-export interface ChangelogEntry {
-	i?:string;//icon name
-	l:string;//label
-	a?:{
-		l:string;//label of the button
-		a?:string;//aria-label value of the button
-		page?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
-		param?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
-	}
 }
 </script>
 

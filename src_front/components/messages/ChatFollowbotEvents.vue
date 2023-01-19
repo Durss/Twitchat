@@ -5,7 +5,7 @@
 			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			<img src="@/assets/icons/shield.svg" class="icon">
 			<img src="@/assets/icons/follow.svg" class="icon">
-			<span class="label" v-t="{path:'chat.followbot.title', args:{COUNT:messageData?.users.length}}"></span>
+			<span class="label">{{  $t("chat.followbot.title", {COUNT:messageData?.users.length}) }}</span>
 		</div>
 		<div v-if="expand" class="userList">
 			<div class="user" v-for="u, index in messageData?.users" :key="u.id" @click.stop="openUserCard(u)">

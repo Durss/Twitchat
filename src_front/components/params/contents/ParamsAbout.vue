@@ -2,14 +2,14 @@
 	<div class="paramsabout">
 
 		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea_purple']" :open="false">
-			<p class="item" v-t="'about.suggestion_content1'"></p>
+			<p class="item">{{ $t("about.suggestion_content1") }}</p>
 			<Button class="item" :title="$t('about.discordBt')" :icon="$image('icons/discord.svg')" :href="discordURL" target="_blank" type="link" />
 			<p class="item" v-html="$t('about.suggestion_content2')"></p>
 		</ToggleBlock>
 
 		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api_purple']" :open="false">
-			<p class="item" v-t="'about.api_content1'"></p>
-			<p class="item" v-t="'about.api_content2'"></p>
+			<p class="item">{{ $t("about.api_content1") }}</p>
+			<p class="item">{{ $t("about.api_content2") }}</p>
 			<Button class="item" :title="$t('about.documentationBt')" :icon="$image('icons/github_white.svg')" :href="apiURL" target="_blank" type="link"/>
 		</ToggleBlock>
 
@@ -20,7 +20,7 @@
 		<ToggleBlock class="block" :title="$t('about.credits')" :icons="['info_purple']" :open="true">
 			<p class="item" v-html="$t('about.credits_author', {USER:'<a href=\'https://twitch.tv/durss\' target=\'_blank\'>Durss</a>'})"></p>
 			<p class="item" v-html="$t('about.credits_sources', {URL:'<a href=\'https://github.com/Durss/Twitchat\' target=\'_blank\'>Github</a>'})"></p>
-			<p class="item" v-t="'about.credits_sites'"></p>
+			<p class="item">{{ $t("about.credits_sites") }}</p>
 			<p class="item socials">
 				<a class="link" href="https://box.durss.ninja" target="_blank"><img src="@/assets/img/boxes.svg" data-tooltip="Durss puzzle boxes" alt="puzzle boxes"></a>
 				<a class="link" href="https://multiblindtest.com" target="_blank"><img src="@/assets/img/multiblindtest.png" data-tooltip="Multiblindtest" alt="multi blindtest"></a>

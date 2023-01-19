@@ -9,7 +9,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="alert" v-t="{path:'raid.cant_force', args:{TIMER:timeLeft}}"></div>
+		<div class="alert">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
 		<Button class="cancelBt" type="button"
 			:icon="$image('icons/cross_white.svg')"
 			bounce highlight

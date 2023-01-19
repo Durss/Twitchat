@@ -136,7 +136,7 @@
 			</div>
 
 			<div key="empty" class="subHolder" ref="message_0" v-if="filteredMessages?.length===0">
-				<div class="message empty" v-t="'chat.no_message'"></div>
+				<div class="message empty">{{ $t("chat.no_message") }}</div>
 			</div>
 		</div>
 
@@ -145,7 +145,7 @@
 		</teleport>
 
 		<div class="locked" ref="locked" v-if="lockScroll && !lightMode" @click.stop="unPause">
-			<span v-if="lockScroll" v-t="'chat.paused'"></span>
+			<span v-if="lockScroll">{{ $t("chat.paused") }}</span>
 			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>
 
@@ -156,7 +156,7 @@
 					:disabled="config.liveLockCount == 1"
 					@click="incrementLockedLiveCount(-1)"/>
 
-				<span class="label" v-t="'chat.live_chat'"></span>
+				<span class="label">{{ $t("chat.live_chat") }}</span>
 
 				<Button	:aria-label="$t('chat.live_chat_more_aria')"
 					:icon="$image('icons/add.svg')"
@@ -254,8 +254,8 @@
 			@mouseleave="onLeaveMessage"
 			@wheel.stop="">
 			<div class="head">
-				<h1 v-if="conversationMode" v-t="'chat.conversation'"></h1>
-				<h1 v-if="!conversationMode" v-t="{path:'chat.history', args:{USER:conversation[0].user.displayName}}"></h1>
+				<h1 v-if="conversationMode">{{ $t("chat.conversation") }}</h1>
+				<h1 v-if="!conversationMode">{{ $t("chat.history", {USER: conversation[0].user.displayName}) }}</h1>
 				<Button class="button"
 					:aria-label="$t('chat.conversation_closeBt_aria')"
 					:icon="$image('icons/cross_white.svg')"
@@ -1094,7 +1094,6 @@ export default class MessageList extends Vue {
 		if(hasResized) {
 			//If enhancing size, refresh max message count
 			if(this.prevHeight < holderHeight) {
-				console.log("RESIZED");
 				this.computeMaxMessageCount();
 			}
 			this.prevHeight = holderHeight;

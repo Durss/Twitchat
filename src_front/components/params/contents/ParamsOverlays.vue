@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsoverlays">
 		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
-		<div class="head" v-t="'overlay.header'"></div>
+		<div class="head">{{ $t("overlay.header") }}</div>
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
 			<i18n-t scope="global" keypath="overlay.connection.title">
@@ -32,7 +32,7 @@
 		</div>
 
 		<div class="unified" v-if="true || exchangeChannelAvailable">
-			<label for="unified_overlays" v-t="'overlay.unified'"></label>
+			<label for="unified_overlays">{{ $t("overlay.unified") }}</label>
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
 		

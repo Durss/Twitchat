@@ -2,8 +2,8 @@
 	<div class="voicecontrol">
 		<div class="block head">
 			<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
-			<p v-t="'voice.remote.title'"></p>
-			<p class="install"><span v-t="'obs.install'"></span> <strong>OBS v28+</strong>
+			<p>{{ $t("voice.remote.title") }}</p>
+			<p class="install"><span>{{ $t("obs.install") }}</span> <strong>OBS v28+</strong>
 				<br><i v-html="$t('obs.install_option', {PLUGIN_URL:obswsInstaller})"></i></p>
 		</div>
 

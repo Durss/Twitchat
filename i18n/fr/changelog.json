@@ -14,7 +14,7 @@
 			},
 			{
 				"i": "list",
-				"l": "<strong>Nouvelle liste de messages</strong>. Vous pouvez maintenant créer autant de colonnes que vous le souhaitez et choisir les messages à afficher dans chacune."
+				"l": "<strong>Nouvelle liste de messages</strong>. Vous pouvez maintenant créer autant de colonnes que vous le souhaitez et choisir les types de messages à afficher dans chacune."
 			},
 			{
 				"i": "font",
@@ -43,13 +43,13 @@
 				"l": "<strong>Ne râtez plus les nouveaux messages</strong> y compris lorsque vous remontez lire les anciens. Les 3 messages les plus récent seront affichés en bas de liste"
 			},
 			{
-				"i": "shield",
+				"i": "shieldMode",
 				"a": {
 					"a": "ouvrir le paramètre",
 					"l": "test",
 					"page": "emergency"
 				},
-				"l": "Possibiliter de synchroniser le mode urgence sur le <strong>mode bouclier</strong> de twitch"
+				"l": "Possibilité de synchroniser le mode urgence sur le <strong>mode bouclier</strong> de twitch"
 			},
 			{
 				"i": "shoutout",
@@ -62,7 +62,7 @@
 					"l": "test",
 					"page": "triggers"
 				},
-				"l": "<strong>11 nouveaux trigger</strong>:<ul><li>Lorsque que quelqu'un envoie une \"presentation\"</li><li>QUand le train de la hype peut à nouveau être déclanché</li><li>Quand vous effectuez un shoutout</li><li>Quand vous recevez un shoutout</li><li>Quand vous changez de scène OBS</li><li>Quand une source OBS est affichée/masquée</li><li>Quand un message est épinglé/désépinglé</li><li>Quand le mode bouclier est activé/désactivé</li></ul>"
+				"l": "<strong>13 nouveaux trigger</strong>:<ul><li>Lorsque que quelqu'un envoie une \"presentation\"</li><li>Quand le train de la hype peut à nouveau être démarré</li><li>Quand vous effectuez un shoutout</li><li>Quand vous recevez un shoutout</li><li>Quand vous changez de scène OBS</li><li>Quand une source OBS est affichée/masquée</li><li>Quand un message est épinglé/désépinglé</li><li>Quand le mode bouclier est activé/désactivé</li><li>Quand le stream est lancé</li><li>Quand le stream est arrêté</li></ul>"
 			},
 			{
 				"i": "commands",
@@ -72,16 +72,17 @@
 		"minor": [
 			{"l":"Toutes les commandes peuvent être utilisées depuis les triggers"},
 			{"l":"1 nouvelle action de trigger <strong>\"Appel HTTP\"</strong> pour les développeur si vous souhaitez appeler quoi que ce soit en réponse à un événement"},
-			{"l":"La liste des personnes présentes dans le tchat affiche la <strong>durée de timeout</strong> restante pours les personnes bannies temporairement"},
-			{"l":"Vous pouvez faire un <strong>bingo</strong> avec des valeurs arbitraires"},
+			{"l":"La liste des personnes présentes dans le tchat affiche la <strong>durée de timeout</strong> restante pour les personnes bannies temporairement"},
+			{"l":"Vous pouvez lancer un <strong>bingo</strong> avec des valeurs arbitraires"},
 			{"l":"Les messages retenus par le <strong>partage de banissements</strong> seront maintenant affichés"},
 			{"l":"En cas de <strong>raid de followbots</strong>, toutes les notifications seront regroupées en 1 seule dépliable"},
 			{"l":"Démarrez le <strong>mode bouclier</strong> depuis le bouton d'urgence"},
 			{"l":"Durée maximum du <strong>tirage au sort</strong> étendue à 24h"},
 			{"l":"Possibilité de mettre en <strong>surbrillance</strong> les messages des <strong>partenaires</strong>"},
 			{"l":"Les emotes BTTV/FFZ/7TV sont maintenant affichées dans les sélecteurs"},
-			{"l":"Si une commande chat est en cooldown, la personne sera prévenue du temps restant à attendre"},
-			{"l":"Lorsque plein de messages sont lus avec le TTS, un bouton permet de vider la file d'attente"},
+			{"l":"Si une commande de chat est en cooldown, la personne pourra être prévenue du temps restant à attendre"},
+			{"l":"Lorsque plein de messages sont en attente de lecture par le TTS, un bouton permet de vider la file d'attente"},
+			{"l":"Les <strong>conducteurs de train</strong> de la hype sont affichés"},
 			{"l":"Le résumé du <strong>Train de la hype</strong> affiche les abbonements T1, T2 et T3 séparément"},
 			{"l":"Nouvelle commande <strong>/greetduration</strong> pour modifier la durée après laquelle effacer automatiquement les messages de la partie \"Dîtes bonjour\""}
 		],

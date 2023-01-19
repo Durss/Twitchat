@@ -15,7 +15,7 @@
 				<br>
 				<i18n-t scope="global" tag="i" keypath="streamdeck.step_1.install_option">
 					<template #PLUGIN_LINK>
-						<a :href="obswsInstaller" target="_blank" v-t="'obs.install_plugin_name'"></a>
+						<a :href="obswsInstaller" target="_blank">{{ $t("obs.install_plugin_name") }}</a>
 					</template>
 				</i18n-t>
 			</li>
@@ -35,21 +35,21 @@
 				<span class="index">3.</span>
 				<i18n-t scope="global" tag="span" keypath="streamdeck.step_3">
 					<template #TAB_LINK>
-						<a @click="$emit('setContent', contentObs)" v-t="'streamdeck.step_3_tab_link'"></a>
+						<a @click="$emit('setContent', contentObs)">{{ $t("streamdeck.step_3_tab_link") }}</a>
 					</template>
 				</i18n-t>
 			</li>
 
 			<li>
 				<span class="index">4.</span>
-				<span v-t="'streamdeck.step_4_1'"></span>
-				<span v-t="'streamdeck.step_4_2'"></span>
+				<span>{{ $t("streamdeck.step_4_1") }}</span>
+				<span>{{ $t("streamdeck.step_4_2") }}</span>
 				<img src="@/assets/img/streamdeck_credentials.png" alt="credentials">
 			</li>
 
 			<li>
 				<span class="index">5.</span>
-				<span v-t="'streamdeck.step_5'"></span>
+				<span>{{ $t("streamdeck.step_5") }}</span>
 			</li>
 		</ol>
 

@@ -1,23 +1,23 @@
 <template>
 	<div class="paramsvoicebot">
 		<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
-		<div class="head" v-t="'voice.header'"></div>
+		<div class="head">{{ $t("voice.header") }}</div>
 		
 		<div v-if="!voiceApiAvailable" class="noApi">
-			<p v-t="'voice.unsupported_browser'"></p>
-			<p class="infos" v-t="'voice.unsupported_browser_detail'"></p>
+			<p>{{ $t("voice.unsupported_browser") }}</p>
+			<p class="infos">{{ $t("voice.unsupported_browser_detail") }}</p>
 		</div>
-		<div v-else class="infos" v-t="'voice.supported_browsers'"></div>
+		<div v-else class="infos">{{ $t("voice.supported_browsers") }}</div>
 
 		<div v-if="!voiceApiAvailable || true" class="fallback">
-			<p v-t="'voice.remote_control'"></p>
+			<p>{{ $t("voice.remote_control") }}</p>
 			<a :href="voicePageUrl" target="_blank">{{voicePageUrl}}</a>
 		</div>
 
 		<div>
 			<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
 			<div class="connectObs" v-if="!obsConnected">
-				<div v-t="'voice.need_OBS'"></div>
+				<div>{{ $t("voice.need_OBS") }}</div>
 				<Button class="button" :title="$t('voice.obs_connectBt')" white @click="$emit('setContent', contentObs)" />
 			</div>
 		</div>

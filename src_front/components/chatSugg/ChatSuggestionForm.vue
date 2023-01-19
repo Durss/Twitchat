@@ -9,7 +9,7 @@
 				<div class="description">
 					<p>{{ $t('suggestion.info') }}</p>
 					<div class="example">
-						<span v-t="'global.example'"></span>: 
+						<span>{{ $t("global.example") }}</span>: 
 						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
 							<template #CMD>{{example}}</template>
 							<template #SUGG><strong>{{$t("suggestion.example_sugg")}}</strong></template>
@@ -44,13 +44,13 @@
 				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small>
 					<PostOnChatParam class="row" botMessageKey="chatSuggStart"
 						:placeholderEnabled="false"
-						:title="$t('suggestion.announce_start')"
+						titleKey="suggestion.announce_start"
 						:placeholders="startPlaceholders"
 					/>
 				</ToggleBlock>
 				<i18n-t scope="global" tag="div" keypath="suggestion.alternative_tool" class="alternativeTool">
 					<template #LINK>
-						<a href="https://www.janvier.tv/sondage" target="_blank" v-t="'suggestion.alternative_tool_link'"></a>
+						<a href="https://www.janvier.tv/sondage" target="_blank">{{ $t("suggestion.alternative_tool_link") }}</a>
 					</template>
 				</i18n-t>
 			</div>
@@ -80,10 +80,10 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class ChatSuggestionForm extends Vue {
 	
-	public command:TwitchatDataTypes.ParameterData = {label:"", type:"text", value:"!sugg", placeholder:"!sugg", maxLength:31};
-	public duration:TwitchatDataTypes.ParameterData = {label:"", value:2, type:"number", min:1, max:30};
-	public multiAnswers:TwitchatDataTypes.ParameterData = {label:"", value:false, type:"toggle"};
-	public maxLength:TwitchatDataTypes.ParameterData = {label:"", value:100, type:"number", min:1, max:500};
+	public command:TwitchatDataTypes.ParameterData = {type:"text", value:"!sugg", placeholder:"!sugg", maxLength:31};
+	public duration:TwitchatDataTypes.ParameterData = {value:2, type:"number", min:1, max:30};
+	public multiAnswers:TwitchatDataTypes.ParameterData = {value:false, type:"toggle"};
+	public maxLength:TwitchatDataTypes.ParameterData = {value:100, type:"number", min:1, max:500};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -103,19 +103,19 @@ export default class ChatSuggestionForm extends Vue {
 	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
 		return [
 			{
-				tag:"CMD", desc:this.$t('suggestion.placeholder_cmd'),
+				tag:"CMD", descKey:'suggestion.placeholder_cmd',
 			},
 			{
-				tag:"LENGTH", desc:this.$t('suggestion.placeholder_length'),
+				tag:"LENGTH", descKey:'suggestion.placeholder_length',
 			}
 		];
 	}
 
 	public beforeMount(): void {
-		this.command.label = this.$t("suggestion.command");
-		this.maxLength.label = this.$t("suggestion.maxLength");
-		this.duration.label = this.$t("suggestion.duration");
-		this.multiAnswers.label = this.$t("suggestion.multiAnswers");
+		this.command.labelKey		= "suggestion.command";
+		this.maxLength.labelKey		= "suggestion.maxLength";
+		this.duration.labelKey		= "suggestion.duration";
+		this.multiAnswers.labelKey	= "suggestion.multiAnswers";
 	}
 
 	public async mounted():Promise<void> {
@@ -188,8 +188,11 @@ export default class ChatSuggestionForm extends Vue {
 					background-color: @mainColor_alert;
 				}
 				:deep(input) {
-					flex-basis: 100px;
+					flex-basis: 200px;
 					text-align: center;
+				}
+				:deep(input[type="number"]) {
+					flex-basis: 80px;
 				}
 			}
 		}

@@ -1,15 +1,23 @@
 <template>
 	<div class="home">
 		<div class="gradient"></div>
+
 		<div class="aboveTheFold">
+			<div class="lang">
+				<select v-model="$i18n.locale">
+					<option value="fr">Français</option>
+					<option value="en">English</option>
+				</select>
+			</div>
+
 			<div class="logo" ref="logo">
 				<img src="@/assets/logo.svg" alt="Twitchat">
-				<p class="small"><span v-t="'home.info'"></span> <a href="https://www.durss.ninja" target="_blank">Durss</a></p>
+				<p class="small"><span>{{ $t("home.info") }}</span> <a href="https://www.durss.ninja" target="_blank">Durss</a></p>
 			</div>
 
 			<div class="middle">
 				<div class="description" ref="description">
-					<p v-t="'home.head'"></p>
+					<p>{{ $t("home.head") }}</p>
 				</div>
 				
 				<Button :title="$t('home.loginBt')"
@@ -60,7 +68,7 @@
 			</div>
 	
 			<div class="splitter" ref="featuresTitle" @click="onSelectAnchor(anchors[0])">
-				<div v-t="'home.features.title'"></div>
+				<div>{{ $t("home.features.title") }}</div>
 				<img src="@/assets/img/homepage/scrollDown.svg" alt="scroll down">
 			</div>
 		</div>
@@ -97,7 +105,7 @@
 		</div>
 
 		<div class="footer">
-			<p><span v-t="'home.footer.title'"></span> <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+			<p><span>{{ $t("home.footer.title") }}</span> <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
 			<p class="note" v-html="$t('home.footer.disclaimer')"></p>
 		</div>
 
@@ -121,12 +129,15 @@ import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../components/Splitter.vue';
 import AnchorsMenu from '../components/AnchorsMenu.vue';
+import CountryFlag from 'vue3-country-flag-icon';
+import 'vue3-country-flag-icon/dist/CountryFlag.css';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		Splitter,
+		CountryFlag,
 		AnchorsMenu,
 	}
 })
@@ -334,6 +345,22 @@ export default class Home extends Vue {
 		padding: 4em 0;
 		position: relative;
 		z-index: 1;
+
+		.lang {
+			position: absolute;
+			top: 1em;
+			top: 1em;
+			right: 1em;
+			font-size: .8em;
+			select{
+				color: @mainColor_light;
+				background: none;
+				border: none;
+				option {
+					color: @mainColor_normal;
+				}
+			}
+		}
 
 		.logo {
 			width: 80vw;

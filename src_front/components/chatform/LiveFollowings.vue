@@ -14,7 +14,7 @@
 			</div>
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 			
-			<div class="list">
+			<div class="list" v-else>
 				<div v-for="s in streams" :key="s.id" class="stream" ref="streamCard" @click="raid(s)">
 					<div class="header">
 						<img :src="getProfilePicURL(s)" alt="">
@@ -57,7 +57,7 @@ export default class LiveFollowings extends Vue {
 
 	public streams:TwitchDataTypes.StreamInfo[] = [];
 	public loading = true;
-	public needScope = true;
+	public needScope = false;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -68,6 +68,7 @@ export default class LiveFollowings extends Vue {
 	}
 
 	public beforeUnmount():void {
+		this.needScope = TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS);
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
 

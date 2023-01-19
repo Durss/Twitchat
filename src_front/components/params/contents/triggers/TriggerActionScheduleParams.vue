@@ -7,7 +7,7 @@
 	:icons="['params']">
 
 		<ParamItem class="row" :paramData="param_name" @focusout="onUpdateName()" :error="nameConflict" />
-		<div v-if="nameConflict" class="nameConflict" v-t="'triggers.schedule.conflict'"></div>
+		<div v-if="nameConflict" class="nameConflict">{{ $t("triggers.schedule.conflict") }}</div>
 
 		<ParamItem class="row" :paramData="param_action" v-model="triggerData.scheduleParams!.type" />
 		
@@ -30,7 +30,7 @@
 						<Button class="deleteBt" :icon="$image('icons/cross_white.svg')" @click="delDate(index)" small highlight />
 					</div>
 					<div class="recurrent">
-						<strong v-t="'triggers.schedule.repeat'"></strong>
+						<strong>{{ $t("triggers.schedule.repeat") }}</strong>
 						<ParamItem :paramData="params_daily[index]" v-model="d.daily" />
 						<ParamItem :paramData="params_yearly[index]" v-model="d.yearly" />
 					</div>
@@ -69,12 +69,12 @@ export default class TriggerActionScheduleParams extends Vue {
 	public triggerData!:TriggerData;
 
 	public nameConflict = false;
-	public param_name:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"", icon:"date_purple.svg", placeholder:"..." };
-	public param_action:TwitchatDataTypes.ParameterData = { type:"list", value:"", label:"", icon:"date_purple.svg" };
-	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"", icon:"timeout_purple.svg" };
-	public param_repeatDurationValue:TwitchatDataTypes.ParameterData = { type:"number", value:20, label:"", icon:"timeout_purple.svg", min:0, max:48*60 };
-	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, label:"", icon:"whispers_purple.svg" };
-	public param_repeatMessageValue:TwitchatDataTypes.ParameterData = { type:"number", value:100, label:"", icon:"whispers_purple.svg", min:1, max:9999 };
+	public param_name:TwitchatDataTypes.ParameterData = { type:"text", value:"", icon:"date_purple.svg", placeholder:"..." };
+	public param_action:TwitchatDataTypes.ParameterData = { type:"list", value:"", icon:"date_purple.svg" };
+	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, icon:"timeout_purple.svg" };
+	public param_repeatDurationValue:TwitchatDataTypes.ParameterData = { type:"number", value:20, icon:"timeout_purple.svg", min:0, max:48*60 };
+	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, icon:"whispers_purple.svg" };
+	public param_repeatMessageValue:TwitchatDataTypes.ParameterData = { type:"number", value:100, icon:"whispers_purple.svg", min:1, max:9999 };
 	public params_daily:TwitchatDataTypes.ParameterData[] = [];
 	public params_yearly:TwitchatDataTypes.ParameterData[] = [];
 
@@ -83,7 +83,7 @@ export default class TriggerActionScheduleParams extends Vue {
 	public beforeMount():void {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [
-			{label:this.$t("triggers.schedule.default_action"), icon:"date", value:"0", category:TriggerEventTypeCategories.TWITCHAT},
+			{labelKey:"triggers.schedule.default_action", icon:"date", value:"0", category:TriggerEventTypeCategories.TWITCHAT},
 		];
 		events = events.concat(ScheduleTriggerEvents());
 		if(!this.triggerData.scheduleParams) {
@@ -100,28 +100,30 @@ export default class TriggerActionScheduleParams extends Vue {
 		const minMess = this.triggerData.scheduleParams!.repeatMinMessages;
 		this.param_repeatDurationCondition.value = duration != undefined && duration > 0;
 		this.param_repeatMessageCondition.value = minMess != undefined && minMess > 0;
-		this.param_name.label = this.$t("triggers.schedule.param_name")
-		this.param_action.label = this.$t("triggers.schedule.param_action")
-		this.param_repeatDurationCondition.label = this.$t("triggers.schedule.param_repeatDurationCondition")
-		this.param_repeatDurationValue.label = this.$t("triggers.schedule.param_repeatDurationValue")
-		this.param_repeatMessageCondition.label = this.$t("triggers.schedule.param_repeatMessageCondition")
-		this.param_repeatMessageValue.label = this.$t("triggers.schedule.param_repeatMessageValue")
+		this.param_name.labelKey						= "triggers.schedule.param_name";
+		this.param_action.labelKey						= "triggers.schedule.param_action";
+		this.param_repeatDurationCondition.labelKey		= "triggers.schedule.param_repeatDurationCondition";
+		this.param_repeatDurationValue.labelKey			= "triggers.schedule.param_repeatDurationValue";
+		this.param_repeatMessageCondition.labelKey		= "triggers.schedule.param_repeatMessageCondition";
+		this.param_repeatMessageValue.labelKey			= "triggers.schedule.param_repeatMessageValue";
 
 		watch(()=>this.param_repeatDurationCondition.value, ()=> {
 			if(this.param_repeatDurationCondition.value === false) {
 				this.triggerData.scheduleParams!.repeatDuration = 0;
 			}
-		})
+		});
+
 		watch(()=>this.param_repeatMessageCondition.value, ()=> {
 			if(this.param_repeatMessageCondition.value === false) {
 				this.triggerData.scheduleParams!.repeatMinMessages = 0;
 			}
-		})
+		});
+		
 		watch(()=> this.triggerData, ()=> { this.populate(); }, { deep:true });
 
 		for (let i = 0; i < this.triggerData.scheduleParams!.dates.length; i++) {
-			this.params_daily.push({ type:"toggle", value:false, label:this.$t("triggers.schedule.param_daily")} );
-			this.params_yearly.push({ type:"toggle", value:false, label:this.$t("triggers.schedule.param_yearly")} );
+			this.params_daily.push({ type:"toggle", value:false, labelKey:"triggers.schedule.param_daily"} );
+			this.params_yearly.push({ type:"toggle", value:false, labelKey:"triggers.schedule.param_yearly"} );
 		}
 		
 		this.populate();
@@ -146,8 +148,8 @@ export default class TriggerActionScheduleParams extends Vue {
 					+"T"+Utils.toDigits(d.getHours(),2)
 					+":"+Utils.toDigits(d.getMinutes()+5,2)
 		this.triggerData.scheduleParams?.dates?.push({value, daily:false, yearly:false});
-		this.params_daily.push({ type:"toggle", value:false, label:this.$t("triggers.schedule.param_daily")} );
-		this.params_yearly.push({ type:"toggle", value:false, label:this.$t("triggers.schedule.param_yearly")} );
+		this.params_daily.push({ type:"toggle", value:false, labelKey:"triggers.schedule.param_daily"} );
+		this.params_yearly.push({ type:"toggle", value:false, labelKey:"triggers.schedule.param_yearly"} );
 	}
 
 	public delDate(index:number):void {

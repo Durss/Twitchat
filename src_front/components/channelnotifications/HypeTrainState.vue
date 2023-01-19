@@ -5,8 +5,8 @@
 		<div class="content" v-if="trainData.state == 'APPROACHING'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1 v-if="!boostMode" v-t="'train.hype_approaching'"></h1>
-			<h1 v-else v-t="'train.boost_approaching'"></h1>
+			<h1 v-if="!boostMode">{{ $t("train.hype_approaching") }}</h1>
+			<h1 v-else>{{ $t("train.boost_approaching") }}</h1>
 		</div>
 		
 		<div class="content" v-if="trainProgress">
@@ -23,8 +23,8 @@
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>
-				<span v-if="!boostMode" v-t="'train.hype_complete'"></span>
-				<span v-else v-t="'train.boost_complete'"></span>
+				<span v-if="!boostMode">{{ $t("train.hype_complete") }}</span>
+				<span v-else>{{ $t("train.boost_complete") }}</span>
 				<br />
 				<i18n-t scope="global" tag="span" class="subtitle"
 				keypath="train.hype_complete_details">
@@ -36,8 +36,8 @@
 		<div class="content" v-if="trainData.state == 'EXPIRE'">
 			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1 v-if="!boostMode" v-t="'train.boost_cancel'"></h1>
-			<h1 v-else v-t="'train.boost_cancel'"></h1>
+			<h1 v-if="!boostMode">{{ $t("train.boost_cancel") }}</h1>
+			<h1 v-else>{{ $t("train.boost_cancel") }}</h1>
 		</div>
 
 		<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"

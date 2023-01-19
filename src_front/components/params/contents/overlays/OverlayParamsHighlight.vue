@@ -1,15 +1,15 @@
 }<template>
 	<ToggleBlock :open="false" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight_purple']">
-		<div class="row" v-t="'overlay.highlight.head'"></div>
+		<div class="row">{{ $t("overlay.highlight.head") }}</div>
 		
 		<iframe src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 		
 		<div class="holder">
 			<div class="row">
-				<label for="highlight_overlay_url" v-t="'overlay.highlight.instruction'"></label>
+				<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
 				<input type="text" id="highlight_overlay_url" v-model="overlayUrl">
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-					<div v-t="'overlay.highlight.css'"></div>
+					<div>{{ $t("overlay.highlight.css") }}</div>
 					<ul>
 						<li>#highlight_holder { ... }</li>
 					</ul>
@@ -39,7 +39,7 @@
 			</div>
 
 			<div class="row center placement">
-				<p v-t="'overlay.highlight.message_pos'"></p>
+				<p>{{ $t("overlay.highlight.message_pos") }}</p>
 				<div class="table">
 					<div class="item" :class="placement=='tl'? 'selected' : ''">
 						<input type="radio" v-model="placement" value="tl" id="mazePos_tl">
@@ -81,7 +81,7 @@
 			</div>
 
 			<div class="row center">
-				<div v-t="'overlay.highlight.clear_instruction'"></div>
+				<div>{{ $t("overlay.highlight.clear_instruction") }}</div>
 				<img src="@/assets/img/clearHighlightedMessage.png" alt="example">
 			</div>
 
@@ -90,7 +90,7 @@
 			</div>
 			
 			<div class="row center" v-if="!overlayExists">
-				<span class="error" v-t="'overlay.highlight.no_overlay'"></span>
+				<span class="error">{{ $t("overlay.highlight.no_overlay") }}</span>
 			</div>
 			
 			<div class="row footer">

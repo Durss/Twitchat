@@ -9,9 +9,9 @@
 				</i18n-t>
 			</div>
 			<div class="content">
-				<div class="info" v-t="'followbot.header'"></div>
+				<div class="info">{{ $t("followbot.header") }}</div>
 				<div class="searchField">
-					<span v-t="'global.search'"></span>
+					<span>{{ $t("global.search") }}</span>
 					<input type="text" v-model="search" :placeholder="$t('followbot.search_placeholder')">
 				</div>
 				<div class="list" :style="{height:(27*followers.length)+'px'}">

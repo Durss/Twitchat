@@ -38,7 +38,7 @@
 				<p>{{ $t('cmdmenu.scope_grant') }}</p>
 				<Button :icon="$image('icons/unlock.svg')" bounce highlight small :title="$t('cmdmenu.scope_grantBt')" @click="requestRaidScopes()" />
 			</div>
-			<a class="followings" @click.prevent="openModal('liveStreams')" v-t="'cmdmenu.whoslive'"></a>
+			<a class="followings" @click.prevent="openModal('liveStreams')">{{ $t("cmdmenu.whoslive") }}</a>
 		</div>
 	</div>
 </template>
@@ -70,10 +70,10 @@ export default class CommandHelper extends Vue {
 	public channelId:string = "";
 	public adCooldown:number = 0;
 	
-	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Followers only", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
-	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Subs only", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
-	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Emotes only", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
-	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, label:"Slow mode", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
+	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
+	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
+	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
+	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
 
 	private ignoreUpdates = false;
 	private adCooldownInterval = 0;
@@ -109,6 +109,12 @@ export default class CommandHelper extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
+	
+		this.param_followOnly.labelKey		= "cmdmenu.slowMode";
+		this.param_subOnly.labelKey			= "cmdmenu.followersOnly";
+		this.param_emotesOnly.labelKey		= "cmdmenu.subsOnly";
+		this.param_slowMode.labelKey		= "cmdmenu.emotesOnly";
+
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 

@@ -185,79 +185,79 @@ export default class TTSUtils {
 		});
 
 		TTSUtils.placeholderMessages = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
-			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"MESSAGE", descKey:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
 
 		TTSUtils.placeholderNotices = [
-			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+			{ tag:"MESSAGE", descKey:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
 
 		TTSUtils.placeholderFollows = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
 		];
 
 		TTSUtils.placeholderSubs = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
-			{ tag:"TIER", desc:StoreProxy.i18n.t("tts.placeholders.sub_tier") },
-			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"TIER", descKey:StoreProxy.i18n.t("tts.placeholders.sub_tier") },
+			{ tag:"MESSAGE", descKey:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
 
 		TTSUtils.placeholderSubgifts = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.sub_gifter") },
-			{ tag:"TIER", desc:StoreProxy.i18n.t("tts.placeholders.sub_tier") },
-			{ tag:"COUNT", desc:StoreProxy.i18n.t("tts.placeholders.subgift_count") },
-			{ tag:"RECIPIENTS", desc:StoreProxy.i18n.t("tts.placeholders.subgift_recipients") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.sub_gifter") },
+			{ tag:"TIER", descKey:StoreProxy.i18n.t("tts.placeholders.sub_tier") },
+			{ tag:"COUNT", descKey:StoreProxy.i18n.t("tts.placeholders.subgift_count") },
+			{ tag:"RECIPIENTS", descKey:StoreProxy.i18n.t("tts.placeholders.subgift_recipients") },
 		];
 
 		TTSUtils.placeholderRaids = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
-			{ tag:"VIEWERS", desc:StoreProxy.i18n.t("tts.placeholders.viewers_count") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"VIEWERS", descKey:StoreProxy.i18n.t("tts.placeholders.viewers_count") },
 		];
 
 		TTSUtils.placeholderRewards = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
-			{ tag:"REWARD_NAME", desc:StoreProxy.i18n.t("tts.placeholders.reward_name") },
-			{ tag:"REWARD_DESC", desc:StoreProxy.i18n.t("tts.placeholders.reward_description") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"REWARD_NAME", descKey:StoreProxy.i18n.t("tts.placeholders.reward_name") },
+			{ tag:"REWARD_DESC", descKey:StoreProxy.i18n.t("tts.placeholders.reward_description") },
 		];
 
 		TTSUtils.placeholderBits = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
-			{ tag:"BITS", desc:StoreProxy.i18n.t("tts.placeholders.bits_amount") },
-			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"BITS", descKey:StoreProxy.i18n.t("tts.placeholders.bits_amount") },
+			{ tag:"MESSAGE", descKey:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
 
 		TTSUtils.placeholderPolls = [
-			{ tag:"TITLE", desc:StoreProxy.i18n.t("tts.placeholders.poll_title") },
-			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_choice") },
+			{ tag:"TITLE", descKey:StoreProxy.i18n.t("tts.placeholders.poll_title") },
+			{ tag:"WINNER", descKey:StoreProxy.i18n.t("tts.placeholders.winning_choice") },
 		];
 
 		TTSUtils.placeholderPredictions = [
-			{ tag:"TITLE", desc:StoreProxy.i18n.t("tts.placeholders.prediction_title") },
-			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_choice") },
+			{ tag:"TITLE", descKey:StoreProxy.i18n.t("tts.placeholders.prediction_title") },
+			{ tag:"WINNER", descKey:StoreProxy.i18n.t("tts.placeholders.winning_choice") },
 		];
 
 		TTSUtils.placeholderRaffles = [
-			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_user") },
+			{ tag:"WINNER", descKey:StoreProxy.i18n.t("tts.placeholders.winning_user") },
 		];
 
 		TTSUtils.placeholderBingo = [
-			{ tag:"WINNER", desc:StoreProxy.i18n.t("tts.placeholders.winning_user") },
+			{ tag:"WINNER", descKey:StoreProxy.i18n.t("tts.placeholders.winning_user") },
 		];
 
 		TTSUtils.placeholder1stTimeChatters = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
-			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"MESSAGE", descKey:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
 
 		TTSUtils.placeholder1stMessageToday = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
-			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"MESSAGE", descKey:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
 
 		TTSUtils.placeholderAutomod = [
-			{ tag:"USER", desc:StoreProxy.i18n.t("tts.placeholders.user") },
-			{ tag:"MESSAGE", desc:StoreProxy.i18n.t("tts.placeholders.message") },
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"MESSAGE", descKey:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
 	}
 

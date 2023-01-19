@@ -19,14 +19,32 @@
 			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
 			<i18n-t scope="global" class="infos" tag="div" v-if="publicDonation_loaded" keypath="account.donation_public">
 				<template #LINK>
-					<a @click="$emit('setContent', contentAbout)" v-t="'account.about_link'">.</a>
+					<a @click="$emit('setContent', contentAbout)">{{ $t("account.about_link") }}.</a>
 				</template>
 			</i18n-t>
 		</section>
 
 		<section class="actions">
-			<Button class="button" @click="ahs()" :title="$t('account.installBt')" :icon="$image('icons/twitchat.svg')" v-if="canInstall" />
 			<Button class="button" @click="logout()" :title="$t('global.log_out')" :icon="$image('icons/logout.svg')" highlight bounce />
+			<Button class="button" @click="ahs()" :title="$t('account.installBt')" :icon="$image('icons/twitchat.svg')" v-if="canInstall" />
+		</section>
+
+		<section class="lang">
+			<form>
+				<div class="row title">{{ $t('account.language') }}</div>
+				<div class="row">
+					<input type="radio" name="language" id="lang_fr" value="fr" v-model="$i18n.locale">
+					<label for="lang_fr">
+						<CountryFlag iso="fr" mode="squared" class="flag" />Français
+					</label>
+				</div>
+				<div class="row">
+					<input type="radio" name="language" id="lang_en" value="en" v-model="$i18n.locale">
+					<label for="lang_en">
+						<CountryFlag iso="us" mode="squared" class="flag" />English
+					</label>
+				</div>
+			</form>
 		</section>
 		
 		<section class="dataSync">
@@ -51,6 +69,8 @@ import { Options, Vue } from 'vue-class-component';
 import Button from '../../Button.vue';
 import DonorState from "../../user/DonorState.vue";
 import ParamItem from '../ParamItem.vue';
+import CountryFlag from 'vue3-country-flag-icon';
+import 'vue3-country-flag-icon/dist/CountryFlag.css';
 
 @Options({
 	props:{},
@@ -59,6 +79,7 @@ import ParamItem from '../ParamItem.vue';
 		ParamItem,
 		DonorState,
 		ToggleBlock,
+		CountryFlag,
 	},
 	emits:["setContent"],
 })
@@ -242,6 +263,55 @@ export default class ParamsAccount extends Vue {
 		align-items: center;
 		&>*:not(:first-child) {
 			margin-top: .5em;
+		}
+	}
+
+	.lang {
+		form {
+			display: flex;
+			flex-direction: column;
+			gap: .5em;
+			width: 200px;
+			.row {
+				display: flex;
+				position: relative;
+				justify-content: center;
+				&.title {
+					font-weight: bold;
+				}
+				label {
+					text-align: center;
+					flex-grow: 1;
+					padding: .5em;
+					border-radius: @border_radius;
+					margin: 0;
+					cursor: pointer;
+					border-bottom: 1px solid rgba(0, 0, 0, .25);
+					border-right: 1px solid rgba(0, 0, 0, .25);
+					border-left: 1px solid rgba(0, 0, 0, .25);
+					&::before{
+						content: "◌";
+						position: absolute;
+						left: .5em;
+					}
+					.flag {
+						margin-right: .5em;
+					}
+				}
+				input{
+					top:0;
+					left:0;
+					opacity: 0;
+					position: absolute;
+				}
+				input[type="radio"]:checked+label {
+					background-color: @mainColor_light;
+					&::before{
+						content: "●";
+					}
+				}
+
+			}
 		}
 	}
 

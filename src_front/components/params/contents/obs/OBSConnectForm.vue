@@ -1,14 +1,14 @@
 <template>
 	<form @submit.prevent="connect()" class="obsconnectform">
 		<transition name="fade">
-			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success" v-t="'obs.connection_success'"></div>
+			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success">{{ $t("obs.connection_success") }}</div>
 		</transition>
 		<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
 		<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
 		<ParamItem :paramData="obsIP_conf" class="row" v-if="!connected" />
 		
 		<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')" v-if="!connected">
-			<p v-t="'obs.how_to1'"></p>
+			<p>{{ $t("obs.how_to1") }}</p>
 			<i18n-t scope="global" tag="p" class="warn" keypath="obs.how_to2">
 				<template #IP><strong>127.0.0.1</strong></template>
 			</i18n-t>
@@ -20,8 +20,8 @@
 
 		<transition name="fade">
 			<div v-if="connectError" @click="connectError = false" class="error">
-				<div v-t="'error.obs_ws_connect'"></div>
-				<div v-if="obsIP_conf.value != '127.0.0.1'" v-t="'obs.ip_advice'"></div>
+				<div>{{ $t("error.obs_ws_connect") }}</div>
+				<div v-if="obsIP_conf.value != '127.0.0.1'">{{ $t("obs.ip_advice") }}</div>
 			</div>
 		</transition>
 	</form>
@@ -53,16 +53,16 @@ export default class OBSConnectForm extends Vue {
 	public connected:boolean = false;
 	public connectError:boolean = false;
 	public connectSuccess:boolean = false;
-	public obsPort_conf:TwitchatDataTypes.ParameterData	= { type:"number", value:4455, label:"", min:0, max:65535, step:1 };
-	public obsPass_conf:TwitchatDataTypes.ParameterData	= { type:"password", value:"", label:"" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData	= { type:"text", value:"127.0.0.1", label:"" };
+	public obsPort_conf:TwitchatDataTypes.ParameterData	= { type:"number", value:4455, min:0, max:65535, step:1 };
+	public obsPass_conf:TwitchatDataTypes.ParameterData	= { type:"password", value:"", };
+	public obsIP_conf:TwitchatDataTypes.ParameterData	= { type:"text", value:"127.0.0.1", };
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	beforeMount(): void {
-		this.obsPort_conf.label = this.$t("obs.form_port");
-		this.obsPass_conf.label = this.$t("obs.form_pass");
-		this.obsIP_conf.label = this.$t("obs.form_ip");
+		this.obsPort_conf.labelKey	= "obs.form_port";
+		this.obsPass_conf.labelKey	= "obs.form_pass";
+		this.obsIP_conf.labelKey	= "obs.form_ip";
 	}
 
 	public mounted():void {

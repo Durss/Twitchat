@@ -3,18 +3,18 @@
 		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state_title") }}</h1>
 
 		<div class="item number highlight" v-if="bingoData.guessNumber">
-			<p v-t="'bingo.find_number'"></p>
+			<p>{{ $t("bingo.find_number") }}</p>
 			<strong class="guess">{{bingoData.numberValue}}</strong>
 		</div>
 		
 		<div class="item emote highlight" v-if="bingoData.guessEmote">
-			<strong v-t="'bingo.find_emote'"></strong>
+			<strong>{{ $t("bingo.find_emote") }}</strong>
 			<img :src="bingoData.emoteValue?.twitch?.image.hd">
 			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
 		</div>
 		
 		<div class="item emote highlight" v-if="bingoData.guessCustom">
-			<strong v-t="'bingo.find_custom'"></strong>
+			<strong>{{ $t("bingo.find_custom") }}</strong>
 			<span class="guess">{{bingoData.customValue}}</span>
 		</div>
 
@@ -24,7 +24,7 @@
 
 		<PostOnChatParam class="item postChat highlight" botMessageKey="bingo"
 			:placeholders="winnerPlaceholders" 
-			:title="$t('global.post_winner')" />
+			titleKey="global.post_winner" />
 
 		<Button class="item"
 			:icon="$image('icons/cross_white.svg')"
@@ -54,7 +54,7 @@ export default class BingoState extends Vue {
 	public get bingoData():TwitchatDataTypes.BingoConfig { return this.$store("bingo").data!; }
 
 	public mounted():void {
-		this.winnerPlaceholders = [{tag:"USER", desc:this.$t("bingo.username_placeholder"), example:this.$store("auth").twitch.user.displayName}]
+		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.username_placeholder", example:this.$store("auth").twitch.user.displayName}]
 	}
 
 	public closeBingo():void {

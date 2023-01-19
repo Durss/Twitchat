@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
-					<a @click="$emit('setContent', contentOverlays)" v-t="'triggers.actions.music.header_link'"></a>
+					<a @click="$emit('setContent', contentOverlays)">{{ $t("triggers.actions.music.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -22,7 +22,7 @@
 		</div>
 
 		<div class="row item" v-if="showPlaylistInput">
-			<div class="item alert" v-t="'triggers.actions.music.spotify_only'"></div>
+			<div class="item alert">{{ $t("triggers.actions.music.spotify_only") }}</div>
 			<ParamItem :paramData="playlist_conf" v-model="action.playlist" />
 		</div>
 	</div>
@@ -50,10 +50,10 @@ export default class TriggerActionMusicEntry extends Vue {
 	public action!:TriggerActionMusicEntryData;
 	public event!:TriggerEventTypes;
 
-	public actions_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
-	public track_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"music_purple.svg", maxLength:500 };
-	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public playlist_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", value:"", icon:"info_purple.svg", maxLength:500 };
+	public actions_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
+	public track_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"music_purple.svg", maxLength:500 };
+	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public playlist_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"", icon:"info_purple.svg", maxLength:500 };
 
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
@@ -63,15 +63,15 @@ export default class TriggerActionMusicEntry extends Vue {
 	public mounted():void {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [
-			{label:this.$t("triggers.actions.music.param_actions_default"), icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC},
+			{labelKey:"triggers.actions.music.param_actions_default", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC},
 		];
 		events = events.concat(MusicTriggerEvents());
-		this.actions_conf.value = this.action.musicAction? this.action.musicAction : events[0].value;
-		this.actions_conf.listValues = events;
-		this.actions_conf.label = this.$t("triggers.actions.music.param_actions")
-		this.track_conf.label = this.$t("triggers.actions.music.param_track")
-		this.confirmSongRequest_conf.label = this.$t("triggers.actions.music.param_confirmSongRequest")
-		this.playlist_conf.label = this.$t("triggers.actions.music.param_playlist")
+		this.actions_conf.value					= this.action.musicAction? this.action.musicAction : events[0].value;
+		this.actions_conf.listValues			= events;
+		this.actions_conf.labelKey				= "triggers.actions.music.param_actions";
+		this.track_conf.labelKey				= "triggers.actions.music.param_track";
+		this.confirmSongRequest_conf.labelKey	= "triggers.actions.music.param_confirmSongRequest";
+		this.playlist_conf.labelKey				= "triggers.actions.music.param_playlist";
 
 		this.track_conf.placeholderList = TriggerActionHelpers(this.event.value);
 		this.confirmSongRequest_conf.placeholderList = TriggerActionHelpers(this.event.value);

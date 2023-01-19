@@ -2,7 +2,7 @@
 	<div class="paramsautomod">
 		<img src="@/assets/icons/mod_purple.svg" alt="emergency icon" class="icon">
 		
-		<div class="head" v-t="'automod.header'"></div>
+		<div class="head">{{ $t("automod.header") }}</div>
 		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
 	
 		<div class="disclaimers">
@@ -33,7 +33,7 @@
 						<ParamItem class="item onlyFirst" :paramData="param_ruleOnlyFirst[f.id]" v-model="f.firstTimeChatters" :data-tooltip="$t('automod.rule.firstTime_tt')" />
 						<ParamItem class="item ruleName" :paramData="param_ruleLabel[f.id]" v-model="f.label" />
 						<ParamItem class="item rule" :paramData="param_ruleRegex[f.id]" v-model="f.regex" :error="keywordToValid[f.id] === false" @change="onRegexChange(f)" />
-						<div class="regError" v-if="keywordToValid[f.id] === false" v-t="'automod.rule.invalid_rule'"></div>
+						<div class="regError" v-if="keywordToValid[f.id] === false">{{ $t("automod.rule.invalid_rule") }}</div>
 					</ToggleBlock>
 				</div>
 				<Button :title="$t('automod.rule.add')" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
@@ -49,13 +49,13 @@
 						<li v-for="r in blockedBy">{{r.label}}</li>
 					</ul>
 				</div>
-				<div class="pass" v-else-if="testStr.length > 0" v-t="'automod.test.no_block'"></div>
+				<div class="pass" v-else-if="testStr.length > 0">{{ $t("automod.test.no_block") }}</div>
 			</section>
 
 			<section class="options">
 				<Splitter class="item splitter">{{ $t("automod.options.title") }}</Splitter>
 				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" />
-				<div class="permsTitle" v-t="'automod.options.exclude_users'"></div>
+				<div class="permsTitle">{{ $t("automod.options.exclude_users") }}</div>
 				<PermissionsForm class="perms" v-model="automodData.exludedUsers" />
 			</section>
 		</div>
@@ -90,8 +90,8 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 export default class ParamsAutomod extends Vue {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:false};
-	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:false};
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", value:false};
+	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"toggle", value:false};
 	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData} = {};
 	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData} = {};
 	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData} = {};
@@ -140,11 +140,11 @@ export default class ParamsAutomod extends Vue {
 	}
 
 	public beforeMount():void {
-		this.param_enabled.label		= this.$t("global.enabled");
+		this.param_enabled.labelKey		= "global.enabled";
 		this.automodData				= reactive(JSON.parse(JSON.stringify(this.$store("automod").params)));
 		this.param_enabled.value		= this.automodData.enabled;
 		this.param_banUserNames.value	= this.automodData.banUserNames;
-		this.param_banUserNames.label	= this.$t("automod.ban_usernames")
+		this.param_banUserNames.labelKey= "automod.ban_usernames";
 		this.automodData.keywordsFilters.forEach(v=> {
 			this.initRule(v);
 		});
@@ -213,11 +213,11 @@ export default class ParamsAutomod extends Vue {
 	private initRule(data:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
 		this.keywordToOpen[data.id]			= data.label.length === 0 || data.regex.length === 0;
 		this.keywordToValid[data.id]		= true;
-		this.param_ruleLabel[data.id]		= {label:this.$t("automod.rule.name"), type:'text', value:'', maxLength:100};
-		this.param_ruleRegex[data.id]		= {label:this.$t("automod.rule.keywords"), type:'text', value:'', maxLength:5000, longText:true};
-		this.param_ruleSync[data.id]		= {label:this.$t("automod.rule.sync"), type:'toggle', value:false};
-		this.param_ruleEmergency[data.id]	= {label:this.$t("automod.rule.emergency"), type:'toggle', value:false, icon:"emergency_purple.svg"};
-		this.param_ruleOnlyFirst[data.id]	= {label:this.$t("automod.rule.firstTime"), type:'toggle', value:false, icon:"firstTime_purple.svg"};
+		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'text', value:'', maxLength:100};
+		this.param_ruleRegex[data.id]		= {labelKey:"automod.rule.keywords", type:'text', value:'', maxLength:5000, longText:true};
+		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'toggle', value:false};
+		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'toggle', value:false, icon:"emergency_purple.svg"};
+		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'toggle', value:false, icon:"firstTime_purple.svg"};
 	}
 
 }

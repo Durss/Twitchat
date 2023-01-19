@@ -2,8 +2,8 @@
 	<div class="chattipandtrickad">
 		<div v-if="tipIndex===0" class="entry">
 			<img src="@/assets/icons/obs_purple.svg" alt="elgato" class="icon">
-			<h1 class="row" v-t="'tips.alerts.title'"></h1>
-			<div class="row" v-t="'tips.alerts.info_1'"></div>
+			<h1 class="row">{{ $t("tips.alerts.title") }}</h1>
+			<div class="row">{{ $t("tips.alerts.info_1") }}</div>
 			<div class="row">{{ $t('tips.alerts.info_2') }}</div>
 			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentTriggers)" />
 		</div>
@@ -107,7 +107,7 @@
 			<iframe class="row" src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParam(contentOverlays)" :icon="$image('icons/overlay.svg')" />
-			<div class="row or" v-t="'global.or'"></div>
+			<div class="row or">{{ $t("global.or") }}</div>
 			<Button class="row" :title="$t('tips.highlight.configure_triggerBt')" @click.stop="openParam(contentTriggers)" :icon="$image('icons/broadcast.svg')" />
 		</div>
 	</div>

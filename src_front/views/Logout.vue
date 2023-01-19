@@ -5,14 +5,14 @@
 		</div>
 
 		<div class="content">
-			<div v-t="'logout.title'"></div>
+			<div>{{ $t("logout.title") }}</div>
 			<div class="link">
-				<a @click="showDetails = !showDetails" v-if="!showDetails" v-t="'logout.are_you'"></a>
+				<a @click="showDetails = !showDetails" v-if="!showDetails">{{ $t("logout.are_you") }}</a>
 			</div>
 			<div class="details" v-if="showDetails">
-				<p class="row"><strong v-t="'logout.details_head'"></strong></p>
-				<p class="row" v-t="'logout.details_1'"></p>
-				<p class="row" v-t="'logout.details_2'"></p>
+				<p class="row"><strong>{{ $t("logout.details_head") }}</strong></p>
+				<p class="row">{{ $t("logout.details_1") }}</p>
+				<p class="row">{{ $t("logout.details_2") }}</p>
 				
 				<Button class="row" type="link"
 					href="https://www.twitch.tv/settings/connections"

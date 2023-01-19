@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
 				<template #LINK>
-					<a @click="$emit('setContent', contentObs)" v-t="'triggers.actions.obs.header_link'"></a>
+					<a @click="$emit('setContent', contentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -23,7 +23,7 @@
 				<template #CMD2><mark>/</mark></template>
 			</i18n-t>
 			<br>
-			<strong v-t="'global.example'"></strong>
+			<strong>{{ $t("global.example") }}</strong>
 			<i18n-t scope="global" class="label" tag="span" keypath="triggers.actions.obs.media_source_example">
 				<template #PATH1><mark>C:/sounds/{MESSAGE}.mp3</mark></template>
 				<template #PATH2><mark>../secretfolder/somesecretfile</mark></template>
@@ -58,12 +58,12 @@ export default class TriggerActionOBSEntry extends Vue {
 	public sources!:OBSSourceItem[];
 	public event!:TriggerEventTypes;
 	
-	public show_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"", listValues:[], icon:"show_purple.svg" };
-	public source_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"", listValues:[], icon:"list_purple.svg", children:[] };
-	public filter_conf:TwitchatDataTypes.ParameterData = { label:"", type:"list", value:"", listValues:[] };
-	public text_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public url_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
-	public media_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
+	public show_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], icon:"show_purple.svg" };
+	public source_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], icon:"list_purple.svg", children:[] };
+	public filter_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[] };
+	public text_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public url_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
+	public media_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
 	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];
@@ -104,8 +104,8 @@ export default class TriggerActionOBSEntry extends Vue {
 	 */
 	public get isMediaSource():boolean {
 		const inputKind = this.sources.find(v=> v.sourceName == this.source_conf.value as string)?.inputKind;
-		this.media_conf.label = this.$t("triggers.actions.obs.param_media");
-		if(inputKind === "image_source") this.media_conf.label = this.$t("triggers.actions.obs.param_media_img");
+		this.media_conf.labelKey = "triggers.actions.obs.param_media";
+		if(inputKind === "image_source") this.media_conf.labelKey = "triggers.actions.obs.param_media_img";
 		return (inputKind === 'ffmpeg_source' || inputKind === "image_source")
 				&& this.show_conf.value === true;
 	}
@@ -117,16 +117,16 @@ export default class TriggerActionOBSEntry extends Vue {
 		this.url_conf.placeholderList = TriggerActionHelpers(this.event.value);
 		this.media_conf.placeholderList = TriggerActionHelpers(this.event.value);
 
-		this.show_conf.label	= this.$t("triggers.actions.obs.param_show");
-		this.source_conf.label	= this.$t("triggers.actions.obs.param_source");
-		this.filter_conf.label	= this.$t("triggers.actions.obs.param_filter");
-		this.text_conf.label	= this.$t("triggers.actions.obs.param_text");
-		this.url_conf.label		= this.$t("triggers.actions.obs.param_url");
-		this.media_conf.label	= this.$t("triggers.actions.obs.param_media");
+		this.show_conf.labelKey		= "triggers.actions.obs.param_show";
+		this.source_conf.labelKey	= "triggers.actions.obs.param_source";
+		this.filter_conf.labelKey	= "triggers.actions.obs.param_filter";
+		this.text_conf.labelKey		= "triggers.actions.obs.param_text";
+		this.url_conf.labelKey		= "triggers.actions.obs.param_url";
+		this.media_conf.labelKey	= "triggers.actions.obs.param_media";
 
 		const showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [
-			{label:this.$t("global.hide"), value:false},
-			{label:this.$t("global.show"), value:true},
+			{labelKey:"global.enable", value:false},
+			{labelKey:"global.disable", value:true},
 		];
 		this.show_conf.value	= showHideValues[1].value
 		this.show_conf.listValues= showHideValues;
@@ -152,7 +152,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	 */
 	private async prefillForm():Promise<void> {
 		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
-		this.source_conf.listValues.unshift({label:this.$t("global.select_placeholder"), value:""});
+		this.source_conf.listValues.unshift({labelKey:"global.select_placeholder", value:""});
 		
 		this.isMissingObsEntry = false;
 		this.filter_conf.value = ""
@@ -187,8 +187,8 @@ export default class TriggerActionOBSEntry extends Vue {
 			}
 		}
 		if(this.filters.length > 0) {
-			const list = this.filters.map(v => {return {label:v.filterName, value:v.filterName}});
-			list.unshift({label:this.$t("triggers.actions.obs.param_filter_none"), value:""});
+			const list:TwitchatDataTypes.ParameterDataListValue[] = this.filters.map(v => {return {label:v.filterName, value:v.filterName}});
+			list.unshift({labelKey:"triggers.actions.obs.param_filter_none", value:""});
 			this.filter_conf.value = list[0].value;
 			this.filter_conf.listValues = list;
 			this.source_conf.children = [this.filter_conf];
@@ -204,10 +204,10 @@ export default class TriggerActionOBSEntry extends Vue {
 	private updateFilter():void {
 		if(this.source_conf.children && this.source_conf.children?.length > 0
 		&& this.filter_conf.value != "") {
-			this.show_conf.label = this.$t("triggers.actions.obs.param_show_filter");
+			this.show_conf.labelKey = "triggers.actions.obs.param_show_filter";
 			this.action.filterName = this.filter_conf.value as string;
 		}else{
-			this.show_conf.label = this.$t("triggers.actions.obs.param_show");
+			this.show_conf.labelKey = "triggers.actions.obs.param_show";
 			delete this.action.filterName;
 		}
 	}

@@ -7,7 +7,7 @@
 		<ParamItem :paramData="param_followers" class="row" v-model="modelValue.follower" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_all" class="row" v-model="modelValue.all" @change="$emit('update:modelValue', modelValue)"/>
 		<ParamItem :paramData="param_users" class="row" v-model="modelValue.users" @change="$emit('update:modelValue', modelValue)"/>
-		<div v-if="noSelection" class="noSelection" v-t="'global.permissions.nobody'"></div>
+		<div v-if="noSelection" class="noSelection">{{ $t("global.permissions.nobody") }}</div>
 	</div>
 </template>
 
@@ -30,13 +30,13 @@ export default class OBSPermissions extends Vue {
 
 	public modelValue!:TwitchatDataTypes.PermissionsData;
 	
-	public param_broadcaster:TwitchatDataTypes.ParameterData	= { type:"toggle", value:true, label:"", icon:"broadcaster_purple.svg" };
-	public param_mods:TwitchatDataTypes.ParameterData			= { type:"toggle", value:true, label:"", icon:"mod_purple.svg" };
-	public param_vips:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"", icon:"vip_purple.svg" };
-	public param_subs:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"", icon:"sub_purple.svg" };
-	public param_followers:TwitchatDataTypes.ParameterData		= { type:"toggle", value:false, label:"", icon:"follow_purple.svg" };
-	public param_followers_ms:TwitchatDataTypes.ParameterData	= { type:"number", value:0, label:"", icon:"timer_purple.svg" };
-	public param_all:TwitchatDataTypes.ParameterData			= { type:"toggle", value:false, label:"", icon:"user_purple.svg" };
+	public param_broadcaster:TwitchatDataTypes.ParameterData	= { type:"toggle", labelKey:"global.permissions.broadcaster", value:true, label:"", icon:"broadcaster_purple.svg" };
+	public param_mods:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.mods", value:true, label:"", icon:"mod_purple.svg" };
+	public param_vips:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.vips", value:false, label:"", icon:"vip_purple.svg" };
+	public param_subs:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.subs", value:false, label:"", icon:"sub_purple.svg" };
+	public param_followers:TwitchatDataTypes.ParameterData		= { type:"toggle", labelKey:"global.permissions.follow", value:false, label:"", icon:"follow_purple.svg" };
+	public param_followers_ms:TwitchatDataTypes.ParameterData	= { type:"number", labelKey:"global.permissions.follow_duration", value:0, label:"", icon:"timer_purple.svg" };
+	public param_all:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.all", value:false, label:"", icon:"user_purple.svg" };
 	public param_users:TwitchatDataTypes.ParameterData			= { type:"text", value:"", label:"", longText:true, placeholder:"user1, user2, user3, ..." };
 
 	public get noSelection():boolean {
@@ -50,13 +50,6 @@ export default class OBSPermissions extends Vue {
 	}
 
 	public mounted():void {
-		this.param_broadcaster.label	= this.$t("global.permissions.broadcaster");
-		this.param_mods.label			= this.$t("global.permissions.mods");
-		this.param_vips.label			= this.$t("global.permissions.vips");
-		this.param_subs.label			= this.$t("global.permissions.subs");
-		this.param_followers.label		= this.$t("global.permissions.follow");
-		this.param_followers_ms.label	= this.$t("global.permissions.follow_duration");
-		this.param_all.label			= this.$t("global.permissions.all");
 		this.param_followers.children	= [this.param_followers_ms];
 		this.param_followers_ms.value	= (this.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
 

@@ -10,7 +10,7 @@
 			<div class="row">
 				<input type="text" v-model="overlayUrl">
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-					<div v-t="'overlay.timer.css'"></div>
+					<div>{{ $t("overlay.timer.css") }}</div>
 					<ul>
 						<li>#timer { ... }</li>
 						<li>#timer_icon { ... }</li>

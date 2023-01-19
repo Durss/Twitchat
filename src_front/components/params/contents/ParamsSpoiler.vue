@@ -8,7 +8,7 @@
 		</i18n-t>
 
 		<section>
-			<p v-t="'spoiler.message_example'"></p>
+			<p>{{ $t('spoiler.message_example') }}</p>
 			<ChatMessage :messageData="spoilerExample" class="example" lightMode />
 		</section>
 
@@ -33,17 +33,17 @@
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
 				<i18n-t scope="global" tag="div" class="item" keypath="spoiler.warning.example">
-					<template #ANSWER><mark v-t="'spoiler.warning.example_2'"></mark></template>
-					<template #ROOT><mark v-t="'spoiler.warning.example_1'"></mark></template>
+					<template #ANSWER><mark>{{ $t("spoiler.warning.example_2") }}</mark></template>
+					<template #ROOT><mark>{{ $t("spoiler.warning.example_1") }}</mark></template>
 				</i18n-t>
 			</div>
 			<ul>
 				<li>
-					<span v-t="'spoiler.warning.example_1'"></span>
+					<span>{{ $t("spoiler.warning.example_1") }}</span>
 					<ul>
-						<li v-t="'spoiler.warning.example_2'"></li>
-						<li v-t="'spoiler.warning.example_3'"></li>
-						<li v-t="'spoiler.warning.example_4'"></li>
+						<li>{{ $t("spoiler.warning.example_2") }}</li>
+						<li>{{ $t("spoiler.warning.example_3") }}</li>
+						<li>{{ $t("spoiler.warning.example_4") }}</li>
 					</ul>
 				</li>
 			</ul>

@@ -268,5 +268,9 @@ function buildApp() {
 		if(e.code == "KeyL" && e.ctrlKey && e.shiftKey) {
 			StoreProxy.main.reloadLabels();
 		}
+		
+		if(e.code == "Semicolon" && e.ctrlKey && e.shiftKey) {
+			i18n.global.locale = i18n.global.locale == "fr"? "en" : "fr";
+		}
 	})
 }

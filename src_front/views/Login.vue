@@ -2,10 +2,10 @@
 	<div class="login">
 		<div class="head">
 			<img class="icon" src="@/assets/logo.svg" alt="twitch">
-			<div class="beta" v-if="isBeta === true" v-t="'global.beta'"></div>
+			<div class="beta" v-if="isBeta === true">{{ $t("global.beta") }}</div>
 		</div>
 
-		<div class="content betaWarn" v-if="closedBeta === true" v-t="'login.closedBeta'">
+		<div class="content betaWarn" v-if="closedBeta === true">{{ $t("login.closedBeta") }}
 		</div>
 		
 		<div class="content">
@@ -33,14 +33,14 @@
 			/>
 			
 			<div class="loader" v-if="authenticating">
-				<p v-t="'login.authenticating'"></p>
+				<p>{{ $t("login.authenticating") }}</p>
 				<img src="@/assets/loader/loader.svg" alt="loader">
 			</div>
 		</div>
 
 		<div class="footer">
-			<p><span v-t="'home.info'"></span> <a href="https://www.durss.ninja" target="_blank">Durss</a></p>
-			<p><span v-t="'home.footer.title'"></span> <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+			<p><span>{{ $t("home.info") }}</span> <a href="https://www.durss.ninja" target="_blank">Durss</a></p>
+			<p><span>{{ $t("home.footer.title") }}</span> <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
 			<p class="note" v-html="$t('home.footer.disclaimer')"></p>
 		</div>
 		

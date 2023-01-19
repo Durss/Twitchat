@@ -28,12 +28,12 @@
 			<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
 
 			<div v-if="streamInfo" class="streamInfo">
-				<div class="head" v-t="'chat.highlight.stream_info_title'"></div>
+				<div class="head">{{ $t("chat.highlight.stream_info_title") }}</div>
 				<div class="title">{{streamInfo.title}}</div>
 				<div class="game">{{streamInfo.game_name}}</div>
 			</div>
 
-			<div v-if="streamInfoError" class="streamInfo error" v-t="'error.stream_info_loading'"></div>
+			<div v-if="streamInfoError" class="streamInfo error">{{ $t("error.stream_info_loading") }}</div>
 			
 			<div class="ctas" v-if="canUnban ||canBlock || isRaid">
 				<Button highlight v-if="canUnban"

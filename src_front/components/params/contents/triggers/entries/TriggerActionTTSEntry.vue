@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.tts.header">
 				<template #LINK>
-					<a @click="$emit('setContent', contentTTS)" v-t="'triggers.actions.tts.header_link'"></a>
+					<a @click="$emit('setContent', contentTTS)">{{ $t("triggers.actions.tts.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -36,12 +36,12 @@ export default class TriggerActionTTSEntry extends Vue {
 	public action!:TriggerActionChatData;
 	public event!:TriggerEventTypes;
 
-	public message_conf:TwitchatDataTypes.ParameterData = { label:"", type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get contentTTS():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TTS; }
 
 	public beforeMount():void {
-		this.message_conf.label = this.$t("triggers.actions.tts.param_message");
+		this.message_conf.labelKey = "triggers.actions.tts.param_message";
 		this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);
 	}
 

@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" :data-tooltip="paramData.tooltip"
+	<div :class="classes" :data-tooltip="tooltip"
 	@mouseenter="$emit('mouseenter', $event, paramData)"
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click.capture="clickItem($event)">
@@ -92,12 +92,12 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'list'+key">{{paramData.label}}</label>
+				<label :for="'list'+key">{{label}}</label>
 				<select v-if="!paramData.noInput" ref="input"
 					:id="'list'+key"
 					v-model="paramData.value"
 					v-autofocus="autofocus">
-					<option v-for="a in paramData.listValues" :key="a.label" :value="a.value">{{a.label}}</option>
+					<option v-for="a in paramData.listValues" :key="a.label? a.label : a.labelKey" :value="a.value">{{a.label? a.label : $t(a.labelKey!)}}</option>
 				</select>
 			</div>
 			
@@ -210,7 +210,7 @@ export default class ParamItem extends Vue {
 		if(this.error !== false) res.push("error");
 		if(this.clearToggle !== false) res.push("clear");
 		if(this.paramData.longText) res.push("longText");
-		if(this.paramData.label == '') res.push("noLabel");
+		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
 		if(this.paramData.disabled || this.disabled == true
 		|| (this.paramData.twitch_scope && !TwitchUtils.hasScope(this.paramData.twitch_scope))) res.push("disabled");
@@ -220,7 +220,13 @@ export default class ParamItem extends Vue {
 
 	public get label():string {
 		if(!this.paramData) return "";
-		let txt = this.paramData.label;
+		let txt = this.paramData.label ?? "";
+		if(this.paramData.labelKey) {
+			txt += this.$t(this.paramData.labelKey);
+		}
+		
+		if(!txt) return "";
+
 		if(txt.indexOf("{VALUE}") > -1) {
 			if(this.paramData.value || this.paramData.value === 0) {
 				txt = txt.replace(/\{VALUE\}/gi, this.paramData.value.toString());
@@ -229,6 +235,12 @@ export default class ParamItem extends Vue {
 			}
 		}
 		return txt.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
+	}
+
+	public get tooltip():string {
+		if(this.paramData.tooltip) return this.paramData.tooltip;
+		if(this.paramData.tooltipKey) return this.$t(this.paramData.tooltipKey)
+		return ""
 	}
 
 	public get textValue():string {

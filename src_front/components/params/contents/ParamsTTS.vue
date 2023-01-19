@@ -2,7 +2,7 @@
 	<div class="paramstts">
 		<img src="@/assets/icons/tts_purple.svg" alt="emergency icon" class="icon">
 
-		<p class="head" v-t="'tts.header'"></p>
+		<p class="head">{{ $t("tts.header") }}</p>
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
 
 		<div class="fadeHolder" :style="holderStyles">
@@ -12,8 +12,8 @@
 			>
 				<section class="permissions" v-if="param_readMessages.value === true || param_readWhispers.value === true">
 					<Splitter class="item splitter">{{ $t("tts.chat_perms.title") }}</Splitter>
-					<p class="item" v-t="'tts.chat_perms.head'"></p>
-					<p class="item small" v-t="'tts.chat_perms.infos'"></p>
+					<p class="item">{{ $t("tts.chat_perms.head") }}</p>
+					<p class="item small">{{ $t("tts.chat_perms.infos") }}</p>
 					<PermissionsForm class="item" v-model="param_ttsPerms" />
 				</section>
 			</transition>
@@ -235,59 +235,59 @@ export default class ParamsTTS extends Vue {
 		
 		this.setVoices();
 
-		this.testStr							= this.$t("tts.params.test_message");
+		this.testStr								= this.$t("tts.params.test_message");
 
-		this.param_enabled.label				= this.$t("tts.params.param_enabled");
-		this.param_volume.label					= this.$t("tts.params.param_volume");
-		this.param_rate.label					= this.$t("tts.params.param_rate");
-		this.param_pitch.label					= this.$t("tts.params.param_pitch");
-		this.param_voice.label					= this.$t("tts.params.param_voice");
-		this.param_removeEmotes.label			= this.$t("tts.params.param_removeEmotes");
+		this.param_enabled.labelKey					= "tts.params.param_enabled";
+		this.param_volume.labelKey					= "tts.params.param_volume";
+		this.param_rate.labelKey					= "tts.params.param_rate";
+		this.param_pitch.labelKey					= "tts.params.param_pitch";
+		this.param_voice.labelKey					= "tts.params.param_voice";
+		this.param_removeEmotes.labelKey			= "tts.params.param_removeEmotes";
 
-		this.param_readMessages.label			= this.$t("tts.messages.param_readMessages");
-		this.param_readWhispers.label			= this.$t("tts.messages.param_readWhispers");
-		this.param_readNotices.label			= this.$t("tts.messages.param_readNotices");
-		this.param_readRewards.label			= this.$t("tts.messages.param_readRewards");
-		this.param_readSubs.label				= this.$t("tts.messages.param_readSubs");
-		this.param_readSubgifts.label			= this.$t("tts.messages.param_readSubgifts");
-		this.param_readBits.label				= this.$t("tts.messages.param_readBits");
-		this.param_readRaids.label				= this.$t("tts.messages.param_readRaids");
-		this.param_readFollow.label				= this.$t("tts.messages.param_readFollow");
-		this.param_readPolls.label				= this.$t("tts.messages.param_readPolls");
-		this.param_readPredictions.label		= this.$t("tts.messages.param_readPredictions");
-		this.param_readBingos.label				= this.$t("tts.messages.param_readBingos");
-		this.param_readRaffle.label				= this.$t("tts.messages.param_readRaffle");
-		this.param_readUsers.label				= this.$t("tts.messages.param_readUsers");
-		this.param_read1stMessageToday.label	= this.$t("tts.messages.param_read1stMessageToday");
-		this.param_read1stTimeChatters.label	= this.$t("tts.messages.param_read1stTimeChatters");
-		this.param_readAutomod.label			= this.$t("tts.messages.param_readAutomod");
+		this.param_readMessages.labelKey			= "tts.messages.param_readMessages";
+		this.param_readWhispers.labelKey			= "tts.messages.param_readWhispers";
+		this.param_readNotices.labelKey				= "tts.messages.param_readNotices";
+		this.param_readRewards.labelKey				= "tts.messages.param_readRewards";
+		this.param_readSubs.labelKey				= "tts.messages.param_readSubs";
+		this.param_readSubgifts.labelKey			= "tts.messages.param_readSubgifts";
+		this.param_readBits.labelKey				= "tts.messages.param_readBits";
+		this.param_readRaids.labelKey				= "tts.messages.param_readRaids";
+		this.param_readFollow.labelKey				= "tts.messages.param_readFollow";
+		this.param_readPolls.labelKey				= "tts.messages.param_readPolls";
+		this.param_readPredictions.labelKey			= "tts.messages.param_readPredictions";
+		this.param_readBingos.labelKey				= "tts.messages.param_readBingos";
+		this.param_readRaffle.labelKey				= "tts.messages.param_readRaffle";
+		this.param_readUsers.labelKey				= "tts.messages.param_readUsers";
+		this.param_read1stMessageToday.labelKey		= "tts.messages.param_read1stMessageToday";
+		this.param_read1stTimeChatters.labelKey		= "tts.messages.param_read1stTimeChatters";
+		this.param_readAutomod.labelKey				= "tts.messages.param_readAutomod";
 
-		this.param_maxLengthToggle.label		= this.$t("tts.filters.param_maxLengthToggle");
-		this.param_maxLength.label				= this.$t("tts.filters.param_maxLength");
-		this.param_maxDurationToggle.label		= this.$t("tts.filters.param_maxDurationToggle");
-		this.param_maxDuration.label			= this.$t("tts.filters.param_maxDuration");
-		this.param_timeoutToggle.label			= this.$t("tts.filters.param_timeoutToggle");
-		this.param_timeout.label				= this.$t("tts.filters.param_timeout");
-		this.param_inactivityPeriodToggle.label	= this.$t("tts.filters.param_inactivityPeriodToggle");
-		this.param_removeURL.label				= this.$t("tts.filters.param_removeURL")
-		this.param_replaceURL.label				= this.$t("tts.filters.param_replaceURL")
+		this.param_maxLengthToggle.labelKey			= "tts.filters.param_maxLengthToggle";
+		this.param_maxLength.labelKey				= "tts.filters.param_maxLength";
+		this.param_maxDurationToggle.labelKey		= "tts.filters.param_maxDurationToggle";
+		this.param_maxDuration.labelKey				= "tts.filters.param_maxDuration";
+		this.param_timeoutToggle.labelKey			= "tts.filters.param_timeoutToggle";
+		this.param_timeout.labelKey					= "tts.filters.param_timeout";
+		this.param_inactivityPeriodToggle.labelKey	= "tts.filters.param_inactivityPeriodToggle";
+		this.param_removeURL.labelKey				= "tts.filters.param_removeURL";
+		this.param_replaceURL.labelKey				= "tts.filters.param_replaceURL";
 
-		this.param_readMessagesPattern.label	= 
-		this.param_readWhispersPattern.label	= 
-		this.param_readNoticesPattern.label		= 
-		this.param_readRewardsPattern.label		= 
-		this.param_readSubsPattern.label		= 
-		this.param_readSubgiftsPattern.label	= 
-		this.param_readBitsPattern.label		= 
-		this.param_readRaidsPattern.label		= 
-		this.param_readFollowPattern.label		= 
-		this.param_readPollsPattern.label		= 
-		this.param_readPredictionsPattern.label	= 
-		this.param_readBingosPattern.label		= 
-		this.param_readRafflePattern.label		= 
-		this.param_readAutomodPattern.label		=
-		this.param_read1stMessageTodayPattern.label	= 
-		this.param_read1stTimeChattersPattern.label	= this.$t("tts.messages.param_format");
+		this.param_readMessagesPattern.labelKey		= 
+		this.param_readWhispersPattern.labelKey		= 
+		this.param_readNoticesPattern.labelKey		= 
+		this.param_readRewardsPattern.labelKey		= 
+		this.param_readSubsPattern.labelKey			= 
+		this.param_readSubgiftsPattern.labelKey		= 
+		this.param_readBitsPattern.labelKey			= 
+		this.param_readRaidsPattern.labelKey		= 
+		this.param_readFollowPattern.labelKey		= 
+		this.param_readPollsPattern.labelKey		= 
+		this.param_readPredictionsPattern.labelKey	= 
+		this.param_readBingosPattern.labelKey		= 
+		this.param_readRafflePattern.labelKey		= 
+		this.param_readAutomodPattern.labelKey		= 
+		this.param_read1stMessageTodayPattern.labelKey	= 
+		this.param_read1stTimeChattersPattern.labelKey	= "tts.messages.param_format";
 
 		this.param_enabled.value = params.enabled;
 		this.param_volume.value = params.volume;

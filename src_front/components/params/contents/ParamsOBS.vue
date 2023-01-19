@@ -3,7 +3,7 @@
 		<img src="@/assets/icons/obs_purple.svg" alt="overlay icon" class="icon">
 
 		<div class="head">
-			<p v-t="'obs.header'"></p>
+			<p>{{ $t("obs.header") }}</p>
 			<p class="install">
 				<i18n-t scope="global"  tag="i" keypath="obs.install">
 					<template #OBS_VERSION>
@@ -13,7 +13,7 @@
 				<br>
 				<i18n-t scope="global"  tag="i" keypath="obs.install_option">
 					<template #PLUGIN_LINK>
-						<a :href="obswsInstaller" target="_blank" v-t="'obs.install_plugin_name'"></a>
+						<a :href="obswsInstaller" target="_blank">{{ $t("obs.install_plugin_name") }}</a>
 					</template>
 				</i18n-t>
 			</p>
@@ -34,7 +34,7 @@
 			:open="false"
 			:icons="['lock_purple']"
 			:title="$t('obs.permissions_title')">
-				<p class="info" v-t="'obs.permissions_head'"></p>
+				<p class="info">{{ $t("obs.permissions_head") }}</p>
 				<PermissionsForm class="content" v-model="permissions" />
 			</ToggleBlock>
 

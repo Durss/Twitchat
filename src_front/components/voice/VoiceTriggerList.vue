@@ -57,7 +57,7 @@
 						</template>
 					</vue-select>
 
-					<label v-if="element.id" :for="'text'+index"><span v-t="'voice.sentences'"></span> <i v-t="'voice.sentences_count'"></i></label>
+					<label v-if="element.id" :for="'text'+index"><span>{{ $t("voice.sentences") }}</span> <i>{{ $t("voice.sentences_count") }}</i></label>
 					<textarea v-if="element.id" :id="'text'+index" v-model="element.sentences" rows="5" maxlength="1000"></textarea>
 					
 				</ToggleBlock>

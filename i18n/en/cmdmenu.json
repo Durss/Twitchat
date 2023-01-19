@@ -13,6 +13,10 @@
 		"whoslive":"Who's live ?",
 		"whoslive_title":"Followed users streaming",
 		"scope_grant": "You have not granted permission for Twitchat to start a raid",
-		"scope_grantBt": "Grant permission"
+		"scope_grantBt": "Grant permission",
+		"slowMode": "Mode lent",
+		"followersOnly": "Followers only",
+		"subsOnly": "Subs only",
+		"emotesOnly": "Emotes uniquement"
 	}
 }

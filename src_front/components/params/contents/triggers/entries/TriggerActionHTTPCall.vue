@@ -2,11 +2,11 @@
 	<div class="triggeractionhttpcall">
 		<div class="row item">
 			<ParamItem class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
-			<p class="item securityError" v-if="securityError" v-t="'triggers.actions.http.protocol_error'"></p>
+			<p class="item securityError" v-if="securityError">{{ $t("triggers.actions.http.protocol_error") }}</p>
 		</div>
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method" />
 		<div class="row">
-			<p class="item" v-if="param_options.length > 0" v-t="'triggers.actions.http.select_param'"></p>
+			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http.select_param") }}</p>
 			<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />
 		</div>
 	</div>
@@ -37,21 +37,22 @@ export default class TriggerActionHTTPCall extends Vue {
 	public triggerKey!:string;
 
 	public securityError:boolean = false;
-	public param_url:TwitchatDataTypes.ParameterData = {type:"text", label:"", value:"", placeholder:"https://..."};
-	public param_method:TwitchatDataTypes.ParameterData = {type:"list", label:"", value:"GET", listValues:[]};
+	public param_url:TwitchatDataTypes.ParameterData = {type:"text", value:"", placeholder:"https://..."};
+	public param_method:TwitchatDataTypes.ParameterData = {type:"list", value:"GET", listValues:[]};
 	public param_options:TwitchatDataTypes.ParameterData[] = [];
 
 	public beforeMount():void {
-		this.param_url.label = this.$t("triggers.actions.http.url");
-		this.param_method.label = this.$t("triggers.actions.http.method");
-		this.param_method.listValues = ["GET","PUT","POST","PATCH","DELETE"]
+		this.param_url.labelKey			= "triggers.actions.http.url";
+		this.param_method.labelKey		= "triggers.actions.http.method";
+		this.param_method.listValues	= ["GET","PUT","POST","PATCH","DELETE"]
 		.map(v=>{return {label:v, value:v}})
 
 		const placeholders = TriggerActionHelpers(this.event.value);
 		for (let i = 0; i < placeholders.length; i++) {
 			const p = placeholders[i];
 			this.param_options.push({
-				label:"<mark>"+p.tag.toLowerCase()+"</mark> - "+p.desc,
+				label:"<mark>"+p.tag.toLowerCase()+"</mark> - ",
+				labelKey:p.descKey,
 				value:!this.action.queryParams || this.action.queryParams.includes(p.tag),
 				type:"toggle",
 				storage:p

@@ -40,7 +40,7 @@
 			v-if="canPick" />
 
 		<PostOnChatParam class="item postChat highlight" botMessageKey="raffle"
-			:title="$t('global.post_winner')"
+			titleKey="global.post_winner"
 			:placeholders="winnerPlaceholders" />
 
 		<Button class="item"
@@ -91,7 +91,7 @@ export default class RaffleState extends Vue {
 
 	public beforeMount():void {
 
-		this.winnerPlaceholders	= [{tag:"USER", desc:this.$t("raffle.params.username_placeholder"), example:this.$store("auth").twitch.user.displayName}];
+		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
 		this.raffleData			= this.$store("raffle").data!;
 		const ellapsed			= Date.now() - new Date(this.raffleData.created_at).getTime();
 		const duration			= this.raffleData.duration_s;

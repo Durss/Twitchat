@@ -601,6 +601,11 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
+		if(cmd == "/lang") {
+			this.$i18n.locale = params[0];
+			this.message = "";
+		}else
+		
 		if(cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {

@@ -29,6 +29,8 @@
 		"enabled": "Activé",
 		"example": "Exemple",
 		"grant_scope": "Accorder l'accès",
+		"enable": "Activer",
+		"disable": "Désactiver",
 		"show": "Afficher",
 		"hide": "Masquer",
 		"copy": "Copier",

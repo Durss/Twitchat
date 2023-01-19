@@ -173,7 +173,7 @@ export default class TriggerActionEntry extends Vue {
 
 	public opened = false;
 	public isError = false;
-	public delay_conf:TwitchatDataTypes.ParameterData = { label:"", type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
+	public delay_conf:TwitchatDataTypes.ParameterData = { type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
@@ -261,7 +261,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.delay_conf.label = this.$t("triggers.actions.common.next_delay");
+		this.delay_conf.labelKey = "triggers.actions.common.next_delay";
 		this.opened = !this.action.type || this.totalItems <= 2;
 	}
 

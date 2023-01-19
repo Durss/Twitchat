@@ -20,14 +20,14 @@
 				v-if="!currentEvent"
 				v-for="c in eventCategories"
 				:key="c.label"
-				:title="c.label"
+				:title="$t(c.label)"
 				:open="false"
 				:icons="[c.icon]">
 					<i18n-t scope="global" tag="div" class="require"
 					v-if="!musicServiceAvailable && isMusicCategory(c.category)"
 					keypath="triggers.music.require">
 						<template #URL>
-							<a @click="openOverlays()" v-t="'triggers.music.require_url'"></a>
+							<a @click="openOverlays()">{{ $t("triggers.music.require_url") }}</a>
 						</template>
 					</i18n-t>
 
@@ -35,14 +35,14 @@
 					v-if="!obsConnected && isOBSCategory(c.category)"
 					keypath="triggers.obs.require">
 						<template #URL>
-							<a @click="openOBS()" v-t="'triggers.obs.require_url'"></a>
+							<a @click="openOBS()">{{ $t("triggers.obs.require_url") }}</a>
 						</template>
 					</i18n-t>
 
 					<div v-for="e in c.events" :key="(e.value as string)" :class="e.beta? 'item beta' : 'item'">
 						<Button class="triggerBt"
 							white
-							:title="e.label"
+							:title="$t(e.labelKey!)"
 							:icon="getIcon(e)"
 							@click.capture="disabledEntry(e)? requestScope(e) : currentEvent = e"
 							:disabled="disabledEntry(e)"
@@ -62,7 +62,7 @@
 				<div v-if="currentEvent" class="mainCategoryTitle">
 					<img :src="getIcon(currentEvent)">
 					
-					<div class="label">{{currentEvent?.label}}</div>
+					<div class="label">{{$t(currentEvent?.labelKey!)}}</div>
 
 					<ToggleButton class="toggle"
 						:aria-label="currentEvent.enabled? 'trigger enabled' : 'trigger disabled'"
@@ -76,7 +76,8 @@
 				<div v-if="currentSubEvent" class="subCategoryTitle">
 					<img :src="getIcon(currentSubEvent)">
 					
-					<div class="label" v-html="currentSubEvent?.label"></div>
+					<div class="label" v-if="currentSubEvent?.label" v-html="currentSubEvent?.label"></div>
+					<div class="label" v-else-if="currentSubEvent?.labelKey" v-html="$t(currentSubEvent.labelKey)"></div>
 
 					<ToggleButton class="toggle"
 						:aria-label="currentSubEvent.enabled? 'trigger enabled' : 'trigger disabled'"
@@ -318,9 +319,10 @@ export default class ParamsTriggers extends Vue {
 		const value = this.currentEvent?.value as string;
 		const item = this.eventsList.find(v => v.value == value) as TriggerEventTypes|null;
 		if(item) {
-			let desc = item.description as string;
+			let desc = this.$t(item.descriptionKey!);
 			if(this.currentSubEvent) {
-				desc = desc.replace(/\{SUB_ITEM_NAME\}/gi, this.currentSubEvent.label);
+				let label = this.currentSubEvent.labelKey? this.$t(this.currentSubEvent.labelKey) : this.currentSubEvent.label ?? "";
+				desc = desc.replace(/\{SUB_ITEM_NAME\}/gi, label);
 			}
 			return desc;
 		}
@@ -459,17 +461,17 @@ export default class ParamsTriggers extends Vue {
 		let currCat = events[0].category;
 		let catEvents:TriggerEventTypes[] = [];
 		const catToLabel:{[key:number]:string} = {};
-		catToLabel[ TriggerEventTypeCategories.GLOBAL ] = this.$t("triggers.categories.global")
-		catToLabel[ TriggerEventTypeCategories.USER ] = this.$t("triggers.categories.user")
-		catToLabel[ TriggerEventTypeCategories.SUBITS ] = this.$t("triggers.categories.subits")
-		catToLabel[ TriggerEventTypeCategories.MOD ] = this.$t("triggers.categories.mod")
-		catToLabel[ TriggerEventTypeCategories.TWITCHAT ] = this.$t("triggers.categories.twitchat")
-		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ] = this.$t("triggers.categories.hypetrain")
-		catToLabel[ TriggerEventTypeCategories.GAMES ] = this.$t("triggers.categories.games")
-		catToLabel[ TriggerEventTypeCategories.MUSIC ] = this.$t("triggers.categories.music")
-		catToLabel[ TriggerEventTypeCategories.TIMER ] = this.$t("triggers.categories.timer")
-		catToLabel[ TriggerEventTypeCategories.OBS ] = this.$t("triggers.categories.obs")
-		catToLabel[ TriggerEventTypeCategories.MISC ] = this.$t("triggers.categories.misc")
+		catToLabel[ TriggerEventTypeCategories.GLOBAL ]		= "triggers.categories.global";
+		catToLabel[ TriggerEventTypeCategories.USER ]		= "triggers.categories.user";
+		catToLabel[ TriggerEventTypeCategories.SUBITS ]		= "triggers.categories.subits";
+		catToLabel[ TriggerEventTypeCategories.MOD ]		= "triggers.categories.mod";
+		catToLabel[ TriggerEventTypeCategories.TWITCHAT ]	= "triggers.categories.twitchat";
+		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ]	= "triggers.categories.hypetrain";
+		catToLabel[ TriggerEventTypeCategories.GAMES ]		= "triggers.categories.games";
+		catToLabel[ TriggerEventTypeCategories.MUSIC ]		= "triggers.categories.music";
+		catToLabel[ TriggerEventTypeCategories.TIMER ]		= "triggers.categories.timer";
+		catToLabel[ TriggerEventTypeCategories.OBS ]		= "triggers.categories.obs";
+		catToLabel[ TriggerEventTypeCategories.MISC ]		= "triggers.categories.misc";
 		
 		const catToIcon:{[key:number]:string} = {};
 		catToIcon[ TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";

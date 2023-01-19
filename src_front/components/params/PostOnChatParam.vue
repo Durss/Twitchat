@@ -39,7 +39,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 
 @Options({
 	props:{
-		title:{
+		titleKey:{
 			type:String,
 			default:"",
 		},
@@ -64,7 +64,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 export default class PostOnChatParam extends Vue {
 	
 	public icon!:string;
-	public title!:string;
+	public titleKey!:string;
 	public noToggle!:boolean;
 	public clearToggle!:boolean;
 	public botMessageKey!:TwitchatDataTypes.BotMessageField;
@@ -82,7 +82,7 @@ export default class PostOnChatParam extends Vue {
 	public async mounted():Promise<void> {
 		const data					= this.$store("chat").botMessages[ this.botMessageKey ];
 		this.textParam.value		= data.message;
-		this.enabledParam.label		= this.title;
+		this.enabledParam.labelKey	= this.titleKey;
 		this.enabledParam.value		= data.enabled || this.noToggle !== false;
 		this.enabledParam.children	= [this.textParam];
 		this.enabledParam.noInput	= this.noToggle;

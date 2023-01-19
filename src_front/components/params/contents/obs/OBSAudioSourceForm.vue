@@ -1,13 +1,13 @@
 <template>
 	<div class="obsaudiosourceform">
-		<p class="info" v-t="'obs.microphone_head'"></p>
+		<p class="info">{{ $t("obs.microphone_head") }}</p>
 		<div v-if="!noAudioSource">
 			<ParamItem :paramData="obsAllowed_audioSources" class="row" @change="onAudioParamChange()"/>
 			<ParamItem :paramData="obsAllowed_muteCommand" class="row" @change="onAudioParamChange()"/>
 			<ParamItem :paramData="obsAllowed_unmuteCommand" class="row" @change="onAudioParamChange()"/>
 		</div>
 		<div v-else class="noAudioSource">
-			<div class="label" v-t="'obs.microphone_empty'"></div>
+			<div class="label">{{ $t("obs.microphone_empty") }}</div>
 			<Button :title="$t('obs.microphone_reCheck')" @click="listAudioSources(true)" class="connectBt" :loading="loadingAudioSources" />
 		</div>
 	</div>
@@ -43,10 +43,10 @@ export default class OBSAudioSourceForm extends Vue {
 	private defaultEntry = {label:"", value:""};
 
 	public mounted():void {
-		this.defaultEntry.label = this.defaultEntry.value = this.$t("obs.microphone_default_entry");
-		this.obsAllowed_audioSources.label	= this.$t("obs.microphone_source")
-		this.obsAllowed_muteCommand.label	= this.$t("obs.microphone_mute")
-		this.obsAllowed_unmuteCommand.label	= this.$t("obs.microphone_unmute")
+		this.defaultEntry.label					= this.defaultEntry.value = this.$t("obs.microphone_default_entry");
+		this.obsAllowed_audioSources.labelKey	= "obs.microphone_source";
+		this.obsAllowed_muteCommand.labelKey	= "obs.microphone_mute";
+		this.obsAllowed_unmuteCommand.labelKey	= "obs.microphone_unmute";
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			if(OBSWebsocket.instance.connected) {
 				this.listAudioSources();

@@ -75,7 +75,6 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import type { ChangelogEntry } from './ChatAd.vue';
 
 @Options({
 	props:{},
@@ -89,26 +88,26 @@ export default class ChatChangelog extends Vue {
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
-	public get entriesMajor():ChangelogEntry[] {
-		return this.$tm("changelog.major") as ChangelogEntry[];
+	public get entriesMajor():TwitchatDataTypes.ChangelogEntry[] {
+		return this.$tm("changelog.major") as TwitchatDataTypes.ChangelogEntry[];
 	}
 
-	public get entriesMinor():ChangelogEntry[] {
-		return this.$tm("changelog.minor") as ChangelogEntry[];
+	public get entriesMinor():TwitchatDataTypes.ChangelogEntry[] {
+		return this.$tm("changelog.minor") as TwitchatDataTypes.ChangelogEntry[];
 	}
 
-	public get entriesFixes():ChangelogEntry[] {
-		return this.$tm("changelog.fixes") as ChangelogEntry[];
+	public get entriesFixes():TwitchatDataTypes.ChangelogEntry[] {
+		return this.$tm("changelog.fixes") as TwitchatDataTypes.ChangelogEntry[];
 	}
 
 	public mounted(): void {
 		//Make sure changelog entrues are valid.
 		//Checks for all the button actions to make sure their values
 		//are correct
-		const changelogs:ChangelogEntry[][] = [
-						this.$tm("changelog.major") as ChangelogEntry[],
-						this.$tm("changelog.minor") as ChangelogEntry[],
-						this.$tm("changelog.fix") as ChangelogEntry[],
+		const changelogs:TwitchatDataTypes.ChangelogEntry[][] = [
+						this.$tm("changelog.major") as TwitchatDataTypes.ChangelogEntry[],
+						this.$tm("changelog.minor") as TwitchatDataTypes.ChangelogEntry[],
+						this.$tm("changelog.fix") as TwitchatDataTypes.ChangelogEntry[],
 					];
 		const allowedTypes = Object.values(TwitchatDataTypes.ParamsCategories) as TwitchatDataTypes.ParamsContentStringType[];
 		const sParams = this.$store("params");

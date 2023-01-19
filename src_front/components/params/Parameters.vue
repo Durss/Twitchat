@@ -16,19 +16,19 @@
 				<div ref="adNoDonor"></div>
 
 				<div class="buttonList">
-					<Button bounce white :icon="$image('icons/params_purple.svg')"		:title="idToTitle['features']"		@click="setContent(contentFeatures)" />
-					<Button bounce white :icon="$image('icons/show_purple.svg')"		:title="idToTitle['appearance']"	@click="setContent(contentAppearance)" />
-					<Button bounce white :icon="$image('icons/emergency_purple.svg')"	:title="idToTitle['emergency']"		@click="setContent(contentEmergency)" />
-					<Button bounce white :icon="$image('icons/mod_purple.svg')"			:title="idToTitle['automod']"		@click="setContent(contentAutomod)" />
-					<Button bounce white :icon="$image('icons/broadcast_purple.svg')"	:title="idToTitle['triggers']"		@click="setContent(contentTriggers)" />
-					<Button bounce white :icon="$image('icons/overlay_purple.svg')"		:title="idToTitle['overlays']"		@click="setContent(contentOverlays)" />
-					<Button bounce white :icon="$image('icons/tts_purple.svg')"			:title="idToTitle['tts']"			@click="setContent(contentTts)" />
-					<Button bounce white :icon="$image('icons/voice_purple.svg')"		:title="idToTitle['voice']"			@click="setContent(contentVoice)" />
-					<Button bounce white :icon="$image('icons/obs_purple.svg')"			:title="idToTitle['obs']"			@click="setContent(contentObs)" />
-					<Button bounce white :icon="$image('icons/voicemod_purple.svg')"	:title="idToTitle['voicemod']"		@click="setContent(contentVoicemod)" />
-					<Button bounce white :icon="$image('icons/elgato_purple.svg')"		:title="idToTitle['streamdeck']"	@click="setContent(contentStreamdeck)" />
-					<Button bounce white :icon="$image('icons/user_purple.svg')"		:title="idToTitle['account']"		@click="setContent(contentAccount)" />
-					<Button bounce white :icon="$image('icons/info_purple.svg')"		:title="idToTitle['about']"			@click="setContent(contentAbout)" />
+					<Button bounce white :icon="$image('icons/params_purple.svg')"		:title="$t('params.categories.features')"		@click="setContent(contentFeatures)" />
+					<Button bounce white :icon="$image('icons/show_purple.svg')"		:title="$t('params.categories.appearance')"	@click="setContent(contentAppearance)" />
+					<Button bounce white :icon="$image('icons/emergency_purple.svg')"	:title="$t('params.categories.emergency')"		@click="setContent(contentEmergency)" />
+					<Button bounce white :icon="$image('icons/mod_purple.svg')"			:title="$t('params.categories.automod')"		@click="setContent(contentAutomod)" />
+					<Button bounce white :icon="$image('icons/broadcast_purple.svg')"	:title="$t('params.categories.triggers')"		@click="setContent(contentTriggers)" />
+					<Button bounce white :icon="$image('icons/overlay_purple.svg')"		:title="$t('params.categories.overlays')"		@click="setContent(contentOverlays)" />
+					<Button bounce white :icon="$image('icons/tts_purple.svg')"			:title="$t('params.categories.tts')"			@click="setContent(contentTts)" />
+					<Button bounce white :icon="$image('icons/voice_purple.svg')"		:title="$t('params.categories.voice')"			@click="setContent(contentVoice)" />
+					<Button bounce white :icon="$image('icons/obs_purple.svg')"			:title="$t('params.categories.obs')"			@click="setContent(contentObs)" />
+					<Button bounce white :icon="$image('icons/voicemod_purple.svg')"	:title="$t('params.categories.voicemod')"		@click="setContent(contentVoicemod)" />
+					<Button bounce white :icon="$image('icons/elgato_purple.svg')"		:title="$t('params.categories.streamdeck')"	@click="setContent(contentStreamdeck)" />
+					<Button bounce white :icon="$image('icons/user_purple.svg')"		:title="$t('params.categories.account')"		@click="setContent(contentAccount)" />
+					<Button bounce white :icon="$image('icons/info_purple.svg')"		:title="$t('params.categories.about')"			@click="setContent(contentAbout)" />
 				</div>
 
 				<div ref="adDonor"></div>
@@ -55,7 +55,7 @@
 				<ParamsSponsor v-if="content == contentSponsor" @setContent="setContent" />
 
 				<div class="searchResult" v-if="search">
-					<div class="noResult" v-if="filteredParams.length == 0" v-t="'params.search_no_result'"></div>
+					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
 				</div>
 			</div>
 
@@ -75,7 +75,7 @@
 						botMessageKey="twitchatAd"
 						:noToggle="!isDonor"
 						clearToggle
-						:title="$t('params.ad_info')"
+						titleKey="params.ad_info"
 						v-if="!collapse"
 					/>
 
@@ -263,7 +263,10 @@ export default class Parameters extends Vue {
 			if(chunks.length == 2) {
 				const cat = chunks[0] as TwitchatDataTypes.ParameterCategory;
 				const paramKey = chunks[1];
-				this.search = this.$store("params").$state[cat][paramKey].label;
+				let label = this.$store("params").$state[cat][paramKey].label;
+				let labelKey = this.$store("params").$state[cat][paramKey].labelKey;
+				if(labelKey) label = this.$t(labelKey);
+				this.search = label ?? "";
 			}
 		}
 		this.$store("main").tempStoreValue = null;
@@ -318,7 +321,11 @@ export default class Parameters extends Vue {
 				//Already done (via its parent probably), ignore it
 				if(IDsDone[data.id as number] === true) continue;
 
-				if(data.label && new RegExp(safeSearch, "gi").test(data.label)) {
+				let label = data.label;
+				let labelKey = data.labelKey;
+				if(labelKey) label = this.$t(labelKey);
+
+				if(label && new RegExp(safeSearch, "gi").test(label)) {
 					if(data.parent) {
 						for (const key in category) {
 							if(category[key].id == data.parent && IDsDone[category[key].id as number] !== true) {

@@ -2,7 +2,7 @@
 	<div class="emoteselector">
 		<div v-if="users.length == 0" class="loader">
 			<img src="@/assets/loader/loader_white.svg" alt="loader">
-			<p v-t="'global.loading'"></p>
+			<p>{{ $t("global.loading") }}</p>
 		</div>
 
 		<input v-if="users.length > 0" type="text" v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">

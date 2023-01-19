@@ -12,7 +12,7 @@
 						<img src="@/assets/icons/alert_purple.svg">
 						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 							<template #LINK>
-								<a @click="$emit('setContent', contentObs)" v-t="'global.obs_connect_link'"></a>
+								<a @click="$emit('setContent', contentObs)">{{ $t("global.obs_connect_link") }}</a>
 							</template>
 						</i18n-t>
 					</div>
@@ -42,7 +42,7 @@
 						<PostOnChatParam class="item"
 							botMessageKey="shoutout"
 							:noToggle="true"
-							:title="$t('params.chatShoutout_info')"
+							titleKey="params.chatShoutout_info"
 							:placeholders="soPlaceholders"
 						/>
 					</div>
@@ -151,22 +151,22 @@ export default class ParamsList extends Vue {
 		this.soPlaceholders = [
 			{
 				tag:"USER",
-				desc:this.$t("params.chatShoutout_placeholders.user"),
+				descKey:"params.chatShoutout_placeholders.user",
 				example:me.displayName,
 			},
 			{
 				tag:"URL",
-				desc:this.$t("params.chatShoutout_placeholders.user_link"),
+				descKey:"params.chatShoutout_placeholders.user_link",
 				example:"twitch.tv/"+me.login,
 			},
 			{
 				tag:"TITLE",
-				desc:this.$t("params.chatShoutout_placeholders.stream_title"),
+				descKey:"params.chatShoutout_placeholders.stream_title",
 				example:"Lorem ipsum",
 			},
 			{
 				tag:"CATEGORY",
-				desc:this.$t("params.chatShoutout_placeholders.stream_category"),
+				descKey:"params.chatShoutout_placeholders.stream_category",
 				example:"Just chatting",
 			},
 		];

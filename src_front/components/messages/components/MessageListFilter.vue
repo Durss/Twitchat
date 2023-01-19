@@ -254,7 +254,7 @@ export default class MessageListFilter extends Vue {
 	public loadingPreview:boolean = false;
 	public missingScope:boolean = false;
 	public previewIndex:number = 0;
-	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", label:"", placeholder:"bot1, bot2, ....", icon:"hide.svg"};
+	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", placeholder:"bot1, bot2, ....", icon:"hide.svg"};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
@@ -278,36 +278,36 @@ export default class MessageListFilter extends Vue {
 	}
 
 	public beforeMount(): void {
-		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
-		this.param_blockUsers.value = this.config.userBlockList;
-		this.param_blockUsers.label = this.$t("chat.filters.hide_users");
+		type messageFilterTypes			= keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
+		this.param_blockUsers.value		= this.config.userBlockList;
+		this.param_blockUsers.labelKey	= "chat.filters.hide_users";
 
 		//@ts-ignore
 		this.typeToLabel = {};
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = this.$t("chat.filters.message_types.twitchat_ad");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BAN] = this.$t("chat.filters.message_types.ban");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID] = this.$t("chat.filters.message_types.raid");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL] = this.$t("chat.filters.message_types.poll");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN] = this.$t("chat.filters.message_types.join");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.UNBAN] = this.$t("chat.filters.message_types.unban");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.LEAVE] = this.$t("chat.filters.message_types.leave");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER] = this.$t("chat.filters.message_types.cheer");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO] = this.$t("chat.filters.message_types.bingo");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAFFLE] = this.$t("chat.filters.message_types.raffle");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PINNED] = this.$t("chat.filters.message_types.pinned");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.REWARD] = this.$t("chat.filters.message_types.reward");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE] = this.$t("chat.filters.message_types.notice");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = this.$t("chat.filters.message_types.message");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.WHISPER] = this.$t("chat.filters.message_types.whisper");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT] = this.$t("chat.filters.message_types.shoutout");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING] = this.$t("chat.filters.message_types.following");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN] = this.$t("chat.filters.message_types.countdown");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = this.$t("chat.filters.message_types.prediction");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = this.$t("chat.filters.message_types.subscription");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = this.$t("chat.filters.message_types.hype_train_summary");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = this.$t("chat.filters.message_types.hype_train_cooled_down");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE] = this.$t("chat.filters.message_types.community_boost_complete");
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = this.$t("chat.filters.message_types.community_challenge_contribution");
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = "chat.filters.message_types.twitchat_ad";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BAN] = "chat.filters.message_types.ban";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID] = "chat.filters.message_types.raid";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL] = "chat.filters.message_types.poll";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN] = "chat.filters.message_types.join";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.UNBAN] = "chat.filters.message_types.unban";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.LEAVE] = "chat.filters.message_types.leave";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER] = "chat.filters.message_types.cheer";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO] = "chat.filters.message_types.bingo";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAFFLE] = "chat.filters.message_types.raffle";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PINNED] = "chat.filters.message_types.pinned";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.REWARD] = "chat.filters.message_types.reward";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE] = "chat.filters.message_types.notice";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = "chat.filters.message_types.message";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.WHISPER] = "chat.filters.message_types.whisper";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT] = "chat.filters.message_types.shoutout";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING] = "chat.filters.message_types.following";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN] = "chat.filters.message_types.countdown";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = "chat.filters.message_types.prediction";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = "chat.filters.message_types.subscription";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = "chat.filters.message_types.hype_train_summary";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = "chat.filters.message_types.hype_train_cooled_down";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE] = "chat.filters.message_types.community_boost_complete";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "chat.filters.message_types.community_challenge_contribution";
 		
 		//@ts-ignore
 		this.typeToIcon = {};
@@ -381,7 +381,7 @@ export default class MessageListFilter extends Vue {
 
 			this.filters.push({type:"toggle",
 								value:this.config.filters[f],
-								label:this.typeToLabel[f] ?? f,
+								labelKey:this.typeToLabel[f] ?? f,
 								icon:this.typeToIcon[f],
 								twitch_scope:this.typeToScope[f],
 								storage:f,
@@ -445,7 +445,7 @@ export default class MessageListFilter extends Vue {
 					}
 					const param:TwitchatDataTypes.ParameterData = {type:"toggle",
 						value:this.config.messageFilters[k],
-						label:keyToLabel[k],
+						labelKey:"chat.filters.message_filters."+k,
 						storage:key,
 						icon:keyToIcon[k],
 					};
@@ -456,7 +456,7 @@ export default class MessageListFilter extends Vue {
 						const subParam:TwitchatDataTypes.ParameterData = {type:"text",
 									longText:true,
 									value:this.config.commandsBlockList,
-									label:this.$t('chat.filters.commands'),
+									labelKey:'chat.filters.commands',
 									placeholder:"!example, !so, !myuptime, ...",
 									icon:"hide.svg",
 									editCallback:(data:string)=> {
@@ -466,10 +466,10 @@ export default class MessageListFilter extends Vue {
 						param.children = [subParam];
 					}
 					if(k == "short") {
-						param.tooltip = this.$t('chat.filters.short_tt');
+						param.tooltipKey = 'chat.filters.short_tt';
 					}
 					if(k == "tracked") {
-						param.tooltip = this.$t('chat.filters.tracked_tt');
+						param.tooltipKey = 'chat.filters.tracked_tt';
 					}
 					children.push(param);
 				}

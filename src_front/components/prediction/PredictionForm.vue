@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
-				<span class="title" v-t="'prediction.form.title'"></span>
+				<span class="title">{{ $t("prediction.form.title") }}</span>
 				<Button :aria-label="$t('prediction.form.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
@@ -10,11 +10,11 @@
 
 				<form  @submit.prevent="submitForm()">
 					<div class="row">
-						<label for="prediction_title" v-t="'prediction.form.question'"></label>
+						<label for="prediction_title">{{ $t("prediction.form.question") }}</label>
 						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''" tabindex="1" @change="onValueChange()">
 					</div>
 					<div class="row answers">
-						<label for="prediction_answer" v-t="'prediction.form.outcomes'"></label>
+						<label for="prediction_answer">{{ $t("prediction.form.outcomes") }}</label>
 						<div v-for="(a, index) in answers"
 						:class="getAnswerClasses(index)"
 						:key="'answer'+index">
@@ -94,7 +94,7 @@ export default class PredictionForm extends Vue {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["", ""];
-	public voteDuration:TwitchatDataTypes.ParameterData = {label:"", value:10, type:"number", min:1, max:30};
+	public voteDuration:TwitchatDataTypes.ParameterData = {value:10, type:"number", min:1, max:30};
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -124,7 +124,7 @@ export default class PredictionForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.voteDuration.label = this.$t('prediction.form.vote_duration');
+		this.voteDuration.labelKey = 'prediction.form.vote_duration';
 		if(this.$store("main").tempStoreValue) {
 			const titlePrefill = this.$store("main").tempStoreValue as string;
 			if(titlePrefill) this.title = titlePrefill;

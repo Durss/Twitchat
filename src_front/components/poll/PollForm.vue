@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
-				<span class="title" v-t="'poll.form.title'"></span>
+				<span class="title">{{ $t("poll.form.title") }}</span>
 				<Button :aria-label="$t('poll.form.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 
@@ -12,14 +12,14 @@
 
 				<form  @submit.prevent="submitForm()">
 					<div class="row">
-						<label for="poll_title" v-t="'poll.form.question'"></label>
+						<label for="poll_title">{{ $t("poll.form.question") }}</label>
 						<div class="field">
 							<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="1" @change="onValueChange()">
 							<div class="len">{{title.length}}/60</div>
 						</div>
 					</div>
 					<div class="row">
-						<label for="poll_answer" v-t="'poll.form.answers'"></label>
+						<label for="poll_answer">{{ $t("poll.form.answers") }}</label>
 
 						<div class="field" v-for="(a, index) in answers.length" :key="index">
 							<input type="text" id="poll_answer" v-model="answers[index]" maxlength="25" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
@@ -92,9 +92,9 @@ export default class PollForm extends Vue {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["","","","",""];
-	public extraVotesParam:TwitchatDataTypes.ParameterData = {label:"", value:false, type:"toggle"};;
-	public pointsVoteParam:TwitchatDataTypes.ParameterData = {label:"", value:0, type:"number", min:0, max:99999, step:1};;
-	public voteDuration:TwitchatDataTypes.ParameterData = {label:"", value:2, type:"number", min:1, max:30};;
+	public extraVotesParam:TwitchatDataTypes.ParameterData = {value:false, type:"toggle"};;
+	public pointsVoteParam:TwitchatDataTypes.ParameterData = {value:0, type:"number", min:0, max:99999, step:1};;
+	public voteDuration:TwitchatDataTypes.ParameterData = {value:2, type:"number", min:1, max:30};;
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -105,9 +105,9 @@ export default class PollForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.extraVotesParam.label	= this.$t("poll.form.additional_votes");
-		this.pointsVoteParam.label	= this.$t('poll.form.additional_votes_amount');
-		this.voteDuration.label		= this.$t('poll.form.vote_duration');
+		this.extraVotesParam.labelKey	= "poll.form.additional_votes";
+		this.pointsVoteParam.labelKey	= 'poll.form.additional_votes_amount';
+		this.voteDuration.labelKey		= 'poll.form.vote_duration';
 
 		if(this.$store("main").tempStoreValue) {
 			const titlePrefill = this.$store("main").tempStoreValue as string;

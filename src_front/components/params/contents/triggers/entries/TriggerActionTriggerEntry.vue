@@ -3,7 +3,7 @@
 			
 		<i18n-t scope="global" class="info" tag="p" keypath="triggers.actions.trigger.beta">
 			<template #LINK>
-				<a :href="discordURL" target="_blank" v-t="'triggers.actions.trigger.beta_link'"></a>
+				<a :href="discordURL" target="_blank">{{ $t("triggers.actions.trigger.beta_link") }}</a>
 			</template>
 			<template #BR>
 				<br>
@@ -11,14 +11,14 @@
 		</i18n-t>
 		
 		<ToggleBlock class="row item" :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
-			<p v-t="'triggers.actions.trigger.warning'"></p>
-			<strong v-t="'global.example'"></strong>
+			<p>{{ $t("triggers.actions.trigger.warning") }}</p>
+			<strong>{{ $t("global.example") }}</strong>
 			<span v-html="$t('triggers.actions.trigger.warning_example')"></span>
 		</ToggleBlock>
 
 		<img src="@/assets/loader/loader.svg" alt="loading" class="loader" v-if="loading">
 
-		<div v-if="!triggerList || triggerList.length === 0" class="noinfo Trigger" v-t="'triggers.actions.trigger.no_trigger'"></div>
+		<div v-if="!triggerList || triggerList.length === 0" class="noinfo Trigger">{{ $t("triggers.actions.trigger.no_trigger") }}</div>
 		
 		<vue-select class="row item list" v-model="action.triggerKey"
 		v-if="triggerList?.length > 1"
@@ -30,18 +30,18 @@
 		>
 			<template v-slot:option="option">
 				<img :src="getIcon(option.info)" alt="icon" class="listIcon">
-				{{ option.label }}
+				{{ option.label? option.label : $t(option.labelKey) }}
 			</template>
 		</vue-select>
 		
 		<div v-if="dependencyLoopInfos.length > 0" class="dependencyLoop">
-			<div class="title" v-t="'triggers.actions.trigger.loop'"></div>
-			<div class="head" v-t="'triggers.actions.trigger.loop_delails'"></div>
+			<div class="title">{{ $t("triggers.actions.trigger.loop") }}</div>
+			<div class="head">{{ $t("triggers.actions.trigger.loop_delails") }}</div>
 			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="loopItem" :data-tooltip="d.event?.label">
 				<div class="loopInfo">
 					<img v-if="d.event?.icon" :src="$image('icons/'+d.event?.icon+'.svg')"
 						:alt="d.event?.icon">
-					<span class="label">{{d.label}}</span>
+					<span class="label">{{ d.label }}</span>
 				</div>
 			</div>
 		</div>
@@ -77,7 +77,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	public loading:boolean = true;
 	public dependencyLoopInfos:{event?:TriggerEventTypes, label:string}[] = [];
-	public triggerList:{triggerKey:string, label:string, trigger:TriggerData, info:TriggerEventTypes}[] = [];
+	public triggerList:{triggerKey:string, label?:string, labelKey?:string, trigger:TriggerData, info:TriggerEventTypes}[] = [];
 	
 	private rewards:TwitchDataTypes.Reward[] = [];
 
@@ -158,9 +158,9 @@ export default class TriggerActionTriggerEntry extends Vue {
 			}else{
 				list.push({
 					triggerKey:key,
-					label:info.label,
+					labelKey:info.labelKey,
 					trigger:triggers[key],
-						info,
+					info,
 				});
 			}
 		}

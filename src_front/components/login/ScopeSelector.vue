@@ -107,7 +107,8 @@ export default class ScopeSelector extends Vue {
 			return 0;
 		});
 		
-		const forceSelect = !userScopes || userScopes.length < disabled.length;
+		const forceSelect = !userScopes || userScopes.length <= disabled.length;
+		let allSelected = true;
 		for (let i = 0; i < scopes.length; i++) {
 			const s:TwitchScopesString = scopes[i];
 			if(this.requestedScopes.indexOf(s) > -1) {
@@ -119,17 +120,19 @@ export default class ScopeSelector extends Vue {
 					storage:s,
 				});
 			}else{
+				const selected = forceSelect? true : (userScopes.findIndex(v=> v == s) > -1);
+				if(!selected) allSelected = false;
 				this.param_items.push({
 					label:scopeToInfos[s],
 					type:"toggle",
-					value:forceSelect? true : (userScopes.findIndex(v=> v == s) > -1),
+					value:selected,
 					icon:scopeToIcon[s],
 					disabled:disabled.indexOf(s.toLowerCase()) > -1,
 					storage:s,
 				});
 			}
 		}
-		this.allBt = forceSelect;
+		this.allBt = allSelected;
 	}
 
 	public mounted(): void {

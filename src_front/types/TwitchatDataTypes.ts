@@ -167,7 +167,8 @@ export namespace TwitchatDataTypes {
 		listValues?:ParameterDataListValue[];
 		longText?:boolean;
 		noInput?:boolean;//Disable input to only keep title (used for shoutout param)
-		label:string;
+		label?:string;
+		labelKey?:string;//Label (i18n key). Concatenated to "label" if defined
 		min?:number;//min numeric value
 		max?:number;//max numeric value
 		step?:number;//For numeric values
@@ -185,11 +186,13 @@ export namespace TwitchatDataTypes {
 		save?:boolean;//Save configuration to storage on change?
 		twitch_scope?:TwitchScopesString|TwitchScopesString[];//Twitch scope necessary for this feature. Will disable the component if scope isn't granted
 		tooltip?:string;//Tooltip displayed on hover
+		tooltipKey?:string;//Tooltip displayed on hover (i18n key)
 		disabled?:boolean;//Disable possibility to change the value
 		editCallback?:(data:any) => void;//Callback called when value is changed (if v-model can't be used)
 	}
 	export interface ParameterDataListValue {
-		label:string;
+		label?:string;
+		labelKey?:string;
 		value:string | number | boolean | undefined;
 		icon?:string;
 		[parameter: string]: unknown;
@@ -374,7 +377,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface PlaceholderEntry {
 		tag:string;
-		desc:string;
+		descKey:string;
 		example?:string;
 	}
 
@@ -785,6 +788,20 @@ export namespace TwitchatDataTypes {
 		is_public: boolean;//Defines is anyone can use it
 		source?: "BTTV"|"7TV"|"FFZ";
 		owner?: TwitchatUser;
+	}
+
+	/**
+	 * Represents a change log encry
+	 */
+	export interface ChangelogEntry {
+		i?:string;//icon name
+		l:string;//label
+		a?:{
+			l:string;//label of the button
+			a?:string;//aria-label value of the button
+			page?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
+			param?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
+		}
 	}
 
 

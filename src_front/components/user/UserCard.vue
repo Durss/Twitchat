@@ -20,7 +20,7 @@
 				</div>
 			</div>
 
-			<div class="error" v-t="'error.user_profile'"></div>
+			<div class="error">{{ $t("error.user_profile") }}</div>
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="!loading && !error">
@@ -40,7 +40,7 @@
 			</div>
 			
 			<div class="liveInfo" v-if="currentStream">
-				<div class="head" v-t="'usercard.streaming'"></div>
+				<div class="head">{{ $t("usercard.streaming") }}</div>
 				<div class="infos">
 					<div class="title">{{currentStream.title}}</div>
 					<div class="game">{{currentStream.game_name}}</div>

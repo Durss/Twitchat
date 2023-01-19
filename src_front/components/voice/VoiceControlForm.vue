@@ -1,21 +1,21 @@
 <template>
 	<div class="voicecontrolform">
 		<section>
-			<label v-if="voiceApiAvailable" for="langSelector" v-t="'voice.select_language'"></label>
+			<label v-if="voiceApiAvailable" for="langSelector">{{ $t("voice.select_language") }}</label>
 			<LangSelector v-if="voiceApiAvailable" id="langSelector" v-model:lang="lang" class="langSelector" />
 			<Button v-if="voiceApiAvailable && !started && lang" :title="$t('voice.startBt')" class="startBt" @click="startBot()" :icon="$image('icons/voice.svg')" />
 			<Button v-if="voiceApiAvailable && started" :title="$t('voice.stopBt')" class="stopBt" @click="stopBot()" highlight :icon="$image('icons/stop.svg')" />
 		</section>
 		
 		<section class="block" v-if="!voiceApiAvailable || started || tempText || finalText">
-			<Splitter v-t="'voice.stt_preview'"></Splitter>
+			<Splitter>{{ $t("voice.stt_preview") }}</Splitter>
 			<div class="temp" v-if="tempText && !finalText">{{tempText}}</div>
 			<div class="final" v-if="finalText">{{finalText}}</div>
 			<div class="empty" v-if="!tempText && !finalText">_</div>
 		</section>
 
 		<section v-if="sttOnly === false">
-			<Splitter v-t="'voice.stt_actions'"></Splitter>
+			<Splitter>{{ $t("voice.stt_actions") }}</Splitter>
 			<VoiceTriggerList class="block" />
 		</section>
 	</div>

@@ -26,7 +26,7 @@
 
 		<a v-if="currentChanId == channelId" @click="toggleInfos()" class="infoBt">{{ $t('userlist.infoBt') }}</a>
 		<div v-if="showInfo" class="infos" ref="infos">
-			<p v-for="e in $tm('userlist.infos')">{{e}}</p>
+			<p v-for="e in $tm('userlist.infos')" v-html="e"></p>
 		</div>
 
 		<div class="users">

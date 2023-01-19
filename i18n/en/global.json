@@ -29,6 +29,8 @@
 		"enabled": "Enabled",
 		"example": "Example",
 		"grant_scope": "Grant access",
+		"enable": "Enable",
+		"disable": "Disable",
 		"show": "Show",
 		"hide": "Hide",
 		"copy": "Copy",

@@ -3,7 +3,7 @@
 		<p v-for="i in $tm('sponsor.head')" v-html="i"></p>
 
 		<div class="important">
-			<strong v-t="'sponsor.important'"></strong>
+			<strong>{{ $t("sponsor.important") }}</strong>
 			<p v-html="$t('sponsor.important_content1')"></p>
 			<p v-html="$t('sponsor.important_content2')"></p>
 		</div>

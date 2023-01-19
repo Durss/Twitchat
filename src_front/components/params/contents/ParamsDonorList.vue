@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsdonorlist">
-		<div v-if="error" v-t="'error.donor_loading'"></div>
+		<div v-if="error">{{ $t("error.donor_loading") }}</div>
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
 
 		<div class="stats" v-if="!loading">

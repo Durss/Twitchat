@@ -2,7 +2,7 @@
 	<div class="timerform">
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title" v-t="'timer.title'"></span>
+				<span class="title">{{ $t("timer.title") }}</span>
 				<Button :aria-label="$t('stream.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			
@@ -63,10 +63,10 @@ export default class TimerForm extends Vue {
 
 	public mode:"timer"|"countdown" = "timer";
 	
-	public param_duration:TwitchatDataTypes.ParameterData	= {label:"", value:60, type:"text"};
+	public param_duration:TwitchatDataTypes.ParameterData	= {value:60, type:"text"};
 
 	public async mounted():Promise<void> {
-		this.param_duration.label = this.$t("timer.duration_param");
+		this.param_duration.labelKey = "timer.duration_param";
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 	}

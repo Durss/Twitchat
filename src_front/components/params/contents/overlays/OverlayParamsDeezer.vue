@@ -2,26 +2,26 @@
 	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer_purple']">
 		<div class="holder">
 
-			<div v-if="!deezerConnected" v-t="'overlay.music_common.music'"></div>
+			<div v-if="!deezerConnected">{{ $t("overlay.music_common.music") }}</div>
 			
 			<div class="row player_holder">
-				<div class="label" v-t="'global.example'"></div>
+				<div class="label">{{ $t("global.example") }}</div>
 				<OverlayMusicPlayer class="player" v-if="currentTrack" :staticTrackData="currentTrack" embed />
 			</div>
 			
-			<div v-if="!deezerConnected" class="warning" v-t="'overlay.deezer.shit_api'"></div>
+			<div v-if="!deezerConnected" class="warning">{{ $t("overlay.deezer.shit_api") }}</div>
 		
 			<Button v-if="!deezerConnected" :title="$t('overlay.deezer.authBt')" @click="authenticate()" class="authBt" :loading="authenticating" />
 	
 			<div v-if="deezerConnected" class="row">
-				<label for="deezer_overlay_url" v-t="$t('overlay.music_common.music_url')"></label>
+				<label for="deezer_overlay_url">{{ $t("$t('overlay.music_common.music_url')") }}</label>
 				<OverlayParamsMusic />
 			</div>
 			
 			<div v-if="deezerConnected" class="row">
 				<i18n-t scope="global" tag="div" keypath="overlay.music_common.infos">
 					<template #TRIGGERS>
-						<a @click="$emit('setContent', contentTriggers)" v-t="'overlay.music_common.triggerBt'"></a>
+						<a @click="$emit('setContent', contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
 					</template>
 				</i18n-t>
 
@@ -31,7 +31,7 @@
 					</template>
 				</i18n-t>
 
-				<div class="warning" v-t="'overlay.deezer.shit_api'"></div>
+				<div class="warning">{{ $t("overlay.deezer.shit_api") }}</div>
 			</div>
 
 			<Button v-if="deezerConnected" :title="$t('global.disconnect')" @click="disconnect()" class="authBt" highlight />

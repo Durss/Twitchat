@@ -2,7 +2,7 @@
 	<div class="streaminfo">
 		<div class="holder" ref="holder">
 			<div class="head">
-				<span class="title" v-t="'stream.form_title'"></span>
+				<span class="title">{{ $t("stream.form_title") }}</span>
 				<Button :aria-label="$t('stream.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			
@@ -97,10 +97,10 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class StreamInfoForm extends Vue {
 
-	public param_title:TwitchatDataTypes.ParameterData			= {label:"", value:"", type:"text", placeholder:"", maxLength:140};
-	public param_tags:TwitchatDataTypes.ParameterData			= {label:"", value:"", listValues:[], type:"list"};
-	public param_savePreset:TwitchatDataTypes.ParameterData		= {label:"", value:false, type:"toggle"};
-	public param_namePreset:TwitchatDataTypes.ParameterData		= {label:"", value:"", type:"text", placeholder:"", maxLength:50};
+	public param_title:TwitchatDataTypes.ParameterData			= {value:"", type:"text", placeholder:"", maxLength:140};
+	public param_tags:TwitchatDataTypes.ParameterData			= {value:"", listValues:[], type:"list"};
+	public param_savePreset:TwitchatDataTypes.ParameterData		= {value:false, type:"toggle"};
+	public param_namePreset:TwitchatDataTypes.ParameterData		= {value:"", type:"text", placeholder:"", maxLength:50};
 
 	public saving:boolean = false;
 	public loading:boolean = true;
@@ -113,12 +113,12 @@ export default class StreamInfoForm extends Vue {
 	}
 
 	public beforeMount(): void {
-		this.param_title.label				= this.$t('stream.form_stream_title')
+		this.param_title.labelKey			= 'stream.form_stream_title';
 		this.param_title.placeholder		= this.$t('stream.form_stream_title_placeholder');
-		this.param_savePreset.label			= this.$t('stream.form_save_preset')
-		this.param_namePreset.label			= this.$t('stream.form_save_preset_name')
+		this.param_savePreset.labelKey		= 'stream.form_save_preset';
+		this.param_namePreset.labelKey		= 'stream.form_save_preset_name';
 		this.param_namePreset.placeholder	= this.$t('stream.form_save_preset_name_placeholder');
-		this.param_tags.label				= this.$t('stream.form_stream_tags');
+		this.param_tags.labelKey			= 'stream.form_stream_tags';
 	}
 
 	public async mounted():Promise<void> {
@@ -170,7 +170,7 @@ export default class StreamInfoForm extends Vue {
 			}
 			if(this.categories.length >0) preset.categoryID = this.categories[0].id
 			if(this.param_tags.listValues
-			&& this.param_tags.listValues.length > 0) preset.tags = this.param_tags.listValues.map(v=>v.label);
+			&& this.param_tags.listValues.length > 0) preset.tags = this.param_tags.listValues.map(v=>v.label!);
 			if(this.presetEditing) preset.id = this.presetEditing.id;
 			this.$store("stream").saveStreamInfoPreset(preset)
 		}

@@ -33,7 +33,8 @@
 			"postOnChat_start": "Announce raffle start on chat",
 			"postOnChat_join": "Confirm when joining the raffle",
 			"postOnChat_winner": "Post raffle winner on chat",
-			"countdown": "Show countdown overlay"
+			"countdown": "Show countdown overlay",
+			"message_cmd_placeholder": "Command users have to send"
 		},
 		"delete_confirm": {
 			"title": "Close raffle",

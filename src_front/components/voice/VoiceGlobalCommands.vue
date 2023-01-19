@@ -1,6 +1,6 @@
 <template>
 	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" small :open="openLocal">
-		<div class="head" v-t="'voice.global_commands'"></div>
+		<div class="head">{{ $t("voice.global_commands") }}</div>
 		<ParamItem v-for="(i,index) in items"
 			:key="itemsID[index]"
 			:paramData="i"
@@ -60,7 +60,7 @@ export default class VoiceGlobalCommands extends Vue {
 			this.items.push({
 				type:"text",
 				value:text,
-				label:this.$t("voice.commands."+id),
+				labelKey:"voice.commands."+id,
 			});
 			this.itemsID.push(id);
 		}

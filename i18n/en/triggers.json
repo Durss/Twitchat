@@ -86,7 +86,7 @@
 				"param_actions_default": "Select an action...",
 				"param_track": "Track (name or URL)",
 				"param_confirmSongRequest": "Send confirmation message",
-				"param_playlist": "Playlist name, link or ID",
+				"param_playlist": "Playlist (name, link or ID)",
 				"spotify_only": "Only works with Spotify"
 			},
 			"obs": {

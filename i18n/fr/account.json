@@ -6,6 +6,7 @@
 		"installBt":"Installer Twitchat",
 		"erase_dataBt":"Effacer les paramètres locaux",
 		"erase_confirm_title":"Effacer vos paramètres ?",
-		"erase_confirm_description":"Cela effacera uniquement les paramètres de ce navigateur.<br>Les triggers, les commandes vocales, les paramètres automod, les paramètres du mode urgence, etc... seront réinitialisés."
+		"erase_confirm_description":"Cela effacera uniquement les paramètres de ce navigateur.<br>Les triggers, les commandes vocales, les paramètres automod, les paramètres du mode urgence, etc... seront réinitialisés.",
+		"language":"Langue d'affichage"
 	}
 }

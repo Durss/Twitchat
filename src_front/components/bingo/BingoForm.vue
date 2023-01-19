@@ -2,11 +2,11 @@
 	<div :class="classes">
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
-				<span class="title" v-t="'bingo.title'"></span>
+				<span class="title">{{ $t("bingo.title") }}</span>
 				<Button :aria-label="$t('bingo.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
-				<div class="description" v-if="triggerMode === false" v-t="'bingo.description'"></div>
+				<div class="description" v-if="triggerMode === false">{{ $t("bingo.description") }}</div>
 				<form @submit.prevent="onSubmit()">
 					<div class="tabs">
 						<Button :title="$t('bingo.title_number')" bounce
@@ -37,7 +37,7 @@
 
 					<div class="info" v-if="guessEmote" v-html="$t('bingo.emote_info', {COUNT:globalEmotes.length})"></div>
 
-					<div class="info" v-if="guessCustom" v-t="'bingo.custom_info'"></div>
+					<div class="info" v-if="guessCustom">{{ $t("bingo.custom_info") }}</div>
 
 					<div class="row" v-if="guessCustom">
 						<ParamItem class="item custom" :paramData="customValue" @change="onValueChange()" />
@@ -51,11 +51,11 @@
 				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="triggerMode === false">
 					<PostOnChatParam class="row" botMessageKey="bingoStart"
 						:placeholderEnabled="false"
-						:title="$t('bingo.announce_start')"
+						titleKey="bingo.announce_start"
 						:placeholders="startPlaceholders"
 					/>
 					<PostOnChatParam class="row" botMessageKey="bingo"
-						:title="$t('bingo.announce_winner')"
+						titleKey="bingo.announce_winner"
 						:placeholders="winnerPlaceholders"
 					/>
 				</ToggleBlock>
@@ -104,9 +104,9 @@ export default class BingoForm extends Vue {
 	public guessNumber = true;
 	public guessEmote = false;
 	public guessCustom = false;
-	public minValue:TwitchatDataTypes.ParameterData = {label:"", value:0, type:"number", min:0, max:999999999};
-	public maxValue:TwitchatDataTypes.ParameterData = {label:"", value:100, type:"number", min:0, max:999999999};
-	public customValue:TwitchatDataTypes.ParameterData = {label:"", value:"", type:"text"};
+	public minValue:TwitchatDataTypes.ParameterData = {value:0, type:"number", min:0, max:999999999};
+	public maxValue:TwitchatDataTypes.ParameterData = {value:100, type:"number", min:0, max:999999999};
+	public customValue:TwitchatDataTypes.ParameterData = {value:"", type:"text"};
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {
@@ -129,7 +129,7 @@ export default class BingoForm extends Vue {
 	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
 		return [
 			{
-				tag:"GOAL", desc:this.$t('bingo.goal_placeholder'),
+				tag:"GOAL", descKey:'bingo.goal_placeholder',
 				example:this.guessEmote? this.$t('bingo.goal_emote')
 					: this.$t('bingo.goal_number', {MIN:this.minValue.value, MAX:this.maxValue.value})
 			}
@@ -137,11 +137,11 @@ export default class BingoForm extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.minValue.label = this.$t("bingo.min_value");
-		this.maxValue.label = this.$t("bingo.max_value");
-		this.customValue.label = this.$t("bingo.custom_value");
+		this.minValue.labelKey		= "bingo.min_value";
+		this.maxValue.labelKey		= "bingo.max_value";
+		this.customValue.labelKey	= "bingo.custom_value";
 
-		this.winnerPlaceholders = [{tag:"USER", desc:this.$t("bingo.winner_placeholder"), example:this.$store("auth").twitch.user.displayName}];
+		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.winner_placeholder", example:this.$store("auth").twitch.user.displayName}];
 		if(this.triggerMode && this.action.bingoData) {
 			this.guessNumber = this.action.bingoData.guessNumber;
 			this.guessEmote = this.action.bingoData.guessEmote;

@@ -1,12 +1,12 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket_purple']">
 		<div class="holder">
-			<div class="row" v-t="'overlay.raffle.head'"></div>
+			<div class="row">{{ $t("overlay.raffle.head") }}</div>
 
 			<div class="row">
 				<input type="text" v-model="overlayUrl">
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-					<div v-t="'overlay.raffle.css'"></div>
+					<div>{{ $t("overlay.raffle.css") }}</div>
 					<ul>
 						<li>.wheel-item { ... }</li>
 						<li>.wheel-item.selected { ... }</li>
@@ -19,7 +19,7 @@
 			</div>
 
 			<div class="row center" v-if="!overlayExists">
-				<span class="error" v-t="'overlay.raffle.no_overlay'"></span>
+				<span class="error">{{ $t("overlay.raffle.no_overlay") }}</span>
 			</div>
 			
 			<div class="row">

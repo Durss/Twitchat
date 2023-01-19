@@ -1,30 +1,30 @@
 <template>
 	<div class="paramsvoicemod">
 		<img src="@/assets/icons/voicemod_purple.svg" alt="voicemod icon" class="icon">
-		<div class="head" v-t="'voicemod.header'"></div>
+		<div class="head">{{ $t("voicemod.header") }}</div>
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting">
 			<img class="item center" src="@/assets/loader/loader.svg" alt="loader">
-			<div class="item center" v-t="'voicemod.connecting'"></div>
+			<div class="item center">{{ $t("voicemod.connecting") }}</div>
 		</section>
 
 		<div class="fadeHolder" :style="holderStyles">
 
 			<section class="error" v-if="connectionFailed && !connected" @click="connectionFailed = false">
-				<div class="item" v-t="'voicemod.connect_failed'"></div>
+				<div class="item">{{ $t("voicemod.connect_failed") }}</div>
 			</section>
 
 			<section v-if="connected">
 				<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
 				<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
-				<div class="item"><strong v-t="'voicemod.allowed_users'"></strong></div>
+				<div class="item"><strong>{{ $t("voicemod.allowed_users") }}</strong></div>
 				<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />
 			</section>
 
 			<section v-if="connected">
 				<Splitter>{{ $t("voicemod.voices_title") }}</Splitter>
-				<div class="item center" v-t="'voicemod.voices_infos'"></div>
+				<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
 				<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
 					<template #LINK>
 						<a @click="$emit('setContent', contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
@@ -62,8 +62,8 @@ export default class ParamsVoicemod extends Vue {
 	public connectionFailed:boolean = false;
 	public voices:VoicemodTypes.Voice[] = [];
 	public voiceParams:TwitchatDataTypes.ParameterData[] = [];
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:false};
-	public param_voiceIndicator:TwitchatDataTypes.ParameterData = {type:"toggle", label:"", value:true, example:"voicemod_reset.png"};
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", value:false};
+	public param_voiceIndicator:TwitchatDataTypes.ParameterData = {type:"toggle", value:true, example:"voicemod_reset.png"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
@@ -85,8 +85,8 @@ export default class ParamsVoicemod extends Vue {
 	}
 
 	public mounted():void {
-		this.param_enabled.label = this.$t("global.enabled");
-		this.param_voiceIndicator.label = this.$t("voicemod.show_indicator");
+		this.param_enabled.labelKey			= "global.enabled";
+		this.param_voiceIndicator.labelKey	= "voicemod.show_indicator";
 		this.prefill();
 	}
 
