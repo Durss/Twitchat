@@ -165,6 +165,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.so"),
 				alias:"/shoutout {user}",
 				needModerator:true,
+				twitch_scope:TwitchScopes.SHOUTOUT,
 			},
 			{
 				id:"poll",
@@ -1156,51 +1157,6 @@ export const storeChat = defineStore('chat', {
 			this.botMessages[value.key].enabled = value.enabled;
 			this.botMessages[value.key].message = value.message;
 			DataStore.set(DataStore.BOT_MESSAGES, this.botMessages);
-		},
-
-		async shoutout(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
-			let message:string|null = null;
-			let streamTitle = "";
-			let streamCategory = "";
-			if(user && user.platform == "twitch") {
-				const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
-				if(userInfos?.length > 0) {
-					const userLoc = userInfos[0];
-					const channelInfo = await TwitchUtils.loadChannelInfo([userLoc.id]);
-					message = this.botMessages.shoutout.message;
-					streamTitle = channelInfo[0].title;
-					streamCategory = channelInfo[0].game_name;
-					if(!streamTitle) streamTitle = StoreProxy.i18n.t("error.no_stream");
-					if(!streamCategory) streamCategory = StoreProxy.i18n.t("error.no_stream");
-					message = message.replace(/\{USER\}/gi, userLoc.display_name);
-					message = message.replace(/\{URL\}/gi, "twitch.tv/"+userLoc.login);
-					message = message.replace(/\{TITLE\}/gi, streamTitle);
-					message = message.replace(/\{CATEGORY\}/gi, streamCategory);
-					user.avatarPath = userLoc.profile_image_url;
-				}
-			}
-			if(message){
-				await MessengerProxy.instance.sendMessage(message);
-				
-				if(user) {
-					const so:TwitchatDataTypes.MessageShoutoutTwitchatData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:user.platform,
-						type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT_TWITCHAT,
-						user,
-						stream:{
-							title:streamTitle,
-							category:streamCategory,
-						},
-						viewerCount:StoreProxy.stream.playbackState?.viewers ?? 0,
-					};
-					this.addMessage(so);
-				}
-			}else{
-				//Warn user doesn't exist
-				StoreProxy.main.alertData = "User "+user+" doesn't exist.";
-			}
 		},
 		
 		setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams) {

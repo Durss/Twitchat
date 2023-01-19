@@ -4,7 +4,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates";
 
 	/**
 	 * Parameters menue categories
@@ -849,7 +849,6 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
-		SHOUTOUT_TWITCHAT:"shoutout_twitchat",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
@@ -905,7 +904,6 @@ export namespace TwitchatDataTypes {
 		obs_scene_change:false,
 		obs_source_toggle:false,
 		hype_train_cancel:false,
-		shoutout_twitchat:false,
 		hype_train_summary:true,
 		low_trust_treatment:true,
 		hype_train_progress:false,
@@ -978,7 +976,6 @@ export namespace TwitchatDataTypes {
 									MessageMusicStartData |
 									MessageMusicAddedToQueueData |
 									MessageShoutoutData |
-									MessageShoutoutTwitchatData |
 									MessageVoicemodData |
 									MessageChatHighlightData |
 									MessageConnectData |
@@ -1502,19 +1499,6 @@ export namespace TwitchatDataTypes {
 		channel_id:string;
 		user:TwitchatDataTypes.TwitchatUser;
 		moderator:TwitchatDataTypes.TwitchatUser;
-		stream:{
-			title: string;
-			category: string;
-		};
-	}
-
-	/**
-	 * Represents a twitchat's shoutout data
-	 */
-	export interface MessageShoutoutTwitchatData extends AbstractTwitchatMessage {
-		type:"shoutout_twitchat";
-		viewerCount:number;
-		user:TwitchatDataTypes.TwitchatUser;
 		stream:{
 			title: string;
 			category: string;

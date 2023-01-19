@@ -1,6 +1,7 @@
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import MessengerProxy from '@/messaging/MessengerProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -592,6 +593,43 @@ export const storeUsers = defineStore('users', {
 		untrackUser(user:TwitchatDataTypes.TwitchatUser):void {
 			user.is_tracked = false;
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNTRACK_USER, user));
+		},
+
+		async shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+			let streamTitle = "";
+			let streamCategory = "";
+			
+			if(user.platform == "twitch") {
+				if(TwitchUtils.hasScope(TwitchScopes.SHOUTOUT)) {
+					await TwitchUtils.sendShoutout(channelId, user);
+				}else{
+					StoreProxy.auth.requestTwitchScope(TwitchScopes.SHOUTOUT);
+					return;
+				}
+			}
+			if(StoreProxy.params.features.chatShoutout.value === true){
+				if(user.platform == "twitch") {
+					const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
+					if(userInfos?.length > 0) {
+						const userLoc = userInfos[0];
+						const channelInfo = await TwitchUtils.loadChannelInfo([userLoc.id]);
+						let message = StoreProxy.chat.botMessages.shoutout.message;
+						streamTitle = channelInfo[0].title;
+						streamCategory = channelInfo[0].game_name;
+						if(!streamTitle) streamTitle = StoreProxy.i18n.t("error.no_stream");
+						if(!streamCategory) streamCategory = StoreProxy.i18n.t("error.no_stream");
+						message = message.replace(/\{USER\}/gi, userLoc.display_name);
+						message = message.replace(/\{URL\}/gi, "twitch.tv/"+userLoc.login);
+						message = message.replace(/\{TITLE\}/gi, streamTitle);
+						message = message.replace(/\{CATEGORY\}/gi, streamCategory);
+						user.avatarPath = userLoc.profile_image_url;
+						await MessengerProxy.instance.sendMessage(message);
+					}else{
+						//Warn user doesn't exist
+						StoreProxy.main.alertData = StoreProxy.i18n.t("error.user_param_not_found", {USER:user});
+					}
+				}
+			}
 		},
 
 	} as IUsersActions

@@ -90,6 +90,7 @@ export const storeMain = defineStore("main", {
 			const sTimer = StoreProxy.timer;
 			const sVoice = StoreProxy.voice;
 			const sMusic = StoreProxy.music;
+			const sUsers = StoreProxy.users;
 			const sStream = StoreProxy.stream;
 			const sParams = StoreProxy.params;
 			const sEmergency = StoreProxy.emergency;
@@ -238,7 +239,8 @@ export const storeMain = defineStore("main", {
 				PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
 					const raider = sStream.lastRaider;
 					if(raider) {
-						sChat.shoutout(raider);
+						const me = StoreProxy.auth.twitch.user;
+						sUsers.shoutout(me.id, raider);
 					}else{
 						this.alert(StoreProxy.i18n.t("error.auto_shoutout"));
 					}

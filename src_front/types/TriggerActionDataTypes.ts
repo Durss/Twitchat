@@ -186,7 +186,6 @@ export const TriggerTypes = {
 	HYPE_TRAIN_CANCELED:"32",
 	RETURNING_USER:"30",
 	VOICEMOD:"31",
-	SHOUTOUT:"33",
 	TIMEOUT:"34",
 	BAN:"35",
 	UNBAN:"36",
@@ -307,14 +306,12 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_category', pointer:"viewers"},
 	];
 	
-	map[TriggerTypes.SHOUTOUT] = [
-		{tag:"USER", descKey:"User that gave us a shoutout", pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-	];
-	
 	map[TriggerTypes.SHOUTOUT_IN] = [
 		{tag:"USER", descKey:'triggers.placeholders.shoutout_in', pointer:"user.displayName"},
 		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
+		{tag:"AVATAR", descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath"},
+		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title"},
+		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category"},
 	];
 	map[TriggerTypes.SHOUTOUT_OUT] = [
 		{tag:"USER", descKey:'triggers.placeholders.shoutout_out', pointer:"user.displayName"},
@@ -406,14 +403,6 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
 		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
 	];
-
-	map[TriggerTypes.SHOUTOUT] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"AVATAR", descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath"},
-		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title"},
-		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category"},
-	];
 	
 	map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.challenge_title', pointer:"challenge.title"},
@@ -476,7 +465,7 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_CANCELED.label", value:TriggerTypes.HYPE_TRAIN_CANCELED, descriptionKey:"triggers.events.HYPE_TRAIN_CANCELED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_COOLDOWN.label", value:TriggerTypes.HYPE_TRAIN_COOLDOWN, descriptionKey:"triggers.events.HYPE_TRAIN_COOLDOWN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN},
 		{category:TriggerEventTypeCategories.MOD, icon:"shoutout", labelKey:"triggers.events.SHOUTOUT_OUT.label", value:TriggerTypes.SHOUTOUT_OUT, descriptionKey:"triggers.events.SHOUTOUT_OUT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
-		// {category:TriggerEventTypeCategories.MOD, icon:"shoutout", labelKey:"triggers.events.SHOUTOUT_IN.label", value:TriggerTypes.SHOUTOUT_IN, description:"triggers.events.SHOUTOUT_IN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
+		{category:TriggerEventTypeCategories.MOD, icon:"shoutout", labelKey:"triggers.events.SHOUTOUT_IN.label", value:TriggerTypes.SHOUTOUT_IN, descriptionKey:"triggers.events.SHOUTOUT_IN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},
 		{category:TriggerEventTypeCategories.MOD, icon:"shield", labelKey:"triggers.events.SHIELD_MODE_ON.label", value:TriggerTypes.SHIELD_MODE_ON, descriptionKey:"triggers.events.SHIELD_MODE_ON.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE},
 		{category:TriggerEventTypeCategories.MOD, icon:"shield", labelKey:"triggers.events.SHIELD_MODE_OFF.label", value:TriggerTypes.SHIELD_MODE_OFF, descriptionKey:"triggers.events.SHIELD_MODE_OFF.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE},
 		{category:TriggerEventTypeCategories.MOD, icon:"pin", labelKey:"triggers.events.PIN_MESSAGE.label", value:TriggerTypes.PIN_MESSAGE, descriptionKey:"triggers.events.PIN_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PINNED},
@@ -496,7 +485,6 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_STOP.label", value:TriggerTypes.TIMER_STOP, descriptionKey:"triggers.events.TIMER_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 		{category:TriggerEventTypeCategories.TIMER, icon:"countdown", labelKey:"triggers.events.COUNTDOWN_START.label", value:TriggerTypes.COUNTDOWN_START, descriptionKey:"triggers.events.COUNTDOWN_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
 		{category:TriggerEventTypeCategories.TIMER, icon:"countdown", labelKey:"triggers.events.COUNTDOWN_STOP.label", value:TriggerTypes.COUNTDOWN_STOP, descriptionKey:"triggers.events.COUNTDOWN_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"shoutout", labelKey:"triggers.events.SHOUTOUT.label", value:TriggerTypes.SHOUTOUT, descriptionKey:"triggers.events.SHOUTOUT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT_TWITCHAT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_START.label", value:TriggerTypes.EMERGENCY_MODE_START, descriptionKey:"triggers.events.EMERGENCY_MODE_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_STOP.label", value:TriggerTypes.EMERGENCY_MODE_STOP, descriptionKey:"triggers.events.EMERGENCY_MODE_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},

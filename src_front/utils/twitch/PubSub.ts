@@ -64,7 +64,6 @@ export default class PubSub extends EventDispatcher {
 				"video-playback-by-id."+myUID,//Get viewer count
 				"community-boost-events-v1."+myUID,//Boost after a boost train complete
 				"ad-property-refresh."+myUID,
-				"shoutout."+myUID,//when receiving a shoutout
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
 				"predictions-channel-v1."+myUID,
 				"polls."+myUID,
@@ -114,11 +113,9 @@ export default class PubSub extends EventDispatcher {
 					subscriptions.push("polls."+uid);//Get prediction event//Get poll events
 					// subscriptions.push("pv-watch-party-events."+uid);
 					subscriptions.push("stream-chat-room-v1."+uid);//Host events
-					subscriptions.push("shoutout."+uid);//Host events
 					// subscriptions.push("stream-change-by-channel."+uid);
 					// subscriptions.push("radio-events-v1."+uid);
 					// subscriptions.push("channel-sub-gifts-v1."+uid);
-					
 				}
 			}
 			this.subscribe(subscriptions);
@@ -287,15 +284,8 @@ export default class PubSub extends EventDispatcher {
 			channelId = channelId.replace(/\.|-/g, "");
 		}
 
-		// console.log(data);
-		if(topic && /shoutout\.[0-9]+/.test(topic)) {
-			const localObj = (data as unknown) as PubSubDataTypes.Shoutout;
-			this.shoutoutEvent(localObj, channelId);
-
-
-		
 		//Viewer count and stream start/stop events
-		}else if(topic && /video-playback-by-id\.[0-9]+/.test(topic)) {
+		if(topic && /video-playback-by-id\.[0-9]+/.test(topic)) {
 			const localObj = (data as unknown) as PubSubDataTypes.PlaybackInfo;
 			if(localObj.type == "viewcount") {
 				StoreProxy.stream.setPlaybackState(channelId, localObj);
@@ -990,41 +980,6 @@ export default class PubSub extends EventDispatcher {
 
 
 	/**
-	 * Called when sending or receiving a shoutout
-	 * @param data 
-	 */
-	private async shoutoutEvent(data:PubSubDataTypes.Shoutout, channel_id:string):Promise<void> {
-		const me = StoreProxy.auth.twitch.user;
-		const received = me.id == data.data.targetUserID;
-		let user!:TwitchatDataTypes.TwitchatUser;
-		if(received) {
-			user = StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.sourceUserID, data.data.sourceLogin);
-		}else{
-			user = StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.targetUserID, data.data.targetLogin, data.data.targetUserDisplayName);
-		}
-		
-		const stream = (await TwitchUtils.loadCurrentStreamInfo([user.id]))[0];
-		
-		const message:TwitchatDataTypes.MessageShoutoutData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id,
-			type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
-			user,
-			viewerCount:stream?.viewer_count ?? 0,
-			stream: {
-				category:stream?.game_name ?? "",
-				title:stream?.title ?? "",
-			},
-			moderator:StoreProxy.users.getUserFrom("twitch", data.data.broadcasterUserID, data.data.sourceUserID, data.data.sourceLogin),
-			received,
-		};
-		StoreProxy.chat.addMessage(message);
-	}
-	
-
-	/**
 	 * Called when a hype train approaches
 	 * @param data 
 	 */
@@ -1439,8 +1394,6 @@ namespace PubsubJSON {
 	export const ChannelPointChallengeContribution = {"type":"community-goal-contribution","data":{"timestamp":"2022-09-18T19:09:02.474511122Z","contribution":{"channel_id":"29961813","goal":{"id":"b34f2f91-89d7-4342-b221-b1cbc4e0d5c6","channel_id":"29961813","title":"My awesome challenge","description":"This is the channel point challenge description","goal_type":"CREATOR","is_in_stock":true,"goal_amount":100000,"points_contributed":10800,"small_contribution":250,"per_stream_maximum_user_contribution":2000,"status":"STARTED","duration_days":30,"started_at":"2022-09-16T17:00:49.967911644Z","ended_at":"2022-10-16T17:00:49.967911644Z","background_color":"#FF38DB","default_image":{"url_1x":"https://static-cdn.jtvnw.net/community-goal-images/default-1.png","url_2x":"https://static-cdn.jtvnw.net/community-goal-images/default-2.png","url_4x":"https://static-cdn.jtvnw.net/community-goal-images/default-4.png"},"image":{"url_1x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-1.png","url_2x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-2.png","url_4x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-4.png"}},"user":{"id":"29961813","login":"durss","display_name":"durss"},"amount":800,"stream_contribution":800,"total_contribution":800}}};
 	export const ExtensionMessage = {"type":"extension_message","data":{"id":"08ed2f63-3c3b-42f4-8c9b-a8cdd62fa241","sent_at":"2022-09-28T18:29:25.593540319Z","content":{"text":"DurssBot SLAPPED A What the Duck? STICKER FOR 0 Bits","fragments":[{"text":"DurssBot SLAPPED A What the Duck? STICKER FOR 0 Bits"}]},"sender":{"extension_client_id":"5tbyqce941455yffg7fzg36tp6or8p","extension_version":"4.3.4","display_name":"Stream Stickers","chat_color":"#5f9ea0","badges":[{"id":"extension","version":"1"}]}}};
 	export const FollowEvent = {"display_name":"DurssBot","username":"durssbot","user_id":"647389082"};
-	export const ShoutoutTo = {"type":"create","data":{"broadcasterUserID":"43809079","targetUserID":"699725915","targetLogin":"cailloute","targetUserProfileImageURL":"https://static-cdn.jtvnw.net/jtv_user_pictures/2335a3b2-7816-43ee-9c74-a4cd99a1c897-profile_image-%s.png","sourceUserID":"86347318","sourceLogin":"xurei","shoutoutID":"6bd5566c-9b35-426b-bcb9-91bf12d05387","targetUserDisplayName":"Cailloute","targetUserCTAInfo":"{\"NextSegment\":{\"Id\":\"eyJzZWdtZW50SUQiOiI0MWQ2OTQwMy02MWEzLTRmZjItODU2OC02ZTNlNDcyMmQyY2EiLCJpc29ZZWFyIjoyMDIyLCJpc29XZWVrIjo0MH0=\",\"StartAt\":\"2022-10-03 10:00:00 +0000 UTC\",\"EndAt\":\"2022-10-03 11:00:00 +0000 UTC\",\"Title\":\"Repas de midi et début d'aprèm ensemble 🌞\",\"IsCancelled\":false,\"Categories\":[{\"Id\":509658,\"Name\":\"Just Chatting\",\"DisplayName\":\"Just Chatting\",\"BoxArtURL\":\"https://static-cdn.jtvnw.net/ttv-boxart/509658-{width}x{height}.jpg\"}]},\"RecentlyStreamedCategories\":[{\"Id\":509658,\"Name\":\"Just Chatting\",\"DisplayName\":\"Just Chatting\",\"BoxArtURL\":\"https://static-cdn.jtvnw.net/ttv-boxart/509658-{width}x{height}.jpg\"},{\"Id\":489335,\"Name\":\"Outer Wilds\",\"DisplayName\":\"Outer Wilds\",\"BoxArtURL\":\"https://static-cdn.jtvnw.net/ttv-boxart/489335_IGDB-{width}x{height}.jpg\"},{\"Id\":512980,\"Name\":\"Fall Guys\",\"DisplayName\":\"Fall Guys\",\"BoxArtURL\":\"https://static-cdn.jtvnw.net/ttv-boxart/512980-{width}x{height}.jpg\"}]}","targetUserPrimaryColorHex":"000000"}};
-	export const ShoutoutFrom = {"type":"create","data":{"broadcasterUserID":"647389082","targetUserID":"29961813","targetLogin":"durss","targetUserProfileImageURL":"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-%s.png","sourceUserID":"647389082","sourceLogin":"durssbot","shoutoutID":"852fe5e5-09a4-4f1e-82aa-4b7bd7d33d48","targetUserDisplayName":"Durss","targetUserCTAInfo":"{\"NextSegment\":{\"Id\":\"\",\"StartAt\":\"1970-01-01 00:00:00 +0000 UTC\",\"EndAt\":\"\",\"Title\":\"\",\"IsCancelled\":false,\"Categories\":null},\"RecentlyStreamedCategories\":null}","targetUserPrimaryColorHex":"C4C4C4"}};
 
 	export const RealHypeTrainData =[
 		// {"type":"MESSAGE","data":{"topic":"hype-train-events-v1.180847952","message":"{\"type\":\"hype-train-approaching\",\"data\":{\"channel_id\":\"402890635\",\"goal\":3,\"events_remaining_durations\":{\"1\":261},\"level_one_rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_3114c3d12dc44f53810140f632128b54\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeSleep\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d457ecda087479f98501f80e23b5a04\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePat\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e7a6e7e24a844e709c4d93c0845422e1\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLUL\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCool\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_036fd741be4141198999b2ca4300668e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLove1\"}],\"creator_color\":\"00DADA\",\"participants\":[\"117971644\",\"661245368\"],\"approaching_hype_train_id\":\"50ced304-5348-4481-b4b2-de74d7203677\",\"is_boost_train\":false}}"}},

@@ -42,6 +42,8 @@ export const storeDebug = defineStore('debug', {
 						{id:"141981764",login:"twitchdev", displayName:"TwitchDev"},
 						{id:"29961813",login:"durss", displayName:"Durss"},
 						{id:"44445592",login:"pokimane", displayName:"pokimane"},
+						{id:"197886470",login:"twitchrivals", displayName:"TwitchRivals"},
+						{id:"149747285",login:"twitchpresents", displayName:"TwitchPresents"},
 					]
 					for (let i = 0; i < additional.length; i++) {
 						fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, additional[i].id, additional[i].login, additional[i].displayName,undefined, false, false));
@@ -581,24 +583,6 @@ export const storeDebug = defineStore('debug', {
 						user:user,
 						viewerCount: Math.round(Math.random()*999),
 						moderator:user,
-						stream: {
-							title:stream.title,
-							category:stream.game_name,
-						}
-					};
-					data = m;
-					break;
-				}
-
-				case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT_TWITCHAT: {
-					const stream = (await TwitchUtils.loadChannelInfo([user.id]))[0];
-					const m:TwitchatDataTypes.MessageShoutoutTwitchatData = {
-						platform:"twitch",
-						type,
-						id:Utils.getUUID(),
-						date:Date.now(),
-						user:user,
-						viewerCount: Math.round(Math.random()*999),
 						stream: {
 							title:stream.title,
 							category:stream.game_name,

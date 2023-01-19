@@ -81,7 +81,7 @@ export default class ChatMessageHoverActions extends Vue {
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await this.$store("chat").shoutout(this.messageData.user);
+			await this.$store("users").shoutout(this.messageData.channel_id, this.messageData.user);
 		}catch(error) {
 			this.$store("main").alertData = this.$t("error.shoutout");
 			console.log(error);

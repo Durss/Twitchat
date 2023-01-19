@@ -181,7 +181,6 @@ export interface IChatActions {
 	closeWhispers( userID:string):void;
 	doSearchMessages(value:string):void;
 	updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}):void;
-	shoutout(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams):void;
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
 	pinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
@@ -479,6 +478,7 @@ export interface IUsersActions {
 	loadMyFollowers():Promise<void>;
 	trackUser(user:TwitchatDataTypes.TwitchatUser):void;
 	untrackUser(user:TwitchatDataTypes.TwitchatUser):void;
+	shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 }
 
 

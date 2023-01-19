@@ -139,7 +139,8 @@
 			"moderator:manage:chat_messages": "Supprimer des messages",
 			"moderator:manage:chat_settings": "Passer en follow only, sub only, etc...",
 			"moderator:read:chatters": "Lister les personnes présentes dans votre tchat",
-			"moderator:manage:shield_mode": "Activer/désactiver le mode bouclier"
+			"moderator:manage:shield_mode": "Activer/désactiver le mode bouclier",
+			"moderator:manage:shoutouts": "Envoyer des shoutouts"
 		},
 		"permissions": {
 			"broadcaster": "Diffuseur",

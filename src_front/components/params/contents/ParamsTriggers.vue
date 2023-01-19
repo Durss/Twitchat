@@ -676,6 +676,10 @@ export default class ParamsTriggers extends Vue {
 						//Remove end date so it counts as a countdown start not an end
 						delete (m as TwitchatDataTypes.MessageBanData).duration_s;
 					}
+					if(entry.value == TriggerTypes.SHOUTOUT_IN || entry.value == TriggerTypes.SHOUTOUT_OUT) {
+						//Force proper "received" state
+						(m as TwitchatDataTypes.MessageShoutoutData).received = (entry.value == TriggerTypes.SHOUTOUT_IN);
+					}
 
 					TriggerActionHandler.instance.onMessage(m, true);
 				}, false);

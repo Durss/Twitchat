@@ -25,6 +25,7 @@ export const TwitchScopes = {
 	EDIT_BLOCKED: "user:manage:blocked_users",
 	EDIT_BANNED: "moderator:manage:banned_users",
 	AUTOMOD: "moderator:manage:automod",
-	SHIELD_MODE: "moderator:manage:shield_mode"
+	SHIELD_MODE: "moderator:manage:shield_mode",
+	SHOUTOUT: "moderator:manage:shoutouts"
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];

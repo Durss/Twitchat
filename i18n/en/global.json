@@ -140,7 +140,8 @@
 			"moderator:manage:chat_messages": "Delete chat messages",
 			"moderator:manage:chat_settings": "Update room settings (follow only, sub only, etc...)",
 			"moderator:read:chatters": "List users on your chatroom",
-			"moderator:manage:shield_mode": "Enable/disable shield mode"
+			"moderator:manage:shield_mode": "Enable/disable shield mode",
+			"moderator:manage:shoutouts": "Send shoutouts"
 		},
 		"permissions": {
 			"broadcaster": "Broadcaster",

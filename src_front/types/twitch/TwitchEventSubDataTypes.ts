@@ -40,7 +40,9 @@ export namespace TwitchEventSubDataTypes {
 		SHIELD_MODE_START:"channel.shield_mode.begin",
 		SHIELD_MODE_STOP:"channel.shield_mode.end",
 		STREAM_ON:"stream.online",
-		STREAM_OFF:"stream.offline"
+		STREAM_OFF:"stream.offline",
+		SHOUTOUT_OUT:"channel.shoutout.create",
+		SHOUTOUT_IN:"channel.shoutout.receive"
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -482,5 +484,32 @@ export namespace TwitchEventSubDataTypes {
         broadcaster_user_id: string;
         broadcaster_user_login: string;
         broadcaster_user_name: string;
+    }
+	
+    export interface ShoutoutOutEvent {
+        broadcaster_user_id: string;
+        broadcaster_user_name: string;
+        broadcaster_user_login: string;
+        moderator_user_id: string;
+        moderator_user_name: string;
+        moderator_user_login: string;
+        to_broadcaster_user_id: string;
+        to_broadcaster_user_name: string;
+        to_broadcaster_user_login: string;
+        started_at: string;
+        viewer_count: number;
+        cooldown_ends_at: string;
+        target_cooldown_ends_at: string;
+    }
+	
+    export interface ShoutoutInEvent {
+        broadcaster_user_id: string;
+        broadcaster_user_name: string;
+        broadcaster_user_login: string;
+        from_broadcaster_user_id: string;
+        from_broadcaster_user_name: string;
+        from_broadcaster_user_login: string;
+        viewer_count: number;
+        started_at: string;
     }
 }

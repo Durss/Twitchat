@@ -2256,4 +2256,51 @@ export default class TwitchUtils {
 
 		return true;
 	}
+
+	/**
+	 * Sends a whisper to someone
+	 */
+	public static async sendShoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<boolean> {
+		if(!this.hasScope(TwitchScopes.SHOUTOUT)) return false;
+
+		const options = {
+			method:"POST",
+			headers: this.headers,
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/shoutouts");
+		url.searchParams.append("from_broadcaster_id", channelId);
+		url.searchParams.append("to_broadcaster_id", user.id);
+		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		
+		const res = await fetch(url.href, options);
+		
+		if(res.status == 200 || res.status == 204) {
+			return true;
+		}else
+		if(res.status == 429){
+			let message = "";
+			try {
+				const json = await res.json();
+				if(json) message = json.message;
+			}catch(error){
+				StoreProxy.main.alert("Shoutout failed.");
+			}
+			if(message.indexOf("cooldown")) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_cooldown"));
+				return false;
+			}
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.sendShoutout(channelId, user);
+		}else {
+			try {
+				const json = await res.json();
+				if(json) StoreProxy.main.alert(json.message);
+			}catch(error){
+				StoreProxy.main.alert("Shoutout failed.");
+			}
+			return false;
+		}
+	}
 }

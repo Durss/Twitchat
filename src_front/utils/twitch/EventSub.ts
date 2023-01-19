@@ -195,11 +195,11 @@ export default class EventSub {
 				}
 				if(TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
-				}
-
-				//This one is accessible by mods
-				if(TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
+				}
+				if(TwitchUtils.hasScope(TwitchScopes.SHOUTOUT)) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "beta");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "beta");
 				}
 				
 				//Don't need to listen for this event for anyone else but the broadcaster
@@ -301,6 +301,12 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP:
 			case TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START: {
 				this.shieldModeEvent(topic, payload.event as TwitchEventSubDataTypes.ShieldModeStartEvent | TwitchEventSubDataTypes.ShieldModeStopEvent);
+				break;
+			}
+			
+			case TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN:
+			case TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT: {
+				this.shoutoutEvent(topic, payload.event as TwitchEventSubDataTypes.ShoutoutInEvent | TwitchEventSubDataTypes.ShoutoutOutEvent);
 				break;
 			}
 
@@ -589,21 +595,63 @@ export default class EventSub {
 	/**
 	 * Called when stream starts or stops
 	 * @param topic 
-	 * @param payload 
+	 * @param event 
 	 */
-	private streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, payload:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):void {
+	private streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):void {
 		const me = StoreProxy.auth.twitch.user;
 		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
 			date:Date.now(),
 			id:Utils.getUUID(),
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
-			user: StoreProxy.users.getUserFrom("twitch", me.id, payload.broadcaster_user_id, payload.broadcaster_user_login, payload.broadcaster_user_name),
+			user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
 		}
 		if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF) {
 			((message as unknown) as TwitchatDataTypes.MessageStreamOfflineData).type = TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE;
 		}
 		console.log("START / STOP", message);
+		StoreProxy.chat.addMessage(message);
+	}
+
+	/**
+	 * Called when stream starts or stops
+	 * @param topic 
+	 * @param event 
+	 */
+	private async shoutoutEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ShoutoutInEvent | TwitchEventSubDataTypes.ShoutoutOutEvent):Promise<void> {
+		const so_in		= event as TwitchEventSubDataTypes.ShoutoutInEvent;
+		const so_out	= event as TwitchEventSubDataTypes.ShoutoutOutEvent;
+		
+		console.log("SHOUTOUT EVENT");
+		console.log(event);
+
+		const received = topic == TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN;
+		let user!:TwitchatDataTypes.TwitchatUser;
+		let moderator = user;
+		if(received) {
+			user		= StoreProxy.users.getUserFrom("twitch", so_in.broadcaster_user_id, so_in.from_broadcaster_user_id, so_in.from_broadcaster_user_login, so_in.from_broadcaster_user_name);
+		}else{
+			user		= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.to_broadcaster_user_id, so_out.to_broadcaster_user_login, so_out.to_broadcaster_user_name);
+			moderator	= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.moderator_user_id, so_out.moderator_user_login, so_out.moderator_user_name);
+		}
+		
+		const stream = (await TwitchUtils.loadCurrentStreamInfo([user.id]))[0];
+		
+		const message:TwitchatDataTypes.MessageShoutoutData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
+			user,
+			viewerCount:event.viewer_count,
+			stream: {
+				category:stream?.game_name ?? "",
+				title:stream?.title ?? "",
+			},
+			moderator,
+			received,
+		};
 		StoreProxy.chat.addMessage(message);
 	}
 	

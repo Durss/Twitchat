@@ -302,7 +302,7 @@ export default class ChatHighlight extends Vue {
 
 		this.shoutoutLoading = true;
 		try {
-			await this.$store("chat").shoutout(this.messageData.user);
+			await this.$store("users").shoutout(this.messageData.channel_id, this.messageData.user);
 		}catch(error) {
 			this.$store("main").alert(this.$t("error.shoutout"));
 			console.log(error);
