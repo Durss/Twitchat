@@ -235,12 +235,6 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT_TWITCHAT: {
-				if(await this.parseSteps(TriggerTypes.SHOUTOUT, message, testMode, this.currentSpoolGUID)) {
-					return;
-				}break;
-			}
-
 			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
 				if(message.received && await this.parseSteps(TriggerTypes.SHOUTOUT_IN, message, testMode, this.currentSpoolGUID)) {
 					return;

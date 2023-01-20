@@ -794,8 +794,10 @@ export namespace TwitchatDataTypes {
 	 * Represents a change log encry
 	 */
 	export interface ChangelogEntry {
-		i?:string;//icon name
 		l:string;//label
+		i?:string;//icon name
+		g?:string;//image path for highlights
+		d?:string;//Description for highlights
 		a?:{
 			l:string;//label of the button
 			a?:string;//aria-label value of the button

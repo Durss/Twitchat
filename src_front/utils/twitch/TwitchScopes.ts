@@ -3,6 +3,7 @@ export const TwitchScopes = {
 	CHAT_WRITE: "chat:edit",
 	WHISPER_READ: "whispers:read",
 	WHISPER_WRITE: "user:manage:whispers",
+	SHOUTOUT: "moderator:manage:shoutouts",
 	SEND_ANNOUNCE: "moderator:manage:announcements",
 	DELETE_MESSAGES: "moderator:manage:chat_messages",
 	LIST_CHATTERS: "moderator:read:chatters",
@@ -25,7 +26,6 @@ export const TwitchScopes = {
 	EDIT_BLOCKED: "user:manage:blocked_users",
 	EDIT_BANNED: "moderator:manage:banned_users",
 	AUTOMOD: "moderator:manage:automod",
-	SHIELD_MODE: "moderator:manage:shield_mode",
-	SHOUTOUT: "moderator:manage:shoutouts"
+	SHIELD_MODE: "moderator:manage:shield_mode"
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];

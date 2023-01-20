@@ -64,7 +64,6 @@ export default class ScopeSelector extends Vue {
 	}
 
 	public beforeMount():void {
-		const scopeToInfos = this.$tm('global.twitch_scopes') as {[key:string]:string};
 		const scopes:TwitchScopesString[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
 		const scopeToIcon:{[key:string]:string} = {
 			"chat:read": "whispers_purple.svg",
@@ -93,6 +92,7 @@ export default class ScopeSelector extends Vue {
 			"moderator:manage:banned_users": "ban_purple.svg",
 			"moderator:manage:automod": "automod_purple.svg",
 			"moderator:manage:shield_mode": "shield_purple.svg",
+			"moderator:manage:shoutouts": "shoutout_purple.svg",
 		};
 		const disabled:string[] = ["chat:read", "chat:edit", "moderator:manage:announcements"];
 		const userScopes = this.$store("auth").twitch.scopes ?? [];
@@ -107,13 +107,13 @@ export default class ScopeSelector extends Vue {
 			return 0;
 		});
 		
-		const forceSelect = !userScopes || userScopes.length <= disabled.length;
+		const forceSelect = !userScopes || userScopes.length <= disabled.length && (!this.requestedScopes || this.requestedScopes.length == 0);
 		let allSelected = true;
 		for (let i = 0; i < scopes.length; i++) {
 			const s:TwitchScopesString = scopes[i];
 			if(this.requestedScopes.indexOf(s) > -1) {
 				this.param_items_requested.push({
-					label:scopeToInfos[s],
+					labelKey:"global.twitch_scopes."+s,
 					type:"toggle",
 					value:true,
 					icon:scopeToIcon[s],
@@ -123,7 +123,7 @@ export default class ScopeSelector extends Vue {
 				const selected = forceSelect? true : (userScopes.findIndex(v=> v == s) > -1);
 				if(!selected) allSelected = false;
 				this.param_items.push({
-					label:scopeToInfos[s],
+					labelKey:"global.twitch_scopes."+s,
 					type:"toggle",
 					value:selected,
 					icon:scopeToIcon[s],

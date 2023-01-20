@@ -112,6 +112,8 @@
 
 		<UserCard />
 
+		<Changelog v-if="currentModal == 'updates'" @close="currentModal = ''" />
+
 		<Gngngn v-if="currentModal == 'gngngn'" @close="currentModal = ''" />
 
 		<Teleport to="body">
@@ -171,6 +173,7 @@ import DonorState from '../components/user/DonorState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
+import Changelog from '@/components/changelog/Changelog.vue';
 
 @Options({
 	components:{
@@ -180,6 +183,7 @@ import Accessibility from './Accessibility.vue';
 		UserList,
 		UserCard,
 		PollForm,
+		Changelog,
 		TimerForm,
 		GreetThem,
 		BingoForm,
@@ -219,7 +223,7 @@ export default class Chat extends Vue {
 	public showBlinkLayer = false;
 	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
-	public currentModal:TwitchatDataTypes.ModalTypes = "";
+	public currentModal:TwitchatDataTypes.ModalTypes = "updates";
 	public currentNotificationContent = "";
 	public formsColumnTarget:HTMLDivElement|null = null;
 	

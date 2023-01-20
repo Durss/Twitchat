@@ -12,7 +12,7 @@
 		"raid":"Raid someone",
 		"whoslive":"Who's live ?",
 		"whoslive_title":"Followed users streaming",
-		"scope_grant": "You have not granted permission for Twitchat to start a raid",
+		"scope_grant": "You have not granted permission to Twitchat to start a raid",
 		"scope_grantBt": "Grant permission",
 		"slowMode": "Mode lent",
 		"followersOnly": "Followers only",

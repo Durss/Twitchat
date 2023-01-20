@@ -443,8 +443,7 @@ export default class UserCard extends Vue {
 			flex-direction: column;
 			align-items: center;
 			width: calc(100% - 3em);
-			margin: auto;
-			margin-bottom: .5em;
+			margin: .5em auto;
 
 			.title {
 				font-size: 1.5em;
@@ -684,6 +683,9 @@ export default class UserCard extends Vue {
 			max-width: unset;
 			height: 100%;
 			width: 100vw;
+			top: 0;
+			left: 0;
+			transform: none;
 	
 			.followings {
 				min-height: unset;

@@ -607,7 +607,11 @@ export default class EventSub {
 			user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
 		}
 		if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF) {
+			StoreProxy.stream.setPlaybackState(event.broadcaster_user_id, undefined);
+			StoreProxy.stream.setStreamStop(event.broadcaster_user_id);
 			((message as unknown) as TwitchatDataTypes.MessageStreamOfflineData).type = TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE;
+		}else{
+			StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
 		}
 		console.log("START / STOP", message);
 		StoreProxy.chat.addMessage(message);

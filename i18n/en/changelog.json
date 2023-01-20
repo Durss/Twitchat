@@ -7,6 +7,36 @@
 		"major_title": "New featutres",
 		"minor_title": "Other updates",
 		"fixes_title": "Fixes",
+		"highlights": [
+			{
+				"i": "translate",
+				"l": "Twitchat speaks baguette<br>😍🥖",
+				"d": "1 year after the very first Twitchat version, the holy grail of the French community is here:<br>Twitchat <strong>exists in French</strong> 🥳<br><br>Try changing the language 👇"
+			},
+			{
+				"i": "columns",
+				"l": "Customize chat display",
+				"g": "update_images/columns.gif",
+				"d": "Create as many chat columns as you want and choose which message types to display on each of them."
+			},
+			{
+				"i": "scopes",
+				"l": "Custom permissions",
+				"g": "update_images/permissions.gif",
+				"d": "Choose which data and features of your Twitch account you want to allow Twitchat to use."
+			},
+			{
+				"i": "shieldMode",
+				"l": "Shield mode",
+				"g": "update_images/shieldMode.gif",
+				"d": "Sync emergency mode with shield mode. Enabling shield mode will enable emergency mode and vice versa."
+			},
+			{
+				"i": "emoteonly",
+				"l": "Emote only",
+				"d": "Do you want to prevent people from talking in your chat when you're not live?<br><br>Twitchat can automatically switch to emote-only at the end of the stream and disable emote-only at the beginning of the live stream."
+			}
+		],
 		"major": [
 			{
 				"i": "list",

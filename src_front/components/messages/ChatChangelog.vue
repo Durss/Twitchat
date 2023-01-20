@@ -101,7 +101,7 @@ export default class ChatChangelog extends Vue {
 	}
 
 	public mounted(): void {
-		//Make sure changelog entrues are valid.
+		//Make sure changelog entries are valid.
 		//Checks for all the button actions to make sure their values
 		//are correct
 		const changelogs:TwitchatDataTypes.ChangelogEntry[][] = [
