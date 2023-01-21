@@ -14,14 +14,14 @@
 			@change="fullListRefresh()"
 			@submit="forceConfig = false"/>
 
-		<button class="filteredMessages" v-if="lockedListRefresh" @click="unlockListRefresh()">
+		<button class="filteredMessages" v-if="customActivitiesDisplayed" @click="unlockListRefresh()">
 			<img src="@/assets/icons/back.svg" alt="back">
 			<span><img src="@/assets/icons/train.svg" alt="train" class="icon">{{$t('chat.hype_train.filtered_title')}}</span>
 		</button>
 
 		
 		<div class="messageHolder" ref="chatMessageHolder">
-			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" :ref="'message_' + m.id">
+			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
 				<ChatAd class="message"
 					v-if="m.type == 'twitchat_ad'"
 					@showModal="(v: string) => $emit('showModal', v)"
@@ -324,6 +324,7 @@ import ChatPinNotice from './ChatPinNotice.vue';
 import ChatBan from './ChatBan.vue';
 import ChatUnban from './ChatUnban.vue';
 import ChatStreamOnOff from './ChatStreamOnOff.vue';
+import Utils from '@/utils/Utils';
 
 @Options({
 	components: {
@@ -376,18 +377,18 @@ export default class MessageList extends Vue {
 	public hovered = false;
 	public forceConfig = false;
 	public lockScroll = false;
-	public lockedListRefresh = false;
+	public customActivitiesDisplayed = false;
 	public showLoadingGradient = false;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 	public markedReadItem: HTMLDivElement | null = null;
 
 	private maxMessages:number = 50;
+	private markedAsReadDate:number = 0;
 	private virtualMessageHeight:number = 32;
 	private prevTs = 0;
 	private counter = 0;
 	private disposed = false;
 	private loadingOldMessage = false;
-	private prevMarkedReadMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
 	private scrollUpIndexOffset = -1;
 	private holderOffsetY = -1;
 	private virtualScrollY = -1;
@@ -464,6 +465,8 @@ export default class MessageList extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_UNPAUSE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_BOTTOM, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.publicApiEventHandler);
 
@@ -496,6 +499,8 @@ export default class MessageList extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_UNPAUSE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_BOTTOM, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.publicApiEventHandler);
 	}
@@ -560,13 +565,16 @@ export default class MessageList extends Vue {
 	 * Cleans up all messages and rebuild the list
 	 */
 	public fullListRefresh(): void {
-		if(this.lockedListRefresh) return;
+		if(this.customActivitiesDisplayed) return;
+		console.log("FULL REFRESH");
 
 		clearTimeout(this.updateDebounce);
 		this.updateDebounce = setTimeout(async () => {
-			this.pendingMessages = [];
-			this.lockedLiveMessages = [];
-			this.scrollUpIndexOffset = -1;
+			if(!this.lockScroll) {
+				this.pendingMessages = [];
+				this.lockedLiveMessages = [];
+				this.scrollUpIndexOffset = -1;
+			}
 
 			// const s = Date.now();
 
@@ -574,12 +582,13 @@ export default class MessageList extends Vue {
 			const messages = sChat.messages;
 
 			let result: TwitchatDataTypes.ChatMessageTypes[] = [];
-			for (let i = messages.length - 1; i >= 0; i--) {
+			let i = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset);
+			for (; i >= 0; i--) {
 				const m = messages[i];
 				if (this.shouldShowMessage(m)) {
 					result.unshift(m);
+					if (result.length == this.maxMessages) break;
 				}
-				if (result.length == this.maxMessages) break;
 			}
 
 			this.filteredMessages = result;
@@ -592,8 +601,13 @@ export default class MessageList extends Vue {
 			//Scroll to bottom
 			const el = this.$refs.chatMessageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
-			this.virtualScrollY = maxScroll;
-			this.lockScroll = false;
+			if(this.lockScroll) {
+				this.virtualScrollY = el.scrollTop = maxScroll - 10;
+			}else{
+				this.virtualScrollY = maxScroll;
+			}
+			// this.lockScroll = false;
+			this.replaceReadMarker();
 		}, 50)
 	}
 
@@ -617,7 +631,7 @@ export default class MessageList extends Vue {
 		}
 
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
-		if(this.lockedListRefresh) return false;
+		if(this.customActivitiesDisplayed) return false;
 
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
@@ -810,7 +824,7 @@ export default class MessageList extends Vue {
 	 * Called when a message is add
 	 */
 	private onAddMessage(e: GlobalEvent): void {
-		if(this.lockedListRefresh) return;
+		if(this.customActivitiesDisplayed) return;
 
 		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
@@ -823,6 +837,7 @@ export default class MessageList extends Vue {
 			this.pendingMessages.push(m);
 			this.lockedLiveMessages.push(m);
 			this.lockedLiveMessages = this.lockedLiveMessages.slice(-(this.config.liveLockCount ?? 3));//Only keep last N messages
+			
 
 		} else {
 
@@ -896,13 +911,6 @@ export default class MessageList extends Vue {
 		for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
 			const m = this.filteredMessages[i];
 			if (m.id == data.message.id) {
-				if(m.markedAsRead && i>0) {
-					m.markedAsRead = false;
-					const newMessage = this.filteredMessages[i-1];
-					newMessage.markedAsRead = true;
-					const div = (this.$refs["message_" + newMessage.id] as HTMLDivElement[])[0];
-					this.markedReadItem = div;
-				}
 				this.filteredMessages.splice(i,1);
 				return;
 			}
@@ -950,45 +958,101 @@ export default class MessageList extends Vue {
 	 * Called when requesting an action from the public API
 	 */
 	private onPublicApiEvent(e: TwitchatEvent): void {
-		const data = e.data as { count?: number, scrollBy?: number };
+		const data = e.data as { count?: number, scrollBy?: number, col?:number };
 		let readCount = (data?.count && !isNaN(data.count as number)) ? data.count : 0;
 		let scrollBy = (data?.scrollBy && !isNaN(data.scrollBy as number)) ? data.scrollBy : 100;
+		if(data.col != undefined && data.col != this.config.order) return;
+		
+
 		switch (e.type) {
 			case TwitchatEvent.CHAT_FEED_READ: {
-				if(!this.config.filters.message) return;
-				if(!this.config.messageFilters.viewers) return;
 				if (readCount === 0) readCount = 1;
-				const offset = this.filteredMessages.findIndex(v => {
-					return v.markedAsRead === true
-				})
-				if (offset > -1) readCount += offset;
+				const messageList = this.$store("chat").messages;
+				let offset = messageList.length-1;
+				let currentMessageIndex = -1;
+
+				//Search for first message marked as read
+				for (let i = offset; i >= 0; i--) {
+					const m = messageList[i];
+					if(m.date <= this.markedAsReadDate && this.shouldShowMessage(m)) {
+						currentMessageIndex = i;
+						break;
+					}
+				}
+				
+				//Moving read mark upward
+				if(readCount < 0) {
+					console.log("UP");
+					for (let i = currentMessageIndex; i > 0; i--) {
+						const m = messageList[i];
+						if(this.shouldShowMessage(m)) readCount ++;
+						if(readCount === 1) {
+							console.log("FOUND", m);
+							this.markedAsReadDate = m.date;
+							this.replaceReadMarker();
+							break;
+						}
+					}
+					
+				//Moving read mark downward
+				}else if(readCount > 0){
+					for (let i = currentMessageIndex; i < messageList.length; i++) {
+						const m = messageList[i];
+						if(this.shouldShowMessage(m)) readCount --;
+						if(readCount === -1) {
+							this.markedAsReadDate = m.date;
+							this.replaceReadMarker();
+							break;
+						}
+					}
+				}
+
+				break;
 			}
-			/* falls through */
+			
 			case TwitchatEvent.CHAT_FEED_READ_ALL: {
-				if(!this.config.filters.message) return;
-				if(!this.config.messageFilters.viewers) return;
+				//Read all case
 				if (readCount === 0 || readCount > this.filteredMessages.length - 1) {
 					readCount = this.filteredMessages.length - 1;
 				}
+				//
 				if (readCount < 0) readCount = 0;
 				const m = this.filteredMessages[readCount];
 				this.toggleMarkRead(m);
 				break;
 			}
+
 			case TwitchatEvent.CHAT_FEED_PAUSE: {
 				this.lockScroll = true;
 				break;
 			}
+
 			case TwitchatEvent.CHAT_FEED_UNPAUSE: {
 				this.unPause();
 				break;
 			}
+
+			case TwitchatEvent.CHAT_FEED_SCROLL: {
+				this.lockScroll = true;
+				const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
+				const maxScroll = (messagesHolder.scrollHeight - messagesHolder.offsetHeight);
+				scrollBy *= this.virtualMessageHeight;
+				this.virtualScrollY += scrollBy;
+				if(this.virtualScrollY < 0) this.virtualScrollY = 0;
+				if(this.virtualScrollY > maxScroll) this.virtualScrollY = maxScroll;
+
+				messagesHolder.scrollBy(0, scrollBy);
+				this.onScroll(scrollBy);
+				break;
+			}
+
 			case TwitchatEvent.CHAT_FEED_SCROLL_UP: {
 				this.lockScroll = true;
 				const el = this.$refs.chatMessageHolder as HTMLDivElement;
 				gsap.to(el, { scrollTop: el.scrollTop - scrollBy, duration: .5, ease: "power1.inOut" });
 				break;
 			}
+
 			case TwitchatEvent.CHAT_FEED_SCROLL_DOWN: {
 				const el = this.$refs.chatMessageHolder as HTMLDivElement;
 				const vScroll = el.scrollTop + scrollBy;
@@ -1000,6 +1064,12 @@ export default class MessageList extends Vue {
 				});
 				break;
 			}
+
+			case TwitchatEvent.CHAT_FEED_SCROLL_BOTTOM: {
+				this.fullListRefresh();
+				this.lockScroll = false;
+				break;
+			}
 		}
 	}
 
@@ -1008,6 +1078,7 @@ export default class MessageList extends Vue {
 	 */
 	public async unPause(): Promise<void> {
 		this.fullListRefresh();
+		this.lockScroll = false;
 
 		gsap.to(this.$refs.locked as HTMLDivElement, {
 			duration: .2, height: 0, scaleY: 0, ease: "ease.in", onComplete: () => {
@@ -1022,9 +1093,19 @@ export default class MessageList extends Vue {
 	 */
 	public async onMouseWheel(event: WheelEvent): Promise<void> {
 		//"shiftkey" filter avoids pausing chat when scrolling horizontally via shift+wheel
-		if (this.lightMode || event.shiftKey) return;
+		if (event.shiftKey) return;
 
-		if (event.deltaY < 0) {
+		this.onScroll(event.deltaY, event);
+	}
+
+	/**
+	 * Called when scrolling the list
+	 */
+	private onScroll(amount:number, event?:WheelEvent):void {
+		//"shiftkey" filter avoids pausing chat when scrolling horizontally via shift+wheel
+		if (this.lightMode) return;
+
+		if (amount < 0) {
 			this.lockScroll = true;
 		} else {
 			//If scrolling down while at the bottom of the list, load next message
@@ -1038,7 +1119,7 @@ export default class MessageList extends Vue {
 
 			const messRefs = el.querySelectorAll(".message");
 			if (messRefs.length == 0) {
-				//If hovering the chat before any message shows up, just load next message
+				//If scrolling the chat down before any message shows up, just load next message
 				this.showNextPendingMessage(true);
 				return;
 			}
@@ -1046,8 +1127,10 @@ export default class MessageList extends Vue {
 
 			if ((maxScroll - el.scrollTop) <= (lastMessRef as HTMLDivElement).offsetHeight) {
 				if (this.pendingMessages.length > 0) {
-					event.preventDefault();
-					event.stopPropagation();
+					if(event) {
+						event.preventDefault();
+						event.stopPropagation();
+					}
 					this.showNextPendingMessage(true);
 				}
 			}
@@ -1138,7 +1221,9 @@ export default class MessageList extends Vue {
 			&& !this.lockScroll
 			&& this.pendingMessages.length > 0) {
 			this.showNextPendingMessage();
-		}else if(messageHolder.scrollTop < this.virtualMessageHeight * 5) {
+
+		//Show older messages if near the top
+		}else if(messageHolder.scrollTop < this.virtualMessageHeight * 2) {
 			this.showPrevMessage();
 		}
 	}
@@ -1195,16 +1280,15 @@ export default class MessageList extends Vue {
 		this.loadingOldMessage = true;
 
 		const removed:TwitchatDataTypes.ChatMessageTypes[]	= [];
-		const lastId	= this.filteredMessages[0].id;
+		const lastId			= this.filteredMessages[0].id;
 		if(this.scrollUpIndexOffset == -1) {
 			this.scrollUpIndexOffset = this.pendingMessages.length + this.filteredMessages.length;
 		}
 
+		let addCount = 10;
 		let addNext = false;
 		let messageAdded = false;
 		let i = list.length - this.scrollUpIndexOffset - 1;
-
-		let addCount = 5;
 		
 		for (; i > 0; i--) {
 			let m = list[i];
@@ -1223,15 +1307,13 @@ export default class MessageList extends Vue {
 		}
 
 		if(messageAdded) {
-			// await this.$nextTick();
-			const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
-			this.virtualScrollY = this.virtualMessageHeight * 5 + 2;
-			messagesHolder.scrollTop = this.virtualScrollY;
 			removed.forEach(v=> this.pendingMessages.unshift( v ));
 		}else if(removed){
-			//We reached the first message of the history, stop there
+			//We reached the first message of the history, stop there and put messages
+			//back to avoid emptying the list if we keep scrolling up
 			removed.forEach(v=> this.filteredMessages.push( v ));
 		}
+		this.replaceReadMarker();
 		this.loadingOldMessage = false;
 	}
 
@@ -1261,9 +1343,8 @@ export default class MessageList extends Vue {
 
 		if (lastMessRef) {
 			if (wheelOrigin) {
-				//If scrolling down with mouse wheel while scrolling is locked, interpolate
-				//scroll via tween as the renderFrame does nothing while scroll is locked
-				gsap.killTweensOf(messagesHolder);
+				//If scrolling down with mouse wheel while scrolling is locked, 
+				//scroll to bottom directly for faster scrolldown
 				this.virtualScrollY = messagesHolder.scrollTop = maxScroll;
 			} else {
 				const style = window.getComputedStyle(lastMessRef);
@@ -1273,13 +1354,7 @@ export default class MessageList extends Vue {
 				messagesHolder.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
 			}
 		}
-
-		//Check if last marked as read message is still there
-		if (this.prevMarkedReadMessage) {
-			if ((this.$refs["message_" + this.prevMarkedReadMessage.id] as Vue[]).length == 0) {
-				this.prevMarkedReadMessage = null;
-			}
-		}
+		this.replaceReadMarker();
 	}
 
 	/**
@@ -1410,6 +1485,10 @@ export default class MessageList extends Vue {
 	 * Called on a message is clicked
 	 */
 	public toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEvent): void {
+
+		//Do nothing if feature isn't enabled
+		if (this.$store("params").features.markAsRead.value !== true) return;
+
 		if (event) {
 			let target = event.target as HTMLElement;
 			do {
@@ -1418,21 +1497,17 @@ export default class MessageList extends Vue {
 			}while(target != document.body);
 		}
 		
-		//Do not mark as read if there's a selection
+		//Do not mark as read if there's a text selection
 		if(window.getSelection()?.type === "Range") return;
 
-		if (this.$store("params").features.markAsRead.value !== true) return;
-		m.markedAsRead = !m.markedAsRead;
-		if (this.prevMarkedReadMessage && this.prevMarkedReadMessage != m) {
-			this.prevMarkedReadMessage.markedAsRead = false;
+		if(this.markedAsReadDate == m.date) {
+			//Disable marker if the message was already marked as read
+			this.markedAsReadDate = 0;
+		}else{
+			this.markedAsReadDate = m.date;
 		}
-		if (m.markedAsRead) {
-			this.prevMarkedReadMessage = m;
-			const div = (this.$refs["message_" + m.id] as HTMLDivElement[])[0];
-			this.markedReadItem = div;
-		} else {
-			this.markedReadItem = null;
-		}
+
+		this.replaceReadMarker();
 
 		if (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 		|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
@@ -1445,7 +1520,7 @@ export default class MessageList extends Vue {
 					displayName: m.user.displayName,
 				}
 			}
-			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, { manual: event != null, selected: m.markedAsRead === true, message });
+			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, { manual: event != null, selected: this.markedAsReadDate == m.date, message });
 		}
 	}
 
@@ -1454,7 +1529,7 @@ export default class MessageList extends Vue {
 	 */
 	public setCustomActivities(activities:TwitchatDataTypes.ChatMessageTypes[]):void {
 		this.filteredMessages = activities;
-		this.lockedListRefresh = true;
+		this.customActivitiesDisplayed = true;
 		this.virtualScrollY = -1;//Forces utoscroll to bottom
 	}
 
@@ -1462,9 +1537,10 @@ export default class MessageList extends Vue {
 	 * Sets a custom list of activities
 	 */
 	public unlockListRefresh():void {
-		this.lockedListRefresh = false;
+		this.customActivitiesDisplayed = false;
 		this.virtualScrollY = -1;//Forces utoscroll to bottom
 		this.fullListRefresh();
+		this.lockScroll = false;
 	}
 
 	/**
@@ -1507,6 +1583,25 @@ export default class MessageList extends Vue {
 			this.fullListRefresh();
 		}
 		this.maxMessages = newCount;
+	}
+
+	/**
+	 * Replaces the read marker
+	 */
+	private replaceReadMarker():void {
+		if(this.markedAsReadDate === 0) {
+			this.markedReadItem = null;
+			return;
+		}
+
+		for (let i = this.filteredMessages.length-1; i >= 0; i--) {
+			const mLoc = this.filteredMessages[i];
+			if(mLoc.date <= this.markedAsReadDate) {
+				const div = (this.$refs["message_" + mLoc.id] as HTMLDivElement[])[0];
+				this.markedReadItem = div;
+				break;
+			}
+		}
 	}
 }
 
@@ -1599,6 +1694,11 @@ export default class MessageList extends Vue {
 			bottom: 0;
 			left: 0;
 			pointer-events: none;
+		}
+		.subHolder:last-child {
+			.markRead {
+				border-bottom: none;
+			}
 		}
 	}
 

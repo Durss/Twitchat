@@ -30,11 +30,11 @@
 			"UUID": "fr.twitchat.action.greet-feed-read"
 		},
 		{
-			"Icon": "icons/CHAT_FEED_READ_default",
-			"Name": "Mark all chat messages as read",
+			"Icon": "icons/CHAT_FEED_READ_ALL_default",
+			"Name": "Read all messages",
 			"States": [
 				{
-					"Image": "icons/CHAT_FEED_READ",
+					"Image": "icons/CHAT_FEED_READ_ALL",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -45,7 +45,7 @@
 		},
 		{
 			"Icon": "icons/CHAT_FEED_READ_default",
-			"Name": "Mark X chat message as read",
+			"Name": "Read chat messages",
 			"States": [
 				{
 					"Image": "icons/CHAT_FEED_READ",
@@ -55,11 +55,27 @@
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
-			"UUID": "fr.twitchat.action.chat-feed-read",
-			"Controllers": ["Keypad", "Encoder"],
+			"UUID": "fr.twitchat.action.chat-feed-read"
+		},
+		{
+			"Icon": "icons/CHAT_FEED_READ_default",
+			"Name": "Read messages",
+			"States": [
+				{
+					"Image": "icons/CHAT_FEED_READ",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.chat-feed-read-encoder",
+			"Controllers": ["Encoder"],
 			"Encoder":{
+				"background":"icons/CHAT_FEED_SCROLL_ENCODER_screen",
+				"Icon":"icons/empty",
 				"TriggerDescription": {
-					"Rotate": "Move the read mark"
+					"Rotate": "Read messages"
 				}
 			}
 		},
@@ -103,13 +119,7 @@
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
-			"UUID": "fr.twitchat.action.chat-feed-scroll-up",
-			"Controllers": ["Keypad", "Encoder"],
-			"Encoder":{
-				"TriggerDescription": {
-					"Rotate": "Scroll chat"
-				}
-			}
+			"UUID": "fr.twitchat.action.chat-feed-scroll-up"
 		},
 		{
 			"Icon": "icons/CHAT_FEED_SCROLL_DOWN_default",
@@ -123,9 +133,25 @@
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
-			"UUID": "fr.twitchat.action.chat-feed-scroll-down",
-			"Controllers": ["Keypad", "Encoder"],
+			"UUID": "fr.twitchat.action.chat-feed-scroll-down"
+		},
+		{
+			"Icon": "icons/CHAT_FEED_SCROLL_ENCODER_default",
+			"Name": "Scroll chat",
+			"States": [
+				{
+					"Image": "icons/CHAT_FEED_SCROLL_ENCODER",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.chat-feed-scroll",
+			"Controllers": ["Encoder"],
 			"Encoder":{
+				"background":"icons/CHAT_FEED_SCROLL_ENCODER_screen",
+				"Icon":"icons/empty",
 				"TriggerDescription": {
 					"Rotate": "Scroll chat"
 				}
@@ -313,7 +339,7 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "1.3",
+	"Version": "2.0",
 	"OS": [
 		{
 			"Platform": "mac",

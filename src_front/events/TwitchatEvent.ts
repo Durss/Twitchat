@@ -36,6 +36,7 @@ export default class TwitchatEvent extends Event {
 	public static EMERGENCY_MODE:TwitchatEventType = "EMERGENCY_MODE";
 	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 	public static VOICEMOD_CHANGE:TwitchatEventType = "VOICEMOD_CHANGE";
+	public static SET_COLS_COUNT:TwitchatEventType = "SET_COLS_COUNT";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -46,6 +47,8 @@ export default class TwitchatEvent extends Event {
 	public static CHAT_FEED_UNPAUSE:TwitchatActionType = "CHAT_FEED_UNPAUSE";
 	public static CHAT_FEED_SCROLL_UP:TwitchatActionType = "CHAT_FEED_SCROLL_UP";
 	public static CHAT_FEED_SCROLL_DOWN:TwitchatActionType = "CHAT_FEED_SCROLL_DOWN";
+	public static CHAT_FEED_SCROLL:TwitchatActionType = "CHAT_FEED_SCROLL";
+	public static CHAT_FEED_SCROLL_BOTTOM:TwitchatActionType = "CHAT_FEED_SCROLL_BOTTOM";
 	public static POLL_TOGGLE:TwitchatActionType = "POLL_TOGGLE";
 	public static POLL_CREATE:TwitchatActionType = "POLL_CREATE";
 	public static PREDICTION_TOGGLE:TwitchatActionType = "PREDICTION_TOGGLE";
@@ -76,6 +79,7 @@ export default class TwitchatEvent extends Event {
 	public static PREDICTION_END:TwitchatActionType = "PREDICTION_END";
 	public static RAFFLE_START:TwitchatActionType = "RAFFLE_START";
 	public static RAFFLE_END:TwitchatActionType = "RAFFLE_END";
+	public static GET_COLS_COUNT:TwitchatActionType = "GET_COLS_COUNT";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -110,7 +114,8 @@ export const TwitchatEventTypeList = [
 	"RAFFLE_RESULT",
 	"EMERGENCY_MODE",
 	"CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
-	"VOICEMOD_CHANGE"
+	"VOICEMOD_CHANGE",
+	"SET_COLS_COUNT",
 ] as const;
 
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
@@ -124,6 +129,8 @@ export const TwitchatActionTypeList = [
 	"CHAT_FEED_UNPAUSE",
 	"CHAT_FEED_SCROLL_UP",
 	"CHAT_FEED_SCROLL_DOWN",
+	"CHAT_FEED_SCROLL",
+	"CHAT_FEED_SCROLL_BOTTOM",
 	"POLL_TOGGLE",
 	"POLL_CREATE",
 	"PREDICTION_TOGGLE",
@@ -154,5 +161,6 @@ export const TwitchatActionTypeList = [
 	"PREDICTION_END",
 	"RAFFLE_START",
 	"RAFFLE_END",
+	"GET_COLS_COUNT",
 ];
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

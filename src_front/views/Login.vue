@@ -5,10 +5,12 @@
 			<div class="beta" v-if="isBeta === true">{{ $t("global.beta") }}</div>
 		</div>
 
-		<div class="content betaWarn" v-if="closedBeta === true">{{ $t("login.closedBeta") }}
+		<div class="content betaWarn" v-if="closedBeta === true">
+			<img src="@/assets/icons/lock.svg">
+			{{ $t("login.closedBeta") }}
 		</div>
 		
-		<div class="content">
+		<div class="content" v-if="!closedBeta">
 			<div class="row description" v-if="!authenticating && !requestedScopes">{{ $t('login.head') }}</div>
 
 			<ScopeSelector v-if="!authenticating" class="row" @update="onScopesUpdate" :requestedScopes="requestedScopes" />
@@ -212,6 +214,9 @@ export default class Login extends Vue {
 			background: @mainColor_normal;
 			color: @mainColor_light;
 			margin: 1em 0;
+			img {
+				height: 2em;
+			}
 		}
 
 		.description {

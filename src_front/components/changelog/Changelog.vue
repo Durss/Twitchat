@@ -184,12 +184,24 @@ export default class Changelog extends Vue {
 		:deep(.carousel__prev) {
 			height: 100%;
 			svg {
+				transform: scale(2);
 				fill: @mainColor_light;
 				stroke-width: 3px;
 				stroke-linejoin: round;
 				stroke: @mainColor_normal;
 				paint-order: stroke;
 				filter: drop-shadow(0 2px 0px fade(@mainColor_dark, 50%));
+				transition: transform .25s;
+			}
+			&.carousel__next:hover {
+				svg {
+					transform: scale(2.1) translate(5px);
+				}
+			}
+			&.carousel__prev:hover {
+				svg {
+					transform: scale(2.1) translate(-5px);
+				}
 			}
 		}
 		:deep(.carousel__pagination) {

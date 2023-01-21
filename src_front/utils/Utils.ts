@@ -23,6 +23,21 @@ export default class Utils {
 		message = message.replace(/data-.*?=".*?"/gim, "");//Strip data-attributes that can contain HTML
 		return message.replace(/<[^>]*>/gim, "");//Strip HTML tags;
 	}
+
+	/**
+	 * Computes the position of an element on screen
+	 */
+	public static computeScreenPosition(element:HTMLDivElement):{x:number, y:number} {
+		let x = 0;
+		let y = 0;
+		
+		while (element) {
+		  x += element.offsetLeft - element.scrollLeft;
+		  y += element.offsetTop - element.scrollTop;
+		  element = element.offsetParent as HTMLDivElement;
+		}
+		return {x, y};
+	}
 		
 	/**
 	 * Picks random entry

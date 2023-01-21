@@ -1,8 +1,10 @@
+import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
+import PublicAPI from '@/utils/PublicAPI';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -259,6 +261,8 @@ export const storeParams = defineStore('params', {
 				this.chatColumnsConfig.push(col);
 			}
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
+			
+			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
 			return col;
 		},
 
@@ -274,6 +278,7 @@ export const storeParams = defineStore('params', {
 				if(decrement) e.order--;
 			}
 			this.saveChatColumnConfs();
+			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
 		},
 
 		saveChatColumnConfs():void {

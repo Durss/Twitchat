@@ -223,7 +223,7 @@ export default class Chat extends Vue {
 	public showBlinkLayer = false;
 	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
-	public currentModal:TwitchatDataTypes.ModalTypes = "updates";
+	public currentModal:TwitchatDataTypes.ModalTypes = "";
 	public currentNotificationContent = "";
 	public formsColumnTarget:HTMLDivElement|null = null;
 	
@@ -396,6 +396,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
 		this.onResize();
 		this.renderFrame();
 		requestWakeLock();
@@ -432,6 +433,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
 	}
 
 	public closeDonorCard():void {
@@ -467,6 +469,10 @@ export default class Chat extends Vue {
 			case TwitchatEvent.MOD_TOOLS_TOGGLE:
 				this.$store("params").features.showModTools.value = !this.$store("params").features.showModTools.value;
 				this.$store("params").updateParams()
+				break;
+
+			case TwitchatEvent.GET_COLS_COUNT:
+				PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT,{count:this.$store('params').chatColumnsConfig.length});
 				break;
 
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:

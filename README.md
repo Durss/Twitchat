@@ -267,15 +267,11 @@ Labels won't automatically be updated on the frontend though _(if anyone knows h
 <br>
 
 # Package Stream Deck™ plugin
-Delete the following file:
-```
-streamdeck_plugin/fr.twitchat.streamDeckPlugin
-```
 Run the following command:
 ```
 npm run streamdeck_package
 ```
-The file `fr.twitchat.streamDeckPlugin` should be built back.
+The file, compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.
 <br>
 <br>
 <br>
