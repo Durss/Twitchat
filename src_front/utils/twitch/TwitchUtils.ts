@@ -1836,7 +1836,7 @@ export default class TwitchUtils {
 					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.UNMOD,
 					user,
-					message:"User "+user.login+" has been unmod",
+					message:"User "+user.login+" has been unmod",//TODO translate
 				};
 				StoreProxy.chat.addMessage(m);
 				StoreProxy.users.flagUnmod("twitch", channelId, user.id);
@@ -1848,7 +1848,7 @@ export default class TwitchUtils {
 		if(res.status == 400){
 			const json = await res.json();
 			if(/.*already.*mod.*/gi.test(json.message as string)){
-				StoreProxy.main.alert("User "+user.login+" is already a moderator on this channel.");
+				StoreProxy.main.alert("User "+user.login+" is already a moderator on this channel.");//TODO translate
 			}else{
 				StoreProxy.main.alert(json.message);
 			}
@@ -1858,9 +1858,9 @@ export default class TwitchUtils {
 			const json = await res.json();
 			const mess = json.message as string;
 			if(removeMod) {
-				StoreProxy.main.alert("User "+user.login+" is not a moderator of this channel");
+				StoreProxy.main.alert("User "+user.login+" is not a moderator of this channel");//TODO translate
 			}else if(/.*is.*vip.*/gi.test(mess)){
-				StoreProxy.main.alert("User "+user.login+" is a VIP of this channel. You first need to remove them from your VIPs");
+				StoreProxy.main.alert("User "+user.login+" is a VIP of this channel. You first need to remove them from your VIPs");//TODO translate
 			}
 			return false
 		}else
@@ -1898,7 +1898,7 @@ export default class TwitchUtils {
 					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.UNVIP,
 					user,
-					message:"User "+user.login+" has been removed from VIPs",
+					message:"User "+user.login+" has been removed from VIPs",//TODO translate
 				};
 				StoreProxy.chat.addMessage(m);
 				StoreProxy.users.flagUnvip("twitch", channelId, user.id);
@@ -1916,11 +1916,11 @@ export default class TwitchUtils {
 			const json = await res.json();
 			const mess = json.message as string;
 			if(removeVip) {
-				StoreProxy.main.alert("User "+user.login+" is not a VIP of this channel");
+				StoreProxy.main.alert("User "+user.login+" is not a VIP of this channel");//TODO translate
 			}else if(/.*is.*moderator.*/gi.test(mess)){
-				StoreProxy.main.alert("User "+user.login+" is a moderator of this channel. You first need to remove them from your mods");
+				StoreProxy.main.alert("User "+user.login+" is a moderator of this channel. You first need to remove them from your mods");//TODO translate
 			}else if(/.*is.*vip.*/gi.test(mess)){
-				StoreProxy.main.alert("User "+user.login+" is already a VIP on this channel.");
+				StoreProxy.main.alert("User "+user.login+" is already a VIP on this channel.");//TODO translate
 			}
 			return false
 		}else
@@ -2303,4 +2303,54 @@ export default class TwitchUtils {
 			return false;
 		}
 	}
+
+	/**
+	 * Create a clip
+	 */
+	public static async createClip():Promise<boolean> {
+		if(!this.hasScope(TwitchScopes.CLIPS)) {
+			StoreProxy.auth.requestTwitchScope(TwitchScopes.CLIPS);
+			return false;
+		}
+		const options = {
+			method:"POST",
+			headers: this.headers,
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH+"clips");
+		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		const res = await fetch(url.href, options);
+		if(res.status > 200 && res.status < 204) {
+			const json = await res.json();
+			const link = StoreProxy.i18n.t("global.moderation_action.clip_created_link");
+			const m:TwitchatDataTypes.MessageClipCreate = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:StoreProxy.auth.twitch.user.id,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.CLIP_PENDING_PUBLICATION,
+				message:StoreProxy.i18n.t("global.moderation_action.clip_created", {LINK:`<a href="${json.data[0].edit_url}" target="blank">${link}</a>`}),
+				clipUrl: json.data[0].edit_url,
+				clipID: json.data[0].id,
+			};
+			console.log(m);
+			StoreProxy.chat.addMessage(m);
+			return true;
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.raidCancel();
+		}else {
+			try {
+				const json = await res.json();
+				if(json) StoreProxy.main.alert(json.message);
+			}catch(error){
+				StoreProxy.main.alert("Clip creation failed.");
+			}
+			return false;
+		}
+	}
+
 }

@@ -97,7 +97,9 @@
 			"stream_title_changed": "Titre du stream mise à jour : \"{TITLE}\"",
 			"user_monitored": "{USER} a été ajouté·e aux personnes suspectes par {MODERATOR}",
 			"user_restricted": "{USER} a été ajouté·e aux personnes restreintes par {MODERATOR}",
-			"user_unflagged": "{USER} a été retiré·e des personnes surveillées par {MODERATOR}"
+			"user_unflagged": "{USER} a été retiré·e des personnes surveillées par {MODERATOR}",
+			"clip_created": "Le clip a été créé et est en attente de publication. {LINK}.",
+			"clip_created_link": "Publier le clip"
 		},
 		"dev_mode": {
 			"enabled": "Mode développeur activé",
@@ -140,7 +142,8 @@
 			"moderator:manage:chat_settings": "Passer en follow only, sub only, etc...",
 			"moderator:read:chatters": "Lister les personnes présentes dans votre tchat",
 			"moderator:manage:shield_mode": "Activer/désactiver le mode bouclier",
-			"moderator:manage:shoutouts": "Envoyer des shoutouts"
+			"moderator:manage:shoutouts": "Envoyer des shoutouts",
+			"clips:edit": "Créer des clips"
 		},
 		"permissions": {
 			"broadcaster": "Diffuseur",

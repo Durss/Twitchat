@@ -97,7 +97,9 @@
 			"stream_title_changed": "Stream title changed to \"{TITLE}\"",
 			"user_monitored": "{USER} has been flagged as suspicious by {MODERATOR}",
 			"user_restricted": "{USER} has been restricted by {MODERATOR}",
-			"user_unflagged": "{USER} monitoring has been disabled by {MODERATOR}"
+			"user_unflagged": "{USER} monitoring has been disabled by {MODERATOR}",
+			"clip_created": "Clip is created and pending publication. {LINK}.",
+			"clip_created_link": "Publish clip"
 		},
 		"dev_mode": {
 			"enabled": "Developer mode enabled",
@@ -141,7 +143,7 @@
 			"moderator:manage:chat_settings": "Update room settings (follow only, sub only, etc...)",
 			"moderator:read:chatters": "List users on your chatroom",
 			"moderator:manage:shield_mode": "Enable/disable shield mode",
-			"moderator:manage:shoutouts": "Send shoutouts"
+			"clips:edit": "Create clips"
 		},
 		"permissions": {
 			"broadcaster": "Broadcaster",

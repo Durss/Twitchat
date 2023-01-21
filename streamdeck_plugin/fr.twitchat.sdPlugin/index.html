@@ -125,12 +125,12 @@
 						}else if(px < 200 / 3 * 2){
 							callTwitchat("CHAT_FEED_SCROLL_DOWN", {
 								col,
-								scrollBy:settingsCache.CHAT_FEED_SCROLL_DOWN
+								scrollBy: 200,
 							});
 						}else{
 							callTwitchat("CHAT_FEED_SCROLL_UP", {
 								col,
-								scrollBy:settingsCache.CHAT_FEED_SCROLL_UP
+								scrollBy: 200,
 							});
 						}
 						return;
@@ -141,12 +141,12 @@
 						}else if(px < 200 / 3 * 2){
 							callTwitchat("CHAT_FEED_READ", {
 								col,
-								count:settingsCache.CHAT_FEED_READ
+								count:1
 							});
 						}else{
 							callTwitchat("CHAT_FEED_READ", {
 								col,
-								count:-settingsCache.CHAT_FEED_READ
+								count:-1
 							});
 						}
 						return;

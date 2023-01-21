@@ -1047,6 +1047,7 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatEvent.CHAT_FEED_SCROLL_UP: {
+				console.log(data);
 				this.lockScroll = true;
 				const el = this.$refs.chatMessageHolder as HTMLDivElement;
 				gsap.to(el, { scrollTop: el.scrollTop - scrollBy, duration: .5, ease: "power1.inOut" });

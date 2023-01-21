@@ -937,6 +937,7 @@ export namespace TwitchatDataTypes {
 		COMMERCIAL_START:"commercialStart",//When a commercial is started
 		COMMERCIAL_COMPLETE:"commercialComplete",//When a commercial completes
 		STREAM_INFO_UPDATE:"stream_info_update",//When updating a stream info (title, category,...)
+		CLIP_PENDING_PUBLICATION:"clip_pending_publication",//When a clip has been created and is pending publication
 		CYPHER_KEY:"cypherKey",//When configuring/removing a cypher key (secret feature hehehe ( ͡~ ͜ʖ ͡°) )
 		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
 	} as const;
@@ -1408,6 +1409,15 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageModerationAction extends MessageNoticeData {
 		user:TwitchatUser;//User moderated
+	}
+
+	/**
+	 * Represents a created clip pending publivation
+	 */
+	export interface MessageClipCreate extends MessageNoticeData {
+		noticeId:"clip_pending_publication";
+		clipUrl:string;
+		clipID:string;
 	}
 	
 	/**

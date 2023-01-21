@@ -348,6 +348,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/subscribersoff": return await TwitchUtils.setRoomSettings(channelId, {subOnly:false});
 				case "/raid": return await TwitchUtils.raidChannel(chunks[0]);
 				case "/unraid": return await TwitchUtils.raidCancel();
+				case "/clip": return await TwitchUtils.createClip();
 				case "/whisper":
 				case "/w": {
 					const login = chunks[0];
