@@ -62,7 +62,7 @@
 
 			onKeyUp: (action, payload) => {
 				console.log("KEY UP", action, payload);
-				const actionName = action.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				const actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				const col = payload.settings.colIndex ?? 0;
 				let params;
 				switch(actionName) {
