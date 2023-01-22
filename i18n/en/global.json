@@ -99,7 +99,8 @@
 			"user_restricted": "{USER} has been restricted by {MODERATOR}",
 			"user_unflagged": "{USER} monitoring has been disabled by {MODERATOR}",
 			"clip_created": "Clip is created and pending publication. {LINK}.",
-			"clip_created_link": "Publish clip"
+			"clip_created_link": "Publish clip",
+			"ban_reason": "Banni·e manuellement depuis Twitchat"
 		},
 		"dev_mode": {
 			"enabled": "Developer mode enabled",

@@ -56,7 +56,7 @@ export default class ChatModTools extends Vue {
 		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
 		.then(() => {
 		this.$emit('deleteUser', this.messageData);
-			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, "manually banned from Twitchat");
+			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, this.$t("global.moderation_action.ban_reason"));
 		})
 	}
 

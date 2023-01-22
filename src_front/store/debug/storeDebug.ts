@@ -116,7 +116,7 @@ export const storeDebug = defineStore('debug', {
 						message,
 						message_html:message,
 						user:fakeUser,
-						months: Math.floor(Math.random() * 6) + 1,
+						months: Math.random() > .75? Math.floor(Math.random() * 6) + 1 : 0,
 						streakMonths: Math.floor(Math.random() * 46),
 						totalSubDuration: Math.floor(Math.random() * 46),
 						tier:Utils.pickRand([1,2,3,"prime"]),

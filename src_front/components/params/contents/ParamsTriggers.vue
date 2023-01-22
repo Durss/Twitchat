@@ -660,7 +660,11 @@ export default class ParamsTriggers extends Vue {
 					if(entry.value == TriggerTypes.SUBGIFT) {
 						const sub = (m as TwitchatDataTypes.MessageSubscriptionData);
 						sub.is_gift = true;
-						sub.gift_recipients = [Utils.pickRand(this.$store("users").users)];
+						const recipients = [];
+						do {
+							recipients.push(Utils.pickRand(this.$store("users").users));
+						}while(Math.random()>.25);
+						sub.gift_recipients = recipients;
 					}
 					if(entry.value == TriggerTypes.COUNTDOWN_START) {
 						//Remove end date so it counts as a countdown start not an end

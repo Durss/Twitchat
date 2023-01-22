@@ -276,6 +276,9 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
 		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier"},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.sub_message', pointer:"message"},
+		{tag:"MONTHS_TOTAL", descKey:'triggers.placeholders.sub_months_total', pointer:"totalSubDuration"},
+		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months"},
+		{tag:"MONTHS_STREAK", descKey:'triggers.placeholders.sub_months_streak', pointer:"streakMonths"},
 	];
 	
 	map[TriggerTypes.SUBGIFT] = [
@@ -284,6 +287,7 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"RECIPIENTS", descKey:'triggers.placeholders.sub_gift_recipient', pointer:"gift_recipients[].displayName"},
 		{tag:"RECIPIENTS_ID", descKey:'triggers.placeholders.sub_gift_recipient_id', pointer:"gift_recipients[].id"},
 		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier"},
+		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months"},
 	];
 	
 	map[TriggerTypes.CHEER] = [

@@ -129,15 +129,14 @@ export default class DevmodeMenu extends Vue {
 					const m = (message as TwitchatDataTypes.MessageSubscriptionData);
 					m.gift_recipients = recipients;
 					m.is_gift = true;
-						for (let i = 0; i < count; i++) {
-							recipients.push(Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true)));
-							await Utils.promisedTimeout(150);
-						}
+					for (let i = 0; i < count; i++) {
+						recipients.push(Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true)));
+					}
 					break;
 				}
 			}
-			return true;
-		});
+			this.$store("chat").addMessage(message);
+		}, false);
 	}
 
 	public async exportPubsubHistory():Promise<void> {
