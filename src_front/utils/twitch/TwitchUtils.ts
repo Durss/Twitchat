@@ -1543,6 +1543,76 @@ export default class TwitchUtils {
 			return false;
 		}
 	}
+
+	/**
+	 * Create a clip
+	 */
+	public static async createClip():Promise<boolean> {
+		if(!this.hasScope(TwitchScopes.CLIPS)) {
+			StoreProxy.auth.requestTwitchScope(TwitchScopes.CLIPS);
+			return false;
+		}
+		const message:TwitchatDataTypes.MessageClipCreate = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION,
+			clipUrl: "",
+			clipID: "",
+			error:false,
+			loading:true,
+		};
+		StoreProxy.chat.addMessage(message);
+
+		const options = {
+			method:"POST",
+			headers: this.headers,
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH+"clips");
+		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		const res = await fetch(url.href, options);
+		if(res.status > 200 && res.status < 204) {
+			const json = await res.json();
+			message.clipUrl = json.data[0].edit_url;
+			message.clipID = json.data[0].id;
+			
+			let createdDate = Date.now();
+			const interval = setInterval(async ()=> {
+				const clip = await TwitchUtils.getClipById(message.clipID);
+				if(clip) {
+					clearInterval(interval);
+					message.clipData = {
+						url:clip.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
+						mp4:clip.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+						duration:clip.duration,
+					};
+					message.loading = false;
+				}
+
+				//If after 15s the clip is still not returned by the API, consider it failed
+				if(Date.now() - createdDate > 15000) {
+					message.error = true;
+					message.loading = false;
+					clearInterval(interval);
+				}
+			}, 1000);
+			return true;
+		}else
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to fulle
+			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
+			await Utils.promisedTimeout(resetDate - Date.now());
+			return await this.raidCancel();
+		}else {
+			try {
+				const json = await res.json();
+				if(json) StoreProxy.main.alert(json.message);
+			}catch(error){
+				StoreProxy.main.alert("Clip creation failed.");
+			}
+			return false;
+		}
+	}
 	
 	/**
 	 * Get a clip by its ID
@@ -1557,7 +1627,7 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			const json = await res.json();
-			return json.data[0];
+			return json.data[0] ?? null;
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to fulle
@@ -2299,55 +2369,6 @@ export default class TwitchUtils {
 				if(json) StoreProxy.main.alert(json.message);
 			}catch(error){
 				StoreProxy.main.alert("Shoutout failed.");
-			}
-			return false;
-		}
-	}
-
-	/**
-	 * Create a clip
-	 */
-	public static async createClip():Promise<boolean> {
-		if(!this.hasScope(TwitchScopes.CLIPS)) {
-			StoreProxy.auth.requestTwitchScope(TwitchScopes.CLIPS);
-			return false;
-		}
-		const options = {
-			method:"POST",
-			headers: this.headers,
-		}
-		const url = new URL(Config.instance.TWITCH_API_PATH+"clips");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
-		const res = await fetch(url.href, options);
-		if(res.status > 200 && res.status < 204) {
-			const json = await res.json();
-			const link = StoreProxy.i18n.t("global.moderation_action.clip_created_link");
-			const m:TwitchatDataTypes.MessageClipCreate = {
-				id:Utils.getUUID(),
-				date:Date.now(),
-				platform:"twitch",
-				channel_id:StoreProxy.auth.twitch.user.id,
-				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-				noticeId:TwitchatDataTypes.TwitchatNoticeType.CLIP_PENDING_PUBLICATION,
-				message:StoreProxy.i18n.t("global.moderation_action.clip_created", {LINK:`<a href="${json.data[0].edit_url}" target="blank">${link}</a>`}),
-				clipUrl: json.data[0].edit_url,
-				clipID: json.data[0].id,
-			};
-			console.log(m);
-			StoreProxy.chat.addMessage(m);
-			return true;
-		}else
-		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now());
-			return await this.raidCancel();
-		}else {
-			try {
-				const json = await res.json();
-				if(json) StoreProxy.main.alert(json.message);
-			}catch(error){
-				StoreProxy.main.alert("Clip creation failed.");
 			}
 			return false;
 		}

@@ -613,7 +613,6 @@ export default class EventSub {
 		}else{
 			StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
 		}
-		console.log("START / STOP", message);
 		StoreProxy.chat.addMessage(message);
 	}
 

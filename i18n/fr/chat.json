@@ -178,10 +178,10 @@
 			"unpinned_by":"{MODERATOR} a désépinglé le message suivant :"
 		},
 		"join_leave": {
-			"join": "a rejoint la chaîne {CHANNEL} | ont rejoint la chaîne {CHANNEL}",
+			"join": "a rejoint le salon {CHANNEL} | ont rejoint le salon {CHANNEL}",
 			"join_aria": "{COUNT} personne ont rejoint la chaine {CHANNEL}",
-			"leave": "a quitté la chaîne {CHANNEL} | ont quitté la chaîne {CHANNEL}",
-			"leave_aria": "{COUNT} personnes ont quitté la chaîne {CHANNEL}",
+			"leave": "a quitté le salon {CHANNEL} | ont quitté le salon {CHANNEL}",
+			"leave_aria": "{COUNT} personnes ont quitté le salon {CHANNEL}",
 			"more": "{COUNT} autre | {COUNT} autres"
 		},
 		"hype_train": {

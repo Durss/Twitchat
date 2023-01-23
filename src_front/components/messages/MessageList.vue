@@ -129,6 +129,11 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
+				<ChatMessageClipPending class="message"
+					v-else-if="m.type == 'clip_pending_publication'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
@@ -243,6 +248,10 @@
 					v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
 					:messageData="m" />
 
+				<ChatMessageClipPending class="message"
+					v-else-if="m.type == 'clip_pending_publication'"
+					:messageData="m" />
+
 				<ChatHighlight v-else class="message"
 					:messageData="m" />
 			</div>
@@ -324,7 +333,7 @@ import ChatPinNotice from './ChatPinNotice.vue';
 import ChatBan from './ChatBan.vue';
 import ChatUnban from './ChatUnban.vue';
 import ChatStreamOnOff from './ChatStreamOnOff.vue';
-import Utils from '@/utils/Utils';
+import ChatMessageClipPending from './ChatMessageClipPending.vue';
 
 @Options({
 	components: {
@@ -351,6 +360,7 @@ import Utils from '@/utils/Utils';
 		ChatPredictionResult,
 		ChatSuggestionResult,
 		ChatLowTrustTreatment,
+		ChatMessageClipPending,
 		ChatMessageHoverActions,
 	},
 	props: {
@@ -815,6 +825,10 @@ export default class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.ROOM_SETTINGS: {
 				return this.config.filters.message === true && this.config.messageFilters.viewers === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION: {
+				return true;
 			}
 			default: return false;
 		}

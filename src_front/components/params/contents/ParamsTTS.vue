@@ -57,7 +57,7 @@
 				<ParamItem class="item" :paramData="param_volume" />
 				<ParamItem class="item" :paramData="param_rate" />
 				<ParamItem class="item" :paramData="param_pitch" />
-				<form @submit.prevent="testVoice()">
+				<form class="item" @submit.prevent="testVoice()">
 					<input class="item center" type="text" v-model="testStr" :placeholder="$t('tts.params.test_placeholder')">
 					<Button class="item center" :title="$t('tts.params.testBt')" :icon="$image('icons/tts.svg')" type="submit" />
 				</form>
@@ -415,16 +415,16 @@ export default class ParamsTTS extends Vue {
 	.fadeHolder {
 		transition: opacity .2s;
 
-		section {
+		section, form {
+			display: flex;
+			flex-direction: column;
+			gap: .5em;
 
 			&.permissions {
 				overflow: hidden;
 			}
 			
 			.item {
-				&:not(:first-child) {
-					margin-top: .5em;
-				}
 				&.label {
 					i {
 						font-size: .8em;

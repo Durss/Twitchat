@@ -21,6 +21,7 @@
 					<Button bounce white :icon="$image('icons/emergency_purple.svg')"	:title="$t('params.categories.emergency')"		@click="setContent(contentEmergency)" />
 					<Button bounce white :icon="$image('icons/mod_purple.svg')"			:title="$t('params.categories.automod')"		@click="setContent(contentAutomod)" />
 					<Button bounce white :icon="$image('icons/broadcast_purple.svg')"	:title="$t('params.categories.triggers')"		@click="setContent(contentTriggers)" />
+					<Button bounce white :icon="$image('icons/count_purple.svg')"		:title="$t('params.categories.counters')"		@click="setContent(contentCounters)" />
 					<Button bounce white :icon="$image('icons/overlay_purple.svg')"		:title="$t('params.categories.overlays')"		@click="setContent(contentOverlays)" />
 					<Button bounce white :icon="$image('icons/tts_purple.svg')"			:title="$t('params.categories.tts')"			@click="setContent(contentTts)" />
 					<Button bounce white :icon="$image('icons/voice_purple.svg')"		:title="$t('params.categories.voice')"			@click="setContent(contentVoice)" />
@@ -51,6 +52,7 @@
 				<ParamsVoiceBot v-if="content == contentVoice" @setContent="setContent" />
 				<ParamsVoicemod v-if="content == contentVoicemod" @setContent="setContent" />
 				<ParamsAutomod v-if="content == contentAutomod" @setContent="setContent" />
+				<ParamsCounters v-if="content == contentCounters" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == contentSponsor" @setContent="setContent" />
 
@@ -112,6 +114,7 @@ import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsAlert from './contents/ParamsAlert.vue';
 import ParamsAutomod from './contents/ParamsAutomod.vue';
+import ParamsCounters from './contents/ParamsCounters.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
 import ParamsList from './contents/ParamsList.vue';
 import ParamsOBS from './contents/ParamsOBS.vue';
@@ -143,6 +146,7 @@ import PostOnChatParam from './PostOnChatParam.vue';
 		ParamsSpoiler,
 		ParamsAccount,
 		ParamsSponsor,
+		ParamsCounters,
 		ParamsOverlays,
 		ParamsTriggers,
 		ParamsVoiceBot,
@@ -177,6 +181,7 @@ export default class Parameters extends Vue {
 	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPONSOR; } 
 	public get contentStreamdeck():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.STREAMDECK; } 
 	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
+	public get contentCounters():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.COUNTERS; } 
 	public get contentOverlays():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OVERLAYS; } 
 	public get contentEmergency():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.EMERGENCY; } 
 	public get contentSpoiler():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPOILER; } 

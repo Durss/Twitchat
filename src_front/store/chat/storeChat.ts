@@ -1,7 +1,6 @@
 import EventBus from '@/events/EventBus'
 import GlobalEvent from '@/events/GlobalEvent'
 import TwitchatEvent from '@/events/TwitchatEvent'
-import MessengerProxy from '@/messaging/MessengerProxy'
 import DataStore from '@/store/DataStore'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin'
@@ -23,7 +22,6 @@ import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } fro
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 let greetedUsers:{[key:string]:number} = {};
 let greetedUsersInitialized:boolean = false;
-let subgiftTriggerTimeout:number = -1;
 
 export const storeChat = defineStore('chat', {
 	state: () => ({

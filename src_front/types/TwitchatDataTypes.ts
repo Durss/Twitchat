@@ -19,6 +19,7 @@ export namespace TwitchatDataTypes {
 		SPONSOR: "sponsor",
 		STREAMDECK: "streamdeck",
 		TRIGGERS: "triggers",
+		COUNTERS: "counters",
 		OVERLAYS: "overlays",
 		EMERGENCY: "emergency",
 		SPOILER: "spoiler",
@@ -859,6 +860,7 @@ export namespace TwitchatDataTypes {
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
+		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
 	} as const;
@@ -913,6 +915,7 @@ export namespace TwitchatDataTypes {
 		music_added_to_queue:false,
 		hype_train_cooled_down:true,
 		hype_train_approaching:false,
+		clip_pending_publication:true,
 		community_boost_complete:true,
 		community_challenge_contribution:true,
 	} as const;
@@ -937,7 +940,6 @@ export namespace TwitchatDataTypes {
 		COMMERCIAL_START:"commercialStart",//When a commercial is started
 		COMMERCIAL_COMPLETE:"commercialComplete",//When a commercial completes
 		STREAM_INFO_UPDATE:"stream_info_update",//When updating a stream info (title, category,...)
-		CLIP_PENDING_PUBLICATION:"clip_pending_publication",//When a clip has been created and is pending publication
 		CYPHER_KEY:"cypherKey",//When configuring/removing a cypher key (secret feature hehehe ( ͡~ ͜ʖ ͡°) )
 		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
 	} as const;
@@ -992,6 +994,7 @@ export namespace TwitchatDataTypes {
 									MessageStreamOnlineData |
 									MessageStreamOfflineData |
 									MessageUnpinData |
+									MessageClipCreate |
 									MessagePinData
 	;
 
@@ -1396,6 +1399,18 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Represents a created clip pending publivation
+	 */
+	export interface MessageClipCreate extends AbstractTwitchatMessage {
+		type:"clip_pending_publication";
+		clipUrl:string;
+		clipID:string;
+		loading:boolean;
+		error:boolean;
+		clipData?:ClipInfo;
+	}
+
+	/**
 	 * Represents a stream info update message 
 	 */
 	export interface MessageStreamInfoUpdate extends MessageNoticeData {
@@ -1409,15 +1424,6 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageModerationAction extends MessageNoticeData {
 		user:TwitchatUser;//User moderated
-	}
-
-	/**
-	 * Represents a created clip pending publivation
-	 */
-	export interface MessageClipCreate extends MessageNoticeData {
-		noticeId:"clip_pending_publication";
-		clipUrl:string;
-		clipID:string;
 	}
 	
 	/**

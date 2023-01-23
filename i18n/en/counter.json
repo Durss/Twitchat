@@ -1,0 +1,11 @@
+{
+  "counters": {
+    "header": "Create custom counters that you can then control with {LINK}",
+    "header_link": "triggers",
+    "addBt": "Create counter",
+	"form":{
+		"name":"Name:",
+		"value":"Value:"
+	}
+  }
+}

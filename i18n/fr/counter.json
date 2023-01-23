@@ -1,0 +1,11 @@
+{
+	"counters": {
+		"header": "Créez des compteurs personnalisés que vous pourrez ensuite contrôler depuis {LINK}",
+		"header_link": "les triggers",
+		"addBt": "Créer un compteur",
+		"form":{
+			"name":"Nom :",
+			"value":"Valeur :"
+		}
+	}
+}

@@ -300,6 +300,28 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION: {
+					const m:TwitchatDataTypes.MessageClipCreate = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						type,
+						clipID:"",
+						clipUrl:"",
+						loading:true,
+						error:false,
+					};
+
+					setTimeout(()=>{
+						m.clipID = "xxx";
+						m.clipUrl = "https://durss.ninja";
+						m.loading = false;
+					}, 2000);
+					
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
 					const approached_at = Date.now() - Math.round(Math.random()*60*1000*10 + 60*1000);
 					const activities:(TwitchatDataTypes.MessageSubscriptionData | TwitchatDataTypes.MessageCheerData)[] = [];

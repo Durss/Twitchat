@@ -19,7 +19,7 @@
 		"showUserPronouns_based_on": "basé sur {URL1} et {URL2}",
 		"chatShoutout": "Message de shoutout",
 		"chatShoutout_info": "Envoyer ce message lorsque vous effectuez un shoutout",
-		"scope_missing":"Nécessite une autorisation Twitch supplémentaire",
+		"scope_missing": "Nécessite une autorisation Twitch supplémentaire",
 		"chatShoutout_placeholders": {
 			"user": "Nom de la chaîne",
 			"user_link": "URL de la chaîne",
@@ -74,7 +74,8 @@
 			"triggers": "Triggers",
 			"tts": "Text to speech",
 			"voice": "Assistant vocal",
-			"voicemod": "Voicemod"
+			"voicemod": "Voicemod",
+			"counters": "Compteurs"
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} !",

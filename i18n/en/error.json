@@ -42,6 +42,7 @@
 		"prediction_delete": "An error occurred while deleting the prediction",
 		"prediction_error": "Unable to create prediction: {MESSAGE}",
 		"invalid_bingo": "Invalid bingo parameters: ",
-		"shoutout_cooldown": "You need to wait a little before doing another shoutout"
+		"shoutout_cooldown": "You need to wait a little before doing another shoutout",
+		"clip_creation": "Clip creation failed"
 	}
 }
