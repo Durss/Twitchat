@@ -1604,6 +1604,8 @@ export default class TwitchUtils {
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.raidCancel();
 		}else {
+			message.error = true;
+			message.loading = false;
 			try {
 				const json = await res.json();
 				if(json) StoreProxy.main.alert(json.message);

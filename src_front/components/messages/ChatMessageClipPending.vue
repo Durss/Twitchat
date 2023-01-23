@@ -13,14 +13,12 @@
 		<div v-else-if="!error">
 			<div class="message">{{ $t("global.moderation_action.clip_created") }}</div>
 			<div class="ctas">
-				<Button class="publishBt" type="link" :href="messageData.clipUrl" target="_blank" :title="$t('global.moderation_action.clip_created_publishBt')" :icon="$image('icons/checkmark_white.svg')" />
-				<Button class="publishBt" @click="highlight()" :title="$t('chat.hover_actions.highlight')" :icon="$image('icons/highlight.svg')" />
+				<Button @click="highlight()" :title="$t('chat.hover_actions.highlight')" :icon="$image('icons/highlight.svg')" />
+				<Button type="link" :href="messageData.clipUrl" target="_blank" :title="$t('global.moderation_action.clip_created_publishBt')" :icon="$image('icons/edit.svg')" />
 			</div>
 		</div>
 
-		<div v-if="error" class="error">
-			{{ $t("error.clip_creation") }}
-		</div>
+		<div v-if="error" class="error">{{ $t("error.clip_creation") }}</div>
 
 	</div>
 </template>

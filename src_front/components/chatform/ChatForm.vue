@@ -133,8 +133,8 @@
 				<transition name="blink">
 				<Button :aria-label="$t('chat.form.highlightBt_aria')"
 					class="chatHighlight"
-					bounce small highlight
-					:icon="$image('icons/highlight_del.svg')"
+					bounce highlight
+					:icon="$image('icons/highlight.svg')"
 					v-if="chatHighlightEnabled"
 					:data-tooltip="$t('chat.form.highlightBt_aria')"
 					@click="removeChatHighlight()" />
@@ -158,7 +158,7 @@
 				</div>
 
 				<transition name="blink">
-				<Button small highlight class="voice"
+				<Button highlight class="voice"
 					:icon="$image('icons/microphone'+(voiceBotStarted? '_recording' : '')+'.svg')"
 					bounce
 					v-if="voiceBotConfigured"
@@ -176,7 +176,7 @@
 				</transition>
 
 				<transition name="blink">
-				<Button small highlight class="noClear emergency"
+				<Button highlight class="noClear emergency"
 					v-if="emergencyButtonEnabled"
 					:icon="$image('icons/emergency.svg')"
 					bounce
@@ -919,11 +919,14 @@ export default class ChatForm extends Vue {
 			height: 100%;
 			display: flex;
 			flex-direction: row;
+			align-self: center;
 			.button {
+				.clearButton();
 				width: 1.5em;
 				height: 1.5em;
-				border-radius: .25em;
-				background: none;
+				:deep(.icon) {
+					height: .85em;
+				}
 			}
 		}
 	
@@ -977,9 +980,12 @@ export default class ChatForm extends Vue {
 			}
 
 			.button:not(.noClear) {
-				.clearButton() !important;
-				border-radius: 50%;
-				min-height: 100%;
+				.clearButton();
+				width: 1.5em;
+				height: 1.5em;
+				:deep(.icon) {
+					height: .85em;
+				}
 			}
 			.spam {
 				flex-grow: 1;

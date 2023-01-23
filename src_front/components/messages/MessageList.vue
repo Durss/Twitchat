@@ -576,7 +576,6 @@ export default class MessageList extends Vue {
 	 */
 	public fullListRefresh(): void {
 		if(this.customActivitiesDisplayed) return;
-		console.log("FULL REFRESH");
 
 		clearTimeout(this.updateDebounce);
 		this.updateDebounce = setTimeout(async () => {
@@ -996,12 +995,10 @@ export default class MessageList extends Vue {
 				
 				//Moving read mark upward
 				if(readCount < 0) {
-					console.log("UP");
 					for (let i = currentMessageIndex; i > 0; i--) {
 						const m = messageList[i];
 						if(this.shouldShowMessage(m)) readCount ++;
 						if(readCount === 1) {
-							console.log("FOUND", m);
 							this.markedAsReadDate = m.date;
 							this.replaceReadMarker();
 							break;
@@ -1061,7 +1058,6 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatEvent.CHAT_FEED_SCROLL_UP: {
-				console.log(data);
 				this.lockScroll = true;
 				const el = this.$refs.chatMessageHolder as HTMLDivElement;
 				gsap.to(el, { scrollTop: el.scrollTop - scrollBy, duration: .5, ease: "power1.inOut" });

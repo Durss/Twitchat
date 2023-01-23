@@ -21,7 +21,7 @@
 					<Button bounce white :icon="$image('icons/emergency_purple.svg')"	:title="$t('params.categories.emergency')"		@click="setContent(contentEmergency)" />
 					<Button bounce white :icon="$image('icons/mod_purple.svg')"			:title="$t('params.categories.automod')"		@click="setContent(contentAutomod)" />
 					<Button bounce white :icon="$image('icons/broadcast_purple.svg')"	:title="$t('params.categories.triggers')"		@click="setContent(contentTriggers)" />
-					<Button bounce white :icon="$image('icons/count_purple.svg')"		:title="$t('params.categories.counters')"		@click="setContent(contentCounters)" />
+					<!-- <Button bounce white :icon="$image('icons/count_purple.svg')"		:title="$t('params.categories.counters')"		@click="setContent(contentCounters)" /> -->
 					<Button bounce white :icon="$image('icons/overlay_purple.svg')"		:title="$t('params.categories.overlays')"		@click="setContent(contentOverlays)" />
 					<Button bounce white :icon="$image('icons/tts_purple.svg')"			:title="$t('params.categories.tts')"			@click="setContent(contentTts)" />
 					<Button bounce white :icon="$image('icons/voice_purple.svg')"		:title="$t('params.categories.voice')"			@click="setContent(contentVoice)" />

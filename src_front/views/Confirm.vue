@@ -2,7 +2,7 @@
 	<div class="confirmView" v-if="confirmData">
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
 		<div class="holder" ref="holder">
-			<img src="@/assets/icons/lock_fit_purple.svg" class="icon">
+			<!-- <img src="@/assets/icons/lock_fit_purple.svg" class="icon"> -->
 
 			<div class="title" v-html="confirmData.title"></div>
 			
@@ -10,7 +10,7 @@
 
 			<div class="description" v-html="confirmData.description"></div>
 			<div class="buttons">
-				<Button class="cancel" type="cancel" @click.stop="answer()" :title="confirmData.noLabel ?? $t('global.no')" highlight />
+				<Button class="cancel" type="cancel" @click.stop="answer()" :title="confirmData.noLabel ?? $t('global.cancel')" highlight />
 				<Button class="confirm" @click.stop="answer(true)" :title="confirmData.yesLabel ?? $t('global.yes')" />
 			</div>
 		</div>
@@ -208,6 +208,9 @@ export default class Confirm extends Vue {
 			margin: auto;
 			margin-top: 1em;
 			justify-content: space-evenly;
+			.button {
+				text-transform: capitalize;
+			}
 		}
 	}
 }
@@ -236,6 +239,7 @@ export default class Confirm extends Vue {
 				button {
 					font-size: Em;
 					padding: .5em;
+					text-transform: capitalize;
 				}
 			}
 		}

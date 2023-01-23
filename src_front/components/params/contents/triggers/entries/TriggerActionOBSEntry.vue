@@ -125,8 +125,8 @@ export default class TriggerActionOBSEntry extends Vue {
 		this.media_conf.labelKey	= "triggers.actions.obs.param_media";
 
 		const showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [
-			{labelKey:"global.enable", value:false},
-			{labelKey:"global.disable", value:true},
+			{labelKey:"global.enable", value:true},
+			{labelKey:"global.disable", value:false},
 		];
 		this.show_conf.value	= showHideValues[1].value
 		this.show_conf.listValues= showHideValues;

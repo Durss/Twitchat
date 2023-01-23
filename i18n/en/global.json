@@ -100,8 +100,8 @@
 			"user_unflagged": "{USER} monitoring has been disabled by {MODERATOR}",
 			"clip_creating": "Please wait while creating clip",
 			"clip_created": "Clip is created and pending publication.",
-			"clip_created_publishBt": "Publish clip",
-			"ban_reason": "Banni·e manuellement depuis Twitchat"
+			"clip_created_publishBt": "Edit clip",
+			"ban_reason": "Manually banned from Twitchat"
 		},
 		"dev_mode": {
 			"enabled": "Developer mode enabled",
@@ -145,6 +145,7 @@
 			"moderator:manage:chat_settings": "Update room settings (follow only, sub only, etc...)",
 			"moderator:read:chatters": "List users on your chatroom",
 			"moderator:manage:shield_mode": "Enable/disable shield mode",
+			"moderator:manage:shoutouts": "Send shoutouts",
 			"clips:edit": "Create clips"
 		},
 		"permissions": {
