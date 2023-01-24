@@ -16,10 +16,11 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionHTTPCallData
 								| TriggerActionPollData
 								| TriggerActionPredictionData
+								| TriggerActionCountData
 ;
 
 
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|"count"|null;
 
 export interface TriggerData {
 	enabled:boolean;
@@ -39,6 +40,7 @@ export interface TriggerData {
 export const TriggerEventTypeCategories = {
 	GLOBAL: 1,
 	TIMER: 2,
+	COUNTER: 12,
 	TWITCHAT: 3,
 	USER: 4,
 	SUBITS: 5,
@@ -144,6 +146,12 @@ export interface TriggerActionPredictionData extends TriggerActionData{
 	predictionData:TwitchatDataTypes.PredictionConfig;
 }
 
+export interface TriggerActionCountData extends TriggerActionData{
+	type:"count";
+	addValue:string;//Can be a placeholder, needs to be parseFloat() before updating counter
+	counters:string[];
+}
+
 export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];
 export interface TriggerScheduleData {
 	type:TriggerScheduleTypesValue|"0";
@@ -209,6 +217,11 @@ export const TriggerTypes = {
 	UNPIN_MESSAGE:"55",
 	STREAM_ONLINE:"56",
 	STREAM_OFFLINE:"57",
+	COUNTER_ADD:"58",
+	COUNTER_DEL:"59",
+	COUNTER_MAXED:"60",
+	COUNTER_MINED:"61",
+	COUNTER_LOOPED:"62",
 
 	TWITCHAT_AD:"ad",
 } as const;
@@ -218,6 +231,8 @@ export interface ITriggerActionHelper {
 	tag:string;
 	descKey:string;
 	pointer:string;
+	isUserID:boolean;
+	numberParsable:boolean;
 }
 
 let helpersCache:{[key:string]:ITriggerActionHelper[]};
@@ -225,7 +240,6 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	if(helpersCache) {
 		return helpersCache[key] ?? [];
 	}
-	const t = StoreProxy.i18n.t;
 
 	const map:{[key:string]:ITriggerActionHelper[]} = {}
 	map[TriggerTypes.ANY_MESSAGE] = 
@@ -234,166 +248,167 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.RETURNING_USER] = 
 	map[TriggerTypes.PRESENTATION] =
 	map[TriggerTypes.CHAT_COMMAND] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.PIN_MESSAGE] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"chatMessage.user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"chatMessage.message"},
-		{tag:"MODERATOR", descKey:'triggers.placeholders.pinned_by', pointer:"moderator.displayName"},
-		{tag:"MODERATOR_ID", descKey:'triggers.placeholders.pinned_by_id', pointer:"moderator.id"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"chatMessage.user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"chatMessage.message", numberParsable:true, isUserID:false},
+		{tag:"MODERATOR", descKey:'triggers.placeholders.pinned_by', pointer:"moderator.displayName", numberParsable:false, isUserID:false},
+		{tag:"MODERATOR_ID", descKey:'triggers.placeholders.pinned_by_id', pointer:"moderator.id", numberParsable:false, isUserID:false},
 	];
 
 	map[TriggerTypes.UNPIN_MESSAGE] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"chatMessage.user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"chatMessage.message"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"chatMessage.user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"chatMessage.message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.POLL_RESULT] = [
-		{tag:"TITLE", descKey:'triggers.placeholders.poll_title', pointer:"title"},
-		{tag:"WIN", descKey:'triggers.placeholders.poll_win', pointer:"winner.label"},
+		{tag:"TITLE", descKey:'triggers.placeholders.poll_title', pointer:"title", numberParsable:false, isUserID:false},
+		{tag:"WIN", descKey:'triggers.placeholders.poll_win', pointer:"winner.label", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.PREDICTION_RESULT] = [
-		{tag:"TITLE", descKey:'triggers.placeholders.prediction_title', pointer:"title"},
-		{tag:"WIN", descKey:'triggers.placeholders.prediction_win', pointer:"winner.label"},
+		{tag:"TITLE", descKey:'triggers.placeholders.prediction_title', pointer:"title", numberParsable:false, isUserID:false},
+		{tag:"WIN", descKey:'triggers.placeholders.prediction_win', pointer:"winner.label", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.BINGO_RESULT] = [
-		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"bingoData.winners[].displayName"},
+		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"bingoData.winners[].displayName", numberParsable:false, isUserID:false},
+		{tag:"WIN_VALUE", descKey:'triggers.placeholders.winner', pointer:"bingoData.numberValue", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.RAFFLE_RESULT] = [
-		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"raffleData.winners[].label"},
+		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"raffleData.winners[].label", numberParsable:false, isUserID:false},
 	];
 	
 	map[TriggerTypes.SUB] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier"},
-		{tag:"MESSAGE", descKey:'triggers.placeholders.sub_message', pointer:"message"},
-		{tag:"MONTHS_TOTAL", descKey:'triggers.placeholders.sub_months_total', pointer:"totalSubDuration"},
-		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months"},
-		{tag:"MONTHS_STREAK", descKey:'triggers.placeholders.sub_months_streak', pointer:"streakMonths"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier", numberParsable:true, isUserID:false},
+		{tag:"MESSAGE", descKey:'triggers.placeholders.sub_message', pointer:"message", numberParsable:true, isUserID:false},
+		{tag:"MONTHS_TOTAL", descKey:'triggers.placeholders.sub_months_total', pointer:"totalSubDuration", numberParsable:true, isUserID:false},
+		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months", numberParsable:true, isUserID:false},
+		{tag:"MONTHS_STREAK", descKey:'triggers.placeholders.sub_months_streak', pointer:"streakMonths", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.SUBGIFT] = [
-		{tag:"USER", descKey:'triggers.placeholders.sub_gifter', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"RECIPIENTS", descKey:'triggers.placeholders.sub_gift_recipient', pointer:"gift_recipients[].displayName"},
-		{tag:"RECIPIENTS_ID", descKey:'triggers.placeholders.sub_gift_recipient_id', pointer:"gift_recipients[].id"},
-		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier"},
-		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months"},
+		{tag:"USER", descKey:'triggers.placeholders.sub_gifter', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"RECIPIENTS", descKey:'triggers.placeholders.sub_gift_recipient', pointer:"gift_recipients[].displayName", numberParsable:false, isUserID:false},
+		{tag:"RECIPIENTS_ID", descKey:'triggers.placeholders.sub_gift_recipient_id', pointer:"gift_recipients[].id", numberParsable:false, isUserID:false},
+		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier", numberParsable:true, isUserID:false},
+		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.CHEER] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"BITS", descKey:'triggers.placeholders.bits', pointer:"bits"},
-		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"BITS", descKey:'triggers.placeholders.bits', pointer:"bits", numberParsable:true, isUserID:false},
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.FOLLOW] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 	
 	map[TriggerTypes.RAID] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title"},
-		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category"},
-		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_category', pointer:"viewers"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title", numberParsable:false, isUserID:false},
+		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false},
+		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_category', pointer:"viewers", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.SHOUTOUT_IN] = [
-		{tag:"USER", descKey:'triggers.placeholders.shoutout_in', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"AVATAR", descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath"},
-		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title"},
-		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category"},
+		{tag:"USER", descKey:'triggers.placeholders.shoutout_in', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"AVATAR", descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false},
+		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title", numberParsable:false, isUserID:false},
+		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false},
 	];
 	map[TriggerTypes.SHOUTOUT_OUT] = [
-		{tag:"USER", descKey:'triggers.placeholders.shoutout_out', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
+		{tag:"USER", descKey:'triggers.placeholders.shoutout_out', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 	
 	map[TriggerTypes.REWARD_REDEEM] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"TITLE", descKey:'triggers.placeholders.reward_title', pointer:"reward.title"},
-		{tag:"DESCRIPTION", descKey:'triggers.placeholders.reward_description', pointer:"reward.description"},
-		{tag:"COST", descKey:'triggers.placeholders.reward_cost', pointer:"reward.cost"},
-		{tag:"MESSAGE", descKey:"User message if any", pointer:"message"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"TITLE", descKey:'triggers.placeholders.reward_title', pointer:"reward.title", numberParsable:false, isUserID:false},
+		{tag:"DESCRIPTION", descKey:'triggers.placeholders.reward_description', pointer:"reward.description", numberParsable:false, isUserID:false},
+		{tag:"COST", descKey:'triggers.placeholders.reward_cost', pointer:"reward.cost", numberParsable:true, isUserID:false},
+		{tag:"MESSAGE", descKey:"triggers.placeholders.reward_message", pointer:"message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.MUSIC_START] = 
 	map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
-		{tag:"CURRENT_TRACK_ARTIST", descKey:'triggers.placeholders.track_artist', pointer:"track.artist"},
-		{tag:"CURRENT_TRACK_TITLE", descKey:'triggers.placeholders.track_title', pointer:"track.title"},
-		{tag:"CURRENT_TRACK_ALBUM", descKey:'triggers.placeholders.track_album', pointer:"track.album"},
-		{tag:"CURRENT_TRACK_COVER", descKey:'triggers.placeholders.track_cover', pointer:"track.cover"},
-		{tag:"CURRENT_TRACK_URL", descKey:'triggers.placeholders.track_url', pointer:"track.url"},
+		{tag:"CURRENT_TRACK_ARTIST", descKey:'triggers.placeholders.track_artist', pointer:"track.artist", numberParsable:false, isUserID:false},
+		{tag:"CURRENT_TRACK_TITLE", descKey:'triggers.placeholders.track_title', pointer:"track.title", numberParsable:false, isUserID:false},
+		{tag:"CURRENT_TRACK_ALBUM", descKey:'triggers.placeholders.track_album', pointer:"track.album", numberParsable:false, isUserID:false},
+		{tag:"CURRENT_TRACK_COVER", descKey:'triggers.placeholders.track_cover', pointer:"track.cover", numberParsable:false, isUserID:false},
+		{tag:"CURRENT_TRACK_URL", descKey:'triggers.placeholders.track_url', pointer:"track.url", numberParsable:false, isUserID:false},
 	];
 	
 	map[TriggerTypes.STREAM_INFO_UPDATE] = [
-		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"title"},
-		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"category"},
+		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"title", numberParsable:false, isUserID:false},
+		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"category", numberParsable:false, isUserID:false},
 	];
 	
 	map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = [
-		{tag:"AVATAR", descKey:'triggers.placeholders.user_avatar', pointer:"info.user.avatarPath"},
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"info.user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"info.user.id"},
-		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"info.message"},
+		{tag:"AVATAR", descKey:'triggers.placeholders.user_avatar', pointer:"info.user.avatarPath", numberParsable:false, isUserID:false},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"info.user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"info.user.id", numberParsable:false, isUserID:true},
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"info.message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.CHAT_ALERT] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"message.user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"message.user.id"},
-		{tag:"ALERT", descKey:'triggers.placeholders.message', pointer:"message.message"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"message.user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"message.user.id", numberParsable:false, isUserID:true},
+		{tag:"ALERT", descKey:'triggers.placeholders.message', pointer:"message.message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.HYPE_TRAIN_START] = 
 	map[TriggerTypes.HYPE_TRAIN_PROGRESS] = [
-		{tag:"LEVEL", descKey:'triggers.placeholders.train_level', pointer:"level"},
-		{tag:"PERCENT", descKey:'triggers.placeholders.train_percent', pointer:"percent"},
+		{tag:"LEVEL", descKey:'triggers.placeholders.train_level', pointer:"level", numberParsable:true, isUserID:false},
+		{tag:"PERCENT", descKey:'triggers.placeholders.train_percent', pointer:"percent", numberParsable:true, isUserID:false},
 	];
 
 	map[TriggerTypes.HYPE_TRAIN_END] = [
-		{tag:"LEVEL", descKey:'triggers.placeholders.train_end_level', pointer:"level"},
-		{tag:"PERCENT", descKey:'triggers.placeholders.train_end_percent', pointer:"percent"},
+		{tag:"LEVEL", descKey:'triggers.placeholders.train_end_level', pointer:"level", numberParsable:true, isUserID:false},
+		{tag:"PERCENT", descKey:'triggers.placeholders.train_end_percent', pointer:"percent", numberParsable:true, isUserID:false},
 	];
 
 	map[TriggerTypes.VOICEMOD] = [
-		{tag:"VOICE_ID", descKey:'triggers.placeholders.voicemod_voice', pointer:"voiceID"},
+		{tag:"VOICE_ID", descKey:'triggers.placeholders.voicemod_voice', pointer:"voiceID", numberParsable:false, isUserID:false},
 	];
 
 	map[TriggerTypes.TIMEOUT] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration_s"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration_s", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.TIMER_START] = [
-		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"startAt"},
+		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"startAt", numberParsable:false, isUserID:false},
 	];
 	map[TriggerTypes.TIMER_STOP] = [
-		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"startAt"},
-		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration"},
+		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"startAt", numberParsable:false, isUserID:false},
+		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration", numberParsable:false, isUserID:false},
 	];
 
 	map[TriggerTypes.COUNTDOWN_START] = [
-		{tag:"START_AT", descKey:'triggers.placeholders.start_date', pointer:"countdown.startAt"},
-		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration', pointer:"countdown.duration"},
+		{tag:"START_AT", descKey:'triggers.placeholders.start_date', pointer:"countdown.startAt", numberParsable:false, isUserID:false},
+		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration', pointer:"countdown.duration", numberParsable:false, isUserID:false},
 	]; 
 	map[TriggerTypes.COUNTDOWN_STOP] = JSON.parse(JSON.stringify(map[TriggerTypes.COUNTDOWN_START]));
 	map[TriggerTypes.COUNTDOWN_STOP].push(
-		{tag:"END_AT", descKey:'triggers.placeholders.countdown_end_date', pointer:"countdown.endAt"},
+		{tag:"END_AT", descKey:'triggers.placeholders.countdown_end_date', pointer:"countdown.endAt", numberParsable:false, isUserID:false},
 	)
 
 	map[TriggerTypes.VIP] = 
@@ -404,24 +419,34 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.BAN] = 
 	map[TriggerTypes.STREAM_ONLINE] =
 	map[TriggerTypes.STREAM_OFFLINE] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 	
 	map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE] = [
-		{tag:"TITLE", descKey:'triggers.placeholders.challenge_title', pointer:"challenge.title"},
-		{tag:"DESCRIPTION", descKey:'triggers.placeholders.challenge_description', pointer:"challenge.description"},
-		{tag:"GOAL", descKey:'triggers.placeholders.challenge_goal', pointer:"challenge.goal"},
-		{tag:"CURRENT", descKey:'triggers.placeholders.challenge_current', pointer:"challenge.progress"},
+		{tag:"TITLE", descKey:'triggers.placeholders.challenge_title', pointer:"challenge.title", numberParsable:false, isUserID:false},
+		{tag:"DESCRIPTION", descKey:'triggers.placeholders.challenge_description', pointer:"challenge.description", numberParsable:false, isUserID:false},
+		{tag:"GOAL", descKey:'triggers.placeholders.challenge_goal', pointer:"challenge.goal", numberParsable:true, isUserID:false},
 	];
 
 	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS] = JSON.parse(JSON.stringify(map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE]));
 	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS].push(
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName"},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id"},
-		{tag:"CONTRIBUTION", descKey:'triggers.placeholders.challenge_contribution', pointer:"contribution"},
-		{tag:"CONTRIBUTION_TOTAL", descKey:'triggers.placeholders.challenge_contribution_total', pointer:"total_contribution"},
+		{tag:"PROGRESS", descKey:'triggers.placeholders.challenge_current', pointer:"challenge.progress", numberParsable:true, isUserID:false},
+		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"CONTRIBUTION", descKey:'triggers.placeholders.challenge_contribution', pointer:"contribution", numberParsable:true, isUserID:false},
+		{tag:"CONTRIBUTION_TOTAL", descKey:'triggers.placeholders.challenge_contribution_total', pointer:"total_contribution", numberParsable:true, isUserID:false},
 	);
+	
+	map[TriggerTypes.COUNTER_ADD] =
+	map[TriggerTypes.COUNTER_DEL] =
+	map[TriggerTypes.COUNTER_LOOPED] =
+	map[TriggerTypes.COUNTER_MINED] =
+	map[TriggerTypes.COUNTER_MAXED] = [
+		{tag:"NAME", descKey:'triggers.placeholders.counter_name', pointer:"counter.name", numberParsable:false, isUserID:false},
+		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"counter.value", numberParsable:true, isUserID:false},
+		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"value", numberParsable:true, isUserID:false},
+	];
 
 
 	//If requesting chat command helpers and there is a music
@@ -499,6 +524,11 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"voicemod", labelKey:"triggers.events.VOICEMOD.label", value:TriggerTypes.VOICEMOD, descriptionKey:"triggers.events.VOICEMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
 		{beta:true, category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.STREAM_ONLINE.label", value:TriggerTypes.STREAM_ONLINE, descriptionKey:"triggers.events.STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE},
 		{beta:true, category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.STREAM_OFFLINE.label", value:TriggerTypes.STREAM_OFFLINE, descriptionKey:"triggers.events.STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},
+		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, noToggle:true},
+		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_DEL.label", value:TriggerTypes.COUNTER_DEL, descriptionKey:"triggers.events.COUNTER_DEL.description", isCategory:true, noToggle:true},
+		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_MAXED.label", value:TriggerTypes.COUNTER_MAXED, descriptionKey:"triggers.events.COUNTER_MAXED.description", isCategory:true, noToggle:true},
+		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_MINED.label", value:TriggerTypes.COUNTER_MINED, descriptionKey:"triggers.events.COUNTER_MINED.description", isCategory:true, noToggle:true},
+		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_LOOPED.label", value:TriggerTypes.COUNTER_LOOPED, descriptionKey:"triggers.events.COUNTER_LOOPED.description", isCategory:true, noToggle:true},
 	];
 	return eventsCache;
 }

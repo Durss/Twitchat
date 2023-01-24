@@ -37,6 +37,7 @@ export default class TwitchatEvent extends Event {
 	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 	public static VOICEMOD_CHANGE:TwitchatEventType = "VOICEMOD_CHANGE";
 	public static SET_COLS_COUNT:TwitchatEventType = "SET_COLS_COUNT";
+	public static COUNTER_UPDATE:TwitchatEventType = "COUNTER_UPDATE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -80,6 +81,7 @@ export default class TwitchatEvent extends Event {
 	public static RAFFLE_START:TwitchatActionType = "RAFFLE_START";
 	public static RAFFLE_END:TwitchatActionType = "RAFFLE_END";
 	public static GET_COLS_COUNT:TwitchatActionType = "GET_COLS_COUNT";
+	public static COUNTER_GET:TwitchatActionType = "COUNTER_GET";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -116,6 +118,7 @@ export const TwitchatEventTypeList = [
 	"CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
 	"VOICEMOD_CHANGE",
 	"SET_COLS_COUNT",
+	"COUNTER_UPDATE",
 ] as const;
 
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
@@ -162,5 +165,6 @@ export const TwitchatActionTypeList = [
 	"RAFFLE_START",
 	"RAFFLE_END",
 	"GET_COLS_COUNT",
+	"COUNTER_GET",
 ];
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

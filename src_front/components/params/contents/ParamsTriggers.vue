@@ -39,6 +39,14 @@
 						</template>
 					</i18n-t>
 
+					<i18n-t scope="global" tag="div" class="require"
+					v-if="isCountersCategory(c.category)"
+					keypath="triggers.count.require">
+						<template #URL>
+							<a @click="openCounters()">{{ $t("triggers.count.require_url") }}</a>
+						</template>
+					</i18n-t>
+
 					<div v-for="e in c.events" :key="(e.value as string)" :class="e.beta? 'item beta' : 'item'">
 						<Button class="triggerBt"
 							white
@@ -272,11 +280,7 @@ export default class ParamsTriggers extends Vue {
 		if(!this.triggerData) return "";
 		let key = this.currentEvent?.value as string;
 		let subkey = this.triggerData.name;
-		if(this.currentEvent?.isCategory &&
-		(key === TriggerTypes.REWARD_REDEEM
-		|| key === TriggerTypes.OBS_SCENE
-		|| key === TriggerTypes.OBS_SOURCE_ON
-		|| key === TriggerTypes.OBS_SOURCE_OFF)) {
+		if(this.currentEvent?.isCategory && key !== TriggerTypes.SCHEDULE) {
 			subkey = this.currentSubEvent?.value as string;
 		}
 		if(subkey != "0" && subkey) key = key+"_"+subkey;
@@ -472,6 +476,7 @@ export default class ParamsTriggers extends Vue {
 		catToLabel[ TriggerEventTypeCategories.TIMER ]		= "triggers.categories.timer";
 		catToLabel[ TriggerEventTypeCategories.OBS ]		= "triggers.categories.obs";
 		catToLabel[ TriggerEventTypeCategories.MISC ]		= "triggers.categories.misc";
+		catToLabel[ TriggerEventTypeCategories.COUNTER]		= "triggers.categories.count";
 		
 		const catToIcon:{[key:number]:string} = {};
 		catToIcon[ TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";
@@ -485,6 +490,7 @@ export default class ParamsTriggers extends Vue {
 		catToIcon[ TriggerEventTypeCategories.TIMER ] = "timer_purple";
 		catToIcon[ TriggerEventTypeCategories.OBS ] = "obs_purple";
 		catToIcon[ TriggerEventTypeCategories.MISC ] = "broadcast_purple";
+		catToIcon[ TriggerEventTypeCategories.COUNTER ] = "count_purple";
 
 		for (let i = 0; i < events.length; i++) {
 			const ev = events[i];
@@ -735,12 +741,20 @@ export default class ParamsTriggers extends Vue {
 		return category == TriggerEventTypeCategories.OBS;
 	}
 
+	public isCountersCategory(category:TriggerEventTypeCategoryValue):boolean {
+		return category == TriggerEventTypeCategories.COUNTER;
+	}
+
 	public openOverlays():void {
 		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OVERLAYS);
 	}
 
 	public openOBS():void {
 		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OBS);
+	}
+
+	public openCounters():void {
+		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.COUNTERS);
 	}
 
 	/**
@@ -760,9 +774,10 @@ export default class ParamsTriggers extends Vue {
 
 			const entry = TriggerEvents().find(v=> v.value == key);
 			if(entry?.isCategory === true) {
-				//Chat commands and channel point rewards are stored differently to avoid
-				//flooding the main trigger list. Main trigger elements are stored with
-				//simple keys like "1" where these ones are stored with keys like "1_entryName".
+				//Chat commands, channel point rewards, obsscenes/sources and counters
+				//are stored differently to avoid flooding the main trigger list.
+				//Main trigger elements are stored with simple keys like "1" where these
+				//ones are stored with keys like "1_xxx".
 				this.isSublist = true;
 				this.subeventsList = [];
 				if(!onlypopulateSublist) this.actionList = [];
@@ -777,8 +792,14 @@ export default class ParamsTriggers extends Vue {
 
 				if(key == TriggerTypes.OBS_SOURCE_ON || key == TriggerTypes.OBS_SOURCE_OFF) {
 					this.listOBSSources(key);
-				}
-				else
+				}else
+
+				if(key == TriggerTypes.COUNTER_ADD || key == TriggerTypes.COUNTER_DEL
+				|| key == TriggerTypes.COUNTER_MINED || key == TriggerTypes.COUNTER_MAXED
+				|| key == TriggerTypes.COUNTER_LOOPED) {
+					this.listCounters(key);
+				}else
+
 				{
 					const triggers = this.$store("triggers").triggers;
 					//Search for all command triggers
@@ -952,6 +973,27 @@ export default class ParamsTriggers extends Vue {
 		this.syncing		= false;
 		this.showLoading	= false;
 		
+	}
+
+	/**
+	 * Lists Counters
+	 */
+	public async listCounters(key:string):Promise<void> {
+		const list = this.$store("counters").data.sort((a,b)=> {
+			if(a.name < b.name) return -1;
+			if(a.name > b.name) return 1;
+			return 0;
+		}).map((v):TwitchatDataTypes.ParameterDataListValue => {
+			const enabled = this.$store("triggers").triggers[key+"_"+v.id]?.enabled;
+			return {
+				label:v.name,
+				value:v.id,
+				enabled,
+			};
+		})
+		this.subeventsList = this.subeventsList?.concat(list);
+		this.syncing		= false;
+		this.showLoading	= false;
 	}
 
 	/**

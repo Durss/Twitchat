@@ -13,12 +13,22 @@
 					<div>{{ $t("overlay.timer.css") }}</div>
 					<ul>
 						<li>#timer { ... }</li>
-						<li>#timer_icon { ... }</li>
-						<li>#timer_label { ... }</li>
-						<br>
+						<li>
+							<ul>
+								<li>#timer_icon { ... }</li>
+								<li>#timer_label { ... }</li>
+
+							</ul>
+						</li>
+					</ul>
+					<ul>
 						<li>#countdown { ... }</li>
-						<li>#countdown_icon { ... }</li>
-						<li>#countdown_label { ... }</li>
+						<li>
+							<ul>
+								<li>#countdown_icon { ... }</li>
+								<li>#countdown_label { ... }</li>
+							</ul>
+						</li>
 					</ul>
 				</ToggleBlock>
 			</div>
@@ -74,11 +84,24 @@ export default class OverlayParamsTimer extends Vue {
 			}
 		}
 
+
 		ul {
-				margin-top: .5em;
+			margin-top: .5em;
 			li {
 				list-style-type: disc;
 				list-style-position: inside;
+				margin-bottom: .25em;
+				&:has(ul) {
+					list-style-type: none;
+				}
+				ul {
+					margin-top: 0;
+					display: inline;
+					list-style-type: none;
+					li {
+						margin-left: 1em;
+					}
+				}
 			}
 		}
 	}

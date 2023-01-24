@@ -128,6 +128,11 @@ import Ajv from "ajv";
 										voiceID: {type:"string", maxLength:100},
 										triggerKey: {type:"string", maxLength:100},
 										method: {type:"string", maxLength:10},
+										addValue: {type:"string", maxLength:100},
+										counters: {
+											type:"array",
+											items:[{type:"string", maxLength:40}],
+										},
 										queryParams: {
 											type:"array",
 											items:[{type:"string", maxLength:50}],
@@ -680,26 +685,71 @@ import Ajv from "ajv";
 		},
 
 		chatColumnsConf: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				order: {type:"number", minimum:0, maximum:1000},
-				size: {type:"number", minimum:0, maximum:10},
-				filters:{
+			type:"array",
+			items:[
+				{
 					type:"object",
-					additionalProperties: true,
-					patternProperties: {
-						".*": { type:"boolean" }
-					}
-				},
-				messageFilters:{
-					type:"object",
-					additionalProperties: true,
-					patternProperties: {
-						".*": { type:"boolean" }
+					additionalProperties: false,
+					properties: {
+						id: {type:"string", maxLength:40},
+						commandsBlockList: {type:"string", maxLength:1000000},
+						userBlockList: {type:"string", maxLength:1000000},
+						liveLockCount: {type:"number", minimum:0, maximum:10},
+						order: {type:"number", minimum:0, maximum:1000},
+						size: {type:"number", minimum:0, maximum:10},
+						filters:{
+							type:"object",
+							additionalProperties: true,
+							patternProperties: {
+								".*": { type:"boolean" }
+							}
+						},
+						messageFilters:{
+							type:"object",
+							additionalProperties: true,
+							patternProperties: {
+								".*": { type:"boolean" }
+							}
+						}
 					}
 				}
-			}
+			]
+		},
+
+		counters: {
+			type:"array",
+			items:[
+				{
+					type:"object",
+					additionalProperties: false,
+					properties:{
+						id: {type:"string", maxLength:40},
+						name: {type:"string", maxLength:50},
+						value: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+						min: {
+							anyOf:[
+								{type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								{type:"boolean"},
+							]
+						},
+						max: {
+							anyOf:[
+								{type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								{type:"boolean"},
+							]
+						},
+						loop: {type:"boolean"},
+						perUser: {type:"boolean"},
+						users: {
+							type:"object",
+							additionalProperties: true,
+							patternProperties: {
+								".*": {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							}
+						}
+					}
+				}
+			]
 		},
 	}
 }

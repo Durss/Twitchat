@@ -28,6 +28,18 @@
 			"try_timerBt":"Chronomère",
 			"try_countdownBt":"Compte à rebours (2min)"
 		},
+
+		"counters":{
+			"title":"Compteurs",
+			"head":"Ajoutez vos compteurs sur votre stream en ajoutant leur URL correspondante en source de navigateur",
+			"head_empty":"Créez des compteurs, influez dessus depuis des commandes de tchat, des récompenses de points de chaîne, des subs, etc... et affichez leur progression en live sur votre stream.",
+			"createBt":"Créer un compteur",
+			"css":"Changez leur apparence via ces sélecteurs CSS",
+			"css_example":{
+				"simple":"Compteur simple",
+				"progress":"Barre de progression"
+			}
+		},
 		
 		"highlight":{
 			"title":"Mettre en avant",

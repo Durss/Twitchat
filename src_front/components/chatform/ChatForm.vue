@@ -93,7 +93,6 @@
 					<Button :aria-label="$t('chat.form.whispersBt_aria')"
 						:icon="$image('icons/whispers.svg')"
 						bounce
-						small
 						:data-tooltip="$t('chat.form.whispersBt_aria')"
 						@click="$emit('setCurrentNotification', 'whispers')" />
 					<div class="count" v-if="$store('chat').whispersUnreadCount > 0">{{$store('chat').whispersUnreadCount}}</div>
@@ -105,7 +104,6 @@
 					<Button :aria-label="$t('chat.form.pinsBt_aria')"
 						:icon="$image('icons/pin.svg')"
 						bounce
-						small
 						:data-tooltip="$t('chat.form.pinsBt_aria')"
 						@click="$emit('pins')" />
 					<div class="count">{{$store('chat').pinedMessages.length}}</div>
@@ -937,6 +935,7 @@ export default class ChatForm extends Vue {
 			justify-content: center;
 			flex-grow: 1;
 			flex-wrap: wrap;
+			gap: 1px;
 
 			.loader {
 				height: 1em;
@@ -1020,7 +1019,6 @@ export default class ChatForm extends Vue {
 				color: @mainColor_light;
 				background-color: rgba(255,255,255,.25);
 				
-				margin-left: .25em;
 				border-radius: .5em;
 				font-size: .7em;
 				padding: .35em;

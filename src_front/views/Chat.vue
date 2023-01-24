@@ -174,6 +174,7 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Changelog from '@/components/changelog/Changelog.vue';
+import type { JsonObject } from 'type-fest';
 
 @Options({
 	components:{
@@ -397,6 +398,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
 		this.onResize();
 		this.renderFrame();
 		requestWakeLock();
@@ -434,6 +436,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
 	}
 
 	public closeDonorCard():void {
@@ -512,11 +515,12 @@ export default class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.RAFFLE_START:
+			case TwitchatEvent.RAFFLE_START:{
 				this.currentModal = 'raffle';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
+			}
 			case TwitchatEvent.RAFFLE_END:{
 				this.$confirm(this.$t("raffle.delete_confirm.title"), this.$t("raffle.delete_confirm.description"), undefined, undefined, undefined, true)
 				.then(async ()=> {
@@ -527,13 +531,23 @@ export default class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.START_EMERGENCY:
+			case TwitchatEvent.START_EMERGENCY:{
 				this.$confirm(this.$t("emergency.enable_confirm"), undefined, undefined, undefined, undefined, true).then(()=>{
 					this.$store("emergency").setEmergencyMode(true);
 				}).catch(()=>{});
 				break;
-				case TwitchatEvent.STOP_EMERGENCY:{
+			}
+			case TwitchatEvent.STOP_EMERGENCY:{
 				this.$store("emergency").setEmergencyMode(false);
+				break;
+			}
+
+			case TwitchatEvent.COUNTER_GET: {
+				const id = (e.data as JsonObject).cid;
+				const counter = this.$store("counters").data.find(v=>v.id == id);
+				if(counter) {
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:(counter as unknown) as JsonObject});
+				}
 				break;
 			}
 		}

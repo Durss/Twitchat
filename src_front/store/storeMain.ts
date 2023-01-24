@@ -287,6 +287,7 @@ export const storeMain = defineStore("main", {
 			const sParams = StoreProxy.params;
 			const sTriggers = StoreProxy.triggers;
 			const sAutomod = StoreProxy.automod;
+			const sCounters = StoreProxy.counters;
 			const sEmergency = StoreProxy.emergency;
 			//Loading parameters from local storage and pushing them to current store
 			const props = DataStore.getAll();
@@ -436,7 +437,7 @@ export const storeMain = defineStore("main", {
 				sAutomod.setAutomodParams(sAutomod.params);
 			}
 
-			//Init automod
+			//Init chat cols
 			const chatColConfs = DataStore.get(DataStore.CHAT_COLUMNS_CONF);
 			if(chatColConfs) {
 				sParams.chatColumnsConfig = JSON.parse(chatColConfs);
@@ -444,6 +445,12 @@ export const storeMain = defineStore("main", {
 					sParams.chatColumnsConfig[i].id = Utils.getUUID();
 				}
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
+			}
+
+			//Init automod
+			const countersParams = DataStore.get(DataStore.COUNTERS);
+			if(countersParams) {
+				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.data as unknown) as JsonObject);
 			}
 			
 			//Reload devmode state

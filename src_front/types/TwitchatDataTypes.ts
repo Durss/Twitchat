@@ -32,6 +32,20 @@ export namespace TwitchatDataTypes {
 	export type ParamsContentStringType = typeof ParamsCategories[keyof typeof ParamsCategories];
 
 	/**
+	 * Contains info about a counter
+	 */
+	 export interface CounterData {
+		id:string;
+		name:string;
+		value:number;
+		min:number|false;
+		max:number|false;
+		loop:boolean;
+		perUser:boolean;
+		users?:{[key:string]:number};
+	}
+
+	/**
 	 * Contains config about a chat column
 	 */
 	 export interface ChatColumnsConfig {
@@ -849,6 +863,7 @@ export namespace TwitchatDataTypes {
 		STREAM_OFFLINE:"stream_offline",
 		CHAT_HIGHLIGHT:"chat_highlight",
 		FOLLOWBOT_LIST:"followbot_list",
+		COUNTER_UPDATE:"counter_update",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
@@ -904,6 +919,7 @@ export namespace TwitchatDataTypes {
 		stream_online:true,
 		stream_offline:true,
 		chat_highlight:false,//Used for "highlight on overlay" events
+		counter_update:false,
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_source_toggle:false,
@@ -993,6 +1009,7 @@ export namespace TwitchatDataTypes {
 									MessageRoomSettingsData |
 									MessageStreamOnlineData |
 									MessageStreamOfflineData |
+									MessageCounterUpdatesData |
 									MessageUnpinData |
 									MessageClipCreate |
 									MessagePinData
@@ -1569,7 +1586,7 @@ export namespace TwitchatDataTypes {
 	 * Respresents an OBS scene change event
 	 */
 	export interface MessageOBSSceneChangedData extends AbstractTwitchatMessage {
-		type:"obs_scene_change",
+		type:"obs_scene_change";
 		sceneName:string;
 	}
 
@@ -1577,7 +1594,7 @@ export namespace TwitchatDataTypes {
 	 * Respresents an OBS scene change event
 	 */
 	export interface MessageOBSSourceToggleData extends AbstractTwitchatMessage {
-		type:"obs_source_toggle",
+		type:"obs_source_toggle";
 		sourceName:string;
 		sourceItemId:number;
 		visible:boolean;
@@ -1587,7 +1604,7 @@ export namespace TwitchatDataTypes {
 	 * Respresents an OBS scene change event
 	 */
 	export interface MessagePinData extends AbstractTwitchatMessage {
-		type:"pinned",
+		type:"pinned";
 		moderator:TwitchatUser;
 		chatMessage:MessageChatData;
 		pinnedAt_ms: number;
@@ -1600,25 +1617,38 @@ export namespace TwitchatDataTypes {
 	 * Respresents an OBS scene change event
 	 */
 	export interface MessageUnpinData extends AbstractTwitchatMessage {
-		type:"unpinned",
+		type:"unpinned";
 		moderator?:TwitchatUser;
 		chatMessage:MessageChatData;
 	}
 
 	/**
-	 * Respresents an stream start event
+	 * Respresents a stream start event
 	 */
 	export interface MessageStreamOnlineData extends AbstractTwitchatMessage {
-		type:"stream_online",
+		type:"stream_online";
 		user:TwitchatUser;
 	}
 
 	/**
-	 * Respresents an stream start event
+	 * Respresents a stream stop event
 	 */
 	export interface MessageStreamOfflineData extends AbstractTwitchatMessage {
-		type:"stream_offline",
+		type:"stream_offline";
 		user:TwitchatUser;
+	}
+
+	/**
+	 * Respresents a counter value update
+	 */
+	export interface MessageCounterUpdatesData extends AbstractTwitchatMessage {
+		type:"counter_update";
+		counter:CounterData;
+		value:number;
+		maxed:boolean;
+		mined:boolean;
+		looped:boolean;
+		user?:TwitchatUser;
 	}
 
 }

@@ -17,17 +17,17 @@
 
 				<div class="buttonList">
 					<Button bounce white :icon="$image('icons/params_purple.svg')"		:title="$t('params.categories.features')"		@click="setContent(contentFeatures)" />
-					<Button bounce white :icon="$image('icons/show_purple.svg')"		:title="$t('params.categories.appearance')"	@click="setContent(contentAppearance)" />
+					<Button bounce white :icon="$image('icons/show_purple.svg')"		:title="$t('params.categories.appearance')"		@click="setContent(contentAppearance)" />
 					<Button bounce white :icon="$image('icons/emergency_purple.svg')"	:title="$t('params.categories.emergency')"		@click="setContent(contentEmergency)" />
 					<Button bounce white :icon="$image('icons/mod_purple.svg')"			:title="$t('params.categories.automod')"		@click="setContent(contentAutomod)" />
 					<Button bounce white :icon="$image('icons/broadcast_purple.svg')"	:title="$t('params.categories.triggers')"		@click="setContent(contentTriggers)" />
-					<!-- <Button bounce white :icon="$image('icons/count_purple.svg')"		:title="$t('params.categories.counters')"		@click="setContent(contentCounters)" /> -->
+					<Button bounce white :icon="$image('icons/count_purple.svg')"		:title="$t('params.categories.counters')"		@click="setContent(contentCounters)" />
 					<Button bounce white :icon="$image('icons/overlay_purple.svg')"		:title="$t('params.categories.overlays')"		@click="setContent(contentOverlays)" />
 					<Button bounce white :icon="$image('icons/tts_purple.svg')"			:title="$t('params.categories.tts')"			@click="setContent(contentTts)" />
 					<Button bounce white :icon="$image('icons/voice_purple.svg')"		:title="$t('params.categories.voice')"			@click="setContent(contentVoice)" />
 					<Button bounce white :icon="$image('icons/obs_purple.svg')"			:title="$t('params.categories.obs')"			@click="setContent(contentObs)" />
 					<Button bounce white :icon="$image('icons/voicemod_purple.svg')"	:title="$t('params.categories.voicemod')"		@click="setContent(contentVoicemod)" />
-					<Button bounce white :icon="$image('icons/elgato_purple.svg')"		:title="$t('params.categories.streamdeck')"	@click="setContent(contentStreamdeck)" />
+					<Button bounce white :icon="$image('icons/elgato_purple.svg')"		:title="$t('params.categories.streamdeck')"		@click="setContent(contentStreamdeck)" />
 					<Button bounce white :icon="$image('icons/user_purple.svg')"		:title="$t('params.categories.account')"		@click="setContent(contentAccount)" />
 					<Button bounce white :icon="$image('icons/info_purple.svg')"		:title="$t('params.categories.about')"			@click="setContent(contentAbout)" />
 				</div>
@@ -101,8 +101,6 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';

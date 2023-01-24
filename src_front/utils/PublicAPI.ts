@@ -70,7 +70,7 @@ export default class PublicAPI extends EventDispatcher {
 		//Broadcast to other browser's tabs
 		try {
 			if(data) data = JSON.parse(JSON.stringify(data));
-			this._bc.postMessage({type, data});
+			if(this._bc) this._bc.postMessage({type, data});
 		}catch(error) {
 			console.error(error);
 		}

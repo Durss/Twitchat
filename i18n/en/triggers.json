@@ -20,6 +20,10 @@
 			"require": "These triggers need you to {URL}",
 			"require_url": "connect with OBS"
 		},
+		"count": {
+			"require": "These triggers need you to first",
+			"require_url": "create counters"
+		},
 		"schedule": {
 			"conflict": "A schedule with this name already exists",
 			"params_title": "Parameters",
@@ -55,7 +59,8 @@
 				"action_voicemod_tt": "You need to connect<br>with Voicemod",
 				"action_http": "HTTP call",
 				"action_poll": "Start poll",
-				"action_prediction": "Start prediction"
+				"action_prediction": "Start prediction",
+				"action_count": "Update a counter"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -130,6 +135,11 @@
 				"method": "Method",
 				"select_param": "Select parameters to send:",
 				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can ben called with HTTP protocol. Use HTTPS for other domains."
+			},
+			"count": {
+				"value_label":"Value to add/remmove",
+				"select_label":"Counters to update",
+				"select_placeholder":"Select a counter..."
 			}
 		},
 		"categories": {
@@ -141,9 +151,10 @@
 			"hypetrain": "Hype train",
 			"games": "Games",
 			"music": "Music",
-			"timer": "Timers",
+			"timer": "Temporal events",
 			"obs": "OBS",
-			"misc": "Miscellaneous"
+			"misc": "Miscellaneous",
+			"count": "Counters"
 		},
 		"placeholders": {
 			"user": "User name",
@@ -196,7 +207,10 @@
 			"challenge_contribution": "User contribution",
 			"challenge_contribution_total": "User total contribution",
 			"shoutout_in": "User that gave you a shoutout",
-			"shoutout_out": "User you gave a shoutout to"
+			"shoutout_out": "User you gave a shoutout to",
+			"counter_name": "Name of the counter",
+			"counter_value": "New counter's value",
+			"counter_update": "Value added"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -426,6 +440,26 @@
 			"STREAM_OFFLINE": {
 				"label": "Stream stop",
 				"description": "Execute actions when stream stops<br><i>(you might have to wait +1min before receiving that info)</i>"
+			},
+			"COUNTER_ADD": {
+				"label": "Value added to a counter",
+				"description": "Execute actions when adding a value to a counter"
+			},
+			"COUNTER_DEL": {
+				"label": "Value removed from a counter",
+				"description": "Execute actions when removing a value from a counter"
+			},
+			"COUNTER_MAXED": {
+				"label": "Max value reached",
+				"description": "Execute actions when counter's value reaches max value"
+			},
+			"COUNTER_MINED": {
+				"label": "Min value reached",
+				"description": "Execute actions when counter's value reaches min value"
+			},
+			"COUNTER_LOOPED": {
+				"label": "Value looped",
+				"description": "Execute actions when counter's value looped<br><i>(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)</i>"
 			}
 		},
 		"musicEvents": {

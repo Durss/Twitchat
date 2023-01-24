@@ -1,6 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="header" @click.stop="toggle()">
+			<slot name="left_actions"></slot>
 			<Button small
 				:icon="$image('icons/orderable_white.svg')"
 				class="orderBt"
@@ -11,7 +12,7 @@
 			/>
 			<img v-for="icon in localIcons" :src="$image('icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
 			<h2 v-html="localTitle"></h2>
-			<slot name="actions"></slot>
+			<slot name="right_actions"></slot>
 		</div>
 		<div class="content" v-if="showContent" ref="content">
 			<slot></slot>
@@ -29,7 +30,7 @@ import Button from './Button.vue';
  * To add actions on the right of the header (like a delete button)
  * use the template tag like this :
  * 	<ToggleBlock>
- * 		<template #actions>...</template>
+ * 		<template #right_actions>...</template>
  * 	</ToggleBlock>
  */
 

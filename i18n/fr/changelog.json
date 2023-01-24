@@ -101,7 +101,7 @@
 		],
 		"minor": [
 			{"l":"Toutes les commandes peuvent être utilisées depuis les triggers"},
-			{"l":"1 nouvelle action de trigger <strong>\"Appel HTTP\"</strong> pour les développeur si vous souhaitez appeler quoi que ce soit en réponse à un événement"},
+			{"l":"1 nouvelle action de trigger <strong>\"Appel HTTP\"</strong> pour les développeur si vous souhaitez appeler quoi que ce soit en réponse à un évènement"},
 			{"l":"La liste des personnes présentes dans le tchat affiche la <strong>durée de timeout</strong> restante pour les personnes bannies temporairement"},
 			{"l":"Vous pouvez lancer un <strong>bingo</strong> avec des valeurs arbitraires"},
 			{"l":"Les messages retenus par le <strong>partage de banissements</strong> seront maintenant affichés"},

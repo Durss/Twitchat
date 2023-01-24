@@ -12,6 +12,18 @@
 					<div>{{ $t("overlay.highlight.css") }}</div>
 					<ul>
 						<li>#highlight_holder { ... }</li>
+						<li>
+							<ul>
+								<li>#highlight_avatar { ... }</li>
+								<li>#highlight_infos { ... }</li>
+								<li>
+									<ul>
+										<li>#highlight_login { ... }</li>
+										<li>#highlight_message { ... }</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
 					</ul>
 					<ToggleBlock class="cssPositionning" small title="Holder's positionning">
 						<li>#highlight_holder.position-tl { ... }</li>
@@ -25,16 +37,25 @@
 						<li>#highlight_holder.position-br { ... }</li>
 					</ToggleBlock>
 					<ul>
-						<li>#highlight_avatar { ... }</li>
-						<li>#highlight_infos { ... }</li>
-						<li>#highlight_login { ... }</li>
-						<li>#highlight_message { ... }</li>
-					</ul>
-					<ul>
 						<li>#clip_holder { ... }</li>
-						<li>#clip_player { ... }</li>
-						<li>#clip_progressbar { ... }</li>
+						<li>
+							<ul>
+								<li>#clip_player { ... }</li>
+								<li>#clip_progressbar { ... }</li>
+							</ul>
+						</li>
 					</ul>
+					<ToggleBlock class="cssPositionning" small title="Holder's positionning">
+						<li>#clip_holder.position-tl { ... }</li>
+						<li>#clip_holder.position-t { ... }</li>
+						<li>#clip_holder.position-tr { ... }</li>
+						<li>#clip_holder.position-l { ... }</li>
+						<li>#clip_holder.position-m { ... }</li>
+						<li>#clip_holder.position-r { ... }</li>
+						<li>#clip_holder.position-bl { ... }</li>
+						<li>#clip_holder.position-b { ... }</li>
+						<li>#clip_holder.position-br { ... }</li>
+					</ToggleBlock>
 				</ToggleBlock>
 			</div>
 
@@ -274,6 +295,18 @@ export default class OverlayParamsHighlight extends Vue {
 				li {
 					list-style-type: disc;
 					list-style-position: inside;
+					margin-bottom: .25em;
+					&:has(ul) {
+						list-style-type: none;
+					}
+					ul {
+						margin-top: 0;
+						display: inline;
+						list-style-type: none;
+						li {
+							margin-left: 1em;
+						}
+					}
 				}
 			}
 

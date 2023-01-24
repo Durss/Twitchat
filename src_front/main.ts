@@ -36,6 +36,7 @@ import { storeTriggers } from './store/triggers/storeTriggers';
 import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
+import { storeCounters } from './store/counters/storeCounters';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import { createI18n } from 'vue-i18n'
 import Config from './utils/Config';
@@ -140,15 +141,20 @@ function buildApp() {
 	 * @param id overlay ID
 	 * @returns 
 	 */
-	const overlayURL = (id:string):string => {
+	const overlayURL = (id:string, params?:{k:string, v:string}[]):string => {
 		const port = DataStore.get(DataStore.OBS_PORT);
 		const pass = DataStore.get(DataStore.OBS_PASS);
 		const ip = DataStore.get(DataStore.OBS_IP);
-		const params = new URLSearchParams()
-		if(port) params.append("obs_port", port);
-		if(pass) params.append("obs_pass", pass);
-		if(ip) params.append("obs_ip", ip);
-		let suffix = params.toString()
+		const urlParams = new URLSearchParams()
+		if(params) {
+			for (let i = 0; i < params.length; i++) {
+				urlParams.append(params[i].k, params[i].v);
+			}
+		}
+		if(port) urlParams.append("obs_port", port);
+		if(pass) urlParams.append("obs_pass", pass);
+		if(ip) urlParams.append("obs_ip", ip);
+		let suffix = urlParams.toString()
 		if(suffix) suffix = "?" + suffix;
 		return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + suffix;
 	}
@@ -165,7 +171,7 @@ function buildApp() {
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin") => {
+	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters") => {
 		switch(id) {
 			case "main": return StoreProxy.main;
 			case "account": return StoreProxy.account;
@@ -190,6 +196,7 @@ function buildApp() {
 			case "debug": return StoreProxy.debug;
 			case "accessibility": return StoreProxy.accessibility;
 			case "admin": return StoreProxy.admin;
+			case "counters": return StoreProxy.counters;
 		}
 	}
 	
@@ -224,6 +231,7 @@ function buildApp() {
 	StoreProxy.debug = storeDebug();
 	StoreProxy.accessibility = storeAccessibility();
 	StoreProxy.admin = storeAdmin();
+	StoreProxy.counters = storeCounters();
 	
 	app.use(router)
 	app.use(i18n)

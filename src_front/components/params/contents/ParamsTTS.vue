@@ -38,7 +38,7 @@
 				<ParamItem class="item" :paramData="param_readAutomod" />
 				<div class="item">
 					<img class="icon" src="@/assets/icons/user_purple.svg">
-					<label class="item">{{ param_readUsers.label }}</label>
+					<label class="item">{{ $t(param_readUsers.labelKey as string) }}</label>
 					<vue-select class="item itemSelector" label="label"
 						:placeholder="$t('tts.messages.param_readUsers_add')"
 						v-model="param_readUsers.listValues"

@@ -38,6 +38,7 @@
 		
 		<OverlayParamsRaffle class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsTimer class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
+		<OverlayParamsCounter class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsHighlight class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsSpotify class="block" v-if="true || exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsDeezer class="block" v-if="true || exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
@@ -55,6 +56,7 @@ import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
 import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
+import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 
 @Options({
 	props:{},
@@ -64,6 +66,7 @@ import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 		OverlayParamsTimer,
 		OverlayParamsDeezer,
 		OverlayParamsSpotify,
+		OverlayParamsCounter,
 		OverlayParamsHighlight,
 	},
 	emits:["setContent"]

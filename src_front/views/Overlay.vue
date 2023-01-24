@@ -4,6 +4,7 @@
 		<OverlayMusicPlayer class="music" v-if="overlay=='music' || overlay=='unified'" :embed="overlay=='unified'" keepEmbedTransitions />
 		<OverlayChatHighlight v-if="overlay=='chathighlight' || overlay=='unified'" />
 		<OverlayTimer v-if="overlay=='timer' || overlay=='unified'" />
+		<OverlayCounter v-if="overlay=='counter'" />
 	</div>
 </template>
 
@@ -13,11 +14,13 @@ import OverlayMusicPlayer from '../components/overlays/OverlayMusicPlayer.vue';
 import OverlaysRaffleWheel from '../components/overlays/OverlaysRaffleWheel.vue';
 import OverlayTimer from '../components/overlays/OverlayTimer.vue';
 import OverlayChatHighlight from '../components/overlays/OverlayChatHighlight.vue';
+import OverlayCounter from '../components/overlays/OverlayCounter.vue';
 
 @Options({
 	props:{},
 	components:{
 		OverlayTimer,
+		OverlayCounter,
 		OverlayMusicPlayer,
 		OverlaysRaffleWheel,
 		OverlayChatHighlight,

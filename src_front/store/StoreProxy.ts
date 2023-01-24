@@ -6,7 +6,7 @@ import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodWebSocket";
-import type { Composer, I18n, VueI18n } from "vue-i18n";
+import type { Composer, VueI18n } from "vue-i18n";
 
 /**
 * Created : 23/09/2022 
@@ -37,6 +37,7 @@ export default class StoreProxy {
 	public static debug:IDebugState & IDebugGetters & IDebugActions & {$state:IDebugState, $reset:()=>void};
 	public static accessibility:IAccessibilityState & IAccessibilityGetters & IAccessibilityActions & {$state:IAccessibilityState, $reset:()=>void};
 	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState, $reset:()=>void};
+	public static counters:ICountersState & ICountersGetters & ICountersActions & {$state:ICountersState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	
 }
@@ -534,4 +535,21 @@ export interface IAdminActions {
 	removeBetaUser(login:string):Promise<void>;
 	migrateUserDataToProd(login:string):Promise<void>;
 	removeAllBetaUser():Promise<void>;
+}
+
+
+
+
+export interface ICountersState {
+	data:TwitchatDataTypes.CounterData[];
+}
+
+export interface ICountersGetters {
+}
+
+export interface ICountersActions {
+	addCounter(data:TwitchatDataTypes.CounterData):void;
+	updateCounter(data:TwitchatDataTypes.CounterData):void;
+	delCounter(data:TwitchatDataTypes.CounterData):void;
+	increment(id:string, value:number, user?:TwitchatDataTypes.TwitchatUser):void;
 }

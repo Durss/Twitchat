@@ -24,7 +24,7 @@
 					:key="f.id"
 					:title="f.label.length > 0? f.label : $t('automod.rule.new')"
 					:open="keywordToOpen[f.id]">
-						<template #actions>
+						<template #right_actions>
 							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear :data-tooltip="$t('automod.rule.toggle_tt')" />
 							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
 						</template>

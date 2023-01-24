@@ -254,7 +254,7 @@ export default class MessageListFilter extends Vue {
 	public loadingPreview:boolean = false;
 	public missingScope:boolean = false;
 	public previewIndex:number = 0;
-	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", placeholder:"bot1, bot2, ....", icon:"hide.svg"};
+	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", placeholder:"bot1, bot2, ....", icon:"hide.svg", maxLength:1000000};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
@@ -459,6 +459,7 @@ export default class MessageListFilter extends Vue {
 									labelKey:'chat.filters.commands',
 									placeholder:"!example, !so, !myuptime, ...",
 									icon:"hide.svg",
+									maxLength:1000000,
 									editCallback:(data:string)=> {
 										this.config.commandsBlockList = data;
 										this.saveData();

@@ -34,7 +34,7 @@
 					:ref="element.id"
 					class="action"
 				>
-					<template #actions>
+					<template #right_actions>
 						<Button small highlight
 							:icon="$image('icons/cross_white.svg')"
 							class="toggleAction"

@@ -9,7 +9,7 @@
 	:class="classes"
 	:icons="icons"
 	>
-		<template #actions>
+		<template #right_actions>
 			<Button small
 				:icon="$image('icons/copy.svg')"
 				class="toggleAction"
@@ -54,9 +54,9 @@
 					:title="$t('triggers.actions.common.action_highlight')"
 					:icon="$image('icons/highlight_purple.svg')" />
 				
-				<Button class="button beta" white @click="selectActionType('trigger')"
-					:title="$t('triggers.actions.common.action_trigger')"
-					:icon="$image('icons/broadcast_purple.svg')" />
+				<Button class="button beta" white @click="selectActionType('count')"
+					:title="$t('triggers.actions.common.action_count')"
+					:icon="$image('icons/count_purple.svg')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('obs')"
 					:title="$t('triggers.actions.common.action_obs')"
@@ -82,6 +82,10 @@
 					:disabled="!voicemodEnabled"
 					:data-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')"/>
 				
+				<Button class="button beta" white @click="selectActionType('trigger')"
+					:title="$t('triggers.actions.common.action_trigger')"
+					:icon="$image('icons/broadcast_purple.svg')" />
+				
 				<Button class="button" white @click="selectActionType('http')"
 					:title="$t('triggers.actions.common.action_http')"
 					:icon="$image('icons/url_purple.svg')"/>
@@ -94,7 +98,8 @@
 			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" :event="event" />
 			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :event="event" />
 			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
-			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :event="event" triggerMode />
+			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :event="event" />
+			<TriggerActionCountEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='count'" :action="action" :event="event" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			<PollForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='poll'" :action="action" :event="event" triggerMode />
@@ -124,6 +129,7 @@ import { Options, Vue } from 'vue-class-component';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
+import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
@@ -154,6 +160,7 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,
 		TriggerActionChatEntry,
+		TriggerActionCountEntry,
 		TriggerActionMusicEntry,
 		TriggerActionTriggerEntry,
 		TriggerActionVoicemodEntry,
@@ -230,6 +237,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "http") icons.push( 'url' );
 		if(this.action.type == "poll") icons.push( 'poll' );
 		if(this.action.type == "prediction") icons.push( 'prediction' );
+		if(this.action.type == "count") icons.push( 'count' );
 		return icons;
 	}
 

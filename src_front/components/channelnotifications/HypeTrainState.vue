@@ -198,7 +198,7 @@ export default class HypeTrainState extends Vue {
 						scale:0,
 						ease:"sine.in",
 						onComplete:()=> {
-							this.conductor_subs = this.trainData.conductor_subs ?? null;
+							this.conductor_subs = this.trainData?.conductor_subs ?? null;
 							if(!this.conductor_subs) return;
 							this.$nextTick().then(()=>{
 								gsap.to(this.$refs.conductor_subs_holder as HTMLDivElement, {
@@ -230,7 +230,7 @@ export default class HypeTrainState extends Vue {
 						scale:0,
 						ease:"sine.in",
 						onComplete:()=> {
-							this.conductor_bits = this.trainData.conductor_bits ?? null;
+							this.conductor_bits = this.trainData?.conductor_bits ?? null;
 							if(!this.conductor_bits) return;
 							this.$nextTick().then(()=>{
 								gsap.to(this.$refs.conductor_bits_holder as HTMLDivElement, {

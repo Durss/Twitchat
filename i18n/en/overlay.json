@@ -30,6 +30,18 @@
 			"try_countdownBt":"Try countdown (2min)"
 		},
 		
+		"counters":{
+			"title":"Counters",
+			"head":"Add any of your counters to your stream by setting hteir URL on a browser source",
+			"head_empty":"Create counters, update them from chat commands, channel point rewards, sub alerts, etc... and show their progression on your stream.",
+			"createBt":"Create a counter",
+			"css":"You can change the appearance of a counter by overriding these CSS values on OBS browser source params",
+			"css_example":{
+				"simple":"Simple counter",
+				"progress":"Progression bar"
+			}
+		},
+		
 		"highlight":{
 			"title":"Message highlight",
 			"head":"If you add this overlay on OBS you'll be able to display any chat message and clips on your stream like this:",

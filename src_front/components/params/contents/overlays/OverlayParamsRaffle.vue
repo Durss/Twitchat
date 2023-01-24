@@ -133,6 +133,18 @@ export default class OverlayParamsRaffle extends Vue {
 				li {
 					list-style-type: disc;
 					list-style-position: inside;
+					margin-bottom: .25em;
+					&:has(ul) {
+						list-style-type: none;
+					}
+					ul {
+						margin-top: 0;
+						display: inline;
+						list-style-type: none;
+						li {
+							margin-left: 1em;
+						}
+					}
 				}
 			}
 		}

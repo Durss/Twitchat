@@ -16,13 +16,13 @@
 				</template>
 			</i18n-t>
 			<ToggleBlock class="commands" :title="$t('triggers.actions.chat.commands_list')" small :open="false">
-				<div class="cmd" v-for="c in $store('chat').commands.filter(v=>v.twitchCmd)"
+				<div class="cmd" v-for="c in sortedCommands"
 					@click="insertCommand(c)"
 					v-html="c.cmd.replace(/(\/\S+)/gi, '<mark>$1</mark>').replace(/(?:\{([^}]+)\}?)/gi, ' [$1]')"></div>
 			</ToggleBlock>
 		</div>
 		<div class="item">
-			<ParamItem :paramData="message_conf" ref="textContent" v-model="action.text" :error="cmdNameConflict" />
+			<ParamItem :paramData="message_conf" v-model="action.text" :error="cmdNameConflict" />
 			<div v-if="cmdNameConflict" class="cmdNameConflict">{{ $t("triggers.actions.chat.loop") }}</div>
 		</div>
 	</div>
@@ -64,6 +64,16 @@ export default class TriggerActionChatEntry extends Vue {
 			.trim()
 			.split(" ")[0]
 			.toLowerCase() === triggerKey.toLowerCase()
+	}
+
+	public get sortedCommands():TwitchatDataTypes.CommandData[] {
+		let res = this.$store('chat').commands.filter(v=>v.twitchCmd);
+		res.sort((a, b)=> {
+			if(a.cmd > b.cmd) return 1;
+			if(a.cmd < b.cmd) return -1;
+			return 0;
+		})
+		return res;
 	}
 
 	public insertCommand(cmd:TwitchatDataTypes.CommandData):void {
@@ -116,6 +126,9 @@ export default class TriggerActionChatEntry extends Vue {
 				background-color: fade(@mainColor_normal, 15%);
 			}
 		}
+	}
+	:deep(input) {
+		flex-grow: 1;
 	}
 }
 </style>

@@ -1,6 +1,6 @@
 {
 	"triggers": {
-		"header": "Exécute des actions en réaction à {COUNT} types d'événements",
+		"header": "Exécute des actions en réaction à {COUNT} types d'évènements",
 		"add_actionBt": "Ajouter une action",
 		"create_chat_cmdBt": "Créer une commande de tchat",
 		"create_scheduleBt": "Programmer des actions",
@@ -13,12 +13,16 @@
 		"reorder_tt": "Réordonner",
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e<br>ou n'avez pas autorisé<br>Twitchat à contrôler ceci",
 		"music": {
-			"require": "Ces événements nécessitent de lier Spotify ou Deezer avec Twitchat dans {URL}",
+			"require": "Ces évènements nécessitent de lier Spotify ou Deezer avec Twitchat dans {URL}",
 			"require_url": "les overlays"
 		},
 		"obs": {
 			"require": "Ces événéments nécessitent de {URL}",
 			"require_url": "lier twitchat à OBS"
+		},
+		"count": {
+			"require": "Ces événéments nécessitent de d'abord {URL}",
+			"require_url": "créer des compteurs"
 		},
 		"schedule": {
 			"conflict": "Une action programmée du même nom existe déjà",
@@ -55,7 +59,8 @@
 				"action_voicemod_tt": "Vous devez connecter<br>Voicemod dans les paramètres",
 				"action_http": "Appel HTTP",
 				"action_poll": "Lancer un sondage",
-				"action_prediction": "Lancer une prédiction"
+				"action_prediction": "Lancer une prédiction",
+				"action_count": "Modifier un compteur"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -130,20 +135,26 @@
 				"method": "Méthode",
 				"select_param": "Choisissez les paramètres à inclure :",
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
+			},
+			"count": {
+				"value_label":"Valeur à ajouter/retirer",
+				"select_label":"Compteurs à mettre à jour",
+				"select_placeholder":"Sélectionnez un compteur..."
 			}
 		},
 		"categories": {
 			"global": "Chat - Pts de chaîne - Stream",
-			"user": "Evénement utilisateur",
+			"user": "Evènement utilisateur",
 			"subits": "Sub & bits",
 			"mod": "Actions de modération",
 			"twitchat": "Twitchat",
 			"hypetrain": "Train de la hype",
 			"games": "Jeux",
 			"music": "Musique",
-			"timer": "Chronomètre & Compte à rebours",
+			"timer": "Évènements temporels",
 			"obs": "OBS",
-			"misc": "Autres"
+			"misc": "Autres",
+			"count": "Compteurs"
 		},
 		"placeholders": {
 			"user": "Pseudo",
@@ -182,7 +193,7 @@
 			"train_level": "Niveau actuel",
 			"train_percent": "Progression du niveau actuel (0 -> 100)",
 			"train_end_level": "Niveau atteint",
-			"train_end_percent": "Pourcentage atteint",
+			"train_end_percent": "Pourcentage atteint (0 -> 100)",
 			"voicemod_voice": "ID de la voix",
 			"timeout": "Duration du ban en secondes",
 			"start_date": "Date de début formatée",
@@ -196,7 +207,10 @@
 			"challenge_contribution": "Contribution de la personne",
 			"challenge_contribution_total": "Contribution totale de la personne",
 			"shoutout_in": "Chaîne vous ayant fait un shoutout",
-			"shoutout_out": "Chaîne que vous avez shoutout"
+			"shoutout_out": "Chaîne que vous avez shoutout",
+			"counter_name": "Nom du compteur",
+			"counter_value": "Nouvelle valeur du compteur",
+			"counter_update": "Valeur ajoutée"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -309,123 +323,143 @@
 			},
 			"TIMEOUT": {
 				"label": "Bannissement temporaire",
-				"description": "Executer des actions lorsqu'une personne est <mark>/timeout</mark>"
+				"description": "Exécuter des actions lorsqu'une personne est <mark>/timeout</mark>"
 			},
 			"BAN": {
 				"label": "Bannissement définitif",
-				"description": "Executer des actions lorsqu'une personne est <mark>/ban</mark>"
+				"description": "Exécuter des actions lorsqu'une personne est <mark>/ban</mark>"
 			},
 			"UNBAN": {
 				"label": "Bannissement levé",
-				"description": "Executer des actions lorsqu'une personne est <mark>/unban</mark>"
+				"description": "Exécuter des actions lorsqu'une personne est <mark>/unban</mark>"
 			},
 			"VIP": {
 				"label": "Rôle VIP attribué",
-				"description": "Executer des actions lorsqu'une personne est ajoutée à vos VIPs"
+				"description": "Exécuter des actions lorsqu'une personne est ajoutée à vos VIPs"
 			},
 			"UNVIP": {
 				"label": "Rôle VIP retiré",
-				"description": "Executer des actions lorsqu'une personne est retirée de vos VIPs<br><i>(fonctionne seulement en utilisant la commande <mark>/unvip</mark> depuis twitchat</i>"
+				"description": "Exécuter des actions lorsqu'une personne est retirée de vos VIPs<br><i>(fonctionne seulement en utilisant la commande <mark>/unvip</mark> depuis twitchat</i>"
 			},
 			"MOD": {
 				"label": "Rôle modérateur attribué",
-				"description": "Executer des actions lorsqu'une personne est ajoutée à vos modérateurs"
+				"description": "Exécuter des actions lorsqu'une personne est ajoutée à vos modérateurs"
 			},
 			"UNMOD": {
 				"label": "Rôle modérateur retiré",
-				"description": "Executer des actions lorsqu'une personne est retirée de vos modérateurs<br><i>(fonctionne seulement en utilisant la commande <mark>/unmod</mark> depuis twitchat</i>"
+				"description": "Exécuter des actions lorsqu'une personne est retirée de vos modérateurs<br><i>(fonctionne seulement en utilisant la commande <mark>/unmod</mark> depuis twitchat</i>"
 			},
 			"SHIELD_MODE_ON": {
 				"label": "Mode bouclier activé",
-				"description": "Executer des actions lorsque le mode bouclier est activé"
+				"description": "Exécuter des actions lorsque le mode bouclier est activé"
 			},
 			"SHIELD_MODE_OFF": {
 				"label": "Mode bouclier retiré",
-				"description": "Executer des actions lorsque le mode bouclier est désactivé"
+				"description": "Exécuter des actions lorsque le mode bouclier est désactivé"
 			},
 			"PIN_MESSAGE": {
 				"label": "Message épinglé",
-				"description": "Executer des actions lorsqu'un message est épinglé'"
+				"description": "Exécuter des actions lorsqu'un message est épinglé'"
 			},
 			"UNPIN_MESSAGE": {
 				"label": "Message désépinglé",
-				"description": "Executer des actions lorsqu'un message est désépinglé"
+				"description": "Exécuter des actions lorsqu'un message est désépinglé"
 			},
 			"TRACK_ADDED_TO_QUEUE": {
 				"label": "Morceau ajouté à la file d'attente",
-				"description": "Executer des actions lorsqu'un morceau est ajouté à la liste de lecture"
+				"description": "Exécuter des actions lorsqu'un morceau est ajouté à la liste de lecture"
 			},
 			"MUSIC_START": {
 				"label": "Début de lecture d'une musique",
-				"description": "Executer des actions lorsqu'une musique commence à jouer"
+				"description": "Exécuter des actions lorsqu'une musique commence à jouer"
 			},
 			"MUSIC_STOP": {
 				"label": "Lecture de musique mise en pause",
-				"description": "Executer des actions lorsque la lecture de musique est mise en pause"
+				"description": "Exécuter des actions lorsque la lecture de musique est mise en pause"
 			},
 			"SCHEDULE": {
 				"label": "Actions planifiées",
-				"description": "Executer des actions régulièrement ou à des dates spécifiques"
+				"description": "Exécuter des actions régulièrement ou à des dates spécifiques"
 			},
 			"TIMER_START": {
 				"label": "Lancement du chronomètre",
-				"description": "Executer des actions lorsque le chronomètre est lancé (<mark>/timerStart</mark>)"
+				"description": "Exécuter des actions lorsque le chronomètre est lancé (<mark>/timerStart</mark>)"
 			},
 			"TIMER_STOP": {
 				"label": "Arrêt du chronomètre",
-				"description": "Executer des actions lorsque le chronomètre est arrêté (<mark>/timerStop</mark>)"
+				"description": "Exécuter des actions lorsque le chronomètre est arrêté (<mark>/timerStop</mark>)"
 			},
 			"COUNTDOWN_START": {
 				"label": "Lancement d'un compte à rebours",
-				"description": "Executer des actions lorsque le compte à rebours est lancé (<mark>/countdown</mark>)"
+				"description": "Exécuter des actions lorsque le compte à rebours est lancé (<mark>/countdown</mark>)"
 			},
 			"COUNTDOWN_STOP": {
 				"label": "Arrêt du compte à rebours",
-				"description": "Executer des actions lorsque le compte à rebours termine"
+				"description": "Exécuter des actions lorsque le compte à rebours termine"
 			},
 			"SHOUTOUT": {
 				"label": "Shoutout (Twitchat)",
-				"description": "Executer des actions lorsque vous effectuez un shoutout depuis Twitchat"
+				"description": "Exécuter des actions lorsque vous effectuez un shoutout depuis Twitchat"
 			},
 			"EMERGENCY_MODE_START": {
 				"label": "Lancement du mode urgence",
-				"description": "Executer des actions lorsque le mode urgence est déclanché"
+				"description": "Exécuter des actions lorsque le mode urgence est déclanché"
 			},
 			"EMERGENCY_MODE_STOP": {
 				"label": "Arrêt du mode urgence",
-				"description": "Executer des actions lorsque le mode urgence est arrêté"
+				"description": "Exécuter des actions lorsque le mode urgence est arrêté"
 			},
 			"HIGHLIGHT_CHAT_MESSAGE": {
 				"label": "Message mis en avant",
-				"description": "Executer des actions lorsqu'un message est mis en avant"
+				"description": "Exécuter des actions lorsqu'un message est mis en avant"
 			},
 			"CHAT_ALERT": {
 				"label": "Alerte",
-				"description": "Executer des actions lorsque la fenêtre d'alerte est déclanchée<br><i>(Paramètres => @:params.categories.features => @:params.alertMode)</i>"
+				"description": "Exécuter des actions lorsque la fenêtre d'alerte est déclanchée<br><i>(Paramètres => @:params.categories.features => @:params.alertMode)</i>"
 			},
 			"VOICEMOD": {
 				"label": "Voicemod - changement de voix",
-				"description": "Executer des actions lorsqu'un nouveau filtre de voix est appliqué"
+				"description": "Exécuter des actions lorsqu'un nouveau filtre de voix est appliqué"
 			},
 			"OBS_SCENE": {
 				"label": "Changement de scène",
-				"description": "Executer des actions lorsque la scène OBS <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> devient active"
+				"description": "Exécuter des actions lorsque la scène OBS <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> devient active"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source affichée",
-				"description": "Executer des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est affichée"
+				"description": "Exécuter des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est affichée"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source masquée",
-				"description": "Executer des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est masquée"
+				"description": "Exécuter des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est masquée"
 			},
 			"STREAM_ONLINE": {
 				"label": "Début de stream",
-				"description": "Executer des actions lorsque le stream débute<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
+				"description": "Exécuter des actions lorsque le stream débute<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
 			},
 			"STREAM_OFFLINE": {
 				"label": "Arrêt du stream",
-				"description": "Executer des actions lorsque le stream est arrêté<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
+				"description": "Exécuter des actions lorsque le stream est arrêté<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
+			},
+			"COUNTER_ADD": {
+				"label": "Ajout à un compteur",
+				"description": "Exécuter des actions lorsqu'une valeur est ajoutée à un compteur"
+			},
+			"COUNTER_DEL": {
+				"label": "Retrait à un compteur",
+				"description": "Exécuter des actions lorsqu'une valeur est soustraite à un compteur"
+			},
+			"COUNTER_MAXED": {
+				"label": "Valeur max atteinte",
+				"description": "Exécuter des actions lorsque le compteur atteint sa valeur maximale"
+			},
+			"COUNTER_MINED": {
+				"label": "Valeur min atteinte",
+				"description": "Exécuter des actions lorsque le compteur atteint sa valeur minimale"
+			},
+			"COUNTER_LOOPED": {
+				"label": "Valeur bouclée",
+				"description": "Exécuter des actions lorsque la valeur du compteur est bouclée<br><i>(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)</i>"
 			}
 		},
 		"musicEvents": {

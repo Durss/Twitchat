@@ -52,6 +52,7 @@ export default class DataStore {
 	public static INTERFACE_SCALE:string = "interfaceScale";
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
+	public static COUNTERS:string = "counters";
 	/**
 	 * @deprecated Only here for typings on data migration
 	 */

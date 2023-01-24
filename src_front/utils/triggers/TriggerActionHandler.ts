@@ -301,6 +301,16 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
+				let type:TriggerTypesValue = message.value > 0? TriggerTypes.COUNTER_ADD : TriggerTypes.COUNTER_DEL;
+				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;
+				if(message.mined) type = TriggerTypes.COUNTER_MINED;
+				if(message.looped) type = TriggerTypes.COUNTER_LOOPED;
+				if(await this.parseSteps(type, message, testMode, this.currentSpoolGUID, message.counter.id)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START:
@@ -598,7 +608,7 @@ export default class TriggerActionHandler {
 						}
 					}else
 					
-					//Handle sub trigger action
+					//Handle http call trigger action
 					if(step.type == "http") {
 						const options = {
 							method:step.method,
@@ -613,6 +623,41 @@ export default class TriggerActionHandler {
 							await fetch(url, options);
 						}catch(error) {
 							console.error(error);
+						}
+					}else
+					
+					//Handle counter update trigger action
+					if(step.type == "count") {
+						let text = await this.parseText(eventType, message, step.addValue as string, subEvent);
+						text = text.replace(/,/gi, ".");
+						const value = parseFloat(text);
+						const key = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
+						const helpers = TriggerActionHelpers(key);
+						const userIdHelper = helpers.find(v => v.isUserID === true);
+						let user:TwitchatDataTypes.TwitchatUser | undefined = undefined;
+						if(userIdHelper) {
+							const chunks:string[] = userIdHelper.pointer.split(".");
+							let root = message as unknown;
+							try {
+								//Dynamically search for the requested prop's value within the object
+								for (let i = 0; i < chunks.length-1; i++) {
+									root = (root as {[key:string]:unknown})[chunks[i]];
+								}
+								const u = root as TwitchatDataTypes.TwitchatUser;
+								if(u && u.id && u.login) {
+									user = u;
+								}
+							}catch(error) {/*ignore*/}
+						}
+
+						if(!isNaN(value)) {
+							const ids = step.counters;
+							for (let i = 0; i < StoreProxy.counters.data.length; i++) {
+								const c = StoreProxy.counters.data[i];
+								if(ids.indexOf(c.id) > -1) {
+									StoreProxy.counters.increment(c.id, value, user);
+								}
+							}
 						}
 					}else
 
