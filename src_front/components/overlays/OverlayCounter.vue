@@ -4,7 +4,7 @@
 		<div class="counter" id="holder" v-if="counter.min === false && counter.max === false">
 			<span class="name" id="name">{{ counter.name }}</span>
 			<span class="spacer" id="spacer">|</span>
-			<span class="value" id="value">{{ counter.value }}</span>
+			<span class="value" id="value">{{ value }}</span>
 		</div>
 
 		<div class="progressBar" id="holder" v-else>
@@ -12,7 +12,7 @@
 			<span class="name" id="name">{{ counter.name }}</span>
 			<div class="goal" id="goal">
 				<span class="min" id="min">{{ counter.min || 0 }}</span>
-				<span class="value" id="value">{{ counter.value || 0 }}</span>
+				<span class="value" id="value">{{ value || 0 }}</span>
 				<span class="max" id="max">{{ counter.max || 0 }}</span>
 			</div>
 		</div>
@@ -50,6 +50,10 @@ export default class OverlayCounter extends Vue {
 	private id:string = "";
 
 	private counterUpdateHandler!:(e:TwitchatEvent) => void;
+
+	public get value():number {
+		return parseFloat(this.counter!.value.toFixed(2));
+	}
 
 	public get progressStyles():StyleValue {
 		let res:StyleValue = {};
@@ -93,7 +97,7 @@ export default class OverlayCounter extends Vue {
 			if(c.id != this.id) return;
 			if(this.counter) {
 				const duration = Math.min(.25, Math.max(1, Math.abs(this.counter.value - c.value) * .1));
-				gsap.to(this.counter, {duration:1, value:c.value});
+				gsap.to(this.counter, {duration, value:c.value});
 				await Utils.promisedTimeout(10000);
 			}
 			this.setCounterData(c);
