@@ -41,7 +41,7 @@
 						<vue-select class="itemSelector" label="label"
 							placeholder="tag..."
 							v-model="param_tags.listValues"
-							:create-option="(v:string) => { return {label: v, value: v} }"
+							:create-option="(v:string) => createTagOption(v)"
 							:calculate-position="$placeDropdown"
 							appendToBody
 							taggable
@@ -123,27 +123,13 @@ export default class StreamInfoForm extends Vue {
 
 	public async mounted():Promise<void> {
 		this.param_savePreset.children = [this.param_namePreset];
-		const channelId = StoreProxy.auth.twitch.user.id;
 
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 
 		await Utils.promisedTimeout(250);
-		
-		try {
-			const infos = await TwitchUtils.getStreamInfos(channelId);
-			this.param_title.value = infos.title;
-			if(infos.game_id) {
-				const game = await TwitchUtils.getCategoryByID(infos.game_id);
-				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
-				this.categories = [game];
-			}
-			this.param_tags.listValues = infos.tags.map(v=> {return {label:v, value:v}});
-		}catch(error) {
-			this.$store("main").alert( this.$t("error.stream_info_loading") );
-		}
 
-		this.loading = false;
+		this.populate();
 	}
 
 	public async close():Promise<void> {
@@ -189,6 +175,11 @@ export default class StreamInfoForm extends Vue {
 		this.saving = false;
 	}
 
+	public createTagOption(value:string):{label:string, value:string} {
+		value = this.sanitizeTag(value);
+		return {label: value, value};
+	}
+
 	public cancelPresetEdit():void {
 		this.presetEditing = null;
 		this.forceOpenForm = false;
@@ -225,16 +216,41 @@ export default class StreamInfoForm extends Vue {
 		this.saving = true;
 		try {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string, channelId, p.tags);
+			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string, channelId, p.tags?.map(v=> this.sanitizeTag(v)));
 		}catch(error) {
 			this.$store("main").alert( this.$t("error.stream_info_updating") );
 		}
 		this.saving = false;
+		this.populate();
 	}
 
 	public deleteTag(p:TwitchatDataTypes.ParameterDataListValue):void {
 		if(!this.param_tags.listValues) this.param_tags.listValues = [];
 		this.param_tags.listValues = this.param_tags.listValues.filter(v=> v.value != p.value);
+	}
+
+	private sanitizeTag(value:string):string {
+		return Utils.replaceDiacritics(value).replace(/[^a-z0-9]/gi, "").substring(0, 25);
+	}
+
+	private async populate():Promise<void> {
+		this.loading = true;
+		const channelId = StoreProxy.auth.twitch.user.id;
+		try {
+			const infos = await TwitchUtils.getStreamInfos(channelId);
+			this.param_title.value = infos.title;
+			if(infos.game_id) {
+				const game = await TwitchUtils.getCategoryByID(infos.game_id);
+				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
+				this.categories = [game];
+			}
+			this.param_tags.listValues = infos.tags.map(v=> {return {label:v, value:v}});
+			console.log(infos.tags);
+		}catch(error) {
+			this.$store("main").alert( this.$t("error.stream_info_loading") );
+		}
+
+		this.loading = false;
 	}
 
 }
