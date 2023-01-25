@@ -280,7 +280,9 @@ export default class ParamsTriggers extends Vue {
 		if(!this.triggerData) return "";
 		let key = this.currentEvent?.value as string;
 		let subkey = this.triggerData.name;
-		if(this.currentEvent?.isCategory && key !== TriggerTypes.SCHEDULE) {
+		if(this.currentEvent?.isCategory
+		&& key !== TriggerTypes.SCHEDULE
+		&& key !== TriggerTypes.CHAT_COMMAND) {
 			subkey = this.currentSubEvent?.value as string;
 		}
 		if(subkey != "0" && subkey) key = key+"_"+subkey;

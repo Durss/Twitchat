@@ -56,7 +56,7 @@ export default class TriggerActionChatEntry extends Vue {
 	public message_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get cmdNameConflict():boolean {
-		if(this.event.value != TriggerTypes.CHAT_COMMAND) return false;
+		if(this.event.value != TriggerTypes.CHAT_COMMAND || this.triggerKey.indexOf("_") == -1) return false;
 		const chunks = this.triggerKey?.split("_");
 		chunks.shift();
 		const triggerKey = chunks.join("_") ?? "";
