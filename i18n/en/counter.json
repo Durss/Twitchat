@@ -1,7 +1,7 @@
 {
 	"counters": {
 		"header": "Create custom counters, control them from {LINK_TRIGGER} and {LINK_OVERLAY} on your strteam.",
-		"header_link_trigger": "les triggers",
+		"header_link_trigger": "the triggers",
 		"header_link_overlay": "display them",
 		"addBt": "Create counter",
 		"editBt": "Edit counter",

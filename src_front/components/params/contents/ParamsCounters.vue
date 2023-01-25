@@ -22,9 +22,11 @@
 				<ParamItem class="item" :paramData="param_title" />
 				<ParamItem class="item" :paramData="param_value" />
 				<ParamItem class="item" :paramData="param_more" />
-				<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" :icon="$image('icons/add.svg')" :disabled="(param_title.value as string).length == 0" />
-				<Button type="submit" v-else :title="$t('counters.editBt')" :icon="$image('icons/edit.svg')" :disabled="(param_title.value as string).length == 0" />
-				<Button type="button" :title="$t('global.cancel')" :icon="$image('icons/cross_white.svg')" highlight @click="cancelForm()" />
+				<div class="item ctas">
+					<Button type="button" :title="$t('global.cancel')" :icon="$image('icons/cross_white.svg')" highlight @click="cancelForm()" />
+					<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" :icon="$image('icons/add.svg')" :disabled="(param_title.value as string).length == 0" />
+					<Button type="submit" v-else :title="$t('counters.editBt')" :icon="$image('icons/edit.svg')" :disabled="(param_title.value as string).length == 0" />
+				</div>
 			</form>
 		</section>
 
@@ -231,14 +233,26 @@ export default class ParamsCounters extends Vue {
 .paramscounters{
 	.parameterContent();
 
-	section, form {
+	section {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
 		max-width: 400px;
 
-		&form:deep(input) {
-			flex-basis: 10em !important;
+		form {
+			display: flex;
+			flex-direction: column;
+			gap: .25em;
+			.ctas {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				justify-content: space-evenly;
+			}
+
+			&:deep(input) {
+				flex-basis: 10em !important;
+			}
 		}
 	}
 
