@@ -22,10 +22,21 @@
 					
 					<Slide v-for="(item, index) in items" :key="index" class="item">
 						<div class="inner">
+							<img :src="$image('icons/'+item.i+'.svg')" class="icon">
 							<span class="title" v-html="item.l"></span>
 							<span class="description" v-html="item.d"></span>
 							<img v-if="item.g" class="demo" :src="item.g">
+							
 							<AppLangSelector v-if="item.i=='translate'" class="langSelector" />
+
+							<div v-if="item.i=='count'">
+								<div class="counterActions">
+									<Button title="10" :icon="$image('icons/minus_purple.svg')" @click="counterExample.value -=10; progressExample.value -= 10" white />
+									<Button title="10" :icon="$image('icons/add_purple.svg')" @click="counterExample.value +=10; progressExample.value += 10" white />
+								</div>
+								<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
+								<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />
+							</div>
 						</div>
 					</Slide>
 				</Carousel>
@@ -43,12 +54,16 @@ import ToggleBlock from '../ToggleBlock.vue';
 import AppLangSelector from '../AppLangSelector.vue';
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import 'vue3-carousel/dist/carousel.css'
+import Utils from '@/utils/Utils';
+import OverlayCounter from '../overlays/OverlayCounter.vue';
+import { watch } from 'vue';
 
 @Options({
 	props:{},
 	components:{
 		Button,
 		ToggleBlock,
+		OverlayCounter,
 		AppLangSelector,
 		Carousel,
 		Slide,
@@ -59,6 +74,25 @@ import 'vue3-carousel/dist/carousel.css'
 export default class Changelog extends Vue {
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+	
+	public counterExample:TwitchatDataTypes.CounterData = {
+		id:Utils.getUUID(),
+		loop:false,
+		perUser:false,
+		value:50,
+		name:"My awesome counter",
+		min:false,
+		max:false,
+	}
+	public progressExample:TwitchatDataTypes.CounterData = {
+		id:Utils.getUUID(),
+		loop:false,
+		perUser:false,
+		value:50,
+		name:"My awesome counter",
+		min:0,
+		max:75,
+	}
 
 	public get items():TwitchatDataTypes.ChangelogEntry[] {
 		return this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[];
@@ -90,13 +124,20 @@ export default class Changelog extends Vue {
 					}
 				}
 			})
-		})
+		});
+
+		watch(()=>this.progressExample.value, ()=>{
+			//Clamp progress counter value
+			let v = this.progressExample.value;
+			v = Math.max(this.progressExample.min as number, v);
+			v = Math.min(this.progressExample.max as number, v);
+			this.progressExample.value = v;
+		});
 	}
 
 	public close():void {
 		gsap.to(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
-		gsap.to(this.$refs.holder as HTMLDivElement, {scaleX:0, ease:"elastic.out", duration:1});
-		gsap.to(this.$refs.holder as HTMLDivElement, {scaleY:0, ease:"elastic.out", duration:1, delay:.1, onComplete:()=>{
+		gsap.to(this.$refs.holder as HTMLDivElement, {y:"-150px", ease:"back.in", opacity:0, duration:.5, onComplete:()=>{
 			this.$emit('close');
 		}});
 	}
@@ -157,6 +198,10 @@ export default class Changelog extends Vue {
 				background-color: @mainColor_normal;
 				width: calc(100% - 5px);
 
+				.icon {
+					height: 2em;
+				}
+
 				.title {
 					color: @mainColor_light;
 					font-weight: bold;
@@ -176,6 +221,21 @@ export default class Changelog extends Vue {
 					&:hover {
 						max-height: 550px;
 					}
+				}
+
+				.counterActions {
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					gap: .5em;
+					margin-bottom: 1em;
+				}
+
+				.counterExample {
+					color: @mainColor_normal;
+					width: auto;
+					font-size: .75em;
+					align-self: center;
 				}
 			}
 		}

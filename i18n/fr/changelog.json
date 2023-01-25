@@ -14,16 +14,21 @@
 				"d": "1 an après la toute 1ère version de Twitchat, le saint graal de la communauté Française est là :<br>Twitchat est traductible et <strong>traduit en Français</strong> 🥳<br><br>Essaie de changer de langue 👇"
 			},
 			{
-				"i": "columns",
+				"i": "edit",
 				"l": "Personnalisez l'affichage",
 				"g": "update_images/columns.gif",
 				"d": "Créez autant de colonnes que vous le souhaitez et définissez quels types de message afficher dans chacune d'entre elles."
 			},
 			{
-				"i": "scopes",
+				"i": "lock_fit",
 				"l": "Permissions affinées",
 				"g": "update_images/permissions.gif",
 				"d": "Choisissez quelles données et fonctionnalités de votre compte Twitch vous souhaitez permettre à Twitchat d'utiliser."
+			},
+			{
+				"i": "count",
+				"l": "Compteurs",
+				"d": "Créez des compteurs personnalisés, modifiez-les depuis des commandes de tchat, des subs, des récompenses de point de chaîne,... et affichez leur progression sur votre stream."
 			},
 			{
 				"i": "shieldMode",
@@ -32,7 +37,7 @@
 				"d": "Synchronisez le mode urgence avec le mode bouclier. Activer le mode bouclier activera le mode urgence et inversement."
 			},
 			{
-				"i": "emoteonly",
+				"i": "emote",
 				"l": "Emote only",
 				"d": "Vous souhaitez empêcher que l'on parle dans votre tchat quand vous êtes hors live ?<br><br>Twitchat peut automatiquement le passer en emote-only en fin de stream et désactiver l'emote-only en début de live."
 			}

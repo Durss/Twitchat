@@ -5,10 +5,9 @@
 		"css_customization": "CSS customization",
 
 		"connection":{
-			"title":"The overlays need you to",
-			"obsBt":"Connect with OBS",
-			"or":"or",
-			"dockBt":"Dock Twitchat on OBS",
+			"title":"The overlays need you to {OBS} or {DOCK}",
+			"obsBt":"connect with OBS",
+			"dockBt":"dock Twitchat in OBS",
 			"closeBt":"Close",
 			"dock_tutorial": "On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong> and add Twitchat this way"
 		},
