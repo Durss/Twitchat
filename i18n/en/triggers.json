@@ -41,6 +41,7 @@
 		},
 		"actions": {
 			"common": {
+				"select_action":"Select the action type to execute",
 				"duplicate_tt": "Duplicate",
 				"next_delay": "Delay before next step (seconds)",
 				"delete": "Delete",

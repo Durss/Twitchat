@@ -25,7 +25,7 @@
 
 		<div>
 			<div v-if="action.type===null" class="typeSelector">
-				<div class="info">Select the action type to execute</div>
+				<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
 				<Button class="button" white @click="selectActionType('chat')"
 					:title="$t('triggers.actions.common.action_chat')"
 					:icon="$image('icons/whispers_purple.svg')"/>

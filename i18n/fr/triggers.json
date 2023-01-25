@@ -41,6 +41,7 @@
 		},
 		"actions": {
 			"common": {
+				"select_action":"Sélectionnez le type d'action à exécuter",
 				"duplicate_tt": "Dupliquer",
 				"next_delay": "Délai avant l'action suivante (secondes)",
 				"delete": "Supprimer",
