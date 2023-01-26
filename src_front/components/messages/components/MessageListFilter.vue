@@ -82,7 +82,7 @@
 				<div class="error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
 
 				<div class="ctas">
-					<Button :title="$t('global.cancel')" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceConfig" @click="$emit('delete')" />
+					<Button :title="$t('global.cancel')" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceConfig" @click="deleteColumn()" />
 					<Button :title="$t('global.create')" small :icon="$image('icons/add_purple.svg')" white v-if="forceConfig" @click="submitForm()" />
 				</div>
 			</div>
