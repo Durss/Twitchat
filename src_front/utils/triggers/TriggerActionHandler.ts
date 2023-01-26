@@ -22,12 +22,13 @@ export default class TriggerActionHandler {
 
 	private static _instance:TriggerActionHandler;
 
-	private actionsSpool:TwitchatDataTypes.ChatMessageTypes[] = [];
+	private actionsSpool:{eventType:string, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string}[] = [];
+	// private actionsSpool:TwitchatDataTypes.ChatMessageTypes[] = [];
 	private userCooldowns:{[key:string]:number} = {};
 	private globalCooldowns:{[key:string]:number} = {};
-	private currentSpoolGUID = 0;
 	private triggers:{[key:string]:TriggerData} = {};
 	private lastAnyMessageSent:string = "";
+	private obsActionsExecuting = false;
 
 	public emergencyMode:boolean = false;
 	
@@ -55,104 +56,70 @@ export default class TriggerActionHandler {
 		this.triggers = triggers;
 	}
 
-	public onMessage(message:TwitchatDataTypes.ChatMessageTypes, testMode = false):void {
-		if(testMode) {
-			this.actionsSpool = [message];
-			this.executeNext(testMode);
-		}else{
-			this.actionsSpool.push(message);
-			if(this.actionsSpool.length == 1) {
-				this.executeNext();
-			}
-		}
-	}
-
-	public async parseScheduleTrigger(key:string):Promise<boolean> {
-		//This fake message is just here to comply with parseSteps() signature.
-		//It's actually not used. I could only set the second param as optional
-		//but I prefer keeping it mandatory as the only exception to that is this call.
-		const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"x", date:Date.now(), type:"notice", noticeId:"error", message:"",platform:"twitchat" };
-		return await this.parseSteps(key, fakeMessage, false, ++this.currentSpoolGUID, undefined, "schedule");
-	}
-
-	
-	
-	/*******************
-	* PRIVATE METHODS *
-	*******************/
-	private initialize():void {
-
-	}
-	
 	/**
-	 * Executes the next pending trigger
+	 * Executes trigger(s) related to the specified message
 	 * 
+	 * @param message 
 	 * @param testMode 
-	 * @returns 
 	 */
-	private async executeNext(testMode = false):Promise<void>{
-		this.currentSpoolGUID ++;
-		const message = this.actionsSpool[0];
-		if(!message) return;
-
-		// console.log("Execute next", message);
+	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false):Promise<void> {
 
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				//Only trigger one of "first ever", "first today" or "returning" trigger
 				if(message.twitch_isPresentation === true) {
-					await this.parseSteps(TriggerTypes.PRESENTATION, message, testMode, this.currentSpoolGUID);
+					await this.parseSteps(TriggerTypes.PRESENTATION, message, testMode);
 				}else
 				if(message.twitch_isFirstMessage === true) {
-					await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode, this.currentSpoolGUID);
+					await this.parseSteps(TriggerTypes.FIRST_ALL_TIME, message, testMode);
 				}else
 				if(message.todayFirst === true) {
-					await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode, this.currentSpoolGUID);
+					await this.parseSteps(TriggerTypes.FIRST_TODAY, message, testMode);
 				}else
 				if(message.twitch_isReturning === true) {
-					await this.parseSteps(TriggerTypes.RETURNING_USER, message, testMode, this.currentSpoolGUID);
+					await this.parseSteps(TriggerTypes.RETURNING_USER, message, testMode);
 				}
 
 				if(message.message) {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
-					await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, this.currentSpoolGUID, cmd);
+					await this.parseSteps(TriggerTypes.CHAT_COMMAND, message, testMode, cmd);
 				}
 				
 				if(message.user.id != StoreProxy.auth.twitch.user.id
 				|| this.lastAnyMessageSent != message.message) {
 					//Only parse this trigger if the message receive isn't sent by us
 					//or if the text is different than the last one sent by this trigger
-					await this.parseSteps(TriggerTypes.ANY_MESSAGE, message, testMode, this.currentSpoolGUID);
+					await this.parseSteps(TriggerTypes.ANY_MESSAGE, message, testMode);
 				}
 				break;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-				if(await this.parseSteps(TriggerTypes.FOLLOW, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.FOLLOW, message, testMode)) {
 					return;
 				}break;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 				if(message.is_gift) {
-					if(await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode, this.currentSpoolGUID)) {
+					if(await this.parseSteps(TriggerTypes.SUBGIFT, message, testMode)) {
 						return;
 					}
 				}else
-				if(await this.parseSteps(TriggerTypes.SUB, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.SUB, message, testMode)) {
 					return;
 				}break;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.RAID: {
-				if(await this.parseSteps(TriggerTypes.RAID, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.RAID, message, testMode)) {
 					return;
 				}break;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				const id = message.reward.id;
-				if(await this.parseSteps(TriggerTypes.REWARD_REDEEM, message, testMode, this.currentSpoolGUID, id)) {
+				if(await this.parseSteps(TriggerTypes.REWARD_REDEEM, message, testMode, id)) {
 					return;
 				}break;
 			}
@@ -160,63 +127,63 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
 				const complete = message.challenge.goal === message.challenge.progress;
 				const event = complete? TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE : TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS;
-				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(event, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-				if(await this.parseSteps(TriggerTypes.CHEER, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.CHEER, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
-				if(await this.parseSteps(TriggerTypes.PREDICTION_RESULT, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.PREDICTION_RESULT, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.POLL: {
-				if(await this.parseSteps(TriggerTypes.POLL_RESULT, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.POLL_RESULT, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
-				if(await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
-				if(await this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.RAFFLE_RESULT, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
 				const event = message.countdown.endAt? TriggerTypes.COUNTDOWN_STOP : TriggerTypes.COUNTDOWN_START;
-				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(event, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
 				const event = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
-				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(event, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
-				if(await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.BINGO_RESULT, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT: {
-				if(await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.CHAT_ALERT, message, testMode)) {
 					return;
 				}break;
 			}
@@ -224,79 +191,79 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.MUSIC_START:
 			case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP: {
 				const event = message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_START? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
-				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(event, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.VOICEMOD: {
-				if(await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.VOICEMOD, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
-				if(message.received && await this.parseSteps(TriggerTypes.SHOUTOUT_IN, message, testMode, this.currentSpoolGUID)) {
+				if(message.received && await this.parseSteps(TriggerTypes.SHOUTOUT_IN, message, testMode)) {
 					return;
 				}
-				if(!message.received && await this.parseSteps(TriggerTypes.SHOUTOUT_OUT, message, testMode, this.currentSpoolGUID)) {
+				if(!message.received && await this.parseSteps(TriggerTypes.SHOUTOUT_OUT, message, testMode)) {
 					return;
 				}
 				break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT: {
-				if(await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE: {
-				if(await this.parseSteps(TriggerTypes.OBS_SCENE, message, testMode, this.currentSpoolGUID, message.sceneName.toLowerCase())) {
+				if(await this.parseSteps(TriggerTypes.OBS_SCENE, message, testMode, message.sceneName.toLowerCase())) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE: {
 				const event = message.visible? TriggerTypes.OBS_SOURCE_ON : TriggerTypes.OBS_SOURCE_OFF;
-				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID, message.sourceName.toLowerCase())) {
+				if(await this.parseSteps(event, message, testMode, message.sourceName.toLowerCase())) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PINNED: {
-				if(await this.parseSteps(TriggerTypes.PIN_MESSAGE, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.PIN_MESSAGE, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
-				if(await this.parseSteps(TriggerTypes.UNPIN_MESSAGE, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.UNPIN_MESSAGE, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BAN:{
 				const event = message.duration_s? TriggerTypes.TIMEOUT : TriggerTypes.BAN
-				if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(event, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.UNBAN:{
-				if(await this.parseSteps(TriggerTypes.UNBAN, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.UNBAN, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:{
-				if(await this.parseSteps(TriggerTypes.STREAM_ONLINE, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.STREAM_ONLINE, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE:{
-				if(await this.parseSteps(TriggerTypes.STREAM_OFFLINE, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(TriggerTypes.STREAM_OFFLINE, message, testMode)) {
 					return;
 				}break;
 			}
@@ -306,7 +273,7 @@ export default class TriggerActionHandler {
 				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;
 				if(message.mined) type = TriggerTypes.COUNTER_MINED;
 				if(message.looped) type = TriggerTypes.COUNTER_LOOPED;
-				if(await this.parseSteps(type, message, testMode, this.currentSpoolGUID, message.counter.id)) {
+				if(await this.parseSteps(type, message, testMode, message.counter.id)) {
 					return;
 				}break;
 			}
@@ -325,7 +292,7 @@ export default class TriggerActionHandler {
 				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS] = TriggerTypes.HYPE_TRAIN_PROGRESS;
 				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL] = TriggerTypes.HYPE_TRAIN_CANCELED;
 				map[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE] = TriggerTypes.HYPE_TRAIN_END;
-				if(await this.parseSteps(map[message.type]!, message, testMode, this.currentSpoolGUID)) {
+				if(await this.parseSteps(map[message.type]!, message, testMode)) {
 					return;
 				}break;
 			}
@@ -334,41 +301,41 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
-						if(await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.STREAM_INFO_UPDATE, message, testMode)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
 						const m = message as TwitchatDataTypes.MessageEmergencyModeInfo;
 						const event = m.enabled? TriggerTypes.EMERGENCY_MODE_START : TriggerTypes.EMERGENCY_MODE_STOP;
-						if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(event, message, testMode)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.MOD:{
-						if(await this.parseSteps(TriggerTypes.MOD, message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.MOD, message, testMode)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.UNMOD:{
-						if(await this.parseSteps(TriggerTypes.UNMOD, message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.UNMOD, message, testMode)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.VIP:{
-						if(await this.parseSteps(TriggerTypes.VIP, message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.VIP, message, testMode)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.UNVIP:{
-						if(await this.parseSteps(TriggerTypes.UNVIP, message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(TriggerTypes.UNVIP, message, testMode)) {
 							return;
 						}break;
 					}
 					case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:{
 						const m = message as TwitchatDataTypes.MessageShieldMode;
 						const event = m.enabled? TriggerTypes.SHIELD_MODE_ON : TriggerTypes.SHIELD_MODE_OFF;
-						if(await this.parseSteps(event, message, testMode, this.currentSpoolGUID)) {
+						if(await this.parseSteps(event, message, testMode)) {
 							return;
 						}break;
 					}
@@ -376,12 +343,25 @@ export default class TriggerActionHandler {
 				break;
 			}
 		}
-
-		// console.log("Message not matching any trigger", message);
-		this.actionsSpool.shift();
-		this.executeNext();
 	}
 
+	public async parseScheduleTrigger(key:string):Promise<boolean> {
+		//This fake message is just here to comply with parseSteps() signature.
+		//It's actually not used. I could only set the second param as optional
+		//but I prefer keeping it mandatory as the only exception to that is this call.
+		const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
+		return await this.parseSteps(key, fakeMessage, false, undefined, "schedule");
+	}
+
+	
+	
+	/*******************
+	* PRIVATE METHODS *
+	*******************/
+	private initialize():void {
+
+	}
+	
 
 	/**
 	 * Executes the steps of the trigger
@@ -391,9 +371,11 @@ export default class TriggerActionHandler {
 	 * 
 	 * @returns true if the trigger was executed
 	 */
-	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, guid:number, subEvent?:string, ttsID?:string, autoExecuteNext:boolean = true):Promise<boolean> {
+	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string):Promise<boolean> {
+		const originalEventType = eventType;
 		if(subEvent) eventType += "_"+subEvent
 		let trigger:TriggerData = this.triggers[ eventType ];
+		let hasOBSAction = false;
 		
 		//Special case for twitchat's ad, generate trigger data
 		if(eventType == TriggerTypes.TWITCHAT_AD) {
@@ -460,15 +442,36 @@ export default class TriggerActionHandler {
 			// console.log(message);
 			// console.log(canExecute);
 
+			// if(!canExecute) console.log("Cant execute:", message, trigger);
+
 			if(canExecute) {
-				for (let i = 0; i < trigger.actions.length; i++) {
-					if(autoExecuteNext && guid != this.currentSpoolGUID) {
-						return true;//Stop there, something asked to override the current exec sequence
+				if(!testMode) {
+					//Check if the trigger has OBS actions in which case
+					//we postepone the execution to when the trigger currently
+					//executing (or pedning execution) is complete
+					for (let i = 0; i < trigger.actions.length; i++) {
+						if(trigger.actions[i].type == "obs") {
+							hasOBSAction = true;
+							break;
+						}
 					}
+	
+					if(hasOBSAction && this.obsActionsExecuting) {
+						//The trigger has OBS actions. Stop there and wait for
+						//current OBS related trigger(s) to complete
+						this.actionsSpool.push({eventType:originalEventType, message, testMode, subEvent, ttsID});
+						return true;
+					}
+				}
+
+				if(hasOBSAction) this.obsActionsExecuting = true;
+
+				for (let i = 0; i < trigger.actions.length; i++) {
 					const step = trigger.actions[i];
 					// console.log("	Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
+						this.obsActionsExecuting = true;
 						if(step.text) {
 							try {
 								const text = await this.parseText(eventType, message, step.text as string, subEvent);
@@ -603,7 +606,7 @@ export default class TriggerActionHandler {
 							const trigger = this.triggers[step.triggerKey];
 							if(trigger) {
 								// console.log("Exect sub trigger", step.triggerKey);
-								await this.parseSteps(step.triggerKey, message, testMode, guid, undefined, undefined, false);
+								await this.parseSteps(step.triggerKey, message, testMode);
 							}
 						}
 					}else
@@ -720,7 +723,7 @@ export default class TriggerActionHandler {
 									}
 									PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
 									//Execute "TRACK_ADDED_TO_QUEUE" trigger
-									this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, trigger, false, guid);
+									this.parseSteps(TriggerTypes.TRACK_ADDED_TO_QUEUE, trigger, false);
 
 									//The step is requesting to confirm on chat when a track has been added
 									if(step.confirmMessage) {
@@ -806,11 +809,15 @@ export default class TriggerActionHandler {
 		}
 
 
-		if(autoExecuteNext) {
-			//Remove item done
-			this.actionsSpool.shift();
+		if(hasOBSAction) {
+			//An OBS related item is pending, execute it
+			this.obsActionsExecuting = false;
 			if(this.actionsSpool.length > 0) {
-				this.executeNext();
+				console.log("Had OBS actions, execute next", this.actionsSpool.length);
+				const entry = this.actionsSpool.shift()!;
+				this.parseSteps(entry.eventType, entry.message, entry.testMode, entry.subEvent, entry.ttsID);
+			}else{
+				console.log("No other OBS actions pending");
 			}
 		}
 
@@ -822,13 +829,14 @@ export default class TriggerActionHandler {
 	 */
 	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
+		if(!res) return "";
 
 		try {
-			// console.log("===== PARSE TEXT =====");
-			// console.log(eventType);
-			// console.log(message);
-			// console.log(src);
-			// console.log(subEvent);
+			console.log("===== PARSE TEXT =====");
+			console.log(eventType);
+			console.log(message);
+			console.log(src);
+			console.log(subEvent);
 
 			eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 			const helpers = TriggerActionHelpers(eventType);

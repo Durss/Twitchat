@@ -728,7 +728,7 @@ export const storeChat = defineStore('chat', {
 									type:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT,
 									message:message,
 								}
-								TriggerActionHandler.instance.onMessage(trigger);
+								TriggerActionHandler.instance.execute(trigger);
 							}
 						}
 						
@@ -1042,12 +1042,12 @@ export const storeChat = defineStore('chat', {
 						//Wait a little more
 						setTimeout(()=>checkForChange(message, recipientCount), 1000);
 					}else{
-						TriggerActionHandler.instance.onMessage(message);
+						TriggerActionHandler.instance.execute(message);
 					}
 				}
 				checkForChange(message, message.gift_recipients?.length ?? 0);
 			}else{
-				TriggerActionHandler.instance.onMessage(message);
+				TriggerActionHandler.instance.execute(message);
 			}
 
 			TTSUtils.instance.addMessageToQueue(message);

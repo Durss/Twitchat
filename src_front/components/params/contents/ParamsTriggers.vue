@@ -615,7 +615,7 @@ export default class ParamsTriggers extends Vue {
 							(m as TwitchatDataTypes.MessageShieldMode).enabled = (key == TriggerTypes.SHIELD_MODE_ON);
 						}
 					}
-					TriggerActionHandler.instance.onMessage(data, true);
+					TriggerActionHandler.instance.execute(data, true);
 				}, false);
 			}else{
 
@@ -693,7 +693,7 @@ export default class ParamsTriggers extends Vue {
 						(m as TwitchatDataTypes.MessageShoutoutData).received = (entry.value == TriggerTypes.SHOUTOUT_IN);
 					}
 
-					TriggerActionHandler.instance.onMessage(m, true);
+					TriggerActionHandler.instance.execute(m, true);
 				}, false);
 			}
 		}

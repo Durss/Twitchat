@@ -112,7 +112,7 @@ export default class OBSWebsocket extends EventDispatcher {
 				type:'obs_scene_change',
 				sceneName:e.sceneName,
 			}
-			TriggerActionHandler.instance.onMessage(m);
+			TriggerActionHandler.instance.execute(m);
 		});
 
 		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
@@ -130,7 +130,7 @@ export default class OBSWebsocket extends EventDispatcher {
 						sourceItemId:e.sceneItemId,
 						visible:e.sceneItemEnabled,
 					}
-					TriggerActionHandler.instance.onMessage(m);
+					TriggerActionHandler.instance.execute(m);
 					break;
 				}
 			}

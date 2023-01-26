@@ -162,7 +162,7 @@ export const storeMain = defineStore("main", {
 						platform:"twitchat",
 						voiceID:e.voiceID,
 					}
-					TriggerActionHandler.instance.onMessage(trigger);
+					TriggerActionHandler.instance.execute(trigger);
 
 					for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
 						const v = VoicemodWebSocket.instance.voices[i];
