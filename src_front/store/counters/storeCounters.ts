@@ -78,7 +78,7 @@ export const storeCounters = defineStore('counters', {
 				mined:false,
 				user,
 			};
-			if(c.max && value >= c.max) {
+			if(c.max !== false && value >= c.max) {
 				if(value > c.max && c.loop) {
 					const min = c.min || 0;
 					value = min + value % c.max;
@@ -87,7 +87,7 @@ export const storeCounters = defineStore('counters', {
 					value = c.max || 0;
 					message.maxed = true;
 				}
-			}else if(c.min && value <= c.min){
+			}else if(c.min !== false && value <= c.min){
 				if(value < c.min && c.loop) {
 					const max = c.max || 0;
 					value = max - (c.min - value);
