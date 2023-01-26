@@ -13,8 +13,8 @@
 			"name": "Name",
 			"value": "Value",
 			"more": "More options",
-			"value_min": "Max value",
-			"value_max": "Min value",
+			"value_min": "Min value",
+			"value_max": "Max value",
 			"value_loop": "Loop value when reaching min or max",
 			"value_user": "Every user has their own counter",
 			"search":"Search user..."
