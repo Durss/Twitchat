@@ -108,7 +108,7 @@
 					}
 
 					case "CHAT_FEED_SELECT":{
-						if(payload.settings.selectMode) {
+						if(payload.settings.selectMode !== false) {
 							params = { col, count: payload.ticks };
 						}else{
 							let index = (payload.settings.actionIndex || 0) + (payload.ticks ?? 0);

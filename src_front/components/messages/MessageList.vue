@@ -982,7 +982,7 @@ export default class MessageList extends Vue {
 		const data = e.data as { count?: number, scrollBy?: number, col?:number };
 		let count = (data?.count && !isNaN(data.count as number)) ? data.count : 0;
 		let scrollBy = (data?.scrollBy && !isNaN(data.scrollBy as number)) ? data.scrollBy : 100;
-		if(data.col != undefined && data.col != this.config.order) return;
+		if(data.col != undefined && (data.col || 0) != this.config.order) return;
 		
 
 		switch (e.type) {
