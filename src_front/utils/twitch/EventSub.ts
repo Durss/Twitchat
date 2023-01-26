@@ -53,6 +53,7 @@ export default class EventSub {
 		}
 
 		//Delete all previous event sub subscriptions
+		/*
 		try {
 			const subscriptions = await TwitchUtils.eventsubGetSubscriptions();
 			await Utils.promisedTimeout(5000);
@@ -68,6 +69,7 @@ export default class EventSub {
 		}catch(error) {
 			//It's not a big deal if this crashes, it's safe to ignore
 		}
+		//*/
 
 		this.socket = new WebSocket("wss://eventsub-beta.wss.twitch.tv/ws");
 
