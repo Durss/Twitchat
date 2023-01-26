@@ -36,7 +36,6 @@
 	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/events.js"></script>
 	<script type="text/javascript" src="js/api.js"></script>
-	<script type="text/javascript" src="js/stream-deck.js"></script>
 	<script type="text/javascript" src="js/property-inspector.js"></script>
 	<script type="text/javascript" src="js/dynamic-styles.js"></script>
 </head>
@@ -85,6 +84,7 @@
 				<strong class="hidden" data-chat-feed-scroll_down>Scroll the chat down by the specified amount of pixels</strong>
 				<strong class="hidden" data-chat-feed-scroll>Freely scroll your chat up and down</strong>
 				<strong class="hidden" data-shoutout>Using this button will send a shoutout to the latest user that raided your channel. It will do nothing until someone raided you.</strong>
+				<strong class="hidden" data-chat-feed-select>Use this button to select a user's message and take moderation actions on it.</strong>
 			</div>
 		</div>
 
@@ -113,6 +113,7 @@
 		</div>
 
 		<div class="sdpi-item" id="select_single" hidden
+		data-chat-feed-select
 		data-chat-feed-read
 		data-chat-feed-read-encoder
 		data-chat-feed-pause
@@ -124,6 +125,7 @@
 			<select class="sdpi-item-value select"
 				id="colIndex"
 				oninput="onChangeValue('greet-feed-read', Number(event.target.value))"
+				data-chat-feed-select
 				data-chat-feed-read
 				data-chat-feed-read-encoder
 				data-chat-feed-pause

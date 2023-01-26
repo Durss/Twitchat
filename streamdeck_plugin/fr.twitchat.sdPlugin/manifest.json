@@ -158,6 +158,27 @@
 			}
 		},
 		{
+			"Icon": "icons/TARGET_MESSAGE_default",
+			"Name": "Select Message",
+			"States": [
+				{
+					"Image": "icons/TARGET_MESSAGE",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.chat-feed-select",
+			"Controllers": ["Encoder"],
+			"Encoder":{
+				"TriggerDescription": {
+					"Rotate": "Select chat message",
+					"Push": "Switch between select/moderation modes"
+				}
+			}
+		},
+		{
 			"Icon": "icons/POLL_TOGGLE_default",
 			"Name": "Toggle current poll state",
 			"States": [
@@ -339,7 +360,7 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "2.0",
+	"Version": "2.1",
 	"OS": [
 		{
 			"Platform": "mac",

@@ -13,13 +13,11 @@
 	<script type="text/javascript" src="js/events.js"></script>
 	<script type="text/javascript" src="js/api.js"></script>
 	<script type="text/javascript" src="js/stream-deck.js"></script>
-	<script type="text/javascript" src="js/property-inspector.js"></script>
-	<script type="text/javascript" src="js/dynamic-styles.js"></script>
 </head>
 
 <body>
 	<script>
-		var uuidList = [
+		const uuidList = [
 			"fr.twitchat.action.greet-feed-read-all",
 			"fr.twitchat.action.greet-feed-read",
 			"fr.twitchat.action.chat-feed-read-all",
@@ -42,7 +40,12 @@
 			"fr.twitchat.action.stop-tts",
 			"fr.twitchat.action.enable-stt",
 			"fr.twitchat.action.disable-stt",
+			"fr.twitchat.action.chat-feed-select",
 		];
+
+		const SELECT_ACTIONS = ["DELETE", "BAN", "TIMEOUT_1", "TIMEOUT_2", "CANCEL"];
+		const SELECT_ACTIONS_LABELS = ["DELETE", "BAN", "TIMEOUT 1s", "TIMEOUT 600s", "CANCEL"];
+		const SELECT_ACTIONS_COLORS = ["#9147ff", "#FF0000", "#d9a808", "#d95508", "#616161"];
 
 		let websocket = null;
 		let websocketOBS = new OBSWebSocket();
@@ -60,7 +63,7 @@
 
 		var actions = {
 
-			onKeyUp: (action, payload) => {
+			onKeyUp: (action, payload, context) => {
 				console.log("KEY UP", action, payload);
 				const actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				const col = payload.settings.colIndex ?? 0;
@@ -87,7 +90,7 @@
 				callTwitchat(actionName, params)
 			},
 
-			onDialRotate: (action, payload) => {
+			onDialRotate: (action, payload, context) => {
 				let actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				let params;
 				const col = payload.settings.colIndex ?? 0;
@@ -97,22 +100,56 @@
 						params = { col, scrollBy: payload.ticks };
 						break;
 					}
+
 					case "CHAT_FEED_READ_ENCODER":{
 						actionName = "CHAT_FEED_READ";
 						params = { col, count: payload.ticks };
 						break;
 					}
+
+					case "CHAT_FEED_SELECT":{
+						if(payload.settings.selectMode) {
+							params = { col, count: payload.ticks };
+						}else{
+							let index = (payload.settings.actionIndex || 0) + (payload.ticks ?? 0);
+							index = index % SELECT_ACTIONS.length;
+							if(index < 0) index = SELECT_ACTIONS.length - 1;
+							payload.settings.actionIndex = index;
+							$SD.setSettings(context, payload.settings);
+							$SD.setFeedback(context, {
+								"action": {"value":"◄ "+SELECT_ACTIONS_LABELS[index]+" ►", "color":SELECT_ACTIONS_COLORS[index]},
+							});
+							return;
+						}
+						break;
+					}
 				}
-				console.log(actionName, params);
 				// console.log(actionName, params);
 				callTwitchat(actionName, params);
 			},
 
-			onDialPress: (action, payload) => {
+			onDialPress: (action, payload, context) => {
 				let actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				switch(actionName) {
+					case "CHAT_FEED_SELECT":{
+						if(payload.pressed) return;
+						let selectMode = !(payload.settings.selectMode ?? true);
+						payload.settings.selectMode = selectMode;
+						$SD.setSettings(context, payload.settings);
+						if(selectMode) {
+							const actionIndex = payload.settings.actionIndex;
+							this.callTwitchat("CHAT_FEED_SELECT_ACTION_"+SELECT_ACTIONS[actionIndex])
+							$SD.setFeedbackLayout(context, "$X1");
+						}else{
+							$SD.setFeedbackLayout(context, "./chat-feed-select-layout.json");
+							actions.onDialRotate(action, payload, context);
+						}
+						return;
+					}
+				}
 			},
 
-			onTouchTap: (action, payload) => {
+			onTouchTap: (action, payload, context) => {
 				const actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				const px = payload.tapPos[0];
 				const py = payload.tapPos[1];
@@ -135,6 +172,7 @@
 						}
 						return;
 					}
+
 					case "CHAT_FEED_READ_ENCODER":{
 						if(px < 200 / 3){
 							callTwitchat("CHAT_FEED_READ_ALL", {col});
@@ -157,11 +195,11 @@
 			},
 
 			SetGlobalSettings: (settings) => {
-				$PI.setGlobalSettings(settings);
+				$SD.setGlobalSettings(settings);
 			},
 
 			GetGlobalSettings: () => {
-				$PI.getGlobalSettings();
+				$SD.getGlobalSettings();
 			},
 
 			AddToSettings: (context, newSettings) => {
@@ -170,9 +208,8 @@
 		};
 		
 		window.onload = ()=> {
-			console.log("okkfodfd")
 
-			$PI.onDidReceiveGlobalSettings((e) => {
+			$SD.onDidReceiveGlobalSettings((e) => {
 				settingsCache.OBSWS_PASS = e.payload.settings.OBSWS_PASS;
 				settingsCache.OBSWS_PORT = e.payload.settings.OBSWS_PORT;
 				settingsCache.OBSWS_IP = e.payload.settings.OBSWS_IP;
@@ -182,8 +219,8 @@
 			$SD.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
 				console.log('Stream Deck connected!', uuid);
 
-				//Dunno why we have to use $PI instead of $SD...
-				$PI.getGlobalSettings();
+				//Dunno why we have to use $SD instead of $SD...
+				$SD.getGlobalSettings();
 			});
 			$SD.on("keyUp", (e)=>{
 				console.log("ON KEYUP", e);
@@ -194,19 +231,19 @@
 				
 				const myAction = new Action(uuid);
 				myAction.onKeyUp(({ action, context, device, event, payload }) => {
-					actions.onKeyUp(myAction, payload);
+					actions.onKeyUp(myAction, payload, context);
 				});
 		
 				myAction.onDialPress(({ action, context, device, event, payload }) => {
-					actions.onDialPress(myAction, payload);
+					actions.onDialPress(myAction, payload, context);
 				});
 		
 				myAction.onDialRotate(({ action, context, device, event, payload }) => {
-					actions.onDialRotate(myAction, payload);
+					actions.onDialRotate(myAction, payload, context);
 				});
 		
 				myAction.onTouchTap(({ action, context, device, event, payload }) => {
-					actions.onTouchTap(myAction, payload);
+					actions.onTouchTap(myAction, payload, context);
 				});
 		
 				myAction.onSendToPlugin(({ action, context, device, event, payload }) => {
@@ -281,7 +318,6 @@
 					
 					switch(e.type) {
 						case "SET_COLS_COUNT":{
-							console.log("SET COLS COUNT", e.data.count);
 							settingsCache.COLS_COUNT = e.data.count;
 							//If state has changed, tell the property inspector
 							actions.SetGlobalSettings(settingsCache);
@@ -296,7 +332,6 @@
 		 * Request Twitchat to perform an action
 		 */
 		function callTwitchat(actionName, data) {
-			console.log(data);
 			if(!data) data = {};
 			const eventData = { origin:"twitchat", type:actionName, data:JSON.parse(JSON.stringify(data)) }
 			websocketOBS.call("BroadcastCustomEvent", {eventData});
