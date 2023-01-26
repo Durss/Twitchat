@@ -71,7 +71,8 @@ export const storeCounters = defineStore('counters', {
 				counter:c,
 				id:Utils.getUUID(),
 				platform:"twitchat",
-				value: addedValue,
+				value,
+				added: addedValue,
 				looped:false,
 				maxed:false,
 				mined:false,
@@ -106,6 +107,8 @@ export const storeCounters = defineStore('counters', {
 			}else{
 				c.value = value;
 			}
+
+			message.value = value;
 
 			StoreProxy.chat.addMessage(message);
 			DataStore.set(DataStore.COUNTERS, this.data);

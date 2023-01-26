@@ -17,10 +17,11 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionPollData
 								| TriggerActionPredictionData
 								| TriggerActionCountData
+								| TriggerActionCountGetData
 ;
 
 
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|"count"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|"count"|"countget"|null;
 
 export interface TriggerData {
 	enabled:boolean;
@@ -152,6 +153,11 @@ export interface TriggerActionCountData extends TriggerActionData{
 	counters:string[];
 }
 
+export interface TriggerActionCountGetData extends TriggerActionData{
+	type:"countget";
+	counters:string;
+}
+
 export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];
 export interface TriggerScheduleData {
 	type:TriggerScheduleTypesValue|"0";
@@ -235,6 +241,9 @@ export interface ITriggerActionHelper {
 	numberParsable:boolean;
 }
 
+export const USER_PLACEHOLDER:string = "USER";
+export const USER_ID_PLACEHOLDER:string = "USER_ID";
+
 let helpersCache:{[key:string]:ITriggerActionHelper[]};
 export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	if(helpersCache) {
@@ -248,22 +257,22 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.RETURNING_USER] = 
 	map[TriggerTypes.PRESENTATION] =
 	map[TriggerTypes.CHAT_COMMAND] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.PIN_MESSAGE] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"chatMessage.user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"chatMessage.user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"chatMessage.message", numberParsable:true, isUserID:false},
 		{tag:"MODERATOR", descKey:'triggers.placeholders.pinned_by', pointer:"moderator.displayName", numberParsable:false, isUserID:false},
 		{tag:"MODERATOR_ID", descKey:'triggers.placeholders.pinned_by_id', pointer:"moderator.id", numberParsable:false, isUserID:false},
 	];
 
 	map[TriggerTypes.UNPIN_MESSAGE] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"chatMessage.user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"chatMessage.user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"chatMessage.message", numberParsable:true, isUserID:false},
 	];
 	
@@ -287,8 +296,8 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	];
 	
 	map[TriggerTypes.SUB] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier", numberParsable:true, isUserID:false},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.sub_message', pointer:"message", numberParsable:true, isUserID:false},
 		{tag:"MONTHS_TOTAL", descKey:'triggers.placeholders.sub_months_total', pointer:"totalSubDuration", numberParsable:true, isUserID:false},
@@ -297,8 +306,8 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	];
 	
 	map[TriggerTypes.SUBGIFT] = [
-		{tag:"USER", descKey:'triggers.placeholders.sub_gifter', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.sub_gifter', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"RECIPIENTS", descKey:'triggers.placeholders.sub_gift_recipient', pointer:"gift_recipients[].displayName", numberParsable:false, isUserID:false},
 		{tag:"RECIPIENTS_ID", descKey:'triggers.placeholders.sub_gift_recipient_id', pointer:"gift_recipients[].id", numberParsable:false, isUserID:false},
 		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier", numberParsable:true, isUserID:false},
@@ -306,40 +315,40 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	];
 	
 	map[TriggerTypes.CHEER] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"BITS", descKey:'triggers.placeholders.bits', pointer:"bits", numberParsable:true, isUserID:false},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.FOLLOW] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 	
 	map[TriggerTypes.RAID] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title", numberParsable:false, isUserID:false},
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false},
 		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_category', pointer:"viewers", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.SHOUTOUT_IN] = [
-		{tag:"USER", descKey:'triggers.placeholders.shoutout_in', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.shoutout_in', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"AVATAR", descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false},
 		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title", numberParsable:false, isUserID:false},
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false},
 	];
 	map[TriggerTypes.SHOUTOUT_OUT] = [
-		{tag:"USER", descKey:'triggers.placeholders.shoutout_out', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.shoutout_out', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 	
 	map[TriggerTypes.REWARD_REDEEM] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"TITLE", descKey:'triggers.placeholders.reward_title', pointer:"reward.title", numberParsable:false, isUserID:false},
 		{tag:"DESCRIPTION", descKey:'triggers.placeholders.reward_description', pointer:"reward.description", numberParsable:false, isUserID:false},
 		{tag:"COST", descKey:'triggers.placeholders.reward_cost', pointer:"reward.cost", numberParsable:true, isUserID:false},
@@ -362,14 +371,14 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	
 	map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = [
 		{tag:"AVATAR", descKey:'triggers.placeholders.user_avatar', pointer:"info.user.avatarPath", numberParsable:false, isUserID:false},
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"info.user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"info.user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"info.user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"info.user.id", numberParsable:false, isUserID:true},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"info.message", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.CHAT_ALERT] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"message.user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"message.user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"message.user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"message.user.id", numberParsable:false, isUserID:true},
 		{tag:"ALERT", descKey:'triggers.placeholders.message', pointer:"message.message", numberParsable:true, isUserID:false},
 	];
 	
@@ -389,8 +398,8 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	];
 
 	map[TriggerTypes.TIMEOUT] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration_s", numberParsable:true, isUserID:false},
 	];
 	
@@ -419,8 +428,8 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.BAN] = 
 	map[TriggerTypes.STREAM_ONLINE] =
 	map[TriggerTypes.STREAM_OFFLINE] = [
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 	
 	map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE] = [
@@ -432,8 +441,8 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS] = JSON.parse(JSON.stringify(map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE]));
 	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS].push(
 		{tag:"PROGRESS", descKey:'triggers.placeholders.challenge_current', pointer:"challenge.progress", numberParsable:true, isUserID:false},
-		{tag:"USER", descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
-		{tag:"USER_ID", descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"CONTRIBUTION", descKey:'triggers.placeholders.challenge_contribution', pointer:"contribution", numberParsable:true, isUserID:false},
 		{tag:"CONTRIBUTION_TOTAL", descKey:'triggers.placeholders.challenge_contribution_total', pointer:"total_contribution", numberParsable:true, isUserID:false},
 	);
@@ -444,8 +453,10 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.COUNTER_MINED] =
 	map[TriggerTypes.COUNTER_MAXED] = [
 		{tag:"NAME", descKey:'triggers.placeholders.counter_name', pointer:"counter.name", numberParsable:false, isUserID:false},
-		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"counter.value", numberParsable:true, isUserID:false},
-		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"value", numberParsable:true, isUserID:false},
+		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"value", numberParsable:true, isUserID:false},
+		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"added", numberParsable:true, isUserID:false},
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.counter_username', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.counter_userid', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 
 

@@ -245,7 +245,6 @@ export default class StreamInfoForm extends Vue {
 				this.categories = [game];
 			}
 			this.param_tags.listValues = infos.tags.map(v=> {return {label:v, value:v}});
-			console.log(infos.tags);
 		}catch(error) {
 			this.$store("main").alert( this.$t("error.stream_info_loading") );
 		}

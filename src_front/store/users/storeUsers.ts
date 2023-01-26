@@ -450,7 +450,7 @@ export const storeUsers = defineStore('users', {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
 					userList[i].channelInfo[channelId].is_banned = true;
-					userList[i].channelInfo[channelId].is_moderator = false;//When baned or timed out tiwtch removes the mod role
+					userList[i].channelInfo[channelId].is_moderator = false;//When banned or timed out twitch removes the mod role
 					if(duration_s) {
 						userList[i].channelInfo[channelId].banEndDate = Date.now() + duration_s*1000;
 					}

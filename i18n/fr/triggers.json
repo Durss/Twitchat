@@ -61,7 +61,8 @@
 				"action_http": "Appel HTTP",
 				"action_poll": "Lancer un sondage",
 				"action_prediction": "Lancer une prédiction",
-				"action_count": "Modifier un compteur"
+				"action_count": "Modifier un compteur",
+				"action_count_get": "Lire un compteur"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -211,7 +212,9 @@
 			"shoutout_out": "Chaîne que vous avez shoutout",
 			"counter_name": "Nom du compteur",
 			"counter_value": "Nouvelle valeur du compteur",
-			"counter_update": "Valeur ajoutée"
+			"counter_update": "Valeur ajoutée",
+			"counter_username": "Pseudo (pour les compteurs utilisateur)",
+			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)"
 		},
 		"events": {
 			"CHAT_COMMAND": {
