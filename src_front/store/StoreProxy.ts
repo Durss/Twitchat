@@ -298,6 +298,7 @@ export interface IParamsActions {
 	updateParams():void;
 	addChatColumn(after?:TwitchatDataTypes.ChatColumnsConfig):TwitchatDataTypes.ChatColumnsConfig;
 	delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void;
+	moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:number):void;
 	saveChatColumnConfs():void;
 	setGreetThemAutoDelete(value:number):void;
 }

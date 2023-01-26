@@ -57,7 +57,8 @@
 			"subgifts": "Subgifts",
 			"column_edit": "Edit filters",
 			"column_add": "Add column",
-			"column_delete": "Delete column"
+			"column_delete": "Delete column",
+			"column_move": "Move column"
 		},
 		"badges": {
 			"subscriber": "{DURATION} subscriber",
@@ -157,7 +158,7 @@
 			"users": "Specific users",
 			"nobody": "Nobody is allowed by the current selection",
 			"follow": "Followers",
-			"follow_duration": "Must be a follower for {'{'}VALUE{'}'} days"
+			"follow_duration": "Must be a follower for 0 day | Must be a follower for 1 day | Must be a follower for {'{'}VALUE{'}'} days"
 		}
 	}
 }

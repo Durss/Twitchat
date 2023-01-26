@@ -10,7 +10,6 @@
 			:forceConfig="forceConfig"
 			:config="config"
 			@add="$emit('addColumn', config)"
-			@delete="deleteColumn()"
 			@change="fullListRefresh()"
 			@submit="forceConfig = false"/>
 
@@ -558,17 +557,6 @@ export default class MessageList extends Vue {
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		const read = permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1;
 		this.$store("tts").ttsReadUser(this.conversation[0].user, read);
-	}
-
-	/**
-	 * Called when requesting to delete the current column
-	 */
-	public deleteColumn():void {
-		this.$store("main")
-		.confirm(this.$t("chat.delete_col_confirm_title"), this.$t("chat.delete_col_confirm_desc"))
-		.then(()=> {
-			this.$store("params").delChatColumn(this.config);
-		})
 	}
 
 	/**

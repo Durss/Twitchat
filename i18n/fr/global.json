@@ -57,7 +57,8 @@
 			"subgifts": "Abonnements offerts",
 			"column_edit": "Editer les<br>filtres",
 			"column_add": "Ajouter une<br>colonne",
-			"column_delete": "Supprimer<br>une colonne"
+			"column_delete": "Supprimer<br>une colonne",
+			"column_move": "Déplacer la colonne"
 		},
 		"badges": {
 			"subscriber": "Abonné·e depuis {DURATION}",
@@ -156,7 +157,7 @@
 			"users": "Personnes spécifiques",
 			"nobody": "Personne n'est autorisé par la sélection actuelle",
 			"follow": "Followers",
-			"follow_duration": "Doit follow depuis au moins {'{'}VALUE{'}'} jours"
+			"follow_duration": "Doit follow depuis au moins 0 jour | Doit follow depuis au moins 1 jour | Doit follow depuis au moins {'{'}VALUE{'}'} jours"
 		}
 	}
 }

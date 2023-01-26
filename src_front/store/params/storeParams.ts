@@ -281,6 +281,18 @@ export const storeParams = defineStore('params', {
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
 		},
 
+		moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:number):void {
+			const newPos = column.order + direction;
+			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
+				const c = this.chatColumnsConfig[i];
+				if(c.order == newPos) {
+					c.order -= direction;
+					break;
+				}
+			}
+			column.order = newPos;
+		},
+
 		saveChatColumnConfs():void {
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 		},
