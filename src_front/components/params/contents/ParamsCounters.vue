@@ -32,44 +32,44 @@
 
 		<ToggleBlock class="counterEntry"
 		v-if="$store('counters').data.length > 0"
-		v-for="c in $store('counters').data" :key="c.id"
-		:title="c.name" medium>
+		v-for="entry in counterEntries" :key="entry.counter.id"
+		:title="entry.counter.name" medium>
 			<template #left_actions>
-				<Button class="actionBt" white :data-tooltip="$t('counters.editBt')" :icon="$image('icons/edit_purple.svg')" @click="editCounter(c)" />
+				<Button class="actionBt" white :data-tooltip="$t('counters.editBt')" :icon="$image('icons/edit_purple.svg')" @click="editCounter(entry.counter)" />
 			</template>
 			<template #right_actions>
-				<Button class="actionBt" highlight :icon="$image('icons/trash.svg')" @click="deleteCounter(c)" />
+				<Button class="actionBt" highlight :icon="$image('icons/trash.svg')" @click="deleteCounter(entry.counter)" />
 			</template>
 			<div class="content">
-				<ParamItem class="item value" v-if="!c.perUser"
-					:paramData="{type:'number', value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:'counters.form.value'}"
-					v-model="c.value"
-					@change="onChangeValue(c)" />
+				<ParamItem class="item value" v-if="!entry.counter.perUser"
+					:paramData="entry.param"
+					v-model="entry.counter.value"
+					@change="onChangeValue(entry.counter)" />
 
-				<div class="item infos" v-if="c.min !== false || c.max !== false || c.loop || c.perUser">
-					<span class="min" :data-tooltip="$t('counters.min_tt')" v-if="c.min !== false"><img src="@/assets/icons/min_purple.svg" alt="min">{{ c.min }}</span>
-					<span class="max" :data-tooltip="$t('counters.max_tt')" v-if="c.max !== false"><img src="@/assets/icons/max_purple.svg" alt="max">{{ c.max }}</span>
-					<span class="loop" :data-tooltip="$t('counters.loop_tt')" v-if="c.loop"><img src="@/assets/icons/loop_purple.svg" alt="loop"></span>
-					<span class="user" :data-tooltip="$t('counters.user_tt')" v-if="c.perUser"><img src="@/assets/icons/user_purple.svg" alt="user"> {{ Object.keys(c.users ?? {}).length }}</span>
+				<div class="item infos" v-if="entry.counter.min !== false || entry.counter.max !== false || entry.counter.loop || entry.counter.perUser">
+					<span class="min" :data-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min_purple.svg" alt="min">{{ entry.counter.min }}</span>
+					<span class="max" :data-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max_purple.svg" alt="max">{{ entry.counter.max }}</span>
+					<span class="loop" :data-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop_purple.svg" alt="loop"></span>
+					<span class="user" :data-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><img src="@/assets/icons/user_purple.svg" alt="user"> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
 				</div>
 				
-				<div class="userList" v-if=" Object.keys(c.users ?? {}).length > 0">
+				<div class="userList" v-if=" Object.keys(entry.counter.users ?? {}).length > 0">
 					<div class="search">
-						<input type="text" :placeholder="$t('counters.form.search')" v-model="search" @input="searchUser(c)">
+						<input type="text" :placeholder="$t('counters.form.search')" v-model="search" @input="searchUser(entry.counter)">
 						<img src="@/assets/loader/loader.svg" alt="loader" v-show="searching">
 					</div>
 
-					<div class="noResult" v-if="idToSearchResult[c.id] === null">
+					<div class="noResult" v-if="idToSearchResult[entry.counter.id] === null">
 						user not found
 					</div>
 
-					<div class="item userItem" v-else-if="idToSearchResult[c.id]">
-						<img :src="idToSearchResult[c.id]?.avatarPath" class="avatar" v-if="idToSearchResult[c.id]?.avatarPath">
-						<span class="login" @click="openUserCard(idToSearchResult[c.id]!)">{{ idToSearchResult[c.id]!.displayName }}</span>
+					<div class="item userItem" v-else-if="idToSearchResult[entry.counter.id]">
+						<img :src="idToSearchResult[entry.counter.id]?.avatarPath" class="avatar" v-if="idToSearchResult[entry.counter.id]?.avatarPath">
+						<span class="login" @click="openUserCard(idToSearchResult[entry.counter.id]!)">{{ idToSearchResult[entry.counter.id]!.displayName }}</span>
 						<ParamItem class="item value"
-							:paramData="{type:'number', value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:'counters.form.value'}"
-							v-model="c.users![ idToSearchResult[c.id]!.id ]"
-							@change="onChangeValue(c)" />
+							:paramData="entry.param"
+							v-model="entry.counter.users![ idToSearchResult[entry.counter.id]!.id ]"
+							@change="onChangeValue(entry.counter)" />
 					</div>
 				</div>
 			</div>
@@ -84,6 +84,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import { reactive } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../ParamItem.vue';
 
@@ -116,6 +117,18 @@ export default class ParamsCounters extends Vue {
 	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
 	public param_userSpecific:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
 
+
+	public get counterEntries():{param:TwitchatDataTypes.ParameterData, counter:TwitchatDataTypes.CounterData}[] {
+		const list = this.$store('counters').data;
+		return list.map((v) => {
+			const min = v.min == false ? -Number.MAX_SAFE_INTEGER : v.min as number;
+			const max = v.min == false ? Number.MAX_SAFE_INTEGER : v.max as number;
+			return {
+					counter:v,
+					param:reactive({type:'number', value:0, min, max, labelKey:'counters.form.value'})
+				}
+		});
+	}
 
 	public openTriggers():void {
 		this.$emit("setContent", TwitchatDataTypes.ParamsCategories.TRIGGERS);
