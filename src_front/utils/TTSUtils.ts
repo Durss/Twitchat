@@ -17,6 +17,9 @@ export default class TTSUtils {
 
 	public static placeholderMessages:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderNotices:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderTimeouts:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderBans:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderUnbans:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderFollows:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderSubs:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderSubgifts:TwitchatDataTypes.PlaceholderEntry[];
@@ -259,6 +262,16 @@ export default class TTSUtils {
 			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
 			{ tag:"MESSAGE", descKey:StoreProxy.i18n.t("tts.placeholders.message") },
 		];
+
+		TTSUtils.placeholderBans = 
+		TTSUtils.placeholderUnbans = [
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+		];
+
+		TTSUtils.placeholderTimeouts = [
+			{ tag:"USER", descKey:StoreProxy.i18n.t("tts.placeholders.user") },
+			{ tag:"DURATION", descKey:StoreProxy.i18n.t("tts.placeholders.timeout") },
+		];
 	}
 
 	/**
@@ -489,6 +502,28 @@ export default class TTSUtils {
 				if(message.raffleData.winners.length === 0) return "";
 
 				const txt = paramsTTS.readRafflePattern.replace(/\{WINNER\}/gi, message.raffleData.winners[0].label);
+				return txt;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.BAN: {
+				//Stop if didn't ask to read this kind of message
+				if(!message.duration_s && !paramsTTS.readBans && force!==true) return "";
+				if(message.duration_s && !paramsTTS.readTimeouts && force!==true) return "";
+				let txt = "";
+
+				if(message.duration_s) {
+					txt = paramsTTS.readTimeoutsPattern.replace(/\{USER\}/gi, message.user.displayName);
+					txt = txt.replace(/\{DURATION\}/gi, message.duration_s.toString());
+				}else{
+					txt = paramsTTS.readBansPattern.replace(/\{USER\}/gi, message.user.displayName);
+				}
+				return txt;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.UNBAN: {
+				//Stop if didn't ask to read this kind of message
+				if(!paramsTTS.readUnbans && force!==true) return "";
+				let txt = paramsTTS.readUnbansPattern.replace(/\{USER\}/gi, message.user.displayName);
 				return txt;
 			}
 		}

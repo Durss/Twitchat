@@ -32,6 +32,9 @@
 				<ParamItem class="item" :paramData="param_readPredictions" />
 				<ParamItem class="item" :paramData="param_readBingos" />
 				<ParamItem class="item" :paramData="param_readRaffle" />
+				<ParamItem class="item" :paramData="param_readTimeouts" />
+				<ParamItem class="item" :paramData="param_readBans" />
+				<ParamItem class="item" :paramData="param_readUnbans" />
 				<ParamItem class="item" :paramData="param_readNotices" />
 				<ParamItem class="item" :paramData="param_read1stMessageToday" />
 				<ParamItem class="item" :paramData="param_read1stTimeChatters" />
@@ -101,6 +104,7 @@ import PermissionsForm from './obs/PermissionsForm.vue';
 		PermissionsForm,
 	}
 })
+//TODO replace all the hardcoded message types and build them dynamically
 export default class ParamsTTS extends Vue {
 
 	public testStr:string = "";
@@ -128,6 +132,12 @@ export default class ParamsTTS extends Vue {
 	public param_readWhispersPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderMessages, maxLength:300};
 	public param_readNotices:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"info_purple.svg" };
 	public param_readNoticesPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderNotices, maxLength:300};
+	public param_readTimeouts:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"timeout_purple.svg" };
+	public param_readTimeoutsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderTimeouts, maxLength:300};
+	public param_readBans:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"ban_purple.svg" };
+	public param_readBansPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderBans, maxLength:300};
+	public param_readUnbans:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"unban_purple.svg" };
+	public param_readUnbansPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderUnbans, maxLength:300};
 	public param_readRewards:TwitchatDataTypes.ParameterData = {type:"toggle", value:true, label:"", icon:"channelPoints_purple.svg"};
 	public param_readRewardsPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderRewards, maxLength:300};
 	public param_readSubs:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"sub_purple.svg" };
@@ -222,6 +232,12 @@ export default class ParamsTTS extends Vue {
 			read1stTimeChattersPattern:this.param_read1stTimeChattersPattern.value as string,
 			readAutomod:this.param_readAutomod.value as boolean,
 			readAutomodPattern:this.param_readAutomodPattern.value as string,
+			readTimeouts:this.param_readTimeouts.value as boolean,
+			readTimeoutsPattern:this.param_readTimeoutsPattern.value as string,
+			readBans:this.param_readBans.value as boolean,
+			readBansPattern:this.param_readBansPattern.value as string,
+			readUnbans:this.param_readUnbans.value as boolean,
+			readUnbansPattern:this.param_readUnbansPattern.value as string,
 			readUsers:this.param_readUsers.listValues!.map(v => v.value) as string[],
 		};
 	}
@@ -261,6 +277,9 @@ export default class ParamsTTS extends Vue {
 		this.param_read1stMessageToday.labelKey		= "tts.messages.param_read1stMessageToday";
 		this.param_read1stTimeChatters.labelKey		= "tts.messages.param_read1stTimeChatters";
 		this.param_readAutomod.labelKey				= "tts.messages.param_readAutomod";
+		this.param_readTimeouts.labelKey			= "tts.messages.param_readTimeouts";
+		this.param_readBans.labelKey				= "tts.messages.param_readBans";
+		this.param_readUnbans.labelKey				= "tts.messages.param_readUnbans";
 
 		this.param_maxLengthToggle.labelKey			= "tts.filters.param_maxLengthToggle";
 		this.param_maxLength.labelKey				= "tts.filters.param_maxLength";
@@ -286,6 +305,9 @@ export default class ParamsTTS extends Vue {
 		this.param_readBingosPattern.labelKey		= 
 		this.param_readRafflePattern.labelKey		= 
 		this.param_readAutomodPattern.labelKey		= 
+		this.param_readTimeoutsPattern.labelKey		= 
+		this.param_readBansPattern.labelKey			= 
+		this.param_readUnbansPattern.labelKey		= 
 		this.param_read1stMessageTodayPattern.labelKey	= 
 		this.param_read1stTimeChattersPattern.labelKey	= "tts.messages.param_format";
 
@@ -304,39 +326,53 @@ export default class ParamsTTS extends Vue {
 		this.param_removeURL.value = params.removeURL;
 		this.param_replaceURL.value = params.replaceURL;
 
+		function label(label1:string, label2:string):string {
+			if(label1.length > 0) return label1;
+			if(label2.length > 0) return label2;
+			return "";
+		}
+
 		this.param_readMessages.value = params.readMessages === true;
-		this.param_readMessagesPattern.value = params.readMessagePatern ?? this.$tm("tts.patterns.readMessagePatern");
+		this.param_readMessagesPattern.value = label(params.readMessagePatern, this.$t("tts.patterns.readMessagePatern"));
 		this.param_readWhispers.value = params.readWhispers === true;
-		this.param_readWhispersPattern.value = params.readWhispersPattern ?? this.$tm("tts.patterns.readWhispersPattern");
+		this.param_readWhispersPattern.value = label(params.readWhispersPattern, this.$t("tts.patterns.readWhispersPattern"));
 		this.param_readNotices.value = params.readNotices === true;
-		this.param_readNoticesPattern.value = params.readNoticesPattern ?? this.$tm("tts.patterns.readNoticesPattern");
+		this.param_readNoticesPattern.value = label(params.readNoticesPattern, this.$t("tts.patterns.readNoticesPattern"));
 		this.param_readRewards.value = params.readRewards === true;
-		this.param_readRewardsPattern.value = params.readRewardsPattern ?? this.$tm("tts.patterns.readRewardsPattern");
+		this.param_readRewardsPattern.value = label(params.readRewardsPattern, this.$t("tts.patterns.readRewardsPattern"));
 		this.param_readSubs.value = params.readSubs === true;
-		this.param_readSubsPattern.value = params.readSubsPattern ?? this.$tm("tts.patterns.readSubsPattern");
+		this.param_readSubsPattern.value = label(params.readSubsPattern, this.$t("tts.patterns.readSubsPattern"));
 		this.param_readSubgifts.value = params.readSubgifts === true;
-		this.param_readSubgiftsPattern.value = params.readSubgiftsPattern ?? this.$tm("tts.patterns.readSubgiftsPattern");
+		this.param_readSubgiftsPattern.value = label(params.readSubgiftsPattern, this.$t("tts.patterns.readSubgiftsPattern"));
 		this.param_readBits.value = params.readBits === true;
 		this.param_readBitsMinAmount.value = params.readBitsMinAmount;
-		this.param_readBitsPattern.value = params.readBitsPattern ?? this.$tm("tts.patterns.readBitsPattern");
+		this.param_readBitsPattern.value = label(params.readBitsPattern, this.$t("tts.patterns.readBitsPattern"));
 		this.param_readRaids.value = params.readRaids === true;
-		this.param_readRaidsPattern.value = params.readRaidsPattern ?? this.$tm("tts.patterns.readRaidsPattern");
+		this.param_readRaidsPattern.value = label(params.readRaidsPattern, this.$t("tts.patterns.readRaidsPattern"));
 		this.param_readFollow.value = params.readFollow === true;
-		this.param_readFollowPattern.value = params.readFollowPattern ?? this.$tm("tts.patterns.readFollowPattern");
+		this.param_readFollowPattern.value = label(params.readFollowPattern, this.$t("tts.patterns.readFollowPattern"));
 		this.param_readPolls.value = params.readPolls === true;
-		this.param_readPollsPattern.value = params.readPollsPattern ?? this.$tm("tts.patterns.readPollsPattern");
+		this.param_readPollsPattern.value = label(params.readPollsPattern, this.$t("tts.patterns.readPollsPattern"));
 		this.param_readBingos.value = params.readBingos === true;
-		this.param_readBingosPattern.value = params.readBingosPattern ?? this.$tm("tts.patterns.readBingosPattern");
+		this.param_readBingosPattern.value = label(params.readBingosPattern, this.$t("tts.patterns.readBingosPattern"));
 		this.param_readRaffle.value = params.readRaffle === true;
-		this.param_readRafflePattern.value = params.readRafflePattern ?? this.$tm("tts.patterns.readRafflePattern");
+		this.param_readRafflePattern.value = label(params.readRafflePattern, this.$t("tts.patterns.readRafflePattern"));
 		this.param_readPredictions.value = params.readPredictions === true;
-		this.param_readPredictionsPattern.value = params.readPredictionsPattern ?? this.$tm("tts.patterns.readPredictionsPattern");
+		this.param_readPredictionsPattern.value = label(params.readPredictionsPattern, this.$t("tts.patterns.readPredictionsPattern"));
 		this.param_read1stMessageToday.value = params.read1stMessageToday === true;
-		this.param_read1stMessageTodayPattern.value = params.read1stMessageTodayPattern ?? this.$tm("tts.patterns.read1stMessageTodayPattern");
+		this.param_read1stMessageTodayPattern.value = label(params.read1stMessageTodayPattern, this.$t("tts.patterns.read1stMessageTodayPattern"));
 		this.param_read1stTimeChatters.value = params.read1stTimeChatters === true;
-		this.param_read1stTimeChattersPattern.value = params.read1stTimeChattersPattern ?? this.$tm("tts.patterns.read1stTimeChattersPattern");
+		this.param_read1stTimeChattersPattern.value = label(params.read1stTimeChattersPattern, this.$t("tts.patterns.read1stTimeChattersPattern"));
 		this.param_readAutomod.value = params.readAutomod === true;
-		this.param_readAutomodPattern.value = params.readAutomodPattern ?? this.$tm("tts.patterns.readAutomodPattern");
+		this.param_readAutomodPattern.value = label(params.readAutomodPattern, this.$t("tts.patterns.readAutomodPattern"));
+		this.param_readTimeouts.value = params.readTimeouts === true;
+		this.param_readTimeoutsPattern.value = label(params.readTimeoutsPattern, this.$t("tts.patterns.readTimeoutsPattern"));
+		this.param_readBans.value = params.readBans === true;
+		this.param_readBansPattern.value = label(params.readBansPattern, this.$t("tts.patterns.readBansPattern"));
+		this.param_readUnbans.value = params.readUnbans === true;
+		this.param_readUnbansPattern.value = label(params.readUnbansPattern, this.$t("tts.patterns.readUnbansPattern"));
+		
+		console.log(label(params.readTimeoutsPattern, this.$t("tts.patterns.readTimeoutsPattern")));
 		
 		this.param_removeURL.children = [this.param_replaceURL];
 
@@ -356,6 +392,9 @@ export default class ParamsTTS extends Vue {
 		this.param_read1stMessageToday.children = [this.param_read1stMessageTodayPattern];
 		this.param_read1stTimeChatters.children = [this.param_read1stTimeChattersPattern];
 		this.param_readAutomod.children = [this.param_readAutomodPattern];
+		this.param_readTimeouts.children = [this.param_readTimeoutsPattern];
+		this.param_readBans.children = [this.param_readBansPattern];
+		this.param_readUnbans.children = [this.param_readUnbansPattern];
 
 		this.param_maxLengthToggle.children = [this.param_maxLength];
 		this.param_maxDurationToggle.children = [this.param_maxDuration];

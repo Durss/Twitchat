@@ -6,7 +6,7 @@
 		"read_user_start_light": "Lire ses messages",
 		"read_user_stop_light": "Ne plus lire ses messages",
 		"on_notice": "Les messages de <mark>{USER}</mark> seront lus à voix haute.",
-		"off_notice": "Les messages de <mark>{USER}</mark> seront lus à voix haute.",
+		"off_notice": "Les messages de <mark>{USER}</mark> ne seront plus lus à voix haute.",
 		"chat_perms": {
 			"title": "Permissions",
 			"head": "Sélectionnés les personnes desquelles lire les messages.",
@@ -30,6 +30,9 @@
 			"param_readRaffle": "Résultats de tirage au sort",
 			"param_readUsers": "Messages de ces personnes",
 			"param_readUsers_add": "pseudo...",
+			"param_readTimeouts": "Ban temporaire",
+			"param_readBans": "Ban permanent",
+			"param_readUnbans": "Unban",
 			"param_read1stMessageToday": "1er message du jour",
 			"param_read1stTimeChatters": "1er message sur la chaîne",
 			"param_readAutomod": "Messages retenus par l'automod"
@@ -75,22 +78,25 @@
 			"viewers_count": "@:triggers.placeholders.viewers"
 		},
 		"patterns": {
-			"readMessagePatern": "{USER} dit : {MESSAGE}",
-			"readWhispersPattern": "{USER} chuchote : {MESSAGE}",
-			"readNoticesPattern": "{MESSAGE}",
-			"readRewardsPattern": "{USER} a acheté la récompense {REWARD_NAME}",
-			"readSubsPattern": "{USER} a pris un abonnement de niveau {TIER}",
-			"readSubgiftsPattern": "{USER} a offert {COUNT} abonnements de niveau {TIER} à {RECIPIENTS}",
-			"readBitsPattern": "{USER} a envoyé {BITS} bits",
-			"readRaidsPattern": "{USER} a lancé un raid avec {VIEWERS} viewers",
-			"readFollowPattern": "{USER} suit la chaîne",
-			"readPollsPattern": "Le sondage \"{TITLE}\" est terminé. L'entrée gagnante est : {WINNER}",
-			"readPredictionsPattern": "La prédiction \"{TITLE}\" est terminée. L'entrée gagnante est : {WINNER}",
-			"readBingosPattern": "Bingo remporté par : {WINNER}",
-			"readRafflePattern": "Tirage au sort remporté par : {WINNER}",
-			"read1stMessageTodayPattern": "1er message de {USER} aujourd'hui : {MESSAGE}",
-			"read1stTimeChattersPattern": "1er message de {USER} : {MESSAGE}",
-			"readAutomodPattern": "Message de {USER} retenu par l'automod : {MESSAGE}"
+			"readMessagePatern": "{'{'}USER{'}'} dit : {'{'}MESSAGE{'}'}",
+			"readWhispersPattern": "{'{'}USER{'}'} chuchote : {'{'}MESSAGE{'}'}",
+			"readNoticesPattern": "{'{'}MESSAGE{'}'}",
+			"readRewardsPattern": "{'{'}USER{'}'} a acheté la récompense {'{'}REWARD_NAME{'}'}",
+			"readSubsPattern": "{'{'}USER{'}'} a pris un abonnement de niveau {'{'}TIER{'}'}",
+			"readSubgiftsPattern": "{'{'}USER{'}'} a offert {'{'}COUNT{'}'} abonnements de niveau {'{'}TIER{'}'} à {'{'}RECIPIENTS{'}'}",
+			"readBitsPattern": "{'{'}USER{'}'} a envoyé {'{'}BITS{'}'} bits",
+			"readRaidsPattern": "{'{'}USER{'}'} a lancé un raid avec {'{'}VIEWERS{'}'} viewers",
+			"readFollowPattern": "{'{'}USER{'}'} suit la chaîne",
+			"readPollsPattern": "Le sondage \"{'{'}TITLE{'}'}\" est terminé. L'entrée gagnante est : {'{'}WINNER{'}'}",
+			"readPredictionsPattern": "La prédiction \"{'{'}TITLE{'}'}\" est terminée. L'entrée gagnante est : {'{'}WINNER{'}'}",
+			"readBingosPattern": "Bingo remporté par : {'{'}WINNER{'}'}",
+			"readRafflePattern": "Tirage au sort remporté par : {'{'}WINNER{'}'}",
+			"read1stMessageTodayPattern": "1er message de {'{'}USER{'}'} aujourd'hui : {'{'}MESSAGE{'}'}",
+			"read1stTimeChattersPattern": "1er message de {'{'}USER{'}'} : {'{'}MESSAGE{'}'}",
+			"readAutomodPattern": "Message de {'{'}USER{'}'} retenu par l'automod : {'{'}MESSAGE{'}'}",
+			"readTimeoutsPattern": "{'{'}USER{'}'} banni pour {'{'}DURATION{'}'} secondes",
+			"readBansPattern": "{'{'}USER{'}'} a été banni",
+			"readUnbansPattern": "{'{'}USER{'}'} a été débanni"
 		}
 	}
 }

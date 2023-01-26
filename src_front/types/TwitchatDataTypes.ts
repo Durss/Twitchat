@@ -538,6 +538,12 @@ export namespace TwitchatDataTypes {
 		read1stTimeChattersPattern:string;
 		readAutomod: boolean;
 		readAutomodPattern:string;
+		readTimeouts: boolean;
+		readTimeoutsPattern:string;
+		readBans: boolean;
+		readBansPattern:string;
+		readUnbans: boolean;
+		readUnbansPattern:string;
 		ttsPerms:PermissionsData;
 		readUsers:string[];
 	}
@@ -1452,7 +1458,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a user baned message
+	 * Represents a user banned message
 	 */
 	export interface MessageBanData extends AbstractTwitchatMessage {
 		type:"ban",
@@ -1463,7 +1469,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a user unbaned message
+	 * Represents a user unbanned message
 	 */
 	export interface MessageUnbanData extends AbstractTwitchatMessage {
 		type:"unban",
@@ -1644,6 +1650,7 @@ export namespace TwitchatDataTypes {
 	export interface MessageCounterUpdatesData extends AbstractTwitchatMessage {
 		type:"counter_update";
 		counter:CounterData;
+		added:number;
 		value:number;
 		maxed:boolean;
 		mined:boolean;

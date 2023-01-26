@@ -30,6 +30,9 @@
 			"param_readRaffle": "Raffle results",
 			"param_readUsers": "Users to read out loud",
 			"param_readUsers_add": "username...",
+			"param_readTimeouts": "User timedout",
+			"param_readBans": "User banned",
+			"param_readUnbans": "User unbanned",
 			"param_read1stMessageToday": "1st message today",
 			"param_read1stTimeChatters": "First-time chatters",
 			"param_readAutomod": "Automoded messages"
@@ -60,6 +63,7 @@
 		},
 		"placeholders": {
 			"user": "@:triggers.placeholders.user",
+			"timeout": "@:triggers.placeholders.timeout",
 			"message": "@:triggers.placeholders.message",
 			"sub_tier": "@:triggers.placeholders.sub_tier",
 			"sub_gifter": "@:triggers.placeholders.sub_gifter",
@@ -75,22 +79,25 @@
 			"viewers_count": "@:triggers.placeholders.viewers"
 		},
 		"patterns": {
-			"readMessagePatern": "{USER} says: {MESSAGE}",
-			"readWhispersPattern": "{USER} whispers: {MESSAGE}",
-			"readNoticesPattern": "{MESSAGE}",
-			"readRewardsPattern": "{USER} redeemed reward {REWARD_NAME}",
-			"readSubsPattern": "{USER} subscribed at tier {TIER}",
-			"readSubgiftsPattern": "{USER} gifted {COUNT} sub tier {TIER} to {RECIPIENTS}",
-			"readBitsPattern": "{USER} sent {BITS} bits",
-			"readRaidsPattern": "{USER} raided with {VIEWERS} viewers",
-			"readFollowPattern": "{USER} is now following",
-			"readPollsPattern": "Poll \"{TITLE}\" ended. Winning choice is, {WINNER}",
-			"readPredictionsPattern": "Prediction \"{TITLE}\" ended. Winning choice is, {WINNER}",
-			"readBingosPattern": "Bingo won by: {WINNER}",
-			"readRafflePattern": "Raffle won by: {WINNER}",
-			"read1stMessageTodayPattern": "1st message of {USER} today: {MESSAGE}",
-			"read1stTimeChattersPattern": "1st message of {USER}: {MESSAGE}",
-			"readAutomodPattern": "{USER} message held by automod: {MESSAGE}"
+			"readMessagePatern": "{'{'}USER{'}'} says: {'{'}MESSAGE{'}'}",
+			"readWhispersPattern": "{'{'}USER{'}'} whispers: {'{'}MESSAGE{'}'}",
+			"readNoticesPattern": "{'{'}MESSAGE{'}'}",
+			"readRewardsPattern": "{'{'}USER{'}'} redeemed reward {'{'}REWARD_NAME{'}'}",
+			"readSubsPattern": "{'{'}USER{'}'} subscribed at tier {'{'}TIER{'}'}",
+			"readSubgiftsPattern": "{'{'}USER{'}'} gifted {'{'}COUNT{'}'} sub tier {'{'}TIER{'}'} to {'{'}RECIPIENTS{'}'}",
+			"readBitsPattern": "{'{'}USER{'}'} sent {'{'}BITS{'}'} bits",
+			"readRaidsPattern": "{'{'}USER{'}'} raided with {'{'}VIEWERS{'}'} viewers",
+			"readFollowPattern": "{'{'}USER{'}'} is now following",
+			"readPollsPattern": "Poll \"{'{'}TITLE{'}'}\" ended. Winning choice is, {'{'}WINNER{'}'}",
+			"readPredictionsPattern": "Prediction \"{'{'}TITLE{'}'}\" ended. Winning choice is, {'{'}WINNER{'}'}",
+			"readBingosPattern": "Bingo won by: {'{'}WINNER{'}'}",
+			"readRafflePattern": "Raffle won by: {'{'}WINNER{'}'}",
+			"read1stMessageTodayPattern": "1st message of {'{'}USER{'}'} today: {'{'}MESSAGE{'}'}",
+			"read1stTimeChattersPattern": "1st message of {'{'}USER{'}'}: {'{'}MESSAGE{'}'}",
+			"readAutomodPattern": "{'{'}USER{'}'} message held by automod: {'{'}MESSAGE{'}'}",
+			"readTimeoutsPattern": "{'{'}USER{'}'} banned for {'{'}DURATION{'}'} secondes",
+			"readBansPattern": "{'{'}USER{'}'} has been banned",
+			"readUnbansPattern": "{'{'}USER{'}'} has been unbanned"
 		}
 	}
 }

@@ -51,7 +51,7 @@ export const storeParams = defineStore('params', {
 			minimalistBadges: 			{save:true, type:"toggle", value:false, labelKey:"params.minimalistBadges", id:5, parent:4, example:"minibadges.png"},
 			displayTime: 				{save:true, type:"toggle", value:false, labelKey:"params.displayTime", id:6, icon:"timeout_purple.svg"},
 			dyslexicFont: 				{save:true, type:"toggle", value:false, labelKey:"params.dyslexicFont", id:24, icon:"font_purple.svg"},
-			defaultSize: 				{save:true, type:"slider", value:3, labelKey:"params.defaultSize", min:1, max:20, step:1, id:12},
+			defaultSize: 				{save:true, type:"slider", value:4, labelKey:"params.defaultSize", min:1, max:20, step:1, id:12},
 		},
 		chatColumnsConfig:[
 			{
