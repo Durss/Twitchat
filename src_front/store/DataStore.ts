@@ -2,6 +2,7 @@ import { TriggerTypes, type TriggerActionTypes, type TriggerData } from "@/types
 import type {TwitchatDataTypes} from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import Utils from "@/utils/Utils";
 import type { JsonValue } from "type-fest";
 import StoreProxy from "./StoreProxy";
 
@@ -171,7 +172,6 @@ export default class DataStore {
 			this.migrateRaffleTriggerDurationAgain();
 			v = "24";
 		}
-		//v 22 migration is asynchronous, see asyncMigration()
 
 		this.set(this.DATA_VERSION, v);
 
@@ -739,7 +739,7 @@ export default class DataStore {
 					const id = p.tagIDs[j];
 					const tag = result.find(v=> v.id == id);
 					if(tag) {
-						p.tags.push(tag.label)
+						p.tags.push(Utils.replaceDiacritics(tag.label).replace(/[^a-z0-9]/gi, "").substring(0, 25))
 					}
 				}
 				delete p.tagIDs;
