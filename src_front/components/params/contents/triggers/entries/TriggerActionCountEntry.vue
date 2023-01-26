@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerActionHelpers, type TriggerActionCountData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerActionHelpers, type TriggerActionCountData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 
@@ -31,6 +31,8 @@ import { Options, Vue } from 'vue-class-component';
 	props:{
 		action:Object,
 		event:Object,
+		triggerData:Object,
+		triggerKey:String,
 	},
 	components:{
 		ParamItem,
@@ -40,6 +42,9 @@ export default class TriggerActionCountEntry extends Vue {
 
 	public action!:TriggerActionCountData;
 	public event!:TriggerEventTypes;
+	public triggerData!:TriggerData;
+	public triggerKey!:string;
+
 
 	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
 	public param_value:TwitchatDataTypes.ParameterData = {type:"text",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add_purple.svg"}
@@ -47,7 +52,10 @@ export default class TriggerActionCountEntry extends Vue {
 	public beforeMount(): void {
 		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").data.map(v=>{
 			return {value:v.id, label:v.name};
+		}).filter(v=> {
+			return v.value != this.triggerKey.split("_").pop()
 		});
+		
 		this.param_counters.listValues = counters;
 
 		this.param_value.placeholderList = TriggerActionHelpers(this.event.value).filter(v=>v.numberParsable==true);
