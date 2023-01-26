@@ -480,6 +480,12 @@ import Ajv from "ajv";
 				read1stMessageTodayPattern:{type:"string", maxLength:300},
 				read1stTimeChatters: {type:"boolean"},
 				read1stTimeChattersPattern:{type:"string", maxLength:300},
+				readTimeouts: {type:"boolean"},
+				readTimeoutsPattern: {type:"string", maxLength:300},
+				readBans: {type:"boolean"},
+				readBansPattern: {type:"string", maxLength:300},
+				readUnbans: {type:"boolean"},
+				readUnbansPattern: {type:"string", maxLength:300},
 			  
 				readUsers:{
 					type:"array",
