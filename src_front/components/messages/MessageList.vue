@@ -401,6 +401,7 @@ export default class MessageList extends Vue {
 	private maxMessages:number = 50;
 	private markedAsReadDate:number = 0;
 	private selectionDate:number = 0;
+	private selectionTimeout:number = -1;
 	private virtualMessageHeight:number = 32;
 	private prevTs = 0;
 	private counter = 0;
@@ -490,8 +491,10 @@ export default class MessageList extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_CANCEL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_DELETE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_BAN, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_TIMEOUT_1, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_TIMEOUT_2, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_CHOOSING_ACTION, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_PIN, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_HIGHLIGHT, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_SHOUTOUT, this.publicApiEventHandler);
 
 		this.fullListRefresh();
 
@@ -530,8 +533,10 @@ export default class MessageList extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_CANCEL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_DELETE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_BAN, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_TIMEOUT_1, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_TIMEOUT_2, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_CHOOSING_ACTION, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_PIN, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_HIGHLIGHT, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_SHOUTOUT, this.publicApiEventHandler);
 	}
 
 	/**
@@ -979,11 +984,11 @@ export default class MessageList extends Vue {
 	 * Called when requesting an action from the public API
 	 */
 	private onPublicApiEvent(e: TwitchatEvent): void {
-		const data = e.data as { count?: number, scrollBy?: number, col?:number };
+		const data = e.data as { count?: number, scrollBy?: number, col?:number, duration?:number };
 		let count = (data?.count && !isNaN(data.count as number)) ? data.count : 0;
 		let scrollBy = (data?.scrollBy && !isNaN(data.scrollBy as number)) ? data.scrollBy : 100;
-		if(data.col != undefined && (data.col || 0) != this.config.order) return;
-		
+		const col = (data.col || 0);
+		if(col != this.config.order) return;
 
 		switch (e.type) {
 			case TwitchatEvent.CHAT_FEED_READ: {
@@ -1106,12 +1111,11 @@ export default class MessageList extends Vue {
 					const m = messageList[i];
 					if(m.date <= this.selectionDate && this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						currentMessageIndex = i;
-						console.log("FOUND", currentMessageIndex);
 						break;
 					}
 				}
 				
-				//Moving read mark upward
+				//Moving selection upward
 				if(count < 0) {
 					for (let i = currentMessageIndex; i > 0; i--) {
 						const m = messageList[i];
@@ -1123,7 +1127,7 @@ export default class MessageList extends Vue {
 						}
 					}
 					
-				//Moving read mark downward
+				//Moving selection downward
 				}else if(count > 0){
 					for (let i = currentMessageIndex; i < messageList.length; i++) {
 						const m = messageList[i];
@@ -1135,6 +1139,12 @@ export default class MessageList extends Vue {
 						}
 					}
 				}
+				clearTimeout(this.selectionTimeout);
+				this.selectionTimeout = setTimeout(()=>{
+					this.selectedItem = null;
+					this.selectedMessage = null;
+					this.selectionDate = 0;
+				}, 5000);
 				break;
 			}
 
@@ -1149,29 +1159,48 @@ export default class MessageList extends Vue {
 				if(!this.selectedMessage) return;
 				this.$store("chat").deleteMessage(this.selectedMessage);
 				this.selectedItem = null;
+				this.selectedMessage = null;
+				this.selectionDate = 0;
 				break;
 			}
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_BAN: {
-				if(!this.selectedMessage) return;
-				TwitchUtils.banUser(this.selectedMessage.user, this.selectedMessage.channel_id);
+				if(!this.selectedMessage) return
+				TwitchUtils.banUser(this.selectedMessage.user, this.selectedMessage.channel_id, data.duration ?? 0);
 				this.selectedItem = null;
+				this.selectedMessage = null;
+				this.selectionDate = 0;
 				break;
 			}
 
-			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_TIMEOUT_1: {
-				if(!this.selectedMessage) return;
-				TwitchUtils.banUser(this.selectedMessage.user, this.selectedMessage.channel_id, 1);
-				this.selectedItem = null;
+			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_PIN: {
+				if(!this.selectedMessage) return
+				this.$store("chat").pinMessage(this.selectedMessage);
 				break;
 			}
 
-			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_TIMEOUT_2: {
-				if(!this.selectedMessage) return;
-				TwitchUtils.banUser(this.selectedMessage.user, this.selectedMessage.channel_id, 600);
-				this.selectedItem = null;
+			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_HIGHLIGHT: {
+				if(!this.selectedMessage) return
+				this.$store("chat").highlightChatMessageOverlay(this.selectedMessage);
 				break;
 			}
+
+			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_SHOUTOUT: {
+				if(!this.selectedMessage) return
+				this.$store("users").shoutout(this.selectedMessage.channel_id, this.selectedMessage.user);
+				break;
+			}
+
+			case TwitchatEvent.CHAT_FEED_SELECT_CHOOSING_ACTION: {
+				clearTimeout(this.selectionTimeout);
+				this.selectionTimeout = setTimeout(()=>{
+					this.selectedItem = null;
+					this.selectedMessage = null;
+					this.selectionDate = 0;
+				}, 5000);
+				break;
+			}
+
 		}
 	}
 

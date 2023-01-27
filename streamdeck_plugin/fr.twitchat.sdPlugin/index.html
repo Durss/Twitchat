@@ -41,11 +41,19 @@
 			"fr.twitchat.action.enable-stt",
 			"fr.twitchat.action.disable-stt",
 			"fr.twitchat.action.chat-feed-select",
+			"fr.twitchat.action.clear-chat-highlight",
 		];
 
-		const SELECT_ACTIONS = ["DELETE", "BAN", "TIMEOUT_1", "TIMEOUT_2", "CANCEL"];
-		const SELECT_ACTIONS_LABELS = ["DELETE", "BAN", "TIMEOUT 1s", "TIMEOUT 600s", "CANCEL"];
-		const SELECT_ACTIONS_COLORS = ["#9147ff", "#FF0000", "#d9a808", "#d95508", "#616161"];
+		const SELECT_ACTIONS = [
+			{color:"#d9a808", label:"DELETE", action:"DELETE"},
+			{color:"#d97b08", label:"TIMEOUT 1s", action:"BAN", params:{duration:1}},
+			{color:"#d93c08", label:"TIMEOUT 600s", action:"BAN", params:{duration:600}},
+			{color:"#FF0000", label:"BAN", action:"BAN"},
+			{color:"#47c2ff", label:"HIGHLIGHT", action:"HIGHLIGHT"},
+			{color:"#475cff", label:"PIN", action:"PIN"},
+			{color:"#9147ff", label:"SHOUTOUT", action:"SHOUTOUT"},
+			{color:"#616161", label:"CANCEL", action:"CANCEL"},
+		]
 
 		let websocket = null;
 		let websocketOBS = new OBSWebSocket();
@@ -109,7 +117,7 @@
 
 					case "CHAT_FEED_SELECT":{
 						if(payload.settings.selectMode !== false) {
-							params = { col, count: payload.ticks };
+							params = { col, count: payload.ticks ?? 0 };
 						}else{
 							let index = (payload.settings.actionIndex || 0) + (payload.ticks ?? 0);
 							index = index % SELECT_ACTIONS.length;
@@ -117,9 +125,9 @@
 							payload.settings.actionIndex = index;
 							$SD.setSettings(context, payload.settings);
 							$SD.setFeedback(context, {
-								"action": {"value":"◄ "+SELECT_ACTIONS_LABELS[index]+" ►", "color":SELECT_ACTIONS_COLORS[index]},
+								"action": {"value":"◄ "+SELECT_ACTIONS[index].label+" ►", "color":SELECT_ACTIONS[index].color},
 							});
-							return;
+							actionName = "CHAT_FEED_SELECT_CHOOSING_ACTION";
 						}
 						break;
 					}
@@ -130,20 +138,11 @@
 
 			onDialPress: (action, payload, context) => {
 				let actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				const col = payload.settings.colIndex ?? 0;
 				switch(actionName) {
 					case "CHAT_FEED_SELECT":{
 						if(payload.pressed) return;
-						let selectMode = !(payload.settings.selectMode ?? true);
-						payload.settings.selectMode = selectMode;
-						$SD.setSettings(context, payload.settings);
-						if(selectMode) {
-							const actionIndex = payload.settings.actionIndex;
-							this.callTwitchat("CHAT_FEED_SELECT_ACTION_"+SELECT_ACTIONS[actionIndex])
-							$SD.setFeedbackLayout(context, "$X1");
-						}else{
-							$SD.setFeedbackLayout(context, "./chat-feed-select-layout.json");
-							actions.onDialRotate(action, payload, context);
-						}
+						switchSelectMode(action, payload, context);
 						return;
 					}
 				}
@@ -155,6 +154,7 @@
 				const py = payload.tapPos[1];
 				const col = payload.settings.colIndex ?? 0;
 				let params;
+				
 				switch(actionName) {
 					case "CHAT_FEED_SCROLL":{
 						if(px < 200 / 3){
@@ -189,6 +189,12 @@
 						}
 						return;
 					}
+					
+					case "CHAT_FEED_SELECT":{
+						if(payload.pressed) return;
+						switchSelectMode(action, payload, context, payload.hold === true);
+						return;
+					}
 				}
 				console.log("TAP", actionName, params);
 				callTwitchat(actionName, params);
@@ -219,7 +225,6 @@
 			$SD.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
 				console.log('Stream Deck connected!', uuid);
 
-				//Dunno why we have to use $SD instead of $SD...
 				$SD.getGlobalSettings();
 			});
 			$SD.on("keyUp", (e)=>{
@@ -311,7 +316,7 @@
 					}, 5000);
 				});
 	
-				//Listen for Twitchat events. Unnecessary for now
+				//Listen for Twitchat events.
 				websocketOBS.on("CustomEvent", (e) => {
 					if(e.type == undefined) return;
 					if(e.origin != "twitchat") return;
@@ -325,6 +330,26 @@
 						}
 					}
 				});
+			}
+		}
+
+		function switchSelectMode(action, payload, context, forceUnselect) {
+			const col = payload.settings.colIndex ?? 0;
+			let selectMode = !(payload.settings.selectMode ?? true);
+			payload.settings.selectMode = selectMode;
+			$SD.setSettings(context, payload.settings);
+			if(selectMode || forceUnselect === true) {
+				if(forceUnselect !== true) {
+					const actionIndex = payload.settings.actionIndex;
+					const params = SELECT_ACTIONS[actionIndex].params ?? {};
+					params.col = col;
+					callTwitchat("CHAT_FEED_SELECT_ACTION_"+SELECT_ACTIONS[actionIndex].action, params);
+				}
+				$SD.setFeedbackLayout(context, "$X1");
+			}else{
+				console.log("Back", action, payload, context);
+				$SD.setFeedbackLayout(context, "./chat-feed-select-layout.json");
+				actions.onDialRotate(action, payload, context);
 			}
 		}
 

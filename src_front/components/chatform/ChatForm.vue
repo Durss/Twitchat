@@ -744,7 +744,7 @@ export default class ChatForm extends Vue {
 	 * Remove the currently highlighted message
 	 */
 	public removeChatHighlight():void {
-		this.$store("chat").highlightChatMessageOverlay(null);
+		this.$store("chat").highlightChatMessageOverlay();
 	}
 
 	/**

@@ -94,6 +94,20 @@
 			"UUID": "fr.twitchat.action.chat-feed-pause"
 		},
 		{
+			"Icon": "icons/CLEAR_CHAT_HIGHLIGHT_default",
+			"Name": "Clear highlight",
+			"States": [
+				{
+					"Image": "icons/CLEAR_CHAT_HIGHLIGHT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.clear-chat-highlight"
+		},
+		{
 			"Icon": "icons/CHAT_FEED_UNPAUSE_default",
 			"Name": "Resume paused chat",
 			"States": [
@@ -360,7 +374,7 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "2.1",
+	"Version": "2.2",
 	"OS": [
 		{
 			"Platform": "mac",

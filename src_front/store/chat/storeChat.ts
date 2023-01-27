@@ -1191,7 +1191,7 @@ export const storeChat = defineStore('chat', {
 			})
 		},
 		
-		async highlightChatMessageOverlay(message:TwitchatDataTypes.ChatMessageTypes|null) {
+		async highlightChatMessageOverlay(message?:TwitchatDataTypes.ChatMessageTypes) {
 			if(message && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.user.id) {
 				if(message.platform == "twitch"
 				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
