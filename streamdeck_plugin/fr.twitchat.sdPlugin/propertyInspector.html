@@ -7,7 +7,7 @@
 	<link rel="stylesheet" href="css/sdpi.css">
 	<style>
 		.hidden {
-			display: none;
+			display: none !important;
 		}
 
 		.obsParams>.warning {
@@ -113,7 +113,7 @@
 			</div>
 		</div>
 
-		<div class="sdpi-item" id="select_single" hidden
+		<div class="sdpi-item hidden" id="select_single"
 		data-chat-feed-select
 		data-chat-feed-read
 		data-chat-feed-read-encoder
@@ -122,7 +122,7 @@
 		data-chat-feed-scroll
 		data-chat-feed-scroll-up
 		data-chat-feed-scroll-down>
-			<div class="sdpi-item-label">Column index to control</div>
+			<div class="sdpi-item-label">Column index to controle</div>
 			<select class="sdpi-item-value select"
 				id="colIndex"
 				oninput="onChangeValue('greet-feed-read', Number(event.target.value))"
@@ -160,7 +160,6 @@
 				});
 
 				$PI.onDidReceiveSettings($PI.actionInfo.action, (jsonObj) => {
-					console.log("Settings received", jsonObj);
 					const settings = jsonObj.payload.settings;
 					populateLocalSettings(settings);
 				});
@@ -188,12 +187,14 @@
 
 		function populateGlobalSettings(settings) {
 			const colSelector = document.getElementById("colIndex");
-			colSelector.innerHTML = "";
-			for (let i = 0; i < settings.COLS_COUNT; i++) {
-				const opt = document.createElement("option");
-				opt.value = i,
-				opt.innerText = i+1;
-				colSelector.appendChild(opt);
+			if(colSelector) {
+				colSelector.innerHTML = "";
+				for (let i = 0; i < settings.COLS_COUNT; i++) {
+					const opt = document.createElement("option");
+					opt.value = i,
+					opt.innerText = i+1;
+					colSelector.appendChild(opt);
+				}
 			}
 
 			for (const key in settings) {
