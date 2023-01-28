@@ -203,25 +203,32 @@ export default class Utils {
 	 */
 	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
 		const chanInfo = user.channelInfo[channelId];
+		
+		if(chanInfo.is_broadcaster && permissions.broadcaster === false) return false;
+		if(chanInfo.is_vip && permissions.vips === false) return false;
+		if(chanInfo.is_moderator && permissions.mods === false) return false;
+		if(chanInfo.is_following && permissions.follower === false) return false;
 
-		if(chanInfo.is_vip && permissions.vips !== false) return true;//Check for "x !== false" instead of "x === true" as the prop might be missing
-		if(chanInfo.is_subscriber && permissions.subs !== false) return true;
-		if(chanInfo.is_moderator && permissions.mods !== false) return true;
-		if(chanInfo.is_broadcaster && permissions.broadcaster !== false) return true;
+		// console.log(chanInfo.is_vip && permissions.vips !== false);
+		// console.log(chanInfo.is_subscriber && permissions.subs !== false);
+		// console.log(chanInfo.is_moderator && permissions.mods !== false);
+		// console.log(chanInfo.is_broadcaster && permissions.broadcaster !== false);
+		// console.log(chanInfo.is_following && permissions.follower !== false, Date.now() - chanInfo.following_date_ms >= permissions.follower_duration_ms);
+
 		if(chanInfo.is_following && permissions.follower !== false) {
 			const duration = Date.now() - chanInfo.following_date_ms;
 			return duration >= permissions.follower_duration_ms;
 		}
 		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-		if(allowedUsers?.indexOf(user.login.toLowerCase()) > -1) return true;
+		if(allowedUsers?.indexOf(user.login.toLowerCase()) > -1) {
+			return true;
+		}
 
-		if(permissions.all
-			&& !chanInfo.is_vip
-			&& !chanInfo.is_moderator
-			&& !chanInfo.is_broadcaster
-			&& !chanInfo.is_subscriber) return true;
-
-		return false;
+		return permissions.all
+		|| chanInfo.is_vip
+		|| chanInfo.is_moderator
+		|| chanInfo.is_broadcaster
+		|| chanInfo.is_subscriber;
 		
 		//Old behavior
 		/*
