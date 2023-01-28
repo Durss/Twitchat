@@ -334,7 +334,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return;
 		
 		await this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:visible});
-		await Utils.promisedTimeout(20);
+		await Utils.promisedTimeout(50);
 	}
 
 	/**
@@ -354,7 +354,7 @@ export default class OBSWebsocket extends EventDispatcher {
 				sceneItemId:item.source.sceneItemId,
 				sceneItemEnabled:visible
 			});
-			await Utils.promisedTimeout(20);
+			await Utils.promisedTimeout(50);
 		}
 	}
 
@@ -431,6 +431,16 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return;
 		
 		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{local_file:url, file:url}});
+	}
+
+	/**
+	 * Restart playing of a media source
+	 * 
+	 * @param sourceName 
+	 */
+	public async replayMedia(sourceName:string):Promise<void> {
+		if(!this.connected) return;
+		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
 	}
 	
 	

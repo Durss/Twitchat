@@ -80,7 +80,7 @@ export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
 	sourceName:string;
 	filterName?:string;
-	show:boolean;
+	show:boolean|"replay";
 	text?:string;
 	url?:string;
 	mediaPath?:string;

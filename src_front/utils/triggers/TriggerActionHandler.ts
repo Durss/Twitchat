@@ -22,13 +22,13 @@ export default class TriggerActionHandler {
 
 	private static _instance:TriggerActionHandler;
 
-	private actionsSpool:{eventType:string, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string}[] = [];
 	// private actionsSpool:TwitchatDataTypes.ChatMessageTypes[] = [];
 	private userCooldowns:{[key:string]:number} = {};
 	private globalCooldowns:{[key:string]:number} = {};
 	private triggers:{[key:string]:TriggerData} = {};
 	private lastAnyMessageSent:string = "";
-	private obsActionsExecuting = false;
+	private obsSourceNameToQueue:{[key:string]:Promise<void>} = {}
+	private triggerTypeToQueue:{[key:string]:Promise<void>} = {}
 
 	public emergencyMode:boolean = false;
 	
@@ -372,10 +372,8 @@ export default class TriggerActionHandler {
 	 * @returns true if the trigger was executed
 	 */
 	private async parseSteps(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string):Promise<boolean> {
-		const originalEventType = eventType;
 		if(subEvent) eventType += "_"+subEvent
 		let trigger:TriggerData = this.triggers[ eventType ];
-		let hasOBSAction = false;
 		
 		//Special case for twitchat's ad, generate trigger data
 		if(eventType == TriggerTypes.TWITCHAT_AD) {
@@ -445,33 +443,26 @@ export default class TriggerActionHandler {
 			// if(!canExecute) console.log("Cant execute:", message, trigger);
 
 			if(canExecute) {
-				if(!testMode) {
-					//Check if the trigger has OBS actions in which case
-					//we postepone the execution to when the trigger currently
-					//executing (or pedning execution) is complete
-					for (let i = 0; i < trigger.actions.length; i++) {
-						if(trigger.actions[i].type == "obs") {
-							hasOBSAction = true;
-							break;
-						}
-					}
-	
-					if(hasOBSAction && this.obsActionsExecuting) {
-						//The trigger has OBS actions. Stop there and wait for
-						//current OBS related trigger(s) to complete
-						this.actionsSpool.push({eventType:originalEventType, message, testMode, subEvent, ttsID});
-						return true;
-					}
-				}
-
-				if(hasOBSAction) this.obsActionsExecuting = true;
+				
+				//Wait for potential previous trigger of the exact same type to finish its execution
+				let prom = this.triggerTypeToQueue[eventType] ?? Promise.resolve();
+				let resolverTriggerType!: ()=>void;
+				this.triggerTypeToQueue[eventType] = new Promise<void>(async (resolve, reject)=> { resolverTriggerType = resolve });
+				await prom;
 
 				for (let i = 0; i < trigger.actions.length; i++) {
 					const step = trigger.actions[i];
 					// console.log("	Parse step", step);
 					//Handle OBS action
 					if(step.type == "obs") {
-						this.obsActionsExecuting = true;
+						
+						//Wait for potential OBS action in progress for the exact same source
+						//to complete its execution
+						let prom = this.obsSourceNameToQueue[step.sourceName] ?? Promise.resolve();
+						let resolverOBS!: ()=>void;
+						this.obsSourceNameToQueue[step.sourceName] = new Promise<void>(async (resolve, reject)=> { resolverOBS = resolve });
+						await prom;
+
 						if(step.text) {
 							try {
 								const text = await this.parseText(eventType, message, step.text as string, subEvent);
@@ -483,7 +474,6 @@ export default class TriggerActionHandler {
 						if(step.url) {
 							try {
 								const url = await this.parseText(eventType, message, step.url as string, subEvent);
-								// console.log("URL", url);
 								await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 							}catch(error) {
 								console.error(error);
@@ -500,7 +490,7 @@ export default class TriggerActionHandler {
 			
 						if(step.filterName) {
 							try {
-								await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show);
+								await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show !== false);
 							}catch(error) {
 								console.error(error);
 							}
@@ -514,11 +504,16 @@ export default class TriggerActionHandler {
 								show = false;
 							}
 							try {
-								await OBSWebsocket.instance.setSourceState(step.sourceName, show);
+								if(show == "replay") {
+									await OBSWebsocket.instance.replayMedia(step.sourceName);
+								}else{
+									await OBSWebsocket.instance.setSourceState(step.sourceName, show);
+								}
 							}catch(error) {
 								console.error(error);
 							}
 						}
+						resolverOBS();
 					}else
 					
 					//Handle Chat action
@@ -804,21 +799,10 @@ export default class TriggerActionHandler {
 						await Utils.promisedTimeout(step.delay * 1000);
 					}
 				}
+
+				resolverTriggerType();
 			}
 			// console.log("Steps parsed", actions);
-		}
-
-
-		if(hasOBSAction) {
-			//An OBS related item is pending, execute it
-			this.obsActionsExecuting = false;
-			if(this.actionsSpool.length > 0) {
-				console.log("Had OBS actions, execute next", this.actionsSpool.length);
-				const entry = this.actionsSpool.shift()!;
-				this.parseSteps(entry.eventType, entry.message, entry.testMode, entry.subEvent, entry.ttsID);
-			}else{
-				console.log("No other OBS actions pending");
-			}
 		}
 
 		return true;

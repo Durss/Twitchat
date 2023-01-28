@@ -101,7 +101,7 @@
 				"header_link": "connect with OBS",
 				"media_source": "If using a placeholder on the Media file path, folder navigation chars like {CMD1} and {CMD2} will be removed for security reasons.",
 				"media_source_example": ": if setting this as the path {PATH1}, users won't be able to send {PATH2}",
-				"param_show": "Source visibility",
+				"param_action": "Action",
 				"param_show_filter": "Filter visibility",
 				"param_source": "OBS Source",
 				"param_filter": "Source filter",
@@ -109,7 +109,10 @@
 				"param_text": "Text to write on source",
 				"param_url": "Browser URL",
 				"param_media": "Media file (optionel)",
-				"param_media_img": "Image file"
+				"param_media_img": "Image file",
+				"param_action_show": "Enable source",
+				"param_action_hide": "Disable source",
+				"param_action_replay": "Restart playback"
 			},
 			"trigger": {
 				"beta": "This is a beta feature!{BR} If you experience any unexpected behavior with it please {LINK}",

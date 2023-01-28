@@ -101,7 +101,7 @@
 				"header_link": "connecter OBS",
 				"media_source": "Si vous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} et {CMD2} supprimés pour des raisons de sécurité.",
 				"media_source_example": " : si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
-				"param_show": "Visibilité de la source",
+				"param_action": "Action",
 				"param_show_filter": "Visibilité du filtre",
 				"param_source": "Source OBS",
 				"param_filter": "Filtre",
@@ -109,7 +109,10 @@
 				"param_text": "Texte à écrire dans la source",
 				"param_url": "URL de la source",
 				"param_media": "Fichier (optionel)",
-				"param_media_img": "Fichier image"
+				"param_media_img": "Fichier image",
+				"param_action_show": "Activer la source",
+				"param_action_hide": "Desactiver la source",
+				"param_action_replay": "Relancer la lecture"
 			},
 			"trigger": {
 				"beta": "Fonctionnalité expérimentale !{BR} Si vous rencontrez un problème {LINK}",

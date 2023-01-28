@@ -537,6 +537,8 @@ export default class ParamItem extends Vue {
 		input, select, textarea{
 			transition: background-color .25s;
 			flex-basis: 300px;
+			text-overflow: ellipsis;
+			width: 100%;
 		}
 
 	}

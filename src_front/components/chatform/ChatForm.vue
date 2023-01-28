@@ -234,6 +234,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import TTSUtils from '@/utils/TTSUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -508,6 +509,11 @@ export default class ChatForm extends Vue {
 			//Open raffle form
 			this.$emit("raffle");
 			this.message = "";
+		}else
+
+		if(cmd == "/test") {
+			OBSWebsocket.instance.socket.call('TriggerMediaInputAction',{'inputName':'Pet 1','mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
+			// this.obs.call('TriggerMediaInputAction',{'inputName':'Pet 2','mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
 		}else
 
 		if(cmd == "/fake") {
