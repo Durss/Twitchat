@@ -52,7 +52,7 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
-				<ChatSuggestionResult class="message"
+				<ChatPollResult class="message"
 					v-else-if="m.type == 'poll'"
 					@onRead="toggleMarkRead"
 					:messageData="m" />
@@ -191,7 +191,7 @@
 					v-else-if="m.type == 'notice'" 
 					:messageData="m" />
 
-				<ChatSuggestionResult class="message"
+				<ChatPollResult class="message"
 					v-else-if="m.type == 'poll'"
 					:messageData="m" />
 
@@ -324,7 +324,7 @@ import ChatHighlight from './ChatHighlight.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
 import ChatJoinLeave from './ChatJoinLeave.vue';
 import ChatNotice from './ChatNotice.vue';
-import ChatSuggestionResult from './ChatSuggestionResult.vue';
+import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
 import ChatRoomSettings from './ChatRoomSettings.vue';
@@ -353,6 +353,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		ChatPinNotice,
 		ChatHighlight,
 		ChatJoinLeave,
+		ChatPollResult,
 		ChatStreamOnOff,
 		ChatBingoResult,
 		ChatRoomSettings,
@@ -362,7 +363,6 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		ChatHypeTrainResult,
 		ChatCountdownResult,
 		ChatPredictionResult,
-		ChatSuggestionResult,
 		ChatLowTrustTreatment,
 		ChatMessageClipPending,
 		ChatMessageHoverActions,

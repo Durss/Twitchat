@@ -119,7 +119,7 @@
 						v-else-if="m.type == 'message' || m.type == 'whisper'"
 						:messageData="m" />
 	
-					<ChatSuggestionResult class="message"
+					<ChatPollResult class="message"
 						v-else-if="m.type == 'poll'"
 						:messageData="m" />
 	
@@ -194,7 +194,7 @@ import ChatHypeTrainResult from '../ChatHypeTrainResult.vue';
 import ChatJoinLeave from '../ChatJoinLeave.vue';
 import ChatMessage from '../ChatMessage.vue';
 import ChatNotice from '../ChatNotice.vue';
-import ChatSuggestionResult from '../ChatSuggestionResult.vue';
+import ChatPollResult from '../ChatPollResult.vue';
 import ChatPredictionResult from '../ChatPredictionResult.vue';
 import ChatRaffleResult from '../ChatRaffleResult.vue';
 import ChatShoutout from '../ChatShoutout.vue';
@@ -229,7 +229,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		ChatJoinLeave,
 		ChatMessage,
 		ChatNotice,
-		ChatSuggestionResult,
+		ChatPollResult,
 		ChatPredictionResult,
 		ChatLowTrustTreatment,
 		ChatRaffleResult,

@@ -7,21 +7,19 @@
 			<div class="title">{{messageData.title}}</div>
 			<div class="outcomes">
 				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
-					<div class="outcomeTitle">
-						<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="check">
-						{{o.label}}
-					</div>
-					<div class="barCell">
-						<div :style="getOutcomeStyles(o)" class="bar">
-							<div class="percent">{{getOutcomePercent(o)}}%</div>
-							<div class="users">
-								<img src="@/assets/icons/user.svg" alt="user" class="icon">
-								{{o.voters}}
-							</div>
-							<div class="points">
-								<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">
-								{{o.votes}}
-							</div>
+					<div :style="getOutcomeStyles(o)" class="bar">
+						<div class="outcomeTitle">
+							<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="check">
+							{{o.label}}
+						</div>
+						<div class="percent">{{getOutcomePercent(o)}}%</div>
+						<div class="users">
+							<img src="@/assets/icons/user.svg" alt="user" class="icon">
+							{{o.voters}}
+						</div>
+						<div class="points">
+							<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">
+							{{o.votes}}
 						</div>
 					</div>
 				</div>
@@ -98,18 +96,12 @@ export default class ChatPredictionResult extends Vue {
 			margin-bottom: 5px;
 		}
 		.outcomes {
-			// If anyone figures out how to make that darn table autosize on labels
-			// (with a 50% max width) and fill up the remaining space with the bars,
-			// well, congrats and thank you <3
-			display: table;
-			table-layout: auto;
-			border-spacing: 1px;
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
 			width: 100%;
 
 			.outcome {
-				display: table-row;
-				margin-bottom: 1px;
-
 				&.winner {
 					.check { display: inline; }
 				}
@@ -128,25 +120,16 @@ export default class ChatPredictionResult extends Vue {
 				.check {
 					height: 1em;
 					display: none;
-				}
-				
-				.outcomeTitle {
-					display: table-cell;
-					padding-right: 10px;
-					text-align: right;
-					word-wrap: break-word;
-					word-break: break-word;
-					width: 10em;
+					margin-right: .5em;
 				}
 
-				.barCell {
-					display: table-cell;
-				}
 
 				.bar {
 					width: 100%;
 					display: flex;
 					flex-direction: row;
+					flex-wrap: wrap;
+					gap: 2px;
 					padding: 3px;
 					border-radius: 5px;
 					@c: #387aff;
@@ -155,7 +138,11 @@ export default class ChatPredictionResult extends Vue {
 					background-repeat: no-repeat;
 					justify-content: space-evenly;
 
-					.percent, .users, .points {
+					&:hover {
+						outline: 1px solid @mainColor_light;
+					}
+
+					.percent, .users, .points, .outcomeTitle {
 						display: flex;
 						flex-direction: row;
 						align-items: center;
@@ -163,11 +150,16 @@ export default class ChatPredictionResult extends Vue {
 						border-radius: 5px;
 						background-color: rgba(0, 0, 0, .25);
 						font-size: .8em;
+						align-self: center;
 
 						.icon {
 							height: 1em;
 							margin-right: 5px;
 						}
+					}
+					.outcomeTitle {
+						font-weight: bold;
+						font-size: 1em;
 					}
 				}
 			}
