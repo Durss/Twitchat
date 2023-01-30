@@ -816,11 +816,11 @@ export default class TriggerActionHandler {
 		if(!res) return "";
 
 		try {
-			console.log("===== PARSE TEXT =====");
-			console.log(eventType);
-			console.log(message);
-			console.log(src);
-			console.log(subEvent);
+			// console.log("===== PARSE TEXT =====");
+			// console.log(eventType);
+			// console.log(message);
+			// console.log(src);
+			// console.log(subEvent);
 
 			eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
 			const helpers = TriggerActionHelpers(eventType);
