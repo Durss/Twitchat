@@ -1237,16 +1237,12 @@ export default class MessageList extends Vue {
 		if (this.lightMode) return;
 
 		if (amount < 0) {
+			//Scrolling up, lock auto scroll (updates)
 			this.lockScroll = true;
 		} else {
 			//If scrolling down while at the bottom of the list, load next message
 			const el = this.$refs.chatMessageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
-
-			if (maxScroll < 0) {
-				this.showNextPendingMessage(true);
-				return;
-			}
 
 			const messRefs = el.querySelectorAll(".message");
 			if (messRefs.length == 0) {
@@ -1254,8 +1250,9 @@ export default class MessageList extends Vue {
 				this.showNextPendingMessage(true);
 				return;
 			}
+			
 			const lastMessRef = messRefs[messRefs.length - 1];
-
+			//If scrolling down while alst item visible on screen
 			if ((maxScroll - el.scrollTop) <= (lastMessRef as HTMLDivElement).offsetHeight) {
 				if (this.pendingMessages.length > 0) {
 					if(event) {
@@ -1564,6 +1561,7 @@ export default class MessageList extends Vue {
 	private async openConversationHolder(m: TwitchatDataTypes.MessageChatData): Promise<void> {
 		if (this.conversation.length == 0) return;
 		await this.$nextTick();
+
 		clearTimeout(this.closeConvTimeout);
 		const holderBounds = this.$el.getBoundingClientRect();
 		const messageHolder = (this.$refs["message_" + m.id] as HTMLDivElement[])[0];
@@ -1665,11 +1663,11 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Sets a custom list of activities
+	 * Unlocks list refresh
 	 */
 	public unlockListRefresh():void {
 		this.customActivitiesDisplayed = false;
-		this.virtualScrollY = -1;//Forces utoscroll to bottom
+		this.virtualScrollY = -1;//Forces autoscroll to bottom
 		this.fullListRefresh();
 		this.lockScroll = false;
 	}
@@ -1705,7 +1703,8 @@ export default class MessageList extends Vue {
 	 * sizes instead of this.
 	 */
 	private computeMaxMessageCount():void {
-		const el = this.$refs.chatMessageHolder as HTMLDivElement;
+		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
+		const el = this.$el as HTMLDivElement;
 		const sizesRatio = [.4,.5,.6,.7,.8,.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3];
 		const size = this.$store("params").appearance.defaultSize.value as number;
 		this.virtualMessageHeight = (32 + 9) * sizesRatio[size];//32 = min content height ; 9 = top+bottom padding
