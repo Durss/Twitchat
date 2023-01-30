@@ -114,7 +114,12 @@ import Ajv from "ajv";
 									properties: {
 										id: {type:"string", maxLength:100},
 										sourceName: {type:"string", maxLength:100},
-										show: {type:"boolean"},
+										show: {
+											anyOf:[
+												{type:"string", maxLength:20},
+												{type:"boolean"},
+											]
+										},
 										delay: {type:"number"},
 										filterName: {type:"string", maxLength:100},
 										text: {type:"string", maxLength:500},

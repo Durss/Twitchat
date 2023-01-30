@@ -49,7 +49,8 @@ export default class OBSPermissions extends Vue {
 		&& this.modelValue.users === "";
 	}
 
-	public mounted():void {
+	public beforeMount():void {
+		if(this.modelValue.follower === undefined) this.modelValue.follower = false;
 		this.param_followers.children	= [this.param_followers_ms];
 		this.param_followers_ms.value	= (this.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
 

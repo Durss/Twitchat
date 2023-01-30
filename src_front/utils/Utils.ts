@@ -206,16 +206,11 @@ export default class Utils {
 		
 		if(chanInfo.is_broadcaster && permissions.broadcaster === false) return false;
 		if(chanInfo.is_vip && permissions.vips === false) return false;
-		if(chanInfo.is_moderator && permissions.mods === false) return false;
-		if(chanInfo.is_following && permissions.follower === false) return false;
+		if(chanInfo.is_moderator && !chanInfo.is_broadcaster && permissions.mods === false) return false;
+		if(chanInfo.is_following && !chanInfo.is_broadcaster && !chanInfo.is_moderator && !chanInfo.is_vip && permissions.follower === false) return false;
+		if(chanInfo.is_subscriber && !chanInfo.is_broadcaster && !chanInfo.is_moderator && !chanInfo.is_vip && !chanInfo.is_following && permissions.subs === false) return false;
 
-		// console.log(chanInfo.is_vip && permissions.vips !== false);
-		// console.log(chanInfo.is_subscriber && permissions.subs !== false);
-		// console.log(chanInfo.is_moderator && permissions.mods !== false);
-		// console.log(chanInfo.is_broadcaster && permissions.broadcaster !== false);
-		// console.log(chanInfo.is_following && permissions.follower !== false, Date.now() - chanInfo.following_date_ms >= permissions.follower_duration_ms);
-
-		if(chanInfo.is_following && permissions.follower !== false) {
+		if(chanInfo.is_following && permissions.follower === true && !chanInfo.is_broadcaster) {
 			const duration = Date.now() - chanInfo.following_date_ms;
 			return duration >= permissions.follower_duration_ms;
 		}
@@ -227,8 +222,10 @@ export default class Utils {
 		return permissions.all
 		|| chanInfo.is_vip
 		|| chanInfo.is_moderator
+		|| chanInfo.is_following
 		|| chanInfo.is_broadcaster
-		|| chanInfo.is_subscriber;
+		|| chanInfo.is_subscriber
+		|| chanInfo.is_broadcaster;
 		
 		//Old behavior
 		/*

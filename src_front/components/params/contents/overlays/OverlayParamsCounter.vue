@@ -34,6 +34,7 @@
 					<li>
 						<ul>
 							<li>#fill { ... }</li>
+							<li>#name { ... }</li>
 							<li>#goal { ... }</li>
 							<li>
 								<ul>
