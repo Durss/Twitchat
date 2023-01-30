@@ -63,6 +63,7 @@
 		},
 		"placeholders": {
 			"user": "@:triggers.placeholders.user",
+			"timeout": "@:triggers.placeholders.timeout",
 			"message": "@:triggers.placeholders.message",
 			"sub_tier": "@:triggers.placeholders.sub_tier",
 			"sub_gifter": "@:triggers.placeholders.sub_gifter",

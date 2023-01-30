@@ -92,61 +92,63 @@ export default class OverlayParamsDeezer extends Vue {
 <style scoped lang="less">
 .OverlayParamsDeezer{
 
-.holder {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 1em;
-
-	.error {
-		justify-self: center;
-		color: @mainColor_light;
-		display: block;
-		text-align: center;
-		padding: 5px;
-		border-radius: 5px;
-		margin: auto;
-		margin-top: 10px;
-		background-color: @mainColor_alert;
-		cursor: pointer;
-	}
-
-	.row {
+	.holder {
 		display: flex;
 		flex-direction: column;
-		gap:1em;
-	}
+		align-items: center;
+		gap: 1em;
 
-	&.spotifasshole {
-		margin-top: .5em;
-		.info {
-			color: @mainColor_alert;
-			font-size: .9em;
-		}
-		form {
-			margin-top: .5em;
-		}
-	}
-
-	.player_holder {
-		border: 1px dashed @mainColor_normal;
-		background: fade(@mainColor_normal, 15%);
-		border-radius: .25em;
-		margin-left: auto;
-		margin-right: auto;
-		padding: .5em;
-		
-		.label {
+		.error {
+			justify-self: center;
+			color: @mainColor_light;
+			display: block;
 			text-align: center;
-			margin: 0;
-			margin-bottom: .5em;
+			padding: 5px;
+			border-radius: 5px;
+			margin: auto;
+			margin-top: 10px;
+			background-color: @mainColor_alert;
+			cursor: pointer;
+		}
+
+		.row {
+			display: flex;
+			flex-direction: column;
+			gap:1em;
+		}
+
+		&.spotifasshole {
+			margin-top: .5em;
+			.info {
+				color: @mainColor_alert;
+				font-size: .9em;
+			}
+			form {
+				margin-top: .5em;
+			}
 		}
 		
-		.player {
-			margin: 0;
-			margin-top: -1em;//No idea why i need that...
+		.player_holder {
+			border: 1px dashed @mainColor_normal;
+			background: fade(@mainColor_normal, 15%);
+			border-radius: .25em;
+			margin-left: auto;
+			margin-right: auto;
+			padding: .5em;
+			width: 100%;
+			max-width: 300px;
+			
+			.label {
+				text-align: center;
+				margin: 0;
+				margin-bottom: .5em;
+			}
+			
+			.player {
+				margin: 0;
+				margin-top: -1em;//No idea why i need that...
+			}
 		}
 	}
-}
 }
 </style>

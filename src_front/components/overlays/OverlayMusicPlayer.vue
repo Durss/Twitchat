@@ -234,7 +234,6 @@ export default class OverlayMusicPlayer extends Vue {
 .overlaymusicplayer{
 	&.embed {
 		width: 100%;
-		max-width: 300px;
 		aspect-ratio: 300 / 54;
 		margin: auto;
 		margin-top: .5em;
@@ -247,11 +246,10 @@ export default class OverlayMusicPlayer extends Vue {
 			max-height: unset;
 
 			.cover {
-				width: auto;
+				width: 20%;
 				height: 100%;
 			}
 			.infos {
-				height: 100%;
 				font-size: 1em;
 			}
 		}

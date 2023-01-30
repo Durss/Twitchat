@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<Button :aria-label="$t('params.backBt_aria')" :icon="$image('icons/back_purple.svg')" @click="back()" class="backBt clearButton" bounce v-if="content != null" />
-				<h1 class="title">{{(title ?? $t('params.title_default'))}}</h1>
+				<h1 class="title">{{(titleKey?$t('params.categories.'+titleKey) : $t('params.title_default'))}}</h1>
 				<Button :aria-label="$t('params.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="clearButton" bounce />
 			</div>
 
@@ -158,14 +158,13 @@ import PostOnChatParam from './PostOnChatParam.vue';
 export default class Parameters extends Vue {
 
 	public search:string = "";
-	public title:string|null = null;
+	public titleKey:string|null = null;
 	public collapse:boolean = true;
 	public filteredParams:TwitchatDataTypes.ParameterData[] = [];
 	public content:TwitchatDataTypes.ParamsContentStringType|null = null;
 	public showAdInfo:boolean = false;
 	public adTarget:HTMLDivElement | null = null;
-	public idToTitle!:{[key in TwitchatDataTypes.ParamsContentStringType]:string};
-
+	
 	private closing:boolean = false;
 	private prevContent:TwitchatDataTypes.ParamsContentStringType|null = null;
 
@@ -201,7 +200,6 @@ export default class Parameters extends Vue {
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public async beforeMount():Promise<void> {
-		this.idToTitle = this.$tm("params.categories") as {[key in TwitchatDataTypes.ParamsContentStringType]:string};
 	}
 
 	public async mounted():Promise<void> {
@@ -228,7 +226,7 @@ export default class Parameters extends Vue {
 
 		watch(() => this.search, (value:string) => {
 			this.content = null;
-			this.title = null;
+			this.titleKey = null;
 			this.filterParams(this.search);
 		});
 
@@ -248,7 +246,7 @@ export default class Parameters extends Vue {
 		if(this.search) {
 			await this.$nextTick();
 			this.content = null;
-			this.title = null;
+			this.titleKey = null;
 			this.filterParams(this.search);
 		}
 		
@@ -290,7 +288,7 @@ export default class Parameters extends Vue {
 
 	public back():void {
 		this.content = this.prevContent;
-		this.title = this.idToTitle[this.prevContent!];
+		this.titleKey = this.prevContent;
 		this.prevContent = null;
 	}
 
@@ -301,11 +299,11 @@ export default class Parameters extends Vue {
 			this.content = null;
 			this.$nextTick().then(()=>{
 				this.content = id;
-				this.title = this.idToTitle[id];
+				this.titleKey = id;
 			})
 		}else{
 			this.content = id;
-			this.title = this.idToTitle[id];
+			this.titleKey = id;
 		}
 		if(id == null && this.search.length > 0) {
 			this.search = "";

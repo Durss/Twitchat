@@ -189,6 +189,8 @@ export default class OverlayParamsSpotify extends Vue {
 			margin-left: auto;
 			margin-right: auto;
 			padding: .5em;
+			width: 100%;
+			max-width: 300px;
 			
 			.label {
 				text-align: center;

@@ -21,7 +21,7 @@
 			"require_url": "connect with OBS"
 		},
 		"count": {
-			"require": "These triggers need you to first",
+			"require": "These triggers need you to first {URL}",
 			"require_url": "create counters"
 		},
 		"schedule": {
