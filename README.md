@@ -9,7 +9,7 @@
 
 <div align="center">
 	<a href="https://twitchat.fr" target="_blank">
-		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src_front/assets/logo.svg">
+		<img width="400" alt="twitchat" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src_front/assets/logo.svg">
 	</a>
 	<br>
 	<br>
@@ -27,7 +27,7 @@ The main goal is to follow your chat as best as possible.
 <br>
 
 For developpers, **Twitchat exposes an API** to receive events and control some features remotely.\
-Documentation can be found [here](PUBLIC_API.md).
+[📖 Read its documentation](PUBLIC_API.md).
 <br>
 <br>
 <br>
