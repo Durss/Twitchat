@@ -481,18 +481,18 @@ export default class ParamsTriggers extends Vue {
 		catToLabel[ TriggerEventTypeCategories.COUNTER]		= "triggers.categories.count";
 		
 		const catToIcon:{[key:number]:string} = {};
-		catToIcon[ TriggerEventTypeCategories.GLOBAL ] = "whispers_purple";
-		catToIcon[ TriggerEventTypeCategories.USER ] = "user_purple";
-		catToIcon[ TriggerEventTypeCategories.SUBITS ] = "coin_purple";
-		catToIcon[ TriggerEventTypeCategories.MOD ] = "mod_purple";
-		catToIcon[ TriggerEventTypeCategories.TWITCHAT ] = "twitchat_purple";
-		catToIcon[ TriggerEventTypeCategories.HYPETRAIN ] = "train_purple";
-		catToIcon[ TriggerEventTypeCategories.GAMES ] = "ticket_purple";
-		catToIcon[ TriggerEventTypeCategories.MUSIC ] = "music_purple";
-		catToIcon[ TriggerEventTypeCategories.TIMER ] = "timer_purple";
-		catToIcon[ TriggerEventTypeCategories.OBS ] = "obs_purple";
-		catToIcon[ TriggerEventTypeCategories.MISC ] = "broadcast_purple";
-		catToIcon[ TriggerEventTypeCategories.COUNTER ] = "count_purple";
+		catToIcon[ TriggerEventTypeCategories.GLOBAL ]		= "whispers_purple";
+		catToIcon[ TriggerEventTypeCategories.USER ]		= "user_purple";
+		catToIcon[ TriggerEventTypeCategories.SUBITS ]		= "coin_purple";
+		catToIcon[ TriggerEventTypeCategories.MOD ]			= "mod_purple";
+		catToIcon[ TriggerEventTypeCategories.TWITCHAT ]	= "twitchat_purple";
+		catToIcon[ TriggerEventTypeCategories.HYPETRAIN ]	= "train_purple";
+		catToIcon[ TriggerEventTypeCategories.GAMES ]		= "ticket_purple";
+		catToIcon[ TriggerEventTypeCategories.MUSIC ]		= "music_purple";
+		catToIcon[ TriggerEventTypeCategories.TIMER ]		= "timer_purple";
+		catToIcon[ TriggerEventTypeCategories.OBS ]			= "obs_purple";
+		catToIcon[ TriggerEventTypeCategories.MISC ]		= "broadcast_purple";
+		catToIcon[ TriggerEventTypeCategories.COUNTER ]		= "count_purple";
 
 		for (let i = 0; i < events.length; i++) {
 			const ev = events[i];

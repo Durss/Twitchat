@@ -30,7 +30,7 @@
 		>
 			<template v-slot:option="option">
 				<img :src="getIcon(option.info)" alt="icon" class="listIcon">
-				{{ option.label? option.label : $t(option.labelKey) }}
+				{{ option.label }}
 			</template>
 		</vue-select>
 		
@@ -83,7 +83,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
-	public reduceSelectData(option:{triggerKey:string, label:string, trigger:TriggerData}){ return option.triggerKey; }
+	public reduceSelectData(option:{triggerKey:string, label?:string, labelKey?:string, trigger:TriggerData, info:TriggerEventTypes}){ return option.triggerKey; }
 
 	/**
 	 * Gets a trigger's icon
@@ -131,7 +131,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 						});
 					}else{
 						//Load rewards list if necessary
-						if(!this.rewards) {
+						if(this.rewards.length == 0) {
 							this.loading = true;
 							this.rewards = await TwitchUtils.getRewards();
 						}
@@ -144,6 +144,20 @@ export default class TriggerActionTriggerEntry extends Vue {
 								info,
 							});
 						}
+					}
+				}else if(mainKey == TriggerTypes.COUNTER_ADD
+				|| mainKey == TriggerTypes.COUNTER_DEL
+				|| mainKey == TriggerTypes.COUNTER_LOOPED
+				|| mainKey == TriggerTypes.COUNTER_MAXED
+				|| mainKey == TriggerTypes.COUNTER_MINED) {
+					const counter = this.$store("counters").data.find(v=> v.id === subKey);
+					if(counter) {
+						list.push({
+							triggerKey:key,
+							label: this.$t(TriggerEvents().find(v=>v.value == mainKey)?.labelKey ?? "") +" : "+ counter.name,
+							trigger:triggers[key],
+							info,
+						});
 					}
 				}else{
 					//Not a reward
@@ -158,7 +172,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 			}else{
 				list.push({
 					triggerKey:key,
-					labelKey:info.labelKey,
+					label:this.$t(info.labelKey),
 					trigger:triggers[key],
 					info,
 				});
