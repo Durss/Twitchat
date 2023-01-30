@@ -204,6 +204,11 @@ export default class Utils {
 	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
 		const chanInfo = user.channelInfo[channelId];
 		
+		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+		if(allowedUsers?.indexOf(user.login.toLowerCase()) > -1) {
+			return true;
+		}
+		
 		if(chanInfo.is_broadcaster && permissions.broadcaster === false) return false;
 		if(chanInfo.is_vip && permissions.vips === false) return false;
 		if(chanInfo.is_moderator && !chanInfo.is_broadcaster && permissions.mods === false) return false;
@@ -213,10 +218,6 @@ export default class Utils {
 		if(chanInfo.is_following && permissions.follower === true && !chanInfo.is_broadcaster) {
 			const duration = Date.now() - chanInfo.following_date_ms;
 			return duration >= permissions.follower_duration_ms;
-		}
-		const allowedUsers = permissions?.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-		if(allowedUsers?.indexOf(user.login.toLowerCase()) > -1) {
-			return true;
 		}
 
 		return permissions.all
