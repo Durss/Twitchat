@@ -845,6 +845,23 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.RAID_STARTED: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageRaidStartData = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
 			}
 			if(hook) {
 				if(hook(data) === false) return data;

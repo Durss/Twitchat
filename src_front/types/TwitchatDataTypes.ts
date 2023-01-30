@@ -862,6 +862,7 @@ export namespace TwitchatDataTypes {
 		MUSIC_STOP:"music_stop",
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
+		RAID_STARTED:"raid_started",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
 		ROOM_SETTINGS:"room_settings",
@@ -920,9 +921,10 @@ export namespace TwitchatDataTypes {
 		music_start:false,
 		subscription:true,
 		autoban_join:true,
+		raid_started:false,
 		room_settings:true,
-		followbot_list:true,
 		stream_online:true,
+		followbot_list:true,
 		stream_offline:true,
 		chat_highlight:false,//Used for "highlight on overlay" events
 		counter_update:false,
@@ -970,55 +972,56 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Message types 
 	 */
-	export type ChatMessageTypes = MessageChatData |
-									MessageWhisperData |
-									MessagePollData |
-									MessagePredictionData |
-									MessageFollowingData |
-									MessageSubscriptionData |
-									MessageCheerData |
-									MessageRewardRedeemData |
-									MessageCommunityChallengeContributionData |
-									MessageHypeTrainSummaryData |
-									MessageHypeTrainCooledDownData |
-									MessageCommunityBoostData |
-									MessageRaidData |
-									MessageJoinData |
-									MessageLeaveData |
-									MessageBanData |
-									MessageUnbanData |
-									MessageModerationAction |
-									MessageClearChatData |
-									MessageRaffleData |
-									MessageBingoData |
-									MessageCountdownData |
-									MessageAutobanJoinData |
-									MessageTwitchatAdData |
-									MessageTimerData |
-									MessageStreamInfoUpdate |
-									MessageEmergencyModeInfo |
-									MessageHypeTrainEventData |
-									MessageChatAlertData |
-									MessageMusicStopData |
-									MessageMusicStartData |
-									MessageMusicAddedToQueueData |
-									MessageShoutoutData |
-									MessageVoicemodData |
-									MessageChatHighlightData |
-									MessageConnectData |
-									MessageDisconnectData |
-									MessageFollowbotData |
-									MessageNoticeData |
-									MessageLowtrustTreatmentData |
-									MessageOBSSceneChangedData |
-									MessageOBSSourceToggleData |
-									MessageRoomSettingsData |
-									MessageStreamOnlineData |
-									MessageStreamOfflineData |
-									MessageCounterUpdatesData |
-									MessageUnpinData |
-									MessageClipCreate |
-									MessagePinData
+	export type ChatMessageTypes = MessageChatData
+									| MessageWhisperData
+									| MessagePollData
+									| MessagePredictionData
+									| MessageFollowingData
+									| MessageSubscriptionData
+									| MessageCheerData
+									| MessageRewardRedeemData
+									| MessageCommunityChallengeContributionData
+									| MessageHypeTrainSummaryData
+									| MessageHypeTrainCooledDownData
+									| MessageCommunityBoostData
+									| MessageRaidData
+									| MessageJoinData
+									| MessageLeaveData
+									| MessageBanData
+									| MessageUnbanData
+									| MessageModerationAction
+									| MessageClearChatData
+									| MessageRaffleData
+									| MessageBingoData
+									| MessageCountdownData
+									| MessageAutobanJoinData
+									| MessageTwitchatAdData
+									| MessageTimerData
+									| MessageStreamInfoUpdate
+									| MessageEmergencyModeInfo
+									| MessageHypeTrainEventData
+									| MessageChatAlertData
+									| MessageMusicStopData
+									| MessageMusicStartData
+									| MessageMusicAddedToQueueData
+									| MessageShoutoutData
+									| MessageVoicemodData
+									| MessageChatHighlightData
+									| MessageConnectData
+									| MessageDisconnectData
+									| MessageFollowbotData
+									| MessageNoticeData
+									| MessageLowtrustTreatmentData
+									| MessageOBSSceneChangedData
+									| MessageOBSSourceToggleData
+									| MessageRoomSettingsData
+									| MessageStreamOnlineData
+									| MessageStreamOfflineData
+									| MessageCounterUpdatesData
+									| MessageUnpinData
+									| MessageClipCreate
+									| MessageRaidStartData
+									| MessagePinData
 	;
 
 	/**
@@ -1656,6 +1659,14 @@ export namespace TwitchatDataTypes {
 		mined:boolean;
 		looped:boolean;
 		user?:TwitchatUser;
+	}
+
+	/**
+	 * Respresents an outgoing raid
+	 */
+	export interface MessageRaidStartData extends AbstractTwitchatMessage {
+		type:"raid_started";
+		user:TwitchatUser;
 	}
 
 }

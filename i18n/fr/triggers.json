@@ -467,6 +467,10 @@
 			"COUNTER_LOOPED": {
 				"label": "Valeur bouclée",
 				"description": "Exécuter des actions lorsque la valeur du compteur est bouclée<br><i>(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)</i>"
+			},
+			"RAID_STARTED": {
+				"label": "Lancement d'un raid",
+				"description": "Exécuter des actions lorsque vous lancez un raid vers une autre chaîne"
 			}
 		},
 		"musicEvents": {

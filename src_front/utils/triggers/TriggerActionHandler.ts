@@ -268,6 +268,12 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.RAID_STARTED:{
+				if(await this.parseSteps(TriggerTypes.RAID_STARTED, message, testMode)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
 				let type:TriggerTypesValue = message.value > 0? TriggerTypes.COUNTER_ADD : TriggerTypes.COUNTER_DEL;
 				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;

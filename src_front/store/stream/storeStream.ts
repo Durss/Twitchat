@@ -32,7 +32,19 @@ export const storeStream = defineStore('stream', {
 
 
 	actions: {
-		setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined) { this.currentRaid = infos; },
+		setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined) {
+			if(!this.currentRaid && infos) {
+				const m:TwitchatDataTypes.MessageRaidStartData = {
+					 date:Date.now(),
+					 id:Utils.getUUID(),
+					 platform:"twitch",
+					 type:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED,
+					 user:infos!.user,
+				}
+				StoreProxy.chat.addMessage(m);
+			}
+			this.currentRaid = infos;
+		},
 
 		setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings) {
 			const roomSettings:TwitchatDataTypes.IRoomSettings = this.roomSettings[channelId] ?? {};

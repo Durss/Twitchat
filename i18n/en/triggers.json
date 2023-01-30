@@ -467,6 +467,10 @@
 			"COUNTER_LOOPED": {
 				"label": "Value looped",
 				"description": "Execute actions when counter's value looped<br><i>(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)</i>"
+			},
+			"RAID_STARTED": {
+				"label": "Started a raid",
+				"description": "Execute actions when starting a raid to another channel"
 			}
 		},
 		"musicEvents": {
