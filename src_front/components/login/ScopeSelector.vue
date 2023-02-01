@@ -93,6 +93,7 @@ export default class ScopeSelector extends Vue {
 			"moderator:manage:automod": "automod_purple.svg",
 			"moderator:manage:shield_mode": "shield_purple.svg",
 			"moderator:manage:shoutouts": "shoutout_purple.svg",
+			"clips:edit":"clip_purple.svg",
 		};
 		const disabled:string[] = ["chat:read", "chat:edit", "moderator:manage:announcements"];
 		const userScopes = this.$store("auth").twitch.scopes ?? [];
