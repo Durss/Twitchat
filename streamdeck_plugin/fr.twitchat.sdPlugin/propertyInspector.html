@@ -27,6 +27,12 @@
 			text-align: center;
 			min-height: unset !important;
 		}
+		.sdpi-item {
+			margin-bottom: 10px;
+		}
+		.sdpi-item-label {
+			line-height: unset;
+		}
 	</style>
 	<script type="text/javascript" src="js/obs-websocket.js"></script>
 	<script type="text/javascript" src="js/action.js"></script>
@@ -42,6 +48,9 @@
 
 <body>
 	<div class="sdpi-wrapper">
+
+		<hr>
+
 		<div id="obsParams" class="obsParams">
 			<div class="sdpi-heading">OBS Websocket credentials</div>
 			<div class="sdpi-item warning">
@@ -77,15 +86,33 @@
 
 		<div class="sdpi-item">
 			<div class="message description">
+				<strong class="hidden" data-greet-feed-read-all>Remove all entries from the "Greet them" section</strong>
+				<strong class="hidden" data-greet-feed-read>Remove the specified number of messages from the "Greet them" feed</strong>
+				<strong class="hidden" data-chat-feed-read-all>Move the read mark to the bottom</strong>
 				<strong class="hidden" data-chat-feed-read>Mark the specified number of messages as read in the chat feed</strong>
 				<strong class="hidden" data-chat-feed-read-encoder>Freely move the read mark up and down</strong>
-				<strong class="hidden" data-greet-feed-read>Remove the specified number of messages from the <strong>"Greet them"</strong> feed</strong>
-				<strong class="hidden" data-chat-feed-scroll_up>Scroll the chat up by the specified amount of pixels</strong>
-				<strong class="hidden" data-chat-feed-scroll_down>Scroll the chat down by the specified amount of pixels</strong>
-				<strong class="hidden" data-chat-feed-scroll>Freely scroll your chat up and down</strong>
-				<strong class="hidden" data-shoutout>Using this button will send a shoutout to the latest user that raided your channel. It will do nothing until someone raided you.</strong>
-				<strong class="hidden" data-chat-feed-select>Use this button to select a user's message and take moderation actions on it.</strong>
 				<strong class="hidden" data-clear-chat-highlight>Clear the currently highlighted message. This needs the "Message Highlight" overlay to be configured on OBS.</strong>
+				<strong class="hidden" data-chat-feed-pause>Pause chat</strong>
+				<strong class="hidden" data-chat-feed-unpause>Unpause chat</strong>
+				<strong class="hidden" data-chat-feed-scroll-up>Scroll the chat up by the specified amount of pixels</strong>
+				<strong class="hidden" data-chat-feed-scroll-down>Scroll the chat down by the specified amount of pixels</strong>
+				<strong class="hidden" data-chat-feed-scroll>Freely scroll your chat up and down</strong>
+				<strong class="hidden" data-chat-feed-select>Use this button to select a user's message and take moderation actions on it.</strong>
+				<strong class="hidden" data-poll-toggle>Open/close current poll state</strong>
+				<strong class="hidden" data-prediction-toggle>Open/close current prediction state</strong>
+				<strong class="hidden" data-bingo-toggle>Open/close current bingo state</strong>
+				<strong class="hidden" data-raffle-toggle>Open/close current raffle state</strong>
+				<strong class="hidden" data-viewers-count-toggle>Show/hide live viewer count</strong>
+				<strong class="hidden" data-mod-tools-toggle>Show/hide mod tools before each message</strong>
+				<strong class="hidden" data-censor-deleted-messages-toggle>Show/hide content of deleted messages</strong>
+				<strong class="hidden" data-shoutout>Using this button will send a shoutout to the latest user that raided your channel. It will do nothing until someone raided you.</strong>
+				<strong class="hidden" data-set-emergency-mode>Start/stop emergency mode</strong>
+				<strong class="hidden" data-stop-tts>Stop currently playing text to speech</strong>
+				<strong class="hidden" data-enable-stt>Start voice control</strong>
+				<strong class="hidden" data-disable-stt>Stop voice control</strong>
+				<strong class="hidden" data-countdown-add>Add or remove time from current countdown</strong>
+				<strong class="hidden" data-timer-add>Add or remove time from current timer</strong>
+				<strong class="hidden" data-counter-add>Add or remove points from a counter</strong>
 			</div>
 		</div>
 
@@ -96,21 +123,44 @@
 		data-greet-feed-read
 		data-chat-feed-scroll-up
 		data-chat-feed-scroll-down>
-			<div class="sdpi-item-label">Count <i>(<span id="value"></span>)</i></div>
-			<div class="sdpi-item-value range">
-				<input class="setvalueSlider hidden" data-sync type="range" min="1" max="20" value="1"
-					id="readCount"
-					oninput="onChangeValue('greet-feed-read', Number(event.target.value))"
-					data-greet-feed-read
-					data-chat-feed-read>
-					
-				<input class="setvalueSlider hidden" data-sync type="range" min="100" max="1000" step="50" value="1"
-					id="scrollAmount"
-					oninput="onChangeValue('chat-feed-scroll-up', Number(event.target.value))"
-					data-chat-feed-scroll-up
-					data-chat-feed-scroll-down>
-					
-			</div>
+			<div class="sdpi-item-label hidden"
+				data-greet-feed-read
+				data-chat-feed-read>Count <i>(<span id="value"></span>)</i></div>
+			<input class="sdpi-item-value hidden" data-sync type="range" min="1" max="20" value="1"
+				id="readCount"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-greet-feed-read
+				data-chat-feed-read>
+				
+			<div class="sdpi-item-label hidden"
+				data-chat-feed-scroll-up
+				data-chat-feed-scroll-down>Scroll amount <i>(<span id="value"></span>px)</i></div>
+			<input class="sdpi-item-value hidden" data-sync type="range" min="100" max="1000" step="50" value="1"
+				id="scrollAmount"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-chat-feed-scroll-up
+				data-chat-feed-scroll-down>
+		</div>
+
+		<div class="sdpi-item hidden"
+		data-timer-add
+		data-countdown-add
+		data-counter-add>
+			<div class="sdpi-item-label hidden"
+				data-timer-add
+				data-countdown-add>Duration <i>(seconds)</i></div>
+			<input class="sdpi-item-value hidden" data-sync value="1" type="number"
+				id="timeAdd"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-timer-add
+				data-countdown-add>
+				
+			<div class="sdpi-item-label hidden"
+				data-counter-add>Points</div>
+			<input class="sdpi-item-value hidden" data-sync value="0" type="number"
+				id="countAdd"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-counter-add>
 		</div>
 
 		<div class="sdpi-item hidden" id="select_single"
@@ -122,10 +172,10 @@
 		data-chat-feed-scroll
 		data-chat-feed-scroll-up
 		data-chat-feed-scroll-down>
-			<div class="sdpi-item-label">Column index to controle</div>
+			<div class="sdpi-item-label">Column index to control</div>
 			<select class="sdpi-item-value select"
 				id="colIndex"
-				oninput="onChangeValue('greet-feed-read', Number(event.target.value))"
+				oninput="onChangeValue(Number(event.target.value))"
 				data-chat-feed-select
 				data-chat-feed-read
 				data-chat-feed-read-encoder
@@ -134,6 +184,16 @@
 				data-chat-feed-scroll
 				data-chat-feed-scroll-up
 				data-chat-feed-scroll-down>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-counter-add>
+			<div class="sdpi-item-label">Counter to update</div>
+			<select class="sdpi-item-value select"
+				id="counterId"
+				oninput="onChangeValue(event.target.value)"
+				data-counter-add>
 			</select>
 		</div>
 		
@@ -186,6 +246,7 @@
 		};
 
 		function populateGlobalSettings(settings) {
+			//Populate list index selector
 			const colSelector = document.getElementById("colIndex");
 			if(colSelector) {
 				colSelector.innerHTML = "";
@@ -196,7 +257,25 @@
 					colSelector.appendChild(opt);
 				}
 			}
+			
+			//Populate counter selector
+			const counterSelector = document.getElementById("counterId");
+			if(counterSelector) {
+				counterSelector.innerHTML = "";
+				for (let i = 0; i < settings.COUNTER_LIST.length; i++) {
+					const counter = settings.COUNTER_LIST[i];
 
+					//No control for "per user" counters
+					if(counter.perUser === true) continue;
+
+					const opt = document.createElement("option");
+					opt.value = counter.id,
+					opt.innerText = counter.name;
+					counterSelector.appendChild(opt);
+				}
+			}
+
+			//Populate any form matching a global setting ID (like OBS credentials)
 			for (const key in settings) {
 				const input = document.getElementById(key);
 				if(input) {
@@ -211,22 +290,21 @@
 		}
 
 		function populateLocalSettings(settings) {
+			if(document.getElementById("value")) document.getElementById("value").innerHTML = "0";
 			for (const key in settings) {
 				const input = document.getElementById(key);
 				if(input) {
 					input.value = settings[key];
 					if(input.dataset.hasOwnProperty("sync")) {
-						if(document.getElementById("value")) document.getElementById("value").innerHTML = settings[key];
+						if(document.getElementById("value")) document.getElementById("value").innerHTML = settings[key] ?? 1;
 					}
 				}
 			}
 			
 		}
 
-		function onChangeValue(paramName, paramValue, saveGlobal) {
-			var payload = {saveGlobal:saveGlobal === true, data:{}};
+		function onChangeValue(paramValue) {
 			if(!paramValue) paramValue = true;
-			payload.data[paramName] = paramValue;
 
 			const holders = document.querySelectorAll("[data-"+actionName+"]");
 			
@@ -237,6 +315,8 @@
 				if(!prop || element.value == undefined) continue;
 				settings[prop] = element.value;
 			}
+
+			populateLocalSettings(settings);
 
 			$PI.setSettings(settings);
 		}

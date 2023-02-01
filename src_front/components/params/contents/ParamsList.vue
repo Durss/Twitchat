@@ -222,8 +222,9 @@ export default class ParamsList extends Vue {
 		position: relative;
 
 		&>.item {
+			@defaultBg: fade(@mainColor_normal_extralight, 30%);
 			border-radius: .5em;
-			background-color: fade(@mainColor_normal_extralight, 30%);
+			background-color: @defaultBg;
 			padding: .25em;
 			position: relative;
 			&:not(:first-of-type) {
@@ -251,19 +252,34 @@ export default class ParamsList extends Vue {
 			
 
 			&.highlightMods {
-				background-color: @highlight_mods;
+				:deep(label) {
+					padding-left: 1em;
+				}
+				background: linear-gradient(to right, @highlight_mods 2.5em, @defaultBg 2.5em);
 			}
 			&.highlightVips {
-				background-color: @highlight_vips;
+				:deep(label) {
+					padding-left: 1em;
+				}
+				background: linear-gradient(to right, @highlight_vips 2.5em, @defaultBg 2.5em);
 			}
 			&.highlightSubs {
-				background-color: @highlight_subs;
+				:deep(label) {
+					padding-left: 1em;
+				}
+				background: linear-gradient(to right, @highlight_subs 2.5em, @defaultBg 2.5em);
 			}
 			&.highlightPartners {
-				background-color: @highlight_partners;
+				:deep(label) {
+					padding-left: 1em;
+				}
+				background: linear-gradient(to right, @highlight_partners 2.5em, @defaultBg 2.5em);
 			}
 			&.highlightMentions {
-				background-color: @highlight_mention;
+				:deep(label) {
+					padding-left: 1em;
+				}
+				background: linear-gradient(to right, @highlight_mention 2.5em, @defaultBg 2.5em);
 			}
 
 			.chatMessage {

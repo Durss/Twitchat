@@ -398,8 +398,12 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
 		this.onResize();
 		this.renderFrame();
 		requestWakeLock();
@@ -437,8 +441,12 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
 	}
 
 	public closeDonorCard():void {
@@ -553,8 +561,55 @@ export default class Chat extends Vue {
 				break;
 			}
 
+			case TwitchatEvent.COUNTER_ADD: {
+				const id = (e.data as JsonObject).counterId as string;
+				const value = parseInt((e.data as JsonObject).countAdd as string);
+				const counter = this.$store("counters").data.find(v=>v.id == id);
+				console.log("INCREMENT", value, counter);
+				if(counter && !isNaN(value)) {
+					this.$store("counters").increment(id, value);
+				}
+				break;
+			}
+
+			case TwitchatEvent.COUNTER_GET_ALL: {
+				const counters = this.$store("counters").data.map(v=> {
+					return {
+						id:v.id,
+						name:v.name,
+						perUser:v.perUser === true,
+					}
+				});
+				if(counters) {
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_LIST, {counters});
+				}
+				break;
+			}
+
 			case TwitchatEvent.CLEAR_CHAT_HIGHLIGHT: {
 				this.$store("chat").highlightChatMessageOverlay();
+				break;
+			}
+			
+			case TwitchatEvent.TIMER_ADD: {
+				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
+				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
+				if(durationMs > 0) {
+					this.$store("timer").timerAdd(durationMs);
+				}else{
+					this.$store("timer").timerRemove(-durationMs);
+				}
+				break;
+			}
+
+			case TwitchatEvent.COUNTDOWN_ADD: {
+				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
+				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
+				if(durationMs > 0) {
+					this.$store("timer").countdownAdd(durationMs);
+				}else{
+					this.$store("timer").countdownRemove(-durationMs);
+				}
 				break;
 			}
 		}

@@ -72,8 +72,6 @@
 			"UUID": "fr.twitchat.action.chat-feed-read-encoder",
 			"Controllers": ["Encoder"],
 			"Encoder":{
-				"background":"icons/CHAT_FEED_SCROLL_ENCODER_screen",
-				"Icon":"icons/empty",
 				"TriggerDescription": {
 					"Rotate": "Read messages"
 				}
@@ -164,8 +162,6 @@
 			"UUID": "fr.twitchat.action.chat-feed-scroll",
 			"Controllers": ["Encoder"],
 			"Encoder":{
-				"background":"icons/CHAT_FEED_SCROLL_ENCODER_screen",
-				"Icon":"icons/empty",
 				"TriggerDescription": {
 					"Rotate": "Scroll chat"
 				}
@@ -363,6 +359,48 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.disable-stt"
+		},
+		{
+			"Icon": "icons/COUNTDOWN_default",
+			"Name": "Add/remove time to a countdown",
+			"States": [
+				{
+					"Image": "icons/COUNTDOWN",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.countdown-add"
+		},
+		{
+			"Icon": "icons/TIMER_default",
+			"Name": "Add/remove time to a timer",
+			"States": [
+				{
+					"Image": "icons/TIMER",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.timer-add"
+		},
+		{
+			"Icon": "icons/COUNT_default",
+			"Name": "Add/remove points to a counter",
+			"States": [
+				{
+					"Image": "icons/COUNT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.counter-add"
 		}
 	],
 	"Category":"Twitchat",
@@ -370,11 +408,11 @@
 	"SDKVersion": 2,
 	"Author": "Durss",
 	"CodePath": "index.html",
-	"Description": "Control Twitchat. Scroll messages, marke them as read, send a shoutout to the latest raider, un/censor deleted messages, open/close current poll, prediction, bingo or raffle, stop current text to speech, ...",
+	"Description": "Control Twitchat. Scroll messages, mark them as read, moderate them, control timers, control counters, send a shoutout to the latest raider, un/censor deleted messages, open/close current poll, prediction, bingo or raffle, stop current text to speech, ...",
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "2.2",
+	"Version": "2.3",
 	"OS": [
 		{
 			"Platform": "mac",

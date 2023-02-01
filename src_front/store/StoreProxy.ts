@@ -397,12 +397,12 @@ export interface ITimerGetters {
 
 export interface ITimerActions {
 	timerStart():void;
-	timerAdd(duration:number):void;
-	timerRemove(duration:number):void;
+	timerAdd(duration_ms:number):void;
+	timerRemove(duration_ms:number):void;
 	timerStop():void;
-	countdownStart(duration:number):void;
-	countdownAdd(duration:number):void;
-	countdownRemove(duration:number):void;
+	countdownStart(durEation_ms:number):void;
+	countdownAdd(duration_ms:number):void;
+	countdownRemove(duration_ms:number):void;
 	countdownStop():void;
 }
 
