@@ -119,7 +119,8 @@
 			{"l":"Lorsque plein de messages sont en attente de lecture par le TTS, un bouton permet de vider la file d'attente"},
 			{"l":"Les <strong>conducteurs de train</strong> de la hype sont affichés"},
 			{"l":"Le résumé du <strong>Train de la hype</strong> affiche les abbonements T1, T2 et T3 séparément"},
-			{"l":"Nouvelle commande <strong>/greetduration</strong> pour modifier la durée après laquelle effacer automatiquement les messages de la partie \"Dîtes bonjour\""}
+			{"l":"Nouvelle commande <strong>/greetduration</strong> pour modifier la durée après laquelle effacer automatiquement les messages de la partie \"Dîtes bonjour\""},
+			{"l":"Supression de l'intégragrion Deezer suite à la désactivation de cette possibilité par Deezer"}
 		],
 		"fixes": [
 			{"l":"Le TTS pour les résultats de prédictions ne disait parfois pas le titre de l'entrée gagnante"},

@@ -113,8 +113,10 @@
 			{"l":"BTTV/FFZ/7TV now displayed on emote selectors"},
 			{"l":"Notify users if they try to use a cooling down chat command trigger"},
 			{"l":"When TTS is reading messages, a button shows up to clear the whole TTS queue"},
+			{"l":"<strong>Hype train conductors</strong> will now be displayed"},
 			{"l":"<strong>Hype train</strong> summaries now show T1, T2 and T3 subs count seperatly"},
-			{"l":"New <strong>/greetduration</strong> command to change the \"auto delete after\" duration of the greet them section"}
+			{"l":"New <strong>/greetduration</strong> command to change the \"auto delete after\" duration of the greet them section"},
+			{"l":"Removed Deezer integration after Deezer disabled that possibility"}
 		],
 		"fixes": [
 			{"l":"TTS for prediction result was  sometimes not saying the winning outcome label"},

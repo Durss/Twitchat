@@ -1,5 +1,6 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -46,6 +47,7 @@ export const storeCounters = defineStore('counters', {
 				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:data} as unknown as JsonObject);
 			}
 		},
+		
 		delCounter(data:TwitchatDataTypes.CounterData):void {
 			for (let i = 0; i < this.data.length; i++) {
 				if(this.data[i].id == data.id) {
@@ -54,7 +56,14 @@ export const storeCounters = defineStore('counters', {
 				}
 			}
 			DataStore.set(DataStore.COUNTERS, this.data);
+			//Delete triggers related to the counter
+			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_ADD+"_"+data.id);
+			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_DEL+"_"+data.id);
+			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_LOOPED+"_"+data.id);
+			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_MAXED+"_"+data.id);
+			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_MINED+"_"+data.id);
 		},
+
 		increment(id:string, addedValue:number, user?:TwitchatDataTypes.TwitchatUser):void {
 			const c = this.data.find(v=>v.id == id);
 			if(!c) return;
