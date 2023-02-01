@@ -642,7 +642,7 @@ export default class DataStore {
 			const actions = triggers[key].actions;
 			for (let i = 0; i < actions.length; i++) {
 				const a = actions[i];
-				if(a.type == "raffle" && a.raffleData) {
+				if(a.type == "raffle" && a.raffleData && !isNaN(a.raffleData.duration_s)) {
 					console.log("convert", a.raffleData.duration_s, "to", a.raffleData.duration_s * 60000);
 					a.raffleData.duration_s = a.raffleData.duration_s * 60000;
 				}
@@ -760,7 +760,7 @@ export default class DataStore {
 			const actions = triggers[key].actions;
 			for (let i = 0; i < actions.length; i++) {
 				const a = actions[i];
-				if(a.type == "raffle" && a.raffleData) {
+				if(a.type == "raffle" && a.raffleData && !isNaN(a.raffleData.duration_s)) {
 					console.log("convert", a.raffleData.duration_s, "to", a.raffleData.duration_s / 1000);
 					a.raffleData.duration_s = Math.round(a.raffleData.duration_s / 1000);
 				}

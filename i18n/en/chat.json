@@ -11,6 +11,8 @@
 		"live_chat_more_aria": "show 1 more message",
 		"live_chat_less_aria": "show 1 less message",
 		"conversation_closeBt_aria": "close conversation",
+		"fake_tag": "fake",
+		"fake_tag_tt": "This is a fake message.<br>Only you can see it.",
 		"form": {
 			"paramsBt_aria": "Open parameters",
 			"cmdsBt_aria": "Open chat commands",

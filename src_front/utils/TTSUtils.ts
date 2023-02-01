@@ -540,6 +540,7 @@ export default class TTSUtils {
 		const message = this.pendingMessages[0];
 		let skipMessage = false;
 
+
 		//Message deleted?
 		if(message.message) {
 			if(TwitchatDataTypes.DeletableMessageTypes.includes(message.message.type)) {
@@ -557,10 +558,12 @@ export default class TTSUtils {
 
 		if(skipMessage && message.force !== true) {
 			//Ignore this message and process the next one
-			this.pendingMessages.shift();
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
-			setTimeout(() => { this.readNextMessage(); }, 0);
+			setTimeout(() => {
+				this.pendingMessages.shift();
+				this.readNextMessage();
+			}, 0);
 			return;
 		}
 		
@@ -593,10 +596,12 @@ export default class TTSUtils {
 				}, paramsTTS.maxDuration * 1000);
 			}
 		}else{
-			this.pendingMessages.shift();
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
-			setTimeout(() => { this.readNextMessage(); }, 0);
+			setTimeout(() => {
+				this.pendingMessages.shift();
+				this.readNextMessage();
+			}, 0);
 		}
 	}
 

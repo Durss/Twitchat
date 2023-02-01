@@ -275,6 +275,11 @@ export default class Chat extends Vue {
 	}
 
 	public beforeMount():void {
+		
+		const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
+		if(isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
+			this.currentModal = "updates";
+		}
 
 		//Check user reached a new donor level
 		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
@@ -565,7 +570,6 @@ export default class Chat extends Vue {
 				const id = (e.data as JsonObject).counterId as string;
 				const value = parseInt((e.data as JsonObject).countAdd as string);
 				const counter = this.$store("counters").data.find(v=>v.id == id);
-				console.log("INCREMENT", value, counter);
 				if(counter && !isNaN(value)) {
 					this.$store("counters").increment(id, value);
 				}

@@ -88,12 +88,12 @@
 			"chatSuggStart": "/announce Faites votre suggestion envoyant \"{CMD} votre suggestion\". Votre suggestion doit faire moins de {LENGTH} caractères."
 		},
 		"commands": {
-			"updates": "Dernirèes mises à jour",
+			"updates": "Dernières mises à jour",
 			"tip": "Découvrir une astuce Twitchat",
 			"timerAdd": "Ajoute du temps au chronomètre en cours",
 			"timerRemove": "Enlève du temps au chronomètre en cours",
 			"timerStart": "Lance un chronomètre",
-			"timerStop": "Arrete le chronomètre",
+			"timerStop": "Arrête le chronomètre",
 			"countdown": "Lance un compte à rebours",
 			"countdownAdd": "Ajoute du temps au compte à rebours",
 			"countdownRemove": "Enlève du temps au compte à rebours",
@@ -132,7 +132,7 @@
 			"shieldOff": "Désactiver le mode bouclier",
 			"clips": "Créer un clip",
 			"tts": "Lire les message d'une personne à haute voix",
-			"ttsoff": "Arreter de lire les messages à haute voix",
+			"ttsoff": "Arrêter de lire les messages à haute voix",
 			"userlist": "Lister les utilisateurices",
 			"userdata": "Récupérer les données d'une personne",
 			"betaadd": "Ajouter un· beta-tester",

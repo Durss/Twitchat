@@ -11,6 +11,8 @@
 		"live_chat_more_aria": "afficher 1 message en plus",
 		"live_chat_less_aria": "afficher 1 message en moins",
 		"conversation_closeBt_aria": "Fermer la fenêtre",
+		"fake_tag": "fake",
+		"fake_tag_tt": "Ceci est un faux message.<br>Vous êtes la/le seul·e à le voir.",
 		"form": {
 			"paramsBt_aria": "Ouvrir les parameters",
 			"cmdsBt_aria": "Ouvrir les commandes",

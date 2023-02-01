@@ -148,7 +148,7 @@
 			}
 		},
 		"categories": {
-			"global": "Chat - Pts de chaîne - Stream",
+			"global": "Chat - Points de chaîne",
 			"user": "Evènement utilisateur",
 			"subits": "Sub & bits",
 			"mod": "Actions de modération",
@@ -254,7 +254,7 @@
 			},
 			"RETURNING_USER": {
 				"label": "Returning user",
-				"description": "Execute actions when a user comes back after chatting at least twice in the last 30 days."
+				"description": "Execute actions when a user comes back after chatting at least twice in the last 30 days.<br>(this may not exist anymore on Twitch)"
 			},
 			"PRESENTATION": {
 				"label": "Présentation",
@@ -265,7 +265,7 @@
 				"description": "Exécuter des actions lorsque quelqu'un suit votre chaîne"
 			},
 			"RAID": {
-				"label": "Raid",
+				"label": "Raid reçu",
 				"description": "Exécuter des actions lorsque raid votre chaîne"
 			},
 			"SHOUTOUT_OUT": {

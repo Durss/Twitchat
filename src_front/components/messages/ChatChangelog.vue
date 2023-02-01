@@ -2,6 +2,7 @@
 	<div class="chatchangelog">
 		
 		<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
+		<!-- <div class="infos">Use <mark>/updates</mark> command to open this back</div> -->
 		
 		<div class="content">
 			<ToggleBlock class="block new" :title="$t('changelog.major_title')" :open="false" :icons="['new']">
@@ -140,6 +141,10 @@ export default class ChatChangelog extends Vue {
 		margin-bottom: .5em;
 	}
 
+	.version {
+		margin-bottom: .5em;
+	}
+
 	:deep(.header){
 		color: @mainColor_light;
 		background-color: @mainColor_normal;
@@ -152,6 +157,10 @@ export default class ChatChangelog extends Vue {
 			border-radius: .5em;
 			padding: 0 .5em;
 			font-family: 'Courier New', Courier, monospace;
+		}
+		
+		h2 {
+			padding-right: 1.5em;
 		}
 	}
 	
@@ -182,8 +191,8 @@ export default class ChatChangelog extends Vue {
 				background-color: fade(@mainColor_warn, 15%);
 			}
 			mark {
-				border: 1px dashed darken(@mainColor_warn_light, 10%);
-				background-color: fade(@mainColor_warn_extralight, 50%);
+				border: 1px dashed darken(@mainColor_warn_light, 10%) !important;
+				background-color: fade(@mainColor_warn_extralight, 25%) !important;
 			}
 		}
 	}
@@ -212,6 +221,10 @@ export default class ChatChangelog extends Vue {
 
 			.cmd {
 				background-color: fade(@mainColor_alert, 15%);
+			}
+			mark {
+				border: 1px dashed darken(@mainColor_alert_light, 10%) !important;
+				background-color: fade(@mainColor_alert_extralight, 25%) !important;
 			}
 		}
 	}

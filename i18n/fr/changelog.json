@@ -1,7 +1,7 @@
 {
 	"changelog": {
 		"title": "🎉 Dernières mises à jour 🎉",
-		"closeBt": "C'est noté",
+		"closeBt": "Masquer",
 		"closeBt_aria": "Fermer le message",
 		"version": "Version {VERSION}",
 		"major_title": "Nouveautés",
@@ -98,7 +98,7 @@
 					"l": "test",
 					"page": "triggers"
 				},
-				"l": "<strong>13 nouveaux trigger</strong>:<ul><li>Lorsque que quelqu'un envoie une \"presentation\"</li><li>Quand le train de la hype peut à nouveau être démarré</li><li>Quand vous effectuez un shoutout</li><li>Quand vous recevez un shoutout</li><li>Quand vous changez de scène OBS</li><li>Quand une source OBS est affichée/masquée</li><li>Quand un message est épinglé/désépinglé</li><li>Quand le mode bouclier est activé/désactivé</li><li>Quand le stream est lancé</li><li>Quand le stream est arrêté</li></ul>"
+				"l": "<strong>19 nouveaux triggers</strong>:<ul><li>Lorsque que quelqu'un envoie une \"presentation\"</li><li>Quand le train de la hype peut à nouveau être démarré</li><li>Quand vous effectuez un shoutout</li><li>Quand vous recevez un shoutout</li><li>Quand vous changez de scène OBS</li><li>Quand une source OBS est affichée/masquée</li><li>Quand un message est épinglé/désépinglé</li><li>Quand le mode bouclier est activé/désactivé</li><li>Quand le stream est lancé</li><li>Quand le stream est arrêté</li><li>5 évènements liés aux compteurs</li><li>Quand vous lancez un raid</li></ul>"
 			},
 			{
 				"i": "commands",

@@ -21,6 +21,7 @@
 		
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
+				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
 				<ChatAd class="message"
 					v-if="m.type == 'twitchat_ad'"
 					@showModal="(v: string) => $emit('showModal', v)"
@@ -174,6 +175,7 @@
 
 			<div class="subHolder" v-for="m in lockedLiveMessages"
 			:key="m.id" :ref="'message_live_' + m.id">
+				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
 				<ChatJoinLeave class="message"
 					v-if="(m.type == 'join' || m.type == 'leave')"
 					:messageData="m" />
@@ -1819,9 +1821,24 @@ export default class MessageList extends Vue {
 
 		.subHolder {
 			position: relative;
+			display: flex;
+			flex-direction: row;
+
+			.fake {
+				display: inline;
+				background-color: @mainColor_light;
+				border-radius: @border_radius;
+				align-self: center;
+				padding: .2em .5em;
+				margin-right: 5px;
+				font-weight: bold;
+				cursor: default;
+				font-size: var(--messageSize);
+			}
 
 			.message {
 				position: relative;
+				flex-grow: 1;
 				&.empty {
 					font-style: italic;
 					color: fade(@mainColor_light, 50);

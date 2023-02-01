@@ -55,27 +55,42 @@ export default class ChatModTools extends Vue {
 	public banUser():void {
 		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
 		.then(() => {
-		this.$emit('deleteUser', this.messageData);
-			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, this.$t("global.moderation_action.ban_reason"));
+			this.$emit('deleteUser', this.messageData);
+			if(this.messageData.fake === true) {
+				//Avoid banning user for real if doing it from a fake message
+				this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
+			}else{
+				TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, this.$t("global.moderation_action.ban_reason"));
+			}
 		})
 	}
 
 	public blockUser():void {
 		this.$confirm(this.$t("chat.mod_tools.block_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.block_confirm_desc"))
 		.then(() => {
-		this.$emit('deleteUser', this.messageData);
-			TwitchUtils.blockUser(this.messageData.user, this.messageData.channel_id);
+			this.$emit('deleteUser', this.messageData);
+			if(this.messageData.fake === true) {
+				//Avoid banning user for real if doing it from a fake message
+				this.$store("users").flagBlocked(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
+			}else{
+				TwitchUtils.blockUser(this.messageData.user, this.messageData.channel_id);
+			}
 		})
 	}
 
 	public timeoutUser(duration:number):void {
 		this.$emit('deleteUser', this.messageData);
-		TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, duration);
+		if(this.messageData.fake === true) {
+			//Avoid banning user for real if doing it from a fake message
+			this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id, duration);
+		}else{
+			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, duration);
+		}
 	}
 
 	public deleteMessage():void {
 		this.$emit('deleteMessage', this.messageData);
-		StoreProxy.chat.deleteMessage(this.messageData);
+		StoreProxy.chat.deleteMessage(this.messageData, undefined, this.messageData.fake !== true);
 	}
 
 	public async openToOptions():Promise<void> {

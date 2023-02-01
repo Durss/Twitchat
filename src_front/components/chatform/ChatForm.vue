@@ -458,7 +458,7 @@ export default class ChatForm extends Vue {
 		this.onlineUsersTooltip = res;
 	}
 	
-	public async sendMessage(event:Event):Promise<void> {
+	public async sendMessage(event?:Event):Promise<void> {
 		if(this.message.length == 0) return;
 		if(this.openAutoComplete) return;
 
@@ -471,7 +471,7 @@ export default class ChatForm extends Vue {
 
 
 		if(cmd == "/chatsugg") {
-			event.preventDefault();//avoid auto submit of the opening form
+			if(event) event.preventDefault();//avoid auto submit of the opening form
 			//Open chat poll form
 			this.$emit("chatpoll");
 			this.message = "";
@@ -483,7 +483,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/poll") {
-			event.preventDefault();//avoid auto submit of the opening form
+			if(event) event.preventDefault();//avoid auto submit of the opening form
 			//Open poll form
 			const title = params.join(" ");
 			if(title != "title") {
@@ -494,7 +494,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/prediction") {
-			event.preventDefault();//avoid auto submit of the opening form
+			if(event) event.preventDefault();//avoid auto submit of the opening form
 			//Open prediction form
 			const title = params.join(" ");
 			if(title != "title") {
@@ -505,7 +505,7 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/raffle") {
-			event.preventDefault();//avoid auto submit of the opening form
+			if(event) event.preventDefault();//avoid auto submit of the opening form
 			//Open raffle form
 			this.$emit("raffle");
 			this.message = "";
@@ -672,7 +672,7 @@ export default class ChatForm extends Vue {
 			
 			if(cmd == "/bingo") {
 				if(params[0] != "number" && params[0] != "emote" && params[0] != "custom") {
-					event.preventDefault();//avoid auto submit of the opening form
+					if(event) event.preventDefault();//avoid auto submit of the opening form
 					this.$emit("bingo");
 				}
 			}
@@ -763,6 +763,14 @@ export default class ChatForm extends Vue {
 		let localMessage = this.message;
 		if(!carretPos) carretPos = 1;
 		carretPos --;
+
+		//If it's a command and it has no parameter, submit it right away
+		if(item.indexOf("/") === 0 && item.indexOf("{") == -1) {
+			this.message = item;
+			this.autoCompleteSearch = "";
+			this.sendMessage();
+			return;
+		}
 
 		if(this.autoCompleteSearch) {
 			for (let i = carretPos; i >= 0; i--) {

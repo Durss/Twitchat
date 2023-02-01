@@ -125,7 +125,7 @@ export const storeChat = defineStore('chat', {
 			},
 			{
 				id:"userinfo",
-				cmd:"/user {user}",
+				cmd:"/user {username}",
 				alias:"/userinfo {user}",
 				details:StoreProxy.i18n.t("params.commands.userinfo"),
 			},
@@ -1053,7 +1053,7 @@ export const storeChat = defineStore('chat', {
 			TTSUtils.instance.addMessageToQueue(message);
 		},
 		
-		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) { 
+		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
 			this.deleteMessageByID(message.id, deleter, callEndpoint)
 		},
 		

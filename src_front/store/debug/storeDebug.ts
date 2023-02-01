@@ -863,6 +863,9 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 			}
+
+			data.fake = true;
+			
 			if(hook) {
 				if(hook(data) === false) return data;
 			}
@@ -1063,6 +1066,8 @@ export const storeDebug = defineStore('debug', {
 				}
 
 			}
+
+			data.fake = true;
 
 			if(hook) {
 				if(hook(data) === false) return data;

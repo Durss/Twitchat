@@ -1,6 +1,6 @@
 <template>
 	<div class="changelog">
-		<div class="dimmer" ref="dimmer"></div>
+		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			
 			<img src="@/assets/icons/update_purple.svg" alt="emergency" class="icon">

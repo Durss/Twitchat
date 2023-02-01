@@ -1071,6 +1071,7 @@ export namespace TwitchatDataTypes {
 		date:number;
 		platform:ChatPlatform;
 		deleted?:boolean;
+		fake?:boolean;
 	}
 
 	export interface GreetableMessage extends AbstractTwitchatMessage {

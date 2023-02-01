@@ -1,7 +1,7 @@
 {
 	"changelog": {
 		"title": "🎉 Latest updates 🎉",
-		"closeBt": "Ok got it",
+		"closeBt": "Close",
 		"closeBt_aria": "Remove message",
 		"version": "Version {VERSION}",
 		"major_title": "New featutres",
@@ -94,7 +94,7 @@
 					"l": "try it",
 					"page": "triggers"
 				},
-				"l": "<strong>11 new trigger</strong> events:<ul><li>when someone send a \"presentation\"</li><li>when the hype train can be started again</li><li>when giving a shoutout</li><li>when given a shoutout</li><li>when switching OBS scene</li><li>when showing/hiding an OBS source</li><li>when pinning/unpinning a message</li><li>when starting/stoping the shield mode</li></ul>"
+				"l": "<strong>19 new triggers</strong> events:<ul><li>when someone send a \"presentation\"</li><li>when the hype train can be started again</li><li>when giving a shoutout</li><li>when given a shoutout</li><li>when switching OBS scene</li><li>when showing/hiding an OBS source</li><li>when pinning/unpinning a message</li><li>when starting/stoping the shield mode</li><li>When stream is started</li><li>When stream is stoped</li><li>5 Counters related triggers</li><li>When starting a raid</li></ul>"
 			},
 			{
 				"i": "commands",
