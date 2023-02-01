@@ -30,6 +30,7 @@
 							<AppLangSelector v-if="item.i=='translate'" class="langSelector" />
 
 							<div v-if="item.i=='count'">
+								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
 								<div class="counterActions">
 									<Button title="10" :icon="$image('icons/minus_purple.svg')" @click="counterExample.value -=10; progressExample.value -= 10" white />
 									<Button title="10" :icon="$image('icons/add_purple.svg')" @click="counterExample.value +=10; progressExample.value += 10" white />
@@ -221,6 +222,10 @@ export default class Changelog extends Vue {
 					&:hover {
 						max-height: 550px;
 					}
+				}
+
+				.tryBt {
+					margin-bottom: .5em;
 				}
 
 				.counterActions {

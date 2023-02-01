@@ -7,6 +7,7 @@
 		"major_title": "Nouveautés",
 		"minor_title": "Autres nouveautés",
 		"fixes_title": "Correctifs",
+		"tryBt": "Essayez 👇",
 		"highlights": [
 			{
 				"i": "translate",
@@ -22,7 +23,7 @@
 			{
 				"i": "lock_fit",
 				"l": "Permissions affinées",
-				"g": "update_images/permissions.gif",
+				"g": "update_images/permissions_short.gif",
 				"d": "Choisissez quelles données et fonctionnalités de votre compte Twitch vous souhaitez permettre à Twitchat d'utiliser."
 			},
 			{

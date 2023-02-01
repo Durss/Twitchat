@@ -1175,7 +1175,11 @@ export default class MessageList extends Vue {
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_PIN: {
 				if(!this.selectedMessage) return
-				this.$store("chat").pinMessage(this.selectedMessage);
+				if(this.selectedMessage.is_pinned !== true) {
+					this.$store("chat").pinMessage(this.selectedMessage);
+				}else{
+					this.$store("chat").unpinMessage(this.selectedMessage);
+				}
 				break;
 			}
 
