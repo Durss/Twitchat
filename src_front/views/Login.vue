@@ -223,38 +223,6 @@ export default class Login extends Vue {
 			min-width: 250px;
 		}
 
-		.newScopes {
-			background-color: @mainColor_normal;
-			color: @mainColor_light;
-			border-radius: .5em;
-			padding: 1em;
-			padding-top: .5em;
-			.title {
-				font-weight: bold;
-			}
-			.icon {
-				height: 2em;
-				margin-bottom: .25em;
-			}
-			ul {
-				width: fit-content;
-				max-width: 90%;
-				li {
-					font-size: .8em;
-				}
-			}
-		}
-
-		.form {
-			border-radius: 10px;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			label {
-				align-self: flex-start;
-				margin-top: 15px;
-			}
-		}
 	}
 
 	.loginBt {

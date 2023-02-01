@@ -1832,6 +1832,7 @@ export default class MessageList extends Vue {
 				padding: .2em .5em;
 				margin-right: 5px;
 				font-weight: bold;
+				color:@mainColor_dark;
 				cursor: default;
 				font-size: var(--messageSize);
 			}

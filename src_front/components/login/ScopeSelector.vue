@@ -37,7 +37,10 @@ import ToggleButton from '../ToggleButton.vue';
 
 @Options({
 	props:{
-		requestedScopes:Array,
+		requestedScopes:{
+			type:Array,
+			default:[],
+		},
 	},
 	components:{
 		Button,
@@ -195,7 +198,7 @@ export default class ScopeSelector extends Vue {
 		padding: .25em;
 		.item {
 			font-size: .8em;
-			flex-grow: 1;
+			width: 100%;
 			text-align: left;
 			border-radius: .5em;
 			background-color: fade(@mainColor_normal_extralight, 30%);

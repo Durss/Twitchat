@@ -7,6 +7,33 @@
 		<section class="head">
 			<div v-html="$t('account.connected_as', {USER:'<strong>'+userName+'</strong>'})"></div>
 		</section>
+		
+		<section class="scopes">
+			<div class="title"><img src="@/assets/icons/lock_fit_purple.svg">{{$t("account.authorization")}}</div>
+			
+			<ScopeSelector @update="onScopesUpdate" />
+
+			<Button class="authorizeBt"
+				type="link"
+				:href="oAuthURL"
+				:title="$t('login.authorizeBt')"
+				v-if="showAuthorizeBt"
+				bounce
+				:loading="generatingCSRF"
+				:data-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
+				:icon="$image('icons/twitch_white.svg')"
+			/>
+		</section>
+
+		<section class="actions">
+			<Button class="button" @click="logout()" :title="$t('global.log_out')" :icon="$image('icons/logout.svg')" highlight bounce />
+			<Button class="button" @click="ahs()" :title="$t('account.installBt')" :icon="$image('icons/twitchat.svg')" v-if="canInstall" />
+		</section>
+
+		<section class="lang">
+			<div class="title">{{ $t('account.language') }}</div>
+			<AppLangSelector />
+		</section>
 
 		<section v-if="isDonor" class="donorHolder">
 			<DonorState class="donorBadge" />
@@ -22,16 +49,6 @@
 					<a @click="$emit('setContent', contentAbout)">{{ $t("account.about_link") }}.</a>
 				</template>
 			</i18n-t>
-		</section>
-
-		<section class="actions">
-			<Button class="button" @click="logout()" :title="$t('global.log_out')" :icon="$image('icons/logout.svg')" highlight bounce />
-			<Button class="button" @click="ahs()" :title="$t('account.installBt')" :icon="$image('icons/twitchat.svg')" v-if="canInstall" />
-		</section>
-
-		<section class="lang">
-			<div class="title">{{ $t('account.language') }}</div>
-			<AppLangSelector />
 		</section>
 		
 		<section class="dataSync">
@@ -57,6 +74,8 @@ import Button from '../../Button.vue';
 import DonorState from "../../user/DonorState.vue";
 import ParamItem from '../ParamItem.vue';
 import AppLangSelector from '@/components/AppLangSelector.vue';
+import ScopeSelector from '@/components/login/ScopeSelector.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Options({
 	props:{},
@@ -65,19 +84,26 @@ import AppLangSelector from '@/components/AppLangSelector.vue';
 		ParamItem,
 		DonorState,
 		ToggleBlock,
+		ScopeSelector,
 		AppLangSelector,
 	},
 	emits:["setContent"],
 })
 export default class ParamsAccount extends Vue {
 
-	public showSuggestions = false;
+	public oAuthURL = "";
 	public showObs = false;
 	public disposed = false;
 	public showCredits = true;
 	public syncEnabled = false;
 	public publicDonation = false;
+	public showAuthorizeBt = false;
+	public showSuggestions = false;
 	public publicDonation_loaded = false;
+	public scopes:string[] = [];
+	public generatingCSRF = false;
+	public authenticating = false;
+	public CSRFToken:string = "";
 
 	public get canInstall():boolean { return this.$store("main").ahsInstaller != null; }
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
@@ -156,6 +182,25 @@ export default class ParamsAccount extends Vue {
 		})
 	}
 
+	public async generateCSRF():Promise<void> {
+		this.generatingCSRF = true;
+		this.showAuthorizeBt = true;
+		try {
+			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET"});
+			const json = await res.json();
+			this.CSRFToken = json.token;
+		}catch(e) {
+			this.$store("main").alertData = this.$t("error.csrf_failed");
+		}
+		this.generatingCSRF = false;
+	}
+
+	public async onScopesUpdate(list:string[]):Promise<void> {
+		await this.generateCSRF();
+		this.scopes = list;
+		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
+	}
+
 	private async updateDonationState():Promise<void> {
 		try {
 			const options = {
@@ -208,6 +253,13 @@ export default class ParamsAccount extends Vue {
 	
 	.title {
 		text-align: center;
+		font-weight: bold;
+		margin-bottom: .5em;
+		img {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: text-top;
+		}
 	}
 
 	.donorHolder {
@@ -252,10 +304,16 @@ export default class ParamsAccount extends Vue {
 		}
 	}
 
-	.lang {
+
+	.scopes {
+		max-width: 400px;
+
 		.title {
-			font-weight: bold;
-			margin-bottom: .5em;
+			margin-bottom: 0;
+		}
+
+		.authorizeBt {
+			margin-top: .5em;
 		}
 	}
 
