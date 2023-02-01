@@ -39,7 +39,7 @@
 		},
 		"music": {
 			"title": "Control music",
-			"info_1": "Twitchat provides a <strong>Spotify</strong> and <strong>Deezer</strong> integrations.",
+			"info_1": "Twitchat provides a <strong>Spotify</strong> integration.",
 			"info_2": "This allows you to display the track currently playing on your stream as well as give your viewers control over the playback.",
 			"info_3": "You can create your own song request system."
 		},

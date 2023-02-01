@@ -7,8 +7,8 @@
 				<div class="infos">
 					<div id="music_infos" class="trackHolder">
 						<Vue3Marquee :duration="duration"
-						:clone="params?.noScroll === false"
-						v-if="params?.noScroll !== true && !resetScrolling">
+						:clone="noScroll === false"
+						v-if="noScroll !== true && !resetScrolling">
 							<div class="track">
 								<div class="custom" id="music_info_custom_template" v-if="customTrackInfo" v-html="customTrackInfo"></div>
 								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
@@ -16,7 +16,7 @@
 							</div>
 						</Vue3Marquee>
 						<div class="staticInfos">
-							<div class="track" v-if="params?.noScroll === true || resetScrolling">
+							<div class="track" v-if="noScroll === true || resetScrolling">
 								<div class="custom" id="music_info_custom_template" v-if="customTrackInfo" v-html="customTrackInfo"></div>
 								<div class="artist" id="music_artist" v-if="params?.showArtist !== false">{{artist}}</div>
 								<div class="title" id="music_title" v-if="params?.showTitle !== false">{{title}}</div>
@@ -77,6 +77,14 @@ export default class OverlayMusicPlayer extends Vue {
 	public params:TwitchatDataTypes.MusicPlayerParamsData|null = null;
 
 	public get paused():boolean { return !DeezerHelper.instance.playing; }
+
+	public get noScroll():boolean {
+		if(Object.hasOwn(this.$route.query, "noScroll")) return true;
+		if(this.params) {
+			if(this.params.noScroll === true) return true;
+		}
+		return false;
+	}
 
 	private onTrackHandler!:(e:TwitchatEvent) => void;
 

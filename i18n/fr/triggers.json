@@ -13,7 +13,7 @@
 		"reorder_tt": "Réordonner",
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e<br>ou n'avez pas autorisé<br>Twitchat à contrôler ceci",
 		"music": {
-			"require": "Ces évènements nécessitent de lier Spotify ou Deezer avec Twitchat dans {URL}",
+			"require": "Ces évènements nécessitent de lier Spotify avec Twitchat dans {URL}",
 			"require_url": "les overlays"
 		},
 		"obs": {
@@ -55,7 +55,7 @@
 				"action_tts": "Text to speech",
 				"action_tts_tt": "Vous devez activer la fonctionnalité<br>de <strong>text to speech</strong> dans les paramètres",
 				"action_music": "Controler la musique",
-				"action_music_tt": "Vous devez connecter<br>Spotify ou Deezer<br>dans les <strong>Overlays</strong>",
+				"action_music_tt": "Vous devez connecter<br>Spotify<br>dans les <strong>Overlays</strong>",
 				"action_voicemod": "Contrôler Voicemod",
 				"action_voicemod_tt": "Vous devez connecter<br>Voicemod dans les paramètres",
 				"action_http": "Appel HTTP",
@@ -87,7 +87,7 @@
 				"param_message": "Message à mettre en avant"
 			},
 			"music": {
-				"header": "Veuillez lier Spotify ou Deezer dans la {LINK}",
+				"header": "Veuillez lier Spotify dans la {LINK}",
 				"header_link": "section overlays",
 				"param_actions": "Action",
 				"param_actions_default": "Selectionnez une action...",

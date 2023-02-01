@@ -13,7 +13,7 @@
 		"reorder_tt": "Reorder",
 		"noChannelPoints_tt": "You are not a Twitch affiliate<br>or you have refused Twitchat<br>to control this",
 		"music": {
-			"require": "These triggers need you to connect with Spotify or Deezer under the {URL}",
+			"require": "These triggers need you to connect with Spotify under the {URL}",
 			"require_url": "overlays section"
 		},
 		"obs": {
@@ -55,7 +55,7 @@
 				"action_tts": "Text to speech",
 				"action_tts_tt": "This needs the <strong>text to speech</strong><br>feature to be enabled",
 				"action_music": "Control music",
-				"action_music_tt": "You need to connect<br>Spotify or Deezer<br>on the <strong>Overlays</strong> section",
+				"action_music_tt": "You need to connect<br>Spotify<br>on the <strong>Overlays</strong> section",
 				"action_voicemod": "Control Voicemod",
 				"action_voicemod_tt": "You need to connect<br>with Voicemod",
 				"action_http": "HTTP call",
@@ -87,7 +87,7 @@
 				"param_message": "Message to display"
 			},
 			"music": {
-				"header": "This feature needs you to connect with Spotify or Deezer under the {LINK}",
+				"header": "This feature needs you to connect with Spotify under the {LINK}",
 				"header_link": "overlays section",
 				"param_actions": "Action",
 				"param_actions_default": "Select an action...",

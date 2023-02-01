@@ -39,8 +39,8 @@
 		},
 		"music": {
 			"title": "Controller la musique",
-			"info_1": "Twitchat intègre <strong>Spotify</strong> et <strong>Deezer</strong>.",
-			"info_2": "Ces intégrations permettent d'afficher le morceau en cours de lecture sur vos overlays et de permettre à votre tchat de controler la lecture via le tchat ou les points de chaîne.",
+			"info_1": "Twitchat intègre <strong>Spotify</strong>.",
+			"info_2": "Cette intégration permet d'afficher le morceau en cours de lecture sur vos overlays et de permettre à votre tchat de controler la lecture via le tchat ou les points de chaîne.",
 			"info_3": "Vous pouvez également créer votre propre système de song request !"
 		},
 		"overlays": {

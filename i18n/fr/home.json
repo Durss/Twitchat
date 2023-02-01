@@ -97,8 +97,8 @@
 				{
 					"icon":"music",
 					"image":"musicPlayer.png",
-					"title":"Spotify & Deezer",
-					"description":"Lier Twitchat à Spotify ou Deezer pour afficher la musique en cours et les contrôle depuis des Triggers"
+					"title":"Spotify",
+					"description":"Lier Twitchat à Spotify pour afficher la musique en cours et les contrôle depuis des Triggers"
 				},
 				{
 					"icon":"params",

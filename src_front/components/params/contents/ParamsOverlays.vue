@@ -41,7 +41,7 @@
 		<OverlayParamsCounter class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsHighlight class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
 		<OverlayParamsSpotify class="block" v-if="true || exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsDeezer class="block" v-if="true || exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" />
+		<!-- <OverlayParamsDeezer class="block" v-if="true || exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" /> -->
 	</div>
 </template>
 
