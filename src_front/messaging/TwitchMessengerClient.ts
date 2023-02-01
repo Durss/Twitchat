@@ -23,7 +23,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _connectedChannelCount:number = 0;
 	private _channelIdToLogin:{[key:string]:string} = {};
 	private _channelLoginToId:{[key:string]:string} = {};
-	private _queuedMessages:{message:string, tags:unknown, self:boolean, channel:string}[] = [];
 	
 	constructor() {
 		super();
@@ -514,17 +513,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean, fromQueue = false):Promise<void> {
-		if(!tags.id && tags["message-type"] == "chat") {
-			//When sending a message from the current client, IRC never send it back to us.
-			//TMI tries to make this transparent by firing the "message" event but
-			//it won't populate the data with the actual ID of the message.
-			//To workaround this issue, we just store the message on a queue, and
-			//wait for a NOTICE event that gives us the message ID in which case
-			//we pop the message from the queue
-			this._queuedMessages.push({message, tags, self, channel});
-			return;
-		}
-		
 		
 		//This line avoids an edge case issue.
 		//If the current TMI client sends messages super fast (some ms between each message),
@@ -849,21 +837,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				const [channelName] = (data as {params:string[]}).params;
 				const channelId = this.getChannelID(channelName);
 				TwitchUtils.loadEmoteSets(channelId, ((data as tmi.UserNoticeState).tags["emote-sets"] ?? []).split(","));
-
-				//Check if it contains a message ID
-				const d = data as tmi.UserNoticeState;
-				let id = (d.raw as string).split(";").find(v=>v.indexOf("id=") === 0);
-				if(id) id = id.split("=")[1];
-				
-				//If there are messages pending for their ID, give the oldest one the received ID
-				if(id && this._queuedMessages.length > 0) {
-					const m = this._queuedMessages.shift();
-					if(m) {
-						(m.tags as tmi.ChatUserstate).id = id;
-						(m.tags as tmi.ChatUserstate)["tmi-sent-ts"] = Date.now().toString();
-						this.message(m.channel, m.tags as tmi.ChatUserstate, m.message, m.self, true);
-					}
-				}
 				break;
 			}
 
