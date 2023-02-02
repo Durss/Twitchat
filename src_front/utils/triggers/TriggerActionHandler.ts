@@ -650,7 +650,7 @@ export default class TriggerActionHandler {
 						}
 					}else
 
-					//Handle music actions
+					//Handle counter read trigger actions
 					if(step.type == "countget") {
 						const counter = StoreProxy.counters.data.find(v => v.id == step.counter);
 						if(counter) {
@@ -667,6 +667,19 @@ export default class TriggerActionHandler {
 							console.log(dynamicPlaceholders);
 						}
 						
+					}else
+
+					//Handle random generator trigger action
+					if(step.type == "random") {
+						if(step.placeholder) {
+							const min = Math.min(step.min, step.max);
+							const max = Math.max(step.min, step.max);
+							let value = Math.random() * (max-min) + min;
+							if(step.float !== true) {
+								value = Math.round(value);
+							}
+							dynamicPlaceholders[step.placeholder] = value;
+						}
 					}else
 
 					//Handle music actions
@@ -900,7 +913,6 @@ export default class TriggerActionHandler {
 				//will be populated with the counter's value so this value can be used
 				//in subsequent actions.
 				//Here we use that value
-				console.log("PARSE DYNAMIC PLACEHOLDERS", dynamicPlaceholders);
 				for (const key in dynamicPlaceholders) {
 					res = res.replace(new RegExp("\\{"+key+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
 				}

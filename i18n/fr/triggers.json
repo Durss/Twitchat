@@ -44,6 +44,7 @@
 				"select_action":"Sélectionnez le type d'action à exécuter",
 				"duplicate_tt": "Dupliquer",
 				"next_delay": "Délai avant l'action suivante (secondes)",
+				"dynamic_placeholder_info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
 				"delete": "Supprimer",
 				"action_chat": "Envoyer un message",
 				"action_bingo": "Lancer un bingo",
@@ -62,7 +63,8 @@
 				"action_poll": "Lancer un sondage",
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
-				"action_count_get": "Lire un compteur"
+				"action_count_get": "Lire un compteur",
+				"action_random": "Nombre aléatoire"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -149,8 +151,13 @@
 			"countget": {
 				"value_label":"Nom du placeholder",
 				"select_label":"Compteur à lire",
-				"info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
 				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du compteur."
+			},
+			"random":{
+				"min_label":"Valeur min (inclus)",
+				"max_label":"Valeur max (inclus)",
+				"float_label":"Autoriser les nombres à virgule",
+				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur aléatoire générée."
 			}
 		},
 		"categories": {

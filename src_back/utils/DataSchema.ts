@@ -134,8 +134,11 @@ import Ajv from "ajv";
 										triggerKey: {type:"string", maxLength:100},
 										method: {type:"string", maxLength:10},
 										addValue: {type:"string", maxLength:100},
-										counter:{type:"string", maxLength:40},
+										counter: {type:"string", maxLength:40},
 										placeholder:{type:"string", maxLength:20},
+										min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+										max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+										float: {type:"boolean"},
 										counters: {
 											type:"array",
 											items:[{type:"string", maxLength:40}],

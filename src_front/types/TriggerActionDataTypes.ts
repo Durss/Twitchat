@@ -18,10 +18,11 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionPredictionData
 								| TriggerActionCountData
 								| TriggerActionCountGetData
+								| TriggerActionRandomData
 ;
 
 
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|"count"|"countget"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|"count"|"countget"|"random"|null;
 
 export interface TriggerData {
 	enabled:boolean;
@@ -156,6 +157,14 @@ export interface TriggerActionCountData extends TriggerActionData{
 export interface TriggerActionCountGetData extends TriggerActionData{
 	type:"countget";
 	counter:string;
+	placeholder:string;
+}
+
+export interface TriggerActionRandomData extends TriggerActionData{
+	type:"random";
+	min:number;
+	max:number;
+	float:boolean;
 	placeholder:string;
 }
 

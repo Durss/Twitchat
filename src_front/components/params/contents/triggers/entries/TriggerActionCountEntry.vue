@@ -18,7 +18,7 @@
 			></vue-select>
 		</div>
 
-		<div class="row item">
+		<div class="row item value">
 			<ParamItem :paramData="param_value" v-model="action.addValue" />
 		</div>
 	</div>
@@ -71,13 +71,13 @@ export default class TriggerActionCountEntry extends Vue {
 .triggeractioncountentry{
 	.triggerActionForm();
 	
-	.name:deep(input), .itemSelector {
-		// flex-grow: 1;
+	.value:deep(input), .itemSelector {
+		flex-grow: 1;
 		flex-basis: 300px;
 	}
 
 	:deep(label), label {
-		flex-basis: 180px;
+		// flex-basis: 180px;
 	}
 
 	.list {

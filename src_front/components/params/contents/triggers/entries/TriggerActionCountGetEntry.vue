@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractioncountgetentry">
-		<div class="row item info">{{ $t("triggers.actions.countget.info") }}</div>
+		<div class="row item info">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
 
 		<div class="row item list">
 			<label class="listLabel">
@@ -33,16 +33,13 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { type TriggerActionCountGetData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionCountGetData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
 	props:{
 		action:Object,
-		event:Object,
-		triggerData:Object,
-		triggerKey:String,
 	},
 	components:{
 		ParamItem,
@@ -51,10 +48,6 @@ import { Options, Vue } from 'vue-class-component';
 export default class TriggerActionCountGetEntry extends Vue {
 
 	public action!:TriggerActionCountGetData;
-	public event!:TriggerEventTypes;
-	public triggerData!:TriggerData;
-	public triggerKey!:string;
-
 
 	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.countget.select_label", value:[], listValues:[]}
 	public param_value:TwitchatDataTypes.ParameterData = {type:"text",  labelKey:"triggers.actions.countget.value_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
@@ -62,8 +55,6 @@ export default class TriggerActionCountGetEntry extends Vue {
 	public beforeMount(): void {
 		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").data.map(v=>{
 			return {value:v.id, label:v.name};
-		}).filter(v=> {
-			return v.value != this.triggerKey.split("_").pop()
 		});
 		
 		this.param_counters.listValues = counters;

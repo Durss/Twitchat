@@ -91,29 +91,30 @@
 		height: 100%;
 		display: flex;
 		flex-direction: column;
+		font-size: clamp(.5em, 2vw, 1em);
 
 		&>.head {
 			z-index: 1;
-			padding: 20px;
+			padding: 1em;
 			padding-bottom: 0;
 			display: flex;
 			flex-direction: row;
 			&>.title {
 				flex-grow: 1;
-				font-size: 35px;
+				font-size: 1.5em;
 				text-align: center;
-				padding-left: 30px;
+				padding-left: 1em;
 			}
 			&>.close, &>.icon {
-				width: 30px;
-				height: 30px;
-				max-width: 30px;
-				max-height: 30px;
+				width: 1em;
+				height: 1em;
+				max-width: 1em;
+				max-height: 1em;
 				padding: 0;
-				border-radius: 5px;
+				border-radius: .5em;
 				background-color: transparent;
 				:deep(.icon) {
-					max-height: 20px;
+					max-height: 1em;
 				}
 			}
 		}
@@ -124,11 +125,11 @@
 		}
 	}
 
-	@media only screen and (max-width: 500px) {
-		&>.holder {
-			width: 100%;
-		}
-	}
+	// @media only screen and (max-width: 600px) {
+	// 	&>.holder {
+	// 		font-size: .7em;
+	// 	}
+	// }
 }
 
 .tabMenu() {
@@ -170,18 +171,18 @@
 	overflow: hidden;
 	
 	&>.head {
-		padding: 20px;
+		padding: 1em;
 		padding-bottom: 0;
 		background-color: #eee;
 		align-items: center;
 		text-align: center;
 		font-family: var(--font-nunito);
-		font-size: 30px;
+		font-size: 1.25em;
 		color: @mainColor_normal;
 	}
 
 	&>.content {
-		padding: 20px;
+		padding: 1em;
 	}
 	
 	@media only screen and (max-width: 500px) {
