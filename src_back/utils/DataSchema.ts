@@ -134,6 +134,8 @@ import Ajv from "ajv";
 										triggerKey: {type:"string", maxLength:100},
 										method: {type:"string", maxLength:10},
 										addValue: {type:"string", maxLength:100},
+										counter:{type:"string", maxLength:40},
+										placeholder:{type:"string", maxLength:20},
 										counters: {
 											type:"array",
 											items:[{type:"string", maxLength:40}],

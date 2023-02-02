@@ -254,11 +254,21 @@ function buildApp() {
 				el.focus({preventScroll:true});
 			}
 		}
+	})
+	.directive('click2Select', {
+		mounted(el:HTMLDivElement, binding:unknown) {
+			if((binding as {[key:string]:boolean}).value !== false) {
+				el.style.cursor = "default";
+				el.addEventListener("click", ()=> {
+					el.ownerDocument?.getSelection()?.selectAllChildren(el);
+				});
+			}
+		}
 	});
 	app.config.globalProperties.$i18n = i18n;
 	app.config.globalProperties.$image = image;
-	app.config.globalProperties.$store = storeAccess;
 	app.config.globalProperties.$confirm = confirm;
+	app.config.globalProperties.$store = storeAccess;
 	app.config.globalProperties.$overlayURL = overlayURL;
 	app.config.globalProperties.$placeDropdown = placeDropdown;
 	

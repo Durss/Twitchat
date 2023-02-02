@@ -1,5 +1,7 @@
 <template>
-	<div class="triggeractioncountentry">
+	<div class="triggeractioncountgetentry">
+		<div class="row item info">{{ $t("triggers.actions.countget.info") }}</div>
+
 		<div class="row item list">
 			<label class="listLabel">
 				<img src="@/assets/icons/count_purple.svg" class="icon">
@@ -8,25 +10,30 @@
 			<vue-select class="itemSelector"
 				label="label"
 				:placeholder="$t('triggers.actions.count.select_placeholder')"
-				v-model="action.counters"
+				v-model="action.counter"
 				:options="param_counters.listValues"
 				:calculate-position="$placeDropdown"
 				:reduce="(v:TwitchatDataTypes.ParameterDataListValue) => v.value" 
 				:selectable="(v:TwitchatDataTypes.ParameterDataListValue) => (param_counters.value as string[]).indexOf(v.value as string) == -1"
 				appendToBody
-				multiple
 			></vue-select>
 		</div>
 
-		<div class="row item">
-			<ParamItem :paramData="param_value" v-model="action.addValue" />
+		<div class="row item name">
+			<ParamItem :paramData="param_value" v-model="action.placeholder" />
 		</div>
+
+		<i18n-t scope="global" class="example item" tag="div" keypath="triggers.actions.countget.example" v-if="(param_value.value as string).length > 0">
+			<template #PLACEHOLDER>
+				<mark v-click2Select>{{"{"}}{{(param_value.value as string).toUpperCase()}}{{"}"}}</mark>
+			</template>
+		</i18n-t>
 	</div>
 </template>
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerActionHelpers, type TriggerActionCountData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { type TriggerActionCountGetData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Options, Vue } from 'vue-class-component';
 
@@ -41,16 +48,16 @@ import { Options, Vue } from 'vue-class-component';
 		ParamItem,
 	},
 })
-export default class TriggerActionCountEntry extends Vue {
+export default class TriggerActionCountGetEntry extends Vue {
 
-	public action!:TriggerActionCountData;
+	public action!:TriggerActionCountGetData;
 	public event!:TriggerEventTypes;
 	public triggerData!:TriggerData;
 	public triggerKey!:string;
 
 
-	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
-	public param_value:TwitchatDataTypes.ParameterData = {type:"text",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add_purple.svg"}
+	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.countget.select_label", value:[], listValues:[]}
+	public param_value:TwitchatDataTypes.ParameterData = {type:"text",  labelKey:"triggers.actions.countget.value_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
 
 	public beforeMount(): void {
 		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").data.map(v=>{
@@ -60,24 +67,18 @@ export default class TriggerActionCountEntry extends Vue {
 		});
 		
 		this.param_counters.listValues = counters;
-
-		this.param_value.placeholderList = TriggerActionHelpers(this.event.value).filter(v=>v.numberParsable==true);
 	}
 
 }
 </script>
 
 <style scoped lang="less">
-.triggeractioncountentry{
+.triggeractioncountgetentry{
 	.triggerActionForm();
 	
 	.name:deep(input), .itemSelector {
 		// flex-grow: 1;
 		flex-basis: 300px;
-	}
-
-	:deep(label), label {
-		flex-basis: 180px;
 	}
 
 	.list {
@@ -97,5 +98,12 @@ export default class TriggerActionCountEntry extends Vue {
 			margin-right: 0.5em;
 		}
 	}
+
+	.example {
+		font-size: .9em;
+		// text-align: center;
+		margin: 1em 0 .5em 0;
+	}
+	
 }
 </style>

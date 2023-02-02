@@ -155,7 +155,8 @@ export interface TriggerActionCountData extends TriggerActionData{
 
 export interface TriggerActionCountGetData extends TriggerActionData{
 	type:"countget";
-	counters:string;
+	counter:string;
+	placeholder:string;
 }
 
 export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];

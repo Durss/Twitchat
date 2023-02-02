@@ -456,6 +456,8 @@ export default class TriggerActionHandler {
 				this.triggerTypeToQueue[eventType] = new Promise<void>(async (resolve, reject)=> { resolverTriggerType = resolve });
 				await prom;
 
+				const dynamicPlaceholders:{[key:string]:string|number} = {};
+
 				for (let i = 0; i < trigger.actions.length; i++) {
 					const step = trigger.actions[i];
 					// console.log("	Parse step", step);
@@ -471,7 +473,7 @@ export default class TriggerActionHandler {
 
 						if(step.text) {
 							try {
-								const text = await this.parseText(eventType, message, step.text as string, subEvent);
+								const text = await this.parseText(dynamicPlaceholders, eventType, message, step.text as string, subEvent);
 								await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 							}catch(error) {
 								console.error(error);
@@ -479,7 +481,7 @@ export default class TriggerActionHandler {
 						}
 						if(step.url) {
 							try {
-								const url = await this.parseText(eventType, message, step.url as string, subEvent);
+								const url = await this.parseText(dynamicPlaceholders, eventType, message, step.url as string, subEvent);
 								await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 							}catch(error) {
 								console.error(error);
@@ -487,7 +489,7 @@ export default class TriggerActionHandler {
 						}
 						if(step.mediaPath) {
 							try {
-								let url = await this.parseText(eventType, message, step.mediaPath as string, subEvent, true, true);
+								let url = await this.parseText(dynamicPlaceholders, eventType, message, step.mediaPath as string, subEvent, true, true);
 								await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 							}catch(error) {
 								console.error(error);
@@ -525,7 +527,7 @@ export default class TriggerActionHandler {
 					//Handle Chat action
 					if(step.type == "chat") {
 						// console.log("CHAT ACTION");
-						const text = await this.parseText(eventType, message, step.text as string, subEvent);
+						const text = await this.parseText(dynamicPlaceholders, eventType, message, step.text as string, subEvent);
 						const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 						if(message.platform != "twitchat") platforms.push(message.platform);
 						// console.log(platforms, text);
@@ -538,7 +540,7 @@ export default class TriggerActionHandler {
 					//Handle highlight action
 					if(step.type == "highlight") {
 						if(step.show) {
-							let text = await this.parseText(eventType, message, step.text as string, subEvent, true);
+							let text = await this.parseText(dynamicPlaceholders, eventType, message, step.text as string, subEvent, true);
 							let info:TwitchatDataTypes.ChatHighlightInfo = {
 								message:text,
 								user:message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE? message.user : undefined,
@@ -553,7 +555,7 @@ export default class TriggerActionHandler {
 					
 					//Handle TTS action
 					if(step.type == "tts" && message) {
-						let text = await this.parseText(eventType, message, step.text, subEvent);
+						let text = await this.parseText(dynamicPlaceholders, eventType, message, step.text, subEvent);
 						TTSUtils.instance.readNext(text, ttsID ?? eventType);
 					}else
 					
@@ -620,7 +622,7 @@ export default class TriggerActionHandler {
 						const url = new URL(step.url);
 						for (let i = 0; i < step.queryParams.length; i++) {
 							const tag = step.queryParams[i];
-							const text = await this.parseText(eventType, message, "{"+tag+"}", subEvent);
+							const text = await this.parseText(dynamicPlaceholders, eventType, message, "{"+tag+"}", subEvent);
 							url.searchParams.append(tag.toLowerCase(), text);
 						}
 						try {
@@ -632,27 +634,10 @@ export default class TriggerActionHandler {
 					
 					//Handle counter update trigger action
 					if(step.type == "count") {
-						let text = await this.parseText(eventType, message, step.addValue as string, subEvent);
+						let text = await this.parseText(dynamicPlaceholders, eventType, message, step.addValue as string, subEvent);
 						text = text.replace(/,/gi, ".");
 						const value = parseFloat(text);
-						const key = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
-						const helpers = TriggerActionHelpers(key);
-						const userIdHelper = helpers.find(v => v.isUserID === true);
-						let user:TwitchatDataTypes.TwitchatUser | undefined = undefined;
-						if(userIdHelper) {
-							const chunks:string[] = userIdHelper.pointer.split(".");
-							let root = message as unknown;
-							try {
-								//Dynamically search for the requested prop's value within the object
-								for (let i = 0; i < chunks.length-1; i++) {
-									root = (root as {[key:string]:unknown})[chunks[i]];
-								}
-								const u = root as TwitchatDataTypes.TwitchatUser;
-								if(u && u.id && u.login) {
-									user = u;
-								}
-							}catch(error) {/*ignore*/}
-						}
+						let user = this.extractUser(eventType, message);
 
 						if(!isNaN(value)) {
 							const ids = step.counters;
@@ -666,12 +651,31 @@ export default class TriggerActionHandler {
 					}else
 
 					//Handle music actions
+					if(step.type == "countget") {
+						const counter = StoreProxy.counters.data.find(v => v.id == step.counter);
+						if(counter) {
+							console.log("Load counter", counter);
+							let value = counter.value || 0;
+							if(counter.perUser) {
+								let user = this.extractUser(eventType, message);
+								if(user && counter.users) {
+									value = counter.users[user.id] || 0;
+								}
+							}
+							console.log("value:",value);
+							dynamicPlaceholders[step.placeholder] = value;
+							console.log(dynamicPlaceholders);
+						}
+						
+					}else
+
+					//Handle music actions
 					if(step.type == "music") {
 						try {
 							//Adding a track to the queue
 							if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 								//Convert placeholders if any
-								const m = await this.parseText(eventType, message, step.track, subEvent);
+								const m = await this.parseText(dynamicPlaceholders, eventType, message, step.track, subEvent);
 								let data:TwitchatDataTypes.MusicTrackData|null = null;
 								if(Config.instance.SPOTIFY_CONNECTED) {
 									let track:SearchTrackItem|null = null;
@@ -739,9 +743,9 @@ export default class TriggerActionHandler {
 											user:messageLoc.user,
 										}
 										//First pass to inject track info
-										let chatMessage = await this.parseText(eventType, trigger, step.confirmMessage, subEvent, false);
+										let chatMessage = await this.parseText(dynamicPlaceholders, eventType, trigger, step.confirmMessage, subEvent, false);
 										//Second pass to inject trigger specifics
-										chatMessage = await this.parseText(eventType, message, chatMessage, subEvent);
+										chatMessage = await this.parseText(dynamicPlaceholders, eventType, message, chatMessage, subEvent);
 										MessengerProxy.instance.sendMessage(chatMessage);
 									}
 								}
@@ -777,7 +781,7 @@ export default class TriggerActionHandler {
 							if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 								let m:string = step.playlist;
 								if(message.type == "message") {
-									m = await this.parseText(eventType, message, m, subEvent);
+									m = await this.parseText(dynamicPlaceholders, eventType, message, m, subEvent);
 								}
 								if(Config.instance.SPOTIFY_CONNECTED) {
 									let id:string|null = null;
@@ -817,7 +821,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
+	private async parseText(dynamicPlaceholders:{[key:string]:string|number}, eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
 		if(!res) return "";
 
@@ -890,6 +894,16 @@ export default class TriggerActionHandler {
 				}
 				
 				res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
+
+				//Replace dynamic placeholders. These are user defined placeholders.
+				//Ex: to read a counter value, user must define a placeholder name that
+				//will be populated with the counter's value so this value can be used
+				//in subsequent actions.
+				//Here we use that value
+				console.log("PARSE DYNAMIC PLACEHOLDERS", dynamicPlaceholders);
+				for (const key in dynamicPlaceholders) {
+					res = res.replace(new RegExp("\\{"+key+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
+				}
 			}
 
 			if(removeRemainingTags) {
@@ -903,5 +917,30 @@ export default class TriggerActionHandler {
 			console.error(error);
 			return res;
 		}
+	}
+
+	/**
+	 * Extracts a user from a message based on the available placeholders
+	 */
+	private extractUser(eventType:string, message:TwitchatDataTypes.ChatMessageTypes):TwitchatDataTypes.TwitchatUser|undefined {
+		let user:TwitchatDataTypes.TwitchatUser | undefined = undefined;
+		const key = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
+		const helpers = TriggerActionHelpers(key);
+		const userIdHelper = helpers.find(v => v.isUserID === true);
+		if(userIdHelper) {
+			const chunks:string[] = userIdHelper.pointer.split(".");
+			let root = message as unknown;
+			try {
+				//Dynamically search for the requested prop's value within the object
+				for (let i = 0; i < chunks.length-1; i++) {
+					root = (root as {[key:string]:unknown})[chunks[i]];
+				}
+				const u = root as TwitchatDataTypes.TwitchatUser;
+				if(u && u.id && u.login) {
+					user = u;
+				}
+			}catch(error) {/*ignore*/}
+		}
+		return user;
 	}
 }

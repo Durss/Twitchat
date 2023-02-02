@@ -142,9 +142,15 @@
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
 			},
 			"count": {
-				"value_label":"Valeur à ajouter/retirer",
+				"value_label":"Valeur à ajouter ou retirer",
 				"select_label":"Compteurs à mettre à jour",
 				"select_placeholder":"Sélectionnez un compteur..."
+			},
+			"countget": {
+				"value_label":"Nom du placeholder",
+				"select_label":"Compteur à lire",
+				"info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
+				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du compteur."
 			}
 		},
 		"categories": {

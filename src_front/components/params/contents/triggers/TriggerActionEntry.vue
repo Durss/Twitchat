@@ -58,6 +58,10 @@
 					:title="$t('triggers.actions.common.action_count')"
 					:icon="$image('icons/count_purple.svg')"/>
 				
+				<Button class="button beta" white @click="selectActionType('countget')"
+					:title="$t('triggers.actions.common.action_count_get')"
+					:icon="$image('icons/count_purple.svg')"/>
+				
 				<Button class="button" white @click.capture="selectActionType('obs')"
 					:title="$t('triggers.actions.common.action_obs')"
 					:icon="$image('icons/obs_purple.svg')"
@@ -100,6 +104,7 @@
 			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
 			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :event="event" />
 			<TriggerActionCountEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='count'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
+			<TriggerActionCountGetEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='countget'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			<PollForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='poll'" :action="action" :event="event" triggerMode />
@@ -130,6 +135,7 @@ import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
+import TriggerActionCountGetEntry from './entries/TriggerActionCountGetEntry.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
@@ -160,9 +166,10 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,
 		TriggerActionChatEntry,
-		TriggerActionCountEntry,
 		TriggerActionMusicEntry,
+		TriggerActionCountEntry,
 		TriggerActionTriggerEntry,
+		TriggerActionCountGetEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
 	},
@@ -238,6 +245,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "poll") icons.push( 'poll' );
 		if(this.action.type == "prediction") icons.push( 'prediction' );
 		if(this.action.type == "count") icons.push( 'count' );
+		if(this.action.type == "countget") icons.push( 'count_placeholder' );
 		return icons;
 	}
 
@@ -333,7 +341,7 @@ export default class TriggerActionEntry extends Vue {
 		}
 		&>.icon {
 			height: 1.5em !important;
-			max-width: 1.25em !important;
+			max-width: 2em;
 			padding: .15em 0;
 			width: unset !important;
 			vertical-align: middle;
