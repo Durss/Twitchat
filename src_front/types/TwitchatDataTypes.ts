@@ -898,7 +898,7 @@ export namespace TwitchatDataTypes {
 		join:true,
 		leave:true,
 		cheer:true,
-		timer:false,
+		timer:true,
 		bingo:true,
 		raffle:true,
 		reward:true,

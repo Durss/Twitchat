@@ -200,6 +200,9 @@
 			"complete": "{DURATION} countdown complete",
 			"abort": "{DURATION} countdown aborted after {ABORT_DURATION}"
 		},
+		"timer": {
+			"end": "Timer stoped at {DURATION}"
+		},
 		"connect": {
 			"on": "Welcome to the {PLATFORM} chat room {ROOM}",
 			"off": "You have been disconnectd from {PLATFORM} chat"

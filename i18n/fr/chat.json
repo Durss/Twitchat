@@ -200,6 +200,9 @@
 			"complete": "Le compte à rebours de {DURATION} est terminé",
 			"abort": "Le compte à rebours de {DURATION} a été arrêté après {ABORT_DURATION}"
 		},
+		"timer": {
+			"end": "Chronomètre terminé à {DURATION}"
+		},
 		"connect": {
 			"on": "Bienvenu·e sur sur la chaine {PLATFORM} de {ROOM}",
 			"off": "Vous avez été déconnecté·e du tchat {PLATFORM}"

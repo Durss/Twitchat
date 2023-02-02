@@ -78,6 +78,11 @@
 					@onRead="toggleMarkRead"
 					:messageData="m" />
 
+				<ChatTimerResult class="message"
+					v-else-if="m.type == 'timer'"
+					@onRead="toggleMarkRead"
+					:messageData="m" />
+
 				<ChatHypeTrainResult class="message"
 					v-else-if="m.type == 'hype_train_summary'"
 					@onRead="toggleMarkRead"
@@ -213,6 +218,10 @@
 					v-else-if="m.type == 'countdown'"
 					:messageData="m" />
 
+				<ChatTimerResult class="message"
+					v-else-if="m.type == 'timer'"
+					:messageData="m" />
+
 				<ChatHypeTrainResult class="message"
 					v-else-if="m.type == 'hype_train_summary'"
 					:messageData="m" />
@@ -340,6 +349,7 @@ import ChatUnban from './ChatUnban.vue';
 import ChatStreamOnOff from './ChatStreamOnOff.vue';
 import ChatMessageClipPending from './ChatMessageClipPending.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import ChatTimerResult from './ChatTimerResult.vue';
 
 @Options({
 	components: {
@@ -358,6 +368,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		ChatPollResult,
 		ChatStreamOnOff,
 		ChatBingoResult,
+		ChatTimerResult,
 		ChatRoomSettings,
 		ChatRaffleResult,
 		MessageListFilter,
@@ -782,6 +793,10 @@ export default class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
 				return this.config.filters.countdown === true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
+				return this.config.filters.countdown === true && !m.started;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: {
