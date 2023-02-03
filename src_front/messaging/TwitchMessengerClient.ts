@@ -512,17 +512,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return res;
 	}
 
-	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean, fromQueue = false):Promise<void> {
+	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		
-		//This line avoids an edge case issue.
-		//If the current TMI client sends messages super fast (some ms between each message),
-		//the tags property is not updated for the later messages that will receive
-		//the exact same tags instance (not only the same values).
-		//This makes multiple messages sharing the same ID which can cause
-		//issues with VueJS keyed items (ex: on v-for loops) that would share
-		//the same value which is not allowed
-		tags = JSON.parse(JSON.stringify(tags));
-
 		//Ignore anything that's not a message or a /me
 		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
 
@@ -548,7 +539,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			raw_data:{tags, message}
 		};
 
-		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"], false, fromQueue);
+		console.log(tags);
+		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"], false, tags.sentLocally == true);
 		data.message_no_emotes = Utils.stripHTMLTags(data.message_html);
 		data.is_short = data.message_no_emotes.length / data.message.length < .6 || data.message.length < 4;
 				
