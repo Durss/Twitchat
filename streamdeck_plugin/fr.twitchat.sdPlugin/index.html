@@ -207,7 +207,6 @@
 						return;
 					}
 				}
-				console.log("TAP", actionName, params);
 				callTwitchat(actionName, params);
 			},
 
@@ -238,10 +237,7 @@
 
 				$SD.getGlobalSettings();
 			});
-			$SD.on("keyUp", (e)=>{
-				console.log("ON KEYUP", e);
-			})
-			
+
 			for (let i = 0; i < uuidList.length; i++) {
 				const uuid = uuidList[i];
 				
@@ -260,6 +256,11 @@
 		
 				myAction.onTouchTap(({ action, context, device, event, payload }) => {
 					actions.onTouchTap(myAction, payload, context);
+				});
+		
+				myAction.onPropertyInspectorDidAppear(({ action, context, device, event }) => {
+					callTwitchat("GET_COLS_COUNT");
+					callTwitchat("COUNTER_GET_ALL");
 				});
 		
 				myAction.onSendToPlugin(({ action, context, device, event, payload }) => {
@@ -297,8 +298,6 @@
 					settingsCache.OBSWS_CONNECTED = true;
 					//If state has changed, tell the property inspector
 					if(changed) actions.SetGlobalSettings(settingsCache);
-					callTwitchat("GET_COLS_COUNT");
-					callTwitchat("COUNTER_GET_ALL");
 				});
 			}catch(error) {
 				console.log("FAILED");
