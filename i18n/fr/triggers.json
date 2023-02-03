@@ -64,7 +64,7 @@
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
 				"action_count_get": "Lire un compteur",
-				"action_random": "Nombre aléatoire"
+				"action_random": "Valeur aléatoire"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -157,7 +157,11 @@
 				"min_label":"Valeur min (inclus)",
 				"max_label":"Valeur max (inclus)",
 				"float_label":"Autoriser les nombres à virgule",
-				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur aléatoire générée."
+				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur aléatoire.",
+				"number":"Nombre",
+				"list":"Liste",
+				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
+				"list_entry_placeholder":"ajouter une entrée..."
 			}
 		},
 		"categories": {

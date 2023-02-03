@@ -672,13 +672,20 @@ export default class TriggerActionHandler {
 					//Handle random generator trigger action
 					if(step.type == "random") {
 						if(step.placeholder) {
-							const min = Math.min(step.min, step.max);
-							const max = Math.max(step.min, step.max);
-							let value = Math.random() * (max-min) + min;
-							if(step.float !== true) {
-								value = Math.round(value);
+							if(step.mode == "number") {
+								//Generate random number
+								const min = Math.min(step.min, step.max);
+								const max = Math.max(step.min, step.max);
+								let value = Math.random() * (max-min) + min;
+								if(step.float !== true) {
+									value = Math.round(value);
+								}
+								dynamicPlaceholders[step.placeholder] = value;
+								
+							}else if(step.mode == "list") {
+								//Pick an item from a custom list
+								dynamicPlaceholders[step.placeholder] = Utils.pickRand(step.list);
 							}
-							dynamicPlaceholders[step.placeholder] = value;
 						}
 					}else
 

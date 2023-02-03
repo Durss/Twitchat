@@ -539,7 +539,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			raw_data:{tags, message}
 		};
 
-		console.log(tags);
 		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"], false, tags.sentLocally == true);
 		data.message_no_emotes = Utils.stripHTMLTags(data.message_html);
 		data.is_short = data.message_no_emotes.length / data.message.length < .6 || data.message.length < 4;

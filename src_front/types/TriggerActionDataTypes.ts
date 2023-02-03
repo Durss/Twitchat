@@ -162,10 +162,12 @@ export interface TriggerActionCountGetData extends TriggerActionData{
 
 export interface TriggerActionRandomData extends TriggerActionData{
 	type:"random";
+	mode:"list"|"number";
 	min:number;
 	max:number;
 	float:boolean;
 	placeholder:string;
+	list:string[];
 }
 
 export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];

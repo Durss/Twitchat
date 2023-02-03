@@ -110,10 +110,10 @@ export default class CommandHelper extends Vue {
 
 	public async beforeMount():Promise<void> {
 	
-		this.param_followOnly.labelKey		= "cmdmenu.slowMode";
-		this.param_subOnly.labelKey			= "cmdmenu.followersOnly";
-		this.param_emotesOnly.labelKey		= "cmdmenu.subsOnly";
-		this.param_slowMode.labelKey		= "cmdmenu.emotesOnly";
+		this.param_followOnly.labelKey		= "cmdmenu.followersOnly";
+		this.param_subOnly.labelKey			= "cmdmenu.subsOnly";
+		this.param_emotesOnly.labelKey		= "cmdmenu.emotesOnly";
+		this.param_slowMode.labelKey		= "cmdmenu.slowMode";
 
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);

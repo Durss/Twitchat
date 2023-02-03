@@ -139,6 +139,11 @@ import Ajv from "ajv";
 										min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 										max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 										float: {type:"boolean"},
+										mode: {type:"string", maxLength:20},
+										list: {
+											type:"array",
+											items:[{type:"string", maxLength:500}],
+										},
 										counters: {
 											type:"array",
 											items:[{type:"string", maxLength:40}],

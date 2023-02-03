@@ -64,7 +64,7 @@
 				"action_prediction": "Start prediction",
 				"action_count": "Update a counter",
 				"action_count_get": "Get a counter value",
-				"action_random": "Random number"
+				"action_random": "Random value"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -157,7 +157,11 @@
 				"min_label":"Min value (included)",
 				"max_label":"Max value (included)",
 				"float_label":"Allow for float numbers",
-				"example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the generated value."
+				"example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the random value.",
+				"number":"Number",
+				"list":"List",
+				"list_label":"Pick a random entry amongst these ones:",
+				"list_entry_placeholder":"add entry..."
 			}
 		},
 		"categories": {
