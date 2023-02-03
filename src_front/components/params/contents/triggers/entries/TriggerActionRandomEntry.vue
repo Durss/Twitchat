@@ -47,7 +47,7 @@ export default class TriggerActionRandomEntry extends Vue {
 	public param_min:TwitchatDataTypes.ParameterData = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min_purple.svg"}
 	public param_max:TwitchatDataTypes.ParameterData = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max_purple.svg"}
 	public param_float:TwitchatDataTypes.ParameterData = {type:"toggle",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice_purple.svg"}
-	public param_placeholder:TwitchatDataTypes.ParameterData = {type:"text",  labelKey:"triggers.actions.countget.value_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
+	public param_placeholder:TwitchatDataTypes.ParameterData = {type:"text",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
 
 	public mounted():void {
 		if(this.action.max == undefined) this.action.max = this.param_max.value as number;

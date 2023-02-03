@@ -411,6 +411,7 @@ export default class MessageList extends Vue {
 	public selectedItem: HTMLDivElement | null = null;
 	public selectedMessage: TwitchatDataTypes.MessageChatData | null = null;
 
+	private dateOffset = 0;
 	private maxMessages:number = 50;
 	private markedAsReadDate:number = 0;
 	private selectionDate:number = 0;
@@ -600,7 +601,7 @@ export default class MessageList extends Vue {
 	/**
 	 * Cleans up all messages and rebuild the list
 	 */
-	public fullListRefresh(): void {
+	public fullListRefresh(scrollToBottom:boolean = true): void {
 		if(this.customActivitiesDisplayed) return;
 
 		clearTimeout(this.updateDebounce);
@@ -617,7 +618,7 @@ export default class MessageList extends Vue {
 			const messages = sChat.messages;
 
 			let result: TwitchatDataTypes.ChatMessageTypes[] = [];
-			let i = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset);
+			let i = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset - this.maxMessages);
 			for (; i >= 0; i--) {
 				const m = messages[i];
 				if (this.shouldShowMessage(m)) {
@@ -637,8 +638,10 @@ export default class MessageList extends Vue {
 			const el = this.$refs.chatMessageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
 			if(this.lockScroll) {
-				this.virtualScrollY = el.scrollTop = maxScroll - 10;
-			}else{
+				if(scrollToBottom) {
+					this.virtualScrollY = el.scrollTop = maxScroll - 10;
+				}
+			}else if(scrollToBottom){
 				this.virtualScrollY = maxScroll;
 			}
 			// this.lockScroll = false;
@@ -898,7 +901,7 @@ export default class MessageList extends Vue {
 	 * Called when the state of a message is changed (pin/unpin)
 	 */
 	private onUpdateMessageState(e: GlobalEvent): void {
-		this.fullListRefresh();
+		this.fullListRefresh(false);
 		// const message = e.data as TwitchatDataTypes.ChatMessageTypes
 		// const shouldShow = this.shouldShowMessage(message);
 		// const displayedIndex = this.filteredMessages.findIndex(v=>v.id == message.id);
@@ -922,7 +925,7 @@ export default class MessageList extends Vue {
 	 * Called when changing the tracking state of a user
 	 */
 	private onTrackUntrackUser(e: GlobalEvent): void {
-		this.fullListRefresh();
+		this.fullListRefresh(false);
 		// const user = e.data as TwitchatDataTypes.TwitchatUser;
 		// const lists = [this.filteredMessages, this.pendingMessages, this.lockedLiveMessages];
 		// for (let i = 0; i < lists.length; i++) {
@@ -958,7 +961,7 @@ export default class MessageList extends Vue {
 				return;
 			}
 		}
-		this.fullListRefresh();
+		this.fullListRefresh(false);
 
 		// //remove from displayed messages
 		// for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
@@ -1607,7 +1610,7 @@ export default class MessageList extends Vue {
 		clearTimeout(this.closeConvTimeout);
 		const messageHolder = (this.$refs["message_" + data.id] as HTMLDivElement[])[0];
 		const holderBounds = this.$el.getBoundingClientRect();
-		const messageBounds = messageHolder.getBoundingClientRect();
+		const messageBounds = (messageHolder.querySelector(".message") as HTMLDivElement).getBoundingClientRect();
 
 		this.hoverActionsPos = messageBounds.top - holderBounds.top;
 
