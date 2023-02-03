@@ -62,13 +62,13 @@ export default class LiveFollowings extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public mounted():void {
+		this.needScope = !TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS);
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-		this.updateList();
+		if(!this.needScope) this.updateList();
 	}
 
 	public beforeUnmount():void {
-		this.needScope = !TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS);
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
 
