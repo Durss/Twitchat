@@ -26,7 +26,7 @@
 							<span class="title" v-html="item.l"></span>
 							<span class="description" v-html="item.d"></span>
 							<img v-if="item.g" class="demo" :src="item.g">
-							<video v-if="item.v" class="demo" :src="item.v" autoplay loop></video>
+							<video v-if="item.v" class="demo" :src="item.v" autoplay loop controls></video>
 							
 							<AppLangSelector v-if="item.i=='translate'" class="langSelector" />
 

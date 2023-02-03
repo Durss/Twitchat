@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/all';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
+import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
@@ -19,6 +20,7 @@ import { storeAutomod } from './store/automod/storeAutomod';
 import { storeBingo } from './store/bingo/storeBingo';
 import { storeChat } from './store/chat/storeChat';
 import { storeChatSuggestion } from './store/chatSugg/storeChatSuggestion';
+import { storeCounters } from './store/counters/storeCounters';
 import DataStore from './store/DataStore';
 import { storeDebug } from './store/debug/storeDebug';
 import { storeEmergency } from './store/emergency/storeEmergency';
@@ -36,17 +38,15 @@ import { storeTriggers } from './store/triggers/storeTriggers';
 import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
-import { storeCounters } from './store/counters/storeCounters';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
-import { createI18n } from 'vue-i18n'
-import Config from './utils/Config';
 
 const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin);
 
 let lang: string = navigator.language || (<any>navigator)['userLanguage'];
 lang = lang.substring(0, 2).toLowerCase();
-if(!Config.instance.IS_PROD) lang = "fr";
+const sLang = DataStore.get(DataStore.LANGUAGE, false);
+if(sLang) lang = sLang;
 const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',
@@ -56,6 +56,7 @@ const i18n = createI18n({
 	// 	strong:(str)=> "<strong>"+str+"</strong>",
 	// }
 });
+
 
 //Load labels before everything else so they are available when
 //initializing stores data

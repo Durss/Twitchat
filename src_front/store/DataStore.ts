@@ -54,6 +54,7 @@ export default class DataStore {
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
 	public static COUNTERS:string = "counters";
+	public static LANGUAGE:string = "lang";
 	/**
 	 * @deprecated Only here for typings on data migration
 	 */
@@ -79,8 +80,10 @@ export default class DataStore {
 	 * Initialize the storage.
 	 * Migrates data if necessary
 	 */
-	public static init():void {
+	public static init(completeInit:boolean = true):void {
 		this.store = localStorage? localStorage : sessionStorage;
+		if(!completeInit) return;
+
 		this.syncToServer = this.get(this.SYNC_DATA_TO_SERVER) !== "false";
 		let v = this.get(this.DATA_VERSION) ?? "1";
 		
@@ -332,8 +335,8 @@ export default class DataStore {
 	 * @param key 
 	 * @returns 
 	 */
-	public static get(key:string):string {
-		if(!this.store) this.init();
+	public static get(key:string, completeInit:boolean = true):string {
+		if(!this.store) this.init(completeInit);
 		return this.store.getItem(this.dataPrefix + key) as string;
 	}
 

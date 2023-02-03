@@ -4,7 +4,7 @@
 		<div class="counter" id="holder" v-if="counter.min === false && counter.max === false">
 			<span class="name" id="name">{{ counter.name }}</span>
 			<span class="spacer" id="spacer"></span>
-			<span class="value" id="value">{{ value }}</span>
+			<span class="value" id="value">{{ valueFormated }}</span>
 		</div>
 
 		<div class="progressBar" id="holder" v-else>
@@ -12,7 +12,7 @@
 			<span class="name" id="name">{{ counter.name }}</span>
 			<div class="goal" id="goal">
 				<span class="min" id="min">{{ counter.min || 0 }}</span>
-				<span class="value" id="value">{{ value || 0 }}</span>
+				<span class="value" id="value">{{ valueFormated || 0 }}</span>
 				<span class="max" id="max">{{ counter.max || 0 }}</span>
 			</div>
 		</div>
@@ -54,6 +54,10 @@ export default class OverlayCounter extends Vue {
 
 	public get value():number {
 		return parseFloat(this.localValue.toFixed(0));
+	}
+
+	public get valueFormated():string {
+		return this.value.toLocaleString("fr-FR");
 	}
 
 	public get progressStyles():StyleValue {

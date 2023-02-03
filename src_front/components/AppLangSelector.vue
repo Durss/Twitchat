@@ -16,6 +16,8 @@
 </template>
 
 <script lang="ts">
+import DataStore from '@/store/DataStore';
+import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css';
@@ -27,6 +29,12 @@ import 'vue3-country-flag-icon/dist/CountryFlag.css';
 	}
 })
 export default class AppLangSelector extends Vue {
+
+	public mounted():void {
+		watch(()=>this.$i18n.locale, ()=> {
+			DataStore.set(DataStore.LANGUAGE, this.$i18n.locale);
+		});
+	}
 
 }
 </script>

@@ -11,9 +11,9 @@ import Ajv from "ajv";
 		obsConf_muteUnmute: {
 			type:"object",
 			properties: {
-				audioSourceName:{type:"string"},
-				muteCommand:{type:"string"},
-				unmuteCommand:{type:"string"},
+				audioSourceName:{type:"string", maxLength:500},
+				muteCommand:{type:"string", maxLength:500},
+				unmuteCommand:{type:"string", maxLength:500},
 			}
 		},
 		obsConf_permissions: {
@@ -308,7 +308,7 @@ import Ajv from "ajv";
 				},
 			]
 		},
-		voiceLang: {type:"string"},
+		voiceLang: {type:"string", maxLength:20},
 		"streamInfoPresets":{
 			type:"array",
 			items:[
@@ -424,12 +424,13 @@ import Ajv from "ajv";
 		},
 		v: {type:"integer"},
 		collapseParamAdInfo: {type:"boolean"},
-		obsIP: {type:"string"},
+		lang: {type:"string", maxLength:4},
+		obsIP: {type:"string", maxLength:20},
 		obsPort: {type:"integer"},
 		updateIndex: {type:"integer"},
-		raffle_message: {type:"string"},
+		raffle_message: {type:"string", maxLength:500},
 		raffle_messageEnabled: {type:"boolean"},
-		bingo_message: {type:"string"},
+		bingo_message: {type:"string", maxLength:500},
 		bingo_messageEnabled: {type:"boolean"},
 		greetScrollDownAuto: {type:"boolean"},
 		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
@@ -438,7 +439,7 @@ import Ajv from "ajv";
 		adNextTS: {type:"number"},
 		adWarned: {type:"boolean"},
 		sponsorPublicPrompt: {type:"boolean"},
-		cypherKey: {type:"string"},
+		cypherKey: {type:"string", maxLength:500},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"number", minimum:-1, maximum:10},
 		ttsParams: {
@@ -544,8 +545,8 @@ import Ajv from "ajv";
 				noTriggers:{type:"boolean"},
 				followOnlyDuration:{type:"number"},
 				slowModeDuration:{type:"number"},
-				toUsers:{type:"string"},
-				obsScene:{type:"string"},
+				toUsers:{type:"string", maxLength:1000000},
+				obsScene:{type:"string", maxLength:500},
 				obsSources:{
 					type:"array",
 					items:[{type:"string", maxLength:100}],

@@ -279,7 +279,7 @@
 			},
 			"RAID": {
 				"label": "Raid reçu",
-				"description": "Exécuter des actions lorsque raid votre chaîne"
+				"description": "Exécuter des actions lorsque vous recevez un raid"
 			},
 			"SHOUTOUT_OUT": {
 				"label": "Shoutout donné",
