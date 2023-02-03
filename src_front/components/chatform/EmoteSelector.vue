@@ -29,6 +29,9 @@
 					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
 					<div class="login">{{u.user.displayName}}</div>
 				</div>
+
+				<div v-if="u.user.id=='477339272'" class="hypetrain">{{ $t("global.hypetrain_emotes") }}</div>
+
 				<div class="emotes">
 					<img
 						class="emote"
@@ -117,6 +120,27 @@ export default class EmoteSelector extends Vue {
 				}
 			}
 	
+			//Add hype trains emotes
+			uidToIndex["477339272"] = userList.length;
+			userList.push({
+				platform:"twitch",
+				login:"twitchhypetrain",
+				displayName:"TwitchHypeTrain",
+				avatarPath:this.$image("img/hypetrain_avatar.png"),
+				id:"477339272",
+				greeted:true,
+				is_raider:false,
+				is_affiliate:false,
+				is_partner:false,
+				is_tracked:false,
+				pronouns:false,
+				pronounsLabel:false,
+				pronounsTooltip:false,
+				channelInfo:{},
+				donor:{state:false, level:0, upgrade:false},
+				is_bot:false,
+			});
+	
 			//Add global emotes
 			uidToIndex["0"] = userList.length;
 			userList.push({
@@ -151,10 +175,14 @@ export default class EmoteSelector extends Vue {
 				}
 				sets[ index ].emotes.push(e);
 			}
+
+			sets[ uidToIndex["477339272"] ] = {
+				user:userList.find(v => v.id == "477339272")!,
+				emotes: [],
+			};
 	
 			if(this.$store("params").appearance.bttvEmotes.value === true) {
 				//Add BTTV emotes
-				uidToIndex["1"] = userList.length;
 				sets.push({
 						user:{
 						platform:"twitch",
@@ -180,7 +208,6 @@ export default class EmoteSelector extends Vue {
 	
 			if(this.$store("params").appearance.sevenTVEmotes.value === true) {
 				//Add 7TV emotes
-				uidToIndex["3"] = userList.length;
 				sets.push({
 						user:{
 						platform:"twitch",
@@ -206,7 +233,6 @@ export default class EmoteSelector extends Vue {
 	
 			if(this.$store("params").appearance.ffzEmotes.value === true) {
 				//Add FFZ emotes
-				uidToIndex["3"] = userList.length;
 				sets.push({
 						user:{
 						platform:"twitch",
@@ -319,7 +345,6 @@ export default class EmoteSelector extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				margin-bottom: 5px;
 				background-color: @mainColor_normal;
 				border-radius: 20px;
 				.avatar {
@@ -337,7 +362,13 @@ export default class EmoteSelector extends Vue {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
-				padding-left: 35px;
+				justify-content: center;
+				background-color: fade(@mainColor_normal, 30%);
+				color:@mainColor_light;
+				width: calc(100% - 2em);
+				margin: auto;
+				border-bottom-left-radius: @border_radius;
+				border-bottom-right-radius: @border_radius;
 				.emote {
 					height: 33px;
 					width: 33px;
@@ -350,6 +381,18 @@ export default class EmoteSelector extends Vue {
 						background-color: fade(@mainColor_light, 70%);
 					}
 				}
+			}
+
+			.hypetrain {
+				font-size: .7em;
+				text-align: center;
+				background-color: fade(@mainColor_normal, 30%);
+				color:@mainColor_light;
+				padding: .5em;
+				width: calc(100% - 2em);
+				margin: auto;
+				border-bottom-left-radius: @border_radius;
+				border-bottom-right-radius: @border_radius;
 			}
 		}
 

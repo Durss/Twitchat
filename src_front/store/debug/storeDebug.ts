@@ -41,9 +41,9 @@ export const storeDebug = defineStore('debug', {
 						{id:"527115020",login:"twitchgaming", displayName:"twitchgaming"},
 						{id:"141981764",login:"twitchdev", displayName:"TwitchDev"},
 						{id:"29961813",login:"durss", displayName:"Durss"},
-						{id:"44445592",login:"pokimane", displayName:"pokimane"},
 						{id:"197886470",login:"twitchrivals", displayName:"TwitchRivals"},
 						{id:"149747285",login:"twitchpresents", displayName:"TwitchPresents"},
+						{id:"477339272",login:"twitchhypetrain", displayName:"TwitchHypeTrain"},
 					]
 					for (let i = 0; i < additional.length; i++) {
 						fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, additional[i].id, additional[i].login, additional[i].displayName,undefined, false, false));

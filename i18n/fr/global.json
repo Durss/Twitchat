@@ -46,6 +46,7 @@
 		"cmd_mod":"Commande de<br>modération",
 		"cmd_admin":"Commande<br>d'admin",
 		"cmd_twitch":"Commande<br>Twitch",
+		"hypetrain_emotes":"Twitch ne permet pas aux outils externes de récupérer les emotes du train de la hype :(",
 		"tooltips": {
 			"commercial": "Publicité",
 			"boost": "Chaîne boostée",
