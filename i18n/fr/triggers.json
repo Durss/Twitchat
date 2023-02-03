@@ -56,7 +56,7 @@
 				"action_tts": "Text to speech",
 				"action_tts_tt": "Vous devez activer la fonctionnalité<br>de <strong>text to speech</strong> dans les paramètres",
 				"action_music": "Controler la musique",
-				"action_music_tt": "Vous devez connecter<br>Spotify<br>dans les <strong>Overlays</strong>",
+				"action_music_tt": "Vous devez<br>connecter Spotify<br>dans les <strong>Overlays</strong>",
 				"action_voicemod": "Contrôler Voicemod",
 				"action_voicemod_tt": "Vous devez connecter<br>Voicemod dans les paramètres",
 				"action_http": "Appel HTTP",

@@ -56,7 +56,7 @@
 				"action_tts": "Text to speech",
 				"action_tts_tt": "This needs the <strong>text to speech</strong><br>feature to be enabled",
 				"action_music": "Control music",
-				"action_music_tt": "You need to connect<br>Spotify<br>on the <strong>Overlays</strong> section",
+				"action_music_tt": "You need to<br>connect Spotify<br>on the <strong>Overlays</strong> section",
 				"action_voicemod": "Control Voicemod",
 				"action_voicemod_tt": "You need to connect<br>with Voicemod",
 				"action_http": "HTTP call",

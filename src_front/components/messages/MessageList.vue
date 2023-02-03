@@ -1839,19 +1839,6 @@ export default class MessageList extends Vue {
 			display: flex;
 			flex-direction: row;
 
-			.fake {
-				display: inline;
-				background-color: @mainColor_light;
-				border-radius: @border_radius;
-				align-self: center;
-				padding: .2em .5em;
-				margin-right: 5px;
-				font-weight: bold;
-				color:@mainColor_dark;
-				cursor: default;
-				font-size: var(--messageSize);
-			}
-
 			.message {
 				position: relative;
 				flex-grow: 1;
@@ -1893,6 +1880,19 @@ export default class MessageList extends Vue {
 				border-bottom: none;
 			}
 		}
+	}
+
+	.fake {
+		display: inline;
+		background-color: @mainColor_light;
+		border-radius: @border_radius;
+		align-self: center;
+		padding: .2em .5em;
+		margin-right: 5px;
+		font-weight: bold;
+		color:@mainColor_dark;
+		cursor: default;
+		font-size: var(--messageSize);
 	}
 
 	.locked {
@@ -1947,8 +1947,13 @@ export default class MessageList extends Vue {
 			}
 		}
 
-		.subHolder:nth-child(odd) {
-			background-color: rgba(255, 255, 255, .025);
+		.subHolder{
+			position: relative;
+			display: flex;
+			flex-direction: row;
+			&:nth-child(odd) {
+				background-color: rgba(255, 255, 255, .025);
+			}
 		}
 	}
 
