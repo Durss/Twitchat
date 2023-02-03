@@ -149,7 +149,7 @@
 				"select_placeholder":"Sélectionnez un compteur..."
 			},
 			"countget": {
-				"value_label":"Nom du placeholder",
+				"placeholder_label":"Nom du placeholder",
 				"select_label":"Compteur à lire",
 				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du compteur."
 			},

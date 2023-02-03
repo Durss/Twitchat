@@ -8,7 +8,7 @@
 			<p v-html="$t('sponsor.important_content2')"></p>
 		</div>
 
-		<img src="@/assets/img/eating.gif" alt="eating" />
+		<img src="@/assets/img/eating.gif" alt="eating" class="patrick" />
 
 		<div class="buttons">
 			<Button big type="link" href="https://paypal.me/durss" target="_blank"
@@ -66,33 +66,34 @@ export default class ParamsSponsor extends Vue {
 
 <style scoped lang="less">
 .paramssponsor{
+
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
 	
 	h1 {
 		text-align: center;
 		margin-bottom: 1em;
 	}
 
-	img {
+	.patrick {
 		margin: auto;
 		display: block;
 		height: 100px;
 	}
 
-	p {
-		margin-bottom: 1em;
-	}
 
 	.buttons {
 		display: flex;
 		flex-direction: column;
-		// margin-top: 1em;
+		margin-top: -1em;
+		gap: .5em;
 
 		:deep(.label) {
 			flex-grow: 1;
 		}
 
 		.button {
-			margin-bottom: .5em;
 			border-radius: 3em;
 			
 			:deep(.label) {

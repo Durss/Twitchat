@@ -15,7 +15,7 @@
 		</div>
 
 		<div class="row item name">
-			<ParamItem :paramData="param_placeholder" v-model="action.placeholder" />
+			<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="!param_placeholder.value" />
 		</div>
 
 		<i18n-t scope="global" class="example item" tag="div" keypath="triggers.actions.random.example" v-if="(param_placeholder.value as string).length > 0">

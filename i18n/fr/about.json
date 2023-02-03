@@ -3,7 +3,7 @@
 		"suggestion": "Suggestions et problèmes",
 		"suggestion_content1": "Si vous avez des suggestions d'ajout ou que vous rencontrez des problèmes:",
 		"discordBt": "Dîtes-le moi sur Discord",
-		"suggestion_content2": "Je souhaite que Twitchat soit aussi fonctionnel que possible, <strong>si quoi que ce soit vous embête</strong> lors de son utilisation, <strong>je veux le savoir</strong>",
+		"suggestion_content2": "Je souhaite que Twitchat soit aussi fonctionnel que possible, <strong>si quoi que ce soit vous embête</strong> lors de son utilisation, j'aimerais le savoir.",
 		"api": "API Twitchat",
 		"api_content1": "Interfacez-vous avec Twitchat grâce à son API.",
 		"api_content2": "l'API Twitchat utilise OBS-Websocket comme canal de communication.",

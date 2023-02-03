@@ -149,7 +149,7 @@
 				"select_placeholder":"Select a counter..."
 			},
 			"countget": {
-				"value_label":"Placeholder name",
+				"placeholder_label":"Placeholder name",
 				"select_label":"Counter to fetch",
 				"example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the counter's value."
 			},
