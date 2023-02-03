@@ -654,7 +654,6 @@ export default class TriggerActionHandler {
 					if(step.type == "countget") {
 						const counter = StoreProxy.counters.data.find(v => v.id == step.counter);
 						if(counter) {
-							console.log("Load counter", counter);
 							let value = counter.value || 0;
 							if(counter.perUser) {
 								let user = this.extractUser(eventType, message);
@@ -662,9 +661,7 @@ export default class TriggerActionHandler {
 									value = counter.users[user.id] || 0;
 								}
 							}
-							console.log("value:",value);
 							dynamicPlaceholders[step.placeholder] = value;
-							console.log(dynamicPlaceholders);
 						}
 						
 					}else
@@ -914,15 +911,15 @@ export default class TriggerActionHandler {
 				}
 				
 				res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
+			}
 
-				//Replace dynamic placeholders. These are user defined placeholders.
-				//Ex: to read a counter value, user must define a placeholder name that
-				//will be populated with the counter's value so this value can be used
-				//in subsequent actions.
-				//Here we use that value
-				for (const key in dynamicPlaceholders) {
-					res = res.replace(new RegExp("\\{"+key+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
-				}
+			//Replace dynamic placeholders. These are user defined placeholders.
+			//Ex: to read a counter value, user must define a placeholder name that
+			//will be populated with the counter's value so this value can be used
+			//in subsequent actions.
+			//Here we use that value
+			for (const key in dynamicPlaceholders) {
+				res = res.replace(new RegExp("\\{"+key+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
 			}
 
 			if(removeRemainingTags) {
