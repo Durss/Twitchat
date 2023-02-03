@@ -41,8 +41,8 @@ export default class ChatCypherPlugin {
 	 */
 	public initialize(key:string):void {
 		let safeChars = this.charsReplacements;
-		safeChars = safeChars.replace(/\[/gi, "\\[");
-		safeChars = safeChars.replace(/\]/gi, "\\]");
+		//Remove chars commonly used to avoid too much false positive
+		safeChars = safeChars.replace(/([\[\]\|])/gi, "");
 		this.regMatch = new RegExp("["+safeChars+"]", "g");
 		if(key){
 			this._cypherKey = key;
