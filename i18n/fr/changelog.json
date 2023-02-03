@@ -53,6 +53,15 @@
 				"l": "<strong>Nouvelle liste de messages</strong>. Vous pouvez maintenant créer autant de colonnes que vous le souhaitez et choisir les types de messages à afficher dans chacune."
 			},
 			{
+				"i": "count",
+				"a": {
+					"a": "ouvrir les compteurs",
+					"l": "test",
+					"page": "counters"
+				},
+				"l": "Créez des <strong>compteurs</strong> personnalisés, modifiez leur valeur depuis des commandes de tchat, récompenses de points de chaîne, ... et affichez leur progression sur votre stream"
+			},
+			{
 				"i": "font",
 				"a": {
 					"a": "ouvrir le paramètre",

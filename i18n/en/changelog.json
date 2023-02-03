@@ -49,6 +49,15 @@
 				"l": "<strong>New message list</strong>. You can now create as many message lists as you want and choose which message types display on each with very fine granularity"
 			},
 			{
+				"i": "count",
+				"a": {
+					"a": "open counters",
+					"l": "test",
+					"page": "counters"
+				},
+				"l": "Create custom <strong>counters</strong>, update their value from chat commands, channel point rewards, ... and show their progress on your stream"
+			},
+			{
 				"i": "font",
 				"a": {
 					"a": "open appearance params",

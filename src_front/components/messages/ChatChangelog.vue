@@ -174,11 +174,11 @@ export default class ChatChangelog extends Vue {
 			}
 		}
 		:deep(.content){
-			color: @mainColor_warn;
+			color: darken(@mainColor_warn, 5%);
 			background-color: fade(@mainColor_warn_extralight, 25%);
 			.button {
 				border-color: @mainColor_warn;
-				color: @mainColor_warn !important;
+				color: darken(@mainColor_warn, 5%) !important;
 				&:hover {
 					background: fade(@mainColor_warn, 10%);
 				}
