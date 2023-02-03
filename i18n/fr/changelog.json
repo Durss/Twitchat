@@ -32,6 +32,12 @@
 				"d": "Créez des compteurs personnalisés, modifiez-les depuis des commandes de tchat, des subs, des récompenses de point de chaîne,... et affichez leur progression sur votre stream."
 			},
 			{
+				"i": "elgato",
+				"l": "Steam Deck +",
+				"v": "update_images/sdplus.mp4",
+				"d": "Scroller votre tchat, déplacer le marque page et modérer les messages sans utiliser votre souri n'a jamais été aussi simple grâce aux molettes du Stream Deck +"
+			},
+			{
 				"i": "shieldMode",
 				"l": "Mode bouclier",
 				"g": "update_images/shieldMode.gif",

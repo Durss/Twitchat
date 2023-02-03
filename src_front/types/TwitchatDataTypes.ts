@@ -818,6 +818,7 @@ export namespace TwitchatDataTypes {
 		l:string;//label
 		i?:string;//icon name
 		g?:string;//image path for highlights
+		v?:string;//video path for highlights
 		d?:string;//Description for highlights
 		a?:{
 			l:string;//label of the button

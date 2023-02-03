@@ -32,6 +32,12 @@
 				"d": "Create custom counters, update them from chat commands, subs, channel point rewards,... and show their progress on your stream."
 			},
 			{
+				"i": "elgato",
+				"l": "Steam Deck +",
+				"v": "update_images/sdplus.mp4",
+				"d": "Scrolling your chat, moving the read mark and moderate messages without touching your mouse has never been this easy thanks to the dials of the Stream Deck +"
+			},
+			{
 				"i": "shieldMode",
 				"l": "Shield mode",
 				"g": "update_images/shieldMode.gif",
