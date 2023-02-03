@@ -14,6 +14,7 @@ import TTSUtils from "../TTSUtils";
 import TwitchUtils from "../twitch/TwitchUtils";
 import Utils from "../Utils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
+import * as MathJS from 'mathjs'
 
 /**
 * Created : 22/04/2022 
@@ -636,7 +637,7 @@ export default class TriggerActionHandler {
 					if(step.type == "count") {
 						let text = await this.parseText(dynamicPlaceholders, eventType, message, step.addValue as string, subEvent);
 						text = text.replace(/,/gi, ".");
-						const value = parseFloat(text);
+						const value = MathJS.evaluate(text);
 						let user = this.extractUser(eventType, message);
 
 						if(!isNaN(value)) {

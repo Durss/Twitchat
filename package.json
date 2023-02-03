@@ -58,6 +58,7 @@
 		"grapheme-splitter": "^1.0.4",
 		"gsap": "^3.10.4",
 		"less-loader": "^8.0.0",
+		"mathjs": "^11.5.1",
 		"obs-websocket-js": "^5.0.2",
 		"pinia": "^2.0.23",
 		"shx": "^0.3.4",
