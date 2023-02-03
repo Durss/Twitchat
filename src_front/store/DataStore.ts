@@ -166,11 +166,13 @@ export default class DataStore {
 		}
 		if(v=="22") {
 			//See asyncMigration();
-			v = "23";
 		}
 		if(v=="23") {
 			this.migrateRaffleTriggerDurationAgain();
 			v = "24";
+		}
+		if(v=="24") {
+			//See asyncMigration();
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -192,9 +194,10 @@ export default class DataStore {
 	 */
 	public static async asyncMigration():Promise<void> {
 		let v = this.get(this.DATA_VERSION) ?? "1";
-		if(v=="22") {
-			this.migrateStreamTags();
-			v = "23";
+		if(v=="22" || v=="24") {
+			await this.migrateStreamTags();
+			if(v=="22") v = "23";
+			if(v=="24") v = "25";
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -719,6 +722,7 @@ export default class DataStore {
 	 */
 	private static async migrateStreamTags():Promise<void> {
 		const txt = this.get(DataStore.STREAM_INFO_PRESETS);
+		console.log("MIGRATE TAGS");
 		if(!txt) return;
 		const presets:TwitchatDataTypes.StreamInfoPreset[] = JSON.parse(txt);
 		let tags:string[] = [];

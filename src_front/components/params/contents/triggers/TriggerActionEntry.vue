@@ -64,7 +64,7 @@
 				
 				<Button class="button beta" white @click="selectActionType('random')"
 					:title="$t('triggers.actions.common.action_random')"
-					:icon="$image('icons/dice_purple.svg')"/>
+					:icon="$image('icons/dice_placeholder_purple.svg')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('obs')"
 					:title="$t('triggers.actions.common.action_obs')"

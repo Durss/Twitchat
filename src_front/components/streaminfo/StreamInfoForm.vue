@@ -204,7 +204,6 @@ export default class StreamInfoForm extends Vue {
 					this.param_tags.listValues = p.tags.map(v=> { return {label:v, value:v}});
 				}
 			}
-			const tags = p.tags;
 		}catch(error) {
 			this.$store("main").alert( this.$t("stream.stream_info_preset_edit") );
 		}

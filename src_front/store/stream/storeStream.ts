@@ -175,7 +175,6 @@ export const storeStream = defineStore('stream', {
 					}
 				}catch(error) {
 					const e = (error as unknown) as {error:string, message:string, status:number}
-					console.log(error);
 					
 					const notice:TwitchatDataTypes.MessageNoticeData = {
 						id:Utils.getUUID(),
@@ -186,7 +185,9 @@ export const storeStream = defineStore('stream', {
 						message:StoreProxy.i18n.t("error.commercial_start", {DETAILS:e.message}),
 					}
 					StoreProxy.chat.addMessage(notice);
-					// this.$store("store").state.alert = "An unknown error occured when starting commercial"
+					if(e.message) {
+						StoreProxy.main.alert(e.message);
+					}
 				}
 			}).catch(()=>{/*ignore*/});
 		},
