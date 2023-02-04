@@ -58,6 +58,7 @@
 			"param_timeoutToggle": "Supprimer un message de la file d'attente s'il nest pas lu avant...",
 			"param_timeout": "{'{'}VALUE{'}'} minutes",
 			"param_inactivityPeriodToggle": "Lire un message seulement si aucun message n'a été lu depuis...",
+			"param_inactivityPeriod": "{'{'}VALUE{'}'} minutes",
 			"param_removeURL": "Supprimer les liens",
 			"param_replaceURL": "Remplacer par"
 		},

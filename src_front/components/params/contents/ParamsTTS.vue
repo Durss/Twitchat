@@ -288,6 +288,7 @@ export default class ParamsTTS extends Vue {
 		this.param_timeoutToggle.labelKey			= "tts.filters.param_timeoutToggle";
 		this.param_timeout.labelKey					= "tts.filters.param_timeout";
 		this.param_inactivityPeriodToggle.labelKey	= "tts.filters.param_inactivityPeriodToggle";
+		this.param_inactivityPeriod.labelKey		= "tts.filters.param_inactivityPeriod";
 		this.param_removeURL.labelKey				= "tts.filters.param_removeURL";
 		this.param_replaceURL.labelKey				= "tts.filters.param_replaceURL";
 

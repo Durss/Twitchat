@@ -57,7 +57,8 @@ import ParamItem from '../params/ParamItem.vue';
 	components:{
 		Button,
 		ParamItem
-	}
+	},
+	emits:["close"]
 })
 export default class TimerForm extends Vue {
 

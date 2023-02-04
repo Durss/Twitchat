@@ -42,6 +42,7 @@
 			<TTUserList			class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
 			<PinedMessages		class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
 			<TimerForm			class="popin" v-if="currentModal == 'timer'" @close="currentModal = ''" />
+			<TriggersLogs		class="popin" v-if="currentModal == 'triggersLogs'" @close="currentModal = ''" />
 		</Teleport>
 
 
@@ -80,6 +81,7 @@
 
 		<DevmodeMenu class="contentWindows devmode"
 			v-if="showDevMenu"
+			@triggersLogs="currentModal = 'triggersLogs'"
 			@close="showDevMenu = false" />
 
 		<!-- <MessageList class="contentWindows feed"
@@ -175,6 +177,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Changelog from '@/components/changelog/Changelog.vue';
 import type { JsonObject } from 'type-fest';
+import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
 
 @Options({
 	components:{
@@ -195,6 +198,7 @@ import type { JsonObject } from 'type-fest';
 		MessageList,
 		DevmodeMenu,
 		RewardsList,
+		TriggersLogs,
 		Accessibility,
 		CommandHelper,
 		EmoteSelector,

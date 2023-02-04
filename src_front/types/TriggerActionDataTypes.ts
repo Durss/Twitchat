@@ -38,6 +38,23 @@ export interface TriggerData {
 	chatCommand?:string
 }
 
+export interface TriggerLog {
+	id:string;
+	triggerId:string;
+	date:number;
+	testMode:boolean;
+	complete:boolean;
+	skipped:boolean;
+	data:TwitchatDataTypes.ChatMessageTypes;
+	messages:{date:number, value:string}[];
+	steps:{
+		id:string;
+		date:number;
+		data:TriggerActionTypes;
+		messages:{date:number, value:string}[];
+	}[]
+}
+
 //Main trigger categories displayed on the parameter "Triggers" section
 export const TriggerEventTypeCategories = {
 	GLOBAL: 1,

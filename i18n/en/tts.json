@@ -58,6 +58,7 @@
 			"param_timeoutToggle": "Remove message from queue if they're not read within...",
 			"param_timeout": "{'{'}VALUE{'}'} minutes",
 			"param_inactivityPeriodToggle": "Read messages only if no message has been received for...",
+			"param_inactivityPeriod": "{'{'}VALUE{'}'} minutes",
 			"param_removeURL": "Remove links",
 			"param_replaceURL": "Replace by"
 		},
