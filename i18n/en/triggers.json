@@ -199,6 +199,7 @@
 			"sub_gifter": "Sub gifter user name",
 			"sub_gift_recipient": "Recipients user names",
 			"sub_gift_recipient_id": "Recipients user IDs",
+			"sub_gift_count": "Subgifts count",
 			"bits": "Number of bits",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",

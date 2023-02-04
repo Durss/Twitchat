@@ -199,6 +199,7 @@
 			"sub_gifter": "Personne offrant des subs",
 			"sub_gift_recipient": "Personnes recevant un sub",
 			"sub_gift_recipient_id": "ID des personnes recevant un sub",
+			"sub_gift_count": "Nombre de subs offerts",
 			"bits": "Nombre de bits",
 			"stream_title": "Titre du stream",
 			"stream_category": "Catégorie du stream",

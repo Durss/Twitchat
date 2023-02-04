@@ -673,6 +673,7 @@ export default class ParamsTriggers extends Vue {
 							recipients.push(Utils.pickRand(this.$store("users").users));
 						}while(Math.random()>.25);
 						sub.gift_recipients = recipients;
+						sub.gift_count = recipients.length;
 					}
 					if(entry.value == TriggerTypes.COUNTDOWN_START) {
 						//Remove end date so it counts as a countdown start not an end

@@ -345,6 +345,7 @@ export const storeDebug = defineStore('debug', {
 									const recipients:TwitchatDataTypes.TwitchatUser[] = fakeUsers.concat().splice(0, count);
 									const m = (message as TwitchatDataTypes.MessageSubscriptionData);
 									m.gift_recipients = recipients;
+									m.gift_count = recipients.length;
 									m.is_gift = true;
 									sum += count * parseInt(m.tier.toString().replace("prime", "1")) * 250;
 								}else{

@@ -824,6 +824,7 @@ export const storeChat = defineStore('chat', {
 								for (let i = 0; i < message.gift_recipients.length; i++) {
 									m.gift_recipients.push(message.gift_recipients[i]);
 								}
+								m.gift_count = m.gift_recipients.length;
 								return;
 							}
 						}

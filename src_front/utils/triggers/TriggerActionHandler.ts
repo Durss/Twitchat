@@ -698,14 +698,15 @@ export default class TriggerActionHandler {
 							let text = await this.parseText(dynamicPlaceholders, triggerKey, message, step.addValue as string, subEvent);
 							text = text.replace(/,/gi, ".");
 							const value = MathJS.evaluate(text);
-							let user = this.extractUser(triggerKey, message);
+							console.log(message);
 	
 							if(!isNaN(value)) {
 								const ids = step.counters;
 								for (let i = 0; i < StoreProxy.counters.data.length; i++) {
 									const c = StoreProxy.counters.data[i];
 									if(ids.indexOf(c.id) > -1) {
-										let logMessage = "Increment \""+c.name+"\" by "+value;
+										let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
+										let user = c.perUser? this.extractUser(triggerKey, message) : undefined;
 										StoreProxy.counters.increment(c.id, value, user);
 										if(user) logMessage += " (for @"+user.displayName+")";
 										logStep.messages.push({date:Date.now(), value:logMessage});
@@ -725,7 +726,7 @@ export default class TriggerActionHandler {
 										value = counter.users[user.id] || 0;
 									}
 								}
-								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"\"} with value "+value});
+								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"\"} with value \""+value+"\""});
 								dynamicPlaceholders[step.placeholder] = value;
 							}
 							
@@ -743,13 +744,13 @@ export default class TriggerActionHandler {
 										value = Math.round(value);
 									}
 									dynamicPlaceholders[step.placeholder] = value;
-									logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value "+value});
+									logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
 									
 								}else if(step.mode == "list") {
 									//Pick an item from a custom list
 									const value = Utils.pickRand(step.list);
 									dynamicPlaceholders[step.placeholder] = value;
-									logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value "+value});
+									logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
 								}
 							}
 						}else

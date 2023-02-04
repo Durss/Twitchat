@@ -1203,6 +1203,7 @@ export namespace TwitchatDataTypes {
 		is_resub: boolean;
 		gift_upgradeSender?: TwitchatUser;
 		gift_recipients?: TwitchatUser[];
+		gift_count?: number;
 		months:number;//Number of months the user subscribed for
 		streakMonths:number;//Number of consecutive months the user has been subscribed for
 		totalSubDuration:number;//Number of months the user has been subscribed for

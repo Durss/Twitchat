@@ -695,6 +695,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const recipientId = tags["msg-param-recipient-id"];
 		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName);
 		data.gift_recipients = [user];
+		data.gift_count = 1;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	
@@ -710,6 +711,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const recipientId = tags["msg-param-recipient-id"];
 		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName);
 		data.gift_recipients = [user];
+		data.gift_count = 1;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 	

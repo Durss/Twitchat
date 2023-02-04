@@ -135,6 +135,7 @@ export default class DevmodeMenu extends Vue {
 					for (let i = 0; i < count; i++) {
 						recipients.push(Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true)));
 					}
+					m.gift_count = recipients.length;
 					break;
 				}
 			}
