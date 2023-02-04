@@ -30,13 +30,13 @@ export default class OBSPermissions extends Vue {
 
 	public modelValue!:TwitchatDataTypes.PermissionsData;
 	
-	public param_broadcaster:TwitchatDataTypes.ParameterData	= { type:"toggle", labelKey:"global.permissions.broadcaster", value:true, label:"", icon:"broadcaster_purple.svg" };
-	public param_mods:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.mods", value:true, label:"", icon:"mod_purple.svg" };
-	public param_vips:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.vips", value:false, label:"", icon:"vip_purple.svg" };
-	public param_subs:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.subs", value:false, label:"", icon:"sub_purple.svg" };
-	public param_followers:TwitchatDataTypes.ParameterData		= { type:"toggle", labelKey:"global.permissions.follow", value:false, label:"", icon:"follow_purple.svg" };
-	public param_followers_ms:TwitchatDataTypes.ParameterData	= { type:"number", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, label:"", icon:"timer_purple.svg" };
-	public param_all:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.all", value:false, label:"", icon:"user_purple.svg" };
+	public param_broadcaster:TwitchatDataTypes.ParameterData	= { type:"toggle", labelKey:"global.permissions.broadcaster", value:true, icon:"broadcaster_purple.svg" };
+	public param_mods:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.mods", value:true, icon:"mod_purple.svg" };
+	public param_vips:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.vips", value:false, icon:"vip_purple.svg" };
+	public param_subs:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.subs", value:false, icon:"sub_purple.svg" };
+	public param_followers:TwitchatDataTypes.ParameterData		= { type:"toggle", labelKey:"global.permissions.follow", value:false, icon:"follow_purple.svg" };
+	public param_followers_ms:TwitchatDataTypes.ParameterData	= { type:"number", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, icon:"timer_purple.svg" };
+	public param_all:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.all", value:false, icon:"user_purple.svg" };
 	public param_users:TwitchatDataTypes.ParameterData			= { type:"text", labelKey:"global.permissions.users", value:"", longText:true, placeholder:"user1, user2, user3, ...", icon:"user_purple.svg" };
 
 	public get noSelection():boolean {
@@ -94,6 +94,12 @@ export default class OBSPermissions extends Vue {
 		:deep(input[type="number"]) {
 			flex-basis: 80px;
 		}
+
+	}
+
+	select {
+		width: 100%;
+		text-align: center;
 	}
 }
 </style>

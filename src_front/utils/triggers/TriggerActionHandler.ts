@@ -445,6 +445,7 @@ export default class TriggerActionHandler {
 				
 				//check permissions
 				if(!Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
+					log.messages.push({date:Date.now(), value:"User is not allowed"})
 					canExecute = false;
 				}else{
 					//Apply cooldowns if any

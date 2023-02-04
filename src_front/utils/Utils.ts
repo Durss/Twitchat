@@ -208,25 +208,32 @@ export default class Utils {
 		if(allowedUsers?.indexOf(user.login.toLowerCase()) > -1) {
 			return true;
 		}
-		
-		if(chanInfo.is_broadcaster && permissions.broadcaster === false) return false;
-		if(chanInfo.is_vip && permissions.vips === false) return false;
-		if(chanInfo.is_moderator && !chanInfo.is_broadcaster && permissions.mods === false) return false;
-		if(chanInfo.is_following && !chanInfo.is_broadcaster && !chanInfo.is_moderator && !chanInfo.is_vip && permissions.follower === false) return false;
-		if(chanInfo.is_subscriber && !chanInfo.is_broadcaster && !chanInfo.is_moderator && !chanInfo.is_vip && !chanInfo.is_following && permissions.subs === false) return false;
 
-		if(chanInfo.is_following && permissions.follower === true && !chanInfo.is_broadcaster) {
+		let flags = 0;
+		//bit 0 = sub
+		//bit 1 = follower
+		//bit 2 = VIP
+		//bit 3 = moderator
+		//bit 4 = broadcaster
+		if(chanInfo.is_subscriber)	flags |= 1<<0;
+		if(chanInfo.is_following)	flags |= 1<<1;
+		if(chanInfo.is_vip)			flags |= 1<<2;
+		if(chanInfo.is_moderator)	flags |= 1<<3;
+		if(chanInfo.is_broadcaster)	flags |= 1<<4;
+		
+		if(flags >> 4 == 1 && permissions.broadcaster === false)	return false;
+		//Refuse access if EXCLUSIVELY matching a refused role
+		if(flags == 0b01000 && permissions.mods === false)			return false;
+		if(flags == 0b00100 && permissions.vips === false)			return false;
+		if(flags == 0b00010 && permissions.follower === false)		return false;
+		if(flags == 0b00001 && permissions.subs === false)			return false;
+
+		if(chanInfo.is_following && permissions.follower === true) {
 			const duration = Date.now() - chanInfo.following_date_ms;
 			return duration >= permissions.follower_duration_ms;
 		}
 
-		return permissions.all
-		|| chanInfo.is_vip
-		|| chanInfo.is_moderator
-		|| chanInfo.is_following
-		|| chanInfo.is_broadcaster
-		|| chanInfo.is_subscriber
-		|| chanInfo.is_broadcaster;
+		return permissions.all || flags > 0;
 		
 		//Old behavior
 		/*

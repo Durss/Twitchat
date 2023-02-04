@@ -9,7 +9,7 @@
 		"off_notice": "Les messages de <mark>{USER}</mark> ne seront plus lus à voix haute.",
 		"chat_perms": {
 			"title": "Permissions",
-			"head": "Sélectionnés les personnes desquelles lire les messages.",
+			"head": "Sélectionnez les personnes desquelles lire les messages.",
 			"infos": "Ceci ne filtre que les messages et les chuchotements. Ca n'affectera pas les abonnements, les raids, les récompenses de points de chaîne, etc..."
 		},
 		"messages": {
