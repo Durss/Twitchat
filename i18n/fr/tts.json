@@ -28,8 +28,6 @@
 			"param_readPredictions": "Résultat de prédiction",
 			"param_readBingos": "Résultat de bingo",
 			"param_readRaffle": "Résultats de tirage au sort",
-			"param_readUsers": "Messages de ces personnes",
-			"param_readUsers_add": "pseudo...",
 			"param_readTimeouts": "Ban temporaire",
 			"param_readBans": "Ban permanent",
 			"param_readUnbans": "Unban",

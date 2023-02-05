@@ -44,14 +44,24 @@
 
 					<ToggleButton class="item toggleAll" v-model="toggleAll" clear />
 
-					<ParamItem class="item" v-for="f in filters"
-						clearToggle
-						:key="'filter_'+f.storage"
-						:paramData="f"
-						@change="saveData()"
-						@mouseleave="mouseLeaveItem"
-						@mouseenter="mouseEnterItem"
-						v-model="config.filters[f.storage as 'message']" />
+					<div class="item" v-for="f in filters"
+					:key="'filter_'+f.storage">
+						<ParamItem
+							:paramData="f"
+							clearToggle
+							@change="saveData()"
+							@mouseleave="mouseLeaveItem"
+							@mouseenter="mouseEnterItem"
+							v-model="config.filters[f.storage as 'message']" />
+
+						<ToggleBlock class="item whispersPermissions"
+						:title="$t('chat.filters.whispers_permissions')"
+						small
+						:open="false"
+						v-if="f.storage == whisperType && config.filters.whisper === true">
+							<PermissionsForm clear v-model="config.whispersPermissions" @update:modelValue="saveData()" />
+						</ToggleBlock>
+					</div>
 				
 					<div class="subFilters">
 						<ParamItem class="item child"
@@ -204,6 +214,8 @@ import ChatBan from '../ChatBan.vue';
 import ChatUnban from '../ChatUnban.vue';
 import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import PermissionsForm from '@/components/PermissionsForm.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Options({
 	props:{
@@ -234,6 +246,8 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		ChatLowTrustTreatment,
 		ChatRaffleResult,
 		ChatPinNotice,
+		PermissionsForm,
+		ToggleBlock,
 	},
 	emits: ['update:modelValue', 'submit', 'add', 'change'],
 })
@@ -256,7 +270,7 @@ export default class MessageListFilter extends Vue {
 	public loadingPreview:boolean = false;
 	public missingScope:boolean = false;
 	public previewIndex:number = 0;
-	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"text", longText:true, value:"", placeholder:"bot1, bot2, ....", icon:"hide.svg", maxLength:1000000};
+	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide.svg", maxLength:1000000};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
@@ -266,6 +280,8 @@ export default class MessageListFilter extends Vue {
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private messagesCache:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchatDataTypes.ChatMessageTypes[]}> = {}
 	private subMessagesCache:Partial<{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchatDataTypes.ChatMessageTypes[]}> = {}
+
+	public get whisperType() { return TwitchatDataTypes.TwitchatMessageType.WHISPER; }
 
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
@@ -280,9 +296,21 @@ export default class MessageListFilter extends Vue {
 	}
 
 	public beforeMount(): void {
-		type messageFilterTypes			= keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
-		this.param_blockUsers.value		= this.config.userBlockList;
-		this.param_blockUsers.labelKey	= "chat.filters.hide_users";
+		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
+
+		if(!this.config.whispersPermissions) {
+			this.config.whispersPermissions = {
+				broadcaster:true,
+				follower:true,
+				mods:true,
+				subs:true,
+				vips:true,
+				all:true,
+				follower_duration_ms:0,
+				usersAllowed:[],
+				usersRefused:[],
+			}
+		}
 
 		//@ts-ignore
 		this.typeToLabel = {};
@@ -455,17 +483,19 @@ export default class MessageListFilter extends Vue {
 						param.twitch_scope = this.messageKeyToScope[k];
 					}
 					if(k == 'commands') {
-						const subParam:TwitchatDataTypes.ParameterData = {type:"text",
-									longText:true,
-									value:this.config.commandsBlockList,
-									labelKey:'chat.filters.commands',
-									placeholder:"!example, !so, !myuptime, ...",
-									icon:"hide.svg",
-									maxLength:1000000,
-									editCallback:(data:string)=> {
-										this.config.commandsBlockList = data;
-										this.saveData();
-									}};
+						const subParam:TwitchatDataTypes.ParameterData = {
+								type:"editablelist",
+								longText:true,
+								value:"",
+								stringListValues:this.config.commandsBlockList,
+								labelKey:'chat.filters.commands',
+								placeholderKey:"chat.filters.commands_placeholder",
+								icon:"hide.svg",
+								maxLength:1000000,
+								editCallback:(data:string[])=> {
+									this.config.commandsBlockList = data;
+									this.saveData();
+								}};
 						param.children = [subParam];
 					}
 					if(k == "short") {
@@ -497,8 +527,12 @@ export default class MessageListFilter extends Vue {
 			while(root && root != this.$el && root != document.body) {
 				root = root.parentElement as HTMLElement;
 			}
-			if(root == this.$el) {
-				(document.activeElement as HTMLElement).blur();
+			if(!this.open && root == this.$el) {
+				const el = document.activeElement as HTMLElement
+				//Do not blur if it's a <vue-select> component
+				if(!el.classList.contains("vs__search")) {
+					el.blur();
+				}
 			}
 		});
 		watch(()=>this.toggleAll, ()=>{
@@ -1096,13 +1130,22 @@ export default class MessageListFilter extends Vue {
 						@offset:1.25em;
 						margin-left: @offset;
 						width: calc(100% - @offset);
-						:deep(textarea) {
+						:deep(textarea), :deep(.listField) {
 							position: relative;
 							font-size: .9em;
 							//Offset to the left to give it a bit more space
 							left: -2em;
 							width: calc(100% + 2em);
+							min-width: calc(100% + 2em);
+							max-width: calc(100% + 2em);
 						}
+					}
+	
+					&.whispersPermissions {
+						border-left: 1px solid white;
+						padding-left: .75em;
+						margin-left: .5em;
+						margin-bottom: 1em;
 					}
 				}
 			}
@@ -1133,6 +1176,7 @@ export default class MessageListFilter extends Vue {
 			transform: translateX(-50%);
 			left: 50%;
 			top: 99999px;
+			z-index: 1;
 			.preview {
 				background-color: @mainColor_dark;
 				padding: .25em .5em;

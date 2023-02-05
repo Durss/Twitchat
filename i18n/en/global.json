@@ -156,7 +156,9 @@
 			"vips": "VIPs",
 			"subs": "Subscribers",
 			"all": "Everyone",
-			"users": "Specific users",
+			"users_allowed": "Accept these users",
+			"users_refused": "Refuse these users",
+			"users_placeholder": "username...",
 			"nobody": "Nobody is allowed by the current selection",
 			"follow": "Followers",
 			"follow_duration": "Must be a follower for 0 day | Must be a follower for 1 day | Must be a follower for {'{'}VALUE{'}'} days"

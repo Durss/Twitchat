@@ -44,7 +44,7 @@ import Button from '../../Button.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 
 @Options({
 	props:{},
@@ -71,7 +71,8 @@ export default class ParamsAlert extends Vue {
 		all:false,
 		follower:true,
 		follower_duration_ms:0,
-		users:"",
+		usersAllowed:[],
+		usersRefused:[],
 	};
 	
 	public get finalData():TwitchatDataTypes.AlertParamsData {

@@ -57,7 +57,7 @@
 					rows="2"
 					:id="'text'+key"
 					:name="paramData.fieldName"
-					:placeholder="paramData.placeholder"
+					:placeholder="placeholder"
 					v-autofocus="autofocus"></textarea>
 				<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
 					v-model.lazy="paramData.value"
@@ -65,7 +65,7 @@
 					:name="paramData.fieldName"
 					:id="'text'+key"
 					:type="paramData.type"
-					:placeholder="paramData.placeholder"
+					:placeholder="placeholder"
 					:maxlength="paramData.maxLength? paramData.maxLength : 524288"
 					autocomplete="new-password">
 			</div>
@@ -92,13 +92,36 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'list'+key">{{label}}</label>
+				<label :for="'list'+key" v-html="label"></label>
 				<select v-if="!paramData.noInput" ref="input"
 					:id="'list'+key"
 					v-model="paramData.value"
 					v-autofocus="autofocus">
 					<option v-for="a in paramData.listValues" :key="a.label? a.label : a.labelKey" :value="a.value">{{a.label? a.label : $t(a.labelKey!)}}</option>
 				</select>
+			</div>
+			
+			<div v-if="paramData.type == 'editablelist'" class="holder list">
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help_purple.svg"
+					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					class="helpIcon"
+				>
+				<label :for="'list'+key" v-html="label"></label>
+				<vue-select class="listField" label="label"
+					:id="'list'+key"
+					ref="vueSelect"
+					:placeholder="placeholder"
+					v-model="paramData.stringListValues"
+					:calculate-position="$placeDropdown"
+					@search="onSearch()"
+					@option:created="onCreate()"
+					appendToBody
+					taggable
+					multiple
+					noDrop
+				></vue-select>
+				<button @click="submitListItem()" v-if="searching" class="listSubmitBt"><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
@@ -113,7 +136,7 @@
 					v-model="paramData.value"
 					:name="paramData.fieldName"
 					:id="'browse'+key"
-					:placeholder="paramData.placeholder">
+					:placeholder="placeholder">
 				<Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
@@ -199,11 +222,21 @@ export default class ParamItem extends Vue {
 	public paramData!:TwitchatDataTypes.ParameterData;
 	public modelValue!:string|boolean|number|string[];
 
+	public searching:boolean = false;
 	public key:string = Math.random().toString();
 	public children:TwitchatDataTypes.ParameterData[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
 	private file:unknown = {};
+
+	public async onCreate():Promise<void> {
+		//This is a woraround an issue with vue-select that throws a "searching"
+		//event after creating an item.
+		//Without this frame delay the searching flag would be reset to "true"
+		//right after setting it to false here.
+		await this.$nextTick();
+		this.searching = false;
+	}
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -238,6 +271,15 @@ export default class ParamItem extends Vue {
 		return txt.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
 	}
 
+	public get placeholder():string {
+		if(!this.paramData) return "";
+		let txt = this.paramData.placeholder ?? "";
+		if(this.paramData.placeholderKey) {
+			txt = this.$t(this.paramData.placeholderKey);
+		}
+		return txt;
+	}
+
 	public get tooltip():string {
 		if(this.paramData.tooltip) return this.paramData.tooltip;
 		if(this.paramData.tooltipKey) return this.$t(this.paramData.tooltipKey)
@@ -259,7 +301,11 @@ export default class ParamItem extends Vue {
 	public mounted():void {
 		if(this.modelValue !== null
 		&& this.modelValue !== undefined) {
-			this.paramData.value = this.modelValue;
+			if(this.paramData.type == "editablelist") {
+				this.paramData.stringListValues = this.modelValue as string[];
+			}else{
+				this.paramData.value = this.modelValue;
+			}
 		}
 		watch(()=>this.modelValue, (value:string | number | boolean | string[])=>{
 			if(value !== null
@@ -267,18 +313,25 @@ export default class ParamItem extends Vue {
 				this.paramData.value = value;
 			}
 		});
-		
-		watch(() => this.paramData.value, () => {
+
+		const onEdit = () => {
 			if(this.paramData.save === true) {
 				this.$store("params").updateParams()
 			}
-			this.$emit("update:modelValue", this.paramData.value);
+			if(this.paramData.type == "editablelist") {
+				this.$emit("update:modelValue", this.paramData.stringListValues);
+			}else{
+				this.$emit("update:modelValue", this.paramData.value);
+			}
 			this.$emit("change");
 			if(this.paramData.editCallback) {
-				this.paramData.editCallback(this.paramData.value);
+				this.paramData.editCallback(this.paramData.type == "editablelist"? this.paramData.stringListValues : this.paramData.value);
 			}
 			this.buildChildren();
-		});
+		}
+		
+		watch(() => this.paramData.value, onEdit);
+		watch(() => this.paramData.stringListValues, onEdit);
 		
 		watch(() => this.paramData.children, (value) => {
 			this.buildChildren();
@@ -312,6 +365,28 @@ export default class ParamItem extends Vue {
 			event.stopPropagation();
 			this.$store("auth").requestTwitchScope(this.paramData.twitch_scope);
 		}
+	}
+
+	/**
+	 * vue-select component is lacking a "submit" button when "noDrop"
+	 * option is enabled. User has to find out they have to hit "Enter"
+	 * to create a new entry. This is far from ideal in terms of UX.
+	 * 
+	 * This method is called anytime somehting's written on the input
+	 * to display a custom submit button if there's text
+	 */
+	public onSearch():void {
+		this.searching = (this.$refs.vueSelect as any).search.length > 0;
+	}
+
+	/**
+	 * Called when custom submit button for the <vue-select> component
+	 * is clicked.
+	 * @see onSearch() for more details about why this hack
+	 */
+	public submitListItem():void {
+		this.searching = false;
+		(this.$refs.vueSelect as any).typeAheadSelect();
 	}
 
 	private async buildChildren():Promise<void> {
@@ -384,7 +459,7 @@ export default class ParamItem extends Vue {
 		border-bottom: 1px solid @mainColor_alert;
 		padding-left: .25em;
 
-		input, select, textarea{
+		input, select, textarea, .listField{
 			color:@mainColor_light;
 			background-color: fade(@mainColor_alert, 50%);
 			border-color: @mainColor_alert;
@@ -445,6 +520,7 @@ export default class ParamItem extends Vue {
 		flex-direction: row;
 		align-items: baseline;
 		transition: background-color .1s;
+		position: relative;
 
 		textarea {
 			width: 100%;
@@ -478,7 +554,7 @@ export default class ParamItem extends Vue {
 			align-self: flex-start;
 		}
 		
-		.toggle, .number, .text, .list , .browse{
+		.toggle, .number, .text, .listField , .browse{
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
@@ -534,11 +610,31 @@ export default class ParamItem extends Vue {
 		// 	max-width: 250px;
 		// }
 
-		input, select, textarea{
+		input, select, textarea, .listField {
 			transition: background-color .25s;
 			flex-basis: 300px;
 			text-overflow: ellipsis;
 			width: 100%;
+		}
+
+		.list {
+
+			.listField {
+				:deep(.vs__dropdown-toggle) {
+					width: 100%;
+				}
+			}
+			
+			.listSubmitBt {
+				position: absolute;
+				right: 10px;
+				bottom: 7px;
+				cursor: pointer;
+				z-index: 1;
+				img {
+					height: 1em;
+				}
+			}
 		}
 
 	}
@@ -568,6 +664,7 @@ export default class ParamItem extends Vue {
 			&::before {
 				position: absolute;
 				left: -1em;
+				top: .2em;
 				font-size: 1.1em;
 				content: "⤷";
 				display: block;

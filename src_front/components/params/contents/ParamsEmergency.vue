@@ -93,7 +93,7 @@ import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 
 @Options({
 	props:{},
@@ -118,7 +118,7 @@ export default class ParamsEmergency extends Vue {
 	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData		= {type:"number", value:30, max:129600, min:1};
 	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	icon:"sub_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
 	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	icon:"emote_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
-	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"text", value:"", longText:true, placeholder:"", icon:"timeout_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
+	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"editablelist", value:"", longText:true, icon:"timeout_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
 	public param_noTrigger:TwitchatDataTypes.ParameterData					= {type:"toggle", value:true, icon:"broadcast_purple.svg"};
 	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];
@@ -131,7 +131,8 @@ export default class ParamsEmergency extends Vue {
 		all:false,
 		follower:true,
 		follower_duration_ms:0,
-		users:"",
+		usersAllowed:[],
+		usersRefused:[],
 	};
 
 	public get holderStyles():StyleValue {
@@ -166,7 +167,7 @@ export default class ParamsEmergency extends Vue {
 			followOnly:this.param_followersOnly.value === true,
 			followOnlyDuration:this.param_followersOnlyDuration.value as number,
 			slowModeDuration:this.param_slowModeDuration.value as number,
-			toUsers:this.param_autoTO.value as string,
+			toUsers:this.param_autoTO.stringListValues ?? [],
 			obsScene:this.selectedOBSScene? this.selectedOBSScene.value as string : "",
 			obsSources:this.selectedOBSSources? this.selectedOBSSources.map(v=>v.sourceName) : [],
 			autoEnableOnFollowbot:this.param_autoEnableOnFollowbot.value === true,
@@ -190,13 +191,13 @@ export default class ParamsEmergency extends Vue {
 		this.param_subsOnly.labelKey				= "emergency.params.subsOnly";
 		this.param_emotesOnly.labelKey				= "emergency.params.emotesOnly";
 		this.param_autoTO.labelKey					= "emergency.params.autoTO";
-		this.param_autoTO.placeholder				= this.$t("emergency.params.autoTO_placeholder");
+		this.param_autoTO.placeholderKey			= "emergency.params.autoTO_placeholder";
 		this.param_noTrigger.labelKey				= "emergency.params.noTrigger";
 
 		const storeParams						= this.$store("emergency").params;
 		this.param_enable.value					= storeParams.enabled;
 		this.param_noTrigger.value				= storeParams.noTriggers;
-		this.param_autoTO.value					= storeParams.toUsers;
+		this.param_autoTO.stringListValues		= storeParams.toUsers;
 		this.param_subsOnly.value				= storeParams.subOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
 		this.param_emotesOnly.value				= storeParams.emotesOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
 		this.param_followersOnly.value			= storeParams.followOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);

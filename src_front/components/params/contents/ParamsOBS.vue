@@ -70,7 +70,7 @@ import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
 import OBSScenes from './obs/OBSScenes.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 
 
 @Options({
@@ -105,7 +105,8 @@ export default class ParamsOBS extends Vue {
 		all: false,
 		follower:true,
 		follower_duration_ms:0,
-		users: ""
+		usersAllowed:[],
+		usersRefused:[],
 	}
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
@@ -140,7 +141,8 @@ export default class ParamsOBS extends Vue {
 		this.permissions.vips = storedPermissions.vips;
 		this.permissions.subs = storedPermissions.subs;
 		this.permissions.all = storedPermissions.all;
-		this.permissions.users = storedPermissions.users;
+		this.permissions.usersAllowed = storedPermissions.usersAllowed;
+		this.permissions.usersRefused = storedPermissions.usersRefused;
 
 		watch(()=> this.param_enabled.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })

@@ -1,3 +1,4 @@
+import type ParamsAutomod from "@/components/params/contents/ParamsAutomod.vue";
 import { TriggerTypes, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import type {TwitchatDataTypes} from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
@@ -80,11 +81,15 @@ export default class DataStore {
 	 * Initialize the storage.
 	 * Migrates data if necessary
 	 */
-	public static init(completeInit:boolean = true):void {
+	public static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
-		if(!completeInit) return;
-
 		this.syncToServer = this.get(this.SYNC_DATA_TO_SERVER) !== "false";
+	}
+
+	/**
+	 * Makes asynchronous data migrations after being authenticated
+	 */
+	public static async migrateData():Promise<void> {
 		let v = this.get(this.DATA_VERSION) ?? "1";
 		
 		if(v=="1" || v=="2") {
@@ -168,39 +173,28 @@ export default class DataStore {
 			v = "22";
 		}
 		if(v=="22") {
-			//See asyncMigration();
+			await this.migrateStreamTags();
+			v = "23";
 		}
 		if(v=="23") {
 			this.migrateRaffleTriggerDurationAgain();
 			v = "24";
 		}
 		if(v=="24") {
-			//See asyncMigration();
-		}
-
-		this.set(this.DATA_VERSION, v);
-
-		const items = this.getAll();
-		for (const key in items) {
-			try{
-				items[key] = JSON.parse(items[key] as string);
-			}catch(error) {
-				//parsing failed, that's because it's a simple string, just keep it
-			}
-		}
-		this.rawStore = items;
-		this.save();
-	}
-
-	/**
-	 * Makes asynchronous data migrations after being authenticated
-	 */
-	public static async asyncMigration():Promise<void> {
-		let v = this.get(this.DATA_VERSION) ?? "1";
-		if(v=="22" || v=="24") {
 			await this.migrateStreamTags();
-			if(v=="22") v = "23";
-			if(v=="24") v = "25";
+			v = "25";
+		}
+		if(v=="25") {
+			this.migratePermissions();
+			v = "26";
+		}
+		if(v=="26") {
+			this.migrateChatColUserAndCommands();
+			v = "27";
+		}
+		if(v=="27") {
+			this.migrateEmergencyTOs();
+			v = "28";
 		}
 
 		this.set(this.DATA_VERSION, v);
@@ -335,8 +329,8 @@ export default class DataStore {
 	 * @param key 
 	 * @returns 
 	 */
-	public static get(key:string, completeInit:boolean = true):string {
-		if(!this.store) this.init(completeInit);
+	public static get(key:string):string {
+		if(!this.store) this.init();
 		return this.store.getItem(this.dataPrefix + key) as string;
 	}
 
@@ -775,5 +769,168 @@ export default class DataStore {
 		}
 
 		this.set(DataStore.TRIGGERS, triggers);
+	}
+
+	/**
+	 * MIgrate all permissions systems (T_T)
+	 */
+	private static migratePermissions():void {
+		//Migrate triggers
+		const triggerSrc = this.get(DataStore.TRIGGERS);
+		if(triggerSrc) {
+			const triggers:{[key:string]:TriggerData} = JSON.parse(triggerSrc);
+			for (const key in triggers) {
+				const perms = triggers[key].permissions;
+				if(perms) {
+					const usersAllowed = perms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+					perms.usersAllowed = usersAllowed ?? [];
+					perms.usersRefused = [];
+					delete perms.users;
+				}
+			}
+			this.set(DataStore.TRIGGERS, triggers);
+		}
+		
+		//Migrate automod
+		const automodSrc = this.get(DataStore.AUTOMOD_PARAMS);
+		if(automodSrc) {
+			const automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(automodSrc);
+			const usersAllowed = automod.exludedUsers.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			automod.exludedUsers.usersAllowed = usersAllowed ?? [];
+			automod.exludedUsers.usersRefused = [];
+			delete automod.exludedUsers.users;
+			this.set(DataStore.AUTOMOD_PARAMS, automod);
+		}
+		
+		//Migrate TTS
+		const ttsSrc = this.get(DataStore.TTS_PARAMS);
+		if(ttsSrc) {
+			const tts:TwitchatDataTypes.TTSParamsData = JSON.parse(ttsSrc);
+			const usersAllowed = tts.ttsPerms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			tts.ttsPerms.usersAllowed = usersAllowed ?? [];
+			tts.ttsPerms.usersRefused = [];
+
+			//Transfer "readUsers" data to "usersAllowed"
+			if(tts.readUsers && tts.readUsers.length > 0) {
+				for (let i = 0; i < tts.readUsers.length; i++) {
+					const user = tts.readUsers[i].toLowerCase();
+					if(tts.ttsPerms.usersAllowed.findIndex(v=>v.toLowerCase() == user) == -1) {
+						tts.ttsPerms.usersAllowed.push(user);
+					}
+				}
+			}
+			delete tts.ttsPerms.users;
+			this.set(DataStore.TTS_PARAMS, tts);
+		}
+		
+		//Migrate OBS
+		const obsSrc = this.get(DataStore.OBS_CONF_PERMISSIONS);
+		if(obsSrc) {
+			const perms:TwitchatDataTypes.PermissionsData = JSON.parse(obsSrc);
+			const usersAllowed = perms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			perms.usersAllowed = usersAllowed ?? [];
+			perms.usersRefused = [];
+			delete perms.users;
+			this.set(DataStore.OBS_CONF_PERMISSIONS, perms);
+		}
+		
+		//Migrate emergency mode
+		const emergencySrc = this.get(DataStore.EMERGENCY_PARAMS);
+		if(emergencySrc) {
+			const perms:TwitchatDataTypes.EmergencyParamsData = JSON.parse(emergencySrc);
+			const usersAllowed = perms.chatCmdPerms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			perms.chatCmdPerms.usersAllowed = usersAllowed ?? [];
+			perms.chatCmdPerms.usersRefused = [];
+			delete perms.chatCmdPerms.users;
+			this.set(DataStore.EMERGENCY_PARAMS, perms);
+		}
+		
+		//Migrate spoiler
+		const spoilerSrc = this.get(DataStore.SPOILER_PARAMS);
+		if(spoilerSrc) {
+			const perms:TwitchatDataTypes.SpoilerParamsData = JSON.parse(spoilerSrc);
+			const usersAllowed = perms.permissions.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			perms.permissions.usersAllowed = usersAllowed ?? [];
+			perms.permissions.usersRefused = [];
+			delete perms.permissions.users;
+			this.set(DataStore.SPOILER_PARAMS, perms);
+		}
+		
+		//Migrate chat alert
+		const alertSrc = this.get(DataStore.ALERT_PARAMS);
+		if(alertSrc) {
+			const perms:TwitchatDataTypes.AlertParamsData = JSON.parse(alertSrc);
+			const usersAllowed = perms.permissions.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			perms.permissions.usersAllowed = usersAllowed ?? [];
+			perms.permissions.usersRefused = [];
+			delete perms.permissions.users;
+			this.set(DataStore.ALERT_PARAMS, perms);
+		}
+		
+		//Migrate voicemod
+		const voicemodSrc = this.get(DataStore.VOICEMOD_PARAMS);
+		if(voicemodSrc) {
+			const perms:TwitchatDataTypes.VoicemodParamsData = JSON.parse(voicemodSrc);
+			const usersAllowed = perms.chatCmdPerms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			perms.chatCmdPerms.usersAllowed = usersAllowed ?? [];
+			perms.chatCmdPerms.usersRefused = [];
+			delete perms.chatCmdPerms.users;
+			this.set(DataStore.VOICEMOD_PARAMS, perms);
+		}
+
+	}
+
+	/**
+	 * Converts string lists like "value1, value2, value3" to an array of strings
+	 */
+	private static migrateChatColUserAndCommands():void {
+		const confsStr = this.get(DataStore.CHAT_COLUMNS_CONF);
+		if(confsStr) {
+			const confs:TwitchatDataTypes.ChatColumnsConfig[] = JSON.parse(confsStr);
+			for (let i = 0; i < confs.length; i++) {
+				const c = confs[i];
+				if(typeof c.commandsBlockList == "string") {
+					c.commandsBlockList = (c.commandsBlockList as string).split(",");
+					for (let i = 0; i < c.commandsBlockList.length; i++) {
+						const v = c.commandsBlockList[i];
+						if(v.trim().length == 0) {
+							c.commandsBlockList.splice(i,1);
+							i--;
+						}else{
+							c.commandsBlockList[i] = v.trim();
+						}
+					}
+				}
+				if(typeof c.userBlockList == "string") {
+					c.userBlockList = (c.userBlockList as string).split(/[^a-z0-9_]+/gi);
+					for (let i = 0; i < c.userBlockList.length; i++) {
+						const v = c.userBlockList[i];
+						if(v.trim().length == 0) {
+							c.userBlockList.splice(i,1);
+							i--;
+						}else{
+							c.userBlockList[i] = v.trim();
+						}
+					}
+				}
+			}
+			this.set(DataStore.CHAT_COLUMNS_CONF, confs);
+		}
+	}
+
+	/**
+	 * Converts TO user list from string to array of string
+	 */
+	private static migrateEmergencyTOs():void {
+		const confsStr = this.get(DataStore.EMERGENCY_PARAMS);
+		if(confsStr) {
+			const confs:TwitchatDataTypes.EmergencyParamsData = JSON.parse(confsStr);
+			if(typeof confs.toUsers === "string") {
+				console.log("Migrate", confs.toUsers);
+				confs.toUsers = (confs.toUsers as string).split(/[^a-z0-9_]+/gi);
+				console.log("Migrated", confs.toUsers);
+			}
+			this.set(DataStore.EMERGENCY_PARAMS, confs);
+		}
 	}
 }

@@ -159,8 +159,11 @@ export default class TTSUtils {
 
 		const m:SpokenMessage = {message, id, date: Date.now()};
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			if(StoreProxy.tts.params.ttsPerms.users.toLowerCase().split(",").includes(message.user.login.toLowerCase())) {
+			if(StoreProxy.tts.params.ttsPerms.usersAllowed.includes(message.user.login.toLowerCase())) {
 				m.force = true;
+			}
+			if(StoreProxy.tts.params.ttsPerms.usersRefused.includes(message.user.login.toLowerCase())) {
+				return;
 			}
 		}
 

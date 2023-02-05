@@ -28,8 +28,6 @@
 			"param_readPredictions": "Prediction results",
 			"param_readBingos": "Bingo results",
 			"param_readRaffle": "Raffle results",
-			"param_readUsers": "Users to read out loud",
-			"param_readUsers_add": "username...",
 			"param_readTimeouts": "User timedout",
 			"param_readBans": "User banned",
 			"param_readUnbans": "User unbanned",

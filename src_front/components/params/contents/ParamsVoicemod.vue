@@ -44,7 +44,7 @@ import type { StyleValue } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 
 @Options({
 	props:{},
@@ -72,7 +72,8 @@ export default class ParamsVoicemod extends Vue {
 		all: false,
 		follower:true,
 		follower_duration_ms:0,
-		users: ""
+		usersAllowed:[],
+		usersRefused:[],
 	}
 	
 	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
@@ -202,7 +203,8 @@ export default class ParamsVoicemod extends Vue {
 			this.permissions.vips = storedPermissions?.vips;
 			this.permissions.subs = storedPermissions?.subs;
 			this.permissions.all = storedPermissions?.all;
-			this.permissions.users = storedPermissions?.users;
+			this.permissions.usersAllowed = storedPermissions?.usersAllowed;
+			this.permissions.usersRefused = storedPermissions?.usersRefused;
 		}
 	}
 }

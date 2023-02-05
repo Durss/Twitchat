@@ -31,7 +31,10 @@ export const storeVoice = defineStore('voice', {
 				vips:false,
 				subs:false,
 				all:false,
-				users:""
+				follower:false,
+				follower_duration_ms:0,
+				usersAllowed:[],
+				usersRefused:[],
 			},
 		},
 	} as IVoiceState),

@@ -39,19 +39,6 @@
 				<ParamItem class="item" :paramData="param_read1stMessageToday" />
 				<ParamItem class="item" :paramData="param_read1stTimeChatters" />
 				<ParamItem class="item" :paramData="param_readAutomod" />
-				<div class="item">
-					<img class="icon" src="@/assets/icons/user_purple.svg">
-					<label class="item">{{ $t(param_readUsers.labelKey as string) }}</label>
-					<vue-select class="item itemSelector" label="label"
-						:placeholder="$t('tts.messages.param_readUsers_add')"
-						v-model="param_readUsers.listValues"
-						:create-option="(v:string) => { return {label: v, value: v} }"
-						:calculate-position="$placeDropdown"
-						appendToBody
-						taggable
-						multiple
-					></vue-select>
-				</div>
 			</section>
 			
 			<section>
@@ -92,7 +79,7 @@ import Button from '../../Button.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 
 @Options({
 	props:{},
@@ -165,7 +152,6 @@ export default class ParamsTTS extends Vue {
 	public param_read1stTimeChattersPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholder1stTimeChatters, maxLength:300};
 	public param_readAutomod:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, label:"", icon:"automod_purple.svg" };
 	public param_readAutomodPattern:TwitchatDataTypes.ParameterData = {type:"text", value:"", label:"", placeholderList:TTSUtils.placeholderAutomod, maxLength:300};
-	public param_readUsers:TwitchatDataTypes.ParameterData = {type:"list", listValues:[], value:"", label:""};
 	public param_ttsPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -174,7 +160,8 @@ export default class ParamsTTS extends Vue {
 		all:false,
 		follower:true,
 		follower_duration_ms:0,
-		users:"",
+		usersAllowed:[],
+		usersRefused:[],
 	};
 
 	public get holderStyles():StyleValue {
@@ -238,7 +225,6 @@ export default class ParamsTTS extends Vue {
 			readBansPattern:this.param_readBansPattern.value as string,
 			readUnbans:this.param_readUnbans.value as boolean,
 			readUnbansPattern:this.param_readUnbansPattern.value as string,
-			readUsers:this.param_readUsers.listValues!.map(v => v.value) as string[],
 		};
 	}
 
@@ -273,7 +259,6 @@ export default class ParamsTTS extends Vue {
 		this.param_readPredictions.labelKey			= "tts.messages.param_readPredictions";
 		this.param_readBingos.labelKey				= "tts.messages.param_readBingos";
 		this.param_readRaffle.labelKey				= "tts.messages.param_readRaffle";
-		this.param_readUsers.labelKey				= "tts.messages.param_readUsers";
 		this.param_read1stMessageToday.labelKey		= "tts.messages.param_read1stMessageToday";
 		this.param_read1stTimeChatters.labelKey		= "tts.messages.param_read1stTimeChatters";
 		this.param_readAutomod.labelKey				= "tts.messages.param_readAutomod";
@@ -318,7 +303,6 @@ export default class ParamsTTS extends Vue {
 		this.param_pitch.value = params.pitch;
 		this.param_voice.value = params.voice;
 		this.param_ttsPerms = params.ttsPerms;
-		this.param_readUsers.listValues = (params.readUsers ?? []).map(v => { return {label:v, value:v}});
 		this.param_removeEmotes.value = params.removeEmotes;
 		this.param_maxLength.value = params.maxLength;
 		this.param_maxDuration.value = params.maxDuration;

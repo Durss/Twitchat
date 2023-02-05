@@ -52,7 +52,9 @@
 			"preset_revenues": "Revenues",
 			"no_selection": "Please select at least one filter",
 			"hide_users": "Hide specific users",
+			"hide_users_placeholder": "type username...",
 			"scope_missing": "Needs missing authorization. Click to grant permission.",
+			"whispers_permissions": "Filter allowed users",
 			"message_types": {
 				"twitchat_ad": "Twitchat updates and tips",
 				"ban": "Bans",
@@ -95,6 +97,7 @@
 				"short": "Short messages"
 			},
 			"commands": "Hide specific commands",
+			"commands_placeholder": "type command...",
 			"tracked_tt": "Messages sent by viewers<br>you added to the tracked users",
 			"short_tt": "Messages shorter than 4 chars<br>or containing mostly emotes"
 		},

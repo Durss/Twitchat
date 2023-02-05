@@ -35,7 +35,7 @@
 			"subsOnly": "Subs only",
 			"emotesOnly": "Emotes only",
 			"autoTO": "Timeout users for 30min (ex: timeout wizebot, streamelements, etc if you don't want them to keep alerting for new followers on your chat)",
-			"autoTO_placeholder": "user1, user2, user3, ...",
+			"autoTO_placeholder": "type username ...",
 			"noTrigger": "Disable Twitchat triggers (follow, subs, bits, raid)"
 		}
 	}

@@ -27,7 +27,7 @@ export const storeEmergency = defineStore('emergency', {
 			slowMode:false,
 			followOnlyDuration:60,
 			slowModeDuration:10,
-			toUsers:"",
+			toUsers:[],
 			obsScene:"",
 			obsSources:[],
 			chatCmd:"",
@@ -39,7 +39,8 @@ export const storeEmergency = defineStore('emergency', {
 				all:false,
 				follower:false,
 				follower_duration_ms:0,
-				users:""
+				usersAllowed:[],
+				usersRefused:[],
 			},
 			autoEnableOnShieldmode:true,
 			autoEnableOnFollowbot:true,
@@ -101,7 +102,7 @@ export const storeEmergency = defineStore('emergency', {
 					if(!userToPrevModState[channelId]) {
 						userToPrevModState[channelId] = {};
 					}
-					const usersNames = this.params.toUsers.split(/[^a-z0-9_]+/gi);
+					const usersNames = this.params.toUsers;
 					for (let i = 0; i < usersNames.length; i++) {
 						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
 							userToPrevModState[channelId][u.id] = u.channelInfo[channelId].is_moderator === true;
@@ -133,7 +134,7 @@ export const storeEmergency = defineStore('emergency', {
 					}
 				}
 				if(this.params.toUsers) {
-					const usersNames = this.params.toUsers.split(/[^a-z0-9_]+/gi);
+					const usersNames = this.params.toUsers;
 					for (let i = 0; i < usersNames.length; i++) {
 						await StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, async (u)=> {
 							await TwitchUtils.unbanUser(u, channelId);

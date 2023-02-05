@@ -19,7 +19,8 @@ export const storeOBS = defineStore('obs', {
 			all:false,
 			follower:false,
 			follower_duration_ms:0,
-			users:""
+			usersAllowed:[],
+			usersRefused:[],
 		},
 	} as IOBSState),
 

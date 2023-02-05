@@ -52,7 +52,9 @@
 			"preset_revenues": "Revenus",
 			"no_selection": "Sélectionnez au moins un filtre",
 			"hide_users": "Masquer des personnes spécifiques",
+			"hide_users_placeholder": "entrez un pseudo...",
 			"scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
+			"whispers_permissions": "Filtrer les personnes autorisées",
 			"message_types": {
 				"twitchat_ad": "MàJ et astuces Twitchat",
 				"ban": "Bans",
@@ -84,7 +86,7 @@
 				"vips": "Envoyé par des VIPs",
 				"subs": "Envoyé par des abonné·es",
 				"moderators": "Envoyé par des modérateurices",
-				"partners": "Envoyé par des partnaires",
+				"partners": "Envoyé par des partenaires",
 				"bots": "Envoyé par des bots",
 				"tracked": "Envoyé par une personne suivie",
 				"deleted": "Messages supprimés",
@@ -95,6 +97,7 @@
 				"short": "Messages courts"
 			},
 			"commands": "Masquer des commandes spécifiques",
+			"commands_placeholder": "entrez une commande...",
 			"tracked_tt": "Messages envoyés par des personnes<br>pour lesquelles vous avez activé<br>le suivit de messages",
 			"short_tt": "Messages plus courts que 4 caractères<br>ou contenant principalement des emotes"
 		},

@@ -350,6 +350,7 @@ import ChatStreamOnOff from './ChatStreamOnOff.vue';
 import ChatMessageClipPending from './ChatMessageClipPending.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import ChatTimerResult from './ChatTimerResult.vue';
+import Utils from '@/utils/Utils';
 
 @Options({
 	components: {
@@ -457,7 +458,7 @@ export default class MessageList extends Vue {
 		const username = this.conversation[0].user.login.toLowerCase();
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		let label = "";
-		if (permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1) {
+		if (permissions.usersAllowed.findIndex(v=>v.toLowerCase() === username) == -1) {
 			label = this.$t("tts.read_user_start", {USER:username})
 		} else {
 			label = this.$t("tts.read_user_stop", {USER:username})
@@ -558,6 +559,8 @@ export default class MessageList extends Vue {
 	 * Pause the chat if requested
 	 */
 	public async onHoverList(): Promise<void> {
+		if(this.hovered) return;
+
 		this.hovered = true;
 		if (this.lightMode || !this.$store("params").features.lockAutoScroll.value) return;
 		const scrollDown = !this.lockScroll;
@@ -579,6 +582,8 @@ export default class MessageList extends Vue {
 	 * Unpausse chat if no new message
 	 */
 	public onLeaveList(): void {
+		if(!this.hovered) return;
+
 		this.hovered = false;
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
@@ -594,7 +599,7 @@ export default class MessageList extends Vue {
 	public toggleReadUser(): void {
 		const username = this.conversation[0].user.login?.toLowerCase();
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
-		const read = permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1;
+		const read = permissions.usersAllowed.findIndex(v=>v.toLowerCase() === username) == -1;
 		this.$store("tts").ttsReadUser(this.conversation[0].user, read);
 	}
 
@@ -654,9 +659,6 @@ export default class MessageList extends Vue {
 	 * @param m 
 	 */
 	private shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
-		let blockedSpecificCmds = this.config.commandsBlockList?.toLowerCase().split(",").map(v=>v.trim()) ?? [];//Split commands by non-alphanumeric characters
-		let blockedSpecificUsers = this.config.userBlockList?.toLowerCase().split(/[^a-z0-9_]+/gi) ?? [];//Split commands by non-alphanumeric characters
-
 		if(this.lightMode) {
 			//If in light mode, only allow normal chat messages that are not deleted/moded/...
 			return m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -686,15 +688,15 @@ export default class MessageList extends Vue {
 				}
 				
 				//Ignore specific users
-				if (m.user.displayName.length > 0 && blockedSpecificUsers.includes(m.user.login.toLowerCase())) {
+				if (m.user.displayName.length > 0 && this.config.userBlockList.includes(m.user.login.toLowerCase())) {
 					return false;
 				}
 
 				//Ignore specific commands
-				if (this.config.messageFilters.commands === true && blockedSpecificCmds.length > 0) {
+				if (this.config.messageFilters.commands === true && this.config.commandsBlockList.length > 0) {
 					const cleanMess = m.message.trim().toLowerCase();
-					for (let i = 0; i < blockedSpecificCmds.length; i++) {
-						const cmd = blockedSpecificCmds[i];
+					for (let i = 0; i < this.config.commandsBlockList.length; i++) {
+						const cmd = this.config.commandsBlockList[i];
 						if(cmd.length > 0 && cleanMess.indexOf(cmd) > -1) {
 							return false;
 						}
@@ -742,7 +744,7 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
-				return this.config.filters.whisper === true;
+				return this.config.filters.whisper === true && Utils.checkPermissions(this.config.whispersPermissions, m.user, m.channel_id);
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {

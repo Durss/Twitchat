@@ -53,7 +53,8 @@ export const storeMain = defineStore("main", {
 				all:false,
 				follower:false,
 				follower_duration_ms:0,
-				users:""
+				usersAllowed:[],
+				usersRefused:[],
 			},
 		},
 		chatAlert:null,
@@ -189,7 +190,7 @@ export const storeMain = defineStore("main", {
 							}
 						});
 					});
-					await DataStore.asyncMigration();
+					await DataStore.migrateData();
 				}catch(error) {
 					console.log(error);
 					sAuth.authenticated = false;

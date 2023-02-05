@@ -39,13 +39,15 @@ import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
+import Utils from './utils/Utils';
 
 const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin);
+DataStore.init();
 
 let lang: string = navigator.language || (<any>navigator)['userLanguage'];
 lang = lang.substring(0, 2).toLowerCase();
-const sLang = DataStore.get(DataStore.LANGUAGE, false);
+const sLang = DataStore.get(DataStore.LANGUAGE);
 if(sLang) lang = sLang;
 const i18n = createI18n({
 	locale:lang,
@@ -273,9 +275,6 @@ function buildApp() {
 	app.config.globalProperties.$overlayURL = overlayURL;
 	app.config.globalProperties.$placeDropdown = placeDropdown;
 	
-	
-	DataStore.init();
-	
 	window.addEventListener("beforeinstallprompt", (e:Event)=> {
 		e.preventDefault();
 		StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
@@ -293,3 +292,46 @@ function buildApp() {
 		}
 	})
 }
+
+const p:TwitchatDataTypes.PermissionsData = {
+	all:false,
+	broadcaster:false,
+	mods:false,
+	subs:false,
+	vips:false,
+	follower:true,
+	follower_duration_ms:0,
+	usersAllowed:[],
+	usersRefused:[],
+};
+let chanInfo:TwitchatDataTypes.UserChannelInfo = {
+	badges:[],
+	following_date_ms:0,
+	online:false,
+	is_banned:false,
+	is_blocked:false,
+	is_broadcaster:false,
+	is_following:false,
+	is_gifter:false,
+	is_moderator:false,
+	is_subscriber:false,
+	is_vip:false,
+}
+const user:TwitchatDataTypes.TwitchatUser = {
+	channelInfo:{"0":chanInfo},
+	id:"",
+	login:"",
+	displayName:"",
+	donor:{level:0, state:false, upgrade:false},
+	greeted:false,
+	is_affiliate:false,
+	is_bot:false,
+	is_partner:false,
+	is_raider:false,
+	is_tracked:false,
+	platform:"twitch",
+	pronouns:"",
+	pronounsLabel:"",
+	pronounsTooltip:"",
+}
+Utils.checkPermissions(p, user, "0");

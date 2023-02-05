@@ -56,8 +56,9 @@ export namespace TwitchatDataTypes {
 		filters:{[key in typeof MessageListFilterTypes[number]]:boolean};
 		//Specific sub filters for chat messages
 		messageFilters:ChatColumnsConfigMessageFilters;
-		commandsBlockList:string;
-		userBlockList:string;
+		commandsBlockList:string[];
+		userBlockList:string[];
+		whispersPermissions:PermissionsData;
 	}
 	
 	/**
@@ -177,9 +178,10 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface ParameterData {
 		id?:number;
-		type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse";
+		type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse"|"editablelist";
 		value:boolean|number|string|string[]|undefined;
 		listValues?:ParameterDataListValue[];
+		stringListValues?:string[];
 		longText?:boolean;
 		noInput?:boolean;//Disable input to only keep title (used for shoutout param)
 		label?:string;
@@ -191,6 +193,7 @@ export namespace TwitchatDataTypes {
 		icon?:string;
 		iconURL?:string;
 		placeholder?:string;//Placeholder for the input
+		placeholderKey?:string;//i18n key for the placeholder of the input 
 		placeholderList?:PlaceholderEntry[];//creates clickable {XXX} placeholders
 		parent?:number;
 		example?:string;//Displays an icon with a tooltip containing the specified image example
@@ -382,7 +385,13 @@ export namespace TwitchatDataTypes {
 		vips:boolean;
 		subs:boolean;
 		all:boolean;
-		users:string;
+		usersAllowed:string[];
+		usersRefused:string[];
+		
+		/**
+		 * @deprecated Only here for typings on data migration. Removed in favor of the new "usersAllowed" prop
+		 */
+		users?:string;
 	}
 
 	/**
@@ -545,7 +554,10 @@ export namespace TwitchatDataTypes {
 		readUnbans: boolean;
 		readUnbansPattern:string;
 		ttsPerms:PermissionsData;
-		readUsers:string[];
+		/**
+		 * @deprecated was a kind of duplicate of what "ttsPerms" allows
+		 */
+		readUsers?:string[];
 	}
 
 	/**
@@ -563,7 +575,7 @@ export namespace TwitchatDataTypes {
 		autoEnableOnFollowbot:boolean;
 		followOnlyDuration:number;
 		slowModeDuration:number;
-		toUsers:string;
+		toUsers:string[];
 		obsScene:string;
 		obsSources:string[];
 		autoEnableOnShieldmode:boolean;

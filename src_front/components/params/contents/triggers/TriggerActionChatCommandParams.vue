@@ -30,7 +30,7 @@ import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
-import PermissionsForm from '../obs/PermissionsForm.vue';
+import PermissionsForm from '../../../PermissionsForm.vue';
 
 @Options({
 	props:{
@@ -65,7 +65,8 @@ export default class TriggerActionChatCommandParams extends Vue {
 				all:true,
 				follower:true,
 				follower_duration_ms:0,
-				users:"",
+				usersAllowed:[],
+				usersRefused:[],
 			}
 		}
 		if(!this.triggerData.cooldown) {

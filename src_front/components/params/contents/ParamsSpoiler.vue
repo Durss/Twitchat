@@ -57,7 +57,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import Splitter from '../../Splitter.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 
 @Options({
 	props:{},
@@ -79,7 +79,8 @@ export default class ParamsSpoiler extends Vue {
 		all:false,
 		follower:true,
 		follower_duration_ms:0,
-		users:"",
+		usersAllowed:[],
+		usersRefused:[],
 	};
 
 	public beforeMount(): void {

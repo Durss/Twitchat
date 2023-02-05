@@ -74,7 +74,7 @@ import Button from '../../Button.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ToggleButton from '../../ToggleButton.vue';
 import ParamItem from '../ParamItem.vue';
-import PermissionsForm from './obs/PermissionsForm.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 
 @Options({
 	props:{},

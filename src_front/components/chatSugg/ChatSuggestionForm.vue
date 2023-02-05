@@ -63,7 +63,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
 import Button from '../Button.vue';
-import PermissionsForm from '../params/contents/obs/PermissionsForm.vue';
+import PermissionsForm from '../PermissionsForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -92,7 +92,8 @@ export default class ChatSuggestionForm extends Vue {
 		all:true,
 		follower:true,
 		follower_duration_ms:0,
-		users:"",
+		usersAllowed:[],
+		usersRefused:[],
 	}
 
 	public get example():string {

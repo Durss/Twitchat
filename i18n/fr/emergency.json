@@ -35,7 +35,7 @@
 			"subsOnly": "Subs only",
 			"emotesOnly": "Emotes only",
 			"autoTO": "Timeout pour 30min (ex: wizebot, streamelements, etc si vous souhaitez les empêcher d'annoncer les nouveaux follow dans le tchat)",
-			"autoTO_placeholder": "login1, login2, login3, ...",
+			"autoTO_placeholder": "entrez pseudo...",
 			"noTrigger": "Désactiver les triggers Twitchat (follow, subs, bits, raid)"
 		}
 	}

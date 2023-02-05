@@ -146,7 +146,7 @@ export default class UserCard extends Vue {
 		const username = this.user.login.toLowerCase();
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
 		let label = "";
-		if (permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(username) == -1) {
+		if (permissions.usersAllowed.findIndex(v=>v.toLowerCase() === username) == -1) {
 			label = this.$t("tts.read_user_start_light", {USER:username})
 		} else {
 			label = this.$t("tts.read_user_stop_light", {USER:username})
@@ -297,7 +297,7 @@ export default class UserCard extends Vue {
 	 */
 	public toggleReadUser(): void {
 		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
-		const read = permissions.users.toLowerCase().split(/[^a-z0-9_]+/gi).indexOf(this.user!.login) == -1;
+		const read = permissions.usersAllowed.findIndex(v=>v.toLowerCase() === this.user!.login.toLowerCase()) == -1;
 		this.$store("tts").ttsReadUser(this.user!, read);
 	}
 

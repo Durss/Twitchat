@@ -70,9 +70,9 @@ export const storeTTS = defineStore('tts', {
 				all:true,
 				follower:true,
 				follower_duration_ms:0,
-				users:""
+				usersAllowed:[],
+				usersRefused:[],
 			},
-			readUsers:[],
 		},
 	} as ITTSState),
 
@@ -92,15 +92,18 @@ export const storeTTS = defineStore('tts', {
 		},
 
 		ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean) {
-			let list = this.params.readUsers;
-			const index = list.indexOf(user.login);
+			let list = this.params.ttsPerms.usersAllowed;
+			const index = list.findIndex(v=> v.toLowerCase() == user.login.toLowerCase());
 			if(index > -1) {
+				//User already there, remove them if requested to stop reading them
 				if(!read) list.splice(index, 1);
 			}else if(read){
+				//User not yet in the list, add them if requested to read them
 				list.push(user.login);
 			}
+			//Remove users whose name is less than 2 chars
 			list = list.filter(v => v.trim().length > 2);
-			this.params.ttsPerms.users = list.join(",");
+			this.params.ttsPerms.usersAllowed = list;
 			this.setTTSParams(this.params);//Triggers a server save
 
 			let message = "";

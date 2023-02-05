@@ -1,9 +1,38 @@
 import Ajv from "ajv";
 
+
 /**
  * Data schema to make sure people don't send random or invalid data to the server
  */
  const UserDataSchema = {
+	$id: "http://twitchat.fr/schemas/defs.json",
+	definitions: {
+		permissions: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				broadcaster: {type:"boolean"},
+				mods: {type:"boolean"},
+				vips: {type:"boolean"},
+				subs: {type:"boolean"},
+				follower: {type:"boolean"},
+				follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
+				all: {type:"boolean"},
+				usersAllowed: {
+					type:"array",
+					maxItems:10000,
+					items:[{type:"string", maxLength:40}],
+				},
+				usersRefused: {
+					type:"array",
+					maxItems:10000,
+					items:[{type:"string", maxLength:40}],
+				},
+				users: {type:"string", maxLength:1000000},//Keep it a little, remove it once most of the users have migrated their data
+			}
+		}
+	},
+
 	type:"object",
 	additionalProperties: false,
 	properties:{
@@ -16,22 +45,10 @@ import Ajv from "ajv";
 				unmuteCommand:{type:"string", maxLength:500},
 			}
 		},
-		obsConf_permissions: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				broadcaster: {type:"boolean"},
-				mods: {type:"boolean"},
-				vips: {type:"boolean"},
-				subs: {type:"boolean"},
-				follower: {type:"boolean"},
-				follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
-				all: {type:"boolean"},
-				users: {type:"string", maxLength:1000},
-			}
-		},
+		obsConf_permissions: { $ref: "defs.json#/definitions/permissions" },
 		obsConf_scenes: {
 			type:"array",
+			maxItems:10000,
 			items:[
 				{
 					type:"object",
@@ -70,6 +87,7 @@ import Ajv from "ajv";
 								repeatMinMessages: {type:"number", minimum:0, maximum:9999},
 								dates:{
 									type:"array",
+									maxItems:10000,
 									items: [
 										{
 											type: "object",
@@ -84,19 +102,7 @@ import Ajv from "ajv";
 								}
 							}
 						},
-						permissions: {
-							type:"object",
-							properties: {
-								broadcaster: {type:"boolean"},
-								mods: {type:"boolean"},
-								vips: {type:"boolean"},
-								subs: {type:"boolean"},
-								follower: {type:"boolean"},
-								follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
-								all: {type:"boolean"},
-								users: {type:"string", maxLength:1000000},
-							}
-						},
+						permissions: { $ref: "defs.json#/definitions/permissions" },
 						cooldown: {
 							type:"object",
 							properties: {
@@ -107,6 +113,7 @@ import Ajv from "ajv";
 						},
 						actions:{
 							type:"array",
+							maxItems:100,
 							items: [
 								{
 									type: "object",
@@ -142,14 +149,17 @@ import Ajv from "ajv";
 										mode: {type:"string", maxLength:20},
 										list: {
 											type:"array",
+											maxItems:10000,
 											items:[{type:"string", maxLength:500}],
 										},
 										counters: {
 											type:"array",
+											maxItems:100,
 											items:[{type:"string", maxLength:40}],
 										},
 										queryParams: {
 											type:"array",
+											maxItems:100,
 											items:[{type:"string", maxLength:50}],
 										},
 										raffleData: {
@@ -163,6 +173,7 @@ import Ajv from "ajv";
 												created_at: {type:"number", minimum:0, maximum:9999999999999},
 												entries: {
 													type:"array",
+													maxItems:10000,
 													items: [
 														{
 															type: "object",
@@ -206,6 +217,7 @@ import Ajv from "ajv";
 												title: {type:"string", maxLength:60},
 												answers: {
 													type:"array",
+													maxItems:50,
 													items:[{type:"string", maxLength:25}],
 												},
 											}
@@ -218,6 +230,7 @@ import Ajv from "ajv";
 												title: {type:"string", maxLength:60},
 												answers: {
 													type:"array",
+													maxItems:50,
 													items:[{type:"string", maxLength:25}],
 												},
 											}
@@ -302,6 +315,7 @@ import Ajv from "ajv";
 		},
 		voiceActions: {
 			type:"array",
+			maxItems:1000,
 			items: [
 				{
 					type: "object",
@@ -314,8 +328,9 @@ import Ajv from "ajv";
 			]
 		},
 		voiceLang: {type:"string", maxLength:20},
-		"streamInfoPresets":{
+		streamInfoPresets:{
 			type:"array",
+			maxItems:1000,
 			items:[
 				{
 					type:"object",
@@ -327,6 +342,7 @@ import Ajv from "ajv";
 						categoryID:{type:"string", maxLength:10},
 						tags:{
 							type:"array",
+							maxItems:30,
 							items:[{type:"string", maxLength:100}],
 						},
 					}
@@ -502,25 +518,12 @@ import Ajv from "ajv";
 				readBansPattern: {type:"string", maxLength:300},
 				readUnbans: {type:"boolean"},
 				readUnbansPattern: {type:"string", maxLength:300},
-			  
 				readUsers:{
 					type:"array",
+					maxItems:10000,
 					items:[{type:"string", maxLength:50}],
 				},
-				ttsPerms:{
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						broadcaster: {type:"boolean"},
-						mods: {type:"boolean"},
-						vips: {type:"boolean"},
-						subs: {type:"boolean"},
-						follower: {type:"boolean"},
-						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
-						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000000},
-					}
-				},
+				ttsPerms:{ $ref: "defs.json#/definitions/permissions" },
 			}
 		},
 		emergencyParams: {
@@ -529,20 +532,7 @@ import Ajv from "ajv";
 			properties: {
 				enabled:{type:"boolean"},
 				chatCmd:{type:"string", maxLength:100},
-				chatCmdPerms:{
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						broadcaster: {type:"boolean"},
-						mods: {type:"boolean"},
-						vips: {type:"boolean"},
-						subs: {type:"boolean"},
-						follower: {type:"boolean"},
-						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
-						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000000},
-					}
-				},
+				chatCmdPerms:{ $ref: "defs.json#/definitions/permissions" },
 				slowMode:{type:"boolean"},
 				emotesOnly:{type:"boolean"},
 				subOnly:{type:"boolean"},
@@ -550,10 +540,15 @@ import Ajv from "ajv";
 				noTriggers:{type:"boolean"},
 				followOnlyDuration:{type:"number"},
 				slowModeDuration:{type:"number"},
-				toUsers:{type:"string", maxLength:1000000},
+				toUsers:{
+					type:"array",
+					maxItems:1000,
+					items:[{type:"string", maxLength:50}],
+				},
 				obsScene:{type:"string", maxLength:500},
 				obsSources:{
 					type:"array",
+					maxItems:1000,
 					items:[{type:"string", maxLength:100}],
 				},
 				autoEnableOnFollowbot:{type:"boolean"},
@@ -576,20 +571,7 @@ import Ajv from "ajv";
 			type:"object",
 			additionalProperties: false,
 			properties: {
-				permissions:{
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						broadcaster: {type:"boolean"},
-						mods: {type:"boolean"},
-						vips: {type:"boolean"},
-						subs: {type:"boolean"},
-						follower: {type:"boolean"},
-						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
-						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000000},
-					}
-				},
+				permissions:{ $ref: "defs.json#/definitions/permissions" },
 			}
 		},
 		chatHighlightParams: {
@@ -609,20 +591,7 @@ import Ajv from "ajv";
 				shake: {type:"boolean"},
 				sound: {type:"boolean"},
 				blink: {type:"boolean"},
-				permissions:{
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						broadcaster: {type:"boolean"},
-						mods: {type:"boolean"},
-						vips: {type:"boolean"},
-						subs: {type:"boolean"},
-						follower: {type:"boolean"},
-						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
-						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000000},
-					}
-				},
+				permissions:{ $ref: "defs.json#/definitions/permissions" },
 			}
 		},
 		
@@ -655,20 +624,7 @@ import Ajv from "ajv";
 						".*": {type:"string", maxLength:100},
 					}
 				},
-				chatCmdPerms:{
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						broadcaster: {type:"boolean"},
-						mods: {type:"boolean"},
-						vips: {type:"boolean"},
-						subs: {type:"boolean"},
-						follower: {type:"boolean"},
-						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
-						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000000},
-					}
-				},
+				chatCmdPerms:{ $ref: "defs.json#/definitions/permissions" },
 			}
 		},
 
@@ -678,20 +634,7 @@ import Ajv from "ajv";
 			properties: {
 				enabled: {type:"boolean"},
 				banUserNames: {type:"boolean"},
-				exludedUsers: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						broadcaster: {type:"boolean"},
-						mods: {type:"boolean"},
-						vips: {type:"boolean"},
-						subs: {type:"boolean"},
-						follower: {type:"boolean"},
-						follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
-						all: {type:"boolean"},
-						users: {type:"string", maxLength:1000000},
-					}
-				},
+				exludedUsers: { $ref: "defs.json#/definitions/permissions" },
 				keywordsFilters:{
 					type:"object",
 					additionalProperties: false,
@@ -708,17 +651,27 @@ import Ajv from "ajv";
 
 		chatColumnsConf: {
 			type:"array",
+			maxItems:100,
 			items:[
 				{
 					type:"object",
 					additionalProperties: false,
 					properties: {
 						id: {type:"string", maxLength:40},
-						commandsBlockList: {type:"string", maxLength:1000000},
-						userBlockList: {type:"string", maxLength:1000000},
+						commandsBlockList: {
+							type:"array",
+							maxItems:10000,
+							items:[{type:"string", maxLength:100}],
+						},
+						userBlockList: {
+							type:"array",
+							maxItems:10000,
+							items:[{type:"string", maxLength:40}],
+						},
 						liveLockCount: {type:"number", minimum:0, maximum:10},
 						order: {type:"number", minimum:0, maximum:1000},
 						size: {type:"number", minimum:0, maximum:10},
+						whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
 						filters:{
 							type:"object",
 							additionalProperties: true,
@@ -740,6 +693,7 @@ import Ajv from "ajv";
 
 		counters: {
 			type:"array",
+			maxItems:10000,
 			items:[
 				{
 					type:"object",
@@ -776,5 +730,11 @@ import Ajv from "ajv";
 	}
 }
 
-const ajv = new Ajv({strictTuples: false, verbose:true, removeAdditional:true, discriminator:true, allErrors:true });
+const ajv = new Ajv({
+	strictTuples: false,
+	verbose:true,
+	removeAdditional:true,
+	discriminator:true,
+	allErrors:true,
+});
 export const schemaValidator = ajv.compile( UserDataSchema );

@@ -51,7 +51,7 @@ import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Options, Vue } from 'vue-class-component';
 import ParamItem from '../../ParamItem.vue';
-import PermissionsForm from '../obs/PermissionsForm.vue';
+import PermissionsForm from '../../../PermissionsForm.vue';
 
 @Options({
 	props:{
