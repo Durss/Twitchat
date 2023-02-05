@@ -196,6 +196,7 @@ export const storeAuth = defineStore('auth', {
 						//Parse data from storage
 						sMain.loadDataFromStorage();
 					}
+					DataStore.migrateData();
 				}
 				
 				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);

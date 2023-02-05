@@ -204,11 +204,11 @@ export default class Utils {
 	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
 		const chanInfo = user.channelInfo[channelId];
 		
-		if(permissions.usersAllowed.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
+		if(permissions.usersAllowed?.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
 			return true;
 		}
 		
-		if(permissions.usersRefused.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
+		if(permissions.usersRefused?.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
 			return false;
 		}
 
