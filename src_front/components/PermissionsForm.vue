@@ -59,7 +59,6 @@ export default class PermissionsForm extends Vue {
 	}
 
 	public beforeMount():void {
-		console.log(JSON.parse(JSON.stringify(this.modelValue)));
 		if(this.modelValue.follower === undefined) this.modelValue.follower = false;
 		this.param_followers.children	= [this.param_followers_ms];
 		this.param_followers_ms.value	= (this.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
