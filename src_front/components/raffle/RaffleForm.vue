@@ -262,7 +262,6 @@ export default class RaffleForm extends Vue {
 		this.joinPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
 
 		if(this.triggerMode && this.action.raffleData) {
-			console.log( this.action.raffleData);
 			this.mode = this.action.raffleData.mode;
 			this.command.value = this.action.raffleData.command
 			this.enterDuration.value = this.action.raffleData.duration_s/60;

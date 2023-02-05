@@ -9,36 +9,6 @@
 		<ParamItem :paramData="param_allowed" class="row allow" v-model="modelValue.usersAllowed" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
 		<ParamItem :paramData="param_refused" class="row refuse" v-model="modelValue.usersRefused" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
 		
-		<!-- <div class="row userSelector">
-			<img class="icon" src="@/assets/icons/checkmark_white.svg">
-			<label class="item">{{ $t("global.permissions.users_allowed") }}</label>
-			<vue-select class="list" label="label"
-				:placeholder="$t('global.permissions.users_placeholder')"
-				v-model="modelValue.usersAllowed"
-				:calculate-position="$placeDropdown"
-				appendToBody
-				taggable
-				multiple
-				@option:created="$emit('update:modelValue', modelValue)"
-				@option:deselected="$emit('update:modelValue', modelValue)"
-			></vue-select>
-		</div>
-
-		<div class="row userSelector refuse">
-			<img class="icon" src="@/assets/icons/cross_white.svg">
-			<label class="item">{{ $t("global.permissions.users_refused") }}</label>
-			<vue-select class="list" label="label"
-				:placeholder="$t('global.permissions.users_placeholder')"
-				v-model="modelValue.usersRefused"
-				:calculate-position="$placeDropdown"
-				appendToBody
-				taggable
-				multiple
-				@option:created="$emit('update:modelValue', modelValue)"
-				@option:deselected="$emit('update:modelValue', modelValue)"
-			></vue-select>
-		</div> -->
-		
 		<div v-if="noSelection" class="noSelection">{{ $t("global.permissions.nobody") }}</div>
 	</div>
 </template>
@@ -89,6 +59,7 @@ export default class PermissionsForm extends Vue {
 	}
 
 	public beforeMount():void {
+		console.log(JSON.parse(JSON.stringify(this.modelValue)));
 		if(this.modelValue.follower === undefined) this.modelValue.follower = false;
 		this.param_followers.children	= [this.param_followers_ms];
 		this.param_followers_ms.value	= (this.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
@@ -98,8 +69,8 @@ export default class PermissionsForm extends Vue {
 			this.param_mods.icon = this.param_mods.icon?.replace("_purple", "");
 			this.param_vips.icon = this.param_vips.icon?.replace("_purple", "");
 			this.param_subs.icon = this.param_subs.icon?.replace("_purple", "");
-			this.param_followers.icon = this.param_followers.icon?.replace("_purple", "");
 			this.param_all.icon = this.param_all.icon?.replace("_purple", "");
+			this.param_followers.icon = this.param_followers.icon?.replace("_purple", "");
 			this.param_followers_ms.icon = this.param_all.icon?.replace("_purple", "");
 		}
 

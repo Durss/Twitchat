@@ -525,6 +525,10 @@ export default class TriggerActionHandler {
 							}
 							
 							logStep.messages.push({date:Date.now(), value:"Execute OBS action on source \""+step.sourceName+"\""});
+							
+							if(!OBSWebsocket.instance.connected) {
+								logStep.messages.push({date:Date.now(), value:"OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
+							}
 	
 							if(step.text) {
 								try {

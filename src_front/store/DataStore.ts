@@ -196,6 +196,11 @@ export default class DataStore {
 			this.migrateEmergencyTOs();
 			v = "28";
 		}
+		if(v=="28") {
+			this.migratePermissions();
+			this.migrateEmergencyTOs();
+			v = "29";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
@@ -228,7 +233,7 @@ export default class DataStore {
 				//Import data to local storage.
 				const json = await res.json();
 				if(json.success === true) {
-					this.loadFromJSON(json);
+					await this.loadFromJSON(json);
 				}
 			}
 			return res.status != 404;
@@ -242,7 +247,7 @@ export default class DataStore {
 	/**
 	 * Replace local data by the given JSON
 	 */
-	public static loadFromJSON(json:any, fullOverwrite:boolean = false):void {
+	public static async loadFromJSON(json:any):Promise<void> {
 		const backupAutomod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
 		for (const key in json.data) {
 			const value = json.data[key];
@@ -265,7 +270,7 @@ export default class DataStore {
 
 		this.rawStore = json.data;
 		this.dataImported = true;
-		this.init();//Migrate remote data if necessary
+		await this.migrateData();//Migrate remote data if necessary
 	}
 
 	/**
@@ -786,6 +791,8 @@ export default class DataStore {
 					perms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 					perms.usersRefused = [];
 					delete perms.users;
+					// console.log("COMMAND "+key);
+					// console.log(perms);
 				}
 			}
 			this.set(DataStore.TRIGGERS, triggers);
@@ -794,33 +801,37 @@ export default class DataStore {
 		//Migrate automod
 		const automodSrc = this.get(DataStore.AUTOMOD_PARAMS);
 		if(automodSrc) {
-			const automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(automodSrc);
-			const usersAllowed = automod.exludedUsers.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			automod.exludedUsers.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
-			automod.exludedUsers.usersRefused = [];
-			delete automod.exludedUsers.users;
-			this.set(DataStore.AUTOMOD_PARAMS, automod);
+			const confs:TwitchatDataTypes.AutomodParamsData = JSON.parse(automodSrc);
+			const usersAllowed = confs.exludedUsers.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			confs.exludedUsers.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
+			confs.exludedUsers.usersRefused = [];
+			delete confs.exludedUsers.users;
+			// console.log("AUTOMOD");
+			// console.log(confs);
+			this.set(DataStore.AUTOMOD_PARAMS, confs);
 		}
 		
 		//Migrate TTS
 		const ttsSrc = this.get(DataStore.TTS_PARAMS);
 		if(ttsSrc) {
-			const tts:TwitchatDataTypes.TTSParamsData = JSON.parse(ttsSrc);
-			const usersAllowed = tts.ttsPerms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			tts.ttsPerms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
-			tts.ttsPerms.usersRefused = [];
+			const confs:TwitchatDataTypes.TTSParamsData = JSON.parse(ttsSrc);
+			const usersAllowed = confs.ttsPerms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
+			confs.ttsPerms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
+			confs.ttsPerms.usersRefused = [];
 
 			//Transfer "readUsers" data to "usersAllowed"
-			if(tts.readUsers && tts.readUsers.length > 0) {
-				for (let i = 0; i < tts.readUsers.length; i++) {
-					const user = tts.readUsers[i].toLowerCase();
-					if(tts.ttsPerms.usersAllowed.findIndex(v=>v.toLowerCase() == user) == -1) {
-						tts.ttsPerms.usersAllowed.push(user);
+			if(confs.readUsers && confs.readUsers.length > 0) {
+				for (let i = 0; i < confs.readUsers.length; i++) {
+					const user = confs.readUsers[i].toLowerCase();
+					if(confs.ttsPerms.usersAllowed.findIndex(v=>v.toLowerCase() == user) == -1) {
+						confs.ttsPerms.usersAllowed.push(user);
 					}
 				}
 			}
-			delete tts.ttsPerms.users;
-			this.set(DataStore.TTS_PARAMS, tts);
+			delete confs.ttsPerms.users;
+			// console.log("TTS");
+			// console.log(confs);
+			this.set(DataStore.TTS_PARAMS, confs);
 		}
 		
 		//Migrate OBS
@@ -831,6 +842,8 @@ export default class DataStore {
 			perms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.usersRefused = [];
 			delete perms.users;
+			// console.log("OBS");
+			// console.log(perms);
 			this.set(DataStore.OBS_CONF_PERMISSIONS, perms);
 		}
 		
@@ -842,6 +855,8 @@ export default class DataStore {
 			perms.chatCmdPerms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.chatCmdPerms.usersRefused = [];
 			delete perms.chatCmdPerms.users;
+			// console.log("EMERGENCY");
+			// console.log(perms);
 			this.set(DataStore.EMERGENCY_PARAMS, perms);
 		}
 		
@@ -853,6 +868,8 @@ export default class DataStore {
 			perms.permissions.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.permissions.usersRefused = [];
 			delete perms.permissions.users;
+			// console.log("SPOILER");
+			// console.log(perms);
 			this.set(DataStore.SPOILER_PARAMS, perms);
 		}
 		
@@ -864,6 +881,8 @@ export default class DataStore {
 			perms.permissions.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.permissions.usersRefused = [];
 			delete perms.permissions.users;
+			// console.log("CHAT ALERT");
+			// console.log(perms);
 			this.set(DataStore.ALERT_PARAMS, perms);
 		}
 		
@@ -875,6 +894,8 @@ export default class DataStore {
 			perms.chatCmdPerms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.chatCmdPerms.usersRefused = [];
 			delete perms.chatCmdPerms.users;
+			// console.log("VOICEMOD");
+			// console.log(perms);
 			this.set(DataStore.VOICEMOD_PARAMS, perms);
 		}
 
@@ -926,9 +947,9 @@ export default class DataStore {
 		if(confsStr) {
 			const confs:TwitchatDataTypes.EmergencyParamsData = JSON.parse(confsStr);
 			if(typeof confs.toUsers === "string") {
-				console.log("Migrate", confs.toUsers);
-				confs.toUsers = (confs.toUsers as string).split(/[^a-z0-9_]+/gi);
-				console.log("Migrated", confs.toUsers);
+				confs.toUsers = (confs.toUsers as string).split(/[^a-z0-9_]+/gi).filter(v=> v.length > 0);
+			}else{
+				confs.toUsers = confs.toUsers.filter(v=> v.length > 0);
 			}
 			this.set(DataStore.EMERGENCY_PARAMS, confs);
 		}
