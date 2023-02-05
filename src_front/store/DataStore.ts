@@ -783,7 +783,7 @@ export default class DataStore {
 				const perms = triggers[key].permissions;
 				if(perms) {
 					const usersAllowed = perms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-					perms.usersAllowed = usersAllowed ?? [];
+					perms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 					perms.usersRefused = [];
 					delete perms.users;
 				}
@@ -796,7 +796,7 @@ export default class DataStore {
 		if(automodSrc) {
 			const automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(automodSrc);
 			const usersAllowed = automod.exludedUsers.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			automod.exludedUsers.usersAllowed = usersAllowed ?? [];
+			automod.exludedUsers.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			automod.exludedUsers.usersRefused = [];
 			delete automod.exludedUsers.users;
 			this.set(DataStore.AUTOMOD_PARAMS, automod);
@@ -807,7 +807,7 @@ export default class DataStore {
 		if(ttsSrc) {
 			const tts:TwitchatDataTypes.TTSParamsData = JSON.parse(ttsSrc);
 			const usersAllowed = tts.ttsPerms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			tts.ttsPerms.usersAllowed = usersAllowed ?? [];
+			tts.ttsPerms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			tts.ttsPerms.usersRefused = [];
 
 			//Transfer "readUsers" data to "usersAllowed"
@@ -828,7 +828,7 @@ export default class DataStore {
 		if(obsSrc) {
 			const perms:TwitchatDataTypes.PermissionsData = JSON.parse(obsSrc);
 			const usersAllowed = perms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			perms.usersAllowed = usersAllowed ?? [];
+			perms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.usersRefused = [];
 			delete perms.users;
 			this.set(DataStore.OBS_CONF_PERMISSIONS, perms);
@@ -839,7 +839,7 @@ export default class DataStore {
 		if(emergencySrc) {
 			const perms:TwitchatDataTypes.EmergencyParamsData = JSON.parse(emergencySrc);
 			const usersAllowed = perms.chatCmdPerms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			perms.chatCmdPerms.usersAllowed = usersAllowed ?? [];
+			perms.chatCmdPerms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.chatCmdPerms.usersRefused = [];
 			delete perms.chatCmdPerms.users;
 			this.set(DataStore.EMERGENCY_PARAMS, perms);
@@ -850,7 +850,7 @@ export default class DataStore {
 		if(spoilerSrc) {
 			const perms:TwitchatDataTypes.SpoilerParamsData = JSON.parse(spoilerSrc);
 			const usersAllowed = perms.permissions.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			perms.permissions.usersAllowed = usersAllowed ?? [];
+			perms.permissions.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.permissions.usersRefused = [];
 			delete perms.permissions.users;
 			this.set(DataStore.SPOILER_PARAMS, perms);
@@ -861,7 +861,7 @@ export default class DataStore {
 		if(alertSrc) {
 			const perms:TwitchatDataTypes.AlertParamsData = JSON.parse(alertSrc);
 			const usersAllowed = perms.permissions.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			perms.permissions.usersAllowed = usersAllowed ?? [];
+			perms.permissions.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.permissions.usersRefused = [];
 			delete perms.permissions.users;
 			this.set(DataStore.ALERT_PARAMS, perms);
@@ -872,7 +872,7 @@ export default class DataStore {
 		if(voicemodSrc) {
 			const perms:TwitchatDataTypes.VoicemodParamsData = JSON.parse(voicemodSrc);
 			const usersAllowed = perms.chatCmdPerms.users?.toLowerCase().split(/[^a-z0-9_]+/gi);//Split users by non-alphanumeric characters
-			perms.chatCmdPerms.usersAllowed = usersAllowed ?? [];
+			perms.chatCmdPerms.usersAllowed = usersAllowed?.filter(v=>v.length > 0) ?? [];
 			perms.chatCmdPerms.usersRefused = [];
 			delete perms.chatCmdPerms.users;
 			this.set(DataStore.VOICEMOD_PARAMS, perms);
