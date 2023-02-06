@@ -116,7 +116,8 @@
 		</div>
 		
 		<div class="empty" v-if="isSublist && subeventsList.length == 0 && actionList.length === 0 && !showLoading">
-			- no entry -
+			<p>{{ $t("triggers.noTrigger") }}</p>
+			<Button class="createBt" @click="$emit('setContent', countersContent)" v-if="isCounter" :title="$t('triggers.create_counterBt')" />
 		</div>
 
 		<div class="triggerDescription" v-if="((currentEvent && ! isSublist) || (isSublist && (currentSubEvent || actionList.length > 0))) && !showLoading">
@@ -213,7 +214,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import StoreProxy from '@/store/StoreProxy';
-import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerTypesValue, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
@@ -275,6 +276,21 @@ export default class ParamsTriggers extends Vue {
 	public get isSchedule():boolean { return this.currentEvent?.value === TriggerTypes.SCHEDULE; }
 	
 	public get hasChannelPoints():boolean { return StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner; }
+	
+	public get countersContent():string { return TwitchatDataTypes.ParamsCategories.COUNTERS; }
+	
+	public get isCounter():boolean {
+		if(!this.currentEvent) return false;
+		
+		const hasTitleInKey:Partial<(TriggerTypesValue|"0")[]> = [
+			TriggerTypes.COUNTER_ADD,
+			TriggerTypes.COUNTER_DEL,
+			TriggerTypes.COUNTER_LOOPED,
+			TriggerTypes.COUNTER_MAXED,
+			TriggerTypes.COUNTER_MINED,
+		];
+		return hasTitleInKey.includes( this.currentEvent.value );
+	}
 
 	public get triggerKey():string {
 		if(!this.triggerData) return "";
@@ -1157,6 +1173,10 @@ export default class ParamsTriggers extends Vue {
 		font-style: italic;
 		text-align: center;
 		margin-bottom: 1.5em;
+
+		.createBt {
+			margin-top: 1em;
+		}
 	}
 
 	.triggerDescription {

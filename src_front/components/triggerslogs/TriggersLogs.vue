@@ -22,6 +22,7 @@
 						<div class="status" data-tooltip="started from<br>'Test' button" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
 						<div class="date">{{ getFormatedDime(item.date) }}</div>
 						<div class="title">{{ $t(getTriggerInfoFromId(item.triggerId)?.labelKey as string) }}</div>
+						<div class="subtitle" v-if="getTriggerTitleFromId(item.triggerId)">{{ getTriggerTitleFromId(item.triggerId) }}</div>
 					</div>
 					<div class="messages" v-if="idToExpandState[item.id] == true">
 						<ul class="messages">
@@ -52,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { TriggerEvents, type TriggerLog, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, TriggerEvents, type TriggerLog, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -86,6 +87,28 @@ export default class TriggersLogs extends Vue {
 			}
 		}
 		return null;
+	}
+
+	public getTriggerTitleFromId(id:string):string {
+		const info = this.getTriggerInfoFromId(id);
+		if(info) {
+			const hasTitleInKey = [
+				TriggerTypes.SCHEDULE,
+				TriggerTypes.CHAT_COMMAND,
+				TriggerTypes.COUNTER_ADD,
+				TriggerTypes.COUNTER_DEL,
+				TriggerTypes.COUNTER_LOOPED,
+				TriggerTypes.COUNTER_MAXED,
+				TriggerTypes.COUNTER_MINED,
+				TriggerTypes.OBS_SCENE,
+				TriggerTypes.OBS_SOURCE_OFF,
+				TriggerTypes.OBS_SOURCE_ON,
+			]
+			if(hasTitleInKey[info.category]) {
+				return id.split("_").splice(1).join(" ");
+			}
+		}
+		return "";
 	}
 
 	public getFormatedDime(date:number):string {
@@ -157,6 +180,14 @@ export default class TriggersLogs extends Vue {
 				img {
 					height: 100%;
 				}
+			}
+
+			.subtitle {
+				font-size: .8em;
+				background: @mainColor_light;
+				color: @mainColor_normal;
+				padding: 1.5px 5px;
+				border-radius: 5px;
 			}
 		}
 
