@@ -55,7 +55,6 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 	}
 
 	private onChange():void {
-		console.log("CHANGE");
 		this.action.categoryId	= this.category?.id ?? "";
 		this.action.title		= this.title;
 		this.action.tags		= this.tags;

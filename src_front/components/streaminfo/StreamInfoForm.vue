@@ -209,7 +209,6 @@ export default class StreamInfoForm extends Vue {
 				this.category = game;
 			}
 			this.tags = infos.tags.concat();
-			console.log(infos);
 		}catch(error) {
 			this.$store("main").alert( this.$t("error.stream_info_loading") );
 		}
