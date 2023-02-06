@@ -287,6 +287,10 @@ export namespace TwitchatDataTypes {
 		showCountdownOverlay:boolean;
 		customEntries:string;
 		winners?:RaffleEntry[];
+		/**
+		 * @deprectaed use duration_s instead. Only hear for typing on data migration
+		 */
+		duration?:number;
 	}
 	export interface RaffleEntry extends EntryItem {
 		score:number;

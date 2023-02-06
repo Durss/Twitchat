@@ -12,6 +12,13 @@
 
 Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) to control some features and receive some events.
 
+# WARNING
+This documentation needs to be updated !\
+It's missing many things and may contain outdated other things.
+
+<br>
+<br>
+
 # Table of content
 * [Prerequisites](#prerequisites)
 * [Connect example](#connect-example)
