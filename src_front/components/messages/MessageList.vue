@@ -626,7 +626,7 @@ export default class MessageList extends Vue {
 			let i = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset - this.maxMessages);
 			for (; i >= 0; i--) {
 				const m = messages[i];
-				if (this.shouldShowMessage(m)) {
+				if (await this.shouldShowMessage(m)) {
 					result.unshift(m);
 					if (result.length == this.maxMessages) break;
 				}
@@ -658,7 +658,7 @@ export default class MessageList extends Vue {
 	 * Returns if a message should be displayed or not
 	 * @param m 
 	 */
-	private shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): boolean {
+	private async shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): Promise<boolean> {
 		if(this.lightMode) {
 			//If in light mode, only allow normal chat messages that are not deleted/moded/...
 			return m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -744,7 +744,7 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
-				return this.config.filters.whisper === true && Utils.checkPermissions(this.config.whispersPermissions, m.user, m.channel_id);
+				return this.config.filters.whisper === true && await Utils.checkPermissions(this.config.whispersPermissions, m.user, m.channel_id);
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
@@ -871,13 +871,13 @@ export default class MessageList extends Vue {
 	/**
 	 * Called when a message is add
 	 */
-	private onAddMessage(e: GlobalEvent): void {
+	private async onAddMessage(e: GlobalEvent): Promise<void> {
 		if(this.customActivitiesDisplayed) return;
 
 		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
-		if (!this.shouldShowMessage(m)) return;
+		if (!await this.shouldShowMessage(m)) return;
 
 		//If scrolling is locked or there are still messages pending,
 		//add the new messages to the pending list
@@ -1005,7 +1005,7 @@ export default class MessageList extends Vue {
 	/**
 	 * Called when requesting an action from the public API
 	 */
-	private onPublicApiEvent(e: TwitchatEvent): void {
+	private async onPublicApiEvent(e: TwitchatEvent): Promise<void> {
 		const data = e.data as { count?: number, scrollBy?: number, col?:number, duration?:number };
 		let count = (data?.count && !isNaN(data.count as number)) ? data.count : 0;
 		let scrollBy = (data?.scrollBy && !isNaN(data.scrollBy as number)) ? data.scrollBy : 100;
@@ -1023,7 +1023,7 @@ export default class MessageList extends Vue {
 				//Search for first message marked as read
 				for (let i = offset; i >= 0; i--) {
 					const m = messageList[i];
-					if(m.date <= this.markedAsReadDate && this.shouldShowMessage(m)) {
+					if(m.date <= this.markedAsReadDate && await this.shouldShowMessage(m)) {
 						currentMessageIndex = i;
 						break;
 					}
@@ -1033,7 +1033,7 @@ export default class MessageList extends Vue {
 				if(count < 0) {
 					for (let i = currentMessageIndex; i > 0; i--) {
 						const m = messageList[i];
-						if(this.shouldShowMessage(m)) count ++;
+						if(await this.shouldShowMessage(m)) count ++;
 						if(count === 1) {
 							this.markedAsReadDate = m.date;
 							this.replaceReadMarker();
@@ -1045,7 +1045,7 @@ export default class MessageList extends Vue {
 				}else if(count > 0){
 					for (let i = currentMessageIndex; i < messageList.length; i++) {
 						const m = messageList[i];
-						if(this.shouldShowMessage(m)) count --;
+						if(await this.shouldShowMessage(m)) count --;
 						if(count === -1) {
 							this.markedAsReadDate = m.date;
 							this.replaceReadMarker();
@@ -1131,7 +1131,7 @@ export default class MessageList extends Vue {
 				//Search for a message selected
 				for (let i = offset; i >= 0; i--) {
 					const m = messageList[i];
-					if(m.date <= this.selectionDate && this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					if(m.date <= this.selectionDate && await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						currentMessageIndex = i;
 						break;
 					}
@@ -1141,7 +1141,7 @@ export default class MessageList extends Vue {
 				if(count < 0) {
 					for (let i = currentMessageIndex; i > 0; i--) {
 						const m = messageList[i];
-						if(this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count ++;
+						if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count ++;
 						if(count === add) {
 							this.selectionDate = m.date;
 							this.replaceReadMarker();
@@ -1153,7 +1153,7 @@ export default class MessageList extends Vue {
 				}else if(count > 0){
 					for (let i = currentMessageIndex; i < messageList.length; i++) {
 						const m = messageList[i];
-						if(this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count --;
+						if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count --;
 						if(count === -add) {
 							this.selectionDate = m.date;
 							this.replaceReadMarker();
@@ -1450,7 +1450,7 @@ export default class MessageList extends Vue {
 				addNext = true;
 			}else if(addNext) {
 				m = list[i-1];
-				if(this.shouldShowMessage(m)) {
+				if(await this.shouldShowMessage(m)) {
 					this.scrollUpIndexOffset = list.length - i;
 					removed.push(this.filteredMessages.pop()!);
 					this.filteredMessages.unshift(m);
@@ -1702,7 +1702,7 @@ export default class MessageList extends Vue {
 	 * Increments/Decrements the number of live messages displayed at the
 	 * bottom when the chat is paused
 	 */
-	public incrementLockedLiveCount(count:number):void {
+	public async incrementLockedLiveCount(count:number):Promise<void> {
 		let v = this.config.liveLockCount;
 		if(!v || isNaN(v)) v = 3;
 		v += count;
@@ -1713,7 +1713,7 @@ export default class MessageList extends Vue {
 		const finalList:TwitchatDataTypes.ChatMessageTypes[] = [];
 		for (let i = list.length-1; i >= 0; i--) {
 			const m = list[i];
-			if(this.shouldShowMessage(m)) {
+			if(await this.shouldShowMessage(m)) {
 				finalList.unshift(m);
 				if(finalList.length === v) break;
 			}

@@ -444,7 +444,7 @@ export default class TriggerActionHandler {
 				const now = Date.now();
 				
 				//check permissions
-				if(!Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
+				if(!await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
 					log.messages.push({date:Date.now(), value:"User is not allowed"})
 					canExecute = false;
 				}else{

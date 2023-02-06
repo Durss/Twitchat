@@ -695,16 +695,16 @@ export const storeChat = defineStore('chat', {
 						}
 	
 						//Check if it's the winning choice of a bingo
-						sBingo.checkBingoWinner(message);
+						await sBingo.checkBingoWinner(message);
 	
 						//Handle OBS commands
-						sOBS.handleChatCommand(message, cmd);
+						await sOBS.handleChatCommand(message, cmd);
 						
 						//Handle Emergency commands
-						sEmergency.handleChatCommand(message, cmd);
+						await sEmergency.handleChatCommand(message, cmd);
 						
 						//Handle spoiler command
-						if(message.answersTo && Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
+						if(message.answersTo && await Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
 							const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
 							if(cmd.indexOf("!spoiler") === 0) {
 								message.answersTo.spoiler = true;
@@ -716,7 +716,7 @@ export const storeChat = defineStore('chat', {
 	
 						//check if it's a chat alert command
 						if(sParams.features.alertMode.value === true && 
-						Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
+						await Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
 							if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 								//Execute alert
 								sMain.chatAlert = message;
@@ -736,7 +736,7 @@ export const storeChat = defineStore('chat', {
 						//Check if it's a voicemod command
 						if(sVoice.voicemodParams.enabled
 						&& sVoice.voicemodParams.commandToVoiceID[cmd]
-						&& Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user, message.channel_id)) {
+						&& await Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user, message.channel_id)) {
 							VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
 						}
 							

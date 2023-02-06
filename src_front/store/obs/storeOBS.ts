@@ -49,13 +49,13 @@ export const storeOBS = defineStore('obs', {
 			DataStore.set(DataStore.OBS_CONF_PERMISSIONS, value);
 		},
 
-		handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string):void {
+		async handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string):Promise<void> {
 			if(!this.connectionEnabled) return;
 			if(!cmd) cmd = message.message.trim().split(" ")[0].toLowerCase();
 			if(cmd?.length < 2) return;
 
 			//check if it's a command to control an OBS scene
-			if(Utils.checkPermissions(this.commandsPermissions, message.user, message.channel_id)) {
+			if(await Utils.checkPermissions(this.commandsPermissions, message.user, message.channel_id)) {
 				for (let i = 0; i < this.sceneCommands.length; i++) {
 					const scene = this.sceneCommands[i];
 					if(scene.command.trim().toLowerCase() == cmd) {

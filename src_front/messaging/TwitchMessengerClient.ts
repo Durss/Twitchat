@@ -471,7 +471,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Search if a user with this name and source exists on store
 		//If no user exists a temporary user object will be returned and
 		//populated asynchronously via an API call
-		const user		= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, undefined);
+		const user		= StoreProxy.users.getUserFrom("twitch", channelId, undefined, login);
 		const wasOnline	= user.channelInfo[channelId].online === true;
 		// user.channelInfo[channelId].online = true;
 		return {user, wasOnline};

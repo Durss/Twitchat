@@ -238,7 +238,7 @@ export interface IEmergencyActions {
 	setEmergencyMode(enable:boolean):Promise<void>;
 	addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):void;
 	clearEmergencyFollows():void;
-	handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd:string):void;
+	handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd:string):Promise<void>;
 }
 
 
@@ -278,7 +278,7 @@ export interface IOBSActions {
 	setOBSSceneCommands(value:TwitchatDataTypes.OBSSceneCommand[]):void;
 	setOBSMuteUnmuteCommands(value:TwitchatDataTypes.OBSMuteUnmuteCommands):void;
 	setObsCommandsPermissions(value:TwitchatDataTypes.PermissionsData):void;
-	handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string):void;
+	handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string):Promise<void>;
 }
 
 

@@ -201,7 +201,7 @@ export default class Utils {
 	/**
 	 * Check if a user matches a permission criterias
 	 */
-	public static checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
+	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
 		const chanInfo = user.channelInfo[channelId];
 		
 		if(permissions.usersAllowed?.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
@@ -212,13 +212,19 @@ export default class Utils {
 			return false;
 		}
 
-		if(chanInfo.is_broadcaster && permissions.broadcaster) return true;
-		if(chanInfo.is_moderator && permissions.mods) return true;
-		if(chanInfo.is_vip && permissions.vips) return true;
-		if(chanInfo.is_subscriber && permissions.subs) return true;
-		if(chanInfo.is_following && permissions.follower === true && !chanInfo.is_broadcaster) {
-			const duration = Date.now() - chanInfo.following_date_ms;
-			return duration >= permissions.follower_duration_ms;
+		if(chanInfo.is_broadcaster && permissions.broadcaster !== false) return true;
+		if(chanInfo.is_moderator && permissions.mods !== false && !chanInfo.is_broadcaster) return true;
+		if(chanInfo.is_vip && permissions.vips !== false) return true;
+		if(chanInfo.is_subscriber && permissions.subs !== false && !chanInfo.is_broadcaster) return true;
+		
+		if(permissions.follower === true && !chanInfo.is_broadcaster) {
+			//Follower state not loaded yet, force its loading
+			if(chanInfo.is_following === null) await StoreProxy.users.checkFollowerState(user, channelId);
+
+			if(chanInfo.is_following === true) {
+				const duration = Date.now() - (chanInfo.following_date_ms ?? 0);
+				return duration >= (permissions.follower_duration_ms ?? 0);
+			}
 		}
 
 		return permissions.all;
