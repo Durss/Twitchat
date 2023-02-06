@@ -116,6 +116,15 @@
 				"l": "<strong>19 nouveaux triggers</strong>:<ul><li>Lorsque que quelqu'un envoie une \"presentation\"</li><li>Quand le train de la hype peut à nouveau être démarré</li><li>Quand vous effectuez un shoutout</li><li>Quand vous recevez un shoutout</li><li>Quand vous changez de scène OBS</li><li>Quand une source OBS est affichée/masquée</li><li>Quand un message est épinglé/désépinglé</li><li>Quand le mode bouclier est activé/désactivé</li><li>Quand le stream est lancé</li><li>Quand le stream est arrêté</li><li>5 évènements liés aux compteurs</li><li>Quand vous lancez un raid</li></ul>"
 			},
 			{
+				"i": "broadcast",
+				"a": {
+					"a": "open triggers params",
+					"l": "try it",
+					"page": "triggers"
+				},
+				"l": "<strong>5 nouvelles actions de trigger</strong>:<ul><li>Mettre à jour les infos de streaù</li><li>Mettre à jour un compteur</li><li>Lire un compteur</li><li>Generer une valeur aléatoire</li><li>Appeler un endpoint HTTP</li></ul>"
+			},
+			{
 				"i": "commands",
 				"l": "<strong>4 nouvelles commandes</strong> pour ajouter/enlever du temps à un chronomètre ou un compte à rebours: <mark>/timeradd</mark>, <mark>/timerremove</mark>, <mark>/countdownadd</mark>, <mark>/countdownremove</mark>"
 			}

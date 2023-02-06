@@ -58,7 +58,7 @@
 				"i": "count",
 				"a": {
 					"a": "open counters",
-					"l": "test",
+					"l": "try it",
 					"page": "counters"
 				},
 				"l": "Create custom <strong>counters</strong>, update their value from chat commands, channel point rewards, ... and show their progress on your stream"
@@ -112,13 +112,21 @@
 				"l": "<strong>19 new triggers</strong> events:<ul><li>when someone send a \"presentation\"</li><li>when the hype train can be started again</li><li>when giving a shoutout</li><li>when given a shoutout</li><li>when switching OBS scene</li><li>when showing/hiding an OBS source</li><li>when pinning/unpinning a message</li><li>when starting/stoping the shield mode</li><li>When stream is started</li><li>When stream is stoped</li><li>5 Counters related triggers</li><li>When starting a raid</li></ul>"
 			},
 			{
+				"i": "broadcast",
+				"a": {
+					"a": "open triggers params",
+					"l": "try it",
+					"page": "triggers"
+				},
+				"l": "<strong>5 new trigger actions</strong>:<ul><li>Update stream info</li><li>Update a counter</li><li>Read a counter</li><li>Generate a random value</li><li>Call an HTTP endpoint</li></ul>"
+			},
+			{
 				"i": "commands",
 				"l": "<strong>4 new commands</strong> to add or remove time to a timer or a countdown <mark>/timeradd</mark>, <mark>/timerremove</mark>, <mark>/countdownadd</mark>, <mark>/countdownremove</mark>"
 			}
 		],
 		"minor": [
 			{"l":"All commands can now be used from triggers"},
-			{"l":"1 new trigger action <strong>\"HTTP call\"</strong> for developpers if you want to call anything on any event"},
 			{"l":"User list will show you the <strong>remaining timeout duration</strong> for every timed out users"},
 			{"l":"You can start a <strong>bingo</strong> with any custom value"},
 			{"l":"Messages blocked due to <strong>shared ban info</strong> and waiting for approval will now be displayed"},

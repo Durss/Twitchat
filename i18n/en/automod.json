@@ -59,7 +59,7 @@
 		},
 		"options": {
 			"title":"Options",
-			"exclude_users":"Exclude users from automod rules:"
+			"exclude_users":"Exclude these users from automod rules:"
 		}
 	}
 }

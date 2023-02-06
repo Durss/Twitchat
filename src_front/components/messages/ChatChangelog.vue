@@ -10,15 +10,13 @@
 					<li v-for="e in entriesMajor">
 						<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
 
-						<Button v-if="e.a && e.a.param"
+						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							:title="e.a.l"
-							@click.stop="$emit('openParamItem', e.a!.param!)" />
+							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
 							
-						<Button v-if="e.a && e.a.page"
+						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							:title="e.a.l"
-							@click.stop="$emit('openParam', e.a!.page!)" />
+							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
@@ -29,15 +27,13 @@
 					<li v-for="e in entriesMinor">
 						<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
 
-						<Button v-if="e.a && e.a.param"
+						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							:title="e.a.l"
-							@click.stop="$emit('openParamItem', e.a!.param!)" />
+							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
 							
-						<Button v-if="e.a && e.a.page"
+						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							:title="e.a.l"
-							@click.stop="$emit('openParam', e.a!.page!)" />
+							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
@@ -48,15 +44,13 @@
 					<li v-for="e in entriesFixes">
 						<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
 
-						<Button v-if="e.a && e.a.param"
+						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							:title="e.a.l"
-							@click.stop="$emit('openParamItem', e.a!.param!)" />
+							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
 							
-						<Button v-if="e.a && e.a.page"
+						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							:title="e.a.l"
-							@click.stop="$emit('openParam', e.a!.page!)" />
+							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
@@ -176,7 +170,7 @@ export default class ChatChangelog extends Vue {
 		:deep(.content){
 			color: darken(@mainColor_warn, 5%);
 			background-color: fade(@mainColor_warn_extralight, 25%);
-			.button {
+			.testBt {
 				border-color: @mainColor_warn;
 				color: darken(@mainColor_warn, 5%) !important;
 				&:hover {
@@ -208,7 +202,7 @@ export default class ChatChangelog extends Vue {
 		:deep(.content){
 			color: @mainColor_alert;
 			background-color: lighten(@mainColor_alert_extralight, 5%);
-			.button {
+			.testBt {
 				border-color: @mainColor_alert;
 				color: @mainColor_alert !important;
 				&:hover {
@@ -237,7 +231,8 @@ export default class ChatChangelog extends Vue {
 				margin-bottom:.5em;
 			}
 
-			.button {
+			.testBt {
+				border-radius: .5em;
 				background: transparent;
 				border: 1px solid @mainColor_normal;
 				padding: .16em .3em;
