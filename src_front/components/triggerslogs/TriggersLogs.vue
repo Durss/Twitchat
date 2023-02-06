@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { TriggerTypes, TriggerEvents, type TriggerLog, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, TriggerEvents, type TriggerLog, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -92,20 +92,22 @@ export default class TriggersLogs extends Vue {
 	public getTriggerTitleFromId(id:string):string {
 		const info = this.getTriggerInfoFromId(id);
 		if(info) {
-			const hasTitleInKey = [
-				TriggerTypes.SCHEDULE,
-				TriggerTypes.CHAT_COMMAND,
-				TriggerTypes.COUNTER_ADD,
-				TriggerTypes.COUNTER_DEL,
-				TriggerTypes.COUNTER_LOOPED,
-				TriggerTypes.COUNTER_MAXED,
-				TriggerTypes.COUNTER_MINED,
-				TriggerTypes.OBS_SCENE,
-				TriggerTypes.OBS_SOURCE_OFF,
-				TriggerTypes.OBS_SOURCE_ON,
-			]
-			if(hasTitleInKey[info.category]) {
-				return id.split("_").splice(1).join(" ");
+			switch(info.value) {
+				case TriggerTypes.SCHEDULE:
+				case TriggerTypes.OBS_SCENE:
+				case TriggerTypes.OBS_SOURCE_OFF:
+				case TriggerTypes.OBS_SOURCE_ON:
+				case TriggerTypes.CHAT_COMMAND:
+					return id.split("_").splice(1).join(" ");
+				
+				case TriggerTypes.COUNTER_ADD:
+				case TriggerTypes.COUNTER_DEL:
+				case TriggerTypes.COUNTER_LOOPED:
+				case TriggerTypes.COUNTER_MAXED:
+				case TriggerTypes.COUNTER_MINED:
+					const cId = id.split("_").splice(1).join(" ");
+					const counter = this.$store("counters").data.find(v=>v.id == cId);
+					return counter? counter.name : "";
 			}
 		}
 		return "";
