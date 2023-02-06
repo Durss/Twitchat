@@ -219,7 +219,11 @@ export default class Utils {
 		
 		if(permissions.follower === true && !chanInfo.is_broadcaster) {
 			//Follower state not loaded yet, force its loading
-			if(chanInfo.is_following === null) await StoreProxy.users.checkFollowerState(user, channelId);
+			try {
+				if(chanInfo.is_following === null) await StoreProxy.users.checkFollowerState(user, channelId);
+			}catch(error) {
+				//ignore
+			}
 
 			if(chanInfo.is_following === true) {
 				const duration = Date.now() - (chanInfo.following_date_ms ?? 0);
