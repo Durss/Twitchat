@@ -181,7 +181,6 @@ export namespace TwitchatDataTypes {
 		type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse"|"editablelist";
 		value:boolean|number|string|string[]|undefined;
 		listValues?:ParameterDataListValue[];
-		stringListValues?:string[];
 		longText?:boolean;
 		noInput?:boolean;//Disable input to only keep title (used for shoutout param)
 		label?:string;

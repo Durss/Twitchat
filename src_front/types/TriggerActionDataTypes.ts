@@ -19,10 +19,11 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionCountData
 								| TriggerActionCountGetData
 								| TriggerActionRandomData
+								| TriggerActionStreamInfoData
 ;
 
 
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|"count"|"countget"|"random"|null;
+export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|"count"|"countget"|"random"|"stream_infos"|null;
 
 export interface TriggerData {
 	enabled:boolean;
@@ -185,6 +186,13 @@ export interface TriggerActionRandomData extends TriggerActionData{
 	float:boolean;
 	placeholder:string;
 	list:string[];
+}
+
+export interface TriggerActionStreamInfoData extends TriggerActionData{
+	type:"stream_infos";
+	title:string;
+	categoryId:string;
+	tags:string[];
 }
 
 export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];

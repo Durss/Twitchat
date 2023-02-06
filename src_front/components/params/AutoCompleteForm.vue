@@ -85,7 +85,7 @@ export default class AutoCompleteForm extends Vue {
 	}
 
 	public get canSelect():boolean {
-		return this.modelValue.length < this.maxItems || this.maxItems == 1;
+		return this.modelValue.length < this.maxItems;
 	}
 
 	public async mounted():Promise<void> {
@@ -157,6 +157,7 @@ export default class AutoCompleteForm extends Vue {
 		flex-wrap: wrap;
 		label {
 			flex-grow: 1;
+			align-self: center;
 		}
 		.inputHolder {
 			position: relative;

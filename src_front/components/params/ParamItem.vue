@@ -101,7 +101,7 @@
 				</select>
 			</div>
 			
-			<div v-if="paramData.type == 'editablelist'" class="holder list">
+			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
@@ -112,10 +112,11 @@
 					:id="'list'+key"
 					ref="vueSelect"
 					:placeholder="placeholder"
-					v-model="paramData.stringListValues"
+					v-model="paramData.value"
 					:calculate-position="$placeDropdown"
 					@search="onSearch()"
 					@option:created="onCreate()"
+					@search:blur="submitListItem()"
 					appendToBody
 					taggable
 					multiple
@@ -230,12 +231,13 @@ export default class ParamItem extends Vue {
 	private file:unknown = {};
 
 	public async onCreate():Promise<void> {
-		//This is a woraround an issue with vue-select that throws a "searching"
+		//This is a workaround an issue with vue-select that throws a "searching"
 		//event after creating an item.
 		//Without this frame delay the searching flag would be reset to "true"
 		//right after setting it to false here.
 		await this.$nextTick();
 		this.searching = false;
+		this.onEdit();
 	}
 
 	public get classes():string[] {
@@ -301,11 +303,7 @@ export default class ParamItem extends Vue {
 	public mounted():void {
 		if(this.modelValue !== null
 		&& this.modelValue !== undefined) {
-			if(this.paramData.type == "editablelist") {
-				this.paramData.stringListValues = this.modelValue as string[];
-			}else{
-				this.paramData.value = this.modelValue;
-			}
+			this.paramData.value = this.modelValue;
 		}
 		watch(()=>this.modelValue, (value:string | number | boolean | string[])=>{
 			if(value !== null
@@ -313,25 +311,8 @@ export default class ParamItem extends Vue {
 				this.paramData.value = value;
 			}
 		});
-
-		const onEdit = () => {
-			if(this.paramData.save === true) {
-				this.$store("params").updateParams()
-			}
-			if(this.paramData.type == "editablelist") {
-				this.$emit("update:modelValue", this.paramData.stringListValues);
-			}else{
-				this.$emit("update:modelValue", this.paramData.value);
-			}
-			this.$emit("change");
-			if(this.paramData.editCallback) {
-				this.paramData.editCallback(this.paramData.type == "editablelist"? this.paramData.stringListValues : this.paramData.value);
-			}
-			this.buildChildren();
-		}
 		
-		watch(() => this.paramData.value, onEdit);
-		watch(() => this.paramData.stringListValues, onEdit);
+		watch(() => this.paramData.value, this.onEdit);
 		
 		watch(() => this.paramData.children, (value) => {
 			this.buildChildren();
@@ -357,6 +338,18 @@ export default class ParamItem extends Vue {
 			}
 			this.placeholderTarget = this.$el.querySelector("textarea,input");
 		}
+	}
+
+	public onEdit():void {
+		if(this.paramData.save === true) {
+			this.$store("params").updateParams()
+		}
+		this.$emit("update:modelValue", this.paramData.value);
+		this.$emit("change");
+		if(this.paramData.editCallback) {
+			this.paramData.editCallback(this.paramData.value);
+		}
+		this.buildChildren();
 	}
 
 	public clickItem(event:MouseEvent):void {
@@ -633,6 +626,16 @@ export default class ParamItem extends Vue {
 				z-index: 1;
 				img {
 					height: 1em;
+				}
+			}
+
+			&.editable {
+				flex-direction: column;
+				label {
+					align-self: flex-start;
+				}
+				.listField {
+					flex-basis: unset;
 				}
 			}
 		}

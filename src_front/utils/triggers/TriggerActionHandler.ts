@@ -759,6 +759,14 @@ export default class TriggerActionHandler {
 							}
 						}else
 	
+						//Handle random generator trigger action
+						if(step.type == "stream_infos") {
+							if(step.title) {
+								logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\"{"+step.title+"}\" Tags:\"{"+step.tags+"}\" CategoryID:\"{"+step.categoryId+"}\" "});
+								await TwitchUtils.setStreamInfos(step.title, step.categoryId, StoreProxy.auth.twitch.user.id, step.tags);
+							}
+						}else
+	
 						//Handle music actions
 						if(step.type == "music") {
 							try {

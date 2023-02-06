@@ -50,6 +50,10 @@
 					:title="$t('triggers.actions.common.action_raffle')"
 					:icon="$image('icons/ticket_purple.svg')"/>
 				
+				<Button class="button" white @click="selectActionType('stream_infos')"
+					:title="$t('triggers.actions.common.action_stream_infos')"
+					:icon="$image('icons/info_purple.svg')"/>
+				
 				<Button class="button" white @click="selectActionType('highlight')"
 					:title="$t('triggers.actions.common.action_highlight')"
 					:icon="$image('icons/highlight_purple.svg')" />
@@ -59,12 +63,12 @@
 					:icon="$image('icons/count_purple.svg')"/>
 				
 				<Button class="button beta" white @click="selectActionType('countget')"
-					:title="$t('triggers.actions.common.action_count_get')"
+					:title="$t('triggers.actions.common.action_countget')"
 					:icon="$image('icons/count_placeholder_purple.svg')"/>
 				
 				<Button class="button beta" white @click="selectActionType('random')"
 					:title="$t('triggers.actions.common.action_random')"
-					:icon="$image('icons/dice_placeholder_purple.svg')"/>
+					:icon="$image('icons/dice_purple.svg')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('obs')"
 					:title="$t('triggers.actions.common.action_obs')"
@@ -80,7 +84,7 @@
 				
 				<Button class="button" white @click.capture="selectActionType('music')"
 					:title="$t('triggers.actions.common.action_music')"
-					:icon="$image('icons/music_purple.svg')"
+					:icon="$image('icons/spotify_purple.svg')"
 					:disabled="!musicServiceConfigured"
 					:data-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')"/>
 				
@@ -110,6 +114,7 @@
 			<TriggerActionCountEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='count'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
 			<TriggerActionCountGetEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='countget'" :action="action" />
 			<TriggerActionRandomEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='random'" :action="action" />
+			<TriggerActionStreamInfoEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='stream_infos'" :action="action" :event="event" :triggerKey="triggerKey" />
 			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			<PollForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='poll'" :action="action" :event="event" triggerMode />
@@ -149,6 +154,7 @@ import TriggerActionRandomEntry from './entries/TriggerActionRandomEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
+import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry.vue';
 
 @Options({
 	props:{
@@ -179,6 +185,7 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 		TriggerActionCountGetEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
+		TriggerActionStreamInfoEntry,
 	},
 	emits:["delete", "setContent", "duplicate"]
 })
@@ -228,6 +235,9 @@ export default class TriggerActionEntry extends Vue {
 	 */
 	public get title():string {
 		let res = 'Step '+(this.index+1);
+		if(this.action.type) {
+			res = this.$t("triggers.actions.common.action_"+this.action.type)
+		}
 		if(this.action.delay > 0) {
 			res += " <span class='subtitle'>(⏳"+this.action.delay+"s)</span>";
 		}
@@ -240,7 +250,7 @@ export default class TriggerActionEntry extends Vue {
 	public get icons():string[] {
 		const icons = [];
 		if(this.action.type == "obs") icons.push( this.action.show? 'show' : 'hide' );
-		if(this.action.type == "music") icons.push( 'music' );
+		if(this.action.type == "music") icons.push( 'spotify' );
 		if(this.action.type == "chat") icons.push( 'whispers' );
 		if(this.action.type == "tts") icons.push( 'tts' );
 		if(this.action.type == "raffle") icons.push( 'ticket' );
@@ -254,6 +264,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "count") icons.push( 'count' );
 		if(this.action.type == "countget") icons.push( 'count_placeholder' );
 		if(this.action.type == "random") icons.push( 'dice_placeholder' );
+		if(this.action.type == "stream_infos") icons.push( 'info' );
 		return icons;
 	}
 

@@ -739,13 +739,13 @@ export default class DataStore {
 
 		for (let i = 0; i < presets.length; i++) {
 			const p = presets[i];
-			p.tags = [];
 			if(p.tagIDs) {
+				p.tags = [];
 				for (let j = 0; j < p.tagIDs.length; j++) {
 					const id = p.tagIDs[j];
 					const tag = result.find(v=> v.id == id);
 					if(tag) {
-						p.tags.push(Utils.replaceDiacritics(tag.label).replace(/[^a-z0-9]/gi, "").substring(0, 25))
+						p.tags.push(Utils.replaceDiacritics(tag.label).replace(/[^a-z0-9]/gi, "").substring(0, 25));
 					}
 				}
 				delete p.tagIDs;
@@ -827,6 +827,7 @@ export default class DataStore {
 						confs.ttsPerms.usersAllowed.push(user);
 					}
 				}
+				delete confs.readUsers;
 			}
 			delete confs.ttsPerms.users;
 			// console.log("TTS");

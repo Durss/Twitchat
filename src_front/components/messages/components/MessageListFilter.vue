@@ -486,8 +486,7 @@ export default class MessageListFilter extends Vue {
 						const subParam:TwitchatDataTypes.ParameterData = {
 								type:"editablelist",
 								longText:true,
-								value:"",
-								stringListValues:this.config.commandsBlockList,
+								value:this.config.commandsBlockList,
 								labelKey:'chat.filters.commands',
 								placeholderKey:"chat.filters.commands_placeholder",
 								icon:"hide.svg",

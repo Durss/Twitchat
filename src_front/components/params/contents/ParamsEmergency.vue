@@ -167,7 +167,7 @@ export default class ParamsEmergency extends Vue {
 			followOnly:this.param_followersOnly.value === true,
 			followOnlyDuration:this.param_followersOnlyDuration.value as number,
 			slowModeDuration:this.param_slowModeDuration.value as number,
-			toUsers:this.param_autoTO.stringListValues ?? [],
+			toUsers:this.param_autoTO.value as string[] ?? [],
 			obsScene:this.selectedOBSScene? this.selectedOBSScene.value as string : "",
 			obsSources:this.selectedOBSSources? this.selectedOBSSources.map(v=>v.sourceName) : [],
 			autoEnableOnFollowbot:this.param_autoEnableOnFollowbot.value === true,
@@ -197,7 +197,7 @@ export default class ParamsEmergency extends Vue {
 		const storeParams						= this.$store("emergency").params;
 		this.param_enable.value					= storeParams.enabled;
 		this.param_noTrigger.value				= storeParams.noTriggers;
-		this.param_autoTO.stringListValues		= storeParams.toUsers;
+		this.param_autoTO.value					= storeParams.toUsers;
 		this.param_subsOnly.value				= storeParams.subOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
 		this.param_emotesOnly.value				= storeParams.emotesOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
 		this.param_followersOnly.value			= storeParams.followOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);

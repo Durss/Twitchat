@@ -55,7 +55,7 @@
 				"action_obs_tt": "Vous devez connecter OBS<br>dans la section OBS",
 				"action_tts": "Text to speech",
 				"action_tts_tt": "Vous devez activer la fonctionnalité<br>de <strong>text to speech</strong> dans les paramètres",
-				"action_music": "Controler la musique",
+				"action_music": "Contrôler Spotify",
 				"action_music_tt": "Vous devez<br>connecter Spotify<br>dans les <strong>Overlays</strong>",
 				"action_voicemod": "Contrôler Voicemod",
 				"action_voicemod_tt": "Vous devez connecter<br>Voicemod dans les paramètres",
@@ -63,8 +63,9 @@
 				"action_poll": "Lancer un sondage",
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
-				"action_count_get": "Lire un compteur",
-				"action_random": "Valeur aléatoire"
+				"action_countget": "Lire un compteur",
+				"action_random": "Valeur aléatoire",
+				"action_stream_infos": "Changer les infos de stream"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",

@@ -147,6 +147,13 @@ import Ajv from "ajv";
 										max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 										float: {type:"boolean"},
 										mode: {type:"string", maxLength:20},
+										title: {type:"string", maxLength:20},
+										categoryId: {type:"string", maxLength:30},
+										tags: {
+											type:"array",
+											maxItems:20,
+											items:[{type:"string", maxLength:10}],
+										},
 										list: {
 											type:"array",
 											maxItems:10000,

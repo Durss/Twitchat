@@ -44,6 +44,7 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "count") return true;
 					if(v.type == "countget") return true;
 					if(v.type == "random") return true;
+					if(v.type == "stream_infos") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
