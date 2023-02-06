@@ -77,8 +77,6 @@ export const storeAuth = defineStore('auth', {
 		},
 
 		async twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void) {
-			const sChat = StoreProxy.chat;
-			const sMain = StoreProxy.main;
 
 			try {
 	
@@ -144,6 +142,11 @@ export const storeAuth = defineStore('auth', {
 					const uid = (userRes as TwitchDataTypes.Token).user_id;
 					this.twitch.user = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, resolve);
 				})
+				if(this.twitch.user.errored === true){
+					if(cb) cb(false);
+					else router.push({name:"login"});
+					return;
+				}
 				
 
 				/*
