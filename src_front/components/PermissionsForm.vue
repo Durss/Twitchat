@@ -82,12 +82,12 @@ export default class PermissionsForm extends Vue {
 		this.param_followers.value = this.modelValue.follower !== false;
 
 		watch(()=>this.param_all.value, ()=>{
-			if(this.param_all.value === true) {
-				this.modelValue.mods = true;
-				this.modelValue.vips = true;
-				this.modelValue.subs = true;
-				this.modelValue.follower = true;
-			}
+			// if(this.param_all.value === true) {
+			// 	this.modelValue.mods = true;
+			// 	this.modelValue.vips = true;
+			// 	this.modelValue.subs = true;
+			// 	this.modelValue.follower = true;
+			// }
 		});
 	}
 

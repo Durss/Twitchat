@@ -547,7 +547,7 @@ export default class ParamItem extends Vue {
 			align-self: flex-start;
 		}
 		
-		.toggle, .number, .text, .listField , .browse{
+		.toggle, .number, .text, .list, .browse{
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
