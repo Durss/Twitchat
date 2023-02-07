@@ -1009,6 +1009,7 @@ export default class MessageList extends Vue {
 		const data = e.data as { count?: number, scrollBy?: number, col?:number, duration?:number };
 		let count = (data?.count && !isNaN(data.count as number)) ? data.count : 0;
 		let scrollBy = (data?.scrollBy && !isNaN(data.scrollBy as number)) ? data.scrollBy : 100;
+		if(typeof scrollBy == "string") scrollBy = parseInt(scrollBy);
 		const col = (data.col || 0);
 		if(col != this.config.order) return;
 
@@ -1062,7 +1063,6 @@ export default class MessageList extends Vue {
 				if (count === 0 || count > this.filteredMessages.length - 1) {
 					count = this.filteredMessages.length - 1;
 				}
-				//
 				if (count < 0) count = 0;
 				const m = this.filteredMessages[count];
 				this.toggleMarkRead(m);
@@ -1101,14 +1101,24 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatEvent.CHAT_FEED_SCROLL_DOWN: {
-				const el = this.$refs.chatMessageHolder as HTMLDivElement;
-				const vScroll = el.scrollTop + scrollBy;
-				const unPause = vScroll >= el.scrollHeight - el.offsetHeight;
-				gsap.to(el, {
-					scrollTop: vScroll, duration: .5, ease: "power1.inOut", onComplete: () => {
-						if (unPause) this.unPause();
+				const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
+				const maxScroll = (messagesHolder.scrollHeight - messagesHolder.offsetHeight);
+				const vScroll = messagesHolder.scrollTop + scrollBy;
+
+				if(vScroll > maxScroll - 2) {
+					messagesHolder.scrollTop = maxScroll;
+					this.onScroll(scrollBy);
+					if(this.pendingMessages.length == 0) {
+						this.unPause();
 					}
-				});
+				}else{
+					gsap.to(messagesHolder, {
+						scrollTop: vScroll, duration: .5, ease: "power1.inOut", onUpdate:()=>{
+						}, onComplete: () => {
+							if (this.pendingMessages.length === 0) this.unPause();
+						}
+					});
+				}
 				break;
 			}
 
@@ -1278,7 +1288,7 @@ export default class MessageList extends Vue {
 			}
 			
 			const lastMessRef = messRefs[messRefs.length - 1];
-			//If scrolling down while alst item visible on screen
+			//If scrolling down while last item visible on screen
 			if ((maxScroll - el.scrollTop) <= (lastMessRef as HTMLDivElement).offsetHeight) {
 				if (this.pendingMessages.length > 0) {
 					if(event) {
@@ -1372,12 +1382,17 @@ export default class MessageList extends Vue {
 
 		//Show next pending message if at the bottom and scroll isn't locked
 		if (this.virtualScrollY >= maxScroll - 1
-			&& !this.lockScroll
-			&& this.pendingMessages.length > 0) {
+		&& !this.lockScroll
+		&& this.pendingMessages.length > 0) {
+			gsap.killTweensOf(messageHolder);
 			this.showNextPendingMessage();
-
-		//Show older messages if near the top
+			
+			//Show older messages if near the top
 		}else if(messageHolder.scrollTop < this.virtualMessageHeight * 2) {
+			//Make sure we don't reach the top.
+			//If we did the list would keep scrolling up until reaching the first message
+			messageHolder.scrollTop = this.virtualScrollY = Math.max(10, messageHolder.scrollTop);
+			gsap.killTweensOf(messageHolder);
 			this.showPrevMessage();
 		}
 	}
