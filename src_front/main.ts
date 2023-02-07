@@ -31,7 +31,7 @@ import { storePoll } from './store/poll/storePoll';
 import { storePrediction } from './store/prediction/storePrediction';
 import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeMain } from './store/storeMain';
-import StoreProxy, { type IChatActions, type IChatGetters, type IChatState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
+import StoreProxy, { type IChatActions, type IChatGetters, type IChatState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeStream } from './store/stream/storeStream';
 import { storeTimer } from './store/timer/storeTimer';
 import { storeTriggers } from './store/triggers/storeTriggers';
@@ -225,7 +225,7 @@ function buildApp() {
 	StoreProxy.raffle = storeRaffle();
 	StoreProxy.stream = storeStream();
 	StoreProxy.timer = storeTimer();
-	StoreProxy.triggers = storeTriggers();
+	StoreProxy.triggers = (storeTriggers() as unknown) as ITriggersState & ITriggersGetters & ITriggersActions & { $state: ITriggersState; $reset:()=>void };;
 	StoreProxy.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; $reset:()=>void };
