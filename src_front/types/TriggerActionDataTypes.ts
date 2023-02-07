@@ -29,6 +29,7 @@ export interface TriggerData {
 	enabled:boolean;
 	actions:TriggerActionTypes[];
 	name:string;
+	queue?:string;
 	prevKey?:string;
 	permissions?:TwitchatDataTypes.PermissionsData;
 	cooldown?:{global:number, user:number, alert:boolean};

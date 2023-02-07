@@ -78,6 +78,7 @@ import Ajv from "ajv";
 					properties: {
 						enabled: {type:"boolean"},
 						name: {type:"string", maxLength:100},
+						queue: {type:"string", maxLength:100},
 						chatCommand: {type:"string", maxLength:100},//Deprecated
 						scheduleParams: {
 							type:"object",

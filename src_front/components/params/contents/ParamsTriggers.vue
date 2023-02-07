@@ -150,6 +150,12 @@
 
 		<img src="@/assets/loader/loader.svg" alt="loader" v-if="showLoading" class="loader">
 
+		<div class="queue" v-if="((currentEvent && ! isSublist) || (isSublist && (currentSubEvent || actionList.length > 0))) && !showLoading">
+			<div>{{ $t("triggers.queue_info") }}</div>
+			<ParamItem class="queueSelector" :paramData="param_queue"
+			v-model="triggerData.queue" />
+		</div>
+
 		<TriggerActionChatCommandParams class="chatCmdParams"
 			v-if="isChatCmd && triggerData && (currentSubEvent || actionList.length > 0)"
 			:triggerData="triggerData"
@@ -228,6 +234,7 @@ import { Options, Vue } from 'vue-class-component';
 import draggable from 'vuedraggable';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ToggleButton from '../../ToggleButton.vue';
+import ParamItem from '../ParamItem.vue';
 import TriggerActionChatCommandParams from './triggers/TriggerActionChatCommandParams.vue';
 import TriggerActionEntry from './triggers/TriggerActionEntry.vue';
 import TriggerActionScheduleParams from './triggers/TriggerActionScheduleParams.vue';
@@ -237,6 +244,7 @@ import TriggerActionScheduleParams from './triggers/TriggerActionScheduleParams.
 	components:{
 		Button,
 		draggable,
+		ParamItem,
 		ToggleBlock,
 		ToggleButton,
 		TriggerActionEntry,
@@ -258,11 +266,13 @@ export default class ParamsTriggers extends Vue {
 	public syncing = false;
 	public isSublist = false;
 	public showLoading = false;
+	public param_queue:TwitchatDataTypes.ParameterData = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.queue_input_placeholder"}
 	public rewards:TwitchDataTypes.Reward[] = [];
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
 	public triggerData:TriggerData = {
 						name:"",
+						queue:"",
 						enabled:true,
 						actions:[],
 					};
@@ -465,7 +475,7 @@ export default class ParamsTriggers extends Vue {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = [];
 		events = events.concat(TriggerEvents());
-		this.eventsCount = events.length
+		this.eventsCount = events.length;
 
 		//Define select states
 		events.forEach(v=>{
@@ -529,6 +539,7 @@ export default class ParamsTriggers extends Vue {
 		}
 		
 		this.eventsList = events;
+		this.param_queue.options = this.$store("triggers").queues;
 		this.listOBSSources(undefined, true);
 	}
 
@@ -600,6 +611,9 @@ export default class ParamsTriggers extends Vue {
 		// 	// Preselects the current subevent
 		// 	await this.onSelectTrigger(true);
 		// }
+
+		//Refresh queues list
+		this.param_queue.options = this.$store("triggers").queues;
 
 		//As we watch for any modifications on "actionCategory" and we
 		//modify it during the save process, we need to freeze the save
@@ -1021,9 +1035,11 @@ export default class ParamsTriggers extends Vue {
 	private resetTriggerData():void {
 		this.triggerData = {
 			name:"",
+			queue:"",
 			enabled:true,
 			actions:[],
-		}
+		};
+		this.param_queue.value = "";
 	}
 }
 </script>
@@ -1179,7 +1195,7 @@ export default class ParamsTriggers extends Vue {
 		}
 	}
 
-	.triggerDescription {
+	.triggerDescription, .queue {
 		font-size: .8em;
 		background-color: @mainColor_light;
 		padding: .5em;
@@ -1199,6 +1215,9 @@ export default class ParamsTriggers extends Vue {
 					display: none;
 				}
 			}
+		}
+		.queueSelector {
+			margin-top: 1em;
 		}
 	}
 

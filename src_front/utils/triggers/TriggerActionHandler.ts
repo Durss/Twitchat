@@ -485,13 +485,15 @@ export default class TriggerActionHandler {
 			if(canExecute) {
 				
 				//Wait for potential previous trigger of the exact same type to finish its execution
-				const eventBusy = this.triggerTypeToQueue[triggerKey] != undefined;
+				const queueKey = trigger.queue || triggerKey;
+				const eventBusy = this.triggerTypeToQueue[queueKey] != undefined;
+				log.messages.push({date:Date.now(), value:"Execute trigger in queue \""+queueKey+"\""});
 				if(eventBusy) {
 					log.messages.push({date:Date.now(), value:"A trigger with this type is already executing, wait for it to complete"});
 				}
-				let prom = this.triggerTypeToQueue[triggerKey] ?? Promise.resolve();
+				let prom = this.triggerTypeToQueue[queueKey] ?? Promise.resolve();
 				let resolverTriggerType!: ()=>void;
-				this.triggerTypeToQueue[triggerKey] = new Promise<void>(async (resolve, reject)=> { resolverTriggerType = resolve });
+				this.triggerTypeToQueue[queueKey] = new Promise<void>(async (resolve, reject)=> { resolverTriggerType = resolve });
 				await prom;
 				if(eventBusy) {
 					log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
@@ -912,7 +914,7 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:"Wait for "+ step.delay.toString()+"s..."});
 						await Utils.promisedTimeout(step.delay * 1000);
 					}
-					delete this.triggerTypeToQueue[triggerKey];
+					delete this.triggerTypeToQueue[queueKey];
 				}
 
 				resolverTriggerType();

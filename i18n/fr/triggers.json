@@ -14,6 +14,8 @@
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e<br>ou n'avez pas autorisé<br>Twitchat à contrôler ceci",
 		"noTrigger": "- aucune entrée -",
 		"create_counterBt": "Créez des compteurs",
+		"queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez les à la même file d'exécution.",
+		"queue_input_placeholder": "file d'exécution...",
 		"music": {
 			"require": "Ces évènements nécessitent de lier Spotify avec Twitchat dans {URL}",
 			"require_url": "les overlays"

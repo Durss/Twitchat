@@ -14,6 +14,8 @@
 		"noChannelPoints_tt": "You are not a Twitch affiliate<br>or you have refused Twitchat<br>to control this",
 		"noTrigger": "- no entry -",
 		"create_counterBt": "Create counters",
+		"queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
+		"queue_input_placeholder": "execution queue...",
 		"music": {
 			"require": "These triggers need you to connect with Spotify under the {URL}",
 			"require_url": "overlays section"

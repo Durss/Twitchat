@@ -47,6 +47,8 @@
 		"cmd_admin":"Admin command",
 		"cmd_twitch":"Twtich command",
 		"hypetrain_emotes":"Twitch provides no way for external tools to get Hype Train emotes sorry :(",
+		"empty_list1":"No entry exist.",
+		"empty_list2":"Write to create one.",
 		"tooltips": {
 			"commercial": "Commercial",
 			"boost": "Channel boosted",

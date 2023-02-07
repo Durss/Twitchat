@@ -414,6 +414,7 @@ export interface ITriggersState {
 }
 
 export interface ITriggersGetters {
+	queues: string[];
 }
 
 export interface ITriggersActions {

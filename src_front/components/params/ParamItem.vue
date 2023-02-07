@@ -115,13 +115,21 @@
 					v-model="paramData.value"
 					:calculate-position="$placeDropdown"
 					@search="onSearch()"
-					@option:created="onCreate()"
+					@option:created="onCreateListItem()"
+					@option:selected="onEdit()"
 					@search:blur="submitListItem()"
 					appendToBody
 					taggable
-					multiple
-					noDrop
-				></vue-select>
+					:multiple="paramData.options === undefined"
+					:noDrop="paramData.options === undefined"
+					:push-tags="paramData.options != undefined"
+					:options="paramData.options"
+				>
+					<template #no-options="{ search, searching, loading }">
+						<div>{{ $t("global.empty_list1") }}</div>
+						<div>{{ $t("global.empty_list2") }}</div>
+					</template>
+				</vue-select>
 				<button @click="submitListItem()" v-if="searching" class="listSubmitBt"><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
 			</div>
 			
@@ -229,16 +237,7 @@ export default class ParamItem extends Vue {
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
 	private file:unknown = {};
-
-	public async onCreate():Promise<void> {
-		//This is a workaround an issue with vue-select that throws a "searching"
-		//event after creating an item.
-		//Without this frame delay the searching flag would be reset to "true"
-		//right after setting it to false here.
-		await this.$nextTick();
-		this.searching = false;
-		this.onEdit();
-	}
+	private isLocalUpdate:boolean = false;
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -340,7 +339,52 @@ export default class ParamItem extends Vue {
 		}
 	}
 
+	/**
+	 * Called when item is clicked.
+	 * If parameter requires a specific scope that's not granted, the
+	 * clicke event is blocked and user is asked to grant permission.
+	 * @param event 
+	 */
+	public clickItem(event:MouseEvent):void {
+		if(this.paramData.twitch_scope) {
+			if(TwitchUtils.hasScope(this.paramData.twitch_scope)) return;
+			event.stopPropagation();
+			this.$store("auth").requestTwitchScope(this.paramData.twitch_scope);
+		}
+	}
+
+	/**
+	 * Called when value changes
+	 */
 	public onEdit():void {
+		if(this.isLocalUpdate) return;
+		this.isLocalUpdate = true;
+		if(Array.isArray(this.paramData.value) && this.paramData.type == "editablelist") {
+			//Limit number of items of the editablelist
+			const max = this.paramData.maxLength ?? this.paramData.max ?? Number.MAX_SAFE_INTEGER;
+			if((this.paramData.value as string[]).length > max) {
+				this.paramData.value = (this.paramData.value as string[]).slice(-max);
+			}
+		}
+
+		if(this.paramData.type == "editablelist") {
+			if(this.paramData.options) {
+				//If there's a list of options, cleanup any custom options added that
+				//is not the currently selected item
+				const list = this.$refs.vueSelect as any;
+				for (let i = 0; i < list.pushedTags.length; i++) {
+					const opt = list.pushedTags[i];
+					if(opt == this.paramData.value as string) continue;
+					if(this.paramData.options.includes(opt)) continue;
+					list.pushedTags.splice(i, 1);
+				}
+			}
+			const list = this.$refs.vueSelect as any;
+			if(list.dropdownOpen) {
+				list.closeSearchOptions();
+			}
+		}
+
 		if(this.paramData.save === true) {
 			this.$store("params").updateParams()
 		}
@@ -350,14 +394,9 @@ export default class ParamItem extends Vue {
 			this.paramData.editCallback(this.paramData.value);
 		}
 		this.buildChildren();
-	}
-
-	public clickItem(event:MouseEvent):void {
-		if(this.paramData.twitch_scope) {
-			if(TwitchUtils.hasScope(this.paramData.twitch_scope)) return;
-			event.stopPropagation();
-			this.$store("auth").requestTwitchScope(this.paramData.twitch_scope);
-		}
+		this.$nextTick().then(()=>{
+			this.isLocalUpdate = false;
+		})
 	}
 
 	/**
@@ -370,6 +409,19 @@ export default class ParamItem extends Vue {
 	 */
 	public onSearch():void {
 		this.searching = (this.$refs.vueSelect as any).search.length > 0;
+	}
+
+	/**
+	 * Called when creating a new item on <vue-select> component
+	 */
+	public async onCreateListItem():Promise<void> {
+		//This is a workaround an issue with vue-select that throws a "searching"
+		//event after creating an item.
+		//Without this frame delay the searching flag would be reset to "true"
+		//right after setting it to false here.
+		await this.$nextTick();
+		this.searching = false;
+		this.onEdit();
 	}
 
 	/**

@@ -9,14 +9,27 @@ import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../Stor
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
 		triggers: {},
+		trigger_queues: [],
 	} as ITriggersState),
 
 
 
 	getters: {
-	} as ITriggersGetters
-	& ThisType<UnwrapRef<ITriggersState> & _StoreWithGetters<ITriggersGetters> & PiniaCustomProperties>
-	& _GettersTree<ITriggersState>,
+		
+		queues():string[] {
+			const done:{[key:string]:boolean} = {};
+			const res = [];
+			for (const key in this.triggers) {
+				const queue = this.triggers[key].queue;
+				if(queue && !done[queue]) {
+					done[queue] = true;
+					res.push(queue)
+				}
+			}
+			return res;
+		},
+
+	},
 
 
 
