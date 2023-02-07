@@ -190,36 +190,6 @@ export const storeMain = defineStore("main", {
 							}
 						});
 					});
-	
-					//If asked to sync data with server, load them
-					if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
-						if(!await DataStore.loadRemoteData()) {
-							//Force data sync popup to show up if remote
-							//data have been deleted
-							// DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
-							this.alert("An error occured while loading your parameters");
-							return;
-						}
-					}
-					//Parse data from storage
-					await this.loadDataFromStorage();
-
-					DataStore.set(DataStore.DONOR_LEVEL, sAuth.twitch.user.donor.level);
-		
-					sChat.sendTwitchatAd();
-	
-					//Warn the user about the automatic "ad" message sent every 2h
-					if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !sAuth.twitch.user.donor.state) {
-						setTimeout(()=>{
-							sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
-						}, 5000)
-					}else
-					//Ask the user if they want to make their donation public
-					if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && sAuth.twitch.user.donor.state) {
-						setTimeout(()=>{
-							sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
-						}, 5000)
-					}
 
 				}catch(error) {
 					console.log(error);

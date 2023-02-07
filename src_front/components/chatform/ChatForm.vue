@@ -236,6 +236,7 @@ import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import TTSUtils from '@/utils/TTSUtils';
+import EventSub from '@/utils/twitch/EventSub';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import VoiceAction from '@/utils/voice/VoiceAction';
@@ -560,6 +561,11 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/spamstop") {
 			this.stopSpam();
+		}else
+		
+		if(cmd == "/folowbot") {
+			EventSub.instance.simulateFollowbotRaid();
+			this.message = "";
 		}else
 		
 		if(cmd == "/cypherkey") {

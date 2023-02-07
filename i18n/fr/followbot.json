@@ -16,7 +16,7 @@
 		"ban_all_confirm_title":"Bannir tout le monde ?",
 		"ban_all_confirm_desc":"Toutes les personnes de la liste seront bannies définitivement.",
 		"unfollow_confirm_title":"Supprimer les followers?",
-		"unfollow_confirm_desc":"Toute sles personnes de la liste seront supprimées de vos followers.",
+		"unfollow_confirm_desc":"Toutes les personnes de la liste seront supprimées de vos followers.",
 		"clear_confirm_title":"Terminer l'examen ?",
 		"clear_confirm_desc":"Cette liste sera perdue !<br>Vous pourrez <a href=\"https://www.twitch.tv/settings/security\" target=\"_blank\">retrouver les personnes bannies</a> de votre chaîne.",
 		"later_confirm_title":"Examiner plus tard ?",
