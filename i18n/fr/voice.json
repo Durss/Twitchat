@@ -16,7 +16,7 @@
 		"select_action":"Action à exécuter",
 		"select_action_placeholder":"...sélectionner...",
 		"select_language":"Sélectionnez votre langue :",
-		"sentences":"Phrases de déclanchement",
+		"sentences":"Phrases de déclenchement",
 		"sentences_count":"(1 par ligne)",
 		"global_commands":"Mots que vous aurez à dire pour naviguer dans les formulaires",
 		"fill_global":"Remplissez toutes les commandes globale au-dessus",

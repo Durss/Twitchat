@@ -82,7 +82,6 @@
 				<div class="content">
 					<img src="@/assets/icons/follow_purple.svg" alt="heart" class="icon">
 					<div>{{ $t('chat.donor.info_1') }}</div>
-					<div>{{ $t('chat.donor.info_2') }}</div>
 					<i18n-t scope="global" tag="div" keypath="chat.donor.info_2">
 						<template #LINK><a @click="openParamPage(contentAbout)">{{ $t('chat.donor.info_2_link') }}</a></template>
 					</i18n-t>

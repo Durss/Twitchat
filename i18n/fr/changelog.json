@@ -150,7 +150,7 @@
 		],
 		"fixes": [
 			{"l":"Le TTS pour les résultats de prédictions ne disait parfois pas le titre de l'entrée gagnante"},
-			{"l":"Les infos de la musique en cours n'étaient pas toujours injectés dans les triggers"}
+			{"l":"Les infos de la musique en cours n'étaient pas toujours injectées dans les triggers"}
 		]
 	}
 }

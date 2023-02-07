@@ -1959,6 +1959,9 @@ export default class MessageList extends Vue {
 			&:nth-child(odd) {
 				background-color: rgba(255, 255, 255, .025);
 			}
+			.message {
+				flex-grow: 1;
+			}
 		}
 	}
 

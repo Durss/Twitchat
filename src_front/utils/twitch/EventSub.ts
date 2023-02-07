@@ -405,7 +405,7 @@ export default class EventSub {
 			}
 		}
 
-		if(this.lastRecentFollowers.length > 30
+		if(this.lastRecentFollowers.length > 20
 		&& StoreProxy.emergency.params.enabled === true
 		&& StoreProxy.emergency.emergencyStarted !== true
 		&& StoreProxy.emergency.params.autoEnableOnFollowbot === true) {

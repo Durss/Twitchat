@@ -433,7 +433,7 @@
 			},
 			"EMERGENCY_MODE_START": {
 				"label": "Lancement du mode urgence",
-				"description": "Exécuter des actions lorsque le mode urgence est déclanché"
+				"description": "Exécuter des actions lorsque le mode urgence est déclenché"
 			},
 			"EMERGENCY_MODE_STOP": {
 				"label": "Arrêt du mode urgence",
@@ -445,7 +445,7 @@
 			},
 			"CHAT_ALERT": {
 				"label": "Alerte",
-				"description": "Exécuter des actions lorsque la fenêtre d'alerte est déclanchée<br><i>(Paramètres => @:params.categories.features => @:params.alertMode)</i>"
+				"description": "Exécuter des actions lorsque la fenêtre d'alerte est déclenchée<br><i>(Paramètres => @:params.categories.features => @:params.alertMode)</i>"
 			},
 			"VOICEMOD": {
 				"label": "Voicemod - changement de voix",

@@ -445,7 +445,7 @@ export default class TriggerActionHandler {
 				
 				//check permissions
 				if(!await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
-					log.messages.push({date:Date.now(), value:"User is not allowed"})
+					log.messages.push({date:Date.now(), value:"User is not allowed"});
 					canExecute = false;
 				}else{
 					//Apply cooldowns if any
@@ -489,7 +489,7 @@ export default class TriggerActionHandler {
 				const eventBusy = this.triggerTypeToQueue[queueKey] != undefined;
 				log.messages.push({date:Date.now(), value:"Execute trigger in queue \""+queueKey+"\""});
 				if(eventBusy) {
-					log.messages.push({date:Date.now(), value:"A trigger with this type is already executing, wait for it to complete"});
+					log.messages.push({date:Date.now(), value:"A trigger is already executing in this queue, wait for it to complete"});
 				}
 				let prom = this.triggerTypeToQueue[queueKey] ?? Promise.resolve();
 				let resolverTriggerType!: ()=>void;
@@ -611,6 +611,7 @@ export default class TriggerActionHandler {
 									user:message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE? message.user : undefined,
 									params:StoreProxy.chat.chatHighlightOverlayParams,
 								};
+								log.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
 								PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
 							}else{
 								PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
@@ -621,6 +622,7 @@ export default class TriggerActionHandler {
 						//Handle TTS action
 						if(step.type == "tts" && message) {
 							let text = await this.parseText(dynamicPlaceholders, triggerKey, message, step.text, subEvent);
+							log.messages.push({date:Date.now(), value:"TTS read message \""+text+"\""});
 							TTSUtils.instance.readNext(text, ttsID ?? triggerKey);
 						}else
 						
