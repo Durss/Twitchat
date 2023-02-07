@@ -145,7 +145,8 @@
 			{"l":"Les <strong>conducteurs de train</strong> de la hype sont affichés"},
 			{"l":"Le résumé du <strong>Train de la hype</strong> affiche les abbonements T1, T2 et T3 séparément"},
 			{"l":"Nouvelle commande <strong>/greetduration</strong> pour modifier la durée après laquelle effacer automatiquement les messages de la partie \"Dîtes bonjour\""},
-			{"l":"Supression de l'intégragrion Deezer suite à la désactivation de cette possibilité par Deezer"}
+			{"l":"Supression de l'intégragrion Deezer suite à la désactivation de cette possibilité par Deezer"},
+			{"l":"Chaque type de trigger possède maintenant sa propre <strong>file d'exécution</strong>. Vous pouvez créer des files d'exécution personnalisées pour que des triggers de type différents s'exécutent de manière séquentielle et non parallèle."}
 		],
 		"fixes": [
 			{"l":"Le TTS pour les résultats de prédictions ne disait parfois pas le titre de l'entrée gagnante"},

@@ -140,7 +140,8 @@
 			{"l":"<strong>Hype train conductors</strong> will now be displayed"},
 			{"l":"<strong>Hype train</strong> summaries now show T1, T2 and T3 subs count seperatly"},
 			{"l":"New <strong>/greetduration</strong> command to change the \"auto delete after\" duration of the greet them section"},
-			{"l":"Removed Deezer integration after Deezer disabled that possibility"}
+			{"l":"Removed Deezer integration after Deezer disabled that possibility"},
+			{"l":"Every trigger type now has its own <strong>execution queue</strong>. You can create custom queues if you want to make sure 2 different trigger types execute sequentially instead of in paralel."}
 		],
 		"fixes": [
 			{"l":"TTS for prediction result was  sometimes not saying the winning outcome label"},
