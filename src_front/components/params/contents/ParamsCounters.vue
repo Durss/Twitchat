@@ -17,6 +17,12 @@
 			<Button :title="$t('counters.addBt')" :icon="$image('icons/add.svg')" @click="showForm = true" />
 		</section>
 
+		<section class="examples" v-if="!showForm">
+			<h1>{{ $t("counters.examples") }}</h1>
+			<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
+			<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />
+		</section>
+
 		<section v-if="showForm">
 			<form @submit.prevent="createCounter()">
 				<ParamItem class="item" :paramData="param_title" />
@@ -80,6 +86,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -94,6 +101,7 @@ import ParamItem from '../ParamItem.vue';
 		Button,
 		ParamItem,
 		ToggleBlock,
+		OverlayCounter,
 	},
 	emits:["setContent"]
 })
@@ -106,6 +114,24 @@ export default class ParamsCounters extends Vue {
 	public timeoutEdit:number = -1;
 	public editedCounter:TwitchatDataTypes.CounterData|null = null;
 	public idToSearchResult:{[key:string]:TwitchatDataTypes.TwitchatUser|null} = {};
+	public counterExample:TwitchatDataTypes.CounterData = {
+		id:Utils.getUUID(),
+		loop:false,
+		perUser:false,
+		value:50,
+		name:"My awesome counter",
+		min:false,
+		max:false,
+	}
+	public progressExample:TwitchatDataTypes.CounterData = {
+		id:Utils.getUUID(),
+		loop:false,
+		perUser:false,
+		value:50,
+		name:"My awesome counter",
+		min:0,
+		max:75,
+	}
 
 	public param_title:TwitchatDataTypes.ParameterData = {type:"text", value:"", maxLength:50, labelKey:"counters.form.name"};
 	public param_value:TwitchatDataTypes.ParameterData = {type:"number", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
@@ -266,6 +292,15 @@ export default class ParamsCounters extends Vue {
 			&:deep(input) {
 				flex-basis: 10em !important;
 			}
+		}
+	}
+
+	.examples{
+		text-align: center;
+		.counterExample {
+			width: auto;
+			font-size: .75em;
+			align-self: center;
 		}
 	}
 
