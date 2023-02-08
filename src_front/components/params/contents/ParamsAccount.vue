@@ -26,6 +26,7 @@
 		</section>
 
 		<section class="actions">
+			<Button class="button" @click="latestUpdates()" :title="$t('account.updatesBt')" :icon="$image('icons/new.svg')" bounce />
 			<Button class="button" @click="logout()" :title="$t('global.log_out')" :icon="$image('icons/logout.svg')" highlight bounce />
 			<Button class="button" @click="ahs()" :title="$t('account.installBt')" :icon="$image('icons/twitchat.svg')" v-if="canInstall" />
 		</section>
@@ -118,11 +119,6 @@ export default class ParamsAccount extends Vue {
 		return pp;
 	}
 
-	public logout():void {
-		this.$store("auth").logout();
-		this.$router.push({name:'logout'});
-	}
-
 	public async mounted():Promise<void> {
 		this.syncEnabled = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false";
 		this.publicDonation = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == "true";
@@ -153,6 +149,16 @@ export default class ParamsAccount extends Vue {
 
 	public beforeUnmount():void {
 		this.disposed = true;
+	}
+
+	public logout():void {
+		this.$store("auth").logout();
+		this.$router.push({name:'logout'});
+	}
+
+	public latestUpdates():void {
+		this.$store("main").showParams = false;
+		this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 	}
 
 	public ahs():void {

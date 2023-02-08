@@ -157,7 +157,7 @@ import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
@@ -178,6 +178,8 @@ import Accessibility from './Accessibility.vue';
 import Changelog from '@/components/changelog/Changelog.vue';
 import type { JsonObject } from 'type-fest';
 import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
+import EventBus from '@/events/EventBus';
+import GlobalEvent from '@/events/GlobalEvent';
 
 @Options({
 	components:{
@@ -242,6 +244,7 @@ export default class Chat extends Vue {
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	private addMessageHandler!: (e: GlobalEvent) => void;
 	
 	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean; }
 	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
@@ -279,11 +282,6 @@ export default class Chat extends Vue {
 	}
 
 	public beforeMount():void {
-		
-		const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
-		if(isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
-			this.currentModal = "updates";
-		}
 
 		//Check user reached a new donor level
 		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
@@ -385,6 +383,7 @@ export default class Chat extends Vue {
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
+		this.addMessageHandler = (e: GlobalEvent) => this.onAddMessage(e);
 
 		document.addEventListener("mouseup", this.mouseUpHandler);
 		document.addEventListener("touchend", this.mouseUpHandler);
@@ -413,7 +412,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
-		this.onResize();
+		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		this.renderFrame();
 		requestWakeLock();
 	}
@@ -456,6 +455,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 	}
 
 	public closeDonorCard():void {
@@ -639,8 +639,18 @@ export default class Chat extends Vue {
 		}
 	}
 
-	public onResize():void {
-		const value = document.body.clientWidth > 449;
+	/**
+	 * Called when a message is added.
+	 * If its the changelog message, open up the highlighted changelog
+	 */
+	private async onAddMessage(e: GlobalEvent): Promise<void> {
+		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
+		// const maxScroll = (el.scrollHeight - el.offsetHeight);
+		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
+		if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
+		&& m.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES) {
+			this.currentModal = "updates";
+		}
 	}
 
 	public setCurrentNotification(value:string):void {
