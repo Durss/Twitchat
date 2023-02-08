@@ -9,6 +9,8 @@
 		"max_tt":"Max",
 		"loop_tt":"Boucler la valeur",
 		"user_tt":"Par viewer",
+		"examples":"Exemples :",
+		"user_not_found":"user not found",
 		"form":{
 			"name":"Nom",
 			"value":"Valeur",

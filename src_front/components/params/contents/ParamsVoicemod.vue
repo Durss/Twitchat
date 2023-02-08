@@ -1,7 +1,11 @@
 <template>
 	<div class="paramsvoicemod">
 		<img src="@/assets/icons/voicemod_purple.svg" alt="voicemod icon" class="icon">
-		<div class="head">{{ $t("voicemod.header") }}</div>
+		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
+			<template #LINK>
+				<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
+			</template>
+		</i18n-t>
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting">

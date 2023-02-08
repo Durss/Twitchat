@@ -9,6 +9,8 @@
 		"max_tt":"Max",
 		"loop_tt":"Loop value",
 		"user_tt":"Per user",
+		"examples":"Examples :",
+		"user_not_found":"user not found",
 		"form": {
 			"name": "Name",
 			"value": "Value",

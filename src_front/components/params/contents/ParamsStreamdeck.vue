@@ -2,7 +2,7 @@
 	<div class="paramsstreamdeck">
 		<img src="@/assets/icons/elgato_purple.svg" alt="overlay icon" class="icon">
 
-		<p class="head"></p>
+		<p class="head">{{ $t("streamdeck.header") }}</p>
 		
 		<ol>
 			<li>

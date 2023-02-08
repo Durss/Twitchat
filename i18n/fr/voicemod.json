@@ -1,6 +1,7 @@
 {
 	"voicemod":{
-		"header":"Contrôlez Voicemod depuis Twitchat",
+		"header":"Contrôlez {LINK} depuis Twitchat",
+		"header_link":"Voicemod",
 		"connecting":"connexion à Voicemod...",
 		"connect_failed":"Impossible de se connecter à Voicemod",
 		"allowed_users":"Personnes autorisées à utiliser les commandes:",
