@@ -1,13 +1,13 @@
 <template>
 	<div class="overlaytimer">
-		<div class="timer" v-if="timer" id="timer">
+		<div class="timer" v-if="timerValue" id="timer" ref="timer">
 			<img id="timer_icon" src="@/assets/icons/timer_purple.svg" alt="timer">
-			<div id="timer_label">{{timer}}</div>
+			<div id="timer_label">{{timerValue}}</div>
 		</div>
 
-		<div class="countdown" v-if="countdown" id="countdown">
+		<div class="countdown" v-if="countdownValue" id="countdown" ref="countdown">
 			<img id="countdown_icon" src="@/assets/icons/countdown_purple.svg" alt="countdown">
-			<div id="countdown_label">{{countdown}}</div>
+			<div id="countdown_label">{{countdownValue}}</div>
 		</div>
 	</div>
 </template>
@@ -26,8 +26,8 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class OverlayTimer extends Vue {
 
-	public timer:string = "";
-	public countdown:string = "";
+	public timerValue:string = "";
+	public countdownValue:string = "";
 
 	private intervalUpdate:number = -1;
 	private timerData:TwitchatDataTypes.TimerData|null = null;
@@ -66,12 +66,15 @@ export default class OverlayTimer extends Vue {
 		if(e.type == TwitchatEvent.TIMER_START) {
 			this.timerData = (e.data as unknown) as TwitchatDataTypes.TimerData;
 			this.computeValues();
-			await this.$nextTick();
-			gsap.from("#timer", {duration:.7, y:"-100%"});
+
+			if(!this.$refs.timer) {
+				await this.$nextTick();
+				gsap.from(this.$refs.timer as HTMLDivElement, {duration:.7, y:"-100%"});
+			}
 		}else{
-			gsap.to("#timer", {duration:.7, y:"-100%", onComplete:()=> {
+			gsap.to(this.$refs.timer as HTMLDivElement, {duration:.7, y:"-100%", onComplete:()=> {
 				this.timerData = null;
-				this.timer = "";
+				this.timerValue = "";
 			}});
 		}
 	}
@@ -80,12 +83,15 @@ export default class OverlayTimer extends Vue {
 		if(e.type == TwitchatEvent.COUNTDOWN_START) {
 			this.countdownData = (e.data as unknown) as TwitchatDataTypes.CountdownData;
 			this.computeValues();
-			await this.$nextTick();
-			gsap.from("#countdown", {duration:.7, y:"-100%"});
+
+			if(!this.$refs.countdown) {
+				await this.$nextTick();
+				gsap.from(this.$refs.countdown as HTMLDivElement, {duration:.7, y:"-100%"});
+			}
 		}else{
-			gsap.to("#countdown", {duration:.7, y:"-100%", onComplete:()=>{
+			gsap.to(this.$refs.countdown as HTMLDivElement, {duration:.7, y:"-100%", onComplete:()=>{
 				this.countdownData = null;
-				this.countdown = "";
+				this.countdownValue = "";
 			}});
 		}
 	}
@@ -94,15 +100,15 @@ export default class OverlayTimer extends Vue {
 		if(this.countdownData) {
 			const ellapsed = Date.now() - this.countdownData.startAt_ms;
 			const remaining = Math.round((this.countdownData.duration_ms - ellapsed)/1000)*1000;
-			this.countdown = Utils.formatDuration(remaining);
+			this.countdownValue = Utils.formatDuration(remaining);
 		}else{
-			this.countdown = "";
+			this.countdownValue = "";
 		}
 		if(this.timerData) {
 			let ellapsed = Math.floor((Date.now() - this.timerData.startAt_ms)/1000)*1000;
-			this.timer = Utils.formatDuration(ellapsed);
+			this.timerValue = Utils.formatDuration(ellapsed);
 		}else{
-			this.timer = "";
+			this.timerValue = "";
 		}
 	}
 

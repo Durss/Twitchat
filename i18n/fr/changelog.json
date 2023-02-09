@@ -33,7 +33,7 @@
 			},
 			{
 				"i": "elgato",
-				"l": "Steam Deck +",
+				"l": "Stream Deck +",
 				"v": "update_images/sdplus.mp4",
 				"d": "Scroller votre tchat, déplacer le marque page et modérer les messages sans utiliser votre souris n'a jamais été aussi simple grâce aux molettes du Stream Deck +"
 			},
@@ -122,7 +122,7 @@
 					"l": "try it",
 					"page": "triggers"
 				},
-				"l": "<strong>5 nouvelles actions de trigger</strong>:<ul><li>Mettre à jour les infos de streaù</li><li>Mettre à jour un compteur</li><li>Lire un compteur</li><li>Generer une valeur aléatoire</li><li>Appeler un endpoint HTTP</li></ul>"
+				"l": "<strong>5 nouvelles actions de trigger</strong>:<ul><li>Mettre à jour les infos de stream</li><li>Mettre à jour un compteur</li><li>Lire un compteur</li><li>Generer une valeur aléatoire</li><li>Appeler un endpoint HTTP</li></ul>"
 			},
 			{
 				"i": "commands",

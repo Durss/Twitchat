@@ -396,6 +396,7 @@ export interface ITimerGetters {
 }
 
 export interface ITimerActions {
+	boradcastStates():void;
 	timerStart():void;
 	timerAdd(duration_ms:number):void;
 	timerRemove(duration_ms:number):void;

@@ -30,7 +30,7 @@
 
 				<ToggleBlock v-else :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
 				:open="presets.length == 0 || forceOpenForm" icon="update">
-					<SteamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
+					<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
 					
 					<ParamItem class="item" :paramData="param_savePreset" v-if="!presetEditing" />
 					
@@ -57,7 +57,7 @@ import Button from '../Button.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import SteamInfoSubForm from './StreamInfoSubForm.vue';
+import StreamInfoSubForm from './StreamInfoSubForm.vue';
 
 @Options({
 	props:{},
@@ -66,7 +66,7 @@ import SteamInfoSubForm from './StreamInfoSubForm.vue';
 		ParamItem,
 		ToggleBlock,
 		AutoCompleteForm,
-		SteamInfoSubForm,
+		StreamInfoSubForm,
 	},
 	emits:["close"]
 })

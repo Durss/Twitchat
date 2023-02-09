@@ -63,7 +63,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emit:["update:title", "update:tags", "update:category"]
 })
-export default class SteamInfoSubForm extends Vue {
+export default class StreamInfoSubForm extends Vue {
 
 	public title!:string;
 	public tags!:string[];

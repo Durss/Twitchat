@@ -25,6 +25,19 @@ export const storeTimer = defineStore('timer', {
 
 	actions: {
 
+		boradcastStates() {
+			if(this.timerStartDate > 0) {
+				PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, {
+					startAt:Utils.formatDate(new Date(this.timerStartDate - this.timerOffset)),
+					startAt_ms:this.timerStartDate - this.timerOffset
+				});
+			}
+			
+			if(this.countdown) {
+				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, (this.countdown as unknown) as JsonObject);
+			}
+		},
+
 		timerStart() {
 			this.timerStartDate = Date.now();
 			const data:TwitchatDataTypes.TimerData = {
@@ -48,12 +61,14 @@ export const storeTimer = defineStore('timer', {
 
 		timerAdd(duration:number) {
 			this.timerOffset += duration;
+			this.boradcastStates();
 		},
 
 		timerRemove(duration:number) {
 			const ellapsed = Date.now() - this.timerStartDate;
 			this.timerOffset -= duration;
 			if(ellapsed + this.timerOffset < 0) this.timerOffset = -ellapsed;
+			this.boradcastStates();
 		},
 
 		timerStop() {
@@ -123,6 +138,7 @@ export const storeTimer = defineStore('timer', {
 				this.countdown.timeoutRef = setTimeout(()=> {
 					this.countdownStop();
 				}, remaining);
+				this.boradcastStates();
 			}
 		},
 
@@ -138,6 +154,7 @@ export const storeTimer = defineStore('timer', {
 				this.countdown.timeoutRef = setTimeout(()=> {
 					this.countdownStop();
 				}, remaining);
+				this.boradcastStates();
 			}
 		},
 
