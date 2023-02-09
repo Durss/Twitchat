@@ -195,10 +195,6 @@ export const storeAuth = defineStore('auth', {
 					this.twitch.user.donor.upgrade	= userJSON.data.level != prevLevel;
 					if(userJSON.data.isAdmin === true) this.twitch.user.is_admin = true;
 				}catch(error) {}
-
-				MessengerProxy.instance.connect();
-				PubSub.instance.connect();
-				EventSub.instance.connect();
 	
 				const sMain = StoreProxy.main;
 				const sChat = StoreProxy.chat;
@@ -215,6 +211,10 @@ export const storeAuth = defineStore('auth', {
 				}
 				//Parse data from storage
 				await sMain.loadDataFromStorage();
+
+				MessengerProxy.instance.connect();
+				PubSub.instance.connect();
+				EventSub.instance.connect();
 
 				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
 	
