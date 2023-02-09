@@ -1607,7 +1607,8 @@ export default class MessageList extends Vue {
 		const conversationHolder = this.$refs.conversationHolder as HTMLDivElement;
 		const convMessagesholder = this.$refs.conversationMessages as HTMLDivElement;
 
-		this.conversationPos = Math.max(conversationHolder.getBoundingClientRect().height, messageBounds.top - holderBounds.top);
+
+		this.conversationPos = Math.max(conversationHolder.getBoundingClientRect().height, messageBounds.top - holderBounds.top + 10);//+10 shouldn't be necessary but for some reason i couldn't figure out, it is... It makes sure holder is down enough so we can move mouse inside it without rolling out the message
 
 		//Scroll history to top
 		convMessagesholder.scrollTop = convMessagesholder.scrollHeight;
@@ -2023,7 +2024,6 @@ export default class MessageList extends Vue {
 		background-color: @mainColor_dark;
 		padding: 10px;
 		left: 0;
-		top: 0;
 		width: 100%;
 		max-width: 100%;
 		box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
