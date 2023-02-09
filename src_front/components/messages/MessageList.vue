@@ -970,7 +970,7 @@ export default class MessageList extends Vue {
 			const m = this.filteredMessages[i];
 			if (m.id == data.message.id) {
 				this.filteredMessages.splice(i,1);
-				return;
+				break;
 			}
 		}
 		this.fullListRefresh(false);
