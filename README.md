@@ -281,11 +281,3 @@ Run the following command:
 npm run streamdeck_package
 ```
 The file, compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.
-<br>
-<br>
-<br>
-
-# TODO
-- [x] Review the filtering logic of the messages so they're not the ones responsible to decide their own visibility
-- [x] Rebuild server with typescript
-- [x] WIP: Make a MASSIVE refactoring to abstract twitch's data model throughout the codebase to make other services (youtube, tiktok, ...) easier to add to twitchat.
