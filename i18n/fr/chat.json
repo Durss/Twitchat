@@ -107,7 +107,7 @@
 			"given": "{MODERATOR} a fait une dédicasse à {USER} dans le salon {CHANNEL}"
 		},
 		"room_settings": {
-			"title": "Le salon {ROOM} a les restrictions suivantes :",
+			"title": "Rappel : Le salon {ROOM} a les restrictions suivantes :",
 			"sub_only": "Sub uniquement",
 			"emote_only": "Emote uniquement",
 			"follow_only": "Followers uniquement",
