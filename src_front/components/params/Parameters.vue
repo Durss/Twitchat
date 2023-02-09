@@ -1,5 +1,5 @@
 <template>
-	<div class="parameters">
+	<div class="parameters" v-if="$store('main').showParams">
 		<div class="dimmer" ref="dimmer" @click="close()" v-if="$store('main').showParams"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
