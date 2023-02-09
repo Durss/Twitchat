@@ -113,7 +113,6 @@ export default class PubSub extends EventDispatcher {
 					subscriptions.push("polls."+uid);//Get prediction event//Get poll events
 					// subscriptions.push("pv-watch-party-events."+uid);
 					subscriptions.push("stream-chat-room-v1."+uid);//Host events
-					subscriptions.push("shoutout."+uid);//Host events
 					// subscriptions.push("stream-change-by-channel."+uid);
 					// subscriptions.push("radio-events-v1."+uid);
 					// subscriptions.push("channel-sub-gifts-v1."+uid);

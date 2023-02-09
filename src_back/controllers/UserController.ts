@@ -32,6 +32,13 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.setUserData(request, response));
+		
+		//Old endpoint URL.
+		//It's just here to make sure people running on the old version won't have issues
+		//while they're streaming.
+		//Remove this after a few days once nobody else runs on the old frontend
+		this.server.get('/api/userdata', async (request, response) => await this.getUserData(request, response));
+		this.server.post('/api/userdata', async (request, response) => await this.getUserData(request, response));
 	}
 	
 	
