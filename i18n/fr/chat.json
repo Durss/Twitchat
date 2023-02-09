@@ -208,7 +208,7 @@
 			"end": "Chronomètre terminé à {DURATION}"
 		},
 		"connect": {
-			"on": "Bienvenu·e sur sur la chaine {PLATFORM} de {ROOM}",
+			"on": "Bienvenu·e sur la chaine {PLATFORM} de {ROOM}",
 			"off": "Vous avez été déconnecté·e du tchat {PLATFORM}"
 		},
 		"clear": {
