@@ -135,6 +135,9 @@ export default class Changelog extends Vue {
 			v = Math.min(this.progressExample.max as number, v);
 			this.progressExample.value = v;
 		});
+		
+		gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
+		gsap.from(this.$refs.holder as HTMLDivElement, {y:"-150px", ease:"back.out", opacity:0, duration:.5});
 	}
 
 	public close():void {

@@ -218,7 +218,10 @@ export const storeAuth = defineStore('auth', {
 
 				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
 	
-				sChat.sendTwitchatAd();
+				//Hot fix to make sure new changelog highlights are displayed properly
+				setTimeout(()=> {
+					sChat.sendTwitchatAd();
+				}, 1000);
 
 				//Warn the user about the automatic "ad" message sent every 2h
 				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {
