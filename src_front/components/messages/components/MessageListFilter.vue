@@ -279,8 +279,8 @@ export default class MessageListFilter extends Vue {
 	private touchMode = false;
 	private clickHandler!:(e:MouseEvent|TouchEvent) => void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
-	private messagesCache:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchatDataTypes.ChatMessageTypes[]}> = {}
-	private subMessagesCache:Partial<{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchatDataTypes.ChatMessageTypes[]}> = {}
+	private messagesCache:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchatDataTypes.ChatMessageTypes[]|null}> = {}
+	private subMessagesCache:Partial<{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchatDataTypes.ChatMessageTypes[]|null}> = {}
 
 	public get whisperType() { return TwitchatDataTypes.TwitchatMessageType.WHISPER; }
 
@@ -659,6 +659,11 @@ export default class MessageListFilter extends Vue {
 		this.mouseOverToggle = true;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.subMessagesCache[type];
+		if(cached === null) {
+			this.previewData = [];
+			this.loadingPreview = false;
+			return;//No preview for this message
+		}
 		if(cached && cached.length > 0) {
 			this.previewData = cached;
 			this.loadingPreview = false;
@@ -686,6 +691,7 @@ export default class MessageListFilter extends Vue {
 			}else if(type == "suspiciousUsers") {
 				dataCast.twitch_isSuspicious = true;
 			}else {
+				this.subMessagesCache[type] = null;
 				return;
 			}
 
@@ -694,7 +700,7 @@ export default class MessageListFilter extends Vue {
 			this.previewData.push(data);
 			this.subMessagesCache[type] = this.previewData;
 
-		}, false);
+		}, false, false);
 		
 		if(type == "automod") {
 			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
@@ -715,7 +721,7 @@ export default class MessageListFilter extends Vue {
 
 				this.previewData.push(data);
 				this.subMessagesCache[type] = this.previewData;
-			}, false);
+			}, false, false);
 		}
 	}
 
