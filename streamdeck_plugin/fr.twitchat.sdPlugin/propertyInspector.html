@@ -4,11 +4,10 @@
 <head>
 	<meta charset="utf-8" />
 	<title>fr.twitchat.action</title>
-	<link rel="stylesheet" href="sdpi.css">
-	<script src="common.js"></script>
+	<link rel="stylesheet" href="css/sdpi.css">
 	<style>
 		.hidden {
-			display: none;
+			display: none !important;
 		}
 
 		.obsParams>.warning {
@@ -19,17 +18,43 @@
 			padding-bottom: 4px;
 			display: none;
 		}
+		details a {
+			padding-right: 0;
+		}
+
+		.description {
+			width: 100%;
+			text-align: center;
+			min-height: unset !important;
+		}
+		.sdpi-item {
+			margin-bottom: 10px;
+		}
+		.sdpi-item-label {
+			line-height: unset;
+		}
 	</style>
+	<script type="text/javascript" src="js/obs-websocket.js"></script>
+	<script type="text/javascript" src="js/action.js"></script>
+	<script type="text/javascript" src="js/constants.js"></script>
+	<script type="text/javascript" src="js/prototypes.js"></script>
+	<script type="text/javascript" src="js/timers.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
+	<script type="text/javascript" src="js/events.js"></script>
+	<script type="text/javascript" src="js/api.js"></script>
+	<script type="text/javascript" src="js/property-inspector.js"></script>
+	<script type="text/javascript" src="js/dynamic-styles.js"></script>
 </head>
 
 <body>
 	<div class="sdpi-wrapper">
+
+		<hr>
+
 		<div id="obsParams" class="obsParams">
 			<div class="sdpi-heading">OBS Websocket credentials</div>
 			<div class="sdpi-item warning">
-				<details class="message caution">
-					<summary>Set your OBS-Websocket (v5+) credentials <i>(mandatory !)</i></summary>
-				</details>
+				<summary>Set your OBS-Websocket (v5+) credentials <i>(mandatory !)</i></summary>
 			</div>
 			<div class="sdpi-item">
 				<div class="sdpi-item-label">Port</div>
@@ -47,71 +72,210 @@
 				<details class="sdpi-item-value">
 					<summary>Where can i find these values?</summary>
 					<p>You can find these values on OBS under the <strong>"Tools -> obs-websocket"</strong> menu.</p>
-					<p>Make sure you have <strong>OBS 28+</strong> or <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-Websocket v5+ plugin</a> installed</p>
+					<p>
+						Make sure you have <strong>OBS 28+</strong>
+						<br><i>(or OBS 27 with <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-Websocket v5+</a> installed)</i>
+					</p>
 				</details>
 			</div><div class="sdpi-item">
 				<button class="sdpi-item-value" onclick="onConnect()">Connect</button>
 			</div>
 		</div>
 
-		<div class="sdpi-heading hidden" data-CHAT_FEED_READ data-GREET_FEED_READ>Parameters</div>
+		<div class="sdpi-heading hidden" data-chat-feed-read data-greet-feed-read>Parameters</div>
 
-		<details class="message hidden" data-CHAT_FEED_READ data-GREET_FEED_READ data-CHAT_FEED_SCROLL_UP data-CHAT_FEED_SCROLL_DOWN>
-			<summary class="hidden" data-CHAT_FEED_READ>This action marks the specified number of messages as read in the chat feed</summary>
-			<summary class="hidden" data-GREET_FEED_READ>This action removes the specified number of messages from the <strong>"Greet them"</strong> feed</summary>
-			<summary class="hidden" data-CHAT_FEED_SCROLL_UP>This action scroll the chat up by the specified amount of pixels</summary>
-			<summary class="hidden" data-CHAT_FEED_SCROLL_DOWN>This action scroll the chat down by the specified amount of pixels</summary>
-		</details>
-
-		<div type="range" class="sdpi-item hidden" data-CHAT_FEED_READ data-GREET_FEED_READ data-CHAT_FEED_SCROLL_UP data-CHAT_FEED_SCROLL_DOWN>
-			<div class="sdpi-item-label">Count <i>(<span id="value"></span>)</i></div>
-			<div class="sdpi-item-value range">
-				<input class="setvalueSlider hidden" data-sync type="range" min="1" max="20" value="1" id="GREET_FEED_READ" oninput="sendValueToPlugin(Number(event.target.value), 'GREET_FEED_READ')" data-GREET_FEED_READ>
-				<input class="setvalueSlider hidden" data-sync type="range" min="1" max="20" value="1" id="CHAT_FEED_READ" oninput="sendValueToPlugin(Number(event.target.value), 'CHAT_FEED_READ')" data-CHAT_FEED_READ>
-				<input class="setvalueSlider hidden" data-sync type="range" min="100" max="1000" step="50" value="1" id="CHAT_FEED_SCROLL_UP" oninput="sendValueToPlugin(Number(event.target.value), 'CHAT_FEED_SCROLL_UP')" data-CHAT_FEED_SCROLL_UP>
-				<input class="setvalueSlider hidden" data-sync type="range" min="100" max="1000" step="50" value="1" id="CHAT_FEED_SCROLL_DOWN" oninput="sendValueToPlugin(Number(event.target.value), 'CHAT_FEED_SCROLL_DOWN')" data-CHAT_FEED_SCROLL_DOWN>
+		<div class="sdpi-item">
+			<div class="message description">
+				<strong class="hidden" data-greet-feed-read-all>Remove all entries from the "Greet them" section</strong>
+				<strong class="hidden" data-greet-feed-read>Remove the specified number of messages from the "Greet them" feed</strong>
+				<strong class="hidden" data-chat-feed-read-all>Move the read mark to the bottom</strong>
+				<strong class="hidden" data-chat-feed-read>Mark the specified number of messages as read in the chat feed</strong>
+				<strong class="hidden" data-chat-feed-read-encoder>Freely move the read mark up and down</strong>
+				<strong class="hidden" data-clear-chat-highlight>Clear the currently highlighted message. This needs the "Message Highlight" overlay to be configured on OBS.</strong>
+				<strong class="hidden" data-chat-feed-pause>Pause chat</strong>
+				<strong class="hidden" data-chat-feed-unpause>Unpause chat</strong>
+				<strong class="hidden" data-chat-feed-scroll-up>Scroll the chat up by the specified amount of pixels</strong>
+				<strong class="hidden" data-chat-feed-scroll-down>Scroll the chat down by the specified amount of pixels</strong>
+				<strong class="hidden" data-chat-feed-scroll>Freely scroll your chat up and down</strong>
+				<strong class="hidden" data-chat-feed-select>Use this button to select a user's message and take moderation actions on it.</strong>
+				<strong class="hidden" data-poll-toggle>Open/close current poll state</strong>
+				<strong class="hidden" data-prediction-toggle>Open/close current prediction state</strong>
+				<strong class="hidden" data-bingo-toggle>Open/close current bingo state</strong>
+				<strong class="hidden" data-raffle-toggle>Open/close current raffle state</strong>
+				<strong class="hidden" data-viewers-count-toggle>Show/hide live viewer count</strong>
+				<strong class="hidden" data-mod-tools-toggle>Show/hide mod tools before each message</strong>
+				<strong class="hidden" data-censor-deleted-messages-toggle>Show/hide content of deleted messages</strong>
+				<strong class="hidden" data-shoutout>Using this button will send a shoutout to the latest user that raided your channel. It will do nothing until someone raided you.</strong>
+				<strong class="hidden" data-set-emergency-mode>Start/stop emergency mode</strong>
+				<strong class="hidden" data-stop-tts>Stop currently playing text to speech</strong>
+				<strong class="hidden" data-enable-stt>Start voice control</strong>
+				<strong class="hidden" data-disable-stt>Stop voice control</strong>
+				<strong class="hidden" data-countdown-add>Add or remove time from current countdown</strong>
+				<strong class="hidden" data-timer-add>Add or remove time from current timer</strong>
+				<strong class="hidden" data-counter-add>Add or remove points from a counter</strong>
 			</div>
 		</div>
-		<div class="sdpi-item">
-			<button class="sdpi-item-value" onclick="onTest()">Test action</button>
+
+		<hr>
+
+		<div type="range" class="sdpi-item hidden"
+		data-chat-feed-read
+		data-greet-feed-read
+		data-chat-feed-scroll-up
+		data-chat-feed-scroll-down>
+			<div class="sdpi-item-label hidden"
+				data-greet-feed-read
+				data-chat-feed-read>Count <i>(<span id="value"></span>)</i></div>
+			<input class="sdpi-item-value hidden" data-sync type="range" min="1" max="20" value="1"
+				id="readCount"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-greet-feed-read
+				data-chat-feed-read>
+				
+			<div class="sdpi-item-label hidden"
+				data-chat-feed-scroll-up
+				data-chat-feed-scroll-down>Scroll amount <i>(<span id="value"></span>px)</i></div>
+			<input class="sdpi-item-value hidden" data-sync type="range" min="100" max="1000" step="50" value="1"
+				id="scrollAmount"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-chat-feed-scroll-up
+				data-chat-feed-scroll-down>
 		</div>
+
+		<div class="sdpi-item hidden"
+		data-timer-add
+		data-countdown-add
+		data-counter-add>
+			<div class="sdpi-item-label hidden"
+				data-timer-add
+				data-countdown-add>Duration <i>(seconds)</i></div>
+			<input class="sdpi-item-value hidden" data-sync value="1" type="number"
+				id="timeAdd"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-timer-add
+				data-countdown-add>
+				
+			<div class="sdpi-item-label hidden"
+				data-counter-add>Points</div>
+			<input class="sdpi-item-value hidden" data-sync value="0" type="number"
+				id="countAdd"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-counter-add>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-chat-feed-select
+		data-chat-feed-read
+		data-chat-feed-read-encoder
+		data-chat-feed-pause
+		data-chat-feed-unpause
+		data-chat-feed-scroll
+		data-chat-feed-scroll-up
+		data-chat-feed-scroll-down>
+			<div class="sdpi-item-label">Column index to control</div>
+			<select class="sdpi-item-value select"
+				id="colIndex"
+				oninput="onChangeValue(Number(event.target.value))"
+				data-chat-feed-select
+				data-chat-feed-read
+				data-chat-feed-read-encoder
+				data-chat-feed-pause
+				data-chat-feed-unpause
+				data-chat-feed-scroll
+				data-chat-feed-scroll-up
+				data-chat-feed-scroll-down>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-counter-add>
+			<div class="sdpi-item-label">Counter to update</div>
+			<select class="sdpi-item-value select"
+				id="counterId"
+				oninput="onChangeValue(event.target.value)"
+				data-counter-add>
+			</select>
+		</div>
+		
+		<!-- <div class="sdpi-item">
+			<button class="sdpi-item-value" onclick="onTest()">Test action</button>
+		</div> -->
 	</div>
 
 	<script>
-		var pluginAction = null, uuid = '', actionName = "";
-		if ($SD) {
-			$SD.on('connected', (jsonObj) => {
-				const settings = jsonObj.actionInfo.payload.settings;
-				
-				uuid = jsonObj['uuid'];
-				if (jsonObj.hasOwnProperty('actionInfo')) {
-					pluginAction = jsonObj.actionInfo['action'];
-				}
+		let actionName = "";
+		let globalSettings = {};
+		let isFirstUpdate = true;
+		if ($PI) {
 
-				actionName = jsonObj.actionInfo['action'].replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+			$PI.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
+
+				$PI.onDidReceiveGlobalSettings((jsonObj) => {
+					const settings = jsonObj.payload.settings;
+					globalSettings = settings;
+					populateGlobalSettings(settings);
+					if(isFirstUpdate) {
+						$PI.getSettings();
+					}
+				});
+
+				$PI.onDidReceiveSettings($PI.actionInfo.action, (jsonObj) => {
+					const settings = jsonObj.payload.settings;
+					populateLocalSettings(settings);
+				});
+
+				actionName = $PI.actionInfo.action.split(".").pop();
+
+				//Make visible any component related to this action
 				const holders = document.querySelectorAll("[data-"+actionName+"]");
-				
 				for (let i = 0; i < holders.length; i++) {
 					const el = holders[i];
 					el.classList.remove("hidden");
 				}
+
+				//Remove from the DOM any holder with a "hidden" class remaining
 				const holdersRemove = document.querySelectorAll(".hidden");
 				for (let i = 0; i < holdersRemove.length; i++) {
 					const el = holdersRemove[i];
 					el.parentElement.removeChild(el);
 				}
 
-				//Sync value from plugin's storage
-				$SD.api.getGlobalSettings(uuid);
-			});
-
-			$SD.on('didReceiveGlobalSettings', (jsonObj) => {
-				const settings = jsonObj.payload.settings;
-				populate(settings);
+				//Request settings
+				$PI.getGlobalSettings();
 			});
 		};
 
-		function populate(settings) {
+		function populateGlobalSettings(settings) {
+			//Populate list index selector
+			const colSelector = document.getElementById("colIndex");
+			if(colSelector) {
+				colSelector.innerHTML = "";
+				for (let i = 0; i < settings.COLS_COUNT; i++) {
+					const opt = document.createElement("option");
+					opt.value = i,
+					opt.innerText = i+1;
+					colSelector.appendChild(opt);
+				}
+			}
+			
+			//Populate counter selector
+			const counterSelector = document.getElementById("counterId");
+			if(counterSelector) {
+				counterSelector.innerHTML = "";
+				for (let i = 0; i < settings.COUNTER_LIST.length; i++) {
+					const counter = settings.COUNTER_LIST[i];
+
+					//No control for "per user" counters
+					if(counter.perUser === true) continue;
+
+					const opt = document.createElement("option");
+					opt.value = counter.id,
+					opt.innerText = counter.name;
+					counterSelector.appendChild(opt);
+				}
+			}
+
+			//Populate any form matching a global setting ID (like OBS credentials)
 			for (const key in settings) {
 				const input = document.getElementById(key);
 				if(input) {
@@ -125,26 +289,54 @@
 			
 		}
 
-
-		function sendValueToPlugin(value, param) {
-			if ($SD && $SD.connection) {
-				var payload = {};
-				payload[param] = value;
-				$SD.api.sendToPlugin(uuid, pluginAction, payload);
-				// console.log($SD.api.setGlobalSettings)
-				// $SD.api.setGlobalSettings(uuid,)
+		function populateLocalSettings(settings) {
+			if(document.getElementById("value")) document.getElementById("value").innerHTML = "0";
+			for (const key in settings) {
+				const input = document.getElementById(key);
+				if(input) {
+					input.value = settings[key];
+					if(input.dataset.hasOwnProperty("sync")) {
+						if(document.getElementById("value")) document.getElementById("value").innerHTML = settings[key] ?? 1;
+					}
+				}
 			}
+			
+		}
+
+		function onChangeValue(paramValue) {
+			if(!paramValue) paramValue = true;
+
+			const holders = document.querySelectorAll("[data-"+actionName+"]");
+			
+			const settings = {};
+			for (let i = 0; i < holders.length; i++) {
+				const element = holders[i];
+				const prop = element.getAttribute("id");
+				if(!prop || element.value == undefined) continue;
+				settings[prop] = element.value;
+			}
+
+			populateLocalSettings(settings);
+
+			$PI.setSettings(settings);
 		}
 
 		function onConnect() {
 			const port = document.getElementById("OBSWS_PORT").value;
 			const pass = document.getElementById("OBSWS_PASS").value;
 			const ip = document.getElementById("OBSWS_IP").value;
-			sendValueToPlugin({port, pass, ip}, "OBSW_DO_CONNECT");
+			const settings = {port, pass, ip};
+			globalSettings["OBSW_DO_CONNECT"] = settings;
+			$PI.setGlobalSettings(globalSettings);
+			$PI.sendToPlugin({OBSW_DO_CONNECT:settings})
 		}
 
 		function onTest() {
-			sendValueToPlugin(actionName.toUpperCase(), "TEST");
+			$PI.sendToPlugin({TEST_ACTION:actionName});
+		}
+
+		function onGetColsCount() {
+			$PI.sendToPlugin({GET_COLS_COUNT:true});
 		}
 
 	</script>

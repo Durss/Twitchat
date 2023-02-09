@@ -1,0 +1,91 @@
+{
+	"overlay":{
+		"header": "Ajoutez des overlays à votre stream",
+		"unified": "Inclure tous les overlays d'un coup :",
+		"css_customization": "Personnalisation CSS",
+
+		"connection":{
+			"title":"Les overlays nécessitent de {OBS} ou {DOCK}",
+			"obsBt":"Lier OBS",
+			"dockBt":"Docker Twitchat dans OBS",
+			"closeBt":"Fermer",
+			"dock_tutorial": "Dans OBS, ouvrez <strong>Docks</strong> => <strong>Docks internet personnalisés</strong> puis ajoutez Twitchat comme ceci"
+		},
+
+		"raffle":{
+			"title":"Roulette",
+			"head":"Lancer un tirage au sort affichera une roue animée.",
+			"css":"Changez l'apparence de la roue via ces sélecteurs CSS",
+			"no_overlay":"- overlay non configuré ou invisible -",
+			"start":"Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
+			"testBt":"Tester avec<br>vos followers"
+		},
+
+		"timer":{
+			"title":"Chronomètre & Compte à rebours",
+			"head":"Si vous lancez un chronomètre ou un compte à rebours avec les commandes {CMD1} ou {CMD2}, cet overlay affichera le temps écoulé ou restant.",
+			"css":"Changez leur apparence via ces sélecteurs CSS",
+			"try_timerBt":"Chronomère",
+			"try_countdownBt":"Compte à rebours (2min)"
+		},
+
+		"counters":{
+			"title":"Compteurs",
+			"head":"Ajoutez vos compteurs sur votre stream en ajoutant leur URL correspondante en source de navigateur",
+			"head_empty":"Créez des compteurs, influez dessus depuis des commandes de tchat, des récompenses de points de chaîne, des subs, etc... et affichez leur progression en live sur votre stream.",
+			"createBt":"Créer un compteur",
+			"css":"Changez leur apparence via ces sélecteurs CSS",
+			"css_example":{
+				"simple":"Compteur simple",
+				"progress":"Barre de progression"
+			}
+		},
+		
+		"highlight":{
+			"title":"Mettre en avant",
+			"head":"Cet overlay vous permet de mettre en avant des messages du tchat sur votre stream comme suit:",
+			"instruction":"Ajoutez cette URL en source de navigateur dans OBS:",
+			"css":"Changez l'apparence de la mise en avant via ces sélecteurs CSS",
+			"message_pos":"Position du message",
+			"clear_instruction":"Pour masquer le message actuellement affiché, cliquez sur ce bouton dans la barre du bas.",
+			"testBt":"Tester",
+			"no_overlay":"- overlay non configuré ou invisible -",
+			"alternative_tool":"Pour une solution dédiée plus complète jetez un oeil à {URL}"
+		},
+
+		"music_common":{
+			"music":"Affichez la musique en cours de lecture sur votre stream et permettez à vos viewers de contrôler la lecture et ajouter des morceaux à la liste de lecture.",
+			"music_url":"Set this URL in an OBS browser source to display currently playing track:",
+			"css":"Changez l'apparence de la mise en avant via ces sélecteurs CSS",
+			"no_scroll":"Désactiver le défilement",
+			"open_from_left":"Ouvrir depuis la gauche",
+			"auto_hide":"Conserver le lecteur visible quand rien ne joue",
+			"auto_hide_erase":"Effacer les infos du morceau",
+			"show_cover":"Afficher l'image",
+			"show_artist":"Afficher l'artiste",
+			"show_title":"Afficher le titre",
+			"show_progress":"Afficher la barre de progression",
+			"custom_template_toggle":"Template personnalisé",
+			"custom_template":"Template (HTML accepté)",
+			"custom_template_placeholders":{
+				"title":"Titre",
+				"artist":"Artiste"
+			},
+			"infos":"Permettez à vos viewers d'ajouter des morceaux à la liste de lecture ou contrôler la lecture via les {TRIGGERS}.",
+			"triggerBt":"triggers"
+		},
+
+		"spotify":{
+			"refused":"Malheureusement, <strong>Spotify refuse</strong> à Twitchat d'utiliser leur API.",
+			"how_to":"Pour lier Twitchat à Spotify, {URL} et remplis les valeurs ci-dessous :",
+			"how_to_read":"LIS CE TUTORIEL",
+			"authBt":"Connexion"
+		},
+
+		"deezer":{
+			"shit_api":"L'API Deezer étant catastrophique, les risques de malfonctions existent. Vous devrez de plus vous reconnecter à chaque lancement de Twitchat.",
+			"authBt":"Connexion",
+			"control":"Cliquez sur l'icone {ICON} en bas à droite de l'écran pour ajouter des morceaux, voir la liste de lecture, et controler la lecture."
+		}
+	}
+}

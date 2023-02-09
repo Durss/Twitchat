@@ -1,0 +1,511 @@
+{
+	"triggers": {
+		"header": "Exécute des actions en réaction à {COUNT} types d'évènements",
+		"add_actionBt": "Ajouter une action",
+		"create_chat_cmdBt": "Créer une commande de tchat",
+		"create_scheduleBt": "Programmer des actions",
+		"testBt": "Tester",
+		"deleteBt": "Supprimer",
+		"resyncBt": "Resynchroniser OBS",
+		"resyncBt_tt": "Si vous avez ajouté des sources<br>dans OBS, cliquez pour les voir<br>listées dans les actions OBS",
+		"delete_confirm": "Supprimer ce trigger ?",
+		"delete_action_confirm": "Supprimer l'action ?",
+		"reorder_tt": "Réordonner",
+		"noChannelPoints_tt": "Vous n'êtes pas affilié·e<br>ou n'avez pas autorisé<br>Twitchat à contrôler ceci",
+		"noTrigger": "- aucune entrée -",
+		"create_counterBt": "Créez des compteurs",
+		"queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez les à la même file d'exécution.",
+		"queue_input_placeholder": "file d'exécution...",
+		"music": {
+			"require": "Ces évènements nécessitent de lier Spotify avec Twitchat dans {URL}",
+			"require_url": "les overlays"
+		},
+		"obs": {
+			"require": "Ces événéments nécessitent de {URL}",
+			"require_url": "lier twitchat à OBS"
+		},
+		"count": {
+			"require": "Ces événéments nécessitent de d'abord {URL}",
+			"require_url": "créer des compteurs"
+		},
+		"schedule": {
+			"conflict": "Une action programmée du même nom existe déjà",
+			"params_title": "Paramètres",
+			"repeat": "Répéter:",
+			"add_dateBt": "Ajouter une date",
+			"default_action": "Selectionnez une action...",
+			"param_name": "Nom de l'événément",
+			"param_daily": "Journalier",
+			"param_yearly": "Annuel",
+			"param_action": "Type de programme",
+			"param_repeatDurationCondition": "Répéter dans le temps",
+			"param_repeatDurationValue": "Exécuter toutes les {'{'}VALUE{'}'} minutes",
+			"param_repeatMessageCondition": "Répéter après réception de messages",
+			"param_repeatMessageValue": "Exécuter après {'{'}VALUE{'}'} messages reçus"
+		},
+		"actions": {
+			"common": {
+				"select_action":"Sélectionnez le type d'action à exécuter",
+				"duplicate_tt": "Dupliquer",
+				"next_delay": "Délai avant l'action suivante (secondes)",
+				"dynamic_placeholder_info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
+				"delete": "Supprimer",
+				"action_chat": "Envoyer un message",
+				"action_bingo": "Lancer un bingo",
+				"action_raffle": "Lancer un tirage au sort",
+				"action_highlight": "Mettre en avant sur le stream",
+				"action_trigger": "Trigger",
+				"action_obs": "Contrôler OBS",
+				"action_obs_tt": "Vous devez connecter OBS<br>dans la section OBS",
+				"action_tts": "Text to speech",
+				"action_tts_tt": "Vous devez activer la fonctionnalité<br>de <strong>text to speech</strong> dans les paramètres",
+				"action_music": "Contrôler Spotify",
+				"action_music_tt": "Vous devez<br>connecter Spotify<br>dans les <strong>Overlays</strong>",
+				"action_voicemod": "Contrôler Voicemod",
+				"action_voicemod_tt": "Vous devez connecter<br>Voicemod dans les paramètres",
+				"action_http": "Appel HTTP",
+				"action_poll": "Lancer un sondage",
+				"action_prediction": "Lancer une prédiction",
+				"action_count": "Modifier un compteur",
+				"action_countget": "Lire un compteur",
+				"action_random": "Valeur aléatoire",
+				"action_stream_infos": "Changer les infos de stream"
+			},
+			"chat": {
+				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
+				"param_message": "Message à envoyer dans le tchat",
+				"conflict": "Une commande avec le même nom existe déjà",
+				"allowed_users": "Personnes autorisées à utiliser la commande",
+				"params_title": "Paramètres",
+				"param_cmd": "Commande",
+				"param_globalCD": "Cooldown global (sec)",
+				"param_userCD": "Cooldown utilisateur (sec)",
+				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
+				"tip_title":"ASTUCE :",
+				"tip":"{TITLE} Vous pouvez utiliser les commandes de tchat",
+				"tip_example_title":"Exemple :",
+				"tip_example":"{TITLE} {CMD} passera le tchat en followers only de 30 minutes",
+				"commands_list":"Commandes utilisables"
+			},
+			"highlight": {
+				"header": "{LINK} de mise en avant pour utiliser cette action.",
+				"header_link": "Configurez l'overlay",
+				"param_visibility": "Visibilité de la mise en avant",
+				"param_message": "Message à mettre en avant"
+			},
+			"music": {
+				"header": "Veuillez lier Spotify dans la {LINK}",
+				"header_link": "section overlays",
+				"param_actions": "Action",
+				"param_actions_default": "Selectionnez une action...",
+				"param_track": "Morceau (nom, URL ou ID)",
+				"param_confirmSongRequest": "Envoyer un message de confirmation",
+				"param_playlist": "Playlist (nom, URL ou ID)",
+				"spotify_only": "Fonctionne uniquement avec Spotify"
+			},
+			"obs": {
+				"header": "Veuillez {LINK}",
+				"header_link": "connecter OBS",
+				"media_source": "Si vous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} et {CMD2} supprimés pour des raisons de sécurité.",
+				"media_source_example": " : si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
+				"param_action": "Action",
+				"param_show_filter": "Visibilité du filtre",
+				"param_source": "Source OBS",
+				"param_filter": "Filtre",
+				"param_filter_none": "- aucun -",
+				"param_text": "Texte à écrire dans la source",
+				"param_url": "URL de la source",
+				"param_media": "Fichier (optionel)",
+				"param_media_img": "Fichier image",
+				"param_action_show": "Activer la source",
+				"param_action_hide": "Desactiver la source",
+				"param_action_replay": "Relancer la lecture"
+			},
+			"trigger": {
+				"beta": "Fonctionnalité expérimentale !{BR} Si vous rencontrez un problème {LINK}",
+				"beta_link": "faites-le moi savoir sur Discord",
+				"warning_title": "Information importante",
+				"warning": "Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",
+				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponible car le trigger ne sera pas exécuté par un message de tchat.",
+				"no_trigger": "Vous n'avez créé aucun trigger pour l'instant",
+				"select": "Sélectionnez un trigger à exécuter...",
+				"loop": "Boucle de dépendance détectée",
+				"loop_delails": "Ceci risque de rendre Twitchat instable."
+			},
+			"tts": {
+				"header": "Veuillez activer la fonctionnalité {LINK}",
+				"header_link": "text to speech",
+				"param_message": "Message à lire à haute voix"
+			},
+			"voicemod": {
+				"header": "Veuillez {LINK}",
+				"header_link": "connecter Voicemod",
+				"param_voice": "Voix"
+			},
+			"http": {
+				"url": "URL à appeler",
+				"method": "Méthode",
+				"select_param": "Choisissez les paramètres à inclure :",
+				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
+			},
+			"count": {
+				"value_label":"Valeur à ajouter ou retirer",
+				"select_label":"Compteurs à mettre à jour",
+				"select_placeholder":"Sélectionnez un compteur..."
+			},
+			"countget": {
+				"placeholder_label":"Nom du placeholder",
+				"select_label":"Compteur à lire",
+				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du compteur."
+			},
+			"random":{
+				"min_label":"Valeur min (inclus)",
+				"max_label":"Valeur max (inclus)",
+				"float_label":"Autoriser les nombres à virgule",
+				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur aléatoire.",
+				"number":"Nombre",
+				"list":"Liste",
+				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
+				"list_entry_placeholder":"ajouter une entrée..."
+			}
+		},
+		"categories": {
+			"global": "Chat - Points de chaîne",
+			"user": "Evènement utilisateur",
+			"subits": "Sub & bits",
+			"mod": "Actions de modération",
+			"twitchat": "Twitchat",
+			"hypetrain": "Train de la hype",
+			"games": "Jeux",
+			"music": "Musique",
+			"timer": "Évènements temporels",
+			"obs": "OBS",
+			"misc": "Autres",
+			"count": "Compteurs"
+		},
+		"placeholders": {
+			"user": "Pseudo",
+			"user_id": "ID utilisateur",
+			"user_avatar": "URL de l'avatar",
+			"chatter": "Pseudo",
+			"message": "Message",
+			"pinned_by": "Pseudo de la personne ayant épinglé",
+			"pinned_by_id": "ID de la personne ayant épinglé",
+			"poll_title": "Titre du sondage",
+			"poll_win": "Titre de l'entrée gagnante",
+			"prediction_title": "Titre de la prédiction",
+			"prediction_win": "Titre de l'entrée gagnante",
+			"winner": "Pseudo de la personne",
+			"sub_tier": "Niveau de l'abonnement: 1, 2 ou 3",
+			"sub_message": "Message de la personne",
+			"sub_months_total": "Nombre de mois au total",
+			"sub_months_prepaid": "Nombre de mois pré payés",
+			"sub_months_streak": "Nombre de mois consécutifs",
+			"sub_gifter": "Personne offrant des subs",
+			"sub_gift_recipient": "Personnes recevant un sub",
+			"sub_gift_recipient_id": "ID des personnes recevant un sub",
+			"sub_gift_count": "Nombre de subs offerts",
+			"bits": "Nombre de bits",
+			"stream_title": "Titre du stream",
+			"stream_category": "Catégorie du stream",
+			"viewers": "Nombre de viewers",
+			"reward_title": "Nom de la récompense",
+			"reward_description": "Description de la récompense",
+			"reward_cost": "Prix de la récompense",
+			"reward_message": "Message de la personne",
+			"track_artist": "Artiste du morceau en cours",
+			"track_title": "Titre du morceau en cours",
+			"track_album": "Album du morceau en cours",
+			"track_cover": "Image du morceau en cours",
+			"track_url": "URL du morceau en cours",
+			"train_level": "Niveau actuel",
+			"train_percent": "Progression du niveau actuel (0 -> 100)",
+			"train_end_level": "Niveau atteint",
+			"train_end_percent": "Pourcentage atteint (0 -> 100)",
+			"voicemod_voice": "ID de la voix",
+			"timeout": "Duration du ban en secondes",
+			"start_date": "Date de début formatée",
+			"timer_duration": "Durée finale du Chronomètre",
+			"countdown_duration": "Durée du compte à rebours",
+			"countdown_end_date": "Date de fin du compte à rebours",
+			"challenge_title": "Titre du défi",
+			"challenge_description": "Description du défi",
+			"challenge_goal": "Objectif du défi",
+			"challenge_current": "Progression du défi",
+			"challenge_contribution": "Contribution de la personne",
+			"challenge_contribution_total": "Contribution totale de la personne",
+			"shoutout_in": "Chaîne vous ayant fait un shoutout",
+			"shoutout_out": "Chaîne que vous avez shoutout",
+			"counter_name": "Nom du compteur",
+			"counter_value": "Nouvelle valeur du compteur",
+			"counter_update": "Valeur ajoutée",
+			"counter_username": "Pseudo (pour les compteurs utilisateur)",
+			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)"
+		},
+		"events": {
+			"CHAT_COMMAND": {
+				"label": "Commande de tchat",
+				"description": "Exécuter des actions en réponse à des commandes de tchat"
+			},
+			"ANY_MESSAGE": {
+				"label": "Tous les messages",
+				"description": "Exécuter des actions chaque fois qu'un message est reçu"
+			},
+			"REWARD_REDEEM": {
+				"label": "Récompense de points de chaîne",
+				"description": "Exécuter des actions lorsque la récompense <br><mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est achetée"
+			},
+			"COMMUNITY_CHALLENGE_PROGRESS": {
+				"label": "Progression de défi communautaire",
+				"description": "Exécuter des actions quand quelqu'un contribue à un défi communautaire"
+			},
+			"COMMUNITY_CHALLENGE_COMPLETE": {
+				"label": "Objectif de défi communautaire rempli",
+				"description": "Exécuter des actions lorsqu'un défi communautaire est rempli"
+			},
+			"STREAM_INFO_UPDATE": {
+				"label": "Infos de streams mises à jour",
+				"description": "Exécuter des actions lorsque les infos de stream sont mises à jour"
+			},
+			"FIRST_ALL_TIME": {
+				"label": "Premier message",
+				"description": "Exécuter des actions lorsque queulqu'un parle pour la première fois dans votre tchat"
+			},
+			"FIRST_TODAY": {
+				"label": "Premier message quotidien",
+				"description": "Exécuter des actions lorsque quelqu'un parle pour la première fois du stream en cours"
+			},
+			"RETURNING_USER": {
+				"label": "Returning user",
+				"description": "Execute actions when a user comes back after chatting at least twice in the last 30 days.<br>(this may not exist anymore on Twitch)"
+			},
+			"PRESENTATION": {
+				"label": "Présentation",
+				"description": "Exécuter des actions lorsque quelqu'un utilise la fonctionnalité de présentation"
+			},
+			"FOLLOW": {
+				"label": "Follow",
+				"description": "Exécuter des actions lorsque quelqu'un suit votre chaîne"
+			},
+			"RAID": {
+				"label": "Raid reçu",
+				"description": "Exécuter des actions lorsque vous recevez un raid"
+			},
+			"SHOUTOUT_OUT": {
+				"label": "Shoutout donné",
+				"description": "Exécuter des actions lorsque vous faites un shoutout à quelqu'un"
+			},
+			"SHOUTOUT_IN": {
+				"label": "Shoutout reçu",
+				"description": "Exécuter des actions lorsqu'une autre chaîne vous fait un shoutout"
+			},
+			"POLL_RESULT": {
+				"label": "Résultat de sondage",
+				"description": "Exécuter des actions lorsqu'un sondage termine"
+			},
+			"PREDICTION_RESULT": {
+				"label": "Résultat de prédiction",
+				"description": "Exécuter des actions lorsqu'une prédiction termine"
+			},
+			"RAFFLE_RESULT": {
+				"label": "Résultat de tirage au sort",
+				"description": "Exécuter des actions lorsqu'un tirage au sort termine"
+			},
+			"BINGO_RESULT": {
+				"label": "Résultat de bingo",
+				"description": "Exécuter des actions lorsqu'un bingo se termine"
+			},
+			"SUB": {
+				"label": "Abonnement",
+				"description": "Exécuter des actions lorsque quelqu'un s'abonne à votre chaîne"
+			},
+			"SUBGIFT": {
+				"label": "Abonnement offert",
+				"description": "Exécuter des actions lorsque quelqu'un offre un abonnement à votre chaîne"
+			},
+			"CHEER": {
+				"label": "Bits",
+				"description": "Exécuter des actions lorsque quelqu'un vous offre des bits"
+			},
+			"HYPE_TRAIN_APPROACHING": {
+				"label": "Arrivée d'un train de la hype",
+				"description": "Exécuter des actions lorsqu'un train de la hype arrive"
+			},
+			"HYPE_TRAIN_START": {
+				"label": "Début du train de la hype",
+				"description": "Exécuter des actions lorsque le train de la hype débute"
+			},
+			"HYPE_TRAIN_PROGRESS": {
+				"label": "Progression du train de la hype",
+				"description": "Exécuter des actions lorsque le train de la hype progresse"
+			},
+			"HYPE_TRAIN_END": {
+				"label": "Fin du train de la hype",
+				"description": "Exécuter des actions lorsque le train de la hype termine"
+			},
+			"HYPE_TRAIN_CANCELED": {
+				"label": "Train de la hype annulé",
+				"description": "Exécuter des actions si le train de la hype est annulé"
+			},
+			"HYPE_TRAIN_COOLDOWN": {
+				"label": "Cooldown du train de la hype",
+				"description": "Exécuter des actions lorsque le train de la hype peut à nouveau être lancé"
+			},
+			"TIMEOUT": {
+				"label": "Bannissement temporaire",
+				"description": "Exécuter des actions lorsqu'une personne est <mark>/timeout</mark>"
+			},
+			"BAN": {
+				"label": "Bannissement définitif",
+				"description": "Exécuter des actions lorsqu'une personne est <mark>/ban</mark>"
+			},
+			"UNBAN": {
+				"label": "Bannissement levé",
+				"description": "Exécuter des actions lorsqu'une personne est <mark>/unban</mark>"
+			},
+			"VIP": {
+				"label": "Rôle VIP attribué",
+				"description": "Exécuter des actions lorsqu'une personne est ajoutée à vos VIPs"
+			},
+			"UNVIP": {
+				"label": "Rôle VIP retiré",
+				"description": "Exécuter des actions lorsqu'une personne est retirée de vos VIPs<br><i>(fonctionne seulement en utilisant la commande <mark>/unvip</mark> depuis twitchat</i>"
+			},
+			"MOD": {
+				"label": "Rôle modérateur attribué",
+				"description": "Exécuter des actions lorsqu'une personne est ajoutée à vos modérateurs"
+			},
+			"UNMOD": {
+				"label": "Rôle modérateur retiré",
+				"description": "Exécuter des actions lorsqu'une personne est retirée de vos modérateurs<br><i>(fonctionne seulement en utilisant la commande <mark>/unmod</mark> depuis twitchat</i>"
+			},
+			"SHIELD_MODE_ON": {
+				"label": "Mode bouclier activé",
+				"description": "Exécuter des actions lorsque le mode bouclier est activé"
+			},
+			"SHIELD_MODE_OFF": {
+				"label": "Mode bouclier retiré",
+				"description": "Exécuter des actions lorsque le mode bouclier est désactivé"
+			},
+			"PIN_MESSAGE": {
+				"label": "Message épinglé",
+				"description": "Exécuter des actions lorsqu'un message est épinglé'"
+			},
+			"UNPIN_MESSAGE": {
+				"label": "Message désépinglé",
+				"description": "Exécuter des actions lorsqu'un message est désépinglé"
+			},
+			"TRACK_ADDED_TO_QUEUE": {
+				"label": "Morceau ajouté à la file d'attente",
+				"description": "Exécuter des actions lorsqu'un morceau est ajouté à la liste de lecture"
+			},
+			"MUSIC_START": {
+				"label": "Début de lecture d'une musique",
+				"description": "Exécuter des actions lorsqu'une musique commence à jouer"
+			},
+			"MUSIC_STOP": {
+				"label": "Lecture de musique mise en pause",
+				"description": "Exécuter des actions lorsque la lecture de musique est mise en pause"
+			},
+			"SCHEDULE": {
+				"label": "Actions planifiées",
+				"description": "Exécuter des actions régulièrement ou à des dates spécifiques"
+			},
+			"TIMER_START": {
+				"label": "Lancement du chronomètre",
+				"description": "Exécuter des actions lorsque le chronomètre est lancé (<mark>/timerStart</mark>)"
+			},
+			"TIMER_STOP": {
+				"label": "Arrêt du chronomètre",
+				"description": "Exécuter des actions lorsque le chronomètre est arrêté (<mark>/timerStop</mark>)"
+			},
+			"COUNTDOWN_START": {
+				"label": "Lancement d'un compte à rebours",
+				"description": "Exécuter des actions lorsque le compte à rebours est lancé (<mark>/countdown</mark>)"
+			},
+			"COUNTDOWN_STOP": {
+				"label": "Arrêt du compte à rebours",
+				"description": "Exécuter des actions lorsque le compte à rebours termine"
+			},
+			"SHOUTOUT": {
+				"label": "Shoutout (Twitchat)",
+				"description": "Exécuter des actions lorsque vous effectuez un shoutout depuis Twitchat"
+			},
+			"EMERGENCY_MODE_START": {
+				"label": "Lancement du mode urgence",
+				"description": "Exécuter des actions lorsque le mode urgence est déclenché"
+			},
+			"EMERGENCY_MODE_STOP": {
+				"label": "Arrêt du mode urgence",
+				"description": "Exécuter des actions lorsque le mode urgence est arrêté"
+			},
+			"HIGHLIGHT_CHAT_MESSAGE": {
+				"label": "Message mis en avant",
+				"description": "Exécuter des actions lorsqu'un message est mis en avant"
+			},
+			"CHAT_ALERT": {
+				"label": "Alerte",
+				"description": "Exécuter des actions lorsque la fenêtre d'alerte est déclenchée<br><i>(Paramètres => @:params.categories.features => @:params.alertMode)</i>"
+			},
+			"VOICEMOD": {
+				"label": "Voicemod - changement de voix",
+				"description": "Exécuter des actions lorsqu'un nouveau filtre de voix est appliqué"
+			},
+			"OBS_SCENE": {
+				"label": "Changement de scène",
+				"description": "Exécuter des actions lorsque la scène OBS <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> devient active"
+			},
+			"OBS_SOURCE_ON": {
+				"label": "Source affichée",
+				"description": "Exécuter des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est affichée"
+			},
+			"OBS_SOURCE_OFF": {
+				"label": "Source masquée",
+				"description": "Exécuter des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est masquée"
+			},
+			"STREAM_ONLINE": {
+				"label": "Début de stream",
+				"description": "Exécuter des actions lorsque le stream débute<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
+			},
+			"STREAM_OFFLINE": {
+				"label": "Arrêt du stream",
+				"description": "Exécuter des actions lorsque le stream est arrêté<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
+			},
+			"COUNTER_ADD": {
+				"label": "Ajout à un compteur",
+				"description": "Exécuter des actions lorsqu'une valeur est ajoutée à un compteur"
+			},
+			"COUNTER_DEL": {
+				"label": "Retrait à un compteur",
+				"description": "Exécuter des actions lorsqu'une valeur est soustraite à un compteur"
+			},
+			"COUNTER_MAXED": {
+				"label": "Valeur max atteinte",
+				"description": "Exécuter des actions lorsque le compteur atteint sa valeur maximale"
+			},
+			"COUNTER_MINED": {
+				"label": "Valeur min atteinte",
+				"description": "Exécuter des actions lorsque le compteur atteint sa valeur minimale"
+			},
+			"COUNTER_LOOPED": {
+				"label": "Valeur bouclée",
+				"description": "Exécuter des actions lorsque la valeur du compteur est bouclée<br><i>(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)</i>"
+			},
+			"RAID_STARTED": {
+				"label": "Lancement d'un raid",
+				"description": "Exécuter des actions lorsque vous lancez un raid vers une autre chaîne"
+			}
+		},
+		"musicEvents": {
+			"ADD_TRACK_TO_QUEUE": "Ajouter un morceau dans la file",
+			"NEXT_TRACK": "Morceau suivant",
+			"PAUSE_PLAYBACK": "Mettre en pause",
+			"RESUME_PLAYBACK": "Relancer la lecture",
+			"START_PLAYLIST": "Lancer une playlist"
+		},
+		"scheduleEvents": {
+			"REGULAR_REPEAT": "Répéter régulièrement",
+			"SPECIFIC_DATES": "Calendrier"
+		}
+	}
+}

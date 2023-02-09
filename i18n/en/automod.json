@@ -1,0 +1,65 @@
+{
+	"automod": {
+		"header": "Automatically delete messages",
+		"ban_usernames": "Ban users whose names match a rule",
+		"delete_confirm_title": "Delete rule?",
+		"delete_confirm_description": "This cannot be undone",
+		"disclaimers":{
+			"why":{
+				"title":"Why this feature? <span>(important read)</span>",
+				"contents":[
+					"Twitch already has a blocked terms feature, but it's very basic and cannot do complex filtering.",
+					"If you block the word <mark>twitchat</mark>, chatters can easily bypass this restriction by sending <mark>twit_chat</mark> or <mark>twitch🅐t</mark> and many other alternatives.",
+					"",
+					"Bots like <a href=\"https://nightbot.tv\" target=\"_blank\">Nightbot</a> or <a href=\"https://wizebot.tv/index\" target=\"_blank\">Wizebot</a> allow you to filter messages with complex rules via what's called <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regular Expressions</a>.",
+					"",
+					"<strong>Twitchat's</strong> automod feature allows you to use Regular Expressions but also tries to make usage of alternative chars useless for bypassing automod rules.",
+					"Before applying a rule it will replace all alternative chars, including accented ones, by their latin equivalent.",
+					"For example, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> will be replaced by <mark>twitchat</mark> before applying automod rules on it.",
+					"",
+					"<strong>Warning</strong> though, this process has its cost on performances and may slowdown twitchat a little if you receive lots of messages."
+				]
+			},
+			"delete":{
+				"title":"Is deleting a message efficient against doxxing?",
+				"contents":[
+					"No.", 
+					"",
+					"But it's the only way to moderate a message after it's sent.",
+					"The main problem is that extensions like <a href=\"https://betterttv.com\" target=\"_blank\">BetterTTV</a> allow users to keep deleted message.",
+					"",
+					"<strong>If you want to avoid this</strong>, you'll have to configure a chat delay <i>(<a href=\"https://dashboard.twitch.tv/settings/moderation\" target=\"_blank\">see Chat Options</a>)</i>. If a message is deleted during this time lapse, it won't be displayed anywhere, even for BTTV users.",
+					"<i>Note that the message is still sent to everyone so it's technically possible to get it. Just more complicated.</i>",
+					"",
+					"The only safe way of filtering a message is when Twitch deletes it based on blocked terms before sending it to everyone. But as explained before, it's very limited :/"
+				]
+			}
+		},
+		"rule":{
+			"title":"Rules",
+			"new":"New rule",
+			"add":"Add rule",
+			"toggle_tt":"Enable/disable rule",
+			"name":"Rule name",
+			"keywords":"Rule (accepts <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regexp</a> - <a href=\"https://regexr.com\" target=\"_blank\">Test your regexp</a>)",
+			"sync":"Save to server",
+			"sync_tt":"If the rule contains personnal information<br>you can choose not to save it on server.<br>You'll loose it if you clean your cookies.",
+			"emergency":"Start emergency mode",
+			"emergency_tt":"If a message matches this rule,<br>the emergency mode will be enabled",
+			"firstTime":"Apply only to first time chatters",
+			"firstTime_tt":"Apply this rule only to first<br>message ever of a user on your chat",
+			"invalid_rule":"Invalid rule"
+		},
+		"test": {
+			"title":"Test rules",
+			"input_placeholder":"write text...",
+			"result_tt":"Cleaned up message<br>with special chars replaced<br>by their latin equivalent",
+			"blocked_title":"Message blocked by rule: | Message blocked by rules:",
+			"no_block":"This message passes automod"
+		},
+		"options": {
+			"title":"Options",
+			"exclude_users":"Exclude these users from automod rules:"
+		}
+	}
+}

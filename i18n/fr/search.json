@@ -1,0 +1,6 @@
+{
+	"search":{
+		"title":"Résultats {COUNT}",
+		"no_result":"Aucun résultat pour la recherche \"{SEARCH}\""
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"suggestion": {
+		"title": "Chat Suggestions",
+		"closeBt_aria": "Close suggestion form",
+		"info": "Get suggestions from your audience.",
+		"example": "{CMD} {SUGG}",
+		"example_sugg": "user suggestion",
+		"command": "Command",
+		"duration": "Poll duration (minutes)",
+		"multiAnswers": "Users can submit multiple entries",
+		"state_title": "Chat suggestion -",
+		"state_header": "{0} suggestion | {0} suggestions",
+		"state_pickBt": "Pick a random entry",
+		"state_closeBt": "Close suggestions",
+		"state_close_confirm_title": "Close ?",
+		"state_close_confirm_desc": "All suggestions will be lost.",
+		"maxLength": "Max message length",
+		"alternative_tool":"For a standalone tool with more options, check out {LINK}",
+		"alternative_tool_link":"this tool",
+		"announce_start":"Announce start of suggestion",
+		"placeholder_cmd":"Chat command to use",
+		"placeholder_length":"Maximum suggestion length"
+	}
+}

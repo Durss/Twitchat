@@ -1,0 +1,15 @@
+{
+	"voicemod":{
+		"header":"Control {LINK} from Twitchat",
+		"header_link":"Voicemod",
+		"connecting":"connecting to Voicemod...",
+		"connect_failed":"Unable to connect to Voicemod",
+		"allowed_users":"Users allowed to use chat commands:",
+		"params_title":"Parameters",
+		"show_indicator":"Show when a voice effect is active",
+		"voices_title":"Voices list",
+		"voices_infos":"Associate any voice to a chat command",
+		"voices_triggers":"For more control on when to activate a voice effect head over the {LINK}.",
+		"voices_triggers_link":"triggers section"
+	}
+}

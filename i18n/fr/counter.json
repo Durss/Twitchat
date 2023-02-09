@@ -1,0 +1,29 @@
+{
+	"counters": {
+		"header": "Créez des compteurs, contrôlez-les depuis {LINK_TRIGGER} et {LINK_OVERLAY} sur votre stream",
+		"header_link_trigger": "les triggers",
+		"header_link_overlay": "affichez-les",
+		"addBt": "Créer un compteur",
+		"editBt": "Editer le compteur",
+		"min_tt":"Min",
+		"max_tt":"Max",
+		"loop_tt":"Boucler la valeur",
+		"user_tt":"Par viewer",
+		"examples":"Exemples :",
+		"user_not_found":"user not found",
+		"form":{
+			"name":"Nom",
+			"value":"Valeur",
+			"more":"Plus d'options",
+			"value_min":"Valeur min",
+			"value_max":"Valeur max",
+			"value_loop":"Boucler la valeur lorsque le maximum ou le minimum est atteint",
+			"value_user": "Chaque viewer possède son propre compteur",
+			"search":"Chercher quelqu'un..."
+		},
+		"delete_confirm":{
+			"title":"Supprimer ?",
+			"desc":"Les données du compteur seront perdues."
+		}
+	}
+}

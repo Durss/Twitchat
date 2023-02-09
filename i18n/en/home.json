@@ -1,0 +1,127 @@
+{
+	"home":{
+		"info":"Made with 💘 by",
+		"head":"Twitchat is a full featured, free and open source chat alternative for streamers",
+		"openBt":"Open Twitchat",
+		"loginBt":"Log in with Twitch",
+		"streamdeckBt":"Stream Deck™ plugin",
+		"discordBt":"Join Discord",
+		"sponsorBt":"Feed me 🍔",
+		"features":{
+			"title":"Features",
+			"list":[
+				{
+					"icon":"emergency",
+					"video":"emergency.mp4",
+					"title":"Emergency button",
+					"description":"Protect yourself from doxxing, hate raids and follow bot raids with the simple click of a configurable button"
+				},
+				{
+					"icon":"pin",
+					"video":"pin.mp4",
+					"title":"Pin messages",
+					"description":"Pin any message and find them back in a dedicated list"
+				},
+				{
+					"icon":"elgato",
+					"image":"streamdeck.png",
+					"title":"Stream Deck™",
+					"description":"You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button"
+				},
+				{
+					"icon":"show",
+					"image":"spoiler.png",
+					"title":"Spoiler command",
+					"description":"Messages starting with <mark>{'|'}{'|'}</mark> will be shown as spoilers.<br>Your mods will be able to set another user's message as spoiler by responding to it with the <mark>!spoiler</mark> command"
+				},
+				{
+					"icon":"search",
+					"image":"search.png",
+					"title":"Search messages",
+					"description":"Quickly search for messages containing any word with the <mark>/search</mark> command"
+				},
+				{
+					"icon":"alert",
+					"video":"alert.mp4",
+					"title":"Alert command",
+					"description":"Let your moderator get your attention with a configurable alert command"
+				},
+				{
+					"icon":"voice",
+					"video":"voiceControl.mp4",
+					"title":"Voice control",
+					"description":"Control the chat, create polls and predictions and much more with your voice thanks to the voice bot"
+				},
+				{
+					"icon":"tts",
+					"image":"tts.png",
+					"title":"Read messages out loud",
+					"description":"You can make Twitchat read any messages the way you want"
+				},
+				{
+					"icon":"hand",
+					"image":"greet.png",
+					"title":"Greet your viewers",
+					"description":"Twitchat remembers the first message of every viewer so you don't forget to greet them"
+				},
+				{
+					"icon":"checkmark_white",
+					"image":"readMark.gif",
+					"title":"Read mark",
+					"description":"Click any message so you remember where you stopped reading at"
+				},
+				{
+					"icon":"conversation",
+					"image":"conversation.gif",
+					"title":"Conversations",
+					"description":"Follow conversation between viewers with the simple click of a button"
+				},
+				{
+					"icon":"ticket",
+					"image":"raffle.gif",
+					"title":"Create a Raffle",
+					"description":"Let your viewers enter a raffle and pick one or multiple random winners"
+				},
+				{
+					"icon":"bingo",
+					"image":"bingo.gif",
+					"title":"Create a Bingo",
+					"description":"Let your viewers guess a random number or emote"
+				},
+				{
+					"icon":"notification",
+					"video":"triggers.mp4",
+					"title":"Create your own alerts",
+					"description":"Twitchat provides a <strong>Trigger</strong> system to control OBS, send messages on chat or control Spotify based on many events like a sub, cheers, a poll result, channel points rewards, ..."
+				},
+				{
+					"icon":"music",
+					"image":"musicPlayer.png",
+					"title":"Spotify",
+					"description":"Connect Twitchat with Spotify to display the current track on your stream or allow your viewers to add tracks to the queue"
+				},
+				{
+					"icon":"params",
+					"title":"Twitchat also allows you to",
+					"items":[
+						"Receive whispers on chat and respond to them",
+						"See users not following you",
+						"Display your viewers' pronouns",
+						"Display BTTV, FFZ and 7TV emotes",
+						"Hide messages sent from your bots",
+						"See who's live amongst your followings to raid them",
+						"Send a shoutout with a simple click",
+						"Automatically see last stream info of a raider",
+						"Know when users enter/leave your chat",
+						"Replace badges by minified plain color versions",
+						"And much more..."
+					]
+				}
+			]
+		},
+		"footer":{
+			"title":"Sources on",
+			"disclaimer":"Twitchat is NOT affiliated with <a href=\"https://twitch.tv\" target=\"_blank\">Twitch</a> by any means"
+		}
+	}
+}

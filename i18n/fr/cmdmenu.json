@@ -1,0 +1,22 @@
+{
+	"cmdmenu":{
+		"poll":"Créer un sondage",
+		"prediction":"Créer un prédiction",
+		"raffle":"Créer un tirage au sort",
+		"bingo":"Créer un bingo",
+		"suggestions":"Demander des suggestions",
+		"timer":"Chronomètre & Décompte",
+		"chat":"Effacer le tchat",
+		"info":"Titre du stream",
+		"commercial":"Vous pouvez lancer une publicité dans {DURATION}",
+		"raid":"Lancer un raid",
+		"whoslive":"Qui stream ?",
+		"whoslive_title":"Personnes suivies en live",
+		"scope_grant": "Vous n'avez pas accordé la permission à Twitchat de lancer un raid.",
+		"scope_grantBt": "Accorder la permission",
+		"slowMode": "Slow mode",
+		"followersOnly": "Followers only",
+		"subsOnly": "Subs only",
+		"emotesOnly": "Emotes only"
+	}
+}

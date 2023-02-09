@@ -1,0 +1,34 @@
+{
+	"bingo": {
+		"title":"Create bingo",
+		"closeBt_aria":"Close bingo form",
+		"description":"A bingo is a small game in which your viewers have to find a specific value to win.",
+		"title_emote":"Emote",
+		"title_number":"Number",
+		"title_custom":"Custom",
+		"min_value":"Min value",
+		"max_value":"Max value",
+		"custom_value":"Message",
+		
+		"winner_placeholder":"User name",
+		"goal_placeholder":"Explain what to find",
+
+		"number_info":"Your viewers will have to send a number between the min and max values <i>(included)</i> in the chat",
+		"emote_info":"Your viewers will have to send one of the <strong>{COUNT} global</strong> twitch emotes on your chat <i>(smileys excluded)</i>",
+		"custom_info":"Your viewers will have to send the following message",
+		
+		"goal_emote":"Find one of the global Twitch emotes",
+		"goal_number":"Find a number between {MIN} and {MAX}",
+		"goal_custom":"",
+
+		"state_title":"Bingo",
+		"username_placeholder":"User name",
+		"closeBt":"Close bingo",
+		"find_custom":"Message to find",
+		"find_number":"Number to find",
+		"find_emote":"Emote to find",
+
+		"announce_start":"Announce bingo start on chat",
+		"announce_winner":"Post bingo winner on chat"
+	}
+}

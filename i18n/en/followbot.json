@@ -1,0 +1,25 @@
+{
+	"followbot": {
+		"title":"Review {COUNT} follower | Review {COUNT} followers",
+		"header":"List of user that followed you during the emergency",
+		"search_placeholder":"username...",
+		"banBt":"Ban all users",
+		"unfollowBt":"Remove all followers",
+		"exportBt":"Export CSV",
+		"laterBt":"Review later",
+		"finishBt":"Finish & clear list",
+		"ban_tt":"Permaban user",
+		"unban_tt":"Unban user",
+		"unfollow_tt":"Remove from<br>my followers",
+		"details_tt":"Open viewer details",
+		"ignore_tt":"Ignore this user",
+		"ban_all_confirm_title":"Ban all?",
+		"ban_all_confirm_desc":"This will ban all the remaining users of the list from your channel.",
+		"unfollow_confirm_title":"Remove followers?",
+		"unfollow_confirm_desc":"This will remove all the remaining users of the list from your followers.",
+		"clear_confirm_title":"Complete review?",
+		"clear_confirm_desc":"This list of followers will be lost forever!<br>You'll still be able to find the <a href=\"https://www.twitch.tv/settings/security\" target=\"_blank\">list of all blocked users here</a>",
+		"later_confirm_title":"Review later?",
+		"later_confirm_desc":"You'll be asked again next time you start Twitchat"
+	}
+}

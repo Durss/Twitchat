@@ -1,0 +1,20 @@
+{
+	"streamdeck":{
+		"header":"Un plugin Stream Deck™ vous permet de contrôler Twitchat facilement",
+		"step_1":{
+			"install":"Ce plugin requiert {OBS_VERSION}",
+			"install_option":"(ou OBS 27 avec le plugin {PLUGIN_LINK} installé)",
+			"install_plugin_name":"OBS-websocket V5"
+		},
+		
+		"step_2":"Télécharger le plugin Stream Deck™",
+		
+		"step_3":"Rendez-vous dans la {TAB_LINK} et renseignez-y les paramètres de connexion à OBS-Websocket pour lier Twitchat à OBS.",
+		"step_3_tab_link":"section OBS",
+		
+		"step_4_1":"Sur votre application Stream Deck™, ajoutez n'importe quelle action Twitchat à un bouton et regardez le panneau de paramètres.",
+		"step_4_2":"Vous devriez être invité·e à y renseigner les identifiants OBS-Websocket :",
+		
+		"step_5":"Vous devriez maintenant pouvoir contrôler Twitchat depuis votre Stream Deck™ 🥳🎉"
+	}
+}

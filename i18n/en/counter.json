@@ -1,0 +1,29 @@
+{
+	"counters": {
+		"header": "Create custom counters, control them from {LINK_TRIGGER} and {LINK_OVERLAY} on your strteam.",
+		"header_link_trigger": "the triggers",
+		"header_link_overlay": "display them",
+		"addBt": "Create counter",
+		"editBt": "Edit counter",
+		"min_tt":"Min",
+		"max_tt":"Max",
+		"loop_tt":"Loop value",
+		"user_tt":"Per user",
+		"examples":"Examples :",
+		"user_not_found":"user not found",
+		"form": {
+			"name": "Name",
+			"value": "Value",
+			"more": "More options",
+			"value_min": "Min value",
+			"value_max": "Max value",
+			"value_loop": "Loop value when reaching min or max",
+			"value_user": "Every user has their own counter",
+			"search":"Search user..."
+		},
+		"delete_confirm": {
+			"title": "Delete ?",
+			"desc": "Counter's data will be lost."
+		}
+	}
+}

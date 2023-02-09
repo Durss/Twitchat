@@ -4,11 +4,59 @@
 <head>
 	<title>fr.twitchat</title>
 	<meta charset="utf-8" />
-	<script type="text/javascript" src="obs-websocket.js"></script>
+	<script type="text/javascript" src="js/obs-websocket.js"></script>
+	<script type="text/javascript" src="js/action.js"></script>
+	<script type="text/javascript" src="js/constants.js"></script>
+	<script type="text/javascript" src="js/prototypes.js"></script>
+	<script type="text/javascript" src="js/timers.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
+	<script type="text/javascript" src="js/events.js"></script>
+	<script type="text/javascript" src="js/api.js"></script>
+	<script type="text/javascript" src="js/stream-deck.js"></script>
 </head>
 
 <body>
 	<script>
+		const uuidList = [
+			"fr.twitchat.action.greet-feed-read-all",
+			"fr.twitchat.action.greet-feed-read",
+			"fr.twitchat.action.chat-feed-read-all",
+			"fr.twitchat.action.chat-feed-read",
+			"fr.twitchat.action.chat-feed-read-encoder",
+			"fr.twitchat.action.chat-feed-pause",
+			"fr.twitchat.action.chat-feed-unpause",
+			"fr.twitchat.action.chat-feed-scroll-up",
+			"fr.twitchat.action.chat-feed-scroll-down",
+			"fr.twitchat.action.chat-feed-scroll",
+			"fr.twitchat.action.poll-toggle",
+			"fr.twitchat.action.prediction-toggle",
+			"fr.twitchat.action.bingo-toggle",
+			"fr.twitchat.action.raffle-toggle",
+			"fr.twitchat.action.viewers-count-toggle",
+			"fr.twitchat.action.mod-tools-toggle",
+			"fr.twitchat.action.censor-deleted-messages-toggle",
+			"fr.twitchat.action.shoutout",
+			"fr.twitchat.action.set-emergency-mode",
+			"fr.twitchat.action.stop-tts",
+			"fr.twitchat.action.enable-stt",
+			"fr.twitchat.action.disable-stt",
+			"fr.twitchat.action.chat-feed-select",
+			"fr.twitchat.action.clear-chat-highlight",
+			"fr.twitchat.action.timer-add",
+			"fr.twitchat.action.countdown-add",
+			"fr.twitchat.action.counter-add",
+		];
+
+		const SELECT_ACTIONS = [
+			{color:"#d9a808", label:"DELETE", action:"DELETE"},
+			{color:"#d97b08", label:"TIMEOUT 1s", action:"BAN", params:{duration:1}},
+			{color:"#d93c08", label:"TIMEOUT 600s", action:"BAN", params:{duration:600}},
+			{color:"#FF0000", label:"BAN", action:"BAN"},
+			{color:"#47c2ff", label:"HIGHLIGHT", action:"HIGHLIGHT"},
+			{color:"#475cff", label:"PIN", action:"PIN"},
+			{color:"#9147ff", label:"SHOUTOUT", action:"SHOUTOUT"},
+			{color:"#616161", label:"CANCEL", action:"CANCEL"},
+		]
 
 		let websocket = null;
 		let websocketOBS = new OBSWebSocket();
@@ -17,47 +65,43 @@
 		let reconnectTimeout = null;
 		let connecting = false;
 		const settingsCache = {
-			GREET_FEED_READ: 1,
-			CHAT_FEED_READ: 1,
-			CHAT_FEED_SCROLL_UP: 100,
-			CHAT_FEED_SCROLL_DOWN: 100,
 			OBSWS_PORT: "4455",
 			OBSWS_PASS: "",
 			OBSWS_IP: "127.0.0.1",
 			OBSWS_CONNECTED: false,
+			COLS_COUNT: 1,
 		};
-
-		var DestinationEnum = Object.freeze({ "HARDWARE_AND_SOFTWARE": 0, "HARDWARE_ONLY": 1, "SOFTWARE_ONLY": 2 })
 
 		var actions = {
 
-			onKeyUp: (action) => {
-				// console.log("KEY UP", action, settings);
-				const actionName = action.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
-				let params;
+			onKeyUp: (action, payload, context) => {
+				const actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				const col = payload.settings.colIndex ?? 0;
+				let params = payload.settings;
 				switch(actionName) {
 					case "GREET_FEED_READ":{
-						params = {
-									"count": settingsCache.GREET_FEED_READ,
-								}
+						params = {count: payload.settings.readCount};
 						break;
 					}
 					case "CHAT_FEED_READ":{
-						params = {
-									"count": settingsCache.CHAT_FEED_READ,
-								}
+						params = {col, count: payload.settings.readCount};
 						break;
 					}
 					case "CHAT_FEED_SCROLL_UP":{
-						params = {
-									"scrollBy": settingsCache.CHAT_FEED_SCROLL_UP,
-								}
+						params = {col, scrollBy: payload.settings.scrollAmount};
 						break;
 					}
 					case "CHAT_FEED_SCROLL_DOWN":{
-						params = {
-									"scrollBy": settingsCache.CHAT_FEED_SCROLL_DOWN,
-								}
+						params = {col, scrollBy: payload.settings.scrollAmount};
+						break;
+					}
+					case "TIMER":
+					case "COUNTDOWN":{
+						params = {col, scrollBy: payload.settings.timeAdd};
+						break;
+					}
+					case "COUNT":{
+						params = {col, scrollBy: payload.settings.countAdd};
 						break;
 					}
 				}
@@ -65,138 +109,184 @@
 				callTwitchat(actionName, params)
 			},
 
-			SetTitle: (context, value) => {
-				var json = {
-					"event": "setTitle",
-					"context": context,
-					"payload": {
-						"title": "" + value,
-						"target": DestinationEnum.HARDWARE_AND_SOFTWARE
+			onDialRotate: (action, payload, context) => {
+				let actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				let params;
+				const col = payload.settings.colIndex ?? 0;
+				
+				switch(actionName) {
+					case "CHAT_FEED_SCROLL":{
+						params = { col, scrollBy: payload.ticks };
+						break;
 					}
-				};
 
-				websocket.send(JSON.stringify(json));
+					case "CHAT_FEED_READ_ENCODER":{
+						actionName = "CHAT_FEED_READ";
+						params = { col, count: payload.ticks };
+						break;
+					}
+
+					case "CHAT_FEED_SELECT":{
+						if(payload.settings.selectMode !== false) {
+							params = { col, count: payload.ticks ?? 0 };
+						}else{
+							let index = (payload.settings.actionIndex || 0) + (payload.ticks ?? 0);
+							index = index % SELECT_ACTIONS.length;
+							if(index < 0) index = SELECT_ACTIONS.length - 1;
+							payload.settings.actionIndex = index;
+							$SD.setSettings(context, payload.settings);
+							$SD.setFeedback(context, {
+								"action": {"value":"◄ "+SELECT_ACTIONS[index].label+" ►", "color":SELECT_ACTIONS[index].color},
+							});
+							actionName = "CHAT_FEED_SELECT_CHOOSING_ACTION";
+						}
+						break;
+					}
+				}
+				// console.log(actionName, params);
+				callTwitchat(actionName, params);
 			},
 
-			SetSettings: (context, settings) => {
-				var json = {
-					"event": "setSettings",
-					"context": context,
-					"payload": settings
-				};
+			onDialPress: (action, payload, context) => {
+				let actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				const col = payload.settings.colIndex ?? 0;
+				switch(actionName) {
+					case "CHAT_FEED_SELECT":{
+						if(payload.pressed) return;
+						switchSelectMode(action, payload, context);
+						return;
+					}
+				}
+			},
 
-				websocket.send(JSON.stringify(json));
+			onTouchTap: (action, payload, context) => {
+				const actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
+				const px = payload.tapPos[0];
+				const py = payload.tapPos[1];
+				const col = payload.settings.colIndex ?? 0;
+				let params;
+				
+				switch(actionName) {
+					case "CHAT_FEED_SCROLL":{
+						// if(px < 200 / 3){
+							callTwitchat("CHAT_FEED_SCROLL_BOTTOM", {col});
+						// }else if(px < 200 / 3 * 2){
+						// 	callTwitchat("CHAT_FEED_SCROLL_DOWN", {
+						// 		col,
+						// 		scrollBy: 200,
+						// 	});
+						// }else{
+						// 	callTwitchat("CHAT_FEED_SCROLL_UP", {
+						// 		col,
+						// 		scrollBy: 200,
+						// 	});
+						// }
+						return;
+					}
+
+					case "CHAT_FEED_READ_ENCODER":{
+						// if(px < 200 / 3){
+							callTwitchat("CHAT_FEED_READ_ALL", {col});
+						// }else if(px < 200 / 3 * 2){
+						// 	callTwitchat("CHAT_FEED_READ", {
+						// 		col,
+						// 		count:1
+						// 	});
+						// }else{
+						// 	callTwitchat("CHAT_FEED_READ", {
+						// 		col,
+						// 		count:-1
+						// 	});
+						// }
+						return;
+					}
+					
+					case "CHAT_FEED_SELECT":{
+						if(payload.pressed) return;
+						switchSelectMode(action, payload, context, payload.hold === true);
+						return;
+					}
+				}
+				callTwitchat(actionName, params);
 			},
 
 			SetGlobalSettings: (settings) => {
-				var json = {
-					"event": "setGlobalSettings",
-					"context": pluginUUID,
-					"payload": settings
-				};
-				websocket.send(JSON.stringify(json));
+				$SD.setGlobalSettings(settings);
 			},
 
 			GetGlobalSettings: () => {
-				var json = {
-					"event": "getGlobalSettings",
-					"context": pluginUUID,
-					"payload": {}
-				};
-
-				websocket.send(JSON.stringify(json));
+				$SD.getGlobalSettings();
 			},
 
 			AddToSettings: (context, newSettings) => {
 				settingsCache[context] = newSettings;
 			}
 		};
+		
+		window.onload = ()=> {
 
-		function connectElgatoStreamDeckSocket(port, inPluginUUID, registerEvent, info) {
-			pluginUUID = inPluginUUID;
-			websocket = new WebSocket("ws://127.0.0.1:" + port);
+			$SD.onDidReceiveGlobalSettings((e) => {
+				settingsCache.OBSWS_PASS = e.payload.settings.OBSWS_PASS;
+				settingsCache.OBSWS_PORT = e.payload.settings.OBSWS_PORT;
+				settingsCache.OBSWS_IP = e.payload.settings.OBSWS_IP;
+				obsConnect();
+			});
+			
+			$SD.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
+				console.log('Stream Deck connected!', uuid);
 
-			websocket.onopen = () => {
-				let json = {
-					"event": registerEvent,
-					"uuid": pluginUUID,
-				};
-				websocket.send(JSON.stringify(json));
-				actions.GetGlobalSettings();
-			};
+				$SD.getGlobalSettings();
+			});
 
-			websocket.onmessage = (evt) => {
-				// Received message from Stream Deck
-				const jsonObj = JSON.parse(evt.data);
-				const event = jsonObj['event'];
-				const action = jsonObj['action'];
-				const context = jsonObj['context'];
-				const jsonPayload = jsonObj['payload'] || {};
+			for (let i = 0; i < uuidList.length; i++) {
+				const uuid = uuidList[i];
+				
+				const myAction = new Action(uuid);
+				myAction.onKeyUp(({ action, context, device, event, payload }) => {
+					actions.onKeyUp(myAction, payload, context);
+				});
+		
+				myAction.onDialPress(({ action, context, device, event, payload }) => {
+					actions.onDialPress(myAction, payload, context);
+				});
+		
+				myAction.onDialRotate(({ action, context, device, event, payload }) => {
+					actions.onDialRotate(myAction, payload, context);
+				});
+		
+				myAction.onTouchTap(({ action, context, device, event, payload }) => {
+					actions.onTouchTap(myAction, payload, context);
+				});
+		
+				myAction.onPropertyInspectorDidAppear(({ action, context, device, event }) => {
+					callTwitchat("GET_COLS_COUNT");
+					callTwitchat("COUNTER_GET_ALL");
+				});
+		
+				myAction.onSendToPlugin(({ action, context, device, event, payload }) => {
 
-				//Called after requesting global state
-				if(event == "didReceiveGlobalSettings") {
-					var settings = jsonPayload.settings;
-					for (const key in settings) {
-						if(key == "OBSWS_CONNECTED") continue;
-						settingsCache[key] = settings[key];
-					}
-					if(settingsCache.OBSWS_PORT && settingsCache.OBSWS_PASS != undefined){
-						obsConnect(context);
-					}
-				}else
-
-				//Called everytime an action is displayed on streamdeck
-				if(event == "willAppear") {
-				}else
-
-				//Called when displaying a new property inspector
-				if(event == "propertyInspectorDidAppear") {
-				}
-
-				//Called when a streamdeck button is released
-				else if (event == "keyUp") {
-					var settings = jsonPayload['settings'];
-					// var coordinates = jsonPayload['coordinates'];
-					// var userDesiredState = jsonPayload['userDesiredState'];
-					actions.onKeyUp(action);
-				}
-
-				//Called when property inspector sends data
-				else if (event == "sendToPlugin") {
-					if(jsonPayload.OBSW_DO_CONNECT) {
-						settingsCache.OBSWS_PASS = jsonPayload.OBSW_DO_CONNECT.pass;
-						settingsCache.OBSWS_PORT = jsonPayload.OBSW_DO_CONNECT.port;
-						settingsCache.OBSWS_IP = jsonPayload.OBSW_DO_CONNECT.ip;
+					if(payload.OBSW_DO_CONNECT) {
+						settingsCache.OBSWS_PASS = payload.OBSW_DO_CONNECT.pass;
+						settingsCache.OBSWS_PORT = payload.OBSW_DO_CONNECT.port;
+						settingsCache.OBSWS_IP = payload.OBSW_DO_CONNECT.ip;
 						actions.SetGlobalSettings(settingsCache);
-						obsConnect(context);
+						obsConnect();
 					}
 
-					for (const key in jsonPayload) {
-						if (settingsCache.hasOwnProperty(key)) {
-							var newValue = jsonPayload[key];
-							settingsCache[key] = newValue;
-							// actions.SetSettings(context,{value:newValue});
-						}
+					if(payload.TEST_ACTION != undefined) {
+						var settings = payload['settings'];
+						actions.onKeyUp(payload.TEST_ACTION);
 					}
-					
-					if(jsonPayload.TEST != undefined) {
-						var settings = jsonPayload['settings'];
-						actions.onKeyUp(jsonPayload.TEST);
-					}else{
-						actions.SetGlobalSettings(settingsCache);
-					}
-				}
-			};
+				});
+			}
 
-			websocket.onclose = () => {
-				// Websocket is closed
-			};
 		};
 
 		/**
 		 * Connect to OBS via OBS-websocket
 		 */
-		function obsConnect(context) {
+		function obsConnect() {
+			if(!settingsCache.OBSWS_PORT) return;
 			if(connecting || settingsCache.OBSWS_CONNECTED === true) return;
 			connecting = true;//Avoid double websocketOBS.connect() calls that messes up obs-ws
 			try {
@@ -215,7 +305,7 @@
 				connecting = false;
 				clearTimeout(reconnectTimeout);
 				reconnectTimeout = setTimeout(()=> {
-					obsConnect(context);
+					obsConnect();
 				}, 5000);
 				return false;
 			}
@@ -233,28 +323,56 @@
 					if(changed) actions.SetGlobalSettings(settingsCache);
 					clearTimeout(reconnectTimeout);
 					reconnectTimeout = setTimeout(()=> {
-						obsConnect(context);
+						obsConnect();
 					}, 5000);
 				});
 	
-				/*
-					//Listen for Twitchat events. Unnecessary for now
-					websocketOBS.on("CustomEvent", (e) => {
-						if(e.type == undefined) return;
-						if(e.origin != "twitchat") return;
-						console.log(e.type);
-						console.log(e.data);
-					})
-				//*/
+				//Listen for Twitchat events.
+				websocketOBS.on("CustomEvent", (e) => {
+					if(e.type == undefined) return;
+					if(e.origin != "twitchat") return;
+					
+					switch(e.type) {
+						case "SET_COLS_COUNT":{
+							settingsCache.COLS_COUNT = e.data.count;
+							actions.SetGlobalSettings(settingsCache);
+							break;
+						}
+						case "COUNTER_LIST":{
+							settingsCache.COUNTER_LIST = e.data.counters;
+							actions.SetGlobalSettings(settingsCache);
+							break;
+						}
+					}
+				});
+			}
+		}
+
+		function switchSelectMode(action, payload, context, forceUnselect) {
+			const col = payload.settings.colIndex ?? 0;
+			let selectMode = !(payload.settings.selectMode ?? true);
+			payload.settings.selectMode = selectMode;
+			$SD.setSettings(context, payload.settings);
+			if(selectMode || forceUnselect === true) {
+				if(forceUnselect !== true) {
+					const actionIndex = payload.settings.actionIndex;
+					const params = SELECT_ACTIONS[actionIndex].params ?? {};
+					params.col = col;
+					callTwitchat("CHAT_FEED_SELECT_ACTION_"+SELECT_ACTIONS[actionIndex].action, params);
+				}
+				$SD.setFeedbackLayout(context, "$X1");
+			}else{
+				$SD.setFeedbackLayout(context, "./chat-feed-select-layout.json");
+				actions.onDialRotate(action, payload, context);
 			}
 		}
 
 		/**
 		 * Request Twitchat to perform an action
 		 */
-		function callTwitchat(event, data) {
+		function callTwitchat(actionName, data) {
 			if(!data) data = {};
-			const eventData = { origin:"twitchat", type:event, data:JSON.parse(JSON.stringify(data)) }
+			const eventData = { origin:"twitchat", type:actionName, data:JSON.parse(JSON.stringify(data)) }
 			websocketOBS.call("BroadcastCustomEvent", {eventData});
 		}
 	</script>

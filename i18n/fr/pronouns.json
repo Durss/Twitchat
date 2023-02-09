@@ -1,0 +1,40 @@
+{
+	"pronouns":{
+		"aeaer" : "ael/aellui",
+		"any" : "Any",
+		"eem" : "im/em",
+		"faefaer" : "æl/ællui",
+		"hehim" : "il/lui",
+		"heshe" : "il/elle",
+		"hethem" : "il/iel",
+		"itits" : "on/ça",
+		"other" : "Autre",
+		"perper" : "Per/Per",
+		"sheher" : "elle/elle",
+		"shethem" : "elle/iel",
+		"theythem" : "iel/ellui",
+		"vever" : "ille/ille",
+		"xexem" : "ol/lo",
+		"ziehir" : "ul/lu",
+
+		"hh": "il/lui",
+		"hi": "il/on",
+		"hs": "il/elle",
+		"ih": "on/lui",
+		"ii": "on/ça",
+		"is": "on/elle",
+		"shh": "elle/il",
+		"sh": "elle/elle",
+		"si": "elle/on",
+		"st": "elle/iel",
+		"th": "iel/il",
+		"ti": "iel/on",
+		"ts": "iel/elle",
+		"tt": "iel/ellui",
+
+		"tooltip_any": "N'importe quel pronom",
+		"tooltip_other": "Autre pronom",
+		"tooltip_ask": "Demandez-moi mes pronoms",
+		"tooltip_avoid": "Evitez les pronoms, utilisez mon nom"
+	}
+}

@@ -1,0 +1,35 @@
+{
+	"obs":{
+		"connection_success":"Connecté à OBS",
+		"how_to_title":"Où trouver ces valeurs ?",
+		"how_to1":"Sur OBS, ouvrez \"Tools => obs-websocket Settings\".",
+		"how_to2":"Vous voudrez probablement utiliser l'IP {IP}",
+		"ip_advice":"Vous voudrez probablement utiliser l'adresse IP 127.0.0.1 au lieu de celle indiquée par OBS",
+		"form_port":"Port du serveur",
+		"form_pass":"Mot de passe du serveur",
+		"form_ip":"IP du serveur",
+		"credentials_form_title":"Identifiants de connexion",
+
+		"header":"Créez vos propres alertes Twitch, permettez à vos viewers de contrôler votre OBS et plus encore...",
+		"install":"Nécessite {OBS_VERSION}",
+		"install_option":"(ou OBS 27 avec le plugin {PLUGIN_LINK} installé)",
+		"install_plugin_name":"OBS-websocket V5",
+		
+		"permissions_title":"Autorisations",
+		"permissions_head":"Personnes autorisé's à utiliser les commandes de chat",
+		
+		"microphone_title":"Controle du microphone",
+		"microphone_head":"Permettez aux personnes autorisées d'activer ou couper votre micro",
+		"microphone_empty":"- aucune source audio trouvée -",
+		"microphone_reCheck":"Vérifier à nouveau",
+		"microphone_source":"Source audio",
+		"microphone_mute":"Désactiver la source",
+		"microphone_unmute":"Réactiver la source",
+		"microphone_default_entry":"- aucun -",
+
+		"scenes_title":"Control des scènes",
+		"scenes_empty":"Aucune scène trouvée",
+		"scenes_col_name":"Scène OBS",
+		"scenes_col_cmd":"Commande de chat"
+	}
+}

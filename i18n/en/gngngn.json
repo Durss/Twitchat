@@ -1,0 +1,43 @@
+{
+	"gngngn": {
+		"title": "😡 Unacceptable 😡",
+		"closeBt_aria": "Close popin",
+		"contents": [
+			"So, you're angry.",
+			"That's something I can understand.",
+			"May i share my point of view on this?",
+			"<br>",
+			"Twitchat is made by a single person <i>(<a href=\"http://twitch.tv/durss\" target=\"_blank\">hello 👋</a>)</i>) and required at the very least 8 months of <strong>FULL TIME</strong> work to date <i>(dec. 2022)</i>.",
+			"<br>",
+			"I'm allowing everyone to use it for free but it costs me money and a lot of time and efforts. I don't get ANY revenue from it besides very few donations <i>(on which I pay 30% taxes)</i>.",
+			"I'm <strong>not</strong> sponsored by any company, I'm <strong>not</strong> gathering your personal info to sell them, and It's ad free <i>(yes)</i>.",
+			"<strong>We're not talking about advertising</strong> here. I'm not advertising for products or whatever that would generate constant revenues.",
+			"I'm just sharing a link to Twitchat.",
+			"<br>",
+			"strong>You can donate to disable it.</strong>",
+			"I'm not even asking for a specific amount. You can donate 1€ if you think my work isn't worth more than that, and you'll be able to disable that message.",
+			"<br>",
+			"And if you don't want to pay anything, Twitchat is <a href=\"https://github.com/Durss/Twitchat\" target=\"_blank\">open-source</a>. You're free to create an instance for yourself.",
+			"<br>",
+			"For all these reasons, I don't think it's horrific to push a sporadic message on your chat and I see no good reason for you to be angry about that.",
+			"<br>",
+			"If you still think this automatic message is unacceptable, you're free to stop using Twitchat!",
+			"But, please, <strong>don't take free services for granted</strong>. They require a lots of time, efforts and knowledge to create.",
+			"<br>",
+			"I hope this makes things look less \"evil\" and that you understand my point of view :)",
+			"❤ Have a nice stream ❤",
+			"<br>",
+			"Best regards,",
+			"Durss"
+		],
+		"why_title": "Why posting with my account?",
+		"why_info": "Because it's the easiest and because, let's be honnest, if i was posting from another account you would ban it right away to block the message.",
+		"angry": "I already tell my viewers about Twitchat regularly, I don't like this intrusive message!",
+		"angry_contents": [
+			"Well, thank you.",
+			"But I have no way to know about that.",
+			"Still, you can customize the message and everytime a link to \"twitchat.fr\" is sent on the chat <i>(by any viewer, wizebot, nightbot, etc...)</i> the timer is reset to 0.",
+			"This means that when telling about Twitchat to your viewers, if you send the link, the 2h timer will be reset."
+		]
+	}
+}

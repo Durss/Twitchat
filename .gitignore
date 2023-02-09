@@ -3,8 +3,12 @@ node_modules
 /dist
 /server
 /userData
+/server
+/userData_fake_production
 credentials.json
 donors
+beta
+env.conf
 
 
 # local env files

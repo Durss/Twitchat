@@ -9,7 +9,7 @@
 
 <div align="center">
 	<a href="https://twitchat.fr" target="_blank">
-		<img width="400" alt="twitch" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src/assets/logo.svg">
+		<img width="400" alt="twitchat" src="https://raw.githubusercontent.com/Durss/Twitchat/main/src_front/assets/logo.svg">
 	</a>
 	<br>
 	<br>
@@ -27,7 +27,7 @@ The main goal is to follow your chat as best as possible.
 <br>
 
 For developpers, **Twitchat exposes an API** to receive events and control some features remotely.\
-Documentation can be found [here](PUBLIC_API.md).
+[📖 Read its documentation](PUBLIC_API.md).
 <br>
 <br>
 <br>
@@ -101,31 +101,43 @@ If you still want to contribute before that, you might want to do it on the [ref
 First create a `credentials.json` file on the root directory and fill in these values :
 ```json
 {
-	"admin_ids": ["YOUR_TWITCH_ID"],
-	"client_id": "",
-	"client_secret": "",
-	"redirect_uri": "http://localhost:8080/oauth",
+	"server_port": 3018,
+	"admin_ids": ["YOUR_TWITCH_USER_ID"],
 	"csrf_key": "",
-	"scopes": [
+
+	"twitch_client_id": "",
+	"twitch_client_secret": "",
+	"twitch_redirect_uri": "http://localhost:8080/oauth",
+	"twitch_scopes": [
 		"chat:read",
 		"chat:edit",
 		"channel:read:redemptions",
-		"channel:moderate",
-		"moderation:read",
-		"moderator:manage:automod",
 		"channel:manage:polls",
 		"channel:manage:predictions",
+		"moderator:manage:announcements",
+		"moderator:manage:chat_messages",
+		"moderator:manage:chat_settings",
+		"channel:moderate",
+		"moderation:read",
+		"channel:manage:moderators",
+		"channel:manage:vips",
+		"channel:manage:raids",
+		"channel:manage:broadcast",
 		"channel:read:hype_train",
-		"channel_editor",
-		"whispers:edit",
-		"user:read:follows",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
+		"channel:read:goals",
+		"user:read:follows",
 		"user:read:blocked_users",
 		"user:manage:blocked_users",
 		"moderator:manage:banned_users",
-		"moderator:manage:announcements"
+		"whispers:read",
+		"user:manage:whispers",
+		"moderator:manage:automod",
+		"moderator:read:chatters",
+		"moderator:manage:shield_mode"
 	],
+	
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
 	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private",
@@ -142,8 +154,23 @@ http://localhost:8080/oauth
 ```
 You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
 <br>
-By default the server listens on port 3018, you can change it on `server.js` and `src/utils/Config.ts`.
+By default the server listens on port 3018, you can change it on `credentials.json` and `src_front/utils/Config.ts`.
 
+<br>
+<br>
+<br>
+
+# Environment setup
+This project has been coded with VSCode with Volar plugin.\
+It is recommended to install these plugins:\
+Vue Language Features (Volar): https://marketplace.visualstudio.com/items?itemName=Vue.volar
+
+TypeScript Vue Plugin: https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin
+
+I18n-ally Plugin: https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally
+
+For correct typings and better lint performance, it is advised to the enable the `Take over mode` by disabling the native VSCode's Typescript and Javascript features.
+[Read how to](https://github.com/johnsoncodehk/volar/discussions/471).
 <br>
 <br>
 <br>
@@ -166,53 +193,99 @@ npm run build
 
 ### Run server
 ```
-node server.js
+node server/boostrap.js
 ```
 <br>
 <br>
 <br>
 
 # Install server
-[Compile the project](#compile-project) and push the `server.js` file on your server.\
+[Compile the project](#compile-project) and push the content of the `server` folder on your server.\
 Next to this file, create a `dist` folder and push the content of your local `dist` folder inside it.\
-Also add the `credentials.json` and `fakeEvents.json` files at the root of the project.\
+Also add the `credentials.json` file at the root of the project.\
 Create an `env.conf` file, just write `prod` inside, and push it at the root of the project.\
 Install all the production dependencies and [run the server](#run-server).
 \
 Here is the expected file structure:\
 ─ root\
-  ├─ dist/\
   ├─ node_modules/\
-  ├─ server.js\
+  ├─ dist/\
+  ├─ controllers/\
+  ├─ utils/\
+  ├─ bootstrap.js\
   ├─ env.conf\
   ├─ credentials.json\
-  ├─ fakeEvents.json\
 <br>
 <br>
 <br>
 
-# Server
-The server is super basic for now as there isn't much needs.
-For this reason it's a just a single file server coded in vanila JS that doesn't need any compilation. That might change in the futur.
+# Localization
+App labels can be found under `i18n` folder.\
+They are splitted by language then by sections.\
+Any new file or folder structure can be added to this.\
+These are all merged into `public/labels.json` during the build process.\
+Files can have any name but should have full JSON structure so the plugin i18n-ally can check for label keys on the code.
+Example:\
+```
+─ en\
+  ├─ global.json\
+  ├─ subFolder/\
+  ├─── hello.json/\
+```
+`global.json` example:
+```json
+{
+	"global":{
+		"hello":"World"
+	}
+}
+```
+`hello.json` example:
+```json
+{
+	"subFolder":{
+		"hello":{
+			"lorem":"ipsum dolor sit amet"
+		}
+	}
+}
+```
+Will output this JSON file:
+```json
+{
+	"en":{
+		"global":{
+			"hello":"World"
+		},
+		"subFolder":{
+			"hello":{
+				"lorem":"ipsum dolor sit amet"
+			}
+		}
+	}
+}
+```
+\
+To make localization easier you can start the following PM2 process that will watch for any file change under `i18n` folder and rebuild the `labels.json` file.
+```
+pm2 start labels-pom2/json
+```
+Labels won't automatically be updated on the frontend though _(if anyone knows how to make Vite detect that...)_. To force labels refresh you can use this keyboard shortcut on Twitchat `CTRL+Shift+L`
 <br>
 <br>
 <br>
 
 # Package Stream Deck™ plugin
-Delete the following file:
-```
-streamdeck_plugin/fr.twitchat.streamDeckPlugin
-```
 Run the following command:
 ```
 npm run streamdeck_package
 ```
-The file `fr.twitchat.streamDeckPlugin` should be built back.
+The file, compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.
 <br>
 <br>
 <br>
 
 # TODO
-- [ ] Make a MASSIVE refactoring to abstract twitch's data model throughout the codebase to make other services (youtube, tiktok, ...) easier to add to twitchat.
-- [ ] Review the filtering logic of the messages so they're not the ones responsible to decide their own visibility
-- [ ] rebuild server with typescript
+- [x] Review the filtering logic of the messages so they're not the ones responsible to decide their own visibility
+- [x] Rebuild server with typescript
+- [x] WIP: Make a MASSIVE refactoring to abstract twitch's data model throughout the codebase to make other services (youtube, tiktok, ...) easier to add to twitchat.

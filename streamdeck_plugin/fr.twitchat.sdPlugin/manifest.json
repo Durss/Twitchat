@@ -16,7 +16,7 @@
 		},
 		{
 			"Icon": "icons/GREET_FEED_READ_default",
-			"Name": "Clear 'Greet them' messages",
+			"Name": "Remove X 'Greet them' message",
 			"Tooltip": "Clear some messages from 'Greet them' section", 
 			"States": [
 				{
@@ -30,11 +30,11 @@
 			"UUID": "fr.twitchat.action.greet-feed-read"
 		},
 		{
-			"Icon": "icons/CHAT_FEED_READ_default",
-			"Name": "Mark all chat messages as read",
+			"Icon": "icons/CHAT_FEED_READ_ALL_default",
+			"Name": "Read all messages",
 			"States": [
 				{
-					"Image": "icons/CHAT_FEED_READ",
+					"Image": "icons/CHAT_FEED_READ_ALL",
 					"TitleAlignment": "bottom",
 					"FontSize": "10"
 				}
@@ -45,7 +45,7 @@
 		},
 		{
 			"Icon": "icons/CHAT_FEED_READ_default",
-			"Name": "Mark X chat message as read",
+			"Name": "Read chat messages",
 			"States": [
 				{
 					"Image": "icons/CHAT_FEED_READ",
@@ -56,6 +56,26 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-read"
+		},
+		{
+			"Icon": "icons/CHAT_FEED_READ_default",
+			"Name": "Read messages",
+			"States": [
+				{
+					"Image": "icons/CHAT_FEED_READ",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.chat-feed-read-encoder",
+			"Controllers": ["Encoder"],
+			"Encoder":{
+				"TriggerDescription": {
+					"Rotate": "Read messages"
+				}
+			}
 		},
 		{
 			"Icon": "icons/CHAT_FEED_PAUSE_default",
@@ -70,6 +90,20 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-pause"
+		},
+		{
+			"Icon": "icons/CLEAR_CHAT_HIGHLIGHT_default",
+			"Name": "Clear highlight",
+			"States": [
+				{
+					"Image": "icons/CLEAR_CHAT_HIGHLIGHT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.clear-chat-highlight"
 		},
 		{
 			"Icon": "icons/CHAT_FEED_UNPAUSE_default",
@@ -112,6 +146,47 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-scroll-down"
+		},
+		{
+			"Icon": "icons/CHAT_FEED_SCROLL_ENCODER_default",
+			"Name": "Scroll chat",
+			"States": [
+				{
+					"Image": "icons/CHAT_FEED_SCROLL_ENCODER",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.chat-feed-scroll",
+			"Controllers": ["Encoder"],
+			"Encoder":{
+				"TriggerDescription": {
+					"Rotate": "Scroll chat"
+				}
+			}
+		},
+		{
+			"Icon": "icons/TARGET_MESSAGE_default",
+			"Name": "Select Message",
+			"States": [
+				{
+					"Image": "icons/TARGET_MESSAGE",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.chat-feed-select",
+			"Controllers": ["Encoder"],
+			"Encoder":{
+				"TriggerDescription": {
+					"Rotate": "Select chat message",
+					"Push": "Switch between select/moderation modes"
+				}
+			}
 		},
 		{
 			"Icon": "icons/POLL_TOGGLE_default",
@@ -168,20 +243,6 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.raffle-toggle"
-		},
-		{
-			"Icon": "icons/ACTIVITY_FEED_TOGGLE_default",
-			"Name": "Toggle activity feed display",
-			"States": [
-				{
-					"Image": "icons/ACTIVITY_FEED_TOGGLE",
-					"TitleAlignment": "bottom",
-					"FontSize": "10"
-				}
-			],
-			"PropertyInspectorPath": "propertyInspector.html",
-			"SupportedInMultiActions": true,
-			"UUID": "fr.twitchat.action.activity-feed-toggle"
 		},
 		{
 			"Icon": "icons/VIEWERS_COUNT_TOGGLE_default",
@@ -298,6 +359,48 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.disable-stt"
+		},
+		{
+			"Icon": "icons/COUNTDOWN_default",
+			"Name": "Add/remove time to a countdown",
+			"States": [
+				{
+					"Image": "icons/COUNTDOWN",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.countdown-add"
+		},
+		{
+			"Icon": "icons/TIMER_default",
+			"Name": "Add/remove time to a timer",
+			"States": [
+				{
+					"Image": "icons/TIMER",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.timer-add"
+		},
+		{
+			"Icon": "icons/COUNT_default",
+			"Name": "Add/remove points to a counter",
+			"States": [
+				{
+					"Image": "icons/COUNT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.counter-add"
 		}
 	],
 	"Category":"Twitchat",
@@ -305,11 +408,11 @@
 	"SDKVersion": 2,
 	"Author": "Durss",
 	"CodePath": "index.html",
-	"Description": "Manage twitchat",
+	"Description": "Control Twitchat. Scroll messages, mark them as read, moderate them, control timers, control counters, send a shoutout to the latest raider, un/censor deleted messages, open/close current poll, prediction, bingo or raffle, stop current text to speech, ...",
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "1.2",
+	"Version": "2.3",
 	"OS": [
 		{
 			"Platform": "mac",

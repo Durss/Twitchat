@@ -1,0 +1,10 @@
+{
+	"liveusers": {
+		"closeBt_aria": "Close live users list",
+		"none": "None of the people you follow is streaming :(",
+		"raid_confirm_title": "Raid?",
+		"raid_confirm_desc": "Are you sure you want to raid {USER}?",
+		"scope_grant": "You have not granted permission for Twitchat to see who is live among the people you follow",
+		"scope_grantBt": "Grant permission"
+	}
+}

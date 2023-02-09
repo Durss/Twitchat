@@ -1,0 +1,91 @@
+@import "_includes.less";
+@import "fonts.less";
+@import "reset.less";
+@import "form.less";
+
+:root {
+	--font-inter: "Inter";
+	--font-nunito: "Nunito";
+	--font-roboto: "Roboto";
+	--font-azeret: "Azeret";
+}
+
+body, html {
+	padding: 0;
+	margin: 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
+	color: @mainColor_normal;
+	min-width: 100%;
+	min-height: var(--vh);
+	min-height: -webkit-fill-available;
+	overflow: hidden;
+}
+
+*:focus:not(:focus-visible) {
+	outline: none;
+}
+
+a {
+	// text-decoration: none;
+	color: @mainColor_alert;
+	cursor: pointer;
+	&:hover {
+		color: @mainColor_alert_light;
+	}
+}
+
+strong {
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 1.25em;
+}
+
+#dz-root {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw !important;
+	height: 100vh !important;
+	background: rgba(255, 0, 0, .25);
+	z-index: 5;
+	opacity: .8;
+	iframe {
+		cursor: pointer;
+		width: 100% !important;
+		height: 100% !important;
+	}
+
+	&.hide {
+		top: -100px;
+		left: -100px;
+		width: 10px !important;
+		height: 10px !important;
+	}
+}
+
+.vs__dropdown-option {
+	&>.listIcon {
+		height: 1em;
+		max-width: 1em;
+		margin-right: .25em;
+	}
+}
+
+*::-webkit-scrollbar {
+	width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+	border-radius:20px;
+	background-color: rgb(31, 31, 35);
+	border: 1px solid rgba(255, 255, 255, 0.25);
+//   box-shadow: rgba(255, 255, 255, 0.25) 0px 0px 1px 1px;
+}

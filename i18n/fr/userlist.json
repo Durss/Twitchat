@@ -1,0 +1,17 @@
+{
+	"userlist": {
+		"roles": {
+			"broadcaster": "Diffuseur",
+			"mods": "Modérateurs·ices",
+			"vips": "VIPs",
+			"viewers": "Autres"
+		},
+		"banned_tt": "Banni·e",
+		"infoBt": "Pourquoi le nombre de personnes dans le chat diffère du compteur de viewers ?",
+		"infos": [
+			"Cette fenêtre liste les personnes présentes dans votre tchat. Le compteur de viewer liste les personnes qui vous regardent.",
+			"Il est possible d'être dans le tchat sans voir le stream <i>(ex: les bots)</i> et il est possible de voir le stream sans être dans le tchat <i>(via la homepage, audio only sur mobile, embed sur un site externe, ...)</i>",
+			"Aussi, rien d'officiel, mais il est très probable que Twitch nous retire des viewers si on laisse le stream en arrière plan trop longtemps."
+		]
+	}
+}

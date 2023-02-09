@@ -1,0 +1,54 @@
+{
+	"voice":{
+		"header":"Contrôlez Twitchat avec votre voix",
+		"unsupported_browser":"Ce navigateur ne prend pas en charge la reconnaissance vocale",
+		"unsupported_browser_detail":"Veuillez utiliser Google Chrome, Microsoft Edge ou Safari.",
+		"supported_browsers":"Fonctionne seulement avec Google Chrome, Microsoft Edge ou Safari",
+		"remote_control":"Si vous souhaitez utiliser Twitchat dans un navigateur ne prenant pas en charge la reconnaissance vocale, vous pouvez ouvrir cette page dans un navigateur compatible pour gérer la reconnaissance vocale :",
+		"need_OBS":"Cette fonctionnalité requiert de lier Twitchat à OBS.",
+		"obs_connectBt":"Lier OBS",
+
+		"addBt":"Ajouter une action vocale",
+		"startBt":"Activer l'assistant",
+		"stopBt":"Désactiver l'assistant",
+		"stt_preview":"Reconnaissance live",
+		"stt_actions":"Actions vocales",
+		"select_action":"Action à exécuter",
+		"select_action_placeholder":"...sélectionner...",
+		"select_language":"Sélectionnez votre langue :",
+		"sentences":"Phrases de déclenchement",
+		"sentences_count":"(1 par ligne)",
+		"global_commands":"Mots que vous aurez à dire pour naviguer dans les formulaires",
+		"fill_global":"Remplissez toutes les commandes globale au-dessus",
+		"remote":{
+			"title":"Cette page permet de contrôler Twitchat et quelques fonctionnalités Twitch avec votre voix",
+			"commands":"Créez des commandes vocales dans Twitchat <strong>Parameters => @:params.categories.voice </strong> section"
+		},
+		"commands":{
+			"ERASE":"Effacer",
+			"NEXT":"Suite",
+			"PREVIOUS":"Retour",
+			"SUBMIT":"Valider",
+			"CANCEL":"Annuler",
+			"CREATE_POLL":"Créer un sondage",
+			"STOP_POLL":"Arrêter le sondage en cours",
+			"CREATE_PREDICTION":"Créer une prédiction",
+			"STOP_PREDICTION":"Arrêter la prédiction en cours",
+			"CREATE_RAFFLE":"Créer un tirage au sort",
+			"STOP_RAFFLE":"Arrêter le tirage au sort",
+			"GREET_FEED_READ":"Marquer 10 messages \" @:greet.title \" comme lus",
+			"GREET_FEED_READ_ALL":"Marquer tous les messages \" @:greet.title \" comme lus",
+			"CHAT_FEED_READ":"Marquer 10 messages de tchat comme lus",
+			"CHAT_FEED_READ_ALL":"Marquer tous les messages de tchat comme lus",
+			"CHAT_FEED_PAUSE":"Mettre le tchat en pause",
+			"CHAT_FEED_UNPAUSE":"Reprendre le tchat",
+			"CHAT_FEED_SCROLL_UP":"Remonter le tchat",
+			"CHAT_FEED_SCROLL_DOWN":"Redescendre le tchat",
+			"START_EMERGENCY":"Démarrer le mode urgence",
+			"STOP_EMERGENCY":"Arrêter le mode urgence",
+			"CENSOR_DELETED_MESSAGES_TOGGLE":"Afficher/masquer le contenu des messages supprimés",
+			"VIEWERS_COUNT_TOGGLE":"Afficher/masquer le compteur de viewers",
+			"MOD_TOOLS_TOGGLE":"Afficher/masquer les outils de modération"
+		}
+	}
+}

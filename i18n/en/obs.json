@@ -1,0 +1,35 @@
+{
+	"obs":{
+		"connection_success":"Connected with OBS",
+		"how_to_title":"Where can i find these values?",
+		"how_to1":"On OBS, open to \"Tools => obs-websocket Settings\".",
+		"how_to2":"You'll probably want to leave the IP to {IP}",
+		"ip_advice":"You may want to set the IP to 127.0.0.1 instead of what OBS shows you",
+		"form_port":"OBS websocket server port",
+		"form_pass":"OBS websocket password",
+		"form_ip":"OBS websocket IP",
+		"credentials_form_title":"OBS credentials",
+
+		"header":"Create your own twitch alerts, allow your mods basic control over your OBS and much more",
+		"install":"In order to work, this needs {OBS_VERSION}",
+		"install_option":"(or OBS 27 with {PLUGIN_LINK} installed)",
+		"install_plugin_name":"OBS-websocket plugin V5",
+		
+		"permissions_title":"Permissions",
+		"permissions_head":"Users allowed to use the chat commands",
+		
+		"microphone_title":"Control microphone",
+		"microphone_head":"Give control over your microphone so some users can mute or unmute you from the chat",
+		"microphone_empty":"- no audio source found -",
+		"microphone_reCheck":"Check again",
+		"microphone_source":"Audio source",
+		"microphone_mute":"Mute command",
+		"microphone_unmute":"Unmute command",
+		"microphone_default_entry":"- none -",
+
+		"scenes_title":"Control scenes",
+		"scenes_empty":"You have no scene on OBS",
+		"scenes_col_name":"OBS Scene",
+		"scenes_col_cmd":"Chat command"
+	}
+}

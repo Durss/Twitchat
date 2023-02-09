@@ -1,0 +1,11 @@
+{
+	"logout":{
+		"title":"Vous êtes maintenant déconnecté·e.",
+		"are_you":"L'êtes-vous vraiment...?",
+		"details_head":"Peu d'applications vous le disent, mais vous déconnecter n'est pas suffisant.",
+		"details_1":"Twitchat a théoriquement toujours accès à votre compte Twitch.",
+		"details_2":"Pour éviter cela, révoquez l'accès de Twitchat à votre compte.",
+		"settingBt":"Ouvrir les paramètres",
+		"details_3":"Descendez jusqu'à la section <strong>Autres connexions</strong>, trouvez la ligne <strong>TwichatApp</strong> et cliquez sur <strong>déconnecter</strong>."
+	}
+}

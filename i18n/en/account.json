@@ -1,0 +1,14 @@
+{
+	"account":{
+		"connected_as":"Connected as {USER}",
+		"donation_public":"Makes your login visible by everyone on the donor list under {LINK}",
+		"about_link":"About section",
+		"installBt":"Install Twitchat",
+		"updatesBt":"Latest updates",
+		"erase_dataBt":"Erase local parameters",
+		"erase_confirm_title":"Erase local parameters?",
+		"erase_confirm_description":"This will only erase parameters from this browser.<br>Triggers, voice commands, text to speech actions, automod params, emergency params, etc... will be reset.",
+		"authorization":"Authorizations",
+		"language":"Display language"
+	}
+}
