@@ -1,6 +1,8 @@
 {
 	"login":{
-		"closedBeta":"La beta est restreinte à quelques personnes :)",
+		"closedBeta":"La beta est fermée :]",
+		"closedBeta2":"Rendez-vous sur la {LINK}",
+		"closedBeta2_link":"version de production",
 		"head":"Choisissez ce que vous souhaitez permettre à Twitchat d'effectuer",
 		"update_title":"Une Màj nécessite un nouvelle permission | Une Màj nécessite ces nouvelles permissions",
 		"specific_scope":"L'action demandée nécessite la permission supplémentaire suivante | L'action demandée nécessite les permissions supplémentaires suivantes",

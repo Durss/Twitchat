@@ -7,7 +7,12 @@
 
 		<div class="content betaWarn" v-if="closedBeta === true">
 			<img src="@/assets/icons/lock.svg">
-			{{ $t("login.closedBeta") }}
+			<p>{{ $t("login.closedBeta") }}</p>
+			<i18n-t tag="p" scope="global" keypath="login.closedBeta2">
+				<template #LINK>
+					<a href="https://twitchat.fr" class="link" target="_self">{{ $t("login.closedBeta2_link") }}</a>
+				</template>
+			</i18n-t>
 		</div>
 		
 		<div class="content" v-if="!closedBeta">
@@ -216,6 +221,10 @@ export default class Login extends Vue {
 			margin: 1em 0;
 			img {
 				height: 2em;
+			}
+
+			.link {
+				color:@mainColor_warn_light;
 			}
 		}
 

@@ -1,6 +1,8 @@
 {
 	"login":{
-		"closedBeta":"Beta is closed to a few people sorry :)",
+		"closedBeta":"Beta is closed :]",
+		"closedBeta2":"Head back to the {LINK}",
+		"closedBeta2_link":"production version",
 		"head":"Choose what you want to allow Twitchat to do",
 		"update_title":"An update needs this new permission | An update needs these new permissions",
 		"specific_scope":"The requested action needs the following additional permission | The requested action needs the following additional permissions",
