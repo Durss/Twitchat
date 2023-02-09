@@ -42,6 +42,7 @@ export default class AuthController extends AbstractController {
 		//while they're streaming.
 		//Remove this after a few days once nobody else runs on the old frontend
 		this.server.get('/api/refreshtoken', async (request, response) => await this.refreshToken(request, response));
+		this.server.get('/api/CSRFToken', async (request, response) => await this.getCSRFToken(request, response));
 	}
 
 	/**
