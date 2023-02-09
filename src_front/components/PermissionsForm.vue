@@ -8,7 +8,7 @@
 		<ParamItem :paramData="param_all" class="row" v-model="modelValue.all" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
 		<ParamItem :paramData="param_allowed" class="row allow" v-model="modelValue.usersAllowed" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
 		<ParamItem :paramData="param_refused" class="row refuse" v-model="modelValue.usersRefused" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
-		
+		{{ modelValue.usersRefused }}
 		<div v-if="noSelection" class="noSelection">{{ $t("global.permissions.nobody") }}</div>
 	</div>
 </template>

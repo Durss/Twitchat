@@ -36,6 +36,7 @@
 					<Button @click="preset('chatSafe')" :title="$t('chat.filters.preset_chatSafe')" :icon="$image('icons/shield_purple.svg')" small white />
 					<Button @click="preset('moderation')" :title="$t('chat.filters.preset_moderation')" :icon="$image('icons/mod_purple.svg')" small white />
 					<Button @click="preset('activities')" :title="$t('chat.filters.preset_activities')" :icon="$image('icons/stars_purple.svg')" small white />
+					<Button @click="preset('moderation&activities')" :title="$t('chat.filters.preset_moderation_and_activities')" :icon="$image('icons/stars_purple.svg')" small white />
 					<Button @click="preset('games')" :title="$t('chat.filters.preset_games')" :icon="$image('icons/bingo_purple.svg')" small white />
 					<Button @click="preset('revenues')" :title="$t('chat.filters.preset_revenues')" :icon="$image('icons/coin_purple.svg')" small white />
 				</div>
@@ -761,7 +762,7 @@ export default class MessageListFilter extends Vue {
 	/**
 	 * Called when clicking a preset
 	 */
-	public preset(id:"chat"|"chatSafe"|"moderation"|"activities"|"games"|"revenues"):void {
+	public preset(id:"chat"|"chatSafe"|"moderation"|"activities"|"games"|"revenues"|"moderation&activities"):void {
 		this.toggleAll = false;
 		//Unselect all
 		for (let i = 0; i < this.filters.length; i++) {
@@ -796,6 +797,7 @@ export default class MessageListFilter extends Vue {
 				}
 				break;
 			}
+			case "moderation&activities": 
 			case "moderation": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN );
@@ -814,7 +816,7 @@ export default class MessageListFilter extends Vue {
 												 || k == "suspiciousUsers"
 												 || k == "moderators";
 				}
-				break;
+				if(id == "moderation") break;
 			}
 			case "activities": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BAN );

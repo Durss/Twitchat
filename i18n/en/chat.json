@@ -48,6 +48,7 @@
 			"preset_chatSafe": "Chat safe",
 			"preset_moderation": "Moderation",
 			"preset_activities": "Activities",
+			"preset_moderation_and_activities": "Moderation + Activities",
 			"preset_games": "Games",
 			"preset_revenues": "Revenues",
 			"no_selection": "Please select at least one filter",

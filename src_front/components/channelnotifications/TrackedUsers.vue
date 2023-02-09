@@ -127,7 +127,7 @@ export default class TrackedUsers extends Vue {
 
 	private scrollToBottom():void {
 		const div = this.$refs.messageList as HTMLDivElement;
-		div.scrollTo(0, div.scrollHeight);
+		if(div) div.scrollTo(0, div.scrollHeight);
 	}
 
 }

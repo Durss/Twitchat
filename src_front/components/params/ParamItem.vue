@@ -370,7 +370,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.type == "editablelist") {
 			if(this.paramData.options) {
 				//If there's a list of options, cleanup any custom options added that
-				//is not the currently selected item
+				//is not the currently selected one
 				const list = this.$refs.vueSelect as any;
 				for (let i = 0; i < list.pushedTags.length; i++) {
 					const opt = list.pushedTags[i];
@@ -421,6 +421,13 @@ export default class ParamItem extends Vue {
 		//right after setting it to false here.
 		await this.$nextTick();
 		this.searching = false;
+
+		//Trim spaces around the value
+		const list = this.paramData.value as string[];
+		for (let i = 0; i < list.length; i++) {
+			list[i] = list[i].trim();
+		}
+
 		this.onEdit();
 	}
 
