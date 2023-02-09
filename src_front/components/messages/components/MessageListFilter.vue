@@ -647,7 +647,7 @@ export default class MessageListFilter extends Vue {
 	
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData = [data];
-			}, false);
+			}, false, false);
 		}
 	}
 

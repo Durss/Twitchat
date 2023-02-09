@@ -27,7 +27,7 @@ export const storeDebug = defineStore('debug', {
 
 
 	actions: {
-		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<TwitchatDataTypes.ChatMessageTypes> {
+		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true, allowConversations:boolean = true):Promise<TwitchatDataTypes.ChatMessageTypes> {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			if(fakeUsers.length === 0) {
@@ -75,14 +75,16 @@ export const storeDebug = defineStore('debug', {
 						user:fakeUser,
 						is_short:false,
 					};
-					const messageList = StoreProxy.chat.messages;
-					if(messageList.length > 0 && Math.random() < .1) {
-						for (let i = messageList.length-1; i > Math.max(0, messageList.length-50); i--) {
-							const om = messageList[i];
-							if(om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-								m.answersTo = om;
-								om.answers.push(m);
-								break;
+					if(allowConversations) {
+						const messageList = StoreProxy.chat.messages;
+						if(messageList.length > 0 && Math.random() < .1) {
+							for (let i = messageList.length-1; i > Math.max(0, messageList.length-50); i--) {
+								const om = messageList[i];
+								if(om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+									m.answersTo = om;
+									om.answers.push(m);
+									break;
+								}
 							}
 						}
 					}
