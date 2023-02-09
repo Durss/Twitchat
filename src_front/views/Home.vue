@@ -348,9 +348,8 @@ export default class Home extends Vue {
 
 		.lang {
 			position: absolute;
-			top: 1em;
-			top: 1em;
-			right: 1em;
+			top: 10px;
+			right: 10px;
 			font-size: .8em;
 			select{
 				color: @mainColor_light;

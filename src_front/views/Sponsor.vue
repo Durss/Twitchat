@@ -3,6 +3,13 @@
 		<div class="logo">
 			<img src="@/assets/logo.svg" alt="Twitchat">
 		</div>
+	
+		<div class="lang">
+			<select v-model="$i18n.locale">
+				<option value="fr">Français</option>
+				<option value="en">English</option>
+			</select>
+		</div>
 
 		<Button :icon="$image('icons/back.svg')"
 			:title="$t('global.back')"
@@ -40,6 +47,7 @@ export default class Sponsor extends Vue {
 	background-position: center center;
 	margin: auto;
 	padding: 2em 5px;
+	position: relative;
 
 	.logo {
 		width: 80vw;
@@ -58,6 +66,21 @@ export default class Sponsor extends Vue {
 		margin: auto;
 		margin-top: 2em;
 		max-width: 600px;
+	}
+
+	.lang {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		font-size: .8em;
+		select{
+			color: @mainColor_light;
+			background: none;
+			border: none;
+			option {
+				color: @mainColor_normal;
+			}
+		}
 	}
 }
 </style>
