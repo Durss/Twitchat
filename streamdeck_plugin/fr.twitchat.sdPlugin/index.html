@@ -78,9 +78,10 @@
 				const actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				const col = payload.settings.colIndex ?? 0;
 				let params = payload.settings;
+				params.col = col;
 				switch(actionName) {
 					case "GREET_FEED_READ":{
-						params = {count: payload.settings.readCount};
+						params = {col, count: payload.settings.readCount};
 						break;
 					}
 					case "CHAT_FEED_READ":{

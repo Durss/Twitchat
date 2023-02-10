@@ -204,7 +204,6 @@ export default class Parameters extends Vue {
 
 	public async mounted():Promise<void> {
 		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true";
-		this.adTarget = this.$refs[this.isDonor? "adDonor" : "adNoDonor"] as HTMLDivElement;
 
 		if(this.$store('main').showParams) {
 			this.open();
@@ -242,6 +241,8 @@ export default class Parameters extends Vue {
 		gsap.set(this.$refs.holder as HTMLElement, {x:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.5, x:"100%", ease:"back.out"});
+
+		this.adTarget = this.$refs[this.isDonor? "adDonor" : "adNoDonor"] as HTMLDivElement;
 
 		if(this.search) {
 			await this.$nextTick();
