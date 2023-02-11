@@ -201,6 +201,10 @@ export default class DataStore {
 			this.migrateEmergencyTOs();
 			v = "29";
 		}
+		if(v=="29") {
+			this.cleanupPreV7Data();
+			v = "30";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
@@ -935,5 +939,42 @@ export default class DataStore {
 			}
 			this.set(DataStore.EMERGENCY_PARAMS, confs);
 		}
+	}
+
+	/**
+	 * Cleanup useless old data
+	 */
+	private static cleanupPreV7Data():void {
+		this.remove("level");
+		this.remove("isDonor");
+		this.remove("p:hideUsers");
+		this.remove("p:censorDeletedMessages");
+		this.remove("p:showSelf");
+		this.remove("p:blockedCommands");
+		this.remove("p:ignoreListCommands");
+		this.remove("p:ignoreCommands");
+		this.remove("p:showSlashMe");
+		this.remove("p:showBots");
+		this.remove("p:keepDeletedMessages");
+		this.remove("p:firstTimeMessage");
+		this.remove("p:keepHighlightMyMessages");
+		this.remove("p:historySize");
+		this.remove("p:notifyJoinLeave");
+		this.remove("p:raidStreamInfo");
+		this.remove("p:receiveWhispers");
+		this.remove("p:showWhispersOnChat");
+		this.remove("p:showCheers");
+		this.remove("p:showFollow");
+		this.remove("p:showHypeTrain");
+		this.remove("p:showNotifications");
+		this.remove("p:showRaids");
+		this.remove("p:showRewards");
+		this.remove("p:showRewardsInfos");
+		this.remove("p:showSubs");
+		this.remove("p:splitView");
+		this.remove("p:splitViewSwitch");
+		this.remove("p:emergencyButton");
+		this.remove("leftColSize");
+		this.remove("activityFeedFilters");
 	}
 }
