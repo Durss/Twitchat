@@ -64,8 +64,7 @@ export default class ChatJoinLeave extends Vue {
 
 	public mounted(): void {
 		const usersClone = this.messageData.users.concat();
-		const join = usersClone.splice(0, 30);
-		this.userList = join;
+		this.userList = usersClone.splice(0, 30).filter(v=> !v.errored);
 		this.remainingCount = usersClone.length;
 		if(this.remainingCount > 0) this.remainingOffset = 1;
 		
