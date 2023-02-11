@@ -300,6 +300,10 @@ export const storeParams = defineStore('params', {
 		},
 
 		delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void {
+			//Some magicien succeed to remove all their columns, here is
+			//a fail safe to prevent that.
+			if(this.chatColumnsConfig.length == 1) return;
+
 			let decrement = false;
 			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
 				const e = this.chatColumnsConfig[i];
@@ -324,6 +328,7 @@ export const storeParams = defineStore('params', {
 				}
 			}
 			column.order = newPos;
+			this.saveChatColumnConfs();
 		},
 
 		saveChatColumnConfs():void {
