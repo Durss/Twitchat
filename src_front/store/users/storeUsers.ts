@@ -296,8 +296,8 @@ export const storeUsers = defineStore('users', {
 								// console.log("User not found.... ", userLocal.login, userLocal.id);
 								//User not sent back by twitch API.
 								//Most probably because login is wrong or user is banned
-								userLocal.displayName = " error(#"+(user!.id)+")";
-								userLocal.login = " error(#"+(user!.id)+")";
+								userLocal.displayName = " error(#"+(user!.displayName || user!.login || user!.id)+")";
+								userLocal.login = " error(#"+(user!.login || user!.displayName || user!.id)+")";
 								userLocal.errored = true;
 								
 							}else{
