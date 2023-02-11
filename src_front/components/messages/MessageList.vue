@@ -20,7 +20,7 @@
 
 		
 		<div class="messageHolder" ref="chatMessageHolder">
-			<div v-for="m in filteredMessages" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
+			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
 				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
 				<ChatAd class="message"
 					v-if="m.type == 'twitchat_ad'"
@@ -145,7 +145,7 @@
 
 			</div>
 
-			<div key="empty" class="subHolder" ref="message_0" v-if="filteredMessages?.length===0">
+			<div key="empty" class="subHolder" ref="message_0" v-if="filteredMessagesDeduped?.length===0">
 				<div class="message empty">{{ $t("chat.no_message") }}</div>
 			</div>
 		</div>
@@ -413,7 +413,6 @@ export default class MessageList extends Vue {
 	public selectedItem: HTMLDivElement | null = null;
 	public selectedMessage: TwitchatDataTypes.MessageChatData | null = null;
 
-	private dateOffset = 0;
 	private maxMessages:number = 50;
 	private markedAsReadDate:number = 0;
 	private selectionDate:number = 0;
@@ -452,6 +451,18 @@ export default class MessageList extends Vue {
 
 	public get hoverActionsStyles(): StyleValue {
 		return { top: this.hoverActionsPos + "px" }
+	}
+
+	public get filteredMessagesDeduped(): TwitchatDataTypes.ChatMessageTypes[] {
+		const res:TwitchatDataTypes.ChatMessageTypes[] = [];
+		const done:{[key:string]:boolean} = {};
+		for (let i = 0; i < res.length; i++) {
+			const element = res[i];
+			if(done[element.id]) continue;
+			done[element.id] = true;
+			res.push(element);
+		}
+		return res;
 	}
 
 	public get readLabel(): string {
@@ -630,7 +641,7 @@ export default class MessageList extends Vue {
 				const m = messages[i];
 				if (await this.shouldShowMessage(m)) {
 					//Make sure message isn't pending for display
-					////This sometimes happens when stressing the list... Probably due
+					//This sometimes happens when stressing the list... Probably due
 					//the fact that the reference point ("scrollUpIndexOffset") is based
 					//on the top of the list instead of its bottom. (this needs refactoring)
 					const pIndex = this.pendingMessages.findIndex(v=>v.id == m.id);

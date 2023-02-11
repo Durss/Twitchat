@@ -41,8 +41,11 @@ server.register(require('@fastify/static'), {
 	root: Config.PUBLIC_ROOT,
 	prefix: '/',
 	// setHeaders:(res, path)=>{
-	// 	console.log("SET HEADER:", path);
-	// 	res.setHeader("Set-Cookie", "cross-site-cookie=*; SameSite=None; Secure");
+	// 	if(/index.*\.js/gi.test(path)) {
+	// 		console.log("SET HEADER:", path);
+	// 		res.setHeader("content-type", "application/javascript; charset=UTF-8");
+	// 	}
+	// 	// res.setHeader("Set-Cookie", "cross-site-cookie=*; SameSite=None; Secure");
 	// }
 })
 
@@ -62,9 +65,9 @@ server.get('/api/script', async (request, response) => {
 	response.send(txt);
 });
 
-//Get latest script.js file for cache bypass
+//Get latest app configs
 server.get('/api/configs', async (request, response) => {
-	response.header('Content-Type', 'application/javascript');
+	response.header('Content-Type', 'application/json');
 	response.status(200);
 	response.send(JSON.stringify({
 		twitch_client_id:Config.credentials.twitch_client_id,
@@ -92,6 +95,7 @@ server.setNotFoundHandler({
 	if(/^\/api/gi.test(request.url)) {
 		console.log("404 !", request.url);
 		reply.code(404).send({success:false, error:"Not found"});
+		return;
 	}
 
 	let file = path.join(Config.PUBLIC_ROOT, request.url);
@@ -101,7 +105,10 @@ server.setNotFoundHandler({
 	}
 	const stream = fs.createReadStream(file, 'utf8' );
 
-	const mimetype = mime.lookup(file);
+	let mimetype = mime.lookup(file);
+	//patch for firefox that refuses to execute script if it doesn't have this mime type -_-...
+	// if(/\.js$/.test(file)) mimetype = "application/javascript";
+
 	if(mimetype == "text/html") {
 		reply.header('Content-Type', mimetype+"; charset=utf-8");
 	}else{
