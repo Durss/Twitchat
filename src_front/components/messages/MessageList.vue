@@ -456,9 +456,9 @@ export default class MessageList extends Vue {
 	public get filteredMessagesDeduped(): TwitchatDataTypes.ChatMessageTypes[] {
 		const res:TwitchatDataTypes.ChatMessageTypes[] = [];
 		const done:{[key:string]:boolean} = {};
-		for (let i = 0; i < res.length; i++) {
-			const element = res[i];
-			if(done[element.id]) continue;
+		for (let i = 0; i < this.filteredMessages.length; i++) {
+			const element = this.filteredMessages[i];
+			if(done[element.id] === true) continue;
 			done[element.id] = true;
 			res.push(element);
 		}
