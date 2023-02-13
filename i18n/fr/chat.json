@@ -57,7 +57,7 @@
 			"scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
 			"whispers_permissions": "Filtrer les personnes autorisées",
 			"message_types": {
-				"twitchat_ad": "MàJ et astuces Twitchat",
+				"twitchat_ad": "Astuces Twitchat",
 				"ban": "Bans",
 				"unban": "Unbans",
 				"raid": "Raids",

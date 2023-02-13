@@ -59,6 +59,7 @@ import 'vue3-carousel/dist/carousel.css'
 import Utils from '@/utils/Utils';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
 import { watch } from 'vue';
+import DataStore from '@/store/DataStore';
 
 @Options({
 	props:{},
@@ -145,6 +146,9 @@ export default class Changelog extends Vue {
 		gsap.to(this.$refs.holder as HTMLDivElement, {y:"-150px", ease:"back.in", opacity:0, duration:.5, onComplete:()=>{
 			this.$emit('close');
 		}});
+		if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
+			DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
+		}
 	}
 
 }

@@ -876,7 +876,10 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
 				return this.config.filters.twitchat_ad === true
 				//Force sponsor message if chat messages are displayed
-				|| (m.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR && this.config.filters.message === true);
+				|| (m.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR && this.config.order === 0)
+				//Force updates display, tired of people not reading it then asking for things written in it >_>
+				
+				|| (m.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES && this.config.order === 0);
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.ROOM_SETTINGS: {
