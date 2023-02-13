@@ -158,8 +158,8 @@ export default class Changelog extends Vue {
 	.holder {
 		line-height: 1.2em;
 		width: 600px;
-		max-width: 600px;
-		margin-left: calc((100vw - 600px)/2);
+		max-width: min(600px, 100vw);
+		margin-left: calc((100vw - min(600px, 100%))/2);
 		// height: unset;
 
 		& > .icon {
@@ -221,10 +221,12 @@ export default class Changelog extends Vue {
 				}
 
 				.demo {
+					max-width: calc(100% - 2em);
 					max-height: 400px;
-					transition: max-height .5s;
+					transition: all .5s;
 					&:hover {
 						max-height: 550px;
+						max-width: 100%;
 					}
 				}
 
