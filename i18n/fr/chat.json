@@ -119,7 +119,7 @@
 		},
 		"message": {
 			"first_time": "1er message ici",
-			"presentation": "Bienvenu·e ici {USER}",
+			"presentation": "Bienvenue ici {USER}",
 			"returning_user": "{USER} est de retour après avoir parlé 2 fois ces 30 derniers jours",
 			"automod": "Automod:",
 			"automod_acceptBt_aria": "Accepter le message",
@@ -208,7 +208,7 @@
 			"end": "Chronomètre terminé à {DURATION}"
 		},
 		"connect": {
-			"on": "Bienvenu·e sur la chaine {PLATFORM} de {ROOM}",
+			"on": "Bienvenue sur la chaine {PLATFORM} de {ROOM}",
 			"off": "Vous avez été déconnecté·e du tchat {PLATFORM}"
 		},
 		"clear": {
@@ -251,11 +251,11 @@
 			"title": "❤ Merveilleuse personne ❤",
 			"info_1": "Merci encore pour ton soutien au travers de ton don.",
 			"info_2": "Une liste de toutes les personnes ayant fait un don est disponible dans la {LINK}",
-			"info_2_link": "section A propos",
+			"info_2_link": "section À propos",
 			"info_3": "Par défaut les dons sont anonymes mais tu peux le rendre publique !",
 			"thanks": "Merci ❤.",
 			"thanks_change": "Tu peux changer ceci à tout moment dans la {LINK}",
-			"thanks_change_link": "section A propos",
+			"thanks_change_link": "section À propos",
 			"publicBt": "Rendre mon don public",
 			"close_confirm": {
 				"info_1": "Es-tu sûr·e d'avoir lu le message ?",

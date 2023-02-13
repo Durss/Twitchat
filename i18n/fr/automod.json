@@ -8,7 +8,7 @@
 			"why":{
 				"title":"Pourquoi cette fonctionnalité ? <span>(important à lire)</span>",
 				"contents":[
-					"Twitch a déjà une fonctionnalité de \"termes bloqués\", mais elle est très basique et ne permet de un filtrage complexe.",
+					"Twitch a déjà une fonctionnalité de \"termes bloqués\", mais elle est très basique et ne permet pas un filtrage complexe.",
 					"Si vous bloquez le mot <mark>twitchat</mark>, les viewers peuvent facilement contourner cette restriction en écrivant <mark>twit_chat</mark> ou <mark>twitch🅐t</mark> et une infinité d'alternatives.",
 					"",
 					"Des bots comme <a href=\"https://nightbot.tv\" target=\"_blank\">Nightbot</a> ou <a href=\"https://wizebot.tv/index\" target=\"_blank\">Wizebot</a> permettent de filtrer les messages avec des règles plus complexes via ce que l'on appelle des <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Expressions régulières</a>.",

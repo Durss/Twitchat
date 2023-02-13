@@ -35,7 +35,7 @@
 				"i": "elgato",
 				"l": "Stream Deck +",
 				"v": "update_images/sdplus.mp4",
-				"d": "Scroller votre tchat, déplacer le marque page et modérer les messages sans utiliser votre souris n'a jamais été aussi simple grâce aux molettes du Stream Deck +"
+				"d": "Scroller votre tchat, déplacer le marque-page et modérer les messages sans utiliser votre souris n'a jamais été aussi simple grâce aux molettes du Stream Deck +"
 			},
 			{
 				"i": "shieldMode",
@@ -144,7 +144,7 @@
 			{"l":"Lorsque plein de messages sont en attente de lecture par le TTS, un bouton permet de vider la file d'attente"},
 			{"l":"Les <strong>conducteurs de train</strong> de la hype sont affichés"},
 			{"l":"Le résumé du <strong>Train de la hype</strong> affiche les abbonements T1, T2 et T3 séparément"},
-			{"l":"Nouvelle commande <strong>/greetduration</strong> pour modifier la durée après laquelle effacer automatiquement les messages de la partie \"Dîtes bonjour\""},
+			{"l":"Nouvelle commande <strong>/greetduration</strong> pour modifier la durée après laquelle effacer automatiquement les messages de la partie \"Dites bonjour\""},
 			{"l":"Supression de l'intégragrion Deezer suite à la désactivation de cette possibilité par Deezer"},
 			{"l":"Chaque type de trigger possède maintenant sa propre <strong>file d'exécution</strong>. Vous pouvez créer des files d'exécution personnalisées pour que des triggers de type différents s'exécutent de manière séquentielle et non parallèle."}
 		],

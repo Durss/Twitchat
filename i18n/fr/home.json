@@ -67,8 +67,8 @@
 				{
 					"icon":"checkmark_white",
 					"image":"readMark.gif",
-					"title":"Marque page",
-					"description":"Cliquez n'importe quel message pour place le marque page et vous souvenir où vous avez arreté votre lecture"
+					"title":"Marque-page",
+					"description":"Cliquez n'importe quel message pour place le marque-page et vous souvenir où vous avez arreté votre lecture"
 				},
 				{
 					"icon":"conversation",
