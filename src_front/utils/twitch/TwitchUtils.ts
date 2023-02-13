@@ -1382,7 +1382,8 @@ export default class TwitchUtils {
 			body: JSON.stringify({
 				title,
 				game_id:categoryID,
-				tags,
+				//Make sure tags size and chars are valid
+				tags:tags.forEach(v=> Utils.replaceDiacritics(v).replace(/[^a-z0-9]/gi, "").substring(0, 25).trim()),
 				// delay:"0",
 				// broadcaster_language:"en",
 			})

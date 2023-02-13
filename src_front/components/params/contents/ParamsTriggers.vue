@@ -305,7 +305,7 @@ export default class ParamsTriggers extends Vue {
 	public get triggerKey():string {
 		if(!this.triggerData) return "";
 		let key = this.currentEvent?.value as string;
-		let subkey = this.triggerData.name;
+		let subkey = this.triggerData.name.toLowerCase();
 		if(this.currentEvent?.isCategory
 		&& key !== TriggerTypes.SCHEDULE
 		&& key !== TriggerTypes.CHAT_COMMAND) {
@@ -632,7 +632,8 @@ export default class ParamsTriggers extends Vue {
 		
 		if(entry?.testMessageType) {
 			if(this.isSchedule) {
-				TriggerActionHandler.instance.parseScheduleTrigger(this.triggerKey);
+				//Special case for schedule
+				TriggerActionHandler.instance.parseScheduleTrigger(this.triggerKey, true);
 			}else
 			if(entry.testMessageType == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
 				this.$store("debug").simulateNotice(entry.testNoticeType, (data)=> {

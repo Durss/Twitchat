@@ -362,12 +362,12 @@ export default class TriggerActionHandler {
 		}
 	}
 
-	public async parseScheduleTrigger(key:string):Promise<boolean> {
+	public async parseScheduleTrigger(key:string, testMode:boolean = false):Promise<boolean> {
 		//This fake message is just here to comply with parseSteps() signature.
 		//It's actually not used. I could only set the second param as optional
 		//but I prefer keeping it mandatory as the only exception to that is this call.
 		const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
-		return await this.parseSteps(key, fakeMessage, false, undefined, "schedule");
+		return await this.parseSteps(key, fakeMessage, testMode, undefined, "schedule");
 	}
 
 	
