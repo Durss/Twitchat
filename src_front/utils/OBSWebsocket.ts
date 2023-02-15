@@ -187,10 +187,11 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * Broadcast a message to all the connected clients
 	 * @param data
 	 */
-	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject):Promise<void> {
+	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, retryCount:number = 0):Promise<void> {
 		if(!this.connected) {
 			//Try again
-			setTimeout(()=> this.broadcast(type, data), 1000);
+			if(retryCount == 30) return;
+			setTimeout(()=> this.broadcast(type, data, ++retryCount), 1000);
 			return;
 		}
 

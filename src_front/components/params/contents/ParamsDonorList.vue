@@ -83,7 +83,7 @@ export default class ParamsDonorList extends Vue {
 	private async loadList():Promise<void> {
 		this.error = false;
 		try {
-			const res = await fetch(Config.instance.API_PATH+"/user/donor/all", {method: "GET"});
+			const res = await fetch(Config.instance.API_PATH+"/user/donor/all", {method: "GET", headers:TwitchUtils.headers});
 			const json = await res.json();
 			this.localList = json.data.list;
 			this.computeStats();

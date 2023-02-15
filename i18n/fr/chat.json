@@ -103,8 +103,8 @@
 			"short_tt": "Messages plus courts que 4 caractères<br>ou contenant principalement des emotes"
 		},
 		"shoutout": {
-			"received": "{USER} vous a fait une dédicasse auprès de {VIEWERS} viewers",
-			"given": "{MODERATOR} a fait une dédicasse à {USER} dans le salon {CHANNEL}"
+			"received": "{USER} vous a fait une dédicace auprès de {VIEWERS} viewers",
+			"given": "{MODERATOR} a fait une dédicace à {USER} dans le salon {CHANNEL}"
 		},
 		"room_settings": {
 			"title": "Rappel : Le salon {ROOM} a les restrictions suivantes :",

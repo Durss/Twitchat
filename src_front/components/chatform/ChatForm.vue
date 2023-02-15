@@ -551,6 +551,7 @@ export default class ChatForm extends Vue {
 				const post = i > count - 100;
 				await this.$store("debug").sendRandomFakeMessage(post, undefined,(message:TwitchatDataTypes.ChatMessageTypes)=>{
 					if(!post) {
+						//Push message not posted on tchat to the message history
 						this.$store("chat").messages.push(message);
 					}
 				});

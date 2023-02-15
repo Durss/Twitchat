@@ -101,9 +101,9 @@ export default class PubSub extends EventDispatcher {
 					const uid = uids[i];
 					if(uid == myUID) continue;
 					subscriptions.push("raid."+uid);
-					subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
-					subscriptions.push("low-trust-users."+myUID+"."+uid);
-					subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
+							// subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
+							// subscriptions.push("low-trust-users."+myUID+"."+uid);
+							// subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
 					subscriptions.push("hype-train-events-v1."+uid);
 					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
 					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards

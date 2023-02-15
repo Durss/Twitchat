@@ -47,7 +47,7 @@ export default class Config {
 		return [
 			// {platform:"twitch", login:"damdamlive"},
 			// {platform:"twitch", login:"mewstelle"},
-			// {platform:"twitch", login:"meriamber"},
+			{platform:"twitch", login:"gunselsenol"},
 			// {platform:"twitch", login:"encremecanique"},
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"durssbot"},
@@ -55,7 +55,7 @@ export default class Config {
 			// {platform:"twitch", login:"gom4rt"},
 			// {platform:"twitch", login:"pelerine"},
 			// {platform:"twitch", login:"mistermv"},
-			// {platform:"twitch", login:"prunetteTV"},
+			// {platform:"twitch", login:"mymyhgl"},
 			// {platform:"twitch", login:"sweet_anita"},
 			// {platform:"twitch", login:"durssbot"},
 			// {platform:"twitch", login:"littlebigwhale"},

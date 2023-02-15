@@ -21,7 +21,7 @@ export default class TwitchUtils {
 
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
 
-	private static get headers():{[key:string]:string} {
+	public static get headers():{[key:string]:string} {
 		return {
 			'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 			'Client-Id': Config.instance.TWITCH_CLIENT_ID,

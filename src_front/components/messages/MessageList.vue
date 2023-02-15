@@ -874,12 +874,9 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
-				return this.config.filters.twitchat_ad === true
-				//Force sponsor message if chat messages are displayed
-				|| (m.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR && this.config.order === 0)
-				//Force updates display, tired of people not reading it then asking for things written in it >_>
-				
-				|| (m.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES && this.config.order === 0);
+				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK && this.config.filters.twitchat_ad === true) return true;
+				//Force other ad types to first columns
+				return this.config.order == 0;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.ROOM_SETTINGS: {
@@ -1412,7 +1409,7 @@ export default class MessageList extends Vue {
 			await this.showNextPendingMessage();
 			
 			//Show older messages if near the top
-		}else if(messageHolder.scrollTop < this.virtualMessageHeight * 2) {
+		}else if(messageHolder.scrollTop < Math.min(this.virtualMessageHeight * 5, maxScroll*.25)) {
 			//Make sure we don't reach the top.
 			//If we did the list would keep scrolling up until reaching the first message
 			messageHolder.scrollTop = this.virtualScrollY = Math.max(10, messageHolder.scrollTop);
@@ -1459,15 +1456,15 @@ export default class MessageList extends Vue {
 		this.loadingOldMessage = true;
 
 		const removed:TwitchatDataTypes.ChatMessageTypes[]	= [];
-		const lastId			= this.filteredMessages[0].id;
+		const lastId:string = this.filteredMessages[0].id;
 		if(this.scrollUpIndexOffset == -1) {
 			this.scrollUpIndexOffset = this.pendingMessages.length + this.filteredMessages.length;
 		}
 
-		let addCount = 10;
+		let addCount = 5;
 		let addNext = false;
 		let messageAdded = false;
-		let i = list.length - this.scrollUpIndexOffset - 1;
+		let i = list.length - this.scrollUpIndexOffset;
 		
 		for (; i > 0; i--) {
 			let m = list[i];
@@ -1880,6 +1877,10 @@ export default class MessageList extends Vue {
 					font-style: italic;
 					width: 100%;
 				}
+				&:hover {
+					z-index: 2000;
+					position: relative;
+				}
 			}
 		}
 
@@ -2085,7 +2086,7 @@ export default class MessageList extends Vue {
 	.hoverActions {
 		font-size: var(--messageSize);
 		position: absolute;
-		z-index: 1;
+		z-index: 3;
 		right: 10px;
 		transform: translateY(-100%);
 	}

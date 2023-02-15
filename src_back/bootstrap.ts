@@ -93,7 +93,7 @@ server.setNotFoundHandler({
 	
 }, (request, reply) => {
 	if(/^\/api/gi.test(request.url)) {
-		console.log("404 !", request.url);
+		Logger.warn("404: "+ request.url+" - From IP: "+request.headers["x-forwarded-for"]);
 		reply.code(404).send({success:false, error:"Not found"});
 		return;
 	}

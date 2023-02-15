@@ -37,6 +37,15 @@ export default class DonorController extends AbstractController {
 	 * Gets the public list of donors
 	 */
 	private async getAllDonors(request:FastifyRequest, response:FastifyReply) {
+		// Added this test as someone keeps polling the service anonymously
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		if(!userInfo) {
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send(JSON.stringify({message:"Invalid access token", success:false}));
+			return;
+		}
+
 		let json = [];
 		if(fs.existsSync(Config.donorsPublicList)) {
 			try {

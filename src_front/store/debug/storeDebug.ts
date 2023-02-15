@@ -1110,13 +1110,13 @@ export const storeDebug = defineStore('debug', {
 						data.message = data.message_html = data.message_no_emotes = forcedMessage;
 					}
 					if(Math.random() > .1) return;
-					if(Math.random() > .5) {
+					if(Math.random() > .9) {
 						data.twitch_isFirstMessage = true;
-					}else if(Math.random() > .5) {
+					}else if(Math.random() > .9) {
 						data.twitch_isPresentation = true;
-					}else if(Math.random() > .5) {
+					}else if(Math.random() > .9) {
 						data.deleted = true;
-					}else if(Math.random() > .5) {
+					}else if(Math.random() > .9) {
 						if(Math.random() > .35) {
 							data.twitch_isSuspicious = true;
 						}else{

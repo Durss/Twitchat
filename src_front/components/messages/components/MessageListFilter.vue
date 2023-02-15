@@ -1032,6 +1032,7 @@ export default class MessageListFilter extends Vue {
 		padding: @padding;
 		border-bottom-left-radius: .25em;
 		height: fit-content;
+		pointer-events: painted;
 		button {
 			display: flex;
 			align-items: center;

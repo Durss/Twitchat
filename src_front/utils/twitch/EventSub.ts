@@ -520,7 +520,7 @@ export default class EventSub {
 				clearTimeout(this.raidTimeout)
 				this.raidTimeout = setTimeout(() => {
 					OBSWebsocket.instance.stopStreaming();
-				}, 3000);
+				}, 1000);
 			}
 			StoreProxy.stream.setRaiding(undefined);
 		}else{

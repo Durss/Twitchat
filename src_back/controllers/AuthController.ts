@@ -41,7 +41,7 @@ export default class AuthController extends AbstractController {
 		//It's just here to make sure people running on the old version won't have issues
 		//while they're streaming.
 		//Remove this after a few days once nobody else runs on the old frontend
-		this.server.get('/api/refreshtoken', async (request, response) => await this.refreshToken(request, response));
+		this.server.get('/api/refreshtoken', async (request, response) => await this.refreshToken(request, response, true));
 		this.server.get('/api/CSRFToken', async (request, response) => await this.getCSRFToken(request, response));
 	}
 
@@ -130,7 +130,7 @@ export default class AuthController extends AbstractController {
 	 * @param {*} request 
 	 * @param {*} response 
 	 */
-	private async refreshToken(request:FastifyRequest, response:FastifyReply) {
+	private async refreshToken(request:FastifyRequest, response:FastifyReply, logUser:boolean = false) {
 		const params = URL.parse(request.url, true).query;
 		
 		let url = "https://id.twitch.tv/oauth2/token";
@@ -148,6 +148,11 @@ export default class AuthController extends AbstractController {
 			response.status(500);
 			response.send(JSON.stringify({message:'error', success:false}));
 			return;
+		}
+
+		if(logUser) {
+			Logger.info("User using old endpooint");
+			console.log(json.access_token);
 		}
 	
 		response.header('Content-Type', 'application/json');
