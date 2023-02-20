@@ -1,7 +1,12 @@
 <template >
 	<div :class="classes" v-show="open || expand" @wheel.stop>
+		<div class="cta" v-if="showCTA" @click="hideCTA()">
+			<span class="label">{{ $t("chat.filters.cta") }}</span>
+			<img src="@/assets/icons/right.svg">
+		</div>
+
 		<div class="hoverActions" v-if="!expand">
-			<button class="openBt" @click="expand = true" :data-tooltip="$t('global.tooltips.column_edit')">
+			<button class="openBt" @click="openFilters()" :data-tooltip="$t('global.tooltips.column_edit')">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
 			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" :data-tooltip="$t('global.tooltips.column_delete')">
@@ -217,6 +222,7 @@ import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScop
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import DataStore from '@/store/DataStore';
 
 @Options({
 	props:{
@@ -260,6 +266,7 @@ export default class MessageListFilter extends Vue {
 	
 	public error:boolean = false;
 	public expand:boolean = false;
+	public showCTA:boolean = false;
 	public toggleAll:boolean = false;
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
@@ -289,6 +296,7 @@ export default class MessageListFilter extends Vue {
 		if(this.$store("params").appearance.splitViewVertical.value === true) res.push("verticalSplitMode");
 		if(this.expand || this.forceConfig) res.push("expand");
 		if(this.forceConfig) res.push("fullSize");
+		if(this.showCTA) res.push("ctaMode");
 		return res;
 	}
 
@@ -298,6 +306,8 @@ export default class MessageListFilter extends Vue {
 
 	public beforeMount(): void {
 		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
+
+		this.showCTA = DataStore.get(DataStore.CHAT_COL_CTA) !== "true" && this.config.order == 0;
 
 		if(!this.config.whispersPermissions) {
 			this.config.whispersPermissions = {
@@ -893,6 +903,22 @@ export default class MessageListFilter extends Vue {
 	}
 
 	/**
+	 * Called when CTA is clicked
+	 */
+	public hideCTA():void {
+		DataStore.set(DataStore.CHAT_COL_CTA, true);
+		this.showCTA = false;
+	}
+
+	/**
+	 * Called when opening filters
+	 */
+	public openFilters():void {
+		this.expand = true;
+		this.hideCTA();
+	}
+
+	/**
 	 * Called when the mouse moves
 	 */
 	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
@@ -1020,17 +1046,17 @@ export default class MessageListFilter extends Vue {
 		max-width: 100%;
 	}
 
+	@actionSizes: 26px;
+	@actionPadding: 5px;
 	.hoverActions {
-		@size: 1.25em;
-		@padding: .25em;
-		margin-left: -@size - @padding * 2;
-		width: @size + @padding * 2;
+		margin-left: -@actionSizes - @actionPadding * 2;
+		width: @actionSizes + @actionPadding * 2;
 		display: flex;
 		flex-direction: column;
 		background: @mainColor_light;
 		gap: 1px;
 		top:50%;
-		padding: @padding;
+		padding: @actionPadding;
 		border-bottom-left-radius: .25em;
 		height: fit-content;
 		pointer-events: painted;
@@ -1038,16 +1064,84 @@ export default class MessageListFilter extends Vue {
 			display: flex;
 			align-items: center;
 			pointer-events: all;
-			padding: calc(@size/4);
-			width: @size;
-			height: @size;
-			min-width: @size;
-			min-height: @size;
+			padding: calc(@actionSizes/4);
+			width: @actionSizes;
+			height: @actionSizes;
+			min-width: @actionSizes;
+			min-height: @actionSizes;
 			background-color: @mainColor_normal;
 			border-radius: .25em;
 			.icon {
 				height: 100%;
 				width: 100%;
+			}
+		}
+	}
+
+	&.ctaMode {
+		.hoverActions {
+			button:first-child {
+				position: relative;
+				&::before {
+					content: "";
+					position: absolute;
+					width: 100%;
+					height: 100%;
+					left: 50%;
+					top: 50%;
+					border-radius: .25em;
+					border: 3px solid @mainColor_normal;
+
+					transform: translate(-50%, -50%) scale(.8);
+					animation: glow 1s;
+					animation-iteration-count: infinite;
+					animation-timing-function: linear;
+					animation-delay: .5s;
+					@keyframes glow {
+						from {
+							opacity: 1;
+							transform: translate(-50%, -50%) scale(.9);
+						}
+						to {
+							opacity: 0;
+							transform: translate(-50%, -50%) scale(1.2);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.cta {
+		position: absolute;
+		left: .5em;
+		top: 0;
+		cursor: pointer;
+		transform: translateX(calc(-100% - @actionSizes - @actionPadding * 2));
+		background-color: fade(@mainColor_normal, 50%);
+		padding: .5em;
+		border-radius: .5em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		animation: bounce 0.5s;
+		animation-direction: alternate;
+		animation-timing-function: cubic-bezier(.5, 0.05, 1, .5);
+		animation-iteration-count: infinite;
+		pointer-events: all;
+		.label {
+			font-size: .8em;
+		}
+		img {
+			height: .8em;
+			margin-left: .5em;
+		}
+		@keyframes bounce {
+			from {
+				left: -1em;
+			}
+			to {
+				left: .5em;
 			}
 		}
 	}

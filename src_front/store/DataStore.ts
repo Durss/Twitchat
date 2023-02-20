@@ -1,6 +1,5 @@
-import type ParamsAutomod from "@/components/params/contents/ParamsAutomod.vue";
 import { TriggerTypes, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
-import type {TwitchatDataTypes} from "@/types/TwitchatDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
@@ -56,6 +55,7 @@ export default class DataStore {
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
 	public static COUNTERS:string = "counters";
 	public static LANGUAGE:string = "lang";
+	public static CHAT_COL_CTA:string = "chatColCTA";
 	/**
 	 * @deprecated Only here for typings on data migration
 	 */
@@ -305,6 +305,7 @@ export default class DataStore {
 				delete data[this.GREET_HISTORY];
 				delete data[this.SYNC_DATA_TO_SERVER];
 				delete data[this.INTERFACE_SCALE];
+				delete data[this.CHAT_COL_CTA];
 				delete data.deezerEnabled;
 				delete data.redirect;
 				

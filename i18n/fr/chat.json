@@ -41,6 +41,7 @@
 			"viewer_count": "Nombre de viewers"
 		},
 		"filters": {
+			"cta": "Options importantes ici",
 			"title": "Filtres",
 			"closeBt_aria": "Fermer les filtres",
 			"header": "Choisissez quels types de messages afficher dans cette colonne",
