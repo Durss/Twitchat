@@ -139,7 +139,7 @@ export default class UserCard extends Vue {
 
 	public get is_tracked():boolean{ return this.user!.is_tracked; }
 
-	public get canListFollowers():boolean{ return TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS); }
+	public get canListFollowers():boolean{ return TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS); }
 
 	public get ttsReadBtLabel(): string {
 		if(!this.user) return "";

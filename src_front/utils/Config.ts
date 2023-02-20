@@ -21,6 +21,7 @@ export default class Config {
 	public MAX_PREDICTION_OUTCOMES = 10;
 	public SPOTIFY_CONNECTED = false;
 	public DEEZER_CONNECTED = false;
+	public AD_MIN_FOLLOWERS_COUNT = 50;
 	
 	private _serverConfig!:ServerConfig;
 	
@@ -47,12 +48,12 @@ export default class Config {
 		return [
 			// {platform:"twitch", login:"damdamlive"},
 			// {platform:"twitch", login:"mewstelle"},
-			{platform:"twitch", login:"gunselsenol"},
+			// {platform:"twitch", login:"gunselsenol"},
 			// {platform:"twitch", login:"encremecanique"},
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"durssbot"},
 			// {platform:"twitch", login:"durss"},
-			// {platform:"twitch", login:"gom4rt"},
+			{platform:"twitch", login:"gom4rt"},
 			// {platform:"twitch", login:"pelerine"},
 			// {platform:"twitch", login:"mistermv"},
 			// {platform:"twitch", login:"mymyhgl"},

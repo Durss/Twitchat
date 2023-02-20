@@ -59,14 +59,14 @@
 						<ChatMessage class="chatMessage" :messageData="fakeMessageData" />
 					</div>
 	
-					<div v-else-if="isDisabled(p) && p.twitch_scope" class="info scope">
+					<div v-else-if="isDisabled(p) && p.twitch_scopes" class="info scope">
 						<img src="@/assets/icons/lock_fit_purple.svg">
 						<p class="label">{{ $t("params.scope_missing") }}</p>
 						<Button small highlight
 							class="grantBt"
 							:title="$t('global.grant_scope')"
 							:icon="$image('icons/unlock.svg')"
-							@click="requestPermission(p.twitch_scope!)" />
+							@click="requestPermission(p.twitch_scopes!)" />
 					</div>
 				</transition>
 			</div>
@@ -174,8 +174,8 @@ export default class ParamsList extends Vue {
 
 	public isDisabled(p:TwitchatDataTypes.ParameterData):boolean {
 		if(p.id == 212 && !this.isOBSConnected) return true;
-		if(!p.twitch_scope) return false;
-		return !TwitchUtils.hasScope(p.twitch_scope);
+		if(!p.twitch_scopes) return false;
+		return !TwitchUtils.hasScope(p.twitch_scopes);
 	}
 
 	public getClasses(p:TwitchatDataTypes.ParameterData, key:string):string[] {
@@ -184,8 +184,8 @@ export default class ParamsList extends Vue {
 		return res;
 	}
 
-	public requestPermission(scope:TwitchScopesString|TwitchScopesString[]):void {
-		this.$store("auth").requestTwitchScope(scope);
+	public requestPermission(scopes:TwitchScopesString[]):void {
+		this.$store("auth").requestTwitchScope(scopes);
 	}
 
 	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {

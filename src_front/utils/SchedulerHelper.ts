@@ -210,6 +210,8 @@ export default class SchedulerHelper {
 				if(Config.instance.BETA_MODE) continue;//No ad on beta
 				if(StoreProxy.auth.twitch.user.donor.state
 				&& !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;
+				if(StoreProxy.auth.twitch.user.donor.noAd) continue;
+
 				schedule = this._adSchedule;
 			}
 			if(!schedule) continue;

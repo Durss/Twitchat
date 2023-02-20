@@ -263,7 +263,7 @@ export default class MessageListFilter extends Vue {
 	public toggleAll:boolean = false;
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
-	public typeToScope!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchScopesString};
+	public typeToScopes!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchScopesString[]};
 	public filters:TwitchatDataTypes.ParameterData[] = [];
 	public messageFilters:TwitchatDataTypes.ParameterData[] = [];
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -368,15 +368,16 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "channelPoints.svg";
 		
 		//@ts-ignore
-		this.typeToScope = {};
-		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.BAN] = TwitchScopes.MODERATE;
-		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.UNBAN] = TwitchScopes.MODERATE;
-		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.REWARD] = TwitchScopes.LIST_REWARDS;
-		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.WHISPER] = TwitchScopes.WHISPER_READ;
-		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = TwitchScopes.MANAGE_PREDICTIONS;
-		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = TwitchScopes.LIST_SUBS;
-		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = TwitchScopes.READ_HYPE_TRAIN;
-		this.typeToScope[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = TwitchScopes.READ_HYPE_TRAIN;
+		this.typeToScopes = {};
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.BAN] = [TwitchScopes.MODERATE];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.UNBAN] = [TwitchScopes.MODERATE];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.REWARD] = [TwitchScopes.LIST_REWARDS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.WHISPER] = [TwitchScopes.WHISPER_READ];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = [TwitchScopes.MANAGE_PREDICTIONS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = [TwitchScopes.LIST_SUBS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = [TwitchScopes.READ_HYPE_TRAIN];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = [TwitchScopes.READ_HYPE_TRAIN];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.REWARD] = [TwitchScopes.LIST_REWARDS];
 
 		const sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
@@ -414,7 +415,7 @@ export default class MessageListFilter extends Vue {
 								value:this.config.filters[f],
 								labelKey:this.typeToLabel[f] ?? f,
 								icon:this.typeToIcon[f],
-								twitch_scope:this.typeToScope[f],
+								twitch_scopes:this.typeToScopes[f],
 								storage:f,
 							});
 
@@ -481,7 +482,7 @@ export default class MessageListFilter extends Vue {
 						icon:keyToIcon[k],
 					};
 					if(this.messageKeyToScope[k] && this.messageKeyToScope[k].length > 0) {
-						param.twitch_scope = this.messageKeyToScope[k];
+						param.twitch_scopes = this.messageKeyToScope[k];
 					}
 					if(k == 'commands') {
 						const subParam:TwitchatDataTypes.ParameterData = {
@@ -570,7 +571,7 @@ export default class MessageListFilter extends Vue {
 	public async previewMessage(type:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
 		this.previewData = [];
 		this.loadingPreview = true;
-		this.missingScope = this.typeToScope[type] && !TwitchUtils.hasScope(this.typeToScope[type]);
+		this.missingScope = this.typeToScopes[type] && !TwitchUtils.hasScope(this.typeToScopes[type]);
 		this.previewIndex ++;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.messagesCache[type];
@@ -1122,7 +1123,7 @@ export default class MessageListFilter extends Vue {
 					&:hover {
 						background-color: fade(@mainColor_light, 10%);
 					}
-					&.disabled {
+					.disabled, &.disabled {
 						opacity: .75;
 						font-style: italic;
 						color: #ccc;

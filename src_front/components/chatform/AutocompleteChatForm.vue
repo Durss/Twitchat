@@ -92,7 +92,7 @@ export default class AutocompleteChatForm extends Vue {
 		if(item.type == "cmd") {
 			if(item.disabled) {
 				if(item.rawCmd.twitch_scope) {
-					this.$store("auth").requestTwitchScope(item.rawCmd.twitch_scope);
+					this.$store("auth").requestTwitchScope([item.rawCmd.twitch_scope]);
 				}
 			}else{
 				this.$emit("selectItem", item.cmd);

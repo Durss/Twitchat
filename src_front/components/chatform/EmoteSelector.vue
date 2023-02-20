@@ -137,7 +137,7 @@ export default class EmoteSelector extends Vue {
 				pronounsLabel:false,
 				pronounsTooltip:false,
 				channelInfo:{},
-				donor:{state:false, level:0, upgrade:false},
+				donor:{state:false, level:0, upgrade:false, noAd:false},
 				is_bot:false,
 			});
 	
@@ -158,7 +158,7 @@ export default class EmoteSelector extends Vue {
 				pronounsLabel:false,
 				pronounsTooltip:false,
 				channelInfo:{},
-				donor:{state:false, level:0, upgrade:false},
+				donor:{state:false, level:0, upgrade:false, noAd:false},
 				is_bot:false,
 			});
 	
@@ -199,7 +199,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false},
 						is_bot:true,
 					},
 					emotes: BTTVUtils.instance.emotes,
@@ -224,7 +224,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false},
 						is_bot:true,
 					},
 					emotes: SevenTVUtils.instance.emotes,
@@ -249,7 +249,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false},
 						is_bot:true,
 					},
 					emotes: FFZUtils.instance.emotes,

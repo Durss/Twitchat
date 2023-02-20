@@ -117,6 +117,8 @@
 		<Changelog v-if="currentModal == 'updates'" @close="currentModal = ''" />
 
 		<Gngngn v-if="currentModal == 'gngngn'" @close="currentModal = ''" />
+		
+		<Login v-if="currentModal == 'login'" @close="currentModal = ''" scopeOnly />
 
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
@@ -180,9 +182,11 @@ import type { JsonObject } from 'type-fest';
 import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
+import Login from './Login.vue';
 
 @Options({
 	components:{
+		Login,
 		Button,
 		Gngngn,
 		ChatForm,
@@ -328,6 +332,13 @@ export default class Chat extends Vue {
 		//Watch for columns changes
 		watch(() => this.$store('params').chatColumnsConfig, () => {
 			this.computeWindowsSizes();
+		}, {deep:true});
+
+		//Watch for columns changes
+		watch(() => this.$store('auth').newScopesToRequest, () => {
+			this.computeWindowsSizes();
+			this.currentModal = "login";
+			console.log("OKOKOKOKO");
 		}, {deep:true});
 
 		//Watch for current modal to be displayed

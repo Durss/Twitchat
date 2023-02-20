@@ -900,7 +900,7 @@ export default class TwitchUtils {
 					platform:"twitch",
 					displayName:"Global",
 					login:"Global",
-					donor:{level:0, state:false, upgrade:false},
+					donor:{level:0, state:false, upgrade:false, noAd:false},
 					greeted:true,
 					is_raider:false,
 					is_affiliate:false,
@@ -1042,7 +1042,7 @@ export default class TwitchUtils {
 	 * Get all the active streams that the current user is following
 	 */
 	public static async getActiveFollowedStreams():Promise<TwitchDataTypes.StreamInfo[]> {
-		if(!this.hasScope(TwitchScopes.LIST_FOLLOWERS)) return [];
+		if(!this.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return [];
 		
 		let list:TwitchDataTypes.StreamInfo[] = [];
 		let cursor:string|null = null;
@@ -1549,10 +1549,8 @@ export default class TwitchUtils {
 	 * Create a clip
 	 */
 	public static async createClip():Promise<boolean> {
-		if(!this.hasScope(TwitchScopes.CLIPS)) {
-			StoreProxy.auth.requestTwitchScope(TwitchScopes.CLIPS);
-			return false;
-		}
+		if(!this.hasScope(TwitchScopes.CLIPS)) return false;
+
 		const message:TwitchatDataTypes.MessageClipCreate = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -2375,6 +2373,39 @@ export default class TwitchUtils {
 			}
 			return false;
 		}
+	}
+
+	/**
+	 * Requests for scopes if not yet granted
+	 * @param scopes 
+	 * @returns true if all scopes are granted. False if user iis prompted to grant access
+	 */
+	public static requestScopes(scopes:TwitchScopesString[]):boolean {
+		if(this.hasScope(scopes)) return true;
+		StoreProxy.auth.requestTwitchScope(scopes);
+		return false;
+	}
+
+	/**
+	 * Gets a user's followers count
+	 * 
+	 * @param channelId channelId to get followers list
+	 */
+	public static async getFollowerCount(channelId?:string|null):Promise<number> {
+		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
+		
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
+		url.searchParams.append("broadcaster_id", channelId);
+		
+		const res = await fetch(url, {
+			method:"GET",
+			headers:this.headers,
+		});
+		if(res.status == 200) {
+			const json:{data:[], total:number} = await res.json();
+			return json.total
+		}
+		return 0;
 	}
 
 }

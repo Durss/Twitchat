@@ -4,7 +4,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login";
 
 	/**
 	 * Parameters menue categories
@@ -202,7 +202,7 @@ export namespace TwitchatDataTypes {
 		accept?:string;//File types for browse inputs
 		fieldName?:string;//INput's "name" attribute
 		save?:boolean;//Save configuration to storage on change?
-		twitch_scope?:TwitchScopesString|TwitchScopesString[];//Twitch scope necessary for this feature. Will disable the component if scope isn't granted
+		twitch_scopes?:TwitchScopesString[];//Twitch scope necessary for this feature. Will disable the component if scope isn't granted
 		tooltip?:string;//Tooltip displayed on hover
 		tooltipKey?:string;//Tooltip displayed on hover (i18n key)
 		disabled?:boolean;//Disable possibility to change the value
@@ -739,6 +739,7 @@ export namespace TwitchatDataTypes {
 		donor:{//Donor state of the user
 			state:boolean,
 			level:number,
+			noAd:boolean,//True if user is exempt from ads (ex: if to few followers)
 			upgrade:boolean,//true if donor level changed from last time
 		};
 		pronouns:string|false|null;//undefined=no loaded yet; false=no pronouns found; string=pronouns loaded

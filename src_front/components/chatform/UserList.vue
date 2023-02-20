@@ -166,7 +166,7 @@ export default class UserList extends Vue {
 			for (let i = 0; i < userList.length; i++) {
 				const user = userList[i];
 				for (const chan in user.channelInfo) {
-					if(user.channelInfo[chan].online && user.temporary !== true) {
+					if(user.channelInfo[chan].online && user.temporary !== true && user.errored !== true) {
 						if(!channels[chan]) {
 							channels[chan] = {
 								channelId:chan,
@@ -194,8 +194,10 @@ export default class UserList extends Vue {
 				type keys = keyof typeof chanData;
 				for (const cat in chanData) {
 					chanData[cat as keys].sort((a,b) => {
-						if(a.displayName > b.displayName ) return 1;
-						if(a.displayName < b.displayName ) return -1;
+						const n1 = a.displayName.toLowerCase();
+						const n2 = b.displayName.toLowerCase();
+						if(n1 > n2 ) return 1;
+						if(n1 < n2 ) return -1;
 						return 0;
 					});
 				}

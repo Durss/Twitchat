@@ -314,13 +314,13 @@ export default class TriggerActionEntry extends Vue {
 		switch(type) {
 			case "poll": {
 				if(!this.canCreatePoll) {
-					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_POLLS);
+					this.$store("auth").requestTwitchScope([TwitchScopes.MANAGE_POLLS]);
 					return;
 				}break
 			}
 			case "prediction": {
 				if(!this.canCreatePrediction) {
-					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_PREDICTIONS);
+					this.$store("auth").requestTwitchScope([TwitchScopes.MANAGE_PREDICTIONS]);
 					return;
 				}break
 			}

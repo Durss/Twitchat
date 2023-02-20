@@ -121,6 +121,7 @@
 			"whispers:read": "Recevoir des chuchotements",
 			"user:read:blocked_users": "Lister les personnes bloquées",
 			"user:read:follows": "Savoir qui est en stream parmi les personnes que vous suivez",
+			"moderator:read:followers": "Lister vos followers",
 			"user:read:subscriptions": "Vérifier si une personne est abonnée à vous",
 			"user:manage:whispers": "Envoyer des chuchotements",
 			"user:manage:blocked_users": "Bloquer/débloquer des personnnes",

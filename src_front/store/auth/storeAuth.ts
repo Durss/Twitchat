@@ -19,7 +19,7 @@ let refreshTokenTO:number = -1;
 export const storeAuth = defineStore('auth', {
 	state: () => ({
 		authenticated: false,
-		newScopesToRequest: [] as string[],
+		newScopesToRequest: [] as TwitchScopesString[],
 		twitchat:{},
 		twitch:{},
 		youtube:{},
@@ -194,6 +194,12 @@ export const storeAuth = defineStore('auth', {
 					this.twitch.user.donor.level	= userJSON.data.level;
 					this.twitch.user.donor.upgrade	= userJSON.data.level != prevLevel;
 					if(userJSON.data.isAdmin === true) this.twitch.user.is_admin = true;
+
+					//Async loading of followers count to define if user is exempt
+					//from ads or not
+					TwitchUtils.getFollowerCount(this.twitch.user.id).then(res => {
+						this.twitch.user.donor.noAd = res < Config.instance.AD_MIN_FOLLOWERS_COUNT;
+					})
 				}catch(error) {}
 	
 				const sMain = StoreProxy.main;
@@ -226,6 +232,7 @@ export const storeAuth = defineStore('auth', {
 				//Warn the user about the automatic "ad" message sent every 2h
 				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {
 					setTimeout(()=>{
+						if(this.twitch.user.donor.noAd) return;
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 					}, 5000)
 				}else
@@ -256,11 +263,21 @@ export const storeAuth = defineStore('auth', {
 			MessengerProxy.instance.disconnect();
 		},
 	
-		requestTwitchScope(scope:TwitchScopesString) {
-			const t = StoreProxy.i18n.t;
-			StoreProxy.main.confirm(t("global.twitch_scopes_grant_title"), t("global.twitch_scopes_grant_description"), null, t("global.continue"), t("global.cancel")).then(()=> {
-				router.push({name: 'login', params:{scope:scope}});//Redirect to login with request scope as param
-			}).catch(()=>{});
+		requestTwitchScope(scopes:TwitchScopesString[]) {
+			this.newScopesToRequest = scopes;
+			// const t = StoreProxy.i18n.t;
+			// // let label = "";
+			// // if(Array.isArray(scope)) {
+			// // }else{
+
+			// // }
+			// StoreProxy.main.confirm(t("global.twitch_scopes_grant_title"),
+			// t("global.twitch_scopes_grant_description"),
+			// null,
+			// t("global.continue"),
+			// t("global.cancel")).then(()=> {
+			// 	router.push({name: 'login', params:{scope:scopes}});//Redirect to login with request scope as param
+			// }).catch(()=>{});
 		},
 	} as IAuthActions
 	& ThisType<IAuthActions

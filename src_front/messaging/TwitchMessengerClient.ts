@@ -5,6 +5,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
@@ -275,81 +276,145 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 			switch(cmd) {
-				case "/announce": await TwitchUtils.sendAnnouncement(channelId, chunks.splice(1).join(" "), chunks[0] as "blue"|"green"|"orange"|"purple"|"primary"); return true;
+				case "/announce": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SEND_ANNOUNCE])) return false;
+					await TwitchUtils.sendAnnouncement(channelId, chunks.splice(1).join(" "), chunks[0] as "blue"|"green"|"orange"|"purple"|"primary");
+					return true;
+				}
 				case "/ban":{
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.banUser(user, channelId, undefined, chunks.splice(1).join(" "));
 					return false;
 				}
 				case "/unban": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.unbanUser(user, channelId);
 					return false;
 				}
 				case "/block":{
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.blockUser(user, channelId);
 					return false;
 				}
 				case "/unblock": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.unblockUser(user, channelId);
 					return false;
 				}
 				case "/timeout":{
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.banUser(user, channelId, parseInt(chunks[1]), chunks[2]);
 					return false;
 				}
 				case "/untimeout": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.unbanUser(user, channelId);
 					return false;
 				}
 				case "/vip": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.addRemoveVIP(false, channelId, user);
 					return false;
 				}
 				case "/unvip": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.addRemoveVIP(true, channelId, user);
 					return false;
 				}
 				case "/mod": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.addRemoveModerator(false, channelId, user);
 					return false;
 				}
 				case "/unmod": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
 					if(user) return await TwitchUtils.addRemoveModerator(true, channelId, user);
 					return false;
 				}
-
+				
 				case "/commercial": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.START_COMMERCIAL])) return false;
 					const duration = parseInt(chunks[0]);
 					StoreProxy.stream.startAd(duration);
 					return true;
 				}
-				case "/shield": return await TwitchUtils.setShieldMode(channelId, true);
-				case "/shieldoff": return await TwitchUtils.setShieldMode(channelId, false);
-				case "/delete": return await TwitchUtils.deleteMessages(channelId, chunks[0]);
-				case "/clear": return await TwitchUtils.deleteMessages(channelId);
-				case "/color": return await TwitchUtils.setColor(chunks[0]);
-				case "/emoteonly": return await TwitchUtils.setRoomSettings(channelId, {emotesOnly:true});
-				case "/emoteonlyoff": return await TwitchUtils.setRoomSettings(channelId, {emotesOnly:false});
-				case "/followers": return await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0])});
-				case "/followersoff": return await TwitchUtils.setRoomSettings(channelId, {followOnly:0});
-				case "/slow": return await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0])});
-				case "/slowoff": return await TwitchUtils.setRoomSettings(channelId, {slowMode:0});
-				case "/subscribers": return await TwitchUtils.setRoomSettings(channelId, {subOnly:true});
-				case "/subscribersoff": return await TwitchUtils.setRoomSettings(channelId, {subOnly:false});
-				case "/raid": return await TwitchUtils.raidChannel(chunks[0]);
-				case "/unraid": return await TwitchUtils.raidCancel();
-				case "/clip": return await TwitchUtils.createClip();
+				case "/shield":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])) return false;
+					return await TwitchUtils.setShieldMode(channelId, true);
+				}
+				case "/shieldoff":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])) return false;
+					return await TwitchUtils.setShieldMode(channelId, false);
+				}
+				case "/delete":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return false;
+					return await TwitchUtils.deleteMessages(channelId, chunks[0]);
+				}
+				case "/clear":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return false;
+					return await TwitchUtils.deleteMessages(channelId);
+				}
+				case "/color":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
+					return await TwitchUtils.setColor(chunks[0]);
+				}
+				case "/emoteonly":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
+					return await TwitchUtils.setRoomSettings(channelId, {emotesOnly:true});
+				}
+				case "/emoteonlyoff":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
+					return await TwitchUtils.setRoomSettings(channelId, {emotesOnly:false});
+				}
+				case "/followers":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
+					return await TwitchUtils.setRoomSettings(channelId, {followOnly:parseInt(chunks[0])});
+				}
+				case "/followersoff":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
+					return await TwitchUtils.setRoomSettings(channelId, {followOnly:0});
+				}
+				case "/slow":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
+					return await TwitchUtils.setRoomSettings(channelId, {slowMode:parseInt(chunks[0])});
+				}
+				case "/slowoff":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
+					return await TwitchUtils.setRoomSettings(channelId, {slowMode:0});
+				}
+				case "/subscribers":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
+					return await TwitchUtils.setRoomSettings(channelId, {subOnly:true});
+				}
+				case "/subscribersoff":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
+					return await TwitchUtils.setRoomSettings(channelId, {subOnly:false});
+				}
+				case "/raid":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.START_RAID])) return false;
+					return await TwitchUtils.raidChannel(chunks[0]);
+				}
+				case "/unraid":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.START_RAID])) return false;
+					return await TwitchUtils.raidCancel();
+				}
+				case "/clip":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.CLIPS])) return false;
+					return await TwitchUtils.createClip();
+				}
 				case "/whisper":
 				case "/w": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_WRITE])) return false;
 					const login = chunks[0];
 					return await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 				}
@@ -608,7 +673,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		const channel_id = this.getChannelID(channelName);
 		const userState = this.getUserStateFromLogin(username, channel_id);
-		userState.user.channelInfo[channel_id].online = true;
 
 		if(self) {
 			//Avoid sending a connect message on chat when joining others channels
@@ -621,6 +685,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				channel_id,
 				user:userState.user,
 			};
+			StoreProxy.users.flagOnlineUsers([userState.user], channel_id);
 			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
 		}else{
 

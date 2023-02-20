@@ -133,7 +133,6 @@ export default class MessengerProxy {
 			clearTimeout(this.joinSpoolTimeout);
 			this.joinSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
-				StoreProxy.users.flagOnlineUsers(d.users, d.channel_id);
 				
 				//Split join events by channels
 				const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
@@ -153,6 +152,7 @@ export default class MessengerProxy {
 						date:Date.now(),
 						users:channels[channel],
 					}));
+					StoreProxy.users.flagOnlineUsers(channels[channel], channel);
 				}
 				
 				this.joinSpool = [];
@@ -165,9 +165,8 @@ export default class MessengerProxy {
 			clearTimeout(this.leaveSpoolTimeout);
 			this.leaveSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
-				StoreProxy.users.flagOfflineUsers(d.users, d.channel_id);
 				
-				//Split join events by channels
+				//Split leave events by channels
 				const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
 				for (let i = 0; i < this.leaveSpool.length; i++) {
 					const entry = this.leaveSpool[i];
@@ -185,6 +184,7 @@ export default class MessengerProxy {
 						date:Date.now(),
 						users:channels[channel],
 					}));
+					StoreProxy.users.flagOfflineUsers(channels[channel], channel);
 				}
 				
 				this.leaveSpool = [];

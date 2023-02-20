@@ -107,18 +107,18 @@ import PermissionsForm from '../../PermissionsForm.vue';
 export default class ParamsEmergency extends Vue {
 
 	public param_enable:TwitchatDataTypes.ParameterData						= {type:"toggle", value:false};
-	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"toggle", value:false, icon:"shieldMode_purple.svg", twitch_scope:TwitchScopes.SHIELD_MODE};
+	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"toggle", value:false, icon:"shieldMode_purple.svg", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
 	public param_chatCommand:TwitchatDataTypes.ParameterData				= {type:"text", value:"!emergency", icon:"commands_purple.svg"};
 	public param_obsScene:TwitchatDataTypes.ParameterData					= {type:"list", value:""};
 	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData		= {type:"toggle", value:false, icon:"follow_purple.svg", tooltip:""};
-	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"toggle", value:true, icon:"shieldMode_purple.svg", tooltip:"", twitch_scope:TwitchScopes.SHIELD_MODE};
-	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	icon:"timer_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
+	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"toggle", value:true, icon:"shieldMode_purple.svg", tooltip:"", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
+	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	icon:"timer_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
 	public param_slowModeDuration:TwitchatDataTypes.ParameterData			= {type:"number", value:10, max:1800, min:1};
-	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	icon:"follow_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
+	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false,	icon:"follow_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
 	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData		= {type:"number", value:30, max:129600, min:1};
-	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	icon:"sub_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
-	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	icon:"emote_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
-	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"editablelist", value:"", longText:true, icon:"timeout_purple.svg", twitch_scope:TwitchScopes.SET_ROOM_SETTINGS};
+	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	icon:"sub_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"toggle", value:false,	icon:"emote_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"editablelist", value:"", longText:true, icon:"timeout_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
 	public param_noTrigger:TwitchatDataTypes.ParameterData					= {type:"toggle", value:true, icon:"broadcast_purple.svg"};
 	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];

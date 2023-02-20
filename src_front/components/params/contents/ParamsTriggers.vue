@@ -462,7 +462,7 @@ export default class ParamsTriggers extends Vue {
 			|| e.value == TriggerTypes.HYPE_TRAIN_START)) scope = TwitchScopes.READ_HYPE_TRAIN;
 		
 		if(scope) {
-			this.$store("auth").requestTwitchScope(scope);
+			this.$store("auth").requestTwitchScope([scope]);
 		}
 	}
 	

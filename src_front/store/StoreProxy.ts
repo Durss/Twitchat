@@ -99,7 +99,7 @@ export interface IAccountActions {
 
 export type IAuthState = {
 	authenticated: boolean;
-	newScopesToRequest: string[];
+	newScopesToRequest: TwitchScopesString[];
 } & {
 	[key in TwitchatDataTypes.ChatPlatform]:{
 		client_id:string;
@@ -117,7 +117,7 @@ export interface IAuthActions {
 	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult>;
 	twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void):Promise<void>;
 	logout():void;
-	requestTwitchScope(scope:TwitchScopesString|TwitchScopesString[]):void;
+	requestTwitchScope(scopes:TwitchScopesString[]):void;
 }
 
 

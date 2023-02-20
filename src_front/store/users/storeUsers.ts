@@ -160,6 +160,7 @@ export const storeUsers = defineStore('users', {
 						donor:{
 							state:false,
 							level:0,
+							noAd:false,
 							upgrade:false,
 						},
 						channelInfo:{},
@@ -187,6 +188,7 @@ export const storeUsers = defineStore('users', {
 						donor:{
 							state:false,
 							level:0,
+							noAd:false,
 							upgrade:false,
 						},
 						channelInfo:{},
@@ -563,7 +565,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async loadMyFollowings():Promise<void> {
-			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) return;
+			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return;
 			
 			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
 			const hashmap:{[key:string]:boolean} = {};
@@ -572,7 +574,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async loadMyFollowers():Promise<void> {
-			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) return;
+			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return;
 
 			let parseOffset = 0;
 			const hashmap:{[key:string]:number} = {};
@@ -603,7 +605,7 @@ export const storeUsers = defineStore('users', {
 				if(TwitchUtils.hasScope(TwitchScopes.SHOUTOUT)) {
 					await TwitchUtils.sendShoutout(channelId, user);
 				}else{
-					StoreProxy.auth.requestTwitchScope(TwitchScopes.SHOUTOUT);
+					StoreProxy.auth.requestTwitchScope([TwitchScopes.SHOUTOUT]);
 					return;
 				}
 			}

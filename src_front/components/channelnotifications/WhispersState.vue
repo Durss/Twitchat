@@ -99,7 +99,7 @@ export default class WhispersState extends Vue {
 	}
 
 	public allowAnswerScope():void {
-		this.$store("auth").requestTwitchScope(TwitchScopes.WHISPER_WRITE);
+		this.$store("auth").requestTwitchScope([TwitchScopes.WHISPER_WRITE]);
 	}
 
 	public async sendWhisper():Promise<void> {

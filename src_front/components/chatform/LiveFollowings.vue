@@ -62,7 +62,7 @@ export default class LiveFollowings extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public mounted():void {
-		this.needScope = !TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS);
+		this.needScope = !TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS);
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		if(!this.needScope) this.updateList();
@@ -98,7 +98,7 @@ export default class LiveFollowings extends Vue {
 	}
 
 	public async grantPermission():Promise<void> {
-		this.$store("auth").requestTwitchScope(TwitchScopes.LIST_FOLLOWERS);
+		this.$store("auth").requestTwitchScope([TwitchScopes.LIST_FOLLOWINGS]);
 	}
 
 	private async updateList():Promise<void> {

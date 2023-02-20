@@ -42,7 +42,7 @@ export default class PermissionsForm extends Vue {
 	public param_mods:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.mods", value:true, icon:"mod_purple.svg" };
 	public param_vips:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.vips", value:false, icon:"vip_purple.svg" };
 	public param_subs:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.subs", value:false, icon:"sub_purple.svg" };
-	public param_followers:TwitchatDataTypes.ParameterData		= { type:"toggle", labelKey:"global.permissions.follow", value:false, icon:"follow_purple.svg", twitch_scope:TwitchScopes.LIST_FOLLOWERS };
+	public param_followers:TwitchatDataTypes.ParameterData		= { type:"toggle", labelKey:"global.permissions.follow", value:false, icon:"follow_purple.svg", twitch_scopes:[TwitchScopes.LIST_FOLLOWINGS] };
 	public param_followers_ms:TwitchatDataTypes.ParameterData	= { type:"number", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, icon:"timer_purple.svg" };
 	public param_all:TwitchatDataTypes.ParameterData			= { type:"toggle", labelKey:"global.permissions.all", value:false, icon:"user_purple.svg" };
 	public param_allowed:TwitchatDataTypes.ParameterData		= { type:"editablelist", labelKey:"global.permissions.users_allowed", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"checkmark_white.svg" };

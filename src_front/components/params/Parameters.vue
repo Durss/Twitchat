@@ -62,7 +62,9 @@
 			</div>
 
 			<teleport :to="adTarget" v-if="adTarget">
-				<div :class="collapse? 'ad collapse' : 'ad'" @click="collapse = false">
+				<div :class="collapse? 'ad collapse' : 'ad'"
+				@click="collapse = false"
+				v-if="$store('auth').twitch.user.donor.state || !$store('auth').twitch.user.donor.noAd">
 					<Button v-if="!collapse"
 						:aria-label="$t('params.ad_collapse_aria')"
 						:icon="$image('icons/minus.svg')"
@@ -93,6 +95,8 @@
 						<div v-html="$t('params.ad_bot_info_content')"></div>
 					</ToggleBlock>
 				</div>
+
+				<!-- <div class="ad noAd" v-else>When you'll have more than {{ adMinFollowersCount }} followers</div> -->
 			</teleport>
 		</div>
 	</div>
@@ -101,6 +105,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Options, Vue } from 'vue-class-component';
@@ -198,6 +203,8 @@ export default class Parameters extends Vue {
 	}
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+	
+	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public async beforeMount():Promise<void> {
 	}
@@ -430,6 +437,11 @@ export default class Parameters extends Vue {
 			
 			a {
 				color:@mainColor_warn_extralight;
+			}
+
+			&.noAd {
+				font-size: .8em;
+				text-align: center;
 			}
 		}
 

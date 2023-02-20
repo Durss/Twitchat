@@ -70,10 +70,10 @@ export default class CommandHelper extends Vue {
 	public channelId:string = "";
 	public adCooldown:number = 0;
 	
-	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
-	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
-	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
-	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scope:TwitchScopes.SET_ROOM_SETTINGS };
+	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
+	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
+	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
+	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
 
 	private ignoreUpdates = false;
 	private adCooldownInterval = 0;
@@ -149,7 +149,7 @@ export default class CommandHelper extends Vue {
 
 	public startAd(duration:number):void {
 		if(!TwitchUtils.hasScope(TwitchScopes.START_COMMERCIAL)) {
-			this.$store("auth").requestTwitchScope(TwitchScopes.START_COMMERCIAL);
+			this.$store("auth").requestTwitchScope([TwitchScopes.START_COMMERCIAL]);
 		}else{
 			this.$store("stream").startAd(duration);
 		}
@@ -160,20 +160,20 @@ export default class CommandHelper extends Vue {
 			case "poll": {
 				if(!this.hasChannelPoints) return;
 				if(!TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS)) {
-					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_POLLS);
+					this.$store("auth").requestTwitchScope([TwitchScopes.MANAGE_POLLS]);
 					return;
 				}break;
 			}
 			case "pred": {
 				if(!this.hasChannelPoints) return;
 				if(!TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS)) {
-					this.$store("auth").requestTwitchScope(TwitchScopes.MANAGE_PREDICTIONS);
+					this.$store("auth").requestTwitchScope([TwitchScopes.MANAGE_PREDICTIONS]);
 					return;
 				}break;
 			}
 			case "streamInfo": {
 				if(!TwitchUtils.hasScope(TwitchScopes.SET_STREAM_INFOS)) {
-					this.$store("auth").requestTwitchScope(TwitchScopes.SET_STREAM_INFOS);
+					this.$store("auth").requestTwitchScope([TwitchScopes.SET_STREAM_INFOS]);
 					return;
 				}break;
 			}
@@ -184,7 +184,7 @@ export default class CommandHelper extends Vue {
 
 	public clearChat():void {
 		if(!TwitchUtils.hasScope(TwitchScopes.DELETE_MESSAGES)) {
-			this.$store("auth").requestTwitchScope(TwitchScopes.DELETE_MESSAGES);
+			this.$store("auth").requestTwitchScope([TwitchScopes.DELETE_MESSAGES]);
 		}else{
 			TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id);
 		}
@@ -266,12 +266,12 @@ export default class CommandHelper extends Vue {
 
 	public requestRoomSettingsScopes():void {
 		if(TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS)) return;
-		this.$store("auth").requestTwitchScope(TwitchScopes.SET_ROOM_SETTINGS);
+		this.$store("auth").requestTwitchScope([TwitchScopes.SET_ROOM_SETTINGS]);
 	}
 
 	public requestRaidScopes():void {
 		if(TwitchUtils.hasScope(TwitchScopes.START_RAID)) return;
-		this.$store("auth").requestTwitchScope(TwitchScopes.START_RAID);
+		this.$store("auth").requestTwitchScope([TwitchScopes.START_RAID]);
 	}
 }
 </script>
