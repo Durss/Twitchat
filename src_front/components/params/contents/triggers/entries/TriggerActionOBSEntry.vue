@@ -11,7 +11,6 @@
 	</div>
 
 	<div :class="classes" v-else>
-		{{ action.show }}
 		<ParamItem class="row item source" :paramData="source_conf" v-model="action.sourceName" />
 		<ParamItem class="row item show" :paramData="action_conf" v-model="action.show" />
 		<ParamItem class="row item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
@@ -123,10 +122,6 @@ export default class TriggerActionOBSEntry extends Vue {
 		this.text_conf.labelKey		= "triggers.actions.obs.param_text";
 		this.url_conf.labelKey		= "triggers.actions.obs.param_url";
 		this.media_conf.labelKey	= "triggers.actions.obs.param_media";
-		
-		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
-		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
-		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
 		// watch(()=>this.action, ()=> {
 		// 	//TODO remove that debug
 		// 	console.log("ACTION UPDATE");
@@ -134,9 +129,13 @@ export default class TriggerActionOBSEntry extends Vue {
 		// }, {deep:true});
 	}
 
-	public mounted():void {
+	public async mounted():Promise<void> {
 		//Prefill forms
-		this.prefillForm();
+		await this.prefillForm();
+
+		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
+		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
+		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
 	}
 
 	private updateActionsList():void {
@@ -164,10 +163,11 @@ export default class TriggerActionOBSEntry extends Vue {
 		if(this.action.sourceName != undefined) {
 			if(this.sources.findIndex(v=>v.sourceName===this.action.sourceName) > -1) {
 				this.source_conf.value = this.action.sourceName;
+				const cachedFiltername = this.action.filterName;
 				const forceFilter = this.action.filterName != undefined;
 				await this.onSourceChanged();
-				if(forceFilter && this.action.filterName) {
-					this.filter_conf.value = this.action.filterName;
+				if(forceFilter && cachedFiltername) {
+					this.filter_conf.value = cachedFiltername;
 					this.updateFilter();
 				}else{
 					this.filter_conf.value = "";

@@ -53,7 +53,7 @@ export default class Config {
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"durssbot"},
 			// {platform:"twitch", login:"durss"},
-			{platform:"twitch", login:"gom4rt"},
+			// {platform:"twitch", login:"gom4rt"},
 			// {platform:"twitch", login:"pelerine"},
 			// {platform:"twitch", login:"mistermv"},
 			// {platform:"twitch", login:"mymyhgl"},
