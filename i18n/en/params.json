@@ -52,7 +52,7 @@
 		"search": "Search a parameter...",
 		"search_no_result": "no result",
 		"ad_collapse_aria": "Collapse content",
-		"ad_info": "The following message will be posted on your chat every 2 hours (if you received at least 100 messages)",
+		"ad_info": "The following message will be posted on your chat every 2 hours (if you received at least 100 messages and have more than 50 followers)",
 		"ad_disableBt": "Disable this ad",
 		"ad_disable_info1": "To disable this ad, make any donation :)",
 		"ad_donateBt": "Donate 💝",

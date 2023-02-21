@@ -52,7 +52,7 @@
 		"search": "recherche...",
 		"search_no_result": "aucun résultat",
 		"ad_collapse_aria": "fermer",
-		"ad_info": "Ce message sera envoyé toutes les 2 heures (si vous avez reçu au moins 100 messages)",
+		"ad_info": "Ce message sera envoyé toutes les 2 heures (si vous avez reçu au moins 100 messages et avez plus de 50 followers)",
 		"ad_disableBt": "Désactiver ce message",
 		"ad_disable_info1": "Pour désactiver ce message faites un don :)",
 		"ad_donateBt": "Doner 💝",
