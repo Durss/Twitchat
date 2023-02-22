@@ -11,7 +11,7 @@ import FileServeController from './controllers/FileServeController';
 import MiddlewareController from './controllers/MiddlewareController';
 
 // Run the server!
-async function start():void {
+async function start():Promise<void> {
 	try {
 		await server.listen({port:Config.credentials.server_port, host:'0.0.0.0'});
 	} catch (err) {

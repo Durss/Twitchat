@@ -58,7 +58,6 @@ export default class MiddlewareController extends AbstractController {
 			prefix: '/',
 			setHeaders:(response, path)=>{
 				if(/index\.html/gi.test(path)) {
-					console.log(response.setHeader);
 					this.disableCache(response);
 					// res.setHeader("content-type", "application/javascript; charset=UTF-8");
 				}
