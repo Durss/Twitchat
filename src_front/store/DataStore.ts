@@ -205,6 +205,10 @@ export default class DataStore {
 			this.cleanupPreV7Data();
 			v = "30";
 		}
+		if(v=="30") {
+			this.remove("syncToserver");
+			v = "31";
+		}
 
 		this.set(this.DATA_VERSION, v);
 
