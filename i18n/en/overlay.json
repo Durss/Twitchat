@@ -18,7 +18,7 @@
 			"css":"You can change the appearance of the wheel by overriding these CSS values on OBS browser source params",
 			"no_overlay":"- overlay not configured or hidden -",
 			"start":"To start a raffle, open the commands menu {MENU} or use the {CMD} command.",
-			"testBt":"Test with some<br>of your followers"
+			"testBt":"Test"
 		},
 
 		"timer":{

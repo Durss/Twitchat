@@ -23,9 +23,9 @@
 			<Button small title="Hype train cooldown" @click="simulateEvent('hype_train_cooled_down')" :icon="$image('icons/train.svg')" />
 			<Button small title="Hype train summary" @click="simulateEvent('hype_train_summary')" :icon="$image('icons/train.svg')" />
 			<Button small title="Community boost" @click="simulateComunityBoost()" :icon="$image('icons/boost.svg')" />
-			<Button small title="Automod Twitch" @click="simulateAutomod()" :icon="$image('icons/automod_white.svg')" />
-			<Button small title="Automod Twitchat" @click="simulateAutomodTwitchat()" :icon="$image('icons/automod_white.svg')" />
-			<Button small title="Automod Twitchat join" @click="simulateEvent('autoban_join')" :icon="$image('icons/automod_white.svg')" />
+			<Button small title="Automod Twitch" @click="simulateAutomod()" :icon="$image('icons/automod.svg')" />
+			<Button small title="Automod Twitchat" @click="simulateAutomodTwitchat()" :icon="$image('icons/automod.svg')" />
+			<Button small title="Automod Twitchat join" @click="simulateEvent('autoban_join')" :icon="$image('icons/automod.svg')" />
 			<Button small title="Poll result" @click="simulateEvent('poll')" :icon="$image('icons/poll.svg')" />
 			<Button small title="Prediction result" @click="simulateEvent('prediction')" :icon="$image('icons/prediction.svg')" />
 			<Button small title="Bingo result" @click="simulateEvent('bingo')" :icon="$image('icons/bingo.svg')" />

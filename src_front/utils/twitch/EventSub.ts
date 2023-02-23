@@ -148,7 +148,7 @@ export default class EventSub {
 	 * Create all eventsub subscriptions
 	 */
 	private async createSubscriptions(sessionId:string):Promise<void> {
-		console.log("EVENTSUB : Create subscriptions");
+		// console.log("EVENTSUB : Create subscriptions");
 		const myUID = StoreProxy.auth.twitch.user.id;
 		let uids = [myUID];
 		if(Config.instance.debugChans.length > 0) {
@@ -167,7 +167,9 @@ export default class EventSub {
 				//These events are available only by the broadcaster
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, "shoutout", "beta");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "1");
+				if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
+				}
 				if(TwitchUtils.hasScope(TwitchScopes.MODERATE)) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN, "1");

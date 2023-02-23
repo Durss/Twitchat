@@ -310,6 +310,11 @@
 			"highlight": "Highlight message",
 			"highlight_tt": "Highlight on stream<br><i>(needs overlay)</i>",
 			"pin": "Pin message"
+		},
+		"scope_request": {
+			"title": "This column filters require missing permissions:",
+			"openFiltersBt": "Update filters",
+			"grantBt": "Open authorizations"
 		}
 	}
 }

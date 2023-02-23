@@ -1,9 +1,11 @@
 <template>
 	<div class="scopeselector">
-		<div class="forced optionList" v-if="param_items_requested.length > 0">
+		<div class="forced" v-if="param_items_requested.length > 0">
 			<img src="@/assets/icons/unlock_purple.svg" class="unlockIcon">
 			<p class="head">{{ $tc("login.specific_scope", param_items_requested.length) }}</p>
-			<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :paramData="p" @change="onSelectionUpdate()" />
+			<div class="optionList">
+				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :paramData="p" @change="onSelectionUpdate()" />
+			</div>
 		</div>
 		
 		<Button class="allowMoreBt"
@@ -27,7 +29,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
+import { type TwitchScopesString, TwitchScope2Icon } from '@/utils/twitch/TwitchScopes';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Options, Vue } from 'vue-class-component';
@@ -68,36 +70,7 @@ export default class ScopeSelector extends Vue {
 
 	public beforeMount():void {
 		const scopes:TwitchScopesString[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
-		const scopeToIcon:{[key:string]:string} = {
-			"chat:read": "whispers_purple.svg",
-			"chat:edit": "whispers_purple.svg",
-			"moderator:manage:announcements": "announcement_purple.svg",
-			"whispers:read": "whispers_purple.svg",
-			"user:manage:whispers": "whispers_purple.svg",
-			"moderator:manage:chat_messages": "trash_purple.svg",
-			"moderator:read:chatters": "user_purple.svg",
-			"channel:read:redemptions": "channelPoints_purple.svg",
-			"channel:manage:polls": "poll_purple.svg",
-			"channel:manage:predictions": "prediction_purple.svg",
-			"moderator:manage:chat_settings": "lock_purple.svg",
-			"channel:moderate": "mod_purple.svg",
-			"moderation:read": "mod_purple.svg",
-			"channel:manage:moderators": "mod_purple.svg",
-			"channel:manage:vips": "vip_purple.svg",
-			"channel:manage:raids": "raid_purple.svg",
-			"channel:manage:broadcast": "info_purple.svg",
-			"channel:read:hype_train": "train_purple.svg",
-			"channel:edit:commercial": "coin_purple.svg",
-			"channel:read:subscriptions": "sub_purple.svg",
-			"user:read:follows": "user_purple.svg",
-			"user:read:blocked_users": "block_purple.svg",
-			"user:manage:blocked_users": "block_purple.svg",
-			"moderator:manage:banned_users": "ban_purple.svg",
-			"moderator:manage:automod": "automod_purple.svg",
-			"moderator:manage:shield_mode": "shield_purple.svg",
-			"moderator:manage:shoutouts": "shoutout_purple.svg",
-			"clips:edit":"clip_purple.svg",
-		};
+
 		const disabled:string[] = ["chat:read", "chat:edit", "moderator:manage:announcements"];
 		const userScopes = this.$store("auth").twitch.scopes ?? [];
 		for (let i = 0; i < disabled.length; i++) {
@@ -120,7 +93,7 @@ export default class ScopeSelector extends Vue {
 					labelKey:"global.twitch_scopes."+s,
 					type:"toggle",
 					value:true,
-					icon:scopeToIcon[s],
+					icon:TwitchScope2Icon[s],
 					storage:s,
 				});
 			}else{
@@ -130,7 +103,7 @@ export default class ScopeSelector extends Vue {
 					labelKey:"global.twitch_scopes."+s,
 					type:"toggle",
 					value:selected,
-					icon:scopeToIcon[s],
+					icon:TwitchScope2Icon[s],
 					disabled:disabled.indexOf(s.toLowerCase()) > -1,
 					storage:s,
 				});
@@ -208,24 +181,24 @@ export default class ScopeSelector extends Vue {
 				border: 1px solid @mainColor_normal;
 			}
 		}
+	}
 
-		&.forced {
-			background-color: fade(@mainColor_normal, 15%);
-			border-radius: .5em;
-			padding: .5em;
-			.head {
-				display: flex;
-				flex-direction: row;
-				font-size: .8em;
-			}
-			.item {
-				background-color: @mainColor_light;
-			}
-			.unlockIcon {
-				height: 2em;
-				margin: auto;
-				display: block;
-			}
+	.forced {
+		background-color: fade(@mainColor_normal, 15%);
+		border-radius: .5em;
+		padding: .5em;
+		.head {
+			display: flex;
+			flex-direction: row;
+			font-size: .8em;
+		}
+		.item {
+			background-color: @mainColor_light;
+		}
+		.unlockIcon {
+			height: 2em;
+			margin: auto;
+			display: block;
 		}
 	}
 

@@ -8,6 +8,7 @@
 		"profileBt":"profil",
 		"viewercardBt":"infos viewer",
 		"trackBt":"Activer le suivi",
-		"untrackBt":"Désactiver le suivi"
+		"untrackBt":"Désactiver le suivi",
+		"following_end":"Suite à des restrictions de la part de Twitch, cette section disparaîtra le {DATE}"
 	}
 }

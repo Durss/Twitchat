@@ -567,14 +567,14 @@ export const storeUsers = defineStore('users', {
 		async loadMyFollowings():Promise<void> {
 			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return;
 			
-			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
+			const followings = await TwitchUtils.getFollowingsV2(StoreProxy.auth.twitch.user.id);
 			const hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => { hashmap[v.to_id] = true; });
 			this.myFollowings["twitch"] = hashmap;
 		},
 
 		async loadMyFollowers():Promise<void> {
-			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return;
+			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) return;
 
 			let parseOffset = 0;
 			const hashmap:{[key:string]:number} = {};

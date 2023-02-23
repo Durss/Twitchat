@@ -310,6 +310,11 @@
 			"highlight": "Mettre en avant",
 			"highlight_tt": "Afficher sur votre stream<br><i>(nécessite l'overlay dédié)</i>",
 			"pin": "Epingler le message"
+		},
+		"scope_request": {
+			"title": "Les filtres de cette colonne de message requièrent des autorisations manquantes:",
+			"openFiltersBt": "Modifier les filtres",
+			"grantBt": "Ouvrir les autorisations"
 		}
 	}
 }

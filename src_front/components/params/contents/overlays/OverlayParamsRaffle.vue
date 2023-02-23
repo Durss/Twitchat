@@ -42,6 +42,7 @@ import type { JsonArray } from "type-fest";
 import { Options, Vue } from 'vue-class-component';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Options({
 	props:{},
@@ -88,10 +89,19 @@ export default class OverlayParamsRaffle extends Vue {
 
 	public async testWheel():Promise<void> {
 		this.loading = true;
-		const followers = await TwitchUtils.getFollowers(null, 500);
-		const items:TwitchatDataTypes.EntryItem[] = followers.map(v=> {
-			return {id:v.from_id, label:v.from_name, data:v};
-		});
+		let items:TwitchatDataTypes.EntryItem[] = [];
+		if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
+			const followers = await TwitchUtils.getFollowersV2(null, 500);
+			items = followers.map(v=> {
+				return {id:v.user_id, label:v.user_name, data:v};
+			});
+		}else{
+			const fakeNames = ["GamerPro97","StreamKing87","TechGuru","GamingLegend87","TheRealStreamer","ProGamingMaster","EliteGamer24","DigitalWarrior","TwitchWarrior","TheStreamingPro","GamingGod_24","StreamMaster","the_gamer","CyberPunkGaming","TwitchKiller87","ProStreamGaming","GamingGuru","streamerNation","GamingBeast","TwitchFrenzy","digital_gamer","StreamingLegend87","CyberGamingPro","TechStreamMaster","GamerNation","ProTwitchGaming","TwitchGamer","StreamingGod_24","TheGamingNation","DigitalGaming","StreamerElite87","CyberNationGaming","GamingPro","TwitchElite","StreamingBeast87","TechGaming","GamerFrenzy","ProStreamNation","TwitchMaster","GamingKing","StreamingGod87","CyberProGamer","TechTwitchNation","GamerElite","TwitchNation","StreamingPro","DigitalNationGaming","ProGamer","TwitchGaming","StreamingLegend"];
+			for (let i = 0; i < fakeNames.length; i++) {
+				items.push({id:i.toString(), label:fakeNames[i]});
+				
+			}
+		}
 		const data = {
 			items:((items as unknown) as JsonArray),
 			winner: Utils.pickRand(items).id,

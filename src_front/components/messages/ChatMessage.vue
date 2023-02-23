@@ -23,7 +23,7 @@
 		</div>
 
 		<div v-if="automodReasons" class="automod">
-			<img src="@/assets/icons/automod.svg">
+			<img src="@/assets/icons/automod_red.svg">
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
 			<div class="actions">
 				<Button :aria-label="$t('chat.message.automod_acceptBt_aria')"

@@ -336,9 +336,8 @@ export default class Chat extends Vue {
 
 		//Watch for columns changes
 		watch(() => this.$store('auth').newScopesToRequest, () => {
-			this.computeWindowsSizes();
+			if(this.$store('auth').newScopesToRequest.length === 0) return null;
 			this.currentModal = "login";
-			console.log("OKOKOKOKO");
 		}, {deep:true});
 
 		//Watch for current modal to be displayed

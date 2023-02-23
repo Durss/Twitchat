@@ -120,7 +120,7 @@
 			"whispers:edit": "Send whispers",
 			"whispers:read": "Receive whispers",
 			"user:read:blocked_users": "List blocked users",
-			"user:read:follows": "List your followings",
+			"user:read:follows": "List channels you follow",
 			"moderator:read:followers": "List your followers",
 			"user:read:subscriptions": "List your subscribers",
 			"user:manage:whispers": "Receive and send whispers",
