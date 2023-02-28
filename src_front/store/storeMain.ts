@@ -248,6 +248,10 @@ export const storeMain = defineStore("main", {
 					if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
 					sEmergency.setEmergencyMode(enabled)
 				});
+			
+				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
+					StoreProxy.raffle.pickWinner();
+				});
 			}
 
 			PublicAPI.instance.initialize();

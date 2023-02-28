@@ -89,6 +89,7 @@ export default class TwitchatEvent extends Event {
 	public static PREDICTION_START:TwitchatActionType = "PREDICTION_START";
 	public static PREDICTION_END:TwitchatActionType = "PREDICTION_END";
 	public static RAFFLE_START:TwitchatActionType = "RAFFLE_START";
+	public static RAFFLE_PICK_WINNER:TwitchatActionType = "RAFFLE_PICK_WINNER";
 	public static RAFFLE_END:TwitchatActionType = "RAFFLE_END";
 	public static GET_COLS_COUNT:TwitchatActionType = "GET_COLS_COUNT";
 	public static COUNTER_GET_ALL:TwitchatActionType = "COUNTER_GET_ALL";
@@ -187,6 +188,7 @@ export const TwitchatActionTypeList = [
 	"PREDICTION_START",
 	"PREDICTION_END",
 	"RAFFLE_START",
+	"RAFFLE_PICK_WINNER",
 	"RAFFLE_END",
 	"GET_COLS_COUNT",
 	"COUNTER_GET_ALL",

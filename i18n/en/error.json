@@ -43,6 +43,11 @@
 		"prediction_error": "Unable to create prediction: {MESSAGE}",
 		"invalid_bingo": "Invalid bingo parameters: ",
 		"shoutout_cooldown": "You need to wait a little before doing another shoutout",
-		"clip_creation": "Clip creation failed"
+		"clip_creation": "Clip creation failed",
+		"raffle": {
+			"pick_winner_no_raffle":"You must start a raffle before picking a winner",
+			"pick_winner_no_subs":"You cannot start a raffle amongst your subs. No user is subscribed to your channel at the moment.",
+			"pick_winner_no_entry":"No user entered current raffle"
+		}
 	}
 }

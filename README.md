@@ -191,6 +191,7 @@ node server/boostrap.js
 <br>
 
 # Install server
+All the following MUST be done on a seperate folder from the GIT project.\
 [Compile the project](#compile-project) and push the content of the `server` folder on your server.\
 Next to this file, create a `dist` folder and push the content of your local `dist` folder inside it.\
 Also add the `credentials.json` file at the root of the project.\

@@ -43,6 +43,11 @@
 		"prediction_error": "Unable to create prediction: {MESSAGE}",
 		"invalid_bingo": "Paramètres de bingo invalides: ",
 		"shoutout_cooldown": "Vous devez attendre avant de pouvoir effectuer un autre shoutout",
-		"clip_creation": "La création du clip a échoué"
+		"clip_creation": "La création du clip a échoué",
+		"raffle": {
+			"pick_winner_no_raffle":"Vous devez d'abord lancer un tirage au sort avant de pouvoir sélectionner une personne gagnante",
+			"pick_winner_no_subs":"Vous ne pouvez lancer un tirage au sort parmi vos subs. Aucune personne n'est abonnée à votre chaîne actuellement.",
+			"pick_winner_no_entry":"Aucune personne n'a rejoint le tirage au sort"
+		}
 	}
 }

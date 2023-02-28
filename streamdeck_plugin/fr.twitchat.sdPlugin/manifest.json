@@ -245,6 +245,20 @@
 			"UUID": "fr.twitchat.action.raffle-toggle"
 		},
 		{
+			"Icon": "icons/RAFFLE_PICK_WINNER_default",
+			"Name": "Pick raffle winner",
+			"States": [
+				{
+					"Image": "icons/RAFFLE_PICK_WINNER",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.raffle-pick-winner"
+		},
+		{
 			"Icon": "icons/VIEWERS_COUNT_TOGGLE_default",
 			"Name": "Toggle viewers count display",
 			"States": [

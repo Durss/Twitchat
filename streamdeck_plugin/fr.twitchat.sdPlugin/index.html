@@ -45,6 +45,7 @@
 			"fr.twitchat.action.timer-add",
 			"fr.twitchat.action.countdown-add",
 			"fr.twitchat.action.counter-add",
+			"fr.twitchat.action.raffle-start",
 		];
 
 		const SELECT_ACTIONS = [
@@ -276,7 +277,7 @@
 
 					if(payload.TEST_ACTION != undefined) {
 						var settings = payload['settings'];
-						actions.onKeyUp(payload.TEST_ACTION);
+						actions.onKeyUp(payload.TEST_ACTION, settings);
 					}
 				});
 			}

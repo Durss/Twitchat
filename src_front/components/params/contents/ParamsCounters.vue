@@ -194,7 +194,6 @@ export default class ParamsCounters extends Vue {
 	}
 
 	public onChangeValue(counter:TwitchatDataTypes.CounterData):void {
-		console.log("CHANGE");
 		clearTimeout(this.timeoutEdit);
 		this.timeoutEdit = setTimeout(() => {
 			this.$store("counters").updateCounter(counter);
