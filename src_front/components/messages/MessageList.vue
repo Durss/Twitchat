@@ -4,8 +4,8 @@
 		@mouseleave="onLeaveList"
 		@wheel="onMouseWheel"
 		@touchmove="onTouchMove">
-		
 		<MessageListFilter class="filters"
+			ref="listFilter"
 			:open="hovered || forceConfig"
 			:forceConfig="forceConfig"
 			:config="config"
@@ -137,6 +137,12 @@
 				<ChatMessageClipPending class="message"
 					v-else-if="m.type == 'clip_pending_publication'"
 					@onRead="toggleMarkRead"
+					:messageData="m" />
+
+				<ChatScopeRequester class="message"
+					v-else-if="m.type == 'scope_request'"
+					@onRead="toggleMarkRead"
+					@openFilters="openFilters()"
 					:messageData="m" />
 
 				<ChatHighlight v-else class="message"
@@ -349,9 +355,9 @@ import ChatUnban from './ChatUnban.vue';
 import ChatStreamOnOff from './ChatStreamOnOff.vue';
 import ChatMessageClipPending from './ChatMessageClipPending.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import ChatScopeRequester from './ChatScopeRequester.vue';
 import ChatTimerResult from './ChatTimerResult.vue';
 import Utils from '@/utils/Utils';
-import { pinv } from 'mathjs';
 
 @Options({
 	components: {
@@ -374,6 +380,7 @@ import { pinv } from 'mathjs';
 		ChatRoomSettings,
 		ChatRaffleResult,
 		MessageListFilter,
+		ChatScopeRequester,
 		ChatFollowbotEvents,
 		ChatHypeTrainResult,
 		ChatCountdownResult,
@@ -616,6 +623,13 @@ export default class MessageList extends Vue {
 	}
 
 	/**
+	 * Opens up the message filters
+	 */
+	public openFilters(): void {
+		(this.$refs.listFilter as MessageListFilter).openFilters();
+	}
+
+	/**
 	 * Cleans up all messages and rebuild the list
 	 */
 	public fullListRefresh(scrollToBottom:boolean = true): void {
@@ -694,6 +708,7 @@ export default class MessageList extends Vue {
 
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
 		if(this.customActivitiesDisplayed) return false;
+		if(m.col != undefined && m.col != this.config.order) return false;
 
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
@@ -884,7 +899,11 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION: {
-				return true;
+				return this.config.order == 0;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: {
+				return true
 			}
 			default: return false;
 		}

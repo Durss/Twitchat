@@ -9,6 +9,7 @@ import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import rewardImg from '@/assets/icons/channelPoints.svg';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
 const fakeUsers:TwitchatDataTypes.TwitchatUser[] = [];
@@ -31,10 +32,15 @@ export const storeDebug = defineStore('debug', {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			if(fakeUsers.length === 0) {
-				const followers = await TwitchUtils.getFollowers(uid, 100);
-				for (let i = 0; i < followers.length; i++) {
-					fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
+				let followers:TwitchDataTypes.Following[] = [];
+				//If followers listing has been granted, list them
+				if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
+					followers = await TwitchUtils.getFollowers(uid, 100);
+					for (let i = 0; i < followers.length; i++) {
+						fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
+					}
 				}
+				//If there are not enough entries, add fake ones
 				if(fakeUsers.length < 10) {
 					const additional:{id:string,login:string,displayName:string}[] = [
 						{id:"12826",login:"twitch", displayName:"Twitch"},

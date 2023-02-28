@@ -41,7 +41,7 @@ export default class DataStore {
 	public static SPOILER_PARAMS:string = "spoilerParams";
 	public static CHAT_HIGHLIGHT_PARAMS:string = "chatHighlightParams";
 	public static TWITCH_AUTH_TOKEN:string = "oAuthToken";
-	public static SYNC_DATA_TO_SERVER:string = "syncToserver";//GG for the failed camel case -_-
+	public static SYNC_DATA_TO_SERVER:string = "syncToServerV2";//Renamed to force sync on people after twitchat refactoring.
 	public static GREET_HISTORY:string = "greetHistory";
 	public static MUSIC_PLAYER_PARAMS:string = "musicPlayerParams";
 	public static VOICEMOD_PARAMS:string = "voicemodParams";
@@ -160,6 +160,10 @@ export default class DataStore {
 		if(v=="29") {
 			this.cleanupPreV7Data();
 			v = "30";
+		}
+		if(v=="30") {
+			this.remove("syncToserver");
+			v = "31";
 		}
 
 		this.set(this.DATA_VERSION, v);

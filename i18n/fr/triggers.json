@@ -98,7 +98,7 @@
 				"header_link": "section overlays",
 				"param_actions": "Action",
 				"param_actions_default": "Selectionnez une action...",
-				"param_track": "Morceau (nom, URL ou ID)",
+				"param_track": "Morceau à ajouter (nom, URL ou ID)",
 				"param_confirmSongRequest": "Envoyer un message de confirmation",
 				"param_playlist": "Playlist (nom, URL ou ID)",
 				"spotify_only": "Fonctionne uniquement avec Spotify"

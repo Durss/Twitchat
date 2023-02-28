@@ -59,8 +59,9 @@
 
 			<div class="description" v-if="userDescription">{{userDescription}}</div>
 			
-			<div class="followings">
+			<div class="followings" v-if="!disabled">
 				<h2>Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
+				<div class="disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
 				<div class="commonFollow" v-if="canListFollowers">{{commonFollowCount}} followings in common</div>
 				<transition name="scale">
 					<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
@@ -88,6 +89,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
@@ -125,6 +127,16 @@ export default class UserCard extends Vue {
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 
+	public get disabled():boolean {
+		//Necessary Twitch API endpoint to get the followings of a user
+		//will be shut down at this date
+		return Date.now() >= Config.instance.FOLLOWERS_API_SHUTDOWN_DATE.getTime();
+	}
+
+	public get endDateFormated():string {
+		return Utils.formatDate(Config.instance.FOLLOWERS_API_SHUTDOWN_DATE, false);
+	}
+
 	/**
 	 * Returns the login instead of the display name if the display name contains
 	 * mostly non-latin chars
@@ -139,7 +151,7 @@ export default class UserCard extends Vue {
 
 	public get is_tracked():boolean{ return this.user!.is_tracked; }
 
-	public get canListFollowers():boolean{ return TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS); }
+	public get canListFollowers():boolean{ return TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS); }
 
 	public get ttsReadBtLabel(): string {
 		if(!this.user) return "";
@@ -604,13 +616,19 @@ export default class UserCard extends Vue {
 				}
 			}
 
-			.commonFollow {
+			.commonFollow, .disableDate {
 				font-size: .8em;
-				text-align: center;
 				font-style: italic;
 				margin: .5em 0;
 				background-color: fade(@mainColor_normal, 10%);
 				align-self: center;
+			}
+
+			.disableDate {
+				background-color: fade(@mainColor_warn, 50%);
+				color: @mainColor_dark;
+				padding: .5em;
+				border-radius: @border_radius;
 			}
 
 			.warn {

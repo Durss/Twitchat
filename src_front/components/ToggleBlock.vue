@@ -99,7 +99,7 @@ export default class ToggleBlock extends Vue {
 
 	public get localIcons():string[] {
 		const icons = this.icons;
-		if(this.error) icons.push("automod_white");
+		if(this.error) icons.push("automod");
 		return icons;
 	}
 

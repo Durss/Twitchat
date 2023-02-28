@@ -883,6 +883,7 @@ export namespace TwitchatDataTypes {
 		RAID_STARTED:"raid_started",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
+		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
 		STREAM_ONLINE:"stream_online",
 		STREAM_OFFLINE:"stream_offline",
@@ -942,6 +943,7 @@ export namespace TwitchatDataTypes {
 		raid_started:false,
 		room_settings:true,
 		stream_online:true,
+		scope_request:true,
 		followbot_list:true,
 		stream_offline:true,
 		chat_highlight:false,//Used for "highlight on overlay" events
@@ -1040,6 +1042,7 @@ export namespace TwitchatDataTypes {
 									| MessageClipCreate
 									| MessageRaidStartData
 									| MessagePinData
+									| MessageScopeRequestData
 	;
 
 	/**
@@ -1090,6 +1093,7 @@ export namespace TwitchatDataTypes {
 		platform:ChatPlatform;
 		deleted?:boolean;
 		fake?:boolean;
+		col?:number;//Use this to send a message on a specific column index
 	}
 
 	export interface GreetableMessage extends AbstractTwitchatMessage {
@@ -1687,6 +1691,14 @@ export namespace TwitchatDataTypes {
 	export interface MessageRaidStartData extends AbstractTwitchatMessage {
 		type:"raid_started";
 		user:TwitchatUser;
+	}
+
+	/**
+	 * Respresents an on-chat scope request
+	 */
+	export interface MessageScopeRequestData extends AbstractTwitchatMessage {
+		type:"scope_request";
+		twitch_scopes:TwitchScopesString[];
 	}
 
 }

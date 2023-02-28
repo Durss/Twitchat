@@ -6,7 +6,7 @@
 		</div>
 
 		<div class="hoverActions" v-if="!expand">
-			<button class="openBt" @click="openFilters()" :data-tooltip="$t('global.tooltips.column_edit')">
+			<button class="openBt" @click="openFilters(true)" :data-tooltip="$t('global.tooltips.column_edit')">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
 			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" :data-tooltip="$t('global.tooltips.column_delete')">
@@ -325,69 +325,70 @@ export default class MessageListFilter extends Vue {
 
 		//@ts-ignore
 		this.typeToLabel = {};
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = "chat.filters.message_types.twitchat_ad";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BAN] = "chat.filters.message_types.ban";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID] = "chat.filters.message_types.raid";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL] = "chat.filters.message_types.poll";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN] = "chat.filters.message_types.join";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.UNBAN] = "chat.filters.message_types.unban";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.LEAVE] = "chat.filters.message_types.leave";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER] = "chat.filters.message_types.cheer";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO] = "chat.filters.message_types.bingo";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAFFLE] = "chat.filters.message_types.raffle";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PINNED] = "chat.filters.message_types.pinned";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.REWARD] = "chat.filters.message_types.reward";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE] = "chat.filters.message_types.notice";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = "chat.filters.message_types.message";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.WHISPER] = "chat.filters.message_types.whisper";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT] = "chat.filters.message_types.shoutout";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING] = "chat.filters.message_types.following";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN] = "chat.filters.message_types.countdown";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = "chat.filters.message_types.prediction";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = "chat.filters.message_types.subscription";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = "chat.filters.message_types.hype_train_summary";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = "chat.filters.message_types.hype_train_cooled_down";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE] = "chat.filters.message_types.community_boost_complete";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "chat.filters.message_types.community_challenge_contribution";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD]							= "chat.filters.message_types.twitchat_ad";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BAN]									= "chat.filters.message_types.ban";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID]								= "chat.filters.message_types.raid";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL]								= "chat.filters.message_types.poll";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN]								= "chat.filters.message_types.join";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= "chat.filters.message_types.unban";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.LEAVE]								= "chat.filters.message_types.leave";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER]								= "chat.filters.message_types.cheer";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO]								= "chat.filters.message_types.bingo";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAFFLE]								= "chat.filters.message_types.raffle";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PINNED]								= "chat.filters.message_types.pinned";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.REWARD]								= "chat.filters.message_types.reward";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE]								= "chat.filters.message_types.notice";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE]								= "chat.filters.message_types.message";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.WHISPER]								= "chat.filters.message_types.whisper";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT]							= "chat.filters.message_types.shoutout";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= "chat.filters.message_types.following";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "chat.filters.message_types.countdown";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "chat.filters.message_types.prediction";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= "chat.filters.message_types.subscription";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "chat.filters.message_types.hype_train_summary";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "chat.filters.message_types.hype_train_cooled_down";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]			= "chat.filters.message_types.community_boost_complete";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]	= "chat.filters.message_types.community_challenge_contribution";
 		
 		//@ts-ignore
 		this.typeToIcon = {};
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD] = "twitchat.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BAN] = "ban.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.UNBAN] = "unban.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAID] = "raid.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.POLL] = "poll.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN] = "enter_white.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.LEAVE] = "leave_white.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.CHEER] = "bits.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BINGO] = "bingo.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAFFLE] = "ticket.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PINNED] = "pin.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.REWARD] = "channelPoints.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.NOTICE] = "info.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MESSAGE] = "user.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.WHISPER] = "whispers.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT] = "shoutout.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.FOLLOWING] = "follow.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN] = "countdown.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = "prediction.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = "sub.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = "train.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = "train.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE] = "boost.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION] = "channelPoints.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD]							= "twitchat.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BAN]									= "ban.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= "unban.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAID]									= "raid.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.POLL]									= "poll.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN]									= "enter_white.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.LEAVE]								= "leave_white.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.CHEER]								= "bits.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BINGO]								= "bingo.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAFFLE]								= "ticket.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PINNED]								= "pin.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.REWARD]								= "channelPoints.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.NOTICE]								= "info.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MESSAGE]								= "user.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.WHISPER]								= "whispers.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT]								= "shoutout.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= "follow.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "countdown.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]		= "channelPoints.svg";
 		
 		//@ts-ignore
 		this.typeToScopes = {};
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.BAN] = [TwitchScopes.MODERATE];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.UNBAN] = [TwitchScopes.MODERATE];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.REWARD] = [TwitchScopes.LIST_REWARDS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.WHISPER] = [TwitchScopes.WHISPER_READ];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.PREDICTION] = [TwitchScopes.MANAGE_PREDICTIONS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION] = [TwitchScopes.LIST_SUBS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY] = [TwitchScopes.READ_HYPE_TRAIN];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN] = [TwitchScopes.READ_HYPE_TRAIN];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.REWARD] = [TwitchScopes.LIST_REWARDS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.BAN]								= [TwitchScopes.MODERATE];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= [TwitchScopes.MODERATE];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.REWARD]								= [TwitchScopes.LIST_REWARDS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.WHISPER]							= [TwitchScopes.WHISPER_READ];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.POLL]								= [TwitchScopes.MANAGE_POLLS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= [TwitchScopes.MANAGE_PREDICTIONS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= [TwitchScopes.LIST_SUBS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= [TwitchScopes.READ_HYPE_TRAIN];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= [TwitchScopes.READ_HYPE_TRAIN];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= [TwitchScopes.LIST_FOLLOWERS];
 
 		const sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
@@ -416,10 +417,17 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		];
 
+		let missingScopes:TwitchScopesString[] = [];
 		this.filters = [];
 		for (let i = 0; i < sortedFilters.length; i++) {
 			const f = sortedFilters[i];
 			const children:TwitchatDataTypes.ParameterData[] = [];
+
+			//Keep missing scopes
+			if(this.typeToScopes[f] && this.config.filters[f] === true && !TwitchUtils.hasScope(this.typeToScopes[f])) {
+				missingScopes = missingScopes.concat(this.typeToScopes[f]);
+				this.config.filters[f] = false;
+			}
 
 			this.filters.push({type:"toggle",
 								value:this.config.filters[f],
@@ -485,15 +493,25 @@ export default class MessageListFilter extends Vue {
 					if(this.config.messageFilters[k] == undefined) {
 						this.config.messageFilters[k] = true;
 					}
+
 					const param:TwitchatDataTypes.ParameterData = {type:"toggle",
 						value:this.config.messageFilters[k],
 						labelKey:"chat.filters.message_filters."+k,
 						storage:key,
 						icon:keyToIcon[k],
 					};
+					
 					if(this.messageKeyToScope[k] && this.messageKeyToScope[k].length > 0) {
 						param.twitch_scopes = this.messageKeyToScope[k];
+						//Keep missing scopes
+						if(!TwitchUtils.hasScope(this.messageKeyToScope[k])) {
+							if(this.config.messageFilters[k] == true) {
+								missingScopes = missingScopes.concat(this.messageKeyToScope[k]);
+							}
+							this.config.messageFilters[k] = false;
+						}
 					}
+
 					if(k == 'commands') {
 						const subParam:TwitchatDataTypes.ParameterData = {
 								type:"editablelist",
@@ -519,6 +537,24 @@ export default class MessageListFilter extends Vue {
 				}
 				this.messageFilters = children;
 			}
+		}
+
+		//Send a message on this column to warn for missing scopes
+		if(!this.forceConfig && missingScopes.length > 0) {
+			const dedupeDict:{[key:string]:boolean} = {};
+			this.$store("chat").addMessage({
+				type:"scope_request",
+				date:Date.now(),
+				col:this.config.order,
+				id:Utils.getUUID(),
+				platform:"twitchat",
+				twitch_scopes:missingScopes.filter(v=> {
+					//Dedupe scopes
+					if(dedupeDict[v] === true) return false;
+					dedupeDict[v] = true;
+					return true;
+				})
+			});
 		}
 		
 		this.clickHandler		= (e:MouseEvent|TouchEvent) => this.onMouseDown(e);
@@ -555,6 +591,7 @@ export default class MessageListFilter extends Vue {
 				this.config.messageFilters[k] = this.toggleAll;
 			}
 		});
+		
 		requestAnimationFrame(()=>this.renderFrame());
 	}
 
@@ -913,9 +950,9 @@ export default class MessageListFilter extends Vue {
 	/**
 	 * Called when opening filters
 	 */
-	public openFilters():void {
+	public openFilters(viaButton:boolean = false):void {
 		this.expand = true;
-		this.hideCTA();
+		if(viaButton) this.hideCTA();
 	}
 
 	/**

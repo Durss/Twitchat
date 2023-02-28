@@ -1105,6 +1105,8 @@ export default class TwitchUtils {
 	 * 
 	 * @param channelId channelId to get followers list
 	 * @param tempDataCallback optional callback method to get results as they're loading
+	 * 
+	 * @deprecated will be disabled by twitch the 2023-08-03
 	 */
 	public static async getFollowers(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
@@ -1133,11 +1135,50 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Gets a list of the channels following us (restricted to the authenticated user or their moderators)
+	 * 
+	 * @param channelId channelId to get followings list
+	 * @param maxCount maximum followings to grabe
+	 * @param tempDataCallback optional callback method to get results as they're loading
+	 */
+	public static async getFollowersV2(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.FollowingV2[])=>void):Promise<TwitchDataTypes.FollowingV2[]> {
+		if(!this.hasScope(TwitchScopes.LIST_FOLLOWERS)) return [];
+
+		let list:TwitchDataTypes.FollowingV2[] = [];
+		let cursor:string|null = null;
+		do {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
+			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+			url.searchParams.append("first", "100");
+			if(cursor) url.searchParams.append("after", cursor);
+			if(channelId) url.searchParams.append("user_id", channelId);
+			const res = await fetch(url, {
+				method:"GET",
+				headers:this.headers,
+			});
+			if(res.status == 200) {
+				const json:{data:TwitchDataTypes.FollowingV2[], pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+				if(tempDataCallback) {
+					tempDataCallback(list);
+				}
+			}
+		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
+		return list;
+	}
+
+	/**
 	 * Gets a list of the channel followed by the specified user
 	 * 
 	 * @param channelId channelId to get followings list
 	 * @param maxCount maximum followings to grabe
 	 * @param tempDataCallback optional callback method to get results as they're loading
+	 * 
+	 * @deprecated will be disabled by twitch the 2023-08-03
 	 */
 	public static async getFollowings(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
@@ -1146,6 +1187,42 @@ export default class TwitchUtils {
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
 			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first=100&from_id="+channelId+pCursor, {
+				method:"GET",
+				headers:this.headers,
+			});
+			if(res.status == 200) {
+				const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+				if(tempDataCallback) {
+					tempDataCallback(list);
+				}
+			}
+		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
+		return list;
+	}
+
+	/**
+	 * Gets a list of the channels we follow
+	 * 
+	 * @param channelId channelId to get followings list
+	 * @param maxCount maximum followings to grabe
+	 * @param tempDataCallback optional callback method to get results as they're loading
+	 */
+	public static async getFollowingsV2(channelId:string, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
+		if(!this.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return [];
+
+		let list:TwitchDataTypes.Following[] = [];
+		let cursor:string|null = null;
+		do {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followed");
+			url.searchParams.append("first", "100");
+			url.searchParams.append("user_id", channelId);
+			if(cursor) url.searchParams.append("after", cursor);
+			const res = await fetch(url, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -2169,7 +2246,7 @@ export default class TwitchUtils {
 	/**
 	 * Subscribe to an eventsub topic
 	 */
-	public static async eventsubSubscribe(channelId:string, userId:string, session_id:string, topic:string, version:"1"|"beta", additionalCondition?:{[key:string]:any}, attemptCount:number = 0):Promise<false|string[]> {
+	public static async eventsubSubscribe(channelId:string, userId:string, session_id:string, topic:string, version:"1"|"2"|"3"|"beta", additionalCondition?:{[key:string]:any}, attemptCount:number = 0):Promise<false|string[]> {
 		const body ={
 			type:topic,
 			version,

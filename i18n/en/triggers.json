@@ -98,7 +98,7 @@
 				"header_link": "overlays section",
 				"param_actions": "Action",
 				"param_actions_default": "Select an action...",
-				"param_track": "Track (name or URL)",
+				"param_track": "Track to add (name or URL)",
 				"param_confirmSongRequest": "Send confirmation message",
 				"param_playlist": "Playlist (name, link or ID)",
 				"spotify_only": "Only works with Spotify"

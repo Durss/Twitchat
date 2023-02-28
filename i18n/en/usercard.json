@@ -8,6 +8,7 @@
 		"profileBt":"profile",
 		"viewercardBt":"viewer card",
 		"trackBt":"track user",
-		"untrackBt":"untrack user"
+		"untrackBt":"untrack user",
+		"following_end":"Due to Twitch restrictions, this section will disapear after the {DATE}"
 	}
 }

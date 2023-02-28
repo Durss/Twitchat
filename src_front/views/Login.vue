@@ -104,8 +104,6 @@ export default class Login extends Vue {
 			this.closedBeta = true;
 		}
 
-		console.log("MOUNT", this.$store('auth').newScopesToRequest);
-
 		if(this.$router.currentRoute.value.params.scope) {
 			if(Array.isArray(this.$router.currentRoute.value.params.scope)) {
 				this.requestedScopes = this.$router.currentRoute.value.params.scope as TwitchScopesString[];
@@ -199,6 +197,7 @@ export default class Login extends Vue {
 	public async close():Promise<void> {
 		gsap.to(this.$refs.dimmer as HTMLDivElement, {opacity:0, ease:"sine.in", duration:.2});
 		gsap.to(this.$refs.holder as HTMLDivElement, {scaleX:0, scaleY:0, ease:"back.in", duration:.35, clearProps:"all", onComplete:()=>{
+			this.$store('auth').newScopesToRequest = [];
 			this.$emit('close');
 		}});
 	}
@@ -211,7 +210,7 @@ export default class Login extends Vue {
 	position: absolute;
 	top: 0;
 	left: 0;
-	z-index: 2;
+	z-index: 10;
 	width: 100vw;
 	height: 100vh;
 

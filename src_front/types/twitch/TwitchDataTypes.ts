@@ -288,6 +288,13 @@ export namespace TwitchDataTypes {
 		followed_at: string;
 	}
 
+	export interface FollowingV2 {
+		user_id: string;
+		user_name: string;
+		user_login: string;
+		followed_at: string;
+	}
+
 	export interface Commercial {
 		length: number;
 		message: string;

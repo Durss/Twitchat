@@ -22,6 +22,7 @@ export default class Config {
 	public SPOTIFY_CONNECTED = false;
 	public DEEZER_CONNECTED = false;
 	public AD_MIN_FOLLOWERS_COUNT = 50;
+	public FOLLOWERS_API_SHUTDOWN_DATE = new Date("08-02-2023 00:00:00");
 	
 	private _serverConfig!:ServerConfig;
 	

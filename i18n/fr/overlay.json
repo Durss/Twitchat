@@ -18,7 +18,7 @@
 			"css":"Changez l'apparence de la roue via ces sélecteurs CSS",
 			"no_overlay":"- overlay non configuré ou invisible -",
 			"start":"Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
-			"testBt":"Tester avec<br>vos followers"
+			"testBt":"Tester"
 		},
 
 		"timer":{
