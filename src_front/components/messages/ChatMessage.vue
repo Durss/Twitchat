@@ -42,10 +42,10 @@
 			<img src="@/assets/icons/announcement.svg">
 			<div class="header"><strong>{{ $t('chat.message.announcement') }}</strong></div>
 		</div>
-
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-
+		
 		<div class="infos" v-if="channelInfo.is_blocked !== true">
+		
+			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
@@ -143,6 +143,7 @@ import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
 
@@ -154,20 +155,19 @@ import ChatModTools from './components/ChatModTools.vue';
 	},
 	emits:['showConversation', 'showUserMessages', 'unscheduleMessageOpen', 'onOverMessage', 'onRead'],
 })
-export default class ChatMessage extends Vue {
+export default class ChatMessage extends AbstractChatMessage {
 
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
+	declare messageData:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
 	@Prop({type:Boolean, default:false})
 	public lightMode!:boolean;
 	@Prop({type:Boolean, default:false})
 	public disableConversation!:boolean;
 	@Prop({type:Array, default:[]})
 	public highlightedWords!:string[];
-	@Prop
-	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	
 	public text = "";
+	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
 	public firstTime:boolean = false;
 	public showTools:boolean = false;
@@ -244,11 +244,6 @@ export default class ChatMessage extends Vue {
 
 	public get showModTools():boolean {
 		return this.showModToolsPreCalc && this.$store("params").features.showModTools.value === true;
-	}
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	/**
@@ -725,7 +720,8 @@ export default class ChatMessage extends Vue {
 	}
 
 	>.infos {
-		display: inline;
+		display: inline-flex;
+		align-items: center;
 		.icon {
 			opacity: 0.75;
 			height: 1em;
@@ -743,7 +739,7 @@ export default class ChatMessage extends Vue {
 			}
 		}
 		.mod {
-			display: inline;
+			display: inline-flex;
 			margin-right: .4em;
 		}
 

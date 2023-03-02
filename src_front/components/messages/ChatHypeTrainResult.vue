@@ -88,6 +88,7 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{
@@ -96,7 +97,7 @@ import Button from '../Button.vue';
 	emits:["setCustomActivities", "onRead"]
 })
 
-export default class ChatHypeTrainResult extends Vue {
+export default class ChatHypeTrainResult extends AbstractChatMessage {
 	
 	@Prop({
 			type:Boolean,
@@ -104,7 +105,7 @@ export default class ChatHypeTrainResult extends Vue {
 		})
 	public filtering!:boolean;
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageHypeTrainSummaryData;
+	declare messageData:TwitchatDataTypes.MessageHypeTrainSummaryData;
 
 	public reachPercent:number = 0;
 	public subs1:number = 0;
@@ -114,11 +115,6 @@ export default class ChatHypeTrainResult extends Vue {
 	public primes:number = 0;
 	public bits:number = 0;
 	
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
-
 	public copyJSON():void {
 		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		console.log(this.messageData);

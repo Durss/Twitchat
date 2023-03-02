@@ -20,22 +20,19 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatConnect extends Vue {
+export default class ChatConnect extends AbstractChatMessage {
+	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageConnectData | TwitchatDataTypes.MessageDisconnectData;
+	declare messageData:TwitchatDataTypes.MessageConnectData | TwitchatDataTypes.MessageDisconnectData;
 	
 	public message:string = "";
 	public channelName:string = "";
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
 
 	public get classes():string[]{
 		const res = ["chatconnect"];

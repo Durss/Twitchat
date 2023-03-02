@@ -42,6 +42,7 @@ import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
 @Component({
@@ -53,16 +54,11 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 	},
 	emits:["onRead"]
 })
-export default class ChatRoomSettings extends Vue {
+export default class ChatRoomSettings extends AbstractChatMessage {
 
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageRoomSettingsData;
+	declare messageData:TwitchatDataTypes.MessageRoomSettingsData;
 	public isMod:boolean = false;
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
 
 	public beforeMount(): void {
 		const authUser = this.$store("auth")[this.messageData.platform].user;

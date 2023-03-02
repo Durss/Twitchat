@@ -19,23 +19,19 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatStreamOnOff extends Vue {
+export default class ChatStreamOnOff extends AbstractChatMessage {
 	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData;
+	declare messageData:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData;
 
 	public get isOnline():boolean {
 		return this.messageData.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE;
-	}
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public mounted():void {

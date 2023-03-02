@@ -24,22 +24,18 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatClear extends Vue {
+export default class ChatClear extends AbstractChatMessage {
 
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageClearChatData;
+	declare messageData:TwitchatDataTypes.MessageClearChatData;
 	
 	public room:string = "";
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
 
 	public mounted():void {
 		this.room = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id).login;

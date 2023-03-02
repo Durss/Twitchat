@@ -486,13 +486,18 @@ export default class UserCard extends Vue {
 			}
 
 			.live {
+				position: relative;
+				display: block;
 				background-color: @mainColor_alert;
 				color: @mainColor_light;
 				font-weight: bold;
 				font-size: .5em;
 				padding: .35em .75em;
 				border-radius: .5em;
-				margin-top: -1em;
+				margin-bottom: -1em;
+				width: min-content;
+				left: 50%;
+				transform: translate(-50%, -50%);
 				z-index: 1;
 				box-shadow: 0 -.25em .5em rgba(0, 0, 0, .5);
 			}

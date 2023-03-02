@@ -54,22 +54,22 @@ export default class ToggleBlock extends Vue {
 	public open!:boolean;
 	@Prop({
 			type:Boolean,
-			default:true,
+			default:false,
 		})
 	public error!:boolean;
 	@Prop({
 			type:Boolean,
-			default:true,
+			default:false,
 		})
 	public small!:boolean;
 	@Prop({
 			type:Boolean,
-			default:true,
+			default:false,
 		})
 	public medium!:boolean;
 	@Prop({
 			type:Boolean,
-			default:true,
+			default:false,
 		})
 	public orderable!:boolean;
 	@Prop({

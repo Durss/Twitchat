@@ -227,6 +227,12 @@ export default class WhispersState extends Vue {
 					border-radius: .5em;
 					background-color: rgba(255, 255, 255, .2);
 					font-size: var(--messageSize);
+
+					&:has(.time) {
+						.time + *{
+							padding-left: 3em;
+						}
+					}
 					
 					.text {
 						word-break: break-word;

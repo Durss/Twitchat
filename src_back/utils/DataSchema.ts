@@ -363,6 +363,7 @@ import Ajv from "ajv";
 		"p:conversationsEnabled": {type:"boolean"},
 		"p:defaultSize": {type:"integer", minimum:0, maximum:5},
 		"p:displayTime": {type:"boolean"},
+		"p:displayTimeRelative": {type:"boolean"},
 		"p:dyslexicFont": {type:"boolean"},
 		"p:firstMessage": {type:"boolean"},
 		"p:groupIdenticalMessage": {type:"boolean"},

@@ -48,20 +48,16 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatShoutout extends Vue {
+export default class ChatShoutout extends AbstractChatMessage {
 	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageShoutoutData;
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
+	declare messageData:TwitchatDataTypes.MessageShoutoutData;
 
 	public get channel():TwitchatDataTypes.TwitchatUser {
 		return this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);

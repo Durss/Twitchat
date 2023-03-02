@@ -50,6 +50,7 @@ export const storeParams = defineStore('params', {
 			showBadges: 				{save:true, type:"toggle", value:true, labelKey:"params.showBadges", id:4, icon:"badge_purple.svg"},
 			minimalistBadges: 			{save:true, type:"toggle", value:false, labelKey:"params.minimalistBadges", id:5, parent:4, example:"minibadges.png"},
 			displayTime: 				{save:true, type:"toggle", value:false, labelKey:"params.displayTime", id:6, icon:"timeout_purple.svg"},
+			displayTimeRelative: 		{save:true, type:"toggle", value:false, labelKey:"params.displayTimeRelative", id:27, icon:"timeout_purple.svg", parent:6},
 			dyslexicFont: 				{save:true, type:"toggle", value:false, labelKey:"params.dyslexicFont", id:24, icon:"font_purple.svg"},
 			defaultSize: 				{save:true, type:"slider", value:4, labelKey:"params.defaultSize", min:1, max:20, step:1, id:12},
 		},

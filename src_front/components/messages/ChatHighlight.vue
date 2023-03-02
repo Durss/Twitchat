@@ -76,6 +76,7 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 
 @Component({
@@ -85,10 +86,10 @@ import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 	},
 	emits:["onRead"]
 })
-export default class ChatHighlight extends Vue {
+export default class ChatHighlight extends AbstractChatMessage {
 	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageChatData
+	declare messageData:TwitchatDataTypes.MessageChatData
 	| TwitchatDataTypes.MessageFollowingData
 	| TwitchatDataTypes.MessageHypeTrainCooledDownData
 	| TwitchatDataTypes.MessageCommunityBoostData
@@ -113,11 +114,6 @@ export default class ChatHighlight extends Vue {
 	public badgeInfos:TwitchatDataTypes.MessageBadgeData[] = [];
 	public additionalUsers:TwitchatDataTypes.TwitchatUser[] = [];
 	public streamInfo:TwitchDataTypes.ChannelInfo|null = null;
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
 
 	public get reason():string {
 		let value:number|"prime" = 0;

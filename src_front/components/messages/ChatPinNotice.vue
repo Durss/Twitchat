@@ -22,6 +22,7 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessage from './ChatMessage.vue';
 
 @Component({
@@ -29,10 +30,10 @@ import ChatMessage from './ChatMessage.vue';
 		ChatMessage,
 	}
 })
-export default class ChatPinNotice extends Vue {
+export default class ChatPinNotice extends AbstractChatMessage {
 	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessagePinData|TwitchatDataTypes.MessageUnpinData;
+	declare messageData:TwitchatDataTypes.MessagePinData|TwitchatDataTypes.MessageUnpinData;
 
 	public get classes():string[] {
 		const res = ["chatpinnotice"];
@@ -51,11 +52,6 @@ export default class ChatPinNotice extends Vue {
 			}
 		}
 		return "chat.pin.unpinned";
-	}
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public copyJSON():void {

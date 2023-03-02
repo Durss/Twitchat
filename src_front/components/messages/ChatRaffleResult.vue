@@ -19,22 +19,18 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatRaffleResult extends Vue {
+export default class ChatRaffleResult extends AbstractChatMessage {
 
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageRaffleData;
+	declare messageData:TwitchatDataTypes.MessageRaffleData;
 	public sParams = storeParams();
 	
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
-
 	public get user():TwitchatDataTypes.TwitchatUser|null {
 		const w = this.messageData.winner;
 		if(!w.user) return null;

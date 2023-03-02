@@ -21,22 +21,17 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatBan extends Vue {
+export default class ChatBan extends AbstractChatMessage {
 	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageBanData;
+	declare messageData:TwitchatDataTypes.MessageBanData;
 	
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
-
 	public mounted():void {
 		let aria = this.$t("global.moderation_action.unbanned_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName});
 		this.$store("accessibility").setAriaPolite(aria);

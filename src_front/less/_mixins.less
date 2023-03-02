@@ -23,8 +23,14 @@
 		vertical-align: middle;
 	}
 	
-	&>.time {
+	&>.time, &>.infos>.time {
 		.chatMessageTime();
+	}
+
+	&:has(.time) {
+		.time + *{
+			margin-left: 3em;
+		}
 	}
 	
 	:deep( .emote ) {
@@ -46,10 +52,12 @@
 .chatMessageTime() {
 	color: fade(#ffffff, 75%);
 	font-size: .8em;
-	vertical-align: middle;
 	display: inline-block;
-	margin-right: .7em;
 	font-variant-numeric: tabular-nums;
+	width: 3em;
+	position: absolute;
+	text-align: right;
+	align-self: flex-start;
 }
 
 .chatMessageHighlight(){

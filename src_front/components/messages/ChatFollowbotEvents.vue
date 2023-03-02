@@ -21,23 +21,19 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{
 	},
 	emits:["onRead"]
 })
-export default class ChatFollowbotEvents extends Vue {
+export default class ChatFollowbotEvents extends AbstractChatMessage {
 
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageFollowbotData;
+	declare messageData:TwitchatDataTypes.MessageFollowbotData;
 
 	public expand:boolean = false;
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
 		this.$store("users").openUserCard(user);

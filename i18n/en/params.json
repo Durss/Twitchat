@@ -43,6 +43,7 @@
 		"showBadges": "Show badges",
 		"minimalistBadges": "Minified badges",
 		"displayTime": "Display time",
+		"displayTimeRelative": "Show elapsed duration since reception instead of reception time",
 		"splitViewVertical": "Vertical layout",
 		"dyslexicFont": "Use dyslexic-friendly font",
 		"defaultSize": "Text size ({'{'}VALUE{'}'})",

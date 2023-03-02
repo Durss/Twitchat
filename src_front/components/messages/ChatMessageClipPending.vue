@@ -32,6 +32,7 @@ import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{
@@ -39,20 +40,15 @@ import Button from '../Button.vue';
 	},
 	emits:["onRead"]
 })
-export default class ChatMessageClipPending extends Vue {
+export default class ChatMessageClipPending extends AbstractChatMessage {
 	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageClipCreate;
+	declare messageData:TwitchatDataTypes.MessageClipCreate;
 	
 	public error:boolean =  false;
 	public loading:boolean =  true;
 	
 	public interval:number = -1;
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
 
 	public mounted():void {
 		this.$store("accessibility").setAriaPolite(this.$t("global.moderation_action.clip_creating", {LINK:""}));

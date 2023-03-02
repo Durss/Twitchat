@@ -45,20 +45,16 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:['onOverMessage', 'onRead'],
 })
-export default class ChatLowTrustTreatment extends Vue {
+export default class ChatLowTrustTreatment extends AbstractChatMessage {
 
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageLowtrustTreatmentData;
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
+	declare messageData:TwitchatDataTypes.MessageLowtrustTreatmentData;
 
 	public get classes():string[] {
 		const res:string[] = ["chatlowtrusttreatment"];

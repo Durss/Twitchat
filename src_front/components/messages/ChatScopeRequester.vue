@@ -28,6 +28,7 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{
@@ -35,15 +36,10 @@ import Button from '../Button.vue';
 	},
 	emits:["onRead", "openFilters"]
 })
-export default class ChatScopeRequester extends Vue {
+export default class ChatScopeRequester extends AbstractChatMessage {
 	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageScopeRequestData;
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
+	declare messageData:TwitchatDataTypes.MessageScopeRequestData;
 
 	public getScopeImage(s:TwitchScopesString):string {
 		return this.$image("icons/"+TwitchScope2Icon[s]?.replace("_purple", ""));

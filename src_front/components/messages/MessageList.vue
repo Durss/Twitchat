@@ -309,7 +309,6 @@
 		</div>
 
 		<ChatMessageHoverActions class="hoverActions" 
-			v-if="hoveredMessage"
 			:style="hoverActionsStyles"
 			@close="onLeaveMessage"
 			@mouseleave="onLeaveMessage"
@@ -455,7 +454,10 @@ export default class MessageList extends Vue {
 	}
 
 	public get hoverActionsStyles(): StyleValue {
-		return { top: this.hoverActionsPos + "px" }
+		if(this.hoveredMessage) {
+			return { top: this.hoverActionsPos + "px" }
+		}
+		return {top:"-10000px"};
 	}
 
 	public get filteredMessagesDeduped(): TwitchatDataTypes.ChatMessageTypes[] {
@@ -1894,10 +1896,11 @@ export default class MessageList extends Vue {
 					font-style: italic;
 					width: 100%;
 				}
-				&:hover {
-					z-index: 2000;
-					position: relative;
-				}
+				// &:hover {
+					//Disabled as it causes CSS re renders of all subsequent nodes
+					//which is not ideal for performances
+					// z-index: 2000;
+				// }
 			}
 		}
 

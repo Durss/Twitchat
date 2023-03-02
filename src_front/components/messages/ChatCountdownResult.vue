@@ -23,24 +23,20 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatCountdownResult extends Vue {
+export default class ChatCountdownResult extends AbstractChatMessage {
 
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageCountdownData;
+	declare messageData:TwitchatDataTypes.MessageCountdownData;
 
 	public aborted:boolean = false;
 	public abortDuration:string = "";
 	
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
-	}
-
 	public beforeMount(): void {
 		const cd = this.messageData.countdown;
 		if(cd.endAt_ms) {

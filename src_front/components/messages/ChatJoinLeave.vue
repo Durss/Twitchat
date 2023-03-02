@@ -32,15 +32,16 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatJoinLeave extends Vue {
+export default class ChatJoinLeave extends AbstractChatMessage {
 	
 	@Prop
-	public messageData!:TwitchatDataTypes.MessageJoinData|TwitchatDataTypes.MessageLeaveData;
+	declare messageData:TwitchatDataTypes.MessageJoinData|TwitchatDataTypes.MessageLeaveData;
 	
 	public userList:TwitchatDataTypes.TwitchatUser[] = [];
 	public remainingOffset:number = 0;
@@ -53,11 +54,6 @@ export default class ChatJoinLeave extends Vue {
 		let res = ["chatjoinleave"];
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.LEAVE) res.push("alert");
 		return res;
-	}
-
-	public get time():string {
-		const d = new Date(this.messageData.date);
-		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 	}
 
 	public mounted(): void {
