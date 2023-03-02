@@ -26,15 +26,14 @@
 
 <script lang="ts">
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import VoiceControlForm from '../../voice/VoiceControlForm.vue';
 import Button from '../../Button.vue';
 import VoiceController from '@/utils/voice/VoiceController';
 import Config from '@/utils/Config';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		VoiceControlForm,

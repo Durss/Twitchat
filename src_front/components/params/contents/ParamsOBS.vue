@@ -65,7 +65,7 @@ import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import type { StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
@@ -73,8 +73,7 @@ import OBSScenes from './obs/OBSScenes.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		ParamItem,
 		OBSScenes,

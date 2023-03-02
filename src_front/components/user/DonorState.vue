@@ -69,24 +69,22 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"/>
 import StoreProxy from '@/store/StoreProxy';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		light:{
-			type:Boolean,
-			default:false,
-		},
-		level:{
-			type:Number,
-			default:-1,
-		}
-	},
+@Component({
 	components:{}
 })
 export default class DonorState extends Vue {
 
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public light!:boolean;
+	@Prop({
+			type:Number,
+			default:-1,
+		})
 	public level!:number;
 
 	public disposed = false;

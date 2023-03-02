@@ -25,11 +25,10 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ToggleButton from '../ToggleButton.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		ToggleButton,
 	}

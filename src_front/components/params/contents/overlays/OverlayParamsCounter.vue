@@ -56,12 +56,11 @@
 import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ToggleBlock,

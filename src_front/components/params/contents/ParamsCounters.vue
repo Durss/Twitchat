@@ -92,11 +92,10 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { reactive } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ParamItem,

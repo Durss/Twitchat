@@ -36,14 +36,13 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../InfiniteList.vue';
 import type { JsonObject } from "type-fest";
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { StyleValue } from 'vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		InfiniteList,
 	}

@@ -329,7 +329,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatAd from './ChatAd.vue';
 import ChatBingoResult from './ChatBingoResult.vue';
@@ -359,7 +359,7 @@ import ChatScopeRequester from './ChatScopeRequester.vue';
 import ChatTimerResult from './ChatTimerResult.vue';
 import Utils from '@/utils/Utils';
 
-@Options({
+@Component({
 	components: {
 		Button,
 		ChatAd,
@@ -389,20 +389,18 @@ import Utils from '@/utils/Utils';
 		ChatMessageClipPending,
 		ChatMessageHoverActions,
 	},
-	props: {
-		config: Object,
-		filterId: String,
-		lightMode: {
-			type: Boolean,
-			default: false,
-		},//Used by OBS chat
-	},
 	emits: ["showModal", 'addColumn']
 })
 export default class MessageList extends Vue {
 
+	@Prop({
+			type: Boolean,
+			default: false,
+		})
 	public lightMode!: boolean;
+	@Prop
 	public filterId!: string;
+	@Prop
 	public config!: TwitchatDataTypes.ChatColumnsConfig;
 
 	public hoveredMessage: TwitchatDataTypes.ChatMessageTypes | null = null;

@@ -34,12 +34,11 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ChatMessage,

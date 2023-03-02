@@ -39,12 +39,11 @@ import StoreProxy from '@/store/StoreProxy';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../../InfiniteList.vue';
 import DonorState from '../../user/DonorState.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		DonorState,
 		InfiniteList,

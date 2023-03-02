@@ -13,19 +13,17 @@
 
 <script lang="ts">
 import VoiceAction from '@/utils/voice/VoiceAction';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		confirmMode: {
-			type: Boolean,
-			default: false
-		}
-	},
+@Component({
 	components:{}
 })
 export default class VoiceGlobalCommandsHelper extends Vue {
 
+	@Prop({
+			type: Boolean,
+			default: false
+		})
 	public confirmMode!:boolean;
 
 	public actions:{label:string, action:VoiceAction}[] = [];

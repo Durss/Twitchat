@@ -31,64 +31,62 @@
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
+@Component({
 	components:{
-	},
-	props: {
-		icon:String,
-		iconSelected:String,
-		title:String,
-		name:String,
-		file:String,
-		loading:{type:Boolean, default: false},
-		type:{type:String, default:'button'},
-		target:String,
-		to:Object,
-		percent:{default: -1, type:Number},
-		white:{type:Boolean, default: false},
-		big:{type:Boolean, default: false},
-		small:{type:Boolean, default: false},
-		highlight:{type:Boolean, default: false},
-		selected:{type:Boolean, default: false},
-		disabled:{type:Boolean, default: false},
-		modelValue:{type:Boolean, default: false},
-		bounce:{type:Boolean, default: false},
-		accept:{type:String, default: "image/*"},
 	},
 	emits: ['click', 'update:modelValue', 'update:file'],
 	expose: ['value'],
 })
 export default class Button extends Vue {
 
+	@Prop
 	public icon!:string;
+	@Prop
 	public iconSelected!:string;
+	@Prop
 	public title!:string;
+	@Prop
 	public name!:string;
+	@Prop({type:Boolean, default: false})
 	public loading!:boolean;
+	@Prop({type:String, default:'button'})
 	public type!:string;
+	@Prop
 	public target!:string;
+	@Prop
 	public to!:unknown;
+	@Prop({default: -1, type:Number})
 	public percent!:number;
+	@Prop({type:Boolean, default: false})
 	public white!:boolean;
+	@Prop({type:Boolean, default: false},)
 	public big!:boolean;
+	@Prop({type:Boolean, default: false},)
 	public small!:boolean;
+	@Prop({type:Boolean, default: false},)
 	public highlight!:boolean;
+	@Prop({type:Boolean, default: false},)
 	public selected!:boolean;
+	@Prop({type:Boolean, default: false},)
 	public disabled!:boolean;
+	@Prop({type:Boolean, default: false},)
 	public modelValue!:boolean;
+	@Prop({type:Boolean, default: false},)
 	public bounce!:boolean;
+	@Prop({type:String, default: "image/*"})
 	public accept!:string;
+	@Prop
 	public file!:string;
-
+	
 	public pInterpolated = -1;
 	public checked = false;
-
+	
 	public get isIconSVG():boolean {
 		return this.parsedIcon.indexOf("<") != -1;
 	}
-
+	
 	public get checkMarkIcon():string {
 		if(this.white !== false) {
 			return this.$image('icons/checkmark_white.svg');

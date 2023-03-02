@@ -22,11 +22,10 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		ParamItem,
 	}

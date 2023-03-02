@@ -56,10 +56,9 @@ import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{},
+@Component({
 	components:{},
 	emits:["close", "select"]
 })

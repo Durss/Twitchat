@@ -8,11 +8,9 @@
 
 <script lang="ts">
 import MessageList from '@/components/messages/MessageList.vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-	},
+@Component({
 	components:{
 		MessageList,
 	}

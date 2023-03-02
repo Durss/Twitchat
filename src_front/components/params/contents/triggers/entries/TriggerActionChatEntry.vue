@@ -32,15 +32,10 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TriggerActionHelpers, TriggerTypes, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-		triggerKey:String,
-	},
+@Component({
 	components:{
 		ParamItem,
 		ToggleBlock,
@@ -49,8 +44,11 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionChatEntry extends Vue {
 
+	@Prop
 	public action!:TriggerActionChatData;
+	@Prop
 	public event!:TriggerEventTypes;
+	@Prop
 	public triggerKey!:string;
 	
 	public message_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };

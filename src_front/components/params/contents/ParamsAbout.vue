@@ -40,15 +40,14 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Button from '@/components/Button.vue';
 import ParamsSponsor from './ParamsSponsor.vue';
 import Config from '@/utils/Config';
 import ParamsDonorList from './ParamsDonorList.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ToggleBlock,

@@ -28,24 +28,22 @@
 import ParamItem from '@/components/params/ParamItem.vue';
 import { TriggerActionHelpers, type TriggerActionCountData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-		triggerData:Object,
-		triggerKey:String,
-	},
+@Component({
 	components:{
 		ParamItem,
 	},
 })
 export default class TriggerActionCountEntry extends Vue {
 
+	@Prop
 	public action!:TriggerActionCountData;
+	@Prop
 	public event!:TriggerEventTypes;
+	@Prop
 	public triggerData!:TriggerData;
+	@Prop
 	public triggerKey!:string;
 
 
@@ -76,9 +74,9 @@ export default class TriggerActionCountEntry extends Vue {
 		flex-basis: 300px;
 	}
 
-	:deep(label), label {
+	// :deep(label), label {
 		// flex-basis: 180px;
-	}
+	// }
 
 	.list {
 		display: flex;

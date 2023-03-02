@@ -57,11 +57,10 @@ import { TriggerTypes, TriggerEvents, type TriggerLog, type TriggerEventTypes, t
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 	},

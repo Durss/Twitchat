@@ -21,10 +21,9 @@
 <script lang="ts">
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{},
+@Component({
 	components:{}
 })
 export default class TimerCountDownInfo extends Vue {

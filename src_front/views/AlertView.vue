@@ -7,9 +7,9 @@
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({})
+@Component({})
 export default class AlertView extends Vue {
 
 	public message = "";

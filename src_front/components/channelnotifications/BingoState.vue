@@ -36,12 +36,11 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		PostOnChatParam,

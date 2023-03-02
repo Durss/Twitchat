@@ -55,12 +55,11 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Splitter,
 		ChatMessage,

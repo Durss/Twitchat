@@ -26,21 +26,19 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
-import { Options, Vue, } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		embed: {
-			type: Boolean,
-			default: false,
-		},
-		staticCounterData: Object,
-	},
+@Component({
 	components:{}
 })
 export default class OverlayCounter extends Vue {
 
+	@Prop({
+			type: Boolean,
+			default: false,
+		})
 	public embed!:boolean;
+	@Prop
 	public staticCounterData!:TwitchatDataTypes.CounterData;
 
 	public localValue:number = 0;

@@ -69,23 +69,13 @@ import type { TriggerActionBingoData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
-@Options({
-	props:{
-		action: {
-			type: Object,
-			default:{},
-		},
-		triggerMode: {
-			type: Boolean,
-			default: false
-		}
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -96,8 +86,16 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class BingoForm extends Vue {
 
+	@Prop({
+			type: Boolean,
+			default: false
+		})
 	public triggerMode!:boolean;
 	//This is used by the trigger action form.
+	@Prop({
+			type: Object,
+			default:{},
+		})
 	public action!:TriggerActionBingoData;
 
 	public globalEmotes:TwitchatDataTypes.Emote[] = [];

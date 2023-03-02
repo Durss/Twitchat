@@ -18,10 +18,9 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{},
+@Component({
 	components:{}
 })
 export default class OverlayTimer extends Vue {

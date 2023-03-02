@@ -67,12 +67,11 @@ import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatHighlight from '../messages/ChatHighlight.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ChatMessage,
@@ -277,8 +276,8 @@ export default class NewUsers extends Vue {
 	 */
 	public deleteMessage(m:TwitchatDataTypes.GreetableMessage, index:number, singleMode = false):void {
 		if(!this.streakMode || singleMode) {
-			let el = (this.$refs["message"] as Vue[])[index] as ChatMessage;
-			this.indexOffset = parseInt(el.$el.dataset.index as string);
+			let el = (this.$refs["message"] as Vue[])[index];
+			this.indexOffset = parseInt((el.$el as HTMLElement).dataset.index as string);
 			this.localMessages.splice(index, 1);
 		}else{
 			this.indexOffset = 0;

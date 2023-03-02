@@ -39,13 +39,12 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import type { JsonArray } from "type-fest";
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ToggleBlock,

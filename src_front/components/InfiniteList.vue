@@ -17,56 +17,54 @@
 <script lang="ts">
 import type { StyleValue } from 'vue';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		nodeType:{
-			type:String,
-			default:"div"
-		},
-		itemSize:{
-			type:Number,
-			default:50
-		},
-		itemMargin:{
-			type:Number,
-			default:0
-		},
-		listHeight:{
-			type:Number,
-			default:500
-		},
-		scrollOffset:{
-			type:Number,
-			default:0
-		},
-		lockScroll:{
-			type:Boolean,
-			default:false
-		},
-		noScrollbar:{
-			type:Boolean,
-			default:false
-		},
-		dataset:{
-			type: [Array],
-			default: [],
-			required: true,
-		},
-	},
+@Component({
 	components:{},
 	emits:['update:scrollOffset'],
 })
 export default class InfiniteList extends Vue {
 
+	@Prop({
+			type:String,
+			default:"div"
+		})
 	public nodeType!:string;
+	@Prop({
+			type:Number,
+			default:50
+		})
 	public itemSize!:number;
+	@Prop({
+			type:Number,
+			default:0
+		})
 	public itemMargin!:number;
+	@Prop({
+			type:Number,
+			default:500
+		})
 	public listHeight!:number;
+	@Prop({
+			type:Number,
+			default:0
+		})
 	public scrollOffset!:number;
+	@Prop({
+			type:Boolean,
+			default:false
+		})
 	public lockScroll!:boolean;
+	@Prop({
+			type:Boolean,
+			default:false
+		})
 	public noScrollbar!:boolean;
+	@Prop({
+			type: [Array],
+			default: [],
+			required: true,
+		})
 	public dataset!:unknown[];
 
 	public items:IListItem[] = [];

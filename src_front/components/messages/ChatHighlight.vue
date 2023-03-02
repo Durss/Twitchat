@@ -74,14 +74,11 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 
-@Options({
-	props:{
-		messageData:Object,
-	},
+@Component({
 	components:{
 		Button,
 		ChatMessageInfoBadges,
@@ -89,6 +86,8 @@ import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 	emits:["onRead"]
 })
 export default class ChatHighlight extends Vue {
+	
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageChatData
 	| TwitchatDataTypes.MessageFollowingData
 	| TwitchatDataTypes.MessageHypeTrainCooledDownData
@@ -99,6 +98,7 @@ export default class ChatHighlight extends Vue {
 	| TwitchatDataTypes.MessageRewardRedeemData
 	| TwitchatDataTypes.MessageAutobanJoinData
 	| TwitchatDataTypes.MessageCommunityChallengeContributionData;
+	
 	public messageText = '';
 	public info = "";
 	public icon = "";

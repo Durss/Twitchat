@@ -23,7 +23,7 @@
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from './Button.vue';
 
 /**
@@ -34,36 +34,8 @@ import Button from './Button.vue';
  * 	</ToggleBlock>
  */
 
-@Options({
+@Component({
 	name:"ToggelBlock",
-	props:{
-		title:String,
-		icons:Array,
-		open:{
-			type:Boolean,
-			default:true,
-		},
-		medium:{
-			type:Boolean,
-			default:false,
-		},
-		small:{
-			type:Boolean,
-			default:false,
-		},
-		orderable:{
-			type:Boolean,
-			default:false,
-		},
-		error:{
-			type:Boolean,
-			default:false,
-		},
-		errorTitle:{
-			type:String,
-			default:"",
-		},
-	},
 	components:{
 		Button,
 	},
@@ -71,13 +43,39 @@ import Button from './Button.vue';
 })
 export default class ToggleBlock extends Vue {
 
+	@Prop
 	public icons!:string[];
+	@Prop
 	public title!:string;
+	@Prop({
+			type:Boolean,
+			default:true,
+		})
 	public open!:boolean;
+	@Prop({
+			type:Boolean,
+			default:true,
+		})
 	public error!:boolean;
+	@Prop({
+			type:Boolean,
+			default:true,
+		})
 	public small!:boolean;
+	@Prop({
+			type:Boolean,
+			default:true,
+		})
 	public medium!:boolean;
+	@Prop({
+			type:Boolean,
+			default:true,
+		})
 	public orderable!:boolean;
+	@Prop({
+			type:String,
+			default:"",
+		})
 	public errorTitle!:string;
 
 	public showContent = false;

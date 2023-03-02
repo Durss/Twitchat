@@ -199,7 +199,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatAd from '../ChatAd.vue';
 import ChatBingoResult from '../ChatBingoResult.vue';
 import ChatConnect from '../ChatConnect.vue';
@@ -224,13 +224,7 @@ import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 
-@Options({
-	props:{
-		modelValue:{type:Object, default: {}},
-		open:{type:Boolean, default: false},
-		forceConfig:{type:Boolean, default: false},
-		config:Object,
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -256,12 +250,15 @@ import DataStore from '@/store/DataStore';
 		PermissionsForm,
 		ToggleBlock,
 	},
-	emits: ['update:modelValue', 'submit', 'add', 'change'],
+	emits: ['submit', 'add', 'change'],
 })
 export default class MessageListFilter extends Vue {
 	
+	@Prop({type:Boolean, default: false})
 	public open!:boolean;
+	@Prop({type:Boolean, default: false})
 	public forceConfig!:boolean;
+	@Prop
 	public config!:TwitchatDataTypes.ChatColumnsConfig;
 	
 	public error:boolean = false;

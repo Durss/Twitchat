@@ -83,16 +83,12 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 
-@Options({
-	props:{
-		category:String,
-		filteredParams:Object,
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -103,7 +99,9 @@ import PostOnChatParam from '../PostOnChatParam.vue';
 })
 export default class ParamsList extends Vue {
 
+	@Prop
 	public category!:TwitchatDataTypes.ParameterCategory;
+	@Prop
 	public filteredParams!:TwitchatDataTypes.ParameterData[];
 
 	public showAdInfo:boolean = false;

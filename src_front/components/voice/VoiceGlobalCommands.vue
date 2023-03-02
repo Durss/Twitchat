@@ -12,17 +12,11 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoiceAction from '@/utils/voice/VoiceAction';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
-@Options({
-	props:{
-		open:{
-			type:Boolean,
-			default:false,
-		},
-	},
+@Component({
 	components:{
 		ParamItem,
 		ToggleBlock,
@@ -31,6 +25,10 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class VoiceGlobalCommands extends Vue {
 
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public open!:boolean;
 
 	public items:TwitchatDataTypes.ParameterData[] = [];

@@ -54,27 +54,13 @@ import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
-@Options({
-	props:{
-		action: {
-			type: Object,
-			default:{},
-		},
-		triggerMode: {
-			type: Boolean,
-			default: false
-		},
-		voiceControl: {
-			type: Boolean,
-			default: false
-		}
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -83,10 +69,22 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	emits:['close']
 })
 export default class PredictionForm extends Vue {
-
+	
+	@Prop({
+			type: Boolean,
+			default: false
+		})
 	public voiceControl!:boolean;
+	@Prop({
+			type: Boolean,
+			default: false
+		})
 	public triggerMode!:boolean;
 	//This is used by the trigger action form.
+	@Prop({
+			type: Object,
+			default:{},
+		})
 	public action!:TriggerActionPredictionData;
 
 	public loading = false;

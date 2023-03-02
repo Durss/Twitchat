@@ -74,15 +74,14 @@ import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		Splitter,

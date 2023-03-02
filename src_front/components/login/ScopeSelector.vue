@@ -32,18 +32,12 @@ import Config from '@/utils/Config';
 import { type TwitchScopesString, TwitchScope2Icon } from '@/utils/twitch/TwitchScopes';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleButton from '../ToggleButton.vue';
 
-@Options({
-	props:{
-		requestedScopes:{
-			type:Array,
-			default:[],
-		},
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -52,7 +46,10 @@ import ToggleButton from '../ToggleButton.vue';
 	emits:["update"]
 })
 export default class ScopeSelector extends Vue {
-
+	@Prop({
+			type:Array,
+			default:[],
+		})
 	public requestedScopes!:TwitchScopesString[];
 
 	public allBt:boolean = true;

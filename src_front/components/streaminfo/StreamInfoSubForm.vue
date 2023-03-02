@@ -36,37 +36,35 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 
-@Options({
-	props:{
-		title:{
-			type:String,
-			default:""
-		},
-		tags:{
-			type:Object,
-			default:[]
-		},
-		category:{
-			type:Object,
-			default:{}
-		},
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
 		AutoCompleteForm,
 	},
-	emit:["update:title", "update:tags", "update:category"]
+	emits:["update:title", "update:tags", "update:category"]
 })
 export default class StreamInfoSubForm extends Vue {
 
+	@Prop({
+			type:String,
+			default:""
+		})
 	public title!:string;
+	@Prop({
+			type:Object,
+			default:[]
+		})
 	public tags!:string[];
+	@Prop({
+			type:Object,
+			default:{}
+		})
 	public category!:TwitchDataTypes.StreamCategory;
 
 	public param_title:TwitchatDataTypes.ParameterData	= {value:"", type:"text", maxLength:140};

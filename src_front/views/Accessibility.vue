@@ -5,10 +5,9 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{},
+@Component({
 	components:{}
 })
 export default class Accessibility extends Vue {

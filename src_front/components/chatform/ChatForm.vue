@@ -245,7 +245,7 @@ import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { LoremIpsum } from 'lorem-ipsum';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteChatForm from './AutocompleteChatForm.vue';
@@ -253,13 +253,7 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 
-@Options({
-	props:{
-		showFeed:Boolean,
-		showEmotes:Boolean,
-		showCommands:Boolean,
-		showRewards:Boolean,
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -289,9 +283,13 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 })
 export default class ChatForm extends Vue {
 
+	@Prop
 	public showFeed!:boolean;
+	@Prop
 	public showEmotes!:boolean;
+	@Prop
 	public showCommands!:boolean;
+	@Prop
 	public showRewards!:boolean;
 
 	public message = "";

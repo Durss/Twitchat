@@ -32,22 +32,20 @@
 import { MusicTriggerEvents, TriggerActionHelpers, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-	},
+@Component({
 	components:{
 		ParamItem,
 	},
 })
 export default class TriggerActionMusicEntry extends Vue {
 
+	@Prop
 	public action!:TriggerActionMusicEntryData;
+	@Prop
 	public event!:TriggerEventTypes;
 
 	public actions_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"0", listValues:[], icon:"music_purple.svg" };

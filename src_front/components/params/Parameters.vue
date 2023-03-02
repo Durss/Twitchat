@@ -108,7 +108,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -132,8 +132,7 @@ import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import ParamItem from './ParamItem.vue';
 import PostOnChatParam from './PostOnChatParam.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ParamItem,

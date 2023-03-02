@@ -45,13 +45,12 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/voice/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Splitter,
 		ParamItem,

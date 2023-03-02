@@ -29,45 +29,43 @@
 
 <script lang="ts">
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		modelValue:{
-			type:[Object],
-			default:"",
-		},
-		title:{
-			type:String,
-			default:"",
-		},
-		idKey:{
-			type:String,
-			default:"",
-		},
-		delay:{
-			type:Number,
-			default:250,
-		},
-		maxItems:{
-			type:Number,
-			default:10,
-		},
-		maxAutocompleteItems:{
-			type:Number,
-			default:20,
-		},
-	},
+@Component({
 	components:{},
 	emits:["search", "update:modelValue"]
 })
 export default class AutoCompleteForm extends Vue {
 
+	@Prop({
+			type:String,
+			default:"",
+		})
 	public title!:string;
+	@Prop({
+			type:String,
+			default:"",
+		})
 	public idKey!:string;
+	@Prop({
+			type:Number,
+			default:250,
+		})
 	public delay!:number;
+	@Prop({
+			type:Number,
+			default:10,
+		})
 	public maxItems!:number;
+	@Prop({
+			type:[Object],
+			default:"",
+		})
 	public modelValue!:unknown[];
+	@Prop({
+			type:Number,
+			default:20,
+		})
 	public maxAutocompleteItems!:number;
 
 	public loading:boolean = false;

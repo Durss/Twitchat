@@ -26,13 +26,10 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 
-@Options({
-	props:{
-		messageData:Object,
-	},
+@Component({
 	components:{
 		Button,
 	},
@@ -40,6 +37,7 @@ import Button from '../Button.vue';
 })
 export default class ChatScopeRequester extends Vue {
 	
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageScopeRequestData;
 
 	public get time():string {

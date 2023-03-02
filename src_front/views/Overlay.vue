@@ -9,15 +9,14 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import OverlayMusicPlayer from '../components/overlays/OverlayMusicPlayer.vue';
 import OverlaysRaffleWheel from '../components/overlays/OverlaysRaffleWheel.vue';
 import OverlayTimer from '../components/overlays/OverlayTimer.vue';
 import OverlayChatHighlight from '../components/overlays/OverlayChatHighlight.vue';
 import OverlayCounter from '../components/overlays/OverlayCounter.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		OverlayTimer,
 		OverlayCounter,

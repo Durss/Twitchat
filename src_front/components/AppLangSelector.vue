@@ -18,12 +18,11 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		CountryFlag,
 	}

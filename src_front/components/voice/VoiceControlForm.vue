@@ -25,24 +25,14 @@
 import DataStore from '@/store/DataStore';
 import VoiceController from '@/utils/voice/VoiceController';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import LangSelector from '../LangSelector.vue';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceTriggerList from './VoiceTriggerList.vue';
 
-@Options({
-	props:{
-		sttOnly: {
-			type: Boolean,
-			default: false,
-		},
-		voiceApiAvailable: {
-			type: Boolean,
-			default: true,
-		},
-	},
+@Component({
 	components:{
 		Button,
 		Splitter,
@@ -53,7 +43,15 @@ import VoiceTriggerList from './VoiceTriggerList.vue';
 })
 export default class VoiceControlForm extends Vue {
 
+	@Prop({
+			type: Boolean,
+			default: false,
+		})
 	public sttOnly!:boolean;
+	@Prop({
+			type: Boolean,
+			default: true,
+		})
 	public voiceApiAvailable!:boolean;
 
 	public lang:string = "";

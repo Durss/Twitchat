@@ -128,7 +128,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
@@ -136,21 +136,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
-@Options({
-	props:{
-		action: {
-			type: Object,
-			default:{},
-		},
-		voiceControl: {
-			type: Boolean,
-			default: false
-		},
-		triggerMode: {
-			type: Boolean,
-			default: false
-		}
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -160,10 +146,22 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	}
 })
 export default class RaffleForm extends Vue {
-
+	
+	@Prop({
+			type: Boolean,
+			default: false
+		})
 	public voiceControl!:boolean;
+	@Prop({
+			type: Boolean,
+			default: false
+		})
 	public triggerMode!:boolean;
 	//This is used by the trigger action form.
+	@Prop({
+			type: Object,
+			default:{},
+		})
 	public action!:TriggerActionRaffleData;
 
 	public pickingEntry = false;

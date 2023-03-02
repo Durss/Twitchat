@@ -13,10 +13,9 @@
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{},
+@Component({
 	components:{}
 })
 export default class CommunityBoostInfo extends Vue {

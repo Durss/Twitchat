@@ -29,7 +29,7 @@ import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 import OBSConnectForm from '../components/params/contents/obs/OBSConnectForm.vue';
 import ParamsOBS from '../components/params/contents/ParamsOBS.vue';
@@ -37,8 +37,7 @@ import ParamItem from '../components/params/ParamItem.vue';
 import ToggleBlock from '../components/ToggleBlock.vue';
 import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		ParamItem,
 		ParamsOBS,

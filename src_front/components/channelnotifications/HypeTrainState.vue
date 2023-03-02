@@ -90,11 +90,10 @@ import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		ProgressBar,
 	}

@@ -35,18 +35,16 @@
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionCountGetData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		action:Object,
-	},
+@Component({
 	components:{
 		ParamItem,
 	},
 })
 export default class TriggerActionCountGetEntry extends Vue {
 
+	@Prop
 	public action!:TriggerActionCountGetData;
 
 	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.countget.select_label", value:[], listValues:[]}

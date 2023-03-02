@@ -166,7 +166,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
@@ -184,7 +184,7 @@ import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import Login from './Login.vue';
 
-@Options({
+@Component({
 	components:{
 		Login,
 		Button,
@@ -218,8 +218,6 @@ import Login from './Login.vue';
 		DataServerSyncModal,
 		ChannelNotifications,
 		EmergencyFollowsListModal,
-	},
-	props:{
 	},
 })
 export default class Chat extends Vue {

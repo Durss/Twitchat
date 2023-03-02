@@ -13,10 +13,9 @@
 <script lang="ts">
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{},
+@Component({
 	components:{}
 })
 export default class VoiceTranscript extends Vue {

@@ -17,14 +17,9 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import { TriggerActionHelpers, type ITriggerActionHelper, type TriggerActionHTTPCallData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-		triggerKey:String,
-	},
+@Component({
 	components:{
 		ParamItem,
 	},
@@ -32,8 +27,11 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class TriggerActionHTTPCall extends Vue {
 
+	@Prop
 	public action!:TriggerActionHTTPCallData;
+	@Prop
 	public event!:TriggerEventTypes;
+	@Prop
 	public triggerKey!:string;
 
 	public securityError:boolean = false;

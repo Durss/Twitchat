@@ -41,12 +41,11 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ToggleBlock,

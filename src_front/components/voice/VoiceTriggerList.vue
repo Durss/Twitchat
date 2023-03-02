@@ -71,15 +71,13 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 
-@Options({
-	props:{
-	},
+@Component({
 	components:{
 		Button,
 		draggable,

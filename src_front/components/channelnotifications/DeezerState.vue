@@ -55,14 +55,13 @@ import type { DeezerQueueItem, DeezerTrack } from '@/utils/music/DeezerHelper';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import OverlayMusicPlayer from '../overlays/OverlayMusicPlayer.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VolumeBar from '../VolumeBar.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		VolumeBar,

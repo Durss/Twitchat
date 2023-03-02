@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import MessageSearch from '../chatform/MessageSearch.vue';
 import BingoState from './BingoState.vue';
@@ -48,10 +48,7 @@ import RaidState from './RaidState.vue';
 import TrackedUsers from './TrackedUsers.vue';
 import WhispersState from './WhispersState.vue';
 
-@Options({
-	props:{
-		currentContent:String,
-	},
+@Component({
 	components:{
 		Button,
 		PollState,
@@ -70,6 +67,7 @@ import WhispersState from './WhispersState.vue';
 })
 export default class ChannelNotifications extends Vue {
 
+	@Prop
 	public currentContent!:string;
 	
 	private clickHandler!:(e:MouseEvent) => void;

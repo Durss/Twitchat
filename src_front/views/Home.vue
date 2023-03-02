@@ -126,14 +126,13 @@ import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import type {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../components/Splitter.vue';
 import AnchorsMenu from '../components/AnchorsMenu.vue';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		Splitter,
@@ -202,7 +201,7 @@ export default class Home extends Vue {
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
 			let el = this.$refs[refs[i]] as HTMLElement | Vue;
-			if((el as Vue).$el) el = (el as Vue).$el;
+			if((el as Vue).$el) el = (el as Vue).$el as HTMLElement;
 			const delay = i*.1+.5;
 			gsap.fromTo(el, {opacity:0, y:-20, scale:.85}, 
 							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});

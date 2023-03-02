@@ -36,12 +36,11 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ProgressBar from '../ProgressBar.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ProgressBar,

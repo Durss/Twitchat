@@ -20,12 +20,11 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
 import Button from '../components/Button.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ParamsSponsor,

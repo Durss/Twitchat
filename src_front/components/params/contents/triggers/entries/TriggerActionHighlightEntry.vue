@@ -13,23 +13,21 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerActionHelpers, type TriggerActionHighlightData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-	},
+@Component({
 	components:{
 		ParamItem,
 	},
 	emits:["update", "setContent"]
 })
 export default class TriggerActionHighlightEntry extends Vue {
-
+	
+	@Prop
 	public action!:TriggerActionHighlightData;
+	@Prop
 	public event!:TriggerEventTypes;
 
 	private showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [];

@@ -5,21 +5,19 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		small:{type:Boolean, default: false},
-		clear:{type:Boolean, default: false},
-		modelValue:{type:Boolean, default: false},
-	},
+@Component({
 	components:{},
 	emits: ['update:modelValue', 'change'],
 })
 export default class ToggleButton extends Vue {
-
+	
+	@Prop({type:Boolean, default: false})
 	public small!:boolean;
+	@Prop({type:Boolean, default: false})
 	public clear!:boolean;
+	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
 
 	public get classes():string[] {

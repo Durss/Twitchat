@@ -86,17 +86,10 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 
-@Options({
-	props:{
-		messageData:Object,
-		filtering:{
-			type:Boolean,
-			default:false,
-		},
-	},
+@Component({
 	components:{
 		Button,
 	},
@@ -104,8 +97,13 @@ import Button from '../Button.vue';
 })
 
 export default class ChatHypeTrainResult extends Vue {
-
+	
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public filtering!:boolean;
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageHypeTrainSummaryData;
 
 	public reachPercent:number = 0;

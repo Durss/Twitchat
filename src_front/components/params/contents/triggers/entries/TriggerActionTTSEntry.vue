@@ -18,14 +18,10 @@
 <script lang="ts">
 import { TriggerActionHelpers, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-	},
+@Component({
 	components:{
 		ParamItem,
 	},
@@ -33,7 +29,9 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionTTSEntry extends Vue {
 	
+	@Prop
 	public action!:TriggerActionChatData;
+	@Prop
 	public event!:TriggerEventTypes;
 
 	public message_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };

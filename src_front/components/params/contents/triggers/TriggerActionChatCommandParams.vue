@@ -28,14 +28,11 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import PermissionsForm from '../../../PermissionsForm.vue';
 
-@Options({
-	props:{
-		triggerData:Object,
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -45,6 +42,7 @@ import PermissionsForm from '../../../PermissionsForm.vue';
 })
 export default class TriggerActionChatCommandParams extends Vue {
 
+	@Prop
 	public triggerData!:TriggerData;
 
 	public cmdNameConflict = false;

@@ -39,31 +39,30 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import { Vue3Marquee } from 'vue3-marquee';
 import 'vue3-marquee/dist/style.css';
 
-@Options({
-	props:{
-		embed: {
-			type: Boolean,
-			default: false,
-		},
-		keepEmbedTransitions: {
-			type: Boolean,
-			default: false,
-		},
-		staticTrackData: Object,
-	},
+@Component({
 	components:{
 		Vue3Marquee,
 	},
 	emits:["seek"]
 })
 export default class OverlayMusicPlayer extends Vue {
-
+	
+	@Prop({
+			type: Boolean,
+			default: false,
+		})
 	public embed!:boolean;
+	@Prop({
+			type: Boolean,
+			default: false,
+		})
 	public keepEmbedTransitions!:boolean;
+	@Prop
+	@Prop
 	public playbackPos!:number;
 	public staticTrackData!:TwitchatDataTypes.MusicTrackData;
 	

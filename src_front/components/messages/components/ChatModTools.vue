@@ -22,18 +22,10 @@ import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 
-@Options({
-	props:{
-		messageData:Object,
-		canDelete:Boolean,
-		canBlock:{
-			type:Boolean,
-			default:false,
-		},
-	},
+@Component({
 	components:{
 		Button,
 	},
@@ -44,10 +36,16 @@ import Button from '../../Button.vue';
  */
 export default class ChatModTools extends Vue {
 	
+	@Prop
 	public canDelete!:boolean;
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public canBlock!:boolean;
-
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageChatData;
+	
 	public showToOptions = false;
 
 	private closeTimeout = 0;

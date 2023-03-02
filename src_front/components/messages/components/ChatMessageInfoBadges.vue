@@ -9,16 +9,14 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		infos:Object,
-	},
+@Component({
 	components:{}
 })
 export default class ChatMessageInfoBadges extends Vue {
 
+	@Prop
 	public infos!:TwitchatDataTypes.MessageBadgeData[];
 
 	public mounted():void {

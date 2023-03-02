@@ -141,31 +141,30 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
 
-@Options({
+@Component({
 	components:{
 		Button,
 		ChatModTools,
 		ChatMessageInfoBadges,
 	},
-	props:{
-		messageData:Object,
-		lightMode:{type:Boolean, default:false},
-		disableConversation:{type:Boolean, default:false},
-		highlightedWords:{type:Array, default:[]},
-	},
 	emits:['showConversation', 'showUserMessages', 'unscheduleMessageOpen', 'onOverMessage', 'onRead'],
 })
 export default class ChatMessage extends Vue {
- 
+
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
+	@Prop({type:Boolean, default:false})
 	public lightMode!:boolean;
+	@Prop({type:Boolean, default:false})
 	public disableConversation!:boolean;
+	@Prop({type:Array, default:[]})
 	public highlightedWords!:string[];
+	@Prop
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	
 	public text = "";

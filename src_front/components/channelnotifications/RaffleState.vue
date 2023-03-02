@@ -56,13 +56,12 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ProgressBar from '../ProgressBar.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ProgressBar,
@@ -79,8 +78,8 @@ export default class RaffleState extends Vue {
 	
 	public get canPick():boolean {
 		return (this.raffleData.entries && this.raffleData.entries.length > 0)
-		 && (this.raffleData.winners == undefined
-		 || this.raffleData.winners?.length < this.raffleData.entries.length)
+			&& (this.raffleData.winners == undefined
+			|| this.raffleData.winners?.length < this.raffleData.entries.length)
 	}
 	
 	public getUserFromEntry(entry:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.TwitchatUser|null {

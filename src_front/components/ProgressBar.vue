@@ -8,23 +8,19 @@
 <script lang="ts">
 import Utils from '@/utils/Utils';
 import type { StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		percent:Number,
-		duration:Number,
-		green:{
-			type:Boolean,
-			default:false,
-		},
-	},
+@Component({
 	components:{}
 })
 export default class ProgressBar extends Vue {
 
 	public percent!:number;
 	public duration!:number;//In ms
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public green!:boolean;
 
 	public get timeLeft():string {

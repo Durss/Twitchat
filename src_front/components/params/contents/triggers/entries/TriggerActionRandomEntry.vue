@@ -54,12 +54,9 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionRandomData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		action:Object,
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -67,6 +64,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class TriggerActionRandomEntry extends Vue {
 
+	@Prop
 	public action!:TriggerActionRandomData;
 
 	public param_min:TwitchatDataTypes.ParameterData = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min_purple.svg"}

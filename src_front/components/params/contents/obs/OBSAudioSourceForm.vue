@@ -21,11 +21,10 @@ import type { OBSInputItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ParamItem,

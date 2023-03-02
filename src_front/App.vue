@@ -9,14 +9,13 @@
 
 <script lang="ts">
 import { watch, type StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import DataStore from './store/DataStore';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import Tooltip from "./views/Tooltip.vue";
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Alert,
 		Confirm,

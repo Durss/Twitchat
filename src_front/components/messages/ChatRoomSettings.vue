@@ -39,15 +39,12 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
-@Options({
-	props:{
-		messageData:Object,
-	},
+@Component({
 	components:{
 		Button,
 		Splitter,
@@ -58,6 +55,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 })
 export default class ChatRoomSettings extends Vue {
 
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageRoomSettingsData;
 	public isMod:boolean = false;
 

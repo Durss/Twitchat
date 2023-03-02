@@ -19,17 +19,14 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		messageData:Object,
-	},
+@Component({
 	components:{},
 	emits:["onRead"]
 })
 export default class ChatConnect extends Vue {
-	
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageConnectData | TwitchatDataTypes.MessageDisconnectData;
 	
 	public message:string = "";

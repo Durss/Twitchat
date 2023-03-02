@@ -19,14 +19,10 @@
 import type { TriggerActionVoicemodData, TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-	},
+@Component({
 	components:{
 		ParamItem,
 	},
@@ -34,7 +30,9 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionVoicemodEntry extends Vue {
 	
+	@Prop
 	public action!:TriggerActionVoicemodData;
+	@Prop
 	public event!:TriggerEventTypes;
 
 	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"", listValues:[], value:""}

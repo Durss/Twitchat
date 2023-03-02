@@ -180,40 +180,13 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 
-@Options({
+@Component({
 	name:"ParamItem",//This is needed so recursion works properly
-	props:{
-		paramData:Object,
-		childLevel:{
-			type:Number,
-			default:0,
-		},
-		autofocus:{
-			type:Boolean,
-			default:false,
-		},
-		modelValue:{
-			type:[String, Number, Boolean, Object, Array],
-			default: null
-		},
-		error:{
-			type:Boolean,
-			default:false,
-		},
-		clearToggle:{
-			type:Boolean,
-			default:false,
-		},
-		disabled:{
-			type:Boolean,
-			default:false,
-		},
-	},
 	components:{
 		Button,
 		ToggleButton,
@@ -223,12 +196,37 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 })
 export default class ParamItem extends Vue {
 	
-	public error!:boolean;
-	public disabled!:boolean;
-	public autofocus!:boolean;
-	public clearToggle!:boolean;
-	public childLevel!:number;
+	@Prop
 	public paramData!:TwitchatDataTypes.ParameterData;
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
+	public error!:boolean;
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
+	public disabled!:boolean;
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
+	public autofocus!:boolean;
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
+	public clearToggle!:boolean;
+	@Prop({
+			type:Number,
+			default:0,
+		})
+	public childLevel!:number;
+	@Prop({
+			type:[String, Number, Boolean, Object, Array],
+			default: null
+		})
 	public modelValue!:string|boolean|number|string[];
 
 	public searching:boolean = false;
@@ -450,7 +448,7 @@ export default class ParamItem extends Vue {
 					divs = [this.$refs.param_child_slot as HTMLDivElement];
 				}else{
 					const childrenItems = this.$refs.param_child as Vue[];
-					divs = childrenItems.map(v => v.$el);
+					divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
 				}
 				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
 						onComplete:()=> {
@@ -487,7 +485,7 @@ export default class ParamItem extends Vue {
 				divs = [this.$refs.param_child_slot as HTMLDivElement];
 			}else{
 				const childrenItems = this.$refs.param_child as Vue[];
-				divs = childrenItems.map(v => v.$el);
+				divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
 			}
 			gsap.from(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all"});
 		}

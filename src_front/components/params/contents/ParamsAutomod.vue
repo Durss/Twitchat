@@ -69,15 +69,14 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UnicodeUtils from '@/utils/UnicodeUtils';
 import Utils from '@/utils/Utils';
 import { reactive, watch, type StyleValue } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ToggleButton from '../../ToggleButton.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		Splitter,

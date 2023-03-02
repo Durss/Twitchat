@@ -17,30 +17,28 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		items:{
-			type:Array,
-			default:[],
-		},
-		openAnimaton:{
-			type:Boolean,
-			default:false,
-		},
-		openDelay:{
-			type:Number,
-			default:0,
-		}
-	},
+@Component({
 	components:{},
 	emits:["select"],
 })
 export default class AnchorsMenu extends Vue {
 
+	@Prop({
+			type:Array,
+			default:[],
+		})
 	public items!:TwitchatDataTypes.AnchorData[];
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public openAnimaton!:boolean;
+	@Prop({
+			type:Number,
+			default:0,
+		})
 	public openDelay!:number;
 
 	public getClasses(a:TwitchatDataTypes.AnchorData):string[] {

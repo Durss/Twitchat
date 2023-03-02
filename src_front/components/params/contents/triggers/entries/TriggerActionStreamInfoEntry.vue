@@ -12,15 +12,10 @@ import type { TriggerActionStreamInfoData, TriggerEventTypes } from '@/types/Tri
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-		triggerKey:String,
-	},
+@Component({
 	components:{
 		ParamItem,
 		ToggleBlock,
@@ -30,8 +25,11 @@ import ParamItem from '../../../ParamItem.vue';
 })
 export default class TriggerActionStreamInfoEntry extends Vue {
 
+	@Prop
 	public action!:TriggerActionStreamInfoData;
+	@Prop
 	public event!:TriggerEventTypes;
+	@Prop
 	public triggerKey!:string;
 
 	public loading:boolean = true;

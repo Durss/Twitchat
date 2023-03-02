@@ -32,29 +32,12 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatMessage from '../messages/ChatMessage.vue';
 import ParamItem from './ParamItem.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 
-@Options({
-	props:{
-		titleKey:{
-			type:String,
-			default:"",
-		},
-		botMessageKey:String,
-		placeholders:Object,
-		icon:String,
-		noToggle:{
-			type:Boolean,
-			default:false,
-		},
-		clearToggle:{
-			type:Boolean,
-			default:false,
-		},
-	},
+@Component({
 	components:{
 		ParamItem,
 		ChatMessage,
@@ -63,12 +46,28 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 })
 export default class PostOnChatParam extends Vue {
 	
+	@Prop
 	public icon!:string;
+	@Prop({
+			type:String,
+			default:"",
+		})
 	public titleKey!:string;
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public noToggle!:boolean;
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public clearToggle!:boolean;
+	@Prop
 	public botMessageKey!:TwitchatDataTypes.BotMessageField;
+	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
+	@Prop
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";

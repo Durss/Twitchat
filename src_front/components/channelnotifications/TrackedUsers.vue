@@ -45,12 +45,11 @@ import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ChatMessage

@@ -15,14 +15,9 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		placeholders:Object,
-		target:Object,
-		modelValue:String,
-	},
+@Component({
 	components:{
 		ToggleBlock,
 	},
@@ -30,8 +25,11 @@ import { Options, Vue } from 'vue-class-component';
 })
 export default class PlaceholderSelector extends Vue {
 
+	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
+	@Prop
 	public target!:(HTMLInputElement | HTMLTextAreaElement) | Promise<HTMLInputElement | HTMLTextAreaElement>;
+	@Prop
 	public modelValue!:string;
 
 	/**

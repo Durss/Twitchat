@@ -50,7 +50,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import AppLangSelector from '../AppLangSelector.vue';
@@ -61,8 +61,7 @@ import OverlayCounter from '../overlays/OverlayCounter.vue';
 import { watch } from 'vue';
 import DataStore from '@/store/DataStore';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ToggleBlock,

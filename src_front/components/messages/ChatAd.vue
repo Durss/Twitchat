@@ -121,16 +121,13 @@ import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatChangelog from './ChatChangelog.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
-@Options({
-	props:{
-		messageData:Object,
-	},
+@Component({
 	components:{
 		Button,
 		Splitter,
@@ -142,6 +139,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 })
 export default class ChatAd extends Vue {
 
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageTwitchatAdData;
 	
 	public voiceIcon:string = "";

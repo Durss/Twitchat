@@ -95,12 +95,11 @@ import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatModTools from '../messages/components/ChatModTools.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ChatModTools,

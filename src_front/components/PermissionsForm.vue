@@ -17,25 +17,22 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from './params/ParamItem.vue';
 
-@Options({
-	props:{
-		modelValue:Object,
-		clear:{
-			type:Boolean,
-			default:false,
-		}
-	},
+@Component({
 	components:{
 		ParamItem
 	},
 	emits:["update:modelValue"],
 })
 export default class PermissionsForm extends Vue {
-
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public clear!:boolean;
+	@Prop
 	public modelValue!:TwitchatDataTypes.PermissionsData;
 	
 	public param_broadcaster:TwitchatDataTypes.ParameterData	= { type:"toggle", labelKey:"global.permissions.broadcaster", value:true, icon:"broadcaster_purple.svg" };

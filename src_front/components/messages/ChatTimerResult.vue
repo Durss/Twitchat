@@ -15,17 +15,15 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		messageData:Object,
-	},
+@Component({
 	components:{},
 	emits:["onRead"]
 })
 export default class ChatTimerResult extends Vue {
 
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageTimerData;
 
 	public abortDuration:string = "";

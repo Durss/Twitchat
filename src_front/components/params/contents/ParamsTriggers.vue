@@ -230,7 +230,7 @@ import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScop
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ToggleButton from '../../ToggleButton.vue';
@@ -239,8 +239,7 @@ import TriggerActionChatCommandParams from './triggers/TriggerActionChatCommandP
 import TriggerActionEntry from './triggers/TriggerActionEntry.vue';
 import TriggerActionScheduleParams from './triggers/TriggerActionScheduleParams.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		draggable,

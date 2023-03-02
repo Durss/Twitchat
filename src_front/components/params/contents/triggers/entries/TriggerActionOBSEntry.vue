@@ -37,16 +37,11 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import { TriggerActionHelpers, type ITriggerActionHelper, type TriggerActionObsData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
-@Options({
-	props:{
-		action:Object,
-		sources:Object,
-		event:Object,
-	},
+@Component({
 	components:{
 		ParamItem,
 	},
@@ -54,8 +49,11 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 })
 export default class TriggerActionOBSEntry extends Vue {
 
+	@Prop
 	public action!:TriggerActionObsData;
+	@Prop
 	public sources!:OBSSourceItem[];
+	@Prop
 	public event!:TriggerEventTypes;
 	
 	public action_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], icon:"show_purple.svg" };

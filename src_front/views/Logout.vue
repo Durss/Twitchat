@@ -30,10 +30,9 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 	}

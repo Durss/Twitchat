@@ -43,14 +43,13 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/music/DeezerHelper';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayParamsMusic from './OverlayParamsMusic.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ToggleBlock,

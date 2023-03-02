@@ -70,23 +70,21 @@ import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		scopeOnly:{
-			type:Boolean,
-			default:false,
-		}
-	},
+@Component({
 	components:{
 		Button,
 		ScopeSelector
 	},
-	emit:["close"]
+	emits:["close"]
 })
 export default class Login extends Vue {
 
+	@Prop({
+			type:Boolean,
+			default:false,
+		})
 	public scopeOnly!:boolean;
 
 	public isBeta = false;

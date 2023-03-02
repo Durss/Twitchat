@@ -49,7 +49,7 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import OverlayParamsDeezer from './overlays/OverlayParamsDeezer.vue';
 import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
@@ -58,8 +58,7 @@ import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		OverlayParamsRaffle,

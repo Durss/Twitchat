@@ -49,14 +49,11 @@ import { ScheduleTriggerEvents, TriggerEventTypeCategories, TriggerTypes, type T
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import PermissionsForm from '../../../PermissionsForm.vue';
 
-@Options({
-	props:{
-		triggerData:Object,
-	},
+@Component({
 	components:{
 		Button,
 		ParamItem,
@@ -66,6 +63,7 @@ import PermissionsForm from '../../../PermissionsForm.vue';
 })
 export default class TriggerActionScheduleParams extends Vue {
 
+	@Prop
 	public triggerData!:TriggerData;
 
 	public nameConflict = false;

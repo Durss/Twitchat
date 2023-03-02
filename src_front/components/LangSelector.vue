@@ -30,14 +30,11 @@
 <script lang="ts">
 import { Languages } from '@/Languages';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css';
 
-@Options({
-	props:{
-		lang:String,
-	},
+@Component({
 	components:{
 		CountryFlag,
 	},
@@ -45,6 +42,7 @@ import 'vue3-country-flag-icon/dist/CountryFlag.css';
 })
 export default class LangSelector extends Vue {
 
+	@Prop
 	public lang!:string;
 
 	public langLocal:{label:string, value:string[][]} = {label:"", value:[]};

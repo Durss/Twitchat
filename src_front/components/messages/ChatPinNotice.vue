@@ -21,19 +21,17 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatMessage from './ChatMessage.vue';
 
-@Options({
-	props:{
-		messageData:Object,
-	},
+@Component({
 	components:{
 		ChatMessage,
 	}
 })
 export default class ChatPinNotice extends Vue {
 	
+	@Prop
 	public messageData!:TwitchatDataTypes.MessagePinData|TwitchatDataTypes.MessageUnpinData;
 
 	public get classes():string[] {

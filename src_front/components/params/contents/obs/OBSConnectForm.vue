@@ -32,14 +32,13 @@ import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import Button from '../../../Button.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ParamItem,

@@ -54,25 +54,23 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 
-@Options({
-	props:{
-		action:Object,
-		event:Object,
-		triggerData:Object,
-		triggerKey:String,
-	},
+@Component({
 	components:{
 		ToggleBlock,
 	}
 })
 export default class TriggerActionTriggerEntry extends Vue {
 
+	@Prop
 	public action!:TriggerActionTriggerData;
+	@Prop
 	public event!:TriggerEventTypes;
+	@Prop
 	public triggerData!:TriggerData;
+	@Prop
 	public triggerKey!:string;
 
 	public loading:boolean = true;

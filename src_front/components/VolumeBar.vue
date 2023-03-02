@@ -12,20 +12,18 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		modelValue:{
-			type:Number,
-			default:.25,
-		},
-	},
+@Component({
 	components:{},
 	emits:["update:modelValue"]
 })
 export default class VolumeBar extends Vue {
 
+	@Prop({
+			type:Number,
+			default:.25,
+		})
 	public modelValue!:number;
 
 	public mousePressed = false;

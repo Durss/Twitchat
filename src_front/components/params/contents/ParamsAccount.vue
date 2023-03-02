@@ -70,7 +70,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import DonorState from "../../user/DonorState.vue";
 import ParamItem from '../ParamItem.vue';
@@ -78,8 +78,7 @@ import AppLangSelector from '@/components/AppLangSelector.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
-@Options({
-	props:{},
+@Component({
 	components:{
 		Button,
 		ParamItem,

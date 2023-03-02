@@ -18,17 +18,15 @@ import { storeParams } from '@/store/params/storeParams';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Options, Vue } from 'vue-class-component';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
-@Options({
-	props:{
-		messageData:Object,
-	},
+@Component({
 	components:{},
 	emits:["onRead"]
 })
 export default class ChatRaffleResult extends Vue {
 
+	@Prop
 	public messageData!:TwitchatDataTypes.MessageRaffleData;
 	public sParams = storeParams();
 	
