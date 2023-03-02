@@ -192,8 +192,8 @@ node server/boostrap.js
 
 # Install server
 All the following MUST be done on a seperate folder from the GIT project.\
-[Compile the project](#compile-project) and push the content of the `server` folder on your server.\
-Next to this file, create a `dist` folder and push the content of your local `dist` folder inside it.\
+[Compile the project](#compile-project) and push the content of the `server` folder on your server root.\
+Next to this file, create a `public` folder and push the content of your local `dist` folder inside it.\
 Also add the `credentials.json` file at the root of the project.\
 Create an `env.conf` file, just write `prod` inside, and push it at the root of the project.\
 Install all the production dependencies and [run the server](#run-server).
@@ -215,7 +215,7 @@ Here is the expected file structure:\
 App labels can be found under `i18n` folder.\
 They are splitted by language then by sections.\
 Any new file or folder structure can be added to this.\
-These are all merged into `public/labels.json` during the build process.\
+These are all merged into `static/labels.json` during the build process.\
 Files can have any name but should have full JSON structure so the plugin i18n-ally can check for label keys on the code.
 Example:\
 ```

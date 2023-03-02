@@ -1,6 +1,6 @@
 /**
  * This process takes all the JSON files within the "i18n" folder,
- * compiles them all together and output the public/labels.json file
+ * compiles them all together and output the static/labels.json file
  */
 const fs = require("fs");
 const path = require("path");
@@ -46,7 +46,7 @@ for(let i=0; i < files.length; i++) {
 	}
 	
 }
-const dest = path.join(__dirname, "../public/labels.json");
+const dest = path.join(__dirname, "../static/labels.json");
 fs.writeFileSync(dest, JSON.stringify(output));
 
 console.log("\x1b[32m All files compiled to:", dest, "\x1b[0m");

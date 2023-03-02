@@ -17,7 +17,7 @@
 	"write": true,
 	"ignore_watch": [
 		"node_modules",
-		"public",
+		"static",
 		"src_back",
 		"src_front",
 		"userData",

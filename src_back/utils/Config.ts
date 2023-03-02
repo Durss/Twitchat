@@ -29,7 +29,7 @@ export default class Config {
 	}
 
 	/**
-	 * Validates a token and return the user data
+	 * Validates a token and returns the user data
 	 */
 	public static async getUserFromToken(token):Promise<{
 		client_id: string,
@@ -37,7 +37,7 @@ export default class Config {
 		scopes: string[],
 		user_id: string,
 		expires_in: number,
-	}> {
+	}|null> {
 		//Check access token validity
 		const options = {
 			method: "GET",
