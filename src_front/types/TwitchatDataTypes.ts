@@ -34,7 +34,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Contains info about a counter
 	 */
-	 export interface CounterData {
+	export interface CounterData {
 		id:string;
 		name:string;
 		value:number;
@@ -48,7 +48,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Contains config about a chat column
 	 */
-	 export interface ChatColumnsConfig {
+	export interface ChatColumnsConfig {
 		id:string;
 		order:number;
 		size:number;

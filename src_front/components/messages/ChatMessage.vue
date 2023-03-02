@@ -359,7 +359,7 @@ export default class ChatMessage extends Vue {
 
 		if(mess.user.is_raider) {
 			infoBadges.push({type:"raider"});
-			//Remove badges from the list if user is unflaged from raider
+			//Remove "raider" badge from the view when removed from data
 			watch(()=> mess.user.is_raider, () =>{
 				for (let i = 0; i < this.infoBadges.length; i++) {
 					const b = this.infoBadges[i];
