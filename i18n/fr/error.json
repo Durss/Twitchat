@@ -8,6 +8,7 @@
 		"twitch_poll_delete": "Une erreur a eu lieu lors de la suppression du sondage",
 		"twitch_prediction_delete": "Une erreur a eu lieu lors de la suppression de la prédiction",
 		"load_user_info": "Chargement de l'utilisateur échoué : {ERROR}",
+		"load_user_ban": "Une erreur est survenue lors de la récupération du statut de ban des chatters: {ERROR}",
 		"shoutout": "Echec du Shoutout",
 		"auto_shoutout": "Vous n'avez pas encore reçu de raid",
 		"commercial_start": "Une erreur a eu lieu lors du lancement de la publicité :{DETAILS}",

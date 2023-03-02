@@ -16,7 +16,7 @@
 			</ul>
 
 			<Button class="grantBt" :icon="$image('icons/lock_fit.svg')" :title="$t('chat.scope_request.grantBt')" @click="requestScopes()" white />
-			<Button class="grantBt" :icon="$image('icons/filters.svg')" :title="$t('chat.scope_request.openFiltersBt')" @click="openFilters()" white />
+			<Button class="filterBt" :icon="$image('icons/filters.svg')" :title="$t('chat.scope_request.openFiltersBt')" @click="openFilters()" white />
 		</div>
 	</div>
 </template>
@@ -104,7 +104,7 @@ export default class ChatScopeRequester extends Vue {
 			}
 		}
 
-		.grantBt {
+		.grantBt, .filterBt {
 			margin: auto;
 			margin-top: .5em;
 			display: block;

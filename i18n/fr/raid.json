@@ -1,6 +1,9 @@
 {
 	"raid": {
 		"raiding": "Raid vers {USER} avec {VIEWERS} personnes dans {TIMER}",
+		"copy_logins": "Copier les logins",
+		"banned_users": "Vous pouvez prévenir les modérateur·ices de {USER} que les personnes bannies suivantes risque d'arriver sur sa chaîne:",
+		"banned_users_title": "1 personne bannie risque de rejoindre le raid |{COUNT} personnes bannies risquent de rejoindre le raid",
 		"cant_force": "Twitch ne fournit aucune API pour forcer le raid avant la fin du compte à rebours désolé :("
 	}
 }

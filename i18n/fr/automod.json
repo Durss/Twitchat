@@ -57,7 +57,7 @@
 			"input_placeholder":"message...",
 			"result_tt":"Message nettoyé<br>avec caractères spéciaux remplacés<br>par leur équivalent latin",
 			"blocked_title":"Message bloqué par la règle : | Message bloqué par les règles : ",
-			"no_block":"Ce message passe lee filtrage"
+			"no_block":"Ce message passe le filtrage"
 		},
 		"options": {
 			"title":"Options",
