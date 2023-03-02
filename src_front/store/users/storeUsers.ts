@@ -76,6 +76,7 @@ export const storeUsers = defineStore('users', {
 
 	getters: {
 		users():TwitchatDataTypes.TwitchatUser[] { return userList; },
+		moderators():{[key:string]:{[key:string]:true}} { return moderatorsCache; },
 	},
 
 
@@ -105,6 +106,21 @@ export const storeUsers = defineStore('users', {
 			users.forEach(v => {
 				moderatorsCache[channelId][v.user_id] = true;
 			});
+		},
+
+		/**
+		 * Preloads latest ban states
+		 */
+		async preloadUserBanStates(channelId:string):Promise<void> {
+			const users = await TwitchUtils.getBannedUsers(channelId, userList.filter(v=>v.platform == "twitch").map(v=>v.id));
+			for (let i = 0; i < users.length; i++) {
+				const u = users[i];
+				const user = this.getUserFrom("twitch", channelId, u.user_id, u.user_login, u.user_name);
+				user.channelInfo[channelId].is_banned = true;
+				if(u.expires_at) {
+					user.channelInfo[channelId].banEndDate = new Date(u.expires_at).getTime();
+				}
+			}
 		},
 
 		/**

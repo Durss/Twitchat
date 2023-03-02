@@ -1036,7 +1036,39 @@ export default class TwitchUtils {
 		}while(cursor != null)
 		return list;
 	}
-	
+
+	/**
+	 * Get the banned states of specified users
+	 */
+	public static async getBannedUsers(channelId:string, uids:string[]):Promise<TwitchDataTypes.BannedUser[]> {
+		if(!this.hasScope(TwitchScopes.READ_MODS_AND_BANNED)) return [];
+		
+		let channels:TwitchDataTypes.BannedUser[] = [];
+		let fails:string[] = [];
+		//Split by 100 max to comply with API limitations
+		while(uids.length > 0) {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/banned");
+			url.searchParams.append("broadcaster_id", channelId);
+			uids.splice(0,100).forEach(v=> {
+				url.searchParams.append("user_id", v);
+			})
+			try {
+				const result = await fetch(url, { headers:this.headers });
+				const json = await result.json();
+				if(!json.error) {
+					channels = channels.concat(json.data);
+				}else{
+					fails = fails.concat(uids);
+				}
+			}catch(error) {
+				fails = fails.concat(uids);
+			}
+		}
+		if(fails.length > 0) {
+			StoreProxy.main.alert(StoreProxy.i18n.t("error.load_user_ban", {ERROR:fails}));
+		}
+		return channels;
+	}
 
 	/**
 	 * Get all the active streams that the current user is following
@@ -2225,7 +2257,7 @@ export default class TwitchUtils {
 			await Utils.promisedTimeout(resetDate - Date.now());
 			return await this.getChatters(channelId, channelName);
 
-		}else if(channelName) {
+		}else if(channelName && Date.now() < new Date("03-21-2023 00:00:00").getTime()) {//Unofficial api shutdown starts the 22nd of march
 			//Fallback to unofficial endpoint while it still work..
 			const res = await fetch(Config.instance.API_PATH+"/user/chatters?channel="+channelName);
 			const json:{success:boolean, data:TwitchDataTypes.ChattersUnofficialEndpoint} = await res.json();

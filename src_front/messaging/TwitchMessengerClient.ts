@@ -98,24 +98,28 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				StoreProxy.main.alert("Unable to load user info: "+ this._channelList);
 				return;
 			}
+			
+			let meObj = StoreProxy.auth.twitch.user;
+			
+			await StoreProxy.users.preloadTwitchModerators(meObj.id);
+			
 			chans.forEach(async v=> {
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
-				await StoreProxy.users.preloadTwitchModerators(v.id);
 				//Check if we're a mod on this channel by testing if the get chatters endpoint
 				//returns something or not
-				const amIModThere = (await TwitchUtils.getChatters(v.id)) !== false;
-				if(amIModThere) {
-					let meObj = StoreProxy.auth.twitch.user;
-					//Go through getUserFrom() that will init the channelInfo property for later use
-					let me = StoreProxy.users.getUserFrom("twitch", v.id, meObj.id, meObj.login, meObj.displayName)
-					//Flag self as mod of that channel
-					me.channelInfo[v.id].is_moderator = true;
-				}
+				TwitchUtils.getChatters(v.id).then(result => {
+					const amIModThere = result !== false;
+					if(amIModThere) {
+						//Go through getUserFrom() that will init the channelInfo property for later use
+						let me = StoreProxy.users.getUserFrom("twitch", v.id, meObj.id, meObj.login, meObj.displayName)
+						//Flag self as mod of that channel
+						me.channelInfo[v.id].is_moderator = true;
+					}
+				})
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
 				
-				const meId = StoreProxy.auth.twitch.user.id;
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
 				TwitchUtils.getRoomSettings(v.id).then(settings=> {
@@ -141,10 +145,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					(res || []).forEach((login) => {
 						//Don't notify when joining our own room.
 						//There's a "connect" notification for that
-						if(v.login != login || v.id != StoreProxy.auth.twitch.user.id) {
-							this.onJoin(v.login, login, v.id == meId, true);
+						if(v.login != login || v.id != meObj.id) {
+							this.onJoin(v.login, login, login == meObj.login, true);
 						}
 					});
+					if(v.id == meObj.id) {
+						StoreProxy.users.preloadUserBanStates(meObj.id);
+					}
 				});
 				BTTVUtils.instance.addChannel(v.id);
 				FFZUtils.instance.addChannel(v.id);

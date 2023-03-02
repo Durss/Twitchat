@@ -5,6 +5,18 @@ export namespace TwitchDataTypes {
 		user_name: string;
 	}
 
+	export interface BannedUser{
+        user_id: string;
+        user_login: string;
+        user_name: string;
+        expires_at: Date;
+        created_at: Date;
+        reason: string;
+        moderator_id: string;
+        moderator_login: string;
+        moderator_name: string;
+    }
+
 	export interface Token {
 		client_id: string;
 		login: string;

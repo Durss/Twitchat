@@ -456,12 +456,14 @@ export interface IUsersState {
 
 export interface IUsersGetters {
 	users:TwitchatDataTypes.TwitchatUser[];
+	moderators:{[key:string]:{[key:string]:true}};
 }
 
 export interface IUsersActions {
 	setBotsMap(platform:TwitchatDataTypes.ChatPlatform, hashmap:{[key:string]:boolean}):void;
 	isAlreadyFollower(platform:TwitchatDataTypes.ChatPlatform, login:string):boolean;
 	preloadTwitchModerators(channelId:string):Promise<void>;
+	preloadUserBanStates(channelId:string):Promise<void>;
 	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean):TwitchatDataTypes.TwitchatUser;
 	initBlockedUsers():Promise<void>;
 	flagMod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
