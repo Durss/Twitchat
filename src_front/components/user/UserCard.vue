@@ -26,12 +26,14 @@
 		<div class="holder" ref="holder" v-else-if="!loading && !error">
 			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
 			<div class="head">
-				<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
-				<div class="live" v-if="currentStream">LIVE</div>
-				<div class="title">
-					<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" :data-tooltip="b.title">
-					<span class="label">{{user.displayName}}</span>
-				</div>
+				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
+					<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
+					<div class="live" v-if="currentStream">LIVE</div>
+					<div class="title">
+						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" :data-tooltip="b.title">
+						<span class="label">{{user.displayName}}</span>
+					</div>
+				</a>
 				<span class="translation" v-if="translateUsername">({{user.login}})</span>
 				<div class="subtitle" :data-tooltip="$t('global.copy')" @click="copyID()" ref="userID">ID: {{user.id}}</div>
 				<div class="date" :data-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
@@ -456,6 +458,9 @@ export default class UserCard extends Vue {
 			align-items: center;
 			width: calc(100% - 3em);
 			margin: .5em auto;
+			a {
+				text-decoration: none;
+			}
 
 			.title {
 				font-size: 1.5em;
@@ -468,6 +473,7 @@ export default class UserCard extends Vue {
 					text-overflow: ellipsis;
 					overflow: hidden;
 					line-height: 1.2em;
+					color: @mainColor_normal;
 				}
 
 				.badge {
