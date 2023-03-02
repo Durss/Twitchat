@@ -606,13 +606,35 @@ export default class TriggerActionHandler {
 						if(step.type == "highlight") {
 							if(step.show) {
 								let text = await this.parseText(dynamicPlaceholders, triggerKey, message, step.text as string, subEvent, true);
+								let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
+								if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID_STARTED
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.BINGO
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT
+								|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+									user = message.user;
+									if(!message.user.displayName || !message.user.avatarPath || !message.user.login) {
+										//Get user info
+										const [twitchUser] = await TwitchUtils.loadUserInfo([message.user.id]);
+										message.user.avatarPath = twitchUser.profile_image_url;
+										//Populate more info just in case some are missing
+										message.user.login = twitchUser.login;
+										message.user.displayName = twitchUser.display_name;
+									}
+								}
 								let info:TwitchatDataTypes.ChatHighlightInfo = {
 									message:text,
-									user:message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE? message.user : undefined,
+									user,
 									params:StoreProxy.chat.chatHighlightOverlayParams,
 								};
 								log.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
 								PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
+								StoreProxy.chat.isChatMessageHighlighted = true;
 							}else{
 								PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
 								StoreProxy.chat.isChatMessageHighlighted = false;
