@@ -389,7 +389,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/followersoff":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;
-					return await TwitchUtils.setRoomSettings(channelId, {followOnly:0});
+					return await TwitchUtils.setRoomSettings(channelId, {followOnly:false});
 				}
 				case "/slow":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.SET_ROOM_SETTINGS])) return false;

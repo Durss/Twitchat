@@ -651,11 +651,15 @@ export default class TriggerActionHandler {
 						//Handle poll action
 						if(step.type == "poll") {
 							try {
-								await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
-								step.pollData.title,
-								step.pollData.answers.concat(),
-								step.pollData.voteDuration * 60,
-								step.pollData.pointsPerVote);
+								if(step.pollData.title && step.pollData.answers.length >= 2) {
+									await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
+									step.pollData.title,
+									step.pollData.answers.concat(),
+									step.pollData.voteDuration * 60,
+									step.pollData.pointsPerVote);
+								}else{
+									logStep.messages.push({date:Date.now(), value:"Cannot create poll as it's missing either the title or answers"});
+								}
 							}catch(error:any) {
 								const message = error.message ?? error.toString()
 								StoreProxy.main.alert(StoreProxy.i18n.t("error.poll_error", {MESSAGE:message}))
@@ -665,10 +669,14 @@ export default class TriggerActionHandler {
 						//Handle poll action
 						if(step.type == "prediction") {
 							try {
-								await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id,
+								if(step.predictionData.title && step.predictionData.answers.length >= 2) {
+									await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id,
 									step.predictionData.title,
 									step.predictionData.answers.concat(),
 									step.predictionData.voteDuration * 60);
+								}else{
+									logStep.messages.push({date:Date.now(), value:"Cannot create prediction as it's missing either the title or answers"});
+								}
 							}catch(error:any) {
 								const message = error.message ?? error.toString()
 								StoreProxy.main.alert(StoreProxy.i18n.t("error.prediction_error", {MESSAGE:message}))
