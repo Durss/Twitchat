@@ -8,7 +8,7 @@
 					@enter="onShowItem"
 					@leave="onHideItem"
 				>
-					<div v-if="p.id == 212 && p.value === true && !isOBSConnected" class="info obsConnect">
+					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="info obsConnect">
 						<img src="@/assets/icons/alert_purple.svg">
 						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 							<template #LINK>
@@ -59,7 +59,7 @@
 						<ChatMessage class="chatMessage" :messageData="fakeMessageData" />
 					</div>
 	
-					<div v-else-if="isDisabled(p) && p.twitch_scopes" class="info scope">
+					<div v-else-if="isMissingScope(p) && p.value == true" class="info scope">
 						<img src="@/assets/icons/lock_fit_purple.svg">
 						<p class="label">{{ $t("params.scope_missing") }}</p>
 						<Button small highlight
@@ -172,6 +172,10 @@ export default class ParamsList extends Vue {
 
 	public isDisabled(p:TwitchatDataTypes.ParameterData):boolean {
 		if(p.id == 212 && !this.isOBSConnected) return true;
+		return false;
+	}
+
+	public isMissingScope(p:TwitchatDataTypes.ParameterData):boolean {
 		if(!p.twitch_scopes) return false;
 		return !TwitchUtils.hasScope(p.twitch_scopes);
 	}
