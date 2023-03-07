@@ -33,13 +33,18 @@ export default class AbstractChatMessage extends Vue {
 		const d = new Date(this.messageData.date);
 		
 		if(elapsedMode) {
-			const elapsed = Date.now() - d.getTime();
+			let elapsed = Date.now() - d.getTime();
+			let duration = elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
+			
+			//Round value to nearest update step to avoid having durations with random offsets
+			elapsed = Math.floor(elapsed/duration) * duration;
+			
 			if(elapsed < 60000) {
 				this.time = "00:"+Utils.toDigits( Math.round(elapsed/1000) );
 			}else
 			if(elapsed < 60000 * 60) {
 				const minutes = Math.floor(elapsed/60000);
-				this.time = minutes + ":";
+				this.time = Utils.toDigits(minutes) + ":";
 				this.time += Utils.toDigits( Math.round((elapsed - minutes*60000)/1000) );
 			}else{
 				const hours = Math.floor(elapsed/(60000*60));
@@ -47,7 +52,6 @@ export default class AbstractChatMessage extends Vue {
 				this.time += Utils.toDigits( Math.round((elapsed - hours*(60000*60))/60000) );
 			}
 			
-			let duration = elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
 			this.refreshTimeout = setTimeout(()=> {
 				this.refreshDate();
 			}, duration);
