@@ -84,90 +84,9 @@ export default class DataStore {
 	public static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
 		this.syncToServer = this.get(this.SYNC_DATA_TO_SERVER) !== "false";
-	}
 
-	/**
-	 * Makes asynchronous data migrations after being authenticated
-	 */
-	public static async migrateData():Promise<void> {
-		let v = this.get(this.DATA_VERSION) ?? "1";
-		
-		if(parseInt(v) < 13) {
-			this.clear();
-		}
-		
-		if(v=="13") {
-			this.cleanupOldData();
-			v = "14";
-		}
-		if(v=="14") {
-			this.migrateChatCommandTriggers();
-			v = "15";
-		}
-		if(v=="15") {
-			this.migrateEmergencyAutoblock();
-			v = "16";
-		}
-		if(v=="16") {
-			this.remove("p:historySize");
-			v = "17";
-		}
-		if(v=="17") {
-			//Here was a beta temporary fix not needed anymore.
-			v = "18";
-		}
-		if(v=="18") {
-			this.migrateRaffleTriggerDuration();
-			v = "19";
-		}
-		if(v=="19" || v=="20") {
-			this.migrateRaffleTriggerTypoAndTextSize();
-			v = "21";
-		}
-		if(v=="21") {
-			this.migrateTriggerSubgiftPlaceholder();
-			v = "22";
-		}
-		if(v=="22") {
-			await this.migrateStreamTags();
-			v = "23";
-		}
-		if(v=="23") {
-			//Here was a beta temporary fix not needed anymore.
-			v = "24";
-		}
-		if(v=="24") {
-			await this.migrateStreamTags();
-			v = "25";
-		}
-		if(v=="25") {
-			this.migratePermissions();
-			v = "26";
-		}
-		if(v=="26") {
-			this.migrateChatColUserAndCommands();
-			v = "27";
-		}
-		if(v=="27") {
-			this.migrateEmergencyTOs();
-			v = "28";
-		}
-		if(v=="28") {
-			this.migratePermissions();
-			this.migrateEmergencyTOs();
-			v = "29";
-		}
-		if(v=="29") {
-			this.cleanupPreV7Data();
-			v = "30";
-		}
-		if(v=="30") {
-			this.remove("syncToserver");
-			v = "31";
-		}
-
-		this.set(this.DATA_VERSION, v);
-
+		//load LocalStorage data and parse values from string to number and booleans
+		//if necessary and keep it on a local typed stored "rawStore"
 		const items = this.getAll();
 		for (const key in items) {
 			try{
@@ -177,11 +96,102 @@ export default class DataStore {
 			}
 		}
 		this.rawStore = items;
-		this.save();
+	}
+
+	/**
+	 * Makes asynchronous data migrations after being authenticated
+	 */
+	public static async migrateData(data:any):Promise<any> {
+		let v = parseInt(data[this.DATA_VERSION]) || 1;
+		
+		if(v < 13) {
+			return {};
+		}
+		
+		if(v==13) {
+			this.cleanupOldData(data);
+			v = 14;
+		}
+		if(v==14) {
+			this.migrateChatCommandTriggers(data);
+			v = 15;
+		}
+		if(v==15) {
+			this.migrateEmergencyAutoblock(data);
+			v = 16;
+		}
+		if(v==16) {
+			delete data["p:historySize"];
+			v = 17;
+		}
+		if(v==17) {
+			//Here was a beta temporary fix not needed anymore.
+			v = 18;
+		}
+		if(v==18) {
+			this.migrateRaffleTriggerDuration(data);
+			v = 19;
+		}
+		if(v==19 || v==20) {
+			this.migrateRaffleTriggerTypoAndTextSize(data);
+			v = 21;
+		}
+		if(v==21) {
+			this.migrateTriggerSubgiftPlaceholder(data);
+			v = 22;
+		}
+		if(v==22) {
+			await this.migrateStreamTags(data);
+			v = 23;
+		}
+		if(v==23) {
+			//Here was a beta temporary fix not needed anymore.
+			v = 24;
+		}
+		if(v==24) {
+			await this.migrateStreamTags(data);
+			v = 25;
+		}
+		if(v==25) {
+			this.migratePermissions(data);
+			v = 26;
+		}
+		if(v==26) {
+			this.migrateChatColUserAndCommands(data);
+			v = 27;
+		}
+		if(v==27) {
+			this.migrateEmergencyTOs(data);
+			v = 28;
+		}
+		if(v==28) {
+			this.migratePermissions(data);
+			this.migrateEmergencyTOs(data);
+			v = 29;
+		}
+		if(v==29 || v==30){
+			this.cleanupPreV7Data(data);
+			delete data["syncToserver"];
+			v = 31
+		}
+		if(v==31) {
+			//v31 is a refactor of the datastore logic to fix failing migration cleanups
+			//Instead of migrating data of the localStorage it now migrates JSON
+			//data then saves i on the localStorage.
+
+			//Redoing old migration to make sure they're effective
+			this.cleanupPreV7Data(data);
+			delete data["syncToserver"];
+			v = 32;
+		}
+
+		data[this.DATA_VERSION] = v;
+		return data;
 	}
 
 	/**
 	 * Load user's data from the server
+	 * @imp
 	 * @returns if user has data or not
 	 */
 	public static async loadRemoteData(importToLS:boolean = true):Promise<boolean> {
@@ -197,7 +207,7 @@ export default class DataStore {
 				//Import data to local storage.
 				const json = await res.json();
 				if(json.success === true) {
-					await this.loadFromJSON(json);
+					await this.loadFromJSON(json.data);
 				}
 			}
 			return res.status != 404;
@@ -213,12 +223,18 @@ export default class DataStore {
 	 */
 	public static async loadFromJSON(json:any):Promise<void> {
 		const backupAutomod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
-		for (const key in json.data) {
-			const value = json.data[key];
-			const str = typeof value == "string"? value : JSON.stringify(value);
-			this.store.setItem(this.dataPrefix + key, str);
-		}
-		
+
+		// const items = this.getAll();
+		// for (const key in items) {
+		// 	try{
+		// 		items[key] = JSON.parse(items[key] as string);
+		// 	}catch(error) {
+		// 		//parsing failed, that's because it's a simple string, just keep it
+		// 	}
+		// }
+
+		this.rawStore = await this.migrateData(json);//Migrate remote data if necessary
+
 		if(backupAutomod) {
 			//Make sure we don't loose unsynced automod rules
 			//(should think of a generic way of doing this..)
@@ -232,9 +248,8 @@ export default class DataStore {
 			this.set(DataStore.AUTOMOD_PARAMS, automod);
 		}
 
-		this.rawStore = json.data;
 		this.dataImported = true;
-		await this.migrateData();//Migrate remote data if necessary
+		this.save();
 	}
 
 	/**
@@ -258,9 +273,6 @@ export default class DataStore {
 				delete data[this.SPOTIFY_AUTH_TOKEN];
 				delete data[this.SPOTIFY_APP_PARAMS];
 				
-				
-				delete data["p:shoutoutLabel"];//Old that that some people still have
-				
 				//Things unnecessary to save server side
 				delete data[this.GREET_HISTORY];
 				delete data[this.SYNC_DATA_TO_SERVER];
@@ -268,6 +280,7 @@ export default class DataStore {
 				delete data[this.CHAT_COL_CTA];
 				delete data.deezerEnabled;
 				delete data.redirect;
+				delete data["p:shoutoutLabel"];//Old data that some people still have
 				
 				//Remove automod items the user asked not to sync to server
 				const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
@@ -392,33 +405,33 @@ export default class DataStore {
 	 * Temporary utility to cleanup some old storage data
 	 * Can be removed after some updates.
 	 */
-	private static cleanupOldData():void {
+	private static cleanupOldData(data:any):void {
 		//rename "raffle_postOnChat" to "raffle_messageEnabled" ofr more consistency
-		if(this.get("raffle_postOnChat") != null) {
-			this.set("raffle_messageEnabled", this.get("raffle_postOnChat"));
-			this.remove("raffle_postOnChat");
+		if(data["raffle_postOnChat"] != null) {
+			data["raffle_messageEnabled"] = data["raffle_postOnChat"];
+			delete data["raffle_postOnChat"];
 		}
-		this.remove("p:emotesOnly");
-		this.remove("p:modsSize");
-		this.remove("p:vipsSize");
-		this.remove("p:followersOnly");
-		this.remove("p:subsSize");
-		this.remove("p:subsOnly");
-		this.remove("p:slowMode");
-		this.remove("p:ignoreSelf");
-		this.remove("p:hideEmotes");
-		this.remove("tmiToken");
-		this.remove("authToken");
-		this.remove("p:hideBadges");
-		this.remove("p:hideBot");
+		delete data["p:emotesOnly"];
+		delete data["p:modsSize"];
+		delete data["p:vipsSize"];
+		delete data["p:followersOnly"];
+		delete data["p:subsSize"];
+		delete data["p:subsOnly"];
+		delete data["p:slowMode"];
+		delete data["p:ignoreSelf"];
+		delete data["p:hideEmotes"];
+		delete data["tmiToken"];
+		delete data["authToken"];
+		delete data["p:hideBadges"];
+		delete data["p:hideBot"];
 	}
 
 
 	/**
 	 * Changes the "chatCommand" trigger prop to more generic "name"
 	 */
-	private static migrateChatCommandTriggers():void {
-		const txt = this.get(DataStore.TRIGGERS);
+	private static migrateChatCommandTriggers(data:any):void {
+		const txt = data[DataStore.TRIGGERS];
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
@@ -430,24 +443,24 @@ export default class DataStore {
 			}
 		}
 
-		this.set(DataStore.TRIGGERS, triggers);
+		data[DataStore.TRIGGERS] = triggers;
 	}
 
 	/**
 	 * Changes the "chatCommand" trigger prop to more generic "name"
 	 */
-	private static migrateEmergencyAutoblock():void {
-		const value:TwitchatDataTypes.EmergencyParamsData = JSON.parse(this.get(this.EMERGENCY_PARAMS));
+	private static migrateEmergencyAutoblock(data:any):void {
+		const value:TwitchatDataTypes.EmergencyParamsData = JSON.parse(data[this.EMERGENCY_PARAMS]);
 		delete value.autoBlockFollows;
 		delete value.autoUnblockFollows;
-		this.set(this.EMERGENCY_PARAMS, value);
+		data[this.EMERGENCY_PARAMS] = value;
 	}
 
 	/**
 	 * Made a mistake storing minutes instead of seconds
 	 */
-	private static migrateRaffleTriggerDuration():void {
-		const txt = this.get(DataStore.TRIGGERS);
+	private static migrateRaffleTriggerDuration(data:any):void {
+		const txt = data[DataStore.TRIGGERS];
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
@@ -462,14 +475,14 @@ export default class DataStore {
 			}
 		}
 
-		this.set(DataStore.TRIGGERS, triggers);
+		data[DataStore.TRIGGERS] = triggers;
 	}
 
 	/**
 	 * Made a mistake storing minutes instead of seconds
 	 */
-	private static migrateRaffleTriggerTypoAndTextSize():void {
-		const txt = this.get(DataStore.TRIGGERS);
+	private static migrateRaffleTriggerTypoAndTextSize(data:any):void {
+		const txt = data[DataStore.TRIGGERS];
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
@@ -489,23 +502,23 @@ export default class DataStore {
 				}
 			}
 		}
-		this.set(DataStore.TRIGGERS, triggers);
-		this.remove("leftColSize");//Remaining old data
+		data[DataStore.TRIGGERS] = triggers;
+		delete data["leftColSize"];//Remaining old data
 
 		//Convert old size scale to the new one
-		const sizeStr = this.get("p:defaultSize");
+		const sizeStr = data["p:defaultSize"];
 		let size = parseFloat(sizeStr);
 		if(isNaN(size)) size = 2;
 		const converTable:{[key:number]:number} = {1:2, 2:3, 3:6, 4:9, 5:12, 6:17, 7:20}
 		size = converTable[size]
-		this.set("p:defaultSize", size);
+		data["p:defaultSize"] = size;
 	}
 
 	/**
 	 * Renamed placeholder "RECIPIENT" to "RECIPIENTS"
 	 */
-	private static migrateTriggerSubgiftPlaceholder():void {
-		const txt = this.get(DataStore.TRIGGERS);
+	private static migrateTriggerSubgiftPlaceholder(data:any):void {
+		const txt = data[DataStore.TRIGGERS];
 		if(!txt) return;
 		const triggers:{[key:string]:TriggerData} = JSON.parse(txt);
 		for (const key in triggers) {
@@ -524,14 +537,14 @@ export default class DataStore {
 			}
 		}
 
-		this.set(DataStore.TRIGGERS, triggers);
+		data[DataStore.TRIGGERS] = triggers;
 	}
 
 	/**
 	 * Migrate stream tags following the new open tags endpoint
 	 */
-	private static async migrateStreamTags():Promise<void> {
-		const txt = this.get(DataStore.STREAM_INFO_PRESETS);
+	private static async migrateStreamTags(data:any):Promise<void> {
+		const txt = data[DataStore.STREAM_INFO_PRESETS];
 		if(!txt) return;
 		const presets:TwitchatDataTypes.StreamInfoPreset[] = JSON.parse(txt);
 		let tags:string[] = [];
@@ -559,15 +572,15 @@ export default class DataStore {
 			}
 		}
 
-		this.set(DataStore.STREAM_INFO_PRESETS, presets);
+		data[DataStore.STREAM_INFO_PRESETS] = presets;
 	}
 
 	/**
 	 * MIgrate all permissions systems (T_T)
 	 */
-	private static migratePermissions():void {
+	private static migratePermissions(data:any):void {
 		//Migrate triggers
-		const triggerSrc = this.get(DataStore.TRIGGERS);
+		const triggerSrc = data[DataStore.TRIGGERS];
 		if(triggerSrc) {
 			const triggers:{[key:string]:TriggerData} = JSON.parse(triggerSrc);
 			for (const key in triggers) {
@@ -581,11 +594,11 @@ export default class DataStore {
 					// console.log(perms);
 				}
 			}
-			this.set(DataStore.TRIGGERS, triggers);
+			data[DataStore.TRIGGERS] = triggers;
 		}
 		
 		//Migrate automod
-		const automodSrc = this.get(DataStore.AUTOMOD_PARAMS);
+		const automodSrc = data[DataStore.AUTOMOD_PARAMS];
 		if(automodSrc) {
 			const confs:TwitchatDataTypes.AutomodParamsData = JSON.parse(automodSrc);
 			if(confs.exludedUsers.users) {
@@ -595,12 +608,12 @@ export default class DataStore {
 				delete confs.exludedUsers.users;
 				// console.log("AUTOMOD");
 				// console.log(confs);
-				this.set(DataStore.AUTOMOD_PARAMS, confs);
+				data[DataStore.AUTOMOD_PARAMS] = confs;
 			}
 		}
 		
 		//Migrate TTS
-		const ttsSrc = this.get(DataStore.TTS_PARAMS);
+		const ttsSrc = data[DataStore.TTS_PARAMS];
 		if(ttsSrc) {
 			const confs:TwitchatDataTypes.TTSParamsData = JSON.parse(ttsSrc);
 			if(confs.ttsPerms.users) {
@@ -622,11 +635,11 @@ export default class DataStore {
 			delete confs.ttsPerms.users;
 			// console.log("TTS");
 			// console.log(confs);
-			this.set(DataStore.TTS_PARAMS, confs);
+			data[DataStore.TTS_PARAMS] = confs;
 		}
 		
 		//Migrate OBS
-		const obsSrc = this.get(DataStore.OBS_CONF_PERMISSIONS);
+		const obsSrc = data[DataStore.OBS_CONF_PERMISSIONS];
 		if(obsSrc) {
 			const perms:TwitchatDataTypes.PermissionsData = JSON.parse(obsSrc);
 			if(perms.users) {
@@ -636,12 +649,12 @@ export default class DataStore {
 				delete perms.users;
 				// console.log("OBS");
 				// console.log(perms);
-				this.set(DataStore.OBS_CONF_PERMISSIONS, perms);
+				data[DataStore.OBS_CONF_PERMISSIONS] = perms;
 			}
 		}
 		
 		//Migrate emergency mode
-		const emergencySrc = this.get(DataStore.EMERGENCY_PARAMS);
+		const emergencySrc = data[DataStore.EMERGENCY_PARAMS];
 		if(emergencySrc) {
 			const perms:TwitchatDataTypes.EmergencyParamsData = JSON.parse(emergencySrc);
 			if(perms.chatCmdPerms.users) {
@@ -651,12 +664,12 @@ export default class DataStore {
 				delete perms.chatCmdPerms.users;
 				// console.log("EMERGENCY");
 				// console.log(perms);
-				this.set(DataStore.EMERGENCY_PARAMS, perms);
+				data[DataStore.EMERGENCY_PARAMS] = perms;
 			}
 		}
 		
 		//Migrate spoiler
-		const spoilerSrc = this.get(DataStore.SPOILER_PARAMS);
+		const spoilerSrc = data[DataStore.SPOILER_PARAMS];
 		if(spoilerSrc) {
 			const perms:TwitchatDataTypes.SpoilerParamsData = JSON.parse(spoilerSrc);
 			if(perms.permissions.users) {
@@ -666,12 +679,12 @@ export default class DataStore {
 				delete perms.permissions.users;
 				// console.log("SPOILER");
 				// console.log(perms);
-				this.set(DataStore.SPOILER_PARAMS, perms);
+				data[DataStore.SPOILER_PARAMS] = perms;
 			}
 		}
 		
 		//Migrate chat alert
-		const alertSrc = this.get(DataStore.ALERT_PARAMS);
+		const alertSrc = data[DataStore.ALERT_PARAMS];
 		if(alertSrc) {
 			const perms:TwitchatDataTypes.AlertParamsData = JSON.parse(alertSrc);
 			if(perms.permissions.users) {
@@ -681,12 +694,12 @@ export default class DataStore {
 				delete perms.permissions.users;
 				// console.log("CHAT ALERT");
 				// console.log(perms);
-				this.set(DataStore.ALERT_PARAMS, perms);
+				data[DataStore.ALERT_PARAMS] = perms;
 			}
 		}
 		
 		//Migrate voicemod
-		const voicemodSrc = this.get(DataStore.VOICEMOD_PARAMS);
+		const voicemodSrc = data[DataStore.VOICEMOD_PARAMS];
 		if(voicemodSrc) {
 			const perms:TwitchatDataTypes.VoicemodParamsData = JSON.parse(voicemodSrc);
 			if(perms.chatCmdPerms.users) {
@@ -696,7 +709,7 @@ export default class DataStore {
 				delete perms.chatCmdPerms.users;
 				// console.log("VOICEMOD");
 				// console.log(perms);
-				this.set(DataStore.VOICEMOD_PARAMS, perms);
+				data[DataStore.VOICEMOD_PARAMS] = perms;
 			}
 		}
 
@@ -705,8 +718,8 @@ export default class DataStore {
 	/**
 	 * Converts string lists like "value1, value2, value3" to an array of strings
 	 */
-	private static migrateChatColUserAndCommands():void {
-		const confsStr = this.get(DataStore.CHAT_COLUMNS_CONF);
+	private static migrateChatColUserAndCommands(data:any):void {
+		const confsStr = data[DataStore.CHAT_COLUMNS_CONF];
 		if(confsStr) {
 			const confs:TwitchatDataTypes.ChatColumnsConfig[] = JSON.parse(confsStr);
 			for (let i = 0; i < confs.length; i++) {
@@ -736,15 +749,15 @@ export default class DataStore {
 					}
 				}
 			}
-			this.set(DataStore.CHAT_COLUMNS_CONF, confs);
+			data[DataStore.CHAT_COLUMNS_CONF] = confs;
 		}
 	}
 
 	/**
 	 * Converts TO user list from string to array of string
 	 */
-	private static migrateEmergencyTOs():void {
-		const confsStr = this.get(DataStore.EMERGENCY_PARAMS);
+	private static migrateEmergencyTOs(data:any):void {
+		const confsStr = data[DataStore.EMERGENCY_PARAMS];
 		if(confsStr) {
 			const confs:TwitchatDataTypes.EmergencyParamsData = JSON.parse(confsStr);
 			if(typeof confs.toUsers === "string") {
@@ -752,44 +765,44 @@ export default class DataStore {
 			}else{
 				confs.toUsers = confs.toUsers.filter(v=> v.length > 0);
 			}
-			this.set(DataStore.EMERGENCY_PARAMS, confs);
+			data[DataStore.EMERGENCY_PARAMS] = confs;
 		}
 	}
 
 	/**
 	 * Cleanup useless old data
 	 */
-	private static cleanupPreV7Data():void {
-		this.remove("level");
-		this.remove("isDonor");
-		this.remove("p:hideUsers");
-		this.remove("p:censorDeletedMessages");
-		this.remove("p:showSelf");
-		this.remove("p:blockedCommands");
-		this.remove("p:ignoreListCommands");
-		this.remove("p:ignoreCommands");
-		this.remove("p:showSlashMe");
-		this.remove("p:showBots");
-		this.remove("p:keepDeletedMessages");
-		this.remove("p:firstTimeMessage");
-		this.remove("p:keepHighlightMyMessages");
-		this.remove("p:historySize");
-		this.remove("p:notifyJoinLeave");
-		this.remove("p:raidStreamInfo");
-		this.remove("p:receiveWhispers");
-		this.remove("p:showWhispersOnChat");
-		this.remove("p:showCheers");
-		this.remove("p:showFollow");
-		this.remove("p:showHypeTrain");
-		this.remove("p:showNotifications");
-		this.remove("p:showRaids");
-		this.remove("p:showRewards");
-		this.remove("p:showRewardsInfos");
-		this.remove("p:showSubs");
-		this.remove("p:splitView");
-		this.remove("p:splitViewSwitch");
-		this.remove("p:emergencyButton");
-		this.remove("leftColSize");
-		this.remove("activityFeedFilters");
+	private static cleanupPreV7Data(data:any):void {
+		delete data["level"];
+		delete data["isDonor"];
+		delete data["p:hideUsers"];
+		delete data["p:censorDeletedMessages"];
+		delete data["p:showSelf"];
+		delete data["p:blockedCommands"];
+		delete data["p:ignoreListCommands"];
+		delete data["p:ignoreCommands"];
+		delete data["p:showSlashMe"];
+		delete data["p:showBots"];
+		delete data["p:keepDeletedMessages"];
+		delete data["p:firstTimeMessage"];
+		delete data["p:keepHighlightMyMessages"];
+		delete data["p:historySize"];
+		delete data["p:notifyJoinLeave"];
+		delete data["p:raidStreamInfo"];
+		delete data["p:receiveWhispers"];
+		delete data["p:showWhispersOnChat"];
+		delete data["p:showCheers"];
+		delete data["p:showFollow"];
+		delete data["p:showHypeTrain"];
+		delete data["p:showNotifications"];
+		delete data["p:showRaids"];
+		delete data["p:showRewards"];
+		delete data["p:showRewardsInfos"];
+		delete data["p:showSubs"];
+		delete data["p:splitView"];
+		delete data["p:splitViewSwitch"];
+		delete data["p:emergencyButton"];
+		delete data["leftColSize"];
+		delete data["activityFeedFilters"];
 	}
 }
