@@ -384,7 +384,7 @@ export default class TwitchUtils {
 				if(e.id.indexOf("FFZ_") == 0) {
 					const ffzE = FFZUtils.instance.getEmoteFromCode(code);
 					if(ffzE) {
-						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:"https://"+ffzE.urls[1]} );
+						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:ffzE.urls[1]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
