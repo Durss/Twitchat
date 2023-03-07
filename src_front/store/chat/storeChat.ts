@@ -1256,12 +1256,16 @@ export const storeChat = defineStore('chat', {
 		},
 
 		flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void {
-			if(user.greeted === true) return;
+			const lastActivityDate = message.user.channelInfo[message.channel_id].lastActivityDate;
+			message.user.channelInfo[message.channel_id].lastActivityDate = Date.now();
+
+			//Don't greet again if less than 5h have passed since last activity
+			if(lastActivityDate && lastActivityDate + (5 * 60 * 60 * 1000) > Date.now()) return;
+
 			if(greetedUsers[user.id] && greetedUsers[user.id] > Date.now()) return;
 			if(user.channelInfo[message.channel_id].is_blocked === true) return;//Ignore blocked users
 
 			message.todayFirst = true;
-			user.greeted = true;
 			greetedUsers[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
 			DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
 		}

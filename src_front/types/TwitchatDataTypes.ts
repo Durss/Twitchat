@@ -727,7 +727,6 @@ export namespace TwitchatDataTypes {
 		platform:ChatPlatform;
 		login:string;
 		displayName:string;
-		greeted:boolean;//Already displayed on the "greet them" section ?
 		color?:string;//Chat color of their nickname
 		avatarPath?:string;
 		is_raider:boolean;//Is the user raided use recently
@@ -764,8 +763,9 @@ export namespace TwitchatDataTypes {
 		is_subscriber:boolean;
 		is_gifter:boolean;
 		following_date_ms:number;
-		banEndDate?:number;
 		badges:TwitchatUserBadge[];
+		banEndDate?:number;
+		lastActivityDate?:number;
 	}
 	
 	/**
