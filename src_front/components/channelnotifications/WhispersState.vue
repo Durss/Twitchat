@@ -22,7 +22,7 @@
 				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500">
 				<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
 			</form>
-			<Button v-else small highlight :title="$t('whispers.add_scope_bt')" :icon="$image('icons/unlock.svg')" @click="allowAnswerScope()" />
+			<Button v-else small highlight :title="$t('whispers.add_scope_bt')" :icon="$image('icons/unlock.svg')" @click="requestTwitchScope()" />
 		</div>
 
 		<div class="content users" v-else>
@@ -97,8 +97,8 @@ export default class WhispersState extends Vue {
 		})
 	}
 
-	public allowAnswerScope():void {
-		this.$store("auth").requestTwitchScope([TwitchScopes.WHISPER_WRITE]);
+	public requestTwitchScope():void {
+		this.$store("auth").requestTwitchScopes([TwitchScopes.WHISPER_WRITE]);
 	}
 
 	public async sendWhisper():Promise<void> {
@@ -219,6 +219,7 @@ export default class WhispersState extends Vue {
 					flex-direction: row;
 					align-items: baseline;
 					align-self: flex-start;
+					position: relative;
 					padding: .5em;
 					margin: .5em 0;
 					line-height: 1.25em;
@@ -243,9 +244,12 @@ export default class WhispersState extends Vue {
 						align-self: flex-end;
 						margin-right: 0;
 						background-color: rgba(0, 0, 0, .2);
-						.time {
-							margin-left: .5em;
-							margin-right: 0;
+
+						&:has(.time) {
+							.time + *{
+								padding-left: 0;
+								padding-right: 3em;
+							}
 						}
 					}
 		

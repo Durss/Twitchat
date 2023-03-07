@@ -531,6 +531,7 @@ export default class NewUsers extends Vue {
 		overflow-y: auto;
 
 		.message {
+			position: relative;
 			cursor: pointer;
 			overflow: hidden;
 			font-family: var(--font-inter);

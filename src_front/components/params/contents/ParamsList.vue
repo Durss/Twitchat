@@ -187,7 +187,7 @@ export default class ParamsList extends Vue {
 	}
 
 	public requestPermission(scopes:TwitchScopesString[]):void {
-		this.$store("auth").requestTwitchScope(scopes);
+		this.$store("auth").requestTwitchScopes(scopes);
 	}
 
 	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {

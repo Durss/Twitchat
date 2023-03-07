@@ -2490,7 +2490,7 @@ export default class TwitchUtils {
 	 */
 	public static requestScopes(scopes:TwitchScopesString[]):boolean {
 		if(this.hasScope(scopes)) return true;
-		StoreProxy.auth.requestTwitchScope(scopes);
+		StoreProxy.auth.requestTwitchScopes(scopes);
 		return false;
 	}
 

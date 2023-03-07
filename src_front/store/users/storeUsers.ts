@@ -619,7 +619,7 @@ export const storeUsers = defineStore('users', {
 				if(TwitchUtils.hasScope(TwitchScopes.SHOUTOUT)) {
 					await TwitchUtils.sendShoutout(channelId, user);
 				}else{
-					StoreProxy.auth.requestTwitchScope([TwitchScopes.SHOUTOUT]);
+					StoreProxy.auth.requestTwitchScopes([TwitchScopes.SHOUTOUT]);
 					return;
 				}
 			}

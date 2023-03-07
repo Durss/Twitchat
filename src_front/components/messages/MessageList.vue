@@ -457,7 +457,7 @@ export default class MessageList extends Vue {
 		if(this.hoveredMessage) {
 			return { top: this.hoverActionsPos + "px" }
 		}
-		return {top:"-10000px"};
+		return {top:"-10000px", pointerEvents:"none"};
 	}
 
 	public get filteredMessagesDeduped(): TwitchatDataTypes.ChatMessageTypes[] {

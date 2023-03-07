@@ -263,21 +263,8 @@ export const storeAuth = defineStore('auth', {
 			MessengerProxy.instance.disconnect();
 		},
 	
-		requestTwitchScope(scopes:TwitchScopesString[]) {
+		requestTwitchScopes(scopes:TwitchScopesString[]) {
 			this.newScopesToRequest = scopes;
-			// const t = StoreProxy.i18n.t;
-			// // let label = "";
-			// // if(Array.isArray(scope)) {
-			// // }else{
-
-			// // }
-			// StoreProxy.main.confirm(t("global.twitch_scopes_grant_title"),
-			// t("global.twitch_scopes_grant_description"),
-			// null,
-			// t("global.continue"),
-			// t("global.cancel")).then(()=> {
-			// 	router.push({name: 'login', params:{scope:scopes}});//Redirect to login with request scope as param
-			// }).catch(()=>{});
 		},
 	} as IAuthActions
 	& ThisType<IAuthActions

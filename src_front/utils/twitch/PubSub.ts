@@ -59,8 +59,8 @@ export default class PubSub extends EventDispatcher {
 
 			const myUID = StoreProxy.auth.twitch.user.id;
 			const subscriptions = [
-				// "leaderboard-events-v1.bits-usage-by-channel-v1-"+uid+"-WEEK",
-				// "leaderboard-events-v1.sub-gifts-sent-"+uid+"-WEEK",
+				// "leaderboard-events-v1.bits-usage-by-channel-v1-"+myUID+"-WEEK",
+				// "leaderboard-events-v1.sub-gifts-sent-"+myUID+"-WEEK",
 				"video-playback-by-id."+myUID,//Get viewer count
 				"community-boost-events-v1."+myUID,//Boost after a boost train complete
 				"ad-property-refresh."+myUID,
@@ -73,11 +73,15 @@ export default class PubSub extends EventDispatcher {
 				"hype-train-events-v1."+myUID,
 				"user-moderation-notifications."+myUID+"."+myUID,
 				"chatrooms-user-v1."+myUID,
-				// "user-drop-events."+uid,
-				// "community-points-user-v1."+uid,
-				// "presence."+uid,
-				// "user-properties-update."+uid,
-				// "onsite-notifications."+uid,
+				// "onsite-notifications."+myUID,//not allowed
+				// "activity-feed-broadcaster-v2."+myUID,//not allowed
+				// "user-unban-requests."+myUID+"."+myUID,//not allowed
+				// "user-properties-update."+myUID,//not allowed
+				// "user-drop-events."+myUID,
+				// "community-points-user-v1."+myUID,
+				// "presence."+myUID,
+				// "user-properties-update."+myUID,
+				// "onsite-notifications."+myUID,
 				// "stream-change-v1."+myUID,
 			];
 			if(TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS)){

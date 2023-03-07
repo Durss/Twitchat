@@ -97,7 +97,7 @@ export default class LiveFollowings extends Vue {
 	}
 
 	public async grantPermission():Promise<void> {
-		this.$store("auth").requestTwitchScope([TwitchScopes.LIST_FOLLOWINGS]);
+		this.$store("auth").requestTwitchScopes([TwitchScopes.LIST_FOLLOWINGS]);
 	}
 
 	private async updateList():Promise<void> {

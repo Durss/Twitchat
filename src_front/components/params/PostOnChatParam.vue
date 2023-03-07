@@ -67,7 +67,7 @@ export default class PostOnChatParam extends Vue {
 	public botMessageKey!:TwitchatDataTypes.BotMessageField;
 	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
-	@Prop
+	
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";
