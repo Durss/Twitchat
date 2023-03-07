@@ -164,7 +164,7 @@
 			<div class="selected"></div>
 		</teleport>
 
-		<div class="locked" ref="locked" v-if="lockScroll && !lightMode" @click.stop="unPause">
+		<div class="locked" ref="locked" v-if="!lightMode && lockScroll" @click.stop="unPause">
 			<span v-if="lockScroll">{{ $t("chat.paused") }}</span>
 			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>
@@ -924,8 +924,11 @@ export default class MessageList extends Vue {
 		//add the new message to the pending list
 		if (this.lockScroll) {
 			this.pendingMessages.push(m);
-			this.lockedLiveMessages.push(m);
-			this.lockedLiveMessages = this.lockedLiveMessages.slice(-(this.config.liveLockCount ?? 3));//Only keep last N messages
+			if(this.$store("params").features.liveMessages.value === true) {
+				//add to "live message" list if allowed
+				this.lockedLiveMessages.push(m);
+				this.lockedLiveMessages = this.lockedLiveMessages.slice(-(this.config.liveLockCount ?? 3));//Only keep last N messages
+			}
 			
 		} else {
 
@@ -1760,7 +1763,7 @@ export default class MessageList extends Vue {
 				if(finalList.length === v) break;
 			}
 		}
-		this.lockedLiveMessages = finalList
+		this.lockedLiveMessages = finalList;
 	}
 
 	/**

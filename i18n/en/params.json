@@ -26,6 +26,7 @@
 			"stream_title": "Last stream title",
 			"stream_category": "Last stream category"
 		},
+		"liveMessages":"Show some live message when chat paused",
 		"censorDeletedMessages": "Censor deleted messages",
 		"highlightMods": "Highlight Mods",
 		"highlightVips": "Highlight VIPs",

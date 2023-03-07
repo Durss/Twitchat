@@ -26,6 +26,7 @@
 			"stream_title": "Titre du dernier stream",
 			"stream_category": "Catégorie du dernier stream"
 		},
+		"liveMessages":"Montrer quelques messages live quand le tchat est mis en pause",
 		"censorDeletedMessages": "Censurer les messages supprimés",
 		"highlightMods": "Surligner les Mods",
 		"highlightVips": "Surligner les VIPs",

@@ -22,6 +22,7 @@ export const storeParams = defineStore('params', {
 			conversationsEnabled: 		{save:true, type:"toggle", value:true, labelKey:"params.conversationsEnabled", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
 			userHistoryEnabled: 		{save:true, type:"toggle", value:true, labelKey:"params.userHistoryEnabled", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
 			lockAutoScroll: 			{save:true, type:"toggle", value:false, labelKey:"params.lockAutoScroll", id:205, icon:"pause_purple.svg"},
+			liveMessages:				{save:true, type:"toggle", value:false, labelKey:"params.liveMessages", id:219, icon:"live_purple.svg", example:"liveMessages.png"},
 			showModTools: 				{save:true, type:"toggle", value:true, labelKey:"params.showModTools", id:206, icon:"ban_purple.svg", twitch_scopes:[TwitchScopes.MODERATE]},
 			raidHighlightUser: 			{save:true, type:"toggle", value:true, labelKey:"params.raidHighlightUser", id:209, icon:"raid_purple.svg", example:"raidHighlightUser.png"},
 			raffleHighlightUser:		{save:true, type:"toggle", value:true, labelKey:"params.raffleHighlightUser", id:218, icon:"ticket_purple.svg", example:"raidHighlightUser.png"},
