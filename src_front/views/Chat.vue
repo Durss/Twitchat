@@ -108,8 +108,6 @@
 		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
-		<!-- <DataServerSyncModal v-if="showStorageModal" @close="showStorageModal = false" /> -->
-
 		<DonorState ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 
 		<UserCard />
@@ -171,7 +169,6 @@ import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
 import TimerForm from '../components/timer/TimerForm.vue';
-import DataServerSyncModal from '../components/modals/DataServerSyncModal.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 import DonorState from '../components/user/DonorState.vue';
 import UserCard from '../components/user/UserCard.vue';
@@ -215,7 +212,6 @@ import Login from './Login.vue';
 		VoiceTranscript,
 		ChatAlertMessage,
 		ChatSuggestionForm,
-		DataServerSyncModal,
 		ChannelNotifications,
 		EmergencyFollowsListModal,
 	},
@@ -230,7 +226,6 @@ export default class Chat extends Vue {
 	public voiceControl = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;
-	public showStorageModal = false;
 	public forceEmergencyFollowClose = false;
 	public currentModal:TwitchatDataTypes.ModalTypes = "";
 	public currentNotificationContent = "";
@@ -287,9 +282,6 @@ export default class Chat extends Vue {
 
 		//Check user reached a new donor level
 		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
-
-		//Define if store sync modal should be displayed
-		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
 		
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {
