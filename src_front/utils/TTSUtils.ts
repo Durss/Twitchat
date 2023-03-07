@@ -41,6 +41,7 @@ export default class TTSUtils {
 	private pendingMessages:SpokenMessage[] = [];
 	private lastMessageTime:number = 0;
 	private stopTimeout:number = -1;
+	private readComplete:boolean = false;
 
 	private sTTS = storeTTS();
 
@@ -95,6 +96,19 @@ export default class TTSUtils {
 			this.pendingMessages = [];
 		}
 		window.speechSynthesis.cancel();
+
+		//This is a shit workaround a change in browsers behavior.
+		//Before this, when calling "speechSynthesis.cancel()" the
+		//"onend" event was fired which was doing necessary things
+		//for proper twitchat behavior.
+		//For some reasong it doesn't anymore (at least on Vivaldi)
+		//Here we check if reading completed or not after a short
+		//delay, if not, we execute necessary things.
+		setTimeout(()=> {
+			if(!this.readComplete) {
+				this.onReadComplete();
+			}
+		}, 100);
 	}
 
 	/**
@@ -582,13 +596,11 @@ export default class TTSUtils {
 				mess.lang = voice.lang;
 			}
 			mess.onstart = (ev: SpeechSynthesisEvent) => {
+				this.readComplete = false;
 				this.sTTS.speaking = true;
 			}
 			mess.onend = (ev: SpeechSynthesisEvent) => {
-				this.pendingMessages.shift();
-				clearTimeout(this.stopTimeout);
-				this.sTTS.speaking = false;
-				this.readNextMessage();
+				this.onReadComplete();
 			}
 	
 			window.speechSynthesis.speak(mess);
@@ -602,8 +614,7 @@ export default class TTSUtils {
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
 			setTimeout(() => {
-				this.pendingMessages.shift();
-				this.readNextMessage();
+				this.onReadComplete();
 			}, 0);
 		}
 	}
@@ -621,6 +632,17 @@ export default class TTSUtils {
 				i--;
 			}
 		}
+	}
+
+	/**
+	 * Called when reading of a message completes or is interrupted
+	 */
+	private onReadComplete():void {
+		this.readComplete = true;
+		this.pendingMessages.shift();
+		clearTimeout(this.stopTimeout);
+		this.sTTS.speaking = false;
+		this.readNextMessage();
 	}
 
 }
