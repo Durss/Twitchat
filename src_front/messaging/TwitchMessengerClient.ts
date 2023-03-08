@@ -776,6 +776,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.is_gift = true;
 		data.streakMonths = streakMonths
 		if(typeof tags["msg-param-sender-count"] == "string") {
+			//TODO this is probably a mistake as this sender-count contains the total of subgift ont he channel
 			data.months = parseInt(tags["msg-param-sender-count"] ?? "1");
 		}
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
@@ -893,6 +894,20 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const tags = data.tags as tmi.ChatUserstate;
 					tags.username = tags.login;
 					this.message(params[0], tags, params[1], false);
+				}
+
+				//Handle subgift summaries
+				//Grabs the number of subgifts made on the channel and store it to the user
+				if((data.tags as tmi.ChatUserstate)["msg-param-sender-count"]) {
+					// console.log("RECEIVED SUBGIFT INFO", data);
+					const tags = data.tags as tmi.ChatUserstate;
+					const channelId = tags["room-id"] as string;
+					const user = this.getUserFromTags(tags, channelId);
+					const total = typeof tags["msg-param-sender-count"] == "string"? parseInt(tags["msg-param-sender-count"]) : -1;
+					// console.log("User", user);
+					// console.log("Channel", channelId);
+					// console.log("Total", total);
+					user.channelInfo[channelId].totalSubgifts = total;
 				}
 				break;
 			}

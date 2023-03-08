@@ -766,6 +766,7 @@ export namespace TwitchatDataTypes {
 		badges:TwitchatUserBadge[];
 		banEndDate?:number;
 		lastActivityDate?:number;
+		totalSubgifts?:number;
 	}
 	
 	/**

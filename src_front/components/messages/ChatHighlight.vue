@@ -167,13 +167,18 @@ export default class ChatHighlight extends AbstractChatMessage {
 					this.icon = this.$image('icons/gift.svg');
 					value = this.messageData.tier;
 					this.user = this.messageData.user;
+					let totalGifts = this.messageData.user.channelInfo[this.messageData.channel_id].totalSubgifts;
+					let totalGiftsLabel = "";
+					if(totalGifts && totalGifts > 0) {
+						totalGiftsLabel = "<i>"+this.$tc("chat.highlight.sub_gift_total", totalGifts, {COUNT:totalGifts})+"</i>";
+					}
 					if(this.messageData.gift_recipients?.length == 1 && this.messageData.months > 0) {
 						this.additionalUsers = this.messageData.gift_recipients.filter(v=> v.temporary !== true);
 						res = this.$t("chat.highlight.sub_gift_months", {COUNT:"<strong>"+this.messageData.months+"</strong>", TIER:value});
 					}else
 					if(this.messageData.gift_recipients) {
 						this.additionalUsers = this.messageData.gift_recipients.filter(v=> v.temporary !== true);
-						res = this.$t("chat.highlight.sub_gift", {COUNT:"<strong>"+this.messageData.gift_recipients.length+"</strong>", TIER:value});
+						res = this.$tc("chat.highlight.sub_gift", this.messageData.gift_recipients.length, {COUNT:"<strong>"+this.messageData.gift_recipients.length+"</strong>", TIER:value, TOTAL:totalGiftsLabel});
 					}
 
 				}else if(this.messageData.is_giftUpgrade) {
@@ -214,9 +219,11 @@ export default class ChatHighlight extends AbstractChatMessage {
 					if(this.messageData.streakMonths > 0) {
 						extras.push(this.$tc("chat.highlight.sub_streak", months, {COUNT:this.messageData.streakMonths}));
 					}
+
 					if(extras.length) {
 						res += " <i>("+extras.join(" ")+")</i>"
 					}
+
 				}
 				break;
 			}

@@ -133,6 +133,9 @@ export const storeDebug = defineStore('debug', {
 						is_resub:false,
 						gift_upgradeSender:Utils.pickRand(fakeUsers)
 					};
+					if(Math.random() > .8) {
+						fakeUser.channelInfo[uid].totalSubgifts = Math.floor(Math.random() * 1000);
+					}
 					data = m;
 					break;
 				}
