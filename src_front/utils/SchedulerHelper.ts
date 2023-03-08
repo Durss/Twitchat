@@ -145,17 +145,20 @@ export default class SchedulerHelper {
 				const nextDate = e.date;
 				// console.log("ASK RESET", new Date(nextDate));
 				
-				//Wait 5min before the schedule happens and check if the last
-				//message at the origin of the reset has been deleted or not.
-				//If the message has been deleted, ignore the schedule reset :)
+				//Wait 5min max and check if the message at the origin of the reset
+				//has been deleted or not.
+				//If the message has been deleted, ignore the schedule reset.
+				//This makes sure the ad message is visible for at least 5min
+				const timeFrame = 5*60*1000;
+				const waitFor = Math.min(timeFrame, Math.max(0, nextDate - Date.now() - timeFrame));
 				clearTimeout(this._adScheduleTimeout);
 				this._adScheduleTimeout = setTimeout(()=> {
-					// console.log("Do reset. Deleted?"+message.deleted);
-					if(message.deleted) return;
-					e.date = Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000;
+					// console.log("Do reset. Deleted?"+message.deleted, "date:"+(Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000 - waitFor) );
+					if(message.deleted === true) return;
+					e.date = Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000 - waitFor;
 					e.messageCount = 0;
 					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
-				}, Math.max(0,nextDate - Date.now() - 5*60*1000));
+				}, waitFor);
 				// console.log("Wait for", Math.max(0,nextDate - Date.now() - 5*60*1000));
 			}
 		}
@@ -171,6 +174,8 @@ export default class SchedulerHelper {
 		
 		this._adSchedule = {
 			type:TriggerScheduleTypes.REGULAR_REPEAT,
+			// repeatDuration:10,
+			// repeatMinMessages:0,
 			repeatDuration:120,
 			repeatMinMessages:100,
 			dates:[],
@@ -189,11 +194,6 @@ export default class SchedulerHelper {
 	private computeFrame():void {
 		requestAnimationFrame(()=>this.computeFrame());
 		//Execute process only once every 5s
-		//We could thechnically use a setInterval(..., 5000) instead, but
-		//its behavior isn't ideal when tab is put in background. All
-		//pending intervals would be fired at once when bringing the tab
-		//back to foreground. With a requestAnimationFrame() the process
-		//is slowed down to 1 fps and tasks still executed in background
 		if(Date.now() - this._prevExecute_ts < 5000) return;
 		this._prevExecute_ts = Date.now();
 
@@ -228,32 +228,18 @@ export default class SchedulerHelper {
 					if(schedule.repeatDuration > 0 && Date.now() < e.date) {
 						execute = false;
 					}else{
-						this._pendingTriggers.splice(i, 1)
+						this._pendingTriggers.splice(i, 1);
 					}
 					break;
 				}
 			}
 
 			if(execute) {
-				let date = Date.now() + schedule!.repeatDuration * 60 * 1000;
-				//[EDIT] don't do that reset, just wait for the message to come back
-				//that will reset the schedule because it contains the link
-				// if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
-				// 	//This is a trick to avoid sending the ad message multiple times
-				// 	//if the user is using multiple instances of twitchat.
-				// 	//The first one sent will reset the timer on the other instances.
-				// 	//There's still a slight risk 2 instances send it almost at the
-				// 	//same time but that's the easiest solution to handle that.
-				// 	date += Math.random()*60;
-				// 	//Update anti-cheat
-				// 	DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
-				// }
-				
-				e.date = date;
+				e.date = Date.now() + schedule!.repeatDuration * 60 * 1000;
 				e.messageCount = 0;
+				DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
 			}
 		}
-		// console.log("2 > ", Date.now() - s);
 	}
 }
