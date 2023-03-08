@@ -2058,7 +2058,7 @@ export default class MessageList extends Vue {
 
 	.conversation {
 		position: absolute;
-		z-index: 2;
+		z-index: 4;
 		background-color: @mainColor_dark;
 		padding: 10px;
 		left: 0;

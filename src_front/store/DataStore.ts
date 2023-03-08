@@ -260,8 +260,8 @@ export default class DataStore {
 		clearTimeout(this.saveTO);
 		if(!force) {
 			if(!this.syncToServer) return;//User wants to only save data locally
-			if(!StoreProxy.auth.twitch.access_token) return;
 			if(!this.dataImported) return;//Don't export anything before importing data first
+			if(!StoreProxy.auth.twitch.access_token) return;
 		}
 		
 		return new Promise((resolve) => {

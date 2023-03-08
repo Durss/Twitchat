@@ -900,6 +900,7 @@ export default class Chat extends Vue {
 			overflow: hidden;
 			overflow-x: auto;
 			width: 100%;
+			min-width: 200px;
 
 			.column {
 				position: relative;
