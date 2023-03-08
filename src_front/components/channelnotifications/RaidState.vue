@@ -103,11 +103,11 @@ export default class RaidState extends Vue {
 		for (let i = 0; i < userlist.length; i++) {
 			const u = userlist[i];
 			//User online?
-			if(u.platform === "twitch" && u.channelInfo[me.id]?.online === true) {
-				if(u.channelInfo[me.id]?.is_banned === true) {
+			if(u.platform === "twitch") {
+				if(u.channelInfo[me.id]?.is_banned === true && u.channelInfo[me.id]?.lastActivityDate) {
 					if(u.channelInfo[me.id]?.banEndDate != undefined) {
 						//User timedout
-						timedoutOnline.push(u);
+						if(u.channelInfo[me.id]?.online === true) timedoutOnline.push(u);
 					}else{
 						//User perma ban
 						bannedOnline.push(u);
