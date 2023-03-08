@@ -15,7 +15,15 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 })
 export default class ProgressBar extends Vue {
 
+	@Prop({
+			type:Number,
+			default:0,
+		})
 	public percent!:number;
+	@Prop({
+			type:Number,
+			default:1,
+		})
 	public duration!:number;//In ms
 	@Prop({
 			type:Boolean,
