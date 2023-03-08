@@ -19,7 +19,8 @@
 					</div>
 		
 					<div class="dragBt" ref="splitter"
-					v-if="$store('params').chatColumnsConfig.length > 1"
+					v-if="$store('params').chatColumnsConfig.length > 1
+					&& (c.order == 0 || $store('params').chatColumnsConfig.length > 2)"
 					@dblclick="expandCol(c)"
 					@pointerdown="startDrag($event, c)"
 					@pointerup="startDrag($event, c)">
@@ -765,6 +766,14 @@ export default class Chat extends Vue {
 					c.size = Math.max(215, this.mouseX - bounds.left + 7) / holderBounds.width;
 				}
 			}
+		}
+		if(cols.length == 2) {
+			//Special case if there are only 2 cols, autoresize the second one
+			//and prevent from being able to resize it independently from the
+			//first one as it's confusing people.
+			//But for more than 2 cols I'd like to keep the resize capabilities
+			//on all cols including the last.
+			cols[1].size = 1 - cols[0].size;
 		}
 		
 		this.$store('params').saveChatColumnConfs();
