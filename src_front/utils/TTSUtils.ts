@@ -608,6 +608,7 @@ export default class TTSUtils {
 			if(paramsTTS.maxDuration > 0) {
 				this.stopTimeout = setTimeout(()=> {
 					window.speechSynthesis.cancel();
+					this.onReadComplete();
 				}, paramsTTS.maxDuration * 1000);
 			}
 		}else{
