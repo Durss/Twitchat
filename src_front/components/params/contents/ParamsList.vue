@@ -207,21 +207,9 @@ export default class ParamsList extends Vue {
 
 <style scoped lang="less">
 .paramslist{
-	h1 {
-		text-align: center;
-		margin-bottom: 20px;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		.icon {
-			height: 1.25em;
-			margin-right: .5em;
-		}
-	}
-
 	.row {
 		position: relative;
+		@iconSize: 1.5em;
 
 		&>.item {
 			@defaultBg: fade(@mainColor_normal_extralight, 30%);
@@ -234,13 +222,21 @@ export default class ParamsList extends Vue {
 			}
 			:deep(.icon) {
 				z-index: 1;
+				height: @iconSize;
+				width: @iconSize;
+			}
+			:deep(.child) {
+				width:calc(100% - @iconSize - .5em);
+				.holder::before {
+					left: -@iconSize;
+				}
 			}
 			&:has(.icon)::before {
 				content: "";
 				position: absolute;
 				left: 0;
 				top: 0;
-				width: 1.5em;
+				width: @iconSize + .5em;
 				height: 100%;
 				background: @mainColor_light;
 				z-index: 0;
@@ -253,35 +249,36 @@ export default class ParamsList extends Vue {
 			}
 			
 
+			@colorSize: @iconSize + 1.5em;
 			&.highlightMods {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_mods 2.5em, @defaultBg 2.5em);
+				background: linear-gradient(to right, @highlight_mods @colorSize, @defaultBg @colorSize);
 			}
 			&.highlightVips {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_vips 2.5em, @defaultBg 2.5em);
+				background: linear-gradient(to right, @highlight_vips @colorSize, @defaultBg @colorSize);
 			}
 			&.highlightSubs {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_subs 2.5em, @defaultBg 2.5em);
+				background: linear-gradient(to right, @highlight_subs @colorSize, @defaultBg @colorSize);
 			}
 			&.highlightPartners {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_partners 2.5em, @defaultBg 2.5em);
+				background: linear-gradient(to right, @highlight_partners @colorSize, @defaultBg @colorSize);
 			}
 			&.highlightMentions {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_mention 2.5em, @defaultBg 2.5em);
+				background: linear-gradient(to right, @highlight_mention @colorSize, @defaultBg @colorSize);
 			}
 
 			.chatMessage {
@@ -302,7 +299,7 @@ export default class ParamsList extends Vue {
 
 		.info {
 			overflow: hidden;
-			padding-left: calc(1em + 10px);
+			padding-left: calc(@iconSize + 10px);
 			img {
 				height: 1em;
 				vertical-align: middle;

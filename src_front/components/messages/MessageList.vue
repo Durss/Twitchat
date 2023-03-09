@@ -2092,6 +2092,7 @@ export default class MessageList extends Vue {
 			max-height: 200px;
 			overflow-y: auto;
 			overflow-x: hidden;
+			position: relative
 		}
 
 		.TTSreadBt {

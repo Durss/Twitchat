@@ -207,34 +207,34 @@ export default class UserCard extends Vue {
 		this.loadingFollowings = true;
 		this.commonFollowCount = 0;
 		try {
-			this.user = this.user!;
-			const loadFromLogin = this.user.temporary;
-			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [this.user.id], loadFromLogin? [this.user.login] : undefined);
+			let user = this.user!;
+			const loadFromLogin = user.temporary;
+			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
 				this.currentStream = (await TwitchUtils.loadCurrentStreamInfo([u.id]))[0];
 				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.followInfo = await TwitchUtils.getFollowInfo(u.id);
 				this.userDescription = u.description;
-				this.user.avatarPath = u.profile_image_url;
-				this.user.id = u.id;
+				user.avatarPath = u.profile_image_url;
+				user.id = u.id;
 				//Don't replace display name if already set.
 				//Extensions like "Stream stickers" have a different display name
 				//than the one sent back by the API.
 				//Ex: when receiving s stream stickers event from pubsub, the display
 				//name is "Stream Stickers", but its actual display name is "streamsticker".
 				//This condition avoids replacing the first by the second.
-				if(!this.user.displayName) this.user.displayName = u.display_name;
+				if(!user.displayName) user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
 				// if(!this.user.channelInfo[this.channelId]) {
 				// 	//Missing channel info (probably because we're requesting a user via the /userinfo command)
 				// 	//Ask
 				// }
-				if(this.user.channelInfo[this.channelId]?.badges.length == 0) {
+				if(user.channelInfo[this.channelId]?.badges.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
-					this.user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
+					user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
 				}
 				
 				if(this.followInfo) {
@@ -246,7 +246,7 @@ export default class UserCard extends Vue {
 					platform:"twitch",
 					date:Date.now(),
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-					user:this.user,
+					user,
 					channel_id: this.channelId,
 					message: "",
 					message_html: "",

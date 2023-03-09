@@ -227,7 +227,7 @@
 			"tipBt": "🌞 Emerveiller ma journée 🌞"
 		},
 		"stream": {
-			"online": "La chaîne {USER} est live",
+			"online": "La chaîne {USER} est en live",
 			"offline": "La chaîne {USER} n'est plus en live"
 		},
 		"discord": {
