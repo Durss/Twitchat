@@ -36,6 +36,7 @@
 			:title="$t('obs.permissions_title')">
 				<p class="info">{{ $t("obs.permissions_head") }}</p>
 				<PermissionsForm class="content" v-model="permissions" />
+				{{ permissions }}
 			</ToggleBlock>
 
 			<ToggleBlock class="block mic"
@@ -136,12 +137,7 @@ export default class ParamsOBS extends Vue {
 		this.param_enabled.value = this.$store("obs").connectionEnabled ?? false;
 
 		const storedPermissions = this.$store("obs").commandsPermissions;
-		this.permissions.mods = storedPermissions.mods;
-		this.permissions.vips = storedPermissions.vips;
-		this.permissions.subs = storedPermissions.subs;
-		this.permissions.all = storedPermissions.all;
-		this.permissions.usersAllowed = storedPermissions.usersAllowed;
-		this.permissions.usersRefused = storedPermissions.usersRefused;
+		this.permissions = JSON.parse(JSON.stringify(storedPermissions));//Clone object to break ref
 
 		watch(()=> this.param_enabled.value, () => { this.paramUpdate(); })
 		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
