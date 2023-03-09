@@ -374,6 +374,8 @@ import Ajv from "ajv";
 		"p:highlightVips": {type:"boolean"},
 		"p:highlightPartners": {type:"boolean"},
 		"p:lockAutoScroll": {type:"boolean"},
+		"p:liveMessages": {type:"boolean"},
+		"p:liveAlerts": {type:"boolean"},
 		"p:markAsRead": {type:"boolean"},
 		"p:minimalistBadges": {type:"boolean"},
 		"p:raidHighlightUser": {type:"boolean"},

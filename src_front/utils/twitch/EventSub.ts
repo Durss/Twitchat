@@ -47,7 +47,7 @@ export default class EventSub {
 	public async connect(disconnectPrevious:boolean = true):Promise<void> {
 
 		clearTimeout(this.reconnectTimeout);
-		
+
 		if(disconnectPrevious && this.socket) {
 			this.cleanupSocket(this.socket);
 		}
@@ -648,21 +648,37 @@ export default class EventSub {
 	 * @param topic 
 	 * @param event 
 	 */
-	private streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):void {
+	private async streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
 		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
 			date:Date.now(),
 			id:Utils.getUUID(),
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
-			user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+			info: {
+				title: "",
+				category:"",
+				started_at:Date.now(),
+				user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+			}
 		}
+
+		//Stream online
 		if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF) {
 			StoreProxy.stream.setPlaybackState(event.broadcaster_user_id, undefined);
 			StoreProxy.stream.setStreamStop(event.broadcaster_user_id);
 			((message as unknown) as TwitchatDataTypes.MessageStreamOfflineData).type = TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE;
-		}else{
-			StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
+			
+		//Stream offline
+		}else if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON) {
+			//Load stream info
+			const [streamInfo] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+			if(streamInfo) {
+				message.info.started_at = new Date(streamInfo.started_at).getTime();
+				message.info.title = streamInfo.title;
+				message.info.category = streamInfo.game_name;
+				StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
+			}
 		}
 		StoreProxy.chat.addMessage(message);
 	}

@@ -184,6 +184,10 @@ export default class DataStore {
 			delete data["syncToserver"];
 			v = 32;
 		}
+		if(v==32) {
+			this.enableLiveOnOffNotification(data);
+			v = 33;
+		}
 
 		data[this.DATA_VERSION] = v;
 		return data;
@@ -246,6 +250,12 @@ export default class DataStore {
 				}
 			}
 			this.set(DataStore.AUTOMOD_PARAMS, automod);
+		}
+
+		for (const key in json) {
+			const value = json[key];
+			const str = typeof value == "string"? value : JSON.stringify(value);
+			this.store.setItem(this.dataPrefix + key, str);
 		}
 
 		this.dataImported = true;
@@ -804,5 +814,15 @@ export default class DataStore {
 		delete data["p:emergencyButton"];
 		delete data["leftColSize"];
 		delete data["activityFeedFilters"];
+	}
+
+	/**
+	 * Forces new stream online/offline notifications
+	 * @param data
+	 */
+	private static enableLiveOnOffNotification(data:any):void {
+		const cols:TwitchatDataTypes.ChatColumnsConfig[] = data[this.CHAT_COLUMNS_CONF]
+		const index = cols.length == 1? 0 : 1;
+		cols[index].filters.stream_online = true;
 	}
 }

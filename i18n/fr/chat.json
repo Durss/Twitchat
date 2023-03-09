@@ -81,7 +81,8 @@
 				"hype_train_cooled_down": "Train de la hype prêt",
 				"community_boost_complete": "Boost de stream",
 				"community_challenge_contribution": "Défis de communauté",
-				"pinned": "Alertes de messages épinglés"
+				"pinned": "Alertes de messages épinglés",
+				"stream_online": "Stream commencé/arrêté"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -227,8 +228,9 @@
 			"tipBt": "🌞 Emerveiller ma journée 🌞"
 		},
 		"stream": {
-			"online": "La chaîne {USER} est en live",
-			"offline": "La chaîne {USER} n'est plus en live"
+			"online": "La chaîne {USER} est en live.",
+			"offline": "La chaîne {USER} n'est plus en live",
+			"info": "Diffuse {CATEGORY}:"
 		},
 		"discord": {
 			"title": "Rejoins-nous sur Discord",

@@ -597,9 +597,13 @@ export default class TwitchUtils {
 		let streams:TwitchDataTypes.StreamInfo[] = [];
 		//Split by 100 max to comply with API limitations
 		while(items.length > 0) {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"streams");
 			const param = ids ? "user_id" : "user_login";
-			const params = param+"="+items.splice(0,100).join("&"+param+"=");
-			const url = Config.instance.TWITCH_API_PATH+"streams?first=1&"+params;
+			const list = items.splice(0,100);
+			for (let i = 0; i < list.length; i++) {
+				url.searchParams.append(param, list[i]);
+			}
+
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
 			streams = streams.concat(json.data);
@@ -1446,31 +1450,6 @@ export default class TwitchUtils {
 			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
 			return await this.getCategoryByID(id);
-		}
-		const json = await res.json();
-		if(json.error) {
-			throw(json);
-		}else{
-			return json.data[0];
-		}
-	}
-
-	/**
-	 * Get current stream's infos
-	 */
-	public static async getStreamInfos(channelId:string):Promise<TwitchDataTypes.ChannelInfo> {
-		const options = {
-			method:"GET",
-			headers: this.headers
-		}
-		const url = new URL(Config.instance.TWITCH_API_PATH+"channels");
-		url.searchParams.append("broadcaster_id", channelId);
-		const res = await fetch(url.href, options);
-		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
-			return await this.getStreamInfos(channelId);
 		}
 		const json = await res.json();
 		if(json.error) {

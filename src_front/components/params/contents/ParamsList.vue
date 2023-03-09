@@ -231,6 +231,9 @@ export default class ParamsList extends Vue {
 					left: -@iconSize;
 				}
 			}
+			:deep(.content) {
+				align-items: center;
+			}
 			&:has(.icon)::before {
 				content: "";
 				position: absolute;
@@ -319,10 +322,10 @@ export default class ParamsList extends Vue {
 				display: block;
 				border-radius: .25em;
 				margin: .25em auto;
-				margin-left: 1.5em;
 				background-color: @mainColor_light;
 				border: 1px solid @mainColor_alert;
 				padding: .25em .5em;
+				margin-left: calc(@iconSize + 10px);
 				text-align: center;
 				p {
 					font-size: .8em;

@@ -200,7 +200,7 @@ export default class StreamInfoForm extends Vue {
 		this.loading = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
 		try {
-			const infos = await TwitchUtils.getStreamInfos(channelId);
+			const [infos] = await TwitchUtils.loadCurrentStreamInfo([channelId]);
 			this.title = infos.title;
 			if(infos.game_id) {
 				const game = await TwitchUtils.getCategoryByID(infos.game_id);

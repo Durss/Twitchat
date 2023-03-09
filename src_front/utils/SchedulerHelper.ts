@@ -12,10 +12,11 @@ export default class SchedulerHelper {
 
 	private static _instance:SchedulerHelper;
 	private _started:boolean = false;
-	private _pendingTriggers:{messageCount:number, date:number, triggerKey:string}[] = [];
+	private _pendingSchedules:{messageCount:number, date:number, triggerKey:string}[] = [];
 	private _prevExecute_ts:number = 0;
 	private _adSchedule?:TriggerScheduleData;
 	private _adScheduleTimeout?:number;
+	private _liveChannelsSchedule?:TriggerScheduleData;
 	
 	constructor() {
 	
@@ -57,8 +58,8 @@ export default class SchedulerHelper {
 	 * Called when a messages is sent on tchat (not from twitchat)
 	 */
 	public incrementMessageCount():void {
-		for (let i = 0; i < this._pendingTriggers.length; i++) {
-			this._pendingTriggers[i].messageCount++;
+		for (let i = 0; i < this._pendingSchedules.length; i++) {
+			this._pendingSchedules[i].messageCount++;
 		}
 	}
 
@@ -68,9 +69,9 @@ export default class SchedulerHelper {
 	 * @returns 
 	 */
 	public unscheduleTrigger(key:string):void {
-		const existingIndex = this._pendingTriggers.findIndex(v=>v.triggerKey == key);
+		const existingIndex = this._pendingSchedules.findIndex(v=>v.triggerKey == key);
 		if(existingIndex > -1) {
-			this._pendingTriggers.splice(existingIndex, 1);
+			this._pendingSchedules.splice(existingIndex, 1);
 		}
 	}
 
@@ -99,7 +100,7 @@ export default class SchedulerHelper {
 						DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, date);
 					}
 				}
-				this._pendingTriggers.push({
+				this._pendingSchedules.push({
 					messageCount:0,
 					date,
 					triggerKey:key,
@@ -123,7 +124,7 @@ export default class SchedulerHelper {
 							continue;
 						}
 					}
-					this._pendingTriggers.push({
+					this._pendingSchedules.push({
 						messageCount:0,
 						date:date.getTime(),
 						triggerKey:key,
@@ -138,8 +139,8 @@ export default class SchedulerHelper {
 	 * Resets the ad schedule
 	 */
 	public resetAdSchedule(message:TwitchatDataTypes.MessageChatData):void {
-		for (let i = 0; i < this._pendingTriggers.length; i++) {
-			const e = this._pendingTriggers[i];
+		for (let i = 0; i < this._pendingSchedules.length; i++) {
+			const e = this._pendingSchedules[i];
 			//Search for the ad schedule
 			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				const nextDate = e.date;
@@ -179,7 +180,14 @@ export default class SchedulerHelper {
 			repeatDuration:120,
 			repeatMinMessages:100,
 			dates:[],
-		}
+		};
+		
+		this._liveChannelsSchedule = {
+			type:TriggerScheduleTypes.REGULAR_REPEAT,
+			repeatDuration:5,
+			repeatMinMessages:0,
+			dates:[],
+		};
 
 		//Just a fail safe to avoid deploying fucked up data on production !
 		if(this._adSchedule.repeatDuration < 120) {
@@ -189,6 +197,7 @@ export default class SchedulerHelper {
 			StoreProxy.main.alertData = "Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 100!";
 		}
 		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
+		this.scheduleTrigger(TriggerTypes.TWITCHAT_LIVE_FRIENDS, this._liveChannelsSchedule);
 	}
 
 	private computeFrame():void {
@@ -201,10 +210,12 @@ export default class SchedulerHelper {
 		const triggers:{[key:string]:TriggerData} = StoreProxy.triggers.triggers;
 		// console.log("1 > ", Date.now() - s);
 
-		for (let i = 0; i < this._pendingTriggers.length; i++) {
-			const e = this._pendingTriggers[i];
+		for (let i = 0; i < this._pendingSchedules.length; i++) {
+			const e = this._pendingSchedules[i];
 			const trigger = triggers[e.triggerKey];
 			let schedule = trigger?.scheduleParams;
+
+			//Special case for ad 
 			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
 				//No ad for donors unless requested
 				if(Config.instance.BETA_MODE) continue;//No ad on beta
@@ -214,6 +225,12 @@ export default class SchedulerHelper {
 
 				schedule = this._adSchedule;
 			}
+
+			//Special case for "live friends" 
+			if(e.triggerKey == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
+				schedule = this._liveChannelsSchedule;
+			}
+
 			if(!schedule) continue;
 
 			let execute = true;
@@ -228,7 +245,7 @@ export default class SchedulerHelper {
 					if(schedule.repeatDuration > 0 && Date.now() < e.date) {
 						execute = false;
 					}else{
-						this._pendingTriggers.splice(i, 1);
+						this._pendingSchedules.splice(i, 1);
 					}
 					break;
 				}

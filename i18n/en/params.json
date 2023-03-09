@@ -26,7 +26,8 @@
 			"stream_title": "Last stream title",
 			"stream_category": "Last stream category"
 		},
-		"liveMessages":"Show some live message when chat paused",
+		"liveMessages":"Show latest messages when chat paused",
+		"liveAlerts":"Get notified when someone you follow starts or ends a live (5min delay)",
 		"censorDeletedMessages": "Censor deleted messages",
 		"highlightMods": "Highlight Mods",
 		"highlightVips": "Highlight VIPs",

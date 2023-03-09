@@ -269,6 +269,7 @@ export const TriggerTypes = {
 	RAID_STARTED:"63",
 
 	TWITCHAT_AD:"ad",
+	TWITCHAT_LIVE_FRIENDS:"live_friends",
 } as const;
 export type TriggerTypesValue = typeof TriggerTypes[keyof typeof TriggerTypes];
 

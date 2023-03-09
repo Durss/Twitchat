@@ -878,10 +878,13 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT:
 			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:
-			case TwitchatDataTypes.TwitchatMessageType.NOTICE:
+			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
+				return this.config.filters.notice === true;
+			}
+			
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE: {
-				return this.config.filters.notice === true;
+				return this.config.filters.stream_online === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {

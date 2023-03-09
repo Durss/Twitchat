@@ -179,6 +179,10 @@
 						v-else-if="m.type == 'ban'"
 						:messageData="m" />
 
+					<ChatStreamOnOff class="message"
+						v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
+						:messageData="m" />
+
 					<ChatUnban class="message"
 						v-else-if="m.type == 'unban'"
 						:messageData="m" />
@@ -223,6 +227,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
+import ChatStreamOnOff from '../ChatStreamOnOff.vue';
 
 @Component({
 	components:{
@@ -249,6 +254,7 @@ import DataStore from '@/store/DataStore';
 		ChatPinNotice,
 		PermissionsForm,
 		ToggleBlock,
+		ChatStreamOnOff,
 	},
 	emits: ['submit', 'add', 'change'],
 })
@@ -342,6 +348,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "chat.filters.message_types.countdown";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "chat.filters.message_types.prediction";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= "chat.filters.message_types.subscription";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "chat.filters.message_types.stream_online";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "chat.filters.message_types.hype_train_summary";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "chat.filters.message_types.hype_train_cooled_down";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]			= "chat.filters.message_types.community_boost_complete";
@@ -369,6 +376,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "countdown.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost.svg";
@@ -406,11 +414,12 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.BINGO,
 			TwitchatDataTypes.TwitchatMessageType.RAFFLE,
 			TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
+			TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
 			TwitchatDataTypes.TwitchatMessageType.LEAVE,
+			TwitchatDataTypes.TwitchatMessageType.NOTICE,
 			TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
 			TwitchatDataTypes.TwitchatMessageType.WHISPER,
-			TwitchatDataTypes.TwitchatMessageType.NOTICE,
 			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		];
 
@@ -662,26 +671,46 @@ export default class MessageListFilter extends Vue {
 			this.loadingPreview = false;
 
 		}else
-			if(type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT) {
-				this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-					if(!data || !this.mouseOverToggle) return;
-					const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
-					dataCast.received = false;
-					this.messagesCache[type]?.push(data);
-					if(previewIndexLoc != this.previewIndex) return;
-					this.previewData.push(data);
-				}, false);
-				this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
-					if(!data || !this.mouseOverToggle) return;
-					const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
-					dataCast.received = true;
-					this.messagesCache[type]?.push(data);
-					if(previewIndexLoc != this.previewIndex) return;
-					this.previewData.push(dataCast);
-				}, false);
-				this.loadingPreview = false;
+		if(type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT) {
+			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+				if(!data || !this.mouseOverToggle) return;
+				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
+				dataCast.received = false;
+				this.messagesCache[type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+				if(!data || !this.mouseOverToggle) return;
+				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
+				dataCast.received = true;
+				this.messagesCache[type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(dataCast);
+			}, false);
+			this.loadingPreview = false;
 
-			}else{
+		}else
+		if(type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE) {
+			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+				if(!data || !this.mouseOverToggle) return;
+				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
+				dataCast.received = false;
+				this.messagesCache[type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+				if(!data || !this.mouseOverToggle) return;
+				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
+				dataCast.received = true;
+				this.messagesCache[type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(dataCast);
+			}, false);
+			this.loadingPreview = false;
+
+		}else{
 
 			this.$store('debug').simulateMessage(type, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				this.loadingPreview = false;

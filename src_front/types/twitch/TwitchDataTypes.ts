@@ -43,7 +43,8 @@ export namespace TwitchDataTypes {
 		started_at: string;
 		language: string;
 		thumbnail_url: string;
-		tag_ids: string[];
+		tags: string[];
+		is_mature: boolean;
 		//Custom tag
 		user_info: UserInfo;
 	}

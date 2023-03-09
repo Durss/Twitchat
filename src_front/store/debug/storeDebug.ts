@@ -787,7 +787,12 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						platform:"twitch",
 						type,
-						user,
+						info: {
+							user,
+							title:"Amazing stream!",
+							category:"Just chatting",
+							started_at:Date.now(),
+						}
 					};
 					data = m;
 					break;
@@ -799,7 +804,12 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						platform:"twitch",
 						type,
-						user,
+						info: {
+							user,
+							title:"Amazing stream!",
+							category:"Just chatting",
+							started_at:Date.now(),
+						}
 					};
 					data = m;
 					break;

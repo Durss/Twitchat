@@ -81,7 +81,8 @@
 				"hype_train_cooled_down": "Hype train cooldown",
 				"community_boost_complete": "Community boosts",
 				"community_challenge_contribution": "Community challenge",
-				"pinned": "Un/Pinned message notices"
+				"pinned": "Un/Pinned message notices",
+				"stream_online": "Stream online/offline"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -227,8 +228,9 @@
 			"tipBt": "🌞 Make my day brighter 🌞"
 		},
 		"stream": {
-			"online": "Channel {USER} is now live",
-			"offline": "Channel {USER} is now offline"
+			"online": "Channel {USER} is now live.",
+			"offline": "Channel {USER} is now offline",
+			"info": "Streaming {CATEGORY}:"
 		},
 		"discord": {
 			"title": "Join us on Discord",

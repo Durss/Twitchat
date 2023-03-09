@@ -8,8 +8,8 @@
 				:style="getColStyles(c)">
 					<div class="subHolder">
 						<GreetThem class="greetThem"
-						v-if=" $store('params').chatColumnsConfig.length == 1
-						|| ($store('params').features.firstMessage.value && index == 1)" />
+						v-if="$store('params').features.firstMessage.value === true
+						&& ($store('params').chatColumnsConfig.length == 1 || index == 1)" />
 	
 						<MessageList ref="messages" class="messages"
 							@showModal="(v:TwitchatDataTypes.ModalTypes) => currentModal = v"

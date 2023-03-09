@@ -16,6 +16,7 @@ import Utils from "../Utils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import * as MathJS from 'mathjs'
 import { reactive } from "vue";
+import { TwitchScopes } from "../twitch/TwitchScopes";
 
 /**
 * Created : 22/04/2022 
@@ -34,6 +35,7 @@ export default class TriggerActionHandler {
 	private lastAnyMessageSent:string = "";
 	private obsSourceNameToQueue:{[key:string]:Promise<void>} = {};
 	private triggerTypeToQueue:{[key:string]:Promise<void>} = {};
+	private liveChannelCache:{[key:string]:TwitchatDataTypes.StreamInfo} = {};
 	
 	constructor() {
 	
@@ -376,7 +378,7 @@ export default class TriggerActionHandler {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-
+		this.checkLiveFollowings(false);
 	}
 	
 
@@ -414,6 +416,11 @@ export default class TriggerActionHandler {
 					}
 				]
 			}
+		}
+
+		if(triggerKey == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
+			this.checkLiveFollowings();
+			return true;
 		}
 		
 		if(!trigger || (!trigger.enabled && !testMode) || !trigger.actions || trigger.actions.length == 0) {
@@ -1082,5 +1089,61 @@ export default class TriggerActionHandler {
 			}catch(error) {/*ignore*/}
 		}
 		return user;
+	}
+
+	/**
+	 * Check if any of our followings are live and notify on tchat
+	 * if requested
+	 */
+	private async checkLiveFollowings(notify:boolean = true):Promise<void> {
+		//User requested not to be alerted, stop there
+		if(StoreProxy.params.features.liveAlerts.value !== true) return;
+		if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return;
+
+		const channels = await TwitchUtils.getActiveFollowedStreams();
+		const liveChannels:{[key:string]:TwitchatDataTypes.StreamInfo} = {};
+		for (let i = 0; i < channels.length; i++) {
+			const c = channels[i];
+			liveChannels[c.user_id] = {
+				user:StoreProxy.users.getUserFrom("twitch", c.user_id, c.user_id, c.user_login, c.user_name),
+				category:c.game_name,
+				title:c.title,
+				started_at:new Date(c.started_at).getTime(),
+			}
+		}
+
+		if(notify) {
+			//Check if any user went offline
+			for (const uid in this.liveChannelCache) {
+				if(!liveChannels[uid]) {
+					//User went offline
+					const message:TwitchatDataTypes.MessageStreamOfflineData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
+						info: this.liveChannelCache[uid],
+					}
+					StoreProxy.chat.addMessage(message);
+				}
+			}
+	
+			//Check if any user went online
+			for (const uid in liveChannels) {
+				if(!this.liveChannelCache[uid]) {
+					//User went online
+					const message:TwitchatDataTypes.MessageStreamOnlineData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
+						info: liveChannels[uid],
+					}
+					StoreProxy.chat.addMessage(message);
+				}
+			}
+		}
+
+		this.liveChannelCache = liveChannels;
 	}
 }

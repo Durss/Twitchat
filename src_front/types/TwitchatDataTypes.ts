@@ -424,6 +424,13 @@ export namespace TwitchatDataTypes {
 		tagIDs?: string[];
 	}
 
+	export interface StreamInfo {
+		user:TwitchatUser;
+		title:string;
+		category:string;
+		started_at:number;
+	}
+
 	/**
 	 * Contains info about a countdown
 	 */
@@ -1078,6 +1085,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.PREDICTION,
 		TwitchatMessageType.TWITCHAT_AD,
 		TwitchatMessageType.SUBSCRIPTION,
+		TwitchatMessageType.STREAM_ONLINE,//also works for STREAM_OFFLINE
 		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
 		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
@@ -1661,7 +1669,8 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageStreamOnlineData extends AbstractTwitchatMessage {
 		type:"stream_online";
-		user:TwitchatUser;
+		info:StreamInfo;
+
 	}
 
 	/**
@@ -1669,7 +1678,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageStreamOfflineData extends AbstractTwitchatMessage {
 		type:"stream_offline";
-		user:TwitchatUser;
+		info:StreamInfo;
 	}
 
 	/**
