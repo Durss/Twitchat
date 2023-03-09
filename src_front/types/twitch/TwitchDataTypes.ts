@@ -302,6 +302,13 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface FollowingV2 {
+		broadcaster_id: string;
+		broadcaster_name: string;
+		broadcaster_login: string;
+		followed_at: string;
+	}
+
+	export interface FollowerV2 {
 		user_id: string;
 		user_name: string;
 		user_login: string;

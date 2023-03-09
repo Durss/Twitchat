@@ -19,6 +19,7 @@ export default class TwitchUtils {
 	public static emotesCache:TwitchatDataTypes.Emote[] = [];
 	public static rewardsCache:TwitchDataTypes.Reward[] = [];
 
+	private static fakeUsersCache:TwitchatDataTypes.TwitchatUser[] = [];
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
 
 	public static get headers():{[key:string]:string} {
@@ -1178,10 +1179,10 @@ export default class TwitchUtils {
 	 * @param maxCount maximum followings to grabe
 	 * @param tempDataCallback optional callback method to get results as they're loading
 	 */
-	public static async getFollowersV2(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.FollowingV2[])=>void):Promise<TwitchDataTypes.FollowingV2[]> {
+	public static async getFollowersV2(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.FollowerV2[])=>void):Promise<TwitchDataTypes.FollowerV2[]> {
 		if(!this.hasScope(TwitchScopes.LIST_FOLLOWERS)) return [];
 
-		let list:TwitchDataTypes.FollowingV2[] = [];
+		let list:TwitchDataTypes.FollowerV2[] = [];
 		let cursor:string|null = null;
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
@@ -1194,7 +1195,7 @@ export default class TwitchUtils {
 				headers:this.headers,
 			});
 			if(res.status == 200) {
-				const json:{data:TwitchDataTypes.FollowingV2[], pagination?:{cursor?:string}} = await res.json();
+				const json:{data:TwitchDataTypes.FollowerV2[], pagination?:{cursor?:string}} = await res.json();
 				list = list.concat(json.data);
 				cursor = null;
 				if(json.pagination?.cursor) {
@@ -1249,10 +1250,10 @@ export default class TwitchUtils {
 	 * @param maxCount maximum followings to grabe
 	 * @param tempDataCallback optional callback method to get results as they're loading
 	 */
-	public static async getFollowingsV2(channelId:string, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
+	public static async getFollowingsV2(channelId:string, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.FollowingV2[])=>void):Promise<TwitchDataTypes.FollowingV2[]> {
 		if(!this.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return [];
 
-		let list:TwitchDataTypes.Following[] = [];
+		let list:TwitchDataTypes.FollowingV2[] = [];
 		let cursor:string|null = null;
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followed");
@@ -1264,7 +1265,7 @@ export default class TwitchUtils {
 				headers:this.headers,
 			});
 			if(res.status == 200) {
-				const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+				const json:{data:TwitchDataTypes.FollowingV2[], pagination?:{cursor?:string}} = await res.json();
 				list = list.concat(json.data);
 				cursor = null;
 				if(json.pagination?.cursor) {
@@ -2494,6 +2495,41 @@ export default class TwitchUtils {
 			return json.total
 		}
 		return 0;
+	}
+
+	/**
+	 * Gets fake user entries (at least 10) from our followers if access to those is granted
+	 * otherwise it will return some Twitch specific users
+	 */
+	public static async getFakeUsers():Promise<TwitchatDataTypes.TwitchatUser[]> {
+		if(this.fakeUsersCache.length > 0) return this.fakeUsersCache;
+
+		const channelId:string = StoreProxy.auth.twitch.user.id;
+		let followers:TwitchDataTypes.FollowerV2[] = [];
+		//If followers listing has been granted, list them
+		if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
+			followers = await TwitchUtils.getFollowersV2(null, 100);
+			for (let i = 0; i < followers.length; i++) {
+				this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name,undefined, true, false));
+			}
+		}
+		//If there are not enough entries, add fake ones
+		if(this.fakeUsersCache.length < 10) {
+			const additional:{id:string,login:string,displayName:string}[] = [
+				{id:"29961813",login:"durss", displayName:"Durss"},
+				{id:"12826",login:"twitch", displayName:"Twitch"},
+				{id:"527115020",login:"twitchgaming", displayName:"twitchgaming"},
+				{id:"141981764",login:"twitchdev", displayName:"TwitchDev"},
+				{id:"197886470",login:"twitchrivals", displayName:"TwitchRivals"},
+				{id:"149747285",login:"twitchpresents", displayName:"TwitchPresents"},
+				{id:"477339272",login:"twitchhypetrain", displayName:"TwitchHypeTrain"},
+			]
+			for (let i = 0; i < additional.length; i++) {
+				this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, additional[i].id, additional[i].login, additional[i].displayName,undefined, false, false));
+			}
+		}
+
+		return this.fakeUsersCache;
 	}
 
 }

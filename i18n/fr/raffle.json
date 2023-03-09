@@ -32,7 +32,7 @@
 			"timer_overlay_add_link": "Ajoutez l'overlay",
 			"postOnChat_start": "Annoncer l'ouverture dans le tchat'",
 			"postOnChat_join": "Confirmer l'entrée dans le tirage",
-			"postOnChat_winner": "Annoncer la/le gagnant·e dans le tchat",
+			"postOnChat_winner": "Annoncer gagnant·e dans le tchat",
 			"countdown": "Afficher le compte à rebours",
 			"message_cmd_placeholder": "Commande pour rejoindre le tirage"
 		},

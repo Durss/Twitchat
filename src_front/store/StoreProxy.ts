@@ -359,6 +359,7 @@ export interface IStreamState {
 	communityBoostState: TwitchatDataTypes.CommunityBoost|undefined;
 	streamInfoPreset: TwitchatDataTypes.StreamInfoPreset[];
 	lastRaider: TwitchatDataTypes.TwitchatUser|undefined;
+	currentStreamInfo: TwitchatDataTypes.StreamInfo|undefined;
 	commercialEnd: number;
 	startAdCooldown: number,
 	shieldModeEnabled: boolean,

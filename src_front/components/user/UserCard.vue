@@ -64,7 +64,7 @@
 			<div class="followings" v-if="!disabled">
 				<h2>Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
 				<div class="disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
-				<div class="commonFollow" v-if="canListFollowers">{{commonFollowCount}} followings in common</div>
+				<div class="commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
 				<transition name="scale">
 					<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
 				</transition>
@@ -152,7 +152,7 @@ export default class UserCard extends Vue {
 
 	public get is_tracked():boolean{ return this.user!.is_tracked; }
 
-	public get canListFollowers():boolean{ return TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS); }
+	public get canListFollowings():boolean{ return TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS); }
 
 	public get ttsReadBtLabel(): string {
 		if(!this.user) return "";
@@ -172,9 +172,10 @@ export default class UserCard extends Vue {
 	}
 
 	public mounted():void {
-		const sUsers = storeUsers();
 		watch(() => this.$store("users").userCard, () => {
-			this.myFollowings = sUsers.myFollowings.twitch;
+			this.myFollowings = this.$store("users").myFollowings.twitch;
+			console.log(this.myFollowings);
+
 			const card = this.$store("users").userCard;
 			if(card) {
 				this.user = card.user;

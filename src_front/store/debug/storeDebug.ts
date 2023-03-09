@@ -12,7 +12,6 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
-const fakeUsers:TwitchatDataTypes.TwitchatUser[] = [];
 
 export const storeDebug = defineStore('debug', {
 	state: () => ({
@@ -31,31 +30,7 @@ export const storeDebug = defineStore('debug', {
 		async simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true, allowConversations:boolean = true):Promise<TwitchatDataTypes.ChatMessageTypes> {
 			let data!:TwitchatDataTypes.ChatMessageTypes;
 			const uid:string = StoreProxy.auth.twitch.user.id;
-			if(fakeUsers.length === 0) {
-				let followers:TwitchDataTypes.Following[] = [];
-				//If followers listing has been granted, list them
-				if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
-					followers = await TwitchUtils.getFollowers(uid, 100);
-					for (let i = 0; i < followers.length; i++) {
-						fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
-					}
-				}
-				//If there are not enough entries, add fake ones
-				if(fakeUsers.length < 10) {
-					const additional:{id:string,login:string,displayName:string}[] = [
-						{id:"12826",login:"twitch", displayName:"Twitch"},
-						{id:"527115020",login:"twitchgaming", displayName:"twitchgaming"},
-						{id:"141981764",login:"twitchdev", displayName:"TwitchDev"},
-						{id:"29961813",login:"durss", displayName:"Durss"},
-						{id:"197886470",login:"twitchrivals", displayName:"TwitchRivals"},
-						{id:"149747285",login:"twitchpresents", displayName:"TwitchPresents"},
-						{id:"477339272",login:"twitchhypetrain", displayName:"TwitchHypeTrain"},
-					]
-					for (let i = 0; i < additional.length; i++) {
-						fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, additional[i].id, additional[i].login, additional[i].displayName,undefined, false, false));
-					}
-				}
-			}
+			const fakeUsers = await TwitchUtils.getFakeUsers();
 
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);
 			const fakeUser:TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers);
@@ -898,12 +873,7 @@ export const storeDebug = defineStore('debug', {
 		async simulateNotice(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>boolean, postOnChat:boolean = true):Promise<TwitchatDataTypes.ChatMessageTypes> {
 			let data!:TwitchatDataTypes.MessageNoticeData;
 			const uid:string = StoreProxy.auth.twitch.user.id;
-			if(fakeUsers.length === 0) {
-				const followers = await TwitchUtils.getFollowers(uid, 100);
-				for (let i = 0; i < followers.length; i++) {
-					fakeUsers.push(StoreProxy.users.getUserFrom("twitch", uid, followers[i].from_id, followers[i].from_login, followers[i].from_name,undefined, true, false));
-				}
-			}
+			const fakeUsers = await TwitchUtils.getFakeUsers();
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);
 			const fakeUser:TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers);
 
