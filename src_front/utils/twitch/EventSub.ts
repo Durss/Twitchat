@@ -15,13 +15,15 @@ export default class EventSub {
 
 	private static _instance:EventSub;
 	private socket!:WebSocket;
+	private oldSocket!:WebSocket;
 	private reconnectTimeout!:number;
 	private keepalive_timeout_seconds!:number;
 	private raidTimeout:number = -1;
 	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
+	private connectURL:string = "";
 	
 	constructor() {
-	
+		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
 	}
 	
 	/********************
@@ -39,17 +41,15 @@ export default class EventSub {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	/**
+	 * Connect to Eventsub
+	 */
+	public async connect(disconnectPrevious:boolean = true):Promise<void> {
 
-	public async connect():Promise<void> {
-		// console.log("EVENTSUB : Connect");
-
-		if(this.socket) {
-			clearTimeout(this.reconnectTimeout)
-			this.socket.onmessage = null;
-			this.socket.onerror = null;
-			this.socket.onclose = null;
-			this.socket.onopen = null;
-			this.socket.close();
+		clearTimeout(this.reconnectTimeout);
+		
+		if(disconnectPrevious && this.socket) {
+			this.cleanupSocket(this.socket);
 		}
 
 		//Delete all previous event sub subscriptions
@@ -71,7 +71,7 @@ export default class EventSub {
 		}
 		//*/
 
-		this.socket = new WebSocket("wss://eventsub-beta.wss.twitch.tv/ws");
+		this.socket = new WebSocket(this.connectURL);
 
 		this.socket.onopen = async () => { };
 		
@@ -81,10 +81,20 @@ export default class EventSub {
 			switch(message.metadata.message_type) {
 				case "session_welcome": {
 					this.keepalive_timeout_seconds = message.payload.session.keepalive_timeout_seconds;
-					this.createSubscriptions( message.payload.session.id );
+					if(this.oldSocket) {
+						this.cleanupSocket(this.oldSocket);
+					}
+					if(disconnectPrevious) {
+						this.createSubscriptions( message.payload.session.id );
+					}
 				}
 
 				case "session_keepalive": {
+					break;
+				}
+
+				case "session_reconnect": {
+					this.reconnect(message.payload.session.reconnect_url);
 					break;
 				}
 
@@ -106,6 +116,14 @@ export default class EventSub {
 		};
 		
 		this.socket.onclose = (event) => {
+			//Twitch asked us to reconnect socket at a new URL, which we did
+			//but deconnection of the old socket (current one) wasn't done.
+			if(event.code == 4004) return;
+			
+			//Connection was created but we subscribed to no topic, twitch
+			//closed the connection
+			if(event.code == 4003) return;
+
 			// console.log("EVENTSUB : Closed");
 			clearTimeout(this.reconnectTimeout)
 			this.reconnectTimeout = setTimeout(()=>{
@@ -118,6 +136,10 @@ export default class EventSub {
 		};
 	}
 
+	/**
+	 * Simulates a followbot raids.
+	 * Sends lots of fake follow events in a short amount of time
+	 */
 	public async simulateFollowbotRaid():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
 		const me = StoreProxy.auth.twitch.user;
@@ -144,6 +166,30 @@ export default class EventSub {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+	/**
+	 * Reconnects the socket without recreating all subscriptions
+	 * when twitch sends a "session_reconnect" frame
+	 * @param url 
+	 */
+	private reconnect(url:string):void {
+		this.oldSocket = this.socket;
+		this.connectURL = url;
+		this.connect(false);
+	}
+	
+	/**
+	 * Cleanups a socket connection
+	 * 
+	 * @param socket 
+	 */
+	private cleanupSocket(socket:WebSocket):void {
+		socket.onmessage = null;
+		socket.onerror = null;
+		socket.onclose = null;
+		socket.onopen = null;
+		socket.close();
+	}
+
 	/**
 	 * Create all eventsub subscriptions
 	 */
@@ -630,9 +676,6 @@ export default class EventSub {
 		const so_in		= event as TwitchEventSubDataTypes.ShoutoutInEvent;
 		const so_out	= event as TwitchEventSubDataTypes.ShoutoutOutEvent;
 		
-		console.log("SHOUTOUT EVENT");
-		console.log(event);
-
 		const received = topic == TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN;
 		let user!:TwitchatDataTypes.TwitchatUser;
 		let moderator = user;
