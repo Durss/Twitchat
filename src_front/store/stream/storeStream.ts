@@ -15,6 +15,7 @@ export const storeStream = defineStore('stream', {
 		communityBoostState: undefined,
 		streamInfoPreset: [],
 		lastRaider: undefined,
+		currentStreamInfo: undefined,
 		shieldModeEnabled: false,
 		canStartAd: true,
 		commercialEnd: 0,//Date.now() + 120000,
@@ -32,6 +33,21 @@ export const storeStream = defineStore('stream', {
 
 
 	actions: {
+		async setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[]):Promise<void> {
+			if(platform == "twitch") {
+				await TwitchUtils.setStreamInfos(title, categoryID, channelId, tags);
+				const category = await TwitchUtils.getCategoryByID(categoryID);
+				this.currentStreamInfo = {
+					title,
+					tags:[],
+					category:category.name,
+					started_at:Date.now(),
+					user:StoreProxy.auth.twitch.user
+				}
+				if(tags) this.currentStreamInfo.tags = tags;
+			}
+		},
+
 		setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined) {
 			if(!this.currentRaid && infos) {
 				const m:TwitchatDataTypes.MessageRaidStartData = {

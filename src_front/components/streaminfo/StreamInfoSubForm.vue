@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts">
+import type { ITriggerActionHelper } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -66,6 +67,17 @@ export default class StreamInfoSubForm extends Vue {
 			default:{}
 		})
 	public category!:TwitchDataTypes.StreamCategory;
+	@Prop({
+			type:Boolean,
+			default:false
+		})
+	public triggerMode!:boolean;
+	//This is used by the trigger action form.
+	@Prop({
+			type: Array,
+			default:[],
+		})
+	public placeholderList!:ITriggerActionHelper[];
 
 	public param_title:TwitchatDataTypes.ParameterData	= {value:"", type:"text", maxLength:140};
 	public param_tags:TwitchatDataTypes.ParameterData	= {value:[], type:"editablelist"};
@@ -78,6 +90,8 @@ export default class StreamInfoSubForm extends Vue {
 		this.param_title.labelKey			= 'stream.form_stream_title';
 		this.param_title.placeholderKey		= 'stream.form_stream_title_placeholder';
 		this.param_tags.labelKey			= 'stream.form_stream_tags';
+
+		this.param_title.placeholderList	= this.placeholderList;
 
 		watch(()=>this.title, ()=> { this.populate(); })
 		watch(()=>this.tags, ()=> { this.populate(); })

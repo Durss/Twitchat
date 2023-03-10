@@ -371,6 +371,7 @@ export interface IStreamGetters {
 }
 
 export interface IStreamActions {
+	setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[]):Promise<void>
 	setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined):void;
 	setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings):void;
 	setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined):void;

@@ -218,16 +218,26 @@ export const storeAuth = defineStore('auth', {
 				//Parse data from storage
 				await sMain.loadDataFromStorage();
 
+				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
+
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
 				EventSub.instance.connect();
 
-				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
+				//Preload stream info
+				TwitchUtils.loadChannelInfo([this.twitch.user.id]).then(v=> {
+					const infos = v[0];
+					StoreProxy.stream.currentStreamInfo = {
+						title:infos.title,
+						category:infos.game_name,
+						started_at:Date.now(),
+						tags:[],
+						user:this.twitch.user,
+					}
+				});
 	
 				//Hot fix to make sure new changelog highlights are displayed properly
-				setTimeout(()=> {
-					sChat.sendTwitchatAd();
-				}, 1000);
+				setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
 
 				//Warn the user about the automatic "ad" message sent every 2h
 				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {

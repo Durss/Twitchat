@@ -130,7 +130,7 @@ export default class StreamInfoForm extends Vue {
 		if(!this.presetEditing) {
 			try {
 				const channelId = StoreProxy.auth.twitch.user.id;
-				await TwitchUtils.setStreamInfos(this.title, this.category?.id ?? "", channelId);
+				await this.$store("stream").setStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags);
 			}catch(error) {
 				this.$store("main").alert( this.$t("error.stream_info_updating") );
 			}
@@ -188,7 +188,7 @@ export default class StreamInfoForm extends Vue {
 		this.saving = true;
 		try {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			await TwitchUtils.setStreamInfos(p.title, p.categoryID as string, channelId, p.tags);
+			await this.$store("stream").setStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags);
 		}catch(error) {
 			this.$store("main").alert( this.$t("error.stream_info_updating") );
 		}
@@ -196,19 +196,37 @@ export default class StreamInfoForm extends Vue {
 		this.populate();
 	}
 
+	/**
+	 * Populate form with current stream info
+	 */
 	private async populate():Promise<void> {
 		this.loading = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
 		try {
-			const [infos] = await TwitchUtils.loadCurrentStreamInfo([channelId]);
-			this.title = infos.title;
-			if(infos.game_id) {
-				const game = await TwitchUtils.getCategoryByID(infos.game_id);
+			let [infos] = await TwitchUtils.loadCurrentStreamInfo([channelId]);
+			let title:string = "";
+			let gameId:string = "";
+			let tags:string[] = [];
+			if(infos) {
+				title = infos.title;
+				gameId = infos.game_id;
+				tags = infos.tags;
+			}else{
+				//Fallback to channel info if we're not live
+				const [chanInfos] = await TwitchUtils.loadChannelInfo([channelId]);
+				title = chanInfos.title;
+				gameId = chanInfos.game_id;
+				tags = chanInfos.tags;
+			}
+			this.title = title;
+			if(gameId) {
+				const game = await TwitchUtils.getCategoryByID(gameId);
 				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
 				this.category = game;
 			}
-			this.tags = infos.tags.concat();
+			this.tags = tags.concat();
 		}catch(error) {
+			console.log(error);
 			this.$store("main").alert( this.$t("error.stream_info_loading") );
 		}
 

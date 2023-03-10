@@ -401,7 +401,17 @@ export default class EventSub {
 	 * @param topic 
 	 * @param payload 
 	 */
-	private updateStreamInfosEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChannelUpdateEvent):void {
+	private async updateStreamInfosEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChannelUpdateEvent):Promise<void> {
+		const [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+
+		StoreProxy.stream.currentStreamInfo = {
+			title:streamInfos.title,
+			category:streamInfos.game_name,
+			tags:streamInfos.tags,
+			started_at:new Date(streamInfos.started_at).getTime(),
+			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name)
+		}
+
 		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -413,6 +423,7 @@ export default class EventSub {
 			title:event.title,
 			category:event.category_name
 		}
+
 		StoreProxy.chat.addMessage(message);
 	}
 
@@ -656,6 +667,7 @@ export default class EventSub {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
 			info: {
+				tags:[],
 				title: "",
 				category:"",
 				started_at:Date.now(),

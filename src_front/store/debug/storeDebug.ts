@@ -767,6 +767,7 @@ export const storeDebug = defineStore('debug', {
 							title:"Amazing stream!",
 							category:"Just chatting",
 							started_at:Date.now(),
+							tags:[],
 						}
 					};
 					data = m;
@@ -784,6 +785,7 @@ export const storeDebug = defineStore('debug', {
 							title:"Amazing stream!",
 							category:"Just chatting",
 							started_at:Date.now(),
+							tags:[],
 						}
 					};
 					data = m;

@@ -471,12 +471,19 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	map[TriggerTypes.MOD] = 
 	map[TriggerTypes.UNMOD] = 
 	map[TriggerTypes.UNBAN] = 
-	map[TriggerTypes.BAN] = 
-	map[TriggerTypes.STREAM_ONLINE] =
-	map[TriggerTypes.STREAM_OFFLINE] = [
+	map[TriggerTypes.BAN] = [
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
+	
+	map[TriggerTypes.STREAM_ONLINE] =
+	map[TriggerTypes.STREAM_OFFLINE] = [
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"info.user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"info.user.id", numberParsable:false, isUserID:true},
+		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"info.user.title", numberParsable:false, isUserID:false},
+		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"info.user.category", numberParsable:false, isUserID:false},
+	];
+
 	
 	map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.challenge_title', pointer:"challenge.title", numberParsable:false, isUserID:false},
@@ -512,7 +519,17 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 	&& key != TriggerTypes.MUSIC_START
 	&& key != TriggerTypes.TRACK_ADDED_TO_QUEUE
 	&& Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
-		map[key] = map[key].concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]);
+		map[key]	= map[key].concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]);
+	}
+	
+	//Add global placeholders where missing
+	for (const key in map) {
+		if(map[key].findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
+			map[key].push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"myStream.title", numberParsable:false, isUserID:false});
+		}
+		if(map[key].findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
+			map[key].push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"myStream.category", numberParsable:false, isUserID:false});
+		}
 	}
 
 	helpersCache = map;

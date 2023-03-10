@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionstreaminfoentry">
-		<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" v-if="!loading" />
+		<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" v-if="!loading" :placeholderList="placeholderList" triggerMode />
 		<img class="loader" src="@/assets/loader/loader.svg" v-else>
 	</div>
 </template>
@@ -8,7 +8,7 @@
 <script lang="ts">
 import StreamInfoSubForm from '@/components/streaminfo/StreamInfoSubForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { TriggerActionStreamInfoData, TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerActionHelpers, type ITriggerActionHelper, type TriggerActionStreamInfoData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
@@ -36,6 +36,7 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 	public title:string = "";
 	public tags:string[] = [];
 	public category:TwitchDataTypes.StreamCategory|null = null;
+	public placeholderList:ITriggerActionHelper[] = [];
 
 	public async beforeMount():Promise<void> {
 		if(this.action.categoryId) {
@@ -50,6 +51,7 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 		watch(()=>this.title, ()=> this.onChange());
 		watch(()=>this.tags, ()=> this.onChange());
 		watch(()=>this.category, ()=> this.onChange());
+		this.placeholderList	= TriggerActionHelpers(this.event.value);
 	}
 
 	private onChange():void {

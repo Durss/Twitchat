@@ -800,11 +800,12 @@ export default class TriggerActionHandler {
 							}
 						}else
 	
-						//Handle random generator trigger action
+						//Handle stream info update trigger action
 						if(step.type == "stream_infos") {
 							if(step.title) {
+								//TODO parse placeholders on infos
 								logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\"{"+step.title+"}\" Tags:\"{"+step.tags+"}\" CategoryID:\"{"+step.categoryId+"}\" "});
-								await TwitchUtils.setStreamInfos(step.title, step.categoryId, StoreProxy.auth.twitch.user.id, step.tags);
+								await StoreProxy.stream.setStreamInfos("twitch", step.title, step.categoryId, StoreProxy.auth.twitch.user.id, step.tags);
 							}
 						}else
 	
@@ -1014,7 +1015,7 @@ export default class TriggerActionHandler {
 					//If the placeholder requests for the current track and we're ending up here
 					//this means that the message does not contain the actual track.
 					//In this case we go get the currently playing track
-					if(h.tag.indexOf("current_track") == 0) {
+					if(h.tag.toLowerCase().indexOf("current_track") == 0) {
 						//That replace() is dirty but I'm too lazy to do that in a more generic way :(
 						const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
 						if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
@@ -1023,6 +1024,13 @@ export default class TriggerActionHandler {
 							value = DeezerHelper.instance.currentTrack[pointer]?.toString();
 						}
 						if(!value) value = "-none-";
+
+					//If the placeholder requests for the current stream info
+					}else if(h.tag.toLowerCase().indexOf("my_stream") == 0 && StoreProxy.stream.currentStreamInfo) {
+						const pointer = h.pointer.replace('myStream.', '') as TwitchatDataTypes.StreamInfoKeys
+						value = StoreProxy.stream.currentStreamInfo[pointer].toString();
+						if(!value) value = "-none-";
+
 					}else{
 						console.warn("Unable to find pointer for helper", h);
 						value = "";
@@ -1108,6 +1116,7 @@ export default class TriggerActionHandler {
 				user:StoreProxy.users.getUserFrom("twitch", c.user_id, c.user_id, c.user_login, c.user_name),
 				category:c.game_name,
 				title:c.title,
+				tags: c.tags,
 				started_at:new Date(c.started_at).getTime(),
 			}
 		}

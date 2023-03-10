@@ -428,8 +428,10 @@ export namespace TwitchatDataTypes {
 		user:TwitchatUser;
 		title:string;
 		category:string;
+		tags:string[];
 		started_at:number;
 	}
+	export type StreamInfoKeys = keyof StreamInfo;
 
 	/**
 	 * Contains info about a countdown
