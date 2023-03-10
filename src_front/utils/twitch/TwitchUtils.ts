@@ -1473,7 +1473,7 @@ export default class TwitchUtils {
 				title,
 				game_id:categoryID,
 				//Make sure tags size and chars are valid
-				tags:tags.forEach(v=> Utils.replaceDiacritics(v).replace(/[^a-z0-9]/gi, "").substring(0, 25).trim()),
+				tags:tags.map(v=> Utils.replaceDiacritics(v).replace(/[^a-z0-9]/gi, "").substring(0, 25).trim()),
 				// delay:"0",
 				// broadcaster_language:"en",
 			})
