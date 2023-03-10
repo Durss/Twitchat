@@ -174,7 +174,6 @@ export default class UserCard extends Vue {
 	public mounted():void {
 		watch(() => this.$store("users").userCard, () => {
 			this.myFollowings = this.$store("users").myFollowings.twitch;
-			console.log(this.myFollowings);
 
 			const card = this.$store("users").userCard;
 			if(card) {

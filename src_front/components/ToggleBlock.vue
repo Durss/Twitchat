@@ -118,6 +118,7 @@ export default class ToggleBlock extends Vue {
 			open = forcedState;
 			if(open == this.showContent) return;//Already in the proper state, ignore
 		}
+		gsap.killTweensOf(this.$refs.content as HTMLDivElement);
 		if(!open) {
 			params.onComplete = ()=>{ this.showContent = false; }
 			gsap.to(this.$refs.content as HTMLDivElement, params);
