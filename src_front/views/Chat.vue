@@ -267,13 +267,13 @@ export default class Chat extends Vue {
 		if(this.splitViewVertical) {
 			return {
 				"height": value,
-				"min-height": value,
+				"min-height": "max(200px, "+value+")",
 				"max-height": value,
 			}
 		}else{
 			return {
 				"width": value,
-				"min-width": value,
+				"min-width": "max(200px, "+value+")",
 				"max-width": value,
 			}
 		}
@@ -900,7 +900,6 @@ export default class Chat extends Vue {
 			overflow: hidden;
 			overflow-x: auto;
 			width: 100%;
-			min-width: 200px;
 
 			.column {
 				position: relative;
