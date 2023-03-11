@@ -91,7 +91,7 @@ export default class StreamInfoSubForm extends Vue {
 		this.param_title.placeholderKey		= 'stream.form_stream_title_placeholder';
 		this.param_tags.labelKey			= 'stream.form_stream_tags';
 
-		this.param_title.placeholderList	= this.placeholderList;
+		// this.param_title.placeholderList	= this.placeholderList;
 
 		watch(()=>this.title, ()=> { this.populate(); })
 		watch(()=>this.tags, ()=> { this.populate(); })

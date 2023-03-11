@@ -275,7 +275,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/so" || cmd == "/shoutout") {
 			//Make a shoutout
-			await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0], undefined, async (user)=> {
+			await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim(), undefined, async (user)=> {
 				await StoreProxy.users.shoutout(StoreProxy.auth.twitch.user.id, user);
 			});
 			return true;
@@ -308,11 +308,12 @@ export default class MessengerProxy {
 				}
 				StoreProxy.chat.addMessage(notice);
 			}else{
-				if(parseInt(params[0]).toString() === params[0]) {
-					const user = await TwitchUtils.loadUserInfo([params[0]]);
-					params[0] = user[0].login;
+				let username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
+				if(parseInt(username).toString() === username) {
+					const user = await TwitchUtils.loadUserInfo([username]);
+					username = user[0].login;
 				}
-				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]);
+				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, username);
 				StoreProxy.users.openUserCard( user );
 			}
 			return true;
@@ -351,12 +352,12 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/betaadd") {
-			StoreProxy.admin.addBetaUser(params[0]);
+			StoreProxy.admin.addBetaUser(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
 		if(cmd == "/betadel") {
-			StoreProxy.admin.removeBetaUser(params[0]);
+			StoreProxy.admin.removeBetaUser(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
@@ -366,7 +367,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/betamigrate") {
-			StoreProxy.admin.migrateUserDataToProd(params[0]);
+			StoreProxy.admin.migrateUserDataToProd(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
