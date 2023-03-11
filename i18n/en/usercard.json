@@ -9,6 +9,11 @@
 		"viewercardBt":"viewer card",
 		"trackBt":"track user",
 		"untrackBt":"untrack user",
+		"messages":"Message history",
+		"followers":"{COUNT} follower | {COUNT} followers",
+		"non_subscribed":"not a subscriber",
+		"subscribed":"subscribed at tier {TIER}",
+		"subgifted":"subgifted at tier {TIER} by {GIFTER}",
 		"following_end":"Due to Twitch restrictions, this section will disapear after the {DATE}"
 	}
 }

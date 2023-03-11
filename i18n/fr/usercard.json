@@ -9,6 +9,11 @@
 		"viewercardBt":"infos viewer",
 		"trackBt":"Activer le suivi",
 		"untrackBt":"Désactiver le suivi",
+		"messages":"Historique",
+		"followers":"{COUNT} follower | {COUNT} followers",
+		"non_subscribed":"pas abonné·e",
+		"subscribed":"abonné·e niveau {TIER}",
+		"subgifted":"abonnement niveau {TIER} offert par {GIFTER}",
 		"following_end":"Suite à des restrictions de la part de Twitch, cette section disparaîtra le {DATE}"
 	}
 }

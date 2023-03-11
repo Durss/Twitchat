@@ -31,9 +31,9 @@
 				:title="getTitle('patreon')"
 				:icon="$image('icons/patreon_white.svg')" />
 
-			<Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank"
+			<!-- <Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank"
 				:title="getTitle('twitch')"
-				:icon="$image('icons/twitch_white.svg')" />
+				:icon="$image('icons/twitch_white.svg')" /> -->
 
 		</div>
 	</div>
