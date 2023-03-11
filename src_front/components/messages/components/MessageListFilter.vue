@@ -390,7 +390,6 @@ export default class MessageListFilter extends Vue {
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.WHISPER]							= [TwitchScopes.WHISPER_READ];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.POLL]								= [TwitchScopes.MANAGE_POLLS];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= [TwitchScopes.MANAGE_PREDICTIONS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= [TwitchScopes.LIST_SUBS];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= [TwitchScopes.READ_HYPE_TRAIN];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= [TwitchScopes.READ_HYPE_TRAIN];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= [TwitchScopes.LIST_FOLLOWERS];

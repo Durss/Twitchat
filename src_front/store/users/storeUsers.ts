@@ -529,7 +529,7 @@ export const storeUsers = defineStore('users', {
 				if(user.channelInfo[channelId].is_following == null) {
 					try {
 						// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
-						const res = await TwitchUtils.getFollowInfo(user.id, channelId ?? StoreProxy.auth.twitch.user.id);
+						const res = await TwitchUtils.getFollowerState(user.id);
 						if(res != null) {
 							user.channelInfo[channelId].is_following = true;
 							user.channelInfo[channelId].following_date_ms = new Date(res.followed_at).getTime();
@@ -583,7 +583,7 @@ export const storeUsers = defineStore('users', {
 		async loadMyFollowings():Promise<void> {
 			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return;
 			
-			const followings = await TwitchUtils.getFollowingsV2(StoreProxy.auth.twitch.user.id);
+			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
 			const hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => { hashmap[v.broadcaster_id] = true; });
 			this.myFollowings["twitch"] = hashmap;
@@ -594,7 +594,7 @@ export const storeUsers = defineStore('users', {
 
 			let parseOffset = 0;
 			const hashmap:{[key:string]:number} = {};
-			await TwitchUtils.getFollowersV2(null, -1, async(list)=> {
+			await TwitchUtils.getFollowers(null, -1, async(list)=> {
 				for (let i = parseOffset; i < list.length; i++) {
 					hashmap[list[i].user_id] = new Date(list[i].followed_at).getTime();
 				}

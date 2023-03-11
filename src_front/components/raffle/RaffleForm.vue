@@ -43,7 +43,7 @@
 					</div>
 				</form>
 					
-				<form @submit.prevent="submitForm()" class="form" v-else-if="mode=='sub'">
+				<form @submit.prevent="submitForm()" class="form" v-else-if="mode=='sub' && canListSubs">
 					<div class="info">{{ $t("raffle.subs.description") }}</div>
 					<div class="row">
 						<ParamItem class="item" :paramData="subs_includeGifters" @change="onValueChange()" />
@@ -66,6 +66,16 @@
 							:loading="pickingEntry"
 						/>
 					</div>
+				</form>
+					
+				<form @submit.prevent="submitForm()" class="form scope" v-else-if="mode=='sub' && !canListSubs">
+					<img src="@/assets/icons/lock_fit_purple.svg">
+					<p class="label">{{ $t("params.scope_missing") }}</p>
+					<Button small highlight
+						class="grantBt"
+						:title="$t('global.grant_scope')"
+						:icon="$image('icons/unlock.svg')"
+						@click="requestSubPermission()" />
 				</form>
 
 				<form @submit.prevent="submitForm()" class="form" v-else-if="mode=='manual'">
@@ -124,6 +134,7 @@ import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionRaffleData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -239,6 +250,8 @@ export default class RaffleForm extends Vue {
 		return [{tag:"CMD", descKey:"raffle.configs.message_cmd_placeholder", example:this.finalData.command}];
 	}
 
+	public get canListSubs():boolean { return TwitchUtils.hasScope(TwitchScopes.LIST_SUBSCRIBERS); }
+
 	public beforeMount(): void {
 		
 		this.command.labelKey					= "raffle.params.command";
@@ -351,6 +364,10 @@ export default class RaffleForm extends Vue {
 		}
 		this.joinPlaceholders[0].example = this.command.value as string;
 	}
+
+	public requestSubPermission():void {
+		this.$store("auth").requestTwitchScopes([TwitchScopes.LIST_SUBSCRIBERS]);
+	}
 	
 }
 </script>
@@ -453,6 +470,31 @@ export default class RaffleForm extends Vue {
 
 				i {
 					font-size: .8em;
+				}
+			}
+			&.scope {
+				display: block;
+				border-radius: .25em;
+				margin: .25em auto;
+				background-color: @mainColor_light;
+				border: 1px solid @mainColor_alert;
+				padding: .25em .5em;
+				// margin-left: calc(@iconSize + 10px);
+				text-align: center;
+				p {
+					font-size: .8em;
+				}
+				img {
+					height: .8em;
+					margin-right: .25em;
+					vertical-align: middle;
+				}
+				a{
+					color: @mainColor_alert;
+				}
+				.grantBt {
+					margin: .5em auto;
+					display: block;
 				}
 			}
 		}

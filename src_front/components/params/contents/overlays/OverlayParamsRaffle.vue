@@ -90,7 +90,7 @@ export default class OverlayParamsRaffle extends Vue {
 		this.loading = true;
 		let items:TwitchatDataTypes.EntryItem[] = [];
 		if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
-			const followers = await TwitchUtils.getFollowersV2(null, 500);
+			const followers = await TwitchUtils.getFollowers(null, 500);
 			items = followers.map(v=> {
 				return {id:v.user_id, label:v.user_name, data:v};
 			});

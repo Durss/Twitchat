@@ -211,7 +211,6 @@ export default class EventSub {
 			doneUids[uid] = true;
 			if(uid == myUID) {
 				//These events are available only by the broadcaster
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, "shoutout", "beta");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "1");
 				if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
@@ -533,7 +532,7 @@ export default class EventSub {
 	 */
 	public async bitsEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsEvent):Promise<void> {
 
-		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT BECAUSE IRC DOES IT BETTER
+		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT
 
 		let message_html = TwitchUtils.parseEmotes(event.message, undefined, false, true);
 		message_html = await TwitchUtils.parseCheermotes(message_html, StoreProxy.auth.twitch.user.id);
@@ -560,18 +559,6 @@ export default class EventSub {
 	 * @param event 
 	 */
 	public async raidEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.RaidEvent):Promise<void> {
-		// const currentRaidInfo = StoreProxy.stream.currentRaid;
-		// const user = StoreProxy.users.getUserFrom("twitch", me.id, event.to_broadcaster_user_id, event.to_broadcaster_user_login, event.to_broadcaster_user_name);
-		// const m:TwitchatDataTypes.RaidInfo = {
-		// 	channel_id: event.to_broadcaster_user_id,
-		// 	user: currentRaidInfo?.user ?? user,
-		// 	viewerCount: event.viewers,
-		// 	startedAt:currentRaidInfo?.startedAt ?? Date.now(),
-		// 	timerDuration_s:currentRaidInfo?.timerDuration_s ?? 90,
-		// };
-		
-		// StoreProxy.stream.setRaiding(m);
-
 		const me = StoreProxy.auth.twitch.user;
 		if(event.from_broadcaster_user_id == me.id) {
 			//Raid complete

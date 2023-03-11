@@ -32,93 +32,6 @@ export default class TwitchUtils {
 		};
 	}
 
-	public static getOAuthURL(csrfToken:string, scopes:string[]):string {
-		const redirect = encodeURIComponent( document.location.origin+"/oauth" );
-		const scopesStr = encodeURIComponent( scopes.join(" ") );
-
-		let url = "https://id.twitch.tv/oauth2/authorize?";
-		url += "client_id="+Config.instance.TWITCH_CLIENT_ID
-		url += "&redirect_uri="+redirect;
-		url += "&response_type=code";
-		url += "&scope="+scopesStr;
-		url += "&state="+csrfToken;
-		url += "&force_verify=true";
-		return url;
-	}
-	
-	public static validateToken(token:string):Promise<TwitchDataTypes.Token|TwitchDataTypes.Error> {
-		return new Promise((resolve, reject) => {
-			const headers = {
-				"Authorization":"Bearer "+token
-			};
-			const options = {
-				method: "GET",
-				headers: headers,
-			};
-			fetch("https://id.twitch.tv/oauth2/validate", options)
-			.then((result) => {
-				if(result.status == 200) {
-					result.json().then((json)=> {
-						resolve(json)
-					});
-				}else{
-					reject();
-				}
-			}).catch((error) => {
-				reject();
-			});
-		});
-	}
-
-	/**
-	 * Gets a badge title from its raw info
-	 */
-	public static getBadgeTitle(setId:String, versionID:string):string {
-		let title = "";
-		const i18n = StoreProxy.i18n;
-		//If it's the subscriber badge, create the title form its ID.
-		//ID is in the form "XYYY" where X=tier and YYY the number of months
-		if(setId === "subscriber") {
-			let months = versionID.length == 4? parseInt(versionID.substring(1)) : parseInt(versionID);//Remove "tier" info
-			const years = Math.floor(months/12);
-			//Create title from the number of months
-			if(years > 0) {
-				months = (months-years*12);
-				let duration = years+" "+i18n.tc("global.date.year", years);
-				if(months > 0) duration += " and "+months+" "+i18n.tc("global.date.month", months);
-				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
-			}else{
-				let duration = months+" "+i18n.tc("global.date.month", months);
-				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
-			}
-		}else
-		//If it's the prediction badge, use the ID as the title.
-		//ID is like "blue-6". We replace the dashes by spaces
-		if(setId === "predictions") {
-			title = i18n.tc("global.badges.prediction", {"VALUE":versionID.replace("-", " ")});
-		}else
-		//If it's the sub-gift badge, use the ID as the number of gifts
-		if(setId === "sub-gifter") {
-			title = i18n.tc("global.badges.subgift", {"COUNT":versionID});
-		}else
-		//If it's the bits badge, use the ID as the number of bits
-		if(setId === "bits") {
-			title = i18n.tc("global.badges.bits", {"COUNT":versionID});
-		}else
-		//If it's the moments badge, use the ID as the number of moments
-		if(setId === "moments") {
-			title = i18n.tc("global.badges.moments", {"COUNT":versionID});
-		} else {
-			//Use the set ID as the title after.
-			//It's in the form "this-is-the-label_X". Remove "_X" value if it's a number
-			//then replace dashes and remaining underscores by spaces to make a sort of readable title
-			//Don't replace _X if X isn't a number because of the "no_audio" and "no_sound"
-			//badge codes
-			title = setId.replace(/_[0-9]+/gi, "").replace(/(-|_)/g, " ");
-		}
-		return title;
-	}
-
 	/**
 	 * Gets the badges of a channel
 	 * @returns
@@ -202,321 +115,43 @@ export default class TwitchUtils {
 			throw({error:result});
 		}
 	}
-	
-	/**
-	 * Converts a chat message badges to actual badges instances with images and IDs.
-	 * @param userBadges
-	 * @returns 
-	 */
-	public static getBadgesFromRawBadges(channelId:string, badgeInfos:BadgeInfo | undefined, userBadges:Badges|undefined):TwitchatDataTypes.TwitchatUserBadge[] {
-		const result:TwitchatDataTypes.TwitchatUserBadge[] = [];
-		const setID_done:{[key:string]:boolean} = {};
-		for (const setID in userBadges) {
-			const version = userBadges[ setID ] as string;
-			const caches = [this.badgesCache[channelId], this.badgesCache["global"]];
-			for (let i = 0; i < caches.length; i++) {
-				const cache = caches[i];
-				if(!cache) continue;
-				if(setID_done[setID] === true) continue;//Badge already added. "subscriber" badge can be both on channel and global caches
-				if(!cache[setID]) continue;
-				if(!cache[setID][version]) continue;
-				setID_done[setID] = true;
-				const badge = JSON.parse(JSON.stringify(cache[setID][version])) as TwitchatDataTypes.TwitchatUserBadge;
-				if(badgeInfos && badgeInfos[setID]) {
-					badge.title = this.getBadgeTitle(setID, badgeInfos[setID] as string);
-				}
-				badge.version = version;
-				result.push(badge);
-			}
-		}
-		return result;
+
+	public static getOAuthURL(csrfToken:string, scopes:string[]):string {
+		const redirect = encodeURIComponent( document.location.origin+"/oauth" );
+		const scopesStr = encodeURIComponent( scopes.join(" ") );
+
+		let url = "https://id.twitch.tv/oauth2/authorize?";
+		url += "client_id="+Config.instance.TWITCH_CLIENT_ID
+		url += "&redirect_uri="+redirect;
+		url += "&response_type=code";
+		url += "&scope="+scopesStr;
+		url += "&state="+csrfToken;
+		url += "&force_verify=true";
+		return url;
 	}
-
-	/**
-	 * Splits the message in chunks of type emote" and "text"
-	 */
-	public static parseEmotesToChunks(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false, parsedEmotes?:TwitchatDataTypes.EmoteDef[]):TwitchDataTypes.ParseMessageChunk[] {
-
-		let emotesList:TwitchatDataTypes.EmoteDef[] = [];
-
-		if(!parsedEmotes) {
-
-			function getProtectedRange(emotes:string):boolean[] {
-				const protectedRanges:boolean[] = [];
-				if(emotes) {
-					const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
-					if(ranges) {
-						for (let i = 0; i < ranges.length; i++) {
-							const range = ranges[i];
-							for (let j = range[0]; j <= range[1]; j++) {
-								protectedRanges[j] = true;
-							}
-						}
-					}
-				}
-				return protectedRanges;
-			}
 	
-			if(!emotes || emotes.length == 0) {
-				//Attempt to parse emotes manually.
-				//TMI doesn't sends back proper emotes tag when sending
-				//a message...
-				//Parses for all emotes and generates a fake "emotes"
-				//tag as if it was sent by IRC.
-				if(customParsing && this.emotesCacheHashmap) {
-					let fakeTag = "";
-					const emoteList:TwitchatDataTypes.Emote[] = [];
-					const emoteListHashmap = this.emotesCacheHashmap;
-					// const start = Date.now();
-					const chunks = message.split(/\s/);
-					for (let i = 0; i < chunks.length; i++) {
-						const txt = chunks[i].replace(/[^a-z0-9]+$/gi, "").replace(/^[^a-z0-9]+/gi, "");
-						if(emoteListHashmap[txt]) {
-							emoteList.push( emoteListHashmap[txt] );
-						}
-					}
-					
-					//Parse emotes
-					const tagsDone:{[key:string]:boolean} = {};
-					for (let i = 0; i < emoteList.length; i++) {
-						const e = emoteList[i];
-						const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-						if(tagsDone[name]) continue;
-						tagsDone[name] = true;
-						// const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
-						const matches = Array.from( message.matchAll(new RegExp(name, "gi")) );
-						if(matches && matches.length > 0) {
-							// //Current emote has been found
-							// //Generate fake emotes data in the expected format:
-							// //  ID:start-end,start-end/ID:start-end,start-end
-							let tmpTag = e.id+":";
-							let emoteCount = 0;
-							for (let j = 0; j < matches.length; j++) {
-								const start = (matches[j].index as number);
-								const end = start+e.code.length-1;
-								const range = getProtectedRange(fakeTag);
-	
-								if(range[start] === true || range[end] === true) continue;
-								
-								const prevOK = start == 0 || /[^0-9a-z]/i.test(message.charAt(start-1));
-								const nextOK = end == message.length-1 || /[^0-9a-z]/i.test(message.charAt(end+1));
-								//Emote has no space before or after or is not at the start or end of the message
-								//ignore it.
-								if(!prevOK || !nextOK) continue;
-								emoteCount++;
-								tmpTag += start+"-"+end;
-	
-								if(j < matches.length-1) tmpTag+=",";
-							}
-							if(emoteCount > 0) {
-								fakeTag += tmpTag;
-								if(i < emoteList.length -1 ) fakeTag +="/"
-							}
-						}
-					}
-					// const end = Date.now();
-					// console.log((end-start)+"ms");
-					if(fakeTag.length > 0) fakeTag +=";";
-					emotes = fakeTag;
-				}
-			}
-	
-			if(!emotes) emotes = "";
-			// ID:start-end,start-end/ID:start-end,start-end
-			let bttvTag = BTTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-			if(bttvTag) {
-				if(emotes.length > 0) bttvTag += "/";
-				emotes = bttvTag + emotes;
-			}
-			let ffzTag = FFZUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-			if(ffzTag) {
-				if(emotes.length > 0) ffzTag += "/";
-				emotes = ffzTag + emotes;
-			}
-			let seventvTag = SevenTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-			if(seventvTag) {
-				if(emotes.length > 0) seventvTag += "/";
-				emotes = seventvTag + emotes;
-			}
-			
-			if(!emotes || emotes.length == 0) {
-				return [{type:"text", value:message}];
-			}
-	
-			//Parse raw emotes data
-			const chunks = (emotes as string).split("/");
-			if(chunks.length > 0) {
-				for (let i = 0; i < chunks.length; i++) {
-					const c = chunks[i];
-					if(c.indexOf(":") == -1) continue;
-					const id = c.split(":")[0];
-					const positions = c.split(":")[1].split(",");
-					for (let j = 0; j < positions.length; j++) {
-						const p = positions[j];
-						const begin = parseInt(p.split("-")[0]);
-						const end = parseInt(p.split("-")[1]);
-						if(isNaN(begin) || isNaN(end)) continue;
-						emotesList.push({id, begin, end});
-					}
-				}
-			}
-			//Sort emotes by start position
-			emotesList.sort((a,b) => a.begin - b.begin);
-		}else{
-			emotesList = parsedEmotes;
-		}
-
-		let cursor = 0;
-		const result:TwitchDataTypes.ParseMessageChunk[] = [];
-		//Convert emotes to image tags
-		for (let i = 0; i < emotesList.length; i++) {
-			const e = emotesList[i];
-			if(cursor < e.begin) {
-				result.push( {type:"text", value: Array.from(message).slice(cursor, e.begin).join("")} );
-			}
-			if(!removeEmotes) {
-				const code = Array.from(message).slice(e.begin, e.end + 1).join("").trim();
-				if(e.id.indexOf("BTTV_") == 0) {
-					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
-					if(bttvE) {
-						result.push( {type:"emote", label:"BTTV: "+code, emote:code, value:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x"} );
-					}else{
-						result.push( {type:"text", value:code} );
-					}
-				}else
-				if(e.id.indexOf("FFZ_") == 0) {
-					const ffzE = FFZUtils.instance.getEmoteFromCode(code);
-					if(ffzE) {
-						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:ffzE.urls[1]} );
-					}else{
-						result.push( {type:"text", value:code} );
-					}
-				}else
-				if(e.id.indexOf("7TV_") == 0) {
-					const stvE = SevenTVUtils.instance.getEmoteFromCode(code);
-					if(stvE) {
-						result.push( {type:"emote", label:"7TV: "+code, emote:code, value:stvE.urls[1][1]} );
-					}else{
-						result.push( {type:"text", value:code} );
-					}
+	public static validateToken(token:string):Promise<TwitchDataTypes.Token|TwitchDataTypes.Error> {
+		return new Promise((resolve, reject) => {
+			const headers = {
+				"Authorization":"Bearer "+token
+			};
+			const options = {
+				method: "GET",
+				headers: headers,
+			};
+			fetch("https://id.twitch.tv/oauth2/validate", options)
+			.then((result) => {
+				if(result.status == 200) {
+					result.json().then((json)=> {
+						resolve(json)
+					});
 				}else{
-					result.push( {type:"emote", label:code, emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
+					reject();
 				}
-			}
-			cursor = e.end + 1;
-		}
-		result.push( {type:"text", value: Array.from(message).slice(cursor).join("")} );
-		
-		return result;
-	}
-
-	/**
-	 * Replaces emotes by image tags on the message
-	 */
-	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):string {
-		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, emotes, removeEmotes, customParsing);
-		let message_html = "";
-		for (let i = 0; i < emoteChunks.length; i++) {
-			const v = emoteChunks[i];
-			if(v.type == "text") {
-				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				message_html += Utils.parseURLs(v.value);
-			}else if(v.type == "emote") {
-				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-				url = url.replace(/1x$/gi, "3x");//BTTV format
-				url = url.replace(/2x$/gi, "3x");//7TV format
-				url = url.replace(/1$/gi, "4");//FFZ format
-				const tt = "<img src='"+url+"' width='112' class='emote'><br><center>"+v.label+"</center>";
-				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
-			}
-		}
-		return message_html;
-	}
-
-	/**
-	 * Replaces emotes by image tags on the message
-	 */
-	public static parseEmotesFromObject(message:string, emotes:TwitchatDataTypes.EmoteDef[]|undefined, removeEmotes = false, customParsing = false):string {
-		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, undefined, removeEmotes, customParsing, emotes);
-		let message_html = "";
-		for (let i = 0; i < emoteChunks.length; i++) {
-			const v = emoteChunks[i];
-			if(v.type == "text") {
-				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				message_html += Utils.parseURLs(v.value);
-			}else if(v.type == "emote") {
-				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-				url = url.replace(/1x$/gi, "3x");//BTTV format
-				url = url.replace(/2x$/gi, "3x");//7TV format
-				url = url.replace(/1$/gi, "4");//FFZ format
-				const tt = "<img src='"+url+"' width='112' class='emote'><br><center>"+v.label+"</center>";
-				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
-			}
-		}
-		return message_html;
-	}
-
-	/**
-	 * Converts parsed emote data to raw IRC compatible emote data.
-	 * PubSub only returns parsed emote data but the parser expect
-	 * raw IRC data to work. This method allows to convert one format
-	 * to the other.
-	 * 
-	 * @param data 
-	 * @returns 
-	 */
-	public static parsedEmoteDataToRawEmoteData(data:{emote_id:string, start:number, end:number}[]):string {
-		let result:string = "";
-		const hashmap:{[key:string]:string[]} = {};
-		for (let i = 0; i < data.length; i++) {
-			const e = data[i];
-			if(!hashmap[e.emote_id]) hashmap[e.emote_id] = [];
-			hashmap[e.emote_id].push(e.start+"-"+e.end);
-		}
-		for (const emote in hashmap) {
-			if(result.length > 0) result += "/";
-			result += emote+":"+hashmap[emote].join(",")
-		}
-		return result;
-	}
-
-	/**
-	 * Replaces emotes by image tags on the message
-	 */
-	public static async parseCheermotes(message:string, channel_id:string, removeCheermotes:boolean = false):Promise<string> {
-		let emotes:TwitchDataTypes.CheermoteSet[];
-		try {
-			emotes = await this.loadCheermoteList(channel_id);
-		}catch(err) {
-			//Safe crash
-			return message;
-		}
-
-		for (let j = 0; j < emotes.length; j++) {
-			const list = emotes[j];
-			
-			const reg = new RegExp(list.prefix+"[0-9]+", "gi");
-			const matches = message.match(reg) as RegExpMatchArray;
-			if(!matches) continue;
-			//Parse all the current cheermote matches
-			for (let k = 0; k < matches.length; k++) {
-				const m = matches[k];
-				const bitsCount = parseInt(m.toLowerCase().replace(list.prefix.toLowerCase(), ""));
-				let tiers = list.tiers[0];
-				//Search for the lower nearest existing tier with the specified value
-				for (let i = 1; i < list.tiers.length; i++) {
-					if(bitsCount < list.tiers[i].min_bits) {
-						tiers = list.tiers[i-1];
-						break;
-					}
-				}
-				let img = tiers.images.dark.animated["2"];
-				if(!img) img = tiers.images.dark.static["2"];
-				const replace = removeCheermotes? "" : "<img src='"+img+"' class='cheermote'>";
-				message = message.replace(new RegExp(list.prefix+bitsCount, "gi"), replace)
-			}
-		}
-		return message;
+			}).catch((error) => {
+				reject();
+			});
+		});
 	}
 
 	/**
@@ -970,7 +605,7 @@ export default class TwitchUtils {
 		if(res.status == 200) {
 			rewards = json.data;
 		}else{
-			throw(json);
+			return [];
 		}
 		this.rewardsCache = rewards;
 		return rewards;
@@ -988,11 +623,11 @@ export default class TwitchUtils {
 		}
 		let redemptions:TwitchDataTypes.RewardRedemption[] = [];
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards/redemptions?broadcaster_id="+StoreProxy.auth.twitch.user.id, options);
-		const json = await res.json();
 		if(res.status == 200) {
+			const json = await res.json();
 			redemptions = json.data;
 		}else{
-			throw(json);
+			return [];
 		}
 		return redemptions;
 	}
@@ -1002,8 +637,8 @@ export default class TwitchUtils {
 	 * 
 	 * @returns
 	 */
-	public static async setRewardEnabled(id:string, enabled:boolean):Promise<void> {
-		if(!this.hasScope(TwitchScopes.LIST_REWARDS)) return;
+	public static async setRewardEnabled(id:string, enabled:boolean):Promise<boolean> {
+		if(!this.hasScope(TwitchScopes.LIST_REWARDS)) return false;
 		
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+StoreProxy.auth.twitch.user.id+"&id="+id, {
 			method:"PATCH",
@@ -1011,7 +646,7 @@ export default class TwitchUtils {
 			// body:JSON.stringify({is_enabled:!enabled}),
 			body:JSON.stringify({is_paused:!enabled}),
 		})
-		return await res.json();
+		return res.status == 200;
 	}
 
 	/**
@@ -1060,6 +695,7 @@ export default class TwitchUtils {
 			})
 			try {
 				const result = await fetch(url, { headers:this.headers });
+				if(result.status != 200) continue;
 				const json = await result.json();
 				if(!json.error) {
 					channels = channels.concat(json.data);
@@ -1090,6 +726,8 @@ export default class TwitchUtils {
 				method:"GET",
 				headers:this.headers,
 			});
+			if(res.status != 200) continue;
+
 			const json:{data:TwitchDataTypes.StreamInfo[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
 
@@ -1117,20 +755,21 @@ export default class TwitchUtils {
 	 * Gets the specified user follows the specified channel
 	 * 
 	 * @param uid user ID
+	 * 
+	 * @deprecated will be disabled by twitch the 2023-08-03
 	 */
-	public static async getFollowInfo(uid:string, channelId?:string):Promise<TwitchDataTypes.Following|null> {
+	public static async getFollowInfo(uid:string, channelId?:string):Promise<TwitchDataTypes.FollowingOld|null> {
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?to_id="+channelId+"&from_id="+uid, {
 			method:"GET",
 			headers:this.headers,
 		});
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.getFollowInfo(uid, channelId);
 		}
-		const json:{error:string, data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+		const json:{error:string, data:TwitchDataTypes.FollowingOld[], pagination?:{cursor?:string}} = await res.json();
 		if(json.error) {
 			throw(json.error);
 		}else{
@@ -1139,26 +778,29 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets a followers list
+	 * Gets a list of the channels following us (restricted to the authenticated user or their moderators)
 	 * 
-	 * @param channelId channelId to get followers list
+	 * @param channelId channelId to get followings list
+	 * @param maxCount maximum followings to grabe
 	 * @param tempDataCallback optional callback method to get results as they're loading
-	 * 
-	 * @deprecated will be disabled by twitch the 2023-08-03
 	 */
-	public static async getFollowers(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
-		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
-		let list:TwitchDataTypes.Following[] = [];
+	public static async getFollowers(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Follower[])=>void):Promise<TwitchDataTypes.Follower[]> {
+		if(!this.hasScope(TwitchScopes.LIST_FOLLOWERS)) return [];
+
+		let list:TwitchDataTypes.Follower[] = [];
 		let cursor:string|null = null;
 		do {
-			const pCursor = cursor? "&after="+cursor : "";
-			const count = maxCount==-1? 100 : Math.min(maxCount-list.length, 100);
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first="+count+"&to_id="+channelId+pCursor, {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
+			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+			url.searchParams.append("first", "100");
+			if(cursor) url.searchParams.append("after", cursor);
+			if(channelId) url.searchParams.append("user_id", channelId);
+			const res = await fetch(url, {
 				method:"GET",
 				headers:this.headers,
 			});
 			if(res.status == 200) {
-				const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+				const json:{data:TwitchDataTypes.Follower[], pagination?:{cursor?:string}} = await res.json();
 				list = list.concat(json.data);
 				cursor = null;
 				if(json.pagination?.cursor) {
@@ -1179,34 +821,21 @@ export default class TwitchUtils {
 	 * @param maxCount maximum followings to grabe
 	 * @param tempDataCallback optional callback method to get results as they're loading
 	 */
-	public static async getFollowersV2(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.FollowerV2[])=>void):Promise<TwitchDataTypes.FollowerV2[]> {
-		if(!this.hasScope(TwitchScopes.LIST_FOLLOWERS)) return [];
+	public static async getFollowerState(userId:string):Promise<TwitchDataTypes.Follower|null> {
+		if(!this.hasScope(TwitchScopes.LIST_FOLLOWERS)) return null;
 
-		let list:TwitchDataTypes.FollowerV2[] = [];
-		let cursor:string|null = null;
-		do {
-			const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
-			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
-			url.searchParams.append("first", "100");
-			if(cursor) url.searchParams.append("after", cursor);
-			if(channelId) url.searchParams.append("user_id", channelId);
-			const res = await fetch(url, {
-				method:"GET",
-				headers:this.headers,
-			});
-			if(res.status == 200) {
-				const json:{data:TwitchDataTypes.FollowerV2[], pagination?:{cursor?:string}} = await res.json();
-				list = list.concat(json.data);
-				cursor = null;
-				if(json.pagination?.cursor) {
-					cursor = json.pagination.cursor;
-				}
-				if(tempDataCallback) {
-					tempDataCallback(list);
-				}
-			}
-		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
-		return list;
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
+		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("user_id", userId);
+		const res = await fetch(url, {
+			method:"GET",
+			headers:this.headers,
+		});
+		if(res.status == 200) {
+			const json:{data:TwitchDataTypes.Follower[], pagination?:{cursor?:string}} = await res.json();
+			return json.data[0];
+		}
+		return null;
 	}
 
 	/**
@@ -1218,9 +847,9 @@ export default class TwitchUtils {
 	 * 
 	 * @deprecated will be disabled by twitch the 2023-08-03
 	 */
-	public static async getFollowings(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
+	public static async getFollowingsOld(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.FollowingOld[])=>void):Promise<TwitchDataTypes.FollowingOld[]> {
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
-		let list:TwitchDataTypes.Following[] = [];
+		let list:TwitchDataTypes.FollowingOld[] = [];
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
@@ -1229,7 +858,7 @@ export default class TwitchUtils {
 				headers:this.headers,
 			});
 			if(res.status == 200) {
-				const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
+				const json:{data:TwitchDataTypes.FollowingOld[], pagination?:{cursor?:string}} = await res.json();
 				list = list.concat(json.data);
 				cursor = null;
 				if(json.pagination?.cursor) {
@@ -1250,10 +879,10 @@ export default class TwitchUtils {
 	 * @param maxCount maximum followings to grabe
 	 * @param tempDataCallback optional callback method to get results as they're loading
 	 */
-	public static async getFollowingsV2(channelId:string, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.FollowingV2[])=>void):Promise<TwitchDataTypes.FollowingV2[]> {
+	public static async getFollowings(channelId:string, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.Following[])=>void):Promise<TwitchDataTypes.Following[]> {
 		if(!this.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return [];
 
-		let list:TwitchDataTypes.FollowingV2[] = [];
+		let list:TwitchDataTypes.Following[] = [];
 		let cursor:string|null = null;
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followed");
@@ -1265,7 +894,7 @@ export default class TwitchUtils {
 				headers:this.headers,
 			});
 			if(res.status == 200) {
-				const json:{data:TwitchDataTypes.FollowingV2[], pagination?:{cursor?:string}} = await res.json();
+				const json:{data:TwitchDataTypes.Following[], pagination?:{cursor?:string}} = await res.json();
 				list = list.concat(json.data);
 				cursor = null;
 				if(json.pagination?.cursor) {
@@ -1284,7 +913,7 @@ export default class TwitchUtils {
 	 * Can only get our own subs
 	 */
 	public static async getSubsList():Promise<TwitchDataTypes.Subscriber[]> {
-		if(!this.hasScope(TwitchScopes.LIST_SUBS)) return [];
+		if(!this.hasScope(TwitchScopes.LIST_SUBSCRIBERS)) return [];
 		
 		const channelId = StoreProxy.auth.twitch.user.id;
 		let list:TwitchDataTypes.Subscriber[] = [];
@@ -1310,17 +939,19 @@ export default class TwitchUtils {
 	 * Needs "user:read:subscriptions" scope
 	 */
 	public static async getSubscriptionState(userId:string, channelId?:string):Promise<TwitchDataTypes.Subscriber|null> {
-		if(!this.hasScope(TwitchScopes.LIST_SUBS)) return null;
+		if(!this.hasScope(TwitchScopes.LIST_SUBSCRIBERS)) return null;
 		
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"subscriptions/user?broadcaster_id="+channelId+"&user_id="+userId, {
+		const url = new URL(Config.instance.TWITCH_API_PATH+"subscriptions");
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("user_id", userId);
+		const res = await fetch(url, {
 			method:"GET",
 			headers:this.headers,
 		});
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.getSubscriptionState(userId, channelId);
 		}
 		try {
@@ -1422,9 +1053,8 @@ export default class TwitchUtils {
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"search/categories?first=50&query="+encodeURIComponent(search), options);
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.searchCategory(search);
 		}
 		const json = await res.json();
@@ -1447,9 +1077,8 @@ export default class TwitchUtils {
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"games?id="+encodeURIComponent(id), options);
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.getCategoryByID(id);
 		}
 		const json = await res.json();
@@ -1482,9 +1111,8 @@ export default class TwitchUtils {
 		url.searchParams.append("broadcaster_id", channelId);
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.setStreamInfos(title, categoryID, channelId, tags);
 		}
 		if(res.status == 204) {
@@ -1519,9 +1147,8 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.banUser(user, channelId, duration, reason);
 		}
 		if(res.status == 200) {
@@ -1557,9 +1184,8 @@ export default class TwitchUtils {
 			return true;
 		}else 
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.unbanUser(user, channelId);
 		}else {
 			const json = await res.json();
@@ -1590,9 +1216,8 @@ export default class TwitchUtils {
 			return true;
 		}else 
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.blockUser(user, channelId, reason);
 		}else {
 			const json = await res.json();
@@ -1622,9 +1247,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.unblockUser(user, channelId);
 		} else {
 			const json = await res.json();
@@ -1688,9 +1312,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.raidCancel();
 		}else {
 			message.error = true;
@@ -1721,9 +1344,8 @@ export default class TwitchUtils {
 			return json.data[0] ?? null;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.getClipById(clipId);
 		} else {
 			return null;
@@ -1748,7 +1370,10 @@ export default class TwitchUtils {
 			url.searchParams.append("first", "100");
 			if(cursor) url.searchParams.append("after", cursor);
 			const res = await fetch(url.href, options);
-			if(res.status != 200) return [];//AS i managed to corrupt my twitch data, i need this to avoid errors everytime
+			
+			//As i managed to corrupt my twitch data, i need this to avoid errors everytime
+			if(res.status != 200) return [];
+			
 			const json:{data:TwitchDataTypes.BlockedUser[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
 			cursor = null;
@@ -1779,9 +1404,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.sendAnnouncement(channelId, message, color);
 		}else{
 			return false;
@@ -1808,9 +1432,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.deleteMessages(channelId, messageId);
 		}else{
 			return false;
@@ -1838,9 +1461,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.setShieldMode(channelId, enabled);
 		}else {
 			return false;
@@ -1863,9 +1485,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.setColor(color);
 		}else {
 			return false;
@@ -1909,9 +1530,8 @@ export default class TwitchUtils {
 			}
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.getRoomSettings(channelId);
 		}else {
 			return null;
@@ -1963,9 +1583,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.setRoomSettings(channelId, settings);
 		}else {
 			return false;
@@ -2026,9 +1645,8 @@ export default class TwitchUtils {
 			return false
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.addRemoveModerator(removeMod, channelId, user);
 		}else {
 			return false;
@@ -2086,9 +1704,8 @@ export default class TwitchUtils {
 			return false
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.addRemoveVIP(removeVip, channelId, user);
 		}else {
 			return false;
@@ -2123,9 +1740,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.raidChannel(channel);
 		}else {
 			let message = "Unable to raid "+channel+"."
@@ -2153,9 +1769,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.raidCancel();
 		}else {
 			return false;
@@ -2192,9 +1807,8 @@ export default class TwitchUtils {
 			return true;
 		}else
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.whisper(message, toLogin, toId);
 		}else {
 			try {
@@ -2233,9 +1847,8 @@ export default class TwitchUtils {
 			return json.data.map(v => v.user_login);
 		}else 
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.getChatters(channelId, channelName);
 
 		}else if(channelName && Date.now() < new Date("03-21-2023 00:00:00").getTime()) {//Unofficial api shutdown starts the 22nd of march
@@ -2292,10 +1905,8 @@ export default class TwitchUtils {
 			return json.data.map(v => v.user_login);
 		}else 
 		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to fulle
-			let resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000;
-			resetDate += 1000 * Math.pow(2,attemptCount);//Scale up the time frame 
-			await Utils.promisedTimeout(Math.max(1000, resetDate - Date.now() + Math.random() * 5000));
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers, attemptCount);
 			if(attemptCount<8) {
 				return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, ++attemptCount);
 			}
@@ -2376,6 +1987,7 @@ export default class TwitchUtils {
 			url.searchParams.append("first", "100");
 
 			const res = await fetch(url, options);
+			if(res.status != 200) continue;
 			const json:{data:TwitchDataTypes.StreamTag[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
 		}while(ids.length > 0);
@@ -2395,26 +2007,6 @@ export default class TwitchUtils {
 		}
 		
 		return result;
-	}
-
-	/**
-	 * Returns if current session has 1 or multiple scopes granted.
-	 * All given scopes must be granted for this function to return true
-	 * 
-	 * @param scopes
-	 */
-	public static hasScope(scopes:TwitchScopesString|TwitchScopesString[]):boolean {
-		if(!Array.isArray(scopes)) {
-			scopes = [scopes];
-		}
-
-		for (let i = 0; i < scopes.length; i++) {
-			if(StoreProxy.auth.twitch.scopes.indexOf(scopes[i]) == -1) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -2449,9 +2041,8 @@ export default class TwitchUtils {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_cooldown"));
 				return false;
 			}
-			//Rate limit reached, try again after it's reset to fulle
-			const resetDate = parseInt(res.headers.get("Ratelimit-Reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
-			await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
 			return await this.sendShoutout(channelId, user);
 		}else {
 			try {
@@ -2493,43 +2084,466 @@ export default class TwitchUtils {
 		if(res.status == 200) {
 			const json:{data:[], total:number} = await res.json();
 			return json.total
+		}else if(res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.getFollowerCount(channelId);
 		}
 		return 0;
 	}
 
 	/**
-	 * Gets fake user entries (at least 10) from our followers if access to those is granted
+	 * Gets fake user entries (at least 20) from our followers if access to those is granted
 	 * otherwise it will return some Twitch specific users
 	 */
 	public static async getFakeUsers():Promise<TwitchatDataTypes.TwitchatUser[]> {
 		if(this.fakeUsersCache.length > 0) return this.fakeUsersCache;
 
 		const channelId:string = StoreProxy.auth.twitch.user.id;
-		let followers:TwitchDataTypes.FollowerV2[] = [];
+		let followers:TwitchDataTypes.Follower[] = [];
 		//If followers listing has been granted, list them
 		if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
-			followers = await TwitchUtils.getFollowersV2(null, 100);
+			followers = await TwitchUtils.getFollowers(null, 100);
 			for (let i = 0; i < followers.length; i++) {
 				this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name,undefined, true, false));
 			}
 		}
+
 		//If there are not enough entries, add fake ones
-		if(this.fakeUsersCache.length < 10) {
-			const additional:{id:string,login:string,displayName:string}[] = [
-				{id:"29961813",login:"durss", displayName:"Durss"},
-				{id:"12826",login:"twitch", displayName:"Twitch"},
-				{id:"527115020",login:"twitchgaming", displayName:"twitchgaming"},
-				{id:"141981764",login:"twitchdev", displayName:"TwitchDev"},
-				{id:"197886470",login:"twitchrivals", displayName:"TwitchRivals"},
-				{id:"149747285",login:"twitchpresents", displayName:"TwitchPresents"},
-				{id:"477339272",login:"twitchhypetrain", displayName:"TwitchHypeTrain"},
-			]
-			for (let i = 0; i < additional.length; i++) {
-				this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, additional[i].id, additional[i].login, additional[i].displayName,undefined, false, false));
-			}
+		const additional:{id:string,login:string,displayName:string}[] = [
+			{id:"29961813",login:"durss", displayName:"Durss"},
+			{id:"12826",login:"twitch", displayName:"Twitch"},
+			{id:"61260038",login:"twitchfr", displayName:"TwitchFR"},
+			{id:"3571950",login:"twitches", displayName:"TwitchES"},
+			{id:"129232627",login:"twitchth", displayName:"TwitchTH"},
+			{id:"89340006",login:"twitchtw", displayName:"TwitchTW"},
+			{id:"144403200",login:"twitchde", displayName:"TwitchDE"},
+			{id:"144300085",login:"twitchtw2", displayName:"TwitchTW2"},
+			{id:"527115020",login:"twitchgaming", displayName:"TwitchGaming"},
+			{id:"94443912",login:"twitchgamingfr", displayName:"TwitchGamingFR"},
+			{id:"141981764",login:"twitchdev", displayName:"TwitchDev"},
+			{id:"149747285",login:"twitchpresents", displayName:"TwitchPresents"},
+			{id:"233403700",login:"twitchpresentsfr", displayName:"TwitchPresentsFR"},
+			{id:"233398214",login:"twitchpresentses", displayName:"TwitchPresentsES"},
+			{id:"233397692",login:"twitchpresentsde", displayName:"TwitchPresentsDE"},
+			{id:"197886470",login:"twitchrivals", displayName:"TwitchRivals"},
+			{id:"443878817",login:"twitchrivals_fr", displayName:"twitchrivals_fr"},
+			{id:"239340769",login:"twitchrivals_es", displayName:"TwitchRivals_es"},
+			{id:"239336077",login:"twitchrivals_tw", displayName:"TwitchRivals_tw"},
+			{id:"477339272",login:"twitchhypetrain", displayName:"TwitchHypeTrain"},
+		]
+
+		while(this.fakeUsersCache.length < 13) {
+			const [entry] = additional.splice(Math.floor(Math.random() * additional.length));
+			this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, entry.id, entry.login, entry.displayName,undefined, false, false));
 		}
 
 		return this.fakeUsersCache;
+	}
+
+
+	
+	
+	/****************************************
+	*************** UTILITIES ***************
+	****************************************/
+
+	
+
+	/**
+	 * Returns if current session has 1 or multiple scopes granted.
+	 * All given scopes must be granted for this function to return true
+	 * 
+	 * @param scopes
+	 */
+	public static hasScope(scopes:TwitchScopesString|TwitchScopesString[]):boolean {
+		if(!Array.isArray(scopes)) {
+			scopes = [scopes];
+		}
+
+		for (let i = 0; i < scopes.length; i++) {
+			if(StoreProxy.auth.twitch.scopes.indexOf(scopes[i]) == -1) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Gets a badge title from its raw info
+	 */
+	public static getBadgeTitle(setId:String, versionID:string):string {
+		let title = "";
+		const i18n = StoreProxy.i18n;
+		//If it's the subscriber badge, create the title form its ID.
+		//ID is in the form "XYYY" where X=tier and YYY the number of months
+		if(setId === "subscriber") {
+			let months = versionID.length == 4? parseInt(versionID.substring(1)) : parseInt(versionID);//Remove "tier" info
+			const years = Math.floor(months/12);
+			//Create title from the number of months
+			if(years > 0) {
+				months = (months-years*12);
+				let duration = years+" "+i18n.tc("global.date.year", years);
+				if(months > 0) duration += " and "+months+" "+i18n.tc("global.date.month", months);
+				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
+			}else{
+				let duration = months+" "+i18n.tc("global.date.month", months);
+				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
+			}
+		}else
+		//If it's the prediction badge, use the ID as the title.
+		//ID is like "blue-6". We replace the dashes by spaces
+		if(setId === "predictions") {
+			title = i18n.tc("global.badges.prediction", {"VALUE":versionID.replace("-", " ")});
+		}else
+		//If it's the sub-gift badge, use the ID as the number of gifts
+		if(setId === "sub-gifter") {
+			title = i18n.tc("global.badges.subgift", {"COUNT":versionID});
+		}else
+		//If it's the bits badge, use the ID as the number of bits
+		if(setId === "bits") {
+			title = i18n.tc("global.badges.bits", {"COUNT":versionID});
+		}else
+		//If it's the moments badge, use the ID as the number of moments
+		if(setId === "moments") {
+			title = i18n.tc("global.badges.moments", {"COUNT":versionID});
+		} else {
+			//Use the set ID as the title after.
+			//It's in the form "this-is-the-label_X". Remove "_X" value if it's a number
+			//then replace dashes and remaining underscores by spaces to make a sort of readable title
+			//Don't replace _X if X isn't a number because of the "no_audio" and "no_sound"
+			//badge codes
+			title = setId.replace(/_[0-9]+/gi, "").replace(/(-|_)/g, " ");
+		}
+		return title;
+	}
+	
+	/**
+	 * Converts a chat message badges to actual badges instances with images and IDs.
+	 * @param userBadges
+	 * @returns 
+	 */
+	public static getBadgesFromRawBadges(channelId:string, badgeInfos:BadgeInfo | undefined, userBadges:Badges|undefined):TwitchatDataTypes.TwitchatUserBadge[] {
+		const result:TwitchatDataTypes.TwitchatUserBadge[] = [];
+		const setID_done:{[key:string]:boolean} = {};
+		for (const setID in userBadges) {
+			const version = userBadges[ setID ] as string;
+			const caches = [this.badgesCache[channelId], this.badgesCache["global"]];
+			for (let i = 0; i < caches.length; i++) {
+				const cache = caches[i];
+				if(!cache) continue;
+				if(setID_done[setID] === true) continue;//Badge already added. "subscriber" badge can be both on channel and global caches
+				if(!cache[setID]) continue;
+				if(!cache[setID][version]) continue;
+				setID_done[setID] = true;
+				const badge = JSON.parse(JSON.stringify(cache[setID][version])) as TwitchatDataTypes.TwitchatUserBadge;
+				if(badgeInfos && badgeInfos[setID]) {
+					badge.title = this.getBadgeTitle(setID, badgeInfos[setID] as string);
+				}
+				badge.version = version;
+				result.push(badge);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Splits the message in chunks of type emote" and "text"
+	 */
+	public static parseEmotesToChunks(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false, parsedEmotes?:TwitchatDataTypes.EmoteDef[]):TwitchDataTypes.ParseMessageChunk[] {
+
+		let emotesList:TwitchatDataTypes.EmoteDef[] = [];
+
+		if(!parsedEmotes) {
+
+			function getProtectedRange(emotes:string):boolean[] {
+				const protectedRanges:boolean[] = [];
+				if(emotes) {
+					const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
+					if(ranges) {
+						for (let i = 0; i < ranges.length; i++) {
+							const range = ranges[i];
+							for (let j = range[0]; j <= range[1]; j++) {
+								protectedRanges[j] = true;
+							}
+						}
+					}
+				}
+				return protectedRanges;
+			}
+	
+			if(!emotes || emotes.length == 0) {
+				//Attempt to parse emotes manually.
+				//TMI doesn't sends back proper emotes tag when sending
+				//a message...
+				//Parses for all emotes and generates a fake "emotes"
+				//tag as if it was sent by IRC.
+				if(customParsing && this.emotesCacheHashmap) {
+					let fakeTag = "";
+					const emoteList:TwitchatDataTypes.Emote[] = [];
+					const emoteListHashmap = this.emotesCacheHashmap;
+					// const start = Date.now();
+					const chunks = message.split(/\s/);
+					for (let i = 0; i < chunks.length; i++) {
+						const txt = chunks[i].replace(/[^a-z0-9]+$/gi, "").replace(/^[^a-z0-9]+/gi, "");
+						if(emoteListHashmap[txt]) {
+							emoteList.push( emoteListHashmap[txt] );
+						}
+					}
+					
+					//Parse emotes
+					const tagsDone:{[key:string]:boolean} = {};
+					for (let i = 0; i < emoteList.length; i++) {
+						const e = emoteList[i];
+						const name = e.code.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+						if(tagsDone[name]) continue;
+						tagsDone[name] = true;
+						// const matches = [...message.matchAll(new RegExp("(^|\\s?)"+name+"(\\s|$)", "g"))];
+						const matches = Array.from( message.matchAll(new RegExp(name, "gi")) );
+						if(matches && matches.length > 0) {
+							// //Current emote has been found
+							// //Generate fake emotes data in the expected format:
+							// //  ID:start-end,start-end/ID:start-end,start-end
+							let tmpTag = e.id+":";
+							let emoteCount = 0;
+							for (let j = 0; j < matches.length; j++) {
+								const start = (matches[j].index as number);
+								const end = start+e.code.length-1;
+								const range = getProtectedRange(fakeTag);
+	
+								if(range[start] === true || range[end] === true) continue;
+								
+								const prevOK = start == 0 || /[^0-9a-z]/i.test(message.charAt(start-1));
+								const nextOK = end == message.length-1 || /[^0-9a-z]/i.test(message.charAt(end+1));
+								//Emote has no space before or after or is not at the start or end of the message
+								//ignore it.
+								if(!prevOK || !nextOK) continue;
+								emoteCount++;
+								tmpTag += start+"-"+end;
+	
+								if(j < matches.length-1) tmpTag+=",";
+							}
+							if(emoteCount > 0) {
+								fakeTag += tmpTag;
+								if(i < emoteList.length -1 ) fakeTag +="/"
+							}
+						}
+					}
+					// const end = Date.now();
+					// console.log((end-start)+"ms");
+					if(fakeTag.length > 0) fakeTag +=";";
+					emotes = fakeTag;
+				}
+			}
+	
+			if(!emotes) emotes = "";
+			// ID:start-end,start-end/ID:start-end,start-end
+			let bttvTag = BTTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+			if(bttvTag) {
+				if(emotes.length > 0) bttvTag += "/";
+				emotes = bttvTag + emotes;
+			}
+			let ffzTag = FFZUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+			if(ffzTag) {
+				if(emotes.length > 0) ffzTag += "/";
+				emotes = ffzTag + emotes;
+			}
+			let seventvTag = SevenTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+			if(seventvTag) {
+				if(emotes.length > 0) seventvTag += "/";
+				emotes = seventvTag + emotes;
+			}
+			
+			if(!emotes || emotes.length == 0) {
+				return [{type:"text", value:message}];
+			}
+	
+			//Parse raw emotes data
+			const chunks = (emotes as string).split("/");
+			if(chunks.length > 0) {
+				for (let i = 0; i < chunks.length; i++) {
+					const c = chunks[i];
+					if(c.indexOf(":") == -1) continue;
+					const id = c.split(":")[0];
+					const positions = c.split(":")[1].split(",");
+					for (let j = 0; j < positions.length; j++) {
+						const p = positions[j];
+						const begin = parseInt(p.split("-")[0]);
+						const end = parseInt(p.split("-")[1]);
+						if(isNaN(begin) || isNaN(end)) continue;
+						emotesList.push({id, begin, end});
+					}
+				}
+			}
+			//Sort emotes by start position
+			emotesList.sort((a,b) => a.begin - b.begin);
+		}else{
+			emotesList = parsedEmotes;
+		}
+
+		let cursor = 0;
+		const result:TwitchDataTypes.ParseMessageChunk[] = [];
+		//Convert emotes to image tags
+		for (let i = 0; i < emotesList.length; i++) {
+			const e = emotesList[i];
+			if(cursor < e.begin) {
+				result.push( {type:"text", value: Array.from(message).slice(cursor, e.begin).join("")} );
+			}
+			if(!removeEmotes) {
+				const code = Array.from(message).slice(e.begin, e.end + 1).join("").trim();
+				if(e.id.indexOf("BTTV_") == 0) {
+					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
+					if(bttvE) {
+						result.push( {type:"emote", label:"BTTV: "+code, emote:code, value:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x"} );
+					}else{
+						result.push( {type:"text", value:code} );
+					}
+				}else
+				if(e.id.indexOf("FFZ_") == 0) {
+					const ffzE = FFZUtils.instance.getEmoteFromCode(code);
+					if(ffzE) {
+						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:ffzE.urls[1]} );
+					}else{
+						result.push( {type:"text", value:code} );
+					}
+				}else
+				if(e.id.indexOf("7TV_") == 0) {
+					const stvE = SevenTVUtils.instance.getEmoteFromCode(code);
+					if(stvE) {
+						result.push( {type:"emote", label:"7TV: "+code, emote:code, value:stvE.urls[1][1]} );
+					}else{
+						result.push( {type:"text", value:code} );
+					}
+				}else{
+					result.push( {type:"emote", label:code, emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
+				}
+			}
+			cursor = e.end + 1;
+		}
+		result.push( {type:"text", value: Array.from(message).slice(cursor).join("")} );
+		
+		return result;
+	}
+
+	/**
+	 * Replaces emotes by image tags on the message
+	 */
+	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):string {
+		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, emotes, removeEmotes, customParsing);
+		let message_html = "";
+		for (let i = 0; i < emoteChunks.length; i++) {
+			const v = emoteChunks[i];
+			if(v.type == "text") {
+				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+				message_html += Utils.parseURLs(v.value);
+			}else if(v.type == "emote") {
+				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+				url = url.replace(/1x$/gi, "3x");//BTTV format
+				url = url.replace(/2x$/gi, "3x");//7TV format
+				url = url.replace(/1$/gi, "4");//FFZ format
+				const tt = "<img src='"+url+"' width='112' class='emote'><br><center>"+v.label+"</center>";
+				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+			}
+		}
+		return message_html;
+	}
+
+	/**
+	 * Replaces emotes by image tags on the message
+	 */
+	public static parseEmotesFromObject(message:string, emotes:TwitchatDataTypes.EmoteDef[]|undefined, removeEmotes = false, customParsing = false):string {
+		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, undefined, removeEmotes, customParsing, emotes);
+		let message_html = "";
+		for (let i = 0; i < emoteChunks.length; i++) {
+			const v = emoteChunks[i];
+			if(v.type == "text") {
+				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+				message_html += Utils.parseURLs(v.value);
+			}else if(v.type == "emote") {
+				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
+				url = url.replace(/1x$/gi, "3x");//BTTV format
+				url = url.replace(/2x$/gi, "3x");//7TV format
+				url = url.replace(/1$/gi, "4");//FFZ format
+				const tt = "<img src='"+url+"' width='112' class='emote'><br><center>"+v.label+"</center>";
+				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+			}
+		}
+		return message_html;
+	}
+
+	/**
+	 * Converts parsed emote data to raw IRC compatible emote data.
+	 * PubSub only returns parsed emote data but the parser expect
+	 * raw IRC data to work. This method allows to convert one format
+	 * to the other.
+	 * 
+	 * @param data 
+	 * @returns 
+	 */
+	public static parsedEmoteDataToRawEmoteData(data:{emote_id:string, start:number, end:number}[]):string {
+		let result:string = "";
+		const hashmap:{[key:string]:string[]} = {};
+		for (let i = 0; i < data.length; i++) {
+			const e = data[i];
+			if(!hashmap[e.emote_id]) hashmap[e.emote_id] = [];
+			hashmap[e.emote_id].push(e.start+"-"+e.end);
+		}
+		for (const emote in hashmap) {
+			if(result.length > 0) result += "/";
+			result += emote+":"+hashmap[emote].join(",")
+		}
+		return result;
+	}
+
+	/**
+	 * Replaces emotes by image tags on the message
+	 */
+	public static async parseCheermotes(message:string, channel_id:string, removeCheermotes:boolean = false):Promise<string> {
+		let emotes:TwitchDataTypes.CheermoteSet[];
+		try {
+			emotes = await this.loadCheermoteList(channel_id);
+		}catch(err) {
+			//Safe crash
+			return message;
+		}
+
+		for (let j = 0; j < emotes.length; j++) {
+			const list = emotes[j];
+			
+			const reg = new RegExp(list.prefix+"[0-9]+", "gi");
+			const matches = message.match(reg) as RegExpMatchArray;
+			if(!matches) continue;
+			//Parse all the current cheermote matches
+			for (let k = 0; k < matches.length; k++) {
+				const m = matches[k];
+				const bitsCount = parseInt(m.toLowerCase().replace(list.prefix.toLowerCase(), ""));
+				let tiers = list.tiers[0];
+				//Search for the lower nearest existing tier with the specified value
+				for (let i = 1; i < list.tiers.length; i++) {
+					if(bitsCount < list.tiers[i].min_bits) {
+						tiers = list.tiers[i-1];
+						break;
+					}
+				}
+				let img = tiers.images.dark.animated["2"];
+				if(!img) img = tiers.images.dark.static["2"];
+				const replace = removeCheermotes? "" : "<img src='"+img+"' class='cheermote'>";
+				message = message.replace(new RegExp(list.prefix+bitsCount, "gi"), replace)
+			}
+		}
+		return message;
+	}
+
+	/**
+	 * Waits a delay indicated by the rate limit returned in a request response headers
+	 * 
+	 * @param headers 
+	 * @param attemptCount 
+	 */
+	private static async onRateLimit(headers:Headers, attemptCount:number = 0):Promise<void> {
+		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now()/1000+1).toString()) * 1000 + 1000;
+		if(attemptCount > 0) resetDate += 1000 * Math.pow(2, attemptCount);//Scale up the time frame 
+		await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
 	}
 
 }

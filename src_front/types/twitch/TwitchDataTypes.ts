@@ -291,7 +291,7 @@ export namespace TwitchDataTypes {
 		};
 	}
 
-	export interface Following {
+	export interface FollowingOld {
 		from_id: string;
 		from_login: string;
 		from_name: string;
@@ -301,14 +301,14 @@ export namespace TwitchDataTypes {
 		followed_at: string;
 	}
 
-	export interface FollowingV2 {
+	export interface Following {
 		broadcaster_id: string;
 		broadcaster_name: string;
 		broadcaster_login: string;
 		followed_at: string;
 	}
 
-	export interface FollowerV2 {
+	export interface Follower {
 		user_id: string;
 		user_name: string;
 		user_login: string;
