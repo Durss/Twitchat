@@ -214,6 +214,8 @@ export const storeAuth = defineStore('auth', {
 						sMain.alert("An error occured while loading your parameters");
 						return;
 					}
+				}else{
+					await DataStore.migrateLocalStorage();
 				}
 				//Parse data from storage
 				await sMain.loadDataFromStorage();
@@ -235,9 +237,6 @@ export const storeAuth = defineStore('auth', {
 						user:this.twitch.user,
 					}
 				});
-	
-				//Hot fix to make sure new changelog highlights are displayed properly
-				setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
 
 				//Warn the user about the automatic "ad" message sent every 2h
 				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {
@@ -251,6 +250,9 @@ export const storeAuth = defineStore('auth', {
 					setTimeout(()=>{
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
 					}, 5000)
+				}else{
+					//Hot fix to make sure new changelog highlights are displayed properly
+					setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
 				}
 
 				if(cb) cb(true);

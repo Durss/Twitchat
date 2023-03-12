@@ -79,7 +79,6 @@ export default class DataStore {
 	******************/
 	/**
 	 * Initialize the storage.
-	 * Migrates data if necessary
 	 */
 	public static init():void {
 		this.store = localStorage? localStorage : sessionStorage;
@@ -104,10 +103,14 @@ export default class DataStore {
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 1;
 		
-		if(v < 13) {
+		if(v < 11) {
 			return {};
 		}
 		
+		if(v<=12) {
+			this.fixTTSPlaceholders(data);
+			v = 13;
+		}
 		if(v==13) {
 			this.cleanupOldData(data);
 			v = 14;
@@ -188,6 +191,10 @@ export default class DataStore {
 			this.enableLiveOnOffNotification(data);
 			v = 33;
 		}
+		if(v==33) {
+			this.cleanNonAttributedOBSScenes(data);
+			v = 34;
+		}
 
 		data[this.DATA_VERSION] = v;
 		return data;
@@ -228,15 +235,6 @@ export default class DataStore {
 	public static async loadFromJSON(json:any):Promise<void> {
 		const backupAutomod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
 
-		// const items = this.getAll();
-		// for (const key in items) {
-		// 	try{
-		// 		items[key] = JSON.parse(items[key] as string);
-		// 	}catch(error) {
-		// 		//parsing failed, that's because it's a simple string, just keep it
-		// 	}
-		// }
-
 		this.rawStore = await this.migrateData(json);//Migrate remote data if necessary
 
 		if(backupAutomod) {
@@ -252,6 +250,7 @@ export default class DataStore {
 			this.set(DataStore.AUTOMOD_PARAMS, automod);
 		}
 
+		//Update localstorage data
 		for (const key in json) {
 			const value = json[key];
 			const str = typeof value == "string"? value : JSON.stringify(value);
@@ -260,6 +259,33 @@ export default class DataStore {
 
 		this.dataImported = true;
 		this.save();
+	}
+
+	/**
+	 * Migrates data on the LocalStorage
+	 */
+	public static async migrateLocalStorage():Promise<void> {
+		//load LocalStorage data and parse values from string to numbers and booleans
+		//if necessary then keep it on a local typed stored "rawStore"
+		const items = this.getAll();
+		for (const key in items) {
+			try{
+				items[key] = JSON.parse(items[key] as string);
+			}catch(error) {
+				//parsing failed, that's because it's a simple string, just keep it
+			}
+		}
+
+		const json = await this.migrateData(items);//Migrate remote data if necessary
+
+		//Update localstorage data
+		for (const key in json) {
+			const value = json[key];
+			const str = typeof value == "string"? value : JSON.stringify(value);
+			this.store.setItem(this.dataPrefix + key, str);
+		}
+
+		this.rawStore = json;
 	}
 
 	/**
@@ -411,6 +437,19 @@ export default class DataStore {
 	/**********************************
 	 **** DATA MIGRATION UTILITIES ****
 	 **********************************/
+
+	/**
+	 * Fixing wrong TTS placeholders
+	 */
+	private static fixTTSPlaceholders(data:any):void {
+		const params = data[this.TTS_PARAMS] as TwitchatDataTypes.TTSParamsData;
+		if(params) {
+			params.readBingosPattern = params.readBingosPattern.replace(/\{USER\}/gi, "{WINNER}");
+			params.readRafflePattern = params.readRafflePattern.replace(/\{USER\}/gi, "{WINNER}");
+			data[this.TTS_PARAMS] = params;
+		}
+	}
+
 	/**
 	 * Temporary utility to cleanup some old storage data
 	 * Can be removed after some updates.
@@ -812,6 +851,19 @@ export default class DataStore {
 		if(cols) {
 			const index = cols.length == 1? 0 : 1;
 			cols[index].filters.stream_online = true;
+		}
+	}
+
+	/**
+	 * So far all OBS scenes were stored even if no command was attributed
+	 * to a scene. Here we clean all scene with no command now that they're
+	 * filtered out on save.
+	 * @param data
+	 */
+	private static cleanNonAttributedOBSScenes(data:any):void {
+		const scenes:TwitchatDataTypes.OBSSceneCommand[] = data[this.OBS_CONF_SCENES];
+		if(scenes) {
+			data[this.OBS_CONF_SCENES] = scenes.filter(v=> (v.command ?? "") != "");
 		}
 	}
 }

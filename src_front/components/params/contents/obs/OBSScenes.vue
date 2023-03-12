@@ -42,7 +42,9 @@ export default class OBSScenes extends Vue {
 	}
 
 	public onSceneCommandUpdate():void {
-		const params = this.sceneParams.map(v=> {return { scene:v.storage as {sceneIndex:number, sceneName:string}, command:v.value as string }});
+		const params = this.sceneParams
+		.map(v=> {return { scene:v.storage as {sceneIndex:number, sceneName:string}, command:v.value as string }})
+		.filter(v=> (v.command ?? "") != "");
 		this.$store("obs").setOBSSceneCommands(params);
 	}
 
