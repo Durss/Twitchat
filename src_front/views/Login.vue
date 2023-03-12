@@ -167,7 +167,9 @@ export default class Login extends Vue {
 
 		await this.$nextTick();
 
-		gsap.from(this.$refs.dimmer as HTMLDivElement, {opacity:0, ease:"sine.out", duration:.2, clearProps:"all"});
+		if(this.$refs.dimmer) {
+			gsap.from(this.$refs.dimmer as HTMLDivElement, {opacity:0, ease:"sine.out", duration:.2, clearProps:"all"});
+		}
 		gsap.from(this.$refs.holder as HTMLDivElement, {scaleX:0, ease:"elastic.out", duration:1});
 		gsap.from(this.$refs.holder as HTMLDivElement, {scaleY:0, ease:"elastic.out", duration:1, delay:.1, clearProps:"all"});
 	}

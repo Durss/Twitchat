@@ -26,7 +26,7 @@
 				</form>
 
 				<form @submit.prevent="createCountdown()" class="form" v-if="mode=='countdown'">
-					<i18n-t scope="global" class="info" tag="div" keypath="timer.timer_head">
+					<i18n-t scope="global" class="info" tag="div" keypath="timer.countdown_head">
 						<template #CMD><mark>/countdownStop</mark></template>
 					</i18n-t>
 					<img class="row demo" src="@/assets/img/param_examples/stop_countdown.gif">

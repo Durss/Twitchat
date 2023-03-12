@@ -50,7 +50,7 @@
 
 			<div class="infoList">
 				<div class="info" :data-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
-				<div class="info"><img src="@/assets/icons/follow_purple.svg" alt="no follow" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
+				<div class="info"><img src="@/assets/icons/follow_outline_purple.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
 				<div class="info" v-if="subState">
 					<img src="@/assets/icons/gift_purple.svg" alt="subscribed" class="icon" v-if="subState.is_gift">
 					<img src="@/assets/icons/sub_purple.svg" alt="subscribed" class="icon" v-else>
