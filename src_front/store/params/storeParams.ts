@@ -26,6 +26,7 @@ export const storeParams = defineStore('params', {
 			liveAlerts:					{save:true, type:"toggle", value:false, labelKey:"params.liveAlerts", id:220, icon:"online_purple.svg", twitch_scopes:[TwitchScopes.LIST_FOLLOWINGS]},
 			showModTools: 				{save:true, type:"toggle", value:true, labelKey:"params.showModTools", id:206, icon:"ban_purple.svg", twitch_scopes:[TwitchScopes.MODERATE]},
 			raidHighlightUser: 			{save:true, type:"toggle", value:true, labelKey:"params.raidHighlightUser", id:209, icon:"raid_purple.svg", example:"raidHighlightUser.png"},
+			firstUserBadge: 			{save:true, type:"toggle", value:true, labelKey:"params.firstUserBadge", id:221, icon:"new_purple.svg", example:"firstUserBadge.png"},
 			raffleHighlightUser:		{save:true, type:"toggle", value:true, labelKey:"params.raffleHighlightUser", id:218, icon:"ticket_purple.svg", example:"raidHighlightUser.png"},
 			groupIdenticalMessage:		{save:true, type:"toggle", value:true, labelKey:"params.groupIdenticalMessage", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
 			offlineEmoteOnly:			{save:true, type:"toggle", value:false, labelKey:"params.offlineEmoteOnly", id:214, icon:"emote_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]},

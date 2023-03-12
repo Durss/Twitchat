@@ -5,6 +5,7 @@
 		"alertMode": "Enable chat alert",
 		"firstMessage": "Show the first message of every viewer on a seperate list so you don't forget to say hello",
 		"firstMessage_info": "For a standalone alternative check out {URL}",
+		"firstUserBadge": "Show if it's the first day of a viewer on your channel",
 		"markAsRead": "Click a message to remember where you stopped reading",
 		"conversationsEnabled": "Group conversations<br>(allows to display conversations between users seperately)",
 		"userHistoryEnabled": "See all user's messages when hovering their name",

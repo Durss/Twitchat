@@ -5,6 +5,7 @@
 		"alertMode": "Activer la fenêtre d'alerte",
 		"firstMessage": "Afficher le premier message de chaque viewer pour ne pas manquer de les saluer",
 		"firstMessage_info": "Pour une alternative dédiée, jetez un oeil à {URL}",
+		"firstUserBadge": "Indiquer s'il s'agit du 1er jour d'un viewer sur votre chaine",
 		"markAsRead": "Cliquez un message pour placer un marque-page",
 		"conversationsEnabled": "Grouper les conversations<br>(Permet de consulter les conversations entre viewers)",
 		"userHistoryEnabled": "Voir tous les messages d'une personne en survolant son pseudo",

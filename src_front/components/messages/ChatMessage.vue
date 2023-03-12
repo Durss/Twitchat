@@ -8,21 +8,21 @@
 			<p>{{ $t('chat.message.first_time') }}</p>
 		</div>
 
-		<div v-if="isPresentation" class="header">
+		<div v-else-if="isPresentation" class="header">
 			<img src="@/assets/icons/presentation.svg" alt="new" class="icon">
 			<i18n-t scope="global" keypath="chat.message.presentation" tag="p">
 				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
 			</i18n-t>
 		</div>
 
-		<div v-if="isReturning" class="header">
+		<div v-else-if="isReturning" class="header">
 			<img src="@/assets/icons/returning.svg" alt="new" class="icon">
 			<i18n-t scope="global" keypath="chat.message.returning_user" tag="p">
 				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
 			</i18n-t>
 		</div>
 
-		<div v-if="isFirstToday && !lightMode" class="header">
+		<div v-else-if="isFirstToday && !lightMode" class="header">
 			<img src="@/assets/icons/hand.svg" alt="new" class="icon">
 			<i18n-t scope="global" keypath="chat.message.first_today" tag="p">
 				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
@@ -384,7 +384,8 @@ export default class ChatMessage extends AbstractChatMessage {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.AUTOMOD, tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
 			}
 			//Add "first day on your chat" badge
-			if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage) {
+			if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage
+			&& this.$store("params").features.firstUserBadge.value === true) {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_USER});
 			}
 			//Manage twitch automod content
@@ -624,13 +625,13 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(this.messageData.type === TwitchatDataTypes.TwitchatMessageType.WHISPER) return;
 		
 		if(this.messageData.twitch_isSuspicious
-		&& this.infoBadges.findIndex(v=> v.type == "suspiciousUser") == -1) {
-			this.infoBadges.push({type:"suspiciousUser"});
+		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER) == -1) {
+			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER});
 		}
 		
 		if(this.messageData.twitch_isRestricted
-		&& this.infoBadges.findIndex(v=> v.type == "restrictedUser") == -1) {
-			this.infoBadges.push({type:"restrictedUser"});
+		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER) == -1) {
+			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
 		}
 		
 		let users = (this.messageData.twitch_sharedBanChannels?.map(v=>v.login) ?? []);
@@ -641,11 +642,11 @@ export default class ChatMessage extends AbstractChatMessage {
 	
 	private updatePinnedState():void{
 		const m = this.messageData as TwitchatDataTypes.MessageChatData;
-		const badgeIndex = this.infoBadges.findIndex(v=> v.type == "pinned");
+		const badgeIndex = this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.PINNED);
 
 		if(m.is_pinned) {
 			if(badgeIndex == -1) {
-				this.infoBadges.push({type:"pinned"});
+				this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.PINNED});
 			}
 		}else{
 			if(badgeIndex > -1) {
