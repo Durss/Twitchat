@@ -422,7 +422,6 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		];
 
-		let missingScopes:TwitchScopesString[] = [];
 		this.filters = [];
 		for (let i = 0; i < sortedFilters.length; i++) {
 			const f = sortedFilters[i];
@@ -434,12 +433,6 @@ export default class MessageListFilter extends Vue {
 								twitch_scopes:this.typeToScopes[f],
 								storage:f,
 							}
-
-			//Keep missing scopes
-			if(this.typeToScopes[f] && this.config.filters[f] === true && !TwitchUtils.hasScope(this.typeToScopes[f])) {
-				missingScopes = missingScopes.concat(this.typeToScopes[f]);
-				paramData.error = true;
-			}
 
 			this.filters.push(paramData);
 
@@ -509,14 +502,6 @@ export default class MessageListFilter extends Vue {
 					
 					if(this.messageKeyToScope[k] && this.messageKeyToScope[k].length > 0) {
 						paramData.twitch_scopes = this.messageKeyToScope[k];
-						//Keep missing scopes
-						if(!TwitchUtils.hasScope(this.messageKeyToScope[k])) {
-							if(this.config.messageFilters[k] == true) {
-								missingScopes = missingScopes.concat(this.messageKeyToScope[k]);
-								paramData.error = true;
-							}
-							// this.config.messageFilters[k] = false;
-						}
 					}
 
 					if(k == 'commands') {
@@ -546,23 +531,7 @@ export default class MessageListFilter extends Vue {
 			}
 		}
 
-		//Send a message on this column to warn for missing scopes
-		if(!this.forceConfig && missingScopes.length > 0) {
-			const dedupeDict:{[key:string]:boolean} = {};
-			this.$store("chat").addMessage({
-				type:"scope_request",
-				date:Date.now(),
-				col:this.config.order,
-				id:Utils.getUUID(),
-				platform:"twitchat",
-				twitch_scopes:missingScopes.filter(v=> {
-					//Dedupe scopes
-					if(dedupeDict[v] === true) return false;
-					dedupeDict[v] = true;
-					return true;
-				})
-			});
-		}
+		this.checkForMissingScopes();
 		
 		this.clickHandler		= (e:MouseEvent|TouchEvent) => this.onMouseDown(e);
 		this.mouseMoveHandler	= (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
@@ -996,6 +965,10 @@ export default class MessageListFilter extends Vue {
 		}
 	}
 
+	/**
+	 * Called when something is clicked.
+	 * Closes the panel when clicking outside
+	 */
 	private onMouseDown(e:MouseEvent|TouchEvent):void {
 		if(!this.open) return;
 		
@@ -1005,8 +978,9 @@ export default class MessageListFilter extends Vue {
 		while(target != document.body && target != ref && target) {
 			target = target.parentElement as HTMLDivElement;
 		}
-		if(target != ref) {
+		if(target != ref && this.expand) {
 			this.expand = false;
+			this.checkForMissingScopes();
 		}
 	}
 
@@ -1031,6 +1005,49 @@ export default class MessageListFilter extends Vue {
 		}
 
 		holder.style.top = py+"px";
+	}
+
+	/**
+	 * Check if a filter that requires a missing scope is enabled
+	 * If so, it will be highlighted and a message will be posted
+	 * on chat to warn the user
+	 */
+	private checkForMissingScopes():void {
+		let missingScopes:TwitchScopesString[] = [];
+		for (let i = 0; i < this.filters.length; i++) {
+			const f = this.filters[i];
+			//Keep missing scopes
+			if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScope(f.twitch_scopes)) {
+				missingScopes = missingScopes.concat(f.twitch_scopes);
+				f.error = true;
+			}
+		}
+		for (let i = 0; i < this.messageFilters.length; i++) {
+			const f = this.messageFilters[i];
+			//Keep missing scopes
+			if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScope(f.twitch_scopes)) {
+				missingScopes = missingScopes.concat(f.twitch_scopes);
+				f.error = true;
+			}
+		}
+
+		//Send a message on this column to warn for missing scopes
+		if(!this.forceConfig && missingScopes.length > 0) {
+			const dedupeDict:{[key:string]:boolean} = {};
+			this.$store("chat").addMessage({
+				type:"scope_request",
+				date:Date.now(),
+				col:this.config.order,
+				id:Utils.getUUID(),
+				platform:"twitchat",
+				twitch_scopes:missingScopes.filter(v=> {
+					//Dedupe scopes
+					if(dedupeDict[v] === true) return false;
+					dedupeDict[v] = true;
+					return true;
+				})
+			});
+		}
 	}
 
 }

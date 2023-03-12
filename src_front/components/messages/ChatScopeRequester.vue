@@ -1,6 +1,8 @@
 <template>
 	<div class="chatscoperequester" @click.capture.ctrl.stop="copyJSON()"
 	@click="$emit('onRead', messageData, $event)">
+		<button class="closeBt" @click="deleteMessage()"><img src="@/assets/icons/cross_white.svg"></button>
+
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<img src="@/assets/icons/alert.svg" alt="alert" class="icon">
@@ -26,7 +28,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 
@@ -63,6 +65,10 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 		this.$emit("openFilters");
 	}
 
+	public deleteMessage():void {
+		this.$store("chat").deleteMessage(this.messageData);
+	}
+
 }
 </script>
 
@@ -72,12 +78,20 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 
 	color: @mainColor_light;
 	background-color: @mainColor_alert;
+	position: relative;
+	align-items: flex-start;
+
 	&:hover {
 		background-color: @mainColor_alert_light;
 	}
 	
-	align-items: flex-start;
-	
+	.closeBt {
+		position: absolute;
+		right: .5em;
+		img {
+			height: 1em;
+		}
+	}
 	.info {
 		width: 100%;
 		.title {

@@ -351,6 +351,8 @@ export default class ParamItem extends Vue {
 	public clickItem(event:MouseEvent):void {
 		if(this.paramData.twitch_scopes) {
 			if(TwitchUtils.hasScope(this.paramData.twitch_scopes)) return;
+			this.paramData.value = false;
+			this.errorLocal = false;
 			event.stopPropagation();
 			this.$store("auth").requestTwitchScopes(this.paramData.twitch_scopes);
 		}
