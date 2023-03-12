@@ -71,7 +71,8 @@ import DataStore from '@/store/DataStore';
 		Slide,
 		Pagination,
 		Navigation,
-	}
+	},
+	emits:["close"]
 })
 export default class Changelog extends Vue {
 

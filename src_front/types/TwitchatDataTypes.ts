@@ -206,6 +206,7 @@ export namespace TwitchatDataTypes {
 		tooltip?:string;//Tooltip displayed on hover
 		tooltipKey?:string;//Tooltip displayed on hover (i18n key)
 		disabled?:boolean;//Disable possibility to change the value
+		error?:boolean;//Disable an error state
 		editCallback?:(data:any) => void;//Callback called when value is changed (if v-model can't be used)
 	}
 	export interface ParameterDataListValue {

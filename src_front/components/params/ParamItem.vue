@@ -235,11 +235,12 @@ export default class ParamItem extends Vue {
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
 	private file:unknown = {};
+	private errorLocal:boolean = false
 	private isLocalUpdate:boolean = false;
 
 	public get classes():string[] {
 		const res = ["paramitem"];
-		if(this.error !== false) res.push("error");
+		if(this.errorLocal !== false) res.push("error");
 		if(this.clearToggle !== false) res.push("clear");
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
@@ -295,6 +296,10 @@ export default class ParamItem extends Vue {
 
 	public beforeUpdate(): void {
 		// console.log("rerender");
+	}
+
+	public beforeMount(): void {
+		this.errorLocal = this.error || this.paramData.error === true;
 	}
 
 	public mounted():void {

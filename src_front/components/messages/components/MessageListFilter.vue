@@ -52,7 +52,7 @@
 
 					<div class="item" v-for="f in filters"
 					:key="'filter_'+f.storage">
-						<ParamItem
+						<ParamItem class="toggleItem"
 							:paramData="f"
 							clearToggle
 							@change="saveData()"
@@ -70,7 +70,7 @@
 					</div>
 				
 					<div class="subFilters">
-						<ParamItem class="item child"
+						<ParamItem class="item toggleItem"
 							v-if="config.filters.message === true"
 							key="subfilter_blockUsers"
 							:childLevel="1"
@@ -80,7 +80,7 @@
 							@change="saveData()"
 							v-model="config.userBlockList" />
 					
-						<ParamItem class="item child" v-for="f in messageFilters"
+						<ParamItem class="item toggleItem" v-for="f in messageFilters"
 							v-if="config.filters.message === true"
 							:key="'subfilter_'+f.storage"
 							:childLevel="1"
@@ -427,20 +427,21 @@ export default class MessageListFilter extends Vue {
 		for (let i = 0; i < sortedFilters.length; i++) {
 			const f = sortedFilters[i];
 			const children:TwitchatDataTypes.ParameterData[] = [];
-
-			//Keep missing scopes
-			if(this.typeToScopes[f] && this.config.filters[f] === true && !TwitchUtils.hasScope(this.typeToScopes[f])) {
-				missingScopes = missingScopes.concat(this.typeToScopes[f]);
-				this.config.filters[f] = false;
-			}
-
-			this.filters.push({type:"toggle",
+			const paramData:TwitchatDataTypes.ParameterData = {type:"toggle",
 								value:this.config.filters[f],
 								labelKey:this.typeToLabel[f] ?? f,
 								icon:this.typeToIcon[f],
 								twitch_scopes:this.typeToScopes[f],
 								storage:f,
-							});
+							}
+
+			//Keep missing scopes
+			if(this.typeToScopes[f] && this.config.filters[f] === true && !TwitchUtils.hasScope(this.typeToScopes[f])) {
+				missingScopes = missingScopes.concat(this.typeToScopes[f]);
+				paramData.error = true;
+			}
+
+			this.filters.push(paramData);
 
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
 			if(f === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
@@ -499,7 +500,7 @@ export default class MessageListFilter extends Vue {
 						this.config.messageFilters[k] = true;
 					}
 
-					const param:TwitchatDataTypes.ParameterData = {type:"toggle",
+					const paramData:TwitchatDataTypes.ParameterData = {type:"toggle",
 						value:this.config.messageFilters[k],
 						labelKey:"chat.filters.message_filters."+k,
 						storage:key,
@@ -507,13 +508,14 @@ export default class MessageListFilter extends Vue {
 					};
 					
 					if(this.messageKeyToScope[k] && this.messageKeyToScope[k].length > 0) {
-						param.twitch_scopes = this.messageKeyToScope[k];
+						paramData.twitch_scopes = this.messageKeyToScope[k];
 						//Keep missing scopes
 						if(!TwitchUtils.hasScope(this.messageKeyToScope[k])) {
 							if(this.config.messageFilters[k] == true) {
 								missingScopes = missingScopes.concat(this.messageKeyToScope[k]);
+								paramData.error = true;
 							}
-							this.config.messageFilters[k] = false;
+							// this.config.messageFilters[k] = false;
 						}
 					}
 
@@ -530,15 +532,15 @@ export default class MessageListFilter extends Vue {
 									this.config.commandsBlockList = data;
 									this.saveData();
 								}};
-						param.children = [subParam];
+						paramData.children = [subParam];
 					}
 					if(k == "short") {
-						param.tooltipKey = 'chat.filters.short_tt';
+						paramData.tooltipKey = 'chat.filters.short_tt';
 					}
 					if(k == "tracked") {
-						param.tooltipKey = 'chat.filters.tracked_tt';
+						paramData.tooltipKey = 'chat.filters.tracked_tt';
 					}
-					children.push(param);
+					children.push(paramData);
 				}
 				this.messageFilters = children;
 			}
@@ -1074,6 +1076,7 @@ export default class MessageListFilter extends Vue {
 					.item {
 						margin: unset;
 					}
+
 					.item:not(.toggleAll) {
 						margin-right: 1em;
 						width: 300px;
@@ -1286,6 +1289,24 @@ export default class MessageListFilter extends Vue {
 						cursor: not-allowed;
 						cursor: help;
 					}
+					.toggleItem, &.toggleItem {
+						&.error {
+							filter: none;
+							border: 1px solid red;
+							color: white;
+							background-color: rgba(255, 0, 0, .25);
+							opacity: 1;
+							padding: .25em;
+							border-radius: .5em;
+							:deep(.holder) {
+								&::before {
+									font-style: normal;
+									font-weight:normal;
+									left: -1.25em;
+								}
+							}
+						}
+					}
 
 					&.toggleAll {
 						margin-right: 0;
@@ -1314,7 +1335,7 @@ export default class MessageListFilter extends Vue {
 					}
 				}
 			}
-			.error {
+			&>.error {
 				padding: .5em;
 				border-radius: .5em;
 				margin-top: .5em;
