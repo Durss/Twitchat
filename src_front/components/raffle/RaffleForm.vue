@@ -16,7 +16,7 @@
 				
 				<div class="tabs">
 					<Button :title="$t('raffle.chat.title')" bounce :selected="mode=='chat'" @click="mode='chat'" :icon="$image('icons/commands.svg')" />
-					<Button :title="$t('raffle.subs.title')" bounce :selected="mode=='sub'" @click="mode='sub'" :icon="$image('icons/sub.svg')" />
+					<Button :title="$t('raffle.subs.title')" bounce :selected="mode=='sub'" @click="mode='sub'" :icon="$image('icons/sub.svg')" v-if="isAffiliate" />
 					<Button :title="$t('raffle.list.title')" bounce :selected="mode=='manual'" @click="mode='manual'" :icon="$image('icons/list.svg')" />
 				</div>
 
@@ -217,9 +217,8 @@ export default class RaffleForm extends Vue {
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private voiceController!:FormVoiceControllHelper;
 
-	public get hasRewards():boolean {
-		return TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS) && this.reward_value.listValues!.length > -1;
-	}
+	public get hasRewards():boolean { return TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS) && this.reward_value.listValues!.length > -1; }
+	public get isAffiliate():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
 
 	/**
 	 * Gets subs filtered by the current filters
@@ -284,15 +283,17 @@ export default class RaffleForm extends Vue {
 
 		this.reward_value.listValues = [{value:undefined, labelKey:"global.select_placeholder"}]
 
-		TwitchUtils.getRewards().then(list => {
-			list.sort((a,b)=> {
-				if(a.title > b.title) return 1;
-				if(a.title < b.title) return -1;
-				return 0
-			}).forEach(v=> {
-				this.reward_value.listValues!.push({value:v.id, label:v.title});
+		if(this.isAffiliate) {
+			TwitchUtils.getRewards().then(list => {
+				list.sort((a,b)=> {
+					if(a.title > b.title) return 1;
+					if(a.title < b.title) return -1;
+					return 0
+				}).forEach(v=> {
+					this.reward_value.listValues!.push({value:v.id, label:v.title});
+				});
 			});
-		});
+		}
 
 		if(this.triggerMode && this.action.raffleData) {
 			this.mode = this.action.raffleData.mode;
