@@ -2132,8 +2132,9 @@ export default class TwitchUtils {
 			{id:"477339272",login:"twitchhypetrain", displayName:"TwitchHypeTrain"},
 		]
 
-		while(this.fakeUsersCache.length < 13) {
-			const [entry] = additional.splice(Math.floor(Math.random() * additional.length));
+		const count = Math.min(20, additional.length);
+		while(this.fakeUsersCache.length < count) {
+			const [entry] = additional.splice(Math.floor(Math.random() * additional.length), 1);
 			this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, entry.id, entry.login, entry.displayName,undefined, false, false));
 		}
 
