@@ -1,6 +1,10 @@
 <template>
 	<div class="rafflestate">
-		<h1 class="title"><img src="@/assets/icons/ticket.svg">{{ $t('raffle.state_title') }} <span class="cmd highlight">{{raffleData.command}}</span></h1>
+		<h1 class="title">
+			<img src="@/assets/icons/ticket.svg">
+			<span>{{ $t('raffle.state_title') }}</span>
+			<span class="cmd highlight" v-if="raffleData.command">fdfsd{{raffleData.command}}</span>
+		</h1>
 
 		<ProgressBar class="progress"
 			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"

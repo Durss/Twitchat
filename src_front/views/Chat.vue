@@ -317,7 +317,7 @@ export default class Chat extends Vue {
 		//Auto opens the raffle status when created
 		watch(() => this.$store("raffle").data, () => {
 			let raffle = this.$store("raffle").data;
-			if(raffle && raffle.command) this.setCurrentNotification("raffle");
+			if(raffle && (raffle.command || raffle.reward_id)) this.setCurrentNotification("raffle");
 		});
 
 		//Watch for columns changes

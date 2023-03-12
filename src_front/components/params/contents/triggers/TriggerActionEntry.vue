@@ -49,6 +49,11 @@
 				<Button class="button" white @click="selectActionType('raffle')"
 					:title="$t('triggers.actions.common.action_raffle')"
 					:icon="$image('icons/ticket_purple.svg')"/>
+
+				<Button class="button" white @click="selectActionType('raffle_enter')"
+					v-if="hasUserInfo"
+					:title="$t('triggers.actions.common.action_raffle_enter')"
+					:icon="$image('icons/user_purple.svg')"/>
 				
 				<Button class="button" white @click="selectActionType('stream_infos')"
 					:title="$t('triggers.actions.common.action_stream_infos')"
@@ -119,6 +124,7 @@
 			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
 			<PollForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='poll'" :action="action" :event="event" triggerMode />
 			<PredictionForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='prediction'" :action="action" :event="event" triggerMode />
+			<div v-if="action.type=='raffle_enter'">{{ $t("triggers.actions.raffle_enter.info") }}</div>
 			
 			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==null" v-model="action.delay" />
 
@@ -132,7 +138,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { TriggerActionStringTypes, TriggerActionTypes, TriggerData, TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerActionHelpers, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -210,6 +216,11 @@ export default class TriggerActionEntry extends Vue {
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
 
+	/**
+	 * Checks if one of the placeholders has a user info in it
+	 */
+	public get hasUserInfo():boolean { return TriggerActionHelpers(this.event.value).findIndex(v=> v.isUserID) > -1; }
+
 	public get errorTitle():string {
 		let res = "ERROR - MISSING OBS SOURCE";
 		
@@ -252,6 +263,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "chat") icons.push( 'whispers' );
 		if(this.action.type == "tts") icons.push( 'tts' );
 		if(this.action.type == "raffle") icons.push( 'ticket' );
+		if(this.action.type == "raffle_enter") icons.push( 'user' );
 		if(this.action.type == "bingo") icons.push( 'bingo' );
 		if(this.action.type == "voicemod") icons.push( 'voicemod' );
 		if(this.action.type == "trigger") icons.push( 'broadcast' );

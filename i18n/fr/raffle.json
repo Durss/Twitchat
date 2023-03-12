@@ -5,7 +5,9 @@
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Lancer le tirage au sort",
-			"description": "Sélectionner une personne au hasard parmi celles ayant envoyé un commande dans le tchat"
+			"description": "Sélectionner une personne au hasard parmi celles ayant envoyé une commande dans le tchat",
+			"triggers":"Permettez à vos viewers de rejoindre le tirage au sort avec un sub, un follow, un raid et plus encore depuis {LINK} avec l'action de trigger {ACTION}",
+			"triggers_link":"les triggers"
 		},
 		"subs": {
 			"title": "Subs",
@@ -15,7 +17,7 @@
 		},
 		"list": {
 			"title": "Liste",
-			"description": "Définissez une liste personnalisée d'entrée pour le tirage au sort",
+			"description": "Définissez une liste d'entrées personnalisées pour le tirage au sort",
 			"instructions": "(Séparez les entrées par une virgule ou un retour à la ligne)",
 			"startBt_aria": "Lancer le tirage au sort",
 			"startBt": "Lancer <i>({COUNT})</i>"
@@ -41,8 +43,11 @@
 			"description": "La liste des participant·es sera perdue."
 		},
 		"params": {
+			"command_join": "Participer via une commande de tchat",
 			"command": "Commande",
 			"command_placeholder": "!raffle",
+			"reward_join": "Participer via une récompense de points de chaîne",
+			"reward": "Récompense",
 			"duration": "Durée du tirage (minutes)",
 			"limit_users": "Limiter le nombre de participant·es",
 			"max_users": "Maximum",
@@ -56,7 +61,7 @@
 			"list_placeholder": "entrée 1, entrée 2, entrée 3, ...",
 			"username_placeholder": "Pseudo"
 		},
-		"state_title": "Tirage au sort -",
+		"state_title": "Tirage au sort",
 		"state_users": "0 entrée | 1 entrée | {COUNT} entrées",
 		"state_winners": "Gagnants{COUNT} :",
 		"state_pickBt": "Tirer au sort",

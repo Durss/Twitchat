@@ -274,7 +274,8 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface RaffleData {
 		mode:"chat"|"sub"|"manual";
-		command:string;
+		command?:string;
+		reward_id?:string;
 		duration_s:number;
 		maxEntries:number;
 		created_at:number;

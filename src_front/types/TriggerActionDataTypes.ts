@@ -9,6 +9,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionTTSData
 								| TriggerActionMusicEntryData
 								| TriggerActionRaffleData
+								| TriggerActionRaffleEnterData
 								| TriggerActionBingoData
 								| TriggerActionVoicemodData
 								| TriggerActionHighlightData
@@ -23,7 +24,24 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 ;
 
 
-export type TriggerActionStringTypes = "obs"|"chat"|"music"|"tts"|"raffle"|"bingo"|"voicemod"|"highlight"|"trigger"|"http"|"prediction"|"poll"|"count"|"countget"|"random"|"stream_infos"|null;
+export type TriggerActionStringTypes = "obs"
+									| "chat"
+									| "music"
+									| "tts"
+									| "raffle"
+									| "raffle_enter"
+									| "bingo"
+									| "voicemod"
+									| "highlight"
+									| "trigger"
+									| "http"
+									| "prediction"
+									| "poll"
+									| "count"
+									| "countget"
+									| "random"
+									| "stream_infos"
+									| null;
 
 export interface TriggerData {
 	enabled:boolean;
@@ -119,6 +137,10 @@ export interface TriggerActionTTSData extends TriggerActionData{
 export interface TriggerActionRaffleData extends TriggerActionData{
 	type:"raffle";
 	raffleData:TwitchatDataTypes.RaffleData;
+}
+
+export interface TriggerActionRaffleEnterData extends TriggerActionData{
+	type:"raffle_enter";
 }
 
 export interface TriggerActionBingoData extends TriggerActionData{

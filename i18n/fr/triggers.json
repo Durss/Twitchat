@@ -53,6 +53,7 @@
 				"action_chat": "Envoyer un message",
 				"action_bingo": "Lancer un bingo",
 				"action_raffle": "Lancer un tirage au sort",
+				"action_raffle_enter": "Participer au tirage au sort",
 				"action_highlight": "Mettre en avant sur le stream",
 				"action_trigger": "Trigger",
 				"action_obs": "Contrôler OBS",
@@ -167,6 +168,9 @@
 				"list":"Liste",
 				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
 				"list_entry_placeholder":"ajouter une entrée..."
+			},
+			"raffle_enter":{
+				"info":"La personne déclanchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
 			}
 		},
 		"categories": {

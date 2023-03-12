@@ -695,6 +695,11 @@ export default class TriggerActionHandler {
 							StoreProxy.raffle.startRaffle(JSON.parse(JSON.stringify(step.raffleData)));
 						}else
 						
+						//Handle raffle enter action
+						if(step.type == "raffle_enter") {
+							StoreProxy.raffle.checkRaffleJoin(message);
+						}else
+						
 						//Handle bingo action
 						if(step.type == "bingo") {
 							StoreProxy.bingo.startBingo(JSON.parse(JSON.stringify(step.bingoData)));

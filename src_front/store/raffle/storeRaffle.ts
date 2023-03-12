@@ -37,7 +37,7 @@ export const storeRaffle = defineStore('raffle', {
 						StoreProxy.timer.countdownStart(payload.duration_s * 1000);
 					}
 					//Announce start on chat
-					if(StoreProxy.chat.botMessages.raffleStart.enabled) {
+					if(StoreProxy.chat.botMessages.raffleStart.enabled && payload.command) {
 						let message = StoreProxy.chat.botMessages.raffleStart.message;
 						message = message.replace(/\{CMD\}/gi, payload.command);
 						MessengerProxy.instance.sendMessage(message);
@@ -128,8 +128,13 @@ export const storeRaffle = defineStore('raffle', {
 			}
 		},
 
-		async checkRaffleJoin(message:TwitchatDataTypes.MessageChatData):Promise<void> {
-			if(!this.data) return;
+		async checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
+			if(!this.data || this.data.mode != "chat") return;
+
+			if(!("user" in message)) return;
+			if(!("channel_id" in message)) return;
+
+			const messageCast = message as TwitchatDataTypes.GreetableMessage;
 
 			const sUsers = StoreProxy.users;
 			const sChat = StoreProxy.chat;
@@ -139,26 +144,26 @@ export const storeRaffle = defineStore('raffle', {
 			//hasn't already entered
 			if(ellapsed <= raffle.duration_s * 1000
 			&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)
-			&& !raffle.entries.find(v=>v.id == message.user.id)) {
+			&& !raffle.entries.find(v=>v.id == messageCast.user.id)) {
 				let score = 1;
-				const user = message.user;
+				const user = messageCast.user;
 				//Apply ratios if any is defined
-				if(raffle.vipRatio > 0 && user.channelInfo[message.channel_id].is_vip)			score += raffle.vipRatio;
-				if(raffle.subRatio > 0 && user.channelInfo[message.channel_id].is_subscriber)	score += raffle.subRatio;
-				if(raffle.subgiftRatio > 0 && user.channelInfo[message.channel_id].is_gifter)	score += raffle.subgiftRatio;
+				if(raffle.vipRatio > 0 && user.channelInfo[messageCast.channel_id].is_vip)			score += raffle.vipRatio;
+				if(raffle.subRatio > 0 && user.channelInfo[messageCast.channel_id].is_subscriber)	score += raffle.subRatio;
+				if(raffle.subgiftRatio > 0 && user.channelInfo[messageCast.channel_id].is_gifter)	score += raffle.subgiftRatio;
 				if(raffle.followRatio > 0) {
 					//Check if user is following
-					if(user.channelInfo[message.channel_id].is_following === undefined) sUsers.checkFollowerState(user, message.channel_id);
-					if(user.channelInfo[message.channel_id].is_following === true) score += raffle.followRatio;
+					if(user.channelInfo[messageCast.channel_id].is_following === undefined) sUsers.checkFollowerState(user, messageCast.channel_id);
+					if(user.channelInfo[messageCast.channel_id].is_following === true) score += raffle.followRatio;
 				}
 				raffle.entries.push( {
 					score,
 					label:user.displayName,
 					id:user.id,
 					user:{
-						id:message.user.id,
-						platform:message.platform,
-						channel_id:message.channel_id,
+						id:messageCast.user.id,
+						platform:messageCast.platform,
+						channel_id:messageCast.channel_id,
 					}
 				} );
 				

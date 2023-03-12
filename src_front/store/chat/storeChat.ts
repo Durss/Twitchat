@@ -685,7 +685,10 @@ export const storeChat = defineStore('chat', {
 	
 						//If a raffle is in progress, check if the user can enter
 						const raffle = sRaffle.data;
-						if(raffle && raffle.mode == "chat" && cmd == raffle.command.trim().toLowerCase()) {
+						if(raffle
+						&& raffle.mode == "chat"
+						&& raffle.command
+						&& cmd == raffle.command.trim().toLowerCase()) {
 							sRaffle.checkRaffleJoin(message);
 						}
 			
@@ -788,6 +791,15 @@ export const storeChat = defineStore('chat', {
 				//Reward redeem
 				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 					this.flagMessageAsFirstToday(message, message.user);
+	
+					//If a raffle is in progress, check if the user can enter
+					const raffle = sRaffle.data;
+					if(raffle
+					&& raffle.mode == "chat"
+					&& raffle.reward_id
+					&& message.reward.id === raffle.reward_id) {
+						sRaffle.checkRaffleJoin(message);
+					}
 					break;
 				}
 

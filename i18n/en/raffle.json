@@ -5,7 +5,9 @@
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Start raffle",
-			"description": "Randomly pick someone amongst users that sent a chat command"
+			"description": "Randomly pick someone amongst users that sent a chat command",
+			"triggers":"Allow viewers to enter raffle from by subscribing, following, raiding and more from {LINK} thanks to the {ACTION} trigger action",
+			"triggers_link":"the triggers"
 		},
 		"subs": {
 			"title": "Subs",
@@ -41,8 +43,11 @@
 			"description": "All raffle entries will be lost"
 		},
 		"params": {
+			"command_join": "Join with a chat command",
 			"command": "Command",
 			"command_placeholder": "!raffle",
+			"reward_join": "Join with a channel points reward",
+			"reward": "Reward",
 			"duration": "Raffle duration (minutes)",
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",
@@ -56,7 +61,7 @@
 			"list_placeholder": "entry 1, entry 2, entry 3, ...",
 			"username_placeholder": "User name"
 		},
-		"state_title": "Raffle -",
+		"state_title": "Raffle",
 		"state_users": "{COUNT} entered",
 		"state_winners": "Winners{COUNT} :",
 		"state_pickBt": "Pick a winner",

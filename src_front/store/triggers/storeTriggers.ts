@@ -47,6 +47,7 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "music") return true;
 					if(v.type == "tts") return true;
 					if(v.type == "raffle") return true;
+					if(v.type == "raffle_enter") return true;
 					if(v.type == "bingo") return true;
 					if(v.type == "voicemod") return true;
 					if(v.type == "highlight") return true;

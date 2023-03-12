@@ -534,7 +534,6 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						winner:Utils.pickRand(entries),
 						raffleData: {
-							command:"",
 							created_at:Date.now()-30000,
 							duration_s:60,
 							followRatio:0,

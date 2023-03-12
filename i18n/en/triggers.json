@@ -53,6 +53,7 @@
 				"action_chat": "Send chat message",
 				"action_bingo": "Start a bingo",
 				"action_raffle": "Start a raffle",
+				"action_raffle_enter": "Enter raffle",
 				"action_highlight": "Highlight on stream",
 				"action_trigger": "Trigger",
 				"action_obs": "Control OBS",
@@ -167,6 +168,9 @@
 				"list":"List",
 				"list_label":"Pick a random entry amongst these ones:",
 				"list_entry_placeholder":"add entry..."
+			},
+			"raffle_enter":{
+				"info":"The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."
 			}
 		},
 		"categories": {

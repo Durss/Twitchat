@@ -24,6 +24,19 @@
 					<div class="info">{{ $t("raffle.chat.description") }}</div>
 					<div class="row">
 						<ParamItem class="item" :paramData="command" :autofocus="true" @change="onValueChange()" />
+						<ParamItem class="item" :paramData="reward" :autofocus="true" @change="onValueChange()" v-if="reward_value.listValues!.length > 1" />
+						<p class="tips">
+							<img src="@/assets/icons/info_purple.svg">
+
+							<i18n-t scope="global" tag="span" keypath="raffle.chat.triggers">
+							<template #LINK>
+								<a @click="openParam('triggers')">{{ $t("raffle.chat.triggers_link") }}</a>
+							</template>
+							<template #ACTION>
+								<strong>{{ $t("triggers.actions.common.action_raffle_enter") }}</strong>
+							</template>
+						</i18n-t>
+						</p>
 					</div>
 					<div class="row">
 						<ParamItem class="item" :paramData="enterDuration" @change="onValueChange()" />
@@ -180,26 +193,33 @@ export default class RaffleForm extends Vue {
 	public winnerTmp:TwitchDataTypes.Subscriber|null = null;
 
 	public mode:"chat"|"sub"|"manual" = "chat";
-
-	public command:TwitchatDataTypes.ParameterData					= {value:"", type:"text"};
-	public enterDuration:TwitchatDataTypes.ParameterData			= {value:10, type:"number", min:1, max:1440};
-	public maxUsersToggle:TwitchatDataTypes.ParameterData			= {value:false, type:"toggle"};
-	public maxEntries:TwitchatDataTypes.ParameterData				= {value:10, type:"number", min:0, max:1000000};
-	public ponderateVotes:TwitchatDataTypes.ParameterData			= {value:false, type:"toggle"};
-	public ponderateVotes_vip:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"vip_purple.svg"};
-	public ponderateVotes_sub:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"sub_purple.svg"};
-	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"gift_purple.svg"};
-	public ponderateVotes_follower:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"follow_purple.svg"};
-	public subs_includeGifters:TwitchatDataTypes.ParameterData		= {value:true, type:"toggle", icon:"gift_purple.svg"};
-	public subs_excludeGifted:TwitchatDataTypes.ParameterData		= {value:true, type:"toggle", icon:"sub_purple.svg"};
-	public showCountdownOverlay:TwitchatDataTypes.ParameterData		= {value:false, type:"toggle", icon:"countdown_purple.svg"};
-	public customEntries:TwitchatDataTypes.ParameterData			= {value:"", type:"text", longText:true, maxLength:1000000};
+		
+	public command:TwitchatDataTypes.ParameterData					= {value:true, type:"toggle", labelKey:"raffle.params.command_join"};
+	public command_value:TwitchatDataTypes.ParameterData			= {value:"", type:"text", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
+	public reward:TwitchatDataTypes.ParameterData					= {value:false, type:"toggle", labelKey:"raffle.params.reward_join"};
+	public reward_value:TwitchatDataTypes.ParameterData				= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
+	public enterDuration:TwitchatDataTypes.ParameterData			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
+	public maxUsersToggle:TwitchatDataTypes.ParameterData			= {value:false, type:"toggle", labelKey:"raffle.params.limit_users"};
+	public maxEntries:TwitchatDataTypes.ParameterData				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
+	public ponderateVotes:TwitchatDataTypes.ParameterData			= {value:false, type:"toggle", labelKey:"raffle.params.ponderate"};
+	public ponderateVotes_vip:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"vip_purple.svg", labelKey:"raffle.params.ponderate_VIP"};
+	public ponderateVotes_sub:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_sub"};
+	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_subgifter"};
+	public ponderateVotes_follower:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"follow_purple.svg", labelKey:"raffle.params.ponderate_follower"};
+	public subs_includeGifters:TwitchatDataTypes.ParameterData		= {value:true, type:"toggle", icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_include_gifter"};
+	public subs_excludeGifted:TwitchatDataTypes.ParameterData		= {value:true, type:"toggle", icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_exclude_gifted"};
+	public showCountdownOverlay:TwitchatDataTypes.ParameterData		= {value:false, type:"toggle", icon:"countdown_purple.svg", labelKey:"raffle.params.countdown"};
+	public customEntries:TwitchatDataTypes.ParameterData			= {value:"", type:"text", longText:true, maxLength:1000000, placeholderKey:"raffle.params.list_placeholder"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private voiceController!:FormVoiceControllHelper;
+
+	public get hasRewards():boolean {
+		return TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS) && this.reward_value.listValues!.length > -1;
+	}
 
 	/**
 	 * Gets subs filtered by the current filters
@@ -226,11 +246,15 @@ export default class RaffleForm extends Vue {
 	}
 
 	public get finalData():TwitchatDataTypes.RaffleData {
-		const cmd = this.command.value? this.command.value as string : this.$t("raffle.params.command_placeholder");
+		let cmd = "";
+		if(this.command.value === true) {
+			cmd = this.command_value.value? this.command_value.value as string : this.$t("raffle.params.command_placeholder");
+		}
 
 		return  {
 			mode:this.mode,
 			command:cmd,
+			reward_id:this.reward_value.value as string,
 			duration_s:this.enterDuration.value as number * 60,
 			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value as number : 0,
 			created_at:Date.now(),
@@ -253,24 +277,22 @@ export default class RaffleForm extends Vue {
 	public get canListSubs():boolean { return TwitchUtils.hasScope(TwitchScopes.LIST_SUBSCRIBERS); }
 
 	public beforeMount(): void {
-		
-		this.command.labelKey					= "raffle.params.command";
-		this.command.placeholder				= this.$t("raffle.params.command_placeholder");
-		this.enterDuration.labelKey				= "raffle.params.duration";
-		this.maxUsersToggle.labelKey			= "raffle.params.limit_users";
-		this.maxEntries.labelKey				= "raffle.params.max_users";
-		this.ponderateVotes.labelKey			= "raffle.params.ponderate";
-		this.ponderateVotes_vip.labelKey		= "raffle.params.ponderate_VIP";
-		this.ponderateVotes_sub.labelKey		= "raffle.params.ponderate_sub";
-		this.ponderateVotes_subgift.labelKey	= "raffle.params.ponderate_subgifter";
-		this.ponderateVotes_follower.labelKey	= "raffle.params.ponderate_follower";
-		this.subs_includeGifters.labelKey		= "raffle.params.ponderate_include_gifter";
-		this.subs_excludeGifted.labelKey		= "raffle.params.ponderate_exclude_gifted";
-		this.customEntries.placeholder			= this.$t("raffle.params.list_placeholder");
-		this.showCountdownOverlay.labelKey		= "raffle.configs.countdown";
-		
 		this.winnerPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
 		this.joinPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
+		this.command.children		= [this.command_value];
+		this.reward.children		= [this.reward_value];
+
+		this.reward_value.listValues = [{value:undefined, labelKey:"global.select_placeholder"}]
+
+		TwitchUtils.getRewards().then(list => {
+			list.sort((a,b)=> {
+				if(a.title > b.title) return 1;
+				if(a.title < b.title) return -1;
+				return 0
+			}).forEach(v=> {
+				this.reward_value.listValues!.push({value:v.id, label:v.title});
+			});
+		});
 
 		if(this.triggerMode && this.action.raffleData) {
 			this.mode = this.action.raffleData.mode;
@@ -425,6 +447,10 @@ export default class RaffleForm extends Vue {
 			display: flex;
 			flex-direction: column;
 			&>.row {
+				display: flex;
+				flex-direction: column;
+				gap:.5em;
+
 				:deep(.list) {
 					flex-direction: row;
 					label {
@@ -470,6 +496,17 @@ export default class RaffleForm extends Vue {
 
 				i {
 					font-size: .8em;
+				}
+
+				.tips {
+					font-size: .8em;
+					background-color: @mainColor_light;
+					padding: .5em;
+					border-radius: .5em;
+					img {
+						height: 1em;
+						margin-right: .5em;
+					}
 				}
 			}
 			&.scope {
