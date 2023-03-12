@@ -476,11 +476,14 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 		}
 
-		watch(()=>this.messageData.occurrenceCount, async ()=>{
-			await this.$nextTick();
-			gsap.fromTo(this.$refs.occurrenceCount as HTMLDivElement, {scale:1.5}, {scale:1, duration:0.2});
-		});
-
+		//If message has just been posted and it has an occurenceCount value
+		//make it bounce
+		if(Date.now() - this.messageData.date < 100 && this.$refs.occurrenceCount != undefined) {
+			this.$nextTick().then(()=> {
+				gsap.fromTo(this.$refs.occurrenceCount as HTMLDivElement, {scale:1.5}, {scale:1, duration:0.2});
+			});
+		}
+		
 		this.text = txt;
 		this.infoBadges = infoBadges;
 		this.staticClasses = staticClasses;
