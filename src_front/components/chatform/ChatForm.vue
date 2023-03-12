@@ -102,9 +102,9 @@
 				<transition name="blink">
 				<div class="pins" v-if="$store('chat').pinedMessages.length > 0">
 					<Button :aria-label="$t('chat.form.pinsBt_aria')"
-						:icon="$image('icons/pin.svg')"
+						:icon="$image('icons/save.svg')"
 						bounce
-						:data-tooltip="$t('chat.form.pinsBt_aria')"
+						:data-tooltip="$t('chat.form.saveBt_aria')"
 						@click="$emit('pins')" />
 					<div class="count">{{$store('chat').pinedMessages.length}}</div>
 				</div>

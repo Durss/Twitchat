@@ -1,8 +1,8 @@
 {
 	"pin": {
-		"title": "Pined messages",
+		"title": "Saved messages",
 		"closeBt_aria": "Close list",
-		"unpinBt_aria": "Unpin message",
+		"unpinBt_aria": "Unsave message",
 		"highlightBt_tt": "Highlight on stream<br><i>(needs overlay)</i>",
 		"highlightBt_aria": "Highlight message"
 	}

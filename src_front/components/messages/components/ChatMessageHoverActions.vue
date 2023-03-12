@@ -34,11 +34,11 @@
 				v-show="!messageData || !messageData.automod"
 				/>
 	
-			<Button :aria-label="$t('chat.hover_actions.pin')"
+			<Button :aria-label="$t('chat.hover_actions.save')"
 				bounce
-				:icon="$image('icons/pin.svg')"
-				:data-tooltip="$t('chat.hover_actions.pin')"
-				@click="pinMessage()"
+				:icon="$image('icons/save.svg')"
+				:data-tooltip="$t('chat.hover_actions.save')"
+				@click="saveMessage()"
 				v-show="!messageData || !messageData.automod"
 				/>
 		</div>
@@ -99,13 +99,13 @@ export default class ChatMessageHoverActions extends Vue {
 		this.highlightLoading = false;
 	}
 
-	public pinMessage():void {
+	public saveMessage():void {
 		const pins = this.$store("chat").pinedMessages;
 		//Check if message is already pinned
 		if(pins.find(m => m.id == this.messageData.id)) {
-			this.$store("chat").unpinMessage(this.messageData);
+			this.$store("chat").unsaveMessage(this.messageData);
 		}else{
-			this.$store("chat").pinMessage(this.messageData);
+			this.$store("chat").saveMessage(this.messageData);
 		}
 	}
 

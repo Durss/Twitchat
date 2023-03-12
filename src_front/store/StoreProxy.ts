@@ -184,8 +184,8 @@ export interface IChatActions {
 	updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}):void;
 	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams):void;
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
-	pinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
-	unpinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
+	saveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
+	unsaveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
 	highlightChatMessageOverlay(message?:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
 	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void>;
 	flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void;

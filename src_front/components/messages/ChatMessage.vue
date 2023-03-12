@@ -22,6 +22,13 @@
 			</i18n-t>
 		</div>
 
+		<div v-if="isFirstToday && !lightMode" class="header">
+			<img src="@/assets/icons/hand.svg" alt="new" class="icon">
+			<i18n-t scope="global" keypath="chat.message.first_today" tag="p">
+				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
+			</i18n-t>
+		</div>
+
 		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod_red.svg">
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
@@ -179,6 +186,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	public isAnnouncement:boolean = false;
 	public isPresentation:boolean = false;
 	public isReturning:boolean = false;
+	public isFirstToday:boolean = false;
 	public automodInProgress:boolean = false;
 	public userBannedOnChannels:string = "";
 
@@ -277,7 +285,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			color = parseInt(user.color.replace("#", ""), 16);
 		}
 		const hsl = Utils.rgb2hsl(color);
-		const minL = this.isPresentation || this.isAnnouncement || this.firstTime || this.isReturning? .75 : .65;
+		const minL = this.isPresentation || this.isAnnouncement || this.firstTime || this.isReturning || this.isFirstToday? .75 : .65;
 		if(hsl.l < minL) {
 			color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
 		}
@@ -352,12 +360,12 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(mess.cyphered) infoBadges.push({type:"cyphered"});
 
 		if(mess.user.is_raider) {
-			infoBadges.push({type:"raider"});
+			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RAIDER});
 			//Remove "raider" badge from the view when removed from data
 			watch(()=> mess.user.is_raider, () =>{
 				for (let i = 0; i < this.infoBadges.length; i++) {
 					const b = this.infoBadges[i];
-					if(b.type == "raider") {
+					if(b.type == TwitchatDataTypes.MessageBadgeDataType.RAIDER) {
 						this.infoBadges.splice(i,1);
 						break;
 					}
@@ -367,13 +375,17 @@ export default class ChatMessage extends AbstractChatMessage {
 	
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			infoBadges.push({type:"whisper"});
+			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WHISPER});
 			
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.firstTime = mess.twitch_isFirstMessage === true;
 			//Add twitchat's automod badge
 			if(mess.automod) {
-				infoBadges.push({type:"automod", tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
+				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.AUTOMOD, tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
+			}
+			//Add "first day on your chat" badge
+			if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage) {
+				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_USER});
 			}
 			//Manage twitch automod content
 			if(!this.lightMode && mess.twitch_automod) {
@@ -396,6 +408,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
+			this.isFirstToday	= this.messageData.todayFirst === true;
 			watch(()=> mess.twitch_isSuspicious, () =>{
 				this.updateSuspiciousState();
 			});
@@ -403,14 +416,14 @@ export default class ChatMessage extends AbstractChatMessage {
 				this.updatePinnedState();
 			});
 			if(mess.twitch_isRestricted) {
-				infoBadges.push({type:"restrictedUser"});
+				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
 			}
 		}
 
 		//Pre compute some classes to reduce watchers count on "classes" getter
 
 		const staticClasses = ["chatmessage"];
-		if(this.firstTime || this.isPresentation || this.isReturning)	staticClasses.push("hasHeader");
+		if(this.firstTime || this.isPresentation || this.isReturning || this.isFirstToday)	staticClasses.push("hasHeader");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			staticClasses.push("whisper");
 		}else {

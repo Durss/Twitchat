@@ -2,7 +2,7 @@
 	<div class="pinedmessages">
 		<div class="content">
 			<div class="title">
-				<p><img src="@/assets/icons/pin.svg" class="icon" />{{ $t('pin.title') }}</p>
+				<p><img src="@/assets/icons/save.svg" class="icon" />{{ $t('pin.title') }}</p>
 				<Button :aria-label="$t('pin.closeBt_aria')" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
 			</div>
 
@@ -51,7 +51,7 @@ export default class PinedMessages extends Vue {
 	}
 
 	public async unpin(m:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):Promise<void> {
-		this.$store("chat").unpinMessage(m);
+		this.$store("chat").unsaveMessage(m);
 		if(this.$store("chat").pinedMessages.length === 0) {
 			this.close();
 		}

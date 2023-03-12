@@ -1309,7 +1309,7 @@ export default class PubSub extends EventDispatcher {
 				m.timeoutRef = timeoutRef;
 			}
 			StoreProxy.chat.addMessage(m);
-			StoreProxy.chat.pinMessage(m.chatMessage);
+			StoreProxy.chat.saveMessage(m.chatMessage);
 		}
 	}
 
@@ -1358,7 +1358,7 @@ export default class PubSub extends EventDispatcher {
 			};
 			clearTimeout(message.timeoutRef);
 			StoreProxy.chat.addMessage(m);
-			StoreProxy.chat.unpinMessage(m.chatMessage);
+			StoreProxy.chat.unsaveMessage(m.chatMessage);
 		}
 	}
 }

@@ -233,6 +233,7 @@ export const storeUsers = defineStore('users', {
 					}
 					user.channelInfo[channelId] = {
 						online:false,
+						is_new:false,
 						following_date_ms,
 						is_following,
 						is_blocked:false,

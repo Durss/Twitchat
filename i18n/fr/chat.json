@@ -28,6 +28,7 @@
 			"bingoBt_aria": "Ouvrir le bingo",
 			"whispersBt_aria": "Ouvrir les chuchotements",
 			"pinsBt_aria": "Ouvrir les messages épinglés",
+			"saveBt_aria": "Ouvrir les messages conservés",
 			"deezerBt_aria": "Ouvrir le lecteur deezer",
 			"highlightBt_aria": "Fermer le message mis en avant",
 			"voicebot_startBt_aria": "Activer l'assistant vocal",
@@ -121,7 +122,8 @@
 		},
 		"message": {
 			"first_time": "1er message ici",
-			"presentation": "Bienvenue ici {USER}",
+			"first_today": "1er message du jour",
+			"presentation": "Présentation de {USER}",
 			"returning_user": "{USER} est de retour après avoir parlé 2 fois ces 30 derniers jours",
 			"automod": "Automod:",
 			"automod_acceptBt_aria": "Accepter le message",
@@ -297,11 +299,13 @@
 				"cyphered": "chiffré",
 				"restrictedUser": "restreint·e",
 				"suspiciousUser": "suspect·e",
-				"emergencyBlocked": "bloqué·e"
+				"emergencyBlocked": "bloqué·e",
+				"new_user": "new"
 			},
 			"tooltip": {
 				"raider": "Raider",
 				"pinned": "Epinglé",
+				"new_user": "1er jour sur<br>votre chaîne",
 				"restrictedUser": "Message visible uniquement<br>par vous et vos modérateur·ices",
 				"suspiciousUser": "Personne marquée<br>comme suspecte"
 			}
@@ -312,7 +316,8 @@
 			"tts": "Lire le message<br>à voix haute",
 			"highlight": "Mettre en avant",
 			"highlight_tt": "Afficher sur votre stream<br><i>(nécessite l'overlay dédié)</i>",
-			"pin": "Epingler le message"
+			"pin": "Epingler le message",
+			"save": "Conserver le message"
 		},
 		"scope_request": {
 			"title": "Les filtres de cette colonne de message requièrent une autorisation manquante: | Les filtres de cette colonne de message requièrent des autorisations manquantes:",

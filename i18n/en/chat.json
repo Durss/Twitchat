@@ -28,6 +28,7 @@
 			"bingoBt_aria": "Open current bingo",
 			"whispersBt_aria": "Open whispers",
 			"pinsBt_aria": "Open pinned messages",
+			"saveBt_aria": "Open saved messages",
 			"deezerBt_aria": "Open deezer player",
 			"highlightBt_aria": "Close highlighted message",
 			"voicebot_startBt_aria": "Start voice bot",
@@ -121,7 +122,8 @@
 		},
 		"message": {
 			"first_time": "First time on your channel",
-			"presentation": "Welcome on this channel {USER}",
+			"first_today": "1er message today",
+			"presentation": "{USER} presentation",
 			"returning_user": "{USER} is returning after chatting twice the last 30 days",
 			"automod": "Automod:",
 			"automod_acceptBt_aria": "Accept automoded message",
@@ -297,11 +299,13 @@
 				"cyphered": "cyphered",
 				"restrictedUser": "restricted",
 				"suspiciousUser": "suspicious",
-				"emergencyBlocked": "blocked"
+				"emergencyBlocked": "blocked",
+				"new_user": "new"
 			},
 			"tooltip": {
 				"raider": "Raider",
 				"pinned": "Pinned",
+				"new_user": "First day on<br>your channel",
 				"restrictedUser": "Message only visible by<br>you and your mods",
 				"suspiciousUser": "User is flaged as suspicious"
 			}
@@ -312,7 +316,8 @@
 			"tts": "Read message with TTS",
 			"highlight": "Highlight message",
 			"highlight_tt": "Highlight on stream<br><i>(needs overlay)</i>",
-			"pin": "Pin message"
+			"pin": "Pin message",
+			"save": "Save message"
 		},
 		"scope_request": {
 			"title": "This column filters require a missing permission: | This column filters require missing permissions:",

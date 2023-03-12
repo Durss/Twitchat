@@ -162,6 +162,7 @@ export namespace TwitchatDataTypes {
 		AUTOMOD: "automod",
 		WHISPER: "whisper",
 		CYPHERED: "cyphered",
+		NEW_USER: "new_user",
 		SUSPICIOUS_USER: "suspiciousUser",
 		RESTRICTED_USER: "restrictedUser",
 		EMERGENCY_BLOCKED: "emergencyBlocked",
@@ -765,7 +766,8 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface UserChannelInfo {
 		online:boolean;
-		is_following:boolean|null;
+		is_new:boolean;//true if user talked for the first time on our chat during this session
+		is_following:boolean|null;//set to "null" until we actually verified if user is a follower
 		is_blocked:boolean;
 		is_banned:boolean;
 		is_vip:boolean;

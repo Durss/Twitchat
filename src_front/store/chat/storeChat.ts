@@ -678,6 +678,8 @@ export const storeChat = defineStore('chat', {
 			
 						//If it's the first message all time of the user
 						if(message.twitch_isFirstMessage) {
+							//Flag user as new chatter
+							message.user.channelInfo[message.channel_id].is_new = true;
 							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
 						}
 						
@@ -1078,7 +1080,8 @@ export const storeChat = defineStore('chat', {
 				const m = messageList[i];
 				if(messageID == m.id && !m.deleted) {
 					m.deleted = true;
-					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
+					|| m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) {
 						//Called if closing an ad
 						messageList.splice(i, 1);
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
@@ -1190,13 +1193,13 @@ export const storeChat = defineStore('chat', {
 			DataStore.set(DataStore.SPOILER_PARAMS, params);
 		},
 		
-		pinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
+		saveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			message.is_pinned = true;
 			this.pinedMessages.push(message);
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.PIN_MESSAGE, message));
 		},
 		
-		unpinMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
+		unsaveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			this.pinedMessages.forEach((v, index)=> {
 				if(v.id == message.id) {
 					message.is_pinned = false;
