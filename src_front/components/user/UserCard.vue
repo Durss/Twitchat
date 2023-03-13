@@ -327,10 +327,6 @@ export default class UserCard extends Vue {
 				if(!user.displayName) user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
-				// if(!this.user.channelInfo[this.channelId]) {
-				// 	//Missing channel info (probably because we're requesting a user via the /userinfo command)
-				// 	//Ask
-				// }
 				if(user.channelInfo[this.channelId]?.badges.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
