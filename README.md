@@ -126,6 +126,7 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"user:manage:whispers",
 		"moderator:manage:automod",
 		"moderator:read:chatters",
+		"moderator:read:followers",
 		"moderator:manage:shield_mode"
 	],
 	
