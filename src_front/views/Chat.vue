@@ -803,7 +803,6 @@ export default class Chat extends Vue {
 		if(!selectedCol) {
 			//Fallback to last col if none is selected
 			selectedCol = (this.$refs["column_"+cols[cols.length-1].id] as HTMLDivElement[])[0];
-			console.log("Fallback");
 		}
 		this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 	}

@@ -10,7 +10,8 @@
 			<Button small title="First message" @click="simulateEvent('message', 'first')" :icon="$image('icons/firstTime.svg')" />
 			<Button small title="Returning user" @click="simulateEvent('message', 'returning')" :icon="$image('icons/returning.svg')" />
 			<Button small title="Presentation" @click="simulateEvent('message', 'presentation')" :icon="$image('icons/firstTime.svg')" />
-			<Button small title="Raid" @click="simulateEvent('raid')" :icon="$image('icons/raid.svg')" />
+			<Button small title="Incoming raid" @click="simulateEvent('raid')" :icon="$image('icons/raid.svg')" />
+			<Button small title="Outgoing raid" @click="startFakeRaid()" :icon="$image('icons/raid.svg')" />
 			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="$image('icons/bits.svg')" />
 			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="$image('icons/sub.svg')" />
 			<Button small title="ReSub" @click="simulateEvent('subscription', 'resub')" :icon="$image('icons/sub.svg')" />
@@ -131,6 +132,7 @@ export default class DevmodeMenu extends Vue {
 					const m = (message as TwitchatDataTypes.MessageSubscriptionData);
 					m.gift_recipients = recipients;
 					m.is_gift = true;
+					m.user.channelInfo[m.channel_id].totalSubgifts = Math.round(Math.random()*100);
 					for (let i = 0; i < count; i++) {
 						recipients.push(Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true)));
 					}
@@ -258,6 +260,19 @@ export default class DevmodeMenu extends Vue {
 			m.monitored = false;
 			return true;
 		});
+	}
+
+	public async startFakeRaid():Promise<void> {
+		const me = this.$store("auth").twitch.user;
+		const user = await StoreProxy.users.getUserFrom("twitch", me.id, undefined, "TwitchGaming");
+		const m:TwitchatDataTypes.RaidInfo = {
+			channel_id: me.id,
+			user,
+			viewerCount: 42,
+			startedAt:Date.now(),
+			timerDuration_s:90,
+		};
+		StoreProxy.stream.setRaiding(m);
 	}
 
 }

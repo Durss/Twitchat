@@ -100,21 +100,38 @@ export default class RaidState extends Vue {
 		const bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		const timedoutOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		//Check for banned and timedout users stille connected to the chat
+		console.log(userlist.length);
 		for (let i = 0; i < userlist.length; i++) {
 			const u = userlist[i];
+			/*
+			//Debug to add random banned users
+			//@ts-ignore
+			if(!u.channelInfo[me.id]) u.channelInfo[me.id] = {};
+			if(Math.random() > .5) {
+				u.channelInfo[me.id].online = true;
+				u.channelInfo[me.id].is_banned = true;
+				u.channelInfo[me.id].lastActivityDate = Date.now() - 1000;
+				if(Math.random() > .75) {
+					u.channelInfo[me.id].banEndDate = Date.now() + (Math.random()*20*60*1000);
+				}
+			}
+			//*/
+			
 			//User online?
 			if(u.platform === "twitch") {
-				if(u.channelInfo[me.id]?.is_banned === true && u.channelInfo[me.id]?.lastActivityDate) {
+				if(u.channelInfo[me.id]?.is_banned === true) {
 					if(u.channelInfo[me.id]?.banEndDate != undefined) {
 						//User timedout
 						if(u.channelInfo[me.id]?.online === true) timedoutOnline.push(u);
-					}else{
+					}else if(u.channelInfo[me.id]?.lastActivityDate){
 						//User perma ban
 						bannedOnline.push(u);
 					}
 				}
 			}
 		}
+		console.log(bannedOnline);
+		console.log(timedoutOnline);
 
 		this.bannedOnline = bannedOnline;
 		this.timedoutOnline = timedoutOnline;
