@@ -117,7 +117,10 @@ export default class OverlayParamsSpotify extends Vue {
 			this.open = true;	
 			this.authenticating = true;
 
-			const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+spotifyAuthParams.csrf, {method:"POST"});
+			const headers = {
+				'App-Version': import.meta.env.PACKAGE_VERSION,
+			};
+			const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+spotifyAuthParams.csrf, {method:"POST", headers});
 			const csrf = await csrfRes.json();
 			if(!csrf.success) {
 				this.$store("main").alert = csrf.message;

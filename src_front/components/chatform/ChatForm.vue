@@ -658,6 +658,7 @@ export default class ChatForm extends Vue {
 						headers: {
 							"Content-Type": "application/json",
 							"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
+							'App-Version': import.meta.env.PACKAGE_VERSION,
 						},
 					}
 					const res = await fetch(Config.instance.API_PATH+"/user/data?uid="+users[0].id, options)

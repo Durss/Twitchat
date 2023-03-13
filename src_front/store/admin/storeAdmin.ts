@@ -28,6 +28,7 @@ export const storeAdmin = defineStore('Admin', {
 			}
 			const headers = {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
+				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
 			const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+users[0].id, {method:"POST", headers});
 			try {
@@ -63,6 +64,7 @@ export const storeAdmin = defineStore('Admin', {
 			}
 			const headers = {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
+				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
 			const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+users[0].id, {method:"DELETE", headers});
 			try {
@@ -93,6 +95,7 @@ export const storeAdmin = defineStore('Admin', {
 		async removeAllBetaUser():Promise<void> {
 			const headers = {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
+				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
 			const res = await fetch(Config.instance.API_PATH+"/beta/user/all", {method:"DELETE", headers});
 			try {
@@ -128,6 +131,7 @@ export const storeAdmin = defineStore('Admin', {
 			}
 			const headers = {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
+				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
 			const res = await fetch(Config.instance.API_PATH+"/beta/user/migrateToProduction?uid="+users[0].id, {method:"POST", headers});
 			try {

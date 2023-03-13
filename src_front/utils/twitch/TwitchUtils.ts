@@ -1853,7 +1853,10 @@ export default class TwitchUtils {
 
 		}else if(channelName && Date.now() < new Date("03-21-2023 00:00:00").getTime()) {//Unofficial api shutdown starts the 22nd of march
 			//Fallback to unofficial endpoint while it still work..
-			const res = await fetch(Config.instance.API_PATH+"/user/chatters?channel="+channelName);
+			const headers = {
+				'App-Version': import.meta.env.PACKAGE_VERSION,
+			};
+			const res = await fetch(Config.instance.API_PATH+"/user/chatters?channel="+channelName, {method:"GET", headers});
 			const json:{success:boolean, data:TwitchDataTypes.ChattersUnofficialEndpoint} = await res.json();
 			if(!json.success) return false;
 			let users:string[] = [];
@@ -2056,17 +2059,6 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Requests for scopes if not yet granted
-	 * @param scopes 
-	 * @returns true if all scopes are granted. False if user iis prompted to grant access
-	 */
-	public static requestScopes(scopes:TwitchScopesString[]):boolean {
-		if(this.hasScope(scopes)) return true;
-		StoreProxy.auth.requestTwitchScopes(scopes);
-		return false;
-	}
-
-	/**
 	 * Gets a user's followers count
 	 * 
 	 * @param channelId channelId to get followers list
@@ -2141,6 +2133,32 @@ export default class TwitchUtils {
 		return this.fakeUsersCache;
 	}
 
+	/**
+	 * Gets a user's followers count
+	 * 
+	 * @param channelId channelId to get followers list
+	 */
+	public static async createStreamMarker(comment:string = ""):Promise<boolean> {
+		if(!this.hasScope(TwitchScopes.SET_STREAM_INFOS)) return false;
+
+		const url = new URL(Config.instance.TWITCH_API_PATH+"streams/markers");
+		url.searchParams.append("user_id", StoreProxy.auth.twitch.user.id);
+		if(comment) url.searchParams.append("description", comment);
+		
+		const res = await fetch(url, {
+			method:"GET",
+			headers:this.headers,
+		});
+		if(res.status == 200) {
+			return true;
+		}else if(res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.createStreamMarker(comment);
+		}
+		StoreProxy.main.alert(StoreProxy.i18n.t("error.marker_creation"));
+		return false;
+	}
+
 
 	
 	
@@ -2148,7 +2166,18 @@ export default class TwitchUtils {
 	*************** UTILITIES ***************
 	****************************************/
 
-	
+
+
+	/**
+	 * Requests for scopes if not yet granted
+	 * @param scopes 
+	 * @returns true if all scopes are granted. False if user iis prompted to grant access
+	 */
+	public static requestScopes(scopes:TwitchScopesString[]):boolean {
+		if(this.hasScope(scopes)) return true;
+		StoreProxy.auth.requestTwitchScopes(scopes);
+		return false;
+	}	
 
 	/**
 	 * Returns if current session has 1 or multiple scopes granted.

@@ -424,6 +424,14 @@ export const storeChat = defineStore('chat', {
 				twitch_scope:TwitchScopes.CLIPS,
 			},
 			{
+				id:"marker",
+				cmd:"/marker {comment}",
+				details:StoreProxy.i18n.t("params.commands.marker"),
+				twitchCmd:true,
+				needModerator:true,
+				twitch_scope:TwitchScopes.SET_STREAM_INFOS,
+			},
+			{
 				id:"betaadd",
 				cmd:"/betaAdd {user}",
 				details:StoreProxy.i18n.t("params.commands.betaadd"),

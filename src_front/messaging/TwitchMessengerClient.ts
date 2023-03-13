@@ -425,11 +425,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const login = chunks[0];
 					return await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 				}
+				case "/marker":  {
+					if(!TwitchUtils.requestScopes([TwitchScopes.SET_STREAM_INFOS])) return false;
+					const comment = chunks[0];
+					return await TwitchUtils.createStreamMarker(comment);
+				}
 
 				//TODO
 				case "/uniquechat": return false;
 				case "/uniquechatoff": return false;
-				case "/marker": return false;
 				case "/mods": return false;
 				case "/vips": return false;
 			}

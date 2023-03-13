@@ -135,6 +135,7 @@
 			"shieldOn": "Start shield mode",
 			"shieldOff": "Stop shield mode",
 			"clips": "Create a clip",
+			"marker": "Add a stream marker",
 			"tts": "Start reading the messages of a user",
 			"ttsoff": "Stop reading a user's messages",
 			"userlist": "List users",

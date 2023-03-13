@@ -211,6 +211,7 @@ export default class DataStore {
 		try {
 			const headers = {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
+				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
 			const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"GET", headers});
 			if(importToLS) {
@@ -332,6 +333,7 @@ export default class DataStore {
 				const headers = {
 					"Content-Type": "application/json",
 					'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
+					'App-Version': import.meta.env.PACKAGE_VERSION,
 				}
 				await fetch(Config.instance.API_PATH+"/user/data", {method:"POST", headers, body:JSON.stringify(data)});
 				

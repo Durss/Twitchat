@@ -246,6 +246,7 @@ export default class ChatAd extends Vue {
 				headers: {
 					"Content-Type": "application/json",
 					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
+					'App-Version': import.meta.env.PACKAGE_VERSION,
 				},
 				body: JSON.stringify({
 					public:true,

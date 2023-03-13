@@ -129,7 +129,13 @@ export default class Login extends Vue {
 			const code = Utils.getQueryParameterByName("code");
 			const csrfToken = Utils.getQueryParameterByName("state");
 			if(code) {
-				const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+csrfToken, {method:"POST"});
+				const options = {
+					method: "POST",
+					headers: {
+						'App-Version': import.meta.env.PACKAGE_VERSION,
+					},
+				};
+				const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+csrfToken, options);
 				const csrf = await csrfRes.json();
 				if(!csrf.success) {
 					this.$store("main").alertData = csrf.message;
@@ -177,7 +183,10 @@ export default class Login extends Vue {
 	public async generateCSRF():Promise<void> {
 		this.generatingCSRF = true;
 		try {
-			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET"});
+			const headers = {
+				'App-Version': import.meta.env.PACKAGE_VERSION,
+			};
+			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
 			const json = await res.json();
 			this.CSRFToken = json.token;
 		}catch(e) {

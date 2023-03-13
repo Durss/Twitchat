@@ -130,8 +130,10 @@ export default class ParamsAccount extends Vue {
 				headers: {
 					"Content-Type": "application/json",
 					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
+					'App-Version': import.meta.env.PACKAGE_VERSION,
 				},
 			}
+
 			try {
 				const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
 				const json = await anonState.json();
@@ -191,7 +193,10 @@ export default class ParamsAccount extends Vue {
 		this.generatingCSRF = true;
 		this.showAuthorizeBt = true;
 		try {
-			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET"});
+			const headers = {
+				'App-Version': import.meta.env.PACKAGE_VERSION,
+			};
+			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
 			const json = await res.json();
 			this.CSRFToken = json.token;
 		}catch(e) {
@@ -213,6 +218,7 @@ export default class ParamsAccount extends Vue {
 				headers: {
 					"Content-Type": "application/json",
 					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
+					'App-Version': import.meta.env.PACKAGE_VERSION,
 				},
 				body: JSON.stringify({
 					public:this.publicDonation,

@@ -30,6 +30,7 @@
 		"obs_sources_loading": "An error occurred while loading your OBS sources",
 		"room_settings_update": "An error occured when updating room's settings",
 		"mod_message": "Something went wrong when moderating the message...",
+		"marker_creation": "Marker creation failed. Make sure you enabled VOD and that you're live",
 		"spotify": {
 			"api_rate": "[SPOTIFY] API rate limits exceeded",
 			"token_refresh": "[SPOTIFY] token refresh failed"

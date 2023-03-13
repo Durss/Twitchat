@@ -42,7 +42,10 @@ export const storeAuth = defineStore('auth', {
 			//Refresh token if going to expire within the next 5 minutes
 			if(twitchAuthResult) {
 				try {
-					const res			= await fetch(Config.instance.API_PATH+"/auth/twitch/refreshtoken?token="+twitchAuthResult.refresh_token, {method:"GET"});
+					const headers = {
+						'App-Version': import.meta.env.PACKAGE_VERSION,
+					};
+					const res			= await fetch(Config.instance.API_PATH+"/auth/twitch/refreshtoken?token="+twitchAuthResult.refresh_token, {method:"GET", headers});
 					twitchAuthResult	= await res.json();
 				}catch(error) {
 					if(callback) callback(false);
@@ -84,7 +87,10 @@ export const storeAuth = defineStore('auth', {
 				let twitchAuthResult:TwitchDataTypes.AuthTokenResult = storeValue? JSON.parse(storeValue) : undefined;
 				if(code) {
 					//Convert oAuth code to access_token
-					const res = await fetch(Config.instance.API_PATH+"/auth/twitch?code="+code, {method:"GET"});
+					const headers = {
+						'App-Version': import.meta.env.PACKAGE_VERSION,
+					};
+					const res = await fetch(Config.instance.API_PATH+"/auth/twitch?code="+code, {method:"GET", headers});
 					twitchAuthResult = await res.json();
 					twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 					DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
@@ -126,7 +132,10 @@ export const storeAuth = defineStore('auth', {
 				this.twitch.expires_in		= userRes.expires_in;
 
 				if(Config.instance.BETA_MODE) {
-					const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+userRes.user_id, {method:"GET"});
+					const headers = {
+						'App-Version': import.meta.env.PACKAGE_VERSION,
+					};
+					const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+userRes.user_id, {method:"GET", headers});
 					if(res.status != 200 || (await res.json()).data.beta !== true) {
 						if(cb) cb(false, true);
 						else router.push({name:"login", params:{betaReason:"true"}});

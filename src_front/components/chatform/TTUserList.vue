@@ -138,6 +138,7 @@ export default class TTUserList extends Vue {
 				headers: {
 					"Content-Type": "application/json",
 					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
+					'App-Version': import.meta.env.PACKAGE_VERSION,
 				},
 			})
 			const json = await res.json();

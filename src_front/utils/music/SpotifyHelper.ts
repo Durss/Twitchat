@@ -76,7 +76,10 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * Starts the aut flow
 	 */
 	public async startAuthFlow():Promise<void> {
-		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET"});
+		const headers = {
+			'App-Version': import.meta.env.PACKAGE_VERSION,
+		};
+		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
 		const json = await res.json();
 		const scopes = Config.instance.SPOTIFY_SCOPES.split(" ").join("%20");
 		console.log(scopes);
@@ -106,7 +109,10 @@ export default class SpotifyHelper extends EventDispatcher {
 			url += "&clientId="+encodeURIComponent(this.clientID);
 			url += "&clientSecret="+encodeURIComponent(this._clientSecret);
 		}
-		const res = await fetch(url, {method:"GET"});
+		const headers = {
+			'App-Version': import.meta.env.PACKAGE_VERSION,
+		};
+		const res = await fetch(url, {method:"GET", headers});
 		json = await res.json();
 		if(json.access_token) {
 			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));
@@ -129,7 +135,10 @@ export default class SpotifyHelper extends EventDispatcher {
 			url += "&clientId="+encodeURIComponent(this.clientID);
 			url += "&clientSecret="+encodeURIComponent(this._clientSecret);
 		}
-		const res = await fetch(url, {method:"GET"});
+		const headers = {
+			'App-Version': import.meta.env.PACKAGE_VERSION,
+		};
+		const res = await fetch(url, {method:"GET", headers});
 		json = await res.json();
 		if(json.access_token) {
 			json.refresh_token = this._token.refresh_token;//Keep refresh token
