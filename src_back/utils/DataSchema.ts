@@ -366,6 +366,7 @@ import Ajv from "ajv";
 		"p:displayTimeRelative": {type:"boolean"},
 		"p:dyslexicFont": {type:"boolean"},
 		"p:firstMessage": {type:"boolean"},
+		"p:firstUserBadge": {type:"boolean"},
 		"p:groupIdenticalMessage": {type:"boolean"},
 		"p:highlightMentions": {type:"boolean"},
 		"p:highlightMods": {type:"boolean"},
@@ -683,6 +684,7 @@ import Ajv from "ajv";
 						order: {type:"number", minimum:0, maximum:1000},
 						size: {type:"number", minimum:0, maximum:10},
 						whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
+						showPanelsHere: { type:"boolean" },
 						filters:{
 							type:"object",
 							additionalProperties: true,

@@ -63,6 +63,7 @@ export const storeParams = defineStore('params', {
 				order: 0,
 				size: 0.6,
 				liveLockCount: 3,
+				showPanelsHere:false,
 				commandsBlockList: [],
 				userBlockList: [],
 				whispersPermissions:{
@@ -124,6 +125,7 @@ export const storeParams = defineStore('params', {
 				order: 1,
 				size: 0.4,
 				liveLockCount: 3,
+				showPanelsHere:false,
 				commandsBlockList: [],
 				userBlockList: [],
 				whispersPermissions:{
@@ -235,6 +237,7 @@ export const storeParams = defineStore('params', {
 				order,
 				size:1/2,
 				liveLockCount:3,
+				showPanelsHere:false,
 				commandsBlockList:[],
 				userBlockList:[],
 				whispersPermissions:{

@@ -52,7 +52,8 @@ export namespace TwitchatDataTypes {
 		id:string;
 		order:number;
 		size:number;
-		liveLockCount:number
+		liveLockCount:number;
+		showPanelsHere:boolean;
 		filters:{[key in typeof MessageListFilterTypes[number]]:boolean};
 		//Specific sub filters for chat messages
 		messageFilters:ChatColumnsConfigMessageFilters;

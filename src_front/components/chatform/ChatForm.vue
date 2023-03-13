@@ -237,6 +237,7 @@ import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import TTSUtils from '@/utils/TTSUtils';
 import EventSub from '@/utils/twitch/EventSub';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import VoiceAction from '@/utils/voice/VoiceAction';
@@ -477,30 +478,36 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
-			this.$emit("liveStreams");
-			this.message = "";
+			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID])) {
+				this.$emit("liveStreams");
+				this.message = "";
+			}
 		}else
 
 		if(cmd == "/poll") {
 			if(event) event.preventDefault();//avoid auto submit of the opening form
-			//Open poll form
-			const title = params.join(" ");
-			if(title != "title") {
-				this.$store("main").tempStoreValue = title;
+			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS])) {
+				//Open poll form
+				const title = params.join(" ");
+				if(title != "title") {
+					this.$store("main").tempStoreValue = title;
+				}
+				this.$emit("poll");
+				this.message = "";
 			}
-			this.$emit("poll");
-			this.message = "";
 		}else
 
 		if(cmd == "/prediction") {
 			if(event) event.preventDefault();//avoid auto submit of the opening form
-			//Open prediction form
-			const title = params.join(" ");
-			if(title != "title") {
-				this.$store("main").tempStoreValue = title;
+			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
+				//Open prediction form
+				const title = params.join(" ");
+				if(title != "title") {
+					this.$store("main").tempStoreValue = title;
+				}
+				this.$emit("pred");
+				this.message = "";
 			}
-			this.$emit("pred");
-			this.message = "";
 		}else
 
 		if(cmd == "/raffle") {

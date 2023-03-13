@@ -7,9 +7,7 @@
 				:key="c.id"
 				:style="getColStyles(c)">
 					<div class="subHolder">
-						<GreetThem class="greetThem"
-						v-if="$store('params').features.firstMessage.value === true
-						&& ($store('params').chatColumnsConfig.length == 1 || index == 1)" />
+						<GreetThem class="greetThem" v-if="c.showPanelsHere" />
 	
 						<MessageList ref="messages" class="messages"
 							@showModal="(v:TwitchatDataTypes.ModalTypes) => currentModal = v"
@@ -791,22 +789,21 @@ export default class Chat extends Vue {
 		await this.$nextTick();
 		const cols = this.$store('params').chatColumnsConfig;
 		cols.sort((a,b)=> a.order - b.order);
-		let selectedCol!:HTMLDivElement;
+		let colId = "";
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
-			if(c.messageFilters.viewers !== true || c.filters.message !== true) {
-				const colHolders = this.$refs["column_"+c.id] as HTMLDivElement[];
-				if(!colHolders) continue; 
-				const colHolder = colHolders[0];
-				if(colHolder) {
-					selectedCol = colHolder;
-					break;
-				}
+			if(c.showPanelsHere == true) {
+				colId = c.id;
 			}
 		}
+		
+		const colHolders = this.$refs["column_"+colId] as HTMLDivElement[];
+		let selectedCol = colHolders? colHolders[0] : null;
 
 		if(!selectedCol) {
+			//Fallback to last col if none is selected
 			selectedCol = (this.$refs["column_"+cols[cols.length-1].id] as HTMLDivElement[])[0];
+			console.log("Fallback");
 		}
 		this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 	}

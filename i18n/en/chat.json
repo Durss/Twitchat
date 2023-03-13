@@ -58,6 +58,7 @@
 			"hide_users_placeholder": "type username...",
 			"scope_missing": "Needs missing authorization. Click to grant permission.",
 			"whispers_permissions": "Filter allowed users",
+			"show_panels_here":"Show forms and floatting windows on this column",
 			"message_types": {
 				"twitchat_ad": "Twitchat tips & tricks",
 				"ban": "Bans",

@@ -851,6 +851,8 @@ export default class DataStore {
 		if(cols) {
 			const index = cols.length == 1? 0 : 1;
 			cols[index].filters.stream_online = true;
+			//Set where to show "greet them" and forms
+			cols[index].showPanelsHere = true;
 		}
 	}
 

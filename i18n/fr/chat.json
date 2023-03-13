@@ -58,6 +58,7 @@
 			"hide_users_placeholder": "entrez un pseudo...",
 			"scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
 			"whispers_permissions": "Filtrer les personnes autorisées",
+			"show_panels_here":"Afficher les fenêtres flottantes et formulaires dans cette colonne",
 			"message_types": {
 				"twitchat_ad": "Astuces Twitchat",
 				"ban": "Bans",

@@ -29,10 +29,16 @@
 			<div class="content">
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
-					<button :aria-label="$t('chat.filters.closeBt_aria')" class="closeBt" @click="expand = false" v-if="!forceConfig">
+					<button :aria-label="$t('chat.filters.closeBt_aria')" class="closeBt" @click="closeFilters()" v-if="!forceConfig">
 						<img src="@/assets/icons/cross_white.svg" :alt="$t('chat.filters.closeBt_aria')" class="icon">
 					</button>
 				</div>
+
+				<ParamItem class="showPanelsHere"
+					:paramData="param_showPanelsHere"
+					clearToggle
+					@change="saveData()"
+					v-model="config.showPanelsHere" />
 				
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
 				
@@ -74,7 +80,7 @@
 							v-if="config.filters.message === true"
 							key="subfilter_blockUsers"
 							:childLevel="1"
-							:paramData="param_blockUsers"
+							:paramData="param_hideUsers"
 							clearToggle
 							@click.stop
 							@change="saveData()"
@@ -281,7 +287,8 @@ export default class MessageListFilter extends Vue {
 	public loadingPreview:boolean = false;
 	public missingScope:boolean = false;
 	public previewIndex:number = 0;
-	public param_blockUsers:TwitchatDataTypes.ParameterData = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide.svg", maxLength:1000000};
+	public param_hideUsers:TwitchatDataTypes.ParameterData = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide.svg", maxLength:1000000};
+	public param_showPanelsHere:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"chat.filters.show_panels_here"};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
@@ -565,6 +572,17 @@ export default class MessageListFilter extends Vue {
 			for (const key in this.config.messageFilters) {
 				const k = key as messageFilterTypes;
 				this.config.messageFilters[k] = this.toggleAll;
+			}
+		});
+
+		watch(()=>this.config.showPanelsHere, ()=> {
+			const cols = this.$store("params").chatColumnsConfig;
+			if(this.config.showPanelsHere) {
+				cols.forEach(v=> {
+					if(v.showPanelsHere && v.id != this.config.id) {
+						v.showPanelsHere = false;
+					}
+				})
 			}
 		});
 		
@@ -952,6 +970,14 @@ export default class MessageListFilter extends Vue {
 	}
 
 	/**
+	 * Called when opening filters
+	 */
+	public closeFilters(viaButton:boolean = false):void {
+		this.expand = false
+		this.checkForMissingScopes();
+	}
+
+	/**
 	 * Called when the mouse moves
 	 */
 	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
@@ -979,8 +1005,7 @@ export default class MessageListFilter extends Vue {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref && this.expand) {
-			this.expand = false;
-			this.checkForMissingScopes();
+			this.closeFilters();
 		}
 	}
 
@@ -1088,7 +1113,6 @@ export default class MessageListFilter extends Vue {
 					align-items: flex-start;
 					justify-content: center;
 					flex-wrap: wrap;
-					flex-grow: 0;
 					margin: unset;
 					.item {
 						margin: unset;
@@ -1243,6 +1267,7 @@ export default class MessageListFilter extends Vue {
 			flex-direction: column;
 			height: 100%;
 			margin: auto;
+			gap: .5em;
 
 			.head {
 				display: flex;
@@ -1268,25 +1293,27 @@ export default class MessageListFilter extends Vue {
 			}
 
 			.info {
-				margin: .5em 0;
 				text-align: center;
+			}
+			.showPanelsHere {
+				font-size: .8em;
+				display: block;
+				border-radius: .5em;
+				border: 1px solid @mainColor_light;
+				padding: .25em;
+				background-color: @mainColor_normal_light;
 			}
 			.presets {
 				display: flex;
+				gap: .25em;
 				flex-direction: row;
 				justify-content: space-around;
 				flex-wrap: wrap;
 				justify-content: center;
-				button {
-					margin-bottom: .5em;
-					&:not(:first-child) {
-						margin-left: .5em;
-					}
-				}
 			}
 
 			.paramsList {
-				flex-grow: 1;
+				flex: 1;
 				overflow: auto;
 				margin: auto;
 				padding: 0 .25em;
