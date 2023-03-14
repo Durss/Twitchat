@@ -6,7 +6,7 @@
 			"title": "Chat",
 			"startBt_aria": "Start raffle",
 			"description": "Randomly pick someone amongst users that sent a chat command",
-			"triggers":"Allow viewers to enter raffle from by subscribing, following, raiding and more from {LINK} thanks to the {ACTION} trigger action",
+			"triggers":"Allow viewers to enter raffle by subscribing, following, raiding and more from {LINK} thanks to the {ACTION} trigger action",
 			"triggers_link":"the triggers"
 		},
 		"subs": {

@@ -122,7 +122,7 @@
 			"user:read:blocked_users": "Lister les personnes bloquées",
 			"user:read:follows": "Lister les chaînes que vous suivez",
 			"moderator:read:followers": "Lister vos followers",
-			"user:read:subscriptions": "Vérifier si une personne est abonnée à vous",
+			"user:read:subscriptions": "Vérifier si une personne est abonnée à votre chaîne",
 			"user:manage:whispers": "Envoyer des chuchotements",
 			"user:manage:blocked_users": "Bloquer/débloquer des personnnes",
 			"channel:read:redemptions": "Lister vos récompenses de points de chaîne",

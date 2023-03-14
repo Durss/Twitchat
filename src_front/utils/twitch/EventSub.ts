@@ -212,42 +212,42 @@ export default class EventSub {
 			if(uid == myUID) {
 				//These events are available only by the broadcaster
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "1");
-				if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 				}
-				if(TwitchUtils.hasScope(TwitchScopes.MODERATE)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.MODERATE])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN, "1");
 				}
-				if(TwitchUtils.hasScope(TwitchScopes.READ_MODS_AND_BANNED)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_ADD, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_REMOVE, "1");
 				}
-				if(TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
 				}
-				if(TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1");
 				}
-				if(TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
 				}
-				if(TwitchUtils.hasScope(TwitchScopes.READ_HYPE_TRAIN)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
 				}
-				if(TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
 				}
-				if(TwitchUtils.hasScope(TwitchScopes.SHOUTOUT)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
 				}

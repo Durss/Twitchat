@@ -218,7 +218,7 @@ export default class UserCard extends Vue {
 	/**
 	 * Get if our followings can be listed
 	 */
-	public get canListFollowings():boolean{ return TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS); }
+	public get canListFollowings():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]); }
 
 	/**
 	 * Get the "read user's messages" label depedning on its current state
@@ -336,7 +336,7 @@ export default class UserCard extends Vue {
 				if(this.followInfo) {
 					this.followDate = Utils.formatDate(new Date(this.followInfo.followed_at));
 				}
-				if(TwitchUtils.hasScope([TwitchScopes.LIST_SUBSCRIBERS])) {
+				if(TwitchUtils.hasScopes([TwitchScopes.CHECK_SUBSCRIBER_STATE])) {
 					this.subState = await TwitchUtils.getSubscriptionState(u.id);
 				}
 				this.fakeModMessage = {

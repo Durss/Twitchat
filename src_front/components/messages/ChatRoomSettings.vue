@@ -64,7 +64,7 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 		const authUser = this.$store("auth")[this.messageData.platform].user;
 		//Go through getUserFrom() method so the channelInfo is properly initialised
 		const user = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, authUser.id, authUser.login, authUser.displayName)
-		this.isMod = user.channelInfo[this.messageData.channel_id].is_moderator && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
+		this.isMod = user.channelInfo[this.messageData.channel_id].is_moderator && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
 	}
 
 	public unset(prop:"sub"|"follow"|"delay"|"slow"|"emote"):void {

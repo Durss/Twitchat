@@ -246,7 +246,7 @@ export default class ParamItem extends Vue {
 		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
 		if(this.paramData.disabled || this.disabled == true
-		|| (this.paramData.twitch_scopes && !TwitchUtils.hasScope(this.paramData.twitch_scopes))) res.push("disabled");
+		|| (this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes))) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -350,7 +350,7 @@ export default class ParamItem extends Vue {
 	 */
 	public clickItem(event:MouseEvent):void {
 		if(this.paramData.twitch_scopes) {
-			if(TwitchUtils.hasScope(this.paramData.twitch_scopes)) return;
+			if(TwitchUtils.hasScopes(this.paramData.twitch_scopes)) return;
 			this.paramData.value = false;
 			this.errorLocal = false;
 			event.stopPropagation();

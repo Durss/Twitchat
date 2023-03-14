@@ -197,11 +197,11 @@ export default class ParamsEmergency extends Vue {
 		this.param_enable.value					= storeParams.enabled;
 		this.param_noTrigger.value				= storeParams.noTriggers;
 		this.param_autoTO.value					= storeParams.toUsers;
-		this.param_subsOnly.value				= storeParams.subOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
-		this.param_emotesOnly.value				= storeParams.emotesOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
-		this.param_followersOnly.value			= storeParams.followOnly && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
+		this.param_subsOnly.value				= storeParams.subOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+		this.param_emotesOnly.value				= storeParams.emotesOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+		this.param_followersOnly.value			= storeParams.followOnly && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
 		this.param_followersOnlyDuration.value	= storeParams.followOnlyDuration;
-		this.param_slowMode.value				= storeParams.slowMode && TwitchUtils.hasScope(TwitchScopes.SET_ROOM_SETTINGS);
+		this.param_slowMode.value				= storeParams.slowMode && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
 		this.param_slowModeDuration.value		= storeParams.slowModeDuration;
 		this.param_enableShieldMode.value		= storeParams.enableShieldMode;
 
@@ -218,8 +218,8 @@ export default class ParamsEmergency extends Vue {
 			this.param_autoEnableOnFollowbot.value = storeParams.autoEnableOnFollowbot;
 		}
 
-		this.param_autoEnableOnShieldmode.value = TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE);
-		if(storeParams.autoEnableOnShieldmode != undefined && TwitchUtils.hasScope(TwitchScopes.SHIELD_MODE)) {
+		this.param_autoEnableOnShieldmode.value = TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE]);
+		if(storeParams.autoEnableOnShieldmode != undefined && TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
 			this.param_autoEnableOnShieldmode.value = storeParams.autoEnableOnShieldmode;
 		}
 

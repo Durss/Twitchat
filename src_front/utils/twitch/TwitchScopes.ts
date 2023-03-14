@@ -19,8 +19,8 @@ export const TwitchScopes = {
 	SET_STREAM_INFOS: "channel:manage:broadcast",
 	READ_HYPE_TRAIN: "channel:read:hype_train",
 	START_COMMERCIAL: "channel:edit:commercial",
-	LIST_SUBSCRIBERS: "user:read:subscriptions",
-	LIST_EVENTSUB_SUBSCRIPTIONS: "channel:read:subscriptions",
+	CHECK_SUBSCRIBER_STATE: "user:read:subscriptions",
+	LIST_SUBSCRIBERS: "channel:read:subscriptions",
 	READ_CHEER: "bits:read",
 	LIST_FOLLOWINGS: "user:read:follows",
 	LIST_FOLLOWERS: "moderator:read:followers",
@@ -53,7 +53,7 @@ TwitchScope2Icon[TwitchScopes.START_RAID]			= "raid_purple.svg";
 TwitchScope2Icon[TwitchScopes.SET_STREAM_INFOS]		= "info_purple.svg";
 TwitchScope2Icon[TwitchScopes.READ_HYPE_TRAIN]		= "train_purple.svg";
 TwitchScope2Icon[TwitchScopes.START_COMMERCIAL]		= "coin_purple.svg";
-TwitchScope2Icon[TwitchScopes.LIST_SUBSCRIBERS]		= "sub_purple.svg";
+TwitchScope2Icon[TwitchScopes.CHECK_SUBSCRIBER_STATE]		= "sub_purple.svg";
 TwitchScope2Icon[TwitchScopes.READ_CHEER]			= "bits_purple.svg";
 TwitchScope2Icon[TwitchScopes.LIST_FOLLOWINGS]		= "user_purple.svg";
 TwitchScope2Icon[TwitchScopes.LIST_FOLLOWERS]		= "user_purple.svg";

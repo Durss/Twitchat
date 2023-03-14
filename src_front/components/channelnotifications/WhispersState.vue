@@ -72,7 +72,7 @@ export default class WhispersState extends Vue {
 	}
 
 	public get canAnswer():boolean {
-		return TwitchUtils.hasScope(TwitchScopes.WHISPER_WRITE);
+		return TwitchUtils.hasScopes([TwitchScopes.WHISPER_WRITE]);
 	}
  
 	public mounted():void {

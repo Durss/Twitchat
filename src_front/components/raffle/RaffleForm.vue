@@ -217,7 +217,7 @@ export default class RaffleForm extends Vue {
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private voiceController!:FormVoiceControllHelper;
 
-	public get hasRewards():boolean { return TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS) && this.reward_value.listValues!.length > -1; }
+	public get hasRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]) && this.reward_value.listValues!.length > -1; }
 	public get isAffiliate():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
 
 	/**
@@ -273,7 +273,7 @@ export default class RaffleForm extends Vue {
 		return [{tag:"CMD", descKey:"raffle.configs.message_cmd_placeholder", example:this.finalData.command}];
 	}
 
-	public get canListSubs():boolean { return TwitchUtils.hasScope(TwitchScopes.LIST_SUBSCRIBERS); }
+	public get canListSubs():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS]); }
 
 	public beforeMount(): void {
 		this.winnerPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
@@ -340,6 +340,7 @@ export default class RaffleForm extends Vue {
 
 		this.pickingEntry = true;
 		this.subs = await TwitchUtils.getSubsList();
+		console.log(this.subs);
 		this.pickingEntry = false;
 		// this.onValueChange();
 	}

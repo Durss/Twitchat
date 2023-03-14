@@ -396,7 +396,7 @@ export default class ChatMessage extends AbstractChatMessage {
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& TwitchUtils.hasScope(TwitchScopes.MODERATE)//If necessary scope is granted
+									&& TwitchUtils.hasScopes([TwitchScopes.MODERATE])//If necessary scope is granted
 									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
 									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id//if not sent by broadcaster
 									&& (

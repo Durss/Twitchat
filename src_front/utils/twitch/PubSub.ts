@@ -84,13 +84,13 @@ export default class PubSub extends EventDispatcher {
 				// "onsite-notifications."+myUID,
 				// "stream-change-v1."+myUID,
 			];
-			if(TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS)){
+			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])){
 				subscriptions.push("channel-points-channel-v1."+myUID);
 			}
-			if(TwitchUtils.hasScope(TwitchScopes.WHISPER_READ)){
+			if(TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ])){
 				subscriptions.push("whispers."+myUID);
 			}
-			if(TwitchUtils.hasScope(TwitchScopes.MODERATE)){
+			if(TwitchUtils.hasScopes([TwitchScopes.MODERATE])){
 				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
 				subscriptions.push("automod-queue."+myUID+"."+myUID);
 				subscriptions.push("low-trust-users."+myUID+"."+myUID);

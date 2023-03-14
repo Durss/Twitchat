@@ -612,7 +612,7 @@ export default class MessageListFilter extends Vue {
 	public async previewMessage(type:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
 		this.previewData = [];
 		this.loadingPreview = true;
-		this.missingScope = this.typeToScopes[type] && !TwitchUtils.hasScope(this.typeToScopes[type]);
+		this.missingScope = this.typeToScopes[type] && !TwitchUtils.hasScopes(this.typeToScopes[type]);
 		this.previewIndex ++;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.messagesCache[type];
@@ -717,7 +717,7 @@ export default class MessageListFilter extends Vue {
 		this.previewData = [];
 		this.loadingPreview = true;
 		this.previewIndex ++;
-		this.missingScope = this.messageKeyToScope != null && this.messageKeyToScope[type] && !TwitchUtils.hasScope(this.messageKeyToScope[type]);
+		this.missingScope = this.messageKeyToScope != null && this.messageKeyToScope[type] && !TwitchUtils.hasScopes(this.messageKeyToScope[type]);
 		this.mouseOverToggle = true;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.subMessagesCache[type];
@@ -1043,7 +1043,7 @@ export default class MessageListFilter extends Vue {
 		for (let i = 0; i < this.filters.length; i++) {
 			const f = this.filters[i];
 			//Keep missing scopes
-			if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScope(f.twitch_scopes)) {
+			if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScopes(f.twitch_scopes)) {
 				missingScopes = missingScopes.concat(f.twitch_scopes);
 				f.error = true;
 			}
@@ -1051,7 +1051,7 @@ export default class MessageListFilter extends Vue {
 		for (let i = 0; i < this.messageFilters.length; i++) {
 			const f = this.messageFilters[i];
 			//Keep missing scopes
-			if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScope(f.twitch_scopes)) {
+			if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScopes(f.twitch_scopes)) {
 				missingScopes = missingScopes.concat(f.twitch_scopes);
 				f.error = true;
 			}
@@ -1059,9 +1059,15 @@ export default class MessageListFilter extends Vue {
 
 		//Send a message on this column to warn for missing scopes
 		if(!this.forceConfig && missingScopes.length > 0) {
+			const prevMessage = this.$store("chat").messages.find(v=> v.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST);
+			if(prevMessage) {
+				//Remove previous scope request, if any, to avoid spamming feed
+				this.$store("chat").deleteMessageByID(prevMessage.id);
+			}
+
 			const dedupeDict:{[key:string]:boolean} = {};
 			this.$store("chat").addMessage({
-				type:"scope_request",
+				type:TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST,
 				date:Date.now(),
 				col:this.config.order,
 				id:Utils.getUUID(),

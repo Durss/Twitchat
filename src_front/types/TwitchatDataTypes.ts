@@ -379,7 +379,7 @@ export namespace TwitchatDataTypes {
 		needAdmin?:boolean;
 		needModerator?:boolean,
 		twitchCmd?:boolean,
-		twitch_scope?:TwitchScopesString,
+		twitch_scopes?:TwitchScopesString[],
 	}
 
 	/**
