@@ -324,6 +324,9 @@
 			"title": "Les filtres de cette colonne de message requièrent une autorisation manquante: | Les filtres de cette colonne de message requièrent des autorisations manquantes:",
 			"openFiltersBt": "Modifier les filtres",
 			"grantBt": "Ouvrir les autorisations"
+		},
+		"marker": {
+			"created": "Marqueur créé avec succès"
 		}
 	}
 }

@@ -1000,6 +1000,7 @@ export namespace TwitchatDataTypes {
 		COMMERCIAL_COMPLETE:"commercialComplete",//When a commercial completes
 		STREAM_INFO_UPDATE:"stream_info_update",//When updating a stream info (title, category,...)
 		CYPHER_KEY:"cypherKey",//When configuring/removing a cypher key (secret feature hehehe ( ͡~ ͜ʖ ͡°) )
+		MARKER_CREATED:"markerCreated",
 		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
 	} as const;
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
@@ -1058,6 +1059,7 @@ export namespace TwitchatDataTypes {
 									| MessageRaidStartData
 									| MessagePinData
 									| MessageScopeRequestData
+									| MessageMarkerCreated
 	;
 
 	/**
@@ -1716,6 +1718,13 @@ export namespace TwitchatDataTypes {
 	export interface MessageScopeRequestData extends AbstractTwitchatMessage {
 		type:"scope_request";
 		twitch_scopes:TwitchScopesString[];
+	}
+
+	/**
+	 * Represents a "marker created" message
+	 */
+	export interface MessageMarkerCreated extends MessageNoticeData {
+		user:TwitchatUser;//User moderated
 	}
 
 }

@@ -2141,8 +2141,9 @@ export default class TwitchUtils {
 	public static async createStreamMarker(comment:string = ""):Promise<boolean> {
 		if(!this.hasScope(TwitchScopes.SET_STREAM_INFOS)) return false;
 
+		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH+"streams/markers");
-		url.searchParams.append("user_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("user_id", user.id);
 		if(comment) url.searchParams.append("description", comment);
 		
 		const res = await fetch(url, {
@@ -2150,6 +2151,17 @@ export default class TwitchUtils {
 			headers:this.headers,
 		});
 		if(res.status == 200) {
+			const message:TwitchatDataTypes.MessageModerationAction = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:user.id,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.MARKER_CREATED,
+				user,
+				message:StoreProxy.i18n.t("chat.marker.created"),
+			};
+			StoreProxy.chat.addMessage(message);
 			return true;
 		}else if(res.status == 429) {
 			await this.onRateLimit(res.headers);
