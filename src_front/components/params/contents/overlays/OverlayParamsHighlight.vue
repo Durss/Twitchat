@@ -12,11 +12,11 @@
 					<div>{{ $t("overlay.highlight.css") }}</div>
 					<ul>
 						<li>#highlight_holder { ... }</li>
-						<li>
+						<li class="sublist">
 							<ul>
 								<li>#highlight_avatar { ... }</li>
 								<li>#highlight_infos { ... }</li>
-								<li>
+								<li class="sublist">
 									<ul>
 										<li>#highlight_login { ... }</li>
 										<li>#highlight_message { ... }</li>
@@ -38,7 +38,7 @@
 					</ToggleBlock>
 					<ul>
 						<li>#clip_holder { ... }</li>
-						<li>
+						<li class="sublist">
 							<ul>
 								<li>#clip_player { ... }</li>
 								<li>#clip_progressbar { ... }</li>
@@ -288,25 +288,10 @@ export default class OverlayParamsHighlight extends Vue {
 				font-size: .8em;
 				font-style: italic;
 			}
-
+			
 			ul {
+				.cssStructure();
 				margin-top: .5em;
-				li {
-					list-style-type: disc;
-					list-style-position: inside;
-					margin-bottom: .25em;
-					&:has(ul) {
-						list-style-type: none;
-					}
-					ul {
-						margin-top: 0;
-						display: inline;
-						list-style-type: none;
-						li {
-							margin-left: 1em;
-						}
-					}
-				}
 			}
 
 			img {

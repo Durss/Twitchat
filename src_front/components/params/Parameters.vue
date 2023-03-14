@@ -372,7 +372,7 @@ export default class Parameters extends Vue {
 			border-bottom: 1px solid @mainColor_normal;
 			padding-bottom: .5em;
 			&:has(.backBt) {
-				h1 {
+				.title {
 					padding-left: 0;
 				}
 			}

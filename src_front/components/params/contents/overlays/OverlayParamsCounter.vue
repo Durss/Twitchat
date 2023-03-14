@@ -19,7 +19,7 @@
 				<div class="head">{{$t('overlay.counters.css_example.simple')}}</div>
 				<ul>
 					<li>#holder { ... }</li>
-					<li>
+					<li class="sublist">
 						<ul>
 							<li>#name { ... }</li>
 							<li>#spacer { ... }</li>
@@ -31,12 +31,12 @@
 				<div class="head">{{$t('overlay.counters.css_example.progress')}}</div>
 				<ul>
 					<li>#holder { ... }</li>
-					<li>
+					<li class="sublist">
 						<ul>
 							<li>#fill { ... }</li>
 							<li>#name { ... }</li>
 							<li>#goal { ... }</li>
-							<li>
+							<li class="sublist">
 								<ul>
 									<li>#min { ... }</li>
 									<li>#value { ... }</li>
@@ -131,25 +131,10 @@ export default class OverlayParamsCounter extends Vue {
 			font-size: .75em;
 			align-self: center;
 		}
-
+		
 		ul {
-			margin-bottom: .5em;
-			li {
-				list-style-type: disc;
-				list-style-position: inside;
-				margin-bottom: .25em;
-				&:has(ul) {
-					list-style-type: none;
-				}
-				ul {
-					margin-top: 0;
-					display: inline;
-					list-style-type: none;
-					li {
-						margin-left: 1em;
-					}
-				}
-			}
+			.cssStructure();
+			margin-top: .5em;
 		}
 	}
 }

@@ -27,10 +27,8 @@
 		.chatMessageTime();
 	}
 
-	&:has(.time) {
-		.time + *{
-			margin-left: 3em;
-		}
+	.time + *{
+		margin-left: 3em;
 	}
 	
 	:deep( .emote ) {
@@ -229,7 +227,7 @@
 	:deep(.label) {
 		font-weight: normal;
 	}
-	&:has(.icon) {
+	.icon + * {
 		:deep(.label) {
 			margin-left: .5em;
 		}
@@ -402,6 +400,25 @@
 		}
 		&.warn>.label {
 			color: @mainColor_warn;
+		}
+	}
+}
+
+.cssStructure() {
+	li {
+		list-style-type: disc;
+		list-style-position: inside;
+		margin-bottom: .25em;
+		&.sublist {
+			list-style-type: none;
+		}
+		ul {
+			margin-top: 0;
+			display: inline;
+			list-style-type: none;
+			li {
+				margin-left: 1em;
+			}
 		}
 	}
 }

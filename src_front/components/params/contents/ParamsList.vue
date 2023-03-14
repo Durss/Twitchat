@@ -182,6 +182,7 @@ export default class ParamsList extends Vue {
 
 	public getClasses(p:TwitchatDataTypes.ParameterData, key:string):string[] {
 		let res = ["item", key];
+		if(p.icon) res.push("hasIcon");
 		if(this.isDisabled(p)) res.push("disabled");
 		return res;
 	}
@@ -234,7 +235,7 @@ export default class ParamsList extends Vue {
 			:deep(.content) {
 				align-items: center;
 			}
-			&:has(.icon)::before {
+			&.hasIcon::before {
 				content: "";
 				position: absolute;
 				left: 0;
