@@ -176,6 +176,7 @@ import Ajv from "ajv";
 											properties: {
 												mode: {type:"string", maxLength:20},
 												command: {type:"string", maxLength:100},
+												reward_id: {type:"string", maxLength:200},
 												duration_s: {type:"number", minimum:0, maximum:120 * 60000},
 												maxEntries: {type:"number", minimum:0, maximum:1000000},
 												created_at: {type:"number", minimum:0, maximum:9999999999999},
@@ -393,6 +394,7 @@ import Ajv from "ajv";
 		"p:translateNames": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
+		"p:highlight1stToday": {type:"boolean"},
 		"p:chatShoutout": {type:"boolean"},
 		"p:hideUsers": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:censorDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
