@@ -12,6 +12,7 @@ import Sponsor from '@/views/Sponsor.vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import PublicApiTest from '@/views/PublicApiTest.vue'
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -102,7 +103,7 @@ const routes: Array<RouteRecordRaw> = [
 			const sMusic = StoreProxy.music;
 			if(!Utils.getQueryParameterByName("error")) {
 				sMain.showParams = true;//Open params
-				sMain.tempStoreValue = "CONTENT:overlays";//Set default param tab to open
+				sMain.tempStoreValue = "CONTENT:"+TwitchatDataTypes.ParamsCategories.CONNEXIONS;//Set default param tab to open
 	
 				const params:SpotifyAuthResult = {
 					code:Utils.getQueryParameterByName("code") as string,
@@ -112,7 +113,7 @@ const routes: Array<RouteRecordRaw> = [
 			}else{
 				sMain.alertData = StoreProxy.i18n.t("music.spotify_refused");
 			}
-			return {name:"chat"}
+			return {name:"chat", query:{}};
 		},
 		meta: {
 			needAuth:true,

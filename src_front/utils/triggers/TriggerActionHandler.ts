@@ -17,6 +17,7 @@ import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import * as MathJS from 'mathjs'
 import { reactive } from "vue";
 import { TwitchScopes } from "../twitch/TwitchScopes";
+import WebsocketTrigger from "../WebsocketTrigger";
 
 /**
 * Created : 22/04/2022 
@@ -736,8 +737,28 @@ export default class TriggerActionHandler {
 								url.searchParams.append(tag.toLowerCase(), text);
 							}
 							try {
-								logStep.messages.push({date:Date.now(), value:"Calling: "+url});
+								logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});
 								await fetch(url, options);
+							}catch(error) {
+								console.error(error);
+							}
+						}else
+						
+						//Handle WS message trigger action
+						if(step.type == "ws") {
+							const json:{[key:string]:number|string|boolean} = {};
+							for (let i = 0; i < step.params.length; i++) {
+								const tag = step.params[i];
+								const value = await this.parseText(dynamicPlaceholders, triggerKey, message, "{"+tag+"}", subEvent);
+								json[tag] = value;
+							}
+							try {
+								if(WebsocketTrigger.instance.connected) {
+									logStep.messages.push({date:Date.now(), value:"Sending WS message: "+json});
+									WebsocketTrigger.instance.sendMessage(json);
+								}else{
+									logStep.messages.push({date:Date.now(), value:"Websocket not connected. Cannot send data: "+json});
+								}
 							}catch(error) {
 								console.error(error);
 							}

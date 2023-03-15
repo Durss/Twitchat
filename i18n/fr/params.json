@@ -79,6 +79,7 @@
 			"tts": "Text to speech",
 			"voice": "Assistant vocal",
 			"voicemod": "Voicemod",
+			"connexions": "Connexions",
 			"counters": "Compteurs"
 		},
 		"botMessages": {

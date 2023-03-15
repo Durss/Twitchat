@@ -15,6 +15,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionHighlightData
 								| TriggerActionTriggerData
 								| TriggerActionHTTPCallData
+								| TriggerActionWSData
 								| TriggerActionPollData
 								| TriggerActionPredictionData
 								| TriggerActionCountData
@@ -35,6 +36,7 @@ export type TriggerActionStringTypes = "obs"
 									| "highlight"
 									| "trigger"
 									| "http"
+									| "ws"
 									| "prediction"
 									| "poll"
 									| "count"
@@ -73,6 +75,12 @@ export interface TriggerLog {
 		data:TriggerActionTypes;
 		messages:{date:number, value:string}[];
 	}[]
+}
+
+export interface SocketParams {
+	ip:string;
+	port:string;
+	secured:boolean;
 }
 
 //Main trigger categories displayed on the parameter "Triggers" section
@@ -177,6 +185,11 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	url:string;
 	method:"GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
 	queryParams:string[];
+}
+
+export interface TriggerActionWSData extends TriggerActionData{
+	type:"ws";
+	params:string[];
 }
 
 export interface TriggerActionPollData extends TriggerActionData{

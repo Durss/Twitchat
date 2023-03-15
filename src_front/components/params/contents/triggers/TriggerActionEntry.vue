@@ -63,15 +63,15 @@
 					:title="$t('triggers.actions.common.action_highlight')"
 					:icon="$image('icons/highlight_purple.svg')" />
 				
-				<Button class="button beta" white @click="selectActionType('count')"
+				<Button class="button" white @click="selectActionType('count')"
 					:title="$t('triggers.actions.common.action_count')"
 					:icon="$image('icons/count_purple.svg')"/>
 				
-				<Button class="button beta" white @click="selectActionType('countget')"
+				<Button class="button" white @click="selectActionType('countget')"
 					:title="$t('triggers.actions.common.action_countget')"
 					:icon="$image('icons/count_placeholder_purple.svg')"/>
 				
-				<Button class="button beta" white @click="selectActionType('random')"
+				<Button class="button" white @click="selectActionType('random')"
 					:title="$t('triggers.actions.common.action_random')"
 					:icon="$image('icons/dice_purple.svg')"/>
 				
@@ -99,12 +99,17 @@
 					:disabled="!voicemodEnabled"
 					:data-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')"/>
 				
-				<Button class="button beta" white @click="selectActionType('trigger')"
+				<Button class="button" white @click="selectActionType('trigger')"
 					:title="$t('triggers.actions.common.action_trigger')"
 					:icon="$image('icons/broadcast_purple.svg')" />
 				
 				<Button class="button" white @click="selectActionType('http')"
 					:title="$t('triggers.actions.common.action_http')"
+					:icon="$image('icons/url_purple.svg')"/>
+				
+				<Button class="button" white @click.capture="selectActionType('ws')"
+					:title="$t('triggers.actions.common.action_ws')"
+					:disabled="!wsConnected"
 					:icon="$image('icons/url_purple.svg')"/>
 			</div>
 
@@ -116,6 +121,7 @@
 			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :event="event" />
 			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
 			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :event="event" />
+			<TriggerActionWS @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='ws'" :action="action" :event="event" />
 			<TriggerActionCountEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='count'" :action="action" :event="event" :triggerData="triggerData" :triggerKey="triggerKey" />
 			<TriggerActionCountGetEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='countget'" :action="action" />
 			<TriggerActionRandomEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='random'" :action="action" />
@@ -161,6 +167,9 @@ import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry.vue';
+import TriggerActionWS from './entries/TriggerActionWS.vue';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import TTSUtils from '@/utils/TTSUtils';
 
 @Component({
 	components:{
@@ -171,6 +180,7 @@ import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry
 		RaffleForm,
 		ToggleBlock,
 		PredictionForm,
+		TriggerActionWS,
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,
@@ -210,6 +220,7 @@ export default class TriggerActionEntry extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
+	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
 	public get hasChannelPoints():boolean {
@@ -269,6 +280,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "trigger") icons.push( 'broadcast' );
 		if(this.action.type == "highlight") icons.push( 'highlight' );
 		if(this.action.type == "http") icons.push( 'url' );
+		if(this.action.type == "ws") icons.push( 'url' );
 		if(this.action.type == "poll") icons.push( 'poll' );
 		if(this.action.type == "prediction") icons.push( 'prediction' );
 		if(this.action.type == "count") icons.push( 'count' );
@@ -336,7 +348,7 @@ export default class TriggerActionEntry extends Vue {
 			}
 			case "music": {
 				if(!this.musicServiceConfigured) {
-					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
+					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.CONNEXIONS);
 					return;
 				}break
 			}
@@ -348,7 +360,19 @@ export default class TriggerActionEntry extends Vue {
 			}
 			case "obs": {
 				if(!this.obsConnected) {
-					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OBS);
+					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.CONNEXIONS);
+					return;
+				}break
+			}
+			case "ws": {
+				if(!this.wsConnected) {
+					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.CONNEXIONS);
+					return;
+				}break
+			}
+			case "tts": {
+				if(!this.$store('tts').params.enabled) {
+					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.TTS);
 					return;
 				}break
 			}

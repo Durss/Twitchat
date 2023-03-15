@@ -1,6 +1,6 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, type SocketParams } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
@@ -17,6 +17,7 @@ import Utils from '@/utils/Utils';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodEvent from '@/utils/voice/VoicemodEvent';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
@@ -427,6 +428,19 @@ export const storeMain = defineStore("main", {
 				if(sVoice.voicemodParams.enabled) {
 					VoicemodWebSocket.instance.connect();
 				}
+			}
+
+			//Init trigger websocket
+			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
+			if(triggerSocketParams) {
+				let params = JSON.parse(triggerSocketParams) as SocketParams;
+				let url = params.secured === true? "wss://" : "ws://";
+				url += params.ip;
+				if(params.port) url += ":"+params.port;
+		
+				WebsocketTrigger.instance.connect(url).then(()=> {
+				}).catch(()=> {
+				});
 			}
 
 			//Init automod

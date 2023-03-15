@@ -75,13 +75,6 @@
 			"triggerBt":"triggers"
 		},
 
-		"spotify":{
-			"refused":"Sadly, <strong>Spotify is refusing</strong> Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.",
-			"how_to":"To use it you'll have to {URL} and fill-in the values bellow:",
-			"how_to_read":"READ THIS TUTORIAL",
-			"authBt":"Authenticate"
-		},
-
 		"deezer":{
 			"shit_api":"Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.",
 			"authBt":"Authenticate",

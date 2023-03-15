@@ -10,12 +10,6 @@
 						<strong>OBS v28+</strong>
 					</template>
 				</i18n-t>
-				<br>
-				<i18n-t scope="global"  tag="i" keypath="obs.install_option">
-					<template #PLUGIN_LINK>
-						<a :href="obswsInstaller" target="_blank">{{ $t("obs.install_plugin_name") }}</a>
-					</template>
-				</i18n-t>
 			</p>
 		</div>
 

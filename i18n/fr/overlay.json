@@ -75,13 +75,6 @@
 			"triggerBt":"triggers"
 		},
 
-		"spotify":{
-			"refused":"Malheureusement, <strong>Spotify refuse</strong> à Twitchat d'utiliser leur API.",
-			"how_to":"Pour lier Twitchat à Spotify, {URL} et remplis les valeurs ci-dessous :",
-			"how_to_read":"LIS CE TUTORIEL",
-			"authBt":"Connexion"
-		},
-
 		"deezer":{
 			"shit_api":"L'API Deezer étant catastrophique, les risques de malfonctions existent. Vous devrez de plus vous reconnecter à chaque lancement de Twitchat.",
 			"authBt":"Connexion",

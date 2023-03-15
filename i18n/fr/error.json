@@ -31,6 +31,7 @@
 		"room_settings_update": "La mises à jour des restrictions de tchat a échoué",
 		"mod_message": "La modération du message a échoué...",
 		"marker_creation": "La création du marqueur a échoué. Assurez-vous d'avoir activé la VOD et d'être en live",
+		"trigger_socket": "La connexion au serveur socket a échoué",
 		"spotify": {
 			"api_rate": "[SPOTIFY] Maximum de requête atteint",
 			"token_refresh": "[SPOTIFY] Mise à jour du token échouée"

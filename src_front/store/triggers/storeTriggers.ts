@@ -9,7 +9,6 @@ import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../Stor
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
 		triggers: {},
-		trigger_queues: [],
 	} as ITriggersState),
 
 
@@ -53,6 +52,7 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "highlight") return true;
 					if(v.type == "trigger") return true;
 					if(v.type == "http") return true;
+					if(v.type == "ws") return true;
 					if(v.type == "poll") return true;
 					if(v.type == "prediction") return true;
 					if(v.type == "count") return true;
@@ -128,6 +128,7 @@ export const storeTriggers = defineStore('triggers', {
 				DataStore.set(DataStore.TRIGGERS, this.triggers);
 			}
 		},
+
 	} as ITriggersActions
 	& ThisType<ITriggersActions
 		& UnwrapRef<ITriggersState>

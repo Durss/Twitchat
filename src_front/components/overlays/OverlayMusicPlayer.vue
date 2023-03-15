@@ -62,8 +62,8 @@ export default class OverlayMusicPlayer extends Vue {
 		})
 	public keepEmbedTransitions!:boolean;
 	@Prop
-	@Prop
 	public playbackPos!:number;
+	@Prop
 	public staticTrackData!:TwitchatDataTypes.MusicTrackData;
 	
 	public artist = "";

@@ -29,6 +29,7 @@ export namespace TwitchatDataTypes {
 		AUTOMOD: "automod",
 		VOICEMOD: "voicemod",
 		AD: "ad",
+		CONNEXIONS: "connexions",
 	} as const;
 	export type ParamsContentStringType = typeof ParamsCategories[keyof typeof ParamsCategories];
 

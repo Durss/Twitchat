@@ -56,6 +56,7 @@ export default class DataStore {
 	public static COUNTERS:string = "counters";
 	public static LANGUAGE:string = "lang";
 	public static CHAT_COL_CTA:string = "chatColCTA";
+	public static WEBSOCKET_TRIGGER:string = "websocketTrigger";
 	/**
 	 * @deprecated Only here for typings on data migration
 	 */

@@ -740,6 +740,16 @@ import Ajv from "ajv";
 				}
 			]
 		},
+
+		websocketTrigger: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"string", maxLength:10},
+				secured: {type:"boolean"},
+			}
+		},
 	}
 }
 

@@ -2,9 +2,7 @@
 	"streamdeck":{
 		"header":"A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button",
 		"step_1":{
-			"install":"This plugin needs {OBS_VERSION}",
-			"install_option":"(or OBS 27 with {PLUGIN_LINK} installed)",
-			"install_plugin_name":"OBS-websocket plugin V5"
+			"install":"This plugin needs {OBS_VERSION}"
 		},
 		
 		"step_2":"Download Stream Deck™ plugin",
