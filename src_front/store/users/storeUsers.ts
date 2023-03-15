@@ -389,7 +389,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async initBlockedUsers():Promise<void> {
-			if(!TwitchUtils.hasScope(TwitchScopes.LIST_BLOCKED)) return;
+			if(!TwitchUtils.hasScopes([TwitchScopes.LIST_BLOCKED])) return;
 
 			//Get list of all blocked users and build a hashmap out of it
 			try {
@@ -582,7 +582,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async loadMyFollowings():Promise<void> {
-			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return;
+			if(!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
 			
 			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
 			const hashmap:{[key:string]:boolean} = {};
@@ -591,7 +591,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async loadMyFollowers():Promise<void> {
-			if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) return;
+			if(!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) return;
 
 			let parseOffset = 0;
 			const hashmap:{[key:string]:number} = {};
@@ -619,7 +619,7 @@ export const storeUsers = defineStore('users', {
 			let streamCategory = "";
 			
 			if(user.platform == "twitch") {
-				if(TwitchUtils.hasScope(TwitchScopes.SHOUTOUT)) {
+				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
 					await TwitchUtils.sendShoutout(channelId, user);
 				}else{
 					StoreProxy.auth.requestTwitchScopes([TwitchScopes.SHOUTOUT]);

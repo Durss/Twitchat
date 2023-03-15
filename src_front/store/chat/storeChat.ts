@@ -155,7 +155,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.raid"),
 				needModerator:true,
 				twitchCmd:true,
-				twitch_scope:TwitchScopes.START_RAID,
+				twitch_scopes:[TwitchScopes.START_RAID],
 			},
 			{
 				id:"shoutout",
@@ -164,7 +164,7 @@ export const storeChat = defineStore('chat', {
 				alias:"/so {user}",
 				needModerator:true,
 				twitchCmd:true,
-				twitch_scope:TwitchScopes.SHOUTOUT,
+				twitch_scopes:[TwitchScopes.SHOUTOUT],
 			},
 			{
 				id:"poll",
@@ -173,7 +173,7 @@ export const storeChat = defineStore('chat', {
 				needChannelPoints:true,
 				needModerator:true,
 				twitchCmd:true,
-				twitch_scope:TwitchScopes.MANAGE_POLLS,
+				twitch_scopes:[TwitchScopes.MANAGE_POLLS],
 			},
 			{
 				id:"chatsugg",
@@ -187,7 +187,7 @@ export const storeChat = defineStore('chat', {
 				needChannelPoints:true,
 				needModerator:true,
 				twitchCmd:true,
-				twitch_scope:TwitchScopes.MANAGE_PREDICTIONS,
+				twitch_scopes:[TwitchScopes.MANAGE_PREDICTIONS],
 			},
 			{
 				id:"tts",
@@ -212,7 +212,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.announce"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SEND_ANNOUNCE,
+				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
 			},
 			{
 				id:"announceblue",
@@ -220,7 +220,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.announceblue"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SEND_ANNOUNCE,
+				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
 			},
 			{
 				id:"announcegreen",
@@ -228,7 +228,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.announcegreen"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SEND_ANNOUNCE,
+				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
 			},
 			{
 				id:"announceorange",
@@ -236,7 +236,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.announceorange"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SEND_ANNOUNCE,
+				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
 			},
 			{
 				id:"announcepurple",
@@ -244,7 +244,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.announcepurple"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SEND_ANNOUNCE,
+				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
 			},
 			{
 				id:"commercial",
@@ -253,7 +253,7 @@ export const storeChat = defineStore('chat', {
 				twitchCmd:true,
 				needChannelPoints:false,
 				needModerator:true,
-				twitch_scope:TwitchScopes.START_COMMERCIAL,
+				twitch_scopes:[TwitchScopes.START_COMMERCIAL],
 			},
 			{
 				id:"to",
@@ -261,7 +261,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.to"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_BANNED,
+				twitch_scopes:[TwitchScopes.EDIT_BANNED],
 			},
 			{
 				id:"ban",
@@ -269,7 +269,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.ban"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_BANNED,
+				twitch_scopes:[TwitchScopes.EDIT_BANNED],
 			},
 			{
 				id:"unban",
@@ -277,7 +277,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.unban"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_BANNED,
+				twitch_scopes:[TwitchScopes.EDIT_BANNED],
 			},
 			{
 				id:"block",
@@ -285,7 +285,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.block"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_BLOCKED,
+				twitch_scopes:[TwitchScopes.EDIT_BLOCKED],
 			},
 			{
 				id:"unblock",
@@ -293,7 +293,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.unblock"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_BLOCKED,
+				twitch_scopes:[TwitchScopes.EDIT_BLOCKED],
 			},
 			{
 				id:"emoteonly",
@@ -301,7 +301,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.emoteonly"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_ROOM_SETTINGS,
+				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
 			},
 			{
 				id:"emoteonlyoff",
@@ -309,7 +309,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.emoteonlyoff"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_ROOM_SETTINGS,
+				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
 			},
 			{
 				id:"followers",
@@ -317,7 +317,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.followers"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_ROOM_SETTINGS,
+				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
 			},
 			{
 				id:"followersoff",
@@ -325,7 +325,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.followersoff"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_ROOM_SETTINGS,
+				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
 			},
 			{
 				id:"slow",
@@ -333,7 +333,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.slow"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_ROOM_SETTINGS,
+				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
 			},
 			{
 				id:"slowoff",
@@ -341,7 +341,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.slowoff"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_ROOM_SETTINGS,
+				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
 			},
 			{
 				id:"subscribers",
@@ -349,7 +349,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.subscribers"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_ROOM_SETTINGS,
+				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
 			},
 			{
 				id:"subscribersoff",
@@ -357,7 +357,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.subscribersoff"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_ROOM_SETTINGS,
+				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
 			},
 			{
 				id:"whisper",
@@ -365,7 +365,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.whisper"),
 				alias:"/whisper {recipient} {message}",
 				twitchCmd:true,
-				twitch_scope:TwitchScopes.WHISPER_WRITE,
+				twitch_scopes:[TwitchScopes.WHISPER_WRITE, TwitchScopes.WHISPER_READ],
 			},
 			{
 				id:"shieldOn",
@@ -373,7 +373,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.shieldOn"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SHIELD_MODE,
+				twitch_scopes:[TwitchScopes.SHIELD_MODE],
 			},
 			{
 				id:"shieldOff",
@@ -381,7 +381,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.shieldOff"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SHIELD_MODE,
+				twitch_scopes:[TwitchScopes.SHIELD_MODE],
 			},
 			{
 				id:"mod",
@@ -389,7 +389,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.mod"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_MODS,
+				twitch_scopes:[TwitchScopes.EDIT_MODS],
 			},
 			{
 				id:"unmod",
@@ -397,7 +397,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.unmod"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_MODS,
+				twitch_scopes:[TwitchScopes.EDIT_MODS],
 			},
 			{
 				id:"vip",
@@ -405,7 +405,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.vip"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_VIPS,
+				twitch_scopes:[TwitchScopes.EDIT_VIPS],
 			},
 			{
 				id:"unvip",
@@ -413,7 +413,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.unvip"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.EDIT_VIPS,
+				twitch_scopes:[TwitchScopes.EDIT_VIPS],
 			},
 			{
 				id:"clip",
@@ -421,7 +421,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.clips"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.CLIPS,
+				twitch_scopes:[TwitchScopes.CLIPS],
 			},
 			{
 				id:"marker",
@@ -429,7 +429,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.marker"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.SET_STREAM_INFOS,
+				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
 			},
 			{
 				id:"betaadd",
@@ -489,7 +489,7 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.clear"),
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scope:TwitchScopes.DELETE_MESSAGES,
+				twitch_scopes:[TwitchScopes.DELETE_MESSAGES],
 			},
 		],
 
@@ -605,6 +605,12 @@ export const storeChat = defineStore('chat', {
 						
 					}else {
 						this.flagMessageAsFirstToday(message, message.user);
+
+						//Check if it's an "ad" message
+						if(message.user.id == sAuth.twitch.user.id
+						&& this.botMessages.twitchatAd.message.indexOf(message.message) > -1) {
+							message.is_ad = true;
+						}
 					}
 					
 					//Check if the message contains a mention

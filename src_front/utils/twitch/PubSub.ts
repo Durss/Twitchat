@@ -84,13 +84,13 @@ export default class PubSub extends EventDispatcher {
 				// "onsite-notifications."+myUID,
 				// "stream-change-v1."+myUID,
 			];
-			if(TwitchUtils.hasScope(TwitchScopes.LIST_REWARDS)){
+			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])){
 				subscriptions.push("channel-points-channel-v1."+myUID);
 			}
-			if(TwitchUtils.hasScope(TwitchScopes.WHISPER_READ)){
+			if(TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ])){
 				subscriptions.push("whispers."+myUID);
 			}
-			if(TwitchUtils.hasScope(TwitchScopes.MODERATE)){
+			if(TwitchUtils.hasScopes([TwitchScopes.MODERATE])){
 				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
 				subscriptions.push("automod-queue."+myUID+"."+myUID);
 				subscriptions.push("low-trust-users."+myUID+"."+myUID);
@@ -1391,6 +1391,7 @@ namespace PubsubJSON {
 	export const ChannelPointChallengeContribution = {"type":"community-goal-contribution","data":{"timestamp":"2022-09-18T19:09:02.474511122Z","contribution":{"channel_id":"29961813","goal":{"id":"b34f2f91-89d7-4342-b221-b1cbc4e0d5c6","channel_id":"29961813","title":"My awesome challenge","description":"This is the channel point challenge description","goal_type":"CREATOR","is_in_stock":true,"goal_amount":100000,"points_contributed":10800,"small_contribution":250,"per_stream_maximum_user_contribution":2000,"status":"STARTED","duration_days":30,"started_at":"2022-09-16T17:00:49.967911644Z","ended_at":"2022-10-16T17:00:49.967911644Z","background_color":"#FF38DB","default_image":{"url_1x":"https://static-cdn.jtvnw.net/community-goal-images/default-1.png","url_2x":"https://static-cdn.jtvnw.net/community-goal-images/default-2.png","url_4x":"https://static-cdn.jtvnw.net/community-goal-images/default-4.png"},"image":{"url_1x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-1.png","url_2x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-2.png","url_4x":"https://static-cdn.jtvnw.net/community-goal-images/88616177/b34f2f91-89d7-4342-b221-b1cbc4e0d5c6/5a16c7dd-5060-4b2c-8e22-429a08f7f867/goal-4.png"}},"user":{"id":"29961813","login":"durss","display_name":"durss"},"amount":800,"stream_contribution":800,"total_contribution":800}}};
 	export const ExtensionMessage = {"type":"extension_message","data":{"id":"08ed2f63-3c3b-42f4-8c9b-a8cdd62fa241","sent_at":"2022-09-28T18:29:25.593540319Z","content":{"text":"DurssBot SLAPPED A What the Duck? STICKER FOR 0 Bits","fragments":[{"text":"DurssBot SLAPPED A What the Duck? STICKER FOR 0 Bits"}]},"sender":{"extension_client_id":"5tbyqce941455yffg7fzg36tp6or8p","extension_version":"4.3.4","display_name":"Stream Stickers","chat_color":"#5f9ea0","badges":[{"id":"extension","version":"1"}]}}};
 	export const FollowEvent = {"display_name":"DurssBot","username":"durssbot","user_id":"647389082"};
+	export const RaiderHighlight = {"type":"chat-highlight","data":{"channel_id":"43809079","user_id":"45993015","msg_id":"5eb568d3-ae89-4ef1-bb90-51a1873c803c","highlights":[{"type":"raider","source_channel_id":"45993015","seconds_since_event":625}],"chat_sent_at":"2023-03-14T22:49:54.264262873Z","highlights_sent_at":"2023-03-14T22:49:54.396583087Z"}};
 
 	export const RealHypeTrainData =[
 		// {"type":"MESSAGE","data":{"topic":"hype-train-events-v1.180847952","message":"{\"type\":\"hype-train-approaching\",\"data\":{\"channel_id\":\"402890635\",\"goal\":3,\"events_remaining_durations\":{\"1\":261},\"level_one_rewards\":[{\"type\":\"EMOTE\",\"id\":\"emotesv2_3114c3d12dc44f53810140f632128b54\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeSleep\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_7d457ecda087479f98501f80e23b5a04\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypePat\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e7a6e7e24a844e709c4d93c0845422e1\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLUL\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_e2a11d74a4824cbf9a8b28079e5e67dd\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeCool\"},{\"type\":\"EMOTE\",\"id\":\"emotesv2_036fd741be4141198999b2ca4300668e\",\"group_id\":\"\",\"reward_level\":0,\"set_id\":\"1a8f0108-5aee-4125-8067-d39e983e934b\",\"token\":\"HypeLove1\"}],\"creator_color\":\"00DADA\",\"participants\":[\"117971644\",\"661245368\"],\"approaching_hype_train_id\":\"50ced304-5348-4481-b4b2-de74d7203677\",\"is_boost_train\":false}}"}},

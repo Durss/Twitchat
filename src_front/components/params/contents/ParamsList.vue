@@ -177,11 +177,12 @@ export default class ParamsList extends Vue {
 
 	public isMissingScope(p:TwitchatDataTypes.ParameterData):boolean {
 		if(!p.twitch_scopes) return false;
-		return !TwitchUtils.hasScope(p.twitch_scopes);
+		return !TwitchUtils.hasScopes(p.twitch_scopes);
 	}
 
 	public getClasses(p:TwitchatDataTypes.ParameterData, key:string):string[] {
 		let res = ["item", key];
+		if(p.icon) res.push("hasIcon");
 		if(this.isDisabled(p)) res.push("disabled");
 		return res;
 	}
@@ -234,7 +235,7 @@ export default class ParamsList extends Vue {
 			:deep(.content) {
 				align-items: center;
 			}
-			&:has(.icon)::before {
+			&.hasIcon::before {
 				content: "";
 				position: absolute;
 				left: 0;

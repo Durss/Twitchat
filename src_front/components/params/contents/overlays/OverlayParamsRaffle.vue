@@ -89,7 +89,7 @@ export default class OverlayParamsRaffle extends Vue {
 	public async testWheel():Promise<void> {
 		this.loading = true;
 		let items:TwitchatDataTypes.EntryItem[] = [];
-		if(TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWERS)) {
+		if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			const followers = await TwitchUtils.getFollowers(null, 500);
 			items = followers.map(v=> {
 				return {id:v.user_id, label:v.user_name, data:v};
@@ -138,23 +138,8 @@ export default class OverlayParamsRaffle extends Vue {
 			}
 
 			ul {
+				.cssStructure();
 				margin-top: .5em;
-				li {
-					list-style-type: disc;
-					list-style-position: inside;
-					margin-bottom: .25em;
-					&:has(ul) {
-						list-style-type: none;
-					}
-					ul {
-						margin-top: 0;
-						display: inline;
-						list-style-type: none;
-						li {
-							margin-left: 1em;
-						}
-					}
-				}
 			}
 		}
 	}

@@ -1111,7 +1111,7 @@ export default class TriggerActionHandler {
 	private async checkLiveFollowings(notify:boolean = true):Promise<void> {
 		//User requested not to be alerted, stop there
 		if(StoreProxy.params.features.liveAlerts.value !== true) return;
-		if(!TwitchUtils.hasScope(TwitchScopes.LIST_FOLLOWINGS)) return;
+		if(!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
 
 		const channels = await TwitchUtils.getActiveFollowedStreams();
 		const liveChannels:{[key:string]:TwitchatDataTypes.StreamInfo} = {};

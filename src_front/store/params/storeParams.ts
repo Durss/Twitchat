@@ -42,7 +42,7 @@ export const storeParams = defineStore('params', {
 			highlightSubs: 				{save:true, type:"toggle", value:false, labelKey:"params.highlightSubs", id:11, icon:"sub_purple.svg"},
 			highlightPartners: 			{save:true, type:"toggle", value:false, labelKey:"params.highlightPartners", id:26, icon:"partner_purple.svg"},
 			highlightMentions: 			{save:true, type:"toggle", value:true, labelKey:"params.highlightMentions", id:1, icon:"broadcaster_purple.svg"},
-			highlightNonFollowers: 		{save:true, type:"toggle", value:false, labelKey:"params.highlightNonFollowers", id:16, icon:"unfollow_purple.svg", example:"nofollow.png"},
+			highlightNonFollowers: 		{save:true, type:"toggle", value:false, labelKey:"params.highlightNonFollowers", id:16, icon:"unfollow_purple.svg", example:"nofollow.png", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS]},
 			translateNames:				{save:true, type:"toggle", value:true, labelKey:"params.translateNames", id:22, icon:"translate_purple.svg", example:"translate.png"},
 			showRewardsInfos: 			{save:true, type:"toggle", value:false, labelKey:"params.showRewardsInfos", id:23, icon:"channelPoints_purple.svg", example:"rewardDetails.png"},
 			showViewersCount: 			{save:true, type:"toggle", value:true, labelKey:"params.showViewersCount", id:17, icon:"user_purple.svg"},

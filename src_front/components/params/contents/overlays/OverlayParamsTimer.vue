@@ -13,7 +13,7 @@
 					<div>{{ $t("overlay.timer.css") }}</div>
 					<ul>
 						<li>#timer { ... }</li>
-						<li>
+						<li class="sublist">
 							<ul>
 								<li>#timer_icon { ... }</li>
 								<li>#timer_label { ... }</li>
@@ -23,7 +23,7 @@
 					</ul>
 					<ul>
 						<li>#countdown { ... }</li>
-						<li>
+						<li class="sublist">
 							<ul>
 								<li>#countdown_icon { ... }</li>
 								<li>#countdown_label { ... }</li>
@@ -83,25 +83,9 @@ export default class OverlayParamsTimer extends Vue {
 			}
 		}
 
-
 		ul {
+			.cssStructure();
 			margin-top: .5em;
-			li {
-				list-style-type: disc;
-				list-style-position: inside;
-				margin-bottom: .25em;
-				&:has(ul) {
-					list-style-type: none;
-				}
-				ul {
-					margin-top: 0;
-					display: inline;
-					list-style-type: none;
-					li {
-						margin-left: 1em;
-					}
-				}
-			}
 		}
 	}
 	

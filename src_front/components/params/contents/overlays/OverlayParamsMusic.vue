@@ -114,12 +114,10 @@ export default class OverlayParamsMusic extends Vue {
 .overlayparamsmusic{
 	display: flex;
 	flex-direction: column;
+	
 	ul {
+		.cssStructure();
 		margin-top: .5em;
-		li {
-			list-style-type: disc;
-			list-style-position: inside;
-		}
 	}
 
 	.params {

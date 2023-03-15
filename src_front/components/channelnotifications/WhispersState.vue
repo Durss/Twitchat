@@ -72,7 +72,7 @@ export default class WhispersState extends Vue {
 	}
 
 	public get canAnswer():boolean {
-		return TwitchUtils.hasScope(TwitchScopes.WHISPER_WRITE);
+		return TwitchUtils.hasScopes([TwitchScopes.WHISPER_WRITE]);
 	}
  
 	public mounted():void {
@@ -229,10 +229,8 @@ export default class WhispersState extends Vue {
 					background-color: rgba(255, 255, 255, .2);
 					font-size: var(--messageSize);
 
-					&:has(.time) {
-						.time + *{
-							padding-left: 3em;
-						}
+					.time + *{
+						padding-left: 3em;
 					}
 					
 					.text {
@@ -245,11 +243,9 @@ export default class WhispersState extends Vue {
 						margin-right: 0;
 						background-color: rgba(0, 0, 0, .2);
 
-						&:has(.time) {
-							.time + *{
-								padding-left: 0;
-								padding-right: 3em;
-							}
+						.time + *{
+							padding-left: 0;
+							padding-right: 3em;
 						}
 					}
 		

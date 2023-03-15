@@ -210,8 +210,8 @@ export default class TriggerActionEntry extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
-	public get canCreatePoll():boolean { return TwitchUtils.hasScope(TwitchScopes.MANAGE_POLLS); }
-	public get canCreatePrediction():boolean { return TwitchUtils.hasScope(TwitchScopes.MANAGE_PREDICTIONS); }
+	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
+	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
 	public get hasChannelPoints():boolean {
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}

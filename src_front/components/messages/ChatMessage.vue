@@ -131,6 +131,11 @@
 				/>
 			</div>
 		</div>
+
+		<div class="ctas" v-if="isAd">
+			<Button :title="$t('chat.message.disable_ad')" @click="disableAd()" :icon="$image('icons/cross_white.svg')" />
+			<Button :title="$t('chat.message.customize_ad')" @click="openAdParams()" :icon="$image('icons/edit.svg')" />
+		</div>
 	</div>
 
 </template>
@@ -183,6 +188,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
 	public infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
+	public isAd:boolean = false;
 	public isAnnouncement:boolean = false;
 	public isPresentation:boolean = false;
 	public isReturning:boolean = false;
@@ -379,6 +385,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.firstTime = mess.twitch_isFirstMessage === true;
+			this.isAd = this.messageData.is_ad === true;
 			//Add twitchat's automod badge
 			if(mess.automod) {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.AUTOMOD, tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
@@ -396,7 +403,7 @@ export default class ChatMessage extends AbstractChatMessage {
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& TwitchUtils.hasScope(TwitchScopes.MODERATE)//If necessary scope is granted
+									&& TwitchUtils.hasScopes([TwitchScopes.MODERATE])//If necessary scope is granted
 									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
 									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id//if not sent by broadcaster
 									&& (
@@ -619,6 +626,21 @@ export default class ChatMessage extends AbstractChatMessage {
 	
 	public onMouseEnter():void{
 		this.showTools = true;
+	}
+	
+	public disableAd():void{
+		//If we're a donor, just disable the ad and delete the message as a feedback
+		if(this.$store("auth").twitch.user.donor.state) {
+			this.$store("chat").botMessages.twitchatAd.enabled = false;
+			this.$store("chat").deleteMessageByID(this.messageData.id);
+		}else{
+			this.openAdParams();
+		}
+	}
+
+	public openAdParams():void {
+		this.$store("main").tempStoreValue = "CONTENT:"+TwitchatDataTypes.ParamsCategories.AD;
+		this.$store("main").setShowParams(true);
 	}
 	
 	private updateSuspiciousState():void{
@@ -1026,6 +1048,15 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 
 		padding: 0 .25em;
+	}
+
+	.ctas {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: .5em;
+		margin-top: .5em;
 	}
 }
 </style>

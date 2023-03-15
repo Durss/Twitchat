@@ -89,8 +89,8 @@ export default class AutocompleteChatForm extends Vue {
 	public selectItem(item:ListItem):void {
 		if(item.type == "cmd") {
 			if(item.disabled) {
-				if(item.rawCmd.twitch_scope) {
-					this.$store("auth").requestTwitchScopes([item.rawCmd.twitch_scope]);
+				if(item.rawCmd.twitch_scopes) {
+					this.$store("auth").requestTwitchScopes(item.rawCmd.twitch_scopes);
 				}
 			}else{
 				this.$emit("selectItem", item.cmd);
@@ -222,7 +222,7 @@ export default class AutocompleteChatForm extends Vue {
 							infos:e.details,
 							id:e.id,
 							alias:e.alias?.replace(/{(.*?)\}/gi, "$1"),
-							disabled: e.twitch_scope !== undefined && !TwitchUtils.hasScope(e.twitch_scope),
+							disabled: e.twitch_scopes !== undefined && !TwitchUtils.hasScopes(e.twitch_scopes),
 							rawCmd:e,
 						});
 					}
