@@ -22,132 +22,18 @@
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
 				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
-				<ChatAd class="message"
-					v-if="m.type == 'twitchat_ad'"
-					@showModal="(v: string) => $emit('showModal', v)"
-					:messageData="m" />
-
-				<ChatJoinLeave class="message"
-					v-else-if="(m.type == 'join' || m.type == 'leave')"
+				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatConnect class="message"
-					v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatMessage class="message"
-					v-else-if="m.type == 'message' || m.type == 'whisper'"
-					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
 					@unscheduleMessageOpen="unscheduleHistoryOpen"
 					@onOverMessage="onEnterMessage"
 					@mouseleave="onLeaveMessage"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatNotice class="message"
-					v-else-if="m.type == 'notice'" 
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatPollResult class="message"
-					v-else-if="m.type == 'poll'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatPredictionResult class="message"
-					v-else-if="m.type == 'prediction'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatBingoResult class="message"
-					v-else-if="m.type == 'bingo'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatRaffleResult class="message"
-					v-else-if="m.type == 'raffle'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatCountdownResult class="message"
-					v-else-if="m.type == 'countdown'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatTimerResult class="message"
-					v-else-if="m.type == 'timer'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatHypeTrainResult class="message"
-					v-else-if="m.type == 'hype_train_summary'"
-					@onRead="toggleMarkRead"
 					@setCustomActivities="setCustomActivities"
-					:messageData="m" />
-
-				<ChatFollowbotEvents class="message"
-					v-else-if="m.type == 'followbot_list'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatRoomSettings class="message"
-					v-else-if="m.type == 'room_settings'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatClear class="message"
-					v-else-if="m.type == 'clear_chat'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatShoutout class="message"
-					v-else-if="m.type == 'shoutout'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatLowTrustTreatment class="message"
-					v-else-if="m.type == 'low_trust_treatment'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatPinNotice class="message"
-					v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatBan class="message"
-					v-else-if="m.type == 'ban'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatUnban class="message"
-					v-else-if="m.type == 'unban'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatStreamOnOff class="message"
-					v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatMessageClipPending class="message"
-					v-else-if="m.type == 'clip_pending_publication'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatScopeRequester class="message"
-					v-else-if="m.type == 'scope_request'"
-					@onRead="toggleMarkRead"
+					@showModal="(v: string) => $emit('showModal', v)"
 					@openFilters="openFilters()"
-					:messageData="m" />
-
-				<ChatHighlight v-else class="message"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
+					:lightMode="lightMode"
+				/>
 
 			</div>
 
@@ -170,7 +56,14 @@
 		</div>
 
 		<div class="lockedLiveHolder" v-if="!lightMode && lockScroll && lockedLiveMessages.length > 0">
-			<div class="title">
+			<div class="subHolder" v-for="m in lockedLiveMessages"
+			:key="m.id" :ref="'message_live_' + m.id">
+				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
+				<MessageItem :messageData="m"
+					disableConversation
+				/>
+			</div>
+			<div class="footer">
 				<Button	:aria-label="$t('chat.live_chat_less_aria')"
 					:icon="$image('icons/minus.svg')"
 					:disabled="config.liveLockCount == 1"
@@ -182,98 +75,6 @@
 					:icon="$image('icons/add.svg')"
 					:disabled="config.liveLockCount == 10 || config.liveLockCount>=pendingMessages.length"
 					@click="incrementLockedLiveCount(1)"/>
-			</div>
-
-			<div class="subHolder" v-for="m in lockedLiveMessages"
-			:key="m.id" :ref="'message_live_' + m.id">
-				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
-				<ChatJoinLeave class="message"
-					v-if="(m.type == 'join' || m.type == 'leave')"
-					:messageData="m" />
-
-				<ChatConnect class="message"
-					v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
-					:messageData="m" />
-
-				<ChatMessage class="message"
-					v-else-if="m.type == 'message' || m.type == 'whisper'"
-					disableConversation
-					:messageData="m" />
-
-				<ChatNotice class="message"
-					v-else-if="m.type == 'notice'" 
-					:messageData="m" />
-
-				<ChatPollResult class="message"
-					v-else-if="m.type == 'poll'"
-					:messageData="m" />
-
-				<ChatPredictionResult class="message"
-					v-else-if="m.type == 'prediction'"
-					:messageData="m" />
-
-				<ChatBingoResult class="message"
-					v-else-if="m.type == 'bingo'"
-					:messageData="m" />
-
-				<ChatRaffleResult class="message"
-					v-else-if="m.type == 'raffle'"
-					:messageData="m" />
-
-				<ChatCountdownResult class="message"
-					v-else-if="m.type == 'countdown'"
-					:messageData="m" />
-
-				<ChatTimerResult class="message"
-					v-else-if="m.type == 'timer'"
-					:messageData="m" />
-
-				<ChatHypeTrainResult class="message"
-					v-else-if="m.type == 'hype_train_summary'"
-					:messageData="m" />
-
-				<ChatFollowbotEvents class="message"
-					v-else-if="m.type == 'followbot_list'"
-					:messageData="m" />
-
-				<ChatRoomSettings class="message"
-					v-else-if="m.type == 'room_settings'"
-					:messageData="m" />
-
-				<ChatClear class="message"
-					v-else-if="m.type == 'clear_chat'"
-					:messageData="m" />
-
-				<ChatShoutout class="message"
-					v-else-if="m.type == 'shoutout'"
-					:messageData="m" />
-
-				<ChatLowTrustTreatment class="message"
-					v-else-if="m.type == 'low_trust_treatment'"
-					:messageData="m" />
-
-				<ChatPinNotice class="message"
-					v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
-					:messageData="m" />
-
-				<ChatBan class="message"
-					v-else-if="m.type == 'ban'"
-					:messageData="m" />
-
-				<ChatUnban class="message"
-					v-else-if="m.type == 'unban'"
-					:messageData="m" />
-
-				<ChatStreamOnOff class="message"
-					v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
-					:messageData="m" />
-
-				<ChatMessageClipPending class="message"
-					v-else-if="m.type == 'clip_pending_publication'"
-					:messageData="m" />
-
-				<ChatHighlight v-else class="message"
-					:messageData="m" />
 			</div>
 		</div>
 
@@ -291,10 +92,11 @@
 					@click="onLeaveMessage" />
 			</div>
 			<div class="messages" ref="conversationMessages">
-				<ChatMessage v-for="m in conversation" :key="m.id"
-					class="message"
+				<MessageItem class="message"
+					v-for="m in conversation" :key="m.id"
 					:messageData="m"
-					disableConversation />
+					disableConversation
+				/>
 			</div>
 
 			<Button class="TTSreadBt" small bounce
@@ -318,74 +120,28 @@
 </template>
 
 <script lang="ts">
-import ChatMessage from '@/components/messages/ChatMessage.vue';
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import ChatAd from './ChatAd.vue';
-import ChatBingoResult from './ChatBingoResult.vue';
-import ChatClear from './ChatClear.vue';
-import ChatConnect from './ChatConnect.vue';
-import ChatCountdownResult from './ChatCountdownResult.vue';
-import ChatFollowbotEvents from './ChatFollowbotEvents.vue';
-import ChatHighlight from './ChatHighlight.vue';
-import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
-import ChatJoinLeave from './ChatJoinLeave.vue';
-import ChatNotice from './ChatNotice.vue';
-import ChatPollResult from './ChatPollResult.vue';
-import ChatPredictionResult from './ChatPredictionResult.vue';
-import ChatRaffleResult from './ChatRaffleResult.vue';
-import ChatRoomSettings from './ChatRoomSettings.vue';
-import ChatShoutout from './ChatShoutout.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
-import ChatLowTrustTreatment from './ChatLowTrustTreatment.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
-import ChatPinNotice from './ChatPinNotice.vue';
-import ChatBan from './ChatBan.vue';
-import ChatUnban from './ChatUnban.vue';
-import ChatStreamOnOff from './ChatStreamOnOff.vue';
-import ChatMessageClipPending from './ChatMessageClipPending.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import ChatScopeRequester from './ChatScopeRequester.vue';
-import ChatTimerResult from './ChatTimerResult.vue';
-import Utils from '@/utils/Utils';
+import MessageItem from './MessageItem.vue';
 
 @Component({
 	components: {
 		Button,
-		ChatAd,
-		ChatBan,
-		ChatUnban,
-		ChatClear,
-		ChatNotice,
-		ChatConnect,
-		ChatMessage,
-		ChatShoutout,
-		ChatPinNotice,
-		ChatHighlight,
-		ChatJoinLeave,
-		ChatPollResult,
-		ChatStreamOnOff,
-		ChatBingoResult,
-		ChatTimerResult,
-		ChatRoomSettings,
-		ChatRaffleResult,
+		MessageItem,
 		MessageListFilter,
-		ChatScopeRequester,
-		ChatFollowbotEvents,
-		ChatHypeTrainResult,
-		ChatCountdownResult,
-		ChatPredictionResult,
-		ChatLowTrustTreatment,
-		ChatMessageClipPending,
 		ChatMessageHoverActions,
 	},
 	emits: ["showModal", 'addColumn']
@@ -1983,13 +1739,14 @@ export default class MessageList extends Vue {
 		border-top: 1px solid fade(#000, 50%);
 		padding-top: .25em;
 
-		.title {
+		.footer {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
 			color: fade(@mainColor_light, 50%);
 			font-size: .6em;
+			margin-bottom: .5em;
 			.label {
 				font-style: italic;
 				margin: 0 .5em;

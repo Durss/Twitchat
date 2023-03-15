@@ -120,82 +120,10 @@
 				</div>
 	
 				<div class="preview" v-for="m in previewData" :key="'preview_'+m.id" @click="clickPreview($event)">
-					
-					<ChatAd class="message"
-						v-if="m.type == 'twitchat_ad'"
-						:messageData="m" />
-						
-					<ChatNotice class="message"
-						v-else-if="m.type == 'notice'"
-						:messageData="m" />
-	
-					<ChatJoinLeave class="message"
-						v-else-if="(m.type == 'join' || m.type == 'leave')"
-						:messageData="m" />
-	
-					<ChatConnect class="message"
-						v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
-						:messageData="m" />
-	
-					<ChatMessage class="message"
-						v-else-if="m.type == 'message' || m.type == 'whisper'"
-						:messageData="m" />
-	
-					<ChatPollResult class="message"
-						v-else-if="m.type == 'poll'"
-						:messageData="m" />
-	
-					<ChatPredictionResult class="message"
-						v-else-if="m.type == 'prediction'"
-						:messageData="m" />
-	
-					<ChatBingoResult class="message"
-						v-else-if="m.type == 'bingo'"
-						:messageData="m" />
-	
-					<ChatRaffleResult class="message"
-						v-else-if="m.type == 'raffle'"
-						:messageData="m" />
-	
-					<ChatCountdownResult class="message"
-						v-else-if="m.type == 'countdown'"
-						:messageData="m" />
-	
-					<ChatHypeTrainResult class="message"
-						v-else-if="m.type == 'hype_train_summary'"
-						:messageData="m" />
-	
-					<ChatFollowbotEvents class="message"
-						v-else-if="m.type == 'followbot_list'"
-						:messageData="m" />
-	
-					<ChatShoutout class="message"
-						v-else-if="m.type == 'shoutout'"
-						:messageData="m" />
-
-					<ChatLowTrustTreatment class="message"
-						v-else-if="m.type == 'low_trust_treatment'"
-						:messageData="m" />
-
-					<ChatPinNotice class="message"
-						v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
-						:messageData="m" />
-
-					<ChatBan class="message"
-						v-else-if="m.type == 'ban'"
-						:messageData="m" />
-
-					<ChatStreamOnOff class="message"
-						v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
-						:messageData="m" />
-
-					<ChatUnban class="message"
-						v-else-if="m.type == 'unban'"
-						:messageData="m" />
-	
-					<ChatHighlight v-else class="message"
+					<MessageItem :messageData="m"
 						lightMode
-						:messageData="m" />
+						disableConversation
+					/>
 				</div>
 			</div>
 		</div>
@@ -205,62 +133,26 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
+import PermissionsForm from '@/components/PermissionsForm.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
+import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import ChatAd from '../ChatAd.vue';
-import ChatBingoResult from '../ChatBingoResult.vue';
-import ChatConnect from '../ChatConnect.vue';
-import ChatCountdownResult from '../ChatCountdownResult.vue';
-import ChatFollowbotEvents from '../ChatFollowbotEvents.vue';
-import ChatHighlight from '../ChatHighlight.vue';
-import ChatHypeTrainResult from '../ChatHypeTrainResult.vue';
-import ChatJoinLeave from '../ChatJoinLeave.vue';
-import ChatMessage from '../ChatMessage.vue';
-import ChatNotice from '../ChatNotice.vue';
-import ChatPollResult from '../ChatPollResult.vue';
-import ChatPredictionResult from '../ChatPredictionResult.vue';
-import ChatRaffleResult from '../ChatRaffleResult.vue';
-import ChatShoutout from '../ChatShoutout.vue';
-import ChatLowTrustTreatment from '../ChatLowTrustTreatment.vue';
-import ChatPinNotice from '../ChatPinNotice.vue';
-import ChatBan from '../ChatBan.vue';
-import ChatUnban from '../ChatUnban.vue';
-import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import PermissionsForm from '@/components/PermissionsForm.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import DataStore from '@/store/DataStore';
-import ChatStreamOnOff from '../ChatStreamOnOff.vue';
+import MessageItem from '../MessageItem.vue';
 
 @Component({
 	components:{
 		Button,
 		ParamItem,
-		ToggleButton,
-		ChatAd,
-		ChatBan,
-		ChatUnban,
-		ChatConnect,
-		ChatShoutout,
-		ChatBingoResult,
-		ChatCountdownResult,
-		ChatFollowbotEvents,
-		ChatHighlight,
-		ChatHypeTrainResult,
-		ChatJoinLeave,
-		ChatMessage,
-		ChatNotice,
-		ChatPollResult,
-		ChatPredictionResult,
-		ChatLowTrustTreatment,
-		ChatRaffleResult,
-		ChatPinNotice,
-		PermissionsForm,
+		MessageItem,
 		ToggleBlock,
-		ChatStreamOnOff,
+		ToggleButton,
+		PermissionsForm,
 	},
 	emits: ['submit', 'add', 'change'],
 })
