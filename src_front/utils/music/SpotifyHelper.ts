@@ -124,16 +124,16 @@ export default class SpotifyHelper extends EventDispatcher {
 	/**
 	 * Refresh the current token
 	 */
-	public async refreshToken():Promise<void> {
+	public async refreshToken(attempt:number = 0):Promise<void> {
 		clearTimeout(this._getTrackTimeout);
 		clearTimeout(this._refreshTimeout);
 
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		let url = Config.instance.API_PATH+"/spotify/refresh_token";
-		url += "?token="+encodeURIComponent(this._token.refresh_token);
+		let url = new URL(Config.instance.API_PATH+"/spotify/refresh_token");
+		url.searchParams.append("token", this._token.refresh_token);
 		if(this.clientID && this._clientSecret) {
-			url += "&clientId="+encodeURIComponent(this.clientID);
-			url += "&clientSecret="+encodeURIComponent(this._clientSecret);
+			url.searchParams.append("clientId", this.clientID);
+			url.searchParams.append("clientSecret", this._clientSecret);
 		}
 		const headers = {
 			'App-Version': import.meta.env.PACKAGE_VERSION,
@@ -155,7 +155,13 @@ export default class SpotifyHelper extends EventDispatcher {
 				"Authorization":"Bearer "+this._token.access_token,
 			}
 		}else{
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.token_refresh")));
+			if(attempt < 5) {
+				setTimeout(()=>{
+					this.refreshToken(++attempt);
+				}, 5000)
+			}else{
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.token_refresh")));
+			}
 		}
 	}
 
