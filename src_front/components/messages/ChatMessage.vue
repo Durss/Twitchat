@@ -416,7 +416,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
-			this.isFirstToday	= this.messageData.todayFirst === true;
+			this.isFirstToday	= this.messageData.todayFirst === true && this.$store("params").appearance.highlight1stToday.value === true;
 			watch(()=> mess.twitch_isSuspicious, () =>{
 				this.updateSuspiciousState();
 			});
