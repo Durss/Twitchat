@@ -605,6 +605,12 @@ export const storeChat = defineStore('chat', {
 						
 					}else {
 						this.flagMessageAsFirstToday(message, message.user);
+
+						//Check if it's an "ad" message
+						if(message.user.id == sAuth.twitch.user.id
+						&& this.botMessages.twitchatAd.message.indexOf(message.message) > -1) {
+							message.is_ad = true;
+						}
 					}
 					
 					//Check if the message contains a mention

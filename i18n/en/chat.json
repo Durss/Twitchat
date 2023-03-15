@@ -145,6 +145,8 @@
 			"highlightBt_tt": "Show on stream<br><i>(needs overlay)</i>",
 			"deleted": "<message deleted>",
 			"deleted_by": "<message deleted by {USER}>",
+			"disable_ad":"Disable",
+			"customize_ad":"Customize",
 			"badges": {
 				"prediction": "Prediction",
 				"subscriber": "Subscriber",

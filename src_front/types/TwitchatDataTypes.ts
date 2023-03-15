@@ -28,6 +28,7 @@ export namespace TwitchatDataTypes {
 		VOICE: "voice",
 		AUTOMOD: "automod",
 		VOICEMOD: "voicemod",
+		AD: "ad",
 	} as const;
 	export type ParamsContentStringType = typeof ParamsCategories[keyof typeof ParamsCategories];
 
@@ -1131,6 +1132,7 @@ export namespace TwitchatDataTypes {
 		message_html:string;
 		message_no_emotes:string;
 		answers: MessageChatData[];
+		is_ad?: boolean;//true if message content matches the configured ad message
 		is_short: boolean;//true if message is short or contains mostly emotes
 		is_pinned?: boolean;
 		
