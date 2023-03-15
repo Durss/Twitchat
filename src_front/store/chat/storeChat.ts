@@ -1095,7 +1095,8 @@ export const storeChat = defineStore('chat', {
 				if(messageID == m.id && !m.deleted) {
 					m.deleted = true;
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
-					|| m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) {
+					|| m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
+					|| (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.is_ad)) {
 						//Called if closing an ad
 						messageList.splice(i, 1);
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
