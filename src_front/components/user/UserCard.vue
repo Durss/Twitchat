@@ -50,8 +50,10 @@
 
 			<div class="infoList">
 				<div class="info" :data-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
-				<div class="info"><img src="@/assets/icons/follow_outline_purple.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
-				<div class="info" v-if="subState">
+				
+				<div class="info" v-if="followersCount > -1"><img src="@/assets/icons/follow_outline_purple.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
+				
+				<div class="info" v-if="subState && subStateLoaded">
 					<img src="@/assets/icons/gift_purple.svg" alt="subscribed" class="icon" v-if="subState.is_gift">
 					<img src="@/assets/icons/sub_purple.svg" alt="subscribed" class="icon" v-else>
 					<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
@@ -59,18 +61,18 @@
 						<template #GIFTER>{{ subState.gifter_name }}</template>
 					</i18n-t>
 				</div>
-				<div class="info" v-else>
+				<div class="info" v-else-if="subStateLoaded">
 					<img src="@/assets/icons/sub_purple.svg" alt="subscribed" class="icon">
 					<span>{{ $t("usercard.non_subscribed") }}</span>
 				</div>
 
-				<div class="info" v-if="followDate" :data-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow_purple.svg" alt="follow date" class="icon">{{followDate}}</div>
-				<div class="info" v-else><img src="@/assets/icons/unfollow_purple.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
+				<div class="info" v-if="followDate && !is_self" :data-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow_purple.svg" alt="follow date" class="icon">{{followDate}}</div>
+				<div class="info" v-else-if="!is_self"><img src="@/assets/icons/unfollow_purple.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
 			</div>
 			
 			<div class="ctas">
 				<Button :title="$t('usercard.profileBt')" type="link" small :icon="$image('icons/newtab.svg')" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
-				<Button :title="$t('usercard.viewercardBt')" small :icon="$image('icons/newtab.svg')" @click="openUserCard()" />
+				<Button :title="$t('usercard.viewercardBt')" type="link" small :icon="$image('icons/newtab.svg')" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank" />
 				<Button :title="$t('usercard.trackBt')" v-if="!is_tracked" small :icon="$image('icons/magnet.svg')" @click="trackUser()" />
 				<Button :title="$t('usercard.untrackBt')" v-if="is_tracked" small :icon="$image('icons/magnet.svg')" @click="untrackUser()" />
 				<Button :title="ttsReadBtLabel"  v-if="$store('tts').params.enabled === true" small :icon="$image('icons/tts.svg')" @click="toggleReadUser()" />
@@ -176,12 +178,13 @@ export default class UserCard extends Vue {
 	public fakeModMessage:TwitchatDataTypes.MessageChatData|null = null;
 	public currentStream:TwitchDataTypes.StreamInfo|null = null;
 	public followings:TwitchDataTypes.FollowingOld[] = [];
-	public followInfo:TwitchDataTypes.Follower|null = null;
-	public followersCount:number = 0;
 	public myFollowings:{[key:string]:boolean} = {};
+	public followersCount:number = -1;
 	public commonFollowCount:number = 0;
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public subState:TwitchDataTypes.Subscriber|null = null;
+	public subStateLoaded:boolean = false;
+	public modChans:TwitchatDataTypes.TwitchatUser[] = [];
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 
@@ -209,6 +212,11 @@ export default class UserCard extends Vue {
 		//display name's chars ar not latin chars, translate it
 		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
 	}
+
+	/**
+	 * Gets if current profil is our own
+	 */
+	public get is_self():boolean{ return StoreProxy.auth.twitch.user.id === this.user?.id; }
 
 	/**
 	 * Get if user is being tracked or not
@@ -301,20 +309,25 @@ export default class UserCard extends Vue {
 		this.loading = true;
 		this.followDate = "";
 		this.createDate = "";
-		this.followInfo = null;
 		this.followings = [];
 		this.loadingFollowings = true;
 		this.commonFollowCount = 0;
+		this.followersCount = -1;
+		this.followDate = "";
+		this.subState = null;
+		this.subStateLoaded = false;
+		this.modChans = [
+			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "684410546", "mewstelle", "Mewstelle"),
+			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "43809079", "shakawah", "Shakawah"),
+			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "642638701", "fibertooth", "fibertooth"),
+		];
 		try {
 			let user = this.user!;
 			const loadFromLogin = user.temporary;
 			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
-				this.currentStream = (await TwitchUtils.loadCurrentStreamInfo([u.id]))[0];
 				this.createDate = Utils.formatDate(new Date(u.created_at));
-				this.followInfo = await TwitchUtils.getFollowerState(u.id);
-				this.followersCount = await TwitchUtils.getFollowerCount(u.id);
 				this.userDescription = u.description;
 				user.avatarPath = u.profile_image_url;
 				user.id = u.id;
@@ -333,11 +346,21 @@ export default class UserCard extends Vue {
 					user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
 				}
 				
-				if(this.followInfo) {
-					this.followDate = Utils.formatDate(new Date(this.followInfo.followed_at));
-				}
+				//Async loading of data
+				TwitchUtils.loadCurrentStreamInfo([u.id]).then(v=> {
+					this.currentStream = v[0];
+				});
+				TwitchUtils.getFollowerState(u.id).then(v=> {
+					if(v) this.followDate = Utils.formatDate(new Date(v.followed_at));
+				});
+				TwitchUtils.getFollowerCount(u.id).then(v=> {
+					this.followersCount = v;
+				});
 				if(TwitchUtils.hasScopes([TwitchScopes.CHECK_SUBSCRIBER_STATE])) {
-					this.subState = await TwitchUtils.getSubscriptionState(u.id);
+					 TwitchUtils.getSubscriptionState(u.id).then(v=> {
+						this.subState = v;
+						this.subStateLoaded = true;
+					 })
 				}
 				this.fakeModMessage = {
 					id:Utils.getUUID(),
