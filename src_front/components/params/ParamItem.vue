@@ -316,6 +316,14 @@ export default class ParamItem extends Vue {
 		
 		watch(() => this.paramData.value, this.onEdit);
 		
+		watch(() => this.paramData.error, ()=>{
+			this.errorLocal = this.paramData.error === true;
+		});
+		
+		watch(() => this.error, ()=>{
+			this.errorLocal = this.error === true;
+		});
+		
 		watch(() => this.paramData.children, (value) => {
 			this.buildChildren();
 		});
