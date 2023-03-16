@@ -435,8 +435,8 @@ export default class ParamItem extends Vue {
 		await this.$nextTick();
 		this.searching = false;
 
-		//Trim spaces around the value
-		const list = this.paramData.value as string[];
+		//Trim spaces around the values
+		let list = this.paramData.options as string[];
 		for (let i = 0; i < list.length; i++) {
 			list[i] = list[i].trim();
 		}
