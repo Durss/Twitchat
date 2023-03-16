@@ -207,7 +207,7 @@ export const storeDebug = defineStore('debug', {
 						challenge: {
 							title:"My awesome challenge",
 							goal,
-							progress:contribTot,
+							progress:contribTot+123,
 							progress_percent:parseFloat((contribTot/goal *100).toFixed(1)),
 							description:"Send channel points to make my challenge a reality <3",
 							icon:{

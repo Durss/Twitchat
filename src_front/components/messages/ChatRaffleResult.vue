@@ -1,6 +1,5 @@
 <template>
-	<div class="chatraffleresult" @click.capture.ctrl.stop="copyJSON()"
-	@click="$emit('onRead', messageData, $event)">
+	<div class="chatraffleresult">
 		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		
@@ -16,9 +15,7 @@
 <script lang="ts">
 import { storeParams } from '@/store/params/storeParams';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
@@ -41,12 +38,6 @@ export default class ChatRaffleResult extends AbstractChatMessage {
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
 		this.$store("users").openUserCard(user, this.messageData.winner.user?.channel_id);
-	}
-
-	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.messageData));
-		console.log(this.messageData);
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 }
 </script>

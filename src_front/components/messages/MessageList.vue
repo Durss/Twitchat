@@ -1,9 +1,9 @@
 <template>
 	<div :class="classes"
-		@mouseenter="onHoverList"
-		@mouseleave="onLeaveList"
-		@wheel="onMouseWheel"
-		@touchmove="onTouchMove">
+	@mouseenter="onHoverList"
+	@mouseleave="onLeaveList"
+	@wheel="onMouseWheel"
+	@touchmove="onTouchMove">
 		<MessageListFilter class="filters"
 			ref="listFilter"
 			:open="hovered || forceConfig"

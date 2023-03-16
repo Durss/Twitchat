@@ -76,7 +76,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		Button,
 		ToggleBlock,
 	},
-	emits:["openParamItem", "openParam", "close"]
+	emits:["openParamItem", "openParam", "close", "onRead"]
 })
 export default class ChatChangelog extends Vue {
 

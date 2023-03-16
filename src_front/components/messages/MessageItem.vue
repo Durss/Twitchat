@@ -8,6 +8,16 @@
 		v-else-if="(messageData.type == 'join' || messageData.type == 'leave')"
 		:messageData="messageData" />
 
+	<ChatFollow class="message"
+		v-else-if="messageData.type == 'following'"
+		@onRead="$emit('markRead')"
+		:messageData="messageData" />
+
+	<ChatRaid class="message"
+		v-else-if="messageData.type == 'raid'"
+		@onRead="$emit('markRead')"
+		:messageData="messageData" />
+
 	<ChatConnect class="message"
 		v-else-if="(messageData.type == 'connect' || messageData.type == 'disconnect')"
 		@onRead="$emit('markRead')"
@@ -50,6 +60,11 @@
 
 	<ChatTimerResult class="message"
 		v-else-if="messageData.type == 'timer'"
+		@onRead="$emit('markRead')"
+		:messageData="messageData" />
+
+	<ChatHypeTrainCooldown class="message"
+		v-else-if="messageData.type == 'hype_train_cooled_down'"
 		@onRead="$emit('markRead')"
 		:messageData="messageData" />
 
@@ -113,6 +128,31 @@
 		@onRead="$emit('markRead')"
 		:messageData="messageData" />
 
+	<ChatCommunityBoost class="message"
+		v-else-if="messageData.type == 'community_boost_complete'"
+		@onRead="$emit('markRead')"
+		:messageData="messageData" />
+
+	<ChatBits class="message"
+		v-else-if="messageData.type == 'cheer'"
+		@onRead="$emit('markRead')"
+		:messageData="messageData" />
+
+	<ChatSubscription class="message"
+		v-else-if="messageData.type == 'subscription'"
+		@onRead="$emit('markRead')"
+		:messageData="messageData" />
+
+	<ChatReward class="message"
+		v-else-if="messageData.type == 'reward'"
+		@onRead="$emit('markRead')"
+		:messageData="messageData" />
+
+	<ChatCOmmunityChallengeContribution class="message"
+		v-else-if="messageData.type == 'community_challenge_contribution'"
+		@onRead="$emit('markRead')"
+		:messageData="messageData" />
+
 	<ChatHighlight v-else class="message"
 		@onRead="$emit('markRead')"
 		:messageData="messageData" />
@@ -129,9 +169,11 @@ import ChatBingoResult from './ChatBingoResult.vue';
 import ChatClear from './ChatClear.vue';
 import ChatConnect from './ChatConnect.vue';
 import ChatCountdownResult from './ChatCountdownResult.vue';
+import ChatFollow from './ChatFollow.vue';
 import ChatFollowbotEvents from './ChatFollowbotEvents.vue';
 import ChatHighlight from './ChatHighlight.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
+import ChatHypeTrainCooldown from './ChatHypeTrainCooldown.vue';
 import ChatJoinLeave from './ChatJoinLeave.vue';
 import ChatLowTrustTreatment from './ChatLowTrustTreatment.vue';
 import ChatMessageClipPending from './ChatMessageClipPending.vue';
@@ -140,6 +182,7 @@ import ChatPinNotice from './ChatPinNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
 import ChatRaffleResult from './ChatRaffleResult.vue';
+import ChatRaid from './ChatRaid.vue';
 import ChatRoomSettings from './ChatRoomSettings.vue';
 import ChatScopeRequester from './ChatScopeRequester.vue';
 import ChatShoutout from './ChatShoutout.vue';
@@ -147,14 +190,23 @@ import ChatStreamOnOff from './ChatStreamOnOff.vue';
 import ChatTimerResult from './ChatTimerResult.vue';
 import ChatUnban from './ChatUnban.vue';
 import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
+import ChatCommunityBoost from './ChatCommunityBoost.vue';
+import ChatBits from './ChatBits.vue';
+import ChatSubscription from './ChatSubscription.vue';
+import ChatReward from './ChatReward.vue';
+import ChatCommunityChallengeContribution from './ChatCommunityChallengeContribution.vue';
 
 @Component({
 	components:{
 		Button,
 		ChatAd,
 		ChatBan,
+		ChatRaid,
+		ChatBits,
 		ChatUnban,
 		ChatClear,
+		ChatFollow,
+		ChatReward,
 		ChatNotice,
 		ChatConnect,
 		ChatMessage,
@@ -168,14 +220,18 @@ import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 		ChatTimerResult,
 		ChatRoomSettings,
 		ChatRaffleResult,
+		ChatSubscription,
+		ChatCommunityBoost,
 		ChatScopeRequester,
 		ChatFollowbotEvents,
 		ChatHypeTrainResult,
 		ChatCountdownResult,
 		ChatPredictionResult,
+		ChatHypeTrainCooldown,
 		ChatLowTrustTreatment,
 		ChatMessageClipPending,
 		ChatMessageHoverActions,
+		ChatCommunityChallengeContribution,
 	},
 	emits:["showModal","markRead"],
 })

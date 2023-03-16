@@ -1,6 +1,8 @@
+
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { watch } from 'vue';
 import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';
 
@@ -13,7 +15,9 @@ export default class AbstractChatMessage extends Vue {
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
 
 	public time:string = "";
+
 	private refreshTimeout:number = -1;
+	private clickHandler!:(e:MouseEvent)=>void;
 
 	public beforeMount() {
 		this.refreshDate();
@@ -24,10 +28,26 @@ export default class AbstractChatMessage extends Vue {
 		})
 	}
 
-	public beforeUnmount():void {
-		clearTimeout(this.refreshTimeout);
+	public mounted():void {
+		this.clickHandler = (e:MouseEvent)=> {
+			if(e.ctrlKey) {
+				this.copyJSON();
+				e.stopPropagation();
+			}else{
+				this.$emit("onRead", this.messageData, e)
+			}
+		}
+		this.$el.addEventListener("click", this.clickHandler);
 	}
 
+	public beforeUnmount():void {
+		clearTimeout(this.refreshTimeout);
+		this.$el.removeEventListener("click", this.clickHandler);
+	}
+
+	/**
+	 * Refreshes the date at a regular interval if needed
+	 */
 	public refreshDate() {
 		const elapsedMode = this.$store("params").appearance.displayTimeRelative.value === true;
 		const d = new Date(this.messageData.date);
@@ -58,6 +78,15 @@ export default class AbstractChatMessage extends Vue {
 		}else{
 			this.time = Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 		}
+	}
+
+	/**
+	 * Copy JSON data of the message
+	 */
+	public copyJSON():void {
+		Utils.copyToClipboard(JSON.stringify(this.messageData));
+		console.log(this.messageData);
+		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 }

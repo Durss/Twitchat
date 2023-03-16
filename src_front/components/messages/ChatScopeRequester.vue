@@ -1,6 +1,5 @@
 <template>
-	<div class="chatscoperequester" @click.capture.ctrl.stop="copyJSON()"
-	@click="$emit('onRead', messageData, $event)">
+	<div class="chatscoperequester">
 		<button class="closeBt" @click="deleteMessage()"><img src="@/assets/icons/cross_white.svg"></button>
 
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
@@ -26,8 +25,6 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
-import Utils from '@/utils/Utils';
-import gsap from 'gsap';
 import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
@@ -49,12 +46,6 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 
 	public mounted():void {
 		
-	}
-
-	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.messageData));
-		console.log(this.messageData);
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	public requestScopes():void {

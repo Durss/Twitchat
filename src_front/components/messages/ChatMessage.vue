@@ -1,7 +1,6 @@
 <template>
-	<div :class="classes" @click.capture.ctrl.stop="copyJSON()"
+	<div :class="classes"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
-	@click="$emit('onRead', messageData, $event)"
 	>
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
@@ -544,19 +543,17 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public copyJSON():void {
 		if(this.messageData.type == "whisper") {
-			Utils.copyToClipboard(JSON.stringify(this.messageData));
-			console.log(this.messageData);
+			super.copyJSON();
 		}else{
 			const answersBckp = this.messageData.answers;
 			const answerToBckp = this.messageData.answersTo;
+			//Remove data to avoid infinite JSON stringify recursion
 			this.messageData.answers = [];
 			this.messageData.answersTo = undefined;
-			Utils.copyToClipboard(JSON.stringify(this.messageData));
-			console.log(this.messageData);
+			super.copyJSON();
 			this.messageData.answers = answersBckp;
 			this.messageData.answersTo = answerToBckp;
 		}
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	/**

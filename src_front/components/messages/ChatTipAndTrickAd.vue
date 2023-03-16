@@ -122,7 +122,7 @@ import Button from '../Button.vue';
 	components:{
 		Button,
 	},
-	emits:["showModal", "openParam", "openParamItem"]
+	emits:["showModal", "openParam", "openParamItem", "onRead"]
 })
 export default class ChatTipAndTrickAd extends Vue {
 
