@@ -88,11 +88,10 @@ export default class ChatAutobanJoin extends AbstractChatMessage {
 	.chatMessageHighlight();
 
 	mark {
-		background-color: fade(@mainColor_light, 10%);
+		background-color: fade(@mainColor_dark, 50%);
 		border-radius: .5em;
 		font-weight: bold;
 		padding: .1em .3em;
-		border: 1px solid fade(@mainColor_light, 50%);
 	}
 
 	.ctas {
