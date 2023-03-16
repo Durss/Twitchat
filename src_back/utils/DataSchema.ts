@@ -150,6 +150,7 @@ import Ajv from "ajv";
 										mode: {type:"string", maxLength:20},
 										title: {type:"string", maxLength:20},
 										categoryId: {type:"string", maxLength:30},
+										topic: {type:"string", maxLength:255},
 										tags: {
 											type:"array",
 											maxItems:20,
@@ -171,6 +172,11 @@ import Ajv from "ajv";
 											items:[{type:"string", maxLength:40}],
 										},
 										queryParams: {
+											type:"array",
+											maxItems:100,
+											items:[{type:"string", maxLength:50}],
+										},
+										params: {
 											type:"array",
 											maxItems:100,
 											items:[{type:"string", maxLength:50}],

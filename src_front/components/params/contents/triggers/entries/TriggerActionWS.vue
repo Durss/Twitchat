@@ -31,7 +31,7 @@ export default class TriggerActionWS extends Vue {
 
 	public securityError:boolean = false;
 	public param_options:TwitchatDataTypes.ParameterData[] = [];
-	public param_topic:TwitchatDataTypes.ParameterData = { label:"<mark>topic</mark>", type:"text", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder" };
+	public param_topic:TwitchatDataTypes.ParameterData = { label:"<mark>topic</mark>", type:"text", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder", maxLength:255 };
 
 	public beforeMount():void {
 
