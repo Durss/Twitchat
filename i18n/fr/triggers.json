@@ -145,9 +145,10 @@
 				"header_link": "connecter Voicemod",
 				"param_voice": "Voix"
 			},
-			"http": {
+			"http_ws": {
 				"url": "URL à appeler",
 				"method": "Méthode",
+				"topic_placeholder":"valeur personnalisée...",
 				"select_param": "Choisissez les paramètres à inclure :",
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
 			},

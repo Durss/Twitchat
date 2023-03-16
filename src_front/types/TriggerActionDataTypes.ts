@@ -189,6 +189,7 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 
 export interface TriggerActionWSData extends TriggerActionData{
 	type:"ws";
+	topic:string;
 	params:string[];
 }
 

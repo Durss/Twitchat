@@ -1,7 +1,8 @@
 <template>
 	<div class="triggeractionws">
-		<div class="row">
-			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http.select_param") }}</p>
+		<div class="row item">
+			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
+			<ParamItem class="item argument" :paramData="param_topic" v-model="action.topic" />
 			<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />
 		</div>
 	</div>
@@ -9,9 +10,8 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerActionHelpers, type ITriggerActionHelper, type TriggerActionHTTPCallData, type TriggerActionWSData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerActionHelpers, type ITriggerActionHelper, type TriggerActionWSData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -31,6 +31,7 @@ export default class TriggerActionWS extends Vue {
 
 	public securityError:boolean = false;
 	public param_options:TwitchatDataTypes.ParameterData[] = [];
+	public param_topic:TwitchatDataTypes.ParameterData = { label:"<mark>topic</mark>", type:"text", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder" };
 
 	public beforeMount():void {
 

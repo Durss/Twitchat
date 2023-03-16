@@ -2,11 +2,11 @@
 	<div class="triggeractionhttpcall">
 		<div class="row item">
 			<ParamItem class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
-			<p class="item securityError" v-if="securityError">{{ $t("triggers.actions.http.protocol_error") }}</p>
+			<p class="item securityError" v-if="securityError">{{ $t("triggers.actions.http_ws.protocol_error") }}</p>
 		</div>
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method" />
 		<div class="row">
-			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http.select_param") }}</p>
+			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />
 		</div>
 	</div>
@@ -40,8 +40,8 @@ export default class TriggerActionHTTPCall extends Vue {
 	public param_options:TwitchatDataTypes.ParameterData[] = [];
 
 	public beforeMount():void {
-		this.param_url.labelKey			= "triggers.actions.http.url";
-		this.param_method.labelKey		= "triggers.actions.http.method";
+		this.param_url.labelKey			= "triggers.actions.http_ws.url";
+		this.param_method.labelKey		= "triggers.actions.http_ws.method";
 		this.param_method.listValues	= ["GET","PUT","POST","PATCH","DELETE"]
 		.map(v=>{return {label:v, value:v}})
 
