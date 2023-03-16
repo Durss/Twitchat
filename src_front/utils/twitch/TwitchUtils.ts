@@ -2468,7 +2468,7 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):string {
+	public static parseEmotes(message:string, emotes?:string, removeEmotes = false, customParsing = false):string {
 		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, emotes, removeEmotes, customParsing);
 		let message_html = "";
 		for (let i = 0; i < emoteChunks.length; i++) {
@@ -2491,7 +2491,7 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotesFromObject(message:string, emotes:TwitchatDataTypes.EmoteDef[]|undefined, removeEmotes = false, customParsing = false):string {
+	public static parseEmotesFromObject(message:string, emotes?:TwitchatDataTypes.EmoteDef[], removeEmotes = false, customParsing = false):string {
 		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, undefined, removeEmotes, customParsing, emotes);
 		let message_html = "";
 		for (let i = 0; i < emoteChunks.length; i++) {

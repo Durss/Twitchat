@@ -49,6 +49,7 @@
 				"duplicate_tt": "Dupliquer",
 				"next_delay": "Délai avant l'action suivante (secondes)",
 				"dynamic_placeholder_info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
+				"dynamic_trigger":"Executer un trigger aléatoire parmi ceux sélectionnés",
 				"delete": "Supprimer",
 				"action_chat": "Envoyer un message",
 				"action_bingo": "Lancer un bingo",
@@ -167,6 +168,7 @@
 				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur aléatoire.",
 				"number":"Nombre",
 				"list":"Liste",
+				"trigger":"Triggers",
 				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
 				"list_entry_placeholder":"ajouter une entrée..."
 			},

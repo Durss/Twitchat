@@ -95,6 +95,7 @@ export default class ConnectWebsocket extends Vue {
 	}
 
 	public disconnect():void {
+		DataStore.remove(DataStore.WEBSOCKET_TRIGGER);
 		WebsocketTrigger.instance.disconnect();
 	}
 }

@@ -216,12 +216,13 @@ export interface TriggerActionCountGetData extends TriggerActionData{
 
 export interface TriggerActionRandomData extends TriggerActionData{
 	type:"random";
-	mode:"list"|"number";
+	mode:"list"|"number"|"trigger";
 	min:number;
 	max:number;
 	float:boolean;
 	placeholder:string;
 	list:string[];
+	triggers:string[];
 }
 
 export interface TriggerActionStreamInfoData extends TriggerActionData{

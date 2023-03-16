@@ -148,7 +148,7 @@
 		@onRead="$emit('markRead')"
 		:messageData="messageData" />
 
-	<ChatCOmmunityChallengeContribution class="message"
+	<ChatCommunityChallengeContribution class="message"
 		v-else-if="messageData.type == 'community_challenge_contribution'"
 		@onRead="$emit('markRead')"
 		:messageData="messageData" />

@@ -160,6 +160,11 @@ import Ajv from "ajv";
 											maxItems:10000,
 											items:[{type:"string", maxLength:500}],
 										},
+										triggers: {
+											type:"array",
+											maxItems:1000,
+											items:[{type:"string", maxLength:100}],
+										},
 										counters: {
 											type:"array",
 											maxItems:100,

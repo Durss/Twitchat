@@ -340,7 +340,6 @@ export default class RaffleForm extends Vue {
 
 		this.pickingEntry = true;
 		this.subs = await TwitchUtils.getSubsList();
-		console.log(this.subs);
 		this.pickingEntry = false;
 		// this.onValueChange();
 	}
