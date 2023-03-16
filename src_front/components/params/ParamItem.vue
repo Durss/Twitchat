@@ -436,7 +436,8 @@ export default class ParamItem extends Vue {
 		this.searching = false;
 
 		//Trim spaces around the values
-		let list = this.paramData.options as string[];
+		let list = Array.isArray(this.paramData.value)? this.paramData.value as string[] : this.paramData.options as string[];
+		if(!list) list = [];
 		for (let i = 0; i < list.length; i++) {
 			list[i] = list[i].trim();
 		}
