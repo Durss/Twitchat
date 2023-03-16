@@ -13,6 +13,7 @@
 		"conversation_closeBt_aria": "close conversation",
 		"fake_tag": "fake",
 		"fake_tag_tt": "This is a fake message.<br>Only you can see it.",
+		"soBt": "Shoutout",
 		"form": {
 			"paramsBt_aria": "Open parameters",
 			"cmdsBt_aria": "Open chat commands",
@@ -160,11 +161,10 @@
 				"ambassador": "Ambassador"
 			}
 		},
-		"highlight": {
+		"autoban_join": {
 			"unbanBt": "Unban user",
 			"banBt": "Ban user",
-			"soBt": "Shoutout",
-			"autoban": "has been banned by automod after joining the chat as their nickname matches the following rule: \"{RULE}\""
+			"message": "{USER} has been banned by automod after joining the chat as their nickname matches the following rule: {RULE}"
 		},
 		"community_challenge":"{USER} contributed {COUNT}pts to the challenge {TITLE}. They contributed {TOTAL}pts total.",
 		"reward": "{USER} redeemed the reward {REWARD} {COST}",

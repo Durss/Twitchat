@@ -153,7 +153,8 @@
 		@onRead="$emit('markRead')"
 		:messageData="messageData" />
 
-	<ChatHighlight v-else class="message"
+	<ChatAutobanJoin class="message"
+		v-else-if="messageData.type == 'autoban_join'"
 		@onRead="$emit('markRead')"
 		:messageData="messageData" />
 </template>
@@ -171,7 +172,6 @@ import ChatConnect from './ChatConnect.vue';
 import ChatCountdownResult from './ChatCountdownResult.vue';
 import ChatFollow from './ChatFollow.vue';
 import ChatFollowbotEvents from './ChatFollowbotEvents.vue';
-import ChatHighlight from './ChatHighlight.vue';
 import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
 import ChatHypeTrainCooldown from './ChatHypeTrainCooldown.vue';
 import ChatJoinLeave from './ChatJoinLeave.vue';
@@ -195,6 +195,7 @@ import ChatBits from './ChatBits.vue';
 import ChatSubscription from './ChatSubscription.vue';
 import ChatReward from './ChatReward.vue';
 import ChatCommunityChallengeContribution from './ChatCommunityChallengeContribution.vue';
+import ChatAutobanJoin from './ChatAutobanJoin.vue';
 
 @Component({
 	components:{
@@ -212,12 +213,12 @@ import ChatCommunityChallengeContribution from './ChatCommunityChallengeContribu
 		ChatMessage,
 		ChatShoutout,
 		ChatPinNotice,
-		ChatHighlight,
 		ChatJoinLeave,
 		ChatPollResult,
 		ChatStreamOnOff,
 		ChatBingoResult,
 		ChatTimerResult,
+		ChatAutobanJoin,
 		ChatRoomSettings,
 		ChatRaffleResult,
 		ChatSubscription,
@@ -242,9 +243,3 @@ export default class MessageItem extends Vue {
 
 }
 </script>
-
-<style scoped lang="less">
-.messageitem{
-	
-}
-</style>

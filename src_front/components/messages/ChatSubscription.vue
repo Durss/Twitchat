@@ -2,9 +2,9 @@
 	<div class="chatsubscription">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img v-if="messageData.is_gift" src="@/assets/icons/gift.svg" alt="follow" class="icon">
-		<img v-else-if="messageData.tier == 'prime'" src="@/assets/icons/prime.svg" alt="follow" class="icon">
-		<img v-else src="@/assets/icons/gift.svg" alt="follow" class="icon">
+		<img v-if="messageData.is_gift" src="@/assets/icons/gift.svg" alt="gift" class="icon">
+		<img v-else-if="messageData.tier == 'prime'" src="@/assets/icons/prime.svg" alt="prime" class="icon">
+		<img v-else src="@/assets/icons/gift.svg" alt="sub" class="icon">
 
 		<div>
 

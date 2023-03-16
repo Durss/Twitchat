@@ -23,7 +23,7 @@
 
 			<Button v-if="!isMe && isOnline"
 				@click.stop="shoutout()"
-				:title="$t('chat.highlight.soBt')"
+				:title="$t('chat.soBt')"
 				:icon="$image('icons/shoutout_purple.svg')"
 				:loading="shoutoutLoading"
 				white

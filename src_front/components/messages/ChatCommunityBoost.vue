@@ -2,7 +2,7 @@
 	<div class="chatcommunityboost">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img src="@/assets/icons/boost.svg" alt="follow" class="icon">
+		<img src="@/assets/icons/boost.svg" alt="boost" class="icon">
 
 		<i18n-t scope="global" tag="span" keypath="chat.boosted">
 			<template #COUNT>
