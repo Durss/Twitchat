@@ -236,8 +236,12 @@ export default class SchedulerHelper {
 			let execute = true;
 			switch(schedule.type) {
 				case TriggerScheduleTypes.REGULAR_REPEAT:{
+					//Check if min duration is reached
 					if(schedule.repeatDuration > 0 && Date.now() < e.date) execute = false;
+					//Check if min message count is reached
 					if(schedule.repeatMinMessages > 0 && e.messageCount < schedule.repeatMinMessages) execute = false;
+					//No min duration and no min message defined, ignore to avoid spam
+					if(schedule.repeatDuration <= 0 && schedule.repeatMinMessages <= 0) execute = false;
 					break;
 				}
 
