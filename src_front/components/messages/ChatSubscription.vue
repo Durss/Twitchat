@@ -31,7 +31,7 @@
 					</template>
 				</i18n-t>
 	
-				<i18n-t scope="global" tag="div"
+				<i18n-t scope="global" tag="div" class="additional"
 				v-if="totalSubgifts && totalSubgifts > 0"
 				keypath="chat.subscription.sub_gift_total" :plural="totalSubgifts">
 					<template #COUNT>
@@ -56,9 +56,12 @@
 				</i18n-t>
 			</div>
 	
-			<!-- Resub -->
-			<div class="holder" v-else-if="messageData.is_resub">
+			
+			<!-- Sub and Resub -->
+			<div class="holder" v-else>
+				<!-- Resub -->
 				<i18n-t scope="global" tag="span"
+				v-if="messageData.is_resub"
 				:keypath="messageData.tier == 'prime'? 'chat.subscription.resub_prime' : 'chat.subscription.resub'">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
@@ -67,11 +70,10 @@
 						<strong>{{ messageData.tier }}</strong>
 					</template>
 				</i18n-t>
-			</div>
-	
-			<!-- Normal sub -->
-			<div class="holder" v-else>
+
+				<!-- Normal sub -->
 				<i18n-t scope="global" tag="span"
+				v-else
 				:keypath="messageData.tier == 'prime'? 'chat.subscription.sub_prime' : 'chat.subscription.sub'">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>

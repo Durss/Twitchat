@@ -174,7 +174,7 @@
 			"resub": "{USER} a renouvelé son abonnement de niveau {TIER}.",
 			"resub_prime": "{USER} a pris un abonnement avec Prime.",
 			"sub_duration": "Abonné·e depuis {COUNT} mois.",
-			"sub_streak": "Abonné·e {COUNT} mois d'affilé.",
+			"sub_streak": "{COUNT} mois d'abonnement consécutifs.",
 			"sub_advance": "A pris {COUNT} mois d'abonnement en avance",
 			"sub_gift": "{USER} a offert {COUNT} abonnement de niveau {TIER} à {LIST} | {USER} a offert {COUNT} abonnements de niveau {TIER} à {LIST}",
 			"sub_gift_total": "Cette personne a offert {COUNT} abonnements sur cette chaîne.",
