@@ -4,12 +4,12 @@
 		
 		<img v-if="messageData.is_gift" src="@/assets/icons/gift.svg" alt="gift" class="icon">
 		<img v-else-if="messageData.tier == 'prime'" src="@/assets/icons/prime.svg" alt="prime" class="icon">
-		<img v-else src="@/assets/icons/gift.svg" alt="sub" class="icon">
+		<img v-else src="@/assets/icons/sub.svg" alt="sub" class="icon">
 
 		<div>
 
+			<!-- Subgift -->
 			<div class="holder" v-if="messageData.is_gift">
-				<!-- Subgift -->
 				<i18n-t scope="global" tag="span"
 				:keypath="giftRecipients.length > 0? 'chat.subscription.sub_gift' : 'chat.subscription.sub_gift_months'">
 					<template #USER>
@@ -40,8 +40,8 @@
 				</i18n-t>
 			</div>
 	
+			<!-- Gift upgrade -->
 			<div class="holder" v-else-if="messageData.is_giftUpgrade">
-				<!-- Gift upgrade -->
 				<i18n-t scope="global" tag="span"
 				keypath="chat.subscription.sub_gift_upgrade">
 					<template #USER>
@@ -56,15 +56,12 @@
 				</i18n-t>
 			</div>
 	
+			<!-- Resub -->
 			<div class="holder" v-else-if="messageData.is_resub">
-				<!-- Resub -->
 				<i18n-t scope="global" tag="span"
 				:keypath="messageData.tier == 'prime'? 'chat.subscription.resub_prime' : 'chat.subscription.resub'">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
-					</template>
-					<template #GIFTER>
-						<a class="userlink" @click.stop="openUserCard(messageData.gift_upgradeSender!)">{{messageData.gift_upgradeSender!.displayName}}</a>
 					</template>
 					<template #TIER>
 						<strong>{{ messageData.tier }}</strong>
@@ -72,8 +69,8 @@
 				</i18n-t>
 			</div>
 	
+			<!-- Normal sub -->
 			<div class="holder" v-else>
-				<!-- Normal sub -->
 				<i18n-t scope="global" tag="span"
 				:keypath="messageData.tier == 'prime'? 'chat.subscription.sub_prime' : 'chat.subscription.sub'">
 					<template #USER>
@@ -141,6 +138,10 @@ export default class ChatSubscription extends AbstractChatMessage {
 			return this.messageData.gift_recipients;
 		}
 		return [];
+	}
+
+	public beforeMount(): void {
+		
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {

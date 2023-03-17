@@ -481,7 +481,7 @@ export default class MessageList extends Vue {
 				}
 				
 				//Ignore specific users
-				if (m.user.displayName.length > 0 && this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
+				if (this.config.userBlockList && m.user.displayName.length > 0 && this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
 					return false;
 				}
 

@@ -14,7 +14,7 @@
 				</template>
 			</i18n-t>
 	
-			<span class="quote">{{ messageText }}</span>
+			<div class="quote" v-if="messageText" v-html="messageText"></div>
 		</div>
 	</div>
 </template>
@@ -38,7 +38,7 @@ export default class ChatBits extends AbstractChatMessage {
 	public mounted():void {
 		this.messageText = this.messageData.message_html ?? this.messageData.message ?? "";
 		const reason = this.$tc("chat.bits", {COUNT:this.messageData.bits, USER:this.messageData.user.displayName});
-		this.$store("accessibility").setAriaPolite(reason+" "+this.messageText);
+		this.$store("accessibility").setAriaPolite(reason+" "+this.messageData.message);
 	}
 
 	public openUserCard():void {
