@@ -22,7 +22,7 @@
 		},
 		"raffle": {
 			"title": "Créer un tirage au sort",
-			"info_1": "Vous pouveza créer un tirage au sort que vos viewers seront invités à rejoindre avec une commande de tchat.",
+			"info_1": "Vous pouvez créer un tirage au sort que vos viewers seront invités à rejoindre avec une commande de tchat ou une récompense de points de chaîne.",
 			"info_2": "Vous pourrez ensuite sélectionner une personne au hasard.",
 			"info_3": "En bonus, un overlay permet d'afficher une roue animée lorsque vous effectuez le tirage au sort."
 		},
