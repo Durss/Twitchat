@@ -215,7 +215,7 @@ export default class TriggerActionEntry extends Vue {
 
 	public opened = false;
 	public isError = false;
-	public delay_conf:TwitchatDataTypes.ParameterData = { type:"number", value:0, min:0, max:60*10, icon:"timeout_purple.svg" };
+	public delay_conf:TwitchatDataTypes.ParameterData = { type:"number", value:0, min:0, max:60*60*24*30, icon:"timeout_purple.svg" };
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
