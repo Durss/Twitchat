@@ -1,6 +1,6 @@
 <template>
 	<div class="ttuserlist">
-		<div class="content" ref="list">
+		<div class="content" ref="content">
 			<div class="title">
 				<p><img src="@/assets/icons/user.svg" class="icon" />{{userCount}} users</p>
 				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
@@ -16,14 +16,15 @@
 				</div>
 				<div class="ctas">
 					<Button small :disabled="loading" title="Reload" :icon="$image('icons/refresh.svg')" @click="updateList()" />
+					<div class="partners"><label @click="onlyPartners = !onlyPartners">Partners:</label><ToggleButton v-model="onlyPartners" clear /></div>
 					<!-- <Button small :disabled="loading" title="Load 24h" :icon="$image('icons/user.svg')" @click="loadTimeframe(1)" />
 					<Button small :disabled="loading" title="Load 7d" :icon="$image('icons/user.svg')" @click="loadTimeframe(7)" />
 					<Button small :disabled="loading" title="Load 30d" :icon="$image('icons/user.svg')" @click="loadTimeframe(30)" /> -->
 				</div>
 			</div>
 
-			<div class="list">
-				<a v-for="u in usersSpool"
+			<div class="list" ref="list">
+				<a v-for="u in filteredItems"
 					:key="u.id"
 					class="user"
 					ref="userCard"
@@ -38,15 +39,21 @@
 							<img src="@/assets/icons/partner.svg" alt="partner" class="partner" v-if="u.user.broadcaster_type == 'partner'">
 						</span>
 					</div>
-					<div class="header" v-else>
+					<div class="header error" v-else>
 						<img src="@/assets/icons/user_purple.svg" alt="profile" class="avatar">
-						<span class="login">DELETED USER ID {{u.id}}</span>
+						<span class="login">#{{u.id}}</span>
 					</div>
 					<div class="details">{{formatDate(u)}}</div>
-				</a>
 
-				<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
+				</a>
 			</div>
+			
+			<Button class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
+			small title="Load more"
+			:icon="$image('icons/user.svg')"
+			@click="loadNextUsers()" />
+
+			<img class="loader" src="@/assets/loader/loader_white.svg" alt="loader" v-if="loading">
 		</div>
 	</div>
 </template>
@@ -59,10 +66,12 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import ToggleButton from '../ToggleButton.vue';
 
 @Component({
 	components:{
 		Button,
+		ToggleButton,
 	},
 	emits:["close"]
 })
@@ -71,6 +80,8 @@ export default class TTUserList extends Vue {
 	public users:UserData[] = [];
 	public usersSpool:UserData[] = [];
 	public loading:boolean = true;
+	public onlyPartners:boolean = false;
+	public showLoadMoreBt:boolean = false;
 	public token:string = "";
 	public spoolChunkSize:number = 200;
 	public userCount:number = 0;
@@ -79,6 +90,13 @@ export default class TTUserList extends Vue {
 	public activeLast30days:number = 0;
 
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public get filteredItems():UserData[] {
+		if(this.onlyPartners) {
+			return this.usersSpool.filter(v=> v.user && v.user.broadcaster_type == "partner");
+		}
+		return this.usersSpool;
+	}
 
 	public formatDate(u:UserData):string {
 		const d = new Date(u.date);
@@ -92,9 +110,9 @@ export default class TTUserList extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-		const list = this.$refs.list as HTMLDivElement;
-		list.addEventListener("scroll", (ev:Event):void => {
-			if ((list.clientHeight + list.scrollTop) >= list.scrollHeight) {
+		const content = this.$refs.content as HTMLDivElement;
+		content.addEventListener("scroll", (ev:Event):void => {
+			if ((content.clientHeight + content.scrollTop) >= content.scrollHeight) {
 				if(!this.loading) {
 					this.loadNextUsers();
 				}
@@ -186,17 +204,22 @@ export default class TTUserList extends Vue {
 	public async loadNextUsers(chunk?:number):Promise<void> {
 		this.loading = true;
 		chunk = chunk? chunk : this.spoolChunkSize;
-		const users = this.users.splice(0, chunk);
+		let users = this.users.splice(0, chunk);
 		const ids = users.map(u => u.id).filter( v => parseInt(v).toString() == v);
 		const channels = await TwitchUtils.loadUserInfo(ids);
 		for (let i = 0; i < channels.length; i++) {
 			const c = channels[i];
 			const index = users.findIndex(u => u.id == c.id);
 			users[index].user = c;
-			const date = users[index].date;
 		}
 		this.usersSpool = this.usersSpool.concat(users);
 		this.loading = false;
+		this.showLoadMoreBt = false;
+
+		await this.$nextTick();
+		const content = this.$refs.content as HTMLDivElement;
+		const list = this.$refs.list as HTMLDivElement;
+		this.showLoadMoreBt = (list.offsetTop + list.clientHeight) < content.clientHeight;
 	}
 }
 
@@ -218,7 +241,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 		height: 100%;
 		overflow: auto;
 		background-color: @mainColor_dark;
-		@gap: 5px;
 
 		.title {
 			text-align: center;
@@ -263,22 +285,30 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 				display: flex;
 				flex-direction: row;
 				justify-content: space-evenly;
+
+				.partners {
+					display: flex;
+					color: @mainColor_light;
+					label {
+						cursor: pointer;
+						margin-right: .5em;
+					}
+				}
 			}
 		}
 
 		.list {
 			padding: .5em;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			justify-content: center;
+			@itemWidth: 200px;
+			display: grid;
+			gap: 5px;
+			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 
 			.user {
 				display: block;
 				border-radius: 10px;
 				background-color: @mainColor_light;
-				width: calc(50% - @gap);
-				margin-bottom: @gap;
+				// width: @itemWidth;
 				overflow: hidden;
 				display: flex;
 				flex-direction: column;
@@ -287,10 +317,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 				text-decoration: none;
 				color: @mainColor_normal;
 				cursor: pointer;
-	
-				&:nth-child(odd) {
-					margin-right: @gap;
-				}
 
 				&:hover {
 					.header {
@@ -303,6 +329,10 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 					flex-direction: row;
 					background-color: @mainColor_normal;
 					transition: all .2s;
+					
+					&.error {
+						background-color: @mainColor_alert;
+					}
 	
 					.avatar {
 						height: 30px;
@@ -335,6 +365,11 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 					flex-grow: 1;
 				}
 			}
+		}
+
+		.loadBt, .loader {
+			margin: auto;
+			display: block;
 		}
 	}
 }
