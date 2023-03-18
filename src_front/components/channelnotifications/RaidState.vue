@@ -100,7 +100,6 @@ export default class RaidState extends Vue {
 		const bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		const timedoutOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		//Check for banned and timedout users stille connected to the chat
-		console.log(userlist.length);
 		for (let i = 0; i < userlist.length; i++) {
 			const u = userlist[i];
 			/*
@@ -130,9 +129,6 @@ export default class RaidState extends Vue {
 				}
 			}
 		}
-		console.log(bannedOnline);
-		console.log(timedoutOnline);
-
 		this.bannedOnline = bannedOnline;
 		this.timedoutOnline = timedoutOnline;
 	}
