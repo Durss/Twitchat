@@ -124,7 +124,7 @@
 		},
 		"message": {
 			"first_time": "First time on your channel",
-			"first_today": "1er message today",
+			"first_today": "1st message today",
 			"presentation": "{USER} presentation",
 			"returning_user": "{USER} is returning after chatting twice the last 30 days",
 			"automod": "Automod:",
