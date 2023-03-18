@@ -3,7 +3,7 @@
 		<h1 class="title">
 			<img src="@/assets/icons/ticket.svg">
 			<span>{{ $t('raffle.state_title') }}</span>
-			<span class="cmd highlight" v-if="raffleData.command">fdfsd{{raffleData.command}}</span>
+			<span class="cmd highlight" v-if="raffleData.command">{{raffleData.command}}</span>
 		</h1>
 
 		<ProgressBar class="progress"

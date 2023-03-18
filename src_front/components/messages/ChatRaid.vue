@@ -28,8 +28,9 @@
 				</div>
 
 				<Button @click.stop="shoutout()"
+					white
 					:title="$t('chat.soBt')"
-					:icon="$image('icons/shoutout.svg')"
+					:icon="$image('icons/shoutout_purple.svg')"
 					:loading="shoutoutLoading"
 					class="soButton"
 				/>

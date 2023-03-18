@@ -156,7 +156,7 @@ export default class SpotifyHelper extends EventDispatcher {
 			}
 		}else{
 			if(attempt < 5) {
-				setTimeout(()=>{
+				this._refreshTimeout = setTimeout(()=>{
 					this.refreshToken(++attempt);
 				}, 5000)
 			}else{
