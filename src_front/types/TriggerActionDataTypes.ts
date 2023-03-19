@@ -185,6 +185,7 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	url:string;
 	method:"GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
 	queryParams:string[];
+	outputPlaceholder?:string;
 }
 
 export interface TriggerActionWSData extends TriggerActionData{

@@ -72,7 +72,8 @@
 				"action_count": "Modifier un compteur",
 				"action_countget": "Lire un compteur",
 				"action_random": "Valeur aléatoire",
-				"action_stream_infos": "Changer les infos de stream"
+				"action_stream_infos": "Changer les infos de stream",
+				"custom_placeholder_example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder."
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -149,6 +150,8 @@
 				"url": "URL à appeler",
 				"method": "Méthode",
 				"topic_placeholder":"valeur personnalisée...",
+				"output_placeholder":"Enregistrer le résultat de la requête dans le placeholder",
+				"output_placeholder_placeholder":"placeholder...",
 				"select_param": "Choisissez les paramètres à inclure :",
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
 			},
@@ -159,8 +162,7 @@
 			},
 			"countget": {
 				"placeholder_label":"Nom du placeholder",
-				"select_label":"Compteur à lire",
-				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du compteur."
+				"select_label":"Compteur à lire"
 			},
 			"random":{
 				"min_label":"Valeur min (inclus)",

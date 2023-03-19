@@ -738,7 +738,10 @@ export default class TriggerActionHandler {
 							}
 							try {
 								logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});
-								await fetch(url, options);
+								const res = await fetch(url, options);
+								if(step.outputPlaceholder && res.status >= 200 && res.status <= 208) {
+									dynamicPlaceholders[step.outputPlaceholder] = await res.text();
+								}
 							}catch(error) {
 								console.error(error);
 							}

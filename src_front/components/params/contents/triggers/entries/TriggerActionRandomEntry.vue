@@ -96,7 +96,7 @@
 		</div>
 
 		<i18n-t scope="global" class="example item" tag="div"
-		keypath="triggers.actions.random.example"
+		keypath="triggers.actions.common.custom_placeholder_example"
 		v-if="(param_placeholder.value as string).length > 0 && action.mode != 'trigger'">
 			<template #PLACEHOLDER>
 				<mark v-click2Select>{{"{"}}{{(param_placeholder.value as string).toUpperCase()}}{{"}"}}</mark>

@@ -144,6 +144,7 @@ import Ajv from "ajv";
 										addValue: {type:"string", maxLength:100},
 										counter: {type:"string", maxLength:40},
 										placeholder:{type:"string", maxLength:20},
+										outputPlaceholder:{type:"string", maxLength:20},
 										min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 										max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 										float: {type:"boolean"},
