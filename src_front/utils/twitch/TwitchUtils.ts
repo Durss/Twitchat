@@ -1090,7 +1090,7 @@ export default class TwitchUtils {
 	/**
 	 * Update stream's title and game
 	 */
-	public static async setStreamInfos(title:string, categoryID:string, channelId:string, tags:string[] = []):Promise<boolean> {
+	public static async setStreamInfos(channelId:string, title?:string, categoryID?:string, tags:string[] = []):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.SET_STREAM_INFOS])) return false;
 		
 		const options = {
@@ -1111,7 +1111,7 @@ export default class TwitchUtils {
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
-			return await this.setStreamInfos(title, categoryID, channelId, tags);
+			return await this.setStreamInfos(channelId, title, categoryID, tags);
 		}
 		if(res.status == 204) {
 			return true;

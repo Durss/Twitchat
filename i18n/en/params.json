@@ -153,7 +153,10 @@
 			"pin": "Send and pin the message",
 			"clear": "Clear chat content",
 			"greetduration": "Sets the greet them auto delete duration",
-			"betamigrate": "Migrate user data from beta to production"
+			"betamigrate": "Migrate user data from beta to production",
+			"streamTitle": "Update the stream's title",
+			"streamCategory": "Update the stream's title",
+			"streamTags": "Update the stream's tags"
 		}
 	}
 }
