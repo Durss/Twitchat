@@ -216,6 +216,8 @@
 			"bits": "Number of bits",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
+			"stream_duration": "Stream duration (ms)",
+			"stream_live": "\"true\" if user was live when raiding",
 			"viewers": "Viewers count",
 			"reward_title": "Reward name",
 			"reward_description": "Reward description",

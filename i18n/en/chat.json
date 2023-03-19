@@ -14,6 +14,7 @@
 		"fake_tag": "fake",
 		"fake_tag_tt": "This is a fake message.<br>Only you can see it.",
 		"soBt": "Shoutout",
+		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Try <mark>right clicking</mark> on this message to discover lots of options!",
 		"form": {
 			"paramsBt_aria": "Open parameters",
 			"cmdsBt_aria": "Open chat commands",
@@ -59,7 +60,7 @@
 			"hide_users_placeholder": "type username...",
 			"scope_missing": "Needs missing authorization. Click to grant permission.",
 			"whispers_permissions": "Filter allowed users",
-			"show_panels_here":"Show forms and floatting windows on this column",
+			"show_panels_here":"Show \" @:greet.title \" on this column",
 			"message_types": {
 				"twitchat_ad": "Twitchat tips & tricks",
 				"ban": "Bans",
@@ -187,7 +188,7 @@
 		"follow": "{USER} followed you",
 		"raid":{
 			"previous_stream": "Was streaming {CATEGORY}",
-			"current_stream": "🔴 Streaming {CATEGORY}:",
+			"current_stream": "Streaming {CATEGORY}:",
 			"text": "{USER} is raiding with a party of {COUNT}.",
 			"duration": "Duration: {DURATION}"
 		},
@@ -298,6 +299,26 @@
 			"block_confirm_title": "Block {USER}",
 			"block_confirm_desc": "Are you sure you want to block this user?<br>They will be removed from your followers."
 		},
+		"context_menu":{
+			"profile": "Open profile",
+			"delete": "Delete message",
+			"track": "Track user",
+			"untrack": "Untrack user",
+			"shoutout": "Shoutout user",
+			"tts": "Read with TTS",
+			"tts_all": "Read all messages<br>with TTS",
+			"tts_all_start": "Read all their<br>messages with TTS",
+			"tts_all_stop": "Stop reading<br>their messages",
+			"highlight": "Highlight message",
+			"pin": "Pin message",
+			"save": "Save message",
+			"unsave": "Unsave message",
+			"ban":"Ban",
+			"unban":"Unban",
+			"block":"Block",
+			"unblock":"Unblock",
+			"to":"Timeout"
+		},
 		"custom_badge": {
 			"label": {
 				"pinned": "",
@@ -317,15 +338,6 @@
 				"restrictedUser": "Message only visible by<br>you and your mods",
 				"suspiciousUser": "User is flaged as suspicious"
 			}
-		},
-		"hover_actions": {
-			"track_user": "Track user",
-			"so": "Shoutout user",
-			"tts": "Read message with TTS",
-			"highlight": "Highlight message",
-			"highlight_tt": "Highlight on stream<br><i>(needs overlay)</i>",
-			"pin": "Pin message",
-			"save": "Save message"
 		},
 		"scope_request": {
 			"title": "This column filters require a missing permission: | This column filters require missing permissions:",

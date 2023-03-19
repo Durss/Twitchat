@@ -47,8 +47,6 @@ export default class ChatBingoResult extends AbstractChatMessage {
 	.emote {
 		width: 2em;
 		height: 2em;
-		vertical-align: middle;
-		object-fit: contain;
 	}
 }
 </style>

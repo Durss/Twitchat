@@ -33,12 +33,6 @@
 						<img src="@/assets/icons/cross_white.svg" :alt="$t('chat.filters.closeBt_aria')" class="icon">
 					</button>
 				</div>
-
-				<ParamItem class="showPanelsHere"
-					:paramData="param_showPanelsHere"
-					clearToggle
-					@change="saveData()"
-					v-model="config.showPanelsHere" />
 				
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
 				
@@ -107,6 +101,12 @@
 					<Button :title="$t('global.cancel')" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceConfig" @click="deleteColumn()" />
 					<Button :title="$t('global.create')" small :icon="$image('icons/add_purple.svg')" white v-if="forceConfig" @click="submitForm()" />
 				</div>
+
+				<ParamItem class="showPanelsHere"
+					:paramData="param_showPanelsHere"
+					clearToggle
+					@change="saveData()"
+					v-model="config.showPanelsHere" />
 			</div>
 
 			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
@@ -180,7 +180,7 @@ export default class MessageListFilter extends Vue {
 	public missingScope:boolean = false;
 	public previewIndex:number = 0;
 	public param_hideUsers:TwitchatDataTypes.ParameterData = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide.svg", maxLength:1000000};
-	public param_showPanelsHere:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"chat.filters.show_panels_here"};
+	public param_showPanelsHere:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"chat.filters.show_panels_here"};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
@@ -325,7 +325,7 @@ export default class MessageListFilter extends Vue {
 		for (let i = 0; i < sortedFilters.length; i++) {
 			const f = sortedFilters[i];
 			const children:TwitchatDataTypes.ParameterData[] = [];
-			const paramData:TwitchatDataTypes.ParameterData = {type:"toggle",
+			const paramData:TwitchatDataTypes.ParameterData = {type:"boolean",
 								value:this.config.filters[f],
 								labelKey:this.typeToLabel[f] ?? f,
 								icon:this.typeToIcon[f],
@@ -392,7 +392,7 @@ export default class MessageListFilter extends Vue {
 						this.config.messageFilters[k] = true;
 					}
 
-					const paramData:TwitchatDataTypes.ParameterData = {type:"toggle",
+					const paramData:TwitchatDataTypes.ParameterData = {type:"boolean",
 						value:this.config.messageFilters[k],
 						labelKey:"chat.filters.message_filters."+k,
 						storage:key,

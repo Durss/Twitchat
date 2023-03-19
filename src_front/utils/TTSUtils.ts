@@ -336,10 +336,12 @@ export default class TTSUtils {
 				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				
 				let pattern	= paramsTTS.readMessagePatern;
-				if(message.twitch_automod)				pattern = paramsTTS.readAutomodPattern;
-				else if(message.automod)				pattern = paramsTTS.readAutomodPattern;
-				else if(message.twitch_isFirstMessage)	pattern = paramsTTS.read1stTimeChattersPattern;
-				else if(message.todayFirst)				pattern = paramsTTS.read1stMessageTodayPattern;
+				if(!force) {
+					if(message.twitch_automod)				pattern = paramsTTS.readAutomodPattern;
+					else if(message.automod)				pattern = paramsTTS.readAutomodPattern;
+					else if(message.twitch_isFirstMessage)	pattern = paramsTTS.read1stTimeChattersPattern;
+					else if(message.todayFirst)				pattern = paramsTTS.read1stMessageTodayPattern;
+				}
 
 				let txt = pattern.replace(/\{USER\}/gi, message.user.displayName)
 				txt = txt.replace(/\{MESSAGE\}/gi, mess)

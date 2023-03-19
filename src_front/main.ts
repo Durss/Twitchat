@@ -39,6 +39,8 @@ import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import ContextMenu from '@imengyu/vue3-context-menu'
 
 const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin);
@@ -237,6 +239,7 @@ function buildApp() {
 	
 	app.use(router)
 	app.use(i18n)
+	app.use(ContextMenu)
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.provide("$image", image)

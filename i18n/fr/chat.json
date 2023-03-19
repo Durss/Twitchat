@@ -14,6 +14,7 @@
 		"fake_tag": "fake",
 		"fake_tag_tt": "Ceci est un faux message.<br>Vous êtes seul·e à le voir.",
 		"soBt": "Shoutout",
+		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Essaie de faire un <mark>clic droit</mark> sur ce message pour découvrir plein d'options !",
 		"form": {
 			"paramsBt_aria": "Ouvrir les parameters",
 			"cmdsBt_aria": "Ouvrir les commandes",
@@ -59,7 +60,7 @@
 			"hide_users_placeholder": "entrez un pseudo...",
 			"scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
 			"whispers_permissions": "Filtrer les personnes autorisées",
-			"show_panels_here":"Afficher les fenêtres flottantes et formulaires dans cette colonne",
+			"show_panels_here":"Afficher \" @:greet.title \" dans cette colonne",
 			"message_types": {
 				"twitchat_ad": "Astuces Twitchat",
 				"ban": "Bans",
@@ -298,6 +299,26 @@
 			"block_confirm_title": "BLoquer {USER}",
 			"block_confirm_desc": "Voulez-vous vraiment bloquer cette personnes ?<br>Elle sera supprimée de vos followers."
 		},
+		"context_menu":{
+			"profile": "Ouvrir profil",
+			"delete": "Supprimer le message",
+			"track": "Suivre ses messages",
+			"untrack": "Ne plus suivre<br>ses messages",
+			"shoutout": "Faire un shoutout",
+			"tts": "Lire via TTS",
+			"tts_all": "Lire tous ses<br>messages via TTS",
+			"tts_all_start": "Lire tous ses<br>messages via TTS",
+			"tts_all_stop": "Arrêter de lire<br>ses messages",
+			"highlight": "Mettre en avant",
+			"pin": "Epingler le message",
+			"save": "Enregistrer le message",
+			"unsave": "Désenregistrer le message",
+			"ban":"Bannir",
+			"unban":"Débannir",
+			"block":"Bloquer",
+			"unblock":"Débloquer",
+			"to":"Ban temporaire"
+		},
 		"custom_badge": {
 			"label": {
 				"pinned": "",
@@ -317,15 +338,6 @@
 				"restrictedUser": "Message visible uniquement<br>par vous et vos modérateur·ices",
 				"suspiciousUser": "Personne marquée<br>comme suspecte"
 			}
-		},
-		"hover_actions": {
-			"track_user": "Suivre ses messages",
-			"so": "Faire un shoutout",
-			"tts": "Lire le message<br>à voix haute",
-			"highlight": "Mettre en avant",
-			"highlight_tt": "Afficher sur votre stream<br><i>(nécessite l'overlay dédié)</i>",
-			"pin": "Epingler le message",
-			"save": "Conserver le message"
 		},
 		"scope_request": {
 			"title": "Les filtres de cette colonne de message requièrent une autorisation manquante: | Les filtres de cette colonne de message requièrent des autorisations manquantes:",

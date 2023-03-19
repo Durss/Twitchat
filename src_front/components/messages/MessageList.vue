@@ -98,24 +98,11 @@
 					disableConversation
 				/>
 			</div>
-
-			<Button class="TTSreadBt" small bounce
-				:title="readLabel"
-				:icon="$image('icons/tts.svg')"
-				@click="toggleReadUser"
-				v-if="!conversationMode && $store('tts').params.enabled === true" />
 		</div>
 
 		<div v-if="showLoadingGradient && !lightMode" class="noMessage">
 			<div class="gradient"></div>
 		</div>
-
-		<ChatMessageHoverActions class="hoverActions" 
-			:style="hoverActionsStyles"
-			@close="onLeaveMessage"
-			@mouseleave="onLeaveMessage"
-			@mouseenter="reopenLastHoverActions"
-			:messageData="hoveredMessage" />
 	</div>
 </template>
 
@@ -133,7 +120,6 @@ import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
 import MessageItem from './MessageItem.vue';
 
@@ -142,7 +128,6 @@ import MessageItem from './MessageItem.vue';
 		Button,
 		MessageItem,
 		MessageListFilter,
-		ChatMessageHoverActions,
 	},
 	emits: ["showModal", 'addColumn']
 })
@@ -158,7 +143,6 @@ export default class MessageList extends Vue {
 	@Prop
 	public config!: TwitchatDataTypes.ChatColumnsConfig;
 
-	public hoveredMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
 	public filteredMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public pendingMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -187,7 +171,6 @@ export default class MessageList extends Vue {
 	private virtualScrollY = -1;
 	private updateDebounce = -1;
 	private conversationPos = 0;
-	private hoverActionsPos = 0;
 	private prevHeight = 0;
 	private openConvTimeout!: number;
 	private closeConvTimeout!: number;
@@ -209,13 +192,6 @@ export default class MessageList extends Vue {
 		return { top: this.conversationPos + "px" }
 	}
 
-	public get hoverActionsStyles(): StyleValue {
-		if(this.hoveredMessage) {
-			return { top: this.hoverActionsPos + "px" }
-		}
-		return {top:"-10000px", pointerEvents:"none"};
-	}
-
 	public get filteredMessagesDeduped(): TwitchatDataTypes.ChatMessageTypes[] {
 		const res:TwitchatDataTypes.ChatMessageTypes[] = [];
 		const done:{[key:string]:boolean} = {};
@@ -226,19 +202,6 @@ export default class MessageList extends Vue {
 			res.push(element);
 		}
 		return res;
-	}
-
-	public get readLabel(): string {
-		if (!this.conversation[0].user.login) return "";
-		const username = this.conversation[0].user.login.toLowerCase();
-		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
-		let label = "";
-		if (permissions.usersAllowed.findIndex(v=>v.toLowerCase() === username) == -1) {
-			label = this.$t("tts.read_user_start", {USER:username})
-		} else {
-			label = this.$t("tts.read_user_stop", {USER:username})
-		}
-		return label;
 	}
 
 	public beforeUpdate(): void {
@@ -369,16 +332,6 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Toggles whether the TTS should read this user's messages
-	 */
-	public toggleReadUser(): void {
-		const username = this.conversation[0].user.login?.toLowerCase();
-		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
-		const read = permissions.usersAllowed.findIndex(v=>v.toLowerCase() === username) == -1;
-		this.$store("tts").ttsReadUser(this.conversation[0].user, read);
-	}
-
-	/**
 	 * Opens up the message filters
 	 */
 	public openFilters(): void {
@@ -476,7 +429,7 @@ export default class MessageList extends Vue {
 				}
 				
 				//Force pinned messages if requested
-				if (m.is_pinned && this.config.messageFilters.pinned) {
+				if (m.is_saved && this.config.messageFilters.pinned) {
 					return true;
 				}
 				
@@ -890,7 +843,7 @@ export default class MessageList extends Vue {
 				if(this.virtualScrollY < 0) this.virtualScrollY = 0;
 				if(this.virtualScrollY > maxScroll) this.virtualScrollY = maxScroll;
 
-				messagesHolder.scrollBy(0, scrollBy);
+				// messagesHolder.scrollBy(0, scrollBy);
 				await this.onScroll(scrollBy);
 				break;
 			}
@@ -1009,7 +962,7 @@ export default class MessageList extends Vue {
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_PIN: {
 				if(!this.selectedMessage) return
-				if(this.selectedMessage.is_pinned !== true) {
+				if(this.selectedMessage.is_saved !== true) {
 					this.$store("chat").saveMessage(this.selectedMessage);
 				}else{
 					this.$store("chat").unsaveMessage(this.selectedMessage);
@@ -1322,13 +1275,6 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Avoids closing the conversation when rolling over it
-	 */
-	public async reopenLastHoverActions(): Promise<void> {
-		clearTimeout(this.closeConvTimeout);
-	}
-
-	/**
 	 * Called when asking to read a conversation
 	 * Display the full conversation if any
 	 */
@@ -1411,15 +1357,7 @@ export default class MessageList extends Vue {
 	 * Called when rolling over a message
 	 */
 	public onEnterMessage(data: TwitchatDataTypes.ChatMessageTypes): void {
-		this.hoveredMessage = data;
-
 		clearTimeout(this.closeConvTimeout);
-		const messageHolder = (this.$refs["message_" + data.id] as HTMLDivElement[])[0];
-		const holderBounds = this.$el.getBoundingClientRect();
-		const messageBounds = (messageHolder.querySelector(".message") as HTMLDivElement).getBoundingClientRect();
-
-		this.hoverActionsPos = messageBounds.top - holderBounds.top;
-
 	}
 
 	/**
@@ -1428,17 +1366,15 @@ export default class MessageList extends Vue {
 	 */
 	public onLeaveMessage(): void {
 		clearTimeout(this.openConvTimeout);
-		if (this.conversation.length == 0 && !this.hoveredMessage) return;
+		if (this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
 		this.closeConvTimeout = setTimeout(() => {
-			this.hoveredMessage = null;
 			this.conversation = [];
 			const mainHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 			gsap.to(mainHolder, { opacity: 1, duration: .25 });
 		}, 0);
 	}
-
 
 	/**
 	 * Called on a message is clicked
@@ -1854,25 +1790,7 @@ export default class MessageList extends Vue {
 			overflow-x: hidden;
 			position: relative
 		}
-
-		.TTSreadBt {
-			.clearButton();
-			height: unset;
-			line-height: 1.5em;
-			overflow: unset;
-			font-size: .7em;
-			display: block;
-			margin: auto;
-			padding: 0 .25em;
-		}
 	}
 
-	.hoverActions {
-		font-size: var(--messageSize);
-		position: absolute;
-		z-index: 3;
-		right: 10px;
-		transform: translateY(-100%);
-	}
 }
 </style>

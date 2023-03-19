@@ -50,6 +50,7 @@ export default class DataStore {
 	public static TWITCHAT_AD_WARNED:string = "adWarned";
 	public static TWITCHAT_AD_NEXT_DATE:string = "adNextTS";
 	public static TWITCHAT_SPONSOR_PUBLIC_PROMPT:string = "sponsorPublicPrompt";
+	public static TWITCHAT_RIGHT_CLICK_HINT_PROMPT:string = "rightClickHintPrompt";
 	public static INTERFACE_SCALE:string = "interfaceScale";
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
@@ -181,7 +182,7 @@ export default class DataStore {
 		if(v==31) {
 			//v31 is a refactor of the datastore logic to fix failing migration cleanups
 			//Instead of migrating data of the localStorage it now migrates JSON
-			//data then saves i on the localStorage.
+			//data then saves it on the localStorage.
 
 			//Redoing old migration to make sure they're effective
 			this.cleanupPreV7Data(data);

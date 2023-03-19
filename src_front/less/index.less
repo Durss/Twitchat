@@ -67,6 +67,45 @@ h1 {
 	}
 }
 
+#mx-menu-default-container {
+	.mx-menu-ghost-host{
+		.mx-context-menu {
+			box-shadow: rgba(0, 0, 0, 0.5) 1px 1px 2px 2px;
+			.mx-context-menu-items {
+				cursor: pointer;
+				.mx-context-menu-item.alert.open,
+				.mx-context-menu-item.alert:hover {
+					background: @mainColor_alert;
+				}
+				.mx-context-menu-item-wrapper {
+					.mx-context-menu-item.header {
+						color:@mainColor_light;
+						background: rgba(255,255,255,.2);
+						background: @mainColor_highlight;
+						margin: -10px 0 0 0;
+						border-bottom-left-radius: 0;
+						border-bottom-right-radius: 0;
+						padding: .5em;
+						margin-bottom: .25em;
+						cursor: default;
+						.mx-item-row:nth-child(1) {
+							flex-grow: 1;
+							.label {
+								flex-grow: 1;
+								font-size: 1.1em;
+								font-weight: bold;
+								text-align: center;
+								padding-right: 24px;
+								max-width: 150px;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 .vs__dropdown-option {
 	&>.listIcon {
 		height: 1em;

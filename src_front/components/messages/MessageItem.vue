@@ -189,7 +189,6 @@ import ChatShoutout from './ChatShoutout.vue';
 import ChatStreamOnOff from './ChatStreamOnOff.vue';
 import ChatTimerResult from './ChatTimerResult.vue';
 import ChatUnban from './ChatUnban.vue';
-import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
 import ChatCommunityBoost from './ChatCommunityBoost.vue';
 import ChatBits from './ChatBits.vue';
 import ChatSubscription from './ChatSubscription.vue';
@@ -231,7 +230,6 @@ import ChatAutobanJoin from './ChatAutobanJoin.vue';
 		ChatHypeTrainCooldown,
 		ChatLowTrustTreatment,
 		ChatMessageClipPending,
-		ChatMessageHoverActions,
 		ChatCommunityChallengeContribution,
 	},
 	emits:["showModal","markRead"],
