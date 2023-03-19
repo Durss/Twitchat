@@ -231,29 +231,33 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * @param uri Spotify URI of the track to add. Get one with "searchTrack()" method
 	 * @returns if a track has been added or not
 	 */
-	public async addToQueue(uri:string):Promise<boolean> {
+	public async addToQueue(uri:string, isRetry:boolean = false):Promise<boolean> {
 		const options = {
 			headers:this._headers,
 			method:"POST",
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(uri), options);
-		if(res.status == 401) {
-			await this.refreshToken();
-			return false;
-		}
 		if(res.status == 204) {
 			return true;
-		}
+		}else
+		if(res.status == 401) {
+			await this.refreshToken();
+			//Try again
+			if(!isRetry) await this.addToQueue(uri, true);
+		}else
 		if(res.status == 409) {
 			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
-			return false;
-		}
-		if(res.status == 404) {
-			const json = await res.json();
-			if(json.error) {
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+		}else {
+			try {
+				const json = await res.json();
+				if(json.error.message) {
+					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+				}else {
+					throw(new Error(""))
+				}
+			}catch(error) {
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status));
 			}
-			return false;
 		}
 		return false;
 	}
@@ -476,13 +480,23 @@ export default class SpotifyHelper extends EventDispatcher {
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
 					StoreProxy.main.alertData = StoreProxy.i18n.t("music.spotify_play");
 				}
-			}catch(error){}
-
-			return false;
-		}
+			}catch(error){
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status));
+			}
+		}else
 		if(res.status == 409) {
 			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
-			return false;
+		}else {
+			try {
+				const json = await res.json();
+				if(json.error.message) {
+					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+				}else {
+					throw(new Error(""))
+				}
+			}catch(error) {
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status));
+			}
 		}
 		return false;
 	}
