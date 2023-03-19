@@ -843,7 +843,7 @@ export default class MessageList extends Vue {
 				if(this.virtualScrollY < 0) this.virtualScrollY = 0;
 				if(this.virtualScrollY > maxScroll) this.virtualScrollY = maxScroll;
 
-				// messagesHolder.scrollBy(0, scrollBy);
+				messagesHolder.scrollBy(0, scrollBy);
 				await this.onScroll(scrollBy);
 				break;
 			}
