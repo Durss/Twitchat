@@ -407,7 +407,6 @@ import Ajv from "ajv";
 		"p:alertMode": {type:"boolean"},
 		"p:highlight1stToday": {type:"boolean"},
 		"p:chatShoutout": {type:"boolean"},
-		"p:rightClickHintPrompt": {type:"boolean"},
 		"p:hideUsers": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:censorDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:showSelf": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
@@ -489,6 +488,7 @@ import Ajv from "ajv";
 		cypherKey: {type:"string", maxLength:500},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"number", minimum:-1, maximum:10},
+		rightClickHintPrompt: {type:"boolean"},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,
