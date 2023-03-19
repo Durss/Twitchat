@@ -5,9 +5,12 @@
 		<img src="@/assets/icons/channelPoints.svg" alt="reward" class="icon">
 
 		<div class="holder">
-			<i18n-t scope="global" tag="span" keypath="chat.community_challenge">
+			<i18n-t scope="global" tag="span" keypath="chat.community_challenge" class="label">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
+				</template>
+				<template #TITLE>
+					<strong>{{ messageData.challenge.title }}</strong>
 				</template>
 				<template #COUNT>
 					<strong>{{ messageData.contribution }}</strong>
@@ -16,14 +19,16 @@
 					<strong>{{ messageData.total_contribution }}</strong>
 				</template>
 			</i18n-t>
-		</div>
-
-		<div class="communityChallenge" v-if="messageData.type === 'community_challenge_contribution'">
-			<div class="values">
-				<div>{{messageData.challenge.progress}}</div>
-				<div>{{messageData.challenge.goal}}</div>
+	
+			<div class="percent">{{ percent }}%</div>
+	
+			<div class="progress">
+				<div class="values">
+					<div>{{messageData.challenge.progress}}</div>
+					<div>{{messageData.challenge.goal}}</div>
+				</div>
+				<p>pts</p>
 			</div>
-			<p>pts</p>
 		</div>
 	</div>
 </template>
@@ -45,22 +50,39 @@ export default class ChatCommunityChallengeContribution extends AbstractChatMess
 	public openUserCard():void {
 		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
+
+	public get percent():number {
+		return Math.floor(this.messageData.challenge.progress / this.messageData.challenge.goal * 100);
+	}
 }
 </script>
 
 <style scoped lang="less">
 .chatcommunitychallengecontribution{
 	.chatMessageHighlight();
+
 	
 	.holder {
-		flex-grow: 1;
+		display: flex;
+		flex-wrap: wrap;
+		gap: .5em;
+		align-items: center;
+		.label {
+			flex-basis: 200px;
+			flex-grow: 1;
+		}
 	}
 
 	.icon, .time {
 		align-self: center;
 	}
 
-	.communityChallenge {
+	.percent {
+		font-size: 2em;
+		font-weight: bold;
+	}
+
+	.progress {
 		font-size: .8em;
 		color:@mainColor_light;
 		display: flex;
