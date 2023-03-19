@@ -170,13 +170,18 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * 
 	 * @returns track info
 	 */
-	public async getTrackByID(id:string):Promise<SearchTrackItem|null> {
+	public async getTrackByID(id:string, isRetry:boolean = false):Promise<SearchTrackItem|null> {
 		const options = {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/tracks/"+encodeURIComponent(id), options);
-		const json = await res.json();
-		return json;
+		if(res.status == 401) {
+			await this.refreshToken();
+			//Try again
+			if(!isRetry) return await this.getTrackByID(id, true);
+			else return null;
+		}
+		return await res.json();
 	}
 
 	/**
@@ -184,14 +189,16 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * 
 	 * @returns if a track has been found or not
 	 */
-	public async searchTrack(name:string):Promise<SearchTrackItem|null> {
+	public async searchTrack(name:string, isRetry:boolean = false):Promise<SearchTrackItem|null> {
 		const options = {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/search?type=track&q="+encodeURIComponent(name), options);
 		if(res.status == 401) {
 			await this.refreshToken();
-			return null;
+			//Try again
+			if(!isRetry) return await this.searchTrack(name, true);
+			else return null;
 		}
 		const json = await res.json();
 		const tracks = json.tracks as SearchTrackResult;
@@ -207,14 +214,16 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * 
 	 * @returns if a track has been found or not
 	 */
-	public async searchPlaylist(name:string):Promise<SearchPlaylistItem|null> {
+	public async searchPlaylist(name:string, isRetry:boolean = false):Promise<SearchPlaylistItem|null> {
 		const options = {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/search?type=playlist&q="+encodeURIComponent(name), options);
 		if(res.status == 401) {
 			await this.refreshToken();
-			return null;
+			//Try again
+			if(!isRetry) return await this.searchPlaylist(name, true);
+			else return null;
 		}
 		const json = await res.json();
 		const tracks = json.playlists as SearchPlaylistResult;
@@ -243,7 +252,8 @@ export default class SpotifyHelper extends EventDispatcher {
 		if(res.status == 401) {
 			await this.refreshToken();
 			//Try again
-			if(!isRetry) await this.addToQueue(uri, true);
+			if(!isRetry) return await this.addToQueue(uri, true);
+			else return false;
 		}else
 		if(res.status == 409) {
 			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
