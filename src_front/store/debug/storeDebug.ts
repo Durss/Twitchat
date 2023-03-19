@@ -232,8 +232,14 @@ export const storeDebug = defineStore('debug', {
 						stream:{
 							title: "Hello world",
 							category: "Just chatting",
+							duration:0,
+							wasLive: false
 						}
 					};
+					if(Math.random() > .5) {
+						m.stream.wasLive = true;
+						m.stream.duration = Math.round(Math.random() * 1000 * 60 * 60 * 8 + 1000 * 60 * 30);
+					}
 					data = m;
 					break;
 				}
@@ -573,7 +579,8 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						channel_id:uid,
 						date:Date.now(),
-						fromAutomod:true,
+						user,
+						fromAutomod:Math.random() > .5,
 					};
 					data = m;
 					break;

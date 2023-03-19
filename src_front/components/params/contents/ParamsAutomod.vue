@@ -89,8 +89,8 @@ import PermissionsForm from '../../PermissionsForm.vue';
 export default class ParamsAutomod extends Vue {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", value:false};
-	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"toggle", value:false};
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
+	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
 	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData} = {};
 	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData} = {};
 	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData} = {};
@@ -212,11 +212,11 @@ export default class ParamsAutomod extends Vue {
 	private initRule(data:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
 		this.keywordToOpen[data.id]			= data.label.length === 0 || data.regex.length === 0;
 		this.keywordToValid[data.id]		= true;
-		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'text', value:'', maxLength:100};
-		this.param_ruleRegex[data.id]		= {labelKey:"automod.rule.keywords", type:'text', value:'', maxLength:5000, longText:true};
-		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'toggle', value:false};
-		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'toggle', value:false, icon:"emergency_purple.svg"};
-		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'toggle', value:false, icon:"firstTime_purple.svg"};
+		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'string', value:'', maxLength:100};
+		this.param_ruleRegex[data.id]		= {labelKey:"automod.rule.keywords", type:'string', value:'', maxLength:5000, longText:true};
+		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'boolean', value:false};
+		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency_purple.svg"};
+		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime_purple.svg"};
 	}
 
 }

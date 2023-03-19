@@ -63,7 +63,7 @@ export default class TimerForm extends Vue {
 
 	public mode:"timer"|"countdown" = "timer";
 	
-	public param_duration:TwitchatDataTypes.ParameterData	= {value:60, type:"text"};
+	public param_duration:TwitchatDataTypes.ParameterData	= {value:60, type:"string"};
 
 	public async mounted():Promise<void> {
 		this.param_duration.labelKey = "timer.duration_param";

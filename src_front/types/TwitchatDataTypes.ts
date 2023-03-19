@@ -39,11 +39,29 @@ export namespace TwitchatDataTypes {
 	export interface CounterData {
 		id:string;
 		name:string;
+		/**
+		 * Current counter's value (if not "per user")
+		 */
 		value:number;
+		/**
+		 * Min value of the counter
+		 */
 		min:number|false;
+		/**
+		 * Max value of the counter
+		 */
 		max:number|false;
+		/**
+		 * Should the value loop to the opposite limit when reaching the min or max value
+		 */
 		loop:boolean;
+		/**
+		 * Is the counted global (false) or per user (true)
+		 */
 		perUser:boolean;
+		/**
+		 * Users counters values
+		 */
 		users?:{[key:string]:number};
 	}
 
@@ -52,15 +70,42 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface ChatColumnsConfig {
 		id:string;
+		/**
+		 * Position of the col
+		 */
 		order:number;
+		/**
+		 * Size of the col in percent of the available screen space
+		 */
 		size:number;
+		/**
+		 * Number of message to show on the "live messages" section when chat paused
+		 */
 		liveLockCount:number;
+		/**
+		 * true if the "greet them", polls, predictions, bingos,.. and forms should show up on this col
+		 */
 		showPanelsHere:boolean;
+		/**
+		 * Filter params of the col
+		 */
 		filters:{[key in typeof MessageListFilterTypes[number]]:boolean};
-		//Specific sub filters for chat messages
+		/**
+		 * Filter params of the "messages" sub section
+		 */
 		messageFilters:ChatColumnsConfigMessageFilters;
+		/**
+		 * Specific commands that should be hidden
+		 */
 		commandsBlockList:string[];
+		/**
+		 * Specific users that should be hidden
+		 */
 		userBlockList:string[];
+		/**
+		 * Custom permissions for the whispers
+		 * This allows to accept whispers only from mods or specific users
+		 */
 		whispersPermissions:PermissionsData;
 	}
 	
@@ -127,7 +172,13 @@ export namespace TwitchatDataTypes {
 	 * Account params types
 	 */
 	export interface IAccountParamsCategory {
+		/**
+		 * true if parameters should be saved server side
+		 */
 		syncDataWithServer:ParameterData;
+		/**
+		 * true if user choose to make their donation public
+		 */
 		publicDonation:ParameterData;
 	}
 	export type AccountParamsCategory = keyof IAccountParamsCategory;
@@ -136,10 +187,16 @@ export namespace TwitchatDataTypes {
 	 * OBS chat command scene control
 	 */
 	export interface OBSSceneCommand {
+		/**
+		 * OBS scene info
+		 */
 		scene:{
 			sceneIndex:number;
 			sceneName:string;
 		}
+		/**
+		 * Command to use to switch to that OBS scene
+		 */
 		command:string;
 	}
 
@@ -147,8 +204,17 @@ export namespace TwitchatDataTypes {
 	 * OBS chat command mute control
 	 */
 	export interface OBSMuteUnmuteCommands {
+		/**
+		 * OBS audio source name
+		 */
 		audioSourceName:string;
+		/**
+		 * Command to use to mute the source
+		 */
 		muteCommand:string;
+		/**
+		 * Command to use to unmute the source
+		 */
 		unmuteCommand:string;
 	}
 
@@ -182,36 +248,131 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface ParameterData {
 		id?:number;
-		type:"toggle"|"slider"|"number"|"text"|"password"|"list"|"browse"|"editablelist";
+		/**
+		 * Parameter type
+		 */
+		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist";
+		/**
+		 * Parameter value
+		 */
 		value:boolean|number|string|string[]|undefined;
+		/**
+		 * List values for the "list" type
+		 */
 		listValues?:ParameterDataListValue[];
-		options?:string[];//List options for "editablelist"
-		longText?:boolean;
-		noInput?:boolean;//Disable input to only keep title (used for shoutout param)
+		/**
+		 * List values for the "editablelist" type
+		 */
+		options?:string[];
+		/**
+		 * Disable input to only keep title (used for shoutout param)
+		 */
+		noInput?:boolean;
+		/**
+		 * Param's label
+		 */
 		label?:string;
-		labelKey?:string;//Label (i18n key). Concatenated to "label" if defined
-		min?:number;//min numeric value
-		max?:number;//max numeric value
-		step?:number;//For numeric values
+		/**
+		 * Label (i18n key) so the text can update if changing current language.
+		 * If "label" is also defined, this value will be concatenated to it.
+		 */
+		labelKey?:string;
+		/**
+		 * Min value for "number" type
+		 */
+		min?:number;
+		/**
+		 * Max value for "number" type
+		 */
+		max?:number;
+		/**
+		 * Step value for "number" type
+		 */
+		step?:number;
+		/**
+		 * Maximum text length for "string" type
+		 */
 		maxLength?:number;
+		/**
+		 * Wether it's a long text or not from "string" type
+		 * if true a textarea will be displayed instead of an input
+		 */
+		longText?:boolean;
+		/**
+		 * Icon name to display on le left (see files on "src_front/assets/icons")
+		 */
 		icon?:string;
+		/**
+		 * Icon URL to display on the left
+		 */
 		iconURL?:string;
-		placeholder?:string;//Placeholder for the input
-		placeholderKey?:string;//i18n key for the placeholder of the input 
-		placeholderList?:PlaceholderEntry[];//creates clickable {XXX} placeholders
+		/**
+		 * Input's placeholder
+		 */
+		placeholder?:string;
+		/**
+		 * Input's placeholder (i18n key) so it can update if changing current language.
+		 */
+		placeholderKey?:string;
+		/**
+		 * Dynamic clickable placeholders.
+		 * This creates a list of clickable items that will push a value on the input
+		 * Only works for "string" type
+		 */
+		placeholderList?:PlaceholderEntry[];
+		/**
+		 * Parent parameter ID.
+		 * Only used for global parameters. @see ParamsList
+		 */
 		parent?:number;
-		example?:string;//Displays an icon with a tooltip containing the specified image example
-		storage?:unknown;//Just a field to allow storage of random data if necessary
+		/**
+		 * Image Url. If set it displays an icon with a tooltip containing the specified image
+		 */
+		example?:string;
+		/**
+		 * Just a field to allow storage of random data if necessary
+		 */
+		storage?:unknown;
+		/**
+		 * Children parameters
+		 */
 		children?:ParameterData[];
-		accept?:string;//File types for browse inputs
-		fieldName?:string;//INput's "name" attribute
-		save?:boolean;//Save configuration to storage on change?
-		twitch_scopes?:TwitchScopesString[];//Twitch scope necessary for this feature. Will disable the component if scope isn't granted
-		tooltip?:string;//Tooltip displayed on hover
-		tooltipKey?:string;//Tooltip displayed on hover (i18n key)
-		disabled?:boolean;//Disable possibility to change the value
-		error?:boolean;//Disable an error state
-		editCallback?:(data:any) => void;//Callback called when value is changed (if v-model can't be used)
+		/**
+		 * File types for browse inputs
+		 */
+		accept?:string;
+		/**
+		 * Input's "name" attribute
+		 */
+		fieldName?:string;
+		/**
+		 * Save configuration to storage on change?
+		 */
+		save?:boolean;
+		/**
+		 * Twitch scopes necessary for this feature. Will disable the component if scope isn't granted
+		 */
+		twitch_scopes?:TwitchScopesString[];
+		/**
+		 * Tooltip displayed on hover
+		 */
+		tooltip?:string;
+		/**
+		 * Tooltip displayed on hover (i18n key)
+		 */
+		tooltipKey?:string;
+		/**
+		 * Disable possibility to change the value
+		 */
+		disabled?:boolean;
+		/**
+		 * Show an error state
+		 */
+		error?:boolean;
+		/**
+		 * Callback called when value is changed (if v-model can't be used)
+		 */
+		editCallback?:(data:any) => void;
 	}
 	export interface ParameterDataListValue {
 		label?:string;
@@ -1126,40 +1287,132 @@ export namespace TwitchatDataTypes {
 	 * A regular user's message 
 	 */
 	export interface MessageChatData extends GreetableMessage {
+		/**
+		 * Channel ID the message has been posted in
+		 */
 		channel_id: string;
 		type:"message";
+		/**
+		 * User that posted the message
+		 */
 		user: TwitchatUser;
+		/**
+		 * Text message content
+		 */
 		message:string;
+		/**
+		 * Message content as HTML
+		 * All emotes are replaced by HTML tags
+		 */
 		message_html:string;
+		/**
+		 * Text message with emote codes removed
+		 */
 		message_no_emotes:string;
+		/**
+		 * All messages that answered to this message
+		 */
 		answers: MessageChatData[];
-		is_ad?: boolean;//true if message content matches the configured ad message
-		is_short: boolean;//true if message is short or contains mostly emotes
-		is_pinned?: boolean;
+		/**
+		 * Is this the automatic twitchat ad message ?
+		 */
+		is_ad?: boolean;
+		/**
+		 * Tells if the message is considered as short.
+		 * true if the message contains mostly emotes or a short word
+		 */
+		is_short: boolean;
+		/**
+		 * True if message has been saved
+		 */
+		is_saved?: boolean;
 		
-		
+		/**
+		 * Twitchat's automod info
+		 */
 		automod?: AutomodParamsKeywordFilterData;
+		/**
+		 * The message this message answers to if any
+		 */
 		answersTo?: MessageChatData;
+		/**
+		 * Is the message content cyphered ?
+		 */
 		cyphered?: boolean;
+		/**
+		 * Info about the mod that deleted the message
+		 */
 		deletedData?: {
 			deleter:TwitchatUser;
 		};
+		/**
+		 * Number of times this message has been sent
+		 * Only incremented if related parameter has been enabled
+		 */
 		occurrenceCount?: number;
+		/**
+		 * true if we're mentionned on this message
+		 */
 		hasMention?: boolean;
+		/**
+		 * true if should be displayed as a spoiler
+		 */
 		spoiler?: boolean;
-		bypassBotFilter?: boolean;//used so messages sent by extensions are displayed
+		/**
+		 * This is used to messages sent by extensions can bypass the bots filter.
+		 * If user chose to hide bots messages, this message will be displayed
+		 * anyways as long as this prop is set to true
+		 */
+		bypassBotFilter?: boolean;
+		/**
+		 * Temporary twitch experiment that allowed to pay to make our message visible longer
+		 */
 		elevatedInfo?:{duration_s:number, amount:number};
 		
+		/**
+		 * Twitch automod info if the message has been held by automod
+		 */
 		twitch_automod?: AutomodData;
+		/**
+		 * true if user used the /me command for this message
+		 */
 		twitch_isSlashMe?:boolean;
-		twitch_isFirstMessage?:boolean;//True if first message ever on this channel
-		twitch_isReturning?:boolean;//True if new user coming back
-		twitch_isPresentation?:boolean;//True if user used the presentation feature
-		twitch_isSuspicious?: boolean;//True when user is flagged as suspicious
-		twitch_sharedBanChannels?: {id:string, login:string}[];//contains the channels in which the user is banned
-		twitch_isRestricted?: boolean;//True when user is flagged as restricted
-		twitch_isHighlighted?: boolean;//True when using "highlight my message" reward
-		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";//Announcement color
+		/**
+		 * true if it's the first message the user ever sent on this channel
+		 */
+		twitch_isFirstMessage?:boolean;
+		/**
+		 * true if it's a returning user
+		 * I think twitch removed it.
+		 */
+		twitch_isReturning?:boolean;
+		/**
+		 * true if user used the "presentation" feature
+		 */
+		twitch_isPresentation?:boolean;
+		/**
+		 * Contains the channels in which the user is banned in case of shared ban user
+		 */
+		twitch_sharedBanChannels?: {id:string, login:string}[];
+		/**
+		 * true if user is flagged as suspicious
+		 */
+		twitch_isSuspicious?: boolean;
+		/**
+		 * true when user is flagged as restricted
+		 */
+		twitch_isRestricted?: boolean;
+		/**
+		 * true if user used the "highlight my message" channel point reward
+		 */
+		twitch_isHighlighted?: boolean;
+		/**
+		 * Color of the announcement if this is a /announce message
+		 */
+		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";
+		/**
+		 * Raw IRC data of t he message
+		 */
 		raw_data?:any;
 	}
 
@@ -1169,14 +1422,43 @@ export namespace TwitchatDataTypes {
 	export interface MessageWhisperData extends AbstractTwitchatMessage {
 		type:"whisper";
 		channel_id:string;
+		/**
+		 * User that sent the whisper
+		 */
 		user: TwitchatUser;
+		/**
+		 * Recipient of the whisper
+		 */
 		to: TwitchatUser;
+		/**
+		 * Text message content
+		 */
 		message:string;
+		/**
+		 * Message content as HTML
+		 * All emotes are replaced by HTML tags
+		 */
 		message_html:string;
-		occurrenceCount?: number;
+		/**
+		 * Is the message content cyphered ?
+		 */
 		cyphered?: boolean;
+		/**
+		 * Info about the mod that deleted the message
+		 */
+		/**
+		 * Number of times this message has been sent
+		 * Only incremented if related parameter has been enabled
+		 */
+		occurrenceCount?: number;
+		/**
+		 * True if message has been saved
+		 */
+		is_saved?: boolean;
+		/**
+		 * true if should be displayed as a spoiler
+		 */
 		spoiler?: boolean;
-		is_pinned?: boolean;
 	}
 
 	/**
@@ -1185,16 +1467,40 @@ export namespace TwitchatDataTypes {
 	export interface MessagePollData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"poll";
+		/**
+		 * Poll's title
+		 */
 		title: string;
+		/**
+		 * Poll's choices
+		 */
 		choices: MessagePollDataChoice[];
+		/**
+		 * Poll's duration in seconds
+		 */
 		duration_s: number;
+		/**
+		 * Timestamp when the poll has been started
+		 */
 		started_at: number;
+		/**
+		 * Timestamp when the poll has ended
+		 */
 		ended_at?: number;
+		/**
+		 * Winning choice
+		 */
 		winner?:MessagePollDataChoice;
 	}
 	export interface MessagePollDataChoice {
 		id: string;
+		/**
+		 * Choice text
+		 */
 		label: string;
+		/**
+		 * Number of votes the choice got
+		 */
 		votes: number;
 	}
 
@@ -1204,18 +1510,48 @@ export namespace TwitchatDataTypes {
 	export interface MessagePredictionData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"prediction";
+		/**
+		 * Prediction's title
+		 */
 		title: string;
+		/**
+		 * Poll's duration in seconds
+		 */
 		duration_s: number;
+		/**
+		 * Prediction's possible outcomes
+		 */
 		outcomes: MessagePredictionDataOutcome[];
+		/**
+		 * true if the prediction is pending for choosing the winning outcome
+		 */
 		pendingAnswer: boolean;
+		/**
+		 * Timestamp when the poll has been started
+		 */
 		started_at: number;
+		/**
+		 * Timestamp when the poll has ended
+		 */
 		ended_at?: number;
+		/**
+		 * Winning choice
+		 */
 		winner?:MessagePredictionDataOutcome;
 	}
 	export interface MessagePredictionDataOutcome {
 		id: string;
+		/**
+		 * Text of the choice
+		 */
 		label: string;
+		/**
+		 * Number of "votes", represents the total channel points spent on it
+		 */
 		votes: number;
+		/**
+		 * Number of users that voted for this answer
+		 */
 		voters: number;
 	}
 
@@ -1225,11 +1561,26 @@ export namespace TwitchatDataTypes {
 	export interface MessageFollowingData extends GreetableMessage {
 		channel_id: string;
 		type:"following";
+		/**
+		 * User that followed
+		 */
 		user:TwitchatUser;
+		/**
+		 * Timestamp the user followed
+		 */
 		followed_at: number;
+		/**
+		 * Automod info if the user's name match a twitchat automod rule
+		 */
 		automod?: AutomodParamsKeywordFilterData;
-		loading?: boolean;//Used to indicate a ban/block process in progress on the emergency review
-		followbot?:boolean;//Defines if it's from a followbot
+		/**
+		 * This is used to indicate a ban/block process in progress on the emergency review
+		 */
+		loading?: boolean;
+		/**
+		 * true if twitchat thinks it's part of a followbot
+		 */
+		followbot?:boolean;
 	}
 
 	/**
@@ -1238,19 +1589,61 @@ export namespace TwitchatDataTypes {
 	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"subscription";
-		user: TwitchatUser;//User subscribing or gifting the sub
+		/**
+		 * User that subscribed or gifted a sub
+		 */
+		user: TwitchatUser;
+		/**
+		 * Sub tier
+		 */
 		tier: 1|2|3|"prime";
+		/**
+		 * true if it's a gift
+		 */
 		is_gift: boolean;
+		/**
+		 * true if user renewed a subgift they got before
+		 */
 		is_giftUpgrade: boolean;
+		/**
+		 * true if user renews their sub
+		 */
 		is_resub: boolean;
+		/**
+		 * User that gifted the sub to a user that renews their sub after being sub gifted
+		 */
 		gift_upgradeSender?: TwitchatUser;
+		/**
+		 * Users that received the sub gift
+		 */
 		gift_recipients?: TwitchatUser[];
+		/**
+		 * Number of gifts given
+		 */
 		gift_count?: number;
-		months:number;//Number of months the user subscribed for
-		streakMonths:number;//Number of consecutive months the user has been subscribed for
-		totalSubDuration:number;//Number of months the user has been subscribed for
+		/**
+		 * Number of months the user subscribed for
+		 */
+		months:number;
+		/**
+		 * Number of consecutive months the user has been subscribed for
+		 */
+		streakMonths:number;
+		/**
+		 * Number of months the user has been subscribed for
+		 */
+		totalSubDuration:number;
+		/**
+		 * Otional message sent when sharing our sub
+		 */
 		message?:string;
+		/**
+		 * Otional message sent when sharing our sub with emotes remplaced by HTML tags
+		 */
 		message_html?:string;
+		/**
+		 * raw IRC data of the sub
+		 */
 		raw_data?:any;
 	}
 
@@ -1260,9 +1653,21 @@ export namespace TwitchatDataTypes {
 	export interface MessageCheerData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"cheer";
+		/**
+		 * Number of bits sent
+		 */
 		bits: number;
+		/**
+		 * User that sent bits
+		 */
 		user: TwitchatUser;
+		/**
+		 * Text message
+		 */
 		message: string;
+		/**
+		 * Text message with cheermotes replaced by HTML tags
+		 */
 		message_html: string;
 	}
 
@@ -1272,7 +1677,13 @@ export namespace TwitchatDataTypes {
 	export interface MessageRewardRedeemData extends GreetableMessage {
 		channel_id: string;
 		type:"reward";
+		/**
+		 * User that redeemed a channel point reward
+		 */
 		user: TwitchatUser;
+		/**
+		 * Reward's info
+		 */
 		reward: {
 			id:string;
 			title:string;
@@ -1280,7 +1691,13 @@ export namespace TwitchatDataTypes {
 			description:string;
 			icon:TwitchatImage;
 		};
+		/**
+		 * Optional message the reward requires the user to send when redeeming it
+		 */
 		message?:string;
+		/**
+		 * Optional message the reward requires the user to send when redeeming it with emotes replaced by HTML tags
+		 */
 		message_html?:string;
 	}
 
@@ -1290,10 +1707,25 @@ export namespace TwitchatDataTypes {
 	export interface MessageCommunityChallengeContributionData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"community_challenge_contribution";
+		/**
+		 * User contributing to the challenge
+		 */
 		user: TwitchatUser;
+		/**
+		 * How many points the user contributed
+		 */
 		contribution: number;
-		stream_contribution?:number;//This user's stream contribution
-		total_contribution?:number;//this user's total contribution
+		/**
+		 * How many points the user contributed during current stream
+		 */
+		stream_contribution?:number;
+		/**
+		 * How many points the user contributed for this challenge since its beginning
+		 */
+		total_contribution?:number;
+		/**
+		 * Challenge infos
+		 */
 		challenge: {
 			title:string;
 			goal:number;
@@ -1310,7 +1742,13 @@ export namespace TwitchatDataTypes {
 	export interface MessageHypeTrainSummaryData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"hype_train_summary";
+		/**
+		 * Hype train infos
+		 */
 		train: HypeTrainStateData;
+		/**
+		 * Chat activities related to this hype train
+		 */
 		activities: (MessageSubscriptionData|MessageCheerData)[];
 	}
 
@@ -1320,8 +1758,17 @@ export namespace TwitchatDataTypes {
 	export interface MessageHypeTrainEventData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"hype_train_approaching"|"hype_train_start"|"hype_train_cancel"|"hype_train_progress"|"hype_train_complete";
+		/**
+		 * Hype train infos
+		 */
 		train: HypeTrainStateData;
+		/**
+		 * Current hype train level
+		 */
 		level:number;
+		/**
+		 * Current hyper train level percent
+		 */
 		percent:number;
 	}
 
@@ -1339,6 +1786,9 @@ export namespace TwitchatDataTypes {
 	export interface MessageCommunityBoostData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"community_boost_complete";
+		/**
+		 * Number of viewers the channel has been boosted to
+		 */
 		viewers:number;
 	}
 
@@ -1348,20 +1798,37 @@ export namespace TwitchatDataTypes {
 	export interface MessageRaidData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"raid";
+		/**
+		 * User raiding
+		 */
 		user:TwitchatUser;
+		/**
+		 * Number of viewers coming with the raid
+		 */
 		viewers:number;
+		/**
+		 * Stream info of the raider
+		 */
 		stream:{
+			wasLive: boolean;
 			title: string;
 			category: string;
-		};
+			duration: number;
+		}
 	}
 
 	/**
 	 * Represents a "chat connected" message
 	 */
 	export interface MessageConnectData extends AbstractTwitchatMessage {
+		/**
+		 * Channel ID we connected to
+		 */
 		channel_id: string;
 		type:"connect";
+		/**
+		 * User that connected to the chat
+		 */
 		user:TwitchatUser;
 	}
 	
@@ -1369,26 +1836,48 @@ export namespace TwitchatDataTypes {
 	 * Represents a "chat connection lost" message
 	 */
 	export interface MessageDisconnectData extends AbstractTwitchatMessage {
+		/**
+		 * Channel ID we disconnected from
+		 */
 		channel_id: string;
 		type:"disconnect";
+		/**
+		 * User that got disconnected from the chat
+		 */
 		user:TwitchatUser;
 	}
 
 	/**
 	 * Represents a chat user joining message
+	 * Join events are batch into one single message for all the users
+	 * joining the channel
 	 */
 	export interface MessageJoinData extends AbstractTwitchatMessage {
+		/**
+		 * Channel ID the users joined
+		 */
 		channel_id: string;
 		type:"join";
+		/**
+		 * Users that joined the channel
+		 */
 		users:TwitchatUser[];
 	}
 	
 	/**
 	 * Represents a chat user leaving message
+	 * Leave events are batch into one single message for all the users
+	 * leaving the channel
 	 */
 	export interface MessageLeaveData extends AbstractTwitchatMessage {
+		/**
+		 * Channel ID the users left
+		 */
 		channel_id: string;
 		type:"leave";
+		/**
+		 * Users that left the channel
+		 */
 		users:TwitchatUser[];
 	}
 
@@ -1396,9 +1885,18 @@ export namespace TwitchatDataTypes {
 	 * Represents a chat clear 
 	 */
 	export interface MessageClearChatData extends AbstractTwitchatMessage {
+		/**
+		 * Chennel ID that got cleared
+		 */
 		channel_id: string;
 		type:"clear_chat";
+		/**
+		 * User that cleared the channel
+		 */
 		user?:TwitchatUser;
+		/**
+		 * true if the channel has been cleared from automod
+		 */
 		fromAutomod:boolean;
 	}
 
@@ -1407,7 +1905,13 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageRaffleData extends AbstractTwitchatMessage {
 		type:"raffle";
+		/**
+		 * Contains the current raffle's data
+		 */
 		raffleData:RaffleData;
+		/**
+		 * Winning entry of the raffle
+		 */
 		winner:RaffleEntry;
 	}
 
@@ -1416,7 +1920,13 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageBingoData extends AbstractTwitchatMessage {
 		type:"bingo";
+		/**
+		 * User that won the bingo
+		 */
 		user:TwitchatUser;
+		/**
+		 * Contains the current bingo's data
+		 */
 		bingoData:BingoConfig;
 	}
 
@@ -1425,6 +1935,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageCountdownData extends AbstractTwitchatMessage {
 		type:"countdown";
+		/**
+		 * Countdown's data
+		 */
 		countdown:CountdownData;
 	}
 
@@ -1433,10 +1946,25 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageTimerData extends AbstractTwitchatMessage {
 		type:"timer";
+		/**
+		 * true if timer is running
+		 */
 		started:boolean,
+		/**
+		 * Formated date when the timer has been started
+		 */
 		startAt:string;
+		/**
+		 * Date when the timer has been started in milliseconds
+		 */
 		startAt_ms:number;
+		/**
+		 * Formated timer duration
+		 */
 		duration?:string;
+		/**
+		 * Timer duration in milliseconds
+		 */
 		duration_ms?:number;
 	}
 
@@ -1446,7 +1974,13 @@ export namespace TwitchatDataTypes {
 	export interface MessageNoticeData extends AbstractTwitchatMessage {
 		channel_id?: string;
 		type:"notice";
+		/**
+		 * Notice type
+		 */
 		noticeId:TwitchatNoticeStringType;
+		/**
+		 * Notice message
+		 */
 		message:string;
 	}
 
@@ -1457,7 +1991,13 @@ export namespace TwitchatDataTypes {
 	export interface MessageAutobanJoinData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"autoban_join";
+		/**
+		 * User that got banned
+		 */
 		user:TwitchatUser;
+		/**
+		 * Rule at the origin of the autoban
+		 */
 		rule:TwitchatDataTypes.AutomodParamsKeywordFilterData;
 	}
 
@@ -1466,6 +2006,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageTwitchatAdData extends AbstractTwitchatMessage {
 		type:"twitchat_ad";
+		/**
+		 * Type of ad
+		 */
 		adType:TwitchatAdStringTypes;
 	}
 
@@ -1474,10 +2017,25 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageClipCreate extends AbstractTwitchatMessage {
 		type:"clip_pending_publication";
+		/**
+		 * Path to clip
+		 */
 		clipUrl:string;
+		/**
+		 * ID of the clip
+		 */
 		clipID:string;
+		/**
+		 * true if clip is still being created
+		 */
 		loading:boolean;
+		/**
+		 * true if clip creation failed
+		 */
 		error:boolean;
+		/**
+		 * Details about the clip
+		 */
 		clipData?:ClipInfo;
 	}
 
@@ -1486,7 +2044,13 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageStreamInfoUpdate extends MessageNoticeData {
 		noticeId:"stream_info_update";
+		/**
+		 * Stream title
+		 */
 		title:string;
+		/**
+		 * Stream category
+		 */
 		category:string;
 	}
 
@@ -1494,14 +2058,23 @@ export namespace TwitchatDataTypes {
 	 * Represents a mod/unmod/vip/unvip/ban/unban/timeout event
 	 */
 	export interface MessageModerationAction extends MessageNoticeData {
-		user:TwitchatUser;//User moderated
+		/**
+		 * User that got moderated
+		 */
+		user:TwitchatUser;
 	}
 	
 	/**
 	 * Represents a status change of the shield mode
 	 */
 	export interface MessageShieldMode extends MessageNoticeData {
+		/**
+		 * User that started/stoped the shield mod
+		 */
 		user:TwitchatUser;
+		/**
+		 * shieldmode state
+		 */
 		enabled:boolean;
 	}
 
@@ -1511,8 +2084,17 @@ export namespace TwitchatDataTypes {
 	export interface MessageBanData extends AbstractTwitchatMessage {
 		type:"ban",
 		channel_id: string;
+		/**
+		 * User that made the moderation action
+		 */
 		moderator:TwitchatUser;
-		user:TwitchatUser;//User moderated
+		/**
+		 * Banned user
+		 */
+		user:TwitchatUser;
+		/**
+		 * Ban duration in seconds (if it's a timeout)
+		 */
 		duration_s?:number;
 	}
 
@@ -1522,8 +2104,14 @@ export namespace TwitchatDataTypes {
 	export interface MessageUnbanData extends AbstractTwitchatMessage {
 		type:"unban",
 		channel_id: string;
+		/**
+		 * User that made the moderation action
+		 */
 		moderator:TwitchatUser;
-		user:TwitchatUser;//User moderated
+		/**
+		 * Unbaned user
+		 */
+		user:TwitchatUser;
 	}
 
 	/**
@@ -1531,6 +2119,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageEmergencyModeInfo extends MessageNoticeData{
 		noticeId:"emergencyMode";
+		/**
+		 * Emergency state
+		 */
 		enabled:boolean;
 	}
 
@@ -1540,6 +2131,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageChatAlertData extends AbstractTwitchatMessage{
 		type:"chat_alert";
+		/**
+		 * User's message (with chat command stripped out)
+		 */
 		message:MessageChatData;
 	}
 
@@ -1548,6 +2142,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageMusicStartData extends AbstractTwitchatMessage {
 		type:"music_start";
+		/**
+		 * Info about the track that started playing
+		 */
 		track:MusicTrackData;
 	}
 
@@ -1556,6 +2153,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageMusicStopData extends AbstractTwitchatMessage {
 		type:"music_stop";
+		/**
+		 * Info about the track that stoped playing
+		 */
 		track:MusicTrackData|null;
 	}
 
@@ -1564,8 +2164,17 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageMusicAddedToQueueData extends AbstractTwitchatMessage {
 		type:"music_added_to_queue";
+		/**
+		 * Info about the track that's been added to the queue
+		 */
 		track:MusicTrackData|null;
+		/**
+		 * User that added the track
+		 */
 		user?:TwitchatUser;
+		/**
+		 * Message the user sent to add the track
+		 */
 		message?:string;
 	}
 
@@ -1574,6 +2183,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageVoicemodData extends AbstractTwitchatMessage {
 		type:"voicemod";
+		/**
+		 * Voice ID that got enabled
+		 */
 		voiceID?:string;
 	}
 
@@ -1582,11 +2194,30 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageShoutoutData extends AbstractTwitchatMessage {
 		type:"shoutout";
-		received:boolean;//If true it means that the shoutout has been given to self on another channel
+		/**
+		 * true if we've been given a shoutout
+		 * false if we gave a shoutout to someone
+		 */
+		received:boolean;
+		/**
+		 * Number of viewers that saw the shoutout
+		 */
 		viewerCount:number;
+		/**
+		 * Channel ID that made the shoutout or ID of the channel we gave a shoutout to
+		 */
 		channel_id:string;
+		/**
+		 * User that gave us a shoutout or user we gave a shoutout to
+		 */
 		user:TwitchatDataTypes.TwitchatUser;
+		/**
+		 * User that made the shoutout
+		 */
 		moderator:TwitchatDataTypes.TwitchatUser;
+		/**
+		 * Stream info of the channel that gave us a shoutout
+		 */
 		stream:{
 			title: string;
 			category: string;
@@ -1598,6 +2229,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageChatHighlightData extends AbstractTwitchatMessage {
 		type:"chat_highlight";
+		/**
+		 * Details about the highlight
+		 */
 		info:ChatHighlightInfo;
 	}
 
@@ -1608,6 +2242,9 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageFollowbotData extends AbstractTwitchatMessage {
 		type:"followbot_list";
+		/**
+		 * Users being part of the followbot raid
+		 */
 		users:TwitchatUser[];
 	}
 
@@ -1617,8 +2254,17 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageRoomSettingsData extends AbstractTwitchatMessage {
 		type:"room_settings";
+		/**
+		 * Channel ID
+		 */
 		channel_id: string;
+		/**
+		 * Channel name (ex: durss)
+		 */
 		channel_name: string;
+		/**
+		 * Room's settings
+		 */
 		settings:IRoomSettings;
 	}
 
@@ -1630,96 +2276,179 @@ export namespace TwitchatDataTypes {
 	export interface MessageLowtrustTreatmentData extends AbstractTwitchatMessage {
 		type:"low_trust_treatment";
 		channel_id: string;
+		/**
+		 * User flaged as monitored or restrected
+		 */
 		user:TwitchatUser;
+		/**
+		 * true if user is now restricted from chatting
+		 * all their messages will be pending for moderation
+		 */
 		restricted:boolean;
+		/**
+		 * true if user is now monitored.
+		 * all their message will be displayed with a "suspicious" flag
+		 */
 		monitored:boolean;
+		/**
+		 * Moderator that made the change
+		 */
 		moderator:TwitchatUser;
 	}
 
 	/**
-	 * Respresents an OBS scene change event
+	 * Represents an OBS scene change event
 	 */
 	export interface MessageOBSSceneChangedData extends AbstractTwitchatMessage {
 		type:"obs_scene_change";
+		/**
+		 * Name of the OBS scene we switched to
+		 */
 		sceneName:string;
 	}
 
 	/**
-	 * Respresents an OBS scene change event
+	 * Represents an OBS scene change event
 	 */
 	export interface MessageOBSSourceToggleData extends AbstractTwitchatMessage {
 		type:"obs_source_toggle";
+		/**
+		 * Name of the source that's been toggled
+		 */
 		sourceName:string;
+		/**
+		 * Id of the source that's been toggled
+		 */
 		sourceItemId:number;
+		/**
+		 * true if the source is now visible
+		 */
 		visible:boolean;
 	}
 
 	/**
-	 * Respresents an OBS scene change event
+	 * Represents a pinned message
 	 */
 	export interface MessagePinData extends AbstractTwitchatMessage {
 		type:"pinned";
+		/**
+		 * User that pinned the message
+		 */
 		moderator:TwitchatUser;
+		/**
+		 * Message that got pinned
+		 */
 		chatMessage:MessageChatData;
+		/**
+		 * Timestamp when the message got pinned
+		 */
 		pinnedAt_ms: number;
+		/**
+		 * Timestamp when the pin config of the message got changed
+		 */
 		updatedAt_ms: number;
+		/**
+		 * Timestamp when the message got unpinned 
+		 */
 		unpinAt_ms: number;
+		/**
+		 * Just a store for the setTimeout() ref so we can clear it later when pin's config change
+		 */
 		timeoutRef?: number;
 	}
 
 	/**
-	 * Respresents an OBS scene change event
+	 * Represents an unpined message
 	 */
 	export interface MessageUnpinData extends AbstractTwitchatMessage {
 		type:"unpinned";
+		/**
+		 * user that unpinned the message
+		 */
 		moderator?:TwitchatUser;
+		/**
+		 * Message that got unpinned
+		 */
 		chatMessage:MessageChatData;
 	}
 
 	/**
-	 * Respresents a stream start event
+	 * Represents a stream start event
 	 */
 	export interface MessageStreamOnlineData extends AbstractTwitchatMessage {
 		type:"stream_online";
+		/**
+		 * Current stream info
+		 */
 		info:StreamInfo;
 
 	}
 
 	/**
-	 * Respresents a stream stop event
+	 * Represents a stream stop event
 	 */
 	export interface MessageStreamOfflineData extends AbstractTwitchatMessage {
 		type:"stream_offline";
+		/**
+		 * Current stream info
+		 */
 		info:StreamInfo;
 	}
 
 	/**
-	 * Respresents a counter value update
+	 * Represents a counter value update
 	 */
 	export interface MessageCounterUpdatesData extends AbstractTwitchatMessage {
 		type:"counter_update";
+		/**
+		 * Counter's reference
+		 */
 		counter:CounterData;
+		/**
+		 * true if counter got incremented
+		 */
 		added:number;
+		/**
+		 * Value that got added/removed from the counter
+		 */
 		value:number;
+		/**
+		 * true if the counter reached its max value
+		*/
 		maxed:boolean;
+		/**
+		 * true if the counter reached its min value
+		 */
 		mined:boolean;
+		/**
+		 * true if the counter reached its min or max and got looped to the other limit
+		 */
 		looped:boolean;
+		/**
+		 * User that made the counter update
+		 */
 		user?:TwitchatUser;
 	}
 
 	/**
-	 * Respresents an outgoing raid
+	 * Represents an outgoing raid
 	 */
 	export interface MessageRaidStartData extends AbstractTwitchatMessage {
 		type:"raid_started";
+		/**
+		 * User that's being raided
+		 */
 		user:TwitchatUser;
 	}
 
 	/**
-	 * Respresents an on-chat scope request
+	 * Represents an on-chat scope request
 	 */
 	export interface MessageScopeRequestData extends AbstractTwitchatMessage {
 		type:"scope_request";
+		/**
+		 * Twitch scopes to request
+		 */
 		twitch_scopes:TwitchScopesString[];
 	}
 
@@ -1727,7 +2456,10 @@ export namespace TwitchatDataTypes {
 	 * Represents a "marker created" message
 	 */
 	export interface MessageMarkerCreated extends MessageNoticeData {
-		user:TwitchatUser;//User moderated
+		/**
+		 * User that created the marker
+		 */
+		user:TwitchatUser;
 	}
 
 }

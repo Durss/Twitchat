@@ -45,16 +45,16 @@ import ParamItem from '../../ParamItem.vue';
 })
 export default class OverlayParamsMusic extends Vue {
 
-	public param_noScroll:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false};
-	public param_openFromLeft:TwitchatDataTypes.ParameterData			= {type:"toggle", value:false};
-	public param_autoHide:TwitchatDataTypes.ParameterData				= {type:"toggle", value:false};
-	public param_autoHideErase:TwitchatDataTypes.ParameterData			= {type:"toggle", value:true};
-	public param_showCover:TwitchatDataTypes.ParameterData				= {type:"toggle", value:true};
-	public param_showArtist:TwitchatDataTypes.ParameterData				= {type:"toggle", value:true};
-	public param_showTitle:TwitchatDataTypes.ParameterData				= {type:"toggle", value:true};
-	public param_showProgress:TwitchatDataTypes.ParameterData			= {type:"toggle", value:true};
-	public param_customTemplateToggle:TwitchatDataTypes.ParameterData	= {type:"toggle", value:true};
-	public param_customTemplate:TwitchatDataTypes.ParameterData			= {type:"text", value:"", longText:true};
+	public param_noScroll:TwitchatDataTypes.ParameterData				= {type:"boolean", value:false};
+	public param_openFromLeft:TwitchatDataTypes.ParameterData			= {type:"boolean", value:false};
+	public param_autoHide:TwitchatDataTypes.ParameterData				= {type:"boolean", value:false};
+	public param_autoHideErase:TwitchatDataTypes.ParameterData			= {type:"boolean", value:true};
+	public param_showCover:TwitchatDataTypes.ParameterData				= {type:"boolean", value:true};
+	public param_showArtist:TwitchatDataTypes.ParameterData				= {type:"boolean", value:true};
+	public param_showTitle:TwitchatDataTypes.ParameterData				= {type:"boolean", value:true};
+	public param_showProgress:TwitchatDataTypes.ParameterData			= {type:"boolean", value:true};
+	public param_customTemplateToggle:TwitchatDataTypes.ParameterData	= {type:"boolean", value:true};
+	public param_customTemplate:TwitchatDataTypes.ParameterData			= {type:"string", value:"", longText:true};
 
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 

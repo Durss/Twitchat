@@ -132,15 +132,15 @@ export default class ParamsCounters extends Vue {
 		max:75,
 	}
 
-	public param_title:TwitchatDataTypes.ParameterData = {type:"text", value:"", maxLength:50, labelKey:"counters.form.name"};
+	public param_title:TwitchatDataTypes.ParameterData = {type:"string", value:"", maxLength:50, labelKey:"counters.form.name"};
 	public param_value:TwitchatDataTypes.ParameterData = {type:"number", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
-	public param_more:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"counters.form.more"};
-	public param_valueMin_toggle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"counters.form.value_min", icon:"min_purple.svg"};
+	public param_more:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.more"};
+	public param_valueMin_toggle:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min_purple.svg"};
 	public param_valueMin_value:TwitchatDataTypes.ParameterData = {type:"number", value:0};
-	public param_valueMax_toggle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"counters.form.value_max", icon:"max_purple.svg"};
+	public param_valueMax_toggle:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max_purple.svg"};
 	public param_valueMax_value:TwitchatDataTypes.ParameterData = {type:"number", value:0};
-	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
-	public param_userSpecific:TwitchatDataTypes.ParameterData = {type:"toggle", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
+	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
+	public param_userSpecific:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
 
 
 	public get counterEntries():{param:TwitchatDataTypes.ParameterData, counter:TwitchatDataTypes.CounterData}[] {

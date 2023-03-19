@@ -67,11 +67,11 @@ export default class TriggerActionScheduleParams extends Vue {
 	public triggerData!:TriggerData;
 
 	public nameConflict = false;
-	public param_name:TwitchatDataTypes.ParameterData = { type:"text", value:"", icon:"date_purple.svg", placeholder:"..." };
+	public param_name:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"date_purple.svg", placeholder:"..." };
 	public param_action:TwitchatDataTypes.ParameterData = { type:"list", value:"", icon:"date_purple.svg" };
-	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, icon:"timeout_purple.svg" };
+	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData = { type:"boolean", value:false, icon:"timeout_purple.svg" };
 	public param_repeatDurationValue:TwitchatDataTypes.ParameterData = { type:"number", value:20, icon:"timeout_purple.svg", min:0, max:48*60 };
-	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData = { type:"toggle", value:false, icon:"whispers_purple.svg" };
+	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData = { type:"boolean", value:false, icon:"whispers_purple.svg" };
 	public param_repeatMessageValue:TwitchatDataTypes.ParameterData = { type:"number", value:100, icon:"whispers_purple.svg", min:1, max:9999 };
 	public params_daily:TwitchatDataTypes.ParameterData[] = [];
 	public params_yearly:TwitchatDataTypes.ParameterData[] = [];
@@ -120,8 +120,8 @@ export default class TriggerActionScheduleParams extends Vue {
 		watch(()=> this.triggerData, ()=> { this.populate(); }, { deep:true });
 
 		for (let i = 0; i < this.triggerData.scheduleParams!.dates.length; i++) {
-			this.params_daily.push({ type:"toggle", value:false, labelKey:"triggers.schedule.param_daily"} );
-			this.params_yearly.push({ type:"toggle", value:false, labelKey:"triggers.schedule.param_yearly"} );
+			this.params_daily.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
+			this.params_yearly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_yearly"} );
 		}
 		
 		this.populate();
@@ -146,8 +146,8 @@ export default class TriggerActionScheduleParams extends Vue {
 					+"T"+Utils.toDigits(d.getHours(),2)
 					+":"+Utils.toDigits(d.getMinutes()+5,2)
 		this.triggerData.scheduleParams?.dates?.push({value, daily:false, yearly:false});
-		this.params_daily.push({ type:"toggle", value:false, labelKey:"triggers.schedule.param_daily"} );
-		this.params_yearly.push({ type:"toggle", value:false, labelKey:"triggers.schedule.param_yearly"} );
+		this.params_daily.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
+		this.params_yearly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_yearly"} );
 	}
 
 	public delDate(index:number):void {

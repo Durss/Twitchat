@@ -31,7 +31,7 @@ export default class TriggerActionWS extends Vue {
 
 	public securityError:boolean = false;
 	public param_options:TwitchatDataTypes.ParameterData[] = [];
-	public param_topic:TwitchatDataTypes.ParameterData = { label:"<mark>topic</mark>", type:"text", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder", maxLength:255 };
+	public param_topic:TwitchatDataTypes.ParameterData = { label:"<mark>topic</mark>", type:"string", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder", maxLength:255 };
 
 	public beforeMount():void {
 
@@ -42,7 +42,7 @@ export default class TriggerActionWS extends Vue {
 				label:"<mark>"+p.tag.toLowerCase()+"</mark> - ",
 				labelKey:p.descKey,
 				value:!this.action.params || this.action.params.includes(p.tag),
-				type:"toggle",
+				type:"boolean",
 				storage:p
 			})
 		}

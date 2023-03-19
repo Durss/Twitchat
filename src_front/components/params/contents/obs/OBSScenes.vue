@@ -57,7 +57,7 @@ export default class OBSScenes extends Vue {
 			const storedScene = storedScenes.find((s:{scene:{sceneName:string}}) => s.scene.sceneName === scene.sceneName);
 			const value = storedScene? storedScene.command : "";
 			this.sceneParams.push(
-				{ type:"text", value, label:scene.sceneName, storage:scene, placeholder:"!command" }
+				{ type:"string", value, label:scene.sceneName, storage:scene, placeholder:"!command" }
 			);
 		}
 		await this.$nextTick();

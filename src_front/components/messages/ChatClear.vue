@@ -5,7 +5,7 @@
 		<i18n-t scope="global" tag="span" keypath="chat.clear.title">
 			<template #ROOM><strong>#{{room}}</strong></template>
 			<template #USER>
-				<i18n-t scope="global" tag="span" v-if="messageData.user" keypath="chat.clear.title_by">
+				<i18n-t scope="global" tag="span" v-if="!messageData.fromAutomod && messageData.user" keypath="chat.clear.title_by">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
 					</template>

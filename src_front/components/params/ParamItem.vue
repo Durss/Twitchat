@@ -7,7 +7,7 @@
 			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="icon">
 
-			<div v-if="paramData.type == 'toggle'" class="holder toggle"
+			<div v-if="paramData.type == 'boolean'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
 				<img v-if="paramData.example" alt="help"
@@ -45,7 +45,7 @@
 					@blur="clampValue()">
 			</div>
 			
-			<div v-if="paramData.type == 'text' || paramData.type == 'password'" class="holder text">
+			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
@@ -343,7 +343,7 @@ export default class ParamItem extends Vue {
 		}
 
 		if(this.paramData.placeholderList && this.paramData.placeholderList.length > 0) {
-			if(this.paramData.type != "text") {
+			if(this.paramData.type != "string") {
 				throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
 			}
 			this.placeholderTarget = this.$el.querySelector("textarea,input");

@@ -79,7 +79,7 @@ export default class StreamInfoSubForm extends Vue {
 		})
 	public placeholderList!:ITriggerActionHelper[];
 
-	public param_title:TwitchatDataTypes.ParameterData	= {value:"", type:"text", maxLength:140};
+	public param_title:TwitchatDataTypes.ParameterData	= {value:"", type:"string", maxLength:140};
 	public param_tags:TwitchatDataTypes.ParameterData	= {value:[], type:"editablelist"};
 
 	public localTitle:string = "";

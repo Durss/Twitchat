@@ -68,10 +68,10 @@ export default class CommandHelper extends Vue {
 	public channelId:string = "";
 	public adCooldown:number = 0;
 	
-	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
-	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
-	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
-	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"toggle", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
+	public param_followOnly:TwitchatDataTypes.ParameterData	= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
+	public param_subOnly:TwitchatDataTypes.ParameterData	= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
+	public param_emotesOnly:TwitchatDataTypes.ParameterData	= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
+	public param_slowMode:TwitchatDataTypes.ParameterData	= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
 
 	private ignoreUpdates = false;
 	private adCooldownInterval = 0;

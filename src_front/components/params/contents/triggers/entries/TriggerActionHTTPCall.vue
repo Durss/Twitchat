@@ -35,7 +35,7 @@ export default class TriggerActionHTTPCall extends Vue {
 	public triggerKey!:string;
 
 	public securityError:boolean = false;
-	public param_url:TwitchatDataTypes.ParameterData = {type:"text", value:"", placeholder:"https://..."};
+	public param_url:TwitchatDataTypes.ParameterData = {type:"string", value:"", placeholder:"https://..."};
 	public param_method:TwitchatDataTypes.ParameterData = {type:"list", value:"GET", listValues:[]};
 	public param_options:TwitchatDataTypes.ParameterData[] = [];
 
@@ -52,7 +52,7 @@ export default class TriggerActionHTTPCall extends Vue {
 				label:"<mark>"+p.tag.toLowerCase()+"</mark> - ",
 				labelKey:p.descKey,
 				value:!this.action.queryParams || this.action.queryParams.includes(p.tag),
-				type:"toggle",
+				type:"boolean",
 				storage:p
 			})
 		}

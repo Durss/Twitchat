@@ -1210,7 +1210,7 @@ export const storeChat = defineStore('chat', {
 		},
 		
 		saveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
-			message.is_pinned = true;
+			message.is_saved = true;
 			this.pinedMessages.push(message);
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.PIN_MESSAGE, message));
 		},
@@ -1218,7 +1218,7 @@ export const storeChat = defineStore('chat', {
 		unsaveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			this.pinedMessages.forEach((v, index)=> {
 				if(v.id == message.id) {
-					message.is_pinned = false;
+					message.is_saved = false;
 					this.pinedMessages.splice(index, 1);
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNPIN_MESSAGE, message));
 				}
@@ -1289,6 +1289,9 @@ export const storeChat = defineStore('chat', {
 		flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void {
 			const lastActivityDate = message.user.channelInfo[message.channel_id].lastActivityDate;
 			message.user.channelInfo[message.channel_id].lastActivityDate = Date.now();
+
+			//Don't flag our own messages as first
+			if(message.channel_id == message.user.id) return;
 
 			//Don't greet again if less than 5h have passed since last activity
 			if(lastActivityDate && lastActivityDate + (5 * 60 * 60 * 1000) > Date.now()) return;

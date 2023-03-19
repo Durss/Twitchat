@@ -79,9 +79,9 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class ChatSuggestionForm extends Vue {
 	
-	public command:TwitchatDataTypes.ParameterData = {type:"text", value:"!sugg", placeholder:"!sugg", maxLength:31};
+	public command:TwitchatDataTypes.ParameterData = {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:31};
 	public duration:TwitchatDataTypes.ParameterData = {value:2, type:"number", min:1, max:30};
-	public multiAnswers:TwitchatDataTypes.ParameterData = {value:false, type:"toggle"};
+	public multiAnswers:TwitchatDataTypes.ParameterData = {value:false, type:"boolean"};
 	public maxLength:TwitchatDataTypes.ParameterData = {value:100, type:"number", min:1, max:500};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,

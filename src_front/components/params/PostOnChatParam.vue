@@ -71,8 +71,8 @@ export default class PostOnChatParam extends Vue {
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";
-	public enabledParam:TwitchatDataTypes.ParameterData = { label:"", value:false, type:"toggle", maxLength:500};
-	public textParam:TwitchatDataTypes.ParameterData = { label:"", value:"", type:"text", longText:true};
+	public enabledParam:TwitchatDataTypes.ParameterData = { label:"", value:false, type:"boolean", maxLength:500};
+	public textParam:TwitchatDataTypes.ParameterData = { label:"", value:"", type:"string", longText:true};
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 
