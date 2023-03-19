@@ -161,6 +161,7 @@ import ChatModTools from './components/ChatModTools.vue';
 import { h } from 'vue';
 import ContextMenuTimeoutDuration from './components/ContextMenuTimeoutDuration.vue';
 import type * as CMTypes from "@imengyu/vue3-context-menu";
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -666,6 +667,11 @@ export default class ChatMessage extends AbstractChatMessage {
 
 		let px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
 		let py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
+		
+		if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
+			//Make sure the hint message is not sent anymore
+			DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, "true")
+		}
 
 		const options:ContextMenuItem[]= [];
 		const user = this.messageData.user;
