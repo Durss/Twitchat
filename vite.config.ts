@@ -36,7 +36,6 @@ export default defineConfig({
 			less: {
 				//Requires proper version of less-loader to work. Tested with 8.0.0
 				additionalData: `
-					@import "./src_front/less/index.less";
 					@import "./src_front/less/_includes.less";
 				`
 			}

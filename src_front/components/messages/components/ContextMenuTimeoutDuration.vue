@@ -4,7 +4,7 @@
 	ContextMenu component may be catching event or something, dunno...
 -->
 <template>
-	<form class="contextmenutimeoutduration">
+	<form :class="classes" @click="onClick()">
 		<div class="field" @keyup.enter="timeoutUser()"><input type="text" v-model="duration">s</div>
 		<button @click="timeoutUser()" class="submit" type="submit"><img src="@/assets/icons/checkmark_white.svg" alt="check"></button>
 	</form>
@@ -12,6 +12,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
@@ -28,17 +29,29 @@ export default class ContextMenuTimeoutDuration extends Vue {
 	public channelId!:string;
 
 	public duration:number = 600;
+	public classes:string[] = [];
+	public disabled:boolean = false;
 
 	public mounted():void {
-		
+		this.disabled = !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED]);
+
+		this.classes = ["contextmenutimeoutduration"]
+		if(this.disabled) this.classes.push("disabled");
 	}
 
 	/**
 	 * Timeouts the user for a custom duration
 	 */
 	public timeoutUser():void {
-		console.log("oKFODKOFDKFD");
 		TwitchUtils.banUser(this.user, this.channelId, this.duration);
+	}
+
+	/**
+	 * Called when component is clicked.
+	 * Request forpermission if necessaru
+	 */
+	public onClick():void {
+		TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED]);
 	}
 
 }
@@ -51,6 +64,15 @@ export default class ContextMenuTimeoutDuration extends Vue {
 	color: @mainColor_light;
 	text-align: center;
 	padding: 0 .25em;
+
+	&.disabled {
+		.field, .submit {
+			pointer-events: none;
+		}
+		opacity: .5;
+		cursor: no-drop;
+	}
+
 	.field {
 		display: flex;
 		flex-direction: row;

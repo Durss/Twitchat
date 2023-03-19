@@ -20,6 +20,7 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -51,6 +52,7 @@ export default class ChatModTools extends Vue {
 	private closeTimeout = 0;
 
 	public banUser():void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
 		.then(() => {
 			this.$emit('deleteUser', this.messageData);
@@ -64,6 +66,7 @@ export default class ChatModTools extends Vue {
 	}
 
 	public blockUser():void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
 		this.$confirm(this.$t("chat.mod_tools.block_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.block_confirm_desc"))
 		.then(() => {
 			this.$emit('deleteUser', this.messageData);
@@ -77,6 +80,7 @@ export default class ChatModTools extends Vue {
 	}
 
 	public timeoutUser(duration:number):void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 		this.$emit('deleteUser', this.messageData);
 		if(this.messageData.fake === true) {
 			//Avoid banning user for real if doing it from a fake message
@@ -87,6 +91,7 @@ export default class ChatModTools extends Vue {
 	}
 
 	public deleteMessage():void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return;
 		this.$emit('deleteMessage', this.messageData);
 		StoreProxy.chat.deleteMessage(this.messageData, undefined, this.messageData.fake !== true);
 	}

@@ -215,7 +215,7 @@ export default class EventSub {
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 				}
-				if(TwitchUtils.hasScopes([TwitchScopes.MODERATE])) {
+				if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN, "1");
 				}

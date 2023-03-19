@@ -24,7 +24,7 @@ export const storeParams = defineStore('params', {
 			lockAutoScroll: 			{save:true, type:"boolean", value:false, labelKey:"params.lockAutoScroll", id:205, icon:"pause_purple.svg"},
 			liveMessages:				{save:true, type:"boolean", value:true, labelKey:"params.liveMessages", id:219, icon:"whispers_purple.svg", example:"liveMessages.png"},
 			liveAlerts:					{save:true, type:"boolean", value:false, labelKey:"params.liveAlerts", id:220, icon:"online_purple.svg", twitch_scopes:[TwitchScopes.LIST_FOLLOWINGS]},
-			showModTools: 				{save:true, type:"boolean", value:true, labelKey:"params.showModTools", id:206, icon:"ban_purple.svg", twitch_scopes:[TwitchScopes.MODERATE]},
+			showModTools: 				{save:true, type:"boolean", value:true, labelKey:"params.showModTools", id:206, icon:"ban_purple.svg", twitch_scopes:[TwitchScopes.EDIT_BANNED, TwitchScopes.EDIT_BLOCKED, TwitchScopes.DELETE_MESSAGES]},
 			raidHighlightUser: 			{save:true, type:"boolean", value:true, labelKey:"params.raidHighlightUser", id:209, icon:"raid_purple.svg", example:"raidHighlightUser.png"},
 			firstUserBadge: 			{save:true, type:"boolean", value:true, labelKey:"params.firstUserBadge", id:221, icon:"new_purple.svg", example:"firstUserBadge.png"},
 			raffleHighlightUser:		{save:true, type:"boolean", value:true, labelKey:"params.raffleHighlightUser", id:218, icon:"ticket_purple.svg", example:"raidHighlightUser.png"},

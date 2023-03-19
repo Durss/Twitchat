@@ -202,6 +202,8 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
+	private canDeleteMessage:boolean = false;
+	private canModUser:boolean = false;
 	
 	
 	public get showNofollow():boolean{
@@ -382,10 +384,16 @@ export default class ChatMessage extends AbstractChatMessage {
 				}
 			});
 		}
+
+		this.canModUser = (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator
+						|| StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster)
+						&& this.messageData.user.id != StoreProxy.auth.twitch.user.id;
 	
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WHISPER});
+			this.showModToolsPreCalc = false;
+			this.canDeleteMessage = false;
 			
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.firstTime = mess.twitch_isFirstMessage === true;
@@ -404,16 +412,14 @@ export default class ChatMessage extends AbstractChatMessage {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
 				highlightedWords = highlightedWords.concat(mess.twitch_automod.words);
 			}
+			
+			this.canDeleteMessage = this.messageData.user.id != StoreProxy.auth.twitch.user.id//If it's not self
+									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable);
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& TwitchUtils.hasScopes([TwitchScopes.MODERATE])//If necessary scope is granted
-									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
-									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id//if not sent by broadcaster
-									&& (
-										StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator ||
-										StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster
-									);//If we're a bod or the broadcaster
+									&& this.canDeleteMessage//if not sent by broadcaster
+									&& this.canModUser;//If we're a bod or the broadcaster
 									
 
 
@@ -747,71 +753,89 @@ export default class ChatMessage extends AbstractChatMessage {
 		options.push({ 
 					label: this.$t("chat.context_menu.profile"),
 					icon: this.$image("icons/user.svg"),
-					divided:this.showModToolsPreCalc,
 					onClick: () => this.openUserCard(user),
 				});
 
-		if(this.showModToolsPreCalc) {
+		if(this.canDeleteMessage) {
+			options[options.length-1].divided = true;
+			let classes = "alert";
+			if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
 			options.push({ 
 						label: this.$t("chat.context_menu.delete"),
 						icon: this.$image("icons/trash.svg"),
-						customClass:"alert",
-						onClick: () => this.$store("chat").deleteMessageByID(this.messageData.id),
+						customClass:classes,
+						onClick: () => {
+							if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
+								!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
+								return;
+							}
+							this.$store("chat").deleteMessageByID(this.messageData.id)
+						},
 					});
+		}
+		if(this.canModUser) {
+			let classesBan = "alert";
+			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
+			let classesBlock = "alert";
+			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
+			if(!this.canDeleteMessage) options[options.length-1].divided = true;
 			options.push(
 					{ 
 						label: this.$t("chat.context_menu.to"),
-						customClass:"alert",
+						customClass:classesBan,
 						icon: this.$image("icons/timeout.svg"),
+						onClick: () => {
+							this.timeoutUser(1);
+						},
 						children: [
 							{
 								label: "1s",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(1),
 							},
 							{
 								label: "10s",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(10),
 							},
 							{
 								label: "1m",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(60),
 							},
 							{
 								label: "5m",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(60 * 5),
 							},
 							{
 								label: "10m",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(60 * 10),
 							},
 							{
 								label: "30m",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(60 * 30),
 							},
 							{
 								label: "1h",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(60 * 60),
 							},
 							{
 								label: "24h",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(60 * 60 * 24),
 							},
 							{
 								label: "1w",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(60 * 60 * 24 * 7),
 							},
 							{
 								label: "4w",
-								customClass:"alert",
+								customClass:classesBan,
 								onClick: () => this.timeoutUser(60 * 60 * 24 * 7 * 4),
 							},
 							{
@@ -827,14 +851,17 @@ export default class ChatMessage extends AbstractChatMessage {
 				options.push({ 
 							label: this.$t("chat.context_menu.unban"),
 							icon: this.$image("icons/unban.svg"),
-							customClass:"alert",
-							onClick: () => TwitchUtils.unbanUser(user, this.messageData.channel_id),
+							customClass:classesBan,
+							onClick: () => {
+								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+								TwitchUtils.unbanUser(user, this.messageData.channel_id);
+							},
 						});
 			}else{
 				options.push({ 
 							label: this.$t("chat.context_menu.ban"),
 							icon: this.$image("icons/ban.svg"),
-							customClass:"alert",
+							customClass:classesBan,
 							onClick: () => this.banUser(),
 						});
 			}
@@ -842,14 +869,17 @@ export default class ChatMessage extends AbstractChatMessage {
 				options.push({ 
 							label: this.$t("chat.context_menu.unblock"),
 							icon: this.$image("icons/unblock.svg"),
-							customClass:"alert",
-							onClick: () => TwitchUtils.unblockUser(user, this.messageData.channel_id),
+							customClass:classesBlock,
+							onClick: () => {
+								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+								TwitchUtils.unblockUser(user, this.messageData.channel_id);
+							},
 						});
 			}else{
 				options.push({ 
 							label: this.$t("chat.context_menu.block"),
 							icon: this.$image("icons/block.svg"),
-							customClass:"alert",
+							customClass:classesBlock,
 							onClick: () => this.blockUser(),
 						});
 			}
@@ -872,6 +902,7 @@ export default class ChatMessage extends AbstractChatMessage {
 						height: '1em',
 						}
 					});
+			item.clickableWhenHasChildren = true;
 			items.push(item);
 		})
 		this.$contextmenu({
@@ -928,6 +959,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * @param duration ban duration. Don't specify to perma ban
 	 */
 	public timeoutUser(duration:number):void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 		if(this.messageData.fake === true) {
 			//Avoid banning user for real if doing it from a fake message
 			this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id, duration);
@@ -940,6 +972,9 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Permanently ban a user after confirmation
 	 */
 	public banUser():void {
+		console.log("OKOKO");
+		
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
 		.then(() => {
 			if(this.messageData.fake === true) {
@@ -955,6 +990,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Block a user after confirmation
 	 */
 	public blockUser():void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
 		this.$confirm(this.$t("chat.mod_tools.block_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.block_confirm_desc"))
 		.then(() => {
 			if(this.messageData.fake === true) {

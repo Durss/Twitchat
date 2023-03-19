@@ -283,8 +283,8 @@ export default class MessageListFilter extends Vue {
 		
 		//@ts-ignore
 		this.typeToScopes = {};
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.BAN]								= [TwitchScopes.MODERATE];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= [TwitchScopes.MODERATE];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.BAN]								= [TwitchScopes.MODERATION_EVENTS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= [TwitchScopes.MODERATION_EVENTS];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.REWARD]								= [TwitchScopes.LIST_REWARDS];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.WHISPER]							= [TwitchScopes.WHISPER_READ];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.POLL]								= [TwitchScopes.MANAGE_POLLS];
@@ -361,8 +361,8 @@ export default class MessageListFilter extends Vue {
 					partners:[],
 					bots:[],
 					deleted:[],
-					automod:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATE],
-					suspiciousUsers:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATE],
+					automod:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS],
+					suspiciousUsers:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS],
 					commands:[],
 					short:[],
 					tracked:[],

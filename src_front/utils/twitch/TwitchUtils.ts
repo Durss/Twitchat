@@ -2181,7 +2181,7 @@ export default class TwitchUtils {
 	/**
 	 * Requests for scopes if not yet granted
 	 * @param scopes 
-	 * @returns true if all scopes are granted. False if user iis prompted to grant access
+	 * @returns true if all scopes are granted. False if user is prompted to grant access
 	 */
 	public static requestScopes(scopes:TwitchScopesString[]):boolean {
 		if(this.hasScopes(scopes)) return true;

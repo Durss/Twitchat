@@ -78,6 +78,11 @@ h1 {
 					background: @mainColor_alert;
 				}
 				.mx-context-menu-item-wrapper {
+					.mx-context-menu-item.disabled {
+						.mx-icon-placeholder {
+							opacity: .35;
+						}
+					}
 					.mx-context-menu-item.header {
 						color:@mainColor_light;
 						background: rgba(255,255,255,.2);
@@ -95,7 +100,7 @@ h1 {
 								font-size: 1.1em;
 								font-weight: bold;
 								text-align: center;
-								padding-right: 24px;
+								padding-right: 0;
 								max-width: 150px;
 							}
 						}
