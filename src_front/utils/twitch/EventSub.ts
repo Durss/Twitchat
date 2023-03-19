@@ -572,7 +572,24 @@ export default class EventSub {
 		}else{
 			//Raided by someone
 			const user = StoreProxy.users.getUserFrom("twitch", event.to_broadcaster_user_id, event.from_broadcaster_user_id, event.from_broadcaster_user_login, event.from_broadcaster_user_name);
-			const streamInfo = await TwitchUtils.loadChannelInfo([event.from_broadcaster_user_id]);
+			
+			//Check current live info
+			const [currentStream] = await TwitchUtils.loadCurrentStreamInfo([event.from_broadcaster_user_id]);
+			let isLive:boolean = false, title:string = "", category:string = "", duration:number = 0;
+			if(currentStream) {
+				isLive = true;
+				title = currentStream.title;
+				category = currentStream.game_name;
+				duration = Date.now() - new Date(currentStream.started_at).getTime();
+			}else{
+				//No current live found, load channel info
+				const [chanInfo] = await TwitchUtils.loadChannelInfo([event.from_broadcaster_user_id]);
+				if(chanInfo) {
+					title = chanInfo.title;
+					category = chanInfo.game_name;
+				}
+			}
+
 			const message:TwitchatDataTypes.MessageRaidData = {
 				platform:"twitch",
 				type:TwitchatDataTypes.TwitchatMessageType.RAID,
@@ -582,8 +599,10 @@ export default class EventSub {
 				user,
 				viewers:event.viewers,
 				stream:{
-					title:streamInfo[0]?.title ?? "loading error :(",
-					category:streamInfo[0]?.game_name ?? "loading error :(",
+					wasLive:isLive,
+					title,
+					category,
+					duration,
 				}
 			};
 			StoreProxy.chat.addMessage(message);

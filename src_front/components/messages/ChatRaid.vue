@@ -14,17 +14,16 @@
 				</template>
 			</i18n-t>
 
-			<div v-if="error" class="error">{{ $t("error.stream_info_loading") }}</div>
 
-			<div v-if="!error" class="streamInfo">
+			<div class="streamInfo">
 				<div class="infos">
-					<i18n-t scope="global" :keypath="isLive? 'chat.raid.current_stream' : 'chat.raid.previous_stream'" tag="p" :plural="messageData.viewers">
+					<i18n-t scope="global" :keypath="messageData.stream.wasLive? 'chat.raid.current_stream' : 'chat.raid.previous_stream'" tag="p" :plural="messageData.viewers">
 						<template #CATEGORY>
-							<strong>{{streamCategory}}</strong>
+							<strong>{{messageData.stream.category}}</strong>
 						</template>
 					</i18n-t>
-					<p class="title">{{streamTitle}}</p>
-					<div class="duration" v-if="streamDuration">{{$t("chat.raid.duration", {DURATION:streamDuration})}}</div>
+					<p class="title">{{messageData.stream.title}}</p>
+					<div class="duration" v-if="messageData.stream.wasLive">{{$t("chat.raid.duration", {DURATION:formatedDuration})}}</div>
 				</div>
 
 				<Button @click.stop="shoutout()"
@@ -42,9 +41,8 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 
@@ -59,45 +57,13 @@ export default class ChatRaid extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRaidData;
 
-	public error = false;
-	public isLive = false;
-	public loading = true;
 	public shoutoutLoading = false;
-	public streamTitle:string = "";
-	public streamCategory:string = "";
-	public streamDuration:string = "";
+	public formatedDuration = "";
 
 	public beforeMount():void {
-		this.loadLastStreamInfos();
+		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
 	}
 
-	private async loadLastStreamInfos():Promise<void> {
-		this.error = false;
-		this.loading = true;
-		this.isLive = false;
-		try {
-			//Check current live info
-			const [currentStream] = await TwitchUtils.loadCurrentStreamInfo([this.messageData.user.id]);
-			if(currentStream) {
-				this.isLive = true;
-				this.streamTitle = currentStream.title;
-				this.streamCategory = currentStream.game_name;
-				this.streamDuration = Utils.formatDuration(Date.now() - new Date(currentStream.started_at).getTime());
-			}else{
-				//No current live found, load channel info
-				const [chanInfo] = await TwitchUtils.loadChannelInfo([this.messageData.user.id]);
-				if(chanInfo) {
-					this.streamTitle = chanInfo.title;
-					this.streamCategory = chanInfo.game_name;
-					this.streamDuration = "";
-				}
-			}
-		}catch(error) {
-			console.log(error);
-			this.error = true;
-		}
-		this.loading = false;
-	}
 
 	public openUserCard():void {
 		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
@@ -130,11 +96,10 @@ export default class ChatRaid extends AbstractChatMessage {
 
 	.streamInfo {
 		color: @mainColor_light;
-		background-color: rgba(255, 255, 255, .15);
+		// background-color: rgba(255, 255, 255, .15);
 		border-radius: .5em;
 		overflow: hidden;
 		width: 100%;
-		padding: .5em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
