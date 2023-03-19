@@ -247,12 +247,20 @@ export default class WhispersState extends Vue {
 							padding-left: 0;
 							padding-right: 3em;
 						}
+
+						:deep(a) {
+						color: @mainColor_warn;
+						}
 					}
 		
 					:deep( .emote ) {
 						max-height: 2em;
 						vertical-align: middle;
 						object-fit: contain;
+					}
+
+					:deep(a) {
+						color: @mainColor_warn_light;
 					}
 		
 					.time {
