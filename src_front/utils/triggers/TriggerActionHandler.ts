@@ -868,12 +868,15 @@ export default class TriggerActionHandler {
 											const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
 											const id = chunks[2];
 											track = await SpotifyHelper.instance.getTrackByID(id);
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)});
 										}else{
 											//No URL given, send earch to API
 											track = await SpotifyHelper.instance.searchTrack(m);
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track success: "+(track != null)});
 										}
 										if(track) {
 											if(await SpotifyHelper.instance.addToQueue(track.uri)) {
+												logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Add to queue success: true"});
 												data = {
 													title:track.name,
 													artist:track.artists[0].name,
@@ -882,6 +885,8 @@ export default class TriggerActionHandler {
 													duration:track.duration_ms,
 													url:track.external_urls.spotify,
 												};
+											}else{
+												logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Add to queue success: false"});
 											}
 										}
 									}
@@ -937,7 +942,9 @@ export default class TriggerActionHandler {
 								
 								if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
 									if(Config.instance.SPOTIFY_CONNECTED) {
-										SpotifyHelper.instance.nextTrack();
+										SpotifyHelper.instance.nextTrack().then(res=>{
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Next track success: "+res});
+										});
 									}
 									if(Config.instance.DEEZER_CONNECTED) {
 										DeezerHelper.instance.nextTrack();
@@ -946,7 +953,9 @@ export default class TriggerActionHandler {
 								
 								if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
 									if(Config.instance.SPOTIFY_CONNECTED) {
-										SpotifyHelper.instance.pause();
+										SpotifyHelper.instance.pause().then(res=> {
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Pause success: "+res});
+										});
 									}
 									if(Config.instance.DEEZER_CONNECTED) {
 										DeezerHelper.instance.pause();
@@ -955,7 +964,9 @@ export default class TriggerActionHandler {
 								
 								if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
 									if(Config.instance.SPOTIFY_CONNECTED) {
-										SpotifyHelper.instance.resume();
+										SpotifyHelper.instance.resume().then(res=> {
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Resume success: "+res});
+										});
 									}
 									if(Config.instance.DEEZER_CONNECTED) {
 										DeezerHelper.instance.resume();
@@ -974,6 +985,7 @@ export default class TriggerActionHandler {
 											id = chunks[2];
 										}
 										const success = await SpotifyHelper.instance.startPlaylist(id, m);
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Start playlist: "+success});
 										if(!success) {
 											const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 											if(message.platform) platforms.push(message.platform);

@@ -139,27 +139,41 @@ export default class SpotifyHelper extends EventDispatcher {
 			'App-Version': import.meta.env.PACKAGE_VERSION,
 		};
 		const res = await fetch(url, {method:"GET", headers});
-		json = await res.json();
-		if(json.access_token) {
-			json.refresh_token = this._token.refresh_token;//Keep refresh token
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));//This computes the expires_at value
-	
-			//Refresh token 10min before it actually expires
-			const delay = (this._token.expires_at - Date.now()) - 10 * 60 * 1000;
-			if(!isNaN(delay) && delay > 0) {
-				this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
+		let refreshSuccess = false;
+		if(res.status == 200) {
+			try {
+				json = await res.json();
+				if(json.access_token) {
+					json.refresh_token = this._token.refresh_token;//Keep refresh token
+			
+					//Refresh token 10min before it actually expires
+					const delay = Math.max(1000, (json.expires_in * 1000) - 10 * 60 * 1000);
+					console.log("[SPOTIFY] Refresh token in ", delay);
+					if(!isNaN(delay)) {
+						this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
+					}
+					this._headers = {
+						"Accept":"application/json",
+						"Content-Type":"application/json",
+						"Authorization":"Bearer "+this._token.access_token,
+					}
+					
+					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));
+					refreshSuccess = true;
+				}
+			}catch(error) {
+				console.log("[SPOTIFY] Token refresh failed");
+				console.log(error);
 			}
-			this._headers = {
-				"Accept":"application/json",
-				"Content-Type":"application/json",
-				"Authorization":"Bearer "+this._token.access_token,
-			}
-		}else{
+		}
+		if(!refreshSuccess){
+			//Refresh failed, try again
 			if(attempt < 5) {
 				this._refreshTimeout = setTimeout(()=>{
 					this.refreshToken(++attempt);
-				}, 5000)
+				}, 5000);
 			}else{
+				//Try too many times, give up and show alert
 				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.token_refresh")));
 			}
 		}
