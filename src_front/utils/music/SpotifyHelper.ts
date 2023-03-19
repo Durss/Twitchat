@@ -279,16 +279,17 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(res.status > 401) throw("error");
 		}catch(error) {
 			//API crashed, try again 5s later
-			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 5000);
 			return;
 		}
 		if(res.status == 401) {
 			await this.refreshToken();
+			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 1000);
 			return;
 		}
 		if(res.status == 204) {
 			//No content, nothing is playing
-			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 10000);
+			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 10000);
 			return;
 		}
 		
