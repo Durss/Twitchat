@@ -45,7 +45,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { ScheduleTriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerData, type TriggerEventTypes, type TriggerScheduleTypesValue } from '@/types/TriggerActionDataTypes';
+import { ScheduleTriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerData, type TriggerEventTypes, type TriggerScheduleEventType, type TriggerScheduleTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -80,7 +80,7 @@ export default class TriggerActionScheduleParams extends Vue {
 
 	public beforeMount():void {
 		//List all available trigger types
-		let events:TriggerEventTypes[] = [
+		let events:TriggerScheduleEventType[] = [
 			{labelKey:"triggers.schedule.default_action", icon:"date", value:"0", category:TriggerEventTypeCategories.TWITCHAT},
 		];
 		events = events.concat(ScheduleTriggerEvents());
@@ -92,12 +92,12 @@ export default class TriggerActionScheduleParams extends Vue {
 				dates:[],
 			}
 		}
-		this.param_action.value = this.triggerData.scheduleParams?.type? this.triggerData.scheduleParams?.type : events[0].value;
-		this.param_action.listValues = events;
-		const duration = this.triggerData.scheduleParams!.repeatDuration;
-		const minMess = this.triggerData.scheduleParams!.repeatMinMessages;
-		this.param_repeatDurationCondition.value = duration != undefined && duration > 0;
-		this.param_repeatMessageCondition.value = minMess != undefined && minMess > 0;
+		this.param_action.value							= this.triggerData.scheduleParams?.type? this.triggerData.scheduleParams?.type : events[0].value;
+		this.param_action.listValues					= events;
+		const duration									= this.triggerData.scheduleParams!.repeatDuration;
+		const minMess									= this.triggerData.scheduleParams!.repeatMinMessages;
+		this.param_repeatDurationCondition.value		= duration != undefined && duration > 0;
+		this.param_repeatMessageCondition.value			= minMess != undefined && minMess > 0;
 		this.param_name.labelKey						= "triggers.schedule.param_name";
 		this.param_action.labelKey						= "triggers.schedule.param_action";
 		this.param_repeatDurationCondition.labelKey		= "triggers.schedule.param_repeatDurationCondition";

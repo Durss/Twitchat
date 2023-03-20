@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerActionPlaceholders, type TriggerActionCountData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionCountData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
@@ -59,7 +59,7 @@ export default class TriggerActionCountEntry extends Vue {
 		
 		this.param_counters.listValues = counters;
 
-		this.param_value.placeholderList = TriggerActionPlaceholders(this.event.value).filter(v=>v.numberParsable==true);
+		this.param_value.placeholderList = TriggerEventPlaceholders(this.event.value).filter(v=>v.numberParsable==true);
 	}
 
 }

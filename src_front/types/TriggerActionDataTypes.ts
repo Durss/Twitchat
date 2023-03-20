@@ -102,13 +102,21 @@ export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[ke
 export interface TriggerEventTypes extends TwitchatDataTypes.ParameterDataListValue {
 	category:TriggerEventTypeCategoryValue;
 	labelKey:string;
-	value:TriggerTypesValue|"0";
+	value:TriggerTypesValue;
 	icon:string;
 	beta?:boolean;
 	descriptionKey?:string;
 	isCategory?:boolean;
 	testMessageType?:TwitchatDataTypes.TwitchatMessageStringType;
 	testNoticeType?:TwitchatDataTypes.TwitchatNoticeStringType;
+}
+
+export interface TriggerMusicEventType extends Omit<TriggerEventTypes, "value"> {
+	value:TriggerMusicTypesValue;
+}
+
+export interface TriggerScheduleEventType extends Omit<TriggerEventTypes, "value"> {
+	value:TriggerScheduleTypesValue;
 }
 
 export interface TriggerActionData {
@@ -234,7 +242,6 @@ export interface TriggerActionStreamInfoData extends TriggerActionData{
 	tags:string[];
 }
 
-export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];
 export interface TriggerScheduleData {
 	type:TriggerScheduleTypesValue|"0";
 	repeatDuration:number;
@@ -311,7 +318,7 @@ export const TriggerTypes = {
 } as const;
 export type TriggerTypesValue = typeof TriggerTypes[keyof typeof TriggerTypes];
 
-export interface ITriggerActionPlaceholder {
+export interface ITriggerPlaceholder {
 	tag:string;
 	descKey:string;
 	pointer:string;
@@ -322,13 +329,35 @@ export interface ITriggerActionPlaceholder {
 export const USER_PLACEHOLDER:string = "USER";
 export const USER_ID_PLACEHOLDER:string = "USER_ID";
 
-let helpersCache:{[key:string]:ITriggerActionPlaceholder[]};
-export function TriggerActionPlaceholders(key:string):ITriggerActionPlaceholder[] {
-	if(helpersCache) {
-		return helpersCache[key] ?? [];
+let actionPlaceholdersCache:Partial<{[key in NonNullable<TriggerActionStringTypes>]:ITriggerPlaceholder[]}>;
+export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITriggerPlaceholder[] {
+	if(!key) return [];
+
+	if(actionPlaceholdersCache) {
+		return actionPlaceholdersCache[key] ?? [];
 	}
 
-	const map:{[key:string]:ITriggerActionPlaceholder[]} = {}
+	const map:Partial<{[key in NonNullable<TriggerActionStringTypes>]:ITriggerPlaceholder[]}> = {
+		"music":[
+			{tag:"ADDED_TRACK_ARTIST", descKey:'triggers.placeholders.track_added_artist', pointer:"trackAdded.artist", numberParsable:false, isUserID:false},
+			{tag:"ADDED_TRACK_TITLE", descKey:'triggers.placeholders.track_added_title', pointer:"trackAdded.title", numberParsable:false, isUserID:false},
+			{tag:"ADDED_TRACK_ALBUM", descKey:'triggers.placeholders.track_added_album', pointer:"trackAdded.album", numberParsable:false, isUserID:false},
+			{tag:"ADDED_TRACK_COVER", descKey:'triggers.placeholders.track_added_cover', pointer:"trackAdded.cover", numberParsable:false, isUserID:false},
+			{tag:"ADDED_TRACK_URL", descKey:'triggers.placeholders.track_added_url', pointer:"trackAdded.url", numberParsable:false, isUserID:false},
+		]
+	}
+
+	actionPlaceholdersCache = map;
+	return map[key] ?? [];
+}
+
+let eventPlaceholdersCache:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}>;
+export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlaceholder[] {
+	if(eventPlaceholdersCache) {
+		return eventPlaceholdersCache[key] ?? [];
+	}
+
+	const map:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}> = {}
 	map[TriggerTypes.ANY_MESSAGE] = 
 	map[TriggerTypes.FIRST_TODAY] = 
 	map[TriggerTypes.FIRST_ALL_TIME] = 
@@ -502,7 +531,7 @@ export function TriggerActionPlaceholders(key:string):ITriggerActionPlaceholder[
 		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration', pointer:"countdown.duration", numberParsable:false, isUserID:false},
 	]; 
 	map[TriggerTypes.COUNTDOWN_STOP] = JSON.parse(JSON.stringify(map[TriggerTypes.COUNTDOWN_START]));
-	map[TriggerTypes.COUNTDOWN_STOP].push(
+	map[TriggerTypes.COUNTDOWN_STOP]!.push(
 		{tag:"END_AT", descKey:'triggers.placeholders.countdown_end_date', pointer:"countdown.endAt", numberParsable:false, isUserID:false},
 	)
 
@@ -532,7 +561,7 @@ export function TriggerActionPlaceholders(key:string):ITriggerActionPlaceholder[
 	];
 
 	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS] = JSON.parse(JSON.stringify(map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE]));
-	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS].push(
+	map[TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS]!.push(
 		{tag:"PROGRESS", descKey:'triggers.placeholders.challenge_current', pointer:"challenge.progress", numberParsable:true, isUserID:false},
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
@@ -559,20 +588,21 @@ export function TriggerActionPlaceholders(key:string):ITriggerActionPlaceholder[
 	&& key != TriggerTypes.MUSIC_START
 	&& key != TriggerTypes.TRACK_ADDED_TO_QUEUE
 	&& Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
-		map[key]	= map[key].concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]);
+		map[key] = map[key]!.concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]!);
 	}
 	
 	//Add global placeholders where missing
-	for (const key in map) {
-		if(map[key].findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
-			map[key].push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"myStream.title", numberParsable:false, isUserID:false});
+	let k!:TriggerTypesValue;
+	for (k in map) {
+		if(map[k]!.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
+			map[k]!.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"myStream.title", numberParsable:false, isUserID:false});
 		}
-		if(map[key].findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
-			map[key].push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"myStream.category", numberParsable:false, isUserID:false});
+		if(map[k]!.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
+			map[k]!.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"myStream.category", numberParsable:false, isUserID:false});
 		}
 	}
 
-	helpersCache = map;
+	eventPlaceholdersCache = map;
 	return map[key] ?? [];
 }
 
@@ -649,6 +679,7 @@ export function TriggerEvents():TriggerEventTypes[] {
 }
 
 export const TriggerMusicTypes = {
+	NO_ACTION:"0",
 	ADD_TRACK_TO_QUEUE:"1",
 	NEXT_TRACK:"2",
 	PAUSE_PLAYBACK:"3",
@@ -658,8 +689,8 @@ export const TriggerMusicTypes = {
 } as const;
 export type TriggerMusicTypesValue = typeof TriggerMusicTypes[keyof typeof TriggerMusicTypes];
 
-let musicCache:TriggerEventTypes[];
-export function MusicTriggerEvents():TriggerEventTypes[] {
+let musicCache:TriggerMusicEventType[];
+export function MusicTriggerEvents():TriggerMusicEventType[] {
 	if(musicCache) return musicCache;
 
 	const t = StoreProxy.i18n.t;
@@ -674,12 +705,14 @@ export function MusicTriggerEvents():TriggerEventTypes[] {
 }
 
 export const TriggerScheduleTypes = {
+	NO_ACTION:"0",
 	REGULAR_REPEAT:"1",
 	SPECIFIC_DATES:"2",
 } as const;
+export type TriggerScheduleTypesValue = typeof TriggerScheduleTypes[keyof typeof TriggerScheduleTypes];
 
-let scheduleCache:TriggerEventTypes[];
-export function ScheduleTriggerEvents():TriggerEventTypes[] {
+let scheduleCache:TriggerScheduleEventType[];
+export function ScheduleTriggerEvents():TriggerScheduleEventType[] {
 	if(scheduleCache) return scheduleCache;
 
 	const t = StoreProxy.i18n.t;

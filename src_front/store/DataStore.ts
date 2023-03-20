@@ -197,6 +197,10 @@ export default class DataStore {
 			this.cleanNonAttributedOBSScenes(data);
 			v = 34;
 		}
+		if(v==34) {
+			this.migrateTrackAddedTriggerPlaceholder(data);
+			v = 35;
+		}
 
 		data[this.DATA_VERSION] = v;
 		return data;
@@ -871,5 +875,31 @@ export default class DataStore {
 		if(scenes) {
 			data[this.OBS_CONF_SCENES] = scenes.filter(v=> (v.command ?? "") != "");
 		}
+	}
+
+
+	/**
+	 * Until then when using the "add track to queue" trigger action, the placeholder
+	 * to display the track info on the confirmation message was the same than the
+	 * one used to display the currently playing track.
+	 * Basically we only had {CURRENT_TRACK_XXX} placeholders.
+	 * Now there are {ADDED_TRACK_XXX} placeholders.
+	 * Here we migrate all {CURRENT_TRACK_XXX} placeholders to {ADDED_TRACK_XXX}
+	 * only for the track added actions
+	 */
+	private static migrateTrackAddedTriggerPlaceholder(data:any):void {
+		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
+		if(!triggers) return;
+		for (const key in triggers) {
+			for (let i = 0; i < triggers[key].actions.length; i++) {
+				const a = triggers[key].actions[i];
+				if(a.type == "music" && a.confirmMessage) {
+					const before = a.confirmMessage;
+					a.confirmMessage = a.confirmMessage.replace(/\{CURRENT_TRACK_(.*?)\}/gi, "{ADDED_TRACK_$1}");
+				}
+			}
+		}
+
+		data[DataStore.TRIGGERS] = triggers;
 	}
 }

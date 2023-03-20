@@ -392,8 +392,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.MUSIC_START:
-				case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP:
-				case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
+				case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP: {
 					const m:TwitchatDataTypes.MessageMusicAddedToQueueData
 					| TwitchatDataTypes.MessageMusicStartData
 					| TwitchatDataTypes.MessageMusicStopData = {
@@ -402,6 +401,25 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						track: {
+							title: "Mitchiri Neko march",
+							artist: "Mitchiri MitchiriNeko",
+							album: "MitchiriNeko",
+							cover: "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",
+							duration: 1812,
+							url: "https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"
+						}
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
+					const m:TwitchatDataTypes.MessageMusicAddedToQueueData= {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						date:Date.now(),
+						type,
+						trackAdded: {
 							title: "Mitchiri Neko march",
 							artist: "Mitchiri MitchiriNeko",
 							album: "MitchiriNeko",

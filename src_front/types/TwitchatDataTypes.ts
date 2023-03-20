@@ -2167,7 +2167,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Info about the track that's been added to the queue
 		 */
-		track:MusicTrackData|null;
+		trackAdded:MusicTrackData|null;
 		/**
 		 * User that added the track
 		 */

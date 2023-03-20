@@ -3,7 +3,7 @@ import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
-import { TriggerActionPlaceholders, TriggerMusicTypes, TriggerTypes, type TriggerLog, type TriggerData, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
+import { TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, type TriggerLog, type TriggerData, type TriggerTypesValue, TriggerActionPlaceholders, type ITriggerPlaceholder } from "../../types/TriggerActionDataTypes";
 import Config from "../Config";
 import DeezerHelper from "../music/DeezerHelper";
 import type { SearchTrackItem } from "../music/SpotifyDataTypes";
@@ -513,6 +513,8 @@ export default class TriggerActionHandler {
 					const step = trigger.actions[i];
 					const logStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
 					log.steps.push(logStep);
+
+					const actionPlaceholders = TriggerActionPlaceholders(step.type);
 						
 					logStep.messages.push({date:Date.now(), value:"Start step execution"});
 
@@ -542,7 +544,7 @@ export default class TriggerActionHandler {
 	
 							if(step.text) {
 								try {
-									const text = await this.parseText(dynamicPlaceholders, triggerKey, message, step.text as string, subEvent);
+									const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, step.text as string, subEvent);
 									await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 								}catch(error) {
 									console.error(error);
@@ -550,7 +552,7 @@ export default class TriggerActionHandler {
 							}
 							if(step.url) {
 								try {
-									const url = await this.parseText(dynamicPlaceholders, triggerKey, message, step.url as string, subEvent);
+									const url = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, step.url as string, subEvent);
 									await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 								}catch(error) {
 									console.error(error);
@@ -558,7 +560,7 @@ export default class TriggerActionHandler {
 							}
 							if(step.mediaPath) {
 								try {
-									let url = await this.parseText(dynamicPlaceholders, triggerKey, message, step.mediaPath as string, subEvent, true, true);
+									let url = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, step.mediaPath as string, subEvent, true, true);
 									await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 								}catch(error) {
 									console.error(error);
@@ -600,7 +602,7 @@ export default class TriggerActionHandler {
 						//Handle Chat action
 						if(step.type == "chat") {
 							// console.log("CHAT ACTION");
-							const text = await this.parseText(dynamicPlaceholders, triggerKey, message, step.text as string, subEvent);
+							const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, step.text as string, subEvent);
 							const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 							if(message.platform != "twitchat") platforms.push(message.platform);
 							// console.log(platforms, text);
@@ -613,7 +615,7 @@ export default class TriggerActionHandler {
 						//Handle highlight action
 						if(step.type == "highlight") {
 							if(step.show) {
-								let text = await this.parseText(dynamicPlaceholders, triggerKey, message, step.text as string, subEvent, true);
+								let text = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, step.text as string, subEvent, true);
 								let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
 								if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 								|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
@@ -651,7 +653,7 @@ export default class TriggerActionHandler {
 						
 						//Handle TTS action
 						if(step.type == "tts" && message) {
-							let text = await this.parseText(dynamicPlaceholders, triggerKey, message, step.text, subEvent);
+							let text = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, step.text, subEvent);
 							log.messages.push({date:Date.now(), value:"TTS read message \""+text+"\""});
 							TTSUtils.instance.readNext(text, ttsID ?? triggerKey);
 						}else
@@ -733,7 +735,7 @@ export default class TriggerActionHandler {
 							const url = new URL(step.url);
 							for (let i = 0; i < step.queryParams.length; i++) {
 								const tag = step.queryParams[i];
-								const text = await this.parseText(dynamicPlaceholders, triggerKey, message, "{"+tag+"}", subEvent);
+								const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, "{"+tag+"}", subEvent);
 								url.searchParams.append(tag.toLowerCase(), text);
 							}
 							try {
@@ -752,7 +754,7 @@ export default class TriggerActionHandler {
 							const json:{[key:string]:number|string|boolean} = {};
 							for (let i = 0; i < step.params.length; i++) {
 								const tag = step.params[i];
-								const value = await this.parseText(dynamicPlaceholders, triggerKey, message, "{"+tag+"}", subEvent);
+								const value = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, "{"+tag+"}", subEvent);
 								json[tag.toLowerCase()] = value;
 								if(step.topic) {
 									json.topic = step.topic;
@@ -772,7 +774,7 @@ export default class TriggerActionHandler {
 						
 						//Handle counter update trigger action
 						if(step.type == "count") {
-							let text = await this.parseText(dynamicPlaceholders, triggerKey, message, step.addValue as string, subEvent);
+							let text = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, step.addValue as string, subEvent);
 							text = text.replace(/,/gi, ".");
 							const value = MathJS.evaluate(text);
 							console.log(message);
@@ -859,7 +861,7 @@ export default class TriggerActionHandler {
 								//Adding a track to the queue
 								if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 									//Convert placeholders if any
-									const m = await this.parseText(dynamicPlaceholders, triggerKey, message, step.track, subEvent);
+									const m = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, step.track, subEvent);
 									let data:TwitchatDataTypes.MusicTrackData|null = null;
 									if(Config.instance.SPOTIFY_CONNECTED) {
 										let track:SearchTrackItem|null = null;
@@ -913,7 +915,7 @@ export default class TriggerActionHandler {
 											date:Date.now(),
 											platform:"twitchat",
 											type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-											track:data,
+											trackAdded:data,
 										}
 										PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
 										//Execute "TRACK_ADDED_TO_QUEUE" trigger
@@ -927,14 +929,14 @@ export default class TriggerActionHandler {
 												date:Date.now(),
 												platform:"twitchat",
 												type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-												track:data,
+												trackAdded:data,
 												message:messageLoc.message,
 												user:messageLoc.user,
 											}
 											//First pass to inject track info
-											let chatMessage = await this.parseText(dynamicPlaceholders, triggerKey, trigger, step.confirmMessage, subEvent, false);
+											let chatMessage = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, trigger, step.confirmMessage, subEvent, false);
 											//Second pass to inject trigger specifics
-											chatMessage = await this.parseText(dynamicPlaceholders, triggerKey, message, chatMessage, subEvent);
+											chatMessage = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, chatMessage, subEvent);
 											MessengerProxy.instance.sendMessage(chatMessage);
 										}
 									}
@@ -976,7 +978,7 @@ export default class TriggerActionHandler {
 								if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 									let m:string = step.playlist;
 									if(message.type == "message") {
-										m = await this.parseText(dynamicPlaceholders, triggerKey, message, m, subEvent);
+										m = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, m, subEvent);
 									}
 									if(Config.instance.SPOTIFY_CONNECTED) {
 										let id:string|null = null;
@@ -1026,7 +1028,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(dynamicPlaceholders:{[key:string]:string|number}, eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
+	private async parseText(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder[], eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
 		if(!res) return "";
 
@@ -1038,13 +1040,14 @@ export default class TriggerActionHandler {
 			// console.log(subEvent);
 
 			eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
-			const helpers = TriggerActionPlaceholders(eventType);
+			let placeholders = TriggerEventPlaceholders(eventType as TriggerTypesValue).concat();//Clone it to avoid modifying original
+			placeholders = placeholders.concat(actionPlaceholder);
 			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
-			if(!helpers) return res;
+			if(!placeholders) return res;
 			
-			for (let i = 0; i < helpers.length; i++) {
-				const h = helpers[i];
+			for (let i = 0; i < placeholders.length; i++) {
+				const h = placeholders[i];
 				const chunks:string[] = h.pointer.split(".");
 				let root = message as unknown;
 				let value:string = "";
@@ -1136,7 +1139,7 @@ export default class TriggerActionHandler {
 	private extractUser(eventType:string, message:TwitchatDataTypes.ChatMessageTypes):TwitchatDataTypes.TwitchatUser|undefined {
 		let user:TwitchatDataTypes.TwitchatUser | undefined = undefined;
 		const key = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
-		const helpers = TriggerActionPlaceholders(key);
+		const helpers = TriggerEventPlaceholders(key as TriggerTypesValue);
 		const userIdHelper = helpers.find(v => v.isUserID === true);
 		if(userIdHelper) {
 			const chunks:string[] = userIdHelper.pointer.split(".");

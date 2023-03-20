@@ -22,14 +22,14 @@
 		</div>
 
 		<div class="row item" v-if="showPlaylistInput">
-			<div class="item alert">{{ $t("triggers.actions.music.spotify_only") }}</div>
+			<!-- <div class="item alert">{{ $t("triggers.actions.music.spotify_only") }}</div> -->
 			<ParamItem :paramData="playlist_conf" v-model="action.playlist" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerEventTypes, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -60,7 +60,7 @@ export default class TriggerActionMusicEntry extends Vue {
 
 	public mounted():void {
 		//List all available trigger types
-		let events:TriggerEventTypes[] = [
+		let events:TriggerMusicEventType[] = [
 			{labelKey:"triggers.actions.music.param_actions_default", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC},
 		];
 		events = events.concat(MusicTriggerEvents());
@@ -71,9 +71,12 @@ export default class TriggerActionMusicEntry extends Vue {
 		this.confirmSongRequest_conf.labelKey	= "triggers.actions.music.param_confirmSongRequest";
 		this.playlist_conf.labelKey				= "triggers.actions.music.param_playlist";
 
-		this.track_conf.placeholderList = TriggerActionPlaceholders(this.event.value);
-		this.confirmSongRequest_conf.placeholderList = TriggerActionPlaceholders(this.event.value);
-		this.playlist_conf.placeholderList = TriggerActionPlaceholders(this.event.value);
+		let placeholders = TriggerEventPlaceholders(this.event.value).concat();
+		placeholders = placeholders.concat(TriggerActionPlaceholders("music"));
+
+		this.track_conf.placeholderList = placeholders;
+		this.confirmSongRequest_conf.placeholderList = placeholders;
+		this.playlist_conf.placeholderList = placeholders;
 
 	}
 
