@@ -396,6 +396,8 @@ import Ajv from "ajv";
 		"p:minimalistBadges": {type:"boolean"},
 		"p:raidHighlightUser": {type:"boolean"},
 		"p:raffleHighlightUser": {type:"boolean"},
+		"p:raidHighlightUserDuration": {type:"number"},
+		"p:raffleHighlightUserDuration": {type:"number"},
 		"p:showBadges": {type:"boolean"},
 		"p:showEmotes": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},

@@ -296,6 +296,10 @@ export default class ParamsList extends Vue {
 		:deep(input[type='range']) {
 			width: 100%;
 		}
+		
+		:deep(input[type='number']) {
+			flex-basis: 100px;
+		}
 
 		&:not(:last-child) {
 			margin-bottom: 10px;

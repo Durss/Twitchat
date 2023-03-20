@@ -858,7 +858,8 @@ export const storeChat = defineStore('chat', {
 							localMess.user.is_tracked = false;
 							StoreProxy.users.untrackUser(localMess.user);
 						}
-					}, 5 * 60 * 1000);
+					}, (sParams.features.raidHighlightUserDuration.value as number ?? 0) * 1000 * 60);
+
 					break;
 				}
 

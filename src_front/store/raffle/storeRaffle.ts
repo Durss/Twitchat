@@ -79,7 +79,7 @@ export const storeRaffle = defineStore('raffle', {
 							StoreProxy.users.trackUser(user);
 							setTimeout(()=> {
 								StoreProxy.users.untrackUser(user);
-							}, 5 * 60 * 1000);
+							}, (StoreProxy.params.features.raffleHighlightUserDuration.value as number ?? 0) * 1000 * 60);
 						}
 					}
 				}
