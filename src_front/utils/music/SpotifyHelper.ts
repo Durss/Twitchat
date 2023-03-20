@@ -1,25 +1,24 @@
+import { EventDispatcher } from "@/events/EventDispatcher";
+import TwitchatEvent from "@/events/TwitchatEvent";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
-import Config from "@/utils/Config";
-import { EventDispatcher } from "@/events/EventDispatcher";
-import PublicAPI from "@/utils/PublicAPI";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
 import SpotifyHelperEvent from "./SpotifyHelperEvent";
-import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import TwitchatEvent from "@/events/TwitchatEvent";
-import Utils from "@/utils/Utils";
 
 /**
 * Created : 23/05/2022 
 */
 export default class SpotifyHelper extends EventDispatcher {
 	
-	public isPlaying = false;
 	public currentTrack!:TwitchatDataTypes.MusicTrackData;
-
+	
 	private static _instance:SpotifyHelper;
+	private _isPlaying = false;
 	private _token!:SpotifyAuthToken;
 	private _refreshTimeout!:number;
 	private _getTrackTimeout!:number;
@@ -195,7 +194,11 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(!isRetry) return await this.getTrackByID(id, true);
 			else return null;
 		}
-		return await res.json();
+		try {
+			return await res.json();
+		}catch(error) {
+			return null;
+		}
 	}
 
 	/**
@@ -214,12 +217,16 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(!isRetry) return await this.searchTrack(name, true);
 			else return null;
 		}
-		const json = await res.json();
-		const tracks = json.tracks as SearchTrackResult;
-		if(tracks.items.length == 0) {
+		try {
+			const json = await res.json();
+			const tracks = json.tracks as SearchTrackResult;
+			if(tracks.items.length == 0) {
+				return null;
+			}else{
+				return tracks.items[0];
+			}
+		}catch(error) {
 			return null;
-		}else{
-			return tracks.items[0];
 		}
 	}
 
@@ -239,12 +246,16 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(!isRetry) return await this.searchPlaylist(name, true);
 			else return null;
 		}
-		const json = await res.json();
-		const tracks = json.playlists as SearchPlaylistResult;
-		if(tracks.items.length == 0) {
+		try {
+			const json = await res.json();
+			const tracks = json.playlists as SearchPlaylistResult;
+			if(tracks.items.length == 0) {
+				return null;
+			}else{
+				return tracks.items[0];
+			}
+		}catch(error) {
 			return null;
-		}else{
-			return tracks.items[0];
 		}
 	}
 
@@ -317,8 +328,13 @@ export default class SpotifyHelper extends EventDispatcher {
 			return;
 		}
 		
-		let json:SpotifyTrack|null = await res.json();
-		if(json?.currently_playing_type == "episode") {
+		let json:SpotifyTrack|null = null;
+		try {
+			await res.json();
+		}catch(error) {
+			return;
+		}
+		if(json!.currently_playing_type == "episode") {
 			const episode = await this.getEpisodeInfos();
 			if(episode) json = episode;
 		}
@@ -332,9 +348,9 @@ export default class SpotifyHelper extends EventDispatcher {
 				duration:json.item.duration_ms,
 				url:json.item.external_urls.spotify,
 			};
-			this.isPlaying = json.is_playing && json.item != null;
+			this._isPlaying = json.is_playing && json.item != null;
 	
-			if(this.isPlaying) {
+			if(this._isPlaying) {
 				let delay = json.item.duration_ms - json.progress_ms;
 				if(isNaN(delay)) delay = 5000;
 				this._getTrackTimeout = setTimeout(()=> {
@@ -409,7 +425,11 @@ export default class SpotifyHelper extends EventDispatcher {
 			let json:JsonObject;
 			do {
 				const res = await fetch("https://api.spotify.com/v1/me/playlists?limit="+limit+"&offset="+offset, options);
-				json = await res.json();
+				try {
+					json = await res.json();
+				}catch(error) {
+					return null;
+				}
 				offset += limit;
 				playlists = playlists.concat((json.items as unknown) as SearchPlaylistItem[]);
 			}while(json.next);
@@ -538,7 +558,11 @@ export default class SpotifyHelper extends EventDispatcher {
 			await this.refreshToken();
 			return null;
 		}
-		return await res.json();
+		try {
+			return await res.json();
+		}catch(error) {
+			return null;
+		}
 	}
 
 	private get clientID():string {

@@ -860,6 +860,8 @@ export default class TriggerActionHandler {
 						//Handle music actions
 						if(step.type == "music") {
 							try {
+								logStep.messages.push({date:Date.now(), value:"[MUSIC] Execute music action: "+step.musicAction});
+								logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected? "+Config.instance.SPOTIFY_CONNECTED});
 								//Adding a track to the queue
 								if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 									//Convert placeholders if any
