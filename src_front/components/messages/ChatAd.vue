@@ -135,7 +135,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 		ChatChangelog,
 		ChatTipAndTrickAd,
 	},
-	emits:["showModal"]
+	emits:["showModal", "onRead"]
 })
 export default class ChatAd extends Vue {
 

@@ -57,11 +57,11 @@ import PermissionsForm from '../../PermissionsForm.vue';
 })
 export default class ParamsAlert extends Vue {
 	
-	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"text", labelKey:"alert.command", value:"!alert"};
-	public param_message:TwitchatDataTypes.ParameterData = {type:"toggle", labelKey:"alert.option_popin", value:true};
-	public param_shake:TwitchatDataTypes.ParameterData = {type:"toggle", labelKey:"alert.option_shake", value:true};
-	public param_blink:TwitchatDataTypes.ParameterData = {type:"toggle", labelKey:"alert.option_blink", value:false};
-	public param_sound:TwitchatDataTypes.ParameterData = {type:"toggle", labelKey:"alert.option_sound", value:true};
+	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"string", labelKey:"alert.command", value:"!alert"};
+	public param_message:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_popin", value:true};
+	public param_shake:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_shake", value:true};
+	public param_blink:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_blink", value:false};
+	public param_sound:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_sound", value:true};
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,

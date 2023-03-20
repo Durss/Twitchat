@@ -59,9 +59,9 @@ export default class TriggerActionOBSEntry extends Vue {
 	public action_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], icon:"show_purple.svg" };
 	public source_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], icon:"list_purple.svg", children:[] };
 	public filter_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[] };
-	public text_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public url_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"", icon:"url_purple.svg", placeholder:"http://..." };
-	public media_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
+	public text_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public url_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"url_purple.svg", placeholder:"http://..." };
+	public media_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
 	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];

@@ -54,7 +54,7 @@ export default class OBSConnectForm extends Vue {
 	public connectSuccess:boolean = false;
 	public obsPort_conf:TwitchatDataTypes.ParameterData	= { type:"number", value:4455, min:0, max:65535, step:1 };
 	public obsPass_conf:TwitchatDataTypes.ParameterData	= { type:"password", value:"", };
-	public obsIP_conf:TwitchatDataTypes.ParameterData	= { type:"text", value:"127.0.0.1", };
+	public obsIP_conf:TwitchatDataTypes.ParameterData	= { type:"string", value:"127.0.0.1", };
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 

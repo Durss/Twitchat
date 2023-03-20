@@ -10,12 +10,6 @@
 						<strong>OBS v28+</strong>
 					</template>
 				</i18n-t>
-				<br>
-				<i18n-t scope="global"  tag="i" keypath="obs.install_option">
-					<template #PLUGIN_LINK>
-						<a :href="obswsInstaller" target="_blank">{{ $t("obs.install_plugin_name") }}</a>
-					</template>
-				</i18n-t>
 			</p>
 		</div>
 
@@ -93,10 +87,10 @@ export default class ParamsOBS extends Vue {
 	public connectSuccess = false;
 	public showPermissions = false;
 	public openConnectForm = false;
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", label:"Enabled", value:false};
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", label:"Enabled", value:false};
 	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
 	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"text", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,

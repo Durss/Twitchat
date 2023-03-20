@@ -56,7 +56,7 @@ export default class VoiceGlobalCommands extends Vue {
 			if(action?.sentences) text = action.sentences;
 
 			this.items.push({
-				type:"text",
+				type:"string",
 				value:text,
 				labelKey:"voice.commands."+id,
 			});

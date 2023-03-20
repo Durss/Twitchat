@@ -857,6 +857,20 @@ export default class Chat extends Vue {
 							&::before {
 								height: 5px;
 								width: 40px;
+								background: linear-gradient(90deg,
+												@mainColor_dark_light 30%,
+												@mainColor_dark 30%,
+												@mainColor_dark 35%,
+												@mainColor_dark_light 35%,
+												@mainColor_dark_light 45%,
+												@mainColor_dark 45%,
+												@mainColor_dark 50%,
+												@mainColor_dark_light 50%,
+												@mainColor_dark_light 60%,
+												@mainColor_dark 60%,
+												@mainColor_dark 65%,
+												@mainColor_dark_light 65%,
+											);
 							}
 						}
 					}
@@ -934,6 +948,20 @@ export default class Chat extends Vue {
 							width: 5px;
 							height: 40px;
 							background: @mainColor_dark_light;
+							background: linear-gradient(0deg,
+											@mainColor_dark_light 30%,
+											@mainColor_dark 30%,
+											@mainColor_dark 35%,
+											@mainColor_dark_light 35%,
+											@mainColor_dark_light 45%,
+											@mainColor_dark 45%,
+											@mainColor_dark 50%,
+											@mainColor_dark_light 50%,
+											@mainColor_dark_light 60%,
+											@mainColor_dark 60%,
+											@mainColor_dark 65%,
+											@mainColor_dark_light 65%,
+										);
 						}
 					}
 				}

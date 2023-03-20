@@ -46,6 +46,48 @@
 			background-color: @mainColor_dark;
 		}
 	}
+	
+	.quote {
+		font-style: italic;
+		word-break: break-word;
+		margin: 0;
+		margin-top: .5em;
+		display: block;
+		color: @mainColor_light;
+		line-height: 1.2em;
+		background-color: rgba(255, 255, 255, 0.1);
+		padding: 0.5em;
+		border-radius: 0.5em;
+		.cheermote, .emote {
+			max-height: 2em;
+			vertical-align: middle;
+			object-fit: contain;
+		}
+		&::before {
+			content: "“";
+			font-family: var(--font-nunito);
+			font-style: normal;
+			font-size: 2em;
+			line-height: .25em;
+			vertical-align: text-bottom;
+			margin-right: .1em;
+			opacity: .5;
+			font-size: 4em;
+			top: 0.2em;
+			position: relative;
+		}
+		// &::after {
+		// 	content: "”";
+		// 	margin-left: .2em;
+		// }
+	}
+	
+	:deep(.cheermote), :deep(.emote) {
+		max-height: 2em;
+		vertical-align: middle;
+		object-fit: contain;
+	}
+
 }
 
 .chatMessageTime() {

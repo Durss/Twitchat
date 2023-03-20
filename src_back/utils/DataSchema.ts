@@ -144,12 +144,14 @@ import Ajv from "ajv";
 										addValue: {type:"string", maxLength:100},
 										counter: {type:"string", maxLength:40},
 										placeholder:{type:"string", maxLength:20},
+										outputPlaceholder:{type:"string", maxLength:20},
 										min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 										max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 										float: {type:"boolean"},
 										mode: {type:"string", maxLength:20},
 										title: {type:"string", maxLength:20},
 										categoryId: {type:"string", maxLength:30},
+										topic: {type:"string", maxLength:255},
 										tags: {
 											type:"array",
 											maxItems:20,
@@ -159,6 +161,11 @@ import Ajv from "ajv";
 											type:"array",
 											maxItems:10000,
 											items:[{type:"string", maxLength:500}],
+										},
+										triggers: {
+											type:"array",
+											maxItems:1000,
+											items:[{type:"string", maxLength:100}],
 										},
 										counters: {
 											type:"array",
@@ -170,12 +177,18 @@ import Ajv from "ajv";
 											maxItems:100,
 											items:[{type:"string", maxLength:50}],
 										},
+										params: {
+											type:"array",
+											maxItems:100,
+											items:[{type:"string", maxLength:50}],
+										},
 										raffleData: {
 											type: "object",
 											additionalProperties: false,
 											properties: {
 												mode: {type:"string", maxLength:20},
 												command: {type:"string", maxLength:100},
+												reward_id: {type:"string", maxLength:200},
 												duration_s: {type:"number", minimum:0, maximum:120 * 60000},
 												maxEntries: {type:"number", minimum:0, maximum:1000000},
 												created_at: {type:"number", minimum:0, maximum:9999999999999},
@@ -393,6 +406,7 @@ import Ajv from "ajv";
 		"p:translateNames": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
+		"p:highlight1stToday": {type:"boolean"},
 		"p:chatShoutout": {type:"boolean"},
 		"p:hideUsers": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:censorDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
@@ -475,6 +489,7 @@ import Ajv from "ajv";
 		cypherKey: {type:"string", maxLength:500},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"number", minimum:-1, maximum:10},
+		rightClickHintPrompt: {type:"boolean"},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,
@@ -739,6 +754,16 @@ import Ajv from "ajv";
 					}
 				}
 			]
+		},
+
+		websocketTrigger: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"string", maxLength:10},
+				secured: {type:"boolean"},
+			}
 		},
 	}
 }

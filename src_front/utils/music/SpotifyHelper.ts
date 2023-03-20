@@ -124,38 +124,58 @@ export default class SpotifyHelper extends EventDispatcher {
 	/**
 	 * Refresh the current token
 	 */
-	public async refreshToken():Promise<void> {
+	public async refreshToken(attempt:number = 0):Promise<void> {
 		clearTimeout(this._getTrackTimeout);
 		clearTimeout(this._refreshTimeout);
 
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		let url = Config.instance.API_PATH+"/spotify/refresh_token";
-		url += "?token="+encodeURIComponent(this._token.refresh_token);
+		let url = new URL(Config.instance.API_PATH+"/spotify/refresh_token");
+		url.searchParams.append("token", this._token.refresh_token);
 		if(this.clientID && this._clientSecret) {
-			url += "&clientId="+encodeURIComponent(this.clientID);
-			url += "&clientSecret="+encodeURIComponent(this._clientSecret);
+			url.searchParams.append("clientId", this.clientID);
+			url.searchParams.append("clientSecret", this._clientSecret);
 		}
 		const headers = {
 			'App-Version': import.meta.env.PACKAGE_VERSION,
 		};
 		const res = await fetch(url, {method:"GET", headers});
-		json = await res.json();
-		if(json.access_token) {
-			json.refresh_token = this._token.refresh_token;//Keep refresh token
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));//This computes the expires_at value
-	
-			//Refresh token 10min before it actually expires
-			const delay = (this._token.expires_at - Date.now()) - 10 * 60 * 1000;
-			if(!isNaN(delay) && delay > 0) {
-				this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
+		let refreshSuccess = false;
+		if(res.status == 200) {
+			try {
+				json = await res.json();
+				if(json.access_token) {
+					json.refresh_token = this._token.refresh_token;//Keep refresh token
+			
+					//Refresh token 10min before it actually expires
+					const delay = Math.max(1000, (json.expires_in * 1000) - 10 * 60 * 1000);
+					console.log("[SPOTIFY] Refresh token in ", delay);
+					if(!isNaN(delay)) {
+						this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
+					}
+					this._headers = {
+						"Accept":"application/json",
+						"Content-Type":"application/json",
+						"Authorization":"Bearer "+this._token.access_token,
+					}
+					
+					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));
+					refreshSuccess = true;
+				}
+			}catch(error) {
+				console.log("[SPOTIFY] Token refresh failed");
+				console.log(error);
 			}
-			this._headers = {
-				"Accept":"application/json",
-				"Content-Type":"application/json",
-				"Authorization":"Bearer "+this._token.access_token,
+		}
+		if(!refreshSuccess){
+			//Refresh failed, try again
+			if(attempt < 5) {
+				this._refreshTimeout = setTimeout(()=>{
+					this.refreshToken(++attempt);
+				}, 5000);
+			}else{
+				//Try too many times, give up and show alert
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.token_refresh")));
 			}
-		}else{
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.token_refresh")));
 		}
 	}
 
@@ -164,13 +184,18 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * 
 	 * @returns track info
 	 */
-	public async getTrackByID(id:string):Promise<SearchTrackItem|null> {
+	public async getTrackByID(id:string, isRetry:boolean = false):Promise<SearchTrackItem|null> {
 		const options = {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/tracks/"+encodeURIComponent(id), options);
-		const json = await res.json();
-		return json;
+		if(res.status == 401) {
+			await this.refreshToken();
+			//Try again
+			if(!isRetry) return await this.getTrackByID(id, true);
+			else return null;
+		}
+		return await res.json();
 	}
 
 	/**
@@ -178,14 +203,16 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * 
 	 * @returns if a track has been found or not
 	 */
-	public async searchTrack(name:string):Promise<SearchTrackItem|null> {
+	public async searchTrack(name:string, isRetry:boolean = false):Promise<SearchTrackItem|null> {
 		const options = {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/search?type=track&q="+encodeURIComponent(name), options);
 		if(res.status == 401) {
 			await this.refreshToken();
-			return null;
+			//Try again
+			if(!isRetry) return await this.searchTrack(name, true);
+			else return null;
 		}
 		const json = await res.json();
 		const tracks = json.tracks as SearchTrackResult;
@@ -201,14 +228,16 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * 
 	 * @returns if a track has been found or not
 	 */
-	public async searchPlaylist(name:string):Promise<SearchPlaylistItem|null> {
+	public async searchPlaylist(name:string, isRetry:boolean = false):Promise<SearchPlaylistItem|null> {
 		const options = {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/search?type=playlist&q="+encodeURIComponent(name), options);
 		if(res.status == 401) {
 			await this.refreshToken();
-			return null;
+			//Try again
+			if(!isRetry) return await this.searchPlaylist(name, true);
+			else return null;
 		}
 		const json = await res.json();
 		const tracks = json.playlists as SearchPlaylistResult;
@@ -225,29 +254,34 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * @param uri Spotify URI of the track to add. Get one with "searchTrack()" method
 	 * @returns if a track has been added or not
 	 */
-	public async addToQueue(uri:string):Promise<boolean> {
+	public async addToQueue(uri:string, isRetry:boolean = false):Promise<boolean> {
 		const options = {
 			headers:this._headers,
 			method:"POST",
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(uri), options);
-		if(res.status == 401) {
-			await this.refreshToken();
-			return false;
-		}
 		if(res.status == 204) {
 			return true;
-		}
+		}else
+		if(res.status == 401) {
+			await this.refreshToken();
+			//Try again
+			if(!isRetry) return await this.addToQueue(uri, true);
+			else return false;
+		}else
 		if(res.status == 409) {
 			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
-			return false;
-		}
-		if(res.status == 404) {
-			const json = await res.json();
-			if(json.error) {
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+		}else {
+			try {
+				const json = await res.json();
+				if(json.error.message) {
+					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+				}else {
+					throw(new Error(""))
+				}
+			}catch(error) {
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status));
 			}
-			return false;
 		}
 		return false;
 	}
@@ -269,16 +303,17 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(res.status > 401) throw("error");
 		}catch(error) {
 			//API crashed, try again 5s later
-			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 5000);
 			return;
 		}
 		if(res.status == 401) {
 			await this.refreshToken();
+			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 1000);
 			return;
 		}
 		if(res.status == 204) {
 			//No content, nothing is playing
-			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 10000);
+			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 10000);
 			return;
 		}
 		
@@ -470,13 +505,23 @@ export default class SpotifyHelper extends EventDispatcher {
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
 					StoreProxy.main.alertData = StoreProxy.i18n.t("music.spotify_play");
 				}
-			}catch(error){}
-
-			return false;
-		}
+			}catch(error){
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status));
+			}
+		}else
 		if(res.status == 409) {
 			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
-			return false;
+		}else {
+			try {
+				const json = await res.json();
+				if(json.error.message) {
+					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+				}else {
+					throw(new Error(""))
+				}
+			}catch(error) {
+				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status));
+			}
 		}
 		return false;
 	}

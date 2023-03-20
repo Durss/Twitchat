@@ -252,13 +252,28 @@ export const storeAuth = defineStore('auth', {
 					setTimeout(()=>{
 						if(this.twitch.user.donor.noAd) return;
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
-					}, 5000)
+					}, 5000);
 				}else
 				//Ask the user if they want to make their donation public
 				if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && this.twitch.user.donor.state) {
 					setTimeout(()=>{
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
-					}, 5000)
+					}, 5000);
+				}else
+				//Show "right click message" hint
+				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
+					setTimeout(()=>{
+						StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
+							const m = message as TwitchatDataTypes.MessageChatData;
+							const str = StoreProxy.i18n.t("chat.right_click_hint");
+							console.log(StoreProxy.i18n.locale);
+							m.message = str;
+							m.message_html = TwitchUtils.parseEmotes(str, undefined, false, true).replace(/&lt;(\/?mark)&gt;/gi, "<$1>");
+							m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
+							m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat_purple.svg`, import.meta.url).href;
+							m.user.color = "#bb8eff";
+						});
+					}, 5000);
 				}else{
 					//Hot fix to make sure new changelog highlights are displayed properly
 					setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);

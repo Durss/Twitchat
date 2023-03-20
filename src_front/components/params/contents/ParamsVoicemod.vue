@@ -65,8 +65,8 @@ export default class ParamsVoicemod extends Vue {
 	public connectionFailed:boolean = false;
 	public voices:VoicemodTypes.Voice[] = [];
 	public voiceParams:TwitchatDataTypes.ParameterData[] = [];
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"toggle", value:false};
-	public param_voiceIndicator:TwitchatDataTypes.ParameterData = {type:"toggle", value:true, example:"voicemod_reset.png"};
+	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
+	public param_voiceIndicator:TwitchatDataTypes.ParameterData = {type:"boolean", value:true, example:"voicemod_reset.png"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
@@ -152,7 +152,7 @@ export default class ParamsVoicemod extends Vue {
 			const v = this.voices[i];
 			VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID).then((img:string)=>{
 				const data:TwitchatDataTypes.ParameterData = {
-					type: "text",
+					type: "string",
 					storage: v,
 					label: v.friendlyName,
 					value: voiceIdToCommand[v.voiceID] ?? "",

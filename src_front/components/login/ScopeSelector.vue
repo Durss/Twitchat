@@ -88,7 +88,7 @@ export default class ScopeSelector extends Vue {
 			if(this.requestedScopes.indexOf(s) > -1) {
 				this.param_items_requested.push({
 					labelKey:"global.twitch_scopes."+s,
-					type:"toggle",
+					type:"boolean",
 					value:true,
 					icon:TwitchScope2Icon[s],
 					storage:s,
@@ -98,7 +98,7 @@ export default class ScopeSelector extends Vue {
 				if(!selected) allSelected = false;
 				this.param_items.push({
 					labelKey:"global.twitch_scopes."+s,
-					type:"toggle",
+					type:"boolean",
 					value:selected,
 					icon:TwitchScope2Icon[s],
 					disabled:disabled.indexOf(s.toLowerCase()) > -1,

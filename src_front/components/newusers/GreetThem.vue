@@ -26,9 +26,7 @@
 		
 		<div class="messageList" v-if="showList" ref="messageList">
 			<template v-for="(m,index) in localMessages" :key="m.id">
-				<ChatMessage
-					v-if="m.type == 'message' || m.type == 'whisper'"
-					class="message"
+				<MessageItem class="message"
 					ref="message"
 					:messageData="m"
 					:data-index="index"
@@ -37,18 +35,8 @@
 					@mouseover="onMouseOver($event, index)"
 					@mouseout="onMouseOut()"
 					@click="deleteMessage(m, index)"
-					@click.right.prevent="deleteMessage(m, index, true)" />
-				
-
-				<ChatHighlight v-else 
-					class="message"
-					ref="message"
-					:messageData="m"
-					:data-index="index"
-					@mouseover="onMouseOver($event, index)"
-					@mouseout="onMouseOut()"
-					@click="deleteMessage(m, index)"
-					@click.right.prevent="deleteMessage(m, index, true)" />
+					@click.right.prevent="deleteMessage(m, index, true)"
+				/>
 			</template>
 		</div>
 		<div class="grip" @mousedown="startDrag()" @touchstart="startDrag()"></div>
@@ -56,7 +44,6 @@
 </template>
 
 <script lang="ts">
-import ChatMessage from '@/components/messages/ChatMessage.vue';
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
@@ -69,13 +56,12 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import ChatHighlight from '../messages/ChatHighlight.vue';
+import MessageItem from '../messages/MessageItem.vue';
 
 @Component({
 	components:{
 		Button,
-		ChatMessage,
-		ChatHighlight,
+		MessageItem,
 	}
 })
 export default class NewUsers extends Vue {

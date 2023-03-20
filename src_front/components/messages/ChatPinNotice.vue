@@ -20,15 +20,15 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessage from './ChatMessage.vue';
 
 @Component({
 	components:{
 		ChatMessage,
-	}
+	},
+	emits:["onRead"]
 })
 export default class ChatPinNotice extends AbstractChatMessage {
 	
@@ -52,13 +52,6 @@ export default class ChatPinNotice extends AbstractChatMessage {
 			}
 		}
 		return "chat.pin.unpinned";
-	}
-
-	public copyJSON():void {
-		// @ts-ignore
-		Utils.copyToClipboard(JSON.stringify(this.messageData));
-		console.log(this.messageData);
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {

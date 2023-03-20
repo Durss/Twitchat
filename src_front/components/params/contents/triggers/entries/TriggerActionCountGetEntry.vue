@@ -48,7 +48,7 @@ export default class TriggerActionCountGetEntry extends Vue {
 	public action!:TriggerActionCountGetData;
 
 	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.countget.select_label", value:[], listValues:[]}
-	public param_placeholder:TwitchatDataTypes.ParameterData = {type:"text",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
+	public param_placeholder:TwitchatDataTypes.ParameterData = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
 
 	public beforeMount(): void {
 		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").data.map(v=>{

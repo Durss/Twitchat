@@ -1,6 +1,5 @@
 <template>
-	<div :class="classes" v-if="message" @click.capture.ctrl.stop="copyJSON()"
-	@click="$emit('onRead', messageData, $event)">
+	<div :class="classes">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark_white' : 'cross_alert')+'.svg')" alt="notice" class="icon">
 		
@@ -17,9 +16,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
@@ -53,12 +50,6 @@ export default class ChatConnect extends AbstractChatMessage {
 			}
 			this.$store("accessibility").setAriaPolite(this.message);
 		}
-	}
-
-	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.messageData));
-		console.log(this.messageData);
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 }
 </script>

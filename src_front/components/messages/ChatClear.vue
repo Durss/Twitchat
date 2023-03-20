@@ -1,12 +1,11 @@
 <template>
-	<div class="chatclear" @click.capture.ctrl.stop="copyJSON()"
-	@click="$emit('onRead', messageData, $event)">
+	<div class="chatclear">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<i18n-t scope="global" tag="span" keypath="chat.clear.title">
 			<template #ROOM><strong>#{{room}}</strong></template>
 			<template #USER>
-				<i18n-t scope="global" tag="span" v-if="messageData.user" keypath="chat.clear.title_by">
+				<i18n-t scope="global" tag="span" v-if="!messageData.fromAutomod && messageData.user" keypath="chat.clear.title_by">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
 					</template>
@@ -21,9 +20,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 
 @Component({
@@ -43,12 +40,6 @@ export default class ChatClear extends AbstractChatMessage {
 
 	public openUserCard():void {
 		this.$store("users").openUserCard(this.messageData.user!);
-	}
-
-	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.messageData));
-		console.log(this.messageData);
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 }

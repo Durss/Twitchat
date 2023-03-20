@@ -1,9 +1,9 @@
 <template>
 	<div :class="classes"
-		@mouseenter="onHoverList"
-		@mouseleave="onLeaveList"
-		@wheel="onMouseWheel"
-		@touchmove="onTouchMove">
+	@mouseenter="onHoverList"
+	@mouseleave="onLeaveList"
+	@wheel="onMouseWheel"
+	@touchmove="onTouchMove">
 		<MessageListFilter class="filters"
 			ref="listFilter"
 			:open="hovered || forceConfig"
@@ -22,132 +22,18 @@
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
 				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
-				<ChatAd class="message"
-					v-if="m.type == 'twitchat_ad'"
-					@showModal="(v: string) => $emit('showModal', v)"
-					:messageData="m" />
-
-				<ChatJoinLeave class="message"
-					v-else-if="(m.type == 'join' || m.type == 'leave')"
+				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatConnect class="message"
-					v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatMessage class="message"
-					v-else-if="m.type == 'message' || m.type == 'whisper'"
-					:lightMode="lightMode"
 					@showConversation="openConversation"
 					@showUserMessages="openUserHistory"
 					@unscheduleMessageOpen="unscheduleHistoryOpen"
 					@onOverMessage="onEnterMessage"
 					@mouseleave="onLeaveMessage"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatNotice class="message"
-					v-else-if="m.type == 'notice'" 
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatPollResult class="message"
-					v-else-if="m.type == 'poll'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatPredictionResult class="message"
-					v-else-if="m.type == 'prediction'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatBingoResult class="message"
-					v-else-if="m.type == 'bingo'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatRaffleResult class="message"
-					v-else-if="m.type == 'raffle'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatCountdownResult class="message"
-					v-else-if="m.type == 'countdown'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatTimerResult class="message"
-					v-else-if="m.type == 'timer'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatHypeTrainResult class="message"
-					v-else-if="m.type == 'hype_train_summary'"
-					@onRead="toggleMarkRead"
 					@setCustomActivities="setCustomActivities"
-					:messageData="m" />
-
-				<ChatFollowbotEvents class="message"
-					v-else-if="m.type == 'followbot_list'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatRoomSettings class="message"
-					v-else-if="m.type == 'room_settings'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatClear class="message"
-					v-else-if="m.type == 'clear_chat'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatShoutout class="message"
-					v-else-if="m.type == 'shoutout'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatLowTrustTreatment class="message"
-					v-else-if="m.type == 'low_trust_treatment'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatPinNotice class="message"
-					v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatBan class="message"
-					v-else-if="m.type == 'ban'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatUnban class="message"
-					v-else-if="m.type == 'unban'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatStreamOnOff class="message"
-					v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatMessageClipPending class="message"
-					v-else-if="m.type == 'clip_pending_publication'"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
-
-				<ChatScopeRequester class="message"
-					v-else-if="m.type == 'scope_request'"
-					@onRead="toggleMarkRead"
+					@showModal="(v: string) => $emit('showModal', v)"
 					@openFilters="openFilters()"
-					:messageData="m" />
-
-				<ChatHighlight v-else class="message"
-					@onRead="toggleMarkRead"
-					:messageData="m" />
+					:lightMode="lightMode"
+				/>
 
 			</div>
 
@@ -170,7 +56,14 @@
 		</div>
 
 		<div class="lockedLiveHolder" v-if="!lightMode && lockScroll && lockedLiveMessages.length > 0">
-			<div class="title">
+			<div class="subHolder" v-for="m in lockedLiveMessages"
+			:key="m.id" :ref="'message_live_' + m.id">
+				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
+				<MessageItem :messageData="m"
+					disableConversation
+				/>
+			</div>
+			<div class="footer">
 				<Button	:aria-label="$t('chat.live_chat_less_aria')"
 					:icon="$image('icons/minus.svg')"
 					:disabled="config.liveLockCount == 1"
@@ -182,98 +75,6 @@
 					:icon="$image('icons/add.svg')"
 					:disabled="config.liveLockCount == 10 || config.liveLockCount>=pendingMessages.length"
 					@click="incrementLockedLiveCount(1)"/>
-			</div>
-
-			<div class="subHolder" v-for="m in lockedLiveMessages"
-			:key="m.id" :ref="'message_live_' + m.id">
-				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
-				<ChatJoinLeave class="message"
-					v-if="(m.type == 'join' || m.type == 'leave')"
-					:messageData="m" />
-
-				<ChatConnect class="message"
-					v-else-if="(m.type == 'connect' || m.type == 'disconnect')"
-					:messageData="m" />
-
-				<ChatMessage class="message"
-					v-else-if="m.type == 'message' || m.type == 'whisper'"
-					disableConversation
-					:messageData="m" />
-
-				<ChatNotice class="message"
-					v-else-if="m.type == 'notice'" 
-					:messageData="m" />
-
-				<ChatPollResult class="message"
-					v-else-if="m.type == 'poll'"
-					:messageData="m" />
-
-				<ChatPredictionResult class="message"
-					v-else-if="m.type == 'prediction'"
-					:messageData="m" />
-
-				<ChatBingoResult class="message"
-					v-else-if="m.type == 'bingo'"
-					:messageData="m" />
-
-				<ChatRaffleResult class="message"
-					v-else-if="m.type == 'raffle'"
-					:messageData="m" />
-
-				<ChatCountdownResult class="message"
-					v-else-if="m.type == 'countdown'"
-					:messageData="m" />
-
-				<ChatTimerResult class="message"
-					v-else-if="m.type == 'timer'"
-					:messageData="m" />
-
-				<ChatHypeTrainResult class="message"
-					v-else-if="m.type == 'hype_train_summary'"
-					:messageData="m" />
-
-				<ChatFollowbotEvents class="message"
-					v-else-if="m.type == 'followbot_list'"
-					:messageData="m" />
-
-				<ChatRoomSettings class="message"
-					v-else-if="m.type == 'room_settings'"
-					:messageData="m" />
-
-				<ChatClear class="message"
-					v-else-if="m.type == 'clear_chat'"
-					:messageData="m" />
-
-				<ChatShoutout class="message"
-					v-else-if="m.type == 'shoutout'"
-					:messageData="m" />
-
-				<ChatLowTrustTreatment class="message"
-					v-else-if="m.type == 'low_trust_treatment'"
-					:messageData="m" />
-
-				<ChatPinNotice class="message"
-					v-else-if="m.type == 'pinned' || m.type == 'unpinned'"
-					:messageData="m" />
-
-				<ChatBan class="message"
-					v-else-if="m.type == 'ban'"
-					:messageData="m" />
-
-				<ChatUnban class="message"
-					v-else-if="m.type == 'unban'"
-					:messageData="m" />
-
-				<ChatStreamOnOff class="message"
-					v-else-if="m.type == 'stream_online' || m.type == 'stream_offline'"
-					:messageData="m" />
-
-				<ChatMessageClipPending class="message"
-					v-else-if="m.type == 'clip_pending_publication'"
-					:messageData="m" />
-
-				<ChatHighlight v-else class="message"
-					:messageData="m" />
 			</div>
 		</div>
 
@@ -291,102 +92,42 @@
 					@click="onLeaveMessage" />
 			</div>
 			<div class="messages" ref="conversationMessages">
-				<ChatMessage v-for="m in conversation" :key="m.id"
-					class="message"
+				<MessageItem class="message"
+					v-for="m in conversation" :key="m.id"
 					:messageData="m"
-					disableConversation />
+					disableConversation
+				/>
 			</div>
-
-			<Button class="TTSreadBt" small bounce
-				:title="readLabel"
-				:icon="$image('icons/tts.svg')"
-				@click="toggleReadUser"
-				v-if="!conversationMode && $store('tts').params.enabled === true" />
 		</div>
 
 		<div v-if="showLoadingGradient && !lightMode" class="noMessage">
 			<div class="gradient"></div>
 		</div>
-
-		<ChatMessageHoverActions class="hoverActions" 
-			:style="hoverActionsStyles"
-			@close="onLeaveMessage"
-			@mouseleave="onLeaveMessage"
-			@mouseenter="reopenLastHoverActions"
-			:messageData="hoveredMessage" />
 	</div>
 </template>
 
 <script lang="ts">
-import ChatMessage from '@/components/messages/ChatMessage.vue';
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import ChatAd from './ChatAd.vue';
-import ChatBingoResult from './ChatBingoResult.vue';
-import ChatClear from './ChatClear.vue';
-import ChatConnect from './ChatConnect.vue';
-import ChatCountdownResult from './ChatCountdownResult.vue';
-import ChatFollowbotEvents from './ChatFollowbotEvents.vue';
-import ChatHighlight from './ChatHighlight.vue';
-import ChatHypeTrainResult from './ChatHypeTrainResult.vue';
-import ChatJoinLeave from './ChatJoinLeave.vue';
-import ChatNotice from './ChatNotice.vue';
-import ChatPollResult from './ChatPollResult.vue';
-import ChatPredictionResult from './ChatPredictionResult.vue';
-import ChatRaffleResult from './ChatRaffleResult.vue';
-import ChatRoomSettings from './ChatRoomSettings.vue';
-import ChatShoutout from './ChatShoutout.vue';
-import ChatMessageHoverActions from './components/ChatMessageHoverActions.vue';
-import ChatLowTrustTreatment from './ChatLowTrustTreatment.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
-import ChatPinNotice from './ChatPinNotice.vue';
-import ChatBan from './ChatBan.vue';
-import ChatUnban from './ChatUnban.vue';
-import ChatStreamOnOff from './ChatStreamOnOff.vue';
-import ChatMessageClipPending from './ChatMessageClipPending.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import ChatScopeRequester from './ChatScopeRequester.vue';
-import ChatTimerResult from './ChatTimerResult.vue';
-import Utils from '@/utils/Utils';
+import MessageItem from './MessageItem.vue';
 
 @Component({
 	components: {
 		Button,
-		ChatAd,
-		ChatBan,
-		ChatUnban,
-		ChatClear,
-		ChatNotice,
-		ChatConnect,
-		ChatMessage,
-		ChatShoutout,
-		ChatPinNotice,
-		ChatHighlight,
-		ChatJoinLeave,
-		ChatPollResult,
-		ChatStreamOnOff,
-		ChatBingoResult,
-		ChatTimerResult,
-		ChatRoomSettings,
-		ChatRaffleResult,
+		MessageItem,
 		MessageListFilter,
-		ChatScopeRequester,
-		ChatFollowbotEvents,
-		ChatHypeTrainResult,
-		ChatCountdownResult,
-		ChatPredictionResult,
-		ChatLowTrustTreatment,
-		ChatMessageClipPending,
-		ChatMessageHoverActions,
 	},
 	emits: ["showModal", 'addColumn']
 })
@@ -402,7 +143,6 @@ export default class MessageList extends Vue {
 	@Prop
 	public config!: TwitchatDataTypes.ChatColumnsConfig;
 
-	public hoveredMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
 	public filteredMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public pendingMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -431,7 +171,6 @@ export default class MessageList extends Vue {
 	private virtualScrollY = -1;
 	private updateDebounce = -1;
 	private conversationPos = 0;
-	private hoverActionsPos = 0;
 	private prevHeight = 0;
 	private openConvTimeout!: number;
 	private closeConvTimeout!: number;
@@ -453,13 +192,6 @@ export default class MessageList extends Vue {
 		return { top: this.conversationPos + "px" }
 	}
 
-	public get hoverActionsStyles(): StyleValue {
-		if(this.hoveredMessage) {
-			return { top: this.hoverActionsPos + "px" }
-		}
-		return {top:"-10000px", pointerEvents:"none"};
-	}
-
 	public get filteredMessagesDeduped(): TwitchatDataTypes.ChatMessageTypes[] {
 		const res:TwitchatDataTypes.ChatMessageTypes[] = [];
 		const done:{[key:string]:boolean} = {};
@@ -470,19 +202,6 @@ export default class MessageList extends Vue {
 			res.push(element);
 		}
 		return res;
-	}
-
-	public get readLabel(): string {
-		if (!this.conversation[0].user.login) return "";
-		const username = this.conversation[0].user.login.toLowerCase();
-		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
-		let label = "";
-		if (permissions.usersAllowed.findIndex(v=>v.toLowerCase() === username) == -1) {
-			label = this.$t("tts.read_user_start", {USER:username})
-		} else {
-			label = this.$t("tts.read_user_stop", {USER:username})
-		}
-		return label;
 	}
 
 	public beforeUpdate(): void {
@@ -613,16 +332,6 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Toggles whether the TTS should read this user's messages
-	 */
-	public toggleReadUser(): void {
-		const username = this.conversation[0].user.login?.toLowerCase();
-		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
-		const read = permissions.usersAllowed.findIndex(v=>v.toLowerCase() === username) == -1;
-		this.$store("tts").ttsReadUser(this.conversation[0].user, read);
-	}
-
-	/**
 	 * Opens up the message filters
 	 */
 	public openFilters(): void {
@@ -720,12 +429,12 @@ export default class MessageList extends Vue {
 				}
 				
 				//Force pinned messages if requested
-				if (m.is_pinned && this.config.messageFilters.pinned) {
+				if (m.is_saved && this.config.messageFilters.pinned) {
 					return true;
 				}
 				
 				//Ignore specific users
-				if (m.user.displayName.length > 0 && this.config.userBlockList.includes(m.user.login.toLowerCase())) {
+				if (this.config.userBlockList && m.user.displayName.length > 0 && this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
 					return false;
 				}
 
@@ -1253,7 +962,7 @@ export default class MessageList extends Vue {
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_PIN: {
 				if(!this.selectedMessage) return
-				if(this.selectedMessage.is_pinned !== true) {
+				if(this.selectedMessage.is_saved !== true) {
 					this.$store("chat").saveMessage(this.selectedMessage);
 				}else{
 					this.$store("chat").unsaveMessage(this.selectedMessage);
@@ -1566,13 +1275,6 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Avoids closing the conversation when rolling over it
-	 */
-	public async reopenLastHoverActions(): Promise<void> {
-		clearTimeout(this.closeConvTimeout);
-	}
-
-	/**
 	 * Called when asking to read a conversation
 	 * Display the full conversation if any
 	 */
@@ -1655,15 +1357,7 @@ export default class MessageList extends Vue {
 	 * Called when rolling over a message
 	 */
 	public onEnterMessage(data: TwitchatDataTypes.ChatMessageTypes): void {
-		this.hoveredMessage = data;
-
 		clearTimeout(this.closeConvTimeout);
-		const messageHolder = (this.$refs["message_" + data.id] as HTMLDivElement[])[0];
-		const holderBounds = this.$el.getBoundingClientRect();
-		const messageBounds = (messageHolder.querySelector(".message") as HTMLDivElement).getBoundingClientRect();
-
-		this.hoverActionsPos = messageBounds.top - holderBounds.top;
-
 	}
 
 	/**
@@ -1672,17 +1366,15 @@ export default class MessageList extends Vue {
 	 */
 	public onLeaveMessage(): void {
 		clearTimeout(this.openConvTimeout);
-		if (this.conversation.length == 0 && !this.hoveredMessage) return;
+		if (this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
 		this.closeConvTimeout = setTimeout(() => {
-			this.hoveredMessage = null;
 			this.conversation = [];
 			const mainHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 			gsap.to(mainHolder, { opacity: 1, duration: .25 });
 		}, 0);
 	}
-
 
 	/**
 	 * Called on a message is clicked
@@ -1983,13 +1675,14 @@ export default class MessageList extends Vue {
 		border-top: 1px solid fade(#000, 50%);
 		padding-top: .25em;
 
-		.title {
+		.footer {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
 			color: fade(@mainColor_light, 50%);
 			font-size: .6em;
+			margin-bottom: .5em;
 			.label {
 				font-style: italic;
 				margin: 0 .5em;
@@ -2097,25 +1790,7 @@ export default class MessageList extends Vue {
 			overflow-x: hidden;
 			position: relative
 		}
-
-		.TTSreadBt {
-			.clearButton();
-			height: unset;
-			line-height: 1.5em;
-			overflow: unset;
-			font-size: .7em;
-			display: block;
-			margin: auto;
-			padding: 0 .25em;
-		}
 	}
 
-	.hoverActions {
-		font-size: var(--messageSize);
-		position: absolute;
-		z-index: 3;
-		right: 10px;
-		transform: translateY(-100%);
-	}
 }
 </style>

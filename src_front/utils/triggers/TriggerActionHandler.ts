@@ -17,6 +17,7 @@ import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import * as MathJS from 'mathjs'
 import { reactive } from "vue";
 import { TwitchScopes } from "../twitch/TwitchScopes";
+import WebsocketTrigger from "../WebsocketTrigger";
 
 /**
 * Created : 22/04/2022 
@@ -736,8 +737,34 @@ export default class TriggerActionHandler {
 								url.searchParams.append(tag.toLowerCase(), text);
 							}
 							try {
-								logStep.messages.push({date:Date.now(), value:"Calling: "+url});
-								await fetch(url, options);
+								logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});
+								const res = await fetch(url, options);
+								if(step.outputPlaceholder && res.status >= 200 && res.status <= 208) {
+									dynamicPlaceholders[step.outputPlaceholder] = await res.text();
+								}
+							}catch(error) {
+								console.error(error);
+							}
+						}else
+						
+						//Handle WS message trigger action
+						if(step.type == "ws") {
+							const json:{[key:string]:number|string|boolean} = {};
+							for (let i = 0; i < step.params.length; i++) {
+								const tag = step.params[i];
+								const value = await this.parseText(dynamicPlaceholders, triggerKey, message, "{"+tag+"}", subEvent);
+								json[tag.toLowerCase()] = value;
+								if(step.topic) {
+									json.topic = step.topic;
+								}
+							}
+							try {
+								if(WebsocketTrigger.instance.connected) {
+									logStep.messages.push({date:Date.now(), value:"Sending WS message: "+json});
+									WebsocketTrigger.instance.sendMessage(json);
+								}else{
+									logStep.messages.push({date:Date.now(), value:"Websocket not connected. Cannot send data: "+json});
+								}
 							}catch(error) {
 								console.error(error);
 							}
@@ -784,23 +811,35 @@ export default class TriggerActionHandler {
 	
 						//Handle random generator trigger action
 						if(step.type == "random") {
-							if(step.placeholder) {
-								if(step.mode == "number") {
-									//Generate random number
-									const min = Math.min(step.min, step.max);
-									const max = Math.max(step.min, step.max);
-									let value = Math.random() * (max-min) + min;
-									if(step.float !== true) {
-										value = Math.round(value);
+							if(step.mode == "number" && step.placeholder) {
+								//Generate random number
+								const min = Math.min(step.min, step.max);
+								const max = Math.max(step.min, step.max);
+								let value = Math.random() * (max-min) + min;
+								if(step.float !== true) {
+									value = Math.round(value);
+								}
+								dynamicPlaceholders[step.placeholder] = value;
+								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
+								
+							}else if(step.mode == "list" && step.placeholder) {
+								//Pick an item from a custom list
+								const value = Utils.pickRand(step.list);
+								dynamicPlaceholders[step.placeholder] = value;
+								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
+							
+							}else if(step.mode == "trigger") {
+								//Pick an item from a custom list
+								const value = Utils.pickRand(step.triggers);
+								if(value) {
+									const trigger = this.triggers[value];
+									if(trigger) {
+										// console.log("Exect sub trigger", step.triggerKey);
+										logStep.messages.push({date:Date.now(), value:"Call random trigger \""+value+"\""});
+										await this.parseSteps(value, message, testMode);
 									}
-									dynamicPlaceholders[step.placeholder] = value;
-									logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
-									
-								}else if(step.mode == "list") {
-									//Pick an item from a custom list
-									const value = Utils.pickRand(step.list);
-									dynamicPlaceholders[step.placeholder] = value;
-									logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
+								}else{
+									logStep.messages.push({date:Date.now(), value:"Random trigger not found for ID \""+value+"\""});
 								}
 							}
 						}else
@@ -829,12 +868,15 @@ export default class TriggerActionHandler {
 											const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
 											const id = chunks[2];
 											track = await SpotifyHelper.instance.getTrackByID(id);
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)});
 										}else{
 											//No URL given, send earch to API
 											track = await SpotifyHelper.instance.searchTrack(m);
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track success: "+(track != null)});
 										}
 										if(track) {
 											if(await SpotifyHelper.instance.addToQueue(track.uri)) {
+												logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Add to queue success: true"});
 												data = {
 													title:track.name,
 													artist:track.artists[0].name,
@@ -843,6 +885,8 @@ export default class TriggerActionHandler {
 													duration:track.duration_ms,
 													url:track.external_urls.spotify,
 												};
+											}else{
+												logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Add to queue success: false"});
 											}
 										}
 									}
@@ -898,7 +942,9 @@ export default class TriggerActionHandler {
 								
 								if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
 									if(Config.instance.SPOTIFY_CONNECTED) {
-										SpotifyHelper.instance.nextTrack();
+										SpotifyHelper.instance.nextTrack().then(res=>{
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Next track success: "+res});
+										});
 									}
 									if(Config.instance.DEEZER_CONNECTED) {
 										DeezerHelper.instance.nextTrack();
@@ -907,7 +953,9 @@ export default class TriggerActionHandler {
 								
 								if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
 									if(Config.instance.SPOTIFY_CONNECTED) {
-										SpotifyHelper.instance.pause();
+										SpotifyHelper.instance.pause().then(res=> {
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Pause success: "+res});
+										});
 									}
 									if(Config.instance.DEEZER_CONNECTED) {
 										DeezerHelper.instance.pause();
@@ -916,7 +964,9 @@ export default class TriggerActionHandler {
 								
 								if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
 									if(Config.instance.SPOTIFY_CONNECTED) {
-										SpotifyHelper.instance.resume();
+										SpotifyHelper.instance.resume().then(res=> {
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Resume success: "+res});
+										});
 									}
 									if(Config.instance.DEEZER_CONNECTED) {
 										DeezerHelper.instance.resume();
@@ -935,6 +985,7 @@ export default class TriggerActionHandler {
 											id = chunks[2];
 										}
 										const success = await SpotifyHelper.instance.startPlaylist(id, m);
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Start playlist: "+success});
 										if(!success) {
 											const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 											if(message.platform) platforms.push(message.platform);

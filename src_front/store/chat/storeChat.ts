@@ -432,6 +432,38 @@ export const storeChat = defineStore('chat', {
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
 			},
 			{
+				id:"clear",
+				cmd:"/clear",
+				details:StoreProxy.i18n.t("params.commands.clear"),
+				twitchCmd:true,
+				needModerator:true,
+				twitch_scopes:[TwitchScopes.DELETE_MESSAGES],
+			},
+			{
+				id:"streamtitle",
+				cmd:"/setStreamTitle {title}",
+				details:StoreProxy.i18n.t("params.commands.streamTitle"),
+				needModerator:true,
+				twitchCmd:true,
+				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
+			},
+			{
+				id:"streamcategory",
+				cmd:"/setStreamCategory {category}",
+				details:StoreProxy.i18n.t("params.commands.streamCategory"),
+				needModerator:true,
+				twitchCmd:true,
+				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
+			},
+			{
+				id:"streamtags",
+				cmd:"/setStreamTags {tag1} {tag2}",
+				details:StoreProxy.i18n.t("params.commands.streamTags"),
+				needModerator:true,
+				twitchCmd:true,
+				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
+			},
+			{
 				id:"betaadd",
 				cmd:"/betaAdd {user}",
 				details:StoreProxy.i18n.t("params.commands.betaadd"),
@@ -482,14 +514,6 @@ export const storeChat = defineStore('chat', {
 				id:"pin",
 				cmd:"/pin {message}",
 				details:StoreProxy.i18n.t("params.commands.pin"),
-			},
-			{
-				id:"clear",
-				cmd:"/clear",
-				details:StoreProxy.i18n.t("params.commands.clear"),
-				twitchCmd:true,
-				needModerator:true,
-				twitch_scopes:[TwitchScopes.DELETE_MESSAGES],
 			},
 		],
 
@@ -608,7 +632,8 @@ export const storeChat = defineStore('chat', {
 
 						//Check if it's an "ad" message
 						if(message.user.id == sAuth.twitch.user.id
-						&& this.botMessages.twitchatAd.message.indexOf(message.message) > -1) {
+						//Remove eventual /command from the reference message
+						&& this.botMessages.twitchatAd.message.replace(/\/.*? /gi, "") == message.message) {
 							message.is_ad = true;
 						}
 					}
@@ -1095,7 +1120,8 @@ export const storeChat = defineStore('chat', {
 				if(messageID == m.id && !m.deleted) {
 					m.deleted = true;
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
-					|| m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) {
+					|| m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
+					|| (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.is_ad)) {
 						//Called if closing an ad
 						messageList.splice(i, 1);
 						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
@@ -1208,7 +1234,7 @@ export const storeChat = defineStore('chat', {
 		},
 		
 		saveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
-			message.is_pinned = true;
+			message.is_saved = true;
 			this.pinedMessages.push(message);
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.PIN_MESSAGE, message));
 		},
@@ -1216,7 +1242,7 @@ export const storeChat = defineStore('chat', {
 		unsaveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			this.pinedMessages.forEach((v, index)=> {
 				if(v.id == message.id) {
-					message.is_pinned = false;
+					message.is_saved = false;
 					this.pinedMessages.splice(index, 1);
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNPIN_MESSAGE, message));
 				}
@@ -1287,6 +1313,9 @@ export const storeChat = defineStore('chat', {
 		flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void {
 			const lastActivityDate = message.user.channelInfo[message.channel_id].lastActivityDate;
 			message.user.channelInfo[message.channel_id].lastActivityDate = Date.now();
+
+			//Don't flag our own messages as first
+			if(message.channel_id == message.user.id) return;
 
 			//Don't greet again if less than 5h have passed since last activity
 			if(lastActivityDate && lastActivityDate + (5 * 60 * 60 * 1000) > Date.now()) return;

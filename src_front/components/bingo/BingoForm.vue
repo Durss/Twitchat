@@ -104,7 +104,7 @@ export default class BingoForm extends Vue {
 	public guessCustom = false;
 	public minValue:TwitchatDataTypes.ParameterData = {value:0, type:"number", min:0, max:999999999};
 	public maxValue:TwitchatDataTypes.ParameterData = {value:100, type:"number", min:0, max:999999999};
-	public customValue:TwitchatDataTypes.ParameterData = {value:"", type:"text"};
+	public customValue:TwitchatDataTypes.ParameterData = {value:"", type:"string"};
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {

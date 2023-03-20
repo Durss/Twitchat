@@ -36,6 +36,7 @@
 		"highlightPartners": "Highlight partners",
 		"highlightMentions": "Highlight messages mentioning me",
 		"highlightNonFollowers": "Indicate non-followers",
+		"highlight1stToday": "Highlight user's 1st message of the day",
 		"translateNames": "Translate user names",
 		"showRewardsInfos": "Show reward's details",
 		"showViewersCount": "Show viewers count",
@@ -79,6 +80,7 @@
 			"tts": "Text to speech",
 			"voice": "Voice control",
 			"voicemod": "Voicemod",
+			"connexions": "Connections",
 			"counters": "Counters"
 		},
 		"botMessages": {
@@ -151,7 +153,10 @@
 			"pin": "Send and pin the message",
 			"clear": "Clear chat content",
 			"greetduration": "Sets the greet them auto delete duration",
-			"betamigrate": "Migrate user data from beta to production"
+			"betamigrate": "Migrate user data from beta to production",
+			"streamTitle": "Update the stream's title",
+			"streamCategory": "Update the stream's title",
+			"streamTags": "Update the stream's tags"
 		}
 	}
 }

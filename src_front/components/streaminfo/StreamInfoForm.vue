@@ -71,8 +71,8 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 })
 export default class StreamInfoForm extends Vue {
 
-	public param_savePreset:TwitchatDataTypes.ParameterData		= {value:false, type:"toggle"};
-	public param_namePreset:TwitchatDataTypes.ParameterData		= {value:"", type:"text", placeholder:"", maxLength:50};
+	public param_savePreset:TwitchatDataTypes.ParameterData		= {value:false, type:"boolean"};
+	public param_namePreset:TwitchatDataTypes.ParameterData		= {value:"", type:"string", placeholder:"", maxLength:50};
 
 	public title:string = "";
 	public tags:string[] = [];

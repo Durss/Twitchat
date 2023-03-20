@@ -367,12 +367,11 @@ export default class EmoteSelector extends Vue {
 					height: 33px;
 					width: 33px;
 					padding: 3px;
-					object-fit: contain;
 					cursor: pointer;
 					border-radius: 5px;
-					transition: background-color .15s;
+					border: 1px solid transparent;
 					&:hover {
-						background-color: fade(@mainColor_light, 70%);
+						border-color: fade(@mainColor_light, 70%);
 					}
 				}
 			}

@@ -28,6 +28,7 @@
 					<Button bounce white :icon="$image('icons/obs_purple.svg')"			:title="$t('params.categories.obs')"			@click="setContent(contentObs)" />
 					<Button bounce white :icon="$image('icons/voicemod_purple.svg')"	:title="$t('params.categories.voicemod')"		@click="setContent(contentVoicemod)" />
 					<Button bounce white :icon="$image('icons/elgato_purple.svg')"		:title="$t('params.categories.streamdeck')"		@click="setContent(contentStreamdeck)" />
+					<Button bounce white :icon="$image('icons/offline_purple.svg')"		:title="$t('params.categories.connexions')"		@click="setContent(contentConnexions)" />
 					<Button bounce white :icon="$image('icons/user_purple.svg')"		:title="$t('params.categories.account')"		@click="setContent(contentAccount)" />
 					<Button bounce white :icon="$image('icons/info_purple.svg')"		:title="$t('params.categories.about')"			@click="setContent(contentAbout)" />
 				</div>
@@ -53,6 +54,7 @@
 				<ParamsVoicemod v-if="content == contentVoicemod" @setContent="setContent" />
 				<ParamsAutomod v-if="content == contentAutomod" @setContent="setContent" />
 				<ParamsCounters v-if="content == contentCounters" @setContent="setContent" />
+				<ParamsConnexions v-if="content == contentConnexions" @setContent="setContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == contentSponsor" @setContent="setContent" />
 
@@ -96,6 +98,7 @@ import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import ParamItem from './ParamItem.vue';
 import PostOnChatParam from './PostOnChatParam.vue';
+import ParamsConnexions from './contents/ParamsConnexions.vue';
 
 @Component({
 	components:{
@@ -122,6 +125,7 @@ import PostOnChatParam from './PostOnChatParam.vue';
 		PostOnChatParam,
 		ParamsStreamdeck,
 		ParamsTwitchatAd,
+		ParamsConnexions,
 	}
 })
 
@@ -155,6 +159,7 @@ export default class Parameters extends Vue {
 	public get contentTts():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TTS; } 
 	public get contentVoice():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.VOICE; } 
 	public get contentAutomod():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.AUTOMOD; } 
+	public get contentConnexions():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.CONNEXIONS; } 
 	
 	/**
 	 * If true, will display a search field at the top of the view to

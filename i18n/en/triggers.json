@@ -50,6 +50,7 @@
 				"next_delay": "Delay before next step (seconds)",
 				"delete": "Delete",
 				"dynamic_placeholder_info":"This action allows you to create a custom placeholder that you can use on subsequent actions.",
+				"dynamic_trigger":"Execute a random trigger amgonst the selected ones",
 				"action_chat": "Send chat message",
 				"action_bingo": "Start a bingo",
 				"action_raffle": "Start a raffle",
@@ -57,20 +58,22 @@
 				"action_highlight": "Highlight on stream",
 				"action_trigger": "Trigger",
 				"action_obs": "Control OBS",
-				"action_obs_tt": "You need to connect with OBS<br>on the OBS section",
+				"action_obs_tt": "You need to connect with OBS<br>on the <strong>Connexions</strong> section",
 				"action_tts": "Text to speech",
 				"action_tts_tt": "This needs the <strong>text to speech</strong><br>feature to be enabled",
 				"action_music": "Control Spotify",
-				"action_music_tt": "You need to<br>connect Spotify<br>on the <strong>Overlays</strong> section",
+				"action_music_tt": "You need to<br>connect Spotify<br>on the <strong>Connexions</strong> section",
 				"action_voicemod": "Control Voicemod",
 				"action_voicemod_tt": "You need to connect<br>with Voicemod",
 				"action_http": "HTTP call",
+				"action_ws": "Websocket message",
 				"action_poll": "Start poll",
 				"action_prediction": "Start prediction",
 				"action_count": "Update a counter",
 				"action_countget": "Get a counter value",
 				"action_random": "Random value",
-				"action_stream_infos": "Set stream infos"
+				"action_stream_infos": "Set stream infos",
+				"custom_placeholder_example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value."
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -143,11 +146,14 @@
 				"header_link": "connect with Voicemod",
 				"param_voice": "Voice"
 			},
-			"http": {
+			"http_ws": {
 				"url": "URL to call",
 				"method": "Method",
+				"topic_placeholder":"custom value...",
+				"output_placeholder":"Store query result on this placeholder",
+				"output_placeholder_placeholder":"placeholder...",
 				"select_param": "Select parameters to send:",
-				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can ben called with HTTP protocol. Use HTTPS for other domains."
+				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can be called with HTTP protocol. Use HTTPS for other domains."
 			},
 			"count": {
 				"value_label":"Value to add or remove",
@@ -156,8 +162,7 @@
 			},
 			"countget": {
 				"placeholder_label":"Placeholder name",
-				"select_label":"Counter to fetch",
-				"example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the counter's value."
+				"select_label":"Counter to fetch"
 			},
 			"random":{
 				"min_label":"Min value (included)",
@@ -166,6 +171,7 @@
 				"example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the random value.",
 				"number":"Number",
 				"list":"List",
+				"trigger":"Triggers",
 				"list_label":"Pick a random entry amongst these ones:",
 				"list_entry_placeholder":"add entry..."
 			},
@@ -212,6 +218,8 @@
 			"bits": "Number of bits",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
+			"stream_duration": "Stream duration (ms)",
+			"stream_live": "\"true\" if user was live when raiding",
 			"viewers": "Viewers count",
 			"reward_title": "Reward name",
 			"reward_description": "Reward description",

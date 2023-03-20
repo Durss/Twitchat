@@ -35,7 +35,7 @@ export const storeStream = defineStore('stream', {
 	actions: {
 		async setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[]):Promise<void> {
 			if(platform == "twitch") {
-				await TwitchUtils.setStreamInfos(title, categoryID, channelId, tags);
+				await TwitchUtils.setStreamInfos(channelId, title, categoryID, tags);
 				const category = await TwitchUtils.getCategoryByID(categoryID);
 				this.currentStreamInfo = {
 					title,

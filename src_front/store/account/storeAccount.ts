@@ -5,8 +5,8 @@ import StoreProxy from '../StoreProxy'
 
 export const storeAccount = defineStore('account', {
 	state: () => ({
-		syncDataWithServer: { type:"toggle", value:true, labelKey:"params.sync_server", id:401 },
-		publicDonation: { type:"toggle", value:false, labelKey:"donor.make_public", id:402 },
+		syncDataWithServer: { type:"boolean", value:true, labelKey:"params.sync_server", id:401 },
+		publicDonation: { type:"boolean", value:false, labelKey:"donor.make_public", id:402 },
 	} as IAccountState),
 
 

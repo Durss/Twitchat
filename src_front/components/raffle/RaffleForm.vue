@@ -194,22 +194,22 @@ export default class RaffleForm extends Vue {
 
 	public mode:"chat"|"sub"|"manual" = "chat";
 		
-	public command:TwitchatDataTypes.ParameterData					= {value:true, type:"toggle", labelKey:"raffle.params.command_join"};
-	public command_value:TwitchatDataTypes.ParameterData			= {value:"", type:"text", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
-	public reward:TwitchatDataTypes.ParameterData					= {value:false, type:"toggle", labelKey:"raffle.params.reward_join"};
+	public command:TwitchatDataTypes.ParameterData					= {value:true, type:"boolean", labelKey:"raffle.params.command_join"};
+	public command_value:TwitchatDataTypes.ParameterData			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
+	public reward:TwitchatDataTypes.ParameterData					= {value:false, type:"boolean", labelKey:"raffle.params.reward_join"};
 	public reward_value:TwitchatDataTypes.ParameterData				= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
 	public enterDuration:TwitchatDataTypes.ParameterData			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
-	public maxUsersToggle:TwitchatDataTypes.ParameterData			= {value:false, type:"toggle", labelKey:"raffle.params.limit_users"};
+	public maxUsersToggle:TwitchatDataTypes.ParameterData			= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
 	public maxEntries:TwitchatDataTypes.ParameterData				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
-	public ponderateVotes:TwitchatDataTypes.ParameterData			= {value:false, type:"toggle", labelKey:"raffle.params.ponderate"};
+	public ponderateVotes:TwitchatDataTypes.ParameterData			= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
 	public ponderateVotes_vip:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"vip_purple.svg", labelKey:"raffle.params.ponderate_VIP"};
 	public ponderateVotes_sub:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_sub"};
 	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_subgifter"};
 	public ponderateVotes_follower:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"follow_purple.svg", labelKey:"raffle.params.ponderate_follower"};
-	public subs_includeGifters:TwitchatDataTypes.ParameterData		= {value:true, type:"toggle", icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_include_gifter"};
-	public subs_excludeGifted:TwitchatDataTypes.ParameterData		= {value:true, type:"toggle", icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_exclude_gifted"};
-	public showCountdownOverlay:TwitchatDataTypes.ParameterData		= {value:false, type:"toggle", icon:"countdown_purple.svg", labelKey:"raffle.params.countdown"};
-	public customEntries:TwitchatDataTypes.ParameterData			= {value:"", type:"text", longText:true, maxLength:1000000, placeholderKey:"raffle.params.list_placeholder"};
+	public subs_includeGifters:TwitchatDataTypes.ParameterData		= {value:true, type:"boolean", icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_include_gifter"};
+	public subs_excludeGifted:TwitchatDataTypes.ParameterData		= {value:true, type:"boolean", icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_exclude_gifted"};
+	public showCountdownOverlay:TwitchatDataTypes.ParameterData		= {value:false, type:"boolean", icon:"countdown_purple.svg", labelKey:"raffle.params.countdown"};
+	public customEntries:TwitchatDataTypes.ParameterData			= {value:"", type:"string", longText:true, maxLength:1000000, placeholderKey:"raffle.params.list_placeholder"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
@@ -340,7 +340,6 @@ export default class RaffleForm extends Vue {
 
 		this.pickingEntry = true;
 		this.subs = await TwitchUtils.getSubsList();
-		console.log(this.subs);
 		this.pickingEntry = false;
 		// this.onValueChange();
 	}

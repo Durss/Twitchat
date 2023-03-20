@@ -12,8 +12,6 @@
 
 		"header":"Créez vos propres alertes Twitch, permettez à vos viewers de contrôler votre OBS et plus encore...",
 		"install":"Nécessite {OBS_VERSION}",
-		"install_option":"(ou OBS 27 avec le plugin {PLUGIN_LINK} installé)",
-		"install_plugin_name":"OBS-websocket V5",
 		
 		"permissions_title":"Autorisations",
 		"permissions_head":"Personnes autorisé's à utiliser les commandes de chat",

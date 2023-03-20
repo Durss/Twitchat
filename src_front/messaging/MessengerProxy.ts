@@ -204,6 +204,7 @@ export default class MessengerProxy {
 		const params = message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
 		params.forEach((v, i) => { params[i] = v.trim() });
+		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
 
 		if(cmd == "/devmode") {
 			StoreProxy.main.toggleDevMode();
@@ -379,6 +380,28 @@ export default class MessengerProxy {
 
 		if(cmd == "/startraffle") {
 			await StoreProxy.raffle.pickWinner();
+			return true;
+		}else
+
+		if(cmd == "/setstreamtitle") {
+			await TwitchUtils.setStreamInfos(channelId, params.join(" "));
+			return true;
+		}else
+
+		if(cmd == "/setstreamcategory") {
+			const categories = await TwitchUtils.searchCategory(params[0]);
+			if(categories.length > 0) {
+				await TwitchUtils.setStreamInfos(channelId, undefined, categories[0].id);
+			}
+			return true;
+		}else
+
+		if(cmd == "/setstreamtags") {
+			const tags = params.map(v=> 
+				Utils.replaceDiacritics(v).replace(/[^a-z0-9]/gi, "").substring(0, 25).trim()
+			)
+			.filter(v => v.length > 0);
+			await TwitchUtils.setStreamInfos(channelId, undefined, undefined, tags);
 			return true;
 		}else
 

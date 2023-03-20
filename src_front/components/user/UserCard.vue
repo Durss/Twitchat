@@ -86,24 +86,8 @@
 	
 					<div class="list">
 						<div class="subholder" v-for="m in messageHistory" :key="m.id">
-							<ChatMessage class="message"
-								v-if="m.type == 'message' || m.type == 'whisper'"
+							<MessageItem class="message"
 								disableConversation
-								:messageData="m" />
-	
-							<ChatBan class="message"
-								v-else-if="m.type == 'ban'"
-								:messageData="m" />
-	
-							<ChatUnban class="message"
-								v-else-if="m.type == 'unban'"
-								:messageData="m" />
-	
-							<ChatShoutout class="message"
-								v-else-if="m.type == 'shoutout'"
-								:messageData="m" />
-	
-							<ChatHighlight v-else-if="['following', 'subscription', 'reward', 'community_challenge_contribution', 'raid'].indexOf(m.type) > -1" class="message"
 								:messageData="m" />
 						</div>
 					</div>
@@ -145,22 +129,14 @@ import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import ChatBan from '../messages/ChatBan.vue';
-import ChatUnban from '../messages/ChatUnban.vue';
-import ChatHighlight from '../messages/ChatHighlight.vue';
-import ChatMessage from '../messages/ChatMessage.vue';
 import ChatModTools from '../messages/components/ChatModTools.vue';
-import ChatShoutout from '../messages/ChatShoutout.vue';
+import MessageItem from '../messages/MessageItem.vue';
 
 @Component({
 	components:{
 		Button,
-		ChatBan,
-		ChatUnban,
-		ChatMessage,
+		MessageItem,
 		ChatModTools,
-		ChatShoutout,
-		ChatHighlight,
 	}
 })
 export default class UserCard extends Vue {

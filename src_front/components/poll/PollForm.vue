@@ -90,7 +90,7 @@ export default class PollForm extends Vue {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["","","","",""];
-	public extraVotesParam:TwitchatDataTypes.ParameterData = {value:false, type:"toggle"};;
+	public extraVotesParam:TwitchatDataTypes.ParameterData = {value:false, type:"boolean"};;
 	public pointsVoteParam:TwitchatDataTypes.ParameterData = {value:0, type:"number", min:0, max:99999, step:1};;
 	public voteDuration:TwitchatDataTypes.ParameterData = {value:2, type:"number", min:1, max:30};;
 

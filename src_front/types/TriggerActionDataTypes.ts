@@ -15,6 +15,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionHighlightData
 								| TriggerActionTriggerData
 								| TriggerActionHTTPCallData
+								| TriggerActionWSData
 								| TriggerActionPollData
 								| TriggerActionPredictionData
 								| TriggerActionCountData
@@ -35,6 +36,7 @@ export type TriggerActionStringTypes = "obs"
 									| "highlight"
 									| "trigger"
 									| "http"
+									| "ws"
 									| "prediction"
 									| "poll"
 									| "count"
@@ -73,6 +75,12 @@ export interface TriggerLog {
 		data:TriggerActionTypes;
 		messages:{date:number, value:string}[];
 	}[]
+}
+
+export interface SocketParams {
+	ip:string;
+	port:string;
+	secured:boolean;
 }
 
 //Main trigger categories displayed on the parameter "Triggers" section
@@ -177,6 +185,13 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	url:string;
 	method:"GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
 	queryParams:string[];
+	outputPlaceholder?:string;
+}
+
+export interface TriggerActionWSData extends TriggerActionData{
+	type:"ws";
+	topic:string;
+	params:string[];
 }
 
 export interface TriggerActionPollData extends TriggerActionData{
@@ -203,12 +218,13 @@ export interface TriggerActionCountGetData extends TriggerActionData{
 
 export interface TriggerActionRandomData extends TriggerActionData{
 	type:"random";
-	mode:"list"|"number";
+	mode:"list"|"number"|"trigger";
 	min:number;
 	max:number;
 	float:boolean;
 	placeholder:string;
 	list:string[];
+	triggers:string[];
 }
 
 export interface TriggerActionStreamInfoData extends TriggerActionData{
@@ -395,6 +411,8 @@ export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
 		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title", numberParsable:false, isUserID:false},
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false},
 		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_category', pointer:"viewers", numberParsable:true, isUserID:false},
+		{tag:"DURATION", descKey:'triggers.placeholders.stream_duration', pointer:"stream.duration", numberParsable:true, isUserID:false},
+		{tag:"WAS_LIVE", descKey:'triggers.placeholders.stream_live', pointer:"stream.wasLive", numberParsable:false, isUserID:false},
 	];
 	
 	map[TriggerTypes.RAID_STARTED] = [

@@ -1,6 +1,5 @@
 <template>
-	<div class="chatroomsettings"
-	@click="$emit('onRead', messageData, $event)">
+	<div class="chatroomsettings">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img class="icon lock" src="@/assets/icons/lock.svg" />
 		<div class="content">
@@ -38,8 +37,7 @@ import Button from '@/components/Button.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';

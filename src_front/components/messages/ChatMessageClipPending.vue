@@ -1,6 +1,5 @@
 <template>
-	<div class="chatmessageclippending" @click.capture.ctrl.stop="copyJSON()"
-	@click="$emit('onRead', messageData, $event)">
+	<div class="chatmessageclippending">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/clip.svg')" alt="notice" class="icon">
@@ -27,10 +26,8 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import Utils from '@/utils/Utils';
-import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 
@@ -62,7 +59,7 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 		});
 		//*/
 
-		//This is a stupid solution to the fact the watch doesn't seem to work
+		//This is a stupid solution to the fact the watcher doesn't seem to work
 		//and I have no idea why :/
 		this.interval = setInterval(async ()=> {
 			this.loading = this.messageData.loading;
@@ -94,12 +91,6 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 		this.$store("chat").isChatMessageHighlighted = true;
 	}
 
-	public copyJSON():void {
-		Utils.copyToClipboard(JSON.stringify(this.messageData));
-		console.log(this.messageData);
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
-	}
-	
 }
 </script>
 

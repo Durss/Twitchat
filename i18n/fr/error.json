@@ -17,7 +17,7 @@
 		"user_param_not_found": "L'utilisateur·ice {USER} n'existe pas",
 		"delete_message": "Vous ne pouvez pas supprimer ce message",
 		"user_profile": "Une erreur a eu lieu lors du chargement du profil...",
-		"stream_info_loading": "Chargement des infos de stream échoué",
+		"stream_info_loading": "Le chargement des infos de stream a échoué",
 		"stream_info_updating": "Mise à jour des infos de stream échouée",
 		"poll_active": "Un sondage est déjà actif",
 		"poll_automod": "Le sondage contient des termes bloqués",
@@ -31,6 +31,7 @@
 		"room_settings_update": "La mises à jour des restrictions de tchat a échoué",
 		"mod_message": "La modération du message a échoué...",
 		"marker_creation": "La création du marqueur a échoué. Assurez-vous d'avoir activé la VOD et d'être en live",
+		"trigger_socket": "La connexion au serveur socket a échoué",
 		"spotify": {
 			"api_rate": "[SPOTIFY] Maximum de requête atteint",
 			"token_refresh": "[SPOTIFY] Mise à jour du token échouée"

@@ -4,7 +4,7 @@
 		"authorization_refused": "You refused access to the Twitch application.",
 		"invalid_credentials": "Invalid credentials",
 		"csrf_failed": "An error occured while generating a CSRF token",
-		"obs_ws_connect": "Unable to connect with OBS. Double check the port and password and make sure you have OBS 28+ or OBS 27 with OBS-websocket plugin (v5)",
+		"obs_ws_connect": "Unable to connect with OBS. Double check the port and password and make sure you have OBS 28+",
 		"twitch_poll_delete": "An error occurred while deleting the poll",
 		"twitch_prediction_delete": "An error occurred while deleting the prediction",
 		"load_user_info": "Unable to load user info: {ERROR}",
@@ -31,6 +31,7 @@
 		"room_settings_update": "An error occured when updating room's settings",
 		"mod_message": "Something went wrong when moderating the message...",
 		"marker_creation": "Marker creation failed. Make sure you enabled VOD and that you're live",
+		"trigger_socket": "Unable to connect to socket server",
 		"spotify": {
 			"api_rate": "[SPOTIFY] API rate limits exceeded",
 			"token_refresh": "[SPOTIFY] token refresh failed"

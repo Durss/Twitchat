@@ -1,7 +1,7 @@
 <template>
-	<div :class="classes" @click.capture.ctrl.stop="copyJSON()"
+	<div :class="classes"
+	@contextmenu="onContextMenu($event)"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
-	@click="$emit('onRead', messageData, $event)"
 	>
 		<div v-if="firstTime" class="header">
 			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
@@ -149,7 +149,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { watch } from '@vue/runtime-core';
+import { watch, type VNode } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
@@ -158,6 +158,10 @@ import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
+import { h } from 'vue';
+import ContextMenuTimeoutDuration from './components/ContextMenuTimeoutDuration.vue';
+import type * as CMTypes from "@imengyu/vue3-context-menu";
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -198,6 +202,8 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
+	private canDeleteMessage:boolean = false;
+	private canModUser:boolean = false;
 	
 	
 	public get showNofollow():boolean{
@@ -378,10 +384,16 @@ export default class ChatMessage extends AbstractChatMessage {
 				}
 			});
 		}
+
+		this.canModUser = (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator
+						|| StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster)
+						&& this.messageData.user.id != StoreProxy.auth.twitch.user.id;
 	
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WHISPER});
+			this.showModToolsPreCalc = false;
+			this.canDeleteMessage = false;
 			
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.firstTime = mess.twitch_isFirstMessage === true;
@@ -400,28 +412,26 @@ export default class ChatMessage extends AbstractChatMessage {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
 				highlightedWords = highlightedWords.concat(mess.twitch_automod.words);
 			}
+			
+			this.canDeleteMessage = this.messageData.user.id != StoreProxy.auth.twitch.user.id//If it's not self
+									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable);
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& TwitchUtils.hasScopes([TwitchScopes.MODERATE])//If necessary scope is granted
-									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
-									&& this.messageData.user.id != StoreProxy.auth.twitch.user.id//if not sent by broadcaster
-									&& (
-										StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator ||
-										StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster
-									);//If we're a bod or the broadcaster
+									&& this.canDeleteMessage//if not sent by broadcaster
+									&& this.canModUser;//If we're a bod or the broadcaster
 									
 
 
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
 			this.isPresentation	= this.messageData.twitch_isPresentation === true;
 			this.isReturning	= this.messageData.twitch_isReturning === true;
-			this.isFirstToday	= this.messageData.todayFirst === true;
+			this.isFirstToday	= this.messageData.todayFirst === true && this.$store("params").appearance.highlight1stToday.value === true;
 			watch(()=> mess.twitch_isSuspicious, () =>{
 				this.updateSuspiciousState();
 			});
-			watch(()=> mess.is_pinned, () =>{
-				this.updatePinnedState();
+			watch(()=> mess.is_saved, () =>{
+				this.updateSavedState();
 			});
 			if(mess.twitch_isRestricted) {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
@@ -544,19 +554,17 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public copyJSON():void {
 		if(this.messageData.type == "whisper") {
-			Utils.copyToClipboard(JSON.stringify(this.messageData));
-			console.log(this.messageData);
+			super.copyJSON();
 		}else{
 			const answersBckp = this.messageData.answers;
 			const answerToBckp = this.messageData.answersTo;
+			//Remove data to avoid infinite JSON stringify recursion
 			this.messageData.answers = [];
 			this.messageData.answersTo = undefined;
-			Utils.copyToClipboard(JSON.stringify(this.messageData));
-			console.log(this.messageData);
+			super.copyJSON();
 			this.messageData.answers = answersBckp;
 			this.messageData.answersTo = answerToBckp;
 		}
-		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
 	}
 
 	/**
@@ -628,6 +636,9 @@ export default class ChatMessage extends AbstractChatMessage {
 		this.showTools = true;
 	}
 	
+	/**
+	 * Disable ad if a donator or redirect to ad params otherwise
+	 */
 	public disableAd():void{
 		//If we're a donor, just disable the ad and delete the message as a feedback
 		if(this.$store("auth").twitch.user.donor.state) {
@@ -638,11 +649,273 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 	}
 
+	/**
+	 * Open ad params page
+	 */
 	public openAdParams():void {
 		this.$store("main").tempStoreValue = "CONTENT:"+TwitchatDataTypes.ParamsCategories.AD;
 		this.$store("main").setShowParams(true);
 	}
+
+	/**
+	 * Open the context menu on right click on desktop or long press on mobile
+	 * 
+	 * @param e 
+	 */
+	public onContextMenu(e:MouseEvent|TouchEvent):void {
+
+		if(e.target) {
+			const el = e.target as HTMLElement;
+			if(el.tagName == "A") return;
+		}
+		
+		e.preventDefault();
+
+		let px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
+		let py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
+		
+		if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
+			//Make sure the hint message is not sent anymore
+			DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, "true")
+		}
+
+		const options:ContextMenuItem[]= [];
+		const user = this.messageData.user;
+
+		options.push({
+					label:this.messageData.user.displayName,
+					disabled:true,
+					customClass:"header"
+				});
+		options.push({ 
+					label: this.$t("chat.context_menu.shoutout"),
+					icon: this.$image("icons/shoutout.svg"),
+					onClick: () => this.$store("users").shoutout(this.messageData.channel_id, user),
+				});
+		if(user.is_tracked) {
+			options.push({ 
+						label: this.$t("chat.context_menu.untrack"),
+						icon: this.$image("icons/magnet.svg"),
+						onClick: () => this.$store("users").untrackUser(user),
+					});
+		}else{
+			options.push({ 
+						label: this.$t("chat.context_menu.track"),
+						icon: this.$image("icons/magnet.svg"),
+						onClick: () => this.$store("users").trackUser(user),
+					});
+		}
+		options.push({ 
+					label: this.$t("chat.context_menu.highlight"),
+					icon: this.$image("icons/highlight.svg"),
+					onClick: () => this.$store("chat").highlightChatMessageOverlay(this.messageData),
+				});
+		
+		if(this.messageData.is_saved) {
+			options.push({ 
+						label: this.$t("chat.context_menu.unsave"),
+						icon: this.$image("icons/save.svg"),
+						onClick: () => this.$store("chat").unsaveMessage(this.messageData),
+					});
+
+		}else{
+			options.push({ 
+						label: this.$t("chat.context_menu.save"),
+						icon: this.$image("icons/save.svg"),
+						onClick: () => this.$store("chat").saveMessage(this.messageData),
+					});
+		}
+		
+		if(this.$store("tts").params.enabled) {
+			options.push({ 
+						label: this.$t("chat.context_menu.tts"),
+						icon: this.$image("icons/tts.svg"),
+						onClick: () => this.$store("tts").ttsReadMessage(this.messageData),
+					});
+
+
+			const username = user.login.toLowerCase();
+			const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
+			if (permissions.usersAllowed.findIndex(v => v.toLowerCase() === username) == -1) {
+				options.push({ 
+							label: this.$t("chat.context_menu.tts_all_start"),
+							icon: this.$image("icons/tts.svg"),
+							onClick: () => this.$store("tts").ttsReadUser(user, true),
+						});
+			} else {
+				options.push({ 
+							label: this.$t("chat.context_menu.tts_all_stop"),
+							icon: this.$image("icons/tts.svg"),
+							onClick: () => this.$store("tts").ttsReadUser(user, false),
+						});
+			}
+		}
+		options.push({ 
+					label: this.$t("chat.context_menu.profile"),
+					icon: this.$image("icons/user.svg"),
+					onClick: () => this.openUserCard(user),
+				});
+
+		if(this.canDeleteMessage) {
+			options[options.length-1].divided = true;
+			let classes = "alert";
+			if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
+			options.push({ 
+						label: this.$t("chat.context_menu.delete"),
+						icon: this.$image("icons/trash.svg"),
+						customClass:classes,
+						onClick: () => {
+							if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
+								!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
+								return;
+							}
+							this.$store("chat").deleteMessageByID(this.messageData.id)
+						},
+					});
+		}
+		if(this.canModUser) {
+			let classesBan = "alert";
+			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
+			let classesBlock = "alert";
+			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
+			if(!this.canDeleteMessage) options[options.length-1].divided = true;
+			options.push(
+					{ 
+						label: this.$t("chat.context_menu.to"),
+						customClass:classesBan,
+						icon: this.$image("icons/timeout.svg"),
+						onClick: () => {
+							this.timeoutUser(1);
+						},
+						children: [
+							{
+								label: "1s",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(1),
+							},
+							{
+								label: "10s",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(10),
+							},
+							{
+								label: "1m",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(60),
+							},
+							{
+								label: "5m",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(60 * 5),
+							},
+							{
+								label: "10m",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(60 * 10),
+							},
+							{
+								label: "30m",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(60 * 30),
+							},
+							{
+								label: "1h",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(60 * 60),
+							},
+							{
+								label: "24h",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(60 * 60 * 24),
+							},
+							{
+								label: "1w",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(60 * 60 * 24 * 7),
+							},
+							{
+								label: "4w",
+								customClass:classesBan,
+								onClick: () => this.timeoutUser(60 * 60 * 24 * 7 * 4),
+							},
+							{
+								label: "1w",
+								customRender: () => h(ContextMenuTimeoutDuration, {
+									user:this.messageData.user,
+									channelId:this.messageData.channel_id,
+								})
+							},
+						]
+					});
+			if(this.channelInfo.is_banned) {
+				options.push({ 
+							label: this.$t("chat.context_menu.unban"),
+							icon: this.$image("icons/unban.svg"),
+							customClass:classesBan,
+							onClick: () => {
+								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+								TwitchUtils.unbanUser(user, this.messageData.channel_id);
+							},
+						});
+			}else{
+				options.push({ 
+							label: this.$t("chat.context_menu.ban"),
+							icon: this.$image("icons/ban.svg"),
+							customClass:classesBan,
+							onClick: () => this.banUser(),
+						});
+			}
+			if(this.channelInfo.is_blocked) {
+				options.push({ 
+							label: this.$t("chat.context_menu.unblock"),
+							icon: this.$image("icons/unblock.svg"),
+							customClass:classesBlock,
+							onClick: () => {
+								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+								TwitchUtils.unblockUser(user, this.messageData.channel_id);
+							},
+						});
+			}else{
+				options.push({ 
+							label: this.$t("chat.context_menu.block"),
+							icon: this.$image("icons/block.svg"),
+							customClass:classesBlock,
+							onClick: () => this.blockUser(),
+						});
+			}
+		}
+
+		const items:CMTypes.MenuItem[] = [];
+		options.forEach(v=> {
+			let item:CMTypes.MenuItem = { label: h("span", {class:"label", innerHTML:v.label})};
+			if(v.children) item.children = v.children;
+			if(v.customClass) item.customClass = v.customClass;
+			if(v.customRender) item.customRender = v.customRender;
+			if(v.disabled) item.disabled = v.disabled;
+			if(v.divided) item.divided = v.divided;
+			if(v.checked) item.checked = v.checked;
+			if(v.onClick) item.onClick = v.onClick;
+			if(v.icon) item.icon = h('img', {
+						src: v.icon,
+						style: {
+						width: '1em',
+						height: '1em',
+						}
+					});
+			item.clickableWhenHasChildren = true;
+			items.push(item);
+		})
+		this.$contextmenu({
+			theme: 'mac dark',
+			x: px,
+			y: py,
+			items,
+		});
+	}
 	
+	/**
+	 * Called when suspicious state of the user changes
+	 */
 	private updateSuspiciousState():void{
 		if(this.messageData.type === TwitchatDataTypes.TwitchatMessageType.WHISPER) return;
 		
@@ -662,11 +935,14 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 	}
 	
-	private updatePinnedState():void{
+	/**
+	 * Called when "saved" state is changed
+	 */
+	private updateSavedState():void{
 		const m = this.messageData as TwitchatDataTypes.MessageChatData;
 		const badgeIndex = this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.PINNED);
 
-		if(m.is_pinned) {
+		if(m.is_saved) {
 			if(badgeIndex == -1) {
 				this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.PINNED});
 			}
@@ -676,6 +952,67 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 		}
 	}
+
+	/**
+	 * Timeouts a user
+	 * 
+	 * @param duration ban duration. Don't specify to perma ban
+	 */
+	public timeoutUser(duration:number):void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+		if(this.messageData.fake === true) {
+			//Avoid banning user for real if doing it from a fake message
+			this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id, duration);
+		}else{
+			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, duration);
+		}
+	}
+
+	/**
+	 * Permanently ban a user after confirmation
+	 */
+	public banUser():void {
+		console.log("OKOKO");
+		
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
+		.then(() => {
+			if(this.messageData.fake === true) {
+				//Avoid banning user for real if doing it from a fake message
+				this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
+			}else{
+				TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, this.$t("global.moderation_action.ban_reason"));
+			}
+		})
+	}
+
+	/**
+	 * Block a user after confirmation
+	 */
+	public blockUser():void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+		this.$confirm(this.$t("chat.mod_tools.block_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.block_confirm_desc"))
+		.then(() => {
+			if(this.messageData.fake === true) {
+				//Avoid banning user for real if doing it from a fake message
+				this.$store("users").flagBlocked(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
+			}else{
+				TwitchUtils.blockUser(this.messageData.user, this.messageData.channel_id);
+			}
+		})
+	}
+}
+
+interface ContextMenuItem {
+	label:string;
+	checked?:boolean;
+	disabled?:boolean;
+	divided?:boolean;
+	customClass?:string;
+	icon?:string;
+	onClick?:()=>void;
+	customRender?:VNode | ((item: CMTypes.MenuItem) => VNode);
+	children?:ContextMenuItem[];
 }
 </script>
 
@@ -884,6 +1221,12 @@ export default class ChatMessage extends AbstractChatMessage {
 			margin-right: .25em;
 			vertical-align: middle;
 			cursor: pointer;
+		}
+
+		:deep(mark) {
+			background-color: @mainColor_normal;
+			color: @mainColor_light;
+			padding: .2em .5em;
 		}
 	}
 

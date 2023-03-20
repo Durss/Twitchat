@@ -49,6 +49,7 @@
 				"duplicate_tt": "Dupliquer",
 				"next_delay": "Délai avant l'action suivante (secondes)",
 				"dynamic_placeholder_info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
+				"dynamic_trigger":"Executer un trigger aléatoire parmi ceux sélectionnés",
 				"delete": "Supprimer",
 				"action_chat": "Envoyer un message",
 				"action_bingo": "Lancer un bingo",
@@ -57,20 +58,22 @@
 				"action_highlight": "Mettre en avant sur le stream",
 				"action_trigger": "Trigger",
 				"action_obs": "Contrôler OBS",
-				"action_obs_tt": "Vous devez connecter OBS<br>dans la section OBS",
+				"action_obs_tt": "Vous devez connecter OBS<br>dans la section <strong>Connexions</strong>",
 				"action_tts": "Text to speech",
 				"action_tts_tt": "Vous devez activer la fonctionnalité<br>de <strong>text to speech</strong> dans les paramètres",
 				"action_music": "Contrôler Spotify",
-				"action_music_tt": "Vous devez<br>connecter Spotify<br>dans les <strong>Overlays</strong>",
+				"action_music_tt": "Vous devez<br>connecter Spotify<br>dans les <strong>Connexions</strong>",
 				"action_voicemod": "Contrôler Voicemod",
 				"action_voicemod_tt": "Vous devez connecter<br>Voicemod dans les paramètres",
 				"action_http": "Appel HTTP",
+				"action_ws": "Message Websocket",
 				"action_poll": "Lancer un sondage",
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
 				"action_countget": "Lire un compteur",
 				"action_random": "Valeur aléatoire",
-				"action_stream_infos": "Changer les infos de stream"
+				"action_stream_infos": "Changer les infos de stream",
+				"custom_placeholder_example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder."
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -143,9 +146,12 @@
 				"header_link": "connecter Voicemod",
 				"param_voice": "Voix"
 			},
-			"http": {
+			"http_ws": {
 				"url": "URL à appeler",
 				"method": "Méthode",
+				"topic_placeholder":"valeur personnalisée...",
+				"output_placeholder":"Enregistrer le résultat de la requête dans le placeholder",
+				"output_placeholder_placeholder":"placeholder...",
 				"select_param": "Choisissez les paramètres à inclure :",
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
 			},
@@ -156,8 +162,7 @@
 			},
 			"countget": {
 				"placeholder_label":"Nom du placeholder",
-				"select_label":"Compteur à lire",
-				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du compteur."
+				"select_label":"Compteur à lire"
 			},
 			"random":{
 				"min_label":"Valeur min (inclus)",
@@ -166,6 +171,7 @@
 				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur aléatoire.",
 				"number":"Nombre",
 				"list":"Liste",
+				"trigger":"Triggers",
 				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
 				"list_entry_placeholder":"ajouter une entrée..."
 			},
@@ -212,6 +218,8 @@
 			"bits": "Nombre de bits",
 			"stream_title": "Titre du stream",
 			"stream_category": "Catégorie du stream",
+			"stream_duration": "Durée du stream (ms)",
+			"stream_live": "\"true\" si la personne était en stream au moment du raid",
 			"viewers": "Nombre de viewers",
 			"reward_title": "Nom de la récompense",
 			"reward_description": "Description de la récompense",

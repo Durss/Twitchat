@@ -34,7 +34,7 @@ export default class TriggerActionTTSEntry extends Vue {
 	@Prop
 	public event!:TriggerEventTypes;
 
-	public message_conf:TwitchatDataTypes.ParameterData = { type:"text", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get contentTTS():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TTS; }
 

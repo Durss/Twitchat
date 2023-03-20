@@ -127,6 +127,7 @@ export default class MessageSearch extends Vue {
 
 	.messages {
 		overflow-y: auto;
+		position: relative;
 
 		.message {
 			margin: .25em 0;

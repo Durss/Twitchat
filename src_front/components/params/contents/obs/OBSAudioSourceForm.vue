@@ -36,8 +36,8 @@ export default class OBSAudioSourceForm extends Vue {
 	public loadingAudioSources = false;
 	public audioSources:OBSInputItem[] = [];
 	public obsAllowed_audioSources:TwitchatDataTypes.ParameterData = { type:"list", value:"", label:"", listValues:[] };
-	public obsAllowed_muteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"", placeholder:"!mute" };
-	public obsAllowed_unmuteCommand:TwitchatDataTypes.ParameterData = { type:"text", value:"", label:"", placeholder:"!unmute" };
+	public obsAllowed_muteCommand:TwitchatDataTypes.ParameterData = { type:"string", value:"", label:"", placeholder:"!mute" };
+	public obsAllowed_unmuteCommand:TwitchatDataTypes.ParameterData = { type:"string", value:"", label:"", placeholder:"!unmute" };
 
 	private defaultEntry = {label:"", value:""};
 

@@ -1090,7 +1090,7 @@ export default class TwitchUtils {
 	/**
 	 * Update stream's title and game
 	 */
-	public static async setStreamInfos(title:string, categoryID:string, channelId:string, tags:string[] = []):Promise<boolean> {
+	public static async setStreamInfos(channelId:string, title?:string, categoryID?:string, tags:string[] = []):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.SET_STREAM_INFOS])) return false;
 		
 		const options = {
@@ -1111,7 +1111,7 @@ export default class TwitchUtils {
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
-			return await this.setStreamInfos(title, categoryID, channelId, tags);
+			return await this.setStreamInfos(channelId, title, categoryID, tags);
 		}
 		if(res.status == 204) {
 			return true;
@@ -2181,7 +2181,7 @@ export default class TwitchUtils {
 	/**
 	 * Requests for scopes if not yet granted
 	 * @param scopes 
-	 * @returns true if all scopes are granted. False if user iis prompted to grant access
+	 * @returns true if all scopes are granted. False if user is prompted to grant access
 	 */
 	public static requestScopes(scopes:TwitchScopesString[]):boolean {
 		if(this.hasScopes(scopes)) return true;
@@ -2468,7 +2468,7 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotes(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false):string {
+	public static parseEmotes(message:string, emotes?:string, removeEmotes = false, customParsing = false):string {
 		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, emotes, removeEmotes, customParsing);
 		let message_html = "";
 		for (let i = 0; i < emoteChunks.length; i++) {
@@ -2491,7 +2491,7 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotesFromObject(message:string, emotes:TwitchatDataTypes.EmoteDef[]|undefined, removeEmotes = false, customParsing = false):string {
+	public static parseEmotesFromObject(message:string, emotes?:TwitchatDataTypes.EmoteDef[], removeEmotes = false, customParsing = false):string {
 		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, undefined, removeEmotes, customParsing, emotes);
 		let message_html = "";
 		for (let i = 0; i < emoteChunks.length; i++) {

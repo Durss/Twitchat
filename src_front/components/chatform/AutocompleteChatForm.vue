@@ -237,6 +237,8 @@ export default class AutocompleteChatForm extends Vue {
 					if(!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
 					if(a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
 					if(!a.rawCmd.needModerator && b.rawCmd.needModerator) return 1;
+					if(a.rawCmd.twitchCmd && !b.rawCmd.twitchCmd) return -1;
+					if(!a.rawCmd.twitchCmd && b.rawCmd.twitchCmd) return 1;
 				}
 				if(a.label < b.label) return -1;
 				if(a.label > b.label) return 1;
