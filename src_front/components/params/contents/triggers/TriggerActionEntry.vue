@@ -144,7 +144,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventPlaceholders, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -152,6 +152,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
@@ -163,13 +164,11 @@ import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionRandomEntry from './entries/TriggerActionRandomEntry.vue';
+import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
-import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry.vue';
 import TriggerActionWS from './entries/TriggerActionWS.vue';
-import WebsocketTrigger from '@/utils/WebsocketTrigger';
-import TTSUtils from '@/utils/TTSUtils';
 
 @Component({
 	components:{
@@ -269,7 +268,14 @@ export default class TriggerActionEntry extends Vue {
 	 */
 	public get icons():string[] {
 		const icons = [];
-		if(this.action.type == "obs") icons.push( this.action.show? 'show' : 'hide' );
+		const action2Icon:{[key in TriggerActionObsDataAction]:string} = {
+			hide:"hide",
+			show:"show",
+			mute:"mute",
+			unmute:"unmute",
+			replay:"play",
+		};
+		if(this.action.type == "obs") icons.push( action2Icon[this.action.action] );
 		if(this.action.type == "music") icons.push( 'spotify' );
 		if(this.action.type == "chat") icons.push( 'whispers' );
 		if(this.action.type == "tts") icons.push( 'tts' );

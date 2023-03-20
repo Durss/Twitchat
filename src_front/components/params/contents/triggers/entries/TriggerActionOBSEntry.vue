@@ -12,7 +12,7 @@
 
 	<div :class="classes" v-else>
 		<ParamItem class="row item source" :paramData="source_conf" v-model="action.sourceName" />
-		<ParamItem class="row item show" :paramData="action_conf" v-model="action.show" />
+		<ParamItem class="row item show" :paramData="action_conf" v-model="action.action" />
 		<ParamItem class="row item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
 		<ParamItem class="row item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
 		<ParamItem class="row item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource && action_conf.value === true" ref="textContent" />
@@ -108,7 +108,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		if(this.action.show == undefined) this.action.show = true;
+		if(this.action.action == undefined) this.action.action = "show";
 
 		this.text_conf.placeholderList	= TriggerEventPlaceholders(this.event.value);
 		this.url_conf.placeholderList	= TriggerEventPlaceholders(this.event.value);
@@ -138,15 +138,20 @@ export default class TriggerActionOBSEntry extends Vue {
 
 	private updateActionsList():void {
 		const values:TwitchatDataTypes.ParameterDataListValue[] = [
-			{labelKey:"triggers.actions.obs.param_action_show", value:true},
-			{labelKey:"triggers.actions.obs.param_action_hide", value:false},
+			{labelKey:"triggers.actions.obs.param_action_show", value:"show"},
+			{labelKey:"triggers.actions.obs.param_action_hide", value:"hide"},
 		];
+
+		if(this.filter_conf.value == "") {
+			values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
+			values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
+		}
 		
 		if(this.isMediaSource && this.filter_conf.value == "") {
 			values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});
 		}
 		this.action_conf.listValues	= values;
-		this.action_conf.value		= this.action.show;
+		this.action_conf.value		= this.action.action;
 	}
 
 	/**

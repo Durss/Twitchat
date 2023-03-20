@@ -569,24 +569,26 @@ export default class TriggerActionHandler {
 				
 							if(step.filterName) {
 								try {
-									await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.show !== false);
+									await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
 								}catch(error) {
 									console.error(error);
 								}
 							}else{
-								let show = step.show;
+								let action = step.action;
 								//If requesting to show an highlighted message but the message
 								//is empty, force source to hide
 								if(triggerKey == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
 								&& message.type == "chat_highlight"
 								&& (!message.info.message || message.info.message.length===0)) {
-									show = false;
+									action = "hide";
 								}
 								try {
-									if(show == "replay") {
-										await OBSWebsocket.instance.replayMedia(step.sourceName);
-									}else{
-										await OBSWebsocket.instance.setSourceState(step.sourceName, show);
+									switch(action) {
+										case "hide": await OBSWebsocket.instance.setSourceState(step.sourceName, false); break;
+										case "show": await OBSWebsocket.instance.setSourceState(step.sourceName, true); break;
+										case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
+										case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
+										case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
 									}
 								}catch(error) {
 									console.error(error);

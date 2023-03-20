@@ -123,6 +123,8 @@
 				"param_media_img": "Image file",
 				"param_action_show": "Enable source",
 				"param_action_hide": "Disable source",
+				"param_action_mute": "Mute source",
+				"param_action_unmute": "Unmute source",
 				"param_action_replay": "Restart playback"
 			},
 			"trigger": {

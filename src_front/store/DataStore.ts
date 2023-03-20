@@ -1,4 +1,4 @@
-import { TriggerTypes, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes, type TriggerActionObsDataAction, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -200,6 +200,10 @@ export default class DataStore {
 		if(v==34) {
 			this.migrateTrackAddedTriggerPlaceholder(data);
 			v = 35;
+		}
+		if(v==35) {
+			this.migrateOBSTriggerActions(data);
+			v = 36;
 		}
 
 		data[this.DATA_VERSION] = v;
@@ -877,7 +881,6 @@ export default class DataStore {
 		}
 	}
 
-
 	/**
 	 * Until then when using the "add track to queue" trigger action, the placeholder
 	 * to display the track info on the confirmation message was the same than the
@@ -894,8 +897,32 @@ export default class DataStore {
 			for (let i = 0; i < triggers[key].actions.length; i++) {
 				const a = triggers[key].actions[i];
 				if(a.type == "music" && a.confirmMessage) {
-					const before = a.confirmMessage;
 					a.confirmMessage = a.confirmMessage.replace(/\{CURRENT_TRACK_(.*?)\}/gi, "{ADDED_TRACK_$1}");
+				}
+			}
+		}
+
+		data[DataStore.TRIGGERS] = triggers;
+	}
+
+	/**
+	 * Until then OBS trigger action just had a "show" property containing:
+	 * true => show source
+	 * false => hide source
+	 * "replay" => replay media source
+	 * 
+	 * This prop is now named "action" and contains only string values.
+	 */
+	private static migrateOBSTriggerActions(data:any):void {
+		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
+		if(!triggers) return;
+		for (const key in triggers) {
+			for (let i = 0; i < triggers[key].actions.length; i++) {
+				const a = triggers[key].actions[i];
+				if(a.type == "obs" && a.show) {
+					let action:TriggerActionObsDataAction = a.show == "replay"? "replay" : a.show === true? "show" : "hide";
+					a.action = action;
+					delete a.show;
 				}
 			}
 		}

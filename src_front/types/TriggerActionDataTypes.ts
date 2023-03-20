@@ -130,14 +130,19 @@ export interface TriggerActionEmptyData extends TriggerActionData{
 	type:null;
 }
 
+export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
+	action:TriggerActionObsDataAction;
 	sourceName:string;
 	filterName?:string;
-	show:boolean|"replay";
 	text?:string;
 	url?:string;
 	mediaPath?:string;
+	/**
+	 * @deprecated replaced by "action" prop
+	 */
+	show?:boolean|"replay";
 }
 
 export interface TriggerActionChatData extends TriggerActionData{

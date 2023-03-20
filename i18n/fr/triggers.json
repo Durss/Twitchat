@@ -123,6 +123,8 @@
 				"param_media_img": "Fichier image",
 				"param_action_show": "Activer la source",
 				"param_action_hide": "Desactiver la source",
+				"param_action_mute": "Couper l'audio",
+				"param_action_unmute": "Réactiver l'audio",
 				"param_action_replay": "Relancer la lecture"
 			},
 			"trigger": {
