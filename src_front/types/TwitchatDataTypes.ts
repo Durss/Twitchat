@@ -903,46 +903,151 @@ export namespace TwitchatDataTypes {
 		platform:ChatPlatform;
 		login:string;
 		displayName:string;
-		color?:string;//Chat color of their nickname
+		/**
+		 * Nickname chat color
+		 */
+		color?:string;
 		avatarPath?:string;
-		is_raider:boolean;//Is the user raided use recently
-		is_partner:boolean;//Is Twitch partner
-		is_affiliate:boolean;//Is Twitch affiliat
+		/**
+		 * Has the user raided us recently?
+		 */
+		is_raider:boolean;
+		/**
+		 * Is a twitch partner?
+		 */
+		is_partner:boolean;
+		/**
+		 * Is a twitch affiliate?
+		 */
+		is_affiliate:boolean;
+		/**
+		 * Should this user's messages be highlighted?
+		 */
 		is_tracked:boolean;
+		/**
+		 * Is this a known bot account?
+		 */
 		is_bot:boolean;
+		/**
+		 * Is the user blocked by me?
+		 */
+		is_blocked:boolean;
+		/**
+		 * Is a Twitchat admin?
+		 */
 		is_admin?:boolean;
-		donor:{//Donor state of the user
+		/**
+		 * Twitchat donor state of the user
+		 */
+		donor:{
+			/**
+			 * Is a donor?
+			 */
 			state:boolean,
+			/**
+			 * Donor level
+			 */
 			level:number,
-			noAd:boolean,//True if user is exempt from ads (ex: if to few followers)
-			upgrade:boolean,//true if donor level changed from last time
+			/**
+			 * true if user is exempt from ads (ex: if too few followers)
+			 */
+			noAd:boolean,
+			/**
+			 * true if donor level changed from last time
+			 */
+			upgrade:boolean,
 		};
-		pronouns:string|false|null;//undefined=no loaded yet; false=no pronouns found; string=pronouns loaded
+		/**
+		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code
+		 */
+		pronouns:string|false|null;
+		/**
+		 * Pronouns label
+		 */
 		pronounsLabel:string|false;
+		/**
+		 * Pronouns tooltip
+		 */
 		pronounsTooltip:string|false;
+		/**
+		 * Contains one entry per connected channel with
+		 * channel specific info.
+		 */
 		channelInfo:{[key:string]:UserChannelInfo},
-		temporary?:boolean;//true when the details are loading
-		errored?:boolean;//true if user data loading failed
+		/**
+		 * true when the details are loading
+		 */
+		temporary?:boolean;
+		/**
+		 * true if user data loading failed
+		 */
+		errored?:boolean;
 	}
 
 	/**
 	 * Represents a channel specific user data
 	 */
 	export interface UserChannelInfo {
+		/**
+		 * true if user is connected on the channel's chat
+		 */
 		online:boolean;
-		is_new:boolean;//true if user talked for the first time on our chat during this session
-		is_following:boolean|null;//set to "null" until we actually verified if user is a follower
-		is_blocked:boolean;
+		/**
+		 * true if user talked for the first time ever on our chat during this session
+		 */
+		is_new:boolean;
+		/**
+		 * Defines if user is a follower of the channel
+		 * null = don't know yet
+		 * true = is a follower
+		 * false = is not a follower
+		 */
+		is_following:boolean|null;
+		/**
+		 * true if user is banned on the channel
+		 */
 		is_banned:boolean;
+		/**
+		 * true if user is a VIP of the channel
+		 */
 		is_vip:boolean;
+		/**
+		 * true if user is a moderator of the channel
+		 */
 		is_moderator:boolean;
+		/**
+		 * true if user is the broadcaster of the channel
+		 */
 		is_broadcaster:boolean;
+		/**
+		 * true if user is subscribed to the channel
+		 */
 		is_subscriber:boolean;
+		/**
+		 * true if user has gifted subs on the channel
+		 */
 		is_gifter:boolean;
+		/**
+		 * Date at which the user followed the channel
+		 * Value = 0 if not checked yet
+		 */
 		following_date_ms:number;
+		/**
+		 * User badges for this channel
+		 */
 		badges:TwitchatUserBadge[];
+		/**
+		 * Date at which the ban expires on this channel
+		 */
 		banEndDate?:number;
+		/**
+		 * Last date the user interracted on this channel
+		 */
 		lastActivityDate?:number;
+		/**
+		 * Number of subgofts the user made on this channel
+		 * Only available after making a subgift
+		 */
 		totalSubgifts?:number;
 	}
 	

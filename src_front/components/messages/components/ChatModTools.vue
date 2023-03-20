@@ -71,10 +71,10 @@ export default class ChatModTools extends Vue {
 		.then(() => {
 			this.$emit('deleteUser', this.messageData);
 			if(this.messageData.fake === true) {
-				//Avoid banning user for real if doing it from a fake message
-				this.$store("users").flagBlocked(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
+				//Avoid blocking user for real if doing it from a fake message
+				this.$store("users").flagBlocked(this.messageData.platform, this.messageData.user.id);
 			}else{
-				TwitchUtils.blockUser(this.messageData.user, this.messageData.channel_id);
+				TwitchUtils.blockUser(this.messageData.user);
 			}
 		})
 	}

@@ -198,7 +198,7 @@ export default class NewUsers extends Vue {
 		const m = (event.data as TwitchatDataTypes.GreetableMessage);
 		if(!m.todayFirst) return;
 		
-		if(m.user.channelInfo[m.channel_id].is_blocked === true) return;//Ignore blocked users
+		if(m.user.is_blocked === true) return;//Ignore blocked users
 		//Ignore self messages
 		if(m.user.id == StoreProxy.auth.twitch.user.id) return;
 		//Ignore bot messages

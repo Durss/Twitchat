@@ -1,10 +1,9 @@
+import * as JsonPatch from 'fast-json-patch';
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import Logger from '../utils/Logger';
 import * as fs from "fs";
 import Config from '../utils/Config';
 import { schemaValidator } from '../utils/DataSchema';
-import * as JsonPatch from 'fast-json-patch';
-import * as fetch from "node-fetch";
+import Logger from '../utils/Logger';
 import AbstractController from "./AbstractController";
 
 /**
@@ -28,7 +27,6 @@ export default class UserController extends AbstractController {
 	******************/
 	public async initialize():Promise<void> {
 		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
-		this.server.get('/api/user/chatters', async (request, response) => await this.getChatters(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.setUserData(request, response));
@@ -119,25 +117,6 @@ export default class UserController extends AbstractController {
 			response.header('Content-Type', 'application/json');
 			response.status(200);
 			response.send(JSON.stringify({success:true, data:JSON.parse(data)}));
-		}
-	}
-
-	/**
-	 * Get chatters list
-	 */
-	private async getChatters(request:FastifyRequest, response:FastifyReply) {
-		const channel:string = (request.query as any).channel;
-		const chattersRes = await fetch("https://tmi.twitch.tv/group/user/"+channel.toLowerCase()+"/chatters", {method:"GET"});
-		let chatters = [];
-		if(chattersRes.status === 200) {
-			chatters = await chattersRes.json();
-			response.header('Content-Type', 'application/json');
-			response.status(200);
-			response.send(JSON.stringify({success:true, data:chatters}));
-		}else{
-			response.header('Content-Type', 'application/json');
-			response.status(500);
-			response.send(JSON.stringify({success:false}));
 		}
 	}
 

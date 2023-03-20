@@ -50,7 +50,7 @@
 			<div class="header"><strong>{{ $t('chat.message.announcement') }}</strong></div>
 		</div>
 		
-		<div class="infos" v-if="channelInfo.is_blocked !== true">
+		<div class="infos" v-if="messageData.user.is_blocked !== true">
 		
 			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			
@@ -102,19 +102,19 @@
 			<template #CHANNELS>{{userBannedOnChannels}}</template>
 		</i18n-t>
 		
-		<span v-if="channelInfo.is_blocked !== true">: </span>
+		<span v-if="messageData.user.is_blocked !== true">: </span>
 		
-		<span class="message" v-if="channelInfo.is_blocked !== true">
+		<span class="message" v-if="messageData.user.is_blocked !== true">
 			<span class="text" v-html="text" @click="clickMessage"></span>
 			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 		</span>
 
 		<span class="blockedMessage"
-		v-if="channelInfo.is_blocked === true"
-		@click.stop="channelInfo.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
+		v-if="messageData.user.is_blocked === true"
+		@click.stop="messageData.user.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
 		
-		<br v-if="clipInfo && channelInfo.is_blocked !== true">
-		<div v-if="clipInfo && channelInfo.is_blocked !== true" class="clip" @click.stop="openClip()">
+		<br v-if="clipInfo && messageData.user.is_blocked !== true">
+		<div v-if="clipInfo && messageData.user.is_blocked !== true" class="clip" @click.stop="openClip()">
 			<img :src="clipInfo.thumbnail_url" alt="thumbnail">
 			<div class="infos">
 				<div class="title">{{clipInfo.title}}</div>
@@ -238,7 +238,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		const censorDeletedMessages	= sParams.appearance.censorDeletedMessages.value === true;
 
 		if(this.automodReasons)					res.push("automod");
-		if(this.channelInfo.is_blocked)			res.push("blockedUser");
+		if(this.messageData.user.is_blocked)	res.push("blockedUser");
 		if(this.disableConversation !== false)	res.push("disableConversation");
 		if(!this.lightMode && message.cyphered)	res.push("cyphered");
 		if(!this.lightMode && this.messageData.user.is_tracked)	res.push("tracked");
@@ -385,8 +385,9 @@ export default class ChatMessage extends AbstractChatMessage {
 			});
 		}
 
-		this.canModUser = (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator
-						|| StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster)
+		this.canModUser = (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster
+						|| (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator
+							&& !this.messageData.user.channelInfo[this.messageData.channel_id].is_moderator))
 						&& this.messageData.user.id != StoreProxy.auth.twitch.user.id;
 	
 		//Define message badges (these are different from user badges!)
@@ -413,14 +414,13 @@ export default class ChatMessage extends AbstractChatMessage {
 				highlightedWords = highlightedWords.concat(mess.twitch_automod.words);
 			}
 			
-			this.canDeleteMessage = this.messageData.user.id != StoreProxy.auth.twitch.user.id//If it's not self
-									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable);
+			this.canDeleteMessage = this.canModUser
+									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
 									&& this.canDeleteMessage//if not sent by broadcaster
-									&& this.canModUser;//If we're a bod or the broadcaster
-									
+									&& this.canModUser;//If we're a mod or the broadcaster
 
 
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
@@ -663,6 +663,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * @param e 
 	 */
 	public onContextMenu(e:MouseEvent|TouchEvent):void {
+		const me = this.$store("auth").twitch.user;
 
 		if(e.target) {
 			const el = e.target as HTMLElement;
@@ -862,17 +863,39 @@ export default class ChatMessage extends AbstractChatMessage {
 							label: this.$t("chat.context_menu.ban"),
 							icon: this.$image("icons/ban.svg"),
 							customClass:classesBan,
-							onClick: () => this.banUser(),
+							onClick: () => this.banUser(this.messageData.channel_id),
 						});
 			}
-			if(this.channelInfo.is_blocked) {
+
+			//Message not posted on our own channel, add a button to ban on our own channel.
+			if(this.messageData.channel_id != me.id) {
+				if(this.messageData.user.channelInfo[me.id]?.is_banned) {
+					options.push({ 
+							label: this.$t("chat.context_menu.unban_myRoom"),
+							icon: this.$image("icons/unban.svg"),
+							customClass:classesBan,
+							onClick: () => {
+								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+								TwitchUtils.unbanUser(user, me.id);
+							},
+						});
+				}else{
+					options.push({ 
+							label: this.$t("chat.context_menu.ban_myRoom"),
+							icon: this.$image("icons/ban.svg"),
+							customClass:classesBan,
+							onClick: () => this.banUser(me.id),
+						});
+				}
+			}
+			if(this.messageData.user.is_blocked) {
 				options.push({ 
 							label: this.$t("chat.context_menu.unblock"),
 							icon: this.$image("icons/unblock.svg"),
 							customClass:classesBlock,
 							onClick: () => {
 								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
-								TwitchUtils.unblockUser(user, this.messageData.channel_id);
+								TwitchUtils.unblockUser(user);
 							},
 						});
 			}else{
@@ -971,17 +994,15 @@ export default class ChatMessage extends AbstractChatMessage {
 	/**
 	 * Permanently ban a user after confirmation
 	 */
-	public banUser():void {
-		console.log("OKOKO");
-		
+	public banUser(channelId:string):void {
 		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
 		.then(() => {
 			if(this.messageData.fake === true) {
 				//Avoid banning user for real if doing it from a fake message
-				this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
+				this.$store("users").flagBanned(this.messageData.platform, channelId, this.messageData.user.id);
 			}else{
-				TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, this.$t("global.moderation_action.ban_reason"));
+				TwitchUtils.banUser(this.messageData.user, channelId, undefined, this.$t("global.moderation_action.ban_reason"));
 			}
 		})
 	}
@@ -995,9 +1016,9 @@ export default class ChatMessage extends AbstractChatMessage {
 		.then(() => {
 			if(this.messageData.fake === true) {
 				//Avoid banning user for real if doing it from a fake message
-				this.$store("users").flagBlocked(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
+				this.$store("users").flagBlocked(this.messageData.platform, this.messageData.user.id);
 			}else{
-				TwitchUtils.blockUser(this.messageData.user, this.messageData.channel_id);
+				TwitchUtils.blockUser(this.messageData.user);
 			}
 		})
 	}

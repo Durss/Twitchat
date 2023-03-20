@@ -177,7 +177,7 @@ export interface IChatActions {
 	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	deleteMessageByID(messageID:string, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	delChannelMessages(channelId:string):void;
-	delUserMessages(uid:string):void;
+	delUserMessages(uid:string, channelId:string):void;
 	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]):void;
 	closeWhispers( userID:string):void;
 	doSearchMessages(value:string):void;
@@ -472,8 +472,8 @@ export interface IUsersActions {
 	flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	flagVip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	flagUnvip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
-	flagBlocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
-	flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
+	flagBlocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
+	flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
 	flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void;
 	flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	flagOnlineUsers(users:TwitchatDataTypes.TwitchatUser[], channelId:string):void;

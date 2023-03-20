@@ -315,6 +315,8 @@
 			"unsave": "Désenregistrer le message",
 			"ban":"Bannir",
 			"unban":"Débannir",
+			"ban_myRoom":"Bannir chez moi",
+			"unban_myRoom":"Débannir de chez moi",
 			"block":"Bloquer",
 			"unblock":"Débloquer",
 			"to":"Ban temporaire"

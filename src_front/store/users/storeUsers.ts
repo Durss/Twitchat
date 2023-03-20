@@ -171,6 +171,7 @@ export const storeUsers = defineStore('users', {
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
+						is_blocked:false,
 						is_bot:this.knownBots[platform][login ?? ""] === true,
 						donor:{
 							state:false,
@@ -198,6 +199,7 @@ export const storeUsers = defineStore('users', {
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
+						is_blocked:false,
 						is_bot:this.knownBots[platform][login ?? ""] === true,
 						donor:{
 							state:false,
@@ -236,7 +238,6 @@ export const storeUsers = defineStore('users', {
 						is_new:false,
 						following_date_ms,
 						is_following,
-						is_blocked:false,
 						is_banned:false,
 						is_vip:false,
 						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true || channelId == user.id,
@@ -248,7 +249,7 @@ export const storeUsers = defineStore('users', {
 				}
 	
 				if(this.blockedUsers[platform][user.id] === true) {
-					user.channelInfo[channelId].is_blocked = true;
+					user.is_blocked = true;
 				}
 			}
 			
@@ -440,23 +441,23 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
-		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
+		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
 			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
-				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
-					userList[i].channelInfo[channelId].is_blocked = true;
+				if(u.id === uid && platform == u.platform) {
+					userList[i].is_blocked = true;
 					break;
 				}
 			}
 		},
 		
-		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
+		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
 			delete this.blockedUsers[platform][uid];
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
-				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
-					userList[i].channelInfo[channelId].is_blocked = false;
+				if(u.id === uid && platform == u.platform) {
+					userList[i].is_blocked = false;
 					break;
 				}
 			}
@@ -485,7 +486,7 @@ export const storeUsers = defineStore('users', {
 					StoreProxy.users.flagUnbanned("twitch", channelId, uid);
 				}, duration_s*1000)
 			}
-			StoreProxy.chat.delUserMessages(uid);
+			StoreProxy.chat.delUserMessages(uid, channelId);
 		},
 		
 		flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {

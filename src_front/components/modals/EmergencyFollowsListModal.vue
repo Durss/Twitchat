@@ -162,9 +162,9 @@ export default class EmergencyFollowsListModal extends Vue {
 	public async unfollow(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		if(follow.user.channelInfo[follow.channel_id].is_following != true) return;
 		follow.loading = true;
-		await TwitchUtils.blockUser(follow.user, follow.channel_id, "spam");
+		await TwitchUtils.blockUser(follow.user, "spam");
 		follow.user.channelInfo[follow.channel_id].is_following = false;
-		await TwitchUtils.unblockUser(follow.user, follow.channel_id);
+		await TwitchUtils.unblockUser(follow.user);
 		follow.loading = false;
 	}
 

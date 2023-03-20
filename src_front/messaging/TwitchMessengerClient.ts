@@ -107,7 +107,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
 				//Check if we're a mod on this channel by testing if the get chatters endpoint
-				//returns something or not
+				//returns something or not (no dedicated API for this ATM)
 				TwitchUtils.getChatters(v.id).then(result => {
 					const amIModThere = result !== false;
 					if(amIModThere) {
@@ -303,13 +303,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/block":{
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) return await TwitchUtils.blockUser(user, channelId);
+					if(user) return await TwitchUtils.blockUser(user);
 					return false;
 				}
 				case "/unblock": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) return await TwitchUtils.unblockUser(user, channelId);
+					if(user) return await TwitchUtils.unblockUser(user);
 					return false;
 				}
 				case "/timeout":{

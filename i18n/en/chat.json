@@ -315,6 +315,8 @@
 			"unsave": "Unsave message",
 			"ban":"Ban",
 			"unban":"Unban",
+			"ban_myRoom":"Ban on my room",
+			"unban_myRoom":"Unban from my room",
 			"block":"Block",
 			"unblock":"Unblock",
 			"to":"Timeout"

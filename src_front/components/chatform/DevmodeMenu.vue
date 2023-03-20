@@ -206,7 +206,7 @@ export default class DevmodeMenu extends Vue {
 	public simulateBlockedUser():void {
 		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageChatData);
-			m.user.channelInfo[m.channel_id].is_blocked = true;
+			m.user.is_blocked = true;
 			return true;
 		});
 	}

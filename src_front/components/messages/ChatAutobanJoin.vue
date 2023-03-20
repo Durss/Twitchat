@@ -75,7 +75,7 @@ export default class ChatAutobanJoin extends AbstractChatMessage {
 	public async blockUser():Promise<void> {
 		this.moderating = true;
 		try {
-			await TwitchUtils.blockUser(this.messageData.user, this.messageData.channel_id);
+			await TwitchUtils.blockUser(this.messageData.user);
 		}catch(error) {}
 		this.moderating = false;
 		this.canBlock = false;

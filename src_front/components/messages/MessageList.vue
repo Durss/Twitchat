@@ -412,7 +412,7 @@ export default class MessageList extends Vue {
 				&& !m.twitch_automod
 				&& !m.twitch_isSuspicious
 				&& !m.twitch_isRestricted
-				&& !m.user.channelInfo[m.channel_id].is_blocked;
+				&& !m.user.is_blocked;
 		}
 
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)

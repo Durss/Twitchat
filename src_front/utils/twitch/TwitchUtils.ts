@@ -547,6 +547,7 @@ export default class TwitchUtils {
 					is_affiliate:false,
 					is_partner:false,
 					is_tracked:false,
+					is_blocked:false,
 					pronouns:false,
 					is_bot:true,
 					pronounsLabel:"",
@@ -1140,7 +1141,7 @@ export default class TwitchUtils {
 			body: JSON.stringify({data:body}),
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 
 		const res = await fetch(url.href, options);
@@ -1172,7 +1173,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/bans");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("user_id", user.id);
 
@@ -1197,7 +1198,7 @@ export default class TwitchUtils {
 	/**
 	 * Blocks a user
 	 */
-	public static async blockUser(user:TwitchatDataTypes.TwitchatUser, channelId:string, reason?:"spam" | "harassment" | "other", recursiveIndex:number=0):Promise<boolean> {
+	public static async blockUser(user:TwitchatDataTypes.TwitchatUser, reason?:"spam" | "harassment" | "other", recursiveIndex:number=0):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.EDIT_BLOCKED])) return false;
 		
 		const options = {
@@ -1210,13 +1211,13 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagBlocked("twitch", channelId, user.id);
+			StoreProxy.users.flagBlocked("twitch", user.id);
 			return true;
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
-			return await this.blockUser(user, channelId, reason);
+			return await this.blockUser(user, reason);
 		}else {
 			const json = await res.json();
 			if(json.message) {
@@ -1229,7 +1230,7 @@ export default class TwitchUtils {
 	/**
 	 * Unblocks a user
 	 */
-	public static async unblockUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
+	public static async unblockUser(user:TwitchatDataTypes.TwitchatUser):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.EDIT_BLOCKED])) return false;
 		
 		const options = {
@@ -1241,13 +1242,13 @@ export default class TwitchUtils {
 
 		const res = await fetch(url.href, options);
 		if(res.status == 204) {
-			StoreProxy.users.flagUnblocked("twitch", channelId, user.id);
+			StoreProxy.users.flagUnblocked("twitch", user.id);
 			return true;
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
-			return await this.unblockUser(user, channelId);
+			return await this.unblockUser(user);
 		} else {
 			const json = await res.json();
 			if(json.message) {
@@ -1848,24 +1849,6 @@ export default class TwitchUtils {
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
 			return await this.getChatters(channelId, channelName);
-
-		}else if(channelName && Date.now() < new Date("03-21-2023 00:00:00").getTime()) {//Unofficial api shutdown starts the 22nd of march
-			//Fallback to unofficial endpoint while it still work..
-			const headers = {
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/user/chatters?channel="+channelName, {method:"GET", headers});
-			const json:{success:boolean, data:TwitchDataTypes.ChattersUnofficialEndpoint} = await res.json();
-			if(!json.success) return false;
-			let users:string[] = [];
-			users = users.concat(json.data.chatters.admins);
-			users = users.concat(json.data.chatters.broadcaster);
-			users = users.concat(json.data.chatters.global_mods);
-			users = users.concat(json.data.chatters.moderators);
-			users = users.concat(json.data.chatters.vips);
-			users = users.concat(json.data.chatters.staff);
-			users = users.concat(json.data.chatters.viewers);
-			return users;
 		}
 		return false;
 	}
@@ -2224,7 +2207,7 @@ export default class TwitchUtils {
 			if(years > 0) {
 				months = (months-years*12);
 				let duration = years+" "+i18n.tc("global.date.year", years);
-				if(months > 0) duration += " and "+months+" "+i18n.tc("global.date.month", months);
+				if(months > 0) duration += " "+i18n.t("global.and")+" "+months+" "+i18n.tc("global.date.month", months);
 				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
 			}else{
 				let duration = months+" "+i18n.tc("global.date.month", months);

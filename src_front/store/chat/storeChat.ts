@@ -994,7 +994,7 @@ export const storeChat = defineStore('chat', {
 
 				//Ban user
 				case TwitchatDataTypes.TwitchatMessageType.BAN: {
-					this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id);
+					this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id, (message as TwitchatDataTypes.MessageBanData).channel_id);
 					break;
 				}
 			}
@@ -1158,11 +1158,12 @@ export const storeChat = defineStore('chat', {
 			}
 		},
 
-		delUserMessages(uid:string) {
+		delUserMessages(uid:string, channelId:string) {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
 				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				&& m.user.id == uid
+				&& m.channel_id == channelId
 				&& !m.deleted) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
@@ -1322,7 +1323,7 @@ export const storeChat = defineStore('chat', {
 			if(lastActivityDate && lastActivityDate + (5 * 60 * 60 * 1000) > Date.now()) return;
 
 			if(greetedUsers[user.id] && greetedUsers[user.id] > Date.now()) return;
-			if(user.channelInfo[message.channel_id].is_blocked === true) return;//Ignore blocked users
+			if(user.is_blocked === true) return;//Ignore blocked users
 
 			message.todayFirst = true;
 			greetedUsers[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
