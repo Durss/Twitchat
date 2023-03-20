@@ -1090,7 +1090,7 @@ export default class PubSub extends EventDispatcher {
 				timeLeft_s:data.progress.remaining_seconds,
 				state: "PROGRESSING",
 				is_boost_train:data.is_boost_train,
-				is_new_record:data.is_large_event,
+				is_new_record:data.is_large_event,//Not sure is_large_event actually means "new record". Probably not
 				conductor_bits:storeTrain?.conductor_bits,
 				conductor_subs:storeTrain?.conductor_subs,
 			};

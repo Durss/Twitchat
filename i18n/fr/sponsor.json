@@ -8,6 +8,7 @@
 		"important":"IMPORTANT",
 		"important_content1":"Spécifiez <strong>votre login Twitch</strong> dans votre message de don quand c'est possible ou <a href=\"https://twitch.tv/durss\" target=\"_blank\">envoyez-moi un chuchotement</a> pour que je sache qui vous êtes !",
 		"important_content2":"Ceci est nécessaire si vous souhaitez avoir le badge donateur·ice permettant de désactiver le message automatique :)",
+		"checkbox":"J'ai lu les instructions",
 		"donate_rate":"Pourcentage du don<br>que je reçois",
 		"donate_option":{
 			"paypal":"Donner sur Paypal",

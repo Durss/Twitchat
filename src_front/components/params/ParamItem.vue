@@ -24,7 +24,8 @@
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
 					v-model="paramData.value"
 					:id="'toggle'+key"
-					:clear="clearToggle" />
+					:clear="clearToggle !== false"
+					:alert="alertToggle !== false" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -167,6 +168,7 @@
 			:key="'child_'+index+c.id"
 			:paramData="c"
 			:clearToggle="clearToggle"
+			:alertToggle="alertToggle"
 			:childLevel="childLevel+1" />
 
 		<div class="child" ref="param_child_slot" v-if="$slots.default">
@@ -219,6 +221,11 @@ export default class ParamItem extends Vue {
 		})
 	public clearToggle!:boolean;
 	@Prop({
+			type:Boolean,
+			default:false,
+		})
+	public alertToggle!:boolean;
+	@Prop({
 			type:Number,
 			default:0,
 		})
@@ -242,6 +249,7 @@ export default class ParamItem extends Vue {
 		const res = ["paramitem"];
 		if(this.errorLocal !== false) res.push("error");
 		if(this.clearToggle !== false) res.push("clear");
+		if(this.alertToggle !== false) res.push("alert");
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
@@ -519,7 +527,11 @@ export default class ParamItem extends Vue {
 	overflow-y: clip;
 	border-left: 0 solid transparent;
 	transition: border-left .25s, padding-left .25s;
-
+	
+	&:not(.disabled)>.content:hover {
+		background-color: fade(@mainColor_normal, 10%);
+	}
+	
 	&.error {
 		border-left: .25em solid @mainColor_alert;
 		border-bottom: 1px solid @mainColor_alert;
@@ -543,6 +555,12 @@ export default class ParamItem extends Vue {
 			&::-webkit-scrollbar-thumb {
 				background-color: @mainColor_light;
 			}
+		}
+	}
+
+	&.alert {
+		&>.content:hover {
+			background-color: fade(@mainColor_alert, 10%);
 		}
 	}
 	
@@ -575,10 +593,6 @@ export default class ParamItem extends Vue {
 		.toggleButton, input, textarea, label {
 			pointer-events: none;
 		}
-	}
-	
-	&:not(.disabled)>.content:hover {
-		background-color: fade(@mainColor_normal, 10%);
 	}
 	
 	.content {

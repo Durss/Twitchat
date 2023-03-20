@@ -18,12 +18,15 @@ export default class ToggleButton extends Vue {
 	@Prop({type:Boolean, default: false})
 	public clear!:boolean;
 	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
 
 	public get classes():string[] {
 		let res = ["togglebutton"];
 		if(this.small !== false) res.push("small");
 		if(this.clear !== false) res.push("clear");
+		if(this.alert !== false) res.push("alert");
 		if(this.modelValue) res.push("selected");
 		return res;
 	}
@@ -71,20 +74,40 @@ export default class ToggleButton extends Vue {
 	}
 
 	&.clear {
-		border-color: fade(@mainColor_light, 30%);
+		@c: @mainColor_light;
+		border-color: fade(@c, 30%);
 		&.selected {
 			background-color: transparent;
-			border-color: @mainColor_light;
+			border-color: @c;
 			.circle {
-				background-color: @mainColor_light;
+				background-color: @c;
 			}
 		}
 		&:hover {
-			border-color: @mainColor_light;
-			background-color: fade(@mainColor_light, 30%);
+			border-color: @c;
+			background-color: fade(@c, 30%);
 		}
 		.circle {
-			background-color: fade(@mainColor_light, 30%);
+			background-color: fade(@c, 30%);
+		}
+	}
+
+	&.alert {
+		@c: @mainColor_alert;
+		border-color: fade(@c, 30%);
+		&.selected {
+			background-color: transparent;
+			border-color: @c;
+			.circle {
+				background-color: @c;
+			}
+		}
+		&:hover {
+			border-color: @c;
+			background-color: fade(@c, 30%);
+		}
+		.circle {
+			background-color: fade(@c, 30%);
 		}
 	}
 
