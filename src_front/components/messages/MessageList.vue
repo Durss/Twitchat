@@ -718,6 +718,14 @@ export default class MessageList extends Vue {
 				break;
 			}
 		}
+		
+		for (let i = this.lockedLiveMessages.length - 1; i >= 0; i--) {
+			const m = this.lockedLiveMessages[i];
+			if (m.id == data.message.id) {
+				this.lockedLiveMessages.splice(i,1);
+				break;
+			}
+		}
 		this.fullListRefresh(false);
 
 		// //remove from displayed messages
