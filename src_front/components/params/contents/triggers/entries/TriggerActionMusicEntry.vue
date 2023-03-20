@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerActionHelpers, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -71,9 +71,9 @@ export default class TriggerActionMusicEntry extends Vue {
 		this.confirmSongRequest_conf.labelKey	= "triggers.actions.music.param_confirmSongRequest";
 		this.playlist_conf.labelKey				= "triggers.actions.music.param_playlist";
 
-		this.track_conf.placeholderList = TriggerActionHelpers(this.event.value);
-		this.confirmSongRequest_conf.placeholderList = TriggerActionHelpers(this.event.value);
-		this.playlist_conf.placeholderList = TriggerActionHelpers(this.event.value);
+		this.track_conf.placeholderList = TriggerActionPlaceholders(this.event.value);
+		this.confirmSongRequest_conf.placeholderList = TriggerActionPlaceholders(this.event.value);
+		this.playlist_conf.placeholderList = TriggerActionPlaceholders(this.event.value);
 
 	}
 

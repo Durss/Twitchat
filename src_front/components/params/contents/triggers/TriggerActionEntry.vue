@@ -144,7 +144,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerActionHelpers, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerActionPlaceholders, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -230,7 +230,7 @@ export default class TriggerActionEntry extends Vue {
 	/**
 	 * Checks if one of the placeholders has a user info in it
 	 */
-	public get hasUserInfo():boolean { return TriggerActionHelpers(this.event.value).findIndex(v=> v.isUserID) > -1; }
+	public get hasUserInfo():boolean { return TriggerActionPlaceholders(this.event.value).findIndex(v=> v.isUserID) > -1; }
 
 	public get errorTitle():string {
 		let res = "ERROR - MISSING OBS SOURCE";

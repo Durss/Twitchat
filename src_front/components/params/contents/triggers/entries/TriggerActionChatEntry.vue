@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerActionHelpers, TriggerTypes, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerActionPlaceholders, TriggerTypes, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
@@ -80,7 +80,7 @@ export default class TriggerActionChatEntry extends Vue {
 
 	public beforeMount():void {
 		this.message_conf.labelKey = "triggers.actions.chat.param_message";
-		this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);
+		this.message_conf.placeholderList = TriggerActionPlaceholders(this.event.value);
 	}
 
 }

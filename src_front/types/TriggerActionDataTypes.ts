@@ -311,7 +311,7 @@ export const TriggerTypes = {
 } as const;
 export type TriggerTypesValue = typeof TriggerTypes[keyof typeof TriggerTypes];
 
-export interface ITriggerActionHelper {
+export interface ITriggerActionPlaceholder {
 	tag:string;
 	descKey:string;
 	pointer:string;
@@ -322,13 +322,13 @@ export interface ITriggerActionHelper {
 export const USER_PLACEHOLDER:string = "USER";
 export const USER_ID_PLACEHOLDER:string = "USER_ID";
 
-let helpersCache:{[key:string]:ITriggerActionHelper[]};
-export function TriggerActionHelpers(key:string):ITriggerActionHelper[] {
+let helpersCache:{[key:string]:ITriggerActionPlaceholder[]};
+export function TriggerActionPlaceholders(key:string):ITriggerActionPlaceholder[] {
 	if(helpersCache) {
 		return helpersCache[key] ?? [];
 	}
 
-	const map:{[key:string]:ITriggerActionHelper[]} = {}
+	const map:{[key:string]:ITriggerActionPlaceholder[]} = {}
 	map[TriggerTypes.ANY_MESSAGE] = 
 	map[TriggerTypes.FIRST_TODAY] = 
 	map[TriggerTypes.FIRST_ALL_TIME] = 

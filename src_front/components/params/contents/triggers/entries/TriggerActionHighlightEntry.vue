@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TriggerActionHelpers, type TriggerActionHighlightData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerActionPlaceholders, type TriggerActionHighlightData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 
@@ -40,7 +40,7 @@ export default class TriggerActionHighlightEntry extends Vue {
 			{labelKey:"global.hide", value:false},
 			{labelKey:"global.show", value:true},
 		];
-		this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);
+		this.message_conf.placeholderList = TriggerActionPlaceholders(this.event.value);
 		this.show_conf.labelKey		= "triggers.actions.highlight.param_visibility";
 		this.message_conf.labelKey	= "triggers.actions.highlight.param_message";
 		this.show_conf.value		= this.showHideValues[1].value;

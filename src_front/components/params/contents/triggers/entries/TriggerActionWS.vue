@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerActionHelpers, type ITriggerActionHelper, type TriggerActionWSData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerActionPlaceholders, type ITriggerActionPlaceholder, type TriggerActionWSData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
@@ -35,7 +35,7 @@ export default class TriggerActionWS extends Vue {
 
 	public beforeMount():void {
 
-		const placeholders = TriggerActionHelpers(this.event.value);
+		const placeholders = TriggerActionPlaceholders(this.event.value);
 		for (let i = 0; i < placeholders.length; i++) {
 			const p = placeholders[i];
 			this.param_options.push({
@@ -55,7 +55,7 @@ export default class TriggerActionWS extends Vue {
 		for (let i = 0; i < this.param_options.length; i++) {
 			const opt = this.param_options[i];
 			if(opt.value === true) {
-				const data = opt.storage as ITriggerActionHelper
+				const data = opt.storage as ITriggerActionPlaceholder
 				params.push(data.tag);
 			}
 		}

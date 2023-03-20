@@ -3,7 +3,7 @@ import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
-import { TriggerActionHelpers, TriggerMusicTypes, TriggerTypes, type TriggerLog, type TriggerData, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
+import { TriggerActionPlaceholders, TriggerMusicTypes, TriggerTypes, type TriggerLog, type TriggerData, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
 import Config from "../Config";
 import DeezerHelper from "../music/DeezerHelper";
 import type { SearchTrackItem } from "../music/SpotifyDataTypes";
@@ -870,7 +870,7 @@ export default class TriggerActionHandler {
 											track = await SpotifyHelper.instance.getTrackByID(id);
 											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)});
 										}else{
-											//No URL given, send earch to API
+											//No URL given, search with API
 											track = await SpotifyHelper.instance.searchTrack(m);
 											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track success: "+(track != null)});
 										}
@@ -1038,7 +1038,7 @@ export default class TriggerActionHandler {
 			// console.log(subEvent);
 
 			eventType = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
-			const helpers = TriggerActionHelpers(eventType);
+			const helpers = TriggerActionPlaceholders(eventType);
 			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
 			if(!helpers) return res;
@@ -1136,7 +1136,7 @@ export default class TriggerActionHandler {
 	private extractUser(eventType:string, message:TwitchatDataTypes.ChatMessageTypes):TwitchatDataTypes.TwitchatUser|undefined {
 		let user:TwitchatDataTypes.TwitchatUser | undefined = undefined;
 		const key = eventType.replace(/_.*$/gi, "");//Remove suffix to get helper for the global type
-		const helpers = TriggerActionHelpers(key);
+		const helpers = TriggerActionPlaceholders(key);
 		const userIdHelper = helpers.find(v => v.isUserID === true);
 		if(userIdHelper) {
 			const chunks:string[] = userIdHelper.pointer.split(".");

@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import type { ITriggerActionHelper } from '@/types/TriggerActionDataTypes';
+import type { ITriggerActionPlaceholder } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -77,7 +77,7 @@ export default class StreamInfoSubForm extends Vue {
 			type: Array,
 			default:[],
 		})
-	public placeholderList!:ITriggerActionHelper[];
+	public placeholderList!:ITriggerActionPlaceholder[];
 
 	public param_title:TwitchatDataTypes.ParameterData	= {value:"", type:"string", maxLength:140};
 	public param_tags:TwitchatDataTypes.ParameterData	= {value:[], type:"editablelist"};
