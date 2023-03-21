@@ -86,7 +86,6 @@ export default class SpotifyHelper {
 		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
 		const json = await res.json();
 		const scopes = Config.instance.SPOTIFY_SCOPES.split(" ").join("%20");
-		console.log(scopes);
 
 		let url = "https://accounts.spotify.com/authorize";
 		url += "?client_id="+this.clientID;
@@ -518,8 +517,6 @@ export default class SpotifyHelper {
 			"Authorization":"Bearer "+this._token.access_token,
 		}
 		Config.instance.SPOTIFY_CONNECTED = this._token? this._token.expires_at > Date.now() : false;
-		console.log("CONNECTED ?", Config.instance.SPOTIFY_CONNECTED);
-		console.log(this._token.expires_at);
 		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {
 			this.refreshToken();
 		}else{
