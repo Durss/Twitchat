@@ -106,7 +106,8 @@
 					:paramData="param_showPanelsHere"
 					clearToggle
 					@change="saveData()"
-					v-model="config.showPanelsHere" />
+					v-model="config.showPanelsHere"
+					v-if="$store('params').chatColumnsConfig.length > 1" />
 			</div>
 
 			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">

@@ -9,11 +9,6 @@
 
 		<div class="holder" v-if="counters.length > 0">
 			<div>{{ $t("overlay.counters.head") }}</div>
-			<div class="row counter" v-for="c in counters" :key="c.id">
-				<label :for="'input_'+c.id">{{ c.name }}</label>
-				<input type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)">
-				<OverlayCounter class="counterExample" embed :staticCounterData="c" />
-			</div>
 			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.counters.css") }}</div>
 				<div class="head">{{$t('overlay.counters.css_example.simple')}}</div>
@@ -47,6 +42,10 @@
 					</li>
 				</ul>
 			</ToggleBlock>
+			<div class="row counter" v-for="c in counters" :key="c.id">
+				<input type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)">
+				<OverlayCounter class="counterExample" embed :staticCounterData="c" />
+			</div>
 		</div>
 
 	</ToggleBlock>
@@ -110,6 +109,8 @@ export default class OverlayParamsCounter extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap:1em;
+		max-height: 400px;
+		overflow-y: auto;
 		.counter {
 			display: flex;
 			flex-direction: column;
