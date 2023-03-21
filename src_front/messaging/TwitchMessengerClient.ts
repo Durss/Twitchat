@@ -463,7 +463,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
 		this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade.bind(this));
 		this._client.on("ban", this.onBanUser.bind(this));
-		this._client.on("timeout", this.onTimeoutUser.bind(this));
+		this._client.on("timeout", this.onBanUser.bind(this));
 		this._client.on("raided", this.raided.bind(this));
 		this._client.on("disconnected", this.disconnected.bind(this));
 		this._client.on("clearchat", this.clearchat.bind(this));
@@ -873,16 +873,40 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("DELETE_MESSAGE", msgID));
 	}
 
-	private onBanUser(channel: string, username: string, reason: string):void {
+	private onBanUser(channel: string, username: string, reason: string, duration?: number|{"room-id":string,"target-user-id":string,"tmi-sent-id":string}):void {
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserStateFromLogin(username, channel_id).user;
-		StoreProxy.users.flagBanned("twitch", channel_id, user.id);
-	}
-
-	private onTimeoutUser(channel: string, username: string, reason: string, duration: number):void {
-		const channel_id = this.getChannelID(channel);
-		const user = this.getUserStateFromLogin(username, channel_id).user;
-		StoreProxy.users.flagBanned("twitch", channel_id, user.id, duration);
+		//Wait 1s before doing anything.
+		//This is a work around an Eventsub limitation.
+		//Eventsub does not allow to be notified for banned users of another channel
+		//as a moderator. The only way to be notified is via IRC, right here.
+		//Eventsub has more details so I kept it as the main source for this info,
+		//but I use this IRC event as a fallback.
+		//We wait 1 second to give it time to Eventsub to receive the event.
+		//If Eventsub sent us the info the user will already be marked as banned, we
+		//can then ignore the event. Otherwise, we send the notificaiton.
+		setTimeout(()=> {
+			//Test
+			const isTO = !isNaN(duration as number);
+			if(!user.channelInfo[channel_id].is_banned
+			|| user.channelInfo[channel_id].banEndDate && !isTO
+			|| !user.channelInfo[channel_id].banEndDate && isTO) {
+				
+				const m:TwitchatDataTypes.MessageBanData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					channel_id,
+					type:TwitchatDataTypes.TwitchatMessageType.BAN,
+					user,
+				};
+				
+				if(isTO) m.duration_s = duration as number;
+				
+				StoreProxy.chat.addMessage(m);
+				StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
+			}
+		},1000)
 	}
 
 	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {

@@ -78,7 +78,7 @@
 		"moderation_action": {
 			"timeout": "{USER} banni·e pour {DURATION}s",
 			"timeout_by": "{MODERATOR} a banni {USER} pour {DURATION}s",
-			"ban": "{USER} a été banni·e",
+			"banned": "{USER} a été banni·e",
 			"banned_by": "{MODERATOR} a banni {USER}",
 			"unbanned": "Le bannissmenet de {USER} a été levé",
 			"unbanned_by": "{MODERATOR} a levé le bannissement de {USER}",

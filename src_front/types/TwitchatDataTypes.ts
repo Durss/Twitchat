@@ -2192,7 +2192,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that made the moderation action
 		 */
-		moderator:TwitchatUser;
+		moderator?:TwitchatUser;
 		/**
 		 * Banned user
 		 */
