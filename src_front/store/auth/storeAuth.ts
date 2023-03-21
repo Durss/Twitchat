@@ -285,7 +285,7 @@ export const storeAuth = defineStore('auth', {
 				console.log(error);
 				this.authenticated = false;
 				DataStore.remove("oAuthToken");
-				StoreProxy.main.alertData = "Authentication failed";
+				StoreProxy.main.alert("Authentication failed");
 				if(cb) cb(false);
 				router.push({name: 'login'});//Redirect to login if connection failed
 			}

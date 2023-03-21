@@ -105,7 +105,7 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, c.id);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alertData = this.$t('error.prediction_outcome');
+				this.$store("main").alert(this.$t('error.prediction_outcome'));
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -121,7 +121,7 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alertData = this.$t('error.prediction_delete');
+				this.$store("main").alert(this.$t('error.prediction_delete'));
 			}
 			this.loading = false;
 		}).catch(()=> {

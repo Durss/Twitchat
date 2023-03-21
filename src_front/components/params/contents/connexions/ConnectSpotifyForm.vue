@@ -119,7 +119,7 @@ export default class ConnectSpotifyForm extends Vue {
 	}
 
 	public disconnect():void {
-		this.$store("music").setSpotifyToken(null);
+		SpotifyHelper.instance.disconnect()
 	}
 
 }

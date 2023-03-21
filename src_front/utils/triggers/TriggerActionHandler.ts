@@ -734,7 +734,9 @@ export default class TriggerActionHandler {
 							const options = {
 								method:step.method,
 							};
-							const url = new URL(step.url);
+							let uri = step.url;
+							if(!/https?:\/\//gi.test(uri)) uri = "https://"+uri;
+							const url = new URL(uri);
 							for (let i = 0; i < step.queryParams.length; i++) {
 								const tag = step.queryParams[i];
 								const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, triggerKey, message, "{"+tag+"}", subEvent);
@@ -1004,6 +1006,7 @@ export default class TriggerActionHandler {
 								}
 							}catch(error) {
 								console.error(error);
+								logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Exception: "+ error});
 							}
 						}
 							
@@ -1035,6 +1038,8 @@ export default class TriggerActionHandler {
 	private async parseText(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder[], eventType:string, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
 		if(!res) return "";
+		let subEvent_regSafe = "";
+		if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
 		try {
 			// console.log("===== PARSE TEXT =====");
@@ -1103,9 +1108,8 @@ export default class TriggerActionHandler {
 				// console.log("Pointer:", h.tag, "=>", h.pointer, "=> value:", value);
 
 				//Remove command from final text
-				if(typeof value == "string" && subEvent) {
-					subEvent = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-					value = value.replace(new RegExp(subEvent, "i"), "").trim();
+				if(typeof value == "string" && subEvent_regSafe) {
+					value = value.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
 				}
 			
 				if(typeof value == "string" && removeFolderNavigation) {

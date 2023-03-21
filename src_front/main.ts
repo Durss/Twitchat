@@ -73,7 +73,7 @@ const i18n = createI18n({
 	}catch(error) {
 		console.log(error);
 		setTimeout(() => {
-			storeMain().alertData = "An error occured when loading labels :(";
+			storeMain().alert( "An error occured when loading labels :(" );
 			storeMain().initComplete = true;
 		}, 1000);
 	}

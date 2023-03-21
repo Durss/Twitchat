@@ -646,7 +646,7 @@ export const storeUsers = defineStore('users', {
 						await MessengerProxy.instance.sendMessage(message);
 					}else{
 						//Warn user doesn't exist
-						StoreProxy.main.alertData = StoreProxy.i18n.t("error.user_param_not_found", {USER:user});
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:user}));
 					}
 				}
 			}

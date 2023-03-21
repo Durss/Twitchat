@@ -10,8 +10,7 @@ import type { IMusicActions, IMusicGetters, IMusicState } from '../StoreProxy';
 export const storeMusic = defineStore('music', {
 	state: () => ({
 		spotifyAuthParams: null,
-		spotifyAuthToken: null,
-
+		
 		deezerConnected: false,
 		
 		musicPlayerParams: {
@@ -37,30 +36,7 @@ export const storeMusic = defineStore('music', {
 
 
 	actions: {
-		setSpotifyCredentials(value:{client:string, secret:string}) {
-			DataStore.set(DataStore.SPOTIFY_APP_PARAMS, value);
-			SpotifyHelper.instance.setAppParams(value.client, value.secret)
-		},
-
 		setSpotifyAuthResult(value:SpotifyAuthResult|null) { this.spotifyAuthParams = value; },
-		
-		setSpotifyToken(value:SpotifyAuthToken|null) {
-			if(value && !value.expires_at) {
-				value.expires_at = Date.now() + value.expires_in * 1000;
-			}
-			if(!value || !value.refresh_token) {
-				value = null;
-				DataStore.remove("spotifyAuthToken");
-			}else{
-				DataStore.set(DataStore.SPOTIFY_AUTH_TOKEN, value);
-			}
-			this.spotifyAuthToken = value;
-			SpotifyHelper.instance.token = value;
-			Config.instance.SPOTIFY_CONNECTED = value? value.expires_at > Date.now() : false;
-			if(value) {
-				SpotifyHelper.instance.getCurrentTrack();
-			}
-		},
 
 		setDeezerConnected(value:boolean) {
 			this.deezerConnected = value;

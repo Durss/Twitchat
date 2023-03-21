@@ -257,7 +257,6 @@ export interface IMusicGetters {
 export interface IMusicActions {
 	setSpotifyCredentials(value:{client:string, secret:string}):void;
 	setSpotifyAuthResult(value:SpotifyAuthResult|null):void;
-	setSpotifyToken(value:SpotifyAuthToken|null):void;
 	setDeezerConnected(value:boolean):void;
 }
 

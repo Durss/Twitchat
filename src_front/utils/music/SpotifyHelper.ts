@@ -1,5 +1,5 @@
-import { EventDispatcher } from "@/events/EventDispatcher";
 import TwitchatEvent from "@/events/TwitchatEvent";
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
@@ -8,12 +8,11 @@ import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
-import SpotifyHelperEvent from "./SpotifyHelperEvent";
 
 /**
 * Created : 23/05/2022 
 */
-export default class SpotifyHelper extends EventDispatcher {
+export default class SpotifyHelper {
 	
 	public currentTrack!:TwitchatDataTypes.MusicTrackData;
 	
@@ -29,7 +28,7 @@ export default class SpotifyHelper extends EventDispatcher {
 	private _playlistsCache:SearchPlaylistItem[] = [];
 
 	constructor() {
-		super();
+		this.initialize();
 	}
 	
 	/********************
@@ -38,28 +37,8 @@ export default class SpotifyHelper extends EventDispatcher {
 	static get instance():SpotifyHelper {
 		if(!SpotifyHelper._instance) {
 			SpotifyHelper._instance = reactive(new SpotifyHelper()) as SpotifyHelper;
-			SpotifyHelper._instance.initialize();
 		}
 		return SpotifyHelper._instance;
-	}
-	
-	public set token(value:SpotifyAuthToken | null) {
-		if(value == null) {
-			clearTimeout(this._refreshTimeout);
-			clearTimeout(this._getTrackTimeout);
-			return;
-		}
-		this._token = value;
-		this._headers = {
-			"Accept":"application/json",
-			"Content-Type":"application/json",
-			"Authorization":"Bearer "+this._token.access_token,
-		}
-		// if(Date.now() > value.expires_at - 10 * 60 * 1000) {
-		// 	this.refreshToken();
-		// }else{
-		// 	this.getCurrentTrack();
-		// }
 	}
 	
 	
@@ -67,10 +46,36 @@ export default class SpotifyHelper extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	public connect():void {
+		const appParams	= DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
+		const authToken	= DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
+		if(authToken && appParams) {
+			let credentials		= JSON.parse(appParams);
+			this._clientID		= credentials.client;
+			this._clientSecret	= credentials.secret;
+			this._token			= JSON.parse(authToken);
+			this.refreshToken();
+		}
+	}
+	
+	public disconnect():void {
+		clearTimeout(this._refreshTimeout);
+		clearTimeout(this._getTrackTimeout);
+		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);
+	}
+	
+	/**
+	 * Sets spotify App params
+	 * 
+	 * @param clientID 
+	 * @param clientSecret 
+	 */
 	public setAppParams(clientID:string, clientSecret:string):void {
 		this._clientID = clientID;
 		this._clientSecret = clientSecret;
+		DataStore.set(DataStore.SPOTIFY_APP_PARAMS, {client:clientID, secret:clientSecret});
 	}
+
 	/**
 	 * Starts the aut flow
 	 */
@@ -113,9 +118,7 @@ export default class SpotifyHelper extends EventDispatcher {
 		};
 		const res = await fetch(url, {method:"GET", headers});
 		json = await res.json();
-		if(json.access_token) {
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));
-		}else{
+		if(!json.access_token) {
 			throw(json);
 		}
 	}
@@ -143,21 +146,7 @@ export default class SpotifyHelper extends EventDispatcher {
 			try {
 				json = await res.json();
 				if(json.access_token) {
-					json.refresh_token = this._token.refresh_token;//Keep refresh token
-			
-					//Refresh token 10min before it actually expires
-					const delay = Math.max(1000, (json.expires_in * 1000) - 10 * 60 * 1000);
-					console.log("[SPOTIFY] Refresh token in ", delay);
-					if(!isNaN(delay)) {
-						this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
-					}
-					this._headers = {
-						"Accept":"application/json",
-						"Content-Type":"application/json",
-						"Authorization":"Bearer "+this._token.access_token,
-					}
-					
-					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));
+					this.setToken(json);
 					refreshSuccess = true;
 				}
 			}catch(error) {
@@ -166,14 +155,16 @@ export default class SpotifyHelper extends EventDispatcher {
 			}
 		}
 		if(!refreshSuccess){
+			Config.instance.SPOTIFY_CONNECTED = false;
+
 			//Refresh failed, try again
 			if(attempt < 5) {
 				this._refreshTimeout = setTimeout(()=>{
 					this.refreshToken(++attempt);
 				}, 5000);
 			}else{
-				//Try too many times, give up and show alert
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.token_refresh")));
+				//Tried too many times, give up and show alert
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.spotify.token_refresh"));
 			}
 		}
 	}
@@ -281,17 +272,17 @@ export default class SpotifyHelper extends EventDispatcher {
 			else return false;
 		}else
 		if(res.status == 409) {
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
+			StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
 				if(json.error.message) {
-					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
 				}else {
 					throw(new Error(""))
 				}
 			}catch(error) {
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status));
+				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status );
 			}
 		}
 		return false;
@@ -330,16 +321,24 @@ export default class SpotifyHelper extends EventDispatcher {
 		
 		let json:SpotifyTrack|null = null;
 		try {
-			await res.json();
+			json = await res.json();
 		}catch(error) {
 			return;
 		}
-		if(json!.currently_playing_type == "episode") {
+		if(!json) {
+			this._getTrackTimeout = setTimeout(()=> {
+				this.getCurrentTrack();
+			}, Math.min(5000, 1000));
+		}
+		
+		json = json!;
+
+		if(json.currently_playing_type == "episode") {
 			const episode = await this.getEpisodeInfos();
 			if(episode) json = episode;
 		}
 
-		if(json?.item) {
+		if(json.item) {
 			this.currentTrack = {
 				title:json.item.name,
 				artist:json.item.show? json.item.show.name : json.item.artists[0].name,
@@ -499,6 +498,34 @@ export default class SpotifyHelper extends EventDispatcher {
 	private initialize():void {
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>this.getCurrentTrack());
 	}
+	
+	/**
+	 * Set access token
+	 * @param value 
+	 */
+	private setToken(value:SpotifyAuthToken | null) {
+		if(value == null) {
+			clearTimeout(this._refreshTimeout);
+			clearTimeout(this._getTrackTimeout);
+			Config.instance.SPOTIFY_CONNECTED = false;
+			return;
+		}
+		this._token = value;
+		this._token.expires_at =  Date.now() + this._token.expires_in * 1000;
+		this._headers = {
+			"Accept":"application/json",
+			"Content-Type":"application/json",
+			"Authorization":"Bearer "+this._token.access_token,
+		}
+		Config.instance.SPOTIFY_CONNECTED = this._token? this._token.expires_at > Date.now() : false;
+		console.log("CONNECTED ?", Config.instance.SPOTIFY_CONNECTED);
+		console.log(this._token.expires_at);
+		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {
+			this.refreshToken();
+		}else{
+			this.getCurrentTrack();
+		}
+	}
 
 	/**
 	 * Executes a simplea ction that requires no param
@@ -523,24 +550,24 @@ export default class SpotifyHelper extends EventDispatcher {
 			try {
 				const json = await res.json();
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
-					StoreProxy.main.alertData = StoreProxy.i18n.t("music.spotify_play");
+					StoreProxy.main.alert( StoreProxy.i18n.t("music.spotify_play") );
 				}
 			}catch(error){
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status));
+				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
 		}else
 		if(res.status == 409) {
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
+			StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
 				if(json.error.message) {
-					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
 				}else {
 					throw(new Error(""))
 				}
 			}catch(error) {
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status));
+				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
 		}
 		return false;

@@ -512,7 +512,7 @@ export default class Chat extends Vue {
 				try {
 					await TwitchUtils.endPoll(poll.id, poll.channel_id);
 				}catch(error) {
-					this.$store("main").alertData = this.$t("error.twitch_poll_delete");
+					this.$store("main").alert(this.$t("error.twitch_poll_delete"));
 				}
 				break;
 			}
@@ -528,7 +528,7 @@ export default class Chat extends Vue {
 				try {
 					await TwitchUtils.endPrediction(prediction.channel_id, prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {
-					this.$store("main").alertData = this.$t("error.twitch_prediction_delete")
+					this.$store("main").alert(this.$t("error.twitch_prediction_delete"))
 				}
 				break;
 			}

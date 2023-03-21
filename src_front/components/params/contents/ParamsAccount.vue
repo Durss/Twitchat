@@ -200,7 +200,7 @@ export default class ParamsAccount extends Vue {
 			const json = await res.json();
 			this.CSRFToken = json.token;
 		}catch(e) {
-			this.$store("main").alertData = this.$t("error.csrf_failed");
+			this.$store("main").alert(this.$t("error.csrf_failed"));
 		}
 		this.generatingCSRF = false;
 	}

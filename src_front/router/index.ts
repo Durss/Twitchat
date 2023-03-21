@@ -111,7 +111,7 @@ const routes: Array<RouteRecordRaw> = [
 				}
 				sMusic.setSpotifyAuthResult(params);
 			}else{
-				sMain.alertData = StoreProxy.i18n.t("music.spotify_refused");
+				sMain.alert( StoreProxy.i18n.t("music.spotify_refused") );
 			}
 			return {name:"chat", query:{}};
 		},

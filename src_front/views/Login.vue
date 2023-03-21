@@ -138,7 +138,7 @@ export default class Login extends Vue {
 				const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+csrfToken, options);
 				const csrf = await csrfRes.json();
 				if(!csrf.success) {
-					this.$store("main").alertData = csrf.message;
+					this.$store("main").alert(csrf.message);
 					this.authenticating = false;
 				}else{
 					this.$store("auth").twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
@@ -155,14 +155,14 @@ export default class Login extends Vue {
 							if(betaRefused === true) {
 								this.closedBeta = true;
 							}else{
-								this.$store("main").alertData = this.$t("error.invalid_credentials");
+								this.$store("main").alert(this.$t("error.invalid_credentials"));
 							}
 							this.authenticating = false;
 						}
 					});
 				}
 			}else{
-				this.$store("main").alertData = this.$t("error.authorization_refused");
+				this.$store("main").alert(this.$t("error.authorization_refused"));
 				this.authenticating = false;
 			}
 		}
@@ -190,7 +190,7 @@ export default class Login extends Vue {
 			const json = await res.json();
 			this.CSRFToken = json.token;
 		}catch(e) {
-			this.$store("main").alertData = this.$t("error.csrf_failed");
+			this.$store("main").alert(this.$t("error.csrf_failed"));
 		}
 		this.generatingCSRF = false;
 	}

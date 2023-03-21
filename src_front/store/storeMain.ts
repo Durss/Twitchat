@@ -7,7 +7,6 @@ import Config, { type ServerConfig } from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import SpotifyHelperEvent from '@/utils/music/SpotifyHelperEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
@@ -102,7 +101,7 @@ export const storeMain = defineStore("main", {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
 				jsonConfigs = await res.json();
 			}catch(error) {
-				this.alertData = "Unable to contact server :(";
+				this.alert("Unable to contact server :(");
 				this.initComplete = true;
 				return;
 			}
@@ -115,7 +114,7 @@ export const storeMain = defineStore("main", {
 				for (const key in values) {
 					const p = values[key] as TwitchatDataTypes.ParameterData;
 					if(uniqueIdsCheck[p.id as number] === true) {
-						this.alertData = "Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"";
+						this.alert("Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"");
 						break;
 					}
 					uniqueIdsCheck[p.id as number] = true;
@@ -128,7 +127,7 @@ export const storeMain = defineStore("main", {
 				//@ts-ignore
 				const v = TriggerTypes[key];
 				if(uniqueIdsCheck[v] === true) {
-					this.alertData = "Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"";
+					this.alert("Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"");
 					break;
 				}
 				uniqueIdsCheck[v] = true;
@@ -137,23 +136,18 @@ export const storeMain = defineStore("main", {
 			//Authenticate user
 			const token = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 			if(token && authenticate) {
-				const cypherKey = DataStore.get(DataStore.CYPHER_KEY)
+				SpotifyHelper.instance.connect();
+				const cypherKey = DataStore.get(DataStore.CYPHER_KEY);
 				if(cypherKey) {
 					this.cypherKey = cypherKey;
 					ChatCypherPlugin.instance.initialize(cypherKey);
 				}
-				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
-					sMusic.setSpotifyToken(e.token!);
-				});
-				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.ERROR, (e:SpotifyHelperEvent)=>{
-					this.alertData = e.error as string;
-				});
 				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
 					sMusic.setDeezerConnected(true);
 				});
 				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
 					sMusic.setDeezerConnected(false);
-					this.alertData = StoreProxy.i18n.t("error.deezer.auth_failed");//"Deezer authentication failed";
+					this.alert(StoreProxy.i18n.t("error.deezer.auth_failed"));//"Deezer authentication failed";
 				});
 				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
 					//Execute trigger
@@ -407,18 +401,6 @@ export const storeMain = defineStore("main", {
 				//Merge remote and local to avoid losing potential new
 				//default values on local data
 				Utils.mergeRemoteObject(JSON.parse(botMessages), (sChat.botMessages as unknown) as JsonObject, false);
-			}
-
-			//Init spotify connection
-			const spotifyAuthToken = DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
-			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
-				sMusic.setSpotifyToken(JSON.parse(spotifyAuthToken));
-			}
-
-			//Init spotify credentials
-			const spotifyAppParams = DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
-			if(spotifyAuthToken && spotifyAppParams) {
-				sMusic.setSpotifyCredentials(JSON.parse(spotifyAppParams));
 			}
 
 			//Init voicemod
