@@ -50,17 +50,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		StoreProxy.users.initBlockedUsers();
 
 		const sParams = StoreProxy.params;
-		if(sParams.appearance.bttvEmotes.value === true) {
+		if(sParams.appearance.bttvEmotes.value === true && sParams.appearance.showEmotes.value === true) {
 			BTTVUtils.instance.enable();
 		}else{
 			BTTVUtils.instance.disable();
 		}
-		if(sParams.appearance.ffzEmotes.value === true) {
+		if(sParams.appearance.ffzEmotes.value === true && sParams.appearance.showEmotes.value === true) {
 			FFZUtils.instance.enable();
 		}else{
 			FFZUtils.instance.disable();
 		}
-		if(sParams.appearance.sevenTVEmotes.value === true) {
+		if(sParams.appearance.sevenTVEmotes.value === true && sParams.appearance.showEmotes.value === true) {
 			SevenTVUtils.instance.enable();
 		}else{
 			SevenTVUtils.instance.disable();

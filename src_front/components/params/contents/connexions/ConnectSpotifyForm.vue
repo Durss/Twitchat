@@ -74,21 +74,16 @@ export default class ConnectSpotifyForm extends Vue {
 	
 	public authenticate():void {
 		this.loading = true;
-		this.$store("music").setSpotifyCredentials({
-			client: (this.paramClient.value as string).trim(),
-			secret: (this.paramSecret.value as string).trim(),
-		});
+		SpotifyHelper.instance.setCredentials(
+			(this.paramClient.value as string).trim(),
+			(this.paramSecret.value as string).trim()
+		)
 		SpotifyHelper.instance.startAuthFlow();
 	}
 
 	public async mounted():Promise<void> {
-		const spotifyAppParams = DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
-		if(spotifyAppParams) {
-			const p:{client:string, secret:string} = JSON.parse(spotifyAppParams);
-			SpotifyHelper.instance.setAppParams(p.client, p.secret);
-			this.paramClient.value = p.client;
-			this.paramSecret.value = p.secret;
-		}
+		this.paramClient.value = SpotifyHelper.instance.clientID;
+		this.paramSecret.value = SpotifyHelper.instance.clientSecret;
 
 		const spotifyAuthParams = this.$store("music").spotifyAuthParams;
 		if(spotifyAuthParams) {
@@ -109,6 +104,7 @@ export default class ConnectSpotifyForm extends Vue {
 				}catch(e:unknown) {
 					this.error = (e as {error:string, error_description:string}).error_description;
 					this.showSuccess = false;
+					console.log(e);
 				}
 			}
 

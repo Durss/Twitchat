@@ -206,21 +206,21 @@ export const storeParams = defineStore('params', {
 					const v = this[c][key as TwitchatDataTypes.ParameterCategory].value;
 					DataStore.set("p:"+key, v);
 					if(key=="bttvEmotes") {
-						if(v === true) {
+						if(v === true && this.appearance.showEmotes.value === true) {
 							BTTVUtils.instance.enable();
 						}else{
 							BTTVUtils.instance.disable();
 						}
 					}
 					if(key=="ffzEmotes") {
-						if(v === true) {
+						if(v === true && this.appearance.showEmotes.value === true) {
 							FFZUtils.instance.enable();
 						}else{
 							FFZUtils.instance.disable();
 						}
 					}
 					if(key=="sevenTVEmotes") {
-						if(v === true) {
+						if(v === true && this.appearance.showEmotes.value === true) {
 							SevenTVUtils.instance.enable();
 						}else{
 							SevenTVUtils.instance.disable();

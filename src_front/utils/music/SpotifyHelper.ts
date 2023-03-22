@@ -1,4 +1,5 @@
 import TwitchatEvent from "@/events/TwitchatEvent";
+import router from "@/router";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -40,6 +41,18 @@ export default class SpotifyHelper {
 		}
 		return SpotifyHelper._instance;
 	}
+
+
+	public get clientSecret():string { return this._clientSecret; }
+
+	public get clientID():string {
+		return this._clientID;
+		// if(this._clientID) {
+		// 	return this._clientID;
+		// }else{
+		// 	return Config.instance.SPOTIFY_CLIENT_ID;
+		// }
+	}
 	
 	
 	
@@ -49,53 +62,62 @@ export default class SpotifyHelper {
 	public connect():void {
 		const appParams	= DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
 		const authToken	= DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
-		if(authToken && appParams) {
+		
+		if(appParams) {
 			let credentials		= JSON.parse(appParams);
 			this._clientID		= credentials.client;
 			this._clientSecret	= credentials.secret;
+		}
+		if(authToken) {
 			this._token			= JSON.parse(authToken);
-			this.refreshToken();
+			if(appParams) this.refreshToken();
 		}
 	}
 	
 	public disconnect():void {
 		clearTimeout(this._refreshTimeout);
 		clearTimeout(this._getTrackTimeout);
+		Config.instance.SPOTIFY_CONNECTED = false;
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);
 	}
+
 	
 	/**
-	 * Sets spotify App params
+	 * Sets spotify app credentials
 	 * 
 	 * @param clientID 
 	 * @param clientSecret 
 	 */
-	public setAppParams(clientID:string, clientSecret:string):void {
-		this._clientID = clientID;
-		this._clientSecret = clientSecret;
-		DataStore.set(DataStore.SPOTIFY_APP_PARAMS, {client:clientID, secret:clientSecret});
+	public setCredentials(clientId:string, clientSecret:string):void {
+		this._clientID		= clientId;
+		this._clientSecret	= clientSecret;
+		DataStore.set(DataStore.SPOTIFY_APP_PARAMS, {
+			client:clientId,
+			secret:clientSecret,
+		})
 	}
 
 	/**
 	 * Starts the aut flow
 	 */
 	public async startAuthFlow():Promise<void> {
+		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);//Avoid auto reconnect attempt on redirect
 		const headers = {
 			'App-Version': import.meta.env.PACKAGE_VERSION,
 		};
 		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
 		const json = await res.json();
-		const scopes = Config.instance.SPOTIFY_SCOPES.split(" ").join("%20");
 
-		let url = "https://accounts.spotify.com/authorize";
-		url += "?client_id="+this.clientID;
-		url += "&response_type=code";
-		url += "&redirect_uri="+encodeURIComponent( document.location.origin+"/spotify/auth" );
-		url += "&scope=+"+scopes;
-		url += "&state="+json.token;
-		url += "&show_dialog=true";
+		const redirectURI = document.location.origin + router.resolve({name:"spotify/auth"}).href;
+		let url = new URL("https://accounts.spotify.com/authorize");
+		url.searchParams.append("client_id", this._clientID);
+		url.searchParams.append("response_type", "code");
+		url.searchParams.append("redirect_uri", redirectURI);
+		url.searchParams.append("scope", Config.instance.SPOTIFY_SCOPES);
+		url.searchParams.append("state", json.token);
+		url.searchParams.append("show_dialog", "true");
 
-		document.location.href = url;
+		document.location.href = url.href;
 	}
 
 	/**
@@ -106,20 +128,37 @@ export default class SpotifyHelper {
 	 */
 	public async authenticate(authCode:string):Promise<void> {
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		let url = Config.instance.API_PATH+"/spotify/auth";
-		url += "?code="+encodeURIComponent(authCode);
-		if(this.clientID && this._clientSecret) {
-			url += "&clientId="+encodeURIComponent(this.clientID);
-			url += "&clientSecret="+encodeURIComponent(this._clientSecret);
+
+		const redirectURI = document.location.origin + router.resolve({name:"spotify/auth"}).href;
+		const options = {
+			method:"POST",
+			headers: {
+				"Authorization": "Basic "+btoa(this.clientID+":"+this.clientSecret),
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: new URLSearchParams({
+				'grant_type': 'authorization_code',
+				'code': authCode,
+				'redirect_uri': redirectURI,
+			})
 		}
-		const headers = {
-			'App-Version': import.meta.env.PACKAGE_VERSION,
-		};
-		const res = await fetch(url, {method:"GET", headers});
-		json = await res.json();
-		if(!json.access_token) {
-			throw(json);
+		
+		try {
+			const res = await fetch("https://accounts.spotify.com/api/token", options);
+			if(res.status==200) {
+				json = await res.json();
+			}else{
+				throw("");
+			}
+		}catch(error) {
+			StoreProxy.main.alert("Spotify authentication failed");
+			console.log(error);
+			Config.instance.SPOTIFY_CONNECTED = false;
+			throw(error);
 		}
+
+		this.setToken(json);
+		Config.instance.SPOTIFY_CONNECTED = true;
 	}
 
 	/**
@@ -128,18 +167,21 @@ export default class SpotifyHelper {
 	public async refreshToken(attempt:number = 0):Promise<void> {
 		clearTimeout(this._getTrackTimeout);
 		clearTimeout(this._refreshTimeout);
+	
+		const options = {
+			method:"POST",
+			headers: {
+				"Authorization": "Basic "+btoa(this.clientID+":"+this.clientSecret),
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: new URLSearchParams({
+				'grant_type': 'refresh_token',
+				'refresh_token': this._token.refresh_token,
+			})
+		}
 
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		let url = new URL(Config.instance.API_PATH+"/spotify/refresh_token");
-		url.searchParams.append("token", this._token.refresh_token);
-		if(this.clientID && this._clientSecret) {
-			url.searchParams.append("clientId", this.clientID);
-			url.searchParams.append("clientSecret", this._clientSecret);
-		}
-		const headers = {
-			'App-Version': import.meta.env.PACKAGE_VERSION,
-		};
-		const res = await fetch(url, {method:"GET", headers});
+		const res = await fetch("https://accounts.spotify.com/api/token", options);
 		let refreshSuccess = false;
 		if(res.status == 200) {
 			try {
@@ -509,14 +551,22 @@ export default class SpotifyHelper {
 			Config.instance.SPOTIFY_CONNECTED = false;
 			return;
 		}
+		
+		//Backup refresh token from prev token as spotify does not send us back a refrehs
+		//token after refreshing a token.
+		if(this._token?.refresh_token && !value?.refresh_token) value.refresh_token = this._token.refresh_token;
+
 		this._token = value;
 		this._token.expires_at =  Date.now() + this._token.expires_in * 1000;
+		DataStore.set(DataStore.SPOTIFY_AUTH_TOKEN, this._token);
+		
 		this._headers = {
 			"Accept":"application/json",
 			"Content-Type":"application/json",
 			"Authorization":"Bearer "+this._token.access_token,
 		}
 		Config.instance.SPOTIFY_CONNECTED = this._token? this._token.expires_at > Date.now() : false;
+		
 		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {
 			this.refreshToken();
 		}else{
@@ -587,14 +637,6 @@ export default class SpotifyHelper {
 		}catch(error) {
 			return null;
 		}
-	}
-
-	private get clientID():string {
-		let clientID = Config.instance.SPOTIFY_CLIENT_ID;
-		if(this._clientID) {
-			clientID = this._clientID;
-		}
-		return clientID;
 	}
 
 }
