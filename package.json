@@ -1,6 +1,6 @@
 {
 	"name": "twitchat",
-	"version": "8.8.3",
+	"version": "8.8.4",
 	"private": true,
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
