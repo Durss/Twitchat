@@ -1,12 +1,10 @@
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
-import TriggerActionHandler from './triggers/TriggerActionHandler';
 import Utils from './Utils';
 
 /**
@@ -105,14 +103,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		});
 
 		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {
-			const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
-				id:Utils.getUUID(),
-				date:Date.now(),
-				platform:"twitchat",
-				type:'obs_scene_change',
-				sceneName:e.sceneName,
-			}
-			TriggerActionHandler.instance.execute(m);
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, e));
 		});
 
 		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
@@ -121,16 +112,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
 				if(item.sceneItemId == e.sceneItemId) {
-					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:'obs_source_toggle',
-						sourceName:item.sourceName,
-						sourceItemId:e.sceneItemId,
-						visible:e.sceneItemEnabled,
-					}
-					TriggerActionHandler.instance.execute(m);
+					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, {item, event:e} as unknown as JsonObject));
 					break;
 				}
 			}

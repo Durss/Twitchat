@@ -411,7 +411,7 @@ export interface ITimerActions {
 
 
 export interface ITriggersState {
-	triggers: {[key:string]:TriggerData};
+	triggers: TriggerData[];
 }
 
 export interface ITriggersGetters {
@@ -420,7 +420,7 @@ export interface ITriggersGetters {
 
 export interface ITriggersActions {
 	setTrigger(key:string, data:TriggerData):void;
-	deleteTrigger(key:string):void;
+	deleteTrigger(id:string):void;
 }
 
 

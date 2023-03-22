@@ -46,18 +46,88 @@ export type TriggerActionStringTypes = "obs"
 									| null;
 
 export interface TriggerData {
+	id:string;
+	/**
+	 * Trigegr type
+	 */
+	type:TriggerTypesValue;
+	/**
+	 * Trigger enabled ?
+	 */
 	enabled:boolean;
+	/**
+	 * Trigger action list
+	 */
 	actions:TriggerActionTypes[];
+	/**
+	 * Trigger's custom name
+	 */
 	name?:string;
+	
+	/**
+	 * Reward ID for reward related events
+	 */
+	rewardId?:string;
+	/**
+	 * Chat command name for chat command related events
+	 */
+	chatCommand?:string;
+	/**
+	 * Schedule name for schedule related events
+	 */
+	scheduleName?:string;
+	/**
+	 * OBS source name for OBS source related events
+	 */
+	obsSource?:string;
+	/**
+	 * OBS scene name for OBS scene related events
+	 */
+	obsScene?:string;
+	/**
+	 * Counter ID for counters related events
+	 */
+	counterID?:string;
+
+	/**
+	 * Execution que for this trigger
+	 */
 	queue?:string;
-	prevKey?:string;
+	/**
+	 * Trigger's permission for user related trigger events (only chat commands for now)
+	 */
 	permissions?:TwitchatDataTypes.PermissionsData;
-	cooldown?:{global:number, user:number, alert:boolean};
+	/**
+	 * Trigger's cooldowns for chat command events
+	 */
+	cooldown?:TriggerCooldownData;
+	/**
+	 * Schedule params for schedule triggers
+	 */
 	scheduleParams?:TriggerScheduleData;
+
+	
+	/**
+	 * @deprecated Only here for typings on data migration.
+	 */
+	prevKey?:string;
+	/**
+	 * @deprecated Only here for typings on data migration.
+	 */
+	// name?:string;
 	/**
 	 * @deprecated Only here for typings on data migration. Use "name" property
 	 */
-	chatCommand?:string
+	// chatCommand?:string
+}
+
+export interface TriggerCooldownData {
+	global:number;
+	user:number;
+	/**
+	 * defines if a message should be posted on tchat if command is cooling down
+	 */
+	alert:boolean;
 }
 
 export interface TriggerLog {
@@ -334,6 +404,9 @@ export interface ITriggerPlaceholder {
 export const USER_PLACEHOLDER:string = "USER";
 export const USER_ID_PLACEHOLDER:string = "USER_ID";
 
+/**
+ * Placeholders related to a trigger action type
+ */
 let actionPlaceholdersCache:Partial<{[key in NonNullable<TriggerActionStringTypes>]:ITriggerPlaceholder[]}>;
 export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITriggerPlaceholder[] {
 	if(!key) return [];
@@ -356,6 +429,9 @@ export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITrigger
 	return map[key] ?? [];
 }
 
+/**
+ * Placeholders related to a trigger event type
+ */
 let eventPlaceholdersCache:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}>;
 export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlaceholder[] {
 	if(eventPlaceholdersCache) {
@@ -613,6 +689,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	return map[key] ?? [];
 }
 
+/**
+ * All triggers categories
+ */
 let eventsCache:TriggerEventTypes[];
 export function TriggerEvents():TriggerEventTypes[] {
 	if(eventsCache) return eventsCache;

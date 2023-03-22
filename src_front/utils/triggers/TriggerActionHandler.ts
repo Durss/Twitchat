@@ -58,8 +58,25 @@ export default class TriggerActionHandler {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public populate(triggers:{[key:string]:TriggerData}):void {
-		this.triggers = triggers;
+	public populate(triggers:TriggerData[]):void {
+		let hashmap:{[key:string]:TriggerData} = {};
+		triggers.forEach(v=> {
+			let key = v.type;
+			switch(v.type) {
+				case TriggerTypes.CHAT_COMMAND: key += "_"+v.chatCommand; break;
+				case TriggerTypes.REWARD_REDEEM: key += "_"+v.rewardId; break;
+				case TriggerTypes.COUNTER_ADD:
+				case TriggerTypes.COUNTER_DEL:
+				case TriggerTypes.COUNTER_LOOPED:
+				case TriggerTypes.COUNTER_MAXED:
+				case TriggerTypes.COUNTER_MINED: key += "_"+v.counterID; break;
+				case TriggerTypes.OBS_SOURCE_OFF:
+				case TriggerTypes.OBS_SOURCE_ON: key += "_"+v.obsSource; break;
+				case TriggerTypes.OBS_SCENE: key += "_"+v.obsScene; break;
+			}
+			hashmap[key] = v;
+		})
+		this.triggers = hashmap;
 	}
 
 	/**
@@ -408,6 +425,8 @@ export default class TriggerActionHandler {
 			trigger = {
 				enabled:true,
 				name:"ad",
+				id:Utils.getUUID(),
+				type:TriggerTypes.SCHEDULE,
 				actions:[
 					{
 						id:Utils.getUUID(),

@@ -69,17 +69,23 @@ import Ajv from "ajv";
 			]
 		},
 		triggers: {
-			type:["object"],
-			additionalProperties: true,
-			patternProperties: {
-				".*": {
+			type:"array",
+			maxItems:10000,
+			items: [
+				{
 					type: "object",
 					additionalProperties: false,
 					properties: {
+						id: {type:"string", maxLength:50},
+						type: {type:"string", maxLength:5},
 						enabled: {type:"boolean"},
-						name: {type:"string", maxLength:100},
+						rewardId:{type:"string", maxLength:100},
+						chatCommand:{type:"string", maxLength:100},
+						scheduleName:{type:"string", maxLength:100},
+						obsSource:{type:"string", maxLength:200},
+						obsScene:{type:"string", maxLength:200},
+						counterID:{type:"string", maxLength:100},
 						queue: {type:"string", maxLength:100},
-						chatCommand: {type:"string", maxLength:100},//Deprecated
 						scheduleParams: {
 							type:"object",
 							properties: {
@@ -263,8 +269,8 @@ import Ajv from "ajv";
 							]
 						}
 					}
-				},
-			}
+				}
+			]
 		},
 		botMessages: {
 			type:"object",

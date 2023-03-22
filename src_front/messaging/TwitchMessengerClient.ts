@@ -2,6 +2,7 @@ import rewardImg from '@/assets/icons/reward_highlight.svg';
 import { EventDispatcher } from "@/events/EventDispatcher";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from '@/utils/Config';
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
@@ -658,8 +659,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				type:TwitchatDataTypes.TwitchatMessageType.REWARD,
 				user: data.user,
 				reward: {
-					id:"highlighted-message",
-					title:"Highlight my message",
+					id:Config.instance.highlightMyMessageReward.id,
+					title:Config.instance.highlightMyMessageReward.title,
 					cost:-1,
 					description:"",
 					icon:{

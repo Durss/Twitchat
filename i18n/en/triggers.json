@@ -1,6 +1,8 @@
 {
 	"triggers": {
 		"header": "Execute custom actions based on {COUNT} event types",
+		"add_triggerBt": "Create a trigger",
+		"add_trigger_select_event": "Choose an event type",
 		"add_actionBt": "Add action",
 		"create_chat_cmdBt": "Create chat command",
 		"create_scheduleBt": "Add scheduled action",
@@ -12,21 +14,27 @@
 		"delete_action_confirm": "Delete action?",
 		"reorder_tt": "Reorder",
 		"noChannelPoints_tt": "You are not a Twitch affiliate<br>or you have refused Twitchat<br>to control this",
-		"noTrigger": "- no entry -",
+		"noTrigger": "You have created no trigger yet",
 		"create_counterBt": "Create counters",
 		"queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
 		"queue_input_placeholder": "execution queue...",
+		"missing_counter": "COUNTER DELETED",
+		"missing_reward": "REWARD DELETED",
 		"music": {
-			"require": "These triggers need you to connect with Spotify under the {URL}",
+			"require": "This trigger need you to connect with Spotify under the {URL}",
 			"require_url": "overlays section"
 		},
 		"obs": {
-			"require": "These triggers need you to {URL}",
+			"require": "This trigger need you to {URL}",
 			"require_url": "connect with OBS"
 		},
 		"count": {
-			"require": "These triggers need you to first {URL}",
+			"require": "This trigger need you to first {URL}",
 			"require_url": "create counters"
+		},
+		"rewards": {
+			"require": "This trigger needs to {URL}",
+			"require_url": "list your channel point rewards"
 		},
 		"schedule": {
 			"conflict": "A schedule with this name already exists",
@@ -272,7 +280,7 @@
 			},
 			"REWARD_REDEEM": {
 				"label": "Channel point reward",
-				"description": "Execute actions when the following channel point reward is redeemed<br><mark>{'{'}SUB_ITEM_NAME{'}'}</mark>"
+				"description": "Execute actions when the {SUB_ITEM_NAME} channel point reward is redeemed"
 			},
 			"COMMUNITY_CHALLENGE_PROGRESS": {
 				"label": "Community challenge progress",
@@ -296,7 +304,8 @@
 			},
 			"RETURNING_USER": {
 				"label": "Returning user",
-				"description": "Execute actions when a user comes back after chatting at least twice in the last 30 days.<br>(ceci n'existe peut-être plus sur Twitch)"
+				"description": "Execute actions when a user comes back after chatting at least twice in the last 30 days. {INFO}",
+				"description_info":"(ceci n'existe peut-être plus sur Twitch)"
 			},
 			"PRESENTATION": {
 				"label": "User presentation",
@@ -372,15 +381,18 @@
 			},
 			"TIMEOUT": {
 				"label": "User timed out",
-				"description": "Execute actions when a user is <mark>/timeout</mark>"
+				"description": "Execute actions when a user is {CMD}",
+				"description_cmd": "/timeout"
 			},
 			"BAN": {
 				"label": "User banned",
-				"description": "Execute actions when a user is <mark>/ban</mark>"
+				"description": "Execute actions when a user is {CMD}",
+				"description_cmd": "/ban"
 			},
 			"UNBAN": {
 				"label": "User unbanned",
-				"description": "Execute actions when a user is <mark>/unban</mark>"
+				"description": "Execute actions when a user is {CMD}",
+				"description_cmd": "/unban"
 			},
 			"VIP": {
 				"label": "User /vip",
@@ -388,7 +400,9 @@
 			},
 			"UNVIP": {
 				"label": "User /unvip",
-				"description": "Execute actions when a user is removed from your VIPs<br><i>(only works when using <mark>/unvip</mark> command from twitchat</i>"
+				"description": "Execute actions when a user is removed from your VIPs {INFO}",
+				"description_info":"(only works when using {CMD} command from twitchat)",
+				"description_info_cmd":"/unvip"
 			},
 			"MOD": {
 				"label": "User /mod",
@@ -396,7 +410,9 @@
 			},
 			"UNMOD": {
 				"label": "User /unmod",
-				"description": "Execute actions when a user is removed from your mods<br><i>(only works when using <mark>/unmod</mark> command from twitchat</i>"
+				"description": "Execute actions when a user is removed from your mods {INFO}",
+				"description_info":"(only works when using {CMD} command from twitchat)",
+				"description_info_cmd":"/unmod"
 			},
 			"SHIELD_MODE_ON": {
 				"label": "Shield mode enabled",
@@ -432,15 +448,18 @@
 			},
 			"TIMER_START": {
 				"label": "Timer start",
-				"description": "Execute actions when a timer is started with the command <mark>/timerStart</mark>"
+				"description": "Execute actions when a timer is started with the command {CMD}",
+				"description_cmd": "/timerStart"
 			},
 			"TIMER_STOP": {
 				"label": "Timer stop",
-				"description": "Execute actions when a timer is stoped with the command <mark>/timerStop</mark>"
+				"description": "Execute actions when a timer is stoped with the command {CMD}",
+				"description_cmd": "/timerStop"
 			},
 			"COUNTDOWN_START": {
 				"label": "Countdown start",
-				"description": "Execute actions when a countdown is started with the command <mark>/countdown</mark>"
+				"description": "Execute actions when a countdown is started with the command {CMD}",
+				"description_cmd": "/countdown"
 			},
 			"COUNTDOWN_STOP": {
 				"label": "Countdown stop",
@@ -448,7 +467,8 @@
 			},
 			"SHOUTOUT": {
 				"label": "Shoutout (Twitchat)",
-				"description": "Execute actions when doing a shoutout via <mark>/so</mark> command or shoutout button"
+				"description": "Execute actions when doing a shoutout via {CMD} command or shoutout button",
+				"description_cmd": "/so"
 			},
 			"EMERGENCY_MODE_START": {
 				"label": "Emergency start",
@@ -464,7 +484,8 @@
 			},
 			"CHAT_ALERT": {
 				"label": "Chat alert",
-				"description": "Execute actions when the Chat Alert feature is triggered<br><i>(Parameters => @:params.categories.features => @:params.alertMode)</i>"
+				"description": "Execute actions when the Chat Alert feature is triggered {INFO}",
+				"description_info":"(Parameters => @:params.categories.features => @:params.alertMode )"
 			},
 			"VOICEMOD": {
 				"label": "Voicemod - voice changed",
@@ -472,23 +493,25 @@
 			},
 			"OBS_SCENE": {
 				"label": "Switch to scene",
-				"description": "Execute actions when switching to <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> OBS scene"
+				"description": "Execute actions when switching to {SUB_ITEM_NAME} OBS scene"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source show",
-				"description": "Execute actions when showing <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> OBS source"
+				"description": "Execute actions when showing {SUB_ITEM_NAME} OBS source"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source hide",
-				"description": "Execute actions when hiding <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> OBS source"
+				"description": "Execute actions when hiding {SUB_ITEM_NAME} OBS source"
 			},
 			"STREAM_ONLINE": {
 				"label": "Stream start",
-				"description": "Execute actions when stream starts<br><i>(you might have to wait +1min before receiving that info)</i>"
+				"description": "Execute actions when stream starts {INFO}",
+				"description_info":"(you might have to wait +1min before receiving that info)"
 			},
 			"STREAM_OFFLINE": {
 				"label": "Stream stop",
-				"description": "Execute actions when stream stops<br><i>(you might have to wait +1min before receiving that info)</i>"
+				"description": "Execute actions when stream stops {INFO}",
+				"description_info":"(you might have to wait +1min before receiving that info)"
 			},
 			"COUNTER_ADD": {
 				"label": "Value added to a counter",
@@ -508,7 +531,8 @@
 			},
 			"COUNTER_LOOPED": {
 				"label": "Value looped",
-				"description": "Execute actions when counter's value looped<br><i>(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)</i>"
+				"description": "Execute actions when counter's value looped {INFO}",
+				"description_info":"(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)"
 			},
 			"RAID_STARTED": {
 				"label": "Started a raid",

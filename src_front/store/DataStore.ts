@@ -1,4 +1,4 @@
-import { TriggerTypes, type TriggerActionObsDataAction, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { TriggerEvents, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionTypes, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -204,6 +204,10 @@ export default class DataStore {
 		if(v==35) {
 			this.migrateOBSTriggerActions(data);
 			v = 36;
+		}
+		if(v==36) {
+			this.migrateTriggersData(data);
+			v = 37;
 		}
 
 		data[this.DATA_VERSION] = v;
@@ -928,5 +932,49 @@ export default class DataStore {
 		}
 
 		data[DataStore.TRIGGERS] = triggers;
+	}
+
+	/**
+	 * Migrates triggers data to the new triggers system
+	 * @param data 
+	 * 
+	 */
+	public static migrateTriggersData(data:any):void {
+		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
+		if(Array.isArray(triggers)) return;//Already migrated to new data format
+		if(!triggers) return;
+		const triggerList:TriggerData[] = [];
+		let events:TriggerEventTypes[] = TriggerEvents();
+		const allowedKeys:{[key:string]:boolean} = {};
+		events.forEach(v => allowedKeys[v.value] = true);
+		for (const key in triggers) {
+			const t = triggers[key];
+			const chunks = key.split("_");
+			const triggerKey = chunks.shift();
+			const subkey = chunks.join("_");
+			if(!triggerKey || !allowedKeys[triggerKey]) continue;//Ignore potentially old trigger types
+			t.id = Utils.getUUID();
+			t.type = triggerKey as TriggerTypesValue;
+			switch(t.type) {
+				case TriggerTypes.CHAT_COMMAND: t.chatCommand = t.name; break;
+				case TriggerTypes.REWARD_REDEEM: t.rewardId = subkey; break;
+				case TriggerTypes.SCHEDULE: t.rewardId = t.name; break;
+				case TriggerTypes.OBS_SCENE: t.obsScene = t.name =subkey; break;
+				case TriggerTypes.OBS_SOURCE_OFF: t.obsSource = t.name = subkey; break;
+				case TriggerTypes.OBS_SOURCE_OFF: t.obsSource = t.name = subkey; break;
+				case TriggerTypes.COUNTER_LOOPED:
+				case TriggerTypes.COUNTER_MAXED:
+				case TriggerTypes.COUNTER_MINED:
+				case TriggerTypes.COUNTER_DEL:
+				case TriggerTypes.COUNTER_ADD: t.counterID = subkey; break;
+			}
+			if(t.queue == "") delete t.queue;
+			if(t.name == "") delete t.name;
+			triggerList.push(t);
+		}
+
+		console.log(triggerList);
+
+		data[DataStore.TRIGGERS] = triggerList;
 	}
 }

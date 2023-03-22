@@ -112,10 +112,31 @@ h1 {
 }
 
 .vs__dropdown-option {
-	&>.listIcon {
+	&.vs__dropdown-option--highlight {
+		background-color: @mainColor_normal_light;
+		.listIcon {
+			filter: brightness(10);
+		}
+	}
+	&>.category {
+		font-weight: bold;
+		font-size: 1.2em;
+		color:@mainColor_normal;
+	}
+	&>.subItem {
+		padding-left: 1em;
+	}
+	.listIcon {
 		height: 1em;
 		max-width: 1em;
 		margin-right: .25em;
+		vertical-align: middle;
+		filter: drop-shadow(1px 1px 1px fade(@mainColor_normal, 50%));
+	}
+	.labelSmall {
+		font-size: .8em;
+		font-style: italic;
+		margin-left: .5em;
 	}
 }
 

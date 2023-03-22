@@ -7,7 +7,7 @@ import Config, { type ServerConfig } from '@/utils/Config';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
@@ -246,6 +246,31 @@ export const storeMain = defineStore("main", {
 			
 				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
 					StoreProxy.raffle.pickWinner();
+				});
+
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, (event:TwitchatEvent):void => {
+					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:'obs_scene_change',
+						sceneName:(event.data as {sceneName:string}).sceneName,
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
+	
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SOURCE_TOGGLE, (e:TwitchatEvent):void => {
+					const data = (e.data as unknown) as {item:OBSSourceItem, event:{sceneItemId:number, sceneItemEnabled:boolean}};
+					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:'obs_source_toggle',
+						sourceName:data.item.sourceName,
+						sourceItemId:data.event.sceneItemId,
+						visible:data.event.sceneItemEnabled,
+					}
+					TriggerActionHandler.instance.execute(m);
 				});
 			}
 

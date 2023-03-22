@@ -1,6 +1,8 @@
 {
 	"triggers": {
-		"header": "Exécute des actions en réaction à {COUNT} types d'évènements",
+		"header": "Exécuter des actions en réaction à {COUNT} types d'évènements",
+		"add_triggerBt": "Créer un trigger",
+		"add_trigger_select_event": "Choisissez un type d'évènement",
 		"add_actionBt": "Ajouter une action",
 		"create_chat_cmdBt": "Créer une commande de tchat",
 		"create_scheduleBt": "Programmer des actions",
@@ -12,21 +14,27 @@
 		"delete_action_confirm": "Supprimer l'action ?",
 		"reorder_tt": "Réordonner",
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e<br>ou n'avez pas autorisé<br>Twitchat à contrôler ceci",
-		"noTrigger": "- aucune entrée -",
+		"noTrigger": "Vous n'avez créé aucun trigger pour l'instant",
 		"create_counterBt": "Créez des compteurs",
 		"queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez les à la même file d'exécution.",
 		"queue_input_placeholder": "file d'exécution...",
+		"missing_counter": "COMPTEUR SUPPRIMÉ",
+		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
 		"music": {
-			"require": "Ces évènements nécessitent de lier Spotify avec Twitchat dans {URL}",
+			"require": "Cet évènement nécessite de lier Spotify avec Twitchat dans {URL}",
 			"require_url": "les overlays"
 		},
 		"obs": {
-			"require": "Ces événéments nécessitent de {URL}",
+			"require": "Cet événément nécessite de {URL}",
 			"require_url": "lier twitchat à OBS"
 		},
 		"count": {
-			"require": "Ces événéments nécessitent de d'abord {URL}",
+			"require": "Cet événément nécessite de d'abord {URL}",
 			"require_url": "créer des compteurs"
+		},
+		"rewards": {
+			"require": "Cet événément nécessite de {URL}",
+			"require_url": "lister vos récompenses de point de chaîne"
 		},
 		"schedule": {
 			"conflict": "Une action programmée du même nom existe déjà",
@@ -272,7 +280,7 @@
 			},
 			"REWARD_REDEEM": {
 				"label": "Récompense de points de chaîne",
-				"description": "Exécuter des actions lorsque la récompense <br><mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est achetée"
+				"description": "Exécuter des actions lorsque la récompense {SUB_ITEM_NAME} est achetée"
 			},
 			"COMMUNITY_CHALLENGE_PROGRESS": {
 				"label": "Progression de défi communautaire",
@@ -296,7 +304,8 @@
 			},
 			"RETURNING_USER": {
 				"label": "Returning user",
-				"description": "Execute actions when a user comes back after chatting at least twice in the last 30 days.<br>(this may not exist anymore on Twitch)"
+				"description": "Execute actions when a user comes back after chatting at least twice in the last 30 days.{INFO}",
+				"description_info": "(this may not exist anymore on Twitch)"
 			},
 			"PRESENTATION": {
 				"label": "Présentation",
@@ -372,15 +381,18 @@
 			},
 			"TIMEOUT": {
 				"label": "Bannissement temporaire",
-				"description": "Exécuter des actions lorsqu'une personne est <mark>/timeout</mark>"
+				"description": "Exécuter des actions lorsqu'une personne est {CMD}",
+				"description_cmd": "/timeout"
 			},
 			"BAN": {
 				"label": "Bannissement définitif",
-				"description": "Exécuter des actions lorsqu'une personne est <mark>/ban</mark>"
+				"description": "Exécuter des actions lorsqu'une personne est {CMD}",
+				"description_cmd": "/ban"
 			},
 			"UNBAN": {
 				"label": "Bannissement levé",
-				"description": "Exécuter des actions lorsqu'une personne est <mark>/unban</mark>"
+				"description": "Exécuter des actions lorsqu'une personne est {CMD}",
+				"description_cmd": "/unban"
 			},
 			"VIP": {
 				"label": "Rôle VIP attribué",
@@ -388,7 +400,9 @@
 			},
 			"UNVIP": {
 				"label": "Rôle VIP retiré",
-				"description": "Exécuter des actions lorsqu'une personne est retirée de vos VIPs<br><i>(fonctionne seulement en utilisant la commande <mark>/unvip</mark> depuis twitchat</i>"
+				"description": "Exécuter des actions lorsqu'une personne est retirée de vos VIPs {INFO}",
+				"description_info": "(fonctionne seulement en utilisant la commande {CMD} depuis twitchat)",
+				"description_info_cmd": "/unvip"
 			},
 			"MOD": {
 				"label": "Rôle modérateur attribué",
@@ -396,7 +410,9 @@
 			},
 			"UNMOD": {
 				"label": "Rôle modérateur retiré",
-				"description": "Exécuter des actions lorsqu'une personne est retirée de vos modérateurs<br><i>(fonctionne seulement en utilisant la commande <mark>/unmod</mark> depuis twitchat</i>"
+				"description": "Exécuter des actions lorsqu'une personne est retirée de vos modérateurs {INFO}",
+				"description_info": "(fonctionne seulement en utilisant la commande {CMD} depuis twitchat)",
+				"description_info_cmd": "/unmod"
 			},
 			"SHIELD_MODE_ON": {
 				"label": "Mode bouclier activé",
@@ -408,7 +424,7 @@
 			},
 			"PIN_MESSAGE": {
 				"label": "Message épinglé",
-				"description": "Exécuter des actions lorsqu'un message est épinglé'"
+				"description": "Exécuter des actions lorsqu'un message est épinglé"
 			},
 			"UNPIN_MESSAGE": {
 				"label": "Message désépinglé",
@@ -432,15 +448,21 @@
 			},
 			"TIMER_START": {
 				"label": "Lancement du chronomètre",
-				"description": "Exécuter des actions lorsque le chronomètre est lancé (<mark>/timerStart</mark>)"
+				"description": "Exécuter des actions lorsque le chronomètre est lancé {INFO}",
+				"description_info": "({CMD})",
+				"description_info_cmd": "/timerStart"
 			},
 			"TIMER_STOP": {
 				"label": "Arrêt du chronomètre",
-				"description": "Exécuter des actions lorsque le chronomètre est arrêté (<mark>/timerStop</mark>)"
+				"description": "Exécuter des actions lorsque le chronomètre est arrêté {INFO}",
+				"description_info": "({CMD})",
+				"description_info_cmd": "/timerStop"
 			},
 			"COUNTDOWN_START": {
 				"label": "Lancement d'un compte à rebours",
-				"description": "Exécuter des actions lorsque le compte à rebours est lancé (<mark>/countdown</mark>)"
+				"description": "Exécuter des actions lorsque le compte à rebours est lancé {INFO}",
+				"description_info": "({CMD})",
+				"description_info_cmd": "/countdown"
 			},
 			"COUNTDOWN_STOP": {
 				"label": "Arrêt du compte à rebours",
@@ -464,7 +486,8 @@
 			},
 			"CHAT_ALERT": {
 				"label": "Alerte",
-				"description": "Exécuter des actions lorsque la fenêtre d'alerte est déclenchée<br><i>(Paramètres => @:params.categories.features => @:params.alertMode)</i>"
+				"description": "Exécuter des actions lorsque la fenêtre d'alerte est déclenchée {INFO}",
+				"description_info": "(Paramètres => @:params.categories.features => @:params.alertMode )"
 			},
 			"VOICEMOD": {
 				"label": "Voicemod - changement de voix",
@@ -472,30 +495,32 @@
 			},
 			"OBS_SCENE": {
 				"label": "Changement de scène",
-				"description": "Exécuter des actions lorsque la scène OBS <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> devient active"
+				"description": "Exécuter des actions lorsque la scène OBS {SUB_ITEM_NAME} devient active"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source affichée",
-				"description": "Exécuter des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est affichée"
+				"description": "Exécuter des actions lorsque la source {SUB_ITEM_NAME} est affichée"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source masquée",
-				"description": "Exécuter des actions lorsque la source <mark>{'{'}SUB_ITEM_NAME{'}'}</mark> est masquée"
+				"description": "Exécuter des actions lorsque la source {SUB_ITEM_NAME} est masquée"
 			},
 			"STREAM_ONLINE": {
 				"label": "Début de stream",
-				"description": "Exécuter des actions lorsque le stream débute<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
+				"description": "Exécuter des actions lorsque le stream débute {INFO}",
+				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
 			},
 			"STREAM_OFFLINE": {
 				"label": "Arrêt du stream",
-				"description": "Exécuter des actions lorsque le stream est arrêté<br><i>(il peut falloir attendre +1min pour recevoir cette info)</i>"
+				"description": "Exécuter des actions lorsque le stream est arrêté {INFO}",
+				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
 			},
 			"COUNTER_ADD": {
 				"label": "Ajout à un compteur",
 				"description": "Exécuter des actions lorsqu'une valeur est ajoutée à un compteur"
 			},
 			"COUNTER_DEL": {
-				"label": "Retrait à un compteur",
+				"label": "Retrait d'un compteur",
 				"description": "Exécuter des actions lorsqu'une valeur est soustraite à un compteur"
 			},
 			"COUNTER_MAXED": {
@@ -508,7 +533,8 @@
 			},
 			"COUNTER_LOOPED": {
 				"label": "Valeur bouclée",
-				"description": "Exécuter des actions lorsque la valeur du compteur est bouclée<br><i>(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)</i>"
+				"description": "Exécuter des actions lorsque la valeur du compteur est bouclée {INFO}",
+				"description_info": "(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)"
 			},
 			"RAID_STARTED": {
 				"label": "Lancement d'un raid",

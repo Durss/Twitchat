@@ -56,12 +56,15 @@ export const storeCounters = defineStore('counters', {
 				}
 			}
 			DataStore.set(DataStore.COUNTERS, this.data);
-			//Delete triggers related to the counter
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_ADD+"_"+data.id);
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_DEL+"_"+data.id);
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_LOOPED+"_"+data.id);
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_MAXED+"_"+data.id);
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_MINED+"_"+data.id);
+
+			//Delete triggers related to the deleted counter
+			const triggers = StoreProxy.triggers.triggers;
+			for (let i = 0; i < triggers.length; i++) {
+				const t = triggers[i];
+				if(t.counterID === data.id){
+					StoreProxy.triggers.deleteTrigger(t.id);
+				}
+			}
 		},
 
 		increment(id:string, addedValue:number, user?:TwitchatDataTypes.TwitchatUser):void {
