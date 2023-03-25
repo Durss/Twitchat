@@ -2128,7 +2128,7 @@ export default class TwitchUtils {
 		if(comment) url.searchParams.append("description", comment);
 		
 		const res = await fetch(url, {
-			method:"GET",
+			method:"POST",
 			headers:this.headers,
 		});
 		if(res.status == 200) {

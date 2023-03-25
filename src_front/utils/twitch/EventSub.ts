@@ -720,7 +720,17 @@ export default class EventSub {
 			moderator	= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.moderator_user_id, so_out.moderator_user_login, so_out.moderator_user_name);
 		}
 		
-		const stream = (await TwitchUtils.loadCurrentStreamInfo([user.id]))[0];
+		let title:string = "";
+		let category:string = "";
+		let [stream] = await TwitchUtils.loadCurrentStreamInfo([user.id]);
+		if(!stream) {
+			let [channel] = await TwitchUtils.loadChannelInfo([user.id]);
+			title = channel.title;
+			category = channel.game_name;
+		}else{
+			title = stream.title;
+			category = stream.game_name;
+		}
 		
 		const message:TwitchatDataTypes.MessageShoutoutData = {
 			id:Utils.getUUID(),
@@ -731,8 +741,8 @@ export default class EventSub {
 			user,
 			viewerCount:event.viewer_count,
 			stream: {
-				category:stream?.game_name ?? "",
-				title:stream?.title ?? "",
+				category,
+				title,
 			},
 			moderator,
 			received,

@@ -36,7 +36,7 @@ export default class TriggerActionHandler {
 	private lastAnyMessageSent:string = "";
 	private obsSourceNameToQueue:{[key:string]:Promise<void>} = {};
 	private triggerTypeToQueue:{[key:string]:Promise<void>} = {};
-	private liveChannelCache:{[key:string]:TwitchatDataTypes.StreamInfo} = {};
+	private liveChannelCache:{[key:string]:TwitchatDataTypes.StreamInfo}|null = null;
 	
 	constructor() {
 	
@@ -1207,19 +1207,28 @@ export default class TriggerActionHandler {
 			}
 		}
 
-		if(notify) {
+		if(notify && this.liveChannelCache) {
+			//This makes sure messages have a different date.
+			//Bit dirty workaround an issue with the way i handle the "read mark" that is based
+			//on the message date. When clicking a message it actually marks the "date" rather
+			//than the message itself so we can find it back faster.
+			//If multiple messages have the exact same date, clicking one may mark another one
+			//as read.
+			let dateOffset = 0;
+
 			//Check if any user went offline
 			for (const uid in this.liveChannelCache) {
 				if(!liveChannels[uid]) {
 					//User went offline
 					const message:TwitchatDataTypes.MessageStreamOfflineData = {
-						date:Date.now(),
+						date:Date.now()+dateOffset,
 						id:Utils.getUUID(),
 						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
 						info: this.liveChannelCache[uid],
 					}
 					StoreProxy.chat.addMessage(message);
+					dateOffset ++;
 				}
 			}
 	
@@ -1228,13 +1237,14 @@ export default class TriggerActionHandler {
 				if(!this.liveChannelCache[uid]) {
 					//User went online
 					const message:TwitchatDataTypes.MessageStreamOnlineData = {
-						date:Date.now(),
+						date:Date.now()+dateOffset,
 						id:Utils.getUUID(),
 						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
 						info: liveChannels[uid],
 					}
 					StoreProxy.chat.addMessage(message);
+					dateOffset ++;
 				}
 			}
 		}
