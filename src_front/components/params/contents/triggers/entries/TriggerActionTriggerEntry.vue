@@ -67,11 +67,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	@Prop
 	public action!:TriggerActionTriggerData;
 	@Prop
-	public event!:TriggerEventTypes;
-	@Prop
 	public triggerData!:TriggerData;
-	@Prop
-	public triggerKey!:string;
 
 	public loading:boolean = true;
 	public dependencyLoopInfos:{event?:TriggerEventTypes, label:string}[] = [];
@@ -99,7 +95,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 		watch(()=>this.action.triggerKey, ()=> {
 			this.buildDependencyLoop();
 		});
-		watch(()=>this.triggerKey, ()=> {
+		watch(()=>this.triggerData.type, ()=> {
 			this.buildDependencyLoop();
 		});
 	}
@@ -108,7 +104,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	 * Loads all existing triggers
 	 */
 	private async populateList():Promise<void> {
-		const triggers:{[key:string]:TriggerData} = this.$store("triggers").triggers;
+		const triggers:TriggerData[] = this.$store("triggers").triggers;
 		const list = [];
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];

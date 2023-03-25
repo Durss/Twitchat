@@ -40,11 +40,7 @@ export default class TriggerActionCountEntry extends Vue {
 	@Prop
 	public action!:TriggerActionCountData;
 	@Prop
-	public event!:TriggerEventTypes;
-	@Prop
 	public triggerData!:TriggerData;
-	@Prop
-	public triggerKey!:string;
 
 
 	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
@@ -54,12 +50,12 @@ export default class TriggerActionCountEntry extends Vue {
 		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").data.map(v=>{
 			return {value:v.id, label:v.name};
 		}).filter(v=> {
-			return v.value != this.triggerKey.split("_").pop()
+			return v.value != this.triggerData.counterID
 		});
 		
 		this.param_counters.listValues = counters;
 
-		this.param_value.placeholderList = TriggerEventPlaceholders(this.event.value).filter(v=>v.numberParsable==true);
+		this.param_value.placeholderList = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable==true);
 	}
 
 }

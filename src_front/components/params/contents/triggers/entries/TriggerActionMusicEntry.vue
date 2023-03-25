@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerEventTypes, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -46,7 +46,7 @@ export default class TriggerActionMusicEntry extends Vue {
 	@Prop
 	public action!:TriggerActionMusicEntryData;
 	@Prop
-	public event!:TriggerEventTypes;
+	public triggerData!:TriggerData;
 
 	public actions_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
 	public track_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"music_purple.svg", maxLength:500 };
@@ -71,7 +71,7 @@ export default class TriggerActionMusicEntry extends Vue {
 		this.confirmSongRequest_conf.labelKey	= "triggers.actions.music.param_confirmSongRequest";
 		this.playlist_conf.labelKey				= "triggers.actions.music.param_playlist";
 
-		let placeholders = TriggerEventPlaceholders(this.event.value).concat();
+		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
 		placeholders = placeholders.concat(TriggerActionPlaceholders("music"));
 
 		this.track_conf.placeholderList = placeholders;

@@ -8,7 +8,7 @@
 <script lang="ts">
 import StreamInfoSubForm from '@/components/streaminfo/StreamInfoSubForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionStreamInfoData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionStreamInfoData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
@@ -28,9 +28,7 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 	@Prop
 	public action!:TriggerActionStreamInfoData;
 	@Prop
-	public event!:TriggerEventTypes;
-	@Prop
-	public triggerKey!:string;
+	public triggerData!:TriggerData;
 
 	public loading:boolean = true;
 	public title:string = "";
@@ -51,7 +49,7 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 		watch(()=>this.title, ()=> this.onChange());
 		watch(()=>this.tags, ()=> this.onChange());
 		watch(()=>this.category, ()=> this.onChange());
-		this.placeholderList	= TriggerEventPlaceholders(this.event.value);
+		this.placeholderList	= TriggerEventPlaceholders(this.triggerData.type);
 	}
 
 	private onChange():void {

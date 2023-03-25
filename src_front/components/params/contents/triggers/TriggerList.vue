@@ -2,19 +2,31 @@
 	<div class="triggerslist">
 		<div v-if="filteredTriggers.length === 0" class="empty">{{ $t("triggers.noTrigger") }}</div>
 		
-		<button v-for="item in filteredTriggers" :key="item.trigger.id" class="item">
-			<img v-if="item.icon" :src="item.icon">
-			<span v-if="item.label">{{item.label}}</span>
-			<span v-else-if="item.trigger.name">{{item.trigger.name}}</span>
-			<span v-else-if="item.trigger.chatCommand">{{item.trigger.chatCommand}}</span>
-			<span v-else-if="item.trigger.obsScene">{{item.trigger.obsScene}}</span>
-			<span v-else-if="item.trigger.obsSource">{{item.trigger.obsSource}}</span>
-			<span v-else>{{ $t(triggerTypeToInfo[item.trigger.type]!.labelKey) }}</span>
-		</button>
+		<div class="item"
+		v-for="item in filteredTriggers" :key="item.trigger.id">
+			<button class="button" @click="$emit('select', item.trigger)">
+				<img v-if="item.icon" :src="item.icon">
+				<span v-if="item.label">{{item.label}}</span>
+				<span v-else-if="item.trigger.name">{{item.trigger.name}}</span>
+				<span v-else-if="item.trigger.chatCommand">{{item.trigger.chatCommand}}</span>
+				<span v-else-if="item.trigger.obsScene">{{item.trigger.obsScene}}</span>
+				<span v-else-if="item.trigger.obsSource">{{item.trigger.obsSource}}</span>
+				<span v-else>{{ $t(triggerTypeToInfo[item.trigger.type]!.labelKey) }}</span>
+			</button>
+			<div class="toggle" @click="item.trigger.enabled = !item.trigger.enabled">
+				<ToggleButton v-model="item.trigger.enabled"
+				:aria-label="item.trigger.enabled? 'trigger enabled' : 'trigger disabled'"/>
+			</div>
+			<button class="deleteBt" @click="deleteTrigger(item)"
+			:data-tooltip="$t('triggers.deleteBt')">
+				<img src="@/assets/icons/trash_purple.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
+			</button>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import ToggleButton from '@/components/ToggleButton.vue';
 import { TriggerEvents, TriggerTypes, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from "@/utils/Config";
@@ -22,8 +34,10 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
-	components:{},
-	emits:["setContent"],
+	components:{
+		ToggleButton
+	},
+	emits:["setContent", "select"],
 })
 export default class TriggerList extends Vue {
 
@@ -48,6 +62,13 @@ export default class TriggerList extends Vue {
 	}
 
 	public beforeMount():void {
+		this.populateTriggers();
+	}
+
+	/**
+	 * Populates the triggers list
+	 */
+	private populateTriggers():void {
 		//List all available trigger types
 		let events:TriggerEventTypes[] = TriggerEvents().concat();
 
@@ -58,6 +79,7 @@ export default class TriggerList extends Vue {
 		const counters = this.$store("counters").data;
 		
 		const list = this.$store("triggers").triggers;
+		const entries:TriggerEntry[] = [];
 		for (const key in list) {
 			const trigger = list[key];
 			const icon = this.$image('icons/'+this.triggerTypeToInfo[trigger.type]!.icon+'_purple.svg');
@@ -75,10 +97,12 @@ export default class TriggerList extends Vue {
 					label = this.$t("triggers.missing_counter");
 				}
 			}
-			this.triggerList.push({ label, trigger, icon });
+			entries.push({ label, trigger, icon });
 		}
 
 		if(loadRewards) this.listRewards();
+
+		this.triggerList = entries;
 	}
 
 	/**
@@ -112,6 +136,13 @@ export default class TriggerList extends Vue {
 		}
 	}
 
+	public deleteTrigger(entry:TriggerEntry):void {
+		this.$store("main").confirm(this.$t("triggers.delete_confirm")).then(()=>{
+			this.$store("triggers").deleteTrigger(entry.trigger.id);
+			this.populateTriggers();
+		}).catch(error=>{});
+	}
+
 }
 
 interface TriggerEntry {
@@ -138,21 +169,51 @@ interface TriggerEntry {
 	.item {
 		display: flex;
 		flex-direction: row;
-		gap: .5em;
-		color: @mainColor_normal;
-		border: 1px solid @mainColor_normal;
-		padding: .25em .5em;
-		border-radius: .5em;
-		align-items: center;
-		text-align: left;
-		transition: background-color .15s;
-		img {
-			height: 1em;
-			max-width: 1em;
-			filter: drop-shadow(1px 1px 1px fade(@mainColor_normal, 50%));
+		&>* {
+			border: 1px solid @mainColor_normal;
+			border-right: none;
+			&:hover {
+				background-color: @mainColor_normal_extralight;
+			}
 		}
-		&:hover {
-			background-color: @mainColor_normal_extralight;
+		&>*:first-child {
+			border-top-left-radius: .5em;
+			border-bottom-left-radius: .5em;
+		}
+		&>*:last-child {
+			border-top-right-radius: .5em;
+			border-bottom-right-radius: .5em;
+			border-right: 1px solid @mainColor_normal;
+		}
+		.button {
+			display: flex;
+			flex-direction: row;
+			gap: .5em;
+			color: @mainColor_normal;
+			padding: .25em .5em;
+			align-items: center;
+			text-align: left;
+			transition: background-color .15s;
+			padding-right: 3em;
+			flex-grow: 1;
+			img {
+				height: 1em;
+				max-width: 1em;
+				filter: drop-shadow(1px 1px 1px fade(@mainColor_normal, 50%));
+			}
+		}
+		.toggle {
+			display: flex;
+			align-items: center;
+			padding: 0 .5em;
+			cursor: pointer;
+			border-left: 1px solid @mainColor_normal;
+		}
+		.deleteBt {
+			img {
+				height: .9em;
+				padding: 0 .5em;
+			}
 		}
 	}
 }

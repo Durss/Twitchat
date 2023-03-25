@@ -113,23 +113,23 @@
 					:icon="$image('icons/url_purple.svg')"/>
 			</div>
 
-			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :event="event" />
-			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :event="event" :sources="obsSources" />
-			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :event="event" />
-			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :event="event" />
-			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" :event="event" />
-			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :event="event" />
-			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :event="event" :triggerData="triggerData" />
-			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :event="event" />
-			<TriggerActionWS @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='ws'" :action="action" :event="event" />
-			<TriggerActionCountEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='count'" :action="action" :event="event" :triggerData="triggerData" />
+			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
+			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :sources="obsSources" />
+			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
+			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
+			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" />
+			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
+			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" />
+			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
+			<TriggerActionWS @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
+			<TriggerActionCountEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
 			<TriggerActionCountGetEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='countget'" :action="action" />
 			<TriggerActionRandomEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='random'" :action="action" />
-			<TriggerActionStreamInfoEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='stream_infos'" :action="action" :event="event" />
-			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :event="event" triggerMode />
-			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :event="event" triggerMode />
-			<PollForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='poll'" :action="action" :event="event" triggerMode />
-			<PredictionForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='prediction'" :action="action" :event="event" triggerMode />
+			<TriggerActionStreamInfoEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
+			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
+			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
+			<PollForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
+			<PredictionForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
 			<div v-if="action.type=='raffle_enter'">{{ $t("triggers.actions.raffle_enter.info") }}</div>
 			
 			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==null" v-model="action.delay" />
@@ -202,8 +202,6 @@ export default class TriggerActionEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 	@Prop
-	public event!:TriggerEventTypes;
-	@Prop
 	public obsSources!:OBSSourceItem[];
 	@Prop
 	public index!:number;
@@ -227,7 +225,7 @@ export default class TriggerActionEntry extends Vue {
 	/**
 	 * Checks if one of the placeholders has a user info in it
 	 */
-	public get hasUserInfo():boolean { return TriggerEventPlaceholders(this.event.value).findIndex(v=> v.isUserID) > -1; }
+	public get hasUserInfo():boolean { return TriggerEventPlaceholders(this.triggerData.type).findIndex(v=> v.isUserID) > -1; }
 
 	public get errorTitle():string {
 		let res = "ERROR - MISSING OBS SOURCE";

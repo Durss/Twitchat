@@ -38,7 +38,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionObsData, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionObsData, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
@@ -54,7 +54,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	@Prop
 	public sources!:OBSSourceItem[];
 	@Prop
-	public event!:TriggerEventTypes;
+	public triggerData!:TriggerData;
 	
 	public action_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], icon:"show_purple.svg" };
 	public source_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"", listValues:[], icon:"list_purple.svg", children:[] };
@@ -110,9 +110,9 @@ export default class TriggerActionOBSEntry extends Vue {
 	public async beforeMount():Promise<void> {
 		if(this.action.action == undefined) this.action.action = "show";
 
-		this.text_conf.placeholderList	= TriggerEventPlaceholders(this.event.value);
-		this.url_conf.placeholderList	= TriggerEventPlaceholders(this.event.value);
-		this.media_conf.placeholderList	= TriggerEventPlaceholders(this.event.value);
+		this.text_conf.placeholderList	= TriggerEventPlaceholders(this.triggerData.type);
+		this.url_conf.placeholderList	= TriggerEventPlaceholders(this.triggerData.type);
+		this.media_conf.placeholderList	= TriggerEventPlaceholders(this.triggerData.type);
 
 		this.action_conf.labelKey	= "triggers.actions.obs.param_action";
 		this.source_conf.labelKey	= "triggers.actions.obs.param_source";

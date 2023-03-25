@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventPlaceholders, TriggerTypes, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, TriggerTypes, type TriggerActionChatData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
@@ -47,21 +47,16 @@ export default class TriggerActionChatEntry extends Vue {
 	@Prop
 	public action!:TriggerActionChatData;
 	@Prop
-	public event!:TriggerEventTypes;
-	@Prop
-	public triggerKey!:string;
+	public triggerData!:TriggerData;
 	
 	public message_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get cmdNameConflict():boolean {
-		if(this.event.value != TriggerTypes.CHAT_COMMAND || this.triggerKey.indexOf("_") == -1) return false;
-		const chunks = this.triggerKey?.split("_");
-		chunks.shift();
-		const triggerKey = chunks.join("_") ?? "";
-		return (this.message_conf.value as string)
-			.trim()
-			.split(" ")[0]
-			.toLowerCase() === triggerKey.toLowerCase()
+		const foundIndex = this.$store("triggers").triggers.findIndex(v=>
+							v.type == TriggerTypes.CHAT_COMMAND
+							&& v.id + this.triggerData.id
+							&& v.chatCommand?.toLowerCase() == this.action.text);
+		return foundIndex > -1;
 	}
 
 	public get sortedCommands():TwitchatDataTypes.CommandData[] {
@@ -80,7 +75,7 @@ export default class TriggerActionChatEntry extends Vue {
 
 	public beforeMount():void {
 		this.message_conf.labelKey = "triggers.actions.chat.param_message";
-		this.message_conf.placeholderList = TriggerEventPlaceholders(this.event.value);
+		this.message_conf.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 	}
 
 }

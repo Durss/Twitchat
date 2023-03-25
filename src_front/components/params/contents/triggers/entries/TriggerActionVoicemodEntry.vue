@@ -32,8 +32,6 @@ export default class TriggerActionVoicemodEntry extends Vue {
 	
 	@Prop
 	public action!:TriggerActionVoicemodData;
-	@Prop
-	public event!:TriggerEventTypes;
 
 	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"", listValues:[], value:""}
 	

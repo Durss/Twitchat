@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" @click="toggle">
+	<div :class="classes" @click.stop="toggle">
 		<div class="circle"></div>
 	</div>
 </template>

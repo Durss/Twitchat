@@ -27,7 +27,7 @@
 		:calculate-position="$placeDropdown"
 		>
 			<template v-slot:option="option">
-				<img class="listIcon" v-if="option.icon" :src="option.icon">
+				<img class="listIcon" v-if="option.icon" :src="option.icon" :style="!option.background? {} : {backgroundColor:option.background, filter:'none'}">
 				<span class="label">{{ option.label }}</span>
 				<span class="labelSmall" v-if="option.labelSmall" >{{ option.labelSmall }}</span>
 			</template>
@@ -55,7 +55,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="ctas" v-if="showOBSResync">
+			<!-- <div class="ctas" v-if="showOBSResync">
 				<Button :icon="$image('icons/refresh.svg')"
 					:title="$t('triggers.resyncBt')"
 					class="cta resyncBt"
@@ -63,7 +63,7 @@
 					:data-tooltip="$t('triggers.resyncBt_tt')"
 					:loading="showLoading"
 				/>
-			</div>
+			</div> -->
 
 			<!-- <div class="ctas">
 				<Button class="cta"
@@ -105,18 +105,12 @@
 		public triggerKey!:string;
 		public totalItems!:number;
 -->
-		<TriggerActionList
-		:actions="actionList"
-		:triggerData=""
-		:event="selectedTriggerEntry?.trigger"
-		:obsSources="obsSources"
-		/>
 	</div>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
@@ -124,8 +118,9 @@ import type { OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
 
 @Component({
@@ -133,22 +128,26 @@ import TriggerActionList from './TriggerActionList.vue';
 		Button,
 		TriggerActionList,
 	},
-	emits:["setContent", "openForm", "closeForm"],
+	emits:["setContent", "openForm", "closeForm", "createTrigger"],
 })
 export default class TriggerCreateForm extends Vue {
 
+	@Prop
+	public obsScenes:OBSSceneItem[] = [];
+	@Prop
+	public obsSources:OBSSourceItem[] = [];
+	
 	public showForm = false;
 	public showLoading = false;
 	public needRewards = false;
 	public needObsConnect = false;
 	public rewards:TwitchDataTypes.Reward[] = [];
-	public obsScenes:OBSSceneItem[] = [];
-	public obsSources:OBSSourceItem[] = [];
 	public selectedTriggerEntry:TriggerEntry|null = null;
 	public selectedSubtriggerEntry:TriggerEntry|null = null;
 	public triggerTypeList:TriggerEntry[] = [];
 	public subtriggerList:TriggerEntry[] = [];
 	public actionList:TriggerActionTypes[] = [];
+	public temporaryTrigger:TriggerData|null = null;
 
 	public get isChatCmd():boolean { return this.selectedTriggerEntry?.value === TriggerTypes.CHAT_COMMAND; }
 
@@ -257,7 +256,8 @@ export default class TriggerCreateForm extends Vue {
 			}
 		}
 
-		watch(()=>this.selectedTriggerEntry, ()=> {
+		//Watch for main trigger type selection
+		watch(()=>this.selectedTriggerEntry, async() => {
 			this.subtriggerList	= [];
 			this.selectedSubtriggerEntry = null;
 			if(this.selectedTriggerEntry?.value == TriggerTypes.REWARD_REDEEM) {
@@ -265,7 +265,7 @@ export default class TriggerCreateForm extends Vue {
 					this.needRewards = true;
 				}else{
 					this.needRewards = false;
-					this.listRewards();
+					await this.listRewards();
 				}
 			}else
 			if(this.selectedTriggerEntry?.value == TriggerTypes.OBS_SCENE) {
@@ -273,12 +273,33 @@ export default class TriggerCreateForm extends Vue {
 					this.needObsConnect = true;
 				}else{
 					this.needObsConnect = false;
-					this.listOBSScenes();
+					const list = this.obsScenes.map((v):TriggerEntry => {
+						return {
+							label:v.sceneName,
+							value:v.sceneName,
+							icon:"",
+							isCategory:false,
+						};
+					});
+					this.subtriggerList = list;
 				}
 			}else
 			if(this.selectedTriggerEntry?.value == TriggerTypes.OBS_SOURCE_OFF
 			|| this.selectedTriggerEntry?.value == TriggerTypes.OBS_SOURCE_ON) {
-				this.listOBSSources();
+				if(!OBSWebsocket.instance.connected) {
+					this.needObsConnect = true;
+				}else{
+					this.needObsConnect = false;
+					const list = this.obsSources.map((v):TriggerEntry => {
+						return {
+							label:v.sourceName,
+							value:v.sourceName,
+							icon:"",
+							isCategory:false,
+						};
+					});
+					this.subtriggerList = list;
+				}
 			}else
 			if(this.selectedTriggerEntry?.value == TriggerTypes.COUNTER_ADD
 			|| this.selectedTriggerEntry?.value == TriggerTypes.COUNTER_DEL
@@ -287,20 +308,81 @@ export default class TriggerCreateForm extends Vue {
 			|| this.selectedTriggerEntry?.value == TriggerTypes.COUNTER_MINED) {
 				this.listCounters();
 			}
+
+			if(this.selectedTriggerEntry && this.selectedTriggerEntry.trigger) {
+				this.temporaryTrigger = {
+					actions:[],
+					enabled:true,
+					id:Utils.getUUID(),
+					type:this.selectedTriggerEntry.trigger.value,
+				};
+
+				if(this.subtriggerList.length == 0) {
+					this.$emit("createTrigger", this.temporaryTrigger);
+				}else{
+					this.$emit("createTrigger", null);
+				}
+			}else{
+				this.$emit("createTrigger", null);
+			}
+		});
+		
+		//Watch for sub trigger type selection (rewards, obs scenes/sources, counters, ...)
+		watch(()=>this.selectedSubtriggerEntry, async() => {
+			if(!this.selectedSubtriggerEntry) return;
+			
+			if(this.selectedTriggerEntry?.value == TriggerTypes.REWARD_REDEEM) {
+				this.temporaryTrigger!.rewardId = this.selectedSubtriggerEntry.value;
+				this.$emit("createTrigger", this.temporaryTrigger);
+			}else
+			if(this.selectedTriggerEntry?.value == TriggerTypes.OBS_SCENE) {
+				this.temporaryTrigger!.obsScene = this.selectedSubtriggerEntry.value;
+				this.$emit("createTrigger", this.temporaryTrigger);
+			}else
+			if(this.selectedTriggerEntry?.value == TriggerTypes.OBS_SOURCE_OFF
+			|| this.selectedTriggerEntry?.value == TriggerTypes.OBS_SOURCE_ON) {
+				this.temporaryTrigger!.obsSource = this.selectedSubtriggerEntry.value;
+				this.$emit("createTrigger", this.temporaryTrigger);
+			}else
+			if(this.selectedTriggerEntry?.value == TriggerTypes.COUNTER_ADD
+			|| this.selectedTriggerEntry?.value == TriggerTypes.COUNTER_DEL
+			|| this.selectedTriggerEntry?.value == TriggerTypes.COUNTER_LOOPED
+			|| this.selectedTriggerEntry?.value == TriggerTypes.COUNTER_MAXED
+			|| this.selectedTriggerEntry?.value == TriggerTypes.COUNTER_MINED) {
+				this.temporaryTrigger!.counterID = this.selectedSubtriggerEntry.value;
+				this.$emit("createTrigger", this.temporaryTrigger);
+			}
 		});
 	}
 
+	/**
+	 * Open OBS parameters
+	 */
 	public openOBS():void {
 		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OBS);
 	}
 
+	/**
+	 * Open counters parameters
+	 */
 	public openCounters():void {
 		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.COUNTERS);
 	}
 
+	/**
+	 * Open trigger creation form and tel the parent so it
+	 * hides the triggers list
+	 */
 	public openForm():void {
 		this.showForm = true;
 		this.$emit('openForm');
+	}
+
+	/**
+	 * Requests access to rewards
+	 */
+	public requestRewardsScope():void {
+		this.$store("auth").requestTwitchScopes([TwitchScopes.LIST_REWARDS]);
 	}
 
 	/**
@@ -321,6 +403,7 @@ export default class TriggerCreateForm extends Vue {
 		//Push "Highlight my message" reward as it's not given by the API...
 		this.rewards.push(Config.instance.highlightMyMessageReward)
 
+		//Sort by cost and name
 		const list = this.rewards.sort((a,b)=> {
 			if(a.cost < b.cost) return -1;
 			if(a.cost > b.cost) return 1;
@@ -332,77 +415,13 @@ export default class TriggerCreateForm extends Vue {
 				label:v.title,
 				isCategory:false,
 				value:v.id,
+				background:v.background_color,
 				labelSmall:v.cost > 0? v.cost+"pts" : "",
 				icon:v.image?.url_2x ?? ""
 			};
 		})
 		this.subtriggerList = list;
 		this.showLoading = false;
-	}
-
-	/**
-	 * Lists OBS Scenes
-	 */
-	private async listOBSScenes():Promise<void> {
-		this.showLoading	= true;
-		
-		try {
-			this.obsScenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
-		}catch(error) {
-			this.obsScenes = [];
-			this.$store("main").alert(this.$t('error.obs_scenes_loading'));
-			this.showLoading = false;
-			return;
-		}
-		console.log("oFKDOKFD");
-		const list = this.obsScenes.sort((a,b)=> {
-			if(a.sceneName.toLowerCase() < b.sceneName.toLowerCase()) return -1;
-			if(a.sceneName.toLowerCase() > b.sceneName.toLowerCase()) return 1;
-			return 0;
-		}).map((v):TriggerEntry => {
-			return {
-				label:v.sceneName,
-				value:v.sceneName,
-				icon:"",
-				isCategory:false,
-			};
-		})
-		this.subtriggerList = list;
-		this.showLoading = false;
-	}
-
-	/**
-	 * Lists OBS Sources
-	 */
-	public async listOBSSources():Promise<void> {
-		this.showLoading	= true;
-		
-		try {
-			this.obsSources = await OBSWebsocket.instance.getSources();
-		}catch(error) {
-			this.obsSources = [];
-			this.$store("main").alert(this.$t('error.obs_sources_loading'));
-			this.showLoading = false;
-			return;
-		}
-
-		this.obsSources.sort((a,b)=> {
-			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
-			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
-			return 0;
-		});
-
-		const list = this.obsSources.map((v):TriggerEntry => {
-			return {
-				label:v.sourceName,
-				value:v.sourceName,
-				icon:"",
-				isCategory:false,
-			};
-		});
-		this.subtriggerList = list;
-		this.showLoading	= false;
-		
 	}
 
 	/**
@@ -423,16 +442,13 @@ export default class TriggerCreateForm extends Vue {
 		});
 		this.subtriggerList = list;
 	}
-
-	public requestRewardsScope():void {
-		this.$store("auth").requestTwitchScopes([TwitchScopes.LIST_REWARDS]);
-	}
 }
 
 interface TriggerEntry{
 	label:string;
 	labelSmall?:string;
 	value:string;
+	background?:string;
 	trigger?:TriggerEventTypes;
 	isCategory:boolean;
 	icon:string;

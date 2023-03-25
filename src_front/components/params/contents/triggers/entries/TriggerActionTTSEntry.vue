@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { TriggerEventPlaceholders, type TriggerActionChatData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionChatData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
@@ -32,7 +32,7 @@ export default class TriggerActionTTSEntry extends Vue {
 	@Prop
 	public action!:TriggerActionChatData;
 	@Prop
-	public event!:TriggerEventTypes;
+	public triggerData!:TriggerData;
 
 	public message_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
@@ -40,7 +40,7 @@ export default class TriggerActionTTSEntry extends Vue {
 
 	public beforeMount():void {
 		this.message_conf.labelKey = "triggers.actions.tts.param_message";
-		this.message_conf.placeholderList = TriggerEventPlaceholders(this.event.value);
+		this.message_conf.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 	}
 
 }
