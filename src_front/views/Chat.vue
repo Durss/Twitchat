@@ -2,12 +2,13 @@
 	<div :class="classes">
 		<div class="top" ref="top">
 			<div class="scrollable" ref="scrollable">
-				<div class="column" v-for="c, index in $store('params').chatColumnsConfig"
+				<div class="column" v-for="c in $store('params').chatColumnsConfig"
 				:ref="'column_'+c.id"
 				:key="c.id"
 				:style="getColStyles(c)">
 					<div class="subHolder">
-						<GreetThem class="greetThem" v-if="c.showPanelsHere" />
+						<GreetThem class="greetThem"
+						v-if="$store('params').features.firstMessage.value === true && (c.showPanelsHere || $store('params').chatColumnsConfig.length == 1)" />
 	
 						<MessageList ref="messages" class="messages"
 							@showModal="(v:TwitchatDataTypes.ModalTypes) => currentModal = v"

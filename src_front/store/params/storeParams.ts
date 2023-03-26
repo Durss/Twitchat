@@ -17,7 +17,7 @@ export const storeParams = defineStore('params', {
 		features: {
 			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show_purple.svg"},
 			alertMode: 					{save:true, type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert_purple.svg"},
-			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
+			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand_purple.svg", example:"greetThem.png"},
 			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read_purple.svg"},
 			conversationsEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.conversationsEnabled", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
 			userHistoryEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.userHistoryEnabled", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
