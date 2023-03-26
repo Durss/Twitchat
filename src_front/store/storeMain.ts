@@ -108,8 +108,9 @@ export const storeMain = defineStore("main", {
 			
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};
-			for (const cat in sParams.$state) {
-				const values = sParams.$state[cat as TwitchatDataTypes.ParameterCategory];
+			const pointers = [sParams.features, sParams.appearance];
+			for (let i = 0; i < pointers.length; i++) {
+				const values = pointers[i];
 				for (const key in values) {
 					const p = values[key] as TwitchatDataTypes.ParameterData;
 					if(uniqueIdsCheck[p.id as number] === true) {
