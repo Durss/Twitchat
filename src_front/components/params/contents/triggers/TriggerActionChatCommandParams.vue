@@ -6,7 +6,7 @@
 	:title="$t('triggers.actions.chat.params_title')"
 	:icons="['params']">
 
-		<ParamItem class="row" :paramData="param_cmd" @focusout="onUpdateCommand()" :error="cmdNameConflict" />
+		<ParamItem class="row" :paramData="param_cmd" v-model="triggerData.chatCommand" @focusout="onUpdateCommand()" :error="cmdNameConflict" />
 		<div v-if="cmdNameConflict" class="cmdNameConflict">{{ $t("triggers.actions.chat.conflict") }}</div>
 
 		<ToggleBlock :open="false" class="row" small :title="$t('triggers.actions.chat.allowed_users')">
@@ -51,8 +51,6 @@ export default class TriggerActionChatCommandParams extends Vue {
 	public param_userCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, icon:"timeout_purple.svg", min:0, max:60*60*12 };
 	public param_alertCD:TwitchatDataTypes.ParameterData = { type:"boolean", value:true, icon:"whispers_purple.svg" };
 
-	private originalCmd!:string;
-
 	public beforeMount():void {
 		if(!this.triggerData.permissions) {
 			this.triggerData.permissions = {
@@ -79,37 +77,23 @@ export default class TriggerActionChatCommandParams extends Vue {
 		this.param_globalCD.labelKey= "triggers.actions.chat.param_globalCD";
 		this.param_userCD.labelKey	= "triggers.actions.chat.param_userCD";
 		this.param_alertCD.labelKey	= "triggers.actions.chat.param_alertCD";
-
-		this.populate();
-		watch(()=> this.triggerData, ()=> { this.populate(); }, { deep:true });
-	}
-
-	public populate():void {
-		this.param_cmd.value = 
-		this.originalCmd = this.triggerData.name as string;
 	}
 
 	public onUpdateCommand():void {
 		this.cmdNameConflict = false;
-		//If command name has been changed
-		if(this.originalCmd != this.param_cmd.value) {
-			//Make sure no other chat command has the same name
-			const triggers = this.$store("triggers").triggers;
-			for (const k in triggers) {
-				//Is a chat command?
-				if(k.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
-					const t = triggers[k] as TriggerData;
-					if(t.name?.toLowerCase() == (this.param_cmd.value as string).toLowerCase()) {
-						this.cmdNameConflict = true;
-						return;
-					}
-				}
+
+		//Make sure no other chat command has the same name
+		const triggers = this.$store("triggers").triggers;
+		for (let i = 0; i < triggers.length; i++) {
+			if(triggers[i].type == TriggerTypes.CHAT_COMMAND
+			&& triggers[i].id != this.triggerData.id
+			&& triggers[i].chatCommand?.toLowerCase() == this.triggerData.chatCommand?.toLowerCase()) {
+				this.cmdNameConflict = true;
 			}
-			this.triggerData.prevKey = TriggerTypes.CHAT_COMMAND+"_"+this.triggerData.name;
 		}
 		//This triggers a save event that will clean the previous key
 		//based on the "prevKey" property value
-		this.triggerData.name = this.param_cmd.value as string;
+		this.triggerData.name = this.triggerData.chatCommand;
 	}
 
 }

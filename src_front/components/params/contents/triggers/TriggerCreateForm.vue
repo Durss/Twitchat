@@ -51,15 +51,6 @@
 			</template>
 		</i18n-t>
 
-	<!--
-		public actions!:TriggerActionTypes[];
-		public action!:TriggerActionTypes;
-		public triggerData!:TriggerData;
-		public event!:TriggerEventTypes;
-		public obsSources!:OBSSourceItem[];
-		public triggerKey!:string;
-		public totalItems!:number;
--->
 	</div>
 </template>
 
@@ -68,7 +59,6 @@ import Button from '@/components/Button.vue';
 import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import type { OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';

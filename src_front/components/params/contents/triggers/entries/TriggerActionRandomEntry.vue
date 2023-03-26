@@ -205,16 +205,16 @@ export default class TriggerActionRandomEntry extends Vue {
 	 * Loads all existing triggers
 	 */
 	private async populateTriggersList():Promise<void> {
-		const triggers:{[key:string]:TriggerData} = this.$store("triggers").triggers;
+		const triggers:TriggerData[] = this.$store("triggers").triggers;
 		const list:TriggerDefinitionEntry[] = [];
-		for (const key in triggers) {
-			const mainKey = key.split("_")[0];
-			const info:TriggerEventTypes|undefined = TriggerEvents().find(v=> v.value === mainKey);
+		for (let i = 0; i < triggers.length; i++) {
+			const t = triggers[i];
+			const info:TriggerEventTypes|undefined = TriggerEvents().find(v=> v.value === t.type);
 			if(!info) continue;
 			if(info.isCategory) {
 				const subKey = key.split("_")[1];
 				if(!subKey) continue;
-				if(mainKey == TriggerTypes.CHAT_COMMAND) {
+				if(t.type == TriggerTypes.CHAT_COMMAND) {
 					list.push({
 						triggerKey:key,
 						label:subKey,
