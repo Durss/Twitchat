@@ -25,7 +25,7 @@
 					@showModal="(v:string)=> $emit('showModal', v)"
 					@close="(v:any)=> deleteMessage()"
 					@openParam="(v:any)=> openParamPage(v)"
-					@openParamItem="(v:string)=> openSpecificParam(v)"
+					@openParamItem="(v:string)=> openParamItem(v)"
 				/>
 			</div>
 	
@@ -35,7 +35,7 @@
 				<ChatTipAndTrickAd class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
 					@openParam="(v:any)=> openParamPage(v)"
-					@openParamItem="(v:string)=> openSpecificParam(v)"
+					@openParamItem="(v:string)=> openParamItem(v)"
 				/>
 			</div>
 	
@@ -165,22 +165,22 @@ export default class ChatAd extends Vue {
 	
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 
-	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.APPEARANCE; } 
-	public get contentAccount():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ACCOUNT; } 
-	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ABOUT; } 
-	public get contentFeatures():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.FEATURES; } 
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
-	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPONSOR; } 
-	public get contentStreamdeck():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.STREAMDECK; } 
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
-	public get contentOverlays():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OVERLAYS; } 
-	public get contentEmergency():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.EMERGENCY; } 
-	public get contentSpoiler():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPOILER; } 
-	public get contentAlert():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ALERT; } 
-	public get contentTts():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TTS; } 
-	public get contentVoice():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.VOICE; } 
-	public get contentAutomod():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.AUTOMOD; } 
-	public get contentMainMenu():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.MAIN_MENU; } 
+	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; } 
+	public get contentAccount():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ACCOUNT; } 
+	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
+	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; } 
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; } 
+	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
+	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
+	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; } 
+	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; } 
+	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
+	public get contentTts():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; } 
+	public get contentVoice():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICE; } 
+	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
+	public get contentMainMenu():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; } 
 
 	public async getSvgIcon(name:string) {
 		const module = await import(`../../assets/icons/${name}.svg`);
@@ -196,17 +196,9 @@ export default class ChatAd extends Vue {
 		this.kofiIcon = await this.getSvgIcon("kofi");
 	}
 
-	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
-		this.$store("main").tempStoreValue = "CONTENT:"+page;
-		this.$store("main").setShowParams(true);
-	}
-
-	public openSpecificParam(id:string):void {
-		this.$store("main").tempStoreValue = "SEARCH:"+id;
-		this.$store("main").setShowParams(true);
-	}
-
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
+	public openParamItem(paramPath:string):void { this.$store("params").searchParam(paramPath); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {

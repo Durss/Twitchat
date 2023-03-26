@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.voicemod.header">
 				<template #LINK>
-					<a @click="$emit('setContent', contentVM)">{{ $t("triggers.actions.voicemod.header_link") }}</a>
+					<a @click="$store('params').openParamsPage(contentVM)">{{ $t("triggers.actions.voicemod.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -36,7 +36,7 @@ export default class TriggerActionVoicemodEntry extends Vue {
 	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"", listValues:[], value:""}
 	
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
-	public get contentVM():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.VOICEMOD; } 
+	public get contentVM():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; } 
 
 	public beforeMount():void {
 		this.param_voiceList.labelKey = "triggers.actions.voicemod.param_voice";

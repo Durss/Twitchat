@@ -47,7 +47,7 @@
 			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
 			<i18n-t scope="global" class="infos" tag="div" v-if="publicDonation_loaded" keypath="account.donation_public">
 				<template #LINK>
-					<a @click="$emit('setContent', contentAbout)">{{ $t("account.about_link") }}.</a>
+					<a @click="$store('params').openParamsPage(contentAbout)">{{ $t("account.about_link") }}.</a>
 				</template>
 			</i18n-t>
 		</section>
@@ -87,7 +87,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		ScopeSelector,
 		AppLangSelector,
 	},
-	emits:["setContent"],
+	emits:[],
 })
 export default class ParamsAccount extends Vue {
 
@@ -109,7 +109,7 @@ export default class ParamsAccount extends Vue {
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
-	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ABOUT; } 
+	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 	public get userPP():string {
 		let pp:string|undefined = StoreProxy.auth.twitch.user.avatarPath;
 		if(!pp) {
@@ -158,7 +158,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public latestUpdates():void {
-		this.$store("main").showParams = false;
+		this.$store("params").closeParameters();
 		this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 	}
 
@@ -184,7 +184,7 @@ export default class ParamsAccount extends Vue {
 			OBSWebsocket.instance.disconnect();
 			VoicemodWebSocket.instance.disconnect();
 			TTSUtils.instance.enabled = false;
-			TriggerActionHandler.instance.populate({});
+			TriggerActionHandler.instance.populate([]);
 			DataStore.set(DataStore.SYNC_DATA_TO_SERVER, false);
 		})
 	}

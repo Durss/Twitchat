@@ -24,7 +24,7 @@ import OBSConnectForm from './obs/OBSConnectForm.vue';
 		ConnectWebsocket,
 		ConnectSpotifyForm,
 	},
-	emits:["setContent"],
+	emits:[],
 })
 export default class ParamsConnexions extends Vue {
 

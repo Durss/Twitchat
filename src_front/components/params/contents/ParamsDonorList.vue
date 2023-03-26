@@ -73,7 +73,7 @@ export default class ParamsDonorList extends Vue {
 			const bounds = (this.$refs.list as Vue).$el.getBoundingClientRect();
 			const scrollMax = this.itemList.length*(this.itemSize+0) - bounds.height;
 			
-			if(this.scrollOffset > scrollMax - 100) {
+			if(this.scrollOffset > scrollMax - 500) {
 				this.loadNext();
 			}
 		});

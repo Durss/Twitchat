@@ -10,7 +10,7 @@
 						:icon="$image('icons/obs_purple.svg')"
 						:title="$t('overlay.connection.obsBt')"
 						white
-						@click="$emit('setContent', contentObs)" />
+						@click="$store('params').openParamsPage(contentObs)" />
 				</template>
 				<template #DOCK>
 					<Button class="button"
@@ -36,12 +36,12 @@
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
 		
-		<OverlayParamsRaffle class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsTimer class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsCounter class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsHighlight class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsSpotify class="block" v-if="true || exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
-		<!-- <OverlayParamsDeezer class="block" v-if="true || exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" /> -->
+		<OverlayParamsRaffle class="block" v-if="true || exchangeChannelAvailable" />
+		<OverlayParamsTimer class="block" v-if="true || exchangeChannelAvailable" />
+		<OverlayParamsCounter class="block" v-if="true || exchangeChannelAvailable" />
+		<OverlayParamsHighlight class="block" v-if="true || exchangeChannelAvailable" />
+		<OverlayParamsSpotify class="block" v-if="true || exchangeChannelAvailable && spotifyConfigured" />
+		<!-- <OverlayParamsDeezer class="block" v-if="true || exchangeChannelAvailable && deezerConfigured" /> -->
 	</div>
 </template>
 
@@ -68,7 +68,7 @@ import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 		OverlayParamsCounter,
 		OverlayParamsHighlight,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class ParamsOverlays extends Vue {
 
@@ -79,7 +79,7 @@ export default class ParamsOverlays extends Vue {
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; }
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 
 }

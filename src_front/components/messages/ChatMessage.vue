@@ -653,8 +653,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Open ad params page
 	 */
 	public openAdParams():void {
-		this.$store("main").tempStoreValue = "CONTENT:"+TwitchatDataTypes.ParamsCategories.AD;
-		this.$store("main").setShowParams(true);
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.AD)
 	}
 
 	/**

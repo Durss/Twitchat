@@ -424,7 +424,11 @@ export default class ChatForm extends Vue {
 	}
 	
 	public toggleParams():void {
-		this.$store("main").setShowParams(!this.$store("main").showParams);
+		if(this.$store("params").currentPage == TwitchatDataTypes.ParameterPages.CLOSE) {
+			this.$store("params").openParamsPage( TwitchatDataTypes.ParameterPages.MAIN_MENU );
+		}else{
+			this.$store("params").openParamsPage( TwitchatDataTypes.ParameterPages.CLOSE );
+		}
 	}
 
 	/**
@@ -635,7 +639,6 @@ export default class ChatForm extends Vue {
 		}else
 
 		if(cmd == "/userlist") {
-			this.$store("main").tempStoreValue = params[0];
 			this.$emit('TTuserList');
 			this.message = "";
 		}else

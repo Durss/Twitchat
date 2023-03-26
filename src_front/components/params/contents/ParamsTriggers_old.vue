@@ -117,7 +117,7 @@
 		
 		<div class="empty" v-if="isSublist && subeventsList.length == 0 && actionList.length === 0 && !showLoading">
 			<p>{{ $t("triggers.noTrigger") }}</p>
-			<Button class="createBt" @click="$emit('setContent', countersContent)" v-if="isCounter" :title="$t('triggers.create_counterBt')" />
+			<Button class="createBt" @click="$store('params').openParamsPage(countersContent)" v-if="isCounter" :title="$t('triggers.create_counterBt')" />
 		</div>
 
 		<div class="triggerDescription" v-if="((currentEvent && ! isSublist) || (isSublist && (currentSubEvent || actionList.length > 0))) && !showLoading">
@@ -202,7 +202,6 @@
 					:triggerKey="triggerKey"
 					@delete="deleteAction(index)"
 					@duplicate="duplicateAction(element, index)"
-					@setContent="(v:string)=>$emit('setContent', v)"
 				/>
 			</template>
 		</draggable>
@@ -250,7 +249,7 @@ import TriggerActionScheduleParams from './triggers/TriggerActionScheduleParams.
 		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class ParamsTriggers extends Vue {
 
@@ -286,7 +285,7 @@ export default class ParamsTriggers extends Vue {
 	
 	public get hasChannelPoints():boolean { return StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner; }
 	
-	public get countersContent():string { return TwitchatDataTypes.ParamsCategories.COUNTERS; }
+	public get countersContent():string { return TwitchatDataTypes.ParameterPages.COUNTERS; }
 	
 	public get isCounter():boolean {
 		if(!this.currentEvent) return false;
@@ -779,15 +778,15 @@ export default class ParamsTriggers extends Vue {
 	}
 
 	public openOverlays():void {
-		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OVERLAYS);
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 	}
 
 	public openOBS():void {
-		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OBS);
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
 	}
 
 	public openCounters():void {
-		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.COUNTERS);
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
 	}
 
 	/**

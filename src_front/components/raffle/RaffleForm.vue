@@ -372,12 +372,11 @@ export default class RaffleForm extends Vue {
 		}
 	}
 	
-	public openParam(page:TwitchatDataTypes.ParamsContentStringType):void {
+	public openParam(page:TwitchatDataTypes.ParameterPagesStringType):void {
 		if(this.triggerMode) {
-			this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
+			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 		}else{
-			this.$store("main").tempStoreValue = "CONTENT:"+page;
-			this.$store("main").setShowParams(true);
+			this.$store("params").openParamsPage(page);
 		}
 	}
 

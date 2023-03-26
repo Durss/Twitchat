@@ -5,7 +5,7 @@
 			<h1 class="row">{{ $t("tips.alerts.title") }}</h1>
 			<div class="row">{{ $t("tips.alerts.info_1") }}</div>
 			<div class="row">{{ $t('tips.alerts.info_2') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentTriggers)" />
+			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentTriggers)" />
 		</div>
 		
 		<div v-if="tipIndex===1" class="entry">
@@ -13,7 +13,7 @@
 			<h1 class="row">{{ $t('tips.streamdeck.title') }}</h1>
 			<div class="row">{{ $t('tips.streamdeck.info_1') }}</div>
 			<div class="row">{{ $t('tips.streamdeck.info_2') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentStreamdeck)" />
+			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentStreamdeck)" />
 		</div>
 		
 		<div v-if="tipIndex===2" class="entry">
@@ -44,7 +44,7 @@
 			<h1 class="row">{{ $t('tips.obs.title') }}</h1>
 			<div class="row">{{ $t('tips.obs.info_1') }}</div>
 			<div class="row">{{ $t('tips.obs.info_2') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentObs)" />
+			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentObs)" />
 		</div>
 		
 		<div v-if="tipIndex===6" class="entry">
@@ -67,7 +67,7 @@
 			<div class="row" v-html="$t('tips.music.info_1')"></div>
 			<div class="row">{{ $t('tips.music.info_2') }}</div>
 			<div class="row">{{ $t('tips.music.info_3') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentOverlays)" />
+			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentOverlays)" />
 		</div>
 		
 		<div v-if="tipIndex===8" class="entry">
@@ -75,7 +75,7 @@
 			<h1 class="row">{{ $t('tips.overlays.title') }}</h1>
 			<div class="row" v-html="$t('tips.overlays.info_1')"></div>
 			<div class="row" v-html="$t('tips.overlays.info_2')"></div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParam(contentOverlays)" />
+			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentOverlays)" />
 		</div>
 		
 		<div v-if="tipIndex===9" class="entry">
@@ -106,9 +106,9 @@
 			<!-- <img class="row" src="@/assets/img/chatHighlightedMessage.png" alt="obs dock screen"> -->
 			<iframe class="row" src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParam(contentOverlays)" :icon="$image('icons/overlay.svg')" />
+			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParamPage(contentOverlays)" :icon="$image('icons/overlay.svg')" />
 			<div class="row or">{{ $t("global.or") }}</div>
-			<Button class="row" :title="$t('tips.highlight.configure_triggerBt')" @click.stop="openParam(contentTriggers)" :icon="$image('icons/broadcast.svg')" />
+			<Button class="row" :title="$t('tips.highlight.configure_triggerBt')" @click.stop="openParamPage(contentTriggers)" :icon="$image('icons/broadcast.svg')" />
 		</div>
 	</div>
 </template>
@@ -129,21 +129,20 @@ export default class ChatTipAndTrickAd extends Vue {
 	public tipIndex = 0;
 	private maxIndex = 11;
 
-	public get contentOverlays() { return TwitchatDataTypes.ParamsCategories.OVERLAYS; }
-	public get contentTriggers() { return TwitchatDataTypes.ParamsCategories.TRIGGERS; }
-	public get contentObs() { return TwitchatDataTypes.ParamsCategories.OBS; }
-	public get contentStreamdeck() { return TwitchatDataTypes.ParamsCategories.STREAMDECK; }
+	public get contentOverlays() { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
+	public get contentTriggers() { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
+	public get contentObs() { return TwitchatDataTypes.ParameterPages.OBS; }
+	public get contentStreamdeck() { return TwitchatDataTypes.ParameterPages.STREAMDECK; }
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
-	public openParam(modal:TwitchatDataTypes.ParamsContentStringType):void { this.$emit("openParam", modal); }
-	public openParamItem(paramPath:string):void { this.$emit("openParamItem", paramPath); }
 	public startTimer():void { this.$store("timer").timerStart(); }
 	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
-
+	public openParamItem(paramPath:string):void { this.$store("params").searchParam(paramPath); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
 }
 </script>
 

@@ -17,11 +17,11 @@
 	
 			<i18n-t class="row" v-if="spotifyConnected" scope="global" tag="div" keypath="overlay.music_common.infos">
 				<template #TRIGGERS>
-					<a @click="$emit('setContent', contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
+					<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
 				</template>
 			</i18n-t>
 
-			<Button title="Connecter spotify" @click="$emit('setContent', contentConnexions)" />
+			<Button title="Connecter spotify" @click="$store('params').openParamsPage(contentConnexions)" />
 		</div>
 
 	</ToggleBlock>
@@ -45,7 +45,7 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 		OverlayParamsMusic,
 		OverlayMusicPlayer,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class OverlayParamsSpotify extends Vue {
 
@@ -54,8 +54,8 @@ export default class OverlayParamsSpotify extends Vue {
 
 	public get spotifyConnected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
 	
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; }
-	public get contentConnexions():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.CONNEXIONS; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
 	public async mounted():Promise<void> {
 		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");

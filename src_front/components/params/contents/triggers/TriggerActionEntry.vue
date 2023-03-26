@@ -113,26 +113,25 @@
 					:icon="$image('icons/url_purple.svg')"/>
 			</div>
 
-			<TriggerActionChatEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
-			<TriggerActionOBSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :sources="obsSources" />
-			<TriggerActionMusicEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
-			<TriggerActionTTSEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
-			<TriggerActionVoicemodEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='voicemod'" :action="action" />
-			<TriggerActionHighlightEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
-			<TriggerActionTriggerEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" />
-			<TriggerActionHTTPCall @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
-			<TriggerActionWS @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
-			<TriggerActionCountEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
-			<TriggerActionCountGetEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='countget'" :action="action" />
-			<TriggerActionRandomEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='random'" :action="action" />
-			<TriggerActionStreamInfoEntry @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
-			<RaffleForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
-			<BingoForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
-			<PollForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
-			<PredictionForm @setContent="(v:string)=>$emit('setContent', v)" v-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
+			<TriggerActionDelay v-if="action.type=='delay'" :action="action" :triggerData="triggerData" />
+			<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
+			<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :sources="obsSources" />
+			<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
+			<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
+			<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" />
+			<TriggerActionHighlightEntry v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
+			<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" />
+			<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
+			<TriggerActionWS v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
+			<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
+			<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
+			<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" />
+			<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
+			<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
+			<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
+			<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
+			<PredictionForm v-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
 			<div v-if="action.type=='raffle_enter'">{{ $t("triggers.actions.raffle_enter.info") }}</div>
-			
-			<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==null" v-model="action.delay" />
 
 		</div>
 	</ToggleBlock>
@@ -159,6 +158,7 @@ import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 import TriggerActionCountGetEntry from './entries/TriggerActionCountGetEntry.vue';
+import TriggerActionDelay from './entries/TriggerActionDelay.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
@@ -180,6 +180,7 @@ import TriggerActionWS from './entries/TriggerActionWS.vue';
 		ToggleBlock,
 		PredictionForm,
 		TriggerActionWS,
+		TriggerActionDelay,
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,
@@ -193,7 +194,7 @@ import TriggerActionWS from './entries/TriggerActionWS.vue';
 		TriggerActionHighlightEntry,
 		TriggerActionStreamInfoEntry,
 	},
-	emits:["delete", "setContent", "duplicate"]
+	emits:["delete", "duplicate"]
 })
 export default class TriggerActionEntry extends Vue {
 
@@ -210,7 +211,6 @@ export default class TriggerActionEntry extends Vue {
 
 	public opened = false;
 	public isError = false;
-	public delay_conf:TwitchatDataTypes.ParameterData = { type:"number", value:0, min:0, max:60*60*24*30, icon:"timeout_purple.svg" };
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
@@ -253,7 +253,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type) {
 			res = this.$t("triggers.actions.common.action_"+this.action.type)
 		}
-		if(this.action.delay > 0) {
+		if(this.action.type == "delay" && this.action.delay > 0) {
 			res += " <span class='subtitle'>(⏳"+this.action.delay+"s)</span>";
 		}
 		return res+this.subtitle;
@@ -271,6 +271,7 @@ export default class TriggerActionEntry extends Vue {
 			unmute:"unmute",
 			replay:"play",
 		};
+		
 		if(this.action.type == "obs") icons.push( action2Icon[this.action.action] );
 		if(this.action.type == "music") icons.push( 'spotify' );
 		if(this.action.type == "chat") icons.push( 'whispers' );
@@ -289,6 +290,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "countget") icons.push( 'count_placeholder' );
 		if(this.action.type == "random") icons.push( 'dice_placeholder' );
 		if(this.action.type == "stream_infos") icons.push( 'info' );
+		if(this.action.type == "delay") icons.push( 'timer' );
 		return icons;
 	}
 
@@ -320,7 +322,6 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.delay_conf.labelKey = "triggers.actions.common.next_delay";
 		this.opened = !this.action.type || this.totalItems <= 2;
 	}
 
@@ -350,31 +351,31 @@ export default class TriggerActionEntry extends Vue {
 			}
 			case "music": {
 				if(!this.musicServiceConfigured) {
-					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.CONNEXIONS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
 					return;
 				}break
 			}
 			case "voicemod": {
 				if(!this.voicemodEnabled) {
-					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.VOICEMOD);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.VOICEMOD);
 					return;
 				}break
 			}
 			case "obs": {
 				if(!this.obsConnected) {
-					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.CONNEXIONS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
 					return;
 				}break
 			}
 			case "ws": {
 				if(!this.wsConnected) {
-					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.CONNEXIONS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
 					return;
 				}break
 			}
 			case "tts": {
 				if(!this.$store('tts').params.enabled) {
-					this.$emit("setContent", TwitchatDataTypes.ParamsCategories.TTS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
 					return;
 				}break
 			}
@@ -459,15 +460,6 @@ export default class TriggerActionEntry extends Vue {
 
 	.item:not(:first-of-type) {
 		margin-top: .25em;
-	}
-
-	.delay {
-		:deep(input){
-			flex-grow: unset;
-			min-width: unset;
-			width: 90px;
-			max-width: 90px;
-		}
 	}
 
 	.url {

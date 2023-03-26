@@ -12,11 +12,11 @@
 
 						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
+							@click.stop="openParamItem(e.a!.param!)">{{e.a.l}}</button>
 							
 						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
+							@click.stop="openParamPage(e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
@@ -29,11 +29,11 @@
 
 						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
+							@click.stop="openParamItem(e.a!.param!)">{{e.a.l}}</button>
 							
 						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
+							@click.stop="openParamPage(e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
@@ -46,11 +46,11 @@
 
 						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
+							@click.stop="openParamItem(e.a!.param!)">{{e.a.l}}</button>
 							
 						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
+							@click.stop="openParamPage(e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
@@ -103,7 +103,7 @@ export default class ChatChangelog extends Vue {
 						this.$tm("changelog.minor") as TwitchatDataTypes.ChangelogEntry[],
 						this.$tm("changelog.fix") as TwitchatDataTypes.ChangelogEntry[],
 					];
-		const allowedTypes = Object.values(TwitchatDataTypes.ParamsCategories) as TwitchatDataTypes.ParamsContentStringType[];
+		const allowedTypes = Object.values(TwitchatDataTypes.ParameterPages) as TwitchatDataTypes.ParameterPagesStringType[];
 		const sParams = this.$store("params");
 		let allowedParams:string[] = [];
 		allowedParams = allowedParams.concat(Object.keys(this.$store("params").features));
@@ -124,6 +124,22 @@ export default class ChatChangelog extends Vue {
 			})
 		})
 	}
+
+	public openParamItem(paramPath:string):void {
+		const chunks = paramPath.split(".");
+		let pointer:unknown = this.$store("params");
+		for (let i = 0; i < chunks.length; i++) {
+			//@ts-ignore
+			pointer = pointer[chunks[i]];
+		}
+		if(pointer) {
+			let label:string = (pointer as TwitchatDataTypes.ParameterData).label ?? "";
+			let key = (pointer as TwitchatDataTypes.ParameterData).labelKey;
+			if(key) label = this.$t(key);
+			this.$store("params").searchParam(label);
+		}
+	}
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
 
 }
 </script>

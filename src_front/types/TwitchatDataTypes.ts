@@ -9,8 +9,9 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Parameters menue categories
 	 */
-	export const ParamsCategories = {
-		MAIN_MENU: "",
+	export const ParameterPages = {
+		CLOSE: "",
+		MAIN_MENU: "main",
 		APPEARANCE: "appearance",
 		ACCOUNT: "account",
 		ABOUT: "about",
@@ -31,7 +32,7 @@ export namespace TwitchatDataTypes {
 		AD: "ad",
 		CONNEXIONS: "connexions",
 	} as const;
-	export type ParamsContentStringType = typeof ParamsCategories[keyof typeof ParamsCategories];
+	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 
 	/**
 	 * Contains info about a counter
@@ -1123,8 +1124,8 @@ export namespace TwitchatDataTypes {
 		a?:{
 			l:string;//label of the button
 			a?:string;//aria-label value of the button
-			page?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
-			param?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
+			page?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
+			param?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
 		}
 	}
 

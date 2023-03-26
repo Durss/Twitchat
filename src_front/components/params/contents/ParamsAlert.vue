@@ -25,7 +25,7 @@
 	
 			<i18n-t scope="global" tag="div" class="item infos" keypath="alert.actions_triggers">
 				<template #LINK>
-					<a @click="$emit('setContent', contentTriggers)">{{ $t("alert.actions_triggers_link") }}</a>
+					<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("alert.actions_triggers_link") }}</a>
 				</template>
 			</i18n-t>
 	
@@ -85,7 +85,7 @@ export default class ParamsAlert extends Vue {
 		};
 	}
 	
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
 	public mounted():void {
 		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.$store("main").chatAlertParams));

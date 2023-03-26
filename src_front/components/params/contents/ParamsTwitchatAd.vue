@@ -26,7 +26,7 @@
 			v-if="!showAdInfo && !collapse && !isDonor" />
 		<div v-if="showAdInfo && !collapse && !isDonor" class="donateDetails">
 			<p class="title" v-html="$t('params.ad_disable_info1')"></p>
-			<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="setContent(contentSponsor)" :title="$t('params.ad_donateBt')" />
+			<Button class="donateBt" white small :icon="$image('icons/coin_purple.svg')" @click="$store('params').openParamsPage(contentSponsor)" :title="$t('params.ad_donateBt')" />
 		</div>
 		<ToggleBlock v-if="!collapse && !isDonor" class="tip" :open="false" :title="$t('params.ad_bot_info_title')" small>
 			<div v-html="$t('params.ad_bot_info_content')"></div>
@@ -51,7 +51,7 @@ import PostOnChatParam from '../PostOnChatParam.vue';
 		ToggleBlock,
 		PostOnChatParam,
 	},
-	emits:["setContent", "collapse", "expand"],
+	emits:["collapse", "expand"],
 })
 export default class ParamsTwitchatAd extends Vue {
 
@@ -65,7 +65,7 @@ export default class ParamsTwitchatAd extends Vue {
 	public showAdInfo:boolean = false;
 	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
 	
-	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPONSOR; }
+	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; }
 	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public get classes():string[] {
@@ -80,10 +80,6 @@ export default class ParamsTwitchatAd extends Vue {
 		watch(()=>this.expand, ()=> {
 			if(this.expand !== false) this.collapse = false;
 		})
-	}
-
-	public setContent(id:TwitchatDataTypes.ParamsContentStringType):void {
-		this.$emit("setContent", id)
 	}
 
 	public open():void {

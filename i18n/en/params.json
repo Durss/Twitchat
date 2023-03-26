@@ -55,7 +55,6 @@
 		"defaultSize": "Text size ({'{'}VALUE{'}'})",
 		"backBt_aria": "Back to menu",
 		"closeBt_aria": "Close parameters",
-		"title_default": "Parameters",
 		"search": "Search a parameter...",
 		"search_no_result": "no result",
 		"ad_collapse_aria": "Collapse content",
@@ -66,6 +65,8 @@
 		"ad_bot_info_title": "Can this message be sent by nightbot / wizebot / ... ?",
 		"ad_bot_info_content": "Yes<br><br>By default the message is posted with your account.<br>But you can configure any other bot to send that message if you wish.<br><br>Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.",
 		"categories": {
+			"main": "Parameters",
+			"ad": "Parameters",
 			"about": "About",
 			"account": "Account",
 			"alert": "Chat alerts",

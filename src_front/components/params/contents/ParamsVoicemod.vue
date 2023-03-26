@@ -31,7 +31,7 @@
 				<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
 				<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
 					<template #LINK>
-						<a @click="$emit('setContent', contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
+						<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
 					</template>
 				</i18n-t>
 				<ParamItem class="item param shrinkInput" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
@@ -56,7 +56,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		ParamItem,
 		PermissionsForm,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class ParamsVoicemod extends Vue {
 
@@ -79,7 +79,7 @@ export default class ParamsVoicemod extends Vue {
 		usersRefused:[],
 	}
 	
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
 	public get holderStyles():StyleValue {
 		return {

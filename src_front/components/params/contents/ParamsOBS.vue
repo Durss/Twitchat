@@ -77,7 +77,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		PermissionsForm,
 		OBSAudioSourceForm,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class ParamsOBS extends Vue {
 

@@ -59,6 +59,7 @@
 				"dynamic_placeholder_info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
 				"dynamic_trigger":"Executer un trigger aléatoire parmi ceux sélectionnés",
 				"delete": "Supprimer",
+				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
 				"action_bingo": "Lancer un bingo",
 				"action_raffle": "Lancer un tirage au sort",

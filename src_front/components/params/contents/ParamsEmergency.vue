@@ -21,7 +21,7 @@
 					<img src="@/assets/icons/mod_purple.svg" alt="scene icon" class="icon">
 					<i18n-t scope="global" class="label" tag="p" keypath="emergency.start.also">
 						<template #LINK>
-							<a @click="$emit('setContent', contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
+							<a @click="$store('params').openParamsPage(contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
 						</template>
 					</i18n-t>
 				</div>
@@ -45,7 +45,7 @@
 						<img src="@/assets/icons/infos.svg" alt="info">
 						<i18n-t scope="global" class="label" tag="p" keypath="emergency.actions.obs_connect">
 							<template #LINK>
-								<a @click="$emit('setContent', contentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
+								<a @click="$store('params').openParamsPage(contentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
 							</template>
 						</i18n-t>
 					</div>
@@ -142,8 +142,8 @@ export default class ParamsEmergency extends Vue {
 	}
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
-	public get contentAutomod():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.AUTOMOD; } 
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
 	public get userName():string { return this.$store('auth').twitch.user.login; } 
 	
 	public get obsSources_filtered():OBSSourceItem[] {

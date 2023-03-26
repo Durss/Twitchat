@@ -4,6 +4,7 @@ import { TwitchatDataTypes } from "./TwitchatDataTypes";
 
 
 export type TriggerActionTypes =  TriggerActionEmptyData
+								| TriggerActionDelayData
 								| TriggerActionObsData
 								| TriggerActionChatData
 								| TriggerActionTTSData
@@ -43,6 +44,7 @@ export type TriggerActionStringTypes = "obs"
 									| "countget"
 									| "random"
 									| "stream_infos"
+									| "delay"
 									| null;
 
 export interface TriggerData {
@@ -192,12 +194,23 @@ export interface TriggerScheduleEventType extends Omit<TriggerEventTypes, "value
 export interface TriggerActionData {
 	type:TriggerActionStringTypes;
 	id:string;
-	delay:number;
+	/**
+	 * @deprecated moved to a dedicated action
+	 */
+	delay?:number;
 }
 
 //Used for temporary trigger data before user selects the trigger type
 export interface TriggerActionEmptyData extends TriggerActionData{
 	type:null;
+}
+
+export interface TriggerActionDelayData extends TriggerActionData{
+	type:"delay";
+	/**
+	 * Delay in seconds
+	 */
+	delay:number;
 }
 
 export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay";

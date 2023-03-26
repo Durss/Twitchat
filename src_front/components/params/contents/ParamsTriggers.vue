@@ -9,7 +9,6 @@
 		<div class="holder">
 			<TriggerCreateForm
 				v-if="showForm"
-				@setContent="$emit('setContent', $event)"
 				@openForm="showList=false"
 				@closeForm="showList=true"
 				@createTrigger="currentTriggerData=$event"
@@ -22,12 +21,12 @@
 			<TriggerActionList
 				v-if="currentTriggerData"
 				:triggerData="currentTriggerData"
+
 				:obsSources="obsSources"
 				:rewards="rewards" />
 				
 			<TriggerList v-if="showList"
 				@select="onSelectTrigger($event)"
-				@setContent="$emit('setContent', $event)"
 				:rewards="rewards" />
 		</div>
 	</div>
@@ -52,7 +51,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 		TriggerActionList,
 		TriggerCreateForm,
 	},
-	emits:["setContent"],
+	emits:[],
 })
 export default class ParamsTriggers extends Vue {
 

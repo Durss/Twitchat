@@ -9,7 +9,7 @@
 
 		<section>
 			<p>{{ $t('spoiler.message_example') }}</p>
-			<ChatMessage :messageData="spoilerExample" class="example" lightMode />
+			<ChatMessage v-if="spoilerExample" :messageData="spoilerExample" class="example" lightMode />
 		</section>
 
 		<section>

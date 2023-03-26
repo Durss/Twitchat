@@ -27,7 +27,6 @@ export const storeMain = defineStore("main", {
 	state: () => ({
 		latestUpdateIndex: 12,
 		initComplete: false,
-		showParams: false,
 		devmode: false,
 		ahsInstaller: null,
 		alertData:"",
@@ -529,8 +528,6 @@ export const storeMain = defineStore("main", {
 		openTooltip(payload:string) { this.tooltip = payload; },
 		
 		closeTooltip() { this.tooltip = ""; },
-		
-		setShowParams(payload:boolean) { this.$state.showParams = payload; },
 		
 		setCypherKey(payload:string) {
 			this.cypherKey = payload;

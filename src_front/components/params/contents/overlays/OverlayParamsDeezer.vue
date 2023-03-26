@@ -21,7 +21,7 @@
 			<div v-if="deezerConnected" class="row">
 				<i18n-t scope="global" tag="div" keypath="overlay.music_common.infos">
 					<template #TRIGGERS>
-						<a @click="$emit('setContent', contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
+						<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
 					</template>
 				</i18n-t>
 
@@ -56,7 +56,7 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 		OverlayParamsMusic,
 		OverlayMusicPlayer,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class OverlayParamsDeezer extends Vue {
 
@@ -65,7 +65,7 @@ export default class OverlayParamsDeezer extends Vue {
 	public currentTrack:TwitchatDataTypes.MusicTrackData = {title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get deezerConnected():boolean { return this.$store("music").deezerConnected; }
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
 	public mounted():void {
 		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");

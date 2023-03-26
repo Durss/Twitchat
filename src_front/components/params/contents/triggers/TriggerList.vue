@@ -37,7 +37,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 	components:{
 		ToggleButton
 	},
-	emits:["setContent", "select"],
+	emits:["select"],
 })
 export default class TriggerList extends Vue {
 

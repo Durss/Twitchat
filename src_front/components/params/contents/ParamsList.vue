@@ -12,7 +12,7 @@
 						<img src="@/assets/icons/alert_purple.svg">
 						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 							<template #LINK>
-								<a @click="$emit('setContent', contentObs)">{{ $t("global.obs_connect_link") }}</a>
+								<a @click="$store('params').openParamsPage(contentObs)">{{ $t("global.obs_connect_link") }}</a>
 							</template>
 						</i18n-t>
 					</div>
@@ -48,11 +48,11 @@
 					</div>
 	
 					<div v-else-if="p.id == 216 && p.value === true" class="info config">
-						<Button small :title="$t('global.configure')" @click="$emit('setContent', contentSpoiler)" />
+						<Button small :title="$t('global.configure')" @click="$store('params').openParamsPage(contentSpoiler)" />
 					</div>
 	
 					<div v-else-if="p.id == 217 && p.value === true" class="info config">
-						<Button small :title="$t('global.configure')" @click="$emit('setContent', contentAlert)" />
+						<Button small :title="$t('global.configure')" @click="$store('params').openParamsPage(contentAlert)" />
 					</div>
 	
 					<div v-else-if="p.id == 12 && fakeMessageData">
@@ -95,7 +95,7 @@ import PostOnChatParam from '../PostOnChatParam.vue';
 		ChatMessage,
 		PostOnChatParam,
 	},
-	emits:['setContent'],
+	emits:[],
 })
 export default class ParamsList extends Vue {
 
@@ -130,11 +130,11 @@ export default class ParamsList extends Vue {
 		return res;
 	}
 	
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
-	public get contentEmergency():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.EMERGENCY; } 
-	public get contentSpoiler():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPOILER; } 
-	public get contentAlert():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ALERT; } 
-	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPONSOR; } 
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; } 
+	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; } 
+	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
+	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; } 
 
 	public async beforeMount(): Promise<void> {
 		await new Promise((resolve)=> {

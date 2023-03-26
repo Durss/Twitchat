@@ -21,7 +21,7 @@ import ParamItem from '../../../ParamItem.vue';
 	components:{
 		ParamItem,
 	},
-	emits:["update", "setContent"]
+	emits:["update"]
 })
 export default class TriggerActionHighlightEntry extends Vue {
 	
@@ -49,7 +49,7 @@ export default class TriggerActionHighlightEntry extends Vue {
 	}
 
 	public openHighlightParams(){
-		this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 	}
 
 }

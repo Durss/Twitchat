@@ -102,7 +102,7 @@ import ParamItem from '../ParamItem.vue';
 		ToggleBlock,
 		OverlayCounter,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class ParamsCounters extends Vue {
 
@@ -156,7 +156,7 @@ export default class ParamsCounters extends Vue {
 	}
 
 	public openTriggers():void {
-		this.$emit("setContent", TwitchatDataTypes.ParamsCategories.TRIGGERS);
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
 
 	public getUserFromID(id:string):TwitchatDataTypes.TwitchatUser {
@@ -164,7 +164,7 @@ export default class ParamsCounters extends Vue {
 	}
 
 	public openOverlays():void {
-		this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 	}
 
 	public mounted(): void {

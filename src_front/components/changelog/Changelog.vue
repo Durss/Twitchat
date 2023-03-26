@@ -108,7 +108,7 @@ export default class Changelog extends Vue {
 		const changelogs:TwitchatDataTypes.ChangelogEntry[][] = [
 						this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[],
 					];
-		const allowedTypes = Object.values(TwitchatDataTypes.ParamsCategories) as TwitchatDataTypes.ParamsContentStringType[];
+		const allowedTypes = Object.values(TwitchatDataTypes.ParameterPages) as TwitchatDataTypes.ParameterPagesStringType[];
 		const sParams = this.$store("params");
 		let allowedParams:string[] = [];
 		allowedParams = allowedParams.concat(Object.keys(this.$store("params").features));

@@ -45,7 +45,6 @@ export default class StoreProxy {
 export interface IMainState {
 	latestUpdateIndex: number;
 	initComplete: boolean;
-	showParams: boolean;
 	devmode: boolean;
 	ahsInstaller: TwitchatDataTypes.InstallHandler|null;
 	alertData: string;
@@ -70,7 +69,6 @@ export interface IMainActions {
 	closeConfirm():void;
 	openTooltip(text:string):void;
 	closeTooltip():void;
-	setShowParams(show:boolean):void;
 	setCypherKey(key:string):void;
 	setCypherEnabled(enabled:boolean):void;
 	toggleDevMode(forcedState?:boolean):void;
@@ -283,6 +281,8 @@ export interface IOBSActions {
 
 
 export interface IParamsState {
+	currentPage:TwitchatDataTypes.ParameterPagesStringType;
+	currentParamSearch:string;
 	greetThemAutoDelete:number;
 	features:{[key:string]:TwitchatDataTypes.ParameterData};
 	appearance:{[key:string]:TwitchatDataTypes.ParameterData};
@@ -299,6 +299,9 @@ export interface IParamsActions {
 	moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:number):void;
 	saveChatColumnConfs():void;
 	setGreetThemAutoDelete(value:number):void;
+	openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType):void;
+	closeParameters():void;
+	searchParam(search:string):void;
 }
 
 

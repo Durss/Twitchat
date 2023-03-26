@@ -100,11 +100,10 @@ const routes: Array<RouteRecordRaw> = [
 		name: 'spotify/auth',
 		redirect:() => {
 			const sMain = StoreProxy.main;
+			const sParams = StoreProxy.params;
 			const sMusic = StoreProxy.music;
 			if(!Utils.getQueryParameterByName("error")) {
-				sMain.showParams = true;//Open params
-				sMain.tempStoreValue = "CONTENT:"+TwitchatDataTypes.ParamsCategories.CONNEXIONS;//Set default param tab to open
-	
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
 				const params:SpotifyAuthResult = {
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,

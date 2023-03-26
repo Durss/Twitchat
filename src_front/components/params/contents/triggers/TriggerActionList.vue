@@ -64,7 +64,6 @@
 					:triggerData="triggerData"
 					@delete="deleteAction(index)"
 					@duplicate="duplicateAction(element, index)"
-					@setContent="(v:string)=>$emit('setContent', v)"
 				/>
 			</template>
 		</draggable>

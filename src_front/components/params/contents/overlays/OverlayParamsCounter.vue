@@ -65,7 +65,7 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 		ToggleBlock,
 		OverlayCounter,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class OverlayParamsCounter extends Vue {
 	
@@ -97,7 +97,7 @@ export default class OverlayParamsCounter extends Vue {
 	public getOverlayUrl(counter:TwitchatDataTypes.CounterData):string { return this.$overlayURL("counter", [{k:"cid", v:counter.id}]); }
 
 	public createCounter():void {
-		this.$emit("setContent", TwitchatDataTypes.ParamsCategories.COUNTERS);
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
 	}
 
 }

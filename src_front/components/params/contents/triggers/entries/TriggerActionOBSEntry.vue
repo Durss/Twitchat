@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
 				<template #LINK>
-					<a @click="$emit('setContent', contentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
+					<a @click="$store('params').openParamsPage(contentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -45,7 +45,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	components:{
 		ParamItem,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class TriggerActionOBSEntry extends Vue {
 
@@ -67,7 +67,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	private filters:OBSFilter[] = [];
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 	public get showPlaceholderWarning():boolean {
 		if(!this.isMediaSource || this.action_conf.value !== true) return false;
 		return /\{[^ }]+\}/gi.test((this.media_conf.value as string));

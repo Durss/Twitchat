@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/infos.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
-					<a @click="$emit('setContent', contentOverlays)">{{ $t("triggers.actions.music.header_link") }}</a>
+					<a @click="$store('params').openParamsPage(contentOverlays)">{{ $t("triggers.actions.music.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -56,7 +56,7 @@ export default class TriggerActionMusicEntry extends Vue {
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
-	public get contentOverlays():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OVERLAYS; } 
+	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
 
 	public mounted():void {
 		//List all available trigger types

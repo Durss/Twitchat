@@ -82,7 +82,6 @@ export default class TTUserList extends Vue {
 	public loading:boolean = true;
 	public onlyPartners:boolean = false;
 	public showLoadMoreBt:boolean = false;
-	public token:string = "";
 	public spoolChunkSize:number = 200;
 	public userCount:number = 0;
 	public activeLast24h:number = 0;
@@ -104,7 +103,7 @@ export default class TTUserList extends Vue {
 	}
 
 	public beforeMount():void {
-		this.token = this.$store("main").tempStoreValue as string;
+		
 	}
 
 	public mounted():void {

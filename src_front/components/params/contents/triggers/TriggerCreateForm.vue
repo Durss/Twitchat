@@ -83,7 +83,7 @@ import TriggerActionList from './TriggerActionList.vue';
 		Button,
 		TriggerActionList,
 	},
-	emits:["setContent", "openForm", "closeForm", "createTrigger"],
+	emits:["openForm", "closeForm", "createTrigger"],
 })
 export default class TriggerCreateForm extends Vue {
 
@@ -321,14 +321,14 @@ export default class TriggerCreateForm extends Vue {
 	 * Open OBS parameters
 	 */
 	public openOBS():void {
-		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.OBS);
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
 	}
 
 	/**
 	 * Open counters parameters
 	 */
 	public openCounters():void {
-		this.$emit('setContent', TwitchatDataTypes.ParamsCategories.COUNTERS);
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
 	}
 
 	/**

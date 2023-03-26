@@ -29,7 +29,7 @@
 				<span class="index">3.</span>
 				<i18n-t scope="global" tag="span" keypath="streamdeck.step_3">
 					<template #TAB_LINK>
-						<a @click="$emit('setContent', contentObs)">{{ $t("streamdeck.step_3_tab_link") }}</a>
+						<a @click="$store('params').openParamsPage(contentObs)">{{ $t("streamdeck.step_3_tab_link") }}</a>
 					</template>
 				</i18n-t>
 			</li>
@@ -62,11 +62,11 @@ import { Component, Vue } from 'vue-facing-decorator';
 		Button,
 		Splitter,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class ParamsStreamdeck extends Vue {
 	
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
 

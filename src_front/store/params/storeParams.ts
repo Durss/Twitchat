@@ -1,6 +1,6 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
@@ -13,6 +13,8 @@ import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy
 
 export const storeParams = defineStore('params', {
 	state: () => ({
+		currentPage:"",
+		currentParamSearch:"",
 		greetThemAutoDelete: 600,
 		features: {
 			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show_purple.svg"},
@@ -353,6 +355,12 @@ export const storeParams = defineStore('params', {
 			//two identical entries as it only displays minutes, not seconds
 			this.greetThemAutoDelete = Math.round(value/60)*60;
 		},
+
+		closeParameters():void { this.currentPage = ""; this.currentParamSearch = ""; },
+
+		openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType):void { this.currentPage = value; },
+
+		searchParam(search:string):void { this.currentParamSearch = search; },
 	} as IParamsActions
 	& ThisType<IParamsActions
 		& UnwrapRef<IParamsState>

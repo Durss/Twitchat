@@ -18,7 +18,7 @@
 			<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
 			<div class="connectObs" v-if="!obsConnected">
 				<div>{{ $t("voice.need_OBS") }}</div>
-				<Button class="button" :title="$t('voice.obs_connectBt')" white @click="$emit('setContent', contentObs)" />
+				<Button class="button" :title="$t('voice.obs_connectBt')" white @click="$store('params').openParamsPage(contentObs)" />
 			</div>
 		</div>
 	</div>
@@ -38,11 +38,11 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 		Button,
 		VoiceControlForm,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class ParamsVoiceBot extends Vue {
 	
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get voicePageUrl():string {
