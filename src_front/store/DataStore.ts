@@ -1,4 +1,4 @@
-import { TriggerEvents, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionTypes, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
+import { TriggerEvents, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -970,6 +970,24 @@ export default class DataStore {
 			}
 			if(t.queue == "") delete t.queue;
 			if(t.name == "") delete t.name;
+
+			for (let i = 0; i < t.actions.length; i++) {
+				const a = t.actions[i];
+				//Migrate OBS actions
+				if(a.type == "obs") {
+					if(a.show == true) a.action = "show";
+					if(a.show == false) a.action = "hide";
+					if(a.show == "replay") a.action = "replay";
+					delete a.show;
+				}
+				//Convert delays to dedicated actions
+				if(a.delay && a.delay > 0) {
+					const newAction:TriggerActionDelayData = { delay:a.delay!, id:Utils.getUUID(), type:"delay"};
+					t.actions.splice(i+1, 0, newAction);
+					i++;//Skip newly added action
+				}
+				delete a.delay;
+			}
 			triggerList.push(t);
 		}
 
