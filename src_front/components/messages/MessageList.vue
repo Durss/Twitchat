@@ -601,7 +601,7 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
-				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK && this.config.filters.twitchat_ad === true) return true;
+				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK) return this.config.filters.twitchat_ad === true;
 				//Force other ad types to first columns
 				return this.config.order == 0;
 			}
