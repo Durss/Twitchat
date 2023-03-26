@@ -272,7 +272,7 @@
 		"events": {
 			"CHAT_COMMAND": {
 				"label": "Chat command",
-				"description": "Execute actions when sending a command on your chat"
+				"description": "Execute actions when someone uses the chat command {SUB_ITEM_NAME}"
 			},
 			"ANY_MESSAGE": {
 				"label": "Any message",
@@ -280,7 +280,7 @@
 			},
 			"REWARD_REDEEM": {
 				"label": "Channel point reward",
-				"description": "Execute actions when the {SUB_ITEM_NAME} channel point reward is redeemed"
+				"description": "Execute actions when the channel point reward {SUB_ITEM_NAME} is redeemed"
 			},
 			"COMMUNITY_CHALLENGE_PROGRESS": {
 				"label": "Community challenge progress",
@@ -515,23 +515,23 @@
 			},
 			"COUNTER_ADD": {
 				"label": "Value added to a counter",
-				"description": "Execute actions when adding a value to a counter"
+				"description": "Execute actions when a value is added to the {SUB_ITEM_NAME} counter"
 			},
 			"COUNTER_DEL": {
 				"label": "Value removed from a counter",
-				"description": "Execute actions when removing a value from a counter"
+				"description": "Execute actions when a value is substracted from the {SUB_ITEM_NAME} counter"
 			},
 			"COUNTER_MAXED": {
 				"label": "Max value reached",
-				"description": "Execute actions when counter's value reaches max value"
+				"description": "Execute actions when {SUB_ITEM_NAME} counter reaches its maximum value"
 			},
 			"COUNTER_MINED": {
 				"label": "Min value reached",
-				"description": "Execute actions when counter's value reaches min value"
+				"description": "Execute actions when {SUB_ITEM_NAME} counter reaches its minimum value"
 			},
 			"COUNTER_LOOPED": {
 				"label": "Value looped",
-				"description": "Execute actions when counter's value looped {INFO}",
+				"description": "Execute actions when the {SUB_ITEM_NAME} counter value is looped {INFO}",
 				"description_info":"(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)"
 			},
 			"RAID_STARTED": {

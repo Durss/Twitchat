@@ -35,51 +35,6 @@
 
 		<img src="@/assets/loader/loader.svg" v-if="showLoading" class="loader">
 
-		<div class="triggerDescription" v-if="showDescription">
-			<i18n-t class="text" scope="global" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
-				<template #SUB_ITEM_NAME>
-					<mark>{{ selectedSubtriggerEntry?.label }}</mark>
-				</template>
-				<template #INFO v-if="$te(triggerDescriptionLabel+'_info')">
-					<br>
-					<i18n-t class="text" tag="i" scope="global"
-					v-if="$te(triggerDescriptionLabel+'_info')"
-					:keypath="triggerDescriptionLabel+'_info'">
-						<template #CMD v-if="$te(triggerDescriptionLabel+'_info_cmd')">
-							<mark>{{ $t(triggerDescriptionLabel+'_info_cmd') }}</mark>
-						</template>
-					</i18n-t>
-				</template>
-				<template #CMD v-if="$te(triggerDescriptionLabel+'_cmd')">
-					<mark v-html="$t(triggerDescriptionLabel+'_cmd')"></mark>
-				</template>
-			</i18n-t>
-
-			<!-- <div class="ctas" v-if="showOBSResync">
-				<Button :icon="$image('icons/refresh.svg')"
-					:title="$t('triggers.resyncBt')"
-					class="cta resyncBt"
-					@click="listOBSSources()"
-					:data-tooltip="$t('triggers.resyncBt_tt')"
-					:loading="showLoading"
-				/>
-			</div> -->
-
-			<!-- <div class="ctas">
-				<Button class="cta"
-					v-if="canTestAction"
-					:title="$t('triggers.testBt')"
-					:icon="$image('icons/test.svg')"
-					@click="testTrigger()" />
-
-				<Button class="cta"
-					highlight
-					:title="$t('triggers.deleteBt')"
-					:icon="$image('icons/delete.svg')"
-					@click="deleteTrigger()" />
-			</div> -->
-		</div>
-
 		<i18n-t scope="global" tag="div" class="require"
 		v-if="needObsConnect"
 		keypath="triggers.obs.require">
@@ -132,16 +87,17 @@ import TriggerActionList from './TriggerActionList.vue';
 })
 export default class TriggerCreateForm extends Vue {
 
-	@Prop
-	public obsScenes:OBSSceneItem[] = [];
-	@Prop
-	public obsSources:OBSSourceItem[] = [];
+	@Prop({default:[]})
+	public obsScenes!:OBSSceneItem[];
+	@Prop({default:[]})
+	public obsSources!:OBSSourceItem[];
+	@Prop({default:[]})
+	public rewards!:TwitchDataTypes.Reward[];
 	
 	public showForm = false;
 	public showLoading = false;
 	public needRewards = false;
 	public needObsConnect = false;
-	public rewards:TwitchDataTypes.Reward[] = [];
 	public selectedTriggerEntry:TriggerEntry|null = null;
 	public selectedSubtriggerEntry:TriggerEntry|null = null;
 	public triggerTypeList:TriggerEntry[] = [];
@@ -156,16 +112,6 @@ export default class TriggerCreateForm extends Vue {
 	public get showDescription():boolean { return !this.showLoading && this.selectedTriggerEntry != null && (this.subtriggerList.length == 0 || (this.subtriggerList.length > 0 && this.selectedSubtriggerEntry != null)); }
 
 	public get showOBSResync():boolean { return this.actionList.findIndex(v => v.type == "obs") > -1; }
-
-	/**
-	 * Get a trigger's description
-	 */
-	public get triggerDescriptionLabel():string|undefined {
-		if(!this.selectedTriggerEntry) return undefined;
-		const value = this.selectedTriggerEntry.value;
-		const item = TriggerEvents().find(v => v.value == value) as TriggerEventTypes|null;
-		return item?.descriptionKey;
-	}
 
 	/**
 	 * Returns if the trigger can be tested.
@@ -263,16 +209,30 @@ export default class TriggerCreateForm extends Vue {
 			if(this.selectedTriggerEntry?.value == TriggerTypes.REWARD_REDEEM) {
 				if(!TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 					this.needRewards = true;
+					return;
 				}else{
 					this.needRewards = false;
-					await this.listRewards();
+					//build list from rewards
+					const list = this.rewards.map((v):TriggerEntry => {
+						return {
+							label:v.title,
+							isCategory:false,
+							value:v.id,
+							background:v.background_color,
+							labelSmall:v.cost > 0? v.cost+"pts" : "",
+							icon:v.image?.url_2x ?? ""
+						};
+					});
+					this.subtriggerList = list;
 				}
 			}else
 			if(this.selectedTriggerEntry?.value == TriggerTypes.OBS_SCENE) {
 				if(!OBSWebsocket.instance.connected) {
 					this.needObsConnect = true;
+					return;
 				}else{
 					this.needObsConnect = false;
+					//build list from obs scenes
 					const list = this.obsScenes.map((v):TriggerEntry => {
 						return {
 							label:v.sceneName,
@@ -288,8 +248,10 @@ export default class TriggerCreateForm extends Vue {
 			|| this.selectedTriggerEntry?.value == TriggerTypes.OBS_SOURCE_ON) {
 				if(!OBSWebsocket.instance.connected) {
 					this.needObsConnect = true;
+					return;
 				}else{
 					this.needObsConnect = false;
+					//build list from obs sourcess
 					const list = this.obsSources.map((v):TriggerEntry => {
 						return {
 							label:v.sourceName,
@@ -311,7 +273,7 @@ export default class TriggerCreateForm extends Vue {
 
 			if(this.selectedTriggerEntry && this.selectedTriggerEntry.trigger) {
 				this.temporaryTrigger = {
-					actions:[],
+					actions:this.temporaryTrigger? this.temporaryTrigger.actions : [],
 					enabled:true,
 					id:Utils.getUUID(),
 					type:this.selectedTriggerEntry.trigger.value,
@@ -386,45 +348,6 @@ export default class TriggerCreateForm extends Vue {
 	}
 
 	/**
-	 * Lists the rewards
-	 */
-	 private async listRewards():Promise<void> {
-		this.showLoading	= true;
-		this.subtriggerList	= [];
-		try {
-			this.rewards = await TwitchUtils.getRewards(true);
-		}catch(error) {
-			this.rewards = [];
-			this.$store("main").alert(this.$t("error.rewards_loading"));
-			this.showLoading = false;
-			return;
-		}
-
-		//Push "Highlight my message" reward as it's not given by the API...
-		this.rewards.push(Config.instance.highlightMyMessageReward)
-
-		//Sort by cost and name
-		const list = this.rewards.sort((a,b)=> {
-			if(a.cost < b.cost) return -1;
-			if(a.cost > b.cost) return 1;
-			if(a.title.toLowerCase() < b.title.toLowerCase()) return -1;
-			if(a.title.toLowerCase() > b.title.toLowerCase()) return 1;
-			return 0;
-		}).map((v):TriggerEntry => {
-			return {
-				label:v.title,
-				isCategory:false,
-				value:v.id,
-				background:v.background_color,
-				labelSmall:v.cost > 0? v.cost+"pts" : "",
-				icon:v.image?.url_2x ?? ""
-			};
-		})
-		this.subtriggerList = list;
-		this.showLoading = false;
-	}
-
-	/**
 	 * Lists Counters
 	 */
 	public async listCounters():Promise<void> {
@@ -492,31 +415,6 @@ interface TriggerEntry{
 		flex-wrap: wrap;
 		.cta:not(:last-child) {
 			margin-right: 1em;
-		}
-	}
-
-	.triggerDescription, .queue {
-		font-size: .8em;
-		background-color: @mainColor_light;
-		padding: .5em;
-		border-radius: .5em;
-		text-align: center;
-
-		.text {
-			:deep(mark) {
-				line-height: 1.5em;
-				border: 1px dashed @mainColor_normal;
-				background-color: fade(@mainColor_normal, 15%);
-				padding: .1em .5em;
-				border-radius: .5em;
-				span {
-					//This is used to hide the channel point reward's costs
-					display: none;
-				}
-			}
-		}
-		.queueSelector {
-			margin-top: 1em;
 		}
 	}
 }

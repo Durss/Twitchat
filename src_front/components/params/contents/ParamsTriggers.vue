@@ -2,7 +2,7 @@
 	<div class="paramstriggers">
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
-		<i18n-t scope="global" tag="p" class="head" keypath="triggers.header">
+		<i18n-t scope="global" tag="p" class="head" keypath="triggers.header" v-if="showForm">
 			<template #COUNT><strong>{{ eventsCount }}</strong></template>
 		</i18n-t>
 
@@ -14,18 +14,21 @@
 				@closeForm="showList=true"
 				@createTrigger="currentTriggerData=$event"
 				:obsScenes="obsScenes"
-				:obsSources="obsSources" />
-
+				:obsSources="obsSources"
+				:rewards="rewards" />
+				
 			<img src="@/assets/loader/loader.svg" v-if="showLoading" class="loader">
-
+				
 			<TriggerActionList
 				v-if="currentTriggerData"
 				:triggerData="currentTriggerData"
-				:obsSources="obsSources" />
-
+				:obsSources="obsSources"
+				:rewards="rewards" />
+				
 			<TriggerList v-if="showList"
 				@select="onSelectTrigger($event)"
-				@setContent="$emit('setContent', $event)" />
+				@setContent="$emit('setContent', $event)"
+				:rewards="rewards" />
 		</div>
 	</div>
 </template>
@@ -38,6 +41,10 @@ import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
 import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerList from './triggers/TriggerList.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import Config from '@/utils/Config';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -56,6 +63,7 @@ export default class ParamsTriggers extends Vue {
 	public currentTriggerData:TriggerData|null = null;
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
+	public rewards:TwitchDataTypes.Reward[] = [];
 
 	public beforeMount():void {
 		//List all available trigger types
@@ -64,6 +72,9 @@ export default class ParamsTriggers extends Vue {
 		if(OBSWebsocket.instance.connected) {
 			this.listOBSScenes();
 			this.listOBSSources();
+		}
+		if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
+			this.listRewards();
 		}
 	}
 
@@ -113,7 +124,31 @@ export default class ParamsTriggers extends Vue {
 			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
 			return 0;
 		});
+	}
 
+	/**
+	 * Lists the rewards
+	 */
+	private async listRewards():Promise<void> {
+		try {
+			this.rewards = await TwitchUtils.getRewards(true);
+		}catch(error) {
+			this.rewards = [];
+			this.$store("main").alert(this.$t("error.rewards_loading"));
+			return;
+		}
+
+		//Push "Highlight my message" reward as it's not given by the API...
+		this.rewards.push(Config.instance.highlightMyMessageReward)
+
+		//Sort by cost and name
+		this.rewards = this.rewards.sort((a,b)=> {
+			if(a.cost < b.cost) return -1;
+			if(a.cost > b.cost) return 1;
+			if(a.title.toLowerCase() < b.title.toLowerCase()) return -1;
+			if(a.title.toLowerCase() > b.title.toLowerCase()) return 1;
+			return 0;
+		});
 	}
 }
 </script>

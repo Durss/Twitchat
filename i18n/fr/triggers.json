@@ -272,7 +272,7 @@
 		"events": {
 			"CHAT_COMMAND": {
 				"label": "Commande de tchat",
-				"description": "Exécuter des actions en réponse à des commandes de tchat"
+				"description": "Exécuter des actions quand la commande {SUB_ITEM_NAME} est utilisée"
 			},
 			"ANY_MESSAGE": {
 				"label": "Tous les messages",
@@ -517,23 +517,23 @@
 			},
 			"COUNTER_ADD": {
 				"label": "Ajout à un compteur",
-				"description": "Exécuter des actions lorsqu'une valeur est ajoutée à un compteur"
+				"description": "Exécuter des actions lorsqu'une valeur est ajoutée au compteur {SUB_ITEM_NAME}"
 			},
 			"COUNTER_DEL": {
 				"label": "Retrait d'un compteur",
-				"description": "Exécuter des actions lorsqu'une valeur est soustraite à un compteur"
+				"description": "Exécuter des actions lorsqu'une valeur est soustraite au compteur {SUB_ITEM_NAME}"
 			},
 			"COUNTER_MAXED": {
 				"label": "Valeur max atteinte",
-				"description": "Exécuter des actions lorsque le compteur atteint sa valeur maximale"
+				"description": "Exécuter des actions lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur maximale"
 			},
 			"COUNTER_MINED": {
 				"label": "Valeur min atteinte",
-				"description": "Exécuter des actions lorsque le compteur atteint sa valeur minimale"
+				"description": "Exécuter des actions lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur minimale"
 			},
 			"COUNTER_LOOPED": {
 				"label": "Valeur bouclée",
-				"description": "Exécuter des actions lorsque la valeur du compteur est bouclée {INFO}",
+				"description": "Exécuter des actions lorsque la valeur du compteur {SUB_ITEM_NAME} est bouclée {INFO}",
 				"description_info": "(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)"
 			},
 			"RAID_STARTED": {

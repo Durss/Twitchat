@@ -1,5 +1,50 @@
 <template>
 	<div class="triggeractionlist">
+		<div class="triggerDescription">
+			<i18n-t class="text" scope="global" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
+				<template #SUB_ITEM_NAME>
+					<mark>{{ subTypeLabel }}</mark>
+				</template>
+				<template #INFO v-if="$te(triggerDescriptionLabel+'_info')">
+					<br>
+					<i18n-t class="text" tag="i" scope="global"
+					v-if="$te(triggerDescriptionLabel+'_info')"
+					:keypath="triggerDescriptionLabel+'_info'">
+						<template #CMD v-if="$te(triggerDescriptionLabel+'_info_cmd')">
+							<mark>{{ $t(triggerDescriptionLabel+'_info_cmd') }}</mark>
+						</template>
+					</i18n-t>
+				</template>
+				<template #CMD v-if="$te(triggerDescriptionLabel+'_cmd')">
+					<mark v-html="$t(triggerDescriptionLabel+'_cmd')"></mark>
+				</template>
+			</i18n-t>
+
+			<!-- <div class="ctas" v-if="showOBSResync">
+				<Button :icon="$image('icons/refresh.svg')"
+					:title="$t('triggers.resyncBt')"
+					class="cta resyncBt"
+					@click="listOBSSources()"
+					:data-tooltip="$t('triggers.resyncBt_tt')"
+					:loading="showLoading"
+				/>
+			</div> -->
+
+			<!-- <div class="ctas">
+				<Button class="cta"
+					v-if="canTestAction"
+					:title="$t('triggers.testBt')"
+					:icon="$image('icons/test.svg')"
+					@click="testTrigger()" />
+
+				<Button class="cta"
+					highlight
+					:title="$t('triggers.deleteBt')"
+					:icon="$image('icons/delete.svg')"
+					@click="deleteTrigger()" />
+			</div> -->
+		</div>
+
 		<draggable 
 		v-model="triggerData.actions" 
 		group="actions" 
@@ -36,7 +81,8 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import type { TriggerActionTypes, TriggerData, TriggerActionEmptyData } from '@/types/TriggerActionDataTypes';
+import { type TriggerActionTypes, type TriggerData, type TriggerActionEmptyData, TriggerEvents, type TriggerEventTypes, TriggerTypes } from '@/types/TriggerActionDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -57,6 +103,44 @@ export default class TriggerActionList extends Vue {
 	public triggerData!:TriggerData;
 	@Prop
 	public obsSources!:OBSSourceItem[];
+	@Prop
+	public rewards!:TwitchDataTypes.Reward[];
+
+	/**
+	 * Get a trigger's description
+	 */
+	public get triggerDescriptionLabel():string|undefined {
+		const item = TriggerEvents().find(v => v.value == this.triggerData.type) as TriggerEventTypes|null;
+		return item?.descriptionKey;
+	}
+
+	/**
+	 * Get a trigger's sub type's label (reward name, counter name, ...)
+	 */
+	public get subTypeLabel():string|undefined {
+		switch(this.triggerData.type) {
+			case TriggerTypes.CHAT_COMMAND:
+				return this.triggerData.chatCommand;
+
+			case TriggerTypes.REWARD_REDEEM:
+				return this.rewards.find(v=>v.id == this.triggerData.rewardId)?.title ?? "REWARD NOT FOUND";
+
+			case TriggerTypes.OBS_SCENE:
+				return this.triggerData.obsScene;
+
+			case TriggerTypes.OBS_SOURCE_ON:
+			case TriggerTypes.OBS_SOURCE_OFF:
+				return this.triggerData.obsSource;
+
+			case TriggerTypes.COUNTER_ADD:
+			case TriggerTypes.COUNTER_DEL:
+			case TriggerTypes.COUNTER_LOOPED:
+			case TriggerTypes.COUNTER_MAXED:
+			case TriggerTypes.COUNTER_MINED:
+				return this.$store("counters").data.find(v=>v.id == this.triggerData.counterID)?.name ?? "COUNTER NOT FOUND";
+		}
+		return "";
+	}
 
 	public beforeMount():void {
 		if(this.triggerData.actions.length === 0) {
@@ -161,6 +245,31 @@ export default class TriggerActionList extends Vue {
 			border-top-left-radius: 100% 200%;
 			border-top-right-radius: 100% 200%;
 			margin: auto;
+		}
+	}
+
+	.triggerDescription, .queue {
+		font-size: .8em;
+		background-color: @mainColor_light;
+		padding: .5em;
+		border-radius: .5em;
+		text-align: center;
+
+		.text {
+			:deep(mark) {
+				line-height: 1.5em;
+				border: 1px dashed @mainColor_normal;
+				background-color: fade(@mainColor_normal, 15%);
+				padding: .1em .5em;
+				border-radius: .5em;
+				span {
+					//This is used to hide the channel point reward's costs
+					display: none;
+				}
+			}
+		}
+		.queueSelector {
+			margin-top: 1em;
 		}
 	}
 }
