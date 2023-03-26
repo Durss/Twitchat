@@ -18,10 +18,10 @@
 			<div v-if="adCooldown > 0" class="cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
-		<ParamItem class="roomParam" :paramData="param_followOnly" @change="updateRoomSettings()" clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_subOnly" @change="updateRoomSettings()" clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_emotesOnly" @change="updateRoomSettings()" clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_slowMode" @change="updateRoomSettings()" clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_followOnly" @change="setFollowOnly()" clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_subOnly" @change="setSubOnly()" clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_emotesOnly" @change="setEmoteOnly()" clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_slowMode" @change="setSlowMode()" clearToggle @click="requestRoomSettingsScopes()" />
 		
 		<div class="raid" v-if="$store('stream').currentRaid">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
@@ -84,7 +84,6 @@ export default class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	public get params():TwitchatDataTypes.IRoomSettings { return this.$store("stream").roomSettings["twitch"]!; }
 	public get adCooldownFormated():string { return Utils.formatDuration(this.adCooldown); }
 	public get hasChannelPoints():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
 	public get canEditStreamInfos():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
@@ -250,13 +249,37 @@ export default class CommandHelper extends Vue {
 		TwitchUtils.raidCancel();
 	}
 
-	public updateRoomSettings():void {
+	public setFollowOnly():void {
+		if(this.ignoreUpdates) return;
+
+		let settings:TwitchatDataTypes.IRoomSettings = {};
+		settings.followOnly = this.param_followOnly.value === true? 30 : false;
+
+		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
+	}
+	
+	public setSubOnly():void {
+		if(this.ignoreUpdates) return;
+
+		let settings:TwitchatDataTypes.IRoomSettings = {};
+		settings.subOnly = this.param_subOnly.value === true;
+
+		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
+	}
+	
+	public setEmoteOnly():void {
 		if(this.ignoreUpdates) return;
 
 		let settings:TwitchatDataTypes.IRoomSettings = {};
 		settings.emotesOnly = this.param_emotesOnly.value === true;
-		settings.followOnly = this.param_followOnly.value === true? 30 : false;
-		settings.subOnly = this.param_subOnly.value === true;
+
+		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
+	}
+	
+	public setSlowMode():void {
+		if(this.ignoreUpdates) return;
+
+		let settings:TwitchatDataTypes.IRoomSettings = {};
 		settings.slowMode = this.param_slowMode.value === true? 5 : 0;
 
 		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
