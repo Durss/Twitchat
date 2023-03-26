@@ -16,7 +16,7 @@
 			"title":"Roulette",
 			"head":"Lancer un tirage au sort affichera une roue animée.",
 			"css":"Changez l'apparence de la roue via ces sélecteurs CSS",
-			"no_overlay":"- overlay non configuré ou invisible -",
+			"no_overlay":"- overlay non configuré ou masqué -",
 			"start":"Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
 			"testBt":"Tester"
 		},
@@ -49,7 +49,7 @@
 			"message_pos":"Position du message",
 			"clear_instruction":"Pour masquer le message actuellement affiché, cliquez sur ce bouton dans la barre du bas.",
 			"testBt":"Tester",
-			"no_overlay":"- overlay non configuré ou invisible -",
+			"no_overlay":"- overlay non configuré ou masqué -",
 			"alternative_tool":"Pour une solution dédiée plus complète jetez un oeil à {URL}"
 		},
 
