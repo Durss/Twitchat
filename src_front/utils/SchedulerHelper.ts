@@ -258,7 +258,9 @@ export default class SchedulerHelper {
 			if(execute) {
 				e.date = Date.now() + schedule!.repeatDuration * 60 * 1000;
 				e.messageCount = 0;
-				DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
+				if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
+				}
 				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
 			}
 		}
