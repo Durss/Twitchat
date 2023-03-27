@@ -1,7 +1,7 @@
 {
 	"triggers": {
 		"header": "Exécuter des actions en réaction à {COUNT} types d'évènements",
-		"add_triggerBt": "Créer un trigger",
+		"add_triggerBt": "Ajouter un trigger",
 		"add_trigger_select_event": "Choisissez un type d'évènement",
 		"add_actionBt": "Ajouter une action",
 		"create_chat_cmdBt": "Créer une commande de tchat",

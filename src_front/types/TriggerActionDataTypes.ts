@@ -170,6 +170,7 @@ export const TriggerEventTypeCategories = {
 	MISC: 11,
 } as const;
 export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
+
 export interface TriggerEventTypes extends TwitchatDataTypes.ParameterDataListValue {
 	category:TriggerEventTypeCategoryValue;
 	labelKey:string;

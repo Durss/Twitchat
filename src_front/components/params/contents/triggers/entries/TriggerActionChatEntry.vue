@@ -54,7 +54,7 @@ export default class TriggerActionChatEntry extends Vue {
 	public get cmdNameConflict():boolean {
 		const foundIndex = this.$store("triggers").triggerList.findIndex(v=>
 							v.type == TriggerTypes.CHAT_COMMAND
-							&& v.id + this.triggerData.id
+							&& v.id != this.triggerData.id
 							&& v.chatCommand?.toLowerCase() == this.action.text);
 		return foundIndex > -1;
 	}

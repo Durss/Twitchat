@@ -15,14 +15,14 @@
 			<div class="content entries" v-else-if="!reloading">
 				<div v-for="item in logs" :key="item.id" class="entry">
 					<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
-						<img class="icon" :src="$image('icons/'+getTriggerInfoFromId(item.triggerId)?.icon+'.svg')">
+						<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
 						<div class="status" data-tooltip="complete" v-if="item.complete"><img src="@/assets/icons/checkmark_white.svg"></div>
 						<div class="status" data-tooltip="skipped" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
 						<div class="status" data-tooltip="pending" v-else><img src="@/assets/loader/loader_white.svg"></div>
 						<div class="status" data-tooltip="started from<br>'Test' button" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
 						<div class="date">{{ getFormatedDime(item.date) }}</div>
-						<div class="title">{{ $t(getTriggerInfoFromId(item.triggerId)?.labelKey as string) }}</div>
-						<div class="subtitle" v-if="getTriggerTitleFromId(item.triggerId)">{{ getTriggerTitleFromId(item.triggerId) }}</div>
+						<div class="title">{{ $t(getTriggerInfo(item.trigger)?.labelKey as string) }}</div>
+						<div class="subtitle" v-if="getTriggerTitle(item.trigger)">{{ getTriggerTitle(item.trigger) }}</div>
 					</div>
 					<div class="messages" v-if="idToExpandState[item.id] == true">
 						<ul class="messages">
@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { TriggerTypes, TriggerEvents, type TriggerLog, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, TriggerEvents, type TriggerLog, type TriggerEventTypes, type TriggerTypesValue, type TriggerData } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -76,36 +76,36 @@ export default class TriggersLogs extends Vue {
 		return TriggerActionHandler.instance.logHistory;
 	}
 
-	public getTriggerInfoFromId(id:string):TriggerEventTypes|null {
-		const tType = id.split("_")[0];
+	public getTriggerInfo(trigger:TriggerData):TriggerEventTypes|null {
 		const list = TriggerEvents();
 		for (let i = 0; i < list.length; i++) {
 			const t = list[i];
-			if(t.value == tType) {
+			if(t.value == trigger.type) {
 				return list[i];
 			}
 		}
 		return null;
 	}
 
-	public getTriggerTitleFromId(id:string):string {
-		const info = this.getTriggerInfoFromId(id);
+	public getTriggerTitle(trigger:TriggerData):string {
+		const info = this.getTriggerInfo(trigger);
 		if(info) {
 			switch(info.value) {
-				case TriggerTypes.SCHEDULE:
-				case TriggerTypes.OBS_SCENE:
-				case TriggerTypes.OBS_SOURCE_OFF:
-				case TriggerTypes.OBS_SOURCE_ON:
-				case TriggerTypes.CHAT_COMMAND:
-					return id.split("_").splice(1).join(" ");
+				case TriggerTypes.SCHEDULE: return trigger.scheduleName!;
 				
+				case TriggerTypes.OBS_SCENE: return trigger.obsScene!;
+				
+				case TriggerTypes.OBS_SOURCE_OFF:
+				case TriggerTypes.OBS_SOURCE_ON: return trigger.obsSource!;
+
+				case TriggerTypes.CHAT_COMMAND: return trigger.chatCommand!;
+
 				case TriggerTypes.COUNTER_ADD:
 				case TriggerTypes.COUNTER_DEL:
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
 				case TriggerTypes.COUNTER_MINED:
-					const cId = id.split("_").splice(1).join(" ");
-					const counter = this.$store("counters").data.find(v=>v.id == cId);
+					const counter = this.$store("counters").data.find(v=>v.id == trigger.counterID!);
 					return counter? counter.name : "";
 			}
 		}

@@ -90,7 +90,6 @@ import { TriggerEvents, TriggerTypes, type TriggerActionEmptyData, type TriggerA
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
-import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
@@ -122,7 +121,7 @@ export default class TriggerActionList extends Vue {
 		return item?.descriptionKey;
 	}
 
-	public get isChatCmd():TriggerTypesValue { return TriggerTypes.CHAT_COMMAND; }
+	public get isChatCmd():boolean { return this.triggerData.type === TriggerTypes.CHAT_COMMAND; }
 
 	/**
 	 * Get a trigger's sub type's label (reward name, counter name, ...)

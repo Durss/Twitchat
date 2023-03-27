@@ -158,7 +158,6 @@ export default class TriggerList extends Vue {
 			entries.push(entry);
 		}
 
-
 		this.triggerList = entries;
 	}
 
@@ -298,23 +297,20 @@ interface TriggerEntry {
 	}
 
 	.item {
+		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+		color: @mainColor_normal;
+		background-color: @mainColor_light;
+		border-radius: .5em;
+		padding: 0;
 		display: flex;
 		flex-direction: row;
+		min-height: 1.5em;
+		transition: color .25s, background-color .25s;
+		overflow: hidden;
 		&>* {
-			border: 1px solid @mainColor_normal;
-			border-right: none;
 			&:hover {
 				background-color: @mainColor_normal_extralight;
 			}
-		}
-		&>*:first-child {
-			border-top-left-radius: .5em;
-			border-bottom-left-radius: .5em;
-		}
-		&>*:last-child {
-			border-top-right-radius: .5em;
-			border-bottom-right-radius: .5em;
-			border-right: 1px solid @mainColor_normal;
 		}
 		.button {
 			display: flex;
@@ -325,13 +321,13 @@ interface TriggerEntry {
 			align-items: center;
 			text-align: left;
 			transition: background-color .15s;
-			padding-right: 3em;
 			flex-grow: 1;
 			overflow: hidden;
 			img {
 				height: 1.5em;
-				max-width: 1.5em;
+				width: 1.5em;
 				padding: .25em;
+				object-fit: contain;
 			}
 		}
 		.toggle {
@@ -339,7 +335,7 @@ interface TriggerEntry {
 			align-items: center;
 			padding: 0 .5em;
 			cursor: pointer;
-			border-left: 1px solid @mainColor_normal;
+			// border-left: 1px solid @mainColor_normal;
 		}
 		.deleteBt, .testBt {
 			img {

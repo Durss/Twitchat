@@ -2,7 +2,7 @@
 	<div class="paramstriggers">
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
-		<i18n-t scope="global" tag="p" class="head" keypath="triggers.header" v-if="showForm">
+		<i18n-t scope="global" tag="p" class="head" keypath="triggers.header" v-if="!currentTriggerData">
 			<template #COUNT><strong>{{ eventsCount }}</strong></template>
 		</i18n-t>
 
@@ -15,7 +15,7 @@
 			
 			<TriggerCreateForm
 				v-if="showForm"
-				@createTrigger="currentTriggerData=$event"
+				@selectTrigger="onSelectTrigger($event)"
 				:obsScenes="obsScenes"
 				:obsSources="obsSources"
 				:rewards="rewards" />
@@ -82,6 +82,12 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 			this.listRewards();
 		}
+		const list = this.$store("triggers").triggerList;
+		//No trigger yet, just show form
+		if(list.length == 0) {
+			this.showList = false;
+			this.showForm = true;
+		}
 	}
 
 	/**
@@ -109,7 +115,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 		//Watch for any change on the 
 		watch(()=>this.currentTriggerData, ()=> {
-			console.log("okokookok");
 			this.$store("triggers").saveTriggers();
 		}, {deep:true});
 	}
@@ -188,6 +193,10 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		flex-direction: column;
 		gap: 1em;
 		margin-top: 1em;
+
+		.createBt {
+			margin: auto;
+		}
 	}
 }
 </style>
