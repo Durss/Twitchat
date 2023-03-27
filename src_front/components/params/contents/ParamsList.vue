@@ -87,6 +87,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -97,7 +98,7 @@ import PostOnChatParam from '../PostOnChatParam.vue';
 	},
 	emits:[],
 })
-export default class ParamsList extends Vue {
+export default class ParamsList extends Vue implements IParameterContent {
 
 	@Prop
 	public category!:TwitchatDataTypes.ParameterCategory;
@@ -169,6 +170,8 @@ export default class ParamsList extends Vue {
 			},
 		];
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	public isDisabled(p:TwitchatDataTypes.ParameterData):boolean {
 		if(p.id == 212 && !this.isOBSConnected) return true;

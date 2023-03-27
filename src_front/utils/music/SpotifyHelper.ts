@@ -1,5 +1,4 @@
 import TwitchatEvent from "@/events/TwitchatEvent";
-import router from "@/router";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -108,7 +107,7 @@ export default class SpotifyHelper {
 		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
 		const json = await res.json();
 
-		const redirectURI = document.location.origin + router.resolve({name:"spotify/auth"}).href;
+		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
 		let url = new URL("https://accounts.spotify.com/authorize");
 		url.searchParams.append("client_id", this._clientID);
 		url.searchParams.append("response_type", "code");
@@ -129,7 +128,7 @@ export default class SpotifyHelper {
 	public async authenticate(authCode:string):Promise<void> {
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
 
-		const redirectURI = document.location.origin + router.resolve({name:"spotify/auth"}).href;
+		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
 		const options = {
 			method:"POST",
 			headers: {

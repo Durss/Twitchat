@@ -56,6 +56,7 @@ import Splitter from '@/components/Splitter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { Component, Vue } from 'vue-facing-decorator';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -64,11 +65,13 @@ import { Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[]
 })
-export default class ParamsStreamdeck extends Vue {
+export default class ParamsStreamdeck extends Vue implements IParameterContent {
 	
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; } 
+
+	public onNavigateBack(): boolean { return false; }
 
 }
 </script>

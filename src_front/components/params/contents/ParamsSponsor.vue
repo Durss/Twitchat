@@ -58,6 +58,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -66,7 +67,7 @@ import ParamItem from '../ParamItem.vue';
 		ParamItem,
 	}
 })
-export default class ParamsSponsor extends Vue {
+export default class ParamsSponsor extends Vue implements IParameterContent {
 
 	public checkbox:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"sponsor.checkbox"}
 
@@ -91,6 +92,8 @@ export default class ParamsSponsor extends Vue {
 			gsap.fromTo(target, {scale:1.15, filter:"brightness(2)"}, {scale:1, filter:"brightness(1)", duration:0.5});
 		}
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 }
 </script>

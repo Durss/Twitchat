@@ -94,6 +94,7 @@ import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -103,7 +104,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		PermissionsForm,
 	}
 })
-export default class ParamsEmergency extends Vue {
+export default class ParamsEmergency extends Vue implements IParameterContent {
 
 	public param_enable:TwitchatDataTypes.ParameterData						= {type:"boolean", value:false};
 	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"boolean", value:false, icon:"shieldMode_purple.svg", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
@@ -235,6 +236,8 @@ export default class ParamsEmergency extends Vue {
 			this.listOBSSources();
 		});
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	public onShowItem(el:HTMLDivElement, done:()=>void):void {
 		gsap.killTweensOf(el);

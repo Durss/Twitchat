@@ -58,7 +58,7 @@ export const storeCounters = defineStore('counters', {
 			DataStore.set(DataStore.COUNTERS, this.data);
 
 			//Delete triggers related to the deleted counter
-			const triggers = StoreProxy.triggers.triggers;
+			const triggers = StoreProxy.triggers.triggerList;
 			for (let i = 0; i < triggers.length; i++) {
 				const t = triggers[i];
 				if(t.counterID === data.id){

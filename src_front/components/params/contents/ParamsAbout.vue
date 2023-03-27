@@ -46,6 +46,7 @@ import Button from '@/components/Button.vue';
 import ParamsSponsor from './ParamsSponsor.vue';
 import Config from '@/utils/Config';
 import ParamsDonorList from './ParamsDonorList.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -55,11 +56,13 @@ import ParamsDonorList from './ParamsDonorList.vue';
 		ParamsDonorList,
 	}
 })
-export default class ParamsAbout extends Vue {
+export default class ParamsAbout extends Vue implements IParameterContent {
 	
 
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public get apiURL():string { return "https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"; }
+
+	public onNavigateBack(): boolean { return false; }
 
 }
 </script>

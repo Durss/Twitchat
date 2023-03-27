@@ -1,5 +1,4 @@
 import StoreProxy from "@/store/StoreProxy";
-import { storeTTS } from "@/store/tts/storeTTS";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TwitchatEvent from "../events/TwitchatEvent";
 import PublicAPI from "./PublicAPI";
@@ -42,8 +41,6 @@ export default class TTSUtils {
 	private lastMessageTime:number = 0;
 	private stopTimeout:number = -1;
 	private readComplete:boolean = false;
-
-	private sTTS = storeTTS();
 
 	/***********
 	* HANDLERS *
@@ -124,7 +121,7 @@ export default class TTSUtils {
 		const m:SpokenMessage = {message, id, force:true, date: Date.now()};
 		
 		this.pendingMessages.splice(1, 0, m);
-		if(this.sTTS.speaking) {
+		if(StoreProxy.tts.speaking) {
 			this.stop();//This triggers the next message play
 		}else
 		if(this.pendingMessages.length == 1) {
@@ -162,7 +159,7 @@ export default class TTSUtils {
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
 
-		const paramsTTS = this.sTTS.params;
+		const paramsTTS = StoreProxy.tts.params;
 		//If requested to only read after a certain inactivity duration and
 		//that duration has not passed yet, don't read the message
 		if (paramsTTS.inactivityPeriod > 0
@@ -298,7 +295,7 @@ export default class TTSUtils {
 	 * @returns 
 	 */
 	private async parseMessage(message:TwitchatDataTypes.ChatMessageTypes, force?:boolean):Promise<string> {
-		const paramsTTS = this.sTTS.params;
+		const paramsTTS = StoreProxy.tts.params;
 
 		// console.log("Read message type", message.type);
 		// console.log(message);
@@ -567,7 +564,7 @@ export default class TTSUtils {
 				if(m.deleted == true) skipMessage = true;
 			}
 		}
-		const paramsTTS = this.sTTS.params;
+		const paramsTTS = StoreProxy.tts.params;
 		this.lastMessageTime = Date.now();
 		
 		//Timeout reached for this message?
@@ -599,7 +596,7 @@ export default class TTSUtils {
 			}
 			mess.onstart = (ev: SpeechSynthesisEvent) => {
 				this.readComplete = false;
-				this.sTTS.speaking = true;
+				StoreProxy.tts.speaking = true;
 			}
 			mess.onend = (ev: SpeechSynthesisEvent) => {
 				this.onReadComplete();
@@ -644,7 +641,7 @@ export default class TTSUtils {
 		this.readComplete = true;
 		this.pendingMessages.shift();
 		clearTimeout(this.stopTimeout);
-		this.sTTS.speaking = false;
+		StoreProxy.tts.speaking = false;
 		this.readNextMessage();
 	}
 

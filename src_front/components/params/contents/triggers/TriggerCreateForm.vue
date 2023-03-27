@@ -1,9 +1,5 @@
 <template>
-	<div class="triggercreateform" v-if="!showForm">
-		<Button :title="$t('triggers.add_triggerBt')" :icon="$image('icons/add.svg')" class="createBt" @click="openForm()" />
-	</div>
-
-	<div class="triggercreateform" v-else>
+	<div class="triggercreateform">
 		<!-- Main event type -->
 		<vue-select v-model="selectedTriggerEntry"
 		:options="triggerTypeList"
@@ -73,7 +69,7 @@ import TriggerActionList from './TriggerActionList.vue';
 		Button,
 		TriggerActionList,
 	},
-	emits:["openForm", "closeForm", "createTrigger"],
+	emits:["createTrigger"],
 })
 export default class TriggerCreateForm extends Vue {
 
@@ -84,7 +80,6 @@ export default class TriggerCreateForm extends Vue {
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
 	
-	public showForm = false;
 	public showLoading = false;
 	public needRewards = false;
 	public needObsConnect = false;
@@ -270,7 +265,8 @@ export default class TriggerCreateForm extends Vue {
 				};
 
 				if(this.subtriggerList.length == 0) {
-					this.$emit("createTrigger", this.temporaryTrigger);
+					this.$store("triggers").addTrigger(this.temporaryTrigger)
+					// this.$emit("createTrigger", this.temporaryTrigger);
 				}else{
 					this.$emit("createTrigger", null);
 				}
@@ -319,15 +315,6 @@ export default class TriggerCreateForm extends Vue {
 	 */
 	public openCounters():void {
 		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
-	}
-
-	/**
-	 * Open trigger creation form and tel the parent so it
-	 * hides the triggers list
-	 */
-	public openForm():void {
-		this.showForm = true;
-		this.$emit('openForm');
 	}
 
 	/**

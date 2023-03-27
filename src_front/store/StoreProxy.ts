@@ -5,8 +5,9 @@ import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyD
 import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
-import type { VoicemodTypes } from "@/utils/voice/VoicemodWebSocket";
+import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { Composer, VueI18n } from "vue-i18n";
+import type { Router } from "vue-router";
 
 /**
 * Created : 23/09/2022 
@@ -39,6 +40,7 @@ export default class StoreProxy {
 	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState, $reset:()=>void};
 	public static counters:ICountersState & ICountersGetters & ICountersActions & {$state:ICountersState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
+	public static router:Router;
 	
 }
 
@@ -414,7 +416,7 @@ export interface ITimerActions {
 
 
 export interface ITriggersState {
-	triggers: TriggerData[];
+	triggerList: TriggerData[];
 }
 
 export interface ITriggersGetters {
@@ -422,7 +424,8 @@ export interface ITriggersGetters {
 }
 
 export interface ITriggersActions {
-	setTrigger(key:string, data:TriggerData):void;
+	addTrigger(data:TriggerData):void;
+	saveTriggers():void;
 	deleteTrigger(id:string):void;
 }
 

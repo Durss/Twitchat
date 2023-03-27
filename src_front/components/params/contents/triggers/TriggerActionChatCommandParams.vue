@@ -25,12 +25,11 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
-import { watch } from '@vue/runtime-core';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
 import PermissionsForm from '../../../PermissionsForm.vue';
+import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
@@ -83,7 +82,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 		this.cmdNameConflict = false;
 
 		//Make sure no other chat command has the same name
-		const triggers = this.$store("triggers").triggers;
+		const triggers = this.$store("triggers").triggerList;
 		for (let i = 0; i < triggers.length; i++) {
 			if(triggers[i].type == TriggerTypes.CHAT_COMMAND
 			&& triggers[i].id != this.triggerData.id

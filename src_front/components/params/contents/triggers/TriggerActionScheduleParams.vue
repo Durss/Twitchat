@@ -159,7 +159,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		//If command name has been changed
 		if(this.originalName != this.param_name.value) {
 			//Make sure no other schedule trigger has the same name
-			const triggers = this.$store("triggers").triggers;
+			const triggers = this.$store("triggers").triggerList;
 			for (const k in triggers) {
 				//Is a schedule trigger?
 				if(k.indexOf(TriggerTypes.SCHEDULE+"_") === 0) {

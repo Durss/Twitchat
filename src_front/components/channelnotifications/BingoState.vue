@@ -44,7 +44,8 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	components:{
 		Button,
 		PostOnChatParam,
-	}
+	},
+	emits:["close"]
 })
 export default class BingoState extends Vue {
 

@@ -80,6 +80,7 @@ import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -91,7 +92,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 	}
 })
 //TODO replace all the hardcoded message types and build them dynamically
-export default class ParamsTTS extends Vue {
+export default class ParamsTTS extends Vue implements IParameterContent {
 
 	public testStr:string = "";
 	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", label:"", value:false};
@@ -390,8 +391,9 @@ export default class ParamsTTS extends Vue {
 		watch(()=>this.finalData, ()=> {
 			this.$store("tts").setTTSParams(this.finalData);
 		}, {deep:true});
-		
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	public testVoice():void {
 		const uid = StoreProxy.auth.twitch.user.id;

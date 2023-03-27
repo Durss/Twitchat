@@ -1,15 +1,14 @@
+import rewardImg from '@/assets/icons/channelPoints.svg';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import Config from '@/utils/Config';
 import { LoremIpsum } from 'lorem-ipsum';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { watch, type UnwrapRef } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import rewardImg from '@/assets/icons/channelPoints.svg';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
 

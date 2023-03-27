@@ -58,6 +58,7 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -66,7 +67,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		PermissionsForm,
 	}
 })
-export default class ParamsSpoiler extends Vue {
+export default class ParamsSpoiler extends Vue implements IParameterContent {
 
 	public spoilerExample!:TwitchatDataTypes.MessageChatData;
 
@@ -100,6 +101,8 @@ export default class ParamsSpoiler extends Vue {
 			});
 		}, {deep:true})
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 }
 </script>

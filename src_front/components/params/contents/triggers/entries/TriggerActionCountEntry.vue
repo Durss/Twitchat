@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerEventPlaceholders, type TriggerActionCountData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionCountData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
@@ -52,6 +52,16 @@ export default class TriggerActionCountEntry extends Vue {
 		}).filter(v=> {
 			return v.value != this.triggerData.counterID
 		});
+		
+		for (let i = 0; i < this.action.counters.length; i++) {
+			const cid = this.action.counters[i];
+			console.log(cid);
+			if(counters.findIndex(v=>v.value == cid) === -1) {
+				//Counter not found, user probably deleted it
+				this.action.counters.splice(i,1);
+				i--;
+			}
+		}
 		
 		this.param_counters.listValues = counters;
 

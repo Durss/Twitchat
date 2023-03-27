@@ -395,8 +395,8 @@ export default class ParamsTriggers extends Vue {
 			key = this.currentEvent!.value+"_"+key.toLowerCase();
 		}
 		
-		if(this.$store("triggers").triggers[key]) {
-			const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggers[key]));
+		if(this.$store("triggers").triggerList[key]) {
+			const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggerList[key]));
 			let list = trigger as TriggerData;
 			return e.noToggle !== true && list.actions.length > 0;
 		}
@@ -477,7 +477,7 @@ export default class ParamsTriggers extends Vue {
 
 		//Define select states
 		events.forEach(v=>{
-			const enabled = this.$store("triggers").triggers[v.value]?.enabled;
+			const enabled = this.$store("triggers").triggerList[v.value]?.enabled;
 			v.enabled = enabled !== false;
 		})
 
@@ -603,7 +603,7 @@ export default class ParamsTriggers extends Vue {
 		//Save the trigger only if it can be tested which means it
 		//has the minimum necessary data defined
 		// if(this.canTestAction) {
-			this.$store("triggers").setTrigger(this.triggerKey, this.triggerData);
+			this.$store("triggers").addTrigger(this.triggerKey, this.triggerData);
 		// }
 		// if(this.isChatCmd || this.isSchedule) {
 		// 	// Preselects the current subevent
@@ -758,10 +758,10 @@ export default class ParamsTriggers extends Vue {
 			key = this.currentEvent.value+"_"+key.toLowerCase();
 		}
 		
-		if(this.$store("triggers").triggers[key]) {
-			const trigger = this.$store("triggers").triggers[key];
+		if(this.$store("triggers").triggerList[key]) {
+			const trigger = this.$store("triggers").triggerList[key];
 			trigger.enabled = e.enabled as boolean;
-			this.$store("triggers").setTrigger(key, trigger);
+			this.$store("triggers").addTrigger(key, trigger);
 		}
 	}
 
@@ -833,7 +833,7 @@ export default class ParamsTriggers extends Vue {
 				}else
 
 				{
-					const triggers = this.$store("triggers").triggers;
+					const triggers = this.$store("triggers").triggerList;
 					//Search for all command triggers
 					const commandList:TriggerData[] = [];
 					for (const k in triggers) {
@@ -856,8 +856,8 @@ export default class ParamsTriggers extends Vue {
 						this.currentSubEvent = select;
 					}
 				}
-			}else if(this.$store("triggers").triggers[key.toLowerCase()]){
-				const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggers[key.toLowerCase()]));//Avoid modifying the original data
+			}else if(this.$store("triggers").triggerList[key.toLowerCase()]){
+				const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggerList[key.toLowerCase()]));//Avoid modifying the original data
 				this.actionList = (trigger as TriggerData).actions;
 				this.triggerData = trigger;
 			}else{
@@ -883,9 +883,9 @@ export default class ParamsTriggers extends Vue {
 		}
 		
 		//Load actions for the selected sub event
-		let json = this.$store("triggers").triggers[key];
+		let json = this.$store("triggers").triggerList[key];
 		if(json) {
-			const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggers[key]));//Avoid modifying the original data
+			const trigger = JSON.parse(JSON.stringify(this.$store("triggers").triggerList[key]));//Avoid modifying the original data
 			this.triggerData = trigger as TriggerData;
 			this.actionList = this.triggerData.actions;
 
@@ -926,7 +926,7 @@ export default class ParamsTriggers extends Vue {
 			if(a.title.toLowerCase() > b.title.toLowerCase()) return 1;
 			return 0;
 		}).map((v):TwitchatDataTypes.ParameterDataListValue => {
-			const enabled = this.$store("triggers").triggers[TriggerTypes.REWARD_REDEEM+"_"+v.id]?.enabled;
+			const enabled = this.$store("triggers").triggerList[TriggerTypes.REWARD_REDEEM+"_"+v.id]?.enabled;
 			return {
 				label:v.title+(v.cost> 0? "<span class='cost'>("+v.cost+")</span>" : ""),
 				value:v.id,
@@ -956,7 +956,7 @@ export default class ParamsTriggers extends Vue {
 			if(a.sceneName.toLowerCase() > b.sceneName.toLowerCase()) return 1;
 			return 0;
 		}).map(v => {
-			const enabled = this.$store("triggers").triggers[TriggerTypes.OBS_SCENE+"_"+v.sceneName.toLowerCase()]?.enabled;
+			const enabled = this.$store("triggers").triggerList[TriggerTypes.OBS_SCENE+"_"+v.sceneName.toLowerCase()]?.enabled;
 			return {
 				label:v.sceneName,
 				value:v.sceneName,
@@ -993,7 +993,7 @@ export default class ParamsTriggers extends Vue {
 			await Utils.promisedTimeout(500);
 		}else{
 			const list = this.obsSources.map(v => {
-				const enabled = this.$store("triggers").triggers[key+"_"+v.sourceName.toLowerCase()]?.enabled;
+				const enabled = this.$store("triggers").triggerList[key+"_"+v.sourceName.toLowerCase()]?.enabled;
 				return {
 					label:v.sourceName,
 					value:v.sourceName,
@@ -1016,7 +1016,7 @@ export default class ParamsTriggers extends Vue {
 			if(a.name > b.name) return 1;
 			return 0;
 		}).map((v):TwitchatDataTypes.ParameterDataListValue => {
-			const enabled = this.$store("triggers").triggers[key+"_"+v.id]?.enabled;
+			const enabled = this.$store("triggers").triggerList[key+"_"+v.id]?.enabled;
 			return {
 				label:v.name,
 				value:v.id,

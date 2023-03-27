@@ -32,6 +32,7 @@ import Button from '../../Button.vue';
 import VoiceController from '@/utils/voice/VoiceController';
 import Config from '@/utils/Config';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -40,7 +41,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	},
 	emits:[]
 })
-export default class ParamsVoiceBot extends Vue {
+export default class ParamsVoiceBot extends Vue implements IParameterContent {
 	
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 
@@ -54,6 +55,8 @@ export default class ParamsVoiceBot extends Vue {
 	public get voiceApiAvailable():boolean {
 		return VoiceController.instance.apiAvailable && !Config.instance.OBS_DOCK_CONTEXT;
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 }
 

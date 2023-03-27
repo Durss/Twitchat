@@ -66,6 +66,7 @@ import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
 import OBSScenes from './obs/OBSScenes.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type IParameterContent from './IParameterContent';
 
 
 @Component({
@@ -79,7 +80,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 	},
 	emits:[]
 })
-export default class ParamsOBS extends Vue {
+export default class ParamsOBS extends Vue implements IParameterContent {
 
 	public loading = false;
 	public connected = false;
@@ -143,6 +144,8 @@ export default class ParamsOBS extends Vue {
 			if(!this.connected) this.openConnectForm = true;
 		});
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	/**
 	 * Connect to OBS websocket

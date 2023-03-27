@@ -45,6 +45,7 @@ import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -55,7 +56,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		PermissionsForm,
 	}
 })
-export default class ParamsAlert extends Vue {
+export default class ParamsAlert extends Vue implements IParameterContent {
 	
 	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"string", labelKey:"alert.command", value:"!alert"};
 	public param_message:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_popin", value:true};
@@ -87,7 +88,7 @@ export default class ParamsAlert extends Vue {
 	
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
-	public mounted():void {
+	public beforeMount():void {
 		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.$store("main").chatAlertParams));
 		if(params) {
 			//Prefill forms from storage
@@ -103,6 +104,8 @@ export default class ParamsAlert extends Vue {
 			this.$store("main").setChatAlertParams(this.finalData);
 		}, {deep:true});
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	public testAlert():void {
 		const uid = StoreProxy.auth.twitch.user.id;

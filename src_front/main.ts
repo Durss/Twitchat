@@ -236,6 +236,7 @@ function buildApp() {
 	StoreProxy.accessibility = storeAccessibility();
 	StoreProxy.admin = storeAdmin();
 	StoreProxy.counters = storeCounters();
+	StoreProxy.router = router;
 	
 	app.use(router)
 	app.use(i18n)

@@ -15,6 +15,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ConnectSpotifyForm from './connexions/ConnectSpotifyForm.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
+import type IParameterContent from './IParameterContent';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
 
 @Component({
@@ -26,8 +27,9 @@ import OBSConnectForm from './obs/OBSConnectForm.vue';
 	},
 	emits:[],
 })
-export default class ParamsConnexions extends Vue {
+export default class ParamsConnexions extends Vue implements IParameterContent {
 
+	public onNavigateBack(): boolean { return false; }
 }
 </script>
 

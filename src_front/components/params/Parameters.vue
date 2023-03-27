@@ -39,24 +39,24 @@
 			</div>
 			
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
-				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" />
-				<ParamsStreamdeck v-if="content == contentStreamdeck" />
-				<ParamsOBS v-if="content == contentObs" />
-				<ParamsEmergency v-if="content == contentEmergency" />
-				<ParamsTTS v-if="content == contentTts" />
-				<ParamsSpoiler v-if="content == contentSpoiler" />
-				<ParamsAlert v-if="content == contentAlert" />
-				<ParamsAccount v-if="content == contentAccount" />
-				<ParamsAbout v-if="content == contentAbout" />
-				<ParamsOverlays v-if="content == contentOverlays" />
-				<ParamsTriggers v-if="content == contentTriggers" />
-				<ParamsVoiceBot v-if="content == contentVoice" />
-				<ParamsVoicemod v-if="content == contentVoicemod" />
-				<ParamsAutomod v-if="content == contentAutomod" />
-				<ParamsCounters v-if="content == contentCounters" />
-				<ParamsConnexions v-if="content == contentConnexions" />
+				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
+				<ParamsStreamdeck v-if="content == contentStreamdeck" ref="currentContent" />
+				<ParamsOBS v-if="content == contentObs" ref="currentContent" />
+				<ParamsEmergency v-if="content == contentEmergency" ref="currentContent" />
+				<ParamsTTS v-if="content == contentTts" ref="currentContent" />
+				<ParamsSpoiler v-if="content == contentSpoiler" ref="currentContent" />
+				<ParamsAlert v-if="content == contentAlert" ref="currentContent" />
+				<ParamsAccount v-if="content == contentAccount" ref="currentContent" />
+				<ParamsAbout v-if="content == contentAbout" ref="currentContent" />
+				<ParamsOverlays v-if="content == contentOverlays" ref="currentContent" />
+				<ParamsTriggers v-if="content == contentTriggers" ref="currentContent" />
+				<ParamsVoiceBot v-if="content == contentVoice" ref="currentContent" />
+				<ParamsVoicemod v-if="content == contentVoicemod" ref="currentContent" />
+				<ParamsAutomod v-if="content == contentAutomod" ref="currentContent" />
+				<ParamsCounters v-if="content == contentCounters" ref="currentContent" />
+				<ParamsConnexions v-if="content == contentConnexions" ref="currentContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
-				<ParamsSponsor v-if="content == contentSponsor" />
+				<ParamsSponsor v-if="content == contentSponsor" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -94,6 +94,7 @@ import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import ParamsConnexions from './contents/ParamsConnexions.vue';
+import type IParameterContent from './contents/IParameterContent';
 
 @Component({
 	components:{
@@ -232,6 +233,11 @@ export default class Parameters extends Vue {
 	}
 
 	public back():void {
+		const content = this.$refs.currentContent as IParameterContent;
+		
+		//Check if current content wants to override the navigation
+		if(content && content.onNavigateBack() === true) return;
+
 		this.history.pop();//Remove current page from history
 		this.openPage(this.history.pop() || TwitchatDataTypes.ParameterPages.MAIN_MENU);
 	}

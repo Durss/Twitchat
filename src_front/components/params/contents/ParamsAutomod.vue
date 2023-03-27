@@ -75,6 +75,7 @@ import ToggleBlock from '../../ToggleBlock.vue';
 import ToggleButton from '../../ToggleButton.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -86,7 +87,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		PermissionsForm,
 	}
 })
-export default class ParamsAutomod extends Vue {
+export default class ParamsAutomod extends Vue implements IParameterContent {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
 	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
@@ -156,6 +157,8 @@ export default class ParamsAutomod extends Vue {
 		// const e = performance.now();
 		// console.log(e-s);
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	/**
 	 * Add a rule

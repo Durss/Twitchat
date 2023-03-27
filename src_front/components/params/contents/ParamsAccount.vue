@@ -77,6 +77,7 @@ import ParamItem from '../ParamItem.vue';
 import AppLangSelector from '@/components/AppLangSelector.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -89,7 +90,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	},
 	emits:[],
 })
-export default class ParamsAccount extends Vue {
+export default class ParamsAccount extends Vue implements IParameterContent {
 
 	public oAuthURL = "";
 	public showObs = false;
@@ -151,6 +152,8 @@ export default class ParamsAccount extends Vue {
 	public beforeUnmount():void {
 		this.disposed = true;
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	public logout():void {
 		this.$store("auth").logout();

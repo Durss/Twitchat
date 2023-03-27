@@ -94,6 +94,7 @@ import Utils from '@/utils/Utils';
 import { reactive } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -104,7 +105,7 @@ import ParamItem from '../ParamItem.vue';
 	},
 	emits:[]
 })
-export default class ParamsCounters extends Vue {
+export default class ParamsCounters extends Vue implements IParameterContent {
 
 	public search:string = "";
 	public showForm:boolean = false;
@@ -172,6 +173,8 @@ export default class ParamsCounters extends Vue {
 		this.param_valueMin_toggle.children = [this.param_valueMin_value];
 		this.param_valueMax_toggle.children = [this.param_valueMax_value];
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	public createCounter(): void {
 		const data:TwitchatDataTypes.CounterData = {

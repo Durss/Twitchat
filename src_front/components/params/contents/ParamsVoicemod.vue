@@ -43,12 +43,14 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/voice/VoicemodWebSocket';
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type { VoicemodTypes } from '@/utils/voice/VoicemodTypes';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -58,7 +60,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 	},
 	emits:[]
 })
-export default class ParamsVoicemod extends Vue {
+export default class ParamsVoicemod extends Vue implements IParameterContent {
 
 	public connected:boolean = false;
 	public connecting:boolean = false;
@@ -93,6 +95,8 @@ export default class ParamsVoicemod extends Vue {
 		this.param_voiceIndicator.labelKey	= "voicemod.show_indicator";
 		this.prefill();
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	/**
 	 * Called when toggling the "enabled" state

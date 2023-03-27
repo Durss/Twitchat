@@ -1,4 +1,3 @@
-import StoreProxy from "@/store/StoreProxy";
 import Config from "../utils/Config";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
 
@@ -134,7 +133,7 @@ export interface TriggerCooldownData {
 
 export interface TriggerLog {
 	id:string;
-	triggerId:string;
+	trigger:TriggerData;
 	date:number;
 	testMode:boolean;
 	complete:boolean;
@@ -273,7 +272,7 @@ export interface TriggerActionHighlightData extends TriggerActionData{
 
 export interface TriggerActionTriggerData extends TriggerActionData{
 	type:"trigger";
-	triggerKey:string;
+	triggerId:string;
 }
 
 export interface TriggerActionHTTPCallData extends TriggerActionData{
@@ -708,8 +707,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 let eventsCache:TriggerEventTypes[];
 export function TriggerEvents():TriggerEventTypes[] {
 	if(eventsCache) return eventsCache;
-
-	const t = StoreProxy.i18n.t;
 	eventsCache = [
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
@@ -792,7 +789,6 @@ let musicCache:TriggerMusicEventType[];
 export function MusicTriggerEvents():TriggerMusicEventType[] {
 	if(musicCache) return musicCache;
 
-	const t = StoreProxy.i18n.t;
 	musicCache = [
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.musicEvents.ADD_TRACK_TO_QUEUE", value:TriggerMusicTypes.ADD_TRACK_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.musicEvents.NEXT_TRACK", value:TriggerMusicTypes.NEXT_TRACK},
@@ -814,7 +810,6 @@ let scheduleCache:TriggerScheduleEventType[];
 export function ScheduleTriggerEvents():TriggerScheduleEventType[] {
 	if(scheduleCache) return scheduleCache;
 
-	const t = StoreProxy.i18n.t;
 	scheduleCache = [
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", labelKey:"triggers.scheduleEvents.REGULAR_REPEAT", value:TriggerScheduleTypes.REGULAR_REPEAT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", labelKey:"triggers.scheduleEvents.SPECIFIC_DATES", value:TriggerScheduleTypes.SPECIFIC_DATES},

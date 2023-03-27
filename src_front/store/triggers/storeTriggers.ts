@@ -8,7 +8,7 @@ import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../Stor
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
-		triggers: [],
+		triggerList: [],
 	} as ITriggersState),
 
 
@@ -18,8 +18,8 @@ export const storeTriggers = defineStore('triggers', {
 		queues():string[] {
 			const done:{[key:string]:boolean} = {};
 			const res = [];
-			for (const key in this.triggers) {
-				const queue = this.triggers[key].queue;
+			for (const key in this.triggerList) {
+				const queue = this.triggerList[key].queue;
 				if(queue && !done[queue]) {
 					done[queue] = true;
 					res.push(queue)
@@ -33,10 +33,7 @@ export const storeTriggers = defineStore('triggers', {
 
 
 	actions: {
-		setTrigger(key:string, data:TriggerData) {
-			if(!key) return;
-			key = key.toLowerCase();
-
+		addTrigger(data:TriggerData) {
 			//remove incomplete entries
 			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
@@ -59,6 +56,7 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "countget") return true;
 					if(v.type == "random") return true;
 					if(v.type == "stream_infos") return true;
+					if(v.type == "delay") return true;
 					//@ts-ignore
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
@@ -114,16 +112,21 @@ export const storeTriggers = defineStore('triggers', {
 
 			//If it is a schedule trigger add it to the scheduler
 			if(data.type === TriggerTypes.SCHEDULE) {
-				SchedulerHelper.instance.scheduleTrigger(key, data.scheduleParams!);
+				SchedulerHelper.instance.scheduleTrigger(data);
 			}
+			
+			this.triggerList.push(data);
+			DataStore.set(DataStore.TRIGGERS, this.triggerList);
+			TriggerActionHandler.instance.populate(this.triggerList);
+		},
 
-			DataStore.set(DataStore.TRIGGERS, this.triggers);
-			TriggerActionHandler.instance.populate(this.triggers);
+		saveTriggers():void {
+			DataStore.set(DataStore.TRIGGERS, this.triggerList);
 		},
 
 		deleteTrigger(id:string) {
-			this.triggers = this.triggers.filter(v=> v.id != id)
-			DataStore.set(DataStore.TRIGGERS, this.triggers);
+			this.triggerList = this.triggerList.filter(v=> v.id != id)
+			DataStore.set(DataStore.TRIGGERS, this.triggerList);
 		}
 
 	} as ITriggersActions

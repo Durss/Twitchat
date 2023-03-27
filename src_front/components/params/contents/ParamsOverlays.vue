@@ -57,6 +57,7 @@ import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -70,7 +71,7 @@ import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 	},
 	emits:[]
 })
-export default class ParamsOverlays extends Vue {
+export default class ParamsOverlays extends Vue implements IParameterContent {
 
 	public showDockTutorial:boolean = false;
 	
@@ -81,6 +82,8 @@ export default class ParamsOverlays extends Vue {
 	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
+
+	public onNavigateBack(): boolean { return false; }
 
 }
 </script>

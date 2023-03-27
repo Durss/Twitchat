@@ -1,8 +1,7 @@
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { reactive } from "vue";
 import rewardImg from '@/assets/icons/reward_highlight.svg';
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import StoreProxy from "@/store/StoreProxy";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { reactive } from "vue";
 
 /**
  * Created by Durss
@@ -104,9 +103,9 @@ export default class Config {
 	public get highlightMyMessageReward():TwitchDataTypes.Reward {
 		const img = rewardImg;
 		return {
-			broadcaster_name: StoreProxy.auth.twitch.user.displayName,
-			broadcaster_login: StoreProxy.auth.twitch.user.login,
-			broadcaster_id: StoreProxy.auth.twitch.user.id,
+			broadcaster_name: "Durss",
+			broadcaster_login: "durss",
+			broadcaster_id: "29961813",
 			id: "highlighted-message",
 			image:{
 				url_1x:img,

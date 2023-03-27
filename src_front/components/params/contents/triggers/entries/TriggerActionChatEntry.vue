@@ -52,7 +52,7 @@ export default class TriggerActionChatEntry extends Vue {
 	public message_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get cmdNameConflict():boolean {
-		const foundIndex = this.$store("triggers").triggers.findIndex(v=>
+		const foundIndex = this.$store("triggers").triggerList.findIndex(v=>
 							v.type == TriggerTypes.CHAT_COMMAND
 							&& v.id + this.triggerData.id
 							&& v.chatCommand?.toLowerCase() == this.action.text);

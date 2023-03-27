@@ -56,7 +56,6 @@
 			group="actions" 
 			item-key="id"
 			ghost-class="ghost"
-			@change="saveData()"
 			direction="vertical"
 			handle=".action>.header>.orderBt"
 			:animation="250"
@@ -91,6 +90,7 @@ import { TriggerEvents, TriggerTypes, type TriggerActionEmptyData, type TriggerA
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
+import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
@@ -177,10 +177,6 @@ export default class TriggerActionList extends Vue {
 		const clone:TriggerActionTypes = JSON.parse(JSON.stringify(action));
 		clone.id = Utils.getUUID(),
 		this.triggerData.actions.splice(index, 0, clone);
-	}
-
-	public saveData():void {
-
 	}
 
 	public addAction():void {

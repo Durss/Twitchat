@@ -20,7 +20,7 @@
 
 		<div v-if="!triggerList || triggerList.length === 0" class="noinfo Trigger">{{ $t("triggers.actions.trigger.no_trigger") }}</div>
 		
-		<vue-select class="row item list" v-model="action.triggerKey"
+		<vue-select class="row item list" v-model="action.triggerId"
 		v-if="triggerList?.length > 1"
 		:placeholder="$t('triggers.actions.trigger.select')"
 		:options="triggerList"
@@ -92,7 +92,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	public mounted():void {
 		this.populateList();
-		watch(()=>this.action.triggerKey, ()=> {
+		watch(()=>this.action.triggerId, ()=> {
 			this.buildDependencyLoop();
 		});
 		watch(()=>this.triggerData.type, ()=> {
@@ -104,7 +104,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	 * Loads all existing triggers
 	 */
 	private async populateList():Promise<void> {
-		const triggers:TriggerData[] = this.$store("triggers").triggers;
+		const triggers:TriggerData[] = this.$store("triggers").triggerList;
 		const list = [];
 		for (const key in triggers) {
 			const mainKey = key.split("_")[0];
@@ -210,8 +210,8 @@ export default class TriggerActionTriggerEntry extends Vue {
 	}
 
 	private recursiveLoopCheck(base?:TriggerData, key?:string):string[] {
-		if(!this.action.triggerKey) return [];
-		const triggers = this.$store("triggers").triggers;
+		if(!this.action.triggerId) return [];
+		const triggers = this.$store("triggers").triggerList;
 		let found:string[] = [];
 		if(!base) {
 			base = this.triggerData;
@@ -222,11 +222,11 @@ export default class TriggerActionTriggerEntry extends Vue {
 		for (let i = 0; i < base.actions.length; i++) {
 			const a = base.actions[i];
 			if(a.type == "trigger") {
-				if(a.triggerKey == this.triggerKey) {
+				if(a.triggerId == this.triggerKey) {
 					found.push(key as string);
 					break;
-				}else if(a.triggerKey && triggers[a.triggerKey]){
-					const list = this.recursiveLoopCheck( triggers[a.triggerKey], a.triggerKey );
+				}else if(a.triggerId && triggers[a.triggerId]){
+					const list = this.recursiveLoopCheck( triggers[a.triggerId], a.triggerId );
 					if(list.length > 0) {
 						found.push(key as string);
 						found = found.concat( list );

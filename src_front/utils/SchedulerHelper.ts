@@ -4,6 +4,7 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { TriggerScheduleTypes, TriggerTypes, type TriggerData, type TriggerScheduleData } from "../types/TriggerActionDataTypes";
 import Config from "./Config";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
+import Utils from "./Utils";
 
 /**
 * Created : 02/09/2022 
@@ -12,11 +13,11 @@ export default class SchedulerHelper {
 
 	private static _instance:SchedulerHelper;
 	private _started:boolean = false;
-	private _pendingSchedules:{messageCount:number, date:number, triggerKey:string}[] = [];
+	private _pendingSchedules:{messageCount:number, date:number, trigger:TriggerData}[] = [];
 	private _prevExecute_ts:number = 0;
-	private _adSchedule?:TriggerScheduleData;
 	private _adScheduleTimeout?:number;
-	private _liveChannelsSchedule?:TriggerScheduleData;
+	private _adSchedule!:TriggerData;
+	private _liveChannelsSchedule!:TriggerData;
 	
 	constructor() {
 	
@@ -45,11 +46,12 @@ export default class SchedulerHelper {
 		if(this._started) return;
 		
 		this._started = true;
-		const triggers:{[key:string]:TriggerData} = StoreProxy.triggers.triggers;
-		for (const key in triggers) {
-			const mainKey = key.split("_")[0];
-			if(mainKey == TriggerTypes.SCHEDULE) {
-				this.scheduleTrigger(key, triggers[key].scheduleParams!);
+		const triggers:TriggerData[] = StoreProxy.triggers.triggerList;
+		//Schedule all schedule triggers
+		for (let i = 0; i < triggers.length; i++) {
+			const t = triggers[i];
+			if(t.type == TriggerTypes.SCHEDULE) {
+				this.scheduleTrigger(t);
 			}
 		}
 	}
@@ -68,8 +70,8 @@ export default class SchedulerHelper {
 	 * @param key 
 	 * @returns 
 	 */
-	public unscheduleTrigger(key:string):void {
-		const existingIndex = this._pendingSchedules.findIndex(v=>v.triggerKey == key);
+	public unscheduleTrigger(trigger:TriggerData):void {
+		const existingIndex = this._pendingSchedules.findIndex(v=>v.trigger.id == trigger.id);
 		if(existingIndex > -1) {
 			this._pendingSchedules.splice(existingIndex, 1);
 		}
@@ -78,19 +80,19 @@ export default class SchedulerHelper {
 	/**
 	 * Schedules a trigger and reset its scheduling if already scheduled
 	 * @param key 
-	 * @param schedule 
+	 * @param trigger 
 	 * @returns 
 	 */
-	public scheduleTrigger(key:string, schedule:TriggerScheduleData):void {
-		if(!schedule) return;
+	public scheduleTrigger(trigger:TriggerData):void {
+		if(!trigger || !trigger.scheduleParams) return;
 
 		//Cleanup any previously scheduled trigger
-		this.unscheduleTrigger(key);
+		this.unscheduleTrigger(trigger);
 
-		switch(schedule.type) {
+		switch(trigger.scheduleParams.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
-				let date = Date.now() + schedule.repeatDuration * 60 * 1000;
-				if(key === TriggerTypes.TWITCHAT_AD) {
+				let date = Date.now() + trigger.scheduleParams.repeatDuration * 60 * 1000;
+				if(trigger.type === TriggerTypes.TWITCHAT_AD) {
 					//Check if a date is stored on store and load it back.
 					//This avoids the possibility to have no ad by refreshing
 					//the page before the timer ends.
@@ -103,14 +105,14 @@ export default class SchedulerHelper {
 				this._pendingSchedules.push({
 					messageCount:0,
 					date,
-					triggerKey:key,
+					trigger,
 				});
 				break;
 			}
 
 			case TriggerScheduleTypes.SPECIFIC_DATES:{
-				for (let i = 0; i < schedule.dates.length; i++) {
-					const d = schedule.dates[i];
+				for (let i = 0; i < trigger.scheduleParams.dates.length; i++) {
+					const d = trigger.scheduleParams.dates[i];
 					const date = new Date(d.value);
 					if(d.daily) date.setDate(new Date().getDate());
 					if(d.yearly) date.setFullYear(new Date().getFullYear());
@@ -127,7 +129,7 @@ export default class SchedulerHelper {
 					this._pendingSchedules.push({
 						messageCount:0,
 						date:date.getTime(),
-						triggerKey:key,
+						trigger,
 					})
 				}
 				break;
@@ -142,7 +144,7 @@ export default class SchedulerHelper {
 		for (let i = 0; i < this._pendingSchedules.length; i++) {
 			const e = this._pendingSchedules[i];
 			//Search for the ad schedule
-			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+			if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
 				const nextDate = e.date;
 				// console.log("ASK RESET", new Date(nextDate));
 				
@@ -156,7 +158,7 @@ export default class SchedulerHelper {
 				this._adScheduleTimeout = setTimeout(()=> {
 					// console.log("Do reset. Deleted?"+message.deleted, "date:"+(Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000 - waitFor) );
 					if(message.deleted === true) return;
-					e.date = Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000 - waitFor;
+					e.date = Date.now() + this._adSchedule.scheduleParams!.repeatDuration! * 60 * 1000 - waitFor;
 					e.messageCount = 0;
 					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
 				}, waitFor);
@@ -174,30 +176,42 @@ export default class SchedulerHelper {
 		this.computeFrame();
 		
 		this._adSchedule = {
-			type:TriggerScheduleTypes.REGULAR_REPEAT,
-			// repeatDuration:10,
-			// repeatMinMessages:0,
-			repeatDuration:120,
-			repeatMinMessages:100,
-			dates:[],
-		};
+			type:TriggerTypes.SCHEDULE,
+			enabled:true,
+			id:Utils.getUUID(),
+			actions: [],
+			scheduleParams:{
+				type:TriggerScheduleTypes.REGULAR_REPEAT,
+				// repeatDuration:10,
+				// repeatMinMessages:0,
+				repeatDuration:120,
+				repeatMinMessages:100,
+				dates:[],
+			}
+		}
 		
 		this._liveChannelsSchedule = {
-			type:TriggerScheduleTypes.REGULAR_REPEAT,
-			repeatDuration:5,
-			repeatMinMessages:0,
-			dates:[],
+			type:TriggerTypes.SCHEDULE,
+			enabled:true,
+			id:Utils.getUUID(),
+			actions: [],
+			scheduleParams:{
+				type:TriggerScheduleTypes.REGULAR_REPEAT,
+				repeatDuration:5,
+				repeatMinMessages:0,
+				dates:[],
+			}
 		};
 
 		//Just a fail safe to avoid deploying fucked up data on production !
-		if(this._adSchedule.repeatDuration < 120) {
-			StoreProxy.main.alert("Ad schedule duration set to "+this._adSchedule.repeatDuration+" minutes instead of 120!");
+		if(this._adSchedule.scheduleParams!.repeatDuration < 120) {
+			StoreProxy.main.alert("Ad schedule duration set to "+this._adSchedule.scheduleParams!.repeatDuration+" minutes instead of 120!");
 		}else
-		if(this._adSchedule.repeatMinMessages < 100) {
-			StoreProxy.main.alert("Ad schedule min message count set to "+this._adSchedule.repeatMinMessages+" instead of 100!");
+		if(this._adSchedule.scheduleParams!.repeatMinMessages < 100) {
+			StoreProxy.main.alert("Ad schedule min message count set to "+this._adSchedule.scheduleParams!.repeatMinMessages+" instead of 100!");
 		}
-		this.scheduleTrigger(TriggerTypes.TWITCHAT_AD, this._adSchedule);
-		this.scheduleTrigger(TriggerTypes.TWITCHAT_LIVE_FRIENDS, this._liveChannelsSchedule);
+		this.scheduleTrigger(this._adSchedule);
+		this.scheduleTrigger(this._liveChannelsSchedule);
 	}
 
 	private computeFrame():void {
@@ -207,28 +221,26 @@ export default class SchedulerHelper {
 		this._prevExecute_ts = Date.now();
 
 		// const s = Date.now();
-		const triggers:{[key:string]:TriggerData} = StoreProxy.triggers.triggers;
 		// console.log("1 > ", Date.now() - s);
 
 		for (let i = 0; i < this._pendingSchedules.length; i++) {
 			const e = this._pendingSchedules[i];
-			const trigger = triggers[e.triggerKey];
-			let schedule = trigger?.scheduleParams;
+			let schedule = e.trigger.scheduleParams;
 
 			//Special case for ad 
-			if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+			if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
 				//No ad for donors unless requested
 				if(Config.instance.BETA_MODE) continue;//No ad on beta
 				if(StoreProxy.auth.twitch.user.donor.state
 				&& !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;
 				if(StoreProxy.auth.twitch.user.donor.noAd) continue;
 
-				schedule = this._adSchedule;
+				schedule = this._adSchedule.scheduleParams;
 			}
 
 			//Special case for "live friends" 
-			if(e.triggerKey == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
-				schedule = this._liveChannelsSchedule;
+			if(e.trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
+				schedule = this._liveChannelsSchedule.scheduleParams;
 			}
 
 			if(!schedule) continue;
@@ -258,10 +270,10 @@ export default class SchedulerHelper {
 			if(execute) {
 				e.date = Date.now() + schedule!.repeatDuration * 60 * 1000;
 				e.messageCount = 0;
-				if(e.triggerKey == TriggerTypes.TWITCHAT_AD) {
+				if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
 					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
 				}
-				TriggerActionHandler.instance.parseScheduleTrigger(e.triggerKey);
+				TriggerActionHandler.instance.parseScheduleTrigger(e.trigger);
 			}
 		}
 	}

@@ -205,7 +205,7 @@ export default class TriggerActionRandomEntry extends Vue {
 	 * Loads all existing triggers
 	 */
 	private async populateTriggersList():Promise<void> {
-		const triggers:TriggerData[] = this.$store("triggers").triggers;
+		const triggers:TriggerData[] = this.$store("triggers").triggerList;
 		const list:TriggerDefinitionEntry[] = [];
 		for (let i = 0; i < triggers.length; i++) {
 			const t = triggers[i];

@@ -259,8 +259,8 @@ export const storeMain = defineStore("main", {
 					TriggerActionHandler.instance.execute(m);
 				});
 	
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SOURCE_TOGGLE, (e:TwitchatEvent):void => {
-					const data = (e.data as unknown) as {item:OBSSourceItem, event:{sceneItemId:number, sceneItemEnabled:boolean}};
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SOURCE_TOGGLE, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {item:OBSSourceItem, event:{sceneItemId:number, sceneItemEnabled:boolean, sceneName:string}};
 					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -385,8 +385,8 @@ export const storeMain = defineStore("main", {
 			//Init triggers
 			const triggers = DataStore.get(DataStore.TRIGGERS);
 			if(triggers) {
-				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggers as unknown) as JsonObject);
-				TriggerActionHandler.instance.populate(sTriggers.triggers);
+				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggerList as unknown) as JsonObject);
+				TriggerActionHandler.instance.populate(sTriggers.triggerList);
 			}
 				
 			//Init stream info presets
