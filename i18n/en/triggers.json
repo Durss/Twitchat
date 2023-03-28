@@ -1,6 +1,12 @@
 {
 	"triggers": {
 		"header": "Execute custom actions based on {COUNT} event types",
+		"header_select_trigger": "Select the trigger type to create amongst the {COUNT} available",
+		"header_select_reward": "Select the channel point reward",
+		"header_select_counter": "Select the counter",
+		"header_select_obs_scene": "Select the OBS scene",
+		"header_select_obs_source": "Select the OBS source",
+		"trigger_name":"Custom name",
 		"add_triggerBt": "Create a trigger",
 		"add_trigger_select_event": "Choose an event type",
 		"add_actionBt": "Add action",
@@ -14,10 +20,12 @@
 		"delete_action_confirm": "Delete action?",
 		"reorder_tt": "Reorder",
 		"noChannelPoints_tt": "You are not a Twitch affiliate<br>or you have refused Twitchat<br>to control this",
-		"noTrigger": "You have created no trigger yet",
+		"triggers_list": "Your triggers",
+		"triggers_none": "You have created no trigger yet",
 		"create_counterBt": "Create counters",
-		"queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
-		"queue_input_placeholder": "execution queue...",
+		"trigger_queue":"Execution queue",
+		"trigger_queue_info": "To make sure some triggers execute<br>one after another, associate them to the<br>same execution queue, or leave empty.",
+		"trigger_queue_input_placeholder": "execution queue...",
 		"missing_counter": "COUNTER DELETED",
 		"missing_reward": "REWARD DELETED",
 		"music": {
@@ -38,11 +46,8 @@
 		},
 		"schedule": {
 			"conflict": "A schedule with this name already exists",
-			"params_title": "Parameters",
-			"repeat": "Repeat:",
 			"add_dateBt": "Add date",
 			"default_action": "Select an action...",
-			"param_name": "Schedule name",
 			"param_daily": "Daily",
 			"param_yearly": "Yearly",
 			"param_action": "Schedule type",
@@ -89,10 +94,10 @@
 				"param_message": "Message to send on your chat",
 				"conflict": "A command with this name already exists",
 				"allowed_users": "Users allowed to use this command",
-				"params_title": "Parameters",
 				"param_cmd": "Command",
-				"param_globalCD": "Global cooldown (sec)",
-				"param_userCD": "User cooldown (sec)",
+				"param_cmd_alias": "Aliases",
+				"param_globalCD": "Global cooldown ({VALUE}s)",
+				"param_userCD": "User cooldown ({VALUE}s)",
 				"param_alertCD": "Tell users if they're cooled down",
 				"tip_title":"TIP :",
 				"tip":"{TITLE} You can use chat commands",
@@ -273,271 +278,271 @@
 		"events": {
 			"CHAT_COMMAND": {
 				"label": "Chat command",
-				"description": "Execute actions when someone uses the chat command {SUB_ITEM_NAME}"
+				"description": "Actions to execute when someone uses the chat command {SUB_ITEM_NAME}"
 			},
 			"ANY_MESSAGE": {
 				"label": "Any message",
-				"description": "Execute actions everytime a message is received on chat"
+				"description": "Actions to execute everytime a message is received on chat"
 			},
 			"REWARD_REDEEM": {
 				"label": "Channel point reward",
-				"description": "Execute actions when the channel point reward {SUB_ITEM_NAME} is redeemed"
+				"description": "Actions to execute when the channel point reward {SUB_ITEM_NAME} is redeemed"
 			},
 			"COMMUNITY_CHALLENGE_PROGRESS": {
 				"label": "Community challenge progress",
-				"description": "Execute actions when a user contributes to a community challenge"
+				"description": "Actions to execute when a user contributes to a community challenge"
 			},
 			"COMMUNITY_CHALLENGE_COMPLETE": {
 				"label": "Community challenge complete",
-				"description": "Execute actions when a community challenge completes"
+				"description": "Actions to execute when a community challenge completes"
 			},
 			"STREAM_INFO_UPDATE": {
 				"label": "Stream info update",
-				"description": "Execute actions when the stream info are updated"
+				"description": "Actions to execute when the stream info are updated"
 			},
 			"FIRST_ALL_TIME": {
 				"label": "First message of a user all time",
-				"description": "Execute actions when a user sends a message for the first time on your channel"
+				"description": "Actions to execute when a user sends a message for the first time on your channel"
 			},
 			"FIRST_TODAY": {
 				"label": "First message of a user today",
-				"description": "Execute actions when a user sends a message for the first time today"
+				"description": "Actions to execute when a user sends a message for the first time today"
 			},
 			"RETURNING_USER": {
 				"label": "Returning user",
-				"description": "Execute actions when a user comes back after chatting at least twice in the last 30 days. {INFO}",
+				"description": "Actions to execute when a user comes back after chatting at least twice in the last 30 days. {INFO}",
 				"description_info":"(ceci n'existe peut-être plus sur Twitch)"
 			},
 			"PRESENTATION": {
 				"label": "User presentation",
-				"description": "Execute actions when a user sends a presentation message."
+				"description": "Actions to execute when a user sends a presentation message."
 			},
 			"FOLLOW": {
 				"label": "Follow",
-				"description": "Execute actions when someone follows the channel"
+				"description": "Actions to execute when someone follows the channel"
 			},
 			"RAID": {
 				"label": "Raid received",
-				"description": "Execute actions when someone raids the channel"
+				"description": "Actions to execute when someone raids the channel"
 			},
 			"SHOUTOUT_OUT": {
 				"label": "Shoutout given",
-				"description": "Execute actions when giving a shoutout to someone"
+				"description": "Actions to execute when giving a shoutout to someone"
 			},
 			"SHOUTOUT_IN": {
 				"label": "Shoutout received",
-				"description": "Execute actions when given a shoutout on another channel"
+				"description": "Actions to execute when given a shoutout on another channel"
 			},
 			"POLL_RESULT": {
 				"label": "Poll result",
-				"description": "Execute actions when a poll completes"
+				"description": "Actions to execute when a poll completes"
 			},
 			"PREDICTION_RESULT": {
 				"label": "Prediction result",
-				"description": "Execute actions when a prediction completes"
+				"description": "Actions to execute when a prediction completes"
 			},
 			"RAFFLE_RESULT": {
 				"label": "Raffle result",
-				"description": "Execute actions when a raffle completes"
+				"description": "Actions to execute when a raffle completes"
 			},
 			"BINGO_RESULT": {
 				"label": "Bingo result",
-				"description": "Execute actions when a bingo completes"
+				"description": "Actions to execute when a bingo completes"
 			},
 			"SUB": {
 				"label": "Sub",
-				"description": "Execute actions when someone subscribes to the channel"
+				"description": "Actions to execute when someone subscribes to the channel"
 			},
 			"SUBGIFT": {
 				"label": "Subgift",
-				"description": "Execute actions when someones subgifts someone else"
+				"description": "Actions to execute when someones subgifts someone else"
 			},
 			"CHEER": {
 				"label": "Bits",
-				"description": "Execute actions when someone sends bits"
+				"description": "Actions to execute when someone sends bits"
 			},
 			"HYPE_TRAIN_APPROACHING": {
 				"label": "Hype train approach",
-				"description": "Execute actions when a hype train approaches"
+				"description": "Actions to execute when a hype train approaches"
 			},
 			"HYPE_TRAIN_START": {
 				"label": "Hype train start",
-				"description": "Execute actions when a hype train starts"
+				"description": "Actions to execute when a hype train starts"
 			},
 			"HYPE_TRAIN_PROGRESS": {
 				"label": "Hype train progress",
-				"description": "Execute actions when a hype train progresses"
+				"description": "Actions to execute when a hype train progresses"
 			},
 			"HYPE_TRAIN_END": {
 				"label": "Hype train end",
-				"description": "Execute actions when a hype train ends"
+				"description": "Actions to execute when a hype train ends"
 			},
 			"HYPE_TRAIN_CANCELED": {
 				"label": "Hype train canceled",
-				"description": "Execute actions when a hype train fails"
+				"description": "Actions to execute when a hype train fails"
 			},
 			"HYPE_TRAIN_COOLDOWN": {
 				"label": "Hype train cooldown",
-				"description": "Execute actions when a hype train can, be started again"
+				"description": "Actions to execute when a hype train can, be started again"
 			},
 			"TIMEOUT": {
 				"label": "User timed out",
-				"description": "Execute actions when a user is {CMD}",
+				"description": "Actions to execute when a user is {CMD}",
 				"description_cmd": "/timeout"
 			},
 			"BAN": {
 				"label": "User banned",
-				"description": "Execute actions when a user is {CMD}",
+				"description": "Actions to execute when a user is {CMD}",
 				"description_cmd": "/ban"
 			},
 			"UNBAN": {
 				"label": "User unbanned",
-				"description": "Execute actions when a user is {CMD}",
+				"description": "Actions to execute when a user is {CMD}",
 				"description_cmd": "/unban"
 			},
 			"VIP": {
 				"label": "User /vip",
-				"description": "Execute actions when a user is added to your VIPs"
+				"description": "Actions to execute when a user is added to your VIPs"
 			},
 			"UNVIP": {
 				"label": "User /unvip",
-				"description": "Execute actions when a user is removed from your VIPs {INFO}",
+				"description": "Actions to execute when a user is removed from your VIPs {INFO}",
 				"description_info":"(only works when using {CMD} command from twitchat)",
 				"description_info_cmd":"/unvip"
 			},
 			"MOD": {
 				"label": "User /mod",
-				"description": "Execute actions when a user is added to your mods"
+				"description": "Actions to execute when a user is added to your mods"
 			},
 			"UNMOD": {
 				"label": "User /unmod",
-				"description": "Execute actions when a user is removed from your mods {INFO}",
+				"description": "Actions to execute when a user is removed from your mods {INFO}",
 				"description_info":"(only works when using {CMD} command from twitchat)",
 				"description_info_cmd":"/unmod"
 			},
 			"SHIELD_MODE_ON": {
 				"label": "Shield mode enabled",
-				"description": "Execute actions when shield mode is enabled"
+				"description": "Actions to execute when shield mode is enabled"
 			},
 			"SHIELD_MODE_OFF": {
 				"label": "Shield mode disabled",
-				"description": "Execute actions when shield mode is disabled"
+				"description": "Actions to execute when shield mode is disabled"
 			},
 			"PIN_MESSAGE": {
 				"label": "Pin message",
-				"description": "Execute actions when pinning a message"
+				"description": "Actions to execute when pinning a message"
 			},
 			"UNPIN_MESSAGE": {
 				"label": "Unpin message",
-				"description": "Execute actions when unpinning a message"
+				"description": "Actions to execute when unpinning a message"
 			},
 			"TRACK_ADDED_TO_QUEUE": {
 				"label": "Track added to queue",
-				"description": "Execute actions when a music is added to the queue"
+				"description": "Actions to execute when a music is added to the queue"
 			},
 			"MUSIC_START": {
 				"label": "Music starts playing",
-				"description": "Execute actions when a music starts playing"
+				"description": "Actions to execute when a music starts playing"
 			},
 			"MUSIC_STOP": {
 				"label": "Music stops playing",
-				"description": "Execute actions when a music stops playing"
+				"description": "Actions to execute when a music stops playing"
 			},
 			"SCHEDULE": {
 				"label": "Scheduled actions",
-				"description": "Execute actions regularly or at specific date/time"
+				"description": "Actions to execute regularly or at specific date/time"
 			},
 			"TIMER_START": {
 				"label": "Timer start",
-				"description": "Execute actions when a timer is started with the command {CMD}",
+				"description": "Actions to execute when a timer is started with the command {CMD}",
 				"description_cmd": "/timerStart"
 			},
 			"TIMER_STOP": {
 				"label": "Timer stop",
-				"description": "Execute actions when a timer is stoped with the command {CMD}",
+				"description": "Actions to execute when a timer is stoped with the command {CMD}",
 				"description_cmd": "/timerStop"
 			},
 			"COUNTDOWN_START": {
 				"label": "Countdown start",
-				"description": "Execute actions when a countdown is started with the command {CMD}",
+				"description": "Actions to execute when a countdown is started with the command {CMD}",
 				"description_cmd": "/countdown"
 			},
 			"COUNTDOWN_STOP": {
 				"label": "Countdown stop",
-				"description": "Execute actions when a countdown completes or is stoped"
+				"description": "Actions to execute when a countdown completes or is stoped"
 			},
 			"SHOUTOUT": {
 				"label": "Shoutout (Twitchat)",
-				"description": "Execute actions when doing a shoutout via {CMD} command or shoutout button",
+				"description": "Actions to execute when doing a shoutout via {CMD} command or shoutout button",
 				"description_cmd": "/so"
 			},
 			"EMERGENCY_MODE_START": {
 				"label": "Emergency start",
-				"description": "Execute actions when enabling the emergency mode"
+				"description": "Actions to execute when enabling the emergency mode"
 			},
 			"EMERGENCY_MODE_STOP": {
 				"label": "Emergency stop",
-				"description": "Execute actions when stopping the emergency mode"
+				"description": "Actions to execute when stopping the emergency mode"
 			},
 			"HIGHLIGHT_CHAT_MESSAGE": {
 				"label": "Highlighted message",
-				"description": "Execute actions when requesting to highlight a message"
+				"description": "Actions to execute when requesting to highlight a message"
 			},
 			"CHAT_ALERT": {
 				"label": "Chat alert",
-				"description": "Execute actions when the Chat Alert feature is triggered {INFO}",
+				"description": "Actions to execute when the Chat Alert feature is triggered {INFO}",
 				"description_info":"(Parameters => @:params.categories.features => @:params.alertMode )"
 			},
 			"VOICEMOD": {
 				"label": "Voicemod - voice changed",
-				"description": "Execute actions when changing the voice effect on voicemod"
+				"description": "Actions to execute when changing the voice effect on voicemod"
 			},
 			"OBS_SCENE": {
 				"label": "Switch to scene",
-				"description": "Execute actions when switching to {SUB_ITEM_NAME} OBS scene"
+				"description": "Actions to execute when switching to {SUB_ITEM_NAME} OBS scene"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source show",
-				"description": "Execute actions when showing {SUB_ITEM_NAME} OBS source"
+				"description": "Actions to execute when showing {SUB_ITEM_NAME} OBS source"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source hide",
-				"description": "Execute actions when hiding {SUB_ITEM_NAME} OBS source"
+				"description": "Actions to execute when hiding {SUB_ITEM_NAME} OBS source"
 			},
 			"STREAM_ONLINE": {
 				"label": "Stream start",
-				"description": "Execute actions when stream starts {INFO}",
+				"description": "Actions to execute when stream starts {INFO}",
 				"description_info":"(you might have to wait +1min before receiving that info)"
 			},
 			"STREAM_OFFLINE": {
 				"label": "Stream stop",
-				"description": "Execute actions when stream stops {INFO}",
+				"description": "Actions to execute when stream stops {INFO}",
 				"description_info":"(you might have to wait +1min before receiving that info)"
 			},
 			"COUNTER_ADD": {
 				"label": "Value added to a counter",
-				"description": "Execute actions when a value is added to the {SUB_ITEM_NAME} counter"
+				"description": "Actions to execute when a value is added to the {SUB_ITEM_NAME} counter"
 			},
 			"COUNTER_DEL": {
 				"label": "Value removed from a counter",
-				"description": "Execute actions when a value is substracted from the {SUB_ITEM_NAME} counter"
+				"description": "Actions to execute when a value is substracted from the {SUB_ITEM_NAME} counter"
 			},
 			"COUNTER_MAXED": {
 				"label": "Max value reached",
-				"description": "Execute actions when {SUB_ITEM_NAME} counter reaches its maximum value"
+				"description": "Actions to execute when {SUB_ITEM_NAME} counter reaches its maximum value"
 			},
 			"COUNTER_MINED": {
 				"label": "Min value reached",
-				"description": "Execute actions when {SUB_ITEM_NAME} counter reaches its minimum value"
+				"description": "Actions to execute when {SUB_ITEM_NAME} counter reaches its minimum value"
 			},
 			"COUNTER_LOOPED": {
 				"label": "Value looped",
-				"description": "Execute actions when the {SUB_ITEM_NAME} counter value is looped {INFO}",
+				"description": "Actions to execute when the {SUB_ITEM_NAME} counter value is looped {INFO}",
 				"description_info":"(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)"
 			},
 			"RAID_STARTED": {
 				"label": "Started a raid",
-				"description": "Execute actions when starting a raid to another channel"
+				"description": "Actions to execute when starting a raid to another channel"
 			}
 		},
 		"musicEvents": {

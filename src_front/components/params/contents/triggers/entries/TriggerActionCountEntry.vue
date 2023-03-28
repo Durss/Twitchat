@@ -55,7 +55,6 @@ export default class TriggerActionCountEntry extends Vue {
 		
 		for (let i = 0; i < this.action.counters.length; i++) {
 			const cid = this.action.counters[i];
-			console.log(cid);
 			if(counters.findIndex(v=>v.value == cid) === -1) {
 				//Counter not found, user probably deleted it
 				this.action.counters.splice(i,1);
@@ -79,10 +78,6 @@ export default class TriggerActionCountEntry extends Vue {
 		flex-grow: 1;
 		flex-basis: 300px;
 	}
-
-	// :deep(label), label {
-		// flex-basis: 180px;
-	// }
 
 	.list {
 		display: flex;

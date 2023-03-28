@@ -263,7 +263,8 @@ export default class ParamItem extends Vue {
 		if(!this.paramData) return "";
 		let txt = this.paramData.label ?? "";
 		if(this.paramData.labelKey) {
-			const v = parseFloat(this.paramData.value as string) ?? 0;
+			let v = parseFloat(this.paramData.value as string) ?? 0;
+			if(isNaN(v)) v = 0;
 			txt += this.$tc(this.paramData.labelKey, v, {VALUE:v.toString()});
 		}
 		

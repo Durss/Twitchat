@@ -1,6 +1,7 @@
 <template>
 	<div class="triggerslist">
-		<div v-if="filteredTriggers.length === 0" class="empty">{{ $t("triggers.noTrigger") }}</div>
+		<div v-if="filteredTriggers.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div>
+		<Splitter class="head" v-else>{{ $t("triggers.triggers_list") }}</Splitter>
 		
 		<div class="item"
 		v-for="item in filteredTriggers" :key="item.trigger.id">
@@ -37,6 +38,7 @@
 </template>
 
 <script lang="ts">
+import Splitter from '@/components/Splitter.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import { TriggerEvents, TriggerTypes, type TriggerData, type TriggerEventTypes, type TriggerTypesValue, TriggerEventTypeCategories, type TriggerEventTypeCategoryValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
@@ -48,7 +50,8 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		ToggleButton
+		Splitter,
+		ToggleButton,
 	},
 	emits:["select"],
 })
@@ -290,6 +293,10 @@ interface TriggerEntry {
 	display: flex;
 	flex-direction: column;
 	gap: .25em;
+
+	.head {
+		margin: 0 0 1em 0;
+	}
 
 	.empty {
 		text-align: center;

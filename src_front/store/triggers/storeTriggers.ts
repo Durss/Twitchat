@@ -122,6 +122,7 @@ export const storeTriggers = defineStore('triggers', {
 
 		saveTriggers():void {
 			DataStore.set(DataStore.TRIGGERS, this.triggerList);
+			TriggerActionHandler.instance.populate(this.triggerList);
 		},
 
 		deleteTrigger(id:string) {

@@ -22,7 +22,6 @@
 
 				
 		<!-- Main menu -->
-
 		<div class="list" v-if="!selectedTriggerType">
 			<ToggleBlock class="category"
 			v-for="c in eventCategories"
@@ -67,6 +66,7 @@
 			</ToggleBlock>
 		</div>
 
+		<!-- Sub menu (rewards, counters, obs sources and scenes,... ) -->
 		<div class="sublist">
 			<button :class="item.icon? 'subEventBt hasIcon' : 'subEventBt'"
 			@click="selectSubType(item)"
@@ -101,7 +101,7 @@ import TriggerActionList from './TriggerActionList.vue';
 		ToggleBlock,
 		TriggerActionList,
 	},
-	emits:["selectTrigger"],
+	emits:["selectTrigger", "updateHeader"],
 })
 export default class TriggerCreateForm extends Vue {
 
@@ -317,6 +317,7 @@ export default class TriggerCreateForm extends Vue {
 					};
 				});
 				this.subtriggerList = list;
+				this.$emit("updateHeader", "triggers.header_select_reward");
 			}
 		}else
 
@@ -336,6 +337,7 @@ export default class TriggerCreateForm extends Vue {
 					};
 				});
 				this.subtriggerList = list;
+				this.$emit("updateHeader", "triggers.header_select_obs_scene");
 			}
 		}else
 
@@ -356,6 +358,7 @@ export default class TriggerCreateForm extends Vue {
 					};
 				});
 				this.subtriggerList = list;
+				this.$emit("updateHeader", "triggers.header_select_obs_source");
 			}
 		}else
 		
@@ -365,6 +368,7 @@ export default class TriggerCreateForm extends Vue {
 		|| e.value == TriggerTypes.COUNTER_MAXED
 		|| e.value == TriggerTypes.COUNTER_MINED) {
 			this.listCounters();
+			this.$emit("updateHeader", "triggers.header_select_counter");
 		}
 
 		if(e.value) {
@@ -397,10 +401,6 @@ export default class TriggerCreateForm extends Vue {
 		};
 
 		switch(this.selectedTriggerType.value) {
-			case TriggerTypes.CHAT_COMMAND:
-				this.temporaryTrigger.chatCommand = "";//TODO
-				break;
-
 			case TriggerTypes.REWARD_REDEEM: this.temporaryTrigger.rewardId = entry.value; break;
 
 			case TriggerTypes.OBS_SCENE: this.temporaryTrigger.obsScene = entry.value; break;
@@ -521,7 +521,7 @@ interface TriggerEntry{
 	.list {
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
+		gap: .5em;
 
 		.category{
 			.require {

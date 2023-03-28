@@ -74,6 +74,10 @@ export interface TriggerData {
 	 */
 	chatCommand?:string;
 	/**
+	 * Chat command aliases for chat command related events
+	 */
+	chatCommandAliases?:string[];
+	/**
 	 * Schedule name for schedule related events
 	 */
 	scheduleName?:string;

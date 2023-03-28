@@ -394,28 +394,39 @@ export default class TriggerActionHandler {
 		this.triggerType2Triggers = {};
 		for (let i = 0; i < triggers.length; i++) {
 			const t = triggers[i];
-			let key = t.type as string;
+			let keys:string[] = [t.type as string];
 			switch(t.type) {
-				case TriggerTypes.CHAT_COMMAND: key += "_" + t.chatCommand; break
+				case TriggerTypes.CHAT_COMMAND: {
+					keys[0] += "_" + t.chatCommand;
+					if(t.chatCommandAliases) {
+						for (let i = 0; i < t.chatCommandAliases.length; i++) {
+							keys.push(t.type + "_" + t.chatCommandAliases[i]);
+						}
+					}
+					break;
+				}
 
-				case TriggerTypes.REWARD_REDEEM: key += "_" + t.rewardId; break
+				case TriggerTypes.REWARD_REDEEM: keys[0] += "_" + t.rewardId; break;
 
-				case TriggerTypes.OBS_SCENE: key += "_" + t.obsScene; break
+				case TriggerTypes.OBS_SCENE: keys[0] += "_" + t.obsScene; break;
 
 				case TriggerTypes.OBS_SOURCE_ON:
-				case TriggerTypes.OBS_SOURCE_OFF: key += "_" + t.obsSource; break
+				case TriggerTypes.OBS_SOURCE_OFF: keys[0] += "_" + t.obsSource; break;
 
 				case TriggerTypes.COUNTER_ADD:
 				case TriggerTypes.COUNTER_DEL:
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
-				case TriggerTypes.COUNTER_MINED: key += "_" + t.counterID; break
+				case TriggerTypes.COUNTER_MINED: keys[0] += "_" + t.counterID; break;
 			}
-			key = key.toLowerCase();
-			if(!this.triggerType2Triggers[key]) {
-				this.triggerType2Triggers[key] = [];
+
+			for (let i = 0; i < keys.length; i++) {
+				keys[i] = keys[i].toLowerCase();
+				if(!this.triggerType2Triggers[ keys[i] ]) {
+					this.triggerType2Triggers[ keys[i] ] = [];
+				}
+				this.triggerType2Triggers[ keys[i] ]!.push(t);
 			}
-			this.triggerType2Triggers[key]!.push(t);
 		}
 	}
 	

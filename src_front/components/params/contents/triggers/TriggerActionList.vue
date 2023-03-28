@@ -1,13 +1,14 @@
 <template>
 	<div class="triggeractionlist">
-		<div class="triggerDescription">
-			<i18n-t class="text" scope="global" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
+		<div class="description">
+			<img src="@/assets/icons/info_purple.svg" class="icon">
+			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
 				<template #SUB_ITEM_NAME>
 					<mark>{{ subTypeLabel }}</mark>
 				</template>
 				<template #INFO v-if="$te(triggerDescriptionLabel+'_info')">
 					<br>
-					<i18n-t class="text" tag="i" scope="global"
+					<i18n-t tag="i" scope="global"
 					v-if="$te(triggerDescriptionLabel+'_info')"
 					:keypath="triggerDescriptionLabel+'_info'">
 						<template #CMD v-if="$te(triggerDescriptionLabel+'_info_cmd')">
@@ -19,36 +20,29 @@
 					<mark v-html="$t(triggerDescriptionLabel+'_cmd')"></mark>
 				</template>
 			</i18n-t>
-
-			<!-- <div class="ctas" v-if="showOBSResync">
-				<Button :icon="$image('icons/refresh.svg')"
-					:title="$t('triggers.resyncBt')"
-					class="cta resyncBt"
-					@click="listOBSSources()"
-					:data-tooltip="$t('triggers.resyncBt_tt')"
-					:loading="showLoading"
-				/>
-			</div> -->
-
-			<!-- <div class="ctas">
-				<Button class="cta"
-					v-if="canTestAction"
-					:title="$t('triggers.testBt')"
-					:icon="$image('icons/test.svg')"
-					@click="testTrigger()" />
-
-				<Button class="cta"
-					highlight
-					:title="$t('triggers.deleteBt')"
-					:icon="$image('icons/delete.svg')"
-					@click="deleteTrigger()" />
-			</div> -->
 		</div>
 
-		<TriggerActionChatCommandParams class="chatCmdParams"
-			v-if="isChatCmd"
-			:triggerData="triggerData"
-		/>
+		<div class="params">
+			<ParamItem :paramData="param_name" v-model="triggerData.name" />
+			
+			<div class="queue">
+				<div class="info" :data-tooltip="$t('triggers.trigger_queue_info')">
+					<img src="@/assets/icons/list_purple.svg" class="icon">
+					<span>{{ $t("triggers.trigger_queue") }}</span>
+				</div>
+				<ParamItem class="selector" :paramData="param_queue" v-model="triggerData.queue" />
+			</div>
+
+			<TriggerActionChatCommandParams
+				v-if="isChatCmd"
+				:triggerData="triggerData"
+			/>
+
+			<TriggerActionScheduleParams
+				v-if="isSchedule"
+				:triggerData="triggerData"
+			/>
+		</div>
 
 		<div class="list">
 			<draggable 
@@ -88,18 +82,23 @@
 import Button from '@/components/Button.vue';
 import { TriggerEvents, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
+import ParamItem from '../../ParamItem.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
 import TriggerActionEntry from './TriggerActionEntry.vue';
+import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 
 @Component({
 	components:{
 		Button,
 		draggable,
+		ParamItem,
 		TriggerActionEntry,
+		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
 	},
 	emits:[],
@@ -112,6 +111,9 @@ export default class TriggerActionList extends Vue {
 	public obsSources!:OBSSourceItem[];
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
+	
+	public param_name:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"date_purple.svg", placeholder:"...", labelKey:"triggers.trigger_name" };
+	public param_queue:TwitchatDataTypes.ParameterData = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 
 	/**
 	 * Get a trigger's description
@@ -122,6 +124,7 @@ export default class TriggerActionList extends Vue {
 	}
 
 	public get isChatCmd():boolean { return this.triggerData.type === TriggerTypes.CHAT_COMMAND; }
+	public get isSchedule():boolean { return this.triggerData.type === TriggerTypes.SCHEDULE; }
 
 	/**
 	 * Get a trigger's sub type's label (reward name, counter name, ...)
@@ -152,6 +155,7 @@ export default class TriggerActionList extends Vue {
 	}
 
 	public beforeMount():void {
+		this.param_queue.options = this.$store("triggers").queues;
 		if(this.triggerData.actions.length === 0) {
 			this.addAction();
 		}
@@ -257,14 +261,30 @@ export default class TriggerActionList extends Vue {
 		}
 	}
 
-	.triggerDescription, .queue {
-		font-size: .8em;
+	.params, .description {
 		background-color: @mainColor_light;
 		padding: .5em;
+		font-size: .9em;
 		border-radius: .5em;
-		text-align: center;
+		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+
+		&.params {
+			display: flex;
+			flex-direction: column;
+			gap: .5em;
+		}
+
+		.icon {
+			width: 1em;
+			height: 1em;
+			object-fit: contain;
+			margin-right: 0.5em;
+			vertical-align: top;
+		}
 
 		.text {
+			text-align: center;
+			margin-bottom: 1em;
 			:deep(mark) {
 				line-height: 1.5em;
 				border: 1px dashed @mainColor_normal;
@@ -277,8 +297,17 @@ export default class TriggerActionList extends Vue {
 				}
 			}
 		}
-		.queueSelector {
-			margin-top: 1em;
+		.queue {
+			display: flex;
+			flex-grow: 1;
+			width: 100%;
+			.info {
+				flex-grow: 1;
+				align-self: center;
+			}
+			.selector {
+				flex-basis: 300px;
+			}
 		}
 	}
 }

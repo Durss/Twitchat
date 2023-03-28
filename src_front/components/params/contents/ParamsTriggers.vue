@@ -2,20 +2,46 @@
 	<div class="paramstriggers">
 		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
 
-		<i18n-t scope="global" tag="p" class="head" keypath="triggers.header" v-if="!currentTriggerData">
+		<i18n-t scope="global" tag="p" class="head" :keypath="headerKey" v-if="!currentTriggerData">
 			<template #COUNT><strong>{{ eventsCount }}</strong></template>
 		</i18n-t>
 
 		<div class="holder">
+
+			<div class="ctas" v-if="showOBSResync">
+				<Button :icon="$image('icons/refresh.svg')"
+					:title="$t('triggers.resyncBt')"
+					class="cta resyncBt"
+					small
+					@click="listOBSSources()"
+					:data-tooltip="$t('triggers.resyncBt_tt')"
+					:loading="showLoading"
+				/>
+			<!-- <div class="ctas">
+				<Button class="cta"
+					v-if="canTestAction"
+					:title="$t('triggers.testBt')"
+					:icon="$image('icons/test.svg')"
+					@click="testTrigger()" />
+
+				<Button class="cta"
+					highlight
+					:title="$t('triggers.deleteBt')"
+					:icon="$image('icons/delete.svg')"
+					@click="deleteTrigger()" />
+			</div> -->
+			</div>
+
 			<Button class="createBt"
-			v-if="showList && !showForm"
-			:title="$t('triggers.add_triggerBt')"
-			:icon="$image('icons/add.svg')"
-			@click="showForm = true; showList = false;" />
+				v-if="showList && !showForm"
+				:title="$t('triggers.add_triggerBt')"
+				:icon="$image('icons/add.svg')"
+				@click="openForm();" />
 			
 			<TriggerCreateForm
 				v-if="showForm"
 				@selectTrigger="onSelectTrigger($event)"
+				@updateHeader="headerKey = $event"
 				:obsScenes="obsScenes"
 				:obsSources="obsSources"
 				:rewards="rewards" />
@@ -66,10 +92,17 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public showList:boolean = true;
 	public showForm:boolean = false;
 	public showLoading:boolean = false;
+	public headerKey:string = "triggers.header";
 	public currentTriggerData:TriggerData|null = null;
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
 	public rewards:TwitchDataTypes.Reward[] = [];
+
+	public get showOBSResync():boolean {
+		if(!this.currentTriggerData) return false;
+		if(this.currentTriggerData.actions.length === 0) return false;
+		return this.currentTriggerData.actions.findIndex(v=>v.type == "obs") > -1;
+	}
 
 	public beforeMount():void {
 		//List all available trigger types
@@ -87,6 +120,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		if(list.length == 0) {
 			this.showList = false;
 			this.showForm = true;
+			this.headerKey = "triggers.header_select_trigger";
 		}
 	}
 
@@ -98,9 +132,19 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 			this.showList = true;
 			this.showForm = false;
 			this.currentTriggerData = null;
+			this.headerKey = "triggers.header";
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Opens the form
+	 */
+	public openForm():void {
+		this.headerKey = "triggers.header_select_trigger";
+		this.showForm = true;
+		this.showList = false;
 	}
 
 	/**
@@ -111,7 +155,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		this.currentTriggerData = triggerData;
 		this.showList = false;
 		this.showForm = false;
-		
 
 		//Watch for any change on the 
 		watch(()=>this.currentTriggerData, ()=> {
@@ -141,7 +184,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	/**
 	 * Lists OBS Sources
 	 */
-	private async listOBSSources():Promise<void> {
+	public async listOBSSources():Promise<void> {
 		try {
 			this.obsSources = await OBSWebsocket.instance.getSources();
 		}catch(error) {
