@@ -301,9 +301,13 @@ export default class TriggerActionList extends Vue {
 			display: flex;
 			flex-grow: 1;
 			width: 100%;
+			&:hover {
+				background-color: fade(@mainColor_normal, 10%);
+			}
 			.info {
 				flex-grow: 1;
 				align-self: center;
+				cursor: pointer;
 			}
 			.selector {
 				flex-basis: 300px;
