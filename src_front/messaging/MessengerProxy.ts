@@ -1,6 +1,8 @@
 import StoreProxy from "@/store/StoreProxy";
+import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
@@ -205,6 +207,31 @@ export default class MessengerProxy {
 		const cmd = params.shift()?.toLowerCase();
 		params.forEach((v, i) => { params[i] = v.trim() });
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
+		
+		//Check if the command matches one of the custom slash commands
+		//created on the triggers
+		let triggerCommands = StoreProxy.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand);
+		for (let i = 0; i < triggerCommands.length; i++) {
+			const t = triggerCommands[i];
+			if(cmd == t.chatCommand!.toLowerCase()) {
+				const me = StoreProxy.auth.twitch.user;
+				const messageData:TwitchatDataTypes.MessageChatData = {
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					channel_id:me.id,
+					date:Date.now(),
+					id:Utils.getUUID(),
+					message:message,
+					message_html:message,
+					message_no_emotes:message,
+					user:me,
+					is_short:false,
+					answers:[],
+				}
+				TriggerActionHandler.instance.executeTrigger(t, messageData, false, t.chatCommand);
+				return true;
+			}
+		}
 
 		if(cmd == "/devmode") {
 			StoreProxy.main.toggleDevMode();

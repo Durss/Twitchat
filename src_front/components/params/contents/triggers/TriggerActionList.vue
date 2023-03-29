@@ -7,8 +7,7 @@
 					<mark>{{ subTypeLabel }}</mark>
 				</template>
 				<template #INFO v-if="$te(triggerDescriptionLabel+'_info')">
-					<br>
-					<i18n-t tag="i" scope="global"
+					<i18n-t tag="i" class="details" scope="global"
 					v-if="$te(triggerDescriptionLabel+'_info')"
 					:keypath="triggerDescriptionLabel+'_info'">
 						<template #CMD v-if="$te(triggerDescriptionLabel+'_info_cmd')">
@@ -40,6 +39,11 @@
 
 			<TriggerActionScheduleParams
 				v-if="isSchedule"
+				:triggerData="triggerData"
+			/>
+
+			<TriggerActionSlashCommandParams
+				v-if="isSlashCommand"
 				:triggerData="triggerData"
 			/>
 		</div>
@@ -96,6 +100,7 @@ import ParamItem from '../../ParamItem.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
 import TriggerActionEntry from './TriggerActionEntry.vue';
 import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
+import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
 
 @Component({
 	components:{
@@ -105,6 +110,7 @@ import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 		TriggerActionEntry,
 		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
+		TriggerActionSlashCommandParams,
 	},
 	emits:[],
 })
@@ -130,12 +136,14 @@ export default class TriggerActionList extends Vue {
 
 	public get isChatCmd():boolean { return this.triggerData.type === TriggerTypes.CHAT_COMMAND; }
 	public get isSchedule():boolean { return this.triggerData.type === TriggerTypes.SCHEDULE; }
+	public get isSlashCommand():boolean { return this.triggerData.type === TriggerTypes.SLASH_COMMAND; }
 
 	/**
 	 * Get a trigger's sub type's label (reward name, counter name, ...)
 	 */
 	public get subTypeLabel():string|undefined {
 		switch(this.triggerData.type) {
+			case TriggerTypes.SLASH_COMMAND:
 			case TriggerTypes.CHAT_COMMAND:
 				return this.triggerData.chatCommand || "...";
 
@@ -259,21 +267,13 @@ export default class TriggerActionList extends Vue {
 			vertical-align: top;
 		}
 
-		.text {
-			text-align: center;
-			margin-bottom: 1em;
-			:deep(mark) {
-				line-height: 1.5em;
-				border: 1px dashed @mainColor_normal;
-				background-color: fade(@mainColor_normal, 15%);
-				padding: .1em .5em;
-				border-radius: .5em;
-				span {
-					//This is used to hide the channel point reward's costs
-					display: none;
-				}
-			}
+		.details {
+			display: block;
+			font-size: .9em;
+			opacity: .8;
+			line-height: 1.2em;
 		}
+
 		.queue {
 			display: flex;
 			flex-grow: 1;

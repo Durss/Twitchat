@@ -377,13 +377,7 @@ export default class ChatForm extends Vue {
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 			const carretPos = input.selectionStart as number | 0;
-			const isCmd = /^\s*\//.test(newVal);
-			// let index = carretPos;
-			// let tags = ["/", "@", ":"];
-			// while(index > 0 && newVal.charAt(index) != " ") {
-			// 	index --;
-			// }
-			// console.log(index);
+			const isCmd = /^\s*(\/|!)/.test(newVal);
 			
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
@@ -395,11 +389,11 @@ export default class ChatForm extends Vue {
 
 				if(currentChar == ":" || 
 				currentChar == "@" || 
-				(currentChar == "/" && carretPos == 1) || 
+				((currentChar == "/" || currentChar == "!") && carretPos == 1) || 
 				(i == 0 && this.autoCompleteSearch)) {
 					this.autoCompleteUsers = currentChar == "@";
 					this.autoCompleteEmotes = currentChar == ":" && !isCmd;//Avoid autocompleting emotes in /countdown cmd
-					this.autoCompleteCommands = currentChar == "/";
+					this.autoCompleteCommands = currentChar == "/" || currentChar == "!";
 					this.autoCompleteSearch = newVal.substring(i+offset, carretPos);
 					break;
 				}

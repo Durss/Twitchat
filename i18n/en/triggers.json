@@ -194,6 +194,10 @@
 			},
 			"raffle_enter":{
 				"info":"The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."
+			},
+			"slash_cmd":{
+				"param_cmd": "Command",
+				"param_cmd_placeholder": "/command..."
 			}
 		},
 		"categories": {
@@ -544,6 +548,11 @@
 			"RAID_STARTED": {
 				"label": "Started a raid",
 				"description": "Actions to execute when starting a raid to another channel"
+			},
+			"SLASH_COMMAND": {
+				"label": "Create custom slash command",
+				"description": "Actions to execute when using command {SUB_ITEM_NAME}.{INFO}",
+				"description_info": "(Only you can use this type of command and it will never be sent on chat)"
 			}
 		},
 		"musicEvents": {

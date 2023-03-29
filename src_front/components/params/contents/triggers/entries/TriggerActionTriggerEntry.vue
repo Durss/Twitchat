@@ -144,7 +144,6 @@ export default class TriggerActionTriggerEntry extends Vue {
 				}
 			}
 		}
-		console.log(found);
 		return found;
 	}
 

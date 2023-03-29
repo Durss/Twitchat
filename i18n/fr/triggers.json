@@ -194,6 +194,10 @@
 			},
 			"raffle_enter":{
 				"info":"La personne déclanchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
+			},
+			"slash_cmd":{
+				"param_cmd": "Commande",
+				"param_cmd_placeholder": "/commande..."
 			}
 		},
 		"categories": {
@@ -546,6 +550,11 @@
 			"RAID_STARTED": {
 				"label": "Lancement d'un raid",
 				"description": "Actions à exécuter lorsque vous lancez un raid vers une autre chaîne"
+			},
+			"SLASH_COMMAND": {
+				"label": "Slash command personnalisée",
+				"description": "Actions à exécuter lorsque la commande {SUB_ITEM_NAME} est utilisée.{INFO}",
+				"description_info": "Ce type ne commande n'est utilisable que par vous et ne sera pas envoyée dans le tchat."
 			}
 		},
 		"musicEvents": {

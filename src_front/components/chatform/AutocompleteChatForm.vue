@@ -17,9 +17,9 @@
 			<img v-else-if="i.type == 'user'" class="image" src="@/assets/icons/user.svg" alt="user">
 
 			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="cmd">
-			<img v-if="i.type == 'cmd' && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" :data-tooltip="$t('global.cmd_admin')">
-			<img v-if="i.type == 'cmd' && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch_white.svg" alt="user" :data-tooltip="$t('global.cmd_twitch')">
-			<img v-if="i.type == 'cmd' && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" :data-tooltip="$t('global.cmd_mod')">
+			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" :data-tooltip="$t('global.cmd_admin')">
+			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch_white.svg" alt="user" :data-tooltip="$t('global.cmd_twitch')">
+			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" :data-tooltip="$t('global.cmd_mod')">
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts">
+import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
@@ -59,13 +60,16 @@ export default class AutocompleteChatForm extends Vue {
 
 	public selectedIndex = 0;
 	public filteredItems:ListItem[] = [];
+	public triggerCommands:TriggerData[] = [];
 
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
 		if(index == this.selectedIndex)						res.push('selected');
-		if(item.type == "cmd" && item.rawCmd.needAdmin)		res.push('admin');
-		if(item.type == "cmd" && item.rawCmd.needModerator)	res.push('mod');
 		if(item.type == "cmd" && item.disabled)				res.push('disabled');
+		if(item.type == "cmd" && item.rawCmd) {
+			if(item.rawCmd.needAdmin)		res.push('admin');
+			if(item.rawCmd.needModerator)	res.push('mod');
+		}
 		res.push(item.type);
 		return res;
 	}
@@ -74,8 +78,12 @@ export default class AutocompleteChatForm extends Vue {
 
 	public mounted():void {
 		this.selectedIndex = 0;
+		
+		this.triggerCommands = this.$store("triggers").triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND);
+		
 		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
 		document.addEventListener("keydown", this.keyDownHandler);
+
 		watch(()=>this.search, ()=>{
 			this.onSearchChange();
 		});
@@ -86,10 +94,14 @@ export default class AutocompleteChatForm extends Vue {
 		document.removeEventListener("keydown", this.keyDownHandler);
 	}
 
+	/**
+	 * Select an item via click or enter key
+	 * @param item 
+	 */
 	public selectItem(item:ListItem):void {
 		if(item.type == "cmd") {
 			if(item.disabled) {
-				if(item.rawCmd.twitch_scopes) {
+				if(item.rawCmd && item.rawCmd.twitch_scopes) {
 					this.$store("auth").requestTwitchScopes(item.rawCmd.twitch_scopes);
 				}
 			}else{
@@ -101,6 +113,9 @@ export default class AutocompleteChatForm extends Vue {
 		}
 	}
 
+	/**
+	 * Navigate through list via keyboard
+	 */
 	public onkeyDown(e:KeyboardEvent):void {
 		switch(e.key) {
 			case "Escape":
@@ -140,6 +155,10 @@ export default class AutocompleteChatForm extends Vue {
 		}
 	}
 
+	/**
+	 * Called when writing somehting.
+	 * Search any item matching the search
+	 */
 	private onSearchChange():void {
 		let res:ListItem[] = [];
 		const sUsers = this.$store("users");
@@ -148,6 +167,7 @@ export default class AutocompleteChatForm extends Vue {
 		const sTTS = this.$store("tts");
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
+			//Search for users
 			if(this.users) {
 				const users = sUsers.users;
 				for (let j = 0; j < users.length; j++) {
@@ -162,6 +182,7 @@ export default class AutocompleteChatForm extends Vue {
 				}
 			}
 
+			//Search for emotes
 			if(this.emotes) {
 				let emotes = TwitchUtils.emotesCache ?? [];
 				if(this.$store("params").appearance.bttvEmotes.value === true) {
@@ -192,12 +213,14 @@ export default class AutocompleteChatForm extends Vue {
 				}
 			}
 
+			//Search for slash commands
 			if(this.commands) {
 				const cmds = sChat.commands;
 				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
 				const isAdmin = sAuth.twitch.user.is_admin === true;
 				const isMod = true;
 				
+				//Search in global slash commands
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1
@@ -227,18 +250,51 @@ export default class AutocompleteChatForm extends Vue {
 						});
 					}
 				}
+
+				//Search on custom slash commands in the triggers
+				for (let i = 0; i < this.triggerCommands.length; i++) {
+					const t = this.triggerCommands[i];
+					if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
+						res.push({
+							type:"cmd",
+							label:t.chatCommand,
+							cmd:t.chatCommand,
+							infos:t.name ?? "",
+							id:t.id,
+							disabled:!t.enabled,
+						});
+					}
+				}
+
+				// //Search on chat commands in the triggers
+				// for (let i = 0; i < this.triggerCommands.length; i++) {
+				// 	const t = this.triggerCommands[i];
+				// 	if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
+				// 		res.push({
+				// 			type:"cmd",
+				// 			label:t.chatCommand,
+				// 			cmd:t.chatCommand,
+				// 			infos:t.name ?? "",
+				// 			id:t.id,
+				// 		});
+				// 	}
+				// }
 			}
 
 			res.sort((a,b)=> {
 				if(a.type == "cmd" && b.type == "cmd") {
 					if(a.disabled && !b.disabled) return 1;
 					if(!a.disabled && b.disabled) return -1;
-					if(a.rawCmd.needAdmin && !b.rawCmd.needAdmin) return -1;
-					if(!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
-					if(a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
-					if(!a.rawCmd.needModerator && b.rawCmd.needModerator) return 1;
-					if(a.rawCmd.twitchCmd && !b.rawCmd.twitchCmd) return -1;
-					if(!a.rawCmd.twitchCmd && b.rawCmd.twitchCmd) return 1;
+					if(a.rawCmd && !b.rawCmd) return -1;
+					if(!a.rawCmd && b.rawCmd) return 1;
+					if(a.rawCmd && b.rawCmd) {
+						if(a.rawCmd.needAdmin && !b.rawCmd.needAdmin) return -1;
+						if(!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
+						if(a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
+						if(!a.rawCmd.needModerator && b.rawCmd.needModerator) return 1;
+						if(a.rawCmd.twitchCmd && !b.rawCmd.twitchCmd) return -1;
+						if(!a.rawCmd.twitchCmd && b.rawCmd.twitchCmd) return 1;
+					}
 				}
 				if(a.label < b.label) return -1;
 				if(a.label > b.label) return 1;
@@ -278,7 +334,7 @@ interface CommandItem {
 	infos:string;
 	alias?:string;
 	disabled?:boolean;
-	rawCmd:TwitchatDataTypes.CommandData;
+	rawCmd?:TwitchatDataTypes.CommandData;
 }
 </script>
 
