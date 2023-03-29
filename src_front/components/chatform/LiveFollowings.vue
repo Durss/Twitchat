@@ -260,7 +260,7 @@ export default class LiveFollowings extends Vue {
 					.icon {
 						height: 14px;
 						width: 14px;
-						object-fit: contain;
+						object-fit: fill;
 						vertical-align: middle;
 						margin-right: 5px;
 					}

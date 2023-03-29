@@ -1,6 +1,9 @@
 import StoreProxy from '@/store/StoreProxy';
+import { TriggerEvents, TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
+import { TwitchScopes } from './twitch/TwitchScopes';
+import TwitchUtils from './twitch/TwitchUtils';
 
 /**
  * Created by Durss
@@ -584,5 +587,75 @@ export default class Utils {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Gets the label of a trigger
+	 * @param trigger 
+	 */
+	public static getTriggerDisplayInfo(trigger:TriggerData):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
+		const ref = TriggerEvents().find(v => v.value == trigger.type);
+		const result:{label:string, icon:string, iconURL?:string, iconBgColor?:string} = {label:"", icon:"alert"}
+		if(!ref) return result
+		if(ref.icon) result.icon = ref.icon;
+		if(trigger.name) result.label = trigger.name;
+
+		switch(trigger.type) {
+
+			case TriggerTypes.CHAT_COMMAND: {
+				if(!result.label && trigger.chatCommand) result.label = trigger.chatCommand;
+				break;
+			}
+
+			case TriggerTypes.REWARD_REDEEM: {
+				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
+					const reward = StoreProxy.rewards.rewards.find(v=>v.id == trigger.rewardId);
+					if(!result.label) {
+						if(reward) {
+							result.label = reward.title;
+						}else{
+							result.label = StoreProxy.i18n.t("triggers.missing_reward");
+						}
+					}
+					if(reward && reward.image) {
+						result.iconURL = reward.image.url_2x ?? reward.image.url_1x;
+						result.iconBgColor = reward.background_color;
+					}
+				}else if(!result.label){
+					result.label = StoreProxy.i18n.t("triggers.missing_reward_scope");
+				}
+				break;
+			}
+
+			case TriggerTypes.OBS_SCENE: {
+				if(!result.label && trigger.obsScene) result.label = trigger.obsScene;
+				break;
+			}
+
+			case TriggerTypes.OBS_SOURCE_ON:
+			case TriggerTypes.OBS_SOURCE_OFF: {
+				if(!result.label && trigger.obsSource) result.label = trigger.obsSource;
+				break;
+			}
+
+			case TriggerTypes.COUNTER_ADD:
+			case TriggerTypes.COUNTER_DEL:
+			case TriggerTypes.COUNTER_LOOPED:
+			case TriggerTypes.COUNTER_MAXED:
+			case TriggerTypes.COUNTER_MINED: {
+				const counter = StoreProxy.counters.counterList.find(v=>v.id === trigger.counterId);
+				if(!result.label && counter) {
+					result.label = counter.name ?? "-unnamed counter-";
+				}else{
+					result.label = StoreProxy.i18n.t("triggers.missing_counter");
+				}
+				break;
+			}
+		}
+
+		if(!result.label) result.label = StoreProxy.i18n.t(ref.labelKey);
+		if(!result.label) result.label = "-unknown trigger type-";
+		
+		return result;
 	}
 }

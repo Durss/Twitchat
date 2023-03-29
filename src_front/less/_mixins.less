@@ -28,7 +28,7 @@
 		.chatMessageTime();
 	}
 
-	.time + *{
+	.time + * {
 		margin-left: 3em;
 	}
 	
@@ -36,7 +36,7 @@
 		// width: 2em;
 		height: 1.5em;
 		vertical-align: middle;
-		object-fit: contain;
+		object-fit: fill;
 	}
 	
 	.userlink {
@@ -61,7 +61,7 @@
 		.cheermote, .emote {
 			max-height: 2em;
 			vertical-align: middle;
-			object-fit: contain;
+			object-fit: fill;
 		}
 		&::before {
 			content: "“";
@@ -85,18 +85,20 @@
 	:deep(.cheermote), :deep(.emote) {
 		max-height: 2em;
 		vertical-align: middle;
-		object-fit: contain;
+		object-fit: fill;
 	}
 
 }
 
 .chatMessageTime() {
+	//Set in absolute position with fixed width to avoid reflow
+	//of the chat message everytime the timer changes
+	position: absolute;
 	color: fade(#ffffff, 75%);
 	font-size: .8em;
 	display: inline-block;
 	font-variant-numeric: tabular-nums;
 	width: 3em;
-	position: absolute;
 	text-align: right;
 	align-self: flex-start;
 }
@@ -264,7 +266,7 @@
 		width: 1.25em;
 		margin-right: 0;
 		min-width: auto;
-		object-fit: contain;
+		object-fit: fill;
 		vertical-align: middle;
 	}
 	:deep(.label) {

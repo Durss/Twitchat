@@ -417,7 +417,7 @@ export default class TriggerActionHandler {
 				case TriggerTypes.COUNTER_DEL:
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
-				case TriggerTypes.COUNTER_MINED: keys[0] += "_" + t.counterID; break;
+				case TriggerTypes.COUNTER_MINED: keys[0] += "_" + t.counterId; break;
 			}
 
 			for (let i = 0; i < keys.length; i++) {
@@ -845,8 +845,8 @@ export default class TriggerActionHandler {
 
 					if(!isNaN(value)) {
 						const ids = step.counters;
-						for (let i = 0; i < StoreProxy.counters.data.length; i++) {
-							const c = StoreProxy.counters.data[i];
+						for (let i = 0; i < StoreProxy.counters.counterList.length; i++) {
+							const c = StoreProxy.counters.counterList[i];
 							if(ids.indexOf(c.id) > -1) {
 								let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
 								let user = c.perUser? this.extractUser(trigger, message) : undefined;
@@ -860,7 +860,7 @@ export default class TriggerActionHandler {
 
 				//Handle counter read trigger actions
 				if(step.type == "countget") {
-					const counter = StoreProxy.counters.data.find(v => v.id == step.counter);
+					const counter = StoreProxy.counters.counterList.find(v => v.id == step.counter);
 					if(counter) {
 						let value = counter.value || 0;
 						if(counter.perUser) {

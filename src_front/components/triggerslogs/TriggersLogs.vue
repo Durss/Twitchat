@@ -105,7 +105,7 @@ export default class TriggersLogs extends Vue {
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
 				case TriggerTypes.COUNTER_MINED:
-					const counter = this.$store("counters").data.find(v=>v.id == trigger.counterID!);
+					const counter = this.$store("counters").counterList.find(v=>v.id == trigger.counterId!);
 					return counter? counter.name : "";
 			}
 		}

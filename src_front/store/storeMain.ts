@@ -470,7 +470,7 @@ export const storeMain = defineStore("main", {
 			//Init automod
 			const countersParams = DataStore.get(DataStore.COUNTERS);
 			if(countersParams) {
-				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.data as unknown) as JsonObject);
+				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.counterList as unknown) as JsonObject);
 			}
 			
 			//Reload devmode state

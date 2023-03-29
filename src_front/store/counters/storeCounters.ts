@@ -12,7 +12,7 @@ import StoreProxy from '../StoreProxy';
 
 export const storeCounters = defineStore('counters', {
 	state: () => ({
-		data: [],
+		counterList: [],
 	} as ICountersState),
 
 
@@ -26,22 +26,22 @@ export const storeCounters = defineStore('counters', {
 
 	actions: {
 		addCounter(data:TwitchatDataTypes.CounterData):void {
-			this.data.push(data);
-			DataStore.set(DataStore.COUNTERS, this.data);
+			this.counterList.push(data);
+			DataStore.set(DataStore.COUNTERS, this.counterList);
 		},
 		updateCounter(data:TwitchatDataTypes.CounterData):void {
-			for (let i = 0; i < this.data.length; i++) {
-				if(this.data[i].id == data.id) {
+			for (let i = 0; i < this.counterList.length; i++) {
+				if(this.counterList[i].id == data.id) {
 					if(data.perUser) {
-						data.users = this.data[i].users;
+						data.users = this.counterList[i].users;
 					}else{
 						delete data.users;
 					}
-					this.data.splice(i, 1, data);
+					this.counterList.splice(i, 1, data);
 					break;
 				}
 			}
-			DataStore.set(DataStore.COUNTERS, this.data);
+			DataStore.set(DataStore.COUNTERS, this.counterList);
 
 			if(!data.perUser) {
 				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:data} as unknown as JsonObject);
@@ -49,26 +49,26 @@ export const storeCounters = defineStore('counters', {
 		},
 		
 		delCounter(data:TwitchatDataTypes.CounterData):void {
-			for (let i = 0; i < this.data.length; i++) {
-				if(this.data[i].id == data.id) {
-					this.data.splice(i, 1);
+			for (let i = 0; i < this.counterList.length; i++) {
+				if(this.counterList[i].id == data.id) {
+					this.counterList.splice(i, 1);
 					break;
 				}
 			}
-			DataStore.set(DataStore.COUNTERS, this.data);
+			DataStore.set(DataStore.COUNTERS, this.counterList);
 
 			//Delete triggers related to the deleted counter
 			const triggers = StoreProxy.triggers.triggerList;
 			for (let i = 0; i < triggers.length; i++) {
 				const t = triggers[i];
-				if(t.counterID === data.id){
+				if(t.counterId === data.id){
 					StoreProxy.triggers.deleteTrigger(t.id);
 				}
 			}
 		},
 
 		increment(id:string, addedValue:number, user?:TwitchatDataTypes.TwitchatUser):void {
-			const c = this.data.find(v=>v.id == id);
+			const c = this.counterList.find(v=>v.id == id);
 			if(!c) return;
 			let value = c.value;
 			if(c.perUser && user) {
@@ -123,7 +123,7 @@ export const storeCounters = defineStore('counters', {
 			message.value = value;
 
 			StoreProxy.chat.addMessage(message);
-			DataStore.set(DataStore.COUNTERS, this.data);
+			DataStore.set(DataStore.COUNTERS, this.counterList);
 
 			if(!c.perUser) {
 				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:c});

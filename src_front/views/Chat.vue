@@ -562,7 +562,7 @@ export default class Chat extends Vue {
 
 			case TwitchatEvent.COUNTER_GET: {
 				const id = (e.data as JsonObject).cid;
-				const counter = this.$store("counters").data.find(v=>v.id == id);
+				const counter = this.$store("counters").counterList.find(v=>v.id == id);
 				if(counter) {
 					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:(counter as unknown) as JsonObject});
 				}
@@ -572,7 +572,7 @@ export default class Chat extends Vue {
 			case TwitchatEvent.COUNTER_ADD: {
 				const id = (e.data as JsonObject).counterId as string;
 				const value = parseInt((e.data as JsonObject).countAdd as string);
-				const counter = this.$store("counters").data.find(v=>v.id == id);
+				const counter = this.$store("counters").counterList.find(v=>v.id == id);
 				if(counter && !isNaN(value)) {
 					this.$store("counters").increment(id, value);
 				}
@@ -580,7 +580,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.COUNTER_GET_ALL: {
-				const counters = this.$store("counters").data.map(v=> {
+				const counters = this.$store("counters").counterList.map(v=> {
 					return {
 						id:v.id,
 						name:v.name,

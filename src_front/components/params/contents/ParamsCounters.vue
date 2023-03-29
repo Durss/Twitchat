@@ -37,7 +37,7 @@
 		</section>
 
 		<ToggleBlock class="counterEntry"
-		v-if="$store('counters').data.length > 0"
+		v-if="$store('counters').counterList.length > 0"
 		v-for="entry in counterEntries" :key="entry.counter.id"
 		:title="entry.counter.name" medium>
 			<template #left_actions>
@@ -145,7 +145,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 
 
 	public get counterEntries():{param:TwitchatDataTypes.ParameterData, counter:TwitchatDataTypes.CounterData}[] {
-		const list = this.$store('counters').data;
+		const list = this.$store('counters').counterList;
 		return list.map((v) => {
 			const min = v.min == false ? -Number.MAX_SAFE_INTEGER : v.min as number;
 			const max = v.min == false ? Number.MAX_SAFE_INTEGER : v.max as number;

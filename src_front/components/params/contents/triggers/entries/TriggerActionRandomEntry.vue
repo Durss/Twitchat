@@ -43,8 +43,8 @@
 						</button>
 
 						<div class="content">
-							<span class="label" v-if="!indexToEditState[index]"
-							v-html="getFormatedMessage(item)"></span>
+							<pre class="label" v-if="!indexToEditState[index]"
+							v-html="getFormatedMessage(item)"></pre>
 	
 							<textarea v-if="indexToEditState[index]"
 							maxlength="500"
@@ -58,34 +58,29 @@
 		</div>
 
 		<div class="item" v-if="action.mode == 'trigger'">
-			<div class="row item">
-				<vue-select class="row item list"
-				v-if="triggerList?.length > 1 && action.triggers.length < 1000"
-				v-model="selectedTrigger"
-				:placeholder="$t('triggers.actions.trigger.select')"
-				:options="triggerList"
-				:appendToBody="true"
-				:calculate-position="$placeDropdown"
-				:reduce="reduceSelectData"
-				@option:selected="onSelectTrigger"
-				>
-					<template v-slot:option="option">
-						<img :src="getTriggerIcon(option.info.icon)" alt="icon" class="listIcon">
-						{{ option.label }}
-					</template>
-				</vue-select>
-				
-				<div class="listItem">
-					<div v-for="(item, index) in action.triggers" class="entry">
-						<button class="action button"
-							data-tooltip="Delete"
-							@click.capture.stop="deleteTriggerItem(index)">
-							<img src="@/assets/icons/trash.svg" alt="delete">
-						</button>
-						<div class="content">
-							<img :src="getTriggerIconFromKey(item)" alt="icon" class="icon">
-							<span class="label">{{ getTriggerLabel(item) }}</span>
-						</div>
+			<ToggleBlock class="row"
+			small
+			:open="openTriggerList"
+			:title="$t('triggers.actions.random.trigger_select')">
+				<TriggerList class="triggerList"
+					noEdit
+					:rewards="rewards"
+					@select="onSelectTrigger($event)" />
+			</ToggleBlock>
+
+			<div class="row listItem trigger" v-if="action.triggers.length > 0">
+				<div v-for="(item, index) in action.triggers" :key="item" class="entry">
+					<button class="action button"
+						data-tooltip="Delete"
+						@click.capture.stop="deleteTriggerItem(index)">
+						<img src="@/assets/icons/trash.svg" alt="delete">
+					</button>
+
+					<div class="content">
+						<img v-if="getTriggerInfo(item).iconURL" :src="getTriggerInfo(item).iconURL" class="icon"
+						:style="getTriggerInfo(item).iconBgColor? {backgroundColor:getTriggerInfo(item).iconBgColor, objectFit: 'contain'} : {}">
+						<img v-else :src="$image('icons/'+getTriggerInfo(item).icon+'_purple.svg')" class="icon">
+						<span class="label">{{ getTriggerInfo(item).label }}</span>
 					</div>
 				</div>
 			</div>
@@ -108,75 +103,57 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerEvents, TriggerTypes, type TriggerActionRandomData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import type { TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import TriggerList from '../TriggerList.vue';
 
 @Component({
 	components:{
 		Button,
 		ParamItem,
+		TriggerList,
+		ToggleBlock,
 	},
 })
 export default class TriggerActionRandomEntry extends Vue {
 
 	@Prop
 	public action!:TriggerActionRandomData;
+	@Prop
+	public rewards!:TwitchDataTypes.Reward[];
 
 	public itemValue:string = "";
+	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
-	public triggerList:TriggerDefinitionEntry[] = [];
-	public selectedTrigger:TriggerDefinitionEntry|null = null;
 
 	public param_min:TwitchatDataTypes.ParameterData = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min_purple.svg"}
 	public param_max:TwitchatDataTypes.ParameterData = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max_purple.svg"}
 	public param_float:TwitchatDataTypes.ParameterData = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice_purple.svg"}
 	public param_placeholder:TwitchatDataTypes.ParameterData = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
 	public param_listMode:TwitchatDataTypes.ParameterData = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice_purple.svg"}
-	
-	public reduceSelectData(option:TriggerDefinitionEntry){ return option.triggerKey; }
-	
-	/**
-	 * Gets a trigger's icon
-	 */
-	public getTriggerIcon(value:string):string {
-		if(!value) return "";
-		if(value.indexOf("/") > -1) {
-			return value as string;
-		}
-		return this.$image("icons/"+value+"_purple.svg");
-	}
-	
-	/**
-	 * Gets a trigger's icon
-	 */
-	public getTriggerIconFromKey(key:string):string {
-		const trigger = this.triggerList.find(v => v.triggerKey == key);
-		if(!trigger) return this.$image("icons/cross_alert.svg");
-		return this.getTriggerIcon(trigger.info.icon);
-	}
-	
-	/**
-	 * Gets a trigger's icon
-	 */
-	public getTriggerLabel(key:string):string {
-		const trigger = this.triggerList.find(v => v.triggerKey == key);
-		if(trigger) {
-			return trigger.label ?? "";
-		}else{
-			return "trigger not found";
-		}
-	}
 
+	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
+		const t = this.$store("triggers").triggerList.find(v=>v.id === triggerId);
+		if(!t) return {label:"TRIGGER NOT FOUND", icon:"alert"};
+		return Utils.getTriggerDisplayInfo(t);
+	}
+	
 	public beforeMount():void {
 		if(this.action.mode == undefined) this.action.mode = "number";
 		if(this.action.max == undefined) this.action.max = this.param_max.value as number;
 		if(this.action.min == undefined) this.action.min = this.param_min.value as number;
 		if(!this.action.triggers) this.action.triggers = [];
 		if(!this.action.list) this.action.list = [];
-		
-		this.populateTriggersList();
+
+		//Remove deleted triggers
+		const triggers = this.$store("triggers").triggerList;
+		this.action.triggers = this.action.triggers.filter(v=> triggers.findIndex(w => v === w.id) > -1);
+		this.openTriggerList = this.action.triggers.length == 0;
 	}
 
 	public getFormatedMessage(src:string):string {
@@ -196,63 +173,12 @@ export default class TriggerActionRandomEntry extends Vue {
 		this.action.triggers.splice(index, 1);
 	}
 
-	public onSelectTrigger(v:TriggerDefinitionEntry):void {
-		this.action.triggers.unshift(v.triggerKey);
-		this.selectedTrigger = null;
-	}
-
-	/**
-	 * Loads all existing triggers
-	 */
-	private async populateTriggersList():Promise<void> {
-		const triggers:TriggerData[] = this.$store("triggers").triggerList;
-		const list:TriggerDefinitionEntry[] = [];
-		for (let i = 0; i < triggers.length; i++) {
-			const t = triggers[i];
-			const info:TriggerEventTypes|undefined = TriggerEvents().find(v=> v.value === t.type);
-			if(!info) continue;
-			if(info.isCategory) {
-				const subKey = key.split("_")[1];
-				if(!subKey) continue;
-				if(t.type == TriggerTypes.CHAT_COMMAND) {
-					list.push({
-						triggerKey:key,
-						label:subKey,
-						trigger:triggers[key],
-						info,
-					});
-				}
-			}else{
-				list.push({
-					triggerKey:key,
-					label:this.$t(info.labelKey),
-					trigger:triggers[key],
-					info,
-				});
-			}
-		}
-		
-		list.sort((a, b)=> {
-			const ka = a.triggerKey.split("_")[0];
-			const kb = b.triggerKey.split("_")[0];
-			if(ka > kb) return 1;
-			if(ka < kb) return -1;
-			if(a.triggerKey > b.triggerKey) return 1;
-			if(a.triggerKey < b.triggerKey) return -1;
-			return 0;
-		})
-		this.triggerList = list;
+	public onSelectTrigger(v:TriggerData):void {
+		this.action.triggers.unshift(v.id);
 	}
 
 }
 
-interface TriggerDefinitionEntry {
-	triggerKey:string;
-	label?:string;
-	labelKey?:string;
-	trigger:TriggerData;
-	info:TriggerEventTypes;
-}
 </script>
 
 <style scoped lang="less">
@@ -288,7 +214,7 @@ interface TriggerDefinitionEntry {
 	.listItem {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
+		gap: .25em;
 		max-height: 300px;
 		overflow-y: auto;
 		margin-top: .5em;
@@ -311,16 +237,22 @@ interface TriggerDefinitionEntry {
 			}
 			.content {
 				flex-grow: 1;
-				padding: .5em;
 				border-top-right-radius: .5em;
 				border-bottom-right-radius: .5em;
 				background-color: @mainColor_light;
 				font-size: .9em;
+				display: flex;
+				align-items: center;
 				.icon {
-					max-height: 1em;
+					align-self: stretch;
+					width: 1.75em;
+					padding: .25em;
+					margin-left: .5em;
+					object-fit: fill;
 					margin-right: .5em;
 				}
 				.label {
+					padding: .5em;
 					word-break: break-all;
 				}
 				textarea{
@@ -330,6 +262,11 @@ interface TriggerDefinitionEntry {
 				}
 			}
 		}
+	}
+
+	.triggerList {
+		max-height: 300px;
+		overflow-y: auto;
 	}
 }
 </style>

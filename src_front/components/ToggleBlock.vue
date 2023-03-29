@@ -256,7 +256,7 @@ export default class ToggleBlock extends Vue {
 	.icon {
 		height: 1.5em;
 		width: 1.5em;
-		object-fit: contain;
+		object-fit: fill;
 		display: block;
 		margin:auto;
 		&.suggestion {

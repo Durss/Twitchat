@@ -213,6 +213,7 @@ export const storeAuth = defineStore('auth', {
 	
 				const sMain = StoreProxy.main;
 				const sChat = StoreProxy.chat;
+				const sRewards = StoreProxy.rewards;
 				
 				//If asked to sync data with server, load them
 				if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
@@ -234,6 +235,7 @@ export const storeAuth = defineStore('auth', {
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
 				EventSub.instance.connect();
+				sRewards.loadRewards();
 
 				//Preload stream info
 				TwitchUtils.loadChannelInfo([this.twitch.user.id]).then(v=> {

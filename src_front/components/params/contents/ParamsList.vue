@@ -56,7 +56,7 @@
 					</div>
 	
 					<div v-else-if="p.id == 12 && fakeMessageData">
-						<ChatMessage class="chatMessage" :messageData="fakeMessageData" />
+						<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
 					</div>
 	
 					<div v-else-if="isMissingScope(p) && p.value == true" class="info scope">
@@ -143,7 +143,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 			(data)=> {
 				this.fakeMessageData = data as TwitchatDataTypes.MessageChatData;
 				resolve(null);
-			}, false);
+			}, false, false);
 		});
 		
 		const me = this.$store("auth").twitch.user;

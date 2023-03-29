@@ -21,6 +21,7 @@
 			<ChatMessage class="message"
 				v-if="adPreview"
 				lightMode
+				contextMenuOff
 				:messageData="adPreview" />
 		</div>
 	</div>

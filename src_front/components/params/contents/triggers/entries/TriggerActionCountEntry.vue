@@ -47,10 +47,10 @@ export default class TriggerActionCountEntry extends Vue {
 	public param_value:TwitchatDataTypes.ParameterData = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add_purple.svg"}
 
 	public beforeMount(): void {
-		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").data.map(v=>{
+		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").counterList.map(v=>{
 			return {value:v.id, label:v.name};
 		}).filter(v=> {
-			return v.value != this.triggerData.counterID
+			return v.value != this.triggerData.counterId
 		});
 		
 		for (let i = 0; i < this.action.counters.length; i++) {
@@ -92,7 +92,7 @@ export default class TriggerActionCountEntry extends Vue {
 		.icon {
 			width: 1em;
 			height: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: 0.5em;
 		}
 	}

@@ -412,7 +412,7 @@ export default class TriggerCreateForm extends Vue {
 			case TriggerTypes.COUNTER_DEL:
 			case TriggerTypes.COUNTER_LOOPED:
 			case TriggerTypes.COUNTER_MAXED:
-			case TriggerTypes.COUNTER_MINED: this.temporaryTrigger.counterID = entry.value; break;
+			case TriggerTypes.COUNTER_MINED: this.temporaryTrigger.counterId = entry.value; break;
 		}
 
 		this.$store("triggers").addTrigger(this.temporaryTrigger);
@@ -451,7 +451,7 @@ export default class TriggerCreateForm extends Vue {
 	 * Lists Counters
 	 */
 	public async listCounters():Promise<void> {
-		const list = this.$store("counters").data.sort((a,b)=> {
+		const list = this.$store("counters").counterList.sort((a,b)=> {
 			if(a.name < b.name) return -1;
 			if(a.name > b.name) return 1;
 			return 0;
@@ -503,18 +503,6 @@ interface TriggerEntry{
 		a {
 			color: @mainColor_alert;
 			font-weight: bold;
-		}
-	}
-
-	.ctas {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		margin-top: .5em;
-		flex-wrap: wrap;
-		.cta:not(:last-child) {
-			margin-right: 1em;
 		}
 	}
 
@@ -579,7 +567,7 @@ interface TriggerEntry{
 				z-index: 1;
 				height: 1.5em;
 				width: 1.5em;
-				object-fit: contain;
+				object-fit: fill;
 			}
 			:deep(.cost) {
 				font-size: .8em;
@@ -629,7 +617,7 @@ interface TriggerEntry{
 				width: 1.5em;
 				max-width: 1.5em;
 				padding: .25em;
-				object-fit: contain;
+				object-fit: fill;
 			}
 			.label {
 				flex-grow: 1;

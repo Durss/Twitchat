@@ -360,7 +360,7 @@ export default class HypeTrainState extends Vue {
 						padding: .25em;
 						border-radius: 50%;
 						img {
-							object-fit: contain;
+							object-fit: fill;
 							width: 1em;
 							height: 1em;
 						}

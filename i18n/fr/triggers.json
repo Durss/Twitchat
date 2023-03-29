@@ -12,12 +12,14 @@
 		"add_actionBt": "Ajouter une action",
 		"create_chat_cmdBt": "Créer une commande de tchat",
 		"create_scheduleBt": "Programmer des actions",
-		"testBt": "Tester",
+		"testBt": "Tester le trigger",
 		"deleteBt": "Supprimer",
-		"resyncBt": "Resynchroniser OBS",
-		"resyncBt_tt": "Si vous avez ajouté des sources<br>dans OBS, cliquez pour les voir<br>listées dans les actions OBS",
+		"resyncOBSBt": "Resync OBS",
+		"resyncOBSBt_tt": "Si vous avez modifié vos sources<br>ou scènes dans OBS, cliquez pour<br>charger ces changements",
+		"resyncRewardsBt": "Resync les récompenses",
+		"resyncRewardsBt_tt": "Si vous avez modifié vos<br>récompenses de points de chaîne,<br>cliquez pour récupérer les changements",
 		"delete_confirm": "Supprimer ce trigger ?",
-		"delete_action_confirm": "Supprimer l'action ?",
+		"delete_action_confirm": "Supprimer l'action ?",
 		"reorder_tt": "Réordonner",
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e<br>ou n'avez pas autorisé<br>Twitchat à contrôler ceci",
 		"triggers_list": "Vos triggers",
@@ -28,6 +30,7 @@
 		"trigger_queue_input_placeholder": "file d'exécution...",
 		"missing_counter": "COMPTEUR SUPPRIMÉ",
 		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
+		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
 		"music": {
 			"require": "Cet évènement nécessite de lier Spotify avec Twitchat dans {URL}",
 			"require_url": "les overlays"
@@ -96,14 +99,11 @@
 				"allowed_users": "Personnes autorisées à utiliser la commande",
 				"param_cmd": "Commande",
 				"param_cmd_alias": "Alias",
+				"param_cmd_alias_tt": "Commandes alternatives optionnelles",
 				"param_globalCD": "Cooldown global ({VALUE}s)",
 				"param_userCD": "Cooldown utilisateur ({VALUE}s)",
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
-				"tip_title":"ASTUCE :",
-				"tip":"{TITLE} Vous pouvez utiliser les commandes de tchat",
-				"tip_example_title":"Exemple :",
-				"tip_example":"{TITLE} {CMD} passera le tchat en followers only de 30 minutes",
-				"commands_list":"Commandes utilisables"
+				"commands_list":"Commandes de tchat"
 			},
 			"highlight": {
 				"header": "{LINK} de mise en avant pour utiliser cette action.",
@@ -147,8 +147,8 @@
 				"warning_title": "Information importante",
 				"warning": "Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",
 				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponible car le trigger ne sera pas exécuté par un message de tchat.",
-				"no_trigger": "Vous n'avez créé aucun trigger pour l'instant",
-				"select": "Sélectionnez un trigger à exécuter...",
+				"select": "Sélectionnez le trigger à exécuter",
+				"selected": "Trigger à exécuter",
 				"loop": "Boucle de dépendance détectée",
 				"loop_delails": "Ceci risque de rendre Twitchat instable."
 			},
@@ -188,6 +188,7 @@
 				"number":"Nombre",
 				"list":"Liste",
 				"trigger":"Triggers",
+				"trigger_select":"Sélectionnez un trigger",
 				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
 				"list_entry_placeholder":"ajouter une entrée..."
 			},

@@ -18,8 +18,8 @@
 			</div>
 
 			<form class="row" @submit.prevent="authenticate()" v-if="!connected">
-				<ParamItem class="item" :paramData="paramClient" autofocus />
-				<ParamItem class="item" :paramData="paramSecret" />
+				<ParamItem class="item" :paramData="paramClient" autofocus @change="authenticate(false)" />
+				<ParamItem class="item" :paramData="paramSecret" @change="authenticate(false)" />
 				<Button class="item" v-if="!connected && !authenticating"
 					type="submit"
 					:title="$t('connexions.spotify.connectBt')"
@@ -42,7 +42,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
@@ -72,13 +71,15 @@ export default class ConnectSpotifyForm extends Vue {
 		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
 	}
 	
-	public authenticate():void {
-		this.loading = true;
+	public authenticate(startAuthFlow:boolean = true):void {
+		this.loading = startAuthFlow;
 		SpotifyHelper.instance.setCredentials(
 			(this.paramClient.value as string).trim(),
 			(this.paramSecret.value as string).trim()
 		)
-		SpotifyHelper.instance.startAuthFlow();
+		if(startAuthFlow) {
+			SpotifyHelper.instance.startAuthFlow();
+		}
 	}
 
 	public async mounted():Promise<void> {

@@ -33,7 +33,7 @@ export default class TriggerActionVoicemodEntry extends Vue {
 	@Prop
 	public action!:TriggerActionVoicemodData;
 
-	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"", listValues:[], value:""}
+	public param_voiceList:TwitchatDataTypes.ParameterData = {type:"list", label:"", listValues:[], value:"", icon:"voice_purple.svg"}
 	
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
 	public get contentVM():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; } 

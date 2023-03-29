@@ -369,7 +369,7 @@ interface CommandItem {
 			height: 1.5em;
 			width: 1.5em;
 			padding: .25em;
-			object-fit: contain;
+			object-fit: fill;
 			&.small {
 				height: 1em;
 				width: 1em;

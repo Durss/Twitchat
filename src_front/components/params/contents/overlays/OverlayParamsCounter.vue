@@ -91,7 +91,7 @@ export default class OverlayParamsCounter extends Vue {
 	
 	public get counters():TwitchatDataTypes.CounterData[] {
 		// return [];
-		return this.$store('counters').data;
+		return this.$store('counters').counterList;
 	}
 
 	public getOverlayUrl(counter:TwitchatDataTypes.CounterData):string { return this.$overlayURL("counter", [{k:"cid", v:counter.id}]); }

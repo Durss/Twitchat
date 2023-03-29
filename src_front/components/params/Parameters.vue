@@ -204,6 +204,7 @@ export default class Parameters extends Vue {
 	public async open():Promise<void> {
 		if(!this.closed) return;
 		this.closed = false;
+		this.history = [];
 		await this.$nextTick();
 
 		gsap.set(this.$refs.holder as HTMLElement, {x:0, opacity:1});

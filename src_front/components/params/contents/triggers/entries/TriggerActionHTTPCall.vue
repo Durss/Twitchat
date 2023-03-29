@@ -4,11 +4,21 @@
 			<ParamItem class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
 			<p class="item securityError" v-if="securityError">{{ $t("triggers.actions.http_ws.protocol_error") }}</p>
 		</div>
+		
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method" />
-		<div class="row">
-			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
-			<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />
+
+		<div class="row item">
+			<p class="item" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
+			
+			<div class="params">
+				<template v-for="p in parameters" :key="p.tag" >
+					<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
+					<span>{{ $t(p.placeholder.descKey) }}</span>
+					<ToggleButton v-model="p.enabled" @change="onToggleParam()" />
+				</template>
+			</div>
 		</div>
+
 		<div class="row item">
 			<ParamItem class="item" :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
 		</div>
@@ -25,6 +35,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionHTTPCallData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
@@ -33,6 +44,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{
 		ParamItem,
+		ToggleButton,
 	},
 	emits:["update"]
 })
@@ -44,26 +56,21 @@ export default class TriggerActionHTTPCall extends Vue {
 	public triggerData!:TriggerData;
 
 	public securityError:boolean = false;
+	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
 	public param_url:TwitchatDataTypes.ParameterData = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
 	public param_method:TwitchatDataTypes.ParameterData = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
 	public param_outputPlaceholder:TwitchatDataTypes.ParameterData = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:20};
-	public param_options:TwitchatDataTypes.ParameterData[] = [];
 
 	public beforeMount():void {
 		this.param_method.listValues	= ["GET","PUT","POST","PATCH","DELETE"]
-		.map(v=>{return {label:v, value:v}})
+		.map(v=>{return {label:v, value:v}});
 
-		const placeholders = TriggerEventPlaceholders(this.triggerData.type);
-		for (let i = 0; i < placeholders.length; i++) {
-			const p = placeholders[i];
-			this.param_options.push({
-				label:"<mark>"+p.tag.toLowerCase()+"</mark> - ",
-				labelKey:p.descKey,
-				value:!this.action.queryParams || this.action.queryParams.includes(p.tag),
-				type:"boolean",
-				storage:p
-			})
-		}
+		this.parameters = TriggerEventPlaceholders(this.triggerData.type).map(v=> {
+			return  {
+				placeholder:v,
+				enabled:!this.action.queryParams || this.action.queryParams.includes(v.tag),
+			}
+		});
 
 		watch(()=>this.action.url, ()=> {
 			const url = this.action.url;
@@ -76,14 +83,7 @@ export default class TriggerActionHTTPCall extends Vue {
 	}
 
 	public onToggleParam():void {
-		const params:string[] = [];
-		for (let i = 0; i < this.param_options.length; i++) {
-			const opt = this.param_options[i];
-			if(opt.value === true) {
-				const data = opt.storage as ITriggerPlaceholder
-				params.push(data.tag);
-			}
-		}
+		const params:string[] = this.parameters.filter(v=>v.enabled).map(v=> v.placeholder.tag);
 		this.action.queryParams = params;
 	}
 
@@ -105,6 +105,19 @@ export default class TriggerActionHTTPCall extends Vue {
 		padding: .5em;
 		border-bottom-left-radius: @border_radius;
 		border-bottom-right-radius: @border_radius;
+	}
+
+	.params {
+		display: grid;
+		grid-template-columns: 1fr auto 40px;
+		align-items: center;
+		gap: .5em;
+		.tag {
+			text-align: right;
+		}
+		&>* {
+			cursor: pointer;
+		}
 	}
 }
 </style>

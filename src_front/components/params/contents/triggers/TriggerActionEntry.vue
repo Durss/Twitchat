@@ -1,5 +1,10 @@
 <template>
-	<ToggleBlock
+	<TriggerActionDelay v-if="action.type=='delay'"
+	:action="action"
+	:triggerData="triggerData"
+	@delete="$emit('delete')" />
+
+	<ToggleBlock v-else
 	orderable
 	medium
 	:error="isError"
@@ -26,6 +31,10 @@
 		<div>
 			<div v-if="action.type===null" class="typeSelector">
 				<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
+				<Button class="button" white @click="selectActionType('delay')"
+					:title="$t('triggers.actions.common.action_delay')"
+					:icon="$image('icons/timer_purple.svg')"/>
+
 				<Button class="button" white @click="selectActionType('chat')"
 					:title="$t('triggers.actions.common.action_chat')"
 					:icon="$image('icons/whispers_purple.svg')"/>
@@ -113,19 +122,18 @@
 					:icon="$image('icons/url_purple.svg')"/>
 			</div>
 
-			<TriggerActionDelay v-if="action.type=='delay'" :action="action" :triggerData="triggerData" />
 			<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
 			<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :sources="obsSources" />
 			<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
 			<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
 			<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" />
 			<TriggerActionHighlightEntry v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
-			<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" />
+			<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 			<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
 			<TriggerActionWS v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
 			<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
 			<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
-			<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" />
+			<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :rewards="rewards" />
 			<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
 			<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 			<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
@@ -144,6 +152,7 @@ import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TriggerEventPlaceholders, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -204,6 +213,8 @@ export default class TriggerActionEntry extends Vue {
 	public triggerData!:TriggerData;
 	@Prop
 	public obsSources!:OBSSourceItem[];
+	@Prop
+	public rewards!:TwitchDataTypes.Reward[];
 	@Prop
 	public index!:number;
 	@Prop

@@ -966,7 +966,7 @@ export default class DataStore {
 				case TriggerTypes.COUNTER_MAXED:
 				case TriggerTypes.COUNTER_MINED:
 				case TriggerTypes.COUNTER_DEL:
-				case TriggerTypes.COUNTER_ADD: t.counterID = subkey; break;
+				case TriggerTypes.COUNTER_ADD: t.counterId = subkey; break;
 			}
 			if(t.queue == "") delete t.queue;
 			if(t.name == "") delete t.name;
@@ -990,6 +990,63 @@ export default class DataStore {
 			}
 			triggerList.push(t);
 		}
+
+		function keyToTrigger(key:string):TriggerData|null {
+			const type = key.split("_")[0] as TriggerTypesValue;
+			const subType = key.replace(type+"_", "").toLowerCase();
+			switch(type) {
+				case TriggerTypes.CHAT_COMMAND: {
+					const item = triggerList.find(v => v.type == type && v.chatCommand?.toLowerCase() == subType.toLowerCase() );
+					if(item) return item
+					break;
+				}
+				case TriggerTypes.REWARD_REDEEM: {
+					const item = triggerList.find(v => v.type == type && v.rewardId?.toLowerCase() == subType );
+					if(item) return item
+					break;
+				}
+				case TriggerTypes.COUNTER_LOOPED: 
+				case TriggerTypes.COUNTER_MAXED: 
+				case TriggerTypes.COUNTER_MINED: 
+				case TriggerTypes.COUNTER_ADD: 
+				case TriggerTypes.COUNTER_DEL: {
+					const item = triggerList.find(v => v.type == type && v.rewardId?.toLowerCase() == subType );
+					if(item) return item
+					break;
+				}
+				default: {
+					const item = triggerList.find(v => v.type == type );
+					if(item) return item
+				}
+			}
+			return null;
+		}
+
+		//Migrate any trigger action using triggers
+		for (let j = 0; j < triggerList.length; j++) {
+			const t = triggerList[j];
+			
+			for (let i = 0; i < t.actions.length; i++) {
+				const a = t.actions[i];
+				//Migrate random entries
+				if(a.type === "random" && a.triggers) {
+					const ids = [];
+					for (let h = 0; h < a.triggers.length; h++) {
+						const trigger = keyToTrigger(a.triggers[h]);
+						if(trigger) ids.push(trigger.id);
+					}
+					console.log("Migrated random ", a.triggers, ids);
+					a.triggers = ids;
+				}else
+				//Migrate random entries
+				if(a.type === "trigger" && a.triggerKey) {
+					const trigger = keyToTrigger(a.triggerKey);
+					console.log("Migrated trigger ", a.triggerKey, trigger);
+					if(trigger) a.triggerId = trigger.id;
+				}
+			}
+		}
+		
 
 		console.log(triggerList);
 

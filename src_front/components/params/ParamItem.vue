@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" :data-tooltip="tooltip"
+	<div :class="classes"
 	@mouseenter="$emit('mouseenter', $event, paramData)"
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click.capture="clickItem($event)">
@@ -19,6 +19,7 @@
 				<label :for="'toggle'+key"
 					v-if="label"
 					v-html="label"
+					:data-tooltip="tooltip"
 					@click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
 				
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
@@ -34,7 +35,7 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'number'+key" v-if="label" v-html="label"></label>
+				<label :for="'number'+key" v-if="label" v-html="label" :data-tooltip="tooltip"></label>
 				<input v-if="!paramData.noInput" ref="input"
 					type="number"
 					v-model.number="paramData.value"
@@ -52,7 +53,7 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'text'+key" v-if="label" v-html="label"></label>
+				<label :for="'text'+key" v-if="label" v-html="label" :data-tooltip="tooltip"></label>
 				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
 					v-model.lazy="textValue"
 					rows="2"
@@ -77,7 +78,7 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'slider'+key" v-html="label"></label>
+				<label :for="'slider'+key" v-html="label" :data-tooltip="tooltip"></label>
 				<input v-if="!paramData.noInput" ref="input" type="range"
 					:min="paramData.min"
 					:max="paramData.max"
@@ -93,7 +94,7 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'list'+key" v-html="label"></label>
+				<label :for="'list'+key" v-html="label" :data-tooltip="tooltip"></label>
 				<select v-if="!paramData.noInput" ref="input"
 					:id="'list'+key"
 					v-model="paramData.value"
@@ -108,7 +109,7 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'list'+key" v-html="label"></label>
+				<label :for="'list'+key" v-html="label" :data-tooltip="tooltip"></label>
 				<vue-select class="listField" label="label"
 					:id="'list'+key"
 					ref="vueSelect"
@@ -140,7 +141,7 @@
 					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'browse'+key" v-if="label" v-html="label"></label>
+				<label :for="'browse'+key" v-if="label" :data-tooltip="tooltip" v-html="label"></label>
 				<input v-if="!paramData.noInput" type="text"
 					class="filePath"
 					v-model="paramData.value"
@@ -620,7 +621,7 @@ export default class ParamItem extends Vue {
 		.icon {
 			width: 1em;
 			height: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: .5em;
 		}
 		

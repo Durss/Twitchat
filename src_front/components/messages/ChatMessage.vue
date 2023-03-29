@@ -175,12 +175,18 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
+	
 	@Prop({type:Boolean, default:false})
 	public lightMode!:boolean;
+
 	@Prop({type:Boolean, default:false})
 	public disableConversation!:boolean;
+
 	@Prop({type:Array, default:[]})
 	public highlightedWords!:string[];
+	
+	@Prop({type:Boolean, default:true})
+	public contextMenuOff!:boolean;
 	
 	public text = "";
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
@@ -662,6 +668,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * @param e 
 	 */
 	public onContextMenu(e:MouseEvent|TouchEvent):void {
+		if(this.contextMenuOff !== true) return;
 		const me = this.$store("auth").twitch.user;
 
 		if(e.target) {
@@ -1207,11 +1214,10 @@ interface ContextMenuItem {
 		}
 
 		.pronoun {
-			font-size: .8em;
 			border-radius: 3px;
 			color: @mainColor_light;
 			border: 1px solid @mainColor_light;
-			padding: 0 .1em;
+			padding: 0 1px;
 			margin-right: .25em;
 			vertical-align: middle;
 		}

@@ -39,6 +39,7 @@ export default class StoreProxy {
 	public static accessibility:IAccessibilityState & IAccessibilityGetters & IAccessibilityActions & {$state:IAccessibilityState, $reset:()=>void};
 	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState, $reset:()=>void};
 	public static counters:ICountersState & ICountersGetters & ICountersActions & {$state:ICountersState, $reset:()=>void};
+	public static rewards:IRewardsState & IRewardsGetters & IRewardsActions & {$state:IRewardsState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	
@@ -552,7 +553,7 @@ export interface IAdminActions {
 
 
 export interface ICountersState {
-	data:TwitchatDataTypes.CounterData[];
+	counterList:TwitchatDataTypes.CounterData[];
 }
 
 export interface ICountersGetters {
@@ -563,4 +564,18 @@ export interface ICountersActions {
 	updateCounter(data:TwitchatDataTypes.CounterData):void;
 	delCounter(data:TwitchatDataTypes.CounterData):void;
 	increment(id:string, value:number, user?:TwitchatDataTypes.TwitchatUser):void;
+}
+
+
+
+
+export interface IRewardsState {
+	rewards:TwitchDataTypes.Reward[];
+}
+
+export interface IRewardsGetters {
+}
+
+export interface IRewardsActions {
+	loadRewards():Promise<TwitchDataTypes.Reward[]>;
 }

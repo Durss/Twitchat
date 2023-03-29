@@ -1,28 +1,13 @@
 <template>
 	<div class="triggeractionchatentry">
-		<div class="item info">
-			<img src="@/assets/icons/info_purple.svg" alt="info" class="icon">
-			<i18n-t scope="global" tag="span" keypath="triggers.actions.chat.tip">
-				<template #TITLE>
-					<strong>{{ $t("triggers.actions.chat.tip_title") }}</strong>
-				</template>
-			</i18n-t>
-			<i18n-t scope="global" tag="div" keypath="triggers.actions.chat.tip_example">
-				<template #TITLE>
-					<strong>{{ $t("triggers.actions.chat.tip_example_title") }}</strong>
-				</template>
-				<template #CMD>
-					<mark>/followers 30</mark>
-				</template>
-			</i18n-t>
+		<div class="item">
+			<ParamItem :paramData="message_conf" v-model="action.text" :error="cmdNameConflict" />
 			<ToggleBlock class="commands" :title="$t('triggers.actions.chat.commands_list')" small :open="false">
 				<div class="cmd" v-for="c in sortedCommands"
+					:data-tooltip="$t('global.placeholder_selector_insert')"
 					@click="insertCommand(c)"
 					v-html="c.cmd.replace(/(\/\S+)/gi, '<mark>$1</mark>').replace(/(?:\{([^}]+)\}?)/gi, ' [$1]')"></div>
 			</ToggleBlock>
-		</div>
-		<div class="item">
-			<ParamItem :paramData="message_conf" v-model="action.text" :error="cmdNameConflict" />
 			<div v-if="cmdNameConflict" class="cmdNameConflict">{{ $t("triggers.actions.chat.loop") }}</div>
 		</div>
 	</div>
@@ -52,11 +37,14 @@ export default class TriggerActionChatEntry extends Vue {
 	public message_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
 	
 	public get cmdNameConflict():boolean {
-		const foundIndex = this.$store("triggers").triggerList.findIndex(v=>
-							v.type == TriggerTypes.CHAT_COMMAND
-							&& v.id != this.triggerData.id
-							&& v.chatCommand?.toLowerCase() == this.action.text);
-		return foundIndex > -1;
+		if(!this.action.text) return false;
+		const cmds = this.triggerData.chatCommandAliases?.concat() ?? [];
+		if(this.triggerData.chatCommand) cmds.push(this.triggerData.chatCommand);
+		const cmd = this.action.text.split(" ")[0].toLowerCase();
+		for (let i = 0; i < cmds.length; i++) {
+			if(cmds[i] == cmd) return true;
+		}
+		return false;
 	}
 
 	public get sortedCommands():TwitchatDataTypes.CommandData[] {
@@ -100,17 +88,17 @@ export default class TriggerActionChatEntry extends Vue {
 	}
 
 	.commands {
-		margin-top: 1em;
+		padding-left: 2em;
 		:deep(.content){
 			display: grid;
-			row-gap: .25em;
-			column-gap: .25em;
+			row-gap: 4px;
+			column-gap: 4px;
 			background-color: transparent;
 			grid-template-columns: repeat(auto-fill, minmax(max(calc(50%-.5em), 200px), 1fr));
 		}
 		.cmd {
 			font-size: 1.1em;
-			line-height: 1.75em;
+			line-height: 1.5em;
 			background-color: fade(@mainColor_normal, 10%);
 			padding: .1em;
 			border-radius: .5em;

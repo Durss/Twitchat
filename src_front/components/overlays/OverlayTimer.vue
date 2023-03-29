@@ -141,7 +141,7 @@ export default class OverlayTimer extends Vue {
 		img {
 			height: 1em;
 			width: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: .25em;
 		}
 		&:not(:first-child) {

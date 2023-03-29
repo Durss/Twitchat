@@ -3,12 +3,14 @@
 		:title="$t('global.placeholder_selector_title')"
 		:open="false"
 	>
-		<ul class="list">
-			<li v-for="(h,index) in placeholders" :key="h.tag+index" @click="insert(h)" :data-tooltip="$t('global.placeholder_selector_insert')">
-				<strong>&#123;{{h.tag}}&#125;</strong>
-				{{$t(h.descKey)}}
-			</li>
-		</ul>
+		<div class="list">
+			<template v-for="(h,index) in placeholders" :key="h.tag+index">
+				<button @click="insert(h)" :data-tooltip="$t('global.placeholder_selector_insert')">
+					<mark>&#123;{{h.tag}}&#125;</mark>
+				</button>
+				<span>{{$t(h.descKey)}}</span>
+			</template>
+		</div>
 	</ToggleBlock>
 </template>
 
@@ -58,22 +60,41 @@ export default class PlaceholderSelector extends Vue {
 .placeholderselector{
 	font-size: .8em;
 	padding-left: 2em;
+	:deep(.content){
+		background-color: transparent !important;
+	}
 	.list {
-		list-style-type: none;
-		// padding-left: 1em;
-		li {
-			padding: .25em;
+ 		display: grid;
+		grid-template-columns: auto 1fr;
+		align-items: center;
+		// grid-gap: 5px;
+		&>* {
+			background-color: fade(@mainColor_normal, 10%);
+			border-radius: .5em;
+			&:nth-child(odd) {
+				padding: .25em;
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			&:nth-child(even) {
+				padding: .4em;
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+
+			&:not(:nth-last-child(-n+2)) {
+  				margin-bottom: 4px;
+			}
+		}
+		button {
 			cursor: pointer;
-			&:hover {
-				background-color: fade(@mainColor_normal, 10%);
-			}
-			&:not(:last-child) {
-				border-bottom: 1px solid @mainColor_normal;
-			}
-			strong {
+			text-align: right;
+			mark {
+				color: @mainColor_normal;
 				display: inline-block;
-				min-width: 82px;
-				border-right: 1px solid @mainColor_normal;
+			}
+			&:hover {
+				background-color: fade(@mainColor_normal, 15%);
 			}
 		}
 	}

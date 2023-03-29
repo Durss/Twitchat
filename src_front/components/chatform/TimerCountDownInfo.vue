@@ -92,7 +92,7 @@ export default class TimerCountDownInfo extends Vue {
 		img {
 			height: 1em;
 			width: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: .3em;
 		}
 	}

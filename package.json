@@ -76,6 +76,7 @@
 		"vue3-carousel": "^0.2.9",
 		"vue3-country-flag-icon": "^0.1.2",
 		"vue3-marquee": "^3.0.7",
-		"vuedraggable": "^4.1.0"
+		"vuedraggable": "^4.1.0",
+		"vue-contenteditable": "^4.1.0"
 	}
 }

@@ -23,7 +23,7 @@
 			<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="!param_placeholder.value" />
 		</div>
 
-		<i18n-t scope="global" class="example item" tag="div" keypath="triggers.actions.countget.example" v-if="(param_placeholder.value as string).length > 0">
+		<i18n-t scope="global" class="example item" tag="div" keypath="triggers.actions.common.custom_placeholder_example" v-if="(param_placeholder.value as string).length > 0">
 			<template #PLACEHOLDER>
 				<mark v-click2Select>{{"{"}}{{(param_placeholder.value as string).toUpperCase()}}{{"}"}}</mark>
 			</template>
@@ -51,7 +51,7 @@ export default class TriggerActionCountGetEntry extends Vue {
 	public param_placeholder:TwitchatDataTypes.ParameterData = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
 
 	public beforeMount(): void {
-		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").data.map(v=>{
+		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").counterList.map(v=>{
 			return {value:v.id, label:v.name};
 		});
 		
@@ -83,7 +83,7 @@ export default class TriggerActionCountGetEntry extends Vue {
 		.icon {
 			width: 1em;
 			height: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: 0.5em;
 		}
 	}

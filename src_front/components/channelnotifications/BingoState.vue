@@ -83,7 +83,7 @@ export default class BingoState extends Vue {
 		img {
 			height: 2em;
 			margin-top: .5em;
-			object-fit: contain;
+			object-fit: fill;
 			transition: transform .25s;
 			&:hover {
 				transform: scale(2.5);

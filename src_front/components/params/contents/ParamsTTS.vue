@@ -1,6 +1,6 @@
 <template>
 	<div class="paramstts">
-		<img src="@/assets/icons/tts_purple.svg" alt="emergency icon" class="icon">
+		<img src="@/assets/icons/tts_purple.svg" alt="tts icon" class="icon">
 
 		<p class="head">{{ $t("tts.header") }}</p>
 		<ParamItem class="item enableBt" :paramData="param_enabled" />
@@ -484,7 +484,7 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 				.icon {
 					width: 1em;
 					height: 1em;
-					object-fit: contain;
+					object-fit: fill;
 					margin-right: 0.5em;
 				}
 			}

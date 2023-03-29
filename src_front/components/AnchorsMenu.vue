@@ -133,7 +133,7 @@ export default class AnchorsMenu extends Vue {
 				width: @innerSize;
 				height: @innerSize;
 				padding: .2em;
-				object-fit: contain;
+				object-fit: fill;
 				transition: all .25s;
 			}
 

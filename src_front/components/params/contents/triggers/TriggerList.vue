@@ -1,7 +1,7 @@
 <template>
-	<div class="triggerslist">
+	<div :class="classes">
 		<div v-if="filteredTriggers.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div>
-		<Splitter class="head" v-else>{{ $t("triggers.triggers_list") }}</Splitter>
+		<Splitter class="head" v-else-if="noEdit===false">{{ $t("triggers.triggers_list") }}</Splitter>
 		
 		<div class="item"
 		v-for="item in filteredTriggers" :key="item.trigger.id">
@@ -9,27 +9,26 @@
 			@click="$emit('select', item.trigger)"
 			:data-tooltip="getCategoryLabel(item)">
 				<img v-if="item.icon" :src="item.icon" :style="{backgroundColor:item.iconBgColor}">
-				<span v-if="item.label">{{item.label}}</span>
-				<span v-else-if="item.trigger.name">{{item.trigger.name}}</span>
-				<span v-else-if="item.trigger.chatCommand">{{item.trigger.chatCommand}}</span>
-				<span v-else-if="item.trigger.obsScene">{{item.trigger.obsScene}}</span>
-				<span v-else-if="item.trigger.obsSource">{{item.trigger.obsSource}}</span>
-				<span v-else>{{ $t(triggerTypeToInfo[item.trigger.type]!.labelKey) }}</span>
+				<span>{{item.label}}</span>
 			</button>
 
-			<div class="toggle" @click="item.trigger.enabled = !item.trigger.enabled; onChangeTrigger()">
+			<div class="toggle"
+			v-if="noEdit === false"
+			@click="item.trigger.enabled = !item.trigger.enabled; onChangeTrigger()">
 				<ToggleButton v-model="item.trigger.enabled"
 				@change="onChangeTrigger()"
 				:aria-label="item.trigger.enabled? 'trigger enabled' : 'trigger disabled'"/>
 			</div>
 
-			<button class="testBt" @click="testTrigger(item)"
+			<button class="testBt" @click="$emit('testTrigger',item.trigger)"
+			v-if="noEdit === false"
 			:disabled="!item.canTest"
 			:data-tooltip="$t('triggers.testBt')">
 				<img src="@/assets/icons/test_purple.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
 			</button>
 
 			<button class="deleteBt" @click="deleteTrigger(item)"
+			v-if="noEdit === false"
 			:data-tooltip="$t('triggers.deleteBt')">
 				<img src="@/assets/icons/trash_purple.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
 			</button>
@@ -40,10 +39,8 @@
 <script lang="ts">
 import Splitter from '@/components/Splitter.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerEvents, TriggerTypes, type TriggerData, type TriggerEventTypes, type TriggerTypesValue, TriggerEventTypeCategories, type TriggerEventTypeCategoryValue } from '@/types/TriggerActionDataTypes';
+import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -53,18 +50,28 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 		Splitter,
 		ToggleButton,
 	},
-	emits:["select"],
+	emits:["select", "testTrigger"],
 })
 export default class TriggerList extends Vue {
 
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
 
+	@Prop({default:false})
+	public noEdit!:boolean;
+
+	@Prop({default:null})
+	public triggerId!:string|null;
+
 	public triggerList:TriggerEntry[] = [];
 	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerEventTypes}> = {};
 
 	public get filteredTriggers():TriggerEntry[] {
 		const list:TriggerEntry[] = this.triggerList.concat();
+		if(this.triggerId != null) {
+			return list.filter(v=>v.trigger.id === this.triggerId);
+		}
+
 		list.sort((a,b) => {
 			if(parseInt(a.trigger.type) > parseInt(b.trigger.type)) return 1;
 			if(parseInt(a.trigger.type) < parseInt(b.trigger.type)) return -1;
@@ -77,6 +84,11 @@ export default class TriggerList extends Vue {
 			return 0
 		})
 		return list;
+	}
+
+	public get classes():string[] {
+		const res = ["triggerslist"];
+		return res;
 	}
 
 	public getCategoryLabel(entry:TriggerEntry):string {
@@ -104,7 +116,12 @@ export default class TriggerList extends Vue {
 
 	public beforeMount():void {
 		this.populateTriggers();
+		let isFirstRewardUpdate = true;
 		watch(()=>this.rewards, ()=>{
+			if(isFirstRewardUpdate) {
+				isFirstRewardUpdate = false;
+				return;
+			}
 			this.populateTriggers();
 		})
 	}
@@ -114,50 +131,24 @@ export default class TriggerList extends Vue {
 	 */
 	private populateTriggers():void {
 		//List all available trigger types
-		let events:TriggerEventTypes[] = TriggerEvents().concat();
-
 		this.triggerTypeToInfo = {}
-		events.forEach(v=> this.triggerTypeToInfo[v.value] = v);
+		TriggerEvents().forEach(v=> this.triggerTypeToInfo[v.value] = v);
 
-		const counters = this.$store("counters").data;
-		
 		const list = this.$store("triggers").triggerList;
 		const entries:TriggerEntry[] = [];
 		for (const key in list) {
 			const trigger = list[key];
-			let icon = this.$image('icons/'+this.triggerTypeToInfo[trigger.type]!.icon+'_purple.svg');
-			let label = trigger.name ?? "";
-			let iconBgColor:string = "";
-
-			//Get reward's details (title and icon)
-			if(trigger.type == TriggerTypes.REWARD_REDEEM) {
-				const reward = this.rewards.find(v=>v.id == trigger.rewardId);
-				if(reward) {
-					label = reward.title;
-					if(reward.image) {
-						icon = reward.image.url_2x ?? reward.image.url_1x;
-						iconBgColor = reward.background_color;
-					}
-				}
-			}else
 			
-			//Get counter's title
-			if(trigger.type == TriggerTypes.COUNTER_ADD
-			|| trigger.type == TriggerTypes.COUNTER_DEL
-			|| trigger.type == TriggerTypes.COUNTER_LOOPED
-			|| trigger.type == TriggerTypes.COUNTER_MAXED
-			|| trigger.type == TriggerTypes.COUNTER_MINED) {
-				const counter = counters.find(v=>v.id === trigger.counterID);
-				if(counter) {
-					label = counter.name ?? "";
-				}else{
-					label = this.$t("triggers.missing_counter");
-				}
+			const info = Utils.getTriggerDisplayInfo(trigger);
+			let icon = "";
+			if(info.iconURL) {
+				icon = info.iconURL;
+			}else{
+				icon = this.$image('icons/'+info.icon+'_purple.svg');
 			}
-			
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
-			const entry:TriggerEntry = { label, trigger, icon, canTest };
-			if(iconBgColor) entry.iconBgColor = iconBgColor;
+			const entry:TriggerEntry = { label:info.label, trigger, icon, canTest };
+			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
 			entries.push(entry);
 		}
 
@@ -171,104 +162,6 @@ export default class TriggerList extends Vue {
 		}).catch(error=>{});
 	}
 
-	public testTrigger(entry:TriggerEntry):void {
-		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
-		const triggerEvent = TriggerEvents().find(v=>v.value == entry.trigger.type);
-		
-		if(triggerEvent?.testMessageType) {
-			//Special case for schedules
-			if(entry.trigger.type === TriggerTypes.SCHEDULE) {
-				TriggerActionHandler.instance.parseScheduleTrigger(entry.trigger, true);
-			}else
-
-			//If it's a notice type
-			if(triggerEvent.testMessageType == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
-				this.$store("debug").simulateNotice(triggerEvent.testNoticeType, (data)=> {
-					const m = data as TwitchatDataTypes.MessageNoticeData;
-					switch(m.noticeId) {
-						case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
-							(m as TwitchatDataTypes.MessageEmergencyModeInfo).enabled = (triggerEvent.value == TriggerTypes.EMERGENCY_MODE_START);
-						}
-						case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:{
-							(m as TwitchatDataTypes.MessageShieldMode).enabled = (triggerEvent.value == TriggerTypes.SHIELD_MODE_ON);
-						}
-					}
-					TriggerActionHandler.instance.execute(data, true);
-				}, false);
-				
-			//If it's any other message type
-			}else{
-				this.$store("debug").simulateMessage(triggerEvent.testMessageType, (data)=> {
-					let m = data
-					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						switch(triggerEvent.value) {
-							case TriggerTypes.CHAT_COMMAND:{
-								//Add the command to the fake text message
-								m.message = entry.trigger.chatCommand + " " + m.message;
-								m.message_html = entry.trigger.chatCommand + " " + m.message_html;
-								break;
-							}
-							case TriggerTypes.FIRST_ALL_TIME:{
-								m.twitch_isFirstMessage = true;
-								break;
-							}
-							case TriggerTypes.FIRST_TODAY:{
-								m.todayFirst = true;
-								break;
-							}
-							case TriggerTypes.RETURNING_USER:{
-								m.twitch_isReturning = true;
-								break;
-							}
-							case TriggerTypes.PRESENTATION:{
-								m.twitch_isPresentation = true;
-								break;
-							}
-						} 
-					}
-					if(triggerEvent.value == TriggerTypes.TIMER_STOP) {
-						//Set the timer as stopped
-						(m as TwitchatDataTypes.MessageTimerData).started = false;
-					}else
-
-					if(triggerEvent.value == TriggerTypes.SUBGIFT) {
-						const sub = (m as TwitchatDataTypes.MessageSubscriptionData);
-						sub.is_gift = true;
-						const recipients = [];
-						do {
-							recipients.push(Utils.pickRand(this.$store("users").users));
-						}while(Math.random()>.25);
-						sub.gift_recipients = recipients;
-						sub.gift_count = recipients.length;
-					}else
-
-					if(triggerEvent.value == TriggerTypes.COUNTDOWN_START) {
-						//Remove end date so it counts as a countdown start not an end
-						const cd = (m as TwitchatDataTypes.MessageCountdownData).countdown;
-						delete cd.endAt;
-						delete cd.endAt_ms;
-					}else
-
-					if(triggerEvent.value == TriggerTypes.TIMEOUT) {
-						//set timeout duration
-						(m as TwitchatDataTypes.MessageBanData).duration_s = Math.round(Math.random()*666);
-					}else
-
-					if(triggerEvent.value == TriggerTypes.BAN) {
-						//Remove ban duration so it counts as a ban, not a timeout
-						delete (m as TwitchatDataTypes.MessageBanData).duration_s;
-					}else
-
-					if(triggerEvent.value == TriggerTypes.SHOUTOUT_IN || triggerEvent.value == TriggerTypes.SHOUTOUT_OUT) {
-						//Force proper "received" state
-						(m as TwitchatDataTypes.MessageShoutoutData).received = (triggerEvent.value == TriggerTypes.SHOUTOUT_IN);
-					}
-
-					TriggerActionHandler.instance.execute(m, true);
-				}, false);
-			}
-		}
-	}
 
 	public onChangeTrigger():void {
 		this.$store("triggers").saveTriggers();
@@ -312,11 +205,11 @@ interface TriggerEntry {
 		display: flex;
 		flex-direction: row;
 		min-height: 1.5em;
-		transition: color .25s, background-color .25s;
 		overflow: hidden;
 		&>* {
+			transition: color .25s, background-color .25s;
 			&:hover {
-				background-color: @mainColor_normal_extralight;
+				background-color: fade(@mainColor_normal_extralight, 20%);
 			}
 		}
 		.button {
@@ -327,14 +220,15 @@ interface TriggerEntry {
 			padding: 0 .5em 0 0;
 			align-items: center;
 			text-align: left;
-			transition: background-color .15s;
+			transition: background-color .25s;
 			flex-grow: 1;
 			overflow: hidden;
+			word-wrap: break-word;
 			img {
 				height: 1.5em;
 				width: 1.5em;
 				padding: .25em;
-				object-fit: contain;
+				object-fit: fill;
 			}
 		}
 		.toggle {
@@ -342,7 +236,7 @@ interface TriggerEntry {
 			align-items: center;
 			padding: 0 .5em;
 			cursor: pointer;
-			// border-left: 1px solid @mainColor_normal;
+			border-left: 1px solid @mainColor_normal;
 		}
 		.deleteBt, .testBt {
 			img {

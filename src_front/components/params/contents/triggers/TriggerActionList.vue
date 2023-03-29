@@ -45,6 +45,10 @@
 		</div>
 
 		<div class="list">
+			<button class="addBt" @click="addActionAt(0)">
+				<img src="@/assets/icons/add.svg">
+			</button>
+
 			<draggable 
 			v-model="triggerData.actions" 
 			group="actions" 
@@ -55,25 +59,26 @@
 			:animation="250"
 			:dragoverBubble="true">
 				<template #item="{element, index}">
-					<TriggerActionEntry class="action"
-						:action="element"
-						:index="index"
-						:totalItems="triggerData.actions.length"
-						:obsSources="obsSources"
-						:triggerData="triggerData"
-						@delete="deleteAction(index)"
-						@duplicate="duplicateAction(element, index)"
-					/>
+					<div class="listItem">
+						<div class="dash"></div>
+						<TriggerActionEntry
+							class="action"
+							:action="element"
+							:index="index"
+							:totalItems="triggerData.actions.length"
+							:obsSources="obsSources"
+							:rewards="rewards"
+							:triggerData="triggerData"
+							@delete="deleteAction(index)"
+							@duplicate="duplicateAction(element, index)"
+						/>
+						<div class="dash"></div>
+						<button class="addBt" @click="addActionAt(index+1)">
+							<img src="@/assets/icons/add.svg">
+						</button>
+					</div>
 				</template>
 			</draggable>
-	
-			<div class="bottomCTAS">
-				<Button class="addBt"
-					:icon="$image('icons/add.svg')"
-					:title="$t('triggers.add_actionBt')"
-					@click="addAction()"
-				/>
-			</div>
 		</div>
 	</div>
 </template>
@@ -149,7 +154,7 @@ export default class TriggerActionList extends Vue {
 			case TriggerTypes.COUNTER_LOOPED:
 			case TriggerTypes.COUNTER_MAXED:
 			case TriggerTypes.COUNTER_MINED:
-				return this.$store("counters").data.find(v=>v.id == this.triggerData.counterID)?.name ?? "COUNTER NOT FOUND";
+				return this.$store("counters").counterList.find(v=>v.id == this.triggerData.counterId)?.name ?? "COUNTER NOT FOUND";
 		}
 		return "...";
 	}
@@ -157,7 +162,7 @@ export default class TriggerActionList extends Vue {
 	public beforeMount():void {
 		this.param_queue.options = this.$store("triggers").queues;
 		if(this.triggerData.actions.length === 0) {
-			this.addAction();
+			this.addActionAt(this.triggerData.actions.length-1);
 		}
 	}
 
@@ -182,13 +187,17 @@ export default class TriggerActionList extends Vue {
 		this.triggerData.actions.splice(index, 0, clone);
 	}
 
-	public addAction():void {
+	/**
+	 * Adds an action at the specified index
+	 * @param index 
+	 */
+	public addActionAt(index:number):void {
 		const action:TriggerActionEmptyData = {
 			delay:0,
 			id:Utils.getUUID(),
 			type:null,
 		}
-		this.triggerData.actions.push(action)
+		this.triggerData.actions.splice(index, 0, action);
 	}
 
 }
@@ -201,62 +210,30 @@ export default class TriggerActionList extends Vue {
 	gap: 1em;
 
 	.list {
-		.action ~ .action {
-			padding-top: .5em;
-			margin-top: 0;
-			&::before{
-				content: "";
-				display: block;
-				width: .5em;
-				height: .25em;
+		.listItem {
+			.dash {
+				width: 2px;
 				background-color: @mainColor_normal;
-				border-top-left-radius: 100% 200%;
-				border-top-right-radius: 100% 200%;
-				margin: auto;
-			}
-		}
-		.action {
-			background: linear-gradient(90deg, @mainColor_normal 2px, transparent 1px);
-			background-position: 100% 0;
-			background-repeat: no-repeat;
-			background-size: calc(50% + 1px) 1em;
-			&:first-of-type {
-				background: none;
-			}
-	
-			&::after{
-				content: "";
-				display: block;
-				width: .5em;
-				height: .25em;
-				background-color: @mainColor_normal;
-				border-bottom-left-radius: 100% 200%;
-				border-bottom-right-radius: 100% 200%;
+				height: 5px;
 				margin: auto;
 			}
 		}
 	
-		.bottomCTAS {
-			// display: flex;
-			// flex-direction: row;
-			background: linear-gradient(90deg, @mainColor_normal 2px, transparent 1px);
-			background-position: 100% 0;
-			background-repeat: no-repeat;
-			background-size: calc(50% + 1px) 1em;
-			padding-top: .5em;
-			.addBt {
-				display: block;
-				margin: auto;
+		.addBt {
+			display: block;
+			margin: auto;
+			border-radius: 50%;
+			width: 1.25em;
+			height: 1.25em;
+			background-color: @mainColor_normal;
+			transition: background-color .25s;
+			img {
+				padding: .25em;
+				height: 100%;
+				width: 100%;
 			}
-			&::before{
-				content: "";
-				display: block;
-				width: .5em;
-				height: .25em;
-				background-color: @mainColor_normal;
-				border-top-left-radius: 100% 200%;
-				border-top-right-radius: 100% 200%;
-				margin: auto;
+			&:hover {
+				background-color: @mainColor_normal_light;
 			}
 		}
 	}
@@ -277,7 +254,7 @@ export default class TriggerActionList extends Vue {
 		.icon {
 			width: 1em;
 			height: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: 0.5em;
 			vertical-align: top;
 		}

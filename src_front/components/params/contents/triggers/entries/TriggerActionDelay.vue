@@ -1,20 +1,37 @@
 <template>
-	<div class="triggeractiondelay">
-		<ParamItem class="item delay" :paramData="delay_conf" v-if="action.type!==null" v-model="action.delay" />
+	<div class="triggeractiondelay" @click="setFocus()">
+		<img src="@/assets/icons/timer.svg" class="icon">
+
+		<div>
+			<contenteditable class="input" tag="span" ref="input"
+				:contenteditable="true"
+				v-model="delay_local"
+				:no-nl="true"
+				:no-html="true"
+				@keydown="onKeyDown($event)"
+				@keyup="validateValue()" />
+	
+			<span>s</span>
+		</div>
+
+		<Button class="deleteBt" highlight small :icon="$image('icons/cross_white.svg')" @click="$emit('delete')" />
 	</div>
 </template>
 
 <script lang="ts">
+import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import contenteditable from 'vue-contenteditable';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
+		Button,
 		ParamItem,
+		contenteditable,
 	},
-	emits:[],
+	emits:["delete"],
 })
 export default class TriggerActionDelay extends Vue {
 
@@ -22,20 +39,67 @@ export default class TriggerActionDelay extends Vue {
 	public action!:TriggerActionTypes;
 	@Prop
 	public triggerData!:TriggerData;
-	
-	public delay_conf:TwitchatDataTypes.ParameterData = { type:"number", value:0, min:0, max:60*60*24*30, icon:"timeout_purple.svg", labelKey:"triggers.actions.common.next_delay" };
 
+	public delay_local:string = "0";
+
+	public beforeMount():void {
+		if(!this.action.delay) this.action.delay = 0;
+		this.delay_local = this.action.delay!.toString();
+	}
+
+	public onKeyDown(event:KeyboardEvent):void {
+		let add = 0;
+		switch(event.key) {
+			case "ArrowUp": add = 1; break;
+			case "ArrowDown": add = -1; break;
+		}
+		if(add != 0) {
+			this.action.delay! += add;
+			this.delay_local = this.action.delay!.toString();
+		}
+		this.validateValue();
+	}
+
+	/**
+	 * Sets focus on content editable field when clicked
+	 */
+	public setFocus():void {
+		const ce = this.$refs.input as Vue;
+		(ce.$el as HTMLInputElement).focus()
+	}
+
+	public validateValue():void {
+		let v = Math.max(0, Math.min(99999, parseInt(this.delay_local)));
+		this.action.delay = v;
+		this.delay_local = v.toString();
+	}
+	
 }
 </script>
 
 <style scoped lang="less">
 .triggeractiondelay{
-	.triggerActionForm();
-	:deep(input) {
-		flex-grow: unset;
-		min-width: unset;
-		width: 90px;
-		max-width: 90px;
+	margin: auto;
+	width: min-content;
+	border-radius: .5em;
+	background-color: @mainColor_normal;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding-left: .5em;
+	color: @mainColor_light;
+	overflow: hidden;
+	gap: .5em;
+	line-height: 1.5em;
+	.input {
+		// min-width: 20px;
+	}
+	.icon {
+		height: 1em;
+	}
+
+	.deleteBt {
+		align-self: stretch;
 	}
 }
 </style>

@@ -92,7 +92,7 @@ export interface TriggerData {
 	/**
 	 * Counter ID for counters related events
 	 */
-	counterID?:string;
+	counterId?:string;
 
 	/**
 	 * Execution que for this trigger
@@ -278,6 +278,10 @@ export interface TriggerActionHighlightData extends TriggerActionData{
 export interface TriggerActionTriggerData extends TriggerActionData{
 	type:"trigger";
 	triggerId:string;
+	/**
+	 * @deprecated do not use! only here for data migration typing
+	 */
+	triggerKey:string;
 }
 
 export interface TriggerActionHTTPCallData extends TriggerActionData{

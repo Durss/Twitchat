@@ -14,8 +14,10 @@
 		"create_scheduleBt": "Add scheduled action",
 		"testBt": "Test trigger",
 		"deleteBt": "Delete trigger",
-		"resyncBt": "Resync OBS sources",
-		"resyncBt_tt": "If you changed something<br>on OBS, click this to see it<br>listed on OBS actions",
+		"resyncOBSBt": "Resync OBS sources",
+		"resyncOBSBt_tt": "If you changed your sources<br>or scenes on OBS, click this<br>to get those modifications",
+		"resyncRewardsBt": "Resync rewards",
+		"resyncRewardsBt_tt": "If you modified your<br>channel point rewards,<br>click to get those updates",
 		"delete_confirm": "Delete trigger?",
 		"delete_action_confirm": "Delete action?",
 		"reorder_tt": "Reorder",
@@ -28,6 +30,7 @@
 		"trigger_queue_input_placeholder": "execution queue...",
 		"missing_counter": "COUNTER DELETED",
 		"missing_reward": "REWARD DELETED",
+		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"music": {
 			"require": "This trigger need you to connect with Spotify under the {URL}",
 			"require_url": "overlays section"
@@ -96,14 +99,11 @@
 				"allowed_users": "Users allowed to use this command",
 				"param_cmd": "Command",
 				"param_cmd_alias": "Aliases",
+				"param_cmd_alias_tt": "Optional alternative commands",
 				"param_globalCD": "Global cooldown ({VALUE}s)",
 				"param_userCD": "User cooldown ({VALUE}s)",
 				"param_alertCD": "Tell users if they're cooled down",
-				"tip_title":"TIP :",
-				"tip":"{TITLE} You can use chat commands",
-				"tip_example_title":"Example:",
-				"tip_example":"{TITLE} {CMD} will set your chat in 30 minutes followers only",
-				"commands_list":"Usable commands"
+				"commands_list":"Chat commands"
 			},
 			"highlight": {
 				"header": "You need to configure the {LINK} to use this action.",
@@ -147,8 +147,8 @@
 				"warning_title": "Important warning",
 				"warning": "Placeholders may not be available on the selected trigger.",
 				"warning_example": ": If you execute a <strong>Chat command</strong> trigger from a <strong>Scheduled action</strong> trigger, the {'{'}USER{'}'} and {'{'}MESSAGE{'}'} placeholders won't be available as it won't be executed from an actual chat message.",
-				"no_trigger": "You don't have any existing trigger yet",
-				"select": "Select a trigger to execute...",
+				"select": "Select which trigger to execute",
+				"selected": "Trigger to execute",
 				"loop": "Dependency loop detected",
 				"loop_delails": "This may make twitchat unstable."
 			},
@@ -188,6 +188,7 @@
 				"number":"Number",
 				"list":"List",
 				"trigger":"Triggers",
+				"trigger_select":"Select a trigger",
 				"list_label":"Pick a random entry amongst these ones:",
 				"list_entry_placeholder":"add entry..."
 			},

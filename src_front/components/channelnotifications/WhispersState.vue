@@ -256,7 +256,7 @@ export default class WhispersState extends Vue {
 					:deep( .emote ) {
 						max-height: 2em;
 						vertical-align: middle;
-						object-fit: contain;
+						object-fit: fill;
 					}
 
 					:deep(a) {
