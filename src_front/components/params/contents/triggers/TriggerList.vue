@@ -39,7 +39,7 @@
 <script lang="ts">
 import Splitter from '@/components/Splitter.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerEvents, TriggerEventTypeCategories, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';

@@ -80,6 +80,7 @@ import Ajv from "ajv";
 						type: {type:"string", maxLength:5},
 						enabled: {type:"boolean"},
 						rewardId:{type:"string", maxLength:100},
+						name:{type:"string", maxLength:100},
 						chatCommand:{type:"string", maxLength:100},
 						scheduleName:{type:"string", maxLength:100},
 						obsSource:{type:"string", maxLength:200},

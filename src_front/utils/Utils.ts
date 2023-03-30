@@ -647,7 +647,7 @@ export default class Utils {
 				const counter = StoreProxy.counters.counterList.find(v=>v.id === trigger.counterId);
 				if(!result.label && counter) {
 					result.label = counter.name ?? "-unnamed counter-";
-				}else{
+				}else if(!counter) {
 					result.label = StoreProxy.i18n.t("triggers.missing_counter");
 				}
 				break;
