@@ -4,6 +4,14 @@
 		<img src="@/assets/icons/prediction.svg" alt="icon" class="icon">
 		<div class="content">
 			<div class="title">{{messageData.title}}</div>
+
+			<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
+			v-if="messageData.creator && messageData.creator.id != me.id">
+				<template #USER>
+					<a class="userlink" @click.stop="openUserCard()">{{messageData.creator.displayName}}</a>
+				</template>
+			</i18n-t>
+
 			<div class="outcomes">
 				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
 					<div :style="getOutcomeStyles(o)" class="bar">
@@ -41,6 +49,8 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePredictionData;
 
+	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
+
 	public getOutcomeClasses(o:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
 		const res = ["outcome"];
 		if(this.messageData.winner?.id === o.id) res.push("winner");
@@ -65,6 +75,10 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 		};
 	}
 
+	public openUserCard():void {
+		this.$store("users").openUserCard(this.messageData.creator!);
+	}
+
 }
 </script>
 
@@ -78,9 +92,13 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 		.title {
 			font-weight: bold;
 			font-size: 1.2em;
-			margin-bottom: 5px;
+		}
+		.creator {
+			font-size: .8em;
+			font-style: italic;
 		}
 		.outcomes {
+			margin-top: 5px;
 			display: flex;
 			flex-direction: column;
 			gap: 2px;

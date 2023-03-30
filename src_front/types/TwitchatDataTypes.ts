@@ -1574,15 +1574,19 @@ export namespace TwitchatDataTypes {
 		channel_id: string;
 		type:"poll";
 		/**
-		 * Poll's title
+		 * Poll creator
+		 */
+		creator?: TwitchatUser;
+		/**
+		 * Poll title
 		 */
 		title: string;
 		/**
-		 * Poll's choices
+		 * Poll choices
 		 */
 		choices: MessagePollDataChoice[];
 		/**
-		 * Poll's duration in seconds
+		 * Poll duration in seconds
 		 */
 		duration_s: number;
 		/**
@@ -1617,15 +1621,19 @@ export namespace TwitchatDataTypes {
 		channel_id: string;
 		type:"prediction";
 		/**
-		 * Prediction's title
+		 * Prediction creator
+		 */
+		creator?: TwitchatUser;
+		/**
+		 * Prediction title
 		 */
 		title: string;
 		/**
-		 * Poll's duration in seconds
+		 * Prediction duration in seconds
 		 */
 		duration_s: number;
 		/**
-		 * Prediction's possible outcomes
+		 * Prediction possible outcomes
 		 */
 		outcomes: MessagePredictionDataOutcome[];
 		/**
@@ -1633,11 +1641,11 @@ export namespace TwitchatDataTypes {
 		 */
 		pendingAnswer: boolean;
 		/**
-		 * Timestamp when the poll has been started
+		 * Timestamp when the Prediction has been started
 		 */
 		started_at: number;
 		/**
-		 * Timestamp when the poll has ended
+		 * Timestamp when the Prediction has ended
 		 */
 		ended_at?: number;
 		/**

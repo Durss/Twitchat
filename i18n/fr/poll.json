@@ -2,6 +2,7 @@
 	"poll":{
 		"form":{
 			"title":"Créer un sondage",
+			"created_by":"créé par {USER}",
 			"closeBt_aria":"Fermer la fenêtre",
 			"question":"Question",
 			"answers":"Réponses (minimun 2)",

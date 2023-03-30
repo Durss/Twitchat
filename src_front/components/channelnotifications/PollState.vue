@@ -16,8 +16,16 @@
 				<div>{{getPercent(c)}}% ({{c.votes}})</div>
 			</div>
 		</div>
+
+		<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
+		v-if="poll.creator && poll.creator.id != me.id">
+			<template #USER>
+				<a class="userlink" @click.stop="openUserCard()">{{poll.creator.displayName}}</a>
+			</template>
+		</i18n-t>
+
 		<div class="item actions">
-			<Button title="End poll" @click="endPoll()" :loading="loading" />
+			<Button title="End poll" highlight @click="endPoll()" :loading="loading" />
 		</div>
 	</div>
 </template>
@@ -25,7 +33,6 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ProgressBar from '../ProgressBar.vue';
@@ -43,9 +50,9 @@ export default class PollState extends Vue {
 	
 	private disposed = false;
 
-	public get poll():TwitchatDataTypes.MessagePollData {
-		return this.$store("poll").data!;
-	}
+	public get poll():TwitchatDataTypes.MessagePollData { return this.$store("poll").data!; }
+
+	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
 
 	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice):number {
 		let totalVotes = 0;
@@ -106,12 +113,24 @@ export default class PollState extends Vue {
 		const duration = this.poll.duration_s * 1000;
 		this.progressPercent = ellapsed/duration;
 	}
+
+	public openUserCard():void {
+		this.$store("users").openUserCard(this.poll.creator!);
+	}
 }
 </script>
 
 <style scoped lang="less">
 .pollstate{
 	.gameStateWindow();
+
+	.creator {
+		font-size: .8em;
+		text-align: center;
+		margin-top: 1em;
+		width: calc(100% - 1em - 10px);
+		font-style: italic;
+	}
 
 	.choices {
 		.choice {

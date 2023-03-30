@@ -27,6 +27,14 @@
 				</div>
 			</div>
 		</div>
+
+		<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
+		v-if="prediction.creator && prediction.creator.id != me.id">
+			<template #USER>
+				<a class="userlink" @click.stop="openUserCard()">{{prediction.creator.displayName}}</a>
+			</template>
+		</i18n-t>
+
 		<div class="item actions" v-if="canAnswer">
 			<Button :title="$t('prediction.state.cancelBt')" @click="deletePrediction()" :loading="loading" highlight />
 		</div>
@@ -52,6 +60,8 @@ export default class PredictionState extends Vue {
 	public progressPercent = 0;
 	
 	private disposed = false;
+
+	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
 
 	public get prediction():TwitchatDataTypes.MessagePredictionData {
 		return this.$store("prediction").data!;
@@ -129,6 +139,10 @@ export default class PredictionState extends Vue {
 		});
 	}
 
+	public openUserCard():void {
+		this.$store("users").openUserCard(this.prediction.creator!);
+	}
+
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
@@ -144,6 +158,13 @@ export default class PredictionState extends Vue {
 .predictionstate{
 	.gameStateWindow();
 
+	.creator {
+		font-size: .8em;
+		text-align: center;
+		margin-top: 1em;
+		width: calc(100% - 1em - 10px);
+		font-style: italic;
+	}
 	.outcomeTitle {
 		color: @mainColor_light;
 		margin-bottom: 20px;

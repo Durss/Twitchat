@@ -908,9 +908,12 @@ export default class PubSub extends EventDispatcher {
 			}
 			choices.push(entry);
 		}
+		
+		const me = StoreProxy.auth.twitch.user;
 		const poll:TwitchatDataTypes.MessagePollData = {
 			date:Date.now(),
 			id:localObj.poll.poll_id,
+			creator: StoreProxy.users.getUserFrom("twitch", me.id, localObj.poll.created_by),
 			platform:"twitch",
 			channel_id: localObj.poll.owned_by,
 			type:TwitchatDataTypes.TwitchatMessageType.POLL,
@@ -949,9 +952,11 @@ export default class PubSub extends EventDispatcher {
 				voters: c.total_users,
 			})
 		}
+		const me = StoreProxy.auth.twitch.user;
 		const prediction:TwitchatDataTypes.MessagePredictionData = {
 			date:Date.now(),
 			id:localObj.event.id,
+			creator: StoreProxy.users.getUserFrom("twitch", me.id, localObj.event.created_by.user_id, localObj.event.created_by.user_display_name.toLowerCase(), localObj.event.created_by.user_display_name),
 			platform:"twitch",
 			channel_id: localObj.event.channel_id,
 			type:TwitchatDataTypes.TwitchatMessageType.PREDICTION,
