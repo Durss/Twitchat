@@ -175,9 +175,15 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		this.showList = false;
 		this.showForm = false;
 
+		let debounceTimeout = -1;
 		//Watch for any change on the 
 		watch(()=>this.currentTriggerData, ()=> {
-			this.$store("triggers").saveTriggers();
+			clearTimeout(debounceTimeout);
+			debounceTimeout = setTimeout(()=> {
+				if(this.currentTriggerData) {
+					this.$store("triggers").saveTriggers();
+				}
+			}, 500);
 		}, {deep:true});
 	}
 

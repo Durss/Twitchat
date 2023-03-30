@@ -608,6 +608,14 @@ export const storeChat = defineStore('chat', {
 				greetedUsers = JSON.parse(history ?? "{}");
 				//Previously they were stored in an array instead of an object, convert it
 				if(Array.isArray(greetedUsers)) greetedUsers = {};
+				const now = Date.now();
+				for (const key in greetedUsers) {
+					if(greetedUsers[key] < now - 24 * 60 * 60 * 1000) {
+						//Old entry, delete it
+						delete greetedUsers[key];
+					}
+				}
+				DataStore.set(DataStore.GREET_HISTORY, greetedUsers);
 			}
 
 			message = reactive(message);

@@ -58,16 +58,28 @@ export default class DataStore {
 	public static LANGUAGE:string = "lang";
 	public static CHAT_COL_CTA:string = "chatColCTA";
 	public static WEBSOCKET_TRIGGER:string = "websocketTrigger";
-	/**
-	 * @deprecated Only here for typings on data migration
-	 */
-	public static LEFT_COL_SIZE:string = "leftColSize";
+	public static REDIRECT:string = "redirect";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
 	private static saveTO:number = -1;
 	private static dataImported:boolean = false;
 	private static rawStore:{[key:string]:(JsonValue|unknown)} = {};
+
+	/**
+	 * These values won't be saved to the server
+	 */
+	private static UNSYNCED_DATA:string[] = [
+		this.OBS_PASS,
+		this.TWITCH_AUTH_TOKEN,
+		this.SPOTIFY_AUTH_TOKEN,
+		this.SPOTIFY_APP_PARAMS,
+		this.GREET_HISTORY,
+		this.SYNC_DATA_TO_SERVER,
+		this.INTERFACE_SCALE,
+		this.CHAT_COL_CTA,
+		this.REDIRECT,
+	]
 	
 	
 	/********************
@@ -106,7 +118,9 @@ export default class DataStore {
 		let v = parseInt(data[this.DATA_VERSION]) || 1;
 		
 		if(v < 11) {
-			return {};
+			const res:{[key:string]:unknown} = {};
+			res[this.DATA_VERSION] = 37;
+			return res;
 		}
 		
 		if(v<=12) {
@@ -320,7 +334,24 @@ export default class DataStore {
 			}
 		}
 
+		const backup:{[key:string]:JsonValue} = {};
+		for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
+			const key = this.UNSYNCED_DATA[i];
+			if(!items[key]) continue;
+			backup[key] = items[key];
+		}
+		backup[this.DATA_VERSION] = items[this.DATA_VERSION];
+
 		const json = await this.migrateData(items);//Migrate remote data if necessary
+
+		//Clear storage to remove potentially old data
+		localStorage.clear();
+
+		for (const key in backup) {
+			if(backup[key]) {
+				this.store.setItem(this.dataPrefix + key, JSON.stringify(backup[key]!));
+			}
+		}
 
 		//Update localstorage data
 		for (const key in json) {
@@ -347,20 +378,11 @@ export default class DataStore {
 		return new Promise((resolve) => {
 			this.saveTO = setTimeout(async () => {
 				const data = JSON.parse(JSON.stringify(this.rawStore));
-				//Do not save sensitive data to server
-				delete data[this.OBS_PASS];
-				delete data[this.TWITCH_AUTH_TOKEN];
-				delete data[this.SPOTIFY_AUTH_TOKEN];
-				delete data[this.SPOTIFY_APP_PARAMS];
-				
-				//Things unnecessary to save server side
-				delete data[this.GREET_HISTORY];
-				delete data[this.SYNC_DATA_TO_SERVER];
-				delete data[this.INTERFACE_SCALE];
-				delete data[this.CHAT_COL_CTA];
-				delete data.deezerEnabled;
-				delete data.redirect;
-				delete data["p:shoutoutLabel"];//Old data that some people still have
+
+				//Do not save sensitive and useless data to server
+				for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
+					delete data[ this.UNSYNCED_DATA[i] ];
+				}
 				
 				//Remove automod items the user asked not to sync to server
 				const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
@@ -883,8 +905,10 @@ export default class DataStore {
 		delete data["p:splitView"];
 		delete data["p:splitViewSwitch"];
 		delete data["p:emergencyButton"];
+		delete data["p:shoutoutLabel"];
 		delete data["leftColSize"];
 		delete data["activityFeedFilters"];
+		delete data["deezerEnabled"];
 	}
 
 	/**

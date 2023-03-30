@@ -215,6 +215,8 @@ export const storeAuth = defineStore('auth', {
 				const sChat = StoreProxy.chat;
 				const sRewards = StoreProxy.rewards;
 				
+				await DataStore.migrateLocalStorage();
+
 				//If asked to sync data with server, load them
 				if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
 					if(!await DataStore.loadRemoteData()) {
@@ -224,8 +226,6 @@ export const storeAuth = defineStore('auth', {
 						sMain.alert("An error occured while loading your parameters");
 						return;
 					}
-				}else{
-					await DataStore.migrateLocalStorage();
 				}
 				//Parse data from storage
 				await sMain.loadDataFromStorage();

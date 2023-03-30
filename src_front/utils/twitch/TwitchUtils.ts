@@ -45,7 +45,6 @@ export default class TwitchUtils {
 			headers: this.headers,
 		};
 		const result = await fetch(Config.instance.TWITCH_API_PATH+"chat/badges?broadcaster_id="+uid, options);
-		// const result = await fetch("https://badges.twitch.tv/v1/badges/channels/"+uid+"/display", options);
 		if(result.status == 200) {
 			const json = await result.json();
 			const list:TwitchDataTypes.BadgesSet[] = json.data as TwitchDataTypes.BadgesSet[];
@@ -87,7 +86,6 @@ export default class TwitchUtils {
 			headers: this.headers,
 		};
 		const result = await fetch(Config.instance.TWITCH_API_PATH+"chat/badges/global", options);
-		// const result = await fetch("https://badges.twitch.tv/v1/badges/global/display", options);
 		if(result.status == 200) {
 			const json = await result.json();
 			const list:TwitchDataTypes.BadgesSet[] = json.data as TwitchDataTypes.BadgesSet[];

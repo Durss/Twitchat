@@ -343,18 +343,21 @@ export const storeMain = defineStore("main", {
 			const obsMuteUnmuteCommands = DataStore.get(DataStore.OBS_CONF_MUTE_UNMUTE);
 			if(obsMuteUnmuteCommands) {
 				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (sOBS.muteUnmuteCommands as unknown) as JsonObject);
+				// sOBS.muteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
 			}
 			
 			//Init OBS permissions
 			const obsCommandsPermissions = DataStore.get(DataStore.OBS_CONF_PERMISSIONS);
 			if(obsCommandsPermissions) {
 				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (sOBS.commandsPermissions as unknown) as JsonObject);
+				// sOBS.commandsPermissions = JSON.parse(obsCommandsPermissions);
 			}
 
 			//Init TTS actions
 			const tts = DataStore.get(DataStore.TTS_PARAMS);
 			if (tts) {
 				Utils.mergeRemoteObject(JSON.parse(tts), (sTTS.params as unknown) as JsonObject);
+				// sTTS.params = JSON.parse(tts);
 				TTSUtils.instance.enabled = sTTS.params.enabled;
 			}
 			
@@ -362,30 +365,35 @@ export const storeMain = defineStore("main", {
 			const emergency = DataStore.get(DataStore.EMERGENCY_PARAMS);
 			if(emergency) {
 				Utils.mergeRemoteObject(JSON.parse(emergency), (sEmergency.params as unknown) as JsonObject);
+				// sEmergency.params = JSON.parse(emergency);
 			}
 			
 			//Init alert actions
 			const alert = DataStore.get(DataStore.ALERT_PARAMS);
 			if(alert) {
 				Utils.mergeRemoteObject(JSON.parse(alert), (this.chatAlertParams as unknown) as JsonObject);
+				// this.chatAlertParams = JSON.parse(alert);
 			}
 			
 			//Init spoiler param
 			const spoiler = DataStore.get(DataStore.SPOILER_PARAMS);
 			if(spoiler) {
 				Utils.mergeRemoteObject(JSON.parse(spoiler), (sChat.spoilerParams as unknown) as JsonObject);
+				// sChat.spoilerParams = JSON.parse(spoiler);
 			}
 			
 			//Init chat highlight params
 			const chatHighlight = DataStore.get(DataStore.CHAT_HIGHLIGHT_PARAMS);
 			if(chatHighlight) {
 				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (sChat.chatHighlightOverlayParams as unknown) as JsonObject);
+				// sChat.chatHighlightOverlayParams = JSON.parse(chatHighlight);
 			}
 			
 			//Init triggers
 			const triggers = DataStore.get(DataStore.TRIGGERS);
 			if(triggers) {
 				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggerList as unknown) as JsonObject);
+				// sTriggers.triggerList = JSON.parse(triggers);
 				TriggerActionHandler.instance.populate(sTriggers.triggerList);
 			}
 				
@@ -405,6 +413,7 @@ export const storeMain = defineStore("main", {
 			const musicPlayerParams = DataStore.get(DataStore.MUSIC_PLAYER_PARAMS);
 			if(musicPlayerParams) {
 				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (sMusic.musicPlayerParams as unknown) as JsonObject);
+				// sMusic.musicPlayerParams = JSON.parse(musicPlayerParams);
 			}
 			
 			//Init Voice control actions
@@ -426,6 +435,7 @@ export const storeMain = defineStore("main", {
 				//Merge remote and local to avoid losing potential new
 				//default values on local data
 				Utils.mergeRemoteObject(JSON.parse(botMessages), (sChat.botMessages as unknown) as JsonObject, false);
+				// sChat.botMessages = JSON.parse(botMessages);
 			}
 
 			//Init voicemod
@@ -454,6 +464,7 @@ export const storeMain = defineStore("main", {
 			const automodParams = DataStore.get(DataStore.AUTOMOD_PARAMS);
 			if(automodParams) {
 				Utils.mergeRemoteObject(JSON.parse(automodParams), (sAutomod.params as unknown) as JsonObject);
+				// sAutomod.params = JSON.parse(automodParams);
 				sAutomod.setAutomodParams(sAutomod.params);
 			}
 
@@ -471,6 +482,7 @@ export const storeMain = defineStore("main", {
 			const countersParams = DataStore.get(DataStore.COUNTERS);
 			if(countersParams) {
 				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.counterList as unknown) as JsonObject);
+				// sCounters.counterList = JSON.parse(countersParams);
 			}
 			
 			//Reload devmode state

@@ -391,6 +391,9 @@ export default class TriggerActionHandler {
 	 */
 	private buildHashmap(triggers:TriggerData[]):void {
 		this.triggerType2Triggers = {};
+		
+		if(!triggers || !Array.isArray(triggers)) return;
+
 		for (let i = 0; i < triggers.length; i++) {
 			const t = triggers[i];
 			let keys:string[] = [t.type as string];
