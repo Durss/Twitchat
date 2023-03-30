@@ -248,21 +248,41 @@ export default class DataStore {
 	 * Replace local data by the given JSON
 	 */
 	public static async loadFromJSON(json:any):Promise<void> {
-		const backupAutomod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
+		const automodRulesBackup:TwitchatDataTypes.AutomodParamsKeywordFilterData[] = [];
+		let automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
 
 		this.rawStore = await this.migrateData(json);//Migrate remote data if necessary
 
-		if(backupAutomod) {
+		if(automod && automod.keywordsFilters && automod.keywordsFilters.length > 0) {
 			//Make sure we don't loose unsynced automod rules
 			//(should think of a generic way of doing this..)
-			const automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
-			for (let i = 0; i < backupAutomod.keywordsFilters.length; i++) {
-				const el = backupAutomod.keywordsFilters[i];
+			for (let i = 0; i < automod.keywordsFilters.length; i++) {
+				const el = automod.keywordsFilters[i];
 				if(!el.serverSync) {
-					automod.keywordsFilters.splice(i, 0, el);
+					automodRulesBackup.push( automod.keywordsFilters.splice(i, 1)[0] );
+					i--;
+					if(i < 0) break;
 				}
 			}
+
+			//Update storage without non synced rules
 			this.set(DataStore.AUTOMOD_PARAMS, automod);
+
+			//Cleanup rules.
+			//I made a huge mistake leading to rules duplicating at every call of this
+			//method leading to memory overflow. This removes any duplicate
+			const doneEntries:{[key:string]:boolean} = {};
+			for (let i = 0; i < automodRulesBackup.length; i++) {
+				const value = automodRulesBackup[i];
+				const key = JSON.stringify(value);
+				if(doneEntries[key] !== true) {
+					doneEntries[key] = true;
+				}else{
+					automodRulesBackup.splice(i,1);
+					i--;
+					if(i < 0) break;
+				}
+			}
 		}
 
 		//Update localstorage data
@@ -270,6 +290,15 @@ export default class DataStore {
 			const value = json[key];
 			const str = typeof value == "string"? value : JSON.stringify(value);
 			this.store.setItem(this.dataPrefix + key, str);
+		}
+
+		//Bring back auto mode rules backed up before
+		if(automodRulesBackup.length > 0) {
+			automod = JSON.parse(this.get(DataStore.AUTOMOD_PARAMS));
+			for (let i = 0; i < automodRulesBackup.length; i++) {
+				automod.keywordsFilters.push(automodRulesBackup[i]);
+			}
+			this.set(DataStore.AUTOMOD_PARAMS, automod);
 		}
 
 		this.dataImported = true;
