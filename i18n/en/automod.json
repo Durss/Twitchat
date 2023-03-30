@@ -36,7 +36,7 @@
 			}
 		},
 		"rule":{
-			"title":"Rules",
+			"title":"Your rules",
 			"new":"New rule",
 			"add":"Add rule",
 			"toggle_tt":"Enable/disable rule",

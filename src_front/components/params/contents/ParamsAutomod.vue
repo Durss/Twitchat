@@ -336,6 +336,9 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 	
 			.list {
 				margin-top: 1em;
+				display: flex;
+				flex-direction: column;
+				gap: .5em;
 
 				.block {
 
@@ -348,8 +351,8 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 
 					.deleteBt {
 						border-radius: 0;
-						height: 100%;
 						margin-left: .5em;
+						align-self: stretch;
 					}
 					
 	
