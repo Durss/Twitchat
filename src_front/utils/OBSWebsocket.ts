@@ -112,7 +112,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
 				if(item.sceneItemId == e.sceneItemId) {
-					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, {item, event:e} as unknown as JsonObject));
+					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SOURCE_TOGGLE, {item, event:e} as unknown as JsonObject));
 					break;
 				}
 			}
