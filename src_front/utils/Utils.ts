@@ -1,5 +1,5 @@
 import StoreProxy from '@/store/StoreProxy';
-import { TriggerEvents, TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEvents, TriggerTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
 import { TwitchScopes } from './twitch/TwitchScopes';
@@ -593,10 +593,11 @@ export default class Utils {
 	 * Gets the label of a trigger
 	 * @param trigger 
 	 */
-	public static getTriggerDisplayInfo(trigger:TriggerData):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
+	public static getTriggerDisplayInfo(trigger:TriggerData):{label:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerEventTypes} {
 		const ref = TriggerEvents().find(v => v.value == trigger.type);
-		const result:{label:string, icon:string, iconURL?:string, iconBgColor?:string} = {label:"", icon:"alert"}
+		const result:{label:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerEventTypes} = {label:"", icon:"alert"}
 		if(!ref) return result
+		result.event = ref;
 		if(ref.icon) result.icon = ref.icon;
 		if(trigger.name) result.label = trigger.name;
 

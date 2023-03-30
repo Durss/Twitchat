@@ -21,8 +21,8 @@
 						<div class="status" data-tooltip="pending" v-else><img src="@/assets/loader/loader_white.svg"></div>
 						<div class="status" data-tooltip="started from<br>'Test' button" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
 						<div class="date">{{ getFormatedDime(item.date) }}</div>
-						<div class="title">{{ $t(getTriggerInfo(item.trigger)?.labelKey as string) }}</div>
-						<div class="subtitle" v-if="getTriggerTitle(item.trigger)">{{ getTriggerTitle(item.trigger) }}</div>
+						<div class="title">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
+						<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>
 					</div>
 					<div class="messages" v-if="idToExpandState[item.id] == true">
 						<ul class="messages">
@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { TriggerTypes, TriggerEvents, type TriggerLog, type TriggerEventTypes, type TriggerTypesValue, type TriggerData } from '@/types/TriggerActionDataTypes';
+import type { TriggerData, TriggerLog } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -76,40 +76,8 @@ export default class TriggersLogs extends Vue {
 		return TriggerActionHandler.instance.logHistory;
 	}
 
-	public getTriggerInfo(trigger:TriggerData):TriggerEventTypes|null {
-		const list = TriggerEvents();
-		for (let i = 0; i < list.length; i++) {
-			const t = list[i];
-			if(t.value == trigger.type) {
-				return list[i];
-			}
-		}
-		return null;
-	}
-
-	public getTriggerTitle(trigger:TriggerData):string {
-		const info = this.getTriggerInfo(trigger);
-		if(info) {
-			switch(info.value) {
-				case TriggerTypes.SCHEDULE: return trigger.scheduleName!;
-				
-				case TriggerTypes.OBS_SCENE: return trigger.obsScene!;
-				
-				case TriggerTypes.OBS_SOURCE_OFF:
-				case TriggerTypes.OBS_SOURCE_ON: return trigger.obsSource!;
-
-				case TriggerTypes.CHAT_COMMAND: return trigger.chatCommand!;
-
-				case TriggerTypes.COUNTER_ADD:
-				case TriggerTypes.COUNTER_DEL:
-				case TriggerTypes.COUNTER_LOOPED:
-				case TriggerTypes.COUNTER_MAXED:
-				case TriggerTypes.COUNTER_MINED:
-					const counter = this.$store("counters").counterList.find(v=>v.id == trigger.counterId!);
-					return counter? counter.name : "";
-			}
-		}
-		return "";
+	public getTriggerInfo(trigger:TriggerData) {
+		return Utils.getTriggerDisplayInfo(trigger);
 	}
 
 	public getFormatedDime(date:number):string {
