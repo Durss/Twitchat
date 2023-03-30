@@ -254,6 +254,7 @@ export default class TriggerActionRandomEntry extends Vue {
 				.label {
 					padding: .5em;
 					word-break: break-all;
+					white-space: pre-wrap;
 				}
 				textarea{
 					font-size: 1em;
