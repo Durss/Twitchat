@@ -268,7 +268,6 @@ export const storeAuth = defineStore('auth', {
 						StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
 							const m = message as TwitchatDataTypes.MessageChatData;
 							const str = StoreProxy.i18n.t("chat.right_click_hint");
-							console.log(StoreProxy.i18n.locale);
 							m.message = str;
 							m.message_html = TwitchUtils.parseEmotes(str, undefined, false, true).replace(/&lt;(\/?mark)&gt;/gi, "<$1>");
 							m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");

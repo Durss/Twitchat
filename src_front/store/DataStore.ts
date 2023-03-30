@@ -960,7 +960,7 @@ export default class DataStore {
 				case TriggerTypes.REWARD_REDEEM: t.rewardId = subkey; break;
 				case TriggerTypes.SCHEDULE: t.rewardId = t.name; break;
 				case TriggerTypes.OBS_SCENE: t.obsScene = t.name =subkey; break;
-				case TriggerTypes.OBS_SOURCE_OFF: t.obsSource = t.name = subkey; break;
+				case TriggerTypes.OBS_SOURCE_ON: t.obsSource = t.name = subkey; break;
 				case TriggerTypes.OBS_SOURCE_OFF: t.obsSource = t.name = subkey; break;
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
