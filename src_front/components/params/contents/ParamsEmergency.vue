@@ -106,23 +106,23 @@ import type IParameterContent from './IParameterContent';
 })
 export default class ParamsEmergency extends Vue implements IParameterContent {
 
-	public param_enable:TwitchatDataTypes.ParameterData						= {type:"boolean", value:false};
-	public param_enableShieldMode:TwitchatDataTypes.ParameterData			= {type:"boolean", value:false, icon:"shieldMode_purple.svg", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
-	public param_chatCommand:TwitchatDataTypes.ParameterData				= {type:"string", value:"!emergency", icon:"commands_purple.svg"};
-	public param_obsScene:TwitchatDataTypes.ParameterData					= {type:"list", value:""};
-	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData		= {type:"boolean", value:false, icon:"follow_purple.svg", tooltip:""};
-	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData		= {type:"boolean", value:true, icon:"shieldMode_purple.svg", tooltip:"", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
-	public param_slowMode:TwitchatDataTypes.ParameterData					= {type:"boolean", value:false,	icon:"timer_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_slowModeDuration:TwitchatDataTypes.ParameterData			= {type:"number", value:10, max:1800, min:1};
-	public param_followersOnly:TwitchatDataTypes.ParameterData				= {type:"boolean", value:false,	icon:"follow_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData		= {type:"number", value:30, max:129600, min:1};
-	public param_subsOnly:TwitchatDataTypes.ParameterData					= {type:"boolean", value:false,	icon:"sub_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_emotesOnly:TwitchatDataTypes.ParameterData					= {type:"boolean", value:false,	icon:"emote_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_autoTO:TwitchatDataTypes.ParameterData						= {type:"editablelist", value:"", longText:true, icon:"timeout_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_noTrigger:TwitchatDataTypes.ParameterData					= {type:"boolean", value:true, icon:"broadcast_purple.svg"};
+	public param_enable:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false};
+	public param_enableShieldMode:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, icon:"shieldMode_purple.svg", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
+	public param_chatCommand:TwitchatDataTypes.ParameterData<string>					= {type:"string", value:"!emergency", icon:"commands_purple.svg"};
+	public param_obsScene:TwitchatDataTypes.ParameterData<string, string>				= {type:"list", value:""};
+	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, icon:"follow_purple.svg", tooltip:""};
+	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData<boolean>		= {type:"boolean", value:true, icon:"shieldMode_purple.svg", tooltip:"", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
+	public param_slowMode:TwitchatDataTypes.ParameterData<boolean, string, number>		= {type:"boolean", value:false,	icon:"timer_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_slowModeDuration:TwitchatDataTypes.ParameterData<number>				= {type:"number", value:10, max:1800, min:1};
+	public param_followersOnly:TwitchatDataTypes.ParameterData<boolean, string, number>	= {type:"boolean", value:false,	icon:"follow_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData<number>			= {type:"number", value:30, max:129600, min:1};
+	public param_subsOnly:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false,	icon:"sub_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_emotesOnly:TwitchatDataTypes.ParameterData<boolean>					= {type:"boolean", value:false,	icon:"emote_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_autoTO:TwitchatDataTypes.ParameterData<string[], string>				= {type:"editablelist", value:[], longText:true, icon:"timeout_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_noTrigger:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:true, icon:"broadcast_purple.svg"};
 	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];
-	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue|null = null;
+	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue<string>|null = null;
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -157,18 +157,18 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 	
 	public get finalData():TwitchatDataTypes.EmergencyParamsData {
 		return {
-			enabled:this.param_enable.value as boolean,
-			chatCmd:this.param_chatCommand.value as string,
+			enabled:this.param_enable.value,
+			chatCmd:this.param_chatCommand.value,
 			chatCmdPerms:this.chatCommandPerms,
 			noTriggers:this.param_noTrigger.value === true,
 			emotesOnly:this.param_emotesOnly.value === true,
 			subOnly:this.param_subsOnly.value === true,
 			slowMode:this.param_slowMode.value === true,
 			followOnly:this.param_followersOnly.value === true,
-			followOnlyDuration:this.param_followersOnlyDuration.value as number,
-			slowModeDuration:this.param_slowModeDuration.value as number,
-			toUsers:this.param_autoTO.value as string[] ?? [],
-			obsScene:this.selectedOBSScene? this.selectedOBSScene.value as string : "",
+			followOnlyDuration:this.param_followersOnlyDuration.value,
+			slowModeDuration:this.param_slowModeDuration.value,
+			toUsers:this.param_autoTO.value ?? [],
+			obsScene:this.selectedOBSScene? this.selectedOBSScene.value : "",
 			obsSources:this.selectedOBSSources? this.selectedOBSSources.map(v=>v.sourceName) : [],
 			autoEnableOnFollowbot:this.param_autoEnableOnFollowbot.value === true,
 			autoEnableOnShieldmode:this.param_autoEnableOnShieldmode.value === true,
@@ -262,7 +262,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 	private async listOBSScenes():Promise<void> {
 		if(!OBSWebsocket.instance.connected) return;
 
-		const list:TwitchatDataTypes.ParameterDataListValue[] = [];
+		const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 		const res = await OBSWebsocket.instance.getScenes();
 		for (let i = 0; i < res.scenes.length; i++) {
 			const scene = res.scenes[i] as {sceneIndex:number, sceneName:string};

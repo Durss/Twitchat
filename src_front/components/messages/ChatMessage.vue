@@ -185,7 +185,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	@Prop({type:Array, default:[]})
 	public highlightedWords!:string[];
 	
-	@Prop({type:Boolean, default:true})
+	@Prop({type:Boolean, default:false})
 	public contextMenuOff!:boolean;
 	
 	public text = "";
@@ -668,7 +668,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * @param e 
 	 */
 	public onContextMenu(e:MouseEvent|TouchEvent):void {
-		if(this.contextMenuOff !== true) return;
+		if(this.contextMenuOff !== false) return;
 		const me = this.$store("auth").twitch.user;
 
 		if(e.target) {

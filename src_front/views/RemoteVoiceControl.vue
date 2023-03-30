@@ -50,9 +50,9 @@ export default class RemoteVoiceControl extends Vue {
 	public connectSuccess:boolean = false;
 	public showStorageModal:boolean = false;
 	
-	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
-	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"127.0.0.1", label:"OBS local IP" };
+	public obsPort_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1 };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string> = { type:"password", value:"", label:"OBS websocket password" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", label:"OBS local IP" };
 
 	public get connected():boolean { return OBSWebsocket.instance.connected; }
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }

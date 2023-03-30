@@ -52,13 +52,13 @@ export default class ConnectWebsocket extends Vue {
 	public showSuccess = false;
 	public connecting = false;
 	
-	public param_ip:TwitchatDataTypes.ParameterData = {value:"", type:"string", labelKey:"connexions.triggerSocket.ip"};
-	public param_port:TwitchatDataTypes.ParameterData = {value:"", type:"string", labelKey:"connexions.triggerSocket.port"};
-	public param_secured:TwitchatDataTypes.ParameterData = {value:false, type:"boolean", labelKey:"connexions.triggerSocket.secured"};
+	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"connexions.triggerSocket.ip"};
+	public param_port:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"connexions.triggerSocket.port"};
+	public param_secured:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean", labelKey:"connexions.triggerSocket.secured"};
 
 	public get connected() { return WebsocketTrigger.instance.connected; }
 	public get canConnect():boolean {
-		return (this.param_ip.value as string).length >= 7;// && (this.param_port.value as string).length > 0;
+		return this.param_ip.value.length >= 7;// && this.param_port.value.length > 0;
 	}
 
 	public mounted():void {
@@ -75,14 +75,14 @@ export default class ConnectWebsocket extends Vue {
 	public connect():void {
 		let url = this.param_secured.value === true? "wss://" : "ws://";
 		url += this.param_ip.value;
-		const port = this.param_port.value as string;
+		const port = this.param_port.value;
 		if(port.length > 0) url += ":"+port;
 		this.connecting = true;
 
 		DataStore.set(DataStore.WEBSOCKET_TRIGGER, {
-			ip:this.param_ip.value as string,
-			port:this.param_port.value as string,
-			secured:this.param_secured.value as boolean,
+			ip:this.param_ip.value,
+			port:this.param_port.value,
+			secured:this.param_secured.value,
 		});
 
 		WebsocketTrigger.instance.connect(url, false).then(()=> {

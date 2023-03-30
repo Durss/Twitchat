@@ -90,13 +90,13 @@ import type IParameterContent from './IParameterContent';
 export default class ParamsAutomod extends Vue implements IParameterContent {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
-	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
-	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_ruleEmergency:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_ruleOnlyFirst:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
+	public param_banUserNames:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
+	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_ruleEmergency:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_ruleOnlyFirst:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public keywordToValid:{[key:string]:boolean} = {};
 	public keywordToOpen:{[key:string]:boolean} = {};
 	public automodData!:TwitchatDataTypes.AutomodParamsData;

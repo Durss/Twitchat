@@ -133,8 +133,8 @@ export default class ChatChangelog extends Vue {
 			pointer = pointer[chunks[i]];
 		}
 		if(pointer) {
-			let label:string = (pointer as TwitchatDataTypes.ParameterData).label ?? "";
-			let key = (pointer as TwitchatDataTypes.ParameterData).labelKey;
+			let label:string = (pointer as TwitchatDataTypes.ParameterData<unknown>).label ?? "";
+			let key = (pointer as TwitchatDataTypes.ParameterData<unknown>).labelKey;
 			if(key) label = this.$t(key);
 			this.$store("params").searchParam(label);
 		}

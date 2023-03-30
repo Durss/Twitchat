@@ -65,7 +65,6 @@
 				"duplicate_tt": "Dupliquer",
 				"next_delay": "Délai avant l'action suivante (secondes)",
 				"dynamic_placeholder_info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
-				"dynamic_trigger":"Executer un trigger aléatoire parmi ceux sélectionnés",
 				"delete": "Supprimer",
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
@@ -73,7 +72,8 @@
 				"action_raffle": "Lancer un tirage au sort",
 				"action_raffle_enter": "Participer au tirage au sort",
 				"action_highlight": "Mettre en avant sur le stream",
-				"action_trigger": "Trigger",
+				"action_trigger": "Exécuter un trigger",
+				"action_triggerToggle": "Activer/Désactiver un trigger",
 				"action_obs": "Contrôler OBS",
 				"action_obs_tt": "Vous devez connecter OBS<br>dans la section <strong>Connexions</strong>",
 				"action_tts": "Text to speech",
@@ -137,6 +137,8 @@
 				"param_media_img": "Fichier image",
 				"param_action_show": "Activer la source",
 				"param_action_hide": "Desactiver la source",
+				"param_action_show_filter": "Activer le filtre",
+				"param_action_hide_filter": "Desactiver le filtre",
 				"param_action_mute": "Couper l'audio",
 				"param_action_unmute": "Réactiver l'audio",
 				"param_action_replay": "Relancer la lecture"
@@ -151,6 +153,14 @@
 				"selected": "Trigger à exécuter",
 				"loop": "Boucle de dépendance détectée",
 				"loop_delails": "Ceci risque de rendre Twitchat instable."
+			},
+			"triggerToggle": {
+				"select": "Sélectionnez le trigger duquel changer l'état",
+				"selected": "Trigger",
+				"action": "Action à exécuter",
+				"action_enable": "Activer le trigger",
+				"action_disable": "Désactiver le trigger",
+				"action_toggle": "Inverser l'état du trigger"
 			},
 			"tts": {
 				"header": "Veuillez activer la fonctionnalité {LINK}",
@@ -188,6 +198,7 @@
 				"number":"Nombre",
 				"list":"Liste",
 				"trigger":"Triggers",
+				"trigger_info":"Executer un trigger aléatoire parmi ceux sélectionnés",
 				"trigger_select":"Sélectionnez un trigger",
 				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
 				"list_entry_placeholder":"ajouter une entrée..."

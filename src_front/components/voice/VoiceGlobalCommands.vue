@@ -31,7 +31,7 @@ export default class VoiceGlobalCommands extends Vue {
 		})
 	public open!:boolean;
 
-	public items:TwitchatDataTypes.ParameterData[] = [];
+	public items:TwitchatDataTypes.ParameterData<string>[] = [];
 	public itemsID:string[] = [];
 	public openLocal:boolean = false;
 
@@ -72,7 +72,7 @@ export default class VoiceGlobalCommands extends Vue {
 			const item = this.items[i];
 			data.push({
 				id:this.itemsID[i],
-				sentences:item.value as string,
+				sentences:item.value,
 			})
 
 			allDone &&= item.value != "";

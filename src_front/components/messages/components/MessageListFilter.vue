@@ -173,15 +173,15 @@ export default class MessageListFilter extends Vue {
 	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
 	public typeToScopes!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchScopesString[]};
-	public filters:TwitchatDataTypes.ParameterData[] = [];
-	public messageFilters:TwitchatDataTypes.ParameterData[] = [];
+	public filters:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>[] = [];
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public mouseOverToggle:boolean = false;
 	public loadingPreview:boolean = false;
 	public missingScope:boolean = false;
 	public previewIndex:number = 0;
-	public param_hideUsers:TwitchatDataTypes.ParameterData = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide.svg", maxLength:1000000};
-	public param_showPanelsHere:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"chat.filters.show_panels_here"};
+	public param_hideUsers:TwitchatDataTypes.ParameterData<string, string> = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide.svg", maxLength:1000000};
+	public param_showPanelsHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_panels_here"};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
@@ -325,8 +325,8 @@ export default class MessageListFilter extends Vue {
 		this.filters = [];
 		for (let i = 0; i < sortedFilters.length; i++) {
 			const f = sortedFilters[i];
-			const children:TwitchatDataTypes.ParameterData[] = [];
-			const paramData:TwitchatDataTypes.ParameterData = {type:"boolean",
+			const children:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>[] = [];
+			const paramData:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",
 								value:this.config.filters[f],
 								labelKey:this.typeToLabel[f] ?? f,
 								icon:this.typeToIcon[f],
@@ -393,7 +393,7 @@ export default class MessageListFilter extends Vue {
 						this.config.messageFilters[k] = true;
 					}
 
-					const paramData:TwitchatDataTypes.ParameterData = {type:"boolean",
+					const paramData:TwitchatDataTypes.ParameterData<boolean, unknown, string[]> = {type:"boolean",
 						value:this.config.messageFilters[k],
 						labelKey:"chat.filters.message_filters."+k,
 						storage:key,
@@ -405,7 +405,7 @@ export default class MessageListFilter extends Vue {
 					}
 
 					if(k == 'commands') {
-						const subParam:TwitchatDataTypes.ParameterData = {
+						const subParam:TwitchatDataTypes.ParameterData<string[]> = {
 								type:"editablelist",
 								longText:true,
 								value:this.config.commandsBlockList,
@@ -490,7 +490,7 @@ export default class MessageListFilter extends Vue {
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
 	}
 
-	public mouseEnterItem(event:MouseEvent, data:TwitchatDataTypes.ParameterData):void {
+	public mouseEnterItem(event:MouseEvent, data:TwitchatDataTypes.ParameterData<boolean>):void {
 		this.mouseOverToggle = true;
 		this.previewMessage(data.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]);
 	}

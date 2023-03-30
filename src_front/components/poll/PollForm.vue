@@ -90,9 +90,9 @@ export default class PollForm extends Vue {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["","","","",""];
-	public extraVotesParam:TwitchatDataTypes.ParameterData = {value:false, type:"boolean"};;
-	public pointsVoteParam:TwitchatDataTypes.ParameterData = {value:0, type:"number", min:0, max:99999, step:1};;
-	public voteDuration:TwitchatDataTypes.ParameterData = {value:2, type:"number", min:1, max:30};;
+	public extraVotesParam:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean"};;
+	public pointsVoteParam:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:99999, step:1};;
+	public voteDuration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30};;
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -158,8 +158,8 @@ export default class PollForm extends Vue {
 			await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
 									this.title,
 									this.answers.filter(v=> v.trim().length > 0),
-									this.voteDuration.value as number * 60,
-									this.pointsVoteParam.value as number);
+									this.voteDuration.value * 60,
+									this.pointsVoteParam.value);
 		}catch(error:unknown) {
 			this.loading = false;
 			let message = (error as {message:string}).message;
@@ -184,8 +184,8 @@ export default class PollForm extends Vue {
 			this.action.pollData = {
 				title:this.title,
 				answers:this.answers.filter(v=> v.length > 0),
-				pointsPerVote:this.pointsVoteParam.value as number,
-				voteDuration:this.voteDuration.value as number,
+				pointsPerVote:this.pointsVoteParam.value,
+				voteDuration:this.voteDuration.value,
 			};
 		}
 	}

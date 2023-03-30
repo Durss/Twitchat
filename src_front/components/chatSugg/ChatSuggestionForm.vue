@@ -79,10 +79,10 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class ChatSuggestionForm extends Vue {
 	
-	public command:TwitchatDataTypes.ParameterData = {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:31};
-	public duration:TwitchatDataTypes.ParameterData = {value:2, type:"number", min:1, max:30};
-	public multiAnswers:TwitchatDataTypes.ParameterData = {value:false, type:"boolean"};
-	public maxLength:TwitchatDataTypes.ParameterData = {value:100, type:"number", min:1, max:500};
+	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:31};
+	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:30};
+	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean"};
+	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -96,7 +96,7 @@ export default class ChatSuggestionForm extends Vue {
 	}
 
 	public get example():string {
-		if(this.command.value) return this.command.value as string;
+		if(this.command.value) return this.command.value;
 		return "!sugg";
 	}
 
@@ -132,10 +132,10 @@ export default class ChatSuggestionForm extends Vue {
 	public submitChatPoll():void {
 		const data:TwitchatDataTypes.ChatSuggestionData = {
 			startTime:Date.now(),
-			command:(this.command.value as string).trim(),
-			maxLength:this.maxLength.value as number,
-			duration:this.duration.value as number,
-			allowMultipleAnswers:this.multiAnswers.value as boolean,
+			command:this.command.value.trim(),
+			maxLength:this.maxLength.value,
+			duration:this.duration.value,
+			allowMultipleAnswers:this.multiAnswers.value,
 			choices:[],
 			winners:[],
 		}

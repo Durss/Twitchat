@@ -5,14 +5,15 @@
 				<img src="@/assets/icons/count_purple.svg" class="icon">
 				<span>{{ $t(param_counters.labelKey as string) }}</span>
 			</label>
+			
 			<vue-select class="itemSelector"
 				label="label"
 				:placeholder="$t('triggers.actions.count.select_placeholder')"
 				v-model="action.counters"
 				:options="param_counters.listValues"
 				:calculate-position="$placeDropdown"
-				:reduce="(v:TwitchatDataTypes.ParameterDataListValue) => v.value" 
-				:selectable="(v:TwitchatDataTypes.ParameterDataListValue) => (param_counters.value as string[]).indexOf(v.value as string) == -1"
+				:reduce="(v:TwitchatDataTypes.ParameterDataListValue<string>) => v.value" 
+				:selectable="(v:TwitchatDataTypes.ParameterDataListValue<string>) => action.counters.indexOf(v.value) == -1"
 				appendToBody
 				multiple
 			></vue-select>
@@ -43,16 +44,18 @@ export default class TriggerActionCountEntry extends Vue {
 	public triggerData!:TriggerData;
 
 
-	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
-	public param_value:TwitchatDataTypes.ParameterData = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add_purple.svg"}
+	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
+	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add_purple.svg"}
 
 	public beforeMount(): void {
-		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").counterList.map(v=>{
+		const counters:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store("counters").counterList.map(v=>{
 			return {value:v.id, label:v.name};
 		}).filter(v=> {
 			return v.value != this.triggerData.counterId
 		});
 		
+		if(!this.action.counters) this.action.counters = [];
+
 		for (let i = 0; i < this.action.counters.length; i++) {
 			const cid = this.action.counters[i];
 			if(counters.findIndex(v=>v.value == cid) === -1) {

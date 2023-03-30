@@ -66,9 +66,9 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	public connecting:boolean = false;
 	public connectionFailed:boolean = false;
 	public voices:VoicemodTypes.Voice[] = [];
-	public voiceParams:TwitchatDataTypes.ParameterData[] = [];
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
-	public param_voiceIndicator:TwitchatDataTypes.ParameterData = {type:"boolean", value:true, example:"voicemod_reset.png"};
+	public voiceParams:TwitchatDataTypes.ParameterData<string>[] = [];
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
+	public param_voiceIndicator:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, example:"voicemod_reset.png"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
@@ -155,7 +155,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 		for (let i = 0; i < loadTotal; i++) {
 			const v = this.voices[i];
 			VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID).then((img:string)=>{
-				const data:TwitchatDataTypes.ParameterData = {
+				const data:TwitchatDataTypes.ParameterData<string> = {
 					type: "string",
 					storage: v,
 					label: v.friendlyName,
@@ -181,15 +181,15 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 
 		for (let i = 0; i < this.voiceParams.length; i++) {
 			const p = this.voiceParams[i];
-			const cmd = (p.value as string).trim().toLowerCase();
+			const cmd = p.value.trim().toLowerCase();
 			if(cmd.length > 0) {
 				commandToVoiceID[cmd] = (p.storage as VoicemodTypes.Voice).voiceID;
 			}
 		}
 
 		const data:TwitchatDataTypes.VoicemodParamsData = {
-			enabled: this.param_enabled.value as boolean,
-			voiceIndicator: this.param_voiceIndicator.value as boolean,
+			enabled: this.param_enabled.value,
+			voiceIndicator: this.param_voiceIndicator.value,
 			chatCmdPerms:this.permissions,
 			commandToVoiceID,
 		}

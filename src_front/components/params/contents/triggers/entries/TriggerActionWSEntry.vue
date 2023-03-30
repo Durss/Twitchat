@@ -1,5 +1,5 @@
 <template>
-	<div class="triggeractionws">
+	<div class="triggeractionwsentry">
 		<div class="row item">
 			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			<ParamItem class="item argument" :paramData="param_topic" v-model="action.topic" />
@@ -20,7 +20,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["update"]
 })
-export default class TriggerActionWS extends Vue {
+export default class TriggerActionWSEntry extends Vue {
 
 	@Prop
 	public action!:TriggerActionWSData;
@@ -28,8 +28,8 @@ export default class TriggerActionWS extends Vue {
 	public triggerData!:TriggerData;
 
 	public securityError:boolean = false;
-	public param_options:TwitchatDataTypes.ParameterData[] = [];
-	public param_topic:TwitchatDataTypes.ParameterData = { label:"<mark>topic</mark>", type:"string", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder", maxLength:255 };
+	public param_options:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public param_topic:TwitchatDataTypes.ParameterData<string> = { label:"<mark>topic</mark>", type:"string", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder", maxLength:255 };
 
 	public beforeMount():void {
 
@@ -64,7 +64,7 @@ export default class TriggerActionWS extends Vue {
 </script>
 
 <style scoped lang="less">
-.triggeractionws{
+.triggeractionwsentry{
 	.triggerActionForm();
 
 	.argument {

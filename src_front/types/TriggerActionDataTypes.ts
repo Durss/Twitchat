@@ -22,29 +22,10 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionCountGetData
 								| TriggerActionRandomData
 								| TriggerActionStreamInfoData
+								| TriggerActionTriggerToggleData
 ;
 
-
-export type TriggerActionStringTypes = "obs"
-									| "chat"
-									| "music"
-									| "tts"
-									| "raffle"
-									| "raffle_enter"
-									| "bingo"
-									| "voicemod"
-									| "highlight"
-									| "trigger"
-									| "http"
-									| "ws"
-									| "prediction"
-									| "poll"
-									| "count"
-									| "countget"
-									| "random"
-									| "stream_infos"
-									| "delay"
-									| null;
+export type TriggerActionStringTypes = TriggerActionTypes["type"];
 
 export interface TriggerData {
 	id:string;
@@ -175,10 +156,9 @@ export const TriggerEventTypeCategories = {
 } as const;
 export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
 
-export interface TriggerEventTypes extends TwitchatDataTypes.ParameterDataListValue {
+export interface TriggerEventTypes extends TwitchatDataTypes.ParameterDataListValue<TriggerTypesValue> {
 	category:TriggerEventTypeCategoryValue;
 	labelKey:string;
-	value:TriggerTypesValue;
 	icon:string;
 	beta?:boolean;
 	descriptionKey?:string;
@@ -263,7 +243,7 @@ export interface TriggerActionVoicemodData extends TriggerActionData{
 
 export interface TriggerActionMusicEntryData extends TriggerActionData{
 	type:"music";
-	musicAction:string;
+	musicAction:TriggerMusicTypesValue;
 	track:string;
 	confirmMessage:string;
 	playlist:string;
@@ -281,13 +261,21 @@ export interface TriggerActionTriggerData extends TriggerActionData{
 	/**
 	 * @deprecated do not use! only here for data migration typing
 	 */
-	triggerKey:string;
+	triggerKey?:string;
 }
 
+export type TriggerActionTriggerToggleDataAction = "enable"|"disable"|"toggle";
+export interface TriggerActionTriggerToggleData extends TriggerActionData{
+	type:"triggerToggle";
+	triggerId:string;
+	action:TriggerActionTriggerToggleDataAction;
+}
+
+export type TriggerActionHTTPCallDataAction = "GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
 export interface TriggerActionHTTPCallData extends TriggerActionData{
 	type:"http";
 	url:string;
-	method:"GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
+	method:TriggerActionHTTPCallDataAction;
 	queryParams:string[];
 	outputPlaceholder?:string;
 }
@@ -320,9 +308,10 @@ export interface TriggerActionCountGetData extends TriggerActionData{
 	placeholder:string;
 }
 
+export type TriggerActionRandomDataMode = "list"|"number"|"trigger";
 export interface TriggerActionRandomData extends TriggerActionData{
 	type:"random";
-	mode:"list"|"number"|"trigger";
+	mode:TriggerActionRandomDataMode;
 	min:number;
 	max:number;
 	float:boolean;

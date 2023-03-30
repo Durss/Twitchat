@@ -85,8 +85,8 @@ export interface IMainActions {
 
 
 export interface IAccountState {
-	syncDataWithServer:TwitchatDataTypes.ParameterData;
-	publicDonation:TwitchatDataTypes.ParameterData;
+	syncDataWithServer:TwitchatDataTypes.ParameterData<boolean>;
+	publicDonation:TwitchatDataTypes.ParameterData<boolean>;
 }
 
 export interface IAccountGetters {
@@ -287,8 +287,8 @@ export interface IParamsState {
 	currentPage:TwitchatDataTypes.ParameterPagesStringType;
 	currentParamSearch:string;
 	greetThemAutoDelete:number;
-	features:{[key:string]:TwitchatDataTypes.ParameterData};
-	appearance:{[key:string]:TwitchatDataTypes.ParameterData};
+	features:{[key:string]:TwitchatDataTypes.ParameterData<unknown>};
+	appearance:{[key:string]:TwitchatDataTypes.ParameterData<unknown>};
 	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
 }
 

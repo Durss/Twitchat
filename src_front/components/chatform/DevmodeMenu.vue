@@ -16,6 +16,7 @@
 			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="$image('icons/sub.svg')" />
 			<Button small title="ReSub" @click="simulateEvent('subscription', 'resub')" :icon="$image('icons/sub.svg')" />
 			<Button small title="Subgifts" @click="simulateEvent('subscription', 'gift')" :icon="$image('icons/gift.svg')" />
+			<Button small title="Subgift spam" @click="simulateSubgiftSpam()" :icon="$image('icons/gift.svg')" />
 			<Button small title="Subgift upgrade" @click="simulateEvent('subscription', 'giftpaidupgrade')" :icon="$image('icons/gift.svg')" />
 			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
 			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
@@ -60,6 +61,7 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import EventSub from '@/utils/twitch/EventSub';
 import PubSub from '@/utils/twitch/PubSub';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { reactive } from 'vue';
@@ -273,6 +275,24 @@ export default class DevmodeMenu extends Vue {
 			timerDuration_s:90,
 		};
 		StoreProxy.stream.setRaiding(m);
+	}
+
+	public async simulateSubgiftSpam():Promise<void> {
+		let user:TwitchatDataTypes.TwitchatUser;
+		const fakeUsers = await TwitchUtils.getFakeUsers();
+
+		for (let i = 0; i < 30; i++) {
+			this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=> {
+				const m = message as TwitchatDataTypes.MessageSubscriptionData;
+				if(!user) user = m.user;
+				else m.user = user;
+				m.tier = 1;
+				m.is_gift = true;
+				m.gift_recipients = [Utils.pickRand(fakeUsers)];
+				return true;
+			});
+			await Utils.promisedTimeout(100);
+		}
 	}
 
 }

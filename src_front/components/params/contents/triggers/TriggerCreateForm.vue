@@ -53,7 +53,7 @@
 					</template>
 				</i18n-t>
 
-				<div v-for="e in c.events" :key="(e.value as string)" :class="e.beta? 'item beta' : 'item'">
+				<div v-for="e in c.events" :key="e.value" :class="e.beta? 'item beta' : 'item'">
 					<Button class="triggerBt"
 						white
 						:title="$t(e.labelKey!)"
@@ -133,7 +133,7 @@ export default class TriggerCreateForm extends Vue {
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):string {
+	public getIcon(e:TriggerEventTypes):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) return e.icon as string;
 		return this.$image("icons/"+e.icon+"_purple.svg");
@@ -237,7 +237,7 @@ export default class TriggerCreateForm extends Vue {
 	/**
 	 * Get if a trigger entry should be disabled
 	 */
-	public disabledEntry(e:TriggerEventTypes|TwitchatDataTypes.ParameterDataListValue):boolean {
+	public disabledEntry(e:TriggerEventTypes):boolean {
 		if(e.value == TriggerTypes.REWARD_REDEEM && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))) return true;
 		if(e.value == TriggerTypes.POLL_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]))) return true;
 		if(e.value == TriggerTypes.PREDICTION_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]))) return true;

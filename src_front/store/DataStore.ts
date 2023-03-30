@@ -973,6 +973,8 @@ export default class DataStore {
 
 			for (let i = 0; i < t.actions.length; i++) {
 				const a = t.actions[i];
+				a.id = Utils.getUUID();//Override old useless IDs that were Math.random() values
+
 				//Migrate OBS actions
 				if(a.type == "obs") {
 					if(a.show == true) a.action = "show";
@@ -1042,6 +1044,7 @@ export default class DataStore {
 				if(a.type === "trigger" && a.triggerKey) {
 					const trigger = keyToTrigger(a.triggerKey);
 					console.log("Migrated trigger ", a.triggerKey, trigger);
+					delete a.triggerKey;
 					if(trigger) a.triggerId = trigger.id;
 				}
 			}

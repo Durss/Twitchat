@@ -27,7 +27,6 @@
 				:triggerId="action.triggerId"
 				:rewards="rewards"
 				@select="action.triggerId = ''" />
-			
 		</div>
 
 		<ToggleBlock class="row item" :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
@@ -125,14 +124,21 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 		if(!base.actions) return [];
 
-		// console.log(this.action.triggerKey, base);
 		for (let i = 0; i < base.actions.length; i++) {
 			const a = base.actions[i];
+			//Ignore if it's not related to the current action
+			//This avoids showing a dependency loop an another action of
+			//the current trigger if it's not the source of the looped dependency
+			if(base == this.triggerData && a.id != this.action.id) continue;
+			
+			//If it's a trigger action
 			if(a.type == "trigger") {
+				//If the trigger to be called is the current one, a loop is detected
 				if(a.triggerId == this.triggerData.id) {
 					found.push(base);
 					break;
-				}else if(a.triggerId){
+				}else if(a.triggerId) {
+					//Check deeper
 					const t = triggers.find(v=>v.id == a.triggerId);
 					if(t) {
 						const list = this.recursiveLoopCheck( t );

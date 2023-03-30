@@ -21,7 +21,7 @@ export default class TriggerActionSlashCommandParams extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 	
-	public param_command:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"commands_purple.svg", labelKey:"triggers.actions.slash_cmd.param_cmd", placeholderKey:"triggers.actions.slash_cmd.param_cmd_placeholder" };
+	public param_command:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"commands_purple.svg", labelKey:"triggers.actions.slash_cmd.param_cmd", placeholderKey:"triggers.actions.slash_cmd.param_cmd_placeholder" };
 
 }
 </script>

@@ -200,7 +200,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 export default class ParamItem extends Vue {
 	
 	@Prop
-	public paramData!:TwitchatDataTypes.ParameterData;
+	public paramData!:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>;
 	@Prop({
 			type:Boolean,
 			default:false,
@@ -239,7 +239,7 @@ export default class ParamItem extends Vue {
 
 	public searching:boolean = false;
 	public key:string = Math.random().toString();
-	public children:TwitchatDataTypes.ParameterData[] = [];
+	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 
 	private file:unknown = {};
@@ -485,7 +485,7 @@ export default class ParamItem extends Vue {
 		}
 
 		const list = this.$store("params").$state;
-		let children:TwitchatDataTypes.ParameterData[] = [];
+		let children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 		for (const key in list) {
 			const params = list[key as TwitchatDataTypes.ParameterCategory];
 			for (const key2 in params) {
@@ -623,6 +623,7 @@ export default class ParamItem extends Vue {
 			height: 1em;
 			object-fit: fill;
 			margin-right: .5em;
+			align-self: flex-start;
 		}
 		
 
@@ -642,6 +643,7 @@ export default class ParamItem extends Vue {
 			flex-direction: row;
 			label {
 				flex-grow: 1;
+				align-self: stretch;
 				margin: 0;
 				padding-right: 1em;
 				line-height: 1.1em;

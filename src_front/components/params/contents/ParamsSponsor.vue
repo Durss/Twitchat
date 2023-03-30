@@ -69,7 +69,7 @@ import type IParameterContent from './IParameterContent';
 })
 export default class ParamsSponsor extends Vue implements IParameterContent {
 
-	public checkbox:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"sponsor.checkbox"}
+	public checkbox:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"sponsor.checkbox"}
 
 	public getTitle(key:string):string {
 		let res = this.$t("sponsor.donate_option."+key);

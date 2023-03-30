@@ -1,5 +1,5 @@
 <template>
-	<TriggerActionDelay v-if="action.type=='delay'"
+	<TriggerActionDelayEntry v-if="action.type=='delay'"
 	:action="action"
 	:triggerData="triggerData"
 	@delete="$emit('delete')" />
@@ -12,7 +12,7 @@
 	:open="opened"
 	:title="title"
 	:class="classes"
-	:icons="icons"
+	:icons="icons? icons : []"
 	>
 		<template #right_actions>
 			<Button small
@@ -112,6 +112,10 @@
 					:title="$t('triggers.actions.common.action_trigger')"
 					:icon="$image('icons/broadcast_purple.svg')" />
 				
+				<Button class="button" white @click="selectActionType('triggerToggle')"
+					:title="$t('triggers.actions.common.action_triggerToggle')"
+					:icon="$image('icons/broadcast_purple.svg')" />
+				
 				<Button class="button" white @click="selectActionType('http')"
 					:title="$t('triggers.actions.common.action_http')"
 					:icon="$image('icons/url_purple.svg')"/>
@@ -129,8 +133,9 @@
 			<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" />
 			<TriggerActionHighlightEntry v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
 			<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
+			<TriggerActionTriggerToggleEntry v-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 			<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
-			<TriggerActionWS v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
+			<TriggerActionWSEntry v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
 			<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
 			<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
 			<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :rewards="rewards" />
@@ -167,7 +172,7 @@ import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 import TriggerActionCountGetEntry from './entries/TriggerActionCountGetEntry.vue';
-import TriggerActionDelay from './entries/TriggerActionDelay.vue';
+import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
@@ -175,9 +180,10 @@ import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionRandomEntry from './entries/TriggerActionRandomEntry.vue';
 import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
+import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggleEntry.vue';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
-import TriggerActionWS from './entries/TriggerActionWS.vue';
+import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 
 @Component({
 	components:{
@@ -188,12 +194,12 @@ import TriggerActionWS from './entries/TriggerActionWS.vue';
 		RaffleForm,
 		ToggleBlock,
 		PredictionForm,
-		TriggerActionWS,
-		TriggerActionDelay,
+		TriggerActionWSEntry,
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,
 		TriggerActionChatEntry,
+		TriggerActionDelayEntry,
 		TriggerActionMusicEntry,
 		TriggerActionCountEntry,
 		TriggerActionRandomEntry,
@@ -202,6 +208,7 @@ import TriggerActionWS from './entries/TriggerActionWS.vue';
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
 		TriggerActionStreamInfoEntry,
+		TriggerActionTriggerToggleEntry,
 	},
 	emits:["delete", "duplicate"]
 })
@@ -292,6 +299,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "bingo") icons.push( 'bingo' );
 		if(this.action.type == "voicemod") icons.push( 'voicemod' );
 		if(this.action.type == "trigger") icons.push( 'broadcast' );
+		if(this.action.type == "triggerToggle") icons.push( 'broadcast' );
 		if(this.action.type == "highlight") icons.push( 'highlight' );
 		if(this.action.type == "http") icons.push( 'url' );
 		if(this.action.type == "ws") icons.push( 'url' );

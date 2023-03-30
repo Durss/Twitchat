@@ -71,9 +71,9 @@ export default class PublicApiTest extends Vue {
 	public connectError = false;
 	public connectSuccess = false;
 	public openConnectForm = false;
-	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
-	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
+	public obsPort_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string> = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
 
 	private idsDone:{[key:string]:boolean} = {};
 
@@ -110,10 +110,10 @@ export default class PublicApiTest extends Vue {
 		this.$store("obs").connectionEnabled = true;
 		
 		const connected = await OBSWebsocket.instance.connect(
-							(this.obsPort_conf.value as number).toString(),
-							this.obsPass_conf.value as string,
+							this.obsPort_conf.value.toString(),
+							this.obsPass_conf.value,
 							false,
-							this.obsIP_conf.value as string
+							this.obsIP_conf.value
 						);
 		if(connected) {
 			this.connected = true;

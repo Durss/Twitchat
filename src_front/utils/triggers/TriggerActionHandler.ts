@@ -789,6 +789,22 @@ export default class TriggerActionHandler {
 					}
 				}else
 				
+				//Handle sub trigger toggle action
+				if(step.type == "triggerToggle") {
+					if(step.triggerId) {
+						const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == step.triggerId);
+						if(trigger) {
+							switch(step.action) {
+								case "enable": trigger.enabled = true; break;
+								case "disable": trigger.enabled = false; break;
+								case "toggle": trigger.enabled = !trigger.enabled; break;
+							}
+							// console.log("Exect sub trigger", step.triggerKey);
+							logStep.messages.push({date:Date.now(), value:step.action + " trigger \""+step.triggerId+"\". New State is: "+trigger.enabled});
+						}
+					}
+				}else
+				
 				//Handle http call trigger action
 				if(step.type == "http") {
 					const options = {

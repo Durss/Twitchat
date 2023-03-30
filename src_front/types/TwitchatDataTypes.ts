@@ -164,8 +164,8 @@ export namespace TwitchatDataTypes {
 	 * Generic parameter categories types
 	 */
 	export interface IParameterCategory {
-		appearance:{[key:string]:ParameterData};
-		features:{[key:string]:ParameterData};
+		appearance:{[key:string]:ParameterData<string|number|boolean>};
+		features:{[key:string]:ParameterData<string|number|boolean>};
 	}
 	export type ParameterCategory = keyof IParameterCategory;
 
@@ -176,11 +176,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * true if parameters should be saved server side
 		 */
-		syncDataWithServer:ParameterData;
+		syncDataWithServer:ParameterData<boolean>;
 		/**
 		 * true if user choose to make their donation public
 		 */
-		publicDonation:ParameterData;
+		publicDonation:ParameterData<boolean>;
 	}
 	export type AccountParamsCategory = keyof IAccountParamsCategory;
 
@@ -247,7 +247,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Data that populates ParamItem components
 	 */
-	export interface ParameterData {
+	export interface ParameterData<T, U = unknown, V = unknown> {
 		id?:number;
 		/**
 		 * Parameter type
@@ -256,11 +256,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Parameter value
 		 */
-		value:boolean|number|string|string[]|undefined;
+		value:T;
 		/**
 		 * List values for the "list" type
 		 */
-		listValues?:ParameterDataListValue[];
+		listValues?:TwitchatDataTypes.ParameterDataListValue<U>[];
 		/**
 		 * List values for the "editablelist" type
 		 */
@@ -337,7 +337,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Children parameters
 		 */
-		children?:ParameterData[];
+		children?:ParameterData<V>[];
 		/**
 		 * File types for browse inputs
 		 */
@@ -375,10 +375,10 @@ export namespace TwitchatDataTypes {
 		 */
 		editCallback?:(data:any) => void;
 	}
-	export interface ParameterDataListValue {
+	export interface ParameterDataListValue<T> {
 		label?:string;
 		labelKey?:string;
-		value:string | number | boolean | undefined;
+		value:T;
 		icon?:string;
 		[parameter: string]: unknown;
 	}

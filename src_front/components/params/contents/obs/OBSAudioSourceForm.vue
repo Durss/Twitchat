@@ -35,9 +35,9 @@ export default class OBSAudioSourceForm extends Vue {
 	public noAudioSource = false;
 	public loadingAudioSources = false;
 	public audioSources:OBSInputItem[] = [];
-	public obsAllowed_audioSources:TwitchatDataTypes.ParameterData = { type:"list", value:"", label:"", listValues:[] };
-	public obsAllowed_muteCommand:TwitchatDataTypes.ParameterData = { type:"string", value:"", label:"", placeholder:"!mute" };
-	public obsAllowed_unmuteCommand:TwitchatDataTypes.ParameterData = { type:"string", value:"", label:"", placeholder:"!unmute" };
+	public obsAllowed_audioSources:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[] };
+	public obsAllowed_muteCommand:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", placeholder:"!mute" };
+	public obsAllowed_unmuteCommand:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", placeholder:"!unmute" };
 
 	private defaultEntry = {label:"", value:""};
 
@@ -57,12 +57,12 @@ export default class OBSAudioSourceForm extends Vue {
 	public onAudioParamChange():void {
 		if(!this.obsAllowed_audioSources.value || (this.obsAllowed_unmuteCommand.value === "" && this.obsAllowed_muteCommand.value === "")) return;
 		
-		let audioSource = this.obsAllowed_audioSources.value as string
+		let audioSource = this.obsAllowed_audioSources.value
 		if(audioSource === this.defaultEntry.value) audioSource = "";
 		const commands:TwitchatDataTypes.OBSMuteUnmuteCommands = {
 			audioSourceName: audioSource,
-			muteCommand: this.obsAllowed_muteCommand.value as string,
-			unmuteCommand: this.obsAllowed_unmuteCommand.value as string,
+			muteCommand: this.obsAllowed_muteCommand.value,
+			unmuteCommand: this.obsAllowed_unmuteCommand.value,
 		};
 		this.$store("obs").setOBSMuteUnmuteCommands(commands);
 	}

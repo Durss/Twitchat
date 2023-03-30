@@ -54,12 +54,12 @@ export default class ScopeSelector extends Vue {
 
 	public allBt:boolean = true;
 	public forceFullList:boolean = false;
-	public param_items:TwitchatDataTypes.ParameterData[] = [];
-	public param_items_requested:TwitchatDataTypes.ParameterData[] = [];
+	public param_items:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public param_items_requested:TwitchatDataTypes.ParameterData<boolean>[] = [];
 
 	private debounce:number = -1;
 
-	public getClasses(p:TwitchatDataTypes.ParameterData):string[] {
+	public getClasses(p:TwitchatDataTypes.ParameterData<boolean>):string[] {
 		let res:string[] = [];
 		if(this.requestedScopes?.indexOf(p.storage as TwitchScopesString) > -1) res.push("forced");
 		return res;

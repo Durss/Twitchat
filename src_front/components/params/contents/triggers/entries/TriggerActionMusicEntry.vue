@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -48,10 +48,10 @@ export default class TriggerActionMusicEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public actions_conf:TwitchatDataTypes.ParameterData = { type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
-	public track_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"music_purple.svg", maxLength:500 };
-	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public playlist_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"info_purple.svg", maxLength:500 };
+	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
+	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music_purple.svg", maxLength:500 };
+	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info_purple.svg", maxLength:500 };
 
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }

@@ -66,14 +66,14 @@
 				"next_delay": "Delay before next step (seconds)",
 				"delete": "Delete",
 				"dynamic_placeholder_info":"This action allows you to create a custom placeholder that you can use on subsequent actions.",
-				"dynamic_trigger":"Execute a random trigger amgonst the selected ones",
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
 				"action_bingo": "Start a bingo",
 				"action_raffle": "Start a raffle",
 				"action_raffle_enter": "Enter raffle",
 				"action_highlight": "Highlight on stream",
-				"action_trigger": "Trigger",
+				"action_trigger": "Call trigger",
+				"action_triggerToggle": "Toggle trigger",
 				"action_obs": "Control OBS",
 				"action_obs_tt": "You need to connect with OBS<br>on the <strong>Connexions</strong> section",
 				"action_tts": "Text to speech",
@@ -137,6 +137,8 @@
 				"param_media_img": "Image file",
 				"param_action_show": "Enable source",
 				"param_action_hide": "Disable source",
+				"param_action_show_filter": "Enable filter",
+				"param_action_hide_filter": "Disable filter",
 				"param_action_mute": "Mute source",
 				"param_action_unmute": "Unmute source",
 				"param_action_replay": "Restart playback"
@@ -151,6 +153,14 @@
 				"selected": "Trigger to execute",
 				"loop": "Dependency loop detected",
 				"loop_delails": "This may make twitchat unstable."
+			},
+			"triggerToggle": {
+				"select": "Sélect the trigger you want to controle",
+				"selected": "Trigger",
+				"action": "Action",
+				"action_enable": "Enable trigger",
+				"action_disable": "Disable trigger",
+				"action_toggle": "Toggle trigger state"
 			},
 			"tts": {
 				"header": "This feature needs you to enable {LINK} feature",
@@ -188,6 +198,7 @@
 				"number":"Number",
 				"list":"List",
 				"trigger":"Triggers",
+				"trigger_info":"Execute a random trigger amgonst the selected ones",
 				"trigger_select":"Select a trigger",
 				"list_label":"Pick a random entry amongst these ones:",
 				"list_entry_placeholder":"add entry..."

@@ -88,10 +88,10 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	public connectSuccess = false;
 	public showPermissions = false;
 	public openConnectForm = false;
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", label:"Enabled", value:false};
-	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
-	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", label:"Enabled", value:false};
+	public obsPort_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string> = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
@@ -118,7 +118,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 		const pass = DataStore.get(DataStore.OBS_PASS);
 		const ip = DataStore.get(DataStore.OBS_IP);
 
-		if(port != undefined) this.obsPort_conf.value = port;
+		if(port != undefined) this.obsPort_conf.value = parseInt(port);
 		if(pass != undefined) this.obsPass_conf.value = pass;
 		if(ip != undefined) this.obsIP_conf.value = ip;
 
@@ -155,10 +155,10 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 		this.connectSuccess = false;
 		this.connectError = false;
 		const connected = await OBSWebsocket.instance.connect(
-							(this.obsPort_conf.value as number).toString(),
-							this.obsPass_conf.value as string,
+							this.obsPort_conf.value.toString(),
+							this.obsPass_conf.value,
 							false,
-							this.obsIP_conf.value as string
+							this.obsIP_conf.value
 						);
 		if(connected) {
 			this.paramUpdate();
@@ -190,7 +190,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		this.$store("obs").connectionEnabled = this.param_enabled.value as boolean;
+		this.$store("obs").connectionEnabled = this.param_enabled.value;
 		DataStore.set(DataStore.OBS_PORT, this.obsPort_conf.value);
 		DataStore.set(DataStore.OBS_PASS, this.obsPass_conf.value);
 		DataStore.set(DataStore.OBS_IP, this.obsIP_conf.value);

@@ -8,7 +8,7 @@
 		</div>
 
 		<div class="row item info" v-if="action.mode != 'trigger'">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
-		<div class="row item info" v-else-if="action.mode == 'trigger'">{{ $t("triggers.actions.common.dynamic_trigger") }}</div>
+		<div class="row item info" v-else-if="action.mode == 'trigger'">{{ $t("triggers.actions.random.trigger_info") }}</div>
 
 		<div class="item" v-if="action.mode == 'number'">
 			<div class="row item name">
@@ -87,14 +87,14 @@
 		</div>
 	
 		<div class="row item name" v-if="action.mode != 'trigger'">
-			<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="(param_placeholder.value as string).length === 0" />
+			<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="(param_placeholder.value).length === 0" />
 		</div>
 
 		<i18n-t scope="global" class="example item" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
-		v-if="(param_placeholder.value as string).length > 0 && action.mode != 'trigger'">
+		v-if="param_placeholder.value.length > 0 && action.mode != 'trigger'">
 			<template #PLACEHOLDER>
-				<mark v-click2Select>{{"{"}}{{(param_placeholder.value as string).toUpperCase()}}{{"}"}}</mark>
+				<mark v-click2Select>{{"{"}}{{param_placeholder.value.toUpperCase()}}{{"}"}}</mark>
 			</template>
 		</i18n-t>
 	</div>
@@ -131,11 +131,11 @@ export default class TriggerActionRandomEntry extends Vue {
 	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
 
-	public param_min:TwitchatDataTypes.ParameterData = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min_purple.svg"}
-	public param_max:TwitchatDataTypes.ParameterData = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max_purple.svg"}
-	public param_float:TwitchatDataTypes.ParameterData = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice_purple.svg"}
-	public param_placeholder:TwitchatDataTypes.ParameterData = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
-	public param_listMode:TwitchatDataTypes.ParameterData = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice_purple.svg"}
+	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min_purple.svg"}
+	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max_purple.svg"}
+	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice_purple.svg"}
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
+	public param_listMode:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice_purple.svg"}
 
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
 		const t = this.$store("triggers").triggerList.find(v=>v.id === triggerId);
@@ -145,8 +145,8 @@ export default class TriggerActionRandomEntry extends Vue {
 	
 	public beforeMount():void {
 		if(this.action.mode == undefined) this.action.mode = "number";
-		if(this.action.max == undefined) this.action.max = this.param_max.value as number;
-		if(this.action.min == undefined) this.action.min = this.param_min.value as number;
+		if(this.action.max == undefined) this.action.max = this.param_max.value;
+		if(this.action.min == undefined) this.action.min = this.param_min.value;
 		if(!this.action.triggers) this.action.triggers = [];
 		if(!this.action.list) this.action.list = [];
 

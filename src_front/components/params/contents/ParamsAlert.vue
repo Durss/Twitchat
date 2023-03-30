@@ -58,11 +58,11 @@ import type IParameterContent from './IParameterContent';
 })
 export default class ParamsAlert extends Vue implements IParameterContent {
 	
-	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"string", labelKey:"alert.command", value:"!alert"};
-	public param_message:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_popin", value:true};
-	public param_shake:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_shake", value:true};
-	public param_blink:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_blink", value:false};
-	public param_sound:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_sound", value:true};
+	public param_chatCommand:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"alert.command", value:"!alert"};
+	public param_message:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_popin", value:true};
+	public param_shake:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_shake", value:true};
+	public param_blink:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_blink", value:false};
+	public param_sound:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_sound", value:true};
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -77,11 +77,11 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 	
 	public get finalData():TwitchatDataTypes.AlertParamsData {
 		return {
-			chatCmd: this.param_chatCommand.value as string,
-			shake: this.param_shake.value as boolean,
-			message: this.param_message.value as boolean,
-			blink: this.param_blink.value as boolean,
-			sound: this.param_sound.value as boolean,
+			chatCmd: this.param_chatCommand.value,
+			shake: this.param_shake.value,
+			message: this.param_message.value,
+			blink: this.param_blink.value,
+			sound: this.param_sound.value,
 			permissions: this.chatCommandPerms,
 		};
 	}

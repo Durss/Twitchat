@@ -72,8 +72,8 @@ export default class PostOnChatParam extends Vue {
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";
-	public enabledParam:TwitchatDataTypes.ParameterData = { label:"", value:false, type:"boolean", maxLength:500};
-	public textParam:TwitchatDataTypes.ParameterData = { label:"", value:"", type:"string", longText:true};
+	public enabledParam:TwitchatDataTypes.ParameterData<boolean> = { value:false, type:"boolean", maxLength:500};
+	public textParam:TwitchatDataTypes.ParameterData<string> = { value:"", type:"string", longText:true};
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 
@@ -103,14 +103,14 @@ export default class PostOnChatParam extends Vue {
 		if(saveToStore){
 			this.$store("chat").updateBotMessage({
 											key:this.botMessageKey,
-											enabled:this.enabledParam.value as boolean,
-											message:this.textParam.value as string
+											enabled:this.enabledParam.value,
+											message:this.textParam.value
 										});
 		}
 
 		this.error = ""
 		if(this.botMessageKey == "twitchatAd") {
-			if(!/(^|\s|\.|,|!|\:|;|\*|https?:\/\/)twitchat\.fr($|\s|\.|,|!|\:|;|\*)/gi.test(this.textParam.value as string)) {
+			if(!/(^|\s|\.|,|!|\:|;|\*|https?:\/\/)twitchat\.fr($|\s|\.|,|!|\:|;|\*)/gi.test(this.textParam.value)) {
 				this.error = this.$t("error.ad_url_required");
 			}
 		}
@@ -130,7 +130,7 @@ export default class PostOnChatParam extends Vue {
 		await this.$nextTick();
 
 		const me = this.$store("auth").twitch.user;
-		let rawMessage = this.textParam.value as string;
+		let rawMessage = this.textParam.value;
 
 		if(this.placeholders) {
 			for (let i = 0; i < this.placeholders.length; i++) {
@@ -171,6 +171,10 @@ export default class PostOnChatParam extends Vue {
 .postonchatparam{
 	.placeholders {
 		margin-top: .5em;
+	}
+
+	.message {
+		position: relative;
 	}
 
 	&>.errorMessage {

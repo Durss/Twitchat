@@ -16,12 +16,12 @@
 		v-model="localTags"
 		autofocus
 		@change="onTagsUpdate()"
-		v-if="(param_tags.value as string[])!.length < 10" />
+		v-if="param_tags.value!.length < 10" />
 
 		<div class="item tagList" v-else>
 			<div>{{ $t(param_tags.labelKey!) }}</div>
 			<button type="button" class="tagItem" aria-label="delete tag"
-			v-for="i in (param_tags.value as string[])"
+			v-for="i in param_tags.value"
 			@click="deleteTag(i)">
 				<span>{{ i }}</span>
 				<img src="@/assets/icons/cross.svg" class="icon">
@@ -79,8 +79,8 @@ export default class StreamInfoSubForm extends Vue {
 		})
 	public placeholderList!:ITriggerPlaceholder[];
 
-	public param_title:TwitchatDataTypes.ParameterData	= {value:"", type:"string", maxLength:140};
-	public param_tags:TwitchatDataTypes.ParameterData	= {value:[], type:"editablelist"};
+	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140};
+	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist"};
 
 	public localTitle:string = "";
 	public localTags:string[] = [];
@@ -125,7 +125,7 @@ export default class StreamInfoSubForm extends Vue {
 	 */
 	public deleteTag(t:string):void {
 		if(!this.param_tags.value) this.param_tags.value = [];
-		this.param_tags.value = (this.param_tags.value as string[]).filter(v=> v != t);
+		this.param_tags.value = this.param_tags.value.filter(v=> v != t);
 		this.localTags = this.param_tags.value;
 		this.$emit('update:tags', this.localTags);
 	}

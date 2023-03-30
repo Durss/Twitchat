@@ -4,8 +4,8 @@
 		"title":"💡 Astuce 💡",
 		"alerts": {
 			"title": "Créez vos propres alertes",
-			"info_1": "Avec Twitchat vous pouvez créer vos propres alertes de sub/follow/reward/poll/... en contrôlant vos sourecs et filtres OBS.",
-			"info_2": "Ajoutez du text, des images, des videos ou des sons dans vos scènes et laissez Twitchat les contrôler quand certains évènements ont lieu. Twitchat peut modifier le contenu des sources en fonction des données de l'évènement choisi (ex: pseudo de la personne qui s'abonne)."
+			"info_1": "Avec Twitchat vous pouvez créer vos propres alertes de sub, follow, sondage, récompenses de points de chaîne,... en contrôlant vos sources et filtres OBS.",
+			"info_2": "Ajoutez du texte, des images, des videos ou des sons dans vos scènes et laissez Twitchat les contrôler quand certains évènements ont lieu. Twitchat peut modifier le contenu des sources en fonction des données de l'évènement choisi (ex: afficher le pseudo de la personne qui s'abonne)."
 		},
 		"streamdeck": {
 			"title": "Plugin Stream Deck™",

@@ -25,9 +25,9 @@
 
 		<i18n-t scope="global" class="example item" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
-		v-if="(param_outputPlaceholder.value as string).length > 0">
+		v-if="param_outputPlaceholder.value.length > 0">
 			<template #PLACEHOLDER>
-				<mark v-click2Select>{{"{"}}{{(param_outputPlaceholder.value as string).toUpperCase()}}{{"}"}}</mark>
+				<mark v-click2Select>{{"{"}}{{param_outputPlaceholder.value.toUpperCase()}}{{"}"}}</mark>
 			</template>
 		</i18n-t>
 	</div>
@@ -36,7 +36,7 @@
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionHTTPCallData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionHTTPCallData, type TriggerData, type TriggerActionHTTPCallDataAction } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -57,13 +57,12 @@ export default class TriggerActionHTTPCall extends Vue {
 
 	public securityError:boolean = false;
 	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
-	public param_url:TwitchatDataTypes.ParameterData = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
-	public param_method:TwitchatDataTypes.ParameterData = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
-	public param_outputPlaceholder:TwitchatDataTypes.ParameterData = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:20};
+	public param_url:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
+	public param_method:TwitchatDataTypes.ParameterData<TriggerActionHTTPCallDataAction, TriggerActionHTTPCallDataAction> = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
+	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:20};
 
 	public beforeMount():void {
-		this.param_method.listValues	= ["GET","PUT","POST","PATCH","DELETE"]
-		.map(v=>{return {label:v, value:v}});
+		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
 
 		this.parameters = TriggerEventPlaceholders(this.triggerData.type).map(v=> {
 			return  {

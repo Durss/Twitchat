@@ -194,22 +194,22 @@ export default class RaffleForm extends Vue {
 
 	public mode:"chat"|"sub"|"manual" = "chat";
 		
-	public command:TwitchatDataTypes.ParameterData					= {value:true, type:"boolean", labelKey:"raffle.params.command_join"};
-	public command_value:TwitchatDataTypes.ParameterData			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
-	public reward:TwitchatDataTypes.ParameterData					= {value:false, type:"boolean", labelKey:"raffle.params.reward_join"};
-	public reward_value:TwitchatDataTypes.ParameterData				= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
-	public enterDuration:TwitchatDataTypes.ParameterData			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
-	public maxUsersToggle:TwitchatDataTypes.ParameterData			= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
-	public maxEntries:TwitchatDataTypes.ParameterData				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
-	public ponderateVotes:TwitchatDataTypes.ParameterData			= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
-	public ponderateVotes_vip:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"vip_purple.svg", labelKey:"raffle.params.ponderate_VIP"};
-	public ponderateVotes_sub:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_sub"};
-	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_subgifter"};
-	public ponderateVotes_follower:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"follow_purple.svg", labelKey:"raffle.params.ponderate_follower"};
-	public subs_includeGifters:TwitchatDataTypes.ParameterData		= {value:true, type:"boolean", icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_include_gifter"};
-	public subs_excludeGifted:TwitchatDataTypes.ParameterData		= {value:true, type:"boolean", icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_exclude_gifted"};
-	public showCountdownOverlay:TwitchatDataTypes.ParameterData		= {value:false, type:"boolean", icon:"countdown_purple.svg", labelKey:"raffle.params.countdown"};
-	public customEntries:TwitchatDataTypes.ParameterData			= {value:"", type:"string", longText:true, maxLength:1000000, placeholderKey:"raffle.params.list_placeholder"};
+	public command:TwitchatDataTypes.ParameterData<boolean>					= {value:true, type:"boolean", labelKey:"raffle.params.command_join"};
+	public command_value:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
+	public reward:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.reward_join"};
+	public reward_value:TwitchatDataTypes.ParameterData<string>				= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
+	public enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
+	public maxUsersToggle:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
+	public maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
+	public ponderateVotes:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
+	public ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"vip_purple.svg", labelKey:"raffle.params.ponderate_VIP"};
+	public ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_sub"};
+	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_subgifter"};
+	public ponderateVotes_follower:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"follow_purple.svg", labelKey:"raffle.params.ponderate_follower"};
+	public subs_includeGifters:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_include_gifter"};
+	public subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_exclude_gifted"};
+	public showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown_purple.svg", labelKey:"raffle.configs.countdown"};
+	public customEntries:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", longText:true, maxLength:1000000, placeholderKey:"raffle.params.list_placeholder"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
@@ -239,33 +239,33 @@ export default class RaffleForm extends Vue {
 	}
 
 	public get customEntriesCount():number {
-		const splitter = (this.customEntries.value as string).split(/\r|\n/).length > 1? "\r|\n" : ",";
-		const list = (this.customEntries.value as string).split(new RegExp(splitter, ""));
+		const splitter = this.customEntries.value.split(/\r|\n/).length > 1? "\r|\n" : ",";
+		const list = this.customEntries.value.split(new RegExp(splitter, ""));
 		return list.length;
 	}
 
 	public get finalData():TwitchatDataTypes.RaffleData {
 		let cmd = "";
 		if(this.command.value === true) {
-			cmd = this.command_value.value? this.command_value.value as string : this.$t("raffle.params.command_placeholder");
+			cmd = this.command_value.value? this.command_value.value : this.$t("raffle.params.command_placeholder");
 		}
 
 		return  {
 			mode:this.mode,
 			command:cmd,
-			reward_id:this.reward_value.value as string,
-			duration_s:this.enterDuration.value as number * 60,
-			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value as number : 0,
+			reward_id:this.reward_value.value,
+			duration_s:this.enterDuration.value * 60,
+			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value : 0,
 			created_at:Date.now(),
 			entries:[],
-			followRatio: this.ponderateVotes_follower.value as number,
-			vipRatio: this.ponderateVotes_vip.value as number,
-			subRatio: this.ponderateVotes_sub.value as number,
-			subgiftRatio: this.ponderateVotes_subgift.value as number,
-			subMode_includeGifters: this.subs_includeGifters.value as boolean,
-			subMode_excludeGifted: this.subs_excludeGifted.value as boolean,
-			showCountdownOverlay: this.showCountdownOverlay.value as boolean,
-			customEntries: this.customEntries.value as string,
+			followRatio: this.ponderateVotes_follower.value,
+			vipRatio: this.ponderateVotes_vip.value,
+			subRatio: this.ponderateVotes_sub.value,
+			subgiftRatio: this.ponderateVotes_subgift.value,
+			subMode_includeGifters: this.subs_includeGifters.value,
+			subMode_excludeGifted: this.subs_excludeGifted.value,
+			showCountdownOverlay: this.showCountdownOverlay.value,
+			customEntries: this.customEntries.value,
 		}
 	}
 
@@ -297,7 +297,7 @@ export default class RaffleForm extends Vue {
 
 		if(this.triggerMode && this.action.raffleData) {
 			this.mode = this.action.raffleData.mode;
-			this.command.value = this.action.raffleData.command
+			this.command.value = this.action.raffleData.command != undefined;
 			this.enterDuration.value = this.action.raffleData.duration_s/60;
 			this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
 			this.maxUsersToggle.value = this.maxEntries.value > 0;
@@ -384,7 +384,7 @@ export default class RaffleForm extends Vue {
 		if(this.action) {
 			this.action.raffleData = this.finalData;
 		}
-		this.joinPlaceholders[0].example = this.command.value as string;
+		this.joinPlaceholders[0].example = this.command_value.value;
 	}
 
 	public requestSubPermission():void {

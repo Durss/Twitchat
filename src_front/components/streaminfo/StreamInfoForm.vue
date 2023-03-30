@@ -71,8 +71,8 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 })
 export default class StreamInfoForm extends Vue {
 
-	public param_savePreset:TwitchatDataTypes.ParameterData		= {value:false, type:"boolean"};
-	public param_namePreset:TwitchatDataTypes.ParameterData		= {value:"", type:"string", placeholder:"", maxLength:50};
+	public param_savePreset:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean"};
+	public param_namePreset:TwitchatDataTypes.ParameterData<string>		= {value:"", type:"string", placeholder:"", maxLength:50};
 
 	public title:string = "";
 	public tags:string[] = [];
@@ -117,7 +117,7 @@ export default class StreamInfoForm extends Vue {
 		this.saving = true;
 		if(this.param_savePreset.value === true || this.presetEditing) {
 			const preset:TwitchatDataTypes.StreamInfoPreset = {
-				name:this.presetEditing?.name ?? this.param_namePreset.value as string,
+				name:this.presetEditing?.name ?? this.param_namePreset.value,
 				id:Utils.getUUID(),
 				title:this.title,
 			}

@@ -63,19 +63,19 @@ export default class ConnectSpotifyForm extends Vue {
 	public loading = false;
 	public showSuccess = false;
 	public authenticating = false;
-	public paramClient:TwitchatDataTypes.ParameterData = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient"};
-	public paramSecret:TwitchatDataTypes.ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
+	public paramClient:TwitchatDataTypes.ParameterData<string> = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient"};
+	public paramSecret:TwitchatDataTypes.ParameterData<string> = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
 
 	public get connected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
 	public get canConnect():boolean {
-		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
+		return this.paramClient.value.length >= 30 && this.paramSecret.value.length >= 30;
 	}
 	
 	public authenticate(startAuthFlow:boolean = true):void {
 		this.loading = startAuthFlow;
 		SpotifyHelper.instance.setCredentials(
-			(this.paramClient.value as string).trim(),
-			(this.paramSecret.value as string).trim()
+			this.paramClient.value.trim(),
+			this.paramSecret.value.trim()
 		)
 		if(startAuthFlow) {
 			SpotifyHelper.instance.startAuthFlow();

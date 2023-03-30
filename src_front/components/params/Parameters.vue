@@ -122,7 +122,7 @@ import type IParameterContent from './contents/IParameterContent';
 
 export default class Parameters extends Vue {
 
-	public filteredParams:TwitchatDataTypes.ParameterData[] = [];
+	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
 	public adTarget:HTMLDivElement | null = null;
 	
 	private closed:boolean = true;
@@ -248,9 +248,9 @@ export default class Parameters extends Vue {
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		const IDsDone:{[key:number]:boolean} = {};
 		for (const categoryID in this.$store("params").$state) {
-			const category = this.$store("params").$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData};
+			const category = this.$store("params").$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData<unknown>};
 			for (const prop in category) {
-				const data:TwitchatDataTypes.ParameterData = category[prop];
+				const data:TwitchatDataTypes.ParameterData<unknown> = category[prop];
 				
 				//Already done (via its parent probably), ignore it
 				if(IDsDone[data.id as number] === true) continue;

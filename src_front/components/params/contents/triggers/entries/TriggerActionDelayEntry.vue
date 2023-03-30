@@ -1,5 +1,5 @@
 <template>
-	<div class="triggeractiondelay" @click="setFocus()">
+	<div class="triggeractiondelayentry" @click="setFocus()">
 		<img src="@/assets/icons/timer.svg" class="icon">
 
 		<div>
@@ -33,7 +33,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["delete"],
 })
-export default class TriggerActionDelay extends Vue {
+export default class TriggerActionDelayEntry extends Vue {
 
 	@Prop
 	public action!:TriggerActionTypes;
@@ -78,7 +78,7 @@ export default class TriggerActionDelay extends Vue {
 </script>
 
 <style scoped lang="less">
-.triggeractiondelay{
+.triggeractiondelayentry{
 	margin: auto;
 	width: min-content;
 	border-radius: .5em;

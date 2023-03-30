@@ -40,11 +40,11 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 	public cmdNameConflict = false;
 	public cmdAliasConflict = false;
-	public param_cmd:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"commands_purple.svg", placeholder:"!command", labelKey:"triggers.actions.chat.param_cmd" };
-	public param_cmdAliases:TwitchatDataTypes.ParameterData = { type:"editablelist", value:"", icon:"commands_purple.svg", placeholder:"!alias", labelKey:"triggers.actions.chat.param_cmd_alias", tooltipKey:"triggers.actions.chat.param_cmd_alias_tt" };
-	public param_globalCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, icon:"timeout_purple.svg", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
-	public param_userCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, icon:"timeout_purple.svg", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
-	public param_alertCD:TwitchatDataTypes.ParameterData = { type:"boolean", value:true, icon:"whispers_purple.svg", labelKey:"triggers.actions.chat.param_alertCD" };
+	public param_cmd:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"commands_purple.svg", placeholder:"!command", labelKey:"triggers.actions.chat.param_cmd" };
+	public param_cmdAliases:TwitchatDataTypes.ParameterData<string, string> = { type:"editablelist", value:"", icon:"commands_purple.svg", placeholder:"!alias", labelKey:"triggers.actions.chat.param_cmd_alias", tooltipKey:"triggers.actions.chat.param_cmd_alias_tt" };
+	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout_purple.svg", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
+	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout_purple.svg", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
+	public param_alertCD:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"whispers_purple.svg", labelKey:"triggers.actions.chat.param_alertCD" };
 
 	public beforeMount():void {
 		if(!this.triggerData.permissions) {

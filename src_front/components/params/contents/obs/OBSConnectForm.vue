@@ -52,9 +52,9 @@ export default class OBSConnectForm extends Vue {
 	public connected:boolean = false;
 	public connectError:boolean = false;
 	public connectSuccess:boolean = false;
-	public obsPort_conf:TwitchatDataTypes.ParameterData	= { type:"number", value:4455, min:0, max:65535, step:1 };
-	public obsPass_conf:TwitchatDataTypes.ParameterData	= { type:"password", value:"", };
-	public obsIP_conf:TwitchatDataTypes.ParameterData	= { type:"string", value:"127.0.0.1", };
+	public obsPort_conf:TwitchatDataTypes.ParameterData<number>	= { type:"number", value:4455, min:0, max:65535, step:1 };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string>	= { type:"password", value:"", };
+	public obsIP_conf:TwitchatDataTypes.ParameterData<string>	= { type:"string", value:"127.0.0.1", };
 
 	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
@@ -92,10 +92,10 @@ export default class OBSConnectForm extends Vue {
 		this.connectSuccess = false;
 		this.connectError = false;
 		const connected = await OBSWebsocket.instance.connect(
-							(this.obsPort_conf.value as number).toString(),
-							this.obsPass_conf.value as string,
+							this.obsPort_conf.value.toString(),
+							this.obsPass_conf.value,
 							false,
-							this.obsIP_conf.value as string,
+							this.obsIP_conf.value,
 							true
 						);
 		if(connected) {

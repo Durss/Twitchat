@@ -235,7 +235,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * Simulates a trigger's execution
 	 */
 	public testTrigger(trigger:TriggerData):void {
-		// if(this.isSublist) key = key+"_"+this.subevent_conf.value as string;
 		const triggerEvent = TriggerEvents().find(v=>v.value == trigger.type);
 		
 		if(triggerEvent?.testMessageType) {

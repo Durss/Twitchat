@@ -92,7 +92,7 @@ export default class PredictionForm extends Vue {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["", ""];
-	public voteDuration:TwitchatDataTypes.ParameterData = {value:10, type:"number", min:1, max:30};
+	public voteDuration:TwitchatDataTypes.ParameterData<number> = {value:10, type:"number", min:1, max:30};
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -193,7 +193,7 @@ export default class PredictionForm extends Vue {
 		const answers = this.answers.filter(v => v.length > 0);
 
 		try {
-			await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id, this.title, answers, this.voteDuration.value as number * 60);
+			await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id, this.title, answers, this.voteDuration.value * 60);
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;
@@ -211,7 +211,7 @@ export default class PredictionForm extends Vue {
 			this.action.predictionData = {
 				title:this.title,
 				answers:this.answers.filter(v=> v.length > 0),
-				voteDuration:this.voteDuration.value as number,
+				voteDuration:this.voteDuration.value,
 			};
 		}
 	}

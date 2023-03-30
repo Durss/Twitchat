@@ -30,8 +30,8 @@
 				<ParamItem class="item" :paramData="param_more" />
 				<div class="item ctas">
 					<Button type="button" :title="$t('global.cancel')" :icon="$image('icons/cross_white.svg')" highlight @click="cancelForm()" />
-					<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" :icon="$image('icons/add.svg')" :disabled="(param_title.value as string).length == 0" />
-					<Button type="submit" v-else :title="$t('counters.editBt')" :icon="$image('icons/edit.svg')" :disabled="(param_title.value as string).length == 0" />
+					<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" :icon="$image('icons/add.svg')" :disabled="param_title.value.length == 0" />
+					<Button type="submit" v-else :title="$t('counters.editBt')" :icon="$image('icons/edit.svg')" :disabled="param_title.value.length == 0" />
 				</div>
 			</form>
 		</section>
@@ -133,18 +133,18 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		max:75,
 	}
 
-	public param_title:TwitchatDataTypes.ParameterData = {type:"string", value:"", maxLength:50, labelKey:"counters.form.name"};
-	public param_value:TwitchatDataTypes.ParameterData = {type:"number", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
-	public param_more:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.more"};
-	public param_valueMin_toggle:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min_purple.svg"};
-	public param_valueMin_value:TwitchatDataTypes.ParameterData = {type:"number", value:0};
-	public param_valueMax_toggle:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max_purple.svg"};
-	public param_valueMax_value:TwitchatDataTypes.ParameterData = {type:"number", value:0};
-	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
-	public param_userSpecific:TwitchatDataTypes.ParameterData = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
+	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:50, labelKey:"counters.form.name"};
+	public param_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
+	public param_more:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.more"};
+	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min_purple.svg"};
+	public param_valueMin_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
+	public param_valueMax_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max_purple.svg"};
+	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
+	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
+	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
 
 
-	public get counterEntries():{param:TwitchatDataTypes.ParameterData, counter:TwitchatDataTypes.CounterData}[] {
+	public get counterEntries():{param:TwitchatDataTypes.ParameterData<number>, counter:TwitchatDataTypes.CounterData}[] {
 		const list = this.$store('counters').counterList;
 		return list.map((v) => {
 			const min = v.min == false ? -Number.MAX_SAFE_INTEGER : v.min as number;
@@ -179,12 +179,12 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public createCounter(): void {
 		const data:TwitchatDataTypes.CounterData = {
 			id:this.editedCounter? this.editedCounter.id : Utils.getUUID(),
-			name:this.param_title.value as string,
-			value:this.param_value.value as number,
-			max:this.param_valueMax_toggle.value === true? this.param_valueMax_value.value as number : false,
-			min:this.param_valueMin_toggle.value === true? this.param_valueMin_value.value as number : false,
-			loop:this.param_valueLoop_toggle.value as boolean,
-			perUser:this.param_userSpecific.value as boolean,
+			name:this.param_title.value,
+			value:this.param_value.value,
+			max:this.param_valueMax_toggle.value === true? this.param_valueMax_value.value : false,
+			min:this.param_valueMin_toggle.value === true? this.param_valueMin_value.value : false,
+			loop:this.param_valueLoop_toggle.value,
+			perUser:this.param_userSpecific.value,
 		};
 		if(this.editedCounter) {
 			this.editedCounter = null;

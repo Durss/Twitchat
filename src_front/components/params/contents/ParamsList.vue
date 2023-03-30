@@ -103,7 +103,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	@Prop
 	public category!:TwitchatDataTypes.ParameterCategory;
 	@Prop
-	public filteredParams!:TwitchatDataTypes.ParameterData[];
+	public filteredParams!:TwitchatDataTypes.ParameterData<unknown>[];
 
 	public showAdInfo:boolean = false;
 	public fakeMessageData:TwitchatDataTypes.MessageChatData|null = null;
@@ -112,8 +112,8 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
 
-	public get params():{[key:string]:TwitchatDataTypes.ParameterData} {
-		let res:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
+		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};
 		if(this.filteredParams?.length > 0) {
 			for (let i = 0; i < this.filteredParams.length; i++) {
 				const p = this.filteredParams[i];
@@ -125,7 +125,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 			for (const key in this.$store("params").$state[this.category]) {
 				if(this.$store("params").$state[this.category][key].parent) continue;
-				res[key] = (this.$store("params").$state[this.category] as {[key:string]:TwitchatDataTypes.ParameterData})[key] as TwitchatDataTypes.ParameterData;
+				res[key] = (this.$store("params").$state[this.category] as {[key:string]:TwitchatDataTypes.ParameterData<unknown>})[key] as TwitchatDataTypes.ParameterData<unknown>;
 			}
 		}
 		return res;
@@ -173,17 +173,17 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 	public onNavigateBack(): boolean { return false; }
 
-	public isDisabled(p:TwitchatDataTypes.ParameterData):boolean {
+	public isDisabled(p:TwitchatDataTypes.ParameterData<unknown>):boolean {
 		if(p.id == 212 && !this.isOBSConnected) return true;
 		return false;
 	}
 
-	public isMissingScope(p:TwitchatDataTypes.ParameterData):boolean {
+	public isMissingScope(p:TwitchatDataTypes.ParameterData<unknown>):boolean {
 		if(!p.twitch_scopes) return false;
 		return !TwitchUtils.hasScopes(p.twitch_scopes);
 	}
 
-	public getClasses(p:TwitchatDataTypes.ParameterData, key:string):string[] {
+	public getClasses(p:TwitchatDataTypes.ParameterData<unknown>, key:string):string[] {
 		let res = ["item", key];
 		if(p.icon) res.push("hasIcon");
 		if(this.isDisabled(p)) res.push("disabled");

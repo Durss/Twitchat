@@ -123,8 +123,8 @@ export default class TriggerActionList extends Vue {
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
 	
-	public param_name:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"date_purple.svg", placeholder:"...", labelKey:"triggers.trigger_name" };
-	public param_queue:TwitchatDataTypes.ParameterData = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
+	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date_purple.svg", placeholder:"...", labelKey:"triggers.trigger_name" };
+	public param_queue:TwitchatDataTypes.ParameterData<string[]> = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 
 	/**
 	 * Get a trigger's description
@@ -283,7 +283,6 @@ export default class TriggerActionList extends Vue {
 			}
 			.info {
 				flex-grow: 1;
-				align-self: center;
 				cursor: pointer;
 			}
 			.selector {

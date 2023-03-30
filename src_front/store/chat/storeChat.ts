@@ -871,8 +871,8 @@ export const storeChat = defineStore('chat', {
 						for (let i = messageList.length-1; i > len; i--) {
 							const m = messageList[i];
 							if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
-							//If the message is a subgift from the same user and happened with the same tier
-							//in the last 5s, merge it.
+							//If the message is a subgift from the same user with the same tier and
+							//happened in the last 5s, merge it.
 							if(m.tier == message.tier && m.user.id == message.user.id
 							&& Date.now() - m.date < 5000) {
 								if(!m.gift_recipients) m.gift_recipients = [];
@@ -1089,24 +1089,18 @@ export const storeChat = defineStore('chat', {
 			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms ("+(e-s)+") to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
-				//If it's a subgift, wait a little before calling the trigger as subgifts do not
+				//If it's a subgift, wait a little before proceeding as subgifts do not
 				//come all at once but sequentially.
 				//We wait a second and check if the count changed, if nothing changed after a second
-				//consider that everything arrived and call the trigger
-				function checkForChange(message:TwitchatDataTypes.MessageSubscriptionData, prevCount:number):void {
-					const recipientCount = message.gift_recipients?.length ?? 0;
-					if(recipientCount != prevCount) {
-						//Wait a little more
-						setTimeout(()=>checkForChange(message, recipientCount), 1000);
-					}else{
-						TriggerActionHandler.instance.execute(message);
-					}
+				//consider that everything arrived and proceed
+				let recipientCount = -1;
+				while(recipientCount != message.gift_recipients!.length){
+					recipientCount = message.gift_recipients!.length;
+					await Utils.promisedTimeout(1000);
 				}
-				checkForChange(message, message.gift_recipients?.length ?? 0);
-			}else{
-				TriggerActionHandler.instance.execute(message);
 			}
-
+			
+			TriggerActionHandler.instance.execute(message);
 			TTSUtils.instance.addMessageToQueue(message);
 		},
 		
