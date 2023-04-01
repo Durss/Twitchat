@@ -1354,10 +1354,10 @@ export default class PubSub extends EventDispatcher {
 				moderator = StoreProxy.users.getUserFrom("twitch", channel_id, data.unpinned_by.id, data.unpinned_by.display_name.toLowerCase(), data.unpinned_by.display_name)
 			}
 			const m:TwitchatDataTypes.MessageUnpinData = {
-				id:data.id,
+				id:Utils.getUUID(),
 				date:Date.now(),
 				platform:"twitch",
-				type:"unpinned",
+				type:TwitchatDataTypes.TwitchatMessageType.UNPINNED,
 				chatMessage:message.chatMessage,
 				moderator,
 			};
