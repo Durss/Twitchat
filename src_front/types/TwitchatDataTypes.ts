@@ -1432,6 +1432,10 @@ export namespace TwitchatDataTypes {
 		 * True if message has been saved
 		 */
 		is_saved?: boolean;
+		/**
+		 * True if message has been pinned on chat
+		 */
+		is_pinned?: boolean;
 		
 		/**
 		 * Twitchat's automod info

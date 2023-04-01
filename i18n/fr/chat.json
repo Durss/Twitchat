@@ -302,6 +302,8 @@
 		"context_menu":{
 			"profile": "Ouvrir profil",
 			"delete": "Supprimer le message",
+			"pin_twitch": "Épingler le message",
+			"unpin_twitch": "Désépingler le message",
 			"track": "Suivre ses messages",
 			"untrack": "Ne plus suivre<br>ses messages",
 			"shoutout": "Faire un shoutout",

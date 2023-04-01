@@ -142,26 +142,26 @@
 
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
+import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
+import type * as CMTypes from "@imengyu/vue3-context-menu";
 import { watch, type VNode } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { h } from 'vue';
+import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
-import { h } from 'vue';
 import ContextMenuTimeoutDuration from './components/ContextMenuTimeoutDuration.vue';
-import type * as CMTypes from "@imengyu/vue3-context-menu";
-import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -208,7 +208,7 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
-	private canDeleteMessage:boolean = false;
+	private canModerateMessage:boolean = false;
 	private canModUser:boolean = false;
 	
 	
@@ -400,7 +400,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WHISPER});
 			this.showModToolsPreCalc = false;
-			this.canDeleteMessage = false;
+			this.canModerateMessage = false;
 			
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.firstTime = mess.twitch_isFirstMessage === true;
@@ -420,12 +420,12 @@ export default class ChatMessage extends AbstractChatMessage {
 				highlightedWords = highlightedWords.concat(mess.twitch_automod.words);
 			}
 			
-			this.canDeleteMessage = this.canModUser
+			this.canModerateMessage = this.canModUser
 									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
-									&& this.canDeleteMessage//if not sent by broadcaster
+									&& this.canModerateMessage//if not sent by broadcaster
 									&& this.canModUser;//If we're a mod or the broadcaster
 
 
@@ -763,29 +763,41 @@ export default class ChatMessage extends AbstractChatMessage {
 					onClick: () => this.openUserCard(user),
 				});
 
-		if(this.canDeleteMessage) {
+		if(this.canModerateMessage) {
 			options[options.length-1].divided = true;
-			let classes = "alert";
-			if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
+			const m:TwitchatDataTypes.MessageChatData = this.messageData as TwitchatDataTypes.MessageChatData;
 			options.push({ 
-						label: this.$t("chat.context_menu.delete"),
-						icon: this.$image("icons/trash.svg"),
-						customClass:classes,
+						label: m.is_pinned === true? this.$t("chat.context_menu.unpin_twitch") : this.$t("chat.context_menu.pin_twitch"),
+						icon: m.is_pinned === true? this.$image("icons/unpin.svg") : this.$image("icons/pin.svg"),
+						customClass:"disabled",
 						onClick: () => {
-							if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
-								!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
-								return;
-							}
-							this.$store("chat").deleteMessageByID(this.messageData.id)
+							this.$store("main").alert(this.$t("error.no_pin_api"));
 						},
 					});
+					
+			let classes = "alert";
+			if(m.deleted!== true) {
+				if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
+				options.push({ 
+							label: this.$t("chat.context_menu.delete"),
+							icon: this.$image("icons/trash.svg"),
+							customClass:classes,
+							onClick: () => {
+								if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
+									!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
+									return;
+								}
+								this.$store("chat").deleteMessageByID(m.id)
+							},
+						});
+			}
 		}
 		if(this.canModUser) {
 			let classesBan = "alert";
 			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
 			let classesBlock = "alert";
 			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
-			if(!this.canDeleteMessage) options[options.length-1].divided = true;
+			if(!this.canModerateMessage) options[options.length-1].divided = true;
 			options.push(
 					{ 
 						label: this.$t("chat.context_menu.to"),

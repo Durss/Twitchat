@@ -302,6 +302,8 @@
 		"context_menu":{
 			"profile": "Open profile",
 			"delete": "Delete message",
+			"pin_twitch": "Pin message",
+			"unpin_twitch": "Unpin message",
 			"track": "Track user",
 			"untrack": "Untrack user",
 			"shoutout": "Shoutout user",

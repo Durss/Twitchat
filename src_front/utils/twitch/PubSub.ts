@@ -1304,6 +1304,7 @@ export default class PubSub extends EventDispatcher {
 				chatMessage: message,
 				moderator:StoreProxy.users.getUserFrom("twitch", channel_id, data.pinned_by.id, data.pinned_by.display_name.toLowerCase(), data.pinned_by.display_name),
 			};
+			message.is_pinned = true;
 			let timeoutRef = -1;
 			if(data.message.ends_at*1000 > Date.now()) {
 				//Schedule automatic unpin
@@ -1346,9 +1347,10 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a message is unpinned
 	 */
 	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage|TwitchatDataTypes.MessagePinData, channel_id:string):void {
-		let message = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
+		let pinMessage = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
 		
-		if(message) {
+		if(pinMessage) {
+			pinMessage.chatMessage.is_pinned = false;
 			let moderator:TwitchatDataTypes.TwitchatUser|undefined;
 			if("unpinned_by" in data) {
 				moderator = StoreProxy.users.getUserFrom("twitch", channel_id, data.unpinned_by.id, data.unpinned_by.display_name.toLowerCase(), data.unpinned_by.display_name)
@@ -1358,10 +1360,10 @@ export default class PubSub extends EventDispatcher {
 				date:Date.now(),
 				platform:"twitch",
 				type:TwitchatDataTypes.TwitchatMessageType.UNPINNED,
-				chatMessage:message.chatMessage,
+				chatMessage:pinMessage.chatMessage,
 				moderator,
 			};
-			clearTimeout(message.timeoutRef);
+			clearTimeout(pinMessage.timeoutRef);
 			StoreProxy.chat.addMessage(m);
 			StoreProxy.chat.unsaveMessage(m.chatMessage);
 		}
