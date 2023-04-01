@@ -288,6 +288,7 @@
 			"counter_name": "Nom du compteur",
 			"counter_value": "Nouvelle valeur du compteur",
 			"counter_update": "Valeur ajoutée",
+			"counter_update_abs": "Valeur ajoutée (valuer absolue)",
 			"counter_username": "Pseudo (pour les compteurs utilisateur)",
 			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)"
 		},

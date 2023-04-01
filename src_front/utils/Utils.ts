@@ -600,6 +600,7 @@ export default class Utils {
 		result.event = ref;
 		if(ref.icon) result.icon = ref.icon;
 		if(trigger.name) result.label = trigger.name;
+		let prefix = "";
 
 		switch(trigger.type) {
 
@@ -639,17 +640,19 @@ export default class Utils {
 				break;
 			}
 
-			case TriggerTypes.COUNTER_ADD:
-			case TriggerTypes.COUNTER_DEL:
-			case TriggerTypes.COUNTER_LOOPED:
-			case TriggerTypes.COUNTER_MAXED:
+			case TriggerTypes.COUNTER_ADD: prefix = "+";;
+			case TriggerTypes.COUNTER_DEL: if(!prefix) prefix = "-";
+			case TriggerTypes.COUNTER_LOOPED: if(!prefix) prefix = "⟳";
+			case TriggerTypes.COUNTER_MAXED: if(!prefix) prefix = "⤒";
 			case TriggerTypes.COUNTER_MINED: {
+				if(!prefix) prefix = "⤓";
 				const counter = StoreProxy.counters.counterList.find(v=>v.id === trigger.counterId);
 				if(!result.label && counter) {
 					result.label = counter.name ?? "-unnamed counter-";
 				}else if(!counter) {
 					result.label = StoreProxy.i18n.t("triggers.missing_counter");
 				}
+				result.label = "("+prefix+") "+result.label;
 				break;
 			}
 		}

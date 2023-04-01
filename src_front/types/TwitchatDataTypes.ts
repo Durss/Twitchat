@@ -2519,11 +2519,15 @@ export namespace TwitchatDataTypes {
 		 */
 		counter:CounterData;
 		/**
-		 * true if counter got incremented
+		 * Value added to the counter
 		 */
 		added:number;
 		/**
-		 * Value that got added/removed from the counter
+		 * Absolute value added to the counter
+		 */
+		added_abs:number;
+		/**
+		 * Current value of the counter
 		 */
 		value:number;
 		/**

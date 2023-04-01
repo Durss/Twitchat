@@ -671,6 +671,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"NAME", descKey:'triggers.placeholders.counter_name', pointer:"counter.name", numberParsable:false, isUserID:false},
 		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"value", numberParsable:true, isUserID:false},
 		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"added", numberParsable:true, isUserID:false},
+		{tag:"UPDATE_ABS", descKey:'triggers.placeholders.counter_update_abs', pointer:"added_abs", numberParsable:true, isUserID:false},
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.counter_username', pointer:"user.displayName", numberParsable:false, isUserID:false},
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.counter_userid', pointer:"user.id", numberParsable:false, isUserID:true},
 	];

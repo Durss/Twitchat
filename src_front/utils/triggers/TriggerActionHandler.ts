@@ -289,7 +289,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
-				let type:TriggerTypesValue = message.value > 0? TriggerTypes.COUNTER_ADD : TriggerTypes.COUNTER_DEL;
+				let type:TriggerTypesValue = message.added > 0? TriggerTypes.COUNTER_ADD : TriggerTypes.COUNTER_DEL;
 				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;
 				if(message.mined) type = TriggerTypes.COUNTER_MINED;
 				if(message.looped) type = TriggerTypes.COUNTER_LOOPED;
@@ -859,7 +859,6 @@ export default class TriggerActionHandler {
 					let text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/,/gi, ".");
 					const value = MathJS.evaluate(text);
-					console.log(message);
 
 					if(!isNaN(value)) {
 						const ids = step.counters;

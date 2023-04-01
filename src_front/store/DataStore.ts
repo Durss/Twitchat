@@ -116,10 +116,11 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 1;
+		let latestVersion = 37;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
-			res[this.DATA_VERSION] = 37;
+			res[this.DATA_VERSION] = latestVersion;
 			return res;
 		}
 		
@@ -221,7 +222,7 @@ export default class DataStore {
 		}
 		if(v==36) {
 			this.migrateTriggersData(data);
-			v = 37;
+			v = latestVersion;
 		}
 
 		data[this.DATA_VERSION] = v;
@@ -349,7 +350,7 @@ export default class DataStore {
 
 		for (const key in backup) {
 			if(backup[key]) {
-				this.store.setItem(this.dataPrefix + key, JSON.stringify(backup[key]!));
+				json[key] = JSON.stringify(backup[key]!);
 			}
 		}
 
@@ -992,7 +993,7 @@ export default class DataStore {
 	 * @param data 
 	 * 
 	 */
-	public static migrateTriggersData(data:any):void {
+	private static migrateTriggersData(data:any):void {
 		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
 		if(Array.isArray(triggers)) return;//Already migrated to new data format
 		if(!triggers) return;

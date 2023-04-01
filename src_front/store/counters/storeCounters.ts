@@ -85,11 +85,13 @@ export const storeCounters = defineStore('counters', {
 				platform:"twitchat",
 				value,
 				added: addedValue,
+				added_abs: Math.abs(addedValue),
 				looped:false,
 				maxed:false,
 				mined:false,
 				user,
 			};
+			
 			if(c.max !== false && value >= c.max) {
 				if(value > c.max && c.loop) {
 					const min = c.min || 0;

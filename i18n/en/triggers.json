@@ -288,6 +288,7 @@
 			"counter_name": "Name of the counter",
 			"counter_value": "New counter's value",
 			"counter_update": "Value added",
+			"counter_update_abs": "Value added (absolute value)",
 			"counter_username": "User name (for user specific counters)",
 			"counter_userid": "User ID (for user specific counters)"
 		},
