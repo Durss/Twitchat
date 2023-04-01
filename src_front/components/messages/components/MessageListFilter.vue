@@ -716,6 +716,19 @@ export default class MessageListFilter extends Vue {
 	 * Force data save
 	 */
 	public saveData():void {
+		this.$nextTick(()=> {
+			let selectedIndex = -1;
+			const cols = this.$store("params").chatColumnsConfig;
+			for (let i = 0; i < cols.length; i++) {
+				const col = cols[i];
+				if(col.showPanelsHere === true) selectedIndex = i;
+			}
+			if(selectedIndex == -1) {
+				selectedIndex = (this.config.order == cols.length-1)? 0 : cols.length-1;
+				cols[selectedIndex].showPanelsHere = true;
+			}
+		});
+
 		this.$emit("change");
 		this.$store("params").saveChatColumnConfs();
 	}

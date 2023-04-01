@@ -7,8 +7,7 @@
 				:key="c.id"
 				:style="getColStyles(c)">
 					<div class="subHolder">
-						<GreetThem class="greetThem"
-						v-if="$store('params').features.firstMessage.value === true && (c.showPanelsHere || $store('params').chatColumnsConfig.length == 1)" />
+						<GreetThem class="greetThem" v-if="panelsColIndexTarget == c.order && $store('params').features.firstMessage.value === true" />
 	
 						<MessageList ref="messages" class="messages"
 							@showModal="(v:TwitchatDataTypes.ModalTypes) => currentModal = v"
@@ -29,7 +28,7 @@
 			</div>
 		</div>
 
-		<Teleport v-if="formsColumnTarget" :to="formsColumnTarget">
+		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
 			<PollForm			class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
@@ -46,7 +45,7 @@
 		</Teleport>
 
 
-		<Teleport v-if="formsColumnTarget" :to="formsColumnTarget">
+		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
 			<ChannelNotifications
 				:currentContent="currentNotificationContent"
 				@close="currentNotificationContent=''"
@@ -225,10 +224,11 @@ export default class Chat extends Vue {
 	public voiceControl = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;
+	public panelsColIndexTarget = 0;
 	public forceEmergencyFollowClose = false;
+	public panelsColumnTarget:HTMLDivElement|null = null;
 	public currentModal:TwitchatDataTypes.ModalTypes = "";
 	public currentNotificationContent = "";
-	public formsColumnTarget:HTMLDivElement|null = null;
 	
 	private disposed = false;
 	private mouseX = 0;
@@ -333,8 +333,8 @@ export default class Chat extends Vue {
 		watch(()=>this.currentModal, ()=>{
 			this.voiceControl = false;
 
-			if(this.formsColumnTarget && this.currentModal) {
-				const col = this.formsColumnTarget.parentNode as HTMLDivElement;
+			if(this.panelsColumnTarget && this.currentModal) {
+				const col = this.panelsColumnTarget.parentNode as HTMLDivElement;
 				const scrollable = this.$refs.scrollable as HTMLDivElement;
 				const scrollTo = {x:col.offsetLeft - (scrollable.offsetWidth-col.offsetWidth), y:col.offsetTop - (scrollable.offsetHeight - col.offsetHeight)/2};
 				gsap.to(scrollable, {duration: .75, ease:"sine.inOut", scrollTo});
@@ -790,10 +790,12 @@ export default class Chat extends Vue {
 		const cols = this.$store('params').chatColumnsConfig;
 		cols.sort((a,b)=> a.order - b.order);
 		let colId = "";
+		let index = 0;
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c.showPanelsHere == true) {
 				colId = c.id;
+				index = i;
 			}
 		}
 		
@@ -802,9 +804,11 @@ export default class Chat extends Vue {
 
 		if(!selectedCol) {
 			//Fallback to last col if none is selected
-			selectedCol = (this.$refs["column_"+cols[cols.length-1].id] as HTMLDivElement[])[0];
+			index = cols.length-1;
+			selectedCol = (this.$refs["column_"+cols[index].id] as HTMLDivElement[])[0];
 		}
-		this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
+		this.panelsColIndexTarget = index;
+		this.panelsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 	}
 }
 
