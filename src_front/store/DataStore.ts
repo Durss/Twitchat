@@ -350,7 +350,7 @@ export default class DataStore {
 
 		for (const key in backup) {
 			if(backup[key]) {
-				json[key] = JSON.stringify(backup[key]!);
+				json[key] = backup[key];
 			}
 		}
 
