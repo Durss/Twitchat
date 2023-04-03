@@ -80,6 +80,7 @@ export default class Changelog extends Vue {
 	
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
+		placeholderKey:"",
 		loop:false,
 		perUser:false,
 		value:50,
@@ -89,6 +90,7 @@ export default class Changelog extends Vue {
 	}
 	public progressExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
+		placeholderKey:"",
 		loop:false,
 		perUser:false,
 		value:50,

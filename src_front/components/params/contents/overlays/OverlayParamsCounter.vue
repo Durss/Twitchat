@@ -72,6 +72,7 @@ export default class OverlayParamsCounter extends Vue {
 	public open = false;
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
+		placeholderKey:"",
 		loop:false,
 		perUser:false,
 		value:50,
@@ -81,6 +82,7 @@ export default class OverlayParamsCounter extends Vue {
 	}
 	public progressExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
+		placeholderKey:"",
 		loop:false,
 		perUser:false,
 		value:50,

@@ -708,6 +708,7 @@ export const storeDebug = defineStore('debug', {
 					if(!counter) {
 						counter = {
 							id:Utils.getUUID(),
+							placeholderKey:"",
 							loop:false,
 							max:false,
 							min:false,
