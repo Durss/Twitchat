@@ -1,4 +1,5 @@
 import { TriggerEvents, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
+import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -116,7 +117,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 1;
-		let latestVersion = 37;
+		let latestVersion = 38;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -222,6 +223,10 @@ export default class DataStore {
 		}
 		if(v==36) {
 			this.migrateTriggersData(data);
+			v = 37;
+		}
+		if(v==37) {
+			this.populateCounterPlaceholder(data);
 			v = latestVersion;
 		}
 
@@ -1108,5 +1113,76 @@ export default class DataStore {
 		console.log(triggerList);
 
 		data[DataStore.TRIGGERS] = triggerList;
+	}
+
+	/**
+	 * Adds the placeholder value to any existing counter and 
+	 * update any trigger using the "read counter" action to remove it
+	 * and replace that placeholder by the counter's placeholder
+	 */
+	private static populateCounterPlaceholder(data:any):void {
+		const counters:TwitchatDataTypes.CounterData[] = data[DataStore.COUNTERS];
+
+		if(!counters) return;
+
+		//Add "placeholderKey" value on every existing counters
+		const slugCount:{[key:string]:number} = {};
+		for (let i = 0; i < counters.length; i++) {
+			const c = counters[i];
+			
+			if(!c.placeholderKey)  {
+				let slug = Utils.slugify(c.name);
+				//If an identical slug exists, suffix it with its index
+				if(slugCount[slug] != undefined) slug += slugCount[slug];
+				else slugCount[slug] = 0;
+				//Increment slug count for this slug
+				slugCount[slug] ++;
+
+				c.placeholderKey = slug.toUpperCase();
+			}
+		}
+
+		//Delete all "counterget" trigger actions and replace all related
+		//placeholders by the new placeholderKey value of the counters
+		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
+		if(triggers) {
+			//Parse all triggers
+			for (const key in triggers) {
+				const oldPlaceholderToNew:{[key:string]:string} = {};
+				//Parse all current trigger actions
+				for (let i = 0; i < triggers[key].actions.length; i++) {
+					const a = triggers[key].actions[i];
+					//If action is a "read counter value", delete it and replace any subsequent
+					//placeholders by the new counter placeholder
+					if(a.type == "countget") {
+						const c = counters.find(v => v.id == a.counter);
+						if(c) {
+							//Counter exists grab its placeholder key
+							oldPlaceholderToNew[a.placeholder] = c.placeholderKey;
+						}else{
+							//Counter doesn't exists, set a placeholder user will understand
+							oldPlaceholderToNew[a.placeholder] = "DELETED_COUNTER";
+						}
+						// console.log(a.placeholder, "=>", oldPlaceholderToNew["{"+a.placeholder+"}"]);
+						triggers[key].actions.splice(i, 1);
+						i--;
+					}else if(Object.keys(oldPlaceholderToNew).length > 0) {
+						// console.log("PLACHOLDER DICT", oldPlaceholderToNew);
+						for (const placeholder in oldPlaceholderToNew) {
+							const oldSafe = placeholder.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+							const newPlaceholder = TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholderToNew[placeholder];
+							// console.log("Replace ", oldSafe, "by", newPlaceholder);
+							//Nuclear way to replace placeholders
+							let json = JSON.stringify(a);
+							json = json.replace(new RegExp("\\{"+oldSafe+"\\}", "gi"), "{"+newPlaceholder+"}");
+							triggers[key].actions[i] = JSON.parse(json);
+						}
+					}
+				}
+			}
+		}
+
+		data[DataStore.COUNTERS] = counters;
+		data[DataStore.TRIGGERS] = triggers;
 	}
 }

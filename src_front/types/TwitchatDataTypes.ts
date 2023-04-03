@@ -39,7 +39,16 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface CounterData {
 		id:string;
+		/**
+		 * Counter name
+		 */
 		name:string;
+		/**
+		 * Counter placeholder for use in triggers
+		 * If value is "XXX", the placeholder {COUNTER_VALUE_XXX} will be usable
+		 * in all triggers
+		 */
+		placeholderKey:string;
 		/**
 		 * Current counter's value (if not "per user")
 		 */
@@ -574,6 +583,7 @@ export namespace TwitchatDataTypes {
 	export interface PlaceholderEntry {
 		tag:string;
 		descKey:string;
+		descReplacedValues?:{[key:string]:string};
 		example?:string;
 	}
 

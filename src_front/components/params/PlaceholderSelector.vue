@@ -8,7 +8,12 @@
 				<button @click="insert(h)" :data-tooltip="$t('global.placeholder_selector_insert')">
 					<mark>&#123;{{h.tag}}&#125;</mark>
 				</button>
-				<span>{{$t(h.descKey)}}</span>
+				
+				<i18n-t scope="global" :keypath="h.descKey" tag="span">
+					<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+						<mark>{{ value }}</mark>
+					</template>
+				</i18n-t>
 			</template>
 		</div>
 	</ToggleBlock>

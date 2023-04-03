@@ -15,6 +15,7 @@
 			"name": "Name",
 			"value": "Value",
 			"more": "More options",
+			"placholder": "Placeholder name",
 			"value_min": "Min value",
 			"value_max": "Max value",
 			"value_loop": "Loop value when reaching min or max",

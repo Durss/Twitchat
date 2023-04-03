@@ -4,6 +4,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import { TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, type TriggerLog, type TriggerData, type TriggerTypesValue, TriggerActionPlaceholders, type ITriggerPlaceholder } from "../../types/TriggerActionDataTypes";
+import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import Config from "../Config";
 import DeezerHelper from "../music/DeezerHelper";
 import type { SearchTrackItem } from "../music/SpotifyDataTypes";
@@ -1121,6 +1122,7 @@ export default class TriggerActionHandler {
 
 			let placeholders = TriggerEventPlaceholders(trigger.type).concat();//Clone it to avoid modifying original
 			placeholders = placeholders.concat(actionPlaceholder);
+			console.log(placeholders);
 			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
 			if(!placeholders) return res;
@@ -1150,9 +1152,11 @@ export default class TriggerActionHandler {
 					if(typeof root === "number") root = root.toString();
 					value = root as string;
 				}catch(error) {
-					//If the placeholder requests for the current track and we're ending up here
-					//this means that the message does not contain the actual track.
-					//In this case we go get the currently playing track
+					/**
+					 * If the placeholder requests for the current track and we're ending up here
+					 * this means that the message does not contain the actual track.
+					 * In this case we go get the currently playing track
+					 */
 					if(h.tag.toLowerCase().indexOf("current_track") == 0) {
 						//That replace() is dirty but I'm too lazy to do that in a more generic way :(
 						const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
@@ -1163,11 +1167,32 @@ export default class TriggerActionHandler {
 						}
 						if(!value) value = "-none-";
 
-					//If the placeholder requests for the current stream info
+					/**
+					 * If the placeholder requests for the current stream info
+					 */
 					}else if(h.tag.toLowerCase().indexOf("my_stream") == 0 && StoreProxy.stream.currentStreamInfo) {
-						const pointer = h.pointer.replace('myStream.', '') as TwitchatDataTypes.StreamInfoKeys
+						const pointer = h.pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys
 						value = StoreProxy.stream.currentStreamInfo[pointer].toString();
 						if(!value) value = "-none-";
+
+					/**
+					 * If the placeholder requests for a counter's value
+					 */
+					}else if(h.tag.toLowerCase().indexOf(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase()) == 0) {
+						const counterPH = h.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
+						const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
+						if(counter) {
+							if(counter.perUser === true) {
+								//If it's a per-user counter, get the user's value
+								let user = this.extractUser(trigger, message);
+								if(user && counter.users && counter.users[user.id]) {
+									value = counter.users[user.id].toString();
+								}
+							}else{
+								//Simple counter, just get its value
+								value = counter.value.toString();
+							}
+						}
 
 					}else{
 						console.warn("Unable to find pointer for helper", h);
@@ -1195,7 +1220,8 @@ export default class TriggerActionHandler {
 			//in subsequent actions.
 			//Here we use that value
 			for (const key in dynamicPlaceholders) {
-				res = res.replace(new RegExp("\\{"+key+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
+				const keySafe = key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				res = res.replace(new RegExp("\\{"+keySafe+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
 			}
 
 			if(removeRemainingTags) {

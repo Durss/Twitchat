@@ -145,6 +145,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public sortDirection:1|-1 = 1;
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
+		placeholderKey:"",
 		loop:false,
 		perUser:false,
 		value:50,
@@ -154,6 +155,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	}
 	public progressExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
+		placeholderKey:"",
 		loop:false,
 		perUser:false,
 		value:50,
@@ -171,6 +173,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
 	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:10, labelKey:"counters.form.placholder", icon:"broadcast_purple.svg"};
 
 
 	public get counterEntries():CounterEntry[] {
@@ -198,7 +201,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	public mounted(): void {
-		this.param_more.children = [this.param_valueMax_toggle, this.param_valueMin_toggle, this.param_valueLoop_toggle, this.param_userSpecific];
+		this.param_more.children = [this.param_valueMax_toggle, this.param_valueMin_toggle, this.param_valueLoop_toggle, this.param_userSpecific, this.param_placeholder];
 		this.param_valueMin_toggle.children = [this.param_valueMin_value];
 		this.param_valueMax_toggle.children = [this.param_valueMax_value];
 	}
@@ -208,6 +211,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public createCounter(): void {
 		const data:TwitchatDataTypes.CounterData = {
 			id:this.editedCounter? this.editedCounter.id : Utils.getUUID(),
+			placeholderKey:this.param_placeholder.value,
 			name:this.param_title.value,
 			value:this.param_value.value,
 			max:this.param_valueMax_toggle.value === true? this.param_valueMax_value.value : false,
@@ -257,6 +261,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		this.showForm = true;
 		this.param_title.value = c.name;
 		this.param_value.value = c.value;
+		this.param_placeholder.value = c.placeholderKey;
 		this.param_valueMax_toggle.value = c.max !== false;
 		this.param_valueMax_value.value = c.max === false? 0 : c.max;
 		this.param_valueMin_toggle.value = c.min !== false;
@@ -274,6 +279,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		this.showForm = false;
 		this.param_title.value = "";
 		this.param_value.value = 0;
+		this.param_placeholder.value = "";
 		this.param_valueMax_toggle.value = false;
 		this.param_valueMax_value.value = 0;
 		this.param_valueMin_toggle.value = false;
@@ -333,9 +339,10 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 				const u = users[0];
 				if(counter.users![u.id]) {
 					found = true;
+					let value = (counter.users && counter.users[u.id])? counter.users![u.id] : 0;
 					this.idToUsers[counter.id] = [{
 							hide:false,
-							param:reactive({type:"number", value:counter.value, min:counter.min || undefined, max:counter.max || undefined}),
+							param:reactive({type:"number", value:value, min:counter.min || undefined, max:counter.max || undefined}),
 							user:this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, u.id, u.login, u.display_name),
 						}];
 				}

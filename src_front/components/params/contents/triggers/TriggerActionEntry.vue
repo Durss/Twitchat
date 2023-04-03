@@ -76,9 +76,9 @@
 					:title="$t('triggers.actions.common.action_count')"
 					:icon="$image('icons/count_purple.svg')"/>
 				
-				<Button class="button" white @click="selectActionType('countget')"
+				<!-- <Button class="button" white @click="selectActionType('countget')"
 					:title="$t('triggers.actions.common.action_countget')"
-					:icon="$image('icons/count_placeholder_purple.svg')"/>
+					:icon="$image('icons/count_placeholder_purple.svg')"/> -->
 				
 				<Button class="button" white @click="selectActionType('random')"
 					:title="$t('triggers.actions.common.action_random')"

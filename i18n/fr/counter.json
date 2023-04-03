@@ -15,6 +15,7 @@
 			"name":"Nom",
 			"value":"Valeur",
 			"more":"Plus d'options",
+			"placholder": "Nom du placeholder",
 			"value_min":"Valeur min",
 			"value_max":"Valeur max",
 			"value_loop":"Boucler la valeur lorsque le maximum ou le minimum est atteint",

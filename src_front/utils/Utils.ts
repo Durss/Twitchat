@@ -662,4 +662,19 @@ export default class Utils {
 		
 		return result;
 	}
+
+	/**
+	 * Slugifies a string.
+	 * Replace
+	 * @param text 
+	 */
+	public static slugify(text:string) {
+		text = this.replaceDiacritics(text);
+		return text.toString().toLowerCase().trim()
+			.replace(/\s+/g, '-')        // Replace spaces with hyphens
+			.replace(/[^\w\-]+/g, '')    // Remove all non-word characters
+			.replace(/\-\-+/g, '-')      // Replace consecutive hyphens with a single hyphen
+			.replace(/^-+/, '')          // Remove hyphens at the beginning of the string
+			.replace(/-+$/, '');         // Remove hyphens at the end of the string
+	}
 }

@@ -290,7 +290,8 @@
 			"counter_update": "Value added",
 			"counter_update_abs": "Value added (absolute value)",
 			"counter_username": "User name (for user specific counters)",
-			"counter_userid": "User ID (for user specific counters)"
+			"counter_userid": "User ID (for user specific counters)",
+			"counter_global_value": "Get {NAME} counter value"
 		},
 		"events": {
 			"CHAT_COMMAND": {

@@ -1,3 +1,4 @@
+import StoreProxy from "@/store/StoreProxy";
 import Config from "../utils/Config";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
 
@@ -302,6 +303,9 @@ export interface TriggerActionCountData extends TriggerActionData{
 	counters:string[];
 }
 
+/**
+ * @deprecated Removed in favor of global counter placeholders
+ */
 export interface TriggerActionCountGetData extends TriggerActionData{
 	type:"countget";
 	counter:string;
@@ -407,6 +411,7 @@ export type TriggerTypesValue = typeof TriggerTypes[keyof typeof TriggerTypes];
 export interface ITriggerPlaceholder {
 	tag:string;
 	descKey:string;
+	descReplacedValues?:{[key:string]:string};
 	pointer:string;
 	isUserID:boolean;
 	numberParsable:boolean;
@@ -414,6 +419,7 @@ export interface ITriggerPlaceholder {
 
 export const USER_PLACEHOLDER:string = "USER";
 export const USER_ID_PLACEHOLDER:string = "USER_ID";
+export const COUNTER_VALUE_PLACEHOLDER_PREFIX:string = "COUNTER_VALUE_";
 
 /**
  * Placeholders related to a trigger action type
@@ -691,16 +697,28 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	&& Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
 		map[key] = map[key]!.concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]!);
 	}
+
+	const counters = StoreProxy.counters.counterList;
+	const counterPlaceholders:ITriggerPlaceholder[] = [];
+	for (let i = 0; i < counters.length; i++) {
+		const c = counters[i];
+		if(c.placeholderKey) {
+			counterPlaceholders.push({tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey, descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter.value", numberParsable:true, isUserID:false});
+		}
+	}
 	
 	//Add global placeholders where missing
 	let k!:TriggerTypesValue;
 	for (k in map) {
-		if(map[k]!.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
-			map[k]!.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"myStream.title", numberParsable:false, isUserID:false});
+		const entry = map[k]!;
+		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
+			entry.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false});
 		}
-		if(map[k]!.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
-			map[k]!.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"myStream.category", numberParsable:false, isUserID:false});
+		if(entry.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
+			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false});
 		}
+
+		map[k] = entry.concat(counterPlaceholders);
 	}
 
 	eventPlaceholdersCache = map;
