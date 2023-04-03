@@ -651,6 +651,11 @@ export default class ParamItem extends Vue {
 				line-height: 1.1em;
 				cursor: pointer;
 			}
+			&.number, &.text {
+				label {
+					margin-top: .3em;
+				}
+			}
 
 		}
 

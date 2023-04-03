@@ -147,6 +147,7 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 		background-color: @mainColor_dark;
 		padding: 1em;
 		border-radius: .5em;
+		position: relative;
 	}
 
 

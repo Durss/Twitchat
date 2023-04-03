@@ -611,7 +611,7 @@ export default class Utils {
 
 			case TriggerTypes.REWARD_REDEEM: {
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
-					const reward = StoreProxy.rewards.rewards.find(v=>v.id == trigger.rewardId);
+					const reward = StoreProxy.rewards.rewardList.find(v=>v.id == trigger.rewardId);
 					if(!result.label) {
 						if(reward) {
 							result.label = reward.title;

@@ -268,6 +268,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 			}else{
 				this.$store("debug").simulateMessage(triggerEvent.testMessageType, (data)=> {
 					let m = data
+					//Chat message simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						switch(triggerEvent.value) {
 							case TriggerTypes.CHAT_COMMAND:{
@@ -293,12 +294,33 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 								break;
 							}
 						} 
+					}else 
+
+					//Reward redeem simulation
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+						//Inject actual reward data
+						let twitchReward = this.$store("rewards").rewardList.find(v=> v.id == trigger.rewardId);
+						if(twitchReward) {
+							(m as TwitchatDataTypes.MessageRewardRedeemData).reward = {
+								id:twitchReward.id,
+								cost:twitchReward.cost,
+								description:twitchReward.prompt,
+								icon:{
+									sd:twitchReward.image?.url_1x ?? "",
+									hd:twitchReward.image?.url_4x,
+								},
+								title:twitchReward.title,
+							};
+						}
 					}
+
+					//Timer stop simulation
 					if(triggerEvent.value == TriggerTypes.TIMER_STOP) {
 						//Set the timer as stopped
 						(m as TwitchatDataTypes.MessageTimerData).started = false;
 					}else
 
+					//Subgift simulation
 					if(triggerEvent.value == TriggerTypes.SUBGIFT) {
 						const sub = (m as TwitchatDataTypes.MessageSubscriptionData);
 						sub.is_gift = true;

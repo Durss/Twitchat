@@ -570,7 +570,7 @@ export interface ICountersActions {
 
 
 export interface IRewardsState {
-	rewards:TwitchDataTypes.Reward[];
+	rewardList:TwitchDataTypes.Reward[];
 }
 
 export interface IRewardsGetters {

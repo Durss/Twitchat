@@ -9,7 +9,7 @@ import StoreProxy from '../StoreProxy';
 
 export const storeRewards = defineStore('rewards', {
 	state: () => ({
-		rewards: [],
+		rewardList: [],
 	} as IRewardsState),
 
 
@@ -28,19 +28,19 @@ export const storeRewards = defineStore('rewards', {
 			if(!TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
 			
 			try {
-				this.rewards = await TwitchUtils.getRewards(true);
+				this.rewardList = await TwitchUtils.getRewards(true);
 			}catch(error) {
-				this.rewards = [];
+				this.rewardList = [];
 				console.log(error);
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.rewards_loading"));
 				return [];
 			}
 
 			//Push "Highlight my message" reward as it's not given by the API...
-			this.rewards.push(Config.instance.highlightMyMessageReward)
+			this.rewardList.push(Config.instance.highlightMyMessageReward)
 
 			//Sort by cost and name
-			this.rewards = this.rewards.sort((a,b)=> {
+			this.rewardList = this.rewardList.sort((a,b)=> {
 				if(a.cost < b.cost) return -1;
 				if(a.cost > b.cost) return 1;
 				if(a.title.toLowerCase() < b.title.toLowerCase()) return -1;
@@ -48,7 +48,7 @@ export const storeRewards = defineStore('rewards', {
 				return 0;
 			});
 
-			return this.rewards;
+			return this.rewardList;
 		},
 	
 	} as IRewardsActions
