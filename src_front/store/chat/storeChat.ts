@@ -1177,7 +1177,7 @@ export const storeChat = defineStore('chat', {
 					setTimeout(()=> {
 						const wsMessage = {
 							channel:mTyped.channel_id,
-							message:("message" in mTyped)? mTyped.message as string : "",
+							message:(m.type == "message")? m.message : "",
 							user:{
 								id:mTyped.user.id,
 								login:mTyped.user.login,
@@ -1204,7 +1204,7 @@ export const storeChat = defineStore('chat', {
 					setTimeout(()=> {
 						const wsMessage = {
 							channel:mTyped.channel_id,
-							message:("message" in mTyped)? mTyped.message as string : "",
+							message:(m.type == "message")? m.message : "",
 							user:{
 								id:mTyped.user.id,
 								login:mTyped.user.login,
