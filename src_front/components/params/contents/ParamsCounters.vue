@@ -45,7 +45,9 @@
 		:title="entry.counter.name" medium>
 		
 			<template #right_actions>
-				<mark class="light" v-if="entry.counter.placeholderKey">{{ entry.counter.placeholderKey }}</mark>
+				<button class="placholder" @click.stop="copyPlaceholder($event, entry.counter)" :data-tooltip="$t('global.copy')">
+					<mark class="light" v-if="entry.counter.placeholderKey">{{ getCounterPlaceholder(entry.counter) }}</mark>
+				</button>
 				<span class="info min" :data-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
 				<span class="info max" :data-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
 				<span class="info loop" :data-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
@@ -113,16 +115,18 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
+import InfiniteList from '@/components/InfiniteList.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { reactive, watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
-import InfiniteList from '@/components/InfiniteList.vue';
+import { gsap } from 'gsap';
 
 @Component({
 	components:{
@@ -177,7 +181,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
 	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast_purple.svg", tooltipKey:"counters.form.placholder_tt"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast_purple.svg", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9-_"};
 
 
 	public get counterEntries():CounterEntry[] {
@@ -190,6 +194,10 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 					param:reactive({type:'number', value:v.value, min, max, labelKey:'counters.form.value'})
 				}
 		});
+	}
+
+	public getCounterPlaceholder(counter:TwitchatDataTypes.CounterData):string {
+		return "{"+COUNTER_VALUE_PLACEHOLDER_PREFIX + counter.placeholderKey+"}";
 	}
 
 	public openTriggers():void {
@@ -227,6 +235,9 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 
 	public onNavigateBack(): boolean { return false; }
 
+	/**
+	 * Create a new counter
+	 */
 	public createCounter(): void {
 		const data:TwitchatDataTypes.CounterData = {
 			id:this.editedCounter? this.editedCounter.id : Utils.getUUID(),
@@ -428,6 +439,15 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		}
 	}
 
+	/**
+	 * Copies the placeholder
+	 * @param event 
+	 */
+	public copyPlaceholder(event:MouseEvent, counter:TwitchatDataTypes.CounterData):void {
+		Utils.copyToClipboard(this.getCounterPlaceholder(counter));
+		gsap.fromTo(event.currentTarget, {scale:1.2}, {scale:1, duration: .7, ease:"elastic.out"});
+	}
+
 }
 
 interface CounterEntry {
@@ -509,6 +529,10 @@ interface UserEntry {
 		mark {
 			font-size: .7em;
 			padding: 2px 5px;
+		}
+
+		.placholder {
+			display: flex;//Dunno why i need this for the button to be properly centered
 		}
 		.info {
 			border: 1px solid @mainColor_light;

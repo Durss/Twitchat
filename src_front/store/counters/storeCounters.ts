@@ -8,6 +8,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ICountersActions, ICountersGetters, ICountersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 
 export const storeCounters = defineStore('counters', {
 	state: () => ({
@@ -48,6 +49,7 @@ export const storeCounters = defineStore('counters', {
 			if(!data.perUser) {
 				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:data} as unknown as JsonObject);
 			}
+			rebuildPlaceholdersCache();
 		},
 		
 		delCounter(data:TwitchatDataTypes.CounterData):void {
@@ -67,6 +69,7 @@ export const storeCounters = defineStore('counters', {
 					StoreProxy.triggers.deleteTrigger(t.id);
 				}
 			}
+			rebuildPlaceholdersCache();
 		},
 
 		increment(id:string, addedValue:number, user?:TwitchatDataTypes.TwitchatUser):void {

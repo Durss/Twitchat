@@ -447,9 +447,16 @@ export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITrigger
 }
 
 /**
+ * Cleansup the placeholders cache to force it to be rebuilt next time.
+ * This is used by the counters, when changing the placeholder of a counter
+ * the cache needs to be rebuilt to get those changes.
+ */
+export function rebuildPlaceholdersCache():void { eventPlaceholdersCache = undefined };
+
+/**
  * Placeholders related to a trigger event type
  */
-let eventPlaceholdersCache:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}>;
+let eventPlaceholdersCache:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}>|undefined;
 export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlaceholder[] {
 	if(eventPlaceholdersCache) {
 		return eventPlaceholdersCache[key] ?? [];

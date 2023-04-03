@@ -364,6 +364,10 @@ export namespace TwitchatDataTypes {
 		 */
 		twitch_scopes?:TwitchScopesString[];
 		/**
+		 * Regex defining which chars are allowed on the field
+		 */
+		allowedCharsRegex?:string;
+		/**
 		 * Tooltip displayed on hover
 		 */
 		tooltip?:string;

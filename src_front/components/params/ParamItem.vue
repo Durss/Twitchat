@@ -62,7 +62,7 @@
 					:placeholder="placeholder"
 					v-autofocus="autofocus"></textarea>
 				<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
-					v-model.lazy="paramData.value"
+					v-model="textValue"
 					v-autofocus="autofocus"
 					:name="paramData.fieldName"
 					:id="'text'+key"
@@ -299,6 +299,15 @@ export default class ParamItem extends Vue {
 	}
 
 	public set textValue(value:string) {
+		if(this.paramData.allowedCharsRegex) {
+			const prevValue = value;
+			//Only keep allowed chars if a list is defined
+			value = value.replace(new RegExp("[^"+this.paramData.allowedCharsRegex+"]", "gi"), "");
+			if(value != prevValue) {
+				//set to a new value so a change is detected by vue when modifying it aftewards
+				this.paramData.value = "_____this_is_a_fake_value_you_should_not_use_hehehehehe_____";
+			}
+		}
 		this.paramData.value = value;
 	}
 

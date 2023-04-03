@@ -1132,6 +1132,7 @@ export default class DataStore {
 			
 			if(!c.placeholderKey)  {
 				let slug = Utils.slugify(c.name);
+				if(slug.length == 0) slug = "C";
 				//If an identical slug exists, suffix it with its index
 				if(slugCount[slug] != undefined) slug += slugCount[slug];
 				else slugCount[slug] = 0;
@@ -1168,15 +1169,15 @@ export default class DataStore {
 						i--;
 					}else if(Object.keys(oldPlaceholderToNew).length > 0) {
 						// console.log("PLACHOLDER DICT", oldPlaceholderToNew);
+						let json = JSON.stringify(a);
 						for (const placeholder in oldPlaceholderToNew) {
 							const oldSafe = placeholder.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 							const newPlaceholder = TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholderToNew[placeholder];
 							// console.log("Replace ", oldSafe, "by", newPlaceholder);
 							//Nuclear way to replace placeholders
-							let json = JSON.stringify(a);
 							json = json.replace(new RegExp("\\{"+oldSafe+"\\}", "gi"), "{"+newPlaceholder+"}");
-							triggers[key].actions[i] = JSON.parse(json);
 						}
+						triggers[key].actions[i] = JSON.parse(json);
 					}
 				}
 			}
