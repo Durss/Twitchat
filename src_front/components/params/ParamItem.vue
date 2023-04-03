@@ -263,22 +263,20 @@ export default class ParamItem extends Vue {
 	public get label():string {
 		if(!this.paramData) return "";
 		let txt = this.paramData.label ?? "";
+		
+		let count = 0;
 		if(this.paramData.labelKey) {
-			let v = parseFloat(this.paramData.value as string) ?? 0;
-			if(isNaN(v)) v = 0;
-			txt += this.$tc(this.paramData.labelKey, v, {VALUE:v.toString()});
+			let v = this.paramData.value;
+			if(this.paramData.type == "number") {
+				count = parseFloat(this.paramData.value as string) ?? 0;
+				if(isNaN(count)) count = 0;
+				v = count.toString();
+			}
+			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
 		}
 		
 		if(!txt) return "";
-
-		if(txt.indexOf("{VALUE}") > -1) {
-			if(this.paramData.value || this.paramData.value === 0) {
-				txt = txt.replace(/\{VALUE\}/gi, this.paramData.value.toString());
-			}else{
-				txt = txt.replace(/\{VALUE\}/gi, "x");
-			}
-		}
-		return txt.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
+		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='small'>$1</span>");
 	}
 
 	public get placeholder():string {
