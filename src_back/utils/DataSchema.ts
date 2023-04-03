@@ -740,7 +740,7 @@ import Ajv from "ajv";
 					properties:{
 						id: {type:"string", maxLength:40},
 						name: {type:"string", maxLength:50},
-						placeholderKey: {type:"string", maxLength:10},
+						placeholderKey: {type:"string", maxLength:15},
 						value: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 						min: {
 							anyOf:[

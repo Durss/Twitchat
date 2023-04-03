@@ -28,6 +28,9 @@
 				<ParamItem class="item" :paramData="param_title" />
 				<ParamItem class="item" :paramData="param_value" />
 				<ParamItem class="item" :paramData="param_more" />
+				<div class="error" v-if="param_placeholder.error">
+					<span class="text">{{ $t("counters.form.placholder_conflict") }}</span>
+				</div>
 				<div class="item ctas">
 					<Button type="button" :title="$t('global.cancel')" :icon="$image('icons/cross_white.svg')" highlight @click="cancelForm()" />
 					<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" :icon="$image('icons/add.svg')" :disabled="param_title.value.length == 0" />
@@ -42,6 +45,7 @@
 		:title="entry.counter.name" medium>
 		
 			<template #right_actions>
+				<mark class="light" v-if="entry.counter.placeholderKey">{{ entry.counter.placeholderKey }}</mark>
 				<span class="info min" :data-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
 				<span class="info max" :data-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
 				<span class="info loop" :data-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
@@ -114,7 +118,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { reactive } from 'vue';
+import { reactive, watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
@@ -173,7 +177,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
 	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:10, labelKey:"counters.form.placholder", icon:"broadcast_purple.svg"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast_purple.svg", tooltipKey:"counters.form.placholder_tt"};
 
 
 	public get counterEntries():CounterEntry[] {
@@ -204,6 +208,21 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		this.param_more.children = [this.param_valueMax_toggle, this.param_valueMin_toggle, this.param_valueLoop_toggle, this.param_userSpecific, this.param_placeholder];
 		this.param_valueMin_toggle.children = [this.param_valueMin_value];
 		this.param_valueMax_toggle.children = [this.param_valueMax_value];
+
+		watch(()=> this.param_placeholder.value, ()=> {
+			const counters = this.$store("counters").counterList;
+			const placeholder = this.param_placeholder.value.toLowerCase();
+			let exists = false;
+			for (let i = 0; i < counters.length; i++) {
+				const c = counters[i];
+				if(c.id == this.editedCounter?.id) continue;
+				if(c.placeholderKey.toLowerCase() === placeholder) {
+					exists = true;
+					continue;
+				}
+			}
+			this.param_placeholder.error = exists;
+		})
 	}
 
 	public onNavigateBack(): boolean { return false; }
@@ -447,6 +466,21 @@ interface UserEntry {
 			&:deep(input) {
 				flex-basis: 10em !important;
 			}
+
+			.error {
+				background-color: @mainColor_alert;
+				color: @mainColor_light;
+				padding: 0 .5em .25em .5em;
+				margin-left: 1.5em;
+				margin-top: -.25em;
+				border-bottom-right-radius: .5em;
+				border-bottom-left-radius: .5em;
+				.text {
+					//Text is inside a sub holder so we can set its font-size without
+					//it impacting the margin-left of the holder specified in "em" unit
+					font-size: .8em;
+				}
+			}
 		}
 	}
 
@@ -465,10 +499,16 @@ interface UserEntry {
 			width: 1.5em;
 			min-width: 1.5em;
 			border-radius: 0;
+			align-self: stretch;
 		}
 		:deep(h2) {
 			text-align: left;
 			margin-left: .5em;
+		}
+
+		mark {
+			font-size: .7em;
+			padding: 2px 5px;
 		}
 		.info {
 			border: 1px solid @mainColor_light;

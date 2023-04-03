@@ -370,7 +370,12 @@
 		padding: .15em .5em;
 		border-radius: .5em;
 		font-size: .9em;
-		background: fade(@mainColor_normal, 15%);
+		background-color: fade(@mainColor_normal, 15%);
+		
+		&.light {
+			color: @mainColor_normal;
+			background-color: @mainColor_light;
+		}
 	}
 }
 

@@ -1158,7 +1158,7 @@ export default class DataStore {
 						const c = counters.find(v => v.id == a.counter);
 						if(c) {
 							//Counter exists grab its placeholder key
-							oldPlaceholderToNew[a.placeholder] = c.placeholderKey;
+							oldPlaceholderToNew[a.placeholder] = c.placeholderKey.slice(0, 15);
 						}else{
 							//Counter doesn't exists, set a placeholder user will understand
 							oldPlaceholderToNew[a.placeholder] = "DELETED_COUNTER";
