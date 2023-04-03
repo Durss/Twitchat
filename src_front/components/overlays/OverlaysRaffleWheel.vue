@@ -3,6 +3,7 @@
 		<InfiniteList class="list"
 		v-if="itemList.length > 0"
 		ref="listHolder"
+		fillWithDuplicates
 		:dataset="itemList"
 		:itemSize="itemSize"
 		:scrollOffset="scrollOffset"

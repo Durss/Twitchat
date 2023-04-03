@@ -46,6 +46,19 @@ input, textarea, select {
 		cursor: auto;
 		opacity: .5;
 	}
+	&[type="number"] {
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			display: none;
+		}
+		&:hover {
+			
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			display: inline;
+		}
+		}
+	}
 }
 	
 textarea {

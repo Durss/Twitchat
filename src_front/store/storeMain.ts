@@ -512,6 +512,7 @@ export const storeMain = defineStore("main", {
 			//If OBS params are on URL or if connection is enabled, connect
 			if(sOBS.connectionEnabled && (port != undefined || pass != undefined || ip != undefined)) {
 				sOBS.connectionEnabled = true;
+				console.log(pass);
 				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}
 		},

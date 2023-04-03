@@ -19,7 +19,11 @@
 			"value_max":"Valeur max",
 			"value_loop":"Boucler la valeur lorsque le maximum ou le minimum est atteint",
 			"value_user": "Chaque viewer possède son propre compteur",
-			"search":"Chercher quelqu'un..."
+			"load_all_users": "Charger tous les viewers",
+			"no_users": "aucun compteur viewer pour le moment",
+			"search":"Chercher quelqu'un...",
+			"sort_name":"Nom",
+			"sort_points":"Points"
 		},
 		"delete_confirm":{
 			"title":"Supprimer ?",

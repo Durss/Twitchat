@@ -62,8 +62,6 @@ export const storeRaffle = defineStore('raffle', {
 		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish:boolean = false) {
 			// this.raffle = null;
 			let data:TwitchatDataTypes.RaffleData|null = this.data;
-			console.log("WINNER:", winner);
-			console.log("      :", data);
 			if(data) {
 				const winnerLoc = data.entries.find(v=> v.id == winner.id);
 				if(winnerLoc) {
@@ -75,7 +73,6 @@ export const storeRaffle = defineStore('raffle', {
 					if(winnerLoc.user) {
 						if(StoreProxy.params.features.raffleHighlightUser.value) {
 							const user = StoreProxy.users.getUserFrom(winnerLoc.user.platform, winnerLoc.user.channel_id, winnerLoc.user.id);
-							console.log("RAFFLE WINNER:", user);
 							StoreProxy.users.trackUser(user);
 							setTimeout(()=> {
 								StoreProxy.users.untrackUser(user);

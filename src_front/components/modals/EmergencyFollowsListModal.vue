@@ -21,6 +21,7 @@
 					:itemSize="itemSize"
 					:itemMargin="itemMargin"
 					v-model:scrollOffset="scrollOffset"
+					fillWithDuplicates
 					lockScroll
 					nodeType="div"
 					:style="{height:'100%'}"

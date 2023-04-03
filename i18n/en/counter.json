@@ -19,7 +19,11 @@
 			"value_max": "Max value",
 			"value_loop": "Loop value when reaching min or max",
 			"value_user": "Every user has their own counter",
-			"search":"Search user..."
+			"load_all_users": "Load all users",
+			"no_users": "no user yet",
+			"search":"Search user...",
+			"sort_name":"Name",
+			"sort_points":"Points"
 		},
 		"delete_confirm": {
 			"title": "Delete ?",

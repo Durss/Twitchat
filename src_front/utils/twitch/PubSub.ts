@@ -94,6 +94,8 @@ export default class PubSub extends EventDispatcher {
 				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
 				subscriptions.push("automod-queue."+myUID+"."+myUID);
 				subscriptions.push("low-trust-users."+myUID+"."+myUID);
+				subscriptions.push("low-trust-users."+myUID+"."+myUID);
+				// subscriptions.push("channel-chat-highlights."+myUID+"."+myUID);//Needs a twitch scope T_T. This is what allows to get "raider" message highlight
 			}
 
 			

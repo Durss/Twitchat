@@ -1,6 +1,5 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -29,14 +28,17 @@ export const storeCounters = defineStore('counters', {
 			this.counterList.push(data);
 			DataStore.set(DataStore.COUNTERS, this.counterList);
 		},
+
 		updateCounter(data:TwitchatDataTypes.CounterData):void {
 			for (let i = 0; i < this.counterList.length; i++) {
 				if(this.counterList[i].id == data.id) {
 					if(data.perUser) {
+						//Backup users to the new instance
 						data.users = this.counterList[i].users;
 					}else{
 						delete data.users;
 					}
+					//Delete old, add new
 					this.counterList.splice(i, 1, data);
 					break;
 				}
