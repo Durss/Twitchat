@@ -636,7 +636,6 @@ export const storeChat = defineStore('chat', {
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 						
 					}else {
-						this.flagMessageAsFirstToday(message, message.user);
 
 						//Check if it's an "ad" message
 						if(message.user.id == sAuth.twitch.user.id
@@ -839,7 +838,6 @@ export const storeChat = defineStore('chat', {
 
 				//Reward redeem
 				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-					this.flagMessageAsFirstToday(message, message.user);
 	
 					//If a raffle is in progress, check if the user can enter
 					const raffle = sRaffle.data;
@@ -925,7 +923,6 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 					
 					sUsers.flagAsFollower(message.user, message.channel_id);
-					this.flagMessageAsFirstToday(message, message.user);
 
 					//Merge all followbot events into one
 					if(message.followbot === true) {
@@ -1073,6 +1070,12 @@ export const storeChat = defineStore('chat', {
 					}
 				}
 			}
+
+			//Check if it's a greetable message
+			if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+				const mLoc = message as TwitchatDataTypes.GreetableMessage;
+				this.flagMessageAsFirstToday(mLoc, mLoc.user);
+			}
 			
 			//Limit history size
 			const maxMessages = this.realHistorySize;
@@ -1161,27 +1164,30 @@ export const storeChat = defineStore('chat', {
 		},
 
 		delUserMessages(uid:string, channelId:string) {
+			
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
-				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& m.user.id == uid
-				&& m.channel_id == channelId
-				&& !m.deleted) {
+				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
+				console.log("DELETE", m.type, m);
+				const mTyped = m as TwitchatDataTypes.GreetableMessage;
+				if(mTyped.user.id == uid
+				&& mTyped.channel_id == channelId
+				&& !mTyped.deleted) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
 						const wsMessage = {
-							channel:m.channel_id,
-							message:m.message,
+							channel:mTyped.channel_id,
+							message:("message" in mTyped)? mTyped.message as string : "",
 							user:{
-								id:m.user.id,
-								login:m.user.login,
-								displayName:m.user.displayName,
+								id:mTyped.user.id,
+								login:mTyped.user.login,
+								displayName:mTyped.user.displayName,
 							}
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 					}, Math.floor(i/5)*50)
 
-					m.deleted = true;
+					mTyped.deleted = true;
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}
@@ -1190,24 +1196,25 @@ export const storeChat = defineStore('chat', {
 		delChannelMessages(channelId:string):void {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
-				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& m.channel_id == channelId
-				&& !m.deleted) {
+				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
+				const mTyped = m as TwitchatDataTypes.GreetableMessage;
+				if(mTyped.channel_id == channelId
+				&& !mTyped.deleted) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
 						const wsMessage = {
-							channel:m.channel_id,
-							message:m.message,
+							channel:mTyped.channel_id,
+							message:("message" in mTyped)? mTyped.message as string : "",
 							user:{
-								id:m.user.id,
-								login:m.user.login,
-								displayName:m.user.displayName,
+								id:mTyped.user.id,
+								login:mTyped.user.login,
+								displayName:mTyped.user.displayName,
 							}
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 					}, Math.floor(i/5)*50)
 
-					m.deleted = true;
+					mTyped.deleted = true;
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}

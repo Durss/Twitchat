@@ -418,6 +418,10 @@ export default class MessageList extends Vue {
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
 		if(this.customActivitiesDisplayed) return false;
 		if(m.col != undefined && m.col != this.config.order) return false;
+		
+		if (m.deleted && this.config.messageFilters.deleted === false) {
+			return false;
+		}
 
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
@@ -454,9 +458,6 @@ export default class MessageList extends Vue {
 				//displayed even if all the viewers/mod/vip/sub filters are off
 				if ((m.twitch_automod || m.twitch_isRestricted)) {
 					return this.config.messageFilters.automod !== false;
-				}
-				if (m.deleted) {
-					return this.config.messageFilters.deleted !== false;
 				}
 				if (m.twitch_isSuspicious) {
 					return this.config.messageFilters.suspiciousUsers !== false;

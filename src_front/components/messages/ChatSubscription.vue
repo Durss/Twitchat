@@ -1,5 +1,5 @@
 <template>
-	<div class="chatsubscription">
+	<div :class="classes">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img v-if="messageData.is_gift" src="@/assets/icons/gift.svg" alt="gift" class="icon">
@@ -130,6 +130,12 @@ export default class ChatSubscription extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageSubscriptionData;
+
+	public get classes():string[] {
+		let res = ["chatsubscription"];
+		if(this.messageData.deleted === true) res.push("deleted");
+		return res;
+	}
 
 	public get totalSubgifts():number|undefined {
 		return this.messageData.user.channelInfo[this.messageData.channel_id].totalSubgifts;

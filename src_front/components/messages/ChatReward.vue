@@ -1,5 +1,5 @@
 <template>
-	<div class="chatreward">
+	<div :class="classes">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="icon" alt="reward" class="icon">
@@ -35,6 +35,12 @@ export default class ChatReward extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRewardRedeemData;
+
+	public get classes():string[] {
+		let res = ["chatreward"];
+		if(this.messageData.deleted === true) res.push("deleted");
+		return res;
+	}
 
 	public get icon():string {
 		let icon = this.$image('icons/channelPoints.svg');

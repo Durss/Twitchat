@@ -11,6 +11,14 @@
 	font-family: var(--font-inter);
 	line-height: 1.25em;
 	padding: .25em;
+	&.deleted {
+		opacity: .35;
+		text-decoration: line-through;
+		&:hover{
+			opacity: 1;
+			text-decoration: none;
+		}
+	}
 
 	&:hover {
 		background-color: rgba(255, 255, 255, .2);

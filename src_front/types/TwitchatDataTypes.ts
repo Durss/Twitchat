@@ -1330,7 +1330,7 @@ export namespace TwitchatDataTypes {
 									| MessageScopeRequestData
 									| MessageMarkerCreated
 	;
-
+	
 	/**
 	 * Defines any message that could be deleted.
 	 * Used by TTS to check if the message still exists before reading it
@@ -1383,9 +1383,35 @@ export namespace TwitchatDataTypes {
 		col?:number;//Use this to send a message on a specific column index
 	}
 
+	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];
+	
+	//Ensure the object contains all requested keys
+	export const GreetableMessageTypesString:Record<GreetableMessageTypes, unknown> ={
+		cheer:true,
+		reward:true,
+		message:true,
+		following:true,
+		subscription:true,
+	}
+
 	export interface GreetableMessage extends AbstractTwitchatMessage {
+		/**
+		 * Do not use this property.
+		 * It's only here for the GreetableMessageTypes type definition
+		 * @deprecated
+		 */
+		is_greetable_message?:boolean;
+		/**
+		 * Is it the first message of the user today ?
+		 */
 		todayFirst?: boolean;
+		/**
+		 * Channel ID the message has been sent to
+		 */
 		channel_id:string;
+		/**
+		 * User that sent the message
+		 */
 		user:TwitchatUser;
 	}
 
@@ -1704,7 +1730,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a new subscription message
 	 */
-	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
+	export interface MessageSubscriptionData extends GreetableMessage {
 		channel_id: string;
 		type:"subscription";
 		/**
@@ -1768,7 +1794,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a bits data
 	 */
-	export interface MessageCheerData extends AbstractTwitchatMessage {
+	export interface MessageCheerData extends GreetableMessage {
 		channel_id: string;
 		type:"cheer";
 		/**
