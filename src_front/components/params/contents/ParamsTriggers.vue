@@ -312,6 +312,32 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 								title:twitchReward.title,
 							};
 						}
+					}else 
+
+					//OBS scene change simulation
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE) {
+						m.sceneName = trigger.obsScene!;
+					}else 
+
+					//OBS source toggle simulation
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE) {
+						m.sourceName = trigger.obsSource!;
+						m.visible = trigger.type == TriggerTypes.OBS_SOURCE_ON;
+					}else 
+
+					//Counter update simulation
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE) {
+						const counter = this.$store("counters").counterList.find(v=>v.id == trigger.counterId);;
+						if(counter) {
+							m.counter = counter;
+							switch(trigger.type) {
+								case TriggerTypes.COUNTER_ADD: m.added = m.added_abs = 10; break;
+								case TriggerTypes.COUNTER_DEL: m.added = -10; m.added_abs = 10; break;
+								case TriggerTypes.COUNTER_LOOPED: m.looped = true; break;
+								case TriggerTypes.COUNTER_MAXED: m.maxed = true; break;
+								case TriggerTypes.COUNTER_MINED: m.mined = true; break;
+							}
+						}
 					}
 
 					//Timer stop simulation

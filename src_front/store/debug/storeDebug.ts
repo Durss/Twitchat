@@ -703,6 +703,36 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE: {
+					let counter = Utils.pickRand(StoreProxy.counters.counterList ?? []);
+					if(!counter) {
+						counter = {
+							id:Utils.getUUID(),
+							loop:false,
+							max:false,
+							min:false,
+							name:"Fake counter",
+							perUser:false,
+							value:Math.round(Math.random()*9999),
+						}
+					}
+					const m:TwitchatDataTypes.MessageCounterUpdatesData = {
+						platform:"twitchat",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						counter,
+						added:10,
+						added_abs: 10,
+						looped:false,
+						maxed:false,
+						mined:false,
+						value:counter.value,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT: {
 					const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
 						id:Utils.getUUID(),
