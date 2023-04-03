@@ -358,7 +358,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		if(users.length > 0) {
 			const channelId = this.$store("auth").twitch.user.id;
 			const ttUsers = users.map((u) => {
-				const param:TwitchatDataTypes.ParameterData<number> = {type:'number', value:entry.counter.value, min:entry.counter.min || undefined, max:entry.counter.max || undefined};
+				let value = (entry.counter.users && entry.counter.users[u.id])? entry.counter.users![u.id] : 0;
+				const param:TwitchatDataTypes.ParameterData<number> = {type:'number', value, min:entry.counter.min || undefined, max:entry.counter.max || undefined};
 				const user = this.$store("users").getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
 				user.avatarPath = u.profile_image_url;
 				return { param, user, hide:false };
