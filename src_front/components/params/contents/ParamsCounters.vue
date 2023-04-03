@@ -96,7 +96,7 @@
 								<span class="login" @click="openUserCard(item.user)">{{ item.user.displayName }}</span>
 								<ParamItem class="value"
 									:paramData="item.param"
-									@change="onChangeValue(entry, item.user)" />
+									@change="onChangeValue(entry, item)" />
 							</div>
 						</InfiniteList>
 					</template>
@@ -227,11 +227,11 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	/**
 	 * Called when editing the value of an existing counter
 	 */
-	public onChangeValue(entry:CounterEntry, user?:TwitchatDataTypes.TwitchatUser):void {
+	public onChangeValue(entry:CounterEntry, userEntry?:UserEntry):void {
 		clearTimeout(this.timeoutEdit);
 		this.timeoutEdit = setTimeout(() => {
-			if(user) {
-				entry.counter.users![ user.id ] = entry.param.value;
+			if(userEntry) {
+				entry.counter.users![ userEntry.user.id ] = userEntry.param.value;
 			}else{
 				entry.counter.value = entry.param.value;
 			}
@@ -335,7 +335,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 					found = true;
 					this.idToUsers[counter.id] = [{
 							hide:false,
-							param:{type:'number', value:counter.value, min:counter.min || undefined, max:counter.max || undefined},
+							param:reactive({type:"number", value:counter.value, min:counter.min || undefined, max:counter.max || undefined}),
 							user:this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, u.id, u.login, u.display_name),
 						}];
 				}
@@ -357,12 +357,13 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		const users = await TwitchUtils.loadUserInfo(Object.keys(entry.counter.users!).slice(0, 5000));
 		if(users.length > 0) {
 			const channelId = this.$store("auth").twitch.user.id;
-			const ttUsers = users.map((u) => {
+			const ttUsers:UserEntry[] = users.map((u) => {
 				let value = (entry.counter.users && entry.counter.users[u.id])? entry.counter.users![u.id] : 0;
-				const param:TwitchatDataTypes.ParameterData<number> = {type:'number', value, min:entry.counter.min || undefined, max:entry.counter.max || undefined};
+				const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:entry.counter.min || undefined, max:entry.counter.max || undefined});
 				const user = this.$store("users").getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
 				user.avatarPath = u.profile_image_url;
-				return { param, user, hide:false };
+				const res:UserEntry = { param, user, hide:false };
+				return res;
 			});
 			this.idToAllLoaded[entry.counter.id] = true;
 			this.idToUsers[entry.counter.id] = ttUsers;

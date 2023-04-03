@@ -1164,11 +1164,9 @@ export const storeChat = defineStore('chat', {
 		},
 
 		delUserMessages(uid:string, channelId:string) {
-			
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
 				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
-				console.log("DELETE", m.type, m);
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.user.id == uid
 				&& mTyped.channel_id == channelId
