@@ -42,6 +42,8 @@ export default class TwitchatEvent extends Event {
 	public static OBS_SCENE_CHANGE:TwitchatEventType = "OBS_SCENE_CHANGE";
 	public static OBS_SOURCE_TOGGLE:TwitchatEventType = "OBS_SOURCE_TOGGLE";
 	public static OBS_MUTE_TOGGLE:TwitchatEventType = "OBS_MUTE_TOGGLE";
+	public static OBS_PLAYBACK_ENDED:TwitchatEventType = "OBS_PLAYBACK_ENDED";
+	public static OBS_PLAYBACK_STARTED:TwitchatEventType = "OBS_PLAYBACK_STARTED";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -141,6 +143,8 @@ export const TwitchatEventTypeList = [
 	"OBS_SCENE_CHANGE",
 	"OBS_SOURCE_TOGGLE",
 	"OBS_MUTE_TOGGLE",
+	"OBS_PLAYBACK_ENDED",
+	"OBS_PLAYBACK_STARTED",
 ] as const;
 
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];

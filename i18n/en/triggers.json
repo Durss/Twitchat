@@ -536,6 +536,14 @@
 				"label": "Audio source unmute",
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS audio source is unmuted"
 			},
+			"OBS_PLAYBACK_STARTED": {
+				"label": "Media playback started",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source starts to play"
+			},
+			"OBS_PLAYBACK_ENDED": {
+				"label": "Media playback ended",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source ends playing"
+			},
 			"STREAM_ONLINE": {
 				"label": "Stream start",
 				"description": "Actions to execute when stream starts {INFO}",

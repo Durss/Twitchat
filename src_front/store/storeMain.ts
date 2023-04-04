@@ -285,6 +285,32 @@ export const storeMain = defineStore("main", {
 					}
 					TriggerActionHandler.instance.execute(m);
 				});
+
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_STARTED, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {inputName:string};
+					const m:TwitchatDataTypes.MessageOBSPlaybackStateUpdateData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
+						inputName:data.inputName,
+						started:true,
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
+
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {inputName:string};
+					const m:TwitchatDataTypes.MessageOBSPlaybackStateUpdateData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
+						inputName:data.inputName,
+						started:false,
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
 			}
 
 			PublicAPI.instance.initialize();

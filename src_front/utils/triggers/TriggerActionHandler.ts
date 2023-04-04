@@ -253,6 +253,13 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE: {
+				const event = message.started? TriggerTypes.OBS_PLAYBACK_STARTED : TriggerTypes.OBS_PLAYBACK_ENDED;
+				if(await this.executeTriggersByType(event, message, testMode, message.inputName.toLowerCase())) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.PINNED: {
 				if(await this.executeTriggersByType(TriggerTypes.PIN_MESSAGE, message, testMode)) {
 					return;
@@ -423,6 +430,8 @@ export default class TriggerActionHandler {
 				case TriggerTypes.OBS_SOURCE_ON:
 				case TriggerTypes.OBS_SOURCE_OFF: keys[0] += "_" + t.obsSource; break;
 
+				case TriggerTypes.OBS_PLAYBACK_STARTED:
+				case TriggerTypes.OBS_PLAYBACK_ENDED:
 				case TriggerTypes.OBS_INPUT_MUTE:
 				case TriggerTypes.OBS_INPUT_UNMUTE: keys[0] += "_" + t.obsInput; break;
 

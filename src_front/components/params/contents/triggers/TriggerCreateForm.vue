@@ -83,15 +83,15 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TriggerEventTypeCategories, TriggerEvents, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
 
@@ -365,14 +365,26 @@ export default class TriggerCreateForm extends Vue {
 		}else
 
 		if(e.value == TriggerTypes.OBS_INPUT_MUTE
-		|| e.value == TriggerTypes.OBS_INPUT_UNMUTE) {
+		|| e.value == TriggerTypes.OBS_INPUT_UNMUTE
+		|| e.value == TriggerTypes.OBS_PLAYBACK_STARTED
+		|| e.value == TriggerTypes.OBS_PLAYBACK_ENDED) {
 			if(!OBSWebsocket.instance.connected) {
 				this.needObsConnect = true;
 				return;
 			}else{
 				this.needObsConnect = false;
+				let filterdList = this.obsInputs;
+
+				if(e.value == TriggerTypes.OBS_PLAYBACK_STARTED
+				|| e.value == TriggerTypes.OBS_PLAYBACK_ENDED) {
+					//Filter only media sources if on a media playback trigger
+					filterdList = filterdList.filter(v=> {
+						return v.inputKind === 'ffmpeg_source' || v.inputKind === "image_source"
+					})
+				}
+
 				//build list from obs sourcess
-				const list = this.obsInputs.map((v):TriggerEntry => {
+				const list = filterdList.map((v):TriggerEntry => {
 					return {
 						label:v.inputName,
 						value:v.inputName,
@@ -431,6 +443,8 @@ export default class TriggerCreateForm extends Vue {
 			case TriggerTypes.OBS_SOURCE_ON:
 			case TriggerTypes.OBS_SOURCE_OFF: this.temporaryTrigger.obsSource = entry.value; break;
 
+			case TriggerTypes.OBS_PLAYBACK_STARTED:
+			case TriggerTypes.OBS_PLAYBACK_ENDED:
 			case TriggerTypes.OBS_INPUT_MUTE:
 			case TriggerTypes.OBS_INPUT_UNMUTE: this.temporaryTrigger.obsInput = entry.value; break;
 

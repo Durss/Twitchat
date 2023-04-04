@@ -538,6 +538,14 @@
 				"label": "Source audio activée",
 				"description": "Actions à exécuter lorsque la source audio OBS {SUB_ITEM_NAME} est activée"
 			},
+			"OBS_PLAYBACK_STARTED": {
+				"label": "Début de lecture d'un media",
+				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} débute la lecture"
+			},
+			"OBS_PLAYBACK_ENDED": {
+				"label": "Fin de lecture d'un media",
+				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} termine la lecture"
+			},
 			"STREAM_ONLINE": {
 				"label": "Début de stream",
 				"description": "Actions à exécuter lorsque le stream débute {INFO}",

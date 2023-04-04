@@ -1202,6 +1202,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
 		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
+		OBS_PLAYBACK_STATE_UPDATE:"obs_playback_state_update",
 		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
 	} as const;
 
@@ -1261,6 +1262,7 @@ export namespace TwitchatDataTypes {
 		hype_train_approaching:false,
 		clip_pending_publication:true,
 		community_boost_complete:true,
+		obs_playback_state_update:false,
 		community_challenge_contribution:true,
 	} as const;
 
@@ -1336,6 +1338,7 @@ export namespace TwitchatDataTypes {
 									| MessageOBSSceneChangedData
 									| MessageOBSSourceToggleData
 									| MessageOBSInputMuteToggleData
+									| MessageOBSPlaybackStateUpdateData
 									| MessageRoomSettingsData
 									| MessageStreamOnlineData
 									| MessageStreamOfflineData
@@ -2493,13 +2496,28 @@ export namespace TwitchatDataTypes {
 	export interface MessageOBSInputMuteToggleData extends AbstractTwitchatMessage {
 		type:"obs_input_mute_toggle";
 		/**
-		 * Name of the source that's been toggled
+		 * Name of the input that's been toggled
 		 */
 		inputName:string;
 		/**
-		 * true if the source is now visible
+		 * true if the input is now muted
 		 */
 		muted:boolean;
+	}
+
+	/**
+	 * Represents an OBS scene change event
+	 */
+	export interface MessageOBSPlaybackStateUpdateData extends AbstractTwitchatMessage {
+		type:"obs_playback_state_update";
+		/**
+		 * Name of the source which playback started/ended
+		 */
+		inputName:string;
+		/**
+		 * true if the playback has started, false if it ended
+		 */
+		started:boolean;
 	}
 
 	/**
