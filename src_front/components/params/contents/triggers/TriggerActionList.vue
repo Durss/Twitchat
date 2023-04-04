@@ -71,6 +71,7 @@
 							:index="index"
 							:totalItems="triggerData.actions.length"
 							:obsSources="obsSources"
+							:obsInputs="obsInputs"
 							:rewards="rewards"
 							:triggerData="triggerData"
 							@delete="deleteAction(index)"

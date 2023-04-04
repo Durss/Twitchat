@@ -127,7 +127,7 @@
 			</div>
 
 			<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
-			<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :sources="obsSources" />
+			<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" />
 			<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
 			<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
 			<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" />
@@ -160,7 +160,7 @@ import { TriggerEventPlaceholders, type TriggerActionObsDataAction, type Trigger
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import type { OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -220,6 +220,8 @@ export default class TriggerActionEntry extends Vue {
 	public triggerData!:TriggerData;
 	@Prop
 	public obsSources!:OBSSourceItem[];
+	@Prop
+	public obsInputs!:OBSInputItem[];
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
 	@Prop

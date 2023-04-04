@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -52,7 +52,9 @@ export default class TriggerActionOBSEntry extends Vue {
 	@Prop
 	public action!:TriggerActionObsData;
 	@Prop
-	public sources!:OBSSourceItem[];
+	public obsSources!:OBSSourceItem[];
+	@Prop
+	public obsInputs!:OBSInputItem[];
 	@Prop
 	public triggerData!:TriggerData;
 	
@@ -82,10 +84,17 @@ export default class TriggerActionOBSEntry extends Vue {
 	}
 
 	/**
+	 * Get if the selected source is an audio source
+	 */
+	public get isAudioSource():boolean {
+		return this.obsInputs.findIndex(v=> v.inputName == this.source_conf.value) > -1;
+	}
+
+	/**
 	 * Get if the selected source is a text source
 	 */
 	public get isTextSource():boolean {
-		return this.sources.find(v=> v.sourceName == this.source_conf.value)?.inputKind === 'text_gdiplus_v2'
+		return this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind === 'text_gdiplus_v2'
 				&& this.action_conf.value == "show";
 	}
 
@@ -93,7 +102,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	 * Get if the selected source is a browwer source
 	 */
 	public get isBrowserSource():boolean {
-		return this.sources.find(v=> v.sourceName == this.source_conf.value)?.inputKind === 'browser_source'
+		return this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind === 'browser_source'
 				&& this.action_conf.value == "show";
 	}
 
@@ -101,7 +110,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	 * Get if the selected source is a media source
 	 */
 	public get isMediaSource():boolean {
-		const inputKind = this.sources.find(v=> v.sourceName == this.source_conf.value)?.inputKind;
+		const inputKind = this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind;
 		this.media_conf.labelKey = "triggers.actions.obs.param_media";
 		if(inputKind === "image_source") this.media_conf.labelKey = "triggers.actions.obs.param_media_img";
 		return (inputKind === 'ffmpeg_source' || inputKind === "image_source");
@@ -126,7 +135,7 @@ export default class TriggerActionOBSEntry extends Vue {
 		//Prefill forms
 		await this.prefillForm();
 
-		watch(()=>this.sources, ()=> { this.prefillForm(); }, {deep:true});
+		watch(()=>this.obsSources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
 	}
@@ -158,16 +167,40 @@ export default class TriggerActionOBSEntry extends Vue {
 	 * Prefills the form
 	 */
 	private async prefillForm():Promise<void> {
-		this.source_conf.listValues = this.sources.map(v=> {return {label:v.sourceName, value:v.sourceName}});
+		//Get all OBS sources
+		let list = this.obsSources.map(v=> {return {label:v.sourceName, value:v.sourceName, type:"source"}}) as TwitchatDataTypes.ParameterDataListValue<string>[];
+		//Get all OBS inputs
+		list = list.concat( this.obsInputs.map(v=> {return {label:v.inputName, value:v.inputName, type:"input"}}) as TwitchatDataTypes.ParameterDataListValue<string>[] );
+
+		//Dedupe entries
+		const entriesDone:{[key:string]:boolean} = {};
+		list = list.filter(v=> {
+			const key = v.value.toLowerCase();
+			if(entriesDone[key] === true) return false;
+			entriesDone[key] = true;
+			return true;
+		})
+
+		//Sort entries by name
+		list.sort((a,b)=> {
+			if(a.label!.toLowerCase() > b.label!.toLowerCase()) return 1;
+			if(a.label!.toLowerCase() < b.label!.toLowerCase()) return -1;
+			return 0
+		});
+
+		this.source_conf.listValues = list;
 		this.source_conf.listValues.unshift({labelKey:"global.select_placeholder", value:""});
 		
 		this.isMissingObsEntry = false;
 		this.filter_conf.value = ""
 		if(this.action.sourceName != undefined) {
-			if(this.sources.findIndex(v=>v.sourceName===this.action.sourceName) > -1) {
+			//Check if an input is selected and exists on the list
+			if(this.obsSources.findIndex(v=>v.sourceName===this.action.sourceName) > -1) {
 				this.source_conf.value = this.action.sourceName;
 				const cachedFiltername = this.action.filterName;
 				const forceFilter = this.action.filterName != undefined;
+				//Trigger a source change to query optionnal filters existing
+				//on the selected entry
 				await this.onSourceChanged();
 				if(forceFilter && cachedFiltername) {
 					this.filter_conf.value = cachedFiltername;
