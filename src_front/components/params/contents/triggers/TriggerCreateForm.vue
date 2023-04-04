@@ -87,7 +87,7 @@ import { TriggerEvents, TriggerEventTypeCategories, TriggerTypes, type TriggerAc
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import type { OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -109,6 +109,8 @@ export default class TriggerCreateForm extends Vue {
 	public obsScenes!:OBSSceneItem[];
 	@Prop({default:[]})
 	public obsSources!:OBSSourceItem[];
+	@Prop({default:[]})
+	public obsInputs!:OBSInputItem[];
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
 	
@@ -361,6 +363,27 @@ export default class TriggerCreateForm extends Vue {
 				this.$emit("updateHeader", "triggers.header_select_obs_source");
 			}
 		}else
+
+		if(e.value == TriggerTypes.OBS_INPUT_MUTE
+		|| e.value == TriggerTypes.OBS_INPUT_UNMUTE) {
+			if(!OBSWebsocket.instance.connected) {
+				this.needObsConnect = true;
+				return;
+			}else{
+				this.needObsConnect = false;
+				//build list from obs sourcess
+				const list = this.obsInputs.map((v):TriggerEntry => {
+					return {
+						label:v.inputName,
+						value:v.inputName,
+						icon:"",
+						isCategory:false,
+					};
+				});
+				this.subtriggerList = list;
+				this.$emit("updateHeader", "triggers.header_select_obs_input");
+			}
+		}else
 		
 		if(e.value == TriggerTypes.COUNTER_ADD
 		|| e.value == TriggerTypes.COUNTER_DEL
@@ -407,6 +430,9 @@ export default class TriggerCreateForm extends Vue {
 
 			case TriggerTypes.OBS_SOURCE_ON:
 			case TriggerTypes.OBS_SOURCE_OFF: this.temporaryTrigger.obsSource = entry.value; break;
+
+			case TriggerTypes.OBS_INPUT_MUTE:
+			case TriggerTypes.OBS_INPUT_UNMUTE: this.temporaryTrigger.obsInput = entry.value; break;
 
 			case TriggerTypes.COUNTER_ADD:
 			case TriggerTypes.COUNTER_DEL:

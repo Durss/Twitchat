@@ -106,6 +106,10 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, e));
 		});
 
+		this.obs.on("InputMuteStateChanged", (e:{inputName:string, inputMuted:boolean}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_MUTE_TOGGLE, e));
+		});
+
 		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
 			const res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
 			const items = (res.sceneItems as unknown) as OBSSourceItem[];

@@ -6,6 +6,7 @@
 		"header_select_counter": "Choisissez un compteur",
 		"header_select_obs_scene": "Choisissez une scène OBS",
 		"header_select_obs_source": "Choisissez une source OBS",
+		"header_select_obs_input": "Choisissez l'entrée audio OBS",
 		"trigger_name":"Nom personnalisé",
 		"add_triggerBt": "Ajouter un trigger",
 		"add_trigger_select_event": "Choisissez un type d'évènement",
@@ -523,11 +524,19 @@
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source affichée",
-				"description": "Actions à exécuter lorsque la source {SUB_ITEM_NAME} est affichée"
+				"description": "Actions à exécuter lorsque la source OBS {SUB_ITEM_NAME} est affichée"
 			},
 			"OBS_SOURCE_OFF": {
 				"label": "Source masquée",
-				"description": "Actions à exécuter lorsque la source {SUB_ITEM_NAME} est masquée"
+				"description": "Actions à exécuter lorsque la source OBS {SUB_ITEM_NAME} est masquée"
+			},
+			"OBS_INPUT_MUTE": {
+				"label": "Source audio désactivée",
+				"description": "Actions à exécuter lorsque la source audio OBS {SUB_ITEM_NAME} est désactivée"
+			},
+			"OBS_INPUT_UNMUTE": {
+				"label": "Source audio activée",
+				"description": "Actions à exécuter lorsque la source audio OBS {SUB_ITEM_NAME} est activée"
 			},
 			"STREAM_ONLINE": {
 				"label": "Début de stream",

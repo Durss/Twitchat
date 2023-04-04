@@ -41,6 +41,7 @@ export default class TwitchatEvent extends Event {
 	public static COUNTER_LIST:TwitchatEventType = "COUNTER_LIST";
 	public static OBS_SCENE_CHANGE:TwitchatEventType = "OBS_SCENE_CHANGE";
 	public static OBS_SOURCE_TOGGLE:TwitchatEventType = "OBS_SOURCE_TOGGLE";
+	public static OBS_MUTE_TOGGLE:TwitchatEventType = "OBS_MUTE_TOGGLE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -139,6 +140,7 @@ export const TwitchatEventTypeList = [
 	"COUNTER_LIST",
 	"OBS_SCENE_CHANGE",
 	"OBS_SOURCE_TOGGLE",
+	"OBS_MUTE_TOGGLE",
 ] as const;
 
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];

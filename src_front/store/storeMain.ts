@@ -253,7 +253,7 @@ export const storeMain = defineStore("main", {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:"twitchat",
-						type:'obs_scene_change',
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
 						sceneName:(event.data as {sceneName:string}).sceneName,
 					}
 					TriggerActionHandler.instance.execute(m);
@@ -265,10 +265,23 @@ export const storeMain = defineStore("main", {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:"twitchat",
-						type:'obs_source_toggle',
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE,
 						sourceName:data.item.sourceName,
 						sourceItemId:data.event.sceneItemId,
 						visible:data.event.sceneItemEnabled,
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
+
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_MUTE_TOGGLE, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {inputName:string, inputMuted:boolean};
+					const m:TwitchatDataTypes.MessageOBSInputMuteToggleData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE,
+						inputName:data.inputName,
+						muted:data.inputMuted,
 					}
 					TriggerActionHandler.instance.execute(m);
 				});

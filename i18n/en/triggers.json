@@ -6,6 +6,7 @@
 		"header_select_counter": "Select the counter",
 		"header_select_obs_scene": "Select the OBS scene",
 		"header_select_obs_source": "Select the OBS source",
+		"header_select_obs_input": "Select the OBS input to monitor",
 		"trigger_name":"Custom name",
 		"add_triggerBt": "Create a trigger",
 		"add_trigger_select_event": "Choose an event type",
@@ -526,6 +527,14 @@
 			"OBS_SOURCE_OFF": {
 				"label": "Source hide",
 				"description": "Actions to execute when hiding {SUB_ITEM_NAME} OBS source"
+			},
+			"OBS_INPUT_MUTE": {
+				"label": "Audio source mute",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS audio source is muted"
+			},
+			"OBS_INPUT_UNMUTE": {
+				"label": "Audio source unmute",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS audio source is unmuted"
 			},
 			"STREAM_ONLINE": {
 				"label": "Stream start",

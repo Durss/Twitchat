@@ -51,6 +51,7 @@
 				@updateHeader="headerKey = $event"
 				:obsScenes="obsScenes"
 				:obsSources="obsSources"
+				:obsInputs="obsInputs"
 				:rewards="rewards" />
 				
 			<img src="@/assets/loader/loader.svg" v-if="showLoading" class="loader">
@@ -59,6 +60,7 @@
 				v-if="currentTriggerData"
 				:triggerData="currentTriggerData"
 				:obsSources="obsSources"
+				:obsInputs="obsInputs"
 				:rewards="rewards" />
 				
 			<TriggerList v-if="showList"
@@ -74,7 +76,7 @@ import Button from '@/components/Button.vue';
 import { TriggerEvents, TriggerTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -108,6 +110,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public currentTriggerData:TriggerData|null = null;
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
+	public obsInputs:OBSInputItem[] = [];
 	public rewards:TwitchDataTypes.Reward[] = [];
 
 	public get showOBSResync():boolean {
@@ -195,6 +198,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		await Utils.promisedTimeout(250);
 		try {
 			this.obsSources = await OBSWebsocket.instance.getSources();
+			this.obsInputs = await OBSWebsocket.instance.getInputs();
 		}catch(error) {
 			this.obsSources = [];
 			this.$store("main").alert(this.$t('error.obs_sources_loading'));
@@ -204,6 +208,12 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		this.obsSources.sort((a,b)=> {
 			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
 			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
+			return 0;
+		});
+
+		this.obsInputs.sort((a,b)=> {
+			if(a.inputName.toLowerCase() < b.inputName.toLowerCase()) return -1;
+			if(a.inputName.toLowerCase() > b.inputName.toLowerCase()) return 1;
 			return 0;
 		});
 		this.loadingOBSScenes = false;

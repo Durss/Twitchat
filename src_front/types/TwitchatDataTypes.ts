@@ -1197,6 +1197,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
+		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
 		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
@@ -1254,6 +1255,7 @@ export namespace TwitchatDataTypes {
 		low_trust_treatment:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
+		obs_input_mute_toggle:false,
 		music_added_to_queue:false,
 		hype_train_cooled_down:true,
 		hype_train_approaching:false,
@@ -1333,6 +1335,7 @@ export namespace TwitchatDataTypes {
 									| MessageLowtrustTreatmentData
 									| MessageOBSSceneChangedData
 									| MessageOBSSourceToggleData
+									| MessageOBSInputMuteToggleData
 									| MessageRoomSettingsData
 									| MessageStreamOnlineData
 									| MessageStreamOfflineData
@@ -2482,6 +2485,21 @@ export namespace TwitchatDataTypes {
 		 * true if the source is now visible
 		 */
 		visible:boolean;
+	}
+
+	/**
+	 * Represents an OBS scene change event
+	 */
+	export interface MessageOBSInputMuteToggleData extends AbstractTwitchatMessage {
+		type:"obs_input_mute_toggle";
+		/**
+		 * Name of the source that's been toggled
+		 */
+		inputName:string;
+		/**
+		 * true if the source is now visible
+		 */
+		muted:boolean;
 	}
 
 	/**

@@ -92,7 +92,7 @@ import Button from '@/components/Button.vue';
 import { TriggerEvents, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
@@ -120,6 +120,8 @@ export default class TriggerActionList extends Vue {
 	public triggerData!:TriggerData;
 	@Prop
 	public obsSources!:OBSSourceItem[];
+	@Prop
+	public obsInputs!:OBSInputItem[];
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
 	
@@ -156,6 +158,10 @@ export default class TriggerActionList extends Vue {
 			case TriggerTypes.OBS_SOURCE_ON:
 			case TriggerTypes.OBS_SOURCE_OFF:
 				return this.triggerData.obsSource || "...";
+
+			case TriggerTypes.OBS_INPUT_MUTE:
+			case TriggerTypes.OBS_INPUT_UNMUTE:
+				return this.triggerData.obsInput || "...";
 
 			case TriggerTypes.COUNTER_ADD:
 			case TriggerTypes.COUNTER_DEL:
