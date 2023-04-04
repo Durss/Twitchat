@@ -13,12 +13,19 @@ import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
 
 /**
+ * TYPING IS COMPLETLY BROKEN AFTER UPGRADING TO LATEST tmi.js LIB
+ * Couln't find a way to fix it yet and i'm f***in tired of trying è_é
+ * compilation still works if I delete the types.d.ts from tmi.js module
+ * so F it for now :3
+ */
+
+/**
 * Created : 25/09/2022 
 */
 export default class TwitchMessengerClient extends EventDispatcher {
 
 	private static _instance:TwitchMessengerClient;
-	private _client!:tmi.Client;
+	private _client!:any;
 	private _connectTimeout:number = -1;
 	private _refreshingToken:boolean = false;
 	private _channelList:string[] = [];
@@ -232,7 +239,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public async sendMessage(channelId:string, text:string):Promise<boolean> {
+	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData):Promise<boolean> {
 		//TMI.js doesn't send the message back to their sender if sending
 		//it just after receiving a message (same frame).
 		//If we didn't wait for a frame, the message would be sent properly
@@ -440,8 +447,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 		}
-		
-		this._client.say(this._channelIdToLogin[channelId], text);
+		console.log(this._client);
+		if(replyTo) {
+			//@ts-ignore
+			this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
+		}else{
+			this._client.say(this._channelIdToLogin[channelId], text);
+		}
 		return true
 	}
 

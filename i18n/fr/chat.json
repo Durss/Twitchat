@@ -41,7 +41,8 @@
 			"muteTTSBt_aria": "Couper le TTS",
 			"clearTTSBt_aria": "Vider la file d'attente",
 			"resetVoiceBt_aria": "Désactiver le changement de voix",
-			"viewer_count": "Nombre de viewers"
+			"viewer_count": "Nombre de viewers",
+			"reply_to": "Réponse à {USER} :"
 		},
 		"filters": {
 			"cta": "Options importantes ici",
@@ -307,6 +308,7 @@
 			"track": "Suivre ses messages",
 			"untrack": "Ne plus suivre<br>ses messages",
 			"shoutout": "Faire un shoutout",
+			"answer": "Répondre",
 			"tts": "Lire via TTS",
 			"tts_all": "Lire tous ses<br>messages via TTS",
 			"tts_all_start": "Lire tous ses<br>messages via TTS",

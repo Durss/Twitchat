@@ -699,6 +699,17 @@ export default class ChatMessage extends AbstractChatMessage {
 					icon: this.$image("icons/shoutout.svg"),
 					onClick: () => this.$store("users").shoutout(this.messageData.channel_id, user),
 				});
+
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			options.push({ 
+						label: this.$t("chat.context_menu.answer"),
+						icon: this.$image("icons/reply.svg"),
+						onClick: () => {
+							this.$store("chat").replyTo = this.messageData as TwitchatDataTypes.MessageChatData;
+						}
+					});
+		}
+
 		if(user.is_tracked) {
 			options.push({ 
 						label: this.$t("chat.context_menu.untrack"),
@@ -712,6 +723,7 @@ export default class ChatMessage extends AbstractChatMessage {
 						onClick: () => this.$store("users").trackUser(user),
 					});
 		}
+
 		options.push({ 
 					label: this.$t("chat.context_menu.highlight"),
 					icon: this.$image("icons/highlight.svg"),

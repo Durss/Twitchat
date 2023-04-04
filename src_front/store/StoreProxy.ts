@@ -157,6 +157,7 @@ export interface IBingoActions {
 export interface IChatState {
 	searchMessages:string;
 	realHistorySize:number;
+	replyTo:TwitchatDataTypes.MessageChatData|null;
 	whispersUnreadCount:number;
 	pinedMessages:(TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData)[];
 	emoteSelectorCache:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[],

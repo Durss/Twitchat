@@ -8,182 +8,197 @@
 				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
+			
 			<form @submit.prevent="" class="inputForm">
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
-
-				<input type="text"
-					class="dark"
-					v-model="message"
-					v-if="!error && !spamming"
-					ref="input"
-					:placeholder="$t('chat.form.input_placeholder')"
-					:maxlength="maxLength"
-					@keyup.capture.tab="(e)=>onTab(e)"
-					@keydown.enter="(e:Event)=>sendMessage(e)"
-					@keydown="onKeyDown">
-
-				<Button class="noClear spam" highlight
-					v-if="spamming"
-					:title="$t('chat.form.stop_spamBt')"
-					:icon="$image('icons/cross_white.svg')"
-					@click="stopSpam()" />
 				
-				<span @click="error=false" v-if="error" class="error">{{ $t('error.message_send') }}</span>
-				
-				<Button :aria-label="$t('chat.form.emoteBt_aria')"
-					:icon="$image('icons/emote.svg')"
-					bounce 
-					@click="$emit('update:showEmotes',true);" />
-
-				<transition name="blink">
-				<Button :aria-label="$t('chat.form.pollBt_aria')"
-					:icon="$image('icons/poll.svg')"
-					bounce
-					@click="$emit('setCurrentNotification', 'poll')"
-					v-if="$store('poll').data?.id" />
-				</transition>
-
-				<transition name="blink">
-				<Button :aria-label="$t('chat.form.suggBt_aria')"
-					:icon="$image('icons/chatPoll.svg')"
-					bounce
-					@click="$emit('setCurrentNotification', 'chatpoll')"
-					v-if="$store('chatSuggestion').data != null" />
-				</transition>
-
-				<transition name="blink">
-				<Button :aria-label="$t('chat.form.predictionBt_aria')"
-					:icon="$image('icons/prediction.svg')"
-					bounce
-					@click="$emit('setCurrentNotification', 'prediction')"
-					v-if="$store('prediction').data?.id" />
-				</transition>
-
-				<transition name="blink">
-				<Button :aria-label="$t('chat.form.trackedBt_aria')"
-					:icon="$image('icons/magnet.svg')"
-					bounce
-					v-if="trackedUserCount > 0"
-					:data-tooltip="$t('chat.form.trackedBt_aria')"
-					@click="$emit('setCurrentNotification', 'trackedUsers')" />
-				</transition>
-
-				<transition name="blink">
-				<div class="whispers" v-if="$store('raffle').data?.mode == 'chat'">
-					<Button :aria-label="$t('chat.form.raffleBt_aria')"
-						:icon="$image('icons/ticket.svg')"
+					<div class="inputHolder">
+						<div class="replyTo" v-if="$store('chat').replyTo">
+							<button class="closeBt" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross_white.svg" alt="close"></button>
+							<div class="content">
+								<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
+									<template #USER>
+										<a class="userlink" @click.stop="openUserCard($store('chat').replyTo!.user, $store('chat').replyTo!.channel_id)">{{$store("chat").replyTo!.user.displayName}}</a>
+									</template>
+								</i18n-t>
+								<span class="message">{{ $store('chat').replyTo!.message }}</span>
+							</div>
+						</div>
+						<input type="text"
+							class="dark"
+							v-model="message"
+							v-if="!error && !spamming"
+							ref="input"
+							:placeholder="$t('chat.form.input_placeholder')"
+							:maxlength="maxLength"
+							@keyup.capture.tab="(e)=>onTab(e)"
+							@keydown.enter="(e:Event)=>sendMessage(e)"
+							@keydown="onKeyDown">
+					</div>
+	
+					<Button class="noClear spam" highlight
+						v-if="spamming"
+						:title="$t('chat.form.stop_spamBt')"
+						:icon="$image('icons/cross_white.svg')"
+						@click="stopSpam()" />
+					
+					<span @click="error=false" v-if="error" class="error">{{ $t('error.message_send') }}</span>
+					
+					<Button :aria-label="$t('chat.form.emoteBt_aria')"
+						:icon="$image('icons/emote.svg')"
+						bounce 
+						@click="$emit('update:showEmotes',true);" />
+	
+					<transition name="blink">
+					<Button :aria-label="$t('chat.form.pollBt_aria')"
+						:icon="$image('icons/poll.svg')"
 						bounce
-						:data-tooltip="$t('chat.form.raffleBt_aria')"
-						@click="$emit('setCurrentNotification', 'raffle')" />
-					<div class="count" v-if="$store('raffle').data!.entries && $store('raffle').data!.entries.length > 0">{{$store('raffle').data?.entries.length}}</div>
-				</div>
-				</transition>
-
-				<transition name="blink">
-				<Button :aria-label="$t('chat.form.bingoBt_aria')"
-					:icon="$image('icons/bingo.svg')"
-					bounce
-					v-if="$store('bingo').data"
-					:data-tooltip="$t('chat.form.bingoBt_aria')"
-					@click="$emit('setCurrentNotification', 'bingo')" />
-				</transition>
-
-				<transition name="blink">
-				<div class="whispers" v-if="whispersAvailable">
-					<Button :aria-label="$t('chat.form.whispersBt_aria')"
-						:icon="$image('icons/whispers.svg')"
+						@click="$emit('setCurrentNotification', 'poll')"
+						v-if="$store('poll').data?.id" />
+					</transition>
+	
+					<transition name="blink">
+					<Button :aria-label="$t('chat.form.suggBt_aria')"
+						:icon="$image('icons/chatPoll.svg')"
 						bounce
-						:data-tooltip="$t('chat.form.whispersBt_aria')"
-						@click="$emit('setCurrentNotification', 'whispers')" />
-					<div class="count" v-if="$store('chat').whispersUnreadCount > 0">{{$store('chat').whispersUnreadCount}}</div>
-				</div>
-				</transition>
-
-				<transition name="blink">
-				<div class="pins" v-if="$store('chat').pinedMessages.length > 0">
-					<Button :aria-label="$t('chat.form.pinsBt_aria')"
-						:icon="$image('icons/save.svg')"
+						@click="$emit('setCurrentNotification', 'chatpoll')"
+						v-if="$store('chatSuggestion').data != null" />
+					</transition>
+	
+					<transition name="blink">
+					<Button :aria-label="$t('chat.form.predictionBt_aria')"
+						:icon="$image('icons/prediction.svg')"
 						bounce
-						:data-tooltip="$t('chat.form.saveBt_aria')"
-						@click="$emit('pins')" />
-					<div class="count">{{$store('chat').pinedMessages.length}}</div>
-				</div>
-				</transition>
-
-				<transition name="blink">
-				<Button aria-label="Toggle messages encryption"
-					:icon="$image('icons/'+($store('main').cypherEnabled? 'lock.svg' : 'unlock.svg'))"
-					@click="toggleCypher()"
-					v-if="cypherConfigured"
-					bounce
-					data-tooltip="Send encrypted<br>messages" />
-				</transition>
-
-				<transition name="blink">
-				<Button :aria-label="$t('chat.form.deezerBt_aria')"
-					:icon="$image('icons/deezer.svg')"
-					bounce
-					v-if="$store('music').deezerConnected"
-					:data-tooltip="$t('chat.form.deezerBt_aria')"
-					@click="$emit('setCurrentNotification', 'deezer')" />
-				</transition>
-
-				<transition name="blink">
-				<Button :aria-label="$t('chat.form.highlightBt_aria')"
-					class="chatHighlight"
-					bounce highlight
-					:icon="$image('icons/highlight.svg')"
-					v-if="chatHighlightEnabled"
-					:data-tooltip="$t('chat.form.highlightBt_aria')"
-					@click="removeChatHighlight()" />
-				</transition>
-
-				<CommunityBoostInfo v-if="$store('stream').communityBoostState" />
-
-				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timerStartDate > 0" />
-
-				<CommercialTimer v-if="isCommercial" />
-
-				<div v-if="$store('params').appearance.showViewersCount.value === true
-					&& $store('stream').playbackState && $store('stream').playbackState!.viewers > 0"
-					:data-tooltip="$t('chat.form.viewer_count')"
-					class="viewCount"
-					@click="censoredViewCount = !censoredViewCount"
-				>
-					<p v-if="censoredViewCount">x</p>
-					<p v-if="!censoredViewCount">{{$store('stream').playbackState!.viewers}}</p>
-					<img src="@/assets/icons/user.svg" alt="viewers">
-				</div>
-
-				<transition name="blink">
-				<Button highlight class="voice"
-					:icon="$image('icons/microphone'+(voiceBotStarted? '_recording' : '')+'.svg')"
-					bounce
-					v-if="voiceBotConfigured"
-					:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
-					:data-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
-					@click="toggleVoiceBot()" />
-				</transition>
-
-				<transition name="blink">
-				<Button :aria-label="$t('chat.form.devmodeBt_aria')"
-					:icon="$image('icons/debug.svg')"
-					bounce
-					@click="$emit('update:showDevMenu',true);"
-					v-if="$store('main').devmode" />
-				</transition>
-
-				<transition name="blink">
-				<Button highlight class="noClear emergency"
-					v-if="emergencyButtonEnabled"
-					:icon="$image('icons/emergency.svg')"
-					bounce
-					:aria-label="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
-					:data-tooltip="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
-					@click="toggleEmergencyMode()" />
-				</transition>
-
-			</form>
+						@click="$emit('setCurrentNotification', 'prediction')"
+						v-if="$store('prediction').data?.id" />
+					</transition>
+	
+					<transition name="blink">
+					<Button :aria-label="$t('chat.form.trackedBt_aria')"
+						:icon="$image('icons/magnet.svg')"
+						bounce
+						v-if="trackedUserCount > 0"
+						:data-tooltip="$t('chat.form.trackedBt_aria')"
+						@click="$emit('setCurrentNotification', 'trackedUsers')" />
+					</transition>
+	
+					<transition name="blink">
+					<div class="whispers" v-if="$store('raffle').data?.mode == 'chat'">
+						<Button :aria-label="$t('chat.form.raffleBt_aria')"
+							:icon="$image('icons/ticket.svg')"
+							bounce
+							:data-tooltip="$t('chat.form.raffleBt_aria')"
+							@click="$emit('setCurrentNotification', 'raffle')" />
+						<div class="count" v-if="$store('raffle').data!.entries && $store('raffle').data!.entries.length > 0">{{$store('raffle').data?.entries.length}}</div>
+					</div>
+					</transition>
+	
+					<transition name="blink">
+					<Button :aria-label="$t('chat.form.bingoBt_aria')"
+						:icon="$image('icons/bingo.svg')"
+						bounce
+						v-if="$store('bingo').data"
+						:data-tooltip="$t('chat.form.bingoBt_aria')"
+						@click="$emit('setCurrentNotification', 'bingo')" />
+					</transition>
+	
+					<transition name="blink">
+					<div class="whispers" v-if="whispersAvailable">
+						<Button :aria-label="$t('chat.form.whispersBt_aria')"
+							:icon="$image('icons/whispers.svg')"
+							bounce
+							:data-tooltip="$t('chat.form.whispersBt_aria')"
+							@click="$emit('setCurrentNotification', 'whispers')" />
+						<div class="count" v-if="$store('chat').whispersUnreadCount > 0">{{$store('chat').whispersUnreadCount}}</div>
+					</div>
+					</transition>
+	
+					<transition name="blink">
+					<div class="pins" v-if="$store('chat').pinedMessages.length > 0">
+						<Button :aria-label="$t('chat.form.pinsBt_aria')"
+							:icon="$image('icons/save.svg')"
+							bounce
+							:data-tooltip="$t('chat.form.saveBt_aria')"
+							@click="$emit('pins')" />
+						<div class="count">{{$store('chat').pinedMessages.length}}</div>
+					</div>
+					</transition>
+	
+					<transition name="blink">
+					<Button aria-label="Toggle messages encryption"
+						:icon="$image('icons/'+($store('main').cypherEnabled? 'lock.svg' : 'unlock.svg'))"
+						@click="toggleCypher()"
+						v-if="cypherConfigured"
+						bounce
+						data-tooltip="Send encrypted<br>messages" />
+					</transition>
+	
+					<transition name="blink">
+					<Button :aria-label="$t('chat.form.deezerBt_aria')"
+						:icon="$image('icons/deezer.svg')"
+						bounce
+						v-if="$store('music').deezerConnected"
+						:data-tooltip="$t('chat.form.deezerBt_aria')"
+						@click="$emit('setCurrentNotification', 'deezer')" />
+					</transition>
+	
+					<transition name="blink">
+					<Button :aria-label="$t('chat.form.highlightBt_aria')"
+						class="chatHighlight"
+						bounce highlight
+						:icon="$image('icons/highlight.svg')"
+						v-if="chatHighlightEnabled"
+						:data-tooltip="$t('chat.form.highlightBt_aria')"
+						@click="removeChatHighlight()" />
+					</transition>
+	
+					<CommunityBoostInfo v-if="$store('stream').communityBoostState" />
+	
+					<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timerStartDate > 0" />
+	
+					<CommercialTimer v-if="isCommercial" />
+	
+					<div v-if="$store('params').appearance.showViewersCount.value === true
+						&& $store('stream').playbackState && $store('stream').playbackState!.viewers > 0"
+						:data-tooltip="$t('chat.form.viewer_count')"
+						class="viewCount"
+						@click="censoredViewCount = !censoredViewCount"
+					>
+						<p v-if="censoredViewCount">x</p>
+						<p v-if="!censoredViewCount">{{$store('stream').playbackState!.viewers}}</p>
+						<img src="@/assets/icons/user.svg" alt="viewers">
+					</div>
+	
+					<transition name="blink">
+					<Button highlight class="voice"
+						:icon="$image('icons/microphone'+(voiceBotStarted? '_recording' : '')+'.svg')"
+						bounce
+						v-if="voiceBotConfigured"
+						:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
+						:data-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
+						@click="toggleVoiceBot()" />
+					</transition>
+	
+					<transition name="blink">
+					<Button :aria-label="$t('chat.form.devmodeBt_aria')"
+						:icon="$image('icons/debug.svg')"
+						bounce
+						@click="$emit('update:showDevMenu',true);"
+						v-if="$store('main').devmode" />
+					</transition>
+	
+					<transition name="blink">
+					<Button highlight class="noClear emergency"
+						v-if="emergencyButtonEnabled"
+						:icon="$image('icons/emergency.svg')"
+						bounce
+						:aria-label="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
+						:data-tooltip="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
+						@click="toggleEmergencyMode()" />
+					</transition>
+	
+				</form>
+			</div>
 
 			<div class="floatingButtons">
 				<transition name="slide">
@@ -221,7 +236,6 @@
 				@selectItem="onSelectItem" />
 			
 		</div>
-	</div>
 </template>
 
 <script lang="ts">
@@ -693,7 +707,8 @@ export default class ChatForm extends Vue {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
 				this.loading = true;
-				if(await MessengerProxy.instance.sendMessage(this.message)) {
+				const replyTo = this.$store("chat").replyTo ?? undefined;
+				if(await MessengerProxy.instance.sendMessage(this.message, undefined, undefined, replyTo)) {
 					this.message = "";
 				}
 				this.loading = false;
@@ -883,6 +898,13 @@ export default class ChatForm extends Vue {
 		VoicemodWebSocket.instance.disableVoiceEffect();
 	}
 
+	/**
+	 * Open a user's card
+	 */
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser, channel_id:string):void {
+		this.$store("users").openUserCard(user, channel_id);
+	}
+
 	private onUpdateTrackedUserList():void {
 		const res = [];
 		for (let i = 0; i < this.$store("users").users.length; i++) {
@@ -951,26 +973,75 @@ export default class ChatForm extends Vue {
 				}
 			}
 		}
-	
+
 		.inputForm {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			flex-grow: 1;
 			flex-wrap: wrap;
 			gap: 1px;
-
+			flex-grow: 1;
+			
 			.loader {
 				height: 1em;
 			}
-
-			input {
-				min-width: 4em;
-				//These 2 following lines seems stupide AF but they allow 
-				//the input to autosize to it's min length
-				width: 0%;
+			
+			.inputHolder {
+				position: relative;
 				flex-grow: 1;
+				
+				.replyTo {
+					top: -.25em;
+					width:100%;
+					position: absolute;
+					transform: translateY(-100%);
+					background-color: @mainColor_dark_light;
+					padding: .25em;
+					color: @mainColor_light;
+					border-top-left-radius: .5em;
+					border-top-right-radius: .5em;
+					box-shadow: 0 -5px 5px rgba(0,0,0,.5);
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					gap: .25em;
+					.closeBt{
+						width: .75em;
+						height: .75em;
+						min-width: .75em;
+						min-height: .75em;
+						img {
+							display: block;
+							width: 100%;
+							height: 100%;
+						}
+					}
+					.content {
+						font-size: .7em;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						.head {
+							font-weight: bold;
+						}
+						.message {
+							opacity: .8;
+							margin-left: .25em;
+						}
+
+						.userlink {
+							font-weight: bold;
+							color: @mainColor_warn;
+							&:hover {
+								background-color: @mainColor_dark;
+							}
+						}
+					}
+				}
+			}
+			input {
+				width: 100%;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
 				background: transparent;

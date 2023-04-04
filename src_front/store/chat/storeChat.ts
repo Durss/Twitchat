@@ -31,6 +31,7 @@ export const storeChat = defineStore('chat', {
 		pinedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
+		replyTo: null,
 		
 		
 		botMessages: {
@@ -672,7 +673,8 @@ export const storeChat = defineStore('chat', {
 							if(m.user.id == message.user.id
 							&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
 							&& message.message.toLowerCase() == m.message.toLowerCase()
-							&& message.type == m.type) {
+							&& message.type == m.type
+							&& message.channel_id == m.channel_id) {
 								if(!m.occurrenceCount) m.occurrenceCount = 0;
 								//Remove message
 								messageList.splice(i, 1);

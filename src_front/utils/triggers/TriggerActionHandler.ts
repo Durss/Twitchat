@@ -1122,7 +1122,7 @@ export default class TriggerActionHandler {
 
 			let placeholders = TriggerEventPlaceholders(trigger.type).concat();//Clone it to avoid modifying original
 			placeholders = placeholders.concat(actionPlaceholder);
-			console.log(placeholders);
+			// console.log(placeholders);
 			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
 			if(!placeholders) return res;
