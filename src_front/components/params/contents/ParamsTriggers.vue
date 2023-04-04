@@ -21,7 +21,7 @@
 				<Button class="cta resyncBt" small
 					:icon="$image('icons/channelPoints.svg')"
 					:title="$t('triggers.resyncRewardsBt')"
-					@click="listOBSSources()"
+					@click="listRewards()"
 					:data-tooltip="$t('triggers.resyncRewardsBt_tt')"
 					:loading="loadingOBSScenes"
 				/>
