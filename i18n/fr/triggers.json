@@ -7,6 +7,7 @@
 		"header_select_obs_scene": "Choisissez une scène OBS",
 		"header_select_obs_source": "Choisissez une source OBS",
 		"header_select_obs_input": "Choisissez l'entrée audio OBS",
+		"header_select_obs_filter": "Choisissez le filtre OBS",
 		"trigger_name":"Nom personnalisé",
 		"add_triggerBt": "Ajouter un trigger",
 		"add_trigger_select_event": "Choisissez un type d'évènement",
@@ -227,6 +228,7 @@
 			"count": "Compteurs"
 		},
 		"placeholders": {
+			"trigger_name":"Nom du trigger actuel",
 			"user": "Pseudo",
 			"user_id": "ID utilisateur",
 			"user_avatar": "URL de l'avatar",
@@ -561,6 +563,14 @@
 			"OBS_PLAYBACK_PREVIOUS": {
 				"label": "Lecture du média précédent",
 				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} débute la lecture de l'élément précédent"
+			},
+			"OBS_FILTER_ON": {
+				"label": "Filtre activé",
+				"description": "Actions à exécuter lorsque le filtre OBS {SUB_ITEM_NAME} est activé"
+			},
+			"OBS_FILTER_OFF": {
+				"label": "Filtre désactivé",
+				"description": "Actions à exécuter lorsque le filtre OBS {SUB_ITEM_NAME} est désactivé"
 			},
 			"STREAM_ONLINE": {
 				"label": "Début de stream",

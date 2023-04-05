@@ -76,6 +76,10 @@ export interface TriggerData {
 	 */
 	obsInput?:string;
 	/**
+	 * OBS filter name for filter toggle related events
+	 */
+	obsFilter?:string;
+	/**
 	 * Counter ID for counters related events
 	 */
 	counterId?:string;
@@ -414,6 +418,8 @@ export const TriggerTypes = {
 	OBS_PLAYBACK_RESTARTED:"70",//Not actually used as they require an OBS plugin to be triggered
 	OBS_PLAYBACK_NEXT:"71",//Not actually used as they require an OBS plugin to be triggered
 	OBS_PLAYBACK_PREVIOUS:"72",//Not actually used as they require an OBS plugin to be triggered
+	OBS_FILTER_ON:"73",
+	OBS_FILTER_OFF:"74",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -475,7 +481,13 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		return eventPlaceholdersCache[key] ?? [];
 	}
 
-	const map:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}> = {}
+	const map:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}> = {};
+	//Init all existing triggers to empty placeholder array
+	for (const key in TriggerTypes) {
+		const trigger = TriggerTypes[key as TriggerTypesKey]
+		map[trigger] = [];
+	}
+
 	map[TriggerTypes.ANY_MESSAGE] = 
 	map[TriggerTypes.FIRST_TODAY] = 
 	map[TriggerTypes.FIRST_ALL_TIME] = 
@@ -738,6 +750,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false});
 		}
 
+		entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false});
 		map[k] = entry.concat(counterPlaceholders);
 	}
 
@@ -817,6 +830,8 @@ export function TriggerEvents():TriggerEventTypes[] {
 		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"loop", labelKey:"triggers.events.OBS_PLAYBACK_RESTARTED.label", value:TriggerTypes.OBS_PLAYBACK_RESTARTED, descriptionKey:"triggers.events.OBS_PLAYBACK_RESTARTED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
 		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"next", labelKey:"triggers.events.OBS_PLAYBACK_NEXT.label", value:TriggerTypes.OBS_PLAYBACK_NEXT, descriptionKey:"triggers.events.OBS_PLAYBACK_NEXT.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
 		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"prev", labelKey:"triggers.events.OBS_PLAYBACK_PREVIOUS.label", value:TriggerTypes.OBS_PLAYBACK_PREVIOUS, descriptionKey:"triggers.events.OBS_PLAYBACK_PREVIOUS.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"graphicFilters", labelKey:"triggers.events.OBS_FILTER_ON.label", value:TriggerTypes.OBS_FILTER_ON, descriptionKey:"triggers.events.OBS_FILTER_ON.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE},
+		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"graphicFilters", labelKey:"triggers.events.OBS_FILTER_OFF.label", value:TriggerTypes.OBS_FILTER_OFF, descriptionKey:"triggers.events.OBS_FILTER_OFF.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE},
 		{category:TriggerEventTypeCategories.MISC, icon:"voicemod", labelKey:"triggers.events.VOICEMOD.label", value:TriggerTypes.VOICEMOD, descriptionKey:"triggers.events.VOICEMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
 		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.STREAM_ONLINE.label", value:TriggerTypes.STREAM_ONLINE, descriptionKey:"triggers.events.STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE},
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.STREAM_OFFLINE.label", value:TriggerTypes.STREAM_OFFLINE, descriptionKey:"triggers.events.STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},

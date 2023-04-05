@@ -159,8 +159,12 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_NAME_CHANGED, e));
 		});
 
-		this.obs.on("SourceFilterNameChanged", async (e:{sourceName: string; oldFilterName: string; filterName: string}) => {
+		this.obs.on("SourceFilterNameChanged", async (e:{sourceName: string, oldFilterName: string, filterName: string}) => {
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_NAME_CHANGED, e));
+		});
+
+		this.obs.on("SourceFilterEnableStateChanged", async (e:{sourceName: string, filterName: string, filterEnabled: boolean}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_TOGGLE, e));
 		});
 
 		// console.log(await this.obs.call("GetInputList"));

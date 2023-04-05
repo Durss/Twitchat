@@ -7,6 +7,7 @@
 		"header_select_obs_scene": "Select the OBS scene",
 		"header_select_obs_source": "Select the OBS source",
 		"header_select_obs_input": "Select the OBS input to monitor",
+		"header_select_obs_filter": "Select the OBS filter to monitor",
 		"trigger_name":"Custom name",
 		"add_triggerBt": "Create a trigger",
 		"add_trigger_select_event": "Choose an event type",
@@ -227,6 +228,7 @@
 			"count": "Counters"
 		},
 		"placeholders": {
+			"trigger_name":"Current trigger name",
 			"user": "User name",
 			"user_id": "User ID",
 			"user_avatar": "User avatar URL",
@@ -559,6 +561,14 @@
 			"OBS_PLAYBACK_PREVIOUS": {
 				"label": "Media playing previous item in queue",
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source plays previous item in queue"
+			},
+			"OBS_FILTER_ON": {
+				"label": "Filter enabled",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is enabled"
+			},
+			"OBS_FILTER_OFF": {
+				"label": "Filter disabled",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is disabled"
 			},
 			"STREAM_ONLINE": {
 				"label": "Stream start",

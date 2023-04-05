@@ -68,13 +68,22 @@
 
 		<!-- Sub menu (rewards, counters, obs sources and scenes,... ) -->
 		<div class="sublist">
-			<button :class="item.icon? 'subEventBt hasIcon' : 'subEventBt'"
-			@click="selectSubType(item)"
-			v-for="item in subtriggerList">
-				<img class="icon" v-if="item.icon" :src="item.icon" :style="!item.background? {} : {backgroundColor:item.background, filter:'none'}">
-				<span class="label">{{ item.label }}</span>
-				<span class="small" v-if="item.labelSmall" >{{ item.labelSmall }}</span>
-			</button>
+			<template v-for="item in subtriggerList">
+				<component :is="item.subValues? 'div' : 'button'" :class="item.icon? 'subEventBt hasIcon' : 'subEventBt'"
+				@click="selectSubType(item)">
+					<img class="icon" v-if="item.icon" :src="item.icon" :style="!item.background? {} : {backgroundColor:item.background, filter:'none'}">
+					<span class="label">{{ item.label }}</span>
+					<span class="small" v-if="item.labelSmall" >{{ item.labelSmall }}</span>
+				</component>
+				<template v-if="item.subValues">
+					<button v-for="subItem in item.subValues" :class="item.icon? 'subEventBt subSubEventBt hasIcon' : 'subEventBt subSubEventBt'"
+					@click="selectSubType(subItem, item)">
+						<img class="icon" v-if="subItem.icon" :src="subItem.icon" :style="!subItem.background? {} : {backgroundColor:subItem.background, filter:'none'}">
+						<span class="label">{{ subItem.label }}</span>
+						<span class="small" v-if="subItem.labelSmall" >{{ subItem.labelSmall }}</span>
+					</button>
+				</template>
+			</template>
 		</div>
 
 	</div>
@@ -92,9 +101,9 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
-import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -309,7 +318,7 @@ export default class TriggerCreateForm extends Vue {
 	 * Called when selecting a main event type
 	 * @param e 
 	 */
-	public selectTriggerType(e:TriggerEventTypes):void {
+	public async selectTriggerType(e:TriggerEventTypes):Promise<void> {
 		this.selectedTriggerType = e;
 
 		this.subtriggerList	= [];
@@ -376,6 +385,55 @@ export default class TriggerCreateForm extends Vue {
 			}
 		}else
 
+		if(e.value == TriggerTypes.OBS_FILTER_OFF
+		|| e.value == TriggerTypes.OBS_FILTER_ON) {
+			if(!OBSWebsocket.instance.connected) {
+				this.needObsConnect = true;
+				return;
+			}else{
+				this.needObsConnect = false;
+				this.showLoading = true;
+
+				//Get all OBS sources
+				let list:TriggerEntry[] = this.obsSources.map(v=> {return {label:v.sourceName, value:v.sourceName, isCategory:false, icon:""}});
+				//Get all OBS inputs
+				list = list.concat( this.obsInputs.map(v=> {return {label:v.inputName, value:v.inputName, isCategory:false, icon:""}}) );
+
+				//Dedupe entries
+				const entriesDone:{[key:string]:boolean} = {};
+				list = list.filter(v=> {
+					const key = v.value.toLowerCase();
+					if(entriesDone[key] === true) return false;
+					entriesDone[key] = true;
+					return true;
+				});
+
+				//Load filters for all items
+				for (let i = 0; i < list.length; i++) {
+					const item = list[i];
+					let filters = await OBSWebsocket.instance.getSourceFilters(item.value);
+					if(filters.length === 0) {
+						list.splice(i, 1);
+						i--;
+						continue;
+					}
+					item.subValues = filters.map(v=> {
+										return {
+											label:v.filterName,
+											value:v.filterName,
+											icon:"",
+											isCategory:false,
+										};
+									})
+					
+				}
+				
+				this.showLoading = false;
+				this.subtriggerList = list;
+				this.$emit("updateHeader", "triggers.header_select_obs_filter");
+			}
+		}else
+
 		if(e.value == TriggerTypes.OBS_INPUT_MUTE
 		|| e.value == TriggerTypes.OBS_INPUT_UNMUTE
 		|| e.value == TriggerTypes.OBS_PLAYBACK_PAUSED
@@ -389,18 +447,18 @@ export default class TriggerCreateForm extends Vue {
 				return;
 			}else{
 				this.needObsConnect = false;
-				let filterdList = this.obsInputs;
+				let filteredList = this.obsInputs;
 
 				if(e.value != TriggerTypes.OBS_INPUT_MUTE
 				&& e.value != TriggerTypes.OBS_INPUT_UNMUTE) {
 					//Filter only media sources if on a media playback trigger
-					filterdList = filterdList.filter(v=> {
+					filteredList = filteredList.filter(v=> {
 						return v.inputKind === 'ffmpeg_source' || v.inputKind === "image_source" || v.inputKind == "vlc_source"
 					})
 				}
 
 				//build list from obs sourcess
-				const list = filterdList.map((v):TriggerEntry => {
+				const list = filteredList.map((v):TriggerEntry => {
 					return {
 						label:v.inputName,
 						value:v.inputName,
@@ -441,7 +499,7 @@ export default class TriggerCreateForm extends Vue {
 	 * Called when selecting a sub type (reward, counter, obs scene/source, ...)
 	 * @param entry 
 	 */
-	public selectSubType(entry:TriggerEntry):void {
+	public selectSubType(entry:TriggerEntry, parentItem?:TriggerEntry):void {
 		if(!this.selectedTriggerType) return;
 
 		this.temporaryTrigger = {
@@ -458,6 +516,12 @@ export default class TriggerCreateForm extends Vue {
 
 			case TriggerTypes.OBS_SOURCE_ON:
 			case TriggerTypes.OBS_SOURCE_OFF: this.temporaryTrigger.obsSource = entry.value; break;
+
+			case TriggerTypes.OBS_FILTER_ON:
+			case TriggerTypes.OBS_FILTER_OFF:
+				this.temporaryTrigger.obsSource = parentItem!.value;
+				this.temporaryTrigger.obsFilter = entry.value;
+				break;
 				
 			case TriggerTypes.OBS_PLAYBACK_STARTED:
 			case TriggerTypes.OBS_PLAYBACK_ENDED:
@@ -531,6 +595,7 @@ interface TriggerEntry{
 	label:string;
 	labelSmall?:string;
 	value:string;
+	subValues?:TriggerEntry[];
 	background?:string;
 	trigger?:TriggerEventTypes;
 	isCategory:boolean;
@@ -671,6 +736,10 @@ interface TriggerEntry{
 			&.hasIcon {
 				padding-left: 0;
 			}
+			&.subSubEventBt {
+				margin: 0 1em;
+				justify-content: stretch;
+			}
 			.icon {
 				margin-right: .5em;
 				height: 1.5em;
@@ -688,7 +757,14 @@ interface TriggerEntry{
 				font-style: italic;
 			}
 
-			&:hover {
+			&:is(div) {
+				color: @mainColor_light;
+				background-color: @mainColor_normal;
+				&:not(:first-of-type) {
+					margin-top: 1em;
+				}
+			}
+			&:not(div):hover {
 				background-color: lighten(@mainColor_normal_extralight, 12%) !important;
 			}
 		}

@@ -39,6 +39,7 @@ export default class TriggerActionHandler {
 	private triggerTypeToQueue:{[key:string]:Promise<void>} = {};
 	private liveChannelCache:{[key:string]:TwitchatDataTypes.StreamInfo}|null = null;
 	private triggerType2Triggers:{[key:string]:TriggerData[]} = {};
+	private HASHMAP_KEY_SPLITTER:string = "_";
 	
 	constructor() {
 	
@@ -248,6 +249,15 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE: {
+				const event = message.enabled? TriggerTypes.OBS_FILTER_ON : TriggerTypes.OBS_FILTER_OFF;
+				const subKey = message.sourceName.toLowerCase() + this.HASHMAP_KEY_SPLITTER + message.filterName.toLowerCase();
+				console.log(event, subKey);
+				if(await this.executeTriggersByType(event, message, testMode, subKey)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE: {
 				const event = message.muted? TriggerTypes.OBS_INPUT_MUTE : TriggerTypes.OBS_INPUT_UNMUTE;
 				if(await this.executeTriggersByType(event, message, testMode, message.inputName.toLowerCase())) {
@@ -423,21 +433,24 @@ export default class TriggerActionHandler {
 			let keys:string[] = [t.type as string];
 			switch(t.type) {
 				case TriggerTypes.CHAT_COMMAND: {
-					keys[0] += "_" + t.chatCommand;
+					keys[0] += this.HASHMAP_KEY_SPLITTER + t.chatCommand;
 					if(t.chatCommandAliases) {
 						for (let i = 0; i < t.chatCommandAliases.length; i++) {
-							keys.push(t.type + "_" + t.chatCommandAliases[i]);
+							keys.push(t.type + this.HASHMAP_KEY_SPLITTER + t.chatCommandAliases[i]);
 						}
 					}
 					break;
 				}
 
-				case TriggerTypes.REWARD_REDEEM: keys[0] += "_" + t.rewardId; break;
+				case TriggerTypes.REWARD_REDEEM: keys[0] += this.HASHMAP_KEY_SPLITTER + t.rewardId; break;
 
-				case TriggerTypes.OBS_SCENE: keys[0] += "_" + t.obsScene; break;
+				case TriggerTypes.OBS_SCENE: keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsScene; break;
 
 				case TriggerTypes.OBS_SOURCE_ON:
-				case TriggerTypes.OBS_SOURCE_OFF: keys[0] += "_" + t.obsSource; break;
+				case TriggerTypes.OBS_SOURCE_OFF: keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsSource; break;
+
+				case TriggerTypes.OBS_FILTER_ON:
+				case TriggerTypes.OBS_FILTER_OFF: keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsSource + this.HASHMAP_KEY_SPLITTER + t.obsFilter; break;
 
 				case TriggerTypes.OBS_PLAYBACK_STARTED:
 				case TriggerTypes.OBS_PLAYBACK_ENDED:
@@ -446,13 +459,13 @@ export default class TriggerActionHandler {
 				case TriggerTypes.OBS_PLAYBACK_NEXT:
 				case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
 				case TriggerTypes.OBS_INPUT_MUTE:
-				case TriggerTypes.OBS_INPUT_UNMUTE: keys[0] += "_" + t.obsInput; break;
+				case TriggerTypes.OBS_INPUT_UNMUTE: keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsInput; break;
 
 				case TriggerTypes.COUNTER_ADD:
 				case TriggerTypes.COUNTER_DEL:
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
-				case TriggerTypes.COUNTER_MINED: keys[0] += "_" + t.counterId; break;
+				case TriggerTypes.COUNTER_MINED: keys[0] += this.HASHMAP_KEY_SPLITTER + t.counterId; break;
 			}
 
 			for (let i = 0; i < keys.length; i++) {
@@ -502,7 +515,7 @@ export default class TriggerActionHandler {
 	 */
 	private async executeTriggersByType(triggerType:TriggerTypesValue, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string):Promise<boolean> {
 		let key = triggerType as string;
-		if(subEvent) key += "_"+subEvent;
+		if(subEvent) key += this.HASHMAP_KEY_SPLITTER+subEvent;
 		key = key.toLowerCase();
 
 		let triggers = this.triggerType2Triggers[ key ];
@@ -578,7 +591,7 @@ export default class TriggerActionHandler {
 				else if(trigger.cooldown.global > 0) this.globalCooldowns[triggerId] = now + trigger.cooldown.global * 1000;
 
 				//User cooldown
-				const key = triggerId+"_"+message.user.id;
+				const key = triggerId+this.HASHMAP_KEY_SPLITTER+message.user.id;
 				if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
 					const remaining_s = Utils.formatDuration(this.userCooldowns[key] - now + 1000) + "s";
 					canExecute = false;
@@ -1231,6 +1244,13 @@ export default class TriggerActionHandler {
 						const pointer = h.pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys
 						value = StoreProxy.stream.currentStreamInfo[pointer].toString();
 						if(!value) value = "-none-";
+
+					/**
+					 * If the placeholder requests for the current stream info
+					 */
+					}else if(h.tag.toLowerCase().indexOf("trigger_name") == 0) {
+						value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
+						if(!value) value = "-no name-";
 
 					/**
 					 * If the placeholder requests for a counter's value

@@ -1191,6 +1191,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
+		OBS_FILTER_TOGGLE:"obs_filter_toggle",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
@@ -1251,6 +1252,7 @@ export namespace TwitchatDataTypes {
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_source_toggle:false,
+		obs_filter_toggle:false,
 		hype_train_cancel:false,
 		hype_train_summary:true,
 		low_trust_treatment:true,
@@ -1337,6 +1339,7 @@ export namespace TwitchatDataTypes {
 									| MessageLowtrustTreatmentData
 									| MessageOBSSceneChangedData
 									| MessageOBSSourceToggleData
+									| MessageOBSFilterToggleData
 									| MessageOBSInputMuteToggleData
 									| MessageOBSPlaybackStateUpdateData
 									| MessageRoomSettingsData
@@ -2472,7 +2475,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents an OBS scene change event
+	 * Represents an OBS source visibility change
 	 */
 	export interface MessageOBSSourceToggleData extends AbstractTwitchatMessage {
 		type:"obs_source_toggle";
@@ -2491,7 +2494,26 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents an OBS scene change event
+	 * Represents an OBS source filter visibility change
+	 */
+	export interface MessageOBSFilterToggleData extends AbstractTwitchatMessage {
+		type:"obs_filter_toggle";
+		/**
+		 * Name of the parent source of the filter
+		 */
+		sourceName:string;
+		/**
+		 * Filter name
+		 */
+		filterName:string;
+		/**
+		 * true if the filter is now enabled
+		 */
+		enabled:boolean;
+	}
+
+	/**
+	 * Represents an OBS input mute toggle
 	 */
 	export interface MessageOBSInputMuteToggleData extends AbstractTwitchatMessage {
 		type:"obs_input_mute_toggle";
@@ -2506,7 +2528,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents an OBS scene change event
+	 * Represents an OBS media playback change event
 	 */
 	export interface MessageOBSPlaybackStateUpdateData extends AbstractTwitchatMessage {
 		type:"obs_playback_state_update";

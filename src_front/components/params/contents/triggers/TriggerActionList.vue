@@ -170,6 +170,10 @@ export default class TriggerActionList extends Vue {
 			case TriggerTypes.OBS_INPUT_UNMUTE:
 				return this.triggerData.obsInput || "...";
 
+			case TriggerTypes.OBS_FILTER_ON:
+			case TriggerTypes.OBS_FILTER_OFF:
+				return this.triggerData.obsFilter + " ("+this.triggerData.obsSource+")" || "...";
+
 			case TriggerTypes.COUNTER_ADD:
 			case TriggerTypes.COUNTER_DEL:
 			case TriggerTypes.COUNTER_LOOPED:

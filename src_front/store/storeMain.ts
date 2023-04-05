@@ -309,6 +309,23 @@ export const storeMain = defineStore("main", {
 				});
 
 				/**
+				 * Called when a filter visibility is toggled
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_TOGGLE, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {sourceName: string, filterName: string, filterEnabled: boolean};
+					const m:TwitchatDataTypes.MessageOBSFilterToggleData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE,
+						sourceName:data.sourceName,
+						filterName:data.filterName,
+						enabled:data.filterEnabled,
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
+
+				/**
 				 * Called when a playback event occurs on a media source
 				 * @param event 
 				 */
