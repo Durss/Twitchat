@@ -40,6 +40,9 @@ export const storeCounters = defineStore('counters', {
 					}else{
 						delete data.users;
 					}
+					if(data.placeholderKey.toLowerCase() != this.counterList[i].placeholderKey.toLowerCase()) {
+						StoreProxy.triggers.renameCounterPlaceholder(this.counterList[i].placeholderKey, data.placeholderKey);
+					}
 					//Delete old, add new
 					this.counterList.splice(i, 1, data);
 					break;

@@ -432,6 +432,7 @@ export interface ITriggersActions {
 	renameOBSSource(oldName:string, newName:string):void;
 	renameOBSScene(oldSceneName:string, sceneName:string):void;
 	renameOBSFilter(sourceName:string, oldFilterName:string, filterName:string):void;
+	renameCounterPlaceholder(oldName:string, newName:string):void;
 }
 
 

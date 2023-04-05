@@ -26,9 +26,12 @@
 		<section v-if="showForm">
 			<form @submit.prevent="createCounter()">
 				<ParamItem class="item" :paramData="param_title" />
+				<div class="errorDetails" v-if="param_title.error">
+					<span class="text">{{ $t("counters.form.name_conflict") }}</span>
+				</div>
 				<ParamItem class="item" :paramData="param_value" />
 				<ParamItem class="item" :paramData="param_more" />
-				<div class="error" v-if="param_placeholder.error">
+				<div class="errorDetails shrink" v-if="param_placeholder.error">
 					<span class="text">{{ $t("counters.form.placholder_conflict") }}</span>
 				</div>
 				<div class="item ctas">
@@ -216,6 +219,21 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		this.param_more.children = [this.param_valueMax_toggle, this.param_valueMin_toggle, this.param_valueLoop_toggle, this.param_userSpecific, this.param_placeholder];
 		this.param_valueMin_toggle.children = [this.param_valueMin_value];
 		this.param_valueMax_toggle.children = [this.param_valueMax_value];
+
+		watch(()=> this.param_title.value, ()=> {
+			const counters = this.$store("counters").counterList;
+			const name = this.param_title.value.toLowerCase();
+			let exists = false;
+			for (let i = 0; i < counters.length; i++) {
+				const c = counters[i];
+				if(c.id == this.editedCounter?.id) continue;
+				if(c.name.toLowerCase() === name) {
+					exists = true;
+					continue;
+				}
+			}
+			this.param_title.error = exists;
+		})
 
 		watch(()=> this.param_placeholder.value, ()=> {
 			const counters = this.$store("counters").counterList;
@@ -487,14 +505,16 @@ interface UserEntry {
 				flex-basis: 10em !important;
 			}
 
-			.error {
+			.errorDetails {
 				background-color: @mainColor_alert;
 				color: @mainColor_light;
 				padding: 0 .5em .25em .5em;
-				margin-left: 1.5em;
 				margin-top: -.25em;
 				border-bottom-right-radius: .5em;
 				border-bottom-left-radius: .5em;
+				&.shrink {
+					margin-left: 1.5em;
+				}
 				.text {
 					//Text is inside a sub holder so we can set its font-size without
 					//it impacting the margin-left of the holder specified in "em" unit

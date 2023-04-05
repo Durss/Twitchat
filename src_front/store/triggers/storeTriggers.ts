@@ -1,5 +1,5 @@
 import DataStore from '@/store/DataStore';
-import { TriggerTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, type TriggerActionTypes, type TriggerData, COUNTER_VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -122,6 +122,30 @@ export const storeTriggers = defineStore('triggers', {
 						if(a.filterName == oldName) a.filterName = newName;
 					}
 				}
+			}
+			this.saveTriggers();
+		},
+
+		renameCounterPlaceholder(oldPlaceholder:string, newPlaceholder:string):void {
+			//Search for any trigger linked to the renamed scene and any
+			//trigger action controling that scene and rename it
+			for (let i = 0; i < this.triggerList.length; i++) {
+				const t = this.triggerList[i];
+				let json = JSON.stringify(t);
+				
+				//Is the old placeholder somewhere on the trigger data ?
+				if(json.toLowerCase().indexOf((COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase()) == -1 ) continue;
+
+				//Add placeholders prefix
+				let newPlaceholderLoc = COUNTER_VALUE_PLACEHOLDER_PREFIX + newPlaceholder.toUpperCase();
+				let oldPlaceholderLoc = COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholder.toUpperCase();
+				//Make it regex safe
+				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				
+				//Nuclear way to replace placeholders on trigger data
+				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "gi"), "{"+newPlaceholderLoc.toUpperCase()+"}");
+				this.triggerList[i] = JSON.parse(json);
 			}
 			this.saveTriggers();
 		},
