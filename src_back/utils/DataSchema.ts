@@ -85,6 +85,7 @@ import Ajv from "ajv";
 						scheduleName:{type:"string", maxLength:100},
 						obsSource:{type:"string", maxLength:200},
 						obsScene:{type:"string", maxLength:200},
+						obsFilter:{type:"string", maxLength:200},
 						counterID:{type:"string", maxLength:100},
 						queue: {type:"string", maxLength:100},
 						scheduleParams: {

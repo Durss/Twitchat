@@ -115,6 +115,7 @@ export const storeTriggers = defineStore('triggers', {
 			//Search for any trigger action controling that filter and rename it
 			for (let i = 0; i < this.triggerList.length; i++) {
 				const t = this.triggerList[i];
+				if(t.obsFilter === oldName) t.obsFilter = newName;
 				for (let j = 0; j < t.actions.length; j++) {
 					const a = t.actions[j];
 					if(a.type == "obs" && a.sourceName == sourceName) {
