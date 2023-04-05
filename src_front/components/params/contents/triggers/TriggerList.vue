@@ -1,54 +1,68 @@
 <template>
 	<div :class="classes">
-		<div v-if="filteredTriggers.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div>
-		<Splitter class="head" v-else-if="noEdit===false">{{ $t("triggers.triggers_list") }}</Splitter>
+		<div v-if="flatTriggerList.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div>
+		<Splitter class="head" v-else-if="noEdit===false">
+			<i18n-t scope="global" keypath="triggers.triggers_list">
+				<template #COUNT>
+					<span class="small">({{ flatTriggerList.length }})</span>
+				</template>
+			</i18n-t>
+		</Splitter>
+
+		<SwitchButton v-if="noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
 		
-		<div class="item"
-		v-for="item in filteredTriggers" :key="item.trigger.id">
-			<button class="button"
-			@click="$emit('select', item.trigger)"
-			:data-tooltip="getCategoryLabel(item)">
-				<img v-if="item.icon" :src="item.icon" :style="{backgroundColor:item.iconBgColor}">
-				<span>{{item.label}}</span>
-			</button>
-
-			<div class="toggle"
-			v-if="noEdit === false"
-			@click="item.trigger.enabled = !item.trigger.enabled; onChangeTrigger()">
-				<ToggleButton v-model="item.trigger.enabled"
-				@change="onChangeTrigger()"
-				:aria-label="item.trigger.enabled? 'trigger enabled' : 'trigger disabled'"/>
-			</div>
-
-			<button class="testBt" @click="$emit('testTrigger',item.trigger)"
-			v-if="noEdit === false"
-			:disabled="!item.canTest"
-			:data-tooltip="$t('triggers.testBt')">
-				<img src="@/assets/icons/test_purple.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
-			</button>
-
-			<button class="deleteBt" @click="deleteTrigger(item)"
-			v-if="noEdit === false"
-			:data-tooltip="$t('triggers.deleteBt')">
-				<img src="@/assets/icons/trash_purple.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
-			</button>
+		<div class="list" v-show="filterState === false">
+			<template v-for="item in flatTriggerList">
+				<TriggerListItem
+					v-if="buildIndex >= item.index"
+					:key="'item_'+item.trigger.id"
+					:noEdit="noEdit" :entryData="item"
+					@changeState="onChangeTrigger()"
+					@delete="deleteTrigger($event)"
+					@test="$emit('testTrigger',$event)"
+					@select="$emit('select', $event)"
+					/>
+			</template>
+		</div>
+		
+		<div class="list" v-show="filterState === true">
+			<ToggleBlock class="category" medium
+			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
+			:title="$t(cat.labelKey)" :icons="[cat.icon]">
+				<div class="item" v-for="item in cat.triggerList" :key="'item_'+item.trigger.id">
+					<TriggerListItem :noEdit="noEdit" :entryData="item"
+						v-if="buildIndex >= item.index"
+						@changeState="onChangeTrigger()"
+						@delete="deleteTrigger($event)"
+						@test="$emit('testTrigger',$event)"
+						@select="$emit('select', $event)"
+					 />
+				</div>
+			</ToggleBlock>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import Splitter from '@/components/Splitter.vue';
+import SwitchButton from '@/components/SwitchButton.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerEvents, TriggerEventTypeCategories, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerCategories, type TriggerCategory, type TriggerData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import TriggerListItem from './TriggerListItem.vue';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
 		Splitter,
+		ToggleBlock,
+		SwitchButton,
 		ToggleButton,
+		TriggerListItem,
 	},
 	emits:["select", "testTrigger"],
 })
@@ -63,26 +77,26 @@ export default class TriggerList extends Vue {
 	@Prop({default:null})
 	public triggerId!:string|null;
 
-	public triggerList:TriggerEntry[] = [];
-	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerEventTypes}> = {};
+	public filterState:boolean = true;
+	public triggerCategories:TriggerListCategoryEntry[] = [];
+	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerCategory}> = {};
+	public buildIndex = 0;
+	public buildInterval = -1;
+	/**
+	 * Number of items to instanciate per frame
+	 * Avoids a huge lag at open if there are hundred of triggers
+	 */
+	public buildBatchSize = 50;
 
-	public get filteredTriggers():TriggerEntry[] {
-		const list:TriggerEntry[] = this.triggerList.concat();
+	public get flatTriggerList():TriggerListEntry[] {
+		let list:TriggerListEntry[] = [];
+		for (let i = 0; i < this.triggerCategories.length; i++) {
+			const cat = this.triggerCategories[i];
+			list = list.concat(cat.triggerList);
+		}
 		if(this.triggerId != null) {
 			return list.filter(v=>v.trigger.id === this.triggerId);
 		}
-
-		list.sort((a,b) => {
-			if(parseInt(a.trigger.type) > parseInt(b.trigger.type)) return 1;
-			if(parseInt(a.trigger.type) < parseInt(b.trigger.type)) return -1;
-			if(a.label.toLowerCase() > b.label.toLowerCase()) return 1;
-			if(a.label.toLowerCase() < b.label.toLowerCase()) return -1;
-			if(a.trigger.name && b.trigger.name) {
-				if(a.trigger.name.toLowerCase() > b.trigger.name.toLowerCase()) return 1;
-				if(a.trigger.name.toLowerCase() < b.trigger.name.toLowerCase()) return -1;
-			}
-			return 0
-		})
 		return list;
 	}
 
@@ -91,30 +105,8 @@ export default class TriggerList extends Vue {
 		return res;
 	}
 
-	public getCategoryLabel(entry:TriggerEntry):string {
-		const event = TriggerEvents().find(v=> v.value === entry.trigger.type);
-		if(!event) return "";
-
-		const catToLabel:Partial<{[key in TriggerEventTypeCategoryValue]:string}> = {};
-		catToLabel[ TriggerEventTypeCategories.GLOBAL ]		= "triggers.categories.global";
-		catToLabel[ TriggerEventTypeCategories.USER ]		= "triggers.categories.user";
-		catToLabel[ TriggerEventTypeCategories.SUBITS ]		= "triggers.categories.subits";
-		catToLabel[ TriggerEventTypeCategories.MOD ]		= "triggers.categories.mod";
-		catToLabel[ TriggerEventTypeCategories.TWITCHAT ]	= "triggers.categories.twitchat";
-		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ]	= "triggers.categories.hypetrain";
-		catToLabel[ TriggerEventTypeCategories.GAMES ]		= "triggers.categories.games";
-		catToLabel[ TriggerEventTypeCategories.MUSIC ]		= "triggers.categories.music";
-		catToLabel[ TriggerEventTypeCategories.TIMER ]		= "triggers.categories.timer";
-		catToLabel[ TriggerEventTypeCategories.OBS ]		= "triggers.categories.obs";
-		catToLabel[ TriggerEventTypeCategories.MISC ]		= "triggers.categories.misc";
-		catToLabel[ TriggerEventTypeCategories.COUNTER]		= "triggers.categories.count";
-		
-		if(!catToLabel[event.category]) return "";
-
-		return this.$t( catToLabel[event.category]! );
-	}
-
 	public beforeMount():void {
+		this.filterState = this.noEdit === false && DataStore.get(DataStore.TRIGGER_SORT_TYPE) === "category";
 		this.populateTriggers();
 		let isFirstRewardUpdate = true;
 		watch(()=>this.rewards, ()=>{
@@ -124,6 +116,29 @@ export default class TriggerList extends Vue {
 			}
 			this.populateTriggers();
 		})
+
+		watch(()=>this.filterState, ()=> {
+			const sortType:SortTypes = this.filterState === true? "category" : "list";
+			DataStore.set(DataStore.TRIGGER_SORT_TYPE, sortType);
+			this.startSequentialBuild();
+		});
+		
+		this.startSequentialBuild();
+	}
+	
+	public beforeUnmount():void {
+		clearInterval(this.buildInterval);
+	}
+
+	private startSequentialBuild():void {
+		this.buildIndex = 0;
+		clearInterval(this.buildInterval);
+		this.buildInterval = setInterval(()=> {
+			this.buildIndex ++;
+			if(this.buildIndex > Math.floor(this.flatTriggerList.length/this.buildBatchSize)) {
+				clearInterval(this.buildInterval);
+			}
+		}, 30);
 	}
 
 	/**
@@ -131,14 +146,44 @@ export default class TriggerList extends Vue {
 	 */
 	private populateTriggers():void {
 		//List all available trigger types
-		this.triggerTypeToInfo = {}
-		TriggerEvents().forEach(v=> this.triggerTypeToInfo[v.value] = v);
+		this.triggerTypeToInfo = {};
+		this.triggerCategories = [];
+		TriggerCategories().forEach(v=> this.triggerTypeToInfo[v.value] = v);
 
-		const list = this.$store("triggers").triggerList;
-		const entries:TriggerEntry[] = [];
+		let list = this.$store("triggers").triggerList;
+
+		//Sort by type so they're properly splitted into categories later
+		list.sort((a,b) => {
+			if(parseInt(a.type) > parseInt(b.type)) return 1;
+			if(parseInt(a.type) < parseInt(b.type)) return -1;
+			return 0
+		});
+		// list = list.slice(0, 10);
+
+		let prevType:TriggerTypesValue|null = null;
+		const categories:TriggerListCategoryEntry[] = [];
+		let currentCategory!:TriggerListCategoryEntry;
+		let triggerBuildIndex = 0;
 		for (const key in list) {
 			const trigger = list[key];
+			if(trigger.type != prevType) {
+				//Create new category
+				const index = TriggerCategories().findIndex(v=> v.value == trigger.type);
+				if(index > -1) {
+					const category = TriggerCategories()[index];
+					currentCategory = {
+						index:index,
+						icon: category.icon,
+						labelKey: category.labelKey,
+						triggerList: [],
+					};
+					categories.push(currentCategory);
+					this.triggerCategories.push(currentCategory);
+					prevType = trigger.type;
+				}
+			}
 			
+			//Parse trigger
 			const info = Utils.getTriggerDisplayInfo(trigger);
 			let icon = "";
 			if(info.iconURL) {
@@ -147,21 +192,27 @@ export default class TriggerList extends Vue {
 				icon = this.$image('icons/'+info.icon+'_purple.svg');
 			}
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
-			const entry:TriggerEntry = { label:info.label, trigger, icon, canTest };
+			const index = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
+			const entry:TriggerListEntry = { index, label:info.label, trigger, icon, canTest };
 			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
-			entries.push(entry);
+			currentCategory.triggerList.push(entry);
 		}
 
-		this.triggerList = entries;
+		this.triggerCategories.sort((a,b)=>{
+			if(a.index > b.index) return 1;
+			if(a.index < b.index) return -1;
+			return 0
+		})
+
+		this.startSequentialBuild();
 	}
 
-	public deleteTrigger(entry:TriggerEntry):void {
+	public deleteTrigger(entry:TriggerListEntry):void {
 		this.$store("main").confirm(this.$t("triggers.delete_confirm")).then(()=>{
 			this.$store("triggers").deleteTrigger(entry.trigger.id);
 			this.populateTriggers();
 		}).catch(error=>{});
 	}
-
 
 	public onChangeTrigger():void {
 		this.$store("triggers").saveTriggers();
@@ -169,7 +220,17 @@ export default class TriggerList extends Vue {
 
 }
 
-interface TriggerEntry {
+type SortTypes = "list" | "category";
+
+interface TriggerListCategoryEntry {
+	index:number;
+	labelKey:string;
+	icon:string;
+	triggerList:TriggerListEntry[];
+}
+
+export interface TriggerListEntry {
+	index:number;
 	label:string;
 	icon:string;
 	canTest:boolean;
@@ -185,10 +246,23 @@ interface TriggerEntry {
 	// grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 	display: flex;
 	flex-direction: column;
-	gap: .25em;
+	gap: 1em;
 
 	.head {
-		margin: 0 0 1em 0;
+		.small {
+			font-size: .8em;
+			font-weight: normal;
+		}
+	}
+
+	.filterSwitch {
+		margin: auto;
+	}
+
+	.list {
+		display: flex;
+		flex-direction: column;
+		gap: .25em;
 	}
 
 	.empty {
@@ -196,61 +270,11 @@ interface TriggerEntry {
 		font-style: italic;
 	}
 
-	.item {
-		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-		color: @mainColor_normal;
-		background-color: @mainColor_light;
-		border-radius: .5em;
-		padding: 0;
-		display: flex;
-		flex-direction: row;
-		min-height: 1.5em;
-		overflow: hidden;
-		&>* {
-			transition: color .25s, background-color .25s;
-			&:hover {
-				background-color: fade(@mainColor_normal_extralight, 20%);
-			}
-		}
-		.button {
+	.category {
+		:deep(.content) {
 			display: flex;
-			flex-direction: row;
+			flex-direction: column;
 			gap: .25em;
-			color: @mainColor_normal;
-			padding: 0 .5em 0 0;
-			align-items: center;
-			text-align: left;
-			transition: background-color .25s;
-			flex-grow: 1;
-			overflow: hidden;
-			word-wrap: break-word;
-			img {
-				height: 1.5em;
-				width: 1.5em;
-				padding: .25em;
-				object-fit: fill;
-			}
-		}
-		.toggle {
-			display: flex;
-			align-items: center;
-			padding: 0 .5em;
-			cursor: pointer;
-			border-left: 1px solid @mainColor_normal;
-		}
-		.deleteBt, .testBt {
-			img {
-				height: .9em;
-				padding: 0 .5em;
-			}
-			
-			&:disabled,
-			&[disabled] {
-				pointer-events: none;
-				img {
-					opacity: .35;
-				}
-			}
 		}
 	}
 }

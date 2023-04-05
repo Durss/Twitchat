@@ -19,7 +19,7 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
-import { TriggerEvents } from "../../types/TriggerActionDataTypes";
+import { TriggerCategories } from "../../types/TriggerActionDataTypes";
 
 /**
 * Created : 22/04/2022 
@@ -488,7 +488,7 @@ export default class TriggerActionHandler {
 			let found = false;
 			for (const key in TriggerTypes) {
 				if(t.type === TriggerTypes[key as TriggerTypesKey]
-				&& TriggerEvents().findIndex(v=> v.value == t.type) > -1) {
+				&& TriggerCategories().findIndex(v=> v.value == t.type) > -1) {
 					found = true;
 					break;
 				}
@@ -706,7 +706,6 @@ export default class TriggerActionHandler {
 							}
 						}else{
 							let action = step.action;
-							console.log("WHAT ?", step);
 							//If requesting to show an highlighted message but the message
 							//is empty, force source to hide
 							if(trigger.type == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE

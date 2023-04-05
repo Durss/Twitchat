@@ -8,7 +8,7 @@
 <script lang="ts">
 import StreamInfoSubForm from '@/components/streaminfo/StreamInfoSubForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionStreamInfoData, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionStreamInfoData, type TriggerData, type TriggerCategory } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';

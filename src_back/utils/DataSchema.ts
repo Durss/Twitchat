@@ -502,6 +502,7 @@ import Ajv from "ajv";
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"number", minimum:-1, maximum:10},
 		rightClickHintPrompt: {type:"boolean"},
+		triggerSortType: {type:"string", maxLength:20},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,

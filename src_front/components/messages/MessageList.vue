@@ -793,28 +793,31 @@ export default class MessageList extends Vue {
 						break;
 					}
 				}
-				
-				//Moving read mark upward
-				if(count < 0) {
-					for (let i = currentMessageIndex; i > 0; i--) {
-						const m = messageList[i];
-						if(await this.shouldShowMessage(m)) count ++;
-						if(count === 1) {
-							this.markedAsReadDate = m.date;
-							this.replaceReadMarker();
-							break;
+
+				if(currentMessageIndex > -1) {
+					//Moving read mark upward
+					if(count < 0) {
+						for (let i = currentMessageIndex; i > 0; i--) {
+							const m = messageList[i];
+							if(await this.shouldShowMessage(m)) count ++;
+							if(count === 1) {
+								this.markedAsReadDate = m.date;
+								this.replaceReadMarker();
+								break;
+							}
 						}
-					}
-					
-				//Moving read mark downward
-				}else if(count > 0){
-					for (let i = currentMessageIndex; i < messageList.length; i++) {
-						const m = messageList[i];
-						if(await this.shouldShowMessage(m)) count --;
-						if(count === -1) {
-							this.markedAsReadDate = m.date;
-							this.replaceReadMarker();
-							break;
+						
+					//Moving read mark downward
+					}else if(count > 0){
+						console.log(messageList);
+						for (let i = currentMessageIndex; i < messageList.length; i++) {
+							const m = messageList[i];
+							if(await this.shouldShowMessage(m)) count --;
+							if(count === -1) {
+								this.markedAsReadDate = m.date;
+								this.replaceReadMarker();
+								break;
+							}
 						}
 					}
 				}
@@ -910,37 +913,39 @@ export default class MessageList extends Vue {
 						break;
 					}
 				}
-				
-				//Moving selection upward
-				if(count < 0) {
-					for (let i = currentMessageIndex; i > 0; i--) {
-						const m = messageList[i];
-						if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count ++;
-						if(count === add) {
-							this.selectionDate = m.date;
-							this.replaceReadMarker();
-							break;
+
+				if(currentMessageIndex > -1) {
+					//Moving selection upward
+					if(count < 0) {
+						for (let i = currentMessageIndex; i > 0; i--) {
+							const m = messageList[i];
+							if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count ++;
+							if(count === add) {
+								this.selectionDate = m.date;
+								this.replaceReadMarker();
+								break;
+							}
+						}
+						
+					//Moving selection downward
+					}else if(count > 0){
+						for (let i = currentMessageIndex; i < messageList.length; i++) {
+							const m = messageList[i];
+							if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count --;
+							if(count === -add) {
+								this.selectionDate = m.date;
+								this.replaceReadMarker();
+								break;
+							}
 						}
 					}
-					
-				//Moving selection downward
-				}else if(count > 0){
-					for (let i = currentMessageIndex; i < messageList.length; i++) {
-						const m = messageList[i];
-						if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count --;
-						if(count === -add) {
-							this.selectionDate = m.date;
-							this.replaceReadMarker();
-							break;
-						}
-					}
+					clearTimeout(this.selectionTimeout);
+					this.selectionTimeout = setTimeout(()=>{
+						this.selectedItem = null;
+						this.selectedMessage = null;
+						this.selectionDate = 0;
+					}, 5000);
 				}
-				clearTimeout(this.selectionTimeout);
-				this.selectionTimeout = setTimeout(()=>{
-					this.selectedItem = null;
-					this.selectedMessage = null;
-					this.selectionDate = 0;
-				}, 5000);
 				break;
 			}
 
@@ -1386,7 +1391,7 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Called on a message is clicked
+	 * Called when a message is clicked
 	 */
 	public toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEvent): void {
 

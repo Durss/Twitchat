@@ -438,7 +438,6 @@ export default class ParamItem extends Vue {
 	 * to display a custom submit button if there's text
 	 */
 	public onSearch():void {
-		console.log("fpdkfdl");
 		this.searching = (this.$refs.vueSelect as any).search.length > 0;
 	}
 
@@ -452,7 +451,6 @@ export default class ParamItem extends Vue {
 		//right after setting it to false here.
 		await this.$nextTick();
 		this.searching = false;
-		console.log("ON CREATE");
 
 		//Trim spaces around the values
 		let list = Array.isArray(this.paramData.value)? this.paramData.value as string[] : this.paramData.options as string[];

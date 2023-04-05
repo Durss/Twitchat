@@ -73,7 +73,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerEvents, TriggerTypes, type TriggerData, type TriggerEventTypes, type TriggerActionData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerCategories, TriggerTypes, type TriggerData, type TriggerCategory, type TriggerActionData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -124,14 +124,14 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 	public get canTestTrigger():boolean {
 		if(!this.currentTriggerData) return false;
-		let events:TriggerEventTypes[] = TriggerEvents().concat();
+		let events:TriggerCategory[] = TriggerCategories().concat();
 		const e = events.find(v=>v.value == this.currentTriggerData?.type);
 		return e?.testMessageType != undefined;
 	}
 
 	public beforeMount():void {
 		//List all available trigger types
-		let events:TriggerEventTypes[] = TriggerEvents().concat();
+		let events:TriggerCategory[] = TriggerCategories().concat();
 		this.eventsCount = events.length;
 		if(OBSWebsocket.instance.connected) {
 			this.listOBSScenes();
@@ -272,7 +272,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * Simulates a trigger's execution
 	 */
 	public testTrigger(trigger:TriggerData):void {
-		const triggerEvent = TriggerEvents().find(v=>v.value == trigger.type);
+		const triggerEvent = TriggerCategories().find(v=>v.value == trigger.type);
 		
 		if(triggerEvent?.testMessageType) {
 			//Special case for schedules

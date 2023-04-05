@@ -1,4 +1,4 @@
-import { TriggerEvents, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerEventTypes, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
+import { TriggerCategories, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerCategory, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
@@ -60,6 +60,7 @@ export default class DataStore {
 	public static CHAT_COL_CTA:string = "chatColCTA";
 	public static WEBSOCKET_TRIGGER:string = "websocketTrigger";
 	public static REDIRECT:string = "redirect";
+	public static TRIGGER_SORT_TYPE:string = "triggerSortType";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -1003,7 +1004,7 @@ export default class DataStore {
 		if(Array.isArray(triggers)) return;//Already migrated to new data format
 		if(!triggers) return;
 		const triggerList:TriggerData[] = [];
-		let events:TriggerEventTypes[] = TriggerEvents();
+		let events:TriggerCategory[] = TriggerCategories();
 		const allowedKeys:{[key:string]:boolean} = {};
 		events.forEach(v => allowedKeys[v.value] = true);
 		for (const key in triggers) {

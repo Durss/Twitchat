@@ -28,6 +28,7 @@ export const storeCounters = defineStore('counters', {
 		addCounter(data:TwitchatDataTypes.CounterData):void {
 			this.counterList.push(data);
 			DataStore.set(DataStore.COUNTERS, this.counterList);
+			rebuildPlaceholdersCache();
 		},
 
 		updateCounter(data:TwitchatDataTypes.CounterData):void {

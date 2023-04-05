@@ -54,7 +54,7 @@
 				</i18n-t>
 
 				<div v-for="e in c.events" :key="e.value" :class="e.beta? 'item beta' : 'item'">
-					<Button class="triggerBt"
+					<TTButton class="triggerBt"
 						white
 						:title="$t(e.labelKey!)"
 						:icon="getIcon(e)"
@@ -92,7 +92,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventTypeCategories, TriggerEvents, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventTypeCategories, TriggerCategories, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryValue, type TriggerCategory } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
@@ -107,7 +107,7 @@ import TriggerActionList from './TriggerActionList.vue';
 
 @Component({
 	components:{
-		Button,
+		TTButton:Button,//Special rename avoids conflict with <component is="button"> that would instanciate it instead of the native HTML element
 		ToggleBlock,
 		TriggerActionList,
 	},
@@ -127,14 +127,14 @@ export default class TriggerCreateForm extends Vue {
 	public showLoading = false;
 	public needRewards = false;
 	public needObsConnect = false;
-	public selectedTriggerType:TriggerEventTypes|null = null;
+	public selectedTriggerType:TriggerCategory|null = null;
 	public selectedSubtriggerEntry:TriggerEntry|null = null;
 
 	public triggerTypeList:TriggerEntry[] = [];
 	public subtriggerList:TriggerEntry[] = [];
 	public actionList:TriggerActionTypes[] = [];
 	public temporaryTrigger:TriggerData|null = null;
-	public eventCategories:{category:TriggerEventTypeCategoryValue, label:string, icon:string, events:TriggerEventTypes[]}[] = [];
+	public eventCategories:{category:TriggerEventTypeCategoryValue, label:string, icon:string, events:TriggerCategory[]}[] = [];
 
 	public get musicServiceAvailable():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 
@@ -145,7 +145,7 @@ export default class TriggerCreateForm extends Vue {
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:TriggerEventTypes):string {
+	public getIcon(e:TriggerCategory):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) return e.icon as string;
 		return this.$image("icons/"+e.icon+"_purple.svg");
@@ -164,7 +164,7 @@ export default class TriggerCreateForm extends Vue {
 	}
 
 	public beforeMount():void {
-		const triggers = TriggerEvents().concat();
+		const triggers = TriggerCategories().concat();
 		this.triggerTypeList = triggers.map( v=> {
 			return {
 				label:this.$t(v.labelKey),
@@ -212,7 +212,7 @@ export default class TriggerCreateForm extends Vue {
 		catToIcon[ TriggerEventTypeCategories.COUNTER ]		= "count";
 		
 		let currCat = this.triggerTypeList[0].trigger!.category;
-		let catEvents:TriggerEventTypes[] = [];
+		let catEvents:TriggerCategory[] = [];
 		for (let i = 0; i < this.triggerTypeList.length; i++) {
 			const ev = this.triggerTypeList[i];
 			if(!ev.trigger) continue;
@@ -260,7 +260,7 @@ export default class TriggerCreateForm extends Vue {
 	/**
 	 * Get if a trigger entry should be disabled
 	 */
-	public disabledEntry(e:TriggerEventTypes):boolean {
+	public disabledEntry(e:TriggerCategory):boolean {
 		if(e.value == TriggerTypes.REWARD_REDEEM && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))) return true;
 		if(e.value == TriggerTypes.POLL_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]))) return true;
 		if(e.value == TriggerTypes.PREDICTION_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]))) return true;
@@ -290,7 +290,7 @@ export default class TriggerCreateForm extends Vue {
 	 * Request any missing scope if necessary
 	 * @param e
 	 */
-	public requestScope(e:TriggerEventTypes):void {
+	public requestScope(e:TriggerCategory):void {
 		if(e.value == TriggerTypes.REWARD_REDEEM && this.hasChannelPoints && !TwitchUtils.requestScopes([TwitchScopes.LIST_REWARDS])) return;
 		if(e.value == TriggerTypes.POLL_RESULT && this.hasChannelPoints && !TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS])) return;
 		if(e.value == TriggerTypes.PREDICTION_RESULT && this.hasChannelPoints && !TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])) return;
@@ -318,7 +318,7 @@ export default class TriggerCreateForm extends Vue {
 	 * Called when selecting a main event type
 	 * @param e 
 	 */
-	public async selectTriggerType(e:TriggerEventTypes):Promise<void> {
+	public async selectTriggerType(e:TriggerCategory):Promise<void> {
 		this.selectedTriggerType = e;
 
 		this.subtriggerList	= [];
@@ -597,7 +597,7 @@ interface TriggerEntry{
 	value:string;
 	subValues?:TriggerEntry[];
 	background?:string;
-	trigger?:TriggerEventTypes;
+	trigger?:TriggerCategory;
 	isCategory:boolean;
 	icon:string;
 }
