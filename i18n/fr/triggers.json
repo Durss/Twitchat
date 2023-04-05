@@ -546,6 +546,22 @@
 				"label": "Fin de lecture d'un media",
 				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} termine la lecture"
 			},
+			"OBS_PLAYBACK_PAUSED": {
+				"label": "Média mis en pause",
+				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} est mise en pause"
+			},
+			"OBS_PLAYBACK_RESTARTED": {
+				"label": "Reprise de lecture d'un média",
+				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} reprend la lecture"
+			},
+			"OBS_PLAYBACK_NEXT": {
+				"label": "Lecture du média suivant",
+				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} débute la lecture de l'élément suivant"
+			},
+			"OBS_PLAYBACK_PREVIOUS": {
+				"label": "Lecture du média précédent",
+				"description": "Actions à exécuter lorsque la source média OBS {SUB_ITEM_NAME} débute la lecture de l'élément précédent"
+			},
 			"STREAM_ONLINE": {
 				"label": "Début de stream",
 				"description": "Actions à exécuter lorsque le stream débute {INFO}",

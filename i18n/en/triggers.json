@@ -544,6 +544,22 @@
 				"label": "Media playback ended",
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source ends playing"
 			},
+			"OBS_PLAYBACK_PAUSED": {
+				"label": "Media playback paused",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source is paused"
+			},
+			"OBS_PLAYBACK_RESTARTED": {
+				"label": "Media playback restarted",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source is restarted"
+			},
+			"OBS_PLAYBACK_NEXT": {
+				"label": "Media playing next item in queue",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source plays next item in queue"
+			},
+			"OBS_PLAYBACK_PREVIOUS": {
+				"label": "Media playing previous item in queue",
+				"description": "Actions to execute when {SUB_ITEM_NAME} OBS media source plays previous item in queue"
+			},
 			"STREAM_ONLINE": {
 				"label": "Stream start",
 				"description": "Actions to execute when stream starts {INFO}",

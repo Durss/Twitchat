@@ -2517,8 +2517,9 @@ export namespace TwitchatDataTypes {
 		/**
 		 * true if the playback has started, false if it ended
 		 */
-		started:boolean;
+		state:MessageOBSPlaybackStateValue;
 	}
+	export type MessageOBSPlaybackStateValue = "start"|"pause"|"complete"|"next"|"prev"|"restart";
 
 	/**
 	 * Represents a pinned message

@@ -113,7 +113,7 @@ export default class TriggerActionOBSEntry extends Vue {
 		const inputKind = this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind;
 		this.media_conf.labelKey = "triggers.actions.obs.param_media";
 		if(inputKind === "image_source") this.media_conf.labelKey = "triggers.actions.obs.param_media_img";
-		return (inputKind === 'ffmpeg_source' || inputKind === "image_source");
+		return (inputKind === 'ffmpeg_source' || inputKind === "image_source" || inputKind === "vlc_source");
 	}
 
 	public async beforeMount():Promise<void> {

@@ -640,6 +640,18 @@ export default class Utils {
 				break;
 			}
 
+			case TriggerTypes.OBS_PLAYBACK_STARTED:
+			case TriggerTypes.OBS_PLAYBACK_ENDED:
+			case TriggerTypes.OBS_PLAYBACK_PAUSED:
+			case TriggerTypes.OBS_PLAYBACK_RESTARTED:
+			case TriggerTypes.OBS_PLAYBACK_NEXT:
+			case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
+			case TriggerTypes.OBS_INPUT_MUTE:
+			case TriggerTypes.OBS_INPUT_UNMUTE: {
+				if(!result.label && trigger.obsInput) result.label = trigger.obsInput;
+				break;
+			}
+
 			case TriggerTypes.COUNTER_ADD: prefix = "+";;
 			case TriggerTypes.COUNTER_DEL: if(!prefix) prefix = "-";
 			case TriggerTypes.COUNTER_LOOPED: if(!prefix) prefix = "⟳";

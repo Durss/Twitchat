@@ -1,22 +1,22 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
+import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
 import { TriggerTypes, type SocketParams } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
-import DeezerHelper from '@/utils/music/DeezerHelper';
-import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import DeezerHelper from '@/utils/music/DeezerHelper';
+import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodEvent from '@/utils/voice/VoicemodEvent';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
@@ -220,12 +220,19 @@ export const storeMain = defineStore("main", {
 			});
 			
 			if(authenticate) {
-				//Avoid listening for these events on the overlays
+				//Not not listen for these events on the overlays
+				
+				/**
+				 * Called when a raffle animation (the wheel) completes
+				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent)=> {
 					const data = (e.data as unknown) as {winner:TwitchatDataTypes.RaffleEntry};
 					StoreProxy.raffle.onRaffleComplete(data.winner);
 				});
 				
+				/**
+				 * Called when doing a shoutout to the latest raider
+				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
 					const raider = sStream.lastRaider;
 					if(raider) {
@@ -236,6 +243,9 @@ export const storeMain = defineStore("main", {
 					}
 				});
 				
+				/**
+				 * Called when emergency mode is started or stoped
+				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
 					const enable = (e.data as unknown) as {enabled:boolean};
 					let enabled = enable.enabled;
@@ -244,10 +254,16 @@ export const storeMain = defineStore("main", {
 					sEmergency.setEmergencyMode(enabled)
 				});
 			
+				/**
+				 * Called when asking to pick a raffle winner
+				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
 					StoreProxy.raffle.pickWinner();
 				});
 
+				/**
+				 * Called when switching to another scene
+				 */
 				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, (event:TwitchatEvent):void => {
 					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
 						id:Utils.getUUID(),
@@ -259,6 +275,9 @@ export const storeMain = defineStore("main", {
 					TriggerActionHandler.instance.execute(m);
 				});
 	
+				/**
+				 * Called when a source visibility is toggled
+				 */
 				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SOURCE_TOGGLE, (event:TwitchatEvent):void => {
 					const data = (event.data as unknown) as {item:OBSSourceItem, event:{sceneItemId:number, sceneItemEnabled:boolean, sceneName:string}};
 					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
@@ -273,6 +292,9 @@ export const storeMain = defineStore("main", {
 					TriggerActionHandler.instance.execute(m);
 				});
 
+				/**
+				 * Called when a source is muted or unmuted
+				 */
 				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_MUTE_TOGGLE, (event:TwitchatEvent):void => {
 					const data = (event.data as unknown) as {inputName:string, inputMuted:boolean};
 					const m:TwitchatDataTypes.MessageOBSInputMuteToggleData = {
@@ -286,30 +308,61 @@ export const storeMain = defineStore("main", {
 					TriggerActionHandler.instance.execute(m);
 				});
 
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_STARTED, (event:TwitchatEvent):void => {
+				/**
+				 * Called when a playback event occurs on a media source
+				 * @param event 
+				 */
+				function onPlayBackStateChanged(event:TwitchatEvent):void {
 					const data = (event.data as unknown) as {inputName:string};
+					const typeToState:Partial<{[key in TwitchatEventType]:TwitchatDataTypes.MessageOBSPlaybackStateValue}> = {};
+					typeToState[TwitchatEvent.OBS_PLAYBACK_ENDED]		= "complete";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_STARTED]		= "start";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_PAUSED]		= "pause";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_NEXT]		= "next";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_PREVIOUS]	= "prev";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_RESTARTED]	= "restart";
 					const m:TwitchatDataTypes.MessageOBSPlaybackStateUpdateData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:"twitchat",
 						type:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
 						inputName:data.inputName,
-						started:true,
+						state:typeToState[event.type as TwitchatEventType]!,
 					}
 					TriggerActionHandler.instance.execute(m);
+				}
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_STARTED, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PAUSED, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_NEXT, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PREVIOUS, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_RESTARTED, (e) => onPlayBackStateChanged(e));
+				
+				/**
+				 * Called when an OBS source is renamed.
+				 * Rename it on all triggers
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, (event:TwitchatEvent):void => {
+					const data = event.data as {oldInputName:string, inputName:string};
+					StoreProxy.triggers.renameOBSSource(data.oldInputName, data.inputName);
+				});
+				
+				/**
+				 * Called when an OBS scene is renamed.
+				 * Rename it on all triggers
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, (event:TwitchatEvent):void => {
+					const data = event.data as {oldSceneName:string, sceneName:string};
+					StoreProxy.triggers.renameOBSScene(data.oldSceneName, data.sceneName);
 				});
 
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, (event:TwitchatEvent):void => {
-					const data = (event.data as unknown) as {inputName:string};
-					const m:TwitchatDataTypes.MessageOBSPlaybackStateUpdateData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
-						inputName:data.inputName,
-						started:false,
-					}
-					TriggerActionHandler.instance.execute(m);
+				/**
+				 * Called when an OBS Filter is renamed.
+				 * Rename it on all triggers
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, (event:TwitchatEvent):void => {
+					const data = event.data as {sourceName: string; oldFilterName: string; filterName: string};
+					StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
 				});
 			}
 

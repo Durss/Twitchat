@@ -94,6 +94,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -234,6 +235,17 @@ export default class TriggerCreateForm extends Vue {
 				prevCatgerory = t.trigger!.category;
 			}
 		}
+
+		watch(()=>this.obsSources, ()=> {
+			if(this.selectedTriggerType) {
+				this.selectTriggerType(this.selectedTriggerType);
+			}
+		});
+		watch(()=>this.rewards, ()=> {
+			if(this.selectedTriggerType) {
+				this.selectTriggerType(this.selectedTriggerType);
+			}
+		});
 	}
 
 	/**
@@ -366,6 +378,10 @@ export default class TriggerCreateForm extends Vue {
 
 		if(e.value == TriggerTypes.OBS_INPUT_MUTE
 		|| e.value == TriggerTypes.OBS_INPUT_UNMUTE
+		|| e.value == TriggerTypes.OBS_PLAYBACK_PAUSED
+		|| e.value == TriggerTypes.OBS_PLAYBACK_RESTARTED
+		|| e.value == TriggerTypes.OBS_PLAYBACK_NEXT
+		|| e.value == TriggerTypes.OBS_PLAYBACK_PREVIOUS
 		|| e.value == TriggerTypes.OBS_PLAYBACK_STARTED
 		|| e.value == TriggerTypes.OBS_PLAYBACK_ENDED) {
 			if(!OBSWebsocket.instance.connected) {
@@ -375,11 +391,11 @@ export default class TriggerCreateForm extends Vue {
 				this.needObsConnect = false;
 				let filterdList = this.obsInputs;
 
-				if(e.value == TriggerTypes.OBS_PLAYBACK_STARTED
-				|| e.value == TriggerTypes.OBS_PLAYBACK_ENDED) {
+				if(e.value != TriggerTypes.OBS_INPUT_MUTE
+				&& e.value != TriggerTypes.OBS_INPUT_UNMUTE) {
 					//Filter only media sources if on a media playback trigger
 					filterdList = filterdList.filter(v=> {
-						return v.inputKind === 'ffmpeg_source' || v.inputKind === "image_source"
+						return v.inputKind === 'ffmpeg_source' || v.inputKind === "image_source" || v.inputKind == "vlc_source"
 					})
 				}
 
@@ -442,9 +458,13 @@ export default class TriggerCreateForm extends Vue {
 
 			case TriggerTypes.OBS_SOURCE_ON:
 			case TriggerTypes.OBS_SOURCE_OFF: this.temporaryTrigger.obsSource = entry.value; break;
-
+				
 			case TriggerTypes.OBS_PLAYBACK_STARTED:
 			case TriggerTypes.OBS_PLAYBACK_ENDED:
+			case TriggerTypes.OBS_PLAYBACK_PAUSED:
+			case TriggerTypes.OBS_PLAYBACK_RESTARTED:
+			case TriggerTypes.OBS_PLAYBACK_NEXT:
+			case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
 			case TriggerTypes.OBS_INPUT_MUTE:
 			case TriggerTypes.OBS_INPUT_UNMUTE: this.temporaryTrigger.obsInput = entry.value; break;
 

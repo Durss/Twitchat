@@ -410,11 +410,16 @@ export const TriggerTypes = {
 	OBS_INPUT_UNMUTE:"66",
 	OBS_PLAYBACK_STARTED:"67",
 	OBS_PLAYBACK_ENDED:"68",
+	OBS_PLAYBACK_PAUSED:"69",//Not actually used as they require an OBS plugin to be triggered
+	OBS_PLAYBACK_RESTARTED:"70",//Not actually used as they require an OBS plugin to be triggered
+	OBS_PLAYBACK_NEXT:"71",//Not actually used as they require an OBS plugin to be triggered
+	OBS_PLAYBACK_PREVIOUS:"72",//Not actually used as they require an OBS plugin to be triggered
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
 } as const;
-export type TriggerTypesValue = typeof TriggerTypes[keyof typeof TriggerTypes];
+export type TriggerTypesKey = keyof typeof TriggerTypes;
+export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
 
 export interface ITriggerPlaceholder {
 	tag:string;
@@ -806,6 +811,12 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"unmute", labelKey:"triggers.events.OBS_INPUT_UNMUTE.label", value:TriggerTypes.OBS_INPUT_UNMUTE, descriptionKey:"triggers.events.OBS_INPUT_UNMUTE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"play", labelKey:"triggers.events.OBS_PLAYBACK_STARTED.label", value:TriggerTypes.OBS_PLAYBACK_STARTED, descriptionKey:"triggers.events.OBS_PLAYBACK_STARTED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"stop", labelKey:"triggers.events.OBS_PLAYBACK_ENDED.label", value:TriggerTypes.OBS_PLAYBACK_ENDED, descriptionKey:"triggers.events.OBS_PLAYBACK_ENDED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		//These event require an OBS plugin to be triggered and are not super relevant...
+		//I chose to disable them for now
+		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"pause", labelKey:"triggers.events.OBS_PLAYBACK_PAUSED.label", value:TriggerTypes.OBS_PLAYBACK_PAUSED, descriptionKey:"triggers.events.OBS_PLAYBACK_PAUSED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"loop", labelKey:"triggers.events.OBS_PLAYBACK_RESTARTED.label", value:TriggerTypes.OBS_PLAYBACK_RESTARTED, descriptionKey:"triggers.events.OBS_PLAYBACK_RESTARTED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"next", labelKey:"triggers.events.OBS_PLAYBACK_NEXT.label", value:TriggerTypes.OBS_PLAYBACK_NEXT, descriptionKey:"triggers.events.OBS_PLAYBACK_NEXT.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"prev", labelKey:"triggers.events.OBS_PLAYBACK_PREVIOUS.label", value:TriggerTypes.OBS_PLAYBACK_PREVIOUS, descriptionKey:"triggers.events.OBS_PLAYBACK_PREVIOUS.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
 		{category:TriggerEventTypeCategories.MISC, icon:"voicemod", labelKey:"triggers.events.VOICEMOD.label", value:TriggerTypes.VOICEMOD, descriptionKey:"triggers.events.VOICEMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
 		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.STREAM_ONLINE.label", value:TriggerTypes.STREAM_ONLINE, descriptionKey:"triggers.events.STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE},
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.STREAM_OFFLINE.label", value:TriggerTypes.STREAM_OFFLINE, descriptionKey:"triggers.events.STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},

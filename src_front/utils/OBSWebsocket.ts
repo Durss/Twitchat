@@ -110,12 +110,33 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_MUTE_TOGGLE, e));
 		});
 
-		this.obs.on("MediaInputPlaybackEnded", (e:{inputName:string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
+		//This evet is disabled as it needs the following OBS plugin to be triggered
+		// https://obsproject.com/forum/resources/media-controls.1032/
+		//This plugin provides playback controls for media sources.
+		//Without that plugin only the NEXT and RESTART event seem to be triggered natively.
+		/*
+		this.obs.on("MediaInputActionTriggered", (e:{inputName:string, mediaAction:string}) => {
+			const action:OBSMediaAction = e.mediaAction as OBSMediaAction;
+			let event:string = "";
+			switch(action) {
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE": return;//Ignore
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY": event = TwitchatEvent.OBS_PLAYBACK_STARTED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE": event = TwitchatEvent.OBS_PLAYBACK_PAUSED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP": event = TwitchatEvent.OBS_PLAYBACK_ENDED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART": event = TwitchatEvent.OBS_PLAYBACK_RESTARTED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT": event = TwitchatEvent.OBS_PLAYBACK_NEXT; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS": event = TwitchatEvent.OBS_PLAYBACK_PREVIOUS; break;
+			}
+			this.dispatchEvent(new TwitchatEvent(event, e));
 		});
+		//*/
 
-		this.obs.on("MediaInputPlaybackStarted", (e:{inputName:string}) => {
+		this.obs.on("MediaInputPlaybackStarted", async (e:{inputName:string}) => {
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_STARTED, e));
+		});
+		
+		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
 		});
 
 		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
@@ -128,6 +149,18 @@ export default class OBSWebsocket extends EventDispatcher {
 					break;
 				}
 			}
+		});
+		
+		this.obs.on("InputNameChanged", async (e:{oldInputName:string, inputName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_INPUT_NAME_CHANGED, e));
+		});
+		
+		this.obs.on("SceneNameChanged", async (e:{oldSceneName:string, sceneName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_NAME_CHANGED, e));
+		});
+
+		this.obs.on("SourceFilterNameChanged", async (e:{sourceName: string; oldFilterName: string; filterName: string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_NAME_CHANGED, e));
 		});
 
 		// console.log(await this.obs.call("GetInputList"));
@@ -448,7 +481,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 }
 
-export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2";
+export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2" | "vlc_source";
 export type OBSSourceType = "OBS_SOURCE_TYPE_INPUT" | "OBS_SOURCE_TYPE_SCENE";
 
 export interface OBSAudioSource {inputKind:OBSInputKind, inputName:string, unversionedInputKind:string}
@@ -489,3 +522,11 @@ export interface BrowserSourceSettings {
 	url?: string;
 	width?: number;
 }
+
+export type OBSMediaAction = "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS";

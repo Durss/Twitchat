@@ -429,6 +429,9 @@ export interface ITriggersActions {
 	addTrigger(data:TriggerData):void;
 	saveTriggers():void;
 	deleteTrigger(id:string):void;
+	renameOBSSource(oldName:string, newName:string):void;
+	renameOBSScene(oldSceneName:string, sceneName:string):void;
+	renameOBSFilter(sourceName:string, oldFilterName:string, filterName:string):void;
 }
 
 

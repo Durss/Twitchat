@@ -1,24 +1,25 @@
 import MessengerProxy from "@/messaging/MessengerProxy";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import * as MathJS from 'mathjs';
 import type { JsonObject } from "type-fest";
+import { reactive } from "vue";
 import TwitchatEvent from "../../events/TwitchatEvent";
-import { TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, type TriggerLog, type TriggerData, type TriggerTypesValue, TriggerActionPlaceholders, type ITriggerPlaceholder } from "../../types/TriggerActionDataTypes";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
+import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesValue, type TriggerTypesKey } from "../../types/TriggerActionDataTypes";
 import Config from "../Config";
-import DeezerHelper from "../music/DeezerHelper";
-import type { SearchTrackItem } from "../music/SpotifyDataTypes";
-import SpotifyHelper from "../music/SpotifyHelper";
 import OBSWebsocket from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import TTSUtils from "../TTSUtils";
-import TwitchUtils from "../twitch/TwitchUtils";
 import Utils from "../Utils";
-import VoicemodWebSocket from "../voice/VoicemodWebSocket";
-import * as MathJS from 'mathjs'
-import { reactive } from "vue";
-import { TwitchScopes } from "../twitch/TwitchScopes";
 import WebsocketTrigger from "../WebsocketTrigger";
+import DeezerHelper from "../music/DeezerHelper";
+import type { SearchTrackItem } from "../music/SpotifyDataTypes";
+import SpotifyHelper from "../music/SpotifyHelper";
+import { TwitchScopes } from "../twitch/TwitchScopes";
+import TwitchUtils from "../twitch/TwitchUtils";
+import VoicemodWebSocket from "../voice/VoicemodWebSocket";
+import { TriggerEvents } from "../../types/TriggerActionDataTypes";
 
 /**
 * Created : 22/04/2022 
@@ -60,6 +61,7 @@ export default class TriggerActionHandler {
 	* PUBLIC METHODS *
 	******************/
 	public populate(triggers:TriggerData[]):void {
+		this.cleanupTriggers(triggers);
 		this.buildHashmap(triggers);
 	}
 
@@ -254,8 +256,15 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE: {
-				const event = message.started? TriggerTypes.OBS_PLAYBACK_STARTED : TriggerTypes.OBS_PLAYBACK_ENDED;
-				if(await this.executeTriggersByType(event, message, testMode, message.inputName.toLowerCase())) {
+				const stateToType:{[key in TwitchatDataTypes.MessageOBSPlaybackStateValue]:TriggerTypesValue} = {
+					"complete": TriggerTypes.OBS_PLAYBACK_ENDED,
+					"start": TriggerTypes.OBS_PLAYBACK_STARTED,
+					"pause": TriggerTypes.OBS_PLAYBACK_PAUSED,
+					"next": TriggerTypes.OBS_PLAYBACK_NEXT,
+					"prev": TriggerTypes.OBS_PLAYBACK_PREVIOUS,
+					"restart": TriggerTypes.OBS_PLAYBACK_RESTARTED,
+				};
+				if(await this.executeTriggersByType(stateToType[message.state], message, testMode, message.inputName.toLowerCase())) {
 					return;
 				}break;
 			}
@@ -432,6 +441,10 @@ export default class TriggerActionHandler {
 
 				case TriggerTypes.OBS_PLAYBACK_STARTED:
 				case TriggerTypes.OBS_PLAYBACK_ENDED:
+				case TriggerTypes.OBS_PLAYBACK_PAUSED:
+				case TriggerTypes.OBS_PLAYBACK_RESTARTED:
+				case TriggerTypes.OBS_PLAYBACK_NEXT:
+				case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
 				case TriggerTypes.OBS_INPUT_MUTE:
 				case TriggerTypes.OBS_INPUT_UNMUTE: keys[0] += "_" + t.obsInput; break;
 
@@ -448,6 +461,29 @@ export default class TriggerActionHandler {
 					this.triggerType2Triggers[ keys[i] ] = [];
 				}
 				this.triggerType2Triggers[ keys[i] ]!.push(t);
+			}
+		}
+	}
+
+	/**
+	 * Cleans up the triggers
+	 * @param triggers 
+	 */
+	private cleanupTriggers(triggers:TriggerData[]):void {
+		for (let i = 0; i < triggers.length; i++) {
+			const t = triggers[i];
+			let found = false;
+			for (const key in TriggerTypes) {
+				if(t.type === TriggerTypes[key as TriggerTypesKey]
+				&& TriggerEvents().findIndex(v=> v.value == t.type) > -1) {
+					found = true;
+					break;
+				}
+			}
+			if(!found) {
+				console.log("delete trigger", triggers[i]);
+				triggers.splice(i, 1);
+				i--;
 			}
 		}
 	}
@@ -622,62 +658,64 @@ export default class TriggerActionHandler {
 					
 					if(!OBSWebsocket.instance.connected) {
 						logStep.messages.push({date:Date.now(), value:"OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
-					}
-
-					if(step.text) {
-						try {
-							const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
-							await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
-						}catch(error) {
-							console.error(error);
-						}
-					}
-					if(step.url) {
-						try {
-							const url = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
-							await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
-						}catch(error) {
-							console.error(error);
-						}
-					}
-					if(step.mediaPath) {
-						try {
-							let url = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
-							await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
-						}catch(error) {
-							console.error(error);
-						}
-					}
-		
-					if(step.filterName) {
-						try {
-							await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
-						}catch(error) {
-							console.error(error);
-						}
 					}else{
-						let action = step.action;
-						//If requesting to show an highlighted message but the message
-						//is empty, force source to hide
-						if(trigger.type == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
-						&& message.type == "chat_highlight"
-						&& (!message.info.message || message.info.message.length===0)) {
-							action = "hide";
-						}
-						try {
-							switch(action) {
-								case "hide": await OBSWebsocket.instance.setSourceState(step.sourceName, false); break;
-								case "show": await OBSWebsocket.instance.setSourceState(step.sourceName, true); break;
-								case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
-								case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
-								case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
+
+						if(step.text) {
+							try {
+								const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
+								await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+							}catch(error) {
+								console.error(error);
 							}
-						}catch(error) {
-							console.error(error);
 						}
+						if(step.url) {
+							try {
+								const url = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
+								await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
+							}catch(error) {
+								console.error(error);
+							}
+						}
+						if(step.mediaPath) {
+							try {
+								let url = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
+								await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
+							}catch(error) {
+								console.error(error);
+							}
+						}
+			
+						if(step.filterName) {
+							try {
+								await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
+							}catch(error) {
+								console.error(error);
+							}
+						}else{
+							let action = step.action;
+							console.log("WHAT ?", step);
+							//If requesting to show an highlighted message but the message
+							//is empty, force source to hide
+							if(trigger.type == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
+							&& message.type == "chat_highlight"
+							&& (!message.info.message || message.info.message.length===0)) {
+								action = "hide";
+							}
+							try {
+								switch(action) {
+									case "hide": await OBSWebsocket.instance.setSourceState(step.sourceName, false); break;
+									case "show": await OBSWebsocket.instance.setSourceState(step.sourceName, true); break;
+									case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
+									case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
+									case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
+								}
+							}catch(error) {
+								console.error(error);
+							}
+						}
+						
+						logStep.messages.push({date:Date.now(), value:"OBS action executed on source \""+step.sourceName+"\""});
 					}
-					
-					logStep.messages.push({date:Date.now(), value:"OBS action executed on source \""+step.sourceName+"\""});
 
 					resolverOBS();
 					delete this.obsSourceNameToQueue[step.sourceName];

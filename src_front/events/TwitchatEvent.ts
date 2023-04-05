@@ -44,6 +44,13 @@ export default class TwitchatEvent extends Event {
 	public static OBS_MUTE_TOGGLE:TwitchatEventType = "OBS_MUTE_TOGGLE";
 	public static OBS_PLAYBACK_ENDED:TwitchatEventType = "OBS_PLAYBACK_ENDED";
 	public static OBS_PLAYBACK_STARTED:TwitchatEventType = "OBS_PLAYBACK_STARTED";
+	public static OBS_PLAYBACK_PAUSED:TwitchatEventType = "OBS_PLAYBACK_PAUSED";
+	public static OBS_PLAYBACK_RESTARTED:TwitchatEventType = "OBS_PLAYBACK_RESTARTED";
+	public static OBS_PLAYBACK_NEXT:TwitchatEventType = "OBS_PLAYBACK_NEXT";
+	public static OBS_PLAYBACK_PREVIOUS:TwitchatEventType = "OBS_PLAYBACK_PREVIOUS";
+	public static OBS_INPUT_NAME_CHANGED:TwitchatEventType = "OBS_INPUT_NAME_CHANGED";
+	public static OBS_SCENE_NAME_CHANGED:TwitchatEventType = "OBS_SCENE_NAME_CHANGED";
+	public static OBS_FILTER_NAME_CHANGED:TwitchatEventType = "OBS_FILTER_NAME_CHANGED";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -145,6 +152,13 @@ export const TwitchatEventTypeList = [
 	"OBS_MUTE_TOGGLE",
 	"OBS_PLAYBACK_ENDED",
 	"OBS_PLAYBACK_STARTED",
+	"OBS_PLAYBACK_PAUSED",
+	"OBS_PLAYBACK_RESTARTED",
+	"OBS_PLAYBACK_NEXT",
+	"OBS_PLAYBACK_PREVIOUS",
+	"OBS_INPUT_NAME_CHANGED",
+	"OBS_SCENE_NAME_CHANGED",
+	"OBS_FILTER_NAME_CHANGED",
 ] as const;
 
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];

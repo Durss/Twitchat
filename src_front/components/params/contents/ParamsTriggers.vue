@@ -73,7 +73,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerEvents, TriggerTypes, type TriggerData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEvents, TriggerTypes, type TriggerData, type TriggerEventTypes, type TriggerActionData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -88,6 +88,7 @@ import type IParameterContent from './IParameterContent';
 import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
 import TriggerList from './triggers/TriggerList.vue';
+import TwitchatEvent from '@/events/TwitchatEvent';
 
 @Component({
 	components:{
@@ -112,6 +113,8 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public obsSources:OBSSourceItem[] = [];
 	public obsInputs:OBSInputItem[] = [];
 	public rewards:TwitchDataTypes.Reward[] = [];
+
+	private renameOBSElementHandler!:(e:TwitchatEvent) => void;
 
 	public get showOBSResync():boolean {
 		if(!this.currentTriggerData) return false;
@@ -144,6 +147,24 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 			this.showForm = true;
 			this.headerKey = "triggers.header_select_trigger";
 		}
+
+		this.renameOBSElementHandler = async () => {
+			//For some reason we need to call OBS twice to get latest changes
+			await this.listOBSScenes();
+			await this.listOBSScenes();
+			
+			await this.listOBSSources();
+			await this.listOBSSources();
+		};
+		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, this.renameOBSElementHandler);
+		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, this.renameOBSElementHandler);
+		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, this.renameOBSElementHandler);
+	}
+
+	public beforeUnmount():void {
+		OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, this.renameOBSElementHandler);
+		OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, this.renameOBSElementHandler);
+		OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, this.renameOBSElementHandler);
 	}
 
 	/**
@@ -333,6 +354,23 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE) {
 						m.sourceName = trigger.obsSource!;
 						m.visible = trigger.type == TriggerTypes.OBS_SOURCE_ON;
+					}else 
+
+					//OBS source toggle simulation
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE) {
+						m.inputName = trigger.obsInput!;
+						const typeToState:Partial<{[key in TriggerTypesValue]:TwitchatDataTypes.MessageOBSPlaybackStateValue}> = {};
+						typeToState[TriggerTypes.OBS_PLAYBACK_ENDED]		= "complete";
+						typeToState[TriggerTypes.OBS_PLAYBACK_STARTED]		= "start";
+						typeToState[TriggerTypes.OBS_PLAYBACK_PAUSED]		= "pause";
+						typeToState[TriggerTypes.OBS_PLAYBACK_NEXT]			= "next";
+						typeToState[TriggerTypes.OBS_PLAYBACK_PREVIOUS]		= "prev";
+						typeToState[TriggerTypes.OBS_PLAYBACK_RESTARTED]	= "restart";
+						if(typeToState[trigger.type]) {
+							m.state = typeToState[trigger.type]!;
+						}else{
+							this.$store("main").alert("Trigger type \""+trigger.type+"\" is missing associated state on ParamsTriggers.vue");
+						}
 					}else 
 
 					//Counter update simulation

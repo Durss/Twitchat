@@ -162,6 +162,10 @@ export default class TriggerActionList extends Vue {
 
 			case TriggerTypes.OBS_PLAYBACK_STARTED:
 			case TriggerTypes.OBS_PLAYBACK_ENDED:
+			case TriggerTypes.OBS_PLAYBACK_PAUSED:
+			case TriggerTypes.OBS_PLAYBACK_RESTARTED:
+			case TriggerTypes.OBS_PLAYBACK_NEXT:
+			case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
 			case TriggerTypes.OBS_INPUT_MUTE:
 			case TriggerTypes.OBS_INPUT_UNMUTE:
 				return this.triggerData.obsInput || "...";
