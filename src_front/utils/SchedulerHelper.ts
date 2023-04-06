@@ -91,7 +91,6 @@ export default class SchedulerHelper {
 		switch(trigger.scheduleParams.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
 				let date = Date.now() + trigger.scheduleParams.repeatDuration * 60 * 1000;
-				console.log(Utils.getTriggerDisplayInfo(trigger), date);
 				if(trigger.type === TriggerTypes.TWITCHAT_AD) {
 					//Check if a date is stored on store and load it back.
 					//This avoids the possibility to have no ad by refreshing

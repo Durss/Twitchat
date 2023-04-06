@@ -360,7 +360,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/commercial": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_COMMERCIAL])) return false;
 					const duration = parseInt(chunks[0]);
-					StoreProxy.stream.startAd(duration);
+					StoreProxy.stream.startCommercial(duration);
 					return true;
 				}
 				case "/shield":  {

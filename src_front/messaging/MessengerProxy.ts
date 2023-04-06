@@ -314,7 +314,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/commercial") {
-			StoreProxy.stream.startAd(params.length > 0? parseInt(params[0]) : 30);
+			StoreProxy.stream.startCommercial(params.length > 0? parseInt(params[0]) : 30);
 			return true;
 		}else
 

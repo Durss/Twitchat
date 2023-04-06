@@ -856,7 +856,7 @@ export default class MessageListFilter extends Vue {
 	/**
 	 * Called when requesting to move a column
 	 */
-	public moveColumn(direction:number):void {
+	public moveColumn(direction:-1|1):void {
 		this.$store("params").moveChatColumn(this.config, direction);
 	}
 

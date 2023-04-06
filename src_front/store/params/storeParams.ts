@@ -333,7 +333,7 @@ export const storeParams = defineStore('params', {
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
 		},
 
-		moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:number):void {
+		moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:-1|1):void {
 			const newPos = column.order + direction;
 			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
 				const c = this.chatColumnsConfig[i];

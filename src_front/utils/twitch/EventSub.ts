@@ -432,7 +432,7 @@ export default class EventSub {
 	 * @param payload 
 	 */
 	private followEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.FollowEvent):void {
-		if(StoreProxy.users.isAlreadyFollower("twitch", event.user_id)) return;
+		if(StoreProxy.users.isAFollower("twitch", event.user_id)) return;
 		
 		const channelId = StoreProxy.auth.twitch.user.id;
 

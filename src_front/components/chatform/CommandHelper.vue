@@ -148,7 +148,7 @@ export default class CommandHelper extends Vue {
 		if(!TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL])) {
 			this.$store("auth").requestTwitchScopes([TwitchScopes.START_COMMERCIAL]);
 		}else{
-			this.$store("stream").startAd(duration);
+			this.$store("stream").startCommercial(duration);
 		}
 	}
 

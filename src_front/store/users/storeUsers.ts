@@ -76,7 +76,6 @@ export const storeUsers = defineStore('users', {
 
 	getters: {
 		users():TwitchatDataTypes.TwitchatUser[] { return userList; },
-		moderators():{[key:string]:{[key:string]:true}} { return moderatorsCache; },
 	},
 
 
@@ -93,7 +92,7 @@ export const storeUsers = defineStore('users', {
 		/**
 		 * Registers the bots hashmap of a platform
 		 */
-		isAlreadyFollower(platform:TwitchatDataTypes.ChatPlatform, id:string):boolean {
+		isAFollower(platform:TwitchatDataTypes.ChatPlatform, id:string):boolean {
 			return  this.myFollowers[platform][id] != undefined;
 		},
 
@@ -254,7 +253,7 @@ export const storeUsers = defineStore('users', {
 			}
 			
 			if(!user.temporary) {
-				if(getPronouns && user.id && user.login && user.pronouns == null) this.checkPronouns(user);
+				if(getPronouns && user.id && user.login && user.pronouns == null) this.loadUserPronouns(user);
 				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
 				
@@ -336,7 +335,7 @@ export const storeUsers = defineStore('users', {
 								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
 								//If user was temporary, load more info
 								delete userLocal.temporary;
-								if(getPronouns && userLocal.id && userLocal.login) this.checkPronouns(userLocal);
+								if(getPronouns && userLocal.id && userLocal.login) this.loadUserPronouns(userLocal);
 
 								//Set moderator state for all connected channels
 								for (const chan in moderatorsCache) {
@@ -545,8 +544,8 @@ export const storeUsers = defineStore('users', {
 			return false;
 		},
 
-		//Check for user's pronouns
-		checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+		//load user's pronouns
+		loadUserPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			// console.log("Check pronouns?", user.login, user.id, user.pronouns, !user.id, !user.login, user.pronouns != undefined);
 			if(!user.id || !user.login || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return Promise.resolve();
 			// console.log("Load pronouns !", user.login);

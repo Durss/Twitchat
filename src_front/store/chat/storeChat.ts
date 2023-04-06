@@ -31,6 +31,7 @@ export const storeChat = defineStore('chat', {
 		pinedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
+		shoutoutQueue: [],
 		replyTo: null,
 		
 		
