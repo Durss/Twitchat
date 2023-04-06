@@ -148,39 +148,46 @@ export interface SocketParams {
 	secured:boolean;
 }
 
-//Main trigger categories displayed on the parameter "Triggers" section
-export const TriggerEventTypeCategories = {
-	GLOBAL: 1,
-	TIMER: 2,
-	COUNTER: 12,
-	TWITCHAT: 3,
-	USER: 4,
-	SUBITS: 5,
-	MOD: 6,
-	HYPETRAIN: 7,
-	GAMES: 8,
-	MUSIC: 9,
-	OBS: 10,
-	MISC: 11,
-} as const;
-export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
 
-export interface TriggerCategory extends TwitchatDataTypes.ParameterDataListValue<TriggerTypesValue> {
-	category:TriggerEventTypeCategoryValue;
+export interface TriggerEventTypeCategory {
+	id:number,
+	labelKey:string;
+	icon:string;
+};
+//Main trigger categories displayed on the parameter "Triggers" section
+export const TriggerEventTypeCategories:{[key:string]:TriggerEventTypeCategory} = {
+	GLOBAL:		{id:1, labelKey:"triggers.categories.global", icon:"whispers"},
+	TIMER:		{id:2, labelKey:"triggers.categories.timer", icon:"timer"},
+	TWITCHAT:	{id:3, labelKey:"triggers.categories.twitchat", icon:"twitchat"},
+	USER:		{id:4, labelKey:"triggers.categories.user", icon:"user"},
+	SUBITS:		{id:5, labelKey:"triggers.categories.subits", icon:"coin"},
+	MOD:		{id:6, labelKey:"triggers.categories.mod", icon:"mod"},
+	HYPETRAIN:	{id:7, labelKey:"triggers.categories.hypetrain", icon:"train"},
+	GAMES:		{id:8, labelKey:"triggers.categories.games", icon:"ticket"},
+	MUSIC:		{id:9, labelKey:"triggers.categories.music", icon:"spotify"},
+	OBS:		{id:10, labelKey:"triggers.categories.obs", icon:"obs"},
+	MISC:		{id:11, labelKey:"triggers.categories.misc", icon:"broadcast"},
+	COUNTER:	{id:12, labelKey:"triggers.categories.count", icon:"count"},
+} as const;
+export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
+
+export interface TriggerTypeDefinition extends TwitchatDataTypes.ParameterDataListValue<TriggerTypesValue> {
+	category:TriggerEventTypeCategory;
 	labelKey:string;
 	icon:string;
 	beta?:boolean;
+	noToggle?:boolean;
 	descriptionKey?:string;
 	isCategory?:boolean;
 	testMessageType?:TwitchatDataTypes.TwitchatMessageStringType;
 	testNoticeType?:TwitchatDataTypes.TwitchatNoticeStringType;
 }
 
-export interface TriggerMusicEventType extends Omit<TriggerCategory, "value"> {
+export interface TriggerMusicEventType extends Omit<TriggerTypeDefinition, "value"> {
 	value:TriggerMusicTypesValue;
 }
 
-export interface TriggerScheduleEventType extends Omit<TriggerCategory, "value"> {
+export interface TriggerScheduleEventType extends Omit<TriggerTypeDefinition, "value"> {
 	value:TriggerScheduleTypesValue;
 }
 
@@ -343,7 +350,7 @@ export interface TriggerScheduleData {
 	type:TriggerScheduleTypesValue|"0";
 	repeatDuration:number;
 	repeatMinMessages:number;
-	dates:{daily:boolean, yearly:boolean, value:string}[];
+	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
 
 export const TriggerTypes = {
@@ -759,12 +766,18 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 }
 
 /**
- * All triggers categories
+ * All trigger types details sorted by categories
+ * Their order is reflected on the frontend
  */
-let eventsCache:TriggerCategory[];
-export function TriggerCategories():TriggerCategory[] {
+let eventsCache:TriggerTypeDefinition[];
+export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 	if(eventsCache) return eventsCache;
 	eventsCache = [
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_START.label", value:TriggerTypes.EMERGENCY_MODE_START, descriptionKey:"triggers.events.EMERGENCY_MODE_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_STOP.label", value:TriggerTypes.EMERGENCY_MODE_STOP, descriptionKey:"triggers.events.EMERGENCY_MODE_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", labelKey:"triggers.events.CHAT_ALERT.label", value:TriggerTypes.CHAT_ALERT, descriptionKey:"triggers.events.CHAT_ALERT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"commands", labelKey:"triggers.events.SLASH_COMMAND.label", value:TriggerTypes.SLASH_COMMAND, descriptionKey:"triggers.events.SLASH_COMMAND.description"},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", labelKey:"triggers.events.REWARD_REDEEM.label", value:TriggerTypes.REWARD_REDEEM, isCategory:true, descriptionKey:"triggers.events.REWARD_REDEEM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD, noToggle:true},
@@ -804,19 +817,11 @@ export function TriggerCategories():TriggerCategory[] {
 		{category:TriggerEventTypeCategories.MOD, icon:"mod", labelKey:"triggers.events.MOD.label", value:TriggerTypes.MOD, descriptionKey:"triggers.events.MOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
 		{category:TriggerEventTypeCategories.MOD, icon:"unmod", labelKey:"triggers.events.UNMOD.label", value:TriggerTypes.UNMOD, descriptionKey:"triggers.events.UNMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNMOD},
 		{category:TriggerEventTypeCategories.MOD, icon:"raid", labelKey:"triggers.events.RAID_STARTED.label", value:TriggerTypes.RAID_STARTED, descriptionKey:"triggers.events.RAID_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED},
-		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
-		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
-		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
 		{category:TriggerEventTypeCategories.TIMER, icon:"date", labelKey:"triggers.events.SCHEDULE.label", value:TriggerTypes.SCHEDULE, descriptionKey:"triggers.events.SCHEDULE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_START.label", value:TriggerTypes.TIMER_START, descriptionKey:"triggers.events.TIMER_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_STOP.label", value:TriggerTypes.TIMER_STOP, descriptionKey:"triggers.events.TIMER_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 		{category:TriggerEventTypeCategories.TIMER, icon:"countdown", labelKey:"triggers.events.COUNTDOWN_START.label", value:TriggerTypes.COUNTDOWN_START, descriptionKey:"triggers.events.COUNTDOWN_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
 		{category:TriggerEventTypeCategories.TIMER, icon:"countdown", labelKey:"triggers.events.COUNTDOWN_STOP.label", value:TriggerTypes.COUNTDOWN_STOP, descriptionKey:"triggers.events.COUNTDOWN_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_START.label", value:TriggerTypes.EMERGENCY_MODE_START, descriptionKey:"triggers.events.EMERGENCY_MODE_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_STOP.label", value:TriggerTypes.EMERGENCY_MODE_STOP, descriptionKey:"triggers.events.EMERGENCY_MODE_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", labelKey:"triggers.events.CHAT_ALERT.label", value:TriggerTypes.CHAT_ALERT, descriptionKey:"triggers.events.CHAT_ALERT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"commands", labelKey:"triggers.events.SLASH_COMMAND.label", value:TriggerTypes.SLASH_COMMAND, descriptionKey:"triggers.events.SLASH_COMMAND.description"},
 		{category:TriggerEventTypeCategories.OBS, icon:"list", labelKey:"triggers.events.OBS_SCENE.label", value:TriggerTypes.OBS_SCENE, descriptionKey:"triggers.events.OBS_SCENE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE},
 		{category:TriggerEventTypeCategories.OBS, icon:"show", labelKey:"triggers.events.OBS_SOURCE_ON.label", value:TriggerTypes.OBS_SOURCE_ON, descriptionKey:"triggers.events.OBS_SOURCE_ON.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE},
 		{category:TriggerEventTypeCategories.OBS, icon:"hide", labelKey:"triggers.events.OBS_SOURCE_OFF.label", value:TriggerTypes.OBS_SOURCE_OFF, descriptionKey:"triggers.events.OBS_SOURCE_OFF.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE},
@@ -840,6 +845,9 @@ export function TriggerCategories():TriggerCategory[] {
 		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_MAXED.label", value:TriggerTypes.COUNTER_MAXED, descriptionKey:"triggers.events.COUNTER_MAXED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_MINED.label", value:TriggerTypes.COUNTER_MINED, descriptionKey:"triggers.events.COUNTER_MINED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_LOOPED.label", value:TriggerTypes.COUNTER_LOOPED, descriptionKey:"triggers.events.COUNTER_LOOPED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
+		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
+		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
+		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
 	];
 	return eventsCache;
 }

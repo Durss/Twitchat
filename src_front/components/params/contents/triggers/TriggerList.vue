@@ -48,13 +48,13 @@ import Splitter from '@/components/Splitter.vue';
 import SwitchButton from '@/components/SwitchButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerCategories, type TriggerCategory, type TriggerData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import DataStore from '@/store/DataStore';
+import { TriggerTypesDefinitionList, type TriggerData, type TriggerEventTypeCategoryID, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerListItem from './TriggerListItem.vue';
-import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -79,7 +79,7 @@ export default class TriggerList extends Vue {
 
 	public filterState:boolean = true;
 	public triggerCategories:TriggerListCategoryEntry[] = [];
-	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerCategory}> = {};
+	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerTypeDefinition}> = {};
 	public buildIndex = 0;
 	public buildInterval = -1;
 	/**
@@ -148,38 +148,39 @@ export default class TriggerList extends Vue {
 		//List all available trigger types
 		this.triggerTypeToInfo = {};
 		this.triggerCategories = [];
-		TriggerCategories().forEach(v=> this.triggerTypeToInfo[v.value] = v);
+		TriggerTypesDefinitionList().forEach(v=> this.triggerTypeToInfo[v.value] = v);
 
-		let list = this.$store("triggers").triggerList;
+		let triggerList = this.$store("triggers").triggerList;
 
 		//Sort by type so they're properly splitted into categories later
-		list.sort((a,b) => {
+		triggerList.sort((a,b) => {
 			if(parseInt(a.type) > parseInt(b.type)) return 1;
 			if(parseInt(a.type) < parseInt(b.type)) return -1;
 			return 0
 		});
 		// list = list.slice(0, 10);
 
-		let prevType:TriggerTypesValue|null = null;
+		let prevType:TriggerEventTypeCategoryID|null = null;
 		const categories:TriggerListCategoryEntry[] = [];
 		let currentCategory!:TriggerListCategoryEntry;
 		let triggerBuildIndex = 0;
-		for (const key in list) {
-			const trigger = list[key];
-			if(trigger.type != prevType) {
+		
+		for (const key in triggerList) {
+			const trigger = triggerList[key];
 				//Create new category
-				const index = TriggerCategories().findIndex(v=> v.value == trigger.type);
-				if(index > -1) {
-					const category = TriggerCategories()[index];
+			const index = TriggerTypesDefinitionList().findIndex(v=> v.value == trigger.type);
+			if(index > -1) {
+				const triggerType = TriggerTypesDefinitionList()[index];
+				if(triggerType.category.id != prevType) {
 					currentCategory = {
 						index:index,
-						icon: category.icon,
-						labelKey: category.labelKey,
+						icon: triggerType.category.icon,
+						labelKey: triggerType.category.labelKey,
 						triggerList: [],
 					};
 					categories.push(currentCategory);
 					this.triggerCategories.push(currentCategory);
-					prevType = trigger.type;
+					prevType = triggerType.category.id;
 				}
 			}
 			
@@ -192,8 +193,8 @@ export default class TriggerList extends Vue {
 				icon = this.$image('icons/'+info.icon+'_purple.svg');
 			}
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
-			const index = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
-			const entry:TriggerListEntry = { index, label:info.label, trigger, icon, canTest };
+			const buildIndex = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
+			const entry:TriggerListEntry = { index:buildIndex, label:info.label, trigger, icon, canTest };
 			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
 			currentCategory.triggerList.push(entry);
 		}
@@ -241,9 +242,6 @@ export interface TriggerListEntry {
 
 <style scoped lang="less">
 .triggerslist{
-	// @itemWidth: 170px;
-	// display: grid;
-	// grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 	display: flex;
 	flex-direction: column;
 	gap: 1em;

@@ -31,10 +31,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
-import type { TriggerListEntry} from "./TriggerList.vue";
-import { TriggerCategories, TriggerEventTypeCategories, type TriggerEventTypeCategoryValue } from '@/types/TriggerActionDataTypes';
 import ToggleButton from '@/components/ToggleButton.vue';
+import { TriggerTypesDefinitionList } from '@/types/TriggerActionDataTypes';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
+import type { TriggerListEntry } from "./TriggerList.vue";
 
 @Component({
 	components:{
@@ -51,26 +51,9 @@ export default class TriggerListItem extends Vue {
 	public noEdit!:boolean;
 
 	public getCategoryLabel(entry:TriggerListEntry):string {
-		const event = TriggerCategories().find(v=> v.value === entry.trigger.type);
-		if(!event) return "";
-
-		const catToLabel:Partial<{[key in TriggerEventTypeCategoryValue]:string}> = {};
-		catToLabel[ TriggerEventTypeCategories.GLOBAL ]		= "triggers.categories.global";
-		catToLabel[ TriggerEventTypeCategories.USER ]		= "triggers.categories.user";
-		catToLabel[ TriggerEventTypeCategories.SUBITS ]		= "triggers.categories.subits";
-		catToLabel[ TriggerEventTypeCategories.MOD ]		= "triggers.categories.mod";
-		catToLabel[ TriggerEventTypeCategories.TWITCHAT ]	= "triggers.categories.twitchat";
-		catToLabel[ TriggerEventTypeCategories.HYPETRAIN ]	= "triggers.categories.hypetrain";
-		catToLabel[ TriggerEventTypeCategories.GAMES ]		= "triggers.categories.games";
-		catToLabel[ TriggerEventTypeCategories.MUSIC ]		= "triggers.categories.music";
-		catToLabel[ TriggerEventTypeCategories.TIMER ]		= "triggers.categories.timer";
-		catToLabel[ TriggerEventTypeCategories.OBS ]		= "triggers.categories.obs";
-		catToLabel[ TriggerEventTypeCategories.MISC ]		= "triggers.categories.misc";
-		catToLabel[ TriggerEventTypeCategories.COUNTER]		= "triggers.categories.count";
-		
-		if(!catToLabel[event.category]) return "";
-
-		return this.$t( catToLabel[event.category]! );
+		const event = TriggerTypesDefinitionList().find(v=> v.value === entry.trigger.type);
+		if(!event) return "unknown category"
+		return this.$t(event?.labelKey);
 	}
 
 }

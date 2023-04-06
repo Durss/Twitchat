@@ -90,7 +90,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerCategories, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerCategory, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -133,7 +133,7 @@ export default class TriggerActionList extends Vue {
 	 * Get a trigger's description
 	 */
 	public get triggerDescriptionLabel():string|undefined {
-		const item = TriggerCategories().find(v => v.value == this.triggerData.type) as TriggerCategory|null;
+		const item = TriggerTypesDefinitionList().find(v => v.value == this.triggerData.type) as TriggerTypeDefinition|null;
 		return item?.descriptionKey;
 	}
 

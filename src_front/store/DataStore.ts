@@ -1,4 +1,4 @@
-import { TriggerCategories, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerCategory, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
+import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
@@ -1004,7 +1004,7 @@ export default class DataStore {
 		if(Array.isArray(triggers)) return;//Already migrated to new data format
 		if(!triggers) return;
 		const triggerList:TriggerData[] = [];
-		let events:TriggerCategory[] = TriggerCategories();
+		let events:TriggerTypeDefinition[] = TriggerTypesDefinitionList();
 		const allowedKeys:{[key:string]:boolean} = {};
 		events.forEach(v => allowedKeys[v.value] = true);
 		for (const key in triggers) {

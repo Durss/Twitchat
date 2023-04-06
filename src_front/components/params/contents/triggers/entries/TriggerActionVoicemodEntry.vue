@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import type { TriggerActionVoicemodData, TriggerCategory } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionVoicemodData, TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';

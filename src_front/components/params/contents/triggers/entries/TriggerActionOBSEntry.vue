@@ -38,7 +38,7 @@ import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerData, type TriggerCategory, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({

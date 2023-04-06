@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import type { TriggerActionTriggerData, TriggerData, TriggerCategory } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionTriggerData, TriggerData, TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
@@ -75,14 +75,14 @@ export default class TriggerActionTriggerEntry extends Vue {
 	public rewards!:TwitchDataTypes.Reward[];
 
 	public dependencyLoopInfos:{label: string, icon: string, iconURL?: string | undefined, iconBgColor?: string | undefined}[] = [];
-	public triggerList:{triggerKey:string, label?:string, labelKey?:string, trigger:TriggerData, info:TriggerCategory}[] = [];
+	public triggerList:{triggerKey:string, label?:string, labelKey?:string, trigger:TriggerData, info:TriggerTypeDefinition}[] = [];
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:TriggerCategory):string {
+	public getIcon(e:TriggerTypeDefinition):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) {
 			return e.icon as string;

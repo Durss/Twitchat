@@ -60,9 +60,9 @@ export default class TriggerActionMusicEntry extends Vue {
 
 	public mounted():void {
 		//List all available trigger types
-		let events:TriggerMusicEventType[] = [
-			{labelKey:"triggers.actions.music.param_actions_default", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC},
-		];
+		let events:TriggerMusicEventType[] = []
+		events.push( {labelKey:"triggers.actions.music.param_actions_default", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC} ),
+		
 		events = events.concat(MusicTriggerEvents());
 		this.actions_conf.value					= this.action.musicAction? this.action.musicAction : events[0].value;
 		this.actions_conf.listValues			= events;

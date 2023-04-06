@@ -393,7 +393,7 @@ export namespace TwitchatDataTypes {
 		labelKey?:string;
 		value:T;
 		icon?:string;
-		[parameter: string]: unknown;
+		// [parameter: string]: unknown;
 	}
 
 	/**
