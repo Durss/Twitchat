@@ -56,6 +56,7 @@
 			"add_dateBt": "Ajouter une date",
 			"default_action": "Selectionnez une action...",
 			"param_daily": "Journalier",
+			"param_monthly": "Mensuel",
 			"param_yearly": "Annuel",
 			"param_action": "Type de programme",
 			"param_repeatDurationCondition": "Répéter dans le temps",

@@ -24,6 +24,7 @@
 				:key="'date'+index">
 					<div class="recurrent">
 						<ParamItem :paramData="params_daily[index]" v-model="d.daily" />
+						<ParamItem :paramData="params_monthly[index]" v-model="d.monthly" />
 						<ParamItem :paramData="params_yearly[index]" v-model="d.yearly" />
 					</div>
 					<div class="date">
@@ -66,6 +67,7 @@ export default class TriggerActionScheduleParams extends Vue {
 	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"whispers_purple.svg" };
 	public param_repeatMessageValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:100, icon:"whispers_purple.svg", min:1, max:9999 };
 	public params_daily:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public params_monthly:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public params_yearly:TwitchatDataTypes.ParameterData<boolean>[] = [];
 
 	public beforeMount():void {
@@ -108,6 +110,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		
 		for (let i = 0; i < this.triggerData.scheduleParams!.dates.length; i++) {
 			this.params_daily.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
+			this.params_monthly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_monthly"} );
 			this.params_yearly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_yearly"} );
 		}
 	}
@@ -125,8 +128,9 @@ export default class TriggerActionScheduleParams extends Vue {
 					+"-"+Utils.toDigits(d.getDate(),2)
 					+"T"+Utils.toDigits(d.getHours(),2)
 					+":"+Utils.toDigits(d.getMinutes()+5,2)
-		this.triggerData.scheduleParams?.dates?.push({value, daily:false, yearly:false});
+		this.triggerData.scheduleParams?.dates?.push({value, daily:false, monthly:false, yearly:false});
 		this.params_daily.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
+		this.params_monthly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
 		this.params_yearly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_yearly"} );
 	}
 
@@ -157,7 +161,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		max-height: 300px;
 		overflow-y: auto;
 		border: 1px solid @mainColor_normal;
-		margin: -.25em .5em 0 .5em;
+		margin: -.5em .5em 0 .5em;
 		border-top: 0;
 		padding: .5em;
 		border-bottom-left-radius: .5em;
@@ -203,7 +207,7 @@ export default class TriggerActionScheduleParams extends Vue {
 				align-self: center;
 				display: flex;
 				flex-direction: column;
-				gap: .25em;
+				font-size: .8em;
 			}
 		}
 	}

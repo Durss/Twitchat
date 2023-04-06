@@ -114,15 +114,19 @@ export default class SchedulerHelper {
 				for (let i = 0; i < trigger.scheduleParams.dates.length; i++) {
 					const d = trigger.scheduleParams.dates[i];
 					const date = new Date(d.value);
-					if(d.daily) date.setDate(new Date().getDate());
-					if(d.yearly) date.setFullYear(new Date().getFullYear());
+					if(d.daily===true || d.monthly===true || d.yearly===true) date.setDate(new Date().getDate());
+					if(d.monthly===true || d.yearly===true) date.setMonth(new Date().getMonth());
+					if(d.yearly===true) date.setFullYear(new Date().getFullYear());
+					//Check if the date has past, in which case we stop there or
+					//schedule for the next day in case of a daily event. No need
+					//to do this for monthly and yearly, there's low chance a stream
+					//lasts this long
 					if(Date.now() > date.getTime()) {
-						//Date past
 						if(d.daily) {
 							//Schedule for next day if it's a daily event
 							date.setDate(new Date().getDate()+1);
 						}else {
-							//ignore it
+							//ignore it, low chance a stream lasts 1 moth or 1 year
 							continue;
 						}
 					}

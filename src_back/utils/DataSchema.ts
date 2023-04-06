@@ -103,6 +103,7 @@ import Ajv from "ajv";
 											additionalProperties: false,
 											properties: {
 												daily: {type:"boolean"},
+												monthly: {type:"boolean"},
 												yearly: {type:"boolean"},
 												value: {type:"string", maxLength:20},
 											}
