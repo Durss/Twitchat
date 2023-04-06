@@ -515,7 +515,7 @@ export default class TriggerActionHandler {
 	 */
 	private async executeTriggersByType(triggerType:TriggerTypesValue, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string):Promise<boolean> {
 		let key = triggerType as string;
-		if(subEvent) key += this.HASHMAP_KEY_SPLITTER+subEvent;
+		if(subEvent) key += this.HASHMAP_KEY_SPLITTER + subEvent;
 		key = key.toLowerCase();
 
 		let triggers = this.triggerType2Triggers[ key ];
@@ -525,13 +525,6 @@ export default class TriggerActionHandler {
 		//Execute all triggers related to the current trigger event type
 		for (let i = 0; i < triggers.length; i++) {
 			const trigger = triggers[i];
-	
-			//Special case for friends stream start/stop notifications
-			if(trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
-				if(await this.checkLiveFollowings()) {
-					isAnExecution = true;
-				}
-			}
 			
 			if(await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
 				isAnExecution = true;
@@ -560,6 +553,23 @@ export default class TriggerActionHandler {
 		this.logHistory.push(log);
 		if(this.logHistory.length > 100) {
 			this.logHistory.shift();
+		}
+	
+		//Special case for friends stream start/stop notifications
+		if(trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
+			await this.checkLiveFollowings().catch(()=>{});
+			return true;
+		}
+		
+		//Special case for twitchat's ad, generate trigger data
+		if(trigger.type == TriggerTypes.TWITCHAT_AD) {
+			let text:string = StoreProxy.chat.botMessages.twitchatAd.message;
+			//If no link is found on the message, send default message
+			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
+				text = StoreProxy.i18n.t("global.ad_default", {USER_MESSAGE:text});
+			}
+			MessengerProxy.instance.sendMessage(text);
+			return true;
 		}
 
 		// console.log("PARSE STEPS", eventType, trigger, message);

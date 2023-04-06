@@ -88,10 +88,10 @@ export default class SchedulerHelper {
 
 		//Cleanup any previously scheduled trigger
 		this.unscheduleTrigger(trigger);
-
 		switch(trigger.scheduleParams.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
 				let date = Date.now() + trigger.scheduleParams.repeatDuration * 60 * 1000;
+				console.log(Utils.getTriggerDisplayInfo(trigger), date);
 				if(trigger.type === TriggerTypes.TWITCHAT_AD) {
 					//Check if a date is stored on store and load it back.
 					//This avoids the possibility to have no ad by refreshing
@@ -180,7 +180,7 @@ export default class SchedulerHelper {
 		this.computeFrame();
 		
 		this._adSchedule = {
-			type:TriggerTypes.SCHEDULE,
+			type:TriggerTypes.TWITCHAT_AD,
 			enabled:true,
 			id:Utils.getUUID(),
 			actions: [],
@@ -195,7 +195,7 @@ export default class SchedulerHelper {
 		}
 		
 		this._liveChannelsSchedule = {
-			type:TriggerTypes.SCHEDULE,
+			type:TriggerTypes.TWITCHAT_LIVE_FRIENDS,
 			enabled:true,
 			id:Utils.getUUID(),
 			actions: [],
@@ -231,23 +231,16 @@ export default class SchedulerHelper {
 			const e = this._pendingSchedules[i];
 			let schedule = e.trigger.scheduleParams;
 
+			if(!schedule) continue;
+
 			//Special case for ad 
 			if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
-				//No ad for donors unless requested
 				if(Config.instance.BETA_MODE) continue;//No ad on beta
+				//No ad for donors unless requested
 				if(StoreProxy.auth.twitch.user.donor.state
 				&& !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;
 				if(StoreProxy.auth.twitch.user.donor.noAd) continue;
-
-				schedule = this._adSchedule.scheduleParams;
 			}
-
-			//Special case for "live friends" 
-			if(e.trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
-				schedule = this._liveChannelsSchedule.scheduleParams;
-			}
-
-			if(!schedule) continue;
 
 			let execute = true;
 			switch(schedule.type) {
@@ -272,7 +265,7 @@ export default class SchedulerHelper {
 			}
 
 			if(execute) {
-				e.date = Date.now() + schedule!.repeatDuration * 60 * 1000;
+				e.date = Date.now() + schedule.repeatDuration * 60 * 1000;
 				e.messageCount = 0;
 				if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
 					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
