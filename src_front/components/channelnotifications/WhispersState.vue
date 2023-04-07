@@ -35,7 +35,7 @@
 					bounce
 					small
 					white
-					:data-tooltip="$store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName" />
+					v-tooltip="$store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName" />
 					
 				<Button :icon="$image('icons/cross_white.svg')"
 					class="deleteBt"

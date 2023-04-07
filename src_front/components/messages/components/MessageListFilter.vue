@@ -6,20 +6,20 @@
 		</div>
 
 		<div class="hoverActions" v-if="!expand">
-			<button class="openBt" @click="openFilters(true)" :data-tooltip="$t('global.tooltips.column_edit')">
+			<button class="openBt" @click="openFilters(true)" v-tooltip="$t('global.tooltips.column_edit')">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
-			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" :data-tooltip="$t('global.tooltips.column_delete')">
+			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" v-tooltip="$t('global.tooltips.column_delete')">
 				<img src="@/assets/icons/cross_white.svg" alt="delete column" class="icon">
 			</button>
-			<button class="addBt" @click="$emit('add')" :data-tooltip="$t('global.tooltips.column_add')">
+			<button class="addBt" @click="$emit('add')" v-tooltip="$t('global.tooltips.column_add')">
 				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
 			</button>
-			<button class="addBt" @click="moveColumn(-1)" :data-tooltip="$t('global.tooltips.column_move')"
+			<button class="addBt" @click="moveColumn(-1)" v-tooltip="$t('global.tooltips.column_move')"
 			v-if="config.order > 0">
 				<img src="@/assets/icons/left.svg" alt="add column" class="icon">
 			</button>
-			<button class="addBt" @click="moveColumn(1)" :data-tooltip="$t('global.tooltips.column_move')"
+			<button class="addBt" @click="moveColumn(1)" v-tooltip="$t('global.tooltips.column_move')"
 			v-if="config.order < $store('params').chatColumnsConfig.length-1">
 				<img src="@/assets/icons/right.svg" alt="add column" class="icon">
 			</button>

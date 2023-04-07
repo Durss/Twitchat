@@ -1,4 +1,5 @@
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
+import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
 
 export namespace TwitchatDataTypes {
 
@@ -1456,14 +1457,14 @@ export namespace TwitchatDataTypes {
 		 */
 		message:string;
 		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks:TwitchDataTypes.ParseMessageChunk[];
+		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
 		 */
 		message_html:string;
-		/**
-		 * Text message with emote codes removed
-		 */
-		message_no_emotes:string;
 		/**
 		 * All messages that answered to this message
 		 */
@@ -1593,6 +1594,10 @@ export namespace TwitchatDataTypes {
 		 * Text message content
 		 */
 		message:string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks:TwitchDataTypes.ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
@@ -1805,6 +1810,10 @@ export namespace TwitchatDataTypes {
 		 */
 		message?:string;
 		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		/**
 		 * Otional message sent when sharing our sub with emotes remplaced by HTML tags
 		 */
 		message_html?:string;
@@ -1832,6 +1841,10 @@ export namespace TwitchatDataTypes {
 		 * Text message
 		 */
 		message: string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
 		/**
 		 * Text message with cheermotes replaced by HTML tags
 		 */
@@ -1862,6 +1875,10 @@ export namespace TwitchatDataTypes {
 		 * Optional message the reward requires the user to send when redeeming it
 		 */
 		message?:string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
 		/**
 		 * Optional message the reward requires the user to send when redeeming it with emotes replaced by HTML tags
 		 */

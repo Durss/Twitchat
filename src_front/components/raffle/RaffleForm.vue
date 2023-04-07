@@ -167,7 +167,8 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 		ToggleBlock,
 		PostOnChatParam,
 		VoiceGlobalCommandsHelper,
-	}
+	},
+	emits:["close"]
 })
 export default class RaffleForm extends Vue {
 	

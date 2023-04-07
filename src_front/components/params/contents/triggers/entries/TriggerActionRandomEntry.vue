@@ -37,14 +37,15 @@
 					@click="indexToEditState[index] = true">
 							
 						<button class="action button"
-						data-tooltip="Delete"
+						v-tooltip="'Delete'"
 						@click.capture.stop="deleteItem(index)">
 							<img src="@/assets/icons/trash.svg" alt="delete">
 						</button>
 
 						<div class="content">
-							<pre class="label" v-if="!indexToEditState[index]"
-							v-html="getFormatedMessage(item)"></pre>
+							<span class="label" v-if="!indexToEditState[index]">
+								<ChatMessageChunksParser :chunks="getChunksFromItem(item)" />
+							</span>
 	
 							<textarea v-if="indexToEditState[index]"
 							maxlength="500"
@@ -71,7 +72,7 @@
 			<div class="row listItem trigger" v-if="action.triggers.length > 0">
 				<div v-for="(item, index) in action.triggers" :key="item" class="entry">
 					<button class="action button"
-						data-tooltip="Delete"
+						v-tooltip="'Delete'"
 						@click.capture.stop="deleteTriggerItem(index)">
 						<img src="@/assets/icons/trash.svg" alt="delete">
 					</button>
@@ -111,6 +112,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerList from '../TriggerList.vue';
+import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{
@@ -118,6 +120,7 @@ import TriggerList from '../TriggerList.vue';
 		ParamItem,
 		TriggerList,
 		ToggleBlock,
+		ChatMessageChunksParser,
 	},
 })
 export default class TriggerActionRandomEntry extends Vue {
@@ -156,8 +159,8 @@ export default class TriggerActionRandomEntry extends Vue {
 		this.openTriggerList = this.action.triggers.length == 0;
 	}
 
-	public getFormatedMessage(src:string):string {
-		return TwitchUtils.parseEmotes(src, undefined, false, true);
+	public getChunksFromItem(src:string):TwitchDataTypes.ParseMessageChunk[] {
+		return TwitchUtils.parseMessageToChunks(src, undefined, true);
 	}
 
 	public addItem():void {
@@ -255,6 +258,8 @@ export default class TriggerActionRandomEntry extends Vue {
 					padding: .5em;
 					word-break: break-all;
 					white-space: pre-wrap;
+					text-align: left;
+					align-self: flex-start;
 				}
 				textarea{
 					font-size: 1em;

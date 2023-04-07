@@ -21,7 +21,7 @@
 		
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
-				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
+				<div class="fake" v-if="m.fake === true" v-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
 				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
 					@showConversation="openConversation"
@@ -58,7 +58,7 @@
 		<div class="lockedLiveHolder" v-if="!lightMode && lockScroll && lockedLiveMessages.length > 0">
 			<div class="subHolder" v-for="m in lockedLiveMessages"
 			:key="m.id" :ref="'message_live_' + m.id">
-				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
+				<div class="fake" v-if="m.fake === true" v-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
 				<MessageItem :messageData="m"
 					disableConversation
 				/>

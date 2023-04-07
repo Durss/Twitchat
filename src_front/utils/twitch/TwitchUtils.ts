@@ -274,7 +274,18 @@ export default class TwitchUtils {
 		}
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"bits/cheermotes?broadcaster_id="+channelId, options);
 		const json = await res.json();
-		this.cheermoteCache[channelId] = json.data;
+		const list:TwitchDataTypes.CheermoteSet[] = json.data;
+		//Sort them longer first.
+		//This makes sure that when parsing them, smaller prefixes
+		//don't cut longer ones.
+		//Ex: parsing "Cheer100" before "HolidayCheer100" would leave
+		//us with "Holiday *cheermote*"
+		list.sort((a,b)=>{
+			if(a.prefix.length > b.prefix.length) return -1;
+			if(a.prefix.length < b.prefix.length) return 1;
+			return 0;
+		})
+		this.cheermoteCache[channelId] = list;
 		return json.data;
 	}
 
@@ -2269,30 +2280,29 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Splits the message in chunks of type emote" and "text"
+	 * Splits the message in chunks of type emote", "text" and "url"
 	 */
-	public static parseEmotesToChunks(message:string, emotes:string|undefined, removeEmotes = false, customParsing = false, parsedEmotes?:TwitchatDataTypes.EmoteDef[]):TwitchDataTypes.ParseMessageChunk[] {
+	public static parseMessageToChunks(message:string, emotes?:string|TwitchatDataTypes.EmoteDef[], customParsing = false):TwitchDataTypes.ParseMessageChunk[] {
 
-		let emotesList:TwitchatDataTypes.EmoteDef[] = [];
+		let emotesList:TwitchatDataTypes.EmoteDef[] = (!emotes || typeof emotes == "string")? [] : emotes;
 
-		if(!parsedEmotes) {
-
-			function getProtectedRange(emotes:string):boolean[] {
-				const protectedRanges:boolean[] = [];
-				if(emotes) {
-					const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
-					if(ranges) {
-						for (let i = 0; i < ranges.length; i++) {
-							const range = ranges[i];
-							for (let j = range[0]; j <= range[1]; j++) {
-								protectedRanges[j] = true;
-							}
+		function getProtectedRange(emotes:string):boolean[] {
+			const protectedRanges:boolean[] = [];
+			if(emotes) {
+				const ranges:number[][]|undefined = emotes.match(/[0-9]+-[0-9]+/g)?.map(v=> v.split("-").map(v=> parseInt(v)));
+				if(ranges) {
+					for (let i = 0; i < ranges.length; i++) {
+						const range = ranges[i];
+						for (let j = range[0]; j <= range[1]; j++) {
+							protectedRanges[j] = true;
 						}
 					}
 				}
-				return protectedRanges;
 			}
-	
+			return protectedRanges;
+		}
+
+		if(!emotes || typeof emotes == "string") {
 			if(!emotes || emotes.length == 0) {
 				//Attempt to parse emotes manually.
 				//TMI doesn't sends back proper emotes tag when sending
@@ -2331,7 +2341,7 @@ export default class TwitchUtils {
 								const start = (matches[j].index as number);
 								const end = start+e.code.length-1;
 								const range = getProtectedRange(fakeTag);
-	
+
 								if(range[start] === true || range[end] === true) continue;
 								
 								const prevOK = start == 0 || /[^0-9a-z]/i.test(message.charAt(start-1));
@@ -2341,7 +2351,7 @@ export default class TwitchUtils {
 								if(!prevOK || !nextOK) continue;
 								emoteCount++;
 								tmpTag += start+"-"+end;
-	
+
 								if(j < matches.length-1) tmpTag+=",";
 							}
 							if(emoteCount > 0) {
@@ -2355,30 +2365,26 @@ export default class TwitchUtils {
 					if(fakeTag.length > 0) fakeTag +=";";
 					emotes = fakeTag;
 				}
+
+				if(!emotes) emotes = "";
+				// ID:start-end,start-end/ID:start-end,start-end
+				let bttvTag = BTTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+				if(bttvTag) {
+					if(emotes.length > 0) bttvTag += "/";
+					emotes = bttvTag + emotes;
+				}
+				let ffzTag = FFZUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+				if(ffzTag) {
+					if(emotes.length > 0) ffzTag += "/";
+					emotes = ffzTag + emotes;
+				}
+				let seventvTag = SevenTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
+				if(seventvTag) {
+					if(emotes.length > 0) seventvTag += "/";
+					emotes = seventvTag + emotes;
+				}
 			}
-	
-			if(!emotes) emotes = "";
-			// ID:start-end,start-end/ID:start-end,start-end
-			let bttvTag = BTTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-			if(bttvTag) {
-				if(emotes.length > 0) bttvTag += "/";
-				emotes = bttvTag + emotes;
-			}
-			let ffzTag = FFZUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-			if(ffzTag) {
-				if(emotes.length > 0) ffzTag += "/";
-				emotes = ffzTag + emotes;
-			}
-			let seventvTag = SevenTVUtils.instance.generateEmoteTag(message, getProtectedRange(emotes))
-			if(seventvTag) {
-				if(emotes.length > 0) seventvTag += "/";
-				emotes = seventvTag + emotes;
-			}
-			
-			if(!emotes || emotes.length == 0) {
-				return [{type:"text", value:message}];
-			}
-	
+
 			//Parse raw emotes data
 			const chunks = (emotes as string).split("/");
 			if(chunks.length > 0) {
@@ -2396,26 +2402,25 @@ export default class TwitchUtils {
 					}
 				}
 			}
+		}
+		
+		const result:TwitchDataTypes.ParseMessageChunk[] = [];
+		if(emotesList && emotesList.length > 0) {
 			//Sort emotes by start position
 			emotesList.sort((a,b) => a.begin - b.begin);
-		}else{
-			emotesList = parsedEmotes;
-		}
-
-		let cursor = 0;
-		const result:TwitchDataTypes.ParseMessageChunk[] = [];
-		//Convert emotes to image tags
-		for (let i = 0; i < emotesList.length; i++) {
-			const e = emotesList[i];
-			if(cursor < e.begin) {
-				result.push( {type:"text", value: Array.from(message).slice(cursor, e.begin).join("")} );
-			}
-			if(!removeEmotes) {
+	
+			let cursor = 0;
+			//Convert emotes to image tags
+			for (let i = 0; i < emotesList.length; i++) {
+				const e = emotesList[i];
+				if(cursor < e.begin) {
+					result.push( {type:"text", value: Array.from(message).slice(cursor, e.begin).join("")} );
+				}
 				const code = Array.from(message).slice(e.begin, e.end + 1).join("").trim();
 				if(e.id.indexOf("BTTV_") == 0) {
 					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
 					if(bttvE) {
-						result.push( {type:"emote", label:"BTTV: "+code, emote:code, value:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x"} );
+						result.push( {type:"emote", label:"BTTV: "+code, value:code, emote:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x", emoteHD:"https://cdn.betterttv.net/emote/"+bttvE.id+"/3x"} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
@@ -2423,7 +2428,7 @@ export default class TwitchUtils {
 				if(e.id.indexOf("FFZ_") == 0) {
 					const ffzE = FFZUtils.instance.getEmoteFromCode(code);
 					if(ffzE) {
-						result.push( {type:"emote", label:"FFZ: "+code, emote:code, value:ffzE.urls[1]} );
+						result.push( {type:"emote", label:"FFZ: "+code, value:code, emote:ffzE.urls[1], emoteHD:ffzE.urls[4]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
@@ -2431,17 +2436,43 @@ export default class TwitchUtils {
 				if(e.id.indexOf("7TV_") == 0) {
 					const stvE = SevenTVUtils.instance.getEmoteFromCode(code);
 					if(stvE) {
-						result.push( {type:"emote", label:"7TV: "+code, emote:code, value:stvE.urls[1][1]} );
+						result.push( {type:"emote", label:"7TV: "+code, value:code, emote:stvE.urls[1][1], emoteHD:stvE.urls[stvE.urls.length-1][1]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
 				}else{
-					result.push( {type:"emote", label:code, emote:code, value:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0"} );
+					result.push( {type:"emote", label:code, value:code, emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/4.0"} );
 				}
+				cursor = e.end + 1;
 			}
-			cursor = e.end + 1;
+			result.push( {type:"text", value: Array.from(message).slice(cursor).join("")} );
+		}else{
+			result.push( {type:"text", value:message} );
 		}
-		result.push( {type:"text", value: Array.from(message).slice(cursor).join("")} );
+
+		//Parse URL chunks
+		for (let i = 0; i < result.length; i++) {
+			const chunk = result[i];
+			if(chunk.type == "text") {
+				result.splice(i, 1);//Rmove source chunk
+				let res = chunk.value.split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
+				let subIndex = 0;
+				res.forEach(v=> {
+					//Add sub chunks to original resulting chunks
+					const islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v)
+					const node:TwitchDataTypes.ParseMessageChunk = {
+						type:islink? "url" : "text",
+						value:v,
+					};
+					if(islink) {
+						const href = !/^https?/gi.test(v)? "https://"+v : v;
+						node.href = href;
+					}
+					result.splice(i+subIndex, 0, node);
+					subIndex++;
+				})
+			}
+		}
 		
 		return result;
 	}
@@ -2449,44 +2480,42 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by image tags on the message
 	 */
-	public static parseEmotes(message:string, emotes?:string, removeEmotes = false, customParsing = false):string {
-		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, emotes, removeEmotes, customParsing);
+	public static parseEmotes(message:string, emotes?:string, customParsing = false):string {
+		const emoteChunks = TwitchUtils.parseMessageToChunks(message, emotes, customParsing);
 		let message_html = "";
 		for (let i = 0; i < emoteChunks.length; i++) {
 			const v = emoteChunks[i];
 			if(v.type == "text") {
-				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				message_html += Utils.parseURLs(v.value);
+				message_html += v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+			}else if(v.type == "url") {
+				message_html += "<a href=\""+v.href+"\">"+v.value+"</a>";
 			}else if(v.type == "emote") {
 				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
 				url = url.replace(/1x$/gi, "3x");//BTTV format
 				url = url.replace(/2x$/gi, "3x");//7TV format
 				url = url.replace(/1$/gi, "4");//FFZ format
-				const tt = "<img src='"+url+"' width='112' class='emote'><br><center>"+v.label+"</center>";
-				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+				message_html += "<img src='"+v.value+"' class='emote'>";
 			}
 		}
 		return message_html;
 	}
 
 	/**
-	 * Replaces emotes by image tags on the message
+	 * Replaces emotes by <img> tags and URL to <a> tags on the message
 	 */
-	public static parseEmotesFromObject(message:string, emotes?:TwitchatDataTypes.EmoteDef[], removeEmotes = false, customParsing = false):string {
-		const emoteChunks = TwitchUtils.parseEmotesToChunks(message, undefined, removeEmotes, customParsing, emotes);
+	public static messageChunksToHTML(chunks:TwitchDataTypes.ParseMessageChunk[]):string {
 		let message_html = "";
-		for (let i = 0; i < emoteChunks.length; i++) {
-			const v = emoteChunks[i];
+		for (let i = 0; i < chunks.length; i++) {
+			const v = chunks[i];
 			if(v.type == "text") {
-				v.value = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-				message_html += Utils.parseURLs(v.value);
-			}else if(v.type == "emote") {
-				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-				url = url.replace(/1x$/gi, "3x");//BTTV format
-				url = url.replace(/2x$/gi, "3x");//7TV format
-				url = url.replace(/1$/gi, "4");//FFZ format
-				const tt = "<img src='"+url+"' width='112' class='emote'><br><center>"+v.label+"</center>";
-				message_html += "<img src='"+v.value+"' data-tooltip=\""+tt+"\" class='emote'>";
+				message_html += v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+			}else if(v.type == "highlight") {
+				message_html += "<mark>"+v.value+"</mark>";
+			}else if(v.type == "url") {
+				const href = !/^https?/gi.test(v.value)? "https://"+v.value : v.value;
+				message_html += "<a href=\""+href+"\">"+v.value+"</a>";
+			}else if(v.type == "emote" || v.type == "cheermote") {
+				message_html += "<img src='"+(v.emoteHD || v.emote)+"' class='emote'>";
 			}
 		}
 		return message_html;
@@ -2517,42 +2546,67 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Replaces emotes by image tags on the message
+	 * Parses cheermotes codes and replace/add necessary chunks
 	 */
-	public static async parseCheermotes(message:string, channel_id:string, removeCheermotes:boolean = false):Promise<string> {
-		let emotes:TwitchDataTypes.CheermoteSet[];
+	public static async parseCheermotes(chunks:TwitchDataTypes.ParseMessageChunk[], channel_id:string):Promise<TwitchDataTypes.ParseMessageChunk[]> {
+		let cheermotes:TwitchDataTypes.CheermoteSet[];
 		try {
-			emotes = await this.loadCheermoteList(channel_id);
+			cheermotes = await this.loadCheermoteList(channel_id);
 		}catch(err) {
 			//Safe crash
-			return message;
+			return chunks;
 		}
+		
+		//Parse all cheermotes
+		for (let i = 0; i < cheermotes.length; i++) {
+			const list = cheermotes[i];
+			const reg = new RegExp("("+list.prefix+"[0-9]+)", "gi");
+			//Parse all text chunks
+			for (let j = 0; j < chunks.length; j++) {
+				const chunk = chunks[j];
+				//It's a text node, check if the current cheermote is there
+				if(chunk.type == "text") {
+					reg.lastIndex = 0;
+					//Cheermote not found, skip it
+					if(!reg.test(chunk.value.trim())) continue;
 
-		for (let j = 0; j < emotes.length; j++) {
-			const list = emotes[j];
-			
-			const reg = new RegExp(list.prefix+"[0-9]+", "gi");
-			const matches = message.match(reg) as RegExpMatchArray;
-			if(!matches) continue;
-			//Parse all the current cheermote matches
-			for (let k = 0; k < matches.length; k++) {
-				const m = matches[k];
-				const bitsCount = parseInt(m.toLowerCase().replace(list.prefix.toLowerCase(), ""));
-				let tiers = list.tiers[0];
-				//Search for the lower nearest existing tier with the specified value
-				for (let i = 1; i < list.tiers.length; i++) {
-					if(bitsCount < list.tiers[i].min_bits) {
-						tiers = list.tiers[i-1];
-						break;
-					}
+					//Cheermote found, remove current chunk and replace it by sub chunks
+					chunks.splice(j,1);
+					
+					//Split chunk into subchunks by cheermote codes
+					let res = chunk.value.split(reg);
+					
+					//Parse all sub chunks
+					res.forEach(v=> {
+						reg.lastIndex = 0;
+						const isCheermote = reg.test(v);
+						//Create new chunk node
+						const node:TwitchDataTypes.ParseMessageChunk = {
+							type: isCheermote? "cheermote" : "text",
+							value:v,
+						};
+						//It's a matching cheermote sub chunk
+						if(isCheermote) {
+							//Search for the lower nearest existing tier with the specified value
+							const bitsCount = parseInt(v.toLowerCase().replace(list.prefix.toLowerCase(), ""));
+							let tiers = list.tiers[ list.tiers.length - 1 ];
+							for (let k = 0; k < list.tiers.length; k++) {
+								if(list.tiers[k].min_bits > bitsCount) {
+									tiers = list.tiers[k-1];
+									break;
+								}
+							}
+							node.label = list.prefix+tiers.min_bits;
+							node.emote = tiers.images.dark.animated["2"] ?? tiers.images.dark.static["2"];
+							node.emoteHD = tiers.images.dark.animated["4"] ?? tiers.images.dark.static["4"];
+						}
+						chunks.splice(j, 0, node);
+						j++
+					})
 				}
-				let img = tiers.images.dark.animated["2"];
-				if(!img) img = tiers.images.dark.static["2"];
-				const replace = removeCheermotes? "" : "<img src='"+img+"' class='cheermote'>";
-				message = message.replace(new RegExp(list.prefix+bitsCount, "gi"), replace)
 			}
 		}
-		return message;
+		return chunks;
 	}
 
 	/**

@@ -42,6 +42,18 @@ import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import ContextMenu from '@imengyu/vue3-context-menu';
+import VueTippy from "vue-tippy";
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/animations/scale.css'
+import { setDefaultProps } from 'vue-tippy';
+
+setDefaultProps({
+	theme:"twitchat",
+	animation:"scale",
+	duration:100,
+	allowHTML:true,
+	maxWidth:250,
+});
 
 const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin);
@@ -244,6 +256,10 @@ function buildApp() {
 	app.use(router)
 	.use(i18n)
 	.use(ContextMenu)
+	.use(VueTippy,{
+		directive: "tooltip",
+		component: "tooltip",
+	})
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.provide("$image", image)

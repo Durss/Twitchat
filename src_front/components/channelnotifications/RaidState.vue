@@ -24,11 +24,11 @@
 			</i18n-t>
 			<ul class="list">
 				<li class="user" v-for="(u, index) in bannedOnline" :key="index + u.id">
-					<img src="@/assets/icons/ban.svg" data-tooltip="Timeout">
+					<img src="@/assets/icons/ban.svg" v-tooltip="'Timeout'">
 					<a @click.stop="openUserCard(u)" class="login">{{ u.login }}</a>
 				</li>
 				<li class="user" v-for="(u, index) in timedoutOnline" :key="index + u.id">
-					<img src="@/assets/icons/timeout.svg" data-tooltip="Timeout">
+					<img src="@/assets/icons/timeout.svg" v-tooltip="'Timeout'">
 					<a @click.stop="openUserCard(u)" class="login">{{ u.login }}</a>
 					<span class="duration">({{ getBanDuration(u) }})</span>
 				</li>

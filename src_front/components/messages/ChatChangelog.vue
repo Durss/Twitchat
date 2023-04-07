@@ -76,7 +76,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		Button,
 		ToggleBlock,
 	},
-	emits:["openParamItem", "openParam", "close", "onRead"]
+	emits:["close"]
 })
 export default class ChatChangelog extends Vue {
 
@@ -125,20 +125,7 @@ export default class ChatChangelog extends Vue {
 		})
 	}
 
-	public openParamItem(paramPath:string):void {
-		const chunks = paramPath.split(".");
-		let pointer:unknown = this.$store("params");
-		for (let i = 0; i < chunks.length; i++) {
-			//@ts-ignore
-			pointer = pointer[chunks[i]];
-		}
-		if(pointer) {
-			let label:string = (pointer as TwitchatDataTypes.ParameterData<unknown>).label ?? "";
-			let key = (pointer as TwitchatDataTypes.ParameterData<unknown>).labelKey;
-			if(key) label = this.$t(key);
-			this.$store("params").searchParam(label);
-		}
-	}
+	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
 
 }

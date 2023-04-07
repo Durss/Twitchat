@@ -5,7 +5,7 @@
 	>
 		<div class="list">
 			<template v-for="(h,index) in placeholders" :key="h.tag+index">
-				<button @click="insert(h)" :data-tooltip="$t('global.placeholder_selector_insert')">
+				<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">
 					<mark>&#123;{{h.tag}}&#125;</mark>
 				</button>
 				

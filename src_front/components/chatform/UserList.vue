@@ -15,8 +15,8 @@
 						<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
 							<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
 								src="@/assets/icons/timeout.svg"
-								:data-tooltip="getBanDuration(u.channelInfo[currentChanId])">
-							<img v-else src="@/assets/icons/ban.svg" :data-tooltip="$t('userlist.banned_tt')">
+								v-tooltip="getBanDuration(u.channelInfo[currentChanId])">
+							<img v-else src="@/assets/icons/ban.svg" v-tooltip="$t('userlist.banned_tt')">
 						</div>
 						{{u.displayName}}
 					</a>

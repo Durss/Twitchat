@@ -518,8 +518,10 @@ export default class EventSub {
 		}
 
 		if(renew.message) {
-			message.message = renew.message.text;
-			message.message_html = TwitchUtils.parseEmotesFromObject(renew.message.text, undefined, false, false);
+			const chunks			= TwitchUtils.parseMessageToChunks(renew.message.text, renew.message.emotes, true);
+			message.message			= renew.message.text;
+			message.message_chunks	= chunks;
+			message.message_html	= TwitchUtils.messageChunksToHTML(chunks);
 		}
 		StoreProxy.chat.addMessage(message);
 	}
@@ -534,9 +536,9 @@ export default class EventSub {
 
 		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT
 
-		let message_html = TwitchUtils.parseEmotes(event.message, undefined, false, true);
-		message_html = await TwitchUtils.parseCheermotes(message_html, StoreProxy.auth.twitch.user.id);
 		const channel_id = event.broadcaster_user_id;
+		const chunks = TwitchUtils.parseMessageToChunks(event.message, undefined, true);
+		await TwitchUtils.parseCheermotes(chunks, channel_id);
 		const user = StoreProxy.users.getUserFrom("twitch", channel_id, event.user_id, event.user_login, event.user_name);
 		const message:TwitchatDataTypes.MessageCheerData = {
 			platform:"twitch",
@@ -547,7 +549,8 @@ export default class EventSub {
 			user,
 			bits:event.bits ?? -1,
 			message:event.message,
-			message_html,
+			message_chunks:chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
 		}
 		StoreProxy.chat.addMessage(message);
 	}

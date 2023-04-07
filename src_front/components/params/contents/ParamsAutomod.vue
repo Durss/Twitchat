@@ -25,12 +25,12 @@
 					:title="f.label.length > 0? f.label : $t('automod.rule.new')"
 					:open="keywordToOpen[f.id]">
 						<template #right_actions>
-							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear :data-tooltip="$t('automod.rule.toggle_tt')" />
+							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
 							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
 						</template>
-						<ParamItem class="item sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" :data-tooltip="$t('automod.rule.sync_tt')" />
-							<ParamItem class="item emergency" :paramData="param_ruleEmergency[f.id]" v-model="f.emergency" :data-tooltip="$t('automod.rule.emergency_tt')" />
-						<ParamItem class="item onlyFirst" :paramData="param_ruleOnlyFirst[f.id]" v-model="f.firstTimeChatters" :data-tooltip="$t('automod.rule.firstTime_tt')" />
+						<ParamItem class="item sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" v-tooltip="$t('automod.rule.sync_tt')" />
+							<ParamItem class="item emergency" :paramData="param_ruleEmergency[f.id]" v-model="f.emergency" v-tooltip="$t('automod.rule.emergency_tt')" />
+						<ParamItem class="item onlyFirst" :paramData="param_ruleOnlyFirst[f.id]" v-model="f.firstTimeChatters" v-tooltip="$t('automod.rule.firstTime_tt')" />
 						<ParamItem class="item ruleName" :paramData="param_ruleLabel[f.id]" v-model="f.label" />
 						<ParamItem class="item rule" :paramData="param_ruleRegex[f.id]" v-model="f.regex" :error="keywordToValid[f.id] === false" @change="onRegexChange(f)" />
 						<div class="regError" v-if="keywordToValid[f.id] === false">{{ $t("automod.rule.invalid_rule") }}</div>
@@ -42,7 +42,7 @@
 			<section class="testForm">
 				<Splitter class="item splitter">{{ $t("automod.test.title") }}</Splitter>
 				<input type="text" v-model="testStr" :placeholder="$t('automod.test.input_placeholder')">
-				<div class="result" v-if="testClean" :data-tooltip="$t('automod.test.result_tt')">{{testClean}}</div>
+				<div class="result" v-if="testClean" v-tooltip="$t('automod.test.result_tt')">{{testClean}}</div>
 				<div class="matchingRules" v-if="blockedBy.length > 0">
 					<p class="title">{{ $t("automod.test.blocked_title", blockedBy.length) }}</p>
 					<ul>

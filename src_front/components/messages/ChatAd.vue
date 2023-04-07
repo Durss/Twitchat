@@ -24,8 +24,6 @@
 				<ChatChangelog class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
 					@close="(v:any)=> deleteMessage()"
-					@openParam="(v:any)=> openParamPage(v)"
-					@openParamItem="(v:string)=> openParamItem(v)"
 				/>
 			</div>
 	
@@ -34,8 +32,6 @@
 				<div class="title">{{ $t("tips.title") }}</div>
 				<ChatTipAndTrickAd class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
-					@openParam="(v:any)=> openParamPage(v)"
-					@openParamItem="(v:string)=> openParamItem(v)"
 				/>
 			</div>
 	
@@ -197,7 +193,7 @@ export default class ChatAd extends Vue {
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
-	public openParamItem(paramPath:string):void { this.$store("params").searchParam(paramPath); }
+	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
 
 	public deleteMessage():void {

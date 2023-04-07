@@ -22,13 +22,13 @@
 			<p class="item" v-html="$t('about.credits_sources', {URL:'<a href=\'https://github.com/Durss/Twitchat\' target=\'_blank\'>Github</a>'})"></p>
 			<p class="item">{{ $t("about.credits_sites") }}</p>
 			<p class="item socials">
-				<a class="link" href="https://box.durss.ninja" target="_blank"><img src="@/assets/img/boxes.svg" data-tooltip="Durss puzzle boxes" alt="puzzle boxes"></a>
-				<a class="link" href="https://multiblindtest.com" target="_blank"><img src="@/assets/img/multiblindtest.png" data-tooltip="Multiblindtest" alt="multi blindtest"></a>
-				<a class="link" href="https://www.durss.ninja" target="_blank"><img src="@/assets/img/work.svg" data-tooltip="Portfolio" alt="portfolio"></a>
-				<a class="link" href="https://instagram.com/durss" target="_blank"><img src="@/assets/img/instagram.png" data-tooltip="Instagram" alt="instagram"></a>
-				<a class="link" href="https://tiktok.com/@dursss" target="_blank"><img src="@/assets/img/tiktok.png" data-tooltip="Tiktok" alt="tiktok"></a>
-				<a class="link" href="https://github.com/durss" target="_blank"><img src="@/assets/img/github.png" data-tooltip="Github" alt="github"></a>
-				<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" data-tooltip="Twitch" alt="twitch"></a>
+				<a class="link" href="https://box.durss.ninja" target="_blank"><img src="@/assets/img/boxes.svg" v-tooltip="'Durss puzzle boxes'" alt="puzzle boxes"></a>
+				<a class="link" href="https://multiblindtest.com" target="_blank"><img src="@/assets/img/multiblindtest.png" v-tooltip="'Multiblindtest'" alt="multi blindtest"></a>
+				<a class="link" href="https://www.durss.ninja" target="_blank"><img src="@/assets/img/work.svg" v-tooltip="'Portfolio'" alt="portfolio"></a>
+				<a class="link" href="https://instagram.com/durss" target="_blank"><img src="@/assets/img/instagram.png" v-tooltip="'Instagram'" alt="instagram"></a>
+				<a class="link" href="https://tiktok.com/@dursss" target="_blank"><img src="@/assets/img/tiktok.png" v-tooltip="'Tiktok'" alt="tiktok"></a>
+				<a class="link" href="https://github.com/durss" target="_blank"><img src="@/assets/img/github.png" v-tooltip="'Github'" alt="github"></a>
+				<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" v-tooltip="'Twitch'" alt="twitch"></a>
 			</p>
 		</ToggleBlock>
 

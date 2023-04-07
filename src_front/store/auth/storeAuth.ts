@@ -263,13 +263,14 @@ export const storeAuth = defineStore('auth', {
 					}, 5000);
 				}else
 				//Show "right click message" hint
-				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
+				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT) || true) {
 					setTimeout(()=>{
 						StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
 							const m = message as TwitchatDataTypes.MessageChatData;
 							const str = StoreProxy.i18n.t("chat.right_click_hint");
 							m.message = str;
-							m.message_html = TwitchUtils.parseEmotes(str, undefined, false, true).replace(/&lt;(\/?mark)&gt;/gi, "<$1>");
+							m.message_chunks = TwitchUtils.parseMessageToChunks(str, undefined, true)
+							m.message_html = TwitchUtils.messageChunksToHTML(m.message_chunks)
 							m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
 							m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat_purple.svg`, import.meta.url).href;
 							m.user.color = "#bb8eff";

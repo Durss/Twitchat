@@ -3,28 +3,27 @@
 		<router-view />
 		<Confirm />
 		<Alert />
-		<Tooltip />
 	</div>
 </template>
 
 <script lang="ts">
-import { watch, type StyleValue } from 'vue';
+import { watch, type StyleValue, compile, h, type VNode } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import DataStore from './store/DataStore';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
-import Tooltip from "./views/Tooltip.vue";
+
 
 @Component({
 	components:{
 		Alert,
 		Confirm,
-		Tooltip,
 	}
 })
 export default class App extends Vue {
 
 	public scale:number = 1.25;
+	public node!:VNode;
 	
 	public defaultScale:number = 1.25;
 	private resizeHandler!:() => void;

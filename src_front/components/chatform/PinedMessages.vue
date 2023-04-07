@@ -11,7 +11,7 @@
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
 					<Button :aria-label="$t('pin.highlightBt_aria')"
 						:icon="$image('icons/highlight.svg')"
-						:data-tooltip="$t('pin.highlightBt_tt')"
+						v-tooltip="$t('pin.highlightBt_tt')"
 						@click="chatHighlight(m)"
 						:loading="highlightLoading"
 						/>

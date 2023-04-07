@@ -38,13 +38,14 @@
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
-import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
 
 @Component({
@@ -109,7 +110,8 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 
 	public testAlert():void {
 		const uid = StoreProxy.auth.twitch.user.id;
-		const emoteTag = `<img src="https://static-cdn.jtvnw.net/emoticons/v2/133468/default/light/1.0" data-tooltip="<img src='https://static-cdn.jtvnw.net/emoticons/v2/133468/default/light/3.0' height='112' width='112'><br><center>ItsBoshyTime</center>" class="emote">`;
+		const str = "GivePLZ  Read your chat !!! TakeNRG ";
+		const chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);
 		const message:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			platform:"twitch",
@@ -118,9 +120,9 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 			user: this.$store("users").getUserFrom("twitch", uid, uid),
 			answers: [],
 			channel_id:uid,
-			message: "ItsBoshyTime Read your chat !!! ItsBoshyTime",
-			message_html: emoteTag+" Read your chat !!! "+emoteTag,
-			message_no_emotes: "",
+			message: str,
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
 			is_short:false,
 		}
 		this.$store("main").executeChatAlert(message);

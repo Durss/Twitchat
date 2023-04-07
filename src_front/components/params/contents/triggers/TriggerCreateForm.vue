@@ -59,7 +59,7 @@
 						:title="$t(e.labelKey!)"
 						:icon="getIcon(e)"
 						:disabled="disabledEntry(e)"
-						:data-tooltip="disabledEntry(e)? $t('triggers.noChannelPoints_tt') : ''"
+						v-tooltip="disabledEntry(e)? $t('triggers.noChannelPoints_tt') : ''"
 						@click.capture="disabledEntry(e)? requestScope(e) : selectTriggerType(e)"
 					/>
 				</div>

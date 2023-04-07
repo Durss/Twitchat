@@ -9,37 +9,37 @@
 			</i18n-t>
 			
 			<div class="details">
-				<div class="row" v-if="bits > 0" :data-tooltip="$t('global.tooltips.bits')">
+				<div class="row" v-if="bits > 0" v-tooltip="$t('global.tooltips.bits')">
 					<img src="@/assets/icons/bits.svg" class="icon">
 					<span class="label">{{bits}}</span>
 				</div>
-				<div class="row t1" v-if="subs1 > 0" :data-tooltip="$t('global.tooltips.subs1')">
+				<div class="row t1" v-if="subs1 > 0" v-tooltip="$t('global.tooltips.subs1')">
 					<img src="@/assets/icons/sub.svg" class="icon">
 					<!-- <span class="tier">T1</span> -->
 					<span class="label">x{{subs1}}</span>
 				</div>
-				<div class="row t2" v-if="subs2 > 0" :data-tooltip="$t('global.tooltips.subs2')">
+				<div class="row t2" v-if="subs2 > 0" v-tooltip="$t('global.tooltips.subs2')">
 					<img src="@/assets/icons/sub.svg" class="icon">
 					<!-- <span class="tier">T2</span> -->
 					<span class="label">x{{subs2}}</span>
 				</div>
-				<div class="row t3" v-if="subs3 > 0" :data-tooltip="$t('global.tooltips.subs3')">
+				<div class="row t3" v-if="subs3 > 0" v-tooltip="$t('global.tooltips.subs3')">
 					<img src="@/assets/icons/sub.svg" class="icon">
 					<!-- <span class="tier">T3</span> -->
 					<span class="label">x{{subs3}}</span>
 				</div>
-				<div class="row" v-if="primes > 0" :data-tooltip="$t('global.tooltips.primes')">
+				<div class="row" v-if="primes > 0" v-tooltip="$t('global.tooltips.primes')">
 					<img src="@/assets/icons/prime.svg" class="icon">
 					<span class="label">{{primes}}</span>
 				</div>
-				<div class="row" v-if="subgifts > 0" :data-tooltip="$t('global.tooltips.subgifts')">
+				<div class="row" v-if="subgifts > 0" v-tooltip="$t('global.tooltips.subgifts')">
 					<img src="@/assets/icons/gift.svg" class="icon">
 					<span class="label">{{subgifts}}</span>
 				</div>
 			</div>
 
 			<div class="conductors">
-				<div v-if="messageData.train.conductor_subs" class="conductor" ref="conductor_subs_holder" :data-tooltip="$t('train.conductor_subs_tt')">
+				<div v-if="messageData.train.conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
 					<div class="head">
 						<div class="icon"><img src="@/assets/icons/sub.svg"></div>
 					</div>
@@ -57,7 +57,7 @@
 					</div>
 				</div>
 
-				<div v-if="messageData.train.conductor_bits" class="conductor" ref="conductor_bits_holder" :data-tooltip="$t('train.conductor_bits_tt')">
+				<div v-if="messageData.train.conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
 					<div class="head">
 						<div class="icon"><img src="@/assets/icons/bits.svg"></div>
 					</div>

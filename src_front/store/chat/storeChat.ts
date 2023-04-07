@@ -642,7 +642,7 @@ export const storeChat = defineStore('chat', {
 						//Check if it's an "ad" message
 						if(message.user.id == sAuth.twitch.user.id
 						//Remove eventual /command from the reference message
-						&& this.botMessages.twitchatAd.message.replace(/\/.*? /gi, "") == message.message) {
+						&& this.botMessages.twitchatAd.message.trim().replace(/(\s)+/g, "$1").replace(/\/.*? /gi, "") == message.message.trim().replace(/(\s)+/g, "$1")) {
 							message.is_ad = true;
 						}
 					}

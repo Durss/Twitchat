@@ -3,31 +3,33 @@
 	@contextmenu="onContextMenu($event)"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
-		<div v-if="firstTime" class="header">
-			<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
-			<p>{{ $t('chat.message.first_time') }}</p>
-		</div>
+		<template v-if="!automodReasons">
+			<div v-if="firstTime" class="header">
+				<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
+				<p>{{ $t('chat.message.first_time') }}</p>
+			</div>
 
-		<div v-else-if="isPresentation" class="header">
-			<img src="@/assets/icons/presentation.svg" alt="new" class="icon">
-			<i18n-t scope="global" keypath="chat.message.presentation" tag="p">
-				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
-			</i18n-t>
-		</div>
+			<div v-else-if="isPresentation" class="header">
+				<img src="@/assets/icons/presentation.svg" alt="new" class="icon">
+				<i18n-t scope="global" keypath="chat.message.presentation" tag="p">
+					<template #USER><strong>{{messageData.user.displayName}}</strong></template>
+				</i18n-t>
+			</div>
 
-		<div v-else-if="isReturning" class="header">
-			<img src="@/assets/icons/returning.svg" alt="new" class="icon">
-			<i18n-t scope="global" keypath="chat.message.returning_user" tag="p">
-				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
-			</i18n-t>
-		</div>
+			<div v-else-if="isReturning" class="header">
+				<img src="@/assets/icons/returning.svg" alt="new" class="icon">
+				<i18n-t scope="global" keypath="chat.message.returning_user" tag="p">
+					<template #USER><strong>{{messageData.user.displayName}}</strong></template>
+				</i18n-t>
+			</div>
 
-		<div v-else-if="isFirstToday && !lightMode" class="header">
-			<img src="@/assets/icons/hand.svg" alt="new" class="icon">
-			<i18n-t scope="global" keypath="chat.message.first_today" tag="p">
-				<template #USER><strong>{{messageData.user.displayName}}</strong></template>
-			</i18n-t>
-		</div>
+			<div v-else-if="isFirstToday && !lightMode" class="header">
+				<img src="@/assets/icons/hand.svg" alt="new" class="icon">
+				<i18n-t scope="global" keypath="chat.message.first_today" tag="p">
+					<template #USER><strong>{{messageData.user.displayName}}</strong></template>
+				</i18n-t>
+			</div>
+		</template>
 
 		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod_red.svg">
@@ -50,8 +52,8 @@
 			<div class="header"><strong>{{ $t('chat.message.announcement') }}</strong></div>
 		</div>
 		
-		<div class="infos" v-if="messageData.user.is_blocked !== true">
-		
+		<template v-if="messageData.user.is_blocked !== true">
+
 			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
@@ -65,72 +67,74 @@
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
-				<img :src="b.icon.sd" v-for="(b,index) in filteredBadges" :key="index" class="badge" :data-tooltip="b.title">
+				<img :src="b.icon.sd" v-for="(b,index) in filteredBadges" :key="index" class="badge" v-tooltip="b.title">
 	
 				<span class="badge mini" v-for="(b,index) in miniBadges"
 					:key="index"
 					:class="b.class"
-					:data-tooltip="b.label"></span>
+					v-tooltip="b.label"></span>
 			</div>
 			
 			<img class="noFollowBadge" v-if="showNofollow"
 				src="@/assets/icons/unfollow.svg"
 				:alt="$t('chat.message.no_follow')"
-				:data-tooltip="$t('chat.message.no_follow')">
+				v-tooltip="$t('chat.message.no_follow')">
 
 			<div class="occurrenceCount"
 				ref="occurrenceCount"
-				:data-tooltip="$t('chat.message.occurrences')"
+				v-tooltip="$t('chat.message.occurrences')"
 				v-if="messageData.occurrenceCount != undefined && messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
 			<span class="pronoun"
 				v-if="messageData.user.pronounsLabel && $store('params').features.showUserPronouns.value===true"
-				:data-tooltip="messageData.user.pronounsTooltip || ''">{{messageData.user.pronounsLabel}}</span>
+				v-tooltip="messageData.user.pronounsTooltip || ''">{{messageData.user.pronounsLabel}}</span>
 			
 			<span @click.stop="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="outNickName($event)"
 				class="login" :style="getLoginStyles(messageData.user)">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></span>
-			<span v-if="recipient"> ➔ </span>
-			<span v-if="recipient" class="login"
-			:style="getLoginStyles(recipient)"
-			@click.stop="openUserCard(recipient!)">{{recipient.displayName}}</span>
-		</div>
-		
-		<i18n-t scope="global" class="sharedBan" tag="span"
-		v-if="userBannedOnChannels" keypath="chat.message.banned_in">
-			<template #CHANNELS>{{userBannedOnChannels}}</template>
-		</i18n-t>
-		
-		<span v-if="messageData.user.is_blocked !== true">: </span>
-		
-		<span class="message" v-if="messageData.user.is_blocked !== true">
-			<span class="text" v-html="text" @click="clickMessage"></span>
-			<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
-		</span>
+			<template v-if="recipient">
+				<span> ➔ </span>
+				<span class="login"
+					:style="getLoginStyles(recipient)"
+					@click.stop="openUserCard(recipient!)">{{recipient.displayName}}</span>
+			</template>
+			
+			<i18n-t scope="global" class="sharedBan" tag="span"
+			v-if="userBannedOnChannels" keypath="chat.message.banned_in">
+				<template #CHANNELS>{{userBannedOnChannels}}</template>
+			</i18n-t>
+			
+			<span class="message">
+				<span class="text">
+					<ChatMessageChunksParser :chunks="localMessageChunks" />
+				</span>
+				<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
+			</span>
+			
+			<br v-if="clipInfo">
+			<div v-if="clipInfo" class="clip" @click.stop="openClip()">
+				<img :src="clipInfo.thumbnail_url" alt="thumbnail">
+				<div class="infos">
+					<div class="title">{{clipInfo.title}}</div>
+					<div class="subtitle">{{$t("chat.message.clip_created_by")}} {{clipInfo.creator_name}}</div>
+					<div class="subtitle">{{$t("chat.message.clip_channel")}} {{clipInfo.broadcaster_name}}</div>
+					<div class="subtitle">{{$t("chat.message.clip_duration")}} {{clipInfo.duration}}s</div>
+					<div class="subtitle">{{$t("chat.message.clip_views")}} {{clipInfo.view_count}}</div>
+					<Button class="highlightBt" small
+						:aria-label="$t('chat.message.highlightBt_aria')"
+						:icon="$image('icons/highlight.svg')"
+						v-tooltip="$t('chat.message.highlightBt_tt')"
+						:loading="clipHighlightLoading"
+						@click.stop="clipHighlight()"
+					/>
+				</div>
+			</div>
+		</template>
 
 		<span class="blockedMessage"
 		v-if="messageData.user.is_blocked === true"
 		@click.stop="messageData.user.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
-		
-		<br v-if="clipInfo && messageData.user.is_blocked !== true">
-		<div v-if="clipInfo && messageData.user.is_blocked !== true" class="clip" @click.stop="openClip()">
-			<img :src="clipInfo.thumbnail_url" alt="thumbnail">
-			<div class="infos">
-				<div class="title">{{clipInfo.title}}</div>
-				<div class="subtitle">{{$t("chat.message.clip_created_by")}} {{clipInfo.creator_name}}</div>
-				<div class="subtitle">{{$t("chat.message.clip_channel")}} {{clipInfo.broadcaster_name}}</div>
-				<div class="subtitle">{{$t("chat.message.clip_duration")}} {{clipInfo.duration}}s</div>
-				<div class="subtitle">{{$t("chat.message.clip_views")}} {{clipInfo.view_count}}</div>
-				<Button class="highlightBt" small
-					:aria-label="$t('chat.message.highlightBt_aria')"
-					:icon="$image('icons/highlight.svg')"
-					:data-tooltip="$t('chat.message.highlightBt_tt')"
-					:loading="clipHighlightLoading"
-					@click.stop="clipHighlight()"
-				/>
-			</div>
-		</div>
 
 		<div class="ctas" v-if="isAd">
 			<Button :title="$t('chat.message.disable_ad')" @click="disableAd()" :icon="$image('icons/cross_white.svg')" />
@@ -162,12 +166,14 @@ import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
 import ContextMenuTimeoutDuration from './components/ContextMenuTimeoutDuration.vue';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{
 		Button,
 		ChatModTools,
 		ChatMessageInfoBadges,
+		ChatMessageChunksParser,
 	},
 	emits:['showConversation', 'showUserMessages', 'unscheduleMessageOpen', 'onOverMessage', 'onRead'],
 })
@@ -188,7 +194,6 @@ export default class ChatMessage extends AbstractChatMessage {
 	@Prop({type:Boolean, default:false})
 	public contextMenuOff!:boolean;
 	
-	public text = "";
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
 	public firstTime:boolean = false;
@@ -205,6 +210,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	public isFirstToday:boolean = false;
 	public automodInProgress:boolean = false;
 	public userBannedOnChannels:string = "";
+	public localMessageChunks:TwitchDataTypes.ParseMessageChunk[] = [];
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
@@ -370,6 +376,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		// console.log("Create message");
 		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id];
 		this.badges			= JSON.parse(JSON.stringify(this.channelInfo.badges));//Make a copy of it so they stay this way
+		this.localMessageChunks = JSON.parse(JSON.stringify(this.messageData.message_chunks));
 
 		const mess			= this.messageData;
 		const infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
@@ -447,7 +454,8 @@ export default class ChatMessage extends AbstractChatMessage {
 		//Pre compute some classes to reduce watchers count on "classes" getter
 
 		const staticClasses = ["chatmessage"];
-		if(this.firstTime || this.isPresentation || this.isReturning || this.isFirstToday)	staticClasses.push("hasHeader");
+		if(!this.lightMode
+		&& (this.firstTime || this.isPresentation || this.isReturning || this.isFirstToday))	staticClasses.push("hasHeader");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			staticClasses.push("whisper");
 		}else {
@@ -492,24 +500,16 @@ export default class ChatMessage extends AbstractChatMessage {
 				}
 			})();
 		}
-		
 
-		let txt = this.messageData.message_html;
-		if(this.$store("params").appearance.showEmotes.value !== true) {
-			txt = this.messageData.message;
-		}
-		
-		if(txt.indexOf("<a") > -1) {
-			//Add copy butotn next to links
-			const button = "<img src='"+this.$image('icons/copy_alert.svg')+"' class='copyBt' data-copy=\"https://$2\" data-tooltip='"+this.$t("global.copy")+"'>";
-			txt = txt.replace(/(<a .*?>)(.*?)(<\/a>)/gi, button+"$1$2$3");
-		}
-		
 		if(highlightedWords.length > 0) {
 			for (let i = 0; i < highlightedWords.length; i++) {
 				let word = highlightedWords[i];
-				word = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				txt = txt.replace(new RegExp("("+word+")(?!([^<]+)?>)", "gim"), "<span class='highlightedWord'>$1</span>");
+				for (let i = 0; i < this.localMessageChunks.length; i++) {
+					const chunk = this.localMessageChunks[i];
+					if(chunk.type=="text" && chunk.value.toLowerCase().indexOf(word.toLowerCase())) {
+						// chunk.type = "highlight";
+					}
+				}
 			}
 		}
 
@@ -521,7 +521,6 @@ export default class ChatMessage extends AbstractChatMessage {
 			});
 		}
 		
-		this.text = txt;
 		this.infoBadges = infoBadges;
 		this.staticClasses = staticClasses;
 		this.$store("accessibility").setAriaPolite(this.messageData.message);
@@ -587,24 +586,6 @@ export default class ChatMessage extends AbstractChatMessage {
 			this.$store("chat").deleteMessage(this.messageData);
 		}
 		this.automodInProgress = false;
-	}
-
-	/**
-	 * Called when message is clicked.
-	 */
-	public clickMessage(e:MouseEvent):void {
-		const t = e.target as HTMLElement;
-		if(t.dataset.copy) {
-			//If clicked on a "copy" button (on links), copy to clipboard and
-			//stop event's propagation to avoid marking message as read
-			Utils.copyToClipboard(t.dataset.copy);
-			e.stopPropagation();
-			gsap.fromTo(t, {scale:1.5, filter:"brightness(2)"}, {scale:1, filter:"brightness(1)", duration:0.2});
-
-		}else if(t.tagName == "A") {
-			//If clicked on a link, stop event's propagation to avoid marking message as read
-			e.stopPropagation();
-		}
 	}
 
 	/**
@@ -1117,14 +1098,6 @@ interface ContextMenuItem {
 		.message {
 			color: #fff;
 		}
-		&:hover {
-			>.infos {
-				background-color: @mainColor_dark;
-				.login:hover {
-					background-color: @mainColor_dark;
-				}
-			}
-		}
 	}
 
 	&.spoiler {
@@ -1146,105 +1119,108 @@ interface ContextMenuItem {
 		}
 	}
 
-	>.infos {
+	.icon {
+		opacity: 0.75;
+		height: 1em;
+		vertical-align: middle;
+
+		&:not(:last-child) {
+			margin-right: .25em;
+		}
+
+		&.convBt {
+			cursor: pointer;
+			&:hover {
+				opacity: .75;
+			}
+		}
+	}
+	.mod {
 		display: inline-flex;
-		align-items: center;
-		.icon {
-			opacity: 0.75;
+		margin-right: .4em;
+	}
+
+	.infoBadges {
+		margin-right: .4em;
+	}
+
+	.userBadges {
+		display: inline;
+		margin-right: .4em;
+
+		.badge {
+			width: 1em;
 			height: 1em;
 			vertical-align: middle;
-
-			&:not(:last-child) {
-				margin-right: .25em;
-			}
-
-			&.convBt {
-				cursor: pointer;
-				&:hover {
-					opacity: .75;
-				}
-			}
-		}
-		.mod {
-			display: inline-flex;
-			margin-right: .4em;
-		}
-
-		.infoBadges {
-			margin-right: .4em;
-		}
-
-		.userBadges {
-			display: inline;
-			margin-right: .4em;
-	
-			.badge {
-				width: 1em;
+			margin-right: .25em;
+			
+			&.mini {
+				display: inline-block;
+				width: .4em;
 				height: 1em;
-				vertical-align: middle;
-				margin-right: .25em;
-				
-				&.mini {
-					display: inline-block;
-					width: .4em;
-					height: 1em;
-					margin: 0 1px 0px 0;
-					&.prediction {
-						width: 1em;
-						border-radius: 50%;
-						margin-right: .25em;
-						&.pink{ background-color: #f50e9b;}
-						&.blue{ background-color: #387aff;}
-					}
-					&.vip{ background-color: #e00bb9;}
-					&.subscriber{ background-color: #9147ff;}
-					&.premium{ background-color: #00a3ff;}
-					&.moderator{ background-color: #39db00;}
-					&.staff{ background-color: #666666;}
-					&.broadcaster{ background-color: #ff0000;}
-					&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
-					&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
-					&.ambassador{ background: linear-gradient(0deg, #40e4cb 0%, #9048ff 100%); }
+				margin: 0 1px 0px 0;
+				&.prediction {
+					width: 1em;
+					border-radius: 50%;
+					margin-right: .25em;
+					&.pink{ background-color: #f50e9b;}
+					&.blue{ background-color: #387aff;}
 				}
+				&.vip{ background-color: #e00bb9;}
+				&.subscriber{ background-color: #9147ff;}
+				&.premium{ background-color: #00a3ff;}
+				&.moderator{ background-color: #39db00;}
+				&.staff{ background-color: #666666;}
+				&.broadcaster{ background-color: #ff0000;}
+				&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
+				&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
+				&.ambassador{ background: linear-gradient(0deg, #40e4cb 0%, #9048ff 100%); }
+			}
 
-				&:last-child {
-					margin-right: 0;
-				}
+			&:last-child {
+				margin-right: 0;
 			}
 		}
+	}
 
-		.login {
-			cursor: pointer;
-			font-weight: bold;
-			// -webkit-text-stroke: fade(#000, 50%) .25px;
-			&:hover {
-				background-color: fade(@mainColor_light, 10%);
-				border-radius: 3px;
-			}
-			.translation {
-				font-weight: normal;
-				font-size: .9em;
-			}
-		}
-
-		.occurrenceCount {
-			display: inline-block;
-			background: @mainColor_warn;
-			padding: .2em .4em;
-			margin-right: .25em;
-			font-weight: bold;
-			border-radius: 10px;
-			color:@mainColor_dark;
-		}
-
-		.pronoun {
+	.login {
+		cursor: pointer;
+		font-weight: bold;
+		// -webkit-text-stroke: fade(#000, 50%) .25px;
+		&:hover {
+			background-color: fade(@mainColor_light, 10%);
 			border-radius: 3px;
-			color: @mainColor_light;
-			border: 1px solid @mainColor_light;
-			padding: 0 1px;
-			margin-right: .25em;
-			vertical-align: middle;
 		}
+		.translation {
+			font-weight: normal;
+			font-size: .9em;
+		}
+		&:nth-last-child(2)::after{
+			content: ": ";
+			display: inline-block;
+		}
+		&:hover {
+			background-color: fade(@mainColor_dark, 50%);
+		}
+	}
+
+	.occurrenceCount {
+		display: inline-block;
+		background: @mainColor_warn;
+		padding: .2em .4em;
+		margin-right: .25em;
+		font-weight: bold;
+		border-radius: 10px;
+		color:@mainColor_dark;
+	}
+
+	.pronoun {
+		border-radius: 3px;
+		color: @mainColor_light;
+		border: 1px solid @mainColor_light;
+		padding: 0 1px;
+		margin-right: .25em;
+		vertical-align: middle;
 	}
 
 	.sharedBan {
@@ -1329,7 +1305,7 @@ interface ContextMenuItem {
 		border-radius: .25em;
 		margin: .25em 0;
 		padding-top: 0;
-		.header {
+		&>.header {
 			display: flex;
 			flex-direction: row;
 			align-items: center;

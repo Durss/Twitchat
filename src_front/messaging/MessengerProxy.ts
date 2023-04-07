@@ -219,6 +219,7 @@ export default class MessengerProxy {
 			const t = triggerCommands[i];
 			if(cmd == t.chatCommand!.toLowerCase()) {
 				const me = StoreProxy.auth.twitch.user;
+				const chunks = TwitchUtils.parseMessageToChunks(message);
 				const messageData:TwitchatDataTypes.MessageChatData = {
 					platform:"twitchat",
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
@@ -226,8 +227,8 @@ export default class MessengerProxy {
 					date:Date.now(),
 					id:Utils.getUUID(),
 					message:message,
-					message_html:message,
-					message_no_emotes:message,
+					message_chunks:chunks,
+					message_html:TwitchUtils.messageChunksToHTML(chunks),
 					user:me,
 					is_short:false,
 					answers:[],

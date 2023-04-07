@@ -4,7 +4,7 @@
 			<ParamItem :paramData="message_conf" v-model="action.text" :error="cmdNameConflict" />
 			<ToggleBlock class="commands" :title="$t('triggers.actions.chat.commands_list')" small :open="false">
 				<div class="cmd" v-for="c in sortedCommands"
-					:data-tooltip="$t('global.placeholder_selector_insert')"
+					v-tooltip="$t('global.placeholder_selector_insert')"
 					@click="insertCommand(c)"
 					v-html="c.cmd.replace(/(\/\S+)/gi, '<mark>$1</mark>').replace(/(?:\{([^}]+)\}?)/gi, ' [$1]')"></div>
 			</ToggleBlock>

@@ -1,9 +1,9 @@
 <template>
 	<div class="chatmodtools" @mouseleave="closeToOptions()">
-		<img src="@/assets/icons/ban.svg" alt="ban" :data-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()">
+		<img src="@/assets/icons/ban.svg" alt="ban" v-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()">
 		<img src="@/assets/icons/timeout.svg" alt="timeout"
 		@click.stop="openToOptions()"
-		data-tooltip="Timeout">
+		v-tooltip="'Timeout'">
 		<div class="toOptions" v-if="showToOptions" ref="toOptions" @mouseenter="resetCloseTimeout()">
 			<Button :aria-label="$t('chat.mod_tools.to10_aria')" @click.stop="timeoutUser(10)" :title="$t('chat.mod_tools.to10')" small />
 			<Button :aria-label="$t('chat.mod_tools.to120_aria')" @click.stop="timeoutUser(120)" :title="$t('chat.mod_tools.to120')" small />
@@ -12,8 +12,8 @@
 			<Button :aria-label="$t('chat.mod_tools.to43200_aria')" @click.stop="timeoutUser(3600*12)" :title="$t('chat.mod_tools.to43200')" small />
 			<Button :aria-label="$t('chat.mod_tools.to1w_aria')" @click.stop="timeoutUser(3600*24*7)" :title="$t('chat.mod_tools.to1w')" small />
 		</div>
-		<img src="@/assets/icons/trash.svg" alt="trash" :data-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete">
-		<img src="@/assets/icons/block.svg" alt="trash" :data-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false">
+		<img src="@/assets/icons/trash.svg" alt="trash" v-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete">
+		<img src="@/assets/icons/block.svg" alt="trash" v-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false">
 	</div>
 </template>
 

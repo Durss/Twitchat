@@ -81,6 +81,7 @@ import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -397,6 +398,7 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 
 	public testVoice():void {
 		const uid = StoreProxy.auth.twitch.user.id;
+		const chunks = TwitchUtils.parseMessageToChunks(this.testStr);
 		const m:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -405,8 +407,8 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
 			message: this.testStr,
-			message_html: this.testStr,
-			message_no_emotes: this.testStr,
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
 			answers: [],
 			is_short:false,
 		};

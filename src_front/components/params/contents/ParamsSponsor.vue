@@ -12,41 +12,13 @@
 		<img src="@/assets/img/eating.gif" alt="eating" class="patrick" />
 
 		<div class="buttons">
-			<Button big type="link" href="https://paypal.me/durss" target="_blank"
-				:title="getTitle('paypal')"
-				:icon="$image('icons/paypal_white.svg')"
+			<Button v-for="link in links" big type="link" :href="link.url" target="_blank"
+				:icon="$image('icons/'+link.icon+'_white.svg')"
 				:disabled="!checkbox.value"
-				@click.native.capture="clickItem()" />
-
-			<Button big type="link" href="https://ko-fi.com/durss" target="_blank"
-				:title="getTitle('kofi')"
-				:icon="$image('icons/kofi_white.svg')" class="kofiBt"
-				:disabled="!checkbox.value"
-				@click.native.capture="clickItem()" />
-
-			<Button big type="link" href="https://github.com/sponsors/Durss" target="_blank"
-				:title="getTitle('github')"
-				:icon="$image('icons/github_white.svg')"
-				:disabled="!checkbox.value"
-				@click.native.capture="clickItem()" />
-
-			<Button big type="link" href="https://www.buymeacoffee.com/durss" target="_blank"
-				:title="getTitle('coffee')"
-				:icon="$image('icons/coffee_white.svg')" class="coffeeBt"
-				:disabled="!checkbox.value"
-				@click.native.capture="clickItem()" />
-
-			<Button big type="link" href="https://www.patreon.com/durss" target="_blank"
-				:title="getTitle('patreon')"
-				:icon="$image('icons/patreon_white.svg')"
-				:disabled="!checkbox.value"
-				@click.native.capture="clickItem()" />
-
-			<!-- <Button big type="link" href="https://www.twitch.tv/products/durss" target="_blank"
-				:title="getTitle('twitch')"
-				:icon="$image('icons/twitch_white.svg')"
-				@click="clickItem()" /> -->
-
+				@click.native.capture="clickItem()">
+					<span v-html="$t('sponsor.donate_option.'+link.key)"></span>
+					<i v-tooltip="$t('sponsor.donate_rate')">({{ $t("sponsor.donate_option."+link.key+"_rate") }})</i>
+			</Button>
 		</div>
 	</div>
 </template>
@@ -71,9 +43,17 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 	public checkbox:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"sponsor.checkbox"}
 
+	public links:{url:string, icon:string, key:string}[] = [
+		{url:"https://paypal.me/durss", icon:"paypal", key:"paypal"},
+		{url:"https://ko-fi.com/durss", icon:"kofi", key:"kofi"},
+		{url:"https://github.com/sponsors/Durss", icon:"github", key:"github"},
+		{url:"https://www.buymeacoffee.com/durss", icon:"coffee", key:"coffee"},
+		{url:"https://www.patreon.com/durss", icon:"patreon", key:"patreon"},
+	]
+
 	public getTitle(key:string):string {
 		let res = this.$t("sponsor.donate_option."+key);
-		res += "<i data-tooltip=\'";
+		res += "<i v-tooltip=\'";
 		res += this.$t("sponsor.donate_rate").replace(/'/g, "\'").replace(/"/g, "\"");
 		res += "\'>("+this.$t("sponsor.donate_option."+key+"_rate")+")</i>";
 		return res;

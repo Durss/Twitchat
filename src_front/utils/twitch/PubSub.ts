@@ -8,6 +8,7 @@ import OBSWebsocket from "../OBSWebsocket";
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 /**
 * Created : 13/01/2022 
@@ -219,8 +220,8 @@ export default class PubSub extends EventDispatcher {
 			answers:[],
 			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
 			message,
+			message_chunks: TwitchUtils.parseMessageToChunks(message),
 			message_html:message,
-			message_no_emotes:message,
 			twitch_isSuspicious:true,
 			is_short:false,
 		}
@@ -317,6 +318,7 @@ export default class PubSub extends EventDispatcher {
 			const receiver = StoreProxy.users.getUserFrom("twitch", meID, receiverID);
 			sender.color = localObj.tags.color;
 			receiver.color = localObj.recipient.color;
+			const chunks = TwitchUtils.parseMessageToChunks(localObj.body, emotes);
 			const whisper:TwitchatDataTypes.MessageWhisperData = {
 				date:Date.now(),
 				id:Utils.getUUID(),
@@ -326,7 +328,8 @@ export default class PubSub extends EventDispatcher {
 				user:sender,
 				to: receiver,
 				message: localObj.body,
-				message_html: TwitchUtils.parseEmotes(localObj.body, emotes),
+				message_chunks: chunks,
+				message_html: TwitchUtils.messageChunksToHTML(chunks),
 			}
 			StoreProxy.chat.addMessage(whisper);
 
@@ -472,6 +475,7 @@ export default class PubSub extends EventDispatcher {
 
 				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, mess.sender.display_name.replace(/\s/g, ""), mess.sender.display_name);
 				user.color = mess.sender.chat_color;
+				const chunks = TwitchUtils.parseMessageToChunks(mess.content.text, undefined, true);
 				const m:TwitchatDataTypes.MessageChatData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -482,8 +486,8 @@ export default class PubSub extends EventDispatcher {
 					user,
 					bypassBotFilter:true,
 					message:mess.content.text,
-					message_html:TwitchUtils.parseEmotes(mess.content.text, undefined, false, true),
-					message_no_emotes: mess.content.text,
+					message_chunks:chunks,
+					message_html:TwitchUtils.messageChunksToHTML(chunks),
 					is_short:false,
 				};
 				StoreProxy.chat.addMessage(m);
@@ -712,27 +716,39 @@ export default class PubSub extends EventDispatcher {
 					if(reasons.indexOf(key) == -1) reasons.push(key);
 				}
 			}
-
-			//Rebuild message
-			let textMessage = "";
-			const words:string[] = [];
+			
+			//Build usable emotes set
+			let chunks:TwitchDataTypes.ParseMessageChunk[] = [];
+			let words:string[] = [];
 			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
 				const el = localObj.message.content.fragments[i];
-				if(el.automod != undefined) {
-					words.push(el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;"));
-				}
 				if(el.emoticon) {
-					textMessage += "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/1.0' data-tooltip='"+el.text+"'>";
-				}else{
-					//Avoid XSS attack
-					textMessage += el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+					chunks.push({
+						type:"emote",
+						value:el.text,
+						emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/2.0",
+						emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/4.0",
+					});
+				}else if(el.automod) {
+					chunks.push({
+						type:"highlight",
+						value:el.text,
+					});
+					words.push(el.text);
+				}else if(el.text) {
+					chunks.push({
+						type:"text",
+						value:el.text,
+					});
 				}
 			}
 
 			const user = localObj.message.sender;
 			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
 			userData.color = user.chat_color;
-			const messageClean = Utils.stripHTMLTags(textMessage);
+			const messageHtml = TwitchUtils.messageChunksToHTML(chunks);
+			const messageClean = Utils.stripHTMLTags(messageHtml);
+			// const chunks = TwitchUtils.parseMessageToChunks(textMessage);
 			const m:TwitchatDataTypes.MessageChatData = {
 				id:localObj.message.id,
 				channel_id:channelId,
@@ -742,8 +758,8 @@ export default class PubSub extends EventDispatcher {
 				user:userData,
 				answers:[],
 				message:messageClean,
-				message_html:textMessage,
-				message_no_emotes:messageClean,
+				message_chunks:chunks,
+				message_html:messageHtml,
 				twitch_automod:{ reasons, words },
 				is_short:false,
 			}
@@ -789,23 +805,26 @@ export default class PubSub extends EventDispatcher {
 	 */
 	private async lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):Promise<void> {
 		if(localObj.low_trust_user.treatment == 'RESTRICTED') {
-			//Rebuild message
-			let textMessage = "";
+			//Build usable emotes set
+			let emotes:TwitchatDataTypes.EmoteDef[] = [];
+			let offset = 0;
 			for (let i = 0; i < localObj.message_content.fragments.length; i++) {
 				const el = localObj.message_content.fragments[i];
 				if(el.emoticon) {
-					textMessage += "<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/1.0' data-tooltip='"+el.text+"'>";
-				}else{
-					//Avoid XSS attack
-					textMessage += el.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+					emotes.push({
+						begin:offset,
+						end:offset + el.text.length,
+						id:el.emoticon.emoticonID,
+					})
 				}
+				offset += el.text.length;
 			}
 
 			const user = localObj.low_trust_user.sender;
 			const channelId = localObj.low_trust_user.channel_id;
 			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
 			userData.color = user.chat_color;
-			const messageClean = Utils.stripHTMLTags(textMessage);
+			const chunks = TwitchUtils.parseMessageToChunks(localObj.message_content.text, emotes);
 			const m:TwitchatDataTypes.MessageChatData = {
 				id:localObj.message_id,
 				channel_id:channelId,
@@ -814,9 +833,9 @@ export default class PubSub extends EventDispatcher {
 				platform:"twitch",
 				user:userData,
 				answers:[],
-				message:messageClean,
-				message_html:textMessage,
-				message_no_emotes:messageClean,
+				message:localObj.message_content.text,
+				message_chunks:chunks,
+				message_html:TwitchUtils.messageChunksToHTML(chunks),
 				twitch_isRestricted:true,
 				is_short:false,
 			}
@@ -855,8 +874,10 @@ export default class PubSub extends EventDispatcher {
 		};
 		// m.user.channelInfo[channelId].online = true;
 		if(localObj.redemption.user_input) {
+			const chunks	= TwitchUtils.parseMessageToChunks(localObj.redemption.user_input, undefined, true);
 			m.message		= localObj.redemption.user_input;
-			m.message_html	= TwitchUtils.parseEmotes(localObj.redemption.user_input, undefined, false, true);
+			m.message_chunks= chunks;
+			m.message_html	= TwitchUtils.messageChunksToHTML(chunks);
 		}
 		
 		StoreProxy.chat.addMessage(m);

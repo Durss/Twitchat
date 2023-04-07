@@ -19,7 +19,7 @@
 				:icon="$image('icons/copy.svg')"
 				class="toggleAction"
 				@click="$emit('duplicate')"
-				:data-tooltip="$t('triggers.actions.common.duplicate_tt')"
+				v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 			/>
 			<Button small highlight
 				:icon="$image('icons/cross_white.svg')"
@@ -88,25 +88,25 @@
 					:title="$t('triggers.actions.common.action_obs')"
 					:icon="$image('icons/obs_purple.svg')"
 					:disabled="!obsConnected"
-					:data-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')"/>
+					v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('tts')"
 					:title="$t('triggers.actions.common.action_tts')"
 					:icon="$image('icons/tts_purple.svg')"
 					:disabled="!$store('tts').params.enabled"
-					:data-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')"/>
+					v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('music')"
 					:title="$t('triggers.actions.common.action_music')"
 					:icon="$image('icons/spotify_purple.svg')"
 					:disabled="!musicServiceConfigured"
-					:data-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')"/>
+					v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('voicemod')"
 					:title="$t('triggers.actions.common.action_voicemod')"
 					:icon="$image('icons/voicemod_purple.svg')"
 					:disabled="!voicemodEnabled"
-					:data-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')"/>
+					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')"/>
 				
 				<Button class="button" white @click="selectActionType('trigger')"
 					:title="$t('triggers.actions.common.action_trigger')"

@@ -1,5 +1,5 @@
 <template>
-	<div class="commercialtimer" :data-tooltip="$t('global.tooltips.commercial')">
+	<div class="commercialtimer" v-tooltip="$t('global.tooltips.commercial')">
 		<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader">
 		<div>{{timeLeft}}</div>
 	</div>

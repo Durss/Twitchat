@@ -4,14 +4,14 @@
 			<Button class="scrollBt clearButton"
 				:aria-label="$t(scrollDownAuto? 'greet.auto_scroll_off_aria' : 'greet.auto_scroll_on_aria')"
 				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
-				:data-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
+				v-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
 				@click.stop="toggleScroll()" />
 
 			<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
 
 			<Button class="clearBt clearButton"
 				:icon="$image('icons/delete.svg')"
-				:data-tooltip="$t('greet.clearBt')"
+				v-tooltip="$t('greet.clearBt')"
 				@click.stop="clearAll()" />
 		</div>
 

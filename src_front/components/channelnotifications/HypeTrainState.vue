@@ -48,7 +48,7 @@
 		/>
 
 		<div class="content conductors">
-			<div v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" :data-tooltip="$t('train.conductor_subs_tt')">
+			<div v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
 				<div class="head">
 					<div class="icon"><img src="@/assets/icons/sub_purple.svg"></div>
 				</div>
@@ -64,7 +64,7 @@
 				</i18n-t>
 			</div>
 
-			<div v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" :data-tooltip="$t('train.conductor_bits_tt')">
+			<div v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
 				<div class="head">
 					<div class="icon"><img src="@/assets/icons/bits_purple.svg"></div>
 				</div>

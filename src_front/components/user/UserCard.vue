@@ -30,12 +30,12 @@
 					<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 					<div class="live" v-if="currentStream">LIVE</div>
 					<div class="title">
-						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" :data-tooltip="b.title">
+						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 						<span class="label">{{user.displayName}}</span>
 					</div>
 				</a>
 				<span class="translation" v-if="translateUsername">({{user.login}})</span>
-				<div class="subtitle" :data-tooltip="$t('global.copy')" @click="copyID()" ref="userID">ID: {{user.id}}</div>
+				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">ID: {{user.id}}</div>
 			</div>
 			
 			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
@@ -49,7 +49,7 @@
 			</div>
 
 			<div class="infoList">
-				<div class="info" :data-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
+				<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
 				
 				<div class="info" v-if="followersCount > -1"><img src="@/assets/icons/follow_outline_purple.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
 				
@@ -66,7 +66,7 @@
 					<span>{{ $t("usercard.non_subscribed") }}</span>
 				</div>
 
-				<div class="info" v-if="followDate && !is_self" :data-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow_purple.svg" alt="follow date" class="icon">{{followDate}}</div>
+				<div class="info" v-if="followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow_purple.svg" alt="follow date" class="icon">{{followDate}}</div>
 				<div class="info" v-else-if="!is_self"><img src="@/assets/icons/unfollow_purple.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
 			</div>
 			
@@ -347,7 +347,7 @@ export default class UserCard extends Vue {
 					channel_id: this.channelId,
 					message: "",
 					message_html: "",
-					message_no_emotes: "",
+					message_chunks: [],
 					answers:[],
 					is_short:false,
 				}

@@ -16,10 +16,10 @@
 				<div v-for="item in logs" :key="item.id" class="entry">
 					<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
 						<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
-						<div class="status" data-tooltip="complete" v-if="item.complete"><img src="@/assets/icons/checkmark_white.svg"></div>
-						<div class="status" data-tooltip="skipped" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
-						<div class="status" data-tooltip="pending" v-else><img src="@/assets/loader/loader_white.svg"></div>
-						<div class="status" data-tooltip="started from<br>'Test' button" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
+						<div class="status" v-tooltip="'complete'" v-if="item.complete"><img src="@/assets/icons/checkmark_white.svg"></div>
+						<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
+						<div class="status" v-tooltip="'pending'" v-else><img src="@/assets/loader/loader_white.svg"></div>
+						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
 						<div class="date">{{ getFormatedDime(item.date) }}</div>
 						<div class="title">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
 						<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>

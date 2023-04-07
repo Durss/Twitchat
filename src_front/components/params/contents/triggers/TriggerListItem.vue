@@ -2,7 +2,7 @@
 	<div class="triggerlistitem">
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
-		:data-tooltip="getCategoryLabel(entryData)">
+		v-tooltip="getCategoryLabel(entryData)">
 			<img v-if="entryData.icon" :src="entryData.icon" :style="{backgroundColor:entryData.iconBgColor}">
 			<span>{{entryData.label}}</span>
 		</button>
@@ -18,13 +18,13 @@
 		<button class="testBt" @click="$emit('test',entryData.trigger)"
 		v-if="noEdit === false"
 		:disabled="!entryData.canTest"
-		:data-tooltip="$t('triggers.testBt')">
+		v-tooltip="$t('triggers.testBt')">
 			<img src="@/assets/icons/test_purple.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
 		</button>
 
 		<button class="deleteBt" @click="$emit('delete',entryData)"
 		v-if="noEdit === false"
-		:data-tooltip="$t('triggers.deleteBt')">
+		v-tooltip="$t('triggers.deleteBt')">
 			<img src="@/assets/icons/trash_purple.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
 		</button>
 	</div>

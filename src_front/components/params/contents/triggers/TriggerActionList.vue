@@ -25,7 +25,7 @@
 			<ParamItem :paramData="param_name" v-model="triggerData.name" />
 			
 			<div class="queue">
-				<div class="info" :data-tooltip="$t('triggers.trigger_queue_info')">
+				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
 					<img src="@/assets/icons/list_purple.svg" class="icon">
 					<span>{{ $t("triggers.trigger_queue") }}</span>
 				</div>

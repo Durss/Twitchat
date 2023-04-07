@@ -67,7 +67,7 @@
 			<div class="row" v-html="$t('tips.music.info_1')"></div>
 			<div class="row">{{ $t('tips.music.info_2') }}</div>
 			<div class="row">{{ $t('tips.music.info_3') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentOverlays)" />
+			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentConnexions)" />
 		</div>
 		
 		<div v-if="tipIndex===8" class="entry">
@@ -122,7 +122,7 @@ import Button from '../Button.vue';
 	components:{
 		Button,
 	},
-	emits:["showModal", "openParam", "openParamItem", "onRead"]
+	emits:["showModal"]
 })
 export default class ChatTipAndTrickAd extends Vue {
 
@@ -130,6 +130,7 @@ export default class ChatTipAndTrickAd extends Vue {
 	private maxIndex = 11;
 
 	public get contentOverlays() { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
+	public get contentConnexions() { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get contentTriggers() { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 	public get contentObs() { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get contentStreamdeck() { return TwitchatDataTypes.ParameterPages.STREAMDECK; }
@@ -141,7 +142,7 @@ export default class ChatTipAndTrickAd extends Vue {
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 	public startTimer():void { this.$store("timer").timerStart(); }
 	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
-	public openParamItem(paramPath:string):void { this.$store("params").searchParam(paramPath); }
+	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
 }
 </script>

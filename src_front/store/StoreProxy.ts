@@ -744,6 +744,11 @@ export interface IParamsActions {
 	 * @param search 
 	 */
 	searchParam(search:string):void;
+	/**
+	 * Search for a specific param by its data path (ex: features.markAsRead)
+	 * @param search 
+	 */
+	searchParamByPath(search:string):void;
 }
 
 

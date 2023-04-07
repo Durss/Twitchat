@@ -11,15 +11,15 @@
 					<div v-for="p in presets" :key="p.id" class="preset">
 						<Button class="button" @click="deletePreset(p)"
 							:icon="$image('icons/trash.svg')"
-							:data-tooltip="$t('stream.preset_deleteBt_tt')" highlight bounce />
+							v-tooltip="$t('stream.preset_deleteBt_tt')" highlight bounce />
 							
 						<Button class="button" @click="editPreset(p)"
 							:icon="$image('icons/edit.svg')"
-							:data-tooltip="$t('stream.preset_editBt_tt')" bounce />
+							v-tooltip="$t('stream.preset_editBt_tt')" bounce />
 
 						<Button class="button" @click="applyPreset(p)"
 							:title="p.name"
-							:data-tooltip="$t('stream.preset_setBt_tt')" :loading="saving" bounce />
+							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving" bounce />
 					</div>
 				</ToggleBlock>
 				

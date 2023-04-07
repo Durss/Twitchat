@@ -10,6 +10,7 @@ import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
@@ -361,6 +362,16 @@ export const storeParams = defineStore('params', {
 		openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType):void { this.currentPage = value; },
 
 		searchParam(search:string):void { this.currentParamSearch = search; },
+
+		searchParamByPath(path:string):void {
+			const chunks = path.split(".");
+			let root = this.$state;
+			while(chunks.length > 0) {
+				//@ts-ignore
+				root = root[chunks.shift()];
+			}
+			this.currentParamSearch = StoreProxy.i18n.t(((root as unknown) as TwitchatDataTypes.ParameterData<unknown>).labelKey!);
+		},
 	} as IParamsActions
 	& ThisType<IParamsActions
 		& UnwrapRef<IParamsState>

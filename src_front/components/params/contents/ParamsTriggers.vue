@@ -14,7 +14,7 @@
 					:icon="$image('icons/obs.svg')"
 					:title="$t('triggers.resyncOBSBt')"
 					@click="listOBSSources()"
-					:data-tooltip="$t('triggers.resyncOBSBt_tt')"
+					v-tooltip="$t('triggers.resyncOBSBt_tt')"
 					:loading="loadingOBSScenes"
 				/>
 
@@ -22,7 +22,7 @@
 					:icon="$image('icons/channelPoints.svg')"
 					:title="$t('triggers.resyncRewardsBt')"
 					@click="listRewards()"
-					:data-tooltip="$t('triggers.resyncRewardsBt_tt')"
+					v-tooltip="$t('triggers.resyncRewardsBt_tt')"
 					:loading="loadingOBSScenes"
 				/>
 

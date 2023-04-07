@@ -38,10 +38,11 @@ export const storeDebug = defineStore('debug', {
 				sentencesPerParagraph: { max: 8, min: 4 },
 				wordsPerSentence: { max: 8, min: 2 }
 			});
-			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			let message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 			
 			switch(type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageChatData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -50,8 +51,8 @@ export const storeDebug = defineStore('debug', {
 						type,
 						answers:[],
 						message,
-						message_html:message,
-						message_no_emotes:message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
 						user:fakeUser,
 						is_short:false,
 					};
@@ -73,6 +74,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageWhisperData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -80,7 +82,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						message,
-						message_html:message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						user:fakeUser,
 						to:user
 					};
@@ -89,6 +92,7 @@ export const storeDebug = defineStore('debug', {
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageSubscriptionData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -96,7 +100,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						message,
-						message_html:message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						user:fakeUser,
 						months: Math.random() > .75? Math.floor(Math.random() * 6) + 1 : 0,
 						streakMonths: Math.floor(Math.random() * 46),
@@ -115,6 +120,21 @@ export const storeDebug = defineStore('debug', {
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+					let bits = 0;
+					const cheerList:string[] = [];
+					for (const key in TwitchUtils.cheermoteCache[uid]) {
+						const cheer = TwitchUtils.cheermoteCache[uid][key];
+						const count = cheer.tiers.length;
+						for (let i = 0; i < count; i++) {
+							if(Math.random() > .98) {
+								const value = cheer.tiers[i].min_bits + Math.floor(Math.random()*cheer.tiers[i].min_bits * .99);
+								bits += value;
+								cheerList.push(cheer.prefix+value);
+							}
+						}
+					}
+					message += " "+Utils.shuffle(cheerList).join(" ");
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageCheerData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -122,9 +142,10 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						message,
-						message_html:message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						user:fakeUser,
-						bits:Math.round(Math.random() * 1000),
+						bits,
 					};
 					data = m;
 					break;
@@ -1152,7 +1173,8 @@ export const storeDebug = defineStore('debug', {
 			return await this.simulateMessage(Utils.pickRand(ponderatedRandomList), (data)=> {
 				if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(forcedMessage) {
-						data.message = data.message_html = data.message_no_emotes = forcedMessage;
+						data.message_chunks = TwitchUtils.parseMessageToChunks(forcedMessage, undefined, true);
+						data.message = data.message_html = forcedMessage;
 					}
 					if(Math.random() > .1) return;
 					if(Math.random() > .9) {

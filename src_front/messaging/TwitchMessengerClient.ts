@@ -3,12 +3,12 @@ import { EventDispatcher } from "@/events/EventDispatcher";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from '@/utils/Config';
+import Utils from "@/utils/Utils";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
 
@@ -594,8 +594,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) || "1000")/1000) as (1|2|3);
 		if(message) {
+			const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
 			res.message = message;
-			res.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
+			res.message_chunks = chunks;
+			res.message_html = TwitchUtils.messageChunksToHTML(res.message_chunks);
 		}
 		return res;
 	}
@@ -622,14 +624,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message,
 			answers:[],
 			message_html:"",
-			message_no_emotes:"",
+			message_chunks:[],
 			is_short:false,
 			raw_data:{tags, message}
 		};
 
-		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"], false, tags.sentLocally == true);
-		data.message_no_emotes = Utils.stripHTMLTags(data.message_html);
-		data.is_short = data.message_no_emotes.length / data.message.length < .6 || data.message.length < 4;
+		data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
+		data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
+		data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
 				
 		// If message is an answer, set original message's ref to the answer
 		// Called when using the "answer feature" on twitch chat
@@ -739,9 +741,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
-		let message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
-		message_html = await TwitchUtils.parseCheermotes(message_html, StoreProxy.auth.twitch.user.id);
+		const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
 		const channel_id = this.getChannelID(channel);
+
+		await TwitchUtils.parseCheermotes( chunks, channel_id);//Modifies the chunks in place
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.CHEER,
@@ -751,7 +754,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			user:this.getUserFromTags(tags, channel_id),
 			bits:parseFloat(tags.bits as string) ?? -1,
 			message,
-			message_html,
+			message_chunks:chunks,
+			message_html:TwitchUtils.messageChunksToHTML(chunks),
 		}));
 	}
 

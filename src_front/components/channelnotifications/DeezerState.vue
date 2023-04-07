@@ -41,8 +41,8 @@
 					<span class="duration">{{formatDuration(t.duration)}}</span>
 				</div>
 				<div class="actions">
-					<Button @click="play(t)" :icon="$image('icons/play.svg')" small :data-tooltip="$t('music.playBt')" />
-					<Button @click="addToQueue(t)" :icon="$image('icons/list.svg')" small :data-tooltip="$t('music.add_queueBt')" />
+					<Button @click="play(t)" :icon="$image('icons/play.svg')" small v-tooltip="$t('music.playBt')" />
+					<Button @click="addToQueue(t)" :icon="$image('icons/list.svg')" small v-tooltip="$t('music.add_queueBt')" />
 				</div>
 			</div>
 		</div>

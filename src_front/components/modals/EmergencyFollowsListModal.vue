@@ -38,7 +38,7 @@
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="ban(item)"
-									:data-tooltip="$t('followbot.ban_tt')"
+									v-tooltip="$t('followbot.ban_tt')"
 									highlight
 									:icon="$image('icons/ban.svg')"
 									v-if="item.user.channelInfo[item.channel_id].is_banned !== true" />
@@ -46,24 +46,24 @@
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="unban(item)"
-									:data-tooltip="$t('followbot.unban_tt')"
+									v-tooltip="$t('followbot.unban_tt')"
 									:icon="$image('icons/unban.svg')"
 									v-if="item.user.channelInfo[item.channel_id].is_banned === true" />
 
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="unfollow(item)"
-									:data-tooltip="$t('followbot.unfollow_tt')"
+									v-tooltip="$t('followbot.unfollow_tt')"
 									highlight
 									:icon="$image('icons/unfollow_white.svg')"
 									v-if="item.user.channelInfo[item.channel_id].is_following == true" />
 
 								<Button class="cardBt" small
-									:data-tooltip="$t('followbot.details_tt')"
+									v-tooltip="$t('followbot.details_tt')"
 									@click="openCard(item)" :icon="$image('icons/info.svg')" />
 
 								<Button small @click="removeEntry(item)"
-								:data-tooltip="$t('followbot.ignore_tt')"
+								v-tooltip="$t('followbot.ignore_tt')"
 									:icon="$image('icons/trash.svg')" />
 							</div>
 						</div>

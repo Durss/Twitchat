@@ -17,12 +17,13 @@
 				<img :src="checkMarkIcon" v-if="checked" alt="icon" class="img">
 			</div>
 			<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
-			<slot class="label"></slot>
+			<span class="label" v-if="$slots.default"><slot></slot></span>
 			<input type="checkbox" :name="name" :id="name" class="checkboxInput" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
 		</div>
 
 		<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner" v-if="loading">
 		<span class="label" :class="loading? 'hide' : 'show'" v-if="title && type!='checkbox'" v-html="title"></span>
+		<span class="label" v-if="$slots.default"><slot></slot></span>
 		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
 	</component>
 </template>

@@ -4,7 +4,7 @@
 			<div class="leftForm">
 				<Button :aria-label="$t('chat.form.paramsBt_aria')" :icon="$image('icons/params.svg')" bounce @click="toggleParams()" />
 				<Button :aria-label="$t('chat.form.cmdsBt_aria')" :icon="$image('icons/commands.svg')" bounce @click="$emit('update:showCommands', true)" />
-				<Button :aria-label="$t('chat.form.usersBt_aria')" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" :data-tooltip="onlineUsersTooltip" />
+				<Button :aria-label="$t('chat.form.usersBt_aria')" :icon="$image('icons/user.svg')" bounce @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="onlineUsersTooltip" />
 				<!-- <Button :icon="$image('icons/channelPoints.svg')" bounce @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
@@ -12,7 +12,7 @@
 			<form @submit.prevent="" class="inputForm">
 				<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
 				
-					<div class="inputHolder">
+					<div class="inputHolder" v-if="!error && !spamming">
 						<div class="replyTo" v-if="$store('chat').replyTo">
 							<button class="closeBt" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross_white.svg" alt="close"></button>
 							<div class="content">
@@ -27,7 +27,6 @@
 						<input type="text"
 							class="dark"
 							v-model="message"
-							v-if="!error && !spamming"
 							ref="input"
 							:placeholder="$t('chat.form.input_placeholder')"
 							:maxlength="maxLength"
@@ -46,6 +45,7 @@
 					
 					<Button :aria-label="$t('chat.form.emoteBt_aria')"
 						:icon="$image('icons/emote.svg')"
+						v-tooltip="'ZGEGE'"
 						bounce 
 						@click="$emit('update:showEmotes',true);" />
 	
@@ -78,7 +78,7 @@
 						:icon="$image('icons/magnet.svg')"
 						bounce
 						v-if="trackedUserCount > 0"
-						:data-tooltip="$t('chat.form.trackedBt_aria')"
+						v-tooltip="$t('chat.form.trackedBt_aria')"
 						@click="$emit('setCurrentNotification', 'trackedUsers')" />
 					</transition>
 	
@@ -87,7 +87,7 @@
 						<Button :aria-label="$t('chat.form.raffleBt_aria')"
 							:icon="$image('icons/ticket.svg')"
 							bounce
-							:data-tooltip="$t('chat.form.raffleBt_aria')"
+							v-tooltip="$t('chat.form.raffleBt_aria')"
 							@click="$emit('setCurrentNotification', 'raffle')" />
 						<div class="count" v-if="$store('raffle').data!.entries && $store('raffle').data!.entries.length > 0">{{$store('raffle').data?.entries.length}}</div>
 					</div>
@@ -98,7 +98,7 @@
 						:icon="$image('icons/bingo.svg')"
 						bounce
 						v-if="$store('bingo').data"
-						:data-tooltip="$t('chat.form.bingoBt_aria')"
+						v-tooltip="$t('chat.form.bingoBt_aria')"
 						@click="$emit('setCurrentNotification', 'bingo')" />
 					</transition>
 	
@@ -107,7 +107,7 @@
 						<Button :aria-label="$t('chat.form.whispersBt_aria')"
 							:icon="$image('icons/whispers.svg')"
 							bounce
-							:data-tooltip="$t('chat.form.whispersBt_aria')"
+							v-tooltip="$t('chat.form.whispersBt_aria')"
 							@click="$emit('setCurrentNotification', 'whispers')" />
 						<div class="count" v-if="$store('chat').whispersUnreadCount > 0">{{$store('chat').whispersUnreadCount}}</div>
 					</div>
@@ -118,7 +118,7 @@
 						<Button :aria-label="$t('chat.form.pinsBt_aria')"
 							:icon="$image('icons/save.svg')"
 							bounce
-							:data-tooltip="$t('chat.form.saveBt_aria')"
+							v-tooltip="$t('chat.form.saveBt_aria')"
 							@click="$emit('pins')" />
 						<div class="count">{{$store('chat').pinedMessages.length}}</div>
 					</div>
@@ -130,7 +130,7 @@
 						@click="toggleCypher()"
 						v-if="cypherConfigured"
 						bounce
-						data-tooltip="Send encrypted<br>messages" />
+						v-tooltip="'Send encrypted<br>messages'" />
 					</transition>
 	
 					<transition name="blink">
@@ -138,7 +138,7 @@
 						:icon="$image('icons/deezer.svg')"
 						bounce
 						v-if="$store('music').deezerConnected"
-						:data-tooltip="$t('chat.form.deezerBt_aria')"
+						v-tooltip="$t('chat.form.deezerBt_aria')"
 						@click="$emit('setCurrentNotification', 'deezer')" />
 					</transition>
 	
@@ -148,7 +148,7 @@
 						bounce highlight
 						:icon="$image('icons/highlight.svg')"
 						v-if="chatHighlightEnabled"
-						:data-tooltip="$t('chat.form.highlightBt_aria')"
+						v-tooltip="$t('chat.form.highlightBt_aria')"
 						@click="removeChatHighlight()" />
 					</transition>
 	
@@ -160,7 +160,7 @@
 	
 					<div v-if="$store('params').appearance.showViewersCount.value === true
 						&& $store('stream').playbackState && $store('stream').playbackState!.viewers > 0"
-						:data-tooltip="$t('chat.form.viewer_count')"
+						v-tooltip="$t('chat.form.viewer_count')"
 						class="viewCount"
 						@click="censoredViewCount = !censoredViewCount"
 					>
@@ -175,7 +175,7 @@
 						bounce
 						v-if="voiceBotConfigured"
 						:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
-						:data-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
+						v-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
 						@click="toggleVoiceBot()" />
 					</transition>
 	
@@ -193,7 +193,7 @@
 						:icon="$image('icons/emergency.svg')"
 						bounce
 						:aria-label="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
-						:data-tooltip="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
+						v-tooltip="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
 						@click="toggleEmergencyMode()" />
 					</transition>
 	
@@ -205,7 +205,7 @@
 					<Button small class="muteBt" :aria-label="$t('chat.form.muteTTSBt_aria')"
 						:icon="$image('icons/mute.svg')"
 						v-if="$store('tts').speaking"
-						:data-tooltip="$t('chat.form.muteTTSBt_aria')"
+						v-tooltip="$t('chat.form.muteTTSBt_aria')"
 						@click="stopTTS(false)" />
 				</transition>
 
@@ -213,7 +213,7 @@
 					<Button small class="muteBt" :aria-label="$t('chat.form.clearTTSBt_aria')"
 						:icon="$image('icons/muteAll.svg')"
 						v-if="$store('tts').speaking"
-						:data-tooltip="$t('chat.form.clearTTSBt_aria')"
+						v-tooltip="$t('chat.form.clearTTSBt_aria')"
 						@click="stopTTS(true)" />
 				</transition>
 
@@ -221,7 +221,7 @@
 					<Button small class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
 						v-if="$store('voice').voicemodParams.voiceIndicator && $store('voice').voicemodCurrentVoice.voiceID != 'nofx'"
 						:icon="'data:image/png;base64,' + $store('voice').voicemodCurrentVoice.image"
-						:data-tooltip="$t('chat.form.resetVoiceBt_aria')"
+						v-tooltip="$t('chat.form.resetVoiceBt_aria')"
 						@click="resetVoiceEffect()" />
 				</transition>
 			</div>

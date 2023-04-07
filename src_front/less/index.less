@@ -48,6 +48,23 @@ h1 {
 	font-size: 1.25em;
 }
 
+.tippy-box[data-theme~='twitchat'] {
+    background-color: @mainColor_highlight;
+	box-shadow: 3px 3px 3px rgba(0,0,0,.35);
+	&[data-placement^='top']  > .tippy-arrow::before {
+		border-top-color: @mainColor_highlight;
+	}
+	&[data-placement^='left']  > .tippy-arrow::before {
+		border-left-color: @mainColor_highlight;
+	}
+	&[data-placement^='bottom']  > .tippy-arrow::before {
+		border-bottom-color: @mainColor_highlight;
+	}
+	&[data-placement^='right']  > .tippy-arrow::before {
+		border-right-color: @mainColor_highlight;
+	}
+}
+
 #dz-root {
 	position: absolute;
 	top: 0;

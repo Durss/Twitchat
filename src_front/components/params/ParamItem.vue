@@ -12,14 +12,14 @@
 			>
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 					class="helpIcon"
 				>
 				
 				<label :for="'toggle'+key"
 					v-if="label"
 					v-html="label"
-					:data-tooltip="tooltip"
+					v-tooltip="{content:tooltip, followCursor:'horizontal'}"
 					@click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
 				
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
@@ -32,10 +32,10 @@
 			<div v-if="paramData.type == 'number'" class="holder number">
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'number'+key" v-if="label" v-html="label" :data-tooltip="tooltip"></label>
+				<label :for="'number'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<input v-if="!paramData.noInput" ref="input"
 					type="number"
 					v-model.number="paramData.value"
@@ -50,10 +50,10 @@
 			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'text'+key" v-if="label" v-html="label" :data-tooltip="tooltip"></label>
+				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
 					v-model.lazy="textValue"
 					rows="2"
@@ -75,10 +75,10 @@
 			<div v-if="paramData.type == 'slider'" class="holder slider">
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'slider'+key" v-html="label" :data-tooltip="tooltip"></label>
+				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
 				<input v-if="!paramData.noInput" ref="input" type="range"
 					:min="paramData.min"
 					:max="paramData.max"
@@ -91,10 +91,10 @@
 			<div v-if="paramData.type == 'list'" class="holder list">
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'list'+key" v-html="label" :data-tooltip="tooltip"></label>
+				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
 				<select v-if="!paramData.noInput" ref="input"
 					:id="'list'+key"
 					v-model="paramData.value"
@@ -106,10 +106,10 @@
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'list'+key" v-html="label" :data-tooltip="tooltip"></label>
+				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
 				<vue-select class="listField" label="label"
 					:id="'list'+key"
 					ref="vueSelect"
@@ -138,10 +138,10 @@
 			<div v-if="paramData.type == 'browse'" class="holder browse">
 				<img v-if="paramData.example" alt="help"
 					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'browse'+key" v-if="label" :data-tooltip="tooltip" v-html="label"></label>
+				<label :for="'browse'+key" v-if="label" v-tooltip="tooltip" v-html="label"></label>
 				<input v-if="!paramData.noInput" type="text"
 					class="filePath"
 					v-model="paramData.value"
@@ -187,6 +187,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
+import { followCursor } from 'tippy.js';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly

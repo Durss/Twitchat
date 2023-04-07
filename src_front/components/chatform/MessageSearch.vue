@@ -131,6 +131,13 @@ export default class MessageSearch extends Vue {
 
 		.message {
 			margin: .25em 0;
+			
+			&:nth-child(odd) {
+				background-color: rgba(255, 255, 255, .05);
+				&:hover {
+					background-color: rgba(255, 255, 255, .2);
+				}
+			}
 		}
 	}
 

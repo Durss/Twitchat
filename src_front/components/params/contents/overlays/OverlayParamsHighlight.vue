@@ -137,6 +137,7 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -195,7 +196,8 @@ export default class OverlayParamsHighlight extends Vue {
 		});
 		
 		const uid = StoreProxy.auth.twitch.user.id;
-		const text = lorem.generateParagraphs(1);
+		const text = lorem.generateParagraphs(1)+" TakeNRG";
+		const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
 		const message:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			platform:"twitch",
@@ -205,8 +207,8 @@ export default class OverlayParamsHighlight extends Vue {
 			answers: [],
 			channel_id:uid,
 			message: text,
-			message_html: text,
-			message_no_emotes: text,
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
 			is_short: false,
 		}
 		this.$store("chat").highlightChatMessageOverlay(message);

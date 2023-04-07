@@ -48,14 +48,14 @@
 		:title="entry.counter.name" medium>
 		
 			<template #right_actions>
-				<button class="placholder" @click.stop="copyPlaceholder($event, entry.counter)" :data-tooltip="$t('global.copy')">
+				<button class="placholder" @click.stop="copyPlaceholder($event, entry.counter)" v-tooltip="$t('global.copy')">
 					<mark class="light" v-if="entry.counter.placeholderKey">{{ getCounterPlaceholder(entry.counter) }}</mark>
 				</button>
-				<span class="info min" :data-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
-				<span class="info max" :data-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
-				<span class="info loop" :data-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
-				<span class="info user" :data-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><img src="@/assets/icons/user.svg" alt="user"> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-				<Button class="actionBt" :data-tooltip="$t('counters.editBt')" :icon="$image('icons/edit.svg')" @click="editCounter(entry.counter)" />
+				<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
+				<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
+				<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
+				<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><img src="@/assets/icons/user.svg" alt="user"> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
+				<Button class="actionBt" v-tooltip="$t('counters.editBt')" :icon="$image('icons/edit.svg')" @click="editCounter(entry.counter)" />
 				<Button class="actionBt" highlight :icon="$image('icons/trash.svg')" @click="deleteCounter(entry)" />
 			</template>
 

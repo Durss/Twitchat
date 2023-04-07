@@ -33,7 +33,7 @@
 					v-if="!authenticating && oAuthURL"
 					bounce
 					:loading="generatingCSRF"
-					:data-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
+					v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 					:icon="$image('icons/twitch_white.svg')"
 				/>
 	
