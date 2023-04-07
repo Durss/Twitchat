@@ -424,7 +424,6 @@ export default class ChatMessage extends AbstractChatMessage {
 			//Manage twitch automod content
 			if(!this.lightMode && mess.twitch_automod) {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
-				highlightedWords = highlightedWords.concat(mess.twitch_automod.words);
 			}
 			
 			this.canModerateMessage = this.canModUser
@@ -501,17 +500,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			})();
 		}
 
-		if(highlightedWords.length > 0) {
-			for (let i = 0; i < highlightedWords.length; i++) {
-				let word = highlightedWords[i];
-				for (let i = 0; i < this.localMessageChunks.length; i++) {
-					const chunk = this.localMessageChunks[i];
-					if(chunk.type=="text" && chunk.value.toLowerCase().indexOf(word.toLowerCase())) {
-						// chunk.type = "highlight";
-					}
-				}
-			}
-		}
+		TwitchUtils.highlightChunks(this.localMessageChunks, highlightedWords);
 
 		//If message has just been posted and it has an occurenceCount value
 		//make it bounce
@@ -1220,7 +1209,6 @@ interface ContextMenuItem {
 		border: 1px solid @mainColor_light;
 		padding: 0 1px;
 		margin-right: .25em;
-		vertical-align: middle;
 	}
 
 	.sharedBan {
@@ -1250,9 +1238,9 @@ interface ContextMenuItem {
 		}
 
 		:deep(mark) {
-			background-color: @mainColor_normal;
+			background-color: @mainColor_highlight;
 			color: @mainColor_light;
-			padding: .2em .5em;
+			padding: 0px 5px;
 		}
 	}
 
@@ -1320,14 +1308,15 @@ interface ContextMenuItem {
 	&.automod {
 		margin-top: .25em;
 		border-radius: .25em;
-		padding-top: 0;
 		background-color: fade(@mainColor_alert, 50%);
+		padding-top: 0;
 
 		.automod {
 			background-color: fade(#fff, 90%);
 			padding: .25em;
 			border-top-left-radius: .5em;
 			border-top-right-radius: .5em;
+			margin: -.25em;//Expand over holder's padding
 			margin-bottom: 10px;
 			display: flex;
 			flex-direction: row;

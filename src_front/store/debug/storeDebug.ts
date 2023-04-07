@@ -135,6 +135,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					message += " "+Utils.shuffle(cheerList).join(" ");
 					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					await TwitchUtils.parseCheermotes( chunks, uid);
 					const m:TwitchatDataTypes.MessageCheerData = {
 						id:Utils.getUUID(),
 						platform:"twitch",

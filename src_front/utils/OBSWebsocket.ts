@@ -70,8 +70,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!ip || ip.length < 5) return false;
 		
 		try {
-			const protocol = ip == "127.0.0.1" ? "ws://" : "wss://";
-			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
+			const protocol = ip == "127.0.0.1" || ip == "localhost" ? "ws://" : "wss://";
+			const portValue = port && port.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion:1});
 			this.connected = true;
 		}catch(error) {

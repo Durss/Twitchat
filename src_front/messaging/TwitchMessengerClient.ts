@@ -741,10 +741,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
-		const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
 		const channel_id = this.getChannelID(channel);
+		const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
+		await TwitchUtils.parseCheermotes( chunks, channel_id);
 
-		await TwitchUtils.parseCheermotes( chunks, channel_id);//Modifies the chunks in place
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.CHEER,

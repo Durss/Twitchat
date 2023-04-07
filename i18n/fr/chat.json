@@ -14,7 +14,8 @@
 		"fake_tag": "fake",
 		"fake_tag_tt": "Ceci est un faux message.<br>Vous êtes seul·e à le voir.",
 		"soBt": "Shoutout",
-		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Essaie de faire un <mark>clic droit</mark> sur ce message pour découvrir plein d'options !",
+		"right_click_hint_highlight":"clic droit",
+		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options !",
 		"form": {
 			"paramsBt_aria": "Ouvrir les parameters",
 			"cmdsBt_aria": "Ouvrir les commandes",

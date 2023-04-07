@@ -229,7 +229,6 @@ export namespace TwitchDataTypes {
 		type: "text" | "emote" | "cheermote" | "url" | "highlight";
 		emote?: string;
 		emoteHD?: string;
-		label?: string;
 		href?: string;
 		value: string;
 	}

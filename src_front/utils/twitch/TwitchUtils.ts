@@ -2420,7 +2420,7 @@ export default class TwitchUtils {
 				if(e.id.indexOf("BTTV_") == 0) {
 					const bttvE = BTTVUtils.instance.getEmoteFromCode(code);
 					if(bttvE) {
-						result.push( {type:"emote", label:"BTTV: "+code, value:code, emote:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x", emoteHD:"https://cdn.betterttv.net/emote/"+bttvE.id+"/3x"} );
+						result.push( {type:"emote", value:"BTTV: "+code, emote:"https://cdn.betterttv.net/emote/"+bttvE.id+"/1x", emoteHD:"https://cdn.betterttv.net/emote/"+bttvE.id+"/3x"} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
@@ -2428,7 +2428,7 @@ export default class TwitchUtils {
 				if(e.id.indexOf("FFZ_") == 0) {
 					const ffzE = FFZUtils.instance.getEmoteFromCode(code);
 					if(ffzE) {
-						result.push( {type:"emote", label:"FFZ: "+code, value:code, emote:ffzE.urls[1], emoteHD:ffzE.urls[4]} );
+						result.push( {type:"emote", value:"FFZ: "+code, emote:ffzE.urls[1], emoteHD:ffzE.urls[4]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
@@ -2436,12 +2436,12 @@ export default class TwitchUtils {
 				if(e.id.indexOf("7TV_") == 0) {
 					const stvE = SevenTVUtils.instance.getEmoteFromCode(code);
 					if(stvE) {
-						result.push( {type:"emote", label:"7TV: "+code, value:code, emote:stvE.urls[1][1], emoteHD:stvE.urls[stvE.urls.length-1][1]} );
+						result.push( {type:"emote", value:"7TV: "+code, emote:stvE.urls[1][1], emoteHD:stvE.urls[stvE.urls.length-1][1]} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}
 				}else{
-					result.push( {type:"emote", label:code, value:code, emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/4.0"} );
+					result.push( {type:"emote", value:code, emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/4.0"} );
 				}
 				cursor = e.end + 1;
 			}
@@ -2475,29 +2475,6 @@ export default class TwitchUtils {
 		}
 		
 		return result;
-	}
-
-	/**
-	 * Replaces emotes by image tags on the message
-	 */
-	public static parseEmotes(message:string, emotes?:string, customParsing = false):string {
-		const emoteChunks = TwitchUtils.parseMessageToChunks(message, emotes, customParsing);
-		let message_html = "";
-		for (let i = 0; i < emoteChunks.length; i++) {
-			const v = emoteChunks[i];
-			if(v.type == "text") {
-				message_html += v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
-			}else if(v.type == "url") {
-				message_html += "<a href=\""+v.href+"\">"+v.value+"</a>";
-			}else if(v.type == "emote") {
-				let url = v.value.replace(/1.0$/gi, "3.0");//Twitch format
-				url = url.replace(/1x$/gi, "3x");//BTTV format
-				url = url.replace(/2x$/gi, "3x");//7TV format
-				url = url.replace(/1$/gi, "4");//FFZ format
-				message_html += "<img src='"+v.value+"' class='emote'>";
-			}
-		}
-		return message_html;
 	}
 
 	/**
@@ -2547,6 +2524,7 @@ export default class TwitchUtils {
 
 	/**
 	 * Parses cheermotes codes and replace/add necessary chunks
+	 * Modifies the chunks array in place
 	 */
 	public static async parseCheermotes(chunks:TwitchDataTypes.ParseMessageChunk[], channel_id:string):Promise<TwitchDataTypes.ParseMessageChunk[]> {
 		let cheermotes:TwitchDataTypes.CheermoteSet[];
@@ -2596,14 +2574,53 @@ export default class TwitchUtils {
 									break;
 								}
 							}
-							node.label = list.prefix+tiers.min_bits;
+							node.value = list.prefix+tiers.min_bits;
 							node.emote = tiers.images.dark.animated["2"] ?? tiers.images.dark.static["2"];
 							node.emoteHD = tiers.images.dark.animated["4"] ?? tiers.images.dark.static["4"];
 						}
 						chunks.splice(j, 0, node);
 						j++
-					})
+					});
 				}
+			}
+		}
+		return chunks;
+	}
+
+	/**
+	 * Updates a chunked message to highlight specific words.
+	 * First call parseMessageToChunks() to generate compatible chunks, then call
+	 * this method with the words you want to convert to "highlight" nodes
+	 * Modifies the chunks array in place
+	 */
+	public static highlightChunks(chunks:TwitchDataTypes.ParseMessageChunk[], words:string[]):TwitchDataTypes.ParseMessageChunk[] {
+		for (let i = 0; i < words.length; i++) {
+			const word = words[i].toLowerCase();
+			for (let j = 0; j < chunks.length; j++) {
+				const chunk = chunks[j];
+				if(chunk.type != "text") continue;
+				if(chunk.value.toLowerCase().indexOf(word) == -1) continue;
+
+				//Cheermote found, remove current chunk and replace it by sub chunks
+				chunks.splice(j,1);
+				
+				//Split chunk into subchunks by cheermote codes
+				const regSafeWord = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				const reg = new RegExp("("+regSafeWord+"[a-z]*)", "gi");
+				let res = chunk.value.split(reg);
+				
+				//Parse all sub chunks
+				res.forEach(v=> {
+					reg.lastIndex = 0;
+					const isWord = reg.test(v);
+					//Create new chunk node
+					const node:TwitchDataTypes.ParseMessageChunk = {
+						type: isWord? "highlight" : "text",
+						value:v,
+					};
+					chunks.splice(j, 0, node);
+					j++
+				});
 			}
 		}
 		return chunks;
