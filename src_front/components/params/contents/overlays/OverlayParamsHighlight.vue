@@ -116,7 +116,7 @@
 			</div>
 			
 			<div class="row footer">
-				<i18n-t tag="div" keypath="overlay.highlight.alternative_tool">
+				<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
 					<template #URL>
 						<a href="https://featured.chat" target="_blank">featured.chat</a>
 					</template>
