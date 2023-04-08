@@ -7,17 +7,20 @@
 
 		<input v-if="users.length > 0" type="text" v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
 
+		<tooltip content="okkkkkk" ref="tooltip"></tooltip>
+
 		<div class="list" v-if="users.length > 0 && filter">
 			<div v-if="filter" class="item">
 				<div class="emotes">
 					<img
 						class="emote"
 						v-for="e in filteredEmotes"
-						:key="e.id"
+						:key="e.id+e.code"
+						:ref="e.id+e.code"
 						loading="lazy" 
 						:src="e.images.url_1x"
 						:alt="e.code"
-						v-tooltip="'<img src='+e.images.url_4x+' width=\'112\' class=\'emote\'><br><center>'+e.code+'</center>'"
+						@mouseover="openTooltip($event, e)"
 						@click="$emit('select', e.code)">
 				</div>
 			</div>
@@ -36,11 +39,13 @@
 					<img
 						class="emote"
 						v-for="e in u.emotes"
-						:key="e.id"
+						:key="e.id+e.code"
+						:ref="e.id+e.code"
+						:id="'emote_'+e.id+e.code"
 						loading="lazy" 
 						:src="e.images.url_1x"
 						:alt="e.code"
-						v-tooltip="'<img src='+e.images.url_4x+' width=\'112\' class=\'emote\'><br><center>'+e.code+'</center>'"
+						@mouseover="openTooltip($event, e)"
 						@click="$emit('select', e.code)">
 				</div>
 			</div>
@@ -57,6 +62,7 @@ import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
+import { useTippy } from 'vue-tippy';
 
 @Component({
 	components:{},
@@ -268,6 +274,20 @@ export default class EmoteSelector extends Vue {
 
 	public beforeUnmount():void {
 		document.removeEventListener("mousedown", this.clickHandler);
+	}
+	
+	/**
+	 * Create tooltip only when hovering the image.
+	 * This avoids huge lag on build if creating tooltip on every items
+	 * at once.
+	 * 
+	 * @param event 
+	 * @param emote 
+	 */
+	public openTooltip(event:MouseEvent, emote:TwitchatDataTypes.Emote):void {
+		useTippy(event.currentTarget as HTMLImageElement, {
+			content: "<img src="+emote.images.url_4x+" width=\"112\" class=\"emote\"><br><center>"+emote.code+"</center>",
+		});
 	}
 
 	private open():void {
