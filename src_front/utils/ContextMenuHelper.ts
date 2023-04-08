@@ -104,12 +104,12 @@ export default class ContextMenuHelper {
 		//Chat highlight
 		let highlightIndex = options.length;
 		options.push({ 
-			label: t("chat.context_menu.highlight"),
+			label: t("chat.context_menu.highlight_loading"),
 			icon: this.getIcon("icons/highlight.svg"),
 			disabled:true,
 		});
 		options[highlightIndex].onClick = () => {
-			if(options[highlightIndex].disabled) {
+			if(options[highlightIndex].customClass == "no_overlay") {
 				//Open parameters if overlay is not found
 				StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamOverlaySections.HIGHLIGHT);
 			}else{
@@ -354,7 +354,10 @@ export default class ContextMenuHelper {
 		
 		//Update "highlight message" state according to overlay presence
 		this.getHighlightOverPresence().then(res => {
-			menu.items[highlightIndex].disabled = !res;
+			const item = menu.items[highlightIndex];
+			item.label = t("chat.context_menu.highlight");
+			item.disabled = false;
+			item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
 		});
 	}
 	
@@ -431,12 +434,15 @@ export default class ContextMenuHelper {
 		})
 	}
 
+	/**
+	 * Check if the "chat highlight" overlay exists or not
+	 */
 	private getHighlightOverPresence():Promise<boolean> {
 		return new Promise((resolve, reject)=> {
 			const timeout = setTimeout(() =>{
 				resolve(false);
 				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			}, 2000)
+			}, 1000)
 			let handler = (e:TwitchatEvent)=> {
 				clearTimeout(timeout)
 				resolve(true);

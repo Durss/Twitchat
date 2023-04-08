@@ -315,6 +315,7 @@
 			"tts_all_start": "Read all their messages with TTS",
 			"tts_all_stop": "Stop reading their messages",
 			"highlight": "Highlight message",
+			"highlight_loading": "loading status...",
 			"pin": "Pin message",
 			"save": "Save message",
 			"unsave": "Unsave message",
