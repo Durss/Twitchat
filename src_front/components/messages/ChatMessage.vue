@@ -146,27 +146,23 @@
 
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
-import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import ContextMenuHelper from '@/utils/ContextMenuHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import type * as CMTypes from "@imengyu/vue3-context-menu";
-import { watch, type VNode } from '@vue/runtime-core';
+import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
-import { h } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
-import ContextMenuTimeoutDuration from './components/ContextMenuTimeoutDuration.vue';
-import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{
@@ -215,7 +211,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
 	private canModerateMessage:boolean = false;
-	private canModUser:boolean = false;
+	private canModerateUser:boolean = false;
 	
 	
 	public get showNofollow():boolean{
@@ -398,7 +394,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			});
 		}
 
-		this.canModUser = (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster
+		this.canModerateUser = (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster
 						|| (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator
 							&& !this.messageData.user.channelInfo[this.messageData.channel_id].is_moderator))
 						&& this.messageData.user.id != StoreProxy.auth.twitch.user.id;
@@ -426,13 +422,13 @@ export default class ChatMessage extends AbstractChatMessage {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
 			}
 			
-			this.canModerateMessage = this.canModUser
+			this.canModerateMessage = this.canModerateUser
 									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
 									&& this.canModerateMessage//if not sent by broadcaster
-									&& this.canModUser;//If we're a mod or the broadcaster
+									&& this.canModerateUser;//If we're a mod or the broadcaster
 
 
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
@@ -639,301 +635,11 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public onContextMenu(e:MouseEvent|TouchEvent):void {
 		if(this.contextMenuOff !== false) return;
-		const me = this.$store("auth").twitch.user;
-
 		if(e.target) {
 			const el = e.target as HTMLElement;
 			if(el.tagName == "A") return;
 		}
-		
-		e.preventDefault();
-
-		let px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
-		let py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
-		
-		if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
-			//Make sure the hint message is not sent anymore
-			DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, "true")
-		}
-
-		const options:ContextMenuItem[]= [];
-		const user = this.messageData.user;
-
-		options.push({
-					label:this.messageData.user.displayName,
-					disabled:true,
-					customClass:"header"
-				});
-		options.push({ 
-					label: this.$t("chat.context_menu.shoutout"),
-					icon: this.$image("icons/shoutout.svg"),
-					onClick: () => this.$store("users").shoutout(this.messageData.channel_id, user),
-				});
-
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			options.push({ 
-						label: this.$t("chat.context_menu.answer"),
-						icon: this.$image("icons/reply.svg"),
-						onClick: () => {
-							this.$store("chat").replyTo = this.messageData as TwitchatDataTypes.MessageChatData;
-						}
-					});
-		}
-
-		if(user.is_tracked) {
-			options.push({ 
-						label: this.$t("chat.context_menu.untrack"),
-						icon: this.$image("icons/magnet.svg"),
-						onClick: () => this.$store("users").untrackUser(user),
-					});
-		}else{
-			options.push({ 
-						label: this.$t("chat.context_menu.track"),
-						icon: this.$image("icons/magnet.svg"),
-						onClick: () => this.$store("users").trackUser(user),
-					});
-		}
-
-		options.push({ 
-					label: this.$t("chat.context_menu.highlight"),
-					icon: this.$image("icons/highlight.svg"),
-					onClick: () => this.$store("chat").highlightChatMessageOverlay(this.messageData),
-				});
-		
-		if(this.messageData.is_saved) {
-			options.push({ 
-						label: this.$t("chat.context_menu.unsave"),
-						icon: this.$image("icons/save.svg"),
-						onClick: () => this.$store("chat").unsaveMessage(this.messageData),
-					});
-
-		}else{
-			options.push({ 
-						label: this.$t("chat.context_menu.save"),
-						icon: this.$image("icons/save.svg"),
-						onClick: () => this.$store("chat").saveMessage(this.messageData),
-					});
-		}
-		
-		if(this.$store("tts").params.enabled) {
-			options.push({ 
-						label: this.$t("chat.context_menu.tts"),
-						icon: this.$image("icons/tts.svg"),
-						onClick: () => this.$store("tts").ttsReadMessage(this.messageData),
-					});
-
-
-			const username = user.login.toLowerCase();
-			const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
-			if (permissions.usersAllowed.findIndex(v => v.toLowerCase() === username) == -1) {
-				options.push({ 
-							label: this.$t("chat.context_menu.tts_all_start"),
-							icon: this.$image("icons/tts.svg"),
-							onClick: () => this.$store("tts").ttsReadUser(user, true),
-						});
-			} else {
-				options.push({ 
-							label: this.$t("chat.context_menu.tts_all_stop"),
-							icon: this.$image("icons/tts.svg"),
-							onClick: () => this.$store("tts").ttsReadUser(user, false),
-						});
-			}
-		}
-		options.push({ 
-					label: this.$t("chat.context_menu.profile"),
-					icon: this.$image("icons/user.svg"),
-					onClick: () => this.openUserCard(user),
-				});
-
-		if(this.canModerateMessage) {
-			options[options.length-1].divided = true;
-			const m:TwitchatDataTypes.MessageChatData = this.messageData as TwitchatDataTypes.MessageChatData;
-			options.push({ 
-						label: m.is_pinned === true? this.$t("chat.context_menu.unpin_twitch") : this.$t("chat.context_menu.pin_twitch"),
-						icon: m.is_pinned === true? this.$image("icons/unpin.svg") : this.$image("icons/pin.svg"),
-						customClass:"disabled",
-						onClick: () => {
-							this.$store("main").alert(this.$t("error.no_pin_api"));
-						},
-					});
-					
-			let classes = "alert";
-			if(m.deleted!== true) {
-				if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
-				options.push({ 
-							label: this.$t("chat.context_menu.delete"),
-							icon: this.$image("icons/trash.svg"),
-							customClass:classes,
-							onClick: () => {
-								if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
-									!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
-									return;
-								}
-								this.$store("chat").deleteMessageByID(m.id)
-							},
-						});
-			}
-		}
-		if(this.canModUser) {
-			let classesBan = "alert";
-			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
-			let classesBlock = "alert";
-			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
-			if(!this.canModerateMessage) options[options.length-1].divided = true;
-			options.push(
-					{ 
-						label: this.$t("chat.context_menu.to"),
-						customClass:classesBan,
-						icon: this.$image("icons/timeout.svg"),
-						onClick: () => {
-							this.timeoutUser(1);
-						},
-						children: [
-							{
-								label: "1s",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(1),
-							},
-							{
-								label: "10s",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(10),
-							},
-							{
-								label: "1m",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(60),
-							},
-							{
-								label: "5m",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(60 * 5),
-							},
-							{
-								label: "10m",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(60 * 10),
-							},
-							{
-								label: "30m",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(60 * 30),
-							},
-							{
-								label: "1h",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(60 * 60),
-							},
-							{
-								label: "24h",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(60 * 60 * 24),
-							},
-							{
-								label: "1w",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(60 * 60 * 24 * 7),
-							},
-							{
-								label: "4w",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(60 * 60 * 24 * 7 * 4),
-							},
-							{
-								label: "1w",
-								customRender: () => h(ContextMenuTimeoutDuration, {
-									user:this.messageData.user,
-									channelId:this.messageData.channel_id,
-								})
-							},
-						]
-					});
-			if(this.channelInfo.is_banned) {
-				options.push({ 
-							label: this.$t("chat.context_menu.unban"),
-							icon: this.$image("icons/unban.svg"),
-							customClass:classesBan,
-							onClick: () => {
-								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-								TwitchUtils.unbanUser(user, this.messageData.channel_id);
-							},
-						});
-			}else{
-				options.push({ 
-							label: this.$t("chat.context_menu.ban"),
-							icon: this.$image("icons/ban.svg"),
-							customClass:classesBan,
-							onClick: () => this.banUser(this.messageData.channel_id),
-						});
-			}
-
-			//Message not posted on our own channel, add a button to ban on our own channel.
-			if(this.messageData.channel_id != me.id) {
-				if(this.messageData.user.channelInfo[me.id]?.is_banned) {
-					options.push({ 
-							label: this.$t("chat.context_menu.unban_myRoom"),
-							icon: this.$image("icons/unban.svg"),
-							customClass:classesBan,
-							onClick: () => {
-								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-								TwitchUtils.unbanUser(user, me.id);
-							},
-						});
-				}else{
-					options.push({ 
-							label: this.$t("chat.context_menu.ban_myRoom"),
-							icon: this.$image("icons/ban.svg"),
-							customClass:classesBan,
-							onClick: () => this.banUser(me.id),
-						});
-				}
-			}
-			if(this.messageData.user.is_blocked) {
-				options.push({ 
-							label: this.$t("chat.context_menu.unblock"),
-							icon: this.$image("icons/unblock.svg"),
-							customClass:classesBlock,
-							onClick: () => {
-								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
-								TwitchUtils.unblockUser(user);
-							},
-						});
-			}else{
-				options.push({ 
-							label: this.$t("chat.context_menu.block"),
-							icon: this.$image("icons/block.svg"),
-							customClass:classesBlock,
-							onClick: () => this.blockUser(),
-						});
-			}
-		}
-
-		const items:CMTypes.MenuItem[] = [];
-		options.forEach(v=> {
-			let item:CMTypes.MenuItem = { label: h("span", {class:"label", innerHTML:v.label})};
-			if(v.children) item.children = v.children;
-			if(v.customClass) item.customClass = v.customClass;
-			if(v.customRender) item.customRender = v.customRender;
-			if(v.disabled) item.disabled = v.disabled;
-			if(v.divided) item.divided = v.divided;
-			if(v.checked) item.checked = v.checked;
-			if(v.onClick) item.onClick = v.onClick;
-			if(v.icon) item.icon = h('img', {
-						src: v.icon,
-						style: {
-						width: '1em',
-						height: '1em',
-						}
-					});
-			item.clickableWhenHasChildren = true;
-			items.push(item);
-		})
-		this.$contextmenu({
-			theme: 'mac dark',
-			x: px,
-			y: py,
-			items,
-		});
+		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser);
 	}
 	
 	/**
@@ -975,65 +681,6 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 		}
 	}
-
-	/**
-	 * Timeouts a user
-	 * 
-	 * @param duration ban duration. Don't specify to perma ban
-	 */
-	public timeoutUser(duration:number):void {
-		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-		if(this.messageData.fake === true) {
-			//Avoid banning user for real if doing it from a fake message
-			this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id, duration);
-		}else{
-			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, duration);
-		}
-	}
-
-	/**
-	 * Permanently ban a user after confirmation
-	 */
-	public banUser(channelId:string):void {
-		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
-		.then(() => {
-			if(this.messageData.fake === true) {
-				//Avoid banning user for real if doing it from a fake message
-				this.$store("users").flagBanned(this.messageData.platform, channelId, this.messageData.user.id);
-			}else{
-				TwitchUtils.banUser(this.messageData.user, channelId, undefined, this.$t("global.moderation_action.ban_reason"));
-			}
-		})
-	}
-
-	/**
-	 * Block a user after confirmation
-	 */
-	public blockUser():void {
-		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
-		this.$confirm(this.$t("chat.mod_tools.block_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.block_confirm_desc"))
-		.then(() => {
-			if(this.messageData.fake === true) {
-				//Avoid banning user for real if doing it from a fake message
-				this.$store("users").flagBlocked(this.messageData.platform, this.messageData.user.id);
-			}else{
-				TwitchUtils.blockUser(this.messageData.user);
-			}
-		})
-	}
-}
-
-interface ContextMenuItem {
-	label:string;
-	checked?:boolean;
-	disabled?:boolean;
-	divided?:boolean;
-	customClass?:string;
-	icon?:string;
-	onClick?:()=>void;
-	customRender?:VNode | ((item: CMTypes.MenuItem) => VNode);
-	children?:ContextMenuItem[];
 }
 </script>
 
@@ -1051,6 +698,7 @@ interface ContextMenuItem {
 		.message {
 			background-color: @mainColor_normal;
 			color:#fff;
+			padding: 0 .5em;
 		}
 	}
 

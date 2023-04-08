@@ -42,6 +42,7 @@ export default class StoreProxy {
 	public static rewards:IRewardsState & IRewardsGetters & IRewardsActions & {$state:IRewardsState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
+	public static image:(path: string) => string;
 	
 }
 
@@ -673,10 +674,19 @@ export interface IParamsState {
 	 */
 	currentPage:TwitchatDataTypes.ParameterPagesStringType;
 	/**
+	 * Just a storage for an optionnal "currentPage" sub parameter.
+	 * Ex: Used to expand a specific overlay section on the Overlays page.
+	 */
+	currentPageSubContent:unknown;
+	/**
 	 * Current parameters search
 	 * Set when using the search form at the top of the parameters homepage
 	 */
 	currentParamSearch:string;
+	/**
+	 * Current modal to open
+	 */
+	currentModal:TwitchatDataTypes.ModalTypes;
 	/**
 	 * Duration after which a 1st user message today is removed from the list
 	 */
@@ -734,7 +744,7 @@ export interface IParamsActions {
 	 * Open a specific parameters page
 	 * @param value 
 	 */
-	openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType):void;
+	openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType, subContent?:string):void;
 	/**
 	 * Close parameters
 	 */

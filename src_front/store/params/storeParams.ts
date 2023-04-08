@@ -16,6 +16,8 @@ export const storeParams = defineStore('params', {
 	state: () => ({
 		currentPage:"",
 		currentParamSearch:"",
+		currentPageSubContent:"",
+		currentModal:"",
 		greetThemAutoDelete: 600,
 		features: {
 			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show_purple.svg"},
@@ -359,7 +361,10 @@ export const storeParams = defineStore('params', {
 
 		closeParameters():void { this.currentPage = ""; this.currentParamSearch = ""; },
 
-		openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType):void { this.currentPage = value; },
+		openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType, subContent?:unknown):void {
+			this.currentPageSubContent = subContent
+			this.currentPage = value;
+		},
 
 		searchParam(search:string):void { this.currentParamSearch = search; },
 
