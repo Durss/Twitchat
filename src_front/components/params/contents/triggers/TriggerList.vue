@@ -160,28 +160,28 @@ export default class TriggerList extends Vue {
 		});
 		// list = list.slice(0, 10);
 
-		let prevType:TriggerEventTypeCategoryID|null = null;
 		const categories:TriggerListCategoryEntry[] = [];
-		let currentCategory!:TriggerListCategoryEntry;
 		let triggerBuildIndex = 0;
+		let idToCategory:{[key:string]:TriggerListCategoryEntry} = {}
 		
 		for (const key in triggerList) {
 			const trigger = triggerList[key];
-				//Create new category
+			//Create new category
 			const index = TriggerTypesDefinitionList().findIndex(v=> v.value == trigger.type);
-			if(index > -1) {
-				const triggerType = TriggerTypesDefinitionList()[index];
-				if(triggerType.category.id != prevType) {
-					currentCategory = {
-						index:index,
-						icon: triggerType.category.icon,
-						labelKey: triggerType.category.labelKey,
-						triggerList: [],
-					};
-					categories.push(currentCategory);
-					this.triggerCategories.push(currentCategory);
-					prevType = triggerType.category.id;
-				}
+			
+			if(index == -1) continue
+
+			const triggerType = TriggerTypesDefinitionList()[index];
+			if(!idToCategory[triggerType.category.id]) {
+				let currentCategory = {
+					index:index,
+					icon: triggerType.category.icon,
+					labelKey: triggerType.category.labelKey,
+					triggerList: [],
+				};
+				categories.push(currentCategory);
+				this.triggerCategories.push(currentCategory);
+				idToCategory[triggerType.category.id] = currentCategory;
 			}
 			
 			//Parse trigger
@@ -196,7 +196,7 @@ export default class TriggerList extends Vue {
 			const buildIndex = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
 			const entry:TriggerListEntry = { index:buildIndex, label:info.label, trigger, icon, canTest };
 			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
-			currentCategory.triggerList.push(entry);
+			idToCategory[triggerType.category.id].triggerList.push(entry);
 		}
 
 		this.triggerCategories.sort((a,b)=>{
