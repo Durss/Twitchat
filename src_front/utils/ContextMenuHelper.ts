@@ -357,7 +357,7 @@ export default class ContextMenuHelper {
 			const item = menu.items[highlightIndex];
 			item.label = t("chat.context_menu.highlight");
 			item.disabled = false;
-			item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
+			if(!res) item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
 		});
 	}
 	
