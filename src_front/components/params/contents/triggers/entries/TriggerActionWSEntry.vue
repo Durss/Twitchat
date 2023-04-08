@@ -1,5 +1,14 @@
 <template>
 	<div class="triggeractionwsentry">
+		<div class="item info warn" v-if="!websocketConnected">
+			<img src="@/assets/icons/infos.svg" alt="info">
+			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.http_ws.need_to_connect">
+				<template #LINK>
+					<a @click="$store('params').openParamsPage(contentConnexions)">{{ $t("triggers.actions.http_ws.need_to_connect_link") }}</a>
+				</template>
+			</i18n-t>
+		</div>
+	
 		<div class="row item">
 			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			<ParamItem class="item argument" :paramData="param_topic" v-model="action.topic" />
@@ -11,7 +20,8 @@
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
 import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionWSData, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -30,6 +40,9 @@ export default class TriggerActionWSEntry extends Vue {
 	public securityError:boolean = false;
 	public param_options:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public param_topic:TwitchatDataTypes.ParameterData<string> = { label:"<mark>topic</mark>", type:"string", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder", maxLength:255 };
+
+	public get websocketConnected():boolean { return WebsocketTrigger.instance.connected; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
 	public beforeMount():void {
 
