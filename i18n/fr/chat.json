@@ -1,7 +1,7 @@
 {
 	"chat": {
 		"closeBt_aria": "Fermer",
-		"delete_col_confirm_title": "Supprimer colonne ?",
+		"delete_col_confirm_title": "Supprimer colonne ?",
 		"delete_col_confirm_desc": "Voulez-vous supprimer cette colonne ? Vous ne pourrez pas revenir en arrière",
 		"paused": "Chat mis en pause",
 		"no_message": "- aucun message -",
@@ -298,7 +298,7 @@
 			"blockBt": "Block",
 			"ban_confirm_title": "Bannir {USER}",
 			"ban_confirm_desc": "Voulez-vous vraiment bannir cette personne ?",
-			"block_confirm_title": "BLoquer {USER}",
+			"block_confirm_title": "Bloquer {USER}",
 			"block_confirm_desc": "Voulez-vous vraiment bloquer cette personnes ?<br>Elle sera supprimée de vos followers."
 		},
 		"context_menu":{
@@ -307,13 +307,13 @@
 			"pin_twitch": "Épingler le message",
 			"unpin_twitch": "Désépingler le message",
 			"track": "Suivre ses messages",
-			"untrack": "Ne plus suivre<br>ses messages",
+			"untrack": "Ne plus suivre ses messages",
 			"shoutout": "Faire un shoutout",
 			"answer": "Répondre",
 			"tts": "Lire via TTS",
-			"tts_all": "Lire tous ses<br>messages via TTS",
-			"tts_all_start": "Lire tous ses<br>messages via TTS",
-			"tts_all_stop": "Arrêter de lire<br>ses messages",
+			"tts_all": "Lire tous ses messages via TTS",
+			"tts_all_start": "Lire tous ses messages via TTS",
+			"tts_all_stop": "Arrêter de lire ses messages",
 			"highlight": "Mettre en avant",
 			"pin": "Epingler le message",
 			"save": "Enregistrer le message",

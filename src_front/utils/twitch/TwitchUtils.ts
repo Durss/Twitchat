@@ -2574,7 +2574,7 @@ export default class TwitchUtils {
 									break;
 								}
 							}
-							node.value = list.prefix+tiers.min_bits;
+							node.value = list.prefix+": "+bitsCount+" bits";
 							node.emote = tiers.images.dark.animated["2"] ?? tiers.images.dark.static["2"];
 							node.emoteHD = tiers.images.dark.animated["4"] ?? tiers.images.dark.static["4"];
 						}

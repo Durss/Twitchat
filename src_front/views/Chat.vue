@@ -10,7 +10,7 @@
 						<GreetThem class="greetThem" v-if="panelsColIndexTarget == c.order && $store('params').features.firstMessage.value === true" />
 	
 						<MessageList ref="messages" class="messages"
-							@showModal="(v:TwitchatDataTypes.ModalTypes) => currentModal = v"
+							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store('params').currentModal = v"
 							@addColumn="addColumn"
 							:config="c"
 							filterId="chat"/>
@@ -31,17 +31,17 @@
 		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
-			<PollForm			class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-			<ChatSuggestionForm	class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-			<RaffleForm			class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" :voiceControl="voiceControl" />
-			<PredictionForm		class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" :voiceControl="voiceControl" />
-			<BingoForm			class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
-			<LiveFollowings		class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
-			<StreamInfoForm		class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
-			<TTUserList			class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
-			<PinedMessages		class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
-			<TimerForm			class="popin" v-if="currentModal == 'timer'" @close="currentModal = ''" />
-			<TriggersLogs		class="popin" v-if="currentModal == 'triggersLogs'" @close="currentModal = ''" />
+			<PollForm			class="popin" v-if="$store('params').currentModal == 'poll'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
+			<ChatSuggestionForm	class="popin" v-if="$store('params').currentModal == 'chatpoll'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
+			<RaffleForm			class="popin" v-if="$store('params').currentModal == 'raffle'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
+			<PredictionForm		class="popin" v-if="$store('params').currentModal == 'pred'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
+			<BingoForm			class="popin" v-if="$store('params').currentModal == 'bingo'" @close="$store('params').currentModal = ''" />
+			<LiveFollowings		class="popin" v-if="$store('params').currentModal == 'liveStreams'" @close="$store('params').currentModal = ''" />
+			<StreamInfoForm		class="popin" v-if="$store('params').currentModal == 'streamInfo'" @close="$store('params').currentModal = ''" />
+			<TTUserList			class="popin" v-if="$store('params').currentModal == 'TTuserList'" @close="$store('params').currentModal = ''" />
+			<PinedMessages		class="popin" v-if="$store('params').currentModal == 'pins'" @close="$store('params').currentModal = ''" />
+			<TimerForm			class="popin" v-if="$store('params').currentModal == 'timer'" @close="$store('params').currentModal = ''" />
+			<TriggersLogs		class="popin" v-if="$store('params').currentModal == 'triggersLogs'" @close="$store('params').currentModal = ''" />
 		</Teleport>
 
 
@@ -55,14 +55,14 @@
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
-				@poll="currentModal = 'poll'"
-				@chatpoll="currentModal = 'chatpoll'"
-				@pred="currentModal = 'pred'"
-				@raffle="currentModal = 'raffle'"
-				@bingo="currentModal = 'bingo'"
-				@liveStreams="currentModal = 'liveStreams'"
-				@TTuserList="currentModal = 'TTuserList'"
-				@pins="currentModal = 'pins'"
+				@poll="$store('params').currentModal = 'poll'"
+				@chatpoll="$store('params').currentModal = 'chatpoll'"
+				@pred="$store('params').currentModal = 'pred'"
+				@raffle="$store('params').currentModal = 'raffle'"
+				@bingo="$store('params').currentModal = 'bingo'"
+				@liveStreams="$store('params').currentModal = 'liveStreams'"
+				@TTuserList="$store('params').currentModal = 'TTuserList'"
+				@pins="$store('params').currentModal = 'pins'"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
@@ -80,7 +80,7 @@
 
 		<DevmodeMenu class="contentWindows devmode"
 			v-if="showDevMenu"
-			@triggersLogs="currentModal = 'triggersLogs'"
+			@triggersLogs="$store('params').currentModal = 'triggersLogs'"
 			@close="showDevMenu = false" />
 
 		<!-- <MessageList class="contentWindows feed"
@@ -90,7 +90,6 @@
 
 		<CommandHelper class="contentWindows actions"
 			v-if="showCommands"
-			@openModal="openModal"
 			@close="showCommands = false"
 		/>
 
@@ -111,11 +110,11 @@
 
 		<UserCard />
 
-		<Changelog v-if="currentModal == 'updates'" @close="currentModal = ''" />
+		<Changelog v-if="$store('params').currentModal == 'updates'" @close="$store('params').currentModal = ''" />
 
-		<Gngngn v-if="currentModal == 'gngngn'" @close="currentModal = ''" />
+		<Gngngn v-if="$store('params').currentModal == 'gngngn'" @close="$store('params').currentModal = ''" />
 		
-		<Login v-if="currentModal == 'login'" @close="currentModal = ''" scopeOnly />
+		<Login v-if="$store('params').currentModal == 'login'" @close="$store('params').currentModal = ''" scopeOnly />
 
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
@@ -227,7 +226,6 @@ export default class Chat extends Vue {
 	public panelsColIndexTarget = 0;
 	public forceEmergencyFollowClose = false;
 	public panelsColumnTarget:HTMLDivElement|null = null;
-	public currentModal:TwitchatDataTypes.ModalTypes = "";
 	public currentNotificationContent = "";
 	
 	private disposed = false;
@@ -326,14 +324,14 @@ export default class Chat extends Vue {
 		//Watch for columns changes
 		watch(() => this.$store('auth').newScopesToRequest, () => {
 			if(this.$store('auth').newScopesToRequest.length === 0) return null;
-			this.currentModal = "login";
+			this.$store("params").currentModal = "login";
 		}, {deep:true});
 
 		//Watch for current modal to be displayed
-		watch(()=>this.currentModal, ()=>{
+		watch(()=>this.$store("params").currentModal, (value)=>{
 			this.voiceControl = false;
 
-			if(this.panelsColumnTarget && this.currentModal) {
+			if(this.panelsColumnTarget && value) {
 				const col = this.panelsColumnTarget.parentNode as HTMLDivElement;
 				const scrollable = this.$refs.scrollable as HTMLDivElement;
 				const scrollTo = {x:col.offsetLeft - (scrollable.offsetWidth-col.offsetWidth), y:col.offsetTop - (scrollable.offsetHeight - col.offsetHeight)/2};
@@ -467,10 +465,6 @@ export default class Chat extends Vue {
 		}});
 	}
 
-	public openModal(type:TwitchatDataTypes.ModalTypes):void {
-		this.currentModal = type;
-	}
-
 	/**
 	 * Called when requesting an action from the public API
 	 */
@@ -502,7 +496,7 @@ export default class Chat extends Vue {
 				break;
 
 			case TwitchatEvent.POLL_START:
-				this.currentModal = 'poll';
+				this.$store('params').currentModal = 'poll';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -518,7 +512,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.PREDICTION_START:
-				this.currentModal = 'pred';
+				this.$store('params').currentModal = 'pred';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -534,7 +528,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.RAFFLE_START:{
-				this.currentModal = 'raffle';
+				this.$store('params').currentModal = 'raffle';
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -630,10 +624,10 @@ export default class Chat extends Vue {
 		}
 
 		if(modal) {
-			if(this.currentModal == modal) {
-				this.currentModal = "";
+			if(this.$store('params').currentModal == modal) {
+				this.$store('params').currentModal = "";
 			}else{
-				this.currentModal = modal;
+				this.$store('params').currentModal = modal;
 			}
 		}
 	}
@@ -648,7 +642,7 @@ export default class Chat extends Vue {
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
 		if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
 		&& m.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES) {
-			this.currentModal = "updates";
+			this.$store('params').currentModal = "updates";
 		}
 	}
 
@@ -667,7 +661,7 @@ export default class Chat extends Vue {
 	 * Called when searching for a message
 	 */
 	public searchMessage(str:string):void {
-		this.currentModal = 'search';
+		this.$store('params').currentModal = 'search';
 	}
 
 	/**

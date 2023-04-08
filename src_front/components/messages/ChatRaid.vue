@@ -5,7 +5,7 @@
 		<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" keypath="chat.raid.text">
+			<i18n-t scope="global" tag="span" keypath="chat.raid.text" :plural="messageData.viewers">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
 				</template>
@@ -17,7 +17,7 @@
 
 			<div class="streamInfo">
 				<div class="infos">
-					<i18n-t scope="global" :keypath="messageData.stream.wasLive? 'chat.raid.current_stream' : 'chat.raid.previous_stream'" tag="p" :plural="messageData.viewers">
+					<i18n-t scope="global" :keypath="messageData.stream.wasLive? 'chat.raid.current_stream' : 'chat.raid.previous_stream'" tag="p">
 						<template #CATEGORY>
 							<strong>{{messageData.stream.category}}</strong>
 						</template>

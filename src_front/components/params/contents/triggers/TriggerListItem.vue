@@ -2,7 +2,7 @@
 	<div class="triggerlistitem">
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
-		v-tooltip="getCategoryLabel(entryData)">
+		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
 			<img v-if="entryData.icon" :src="entryData.icon" :style="{backgroundColor:entryData.iconBgColor}">
 			<span>{{entryData.label}}</span>
 		</button>

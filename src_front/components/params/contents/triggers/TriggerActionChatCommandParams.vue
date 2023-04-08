@@ -75,23 +75,35 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 		//Make sure no other chat command has the same name
 		const triggers = this.$store("triggers").triggerList;
-				
-		let cmdListLocal = this.triggerData.chatCommandAliases?.concat() ?? [];
-		if(this.triggerData.chatCommand) cmdListLocal.push(this.triggerData.chatCommand!);
+		const aliases = this.triggerData.chatCommandAliases?.concat().map(v=>v.toLowerCase()) ?? []
+		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
+		
+		//Check if aliases contain the main command
+		if(mainCmd && aliases.indexOf(mainCmd) > -1) {
+			this.cmdAliasConflict = true;
+			return;
+		}
+		
+		//Check if any other trigger contain the same command
+		let cmdListLocal = aliases;
+		if(mainCmd) cmdListLocal.push(mainCmd);
 		for (let i = 0; i < triggers.length; i++) {
 			if(triggers[i].type == TriggerTypes.CHAT_COMMAND
 			&& triggers[i].id != this.triggerData.id) {
+				//Create an array with main command and aliases concatenated
 				let cmdList = triggers[i].chatCommandAliases?.concat() ?? [];
 				if(triggers[i].chatCommand) cmdList.push(triggers[i].chatCommand!);
+				cmdList.map(v=>v.toLowerCase());
 
-				if(cmdList.findIndex(v=> v.toLowerCase() === this.triggerData.chatCommand?.toLowerCase()) > -1) {
+				//Check if trigger contains the main command of the current trigger
+				if(cmdList.findIndex(v=> v === mainCmd) > -1) {
 					this.cmdNameConflict = true;
 				}
-
-				const aliases = this.triggerData.chatCommandAliases ?? [];
+				
+				//Check if trigger contains an alias of the current trigger
 				for (let j = 0; j < aliases.length; j++) {
 					const alias = aliases[j];
-					if(cmdList.findIndex(v=> v.toLowerCase() === alias.toLowerCase()) > -1) {
+					if(cmdList.findIndex(v=> v === alias) > -1) {
 						this.cmdAliasConflict = true;
 					}
 				}

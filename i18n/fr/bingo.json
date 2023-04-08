@@ -17,7 +17,7 @@
 		"emote_info":"Vos viewers devront envoyer l'une des <strong>{COUNT}</strong> emotes Twitch disponibles <i>(smileys exclus)</i>",
 		"custom_info":"Vos viewers devront envoyer le message suivant",
 		
-		"goal_emote":"Trouver une emotes globale de Twitch",
+		"goal_emote":"Trouver une emote globale de Twitch",
 		"goal_number":"Trouver un nombre compris entre {MIN} et {MAX}",
 		"goal_custom":"",
 

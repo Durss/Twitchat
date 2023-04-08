@@ -43,7 +43,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/music/DeezerHelper';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -59,8 +59,10 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 	emits:[]
 })
 export default class OverlayParamsDeezer extends Vue {
+	
+	@Prop({default:false})
+	public open!:boolean;
 
-	public open = false;
 	public authenticating = false;
 	public currentTrack:TwitchatDataTypes.MusicTrackData = {title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 

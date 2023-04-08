@@ -6,6 +6,15 @@ export namespace TwitchatDataTypes {
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
 	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login";
+	
+	export const ParamOverlaySections = {
+		WHEEL: "wheel",
+		TIMER: "timer",
+		COUNTER: "counter",
+		HIGHLIGHT: "highlight",
+		SPOTIFY: "spotify",
+	} as const;
+	export type ParamOverlaySectionsStringType = typeof ParamOverlaySections[keyof typeof ParamOverlaySections];
 
 	/**
 	 * Parameters menue categories

@@ -263,7 +263,7 @@ export const storeAuth = defineStore('auth', {
 					}, 5000);
 				}else
 				//Show "right click message" hint
-				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT) || true) {
+				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
 					setTimeout(()=>{
 						StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
 							const m = message as TwitchatDataTypes.MessageChatData;

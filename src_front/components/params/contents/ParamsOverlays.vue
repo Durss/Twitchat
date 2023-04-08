@@ -36,12 +36,12 @@
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
 		
-		<OverlayParamsRaffle class="block" v-if="true || exchangeChannelAvailable" />
-		<OverlayParamsTimer class="block" v-if="true || exchangeChannelAvailable" />
-		<OverlayParamsCounter class="block" v-if="true || exchangeChannelAvailable" />
-		<OverlayParamsHighlight class="block" v-if="true || exchangeChannelAvailable" />
-		<OverlayParamsSpotify class="block" v-if="true || exchangeChannelAvailable && spotifyConfigured" />
-		<!-- <OverlayParamsDeezer class="block" v-if="true || exchangeChannelAvailable && deezerConfigured" /> -->
+		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
+		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
+		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
+		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
+		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
+		<!-- <OverlayParamsDeezer class="block" /> -->
 	</div>
 </template>
 
@@ -51,13 +51,13 @@ import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
+import type IParameterContent from './IParameterContent';
+import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 import OverlayParamsDeezer from './overlays/OverlayParamsDeezer.vue';
 import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
 import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
-import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
-import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -84,6 +84,10 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 
 	public onNavigateBack(): boolean { return false; }
+
+	public get subContent():TwitchatDataTypes.ParamOverlaySectionsStringType {
+		return (this.$store("params").currentPageSubContent) as TwitchatDataTypes.ParamOverlaySectionsStringType;
+	}
 
 }
 </script>
@@ -121,6 +125,24 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		:deep(.icon) {
 			width: 1.5em;
 			height: 1.5em;
+		}
+
+		&.selected {
+			border: 5px solid transparent;
+			border-radius: 1em;
+			animation: blink .5s 3 forwards;
+			animation-delay: 1s;
+			@keyframes blink {
+				0% {
+					border-color: @mainColor_highlight;
+				}
+				50% {
+					border-color: transparent;
+				}
+				100% {
+					border-color: @mainColor_highlight;
+				}
+			}
 		}
 	}
 

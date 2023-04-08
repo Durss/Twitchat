@@ -100,7 +100,7 @@
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
 				"param_message": "Message à envoyer dans le tchat",
-				"conflict": "Une commande avec le même nom existe déjà",
+				"conflict": "Une commande du même nom existe déjà",
 				"allowed_users": "Personnes autorisées à utiliser la commande",
 				"param_cmd": "Commande",
 				"param_cmd_alias": "Alias",
@@ -184,7 +184,9 @@
 				"output_placeholder":"Enregistrer le résultat de la requête dans le placeholder",
 				"output_placeholder_placeholder":"placeholder...",
 				"select_param": "Choisissez les paramètres à inclure :",
-				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse."
+				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse.",
+				"need_to_connect": "Cette action nécessite de vous {LINK}",
+				"need_to_connect_link": "connecter à un serveur websocket"
 			},
 			"count": {
 				"value_label":"Valeur à ajouter ou retirer",

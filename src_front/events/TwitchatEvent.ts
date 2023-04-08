@@ -35,6 +35,7 @@ export default class TwitchatEvent extends Event {
 	public static RAFFLE_RESULT:TwitchatEventType = "RAFFLE_RESULT";
 	public static EMERGENCY_MODE:TwitchatEventType = "EMERGENCY_MODE";
 	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
+	public static CHAT_HIGHLIGHT_OVERLAY_CONFIRM:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_CONFIRM";
 	public static VOICEMOD_CHANGE:TwitchatEventType = "VOICEMOD_CHANGE";
 	public static SET_COLS_COUNT:TwitchatEventType = "SET_COLS_COUNT";
 	public static COUNTER_UPDATE:TwitchatEventType = "COUNTER_UPDATE";
@@ -144,6 +145,7 @@ export const TwitchatEventTypeList = [
 	"RAFFLE_RESULT",
 	"EMERGENCY_MODE",
 	"CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
+	"CHAT_HIGHLIGHT_OVERLAY_CONFIRM",
 	"VOICEMOD_CHANGE",
 	"SET_COLS_COUNT",
 	"COUNTER_UPDATE",

@@ -135,6 +135,8 @@ export default class OverlayChatHighlight extends Vue {
 			await this.$nextTick();
 			this.showCurrent();
 		}
+
+		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CONFIRM);
 	}
 
 	private async onShowClip(e:TwitchatEvent):Promise<void> {
@@ -147,6 +149,8 @@ export default class OverlayChatHighlight extends Vue {
 		this.message = "";
 		this.user = null;
 		this.clipPercent = 0;
+
+		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_CONFIRM);
 	}
 
 	public onIFrameLoaded(e:unknown):void {

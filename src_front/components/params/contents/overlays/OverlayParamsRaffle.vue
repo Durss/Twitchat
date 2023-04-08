@@ -1,9 +1,9 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket_purple']">
 		<div class="holder">
-			<div class="row">{{ $t("overlay.raffle.head") }}</div>
-
+			
 			<div class="row">
+				<div class="info">{{ $t("overlay.raffle.head") }}</div>
 				<input type="text" v-model="overlayUrl">
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.raffle.css") }}</div>
@@ -39,7 +39,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import type { JsonArray } from "type-fest";
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -51,8 +51,10 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	}
 })
 export default class OverlayParamsRaffle extends Vue {
+	
+	@Prop({default:false})
+	public open!:boolean;
 
-	public open = false;
 	public loading = false;
 	public overlayExists = false;
 
@@ -122,6 +124,13 @@ export default class OverlayParamsRaffle extends Vue {
 		.row {
 			display: flex;
 			flex-direction: column;
+			padding: .5em;
+			border-radius: .5em;
+			background-color: fade(@mainColor_normal, 15%);
+
+			.info {
+				margin-bottom: .5em;
+			}
 
 			&.center {
 				align-items: center;

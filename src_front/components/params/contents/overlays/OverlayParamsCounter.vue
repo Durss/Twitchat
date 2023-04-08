@@ -55,7 +55,7 @@
 import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 
@@ -69,7 +69,9 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 })
 export default class OverlayParamsCounter extends Vue {
 	
-	public open = false;
+	@Prop({default:false})
+	public open!:boolean;
+	
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
 		placeholderKey:"",

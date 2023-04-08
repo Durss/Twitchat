@@ -45,7 +45,6 @@
 					
 					<Button :aria-label="$t('chat.form.emoteBt_aria')"
 						:icon="$image('icons/emote.svg')"
-						v-tooltip="'ZGEGE'"
 						bounce 
 						@click="$emit('update:showEmotes',true);" />
 	
@@ -118,7 +117,7 @@
 						<Button :aria-label="$t('chat.form.pinsBt_aria')"
 							:icon="$image('icons/save.svg')"
 							bounce
-							v-tooltip="$t('chat.form.saveBt_aria')"
+							v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:true}"
 							@click="$emit('pins')" />
 						<div class="count">{{$store('chat').pinedMessages.length}}</div>
 					</div>
@@ -143,13 +142,13 @@
 					</transition>
 	
 					<transition name="blink">
-					<Button :aria-label="$t('chat.form.highlightBt_aria')"
-						class="chatHighlight"
-						bounce highlight
-						:icon="$image('icons/highlight.svg')"
-						v-if="chatHighlightEnabled"
-						v-tooltip="$t('chat.form.highlightBt_aria')"
-						@click="removeChatHighlight()" />
+						<Button :aria-label="$t('chat.form.highlightBt_aria')"
+							v-if="chatHighlightEnabled"
+							class="chatHighlight"
+							bounce highlight
+							:icon="$image('icons/highlight.svg')"
+							v-tooltip="{content:$t('chat.form.highlightBt_aria'), showOnCreate:true}"
+							@click="removeChatHighlight()" />
 					</transition>
 	
 					<CommunityBoostInfo v-if="$store('stream').communityBoostState" />
@@ -581,11 +580,6 @@ export default class ChatForm extends Vue {
 			this.stopSpam();
 		}else
 		
-		if(cmd == "/folowbot") {
-			EventSub.instance.simulateFollowbotRaid();
-			this.message = "";
-		}else
-		
 		if(cmd == "/cypherkey") {
 			//Secret feature hehehe ( ͡~ ͜ʖ ͡°)
 			this.$store("main").setCypherKey(params[0]);
@@ -620,12 +614,6 @@ export default class ChatForm extends Vue {
 		if(cmd == "/logmessages") {
 			//App version
 			console.log(this.$store("chat").messages)
-			this.message = "";
-		}else
-		
-		if(cmd == "/deletemessage") {
-			//Delete a chat message from its ID
-			TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id, params[0])
 			this.message = "";
 		}else
 		
@@ -692,14 +680,11 @@ export default class ChatForm extends Vue {
 			}
 			this.message = "";
 		
+		}else if(cmd == "/bingo" && params[0] != "number" && params[0] != "emote" && params[0] != "custom") {
+				if(event) event.preventDefault();//avoid auto submit of the opening form
+				this.$emit("bingo");
+				this.message = "";
 		}else{
-			
-			if(cmd == "/bingo") {
-				if(params[0] != "number" && params[0] != "emote" && params[0] != "custom") {
-					if(event) event.preventDefault();//avoid auto submit of the opening form
-					this.$emit("bingo");
-				}
-			}
 
 			//Send message
 			try {
@@ -990,6 +975,7 @@ export default class ChatForm extends Vue {
 			.inputHolder {
 				position: relative;
 				flex-grow: 1;
+				flex-basis: 150px;
 				
 				.replyTo {
 					top: -.25em;

@@ -224,6 +224,7 @@ function buildApp() {
 	//Init stores before instanciating the router because the
 	//router needs to access some stores
 	StoreProxy.i18n = i18n.global;
+	StoreProxy.image = image;
 	StoreProxy.main = storeMain();
 	StoreProxy.account = storeAccount();
 	StoreProxy.auth = storeAuth();

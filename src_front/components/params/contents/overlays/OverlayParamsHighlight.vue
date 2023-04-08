@@ -1,10 +1,11 @@
-}<template>
-	<ToggleBlock :open="false" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight_purple']">
-		<div class="row">{{ $t("overlay.highlight.head") }}</div>
-		
-		<iframe src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<template>
+	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight_purple']">
 		
 		<div class="holder">
+			<div class="row">{{ $t("overlay.highlight.head") }}</div>
+			
+			<a class="link" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="demo"></a>
+
 			<div class="row">
 				<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
 				<input type="text" id="highlight_overlay_url" v-model="overlayUrl">
@@ -134,7 +135,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -146,6 +147,9 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	}
 })
 export default class OverlayParamsHighlight extends Vue {
+	
+	@Prop({default:false})
+	public open!:boolean;
 	
 	public overlayExists = false;
 	public placement:TwitchatDataTypes.ScreenPosition = "bl";
@@ -181,6 +185,21 @@ export default class OverlayParamsHighlight extends Vue {
 			}
 			this.$store("chat").setChatHighlightOverlayParams(data);
 		})
+	}
+
+	public mounted():void {
+		if(this.open) {
+			setTimeout(()=> {
+				const target = this.$el;
+				//@ts-ignore
+				if(target.scrollIntoViewIfNeeded) {
+					//@ts-ignore
+					target.scrollIntoViewIfNeeded();//Works everywhere but firefox
+				}else{
+					target.scrollIntoView(false);
+				}
+			}, 500);
+		}
 	}
 
 	public beforeUnmount():void {
@@ -219,23 +238,28 @@ export default class OverlayParamsHighlight extends Vue {
 
 <style scoped lang="less">
 .overlayparamshighlight{
-	iframe {
-		margin:auto;
-		display: block;
-		margin-top: .5em;
-		max-height: 200px;
-		aspect-ratio: 16 / 9;
-	}
 	
 	.holder {
-		margin-top: 1em;
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
+		gap: .5em;
+
+		.link {
+			.demo {
+				margin:auto;
+				display: block;
+				max-height: 150px;
+				aspect-ratio: 16 / 9;
+				border-radius: .5em;
+			}
+		}
 
 		.row {
 			display: flex;
 			flex-direction: column;
+			padding: .5em;
+			border-radius: .5em;
+			background-color: fade(@mainColor_normal, 15%);
 
 			&.center {
 				align-items: center;

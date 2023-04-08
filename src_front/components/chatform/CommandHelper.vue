@@ -60,7 +60,7 @@ import ParamItem from '../params/ParamItem.vue';
 		Button,
 		ParamItem,
 	},
-	emits:[ "openModal", "close" ]
+	emits:[ "close" ]
 })
 export default class CommandHelper extends Vue {
 	
@@ -175,7 +175,7 @@ export default class CommandHelper extends Vue {
 				}break;
 			}
 		}
-		this.$emit("openModal", type);
+		this.$store("params").currentModal = type;
 		this.close();
 	}
 
