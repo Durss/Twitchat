@@ -299,7 +299,8 @@
 			"counter_update_abs": "Value added (absolute value)",
 			"counter_username": "User name (for user specific counters)",
 			"counter_userid": "User ID (for user specific counters)",
-			"counter_global_value": "Get {NAME} counter value"
+			"counter_global_value": "Get {NAME} counter value",
+			"watch_streak": "Watch streak count"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -614,6 +615,10 @@
 				"label": "Create custom slash command",
 				"description": "Actions to execute when using command {SUB_ITEM_NAME}.{INFO}",
 				"description_info": "(Only you can use this type of command and it will never be sent on chat)"
+			},
+			"USER_WATCH_STREAK": {
+				"label": "Watch streak",
+				"description": "Actions to execute when a user share their watch streak"
 			}
 		},
 		"musicEvents": {

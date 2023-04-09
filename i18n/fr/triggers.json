@@ -299,7 +299,8 @@
 			"counter_update_abs": "Valeur ajoutée (valuer absolue)",
 			"counter_username": "Pseudo (pour les compteurs utilisateur)",
 			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)",
-			"counter_global_value": "Valeur du compteur {NAME}"
+			"counter_global_value": "Valeur du compteur {NAME}",
+			"watch_streak": "Nombre de streams consécutifs vus"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -616,6 +617,10 @@
 				"label": "Slash command personnalisée",
 				"description": "Actions à exécuter lorsque la commande {SUB_ITEM_NAME} est utilisée.{INFO}",
 				"description_info": "Ce type ne commande n'est utilisable que par vous et ne sera pas envoyée dans le tchat."
+			},
+			"USER_WATCH_STREAK": {
+				"label": "Série de visionnage",
+				"description": "Actions à exécuter lorsque quelqu'un partage sa série de visionnages"
 			}
 		},
 		"musicEvents": {
