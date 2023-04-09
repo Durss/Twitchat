@@ -937,6 +937,25 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageWatchStreakData = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user:fakeUser,
+						channel_id:uid,
+						streak:Utils.pickRand([3,6,9]),//Not sure thera are other valid values than 3
+					};
+					data = m;
+					break;
+				}
 			}
 
 			data.fake = true;

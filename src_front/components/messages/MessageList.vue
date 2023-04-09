@@ -618,6 +618,11 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: {
 				return true
 			}
+
+			case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
+				return this.config.filters.user_watch_streak !== false;
+			}
+
 			default: return false;
 		}
 	}

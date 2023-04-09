@@ -7,6 +7,8 @@ export namespace TwitchatDataTypes {
 	
 	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login";
 	
+	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "sugg" | "save" | "tracked" | "highlight" | "shoutout" | "whispers" | "deezer";
+	
 	export const ParamOverlaySections = {
 		WHEEL: "wheel",
 		TIMER: "timer",
@@ -1200,6 +1202,7 @@ export namespace TwitchatDataTypes {
 		COUNTER_UPDATE:"counter_update",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		USER_WATCH_STREAK:"user_watch_streak",
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
 		OBS_FILTER_TOGGLE:"obs_filter_toggle",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
@@ -1259,6 +1262,7 @@ export namespace TwitchatDataTypes {
 		stream_offline:true,
 		chat_highlight:false,//Used for "highlight on overlay" events
 		counter_update:false,
+		user_watch_streak:true,
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_source_toggle:false,
@@ -1268,8 +1272,8 @@ export namespace TwitchatDataTypes {
 		low_trust_treatment:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
-		obs_input_mute_toggle:false,
 		music_added_to_queue:false,
+		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
 		hype_train_approaching:false,
 		clip_pending_publication:true,
@@ -1361,7 +1365,8 @@ export namespace TwitchatDataTypes {
 									| MessageRaidStartData
 									| MessagePinData
 									| MessageScopeRequestData
-									| MessageMarkerCreated
+									| MessageMarkerCreatedData
+									| MessageWatchStreakData
 	;
 	
 	/**
@@ -1397,6 +1402,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.TWITCHAT_AD,
 		TwitchatMessageType.SUBSCRIPTION,
 		TwitchatMessageType.STREAM_ONLINE,//also works for STREAM_OFFLINE
+		TwitchatMessageType.USER_WATCH_STREAK,
 		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
 		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
@@ -1425,6 +1431,7 @@ export namespace TwitchatDataTypes {
 		message:true,
 		following:true,
 		subscription:true,
+		user_watch_streak:true,
 	}
 
 	export interface GreetableMessage extends AbstractTwitchatMessage {
@@ -1452,11 +1459,11 @@ export namespace TwitchatDataTypes {
 	 * A regular user's message 
 	 */
 	export interface MessageChatData extends GreetableMessage {
+		type:"message";
 		/**
 		 * Channel ID the message has been posted in
 		 */
 		channel_id: string;
-		type:"message";
 		/**
 		 * User that posted the message
 		 */
@@ -2702,11 +2709,26 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a "marker created" message
 	 */
-	export interface MessageMarkerCreated extends MessageNoticeData {
+	export interface MessageMarkerCreatedData extends MessageNoticeData {
 		/**
 		 * User that created the marker
 		 */
 		user:TwitchatUser;
+	}
+
+	/**
+	 * Represents a user watch streak
+	 */
+	export interface MessageWatchStreakData extends GreetableMessage {
+		type:"user_watch_streak";
+		/**
+		 * User that created the marker
+		 */
+		user:TwitchatUser;
+		/**
+		 * Number of consecutive streams the user watched
+		 */
+		streak:number;
 	}
 
 }

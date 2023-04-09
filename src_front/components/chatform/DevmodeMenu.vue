@@ -10,6 +10,7 @@
 			<Button small title="First message" @click="simulateEvent('message', 'first')" :icon="$image('icons/firstTime.svg')" />
 			<Button small title="Returning user" @click="simulateEvent('message', 'returning')" :icon="$image('icons/returning.svg')" />
 			<Button small title="Presentation" @click="simulateEvent('message', 'presentation')" :icon="$image('icons/firstTime.svg')" />
+			<Button small title="Watch streak" @click="simulateEvent('user_watch_streak')" :icon="$image('icons/watchStreak.svg')" />
 			<Button small title="Incoming raid" @click="simulateEvent('raid')" :icon="$image('icons/raid.svg')" />
 			<Button small title="Outgoing raid" @click="startFakeRaid()" :icon="$image('icons/raid.svg')" />
 			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="$image('icons/bits.svg')" />

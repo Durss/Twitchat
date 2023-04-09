@@ -88,6 +88,7 @@
 				"community_boost_complete": "Boost de stream",
 				"community_challenge_contribution": "Défis de communauté",
 				"pinned": "Alertes de messages épinglés",
+				"user_watch_streak": "Streams consécutifs vus",
 				"stream_online": "Stream commencé/arrêté"
 			},
 			"message_filters": {
@@ -354,6 +355,9 @@
 		},
 		"marker": {
 			"created": "Marqueur créé avec succès"
+		},
+		"watch_streak":{
+			"label": "{USER} a assisté à {COUNT} streams consécutifs ce mois-ci !"
 		}
 	}
 }

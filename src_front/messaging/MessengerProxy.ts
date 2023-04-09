@@ -103,6 +103,7 @@ export default class MessengerProxy {
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.CONNECTED, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.DISCONNECTED, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REFRESH_TOKEN, (e:MessengerClientEvent)=> this.onRefreshToken(e));
+		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.WATCH_STREAK, (e:MessengerClientEvent)=> this.onMessage(e));
 	}
 
 	/**

@@ -126,6 +126,10 @@
 	<ChatAutobanJoin class="message"
 		v-else-if="messageData.type == 'autoban_join'"
 		:messageData="messageData" />
+
+	<ChatWatchStreak class="message"
+		v-else-if="messageData.type == 'user_watch_streak'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -164,6 +168,7 @@ import ChatStreamOnOff from './ChatStreamOnOff.vue';
 import ChatSubscription from './ChatSubscription.vue';
 import ChatTimerResult from './ChatTimerResult.vue';
 import ChatUnban from './ChatUnban.vue';
+import ChatWatchStreak from './ChatWatchStreak.vue';
 
 @Component({
 	components:{
@@ -185,6 +190,7 @@ import ChatUnban from './ChatUnban.vue';
 		ChatPollResult,
 		ChatStreamOnOff,
 		ChatBingoResult,
+		ChatWatchStreak,
 		ChatTimerResult,
 		ChatAutobanJoin,
 		ChatRoomSettings,

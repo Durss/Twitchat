@@ -249,6 +249,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "chat.filters.message_types.prediction";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= "chat.filters.message_types.subscription";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "chat.filters.message_types.stream_online";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "chat.filters.message_types.user_watch_streak";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "chat.filters.message_types.hype_train_summary";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "chat.filters.message_types.hype_train_cooled_down";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]			= "chat.filters.message_types.community_boost_complete";
@@ -277,6 +278,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "watchStreak.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost.svg";
@@ -317,6 +319,7 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
 			TwitchatDataTypes.TwitchatMessageType.LEAVE,
 			TwitchatDataTypes.TwitchatMessageType.NOTICE,
+			TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK,
 			TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
 			TwitchatDataTypes.TwitchatMessageType.WHISPER,
 			TwitchatDataTypes.TwitchatMessageType.MESSAGE,

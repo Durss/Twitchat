@@ -938,6 +938,23 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const tags = data.tags as tmi.ChatUserstate;
 					tags.username = tags.login;
 					this.message(params[0], tags, params[1], false);
+				}else
+
+				//Handle viewer milestone (AKA consecutive watched streams)
+				if(((data.tags as tmi.ChatUserstate)["msg-param-category"] as unknown) === "watch-streak") {
+					const tags = data.tags as tmi.ChatUserstate;
+					const channelId = tags["room-id"] as string;
+					const user = this.getUserFromTags(tags, channelId);
+					const eventData:TwitchatDataTypes.MessageWatchStreakData = {
+						channel_id: channelId,
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK,
+						date:Date.now(),
+						platform:"twitch",
+						streak:tags["msg-param-value"] as number,
+						user,
+					};
+					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
 				}
 
 				//Handle subgift summaries
