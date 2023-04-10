@@ -1076,6 +1076,10 @@ export namespace TwitchatDataTypes {
 		 * Only available after making a subgift
 		 */
 		totalSubgifts?:number;
+		/**
+		 * Store the date at which this user last got a shoutout
+		 */
+		lastShoutout?:number;
 	}
 	
 	/**
@@ -1153,6 +1157,33 @@ export namespace TwitchatDataTypes {
 			page?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
 			param?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
 		}
+	}
+
+	/**
+	 * Contains the info about a past or pending shoutout
+	 */
+	export interface ShoutoutHistoryItem {
+		id:string;
+		/**
+		 * User receiving the shoutout
+		 */
+		user:TwitchatDataTypes.TwitchatUser;
+		/**
+		 * Has the shoutout been actually done ?
+		 */
+		done:boolean;
+		/**
+		 * Is it a fake entry ?
+		 * A fake entry is used when trying to SO someone while there's
+		 * a cooldown but Twitchat doesn't know.
+		 * This happens if we SO soemone when Twitchat isn't started,
+		 * in which case we create an empty item on the history that
+		 * will be used as a reference.
+		 * This flag is set to true so the related user cooldown isn't
+		 * affected by it. Without that the user would get a 1h cooldown
+		 * instead of a 2min cooldown
+		 */
+		fake?:boolean;
 	}
 
 

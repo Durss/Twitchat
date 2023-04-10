@@ -431,6 +431,7 @@ export const TriggerTypes = {
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
+	TWITCHAT_SHOUTOUT_QUEUE:"shoutout_queue",
 } as const;
 export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];

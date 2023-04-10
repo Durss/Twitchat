@@ -229,7 +229,6 @@ interface ChannelUserList {
 .userlist{
 	.window();
 
-	overflow-y: auto;
 	font-size: 16px;
 	padding-bottom: 0;
 

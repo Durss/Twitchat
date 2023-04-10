@@ -69,6 +69,7 @@
 				v-model:showRewards="showRewards" @update:showRewards="(v:boolean) => showRewards = v"
 				v-model:showCommands="showCommands" @update:showCommands="(v:boolean) => showCommands = v"
 				v-model:showChatUsers="showChatUsers" @update:showChatUsers="(v:boolean) => showChatUsers = v"
+				v-model:showShoutout="showShoutout" @update:showShoutout="(v:boolean) => showShoutout = v"
 				v-model:showDevMenu="showDevMenu" @update:showDevMenu="(v:boolean) => showDevMenu = v"
 			/>
 		</div>
@@ -101,6 +102,10 @@
 		<UserList class="contentWindows users"
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
+
+		<ShoutoutList class="contentWindows shoutout"
+			v-if="showShoutout"
+			@close="showShoutout = false" />
 		
 		<Parameters />
 		
@@ -177,6 +182,7 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
+import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
 
 @Component({
 	components:{
@@ -198,6 +204,7 @@ import Login from './Login.vue';
 		MessageList,
 		DevmodeMenu,
 		RewardsList,
+		ShoutoutList,
 		TriggersLogs,
 		Accessibility,
 		CommandHelper,
@@ -221,12 +228,13 @@ export default class Chat extends Vue {
 	public showDevMenu = false;
 	public showCommands = false;
 	public voiceControl = false;
+	public showShoutout = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;
 	public panelsColIndexTarget = 0;
 	public forceEmergencyFollowClose = false;
 	public panelsColumnTarget:HTMLDivElement|null = null;
-	public currentNotificationContent = "";
+	public currentNotificationContent:TwitchatDataTypes.NotificationTypes = "";
 	
 	private disposed = false;
 	private mouseX = 0;
@@ -469,11 +477,11 @@ export default class Chat extends Vue {
 	 * Called when requesting an action from the public API
 	 */
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
-		let notif = "";
+		let notif:TwitchatDataTypes.NotificationTypes = "";
 		let modal:TwitchatDataTypes.ModalTypes = "";
 		switch(e.type) {
 			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
-			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'pred'; break;
+			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'prediction'; break;
 			case TwitchatEvent.BINGO_TOGGLE: notif = 'bingo'; break;
 			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
 			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
@@ -646,7 +654,7 @@ export default class Chat extends Vue {
 		}
 	}
 
-	public setCurrentNotification(value:string):void {
+	public setCurrentNotification(value:TwitchatDataTypes.NotificationTypes):void {
 		this.currentNotificationContent = value;
 	}
 
@@ -884,9 +892,6 @@ export default class Chat extends Vue {
 			max-width: 50vw;
 			margin: auto;
 		}
-		&.actions, &.emotes, &.devmode {
-			max-height: calc(100vh - 60px);
-		}
 	}
 	.tts {
 		position: absolute;
@@ -997,7 +1002,7 @@ export default class Chat extends Vue {
 
 	.contentWindows {
 		position: absolute;
-		bottom: 40px;
+		bottom: 45px;
 		left: 0;
 		z-index: 2;
 

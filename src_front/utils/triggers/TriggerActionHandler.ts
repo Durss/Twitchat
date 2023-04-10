@@ -566,6 +566,12 @@ export default class TriggerActionHandler {
 			await this.checkLiveFollowings().catch(()=>{});
 			return true;
 		}
+	
+		//Special case for friends stream start/stop notifications
+		if(trigger.type == TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE) {
+			StoreProxy.users.executePendingShoutouts();
+			return true;
+		}
 		
 		//Special case for twitchat's ad, generate trigger data
 		if(trigger.type == TriggerTypes.TWITCHAT_AD) {

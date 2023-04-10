@@ -735,11 +735,12 @@ export default class EventSub {
 			category = stream.game_name;
 		}
 		
+		let channel_id = event.broadcaster_user_id;
 		const message:TwitchatDataTypes.MessageShoutoutData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitch",
-			channel_id:event.broadcaster_user_id,
+			channel_id,
 			type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
 			user,
 			viewerCount:event.viewer_count,
@@ -751,6 +752,30 @@ export default class EventSub {
 			received,
 		};
 		StoreProxy.chat.addMessage(message);
+
+		//If it's a sent shoutout, store it on the history
+		if(!received) {
+			console.log("ES : Shoutout received");
+			let list = StoreProxy.users.shoutoutHistory[channel_id];
+			if(!list) list = [];
+			let item = list.find(v=>v.done == false && v.user.id === user.id);
+			//Set the last SO date of the user
+			user.channelInfo[channel_id].lastShoutout = Date.now();
+			if(!item) {
+				console.log("ES : Create item");
+				//No matching item found on the list, push it
+				list.push({
+					id:Utils.getUUID(),
+					done:true,
+					user
+				})
+			}else{
+				console.log("ES : Update item", item);
+				//Update existing item
+				item.done = true;
+			}
+			StoreProxy.users.shoutoutHistory[channel_id] = list;
+		}
 	}
 	
 }

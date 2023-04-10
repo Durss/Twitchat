@@ -780,6 +780,14 @@ import Ajv from "ajv";
 				secured: {type:"boolean"},
 			}
 		},
+
+		tooltipAutoOpen: {
+			type:"object",
+			additionalProperties: false,
+			patternProperties: {
+			  ".{1,10}": {type: "number"}
+			},
+		},
 	}
 }
 

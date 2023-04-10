@@ -37,6 +37,7 @@ let twitchUserBatchIdTimeout = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
+		shoutoutHistory: {},
 		userCard: null,
 		blockedUsers: {
 			twitchat:{},
@@ -620,7 +621,30 @@ export const storeUsers = defineStore('users', {
 			
 			if(user.platform == "twitch") {
 				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-					await TwitchUtils.sendShoutout(channelId, user);
+					let res = await TwitchUtils.sendShoutout(channelId, user);
+					if(res === false) {
+						console.log("Shoutout: failed");
+						//Shoutout not executed, add it to the pending triggers
+						if(!this.shoutoutHistory[channelId]) {
+							//No entry exist yet, create a list
+							this.shoutoutHistory[channelId] = [];
+							//Add a fake SO entry that will be used as a reference for pending ones
+							this.shoutoutHistory[channelId]!.push({
+								id:Utils.getUUID(),
+								done:true,
+								fake:true,
+								user
+							});
+							user.channelInfo[channelId].lastShoutout = Date.now();
+						}
+						this.shoutoutHistory[channelId]!.push({
+							id:Utils.getUUID(),
+							done:false,
+							user
+						});
+						return;
+					}
+					console.log("Shoutout: success");
 				}else{
 					StoreProxy.auth.requestTwitchScopes([TwitchScopes.SHOUTOUT]);
 					return;
@@ -646,6 +670,35 @@ export const storeUsers = defineStore('users', {
 					}else{
 						//Warn user doesn't exist
 						StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:user}));
+					}
+				}
+			}
+		},
+
+		executePendingShoutouts():void {
+			//Parse all channels
+			for (const channelId in this.shoutoutHistory) {
+				let lastSo:TwitchatDataTypes.ShoutoutHistoryItem|null = null;
+				const list = this.shoutoutHistory[channelId];
+				if(!list) continue;
+
+				//Parse all shoutouts
+				for (let i = 0; i < list.length; i++) {
+					const item = list[i];
+					//Search for last SO done
+					if(item.done === true) {
+						lastSo = item;
+						continue;
+					}
+					if(lastSo) {
+						const userLastSODate = item.user.channelInfo[channelId]?.lastShoutout || 0;
+						const userCooldown = userLastSODate && lastSo.fake !== true? 60 * 60 * 1000 : 2 * 60 * 1000; //1h cooldown for a user that got a SO, 2min if this user got no SO yet
+						const elapsed = Date.now() - (lastSo.user.channelInfo[channelId]?.lastShoutout || 0);
+						if(elapsed > userCooldown + 1000) {//Adding 1s delay
+							item.user.channelInfo[channelId].lastShoutout = Date.now();
+							this.shoutout(channelId, item.user);
+						}
+						break;
 					}
 				}
 			}

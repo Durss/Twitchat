@@ -42,6 +42,7 @@
 			"muteTTSBt_aria": "Couper le TTS",
 			"clearTTSBt_aria": "Vider la file d'attente",
 			"resetVoiceBt_aria": "Désactiver le changement de voix",
+			"shoutoutBt_aria": "Shoutouts en attente",
 			"viewer_count": "Nombre de viewers",
 			"reply_to": "Réponse à {USER} :"
 		},
@@ -357,7 +358,7 @@
 			"created": "Marqueur créé avec succès"
 		},
 		"watch_streak":{
-			"label": "{USER} a assisté à {COUNT} streams consécutifs ce mois-ci !"
+			"label": "{USER} a regardé {COUNT} streams consécutifs ce mois-ci et a déclenché une série de visionnages !"
 		}
 	}
 }

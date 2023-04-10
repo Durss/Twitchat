@@ -31,9 +31,7 @@ export const storeChat = defineStore('chat', {
 		pinedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
-		shoutoutQueue: [],
 		replyTo: null,
-		
 		
 		botMessages: {
 			raffleStart: {
@@ -1338,7 +1336,7 @@ export const storeChat = defineStore('chat', {
 			message.todayFirst = true;
 			greetedUsers[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
 			DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
-		}
+		},
 	} as IChatActions
 	& ThisType<IChatActions
 		& UnwrapRef<IChatState>

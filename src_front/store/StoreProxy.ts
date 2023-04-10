@@ -1,6 +1,6 @@
 import type { TriggerData } from "@/types/TriggerActionDataTypes";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
 import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
@@ -316,12 +316,6 @@ export interface IChatState {
 	 * Number of whispers not read
 	 */
 	whispersUnreadCount:number;
-	/**
-	 * Users pending to get their shoutout.
-	 * If doing a shoutout while the endpoint is cooling down
-	 * the user name is added to this list for later process
-	 */
-	shoutoutQueue:string[];
 	/**
 	 * Lists of pinned messages.
 	 * Contains all the messages pinned via twitch feautre as well
@@ -1169,6 +1163,13 @@ export interface IUsersState {
 	 * List of known bots by platform
 	 */
 	knownBots: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
+	/**
+	 * Contains all the shoutout made per channel.
+	 * Also contains pending shoutouts.
+	 * If doing a shoutout while the endpoint is cooling down
+	 * the user is added to this list for later process
+	 */
+	shoutoutHistory:Partial<{[key:string]:TwitchatDataTypes.ShoutoutHistoryItem[]}>;
 }
 
 export interface IUsersGetters {
@@ -1336,6 +1337,10 @@ export interface IUsersActions {
 	 * @param user 
 	 */
 	shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<void>;
+	/**
+	 * Execute any pending shoutout
+	 */
+	executePendingShoutouts():void;
 }
 
 

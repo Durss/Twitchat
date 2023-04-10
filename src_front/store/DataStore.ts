@@ -61,6 +61,7 @@ export default class DataStore {
 	public static WEBSOCKET_TRIGGER:string = "websocketTrigger";
 	public static REDIRECT:string = "redirect";
 	public static TRIGGER_SORT_TYPE:string = "triggerSortType";
+	public static TOOLTIP_AUTO_OPEN:string = "tooltipAutoOpen";
 
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -81,6 +82,7 @@ export default class DataStore {
 		this.INTERFACE_SCALE,
 		this.CHAT_COL_CTA,
 		this.REDIRECT,
+		this.TOOLTIP_AUTO_OPEN,
 	]
 	
 	
@@ -118,7 +120,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 1;
-		let latestVersion = 38;
+		let latestVersion = 39;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -228,6 +230,10 @@ export default class DataStore {
 		}
 		if(v==37) {
 			this.populateCounterPlaceholder(data);
+			v = 38;
+		}
+		if(v==38) {
+			this.addWatchStreakFilter(data);
 			v = latestVersion;
 		}
 
@@ -1186,5 +1192,17 @@ export default class DataStore {
 
 		data[DataStore.COUNTERS] = counters;
 		data[DataStore.TRIGGERS] = triggers;
+	}
+
+	/**
+	 * Enable the "watch streak" notifications on all columns
+	 */
+	public static addWatchStreakFilter(data:any):void {
+		const cols:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
+
+		if(!cols) return;
+		cols.forEach(v=>v.filters.user_watch_streak = true);
+		data[DataStore.CHAT_COLUMNS_CONF] = cols;
+
 	}
 }

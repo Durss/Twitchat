@@ -3,7 +3,7 @@
 		<div class="header" @click.stop="toggle()">
 			<slot name="left_actions"></slot>
 			<Button small
-				:icon="$image('icons/orderable_white.svg')"
+				:icon="$image('icons/dragZone.svg')"
 				class="orderBt"
 				warn
 				v-if="orderable!==false"
@@ -243,6 +243,10 @@ export default class ToggleBlock extends Vue {
 				padding: .3em;
 				align-self: stretch;
 				width: 2.5em;
+				cursor: grab;
+				&:active {
+					cursor: grabbing;
+				}
 			}
 		}
 		&>.content {

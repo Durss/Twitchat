@@ -47,6 +47,7 @@ import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
 import TrackedUsers from './TrackedUsers.vue';
 import WhispersState from './WhispersState.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -68,20 +69,20 @@ import WhispersState from './WhispersState.vue';
 export default class ChannelNotifications extends Vue {
 
 	@Prop
-	public currentContent!:string;
+	public currentContent!:TwitchatDataTypes.NotificationTypes;
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public get showRaid():boolean { return this.$store("stream").currentRaid != null; }
 	public get showHypeTrain():boolean { return this.$store("stream").hypeTrain != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store("poll").data?.id != null; }
-	public get showChatPoll():boolean { return this.currentContent == 'chatpoll' && this.$store("chatSuggestion").data != null; }
+	public get showChatPoll():boolean { return this.currentContent == 'sugg' && this.$store("chatSuggestion").data != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store("prediction").data?.id != null; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store("raffle").data != null && this.$store("raffle").data!.mode == "chat"; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store("bingo").data != null; }
 	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
 	public get showDeezer():boolean { return this.currentContent == 'deezer' && this.$store("music").deezerConnected; }
-	public get showTrackedUsers():boolean { return this.currentContent == 'trackedUsers'; }
+	public get showTrackedUsers():boolean { return this.currentContent == 'tracked'; }
 
 	public get showClose():boolean {
 		return this.showPoll

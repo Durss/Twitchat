@@ -105,6 +105,7 @@ export default class ChatRaid extends AbstractChatMessage {
 		flex-wrap: wrap;
 		.infos {
 			flex-grow: 1;
+			flex-basis: 200px;
 			.game {
 				font-style: italic;
 			}

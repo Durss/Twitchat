@@ -449,8 +449,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		//Pre compute some classes to reduce watchers count on "classes" getter
 
 		const staticClasses = ["chatmessage"];
-		if(!this.lightMode
-		&& (this.firstTime || this.isPresentation || this.isReturning || this.isFirstToday))	staticClasses.push("hasHeader");
+		if(this.firstTime || this.isPresentation || this.isReturning || this.isFirstToday)	staticClasses.push("hasHeader");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			staticClasses.push("whisper");
 		}else {

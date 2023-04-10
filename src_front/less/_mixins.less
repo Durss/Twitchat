@@ -260,8 +260,12 @@
 	display: flex;
 	flex-direction: column;
 	transform-origin: bottom left;
-	max-height: 100%;
 	overflow-y: auto;
+	max-height: calc(100vh - 60px);//60px is a dirty hardcoded footer size
+	max-width: 100vw;
+	& > * {
+		flex-shrink: 0;//Avoid items from being crushed vertically
+	}
 }
 
 .clearButton {

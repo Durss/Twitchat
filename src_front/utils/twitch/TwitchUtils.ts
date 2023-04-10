@@ -2606,7 +2606,7 @@ export default class TwitchUtils {
 				
 				//Split chunk into subchunks by cheermote codes
 				const regSafeWord = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				const reg = new RegExp("("+regSafeWord+"[a-z]*)", "gi");
+				const reg = new RegExp("([a-z]*"+regSafeWord+"[a-z]*)", "gi");
 				let res = chunk.value.split(reg);
 				
 				//Parse all sub chunks

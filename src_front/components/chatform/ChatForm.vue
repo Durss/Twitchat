@@ -49,10 +49,23 @@
 						@click="$emit('update:showEmotes',true);" />
 	
 					<transition name="blink">
+						<div class="pins" v-if="pendingShoutoutCount > 0">
+							<Button :aria-label="$t('chat.form.shoutoutBt_aria')"
+								:icon="$image('icons/shoutout.svg')"
+								bounce
+								v-tooltip="{content:$t('chat.form.shoutoutBt_aria'), showOnCreate:true, onHidden:()=>onHideTooltip('shoutout')}"
+								v-if="pendingShoutoutCount > 0"
+								@click="$emit('update:showShoutout',true);" />
+							<div class="count">{{ pendingShoutoutCount }}</div>
+						</div>
+					</transition>
+	
+					<transition name="blink">
 					<Button :aria-label="$t('chat.form.pollBt_aria')"
 						:icon="$image('icons/poll.svg')"
 						bounce
-						@click="$emit('setCurrentNotification', 'poll')"
+						v-tooltip="{content:$t('chat.form.pollBt_aria'), showOnCreate:shouldShowTooltip('poll'), onHidden:()=>onHideTooltip('poll')}"
+						@click="openNotifications('poll')"
 						v-if="$store('poll').data?.id" />
 					</transition>
 	
@@ -60,7 +73,8 @@
 					<Button :aria-label="$t('chat.form.suggBt_aria')"
 						:icon="$image('icons/chatPoll.svg')"
 						bounce
-						@click="$emit('setCurrentNotification', 'chatpoll')"
+						v-tooltip="{content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('sugg'), onHidden:()=>onHideTooltip('sugg')}"
+						@click="openNotifications('sugg')"
 						v-if="$store('chatSuggestion').data != null" />
 					</transition>
 	
@@ -68,7 +82,8 @@
 					<Button :aria-label="$t('chat.form.predictionBt_aria')"
 						:icon="$image('icons/prediction.svg')"
 						bounce
-						@click="$emit('setCurrentNotification', 'prediction')"
+						v-tooltip="{content:$t('chat.form.predictionBt_aria'), showOnCreate:shouldShowTooltip('prediction'), onHidden:()=>onHideTooltip('prediction')}"
+						@click="openNotifications('prediction')"
 						v-if="$store('prediction').data?.id" />
 					</transition>
 	
@@ -77,8 +92,8 @@
 						:icon="$image('icons/magnet.svg')"
 						bounce
 						v-if="trackedUserCount > 0"
-						v-tooltip="$t('chat.form.trackedBt_aria')"
-						@click="$emit('setCurrentNotification', 'trackedUsers')" />
+						v-tooltip="{content:$t('chat.form.trackedBt_aria'), showOnCreate:shouldShowTooltip('tracked'), onHidden:()=>onHideTooltip('tracked')}"
+						@click="openNotifications('tracked')" />
 					</transition>
 	
 					<transition name="blink">
@@ -86,8 +101,8 @@
 						<Button :aria-label="$t('chat.form.raffleBt_aria')"
 							:icon="$image('icons/ticket.svg')"
 							bounce
-							v-tooltip="$t('chat.form.raffleBt_aria')"
-							@click="$emit('setCurrentNotification', 'raffle')" />
+							v-tooltip="{content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
+							@click="openNotifications('raffle')" />
 						<div class="count" v-if="$store('raffle').data!.entries && $store('raffle').data!.entries.length > 0">{{$store('raffle').data?.entries.length}}</div>
 					</div>
 					</transition>
@@ -97,8 +112,8 @@
 						:icon="$image('icons/bingo.svg')"
 						bounce
 						v-if="$store('bingo').data"
-						v-tooltip="$t('chat.form.bingoBt_aria')"
-						@click="$emit('setCurrentNotification', 'bingo')" />
+						v-tooltip="{content:$t('chat.form.bingoBt_aria'), showOnCreate:shouldShowTooltip('bingo'), onHidden:()=>onHideTooltip('bingo')}"
+						@click="openNotifications('bingo')" />
 					</transition>
 	
 					<transition name="blink">
@@ -107,7 +122,7 @@
 							:icon="$image('icons/whispers.svg')"
 							bounce
 							v-tooltip="$t('chat.form.whispersBt_aria')"
-							@click="$emit('setCurrentNotification', 'whispers')" />
+							@click="openNotifications('whispers')" />
 						<div class="count" v-if="$store('chat').whispersUnreadCount > 0">{{$store('chat').whispersUnreadCount}}</div>
 					</div>
 					</transition>
@@ -117,7 +132,7 @@
 						<Button :aria-label="$t('chat.form.pinsBt_aria')"
 							:icon="$image('icons/save.svg')"
 							bounce
-							v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:true}"
+							v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:shouldShowTooltip('save'), onHidden:()=>onHideTooltip('save')}"
 							@click="$emit('pins')" />
 						<div class="count">{{$store('chat').pinedMessages.length}}</div>
 					</div>
@@ -138,7 +153,7 @@
 						bounce
 						v-if="$store('music').deezerConnected"
 						v-tooltip="$t('chat.form.deezerBt_aria')"
-						@click="$emit('setCurrentNotification', 'deezer')" />
+						@click="openNotifications('deezer')" />
 					</transition>
 	
 					<transition name="blink">
@@ -147,7 +162,7 @@
 							class="chatHighlight"
 							bounce highlight
 							:icon="$image('icons/highlight.svg')"
-							v-tooltip="{content:$t('chat.form.highlightBt_aria'), showOnCreate:true}"
+							v-tooltip="{content:$t('chat.form.highlightBt_aria'), showOnCreate:shouldShowTooltip('highlight'), onHidden:()=>onHideTooltip('highlight')}"
 							@click="removeChatHighlight()" />
 					</transition>
 	
@@ -243,16 +258,14 @@ import GlobalEvent from '@/events/GlobalEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
-import OBSWebsocket from '@/utils/OBSWebsocket';
 import TTSUtils from '@/utils/TTSUtils';
-import EventSub from '@/utils/twitch/EventSub';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
@@ -292,6 +305,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 		"update:showChatUsers",
 		"update:showRewards",
 		"update:showDevMenu",
+		"update:showShoutout",
 		"setCurrentNotification"
 	],
 })
@@ -378,6 +392,13 @@ export default class ChatForm extends Vue {
 
 	public get isCommercial():boolean { return this.$store("stream").commercialEnd != 0; }
 
+	public get pendingShoutoutCount():number {
+		const list = this.$store('users').shoutoutHistory[this.channelId];
+		if(!list) return 0;
+
+		return list.filter(v=>v.done === false).length;
+	}
+
 	public beforeMount(): void {
 		this.updateTrackedUserListHandler = (e:GlobalEvent) => this.onUpdateTrackedUserList();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
@@ -429,7 +450,40 @@ export default class ChatForm extends Vue {
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
 	}
+
+	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void {
+		this.$emit('setCurrentNotification', type);
+	}
+
+	/**
+	 * Gets if a button tooltip should be displayed by default
+	 */
+	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes):boolean {
+		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
+		let values!:{[key:string]:number};
+		if(!json) values = {};
+		else values = JSON.parse(json);
+		return values[key] == undefined || values[key] < 2;
+	}
+
+	/**
+	 * Called when a tooltip is closed
+	 */
+	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes):void {
+		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
+		let values!:{[key:string]:number};
+		if(!json) values = {};
+		else values = JSON.parse(json);
+		if(values[key] === undefined) {
+			values[key] = -1;
+		}
+		if(values[key] < 2) values[key] ++;
+		DataStore.set(DataStore.TOOLTIP_AUTO_OPEN, values);
+	}
 	
+	/**
+	 * Toggle parameters display
+	 */
 	public toggleParams():void {
 		if(this.$store("params").currentPage == TwitchatDataTypes.ParameterPages.CLOSE) {
 			this.$store("params").openParamsPage( TwitchatDataTypes.ParameterPages.MAIN_MENU );
@@ -528,9 +582,44 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 
-		if(cmd == "/test") {
-			OBSWebsocket.instance.socket.call('TriggerMediaInputAction',{'inputName':'Pet 1','mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
-			// this.obs.call('TriggerMediaInputAction',{'inputName':'Pet 2','mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
+		if(cmd == "/fakeso") {
+			const fakeUsers = await TwitchUtils.getFakeUsers();
+			let user = Utils.pickRand(fakeUsers);
+			if(params[0] && params[0] != "true" && params[0] != "false") {
+				user = await this.$store("users").getUserFrom("twitch", this.channelId, undefined, params[0]);
+				if(!user) return;
+			}
+			const done = params[0] === "true" || params[1] === "true";
+			if(done) user.channelInfo[this.channelId].lastShoutout = Date.now();
+			const userInfos = await TwitchUtils.loadUserInfo([user.id]);
+			user.avatarPath = userInfos[0].profile_image_url;
+			if(!this.$store("users").shoutoutHistory[this.channelId]) {
+				this.$store("users").shoutoutHistory[this.channelId] = [];
+			}
+			this.$store("users").shoutoutHistory[this.channelId]!.push({
+				id:Utils.getUUID(),
+				user,
+				done,
+			})
+		}else
+
+		if(cmd == "/fakesolist") {
+			const fakeUsers = await TwitchUtils.getFakeUsers();
+			for (let i = 0; i < 10; i++) {
+				let user = Utils.pickRand(fakeUsers);
+				const done = i == 0;
+				if(done) user.channelInfo[this.channelId].lastShoutout = Date.now();
+				const userInfos = await TwitchUtils.loadUserInfo([user.id]);
+				user.avatarPath = userInfos[0].profile_image_url;
+				if(!this.$store("users").shoutoutHistory[this.channelId]) {
+					this.$store("users").shoutoutHistory[this.channelId] = [];
+				}
+				this.$store("users").shoutoutHistory[this.channelId]!.push({
+					id:Utils.getUUID(),
+					user,
+					done,
+				})
+			}
 		}else
 
 		if(cmd == "/fake") {

@@ -42,6 +42,7 @@
 			"muteTTSBt_aria": "Mute TTS",
 			"clearTTSBt_aria": "clear TTS queue",
 			"resetVoiceBt_aria": "Reset voice effect",
+			"shoutoutBt_aria": "Pending shoutouts",
 			"viewer_count": "Viewer count",
 			"reply_to": "Replying to {USER}:"
 		},

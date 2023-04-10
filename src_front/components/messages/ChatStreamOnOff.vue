@@ -5,7 +5,7 @@
 		<img :src="$image('icons/online.svg')" alt="online" class="icon" v-if="isOnline">
 		<img :src="$image('icons/offline.svg')" alt="offline" class="icon" v-else>
 
-		<div>
+		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="isOnline? 'chat.stream.online' : 'chat.stream.offline'">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard(messageData.info.user)">{{messageData.info.user.displayName}}</a>
@@ -13,22 +13,24 @@
 			</i18n-t>
 
 			<div v-if="isOnline && messageData.info" class="streamInfo">
-				<i18n-t scope="global" keypath="chat.stream.info" tag="p">
-					<template #CATEGORY>
-						<strong>{{messageData.info.category}}</strong>
-					</template>
-				</i18n-t>
-				<p class="title">{{messageData.info.title}}</p>
-			</div>
+				<div class="infos">
+					<i18n-t scope="global" keypath="chat.stream.info" tag="p">
+						<template #CATEGORY>
+							<strong>{{messageData.info.category}}</strong>
+						</template>
+					</i18n-t>
+					<p class="title">{{messageData.info.title}}</p>
+				</div>
 
-			<Button v-if="!isMe && isOnline"
-				@click.stop="shoutout()"
-				:title="$t('chat.soBt')"
-				:icon="$image('icons/shoutout_purple.svg')"
-				:loading="shoutoutLoading"
-				white
-				class="soButton"
-			/>
+				<Button v-if="!isMe && isOnline"
+					@click.stop="shoutout()"
+					:title="$t('chat.soBt')"
+					:icon="$image('icons/shoutout_purple.svg')"
+					:loading="shoutoutLoading"
+					white
+					class="soButton"
+				/>
+			</div>
 		</div>
 	</div>
 </template>
@@ -94,9 +96,9 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 	.chatMessageHighlight();
 	
 	background-color: fade(@mainColor_highlight, 25);
-		&:hover {
-			background-color: fade(@mainColor_highlight_light, 25);
-		}
+	&:hover {
+		background-color: fade(@mainColor_highlight_light, 25);
+	}
 	
 	&.offline {
 		background-color: fade(@mainColor_alert, 25);
@@ -104,17 +106,38 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 			background-color: fade(@mainColor_alert_light, 25);
 		}
 	}
-	
-	.streamInfo {
-		margin-top: .5em;
-		width: 100%;
-		.title {
-			font-style: italic;
-		}
+
+	.messageHolder {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		flex-grow: 1;
+		gap: .25em;
 	}
 
-	.soButton {
-		margin-top: .5em;
+	.streamInfo {
+		color: @mainColor_light;
+		// background-color: rgba(255, 255, 255, .15);
+		border-radius: .5em;
+		overflow: hidden;
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		.infos {
+			flex-grow: 1;
+			flex-basis: 200px;
+			.game {
+				font-style: italic;
+			}
+			.duration {
+				font-size: .9em;
+				opacity: .8;
+			}
+		}
+		.soButton {
+			align-self: center;
+		}
 	}
 }
 </style>

@@ -17,7 +17,6 @@ export default class SchedulerHelper {
 	private _prevExecute_ts:number = 0;
 	private _adScheduleTimeout?:number;
 	private _adSchedule!:TriggerData;
-	private _liveChannelsSchedule!:TriggerData;
 	
 	constructor() {
 	
@@ -193,7 +192,7 @@ export default class SchedulerHelper {
 			}
 		}
 		
-		this._liveChannelsSchedule = {
+		let liveChannelsSchedule = {
 			type:TriggerTypes.TWITCHAT_LIVE_FRIENDS,
 			enabled:true,
 			id:Utils.getUUID(),
@@ -201,6 +200,19 @@ export default class SchedulerHelper {
 			scheduleParams:{
 				type:TriggerScheduleTypes.REGULAR_REPEAT,
 				repeatDuration:5,
+				repeatMinMessages:0,
+				dates:[],
+			}
+		};
+		
+		let shoutoutQueueSchedule = {
+			type:TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,
+			enabled:true,
+			id:Utils.getUUID(),
+			actions: [],
+			scheduleParams:{
+				type:TriggerScheduleTypes.REGULAR_REPEAT,
+				repeatDuration:1/60,
 				repeatMinMessages:0,
 				dates:[],
 			}
@@ -214,7 +226,8 @@ export default class SchedulerHelper {
 			StoreProxy.main.alert("Ad schedule min message count set to "+this._adSchedule.scheduleParams!.repeatMinMessages+" instead of 100!");
 		}
 		this.scheduleTrigger(this._adSchedule);
-		this.scheduleTrigger(this._liveChannelsSchedule);
+		this.scheduleTrigger(liveChannelsSchedule);
+		this.scheduleTrigger(shoutoutQueueSchedule);
 	}
 
 	private computeFrame():void {
