@@ -401,13 +401,28 @@ export default class EventSub {
 	 * @param payload 
 	 */
 	private async updateStreamInfosEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChannelUpdateEvent):Promise<void> {
-		const [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+		let title:string = "";
+		let category:string = "";
+		let tags:string[] = [];
+		let started_at:number = 0;
+		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+		if(streamInfos) {
+			title = streamInfos.title;
+			category = streamInfos.game_name;
+			tags = streamInfos.tags;
+			started_at = new Date(streamInfos.started_at).getTime();
+		}else{
+			let [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id])
+			title = chanInfo.title;
+			category = chanInfo.game_name;
+			tags = chanInfo.tags;
+		}
 
 		StoreProxy.stream.currentStreamInfo = {
-			title:streamInfos.title,
-			category:streamInfos.game_name,
-			tags:streamInfos.tags,
-			started_at:new Date(streamInfos.started_at).getTime(),
+			title,
+			category,
+			tags,
+			started_at,
 			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name)
 		}
 
