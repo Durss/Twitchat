@@ -48,6 +48,10 @@
 			/>
 		</div>
 
+		<div class="conditions">
+			<TriggerConditionList :triggerData="triggerData" />
+		</div>
+
 		<div class="list">
 			<button class="addBt" @click="addActionAt(0)">
 				<img src="@/assets/icons/add.svg">
@@ -102,6 +106,7 @@ import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue
 import TriggerActionEntry from './TriggerActionEntry.vue';
 import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
+import TriggerConditionList from './TriggerConditionList.vue';
 
 @Component({
 	components:{
@@ -109,6 +114,7 @@ import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.v
 		draggable,
 		ParamItem,
 		TriggerActionEntry,
+		TriggerConditionList,
 		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
 		TriggerActionSlashCommandParams,
@@ -263,7 +269,7 @@ export default class TriggerActionList extends Vue {
 		}
 	}
 
-	.params, .description {
+	.params, .conditions, .description {
 		background-color: @mainColor_light;
 		padding: .5em;
 		font-size: .9em;

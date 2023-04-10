@@ -187,7 +187,6 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
-import { followCursor } from 'tippy.js';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly

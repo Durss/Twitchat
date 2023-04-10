@@ -101,20 +101,27 @@ export interface TriggerData {
 	 */
 	scheduleParams?:TriggerScheduleData;
 
+	/**
+	 * Conditions to be matched for the trigger ot be executed
+	 */
+	conditions:TriggerCondition[];
+
 	
 	/**
 	 * @deprecated Only here for typings on data migration.
 	 */
 	prevKey?:string;
-	/**
-	 * @deprecated Only here for typings on data migration.
-	 */
-	// name?:string;
-	/**
-	 * @deprecated Only here for typings on data migration. Use "name" property
-	 */
-	// chatCommand?:string
 }
+
+export interface TriggerCondition {
+	id:string;
+	placeholder:string;
+	operator:TriggerConditionOperator;
+	value:string;
+}
+
+export const TriggerConditionOperatorList = [">","<",">=","<=","=","!=","contains","not_contains","starts_with","not_starts_with","ends_with","not_ends_with"] as const;
+export type TriggerConditionOperator = typeof TriggerConditionOperatorList[keyof typeof TriggerConditionOperatorList];
 
 export interface TriggerCooldownData {
 	global:number;
@@ -765,7 +772,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false});
 		}
 
-		entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false});
+		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1) {
+			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false});
+		}
+
 		map[k] = entry.concat(counterPlaceholders);
 	}
 

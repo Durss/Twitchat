@@ -216,6 +216,22 @@
 			"slash_cmd":{
 				"param_cmd": "Command",
 				"param_cmd_placeholder": "/command..."
+			},
+			"condition":{
+				"operators":{
+					">":">",
+					"<":"<",
+					">=":">=",
+					"<=":"<=",
+					"=":"=",
+					"!=":"!=",
+					"contains":"Contains",
+					"not_contains":"Not containing",
+					"starts_with":"Starts with",
+					"not_starts_with":"Not starting with",
+					"ends_with":"Ends with",
+					"not_ends_with":"Not ending with"
+				}
 			}
 		},
 		"categories": {
