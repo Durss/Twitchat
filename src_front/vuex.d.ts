@@ -46,4 +46,10 @@ declare global {
 	interface Window {
 		obsstudio?: any;
 	}
+	interface Array<T> {
+		findLastIndex(
+			predicate: (value: T, index: number, obj: T[]) => unknown,
+			thisArg?: any
+		): number
+	}
 }

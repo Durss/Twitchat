@@ -15,7 +15,7 @@
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 			
 			<div class="list" v-else>
-				<div v-for="s in streams" :key="s.id" class="stream" ref="streamCard" @click="raid(s)">
+				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="stream" ref="streamCard" @click.prevent="raid(s)">
 					<div class="header">
 						<img :src="getProfilePicURL(s)" alt="">
 						<span class="login">{{s.user_name}}</span>
@@ -32,7 +32,7 @@
 						<img src="@/assets/icons/raid_purple.svg" alt="raid">
 						Raid
 					</div>
-				</div>
+				</a>
 			</div>
 		</div>
 	</div>
@@ -171,26 +171,23 @@ export default class LiveFollowings extends Vue {
 		}
 
 		.list {
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			justify-content: center;
+			padding: .5em;
+			@itemWidth: 200px;
+			display: grid;
+			gap: 5px;
+			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 
 			.stream {
 				display: block;
 				border-radius: 10px;
 				background-color: @mainColor_light;
-				width: calc(50% - @gap);
-				margin-bottom: @gap;
 				overflow: hidden;
 				display: flex;
 				flex-direction: column;
 				position: relative;
 				transition: border .2s;
-	
-				&:nth-child(odd) {
-					margin-right: @gap;
-				}
+				text-decoration: none !important;
+				color: @mainColor_normal;
 	
 				&:hover {
 					cursor: pointer;
