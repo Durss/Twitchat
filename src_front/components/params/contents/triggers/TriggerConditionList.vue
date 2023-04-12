@@ -4,7 +4,7 @@
 
 		<Button v-if="!triggerData.conditions || triggerData.conditions.conditions.length == 0" small :title="$t('triggers.condition.createBt')" :icon="$image('icons/add.svg')" @click="addCondition()" />
 
-		<TriggerConditionListItem v-else class="list" :triggerData="triggerData" :parentCondition="triggerData.conditions" :condition="[triggerData.conditions]" />
+		<TriggerConditionListGroupItem v-else class="list" :triggerData="triggerData" :parentCondition="triggerData.conditions" :condition="[triggerData.conditions]" />
 	</div>
 </template>
 
@@ -14,12 +14,12 @@ import type { TriggerCondition, TriggerConditionGroup, TriggerData } from '@/typ
 import Utils from '@/utils/Utils';
 import { reactive, watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import TriggerConditionListItem from './TriggerConditionListItem.vue';
+import TriggerConditionListGroupItem from './TriggerConditionListGroupItem.vue';
 
 @Component({
 	components:{
 		Button,
-		TriggerConditionListItem,
+		TriggerConditionListGroupItem,
 	},
 	emits:[],
 })
@@ -89,6 +89,7 @@ export default class TriggerConditionList extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: .25em;
+		width: 100%;
 	}
 
 }

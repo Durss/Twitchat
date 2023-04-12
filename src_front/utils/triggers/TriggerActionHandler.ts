@@ -625,6 +625,12 @@ export default class TriggerActionHandler {
 				else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 			}
 		}
+		
+		//check execution conditions
+		if(trigger.conditions && !await this.checkConditions(trigger.conditions.operator, [trigger.conditions], trigger, message, log, subEvent)) {
+			log.messages.push({date:Date.now(), value:"Execution conditions not fulfilled"});
+			canExecute = false;
+		}
 
 		if(!trigger || !trigger.actions || trigger.actions.length == 0) canExecute = false;
 		if(!trigger.enabled && !testMode) canExecute = false;
@@ -697,7 +703,7 @@ export default class TriggerActionHandler {
 
 						if(step.text) {
 							try {
-								const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
+								const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
 								await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 							}catch(error) {
 								console.error(error);
@@ -705,7 +711,7 @@ export default class TriggerActionHandler {
 						}
 						if(step.url) {
 							try {
-								const url = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
+								const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
 								await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 							}catch(error) {
 								console.error(error);
@@ -713,7 +719,7 @@ export default class TriggerActionHandler {
 						}
 						if(step.mediaPath) {
 							try {
-								let url = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
+								let url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
 								await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 							}catch(error) {
 								console.error(error);
@@ -758,7 +764,7 @@ export default class TriggerActionHandler {
 				//Handle Chat action
 				if(step.type == "chat") {
 					// console.log("CHAT ACTION");
-					const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
+					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
 					const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 					if(message.platform != "twitchat") platforms.push(message.platform);
 					// console.log(platforms, text);
@@ -771,7 +777,7 @@ export default class TriggerActionHandler {
 				//Handle highlight action
 				if(step.type == "highlight") {
 					if(step.show) {
-						let text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true);
+						let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true);
 						let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
 						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 						|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
@@ -809,7 +815,7 @@ export default class TriggerActionHandler {
 				
 				//Handle TTS action
 				if(step.type == "tts" && message) {
-					let text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
+					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
 					log.messages.push({date:Date.now(), value:"TTS read message \""+text+"\""});
 					TTSUtils.instance.readNext(text, ttsID ?? trigger.id);
 				}else
@@ -909,7 +915,7 @@ export default class TriggerActionHandler {
 					const url = new URL(uri);
 					for (let i = 0; i < step.queryParams.length; i++) {
 						const tag = step.queryParams[i];
-						const text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
+						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
 						url.searchParams.append(tag.toLowerCase(), text);
 					}
 					try {
@@ -928,7 +934,7 @@ export default class TriggerActionHandler {
 					const json:{[key:string]:number|string|boolean} = {};
 					for (let i = 0; i < step.params.length; i++) {
 						const tag = step.params[i];
-						const value = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
+						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
 						json[tag.toLowerCase()] = value;
 						if(step.topic) {
 							json.topic = step.topic;
@@ -948,7 +954,7 @@ export default class TriggerActionHandler {
 				
 				//Handle counter update trigger action
 				if(step.type == "count") {
-					let text = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
+					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/,/gi, ".");
 					const value = MathJS.evaluate(text);
 
@@ -1036,7 +1042,7 @@ export default class TriggerActionHandler {
 						//Adding a track to the queue
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 							//Convert placeholders if any
-							const m = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, step.track, subEvent);
+							const m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.track, subEvent);
 							let data:TwitchatDataTypes.MusicTrackData|null = null;
 							if(Config.instance.SPOTIFY_CONNECTED) {
 								let track:SearchTrackItem|null = null;
@@ -1109,7 +1115,7 @@ export default class TriggerActionHandler {
 										user:messageLoc.user,
 									}
 									//First pass to inject track info
-									let chatMessage = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, triggerData, step.confirmMessage, subEvent, false);
+									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, triggerData, step.confirmMessage, subEvent, false);
 									//Second pass to inject trigger specifics
 									//TODO was this necessary ? Not sure i understand what it's for
 									// chatMessage = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, addedToQueueMessage, chatMessage, subEvent);
@@ -1154,7 +1160,7 @@ export default class TriggerActionHandler {
 						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 							let m:string = step.playlist;
 							if(message.type == "message") {
-								m = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
+								m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
 							}
 							if(Config.instance.SPOTIFY_CONNECTED) {
 								let id:string|null = null;
@@ -1198,7 +1204,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parseText(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
+	private async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
 		if(!res) return "";
 		let subEvent_regSafe = "";
@@ -1212,7 +1218,7 @@ export default class TriggerActionHandler {
 			// console.log(subEvent);
 
 			let placeholders = TriggerEventPlaceholders(trigger.type).concat();//Clone it to avoid modifying original
-			placeholders = placeholders.concat(actionPlaceholder);
+			if(actionPlaceholder.length > 0)placeholders = placeholders.concat(actionPlaceholder);
 			// console.log(placeholders);
 			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
@@ -1425,5 +1431,51 @@ export default class TriggerActionHandler {
 
 		this.liveChannelCache = liveChannels;
 		return true;
+	}
+
+	/**
+	 * Checks if message matches given execution conditions
+	 * 
+	 * @param conditions 
+	 * @param trigger 
+	 * @param message 
+	 * @param src 
+	 * @param log 
+	 * @param subEvent 
+	 */
+	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, subEvent?:string|null):Promise<boolean> {
+		console.log("CHECK")
+		let res = false;
+		for (let i = 0; i < conditions.length; i++) {
+			const c = conditions[i];
+			let localRes = false;
+			if(c.type == "group") {
+				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, subEvent);
+			}else{
+				const value = await this.parsePlaceholders({}, [], trigger, message, "{"+c.placeholder+"}", subEvent);
+				const expectation = c.value;
+				switch(c.operator) {
+					case "<": localRes = parseInt(value) < parseInt(expectation); break;
+					case "<=": localRes = parseInt(value) <= parseInt(expectation); break;
+					case ">": localRes = parseInt(value) > parseInt(expectation); break;
+					case ">=": localRes = parseInt(value) >= parseInt(expectation); break;
+					case "=": localRes = value.toLowerCase() == expectation.toLowerCase(); break;
+					case "!=": localRes = value.toLowerCase() != expectation.toLowerCase(); break;
+					case "contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) > -1; break;
+					case "not_contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) == -1; break;
+					case "ends_with": localRes = value.toLowerCase().endsWith(expectation.toLowerCase()); break;
+					case "not_ends_with": localRes = !value.toLowerCase().endsWith(expectation.toLowerCase()); break;
+					case "starts_with": localRes = value.toLowerCase().startsWith(expectation.toLowerCase()); break;
+					case "not_starts_with": localRes = !value.toLowerCase().startsWith(expectation.toLowerCase()); break;
+					default: localRes = false;
+				}
+				log.messages.push({date:Date.now(), value:"Executing operator \""+c.operator+"\" between \""+value+"\" and \""+expectation+"\" => "+localRes.toString()});
+			}
+			
+			if(i == 0) res = localRes;
+			else if(operator == "AND") res &&= localRes
+			else if(operator == "OR") res ||= localRes
+		}
+		return res;
 	}
 }

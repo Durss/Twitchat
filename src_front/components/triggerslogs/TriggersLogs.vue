@@ -21,7 +21,7 @@
 						<div class="status" v-tooltip="'pending'" v-else><img src="@/assets/loader/loader_white.svg"></div>
 						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
 						<div class="date">{{ getFormatedDime(item.date) }}</div>
-						<div class="title">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
+						<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
 						<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>
 					</div>
 					<div class="messages" v-if="idToExpandState[item.id] == true">
@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import type { TriggerData, TriggerLog } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, type TriggerData, type TriggerLog } from '@/types/TriggerActionDataTypes';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -73,7 +73,10 @@ export default class TriggersLogs extends Vue {
 	public idToExpandState:{[key:string]:boolean} = {};
 
 	public get logs():TriggerLog[] {
-		return TriggerActionHandler.instance.logHistory;
+		return TriggerActionHandler.instance.logHistory.filter(v=>
+		v.trigger.type != TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE
+		&& v.trigger.type != TriggerTypes.TWITCHAT_AD
+		&& v.trigger.type != TriggerTypes.TWITCHAT_LIVE_FRIENDS);
 	}
 
 	public getTriggerInfo(trigger:TriggerData) {
