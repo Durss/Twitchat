@@ -130,7 +130,7 @@ export default class TriggerActionScheduleParams extends Vue {
 					+":"+Utils.toDigits(d.getMinutes()+5,2)
 		this.triggerData.scheduleParams?.dates?.push({value, daily:false, monthly:false, yearly:false});
 		this.params_daily.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
-		this.params_monthly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
+		this.params_monthly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_monthly"} );
 		this.params_yearly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_yearly"} );
 	}
 

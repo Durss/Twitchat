@@ -73,7 +73,7 @@ export default class TriggerConditionListItem extends Vue {
 	 */
 	public updateOperators():void {
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
-		const placeholderRef = placeholders.find(v=> v.tag == this.param_placeholder.value);
+		const placeholderRef = placeholders.find(v=> v.tag == this.condition.placeholder);
 
 		this.param_operator.listValues =TriggerConditionOperatorList.map(v=> {
 				return {
