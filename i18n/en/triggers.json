@@ -10,10 +10,6 @@
 		"header_select_obs_filter": "Select the OBS filter to monitor",
 		"trigger_name":"Custom name",
 		"add_triggerBt": "Create a trigger",
-		"add_trigger_select_event": "Choose an event type",
-		"add_actionBt": "Add action",
-		"create_chat_cmdBt": "Create chat command",
-		"create_scheduleBt": "Add scheduled action",
 		"testBt": "Test trigger",
 		"deleteBt": "Delete trigger",
 		"resyncOBSBt": "Resync OBS sources",
@@ -60,9 +56,31 @@
 			"param_yearly": "Yearly",
 			"param_action": "Schedule type",
 			"param_repeatDurationCondition": "Time based repeat",
-			"param_repeatDurationValue": "Execute every {'{'}VALUE{'}'} minutes",
+			"param_repeatDurationValue": "Execute every minute | Execute every {VALUE} minutes",
 			"param_repeatMessageCondition": "Message based repeat",
-			"param_repeatMessageValue": "Must receive at least {'{'}VALUE{'}'} message"
+			"param_repeatMessageValue": "Must receive at least {VALUE} message | Must receive at least {VALUE} messages"
+		},
+		"condition":{
+			"title":"Execution conditions",
+			"createBt":"Create a condition",
+			"add_tt":"Add condition",
+			"group_tt":"Create a sub group and add a condition",
+			"operators":{
+				">":">",
+				"<":"<",
+				">=":">=",
+				"<=":"<=",
+				"=":"=",
+				"!=":"!=",
+				"contains":"Contains",
+				"not_contains":"Not containing",
+				"starts_with":"Starts with",
+				"not_starts_with":"Not starting with",
+				"ends_with":"Ends with",
+				"not_ends_with":"Not ending with",
+				"AND":"AND",
+				"OR":"OR"
+			}
 		},
 		"actions": {
 			"common": {
@@ -216,22 +234,6 @@
 			"slash_cmd":{
 				"param_cmd": "Command",
 				"param_cmd_placeholder": "/command..."
-			},
-			"condition":{
-				"operators":{
-					">":">",
-					"<":"<",
-					">=":">=",
-					"<=":"<=",
-					"=":"=",
-					"!=":"!=",
-					"contains":"Contains",
-					"not_contains":"Not containing",
-					"starts_with":"Starts with",
-					"not_starts_with":"Not starting with",
-					"ends_with":"Ends with",
-					"not_ends_with":"Not ending with"
-				}
 			}
 		},
 		"categories": {

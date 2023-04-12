@@ -80,6 +80,7 @@ export const storeTriggers = defineStore('triggers', {
 		},
 
 		saveTriggers():void {
+			console.log("SAVE");
 			DataStore.set(DataStore.TRIGGERS, this.triggerList);
 			TriggerActionHandler.instance.populate(this.triggerList);
 		},

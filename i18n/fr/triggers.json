@@ -10,10 +10,6 @@
 		"header_select_obs_filter": "Choisissez le filtre OBS",
 		"trigger_name":"Nom personnalisé",
 		"add_triggerBt": "Ajouter un trigger",
-		"add_trigger_select_event": "Choisissez un type d'évènement",
-		"add_actionBt": "Ajouter une action",
-		"create_chat_cmdBt": "Créer une commande de tchat",
-		"create_scheduleBt": "Programmer des actions",
 		"testBt": "Tester le trigger",
 		"deleteBt": "Supprimer",
 		"resyncOBSBt": "Resync OBS",
@@ -60,9 +56,31 @@
 			"param_yearly": "Annuel",
 			"param_action": "Type de programme",
 			"param_repeatDurationCondition": "Répéter dans le temps",
-			"param_repeatDurationValue": "Exécuter toutes les {'{'}VALUE{'}'} minutes",
+			"param_repeatDurationValue": "Exécuter toutes les minutes | Exécuter toutes les {VALUE} minutes",
 			"param_repeatMessageCondition": "Répéter après réception de messages",
-			"param_repeatMessageValue": "Exécuter après {'{'}VALUE{'}'} messages reçus"
+			"param_repeatMessageValue": "Exécuter après {VALUE} message reçus | Exécuter après {VALUE} messages reçus"
+		},
+		"condition":{
+			"title":"Conditions d'exécution",
+			"createBt":"Créer une condition",
+			"add_tt":"Ajouter une condition",
+			"group_tt":"Créer un sous groupe et ajouter une condition",
+			"operators":{
+				">":">",
+				"<":"<",
+				">=":">=",
+				"<=":"<=",
+				"=":"=",
+				"!=":"!=",
+				"contains":"Contient",
+				"not_contains":"Ne contient pas",
+				"starts_with":"Commence par",
+				"not_starts_with":"Ne commence pas par",
+				"ends_with":"Termine par",
+				"not_ends_with":"Ne termine pas par",
+				"AND":"ET",
+				"OR":"OU"
+			}
 		},
 		"actions": {
 			"common": {
@@ -216,22 +234,6 @@
 			"slash_cmd":{
 				"param_cmd": "Commande",
 				"param_cmd_placeholder": "/commande..."
-			},
-			"condition":{
-				"operators":{
-					">":">",
-					"<":"<",
-					">=":">=",
-					"<=":"<=",
-					"=":"=",
-					"!=":"!=",
-					"contains":"Contient",
-					"not_contains":"Ne contient pas",
-					"starts_with":"Commence par",
-					"not_starts_with":"Ne commence pas par",
-					"ends_with":"Termine par",
-					"not_ends_with":"Ne termine pas par"
-				}
 			}
 		},
 		"categories": {
@@ -353,7 +355,7 @@
 			},
 			"RETURNING_USER": {
 				"label": "Viewer de retour",
-				"description": "Actions à exécuter lorsqu'une personne écrit dans votre tchat après avoir parlé 2 fois au cours de s30 derniers jours.{INFO}",
+				"description": "Actions à exécuter lorsqu'une personne écrit dans votre tchat après avoir parlé 2 fois au cours des 30 derniers jours.{INFO}",
 				"description_info": "(ceci n'existe peut-être plus dans Twitch)"
 			},
 			"PRESENTATION": {

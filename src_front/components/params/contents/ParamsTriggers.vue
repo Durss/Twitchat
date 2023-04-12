@@ -89,6 +89,7 @@ import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
 import TriggerList from './triggers/TriggerList.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import SchedulerHelper from '@/utils/SchedulerHelper';
 
 @Component({
 	components:{
@@ -159,6 +160,22 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, this.renameOBSElementHandler);
 		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, this.renameOBSElementHandler);
 		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, this.renameOBSElementHandler);
+		
+
+		let debounceTimeout = -1;
+		//Watch for any change on the selected trigger
+		watch(()=>this.currentTriggerData, ()=> {
+			clearTimeout(debounceTimeout);
+			debounceTimeout = setTimeout(()=> {
+				if(this.currentTriggerData) {
+					if(this.currentTriggerData.type == TriggerTypes.SCHEDULE) {
+						//Force reschedule after an update
+						SchedulerHelper.instance.scheduleTrigger(this.currentTriggerData);
+					}
+					this.$store("triggers").saveTriggers();
+				}
+			}, 1000);
+		}, {deep:true});
 	}
 
 	public beforeUnmount():void {
@@ -198,17 +215,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		this.currentTriggerData = triggerData;
 		this.showList = false;
 		this.showForm = false;
-
-		let debounceTimeout = -1;
-		//Watch for any change on the 
-		watch(()=>this.currentTriggerData, ()=> {
-			clearTimeout(debounceTimeout);
-			debounceTimeout = setTimeout(()=> {
-				if(this.currentTriggerData) {
-					this.$store("triggers").saveTriggers();
-				}
-			}, 500);
-		}, {deep:true});
 	}
 
 	/**

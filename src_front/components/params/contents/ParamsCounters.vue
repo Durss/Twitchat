@@ -347,7 +347,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	
 	/**
 	 * Search for a user.
-	 * If all users are load, search within them.
+	 * If all users are loaded, search within them.
 	 * If users are not loaded, query twitch for a user matching current search
 	 */
 	public searchUser(counter:TwitchatDataTypes.CounterData):void {
@@ -358,7 +358,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			else if(preloadedUsers) preloadedUsers.forEach(v=> v.hide = false);
 			return;
 		}
-		//If there are more than 1 loaded users, that's because they've all loaded
+		//If there are more than 1 loaded users, that's because they've all been loaded
+		//In this case, just search there instead of polling from twitch API
 		if(this.idToAllLoaded[counter.id] === true && preloadedUsers && preloadedUsers.length > 1) {
 			let hasResult = false;
 			for (let i = 0; i < preloadedUsers.length; i++) {
@@ -379,13 +380,14 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 
 		this.idToLoading[counter.id] = true;
 
+		//Users not loaded yet, search user from Twitch API
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = setTimeout(async () => {
 			const users = await TwitchUtils.loadUserInfo(undefined, [this.search]);
 			let found = false;
 			if(users.length > 0) {
 				const u = users[0];
-				if(counter.users![u.id]) {
+				if(counter.users![u.id] != undefined) {
 					found = true;
 					let value = (counter.users && counter.users[u.id])? counter.users![u.id] : 0;
 					this.idToUsers[counter.id] = [{

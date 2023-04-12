@@ -104,7 +104,7 @@ export interface TriggerData {
 	/**
 	 * Conditions to be matched for the trigger ot be executed
 	 */
-	conditions:TriggerCondition[];
+	conditions?:TriggerConditionGroup;
 
 	
 	/**
@@ -113,8 +113,16 @@ export interface TriggerData {
 	prevKey?:string;
 }
 
+export interface TriggerConditionGroup {
+	id:string;
+	type:"group";
+	conditions:(TriggerCondition | TriggerConditionGroup)[];
+	operator:"OR"|"AND";
+}
+
 export interface TriggerCondition {
 	id:string;
+	type:"condition";
 	placeholder:string;
 	operator:TriggerConditionOperator;
 	value:string;
