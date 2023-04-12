@@ -9,6 +9,7 @@ import { h, reactive, type RendererElement, type RendererNode, type VNode } from
 import ContextMenuTimeoutDuration from "@/components/messages/components/ContextMenuTimeoutDuration.vue";
 import PublicAPI from "./PublicAPI";
 import TwitchatEvent from "@/events/TwitchatEvent";
+import TriggerActionHandler from "./triggers/TriggerActionHandler";
 
 /**
 * Created : 07/04/2023 
@@ -169,8 +170,9 @@ export default class ContextMenuHelper {
 
 		//Moderation actions
 		if(canModerateMessage) {
-			//Pin/Unpin message
+			//Add splitter after previous item
 			options[options.length-1].divided = true;
+			//Pin/Unpin message
 			const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
 			options.push({ 
 						label: m.is_pinned === true? t("chat.context_menu.unpin_twitch") : t("chat.context_menu.pin_twitch"),
@@ -341,6 +343,8 @@ export default class ContextMenuHelper {
 			}
 		}
 
+		this.addCustomTriggerEntries(options, message);
+
 		options.forEach(v=> {
 			v.clickableWhenHasChildren = true;
 		})
@@ -451,5 +455,22 @@ export default class ContextMenuHelper {
 			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
 		})
+	}
+
+	private addCustomTriggerEntries(options:CMTypes.MenuItem[], message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
+		const items = StoreProxy.triggers.triggerList.filter(v=> v.addToContextMenu === true);
+		for (let i = 0; i < items.length; i++) {
+			const trigger = items[i];
+			if(i===0) {
+				options[options.length-1].divided = true;
+			}
+			options.push({ 
+				label: trigger.chatCommand,
+				icon: this.getIcon("icons/commands.svg"),
+				onClick: () => {
+					TriggerActionHandler.instance.executeTrigger(trigger, message, false, trigger.chatCommand);
+				},
+			});
+		}
 	}
 }

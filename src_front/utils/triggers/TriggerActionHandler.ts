@@ -627,7 +627,7 @@ export default class TriggerActionHandler {
 		}
 		
 		//check execution conditions
-		if(trigger.conditions && !await this.checkConditions(trigger.conditions.operator, [trigger.conditions], trigger, message, log, subEvent)) {
+		if(!testMode && trigger.conditions && trigger.conditions.conditions.length > 0 && !await this.checkConditions(trigger.conditions.operator, [trigger.conditions], trigger, message, log, subEvent)) {
 			log.messages.push({date:Date.now(), value:"Execution conditions not fulfilled"});
 			canExecute = false;
 		}
@@ -661,6 +661,25 @@ export default class TriggerActionHandler {
 		}
 
 		const dynamicPlaceholders:{[key:string]:string|number} = {};
+
+		if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
+		&& trigger.chatCommandParams && trigger.chatCommandParams.length > 0) {
+			let res = message.message.trim()
+
+			//Remove sub event from the text (the command)
+			let subEvent_regSafe = "";
+			if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+			res = res.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
+
+			res = res.replace(/\s+/gi, ' ');//replace consecutive white spaces
+			const params = res.split(" ");
+
+			for (let i = 0; i < trigger.chatCommandParams.length; i++) {
+				const tag = trigger.chatCommandParams[i];
+				dynamicPlaceholders[tag] = params[i] || "";
+				log.messages.push({date:Date.now(), value:"Add dynamic placeholder \""+tag+"\" => \""+params[i]+"\""});
+			}
+		}
 
 		for (let i = 0; i < trigger.actions.length; i++) {
 			const step = trigger.actions[i];
@@ -1444,7 +1463,6 @@ export default class TriggerActionHandler {
 	 * @param subEvent 
 	 */
 	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, subEvent?:string|null):Promise<boolean> {
-		console.log("CHECK")
 		let res = false;
 		for (let i = 0; i < conditions.length; i++) {
 			const c = conditions[i];

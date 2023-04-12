@@ -82,6 +82,15 @@
 				"OR":"OR"
 			}
 		},
+		"slash_cmd":{
+			"param_cmd": "Command",
+			"param_cmd_placeholder": "/command...",
+			"param_ctx_menu": "Add to moderation actions (right click a message)",
+			"param_cmd_params": "Optional command params",
+			"param_cmd_params_placeholder": "add a parameter...",
+			"param_cmd_params_example": "Command usage example:",
+			"param_cmd_params_example_result": "Result:"
+		},
 		"actions": {
 			"common": {
 				"select_action":"Select the action type to execute",
@@ -230,10 +239,6 @@
 			},
 			"raffle_enter":{
 				"info":"The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."
-			},
-			"slash_cmd":{
-				"param_cmd": "Command",
-				"param_cmd_placeholder": "/command..."
 			}
 		},
 		"categories": {

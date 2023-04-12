@@ -109,9 +109,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		});
 		
 		for (let i = 0; i < this.triggerData.scheduleParams!.dates.length; i++) {
-			this.params_daily.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
-			this.params_monthly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_monthly"} );
-			this.params_yearly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_yearly"} );
+			this.addDateParam();
 		}
 	}
 
@@ -129,13 +127,17 @@ export default class TriggerActionScheduleParams extends Vue {
 					+"T"+Utils.toDigits(d.getHours(),2)
 					+":"+Utils.toDigits(d.getMinutes()+5,2)
 		this.triggerData.scheduleParams?.dates?.push({value, daily:false, monthly:false, yearly:false});
-		this.params_daily.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
-		this.params_monthly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_monthly"} );
-		this.params_yearly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_yearly"} );
+		this.addDateParam();
 	}
 
 	public delDate(index:number):void {
 		this.triggerData.scheduleParams?.dates?.splice(index, 1);
+	}
+
+	private addDateParam():void {
+		this.params_daily.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_daily"} );
+		this.params_monthly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_monthly"} );
+		this.params_yearly.push({ type:"boolean", value:false, labelKey:"triggers.schedule.param_yearly"} );
 	}
 
 }

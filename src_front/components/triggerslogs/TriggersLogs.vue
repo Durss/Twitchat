@@ -74,6 +74,7 @@ export default class TriggersLogs extends Vue {
 
 	public get logs():TriggerLog[] {
 		return TriggerActionHandler.instance.logHistory.filter(v=>
+		//These events have no details declared that can be retrieved later on Utils.getTriggerDisplayInfo()
 		v.trigger.type != TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE
 		&& v.trigger.type != TriggerTypes.TWITCHAT_AD
 		&& v.trigger.type != TriggerTypes.TWITCHAT_LIVE_FRIENDS);

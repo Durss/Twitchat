@@ -46,6 +46,11 @@
 				v-if="isSlashCommand"
 				:triggerData="triggerData"
 			/>
+
+			<TriggerActionCommandArgumentParams
+				v-if="isAnyChatMessageCommand"
+				:triggerData="triggerData"
+			/>
 		</div>
 
 		<div class="conditions">
@@ -107,6 +112,7 @@ import TriggerActionEntry from './TriggerActionEntry.vue';
 import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
+import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
 
 @Component({
 	components:{
@@ -118,6 +124,7 @@ import TriggerConditionList from './TriggerConditionList.vue';
 		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
 		TriggerActionSlashCommandParams,
+		TriggerActionCommandArgumentParams,
 	},
 	emits:[],
 })
@@ -146,6 +153,7 @@ export default class TriggerActionList extends Vue {
 	public get isChatCmd():boolean { return this.triggerData.type === TriggerTypes.CHAT_COMMAND; }
 	public get isSchedule():boolean { return this.triggerData.type === TriggerTypes.SCHEDULE; }
 	public get isSlashCommand():boolean { return this.triggerData.type === TriggerTypes.SLASH_COMMAND; }
+	public get isAnyChatMessageCommand():boolean { return this.triggerData.type === TriggerTypes.ANY_MESSAGE; }
 
 	/**
 	 * Get a trigger's sub type's label (reward name, counter name, ...)

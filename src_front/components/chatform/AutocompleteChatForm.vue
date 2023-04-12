@@ -5,7 +5,8 @@
 		:key="i.id"
 		:ref="'item_'+i.id"
 		:class="getClasses(index, i)"
-		@click="selectItem(i)">
+		@click="selectItem(i)"
+		v-tooltip="{content:i.type=='cmd'? i.tooltipKey : ''}">
 			<img
 				class="image"
 				loading="lazy" 
@@ -255,13 +256,20 @@ export default class AutocompleteChatForm extends Vue {
 				for (let i = 0; i < this.triggerCommands.length; i++) {
 					const t = this.triggerCommands[i];
 					if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
+						const params = t.chatCommandParams ?? [];
+						let paramsTxt = params.length > 0? " "+params.map(v=> "{"+v+"}").join(" ") : "";
+						if(!t.enabled) {
+							paramsTxt += " "+this.$t("chat.form.trigger_cmd_disabled")
+						}
+						
 						res.push({
 							type:"cmd",
-							label:t.chatCommand,
-							cmd:t.chatCommand,
+							label:t.chatCommand + paramsTxt,
+							cmd:t.chatCommand + paramsTxt,
 							infos:t.name ?? "",
 							id:t.id,
 							disabled:!t.enabled,
+							tooltipKey:t.enabled? "" : this.$t("chat.form.trigger_cmd_disabled_tt"),
 						});
 					}
 				}
@@ -334,6 +342,7 @@ interface CommandItem {
 	infos:string;
 	alias?:string;
 	disabled?:boolean;
+	tooltipKey?:string;
 	rawCmd?:TwitchatDataTypes.CommandData;
 }
 </script>

@@ -60,6 +60,10 @@ export interface TriggerData {
 	 */
 	chatCommandAliases?:string[];
 	/**
+	 * Optional chat command params
+	 */
+	chatCommandParams?:string[];
+	/**
 	 * Schedule name for schedule related events
 	 */
 	scheduleName?:string;
@@ -105,6 +109,12 @@ export interface TriggerData {
 	 * Conditions to be matched for the trigger ot be executed
 	 */
 	conditions?:TriggerConditionGroup;
+	/**
+	 * Should this trigger be displayed on the context menu opened when
+	 * right clicking a chat message ?
+	 * Only for slash command triggers
+	 */
+	addToContextMenu?:boolean;
 
 	
 	/**

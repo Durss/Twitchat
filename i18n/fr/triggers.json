@@ -82,6 +82,16 @@
 				"OR":"OU"
 			}
 		},
+		"slash_cmd":{
+			"param_cmd": "Commande",
+			"param_cmd_placeholder": "/commande...",
+			"param_ctx_menu": "Ajouter aux options de modération (click droit sur un message)",
+			"param_cmd_params": "Paramètres de commande optionnels",
+			"param_cmd_params_tt": "Ceci permet d'extraire des portions du message et de les injecter dans les actions à exécuter par le bais de placeholders.",
+			"param_cmd_params_placeholder": "ajouter un paramètre...",
+			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
+			"param_cmd_params_example_result": "Resultat :"
+		},
 		"actions": {
 			"common": {
 				"select_action":"Sélectionnez le type d'action à exécuter",
@@ -230,10 +240,6 @@
 			},
 			"raffle_enter":{
 				"info":"La personne déclanchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
-			},
-			"slash_cmd":{
-				"param_cmd": "Commande",
-				"param_cmd_placeholder": "/commande..."
 			}
 		},
 		"categories": {

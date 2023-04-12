@@ -21,6 +21,7 @@
 			"cmdsBt_aria": "Open chat commands",
 			"usersBt_aria": "Open users list",
 			"input_placeholder": "message...",
+			"trigger_cmd_disabled_tt": "The trigger related to this command is disabled. Enable it abck to use it.",
 			"stop_spamBt": "Stop spam",
 			"emoteBt_aria": "Open emotes list",
 			"pollBt_aria": "Open current poll",

@@ -9,6 +9,8 @@
 		<ParamItem class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
 		<ParamItem class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
 		<ParamItem class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown!.alert" />
+		
+		<TriggerActionCommandArgumentParams :triggerData="triggerData" />
 			
 		<ToggleBlock :open="false" :title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium>
 			<PermissionsForm v-model="triggerData.permissions" />
@@ -24,6 +26,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import PermissionsForm from '../../../PermissionsForm.vue';
 import ParamItem from '../../ParamItem.vue';
+import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
 
 @Component({
 	components:{
@@ -31,6 +34,7 @@ import ParamItem from '../../ParamItem.vue';
 		ParamItem,
 		ToggleBlock,
 		PermissionsForm,
+		TriggerActionCommandArgumentParams,
 	}
 })
 export default class TriggerActionChatCommandParams extends Vue {
