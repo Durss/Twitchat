@@ -110,6 +110,15 @@ import Ajv from "ajv";
 					rewardId:{type:"string", maxLength:100},
 					name:{type:"string", maxLength:100},
 					chatCommand:{type:"string", maxLength:100},
+					scheduleName:{type:"string", maxLength:100},
+					obsSource:{type:"string", maxLength:200},
+					obsScene:{type:"string", maxLength:200},
+					obsInput:{type:"string", maxLength:200},
+					obsFilter:{type:"string", maxLength:200},
+					counterId: {type:"string", maxLength:50},
+					queue: {type:"string", maxLength:100},
+					conditions: { $ref: "#/definitions/conditionGroup" },
+					permissions: { $ref: "defs.json#/definitions/permissions" },
 					chatCommandAliases:{
 										type:"array",
 										minItems:0,
@@ -120,17 +129,15 @@ import Ajv from "ajv";
 										type:"array",
 										minItems:0,
 										maxItems:30,
-										items:{type:"string", maxLength:50},
+										items:{
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												type:{type:"string", maxLength:20},
+												tag:{type:"string", maxLength:50},
+											}
+										},
 									},
-					scheduleName:{type:"string", maxLength:100},
-					obsSource:{type:"string", maxLength:200},
-					obsScene:{type:"string", maxLength:200},
-					obsInput:{type:"string", maxLength:200},
-					obsFilter:{type:"string", maxLength:200},
-					counterId: {type:"string", maxLength:50},
-					queue: {type:"string", maxLength:100},
-					conditions: { $ref: "#/definitions/conditionGroup" },
-					permissions: { $ref: "defs.json#/definitions/permissions" },
 					scheduleParams: {
 						type:"object",
 						properties: {

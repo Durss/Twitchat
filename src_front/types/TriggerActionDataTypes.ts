@@ -62,7 +62,7 @@ export interface TriggerData {
 	/**
 	 * Optional chat command params
 	 */
-	chatCommandParams?:string[];
+	chatCommandParams?:TriggerChatCommandParam[];
 	/**
 	 * Schedule name for schedule related events
 	 */
@@ -121,6 +121,11 @@ export interface TriggerData {
 	 * @deprecated Only here for typings on data migration.
 	 */
 	prevKey?:string;
+}
+
+export interface TriggerChatCommandParam {
+	type:"TEXT"|"USER";
+	tag:string;
 }
 
 export interface TriggerConditionGroup {

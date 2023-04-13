@@ -675,9 +675,10 @@ export default class TriggerActionHandler {
 			const params = res.split(" ");
 
 			for (let i = 0; i < trigger.chatCommandParams.length; i++) {
-				const tag = trigger.chatCommandParams[i];
-				dynamicPlaceholders[tag] = params[i] || "";
-				log.messages.push({date:Date.now(), value:"Add dynamic placeholder \""+tag+"\" => \""+params[i]+"\""});
+				const cmd = trigger.chatCommandParams[i];
+				//TODO load user if command type is user
+				dynamicPlaceholders[cmd.tag] = params[i] || "";
+				log.messages.push({date:Date.now(), value:"Add dynamic placeholder \""+cmd+"\" => \""+params[i]+"\""});
 			}
 		}
 
