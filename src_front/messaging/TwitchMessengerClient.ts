@@ -892,15 +892,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private onBanUser(channel: string, username: string, reason: string, duration?: number|{"room-id":string,"target-user-id":string,"tmi-sent-id":string}):void {
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserStateFromLogin(username, channel_id).user;
-		//Wait 1s before doing anything.
+		//Wait 900ms before doing anything.
 		//This is a work around an Eventsub limitation.
 		//Eventsub does not allow to be notified for banned users of another channel
 		//as a moderator. The only way to be notified is via IRC, right here.
 		//Eventsub has more details so I kept it as the main source for this info,
 		//but I use this IRC event as a fallback.
-		//We wait 1 second to give it time to Eventsub to receive the event.
+		//We wait 900ms to give it time to Eventsub to receive the event.
 		//If Eventsub sent us the info the user will already be marked as banned, we
 		//can then ignore the event. Otherwise, we send the notificaiton.
+		//We don't wait 1s or more, otherwise if TO for 1s the user would be unbanned
+		//before the setTimeout completes
 		setTimeout(()=> {
 			//Test
 			const isTO = !isNaN(duration as number);
@@ -922,7 +924,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				StoreProxy.chat.addMessage(m);
 				StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
 			}
-		},1000)
+		},900)
 	}
 
 	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {

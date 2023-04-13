@@ -1003,7 +1003,6 @@ export default class DataStore {
 	/**
 	 * Migrates triggers data to the new triggers system
 	 * @param data 
-	 * 
 	 */
 	private static migrateTriggersData(data:any):void {
 		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
