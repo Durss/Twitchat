@@ -39,7 +39,7 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 
 	public usage:string = "";
 
-	public param_cmdParams:TwitchatDataTypes.ParameterData<string[]> = { type:"editablelist", value:[], icon:"placeholder_purple.svg", labelKey:"triggers.slash_cmd.param_cmd_params", placeholderKey:"triggers.slash_cmd.param_cmd_params_placeholder", tooltipKey:"triggers.slash_cmd.param_cmd_params_tt" };
+	public param_cmdParams:TwitchatDataTypes.ParameterData<string[]> = { type:"editablelist", value:[], icon:"placeholder_purple.svg", labelKey:"triggers.slash_cmd.param_cmd_params", placeholderKey:"triggers.slash_cmd.param_cmd_params_placeholder", tooltipKey:"triggers.slash_cmd.param_cmd_params_tt", maxLength:30 };
 
 	public mounted():void {
 		this.updateUsage();
