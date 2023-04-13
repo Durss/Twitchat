@@ -550,10 +550,10 @@ export const storeChat = defineStore('chat', {
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
-				if(!StoreProxy.auth.twitch.user.donor.state===true || StoreProxy.auth.twitch.user.donor.level < 2) {
+				if(StoreProxy.auth.twitch.user.donor.state!==true || StoreProxy.auth.twitch.user.donor.level < 2) {
 					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.SPONSOR);
 				}
-				//Give more chances to hae anything but the "sponsor" ad
+				//Give more chances to have anything but the "sponsor" ad
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
@@ -566,9 +566,9 @@ export const storeChat = defineStore('chat', {
 					//Force last updates if any not read
 					possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
 				}else{
-					//Add 4 empty slots for every content type available
+					//Add 10 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
-					const len = 4*possibleAds.length;
+					const len = 10 * possibleAds.length;
 					for (let i = 0; i < len; i++) possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.NONE);
 				}
 		
