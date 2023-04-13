@@ -127,7 +127,7 @@ import Ajv from "ajv";
 					obsScene:{type:"string", maxLength:200},
 					obsInput:{type:"string", maxLength:200},
 					obsFilter:{type:"string", maxLength:200},
-					counterID:{type:"string", maxLength:100},
+					counterId: {type:"string", maxLength:50},
 					queue: {type:"string", maxLength:100},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
