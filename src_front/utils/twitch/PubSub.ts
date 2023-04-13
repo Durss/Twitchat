@@ -1,14 +1,13 @@
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import Config from '../Config';
-import OBSWebsocket from "../OBSWebsocket";
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 /**
 * Created : 13/01/2022 
@@ -21,7 +20,7 @@ export default class PubSub extends EventDispatcher {
 	private reconnectTimeout!:number;
 	private hypeTrainApproachingTimer!:number;
 	private hypeTrainProgressTimer!:number;
-	private history:PubSubDataTypes.SocketMessage[] = [];
+	private history:{date:string, message:PubSubDataTypes.SocketMessage}[] = [];
 	
 	constructor() {
 		super();
@@ -37,7 +36,7 @@ export default class PubSub extends EventDispatcher {
 		return PubSub._instance;
 	}
 
-	public get eventsHistory():PubSubDataTypes.SocketMessage[] { return this.history; }
+	public get eventsHistory() { return this.history; }
 	
 	
 	
@@ -64,16 +63,19 @@ export default class PubSub extends EventDispatcher {
 				// "leaderboard-events-v1.sub-gifts-sent-"+myUID+"-WEEK",
 				"video-playback-by-id."+myUID,//Get viewer count
 				"community-boost-events-v1."+myUID,//Boost after a boost train complete
-				"ad-property-refresh."+myUID,
+				"chatrooms-user-v1."+myUID,//Host events (RIP)
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
 				"predictions-channel-v1."+myUID,
 				"polls."+myUID,
-				"raid."+myUID,
-				"ads."+myUID,
-				"stream-chat-room-v1."+myUID,
 				"hype-train-events-v1."+myUID,
+				"raid."+myUID,
+				"community-moments-channel-v1."+myUID,
 				"user-moderation-notifications."+myUID+"."+myUID,
-				"chatrooms-user-v1."+myUID,
+				"ads."+myUID,//???
+				"ad-property-refresh."+myUID,//???
+				"stream-chat-room-v1."+myUID,//???
+				"sponsorships-v1."+myUID,//???
+				//"user-preferences-update-v1."+myUID,//not allowed
 				// "onsite-notifications."+myUID,//not allowed
 				// "activity-feed-broadcaster-v2."+myUID,//not allowed
 				// "user-unban-requests."+myUID+"."+myUID,//not allowed
@@ -81,8 +83,6 @@ export default class PubSub extends EventDispatcher {
 				// "user-drop-events."+myUID,
 				// "community-points-user-v1."+myUID,
 				// "presence."+myUID,
-				// "user-properties-update."+myUID,
-				// "onsite-notifications."+myUID,
 				// "stream-change-v1."+myUID,
 			];
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])){
@@ -94,7 +94,6 @@ export default class PubSub extends EventDispatcher {
 			if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])){
 				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
 				subscriptions.push("automod-queue."+myUID+"."+myUID);
-				subscriptions.push("low-trust-users."+myUID+"."+myUID);
 				subscriptions.push("low-trust-users."+myUID+"."+myUID);
 				// subscriptions.push("channel-chat-highlights."+myUID+"."+myUID);//Needs a twitch scope T_T. This is what allows to get "raider" message highlight
 			}
@@ -108,18 +107,18 @@ export default class PubSub extends EventDispatcher {
 					const uid = uids[i];
 					if(uid == myUID) continue;
 					subscriptions.push("raid."+uid);
-							// subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
-							// subscriptions.push("low-trust-users."+myUID+"."+uid);
-							// subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
 					subscriptions.push("hype-train-events-v1."+uid);
 					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
 					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards
 					subscriptions.push("community-boost-events-v1."+uid);//Get channel points rewards
-					// subscriptions.push("channel-ad-poll-update-events."+uid);
 					subscriptions.push("predictions-channel-v1."+uid);//Get prediction events
-					subscriptions.push("polls."+uid);//Get prediction event//Get poll events
+					subscriptions.push("polls."+uid);//Get poll events
+					subscriptions.push("stream-chat-room-v1."+uid);//Host events (RIP)
+					// subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
+					// subscriptions.push("low-trust-users."+myUID+"."+uid);
+					// subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
+					// subscriptions.push("channel-ad-poll-update-events."+uid);
 					// subscriptions.push("pv-watch-party-events."+uid);
-					subscriptions.push("stream-chat-room-v1."+uid);//Host events
 					// subscriptions.push("stream-change-by-channel."+uid);
 					// subscriptions.push("radio-events-v1."+uid);
 					// subscriptions.push("channel-sub-gifts-v1."+uid);
@@ -137,7 +136,7 @@ export default class PubSub extends EventDispatcher {
 				if(StoreProxy.main.devmode) {
 					//Ignore viewers count to avoid massive logs
 					if(!/video-playback-by-id\./i.test(message.data.topic)) {
-						this.history.push(message);
+						this.history.push({date:new Date().toLocaleDateString() +" "+ new Date().toLocaleTimeString(), message});
 					}
 				}
 				this.parseEvent(data, message.data.topic);
