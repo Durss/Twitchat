@@ -257,7 +257,7 @@ export default class AutocompleteChatForm extends Vue {
 					const t = this.triggerCommands[i];
 					if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
 						const params = t.chatCommandParams ?? [];
-						let paramsTxt = params.length > 0? " "+params.map(v=> "{"+v+"}").join(" ") : "";
+						let paramsTxt = params.length > 0? " "+params.map(v=> "{"+v.tag+"}").join(" ") : "";
 						if(!t.enabled) {
 							paramsTxt += " "+this.$t("chat.form.trigger_cmd_disabled")
 						}

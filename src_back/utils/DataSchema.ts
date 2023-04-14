@@ -203,6 +203,13 @@ import Ajv from "ajv";
 								method: {type:"string", maxLength:10},
 								addValue: {type:"string", maxLength:100},
 								counter: {type:"string", maxLength:40},
+								counterUserSources: {
+									type:"object",
+									additionalProperties: false,
+									patternProperties: {
+									  ".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
+									},
+								},
 								placeholder:{type:"string", maxLength:20},
 								outputPlaceholder:{type:"string", maxLength:20},
 								min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},

@@ -220,7 +220,10 @@
 			"count": {
 				"value_label":"Valeur à ajouter ou retirer",
 				"select_label":"Compteurs à mettre à jour",
-				"select_placeholder":"Sélectionnez un compteur..."
+				"select_placeholder":"Sélectionnez un compteur...",
+				"user_source_title":"Sélectionnez l'utilisateur mettre à jour pour ce compteur : | Sélectionnez l'utilisateur mettre à jour pour ces compteurs :",
+				"user_source_sender":"Personne utilisant la commande",
+				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"countget": {
 				"placeholder_label":"Nom du placeholder",

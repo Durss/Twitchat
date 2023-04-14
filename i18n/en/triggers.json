@@ -220,7 +220,10 @@
 			"count": {
 				"value_label":"Value to add or remove",
 				"select_label":"Counters to update",
-				"select_placeholder":"Select a counter..."
+				"select_placeholder":"Select a counter...",
+				"user_source_title":"Select the user to update for this counter: | Select the user to update for those counters:",
+				"user_source_sender":"User using the command",
+				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"countget": {
 				"placeholder_label":"Placeholder name",

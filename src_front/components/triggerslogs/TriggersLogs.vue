@@ -53,9 +53,9 @@
 </template>
 
 <script lang="ts">
-import { TriggerTypes, type TriggerData, type TriggerLog } from '@/types/TriggerActionDataTypes';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import type { TriggerData, TriggerLog } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
@@ -73,11 +73,7 @@ export default class TriggersLogs extends Vue {
 	public idToExpandState:{[key:string]:boolean} = {};
 
 	public get logs():TriggerLog[] {
-		return TriggerActionHandler.instance.logHistory.filter(v=>
-		//These events have no details declared that can be retrieved later on Utils.getTriggerDisplayInfo()
-		v.trigger.type != TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE
-		&& v.trigger.type != TriggerTypes.TWITCHAT_AD
-		&& v.trigger.type != TriggerTypes.TWITCHAT_LIVE_FRIENDS);
+		return TriggerActionHandler.instance.logHistory;
 	}
 
 	public getTriggerInfo(trigger:TriggerData) {
@@ -90,6 +86,7 @@ export default class TriggersLogs extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		console.log(TriggerActionHandler.instance.logHistory);
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 	}

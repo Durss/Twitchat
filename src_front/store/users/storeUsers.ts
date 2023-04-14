@@ -182,7 +182,7 @@ export const storeUsers = defineStore('users', {
 						channelInfo:{},
 					};
 					user = userData;
-				}
+				}else
 				//If we don't have enough info, create a temp user object and load
 				//its details from the API then register it if found.
 				if(!login || !id || !displayName) {
@@ -370,6 +370,9 @@ export const storeUsers = defineStore('users', {
 						twitchUserBatchIdTimeout = to;
 					}
 				}
+			}else 
+			if(platform != "twitch" && user.temporary) {
+				user.temporary = false;//Avoid blocking promise execution on caller
 			}
 			
 			//Attribute a random color to the user (overwrite that externally if necessary)

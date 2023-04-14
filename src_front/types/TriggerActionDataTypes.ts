@@ -344,9 +344,23 @@ export interface TriggerActionPredictionData extends TriggerActionData{
 
 export interface TriggerActionCountData extends TriggerActionData{
 	type:"count";
-	addValue:string;//Can be a placeholder, needs to be parseFloat() before updating counter
+	/**
+	 * Value to add.
+	 * Can be a number, an arithmetical operation, placejolders or a bit of all
+	 */
+	addValue:string;
+	/**
+	 * Counter IDs to update
+	 */
 	counters:string[];
+	/**
+	 * Specifies weither a per-user counter should be updated
+	 * based on the user executing the action (SENDER) or a
+	 * user whose name is stored on a placeholder (string type)
+	 */
+	counterUserSources:{[key:string]:TriggerActionCountDataUserSource}
 }
+export type TriggerActionCountDataUserSource = "SENDER"|string;
 
 /**
  * @deprecated Removed in favor of global counter placeholders

@@ -222,7 +222,7 @@ export default class MessengerProxy {
 				const me = StoreProxy.auth.twitch.user;
 				const chunks = TwitchUtils.parseMessageToChunks(message);
 				const messageData:TwitchatDataTypes.MessageChatData = {
-					platform:"twitchat",
+					platform:"twitch",
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					channel_id:me.id,
 					date:Date.now(),

@@ -529,9 +529,7 @@ export default class TriggerActionHandler {
 		
 		let isAnExecution = false;
 		//Execute all triggers related to the current trigger event type
-		for (let i = 0; i < triggers.length; i++) {
-			const trigger = triggers[i];
-			
+		for(const trigger of triggers) {
 			if(await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
 				isAnExecution = true;
 			}
@@ -556,9 +554,13 @@ export default class TriggerActionHandler {
 			messages:[],
 		};
 
-		this.logHistory.push(log);
+		//Avoid polluting trigger execution history for Twitchat internal triggers
+		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS]
+		if(!noLogs.includes(trigger.type)) {
+			this.logHistory.unshift(log);
+		}
 		if(this.logHistory.length > 100) {
-			this.logHistory.shift();
+			this.logHistory.pop();
 		}
 	
 		//Special case for friends stream start/stop notifications
@@ -662,6 +664,7 @@ export default class TriggerActionHandler {
 
 		const dynamicPlaceholders:{[key:string]:string|number} = {};
 
+		//Handle optional chat command custom params
 		if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
 		&& trigger.chatCommandParams && trigger.chatCommandParams.length > 0) {
 			let res = message.message.trim()
@@ -674,16 +677,15 @@ export default class TriggerActionHandler {
 			res = res.replace(/\s+/gi, ' ');//replace consecutive white spaces
 			const params = res.split(" ");
 
+			//Add all params in the dynamic placeholders
 			for (let i = 0; i < trigger.chatCommandParams.length; i++) {
-				const cmd = trigger.chatCommandParams[i];
-				//TODO load user if command type is user
-				dynamicPlaceholders[cmd.tag] = params[i] || "";
-				log.messages.push({date:Date.now(), value:"Add dynamic placeholder \""+cmd+"\" => \""+params[i]+"\""});
+				const param = trigger.chatCommandParams[i];
+				dynamicPlaceholders[param.tag] = params[i] || "";
+				log.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+param.tag+"}\" => \""+params[i]+"\""});
 			}
 		}
 
-		for (let i = 0; i < trigger.actions.length; i++) {
-			const step = trigger.actions[i];
+		for(const step of trigger.actions) {
 			const logStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
 			log.steps.push(logStep);
 
@@ -933,8 +935,7 @@ export default class TriggerActionHandler {
 					let uri = step.url;
 					if(!/https?:\/\//gi.test(uri)) uri = "https://"+uri;
 					const url = new URL(uri);
-					for (let i = 0; i < step.queryParams.length; i++) {
-						const tag = step.queryParams[i];
+					for(const tag of step.queryParams) {
 						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
 						url.searchParams.append(tag.toLowerCase(), text);
 					}
@@ -952,8 +953,7 @@ export default class TriggerActionHandler {
 				//Handle WS message trigger action
 				if(step.type == "ws") {
 					const json:{[key:string]:number|string|boolean} = {};
-					for (let i = 0; i < step.params.length; i++) {
-						const tag = step.params[i];
+					for(const tag of step.params) {
 						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
 						json[tag.toLowerCase()] = value;
 						if(step.topic) {
@@ -980,12 +980,38 @@ export default class TriggerActionHandler {
 
 					if(!isNaN(value)) {
 						const ids = step.counters;
-						for (let i = 0; i < StoreProxy.counters.counterList.length; i++) {
-							const c = StoreProxy.counters.counterList[i];
+						for(const c of StoreProxy.counters.counterList) {
 							if(ids.indexOf(c.id) > -1) {
-								let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
 								let user = c.perUser? this.extractUser(trigger, message) : undefined;
-								StoreProxy.counters.increment(c.id, value, user);
+								//Check if this step requests that this counter should update a user
+								//different than the default one (the one executing the command)
+								if(c.perUser
+								&& step.counterUserSources
+								&& step.counterUserSources[c.id]
+								&& step.counterUserSources[c.id] != "SENDER") {
+									log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
+									//Convert placeholder to a string value
+									const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.counterUserSources[c.id].toUpperCase()+"}")
+									let channelId = StoreProxy.auth.twitch.user.id;
+									if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+										channelId = (message as TwitchatDataTypes.GreetableMessage).channel_id;
+									}
+									//Load user
+									await new Promise<void>((resolve, reject)=> {
+										StoreProxy.users.getUserFrom(message.platform, channelId, undefined, login, undefined, (userData)=>{
+											if(userData.errored || userData.temporary) {
+												log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
+												user = undefined;
+											}else{
+												user = userData;
+												log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+											}
+											resolve();
+										});
+									})
+								}
+								if(!c.perUser || user) StoreProxy.counters.increment(c.id, value, user);
+								let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
 								if(user) logMessage += " (for @"+user.displayName+")";
 								logStep.messages.push({date:Date.now(), value:logMessage});
 							}
@@ -1244,8 +1270,7 @@ export default class TriggerActionHandler {
 			//No placeholders for this event type, just send back the source text
 			if(!placeholders) return res;
 			
-			for (let i = 0; i < placeholders.length; i++) {
-				const h = placeholders[i];
+			for(const h of placeholders) {
 				const chunks:string[] = h.pointer.split(".");
 				let root = message as unknown;
 				let value:string = "";
@@ -1465,8 +1490,8 @@ export default class TriggerActionHandler {
 	 */
 	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, subEvent?:string|null):Promise<boolean> {
 		let res = false;
-		for (let i = 0; i < conditions.length; i++) {
-			const c = conditions[i];
+		let index = 0;
+		for(const c of conditions) {
 			let localRes = false;
 			if(c.type == "group") {
 				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, subEvent);
@@ -1491,9 +1516,10 @@ export default class TriggerActionHandler {
 				log.messages.push({date:Date.now(), value:"Executing operator \""+c.operator+"\" between \""+value+"\" and \""+expectation+"\" => "+localRes.toString()});
 			}
 			
-			if(i == 0) res = localRes;
-			else if(operator == "AND") res &&= localRes
-			else if(operator == "OR") res ||= localRes
+			if(index == 0) res = localRes;
+			else if(operator == "AND") res &&= localRes;
+			else if(operator == "OR") res ||= localRes;
+			index ++
 		}
 		return res;
 	}
