@@ -31,7 +31,7 @@ export default class TriggerConditionList extends Vue {
 	public beforeMount():void {
 		watch(()=> this.triggerData.conditions, ()=> {
 			if(this.triggerData.conditions) {
-				this.cleanEmptyConditionNodes([this.triggerData.conditions]);
+				this.cleanEmptyConditionNodes(this.triggerData.conditions);
 			}
 		}, {deep:true});
 	}
@@ -61,15 +61,30 @@ export default class TriggerConditionList extends Vue {
 		}
 	}
 
-	public cleanEmptyConditionNodes(nodes:(TriggerCondition|TriggerConditionGroup)[]):void {
-		for (let i = 0; i < nodes.length; i++) {
-			const node = nodes[i];
-			if(node.type == "group") {
-				if(node.conditions.length === 0) {
-					nodes.splice(i, 1);
-					i--;
-				}else{
-					this.cleanEmptyConditionNodes(node.conditions);
+	public cleanEmptyConditionNodes(group:TriggerConditionGroup):void {
+		if(group.conditions.length == 1 && group.conditions[0].type == "group") {
+			//Group contains only one item, bring them to parent
+			let subgroup:TriggerConditionGroup = group.conditions[0];
+			group.conditions = subgroup.conditions;
+			group.operator = subgroup.operator;
+
+		}else{
+			for (let i = 0; i < group.conditions.length; i++) {
+				const node = group.conditions[i];
+				if(node.type == "group") {
+					if(node.conditions.length === 0) {
+						//Sub group is empty, delete it
+						group.conditions.splice(i, 1);
+						i--;
+					}else
+					if(node.conditions.length === 1) {
+						//Sub group only has one item, bring it up
+						group.conditions = group.conditions.concat(node.conditions);
+						group.conditions.splice(i, 1);
+						i--;
+					}else{
+						this.cleanEmptyConditionNodes(node);
+					}
 				}
 			}
 		}
