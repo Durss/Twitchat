@@ -86,7 +86,6 @@ export default class TriggersLogs extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		console.log(TriggerActionHandler.instance.logHistory);
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 	}
