@@ -46,7 +46,7 @@
 		"overlays": {
 			"title": "Overlays Twitchat",
 			"info_1": "Twitchat propose quelques <strong>overlays</strong> pour votre stream.",
-			"info_2": "Ils permettent d'afficher <strong>la musique en cours de lecture</strong>, une <strong>roue animée</strong> de tirage au sort, ou encore un <strong>timer</strong> et un <strong>chronomètre</strong>."
+			"info_2": "Ils permettent d'afficher <strong>la musique en cours de lecture</strong>, une <strong>roue animée</strong> de tirage au sort, un <strong>timer</strong>, un <strong>chronomètre</strong> ou encore de <strong>mettre en avant</strong> un message de tchat."
 		},
 		"countdown": {
 			"title": "Chronomètre et Compte à rebours",

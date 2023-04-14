@@ -46,7 +46,7 @@
 		"overlays": {
 			"title": "Twitchat overlays",
 			"info_1": "Twitchat provides some <strong>overlays</strong> for your stream.",
-			"info_2": "It can display your <strong>currently playing music</strong>, an <strong>animated wheel</strong> to pick a raffle's winner and a <strong>timer</strong> or a <strong>countdown</strong>."
+			"info_2": "It can display your <strong>currently playing music</strong>, an <strong>animated wheel</strong> to pick a raffle's winner, a <strong>timer</strong>, a <strong>countdown</strong> or <strong>highlight</strong> a message of your viewers ."
 		},
 		"countdown": {
 			"title": "Timer and Countdown",

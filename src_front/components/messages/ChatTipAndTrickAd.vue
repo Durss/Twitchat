@@ -103,10 +103,9 @@
 			<div class="row">{{ $t('tips.highlight.info_1') }}</div>
 			<div class="row">{{ $t('tips.highlight.info_2') }}</div>
 			
-			<!-- <img class="row" src="@/assets/img/chatHighlightedMessage.png" alt="obs dock screen"> -->
-			<iframe class="row" src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<a class="row demo" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="cover"></a>
 
-			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParamPage(contentOverlays)" :icon="$image('icons/overlay.svg')" />
+			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParamPage(contentOverlays, contentChatHighlight)" :icon="$image('icons/overlay.svg')" />
 			<div class="row or">{{ $t("global.or") }}</div>
 			<Button class="row" :title="$t('tips.highlight.configure_triggerBt')" @click.stop="openParamPage(contentTriggers)" :icon="$image('icons/broadcast.svg')" />
 		</div>
@@ -130,6 +129,7 @@ export default class ChatTipAndTrickAd extends Vue {
 	private maxIndex = 11;
 
 	public get contentOverlays() { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
+	public get contentChatHighlight() { return TwitchatDataTypes.ParamOverlaySections.HIGHLIGHT; }
 	public get contentConnexions() { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get contentTriggers() { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 	public get contentObs() { return TwitchatDataTypes.ParameterPages.OBS; }
@@ -137,13 +137,14 @@ export default class ChatTipAndTrickAd extends Vue {
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
+		
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 	public startTimer():void { this.$store("timer").timerStart(); }
 	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
 	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
-	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:string):void { this.$store("params").openParamsPage(page, subContent); }
 }
 </script>
 
@@ -178,11 +179,17 @@ export default class ChatTipAndTrickAd extends Vue {
 			max-width: 100%;
 		}
 
-		iframe {
-			width: 80%;
-			max-width: 300px;
-			aspect-ratio: 16/9;
+		.demo {
+			display: block;
+			.cover {
+				margin:auto;
+				display: block;
+				max-height: 150px;
+				aspect-ratio: 16 / 9;
+				border-radius: .5em;
+			}
 		}
+
 		.or {
 			text-transform: uppercase;
 		}
