@@ -70,19 +70,19 @@ export default class PlaceholderSelector extends Vue {
 	}
 	.list {
  		display: grid;
-		grid-template-columns: auto 1fr;
-		align-items: center;
-		// grid-gap: 5px;
+		grid-template-columns: .75fr 1fr;
+		align-items: stretch;
+		grid-gap: 4px;
 		&>* {
 			background-color: fade(@mainColor_normal, 10%);
 			border-radius: .5em;
+			padding: 1px;
 			&:nth-child(odd) {
-				padding: .25em;
+				word-break: break-all;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
 			}
 			&:nth-child(even) {
-				padding: .4em;
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}

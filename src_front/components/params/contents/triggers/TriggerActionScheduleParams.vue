@@ -113,9 +113,9 @@ export default class TriggerActionScheduleParams extends Vue {
 		}
 	}
 
-	public dateClasses(d:{value:string, daily:boolean}):string[] {
+	public dateClasses(d:{daily:boolean, monthly:boolean, yearly:boolean, value:string}):string[] {
 		const res:string[] = ["row"];
-		if(new Date(d.value).getTime() < Date.now() && !d.daily) res.push("past");
+		if(new Date(d.value).getTime() < Date.now() && !d.daily && !d.monthly && !d.yearly) res.push("past");
 		return res;
 	}
 

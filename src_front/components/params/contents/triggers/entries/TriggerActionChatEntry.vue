@@ -91,8 +91,7 @@ export default class TriggerActionChatEntry extends Vue {
 		padding-left: 2em;
 		:deep(.content){
 			display: grid;
-			row-gap: 4px;
-			column-gap: 4px;
+			grid-gap: 4px;
 			background-color: transparent;
 			grid-template-columns: repeat(auto-fill, minmax(max(calc(50%-.5em), 200px), 1fr));
 		}
