@@ -52,7 +52,7 @@
 		"displayTimeRelative": "Show elapsed duration since reception instead of reception time",
 		"splitViewVertical": "Vertical layout",
 		"dyslexicFont": "Use dyslexic-friendly font",
-		"defaultSize": "Text size ({'{'}VALUE{'}'})",
+		"defaultSize": "Text size ({VALUE})",
 		"backBt_aria": "Back to menu",
 		"closeBt_aria": "Close parameters",
 		"search": "Search a parameter...",

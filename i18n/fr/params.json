@@ -52,7 +52,7 @@
 		"displayTimeRelative": "Afficher la durée écoulée depuis réception au lieu de l'heure de réception",
 		"splitViewVertical": "Disposition verticale",
 		"dyslexicFont": "Police pour dyslexiques",
-		"defaultSize": "Taille du texte ({'{'}VALUE{'}'})",
+		"defaultSize": "Taille du texte ({VALUE})",
 		"backBt_aria": "Retour",
 		"closeBt_aria": "Fermer",
 		"search": "recherche...",
