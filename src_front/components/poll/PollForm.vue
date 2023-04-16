@@ -225,11 +225,11 @@ export default class PollForm extends Vue {
 				}
 				.error {
 					margin-top: 5px;
-					color: @mainColor_light;
+					color: var(--mainColor_light);
 					padding: 5px 10px;
 					border-radius: 5px;
 					text-align: center;
-					background-color: @mainColor_alert;
+					background-color: var(--mainColor_alert);
 				}
 
 				.field {
@@ -251,7 +251,7 @@ export default class PollForm extends Vue {
 		}
 	}
 	.voiceFocus {
-		border: 2px solid @mainColor_normal;
+		border: 2px solid var(--mainColor_normal);
 	}
 }
 </style>

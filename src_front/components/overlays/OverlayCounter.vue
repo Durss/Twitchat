@@ -134,7 +134,7 @@ export default class OverlayCounter extends Vue {
 	.counter {
 		margin: .5em;
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
-		background-color: @mainColor_light;
+		background-color: var(--mainColor_light);
 		padding: 1em;
 		border-radius: .5em;
 		display: inline-flex;
@@ -162,7 +162,7 @@ export default class OverlayCounter extends Vue {
 		width: 6em * 4;
 		height: 1em * 4;
 		position: relative;
-		background-color: @mainColor_light;
+		background-color: var(--mainColor_light);
 		border-radius: .5em;
 		overflow: hidden;
 		.name {
@@ -183,7 +183,7 @@ export default class OverlayCounter extends Vue {
 			width: 100%;
 			top: 0;
 			left: 0;
-			background: @mainColor_normal_extralight;
+			background: var(--mainColor_normal_extralight);
 			height: 100%;
 			transition: width 1s ease-in-out;
 		}

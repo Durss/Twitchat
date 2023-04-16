@@ -3,11 +3,57 @@
 @import "reset.less";
 @import "form.less";
 
+@media (prefers-color-scheme: dark) {
+/* Dark theme styles go here */
+}
+
+@media (prefers-color-scheme: light) {
+/* Light theme styles go here */
+}
+
 :root {
 	--font-inter: "Inter";
 	--font-nunito: "Nunito";
 	--font-roboto: "Roboto";
 	--font-azeret: "Azeret";
+
+	@mainColor_light: #ffffff;
+	@mainColor_normal: #9147ff;
+	@mainColor_dark: #18181b;
+	@mainColor_highlight: #005be2;
+	@mainColor_warn: #d6a608;
+	@mainColor_alert: #bb3c3c;
+
+	--mainColor_light: @mainColor_light;
+	--mainColor_normal: @mainColor_normal;
+	--mainColor_dark: @mainColor_dark;
+	--mainColor_highlight: @mainColor_highlight;
+	--mainColor_warn: @mainColor_warn;
+	--mainColor_alert: @mainColor_alert;
+	--windowStateColor: darken(@mainColor_highlight, 20%);
+	
+	--mainColor_light_light: lighten(@mainColor_light, 20%);
+	--mainColor_normal_light: lighten(@mainColor_normal, 5%);
+	--mainColor_dark_light: lighten(@mainColor_dark, 10%);
+	--mainColor_highlight_light: lighten(@mainColor_highlight, 15%);
+	--mainColor_warn_light: lighten(@mainColor_warn, 10%);
+	--mainColor_alert_light: lighten(@mainColor_alert, 10%);
+	
+	--mainColor_light_extralight: lighten(@mainColor_light, 35%);
+	--mainColor_normal_extralight: lighten(@mainColor_normal, 20%);
+	--mainColor_dark_extralight: lighten(@mainColor_dark, 20%);
+	--mainColor_highlight_extralight: lighten(@mainColor_highlight, 20%);
+	--mainColor_warn_extralight: lighten(@mainColor_warn, 40%);
+	--mainColor_alert_extralight: lighten(@mainColor_alert, 40%);
+	
+	--border_radius:.5em;
+	
+	
+	--highlight_subs: fade(#528bff, 30%);
+	--highlight_vips: fade(#db00b3, 30%);
+	--highlight_mods: fade(#00a865, 30%);
+	--highlight_partners: fade(#ffee52, 30%);
+	--highlight_mention: fade(#ff0000, 30%);
 }
 
 body, html {
@@ -16,7 +62,7 @@ body, html {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
-	color: @mainColor_normal;
+	color: var(--mainColor_normal);
 	min-width: 100%;
 	min-height: var(--vh);
 	min-height: -webkit-fill-available;
@@ -33,10 +79,10 @@ pre {
 
 a {
 	// text-decoration: none;
-	color: @mainColor_alert;
+	color: var(--mainColor_alert);
 	cursor: pointer;
 	&:hover {
-		color: @mainColor_alert_light;
+		color: var(--mainColor_alert_light);
 	}
 }
 
@@ -49,19 +95,19 @@ h1 {
 }
 
 .tippy-box[data-theme~='twitchat'] {
-    background-color: @mainColor_highlight;
+    background-color: var(--mainColor_highlight);
 	box-shadow: 3px 3px 3px rgba(0,0,0,.35);
 	&[data-placement^='top']  > .tippy-arrow::before {
-		border-top-color: @mainColor_highlight;
+		border-top-color: var(--mainColor_highlight);
 	}
 	&[data-placement^='left']  > .tippy-arrow::before {
-		border-left-color: @mainColor_highlight;
+		border-left-color: var(--mainColor_highlight);
 	}
 	&[data-placement^='bottom']  > .tippy-arrow::before {
-		border-bottom-color: @mainColor_highlight;
+		border-bottom-color: var(--mainColor_highlight);
 	}
 	&[data-placement^='right']  > .tippy-arrow::before {
-		border-right-color: @mainColor_highlight;
+		border-right-color: var(--mainColor_highlight);
 	}
 }
 
@@ -96,7 +142,7 @@ h1 {
 				cursor: pointer;
 				.mx-context-menu-item.alert.open,
 				.mx-context-menu-item.alert:hover {
-					background: @mainColor_alert;
+					background: var(--mainColor_alert);
 				}
 				.mx-context-menu-item-wrapper {
 					.mx-context-menu-item {
@@ -111,9 +157,9 @@ h1 {
 						}
 					}
 					.mx-context-menu-item.header {
-						color:@mainColor_light;
+						color:var(--mainColor_light);
 						background: rgba(255,255,255,.2);
-						background: @mainColor_highlight;
+						background: var(--mainColor_highlight);
 						margin: -10px 0 0 0;
 						border-bottom-left-radius: 0;
 						border-bottom-right-radius: 0;
@@ -139,7 +185,7 @@ h1 {
 
 .vs__dropdown-option {
 	&.vs__dropdown-option--highlight {
-		background-color: @mainColor_normal_light;
+		background-color: var(--mainColor_normal_light);
 		.listIcon {
 			filter: brightness(10);
 		}
@@ -147,7 +193,7 @@ h1 {
 	&>.category {
 		font-weight: bold;
 		font-size: 1.2em;
-		color:@mainColor_normal;
+		color:var(--mainColor_normal);
 	}
 	&>.subItem {
 		padding-left: 1em;

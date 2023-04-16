@@ -252,8 +252,8 @@ export default class Login extends Vue {
 			position: absolute;
 			top: 10px;
 			right: -50px;
-			background-color: @mainColor_normal;
-			color: @mainColor_light;
+			background-color: var(--mainColor_normal);
+			color: var(--mainColor_light);
 			padding: 5px 50px;
 			border-radius: 10px;
 			text-transform: uppercase;
@@ -280,15 +280,15 @@ export default class Login extends Vue {
 			align-items: center;
 	
 			&.betaWarn {
-				background: @mainColor_normal;
-				color: @mainColor_light;
+				background: var(--mainColor_normal);
+				color: var(--mainColor_light);
 				margin: 1em 0;
 				img {
 					height: 2em;
 				}
 	
 				.link {
-					color:@mainColor_warn_light;
+					color:var(--mainColor_warn_light);
 				}
 			}
 	

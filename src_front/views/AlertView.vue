@@ -49,8 +49,8 @@ export default class AlertView extends Vue {
 <style lang="less" scoped>
 
 .alert {
-	background-color: @mainColor_alert;
-	color: @mainColor_light;
+	background-color: var(--mainColor_alert);
+	color: var(--mainColor_light);
 	padding: 20px 0;
 	height: auto;
 	width: 100%;

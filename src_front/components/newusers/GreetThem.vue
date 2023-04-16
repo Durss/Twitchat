@@ -444,7 +444,7 @@ export default class NewUsers extends Vue {
 <style scoped lang="less">
 .greetThem{
 	// background-color: #218bac;
-	background-color: @windowStateColor;
+	background-color: var(--windowStateColor);
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;
@@ -493,7 +493,7 @@ export default class NewUsers extends Vue {
 			label {
 				margin: 0;
 				margin-right: 5px;
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				img {
 					height: .8em;
 					margin-right: 3px;
@@ -503,11 +503,11 @@ export default class NewUsers extends Vue {
 				font-size: .8em;
 				padding: 0px 2px;
 				border-radius: 5px;
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				background-color: rgba(0,0,0,.5);
 				border-color:  rgba(0, 0, 0, .8);
 				option {
-					background-color: @mainColor_dark;
+					background-color: var(--mainColor_dark);
 				}
 			}
 		}
@@ -559,8 +559,8 @@ export default class NewUsers extends Vue {
 		text-transform: uppercase;
 		cursor: ns-resize;
 		user-select: none;
-		color: @mainColor_light;
-		border-bottom: 1px dashed @mainColor_light;
+		color: var(--mainColor_light);
+		border-bottom: 1px dashed var(--mainColor_light);
 		background-color: fade(@windowStateColor,60%);
 		display: flex;
 		align-items: flex-end;

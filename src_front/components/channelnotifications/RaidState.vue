@@ -164,7 +164,7 @@ export default class RaidState extends Vue {
 
 <style scoped lang="less">
 .raidstate{
-	color: @mainColor_light;
+	color: var(--mainColor_light);
 	text-align: center;
 
 	.avatar {
@@ -172,7 +172,7 @@ export default class RaidState extends Vue {
 		border-radius: 50%;
 		margin: auto;
 		margin-bottom: .25em;
-		border: 2px solid @mainColor_light;
+		border: 2px solid var(--mainColor_light);
 	}
 	
 	.icon {
@@ -214,9 +214,9 @@ export default class RaidState extends Vue {
 			margin-left: .5em;
 		}
 		:deep(.header) {
-			background: @mainColor_alert;
+			background: var(--mainColor_alert);
 			&:hover {
-				background: @mainColor_alert_light;
+				background: var(--mainColor_alert_light);
 			}
 		}
 		:deep(.content) {
@@ -234,7 +234,7 @@ export default class RaidState extends Vue {
 					vertical-align: middle;
 				}
 				.login {
-					color: @mainColor_light;
+					color: var(--mainColor_light);
 					&:hover {
 						background-color: fade(@mainColor_light, 20%);
 					}
@@ -250,7 +250,7 @@ export default class RaidState extends Vue {
 			text-align: center;
 			margin-top: .5em;
 			.button {
-				color: @mainColor_alert;
+				color: var(--mainColor_alert);
 			}
 		}
 	}

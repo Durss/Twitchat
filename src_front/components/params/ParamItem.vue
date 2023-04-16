@@ -542,14 +542,14 @@ export default class ParamItem extends Vue {
 	}
 	
 	&.error {
-		border-left: .25em solid @mainColor_alert;
-		border-bottom: 1px solid @mainColor_alert;
+		border-left: .25em solid var(--mainColor_alert);
+		border-bottom: 1px solid var(--mainColor_alert);
 		padding-left: .25em;
 
 		input, select, textarea, .listField{
-			color:@mainColor_light;
+			color:var(--mainColor_light);
 			background-color: fade(@mainColor_alert, 50%);
-			border-color: @mainColor_alert;
+			border-color: var(--mainColor_alert);
 			&::placeholder {
 				color:fade(@mainColor_light, 50%);
 			}
@@ -558,11 +558,11 @@ export default class ParamItem extends Vue {
 
 	&.clear {
 		textarea {
-			color: @mainColor_light;
-			border-color: @mainColor_light;
+			color: var(--mainColor_light);
+			border-color: var(--mainColor_light);
 			background: fade(@mainColor_light, 20%);
 			&::-webkit-scrollbar-thumb {
-				background-color: @mainColor_light;
+				background-color: var(--mainColor_light);
 			}
 		}
 	}

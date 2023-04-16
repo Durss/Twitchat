@@ -71,7 +71,7 @@ export default class RemoteVoiceControl extends Vue {
 		max-width: 600px;
 		margin: auto;
 		padding: 0;
-		background-color: @mainColor_light;
+		background-color: var(--mainColor_light);
 		margin: .5em auto;
 
 		&:not(.conf) {

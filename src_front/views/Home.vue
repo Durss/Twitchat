@@ -316,7 +316,7 @@ export default class Home extends Vue {
 <style scoped lang="less">
 .home{
 	text-align: center;
-	color: @mainColor_light;
+	color: var(--mainColor_light);
 	min-height: 100%;
 	background-image: url("../assets/img/homepage/grain.png");
 	margin: auto;
@@ -351,11 +351,11 @@ export default class Home extends Vue {
 			right: 10px;
 			font-size: .8em;
 			select{
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				background: none;
 				border: none;
 				option {
-					color: @mainColor_normal;
+					color: var(--mainColor_normal);
 				}
 			}
 		}
@@ -451,7 +451,7 @@ export default class Home extends Vue {
 			margin-top: 15vw;
 			background-color: #fff;
 			border-radius: 50%;
-			border: .5em solid @mainColor_dark;
+			border: .5em solid var(--mainColor_dark);
 		}
 	}
 
@@ -504,7 +504,7 @@ export default class Home extends Vue {
 			flex-direction: row;
 			max-width: 70vw;
 			margin: auto;
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			align-items: center;
 			position: relative;
 	
@@ -568,8 +568,8 @@ export default class Home extends Vue {
 					line-height: 1.25em;
 					
 					:deep(mark) {
-						background-color: @mainColor_normal;
-						border: 1px dashed @mainColor_normal_extralight;
+						background-color: var(--mainColor_normal);
+						border: 1px dashed var(--mainColor_normal_extralight);
 						font-size: .8em;
 						border-radius: .5em;
 						padding: 0 .25em;
@@ -584,7 +584,7 @@ export default class Home extends Vue {
 				padding: 1em 3%;
 				display: block;
 				background-image: url("../assets/img/homepage/grain.png");
-				background-color: @mainColor_dark;
+				background-color: var(--mainColor_dark);
 			}
 		}
 
@@ -599,7 +599,7 @@ export default class Home extends Vue {
 	section.more {
 		margin-top: 10vw;
 		background-image: url("../assets/img/homepage/grain.png");
-		background-color: @mainColor_dark;
+		background-color: var(--mainColor_dark);
 		.icon {
 			height: 6em;
 			padding-top: 1em;
@@ -670,7 +670,7 @@ export default class Home extends Vue {
 				.content {
 					flex-direction: column-reverse;
 					background-image: url("../assets/img/homepage/grain.png");
-					background-color: @mainColor_dark;
+					background-color: var(--mainColor_dark);
 					max-width: calc(100% - 1em);
 					padding-bottom: 1em;
 				}

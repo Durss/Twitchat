@@ -142,7 +142,7 @@ export default class AnchorsMenu extends Vue {
 				white-space: nowrap;
 				font-size: .8em;
 				margin: 0 .5em 0 0;
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				overflow: hidden;
 				transition: color .25s;
 			}
@@ -159,14 +159,14 @@ export default class AnchorsMenu extends Vue {
 				margin-left: @size * .05;
 				min-width: @innerSize;
 				height: @innerSize;
-				outline: 2px solid @mainColor_light;
+				outline: 2px solid var(--mainColor_light);
 				.icon {
 					width: @innerSize;
 					height: @innerSize;
 					padding: .3em;
 				}
 				.label {
-					color: @mainColor_light;
+					color: var(--mainColor_light);
 				}
 			}
 		}

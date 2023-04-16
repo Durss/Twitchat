@@ -153,7 +153,7 @@ export default class DeezerState extends Vue {
 
 <style scoped lang="less">
 .fsdfdsfsdfdsfsd{
-	color: @mainColor_light;
+	color: var(--mainColor_light);
 	position: relative;
 
 	&>.title {
@@ -189,7 +189,7 @@ export default class DeezerState extends Vue {
 		max-width: 300px;
 		margin: auto;
 		margin-bottom: .5em;
-		border: 1px solid @mainColor_light;
+		border: 1px solid var(--mainColor_light);
 		border-radius: .25em;
 		padding: .25em;
 
@@ -246,9 +246,9 @@ export default class DeezerState extends Vue {
 		margin: auto;
 		margin-bottom: .5em;
 		input {
-			color: @mainColor_dark;
-			border-color: @mainColor_dark;
-			background-color: @mainColor_light;
+			color: var(--mainColor_dark);
+			border-color: var(--mainColor_dark);
+			background-color: var(--mainColor_light);
 			width: 100%;
 			&::placeholder {
 				color: fade(@mainColor_dark_extralight, 50%);
@@ -274,7 +274,7 @@ export default class DeezerState extends Vue {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		border: 1px solid @mainColor_light;
+		border: 1px solid var(--mainColor_light);
 		border-radius: .25em;
 		min-height: 200px;
 		.entry {

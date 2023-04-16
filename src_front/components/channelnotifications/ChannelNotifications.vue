@@ -143,7 +143,7 @@ export default class ChannelNotifications extends Vue {
 			pointer-events:all;
 			padding: 10px;
 			padding-bottom: 10px;
-			background-color: @windowStateColor;
+			background-color: var(--windowStateColor);
 			box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 			border-radius: 10px;
 			border-bottom-right-radius: 0;

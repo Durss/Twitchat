@@ -421,7 +421,7 @@ export default class RaffleForm extends Vue {
 			}
 			.legal {
 				text-align: justify;
-				color: @mainColor_alert;
+				color: var(--mainColor_alert);
 				:deep(.header),
 				:deep(.content) {
 					background-color: fade(@mainColor_alert, 10%);
@@ -484,14 +484,14 @@ export default class RaffleForm extends Vue {
 						font-size: 1.25em;
 						padding: .25em;
 						text-align: center;
-						color: @mainColor_light;
-						background-color: @mainColor_warn;
+						color: var(--mainColor_light);
+						background-color: var(--mainColor_warn);
 					}
 					.user {
 						padding: .5em;
 						text-align: center;
-						color: @mainColor_warn;
-						background-color: @mainColor_warn_extralight;
+						color: var(--mainColor_warn);
+						background-color: var(--mainColor_warn_extralight);
 					}
 				}
 
@@ -501,7 +501,7 @@ export default class RaffleForm extends Vue {
 
 				.tips {
 					font-size: .8em;
-					background-color: @mainColor_light;
+					background-color: var(--mainColor_light);
 					padding: .5em;
 					border-radius: .5em;
 					img {
@@ -514,8 +514,8 @@ export default class RaffleForm extends Vue {
 				display: block;
 				border-radius: .25em;
 				margin: .25em auto;
-				background-color: @mainColor_light;
-				border: 1px solid @mainColor_alert;
+				background-color: var(--mainColor_light);
+				border: 1px solid var(--mainColor_alert);
 				padding: .25em .5em;
 				// margin-left: calc(@iconSize + 10px);
 				text-align: center;
@@ -528,7 +528,7 @@ export default class RaffleForm extends Vue {
 					vertical-align: middle;
 				}
 				a{
-					color: @mainColor_alert;
+					color: var(--mainColor_alert);
 				}
 				.grantBt {
 					margin: .5em auto;

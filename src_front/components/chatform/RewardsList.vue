@@ -123,7 +123,7 @@ export default class RewardsList extends Vue {
 	.window();
 
 	h1 {
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		align-self: center;
 		margin-bottom: 10px;
 	}
@@ -158,7 +158,7 @@ export default class RewardsList extends Vue {
 			display: flex;
 			flex-direction: column;
 			width: 100px;
-			background-color: @mainColor_dark_light;
+			background-color: var(--mainColor_dark_light);
 			border-radius: 5px;
 			align-items: center;
 			margin-bottom: 5px;
@@ -178,7 +178,7 @@ export default class RewardsList extends Vue {
 			}
 
 			// &:hover {
-			// 	background-color: @mainColor_dark_extralight;
+			// 	background-color: var(--mainColor_dark_extralight);
 			// }
 
 			&:not(:nth-child(3n)) {
@@ -194,13 +194,13 @@ export default class RewardsList extends Vue {
 				font-size: 10px;
 				padding: 5px;
 				border-radius: 5px;
-				background-color: @mainColor_dark;
-				color: @mainColor_light;
+				background-color: var(--mainColor_dark);
+				color: var(--mainColor_light);
 				margin-bottom: 5px;
 			}
 
 			.title {
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				font-size: 13px;
 				text-align: center;
 				margin-bottom: 5px;

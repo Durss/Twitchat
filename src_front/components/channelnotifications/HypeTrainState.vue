@@ -291,7 +291,7 @@ export default class HypeTrainState extends Vue {
 
 	.progressBar {
 		margin: 10px 0;
-		color: @windowStateColor;
+		color: var(--windowStateColor);
 	}
 
 	.content {
@@ -300,7 +300,7 @@ export default class HypeTrainState extends Vue {
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 
 		h1 {
 			text-align: center;
@@ -342,7 +342,7 @@ export default class HypeTrainState extends Vue {
 				align-items: center;
 				flex-direction: column;
 				gap:.25em;
-				background-color: @mainColor_light;
+				background-color: var(--mainColor_light);
 				border-radius: @border_radius;
 				padding: .5em;
 				min-width: 6em;
@@ -356,7 +356,7 @@ export default class HypeTrainState extends Vue {
 					margin-left: -.8em;
 					.icon {
 						display: inline;
-						background-color: @mainColor_light;
+						background-color: var(--mainColor_light);
 						padding: .25em;
 						border-radius: 50%;
 						img {
@@ -372,13 +372,13 @@ export default class HypeTrainState extends Vue {
 					border-radius: 50%;
 					margin: auto;
 					display: block;
-					border: 1px solid @mainColor_normal;
+					border: 1px solid var(--mainColor_normal);
 				}
 				.userlink {
 					font-size: .9em;
 				}
 				.label {
-					color: @mainColor_normal;
+					color: var(--mainColor_normal);
 					.count {
 						font-weight: bold;
 					}

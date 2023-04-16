@@ -859,23 +859,23 @@ export default class Chat extends Vue {
 							top: 50%;
 							width: 100%;
 							height: 1px;
-							background: @mainColor_dark_light;
+							background: var(--mainColor_dark_light);
 							&::before {
 								height: 5px;
 								width: 40px;
 								background: linear-gradient(90deg,
-												@mainColor_dark_light 30%,
-												@mainColor_dark 30%,
-												@mainColor_dark 35%,
-												@mainColor_dark_light 35%,
-												@mainColor_dark_light 45%,
-												@mainColor_dark 45%,
-												@mainColor_dark 50%,
-												@mainColor_dark_light 50%,
-												@mainColor_dark_light 60%,
-												@mainColor_dark 60%,
-												@mainColor_dark 65%,
-												@mainColor_dark_light 65%,
+												--mainColor_dark_light 30%,
+												--mainColor_dark 30%,
+												--mainColor_dark 35%,
+												--mainColor_dark_light 35%,
+												--mainColor_dark_light 45%,
+												--mainColor_dark 45%,
+												--mainColor_dark 50%,
+												--mainColor_dark_light 50%,
+												--mainColor_dark_light 60%,
+												--mainColor_dark 60%,
+												--mainColor_dark 65%,
+												--mainColor_dark_light 65%,
 											);
 							}
 						}
@@ -942,7 +942,7 @@ export default class Chat extends Vue {
 						left: 50%;
 						height: 100%;
 						width: 1px;
-						background: @mainColor_dark_light;
+						background: var(--mainColor_dark_light);
 						&::before {
 							content:"";
 							position: absolute;
@@ -950,20 +950,20 @@ export default class Chat extends Vue {
 							display: block;
 							width: 5px;
 							height: 40px;
-							background: @mainColor_dark_light;
+							background: var(--mainColor_dark_light);
 							background: linear-gradient(0deg,
-											@mainColor_dark_light 30%,
-											@mainColor_dark 30%,
-											@mainColor_dark 35%,
-											@mainColor_dark_light 35%,
-											@mainColor_dark_light 45%,
-											@mainColor_dark 45%,
-											@mainColor_dark 50%,
-											@mainColor_dark_light 50%,
-											@mainColor_dark_light 60%,
-											@mainColor_dark 60%,
-											@mainColor_dark 65%,
-											@mainColor_dark_light 65%,
+											--mainColor_dark_light 30%,
+											--mainColor_dark 30%,
+											--mainColor_dark 35%,
+											--mainColor_dark_light 35%,
+											--mainColor_dark_light 45%,
+											--mainColor_dark 45%,
+											--mainColor_dark 50%,
+											--mainColor_dark_light 50%,
+											--mainColor_dark_light 60%,
+											--mainColor_dark 60%,
+											--mainColor_dark 65%,
+											--mainColor_dark_light 65%,
 										);
 						}
 					}
@@ -1036,7 +1036,7 @@ export default class Chat extends Vue {
 		transform: translate(-50%, -50%);
 		z-index: 6;
 		pointer-events: none;
-		color: @mainColor_normal;
+		color: var(--mainColor_normal);
 		text-align: center;
 		text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
 

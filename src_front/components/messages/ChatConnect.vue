@@ -62,7 +62,7 @@ export default class ChatConnect extends AbstractChatMessage {
 	opacity: .7;
 
 	&.disconnect {
-		color: @mainColor_alert_light;
+		color: var(--mainColor_alert_light);
 	}
 	
 }

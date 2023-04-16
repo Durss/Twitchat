@@ -508,8 +508,8 @@ interface UserEntry {
 			}
 
 			.errorDetails {
-				background-color: @mainColor_alert;
-				color: @mainColor_light;
+				background-color: var(--mainColor_alert);
+				color: var(--mainColor_light);
 				padding: 0 .5em .25em .5em;
 				margin-top: -.25em;
 				border-bottom-right-radius: .5em;
@@ -557,9 +557,9 @@ interface UserEntry {
 			display: flex;//Dunno why i need this for the button to be properly centered
 		}
 		.info {
-			border: 1px solid @mainColor_light;
+			border: 1px solid var(--mainColor_light);
 			padding: .25em .5em;
-			border-radius: @border_radius;
+			border-radius: var(--border_radius);
 			font-size: .8em;
 			display: flex;
 			flex-direction: row;
@@ -588,9 +588,9 @@ interface UserEntry {
 			}
 			.value {
 				font-weight: bold;
-				background-color: @mainColor_normal_extralight;
+				background-color: var(--mainColor_normal_extralight);
 				padding: .25em .5em;
-				border-radius: @border_radius;
+				border-radius: var(--border_radius);
 				min-width: 3em;
 				width: 100%;
 				color: darken(@mainColor_normal, 10%);
@@ -632,17 +632,17 @@ interface UserEntry {
 				.noResult {
 					text-align: center;
 					font-style: italic;
-					color:@mainColor_alert;
+					color:var(--mainColor_alert);
 				}
 
 				.sort {
 					display: flex;
 					flex-direction: row;
 					button {
-						color: @mainColor_normal;
+						color: var(--mainColor_normal);
 						border-radius: .5em;
 						background-color: fade(@mainColor_normal, 10%);
-						// border: 1px solid @mainColor_normal;
+						// border: 1px solid var(--mainColor_normal);
 						box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 						&:hover {
 							background-color: fade(@mainColor_normal, 20%);
@@ -668,11 +668,11 @@ interface UserEntry {
 					align-items: center;
 					gap: 1em;
 					height: 50px;
-					// border: 1px solid @mainColor_normal_extralight;
+					// border: 1px solid var(--mainColor_normal_extralight);
 					box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 					background-color: rgba(255, 255, 255, .5);
 					padding:.25em;
-					border-radius: @border_radius;
+					border-radius: var(--border_radius);
 					.login {
 						font-weight: bold;
 						flex-grow: 1;

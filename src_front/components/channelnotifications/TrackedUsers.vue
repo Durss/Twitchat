@@ -144,7 +144,7 @@ export default class TrackedUsers extends Vue {
 	}
 
 	.title {
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		margin: auto;
 		text-align: center;
 		padding-bottom: 10px;
@@ -219,7 +219,7 @@ export default class TrackedUsers extends Vue {
 	.noMessage {
 		display: block;
 		margin:auto;
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		font-style: italic;
 		opacity: 0.5;
 	}

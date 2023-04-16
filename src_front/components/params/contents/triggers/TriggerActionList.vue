@@ -252,7 +252,7 @@ export default class TriggerActionList extends Vue {
 		.listItem {
 			.dash {
 				width: 2px;
-				background-color: @mainColor_normal;
+				background-color: var(--mainColor_normal);
 				height: 5px;
 				margin: auto;
 			}
@@ -264,7 +264,7 @@ export default class TriggerActionList extends Vue {
 			border-radius: 50%;
 			width: 1.25em;
 			height: 1.25em;
-			background-color: @mainColor_normal;
+			background-color: var(--mainColor_normal);
 			transition: background-color .25s;
 			img {
 				padding: .25em;
@@ -272,13 +272,13 @@ export default class TriggerActionList extends Vue {
 				width: 100%;
 			}
 			&:hover {
-				background-color: @mainColor_normal_light;
+				background-color: var(--mainColor_normal_light);
 			}
 		}
 	}
 
 	.params, .conditions, .description {
-		background-color: @mainColor_light;
+		background-color: var(--mainColor_light);
 		padding: .5em;
 		font-size: .9em;
 		border-radius: .5em;

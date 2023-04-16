@@ -87,7 +87,7 @@ export default class VolumeBar extends Vue {
 			width: 50%;
 			height: .25em;
 			margin-top: .33em;
-			background-color: @mainColor_light;
+			background-color: var(--mainColor_light);
 		}
 	}
 }

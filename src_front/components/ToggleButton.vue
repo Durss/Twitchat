@@ -52,8 +52,8 @@ export default class ToggleButton extends Vue {
 	transition: all .2s;
 
 	&:hover {
-		border-color: @mainColor_normal_light;
-		background-color: @mainColor_normal_extralight;
+		border-color: var(--mainColor_normal_light);
+		background-color: var(--mainColor_normal_extralight);
 	}
 
 	&.small {
@@ -112,7 +112,7 @@ export default class ToggleButton extends Vue {
 	}
 
 	&.selected {
-		background-color: @mainColor_normal;
+		background-color: var(--mainColor_normal);
 		.circle {
 			background-color: #ffffff;
 			left: calc(@size * 2 - @size + 1px);

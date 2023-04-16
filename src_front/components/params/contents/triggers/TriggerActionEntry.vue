@@ -414,7 +414,7 @@ export default class TriggerActionEntry extends Vue {
 </script>
 
 <style lang="less">
-.closed {
+.triggeractionentry.closed {
     width: fit-content;
     margin: auto;
 }
@@ -450,8 +450,8 @@ export default class TriggerActionEntry extends Vue {
 				content: "beta";
 				position: absolute;
 				left: 0;
-				color:@mainColor_light;
-				background-color: @mainColor_normal;
+				color:var(--mainColor_light);
+				background-color: var(--mainColor_normal);
 				background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 0%, fade(@mainColor_normal, 100%) 100%);
 				height: 100%;
 				display: flex;
@@ -489,7 +489,7 @@ export default class TriggerActionEntry extends Vue {
 		.source {
 			padding: .25em;
 			border-radius: .5em;
-			border: 2px dashed @mainColor_alert;
+			border: 2px dashed var(--mainColor_alert);
 			background-color: fade(@mainColor_alert, 35%);
 		}
 	}

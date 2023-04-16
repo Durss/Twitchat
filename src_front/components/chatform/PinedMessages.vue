@@ -74,14 +74,14 @@ export default class PinedMessages extends Vue {
 		width: 100%;
 		height: 100%;
 		overflow: auto;
-		background-color: @mainColor_dark;
+		background-color: var(--mainColor_dark);
 		@gap: 5px;
 
 		.title {
 			text-align: center;
 			margin-bottom: .5em;
-			color: @mainColor_light;
-			background-color: @mainColor_normal;
+			color: var(--mainColor_light);
+			background-color: var(--mainColor_normal);
 			display: flex;
 			flex-direction: row;
 			p {

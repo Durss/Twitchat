@@ -94,9 +94,9 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 			flex-grow: 1;
 			max-height: 300px;
 			overflow-y: auto;
-			border: 1px solid @mainColor_normal;
+			border: 1px solid var(--mainColor_normal);
 			border-radius: .5em;
-			background-color: @mainColor_normal_extralight;
+			background-color: var(--mainColor_normal_extralight);
 			padding: .5em;
 		}
 	}

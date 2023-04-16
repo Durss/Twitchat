@@ -281,9 +281,9 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 		}
 
 		&.error {
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			text-align: center;
-			background-color: @mainColor_alert;
+			background-color: var(--mainColor_alert);
 		}
 	}
 	

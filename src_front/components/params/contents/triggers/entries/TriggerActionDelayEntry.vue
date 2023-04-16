@@ -82,12 +82,12 @@ export default class TriggerActionDelayEntry extends Vue {
 	margin: auto;
 	width: min-content;
 	border-radius: .5em;
-	background-color: @mainColor_light;
+	background-color: var(--mainColor_light);
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	padding-left: .5em;
-	color: @mainColor_normal;
+	color: var(--mainColor_normal);
 	overflow: hidden;
 	gap: .5em;
 	line-height: 1.5em;

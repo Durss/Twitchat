@@ -202,33 +202,33 @@ export default class Button extends Vue {
 	border: none;
 	padding: .25em .8em;
 	font-size: 1em;
-	color: @mainColor_light;
-	background-color: @mainColor_normal;
+	color: var(--mainColor_light);
+	background-color: var(--mainColor_normal);
 	transition: color .25s, background-color .25s;
 	box-sizing: border-box;
 	text-align: center;
-	border-radius: @border_radius;
+	border-radius: var(--border_radius);
 	will-change: transform;
 	text-decoration: none;
 	min-height: calc(1em + .5em);
 
 	&:hover {
-		color: @mainColor_light;
-		background-color: @mainColor_normal_light;
+		color: var(--mainColor_light);
+		background-color: var(--mainColor_normal_light);
 	}
 
 	&.dark {
 		color: #fff;
-		background-color: @mainColor_dark;
+		background-color: var(--mainColor_dark);
 
 		&:hover {
-			background-color: @mainColor_dark_light;
+			background-color: var(--mainColor_dark_light);
 		}
 	}
 
 	&.white {
-		color: @mainColor_normal;
-		background-color: @mainColor_light;
+		color: var(--mainColor_normal);
+		background-color: var(--mainColor_light);
 
 		&:hover {
 			background-color: lighten(@mainColor_normal_extralight, 12%) !important;
@@ -244,8 +244,8 @@ export default class Button extends Vue {
 		}
 		&.white {
 			opacity: .5;
-			color: @mainColor_normal;
-			background-color: @mainColor_light;
+			color: var(--mainColor_normal);
+			background-color: var(--mainColor_light);
 			.icon {
 				opacity: 1;
 			}
@@ -308,7 +308,7 @@ export default class Button extends Vue {
 		align-items: center;
 
 		.checkmark {
-			border: 1px solid @mainColor_normal;
+			border: 1px solid var(--mainColor_normal);
 			border-radius: .25em;
 			padding: 0;
 			width: 1em;
@@ -330,7 +330,7 @@ export default class Button extends Vue {
 			justify-self: flex-start;
 			text-align: left;
 			width: max-content;
-			color: @mainColor_normal;
+			color: var(--mainColor_normal);
 			// overflow: visible;
 		}
 		
@@ -383,7 +383,7 @@ export default class Button extends Vue {
 	}
 
 	&.white {
-		color: @mainColor_normal;
+		color: var(--mainColor_normal);
 		background-color: #fff;
 		.label, .icon {
 			&.hide {
@@ -391,7 +391,7 @@ export default class Button extends Vue {
 			}
 		}
 		&:not(.loading):hover {
-			background-color: @mainColor_normal_extralight;
+			background-color: var(--mainColor_normal_extralight);
 		}
 		&.loading {
 			background-color: fade(#ffffff, 50%);
@@ -449,7 +449,7 @@ export default class Button extends Vue {
 
 	&.highlight {
 		color: #ffffff;
-		background-color: @mainColor_alert;
+		background-color: var(--mainColor_alert);
 		&.disabled {
 			background-color: fade(@mainColor_alert,50%);
 		}
@@ -459,24 +459,24 @@ export default class Button extends Vue {
 			}
 		}
 		&:not(.loading):hover {
-			background-color: @mainColor_alert_light;
+			background-color: var(--mainColor_alert_light);
 		}
 		&.loading {
 			background-color: fade(@mainColor_alert, 50%);
 		}
 		&.selected {
-			background-color: @mainColor_alert_extralight;
+			background-color: var(--mainColor_alert_extralight);
 		}
 	}
 
 	&.selected:not(.highlight) {
-		background-color: @mainColor_warn;
+		background-color: var(--mainColor_warn);
 		color: #fff;
 		&.disabled {
 			background-color: fade(@mainColor_warn,50%);
 		}
 		&:hover {
-			background-color: @mainColor_warn_light;
+			background-color: var(--mainColor_warn_light);
 		}
 	}
 	

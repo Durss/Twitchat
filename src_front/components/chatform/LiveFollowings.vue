@@ -135,8 +135,8 @@ export default class LiveFollowings extends Vue {
 		position: absolute;
 		text-align: center;
 		padding: 1em;
-		border-radius: @border_radius;
-		background-color: @mainColor_light;
+		border-radius: var(--border_radius);
+		background-color: var(--mainColor_light);
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
@@ -146,12 +146,12 @@ export default class LiveFollowings extends Vue {
 		width: 100%;
 		height: 100%;
 		overflow: auto;
-		background-color: @mainColor_dark;
+		background-color: var(--mainColor_dark);
 		@gap: .5em;
 
 		&>.header {
-			color: @mainColor_light;
-			background-color: @mainColor_normal;
+			color: var(--mainColor_light);
+			background-color: var(--mainColor_normal);
 			padding: .5em;
 			display: flex;
 			align-items: center;
@@ -180,20 +180,20 @@ export default class LiveFollowings extends Vue {
 			.stream {
 				display: block;
 				border-radius: 10px;
-				background-color: @mainColor_light;
+				background-color: var(--mainColor_light);
 				overflow: hidden;
 				display: flex;
 				flex-direction: column;
 				position: relative;
 				transition: border .2s;
 				text-decoration: none !important;
-				color: @mainColor_normal;
+				color: var(--mainColor_normal);
 	
 				&:hover {
 					cursor: pointer;
 					// border: 5px solid red;
 					.header {
-						background-color: @mainColor_normal_extralight;
+						background-color: var(--mainColor_normal_extralight);
 					}
 					.raidBt {
 						opacity: 1;
@@ -206,20 +206,20 @@ export default class LiveFollowings extends Vue {
 				.header {
 					display: flex;
 					flex-direction: row;
-					background-color: @mainColor_normal;
+					background-color: var(--mainColor_normal);
 					transition: all .2s;
 	
 					img {
 						border-top-right-radius: 50%;
 						border-bottom-right-radius: 50%;
 						height: 30px;
-						background-color: @mainColor_light;
+						background-color: var(--mainColor_light);
 					}
 					.login {
 						padding: 5px;
 						flex-grow: 1;
 						text-align: center;
-						color: @mainColor_light;
+						color: var(--mainColor_light);
 						text-overflow: ellipsis;
 						overflow: hidden;
 					}

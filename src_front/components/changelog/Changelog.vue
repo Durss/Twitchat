@@ -204,9 +204,9 @@ export default class Changelog extends Vue {
 				align-items: center;
 				gap: 1em;
 				padding: 1em 3em;
-				color:@mainColor_light;
-				border-radius: @border_radius;
-				background-color: @mainColor_normal;
+				color:var(--mainColor_light);
+				border-radius: var(--border_radius);
+				background-color: var(--mainColor_normal);
 				width: calc(100% - 5px);
 
 				.icon {
@@ -214,7 +214,7 @@ export default class Changelog extends Vue {
 				}
 
 				.title {
-					color: @mainColor_light;
+					color: var(--mainColor_light);
 					font-weight: bold;
 					font-size: 2.5em;
 					line-height: 1.25em;
@@ -249,7 +249,7 @@ export default class Changelog extends Vue {
 				}
 
 				.counterExample {
-					color: @mainColor_normal;
+					color: var(--mainColor_normal);
 					width: auto;
 					font-size: .75em;
 					align-self: center;
@@ -262,10 +262,10 @@ export default class Changelog extends Vue {
 			height: 100%;
 			svg {
 				transform: scale(2);
-				fill: @mainColor_light;
+				fill: var(--mainColor_light);
 				stroke-width: 3px;
 				stroke-linejoin: round;
-				stroke: @mainColor_normal;
+				stroke: var(--mainColor_normal);
 				paint-order: stroke;
 				filter: drop-shadow(0 2px 0px fade(@mainColor_dark, 50%));
 				transition: transform .25s;
@@ -288,7 +288,7 @@ export default class Changelog extends Vue {
 	
 	.langSelector {
 		:deep(label){
-			color:@mainColor_light;
+			color:var(--mainColor_light);
 		}
 	}
 }

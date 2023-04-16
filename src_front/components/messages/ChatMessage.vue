@@ -687,15 +687,15 @@ export default class ChatMessage extends AbstractChatMessage {
 .chatmessage{
 	.chatMessage();
 
-	&.highlightSubs { background-color: @highlight_subs; }
-	&.highlightVips { background-color: @highlight_vips; }
-	&.highlightMods { background-color: @highlight_mods; }
-	&.highlightPartners { background-color: @highlight_partners; }
-	&.mention { background-color: @highlight_mention; }
+	&.highlightSubs { background-color: --highlight_subs; }
+	&.highlightVips { background-color: --highlight_vips; }
+	&.highlightMods { background-color: --highlight_mods; }
+	&.highlightPartners { background-color: --highlight_partners; }
+	&.mention { background-color: --highlight_mention; }
 	
 	&.highlighted { 
 		.message {
-			background-color: @mainColor_normal;
+			background-color: var(--mainColor_normal);
 			color:#fff;
 			padding: 0 .5em;
 		}
@@ -739,7 +739,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	&.spoiler {
 		.message {
 			color: rgba(0, 0, 0, 0);
-			background-color: @mainColor_dark_light;
+			background-color: var(--mainColor_dark_light);
 			background-image: repeating-linear-gradient(-45deg, #ffffff10, #ffffff10 7px, #ffffff30 7px, #ffffff30 15px);
 		}
 		&:hover {
@@ -842,24 +842,24 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	.occurrenceCount {
 		display: inline-block;
-		background: @mainColor_warn;
+		background: var(--mainColor_warn);
 		padding: .2em .4em;
 		margin-right: .25em;
 		font-weight: bold;
 		border-radius: 10px;
-		color:@mainColor_dark;
+		color:var(--mainColor_dark);
 	}
 
 	.pronoun {
 		border-radius: 3px;
-		color: @mainColor_light;
-		border: 1px solid @mainColor_light;
+		color: var(--mainColor_light);
+		border: 1px solid var(--mainColor_light);
 		padding: 0 1px;
 		margin-right: .25em;
 	}
 
 	.sharedBan {
-		color: @mainColor_alert;
+		color: var(--mainColor_alert);
 		font-weight: bold;
 		margin-right: .25em;
 	}
@@ -872,10 +872,10 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 		:deep(.highlightedWord) {
 			font-weight: bold;
-			color: @mainColor_dark;
+			color: var(--mainColor_dark);
 			padding: 0 3px;
 			border-radius: 3px;
-			background-color: @mainColor_light;
+			background-color: var(--mainColor_light);
 		}
 		:deep(.copyBt) {
 			height: 1em;
@@ -885,8 +885,8 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 
 		:deep(mark) {
-			background-color: @mainColor_highlight;
-			color: @mainColor_light;
+			background-color: var(--mainColor_highlight);
+			color: var(--mainColor_light);
 			padding: 0px 5px;
 		}
 	}
@@ -924,7 +924,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	&.blockedUser {
 		cursor: pointer;
 		.blockedMessage {
-			color: @mainColor_alert;
+			color: var(--mainColor_alert);
 			font-style: italic;
 		}
 		&:hover {
@@ -975,7 +975,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 
 			.header {
-				color: @mainColor_dark;
+				color: var(--mainColor_dark);
 				flex-grow: 1;
 			}
 
@@ -995,8 +995,8 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 	
 	&.whisper, &.cyphered {
-		background-color: @mainColor_highlight;
-		// border: 1px dashed @mainColor_light;
+		background-color: var(--mainColor_highlight);
+		// border: 1px dashed var(--mainColor_light);
 		@c1: rgba(0,0,0,.8);
 		@c2: rgba(0,0,0,.85);
 		background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
@@ -1036,7 +1036,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 
 			.header {
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 			}
 		}
 		&.purple {

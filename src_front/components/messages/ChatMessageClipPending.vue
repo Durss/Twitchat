@@ -119,7 +119,7 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 
 	.error {
 		font-style: italic;
-		color:@mainColor_warn;
+		color:var(--mainColor_warn);
 	}
 }
 </style>

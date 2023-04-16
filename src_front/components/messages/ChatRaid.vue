@@ -95,7 +95,7 @@ export default class ChatRaid extends AbstractChatMessage {
 	}
 
 	.streamInfo {
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		// background-color: rgba(255, 255, 255, .15);
 		border-radius: .5em;
 		overflow: hidden;
@@ -119,8 +119,8 @@ export default class ChatRaid extends AbstractChatMessage {
 		}
 	}
 	.error {
-		color: @mainColor_alert_light;
-		background-color: @mainColor_dark;
+		color: var(--mainColor_alert_light);
+		background-color: var(--mainColor_dark);
 		border-radius: .5em;
 		padding:.25em .5em;
 	}

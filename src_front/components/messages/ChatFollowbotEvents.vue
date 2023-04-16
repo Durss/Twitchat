@@ -42,13 +42,13 @@ export default class ChatFollowbotEvents extends AbstractChatMessage {
 <style scoped lang="less">
 .chatfollowbotevents{
 	.chatMessageHighlight();
-	color: @mainColor_light;
-	background-color: @mainColor_alert;
+	color: var(--mainColor_light);
+	background-color: var(--mainColor_alert);
 	flex-direction: column;
 	align-items: flex-start;
 	pointer-events: all;
 	&:hover {
-		background-color: @mainColor_alert_light;
+		background-color: var(--mainColor_alert_light);
 	}
 	
 	.head {

@@ -166,7 +166,7 @@ export default class PredictionState extends Vue {
 		font-style: italic;
 	}
 	.outcomeTitle {
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		margin-bottom: 20px;
 		margin-left: 15px;
 		.arrow {
@@ -241,7 +241,7 @@ export default class PredictionState extends Vue {
 				border-radius: 10px;
 				padding: 4px 15px;
 				font-size: 16px;
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				@c: fade(@mainColor_light, 15%);
 				transition: background-size .2s;
 				background: linear-gradient(to right, @c 100%, @c 100%);

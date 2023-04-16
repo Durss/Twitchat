@@ -38,9 +38,9 @@ export default class Sponsor extends Vue {
 <style scoped lang="less">
 .sponsor{
 	text-align: center;
-	color: @mainColor_light;
+	color: var(--mainColor_light);
 	min-height: 100%;
-	background: linear-gradient(180deg, darken(@mainColor_normal, 40%) 0%, @mainColor_dark 100%);
+	background: linear-gradient(180deg, darken(@mainColor_normal, 40%) 0%, var(--mainColor_dark 100%));
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center center;
@@ -73,11 +73,11 @@ export default class Sponsor extends Vue {
 		right: 10px;
 		font-size: .8em;
 		select{
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			background: none;
 			border: none;
 			option {
-				color: @mainColor_normal;
+				color: var(--mainColor_normal);
 			}
 		}
 	}

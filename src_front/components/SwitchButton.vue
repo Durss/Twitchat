@@ -82,14 +82,14 @@ export default class SwitchButton extends Vue {
 		min-width: @size * 2;
 		height: @size;
 		border-radius: 1em;
-		border: 1px solid @mainColor_normal;
+		border: 1px solid var(--mainColor_normal);
 		position: relative;
 		cursor: pointer;
 		transition: all .2s;
 	
 		&:hover {
-			border-color: @mainColor_normal_light;
-			background-color: @mainColor_normal_extralight;
+			border-color: var(--mainColor_normal_light);
+			background-color: var(--mainColor_normal_extralight);
 		}
 	
 		.circle {
@@ -97,7 +97,7 @@ export default class SwitchButton extends Vue {
 			position: absolute;
 			top: 1px;
 			left: 1px;
-			background-color: @mainColor_normal;
+			background-color: var(--mainColor_normal);
 			width: calc(@size - 4px);
 			height: calc(@size - 4px);
 			border-radius: 50%;

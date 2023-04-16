@@ -495,11 +495,11 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 
 	.itemSelector {
 		:deep(.vs__selected) {
-			color: @mainColor_light !important;
-			background-color: @mainColor_normal !important;
+			color: var(--mainColor_light) !important;
+			background-color: var(--mainColor_normal) !important;
 			border: none;
 			svg {
-				fill: @mainColor_light;
+				fill: var(--mainColor_light);
 			}
 		}
 	}

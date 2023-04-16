@@ -131,7 +131,7 @@ export default class ChatPollResult extends AbstractChatMessage {
 					justify-content: space-evenly;
 
 					&:hover {
-						outline: 1px solid @mainColor_light;
+						outline: 1px solid var(--mainColor_light);
 					}
 
 					.users, .choiceTitle {

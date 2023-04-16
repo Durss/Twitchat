@@ -129,7 +129,7 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 				padding: .25em;
 				border-radius: .5em;
 				background-color: fade(@mainColor_normal, 20%);
-				border: 1px solid @mainColor_normal;
+				border: 1px solid var(--mainColor_normal);
 				.label {
 					text-transform: uppercase;
 					text-align: right;

@@ -355,7 +355,7 @@ export default class OverlayChatHighlight extends Vue {
 				margin-bottom: .25em;
 			}
 			.message {
-				color:@mainColor_dark;
+				color:var(--mainColor_dark);
 				word-break: break-word;
 				:deep(.emote) {
 					max-height: 1.25em;
@@ -384,7 +384,7 @@ export default class OverlayChatHighlight extends Vue {
 
 		.clipProgress {
 			height: 10px;
-			background-color: @mainColor_alert;
+			background-color: var(--mainColor_alert);
 			transition: width .5s linear;
 		}
 	}

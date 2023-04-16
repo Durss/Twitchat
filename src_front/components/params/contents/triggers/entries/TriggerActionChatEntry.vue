@@ -73,8 +73,8 @@ export default class TriggerActionChatEntry extends Vue {
 .triggeractionchatentry{
 	.triggerActionForm();
 	.cmdNameConflict {
-		background-color: @mainColor_alert;
-		color: @mainColor_light;
+		background-color: var(--mainColor_alert);
+		color: var(--mainColor_light);
 		text-align: center;
 		margin:auto;
 		display: block;

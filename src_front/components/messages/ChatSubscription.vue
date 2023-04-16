@@ -11,7 +11,7 @@
 			<!-- Subgift -->
 			<div class="holder" v-if="messageData.is_gift">
 				<i18n-t scope="global" tag="span"
-				:keypath="giftRecipients.length > 0? 'chat.subscription.sub_gift' : 'chat.subscription.sub_gift_months'">
+				:keypath="giftRecipients.length > 1? 'chat.subscription.sub_gift' : 'chat.subscription.sub_gift_months'">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 					</template>
@@ -20,6 +20,9 @@
 					</template>
 					<template #COUNT>
 						<strong>{{ messageData.gift_recipients?.length }}</strong>
+					</template>
+					<template #MONTHS>
+						<strong>{{ messageData.months }}</strong>
 					</template>
 					<template #LIST>
 						<span class="additionalUsers" v-if="giftRecipients.length > 0"

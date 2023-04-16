@@ -227,7 +227,7 @@ export default class TriggerActionRandomEntry extends Vue {
 			.action {
 				width: 1.5em;
 				min-width: 1.5em;
-				background-color: @mainColor_alert;
+				background-color: var(--mainColor_alert);
 				padding: .25em;
 				right: 0;
 				border-top-left-radius: .5em;
@@ -242,7 +242,7 @@ export default class TriggerActionRandomEntry extends Vue {
 				flex-grow: 1;
 				border-top-right-radius: .5em;
 				border-bottom-right-radius: .5em;
-				background-color: @mainColor_light;
+				background-color: var(--mainColor_light);
 				font-size: .9em;
 				display: flex;
 				align-items: center;

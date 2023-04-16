@@ -332,7 +332,7 @@ interface IListItem {
 			left:0;
 			cursor: pointer;
 			width: @scrollWidth;
-			background: @mainColor_dark;
+			background: var(--mainColor_dark);
 			border-radius: 1em;
 		}	
 	}

@@ -182,16 +182,16 @@ export default class TriggerActionTriggerEntry extends Vue {
 			flex-grow: 1;
 			max-height: 300px;
 			overflow-y: auto;
-			border: 1px solid @mainColor_normal;
+			border: 1px solid var(--mainColor_normal);
 			border-radius: .5em;
-			background-color: @mainColor_normal_extralight;
+			background-color: var(--mainColor_normal_extralight);
 			padding: .5em;
 		}
 	}
 
 	.dependencyLoop{
-		background-color: @mainColor_alert;
-		color: @mainColor_light;
+		background-color: var(--mainColor_alert);
+		color: var(--mainColor_light);
 		padding: .5em;
 		border-radius: .5em;
 		text-align: center;
@@ -227,7 +227,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 			}
 
 			.loopInfo {
-				border: 1px solid @mainColor_light;
+				border: 1px solid var(--mainColor_light);
 				border-radius: .25em;
 				padding: .25em;
 				background-color: darken(@mainColor_alert, 10%);

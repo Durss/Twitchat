@@ -108,7 +108,7 @@ export default class PermissionsForm extends Vue {
 	.noSelection {
 		padding: .25em;
 		border-radius: .25em;
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		background-color: fade(@mainColor_alert, 100%);
 	}
 	
@@ -127,12 +127,12 @@ export default class PermissionsForm extends Vue {
 			border-radius: 50%;
 			bottom: -.25em;
 			position: relative;
-			background-color: @mainColor_highlight;
+			background-color: var(--mainColor_highlight);
 		}
 	}
 	.refuse {
 		:deep(.icon) {
-			background-color: @mainColor_alert;
+			background-color: var(--mainColor_alert);
 		}
 	}
 

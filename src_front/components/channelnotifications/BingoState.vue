@@ -73,7 +73,7 @@ export default class BingoState extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		color: @mainColor_normal;
+		color: var(--mainColor_normal);
 		
 		.guess {
 			margin-top: .25em;
@@ -100,14 +100,14 @@ export default class BingoState extends Vue {
 	.postChat {
 		max-width: 320px;
 		font-size: .8em;
-		color: @mainColor_normal;
+		color: var(--mainColor_normal);
 	}
 
 	.winner {
-		background: @mainColor_light;
+		background: var(--mainColor_light);
 		padding: .2em .5em;
 		border-radius: .5em;
-		color: @mainColor_normal;
+		color: var(--mainColor_normal);
 		font-weight: bold;
 	}
 

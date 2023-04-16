@@ -184,7 +184,7 @@
 			"sub_advance": "Subscribed for {COUNT} months in advance.",
 			"sub_gift": "{USER} gifted {COUNT} Tier {TIER} to {LIST}",
 			"sub_gift_total": "They gifted {COUNT} sub on this channel. | They gifted {COUNT} subs on this channel.",
-			"sub_gift_months": "{USER} gifted {COUNT} months of Tier {TIER} to",
+			"sub_gift_months": "{USER} gifted {MONTHS} months of Tier {TIER} to {LIST}",
 			"sub_gift_upgrade": "{USER} is continuing the Gift Sub they got from {GIFTER}"
 		},
 		"bits": "{USER} sent {BITS} bit | {USER} sent {BITS} bits",

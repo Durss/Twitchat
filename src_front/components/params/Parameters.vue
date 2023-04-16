@@ -299,7 +299,7 @@ export default class Parameters extends Vue {
 		max-width: 900px;
 
 		.head {
-			border-bottom: 1px solid @mainColor_normal;
+			border-bottom: 1px solid var(--mainColor_normal);
 			padding-bottom: .5em;
 			&:has(.backBt) {
 				.title {
@@ -343,8 +343,8 @@ export default class Parameters extends Vue {
 							position: absolute;
 							top: 10px;
 							right: -50px;
-							background-color: @mainColor_normal;
-							color: @mainColor_light;
+							background-color: var(--mainColor_normal);
+							color: var(--mainColor_light);
 							padding: 5px 50px;
 							border-radius: 10px;
 							text-transform: uppercase;
@@ -394,7 +394,7 @@ export default class Parameters extends Vue {
 			}
 
 			&::-webkit-scrollbar-thumb {
-				background-color: @mainColor_normal_extralight;
+				background-color: var(--mainColor_normal_extralight);
 			}
 		}
 	}

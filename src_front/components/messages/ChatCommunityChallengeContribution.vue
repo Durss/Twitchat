@@ -84,7 +84,7 @@ export default class ChatCommunityChallengeContribution extends AbstractChatMess
 
 	.progress {
 		font-size: .8em;
-		color:@mainColor_light;
+		color:var(--mainColor_light);
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -93,7 +93,7 @@ export default class ChatCommunityChallengeContribution extends AbstractChatMess
 			text-align: right;
 			margin-right: .25em;
 			div:first-child {
-				border-bottom: 1px solid @mainColor_light;
+				border-bottom: 1px solid var(--mainColor_light);
 			}
 		}
 	}

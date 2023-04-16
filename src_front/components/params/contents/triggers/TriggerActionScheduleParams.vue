@@ -162,7 +162,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		align-items: center;
 		max-height: 300px;
 		overflow-y: auto;
-		border: 1px solid @mainColor_normal;
+		border: 1px solid var(--mainColor_normal);
 		margin: -.5em .5em 0 .5em;
 		border-top: 0;
 		padding: .5em;
@@ -182,7 +182,7 @@ export default class TriggerActionScheduleParams extends Vue {
 						content:"";
 						position: absolute;
 						height: 2px;
-						background-color: @mainColor_normal;
+						background-color: var(--mainColor_normal);
 						width: calc(100% - 1.5em);
 						top: 50%;
 					}

@@ -245,7 +245,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 				top: 0;
 				width: @iconSize + .5em;
 				height: 100%;
-				background: @mainColor_light;
+				background: var(--mainColor_light);
 				z-index: 0;
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
@@ -261,35 +261,35 @@ export default class ParamsList extends Vue implements IParameterContent {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_mods @colorSize, @defaultBg @colorSize);
+				background: linear-gradient(to right, --highlight_mods @colorSize, @defaultBg @colorSize);
 			}
 			&.highlightVips {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_vips @colorSize, @defaultBg @colorSize);
+				background: linear-gradient(to right, --highlight_vips @colorSize, @defaultBg @colorSize);
 			}
 			&.highlightSubs {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_subs @colorSize, @defaultBg @colorSize);
+				background: linear-gradient(to right, --highlight_subs @colorSize, @defaultBg @colorSize);
 			}
 			&.highlightPartners {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_partners @colorSize, @defaultBg @colorSize);
+				background: linear-gradient(to right, --highlight_partners @colorSize, @defaultBg @colorSize);
 			}
 			&.highlightMentions {
 				:deep(label) {
 					padding-left: 1em;
 				}
-				background: linear-gradient(to right, @highlight_mention @colorSize, @defaultBg @colorSize);
+				background: linear-gradient(to right, --highlight_mention @colorSize, @defaultBg @colorSize);
 			}
 
 			.chatMessage {
-				background-color: @mainColor_dark;
+				background-color: var(--mainColor_dark);
 				padding: 1em;
 				border-radius: .5em;
 				transition: font-size .25s;
@@ -330,8 +330,8 @@ export default class ParamsList extends Vue implements IParameterContent {
 				display: block;
 				border-radius: .25em;
 				margin: .25em auto;
-				background-color: @mainColor_light;
-				border: 1px solid @mainColor_alert;
+				background-color: var(--mainColor_light);
+				border: 1px solid var(--mainColor_alert);
 				padding: .25em .5em;
 				margin-left: calc(@iconSize + 10px);
 				text-align: center;
@@ -344,7 +344,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 					vertical-align: middle;
 				}
 				a{
-					color: @mainColor_alert;
+					color: var(--mainColor_alert);
 				}
 				.grantBt {
 					margin: .5em auto;

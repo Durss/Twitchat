@@ -254,13 +254,13 @@ export default class ChatAd extends Vue {
 <style scoped lang="less">
 .chatad{
 	.chatMessage();
-	color:@mainColor_normal;
+	color:var(--mainColor_normal);
 
 	.innerHolder {
 		border-radius: 1em;
 		overflow: hidden;
 		position: relative;
-		background-color: @mainColor_light;
+		background-color: var(--mainColor_light);
 	
 		.confirmClose {
 			position: absolute;
@@ -274,9 +274,9 @@ export default class ChatAd extends Vue {
 			align-items: center;
 			flex-direction: column;
 			justify-content: center;
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			font-size: 2em;
-			text-shadow: 1px 1px 1px @mainColor_dark;
+			text-shadow: 1px 1px 1px var(--mainColor_dark);
 			text-align: center;
 			line-height: 1.2em;
 			.ctaConfirm {
@@ -298,8 +298,8 @@ export default class ChatAd extends Vue {
 	
 		&>div>.title {
 			text-align: center;
-			background: @mainColor_normal;
-			color: @mainColor_light;
+			background: var(--mainColor_normal);
+			color: var(--mainColor_light);
 			font-weight: bold;
 			padding: .5em;
 			font-size: 1.5em;
@@ -309,9 +309,9 @@ export default class ChatAd extends Vue {
 			font-style: italic;
 			text-align: center;
 			padding: .5em;
-			color: @mainColor_dark_extralight;
+			color: var(--mainColor_dark_extralight);
 			mark {
-				border: 1px dashed @mainColor_dark_extralight;
+				border: 1px dashed var(--mainColor_dark_extralight);
 				border-radius: .5em;
 				padding: 0 .25em;
 			}
@@ -362,8 +362,8 @@ export default class ChatAd extends Vue {
 					margin-bottom: .5em;
 				}
 				:deep(.header){
-					color: @mainColor_light;
-					background-color: @mainColor_normal;
+					color: var(--mainColor_light);
+					background-color: var(--mainColor_normal);
 					&:hover {
 						background-color: lighten(@mainColor_normal, 5%);
 					}

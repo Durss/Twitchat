@@ -95,7 +95,7 @@ export default class PlaceholderSelector extends Vue {
 			cursor: pointer;
 			text-align: right;
 			mark {
-				color: @mainColor_normal;
+				color: var(--mainColor_normal);
 				display: inline-block;
 			}
 			&:hover {

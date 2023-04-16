@@ -239,13 +239,13 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 		width: 100%;
 		height: 100%;
 		overflow: auto;
-		background-color: @mainColor_dark;
+		background-color: var(--mainColor_dark);
 
 		.title {
 			text-align: center;
 			margin-bottom: .5em;
-			color: @mainColor_light;
-			background-color: @mainColor_normal;
+			color: var(--mainColor_light);
+			background-color: var(--mainColor_normal);
 			display: flex;
 			flex-direction: row;
 			p {
@@ -269,7 +269,7 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 				grid-template-columns: auto auto;
 				font-size: .8em;
 				padding: 0 1em;
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				p:nth-child(odd) {
 					text-align: right;
 					margin-right: .5em;
@@ -287,7 +287,7 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 
 				.partners {
 					display: flex;
-					color: @mainColor_light;
+					color: var(--mainColor_light);
 					label {
 						cursor: pointer;
 						margin-right: .5em;
@@ -306,7 +306,7 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 			.user {
 				display: block;
 				border-radius: 10px;
-				background-color: @mainColor_light;
+				background-color: var(--mainColor_light);
 				// width: @itemWidth;
 				overflow: hidden;
 				display: flex;
@@ -314,30 +314,30 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 				position: relative;
 				transition: border .2s;
 				text-decoration: none;
-				color: @mainColor_normal;
+				color: var(--mainColor_normal);
 				cursor: pointer;
 
 				&:hover {
 					.header {
-						background-color: @mainColor_normal_light;
+						background-color: var(--mainColor_normal_light);
 					}
 				}
 	
 				.header {
 					display: flex;
 					flex-direction: row;
-					background-color: @mainColor_normal;
+					background-color: var(--mainColor_normal);
 					transition: all .2s;
 					
 					&.error {
-						background-color: @mainColor_alert;
+						background-color: var(--mainColor_alert);
 					}
 	
 					.avatar {
 						height: 30px;
 						border-top-right-radius: 50%;
 						border-bottom-right-radius: 50%;
-						background-color: @mainColor_light;
+						background-color: var(--mainColor_light);
 					}
 
 					.partner {
@@ -349,7 +349,7 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 						padding: 5px;
 						flex-grow: 1;
 						text-align: center;
-						color: @mainColor_light;
+						color: var(--mainColor_light);
 						font-size: .8em;
 						text-overflow: ellipsis;
 						overflow: hidden;

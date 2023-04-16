@@ -145,7 +145,7 @@ export default class WhispersState extends Vue {
 	}
 
 	.title {
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		margin: auto;
 		text-align: center;
 		padding-bottom: 10px;
@@ -249,7 +249,7 @@ export default class WhispersState extends Vue {
 						}
 
 						:deep(a) {
-						color: @mainColor_warn;
+						color: var(--mainColor_warn);
 						}
 					}
 		
@@ -260,7 +260,7 @@ export default class WhispersState extends Vue {
 					}
 
 					:deep(a) {
-						color: @mainColor_warn_light;
+						color: var(--mainColor_warn_light);
 					}
 		
 					.time {
@@ -270,8 +270,8 @@ export default class WhispersState extends Vue {
 			}
 
 			.error {
-				background-color: @mainColor_alert;
-				color:@mainColor_light;
+				background-color: var(--mainColor_alert);
+				color:var(--mainColor_light);
 				padding: .5em;
 				border-radius: .5em;
 				cursor: pointer;

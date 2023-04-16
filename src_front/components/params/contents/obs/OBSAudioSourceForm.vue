@@ -130,7 +130,7 @@ export default class OBSAudioSourceForm extends Vue {
 		.label {
 			margin-bottom: 10px;
 			font-style: italic;
-			background-color: @mainColor_light;
+			background-color: var(--mainColor_light);
 			padding: .25em .5em;
 		}
 	}

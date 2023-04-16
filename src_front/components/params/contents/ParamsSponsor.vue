@@ -131,13 +131,13 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 	}
 
 	.important {
-		color: @mainColor_alert;
-		background-color: @mainColor_alert_extralight;
+		color: var(--mainColor_alert);
+		background-color: var(--mainColor_alert_extralight);
 		font-size: .9em;
 		padding: .5em;
 		border-radius: .5em;
 		:deep(a) {
-			color: @mainColor_highlight;
+			color: var(--mainColor_highlight);
 		}
 
 		.readToggle {

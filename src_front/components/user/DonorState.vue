@@ -205,8 +205,8 @@ interface StarData {
 <style scoped lang="less">
 .donorstate{
 
-	// background-color: @mainColor_alert;
-	color: @mainColor_light;
+	// background-color: var(--mainColor_alert);
+	color: var(--mainColor_light);
 	padding: 1.5em;
 	padding-bottom: 3em;
 	border-radius: 1em;
@@ -263,7 +263,7 @@ interface StarData {
 		
 		.outline {
 			position: absolute;
-			-webkit-text-stroke: .4em @mainColor_alert;
+			-webkit-text-stroke: .4em var(--mainColor_alert);
 		}
 		.text {
 			position: absolute;
@@ -298,7 +298,7 @@ interface StarData {
 			.center();
 			font-family: var(--font-nunito);
 			position: absolute;
-			// color: @mainColor_alert;
+			// color: var(--mainColor_alert);
 			color:rgba(0, 0, 0, .4);
 			font-size: 2em;
 			z-index: 1;
@@ -402,7 +402,7 @@ interface StarData {
 			fill: url(#header-shape-gradient-7) #ffd900;
 		}
 		.beatingHeart>.level {
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 		}
 	}
 	&.lvl_8 {
@@ -410,7 +410,7 @@ interface StarData {
 			fill: url(#header-shape-gradient-8) #ffd900;
 		}
 		.beatingHeart>.level {
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 		}
 	}
 	&.lvl_9 {
@@ -418,7 +418,7 @@ interface StarData {
 			fill: url(#header-shape-gradient-9) #fff;
 		}
 		.beatingHeart>.level {
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 		}
 	}
 }

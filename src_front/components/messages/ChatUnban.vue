@@ -52,7 +52,7 @@ export default class ChatBan extends AbstractChatMessage {
 	background-color: fade(@mainColor_normal, 10%);
 	
 	.userlink {
-		color: @mainColor_normal_light;
+		color: var(--mainColor_normal_light);
 	}
 }
 </style>

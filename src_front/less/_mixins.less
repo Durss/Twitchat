@@ -40,7 +40,7 @@
 		margin-left: 3em;
 	}
 	
-	:deep( .emote ) {
+	.emote {
 		// width: 2em;
 		height: 1.5em;
 		vertical-align: middle;
@@ -49,9 +49,9 @@
 	
 	.userlink {
 		font-weight: bold;
-		color: @mainColor_warn;
+		color: var(--mainColor_warn);
 		&:hover {
-			background-color: @mainColor_dark;
+			background-color: var(--mainColor_dark);
 		}
 	}
 	
@@ -61,7 +61,7 @@
 		margin: 0;
 		margin-top: .5em;
 		display: block;
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		line-height: 1.2em;
 		background-color: rgba(255, 255, 255, 0.1);
 		padding: 0.5em;
@@ -90,7 +90,7 @@
 		// }
 	}
 	
-	:deep(.cheermote), :deep(.emote) {
+	.cheermote, .emote {
 		max-height: 2em;
 		vertical-align: middle;
 		object-fit: fill;
@@ -171,7 +171,7 @@
 				padding: 0;
 				border-radius: .5em;
 				background-color: transparent;
-				:deep(.icon) {
+				.icon {
 					max-height: 1em;
 				}
 			}
@@ -198,7 +198,7 @@
 	gap:1px;
 
 	.button {
-		background-color: @mainColor_normal;
+		background-color: var(--mainColor_normal);
 		border-radius: 0;
 		&:not(.selected) {
 			background-color: fade(@mainColor_normal, 50%);
@@ -224,7 +224,7 @@
 
 .block() {
 	width: 500px;
-	color: @mainColor_normal;
+	color: var(--mainColor_normal);
 	font-size: .9em;
 	background-color: #eee;
 	box-shadow: rgba(0, 0, 0, 0.5) 0px 6px 16px 0px, rgba(0, 0, 0, 0.4) 0px 0px 4px 0px;
@@ -240,7 +240,7 @@
 		text-align: center;
 		font-family: var(--font-nunito);
 		font-size: 1.25em;
-		color: @mainColor_normal;
+		color: var(--mainColor_normal);
 	}
 
 	&>.content {
@@ -254,7 +254,7 @@
 
 .window {
 	padding: .5em;
-	background-color: @mainColor_dark;
+	background-color: var(--mainColor_dark);
 	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 	border-radius: .5em;
 	display: flex;
@@ -273,7 +273,7 @@
 	padding: 0;
 	border-radius: 5px;
 	background: none;
-	:deep(.icon) {
+	.icon {
 		height: 1em;
 		width: 1.25em;
 		margin-right: 0;
@@ -281,11 +281,11 @@
 		object-fit: fill;
 		vertical-align: middle;
 	}
-	:deep(.label) {
+	.label {
 		font-weight: normal;
 	}
 	.icon + * {
-		:deep(.label) {
+		.label {
 			margin-left: .5em;
 		}
 	}
@@ -318,7 +318,7 @@
 				height: 1.25em;
 				padding: .25em;
 				border-radius: .25em;
-				background-color: @mainColor_alert;
+				background-color: var(--mainColor_alert);
 				vertical-align: middle;
 			}
 		}
@@ -331,11 +331,11 @@
 		width: min-content;
 		margin: auto;
 		margin-top: 1em;
-		border: 1px solid @mainColor_normal;
+		border: 1px solid var(--mainColor_normal);
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: fade(@mainColor_normal_extralight, 30%);
-		:deep(label) {
+		label {
 			white-space: nowrap;
 		}
 	}
@@ -350,7 +350,7 @@
 			overflow: hidden;
 			padding: .5em;
 			padding-left: calc(1em + 10px);
-			background-color: @mainColor_light;
+			background-color: var(--mainColor_light);
 			border-radius: .5em;
 			margin-bottom: .5em;
 			img {
@@ -360,7 +360,7 @@
 			}
 			.label {
 				display: inline;
-				color: @mainColor_warn;
+				color: var(--mainColor_warn);
 			}
 		}
 		
@@ -369,7 +369,7 @@
 		}
 	}
 
-	:deep(mark) {
+	mark {
 		font-weight: bold;
 		padding: .15em .5em;
 		border-radius: .5em;
@@ -377,21 +377,21 @@
 		background-color: fade(@mainColor_normal, 15%);
 		
 		&.light {
-			color: @mainColor_normal;
-			background-color: @mainColor_light;
+			color: var(--mainColor_normal);
+			background-color: var(--mainColor_light);
 		}
 	}
 }
 
 .gameStateWindow() {
-	color: @mainColor_light;
+	color: var(--mainColor_light);
 
 	&>.title {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		width: calc(100% - 1em - 10px);
 		padding-bottom: .5em;
 		word-break: break-word;
@@ -402,18 +402,18 @@
 		}
 		.highlight {
 			font-size: .8em;
-			color: @windowStateColor;
+			color: var(--windowStateColor);
 		}
 	}
 	
 	.highlight:not(.button) {
-		background: @mainColor_light;
+		background: var(--mainColor_light);
 		padding: .2em .5em;
 		border-radius: .5em;
 	}
 
 	.progress {
-		color: @windowStateColor;
+		color: var(--windowStateColor);
 		margin-bottom: 1em;
 	}
 
@@ -448,7 +448,7 @@
 	.info {
 		overflow: hidden;
 		padding: .5em 1em;
-		background-color: @mainColor_light;
+		background-color: var(--mainColor_light);
 		border-radius: .5em;
 		margin-bottom: .5em;
 		font-size: .8em;
@@ -461,7 +461,7 @@
 			display: inline;
 		}
 		&.warn>.label {
-			color: @mainColor_warn;
+			color: var(--mainColor_warn);
 		}
 	}
 }

@@ -998,8 +998,8 @@ export default class MessageListFilter extends Vue {
 <style scoped lang="less">
 .messagelistfilter{
 	padding: 0;
-	color: @mainColor_light;
-	background: @mainColor_normal;
+	color: var(--mainColor_light);
+	background: var(--mainColor_normal);
 	max-height: 100%;//min(100%, 300px);
 	height: 100%;//min(100%, 300px);
 	width: 100%;//min(100%, 300px);
@@ -1076,7 +1076,7 @@ export default class MessageListFilter extends Vue {
 		width: @actionSizes + @actionPadding * 2;
 		display: flex;
 		flex-direction: column;
-		background: @mainColor_light;
+		background: var(--mainColor_light);
 		gap: 1px;
 		top:50%;
 		padding: @actionPadding;
@@ -1092,7 +1092,7 @@ export default class MessageListFilter extends Vue {
 			height: @actionSizes;
 			min-width: @actionSizes;
 			min-height: @actionSizes;
-			background-color: @mainColor_normal;
+			background-color: var(--mainColor_normal);
 			border-radius: .25em;
 			.icon {
 				height: 100%;
@@ -1113,7 +1113,7 @@ export default class MessageListFilter extends Vue {
 					left: 50%;
 					top: 50%;
 					border-radius: .25em;
-					border: 3px solid @mainColor_normal;
+					border: 3px solid var(--mainColor_normal);
 
 					transform: translate(-50%, -50%) scale(.8);
 					animation: glow 1s;
@@ -1216,9 +1216,9 @@ export default class MessageListFilter extends Vue {
 				font-size: .8em;
 				display: block;
 				border-radius: .5em;
-				border: 1px solid @mainColor_light;
+				border: 1px solid var(--mainColor_light);
 				padding: .25em;
-				background-color: @mainColor_normal_light;
+				background-color: var(--mainColor_normal_light);
 			}
 			.presets {
 				display: flex;
@@ -1304,8 +1304,8 @@ export default class MessageListFilter extends Vue {
 				font-size: .8em;
 				font-weight: bold;
 				cursor: pointer;
-				color:@mainColor_alert;
-				background: @mainColor_light;
+				color:var(--mainColor_alert);
+				background: var(--mainColor_light);
 				
 			}
 			.ctas {
@@ -1325,7 +1325,7 @@ export default class MessageListFilter extends Vue {
 			top: 99999px;
 			z-index: 1;
 			.preview {
-				background-color: @mainColor_dark;
+				background-color: var(--mainColor_dark);
 				padding: .25em .5em;
 				border-radius: .5em;
 				cursor: pointer;
@@ -1345,8 +1345,8 @@ export default class MessageListFilter extends Vue {
 					font-size: .8em;
 					padding: .75em;
 					text-align: center;
-					background-color: @mainColor_warn;
-					color: @mainColor_dark;
+					background-color: var(--mainColor_warn);
+					color: var(--mainColor_dark);
 					font-weight: bold;
 					img {
 						height: 1.5em;

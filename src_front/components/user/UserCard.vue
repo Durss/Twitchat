@@ -498,7 +498,7 @@ export default class UserCard extends Vue {
 	&>.holder {
 		.center();
 		position: absolute;
-		background-color: @mainColor_light_extralight;
+		background-color: var(--mainColor_light_extralight);
 		padding: 1em;
 		max-width: 800px;
 		width: 80%;
@@ -524,7 +524,7 @@ export default class UserCard extends Vue {
 				max-height: unset;
 			}
 			&:hover {
-				background-color: @mainColor_normal_extralight;
+				background-color: var(--mainColor_normal_extralight);
 			}
 		}
 
@@ -537,14 +537,14 @@ export default class UserCard extends Vue {
 		}
 
 		.error, .warn {
-			background-color: @mainColor_alert;
-			color: @mainColor_light;
+			background-color: var(--mainColor_alert);
+			color: var(--mainColor_light);
 			padding: .25em .5em;
 			border-radius: .5em;
 			text-align: center;
 
 			&.warn {
-				background-color: @mainColor_warn;
+				background-color: var(--mainColor_warn);
 			}
 		}
 
@@ -569,7 +569,7 @@ export default class UserCard extends Vue {
 					text-overflow: ellipsis;
 					overflow: hidden;
 					line-height: 1.2em;
-					color: @mainColor_normal;
+					color: var(--mainColor_normal);
 				}
 
 				.badge {
@@ -585,8 +585,8 @@ export default class UserCard extends Vue {
 			.live {
 				position: relative;
 				display: block;
-				background-color: @mainColor_alert;
-				color: @mainColor_light;
+				background-color: var(--mainColor_alert);
+				color: var(--mainColor_light);
 				font-weight: bold;
 				font-size: .5em;
 				padding: .35em .75em;
@@ -604,7 +604,7 @@ export default class UserCard extends Vue {
 				cursor: copy;
 				z-index: 1;
 				margin-bottom: .5em;
-				background: @mainColor_light;
+				background: var(--mainColor_light);
 			}
 
 			.avatar {
@@ -613,7 +613,7 @@ export default class UserCard extends Vue {
 				border-radius: 50%;
 				margin: auto;
 				display: block;
-				border: 1px solid @mainColor_normal;
+				border: 1px solid var(--mainColor_normal);
 				transition: width .25s, height .25s, border-radius .25s;
 				&:hover {
 					width: 7em;
@@ -633,7 +633,7 @@ export default class UserCard extends Vue {
 			.info {
 				font-size: .7em;
 				border-radius: .5em;
-				border: 1px solid @mainColor_normal;
+				border: 1px solid var(--mainColor_normal);
 				padding: .25em .5em;
 				.icon {
 					height: 1em;
@@ -647,8 +647,8 @@ export default class UserCard extends Vue {
 			align-self: center;
 			margin-bottom: .5em;
 			.head {
-				color: @mainColor_light;
-				background-color: @mainColor_normal;
+				color: var(--mainColor_light);
+				background-color: var(--mainColor_normal);
 				border-top-left-radius: .5em;
 				border-top-right-radius: .5em;
 				padding: .25em;
@@ -657,7 +657,7 @@ export default class UserCard extends Vue {
 			.infos {
 				padding: .5em;
 				font-size: .8em;
-				border: 1px solid @mainColor_normal;
+				border: 1px solid var(--mainColor_normal);
 				border-bottom-left-radius: .5em;
 				border-bottom-right-radius: .5em;
 
@@ -669,7 +669,7 @@ export default class UserCard extends Vue {
 		}
 
 		.modActions {
-			background-color: @mainColor_normal;
+			background-color: var(--mainColor_normal);
 			padding: .3em .5em;
 			border-radius: .5em;
 			align-self: center;
@@ -696,7 +696,7 @@ export default class UserCard extends Vue {
 				line-height: .25em;
 				vertical-align: text-bottom;
 				margin-right: .25em;
-				color:@mainColor_normal_extralight
+				color:--mainColor_normal_extralight
 			}
 			&::after {
 				content: "”";
@@ -706,7 +706,7 @@ export default class UserCard extends Vue {
 				line-height: .25em;
 				margin-left: .25em;
 				vertical-align: text-bottom;
-				color:@mainColor_normal_extralight
+				color:--mainColor_normal_extralight
 			}
 		}
 
@@ -727,9 +727,9 @@ export default class UserCard extends Vue {
 				text-align: center;
 				border-top-left-radius: .5em;
 				border-top-right-radius: .5em;
-				color: @mainColor_light;
-				background-color: @mainColor_normal;
-				border-bottom-color: @mainColor_light;
+				color: var(--mainColor_light);
+				background-color: var(--mainColor_normal);
+				border-bottom-color: var(--mainColor_light);
 				.count {
 					font-style: italic;
 					font-size: .8em;
@@ -742,7 +742,7 @@ export default class UserCard extends Vue {
 				min-height: unset;
 				margin-bottom: 1em;
 				.list {
-					background-color: @mainColor_dark;
+					background-color: var(--mainColor_dark);
 					max-height: 50vh;
 					overflow-y: auto;
 					.message{
@@ -763,7 +763,7 @@ export default class UserCard extends Vue {
 	
 				.disableDate {
 					background-color: fade(@mainColor_warn, 50%);
-					color: @mainColor_dark;
+					color: var(--mainColor_dark);
 					padding: .5em;
 					border-radius: @border_radius;
 				}

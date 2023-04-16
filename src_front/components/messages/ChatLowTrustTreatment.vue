@@ -72,18 +72,18 @@ export default class ChatLowTrustTreatment extends AbstractChatMessage {
 	background-color: fade(@mainColor_normal, 10%);
 
 	a {
-		color: @mainColor_normal_light;
+		color: var(--mainColor_normal_light);
 		font-weight: bold;
 	}
 	
 	&.alert {
-		background-color: @mainColor_alert;
-		color:@mainColor_light;
+		background-color: var(--mainColor_alert);
+		color:var(--mainColor_light);
 		&:hover {
-			background-color: @mainColor_alert_light;
+			background-color: var(--mainColor_alert_light);
 		}
 		a {
-			color:@mainColor_light;
+			color:var(--mainColor_light);
 		}
 	}
 }

@@ -101,8 +101,8 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		flex-direction: column;
 		gap: .5em;
 		align-items: center;
-		color: @mainColor_light;
-		background-color: @mainColor_alert;
+		color: var(--mainColor_light);
+		background-color: var(--mainColor_alert);
 		padding: .5em;
 		border-radius: .5em;
 		margin-top: 1em;
@@ -134,13 +134,13 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 			animation-delay: 1s;
 			@keyframes blink {
 				0% {
-					border-color: @mainColor_highlight;
+					border-color: var(--mainColor_highlight);
 				}
 				50% {
 					border-color: transparent;
 				}
 				100% {
-					border-color: @mainColor_highlight;
+					border-color: var(--mainColor_highlight);
 				}
 			}
 		}

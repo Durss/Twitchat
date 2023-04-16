@@ -169,7 +169,7 @@ export default class Confirm extends Vue {
 	&>.holder {
 		.center();
 		position: absolute;
-		background-color: @mainColor_light_extralight;
+		background-color: var(--mainColor_light_extralight);
 		padding: 1em;
 		width: 400px;
 		box-sizing: border-box;
@@ -195,7 +195,7 @@ export default class Confirm extends Vue {
 			font-size: 1.2em;
 			margin-top: 1em;
 			:deep(strong) {
-				color: @mainColor_warn;
+				color: var(--mainColor_warn);
 				font-weight: bold;
 			}
 		}

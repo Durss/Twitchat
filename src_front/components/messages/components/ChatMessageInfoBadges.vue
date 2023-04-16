@@ -63,8 +63,8 @@ export default class ChatMessageInfoBadges extends Vue {
 	.item {
 		border-radius: .25em;
 		padding: .1em .4em;
-		color: @mainColor_light;
-		background-color: @mainColor_normal;
+		color: var(--mainColor_light);
+		background-color: var(--mainColor_normal);
 		white-space: nowrap;
 		cursor: default;
 		display: flex;
@@ -77,17 +77,17 @@ export default class ChatMessageInfoBadges extends Vue {
 		}
 
 		&.whisper {
-			color: @mainColor_dark;
-			background-color: @mainColor_light;
+			color: var(--mainColor_dark);
+			background-color: var(--mainColor_light);
 		}
 
 		&.automod, &.emergencyBlocked, &.restrictedUser {
-			background-color: @mainColor_alert;
+			background-color: var(--mainColor_alert);
 		}
 
 		&.suspiciousUser {
-			background-color: @mainColor_light;
-			color: @mainColor_alert;
+			background-color: var(--mainColor_light);
+			color: var(--mainColor_alert);
 			font-weight: bold;
 		}
 

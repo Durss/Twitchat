@@ -364,7 +364,7 @@ export default class EmoteSelector extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				background-color: @mainColor_normal;
+				background-color: var(--mainColor_normal);
 				border-radius: 20px;
 				.avatar {
 					height: 25px;
@@ -372,7 +372,7 @@ export default class EmoteSelector extends Vue {
 					margin-right: 10px;
 				}
 				.login {
-					color: @mainColor_light;
+					color: var(--mainColor_light);
 					flex-grow: 1;
 					font-size: 15px;
 				}
@@ -383,11 +383,11 @@ export default class EmoteSelector extends Vue {
 				flex-wrap: wrap;
 				justify-content: center;
 				background-color: fade(@mainColor_normal, 30%);
-				color:@mainColor_light;
+				color:var(--mainColor_light);
 				width: calc(100% - 2em);
 				margin: auto;
-				border-bottom-left-radius: @border_radius;
-				border-bottom-right-radius: @border_radius;
+				border-bottom-left-radius: var(--border_radius);
+				border-bottom-right-radius: var(--border_radius);
 				.emote {
 					height: 33px;
 					width: 33px;
@@ -405,12 +405,12 @@ export default class EmoteSelector extends Vue {
 				font-size: .7em;
 				text-align: center;
 				background-color: fade(@mainColor_normal, 30%);
-				color:@mainColor_light;
+				color:var(--mainColor_light);
 				padding: .5em;
 				width: calc(100% - 2em);
 				margin: auto;
-				border-bottom-left-radius: @border_radius;
-				border-bottom-right-radius: @border_radius;
+				border-bottom-left-radius: var(--border_radius);
+				border-bottom-right-radius: var(--border_radius);
 			}
 		}
 

@@ -157,7 +157,7 @@ export default class RaffleState extends Vue {
 
 		&.winners {
 			font-size: 1em;
-			color: @mainColor_normal;
+			color: var(--mainColor_normal);
 			max-width: 100%;
 			display: flex;
 			flex-direction: column;
@@ -178,8 +178,8 @@ export default class RaffleState extends Vue {
 				justify-content: center;
 				gap: .25em;
 				.entry {
-					color: @mainColor_light;
-					background-color: @mainColor_normal;
+					color: var(--mainColor_light);
+					background-color: var(--mainColor_normal);
 					padding: .2em;
 					border-radius: .3em;
 					font-size: .85em;
@@ -191,7 +191,7 @@ export default class RaffleState extends Vue {
 		&.postChat {
 			max-width: 320px;
 			font-size: .8em;
-			color: @mainColor_normal;
+			color: var(--mainColor_normal);
 		}
 	}
 }

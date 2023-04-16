@@ -175,7 +175,7 @@ export default class ScopeSelector extends Vue {
 			padding: .25em;
 
 			&.forced {
-				border: 1px solid @mainColor_normal;
+				border: 1px solid var(--mainColor_normal);
 			}
 		}
 	}
@@ -190,7 +190,7 @@ export default class ScopeSelector extends Vue {
 			font-size: .8em;
 		}
 		.item {
-			background-color: @mainColor_light;
+			background-color: var(--mainColor_light);
 		}
 		.unlockIcon {
 			height: 2em;
@@ -200,7 +200,7 @@ export default class ScopeSelector extends Vue {
 	}
 
 	.allowMoreBt {
-		border: 1px solid @mainColor_normal;
+		border: 1px solid var(--mainColor_normal);
 	}
 
 	.allBt {

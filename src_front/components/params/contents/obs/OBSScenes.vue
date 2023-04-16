@@ -75,7 +75,7 @@ export default class OBSScenes extends Vue {
 		display: block;
 		font-style: italic;
 		text-align: center;
-		background-color: @mainColor_light;
+		background-color: var(--mainColor_light);
 		padding: .25em .5em;
 		margin: auto;
 	}
@@ -93,8 +93,8 @@ export default class OBSScenes extends Vue {
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
-			background-color: @mainColor_normal;
-			color:@mainColor_light;
+			background-color: var(--mainColor_normal);
+			color:var(--mainColor_light);
 			padding: 10px;
 			border-top-left-radius: 5px;
 			border-top-right-radius: 5px;

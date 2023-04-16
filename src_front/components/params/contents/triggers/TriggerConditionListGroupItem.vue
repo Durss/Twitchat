@@ -119,7 +119,7 @@ export default class TriggerConditionListGroupItem extends Vue {
 		padding: .5em;
 		padding-left: 1.25em;
 		background-color: fade(@mainColor_normal, 10%);
-		border-left: 1px solid @mainColor_normal;
+		border-left: 1px solid var(--mainColor_normal);
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px;
 		min-height: 2em;
@@ -147,15 +147,15 @@ export default class TriggerConditionListGroupItem extends Vue {
 			z-index: 1;
 			transform-origin: top left;
 			transform: rotate(-90deg) translate(-50%, -50%);
-			background-color: @mainColor_normal;
-			color: @mainColor_light;
+			background-color: var(--mainColor_normal);
+			color: var(--mainColor_light);
 			font-weight: bold;
 			padding: 1px 5px;
 			font-size: .7em;
 			border-radius: .5em;
 			cursor: pointer;
 			&:hover {
-				background-color: @mainColor_normal_light;
+				background-color: var(--mainColor_normal_light);
 			}
 			:deep(.label) {
 				letter-spacing: .5em;

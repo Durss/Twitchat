@@ -65,7 +65,7 @@ export default class VoiceTranscript extends Vue {
 <style scoped lang="less">
 .voicetranscript{
 	width: 100%;
-	color:@mainColor_light;
+	color:var(--mainColor_light);
 	// overflow-x: hidden;
 	overflow-y: hidden;
 	z-index: 3;

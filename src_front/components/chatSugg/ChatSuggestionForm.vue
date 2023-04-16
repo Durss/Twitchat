@@ -158,7 +158,7 @@ export default class ChatSuggestionForm extends Vue {
 				margin-top: .5em;
 				font-style: italic;
 				:deep(mark) {
-					border: 1px dashed @mainColor_normal;
+					border: 1px dashed var(--mainColor_normal);
 					background-color: fade(@mainColor_normal, 15%);
 					padding: 2px;
 					border-radius: .5em;
@@ -181,11 +181,11 @@ export default class ChatSuggestionForm extends Vue {
 				}
 				.error {
 					margin-top: 5px;
-					color: @mainColor_light;
+					color: var(--mainColor_light);
 					padding: 5px 10px;
 					border-radius: 5px;
 					text-align: center;
-					background-color: @mainColor_alert;
+					background-color: var(--mainColor_alert);
 				}
 				:deep(input) {
 					flex-basis: 200px;

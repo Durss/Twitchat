@@ -142,14 +142,14 @@ export default class ChatSuggestionState extends Vue {
 		&.winner {
 			padding: 0;
 			border-radius: 5px;
-			border: 2px solid @mainColor_light;
+			border: 2px solid var(--mainColor_light);
 			display: flex;
 			flex-direction: column;
 			.user {
 				text-align: center;
 				padding: .25em .5em;
-				color: @mainColor_normal;
-				background: @mainColor_light;
+				color: var(--mainColor_normal);
+				background: var(--mainColor_light);
 			}
 			.message {
 				text-align: center;
@@ -162,8 +162,8 @@ export default class ChatSuggestionState extends Vue {
 	.choices {
 		padding: .5em;
 		border-radius: .5em;
-		background-color: @mainColor_light;
-		color: @mainColor_normal;
+		background-color: var(--mainColor_light);
+		color: var(--mainColor_normal);
 		overflow-y: auto;
 		overflow-x: hidden;
 		display: flex;
@@ -188,17 +188,17 @@ export default class ChatSuggestionState extends Vue {
 					height: 1em;
 				}
 				&:first-of-type{
-					color: @mainColor_light;
-					background-color: @mainColor_normal;
+					color: var(--mainColor_light);
+					background-color: var(--mainColor_normal);
 					a {
-						color: @mainColor_light;
+						color: var(--mainColor_light);
 						&:hover {
-							color: @mainColor_alert_extralight;
+							color: var(--mainColor_alert_extralight);
 						}
 					}
 				}
 				&:not(:first-of-type) {
-					border: 1px solid @mainColor_normal;
+					border: 1px solid var(--mainColor_normal);
 				}
 			}
 			.user {

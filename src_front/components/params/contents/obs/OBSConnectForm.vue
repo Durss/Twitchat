@@ -145,7 +145,7 @@ export default class OBSConnectForm extends Vue {
 
 	.error, .success {
 		justify-self: center;
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		display: block;
 		text-align: center;
 		padding: 5px;
@@ -155,7 +155,7 @@ export default class OBSConnectForm extends Vue {
 		font-size: .9em;
 
 		&.error {
-			background-color: @mainColor_alert;
+			background-color: var(--mainColor_alert);
 		}
 
 		&.success {
@@ -165,15 +165,15 @@ export default class OBSConnectForm extends Vue {
 		}
 		
 		a {
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 		}
 
 		div:not(:last-child) {
 			margin-bottom: 1em;
 		}
 		:deep(strong) {
-			background-color: @mainColor_light;
-			color: @mainColor_alert;
+			background-color: var(--mainColor_light);
+			color: var(--mainColor_alert);
 			padding: 0 0.25em;
 			border-radius: 0.25em;
 		}

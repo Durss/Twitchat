@@ -85,12 +85,12 @@ export default class TriggerActionWSEntry extends Vue {
 	}
 
 	.securityError {
-		color: @mainColor_light;
-		background-color: @mainColor_alert;
+		color: var(--mainColor_light);
+		background-color: var(--mainColor_alert);
 		margin-top: -.25em;
 		padding: .5em;
-		border-bottom-left-radius: @border_radius;
-		border-bottom-right-radius: @border_radius;
+		border-bottom-left-radius: var(--border_radius);
+		border-bottom-right-radius: var(--border_radius);
 	}
 }
 </style>

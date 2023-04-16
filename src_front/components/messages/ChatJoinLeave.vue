@@ -104,7 +104,7 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 	}
 
 	.channel, .count {
-		color: @mainColor_warn_light;
+		color: var(--mainColor_warn_light);
 		opacity: .7;
 	}
 
@@ -114,7 +114,7 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 			background-color: fade(@mainColor_alert, 20%);
 		}
 		a, .channel, .count {
-			color: @mainColor_alert_light;
+			color: var(--mainColor_alert_light);
 			opacity: .9;
 		}
 	}

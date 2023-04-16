@@ -170,7 +170,7 @@ export default class PublicApiTest extends Vue {
 		.window();
 		max-width: 400px;
 		margin: auto;
-		background: @mainColor_light;
+		background: var(--mainColor_light);
 
 		text-align: center;
 
@@ -207,7 +207,7 @@ export default class PublicApiTest extends Vue {
 			.head {
 				font-size: 1.5em;
 				text-align: center;
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				margin-bottom: 5px;
 			}
 

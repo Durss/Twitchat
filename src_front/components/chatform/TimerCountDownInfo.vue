@@ -80,7 +80,7 @@ export default class TimerCountDownInfo extends Vue {
 		flex-direction: row;
 		align-items: center;
 		white-space: nowrap;
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		margin-left: 5px;
 		font-size: .65em;
 		padding: 5px;

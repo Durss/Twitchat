@@ -126,8 +126,8 @@ export default class TriggerActionChatCommandParams extends Vue {
 	gap: .5em;
 
 	.cmdNameConflict {
-		background-color: @mainColor_alert;
-		color: @mainColor_light;
+		background-color: var(--mainColor_alert);
+		color: var(--mainColor_light);
 		text-align: center;
 		margin:auto;
 		margin-top: -.5em;

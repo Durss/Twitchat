@@ -75,7 +75,7 @@ export default class OverlayParamsSpotify extends Vue {
 		gap: 1em;
 	
 		.player_holder {
-			border: 1px dashed @mainColor_normal;
+			border: 1px dashed var(--mainColor_normal);
 			background: fade(@mainColor_normal, 15%);
 			border-radius: .25em;
 			margin-left: auto;

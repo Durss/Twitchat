@@ -73,7 +73,7 @@ export default class ChatPinNotice extends AbstractChatMessage {
 			width: 100%;
 			flex-grow: 1;
 			font-size: 1em;
-			background-color: @mainColor_dark;
+			background-color: var(--mainColor_dark);
 		}
 	}
 

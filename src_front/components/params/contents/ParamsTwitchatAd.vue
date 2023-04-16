@@ -98,8 +98,8 @@ export default class ParamsTwitchatAd extends Vue {
 
 <style scoped lang="less">
 .paramstwitchatad{
-	color: @mainColor_light;
-	background-color: @mainColor_normal_light;
+	color: var(--mainColor_light);
+	background-color: var(--mainColor_normal_light);
 	margin: 0;
 	margin-top: 1em;
 	padding: 1em;
@@ -112,7 +112,7 @@ export default class ParamsTwitchatAd extends Vue {
 		padding: .5em;
 		cursor: pointer;
 		&:hover {
-			background-color: @mainColor_normal;
+			background-color: var(--mainColor_normal);
 		}
 	}
 	.close {
@@ -154,7 +154,7 @@ export default class ParamsTwitchatAd extends Vue {
 	}
 	
 	a {
-		color:@mainColor_warn_extralight;
+		color:var(--mainColor_warn_extralight);
 	}
 
 	&.noAd {

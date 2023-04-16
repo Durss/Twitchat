@@ -135,10 +135,10 @@ export default class TriggersLogs extends Vue {
 			flex-direction: row;
 			align-items: center;
 			gap: .5em;
-			background: @mainColor_normal;
+			background: var(--mainColor_normal);
 			padding: .25em .5em;
 			border-radius: .5em;
-			color:@mainColor_light;
+			color:var(--mainColor_light);
 			cursor:pointer;
 
 			.icon {
@@ -153,8 +153,8 @@ export default class TriggersLogs extends Vue {
 
 			.subtitle {
 				font-size: .8em;
-				background: @mainColor_light;
-				color: @mainColor_normal;
+				background: var(--mainColor_light);
+				color: var(--mainColor_normal);
 				padding: 1.5px 5px;
 				border-radius: 5px;
 			}
@@ -175,7 +175,7 @@ export default class TriggersLogs extends Vue {
 				gap: .25em;
 				.head {
 					align-self: flex-start;
-					background-color: @mainColor_normal_light;
+					background-color: var(--mainColor_normal_light);
 				}
 			}
 		}

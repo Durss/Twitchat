@@ -258,8 +258,8 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	.globalWarn {
-		color: @mainColor_light;
-		background-color: @mainColor_warn;
+		color: var(--mainColor_light);
+		background-color: var(--mainColor_warn);
 		padding: .5em;
 		border-radius: .5em;
 		text-align: center;
@@ -267,10 +267,10 @@ export default class VoiceTriggerList extends Vue {
 
 	.action {
 		&:not(.global)>:deep(.content) {
-			// border: 1px solid @mainColor_normal;
+			// border: 1px solid var(--mainColor_normal);
 			// border-top: none;
 			// border-radius: 0 0 .5em .5em;
-			background-color: @mainColor_light;
+			background-color: var(--mainColor_light);
 		}
 
 		&:not(:first-of-type) {

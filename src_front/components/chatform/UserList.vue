@@ -239,7 +239,7 @@ interface ChannelUserList {
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		background-color: @mainColor_dark;
+		background-color: var(--mainColor_dark);
 		padding: 1em;
 
 		img {
@@ -249,7 +249,7 @@ interface ChannelUserList {
 		}
 		
 		button {
-			// color: @mainColor_light;
+			// color: var(--mainColor_light);
 			:deep(i) {
 				font-style: italic;
 				font-size: .8em;
@@ -261,11 +261,11 @@ interface ChannelUserList {
 
 			&:not(.current) {
 				background-color: transparent;
-				border: 1px solid @mainColor_light;
-				color: @mainColor_light;
+				border: 1px solid var(--mainColor_light);
+				color: var(--mainColor_light);
 				opacity: .7;
 				&:hover {
-					color: @mainColor_normal;
+					color: var(--mainColor_normal);
 				}
 			}
 		}
@@ -278,8 +278,8 @@ interface ChannelUserList {
 	}
 
 	.infos {
-		color:@mainColor_light;
-		background-color: @mainColor_dark_light;
+		color:var(--mainColor_light);
+		background-color: var(--mainColor_dark_light);
 		padding: 1em;
 		margin: auto;
 		margin-top: 1em;
@@ -304,7 +304,7 @@ interface ChannelUserList {
 		}
 
 		.title {
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			margin-bottom: 5px;
 		}
 
@@ -334,9 +334,9 @@ interface ChannelUserList {
 				}
 
 				&.noFollow {
-					color: @mainColor_warn;
+					color: var(--mainColor_warn);
 					&:hover {
-						color: @mainColor_warn_light;
+						color: var(--mainColor_warn_light);
 					}
 
 					&::before {

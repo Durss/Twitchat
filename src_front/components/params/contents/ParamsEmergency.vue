@@ -358,7 +358,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 				
 				&.infos {
 					font-size: .8em;
-					background-color:  @mainColor_light;
+					background-color:  var(--mainColor_light);
 					padding: .5em;
 					border-radius: .5em;
 					// margin-top: 0;
@@ -376,11 +376,11 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 	.sourceSelector {
 		padding-left: 1.5em;
 		:deep(.vs__selected) {
-			color: @mainColor_light !important;
-			background-color: @mainColor_normal;
+			color: var(--mainColor_light) !important;
+			background-color: var(--mainColor_normal);
 			border: none;
 			svg {
-				fill: @mainColor_light;
+				fill: var(--mainColor_light);
 			}
 		}
 	}

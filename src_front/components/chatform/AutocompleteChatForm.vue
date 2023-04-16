@@ -350,7 +350,7 @@ interface CommandItem {
 <style scoped lang="less">
 .AutocompleteChatForm{
 	padding: 10px;
-	background-color: @mainColor_dark;
+	background-color: var(--mainColor_dark);
 	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 	border-radius: 10px;
 	max-width: 100%;

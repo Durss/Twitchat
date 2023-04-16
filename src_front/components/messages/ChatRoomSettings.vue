@@ -89,7 +89,7 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 <style scoped lang="less">
 .chatroomsettings{
 	.chatMessageHighlight();
-	color:@mainColor_light;
+	color:var(--mainColor_light);
 	background-color: fade(@mainColor_normal, 50%);
 	&:hover {
 		background-color: fade(@mainColor_normal, 60%);

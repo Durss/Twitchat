@@ -77,8 +77,8 @@ export default class ParamsVoiceBot extends Vue implements IParameterContent {
 	.noApi, 
 	.connectObs {
 		text-align: center;
-		color: @mainColor_light;
-		background-color: @mainColor_alert;
+		color: var(--mainColor_light);
+		background-color: var(--mainColor_alert);
 		padding: .5em;
 		border-radius: .5em;
 		margin-top: 1em;
@@ -92,7 +92,7 @@ export default class ParamsVoiceBot extends Vue implements IParameterContent {
 		font-size: .8em;
 		line-height: 1.2em;
 		margin-top: 1em;
-		border: 1px solid @mainColor_normal;
+		border: 1px solid var(--mainColor_normal);
 		border-radius: .5em;
 		padding: .5em;
 	}

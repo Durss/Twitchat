@@ -290,7 +290,7 @@ export default class OverlayMusicPlayer extends Vue {
 		@maxHeight: ~"min(100vh, 25vw)";
 		display: flex;
 		flex-direction: row;
-		background-color: @mainColor_dark;
+		background-color: var(--mainColor_dark);
 		max-height: @maxHeight;
 		max-width: 100%;
 
@@ -301,7 +301,7 @@ export default class OverlayMusicPlayer extends Vue {
 		}
 		
 		.infos {
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			@minFontSize: calc(@maxHeight/3);
 			font-size: ~"min(@{minFontSize}, 50vh)";
 			flex: 1;
@@ -362,7 +362,7 @@ export default class OverlayMusicPlayer extends Vue {
 			height: .24em;
 			max-width: 100%;
 			.fill {
-				background-color: @mainColor_light;
+				background-color: var(--mainColor_light);
 				height: 100%;
 			}
 		}

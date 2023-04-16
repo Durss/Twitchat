@@ -331,7 +331,7 @@ export default class CommandHelper extends Vue {
 			margin: auto;
 			background: fade(@mainColor_normal, 20%);
 			padding: .5em;
-			border-radius: @border_radius;
+			border-radius: var(--border_radius);
 			text-align: center;
 		}
 	}
@@ -340,8 +340,8 @@ export default class CommandHelper extends Vue {
 		background: fade(@mainColor_normal, 20%);
 		padding: .3em;
 		font-size: .8em;
-		color: @mainColor_light;
-		border-radius: @border_radius;
+		color: var(--mainColor_light);
+		border-radius: var(--border_radius);
 		&.disabled {
 			opacity: .5;
 			cursor: help;
@@ -351,12 +351,12 @@ export default class CommandHelper extends Vue {
 	.raid {
 		display: flex;
 		flex-direction: column;
-		background-color: @mainColor_dark_light;
+		background-color: var(--mainColor_dark_light);
 		padding: 10px;
 		border-radius: 10px;
 		label {
 			align-self: center;
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			font-size: .9em;
 			img {
 				height: .9em;
@@ -384,20 +384,20 @@ export default class CommandHelper extends Vue {
 			text-align: center;
 			font-size: .8em;
 			margin-top: .5em;
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			&:hover {
-				color: @mainColor_normal_light;
+				color: var(--mainColor_normal_light);
 			}
 		}
 
 		.missingScope {
 			max-width: 300px;
-			background-color: @mainColor_warn;
-			border-radius: @border_radius;
+			background-color: var(--mainColor_warn);
+			border-radius: var(--border_radius);
 			padding: .5em;
 			p {
 				font-size: .7em;
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				text-align: center;
 			}
 			.button {

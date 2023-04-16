@@ -337,7 +337,7 @@ export default class StreamInfoForm extends Vue {
 		.tagItem {
 			display: inline;
 			background-color: rgb(240, 240, 240);
-			color: @mainColor_normal;
+			color: var(--mainColor_normal);
 			font-size: .9em;
 			padding: .25em;
 			border-radius: 4px;
@@ -348,8 +348,8 @@ export default class StreamInfoForm extends Vue {
 				margin-left: .25em;
 			}
 			&:hover {
-				background: @mainColor_normal_extralight;
-				// color: @mainColor_light;
+				background: var(--mainColor_normal_extralight);
+				// color: var(--mainColor_light);
 			}
 		}
 	}

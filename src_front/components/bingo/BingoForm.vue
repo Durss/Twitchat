@@ -214,7 +214,7 @@ export default class BingoForm extends Vue {
 				justify-content: center;
 
 				.button {
-					background-color: @mainColor_normal;
+					background-color: var(--mainColor_normal);
 					border-radius: 0;
 					&:not(.selected) {
 						background-color: fade(@mainColor_normal, 50%);
@@ -225,14 +225,14 @@ export default class BingoForm extends Vue {
 					}
 
 					&:first-child {
-						border-top-left-radius: @border_radius;
-						border-bottom-left-radius: @border_radius;
+						border-top-left-radius: var(--border_radius);
+						border-bottom-left-radius: var(--border_radius);
 						transform-origin: right center;
 					}
 
 					&:last-child {
-						border-top-right-radius: @border_radius;
-						border-bottom-right-radius: @border_radius;
+						border-top-right-radius: var(--border_radius);
+						border-bottom-right-radius: var(--border_radius);
 						transform-origin: left center;
 					}
 				}

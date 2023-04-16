@@ -64,7 +64,7 @@ export default class CommunityBoostInfo extends Vue {
 	flex-direction: row;
 	align-items: center;
 	white-space: nowrap;
-	color: @mainColor_light;
+	color: var(--mainColor_light);
 	margin-left: 5px;
 	font-size: 14px;
 	padding: 5px;
@@ -85,7 +85,7 @@ export default class CommunityBoostInfo extends Vue {
 		margin-left: 5px;
 		align-items: center;
 		p:nth-child(2) {
-			border-top: 1px solid @mainColor_light;
+			border-top: 1px solid var(--mainColor_light);
 		}
 	}
 }

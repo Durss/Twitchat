@@ -285,8 +285,8 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 			margin-top: .5em;
 			padding: .25em .5em;
 			width: calc(100% - .75em);
-			color: @mainColor_light;
-			background-color: @mainColor_highlight;
+			color: var(--mainColor_light);
+			background-color: var(--mainColor_highlight);
 			border-radius: .5em;
 			text-align: center;
 			font-size: .8em;
@@ -297,8 +297,8 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 			margin-top: .5em;
 			padding: .25em .5em;
 			width: calc(100% - .75em);
-			color: @mainColor_light;
-			background-color: @mainColor_alert;
+			color: var(--mainColor_light);
+			background-color: var(--mainColor_alert);
 			border-radius: .5em;
 
 			.title {
@@ -346,7 +346,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 						margin-left: calc(2em + 20px + .5em);//Make sure title is centered
 					}
 					&:deep(.content) {
-						background-color: @mainColor_light;
+						background-color: var(--mainColor_light);
 					}
 
 					.deleteBt {
@@ -381,8 +381,8 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 	
 					.regError {
 						text-align: center;
-						color: @mainColor_light;
-						background-color: @mainColor_alert;
+						color: var(--mainColor_light);
+						background-color: var(--mainColor_alert);
 						padding: .5em;
 						font-size: .8em;
 						border-bottom-left-radius: .5em;

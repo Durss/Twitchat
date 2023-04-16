@@ -188,7 +188,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 	.infoHolder {
 		flex-grow: 1;
 		text-align: center;
-			color:@mainColor_light;
+			color:var(--mainColor_light);
 	}
 
 	.details {
@@ -222,8 +222,8 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 				font-size: .7em;
 				vertical-align: top;
 				margin-right: .5em;
-				color: @mainColor_normal;
-				background-color: @mainColor_light;
+				color: var(--mainColor_normal);
+				background-color: var(--mainColor_light);
 			}
 
 			// &.t1 {
@@ -249,7 +249,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 			flex-direction: row;
 			gap:.25em;
 			background-color: fade(@mainColor_normal, 50%);
-			border-radius: @border_radius;
+			border-radius: var(--border_radius);
 			padding: .5em;
 			min-width: 6em;
 
@@ -280,7 +280,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 				border-radius: 50%;
 				margin: auto;
 				display: block;
-				border: 1px solid @mainColor_normal;
+				border: 1px solid var(--mainColor_normal);
 			}
 			.userlink {
 				font-size: .9em;

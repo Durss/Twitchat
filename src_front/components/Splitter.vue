@@ -31,10 +31,10 @@ export default class Splitter extends Vue {
 	}
 	.line {
 		flex-grow: 1;
-		background-color: @mainColor_normal;
+		background-color: var(--mainColor_normal);
 		height: 1px;
-		// border-top: 1px solid @mainColor_normal;
-		// border-bottom: 1px solid @mainColor_normal;
+		// border-top: 1px solid var(--mainColor_normal);
+		// border-bottom: 1px solid var(--mainColor_normal);
 		// height: 10px;
 	}
 }

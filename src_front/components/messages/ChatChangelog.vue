@@ -142,8 +142,8 @@ export default class ChatChangelog extends Vue {
 	}
 
 	:deep(.header){
-		color: @mainColor_light;
-		background-color: @mainColor_normal;
+		color: var(--mainColor_light);
+		background-color: var(--mainColor_normal);
 		&:hover {
 			background-color: lighten(@mainColor_normal, 5%);
 		}
@@ -162,8 +162,8 @@ export default class ChatChangelog extends Vue {
 	
 	.new {
 		:deep(.header){
-			color: @mainColor_light;
-			background-color: @mainColor_warn;
+			color: var(--mainColor_light);
+			background-color: var(--mainColor_warn);
 			border-bottom-color: darken(@mainColor_warn, 10%);
 			&:hover {
 				background-color: lighten(@mainColor_warn, 5%);
@@ -173,14 +173,14 @@ export default class ChatChangelog extends Vue {
 			color: darken(@mainColor_warn, 5%);
 			background-color: fade(@mainColor_warn_extralight, 25%);
 			.testBt {
-				border-color: @mainColor_warn;
+				border-color: var(--mainColor_warn);
 				color: darken(@mainColor_warn, 5%) !important;
 				&:hover {
 					background: fade(@mainColor_warn, 10%);
 				}
 			}
 			.icon {
-				background: @mainColor_warn;
+				background: var(--mainColor_warn);
 			}
 
 			.cmd {
@@ -194,25 +194,25 @@ export default class ChatChangelog extends Vue {
 	}
 	.fix {
 		:deep(.header){
-			color: @mainColor_light;
-			background-color: @mainColor_alert;
+			color: var(--mainColor_light);
+			background-color: var(--mainColor_alert);
 			border-bottom-color: darken(@mainColor_alert, 10%);
 			&:hover {
 				background-color: lighten(@mainColor_alert, 5%);
 			}
 		}
 		:deep(.content){
-			color: @mainColor_alert;
+			color: var(--mainColor_alert);
 			background-color: lighten(@mainColor_alert_extralight, 5%);
 			.testBt {
-				border-color: @mainColor_alert;
-				color: @mainColor_alert !important;
+				border-color: var(--mainColor_alert);
+				color: var(--mainColor_alert) !important;
 				&:hover {
 					background: fade(@mainColor_alert, 10%);
 				}
 			}
 			.icon {
-				background: @mainColor_alert;
+				background: var(--mainColor_alert);
 			}
 
 			.cmd {
@@ -236,10 +236,10 @@ export default class ChatChangelog extends Vue {
 			.testBt {
 				border-radius: .5em;
 				background: transparent;
-				border: 1px solid @mainColor_normal;
+				border: 1px solid var(--mainColor_normal);
 				padding: .16em .3em;
 				margin-right: .5em;
-				color: @mainColor_normal !important;
+				color: var(--mainColor_normal) !important;
 				&:hover {
 					background: fade(@mainColor_normal, 10%);
 				}
@@ -252,7 +252,7 @@ export default class ChatChangelog extends Vue {
 				display: inline;
 				margin-right: .5em;
 				vertical-align: bottom;
-				background: @mainColor_normal;
+				background: var(--mainColor_normal);
 			}
 			ul {
 				padding-left: 2.5em;

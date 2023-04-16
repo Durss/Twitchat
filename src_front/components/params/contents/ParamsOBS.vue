@@ -234,7 +234,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 		}
 		.warn {
 			font-style: italic;
-			color: @mainColor_alert;
+			color: var(--mainColor_alert);
 		}
 		&.permissions {
 			.info {
@@ -262,7 +262,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 
 		.error, .success {
 			justify-self: center;
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			display: block;
 			text-align: center;
 			padding: 5px;
@@ -271,7 +271,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 			margin-top: 10px;
 
 			&.error {
-				background-color: @mainColor_alert;
+				background-color: var(--mainColor_alert);
 			}
 
 			&.success {
@@ -281,15 +281,15 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 			}
 			
 			a {
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 			}
 
 			div:not(:last-child) {
 				margin-bottom: 1em;
 			}
 			:deep(strong) {
-				background-color: @mainColor_light;
-				color: @mainColor_alert;
+				background-color: var(--mainColor_light);
+				color: var(--mainColor_alert);
 				padding: 0 0.25em;
 				border-radius: 0.25em;
 			}

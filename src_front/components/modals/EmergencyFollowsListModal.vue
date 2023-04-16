@@ -294,7 +294,7 @@ export default class EmergencyFollowsListModal extends Vue {
 					align-items: center;
 
 					&.loading {
-						background-color: @mainColor_alert_extralight;
+						background-color: var(--mainColor_alert_extralight);
 					}
 
 					.infos {
@@ -350,9 +350,9 @@ export default class EmergencyFollowsListModal extends Vue {
 				flex-wrap: wrap;
 				gap:.5em;
 				.later {
-					background-color: @mainColor_warn;
+					background-color: var(--mainColor_warn);
 					&:hover {
-						background-color: @mainColor_warn_light;
+						background-color: var(--mainColor_warn_light);
 
 					}
 				}

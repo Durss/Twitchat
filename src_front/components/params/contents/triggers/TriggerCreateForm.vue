@@ -590,13 +590,13 @@ interface TriggerEntry{
 	&>.require {
 		text-align: center;
 		margin-top: .5em;
-		background-color: @mainColor_warn;
+		background-color: var(--mainColor_warn);
 		padding: .5em;
 		border-radius: .5em;
-		color: @mainColor_dark;
+		color: var(--mainColor_dark);
 
 		a {
-			color: @mainColor_alert;
+			color: var(--mainColor_alert);
 			font-weight: bold;
 		}
 	}
@@ -631,8 +631,8 @@ interface TriggerEntry{
 						content: "beta";
 						position: absolute;
 						left: 0;
-						color:@mainColor_light;
-						background-color: @mainColor_normal;
+						color:var(--mainColor_light);
+						background-color: var(--mainColor_normal);
 						background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 0%, fade(@mainColor_normal, 100%) 100%);
 						height: 100%;
 						display: flex;
@@ -677,7 +677,7 @@ interface TriggerEntry{
 					height:100%;
 					left: 0;
 					position: absolute;
-					background-color: @mainColor_normal;
+					background-color: var(--mainColor_normal);
 				}
 				:deep(.label) {
 					padding-left: .5em;
@@ -693,8 +693,8 @@ interface TriggerEntry{
 
 		.subEventBt {
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-			color: @mainColor_normal;
-			background-color: @mainColor_light;
+			color: var(--mainColor_normal);
+			background-color: var(--mainColor_light);
 			border-radius: .5em;
 			padding: 0 .5em;
 			display: flex;
@@ -728,8 +728,8 @@ interface TriggerEntry{
 			}
 
 			&:is(div) {
-				color: @mainColor_light;
-				background-color: @mainColor_normal;
+				color: var(--mainColor_light);
+				background-color: var(--mainColor_normal);
 				&:not(:first-of-type) {
 					margin-top: 1em;
 				}

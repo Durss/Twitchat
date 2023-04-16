@@ -132,14 +132,14 @@ export default class ConnectSpotifyForm extends Vue {
 	
 		.error {
 			justify-self: center;
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			display: block;
 			text-align: center;
 			padding: 5px;
 			border-radius: 5px;
 			margin: auto;
 			margin-top: 10px;
-			background-color: @mainColor_alert;
+			background-color: var(--mainColor_alert);
 			cursor: pointer;
 		}
 	
@@ -152,8 +152,8 @@ export default class ConnectSpotifyForm extends Vue {
 			}
 
 			&.success {
-				color: @mainColor_light;
-				background-color: @mainColor_normal;
+				color: var(--mainColor_light);
+				background-color: var(--mainColor_normal);
 				padding: .25em .5em;
 				border-radius: .5em;
 			}
@@ -162,7 +162,7 @@ export default class ConnectSpotifyForm extends Vue {
 		&.spotifasshole {
 			margin-top: .5em;
 			.info {
-				color: @mainColor_alert;
+				color: var(--mainColor_alert);
 				font-size: .9em;
 			}
 			form {

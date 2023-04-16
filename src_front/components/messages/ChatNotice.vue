@@ -69,7 +69,7 @@ export default class ChatNotice extends AbstractChatMessage {
 	.message {
 		font-style: italic;
 		opacity: .7;
-		color: @mainColor_warn;
+		color: var(--mainColor_warn);
 
 		:deep(mark) {
 			margin: 0 .2em;
@@ -85,13 +85,13 @@ export default class ChatNotice extends AbstractChatMessage {
 			background-color: rgba(255, 255, 255, .25);
 		}
 		&.enabled {
-			background-color: @mainColor_alert;
+			background-color: var(--mainColor_alert);
 			&:hover {
-				background-color: @mainColor_alert_light;
+				background-color: var(--mainColor_alert_light);
 			}
 		}
 		.message {
-			color: @mainColor_light;
+			color: var(--mainColor_light);
 			opacity: 1;
 			:deep(mark) {
 				color: inherit;
@@ -101,7 +101,7 @@ export default class ChatNotice extends AbstractChatMessage {
 
 	&.alert {
 		.message {
-			color: @mainColor_alert;
+			color: var(--mainColor_alert);
 			:deep(mark) {
 				color: lighten(@mainColor_alert, 10%);
 			}

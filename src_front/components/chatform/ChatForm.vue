@@ -1015,7 +1015,7 @@ export default class ChatForm extends Vue {
 	}
 	&.emergencyMode {
 		.holder {
-			background-color: @mainColor_alert;
+			background-color: var(--mainColor_alert);
 		}
 	}
 
@@ -1029,7 +1029,7 @@ export default class ChatForm extends Vue {
 		position: relative;
 		z-index: 2;
 		box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
-		background-color: @mainColor_dark_extralight;
+		background-color: var(--mainColor_dark_extralight);
 		padding: .25em;
 		border-radius: .25em;
 
@@ -1071,9 +1071,9 @@ export default class ChatForm extends Vue {
 					width:100%;
 					position: absolute;
 					transform: translateY(-100%);
-					background-color: @mainColor_dark_light;
+					background-color: var(--mainColor_dark_light);
 					padding: .25em;
-					color: @mainColor_light;
+					color: var(--mainColor_light);
 					border-top-left-radius: .5em;
 					border-top-right-radius: .5em;
 					box-shadow: 0 -5px 5px rgba(0,0,0,.5);
@@ -1107,9 +1107,9 @@ export default class ChatForm extends Vue {
 
 						.userlink {
 							font-weight: bold;
-							color: @mainColor_warn;
+							color: var(--mainColor_warn);
 							&:hover {
-								background-color: @mainColor_dark;
+								background-color: var(--mainColor_dark);
 							}
 						}
 					}
@@ -1143,8 +1143,8 @@ export default class ChatForm extends Vue {
 					font-size: .55em;
 					padding: .25em .5em;
 					font-weight: bold;
-					color: @mainColor_dark;
-					background-color: @mainColor_warn;
+					color: var(--mainColor_dark);
+					background-color: var(--mainColor_warn);
 				}
 			}
 
@@ -1186,7 +1186,7 @@ export default class ChatForm extends Vue {
 				flex-direction: row;
 				align-items: center;
 				white-space: nowrap;
-				color: @mainColor_light;
+				color: var(--mainColor_light);
 				background-color: rgba(255,255,255,.25);
 				
 				border-radius: .5em;

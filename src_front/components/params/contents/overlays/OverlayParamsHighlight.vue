@@ -288,8 +288,8 @@ export default class OverlayParamsHighlight extends Vue {
 						background-color: rgba(255, 255, 255, .5);
 						border: 1px solid rgba(0, 0, 0, .15);
 						&.selected {
-							background-color: @mainColor_normal;
-							color: @mainColor_light;
+							background-color: var(--mainColor_normal);
+							color: var(--mainColor_light);
 						}
 						label {
 							margin: 0;

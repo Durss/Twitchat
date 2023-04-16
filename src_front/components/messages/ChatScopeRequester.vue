@@ -67,13 +67,13 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 .chatscoperequester{
 	.chatMessageHighlight();
 
-	color: @mainColor_light;
-	background-color: @mainColor_alert;
+	color: var(--mainColor_light);
+	background-color: var(--mainColor_alert);
 	position: relative;
 	align-items: flex-start;
 
 	&:hover {
-		background-color: @mainColor_alert_light;
+		background-color: var(--mainColor_alert_light);
 	}
 	
 	.closeBt {
@@ -107,7 +107,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 			margin: auto;
 			margin-top: .5em;
 			display: block;
-			color: @mainColor_dark;
+			color: var(--mainColor_dark);
 			font-weight: bold;
 			:deep(.icon) {
 				filter: brightness(0);

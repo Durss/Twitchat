@@ -93,8 +93,8 @@ export default class TriggerActionMusicEntry extends Vue {
 		border-radius: .25em;
 		margin:auto;
 		margin-bottom: .5em;
-		background-color: @mainColor_alert;
-		color: @mainColor_light;
+		background-color: var(--mainColor_alert);
+		color: var(--mainColor_light);
 		padding: .25em .5em;
 	}
 

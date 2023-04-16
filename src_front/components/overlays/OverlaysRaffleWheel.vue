@@ -382,12 +382,12 @@ interface StarData {
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				color: @mainColor_dark;
+				color: var(--mainColor_dark);
 				height: 100%;
-				background-color: @mainColor_light;
+				background-color: var(--mainColor_light);
 				transition: all .5s;
 				will-change: transform;//Avoid text jittering
-				// border: @borderWidth solid @mainColor_dark;
+				// border: @borderWidth solid var(--mainColor_dark);
 				border-left: none;
 				margin-right: 15%;
 				.label {
@@ -404,7 +404,7 @@ interface StarData {
 				width: 100%;
 				&>.wheel-item {
 					margin-right: 0;
-					background-color: @mainColor_highlight_extralight;
+					background-color: var(--mainColor_highlight_extralight);
 					@scaleAdd: 50%;
 					height: calc(100% + @scaleAdd);
 					transform: translateY(calc(-@scaleAdd/4 - @borderWidth));

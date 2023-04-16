@@ -142,7 +142,7 @@ export default class OverlayParamsRaffle extends Vue {
 			}
 
 			.error {
-				color:@mainColor_alert;
+				color:var(--mainColor_alert);
 				font-style: italic;
 			}
 

@@ -116,7 +116,7 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 	}
 
 	.streamInfo {
-		color: @mainColor_light;
+		color: var(--mainColor_light);
 		// background-color: rgba(255, 255, 255, .15);
 		border-radius: .5em;
 		overflow: hidden;
