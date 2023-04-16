@@ -8,6 +8,7 @@ import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 23/05/2022 
@@ -78,6 +79,7 @@ export default class SpotifyHelper {
 		clearTimeout(this._getTrackTimeout);
 		Config.instance.SPOTIFY_CONNECTED = false;
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);
+		rebuildPlaceholdersCache();
 	}
 
 	
@@ -153,11 +155,11 @@ export default class SpotifyHelper {
 			StoreProxy.main.alert("Spotify authentication failed");
 			console.log(error);
 			Config.instance.SPOTIFY_CONNECTED = false;
+			rebuildPlaceholdersCache();
 			throw(error);
 		}
 
 		this.setToken(json);
-		Config.instance.SPOTIFY_CONNECTED = true;
 	}
 
 	/**
@@ -545,9 +547,7 @@ export default class SpotifyHelper {
 	 */
 	private setToken(value:SpotifyAuthToken | null) {
 		if(value == null) {
-			clearTimeout(this._refreshTimeout);
-			clearTimeout(this._getTrackTimeout);
-			Config.instance.SPOTIFY_CONNECTED = false;
+			this.disconnect();
 			return;
 		}
 		
@@ -565,6 +565,7 @@ export default class SpotifyHelper {
 			"Authorization":"Bearer "+this._token.access_token,
 		}
 		Config.instance.SPOTIFY_CONNECTED = this._token? this._token.expires_at > Date.now() : false;
+		rebuildPlaceholdersCache();
 		
 		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {
 			this.refreshToken();
