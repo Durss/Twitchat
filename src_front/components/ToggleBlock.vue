@@ -2,14 +2,6 @@
 	<div :class="classes">
 		<div class="header" @click.stop="toggle()">
 			<slot name="left_actions"></slot>
-			<Button small
-				:icon="$image('icons/dragZone.svg')"
-				class="orderBt"
-				warn
-				v-if="orderable!==false"
-				@mousedown="$emit('startDrag', $event)"
-				v-tooltip="$t('triggers.reorder_tt')"
-			/>
 			<img v-for="icon in localIcons" :src="$image('icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
 			<h2 v-html="localTitle"></h2>
 			<slot name="right_actions"></slot>
@@ -67,11 +59,6 @@ export default class ToggleBlock extends Vue {
 			default:false,
 		})
 	public medium!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
-	public orderable!:boolean;
 	@Prop({
 			type:String,
 			default:"",
@@ -236,17 +223,6 @@ export default class ToggleBlock extends Vue {
 				// &:hover {
 				// 	background-color: lighten(@mainColor_normal, 10%);
 				// }
-			}
-
-			.orderBt {
-				border-radius: 0;
-				padding: .3em;
-				align-self: stretch;
-				width: 2.5em;
-				cursor: grab;
-				&:active {
-					cursor: grabbing;
-				}
 			}
 		}
 		&>.content {

@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractiondelayentry" @click="setFocus()">
-		<img src="@/assets/icons/timer.svg" class="icon">
+		<img src="@/assets/icons/timer_purple.svg" class="icon">
 
 		<div>
 			<contenteditable class="input" tag="span" ref="input"
@@ -14,7 +14,7 @@
 			<span>s</span>
 		</div>
 
-		<Button class="deleteBt" highlight small :icon="$image('icons/cross_white.svg')" @click="$emit('delete')" />
+		<Button class="deleteBt" highlight small :icon="$image('icons/cross_alert.svg')" @click="$emit('delete')" />
 	</div>
 </template>
 
@@ -82,24 +82,26 @@ export default class TriggerActionDelayEntry extends Vue {
 	margin: auto;
 	width: min-content;
 	border-radius: .5em;
-	background-color: @mainColor_normal;
+	background-color: @mainColor_light;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	padding-left: .5em;
-	color: @mainColor_light;
+	color: @mainColor_normal;
 	overflow: hidden;
 	gap: .5em;
 	line-height: 1.5em;
-	.input {
-		// min-width: 20px;
-	}
+	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 	.icon {
 		height: 1em;
 	}
 
 	.deleteBt {
 		align-self: stretch;
+		background-color: transparent;
+		&:hover {
+			background-color: fade(@mainColor_alert, 20%) !important;
+		}
 	}
 }
 </style>

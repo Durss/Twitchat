@@ -5,8 +5,6 @@
 	@delete="$emit('delete')" />
 
 	<ToggleBlock v-else
-	orderable
-	medium
 	:error="isError"
 	:errorTitle="errorTitle"
 	:open="opened"
@@ -14,16 +12,24 @@
 	:class="classes"
 	:icons="icons? icons : []"
 	>
+		<template #left_actions>
+			<Button small
+				:icon="$image('icons/dragZone_purple.svg')"
+				class="toggleAction orderBt"
+				@mousedown="$emit('startDrag', $event)"
+				v-tooltip="$t('triggers.reorder_tt')"
+			/>
+		</template>
 		<template #right_actions>
 			<Button small
-				:icon="$image('icons/copy.svg')"
+				:icon="$image('icons/copy_purple.svg')"
 				class="toggleAction"
 				@click="$emit('duplicate')"
 				v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 			/>
 			<Button small highlight
-				:icon="$image('icons/cross_white.svg')"
-				class="toggleAction"
+				:icon="$image('icons/cross_alert.svg')"
+				class="toggleAction delete"
 				@click="$emit('delete')"
 			/>
 		</template>
@@ -260,7 +266,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public get classes():string[] {
-		const res = ["TriggerActionEntry"];
+		const res = ["triggeractionentry"];
 		if(this.isError) res.push("error");
 		return res;
 	}
@@ -292,26 +298,26 @@ export default class TriggerActionEntry extends Vue {
 			replay:"play",
 		};
 		
-		if(this.action.type == "obs") icons.push( action2Icon[this.action.action] );
-		if(this.action.type == "music") icons.push( 'spotify' );
-		if(this.action.type == "chat") icons.push( 'whispers' );
-		if(this.action.type == "tts") icons.push( 'tts' );
-		if(this.action.type == "raffle") icons.push( 'ticket' );
-		if(this.action.type == "raffle_enter") icons.push( 'user' );
-		if(this.action.type == "bingo") icons.push( 'bingo' );
-		if(this.action.type == "voicemod") icons.push( 'voicemod' );
-		if(this.action.type == "trigger") icons.push( 'broadcast' );
-		if(this.action.type == "triggerToggle") icons.push( 'broadcast' );
-		if(this.action.type == "highlight") icons.push( 'highlight' );
-		if(this.action.type == "http") icons.push( 'url' );
-		if(this.action.type == "ws") icons.push( 'url' );
-		if(this.action.type == "poll") icons.push( 'poll' );
-		if(this.action.type == "prediction") icons.push( 'prediction' );
-		if(this.action.type == "count") icons.push( 'count' );
-		if(this.action.type == "countget") icons.push( 'count_placeholder' );
-		if(this.action.type == "random") icons.push( 'dice_placeholder' );
-		if(this.action.type == "stream_infos") icons.push( 'info' );
-		if(this.action.type == "delay") icons.push( 'timer' );
+		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"_purple" );
+		if(this.action.type == "music") icons.push( 'spotify_purple' );
+		if(this.action.type == "chat") icons.push( 'whispers_purple' );
+		if(this.action.type == "tts") icons.push( 'tts_purple' );
+		if(this.action.type == "raffle") icons.push( 'ticket_purple' );
+		if(this.action.type == "raffle_enter") icons.push( 'user_purple' );
+		if(this.action.type == "bingo") icons.push( 'bingo_purple' );
+		if(this.action.type == "voicemod") icons.push( 'voicemod_purple' );
+		if(this.action.type == "trigger") icons.push( 'broadcast_purple' );
+		if(this.action.type == "triggerToggle") icons.push( 'broadcast_purple' );
+		if(this.action.type == "highlight") icons.push( 'highlight_purple' );
+		if(this.action.type == "http") icons.push( 'url_purple' );
+		if(this.action.type == "ws") icons.push( 'url_purple' );
+		if(this.action.type == "poll") icons.push( 'poll_purple' );
+		if(this.action.type == "prediction") icons.push( 'prediction_purple' );
+		if(this.action.type == "count") icons.push( 'count_purple' );
+		if(this.action.type == "countget") icons.push( 'count_placeholder_purple' );
+		if(this.action.type == "random") icons.push( 'dice_placeholder_purple' );
+		if(this.action.type == "stream_infos") icons.push( 'info_purple' );
+		if(this.action.type == "delay") icons.push( 'timer_purple' );
 		return icons;
 	}
 
@@ -407,9 +413,22 @@ export default class TriggerActionEntry extends Vue {
 }
 </script>
 
+<style lang="less">
+.closed {
+    width: fit-content;
+    margin: auto;
+}
+</style>
+
 <style scoped lang="less">
-.TriggerActionEntry{
+.triggeractionentry{
+	transition: all .15s;
 	:deep(.header) {
+		padding: 0;
+		overflow: hidden;
+		h2 {
+			padding: .5em;
+		}
 		.subtitle {
 			font-size: .7em;
 			font-weight: normal;
@@ -448,8 +467,22 @@ export default class TriggerActionEntry extends Vue {
 
 	.toggleAction {
 		border-radius: 0;
-		padding: .3em;
+		padding: .5em;
 		align-self: stretch;
+		background-color: transparent;
+		&:hover {
+			background-color: fade(@mainColor_normal, 20%)
+		}
+		&.delete:hover {
+			background-color: fade(@mainColor_alert, 20%)
+		}
+	
+		&.orderBt {
+			cursor: grab;
+			&:active {
+				cursor: grabbing;
+			}
+		}
 	}
 
 	&.error {
