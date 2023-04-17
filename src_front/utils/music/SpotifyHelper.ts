@@ -375,6 +375,7 @@ export default class SpotifyHelper {
 		
 		json = json!;
 
+
 		if(json.currently_playing_type == "episode") {
 			const episode = await this.getEpisodeInfos();
 			if(episode) json = episode;
@@ -394,6 +395,7 @@ export default class SpotifyHelper {
 			if(this._isPlaying) {
 				let delay = json.item.duration_ms - json.progress_ms;
 				if(isNaN(delay)) delay = 5000;
+				//Schedule a refresh at the end of the track or in the next 5s max
 				this._getTrackTimeout = setTimeout(()=> {
 					this.getCurrentTrack();
 				}, Math.min(5000, delay + 1000));
@@ -447,6 +449,8 @@ export default class SpotifyHelper {
 				}
 				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 			}
+		}else{
+			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 		}
 	}
 
