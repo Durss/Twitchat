@@ -1,18 +1,18 @@
 import StoreProxy from '@/store/StoreProxy'
-import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes'
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import Utils from '@/utils/Utils'
+import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes'
 import Chat from '@/views/Chat.vue'
-import ChatLight from '@/views/ChatLight.vue'
+import ComponentList from '@/views/ComponentList.vue'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import Logout from '@/views/Logout.vue'
 import Overlay from '@/views/Overlay.vue'
+import PublicApiTest from '@/views/PublicApiTest.vue'
 import RemoteVoiceControl from '@/views/RemoteVoiceControl.vue'
 import Sponsor from '@/views/Sponsor.vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
-import PublicApiTest from '@/views/PublicApiTest.vue'
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -52,12 +52,12 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
-		path: '/chat/:login',
-		name: 'chatLight',
-		component: ChatLight,
+		path: '/components',
+		name: 'components',
+		component: ComponentList,
 		meta: {
+			overflow:true,
 			needAuth:false,
-			noBG:true,
 		}
 	},
 	{

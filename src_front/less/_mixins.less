@@ -40,7 +40,7 @@
 		margin-left: 3em;
 	}
 	
-	.emote {
+	:deep( .emote ) {
 		// width: 2em;
 		height: 1.5em;
 		vertical-align: middle;
@@ -90,7 +90,7 @@
 		// }
 	}
 	
-	.cheermote, .emote {
+	:deep(.cheermote), :deep(.emote) {
 		max-height: 2em;
 		vertical-align: middle;
 		object-fit: fill;
@@ -171,7 +171,7 @@
 				padding: 0;
 				border-radius: .5em;
 				background-color: transparent;
-				.icon {
+				:deep(.icon) {
 					max-height: 1em;
 				}
 			}
@@ -273,7 +273,7 @@
 	padding: 0;
 	border-radius: 5px;
 	background: none;
-	.icon {
+	:deep(.icon) {
 		height: 1em;
 		width: 1.25em;
 		margin-right: 0;
@@ -281,11 +281,11 @@
 		object-fit: fill;
 		vertical-align: middle;
 	}
-	.label {
+	:deep(.label) {
 		font-weight: normal;
 	}
 	.icon + * {
-		.label {
+		:deep(.label) {
 			margin-left: .5em;
 		}
 	}
@@ -335,7 +335,7 @@
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: fade(@mainColor_normal_extralight, 30%);
-		label {
+		:deep(label) {
 			white-space: nowrap;
 		}
 	}
@@ -369,7 +369,7 @@
 		}
 	}
 
-	mark {
+	:deep(mark) {
 		font-weight: bold;
 		padding: .15em .5em;
 		border-radius: .5em;
@@ -402,7 +402,7 @@
 		}
 		.highlight {
 			font-size: .8em;
-			color: var(--windowStateColor);
+			color: @windowStateColor;
 		}
 	}
 	
@@ -413,7 +413,7 @@
 	}
 
 	.progress {
-		color: var(--windowStateColor);
+		color: @windowStateColor;
 		margin-bottom: 1em;
 	}
 

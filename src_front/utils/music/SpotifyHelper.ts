@@ -375,6 +375,11 @@ export default class SpotifyHelper {
 		
 		json = json!;
 
+		if(json.currently_playing_type != "episode" && json.currently_playing_type != "track") {
+			//Spotify someone
+			return;
+		}
+			
 		if(json.currently_playing_type == "episode") {
 			const episode = await this.getEpisodeInfos();
 			if(episode) json = episode;

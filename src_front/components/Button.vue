@@ -2,7 +2,7 @@
 	<component
 	:class="classes"
 	:is="nodeType"
-	:type="type=='checkbox'? null : type"
+	:type="type"
 	:target="target"
 	:to="to"
 	:href="type=='link'? to : null"
@@ -12,17 +12,7 @@
 		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
 		<div v-html="parsedIcon" v-if="parsedIcon && isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'"></div>
 
-		<div class="checkboxContent" v-if="type=='checkbox'">
-			<div class="checkmark">
-				<img :src="checkMarkIcon" v-if="checked" alt="icon" class="img">
-			</div>
-			<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
-			<span class="label" v-if="$slots.default"><slot></slot></span>
-			<input type="checkbox" :name="name" :id="name" class="checkboxInput" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
-		</div>
-
-		<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner" v-if="loading">
-		<span class="label" :class="loading? 'hide' : 'show'" v-if="title && type!='checkbox'" v-html="title"></span>
+		<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
 		<span class="label" v-if="$slots.default"><slot></slot></span>
 		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
 	</component>
@@ -46,10 +36,6 @@ export default class Button extends Vue {
 	public icon!:string;
 	@Prop
 	public iconSelected!:string;
-	@Prop
-	public title!:string;
-	@Prop
-	public name!:string;
 	@Prop({type:Boolean, default: false})
 	public loading!:boolean;
 	@Prop({type:String, default:'button'})
@@ -58,14 +44,12 @@ export default class Button extends Vue {
 	public target!:string;
 	@Prop
 	public to!:unknown;
-	@Prop({default: -1, type:Number})
-	public percent!:number;
-	@Prop({type:Boolean, default: false})
-	public white!:boolean;
 	@Prop({type:Boolean, default: false},)
 	public big!:boolean;
 	@Prop({type:Boolean, default: false},)
 	public small!:boolean;
+	@Prop({type:Boolean, default: false})
+	public white!:boolean;
 	@Prop({type:Boolean, default: false},)
 	public highlight!:boolean;
 	@Prop({type:Boolean, default: false},)
@@ -87,18 +71,9 @@ export default class Button extends Vue {
 	public get isIconSVG():boolean {
 		return this.parsedIcon.indexOf("<") != -1;
 	}
-	
-	public get checkMarkIcon():string {
-		if(this.white !== false) {
-			return this.$image('icons/checkmark_white.svg');
-		}else{
-			return this.$image('icons/checkmark.svg');
-		}
-	}
 
 	public get nodeType():string {
 		if(this.to) return "router-link";
-		if(this.type == "checkbox") return "div";
 		if(this.type == "link") return "a";
 		return "button";
 	}
@@ -128,7 +103,7 @@ export default class Button extends Vue {
 
 	public get classes():string[] {
 		let list =  ["button"]
-		if(!this.title) list.push("noTitle");
+		if(!this.$slots.default) list.push("noTitle");
 		if(this.white !== false) list.push("white");
 		if(this.big !== false) list.push("big");
 		if(this.small !== false) list.push("small");
@@ -136,7 +111,6 @@ export default class Button extends Vue {
 		if(this.selected !== false) list.push("selected");
 		if(this.loading !== false) list.push("disabled", "loading");
 		else if(this.disabled !== false) list.push("disabled");
-		if(this.type == "checkbox") list.push("checkbox");
 		return list;
 	}
 
@@ -149,12 +123,6 @@ export default class Button extends Vue {
 		
 		watch(() => this.modelValue, (val:boolean) => {
 			this.checked = val;
-		});
-		
-		watch(() => this.percent, (val:number) => {
-			let duration = val < this.pInterpolated? 0 : .35;
-			gsap.killTweensOf(this);
-			gsap.to(this, {duration, pInterpolated:val, ease:"sine.inout"});
 		});
 	}
 
@@ -176,8 +144,8 @@ export default class Button extends Vue {
 			return;
 		}
 		if(this.bounce) {
-			gsap.fromTo(this.$el, {scaleX:.7}, {duration:1.4, scale:1, clearProps:"scaleX", ease:"elastic.out(2)"});
-			gsap.fromTo(this.$el, {scaleY:.7}, {duration:1.2, scale:1, clearProps:"all", ease:"elastic.out(2)", delay:.05});
+			gsap.fromTo(this.$el, {scaleX:.8}, {duration:1.4, scale:1, clearProps:"scaleX", ease:"elastic.out(2)"});
+			gsap.fromTo(this.$el, {scaleY:.8}, {duration:1.2, scale:1, clearProps:"all", ease:"elastic.out(2)", delay:.05});
 		}
 		this.$emit("click", event);
 	}
@@ -188,308 +156,117 @@ export default class Button extends Vue {
 <style lang="less" scoped>
 
 .button {
-	position: relative;//Necessary for loader spinning absolute placement
 	display: inline-flex;
-	justify-content: center;
-	align-items: center;
 	flex-direction: row;
-	white-space: nowrap;
-	// transition: all .25s;
-	overflow: hidden;
-	// touch-action: none;
-	user-select: none;
-	cursor: pointer;
-	border: none;
-	padding: .25em .8em;
-	font-size: 1em;
-	color: var(--mainColor_light);
-	background-color: var(--mainColor_normal);
-	transition: color .25s, background-color .25s;
-	box-sizing: border-box;
-	text-align: center;
-	border-radius: var(--border_radius);
-	will-change: transform;
+	position: relative;
+	padding: .25em .5em;
+	gap: .5em;
+	align-items: center;
 	text-decoration: none;
-	min-height: calc(1em + .5em);
+	text-align: left;
+	color: var(--mainColor_light);
+	font-family: var(--font-inter);
+	cursor: pointer;
 
 	&:hover {
-		color: var(--mainColor_light);
-		background-color: var(--mainColor_normal_light);
-	}
-
-	&.dark {
-		color: #fff;
-		background-color: var(--mainColor_dark);
-
-		&:hover {
-			background-color: var(--mainColor_dark_light);
+		&::before {
+			background-color: var(--mainColor_normal_light);
 		}
 	}
-
-	&.white {
-		color: var(--mainColor_normal);
-		background-color: var(--mainColor_light);
-
-		&:hover {
-			background-color: lighten(@mainColor_normal_extralight, 12%) !important;
-		}
-	}
-
-	&.disabled {
-		cursor: not-allowed;
-		color: fade(@mainColor_dark, 25%);
-		&.dark {
-			color: fade(#000, 25%);
-			background-color: fade(@mainColor_dark_extralight, 50%);
-		}
-		&.white {
-			opacity: .5;
-			color: var(--mainColor_normal);
-			background-color: var(--mainColor_light);
-			.icon {
-				opacity: 1;
-			}
-		}
-	}
-
-	&.loading {
-		cursor: wait;
-	}
-
-	&>*:not(.browse) {
-		pointer-events: none;
-	}
-
-	&.noTitle {
-		margin: 0;
-		padding: .35em;
-		.icon {
-			height: 100%;
-			max-height: 1em;
-			min-width: 1em;
-			margin: 0;
-			padding: 0;
-		}
-
-		&.big {
-			padding: .9em;
-			font-size: 1.25em;
-		}
-	}
-
-	&.checkbox {
-		background: none;
-		padding: 0;
-		border-radius: 0;
-		margin: 0;
-		display: inline-block;
-
-		.checkboxInput {
-			pointer-events: all;
-			opacity: .001;
-			position: absolute;
-			padding: 0;
-			margin: 0;
-			width: 100%;
-			height: 100%;
-			left: 0;
-			top: 0;
-			z-index: 1000;
-			cursor: pointer;
-		}
-	}
-
-	.checkboxContent {
-		cursor: pointer;
-		display: flex;
-		flex-direction: row;
+	
+	&::before {
+		content: "";
 		width: 100%;
 		height: 100%;
-		align-items: center;
+		position: absolute;
+		top:0;
+		left:0;
+		transition: background-color .25s;
+		border-radius: var(--border_radius);
+		background-color: var(--mainColor_normal);
+	}
 
-		.checkmark {
-			border: 1px solid var(--mainColor_normal);
-			border-radius: .25em;
-			padding: 0;
-			width: 1em;
-			height: 1em;
-			box-sizing: border-box;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			.img {
-				width: 80%;
-				margin: 0;
-				padding: 0;
-			}
-		}
-
-		.label {
-			flex-grow: 1;
-			margin-left: .35em;
-			justify-self: flex-start;
-			text-align: left;
-			width: max-content;
-			color: var(--mainColor_normal);
-			// overflow: visible;
-		}
-		
-		&:hover {
-			background: none;
-			.checkmark {
-				background-color: fade(@mainColor_normal; 30%);
-			}
-		}
+	.loader {
+		position: absolute;
+		height: 1.25em;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
 	}
 
 	.icon {
-		max-height: 1em;
 		height: 1em;
-		margin-right: .5em;
-		vertical-align: text-top;
+		z-index: 1;
 	}
-
-	.spinner {
-		.center;
-		position: absolute;
-		vertical-align: middle;
-		height: 1.5em;
-		width: 1.5em;
-	}
-
 	.label {
-		// flex-grow: 1;
-		white-space: nowrap;
-		// overflow: hidden;
+		z-index: 1;
+		line-height: 1em;
 	}
 
-	.label, .icon {
-		opacity: 1;
-		transition: opacity .2s;
-		&.hide {
-			opacity: .25;
-		}
+	&.big {
+		font-size: 1.6em;
 	}
 
-	.browse {
-		opacity: 0;
-		position: absolute;
-		z-index: 0;
-		left: 0;
-		width: 100%;
-		height: 200%;//Hack to avoid browse button from locking cursor:pointer by putting it out of button's bounds
-		cursor: pointer;
-		font-size: 0px;
+	&.small {
+		font-size: .75em;
+		padding: .3em;
+	}
+
+	&.noTitle {
+		padding: .25em;
+	}
+
+	&.selected::before {
+		outline: 2px solid var(--mainColor_light);
 	}
 
 	&.white {
 		color: var(--mainColor_normal);
-		background-color: #fff;
-		.label, .icon {
-			&.hide {
-				opacity: .4;
+		&:before {
+			background-color: var(--mainColor_light);
+		}
+		&.disabled {
+			color: var(--mainColor_normal);
+			.icon, .label {
+				filter: brightness(.25);
 			}
 		}
-		&:not(.loading):hover {
-			background-color: var(--mainColor_normal_extralight);
-		}
-		&.loading {
-			background-color: fade(#ffffff, 50%);
-		}
-		.checkboxContent {
-			.checkmark {
-				border-color: #fff;
-			}
-			.label {
-				color: #fff;
-			}
-		}
-	}
 
-	&.big {
-		padding: .5em 1em;
-		font-size: 1.25em;
-		min-height: calc(1.25em + 2em);
-		&.checkbox {
-			padding: 0;
-			.checkboxContent {
-				.checkmark {
-					border-radius: 1em;
-					width: 2em;
-					height: 2em;
-				}
+		&:hover {
+			&::before {
+				background-color: var(--mainColor_normal_extralight);
 			}
 		}
-		.icon {
-			max-height: 1.5em;
-			height: 1.5em;
-		}
-	}
-
-	&.small {
-		padding: .2em;
-		border-radius: .3em;
-		font-size: .85em;
-		min-height: calc(.85em + .1em);
-		&:not(.noTitle) {
-			.icon {
-				margin-right: .2em;
-			}
-		}
-		&.checkbox {
-			padding: 0;
-			.checkboxContent {
-				.checkmark {
-					width: .8em;
-					height: .8em;
-				}
-			}
+		&.selected::before {
+			outline: 2px solid var(--mainColor_normal);
 		}
 	}
 
 	&.highlight {
-		color: #ffffff;
-		background-color: var(--mainColor_alert);
-		&.disabled {
-			background-color: fade(@mainColor_alert,50%);
+		color: var(--mainColor_light);
+		&:before {
+			background-color: var(--mainColor_alert);
 		}
-		.label, .icon {
-			&.hide {
-				opacity: .4;
+		&:hover {
+			&::before {
+				background-color: var(--mainColor_alert_light);
 			}
-		}
-		&:not(.loading):hover {
-			background-color: var(--mainColor_alert_light);
-		}
-		&.loading {
-			background-color: fade(@mainColor_alert, 50%);
-		}
-		&.selected {
-			background-color: var(--mainColor_alert_extralight);
 		}
 	}
 
-	&.selected:not(.highlight) {
-		background-color: var(--mainColor_warn);
-		color: #fff;
-		&.disabled {
-			background-color: fade(@mainColor_warn,50%);
-		}
-		&:hover {
-			background-color: var(--mainColor_warn_light);
-		}
-	}
-	
 	&.disabled {
-		color: fade(@mainColor_light, 45%);
-		background-color: fade(@mainColor_normal, 30%);
-		&:hover {
-			background-color: fade(@mainColor_normal, 30%);
+		.label, .icon {
+			opacity: .35;
 		}
-		.icon {
-			opacity: .4;
+		&::before {
+			opacity: .5;
 		}
 	}
+
+	border-width: 2px;
+	border-image: linear-gradient(to right, #007bff, #00bfff);
+	border-image-slice: 1;
+
 }
 
 @media only screen and (max-width: 500px) {
@@ -498,10 +275,6 @@ export default class Button extends Vue {
 			padding: .5em;
 			font-size: 1.2em;
 			min-height: calc(1.2em + .5em);
-		}
-		&:not(.big) {
-			font-size: .85em;
-			min-height: calc(.85em + .5em);
 		}
 	}
 }
