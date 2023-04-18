@@ -35,7 +35,7 @@
 			</ul>
 			<div class="ctas">
 				<Button type="button"
-					:icon="$image('icons/copy_alert.svg')"
+					icon="copy_alert"
 					bounce white
 					:title="$t('raid.copy_logins')"
 					@click="copybannedUsers()" />
@@ -43,7 +43,7 @@
 		</ToggleBlock>
 
 		<Button class="cancelBt" type="button"
-			:icon="$image('icons/cross_white.svg')"
+			icon="cross_white"
 			bounce highlight
 			:title="$t('global.cancel')"
 			@click="cancelRaid()" />

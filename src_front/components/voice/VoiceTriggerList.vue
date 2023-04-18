@@ -7,7 +7,7 @@
 			:open="actions.length == 0"
 		/>
 
-		<Button :icon="$image('icons/add.svg')" :title="$t('voice.addBt')" class="addBt"
+		<Button icon="add" :title="$t('voice.addBt')" class="addBt"
 			@click="addAction()"
 			v-if="getActionIDs().length > 0 && globalCommandsOK"
 		/>
@@ -36,7 +36,7 @@
 				>
 					<template #right_actions>
 						<Button small highlight
-							:icon="$image('icons/cross_white.svg')"
+							icon="cross_white"
 							class="toggleAction"
 							@click="deleteAction(element.id)"
 						/>

@@ -25,7 +25,7 @@
 				<Button v-if="!isMe && isOnline"
 					@click.stop="shoutout()"
 					:title="$t('chat.soBt')"
-					:icon="$image('icons/shoutout_purple.svg')"
+					icon="shoutout_purple"
 					:loading="shoutoutLoading"
 					white
 					class="soButton"

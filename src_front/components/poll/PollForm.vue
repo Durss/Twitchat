@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
 				<span class="title">{{ $t("poll.form.title") }}</span>
-				<Button :aria-label="$t('poll.form.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('poll.form.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
 			</div>
 
 			<div class="content">

@@ -3,7 +3,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">{{ $t('suggestion.title') }}</span>
-				<Button :aria-label="$t('suggestion.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('suggestion.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description">

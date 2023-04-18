@@ -16,7 +16,7 @@
 				<div v-for="o in messageData.choices" :key="o.id" class="choice" :class="getChoiceClasses(o)">
 					<div class="bar" :style="getChoiceStyles(o)">
 						<div class="choiceTitle">
-							<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="check">
+							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check">
 							{{o.label}}
 						</div>
 						<div class="users">

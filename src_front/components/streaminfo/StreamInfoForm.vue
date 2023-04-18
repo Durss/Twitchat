@@ -3,18 +3,18 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">{{ $t("stream.form_title") }}</span>
-				<Button :aria-label="$t('stream.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('stream.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
 			</div>
 			
 			<div class="content">
 				<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
 					<div v-for="p in presets" :key="p.id" class="preset">
 						<Button class="button" @click="deletePreset(p)"
-							:icon="$image('icons/trash.svg')"
+							icon="trash"
 							v-tooltip="$t('stream.preset_deleteBt_tt')" highlight bounce />
 							
 						<Button class="button" @click="editPreset(p)"
-							:icon="$image('icons/edit.svg')"
+							icon="edit"
 							v-tooltip="$t('stream.preset_editBt_tt')" bounce />
 
 						<Button class="button" @click="applyPreset(p)"

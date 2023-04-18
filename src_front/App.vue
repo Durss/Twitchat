@@ -98,12 +98,10 @@ export default class App extends Vue {
 .app{
 	width: 100%;
 	height: var(--vh);
-	font-size: 1.25em;
 	font-family: var(--font-inter);
 	overflow: hidden;
 
 	&.dyslexicFont {
-		font-size: 1.1em !important;
 		--font-inter: "OpenDyslexic";
 		--font-nunito: "OpenDyslexic";
 		--font-roboto: "OpenDyslexic";
@@ -173,11 +171,6 @@ export default class App extends Vue {
 	}
 	&.messageSize_20 {
 		--messageSize: 2.3em;
-	}
-}
-@media only screen and (max-width: 500px) {
-	.app{
-		font-size: 18px;
 	}
 }
 </style>

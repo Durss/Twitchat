@@ -3,7 +3,7 @@
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
 				<span class="title">{{ $t("raffle.form_title") }}</span>
-				<Button :aria-label="$t('raffle.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('raffle.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
@@ -15,9 +15,9 @@
 				</div>
 				
 				<div class="tabs">
-					<Button :title="$t('raffle.chat.title')" bounce :selected="mode=='chat'" @click="mode='chat'" :icon="$image('icons/commands.svg')" />
-					<Button :title="$t('raffle.subs.title')" bounce :selected="mode=='sub'" @click="mode='sub'" :icon="$image('icons/sub.svg')" v-if="isAffiliate" />
-					<Button :title="$t('raffle.list.title')" bounce :selected="mode=='manual'" @click="mode='manual'" :icon="$image('icons/list.svg')" />
+					<Button :title="$t('raffle.chat.title')" bounce :selected="mode=='chat'" @click="mode='chat'" icon="commands" />
+					<Button :title="$t('raffle.subs.title')" bounce :selected="mode=='sub'" @click="mode='sub'" icon="sub" v-if="isAffiliate" />
+					<Button :title="$t('raffle.list.title')" bounce :selected="mode=='manual'" @click="mode='manual'" icon="list" />
 				</div>
 
 				<form @submit.prevent="submitForm()" class="form" v-if="mode=='chat'">
@@ -52,7 +52,7 @@
 						<Button type="submit" 
 						:aria-label="$t('raffle.chat.startBt_aria')"
 						:title="$t('global.start')"
-						:icon="$image('icons/ticket.svg')" />
+						icon="ticket" />
 					</div>
 				</form>
 					
@@ -75,7 +75,7 @@
 						<Button type="submit"
 							:aria-label="$t('raffle.subs.startBt_aria')"
 							:title="$t('raffle.subs.startBt', {COUNT:subsFiltered.length})"
-							:icon="$image('icons/sub.svg')"
+							icon="sub"
 							:loading="pickingEntry"
 						/>
 					</div>
@@ -87,7 +87,7 @@
 					<Button small highlight
 						class="grantBt"
 						:title="$t('global.grant_scope')"
-						:icon="$image('icons/unlock.svg')"
+						icon="unlock"
 						@click="requestSubPermission()" />
 				</form>
 
@@ -103,7 +103,7 @@
 						<Button type="submit"
 						:aria-label="$t('raffle.list.startBt_aria')"
 						:title="$t('raffle.list.startBt', {COUNT:customEntriesCount})"
-						:icon="$image('icons/list.svg')" />
+						icon="list" />
 					</div>
 				</form>
 

@@ -16,7 +16,7 @@
 			
 			<li>
 				<span class="index">2.</span> 
-				<Button :icon="$image('icons/elgato.svg')"
+				<Button icon="elgato"
 					:title="$t('streamdeck.step_2')"
 					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"

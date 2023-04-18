@@ -11,7 +11,7 @@
 			<div class="ctas" v-if="showForm || currentTriggerData">
 				<Button class="cta resyncBt" small
 					v-if="showOBSResync || showForm"
-					:icon="$image('icons/obs.svg')"
+					icon="obs"
 					:title="$t('triggers.resyncOBSBt')"
 					@click="listOBSSources()"
 					v-tooltip="$t('triggers.resyncOBSBt_tt')"
@@ -19,7 +19,7 @@
 				/>
 
 				<Button class="cta resyncBt" small
-					:icon="$image('icons/channelPoints.svg')"
+					icon="channelPoints"
 					:title="$t('triggers.resyncRewardsBt')"
 					@click="listRewards()"
 					v-tooltip="$t('triggers.resyncRewardsBt_tt')"
@@ -29,20 +29,20 @@
 				<Button class="cta" small
 					v-if="canTestTrigger"
 					:title="$t('triggers.testBt')"
-					:icon="$image('icons/test.svg')"
+					icon="test"
 					@click="testTrigger(currentTriggerData!)" />
 			<!-- 
 				<Button class="cta"
 					highlight
 					:title="$t('triggers.deleteBt')"
-					:icon="$image('icons/delete.svg')"
+					icon="delete"
 					@click="deleteTrigger()" /> -->
 			</div>
 
 			<Button class="createBt"
 				v-if="showList && !showForm"
 				:title="$t('triggers.add_triggerBt')"
-				:icon="$image('icons/add.svg')"
+				icon="add"
 				@click="openForm();" />
 			
 			<TriggerCreateForm

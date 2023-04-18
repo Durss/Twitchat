@@ -123,7 +123,7 @@
 					<div class="subtitle">{{$t("chat.message.clip_views")}} {{clipInfo.view_count}}</div>
 					<Button class="highlightBt" small
 						:aria-label="$t('chat.message.highlightBt_aria')"
-						:icon="$image('icons/highlight.svg')"
+						icon="highlight"
 						v-tooltip="$t('chat.message.highlightBt_tt')"
 						:loading="clipHighlightLoading"
 						@click.stop="clipHighlight()"
@@ -137,8 +137,8 @@
 		@click.stop="messageData.user.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
 
 		<div class="ctas" v-if="isAd">
-			<Button :title="$t('chat.message.disable_ad')" @click="disableAd()" :icon="$image('icons/cross_white.svg')" />
-			<Button :title="$t('chat.message.customize_ad')" @click="openAdParams()" :icon="$image('icons/edit.svg')" />
+			<Button :title="$t('chat.message.disable_ad')" @click="disableAd()" icon="cross_white" />
+			<Button :title="$t('chat.message.customize_ad')" @click="openAdParams()" icon="edit" />
 		</div>
 	</div>
 

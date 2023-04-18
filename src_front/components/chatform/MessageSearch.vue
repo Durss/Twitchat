@@ -3,7 +3,7 @@
 
 		<Button small
 			aria-label="Close search"
-			:icon="$image('icons/cross_white.svg')"
+			icon="cross_white"
 			@click="close()"
 			class="closeBt"
 		/>

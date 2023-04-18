@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<Button class="backBt clearButton" v-if="selectedUser" :icon="$image('icons/back.svg')" @click="selectedUser = null" />
+		<Button class="backBt clearButton" v-if="selectedUser" icon="back" @click="selectedUser = null" />
 		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/whispers.svg">{{ $t('whispers.title') }}</h1>
 		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
 	
@@ -20,9 +20,9 @@
 
 			<form @submit.prevent="sendWhisper()" v-if="canAnswer">
 				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500">
-				<Button class="submit" type="submit" :icon="$image('icons/checkmark_white.svg')" :disabled="!whisper" />
+				<Button class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
 			</form>
-			<Button v-else small highlight :title="$t('whispers.add_scope_bt')" :icon="$image('icons/unlock.svg')" @click="requestTwitchScope()" />
+			<Button v-else small highlight :title="$t('whispers.add_scope_bt')" icon="unlock" @click="requestTwitchScope()" />
 		</div>
 
 		<div class="content users" v-else>
@@ -37,7 +37,7 @@
 					white
 					v-tooltip="$store('auth').twitch.user.id == w[0].to.id? w[0].user.displayName : w[0].to.displayName" />
 					
-				<Button :icon="$image('icons/cross_white.svg')"
+				<Button icon="cross_white"
 					class="deleteBt"
 					small
 					bounce highlight

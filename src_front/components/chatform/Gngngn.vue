@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">{{ $t('gngngn.title') }}</span>
-				<Button :aria-label="$t('gngngn.closeBt_aria')" :icon="$image('icons/cross.svg')" class="close" @click="close()" />
+				<Button :aria-label="$t('gngngn.closeBt_aria')" icon="cross" class="close" @click="close()" />
 			</div>
 			<div class="content">
 				<p v-for="e in $tm('gngngn.contents')" v-html="e"></p>

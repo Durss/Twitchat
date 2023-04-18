@@ -26,7 +26,7 @@
 
 			<Button class="closeBt clearButton" v-if="showClose"
 				aria-label="close"
-				:icon="$image('icons/cross_white.svg')"
+				icon="cross_white"
 				@click="$emit('close')" />
 		</div>
 	</div>

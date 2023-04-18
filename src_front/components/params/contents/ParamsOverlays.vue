@@ -7,19 +7,19 @@
 			<i18n-t scope="global" keypath="overlay.connection.title">
 				<template #OBS>
 					<Button class="button"
-						:icon="$image('icons/obs_purple.svg')"
+						icon="obs_purple"
 						:title="$t('overlay.connection.obsBt')"
 						white
 						@click="$store('params').openParamsPage(contentObs)" />
 				</template>
 				<template #DOCK>
 					<Button class="button"
-						:icon="$image('icons/twitchat_purple.svg')"
+						icon="twitchat_purple"
 						:title="$t('overlay.connection.dockBt')"
 						white
 						@click="showDockTutorial = true" v-if="!showDockTutorial" />
 					<Button class="button"
-						:icon="$image('icons/cross.svg')"
+						icon="cross"
 						:title="$t('overlay.connection.closeBt')"
 						white
 						@click="showDockTutorial = false" v-if="showDockTutorial" />

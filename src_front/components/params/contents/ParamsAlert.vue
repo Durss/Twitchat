@@ -29,7 +29,7 @@
 				</template>
 			</i18n-t>
 	
-			<Button :title="$t('alert.testBt')" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
+			<Button :title="$t('alert.testBt')" icon="test" class="item testBt" @click="testAlert()" />
 		</section>
 	</div>
 </template>

@@ -16,7 +16,7 @@
 				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
 					<div :style="getOutcomeStyles(o)" class="bar">
 						<div class="outcomeTitle">
-							<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="check">
+							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check">
 							{{o.label}}
 						</div>
 						<div class="percent">{{getOutcomePercent(o)}}%</div>

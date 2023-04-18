@@ -29,7 +29,7 @@
 				<Button @click.stop="shoutout()"
 					white
 					:title="$t('chat.soBt')"
-					:icon="$image('icons/shoutout_purple.svg')"
+					icon="shoutout_purple"
 					:loading="shoutoutLoading"
 					class="soButton"
 				/>

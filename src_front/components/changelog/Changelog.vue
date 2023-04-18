@@ -33,8 +33,8 @@
 							<div v-if="item.i=='count'">
 								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
 								<div class="counterActions">
-									<Button title="10" :icon="$image('icons/minus_purple.svg')" @click="counterExample.value -=10; progressExample.value -= 10" white />
-									<Button title="10" :icon="$image('icons/add_purple.svg')" @click="counterExample.value +=10; progressExample.value += 10" white />
+									<Button title="10" icon="minus_purple" @click="counterExample.value -=10; progressExample.value -= 10" white />
+									<Button title="10" icon="add_purple" @click="counterExample.value +=10; progressExample.value += 10" white />
 								</div>
 								<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
 								<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />

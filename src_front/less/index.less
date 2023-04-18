@@ -3,14 +3,6 @@
 @import "reset.less";
 @import "form.less";
 
-@media (prefers-color-scheme: dark) {
-/* Dark theme styles go here */
-}
-
-@media (prefers-color-scheme: light) {
-/* Light theme styles go here */
-}
-
 :root {
 	--font-inter: "Inter";
 	--font-nunito: "Nunito";
@@ -23,6 +15,48 @@
 	@mainColor_highlight: #005be2;
 	@mainColor_warn: #d6a608;
 	@mainColor_alert: #bb3c3c;
+
+	@color-light: #f0f0f0;
+	@color-dark: #18181b;
+	@color-primary: #9147ff;
+	@color-secondary: #005be2;
+	@color-warn: #d6a608;
+	@color-alert: #bb3c3c;
+
+	--color-light: @color-light;
+	--color-dark: @color-dark;
+	--color-primary: @color-primary;
+	--color-secondary: @color-secondary;
+	--color-warn: @color-warn;
+	--color-alert: @color-alert;
+	
+	--color-light-transparent: fade(@color-light, 0%);
+	--color-dark-transparent: fade(@color-dark, 0%);
+	--color-primary-transparent: fade(@color-primary, 0%);
+	--color-secondary-transparent: fade(@color-secondary, 0%);
+	--color-warn-transparent: fade(@color-warn, 0%);
+	--color-alert-transparent: fade(@color-alert, 0%);
+	
+	--color-light-fade: fade(@color-light, 40%);
+	--color-dark-fade: fade(@color-dark, 40%);
+	--color-primary-fade: fade(@color-primary, 40%);
+	--color-secondary-fade: fade(@color-secondary, 40%);
+	--color-warn-fade: fade(@color-warn, 40%);
+	--color-alert-fade: fade(@color-alert, 40%);
+	
+	--color-light-light: lighten(@color-light, 10%);
+	--color-dark-light: lighten(@color-dark, 13%);
+	--color-primary-light: lighten(@color-primary, 10%);
+	--color-secondary-light: lighten(@color-secondary, 10%);
+	--color-warn-light: lighten(@color-warn, 10%);
+	--color-alert-light: lighten(@color-alert, 10%);
+	
+	--color-light-extralight: lighten(@color-light, 20%);
+	--color-dark-extralight: lighten(@color-dark, 25%);
+	--color-primary-extralight: lighten(@color-primary, 20%);
+	--color-secondary-extralight: lighten(@color-secondary, 20%);
+	--color-warn-extralight: lighten(@color-warn, 20%);
+	--color-alert-extralight: lighten(@color-alert, 20%);
 
 	--mainColor_light: @mainColor_light;
 	--mainColor_normal: @mainColor_normal;
@@ -48,7 +82,6 @@
 	
 	--border_radius:.5em;
 	
-	
 	--highlight_subs: fade(#528bff, 30%);
 	--highlight_vips: fade(#db00b3, 30%);
 	--highlight_mods: fade(#00a865, 30%);
@@ -62,10 +95,12 @@ body, html {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
-	color: var(--mainColor_normal);
+	color: var(--color-al);
 	min-width: 100%;
 	min-height: var(--vh);
+    min-height: -moz-available;
 	min-height: -webkit-fill-available;
+	min-height: fill-available;
 	overflow: hidden;
 }
 
@@ -226,4 +261,12 @@ h1 {
 	background-color: rgb(31, 31, 35);
 	border: 1px solid rgba(255, 255, 255, 0.25);
 //   box-shadow: rgba(255, 255, 255, 0.25) 0px 0px 1px 1px;
+}
+
+@media (prefers-color-scheme: dark) {
+/* Dark theme styles go here */
+}
+
+@media (prefers-color-scheme: light) {
+/* Light theme styles go here */
 }

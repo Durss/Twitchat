@@ -1,6 +1,6 @@
 <template>
 	<div class="paramssponsor">
-		<p v-for="i in $tm('sponsor.head')" v-html="i"></p>
+		<p v-for="i in $tm('sponsor.head')" v-html="i" ref="head"></p>
 
 		<div class="important" ref="instructions">
 			<strong>{{ $t("sponsor.important") }}</strong>
@@ -9,11 +9,13 @@
 			<ParamItem class="readToggle" :paramData="checkbox" white alertToggle />
 		</div>
 
-		<img src="@/assets/img/eating.gif" alt="eating" class="patrick" />
+		<img src="@/assets/img/eating.gif" alt="eating" class="patrick" ref="patrick" />
 
 		<div class="buttons">
-			<Button v-for="link in links" big type="link" :href="link.url" target="_blank"
-				:icon="$image('icons/'+link.icon+'_white.svg')"
+			<Button v-for="link in links" type="link" ref="button"
+				:href="link.url" target="_blank"
+				big primary
+				:icon="link.icon+'_white'"
 				:disabled="!checkbox.value"
 				@click.native.capture="clickItem()">
 					<span v-html="$t('sponsor.donate_option.'+link.key)"></span>
@@ -28,7 +30,7 @@ import Button from '@/components/Button.vue';
 import Splitter from '@/components/Splitter.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 
@@ -40,6 +42,9 @@ import type IParameterContent from './IParameterContent';
 	}
 })
 export default class ParamsSponsor extends Vue implements IParameterContent {
+
+	@Prop({type:Boolean, default:false})
+	public animate!:boolean;
 
 	public checkbox:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"sponsor.checkbox"}
 
@@ -57,6 +62,30 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		res += this.$t("sponsor.donate_rate").replace(/'/g, "\'").replace(/"/g, "\"");
 		res += "\'>("+this.$t("sponsor.donate_option."+key+"_rate")+")</i>";
 		return res;
+	}
+
+	public async mounted():Promise<void> {
+		if(this.animate !== false) {
+			const refs = ["head","instructions","patrick","button"];
+			await this.$nextTick();
+			for (let i = 0; i < refs.length; i++) {
+				let el = this.$refs[refs[i]];
+				let list:unknown[] = [];
+				if(!Array.isArray( el )) {
+					list = [el];
+				}else{
+					list = el;
+				}
+				for (let j = 0; j < list.length; j++) {
+					let item = list[j];
+					if((item as Vue).$el) item = (item as Vue).$el as HTMLElement;
+					const delay = (i+j)*.1+.5;
+					gsap.fromTo(item as HTMLElement, {opacity:0, y:-20, scale:.85}, 
+									{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
+					
+				}
+			}
+		}
 	}
 
 	public clickItem():void {
@@ -108,14 +137,9 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		}
 
 		.button {
-			border-radius: 3em;
-			
-			:deep(.label) {
-				pointer-events: unset;
-			}
-			:deep(i) {
+			i {
 				font-style: italic;
-				font-size: .7em;
+				font-size: .6em;
 				display: block;
 			}
 			
@@ -123,9 +147,6 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 				text-decoration: line-through;
 				font-style: normal;
 				font-size: .8em;
-			}
-			:deep(.icon) {
-				max-width: 2em;
 			}
 		}
 	}
@@ -137,11 +158,12 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		padding: .5em;
 		border-radius: .5em;
 		:deep(a) {
-			color: var(--mainColor_highlight);
+			color: var(--color-secondary);
 		}
 
 		.readToggle {
 			display: inline-block;
+			color: var(--color-alert);
 		}
 	}
 }

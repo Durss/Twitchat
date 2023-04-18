@@ -32,7 +32,7 @@
 					"icon":"show",
 					"image":"spoiler.png",
 					"title":"Commande de spoil",
-					"description":"Les messages débutant par <mark>{'|'}{'|'}</mark> seront affichés comme des spoiler.<br>Vos modérateurices peuvent réponde à des messages avec la commande <mark>!spoiler</mark> pour les flagger comme spoilers"
+					"description":"Les messages débutant par <mark>||</mark> seront affichés comme des spoiler.<br>Vos modérateurices peuvent réponde à des messages avec la commande <mark>!spoiler</mark> pour les flagger comme spoilers"
 				},
 				{
 					"icon":"search",
@@ -65,7 +65,7 @@
 					"description":"Twitchat conserve le 1er message de chaque viewer dans une liste dédiée pour que vous n'oubliiez pas de les saluer"
 				},
 				{
-					"icon":"checkmark_white",
+					"icon":"checkmark",
 					"image":"readMark.gif",
 					"title":"Marque-page",
 					"description":"Cliquez n'importe quel message pour place le marque-page et vous souvenir où vous avez arreté votre lecture"

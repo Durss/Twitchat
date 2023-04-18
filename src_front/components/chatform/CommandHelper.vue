@@ -1,20 +1,20 @@
 <template>
 	<div :class="classes">
-		<Button small @click.capture="openModal('poll');"		:icon="$image('icons/poll.svg')"		:title="$t('cmdmenu.poll')" :disabled="!canCreatePoll" class="needsAffiliate" />
-		<Button small @click.capture="openModal('pred');"		:icon="$image('icons/prediction.svg')"	:title="$t('cmdmenu.prediction')" :disabled="!canCreatePrediction" class="needsAffiliate" />
-		<Button small @click="openModal('raffle');"				:icon="$image('icons/ticket.svg')"		:title="$t('cmdmenu.raffle')" />
-		<Button small @click="openModal('bingo');"				:icon="$image('icons/bingo.svg')"		:title="$t('cmdmenu.bingo')" />
-		<Button small @click="openModal('chatpoll');"			:icon="$image('icons/chatPoll.svg')"	:title="$t('cmdmenu.suggestions')" />
-		<Button small @click="openModal('timer');"				:icon="$image('icons/timer.svg')"		:title="$t('cmdmenu.timer')" />
-		<Button small @click.capture="clearChat();"				:icon="$image('icons/clearChat.svg')"	:title="$t('cmdmenu.chat')" :disabled="!canClearChat" />
-		<Button small @click.capture="openModal('streamInfo');"	:icon="$image('icons/info.svg')"		:title="$t('cmdmenu.info')" :disabled="!canEditStreamInfos" />
+		<Button @click.capture="openModal('poll');"			icon="poll"			:disabled="!canCreatePoll" class="needsAffiliate" >{{$t('cmdmenu.poll')}}</Button>
+		<Button @click.capture="openModal('pred');"			icon="prediction"	:disabled="!canCreatePrediction" class="needsAffiliate" >{{$t('cmdmenu.prediction')}}</Button>
+		<Button @click="openModal('raffle');"				icon="ticket"		>{{$t('cmdmenu.raffle')}}</Button>
+		<Button @click="openModal('bingo');"				icon="bingo"		>{{$t('cmdmenu.bingo')}}</Button>
+		<Button @click="openModal('chatpoll');"				icon="chatPoll"		>{{$t('cmdmenu.suggestions')}}</Button>
+		<Button @click="openModal('timer');"				icon="timer"		>{{$t('cmdmenu.timer')}}</Button>
+		<Button @click.capture="clearChat();"				icon="clearChat"	:disabled="!canClearChat" >{{$t('cmdmenu.chat')}}</Button>
+		<Button @click.capture="openModal('streamInfo');"	icon="info"			:disabled="!canEditStreamInfos" >{{$t('cmdmenu.info')}}</Button>
 
 		<div class="commercial">
-			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click.capture="startAd(30); close();" :icon="$image('icons/coin.svg')" title="Start ad 30s" bounce :disabled="!canStartCommercial" />
-			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click.capture="startAd(60); close();" title="60s" bounce :disabled="!canStartCommercial" />
-			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click.capture="startAd(90); close();" title="90s" bounce :disabled="!canStartCommercial" />
-			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click.capture="startAd(120); close();" title="120s" bounce :disabled="!canStartCommercial" />
-			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click.capture="startAd(180); close();" title="180s" bounce :disabled="!canStartCommercial" />
+			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click.capture="startAd(30); close();" icon="coin" bounce :disabled="!canStartCommercial">{{ $t('cmdmenu.start_ad') }}</Button>
+			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click.capture="startAd(60); close();" bounce :disabled="!canStartCommercial">60s</Button>
+			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click.capture="startAd(90); close();" bounce :disabled="!canStartCommercial">90s</Button>
+			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click.capture="startAd(120); close();" bounce :disabled="!canStartCommercial">120s</Button>
+			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click.capture="startAd(180); close();" bounce :disabled="!canStartCommercial">180s</Button>
 			<div v-if="adCooldown > 0" class="cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
@@ -25,18 +25,18 @@
 		
 		<div class="raid" v-if="$store('stream').currentRaid">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
-			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" :icon="$image('icons/cross_white.svg')" bounce highlight title="Cancel" />
+			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross_white" bounce highlight title="Cancel" />
 		</div>
 
 		<div class="raid" v-else>
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">{{$t('cmdmenu.raid')}}</label>
 			<form @submit.prevent="raid()" v-if="canRaid">
 				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
-				<Button aria-label="Start raid" type="submit" :icon="$image('icons/checkmark_white.svg')" bounce small :disabled="raidUser.length < 3" />
+				<Button aria-label="Start raid" type="submit" icon="checkmark" bounce small :disabled="raidUser.length < 3" />
 			</form>
 			<div v-else class="missingScope">
 				<p>{{ $t('cmdmenu.scope_grant') }}</p>
-				<Button :icon="$image('icons/unlock.svg')" bounce highlight small :title="$t('cmdmenu.scope_grantBt')" @click="requestRaidScopes()" />
+				<Button icon="unlock" bounce highlight small @click="requestRaidScopes()" >{{$t('cmdmenu.scope_grantBt')}}</Button>
 			</div>
 			<a class="followings" @click.prevent="openModal('liveStreams')">{{ $t("cmdmenu.whoslive") }}</a>
 		</div>
@@ -337,10 +337,9 @@ export default class CommandHelper extends Vue {
 	}
 
 	.roomParam {
-		background: fade(@mainColor_normal, 20%);
+		background: var(--color-dark-light);
 		padding: .3em;
 		font-size: .8em;
-		color: var(--mainColor_light);
 		border-radius: var(--border_radius);
 		&.disabled {
 			opacity: .5;

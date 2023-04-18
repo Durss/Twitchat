@@ -14,7 +14,7 @@
 						<span class="user">{{ element.user.displayName }}</span>
 						<span class="delay"><img src="@/assets/icons/timer.svg" class="icon"> {{ idToCooldown[element.id] }}s</span>
 					</div>
-					<Button :icon="$image('icons/cross_white.svg')" highlight small @click="deleteItem(element)" />
+					<Button icon="cross_white" highlight small @click="deleteItem(element)" />
 				</div>
 			</template>
 		</draggable>

@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
 		<div class="holder" ref="holder" v-if="loading">
-			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="close" small icon="cross" class="closeBt" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
@@ -13,7 +13,7 @@
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="error">
-			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="close" small icon="cross" class="closeBt" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
@@ -24,7 +24,7 @@
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="!loading && !error">
-			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<Button aria-label="close" small icon="cross" class="closeBt" @click="close()" />
 			<div class="head">
 				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
 					<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
@@ -71,11 +71,11 @@
 			</div>
 			
 			<div class="ctas">
-				<Button :title="$t('usercard.profileBt')" type="link" small :icon="$image('icons/newtab.svg')" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
-				<Button :title="$t('usercard.viewercardBt')" type="link" small :icon="$image('icons/newtab.svg')" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank" />
-				<Button :title="$t('usercard.trackBt')" v-if="!is_tracked" small :icon="$image('icons/magnet.svg')" @click="trackUser()" />
-				<Button :title="$t('usercard.untrackBt')" v-if="is_tracked" small :icon="$image('icons/magnet.svg')" @click="untrackUser()" />
-				<Button :title="ttsReadBtLabel"  v-if="$store('tts').params.enabled === true" small :icon="$image('icons/tts.svg')" @click="toggleReadUser()" />
+				<Button :title="$t('usercard.profileBt')" type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
+				<Button :title="$t('usercard.viewercardBt')" type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank" />
+				<Button :title="$t('usercard.trackBt')" v-if="!is_tracked" small icon="magnet" @click="trackUser()" />
+				<Button :title="$t('usercard.untrackBt')" v-if="is_tracked" small icon="magnet" @click="untrackUser()" />
+				<Button :title="ttsReadBtLabel"  v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()" />
 			</div>
 
 			<div class="description" v-if="userDescription">{{userDescription}}</div>

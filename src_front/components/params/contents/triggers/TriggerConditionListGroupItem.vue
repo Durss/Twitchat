@@ -23,7 +23,7 @@
 				</draggable>
 
 				<Button class="addBt" small
-					:icon="$image('icons/add.svg')"
+					icon="add"
 					@click="addItem(c)"
 					v-tooltip="$t('triggers.condition.add_tt')" />
 			</div>

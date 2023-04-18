@@ -14,7 +14,7 @@
 				<div class="color" v-if="!prediction.pendingAnswer || !canAnswer"></div>
 				<Button class="winBt"
 					@click="setOutcome(c)"
-					:icon="$image('icons/checkmark_white.svg')"
+					icon="checkmark"
 					v-if="prediction.pendingAnswer && canAnswer"
 					:loading="loading" />
 				<div class="bar" :style="getAnswerStyles(c)">

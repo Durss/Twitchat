@@ -132,7 +132,7 @@
 						<div>{{ $t("global.empty_list2") }}</div>
 					</template>
 				</vue-select>
-				<button @click="submitListItem()" v-if="searching" class="listSubmitBt"><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
+				<button @click="submitListItem()" v-if="searching" class="listSubmitBt"><img src="@/assets/icons/checkmark_purple.svg" alt="submit"></button>
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
@@ -152,7 +152,7 @@
 					class="browseBt"
 					type="file"
 					:accept="paramData.accept?paramData.accept:'*'"
-					:icon="$image('icons/upload.svg')"
+					icon="upload"
 				/>
 			</div>
 		</div>
@@ -271,7 +271,10 @@ export default class ParamItem extends Vue {
 				count = parseFloat(this.paramData.value as string) ?? 0;
 				if(isNaN(count)) count = 0;
 				v = count.toString();
+			}else if(this.paramData.type == "slider") {
+				count = this.paramData.value as number;
 			}
+			
 			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
 		}
 		
@@ -533,6 +536,7 @@ export default class ParamItem extends Vue {
 
 <style scoped lang="less">
 .paramitem{
+	color: var(--color-light);
 	overflow-y: clip;
 	border-left: 0 solid transparent;
 	transition: border-left .25s, padding-left .25s;

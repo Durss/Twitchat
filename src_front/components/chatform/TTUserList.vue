@@ -3,7 +3,7 @@
 		<div class="content" ref="content">
 			<div class="title">
 				<p><img src="@/assets/icons/user.svg" class="icon" />{{userCount}} users</p>
-				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
+				<Button aria-label="Close users list" small icon="cross_white" class="closeBt" @click="close()" />
 			</div>
 			
 			<div class="noResult" v-if="!loading && userCount == 0">no user found :(</div>
@@ -15,11 +15,11 @@
 					<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
 				</div>
 				<div class="ctas">
-					<Button small :disabled="loading" title="Reload" :icon="$image('icons/refresh.svg')" @click="updateList()" />
+					<Button small :disabled="loading" title="Reload" icon="refresh" @click="updateList()" />
 					<div class="partners"><label @click="onlyPartners = !onlyPartners">Partners:</label><ToggleButton v-model="onlyPartners" clear /></div>
-					<!-- <Button small :disabled="loading" title="Load 24h" :icon="$image('icons/user.svg')" @click="loadTimeframe(1)" />
-					<Button small :disabled="loading" title="Load 7d" :icon="$image('icons/user.svg')" @click="loadTimeframe(7)" />
-					<Button small :disabled="loading" title="Load 30d" :icon="$image('icons/user.svg')" @click="loadTimeframe(30)" /> -->
+					<!-- <Button small :disabled="loading" title="Load 24h" icon="user" @click="loadTimeframe(1)" />
+					<Button small :disabled="loading" title="Load 7d" icon="user" @click="loadTimeframe(7)" />
+					<Button small :disabled="loading" title="Load 30d" icon="user" @click="loadTimeframe(30)" /> -->
 				</div>
 			</div>
 
@@ -50,7 +50,7 @@
 			
 			<Button class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
 			small title="Load more"
-			:icon="$image('icons/user.svg')"
+			icon="user"
 			@click="loadNextUsers()" />
 
 			<img class="loader" src="@/assets/loader/loader_white.svg" alt="loader" v-if="loading">

@@ -2,9 +2,9 @@
 	<div class="triggeractionrandomentry">
 		
 		<div class="tabs">
-			<Button :title="$t('triggers.actions.random.number')" bounce :selected="action.mode=='number'" @click="action.mode='number'" :icon="$image('icons/dice.svg')" />
-			<Button :title="$t('triggers.actions.random.list')" bounce :selected="action.mode=='list'" @click="action.mode='list'" :icon="$image('icons/list.svg')" />
-			<Button :title="$t('triggers.actions.random.trigger')" bounce :selected="action.mode=='trigger'" @click="action.mode='trigger'" :icon="$image('icons/broadcast.svg')" />
+			<Button :title="$t('triggers.actions.random.number')" bounce :selected="action.mode=='number'" @click="action.mode='number'" icon="dice" />
+			<Button :title="$t('triggers.actions.random.list')" bounce :selected="action.mode=='list'" @click="action.mode='list'" icon="list" />
+			<Button :title="$t('triggers.actions.random.trigger')" bounce :selected="action.mode=='trigger'" @click="action.mode='trigger'" icon="broadcast" />
 		</div>
 
 		<div class="row item info" v-if="action.mode != 'trigger'">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
@@ -29,7 +29,7 @@
 				<label class="item" for="randomEntry_input">{{ $t("triggers.actions.random.list_label") }}</label>
 				<div class="itemForm" v-if="action.list.length < 10000">
 					<textarea rows="2" v-model="itemValue" id="randomEntry_input" :placeholder="$t('triggers.actions.random.list_entry_placeholder')"></textarea>
-					<Button title="Add" :icon="$image('icons/add.svg')" @click="addItem()" />
+					<Button title="Add" icon="add" @click="addItem()" />
 				</div>
 				
 				<div class="listItem">

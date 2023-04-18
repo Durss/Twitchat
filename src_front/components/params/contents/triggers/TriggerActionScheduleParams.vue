@@ -13,7 +13,7 @@
 		
 		<template v-else-if="param_action.value == '2'">
 			<Button class="addBt"
-				:icon="$image('icons/date.svg')"
+				icon="date"
 				:title="$t('triggers.schedule.add_dateBt')"
 				@click="addDate()" />
 
@@ -29,7 +29,7 @@
 					</div>
 					<div class="date">
 						<input type="datetime-local" v-model="d.value" />
-						<Button class="deleteBt" :icon="$image('icons/cross_white.svg')" @click="delDate(index)" small highlight />
+						<Button class="deleteBt" icon="cross_white" @click="delDate(index)" small highlight />
 					</div>
 				</div>
 			</div>

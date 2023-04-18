@@ -1,16 +1,16 @@
 <template>
 	<div class="greetThem" v-show="localMessages.length > 0" :style="styles">
 		<div class="header" @click="toggleList()">
-			<Button class="scrollBt clearButton"
+			<ButtonNotification class="scrollBt clearButton"
 				:aria-label="$t(scrollDownAuto? 'greet.auto_scroll_off_aria' : 'greet.auto_scroll_on_aria')"
-				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
+				:icon="'scroll'+(scrollDownAuto? 'Down' : 'Up')"
 				v-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
 				@click.stop="toggleScroll()" />
 
 			<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
 
-			<Button class="clearBt clearButton"
-				:icon="$image('icons/delete.svg')"
+			<ButtonNotification class="clearBt clearButton"
+				icon="delete"
 				v-tooltip="$t('greet.clearBt')"
 				@click.stop="clearAll()" />
 		</div>
@@ -57,10 +57,11 @@ import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import MessageItem from '../messages/MessageItem.vue';
+import ButtonNotification from '../ButtonNotification.vue';
 
 @Component({
 	components:{
-		Button,
+		ButtonNotification,
 		MessageItem,
 	}
 })

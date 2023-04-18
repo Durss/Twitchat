@@ -36,7 +36,7 @@
 		</div>
 
 		<Button class="item"
-			:icon="$image('icons/ticket_purple.svg')"
+			icon="ticket_purple"
 			:title="$t('raffle.state_pickBt')"
 			@click="pickWinner()"
 			white
@@ -48,7 +48,7 @@
 			:placeholders="winnerPlaceholders" />
 
 		<Button class="item"
-			:icon="$image('icons/cross_white.svg')"
+			icon="cross_white"
 			:title="$t('raffle.state_stopBt')"
 			highlight
 			@click="closeRaffle()" />

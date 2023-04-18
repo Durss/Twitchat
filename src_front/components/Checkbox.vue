@@ -32,11 +32,7 @@ export default class Checkbox extends Vue {
 	public values!:unknown[];
 	
 	public get checkMarkIcon():string {
-		if(this.white !== false) {
-			return this.$image('icons/checkmark_white.svg');
-		}else{
-			return this.$image('icons/checkmark.svg');
-		}
+		return this.$image('icons/checkmark.svg');
 	}
 
 	public onChange():void {
@@ -57,7 +53,7 @@ export default class Checkbox extends Vue {
 	position: relative;
 
 	.checkmark {
-		border: 1px solid var(--mainColor_normal);
+		border: 1px solid var(--color-light);
 		border-radius: .25em;
 		padding: 0;
 		width: 1em;
@@ -79,14 +75,14 @@ export default class Checkbox extends Vue {
 		justify-self: flex-start;
 		text-align: left;
 		width: max-content;
-		color: var(--mainColor_normal);
+		color: var(--color-light);
 		// overflow: visible;
 	}
 	
 	&:hover {
 		background: none;
 		.checkmark {
-			background-color: fade(@mainColor_normal; 30%);
+			background-color: var(--color-dark-light)
 		}
 	}
 

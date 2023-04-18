@@ -40,14 +40,14 @@
 									@click="ban(item)"
 									v-tooltip="$t('followbot.ban_tt')"
 									highlight
-									:icon="$image('icons/ban.svg')"
+									icon="ban"
 									v-if="item.user.channelInfo[item.channel_id].is_banned !== true" />
 
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="unban(item)"
 									v-tooltip="$t('followbot.unban_tt')"
-									:icon="$image('icons/unban.svg')"
+									icon="unban"
 									v-if="item.user.channelInfo[item.channel_id].is_banned === true" />
 
 								<Button small :disabled="batchActionInProgress"
@@ -55,28 +55,28 @@
 									@click="unfollow(item)"
 									v-tooltip="$t('followbot.unfollow_tt')"
 									highlight
-									:icon="$image('icons/unfollow_white.svg')"
+									icon="unfollow_white"
 									v-if="item.user.channelInfo[item.channel_id].is_following == true" />
 
 								<Button class="cardBt" small
 									v-tooltip="$t('followbot.details_tt')"
-									@click="openCard(item)" :icon="$image('icons/info.svg')" />
+									@click="openCard(item)" icon="info" />
 
 								<Button small @click="removeEntry(item)"
 								v-tooltip="$t('followbot.ignore_tt')"
-									:icon="$image('icons/trash.svg')" />
+									icon="trash" />
 							</div>
 						</div>
 					</InfiniteList>
 				</div>
 				<div class="batchActions">
-					<Button small @click="banAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.banBt')" :icon="$image('icons/ban.svg')" />
-					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.unfollowBt')" :icon="$image('icons/unfollow_white.svg')" />
-					<Button small @click="exportCSV()" bounce :loading="batchActionInProgress" :title="$t('followbot.exportBt')" :icon="$image('icons/save.svg')" />
+					<Button small @click="banAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.banBt')" icon="ban" />
+					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.unfollowBt')" icon="unfollow_white" />
+					<Button small @click="exportCSV()" bounce :loading="batchActionInProgress" :title="$t('followbot.exportBt')" icon="save" />
 				</div>
 				<div class="ctas">
-					<Button class="later" @click="reviewLater()" :title="$t('followbot.laterBt')" :icon="$image('icons/countdown.svg')" />
-					<Button highlight @click="clearList()" :title="$t('followbot.finishBt')" :icon="$image('icons/checkmark_white.svg')" />
+					<Button class="later" @click="reviewLater()" :title="$t('followbot.laterBt')" icon="countdown" />
+					<Button highlight @click="clearList()" :title="$t('followbot.finishBt')" icon="checkmark" />
 				</div>
 			</div>
 		</div>

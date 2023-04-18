@@ -11,7 +11,7 @@
 		<Button class="allowMoreBt"
 			v-if="!forceFullList && param_items_requested.length > 0"
 			:title="$t('login.specific_scope_moreBt')"
-			:icon="$image('icons/lock_fit_purple.svg')"
+			icon="lock_fit_purple"
 			small white
 			@click="expandList()" />
 

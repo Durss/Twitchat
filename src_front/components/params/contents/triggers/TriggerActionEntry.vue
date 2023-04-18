@@ -6,15 +6,15 @@
 
 	<ToggleBlock v-else
 	:error="isError"
-	:errorTitle="errorTitle"
 	:open="opened"
 	:title="title"
+	:subtitle="subtitle"
 	:class="classes"
 	:icons="icons? icons : []"
 	>
 		<template #left_actions>
 			<Button small
-				:icon="$image('icons/dragZone_purple.svg')"
+				icon="dragZone_purple"
 				class="toggleAction orderBt"
 				@mousedown="$emit('startDrag', $event)"
 				v-tooltip="$t('triggers.reorder_tt')"
@@ -22,13 +22,13 @@
 		</template>
 		<template #right_actions>
 			<Button small
-				:icon="$image('icons/copy_purple.svg')"
+				icon="copy_purple"
 				class="toggleAction"
 				@click="$emit('duplicate')"
 				v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 			/>
 			<Button small highlight
-				:icon="$image('icons/cross_alert.svg')"
+				icon="cross_alert"
 				class="toggleAction delete"
 				@click="$emit('delete')"
 			/>
@@ -39,97 +39,97 @@
 				<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
 				<Button class="button" white @click="selectActionType('delay')"
 					:title="$t('triggers.actions.common.action_delay')"
-					:icon="$image('icons/timer_purple.svg')"/>
+					icon="timer_purple"/>
 
 				<Button class="button" white @click="selectActionType('chat')"
 					:title="$t('triggers.actions.common.action_chat')"
-					:icon="$image('icons/whispers_purple.svg')"/>
+					icon="whispers_purple"/>
 					
 				<Button class="button" white @click.capture="selectActionType('poll')"
 					v-if="hasChannelPoints"
 					:title="$t('triggers.actions.common.action_poll')"
-					:icon="$image('icons/poll_purple.svg')"
+					icon="poll_purple"
 					:disabled="!canCreatePoll"/>
 				
 				<Button class="button" white @click.capture="selectActionType('prediction')"
 					v-if="hasChannelPoints"
 					:title="$t('triggers.actions.common.action_prediction')"
-					:icon="$image('icons/prediction_purple.svg')"
+					icon="prediction_purple"
 					:disabled="!canCreatePrediction"/>
 					
 				<Button class="button" white @click="selectActionType('bingo')"
 					:title="$t('triggers.actions.common.action_bingo')"
-					:icon="$image('icons/bingo_purple.svg')"/>
+					icon="bingo_purple"/>
 				
 				<Button class="button" white @click="selectActionType('raffle')"
 					:title="$t('triggers.actions.common.action_raffle')"
-					:icon="$image('icons/ticket_purple.svg')"/>
+					icon="ticket_purple"/>
 
 				<Button class="button" white @click="selectActionType('raffle_enter')"
 					v-if="hasUserInfo"
 					:title="$t('triggers.actions.common.action_raffle_enter')"
-					:icon="$image('icons/user_purple.svg')"/>
+					icon="user_purple"/>
 				
 				<Button class="button" white @click="selectActionType('stream_infos')"
 					:title="$t('triggers.actions.common.action_stream_infos')"
-					:icon="$image('icons/info_purple.svg')"/>
+					icon="info_purple"/>
 				
 				<Button class="button" white @click="selectActionType('highlight')"
 					:title="$t('triggers.actions.common.action_highlight')"
-					:icon="$image('icons/highlight_purple.svg')" />
+					icon="highlight_purple" />
 				
 				<Button class="button" white @click="selectActionType('count')"
 					:title="$t('triggers.actions.common.action_count')"
-					:icon="$image('icons/count_purple.svg')"/>
+					icon="count_purple"/>
 				
 				<!-- <Button class="button" white @click="selectActionType('countget')"
 					:title="$t('triggers.actions.common.action_countget')"
-					:icon="$image('icons/count_placeholder_purple.svg')"/> -->
+					icon="count_placeholder_purple"/> -->
 				
 				<Button class="button" white @click="selectActionType('random')"
 					:title="$t('triggers.actions.common.action_random')"
-					:icon="$image('icons/dice_purple.svg')"/>
+					icon="dice_purple"/>
 				
 				<Button class="button" white @click.capture="selectActionType('obs')"
 					:title="$t('triggers.actions.common.action_obs')"
-					:icon="$image('icons/obs_purple.svg')"
+					icon="obs_purple"
 					:disabled="!obsConnected"
 					v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('tts')"
 					:title="$t('triggers.actions.common.action_tts')"
-					:icon="$image('icons/tts_purple.svg')"
+					icon="tts_purple"
 					:disabled="!$store('tts').params.enabled"
 					v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('music')"
 					:title="$t('triggers.actions.common.action_music')"
-					:icon="$image('icons/spotify_purple.svg')"
+					icon="spotify_purple"
 					:disabled="!musicServiceConfigured"
 					v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('voicemod')"
 					:title="$t('triggers.actions.common.action_voicemod')"
-					:icon="$image('icons/voicemod_purple.svg')"
+					icon="voicemod_purple"
 					:disabled="!voicemodEnabled"
 					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')"/>
 				
 				<Button class="button" white @click="selectActionType('trigger')"
 					:title="$t('triggers.actions.common.action_trigger')"
-					:icon="$image('icons/broadcast_purple.svg')" />
+					icon="broadcast_purple" />
 				
 				<Button class="button" white @click="selectActionType('triggerToggle')"
 					:title="$t('triggers.actions.common.action_triggerToggle')"
-					:icon="$image('icons/broadcast_purple.svg')" />
+					icon="broadcast_purple" />
 				
 				<Button class="button" white @click="selectActionType('http')"
 					:title="$t('triggers.actions.common.action_http')"
-					:icon="$image('icons/url_purple.svg')"/>
+					icon="url_purple"/>
 				
 				<Button class="button" white @click.capture="selectActionType('ws')"
 					:title="$t('triggers.actions.common.action_ws')"
 					:disabled="!wsConnected"
-					:icon="$image('icons/url_purple.svg')"/>
+					icon="url_purple"/>
 			</div>
 
 			<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
@@ -253,18 +253,6 @@ export default class TriggerActionEntry extends Vue {
 	 */
 	public get hasUserInfo():boolean { return TriggerEventPlaceholders(this.triggerData.type).findIndex(v=> v.isUserID) > -1; }
 
-	public get errorTitle():string {
-		let res = "ERROR - MISSING OBS SOURCE";
-		
-		if(this.action.type == "obs") {
-			res += "<br><span class='subtitle'>";
-			res += this.action.sourceName;
-			res += "</span>";
-		}
-		
-		return res;
-	}
-
 	public get classes():string[] {
 		const res = ["triggeractionentry"];
 		if(this.isError) res.push("error");
@@ -275,14 +263,44 @@ export default class TriggerActionEntry extends Vue {
 	 * Get block's title
 	 */
 	public get title():string {
+		if(this.isError) {
+			if(this.action.type == "obs") {
+				return "ERROR - MISSING OBS SOURCE";
+			}
+		}
+
 		let res = 'Step '+(this.index+1);
 		if(this.action.type) {
 			res = this.$t("triggers.actions.common.action_"+this.action.type)
 		}
+		return res;
+	}
+
+	/**
+	 * Get block's subtitle
+	 */
+	public get subtitle():string {
+		let res = "";
+		if(this.action.type == "obs") {
+			const chunks:string[] = [];
+			if(this.action.sourceName) {
+				let sourceName = this.action.sourceName;
+				sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+				chunks.push(sourceName);
+			}
+			if(this.action.filterName) {
+				let filterName = this.action.filterName;
+				filterName = filterName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+				chunks.push(filterName);
+			}
+			if(chunks.length > 0) {
+				res += chunks.join(" -> ");
+			}
+		}else
 		if(this.action.type == "delay" && this.action.delay > 0) {
-			res += " <span class='subtitle'>(⏳"+this.action.delay+"s)</span>";
+			res += "⏳"+this.action.delay+"s";
 		}
-		return res+this.subtitle;
+		return res;
 	}
 
 	/**
@@ -319,33 +337,6 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "stream_infos") icons.push( 'info_purple' );
 		if(this.action.type == "delay") icons.push( 'timer_purple' );
 		return icons;
-	}
-
-	/**
-	 * Get block's subtitle
-	 */
-	public get subtitle():string {
-		let res = "";
-		const chunks:string[] = [];
-		if(this.action.type == "obs") {
-
-			if(this.action.sourceName) {
-				let sourceName = this.action.sourceName;
-				sourceName = sourceName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-				chunks.push(sourceName);
-			}
-			if(this.action.filterName) {
-				let filterName = this.action.filterName;
-				filterName = filterName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-				chunks.push(filterName);
-			}
-		}
-		if(chunks.length > 0) {
-			res += "<br><span class='subtitle'>";
-			res += chunks.join(" -> ");
-			res += "</span>";
-		}
-		return res;
 	}
 
 	public async beforeMount():Promise<void> {

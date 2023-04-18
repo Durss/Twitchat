@@ -3,7 +3,7 @@
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
 				<span class="title">{{ $t("bingo.title") }}</span>
-				<Button :aria-label="$t('bingo.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('bingo.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<div class="description" v-if="triggerMode === false">{{ $t("bingo.description") }}</div>
@@ -12,17 +12,17 @@
 						<Button :title="$t('bingo.title_number')" bounce
 							:selected="guessNumber"
 							@click="guessNumber = true; guessEmote = false; guessCustom = false; onValueChange();"
-							:icon="$image('icons/number.svg')"
+							icon="number"
 						/>
 						<Button :title="$t('bingo.title_emote')" bounce
 							:selected="guessEmote"
 							@click="guessNumber = false; guessEmote = true; guessCustom = false; onValueChange();"
-							:icon="$image('icons/emote.svg')"
+							icon="emote"
 						/>
 						<Button :title="$t('bingo.title_custom')" bounce
 							:selected="guessCustom"
 							@click="guessNumber = false; guessEmote = false; guessCustom = true; onValueChange();"
-							:icon="$image('icons/edit.svg')"
+							icon="edit"
 						/>
 					</div>
 					

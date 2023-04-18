@@ -3,13 +3,13 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">{{ $t("timer.title") }}</span>
-				<Button :aria-label="$t('stream.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('stream.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
 			</div>
 			
 			<div class="content">
 				<div class="tabs">
-					<Button :title="$t('timer.timerBt')" bounce :selected="mode=='timer'" @click="mode='timer'" :icon="$image('icons/timer.svg')" />
-					<Button :title="$t('timer.countdownBt')" bounce :selected="mode=='countdown'" @click="mode='countdown'" :icon="$image('icons/countdown.svg')" />
+					<Button :title="$t('timer.timerBt')" bounce :selected="mode=='timer'" @click="mode='timer'" icon="timer" />
+					<Button :title="$t('timer.countdownBt')" bounce :selected="mode=='countdown'" @click="mode='countdown'" icon="countdown" />
 				</div>
 
 				<form @submit.prevent="createTimer()" class="form" v-if="mode=='timer'">
@@ -21,7 +21,7 @@
 						<Button type="submit" 
 						:aria-label="$t('raffle.chat.startBt_aria')"
 						:title="$t('global.start')"
-						:icon="$image('icons/ticket.svg')" />
+						icon="ticket" />
 					</div>
 				</form>
 
@@ -37,7 +37,7 @@
 						<Button type="submit" 
 						:aria-label="$t('raffle.chat.startBt_aria')"
 						:title="$t('global.start')"
-						:icon="$image('icons/ticket.svg')" />
+						icon="ticket" />
 					</div>
 				</form>
 			</div>

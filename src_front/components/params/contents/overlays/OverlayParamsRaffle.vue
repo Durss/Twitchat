@@ -15,7 +15,7 @@
 			</div>
 
 			<div class="row center" v-if="overlayExists">
-				<Button :loading="loading" @click="testWheel()" :title="$t('overlay.raffle.testBt')" :icon="$image('icons/test.svg')" />
+				<Button :loading="loading" @click="testWheel()" :title="$t('overlay.raffle.testBt')" icon="test" />
 			</div>
 
 			<div class="row center" v-if="!overlayExists">

@@ -20,50 +20,49 @@
 					<p>{{ $t("home.head") }}</p>
 				</div>
 				
-				<Button :title="$t('home.loginBt')"
-					white
+				<Button class="loginBt"
+					secondary
 					big
 					ref="loginBt"
 					:to="{name:'login'}"
-					class="loginBt"
-					:icon="$image('icons/twitch.svg')"
+					icon="twitch_white"
 					v-if="!hasAuthToken"
-				/>
-				<Button :title="$t('home.openBt')"
-					white
+				>{{ $t('home.loginBt') }}</Button>
+
+				<Button class="loginBt"
+					secondary
 					big
 					ref="loginBt"
-					class="loginBt"
-					:icon="$image('icons/twitch.svg')"
+					icon="twitch_white"
 					@click="redirectToChat()"
 					v-if="hasAuthToken"
-				/>
+				>{{ $t('home.openBt') }}</Button>
 		
 				<div class="ctas" ref="ctas">
-					<Button :icon="$image('icons/elgato.svg')"
-						:title="$t('home.streamdeckBt')"
+					<Button icon="elgato"
+						primary
 						href="https://apps.elgato.com/plugins/fr.twitchat"
 						target="_blank"
 						type="link"
 						class="elgatoBt"
 						ref="streamDeckBt"
-					/>
+					>{{ $t('home.streamdeckBt') }}</Button>
 			
-					<Button :icon="$image('icons/discord.svg')"
-						:title="$t('home.discordBt')"
+					<Button icon="discord"
+						primary
 						:href="discordURL"
 						target="_blank"
 						type="link"
 						class="discordBt"
 						ref="discordBt"
-					/>
+					>{{ $t('home.discordBt') }}</Button>
 			
-					<Button :icon="$image('icons/coin.svg')"
-						:title="$t('home.sponsorBt')"
+					<Button icon="coin"
+						primary
 						:to="{name:'sponsor'}"
 						class="sponsorBt"
 						ref="sponsorBt"
-					/>
+					>{{ $t('home.sponsorBt') }}</Button>
 				</div>
 			</div>
 	
@@ -316,7 +315,7 @@ export default class Home extends Vue {
 <style scoped lang="less">
 .home{
 	text-align: center;
-	color: var(--mainColor_light);
+	color: var(--color-light);
 	min-height: 100%;
 	background-image: url("../assets/img/homepage/grain.png");
 	margin: auto;
@@ -325,7 +324,7 @@ export default class Home extends Vue {
 	overflow: hidden;
 
 	.gradient {
-		background: linear-gradient(180deg, fade(darken(@mainColor_normal, 10%), 50%) 0%, fade(@mainColor_normal, 0%) 100%);
+		background: linear-gradient(180deg, var(--color-primary-fade) 0%, var(--color-secondary-transparent) 100%);
 		background-size: 100% 100vh;
 		background-repeat: no-repeat;
 		background-position: top center;
@@ -393,15 +392,10 @@ export default class Home extends Vue {
 			}
 	
 			.ctas {
-				// margin-top: calc(1em - .25em);
-				// margin-bottom: 1em;
-				.button:not(:first-child) {
-					margin-left: .5em;
-					margin-top: .5em;
-				}
-				.button {
-					border-radius: 100px;
-				}
+				display: flex;
+				flex-direction: column;
+				gap: .5em;
+				align-items: center;
 			}
 		}
 
@@ -504,7 +498,7 @@ export default class Home extends Vue {
 			flex-direction: row;
 			max-width: 70vw;
 			margin: auto;
-			color: var(--mainColor_light);
+			color: var(--color-light);
 			align-items: center;
 			position: relative;
 	
@@ -568,11 +562,10 @@ export default class Home extends Vue {
 					line-height: 1.25em;
 					
 					:deep(mark) {
-						background-color: var(--mainColor_normal);
-						border: 1px dashed var(--mainColor_normal_extralight);
+						background-color: var(--color-secondary);
 						font-size: .8em;
 						border-radius: .5em;
-						padding: 0 .25em;
+						padding: 2px 10px;
 					}
 				}
 			}
@@ -584,14 +577,14 @@ export default class Home extends Vue {
 				padding: 1em 3%;
 				display: block;
 				background-image: url("../assets/img/homepage/grain.png");
-				background-color: var(--mainColor_dark);
+				background-color: var(--color-dark);
 			}
 		}
 
 		video {
-			cursor:  url("../assets/img/homepage/pause.png"), default;
+			cursor:  url("../assets/img/homepage/play.png"), default;
 			&.playing {
-				cursor:  url("../assets/img/homepage/play.png"), default;
+				cursor:  url("../assets/img/homepage/pause.png"), default;
 			}
 		}
 	}
@@ -599,7 +592,7 @@ export default class Home extends Vue {
 	section.more {
 		margin-top: 10vw;
 		background-image: url("../assets/img/homepage/grain.png");
-		background-color: var(--mainColor_dark);
+		background-color: var(--color-dark);
 		.icon {
 			height: 6em;
 			padding-top: 1em;
@@ -670,7 +663,7 @@ export default class Home extends Vue {
 				.content {
 					flex-direction: column-reverse;
 					background-image: url("../assets/img/homepage/grain.png");
-					background-color: var(--mainColor_dark);
+					background-color: var(--color-dark);
 					max-width: calc(100% - 1em);
 					padding-bottom: 1em;
 				}

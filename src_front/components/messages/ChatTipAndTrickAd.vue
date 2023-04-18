@@ -52,7 +52,7 @@
 			<h1 class="row">{{ $t('tips.api.title') }}</h1>
 			<div class="row">{{ $t('tips.api.info_1') }}</div>
 			<div class="row">{{ $t('tips.api.info_2') }}</div>
-			<Button :icon="$image('icons/github_white.svg')"
+			<Button icon="github_white"
 				style="display: inline-block;"
 				:title="$t('tips.api.readBt')"
 				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
@@ -85,8 +85,8 @@
 				<template #CMD1><span class="cmd">/timerStart</span></template>
 				<template #CMD2><span class="cmd">/countdown</span></template>
 			</i18n-t>
-			<Button :icon="$image('icons/timer.svg')" :title="$t('tips.countdown.timer_tryBt')" @click.stop="startTimer()" />
-			<Button :icon="$image('icons/countdown.svg')" :title="$t('tips.countdown.countdown_tryBt')" @click.stop="startCountdown()" />
+			<Button icon="timer" :title="$t('tips.countdown.timer_tryBt')" @click.stop="startTimer()" />
+			<Button icon="countdown" :title="$t('tips.countdown.countdown_tryBt')" @click.stop="startCountdown()" />
 		</div>
 		
 		<div v-if="tipIndex===10" class="entry">
@@ -105,9 +105,9 @@
 			
 			<a class="row demo" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="cover"></a>
 
-			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParamPage(contentOverlays, contentChatHighlight)" :icon="$image('icons/overlay.svg')" />
+			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParamPage(contentOverlays, contentChatHighlight)" icon="overlay" />
 			<div class="row or">{{ $t("global.or") }}</div>
-			<Button class="row" :title="$t('tips.highlight.configure_triggerBt')" @click.stop="openParamPage(contentTriggers)" :icon="$image('icons/broadcast.svg')" />
+			<Button class="row" :title="$t('tips.highlight.configure_triggerBt')" @click.stop="openParamPage(contentTriggers)" icon="broadcast" />
 		</div>
 	</div>
 </template>

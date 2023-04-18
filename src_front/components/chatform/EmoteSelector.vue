@@ -7,9 +7,15 @@
 
 		<input v-if="users.length > 0" type="text" v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
 
-		<tooltip content="okkkkkk" ref="tooltip"></tooltip>
+		<div class="userList" v-if="users.length > 0 && !filter">
+			<div v-for="u in users" :key="u.user.id" class="user"
+			v-tooltip="u.user.displayName"
+			@click="scrollTo(u.user)">
+				<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
+			</div>
+		</div>
 
-		<div class="list" v-if="users.length > 0 && filter">
+		<div class="list search" v-if="users.length > 0 && filter">
 			<div v-if="filter" class="item">
 				<div class="emotes">
 					<img
@@ -27,7 +33,7 @@
 		</div>
 
 		<div class="list" v-if="users.length > 0 && !filter">
-			<div v-for="u in users" :key="u.user.id" class="item">
+			<div v-for="u in users" :key="u.user.id" class="item" :ref="'user_'+u.user.id">
 				<div class="head">
 					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
 					<div class="login">{{u.user.displayName}}</div>
@@ -317,6 +323,10 @@ export default class EmoteSelector extends Vue {
 		}
 	}
 
+	public scrollTo(user:TwitchatDataTypes.TwitchatUser):void {
+		const [holder] = this.$refs["user_"+user.id] as  HTMLDivElement[];
+		holder.scrollIntoView();
+	}
 
 }
 </script>
@@ -329,9 +339,29 @@ export default class EmoteSelector extends Vue {
 	right: 0;
 	margin-left: auto;
 	transform-origin: bottom right;
+	overflow-y: hidden;
 
 	&>*:not(:last-child) {
 		margin-bottom: 5px;
+	}
+
+	.userList {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: .5em;
+		max-height: 5em;
+		overflow-y: auto;
+		justify-content: center;
+		.user {
+			cursor: pointer;
+			.avatar {
+				height: 2em;
+				border-radius: 50%;
+				box-shadow: 2px 2px 2px rgba(255, 255, 255, .34);
+				border: 1px solid #fff;
+			}
+		}
 	}
 
 	.loader {
@@ -355,37 +385,45 @@ export default class EmoteSelector extends Vue {
 		max-height: 80%;
 		overflow-x: hidden;
 		overflow-y: auto;
-
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 1;
+		
 		.item {
-			&:not(:last-child) {
-				margin-bottom: 20px;
-			}
+			margin: .5em 0;
 			.head {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				background-color: var(--mainColor_normal);
-				border-radius: 20px;
+				z-index: 1;
+				height: 1em;
+				position: relative;
 				.avatar {
-					height: 25px;
+					height: 1.5em;
 					border-radius: 50%;
-					margin-right: 10px;
+					z-index: 1;
 				}
 				.login {
-					color: var(--mainColor_light);
+					color: var(--color-light);
 					flex-grow: 1;
-					font-size: 15px;
+					font-size: .9em;
+					padding: .1em 2em;
+					margin-left: -1.5em;
+					background-color: var(--color-dark-extralight);
+					border-radius: 1em;
+					box-shadow: 0px 1px 5px var(--color-dark);
 				}
 			}
-			.emotes {
+			.emotes, .hypetrain {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
 				justify-content: center;
-				background-color: fade(@mainColor_normal, 30%);
+				background-color: var(--color-dark-light);
 				color:var(--mainColor_light);
 				width: calc(100% - 2em);
 				margin: auto;
+				padding: .25em;
 				border-bottom-left-radius: var(--border_radius);
 				border-bottom-right-radius: var(--border_radius);
 				.emote {
@@ -396,7 +434,7 @@ export default class EmoteSelector extends Vue {
 					border-radius: 5px;
 					border: 1px solid transparent;
 					&:hover {
-						border-color: fade(@mainColor_light, 70%);
+						border-color: var(--color-light-fade);
 					}
 				}
 			}
@@ -404,13 +442,16 @@ export default class EmoteSelector extends Vue {
 			.hypetrain {
 				font-size: .7em;
 				text-align: center;
-				background-color: fade(@mainColor_normal, 30%);
-				color:var(--mainColor_light);
 				padding: .5em;
-				width: calc(100% - 2em);
-				margin: auto;
-				border-bottom-left-radius: var(--border_radius);
-				border-bottom-right-radius: var(--border_radius);
+			}
+		}
+
+		&.search {
+			.item {
+				.emotes {
+					border-radius: var(--border_radius);
+					// background-color: transparent;
+				}
 			}
 		}
 

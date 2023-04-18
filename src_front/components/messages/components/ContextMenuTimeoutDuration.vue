@@ -6,7 +6,7 @@
 <template>
 	<form :class="classes" @click="onClick()">
 		<div class="field" @keyup.enter="timeoutUser()"><input type="text" v-model="duration">s</div>
-		<button @click="timeoutUser()" class="submit" type="submit"><img src="@/assets/icons/checkmark_white.svg" alt="check"></button>
+		<button @click="timeoutUser()" class="submit" type="submit"><img src="@/assets/icons/checkmark.svg" alt="check"></button>
 	</form>
 </template>
 

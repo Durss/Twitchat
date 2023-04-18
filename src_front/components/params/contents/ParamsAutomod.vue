@@ -26,7 +26,7 @@
 					:open="keywordToOpen[f.id]">
 						<template #right_actions>
 							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
-							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
+							<Button icon="cross_white" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
 						</template>
 						<ParamItem class="item sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" v-tooltip="$t('automod.rule.sync_tt')" />
 							<ParamItem class="item emergency" :paramData="param_ruleEmergency[f.id]" v-model="f.emergency" v-tooltip="$t('automod.rule.emergency_tt')" />
@@ -36,7 +36,7 @@
 						<div class="regError" v-if="keywordToValid[f.id] === false">{{ $t("automod.rule.invalid_rule") }}</div>
 					</ToggleBlock>
 				</div>
-				<Button :title="$t('automod.rule.add')" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
+				<Button :title="$t('automod.rule.add')" icon="add" class="addBt" @click="addRule()" />
 			</section>
 			
 			<section class="testForm">

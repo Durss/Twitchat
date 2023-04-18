@@ -5,10 +5,10 @@
 		<OverlayMusicPlayer class="player" v-if="currentTrack" @seek="(percent:number)=>onSeek(percent)" embed />
 
 		<div class="controls" v-if="currentTrack">
-			<Button white small class="bt" @click="showQueue = !showQueue" :icon="$image('icons/list_purple.svg')" />
-			<Button white small class="bt" @click="actionPlay()" :icon="$image('icons/play_purple.svg')" v-if="!playing" />
-			<Button white small class="bt" @click="actionPause()" :icon="$image('icons/pause_purple.svg')" v-if="playing" />
-			<Button white small class="bt" @click="actionNext()" :icon="$image('icons/next_purple.svg')" />
+			<Button white small class="bt" @click="showQueue = !showQueue" icon="list_purple" />
+			<Button white small class="bt" @click="actionPlay()" icon="play_purple" v-if="!playing" />
+			<Button white small class="bt" @click="actionPause()" icon="pause_purple" v-if="playing" />
+			<Button white small class="bt" @click="actionNext()" icon="next_purple" />
 			<VolumeBar class="volume" v-model="volume" />
 		</div>
 
@@ -17,7 +17,7 @@
 				<Button class="deleteBt"
 				small highlight
 				@click="removeTrack(index)"
-				:icon="$image('icons/cross_white.svg')" />
+				icon="cross_white" />
 				
 				<div class="infos" @click="playQueueItem(index)">
 					<span class="artist">{{t.artist.name}}</span>
@@ -41,8 +41,8 @@
 					<span class="duration">{{formatDuration(t.duration)}}</span>
 				</div>
 				<div class="actions">
-					<Button @click="play(t)" :icon="$image('icons/play.svg')" small v-tooltip="$t('music.playBt')" />
-					<Button @click="addToQueue(t)" :icon="$image('icons/list.svg')" small v-tooltip="$t('music.add_queueBt')" />
+					<Button @click="play(t)" icon="play" small v-tooltip="$t('music.playBt')" />
+					<Button @click="addToQueue(t)" icon="list" small v-tooltip="$t('music.add_queueBt')" />
 				</div>
 			</div>
 		</div>

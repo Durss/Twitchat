@@ -29,7 +29,7 @@ export default class ProgressBar extends Vue {
 			type:Boolean,
 			default:false,
 		})
-	public green!:boolean;
+	public cyan!:boolean;
 
 	public get timeLeft():string {
 		return Utils.formatDuration(this.duration * (1-this.percent))
@@ -44,7 +44,7 @@ export default class ProgressBar extends Vue {
 
 	public get classes():string[] {
 		const res = ["progressbar"];
-		if(this.green) res.push('green');
+		if(this.cyan) res.push('green');
 		return res;
 	}
 

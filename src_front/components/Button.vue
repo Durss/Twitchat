@@ -9,10 +9,13 @@
 	@click.stop="onClick($event)"
 	:style="progressStyle"
 	v-model="modelValue">
-		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
-		<div v-html="parsedIcon" v-if="parsedIcon && isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'"></div>
+		<span v-if="loading" class="loadingBorder"></span>
 
-		<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
+		<img v-if="icon && loading" :src="$image('loader/loader_white.svg')" class="loader">
+	
+		<img class="icon" v-if="icon && !loading" :src="$image('icons/'+icon+'.svg')" alt="icon">
+		<div class="icon" v-if="$slots.icon"><slot name="icon"></slot></div>
+
 		<span class="label" v-if="$slots.default"><slot></slot></span>
 		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
 	</component>
@@ -34,43 +37,54 @@ export default class Button extends Vue {
 
 	@Prop
 	public icon!:string;
-	@Prop
-	public iconSelected!:string;
+
 	@Prop({type:Boolean, default: false})
 	public loading!:boolean;
+
 	@Prop({type:String, default:'button'})
 	public type!:string;
+
 	@Prop
 	public target!:string;
+
 	@Prop
 	public to!:unknown;
-	@Prop({type:Boolean, default: false},)
-	public big!:boolean;
-	@Prop({type:Boolean, default: false},)
-	public small!:boolean;
+
 	@Prop({type:Boolean, default: false})
-	public white!:boolean;
-	@Prop({type:Boolean, default: false},)
-	public highlight!:boolean;
-	@Prop({type:Boolean, default: false},)
+	public big!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public small!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public primary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public selected!:boolean;
-	@Prop({type:Boolean, default: false},)
+
+	@Prop({type:Boolean, default: false})
 	public disabled!:boolean;
-	@Prop({type:Boolean, default: false},)
+
+	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
-	@Prop({type:Boolean, default: false},)
+
+	@Prop({type:Boolean, default: false})
 	public bounce!:boolean;
+
 	@Prop({type:String, default: "image/*"})
 	public accept!:string;
+
 	@Prop
 	public file!:string;
 	
 	public pInterpolated = -1;
 	public checked = false;
-	
-	public get isIconSVG():boolean {
-		return this.parsedIcon.indexOf("<") != -1;
-	}
 
 	public get nodeType():string {
 		if(this.to) return "router-link";
@@ -78,20 +92,12 @@ export default class Button extends Vue {
 		return "button";
 	}
 
-	public get parsedIcon():string {
-		if(this.selected !== false && this.iconSelected) {
-			return this.iconSelected;
-		}else{
-			return this.icon;
-		}
-	}
-
 	public get progressStyle():StyleValue {
 		if(this.pInterpolated> -1 && this.pInterpolated<100) {
 			let p:number = Math.round(this.pInterpolated);
 			let color = "255, 255, 255";
 			let alpha = .5;
-			if(this.white !== false) {
+			if(this.primary !== false) {
 				color = "75, 201, 194"
 				alpha = .3;
 			}
@@ -104,10 +110,11 @@ export default class Button extends Vue {
 	public get classes():string[] {
 		let list =  ["button"]
 		if(!this.$slots.default) list.push("noTitle");
-		if(this.white !== false) list.push("white");
+		if(this.primary !== false) list.push("primary");
+		if(this.secondary !== false) list.push("secondary");
+		if(this.alert !== false) list.push("alert");
 		if(this.big !== false) list.push("big");
 		if(this.small !== false) list.push("small");
-		if(this.highlight !== false) list.push("highlight");
 		if(this.selected !== false) list.push("selected");
 		if(this.loading !== false) list.push("disabled", "loading");
 		else if(this.disabled !== false) list.push("disabled");
@@ -164,13 +171,37 @@ export default class Button extends Vue {
 	align-items: center;
 	text-decoration: none;
 	text-align: left;
-	color: var(--mainColor_light);
+	color: var(--color-light);
 	font-family: var(--font-inter);
 	cursor: pointer;
+	transition: filter .25s;
 
-	&:hover {
+	.loadingBorder {
+		@offset: 1px;
+		position: absolute;
+		z-index: -1;
+		top: -@offset;
+		left: -@offset;
+		border-radius: var(--border_radius);
+		background-color: var(--color-light);
+		// background: linear-gradient(10deg, var(--color-primary-transparent) 35%, var(--color-primary) 40%, var(--color-primary) 60%, var(--color-primary-transparent) 65%);
+		background: linear-gradient(10deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%);
+		background-repeat: repeat-y;
+		background-size: 100% 200%;
+		filter: blur(1px);
+		width: calc(100% + @offset*2);
+		height: calc(100% + @offset*2);
+		animation: glowing 1.5s linear infinite;
+		
+		@keyframes glowing {
+			0% { background-position: 0 0; }
+			100% { background-position: 0 200%; }
+		}
+	}
+
+	&:not(.disabled):hover {
 		&::before {
-			background-color: var(--mainColor_normal_light);
+			background-color: var(--color-dark-extralight);
 		}
 	}
 	
@@ -181,30 +212,40 @@ export default class Button extends Vue {
 		position: absolute;
 		top:0;
 		left:0;
-		transition: background-color .25s;
+		z-index: 0;
+		transition: all .25s;
 		border-radius: var(--border_radius);
-		background-color: var(--mainColor_normal);
+		background-color: var(--color-dark-light);
 	}
 
 	.loader {
-		position: absolute;
-		height: 1.25em;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
+		width: 1em;
+		height: 1em;
+		object-fit: contain;
+		z-index: 1;
+	}
+
+	.icon, label {
+		transition: all .25s;
 	}
 
 	.icon {
 		height: 1em;
 		z-index: 1;
+		:deep(img) {
+			width: 100%;
+			height: 100%;
+		}
 	}
 	.label {
 		z-index: 1;
 		line-height: 1em;
+		text-align: center;
+		flex-grow: 1;
 	}
 
 	&.big {
-		font-size: 1.6em;
+		font-size: 1.4em;
 	}
 
 	&.small {
@@ -217,55 +258,50 @@ export default class Button extends Vue {
 	}
 
 	&.selected::before {
-		outline: 2px solid var(--mainColor_light);
+		filter: drop-shadow(0 4px 0px #ffffff);
 	}
 
-	&.white {
-		color: var(--mainColor_normal);
+	&.primary {
 		&:before {
-			background-color: var(--mainColor_light);
-		}
-		&.disabled {
-			color: var(--mainColor_normal);
-			.icon, .label {
-				filter: brightness(.25);
-			}
+			background-color: var(--color-primary);
 		}
 
-		&:hover {
+		&:not(.disabled):hover {
 			&::before {
-				background-color: var(--mainColor_normal_extralight);
+				background-color: var(--color-primary-light);
 			}
-		}
-		&.selected::before {
-			outline: 2px solid var(--mainColor_normal);
 		}
 	}
 
-	&.highlight {
-		color: var(--mainColor_light);
+	&.secondary {
 		&:before {
-			background-color: var(--mainColor_alert);
+			background-color: var(--color-secondary);
 		}
-		&:hover {
+		&:not(.disabled):hover {
 			&::before {
-				background-color: var(--mainColor_alert_light);
+				background-color: var(--color-secondary-light);
+			}
+		}
+	}
+
+	&.alert {
+		&:before {
+			background-color: var(--color-alert);
+		}
+		&:not(.disabled):hover {
+			&::before {
+				background-color: var(--color-alert-light);
 			}
 		}
 	}
 
 	&.disabled {
+		cursor: wait;
+		filter: brightness(70%) saturate(70%);
 		.label, .icon {
 			opacity: .35;
 		}
-		&::before {
-			opacity: .5;
-		}
 	}
-
-	border-width: 2px;
-	border-image: linear-gradient(to right, #007bff, #00bfff);
-	border-image-slice: 1;
 
 }
 

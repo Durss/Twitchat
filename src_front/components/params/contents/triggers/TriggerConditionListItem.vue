@@ -9,10 +9,10 @@
 		<ParamItem class="value" :paramData="param_value" v-model="condition.value" :key="'op_'+condition.id" />
 
 		<div class="ctas">
-			<Button small :icon="$image('icons/group.svg')"
+			<Button small icon="group"
 				@click="addItem()"
 				v-tooltip="$t('triggers.condition.group_tt')" />
-			<Button highlight small :icon="$image('icons/cross_white.svg')"
+			<Button highlight small icon="cross_white"
 				@click="deleteItem()" />
 		</div>
 	</div>

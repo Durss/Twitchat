@@ -3,19 +3,19 @@
 		<div class="content">
 			<div class="title">
 				<p><img src="@/assets/icons/save.svg" class="icon" />{{ $t('pin.title') }}</p>
-				<Button :aria-label="$t('pin.closeBt_aria')" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
+				<Button :aria-label="$t('pin.closeBt_aria')" small icon="cross_white" class="closeBt" @click="close()" />
 			</div>
 
 			<div class="list">
 				<div v-for="m in $store('chat').pinedMessages" :key="m.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
 					<Button :aria-label="$t('pin.highlightBt_aria')"
-						:icon="$image('icons/highlight.svg')"
+						icon="highlight"
 						v-tooltip="$t('pin.highlightBt_tt')"
 						@click="chatHighlight(m)"
 						:loading="highlightLoading"
 						/>
-					<Button :aria-label="$t('pin.unpinBt_aria')" class="deleteBt" small @click="unpin(m)" highlight :icon="$image('icons/delete.svg')" />
+					<Button :aria-label="$t('pin.unpinBt_aria')" class="deleteBt" small @click="unpin(m)" highlight icon="delete" />
 				</div>
 			</div>
 		</div>

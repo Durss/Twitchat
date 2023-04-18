@@ -65,7 +65,7 @@
 						<Button small highlight
 							class="grantBt"
 							:title="$t('global.grant_scope')"
-							:icon="$image('icons/unlock.svg')"
+							icon="unlock"
 							@click="requestPermission(p.twitch_scopes!)" />
 					</div>
 				</transition>

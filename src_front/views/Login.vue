@@ -34,7 +34,7 @@
 					bounce
 					:loading="generatingCSRF"
 					v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-					:icon="$image('icons/twitch_white.svg')"
+					icon="twitch_white"
 				/>
 	
 				<Button :title="$t('login.retryBt')"
@@ -42,7 +42,7 @@
 					v-if="!authenticating && !oAuthURL"
 					@click="generateCSRF()"
 					:loading="generatingCSRF"
-					:icon="$image('icons/refresh.svg')"
+					icon="refresh"
 				/>
 				
 				<div class="loader" v-if="authenticating">

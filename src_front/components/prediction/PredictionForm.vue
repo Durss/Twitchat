@@ -3,7 +3,7 @@
 		<div class="holder" ref="holder">
 			<div class="head" v-if="triggerMode === false">
 				<span class="title">{{ $t("prediction.form.title") }}</span>
-				<Button :aria-label="$t('prediction.form.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('prediction.form.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
 			</div>
 			<div class="content">
 				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
@@ -26,7 +26,7 @@
 								@change="onValueChange()"
 							>
 							<Button :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt" small
-								:icon="$image('icons/cross.svg')"
+								icon="cross"
 								type="button"
 								v-if="answers.length > 2"
 								@click="deleteAnswer(index)"

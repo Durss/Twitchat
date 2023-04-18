@@ -1,6 +1,8 @@
 <template>
 	<div class="sponsor">
-		<div class="logo">
+		<div class="gradient"></div>
+		
+		<div class="logo" ref="logo">
 			<img src="@/assets/logo.svg" alt="Twitchat">
 		</div>
 	
@@ -11,11 +13,11 @@
 			</select>
 		</div>
 
-		<Button :icon="$image('icons/back.svg')"
-			:title="$t('global.back')"
-			class="backBt" :to="{name:'home_forced'}" />
+		<Button icon="back" ref="backBt" primary class="backBt" :to="{name:'home_forced'}">
+			{{ $t('global.back') }}
+		</Button>
 
-		<ParamsSponsor class="content" />
+		<ParamsSponsor class="content" ref="content" animate />
 	</div>
 </template>
 
@@ -23,6 +25,7 @@
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
 import Button from '../components/Button.vue';
+import { gsap } from 'gsap';
 
 @Component({
 	components:{
@@ -32,21 +35,45 @@ import Button from '../components/Button.vue';
 })
 export default class Sponsor extends Vue {
 
+	public async mounted():Promise<void> {
+		const refs = ["backBt"];
+		await this.$nextTick();
+		for (let i = 0; i < refs.length; i++) {
+			let el = this.$refs[refs[i]] as HTMLElement | Vue;
+			if((el as Vue).$el) el = (el as Vue).$el as HTMLElement;
+			const delay = i*.1+.5;
+			gsap.fromTo(el, {opacity:0, y:-20, scale:.85}, 
+							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
+		}
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .sponsor{
 	text-align: center;
-	color: var(--mainColor_light);
+	color: var(--color-light);
 	min-height: 100%;
-	background: linear-gradient(180deg, darken(@mainColor_normal, 40%) 0%, var(--mainColor_dark 100%));
-	background-size: contain;
-	background-repeat: no-repeat;
-	background-position: center center;
+	background-image: url("../assets/img/homepage/grain.png");
 	margin: auto;
-	padding: 2em 5px;
+	padding: 4em 5px;
 	position: relative;
+	overflow: hidden;
+
+	.gradient {
+		background: linear-gradient(180deg, var(--color-primary-fade) 0%, var(--color-secondary-transparent) 100%);
+		background-size: 100% 100vh;
+		background-repeat: no-repeat;
+		background-position: top center;
+		width: 100%;
+		height: 100vh;
+		position: absolute;
+		top:0;
+		left:0;
+		z-index: -1;
+	}
+
 
 	.logo {
 		width: 80vw;

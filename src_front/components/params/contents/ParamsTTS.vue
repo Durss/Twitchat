@@ -49,7 +49,7 @@
 				<ParamItem class="item" :paramData="param_pitch" />
 				<form class="item" @submit.prevent="testVoice()">
 					<input class="item center" type="text" v-model="testStr" :placeholder="$t('tts.params.test_placeholder')">
-					<Button class="item center" :title="$t('tts.params.testBt')" :icon="$image('icons/tts.svg')" type="submit" />
+					<Button class="item center" :title="$t('tts.params.testBt')" icon="tts" type="submit" />
 				</form>
 			</section>
 

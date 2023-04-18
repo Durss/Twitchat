@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<Button class="backBt clearButton" v-if="selectedUser" :icon="$image('icons/back.svg')" @click="selectedUser = null" />
+		<Button class="backBt clearButton" v-if="selectedUser" icon="back" @click="selectedUser = null" />
 		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/magnet.svg">{{ $t('tracked.title') }}</h1>
 		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
 
@@ -15,7 +15,7 @@
 			
 			<Button class="refreshBt clearButton"
 				@click="refreshMessages()"
-				:icon="$image('icons/refresh.svg')"
+				icon="refresh"
 				:loading="refreshing" />
 		</div>
 
@@ -29,7 +29,7 @@
 					white
 					small
 					bounce />
-				<Button :icon="$image('icons/cross_white.svg')"
+				<Button icon="cross_white"
 					class="deleteBt"
 					@click="untrackUser(u)"
 					small

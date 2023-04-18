@@ -17,7 +17,7 @@
 				<Button class="closeBt"
 					:aria-label="$t('changelog.closeBt_aria')"
 					@click.stop="deleteMessage()"
-					:icon="$image('icons/cross_white.svg')" />
+					icon="cross_white" />
 
 				<div class="title">{{ $t('changelog.title') }}</div>
 
@@ -28,7 +28,7 @@
 			</div>
 	
 			<div v-if="isTip" class="tip">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross_white" class="closeBt" />
 				<div class="title">{{ $t("tips.title") }}</div>
 				<ChatTipAndTrickAd class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
@@ -36,14 +36,14 @@
 			</div>
 	
 			<div v-if="isDiscord" class="discord">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross_white" class="closeBt" />
 				<div class="title">{{ $t('chat.discord.title') }}</div>
 				<div class="content">
 					<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">
 					<div v-html="$t('chat.discord.content')"></div>
 				</div>
 				<div class="cta">
-					<Button :icon="$image('icons/discord.svg')"
+					<Button icon="discord"
 						:title="$t('chat.discord.joinBt')"
 						:href="discordURL"
 						target="_blank"
@@ -53,7 +53,7 @@
 			</div>
 	
 			<div v-if="isAdWarning">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" icon="cross_white" class="closeBt" />
 				<div class="title">{{ $t('chat.adalert.title') }}</div>
 				<div class="content left">
 					<img src="@/assets/icons/twitchat_purple.svg" alt="twitchat" class="icon">
@@ -61,11 +61,11 @@
 				</div>
 				<div class="cta">
 					<Button :title="$t('chat.adalert.unacceptableBt')" @click="openModal('gngngn')" />
-					<Button :icon="$image('icons/edit.svg')"
+					<Button icon="edit"
 						:title="$t('chat.adalert.customizeBt')"
 						@click="openParamPage(contentMainMenu)"
 					/>
-					<Button :icon="$image('icons/follow.svg')"
+					<Button icon="follow"
 						:title="$t('chat.adalert.donateBt')"
 						@click="openParamPage(contentSponsor)"
 					/>
@@ -73,7 +73,7 @@
 			</div>
 	
 			<div v-if="isSponsorPublicPrompt" class="sponsorPrompt">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross_white" class="closeBt" />
 				<div class="title">{{$t('chat.donor.title')}}</div>
 				<div class="content">
 					<img src="@/assets/icons/follow_purple.svg" alt="heart" class="icon">
@@ -90,7 +90,7 @@
 					</div>
 				</div>
 				<div class="cta">
-					<Button :icon="$image('icons/follow.svg')"
+					<Button icon="follow"
 						:title="$t('chat.donor.publicBt')"
 						:loading="loading"
 						@click="makeDonationPublic()"

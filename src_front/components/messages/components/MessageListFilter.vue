@@ -37,13 +37,13 @@
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
 				
 				<div class="presets">
-					<Button @click="preset('chat')" :title="$t('chat.filters.preset_chat')" :icon="$image('icons/whispers_purple.svg')" small white />
-					<Button @click="preset('chatSafe')" :title="$t('chat.filters.preset_chatSafe')" :icon="$image('icons/shield_purple.svg')" small white />
-					<Button @click="preset('moderation')" :title="$t('chat.filters.preset_moderation')" :icon="$image('icons/mod_purple.svg')" small white />
-					<Button @click="preset('activities')" :title="$t('chat.filters.preset_activities')" :icon="$image('icons/stars_purple.svg')" small white />
-					<Button @click="preset('moderation&activities')" :title="$t('chat.filters.preset_moderation_and_activities')" :icon="$image('icons/stars_purple.svg')" small white />
-					<Button @click="preset('games')" :title="$t('chat.filters.preset_games')" :icon="$image('icons/bingo_purple.svg')" small white />
-					<Button @click="preset('revenues')" :title="$t('chat.filters.preset_revenues')" :icon="$image('icons/coin_purple.svg')" small white />
+					<Button @click="preset('chat')" :title="$t('chat.filters.preset_chat')" icon="whispers_purple" small white />
+					<Button @click="preset('chatSafe')" :title="$t('chat.filters.preset_chatSafe')" icon="shield_purple" small white />
+					<Button @click="preset('moderation')" :title="$t('chat.filters.preset_moderation')" icon="mod_purple" small white />
+					<Button @click="preset('activities')" :title="$t('chat.filters.preset_activities')" icon="stars_purple" small white />
+					<Button @click="preset('moderation&activities')" :title="$t('chat.filters.preset_moderation_and_activities')" icon="stars_purple" small white />
+					<Button @click="preset('games')" :title="$t('chat.filters.preset_games')" icon="bingo_purple" small white />
+					<Button @click="preset('revenues')" :title="$t('chat.filters.preset_revenues')" icon="coin_purple" small white />
 				</div>
 				
 				<div class="paramsList">
@@ -98,8 +98,8 @@
 				<div class="error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
 
 				<div class="ctas">
-					<Button :title="$t('global.cancel')" small :icon="$image('icons/cross_white.svg')" highlight v-if="forceConfig" @click="deleteColumn()" />
-					<Button :title="$t('global.create')" small :icon="$image('icons/add_purple.svg')" white v-if="forceConfig" @click="submitForm()" />
+					<Button :title="$t('global.cancel')" small icon="cross_white" highlight v-if="forceConfig" @click="deleteColumn()" />
+					<Button :title="$t('global.create')" small icon="add_purple" white v-if="forceConfig" @click="submitForm()" />
 				</div>
 
 				<ParamItem class="showPanelsHere"

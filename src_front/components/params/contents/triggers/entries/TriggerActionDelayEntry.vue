@@ -14,7 +14,7 @@
 			<span>s</span>
 		</div>
 
-		<Button class="deleteBt" highlight small :icon="$image('icons/cross_alert.svg')" @click="$emit('delete')" />
+		<Button class="deleteBt" highlight small icon="cross_alert" @click="$emit('delete')" />
 	</div>
 </template>
 

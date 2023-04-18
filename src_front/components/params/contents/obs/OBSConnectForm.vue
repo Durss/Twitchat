@@ -16,7 +16,7 @@
 		</ToggleBlock>
 
 		<Button :title="$t('global.connect')" type="submit" class="connectBt" v-if="!connected" :loading="loading" />
-		<Button :title="$t('global.disconnect')" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="$image('icons/cross_white.svg')" />
+		<Button :title="$t('global.disconnect')" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" icon="cross_white" />
 
 		<transition name="fade">
 			<div v-if="connectError" @click="connectError = false" class="error">

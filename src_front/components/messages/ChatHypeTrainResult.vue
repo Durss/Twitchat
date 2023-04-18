@@ -76,7 +76,7 @@
 				</div>
 			</div>
 			
-			<Button v-if="!filtering && messageData.activities.length > 0" :title="$t('chat.hype_train.filterBt')" :icon="$image('icons/filters.svg')" @click="filter()" />
+			<Button v-if="!filtering && messageData.activities.length > 0" :title="$t('chat.hype_train.filterBt')" icon="filters" @click="filter()" />
 		</div>
 	</div>
 </template>

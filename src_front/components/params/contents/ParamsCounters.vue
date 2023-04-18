@@ -14,7 +14,7 @@
 		</div>
 
 		<section v-if="!showForm">
-			<Button :title="$t('counters.addBt')" :icon="$image('icons/add.svg')" @click="showForm = true" />
+			<Button :title="$t('counters.addBt')" icon="add" @click="showForm = true" />
 		</section>
 
 		<section class="examples" v-if="!showForm && $store('counters').counterList.length == 0">
@@ -35,9 +35,9 @@
 					<span class="text">{{ $t("counters.form.placholder_conflict") }}</span>
 				</div>
 				<div class="item ctas">
-					<Button type="button" :title="$t('global.cancel')" :icon="$image('icons/cross_white.svg')" highlight @click="cancelForm()" />
-					<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" :icon="$image('icons/add.svg')" :disabled="param_title.value.length == 0" />
-					<Button type="submit" v-else :title="$t('counters.editBt')" :icon="$image('icons/edit.svg')" :disabled="param_title.value.length == 0" />
+					<Button type="button" :title="$t('global.cancel')" icon="cross_white" highlight @click="cancelForm()" />
+					<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" icon="add" :disabled="param_title.value.length == 0" />
+					<Button type="submit" v-else :title="$t('counters.editBt')" icon="edit" :disabled="param_title.value.length == 0" />
 				</div>
 			</form>
 		</section>
@@ -55,8 +55,8 @@
 				<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
 				<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
 				<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><img src="@/assets/icons/user.svg" alt="user"> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-				<Button class="actionBt" v-tooltip="$t('counters.editBt')" :icon="$image('icons/edit.svg')" @click="editCounter(entry.counter)" />
-				<Button class="actionBt" highlight :icon="$image('icons/trash.svg')" @click="deleteCounter(entry)" />
+				<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click="editCounter(entry.counter)" />
+				<Button class="actionBt" highlight icon="trash" @click="deleteCounter(entry)" />
 			</template>
 
 			<div class="content">

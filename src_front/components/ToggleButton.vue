@@ -1,10 +1,11 @@
 <template>
-	<div :class="classes" @click.stop="toggle">
+	<div :class="classes" @click.stop="toggle()">
 		<div class="circle"></div>
 	</div>
 </template>
 
 <script lang="ts">
+import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -12,27 +13,52 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	emits: ['update:modelValue', 'change'],
 })
 export default class ToggleButton extends Vue {
-	
+
+	@Prop({type:Boolean, default: false})
+	public big!:boolean;
+
 	@Prop({type:Boolean, default: false})
 	public small!:boolean;
+
 	@Prop({type:Boolean, default: false})
-	public clear!:boolean;
+	public primary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
+
 	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public noOpacity!:boolean;
+
+	public localValue:boolean = false;
+
 	public get classes():string[] {
 		let res = ["togglebutton"];
+		if(this.big !== false) res.push("big");
 		if(this.small !== false) res.push("small");
-		if(this.clear !== false) res.push("clear");
+		if(this.primary !== false) res.push("primary");
+		if(this.secondary !== false) res.push("secondary");
 		if(this.alert !== false) res.push("alert");
-		if(this.modelValue) res.push("selected");
+		if(this.noOpacity !== false) res.push("noOpacity");
+		if(this.localValue) res.push("selected");
 		return res;
 	}
 
+	public beforeMount():void {
+		this.localValue = this.modelValue;
+		watch(()=>this.modelValue, ()=>{
+			this.localValue = this.modelValue;
+		})
+	}
+
 	public toggle():void {
-		this.$emit('update:modelValue', !this.modelValue);
+		this.localValue = !this.localValue;
+		this.$emit('update:modelValue', this.localValue);
 		this.$emit('change');
 	}
 
@@ -45,78 +71,19 @@ export default class ToggleButton extends Vue {
 	width: @size * 2;
 	min-width: @size * 2;
 	height: @size;
-	border-radius: 1em;
-	border: 1px solid fade(@mainColor_normal, 50%);
+	border-radius: @size;
+	border: 1px solid var(--color-light);
 	position: relative;
 	cursor: pointer;
 	transition: all .2s;
 
+	&:not(.noOpacity) {
+		opacity: .5;
+	}
+
 	&:hover {
-		border-color: var(--mainColor_normal_light);
-		background-color: var(--mainColor_normal_extralight);
-	}
-
-	&.small {
-		@size: .75em;
-		height: @size;
-		width: @size * 2;
-		min-width: @size * 2;
-		.circle {
-			width: calc(@size - 4px);
-			height: calc(@size - 4px);
-		}
-
-		&.selected {
-			.circle {
-				left: calc(@size * 2 - @size + 1px);
-			}
-		}
-	}
-
-	&.clear {
-		@c: @mainColor_light;
-		border-color: fade(@c, 30%);
-		&.selected {
-			background-color: transparent;
-			border-color: @c;
-			.circle {
-				background-color: @c;
-			}
-		}
-		&:hover {
-			border-color: @c;
-			background-color: fade(@c, 30%);
-		}
-		.circle {
-			background-color: fade(@c, 30%);
-		}
-	}
-
-	&.alert {
-		@c: @mainColor_alert;
-		border-color: fade(@c, 30%);
-		&.selected {
-			background-color: transparent;
-			border-color: @c;
-			.circle {
-				background-color: @c;
-			}
-		}
-		&:hover {
-			border-color: @c;
-			background-color: fade(@c, 30%);
-		}
-		.circle {
-			background-color: fade(@c, 30%);
-		}
-	}
-
-	&.selected {
-		background-color: var(--mainColor_normal);
-		.circle {
-			background-color: #ffffff;
-			left: calc(@size * 2 - @size + 1px);
-		}
+		border-color: var(--color-light);
+		background-color: var(--color-dark-light);
 	}
 
 	.circle {
@@ -124,10 +91,64 @@ export default class ToggleButton extends Vue {
 		position: absolute;
 		top: 1px;
 		left: 1px;
-		background-color: fade(@mainColor_normal, 50%);
+		background-color: var(--color-light);
 		width: calc(@size - 4px);
 		height: calc(@size - 4px);
 		border-radius: 50%;
+	}
+
+	&:hover {
+		border-color: var(--color-light);
+		background-color: var(--color-light-fade);
+	}
+
+	
+	&.big {
+		font-size: 1.2em;
+	}
+	
+	&.small {
+		font-size: .8em;
+	}
+
+	&.primary {
+		border-color: var(--color-primary);
+		&:hover {
+			border-color: var(--color-primary);
+			background-color: var(--color-primary-fade);
+		}
+		.circle {
+			background-color: var(--color-primary);
+		}
+	}
+
+	&.secondary {
+		border-color: var(--color-secondary);
+		&:hover {
+			border-color: var(--color-secondary);
+			background-color: var(--color-secondary-fade);
+		}
+		.circle {
+			background-color: var(--color-secondary);
+		}
+	}
+
+	&.alert {
+		border-color: var(--color-alert);
+		&:hover {
+			border-color: var(--color-alert);
+			background-color: var(--color-alert-fade);
+		}
+		.circle {
+			background-color: var(--color-alert);
+		}
+	}
+
+	&.selected {
+		opacity: 1;
+		.circle {
+			left: calc(@size * 2 - @size + 1px);
+		}
 	}
 }
 </style>

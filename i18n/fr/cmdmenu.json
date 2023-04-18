@@ -14,9 +14,10 @@
 		"whoslive_title":"Personnes suivies en live",
 		"scope_grant": "Vous n'avez pas accordé la permission à Twitchat de lancer un raid.",
 		"scope_grantBt": "Accorder la permission",
-		"slowMode": "Slow mode",
+		"slowMode": "Mode lent",
 		"followersOnly": "Followers only",
 		"subsOnly": "Subs only",
-		"emotesOnly": "Emotes only"
+		"emotesOnly": "Emotes uniquement",
+		"start_ad": "Pub 30s"
 	}
 }

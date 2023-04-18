@@ -27,7 +27,7 @@
 			titleKey="global.post_winner" />
 
 		<Button class="item"
-			:icon="$image('icons/cross_white.svg')"
+			icon="cross_white"
 			:title="$t('bingo.closeBt')"
 			highlight
 			@click="closeBingo()" />

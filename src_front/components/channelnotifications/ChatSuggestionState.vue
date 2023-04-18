@@ -20,14 +20,14 @@
 
 		<div class="actions">
 			<Button class="item"
-				:icon="$image('icons/chatPoll_purple.svg')"
+				icon="chatPoll_purple"
 				:title="$t('suggestion.state_pickBt')"
 				@click="pickEntry()"
 				white
 				:disabled="poll.choices.length === 0" />
 
 			<Button class="item"
-				:icon="$image('icons/cross_white.svg')"
+				icon="cross_white"
 				:title="$t('suggestion.state_closeBt')"
 				highlight
 				@click="closePoll()" />

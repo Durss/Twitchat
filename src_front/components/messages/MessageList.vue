@@ -65,14 +65,14 @@
 			</div>
 			<div class="footer">
 				<Button	:aria-label="$t('chat.live_chat_less_aria')"
-					:icon="$image('icons/minus.svg')"
+					icon="minus"
 					:disabled="config.liveLockCount == 1"
 					@click="incrementLockedLiveCount(-1)"/>
 
 				<span class="label">{{ $t("chat.live_chat") }}</span>
 
 				<Button	:aria-label="$t('chat.live_chat_more_aria')"
-					:icon="$image('icons/add.svg')"
+					icon="add"
 					:disabled="config.liveLockCount == 10 || config.liveLockCount>=pendingMessages.length"
 					@click="incrementLockedLiveCount(1)"/>
 			</div>
@@ -88,7 +88,7 @@
 				<h1 v-if="!conversationMode">{{ $t("chat.history", {USER: conversation[0].user.displayName}) }}</h1>
 				<Button class="button"
 					:aria-label="$t('chat.conversation_closeBt_aria')"
-					:icon="$image('icons/cross_white.svg')"
+					icon="cross_white"
 					@click="onLeaveMessage" />
 			</div>
 			<div class="messages" ref="conversationMessages">
@@ -1492,7 +1492,7 @@ export default class MessageList extends Vue {
 		const el = this.$el as HTMLDivElement;
 		const sizesRatio = [.4,.5,.6,.7,.8,.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3];
 		const size = this.$store("params").appearance.defaultSize.value as number;
-		this.virtualMessageHeight = (32 + 9) * sizesRatio[size];//32 = min content height ; 9 = top+bottom padding
+		this.virtualMessageHeight = (32 + 9) * sizesRatio[size-1];//32 = min content height ; 9 = top+bottom padding
 		const newCount = Math.ceil(el.offsetHeight/this.virtualMessageHeight) + 10;
 		if(newCount != this.maxMessages) {
 			this.fullListRefresh();
@@ -1612,6 +1612,7 @@ export default class MessageList extends Vue {
 					text-align: center;
 					font-style: italic;
 					width: 100%;
+					padding: .5em 0;
 				}
 				// &:hover {
 					//Disabled as it causes CSS re renders of all subsequent nodes

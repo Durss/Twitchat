@@ -10,7 +10,7 @@
 
 			<div class="noResult" v-if="needScope">
 				<div>{{ $t("liveusers.scope_grant") }}</div>
-				<Button highlight :icon="$image('icons/unlock.svg')" :title="$t('liveusers.scope_grantBt')" @click="grantPermission()" />
+				<Button highlight icon="unlock" :title="$t('liveusers.scope_grantBt')" @click="grantPermission()" />
 			</div>
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 			

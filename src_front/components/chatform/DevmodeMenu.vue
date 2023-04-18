@@ -2,57 +2,57 @@
 	<div class="devmodemenu">
 		<h1>Developer panel</h1>
 		<div class="list">
-			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" :icon="$image('icons/coin.svg')" /> -->
-			<Button small title="Join" @click="simulateEvent('join')" :icon="$image('icons/enter_white.svg')" />
-			<Button small title="Leave" @click="simulateEvent('leave')" :icon="$image('icons/leave_white.svg')" />
-			<Button small title="Ban" @click="simulateEvent('ban')" :icon="$image('icons/ban.svg')" />
-			<Button small title="Unban" @click="simulateEvent('unban')" :icon="$image('icons/unban.svg')" />
-			<Button small title="First message" @click="simulateEvent('message', 'first')" :icon="$image('icons/firstTime.svg')" />
-			<Button small title="Returning user" @click="simulateEvent('message', 'returning')" :icon="$image('icons/returning.svg')" />
-			<Button small title="Presentation" @click="simulateEvent('message', 'presentation')" :icon="$image('icons/firstTime.svg')" />
-			<Button small title="Watch streak" @click="simulateEvent('user_watch_streak')" :icon="$image('icons/watchStreak.svg')" />
-			<Button small title="Incoming raid" @click="simulateEvent('raid')" :icon="$image('icons/raid.svg')" />
-			<Button small title="Outgoing raid" @click="startFakeRaid()" :icon="$image('icons/raid.svg')" />
-			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="$image('icons/bits.svg')" />
-			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="$image('icons/sub.svg')" />
-			<Button small title="ReSub" @click="simulateEvent('subscription', 'resub')" :icon="$image('icons/sub.svg')" />
-			<Button small title="Subgifts" @click="simulateEvent('subscription', 'gift')" :icon="$image('icons/gift.svg')" />
-			<Button small title="Subgift spam" @click="simulateSubgiftSpam()" :icon="$image('icons/gift.svg')" />
-			<Button small title="Subgift upgrade" @click="simulateEvent('subscription', 'giftpaidupgrade')" :icon="$image('icons/gift.svg')" />
-			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
-			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
-			<Button small title="Challenge contribution" @click="simulateEvent('community_challenge_contribution')" :icon="$image('icons/channelPoints.svg')" />
-			<Button small title="Hype train" @click="simulateHypeTrain()" :icon="$image('icons/train.svg')" />
-			<Button small title="Hype train cooldown" @click="simulateEvent('hype_train_cooled_down')" :icon="$image('icons/train.svg')" />
-			<Button small title="Hype train summary" @click="simulateEvent('hype_train_summary')" :icon="$image('icons/train.svg')" />
-			<Button small title="Community boost" @click="simulateComunityBoost()" :icon="$image('icons/boost.svg')" />
-			<Button small title="Automod Twitch" @click="simulateAutomod()" :icon="$image('icons/automod.svg')" />
-			<Button small title="Automod Twitchat" @click="simulateAutomodTwitchat()" :icon="$image('icons/automod.svg')" />
-			<Button small title="Automod Twitchat join" @click="simulateEvent('autoban_join')" :icon="$image('icons/automod.svg')" />
-			<Button small title="Poll result" @click="simulateEvent('poll')" :icon="$image('icons/poll.svg')" />
-			<Button small title="Prediction result" @click="simulateEvent('prediction')" :icon="$image('icons/prediction.svg')" />
-			<Button small title="Bingo result" @click="simulateEvent('bingo')" :icon="$image('icons/bingo.svg')" />
-			<Button small title="Raffle result" @click="simulateEvent('raffle')" :icon="$image('icons/ticket.svg')" />
-			<Button small title="Countdown result" @click="simulateEvent('countdown')" :icon="$image('icons/timer.svg')" />
-			<Button small title="Pin message" @click="simulateEvent('pinned')" :icon="$image('icons/pin.svg')" />
-			<Button small title="Upin message" @click="simulateEvent('unpinned')" :icon="$image('icons/unpin.svg')" />
-			<Button small title="Clear chat" @click="simulateEvent('clear_chat')" :icon="$image('icons/delete.svg')" />
-			<Button small title="Blocked user" @click="simulateBlockedUser()" :icon="$image('icons/block.svg')" />
-			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Restricted user" @click="simulateRestricted()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Follow bot item" @click="simulateFollowbotItem()" :icon="$image('icons/block.svg')" />
-			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
-			<Button small title="Send shoutout" @click="simulateEvent('shoutout')" :icon="$image('icons/shoutout.svg')" />
-			<Button small title="Receive shoutout" @click="simulateEvent('shoutout', 'soReceived')" :icon="$image('icons/shoutout.svg')" />
-			<Button small title="Restrict user" @click="restrictUser()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Monitor user" @click="monitorUser()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Unflag user" @click="unflagUser()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Stream online" @click="simulateEvent('stream_online')" :icon="$image('icons/online.svg')" />
-			<Button small title="Stream offline" @click="simulateEvent('stream_offline')" :icon="$image('icons/offline.svg')" />
-			<Button small title="Clip creation" @click="simulateEvent('clip_pending_publication')" :icon="$image('icons/clip.svg')" />
-			<Button small title="Show triggers logs" @click="openTriggersLogs()" :icon="$image('icons/broadcast.svg')" />
-			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
-			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
+			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
+			<Button @click="simulateEvent('join')" icon="enter_white">Join</Button>
+			<Button @click="simulateEvent('leave')" icon="leave_white">Leave</Button>
+			<Button @click="simulateEvent('ban')" icon="ban">Ban</Button>
+			<Button @click="simulateEvent('unban')" icon="unban">Unban</Button>
+			<Button @click="simulateEvent('message', 'first')" icon="firstTime">First message</Button>
+			<Button @click="simulateEvent('message', 'returning')" icon="returning">Returning user</Button>
+			<Button @click="simulateEvent('message', 'presentation')" icon="firstTime">Presentation</Button>
+			<Button @click="simulateEvent('user_watch_streak')" icon="watchStreak">Watch streak</Button>
+			<Button @click="simulateEvent('raid')" icon="raid">Incoming raid</Button>
+			<Button @click="startFakeRaid()" icon="raid">Outgoing raid</Button>
+			<Button @click="simulateEvent('cheer')" icon="bits">Bits</Button>
+			<Button @click="simulateEvent('subscription')" icon="sub">Sub</Button>
+			<Button @click="simulateEvent('subscription', 'resub')" icon="sub">ReSub</Button>
+			<Button @click="simulateEvent('subscription', 'gift')" icon="gift">Subgifts</Button>
+			<Button @click="simulateSubgiftSpam()" icon="gift">Subgift spam</Button>
+			<Button @click="simulateEvent('subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
+			<Button @click="simulateEvent('following')" icon="follow">Follow</Button>
+			<Button @click="simulateEvent('reward')" icon="channelPoints">Reward redeem</Button>
+			<Button @click="simulateEvent('community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
+			<Button @click="simulateHypeTrain()" icon="train">Hype train</Button>
+			<Button @click="simulateEvent('hype_train_cooled_down')" icon="train">Hype train cooldown</Button>
+			<Button @click="simulateEvent('hype_train_summary')" icon="train">Hype train summary</Button>
+			<Button @click="simulateComunityBoost()" icon="boost">Community boost</Button>
+			<Button @click="simulateAutomod()" icon="automod">Automod Twitch</Button>
+			<Button @click="simulateAutomodTwitchat()" icon="automod">Automod Twitchat</Button>
+			<Button @click="simulateEvent('autoban_join')" icon="automod">Automod Twitchat join</Button>
+			<Button @click="simulateEvent('poll')" icon="poll">Poll result</Button>
+			<Button @click="simulateEvent('prediction')" icon="prediction">Prediction result</Button>
+			<Button @click="simulateEvent('bingo')" icon="bingo">Bingo result</Button>
+			<Button @click="simulateEvent('raffle')" icon="ticket">Raffle result</Button>
+			<Button @click="simulateEvent('countdown')" icon="timer">Countdown result</Button>
+			<Button @click="simulateEvent('pinned')" icon="pin">Pin message</Button>
+			<Button @click="simulateEvent('unpinned')" icon="unpin">Upin message</Button>
+			<Button @click="simulateEvent('clear_chat')" icon="delete">Clear chat</Button>
+			<Button @click="simulateBlockedUser()" icon="block">Blocked user</Button>
+			<Button @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
+			<Button @click="simulateRestricted()" icon="shield">Restricted user</Button>
+			<Button @click="simulateFollowbotItem()" icon="block">Follow bot item</Button>
+			<Button @click="simulateFollowbotRaid()" icon="block">Follow bot raid</Button>
+			<Button @click="simulateEvent('shoutout')" icon="shoutout">Send shoutout</Button>
+			<Button @click="simulateEvent('shoutout', 'soReceived')" icon="shoutout">Receive shoutout</Button>
+			<Button @click="restrictUser()" icon="shield">Restrict user</Button>
+			<Button @click="monitorUser()" icon="shield">Monitor user</Button>
+			<Button @click="unflagUser()" icon="shield">Unflag user</Button>
+			<Button @click="simulateEvent('stream_online')" icon="online">Stream online</Button>
+			<Button @click="simulateEvent('stream_offline')" icon="offline">Stream offline</Button>
+			<Button @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
+			<Button @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
+			<Button @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
+			<Button secondary type="link" :href="pubsubHistoryLink" highlight target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
 		</div>
 	</div>
 </template>
@@ -319,16 +319,15 @@ type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "gi
 
 	.list {
 		height: 400px;
-		max-width: 100%;
 		max-height: 80%;
 		overflow-x: hidden;
 		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: .25em;
+		width: fit-content;
 		.button {
-			width: 100%;
-			margin-bottom: 5px;
-			:deep(.label) {
-				flex-grow: 1;
-			}
+			white-space: nowrap;
 		}
 	}
 }

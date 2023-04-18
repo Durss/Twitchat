@@ -2,11 +2,17 @@
 	<div :class="classes">
 		<div class="header" @click.stop="toggle()">
 			<slot name="left_actions"></slot>
+			
 			<img v-for="icon in localIcons" :src="$image('icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
-			<h2 v-html="localTitle"></h2>
+			
+			<div class="title" v-if="title || subtitle">
+				<h2 v-if="title">{{ title }}</h2>
+				<h3 v-if="subtitle">{{ subtitle }}</h3>
+			</div>
+
 			<slot name="right_actions"></slot>
 		</div>
-		<div class="content" v-if="showContent" ref="content">
+		<div class="content" v-if="opened" ref="content">
 			<slot></slot>
 		</div>
 	</div>
@@ -17,12 +23,14 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from './Button.vue';
+import { string } from 'mathjs';
 
 /**
- * To add actions on the right of the header (like a delete button)
+ * To add actions on the right or left of the header
  * use the template tag like this :
  * 	<ToggleBlock>
  * 		<template #right_actions>...</template>
+ * 		<template #left_actions>...</template>
  * 	</ToggleBlock>
  */
 
@@ -35,10 +43,12 @@ import Button from './Button.vue';
 })
 export default class ToggleBlock extends Vue {
 
-	@Prop
+	@Prop({type:Array, default:[]})
 	public icons!:string[];
 	@Prop
 	public title!:string;
+	@Prop({type:String, default:""})
+	public subtitle!:string;
 	@Prop({
 			type:Boolean,
 			default:true,
@@ -59,17 +69,12 @@ export default class ToggleBlock extends Vue {
 			default:false,
 		})
 	public medium!:boolean;
-	@Prop({
-			type:String,
-			default:"",
-		})
-	public errorTitle!:string;
 
-	public showContent = false;
+	public opened = false;
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
-		if(!this.showContent)			res.push("closed");
+		if(!this.opened)				res.push("closed");
 		if(this.error !== false)		res.push("error");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
@@ -77,19 +82,14 @@ export default class ToggleBlock extends Vue {
 		return res;
 	}
 
-	public get localTitle():string {
-		if(this.error && this.errorTitle) return this.errorTitle;
-		return this.title;
-	}
-
 	public get localIcons():string[] {
-		const icons = this.icons;
+		const icons = this.icons.concat();
 		if(this.error) icons.push("automod");
 		return icons;
 	}
 
 	public beforeMount():void {
-		this.showContent = this.open;
+		this.opened = this.open;
 	}
 
 	public mounted():void {
@@ -100,17 +100,17 @@ export default class ToggleBlock extends Vue {
 
 	public async toggle(forcedState?:boolean):Promise<void> {
 		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
-		let open = !this.showContent;
+		let open = !this.opened;
 		if(forcedState !== undefined) {
 			open = forcedState;
-			if(open == this.showContent) return;//Already in the proper state, ignore
+			if(open == this.opened) return;//Already in the proper state, ignore
 		}
 		gsap.killTweensOf(this.$refs.content as HTMLDivElement);
 		if(!open) {
-			params.onComplete = ()=>{ this.showContent = false; }
+			params.onComplete = ()=>{ this.opened = false; }
 			gsap.to(this.$refs.content as HTMLDivElement, params);
 		}else {
-			this.showContent = true;
+			this.opened = true;
 			await this.$nextTick();
 			gsap.from(this.$refs.content as HTMLDivElement, params);
 		}
@@ -121,48 +121,103 @@ export default class ToggleBlock extends Vue {
 
 <style scoped lang="less">
 .toggleblock{
+	border-radius: var(--border_radius);
+	overflow: hidden;
+	align-self: flex-start;
+
+	:deep(.icon) {
+		height: 1em;
+		width: 1em;
+		object-fit: fill;
+		display: block;
+		margin:auto;
+	}
+
+	.header {
+		text-align: center;
+		padding: .5em;
+		cursor: pointer;
+		background-color: var(--color-dark-light);
+		border-bottom: 2px solid var(--color-dark);
+		display: flex;
+		font-size: 1.2em;
+		flex-direction: row;
+		align-items: center;
+		transition: background-color .25s;
+		.title {
+			flex-grow: 1;
+			color: var(--color-light);
+			display: flex;
+			flex-direction: column;
+			gap: 0;
+			h3 {
+				font-size: .8em;
+				font-weight: normal;
+				font-style: italic;
+			}
+		}
+		&:hover {
+			background-color: var(--color-dark-extralight);
+		}
+	}
+
+	.content {
+		overflow: hidden;
+		padding: 1em;
+		color: var(--color-light);
+		background-color: var(--color-dark-light);
+	}
+
 	&.closed {
 		.header {
 			border-bottom: none;
-			border-bottom-left-radius: 1em;
-			border-bottom-right-radius: 1em;
 		}
 	}
 
 	&:not(.small):not(.medium){
-		&>.header {
-			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-		}
+		box-shadow: 0px 1px 1px rgba(0,0,0,1);
 	}
+
+	&.error{
+		border: 2px dashed var(--color-alert);
+	}
+
+	&.medium {
+		font-size: .8em;
+	}
+
 
 	&.small {
 		font-size: .8em;
 		.header {
-			background-color: fade(@mainColor_normal, 15%);
-			border: none;
 			padding: 0;
-			border-radius: 0;
+			border-bottom-left-radius: var(--border_radius);
 			&:hover {
-				background-color: fade(@mainColor_normal, 15%);
+				background-color: var(--color-dark-extralight);
 			}
-			h2 {
+			.title {
 				text-align: left;
+				align-items: center;
+				flex-direction: row;
+				gap: .25em;
 				&::before {
-					content:"▼";
+					content:"►";
 					margin-right: .25em;
+					transform: rotate(90deg);
+					transition: transform .25s;
 				}
-			}
-			.icon {
-				height: 1em;
-				width: 1em;
 			}
 		}
 
 		&.closed {
 			.header {
+				border-radius: var(--border_radius);
 				background-color: transparent;
-				h2::before {
-					content:"►";
+				.title::before {
+					transform: rotate(0);
+				}
+				&:hover {
+					background-color: var(--color-dark-light);
 				}
 			}
 		}
@@ -177,115 +232,11 @@ export default class ToggleBlock extends Vue {
 		}
 
 		.content {
-			background-color: fade(@mainColor_normal, 10%);
+			background-color: --color-dark-light;
 			padding: .5em;
 			margin-left: 1.4em;
-			border-radius: 0;
 		}
 	}
 
-	&.medium {
-		@radius: .5em;
-		font-size: .9em;
-		&.closed {
-			.header {
-				border-bottom-left-radius: @radius;
-				border-bottom-right-radius: @radius;
-			}
-		}
-		&.deletable {
-			&>.header {
-				padding: 0;
-			}
-		}
-		&>.header {
-			padding: 0;
-			border-top-left-radius: @radius;
-			border-top-right-radius: @radius;
-			color: var(--mainColor_light);
-			background-color: var(--mainColor_normal);
-			border-bottom-color: var(--mainColor_light);
-			overflow: hidden;
-			&:hover {
-				background-color: lighten(@mainColor_normal, 10%);
-			}
-
-			.icon {
-				margin-left: .25em;
-				height: 1em;
-				width: 1em;
-			}
-
-			h2 {
-				// transition: background-color .25s;
-				// background-color: var(--mainColor_normal);
-				padding: .25em;
-				// &:hover {
-				// 	background-color: lighten(@mainColor_normal, 10%);
-				// }
-			}
-		}
-		&>.content {
-			padding: .5em;
-			border-bottom-left-radius: @radius;
-			border-bottom-right-radius: @radius;
-			// background-color: #f2eef8;
-		}
-	}
-
-	.icon {
-		height: 1.5em;
-		width: 1.5em;
-		object-fit: fill;
-		display: block;
-		margin:auto;
-		&.suggestion {
-			height: 2em;
-		}
-	}
-
-	.header {
-		border-bottom: 2px solid var(--mainColor_normal);
-		// border-left: 3px solid var(--mainColor_normal);
-		border-top-left-radius: 1em;
-		border-top-right-radius: 1em;
-		text-align: center;
-		padding: .5em;
-		cursor: pointer;
-		background-color: white;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		transition: background-color .25s;
-		h2 {
-			flex-grow: 1;
-		}
-		&:hover {
-			background-color: darken(@mainColor_light, 3%);
-		}
-		:deep(span) {
-			font-weight: normal;
-			font-style: italic;
-			font-size: .8em;
-		}
-	}
-
-	.content {
-		overflow: hidden;
-		padding: 1em;
-		background-color: fade(@mainColor_normal, 10%);
-		border-bottom-left-radius: 1em;
-		border-bottom-right-radius: 1em;
-		&>:deep(img) {
-			margin: .5em auto;
-			max-width: 100%;
-		}
-	}
-
-	&.error{
-		.header {
-			border: 2px dashed var(--mainColor_alert);
-		}
-	}
 }
 </style>

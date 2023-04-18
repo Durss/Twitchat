@@ -3,7 +3,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">Triggers logs</span>
-				<Button :aria-label="$t('stream.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
+				<Button :aria-label="$t('stream.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
 			</div>
 			
 			<Button class="refreshBt" title="Refresh" @click="refreshList()" :loading="reloading" bounce/>
@@ -16,7 +16,7 @@
 				<div v-for="item in logs" :key="item.id" class="entry">
 					<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
 						<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
-						<div class="status" v-tooltip="'complete'" v-if="item.complete"><img src="@/assets/icons/checkmark_white.svg"></div>
+						<div class="status" v-tooltip="'complete'" v-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
 						<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
 						<div class="status" v-tooltip="'pending'" v-else><img src="@/assets/loader/loader_white.svg"></div>
 						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>

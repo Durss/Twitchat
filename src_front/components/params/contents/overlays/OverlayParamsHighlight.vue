@@ -108,7 +108,7 @@
 			</div>
 
 			<div class="row center" v-if="overlayExists">
-				<Button @click="testOverlay()" :title="$t('overlay.highlight.testBt')" :icon="$image('icons/test.svg')" />
+				<Button @click="testOverlay()" :title="$t('overlay.highlight.testBt')" icon="test" />
 			</div>
 			
 			<div class="row center" v-if="!overlayExists">

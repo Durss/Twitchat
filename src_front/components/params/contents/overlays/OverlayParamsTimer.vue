@@ -33,8 +33,8 @@
 				</ToggleBlock>
 			</div>
 			<div class="row center">
-				<Button :icon="$image('icons/timer.svg')" :title="$t('overlay.timer.try_timerBt')" @click.stop="startTimer()" />
-				<Button :icon="$image('icons/countdown.svg')" :title="$t('overlay.timer.try_countdownBt')" @click.stop="startCountdown()" />
+				<Button icon="timer" :title="$t('overlay.timer.try_timerBt')" @click.stop="startTimer()" />
+				<Button icon="countdown" :title="$t('overlay.timer.try_countdownBt')" @click.stop="startCountdown()" />
 			</div>
 		</div>
 	</ToggleBlock>

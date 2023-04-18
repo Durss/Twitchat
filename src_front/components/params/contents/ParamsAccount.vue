@@ -21,14 +21,14 @@
 				bounce
 				:loading="generatingCSRF"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-				:icon="$image('icons/twitch_white.svg')"
+				icon="twitch_white"
 			/>
 		</section>
 
 		<section class="actions">
-			<Button class="button" @click="latestUpdates()" :title="$t('account.updatesBt')" :icon="$image('icons/new.svg')" bounce />
-			<Button class="button" @click="logout()" :title="$t('global.log_out')" :icon="$image('icons/logout.svg')" highlight bounce />
-			<Button class="button" @click="ahs()" :title="$t('account.installBt')" :icon="$image('icons/twitchat.svg')" v-if="canInstall" />
+			<Button class="button" @click="latestUpdates()" :title="$t('account.updatesBt')" icon="new" bounce />
+			<Button class="button" @click="logout()" :title="$t('global.log_out')" icon="logout" highlight bounce />
+			<Button class="button" @click="ahs()" :title="$t('account.installBt')" icon="twitchat" v-if="canInstall" />
 		</section>
 
 		<section class="lang">
@@ -54,7 +54,7 @@
 		
 		<section class="dataSync">
 			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" />
-			<Button class="button" v-if="!syncEnabled" @click="eraseData()" bounce :title="$t('account.erase_dataBt')" highlight :icon="$image('icons/delete.svg')" />
+			<Button class="button" v-if="!syncEnabled" @click="eraseData()" bounce :title="$t('account.erase_dataBt')" highlight icon="delete" />
 		</section>
 	</div>
 </template>
