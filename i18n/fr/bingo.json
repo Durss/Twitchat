@@ -2,13 +2,14 @@
 	"bingo": {
 		"title":"Créer un Bingo",
 		"closeBt_aria":"Fermer le formulaire",
-		"description":"Le bingo est un jeu pour lequel vos viewiers doivent trouver une valeur spécifique",
+		"description":"Faîtes deviner un nombre ou une emote à vos viewers",
 		"title_emote":"Emote",
 		"title_number":"Nombre",
 		"title_custom":"Personnalisé",
 		"min_value":"Valeur minimale",
 		"max_value":"Valeur maximale",
 		"custom_value":"Message",
+		"startBt":"Lancer le bingo",
 		
 		"winner_placeholder":"Pseudo",
 		"goal_placeholder":"Explique ce qu'il faut trouver",

@@ -27,7 +27,6 @@
 					</div>
 
 					<input type="text"
-						class="dark"
 						v-model="message"
 						ref="input"
 						:placeholder="$t('chat.form.input_placeholder')"
@@ -979,10 +978,8 @@ export default class ChatForm extends Vue {
 
 <style scoped lang="less">
 .chatform{
-	@height: 2em;
 	display: flex;
 	flex-direction: row;
-	min-height: @height;
 	margin: auto;
 	position: relative;
 	opacity: 1;
@@ -1010,7 +1007,6 @@ export default class ChatForm extends Vue {
 		width: 100%;
 		display: flex;
 		flex-direction: row;
-		min-height: @height;
 		position: relative;
 		z-index: 2;
 		box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
@@ -1092,11 +1088,6 @@ export default class ChatForm extends Vue {
 			}
 			input {
 				width: 100%;
-				background: transparent;
-				border: none;
-				border-radius: var(--border_radius);
-				box-shadow: inset 2px -2px var(--color-dark);
-				background-color: var(--color-dark-fade);
 			}
 			.error {
 				cursor: pointer;
@@ -1161,7 +1152,7 @@ export default class ChatForm extends Vue {
 		flex-direction: column;
 
 		.button {
-			.clearButton();
+			// .clearButton();
 			height: auto;
 			background-color: fade(@mainColor_light, 20%);
 			padding: .25em;

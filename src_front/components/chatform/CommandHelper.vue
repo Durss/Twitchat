@@ -1,27 +1,27 @@
 <template>
 	<div :class="classes">
-		<Button @click.capture="openModal('poll');"			icon="poll"			:disabled="!canCreatePoll" class="needsAffiliate" >{{$t('cmdmenu.poll')}}</Button>
-		<Button @click.capture="openModal('pred');"			icon="prediction"	:disabled="!canCreatePrediction" class="needsAffiliate" >{{$t('cmdmenu.prediction')}}</Button>
-		<Button @click="openModal('raffle');"				icon="ticket"		>{{$t('cmdmenu.raffle')}}</Button>
-		<Button @click="openModal('bingo');"				icon="bingo"		>{{$t('cmdmenu.bingo')}}</Button>
-		<Button @click="openModal('chatpoll');"				icon="chatPoll"		>{{$t('cmdmenu.suggestions')}}</Button>
-		<Button @click="openModal('timer');"				icon="timer"		>{{$t('cmdmenu.timer')}}</Button>
-		<Button @click.capture="clearChat();"				icon="clearChat"	:disabled="!canClearChat" >{{$t('cmdmenu.chat')}}</Button>
-		<Button @click.capture="openModal('streamInfo');"	icon="info"			:disabled="!canEditStreamInfos" >{{$t('cmdmenu.info')}}</Button>
+		<Button @click.capture="openModal('poll');"		icon="poll"			:disabled="!canCreatePoll" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</Button>
+		<Button @click.capture="openModal('pred');"		icon="prediction"	:disabled="!canCreatePrediction" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</Button>
+		<Button @click.capture="openModal('raffle');"		icon="ticket"		>{{$t('cmdmenu.raffle')}}</Button>
+		<Button @click.capture="openModal('bingo');"		icon="bingo"		>{{$t('cmdmenu.bingo')}}</Button>
+		<Button @click.capture="openModal('chatpoll');"	icon="chatPoll"		>{{$t('cmdmenu.suggestions')}}</Button>
+		<Button @click.capture="openModal('timer');"		icon="timer"		>{{$t('cmdmenu.timer')}}</Button>
+		<Button @click.capture="clearChat();"				icon="clearChat"	:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</Button>
+		<Button @click.capture="openModal('streamInfo');"	icon="info"			:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</Button>
 
-		<div class="commercial">
-			<Button aria-label="Start a 30s ad" v-if="adCooldown == 0" small @click.capture="startAd(30); close();" icon="coin" bounce :disabled="!canStartCommercial">{{ $t('cmdmenu.start_ad') }}</Button>
-			<Button aria-label="Start a 60s ad" v-if="adCooldown == 0" small @click.capture="startAd(60); close();" bounce :disabled="!canStartCommercial">60s</Button>
-			<Button aria-label="Start a 90s ad" v-if="adCooldown == 0" small @click.capture="startAd(90); close();" bounce :disabled="!canStartCommercial">90s</Button>
-			<Button aria-label="Start a 120s ad" v-if="adCooldown == 0" small @click.capture="startAd(120); close();" bounce :disabled="!canStartCommercial">120s</Button>
-			<Button aria-label="Start a 180s ad" v-if="adCooldown == 0" small @click.capture="startAd(180); close();" bounce :disabled="!canStartCommercial">180s</Button>
+		<div class="commercial" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">
+			<Button aria-label="Start a 30s ad"		v-if="adCooldown == 0" small @click.capture="startAd(30);" icon="coin" bounce :disabled="!canStartCommercial">{{ $t('cmdmenu.start_ad') }}</Button>
+			<Button aria-label="Start a 60s ad"		v-if="adCooldown == 0" small @click.capture="startAd(60);" bounce :disabled="!canStartCommercial">60s</Button>
+			<Button aria-label="Start a 90s ad"		v-if="adCooldown == 0" small @click.capture="startAd(90);" bounce :disabled="!canStartCommercial">90s</Button>
+			<Button aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);" bounce :disabled="!canStartCommercial">120s</Button>
+			<Button aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);" bounce :disabled="!canStartCommercial">180s</Button>
 			<div v-if="adCooldown > 0" class="cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
-		<ParamItem class="roomParam" :paramData="param_followOnly" @change="setFollowOnly()" clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_subOnly" @change="setSubOnly()" clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_emotesOnly" @change="setEmoteOnly()" clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_slowMode" @change="setSlowMode()" clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_followOnly"		@change="setFollowOnly()"	clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_subOnly"			@change="setSubOnly()"	clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_emotesOnly"		@change="setEmoteOnly()"	clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_slowMode"		@change="setSlowMode()"	clearToggle @click="requestRoomSettingsScopes()" />
 		
 		<div class="raid" v-if="$store('stream').currentRaid">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
@@ -31,14 +31,17 @@
 		<div class="raid" v-else>
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">{{$t('cmdmenu.raid')}}</label>
 			<form @submit.prevent="raid()" v-if="canRaid">
-				<input class="dark" id="raid_input" type="text" placeholder="user name..." v-model="raidUser" maxlength="50">
-				<Button aria-label="Start raid" type="submit" icon="checkmark" bounce small :disabled="raidUser.length < 3" />
+				<input id="raid_input" type="text" :placeholder="$t('cmdmenu.raid_placeholder')" v-model="raidUser" maxlength="50">
+				<Button class="button"
+					aria-label="Start raid"
+					type="submit"
+					icon="checkmark" :disabled="raidUser.length < 3" />
 			</form>
 			<div v-else class="missingScope">
 				<p>{{ $t('cmdmenu.scope_grant') }}</p>
-				<Button icon="unlock" bounce highlight small @click="requestRaidScopes()" >{{$t('cmdmenu.scope_grantBt')}}</Button>
+				<Button icon="unlock" alert small @click="requestRaidScopes()" >{{$t('cmdmenu.scope_grantBt')}}</Button>
 			</div>
-			<a class="followings" @click.prevent="openModal('liveStreams')">{{ $t("cmdmenu.whoslive") }}</a>
+			<a class="whoStreams" @click.prevent="openModal('liveStreams')">{{ $t("cmdmenu.whoslive") }}</a>
 		</div>
 	</div>
 </template>
@@ -147,8 +150,9 @@ export default class CommandHelper extends Vue {
 	public startAd(duration:number):void {
 		if(!TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL])) {
 			this.$store("auth").requestTwitchScopes([TwitchScopes.START_COMMERCIAL]);
-		}else{
+		}else if(this.canStartCommercial){
 			this.$store("stream").startCommercial(duration);
+			this.close();
 		}
 	}
 
@@ -190,15 +194,22 @@ export default class CommandHelper extends Vue {
 	private open():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.from(ref, {duration:.2, scaleX:0, delay:.1, clearProps:"scaleX", ease:"back.out"});
-		gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
+		gsap.from(ref, {duration:.1, translateX:"-115%", delay:.2, ease:"sine.out"});
+		gsap.fromTo(ref, {scaleX:1.1}, {duration:.5, delay:.3, scaleX:1, clearProps:"scaleX,translateX", ease:"elastic.out(1)"});
+		
+		// const elements = (this.$el as HTMLDivElement).childNodes;
+		// let delay = .2;
+		// elements.forEach(v=> {
+		// 	gsap.from(v, {opacity:.1, duration:.25, delay, translateY:-10, ease:"sine.out"});
+		// 	delay += .025;
+		// })
 	}
 
 	public close():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});
-		gsap.to(ref, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY, scaleX", ease:"back.in", onComplete:() => {
+		gsap.to(ref, {duration:.1, scaleX:1.1, ease:"sin.in"});
+		gsap.to(ref, {duration:.1, translateX:"-100%", scaleX:1, delay:.1, clearProps:"translateX", ease:"sin.out", onComplete:() => {
 			this.$emit("close");
 		}});
 	}
@@ -300,63 +311,32 @@ export default class CommandHelper extends Vue {
 <style scoped lang="less">
 .commandhelper{
 	.window();
-	gap:.25em;
+	gap:10px;
 	overflow-x: hidden;
-
-	&:not(.isAffiliate) {
-		.button.disabled.needsAffiliate {
-			cursor: not-allowed;
-		}
-	}
-	
-	.button:not([type="submit"]) {
-		:deep(img) {
-			max-width: 20px;
-		}
-		:deep(.label) {
-			white-space: normal;
-		}
-		&.disabled {
-			cursor: help;
-		}
-	}
 
 	.commercial {
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
 		.cooldown {
+			.card();
 			max-width: 300px;
 			font-size: .8em;
 			margin: auto;
-			background: fade(@mainColor_normal, 20%);
 			padding: .5em;
-			border-radius: var(--border_radius);
 			text-align: center;
-		}
-	}
-
-	.roomParam {
-		background: var(--color-dark-light);
-		padding: .3em;
-		font-size: .8em;
-		border-radius: var(--border_radius);
-		&.disabled {
-			opacity: .5;
-			cursor: help;
+			background-color: var(--color-alert);
 		}
 	}
 
 	.raid {
+		.card();
 		display: flex;
 		flex-direction: column;
-		background-color: var(--mainColor_dark_light);
-		padding: 10px;
-		border-radius: 10px;
+		padding: .5em;
+		color: var(--color-light);
 		label {
 			align-self: center;
-			color: var(--mainColor_light);
-			font-size: .9em;
 			img {
 				height: .9em;
 				margin-right: .5em;
@@ -366,6 +346,7 @@ export default class CommandHelper extends Vue {
 		form {
 			display: flex;
 			flex-direction: row;
+			border-radius: var(--border_radius);
 			input {
 				width: 100%;
 				border-top-right-radius: 0;
@@ -373,35 +354,37 @@ export default class CommandHelper extends Vue {
 			}
 			.button {
 				flex-grow: 1;
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-				transform-origin: left;
+				:deep(.background) {
+					border-radius: var(--border_radius);
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+				}
 			}
 		}
 
-		.followings {
+		.whoStreams {
 			text-align: center;
 			font-size: .8em;
 			margin-top: .5em;
 			color: var(--mainColor_light);
 			&:hover {
-				color: var(--mainColor_normal_light);
+				color: var(--color-secondary);
 			}
 		}
 
 		.missingScope {
 			max-width: 300px;
-			background-color: var(--mainColor_warn);
+			background-color: var(--color-primary);
 			border-radius: var(--border_radius);
 			padding: .5em;
 			p {
-				font-size: .7em;
-				color: var(--mainColor_light);
+				font-size: .8em;
 				text-align: center;
 			}
 			.button {
-				margin: .5em auto 0 auto;
-				display: block;
+				margin: auto;
+				margin-top: .5em;
+				display: flex;
 			}
 		}
 	}

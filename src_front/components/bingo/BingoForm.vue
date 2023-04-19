@@ -1,53 +1,33 @@
 <template>
 	<div :class="classes">
-		<div class="holder" ref="holder">
-			<div class="head" v-if="triggerMode === false">
-				<span class="title">{{ $t("bingo.title") }}</span>
-				<Button :aria-label="$t('bingo.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
-			</div>
-			<div class="content">
-				<div class="description" v-if="triggerMode === false">{{ $t("bingo.description") }}</div>
-				<form @submit.prevent="onSubmit()">
-					<div class="tabs">
-						<Button :title="$t('bingo.title_number')" bounce
-							:selected="guessNumber"
-							@click="guessNumber = true; guessEmote = false; guessCustom = false; onValueChange();"
-							icon="number"
-						/>
-						<Button :title="$t('bingo.title_emote')" bounce
-							:selected="guessEmote"
-							@click="guessNumber = false; guessEmote = true; guessCustom = false; onValueChange();"
-							icon="emote"
-						/>
-						<Button :title="$t('bingo.title_custom')" bounce
-							:selected="guessCustom"
-							@click="guessNumber = false; guessEmote = false; guessCustom = true; onValueChange();"
-							icon="edit"
-						/>
-					</div>
-					
-					<div class="info" v-if="guessNumber" v-html="$t('bingo.number_info')"></div>
-					<div class="row" v-if="guessNumber">
-						<ParamItem class="item" :paramData="minValue" autofocus @change="onValueChange()" />
-					</div>
-					
-					<div class="row" v-if="guessNumber">
-						<ParamItem class="item" :paramData="maxValue" @change="onValueChange()" />
-					</div>
+		<div class="head" v-if="triggerMode === false">
+			<CloseButton :aria-label="$t('bingo.closeBt_aria')" @click="close()" />
 
-					<div class="info" v-if="guessEmote" v-html="$t('bingo.emote_info', {COUNT:globalEmotes.length})"></div>
+			<h1 class="title">{{ $t("bingo.title") }}</h1>
+			
+			<div class="description" v-if="triggerMode === false">{{ $t("bingo.description") }}</div>
+		
+			<TabMenu v-model="mode"
+				:values="['num','emote','custom']"
+				:tooltips="[$t('bingo.title_number'), $t('bingo.title_emote'), $t('bingo.title_custom')]"
+				:icons="['number', 'emote', 'edit']" />
+		</div>
 
-					<div class="info" v-if="guessCustom">{{ $t("bingo.custom_info") }}</div>
+		<div class="content">
+			<form @submit.prevent="onSubmit()">
+				
+				<div class="info" v-if="mode=='num'" v-html="$t('bingo.number_info')"></div>
+				<div class="info" v-if="mode=='emote'" v-html="$t('bingo.emote_info', {COUNT:globalEmotes.length})"></div>
+				<div class="info" v-if="mode =='custom'">{{ $t("bingo.custom_info") }}</div>
 
-					<div class="row" v-if="guessCustom">
-						<ParamItem class="item custom" :paramData="customValue" @change="onValueChange()" />
-					</div>
+				<ParamItem class="row" v-if="mode=='num'" :paramData="minValue" autofocus @change="onValueChange()" />
+				
+				<ParamItem class="row" v-if="mode=='num'" :paramData="maxValue" @change="onValueChange()" />
 
-					<div class="row submit" v-if="triggerMode === false">
-						<Button type="submit" :title="$t('global.start')" />
-					</div>
-				</form>
+				<ParamItem class="row custom" v-if="mode=='custom'" :paramData="customValue" @change="onValueChange()" />
 
+				<Button v-if="triggerMode === false" type="submit">{{ $t('bingo.startBt') }}</Button>
+	
 				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="triggerMode === false">
 					<PostOnChatParam class="row" botMessageKey="bingoStart"
 						:placeholderEnabled="false"
@@ -59,7 +39,7 @@
 						:placeholders="winnerPlaceholders"
 					/>
 				</ToggleBlock>
-			</div>
+			</form>
 		</div>
 	</div>
 </template>
@@ -71,14 +51,18 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import TabMenu from '../TabMenu.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import ToggleBlock from '../ToggleBlock.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
+		TabMenu,
 		ParamItem,
+		CloseButton,
 		ToggleBlock,
 		PostOnChatParam,
 	},
@@ -86,22 +70,15 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class BingoForm extends Vue {
 
-	@Prop({
-			type: Boolean,
-			default: false
-		})
+	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
+	
 	//This is used by the trigger action form.
-	@Prop({
-			type: Object,
-			default:{},
-		})
+	@Prop({type: Object, default:{}})
 	public action!:TriggerActionBingoData;
 
 	public globalEmotes:TwitchatDataTypes.Emote[] = [];
-	public guessNumber = true;
-	public guessEmote = false;
-	public guessCustom = false;
+	public mode:"num"|"emote"|"custom" = "num";
 	public minValue:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:999999999};
 	public maxValue:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:0, max:999999999};
 	public customValue:TwitchatDataTypes.ParameterData<string|undefined> = {value:"", type:"string"};
@@ -115,9 +92,9 @@ export default class BingoForm extends Vue {
 
 	public get finalData():TwitchatDataTypes.BingoConfig {
 		return  {
-			guessNumber: this.guessNumber,
-			guessEmote: this.guessEmote,
-			guessCustom: this.guessCustom,
+			guessNumber: this.mode == "num",
+			guessEmote: this.mode == "emote",
+			guessCustom: this.mode == "emote",
 			min: this.minValue.value,
 			max: this.maxValue.value,
 			customValue: this.customValue.value,
@@ -128,7 +105,7 @@ export default class BingoForm extends Vue {
 		return [
 			{
 				tag:"GOAL", descKey:'bingo.goal_placeholder',
-				example:this.guessEmote? this.$t('bingo.goal_emote')
+				example:this.mode == "emote"? this.$t('bingo.goal_emote')
 					: this.$t('bingo.goal_number', {MIN:this.minValue.value, MAX:this.maxValue.value})
 			}
 		];
@@ -141,9 +118,9 @@ export default class BingoForm extends Vue {
 
 		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.winner_placeholder", example:this.$store("auth").twitch.user.displayName}];
 		if(this.triggerMode && this.action.bingoData) {
-			this.guessNumber = this.action.bingoData.guessNumber;
-			this.guessEmote = this.action.bingoData.guessEmote;
-			this.guessCustom = this.action.bingoData.guessCustom;
+			if(this.action.bingoData.guessNumber) this.mode = "num";
+			if(this.action.bingoData.guessEmote) this.mode = "emote";
+			if(this.action.bingoData.guessCustom) this.mode = "custom";
 			this.minValue.value = this.action.bingoData.min;
 			this.maxValue.value = this.action.bingoData.max;
 			this.customValue.value = this.action.bingoData.customValue;
@@ -156,8 +133,8 @@ export default class BingoForm extends Vue {
 
 	public mounted(): void {
 		if(!this.triggerMode) {
-			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+			gsap.set(this.$el as HTMLElement, {translateY:0});
+			gsap.from(this.$el as HTMLElement, {duration:.4, translateY:"100%", clearProps:"transform", ease:"back.out"});
 		}
 	}
 
@@ -165,7 +142,7 @@ export default class BingoForm extends Vue {
 	 * Close bingo form
 	 */
 	public async close():Promise<void> {
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
+		gsap.to(this.$el as HTMLElement, {duration:.25, translateY:"-100%", clearProps:"transform", ease:"back.in", onComplete:()=> {
 			this.$emit('close');
 		}});
 	}
@@ -192,91 +169,9 @@ export default class BingoForm extends Vue {
 
 <style scoped lang="less">
 .bingoform{
-
 	&:not(.triggerMode) {
-		.modal();
+		.sidePanel();
 	}
 
-	.content {
-		.description {
-			text-align: center;
-			font-size: .8em;
-			margin-bottom: 20px;
-		}
-
-		form {
-			display: flex;
-			flex-direction: column;
-
-			.tabs {
-				display: flex;
-				flex-direction: row;
-				justify-content: center;
-
-				.button {
-					background-color: var(--mainColor_normal);
-					border-radius: 0;
-					&:not(.selected) {
-						background-color: fade(@mainColor_normal, 50%);
-					}
-
-					&:not(:last-child) {
-						margin-right: 1px;
-					}
-
-					&:first-child {
-						border-top-left-radius: var(--border_radius);
-						border-bottom-left-radius: var(--border_radius);
-						transform-origin: right center;
-					}
-
-					&:last-child {
-						border-top-right-radius: var(--border_radius);
-						border-bottom-right-radius: var(--border_radius);
-						transform-origin: left center;
-					}
-				}
-			}
-
-			.info, .row {
-				margin-top: 10px;
-			}
-
-			.submit {
-				margin-top: 20px;
-			}
-		}
-
-		.row {
-			display: flex;
-			flex-direction: column;
-			background-color: fade(@mainColor_normal_extralight, 30%);
-			padding: .5em;
-			border-radius: .5em;
-			
-			:deep(input) {
-				flex-basis: 100px;
-				text-align: center;
-			}
-			&:not(:first-child) {
-				margin-top: .5em;
-			}
-
-			.custom {
-				:deep(input) {
-					flex-basis: 220px;
-				}
-			}
-		}
-
-		.configs {
-			margin: 1em 0;
-			font-size: 1em;
-			:deep(.header) {
-				font-size: .8em;
-			}
-		}
-	}
-	
 }
 </style>

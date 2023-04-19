@@ -12,8 +12,8 @@
 		<div v-else-if="!error">
 			<div class="message">{{ $t("global.moderation_action.clip_created") }}</div>
 			<div class="ctas">
-				<Button @click="highlight()" :title="$t('chat.hover_actions.highlight')" icon="highlight" />
-				<Button type="link" :href="messageData.clipUrl" target="_blank" :title="$t('global.moderation_action.clip_created_publishBt')" icon="edit" />
+				<Button @click="highlight()" icon="highlight">{{ $t('chat.context_menu.highlight') }}</Button>
+				<Button type="link" :href="messageData.clipUrl" target="_blank" icon="edit">{{ $t('global.moderation_action.clip_created_publishBt') }}</Button>
 			</div>
 		</div>
 

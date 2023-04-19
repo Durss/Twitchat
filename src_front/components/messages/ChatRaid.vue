@@ -28,11 +28,10 @@
 
 				<Button @click.stop="shoutout()"
 					white
-					:title="$t('chat.soBt')"
 					icon="shoutout_purple"
 					:loading="shoutoutLoading"
 					class="soButton"
-				/>
+				>{{ $t('chat.soBt') }}</Button>
 			</div>
 		</div>
 

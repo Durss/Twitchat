@@ -110,7 +110,7 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 			}
 
 			.unsetBt {
-				.clearButton();
+				// .clearButton();
 				background-color: rgba(255, 255, 255, .1);
 				margin-left: 1em;
 				padding: .75em;

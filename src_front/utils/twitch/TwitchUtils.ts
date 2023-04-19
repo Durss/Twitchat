@@ -2314,6 +2314,8 @@ export default class TwitchUtils {
 					const emoteList:TwitchatDataTypes.Emote[] = [];
 					const emoteListHashmap = this.emotesCacheHashmap;
 					// const start = Date.now();
+					//Parce all words and check if they match an existing emote.
+					//If so, keep it aside for faster parsing after
 					const chunks = message.split(/\s/);
 					for (let i = 0; i < chunks.length; i++) {
 						const txt = chunks[i].replace(/[^a-z0-9]+$/gi, "").replace(/^[^a-z0-9]+/gi, "");
@@ -2322,7 +2324,7 @@ export default class TwitchUtils {
 						}
 					}
 					
-					//Parse emotes
+					//Parse found emotes
 					const tagsDone:{[key:string]:boolean} = {};
 					for (let i = 0; i < emoteList.length; i++) {
 						const e = emoteList[i];

@@ -118,7 +118,7 @@ export default class MessageSearch extends Vue {
 	}
 
 	.closeBt {
-		.clearButton();
+		// .clearButton();
 		position: absolute;
 		top:5px;
 		right:5px;

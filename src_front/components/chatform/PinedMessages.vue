@@ -118,7 +118,7 @@ export default class PinedMessages extends Vue {
 				}
 
 				.button {
-					.clearButton();
+					// .clearButton();
 					width: 1.25em;
 					min-width: 1.25em;
 					height: 1.25em;

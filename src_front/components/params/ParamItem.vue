@@ -55,8 +55,8 @@
 				>
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
-					v-model.lazy="textValue"
-					rows="2"
+					v-model="textValue"
+					rows="3"
 					:id="'text'+key"
 					:name="paramData.fieldName"
 					:placeholder="placeholder"
@@ -175,6 +175,8 @@
 		<div class="child" ref="param_child_slot" v-if="$slots.default">
 			<slot></slot>
 		</div>
+
+		<div class="error" v-if="errorMessage">{{ errorMessage }}</div>
 	</div>
 </template>
 
@@ -201,40 +203,29 @@ export default class ParamItem extends Vue {
 	
 	@Prop
 	public paramData!:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public error!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:String, default:""})
+	public errorMessage!:string;
+
+	@Prop({type:Boolean, default:false})
 	public disabled!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public autofocus!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public clearToggle!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public alertToggle!:boolean;
-	@Prop({
-			type:Number,
-			default:0,
-		})
+
+	@Prop({type:Number, default:0})
 	public childLevel!:number;
-	@Prop({
-			type:[String, Number, Boolean, Object, Array],
-			default: null
-		})
+
+	@Prop({type:[String, Number, Boolean, Object, Array], default: null})
 	public modelValue!:string|boolean|number|string[];
 
 	public searching:boolean = false;
@@ -538,17 +529,31 @@ export default class ParamItem extends Vue {
 .paramitem{
 	color: var(--color-light);
 	overflow-y: clip;
-	border-left: 0 solid transparent;
-	transition: border-left .25s, padding-left .25s;
+	transition: padding .25s;
+	position: relative;
 	
-	&:not(.disabled)>.content:hover {
-		background-color: fade(@mainColor_normal, 10%);
+	&:not(.disabled)>.content:hover::before {
+		opacity: 1;
+	}
+	&:not(.disabled)>.content::before {
+		content: "";
+		opacity: 0;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		filter: blur(5px);
+		pointer-events: none;
+		background-color: var(--color-light-fader);
+		background: linear-gradient(170deg, var(--color-light-fader) 0%, var(--color-light-transparent) 100%);
+		transition: opacity .25s;
 	}
 	
 	&.error {
-		border-left: .25em solid var(--mainColor_alert);
-		border-bottom: 1px solid var(--mainColor_alert);
-		padding-left: .25em;
+		background-color: var(--color-alert);
+		padding: .5em;
+		border-radius: var(--border_radius);
 
 		input, select, textarea, .listField{
 			color:var(--mainColor_light);
@@ -624,6 +629,7 @@ export default class ParamItem extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+			row-gap: .25em;
 			&:has(input) {
 				flex-wrap: wrap;
 			}
@@ -654,6 +660,7 @@ export default class ParamItem extends Vue {
 			flex-direction: row;
 			label {
 				flex-grow: 1;
+				flex-basis: 100px;
 				align-self: stretch;
 				margin: 0;
 				padding-right: 1em;
@@ -665,7 +672,10 @@ export default class ParamItem extends Vue {
 					margin-top: .3em;
 				}
 			}
+		}
 
+		.toggle{
+			flex-grow: 1;
 		}
 
 		:deep(.small) {
@@ -757,9 +767,6 @@ export default class ParamItem extends Vue {
 			@padding:15px;
 			width: calc(100% - @padding);
 		}
-		.placeholders {
-			padding-left: 0;
-		}
 	}
 
 	&.child, .child {
@@ -780,6 +787,11 @@ export default class ParamItem extends Vue {
 				display: block;
 			}
 		}
+	}
+
+	.error {
+		margin-top: .5em;
+		text-align: center;
 	}
 }
 </style>

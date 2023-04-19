@@ -2,13 +2,14 @@
 	"bingo": {
 		"title":"Create bingo",
 		"closeBt_aria":"Close bingo form",
-		"description":"A bingo is a small game in which your viewers have to find a specific value to win.",
+		"description":"Let your viewers guess a number or an emote",
 		"title_emote":"Emote",
 		"title_number":"Number",
 		"title_custom":"Custom",
 		"min_value":"Min value",
 		"max_value":"Max value",
 		"custom_value":"Message",
+		"startBt":"Start bingo",
 		
 		"winner_placeholder":"User name",
 		"goal_placeholder":"Explain what to find",

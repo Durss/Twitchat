@@ -41,8 +41,8 @@ export default class ButtonNotification extends Vue {
 	position: relative;
 
 	img {
-		height: .85em;
-		width: .85em;
+		height: 1em;
+		width: 1em;
 		object-fit: contain;
 	}
 

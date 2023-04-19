@@ -53,11 +53,9 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import MessageItem from '../messages/MessageItem.vue';
 import ButtonNotification from '../ButtonNotification.vue';
+import MessageItem from '../messages/MessageItem.vue';
 
 @Component({
 	components:{
@@ -293,6 +291,8 @@ export default class NewUsers extends Vue {
 	 * Called when rolling over an item
 	 */
 	public onMouseOver(e:MouseEvent, index:number):void {
+		if(this.resizing) return;
+		
 		this.overIndex = index;
 		let items = this.$refs.message as Vue[];
 		if(this.streakMode) {
@@ -327,22 +327,6 @@ export default class NewUsers extends Vue {
 		}else{
 			this.mouseY = (e as TouchEvent).touches[0].clientY;
 		}
-	// 	if(!this.resizing) return;
-	// 	const py = e.clientY;
-	// 	const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
-	// 	const maxHeight = .6;
-	// 	this.windowHeight = Math.min(maxHeight, (py - bounds.top) / bounds.height);
-		
-	// 	await this.$nextTick();
-
-	// 	const boundsEl = (this.$el as HTMLDivElement).getBoundingClientRect();
-	// 	const prev = (py - bounds.top) / bounds.height;
-	// 	const next = (boundsEl.height - bounds.top) / bounds.height;
-	// 	this.maxHeightPos = boundsEl.height;
-	// 	this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, py - boundsEl.height);
-
-	// 	this.showMaxHeight = (prev-next)*100 > 2;
-	// 	Store.set(Store.GREET_AUTO_HEIGHT, this.windowHeight);
 	}
 
 	/**
@@ -383,49 +367,6 @@ export default class NewUsers extends Vue {
 		}
 	}
 
-	/**
-	 * Animates a newly added item
-	 */
-	public enter(el:HTMLElement, done:()=>void):void {
-		gsap.from(el, {
-			duration:0.2,
-			height:0,
-			scaleY:0,
-			margin:0,
-			padding:0,
-			ease:'sine.in',
-			clearProps:'all',
-			onComplete:()=>{
-				done();
-			}
-		});
-	}
-
-	/**
-	 * Animates an item when removed from the list
-	 */
-	public leave(el:Element, done:()=>void):void {
-		let delay = (parseInt((el as HTMLElement).dataset.index as string)-this.indexOffset) * 0.075;
-		if(delay > .75) {
-			done();
-		}else{
-			gsap.to(el, {
-				duration:0.15,
-				height:0,
-				scaleY:0,
-				margin:0,
-				padding:0,
-				// fontSize:0,
-				delay,
-				ease:'sine.in',
-				clearProps:'all',
-				onComplete:()=>{
-					done();
-				}
-			});
-		}
-	}
-
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
@@ -444,18 +385,18 @@ export default class NewUsers extends Vue {
 
 <style scoped lang="less">
 .greetThem{
-	// background-color: #218bac;
-	background-color: var(--windowStateColor);
+	background-color: var(--color-primary-dark);
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;
+	gap: .25em;
+	padding-top: .5em;
 	min-height: calc(75px + 1.5em);
 	max-height: 60vh;
 	z-index: 1;
 	position: relative;
 
 	.header {
-		padding: 10px 0;
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
@@ -482,9 +423,7 @@ export default class NewUsers extends Vue {
 	.topForm {
 		display: flex;
 		flex-direction: column;
-		background-color: rgba(0, 0, 0, .2);
 		align-items: center;
-		padding: 4px 0;
 		.row {
 			display: flex;
 			flex-direction: row;
@@ -494,7 +433,7 @@ export default class NewUsers extends Vue {
 			label {
 				margin: 0;
 				margin-right: 5px;
-				color: var(--mainColor_light);
+				color: var(--color-light);
 				img {
 					height: .8em;
 					margin-right: 3px;
@@ -504,11 +443,11 @@ export default class NewUsers extends Vue {
 				font-size: .8em;
 				padding: 0px 2px;
 				border-radius: 5px;
-				color: var(--mainColor_light);
+				color: var(--color-light);
 				background-color: rgba(0,0,0,.5);
 				border-color:  rgba(0, 0, 0, .8);
 				option {
-					background-color: var(--mainColor_dark);
+					background-color: var(--color-dark);
 				}
 			}
 		}
@@ -516,7 +455,9 @@ export default class NewUsers extends Vue {
 
 	.messageList {
 		overflow-y: auto;
-
+		flex-grow: 1;
+		background-color: var(--color-dark-fade);
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, .3);
 		.message {
 			position: relative;
 			cursor: pointer;
@@ -550,22 +491,6 @@ export default class NewUsers extends Vue {
 		// background-color: fade(red, 50%);
 		cursor: ns-resize;
 		user-select: none;
-	}
-
-	.gripMax {
-		width: 100%;
-		position: absolute;
-		top: 0;
-		font-size: 10px;
-		text-transform: uppercase;
-		cursor: ns-resize;
-		user-select: none;
-		color: var(--mainColor_light);
-		border-bottom: 1px dashed var(--mainColor_light);
-		background-color: fade(@windowStateColor,60%);
-		display: flex;
-		align-items: flex-end;
-		padding-bottom: 5px;
 	}
 
 }

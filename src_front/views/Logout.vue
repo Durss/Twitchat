@@ -45,7 +45,7 @@ export default class Logout extends Vue {
 <style scoped lang="less">
 .logout{
 	.center();
-	.block();
+	// .block();
 	position: absolute;
 	width: 400px;
 	z-index: 1;

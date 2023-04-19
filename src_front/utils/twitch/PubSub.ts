@@ -75,6 +75,7 @@ export default class PubSub extends EventDispatcher {
 				"ad-property-refresh."+myUID,//???
 				"stream-chat-room-v1."+myUID,//???
 				"sponsorships-v1."+myUID,//???
+				"community-points-channel-v1."+myUID,
 				//"user-preferences-update-v1."+myUID,//not allowed
 				// "onsite-notifications."+myUID,//not allowed
 				// "activity-feed-broadcaster-v2."+myUID,//not allowed
@@ -115,7 +116,7 @@ export default class PubSub extends EventDispatcher {
 					subscriptions.push("polls."+uid);//Get poll events
 					subscriptions.push("stream-chat-room-v1."+uid);//Host events (RIP)
 					// subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
-					// subscriptions.push("low-trust-users."+myUID+"."+uid);
+					subscriptions.push("low-trust-users."+myUID+"."+uid);
 					// subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
 					// subscriptions.push("channel-ad-poll-update-events."+uid);
 					// subscriptions.push("pv-watch-party-events."+uid);

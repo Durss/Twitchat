@@ -70,6 +70,7 @@ export default class Config {
 			// {platform:"twitch", login:"littlebigwhale"},
 			// {platform:"twitch", login:"samueletienne"},
 			// {platform:"twitch", login:"andythefrenchy"},
+			{platform:"twitch", login:"pyka"},
 		];
 	}
 

@@ -349,8 +349,8 @@ interface CommandItem {
 
 <style scoped lang="less">
 .AutocompleteChatForm{
+	.window();
 	padding: 10px;
-	background-color: var(--mainColor_dark);
 	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 	border-radius: 10px;
 	max-width: 100%;
@@ -362,7 +362,6 @@ interface CommandItem {
 	right: 0;
 	overflow-x: hidden;
 	overflow-y: auto;
-
 	max-height: 80vh;
 
 	.item {
@@ -371,9 +370,10 @@ interface CommandItem {
 		align-items: center;
 		flex-wrap: wrap;
 		cursor: pointer;
+		min-height: 1.8em;
 
 		&.selected, &:hover {
-			background-color: fade(@mainColor_light, 20%);
+			background-color: var(--color-dark-extralight);
 		}
 
 		&.cmd {
@@ -391,18 +391,18 @@ interface CommandItem {
 			}
 
 			&.admin {
-				background-color: fade(@mainColor_warn, 15%);
+				background-color: var(--color-secondary-fader);
 
 				&.selected, &:hover {
-					background-color: fade(@mainColor_warn, 50%);
+					background-color: var(--color-secondary-fade);
 				}
 			}
 
 			&.mod {
-				background-color: fade(@mainColor_normal, 15%);
+				background-color: var(--color-primary-fader);
 
 				&.selected, &:hover {
-					background-color: fade(@mainColor_normal, 50%);
+					background-color: var(--color-primary);
 				}
 			}
 			&.disabled {
@@ -414,7 +414,7 @@ interface CommandItem {
 
 		.name, .source {
 			color: #fff;
-			font-size: .7em;
+			font-size: .8em;
 		}
 
 		.source {
@@ -424,24 +424,20 @@ interface CommandItem {
 
 		.infos {
 			color: fade(#fff, 70%);
-			font-size: 12px;
+			font-size: .7em;
 			font-style: italic;
 			text-align: right;
-			padding-right: 5px;
+			padding-right: .5em;
 		}
 
 		.image {
-			height: 1.5em;
-			width: 1.5em;
-			padding: .25em;
+			width: 1.75em;
+			padding: .2em;
 			object-fit: fill;
 			&.small {
 				height: 1em;
 				width: 1em;
-				padding: .15em;
-				// margin-right: .25em;
-				// border: 1px solid white;
-				// border-radius: 50%;
+				padding: .1em;
 			}
 		}
 		.alias {

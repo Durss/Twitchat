@@ -34,8 +34,10 @@ export default class PlaceholderSelector extends Vue {
 
 	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
+
 	@Prop
 	public target!:(HTMLInputElement | HTMLTextAreaElement) | Promise<HTMLInputElement | HTMLTextAreaElement>;
+	
 	@Prop
 	public modelValue!:string;
 
@@ -63,20 +65,18 @@ export default class PlaceholderSelector extends Vue {
 
 <style scoped lang="less">
 .placeholderselector{
-	font-size: .8em;
-	padding-left: 2em;
-	:deep(.content){
-		background-color: transparent !important;
-	}
+	font-size: 1.5em;
+	margin-left: 2em;
 	.list {
  		display: grid;
 		grid-template-columns: .75fr 1fr;
 		align-items: stretch;
-		grid-gap: 4px;
+		column-gap: 1px;
+		row-gap: .5em;
 		&>* {
-			background-color: fade(@mainColor_normal, 10%);
+			background-color: var(--color-dark-light);
 			border-radius: .5em;
-			padding: 1px;
+			padding: .25em .5em;
 			&:nth-child(odd) {
 				word-break: break-all;
 				border-top-right-radius: 0;
@@ -94,12 +94,10 @@ export default class PlaceholderSelector extends Vue {
 		button {
 			cursor: pointer;
 			text-align: right;
-			mark {
-				color: var(--mainColor_normal);
-				display: inline-block;
-			}
+			color: var(--color-light);
+			background-color: var(--color-primary);
 			&:hover {
-				background-color: fade(@mainColor_normal, 15%);
+				background-color: var(--color-primary-light);
 			}
 		}
 	}

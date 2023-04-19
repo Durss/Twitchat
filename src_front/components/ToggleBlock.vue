@@ -78,7 +78,6 @@ export default class ToggleBlock extends Vue {
 		if(this.error !== false)		res.push("error");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
-		if(this.icons?.length > 0)		res.push("hasIcon");
 		return res;
 	}
 
@@ -121,9 +120,9 @@ export default class ToggleBlock extends Vue {
 
 <style scoped lang="less">
 .toggleblock{
-	border-radius: var(--border_radius);
-	overflow: hidden;
+	font-size: 1.2em;
 	align-self: flex-start;
+	border-radius: var(--border_radius);
 
 	:deep(.icon) {
 		height: 1em;
@@ -136,11 +135,13 @@ export default class ToggleBlock extends Vue {
 	.header {
 		text-align: center;
 		padding: .5em;
+		overflow: hidden;
 		cursor: pointer;
-		background-color: var(--color-dark-light);
-		border-bottom: 2px solid var(--color-dark);
+		background-color: var(--color-dark-extralight);
+		border-top-left-radius: var(--border_radius);
+		border-top-right-radius: var(--border_radius);
+		border-bottom: 2px solid var(--color-dark-extralight);
 		display: flex;
-		font-size: 1.2em;
 		flex-direction: row;
 		align-items: center;
 		transition: background-color .25s;
@@ -157,29 +158,36 @@ export default class ToggleBlock extends Vue {
 			}
 		}
 		&:hover {
-			background-color: var(--color-dark-extralight);
+			background-color: var(--color-primary-light);
 		}
 	}
 
 	.content {
+		// .bevel();
 		overflow: hidden;
-		padding: 1em;
+		margin: 0 .5em .5em .5em;
+		padding: .5em;
 		color: var(--color-light);
-		background-color: var(--color-dark-light);
+		// background-color: var(--color-dark-fade);
 	}
 
 	&.closed {
 		.header {
 			border-bottom: none;
+			border-bottom-left-radius: var(--border_radius);
+			border-bottom-right-radius: var(--border_radius);
 		}
 	}
 
-	&:not(.small):not(.medium){
-		box-shadow: 0px 1px 1px rgba(0,0,0,1);
+	&:not(.small) {
+		.emboss();
+		border-radius: var(--border_radius);
 	}
 
 	&.error{
-		border: 2px dashed var(--color-alert);
+		.header {
+			background-color: var(--color-alert);
+		}
 	}
 
 	&.medium {
@@ -189,20 +197,24 @@ export default class ToggleBlock extends Vue {
 
 	&.small {
 		font-size: .8em;
+		background-color: var(--color-dark-fade);
 		.header {
 			padding: 0;
+			background-color: transparent;
 			border-bottom-left-radius: var(--border_radius);
+			border-bottom: none;
 			&:hover {
-				background-color: var(--color-dark-extralight);
+				background-color: var(--color-dark-fade);
 			}
 			.title {
 				text-align: left;
 				align-items: center;
 				flex-direction: row;
 				gap: .25em;
+				line-height: 1.25em;
 				&::before {
 					content:"►";
-					margin-right: .25em;
+					margin-left: .3em;
 					transform: rotate(90deg);
 					transition: transform .25s;
 				}
@@ -210,29 +222,19 @@ export default class ToggleBlock extends Vue {
 		}
 
 		&.closed {
+			background-color: transparent;
 			.header {
 				border-radius: var(--border_radius);
-				background-color: transparent;
 				.title::before {
 					transform: rotate(0);
 				}
 				&:hover {
-					background-color: var(--color-dark-light);
-				}
-			}
-		}
-
-		&.hasIcon {
-			.header {
-				h2::before {
-					content: "";
-					margin-right: .5em;
+					background-color: var(--color-dark-extralight);
 				}
 			}
 		}
 
 		.content {
-			background-color: --color-dark-light;
 			padding: .5em;
 			margin-left: 1.4em;
 		}

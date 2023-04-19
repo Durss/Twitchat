@@ -144,7 +144,7 @@ export default class ChatModTools extends Vue {
 		flex-direction: row;
 		bottom: 0;
 		.button {
-			.clearButton();
+			// .clearButton();
 			padding: 0 .2em;
 			margin-right: 1px;
 		}

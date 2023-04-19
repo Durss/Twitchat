@@ -1,20 +1,10 @@
 <template>
 	<div class="postonchatparam">
-
 		<ParamItem class="parameter" ref="paramItem"
 			:clearToggle="clearToggle"
 			:paramData="enabledParam"
 			:error="error != ''"
-		/>
-
-		<div v-if="error" class="errorMessage">{{error}}</div>
-		
-		<PlaceholderSelector class="placeholders"
-			v-if="placeholderTarget && placeholders && enabledParam.value===true"
-			v-model="textParam.value"
-			:target="placeholderTarget"
-			:placeholders="placeholders"
-			@change="saveParams()"
+			:errorMessage="error"
 		/>
 
 		<div class="preview" ref="preview" v-if="enabledParam.value === true">
@@ -24,6 +14,14 @@
 				contextMenuOff
 				:messageData="adPreview" />
 		</div>
+
+		<PlaceholderSelector class="placeholders"
+			v-if="placeholderTarget && placeholders && enabledParam.value===true"
+			v-model="textParam.value"
+			:target="placeholderTarget"
+			:placeholders="placeholders"
+			@change="saveParams()"
+		/>
 	</div>
 </template>
 
@@ -130,7 +128,7 @@ export default class PostOnChatParam extends Vue {
 		await this.$nextTick();
 
 		const me = this.$store("auth").twitch.user;
-		let rawMessage = this.textParam.value;
+		let rawMessage = this.textParam.value.normalize("NFC");
 
 		if(this.placeholders) {
 			for (let i = 0; i < this.placeholders.length; i++) {
@@ -140,7 +138,6 @@ export default class PostOnChatParam extends Vue {
 				}
 			}
 		}
-
 
 		let announcementColor:"primary" | "purple" | "blue" | "green" | "orange" | undefined = undefined;
 		if(rawMessage.indexOf("/announce") == 0) {
@@ -170,30 +167,32 @@ export default class PostOnChatParam extends Vue {
 
 <style scoped lang="less">
 .postonchatparam{
+	display: flex;
+	flex-direction: column;
+	gap: .5em;
+
 	.placeholders {
-		margin-top: .5em;
+		align-self: stretch;
 	}
 
 	.message {
 		position: relative;
 	}
-
-	&>.errorMessage {
-		background-color: var(--mainColor_alert);
-		color:var(--mainColor_light);
-		padding: .5em;
-		font-size: .8em;
-		border-radius: 0 0 .5em .5em;
-		text-align: center;
-		cursor: pointer;
-	}
+	
 	.preview {
-		max-width: 400px;
-		margin:1em auto;
+		display: none;
+		margin-left: 1.5em;
 		padding: .25em .5em;
 		border-radius: .5em;
-		background-color: var(--mainColor_dark);
+		box-sizing: border-box;
+		background-color: var(--color-dark);
 		overflow: hidden;
+	}
+	
+	&:focus-within {
+		.preview {
+			display: block;
+		}
 	}
 }
 </style>

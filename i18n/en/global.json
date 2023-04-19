@@ -49,6 +49,7 @@
 		"hypetrain_emotes":"Twitch provides no way for external tools to get Hype Train emotes sorry :(",
 		"empty_list1":"No entry exist.",
 		"empty_list2":"Write to create one.",
+		"no_result":"No result",
 		"tooltips": {
 			"commercial": "Commercial",
 			"boost": "Channel boosted",

@@ -1,70 +1,57 @@
 input, textarea, select {
-	color: darken(@mainColor_normal, 10%);
-	border-radius: var(--border_radius);
-	border: 1px solid var(--mainColor_light);
-	border-top: 1px solid var(--mainColor_normal);
-	border-left: 1px solid var(--mainColor_normal);
-	background-color: fade(@mainColor_normal, 20%);
+	.bevel();
+	border: none;
 	font-size: 1em;
 	padding: .25em .5em;
-	box-sizing: border-box;
+	color: var(--color-light);
+	background-color: var(--color-dark-fade);
+	border-radius: var(--border_radius);
 	font-family: var(--font-inter);
+
+	option {
+		background-color: var(--color-dark);
+	}
+	
+	&:disabled {
+		cursor: auto;
+		opacity: .5;
+	}
 	
 	&::placeholder {
 		font-style: italic;
-		color: fade(@mainColor_dark, 50%);
+		color: var(--color-light-fade);
 	}
 	&:-webkit-autofill,
 	&:-webkit-autofill:hover, 
 	&:-webkit-autofill:active, 
 	&:-webkit-autofill:valid, 
 	&:-webkit-autofill:focus {
-		color: var(--mainColor_dark);
-		background-color: var(--mainColor_normal_extralight);
+		color: var(--color-dark);
+		background-color: var(--color-primary-extralight);
 		box-shadow: none !important;
-	}
-
-	&.dark {
-		color: var(--mainColor_light);
-		background-color: rgba(0, 0, 0, .6);
-		border-color: var(--mainColor_dark_extralight);
-	
-		&::placeholder {
-			font-style: italic;
-			color: fade(@mainColor_light, 50%);
-		}
 	}
 	
 	&::-webkit-scrollbar-thumb {
 		border-radius:20px;
-		background-color: var(--mainColor_light);
-		background-color: darken(@mainColor_normal, 10%);
-	//   box-shadow: rgba(255, 255, 255, 0.25) 0px 0px 1px 1px;
+		background-color: var(--color-light);
+		background-color: var(--color-primary);
 	}
 
-	&:disabled {
-		cursor: auto;
-		opacity: .5;
-	}
+	//Show number +/- buttons only on hover
 	&[type="number"] {
 		&::-webkit-outer-spin-button,
 		&::-webkit-inner-spin-button {
 			display: none;
 		}
 		&:hover {
-			
-		&::-webkit-outer-spin-button,
-		&::-webkit-inner-spin-button {
-			display: inline;
-		}
+			&::-webkit-outer-spin-button,
+			&::-webkit-inner-spin-button {
+				display: inline;
+			}
 		}
 	}
 }
 	
-textarea {
-	font-size: .8em;
-	padding: .25em .5em;
-}
 
 button {
 	font-family: var(--font-inter);

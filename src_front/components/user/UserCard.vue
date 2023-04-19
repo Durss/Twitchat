@@ -510,7 +510,7 @@ export default class UserCard extends Vue {
 		overflow: auto;
 
 		.closeBt {
-			.clearButton();
+			// .clearButton();
 			position: absolute;
 			top:1em;
 			right:1em;

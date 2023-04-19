@@ -1083,7 +1083,7 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 		if (this.prevTouchMove) {
 			const direction = event.touches[0].clientY - this.prevTouchMove.touches[0].clientY;
-			//Pause if dragging up
+			//Pause chat if dragging it upward
 			if (direction > 0) this.lockScroll = true;
 			else this.lockScroll = Math.abs(el.scrollTop - maxScroll) != 0;
 		}
@@ -1708,7 +1708,7 @@ export default class MessageList extends Vue {
 				margin: 0 .5em;
 			}
 			.button {
-				.clearButton();
+				// .clearButton();
 				width: 2em;
 				color: var(--mainColor_light);
 				background-color: fade(@mainColor_light, 20%);
@@ -1797,7 +1797,7 @@ export default class MessageList extends Vue {
 			}
 
 			.button {
-				.clearButton();
+				// .clearButton();
 				width: 1.25em;
 				height: 1.25em;
 				padding: .5em;

@@ -2,6 +2,7 @@
 	"raffle": {
 		"form_title": "Create Raffle",
 		"closeBt_aria": "Close raffle form",
+		"description": "Select one of your viewers randomly",
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Start raffle",

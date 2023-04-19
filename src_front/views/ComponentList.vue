@@ -3,7 +3,7 @@
 
 		<Splitter>Buttons</Splitter>
 
-		<div class="buttons">
+		<div class="section buttons">
 			<div class="actions">
 				<Checkbox v-model="loading">loading mode</Checkbox>
 				<Checkbox v-model="type" :values="['link', 'button']">&lt;a&gt; mode</Checkbox>
@@ -11,97 +11,82 @@
 			</div>
 			
 			<div class="list">
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" big :loading="loading" :selected="selected">Normal big</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" primary big :loading="loading" :selected="selected">Primary big</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" secondary big :loading="loading" :selected="selected">Secondary big</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" alert big :loading="loading" :selected="selected">Alert big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" big :loading="loading" :selected="selected">Normal big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary big :loading="loading" :selected="selected">Secondary big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert big :loading="loading" :selected="selected">Alert big</Button>
 				
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" :loading="loading" :selected="selected">Normal</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" primary :loading="loading" :selected="selected">Primary</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" secondary :loading="loading" :selected="selected">Secondary</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" alert :loading="loading" :selected="selected">Alert</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" :loading="loading" :selected="selected">Normal</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary :loading="loading" :selected="selected">Secondary</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert :loading="loading" :selected="selected">Alert</Button>
 				
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" small :loading="loading" :selected="selected">Normal small</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" primary small :loading="loading" :selected="selected">Primary small</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" secondary small :loading="loading" :selected="selected">Secondary small</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" alert small :loading="loading" :selected="selected">Alert small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" small :loading="loading" :selected="selected">Normal small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary small :loading="loading" :selected="selected">Secondary small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert small :loading="loading" :selected="selected">Alert small</Button>
 				
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected">Normal big icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :loading="loading" :selected="selected">Primary big icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :loading="loading" :selected="selected">Secondary big icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :loading="loading" :selected="selected">Alert big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected">Normal big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :loading="loading" :selected="selected">Secondary big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :loading="loading" :selected="selected">Alert big icon</Button>
 				
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected">Normal icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :loading="loading" :selected="selected">Primary icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :loading="loading" :selected="selected">Secondary icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :loading="loading" :selected="selected">Alert icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected">Normal icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :loading="loading" :selected="selected">Secondary icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :loading="loading" :selected="selected">Alert icon</Button>
 				
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected">Normal small icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :loading="loading" :selected="selected">Primary small icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :loading="loading" :selected="selected">Secondary small icon</Button>
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :loading="loading" :selected="selected">Alert small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected">Normal small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :loading="loading" :selected="selected">Secondary small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :loading="loading" :selected="selected">Alert small icon</Button>
 				
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :loading="loading" :selected="selected" />
 				
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :loading="loading" :selected="selected" />
 				
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :loading="loading" :selected="selected" />
-				<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :loading="loading" :selected="selected" />
 			</div>
-			<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected">Full width button</Button>
-			<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected">Full width button</Button>
-			<Button bounce href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected">Full width button</Button>
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected">Full width button</Button>
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected">Full width button</Button>
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected">Full width button</Button>
 		</div>
 
 		<Splitter>Switch buttons</Splitter>
 
-		<div class="switches">
+		<div class="section switches">
 			<SwitchButton label1="Big"				label2="Big" big />
-			<SwitchButton label1="Big primary"		label2="Big primary" big primary />
 			<SwitchButton label1="Big secondary"	label2="Big secondary" big secondary />
-			<SwitchButton label1="Big alert"		label2="Big alert" alert />
+			<SwitchButton label1="Big alert"		label2="Big alert" big alert />
 
 			<SwitchButton label1="Normal"			label2="Normal" />
-			<SwitchButton label1="Primary"			label2="Primary" primary />
 			<SwitchButton label1="Secondary"		label2="Secondary" secondary />
 			<SwitchButton label1="Alert"			label2="Alert" alert />
 
 			<SwitchButton label1="Small"			label2="Small" small />
-			<SwitchButton label1="Small primary"	label2="Small primary" small primary />
 			<SwitchButton label1="Small secondary"	label2="Small secondary" small secondary />
 			<SwitchButton label1="Small alert"		label2="Small alert" small alert />
 		</div>
 
 		<Splitter>Toggle buttons</Splitter>
 
-		<div class="toggles">
+		<div class="section toggles">
 			<ToggleButton big />
-			<ToggleButton big primary />
 			<ToggleButton big secondary />
 			<ToggleButton big alert />
 
 			<ToggleButton />
-			<ToggleButton primary />
 			<ToggleButton secondary />
 			<ToggleButton alert />
 
 			<ToggleButton small />
-			<ToggleButton small primary />
 			<ToggleButton small secondary />
 			<ToggleButton small alert />
 		</div>
 
 		<Splitter>Toggle blocks</Splitter>
 
-		<div class="toggleBlocks">
+		<div class="section toggleBlocks">
 			<ToggleBlock title="Title" subtitle="subtitle" key="toggle1">
 				<template #left_actions>
 					<img src="@/assets/icons/dragZone.svg" class="icon">
@@ -139,8 +124,28 @@
 
 		<Splitter>Progress bar</Splitter>
 
-		<div class="progress">
+		<div class="section progress">
 			<ProgressBar :percent="0.25" :duration="10 * 60 * 1000" />
+		</div>
+
+		<Splitter>Tab menu</Splitter>
+
+		<div class="section tabmenus">
+			<div>
+				<TabMenu big :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu big secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu big alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+			</div>
+			<div>
+				<TabMenu :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+			</div>
+			<div>
+				<TabMenu small :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu small secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu small alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -151,6 +156,7 @@ import Checkbox from '@/components/Checkbox.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
 import Splitter from '@/components/Splitter.vue';
 import SwitchButton from '@/components/SwitchButton.vue';
+import TabMenu from '@/components/TabMenu.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -158,6 +164,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{
 		Button,
+		TabMenu,
 		Checkbox,
 		Splitter,
 		ToggleBlock,
@@ -181,6 +188,12 @@ export default class ComponentList extends Vue {
 	gap: 1em;
 	display: flex;
 	flex-direction: column;
+	margin: 2em 0;
+	
+	.section {
+		.card();
+		margin: 0 2em;
+	}
 
 	.buttons {
 		gap: 1em;
@@ -195,7 +208,7 @@ export default class ComponentList extends Vue {
 		.list {
 			display: grid;
 			gap: .5em;
-			grid-template-columns: 1fr 1fr 1fr 1fr;
+			grid-template-columns: 1fr 1fr 1fr;
 			justify-items: flex-start;
 			align-items: flex-start;
 		}
@@ -203,21 +216,16 @@ export default class ComponentList extends Vue {
 
 	.switches {
 		display: grid;
-		gap: .5em;
-		grid-template-columns: 1fr 1fr 1fr 1fr;
+		gap: 2em;
+		grid-template-columns: 1fr 1fr 1fr;
 		justify-items: stretch;
 		align-items: stretch;
-
-		&>* {
-			padding: .5em;
-			border: 1px solid white;
-		}
 	}
 
 	.toggles {
 		display: grid;
 		gap: .5em;
-		grid-template-columns: 1fr 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr 1fr;
 		justify-items: center;
 		align-items: stretch;
 	}
@@ -226,8 +234,22 @@ export default class ComponentList extends Vue {
 		padding: .5em;
 		@itemWidth: 400px;
 		display: grid;
-		gap: 5px;
+		gap: 1em;
 		grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
+	}
+
+	.tabmenus {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 1em;
+		justify-items: flex-start;
+		align-items: flex-start;
+		&>div{
+			display: flex;
+			flex-direction: column;
+			gap: .5em;
+		}
 	}
 }
 </style>

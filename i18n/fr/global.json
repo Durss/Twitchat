@@ -49,6 +49,7 @@
 		"hypetrain_emotes":"Twitch ne permet pas aux outils externes de récupérer les emotes du train de la hype :(",
 		"empty_list1":"Aucune entrée existante.",
 		"empty_list2":"Ecrivez pour en créer une.",
+		"no_result":"Aucun résultat",
 		"tooltips": {
 			"commercial": "Publicité",
 			"boost": "Chaîne boostée",

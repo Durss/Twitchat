@@ -10,6 +10,7 @@
 		"info":"Stream info",
 		"commercial":"You can start a new commercial in {DURATION}",
 		"raid":"Raid someone",
+		"raid_placeholder":"user name...",
 		"whoslive":"Who's live ?",
 		"whoslive_title":"Followed users streaming",
 		"scope_grant": "You have not granted permission to Twitchat to start a raid",
@@ -18,6 +19,7 @@
 		"followersOnly": "Followers only",
 		"subsOnly": "Subs only",
 		"emotesOnly": "Emotes only",
-		"start_ad": "Start ad 30s"
+		"start_ad": "Start ad 30s",
+		"not_affiliate": "You need to be a Twitch Partner or Affiliate"
 	}
 }

@@ -18,8 +18,10 @@
 				:icon="link.icon+'_white'"
 				:disabled="!checkbox.value"
 				@click.native.capture="clickItem()">
-					<span v-html="$t('sponsor.donate_option.'+link.key)"></span>
-					<i v-tooltip="$t('sponsor.donate_rate')">({{ $t("sponsor.donate_option."+link.key+"_rate") }})</i>
+					<div class="labelHolder">
+						<span v-html="$t('sponsor.donate_option.'+link.key)"></span>
+						<i v-tooltip="$t('sponsor.donate_rate')">({{ $t("sponsor.donate_option."+link.key+"_rate") }})</i>
+					</div>
 			</Button>
 		</div>
 	</div>
@@ -137,10 +139,14 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		}
 
 		.button {
-			i {
-				font-style: italic;
-				font-size: .6em;
-				display: block;
+			.labelHolder {
+				display: flex;
+				flex-direction: column;
+				i {
+					font-style: italic;
+					font-size: .6em;
+					align-self: center;
+				}
 			}
 			
 			:deep(.erase) {

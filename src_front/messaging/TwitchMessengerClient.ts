@@ -463,7 +463,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	* PRIVATE METHODS *
 	*******************/
 	private async initialize():Promise<void> {
-		this._client.on('message', this.message.bind(this));
+		this._client.on('message', this.onMessage.bind(this));
 		this._client.on("join", this.onJoin.bind(this));
 		this._client.on("part", this.onLeave.bind(this));
 		this._client.on('cheer', this.onCheer.bind(this));
@@ -602,7 +602,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return res;
 	}
 
-	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
+	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		
 		//Ignore anything that's not a message or a /me
 		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
@@ -656,6 +656,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
+		data.is_short				= tags["emote-only"] === true;
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
 		const pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
 		if(pinAmount) {
@@ -939,7 +940,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const params = data.params as string[];
 					const tags = data.tags as tmi.ChatUserstate;
 					tags.username = tags.login;
-					this.message(params[0], tags, params[1], false);
+					this.onMessage(params[0], tags, params[1], false);
 				}else
 
 				//Handle viewer milestone (AKA consecutive watched streams)

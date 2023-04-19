@@ -9,8 +9,9 @@
 				</div>
 				<div class="list" v-if="currentChan.users[key].length > 0">
 					<a :class="userClasses(u)"
-					@click="openUserCard(u)"
 					target="_blank"
+					:href="'https://twitch.tv/'+u.login"
+					@click.prevent="openUserCard(u)"
 					v-for="u in currentChan.users[key]" :key="u.id">
 						<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
 							<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
@@ -24,19 +25,12 @@
 			</div>
 		</div>
 
-		<a v-if="currentChanId == channelId" @click="toggleInfos()" class="infoBt">{{ $t('userlist.infoBt') }}</a>
-		<div v-if="showInfo" class="infos" ref="infos">
-			<p v-for="e in $tm('userlist.infos')" v-html="e"></p>
-		</div>
+		<ToggleBlock class="infos" :open="false" medium v-if="currentChanId == myChannelId" :title="$t('userlist.infoBt')">
+				<p class="info" v-for="e in $tm('userlist.infos')" v-html="e"></p>
+		</ToggleBlock>
 
-		<div class="users">
-			<Button v-for="(chan, uid) in channels" :key="uid"
-			v-if="Object.keys(channels).length > 1"
-			white
-			:class="currentChanId == uid? 'current' : ''"
-			@click="currentChan = chan; currentChanId = uid as string;"
-			:title="getBraodcasterTitle(chan)"
-			/>
+		<div class="users" v-if="currentChan">
+			<TabMenu v-model="currentChanId" :values="userList.map(v=>v.id)" :labels="userList.map(v=>v.displayName)" />
 		</div>
 	</div>
 </template>
@@ -49,28 +43,44 @@ import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import TabMenu from '../TabMenu.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Component({
 	components:{
 		Button,
+		TabMenu,
+		ToggleBlock,
 	},
 	emits:["close"]
 })
 export default class UserList extends Vue {
 
 	public showInfo:boolean = false;
-	public channelId!:string;
+	public myChannelId!:string;
 	public channels:{[key:string]:ChannelUserList} = {};
-	public currentChanId:string|null = null;
-	public currentChan:ChannelUserList|null = null;
+	public currentChanId:string = "";
+
+	public get currentChan():ChannelUserList {
+		return this.channels[this.currentChanId]
+	}
 
 	private debounceTo:number = -1;
+
+	public get userList():TwitchatDataTypes.TwitchatUser[] {
+		const list:TwitchatDataTypes.TwitchatUser[] = [];
+		for (const uid in this.channels) {
+			const chan = this.channels[uid];
+			list.push(this.$store("users").getUserFrom(chan.platform, chan.channelId, chan.channelId));
+		}
+		return list;
+	}
 
 	public getRole(key:string):string {
 		return (this.$tm("userlist.roles") as {[key:string]:string})[key];
 	}
 
-	public getBraodcasterTitle(chan:ChannelUserList):string {
+	public getBroadcasterTitle(chan:ChannelUserList):string {
 		const user = this.$store("users").getUserFrom(chan.platform, chan.channelId, chan.channelId);
 		return user.displayName + '<i>('+(chan.users.broadcaster.length+chan.users.viewers.length+chan.users.vips.length+chan.users.mods.length)+')</i>'
 	}
@@ -90,7 +100,7 @@ export default class UserList extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public beforeMount():void {
-		this.channelId = StoreProxy.auth.twitch.user.id;
+		this.myChannelId = StoreProxy.auth.twitch.user.id;
 	}
 
 	public mounted():void {
@@ -204,11 +214,8 @@ export default class UserList extends Vue {
 			
 			this.channels = channels;
 			if(isInit) {
-				this.currentChan	= this.channels[this.channelId];
-				this.currentChanId	= this.channelId;
+				this.currentChanId	= this.myChannelId;
 			}
-			// const e = Date.now();
-			// console.log(e-s);
 		}, isInit? 0 : 500);
 	}
 }
@@ -229,9 +236,6 @@ interface ChannelUserList {
 .userlist{
 	.window();
 
-	font-size: 16px;
-	padding-bottom: 0;
-
 	.users {
 		position: sticky;
 		bottom: 0;
@@ -239,63 +243,25 @@ interface ChannelUserList {
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		background-color: var(--mainColor_dark);
-		padding: 1em;
+		padding-top: 1em;
+		padding-bottom: .5em;
 
-		img {
-			height: 1.25em;
-			vertical-align: middle;
-			margin-right: 10px;
-		}
-		
-		button {
-			// color: var(--mainColor_light);
-			:deep(i) {
-				font-style: italic;
-				font-size: .8em;
-			}
-
-			&:not(:last-child) {
-				margin-right: 10px;
-			}
-
-			&:not(.current) {
-				background-color: transparent;
-				border: 1px solid var(--mainColor_light);
-				color: var(--mainColor_light);
-				opacity: .7;
-				&:hover {
-					color: var(--mainColor_normal);
-				}
-			}
+		:deep(i) {
+			font-size: .8em;
+			font-style: italic;
 		}
 	}
 
-	.infoBt {
-		margin: auto;
-		font-style: italic;
-		margin-top: 1em;
-	}
 
 	.infos {
-		color:var(--mainColor_light);
-		background-color: var(--mainColor_dark_light);
-		padding: 1em;
+		font-size: .7em;
+		max-width: 600px;
 		margin: auto;
 		margin-top: 1em;
-		border-radius: .5em;
-		max-width: 500px;
-		p:not(:last-of-type) {
-			margin-bottom: .5em;
+		.info {
+			font-size: 1.2em;
+			line-height: 1.5em;
 		}
-		p:first-letter {
-			margin-left: .5em;
-		}
-	}
-
-	i {
-		font-size: .8em;
-		font-weight: normal;
 	}
 
 	.userList {
@@ -304,15 +270,30 @@ interface ChannelUserList {
 		}
 
 		.title {
-			color: var(--mainColor_light);
-			margin-bottom: 5px;
+			.emboss();
+			color: var(--color-light);
+			flex-grow: 1;
+			padding: .25em;
+			display: block;
+			background-color: var(--color-primary-fade);
+			border-radius: 1em;
+
+			i {
+				font-size: .8em;
+			}
 		}
 
 		.list {
+			background-color: var(--color-primary-fader);
+			width: calc(100% - 2em);
+			margin: auto;
+			padding: .25em;
+			border-bottom-left-radius: var(--border_radius);
+			border-bottom-right-radius: var(--border_radius);
+
 			@itemWidth: 150px;
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
-			margin-left: 10px;
 			
 
 			.user {

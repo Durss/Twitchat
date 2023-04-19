@@ -31,6 +31,9 @@
 		body {
 			background-color: transparent;
 		}
+		body.bg {
+			background-color: #18181b;
+		}
 		#loader-init {
 			position: absolute;
 			transform: translate(-50%, -50%);
@@ -341,7 +344,7 @@
 		}
 
 		if(showLoader) {
-			document.body.style.backgroundColor = "#18181b";
+			document.body.classList.add("bg");
 			loader.style.display = "block";
 			renderFrame(Date.now());
 		}

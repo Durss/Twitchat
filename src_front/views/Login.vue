@@ -234,7 +234,7 @@ export default class Login extends Vue {
 
 	.holder {
 		.center();
-		.block();
+		// .block();
 		position: absolute;
 		width: 380px;
 		z-index: 1;

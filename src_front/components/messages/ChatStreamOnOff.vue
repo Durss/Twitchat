@@ -8,7 +8,10 @@
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="isOnline? 'chat.stream.online' : 'chat.stream.offline'">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.info.user)">{{messageData.info.user.displayName}}</a>
+					<a class="userlink"
+						:href="'https://twitch.tv/'+messageData.info.user.login"
+						target="_blank"
+						@click.stop.prevent="openUserCard(messageData.info.user)">{{messageData.info.user.displayName}}</a>
 				</template>
 			</i18n-t>
 
@@ -24,12 +27,11 @@
 
 				<Button v-if="!isMe && isOnline"
 					@click.stop="shoutout()"
-					:title="$t('chat.soBt')"
-					icon="shoutout_purple"
+					icon="shoutout"
 					:loading="shoutoutLoading"
 					white
 					class="soButton"
-				/>
+				>{{ $t('chat.soBt') }}</Button>
 			</div>
 		</div>
 	</div>

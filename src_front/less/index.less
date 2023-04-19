@@ -16,12 +16,15 @@
 	@mainColor_warn: #d6a608;
 	@mainColor_alert: #bb3c3c;
 
-	@color-light: #f0f0f0;
+	// @color-dark: #cccccc;
+	// @color-light: #18181b;
 	@color-dark: #18181b;
-	@color-primary: #9147ff;
-	@color-secondary: #005be2;
+	@color-light: #EEEEEE;
+	@color-primary: #209177;
+	@color-secondary: #e04e00;
 	@color-warn: #d6a608;
-	@color-alert: #bb3c3c;
+	@color-alert: #b71f1f;
+	// @color-select: #e04e00;
 
 	--color-light: @color-light;
 	--color-dark: @color-dark;
@@ -29,6 +32,7 @@
 	--color-secondary: @color-secondary;
 	--color-warn: @color-warn;
 	--color-alert: @color-alert;
+	// --color-select: @color-select;
 	
 	--color-light-transparent: fade(@color-light, 0%);
 	--color-dark-transparent: fade(@color-dark, 0%);
@@ -36,6 +40,7 @@
 	--color-secondary-transparent: fade(@color-secondary, 0%);
 	--color-warn-transparent: fade(@color-warn, 0%);
 	--color-alert-transparent: fade(@color-alert, 0%);
+	// --color-select-transparent: fade(@color-select, 0%);
 	
 	--color-light-fade: fade(@color-light, 40%);
 	--color-dark-fade: fade(@color-dark, 40%);
@@ -43,20 +48,39 @@
 	--color-secondary-fade: fade(@color-secondary, 40%);
 	--color-warn-fade: fade(@color-warn, 40%);
 	--color-alert-fade: fade(@color-alert, 40%);
+	// --color-select-fade: fade(@color-select, 40%);
+	
+	--color-light-fader: fade(@color-light, 20%);
+	--color-dark-fader: fade(@color-dark, 20%);
+	--color-primary-fader: fade(@color-primary, 20%);
+	--color-secondary-fader: fade(@color-secondary, 20%);
+	--color-warn-fader: fade(@color-warn, 20%);
+	--color-alert-fader: fade(@color-alert, 20%);
+	// --color-select-fader: fade(@color-select, 20%);
 	
 	--color-light-light: lighten(@color-light, 10%);
-	--color-dark-light: lighten(@color-dark, 13%);
+	--color-dark-light: lighten(@color-dark, 8%);
 	--color-primary-light: lighten(@color-primary, 10%);
-	--color-secondary-light: lighten(@color-secondary, 10%);
+	--color-secondary-light: lighten(@color-secondary, 13%);
 	--color-warn-light: lighten(@color-warn, 10%);
 	--color-alert-light: lighten(@color-alert, 10%);
+	// --color-select-light: lighten(@color-select, 10%);
 	
 	--color-light-extralight: lighten(@color-light, 20%);
-	--color-dark-extralight: lighten(@color-dark, 25%);
+	--color-dark-extralight: lighten(@color-dark, 20%);
 	--color-primary-extralight: lighten(@color-primary, 20%);
 	--color-secondary-extralight: lighten(@color-secondary, 20%);
 	--color-warn-extralight: lighten(@color-warn, 20%);
 	--color-alert-extralight: lighten(@color-alert, 20%);
+	// --color-select-extralight: lighten(@color-select, 20%);
+	
+	--color-light-dark: darken(@color-light, 10%);
+	--color-dark-dark: darken(@color-dark, 10%);
+	--color-primary-dark: saturate(darken(@color-primary, 15%), 120%);
+	--color-secondary-dark: darken(@color-secondary, 15%);
+	--color-warn-dark: darken(@color-warn, 10%);
+	--color-alert-dark: darken(@color-alert, 10%);
+	// --color-select-extralight: lighten(@color-select, 20%);
 
 	--mainColor_light: @mainColor_light;
 	--mainColor_normal: @mainColor_normal;
@@ -102,6 +126,7 @@ body, html {
 	min-height: -webkit-fill-available;
 	min-height: fill-available;
 	overflow: hidden;
+	font-size: 14px;
 }
 
 pre {
@@ -126,11 +151,14 @@ strong {
 }
 
 h1 {
-	font-size: 1.25em;
+	font-size: 1.5em;
 }
 
 .tippy-box[data-theme~='twitchat'] {
     background-color: var(--mainColor_highlight);
+    // background-color: rgba(0, 0, 0, 0.25);
+	// backdrop-filter: blur(2px);
+	// text-shadow: 1px 1px 2px black;
 	box-shadow: 3px 3px 3px rgba(0,0,0,.35);
 	&[data-placement^='top']  > .tippy-arrow::before {
 		border-top-color: var(--mainColor_highlight);
