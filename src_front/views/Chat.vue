@@ -16,12 +16,11 @@
 							filterId="chat"/>
 					</div>
 		
-					<div class="dragBt" ref="splitter"
-					v-if="$store('params').chatColumnsConfig.length > 1
-					&& (c.order == 0 || $store('params').chatColumnsConfig.length > 2)"
-					@dblclick="expandCol(c)"
-					@pointerdown="startDrag($event, c)"
-					@pointerup="startDrag($event, c)">
+					<div class="dragBt"
+						v-if="$store('params').chatColumnsConfig.length > 1
+						&& (c.order == 0 || $store('params').chatColumnsConfig.length > 2)"
+						@dblclick="expandCol(c)"
+						@pointerdown="startDrag($event, c)">
 						<div class="grip"></div>
 					</div>
 				</div>
@@ -678,6 +677,7 @@ export default class Chat extends Vue {
 	public startDrag(event:PointerEvent, col:TwitchatDataTypes.ChatColumnsConfig):void {
 		this.resizing = true;
 		this.draggedCol = col;
+		this.onMouseMove(event);
 		(event.target as HTMLDivElement).setPointerCapture(event.pointerId);
 	}
 
@@ -733,13 +733,13 @@ export default class Chat extends Vue {
 	/**
 	 * Called when the mouse moves
 	 */
-	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
-		if(e.type == "mousemove") {
-			this.mouseX = (e as MouseEvent).clientX;
-			this.mouseY = (e as MouseEvent).clientY;
-		}else{
-			this.mouseX = (e as TouchEvent).touches[0].clientX;
-			this.mouseY = (e as TouchEvent).touches[0].clientY;
+	private async onMouseMove(e:MouseEvent|TouchEvent|PointerEvent):Promise<void> {
+		if("clientX" in e) {
+			this.mouseX = e.clientX;
+			this.mouseY = e.clientY;
+		}else if("touches" in e) {
+			this.mouseX = e.touches[0].clientX;
+			this.mouseY = e.touches[0].clientY;
 		}
 	}
 
@@ -885,14 +885,6 @@ export default class Chat extends Vue {
 		}
 	}
 
-	.contentWindows {
-		&.emotes {
-			right: 0;
-			left: auto;
-			max-width: 50vw;
-			margin: auto;
-		}
-	}
 	.tts {
 		position: absolute;
 		bottom: 0;
@@ -995,14 +987,11 @@ export default class Chat extends Vue {
 		left:0;
 		height: 100%;
 		width: 100%;
-		:deep(.holder) {
-			max-height: 100% !important;
-		}
 	}
 
 	.contentWindows {
 		position: absolute;
-		bottom: 45px;
+		bottom: 40px;
 		left: 0;
 		z-index: 2;
 
