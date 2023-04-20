@@ -63,6 +63,7 @@ export default class PubSub extends EventDispatcher {
 				// "leaderboard-events-v1.sub-gifts-sent-"+myUID+"-WEEK",
 				"video-playback-by-id."+myUID,//Get viewer count
 				"community-boost-events-v1."+myUID,//Boost after a boost train complete
+				"community-points-channel-v1."+myUID,//Community challenges
 				"ad-property-refresh."+myUID,
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
 				"predictions-channel-v1."+myUID,
