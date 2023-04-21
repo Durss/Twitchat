@@ -1,26 +1,28 @@
 <template>
 	<div class="greetThem" v-show="localMessages.length > 0" :style="styles">
-		<div class="header" @click="toggleList()">
-			<ButtonNotification class="scrollBt clearButton"
-				:aria-label="$t(scrollDownAuto? 'greet.auto_scroll_off_aria' : 'greet.auto_scroll_on_aria')"
-				:icon="'scroll'+(scrollDownAuto? 'Down' : 'Up')"
-				v-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
-				@click.stop="toggleScroll()" />
-
-			<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
-
-			<ButtonNotification class="clearBt clearButton"
-				icon="delete"
-				v-tooltip="$t('greet.clearBt')"
-				@click.stop="clearAll()" />
-		</div>
-
-		<div class="topForm" v-if="showList">
-			<div class="row">
-				<label><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
-				<select v-model.number="$store('params').greetThemAutoDelete">
-					<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
-				</select>
+		<div class="header">
+			<div class="title" @click="toggleList()">
+				<ButtonNotification class="scrollBt clearButton"
+					:aria-label="$t(scrollDownAuto? 'greet.auto_scroll_off_aria' : 'greet.auto_scroll_on_aria')"
+					:icon="'scroll'+(scrollDownAuto? 'Down' : 'Up')"
+					v-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
+					@click.stop="toggleScroll()" />
+	
+				<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
+	
+				<ButtonNotification class="clearBt clearButton"
+					icon="delete"
+					v-tooltip="$t('greet.clearBt')"
+					@click.stop="clearAll()" />
+			</div>
+	
+			<div class="topForm" v-if="showList">
+				<div class="row">
+					<label><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
+					<select v-model.number="$store('params').greetThemAutoDelete">
+						<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
+					</select>
+				</div>
 			</div>
 		</div>
 		
@@ -389,7 +391,6 @@ export default class NewUsers extends Vue {
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;
-	gap: .25em;
 	padding-top: .5em;
 	min-height: calc(75px + 1.5em);
 	max-height: 60vh;
@@ -397,57 +398,61 @@ export default class NewUsers extends Vue {
 	position: relative;
 
 	.header {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		cursor: pointer;
-		h1 {
-			text-align: center;
-			color: #ffffff;
-			margin: 0 10px;
-
-			.count {
-				// font-style: italic;
-				font-size: .65em;
-				font-weight: normal;
-			}
-		}
-		.clearBt, .scrollBt {
-			height: 1.5em;
-			width: 1.5em;
-			padding: 3px;
-			border-radius: 5px;
-		}
-	}
-
-	.topForm {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		.row {
+		margin-bottom: .5em;
+		.title {
 			display: flex;
 			flex-direction: row;
-			align-items: center;
-			font-size: .8em;
-
-			label {
-				margin: 0;
-				margin-right: 5px;
-				color: var(--color-light);
-				img {
-					height: .8em;
-					margin-right: 3px;
+			justify-content: center;
+			cursor: pointer;
+			h1 {
+				text-align: center;
+				color: #ffffff;
+				margin: 0 10px;
+	
+				.count {
+					// font-style: italic;
+					font-size: .65em;
+					font-weight: normal;
 				}
 			}
-			select {
-				font-size: .8em;
-				padding: 0px 2px;
+			.clearBt, .scrollBt {
+				height: 1.5em;
+				width: 1.5em;
+				padding: 3px;
 				border-radius: 5px;
-				color: var(--color-light);
-				background-color: rgba(0,0,0,.5);
-				border-color:  rgba(0, 0, 0, .8);
-				option {
-					background-color: var(--color-dark);
+			}
+		}
+
+		.topForm {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: .5em;
+			.row {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				font-size: .8em;
+
+				label {
+					margin: 0;
+					margin-right: 5px;
+					color: var(--color-light);
+					img {
+						height: .8em;
+						margin-right: 3px;
+					}
+				}
+				select {
+					font-size: .8em;
+					padding: 0px 2px;
+					border-radius: 5px;
+					color: var(--color-light);
+					background-color: rgba(0,0,0,.5);
+					border-color:  rgba(0, 0, 0, .8);
+					option {
+						background-color: var(--color-dark);
+					}
 				}
 			}
 		}

@@ -9,7 +9,7 @@
 		</tooltip>
 
 		<template v-else-if="chunk.type == 'url'">
-			<img :src="$image('icons/copy_alert.svg')" class="copyBt" v-tooltip="$t('global.copy')" @click.stop="copyLink($event, chunk)">
+			<img :src="$image('icons/copy.svg')" class="copyBt" v-tooltip="$t('global.copy')" @click.stop="copyLink($event, chunk)">
 			<a @click.stop="" :href="chunk.href" target="_blank">{{ chunk.value }}</a>
 		</template>
 

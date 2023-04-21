@@ -214,7 +214,7 @@ interface StarData {
 	// border-radius: 2em;
 	// border-bottom-left-radius: 10em;
 	// border-bottom-right-radius: 10em;
-	background: url('@/assets/icons/follow_alert.svg');
+	background: url('@/assets/icons/follow.svg');
 	background-repeat: no-repeat;
 	background-position: center center;
 	height: 10em;
