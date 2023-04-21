@@ -21,7 +21,7 @@ export default class ChatNotice extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageNoticeData;
 	
-	public icon = "infos";
+	public icon = "info";
 
 	/**
 	 * Gets text message with parsed emotes

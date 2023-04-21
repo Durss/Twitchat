@@ -7,17 +7,6 @@
 		</div>
 	
 		<div class="content">
-			<ToggleBlock class="userlistToggle" :icons="['user']" :title="$t('whispers.user_list')" small>
-				<div class="userlist">
-					<div v-for="uid, index in uids" :key="uid" class="user">
-						<Button class="login" @click="selectedUser = uid" :selected="selectedUser == uid">{{ labels[index] }}</Button>
-						<Button class="delete" icon="trash" @click="deleteWhispers(uid)" alert></Button>
-					</div>
-				</div>
-			</ToggleBlock>
-
-			<div class="splitter"></div>
-
 			<div class="messageList" ref="messageList">
 				<div v-for="m in $store('chat').whispers[selectedUser]" :key="m.id" :class="messageClasses(m)">
 					<span class="time" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
@@ -36,6 +25,13 @@
 				<Button class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
 			</form>
 			<Button v-else small highlight :title="$t('whispers.add_scope_bt')" icon="unlock" @click="requestTwitchScope()" />
+			
+			<div class="userlist">
+				<div v-for="uid, index in uids" :key="uid" class="user">
+					<Button small class="login" @click="selectedUser = uid" :selected="selectedUser == uid">{{ labels[index] }}</Button>
+					<Button small class="delete" icon="trash" @click="deleteWhispers(uid)" alert></Button>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -169,6 +165,7 @@ export default class WhispersState extends AbstractSidePanel {
 				.delete {
 					border-top-left-radius: 0;
 					border-bottom-left-radius: 0;
+					padding: 0 .5em;
 				}
 			}
 		}

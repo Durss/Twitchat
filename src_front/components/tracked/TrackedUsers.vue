@@ -7,17 +7,9 @@
 
 
 		<div class="content">
-			<ToggleBlock class="userlistToggle" :icons="['user']" :title="$t('whispers.user_list')" small>
-				<div class="userlist">
-					<div v-for="user in trackedUsers" :key="user.id" class="user">
-						<Button class="login" @click="selectUser(user)" :selected="selectedUser?.id == user.id">{{ user.displayName }}</Button>
-						<Button class="delete" icon="trash" @click="untrackUser(user)" alert></Button>
-					</div>
-				</div>
-			</ToggleBlock>
-
 			<div class="messageList" ref="messageList">
-				<ChatMessage v-for="(m, index) in messages" :key="index"
+				<ChatMessage v-for="(m, index) in messages"
+					:key="m.id"
 					:messageData="m"
 					:lightMode="true"
 					:disableConversation="true"
@@ -28,6 +20,13 @@
 				@click="refreshMessages()"
 				icon="refresh"
 				:loading="refreshing" />
+				
+			<div class="userlist">
+				<div v-for="user in trackedUsers" :key="user.id" class="user">
+					<Button small class="login" @click="selectUser(user)" :selected="selectedUser?.id == user.id">{{ user.displayName }}</Button>
+					<Button small class="delete" icon="trash" @click="untrackUser(user)" alert></Button>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -164,6 +163,7 @@ export default class TrackedUsers extends AbstractSidePanel {
 				.delete {
 					border-top-left-radius: 0;
 					border-bottom-left-radius: 0;
+					padding: 0 .5em;
 				}
 			}
 		}
@@ -173,17 +173,17 @@ export default class TrackedUsers extends AbstractSidePanel {
 			display: flex;
 			flex-direction: column;
 			flex-grow: 1;
-			gap: .5em;
 			.message {
 				position: relative;
 			}
 			.message:nth-child(odd) {
 				background-color: var(--color-dark-fade);
 			}
-			.refreshBt {
-				display: flex;
-				margin: auto;
-			}
+		}
+		.refreshBt {
+			align-self: center;
+			flex-shrink: 0;
+			padding-left: .38em;
 		}
 	}
 
