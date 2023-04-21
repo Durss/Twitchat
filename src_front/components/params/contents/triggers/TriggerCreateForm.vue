@@ -607,6 +607,7 @@ interface TriggerEntry{
 		gap: .5em;
 
 		.category{
+			width: 100%;
 			.require {
 				font-size: .8em;
 				text-align: center;

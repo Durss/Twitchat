@@ -407,7 +407,9 @@ export default class TriggerActionEntry extends Vue {
 <style lang="less">
 .triggeractionentry.closed {
     width: fit-content;
-    margin: auto;
+    &:not(.small) {
+		margin: auto;
+	}
 }
 </style>
 

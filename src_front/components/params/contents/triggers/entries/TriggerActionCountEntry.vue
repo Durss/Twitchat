@@ -42,6 +42,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import { COUNTER_VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import { TriggerEventPlaceholders, type TriggerActionCountData, type TriggerData, type TriggerActionCountDataUserSource } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -62,10 +63,10 @@ export default class TriggerActionCountEntry extends Vue {
 			this.triggerData.chatCommandParams.forEach(v=> {
 				res.push({labelKey:"triggers.actions.count.user_source_placeholder", key:v.tag});
 			});
-			this.param_value.placeholderList!.filter(v=>v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX)==-1).forEach(v=> {
-				res.push({labelKey:"triggers.actions.count.user_source_placeholder", key:v.tag});
-			})
 		}
+		this.param_value.placeholderList!.filter(v=>v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX)==-1).forEach(v=> {
+			res.push({labelKey:"triggers.actions.count.user_source_placeholder", key:v.tag});
+		})
 		return res;
 	}
 
@@ -97,8 +98,13 @@ export default class TriggerActionCountEntry extends Vue {
 		
 		this.param_counters.listValues = counters;
 
-		this.param_value.placeholderList = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable==true);
+		this.param_value.placeholderList = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable==false);
 
+		watch(()=>this.selectedPerUserCounters, ()=> this.updatePerUserCounterSources());
+		this.updatePerUserCounterSources();
+	}
+
+	private updatePerUserCounterSources():void {
 		//Init per-user counter sources if necessary
 		for (let i = 0; i < this.selectedPerUserCounters.length; i++) {
 			const c = this.selectedPerUserCounters[i];

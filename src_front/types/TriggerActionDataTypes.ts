@@ -582,7 +582,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 	
 	map[TriggerTypes.RAFFLE_RESULT] = [
-		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"raffleData.winners[].label", numberParsable:false, isUserID:false},
+		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"winner.label", numberParsable:false, isUserID:false},
 	];
 	
 	map[TriggerTypes.SUB] = [

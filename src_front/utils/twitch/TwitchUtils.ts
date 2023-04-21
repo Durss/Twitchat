@@ -927,8 +927,11 @@ export default class TwitchUtils {
 		let list:TwitchDataTypes.Subscriber[] = [];
 		let cursor:string|null = null;
 		do {
-			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"subscriptions?first=100&broadcaster_id="+channelId+pCursor, {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"subscriptions");
+			url.searchParams.append("broadcaster_id", channelId);
+			url.searchParams.append("first", "100");
+			if(cursor) url.searchParams.append("after", cursor);
+			const res = await fetch(url, {
 				method:"GET",
 				headers:this.headers,
 			});
