@@ -1,42 +1,34 @@
 <template>
 	<div :class="classes">
-		<Button class="backBt clearButton" v-if="selectedUser" icon="back" @click="selectedUser = null" />
-		<h1 class="title" v-if="!selectedUser"><img src="@/assets/icons/magnet.svg">{{ $t('tracked.title') }}</h1>
-		<h1 class="title clickable" @click="openUserCard()" v-else><img src="@/assets/icons/whispers.svg">{{selectedUser.displayName}}</h1>
+		<div class="head">
+			<CloseButton @click="close()" />
+			<h1 class="title"><img src="@/assets/icons/magnet.svg" class="icon">{{ $t('tracked.title') }}</h1>
+		</div>
 
-		<div class="noMessage" v-if="selectedUser && messages.length == 0">{{ $t('tracked.no_message') }}</div>
 
-		<div class="content messages" v-else-if="selectedUser" ref="messageList">
-			<ChatMessage v-for="(m, index) in messages" :key="index"
-				:messageData="m"
-				:lightMode="true"
-				:disableConversation="true"
-				class="message" />
+		<div class="content">
+			<ToggleBlock class="userlistToggle" :icons="['user']" :title="$t('whispers.user_list')" small>
+				<div class="userlist">
+					<div v-for="user in trackedUsers" :key="user.id" class="user">
+						<Button class="login" @click="selectUser(user)" :selected="selectedUser?.id == user.id">{{ user.displayName }}</Button>
+						<Button class="delete" icon="trash" @click="untrackUser(user)" alert></Button>
+					</div>
+				</div>
+			</ToggleBlock>
+
+			<div class="messageList" ref="messageList">
+				<ChatMessage v-for="(m, index) in messages" :key="index"
+					:messageData="m"
+					:lightMode="true"
+					:disableConversation="true"
+					class="message" />
+			</div>
 			
 			<Button class="refreshBt clearButton"
 				@click="refreshMessages()"
 				icon="refresh"
 				:loading="refreshing" />
 		</div>
-
-		<div class="content users" v-else>
-			<div class="user"
-			v-for="u in trackedUsers"
-			:key="u.id">
-				<Button class="login"
-					@click="selectUser(u)"
-					:title="u.displayName"
-					white
-					small
-					bounce />
-				<Button icon="cross"
-					class="deleteBt"
-					@click="untrackUser(u)"
-					small
-					bounce highlight />
-			</div>
-		</div>
-
 	</div>
 </template>
 
@@ -45,18 +37,23 @@ import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 
 @Component({
 	components:{
 		Button,
-		ChatMessage
+		ChatMessage,
+		CloseButton,
+		ToggleBlock,
 	},
 	emits:["close"]
 })
-export default class TrackedUsers extends Vue {
+export default class TrackedUsers extends AbstractSidePanel {
 
 	public refreshing:boolean = false;
 	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
@@ -66,7 +63,7 @@ export default class TrackedUsers extends Vue {
 	private updateListHandler!:(e:GlobalEvent)=>void;
 
 	public get classes():string[] {
-		let res = ["trackedusers"];
+		let res = ["trackedusers", "sidePanel"];
 		return res;
 	}
 
@@ -95,6 +92,11 @@ export default class TrackedUsers extends Vue {
 		this.updateListHandler = (e:GlobalEvent) => this.onUpdateList();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateListHandler);
 		this.onUpdateList();
+		this.selectUser(this.trackedUsers[0]);
+	}
+
+	public mounted():void {
+		super.open();
 	}
 
 	public beforeUnmount(): void {
@@ -116,7 +118,7 @@ export default class TrackedUsers extends Vue {
 		}
 		this.trackedUsers = res;
 		if(res.length == 0) {
-			this.$emit("close");
+			super.close();
 		}
 	}
 
@@ -134,81 +136,50 @@ export default class TrackedUsers extends Vue {
 
 <style scoped lang="less">
 .trackedusers{
-
-	.backBt {
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		width: 1.5em;
-		height: 1.5em;
-	}
-
-	.title {
-		color: var(--mainColor_light);
-		margin: auto;
-		text-align: center;
-		padding-bottom: 10px;
-		word-break: break-word;
-		img {
-			height: 20px;
-			margin-right: 10px;
-			vertical-align: middle;
-		}
-
-		&.clickable {
-			cursor: pointer;
-		}
-	}
-
 	.content {
-		max-height: 300px;
-		overflow-y: auto;
+		padding-right: 5px;
 		display: flex;
 		flex-direction: column;
+		justify-content: flex-start;
+		max-width: 800px;
+		width: 100%;
+		margin:auto;
+
+		.userlistToggle {
+			width: 100%;
+		}
 		
-		&.users {
+		.userlist {
+			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
-			justify-content: center;
-			gap:.5em;
-			padding-left: 5px;
-			flex-grow: 1;
+			gap: 10px;
 			.user {
 				display: flex;
 				flex-direction: row;
-				margin-bottom: 1px;
 				.login {
-					flex-grow: 1;
-					padding: .15em .25em;
-					transform-origin: right center;
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
-					justify-content: flex-start;
 				}
-	
-				.deleteBt {
+				.delete {
 					border-top-left-radius: 0;
 					border-bottom-left-radius: 0;
-					padding: .1em;
-					:deep(.icon) {
-						height: .7em;
-						min-height: .7em;
-					}
 				}
 			}
 		}
-	
-		&.messages {
-			color: #fff;
-			padding-right: 5px;
+
+		.messageList {
+			overflow-y: auto;
 			display: flex;
 			flex-direction: column;
-			justify-content: flex-start;
-	
+			flex-grow: 1;
+			gap: .5em;
 			.message {
-				margin: .25em 0;
+				position: relative;
 			}
-
+			.message:nth-child(odd) {
+				background-color: var(--color-dark-fade);
+			}
 			.refreshBt {
 				display: flex;
 				margin: auto;

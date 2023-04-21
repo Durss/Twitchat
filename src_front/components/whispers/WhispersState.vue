@@ -141,16 +141,7 @@ export default class WhispersState extends AbstractSidePanel {
 
 <style scoped lang="less">
 .whispersstate{
-	.backBt {
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		width: 1.5em;
-		height: 1.5em;
-	}
-
 	.content {
-		color: #fff;
 		padding-right: 5px;
 		display: flex;
 		flex-direction: column;

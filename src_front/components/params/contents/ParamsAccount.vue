@@ -26,9 +26,9 @@
 		</section>
 
 		<section class="actions">
-			<Button class="button" @click="latestUpdates()" :title="$t('account.updatesBt')" icon="new" bounce />
-			<Button class="button" @click="logout()" :title="$t('global.log_out')" icon="logout" highlight bounce />
-			<Button class="button" @click="ahs()" :title="$t('account.installBt')" icon="twitchat" v-if="canInstall" />
+			<Button class="button" @click="latestUpdates()" icon="sub">{{ $t('account.updatesBt') }}</Button>
+			<Button class="button" @click="logout()" icon="logout">{{ $t('global.log_out') }}</Button>
+			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
 		</section>
 
 		<section class="lang">
@@ -239,7 +239,6 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 <style scoped lang="less">
 .paramsaccount{
 	.parameterContent();
-	align-items: center;
 
 	.profilePic {
 		img {
@@ -254,15 +253,11 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 		border-top-right-radius: 50%;
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
-		background-color: fade(@mainColor_normal_extralight, 30%);
+		background-color: var(--color-light-fade);
 	}
 
 	.head {
 		margin-top: 0;
-	}
-	
-	.button {
-		display: block;
 	}
 	
 	.title {

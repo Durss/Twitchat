@@ -37,7 +37,7 @@ export default class ChatMessageInfoBadges extends Vue {
 			cyphered:"lock_fit",
 			new_user:"new",
 			restrictedUser:"shield",
-			suspiciousUser:"shield_alert",
+			suspiciousUser:"shield",
 			emergencyBlocked:"emergency",
 		};
 		if(hashmap[info.type]) {

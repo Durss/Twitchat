@@ -310,7 +310,7 @@
 				height: 1.25em;
 				padding: .25em;
 				border-radius: .25em;
-				background-color: var(--mainColor_alert);
+				background-color: var(--color-alert);
 				vertical-align: middle;
 			}
 		}
@@ -323,7 +323,7 @@
 		width: min-content;
 		margin: auto;
 		margin-top: 1em;
-		border: 1px solid var(--mainColor_normal);
+		border: 1px solid var(--color-light);
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: fade(@mainColor_normal_extralight, 30%);
@@ -333,9 +333,7 @@
 	}
 
 	section {
-		border-radius: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
+		.card();
 		margin: 1em auto 1em auto;
 			
 		.warn {
@@ -358,19 +356,6 @@
 		
 		.splitter {
 			margin: .25em 0 .25em 0;
-		}
-	}
-
-	:deep(mark) {
-		font-weight: bold;
-		padding: .15em .5em;
-		border-radius: .5em;
-		font-size: .9em;
-		background-color: fade(@mainColor_normal, 15%);
-		
-		&.light {
-			color: var(--mainColor_normal);
-			background-color: var(--mainColor_light);
 		}
 	}
 }

@@ -10,9 +10,8 @@
 				<ParamItem class="item" :paramData="param_secured" />
 		
 				<Button type="submit" v-if="!connected"
-					:title="$t('connexions.triggerSocket.connectBt')"
 					:loading="connecting"
-					:disabled="!canConnect" />
+					:disabled="!canConnect">{{ $t('connexions.triggerSocket.connectBt') }}</Button>
 			</form>
 	
 			<div class="row success" v-if="connected && showSuccess">
@@ -21,7 +20,7 @@
 			
 			<div class="error" v-if="error" @click="error=false">{{$t("error.trigger_socket")}}</div>
 
-			<Button class="connectBt" v-if="connected" :title="$t('connexions.triggerSocket.disconnectBt')" @click="disconnect()" highlight />
+			<Button class="connectBt" v-if="connected" @click="disconnect()">{{ $t('connexions.triggerSocket.disconnectBt') }}</Button>
 		</div>
 
 	</ToggleBlock>
