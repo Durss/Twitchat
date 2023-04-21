@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer_purple']">
+	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer']">
 		<div class="holder">
 
 			<div v-if="!deezerConnected">{{ $t("overlay.music_common.music") }}</div>
@@ -27,7 +27,7 @@
 
 				<i18n-t scope="global" tag="div" keypath="overlay.deezer.control">
 					<template #ICON>
-						<img src="@/assets/icons/deezer_purple.svg" alt="deezer" class="icon">
+						<img src="@/assets/icons/deezer.svg" alt="deezer" class="icon">
 					</template>
 				</i18n-t>
 

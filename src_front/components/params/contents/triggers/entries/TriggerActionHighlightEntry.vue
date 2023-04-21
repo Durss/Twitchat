@@ -32,8 +32,8 @@ export default class TriggerActionHighlightEntry extends Vue {
 
 	private showHideValues:TwitchatDataTypes.ParameterDataListValue<boolean>[] = [];
 	
-	public show_conf:TwitchatDataTypes.ParameterData<boolean, boolean> = { type:"list", value:false, listValues:[], icon:"show_purple.svg" };
-	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"highlight_purple.svg", maxLength:500};
+	public show_conf:TwitchatDataTypes.ParameterData<boolean, boolean> = { type:"list", value:false, listValues:[], icon:"show.svg" };
+	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"highlight.svg", maxLength:500};
 	
 	public beforeMount():void {
 		this.showHideValues = [

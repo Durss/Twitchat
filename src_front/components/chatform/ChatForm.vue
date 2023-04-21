@@ -10,12 +10,12 @@
 
 			
 			<form @submit.prevent="" class="inputForm">
-				<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
+				<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 				
 				<div class="inputHolder" v-if="!error && !spamming">
 
 					<div class="replyTo" v-if="$store('chat').replyTo">
-						<button class="closeBt" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross_white.svg" alt="close"></button>
+						<button class="closeBt" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross.svg" alt="close"></button>
 						<div class="content">
 							<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
 								<template #USER>
@@ -38,7 +38,7 @@
 
 				<Button class="spam" alert
 					v-if="spamming"
-					icon="cross_white"
+					icon="cross"
 					@click="stopSpam()">{{ $t('chat.form.stop_spamBt') }}</Button>
 				
 				<span @click="error=false" v-if="error" class="error">{{ $t('error.message_send') }}</span>
@@ -67,8 +67,8 @@
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
 						icon="chatPoll"
-						v-tooltip="{content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('sugg'), onHidden:()=>onHideTooltip('sugg')}"
-						@click="openNotifications('sugg')"
+						v-tooltip="{content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
+						@click="openModal('chatsuggState')"
 						v-if="$store('chatSuggestion').data != null" />
 				</transition>
 
@@ -85,7 +85,7 @@
 						icon="magnet"
 						v-if="trackedUserCount > 0"
 						v-tooltip="{content:$t('chat.form.trackedBt_aria'), showOnCreate:shouldShowTooltip('tracked'), onHidden:()=>onHideTooltip('tracked')}"
-						@click="openNotifications('tracked')" />
+						@click="openModal('tracked')" />
 				</transition>
 
 				<transition name="blink">
@@ -111,7 +111,7 @@
 						:count="$store('chat').whispersUnreadCount"
 						v-if="whispersAvailable"
 						v-tooltip="$t('chat.form.whispersBt_aria')"
-						@click="openNotifications('whispers')" />
+						@click="openModal('whispers')" />
 				</transition>
 
 				<transition name="blink">
@@ -440,10 +440,14 @@ export default class ChatForm extends Vue {
 		this.$emit('setCurrentNotification', type);
 	}
 
+	public openModal(modal:TwitchatDataTypes.ModalTypes):void {
+		this.$store("params").currentModal = modal
+	}
+
 	/**
 	 * Gets if a button tooltip should be displayed by default
 	 */
-	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes):boolean {
+	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes):boolean {
 		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
 		let values!:{[key:string]:number};
 		if(!json) values = {};
@@ -454,7 +458,7 @@ export default class ChatForm extends Vue {
 	/**
 	 * Called when a tooltip is closed
 	 */
-	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes):void {
+	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes):void {
 		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
 		let values!:{[key:string]:number};
 		if(!json) values = {};
@@ -503,7 +507,7 @@ export default class ChatForm extends Vue {
 
 		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
 			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount;
-			res += " / <img src='"+this.$image('icons/unfollow_white.svg')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
+			res += " / <img src='"+this.$image('icons/unfollow.svg')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
 		}
 		this.onlineUsersTooltip = res;
 	}
@@ -632,6 +636,14 @@ export default class ChatForm extends Vue {
 			}, cmd == "/megaspam"? 50 :  200);
 			this.message = "";
 			this.loading = false;
+		}else
+
+		if(cmd == "/fakewhisper" || cmd == "/fakewhispers") {
+			let count = parseInt(params[0]) || 1;
+			for (let i = 0; i < count; i++) {
+				this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.WHISPER);
+			}
+			this.message = "";
 		}else
 
 		if(cmd == "/gigaspam") {

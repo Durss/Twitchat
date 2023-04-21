@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionwsentry">
 		<div class="item info warn" v-if="!websocketConnected">
-			<img src="@/assets/icons/infos.svg" alt="info">
+			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.http_ws.need_to_connect">
 				<template #LINK>
 					<a @click="$store('params').openParamsPage(contentConnexions)">{{ $t("triggers.actions.http_ws.need_to_connect_link") }}</a>
@@ -89,8 +89,8 @@ export default class TriggerActionWSEntry extends Vue {
 		background-color: var(--mainColor_alert);
 		margin-top: -.25em;
 		padding: .5em;
-		border-bottom-left-radius: var(--border_radius);
-		border-bottom-right-radius: var(--border_radius);
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 	}
 }
 </style>

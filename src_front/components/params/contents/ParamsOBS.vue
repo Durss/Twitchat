@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsobs">
-		<img src="@/assets/icons/obs_purple.svg" alt="overlay icon" class="icon">
+		<img src="@/assets/icons/obs.svg" alt="overlay icon" class="icon">
 
 		<div class="head">
 			<p>{{ $t("obs.header") }}</p>
@@ -18,7 +18,7 @@
 		<div class="fadeHolder" :style="holderStyles">
 			<ToggleBlock class="block conf"
 			:open="openConnectForm"
-			:icons="['info_purple']"
+			:icons="['info']"
 			:title="$t('obs.credentials_form_title')">
 				<OBSConnectForm  class="connectForm" />
 			</ToggleBlock>
@@ -26,7 +26,7 @@
 			<ToggleBlock class="block permissions"
 			v-if="connected"
 			:open="false"
-			:icons="['lock_purple']"
+			:icons="['lock']"
 			:title="$t('obs.permissions_title')">
 				<p class="info">{{ $t("obs.permissions_head") }}</p>
 				<PermissionsForm class="content" v-model="permissions" />
@@ -36,7 +36,7 @@
 			<ToggleBlock class="block mic"
 			v-if="connected"
 			:open="false"
-			:icons="['microphone_purple']"
+			:icons="['microphone']"
 			:title="$t('obs.microphone_title')">
 				<OBSAudioSourceForm />
 			</ToggleBlock>
@@ -44,7 +44,7 @@
 			<ToggleBlock class="block scenes"
 			v-if="connected"
 			:open="false"
-			:icons="['list_purple']"
+			:icons="['list']"
 			:title="$t('obs.scenes_title')">
 				<OBSScenes />
 			</ToggleBlock>

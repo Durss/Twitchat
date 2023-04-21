@@ -19,13 +19,13 @@
 		v-if="noEdit === false"
 		:disabled="!entryData.canTest"
 		v-tooltip="$t('triggers.testBt')">
-			<img src="@/assets/icons/test_purple.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
+			<img src="@/assets/icons/test.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
 		</button>
 
 		<button class="deleteBt" @click="$emit('delete',entryData)"
 		v-if="noEdit === false"
 		v-tooltip="$t('triggers.deleteBt')">
-			<img src="@/assets/icons/trash_purple.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
+			<img src="@/assets/icons/trash.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
 		</button>
 	</div>
 </template>

@@ -33,7 +33,7 @@
 							@change="onValueChange()"
 						>
 						<Button :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt"
-							icon="cross_white"
+							icon="cross"
 							type="button"
 							alert small
 							v-if="answers.length > 2 && (index < answers.length-1 || answers.length == 10)"

@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractiondelayentry" @click="setFocus()">
-		<img src="@/assets/icons/timer_purple.svg" class="icon">
+		<img src="@/assets/icons/timer.svg" class="icon">
 
 		<div>
 			<contenteditable class="input" tag="span" ref="input"

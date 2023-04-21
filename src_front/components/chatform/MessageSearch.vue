@@ -3,7 +3,7 @@
 
 		<Button small
 			aria-label="Close search"
-			icon="cross_white"
+			icon="cross"
 			@click="close()"
 			class="closeBt"
 		/>

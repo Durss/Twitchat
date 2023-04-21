@@ -2,7 +2,7 @@
 	<div class="confirmView" v-if="confirmData">
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
 		<div class="holder" ref="holder">
-			<!-- <img src="@/assets/icons/lock_fit_purple.svg" class="icon"> -->
+			<!-- <img src="@/assets/icons/lock_fit.svg" class="icon"> -->
 
 			<div class="title" v-html="confirmData.title"></div>
 			

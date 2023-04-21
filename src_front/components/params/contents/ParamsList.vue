@@ -9,7 +9,7 @@
 					@leave="onHideItem"
 				>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="info obsConnect">
-						<img src="@/assets/icons/alert_purple.svg">
+						<img src="@/assets/icons/alert.svg">
 						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 							<template #LINK>
 								<a @click="$store('params').openParamsPage(contentObs)">{{ $t("global.obs_connect_link") }}</a>
@@ -60,7 +60,7 @@
 					</div>
 	
 					<div v-else-if="isMissingScope(p) && p.value == true" class="info scope">
-						<img src="@/assets/icons/lock_fit_purple.svg">
+						<img src="@/assets/icons/lock_fit.svg">
 						<p class="label">{{ $t("params.scope_missing") }}</p>
 						<Button small highlight
 							class="grantBt"

@@ -27,7 +27,7 @@
 			titleKey="global.post_winner" />
 
 		<Button class="item"
-			icon="cross_white"
+			icon="cross"
 			:title="$t('bingo.closeBt')"
 			highlight
 			@click="closeBingo()" />
@@ -67,7 +67,6 @@ export default class BingoState extends Vue {
 
 <style scoped lang="less">
 .bingostate{
-	.gameStateWindow();
 
 	.emote, .number {
 		display: flex;

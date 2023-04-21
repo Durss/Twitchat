@@ -14,7 +14,7 @@
 	>
 		<template #left_actions>
 			<Button small
-				icon="dragZone_purple"
+				icon="dragZone"
 				class="toggleAction orderBt"
 				@mousedown="$emit('startDrag', $event)"
 				v-tooltip="$t('triggers.reorder_tt')"
@@ -22,7 +22,7 @@
 		</template>
 		<template #right_actions>
 			<Button small
-				icon="copy_purple"
+				icon="copy"
 				class="toggleAction"
 				@click="$emit('duplicate')"
 				v-tooltip="$t('triggers.actions.common.duplicate_tt')"
@@ -39,97 +39,97 @@
 				<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
 				<Button class="button" white @click="selectActionType('delay')"
 					:title="$t('triggers.actions.common.action_delay')"
-					icon="timer_purple"/>
+					icon="timer"/>
 
 				<Button class="button" white @click="selectActionType('chat')"
 					:title="$t('triggers.actions.common.action_chat')"
-					icon="whispers_purple"/>
+					icon="whispers"/>
 					
 				<Button class="button" white @click.capture="selectActionType('poll')"
 					v-if="hasChannelPoints"
 					:title="$t('triggers.actions.common.action_poll')"
-					icon="poll_purple"
+					icon="poll"
 					:disabled="!canCreatePoll"/>
 				
 				<Button class="button" white @click.capture="selectActionType('prediction')"
 					v-if="hasChannelPoints"
 					:title="$t('triggers.actions.common.action_prediction')"
-					icon="prediction_purple"
+					icon="prediction"
 					:disabled="!canCreatePrediction"/>
 					
 				<Button class="button" white @click="selectActionType('bingo')"
 					:title="$t('triggers.actions.common.action_bingo')"
-					icon="bingo_purple"/>
+					icon="bingo"/>
 				
 				<Button class="button" white @click="selectActionType('raffle')"
 					:title="$t('triggers.actions.common.action_raffle')"
-					icon="ticket_purple"/>
+					icon="ticket"/>
 
 				<Button class="button" white @click="selectActionType('raffle_enter')"
 					v-if="hasUserInfo"
 					:title="$t('triggers.actions.common.action_raffle_enter')"
-					icon="user_purple"/>
+					icon="user"/>
 				
 				<Button class="button" white @click="selectActionType('stream_infos')"
 					:title="$t('triggers.actions.common.action_stream_infos')"
-					icon="info_purple"/>
+					icon="info"/>
 				
 				<Button class="button" white @click="selectActionType('highlight')"
 					:title="$t('triggers.actions.common.action_highlight')"
-					icon="highlight_purple" />
+					icon="highlight" />
 				
 				<Button class="button" white @click="selectActionType('count')"
 					:title="$t('triggers.actions.common.action_count')"
-					icon="count_purple"/>
+					icon="count"/>
 				
 				<!-- <Button class="button" white @click="selectActionType('countget')"
 					:title="$t('triggers.actions.common.action_countget')"
-					icon="count_placeholder_purple"/> -->
+					icon="count_placeholder"/> -->
 				
 				<Button class="button" white @click="selectActionType('random')"
 					:title="$t('triggers.actions.common.action_random')"
-					icon="dice_purple"/>
+					icon="dice"/>
 				
 				<Button class="button" white @click.capture="selectActionType('obs')"
 					:title="$t('triggers.actions.common.action_obs')"
-					icon="obs_purple"
+					icon="obs"
 					:disabled="!obsConnected"
 					v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('tts')"
 					:title="$t('triggers.actions.common.action_tts')"
-					icon="tts_purple"
+					icon="tts"
 					:disabled="!$store('tts').params.enabled"
 					v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('music')"
 					:title="$t('triggers.actions.common.action_music')"
-					icon="spotify_purple"
+					icon="spotify"
 					:disabled="!musicServiceConfigured"
 					v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')"/>
 				
 				<Button class="button" white @click.capture="selectActionType('voicemod')"
 					:title="$t('triggers.actions.common.action_voicemod')"
-					icon="voicemod_purple"
+					icon="voicemod"
 					:disabled="!voicemodEnabled"
 					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')"/>
 				
 				<Button class="button" white @click="selectActionType('trigger')"
 					:title="$t('triggers.actions.common.action_trigger')"
-					icon="broadcast_purple" />
+					icon="broadcast" />
 				
 				<Button class="button" white @click="selectActionType('triggerToggle')"
 					:title="$t('triggers.actions.common.action_triggerToggle')"
-					icon="broadcast_purple" />
+					icon="broadcast" />
 				
 				<Button class="button" white @click="selectActionType('http')"
 					:title="$t('triggers.actions.common.action_http')"
-					icon="url_purple"/>
+					icon="url"/>
 				
 				<Button class="button" white @click.capture="selectActionType('ws')"
 					:title="$t('triggers.actions.common.action_ws')"
 					:disabled="!wsConnected"
-					icon="url_purple"/>
+					icon="url"/>
 			</div>
 
 			<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
@@ -316,26 +316,26 @@ export default class TriggerActionEntry extends Vue {
 			replay:"play",
 		};
 		
-		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"_purple" );
-		if(this.action.type == "music") icons.push( 'spotify_purple' );
-		if(this.action.type == "chat") icons.push( 'whispers_purple' );
-		if(this.action.type == "tts") icons.push( 'tts_purple' );
-		if(this.action.type == "raffle") icons.push( 'ticket_purple' );
-		if(this.action.type == "raffle_enter") icons.push( 'user_purple' );
-		if(this.action.type == "bingo") icons.push( 'bingo_purple' );
-		if(this.action.type == "voicemod") icons.push( 'voicemod_purple' );
-		if(this.action.type == "trigger") icons.push( 'broadcast_purple' );
-		if(this.action.type == "triggerToggle") icons.push( 'broadcast_purple' );
-		if(this.action.type == "highlight") icons.push( 'highlight_purple' );
-		if(this.action.type == "http") icons.push( 'url_purple' );
-		if(this.action.type == "ws") icons.push( 'url_purple' );
-		if(this.action.type == "poll") icons.push( 'poll_purple' );
-		if(this.action.type == "prediction") icons.push( 'prediction_purple' );
-		if(this.action.type == "count") icons.push( 'count_purple' );
-		if(this.action.type == "countget") icons.push( 'count_placeholder_purple' );
-		if(this.action.type == "random") icons.push( 'dice_placeholder_purple' );
-		if(this.action.type == "stream_infos") icons.push( 'info_purple' );
-		if(this.action.type == "delay") icons.push( 'timer_purple' );
+		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"" );
+		if(this.action.type == "music") icons.push( 'spotify' );
+		if(this.action.type == "chat") icons.push( 'whispers' );
+		if(this.action.type == "tts") icons.push( 'tts' );
+		if(this.action.type == "raffle") icons.push( 'ticket' );
+		if(this.action.type == "raffle_enter") icons.push( 'user' );
+		if(this.action.type == "bingo") icons.push( 'bingo' );
+		if(this.action.type == "voicemod") icons.push( 'voicemod' );
+		if(this.action.type == "trigger") icons.push( 'broadcast' );
+		if(this.action.type == "triggerToggle") icons.push( 'broadcast' );
+		if(this.action.type == "highlight") icons.push( 'highlight' );
+		if(this.action.type == "http") icons.push( 'url' );
+		if(this.action.type == "ws") icons.push( 'url' );
+		if(this.action.type == "poll") icons.push( 'poll' );
+		if(this.action.type == "prediction") icons.push( 'prediction' );
+		if(this.action.type == "count") icons.push( 'count' );
+		if(this.action.type == "countget") icons.push( 'count_placeholder' );
+		if(this.action.type == "random") icons.push( 'dice_placeholder' );
+		if(this.action.type == "stream_infos") icons.push( 'info' );
+		if(this.action.type == "delay") icons.push( 'timer' );
 		return icons;
 	}
 

@@ -249,7 +249,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 			flex-direction: row;
 			gap:.25em;
 			background-color: fade(@mainColor_normal, 50%);
-			border-radius: var(--border_radius);
+			border-radius: var(--border-radius);
 			padding: .5em;
 			min-width: 6em;
 

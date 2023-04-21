@@ -1,6 +1,6 @@
 <template>
 	<div class="commercialtimer" v-tooltip="$t('global.tooltips.commercial')">
-		<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader">
+		<img src="@/assets/loader/loader.svg" alt="loader" class="loader">
 		<div>{{timeLeft}}</div>
 	</div>
 </template>

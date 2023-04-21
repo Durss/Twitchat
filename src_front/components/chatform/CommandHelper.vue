@@ -4,7 +4,7 @@
 		<Button @click.capture="openModal('pred');"		icon="prediction"	:disabled="!canCreatePrediction" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</Button>
 		<Button @click.capture="openModal('raffle');"		icon="ticket"		>{{$t('cmdmenu.raffle')}}</Button>
 		<Button @click.capture="openModal('bingo');"		icon="bingo"		>{{$t('cmdmenu.bingo')}}</Button>
-		<Button @click.capture="openModal('chatpoll');"	icon="chatPoll"		>{{$t('cmdmenu.suggestions')}}</Button>
+		<Button @click.capture="openModal('chatsuggForm');"	icon="chatPoll"		>{{$t('cmdmenu.suggestions')}}</Button>
 		<Button @click.capture="openModal('timer');"		icon="timer"		>{{$t('cmdmenu.timer')}}</Button>
 		<Button @click.capture="clearChat();"				icon="clearChat"	:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</Button>
 		<Button @click.capture="openModal('streamInfo');"	icon="info"			:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</Button>
@@ -25,7 +25,7 @@
 		
 		<div class="raid" v-if="$store('stream').currentRaid">
 			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
-			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross_white" bounce highlight title="Cancel" />
+			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross" bounce highlight title="Cancel" />
 		</div>
 
 		<div class="raid" v-else>
@@ -346,7 +346,7 @@ export default class CommandHelper extends Vue {
 		form {
 			display: flex;
 			flex-direction: row;
-			border-radius: var(--border_radius);
+			border-radius: var(--border-radius);
 			input {
 				width: 100%;
 				border-top-right-radius: 0;
@@ -355,7 +355,7 @@ export default class CommandHelper extends Vue {
 			.button {
 				flex-grow: 1;
 				:deep(.background) {
-					border-radius: var(--border_radius);
+					border-radius: var(--border-radius);
 					border-top-left-radius: 0;
 					border-bottom-left-radius: 0;
 				}
@@ -371,7 +371,7 @@ export default class CommandHelper extends Vue {
 		.missingScope {
 			max-width: 300px;
 			background-color: var(--color-primary);
-			border-radius: var(--border_radius);
+			border-radius: var(--border-radius);
 			padding: .5em;
 			p {
 				font-size: .8em;

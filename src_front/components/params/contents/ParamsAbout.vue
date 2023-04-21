@@ -1,23 +1,23 @@
 <template>
 	<div class="paramsabout">
 
-		<ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin_purple']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin']" :open="false">
 			<ParamsSponsor />
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea_purple']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea']" :open="false">
 			<p class="item">{{ $t("about.suggestion_content1") }}</p>
 			<Button class="item" :title="$t('about.discordBt')" icon="discord" :href="discordURL" target="_blank" type="link" />
 			<p class="item" v-html="$t('about.suggestion_content2')"></p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api_purple']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api']" :open="false">
 			<p class="item">{{ $t("about.api_content1") }}</p>
 			<p class="item">{{ $t("about.api_content2") }}</p>
-			<Button class="item" :title="$t('about.documentationBt')" icon="github_white" :href="apiURL" target="_blank" type="link"/>
+			<Button class="item" :title="$t('about.documentationBt')" icon="github" :href="apiURL" target="_blank" type="link"/>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.credits')" :icons="['info_purple']" :open="true">
+		<ToggleBlock class="block" :title="$t('about.credits')" :icons="['info']" :open="true">
 			<p class="item" v-html="$t('about.credits_author', {USER:'<a href=\'https://twitch.tv/durss\' target=\'_blank\'>Durss</a>'})"></p>
 			<p class="item" v-html="$t('about.credits_sources', {URL:'<a href=\'https://github.com/Durss/Twitchat\' target=\'_blank\'>Github</a>'})"></p>
 			<p class="item">{{ $t("about.credits_sites") }}</p>
@@ -32,7 +32,7 @@
 			</p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.donors')" :icons="['follow_purple']">
+		<ToggleBlock class="block" :title="$t('about.donors')" :icons="['follow']">
 			<ParamsDonorList />
 		</ToggleBlock>
 

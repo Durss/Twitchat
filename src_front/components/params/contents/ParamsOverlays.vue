@@ -1,20 +1,20 @@
 <template>
 	<div class="paramsoverlays">
-		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
+		<img src="@/assets/icons/overlay.svg" alt="overlay icon" class="icon">
 		<div class="head">{{ $t("overlay.header") }}</div>
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
 			<i18n-t scope="global" keypath="overlay.connection.title">
 				<template #OBS>
 					<Button class="button"
-						icon="obs_purple"
+						icon="obs"
 						:title="$t('overlay.connection.obsBt')"
 						white
 						@click="$store('params').openParamsPage(contentObs)" />
 				</template>
 				<template #DOCK>
 					<Button class="button"
-						icon="twitchat_purple"
+						icon="twitchat"
 						:title="$t('overlay.connection.dockBt')"
 						white
 						@click="showDockTutorial = true" v-if="!showDockTutorial" />

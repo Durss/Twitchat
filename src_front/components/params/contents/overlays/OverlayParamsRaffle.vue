@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket_purple']">
+	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket']">
 		<div class="holder">
 			
 			<div class="row">
@@ -24,7 +24,7 @@
 			
 			<div class="row">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
-					<template #MENU><img src="@/assets/icons/commands_purple.svg" class="icon"></template>
+					<template #MENU><img src="@/assets/icons/commands.svg" class="icon"></template>
 					<template #CMD><strong>/raffle</strong></template>
 				</i18n-t>
 			</div>

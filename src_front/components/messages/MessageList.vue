@@ -88,7 +88,7 @@
 				<h1 v-if="!conversationMode">{{ $t("chat.history", {USER: conversation[0].user.displayName}) }}</h1>
 				<Button class="button"
 					:aria-label="$t('chat.conversation_closeBt_aria')"
-					icon="cross_white"
+					icon="cross"
 					@click="onLeaveMessage" />
 			</div>
 			<div class="messages" ref="conversationMessages">
@@ -1655,7 +1655,7 @@ export default class MessageList extends Vue {
 	.fake {
 		display: inline;
 		background-color: var(--mainColor_light);
-		border-radius: var(--border_radius);
+		border-radius: var(--border-radius);
 		align-self: center;
 		padding: .2em .5em;
 		margin-right: 5px;

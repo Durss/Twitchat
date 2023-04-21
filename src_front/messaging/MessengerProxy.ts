@@ -289,6 +289,11 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/suggestion") {
+			StoreProxy.params.currentModal = "chatsuggForm";
+			return true;
+		}else
+
 		if(cmd == "/voice") {
 			//change voicemod voice
 			//TODO

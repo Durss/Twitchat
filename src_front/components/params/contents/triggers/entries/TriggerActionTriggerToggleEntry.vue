@@ -16,7 +16,7 @@
 			</div>
 
 			<div class="row item field">
-				<img src="@/assets/icons/broadcast_purple.svg" class="icon">
+				<img src="@/assets/icons/broadcast.svg" class="icon">
 				<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
 				<TriggerList
 					noEdit

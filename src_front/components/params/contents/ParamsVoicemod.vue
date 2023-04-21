@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsvoicemod">
-		<img src="@/assets/icons/voicemod_purple.svg" alt="voicemod icon" class="icon">
+		<img src="@/assets/icons/voicemod.svg" alt="voicemod icon" class="icon">
 		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
 			<template #LINK>
 				<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>

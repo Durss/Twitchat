@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			
-			<img src="@/assets/icons/update_purple.svg" alt="emergency" class="icon">
+			<img src="@/assets/icons/update.svg" alt="emergency" class="icon">
 			
 			<button class="closeBt" @click="close()"><img src="@/assets/icons/cross.svg"></button>
 
@@ -33,8 +33,8 @@
 							<div v-if="item.i=='count'">
 								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
 								<div class="counterActions">
-									<Button title="10" icon="minus_purple" @click="counterExample.value -=10; progressExample.value -= 10" white />
-									<Button title="10" icon="add_purple" @click="counterExample.value +=10; progressExample.value += 10" white />
+									<Button title="10" icon="minus" @click="counterExample.value -=10; progressExample.value -= 10" white />
+									<Button title="10" icon="add" @click="counterExample.value +=10; progressExample.value += 10" white />
 								</div>
 								<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
 								<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />
@@ -205,7 +205,7 @@ export default class Changelog extends Vue {
 				gap: 1em;
 				padding: 1em 3em;
 				color:var(--mainColor_light);
-				border-radius: var(--border_radius);
+				border-radius: var(--border-radius);
 				background-color: var(--mainColor_normal);
 				width: calc(100% - 5px);
 

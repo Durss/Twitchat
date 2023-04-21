@@ -20,7 +20,7 @@
 		</div>
 
 		<div class="row item field" v-else>
-			<img src="@/assets/icons/broadcast_purple.svg" class="icon">
+			<img src="@/assets/icons/broadcast.svg" class="icon">
 			<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
 			<TriggerList
 				noEdit
@@ -87,7 +87,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 		if(e.icon.indexOf("/") > -1) {
 			return e.icon as string;
 		}
-		return this.$image("icons/"+e.icon+"_purple.svg");
+		return this.$image("icons/"+e.icon+".svg");
 	}
 
 	public mounted():void {

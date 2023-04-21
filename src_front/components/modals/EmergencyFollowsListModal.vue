@@ -2,7 +2,7 @@
 	<div class="emergencyfollowslistmodal">
 		<div class="dimmer" ref="dimmer"></div>
 		<div class="holder" ref="holder">
-			<img src="@/assets/icons/emergency_purple.svg" alt="emergency" class="icon">
+			<img src="@/assets/icons/emergency.svg" alt="emergency" class="icon">
 			<div class="head">
 				<i18n-t scope="global" keypath="followbot.title" :plural="followers.length" tag="span" class="title">
 					<template #COUNT>{{ followers.length }}</template>
@@ -55,7 +55,7 @@
 									@click="unfollow(item)"
 									v-tooltip="$t('followbot.unfollow_tt')"
 									highlight
-									icon="unfollow_white"
+									icon="unfollow"
 									v-if="item.user.channelInfo[item.channel_id].is_following == true" />
 
 								<Button class="cardBt" small
@@ -71,7 +71,7 @@
 				</div>
 				<div class="batchActions">
 					<Button small @click="banAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.banBt')" icon="ban" />
-					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.unfollowBt')" icon="unfollow_white" />
+					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.unfollowBt')" icon="unfollow" />
 					<Button small @click="exportCSV()" bounce :loading="batchActionInProgress" :title="$t('followbot.exportBt')" icon="save" />
 				</div>
 				<div class="ctas">

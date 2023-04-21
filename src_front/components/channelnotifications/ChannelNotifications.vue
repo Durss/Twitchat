@@ -3,11 +3,8 @@
 		<div ref="content" class="holder">
 			<transition name="slide">
 				<PollState class="content" v-if="showPoll" />
-				<ChatSuggestionState class="content" v-else-if="showChatPoll" />
 				<PredictionState class="content" v-else-if="showPrediction" />
-				<TrackedUsers class="content" v-else-if="showTrackedUsers" @close="$emit('close')" />
 				<RaffleState class="content" v-else-if="showRaffle" />
-				<WhispersState class="content" v-else-if="showWhispers" />
 				<BingoState class="content" v-else-if="showBingo" />
 				<DeezerState class="content" v-else-if="showDeezer" />
 			</transition>
@@ -24,30 +21,27 @@
 				<HypeTrainState class="content" v-if="showHypeTrain" />
 			</transition>
 
-			<Button class="closeBt clearButton" v-if="showClose"
+			<CloseButton class="closeBt clearButton" v-if="showClose"
 				aria-label="close"
-				icon="cross_white"
 				@click="$emit('close')" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
 import MessageSearch from '../chatform/MessageSearch.vue';
 import BingoState from './BingoState.vue';
-import ChatSuggestionState from './ChatSuggestionState.vue';
 import DeezerState from './DeezerState.vue';
 import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
 import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
-import TrackedUsers from './TrackedUsers.vue';
-import WhispersState from './WhispersState.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -56,13 +50,11 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 		RaidState,
 		BingoState,
 		DeezerState,
+		CloseButton,
 		RaffleState,
-		TrackedUsers,
 		MessageSearch,
-		WhispersState,
 		HypeTrainState,
 		PredictionState,
-		ChatSuggestionState,
 	},
 	emits:['close','showDimmer', 'hideDimmer'],
 })
@@ -76,22 +68,16 @@ export default class ChannelNotifications extends Vue {
 	public get showRaid():boolean { return this.$store("stream").currentRaid != null; }
 	public get showHypeTrain():boolean { return this.$store("stream").hypeTrain != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store("poll").data?.id != null; }
-	public get showChatPoll():boolean { return this.currentContent == 'sugg' && this.$store("chatSuggestion").data != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store("prediction").data?.id != null; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store("raffle").data != null && this.$store("raffle").data!.mode == "chat"; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store("bingo").data != null; }
-	public get showWhispers():boolean { return this.currentContent == 'whispers' && this.whispersAvailable; }
 	public get showDeezer():boolean { return this.currentContent == 'deezer' && this.$store("music").deezerConnected; }
-	public get showTrackedUsers():boolean { return this.currentContent == 'tracked'; }
 
 	public get showClose():boolean {
 		return this.showPoll
+			|| this.showPrediction
 			|| this.showBingo
 			|| this.showRaffle
-			|| this.showChatPoll
-			|| this.showWhispers
-			|| this.showPrediction
-			|| this.showTrackedUsers
 			|| this.showDeezer
 		;
 	}
@@ -138,26 +124,10 @@ export default class ChannelNotifications extends Vue {
 
 	.holder {
 		position: relative;
-
-		.content {
-			pointer-events:all;
-			padding: 10px;
-			padding-bottom: 10px;
-			background-color: var(--windowStateColor);
-			box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
-			border-radius: 10px;
-			border-bottom-right-radius: 0;
-			border-bottom-left-radius: 0;
-			display: flex;
-			flex-direction: column;
-			width: 100%;
-			max-height: 50vh;//calc(100vh - 100px);
-			overflow-y: auto;
-			margin-bottom: 0;
-			z-index: 1;
-			transition: all 0.2s;
+		pointer-events:all;
+		&>* {
+			transition: margin-bottom .35s;
 		}
-
 		.closeBt {
 			position: absolute;
 			top:10px;
@@ -166,17 +136,11 @@ export default class ChannelNotifications extends Vue {
 			height: 1.5em;
 			padding: 0;
 			z-index: 1;
-			pointer-events:all;
 		}
 
 		.slide-enter-from,
 		.slide-leave-to {
-			// max-height: 0;
-			// padding: 0;
-			// transform: scaleY(0);
-			// transform: translateY(100%);
-			// margin-bottom: -10vh;
-			margin-bottom: -400px;//calc(-100vh + 100px);
+			margin-bottom: -200px;
 		}
 	}
 }

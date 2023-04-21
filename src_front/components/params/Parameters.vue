@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<Button :aria-label="$t('params.backBt_aria')" icon="back_purple" @click="back()" class="backBt clearButton" bounce v-if="content != contentMain" />
+				<Button :aria-label="$t('params.backBt_aria')" icon="back" @click="back()" class="backBt clearButton" bounce v-if="content != contentMain" />
 				<h1 class="title">{{$t('params.categories.'+content)}}</h1>
 				<Button :aria-label="$t('params.closeBt_aria')" icon="cross" @click="close()" class="clearButton" bounce />
 			</div>
@@ -16,21 +16,21 @@
 				<div ref="adNoDonor"></div>
 
 				<div class="buttonList" v-if="content != contentAd">
-					<Button bounce white icon="params_purple"		:title="$t('params.categories.features')"		@click="openPage(contentFeatures)" />
-					<Button bounce white icon="show_purple"		:title="$t('params.categories.appearance')"		@click="openPage(contentAppearance)" />
-					<Button bounce white icon="emergency_purple"	:title="$t('params.categories.emergency')"		@click="openPage(contentEmergency)" />
-					<Button bounce white icon="mod_purple"			:title="$t('params.categories.automod')"		@click="openPage(contentAutomod)" />
-					<Button bounce white icon="broadcast_purple"	:title="$t('params.categories.triggers')"		@click="openPage(contentTriggers)" />
-					<Button bounce white icon="count_purple"		:title="$t('params.categories.counters')"		@click="openPage(contentCounters)" />
-					<Button bounce white icon="overlay_purple"		:title="$t('params.categories.overlays')"		@click="openPage(contentOverlays)" />
-					<Button bounce white icon="tts_purple"			:title="$t('params.categories.tts')"			@click="openPage(contentTts)" />
-					<Button bounce white icon="voice_purple"		:title="$t('params.categories.voice')"			@click="openPage(contentVoice)" />
-					<Button bounce white icon="obs_purple"			:title="$t('params.categories.obs')"			@click="openPage(contentObs)" />
-					<Button bounce white icon="voicemod_purple"	:title="$t('params.categories.voicemod')"		@click="openPage(contentVoicemod)" />
-					<Button bounce white icon="elgato_purple"		:title="$t('params.categories.streamdeck')"		@click="openPage(contentStreamdeck)" />
-					<Button bounce white icon="offline_purple"		:title="$t('params.categories.connexions')"		@click="openPage(contentConnexions)" />
-					<Button bounce white icon="user_purple"		:title="$t('params.categories.account')"		@click="openPage(contentAccount)" />
-					<Button bounce white icon="info_purple"		:title="$t('params.categories.about')"			@click="openPage(contentAbout)" />
+					<Button bounce white icon="params"		:title="$t('params.categories.features')"		@click="openPage(contentFeatures)" />
+					<Button bounce white icon="show"		:title="$t('params.categories.appearance')"		@click="openPage(contentAppearance)" />
+					<Button bounce white icon="emergency"	:title="$t('params.categories.emergency')"		@click="openPage(contentEmergency)" />
+					<Button bounce white icon="mod"			:title="$t('params.categories.automod')"		@click="openPage(contentAutomod)" />
+					<Button bounce white icon="broadcast"	:title="$t('params.categories.triggers')"		@click="openPage(contentTriggers)" />
+					<Button bounce white icon="count"		:title="$t('params.categories.counters')"		@click="openPage(contentCounters)" />
+					<Button bounce white icon="overlay"		:title="$t('params.categories.overlays')"		@click="openPage(contentOverlays)" />
+					<Button bounce white icon="tts"			:title="$t('params.categories.tts')"			@click="openPage(contentTts)" />
+					<Button bounce white icon="voice"		:title="$t('params.categories.voice')"			@click="openPage(contentVoice)" />
+					<Button bounce white icon="obs"			:title="$t('params.categories.obs')"			@click="openPage(contentObs)" />
+					<Button bounce white icon="voicemod"	:title="$t('params.categories.voicemod')"		@click="openPage(contentVoicemod)" />
+					<Button bounce white icon="elgato"		:title="$t('params.categories.streamdeck')"		@click="openPage(contentStreamdeck)" />
+					<Button bounce white icon="offline"		:title="$t('params.categories.connexions')"		@click="openPage(contentConnexions)" />
+					<Button bounce white icon="user"		:title="$t('params.categories.account')"		@click="openPage(contentAccount)" />
+					<Button bounce white icon="info"		:title="$t('params.categories.about')"			@click="openPage(contentAbout)" />
 				</div>
 
 				<div ref="adDonor"></div>

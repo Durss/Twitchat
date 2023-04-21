@@ -15,7 +15,7 @@
 			<Button v-for="link in links" type="link" ref="button"
 				:href="link.url" target="_blank"
 				big primary
-				:icon="link.icon+'_white'"
+				:icon="link.icon+''"
 				:disabled="!checkbox.value"
 				@click.native.capture="clickItem()">
 					<div class="labelHolder">

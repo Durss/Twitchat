@@ -1,6 +1,6 @@
 <template>
 	<div class="triggerconditionlistitem">
-		<img src="@/assets/icons/dragZone_purple.svg" alt="drag" class="dragIcon">
+		<img src="@/assets/icons/dragZone.svg" alt="drag" class="dragIcon">
 
 		<ParamItem class="placeholder" :paramData="param_placeholder" @change="updateOperators()" v-model="condition.placeholder" :key="'ph_'+condition.id" />
 
@@ -12,7 +12,7 @@
 			<Button small icon="group"
 				@click="addItem()"
 				v-tooltip="$t('triggers.condition.group_tt')" />
-			<Button highlight small icon="cross_white"
+			<Button highlight small icon="cross"
 				@click="deleteItem()" />
 		</div>
 	</div>

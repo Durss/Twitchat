@@ -36,7 +36,7 @@
 		</div>
 
 		<Button class="item"
-			icon="ticket_purple"
+			icon="ticket"
 			:title="$t('raffle.state_pickBt')"
 			@click="pickWinner()"
 			white
@@ -48,7 +48,7 @@
 			:placeholders="winnerPlaceholders" />
 
 		<Button class="item"
-			icon="cross_white"
+			icon="cross"
 			:title="$t('raffle.state_stopBt')"
 			highlight
 			@click="closeRaffle()" />
@@ -134,7 +134,6 @@ export default class RaffleState extends Vue {
 
 <style scoped lang="less">
 .rafflestate{
-	.gameStateWindow();
 
 	.cmd {
 		margin-left: .5em;

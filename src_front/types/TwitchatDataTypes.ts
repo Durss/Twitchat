@@ -5,9 +5,9 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login" | "tracked" | "whispers";
 	
-	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "sugg" | "save" | "tracked" | "highlight" | "shoutout" | "whispers" | "deezer";
+	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "deezer";
 	
 	export const ParamOverlaySections = {
 		WHEEL: "wheel",

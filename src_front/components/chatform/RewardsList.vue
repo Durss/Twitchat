@@ -1,7 +1,7 @@
 <template>
 	<div class="rewardslist">
 		<div v-if="rewards.length == 0" class="loader">
-			<img src="@/assets/loader/loader_white.svg" alt="loader">
+			<img src="@/assets/loader/loader.svg" alt="loader">
 			<p>loading...</p>
 		</div>
 

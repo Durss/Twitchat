@@ -12,7 +12,7 @@
 				:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title')]"
 				:icons="['commands', 'sub', 'list']" />
 			
-			<ToggleBlock v-if="triggerMode === false && mode!='manual'" :icons="['infos_red']" small :title="$t('raffle.legal.title')" :open="false" class="legal">
+			<ToggleBlock v-if="triggerMode === false && mode!='manual'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false" class="legal">
 				<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
 			</ToggleBlock>
 		</div>

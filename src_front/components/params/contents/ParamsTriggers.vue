@@ -1,6 +1,6 @@
 <template>
 	<div class="paramstriggers">
-		<img src="@/assets/icons/broadcast_purple.svg" alt="overlay icon" class="icon">
+		<img src="@/assets/icons/broadcast.svg" alt="overlay icon" class="icon">
 
 		<i18n-t scope="global" tag="p" class="head" :keypath="headerKey" v-if="!currentTriggerData">
 			<template #COUNT><strong>{{ eventsCount }}</strong></template>

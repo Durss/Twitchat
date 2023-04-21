@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionttsentry" v-if="!$store('tts').params.enabled">
 		<div class="row info warn">
-			<img src="@/assets/icons/infos.svg" alt="info">
+			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.tts.header">
 				<template #LINK>
 					<a @click="$store('params').openParamsPage(contentTTS)">{{ $t("triggers.actions.tts.header_link") }}</a>
@@ -34,7 +34,7 @@ export default class TriggerActionTTSEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
 	
 	public get contentTTS():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; }
 

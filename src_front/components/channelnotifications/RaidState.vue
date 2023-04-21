@@ -43,7 +43,7 @@
 		</ToggleBlock>
 
 		<Button class="cancelBt" type="button"
-			icon="cross_white"
+			icon="cross"
 			bounce highlight
 			:title="$t('global.cancel')"
 			@click="cancelRaid()" />

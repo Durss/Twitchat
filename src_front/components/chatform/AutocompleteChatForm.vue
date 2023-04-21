@@ -19,7 +19,7 @@
 
 			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="cmd">
 			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" v-tooltip="$t('global.cmd_admin')">
-			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch_white.svg" alt="user" v-tooltip="$t('global.cmd_twitch')">
+			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch.svg" alt="user" v-tooltip="$t('global.cmd_twitch')">
 			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" v-tooltip="$t('global.cmd_mod')">
 
 			<div class="name">{{i.label}}</div>

@@ -25,7 +25,7 @@
 					big
 					ref="loginBt"
 					:to="{name:'login'}"
-					icon="twitch_white"
+					icon="twitch"
 					v-if="!hasAuthToken"
 				>{{ $t('home.loginBt') }}</Button>
 
@@ -33,7 +33,7 @@
 					secondary
 					big
 					ref="loginBt"
-					icon="twitch_white"
+					icon="twitch"
 					@click="redirectToChat()"
 					v-if="hasAuthToken"
 				>{{ $t('home.openBt') }}</Button>

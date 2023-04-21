@@ -9,7 +9,7 @@
 		</section>
 		
 		<section class="scopes">
-			<div class="title"><img src="@/assets/icons/lock_fit_purple.svg">{{$t("account.authorization")}}</div>
+			<div class="title"><img src="@/assets/icons/lock_fit.svg">{{$t("account.authorization")}}</div>
 			
 			<ScopeSelector @update="onScopesUpdate" />
 
@@ -21,7 +21,7 @@
 				bounce
 				:loading="generatingCSRF"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-				icon="twitch_white"
+				icon="twitch"
 			/>
 		</section>
 
@@ -114,7 +114,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	public get userPP():string {
 		let pp:string|undefined = StoreProxy.auth.twitch.user.avatarPath;
 		if(!pp) {
-			pp = this.$image("icons/user_purple.svg");
+			pp = this.$image("icons/user.svg");
 		}
 		return pp;
 	}

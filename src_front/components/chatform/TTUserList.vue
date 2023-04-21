@@ -32,7 +32,7 @@
 					target="_blank"
 				>
 					<div class="header" v-if="u.user">
-						<img :src="getProfilePicURL(u)" alt="profile" class="avatar">
+						<img :src="getProfilePicURL(u)" alt="profile" class="icon">
 						
 						<span class="title">
 							{{u.user.login}}
@@ -40,7 +40,7 @@
 						</span>
 					</div>
 					<div class="header error" v-else>
-						<img src="@/assets/icons/user.svg" alt="profile" class="avatar">
+						<img src="@/assets/icons/user.svg" alt="profile" class="icon">
 						<span class="title">#{{u.id}}</span>
 					</div>
 					<div class="details">{{formatDate(u)}}</div>
@@ -53,7 +53,7 @@
 			icon="user"
 			@click="loadNextUsers()" />
 	
-			<img class="loader" src="@/assets/loader/loader_white.svg" alt="loader" v-if="loading">
+			<img class="loader" src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
 		</div>
 	</div>
 </template>
@@ -220,6 +220,8 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 	.content {
 
 		.stats {
+			.card(true);
+			flex-shrink: 0;
 			.table {
 				display: grid;
 				grid-template-columns: auto auto;
@@ -277,7 +279,7 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 					
 					&.error {
 						background-color: var(--color-alert);
-						.avatar {
+						.icon {
 							background-color: var(--color-dark);
 						}
 					}

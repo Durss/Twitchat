@@ -17,7 +17,7 @@
 					<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
 					<div class="status" v-tooltip="'complete'" v-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
 					<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
-					<div class="status" v-tooltip="'pending'" v-else><img src="@/assets/loader/loader_white.svg"></div>
+					<div class="status" v-tooltip="'pending'" v-else><img src="@/assets/loader/loader.svg"></div>
 					<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
 					<div class="date">{{ getFormatedDime(item.date) }}</div>
 					<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>

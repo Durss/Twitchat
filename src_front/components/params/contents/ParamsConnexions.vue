@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsconnexions">
-		<ToggleBlock class="item" :open="false" title="OBS websocket" :icons="['obs_purple']">
+		<ToggleBlock class="item" :open="false" title="OBS websocket" :icons="['obs']">
 			<OBSConnectForm />
 		</ToggleBlock>
 

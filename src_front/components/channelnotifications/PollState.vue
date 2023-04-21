@@ -1,5 +1,5 @@
 <template>
-	<div class="pollstate">
+	<div class="pollstate gameStateWindow">
 		<h1 class="title"><img src="@/assets/icons/poll.svg">{{poll.title}}</h1>
 		
 		<ProgressBar class="progress"
@@ -122,8 +122,6 @@ export default class PollState extends Vue {
 
 <style scoped lang="less">
 .pollstate{
-	.gameStateWindow();
-
 	.creator {
 		font-size: .8em;
 		text-align: center;

@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsspoiler">
-		<img src="@/assets/icons/show_purple.svg" alt="emergency icon" class="icon">
+		<img src="@/assets/icons/show.svg" alt="emergency icon" class="icon">
 		
 		<p class="header"></p>
 		<i18n-t scope="global" tag="p" class="header" keypath="spoiler.header">

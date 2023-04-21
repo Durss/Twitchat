@@ -1,7 +1,7 @@
 <template>
 	<div class="voicecontrol">
 		<div class="block head">
-			<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
+			<img src="@/assets/icons/voice.svg" alt="voice icon" class="icon">
 			<p>{{ $t("voice.remote.title") }}</p>
 			<p class="install"><span>{{ $t("obs.install") }}</span> <strong>OBS v28+</strong>
 				<br><i v-html="$t('obs.install_option', {PLUGIN_URL:obswsInstaller})"></i></p>
@@ -9,7 +9,7 @@
 
 		<ToggleBlock class="block conf"
 		:open="!connected"
-		icon="info_purple"
+		icon="info"
 		:title="$t('obs.credentials_form_title')">
 			<OBSConnectForm  class="connectForm" />
 		</ToggleBlock>

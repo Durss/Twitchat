@@ -1,7 +1,7 @@
 <template>
 	<div class="scopeselector">
 		<div class="forced" v-if="param_items_requested.length > 0">
-			<img src="@/assets/icons/unlock_purple.svg" class="unlockIcon">
+			<img src="@/assets/icons/unlock.svg" class="unlockIcon">
 			<p class="head">{{ $tc("login.specific_scope", param_items_requested.length) }}</p>
 			<div class="optionList">
 				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :paramData="p" @change="onSelectionUpdate()" />
@@ -11,7 +11,7 @@
 		<Button class="allowMoreBt"
 			v-if="!forceFullList && param_items_requested.length > 0"
 			:title="$t('login.specific_scope_moreBt')"
-			icon="lock_fit_purple"
+			icon="lock_fit"
 			small white
 			@click="expandList()" />
 

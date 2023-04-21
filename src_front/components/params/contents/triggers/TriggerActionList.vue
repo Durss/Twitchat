@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionlist">
 		<div class="description">
-			<img src="@/assets/icons/info_purple.svg" class="icon">
+			<img src="@/assets/icons/info.svg" class="icon">
 			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
 				<template #SUB_ITEM_NAME>
 					<mark>{{ subTypeLabel }}</mark>
@@ -26,7 +26,7 @@
 			
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
-					<img src="@/assets/icons/list_purple.svg" class="icon">
+					<img src="@/assets/icons/list.svg" class="icon">
 					<span>{{ $t("triggers.trigger_queue") }}</span>
 				</div>
 				<ParamItem class="selector" :paramData="param_queue" v-model="triggerData.queue" />
@@ -139,7 +139,7 @@ export default class TriggerActionList extends Vue {
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
 	
-	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date_purple.svg", placeholder:"...", labelKey:"triggers.trigger_name" };
+	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date.svg", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string[]> = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 
 	/**

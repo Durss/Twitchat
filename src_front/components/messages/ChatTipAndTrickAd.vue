@@ -1,7 +1,7 @@
 <template>
 	<div class="chattipandtrickad">
 		<div v-if="tipIndex===0" class="entry">
-			<img src="@/assets/icons/obs_purple.svg" alt="elgato" class="icon">
+			<img src="@/assets/icons/obs.svg" alt="elgato" class="icon">
 			<h1 class="row">{{ $t("tips.alerts.title") }}</h1>
 			<div class="row">{{ $t("tips.alerts.info_1") }}</div>
 			<div class="row">{{ $t('tips.alerts.info_2') }}</div>
@@ -9,7 +9,7 @@
 		</div>
 		
 		<div v-if="tipIndex===1" class="entry">
-			<img src="@/assets/icons/elgato_purple.svg" alt="elgato" class="icon">
+			<img src="@/assets/icons/elgato.svg" alt="elgato" class="icon">
 			<h1 class="row">{{ $t('tips.streamdeck.title') }}</h1>
 			<div class="row">{{ $t('tips.streamdeck.info_1') }}</div>
 			<div class="row">{{ $t('tips.streamdeck.info_2') }}</div>
@@ -17,21 +17,21 @@
 		</div>
 		
 		<div v-if="tipIndex===2" class="entry">
-			<img src="@/assets/icons/raid_purple.svg" alt="raid" class="icon">
+			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
 			<h1 class="row">{{ $t('tips.obs_stop.title') }}</h1>
 			<div class="row">{{ $t('tips.obs_stop.info_1') }}</div>
 			<Button :title="$t('tips.tryBt')" @click.stop="openParamItem('features.stopStreamOnRaid')" />
 		</div>
 		
 		<div v-if="tipIndex===3" class="entry">
-			<img src="@/assets/icons/bingo_purple.svg" alt="bingo" class="icon">
+			<img src="@/assets/icons/bingo.svg" alt="bingo" class="icon">
 			<h1 class="row">{{ $t('tips.bingo.title') }}</h1>
 			<div class="row">{{ $t('tips.bingo.info_1') }}</div>
 			<Button :title="$t('tips.tryBt')" @click.stop="openModal('bingo')" />
 		</div>
 		
 		<div v-if="tipIndex===4" class="entry">
-			<img src="@/assets/icons/ticket_purple.svg" alt="raffle" class="icon">
+			<img src="@/assets/icons/ticket.svg" alt="raffle" class="icon">
 			<h1 class="row">{{ $t('tips.raffle.title') }}</h1>
 			<div class="row">{{ $t('tips.raffle.info_1') }}</div>
 			<div class="row">{{ $t('tips.raffle.info_2') }}</div>
@@ -40,7 +40,7 @@
 		</div>
 		
 		<div v-if="tipIndex===5" class="entry">
-			<img src="@/assets/icons/obs_purple.svg" alt="obs" class="icon">
+			<img src="@/assets/icons/obs.svg" alt="obs" class="icon">
 			<h1 class="row">{{ $t('tips.obs.title') }}</h1>
 			<div class="row">{{ $t('tips.obs.info_1') }}</div>
 			<div class="row">{{ $t('tips.obs.info_2') }}</div>
@@ -48,11 +48,11 @@
 		</div>
 		
 		<div v-if="tipIndex===6" class="entry">
-			<img src="@/assets/icons/api_purple.svg" alt="api" class="icon">
+			<img src="@/assets/icons/api.svg" alt="api" class="icon">
 			<h1 class="row">{{ $t('tips.api.title') }}</h1>
 			<div class="row">{{ $t('tips.api.info_1') }}</div>
 			<div class="row">{{ $t('tips.api.info_2') }}</div>
-			<Button icon="github_white"
+			<Button icon="github"
 				style="display: inline-block;"
 				:title="$t('tips.api.readBt')"
 				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
@@ -62,7 +62,7 @@
 		</div>
 		
 		<div v-if="tipIndex===7" class="entry">
-			<img src="@/assets/icons/music_purple.svg" alt="music" class="icon">
+			<img src="@/assets/icons/music.svg" alt="music" class="icon">
 			<h1 class="row">{{ $t('tips.music.title') }}</h1>
 			<div class="row" v-html="$t('tips.music.info_1')"></div>
 			<div class="row">{{ $t('tips.music.info_2') }}</div>
@@ -71,7 +71,7 @@
 		</div>
 		
 		<div v-if="tipIndex===8" class="entry">
-			<img src="@/assets/icons/overlay_purple.svg" alt="overlay" class="icon">
+			<img src="@/assets/icons/overlay.svg" alt="overlay" class="icon">
 			<h1 class="row">{{ $t('tips.overlays.title') }}</h1>
 			<div class="row" v-html="$t('tips.overlays.info_1')"></div>
 			<div class="row" v-html="$t('tips.overlays.info_2')"></div>
@@ -79,7 +79,7 @@
 		</div>
 		
 		<div v-if="tipIndex===9" class="entry">
-			<img src="@/assets/icons/countdown_purple.svg" alt="timer" class="icon">
+			<img src="@/assets/icons/countdown.svg" alt="timer" class="icon">
 			<h1 class="row">{{ $t('tips.countdown.title') }}</h1>
 			<i18n-t scope="global" class="row" tag="div" keypath="tips.countdown.info_1">
 				<template #CMD1><span class="cmd">/timerStart</span></template>
@@ -90,7 +90,7 @@
 		</div>
 		
 		<div v-if="tipIndex===10" class="entry">
-			<img src="@/assets/icons/obs_purple.svg" alt="obs dock" class="icon">
+			<img src="@/assets/icons/obs.svg" alt="obs dock" class="icon">
 			<h1 class="row">{{ $t('tips.dock.title') }}</h1>
 			<div class="row" v-html="$t('tips.dock.info_1')"></div>
 			<div class="row" v-html="$t('tips.dock.info_2')"></div>
@@ -98,7 +98,7 @@
 		</div>
 		
 		<div v-if="tipIndex===11" class="entry">
-			<img src="@/assets/icons/highlight_purple.svg" alt="chat highlight" class="icon">
+			<img src="@/assets/icons/highlight.svg" alt="chat highlight" class="icon">
 			<h1 class="row">{{ $t('tips.highlight.title') }}</h1>
 			<div class="row">{{ $t('tips.highlight.info_1') }}</div>
 			<div class="row">{{ $t('tips.highlight.info_2') }}</div>

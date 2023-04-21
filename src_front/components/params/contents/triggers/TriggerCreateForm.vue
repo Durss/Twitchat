@@ -28,7 +28,7 @@
 			:key="c.category.labelKey"
 			:title="$t(c.category.labelKey)"
 			:open="false"
-			:icons="[c.category.icon+'_purple']">
+			:icons="[c.category.icon+'']">
 				<i18n-t scope="global" tag="div" class="require"
 				v-if="!musicServiceAvailable && isMusicCategory(c.category)"
 				keypath="triggers.music.require">
@@ -149,7 +149,7 @@ export default class TriggerCreateForm extends Vue {
 	public getIcon(e:TriggerTypeDefinition):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) return e.icon as string;
-		return this.$image("icons/"+e.icon+"_purple.svg");
+		return this.$image("icons/"+e.icon+".svg");
 	}
 
 	public isMusicCategory(category:TriggerEventTypeCategory):boolean {
@@ -171,7 +171,7 @@ export default class TriggerCreateForm extends Vue {
 				label:this.$t(v.labelKey),
 				value:v.value,
 				trigger:v,
-				icon:this.$image('icons/'+v.icon+'_purple.svg'),
+				icon:this.$image('icons/'+v.icon+'.svg'),
 				isCategory:false,
 			}
 		});
@@ -208,7 +208,7 @@ export default class TriggerCreateForm extends Vue {
 				this.triggerTypeList.splice(i, 0, {
 					label: this.$t(t.trigger!.category.labelKey),
 					value:"",
-					icon: this.$image('icons/'+t.trigger!.category.icon+'_purple.svg'),
+					icon: this.$image('icons/'+t.trigger!.category.icon+'.svg'),
 					isCategory: true,
 				});
 				prevCategrory = t.trigger!.category.id;

@@ -10,7 +10,7 @@
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
 			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" v-tooltip="$t('global.tooltips.column_delete')">
-				<img src="@/assets/icons/cross_white.svg" alt="delete column" class="icon">
+				<img src="@/assets/icons/cross.svg" alt="delete column" class="icon">
 			</button>
 			<button class="addBt" @click="$emit('add')" v-tooltip="$t('global.tooltips.column_add')">
 				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
@@ -30,20 +30,20 @@
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
 					<button :aria-label="$t('chat.filters.closeBt_aria')" class="closeBt" @click="closeFilters()" v-if="!forceConfig">
-						<img src="@/assets/icons/cross_white.svg" :alt="$t('chat.filters.closeBt_aria')" class="icon">
+						<img src="@/assets/icons/cross.svg" :alt="$t('chat.filters.closeBt_aria')" class="icon">
 					</button>
 				</div>
 				
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
 				
 				<div class="presets">
-					<Button @click="preset('chat')" :title="$t('chat.filters.preset_chat')" icon="whispers_purple" small white />
-					<Button @click="preset('chatSafe')" :title="$t('chat.filters.preset_chatSafe')" icon="shield_purple" small white />
-					<Button @click="preset('moderation')" :title="$t('chat.filters.preset_moderation')" icon="mod_purple" small white />
-					<Button @click="preset('activities')" :title="$t('chat.filters.preset_activities')" icon="stars_purple" small white />
-					<Button @click="preset('moderation&activities')" :title="$t('chat.filters.preset_moderation_and_activities')" icon="stars_purple" small white />
-					<Button @click="preset('games')" :title="$t('chat.filters.preset_games')" icon="bingo_purple" small white />
-					<Button @click="preset('revenues')" :title="$t('chat.filters.preset_revenues')" icon="coin_purple" small white />
+					<Button @click="preset('chat')" :title="$t('chat.filters.preset_chat')" icon="whispers" small white />
+					<Button @click="preset('chatSafe')" :title="$t('chat.filters.preset_chatSafe')" icon="shield" small white />
+					<Button @click="preset('moderation')" :title="$t('chat.filters.preset_moderation')" icon="mod" small white />
+					<Button @click="preset('activities')" :title="$t('chat.filters.preset_activities')" icon="stars" small white />
+					<Button @click="preset('moderation&activities')" :title="$t('chat.filters.preset_moderation_and_activities')" icon="stars" small white />
+					<Button @click="preset('games')" :title="$t('chat.filters.preset_games')" icon="bingo" small white />
+					<Button @click="preset('revenues')" :title="$t('chat.filters.preset_revenues')" icon="coin" small white />
 				</div>
 				
 				<div class="paramsList">
@@ -98,8 +98,8 @@
 				<div class="error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
 
 				<div class="ctas">
-					<Button :title="$t('global.cancel')" small icon="cross_white" highlight v-if="forceConfig" @click="deleteColumn()" />
-					<Button :title="$t('global.create')" small icon="add_purple" white v-if="forceConfig" @click="submitForm()" />
+					<Button :title="$t('global.cancel')" small icon="cross" highlight v-if="forceConfig" @click="deleteColumn()" />
+					<Button :title="$t('global.create')" small icon="add" white v-if="forceConfig" @click="submitForm()" />
 				</div>
 
 				<ParamItem class="showPanelsHere"
@@ -112,12 +112,12 @@
 
 			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
 				<div class="preview missingScope" v-if="missingScope">
-					<img src="@/assets/icons/unlock_dark.svg">
+					<img src="@/assets/icons/unlock.svg">
 					<p>{{ $t("chat.filters.scope_missing") }}</p>
 				</div>
 
 				<div class="preview" v-if="loadingPreview">
-					<img src="@/assets/loader/loader_white.svg" alt="loading" class="loader">
+					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
 				</div>
 	
 				<div class="preview" v-for="m in previewData" :key="'preview_'+m.id" @click="clickPreview($event)">
@@ -262,8 +262,8 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= "unban.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAID]									= "raid.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.POLL]									= "poll.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN]									= "enter_white.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.LEAVE]								= "leave_white.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN]									= "enter.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.LEAVE]								= "leave.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.CHEER]								= "bits.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BINGO]								= "bingo.svg";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAFFLE]								= "ticket.svg";

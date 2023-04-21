@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes" v-if="!obsConnected">
 		<div class="item info warn">
-			<img src="@/assets/icons/infos.svg" alt="info">
+			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
 				<template #LINK>
 					<a @click="$store('params').openParamsPage(contentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
@@ -17,7 +17,7 @@
 		<ParamItem class="row item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
 		<ParamItem class="row item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource && action_conf.value == 'show'" ref="textContent" />
 		<div v-if="showPlaceholderWarning" class="row info security">
-			<img src="@/assets/icons/alert_purple.svg" alt="info" class="">
+			<img src="@/assets/icons/alert.svg" alt="info" class="">
 			<i18n-t scope="global" class="label" tag="div" keypath="triggers.actions.obs.media_source">
 				<template #CMD1><mark>..</mark></template>
 				<template #CMD2><mark>/</mark></template>
@@ -58,12 +58,12 @@ export default class TriggerActionOBSEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 	
-	public action_conf:TwitchatDataTypes.ParameterData<string, TriggerActionObsDataAction> = { type:"list", value:"show", listValues:[], icon:"show_purple.svg" };
-	public source_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], icon:"list_purple.svg", children:[] };
+	public action_conf:TwitchatDataTypes.ParameterData<string, TriggerActionObsDataAction> = { type:"list", value:"show", listValues:[], icon:"show.svg" };
+	public source_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], icon:"list.svg", children:[] };
 	public filter_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[] };
-	public text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url_purple.svg", placeholder:"http://..." };
-	public media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url_purple.svg", placeholder:"C:/..." };
+	public text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
+	public url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url.svg", placeholder:"http://..." };
+	public media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url.svg", placeholder:"C:/..." };
 	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];

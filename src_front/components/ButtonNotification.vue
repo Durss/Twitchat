@@ -37,7 +37,7 @@ export default class ButtonNotification extends Vue {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: var(--border_radius);
+	border-radius: var(--border-radius);
 	position: relative;
 
 	img {

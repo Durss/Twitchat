@@ -275,7 +275,7 @@ export const storeAuth = defineStore('auth', {
 							m.message_chunks = chunks;
 							m.message_html = TwitchUtils.messageChunksToHTML(chunks)
 							m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
-							m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat_purple.svg`, import.meta.url).href;
+							m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat.svg`, import.meta.url).href;
 							m.user.color = "#bb8eff";
 						});
 					}, 5000);

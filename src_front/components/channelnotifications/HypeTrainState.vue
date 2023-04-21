@@ -50,7 +50,7 @@
 		<div class="content conductors">
 			<div v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
 				<div class="head">
-					<div class="icon"><img src="@/assets/icons/sub_purple.svg"></div>
+					<div class="icon"><img src="@/assets/icons/sub.svg"></div>
 				</div>
 
 				<img :src="conductor_subs.user.avatarPath" class="avatar">
@@ -66,7 +66,7 @@
 
 			<div v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
 				<div class="head">
-					<div class="icon"><img src="@/assets/icons/bits_purple.svg"></div>
+					<div class="icon"><img src="@/assets/icons/bits.svg"></div>
 				</div>
 
 				<img :src="conductor_bits.user.avatarPath" class="avatar">

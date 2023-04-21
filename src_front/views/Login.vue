@@ -34,7 +34,7 @@
 					bounce
 					:loading="generatingCSRF"
 					v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-					icon="twitch_white"
+					icon="twitch"
 				/>
 	
 				<Button :title="$t('login.retryBt')"

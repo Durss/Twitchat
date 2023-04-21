@@ -3,8 +3,8 @@
 		<h1>Developer panel</h1>
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
-			<Button small @click="simulateEvent('join')" icon="enter_white">Join</Button>
-			<Button small @click="simulateEvent('leave')" icon="leave_white">Leave</Button>
+			<Button small @click="simulateEvent('join')" icon="enter">Join</Button>
+			<Button small @click="simulateEvent('leave')" icon="leave">Leave</Button>
 			<Button small @click="simulateEvent('ban')" icon="ban">Ban</Button>
 			<Button small @click="simulateEvent('unban')" icon="unban">Unban</Button>
 			<Button small @click="simulateEvent('message', 'first')" icon="firstTime">First message</Button>

@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight_purple']">
+	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight']">
 		
 		<div class="holder">
 			<div class="row">{{ $t("overlay.highlight.head") }}</div>

@@ -19,7 +19,7 @@
 			<div class="ctas" v-if="canUnban || canBlock">
 				<Button white v-if="canUnban"
 					:loading="moderating"
-					icon="unban_purple"
+					icon="unban"
 					:title="$t('chat.autoban_join.unbanBt')"
 					@click.stop="unbanUser()" />
 	

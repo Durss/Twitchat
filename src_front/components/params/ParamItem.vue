@@ -11,7 +11,7 @@
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
+					src="@/assets/icons/help.svg"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 					class="helpIcon"
 				>
@@ -31,7 +31,7 @@
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
+					src="@/assets/icons/help.svg"
 					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
@@ -49,7 +49,7 @@
 			
 			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
+					src="@/assets/icons/help.svg"
 					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
@@ -74,7 +74,7 @@
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
+					src="@/assets/icons/help.svg"
 					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
@@ -90,7 +90,7 @@
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
+					src="@/assets/icons/help.svg"
 					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
@@ -105,7 +105,7 @@
 			
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
+					src="@/assets/icons/help.svg"
 					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
@@ -132,12 +132,12 @@
 						<div>{{ $t("global.empty_list2") }}</div>
 					</template>
 				</vue-select>
-				<button @click="submitListItem()" v-if="searching" class="listSubmitBt"><img src="@/assets/icons/checkmark_purple.svg" alt="submit"></button>
+				<button @click="submitListItem()" v-if="searching" class="listSubmitBt"><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
+					src="@/assets/icons/help.svg"
 					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
@@ -553,7 +553,7 @@ export default class ParamItem extends Vue {
 	&.error {
 		background-color: var(--color-alert);
 		padding: .5em;
-		border-radius: var(--border_radius);
+		border-radius: var(--border-radius);
 
 		input, select, textarea, .listField{
 			color:var(--mainColor_light);

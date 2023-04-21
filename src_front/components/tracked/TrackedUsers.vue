@@ -29,7 +29,7 @@
 					white
 					small
 					bounce />
-				<Button icon="cross_white"
+				<Button icon="cross"
 					class="deleteBt"
 					@click="untrackUser(u)"
 					small

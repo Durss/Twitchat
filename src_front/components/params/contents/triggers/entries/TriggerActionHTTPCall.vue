@@ -102,8 +102,8 @@ export default class TriggerActionHTTPCall extends Vue {
 		background-color: var(--mainColor_alert);
 		margin-top: -.25em;
 		padding: .5em;
-		border-bottom-left-radius: var(--border_radius);
-		border-bottom-right-radius: var(--border_radius);
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 	}
 
 	.params {

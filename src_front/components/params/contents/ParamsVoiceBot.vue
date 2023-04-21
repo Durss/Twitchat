@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsvoicebot">
-		<img src="@/assets/icons/voice_purple.svg" alt="voice icon" class="icon">
+		<img src="@/assets/icons/voice.svg" alt="voice icon" class="icon">
 		<div class="head">{{ $t("voice.header") }}</div>
 		
 		<div v-if="!voiceApiAvailable" class="noApi">

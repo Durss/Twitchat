@@ -9,6 +9,8 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
 
+let currentRaffleData:TwitchatDataTypes.RaffleData | null = null;
+
 export const storeRaffle = defineStore('raffle', {
 	state: () => ({
 		data: null,
@@ -60,9 +62,8 @@ export const storeRaffle = defineStore('raffle', {
 		stopRaffle() { this.data = null; },
 
 		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish:boolean = false) {
-			console.log("ON RAFFLE COMPLETE", publish, winner);
 			// this.raffle = null;
-			let data:TwitchatDataTypes.RaffleData|null = this.data;
+			let data:TwitchatDataTypes.RaffleData|null = currentRaffleData || this.data;
 			if(data) {
 				const winnerLoc = data.entries.find(v=> v.id == winner.id);
 				if(winnerLoc) {
@@ -126,6 +127,8 @@ export const storeRaffle = defineStore('raffle', {
 			}
 
 			if(data.resultCallback) data.resultCallback();
+			
+			currentRaffleData = null;
 		},
 
 		async checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
@@ -177,6 +180,7 @@ export const storeRaffle = defineStore('raffle', {
 
 		async pickWinner(forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void> {
 			const data = forcedData ?? this.data;
+			currentRaffleData = data;
 			if(!data) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
 				return;

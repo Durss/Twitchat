@@ -28,7 +28,7 @@
 
 				<Button @click.stop="shoutout()"
 					white
-					icon="shoutout_purple"
+					icon="shoutout"
 					:loading="shoutoutLoading"
 					class="soButton"
 				>{{ $t('chat.soBt') }}</Button>

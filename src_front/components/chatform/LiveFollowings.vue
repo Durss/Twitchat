@@ -7,7 +7,7 @@
 		</div>
 		
 		<div class="content">
-			<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader" v-if="loading">
+			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 
 			<div class="needScope" v-if="needScope">
 				<span>{{ $t("liveusers.scope_grant") }}</span>
@@ -18,7 +18,7 @@
 			<div class="list" v-else>
 				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="stream" ref="streamCard" @click.prevent="raid(s)">
 					<div class="header">
-						<img :src="getProfilePicURL(s)" alt="">
+						<img class="icon" :src="getProfilePicURL(s)" alt="">
 						<span class="title">{{s.user_name}}</span>
 					</div>
 					<div class="details">
@@ -116,7 +116,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 		position: absolute;
 		text-align: center;
 		padding: 1em;
-		border-radius: var(--border_radius);
+		border-radius: var(--border-radius);
 		background-color: var(--color-light);
 		color: var(--color-primary);
 		display: flex;

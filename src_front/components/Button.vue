@@ -14,7 +14,7 @@
 			<span class="select" v-if="selected"></span>
 		</span>
 
-		<img v-if="icon && loading" :src="$image('loader/loader_white.svg')" class="loader">
+		<img v-if="icon && loading" :src="$image('loader/loader.svg')" class="loader">
 	
 		<img class="icon" v-if="icon && !loading" :src="$image('icons/'+icon+'.svg')" alt="icon">
 		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
@@ -311,23 +311,24 @@ export default class Button extends Vue {
 	}
 
 	&.selected {
+		.icon {
+			filter: invert();
+		}
 		.label {
-			// border-top: 1px solid var(--color-light);
-			// border-bottom: 1px solid var(--color-light);
-			// text-decoration: underline;
+			color: var(--color-dark);
 			font-weight: bold;
 		}
 		.background{
-			background-color: var(--color-primary-dark);
+			background-color: var(--color-primary-extralight);
 		}
 		&.secondary {
 			.background{
-				background-color: var(--color-secondary-dark);
+				background-color: var(--color-secondary-extralight);
 			}
 		}
 		&.alert {
 			.background{
-				background-color: var(--color-alert-dark);
+				background-color: var(--color-alert-extralight);
 			}
 		}
 	}

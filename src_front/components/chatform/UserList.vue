@@ -272,8 +272,8 @@ interface ChannelUserList {
 			width: calc(100% - 2em);
 			margin: auto;
 			padding: .25em;
-			border-bottom-left-radius: var(--border_radius);
-			border-bottom-right-radius: var(--border_radius);
+			border-bottom-left-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
 
 			@itemWidth: 150px;
 			display: grid;

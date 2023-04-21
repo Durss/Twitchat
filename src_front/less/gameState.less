@@ -1,0 +1,56 @@
+/**
+* Represents the style for all windows displayed at the bottom
+* of a column like the current state of a poll, prediction, hype train, ...
+*/
+.gameStateWindow {
+	color: var(--color-light);
+	background-color: var(--color-primary);
+	border-radius: var(--border-radius);
+	padding: .5em;
+
+	&>.title {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		width: calc(100% - 1em - 10px);
+		padding-bottom: .5em;
+		word-break: break-word;
+		text-align: center;
+		img {
+			width: 1em;
+			margin-right: .25em;
+		}
+		.highlight {
+			font-size: .8em;
+			color: var(--color-secondary);
+		}
+	}
+	
+	.highlight:not(.button) {
+		background: var(--color-secondary);
+		padding: .2em .5em;
+		border-radius: .5em;
+	}
+
+	.progress {
+		color: var(--color-primary);;
+		margin-bottom: 1em;
+	}
+
+	.item {
+		margin: auto;
+		margin-top: 1em;
+
+		&.postChat {
+			max-width: 300px;
+			font-size: .8em;
+		}
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
+}

@@ -34,7 +34,7 @@ export default class TriggerActionChatEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 	
-	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
 	
 	public get cmdNameConflict():boolean {
 		if(!this.action.text) return false;

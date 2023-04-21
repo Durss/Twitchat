@@ -235,7 +235,7 @@
 	}
 	@padding: .5em;
 	padding: @padding;
-	border-radius: var(--border_radius);
+	border-radius: var(--border-radius);
 	overflow: hidden;
 	// box-shadow: rgba(0, 0, 0, 0.5) 0px 6px 16px 0px, rgba(0, 0, 0, 0.4) 0px 0px 4px 0px;
 
@@ -246,12 +246,18 @@
 		transition: all .2s;
 		margin: -@padding;
 		margin-bottom: @padding;
+		gap: .5em;
+		padding: .5em;
 		
-		& > img {
+		& > .icon {
+			height: 2em;
+			margin-top: -.5em;
+			margin-left: -.5em;
+			margin-bottom: -.5em;
 			border-top-right-radius: 50%;
 			border-bottom-right-radius: 50%;
-			height: 2em;
-			background-color: var(--color-light);
+			border-left: none;
+			background-color: var(--color-dark-fade);
 		}
 		& > .title {
 			align-self: center;
@@ -366,57 +372,6 @@
 			color: var(--mainColor_normal);
 			background-color: var(--mainColor_light);
 		}
-	}
-}
-
-.gameStateWindow() {
-	color: var(--mainColor_light);
-
-	&>.title {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		color: var(--mainColor_light);
-		width: calc(100% - 1em - 10px);
-		padding-bottom: .5em;
-		word-break: break-word;
-		text-align: center;
-		img {
-			width: 1em;
-			margin-right: .25em;
-		}
-		.highlight {
-			font-size: .8em;
-			color: @windowStateColor;
-		}
-	}
-	
-	.highlight:not(.button) {
-		background: var(--mainColor_light);
-		padding: .2em .5em;
-		border-radius: .5em;
-	}
-
-	.progress {
-		color: @windowStateColor;
-		margin-bottom: 1em;
-	}
-
-	.item {
-		margin: auto;
-		margin-top: 1em;
-
-		&.postChat {
-			max-width: 300px;
-			font-size: .8em;
-		}
-	}
-
-	.actions {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
 	}
 }
 

@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsautomod">
-		<img src="@/assets/icons/mod_purple.svg" alt="emergency icon" class="icon">
+		<img src="@/assets/icons/mod.svg" alt="emergency icon" class="icon">
 		
 		<div class="head">{{ $t("automod.header") }}</div>
 		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
@@ -26,7 +26,7 @@
 					:open="keywordToOpen[f.id]">
 						<template #right_actions>
 							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
-							<Button icon="cross_white" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
+							<Button icon="cross" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
 						</template>
 						<ParamItem class="item sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" v-tooltip="$t('automod.rule.sync_tt')" />
 							<ParamItem class="item emergency" :paramData="param_ruleEmergency[f.id]" v-model="f.emergency" v-tooltip="$t('automod.rule.emergency_tt')" />
@@ -218,8 +218,8 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'string', value:'', maxLength:100};
 		this.param_ruleRegex[data.id]		= {labelKey:"automod.rule.keywords", type:'string', value:'', maxLength:5000, longText:true};
 		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'boolean', value:false};
-		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency_purple.svg"};
-		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime_purple.svg"};
+		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency.svg"};
+		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime.svg"};
 	}
 
 }

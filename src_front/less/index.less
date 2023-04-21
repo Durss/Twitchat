@@ -3,6 +3,7 @@
 @import "reset.less";
 @import "form.less";
 @import "sidePanel.less";
+@import "gameState.less";
 
 // @color-dark: #cccccc;
 // @color-light: #18181b;
@@ -67,17 +68,17 @@
 	--color-alert-light: lighten(@color-alert, 10%);
 	// --color-select-light: lighten(@color-select, 10%);
 	
-	--color-light-extralight: lighten(@color-light, 20%);
-	--color-dark-extralight: lighten(@color-dark, 20%);
-	--color-primary-extralight: lighten(@color-primary, 20%);
-	--color-secondary-extralight: lighten(@color-secondary, 20%);
-	--color-warn-extralight: lighten(@color-warn, 20%);
-	--color-alert-extralight: lighten(@color-alert, 20%);
+	--color-light-extralight: lighten(@color-light, 30%);
+	--color-dark-extralight: lighten(@color-dark, 30%);
+	--color-primary-extralight: saturate(lighten(@color-primary, 30%), 100%);
+	--color-secondary-extralight: saturate(lighten(@color-secondary, 30%), 100%);
+	--color-warn-extralight: saturate(lighten(@color-warn, 30%), 100%);
+	--color-alert-extralight: saturate(lighten(@color-alert, 30%), 100%);
 	// --color-select-extralight: lighten(@color-select, 20%);
 	
 	--color-light-dark: darken(@color-light, 10%);
 	--color-dark-dark: darken(@color-dark, 10%);
-	--color-primary-dark: saturate(darken(@color-primary, 15%), 120%);
+	--color-primary-dark: saturate(darken(@color-primary, 20%), 120%);
 	--color-secondary-dark: darken(@color-secondary, 15%);
 	--color-warn-dark: darken(@color-warn, 10%);
 	--color-alert-dark: darken(@color-alert, 10%);
@@ -105,7 +106,7 @@
 	--mainColor_warn_extralight: lighten(@mainColor_warn, 40%);
 	--mainColor_alert_extralight: lighten(@mainColor_alert, 40%);
 	
-	--border_radius:.5em;
+	--border-radius:.5em;
 	
 	--highlight_subs: fade(#528bff, 30%);
 	--highlight_vips: fade(#db00b3, 30%);
@@ -170,7 +171,7 @@ mark {
 	font-weight: bold;
 	background-color: var(--color-dark-fade);
 	padding: .1em .25em;
-	border-radius: var(--border_radius);
+	border-radius: var(--border-radius);
 }
 
 .tippy-box[data-theme~='twitchat'] {

@@ -1,10 +1,11 @@
 .sidePanel {
 	color: var(--color-light);
 	background-color: var(--color-dark-light);
-	border-radius: var(--border_radius);
+	border-radius: var(--border-radius);
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+	box-shadow: 0 0 5px 3px rgba(0, 0, 0, .4);
 
 	&>.head {
 		z-index: 1;
@@ -99,7 +100,7 @@
 		.tips {
 			.bevel();
 			padding: .5em;
-			border-radius: var(--border_radius);
+			border-radius: var(--border-radius);
 			background-color: var(--color-dark-fader);
 			font-size: .7em;
 			img {

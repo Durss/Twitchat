@@ -41,6 +41,28 @@ export const storeDebug = defineStore('debug', {
 			let message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 			
 			switch(type) {
+				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					let users = fakeUsers.concat().splice(0,5);
+					let sent = Math.random() > .5;
+					let to = sent ? Utils.pickRand(users) : user;
+					let from = sent ? user : Utils.pickRand(users);
+					const m:TwitchatDataTypes.MessageWhisperData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						user:from,
+						to
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageChatData = {
@@ -1177,10 +1199,17 @@ export const storeDebug = defineStore('debug', {
 					{type:TwitchatDataTypes.TwitchatMessageType.UNBAN, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.RAID, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.POLL, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.BINGO, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.PREDICTION, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION, probability:1},
 				];
 	
 				for (let i = 0; i < spamTypes.length; i++) {

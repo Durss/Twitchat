@@ -4,7 +4,7 @@
 
 		<div class="row item list">
 			<label class="listLabel">
-				<img src="@/assets/icons/count_purple.svg" class="icon">
+				<img src="@/assets/icons/count.svg" class="icon">
 				<span>{{ $t(param_counters.labelKey as string) }}</span>
 			</label>
 			
@@ -49,7 +49,7 @@ export default class TriggerActionCountGetEntry extends Vue {
 	public action!:TriggerActionCountGetData;
 
 	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.countget.select_label", value:[], listValues:[]}
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder.svg"}
 
 	public beforeMount(): void {
 		const counters:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store("counters").counterList.map(v=>{

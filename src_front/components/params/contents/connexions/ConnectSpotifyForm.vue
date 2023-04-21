@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify_purple']">
+	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify']">
 		<div class="holder">
 			<div class="error" v-if="error" @click="error=''">{{error}}</div>
 

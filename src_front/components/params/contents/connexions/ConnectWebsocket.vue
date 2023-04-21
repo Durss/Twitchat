@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="connectwebsocket" title="Trigger websocket" :icons="['broadcast_purple']">
+	<ToggleBlock :open="open" class="connectwebsocket" title="Trigger websocket" :icons="['broadcast']">
 		<div class="holder">
 
 			<div class="row">{{ $t("connexions.triggerSocket.usage") }}</div>

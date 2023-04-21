@@ -340,7 +340,7 @@ export namespace PubSubDataTypes {
 		config: {
 			channel_id: string;
 			is_enabled: boolean;
-			is_whitelisted: boolean;
+			islisted: boolean;
 			kickoff: {
 				num_of_events: number;
 				min_points: number;

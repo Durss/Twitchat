@@ -30,17 +30,20 @@
 		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
-			<PollForm			class="popin" v-if="$store('params').currentModal == 'poll'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
-			<ChatSuggestionForm	class="popin" v-if="$store('params').currentModal == 'chatpoll'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
-			<RaffleForm			class="popin" v-if="$store('params').currentModal == 'raffle'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
-			<PredictionForm		class="popin" v-if="$store('params').currentModal == 'pred'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
-			<BingoForm			class="popin" v-if="$store('params').currentModal == 'bingo'" @close="$store('params').currentModal = ''" />
-			<LiveFollowings		class="popin" v-if="$store('params').currentModal == 'liveStreams'" @close="$store('params').currentModal = ''" />
-			<StreamInfoForm		class="popin" v-if="$store('params').currentModal == 'streamInfo'" @close="$store('params').currentModal = ''" />
-			<TTUserList			class="popin" v-if="$store('params').currentModal == 'TTuserList'" @close="$store('params').currentModal = ''" />
-			<PinedMessages		class="popin" v-if="$store('params').currentModal == 'pins'" @close="$store('params').currentModal = ''" />
-			<TimerForm			class="popin" v-if="$store('params').currentModal == 'timer'" @close="$store('params').currentModal = ''" />
-			<TriggersLogs		class="popin" v-if="$store('params').currentModal == 'triggersLogs'" @close="$store('params').currentModal = ''" />
+			<PollForm				class="popin" v-if="$store('params').currentModal == 'poll'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
+			<ChatSuggestionForm		class="popin" v-if="$store('params').currentModal == 'chatsuggForm'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
+			<RaffleForm				class="popin" v-if="$store('params').currentModal == 'raffle'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
+			<PredictionForm			class="popin" v-if="$store('params').currentModal == 'pred'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
+			<BingoForm				class="popin" v-if="$store('params').currentModal == 'bingo'" @close="$store('params').currentModal = ''" />
+			<LiveFollowings			class="popin" v-if="$store('params').currentModal == 'liveStreams'" @close="$store('params').currentModal = ''" />
+			<StreamInfoForm			class="popin" v-if="$store('params').currentModal == 'streamInfo'" @close="$store('params').currentModal = ''" />
+			<TTUserList				class="popin" v-if="$store('params').currentModal == 'TTuserList'" @close="$store('params').currentModal = ''" />
+			<PinedMessages			class="popin" v-if="$store('params').currentModal == 'pins'" @close="$store('params').currentModal = ''" />
+			<TimerForm				class="popin" v-if="$store('params').currentModal == 'timer'" @close="$store('params').currentModal = ''" />
+			<TriggersLogs			class="popin" v-if="$store('params').currentModal == 'triggersLogs'" @close="$store('params').currentModal = ''" />
+			<TrackedUsers			class="popin" v-if="$store('params').currentModal == 'tracked'" @close="$store('params').currentModal = ''" />
+			<WhispersState			class="popin" v-if="$store('params').currentModal == 'whispers'" @close="$store('params').currentModal = ''" />
+			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').currentModal = ''" />
 		</Teleport>
 
 
@@ -55,7 +58,7 @@
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
 				@poll="$store('params').currentModal = 'poll'"
-				@chatpoll="$store('params').currentModal = 'chatpoll'"
+				@chatpoll="$store('params').currentModal = 'chatsuggForm'"
 				@pred="$store('params').currentModal = 'pred'"
 				@raffle="$store('params').currentModal = 'raffle'"
 				@bingo="$store('params').currentModal = 'bingo'"
@@ -182,6 +185,9 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
+import ChatSuggestionState from '@/components/chatSugg/ChatSuggestionState.vue';
+import WhispersState from '@/components/whispers/WhispersState.vue';
+import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 
 @Component({
 	components:{
@@ -205,6 +211,8 @@ import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
 		RewardsList,
 		ShoutoutList,
 		TriggersLogs,
+		TrackedUsers,
+		WhispersState,
 		Accessibility,
 		CommandHelper,
 		EmoteSelector,
@@ -215,6 +223,7 @@ import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
 		VoiceTranscript,
 		ChatAlertMessage,
 		ChatSuggestionForm,
+		ChatSuggestionState,
 		ChannelNotifications,
 		EmergencyFollowsListModal,
 	},

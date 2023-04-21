@@ -20,13 +20,13 @@
 			v-if="!collapse"
 		/>
 
-		<Button class="donateBt" white small icon="info_purple"
+		<Button class="donateBt" white small icon="info"
 			@click="showAdInfo=true"
 			:title="$t('params.ad_disableBt')"
 			v-if="!showAdInfo && !collapse && !isDonor" />
 		<div v-if="showAdInfo && !collapse && !isDonor" class="donateDetails">
 			<p class="title" v-html="$t('params.ad_disable_info1')"></p>
-			<Button class="donateBt" white small icon="coin_purple" @click="$store('params').openParamsPage(contentSponsor)" :title="$t('params.ad_donateBt')" />
+			<Button class="donateBt" white small icon="coin" @click="$store('params').openParamsPage(contentSponsor)" :title="$t('params.ad_donateBt')" />
 		</div>
 		<ToggleBlock v-if="!collapse && !isDonor" class="tip" :open="false" :title="$t('params.ad_bot_info_title')" small>
 			<div v-html="$t('params.ad_bot_info_content')"></div>

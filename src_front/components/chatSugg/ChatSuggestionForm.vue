@@ -80,12 +80,13 @@ import AbstractSidePanel from '../AbstractSidePanel.vue';
 		ToggleBlock,
 		PermissionsForm,
 		PostOnChatParam,
-	}
+	},
+	emits:["close"]
 })
 export default class ChatSuggestionForm extends AbstractSidePanel {
 	
 	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:31};
-	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:30};
+	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24};
 	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean"};
 	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500};
 	public permissions:TwitchatDataTypes.PermissionsData = {
@@ -150,7 +151,7 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 		// .bevel();
 		// padding: .8em;
 		margin-left: auto;
-		border-radius: var(--border_radius);
+		border-radius: var(--border-radius);
 		font-size: .8em;
 		text-align: right;
 	}

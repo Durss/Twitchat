@@ -1,6 +1,6 @@
 <template>
 	<button class="closebutton">
-		<img src="@/assets/icons/cross_white.svg" alt="close">
+		<img src="@/assets/icons/cross.svg" alt="close">
 	</button>
 </template>
 

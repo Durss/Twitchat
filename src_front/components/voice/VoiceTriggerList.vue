@@ -30,13 +30,13 @@
 					medium
 					:open="isOpen(element.id)"
 					:title="getLabelFromID(element.id)"
-					:icons="element.id? ['orderable_white',getIconFromID(element.id)] : ['orderable_white']"
+					:icons="element.id? ['orderable',getIconFromID(element.id)] : ['orderable']"
 					:ref="element.id"
 					class="action"
 				>
 					<template #right_actions>
 						<Button small highlight
-							icon="cross_white"
+							icon="cross"
 							class="toggleAction"
 							@click="deleteAction(element.id)"
 						/>
@@ -52,7 +52,7 @@
 						:calculate-position="$placeDropdown"
 					>
 						<template v-slot:option="option">
-							<img class="listIcon" style="{background-color: red;}" :src="$image('icons/'+option.icon+'_purple.svg')" v-if="option.icon" />
+							<img class="listIcon" style="{background-color: red;}" :src="$image('icons/'+option.icon+'.svg')" v-if="option.icon" />
 							{{ option.label }}
 						</template>
 					</vue-select>

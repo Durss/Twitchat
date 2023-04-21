@@ -53,7 +53,7 @@ export default class AppLangSelector extends Vue {
 			text-align: center;
 			flex-grow: 1;
 			padding: .5em;
-			border-radius: var(--border_radius);
+			border-radius: var(--border-radius);
 			margin: 0;
 			color:var(--mainColor_normal);
 			cursor: pointer;

@@ -156,7 +156,6 @@ export default class PredictionState extends Vue {
 
 <style scoped lang="less">
 .predictionstate{
-	.gameStateWindow();
 
 	.creator {
 		font-size: .8em;

@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsalert">
-		<img src="@/assets/icons/alert_purple.svg" alt="emergency icon" class="icon">
+		<img src="@/assets/icons/alert.svg" alt="emergency icon" class="icon">
 		
 		<div class="header">{{ $t("alert.header") }}</div>
 

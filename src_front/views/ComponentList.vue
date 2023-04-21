@@ -92,7 +92,7 @@
 					<img src="@/assets/icons/dragZone.svg" class="icon">
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross_white.svg" class="icon">
+					<img src="@/assets/icons/cross.svg" class="icon">
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
@@ -102,7 +102,7 @@
 					<img src="@/assets/icons/dragZone.svg" class="icon">
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross_white.svg" class="icon">
+					<img src="@/assets/icons/cross.svg" class="icon">
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
@@ -112,7 +112,7 @@
 					<img src="@/assets/icons/dragZone.svg" class="icon">
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross_white.svg" class="icon">
+					<img src="@/assets/icons/cross.svg" class="icon">
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>

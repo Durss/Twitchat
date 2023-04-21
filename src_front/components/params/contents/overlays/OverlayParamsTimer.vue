@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="overlaytimer" :title="$t('overlay.timer.title')" :icons="['countdown_purple']">
+	<ToggleBlock :open="open" class="overlaytimer" :title="$t('overlay.timer.title')" :icons="['countdown']">
 		<div class="holder">
 			<div class="row">
 				<div class="info">

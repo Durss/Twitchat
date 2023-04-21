@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify_purple']">
+	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify']">
 		<div class="holder">
 	
 			<div v-if="!spotifyConnected">{{ $t("overlay.music_common.music") }}</div>

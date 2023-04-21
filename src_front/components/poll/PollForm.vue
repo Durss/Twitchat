@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
-			<span class="title">{{ $t("poll.form.title") }}</span>
+			<h1 class="title">{{ $t("poll.form.title") }}</h1>
 			<CloseButton @click="close()" />
 		</div>
 

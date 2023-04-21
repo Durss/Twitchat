@@ -1,7 +1,7 @@
 <template>
 	<div class="TriggerActionMusicEntry" v-if="!musicServiceConfigured">
 		<div class="item warn info">
-			<img src="@/assets/icons/infos.svg" alt="info">
+			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
 					<a @click="$store('params').openParamsPage(contentOverlays)">{{ $t("triggers.actions.music.header_link") }}</a>
@@ -48,10 +48,10 @@ export default class TriggerActionMusicEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music_purple.svg" };
-	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music_purple.svg", maxLength:500 };
-	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers_purple.svg", maxLength:500 };
-	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info_purple.svg", maxLength:500 };
+	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music.svg" };
+	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music.svg", maxLength:500 };
+	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
+	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info.svg", maxLength:500 };
 
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }

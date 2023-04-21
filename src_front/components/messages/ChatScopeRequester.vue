@@ -1,6 +1,6 @@
 <template>
 	<div class="chatscoperequester">
-		<button class="closeBt" @click="deleteMessage()"><img src="@/assets/icons/cross_white.svg"></button>
+		<button class="closeBt" @click="deleteMessage()"><img src="@/assets/icons/cross.svg"></button>
 
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
@@ -41,7 +41,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageScopeRequestData;
 
 	public getScopeImage(s:TwitchScopesString):string {
-		return this.$image("icons/"+TwitchScope2Icon[s]?.replace("_purple", ""));
+		return this.$image("icons/"+TwitchScope2Icon[s]?.replace("", ""));
 	}
 
 	public mounted():void {

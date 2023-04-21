@@ -5,10 +5,10 @@
 		<OverlayMusicPlayer class="player" v-if="currentTrack" @seek="(percent:number)=>onSeek(percent)" embed />
 
 		<div class="controls" v-if="currentTrack">
-			<Button white small class="bt" @click="showQueue = !showQueue" icon="list_purple" />
-			<Button white small class="bt" @click="actionPlay()" icon="play_purple" v-if="!playing" />
-			<Button white small class="bt" @click="actionPause()" icon="pause_purple" v-if="playing" />
-			<Button white small class="bt" @click="actionNext()" icon="next_purple" />
+			<Button white small class="bt" @click="showQueue = !showQueue" icon="list" />
+			<Button white small class="bt" @click="actionPlay()" icon="play" v-if="!playing" />
+			<Button white small class="bt" @click="actionPause()" icon="pause" v-if="playing" />
+			<Button white small class="bt" @click="actionNext()" icon="next" />
 			<VolumeBar class="volume" v-model="volume" />
 		</div>
 
@@ -17,7 +17,7 @@
 				<Button class="deleteBt"
 				small highlight
 				@click="removeTrack(index)"
-				icon="cross_white" />
+				icon="cross" />
 				
 				<div class="infos" @click="playQueueItem(index)">
 					<span class="artist">{{t.artist.name}}</span>

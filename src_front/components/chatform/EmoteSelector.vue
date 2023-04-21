@@ -1,18 +1,8 @@
 <template>
 	<div class="emoteselector">
 		<div v-if="users.length == 0" class="loader">
-			<img src="@/assets/loader/loader_white.svg" alt="loader">
+			<img src="@/assets/loader/loader.svg" alt="loader">
 			<p>{{ $t("global.loading") }}</p>
-		</div>
-
-		<input v-if="users.length > 0" type="text" v-autofocus v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
-
-		<div class="userList" v-if="users.length > 0 && !filter">
-			<div v-for="u in users" :key="u.user.id" class="user"
-			v-tooltip="u.user.displayName"
-			@click="scrollTo(u.user)">
-				<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
-			</div>
 		</div>
 
 		<div class="list search" v-if="users.length > 0 && filter">
@@ -34,11 +24,11 @@
 		</div>
 
 		<div class="list" v-if="users.length > 0 && !filter">
-			<div v-for="u, index in users" :key="u.user.id" class="item" :ref="'user_'+u.user.id">
-				<template v-if="buildOffset >= index">
-					<div class="head">
-						<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
-						<div class="login">{{u.user.displayName}}</div>
+			<template v-for="u, index in users" :key="u.user.id">
+				<div class="item" :ref="'user_'+u.user.id" v-if="buildOffset >= index">
+					<div class="header">
+						<img class="icon" :src="u.user.avatarPath" alt="profile pic">
+						<div class="title">{{u.user.displayName}}</div>
 					</div>
 	
 					<div v-if="u.user.id=='477339272'" class="hypetrain">{{ $t("global.hypetrain_emotes") }}</div>
@@ -56,9 +46,22 @@
 							@mouseover="openTooltip($event, e)"
 							@click="$emit('select', e.code)">
 					</div>
-				</template>
-			</div>
+				</div>
+			</template>
 		</div>
+
+		<div class="userList" v-if="users.length > 0 && !filter">
+			<template v-for="u, index in users" :key="u.user.id">
+				<div class="user"
+				v-tooltip="u.user.displayName"
+				@click="scrollTo(u.user)"
+				v-if="buildOffset >= index">
+					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
+				</div>
+			</template>
+		</div>
+
+		<input v-if="users.length > 0" type="text" v-autofocus v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
 	</div>
 </template>
 
@@ -81,7 +84,7 @@ export default class EmoteSelector extends Vue {
 
 	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 	public filter = "";
-	public buildOffset = 2;
+	public buildOffset = 0;
 
 	private buildTimeout = -1;
 	private clickHandler!:(e:MouseEvent) => void;
@@ -355,7 +358,7 @@ export default class EmoteSelector extends Vue {
 		this.buildTimeout = setTimeout(()=>{
 			this.buildOffset ++;
 			this.buildNextUser();
-		}, Math.min(500, u.emotes.length * 5));
+		}, Math.min(250, u.emotes.length * 5));
 	}
 
 }
@@ -376,14 +379,15 @@ export default class EmoteSelector extends Vue {
 	}
 
 	.userList {
+		.card();
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
 		gap: .5em;
-		max-height: 5em;
+		max-height: 6em;
 		overflow-y: auto;
 		justify-content: center;
-		margin-top: .5em;
+		margin: .5em 0;
 		.user {
 			cursor: pointer;
 			.avatar {
@@ -415,70 +419,41 @@ export default class EmoteSelector extends Vue {
 		overflow-y: auto;
 		display: flex;
 		flex-direction: column;
+		gap: .5em;
 		flex-shrink: 1;
 		
 		.item {
-			margin: .5em 0;
-			.head {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				z-index: 1;
-				height: 1em;
-				position: relative;
-				.avatar {
-					height: 2em;
-					border-radius: 50%;
-					z-index: 1;
-				}
-				.login {
-					.emboss();
-					color: var(--color-light);
-					flex-grow: 1;
-					font-size: .9em;
-					padding: .1em 2em;
-					margin-left: -1.5em;
-					background-color: var(--color-primary-fade);
-					border-radius: 1em;
-				}
-			}
+			.card();
+			flex-shrink: 0;
+			color: var(--color-light);
 			.emotes, .hypetrain {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
 				justify-content: center;
-				background-color: var(--color-primary-fader);
-				color:var(--mainColor_light);
-				width: calc(100% - 2em);
-				margin: auto;
-				padding: .25em;
-				border-bottom-left-radius: var(--border_radius);
-				border-bottom-right-radius: var(--border_radius);
 				.emote {
 					height: 33px;
 					width: 33px;
 					padding: 3px;
 					cursor: pointer;
-					border-radius: 5px;
 					border: 1px solid transparent;
+					border-radius: 5px;
 					&:hover {
-						border-color: var(--color-light-fade);
+						border-color: var(--color-secondary);
 					}
 				}
 			}
 
 			.hypetrain {
-				color: var(--color-secondary);
 				font-size: .9em;
 				text-align: center;
-				padding: .5em;
 			}
 		}
 
 		&.search {
 			.item {
 				.emotes {
-					border-radius: var(--border_radius);
+					border-radius: var(--border-radius);
 					// background-color: transparent;
 				}
 			}

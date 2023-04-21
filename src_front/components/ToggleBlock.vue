@@ -45,29 +45,23 @@ export default class ToggleBlock extends Vue {
 
 	@Prop({type:Array, default:[]})
 	public icons!:string[];
+	
 	@Prop
 	public title!:string;
+
 	@Prop({type:String, default:""})
 	public subtitle!:string;
-	@Prop({
-			type:Boolean,
-			default:true,
-		})
+
+	@Prop({type:Boolean, default:true})
 	public open!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public error!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public small!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public medium!:boolean;
 
 	public opened = false;
@@ -121,7 +115,7 @@ export default class ToggleBlock extends Vue {
 <style scoped lang="less">
 .toggleblock{
 	align-self: flex-start;
-	border-radius: var(--border_radius);
+	border-radius: var(--border-radius);
 
 	:deep(.icon) {
 		height: 1em;
@@ -137,8 +131,8 @@ export default class ToggleBlock extends Vue {
 		overflow: hidden;
 		cursor: pointer;
 		background-color: var(--color-dark-extralight);
-		border-top-left-radius: var(--border_radius);
-		border-top-right-radius: var(--border_radius);
+		border-top-left-radius: var(--border-radius);
+		border-top-right-radius: var(--border-radius);
 		border-bottom: 2px solid var(--color-dark-extralight);
 		display: flex;
 		flex-direction: row;
@@ -174,14 +168,14 @@ export default class ToggleBlock extends Vue {
 	&.closed {
 		.header {
 			border-bottom: none;
-			border-bottom-left-radius: var(--border_radius);
-			border-bottom-right-radius: var(--border_radius);
+			border-bottom-left-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
 		}
 	}
 
 	&:not(.small) {
 		.emboss();
-		border-radius: var(--border_radius);
+		border-radius: var(--border-radius);
 	}
 
 	&.error{
@@ -201,7 +195,7 @@ export default class ToggleBlock extends Vue {
 		.header {
 			padding: 0;
 			background-color: transparent;
-			border-bottom-left-radius: var(--border_radius);
+			border-bottom-left-radius: var(--border-radius);
 			border-bottom: none;
 			&:hover {
 				background-color: var(--color-dark-fade);
@@ -226,7 +220,7 @@ export default class ToggleBlock extends Vue {
 		&.closed {
 			background-color: transparent;
 			.header {
-				border-radius: var(--border_radius);
+				border-radius: var(--border-radius);
 				.title::before {
 					transform: rotate(0);
 				}

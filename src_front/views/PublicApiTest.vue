@@ -16,7 +16,7 @@
 
 				<Button title="Connect" type="submit" class="connectBt" :loading="loading" />
 			</form>
-			<Button v-else title="Disconnect" @click="disconnect()" class="connectBt" :loading="loading" icon="cross_white" />
+			<Button v-else title="Disconnect" @click="disconnect()" class="connectBt" :loading="loading" icon="cross" />
 		</div>
 
 		<div class="lists">

@@ -17,7 +17,7 @@
 				<Button class="closeBt"
 					:aria-label="$t('changelog.closeBt_aria')"
 					@click.stop="deleteMessage()"
-					icon="cross_white" />
+					icon="cross" />
 
 				<div class="title">{{ $t('changelog.title') }}</div>
 
@@ -28,7 +28,7 @@
 			</div>
 	
 			<div v-if="isTip" class="tip">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross_white" class="closeBt" />
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross" class="closeBt" />
 				<div class="title">{{ $t("tips.title") }}</div>
 				<ChatTipAndTrickAd class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
@@ -36,10 +36,10 @@
 			</div>
 	
 			<div v-if="isDiscord" class="discord">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross_white" class="closeBt" />
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross" class="closeBt" />
 				<div class="title">{{ $t('chat.discord.title') }}</div>
 				<div class="content">
-					<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">
+					<img src="@/assets/icons/discord.svg" alt="discord" class="icon">
 					<div v-html="$t('chat.discord.content')"></div>
 				</div>
 				<div class="cta">
@@ -53,10 +53,10 @@
 			</div>
 	
 			<div v-if="isAdWarning">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" icon="cross_white" class="closeBt" />
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" icon="cross" class="closeBt" />
 				<div class="title">{{ $t('chat.adalert.title') }}</div>
 				<div class="content left">
-					<img src="@/assets/icons/twitchat_purple.svg" alt="twitchat" class="icon">
+					<img src="@/assets/icons/twitchat.svg" alt="twitchat" class="icon">
 					<div v-for="e in $tm('chat.adalert.contents')" v-html="e"></div>
 				</div>
 				<div class="cta">
@@ -73,10 +73,10 @@
 			</div>
 	
 			<div v-if="isSponsorPublicPrompt" class="sponsorPrompt">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross_white" class="closeBt" />
+				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross" class="closeBt" />
 				<div class="title">{{$t('chat.donor.title')}}</div>
 				<div class="content">
-					<img src="@/assets/icons/follow_purple.svg" alt="heart" class="icon">
+					<img src="@/assets/icons/follow.svg" alt="heart" class="icon">
 					<div>{{ $t('chat.donor.info_1') }}</div>
 					<i18n-t scope="global" tag="div" keypath="chat.donor.info_2">
 						<template #LINK><a @click="openParamPage(contentAbout)">{{ $t('chat.donor.info_2_link') }}</a></template>

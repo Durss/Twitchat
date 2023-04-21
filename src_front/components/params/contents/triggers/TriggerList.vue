@@ -190,7 +190,7 @@ export default class TriggerList extends Vue {
 			if(info.iconURL) {
 				icon = info.iconURL;
 			}else{
-				icon = this.$image('icons/'+info.icon+'_purple.svg');
+				icon = this.$image('icons/'+info.icon+'.svg');
 			}
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
 			const buildIndex = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5

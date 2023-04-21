@@ -1,6 +1,6 @@
 <template>
 	<div class="paramscounters">
-		<img src="@/assets/icons/count_purple.svg" alt="counter icon" class="icon">
+		<img src="@/assets/icons/count.svg" alt="counter icon" class="icon">
 
 		<div class="head">
 			<i18n-t scope="global"  tag="p" keypath="counters.header">
@@ -35,7 +35,7 @@
 					<span class="text">{{ $t("counters.form.placholder_conflict") }}</span>
 				</div>
 				<div class="item ctas">
-					<Button type="button" :title="$t('global.cancel')" icon="cross_white" highlight @click="cancelForm()" />
+					<Button type="button" :title="$t('global.cancel')" icon="cross" highlight @click="cancelForm()" />
 					<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" icon="add" :disabled="param_title.value.length == 0" />
 					<Button type="submit" v-else :title="$t('counters.editBt')" icon="edit" :disabled="param_title.value.length == 0" />
 				</div>
@@ -178,13 +178,13 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:50, labelKey:"counters.form.name"};
 	public param_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
 	public param_more:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.more"};
-	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min_purple.svg"};
+	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min.svg"};
 	public param_valueMin_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
-	public param_valueMax_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max_purple.svg"};
+	public param_valueMax_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max.svg"};
 	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
-	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop_purple.svg"};
-	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user_purple.svg"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast_purple.svg", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9-_"};
+	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop.svg"};
+	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user.svg"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast.svg", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9-_"};
 
 
 	public get counterEntries():CounterEntry[] {
@@ -559,7 +559,7 @@ interface UserEntry {
 		.info {
 			border: 1px solid var(--mainColor_light);
 			padding: .25em .5em;
-			border-radius: var(--border_radius);
+			border-radius: var(--border-radius);
 			font-size: .8em;
 			display: flex;
 			flex-direction: row;
@@ -590,7 +590,7 @@ interface UserEntry {
 				font-weight: bold;
 				background-color: var(--mainColor_normal_extralight);
 				padding: .25em .5em;
-				border-radius: var(--border_radius);
+				border-radius: var(--border-radius);
 				min-width: 3em;
 				width: 100%;
 				color: darken(@mainColor_normal, 10%);
@@ -672,7 +672,7 @@ interface UserEntry {
 					box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 					background-color: rgba(255, 255, 255, .5);
 					padding:.25em;
-					border-radius: var(--border_radius);
+					border-radius: var(--border-radius);
 					.login {
 						font-weight: bold;
 						flex-grow: 1;

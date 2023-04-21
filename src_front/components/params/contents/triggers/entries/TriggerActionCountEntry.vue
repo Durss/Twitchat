@@ -2,7 +2,7 @@
 	<div class="triggeractioncountentry">
 		<div class="row item list">
 			<label class="listLabel">
-				<img src="@/assets/icons/count_purple.svg" class="icon">
+				<img src="@/assets/icons/count.svg" class="icon">
 				<span>{{ $t(param_counters.labelKey as string) }}</span>
 			</label>
 			<vue-select class="itemSelector"
@@ -20,7 +20,7 @@
 
 		<div class="row item users" v-if="selectedPerUserCounters.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
-				<img src="@/assets/icons/user_purple.svg" class="icon">
+				<img src="@/assets/icons/user.svg" class="icon">
 				<span>{{ $tc("triggers.actions.count.user_source_title", selectedPerUserCounters.length) }}</span>
 			</div>
 			<div class="item" v-for="item in selectedPerUserCounters" :key="item.id">
@@ -70,7 +70,7 @@ export default class TriggerActionCountEntry extends Vue {
 	}
 
 	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
-	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add_purple.svg"}
+	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add.svg"}
 
 	public get selectedPerUserCounters():TwitchatDataTypes.CounterData[] {
 		return this.$store("counters").counterList

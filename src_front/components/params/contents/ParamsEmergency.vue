@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsemergency">
-		<img src="@/assets/icons/emergency_purple.svg" alt="emergency icon" class="icon">
+		<img src="@/assets/icons/emergency.svg" alt="emergency icon" class="icon">
 		
 		<p class="head">{{ $t("emergency.header") }}</p>
 		<ParamItem class="enableBt" :paramData="param_enable" />
@@ -18,7 +18,7 @@
 					</ToggleBlock>
 				</div>
 				<div class="item label">
-					<img src="@/assets/icons/mod_purple.svg" alt="scene icon" class="icon">
+					<img src="@/assets/icons/mod.svg" alt="scene icon" class="icon">
 					<i18n-t scope="global" class="label" tag="p" keypath="emergency.start.also">
 						<template #LINK>
 							<a @click="$store('params').openParamsPage(contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
@@ -42,7 +42,7 @@
 
 				<div class="item" v-if="!obsConnected">
 					<div class="warn">
-						<img src="@/assets/icons/infos.svg" alt="info">
+						<img src="@/assets/icons/info.svg" alt="info">
 						<i18n-t scope="global" class="label" tag="p" keypath="emergency.actions.obs_connect">
 							<template #LINK>
 								<a @click="$store('params').openParamsPage(contentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
@@ -53,7 +53,7 @@
 				
 				<div v-else class="item">
 					<div class="item label">
-						<img src="@/assets/icons/list_purple.svg" alt="scene icon" class="icon">
+						<img src="@/assets/icons/list.svg" alt="scene icon" class="icon">
 						<p>{{ $t("emergency.actions.obs_scene") }}</p>
 					</div>
 					<vue-select class="sourceSelector" label="label"
@@ -65,7 +65,7 @@
 					></vue-select>
 					
 					<div class="item label">
-						<img src="@/assets/icons/show_purple.svg" alt="sources icon" class="icon">
+						<img src="@/assets/icons/show.svg" alt="sources icon" class="icon">
 						<p>{{ $t("emergency.actions.obs_sources") }} <br><i>{{ $t("emergency.actions.obs_sources_example") }}</i></p>
 					</div>
 					<vue-select class="sourceSelector" label="sourceName"
@@ -107,19 +107,19 @@ import type IParameterContent from './IParameterContent';
 export default class ParamsEmergency extends Vue implements IParameterContent {
 
 	public param_enable:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false};
-	public param_enableShieldMode:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, icon:"shieldMode_purple.svg", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
-	public param_chatCommand:TwitchatDataTypes.ParameterData<string>					= {type:"string", value:"!emergency", icon:"commands_purple.svg"};
+	public param_enableShieldMode:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, icon:"shieldMode.svg", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
+	public param_chatCommand:TwitchatDataTypes.ParameterData<string>					= {type:"string", value:"!emergency", icon:"commands.svg"};
 	public param_obsScene:TwitchatDataTypes.ParameterData<string, string>				= {type:"list", value:""};
-	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, icon:"follow_purple.svg", tooltip:""};
-	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData<boolean>		= {type:"boolean", value:true, icon:"shieldMode_purple.svg", tooltip:"", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
-	public param_slowMode:TwitchatDataTypes.ParameterData<boolean, string, number>		= {type:"boolean", value:false,	icon:"timer_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, icon:"follow.svg", tooltip:""};
+	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData<boolean>		= {type:"boolean", value:true, icon:"shieldMode.svg", tooltip:"", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
+	public param_slowMode:TwitchatDataTypes.ParameterData<boolean, string, number>		= {type:"boolean", value:false,	icon:"timer.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
 	public param_slowModeDuration:TwitchatDataTypes.ParameterData<number>				= {type:"number", value:10, max:1800, min:1};
-	public param_followersOnly:TwitchatDataTypes.ParameterData<boolean, string, number>	= {type:"boolean", value:false,	icon:"follow_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_followersOnly:TwitchatDataTypes.ParameterData<boolean, string, number>	= {type:"boolean", value:false,	icon:"follow.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
 	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData<number>			= {type:"number", value:30, max:129600, min:1};
-	public param_subsOnly:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false,	icon:"sub_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_emotesOnly:TwitchatDataTypes.ParameterData<boolean>					= {type:"boolean", value:false,	icon:"emote_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_autoTO:TwitchatDataTypes.ParameterData<string[], string>				= {type:"editablelist", value:[], longText:true, icon:"timeout_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_noTrigger:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:true, icon:"broadcast_purple.svg"};
+	public param_subsOnly:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false,	icon:"sub.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_emotesOnly:TwitchatDataTypes.ParameterData<boolean>					= {type:"boolean", value:false,	icon:"emote.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_autoTO:TwitchatDataTypes.ParameterData<string[], string>				= {type:"editablelist", value:[], longText:true, icon:"timeout.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_noTrigger:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:true, icon:"broadcast.svg"};
 	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue<string>|null = null;

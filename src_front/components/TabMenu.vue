@@ -139,7 +139,7 @@ export default class TabMenu extends Vue {
 			}
 		}
 		.selectionChip {
-			background-color: var(--color-secondary);
+			background-color: var(--color-secondary-light);
 			display: block;
 			height: 10px;
 			width: calc(100% - 1.5em);

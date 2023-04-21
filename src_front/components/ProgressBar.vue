@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
-		<div class="fill" :style="getStyles()"></div>
-		<div class="timer" v-if="percent<=1 && duration != undefined">{{timeLeft}}</div>
+		<div class="fill" :style="getBarStyles()"></div>
+		<div class="timer" ref="timer" :style="getTimerStyles()" v-if="percent<=1 && duration != undefined">{{timeLeft}}</div>
 	</div>
 </template>
 
@@ -15,32 +15,18 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 })
 export default class ProgressBar extends Vue {
 
-	@Prop({
-			type:Number,
-			default:0,
-		})
+	@Prop({type:Number,default:0})
 	public percent!:number;
-	@Prop({
-			type:Number,
-			default:1,
-		})
+
+	@Prop({ type:Number, default:1})
 	public duration!:number;//In ms
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public cyan!:boolean;
 
-	public get timeLeft():string {
-		return Utils.formatDuration(this.duration * (1-this.percent))
-	}
+	public get timeLeft():string { return Utils.formatDuration(this.duration * this.elapsedPercent) }
 
-	public getStyles():StyleValue {
-		const percent = Math.min(1, (1-this.percent)) * 100;
-		return {
-			transform: `scaleX(${percent}%)`,
-		}
-	}
+	public get elapsedPercent():number { return Math.max(0, Math.min(1, (1-this.percent))); }
 
 	public get classes():string[] {
 		const res = ["progressbar"];
@@ -48,6 +34,28 @@ export default class ProgressBar extends Vue {
 		return res;
 	}
 
+	public getBarStyles():StyleValue {
+		return {
+			transform: `scaleX(${this.elapsedPercent*100}%)`,
+		}
+	}
+
+	public getTimerStyles():StyleValue {
+		if(this.$refs.timer) {
+			let parent = (this.$el as HTMLElement).getBoundingClientRect();
+			let bounds = (this.$refs.timer as HTMLElement).getBoundingClientRect();
+			let barSize = this.elapsedPercent * parent.width;
+			let px = barSize - bounds.width;
+			if(px < 0) px -= barSize - bounds.width;
+			return {
+				transform: "translateX("+px+"px)",
+			}
+		}else{
+			return {
+				right: 0,
+			}
+		}
+	}
 }
 </script>
 
@@ -55,10 +63,9 @@ export default class ProgressBar extends Vue {
 .progressbar{
 	height: 5px;
 	width: 100%;
-	border-radius: 10px;
-	background: white;
-	padding: 1px;
+	background: var(--color-dark);
 	position: relative;
+	@shadow: 0 4px 4px rgba(0, 0, 0, .5);
 
 	&.green {
 		@c: darken(#00f0f0, 15%);
@@ -71,23 +78,25 @@ export default class ProgressBar extends Vue {
 	}
 
 	.fill {
-		height: 3px;
+		height: 4px;
 		width: 100%;
-		background-color: var(--windowStateColor);
+		background-color: var(--color-primary);
 		transform-origin: left;
 		will-change: transform;
+		box-shadow: @shadow;
 	}
 
 	.timer {
-		font-family: var(--font-azeret);
 		position: absolute;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		background-color: var(--mainColor_light);
-		padding: 3px 6px;
-		border-radius: 15px;
+		font-family: var(--font-roboto);
+		background-color: var(--color-primary);
+		color: var(--color-light);
 		font-size: 15px;
-		font-variant-numeric: tabular-nums;
+		padding: 2px 5px;
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
+		box-shadow: @shadow;
+		will-change: transform;
 	}
 }
 </style>
