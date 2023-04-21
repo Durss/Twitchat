@@ -998,7 +998,11 @@ export default class TriggerActionHandler {
 									}
 									//Load user
 									await new Promise<void>((resolve, reject)=> {
-										StoreProxy.users.getUserFrom(message.platform, channelId, undefined, login, undefined, (userData)=>{
+										//FIXME that hardcoded platform "twitch" will break if adding a new platform
+										//I can't just use "message.platform" as this contains "twitchat" for messages
+										//like raffle and bingo result which. Full user loading only happens if "twitch"
+										//platform is specified, the user would remain in a temporary state in such case
+										StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, (userData)=>{
 											if(userData.errored || userData.temporary) {
 												log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
 												user = undefined;

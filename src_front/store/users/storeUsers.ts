@@ -138,7 +138,7 @@ export const storeUsers = defineStore('users', {
 		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false):TwitchatDataTypes.TwitchatUser {
 			const s = Date.now();
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
-			//Search for the requested  via hashmaps for fast accesses
+			//Search for the requested user via hashmaps for fast accesses
 			let hashmaps = userMaps[platform];
 			if(!hashmaps){
 				hashmaps = {
@@ -152,7 +152,7 @@ export const storeUsers = defineStore('users', {
 			if(id && hashmaps.idToUser[id])								user = hashmaps.idToUser[id];
 			if(login && hashmaps.loginToUser[login])					user = hashmaps.loginToUser[login];
 			if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];
-			// if(user) return user;
+			
 			const userExisted = user != undefined;
 
 			if(!user) {
@@ -181,7 +181,7 @@ export const storeUsers = defineStore('users', {
 						},
 						channelInfo:{},
 					};
-					user = userData;
+					user = reactive(userData);
 				}else
 				//If we don't have enough info, create a temp user object and load
 				//its details from the API then register it if found.
@@ -209,7 +209,7 @@ export const storeUsers = defineStore('users', {
 						},
 						channelInfo:{},
 					};
-					user = userData;
+					user = reactive(userData);
 				}
 
 				// user = reactive(user!);
@@ -218,7 +218,7 @@ export const storeUsers = defineStore('users', {
 			//This just makes the rest of the code know that the user
 			//actually exists as it cannot be undefined anymore once
 			//we're here.
-			user = reactive(user!);
+			user = user!;
 
 			if(channelId) {
 				//Init channel data for this user if not already existing
@@ -329,13 +329,13 @@ export const storeUsers = defineStore('users', {
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
 								userLocal.avatarPath		= apiUser.profile_image_url;
-								if(!userLocal.displayName || userLocal.displayName == tmpDisplayName)
-									userLocal.displayName	= apiUser.display_name;
-								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
-								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
-								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
-								//If user was temporary, load more info
-								delete userLocal.temporary;
+								if(!userLocal.displayName
+								|| userLocal.displayName == tmpDisplayName) userLocal.displayName = apiUser.display_name;
+								if(userLocal.id)							hashmaps!.idToUser[userLocal.id] = userLocal;
+								if(userLocal.login)							hashmaps!.loginToUser[userLocal.login] = userLocal;
+								if(userLocal.displayName)					hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
+								
+								//Load pronouns if requested
 								if(getPronouns && userLocal.id && userLocal.login) this.loadUserPronouns(userLocal);
 
 								//Set moderator state for all connected channels
