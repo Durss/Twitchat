@@ -31,8 +31,8 @@ export default class ButtonNotification extends Vue {
 
 <style scoped lang="less">
 .buttonnotification{
-	width: 1.5em;
-	height: 1.5em;
+	width: 2em;
+	height: 2em;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -55,7 +55,7 @@ export default class ButtonNotification extends Vue {
 		pointer-events: none;
 		top: 0;
 		right: 0;
-		transform: translate(20%, -50%);
+		transform: translate(20%, -60%);
 		border-radius: 1em;
 		font-size: 12px;
 		padding: .25em .5em;

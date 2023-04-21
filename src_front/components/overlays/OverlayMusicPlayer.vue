@@ -42,6 +42,7 @@ import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import { Vue3Marquee } from 'vue3-marquee';
 import 'vue3-marquee/dist/style.css';
+import OBSWebSocket from 'obs-websocket-js';
 
 @Component({
 	components:{
@@ -166,11 +167,14 @@ export default class OverlayMusicPlayer extends Vue {
 		};
 		
 		if(!this.staticTrackData) {
-			PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
+			//Wait a little to give it time to OBS websocket to establish connexion
+			setTimeout(()=> {
+				PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
+				PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
+			}, 500);
 		}else{
 			this.onTrackChangeLocal();
-			this.progress = 50
+			this.progress = 50;
 		}
 		if(this.embed) {
 			//Called when track changes

@@ -6,7 +6,9 @@
       "question": "Question",
       "outcomes": "Answers",
       "outcome_delete_aria": "Delete outcome option",
-      "vote_duration": "Vote duration (minutes)"
+      "vote_duration": "Vote duration (minutes)",
+	  "question_placeholder":"question...",
+	  "answer_placeholder":"option..."
     },
     "state": {
       "choose_outcome": "Choose outcome",

@@ -233,9 +233,36 @@
 	& when (@is-light = false) {
 		background-color: var(--color-dark-light);
 	}
-	padding: 1em;
+	@padding: .5em;
+	padding: @padding;
 	border-radius: var(--border_radius);
+	overflow: hidden;
 	// box-shadow: rgba(0, 0, 0, 0.5) 0px 6px 16px 0px, rgba(0, 0, 0, 0.4) 0px 0px 4px 0px;
+
+	& > .header {
+		display: flex;
+		flex-direction: row;
+		background-color: var(--color-primary);
+		transition: all .2s;
+		margin: -@padding;
+		margin-bottom: @padding;
+		
+		& > img {
+			border-top-right-radius: 50%;
+			border-bottom-right-radius: 50%;
+			height: 2em;
+			background-color: var(--color-light);
+		}
+		& > .title {
+			align-self: center;
+			flex-grow: 1;
+			text-align: center;
+			color: var(--color-light);
+			overflow-wrap: break-word;
+			overflow: hidden;
+			font-weight: bold;
+		}
+	}
 }
 
 .window {
@@ -254,103 +281,6 @@
 	& > * {
 		flex-shrink: 0;//Avoid items from being crushed vertically
 	}
-}
-
-.sidePanel() {
-	color: var(--color-light);
-	background-color: var(--color-dark-light);
-	border-radius: var(--border_radius);
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-
-	&>.head {
-		z-index: 1;
-		padding-bottom: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 1em;
-		padding: 1em;
-		border-bottom: 1px solid var(--color-dark-extralight);
-		width: 100%;
-		max-width: 600px;
-		margin: auto;
-
-		.description {
-			font-size: .8em;
-			line-height: 1.4em;
-		}
-
-		.tabmenu {
-			justify-self: stretch;
-		}
-	}
-
-	.info {
-		line-height: 1.3em;
-	}
-
-	&>.content {
-		padding: 1em;
-		width: 100%;
-		max-width: 600px;
-		margin: auto;
-		flex-grow: 1;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		gap: 1em;
-		
-		form {
-			display: flex;
-			flex-direction: column;
-			gap: 1em;
-		}
-
-		.row {
-			.card(true);
-			display: flex;
-			flex-direction: column;
-			padding: .5em;
-			gap: .5em;
-			border-radius: .5em;
-			
-			:deep(input) {
-				flex-basis: 100px;
-				text-align: center;
-			}
-		}
-
-		.splitter {
-			height: 1px;
-			background-color: var(--color-light-fade);
-			margin: .25em 10px;
-		}
-		
-		.configs {
-			width: 100%;
-			&>:deep(.content) {
-				display: flex;
-				flex-direction: column;
-				align-items: stretch;
-				justify-content: stretch;
-				gap: 1em;
-			}
-		}
-		
-		.tips {
-			.bevel();
-			padding: .5em;
-			border-radius: var(--border_radius);
-			background-color: var(--color-dark-fader);
-			font-size: .7em;
-			img {
-				height: 1em;
-				margin-right: .25em;
-			}
-		}
-	}
-
 }
 
 .parameterContent() {

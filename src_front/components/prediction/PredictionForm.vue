@@ -1,47 +1,53 @@
 <template>
 	<div :class="classes">
-		<div class="holder" ref="holder">
-			<div class="head" v-if="triggerMode === false">
-				<span class="title">{{ $t("prediction.form.title") }}</span>
-				<Button :aria-label="$t('prediction.form.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
-			</div>
-			<div class="content">
-				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
+		<div class="head" v-if="triggerMode === false">
+			<CloseButton @click="close()" />
+			<h1>{{ $t("prediction.form.title") }}</h1>
+		</div>
+		<div class="content">
+			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
-				<form  @submit.prevent="submitForm()">
-					<div class="row">
-						<label for="prediction_title">{{ $t("prediction.form.question") }}</label>
-						<input type="text" id="prediction_title" v-model="title" maxlength="45" v-autofocus="title == ''" tabindex="1" @change="onValueChange()">
+			<form  @submit.prevent="submitForm()">
+				<div class="row">
+					<label for="prediction_title">{{ $t("prediction.form.question") }}</label>
+					<input class="questionInput"
+						type="text"
+						id="prediction_title"
+						v-model="title"
+						maxlength="45"
+						:placeholder="$t('prediction.form.question_placeholder')"
+						v-autofocus="title == ''" tabindex="1"
+						@change="onValueChange()">
+				</div>
+				<div class="row answers">
+					<label for="prediction_answer">{{ $t("prediction.form.outcomes") }}</label>
+					<div v-for="(a, index) in answers"
+					:class="getAnswerClasses(index)"
+					:key="'answer'+index">
+						<input type="text"
+							maxlength="25"
+							v-model="answers[index]"
+							v-autofocus="index == 0 && title != ''"
+							:tabindex="index + 2"
+							:placeholder="$t('prediction.form.answer_placeholder')"
+							@change="onValueChange()"
+						>
+						<Button :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt"
+							icon="cross_white"
+							type="button"
+							alert small
+							v-if="answers.length > 2 && (index < answers.length-1 || answers.length == 10)"
+							@click="deleteAnswer(index)"
+						/>
 					</div>
-					<div class="row answers">
-						<label for="prediction_answer">{{ $t("prediction.form.outcomes") }}</label>
-						<div v-for="(a, index) in answers"
-						:class="getAnswerClasses(index)"
-						:key="'answer'+index">
-							<input type="text"
-								maxlength="25"
-								v-model="answers[index]"
-								v-autofocus="index == 0 && title != ''"
-								:tabindex="index + 2"
-								@change="onValueChange()"
-							>
-							<Button :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt" small
-								icon="cross"
-								type="button"
-								v-if="answers.length > 2"
-								@click="deleteAnswer(index)"
-							/>
-						</div>
-					</div>
-					<div class="row shrink">
-						<ParamItem :paramData="voteDuration" @change="onValueChange()" />
-					</div>
-					<div class="row" v-if="triggerMode === false">
-						<Button :title="$t('global.submit')" type="submit" :loading="loading" :disabled="!canSubmit" />
-						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
-					</div>
-				</form>
-			</div>
+				</div>
+				<div class="row shrink">
+					<ParamItem :paramData="voteDuration" @change="onValueChange()" />
+				</div>
+				
+				<Button type="submit" :loading="loading" :disabled="!canSubmit">{{ $t('global.submit') }}</Button>
+				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
+			</form>
 		</div>
 	</div>
 </template>
@@ -53,9 +59,10 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
@@ -64,15 +71,16 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	components:{
 		Button,
 		ParamItem,
+		CloseButton,
 		VoiceGlobalCommandsHelper,
 	},
 	emits:['close']
 })
-export default class PredictionForm extends Vue {
+export default class PredictionForm extends AbstractSidePanel {
 	
 	@Prop({
 			type: Boolean,
-			default: false
+			default: true
 		})
 	public voiceControl!:boolean;
 	@Prop({
@@ -98,7 +106,7 @@ export default class PredictionForm extends Vue {
 
 	public get classes():string[] {
 		const res = ["predictionform"];
-		if(this.triggerMode !== false) res.push("triggerMode");
+		if(this.triggerMode === false) res.push("sidePanel");
 		return res;
 	}
 
@@ -116,6 +124,7 @@ export default class PredictionForm extends Vue {
 
 	public getAnswerClasses(index:number):string[] {
 		const res = ["answer"];
+		if(!this.triggerMode) res.push("sidePanel");
 		if(this.filledCount < 3 && index == 1) res.push("red"); 
 		if(index > 1 && this.answers[index].length==0) res.push("disabled"); 
 		return res;
@@ -146,8 +155,7 @@ export default class PredictionForm extends Vue {
 		}
 
 		if(!this.triggerMode) {
-			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+			super.open();
 		}
 
 		watch(()=>this.answers, ()=> {
@@ -181,9 +189,7 @@ export default class PredictionForm extends Vue {
 	}
 
 	public async close():Promise<void> {
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
+		super.close();
 	}
 
 	public async submitForm():Promise<void> {
@@ -200,7 +206,7 @@ export default class PredictionForm extends Vue {
 			return;
 		}
 		this.loading = false;
-		this.close();
+		super.close();
 	}
 
 	/**
@@ -222,90 +228,47 @@ export default class PredictionForm extends Vue {
 <style scoped lang="less">
 .predictionform{
 
-	&:not(.triggerMode) {
-		.modal();
-	}
-
-	.content {
-
-		.voiceHelper {
-			margin: auto;
-		}
-		
-		form {
-			display: flex;
-			flex-direction: column;
-			.row {
-				margin-top: 10px;
-				display: flex;
-				flex-direction: column;
-				background-color: fade(@mainColor_normal_extralight, 30%);
-				padding: .5em;
-				border-radius: .5em;
-				&.inline {
+	.content > form {
+		.row {
+			.questionInput {
+				flex-basis: unset;
+				text-align: left;
+			}
+			&.answers {
+				.answer {
+					flex-grow: 1;
+					display: flex;
 					flex-direction: row;
-				}
-				&.right {
-					align-self: flex-end;
-				}
-				&.shrink {
-					:deep(input) {
-						flex-basis: 80px;
+					&:not(:last-child) {
+						margin-bottom: 5px;
 					}
-				}
-				.error {
-					margin-top: 5px;
-					color: var(--mainColor_light);
-					padding: 5px 10px;
-					border-radius: 5px;
-					text-align: center;
-					background-color: var(--mainColor_alert);
-				}
-
-				&.answers {
-					.answer {
-						flex-grow: 1;
-						display: flex;
-						flex-direction: row;
-						&:not(:last-child) {
-							margin-bottom: 5px;
-						}
-						&.red {
-							input {
-								@c:#f50e9b;
-								color: @c;
-								border-color: @c;
-								background-color: lighten(@c, 40%);
-							}
-						}
-						&.disabled {
-							input {
-								@c:#727272;
-								color: @c;
-								border-color: @c;
-								background-color: lighten(@c, 40%);
-							}
-						}
+					&.red {
 						input {
-							flex-grow: 1;
-							min-width: 0;
-							border-width: 3px;
-							@c:#387aff;
+							@c:#f50e9b;
 							color: @c;
 							border-color: @c;
-							background-color: lighten(@c, 30%);
 						}
-						.deleteBt {
-							background: none;
-							padding-right: 0;
+					}
+					&.disabled {
+						input {
+							@c:#727272;
+							color: @c;
+							border-color: @c;
 						}
+					}
+					input {
+						flex-grow: 1;
+						min-width: 0;
+						border-width: 3px;
+						text-align: left;
+						@c:#4986ff;
+						color: @c;
+						border: 2px solid @c;
+						text-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
 					}
 				}
 			}
 		}
-	}
-	.voiceFocus {
-		border: 2px solid var(--mainColor_normal);
 	}
 }
 </style>

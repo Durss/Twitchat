@@ -2,6 +2,17 @@
 @import "fonts.less";
 @import "reset.less";
 @import "form.less";
+@import "sidePanel.less";
+
+// @color-dark: #cccccc;
+// @color-light: #18181b;
+@color-dark: #18181b;
+@color-light: #EEEEEE;
+@color-primary: #209177;
+@color-secondary: #e04e00;
+@color-warn: #d6a608;
+@color-alert: #b71f1f;
+// @color-select: #e04e00;
 
 :root {
 	--font-inter: "Inter";
@@ -15,16 +26,6 @@
 	@mainColor_highlight: #005be2;
 	@mainColor_warn: #d6a608;
 	@mainColor_alert: #bb3c3c;
-
-	// @color-dark: #cccccc;
-	// @color-light: #18181b;
-	@color-dark: #18181b;
-	@color-light: #EEEEEE;
-	@color-primary: #209177;
-	@color-secondary: #e04e00;
-	@color-warn: #d6a608;
-	@color-alert: #b71f1f;
-	// @color-select: #e04e00;
 
 	--color-light: @color-light;
 	--color-dark: @color-dark;
@@ -126,7 +127,6 @@ body, html {
 	min-height: -webkit-fill-available;
 	min-height: fill-available;
 	overflow: hidden;
-	font-size: 14px;
 }
 
 pre {
@@ -139,10 +139,10 @@ pre {
 
 a {
 	// text-decoration: none;
-	color: var(--mainColor_alert);
+	color: var(--color-secondary);
 	cursor: pointer;
 	&:hover {
-		color: var(--mainColor_alert_light);
+		color: var(--color-secondary-light);
 	}
 }
 
@@ -154,23 +154,42 @@ h1 {
 	font-size: 1.5em;
 }
 
+.voiceFocus {
+	border: 2px solid var(--color-secondary);
+}
+
+.errorCard {
+	color: var(--color-light);
+	padding: 5px 10px;
+	border-radius: 5px;
+	text-align: center;
+	background-color: var(--color-alert);
+}
+
+mark {
+	font-weight: bold;
+	background-color: var(--color-dark-fade);
+	padding: .1em .25em;
+	border-radius: var(--border_radius);
+}
+
 .tippy-box[data-theme~='twitchat'] {
-    background-color: var(--mainColor_highlight);
-    // background-color: rgba(0, 0, 0, 0.25);
-	// backdrop-filter: blur(2px);
-	// text-shadow: 1px 1px 2px black;
+	@color: fade(@color-secondary, 50%);
+    background-color: @color;
+	backdrop-filter: blur(5px);
+	text-shadow: 1px 1px 2px black;
 	box-shadow: 3px 3px 3px rgba(0,0,0,.35);
 	&[data-placement^='top']  > .tippy-arrow::before {
-		border-top-color: var(--mainColor_highlight);
+		border-top-color: @color;
 	}
 	&[data-placement^='left']  > .tippy-arrow::before {
-		border-left-color: var(--mainColor_highlight);
+		border-left-color: @color;
 	}
 	&[data-placement^='bottom']  > .tippy-arrow::before {
-		border-bottom-color: var(--mainColor_highlight);
+		border-bottom-color: @color;
 	}
 	&[data-placement^='right']  > .tippy-arrow::before {
-		border-right-color: var(--mainColor_highlight);
+		border-right-color: @color;
 	}
 }
 

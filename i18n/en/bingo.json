@@ -10,6 +10,7 @@
 		"max_value":"Max value",
 		"custom_value":"Message",
 		"startBt":"Start bingo",
+		"custom_placeholder":"message...",
 		
 		"winner_placeholder":"User name",
 		"goal_placeholder":"Explain what to find",

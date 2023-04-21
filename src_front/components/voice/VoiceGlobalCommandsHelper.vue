@@ -1,12 +1,12 @@
 <template>
 	<div class="voiceglobalcommandshelper">
-		<img src="@/assets/icons/voice_purple.svg" alt="voice control enabled" class="icon">
+		<img src="@/assets/icons/voice.svg" alt="voice control enabled" class="icon">
 		
 		<div class="list">
-			<div v-for="a in actions" :key="a.action.id" class="row">
+			<template v-for="a in actions" :key="a.action.id">
 				<span class="label">{{a.label}}:</span>
 				<span>{{a.action.sentences}}</span>
-			</div>
+			</template>
 		</div>
 	</div>
 </template>
@@ -63,21 +63,16 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 	flex-direction: column;
 	.icon {
 		height: 2em;
-		margin:.5em 0;
+		margin: 0 0 .5em 0;
 	}
 	.list {
-		display: table;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
 		font-size: .8em;
-		.row {
-			display: table-row;
-			span {
-				display: table-cell;
-				&.label {
-					font-weight: bold;
-					text-align: right;
-					padding-right: 5px;
-				}
-			}
+		column-gap: .5em;
+		.label {
+			text-align: right;
+			font-weight: bold;
 		}
 	}
 	

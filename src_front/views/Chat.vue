@@ -226,7 +226,7 @@ export default class Chat extends Vue {
 	public showRewards = false;
 	public showDevMenu = false;
 	public showCommands = false;
-	public voiceControl = false;
+	public voiceControl = true;
 	public showShoutout = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;

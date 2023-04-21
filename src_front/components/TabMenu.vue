@@ -1,15 +1,21 @@
 <template>
 	<div class="tabmenu">
-		<Button v-for="item in items"
-			@click="setValue(item.value)"
-			autoHideLabel
-			v-tooltip="item.tooltip"
-			:icon="item.icon"
-			:big="big"
-			:small="small"
-			:secondary="secondary"
-			:alert="alert"
-			:selected="value == item.value">{{ item.label }}</Button>
+		<div v-for="item in items"
+		:class="value == item.value? 'tabItem tabSelected' : 'tabItem'">
+			<Button class="tabButton" @click="setValue(item.value)"
+				autoHideLabel
+				v-tooltip="item.tooltip"
+				:icon="item.icon"
+				:big="big"
+				:small="small"
+				:secondary="secondary"
+				:alert="alert"
+				:selected="value == item.value">{{ item.label }}</Button>
+			
+			<Transition name="slide">
+				<div class="selectionChip" v-if="value == item.value"></div>
+			</Transition>
+		</div>
 	</div>
 </template>
 
@@ -98,24 +104,58 @@ export default class TabMenu extends Vue {
 	max-width: 100%;
 	padding: 4px;
 
-	.button {
+	.tabItem {
 		flex-grow: 1;
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		.tabButton {
+			width: 100%;
+			z-index: 1;
+		}
 		&:first-child {
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
+			.tabButton {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
 		}
 
 		&:not(:last-child) {
-			border-right: 1px solid var(--color-light);
+			.tabButton {
+				border-right: 1px solid var(--color-light);
+			}
 		}
 
 		&:not(:first-child):not(:last-child) {
-			border-radius: 0;
+			.tabButton {
+				border-radius: 0;
+			}
 		}
 
 		&:last-child {
-			border-top-left-radius: 0;
-			border-bottom-left-radius: 0;
+			.tabButton {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+		}
+		.selectionChip {
+			background-color: var(--color-secondary);
+			display: block;
+			height: 10px;
+			width: calc(100% - 1.5em);
+			align-self: center;
+			z-index: 0;
+			transition: transform .25s;
+			border-bottom-right-radius: 50%;
+			border-bottom-left-radius: 50%;
+			max-width: 100px;
+			transform: translateY(-50%);
+		}
+
+
+		.slide-enter-from,
+		.slide-leave-to {
+			transform: translateY(-100%);
 		}
 	}
 }

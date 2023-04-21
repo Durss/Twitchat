@@ -1,6 +1,7 @@
 {
 	"timer":{
 		"title":"Chronomètre & Décompte",
+		"description":"Lancez un chronomètre ou un compte à rebours",
 		"timerBt":"Chronomètre",
 		"countdownBt":"Décompte",
 		"duration_param":"Durée (secondes)",

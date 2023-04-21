@@ -18,12 +18,12 @@
 		</div>
 
 		<div class="content">
-			<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
+			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
 			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.chat.description") }}</div>
 				<div class="row">
-					<ParamItem :paramData="command" :autofocus="true" @change="onValueChange()" />
+					<ParamItem class="duration" :paramData="command" :autofocus="true" @change="onValueChange()" />
 				</div>
 				<div class="row">
 					<ParamItem :paramData="reward" :autofocus="true" @change="onValueChange()" v-if="reward_value.listValues!.length > 1" />
@@ -40,7 +40,7 @@
 						</i18n-t>
 					</div>
 				</div>
-				<ParamItem class="row" :paramData="enterDuration" @change="onValueChange()" />
+				<ParamItem class="row shrink" :paramData="enterDuration" @change="onValueChange()" />
 				<ParamItem class="row" :paramData="maxUsersToggle" @change="onValueChange()" />
 				<ParamItem class="row" :paramData="ponderateVotes" @change="onValueChange()" />
 
@@ -59,16 +59,22 @@
 				</div>
 				<div class="row winner" v-if="winner" ref="winnerHolder">
 					<div class="head">Winner</div>
-					<div class="user">🎉 {{winner.user_name}} 🎉</div>
+					<div class="user">🎉 {{winner}} 🎉</div>
 				</div>
 				<div class="row winner" v-if="winnerTmp">
-					<div class="user">{{winnerTmp.user_name}}</div>
+					<div class="user">{{winnerTmp}}</div>
 				</div>
 				<div class="row" v-if="triggerMode === false">
 					<Button type="submit"
-						:aria-label="$t('raffle.subs.startBt_aria')"
-						icon="sub"
-						:loading="pickingEntry">{{ $t('raffle.subs.startBt', {COUNT:subsFiltered.length}) }}</Button>
+					:aria-label="$t('raffle.subs.startBt_aria')"
+					icon="sub"
+					:loading="pickingEntry">
+						<i18n-t scope="global" keypath="raffle.subs.startBt">
+							<template #COUNT>
+								<i class="small">({{ subsFiltered.length }} subs)</i>
+							</template>
+						</i18n-t>
+					</Button>
 				</div>
 			</form>
 				
@@ -91,8 +97,14 @@
 
 				<div class="row" v-if="triggerMode === false">
 					<Button type="submit"
-						:aria-label="$t('raffle.list.startBt_aria')"
-						icon="list">{{ $t('raffle.list.startBt', {COUNT:customEntriesCount}) }}</Button>
+					:aria-label="$t('raffle.list.startBt_aria')"
+					icon="list">
+						<i18n-t scope="global" keypath="raffle.list.startBt">
+							<template #COUNT>
+								<i class="small">({{ customEntriesCount }})</i>
+							</template>
+						</i18n-t>	
+					</Button>
 				</div>
 			</form>
 
@@ -133,22 +145,22 @@
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionRaffleData } from '@/types/TriggerActionDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
-import gsap from 'gsap';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
-import ParamItem from '../params/ParamItem.vue';
-import PostOnChatParam from '../params/PostOnChatParam.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
-import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 import CloseButton from '../CloseButton.vue';
 import TabMenu from '../TabMenu.vue';
+import ToggleBlock from '../ToggleBlock.vue';
+import ParamItem from '../params/ParamItem.vue';
+import PostOnChatParam from '../params/PostOnChatParam.vue';
+import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
+import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Component({
 	components:{
@@ -162,7 +174,7 @@ import TabMenu from '../TabMenu.vue';
 	},
 	emits:["close"]
 })
-export default class RaffleForm extends Vue {
+export default class RaffleForm extends AbstractSidePanel {
 	
 	@Prop({
 			type: Boolean,
@@ -182,8 +194,8 @@ export default class RaffleForm extends Vue {
 	public action!:TriggerActionRaffleData;
 
 	public pickingEntry = false;
-	public winner:TwitchDataTypes.Subscriber|null = null;
-	public winnerTmp:TwitchDataTypes.Subscriber|null = null;
+	public winner:string|null = null;
+	public winnerTmp:string|null = null;
 
 	public mode:"chat"|"sub"|"manual" = "chat";
 		
@@ -227,13 +239,14 @@ export default class RaffleForm extends Vue {
 
 	public get classes():string[] {
 		const res = ["raffleform"];
-		if(this.triggerMode !== false) res.push("triggerMode");
+		if(this.triggerMode === false) res.push("sidePanel");
 		return res;
 	}
 
 	public get customEntriesCount():number {
 		const splitter = this.customEntries.value.split(/\r|\n/).length > 1? "\r|\n" : ",";
-		const list = this.customEntries.value.split(new RegExp(splitter, ""));
+		const list = this.customEntries.value.split(new RegExp(splitter, ""))
+					.filter((v)=>v.length > 0)
 		return list.length;
 	}
 
@@ -313,8 +326,7 @@ export default class RaffleForm extends Vue {
 	public async mounted():Promise<void> {
 
 		if(!this.triggerMode) {
-			gsap.set(this.$el as HTMLElement, {translateY:0});
-			gsap.from(this.$el as HTMLElement, {duration:.4, translateY:"100%", clearProps:"transform", ease:"back.out"});
+			this.open();
 		}
 
 		watch(()=>this.voiceControl, ()=>{
@@ -341,20 +353,31 @@ export default class RaffleForm extends Vue {
 		if(this.voiceController) this.voiceController.dispose();
 	}
 
-	/**
-	 * Close the form
-	 */
-	public async close():Promise<void> {
-		gsap.to(this.$el as HTMLElement, {duration:.25, translateY:"-100%", clearProps:"transform", ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
-	}
 
 	/**
 	 * Create a chat raffle
 	 */
 	public async submitForm():Promise<void> {
 		const payload:TwitchatDataTypes.RaffleData = this.finalData;
+		if(this.mode == "sub") {
+			let subs = Utils.shuffle(await TwitchUtils.getSubsList());
+			let interval = setInterval(()=> {
+				this.winnerTmp = Utils.pickRand(subs).user_name;
+			}, 70)
+			this.winner = null;
+			this.pickingEntry = true;
+			await Utils.promisedTimeout(2000);
+			payload.resultCallback = ()=> {
+				clearInterval(interval);
+
+				if(payload.winners
+				&& payload.winners.length > 0) {
+					this.winnerTmp = null;
+					this.winner = payload.winners[payload.winners.length-1].label;
+				}
+			}
+		}
+
 		this.$store("raffle").startRaffle(payload);
 		if(this.mode == "chat") {
 			this.close();
@@ -390,10 +413,6 @@ export default class RaffleForm extends Vue {
 <style scoped lang="less">
 .raffleform{
 
-	&:not(.triggerMode) {
-		.sidePanel();
-	}
-
 	.content {
 		.voiceHelper {
 			margin: auto;
@@ -401,23 +420,23 @@ export default class RaffleForm extends Vue {
 
 		.form {
 
-			&.winner {
-				margin-top: .5em;
-				border-radius: 10px;
+			.small {
+				font-size: .8em;
+			}
+
+			.winner {
 				font-weight: bold;
-				overflow: hidden;
+				gap: 0;
+					color: var(--mainColor_light);
+				background-color: var(--color-secondary);
 				.head {
 					font-size: 1.25em;
 					padding: .25em;
 					text-align: center;
-					color: var(--mainColor_light);
-					background-color: var(--mainColor_warn);
 				}
 				.user {
 					padding: .5em;
 					text-align: center;
-					color: var(--mainColor_warn);
-					background-color: var(--mainColor_warn_extralight);
 				}
 			}
 

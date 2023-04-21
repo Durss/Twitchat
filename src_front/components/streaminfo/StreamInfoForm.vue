@@ -1,46 +1,42 @@
 <template>
-	<div class="streaminfo">
-		<div class="holder" ref="holder">
-			<div class="head">
-				<span class="title">{{ $t("stream.form_title") }}</span>
-				<Button :aria-label="$t('stream.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
-			</div>
-			
-			<div class="content">
-				<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
+	<div class="streaminfo sidePanel">
+		<div class="head">
+			<h1 class="title">{{ $t("stream.form_title") }}</h1>
+			<CloseButton @click="close()" />
+		</div>
+		
+		<div class="content">
+			<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
+				<div class="list">
 					<div v-for="p in presets" :key="p.id" class="preset">
 						<Button class="button" @click="deletePreset(p)"
 							icon="trash"
-							v-tooltip="$t('stream.preset_deleteBt_tt')" highlight bounce />
+							v-tooltip="$t('stream.preset_deleteBt_tt')" />
 							
 						<Button class="button" @click="editPreset(p)"
 							icon="edit"
-							v-tooltip="$t('stream.preset_editBt_tt')" bounce />
-
+							v-tooltip="$t('stream.preset_editBt_tt')" />
+	
 						<Button class="button" @click="applyPreset(p)"
-							:title="p.name"
-							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving" bounce />
+							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving">{{ p.name }}</Button>
 					</div>
-				</ToggleBlock>
-				
-
-				<div class="content" v-if="loading">
-					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
 				</div>
-
-				<ToggleBlock v-else :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
-				:open="presets.length == 0 || forceOpenForm" icon="update">
-					<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
-					
-					<ParamItem class="item" :paramData="param_savePreset" v-if="!presetEditing" />
-					
-					<div class="actions">
-						<Button :title="$t('global.cancel')" class="submitBt" @click="cancelPresetEdit()" :loading="saving" highlight v-if="presetEditing" />
-						<Button :title="$t('global.submit')" class="submitBt" @click="updateStreamInfo()" :loading="saving" />
-					</div>
-				</ToggleBlock>
-			</div>
+			</ToggleBlock>
 			
+		
+			<img v-if="loading" src="@/assets/loader/loader_white.svg" alt="loading" class="loader">
+
+			<ToggleBlock v-else class="form" :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
+			:open="presets.length == 0 || forceOpenForm" icon="update">
+				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
+				
+				<ParamItem class="item" :paramData="param_savePreset" v-if="!presetEditing" />
+				
+				<div class="actions">
+					<Button :title="$t('global.cancel')" class="submitBt" @click="cancelPresetEdit()" :loading="saving" highlight v-if="presetEditing" />
+					<Button :title="$t('global.submit')" class="submitBt" @click="updateStreamInfo()" :loading="saving" />
+				</div>
+			</ToggleBlock>
 		</div>
 	</div>
 </template>
@@ -58,18 +54,21 @@ import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import StreamInfoSubForm from './StreamInfoSubForm.vue';
+import CloseButton from '../CloseButton.vue';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 
 @Component({
 	components:{
 		Button,
 		ParamItem,
+		CloseButton,
 		ToggleBlock,
 		AutoCompleteForm,
 		StreamInfoSubForm,
 	},
 	emits:["close"]
 })
-export default class StreamInfoForm extends Vue {
+export default class StreamInfoForm extends AbstractSidePanel {
 
 	public param_savePreset:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean"};
 	public param_namePreset:TwitchatDataTypes.ParameterData<string>		= {value:"", type:"string", placeholder:"", maxLength:50};
@@ -99,15 +98,11 @@ export default class StreamInfoForm extends Vue {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 
+		this.open();
+
 		await Utils.promisedTimeout(250);
 
 		this.populate();
-	}
-
-	public async close():Promise<void> {
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
 	}
 
 	/**
@@ -238,8 +233,6 @@ export default class StreamInfoForm extends Vue {
 
 <style scoped lang="less">
 .streaminfo{
-	.modal();
-
 	.item {
 		margin-top: .5em;
 		background-color: fade(@mainColor_normal_extralight, 30%);
@@ -248,25 +241,25 @@ export default class StreamInfoForm extends Vue {
 	}
 
 	.presets {
-		margin-bottom: 1em;
+		width: 100%;
+		.list{
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			gap: .5em;
+		}
 		.preset {
 			display: inline-flex;
 			flex-direction: row;
-			margin-right: .5em;
-			margin-bottom: .5em;
 			.button:nth-child(1) {
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
 				margin-right: 1px;
 				transform-origin: right center;
-				width: 1.5em;
-				min-width: 1.5em;
 			}
 			.button:nth-child(2) {
 				border-radius: 0;
 				margin-right: 1px;
-				width: 1.5em;
-				min-width: 1.5em;
 			}
 			.button:nth-child(3) {
 				border-top-left-radius: 0;
@@ -279,6 +272,10 @@ export default class StreamInfoForm extends Vue {
 				}
 			}
 		}
+	}
+
+	.form {
+		width: 100%;
 	}
 	
 	.autoComplete-item {

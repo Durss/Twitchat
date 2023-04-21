@@ -20,9 +20,9 @@
 				<div class="info" v-if="mode=='emote'" v-html="$t('bingo.emote_info', {COUNT:globalEmotes.length})"></div>
 				<div class="info" v-if="mode =='custom'">{{ $t("bingo.custom_info") }}</div>
 
-				<ParamItem class="row" v-if="mode=='num'" :paramData="minValue" autofocus @change="onValueChange()" />
+				<ParamItem class="row shrink" v-if="mode=='num'" :paramData="minValue" autofocus @change="onValueChange()" />
 				
-				<ParamItem class="row" v-if="mode=='num'" :paramData="maxValue" @change="onValueChange()" />
+				<ParamItem class="row shrink" v-if="mode=='num'" :paramData="maxValue" @change="onValueChange()" />
 
 				<ParamItem class="row custom" v-if="mode=='custom'" :paramData="customValue" @change="onValueChange()" />
 
@@ -48,14 +48,14 @@
 import type { TriggerActionBingoData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
@@ -68,7 +68,7 @@ import CloseButton from '../CloseButton.vue';
 	},
 	emits:["close"]
 })
-export default class BingoForm extends Vue {
+export default class BingoForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
@@ -81,12 +81,12 @@ export default class BingoForm extends Vue {
 	public mode:"num"|"emote"|"custom" = "num";
 	public minValue:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:999999999};
 	public maxValue:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:0, max:999999999};
-	public customValue:TwitchatDataTypes.ParameterData<string|undefined> = {value:"", type:"string"};
+	public customValue:TwitchatDataTypes.ParameterData<string|undefined> = {value:"", type:"string", maxLength:500, placeholderKey:"bingo.custom_placeholder"};
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {
 		const res = ["bingoform"];
-		if(this.triggerMode !== false) res.push("triggerMode");
+		if(this.triggerMode === false) res.push("sidePanel");
 		return res;
 	}
 
@@ -133,18 +133,8 @@ export default class BingoForm extends Vue {
 
 	public mounted(): void {
 		if(!this.triggerMode) {
-			gsap.set(this.$el as HTMLElement, {translateY:0});
-			gsap.from(this.$el as HTMLElement, {duration:.4, translateY:"100%", clearProps:"transform", ease:"back.out"});
+			super.open();
 		}
-	}
-
-	/**
-	 * Close bingo form
-	 */
-	public async close():Promise<void> {
-		gsap.to(this.$el as HTMLElement, {duration:.25, translateY:"-100%", clearProps:"transform", ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
 	}
 
 	/**
@@ -152,7 +142,7 @@ export default class BingoForm extends Vue {
 	 */
 	public onSubmit():void {
 		this.$store("bingo").startBingo(this.finalData);
-		this.close();
+		super.close();
 	}
 
 	/**
@@ -169,8 +159,11 @@ export default class BingoForm extends Vue {
 
 <style scoped lang="less">
 .bingoform{
-	&:not(.triggerMode) {
-		.sidePanel();
+	.content > form > .row.custom {
+		:deep(input) {
+			flex-basis: 200px;
+			text-align: left;
+		}
 	}
 
 }

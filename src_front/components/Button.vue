@@ -317,19 +317,6 @@ export default class Button extends Vue {
 			// text-decoration: underline;
 			font-weight: bold;
 		}
-		.select {
-			.bevel();
-			@size:.25em;
-			position: absolute;
-			bottom: -@size;
-			left:50%;
-			z-index: 10;
-			background-color: var(--color-light);
-			border-radius: 50%;
-			width: @size;
-			height: @size;
-			background-color: yellow;
-		}
 		.background{
 			background-color: var(--color-primary-dark);
 		}

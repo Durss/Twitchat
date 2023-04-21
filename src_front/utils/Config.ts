@@ -57,7 +57,7 @@ export default class Config {
 			// {platform:"twitch", login:"shakawah"},
 			// {platform:"twitch", login:"marikigai"},
 			// {platform:"twitch", login:"iti63"},
-			// {platform:"twitch", login:"mewstelle"},
+			{platform:"twitch", login:"mewstelle"},
 			// {platform:"twitch", login:"gunselsenol"},
 			// {platform:"twitch", login:"encremecanique"},
 			// {platform:"twitch", login:"xurei"},
@@ -70,7 +70,7 @@ export default class Config {
 			// {platform:"twitch", login:"littlebigwhale"},
 			// {platform:"twitch", login:"samueletienne"},
 			// {platform:"twitch", login:"andythefrenchy"},
-			{platform:"twitch", login:"pyka"},
+			// {platform:"twitch", login:"pyka"},
 		];
 	}
 

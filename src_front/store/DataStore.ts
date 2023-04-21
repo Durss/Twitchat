@@ -52,7 +52,6 @@ export default class DataStore {
 	public static TWITCHAT_AD_NEXT_DATE:string = "adNextTS";
 	public static TWITCHAT_SPONSOR_PUBLIC_PROMPT:string = "sponsorPublicPrompt";
 	public static TWITCHAT_RIGHT_CLICK_HINT_PROMPT:string = "rightClickHintPrompt";
-	public static INTERFACE_SCALE:string = "interfaceScale";
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
 	public static COUNTERS:string = "counters";
@@ -62,7 +61,7 @@ export default class DataStore {
 	public static REDIRECT:string = "redirect";
 	public static TRIGGER_SORT_TYPE:string = "triggerSortType";
 	public static TOOLTIP_AUTO_OPEN:string = "tooltipAutoOpen";
-
+	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
 	private static saveTO:number = -1;
@@ -79,7 +78,6 @@ export default class DataStore {
 		this.SPOTIFY_APP_PARAMS,
 		this.GREET_HISTORY,
 		this.SYNC_DATA_TO_SERVER,
-		this.INTERFACE_SCALE,
 		this.CHAT_COL_CTA,
 		this.REDIRECT,
 		this.TOOLTIP_AUTO_OPEN,
@@ -234,6 +232,11 @@ export default class DataStore {
 		}
 		if(v==38) {
 			this.addWatchStreakFilter(data);
+			v = latestVersion;
+		}
+		if(v==39) {
+			//Removed custom interface scale now that OBS handles it natively on docks
+			delete data["interfaceScale"];
 			v = latestVersion;
 		}
 

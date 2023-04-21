@@ -10,6 +10,7 @@
 		"max_value":"Valeur maximale",
 		"custom_value":"Message",
 		"startBt":"Lancer le bingo",
+		"custom_placeholder":"message...",
 		
 		"winner_placeholder":"Pseudo",
 		"goal_placeholder":"Explique ce qu'il faut trouver",

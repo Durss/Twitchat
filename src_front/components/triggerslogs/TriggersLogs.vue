@@ -1,50 +1,48 @@
 <template>
-	<div class="triggerslogs">
-		<div class="holder" ref="holder">
-			<div class="head">
-				<span class="title">Triggers logs</span>
-				<Button :aria-label="$t('stream.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
-			</div>
-			
-			<Button class="refreshBt" title="Refresh" @click="refreshList()" :loading="reloading" bounce/>
-			
-			<div class="content empty" v-if="logs.length == 0 && !reloading">
-				- No history -
-			</div>
-			
-			<div class="content entries" v-else-if="!reloading">
-				<div v-for="item in logs" :key="item.id" class="entry">
-					<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
-						<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
-						<div class="status" v-tooltip="'complete'" v-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
-						<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
-						<div class="status" v-tooltip="'pending'" v-else><img src="@/assets/loader/loader_white.svg"></div>
-						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
-						<div class="date">{{ getFormatedDime(item.date) }}</div>
-						<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
-						<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>
-					</div>
-					<div class="messages" v-if="idToExpandState[item.id] == true">
-						<ul class="messages">
-							<li v-for="mess in item.messages">
+	<div class="triggerslogs sidePanel">
+		<div class="head">
+			<h1 class="title">Triggers logs</h1>
+			<CloseButton @click="close" />
+		</div>
+		
+		<Button class="refreshBt" @click="refreshList()" icon="refresh" :loading="reloading">Refresh</Button>
+		
+		<div class="content empty" v-if="logs.length == 0 && !reloading">
+			- No history -
+		</div>
+		
+		<div class="content entries" v-else-if="!reloading">
+			<div v-for="item in logs" :key="item.id" class="entry">
+				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
+					<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
+					<div class="status" v-tooltip="'complete'" v-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
+					<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
+					<div class="status" v-tooltip="'pending'" v-else><img src="@/assets/loader/loader_white.svg"></div>
+					<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
+					<div class="date">{{ getFormatedDime(item.date) }}</div>
+					<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
+					<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>
+				</div>
+				<div class="messages" v-if="idToExpandState[item.id] == true">
+					<ul class="messages">
+						<li v-for="mess in item.messages">
+							<span class="date">{{ getFormatedDime(mess.date) }}</span>
+							<span>{{ mess.value }}</span>
+						</li>
+					</ul>
+				</div>
+				<div class="steps" v-if="idToExpandState[item.id] == true">
+					<div v-for="step in item.steps" class="step">
+						<div class="head" @click="idToExpandState[step.id] = !idToExpandState[step.id]">
+							<span class="date">{{ getFormatedDime(step.date) }}</span>
+							<span>{{ step.data.type }}</span>
+						</div>
+						<ul class="messages" v-if="idToExpandState[step.id]">
+							<li v-for="mess in step.messages">
 								<span class="date">{{ getFormatedDime(mess.date) }}</span>
 								<span>{{ mess.value }}</span>
 							</li>
 						</ul>
-					</div>
-					<div class="steps" v-if="idToExpandState[item.id] == true">
-						<div v-for="step in item.steps" class="step">
-							<div class="head" @click="idToExpandState[step.id] = !idToExpandState[step.id]">
-								<span class="date">{{ getFormatedDime(step.date) }}</span>
-								<span>{{ step.data.type }}</span>
-							</div>
-							<ul class="messages" v-if="idToExpandState[step.id]">
-								<li v-for="mess in step.messages">
-									<span class="date">{{ getFormatedDime(mess.date) }}</span>
-									<span>{{ mess.value }}</span>
-								</li>
-							</ul>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -59,14 +57,17 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 	},
 	emits:["close"]
 })
-export default class TriggersLogs extends Vue {
+export default class TriggersLogs extends AbstractSidePanel {
 
 	public reloading:boolean = false;
 
@@ -86,15 +87,9 @@ export default class TriggersLogs extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		this.open();
 	}
 
-	public async close():Promise<void> {
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
-	}
 
 	public refreshList():void {
 		this.reloading = true;
@@ -108,10 +103,9 @@ export default class TriggersLogs extends Vue {
 
 <style scoped lang="less">
 .triggerslogs{
-	.modal();
-	
 	.refreshBt {
-		margin: 1em auto 0 auto;
+		flex-shrink: 0;
+		margin: auto;
 	}
 
 	.entries {
@@ -135,8 +129,8 @@ export default class TriggersLogs extends Vue {
 			flex-direction: row;
 			align-items: center;
 			gap: .5em;
-			background: var(--mainColor_normal);
-			padding: .25em .5em;
+			background: var(--color-primary);
+			padding: .2em .5em;
 			border-radius: .5em;
 			color:var(--mainColor_light);
 			cursor:pointer;
@@ -175,7 +169,7 @@ export default class TriggersLogs extends Vue {
 				gap: .25em;
 				.head {
 					align-self: flex-start;
-					background-color: var(--mainColor_normal_light);
+					background-color: var(--color-secondary);
 				}
 			}
 		}

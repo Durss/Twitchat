@@ -2,27 +2,30 @@
 	<div class="userlist">
 		
 		<div v-if="currentChan">
-			<div v-for="chan, key in currentChan.users" :class="'userList '+key">
-				<div class="title" v-if="currentChan.users[key].length > 0">
-					{{getRole(key)}}
-					<i>({{currentChan.users[key].length}})</i>
-				</div>
-				<div class="list" v-if="currentChan.users[key].length > 0">
-					<a :class="userClasses(u)"
-					target="_blank"
-					:href="'https://twitch.tv/'+u.login"
-					@click.prevent="openUserCard(u)"
-					v-for="u in currentChan.users[key]" :key="u.id">
-						<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
-							<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
-								src="@/assets/icons/timeout.svg"
-								v-tooltip="getBanDuration(u.channelInfo[currentChanId])">
-							<img v-else src="@/assets/icons/ban.svg" v-tooltip="$t('userlist.banned_tt')">
-						</div>
-						{{u.displayName}}
-					</a>
-				</div>
-			</div>
+			<template v-for="chan, key in currentChan.users">
+				<ToggleBlock v-if="currentChan.users[key].length > 0" :class="'userList '+key"
+				small
+				:title="getRole(key)"
+				:subtitle="'('+currentChan.users[key].length+')'"
+				:open="key != 'broadcaster'"
+				>
+					<div class="list" v-if="currentChan.users[key].length > 0">
+						<a :class="userClasses(u)"
+						target="_blank"
+						:href="'https://twitch.tv/'+u.login"
+						@click.prevent="openUserCard(u)"
+						v-for="u in currentChan.users[key]" :key="u.id">
+							<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
+								<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
+									src="@/assets/icons/timeout.svg"
+									v-tooltip="getBanDuration(u.channelInfo[currentChanId])">
+								<img v-else src="@/assets/icons/ban.svg" v-tooltip="$t('userlist.banned_tt')">
+							</div>
+							<span>{{u.displayName}}</span>
+						</a>
+					</div>
+				</ToggleBlock>
+			</template>
 		</div>
 
 		<ToggleBlock class="infos" :open="false" medium v-if="currentChanId == myChannelId" :title="$t('userlist.infoBt')">
@@ -78,11 +81,6 @@ export default class UserList extends Vue {
 
 	public getRole(key:string):string {
 		return (this.$tm("userlist.roles") as {[key:string]:string})[key];
-	}
-
-	public getBroadcasterTitle(chan:ChannelUserList):string {
-		const user = this.$store("users").getUserFrom(chan.platform, chan.channelId, chan.channelId);
-		return user.displayName + '<i>('+(chan.users.broadcaster.length+chan.users.viewers.length+chan.users.vips.length+chan.users.mods.length)+')</i>'
 	}
 
 	public getBanDuration(chanInfo:TwitchatDataTypes.UserChannelInfo):string {
@@ -269,22 +267,8 @@ interface ChannelUserList {
 			margin-bottom: 20px;
 		}
 
-		.title {
-			.emboss();
-			color: var(--color-light);
-			flex-grow: 1;
-			padding: .25em;
-			display: block;
-			background-color: var(--color-primary-fade);
-			border-radius: 1em;
-
-			i {
-				font-size: .8em;
-			}
-		}
-
 		.list {
-			background-color: var(--color-primary-fader);
+			// background-color: var(--color-primary-fade);
 			width: calc(100% - 2em);
 			margin: auto;
 			padding: .25em;
@@ -306,6 +290,10 @@ interface ChannelUserList {
 				line-height: 1.2em;
 				width: 100%;
 				padding: .25em;
+				color: var(--color-light);
+				&:hover {
+					text-decoration: underline;
+				}
 				// box-shadow: 2px 2px 2px black;
 				&:nth-child(odd) {
 					background-color: fade(white, 2%);

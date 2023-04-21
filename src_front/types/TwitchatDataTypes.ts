@@ -482,7 +482,12 @@ export namespace TwitchatDataTypes {
 		customEntries:string;
 		winners?:RaffleEntry[];
 		/**
-		 * @deprectaed use duration_s instead. Only hear for typing on data migration
+		 * Only used by raffle form to show winner within the form
+		 * when raffle completes
+		 */
+		resultCallback?:()=>void;
+		/**
+		 * @deprecated use duration_s instead. Only hear for typing on data migration
 		 */
 		duration?:number;
 	}

@@ -1,7 +1,7 @@
 {
 	"cmdmenu":{
 		"poll":"Créer un sondage",
-		"prediction":"Créer un prédiction",
+		"prediction":"Créer une prédiction",
 		"raffle":"Créer un tirage au sort",
 		"bingo":"Créer un bingo",
 		"suggestions":"Demander des suggestions",

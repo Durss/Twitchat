@@ -366,10 +366,6 @@ export default class CommandHelper extends Vue {
 			text-align: center;
 			font-size: .8em;
 			margin-top: .5em;
-			color: var(--mainColor_light);
-			&:hover {
-				color: var(--color-secondary);
-			}
 		}
 
 		.missingScope {

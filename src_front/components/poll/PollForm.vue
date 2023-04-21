@@ -1,46 +1,42 @@
 <template>
 	<div :class="classes">
-		<div class="dimmer" ref="dimmer" @click="close()"></div>
-		<div class="holder" ref="holder">
-			<div class="head" v-if="triggerMode === false">
-				<span class="title">{{ $t("poll.form.title") }}</span>
-				<Button :aria-label="$t('poll.form.closeBt_aria')" icon="cross" @click="close()" class="close" bounce/>
-			</div>
+		<div class="head" v-if="triggerMode === false">
+			<span class="title">{{ $t("poll.form.title") }}</span>
+			<CloseButton @click="close()" />
+		</div>
 
-			<div class="content">
-				<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
+		<div class="content">
+			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
-				<form  @submit.prevent="submitForm()">
-					<div class="row">
-						<label for="poll_title">{{ $t("poll.form.question") }}</label>
-						<div class="field">
-							<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="1" @change="onValueChange()">
-							<div class="len">{{title.length}}/60</div>
-						</div>
+			<form @submit.prevent="submitForm()">
+				<div class="row">
+					<label for="poll_title">{{ $t("poll.form.question") }}</label>
+					<div class="field">
+						<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="1" @change="onValueChange()">
+						<div class="len">{{title.length}}/60</div>
 					</div>
-					<div class="row">
-						<label for="poll_answer">{{ $t("poll.form.answers") }}</label>
+				</div>
+				<div class="row">
+					<label for="poll_answer">{{ $t("poll.form.answers") }}</label>
 
-						<div class="field" v-for="(a, index) in answers.length" :key="index">
-							<input type="text" id="poll_answer" v-model="answers[index]" maxlength="25" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
-							<div class="len">{{answers[index].length}}/25</div>
-						</div>
+					<div class="field" v-for="(a, index) in answers.length" :key="index">
+						<input type="text" id="poll_answer" v-model="answers[index]" maxlength="25" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
+						<div class="len">{{answers[index].length}}/25</div>
 					</div>
-					<div class="row">
-						<ParamItem :paramData="extraVotesParam" @change="onValueChange()" />
-					</div>
-					<div class="row shrink" v-if="extraVotesParam.value === true">
-						<ParamItem :paramData="pointsVoteParam" @change="onValueChange()" />
-					</div>
-					<div class="row shrink">
-						<ParamItem :paramData="voteDuration" @change="onValueChange()" />
-					</div>
-					<div class="row" v-if="triggerMode === false">
-						<Button :title="$t('global.submit')" type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2" />
-						<div class="error" v-if="error" @click="error = ''">{{error}}</div>
-					</div>
-				</form>
-			</div>
+				</div>
+				<div class="row">
+					<ParamItem :paramData="extraVotesParam" @change="onValueChange()" />
+				</div>
+				<div class="row shrink" v-if="extraVotesParam.value === true">
+					<ParamItem :paramData="pointsVoteParam" @change="onValueChange()" />
+				</div>
+				<div class="row shrink">
+					<ParamItem :paramData="voteDuration" @change="onValueChange()" />
+				</div>
+				
+				<Button type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2">{{ $t('global.submit') }}</Button>
+				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
+			</form>
 		</div>
 	</div>
 </template>
@@ -51,10 +47,11 @@ import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionPollData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
@@ -62,31 +59,24 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	components:{
 		Button,
 		ParamItem,
+		CloseButton,
 		VoiceGlobalCommandsHelper,
 	},
 	emits:['close']
 })
-export default class PollForm extends Vue {
+export default class PollForm extends AbstractSidePanel {
 
-	@Prop({
-			type: Boolean,
-			default: false
-		})
+	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
-	@Prop({
-			type: Boolean,
-			default: false
-		})
+
+	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
+
 	//This is used by the trigger action form.
-	@Prop({
-			type: Object,
-			default:{},
-		})
+	@Prop({type: Object, default:{}})
 	public action!:TriggerActionPollData;
 
 	public loading:boolean = false;
-
 	public error = "";
 	public title = "";
 	public answers:string[] = ["","","","",""];
@@ -98,7 +88,7 @@ export default class PollForm extends Vue {
 
 	public get classes():string[] {
 		const res = ["pollform"];
-		if(this.triggerMode !== false) res.push("triggerMode");
+		if(!this.triggerMode) res.push("sidePanel");
 		return res;
 	}
 
@@ -132,9 +122,7 @@ export default class PollForm extends Vue {
 		}
 		
 		if(!this.triggerMode) {
-			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-			gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
-			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+			super.open();
 		}
 	}
 
@@ -143,11 +131,7 @@ export default class PollForm extends Vue {
 	}
 
 	public async close():Promise<void> {
-		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
-		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
+		super.close();
 	}
 
 	public async submitForm():Promise<void> {
@@ -194,64 +178,22 @@ export default class PollForm extends Vue {
 
 <style scoped lang="less">
 .pollform{
-
-	&:not(.triggerMode) {
-		.modal();
-	}
-
-	.content {
-
-		.voiceHelper {
-			margin: auto;
-		}
-		
-		form {
-			display: flex;
-			flex-direction: column;
-			.row {
-				margin-top: 10px;
-				display: flex;
-				flex-direction: column;
-				background-color: fade(@mainColor_normal_extralight, 30%);
-				padding: .5em;
-				border-radius: .5em;
-				&.right {
-					align-self: flex-end;
-				}
-				&.shrink {
-					:deep(input) {
-						flex-basis: 80px;
-					}
-				}
-				.error {
-					margin-top: 5px;
-					color: var(--mainColor_light);
-					padding: 5px 10px;
-					border-radius: 5px;
-					text-align: center;
-					background-color: var(--mainColor_alert);
-				}
-
-				.field {
-					flex-grow: 1;
-					position: relative;
-					input {
-						width: 100%;
-						padding-right: 3em;
-					}
-					.len {
-						font-size: .7em;
-						position: absolute;
-						right: .5em;
-						top: 50%;
-						transform: translateY(-50%);
-					}
-				}
+	.content > form > .row {
+		.field {
+			flex-grow: 1;
+			position: relative;
+			input {
+				width: 100%;
+				padding-right: 3em;
+			}
+			.len {
+				font-size: .7em;
+				position: absolute;
+				right: .5em;
+				top: 50%;
+				transform: translateY(-50%);
 			}
 		}
-	}
-	.voiceFocus {
-		border: 2px solid var(--mainColor_normal);
 	}
 }
 </style>

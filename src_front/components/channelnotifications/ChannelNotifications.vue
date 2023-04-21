@@ -155,6 +155,7 @@ export default class ChannelNotifications extends Vue {
 			overflow-y: auto;
 			margin-bottom: 0;
 			z-index: 1;
+			transition: all 0.2s;
 		}
 
 		.closeBt {
@@ -168,14 +169,6 @@ export default class ChannelNotifications extends Vue {
 			pointer-events:all;
 		}
 
-		.slide-enter-active {
-			transition: all 0.2s;
-		}
-
-		.slide-leave-active {
-			transition: all 0.2s;
-		}
-		
 		.slide-enter-from,
 		.slide-leave-to {
 			// max-height: 0;

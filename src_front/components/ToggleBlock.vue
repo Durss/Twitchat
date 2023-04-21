@@ -120,7 +120,6 @@ export default class ToggleBlock extends Vue {
 
 <style scoped lang="less">
 .toggleblock{
-	font-size: 1.2em;
 	align-self: flex-start;
 	border-radius: var(--border_radius);
 
@@ -146,6 +145,7 @@ export default class ToggleBlock extends Vue {
 		align-items: center;
 		transition: background-color .25s;
 		.title {
+			font-size: 1.2em;
 			flex-grow: 1;
 			color: var(--color-light);
 			display: flex;
@@ -212,6 +212,8 @@ export default class ToggleBlock extends Vue {
 				flex-direction: row;
 				gap: .25em;
 				line-height: 1.25em;
+				color: var(--color-primary);
+				text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
 				&::before {
 					content:"►";
 					margin-left: .3em;
