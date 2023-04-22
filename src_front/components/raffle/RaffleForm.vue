@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
-			<CloseButton :aria-label="$t('bingo.closeBt_aria')" @click="close()" />
+			<CloseButton :aria-label="$t('global.close')" @click="close()" />
 			
 			<h1 class="title">{{ $t("raffle.form_title") }}</h1>
 
@@ -400,7 +400,6 @@ export default class RaffleForm extends AbstractSidePanel {
 		if(this.action) {
 			this.action.raffleData = this.finalData;
 		}
-		this.joinPlaceholders[0].example = this.command_value.value;
 	}
 
 	public requestSubPermission():void {

@@ -124,7 +124,6 @@ export default class PredictionForm extends AbstractSidePanel {
 
 	public getAnswerClasses(index:number):string[] {
 		const res = ["answer"];
-		if(!this.triggerMode) res.push("sidePanel");
 		if(this.filledCount < 3 && index == 1) res.push("red"); 
 		if(index > 1 && this.answers[index].length==0) res.push("disabled"); 
 		return res;
@@ -261,11 +260,16 @@ export default class PredictionForm extends AbstractSidePanel {
 						min-width: 0;
 						border-width: 3px;
 						text-align: left;
-						@c:#4986ff;
+						@c:#3798ff;
 						color: @c;
 						border: 2px solid @c;
 						text-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
 					}
+				}
+				.deleteBt {
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+					width: 2em;
 				}
 			}
 		}

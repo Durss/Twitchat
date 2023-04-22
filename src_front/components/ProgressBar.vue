@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
-		<div class="fill" :style="getBarStyles()"></div>
-		<div class="timer" ref="timer" :style="getTimerStyles()" v-if="percent<=1 && duration != undefined">{{timeLeft}}</div>
+		<div class="fill" :style="barStyles"></div>
+		<div class="timer" ref="timer" :style="timerStyles" v-if="percent<=1 && duration != undefined">{{timeLeft}}</div>
 	</div>
 </template>
 
@@ -22,37 +22,51 @@ export default class ProgressBar extends Vue {
 	public duration!:number;//In ms
 
 	@Prop({type:Boolean, default:false})
-	public cyan!:boolean;
+	public boostMode!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
 
 	public get timeLeft():string { return Utils.formatDuration(this.duration * this.elapsedPercent) }
 
 	public get elapsedPercent():number { return Math.max(0, Math.min(1, (1-this.percent))); }
 
 	public get classes():string[] {
-		const res = ["progressbar"];
-		if(this.cyan) res.push('green');
-		return res;
+		const list = ["progressbar"];
+		if(this.boostMode !== false) list.push('boostMode');
+		if(this.secondary !== false) list.push("secondary");
+		if(this.alert !== false) list.push("alert");
+		return list;
 	}
 
-	public getBarStyles():StyleValue {
+	public get barStyles():StyleValue {
 		return {
-			transform: `scaleX(${this.elapsedPercent*100}%)`,
+			width: (this.elapsedPercent*100)+"%",
+			//Using a transform causes a weird glitch with the box-shadow.
+			//Under a certain width the shadow appears over its holder
+			// transform: `scaleX(${this.elapsedPercent*100}%)`,
 		}
 	}
 
-	public getTimerStyles():StyleValue {
+	public get timerStyles():StyleValue {
 		if(this.$refs.timer) {
 			let parent = (this.$el as HTMLElement).getBoundingClientRect();
 			let bounds = (this.$refs.timer as HTMLElement).getBoundingClientRect();
 			let barSize = this.elapsedPercent * parent.width;
 			let px = barSize - bounds.width;
+			let offset = -px / bounds.width;
 			if(px < 0) px -= barSize - bounds.width;
 			return {
+				right:"auto",
 				transform: "translateX("+px+"px)",
+				backgroundPositionX: offset > 0? (offset*100)+"%" : "0%"
 			}
 		}else{
 			return {
-				right: 0,
+				right: (this.percent*100)+"%",
 			}
 		}
 	}
@@ -66,24 +80,15 @@ export default class ProgressBar extends Vue {
 	background: var(--color-dark);
 	position: relative;
 	@shadow: 0 4px 4px rgba(0, 0, 0, .5);
-
-	&.green {
-		@c: darken(#00f0f0, 15%);
-		.fill {
-			background-color: @c;
-		}
-		.timer {
-			color: @c;
-		}
-	}
-
+	
 	.fill {
+		box-shadow: @shadow;
 		height: 4px;
 		width: 100%;
 		background-color: var(--color-primary);
 		transform-origin: left;
 		will-change: transform;
-		box-shadow: @shadow;
+		position: relative;
 	}
 
 	.timer {
@@ -91,12 +96,54 @@ export default class ProgressBar extends Vue {
 		font-family: var(--font-roboto);
 		background-color: var(--color-primary);
 		color: var(--color-light);
+		top: 0;
 		font-size: 15px;
 		padding: 2px 5px;
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		box-shadow: @shadow;
+		transform: translateX(0);
 		will-change: transform;
+		@c:var(--color-primary);
+		background-color: @c;
+		background: linear-gradient(90deg, @c 0%, @c 50%, var(--color-dark) 50%, var(--color-dark) 100%);
+		background-size: 200% 100%;
+	}
+
+	&.secondary {
+		@c: var(--color-secondary);
+		.fill {
+			background-color: @c;
+		}
+		.timer {
+			background-color: @c;
+			background: linear-gradient(90deg, @c 0%, @c 50%, var(--color-dark) 50%, var(--color-dark) 100%);
+			background-size: 200% 100%;
+		}
+	}
+
+	&.alert {
+		@c: var(--color-alert);
+		.fill {
+			background-color: @c;
+		}
+		.timer {
+			background-color: @c;
+			background: linear-gradient(90deg, @c 0%, @c 50%, var(--color-dark) 50%, var(--color-dark) 100%);
+			background-size: 200% 100%;
+		}
+	}
+
+	&.boostMode {
+		@c: darken(#00f0f0, 15%);
+		.fill {
+			background-color: @c;
+		}
+		.timer {
+			background-color: @c;
+			background: linear-gradient(90deg, @c 0%, @c 50%, var(--color-dark) 50%, var(--color-dark) 100%);
+			background-size: 200% 100%;
+		}
 	}
 }
 </style>

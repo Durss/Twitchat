@@ -1,6 +1,6 @@
 <template>
 	<div class="voicecontrol">
-		<div class="block head">
+		<div class="blured-background block head">
 			<img src="@/assets/icons/voice.svg" alt="voice icon" class="icon">
 			<p>{{ $t("voice.remote.title") }}</p>
 			<p class="install"><span>{{ $t("obs.install") }}</span> <strong>OBS v28+</strong>
@@ -67,7 +67,6 @@ export default class RemoteVoiceControl extends Vue {
 <style scoped lang="less">
 .voicecontrol{
 	.block {
-		.window();
 		max-width: 600px;
 		margin: auto;
 		padding: 0;

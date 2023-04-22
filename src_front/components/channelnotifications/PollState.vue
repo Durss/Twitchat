@@ -3,6 +3,7 @@
 		<h1 class="title"><img src="@/assets/icons/poll.svg">{{poll.title}}</h1>
 		
 		<ProgressBar class="progress"
+			secondary
 			:percent="progressPercent"
 			:duration="poll.duration_s*1000" />
 		
@@ -25,7 +26,7 @@
 		</i18n-t>
 
 		<div class="item actions">
-			<Button title="End poll" highlight @click="endPoll()" :loading="loading" />
+			<Button alert @click="endPoll()" :loading="loading">{{ $t("poll.state.endBt") }}</Button>
 		</div>
 	</div>
 </template>
@@ -131,7 +132,9 @@ export default class PollState extends Vue {
 	}
 
 	.choices {
+		align-self: stretch;
 		.choice {
+			.emboss();
 			display: flex;
 			flex-direction: row;
 			border-radius: 10px;
@@ -141,7 +144,7 @@ export default class PollState extends Vue {
 			@c: fade(@mainColor_light, 15%);
 			transition: background-size .2s;
 			background: linear-gradient(to right, @c 100%, @c 100%);
-			background-color: fade(@mainColor_light, 10%);
+			background-color: var(--color-secondary-fader);
 			background-repeat: no-repeat;
 			justify-content: space-between;
 			&:not(:last-child) {
@@ -149,13 +152,13 @@ export default class PollState extends Vue {
 			}
 
 			&.win {
-				@c: fade(#00cc00, 40%);
+				@c: var(--color-secondary);
 				background-image: linear-gradient(to right, @c 100%, @c 100%);
 				// border: 1px solid fade(#00cc00, 20%);
 			}
 
 			&.lose {
-				@c: fade(#cc0000, 40%);
+				@c: var(--color-secondary);
 				background-image: linear-gradient(to right, @c 100%, @c 100%);
 				// border: 1px solid #cc0000;
 			}

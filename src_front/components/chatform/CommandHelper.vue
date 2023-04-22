@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
-		<Button @click.capture="openModal('poll');"		icon="poll"			:disabled="!canCreatePoll" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</Button>
-		<Button @click.capture="openModal('pred');"		icon="prediction"	:disabled="!canCreatePrediction" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</Button>
+		<Button @click.capture="openModal('poll');"			icon="poll"			:disabled="!canCreatePoll" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</Button>
+		<Button @click.capture="openModal('pred');"			icon="prediction"	:disabled="!canCreatePrediction" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</Button>
 		<Button @click.capture="openModal('raffle');"		icon="ticket"		>{{$t('cmdmenu.raffle')}}</Button>
 		<Button @click.capture="openModal('bingo');"		icon="bingo"		>{{$t('cmdmenu.bingo')}}</Button>
 		<Button @click.capture="openModal('chatsuggForm');"	icon="chatPoll"		>{{$t('cmdmenu.suggestions')}}</Button>
@@ -10,12 +10,12 @@
 		<Button @click.capture="openModal('streamInfo');"	icon="info"			:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</Button>
 
 		<div class="commercial" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">
-			<Button aria-label="Start a 30s ad"		v-if="adCooldown == 0" small @click.capture="startAd(30);" icon="coin" bounce :disabled="!canStartCommercial">{{ $t('cmdmenu.start_ad') }}</Button>
-			<Button aria-label="Start a 60s ad"		v-if="adCooldown == 0" small @click.capture="startAd(60);" bounce :disabled="!canStartCommercial">60s</Button>
-			<Button aria-label="Start a 90s ad"		v-if="adCooldown == 0" small @click.capture="startAd(90);" bounce :disabled="!canStartCommercial">90s</Button>
-			<Button aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);" bounce :disabled="!canStartCommercial">120s</Button>
-			<Button aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);" bounce :disabled="!canStartCommercial">180s</Button>
-			<div v-if="adCooldown > 0" class="cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
+			<Button aria-label="Start a 30s ad"		v-if="adCooldown == 0" small @click.capture="startAd(30);"	:disabled="!canStartCommercial" icon="coin">{{ $t('cmdmenu.start_ad') }}</Button>
+			<Button aria-label="Start a 60s ad"		v-if="adCooldown == 0" small @click.capture="startAd(60);"	:disabled="!canStartCommercial">60s</Button>
+			<Button aria-label="Start a 90s ad"		v-if="adCooldown == 0" small @click.capture="startAd(90);"	:disabled="!canStartCommercial">90s</Button>
+			<Button aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);"	:disabled="!canStartCommercial">120s</Button>
+			<Button aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">180s</Button>
+			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
 		<ParamItem class="roomParam" :paramData="param_followOnly"		@change="setFollowOnly()"	clearToggle @click="requestRoomSettingsScopes()" />
@@ -23,13 +23,16 @@
 		<ParamItem class="roomParam" :paramData="param_emotesOnly"		@change="setEmoteOnly()"	clearToggle @click="requestRoomSettingsScopes()" />
 		<ParamItem class="roomParam" :paramData="param_slowMode"		@change="setSlowMode()"	clearToggle @click="requestRoomSettingsScopes()" />
 		
-		<div class="raid" v-if="$store('stream').currentRaid">
-			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">Raiding {{$store('stream').currentRaid!.user.displayName}}</label>
-			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross" bounce highlight title="Cancel" />
+		<div class="card-item raid" v-if="$store('stream').currentRaid">
+			<div class="title">
+				<img src="@/assets/icons/raid.svg" alt="raid">
+				Raiding {{$store('stream').currentRaid!.user.displayName}}
+			</div>
+			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross" alert>{{ $t("global.cancel") }}</Button>
 		</div>
 
-		<div class="raid" v-else>
-			<label for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">{{$t('cmdmenu.raid')}}</label>
+		<div class="card-item raid" v-else>
+			<label class="title" for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">{{$t('cmdmenu.raid')}}</label>
 			<form @submit.prevent="raid()" v-if="canRaid">
 				<input id="raid_input" type="text" :placeholder="$t('cmdmenu.raid_placeholder')" v-model="raidUser" maxlength="50">
 				<Button class="button"
@@ -80,7 +83,7 @@ export default class CommandHelper extends Vue {
 	private adCooldownInterval = 0;
 
 	public get classes():string[] {
-		const res = ["commandhelper"];
+		const res = ["commandhelper", "blured-background"];
 		if(this.hasChannelPoints) res.push("isAffiliate")
 		return res;
 	}
@@ -109,7 +112,15 @@ export default class CommandHelper extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-	
+		//Fake raid to test "raiding" card
+		// this.$store('stream').currentRaid = {
+		// 	channel_id:this.$store("auth").twitch.user.id,
+		// 	startedAt:Date.now(),
+		// 	timerDuration_s:9999999999,
+		// 	user:this.$store("auth").twitch.user,
+		// 	viewerCount:855,
+		// };
+
 		this.param_followOnly.labelKey		= "cmdmenu.followersOnly";
 		this.param_subOnly.labelKey			= "cmdmenu.subsOnly";
 		this.param_emotesOnly.labelKey		= "cmdmenu.emotesOnly";
@@ -310,7 +321,6 @@ export default class CommandHelper extends Vue {
 
 <style scoped lang="less">
 .commandhelper{
-	.window();
 	gap:10px;
 	overflow-x: hidden;
 
@@ -319,23 +329,19 @@ export default class CommandHelper extends Vue {
 		flex-direction: row;
 		justify-content: space-between;
 		.cooldown {
-			.card();
 			max-width: 300px;
 			font-size: .8em;
 			margin: auto;
-			padding: .5em;
 			text-align: center;
 			background-color: var(--color-alert);
 		}
 	}
 
 	.raid {
-		.card();
 		display: flex;
 		flex-direction: column;
-		padding: .5em;
-		color: var(--color-light);
-		label {
+		gap: .5em;
+		.title {
 			align-self: center;
 			img {
 				height: .9em;
@@ -354,11 +360,8 @@ export default class CommandHelper extends Vue {
 			}
 			.button {
 				flex-grow: 1;
-				:deep(.background) {
-					border-radius: var(--border-radius);
-					border-top-left-radius: 0;
-					border-bottom-left-radius: 0;
-				}
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
 			}
 		}
 
@@ -366,6 +369,7 @@ export default class CommandHelper extends Vue {
 			text-align: center;
 			font-size: .8em;
 			margin-top: .5em;
+			text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
 		}
 
 		.missingScope {

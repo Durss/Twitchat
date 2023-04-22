@@ -1,5 +1,5 @@
 <template>
-	<div class="emoteselector">
+	<div class="emoteselector blured-background">
 		<div v-if="users.length == 0" class="loader">
 			<img src="@/assets/loader/loader.svg" alt="loader">
 			<p>{{ $t("global.loading") }}</p>
@@ -25,8 +25,11 @@
 
 		<div class="list" v-if="users.length > 0 && !filter">
 			<template v-for="u, index in users" :key="u.user.id">
-				<div class="item" :ref="'user_'+u.user.id" v-if="buildOffset >= index">
-					<div class="header">
+				<template class="item" v-if="buildOffset >= index">
+					
+					<div class="anchor" :ref="'user_'+u.user.id"></div>
+
+					<div class="card-header sticky">
 						<img class="icon" :src="u.user.avatarPath" alt="profile pic">
 						<div class="title">{{u.user.displayName}}</div>
 					</div>
@@ -46,18 +49,18 @@
 							@mouseover="openTooltip($event, e)"
 							@click="$emit('select', e.code)">
 					</div>
-				</div>
+				</template>
 			</template>
 		</div>
 
-		<div class="userList" v-if="users.length > 0 && !filter">
+		<div class="card-item userList" v-if="users.length > 0 && !filter">
 			<template v-for="u, index in users" :key="u.user.id">
-				<div class="user"
+				<Button class="user"
 				v-tooltip="u.user.displayName"
 				@click="scrollTo(u.user)"
-				v-if="buildOffset >= index">
+				:loading="buildOffset < index">
 					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
-				</div>
+			</Button>
 			</template>
 		</div>
 
@@ -75,9 +78,12 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
+import Button from '../Button.vue';
 
 @Component({
-	components:{},
+	components:{
+		Button,
+	},
 	emits:["close", "select"]
 })
 export default class EmoteSelector extends Vue {
@@ -87,6 +93,7 @@ export default class EmoteSelector extends Vue {
 	public buildOffset = 0;
 
 	private buildTimeout = -1;
+	private tooltipCreated:{[key:string]:boolean} = {};
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public get filteredEmotes():TwitchatDataTypes.Emote[] {
@@ -301,6 +308,8 @@ export default class EmoteSelector extends Vue {
 	 * @param emote 
 	 */
 	public openTooltip(event:MouseEvent, emote:TwitchatDataTypes.Emote):void {
+		if(this.tooltipCreated[emote.code] === true) return;
+		this.tooltipCreated[emote.code] = true;
 		useTippy(event.currentTarget as HTMLImageElement, {
 			content: "<img src="+emote.images.url_4x+" width=\"112\" class=\"emote\"><br><center>"+emote.code+"</center>",
 		});
@@ -366,7 +375,6 @@ export default class EmoteSelector extends Vue {
 
 <style scoped lang="less">
 .emoteselector{
-	.window();
 	width: min-content;
 	left: auto;
 	right: 0;
@@ -379,7 +387,6 @@ export default class EmoteSelector extends Vue {
 	}
 
 	.userList {
-		.card();
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -390,10 +397,11 @@ export default class EmoteSelector extends Vue {
 		margin: .5em 0;
 		.user {
 			cursor: pointer;
+			padding: 0;
+			height: 2em;
+			width: 2em;
 			.avatar {
-				.emboss();
-				height: 2em;
-				border-radius: 50%;
+				width: 100%;
 			}
 		}
 	}
@@ -421,33 +429,39 @@ export default class EmoteSelector extends Vue {
 		flex-direction: column;
 		gap: .5em;
 		flex-shrink: 1;
-		
-		.item {
-			.card();
-			flex-shrink: 0;
-			color: var(--color-light);
-			.emotes, .hypetrain {
-				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				justify-content: center;
-				.emote {
-					height: 33px;
-					width: 33px;
-					padding: 3px;
-					cursor: pointer;
-					border: 1px solid transparent;
-					border-radius: 5px;
-					&:hover {
-						border-color: var(--color-secondary);
-					}
+		color: var(--color-light);
+		.anchor {
+			background: red;
+			transform: translateY(.5em);
+		}
+
+		.sticky {
+			top:	0;
+			position: sticky;
+		}
+		.emotes, .hypetrain {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			margin-bottom: 1em;
+			.emote {
+				height: 33px;
+				width: 33px;
+				padding: 2px;
+				cursor: pointer;
+				border: 1px solid transparent;
+				border-radius: 5px;
+				&:hover {
+					border-color: var(--color-secondary);
 				}
 			}
+		}
 
-			.hypetrain {
-				font-size: .9em;
-				text-align: center;
-			}
+		.hypetrain {
+			font-size: .9em;
+			text-align: center;
+			line-height: 1.3em;
 		}
 
 		&.search {

@@ -8,7 +8,7 @@
 		<div class="content" ref="content">
 			<div class="noResult" v-if="!loading && userCount == 0">no user found :(</div>
 		
-			<div class="stats">
+			<div class="card-item primary stats">
 				<div class="table">
 					<p>Active users last 24h :</p><p>{{activeLast24h}}</p>
 					<p>Active users last 7 days :</p><p>{{activeLast7days}}</p>
@@ -23,7 +23,7 @@
 				</div>
 			</div>
 	
-			<div class="list" ref="list">
+			<div class="card-item primary list" ref="list">
 				<a v-for="u in filteredItems"
 					:key="u.id"
 					class="user"
@@ -220,7 +220,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 	.content {
 
 		.stats {
-			.card(true);
 			flex-shrink: 0;
 			.table {
 				display: grid;
@@ -260,7 +259,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 
 			.user {
-				.card(true);
 				text-decoration: none;
 				color: var(--color-light);
 				cursor: pointer;

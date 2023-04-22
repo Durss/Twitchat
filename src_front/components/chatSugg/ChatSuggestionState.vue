@@ -12,7 +12,7 @@
 
 		<div class="content">
 	
-			<div class="row actions">
+			<div class="card-item primary actions">
 				<div>{{ $tc('suggestion.state_header', entries.length, [entries.length]) }}</div>
 				
 				<Button icon="chatPoll"
@@ -26,7 +26,7 @@
 			<div class="splitter" v-if="entries.length > 0"></div>
 
 			<TransitionGroup name="list" tag="div" ref="list" class="itemList" v-if="entries.length > 0">
-			<div :class="c.selected? 'item win' : 'item'" v-for="(c,index) in entries" :key="c.data.id">
+			<div :class="c.selected? 'card-item primary win' : 'card-item primary'" v-for="(c,index) in entries" :key="c.data.id">
 				<div class="header">
 					<img v-if="c.selected" :src="$image('icons/sub.svg')" alt="star">
 					
@@ -177,8 +177,6 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 		max-width: 600px;
 		
 		.item {
-			.card(true);
-
 			&.win {
 				border: 1px solid var(--color-secondary);
 				img {

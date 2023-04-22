@@ -1,5 +1,5 @@
 <template>
-	<div class="devmodemenu">
+	<div class="devmodemenu blured-background">
 		<h1>Developer panel</h1>
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
@@ -304,7 +304,6 @@ type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "gi
 
 <style scoped lang="less">
 .devmodemenu{
-	.window();
 	width: min-content;
 	right: 0;
 	left: auto;

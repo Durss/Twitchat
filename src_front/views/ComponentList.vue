@@ -3,7 +3,7 @@
 
 		<Splitter>Buttons</Splitter>
 
-		<div class="section buttons">
+		<div class="card-item section buttons">
 			<div class="actions">
 				<Checkbox v-model="loading">loading mode</Checkbox>
 				<Checkbox v-model="type" :values="['link', 'button']">&lt;a&gt; mode</Checkbox>
@@ -54,7 +54,7 @@
 
 		<Splitter>Switch buttons</Splitter>
 
-		<div class="section switches">
+		<div class="card-item section switches">
 			<SwitchButton label1="Big"				label2="Big" big />
 			<SwitchButton label1="Big secondary"	label2="Big secondary" big secondary />
 			<SwitchButton label1="Big alert"		label2="Big alert" big alert />
@@ -70,7 +70,7 @@
 
 		<Splitter>Toggle buttons</Splitter>
 
-		<div class="section toggles">
+		<div class="card-item section toggles">
 			<ToggleButton big />
 			<ToggleButton big secondary />
 			<ToggleButton big alert />
@@ -86,7 +86,7 @@
 
 		<Splitter>Toggle blocks</Splitter>
 
-		<div class="section toggleBlocks">
+		<div class="card-item section toggleBlocks">
 			<ToggleBlock title="Title" subtitle="subtitle" key="toggle1">
 				<template #left_actions>
 					<img src="@/assets/icons/dragZone.svg" class="icon">
@@ -124,13 +124,17 @@
 
 		<Splitter>Progress bar</Splitter>
 
-		<div class="section progress">
-			<ProgressBar :percent="0.25" :duration="10 * 60 * 1000" />
+		<div class="card-item section progressbars">
+			<ProgressBar :percent="progresses[0]" :duration="100 * 60 * 1000" />
+			<ProgressBar :percent="progresses[1]" :duration="100 * 60 * 1000" secondary />
+			<ProgressBar :percent="progresses[2]" :duration="100 * 60 * 1000" alert />
+			<ProgressBar :percent="progresses[3]" :duration="100 * 60 * 1000" boostMode />
+			<ProgressBar :percent="progresses[4]" :duration="100 * 60 * 1000" />
 		</div>
 
 		<Splitter>Tab menu</Splitter>
 
-		<div class="section tabmenus">
+		<div class="card-item section tabmenus">
 			<div>
 				<TabMenu big :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu big secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
@@ -177,9 +181,27 @@ import { Component, Vue } from 'vue-facing-decorator';
 export default class ComponentList extends Vue {
 
 	public type:"button"|"link" = "button";
+	public disposed:boolean = false;
 	public loading:boolean = false;
 	public selected:boolean = false;
+	public progresses:number[] = [.25,.25,.25,.25,.95];
 	
+	public mounted():void {
+		this.renderFrame();
+	}
+	
+	public beforeUnmount():void {
+		this.disposed = true;
+	}
+
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+		for (let i = 0; i < this.progresses.length; i++) {
+			this.progresses[i] += .00003;
+		}
+	}
+
 }
 </script>
 
@@ -191,7 +213,6 @@ export default class ComponentList extends Vue {
 	margin: 2em 0;
 	
 	.section {
-		.card();
 		margin: 0 2em;
 	}
 
@@ -249,6 +270,17 @@ export default class ComponentList extends Vue {
 			display: flex;
 			flex-direction: column;
 			gap: .5em;
+		}
+	}
+
+	.progressbars {
+		display: flex;
+		flex-direction: column;
+		flex-wrap: wrap;
+		gap: 2em;
+		&> div {
+			// flex-basis: 300px;
+			margin-bottom: 1em;
 		}
 	}
 }

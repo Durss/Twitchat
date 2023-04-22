@@ -63,7 +63,7 @@ export default class ChannelNotifications extends Vue {
 	@Prop
 	public currentContent!:TwitchatDataTypes.NotificationTypes;
 	
-	private clickHandler!:(e:MouseEvent) => void;
+	// private clickHandler!:(e:MouseEvent) => void;
 
 	public get showRaid():boolean { return this.$store("stream").currentRaid != null; }
 	public get showHypeTrain():boolean { return this.$store("stream").hypeTrain != undefined; }
@@ -91,8 +91,8 @@ export default class ChannelNotifications extends Vue {
 	}
 	
 	public mounted():void {
-		this.clickHandler = (e:MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
+		// this.clickHandler = (e:MouseEvent) => this.onClick(e);
+		// document.addEventListener("mousedown", this.clickHandler);
 
 		watch(()=>this.showClose, ()=> {
 			if(this.showClose) this.$emit("showDimmer");
@@ -101,19 +101,19 @@ export default class ChannelNotifications extends Vue {
 	}
 
 	public beforeUnmount():void {
-		document.removeEventListener("mousedown", this.clickHandler);
+		// document.removeEventListener("mousedown", this.clickHandler);
 	}
 
-	private onClick(e:MouseEvent):void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$refs.content as HTMLDivElement;
-		while(target != document.body && target != ref && target) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if(target != ref) {
-			this.$emit("close");
-		}
-	}
+	// private onClick(e:MouseEvent):void {
+	// 	let target = e.target as HTMLDivElement;
+	// 	const ref = this.$refs.content as HTMLDivElement;
+	// 	while(target != document.body && target != ref && target) {
+	// 		target = target.parentElement as HTMLDivElement;
+	// 	}
+	// 	if(target != ref) {
+	// 		this.$emit("close");
+	// 	}
+	// }
 }
 </script>
 
@@ -140,7 +140,7 @@ export default class ChannelNotifications extends Vue {
 
 		.slide-enter-from,
 		.slide-leave-to {
-			margin-bottom: -200px;
+			margin-bottom: -100%;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 <template>
-	<div class="rewardslist">
+	<div class="rewardslist blured-background">
 		<div v-if="rewards.length == 0" class="loader">
 			<img src="@/assets/loader/loader.svg" alt="loader">
 			<p>loading...</p>
@@ -120,8 +120,6 @@ export default class RewardsList extends Vue {
 
 <style scoped lang="less">
 .rewardslist{
-	.window();
-
 	h1 {
 		color: var(--mainColor_light);
 		align-self: center;

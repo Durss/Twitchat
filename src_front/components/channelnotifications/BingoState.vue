@@ -1,20 +1,20 @@
 <template>
-	<div class="bingostate">
-		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state_title") }}</h1>
+	<div class="bingostate gameStateWindow">
+		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state.title") }}</h1>
 
-		<div class="item number highlight" v-if="bingoData.guessNumber">
-			<p>{{ $t("bingo.find_number") }}</p>
+		<div class="item goal number card-item" v-if="bingoData.guessNumber">
+			<p>{{ $t("bingo.state.find_number") }}</p>
 			<strong class="guess">{{bingoData.numberValue}}</strong>
 		</div>
 		
-		<div class="item emote highlight" v-if="bingoData.guessEmote">
-			<strong>{{ $t("bingo.find_emote") }}</strong>
+		<div class="item goal emote card-item" v-if="bingoData.guessEmote">
+			<strong>{{ $t("bingo.state.find_emote") }}</strong>
 			<img :src="bingoData.emoteValue?.twitch?.image.hd">
 			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
 		</div>
 		
-		<div class="item emote highlight" v-if="bingoData.guessCustom">
-			<strong>{{ $t("bingo.find_custom") }}</strong>
+		<div class="item goal emote card-item" v-if="bingoData.guessCustom">
+			<strong>{{ $t("bingo.state.find_custom") }}</strong>
 			<span class="guess">{{bingoData.customValue}}</span>
 		</div>
 
@@ -22,15 +22,7 @@
 			🎉 {{bingoData.winners[0].displayName}} 🎉
 		</div>
 
-		<PostOnChatParam class="item postChat highlight" botMessageKey="bingo"
-			:placeholders="winnerPlaceholders" 
-			titleKey="global.post_winner" />
-
-		<Button class="item"
-			icon="cross"
-			:title="$t('bingo.closeBt')"
-			highlight
-			@click="closeBingo()" />
+		<Button @click="closeBingo()" alert>{{ $t('bingo.state.closeBt') }}</Button>
 	</div>
 </template>
 
@@ -38,12 +30,10 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 @Component({
 	components:{
 		Button,
-		PostOnChatParam,
 	},
 	emits:["close"]
 })
@@ -72,7 +62,6 @@ export default class BingoState extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		color: var(--mainColor_normal);
 		
 		.guess {
 			margin-top: .25em;
@@ -96,10 +85,9 @@ export default class BingoState extends Vue {
 		}
 	}
 
-	.postChat {
-		max-width: 320px;
-		font-size: .8em;
-		color: var(--mainColor_normal);
+	.goal {
+		background-color: var(--color-secondary);
+		width: fit-content;
 	}
 
 	.winner {

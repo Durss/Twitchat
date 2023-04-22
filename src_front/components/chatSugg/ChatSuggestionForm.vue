@@ -10,7 +10,7 @@
 		<div class="content">
 
 			<form  @submit.prevent="submitChatPoll()">
-				<div class="row">
+				<div class="card-item primary">
 					<ParamItem :paramData="command" autofocus />
 					<div class="example">
 						<span>{{ $t("global.example") }}</span>: 
@@ -22,35 +22,35 @@
 				</div>
 			
 
-				<div class="row shrink">
+				<div class="card-item primary shrink">
 					<ParamItem :paramData="maxLength" />
 				</div>
 
-				<div class="row shrink">
+				<div class="card-item primary shrink">
 					<ParamItem :paramData="duration" />
 				</div>
 
-				<div class="row">
+				<div class="card-item primary">
 					<ParamItem :paramData="multiAnswers" />
 				</div>
 
-				<!-- <ToggleBlock small title="Permissions" :open="false" class="row permissions">
+				<!-- <ToggleBlock small title="Permissions" :open="false" class="card-item primary permissions">
 					<PermissionsForm v-model="permissions" />
 				</ToggleBlock> -->
 
-				<div class="row">
+				<div class="card-item primary">
 					<Button type="submit">{{ $t('global.submit') }}</Button>
 				</div>
 			</form>
 
-			<i18n-t scope="global" tag="div" keypath="suggestion.alternative_tool" class="alternativeTool">
+			<i18n-t scope="global" tag="div" keypath="suggestion.alternative_tool" class="card-item alternativeTool">
 				<template #LINK>
 					<a href="https://www.janvier.tv/sondage" target="_blank">{{ $t("suggestion.alternative_tool_link") }}</a>
 				</template>
 			</i18n-t>
 
 			<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small>
-				<PostOnChatParam class="row" botMessageKey="chatSuggStart"
+				<PostOnChatParam class="card-item primary" botMessageKey="chatSuggStart"
 					:placeholderEnabled="false"
 					titleKey="suggestion.announce_start"
 					:placeholders="startPlaceholders"
@@ -156,7 +156,6 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 		text-align: right;
 	}
 	.alternativeTool {
-		.card();
 		text-align: center;
 		font-size: .8em;
 	}

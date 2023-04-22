@@ -1,5 +1,5 @@
 <template>
-	<div class="shoutoutlist">
+	<div class="shoutoutlist blured-background">
 		<draggable class="list"
 		v-model="$store('users').shoutoutHistory[channelId]" 
 		direction="vertical"
@@ -132,7 +132,6 @@ export default class ShoutoutList extends Vue {
 
 <style scoped lang="less">
 .shoutoutlist{
-	.window();
 	width: min-content;
 	left: auto;
 	right: 0;

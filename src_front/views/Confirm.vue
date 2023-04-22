@@ -1,7 +1,7 @@
 <template>
 	<div class="confirmView" v-if="confirmData">
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
-		<div class="holder" ref="holder">
+		<div class="holder card-item" ref="holder">
 			<!-- <img src="@/assets/icons/lock_fit.svg" class="icon"> -->
 
 			<div class="title" v-html="confirmData.title"></div>
@@ -10,8 +10,8 @@
 
 			<div class="description" v-html="confirmData.description"></div>
 			<div class="buttons">
-				<Button class="cancel" type="cancel" @click.stop="answer()" :title="confirmData.noLabel ?? $t('global.cancel')" highlight />
-				<Button class="confirm" @click.stop="answer(true)" :title="confirmData.yesLabel ?? $t('global.yes')" />
+				<Button class="button" @click.stop="answer()" type="cancel" alert>{{ confirmData.noLabel ?? $t('global.cancel') }}</Button>
+				<Button class="button" @click.stop="answer(true)">{{ confirmData.yesLabel ?? $t('global.yes') }}</Button>
 			</div>
 		</div>
 	</div>
@@ -169,7 +169,6 @@ export default class Confirm extends Vue {
 	&>.holder {
 		.center();
 		position: absolute;
-		background-color: var(--mainColor_light_extralight);
 		padding: 1em;
 		width: 400px;
 		box-sizing: border-box;
@@ -203,12 +202,11 @@ export default class Confirm extends Vue {
 		.buttons {
 			display: flex;
 			flex-direction: row;
-			// max-width: 220px;
 			margin: auto;
 			margin-top: 1em;
 			justify-content: space-evenly;
 			.button {
-				text-transform: capitalize;
+				text-transform: uppercase;
 			}
 		}
 	}
@@ -235,11 +233,6 @@ export default class Confirm extends Vue {
 
 			.buttons {
 				margin-top: 1em;
-				button {
-					font-size: Em;
-					padding: .5em;
-					text-transform: capitalize;
-				}
 			}
 		}
 	}

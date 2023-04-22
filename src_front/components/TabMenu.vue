@@ -146,10 +146,10 @@ export default class TabMenu extends Vue {
 			align-self: center;
 			z-index: 0;
 			transition: transform .25s;
-			border-bottom-right-radius: 50%;
-			border-bottom-left-radius: 50%;
-			max-width: 100px;
-			transform: translateY(-50%);
+			border-bottom-right-radius: 20px;
+			border-bottom-left-radius: 20px;
+			max-width: calc(100% - .5em);
+			transform: translateY(-7px);
 		}
 
 

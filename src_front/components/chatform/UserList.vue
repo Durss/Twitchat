@@ -1,5 +1,5 @@
 <template>
-	<div class="userlist">
+	<div class="userlist blured-background">
 		
 		<div v-if="currentChan">
 			<template v-for="chan, key in currentChan.users">
@@ -232,7 +232,7 @@ interface ChannelUserList {
 
 <style scoped lang="less">
 .userlist{
-	.window();
+	max-width: 500px;
 
 	.users {
 		position: sticky;

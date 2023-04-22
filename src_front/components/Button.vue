@@ -21,6 +21,8 @@
 
 		<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
 
+		<div class="clickArea"></div>
+
 		<!-- <img v-if="selected" class="icon" src="@/assets/icons/checkmark.svg" alt="checkmark"> -->
 		
 		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
@@ -148,7 +150,7 @@ export default class Button extends Vue {
 .button {
 	.emboss();
 	cursor: pointer;
-	border-radius: 10em;
+	border-radius: 50px;
 	display: inline-flex;
 	flex-direction: row;
 	position: relative;
@@ -162,7 +164,15 @@ export default class Button extends Vue {
 	color: var(--color-light);
 	transition: filter .15s, transform .1s;
 	user-select: none;
-	overflow: hidden;
+
+	.clickArea {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: transparent;
+	}
 
 	.loadingBorder {
 		@offset: 1px;
@@ -170,9 +180,9 @@ export default class Button extends Vue {
 		z-index: -1;
 		top: -@offset;
 		left: -@offset;
-		border-radius: 10em;
+		border-radius: inherit;
 		background-color: var(--color-light);
-		background: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.5) 40%, rgba(255,255,255,.5) 60%, rgba(255,255,255,0) 65%);
+		background: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%);
 		background-repeat: repeat-x;
 		background-size:  200% 100%;
 		filter: blur(1px);
@@ -187,6 +197,7 @@ export default class Button extends Vue {
 	}
 	
 	.background {
+		border-radius: inherit;
 		position: absolute;
 		top:0;
 		left:0;
@@ -207,7 +218,6 @@ export default class Button extends Vue {
 		cursor: wait;
 		
 		.background {
-			border-radius: 10em;
 			top: 1px;
 			left: 1px;
 			width: calc(100% - 2px);
@@ -224,6 +234,9 @@ export default class Button extends Vue {
 	
 		&:active{
 			transform: translateY(2px);
+			.clickArea{
+				top: -2px;
+			}
 			.background {
 				background-color: var(--color-primary-dark);
 				box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), 0px 0px 0px rgba(0, 0, 0, 0);

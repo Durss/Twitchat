@@ -9,6 +9,9 @@
 			"additional_votes":"Autoriser les votes supplémentaires",
 			"additional_votes_amount":"Points de chaîne par vote",
 			"vote_duration":"Durée du vote (minutes)"
+		},
+		"state":{
+			"endBt":"^Fermer le sondage"
 		}
 	}
 }

@@ -206,7 +206,7 @@ export default class ToggleBlock extends Vue {
 				flex-direction: row;
 				gap: .25em;
 				line-height: 1.25em;
-				color: var(--color-primary);
+				color: var(--color-secondary);
 				text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
 				&::before {
 					content:"►";

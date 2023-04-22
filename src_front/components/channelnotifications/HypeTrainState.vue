@@ -44,7 +44,7 @@
 			class="progressBar"
 			:duration="timerDuration"
 			:percent="timerPercent"
-			:cyan="boostMode"
+			:boostMode="boostMode"
 		/>
 
 		<div class="content conductors">

@@ -3,6 +3,7 @@
 		<h1 class="title"><img src="@/assets/icons/prediction.svg">{{prediction.title}}</h1>
 		
 		<ProgressBar class="progress"
+		secondary
 			:percent="progressPercent"
 			:duration="prediction.duration_s*1000"
 			v-if="!prediction.pendingAnswer" />
@@ -13,10 +14,12 @@
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
 				<div class="color" v-if="!prediction.pendingAnswer || !canAnswer"></div>
 				<Button class="winBt"
+					secondary
 					@click="setOutcome(c)"
 					icon="checkmark"
 					v-if="prediction.pendingAnswer && canAnswer"
 					:loading="loading" />
+
 				<div class="bar" :style="getAnswerStyles(c)">
 					<div>{{c.label}}</div>
 					<div class="details">
@@ -35,9 +38,7 @@
 			</template>
 		</i18n-t>
 
-		<div class="item actions" v-if="canAnswer">
-			<Button :title="$t('prediction.state.cancelBt')" @click="deletePrediction()" :loading="loading" highlight />
-		</div>
+		<Button v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{ $t('prediction.state.cancelBt') }}</Button>
 	</div>
 </template>
 
@@ -72,7 +73,7 @@ export default class PredictionState extends Vue {
 	}
 
 	public get classes():string[] {
-		let res = ["predictionstate"];
+		let res = ["predictionstate", "gameStateWindow"];
 		if(this.prediction.outcomes.length > 2) res.push("noColorMode");
 		return res;
 	}
@@ -165,9 +166,10 @@ export default class PredictionState extends Vue {
 		font-style: italic;
 	}
 	.outcomeTitle {
+		align-self: stretch;
+		margin-left: 1em;
 		color: var(--mainColor_light);
-		margin-bottom: 20px;
-		margin-left: 15px;
+		margin-top: -1.5em;
 		.arrow {
 			display: inline;
 			font-size: 25px;
@@ -197,6 +199,7 @@ export default class PredictionState extends Vue {
 	}
 
 	.choices {
+		align-self: stretch;
 		.choice {
 			display: flex;
 			flex-direction: row;
@@ -207,6 +210,7 @@ export default class PredictionState extends Vue {
 			}
 
 			.color {
+				.emboss();
 				background-color: #387aff;
 				width: 20px;
 				height: 20px;
@@ -234,17 +238,18 @@ export default class PredictionState extends Vue {
 			}
 			
 			.bar {
+				.emboss();
 				flex-grow: 1;
 				display: flex;
 				flex-direction: row;
 				border-radius: 10px;
 				padding: 4px 15px;
 				font-size: 16px;
-				color: var(--mainColor_light);
-				@c: fade(@mainColor_light, 15%);
+				color: var(--color-light);
+				@c: var(--color-secondary);
 				transition: background-size .2s;
 				background: linear-gradient(to right, @c 100%, @c 100%);
-				background-color: fade(@mainColor_light, 5%);
+				background-color: var(--color-secondary-fader);
 				background-repeat: no-repeat;
 				justify-content: space-between;
 				align-items: center;

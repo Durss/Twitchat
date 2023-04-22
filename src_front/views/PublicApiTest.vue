@@ -1,6 +1,6 @@
 <template>
 	<div class="publicapitest">
-		<div class="connectForm">
+		<div class="connectForm blured-background">
 			<form @submit.prevent="connect()" v-if="!connected">
 				<ParamItem :paramData="obsPort_conf" class="row" />
 				<ParamItem :paramData="obsPass_conf" class="row" />
@@ -167,7 +167,6 @@ export default class PublicApiTest extends Vue {
 .publicapitest{
 	padding: 1em;
 	.connectForm {
-		.window();
 		max-width: 400px;
 		margin: auto;
 		background: var(--mainColor_light);
