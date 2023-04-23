@@ -46,7 +46,13 @@ export default class PubSub extends EventDispatcher {
 	public initialize():void {
 	}
 
+	/**
+	 * Connect to pubsub
+	 */
 	public connect():void {
+		//Cleanup old socket if any exist
+		if(this.socket) this.disconnect();
+		
 		this.socket = new WebSocket("wss://pubsub-edge.twitch.tv");
 
 		this.socket.onopen = async () => {
@@ -55,7 +61,7 @@ export default class PubSub extends EventDispatcher {
 			clearInterval(this.pingInterval);
 			this.pingInterval = window.setInterval(() => {
 				this.ping();
-			}, 60000*2.5);
+			}, 60000*4);
 
 			const myUID = StoreProxy.auth.twitch.user.id;
 			const subscriptions = [
@@ -164,6 +170,9 @@ export default class PubSub extends EventDispatcher {
 		};
 	}
 
+	/**
+	 * Simulate a fake accelerated hype train sequence
+	 */
 	public async simulateHypeTrain():Promise<void> {
 		const dateOffset = (PubsubJSON.RealHypeTrainData[1] as Date).getTime();
 		const timeScale = .05;
@@ -177,27 +186,11 @@ export default class PubSub extends EventDispatcher {
 		};
 		
 		this.parseEvent(PubsubJSON.HypeTrainComplete);
-
-		// this.parseEvent(PubsubJSON.HypeTrainApproaching);
-		// await Utils.promisedTimeout(10000);
-		// this.parseEvent(PubsubJSON.HypeTrainStart);
-		// await Utils.promisedTimeout(5000);
-		// // this.parseEvent(PubsubJSON.HypeTrainProgressBits);
-		// // this.parseEvent(PubsubJSON.HypeTrainConductorUpdateBits);
-		// this.parseEvent(PubsubJSON.HypeTrainLevelUp2);
-		// await Utils.promisedTimeout(10000);
-		// // this.parseEvent(PubsubJSON.HypeTrainProgressSubGift);
-		// // this.parseEvent(PubsubJSON.HypeTrainConductorUpdateSubGifts);
-		// this.parseEvent(PubsubJSON.HypeTrainLevelUp5);
-		// await Utils.promisedTimeout(10000);
-		// // this.parseEvent(PubsubJSON.HypeTrainProgressSub);
-		// // this.parseEvent(PubsubJSON.HypeTrainConductorUpdateSubs);
-		// // await Utils.promisedTimeout(5000);
-		// this.parseEvent(PubsubJSON.HypeTrainComplete);
-		// await Utils.promisedTimeout(10000);
-		// this.parseEvent(PubsubJSON.HypeTrainExpire);
 	}
 
+	/**
+	 * Simulate a community boost
+	 */
 	public async simulateCommunityBoost():Promise<void> {
 		this.parseEvent(PubsubJSON.BoostStarting);
 		await Utils.promisedTimeout(5000);
@@ -208,6 +201,9 @@ export default class PubSub extends EventDispatcher {
 		this.parseEvent(PubsubJSON.BoostComplete);
 	}
 
+	/**
+	 * Simulate a low trust user message
+	 */
 	public async simulateLowTrustUser():Promise<void> {
 		const uid = StoreProxy.auth.twitch.user.id;
 		const message = "This is a message sent by a low trusted user";
@@ -231,6 +227,9 @@ export default class PubSub extends EventDispatcher {
 		this.parseEvent(m);
 	}
 
+	/**
+	 * Simulate a follow bot event by sending lots of fake follow events
+	 */
 	public async simulateFollowbotItem():Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
 		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
@@ -257,6 +256,17 @@ export default class PubSub extends EventDispatcher {
 		this.send({
 			"type": "PING"
 		});
+	}
+
+	/**
+	 * Cleanup connexion
+	 */
+	private disconnect():void {
+		this.socket.onopen = null;
+		this.socket.onmessage = null;
+		this.socket.onclose = null;
+		this.socket.onerror = null;
+		this.socket.close();
 	}
 
 	private send(json:unknown):void {
