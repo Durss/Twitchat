@@ -36,14 +36,27 @@
 		border-radius: .5em;
 	}
 
-	.progress {
-		color: var(--color-primary);;
-		margin-bottom: 1em;
-	}
-
 	.actions {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
+	}
+
+	.winners {
+		.count {
+			font-style: italic;
+			font-weight: normal;
+			font-size: .8em;
+		}
+		.entries {
+			padding: 5px;//Makes sure box-filter isn't cut
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: .5em;
+			max-height: calc(2em * 3);
+			overflow-y: auto;
+		}
 	}
 }

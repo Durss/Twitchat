@@ -2,24 +2,40 @@
 	<div class="bingostate gameStateWindow">
 		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state.title") }}</h1>
 
-		<div class="item goal number card-item" v-if="bingoData.guessNumber">
-			<p>{{ $t("bingo.state.find_number") }}</p>
+		<div class="item card-item winners primary" v-if="bingoData.winners && bingoData.winners.length > 0">
+			<div class="header">
+				<p>{{ $t("raffle.state_winners") }}</p>
+			</div>
+			<div class="entries">
+				<Button v-for="w in bingoData.winners" :key="w.id"
+				small secondary
+				type="link"
+				target="_blank"
+				:href="'https://twitch.tv/'+w.login"
+				@click.prevent="openUserCard(w)">{{ w.displayName }}</Button>
+			</div>
+		</div>
+
+		<div class="goal" v-if="bingoData.guessNumber">
+			<div class="header">
+				<div class="title">{{ $t("bingo.state.find_number") }}</div>
+			</div>
 			<strong class="guess">{{bingoData.numberValue}}</strong>
 		</div>
 		
-		<div class="item goal emote card-item" v-if="bingoData.guessEmote">
-			<strong>{{ $t("bingo.state.find_emote") }}</strong>
-			<img :src="bingoData.emoteValue?.twitch?.image.hd">
+		<div class="goal" v-else-if="bingoData.guessEmote">
+			<div class="header">
+				<div class="title">{{ $t("bingo.state.find_emote") }}</div>
+			</div>
+			<img class="emote" :src="bingoData.emoteValue?.twitch?.image.hd">
 			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
 		</div>
 		
-		<div class="item goal emote card-item" v-if="bingoData.guessCustom">
-			<strong>{{ $t("bingo.state.find_custom") }}</strong>
+		<div class="goal" v-if="bingoData.guessCustom">
+			<div class="header">
+				<div class="title">{{ $t("bingo.state.find_custom") }}</div>
+			</div>
 			<span class="guess">{{bingoData.customValue}}</span>
-		</div>
-
-		<div class="item winner" v-if="bingoData.winners && bingoData.winners.length > 0">
-			🎉 {{bingoData.winners[0].displayName}} 🎉
 		</div>
 
 		<Button @click="closeBingo()" alert>{{ $t('bingo.state.closeBt') }}</Button>
@@ -52,49 +68,47 @@ export default class BingoState extends Vue {
 		this.$emit("close");
 	}
 
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser | null):void {
+		if(!user) return;
+		this.$store("users").openUserCard(user);
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .bingostate{
 
-	.emote, .number {
+	.goal {
+		.emboss();
+		padding: .5em;
+		border-radius: var(--border-radius);
+		background-color: var(--color-secondary);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		
+		gap: .5em;
 		.guess {
-			margin-top: .25em;
 			font-size: 1.5em;
 		}
-
-		img {
-			height: 2em;
-			margin-top: .5em;
+		.emote {
+			height: 4em;
 			object-fit: fill;
 			transition: transform .25s;
 			&:hover {
-				transform: scale(2.5);
+				transform: scale(2);
 			}
 		}
-
 		.code {
 			font-style: italic;
 			font-size: .8em;
-			margin-top: .5em;
 		}
 	}
 
-	.goal {
-		background-color: var(--color-secondary);
-		width: fit-content;
-	}
-
 	.winner {
-		background: var(--mainColor_light);
-		padding: .2em .5em;
-		border-radius: .5em;
-		color: var(--mainColor_normal);
+		background: var(--color-secondary);
+		padding: 1em;
+		border-radius: var(--border-radius);
 		font-weight: bold;
 	}
 

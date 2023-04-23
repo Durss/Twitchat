@@ -165,11 +165,15 @@ export default class PredictionState extends Vue {
 		width: calc(100% - 1em - 10px);
 		font-style: italic;
 	}
+	
 	.outcomeTitle {
 		align-self: stretch;
 		margin-left: 1em;
 		color: var(--mainColor_light);
-		margin-top: -1.5em;
+		margin-top: -1em;
+		margin-bottom: -.5em;
+		z-index: 1;
+		pointer-events: none;
 		.arrow {
 			display: inline;
 			font-size: 25px;

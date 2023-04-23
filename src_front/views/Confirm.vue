@@ -193,6 +193,7 @@ export default class Confirm extends Vue {
 		.description {
 			font-size: 1.2em;
 			margin-top: 1em;
+			text-align: center;
 			:deep(strong) {
 				color: var(--mainColor_warn);
 				font-weight: bold;

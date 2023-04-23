@@ -65,14 +65,6 @@
 				</transition>
 
 				<transition name="blink">
-					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
-						icon="chatPoll"
-						v-tooltip="{content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
-						@click="openModal('chatsuggState')"
-						v-if="$store('chatSuggestion').data != null" />
-				</transition>
-
-				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.predictionBt_aria')"
 						icon="prediction"
 						v-tooltip="{content:$t('chat.form.predictionBt_aria'), showOnCreate:shouldShowTooltip('prediction'), onHidden:()=>onHideTooltip('prediction')}"
@@ -103,6 +95,14 @@
 						v-if="$store('bingo').data"
 						v-tooltip="{content:$t('chat.form.bingoBt_aria'), showOnCreate:shouldShowTooltip('bingo'), onHidden:()=>onHideTooltip('bingo')}"
 						@click="openNotifications('bingo')" />
+				</transition>
+
+				<transition name="blink">
+					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
+						icon="chatPoll"
+						v-tooltip="{content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
+						@click="openModal('chatsuggState')"
+						v-if="$store('chatSuggestion').data != null" />
 				</transition>
 
 				<transition name="blink">

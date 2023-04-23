@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="fill" :style="barStyles"></div>
-		<div class="timer" ref="timer" :style="timerStyles" v-if="percent<=1 && duration != undefined">{{timeLeft}}</div>
+		<div class="timer" ref="timer" :style="timerStyles" v-if="percent<1 && duration != undefined">{{timeLeft}}</div>
 	</div>
 </template>
 

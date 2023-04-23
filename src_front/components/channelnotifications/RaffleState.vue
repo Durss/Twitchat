@@ -1,12 +1,12 @@
 <template>
-	<div class="rafflestate">
+	<div class="rafflestate gameStateWindow">
 		<h1 class="title">
 			<img src="@/assets/icons/ticket.svg">
 			<span>{{ $t('raffle.state_title') }}</span>
-			<span class="cmd highlight" v-if="raffleData.command">{{raffleData.command}}</span>
+			<mark class="cmd" v-if="raffleData.command">{{raffleData.command}}</mark>
 		</h1>
 
-		<ProgressBar class="progress"
+		<ProgressBar class="progress" secondary v-if="progressPercent < 1"
 			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
 			:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
 		/>
@@ -21,15 +21,21 @@
 			</i18n-t>
 		</div>
 
-		<div class="item winners highlight" v-if="raffleData.winners && raffleData.winners.length > 0">
-			<i18n-t class="title" scope="global" tag="p" keypath="raffle.state_winners">
-				<template #COUNT>
-					<span class="count">({{raffleData.winners.length}})</span>
-				</template>
-			</i18n-t>
+		<div class="item card-item winners primary" v-if="raffleData.winners && raffleData.winners.length > 0">
+			<div class="header">
+				<i18n-t class="title" scope="global" tag="p" keypath="raffle.state_winners">
+					<template #COUNT>
+						<span class="count">({{raffleData.winners.length}})</span>
+					</template>
+				</i18n-t>
+			</div>
 			<div class="entries">
 				<template v-for="w in raffleData.winners" :key="w.label">
-					<Button v-if="!w.user" :title="w.label" small @click="openUserCard(getUserFromEntry(w))" />
+					<Button v-if="w.user" small secondary
+					type="link"
+					target="_blank"
+					:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
+					@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</Button>
 					<div class="entry" v-else>{{ w.label }}</div>
 				</template>
 			</div>
@@ -37,21 +43,16 @@
 
 		<Button class="item"
 			icon="ticket"
-			:title="$t('raffle.state_pickBt')"
 			@click="pickWinner()"
-			white
+			secondary
 			:loading="picking"
-			v-if="canPick" />
-
-		<PostOnChatParam class="item postChat highlight" botMessageKey="raffle"
-			titleKey="global.post_winner"
-			:placeholders="winnerPlaceholders" />
+			v-if="canPick">{{ $t('raffle.state_pickBt') }}</Button>
 
 		<Button class="item"
 			icon="cross"
-			:title="$t('raffle.state_stopBt')"
 			highlight
-			@click="closeRaffle()" />
+			alert
+			@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</Button>
 	</div>
 </template>
 
@@ -62,14 +63,12 @@ import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import PostOnChatParam from '../params/PostOnChatParam.vue';
 import ProgressBar from '../ProgressBar.vue';
 
 @Component({
 	components:{
 		Button,
 		ProgressBar,
-		PostOnChatParam,
 	},
 	emits:["close"]
 })
@@ -89,7 +88,6 @@ export default class RaffleState extends Vue {
 	public getUserFromEntry(entry:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.TwitchatUser|null {
 		if(!entry.user) return null;
 		return this.$store("users").getUserFrom(entry.user.platform, entry.user.channel_id, entry.user.id);
-
 	}
 
 	public beforeMount():void {
@@ -139,58 +137,14 @@ export default class RaffleState extends Vue {
 		margin-left: .5em;
 	}
 
-	.item {
-
-		&.entries {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			font-style: italic;
-			opacity: .7;
-			font-size: .8em;
-			img {
-				height: 1em;
-				margin-right: .5em;
-			}
-		}
-
-		&.winners {
-			font-size: 1em;
-			color: var(--mainColor_normal);
-			max-width: 100%;
-			display: flex;
-			flex-direction: column;
-			.title {
-				font-weight: bold;
-				align-self: center;
-				margin-bottom: .5em;
-				.count {
-					font-size: .75em;
-					font-weight: normal;
-					font-style: italic;
-				}
-			}
-			.entries {
-				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				justify-content: center;
-				gap: .25em;
-				.entry {
-					color: var(--mainColor_light);
-					background-color: var(--mainColor_normal);
-					padding: .2em;
-					border-radius: .3em;
-					font-size: .85em;
-					min-height: calc(.85em + .1em);
-				}
-			}
-		}
-
-		&.postChat {
-			max-width: 320px;
-			font-size: .8em;
-			color: var(--mainColor_normal);
+	&>.entries {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		font-style: italic;
+		img {
+			height: 1em;
+			margin-right: .5em;
 		}
 	}
 }

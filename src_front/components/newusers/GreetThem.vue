@@ -387,7 +387,7 @@ export default class NewUsers extends Vue {
 
 <style scoped lang="less">
 .greetThem{
-	background-color: var(--color-primary-dark);
+	background-color: var(--color-primary);
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;

@@ -11,7 +11,6 @@
 		:duration="poll.duration*1000 * 60" />
 
 		<div class="content">
-	
 			<div class="card-item primary actions">
 				<div>{{ $tc('suggestion.state_header', entries.length, [entries.length]) }}</div>
 				
@@ -160,7 +159,10 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 .chatsuggstate{
 
 	.actions {
+		display: flex;
+		flex-direction: column;
 		align-items: center;
+		gap: .5em;
 		flex-shrink: 0;
 	}
 

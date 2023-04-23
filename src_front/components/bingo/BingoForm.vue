@@ -94,7 +94,7 @@ export default class BingoForm extends AbstractSidePanel {
 		return  {
 			guessNumber: this.mode == "num",
 			guessEmote: this.mode == "emote",
-			guessCustom: this.mode == "emote",
+			guessCustom: this.mode == "custom",
 			min: this.minValue.value,
 			max: this.maxValue.value,
 			customValue: this.customValue.value,
