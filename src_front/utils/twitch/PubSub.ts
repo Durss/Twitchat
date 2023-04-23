@@ -47,6 +47,9 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	public connect():void {
+		//cleaup old connexion
+		if(this.socket) this.disconnect();
+
 		this.socket = new WebSocket("wss://pubsub-edge.twitch.tv");
 
 		this.socket.onopen = async () => {
@@ -257,6 +260,17 @@ export default class PubSub extends EventDispatcher {
 		});
 	}
 
+	/**
+	 * Cleanup connexion
+	 */
+	private disconnect():void {
+		this.socket.onopen = null;
+		this.socket.onmessage = null;
+		this.socket.onclose = null;
+		this.socket.onerror = null;
+		this.socket.close();
+	}
+
 	private send(json:unknown):void {
 		this.socket.send(JSON.stringify(json));
 	}
@@ -414,7 +428,7 @@ export default class PubSub extends EventDispatcher {
 
 
 		//Manage rewards
-		}else if(data.type == "reward-redeemed") {
+		}else if(data.type == "reward-redeemed" && topic!.toLowerCase().indexOf("channel-points-channel") > -1) {
 			const localObj = data.data as  PubSubDataTypes.RewardData;
 			this.rewardEvent(localObj);
 
