@@ -370,7 +370,8 @@ export default class SpotifyHelper {
 		if(!json) {
 			this._getTrackTimeout = setTimeout(()=> {
 				this.getCurrentTrack();
-			}, Math.min(5000, 1000));
+			}, 5000);
+			return;
 		}
 		
 		json = json!;
@@ -393,13 +394,6 @@ export default class SpotifyHelper {
 			this._isPlaying = json.is_playing && json.item != null;
 	
 			if(this._isPlaying) {
-				let delay = json.item.duration_ms - json.progress_ms;
-				if(isNaN(delay)) delay = 5000;
-				//Schedule a refresh at the end of the track or in the next 5s max
-				this._getTrackTimeout = setTimeout(()=> {
-					this.getCurrentTrack();
-				}, Math.min(5000, delay + 1000));
-				
 				//Broadcast to the triggers
 				if(!this._lastTrackInfo
 				|| this._lastTrackInfo?.duration != this.currentTrack.duration 
@@ -427,6 +421,12 @@ export default class SpotifyHelper {
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 
 				this._lastTrackInfo = this.currentTrack;
+				
+				let delay = json.item.duration_ms - json.progress_ms;
+				if(isNaN(delay)) delay = 5000;
+				this._getTrackTimeout = setTimeout(()=> {
+					this.getCurrentTrack();
+				}, Math.min(5000, delay + 1000));
 
 			}else{
 				//Broadcast to the overlays
