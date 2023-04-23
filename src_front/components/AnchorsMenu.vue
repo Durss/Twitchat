@@ -107,7 +107,7 @@ export default class AnchorsMenu extends Vue {
 	z-index: 1;
 
 	.item {
-		@size: 1.6em;
+		@size: 2.5em;
 		@innerSize: @size * .7;
 		min-width: @size;
 		height: @size;

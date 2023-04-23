@@ -26,8 +26,8 @@
 		</section>
 
 		<section class="actions">
-			<Button class="button" @click="latestUpdates()" icon="sub">{{ $t('account.updatesBt') }}</Button>
 			<Button class="button" @click="logout()" icon="logout">{{ $t('global.log_out') }}</Button>
+			<Button class="button" @click="latestUpdates()" icon="sub">{{ $t('account.updatesBt') }}</Button>
 			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
 		</section>
 

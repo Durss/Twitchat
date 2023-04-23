@@ -86,7 +86,7 @@ export default class Config {
 		// if(!this.IS_PROD) {
 		// 	return true;//Simulate beta env on local
 		// }
-		return document.location.host.indexOf("beta") > -1;
+		return document.location.host.indexOf("beta") > -1 || true;
 	}
 
 	public get TWITCH_CLIENT_ID():string { return this._serverConfig.twitch_client_id; }

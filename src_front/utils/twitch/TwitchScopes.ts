@@ -54,6 +54,7 @@ TwitchScope2Icon[TwitchScopes.SET_STREAM_INFOS]			= "info.svg";
 TwitchScope2Icon[TwitchScopes.READ_HYPE_TRAIN]			= "train.svg";
 TwitchScope2Icon[TwitchScopes.START_COMMERCIAL]			= "coin.svg";
 TwitchScope2Icon[TwitchScopes.CHECK_SUBSCRIBER_STATE]	= "sub.svg";
+TwitchScope2Icon[TwitchScopes.LIST_SUBSCRIBERS]			= "sub.svg";
 TwitchScope2Icon[TwitchScopes.READ_CHEER]				= "bits.svg";
 TwitchScope2Icon[TwitchScopes.LIST_FOLLOWINGS]			= "user.svg";
 TwitchScope2Icon[TwitchScopes.LIST_FOLLOWERS]			= "user.svg";

@@ -65,7 +65,7 @@
 						small
 						:open="false"
 						v-if="f.storage == whisperType && config.filters.whisper === true">
-							<PermissionsForm clear v-model="config.whispersPermissions" @update:modelValue="saveData()" />
+							<PermissionsForm v-model="config.whispersPermissions" @update:modelValue="saveData()" />
 						</ToggleBlock>
 					</div>
 				

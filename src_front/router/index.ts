@@ -63,7 +63,11 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/login',
 		name: 'login',
-		component: Login
+		component: Home,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
 	},
 	{
 		path: '/logout',
@@ -73,8 +77,9 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/oauth',
 		name: 'oauth',
-		component: Login,
+		component: Home,
 		meta: {
+			overflow:true,
 			needAuth:false,
 		}
 	},

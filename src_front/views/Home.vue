@@ -1,6 +1,6 @@
 <template>
 	<div class="home">
-		<div class="gradient"></div>
+		<div class="home-gradient-bg"></div>
 
 		<div class="aboveTheFold">
 			<div class="lang">
@@ -24,7 +24,7 @@
 					secondary
 					big
 					ref="loginBt"
-					:to="{name:'login'}"
+					@click="showLogin = true"
 					icon="twitch"
 					v-if="!hasAuthToken"
 				>{{ $t('home.loginBt') }}</Button>
@@ -115,6 +115,8 @@
 		</div>
 		
 		<AnchorsMenu :items="anchors" @select="onSelectAnchor" openAnimaton :openDelay="1" />
+
+		<Login v-show="showLogin" :show="showLogin" @close="showLogin = false" />
 	</div>
 </template>
 
@@ -130,9 +132,11 @@ import Splitter from '../components/Splitter.vue';
 import AnchorsMenu from '../components/AnchorsMenu.vue';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css';
+import Login from './Login.vue';
 
 @Component({
 	components:{
+		Login,
 		Button,
 		Splitter,
 		CountryFlag,
@@ -141,14 +145,15 @@ import 'vue3-country-flag-icon/dist/CountryFlag.css';
 })
 export default class Home extends Vue {
 
+	public showLogin = false;
 	public anchors:TwitchatDataTypes.AnchorData[] = [];
 
 	private index = 0;
-	private disposed = false;
 	private prevTs = 0;
+	private disposed = false;
 	private letterParams:{x:number, y:number, s:number, r:number, o:number}[] = [];
 
-	public get hasAuthToken():boolean { return DataStore.get(DataStore.TWITCH_AUTH_TOKEN) != null; }
+	public get hasAuthToken():boolean { return DataStore.get(DataStore.TWITCH_AUTH_TOKEN) != null && this.$route.name == "home"; }
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public getLetter():string { return Utils.pickRand("twitchat".split("")); }
@@ -178,6 +183,10 @@ export default class Home extends Vue {
 			rootMargin: '0px',
 			threshold: .35
 		};
+
+		if(this.$route.name == "login" || this.$route.name == "oauth") {
+			this.showLogin = true;
+		}
 
 		let observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
 
@@ -323,20 +332,8 @@ export default class Home extends Vue {
 	position: relative;
 	overflow: hidden;
 
-	.gradient {
-		background: linear-gradient(180deg, var(--color-primary-fade) 0%, var(--color-secondary-transparent) 100%);
-		background-size: 100% 100vh;
-		background-repeat: no-repeat;
-		background-position: top center;
-		width: 100%;
-		height: 100vh;
-		position: absolute;
-		top:0;
-		left:0;
-	}
-
 	.aboveTheFold {
-		height: 100vh;
+		height: max(640px, 100vh);
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
@@ -379,10 +376,10 @@ export default class Home extends Vue {
 				margin: auto;
 				margin-bottom: 2em;
 				font-style: italic;
-				opacity: .8;
 				font-size: min(2em, 7vw);
 				width: 90%;
 				max-width: 800px;
+				line-height: 1.25em;
 			}
 	
 			.loginBt {
@@ -392,6 +389,8 @@ export default class Home extends Vue {
 			}
 	
 			.ctas {
+				// background-color: var(--color-primary);
+				// padding: 2em 1em;
 				display: flex;
 				flex-direction: column;
 				gap: .5em;
@@ -608,8 +607,10 @@ export default class Home extends Vue {
 				text-align: left;
 				max-width: 500px;
 				margin: auto;
+				list-style-position: inside;
 				li {
 					margin-bottom: .5em;
+					line-height: 1.25em;
 				}
 			}
 		}

@@ -1,12 +1,20 @@
 <template>
 	<div class="paramssponsor">
-		<p v-for="i in $tm('sponsor.head')" v-html="i" ref="head"></p>
+		<header>
+			<p v-for="i in $tm('sponsor.head')" v-html="i" ref="head"></p>
+		</header>
 
 		<div class="important" ref="instructions">
-			<strong>{{ $t("sponsor.important") }}</strong>
-			<p v-html="$t('sponsor.important_content1')"></p>
+			<i18n-t scope="global" keypath="sponsor.important_content1">
+				<template #LINK>
+					<a class="link" href="https://twitch.tv/durss" target="_blaink" type="link">{{ $t("sponsor.important_content1_link") }}</a>
+				</template>
+				<template #STRONG>
+					<strong>{{ $t("sponsor.important_content1_strong") }}</strong>
+				</template>
+			</i18n-t>
 			<p v-html="$t('sponsor.important_content2')"></p>
-			<ParamItem class="readToggle" :paramData="checkbox" white alertToggle />
+			<ParamItem class="readToggle" :paramData="checkbox" secondary />
 		</div>
 
 		<img src="@/assets/img/eating.gif" alt="eating" class="patrick" ref="patrick" />
@@ -115,19 +123,16 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 	display: flex;
 	flex-direction: column;
 	gap: 1em;
-	
-	h1 {
-		text-align: center;
-		margin-bottom: 1em;
-	}
 
+	header {
+		line-height: 1.5em;
+	}
+	
 	.patrick {
 		margin: auto;
 		display: block;
 		height: 100px;
 	}
-
-
 	.buttons {
 		display: flex;
 		flex-direction: column;
@@ -158,18 +163,19 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 	}
 
 	.important {
-		color: var(--mainColor_alert);
-		background-color: var(--mainColor_alert_extralight);
+		color: var(--color-light);
+		background-color: var(--color-secondary);
 		font-size: .9em;
-		padding: .5em;
+		padding: 1em;
 		border-radius: .5em;
-		:deep(a) {
-			color: var(--color-secondary);
+		line-height: 1.5em;
+
+		.link {
+			color: var(--color-light);
 		}
 
 		.readToggle {
 			display: inline-block;
-			color: var(--color-alert);
 		}
 	}
 }

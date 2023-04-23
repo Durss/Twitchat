@@ -24,9 +24,9 @@
 				
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
 					v-model="paramData.value"
-					:id="'toggle'+key"
-					:clear="clearToggle !== false"
-					:alert="alertToggle !== false" />
+					:secondary="secondary"
+					:alert="alert"
+					:id="'toggle'+key" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -132,7 +132,11 @@
 						<div>{{ $t("global.empty_list2") }}</div>
 					</template>
 				</vue-select>
-				<button @click="submitListItem()" v-if="searching" class="listSubmitBt"><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
+				<button class="listSubmitBt"
+				:secondary="secondary"
+				:alert="alert"
+				@click="submitListItem()" v-if="searching"
+				><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
@@ -151,6 +155,8 @@
 				<Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
+					:secondary="secondary"
+					:alert="alert"
 					:accept="paramData.accept?paramData.accept:'*'"
 					icon="upload"
 				/>
@@ -168,8 +174,8 @@
 			ref="param_child"
 			:key="'child_'+index+c.id"
 			:paramData="c"
-			:clearToggle="clearToggle"
-			:alertToggle="alertToggle"
+			:secondary="secondary"
+			:alert="alert"
 			:childLevel="childLevel+1" />
 
 		<div class="child" ref="param_child_slot" v-if="$slots.default">
@@ -216,17 +222,17 @@ export default class ParamItem extends Vue {
 	@Prop({type:Boolean, default:false})
 	public autofocus!:boolean;
 
-	@Prop({type:Boolean, default:false})
-	public clearToggle!:boolean;
-
-	@Prop({type:Boolean, default:false})
-	public alertToggle!:boolean;
-
 	@Prop({type:Number, default:0})
 	public childLevel!:number;
 
 	@Prop({type:[String, Number, Boolean, Object, Array], default: null})
 	public modelValue!:string|boolean|number|string[];
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
 
 	public searching:boolean = false;
 	public key:string = Math.random().toString();
@@ -240,8 +246,6 @@ export default class ParamItem extends Vue {
 	public get classes():string[] {
 		const res = ["paramitem"];
 		if(this.errorLocal !== false) res.push("error");
-		if(this.clearToggle !== false) res.push("clear");
-		if(this.alertToggle !== false) res.push("alert");
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
@@ -573,12 +577,6 @@ export default class ParamItem extends Vue {
 			&::-webkit-scrollbar-thumb {
 				background-color: var(--mainColor_light);
 			}
-		}
-	}
-
-	&.alert {
-		&>.content:hover {
-			background-color: fade(@mainColor_alert, 10%);
 		}
 	}
 	

@@ -392,6 +392,7 @@ export const storeMain = defineStore("main", {
 			const ip = Utils.getQueryParameterByName("obs_ip");
 			//If OBS params are on URL, connect
 			if(port != null && ip != null) {
+				console.log("CONNECT", port, ip);
 				sOBS.connectionEnabled = true;
 				OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}

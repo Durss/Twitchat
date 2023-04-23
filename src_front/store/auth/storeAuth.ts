@@ -136,7 +136,7 @@ export const storeAuth = defineStore('auth', {
 						'App-Version': import.meta.env.PACKAGE_VERSION,
 					};
 					const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+userRes.user_id, {method:"GET", headers});
-					if(res.status != 200 || (await res.json()).data.beta !== true) {
+					if(res.status != 200 || (await res.json()).data.beta !== true || true) {
 						if(cb) cb(false, true);
 						else router.push({name:"login", params:{betaReason:"true"}});
 						return;

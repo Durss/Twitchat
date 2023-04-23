@@ -175,7 +175,7 @@ export default class Button extends Vue {
 	}
 
 	.loadingBorder {
-		@offset: 1px;
+		@offset: 0px;
 		position: absolute;
 		z-index: -1;
 		top: -@offset;
@@ -185,7 +185,6 @@ export default class Button extends Vue {
 		background: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%);
 		background-repeat: repeat-x;
 		background-size:  200% 100%;
-		filter: blur(1px);
 		width: calc(100% + @offset*2);
 		height: calc(100% + @offset*2);
 		animation: glowing 1s linear infinite;

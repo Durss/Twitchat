@@ -191,7 +191,8 @@ export default class Confirm extends Vue {
 		}
 
 		.description {
-			font-size: 1.2em;
+			font-size: 1.25em;
+			line-height: 1.25em;
 			margin-top: 1em;
 			text-align: center;
 			:deep(strong) {

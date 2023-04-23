@@ -5,9 +5,10 @@
 			"It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.",
 			"<strong>If you can afford it</strong>, feel free to thank me and make my day brighter with one of the options bellow!"
 		],
-		"important":"IMPORTANT",
-		"important_content1":"Specify <strong>your Twitch login</strong> on your donation message when possible or <a href=\"https://twitch.tv/durss\" target=\"_blank\">send me in a whisper on Twitch</a> so I know which twitch user you are !",
-		"important_content2":"This is necessary if you want to have the ability to disable the automatic message :)",
+		"important_content1":"After donating, {STRONG} via a {LINK}!",
+		"important_content1_strong":"send me your Twitch login",
+		"important_content1_link":"Twitch whisper",
+		"important_content2":"Without that I can't know who I should grant the donor badge to.",
 		"donate_rate":"Donation percent<br>I receive",
 		"checkbox":"I read the instructions",
 		"donate_option":{

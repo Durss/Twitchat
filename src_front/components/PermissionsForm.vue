@@ -1,13 +1,13 @@
 <template>
 	<div class="obspermissions">
-		<ParamItem :paramData="param_broadcaster" class="row" v-model="modelValue.broadcaster" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
-		<ParamItem :paramData="param_mods" class="row" v-model="modelValue.mods" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
-		<ParamItem :paramData="param_vips" class="row" v-model="modelValue.vips" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
-		<ParamItem :paramData="param_subs" class="row" v-model="modelValue.subs" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
-		<ParamItem :paramData="param_followers" class="row" v-model="modelValue.follower" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
-		<ParamItem :paramData="param_all" class="row" v-model="modelValue.all" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
-		<ParamItem :paramData="param_allowed" class="row allow" v-model="modelValue.usersAllowed" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
-		<ParamItem :paramData="param_refused" class="row refuse" v-model="modelValue.usersRefused" @change="$emit('update:modelValue', modelValue)" :clearToggle="clear !== false"/>
+		<ParamItem :paramData="param_broadcaster" class="row" v-model="modelValue.broadcaster" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem :paramData="param_mods" class="row" v-model="modelValue.mods" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem :paramData="param_vips" class="row" v-model="modelValue.vips" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem :paramData="param_subs" class="row" v-model="modelValue.subs" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem :paramData="param_followers" class="row" v-model="modelValue.follower" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem :paramData="param_all" class="row" v-model="modelValue.all" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem :paramData="param_allowed" class="row allow" v-model="modelValue.usersAllowed" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem :paramData="param_refused" class="row refuse" v-model="modelValue.usersRefused" @change="$emit('update:modelValue', modelValue)" />
 		
 		<div v-if="noSelection" class="noSelection">{{ $t("global.permissions.nobody") }}</div>
 	</div>
@@ -27,11 +27,6 @@ import ParamItem from './params/ParamItem.vue';
 	emits:["update:modelValue"],
 })
 export default class PermissionsForm extends Vue {
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
-	public clear!:boolean;
 	@Prop
 	public modelValue!:TwitchatDataTypes.PermissionsData;
 	
@@ -60,16 +55,6 @@ export default class PermissionsForm extends Vue {
 		if(this.modelValue.follower === undefined) this.modelValue.follower = false;
 		this.param_followers.children	= [this.param_followers_ms];
 		this.param_followers_ms.value	= (this.modelValue.follower_duration_ms ?? 0) / (24 * 60 * 60 * 1000);
-
-		if(this.clear !== false) {
-			this.param_broadcaster.icon = this.param_broadcaster.icon?.replace("", "");
-			this.param_mods.icon = this.param_mods.icon?.replace("", "");
-			this.param_vips.icon = this.param_vips.icon?.replace("", "");
-			this.param_subs.icon = this.param_subs.icon?.replace("", "");
-			this.param_all.icon = this.param_all.icon?.replace("", "");
-			this.param_followers.icon = this.param_followers.icon?.replace("", "");
-			this.param_followers_ms.icon = this.param_all.icon?.replace("", "");
-		}
 
 		watch(()=>this.param_followers_ms.value, ()=> {
 			this.modelValue.follower_duration_ms = this.param_followers_ms.value * 24 * 60 * 60 * 1000;
