@@ -148,7 +148,11 @@ export const storeUsers = defineStore('users', {
 				};
 				userMaps[platform] = hashmaps;
 			}
-			if(login)													login = login.toLowerCase();
+
+			//Cleanup any "@" here so we don't have to do that for every commands
+			if(login)													login = login.replace("@", "").toLowerCase().trim();
+			if(displayName)												displayName = displayName.replace("@", "").trim();
+			
 			if(id && hashmaps.idToUser[id])								user = hashmaps.idToUser[id];
 			if(login && hashmaps.loginToUser[login])					user = hashmaps.loginToUser[login];
 			if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];

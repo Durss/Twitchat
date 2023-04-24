@@ -1,24 +1,27 @@
 <template>
 	<div class="streaminfosubform">
-		<ParamItem class="item" :paramData="param_title" v-model="localTitle" autofocus @change="$emit('update:title', localTitle)" />
+		<ParamItem class="card-item primary" :paramData="param_title" v-model="localTitle" autofocus @change="$emit('update:title', localTitle)" />
 
-		<AutoCompleteForm class="item category"
+		<AutoCompleteForm class="card-item primary category"
 		:title="$t('stream.form_stream_category')"
 		:maxItems="1"
 		@search="searchCategory" v-slot="{ item }"
 		v-model="localCategories"
 		idKey="id">
-			<Button class="autoComplete-item" small :title="item.name" :icon="item.box_art_url" />
+			<button class="autoComplete-item">
+				<img class="icon" :src="item.box_art_url" alt="">
+				<span class="label">{{ item.name }}</span>
+			</button>
 		</AutoCompleteForm>
 
-		<ParamItem class="item"
-		:paramData="param_tags"
-		v-model="localTags"
-		autofocus
-		@change="onTagsUpdate()"
-		v-if="param_tags.value!.length < 10" />
+		<ParamItem class="card-item primary"
+			:paramData="param_tags"
+			v-model="localTags"
+			autofocus
+			@change="onTagsUpdate()"
+			v-if="param_tags.value!.length < 10" />
 
-		<div class="item tagList" v-else>
+		<div class="card-item primary tagList" v-else>
 			<div>{{ $t(param_tags.labelKey!) }}</div>
 			<button type="button" class="tagItem" aria-label="delete tag"
 			v-for="i in param_tags.value"
@@ -158,28 +161,40 @@ export default class StreamInfoSubForm extends Vue {
 
 <style scoped lang="less">
 .streaminfosubform{
+	gap: 1em;
+	display: flex;
+	flex-direction: column;
 
-	.item {
-		margin-top: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
-		border-radius: .5em;
+	:deep(.autocomplete) {
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		.autoComplete-item {
+			font-size: .8em;
+			.icon {
+				height: 30px;
+			}
+		}
 	}
-	
+
 	.autoComplete-item {
-		margin-right: .25em;
-		margin-bottom: .25em;
 		padding: 0;
-		padding-right: .25em;
-		max-width: 100%;
-		:deep(.label) {
-			padding: 4px;
+		gap: .5em;
+		margin: auto;
+		display: flex;
+		overflow: hidden;
+		align-items: center;
+		flex-direction: row;
+		border-radius: var(--border-radius);
+		background-color: var(--color-secondary);
+		.label {
+			padding: .5em;
+			color: var(--color-light);
 			white-space: break-spaces;
 		}
-		:deep(.icon) {
-			height: 100%;
-			max-height: 2em;
-			margin-right: .25em;
+		.icon {
+			height: 60px;
 		}
 
 		&:hover {
@@ -188,59 +203,18 @@ export default class StreamInfoSubForm extends Vue {
 				height: 1.25em;
 			}
 		}
-	}
 	
-	.category {
-		display: flex;
-		flex-direction: column;
-		:deep(.selected) {
-			display: inline-block;
-			align-self: center;
-			margin: 0;
-			.button {
-				.icon{
-					max-height: 4em;
-				}
-	
-				&:after {
-					content: "";
-					background-image: url("../../assets/icons/trash.svg");
-					width: 1em;
-					height: 1em;
-					background-repeat: no-repeat;
-					background-position: center;
-					transition: .25s all;
-				}
-			}
+		&:after {
+			content: "";
+			background-image: url("../../assets/icons/trash.svg");
+			width: 1em;
+			height: 1em;
+			margin-right: .5em;
+			background-repeat: no-repeat;
+			background-position: center;
+			transition: .25s all;
+			background-size: contain;
 		}
 	}
-
-	.tagList {
-		margin-top: .8em;
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		gap: 5px;
-		align-items: center;
-		.tagItem {
-			display: inline;
-			background-color: rgb(240, 240, 240);
-			color: var(--mainColor_normal);
-			font-size: .9em;
-			padding: .25em;
-			border-radius: 4px;
-			transition: all .25s;
-
-			.icon {
-				height: .6em;
-				margin-left: .25em;
-			}
-			&:hover {
-				background: var(--mainColor_normal_extralight);
-				// color: var(--mainColor_light);
-			}
-		}
-	}
-	
 }
 </style>

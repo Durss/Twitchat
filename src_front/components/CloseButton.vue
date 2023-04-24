@@ -19,8 +19,9 @@ export default class CloseButton extends Vue {
 <style scoped lang="less">
 .closebutton{
 	position: absolute;
-	top: 1em;
-	right: 1em;
+	top: 0;
+	right: 0;
+	padding: 1em;
 	cursor: pointer;
 	img {
 		height: 1em;

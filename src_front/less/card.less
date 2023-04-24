@@ -25,7 +25,6 @@
 
 
 .card-item {
-	.emboss();
 	@padding: .5em;
 	overflow: hidden;
 	padding: @padding;
@@ -65,21 +64,21 @@
 	}
 	
 	&.primary {
-		background-color: var(--color-primary-fade);
+		background-color: var(--color-primary);
 		& > .header {
-			background-color: var(--color-primary);
+			background-color: var(--color-primary-dark);
 		}
 	}
 	
 	&.secondary {
-		background-color: var(--color-secondary-fade);
+		background-color: var(--color-secondary);
 		& > .header {
 			background-color: var(--color-secondary);
 		}
 	}
 	
 	&.alert {
-		background-color: var(--color-alert-fade);
+		background-color: var(--color-alert);
 		& > .header {
 			background-color: var(--color-alert);
 		}

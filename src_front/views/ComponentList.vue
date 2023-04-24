@@ -130,6 +130,16 @@
 			<ProgressBar :percent="progresses[2]" :duration="100 * 60 * 1000" alert />
 			<ProgressBar :percent="progresses[3]" :duration="100 * 60 * 1000" boostMode />
 			<ProgressBar :percent="progresses[4]" :duration="100 * 60 * 1000" />
+			<Button class="restartBt" @click="resetProgressbars()" icon="refresh">Restart</Button>
+		</div>
+
+		<Splitter>Sliders</Splitter>
+
+		<div class="card-item section sliders">
+			<Slider />
+			<Slider secondary />
+			<Slider alert />
+			<Slider disabled />
 		</div>
 
 		<Splitter>Tab menu</Splitter>
@@ -151,6 +161,23 @@
 				<TabMenu small alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 			</div>
 		</div>
+
+		<Splitter>Parameters</Splitter>
+
+		<div class="card-item section params">
+			<ParamItem :paramData="param_bool" />
+			<ParamItem :paramData="param_color" />
+			<ParamItem :paramData="param_slider" />
+			<ParamItem :paramData="param_text" />
+			<ParamItem :paramData="param_text" error />
+			<ParamItem :paramData="param_textLong" />
+			<ParamItem :paramData="param_textLong" error />
+			<ParamItem :paramData="param_number" />
+			<ParamItem :paramData="param_list" />
+			<ParamItem :paramData="param_list" error />
+			<ParamItem :paramData="param_listEdit" />
+			<ParamItem :paramData="param_listEdit" error />
+		</div>
 	</div>
 </template>
 
@@ -158,19 +185,24 @@
 import Button from '@/components/Button.vue';
 import Checkbox from '@/components/Checkbox.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
+import Slider from '@/components/Slider.vue';
 import Splitter from '@/components/Splitter.vue';
 import SwitchButton from '@/components/SwitchButton.vue';
 import TabMenu from '@/components/TabMenu.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
 		Button,
+		Slider,
 		TabMenu,
 		Checkbox,
 		Splitter,
+		ParamItem,
 		ToggleBlock,
 		ProgressBar,
 		SwitchButton,
@@ -184,14 +216,28 @@ export default class ComponentList extends Vue {
 	public disposed:boolean = false;
 	public loading:boolean = false;
 	public selected:boolean = false;
-	public progresses:number[] = [.25,.25,.25,.25,.95];
+	public progresses:number[] = [];
+
+	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"Enabled"};
+	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ff0000", label:"Color"};
+	public param_slider:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, label:"Slider", min:0, max:10};
+	public param_text:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Text", placeholder:"value..."};
+	public param_textLong:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"Text", placeholder:"value..."};
+	public param_number:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, label:"Count"};
+	public param_list:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[{value:"item1",label:"Item 1"}, {value:"item2",label:"Item 2"},{value:"item1",label:"Item 3"}], label:"List"};
+	public param_listEdit:TwitchatDataTypes.ParameterData<string[], string> = {type:"editablelist", value:["Item 2"], maxLength:2, options:["Item 1", "Item 2", "Item 3"], label:"Editable List"};
 	
 	public mounted():void {
+		this.resetProgressbars();
 		this.renderFrame();
 	}
 	
 	public beforeUnmount():void {
 		this.disposed = true;
+	}
+	
+	public resetProgressbars():void {
+		this.progresses = [.25,.25,.25,.25,.95];
 	}
 
 	private renderFrame():void {
@@ -277,10 +323,29 @@ export default class ComponentList extends Vue {
 		display: flex;
 		flex-direction: column;
 		flex-wrap: wrap;
-		gap: 2em;
+		gap: 1em;
 		&> div {
 			// flex-basis: 300px;
 			margin-bottom: 1em;
+		}
+		.restartBt {
+			align-self: center;
+		}
+	}
+
+	.sliders {
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.params{
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+		align-items: center;
+		&>* {
+			width: 600px;
 		}
 	}
 }

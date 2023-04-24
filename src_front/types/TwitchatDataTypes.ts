@@ -273,7 +273,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Parameter type
 		 */
-		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist";
+		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color";
 		/**
 		 * Parameter value
 		 */

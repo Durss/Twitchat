@@ -23,7 +23,6 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from './Button.vue';
-import { string } from 'mathjs';
 
 /**
  * To add actions on the right or left of the header
@@ -117,14 +116,6 @@ export default class ToggleBlock extends Vue {
 	align-self: flex-start;
 	border-radius: var(--border-radius);
 
-	:deep(.icon) {
-		height: 1em;
-		width: 1em;
-		object-fit: fill;
-		display: block;
-		margin:auto;
-	}
-
 	.header {
 		text-align: center;
 		padding: .5em;
@@ -153,6 +144,14 @@ export default class ToggleBlock extends Vue {
 		}
 		&:hover {
 			background-color: var(--color-primary-light);
+		}
+
+		:deep(.icon) {
+			height: 1em;
+			width: 1em;
+			object-fit: fill;
+			display: block;
+			margin:auto;
 		}
 	}
 

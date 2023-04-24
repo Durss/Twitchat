@@ -8,30 +8,28 @@
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
 			<form  @submit.prevent="submitForm()">
-				<div class="row">
-					<label for="prediction_title">{{ $t("prediction.form.question") }}</label>
-					<input class="questionInput"
-						type="text"
-						id="prediction_title"
+				<div class="card-item primary">
+					<ParamItem :paramData="param_title"
 						v-model="title"
-						maxlength="45"
-						:placeholder="$t('prediction.form.question_placeholder')"
-						v-autofocus="title == ''" tabindex="1"
-						@change="onValueChange()">
+						v-autofocus="title == ''"
+						@change="onValueChange()" />
 				</div>
-				<div class="row answers">
+
+				<div class="card-item primary answers">
 					<label for="prediction_answer">{{ $t("prediction.form.outcomes") }}</label>
 					<div v-for="(a, index) in answers"
 					:class="getAnswerClasses(index)"
 					:key="'answer'+index">
-						<input type="text"
-							maxlength="25"
-							v-model="answers[index]"
-							v-autofocus="index == 0 && title != ''"
-							:tabindex="index + 2"
-							:placeholder="$t('prediction.form.answer_placeholder')"
-							@change="onValueChange()"
-						>
+						<div class="inputHolder">
+							<input type="text"
+								maxlength="25"
+								v-model="answers[index]"
+								v-autofocus="index == 0 && title != ''"
+								:tabindex="index + 2"
+								:placeholder="$t('prediction.form.answer_placeholder')"
+								@change="onValueChange()">
+							<div class="len">{{answers[index].length}}/25</div>
+						</div>
 						<Button :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt"
 							icon="cross"
 							type="button"
@@ -41,7 +39,8 @@
 						/>
 					</div>
 				</div>
-				<div class="row shrink">
+
+				<div class="card-item primary shrink">
 					<ParamItem :paramData="voteDuration" @change="onValueChange()" />
 				</div>
 				
@@ -78,21 +77,14 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 })
 export default class PredictionForm extends AbstractSidePanel {
 	
-	@Prop({
-			type: Boolean,
-			default: true
-		})
+	@Prop({type: Boolean, default: true})
 	public voiceControl!:boolean;
-	@Prop({
-			type: Boolean,
-			default: false
-		})
+
+	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
+
 	//This is used by the trigger action form.
-	@Prop({
-			type: Object,
-			default:{},
-		})
+	@Prop({type: Object, default:{}})
 	public action!:TriggerActionPredictionData;
 
 	public loading = false;
@@ -101,6 +93,7 @@ export default class PredictionForm extends AbstractSidePanel {
 	public title = "";
 	public answers:string[] = ["", ""];
 	public voteDuration:TwitchatDataTypes.ParameterData<number> = {value:10, type:"number", min:1, max:30};
+	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:45, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -228,12 +221,16 @@ export default class PredictionForm extends AbstractSidePanel {
 .predictionform{
 
 	.content > form {
-		.row {
+		.card-item {
 			.questionInput {
 				flex-basis: unset;
 				text-align: left;
 			}
 			&.answers {
+				label {
+					display: block;
+					margin-bottom: .5em;
+				}
 				.answer {
 					flex-grow: 1;
 					display: flex;
@@ -242,28 +239,49 @@ export default class PredictionForm extends AbstractSidePanel {
 						margin-bottom: 5px;
 					}
 					&.red {
-						input {
-							@c:#f50e9b;
-							color: @c;
-							border-color: @c;
+						.inputHolder {
+							input {
+								@c:#f50e9b;
+								color: @c;
+								border-color: @c;
+							}
 						}
 					}
 					&.disabled {
-						input {
-							@c:#727272;
-							color: @c;
-							border-color: @c;
+						.inputHolder {
+							input {
+								@c:#727272;
+								color: @c;
+								border-color: @c;
+							}
 						}
 					}
-					input {
+					.inputHolder {
+						position: relative;
 						flex-grow: 1;
-						min-width: 0;
-						border-width: 3px;
-						text-align: left;
-						@c:#3798ff;
-						color: @c;
-						border: 2px solid @c;
-						text-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
+						input {
+							width: 100%;
+							min-width: 0;
+							border-width: 3px;
+							text-align: left;
+							@c:#3798ff;
+							color: @c;
+							border: 2px solid @c;
+							text-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
+						}
+						.len {
+							font-size: .7em;
+							position: absolute;
+							right: .5em;
+							top: 50%;
+							transform: translateY(-50%);
+						}
+					}
+					&:has(.deleteBt) {
+						input {
+							border-top-right-radius: 0;
+							border-bottom-right-radius: 0;
+						}
 					}
 				}
 				.deleteBt {

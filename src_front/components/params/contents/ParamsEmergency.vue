@@ -1,5 +1,5 @@
 <template>
-	<div class="paramsemergency">
+	<div class="paramsemergency parameterContent">
 		<img src="@/assets/icons/emergency.svg" alt="emergency icon" class="icon">
 		
 		<p class="head">{{ $t("emergency.header") }}</p>
@@ -8,39 +8,49 @@
 		<div class="fadeHolder" :style="holderStyles">
 
 			<section>
-				<Splitter class="item splitter">{{ $t("emergency.start.title") }}</Splitter>
-				<ParamItem class="item" :paramData="param_autoEnableOnShieldmode" />
-				<ParamItem class="item" :paramData="param_autoEnableOnFollowbot" />
-				<div class="item">
+				<Splitter class="splitter">{{ $t("emergency.start.title") }}</Splitter>
+				<div class="card-item primary">
+					<ParamItem :paramData="param_autoEnableOnShieldmode" />
+				</div>
+				<div class="card-item primary">
+					<ParamItem :paramData="param_autoEnableOnFollowbot" />
+				</div>
+				<div class="card-item primary">
 					<ParamItem class="chatCommand" :paramData="param_chatCommand" />
-					<ToggleBlock :title="$t('emergency.start.chatCommand_users')" :open="false" small class="item">
+					<ToggleBlock :title="$t('emergency.start.chatCommand_users')" :open="false" small>
 						<PermissionsForm v-model="chatCommandPerms" />
 					</ToggleBlock>
 				</div>
-				<div class="item label">
+				<div class="card-item primary labeled">
 					<img src="@/assets/icons/mod.svg" alt="scene icon" class="icon">
-					<i18n-t scope="global" class="label" tag="p" keypath="emergency.start.also">
+					<i18n-t scope="global" tag="p" keypath="emergency.start.also">
 						<template #LINK>
 							<a @click="$store('params').openParamsPage(contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
 						</template>
 					</i18n-t>
 				</div>
-				<div class="item infos">{{ $t("emergency.start.followbot_info") }}</div>
+				<div class="card-item primary">{{ $t("emergency.start.followbot_info") }}</div>
 			</section>
 
 			<section>
-				<Splitter class="item splitter">{{ $t("emergency.actions.title") }}</Splitter>
-				<ParamItem class="item" :paramData="param_enableShieldMode" />
-				<div class="twitchParams item" v-if="param_enableShieldMode.value == false">
-					<ParamItem class="item hasDurationChild" :paramData="param_followersOnly" />
-					<ParamItem class="item" :paramData="param_subsOnly" />
-					<ParamItem class="item" :paramData="param_emotesOnly" />
-					<ParamItem class="item hasDurationChild" :paramData="param_slowMode" />
+				<Splitter class="splitter">{{ $t("emergency.actions.title") }}</Splitter>
+				<div class="card-item primary">
+					<ParamItem :paramData="param_enableShieldMode" />
 				</div>
-				<ParamItem class="item" :paramData="param_noTrigger" />
-				<ParamItem class="item" :paramData="param_autoTO" />
+				<div class="card-item primary twitchParams" v-if="param_enableShieldMode.value == false">
+					<ParamItem class="hasDurationChild" :paramData="param_followersOnly" />
+					<ParamItem :paramData="param_subsOnly" />
+					<ParamItem :paramData="param_emotesOnly" />
+					<ParamItem class="hasDurationChild" :paramData="param_slowMode" />
+				</div>
+				<div class="card-item primary">
+					<ParamItem :paramData="param_noTrigger" />
+				</div>
+				<div class="card-item primary">
+					<ParamItem :paramData="param_autoTO" />
+				</div>
 
-				<div class="item" v-if="!obsConnected">
+				<div class="card-item primary" v-if="!obsConnected">
 					<div class="warn">
 						<img src="@/assets/icons/info.svg" alt="info">
 						<i18n-t scope="global" class="label" tag="p" keypath="emergency.actions.obs_connect">
@@ -51,31 +61,31 @@
 					</div>
 				</div>
 				
-				<div v-else class="item">
-					<div class="item label">
+				<div v-else>
+					<div class="card-item primary labeled">
 						<img src="@/assets/icons/list.svg" alt="scene icon" class="icon">
 						<p>{{ $t("emergency.actions.obs_scene") }}</p>
+						<vue-select class="sourceSelector" label="label"
+							:placeholder="$t('emergency.actions.obs_scene_select')"
+							v-model="selectedOBSScene"
+							:options="param_obsScene.listValues"
+							:calculate-position="$placeDropdown"
+							appendToBody
+						></vue-select>
 					</div>
-					<vue-select class="sourceSelector" label="label"
-						:placeholder="$t('emergency.actions.obs_scene_select')"
-						v-model="selectedOBSScene"
-						:options="param_obsScene.listValues"
-						:calculate-position="$placeDropdown"
-						appendToBody
-					></vue-select>
 					
-					<div class="item label">
+					<div class="card-item primary labeled">
 						<img src="@/assets/icons/show.svg" alt="sources icon" class="icon">
 						<p>{{ $t("emergency.actions.obs_sources") }} <br><i>{{ $t("emergency.actions.obs_sources_example") }}</i></p>
+						<vue-select class="sourceSelector" label="sourceName"
+							:placeholder="$t('emergency.actions.obs_sources_select')"
+							v-model="selectedOBSSources"
+							:options="obsSources_filtered"
+							:calculate-position="$placeDropdown"
+							appendToBody
+							multiple
+						></vue-select>
 					</div>
-					<vue-select class="sourceSelector" label="sourceName"
-						:placeholder="$t('emergency.actions.obs_sources_select')"
-						v-model="selectedOBSSources"
-						:options="obsSources_filtered"
-						:calculate-position="$placeDropdown"
-						appendToBody
-						multiple
-					></vue-select>
 				</div>
 			</section>
 		</div>
@@ -309,18 +319,13 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsemergency{
-	.parameterContent();
-
 	.fadeHolder {
 		transition: opacity .2s;
 
 		section {
 
-			.item {
-				&:not(:first-child) {
-					margin-top: .5em;
-				}
-				&.label {
+			.card-item {
+				&.labeled {
 					margin-bottom: .5em;
 					i {
 						font-size: .8em;
@@ -338,10 +343,10 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 					}
 				}
 
-				&.hasDurationChild {
+				.hasDurationChild {
 					:deep(.child) {
 						input {
-							flex-basis: 90px;
+							flex-basis: 90px !important;
 						}
 					}
 				}
@@ -351,23 +356,11 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 						flex-basis:150px;
 					}
 				}
-
-				&.intro {
-					margin-top: 1em;
-				}
 				
-				&.infos {
-					font-size: .8em;
-					background-color:  var(--mainColor_light);
-					padding: .5em;
-					border-radius: .5em;
-					// margin-top: 0;
-					// overflow: hidden;
-					// padding-left: calc(1em + 10px);
-
-					.togglable {
-						overflow: hidden;
-					}
+				&.twitchParams {
+					display: flex;
+					flex-direction: column;
+					gap: .5em
 				}
 			}
 		}
@@ -375,14 +368,6 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 
 	.sourceSelector {
 		padding-left: 1.5em;
-		:deep(.vs__selected) {
-			color: var(--mainColor_light) !important;
-			background-color: var(--mainColor_normal);
-			border: none;
-			svg {
-				fill: var(--mainColor_light);
-			}
-		}
 	}
 
 }

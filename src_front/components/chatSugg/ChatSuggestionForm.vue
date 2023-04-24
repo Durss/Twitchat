@@ -38,9 +38,7 @@
 					<PermissionsForm v-model="permissions" />
 				</ToggleBlock> -->
 
-				<div class="card-item primary">
-					<Button type="submit">{{ $t('global.submit') }}</Button>
-				</div>
+				<Button type="submit">{{ $t('global.submit') }}</Button>
 			</form>
 
 			<i18n-t scope="global" tag="div" keypath="suggestion.alternative_tool" class="card-item alternativeTool">
@@ -62,15 +60,14 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
 import PermissionsForm from '../PermissionsForm.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import CloseButton from '../CloseButton.vue';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
 
 @Component({
 	components:{
@@ -85,7 +82,7 @@ import AbstractSidePanel from '../AbstractSidePanel.vue';
 })
 export default class ChatSuggestionForm extends AbstractSidePanel {
 	
-	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:31};
+	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:30};
 	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24};
 	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean"};
 	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500};
@@ -151,6 +148,7 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 		// .bevel();
 		// padding: .8em;
 		margin-left: auto;
+		margin-top: 5px;
 		border-radius: var(--border-radius);
 		font-size: .8em;
 		text-align: right;

@@ -23,10 +23,10 @@
 				</div>
 			</div>
 	
-			<div class="card-item primary list" ref="list">
+			<div class="list" ref="list">
 				<a v-for="u in filteredItems"
 					:key="u.id"
-					class="user"
+					class="card-item primary user"
 					ref="userCard"
 					:href="u.user? 'https://twitch.tv/' + u.user.login : '#'"
 					target="_blank"
@@ -261,7 +261,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 			.user {
 				text-decoration: none;
 				color: var(--color-light);
-				cursor: pointer;
 
 				&:hover {
 					.header {

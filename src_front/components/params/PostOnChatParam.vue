@@ -5,6 +5,8 @@
 			:paramData="enabledParam"
 			:error="error != ''"
 			:errorMessage="error"
+			:secondary="secondary"
+			:alert="alert"
 		/>
 
 		<div class="preview" ref="preview" v-if="enabledParam.value === true">
@@ -47,23 +49,25 @@ export default class PostOnChatParam extends Vue {
 	
 	@Prop
 	public icon!:string;
-	@Prop({
-			type:String,
-			default:"",
-		})
+	
+	@Prop({type:String, default:""})
 	public titleKey!:string;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public noToggle!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+	
+	@Prop({type:Boolean, default:false})
 	public clearToggle!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+	
 	@Prop
 	public botMessageKey!:TwitchatDataTypes.BotMessageField;
+	
 	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
 	

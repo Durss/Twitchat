@@ -1,5 +1,5 @@
 <template>
-	<div class="changelog">
+	<div class="changelog modal">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			
@@ -158,7 +158,6 @@ export default class Changelog extends Vue {
 
 <style scoped lang="less">
 .changelog{
-	.modal();
 	z-index: 2;
 	
 	.holder {

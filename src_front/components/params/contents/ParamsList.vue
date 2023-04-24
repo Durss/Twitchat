@@ -3,7 +3,7 @@
 		<div class="row" v-for="(p, key) in params" :key="key">
 
 			<div :class="getClasses(p, key as string)">
-				<ParamItem :paramData="p" save />
+				<ParamItem :paramData="p" :secondary="p.type=='slider'" />
 				<transition
 					@enter="onShowItem"
 					@leave="onHideItem"
@@ -186,6 +186,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public getClasses(p:TwitchatDataTypes.ParameterData<unknown>, key:string):string[] {
 		let res = ["item", key];
 		if(p.icon) res.push("hasIcon");
+		if(p.value === false) res.push("disabled");
 		if(this.isDisabled(p)) res.push("disabled");
 		return res;
 	}
@@ -216,9 +217,8 @@ export default class ParamsList extends Vue implements IParameterContent {
 		@iconSize: 1.5em;
 
 		&>.item {
-			@defaultBg: fade(@mainColor_normal_extralight, 30%);
 			border-radius: .5em;
-			background-color: @defaultBg;
+			background-color: var(--color-primary);
 			padding: .25em;
 			position: relative;
 			&:not(:first-of-type) {
@@ -245,51 +245,66 @@ export default class ParamsList extends Vue implements IParameterContent {
 				top: 0;
 				width: @iconSize + .5em;
 				height: 100%;
-				background: var(--mainColor_light);
 				z-index: 0;
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
+				background-color: var(--color-primary-light);
 			}
 
 			&.disabled {
-				background-color: fade(@mainColor_dark, 15%);
+				background-color: var(--color-primary-fade);
 			}
 			
 
-			@colorSize: @iconSize + 1.5em;
-			&.highlightMods {
-				:deep(label) {
-					padding-left: 1em;
-				}
-				background: linear-gradient(to right, --highlight_mods @colorSize, @defaultBg @colorSize);
-			}
-			&.highlightVips {
-				:deep(label) {
-					padding-left: 1em;
-				}
-				background: linear-gradient(to right, --highlight_vips @colorSize, @defaultBg @colorSize);
-			}
-			&.highlightSubs {
-				:deep(label) {
-					padding-left: 1em;
-				}
-				background: linear-gradient(to right, --highlight_subs @colorSize, @defaultBg @colorSize);
-			}
-			&.highlightPartners {
-				:deep(label) {
-					padding-left: 1em;
-				}
-				background: linear-gradient(to right, --highlight_partners @colorSize, @defaultBg @colorSize);
-			}
-			&.highlightMentions {
-				:deep(label) {
-					padding-left: 1em;
-				}
-				background: linear-gradient(to right, --highlight_mention @colorSize, @defaultBg @colorSize);
-			}
+			// @colorSize: .5em;
+			// &.highlightMods {
+			// 	border: 1px solid var(--highlight-mods);
+			// 	:deep(label) {
+			// 		padding-left: @colorSize;
+			// 	}
+			// 	&::before {
+			// 		border-right: @colorSize solid var(--highlight-mods);
+			// 	}
+			// }
+			// &.highlightVips {
+			// 	border: 1px solid var(--highlight-vips);
+			// 	:deep(label) {
+			// 		padding-left: @colorSize;
+			// 	}
+			// 	&::before {
+			// 		border-right: @colorSize solid var(--highlight-vips);
+			// 	}
+			// }
+			// &.highlightSubs {
+			// 	border: 1px solid var(--highlight-subs);
+			// 	:deep(label) {
+			// 		padding-left: @colorSize;
+			// 	}
+			// 	&::before {
+			// 		border-right: @colorSize solid var(--highlight-subs);
+			// 	}
+			// }
+			// &.highlightPartners {
+			// 	border: 1px solid var(--highlight-partners);
+			// 	:deep(label) {
+			// 		padding-left: @colorSize;
+			// 	}
+			// 	&::before {
+			// 		border-right: @colorSize solid var(--highlight-partners);
+			// 	}
+			// }
+			// &.highlightMentions {
+			// 	border: 1px solid var(--highlight-mention);
+			// 	:deep(label) {
+			// 		padding-left: @colorSize;
+			// 	}
+			// 	&::before {
+			// 		border-right: @colorSize solid var(--highlight-mention);
+			// 	}
+			// }
 
 			.chatMessage {
-				background-color: var(--mainColor_dark);
+				background-color: var(--color-dark);
 				padding: 1em;
 				border-radius: .5em;
 				transition: font-size .25s;
@@ -355,6 +370,10 @@ export default class ParamsList extends Vue implements IParameterContent {
 			&.pronouns, &.spoiler, &.greetThem {
 				.label {
 					font-size: .8em;
+				}
+				a {
+					color: var(--color-light);
+					font-weight: bold;
 				}
 			}
 	

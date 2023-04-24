@@ -3,7 +3,7 @@
 		<div class="form">
 			<label :for="key">{{title}}</label>
 			<div class="inputHolder">
-				<img :src="$image('loader/loader_dark.svg')" alt="loading" class="loader" v-if="loading">
+				<img :src="$image('loader/loader.svg')" alt="loading" class="loader" v-if="loading">
 				<input :id="key" type="text"
 					@keyup="onSearchChange()" @focus="onFocus()"
 					v-model="search"
@@ -191,12 +191,8 @@ export default class AutoCompleteForm extends Vue {
 		max-height: 112px;
 		overflow: auto;
 		border-radius: .5em;
-		margin-bottom: .25em;
-		// &.selected {
-		// 	text-align: center;
-		// }
 		&:not(.selected) {
-			background-color: fade(@mainColor_normal, 15%);
+			background-color: rgba(0, 0, 0, .3);
 		}
 		&.selected {
 			padding-left: 0;

@@ -452,6 +452,7 @@ export default class EmoteSelector extends Vue {
 				cursor: pointer;
 				border: 1px solid transparent;
 				border-radius: 5px;
+				object-fit: contain;
 				&:hover {
 					border-color: var(--color-secondary);
 				}

@@ -1,5 +1,5 @@
 <template>
-	<div class="gngngn">
+	<div class="gngngn modal">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
@@ -57,7 +57,6 @@ export default class Gngngn extends Vue {
 <style scoped lang="less">
 .gngngn{
 	z-index: 2;
-	.modal();
 
 	.holder {
 		// max-height: 625px;

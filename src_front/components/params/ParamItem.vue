@@ -54,22 +54,42 @@
 					class="helpIcon"
 				>
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
-				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
-					v-model="textValue"
-					rows="3"
-					:id="'text'+key"
-					:name="paramData.fieldName"
-					:placeholder="placeholder"
-					v-autofocus="autofocus"></textarea>
-				<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
-					v-model="textValue"
-					v-autofocus="autofocus"
-					:name="paramData.fieldName"
-					:id="'text'+key"
-					:type="paramData.type"
-					:placeholder="placeholder"
-					:maxlength="paramData.maxLength? paramData.maxLength : 524288"
-					autocomplete="new-password">
+				<div class="inputHolder">
+					<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
+						v-model="textValue"
+						rows="3"
+						:id="'text'+key"
+						:name="paramData.fieldName"
+						:placeholder="placeholder"
+						v-autofocus="autofocus"></textarea>
+					<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
+						v-model="textValue"
+						v-autofocus="autofocus"
+						:name="paramData.fieldName"
+						:id="'text'+key"
+						:type="paramData.type"
+						:placeholder="placeholder"
+						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
+						autocomplete="new-password">
+					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
+				</div>
+			</div>
+			
+			<div v-if="paramData.type == 'color'" class="holder color">
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help.svg"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					class="helpIcon"
+				>
+				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<div class="inputHolder input-field" :style="{backgroundColor: paramData.value as string }">
+					<input ref="input" v-if="!paramData.noInput"
+						v-model="textValue"
+						v-autofocus="autofocus"
+						:name="paramData.fieldName"
+						:id="'text'+key"
+						type="color">
+				</div>
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -79,13 +99,7 @@
 					class="helpIcon"
 				>
 				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
-				<input v-if="!paramData.noInput" ref="input" type="range"
-					:min="paramData.min"
-					:max="paramData.max"
-					:step="paramData.step"
-					:id="'slider'+key"
-					v-model.number="paramData.value"
-					v-autofocus="autofocus">
+				<Slider :min="paramData.min" :max="paramData.max" v-model="paramData.value" :secondary="secondary" :alert="alert" />
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
@@ -195,11 +209,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
+import Slider from '../Slider.vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
 	components:{
 		Button,
+		Slider,
 		ToggleButton,
 		PlaceholderSelector,
 	},
@@ -414,7 +430,7 @@ export default class ParamItem extends Vue {
 		}
 
 		if(this.paramData.save === true) {
-			this.$store("params").updateParams()
+			this.$store("params").updateParams();
 		}
 		this.$emit("update:modelValue", this.paramData.value);
 		this.$emit("change");
@@ -555,31 +571,11 @@ export default class ParamItem extends Vue {
 	}
 	
 	&.error {
-		background-color: var(--color-alert);
+		background-color: var(--color-alert-fade);
 		padding: .5em;
 		border-radius: var(--border-radius);
-
-		input, select, textarea, .listField{
-			color:var(--mainColor_light);
-			background-color: fade(@mainColor_alert, 50%);
-			border-color: var(--mainColor_alert);
-			&::placeholder {
-				color:fade(@mainColor_light, 50%);
-			}
-		}
 	}
 
-	&.clear {
-		textarea {
-			color: var(--mainColor_light);
-			border-color: var(--mainColor_light);
-			background: fade(@mainColor_light, 20%);
-			&::-webkit-scrollbar-thumb {
-				background-color: var(--mainColor_light);
-			}
-		}
-	}
-	
 	&.longText {
 		.content {
 			.text {
@@ -587,7 +583,10 @@ export default class ParamItem extends Vue {
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				textarea {
+				.inputHolder {
+					width: 100%;
+				}
+				label {
 					flex-basis: unset;
 				}
 			}
@@ -652,7 +651,7 @@ export default class ParamItem extends Vue {
 			align-self: flex-start;
 		}
 		
-		.toggle, .number, .text, .list, .browse{
+		.toggle, .number, .text, .list, .browse, .color{
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
@@ -669,6 +668,21 @@ export default class ParamItem extends Vue {
 				label {
 					margin-top: .3em;
 				}
+				&:has(.inputHolder) {
+					input {
+						padding-right: 3em;
+					}
+				}
+				.inputHolder {
+					position: relative;
+					.maxlength {
+						font-size: .7em;
+						position: absolute;
+						right: .5em;
+						bottom: .5em;
+						transform: unset;
+					}
+				}
 			}
 		}
 
@@ -683,23 +697,56 @@ export default class ParamItem extends Vue {
 		.slider {
 			flex-grow: 1;
 			display: flex;
+			align-items: flex-start;
 			flex-direction: column;
 			input {
 				flex-basis: unset;
+				-webkit-appearance: none;
+				width: 100%;
+				height: 1em;
+				background: transparent;
+  				background: linear-gradient(90deg, var(--color-dark-light) 50%, var(--color-dark-fader) 50%);
+				&::-webkit-slider-thumb {
+					.emboss();
+					-webkit-appearance: none;
+					appearance: none;
+					width: 1em;
+					height: 1em;
+					border-radius: 50%;
+					background: var(--color-primary);
+					cursor: pointer;
+				}
+				&::-moz-range-thumb {
+					width: 1em;
+					height: 1em;
+					background: #04AA6D;
+					cursor: pointer;
+				}
 			}
-			&:not(.text)>label {
-				text-align: center;
+		}
+
+		.color {
+			.inputHolder {
+				flex-basis: 50px;
+				background-color: white;
+				height: 1.25em;
+				cursor: pointer;
+				position: relative;
+				input {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					opacity: 0;
+					height: 100%;
+					cursor: pointer;
+				}
 			}
 		}
 
 		input {
 			width: 100%;
-		}
-
-		textarea {
-			resize: vertical;
-			margin-top: .25em;
-			flex-grow: 1;
 		}
 
 		.browse {
@@ -714,10 +761,6 @@ export default class ParamItem extends Vue {
 			}
 		}
 
-		// select {
-		// 	max-width: 250px;
-		// }
-
 		input, select, textarea, .listField {
 			transition: background-color .25s;
 			flex-basis: 300px;
@@ -726,6 +769,10 @@ export default class ParamItem extends Vue {
 		}
 
 		.list {
+
+			label {
+				flex-basis: unset;
+			}
 
 			.listField {
 				:deep(.vs__dropdown-toggle) {
@@ -753,6 +800,11 @@ export default class ParamItem extends Vue {
 					flex-basis: unset;
 				}
 			}
+		}
+
+		textarea {
+			resize: vertical;
+			min-height: 2em;
 		}
 
 	}

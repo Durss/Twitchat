@@ -1,11 +1,13 @@
 <template>
-	<div class="parameters" v-if="content != contentClose">
+	<div class="parameters modal" v-if="content != contentClose">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<div class="head">
-				<Button :aria-label="$t('params.backBt_aria')" icon="back" @click="back()" class="backBt clearButton" bounce v-if="content != contentMain" />
+				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
+					<img src="@/assets/icons/back.svg" alt="back">
+				</button>
 				<h1 class="title">{{$t('params.categories.'+content)}}</h1>
-				<Button :aria-label="$t('params.closeBt_aria')" icon="cross" @click="close()" class="clearButton" bounce />
+				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 			</div>
 
 			<div class="search" v-if="content == contentMain">
@@ -16,26 +18,26 @@
 				<div ref="adNoDonor"></div>
 
 				<div class="buttonList" v-if="content != contentAd">
-					<Button bounce white icon="params"		:title="$t('params.categories.features')"		@click="openPage(contentFeatures)" />
-					<Button bounce white icon="show"		:title="$t('params.categories.appearance')"		@click="openPage(contentAppearance)" />
-					<Button bounce white icon="emergency"	:title="$t('params.categories.emergency')"		@click="openPage(contentEmergency)" />
-					<Button bounce white icon="mod"			:title="$t('params.categories.automod')"		@click="openPage(contentAutomod)" />
-					<Button bounce white icon="broadcast"	:title="$t('params.categories.triggers')"		@click="openPage(contentTriggers)" />
-					<Button bounce white icon="count"		:title="$t('params.categories.counters')"		@click="openPage(contentCounters)" />
-					<Button bounce white icon="overlay"		:title="$t('params.categories.overlays')"		@click="openPage(contentOverlays)" />
-					<Button bounce white icon="tts"			:title="$t('params.categories.tts')"			@click="openPage(contentTts)" />
-					<Button bounce white icon="voice"		:title="$t('params.categories.voice')"			@click="openPage(contentVoice)" />
-					<Button bounce white icon="obs"			:title="$t('params.categories.obs')"			@click="openPage(contentObs)" />
-					<Button bounce white icon="voicemod"	:title="$t('params.categories.voicemod')"		@click="openPage(contentVoicemod)" />
-					<Button bounce white icon="elgato"		:title="$t('params.categories.streamdeck')"		@click="openPage(contentStreamdeck)" />
-					<Button bounce white icon="offline"		:title="$t('params.categories.connexions')"		@click="openPage(contentConnexions)" />
-					<Button bounce white icon="user"		:title="$t('params.categories.account')"		@click="openPage(contentAccount)" />
-					<Button bounce white icon="info"		:title="$t('params.categories.about')"			@click="openPage(contentAbout)" />
+					<Button icon="params"		@click="openPage(contentFeatures)">{{$t('params.categories.features')}}</Button>
+					<Button icon="show"			@click="openPage(contentAppearance)">{{$t('params.categories.appearance')}}</Button>
+					<Button icon="emergency"	@click="openPage(contentEmergency)">{{$t('params.categories.emergency')}}</Button>
+					<Button icon="mod"			@click="openPage(contentAutomod)">{{$t('params.categories.automod')}}</Button>
+					<Button icon="broadcast"	@click="openPage(contentTriggers)">{{$t('params.categories.triggers')}}</Button>
+					<Button icon="count"		@click="openPage(contentCounters)">{{$t('params.categories.counters')}}</Button>
+					<Button icon="overlay"		@click="openPage(contentOverlays)">{{$t('params.categories.overlays')}}</Button>
+					<Button icon="tts"			@click="openPage(contentTts)">{{$t('params.categories.tts')}}</Button>
+					<Button icon="voice"		@click="openPage(contentVoice)">{{$t('params.categories.voice')}}</Button>
+					<Button icon="obs"			@click="openPage(contentObs)">{{$t('params.categories.obs')}}</Button>
+					<Button icon="voicemod"		@click="openPage(contentVoicemod)">{{$t('params.categories.voicemod')}}</Button>
+					<Button icon="elgato"		@click="openPage(contentStreamdeck)">{{$t('params.categories.streamdeck')}}</Button>
+					<Button icon="offline"		@click="openPage(contentConnexions)">{{$t('params.categories.connexions')}}</Button>
+					<Button icon="user"			@click="openPage(contentAccount)">{{$t('params.categories.account')}}</Button>
+					<Button icon="info"			@click="openPage(contentAbout)">{{$t('params.categories.about')}}</Button>
 				</div>
 
 				<div ref="adDonor"></div>
 
-				<div class="version" v-if="content != contentAd">v {{appVersion}}</div>
+				<mark class="version" v-if="content != contentAd">v {{appVersion}}</mark>
 			</div>
 			
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
@@ -95,6 +97,7 @@ import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import ParamsConnexions from './contents/ParamsConnexions.vue';
 import type IParameterContent from './contents/IParameterContent';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
@@ -102,6 +105,7 @@ import type IParameterContent from './contents/IParameterContent';
 		ParamsOBS,
 		ParamsTTS,
 		ParamsList,
+		CloseButton,
 		ParamsAbout,
 		ParamsAlert,
 		ParamsAutomod,
@@ -235,6 +239,7 @@ export default class Parameters extends Vue {
 
 	public back():void {
 		const content = this.$refs.currentContent as IParameterContent;
+		this.$store("params").currentParamSearch = "";
 		
 		//Check if current content wants to override the navigation
 		if(content && content.onNavigateBack() === true) return;
@@ -285,92 +290,116 @@ export default class Parameters extends Vue {
 <style scoped lang="less">
 .parameters{
 	z-index: 3;
-	.modal();
-
-	.dimmer {
-		opacity: 0;
-	}
-	
 	.holder {
-		right: 0;
 		left: auto;
-		transform: translateX(100%);
+		top: 0;
+		right: 0;
+		transform: translate(100%, 0);
 		z-index: 1;
 		max-width: 900px;
+		padding: 0;
 
 		.head {
-			border-bottom: 1px solid var(--mainColor_normal);
-			padding-bottom: .5em;
-			&:has(.backBt) {
-				.title {
-					padding-left: 0;
+			padding: 1em 3em;
+			border-bottom: 1px solid var(--color-dark-extralight);
+
+			.backBt {
+				position: absolute;
+				top: 0;
+				left: 0;
+				padding: 1em;
+				img {
+					height: 1em;
+					transition: transform .15s;
+				}
+				&:hover {
+					img {
+						transform: scale(1.2);
+					}
 				}
 			}
 		}
 
-		.menu {
-			max-width: 840px;
-			margin: auto;
-			.buttonList {
-				padding: 1em;
+		.content {
+			//This avoids black space over sticky items inside the content
+			// padding: 30px;
+			padding: 0 1em;
+			&:not(.menu) {
+				max-width: 600px;
+				margin: auto;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background-color: var(--color-dark-extralight);
+			}
+			
+			&.menu {
+				margin: auto;
 				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				justify-content: center;
-				&>.button {
-					box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-					flex-direction: column;
-					width: 180px;
-					margin: 1px;
-					padding: 1em .25em;
-					justify-content: flex-start;
-					:deep(.icon) {
-						height: 3em;
-						width: 3em;
-						max-height: unset;
-						max-width: unset;
-						margin: 0 0 .5em 0;
-						object-fit: fill;
-						object-position: center center;
-					}
-					:deep(.label) {
-						white-space: normal;
-					}
-	
-					&.beta1, &.beta2 {
-						&::before {
-							content: "beta";
-							position: absolute;
-							top: 10px;
-							right: -50px;
-							background-color: var(--mainColor_normal);
-							color: var(--mainColor_light);
-							padding: 5px 50px;
-							border-radius: 10px;
-							text-transform: uppercase;
-							font-size: 18px;
-							transform: rotate(45deg);
+				flex-direction: column;
+				gap: 1em;
+				.buttonList {
+					display: flex;
+					flex-direction: row;
+					flex-wrap: wrap;
+					justify-content: center;
+					gap: 10px;
+					&>.button {
+						width: 180px;
+						flex-direction: column;
+						justify-content: flex-start;
+						border-radius: var(--border-radius);
+						// :deep(.background) {
+						// 	background-color: var(--color-dark-extralight);
+						// }
+						:deep(.icon) {
+							height: 3em;
+							width: 3em;
+							max-height: unset;
+							max-width: unset;
+							margin: 0 0 .5em 0;
+							object-fit: fill;
+							object-position: center center;
 						}
-						&.beta2 {
+						:deep(.label) {
+							white-space: normal;
+						}
+		
+						&.beta1, &.beta2 {
 							&::before {
-								background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
+								content: "beta";
+								position: absolute;
+								top: 10px;
+								right: -50px;
+								background-color: var(--mainColor_normal);
+								color: var(--mainColor_light);
+								padding: 5px 50px;
+								border-radius: 10px;
+								text-transform: uppercase;
+								font-size: 18px;
+								transform: rotate(45deg);
+							}
+							&.beta2 {
+								&::before {
+									background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
+								}
 							}
 						}
 					}
 				}
-			}
-
-			.version {
-				font-style: italic;
-				text-align: center;
-				font-size: .8em;
-				margin-top: 1em;
+	
+				.version {
+					display: block;
+					margin: 0 auto;
+					padding: .5em;
+					font-style: italic;
+					font-size: .8em;
+				}
 			}
 		}
 
 		.search{
 			margin:auto;
-			margin-top: 1em;
 			z-index: 1;
 			input {
 				text-align: center;
@@ -379,22 +408,7 @@ export default class Parameters extends Vue {
 
 		.searchResult {
 			.noResult {
-				text-align: center;
 				font-style: italic;
-			}
-		}
-
-		.content {
-			//This avoids black space over sticky items inside the content
-			padding: 30px;
-			&:not(.menu) {
-				width: 100%;
-				max-width: 600px;
-				margin: auto;
-			}
-
-			&::-webkit-scrollbar-thumb {
-				background-color: var(--mainColor_normal_extralight);
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-input, textarea, select {
+input, textarea, select, .input-field {
 	.bevel();
 	border: none;
 	font-size: 1em;
@@ -122,35 +122,66 @@ label {
 }
 
 .vs__dropdown-toggle {
+	.bevel();
 	box-sizing: border-box !important;
 	border-radius: --border-radius !important;
-	border: 1px solid var(--mainColor_light) !important;
-	border-top: 1px solid var(--mainColor_normal) !important;
-	border-left: 1px solid var(--mainColor_normal) !important;
-	background-color: fade(@mainColor_normal, 20%) !important;
+	background-color: var(--color-primary) !important;
 
 	.vs__deselect {
 		svg {
-			fill: var(--mainColor_normal);
+			fill: var(--color-primary);
 		}
 	}
 	
 	.vs__selected {
-		color: darken(@mainColor_normal, 10%) !important;
+		color: var(--color-primary);
 		font-size: 1em !important;
+		word-break: break-word;
 	}
 	.vs__search {
-		color: darken(@mainColor_normal, 10%) !important;
 		font-size: 1em !important;
 		&::placeholder {
 			font-style: italic;
-			color: fade(@mainColor_dark, 50%);
+			color: var(--color-primary-dark);
 		}
 	}
-	.vs__selected {
-		word-break: break-word;
-	}
+}
+.vs__open-indicator, .vs__clear {
+	fill: var(--color-light)
+}
+.vs--single .vs__selected {
+	color: var(--color-light) !important;
 }
 .vs__dropdown-menu {
 	border-top: 1px solid rgba(0, 0, 0, .2);
+}
+
+.vs__dropdown-option {
+	&.vs__dropdown-option--highlight {
+		background-color: var(--color-primary);
+		.listIcon {
+			filter: brightness(10);
+		}
+	}
+	&>.category {
+		font-weight: bold;
+		font-size: 1.2em;
+		color:var(--color-primary);
+	}
+	&>.subItem {
+		padding-left: 1em;
+	}
+	.listIcon {
+		height: 1.5em;
+		max-width: 1.5em;
+		padding: .25em;
+		margin-right: .25em;
+		vertical-align: middle;
+		border-radius: .25em;
+	}
+	.labelSmall {
+		font-size: .8em;
+		font-style: italic;
+		margin-left: .5em;
+	}
 }

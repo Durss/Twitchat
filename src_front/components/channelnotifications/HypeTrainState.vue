@@ -42,6 +42,7 @@
 
 		<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"
 			class="progressBar"
+			secondary
 			:duration="timerDuration"
 			:percent="timerPercent"
 			:boostMode="boostMode"
@@ -145,7 +146,7 @@ export default class HypeTrainState extends Vue {
 	}
 
 	public get classes():string[] {
-		const res = ["hypetrainstate"];
+		const res = ["hypetrainstate", "gameStateWindow"];
 		if(this.boostMode) res.push("boost");
 		return res;
 	}
@@ -289,18 +290,12 @@ export default class HypeTrainState extends Vue {
 		background-color: @c !important;
 	}
 
-	.progressBar {
-		margin: 10px 0;
-		color: var(--windowStateColor);
-	}
-
 	.content {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
-		color: var(--mainColor_light);
 
 		h1 {
 			text-align: center;
@@ -315,12 +310,7 @@ export default class HypeTrainState extends Vue {
 			margin-right: 10px;
 		}
 
-		.duration {
-			// font-size: .8em;
-			margin-left: 15px;
-		}
-
-		:deep(.percent) {
+		.percent {
 			font-family: var(--font-azeret);
 			font-size: .7em;
 			vertical-align: middle;
@@ -342,7 +332,7 @@ export default class HypeTrainState extends Vue {
 				align-items: center;
 				flex-direction: column;
 				gap:.25em;
-				background-color: var(--mainColor_light);
+				background-color: var(--color-secondary);
 				border-radius: @border_radius;
 				padding: .5em;
 				min-width: 6em;
@@ -376,6 +366,7 @@ export default class HypeTrainState extends Vue {
 				}
 				.userlink {
 					font-size: .9em;
+					color: var(--color-light);
 				}
 				.label {
 					color: var(--mainColor_normal);

@@ -9,7 +9,7 @@
 			<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
 				<div class="list">
 					<div v-for="p in presets" :key="p.id" class="preset">
-						<Button class="button" @click="deletePreset(p)"
+						<Button class="button delete" @click="deletePreset(p)"
 							icon="trash"
 							v-tooltip="$t('stream.preset_deleteBt_tt')" />
 							
@@ -30,11 +30,11 @@
 			:open="presets.length == 0 || forceOpenForm" icon="update">
 				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
 				
-				<ParamItem class="item" :paramData="param_savePreset" v-if="!presetEditing" />
+				<ParamItem class="card-item primary save" :paramData="param_savePreset" v-if="!presetEditing" />
 				
 				<div class="actions">
-					<Button :title="$t('global.cancel')" class="submitBt" @click="cancelPresetEdit()" :loading="saving" highlight v-if="presetEditing" />
-					<Button :title="$t('global.submit')" class="submitBt" @click="updateStreamInfo()" :loading="saving" />
+					<Button class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</Button>
+					<Button class="submitBt" @click="updateStreamInfo()" :loading="saving">{{$t('global.submit')}}</Button>
 				</div>
 			</ToggleBlock>
 		</div>
@@ -233,13 +233,6 @@ export default class StreamInfoForm extends AbstractSidePanel {
 
 <style scoped lang="less">
 .streaminfo{
-	.item {
-		margin-top: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
-		border-radius: .5em;
-	}
-
 	.presets {
 		width: 100%;
 		.list{
@@ -255,9 +248,11 @@ export default class StreamInfoForm extends AbstractSidePanel {
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
 				margin-right: 1px;
+				width: 1.75em;
 				transform-origin: right center;
 			}
 			.button:nth-child(2) {
+				width: 1.75em;
 				border-radius: 0;
 				margin-right: 1px;
 			}
@@ -310,14 +305,10 @@ export default class StreamInfoForm extends AbstractSidePanel {
 
 	.actions {
 		display: flex;
+		gap: 1em;
 		flex-direction: row;
-		margin-top: 1em;
 		justify-content: center;
-		.button {
-			&:not(:last-child) {
-				margin-right: .5em;
-			}
-		}
+		margin-top: 1em;
 	}
 
 	.itemSelector {
@@ -349,6 +340,10 @@ export default class StreamInfoForm extends AbstractSidePanel {
 				// color: var(--mainColor_light);
 			}
 		}
+	}
+
+	.save {
+		margin-top: 1em;
 	}
 }
 </style>

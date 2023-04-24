@@ -1,5 +1,5 @@
 <template>
-	<div class="raidstate">
+	<div class="raidstate gameStateWindow">
 		<img v-if="user && user.avatarPath" :src="user.avatarPath" alt="avatar" class="avatar">
 		<div>
 			<i18n-t scope="global" tag="span" keypath="raid.raiding">
@@ -9,7 +9,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="alert">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
+		<div class="infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
 
 		<ToggleBlock class="bannedAlert" v-if="bannedOnline.length > 0 || timedoutOnline.length > 0"
 		medium :open="false"
@@ -36,17 +36,12 @@
 			<div class="ctas">
 				<Button type="button"
 					icon="copy_alert"
-					bounce white
-					:title="$t('raid.copy_logins')"
-					@click="copybannedUsers()" />
+					@click="copybannedUsers()">{{ $t('raid.copy_logins') }}</Button>
 			</div>
 		</ToggleBlock>
 
-		<Button class="cancelBt" type="button"
-			icon="cross"
-			bounce highlight
-			:title="$t('global.cancel')"
-			@click="cancelRaid()" />
+		<Button icon="cross" alert
+			@click="cancelRaid()">{{ $t('global.cancel') }}</Button>
 
 	</div>
 </template>
@@ -164,14 +159,10 @@ export default class RaidState extends Vue {
 
 <style scoped lang="less">
 .raidstate{
-	color: var(--mainColor_light);
-	text-align: center;
-
 	.avatar {
 		width: 3em;
 		border-radius: 50%;
 		margin: auto;
-		margin-bottom: .25em;
 		border: 2px solid var(--mainColor_light);
 	}
 	
@@ -186,17 +177,11 @@ export default class RaidState extends Vue {
 		font-family: var(--font-azeret);
 	}
 
-	.cancelBt {
-		margin-top: 10px;
-	}
-
 	.startBt {
-		margin-top: 10px;
 		pointer-events: none;
 	}
 
-	.alert {
-		margin-top: 10px;
+	.infos {
 		font-size: .7em;
 		padding: .55em;
 		background-color: fade(@mainColor_alert, 50%);
@@ -206,7 +191,6 @@ export default class RaidState extends Vue {
 	.bannedAlert {
 		display: flex;
 		flex-direction: column;
-		margin-top: 1em;
 		font-size: .8em;
 		text-align: left;
 		.icon {

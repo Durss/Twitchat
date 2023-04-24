@@ -9,14 +9,13 @@
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
 			<form @submit.prevent="submitForm()">
-				<div class="row">
-					<label for="poll_title">{{ $t("poll.form.question") }}</label>
-					<div class="field">
-						<input type="text" id="poll_title" v-model="title" maxlength="60" v-autofocus="title == ''" tabindex="1" @change="onValueChange()">
-						<div class="len">{{title.length}}/60</div>
-					</div>
+				<div class="card-item primary">
+					<ParamItem :paramData="param_title"
+						v-model="title"
+						v-autofocus="title == ''"
+						@change="onValueChange()" />
 				</div>
-				<div class="row">
+				<div class="card-item primary answers">
 					<label for="poll_answer">{{ $t("poll.form.answers") }}</label>
 
 					<div class="field" v-for="(a, index) in answers.length" :key="index">
@@ -24,14 +23,14 @@
 						<div class="len">{{answers[index].length}}/25</div>
 					</div>
 				</div>
-				<div class="row">
-					<ParamItem :paramData="extraVotesParam" @change="onValueChange()" />
+				<div class="card-item primary">
+					<ParamItem :paramData="pram_extraVotes" @change="onValueChange()" />
 				</div>
-				<div class="row shrink" v-if="extraVotesParam.value === true">
-					<ParamItem :paramData="pointsVoteParam" @change="onValueChange()" />
+				<div class="card-item primary shrink" v-if="pram_extraVotes.value === true">
+					<ParamItem :paramData="param_points" @change="onValueChange()" />
 				</div>
-				<div class="row shrink">
-					<ParamItem :paramData="voteDuration" @change="onValueChange()" />
+				<div class="card-item primary shrink">
+					<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				</div>
 				
 				<Button type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2">{{ $t('global.submit') }}</Button>
@@ -80,9 +79,10 @@ export default class PollForm extends AbstractSidePanel {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["","","","",""];
-	public extraVotesParam:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean"};;
-	public pointsVoteParam:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:99999, step:1};;
-	public voteDuration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30};;
+	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:60, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
+	public pram_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean"};
+	public param_points:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:99999, step:1};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30};
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -93,9 +93,9 @@ export default class PollForm extends AbstractSidePanel {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.extraVotesParam.labelKey	= "poll.form.additional_votes";
-		this.pointsVoteParam.labelKey	= 'poll.form.additional_votes_amount';
-		this.voteDuration.labelKey		= 'poll.form.vote_duration';
+		this.pram_extraVotes.labelKey	= "poll.form.additional_votes";
+		this.param_points.labelKey	= 'poll.form.additional_votes_amount';
+		this.param_duration.labelKey		= 'poll.form.vote_duration';
 
 		if(this.$store("main").tempStoreValue) {
 			const titlePrefill = this.$store("main").tempStoreValue as string;
@@ -112,9 +112,9 @@ export default class PollForm extends AbstractSidePanel {
 		});
 
 		if(this.triggerMode && this.action.pollData) {
-			this.extraVotesParam.value = this.action.pollData.pointsPerVote > 0;
-			this.pointsVoteParam.value = this.action.pollData.pointsPerVote ?? 1;
-			this.voteDuration.value = this.action.pollData.voteDuration;
+			this.pram_extraVotes.value = this.action.pollData.pointsPerVote > 0;
+			this.param_points.value = this.action.pollData.pointsPerVote ?? 1;
+			this.param_duration.value = this.action.pollData.voteDuration;
 			this.title = this.action.pollData.title;
 			for (let i = 0; i < this.action.pollData.answers.length; i++) {
 				this.answers[i] = this.action.pollData.answers[i];
@@ -142,8 +142,8 @@ export default class PollForm extends AbstractSidePanel {
 			await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
 									this.title,
 									this.answers.filter(v=> v.trim().length > 0),
-									this.voteDuration.value * 60,
-									this.pointsVoteParam.value);
+									this.param_duration.value * 60,
+									this.param_points.value);
 		}catch(error:unknown) {
 			this.loading = false;
 			let message = (error as {message:string}).message;
@@ -168,8 +168,8 @@ export default class PollForm extends AbstractSidePanel {
 			this.action.pollData = {
 				title:this.title,
 				answers:this.answers.filter(v=> v.length > 0),
-				pointsPerVote:this.pointsVoteParam.value,
-				voteDuration:this.voteDuration.value,
+				pointsPerVote:this.param_points.value,
+				voteDuration:this.param_duration.value,
 			};
 		}
 	}
@@ -178,7 +178,7 @@ export default class PollForm extends AbstractSidePanel {
 
 <style scoped lang="less">
 .pollform{
-	.content > form > .row {
+	.content > form > .card-item {
 		.field {
 			flex-grow: 1;
 			position: relative;
@@ -192,6 +192,12 @@ export default class PollForm extends AbstractSidePanel {
 				right: .5em;
 				top: 50%;
 				transform: translateY(-50%);
+			}
+		}
+		&.answers{
+			label {
+				display: block;
+				margin-bottom: .5em;
 			}
 		}
 	}

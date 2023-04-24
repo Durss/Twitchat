@@ -54,24 +54,15 @@
 			gap: 1em;
 		}
 
-		.row {
-			display: flex;
-			flex-direction: column;
-			padding: .5em;
-			gap: .5em;
-			border-radius: .5em;
-			
-			.paramitem {
-				input {
-					flex-basis: 200px;
-					text-align: center;
-				}
+		.paramitem {
+			input:not(.vs__search) {
+				flex-basis: 200px;
 			}
-			
-			&.shrink {
-				input {
-					flex-basis: 80px;
-				}
+		}
+		
+		.shrink {
+			input {
+				flex-basis: 80px !important;
 			}
 		}
 

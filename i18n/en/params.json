@@ -39,6 +39,7 @@
 		"highlightMentions": "Highlight messages mentioning me",
 		"highlightNonFollowers": "Indicate non-followers",
 		"highlight1stToday": "Highlight user's 1st message of the day",
+		"highlightColor": "Highlight color",
 		"translateNames": "Translate user names",
 		"showRewardsInfos": "Show reward's details",
 		"showViewersCount": "Show viewers count",
