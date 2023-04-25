@@ -40,7 +40,7 @@
 						</i18n-t>
 					</div>
 				</div>
-				<ParamItem class="card-item primary shrink" :paramData="enterDuration" @change="onValueChange()" />
+				<ParamItem class="card-item primary" :paramData="enterDuration" @change="onValueChange()" />
 				<ParamItem class="card-item primary" :paramData="maxUsersToggle" @change="onValueChange()" />
 				<ParamItem class="card-item primary" :paramData="ponderateVotes" @change="onValueChange()" />
 

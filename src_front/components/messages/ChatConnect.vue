@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark' : 'cross_alert')+'.svg')" alt="notice" class="icon">
+		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark' : 'cross')+'.svg')" alt="notice" class="icon">
 		
 		<i18n-t scope="global" tag="span" v-if="messageData.type == 'connect'" keypath="chat.connect.on">
 			<template #PLATFORM><strong>{{messageData.platform}}</strong></template>
@@ -59,10 +59,9 @@ export default class ChatConnect extends AbstractChatMessage {
 	.chatMessage();
 	
 	font-style: italic;
-	opacity: .7;
 
 	&.disconnect {
-		color: var(--mainColor_alert_light);
+		color: var(--color-alert);
 	}
 	
 }

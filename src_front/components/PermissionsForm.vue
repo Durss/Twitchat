@@ -1,5 +1,5 @@
 <template>
-	<div class="obspermissions">
+	<div class="permissionsform">
 		<ParamItem :paramData="param_broadcaster" class="row" v-model="modelValue.broadcaster" @change="$emit('update:modelValue', modelValue)" />
 		<ParamItem :paramData="param_mods" class="row" v-model="modelValue.mods" @change="$emit('update:modelValue', modelValue)" />
 		<ParamItem :paramData="param_vips" class="row" v-model="modelValue.vips" @change="$emit('update:modelValue', modelValue)" />
@@ -79,7 +79,7 @@ export default class PermissionsForm extends Vue {
 </script>
 
 <style scoped lang="less">
-.obspermissions{
+.permissionsform{
 	margin: auto;
 	max-width: 450px;
 	display: flex;

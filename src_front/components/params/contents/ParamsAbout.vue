@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsabout">
 
-		<ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin']" :open="false" secondary>
 			<ParamsSponsor />
 		</ToggleBlock>
 

@@ -22,11 +22,11 @@
 				</div>
 			
 
-				<div class="card-item primary shrink">
+				<div class="card-item primary">
 					<ParamItem :paramData="maxLength" />
 				</div>
 
-				<div class="card-item primary shrink">
+				<div class="card-item primary">
 					<ParamItem :paramData="duration" />
 				</div>
 

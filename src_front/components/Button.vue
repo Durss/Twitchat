@@ -171,6 +171,7 @@ export default class Button extends Vue {
 		left: 0;
 		width: 100%;
 		height: 100%;
+		z-index: -1;
 		background: transparent;
 	}
 

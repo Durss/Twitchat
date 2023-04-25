@@ -40,7 +40,7 @@
 					</div>
 				</div>
 
-				<div class="card-item primary shrink">
+				<div class="card-item primary">
 					<ParamItem :paramData="voteDuration" @change="onValueChange()" />
 				</div>
 				

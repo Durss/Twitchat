@@ -231,6 +231,8 @@ export default class TriggerCreateForm extends Vue {
 	 * Get if a trigger entry should be disabled
 	 */
 	public disabledEntry(e:TriggerTypeDefinition):boolean {
+		if(e.disabled === true) return true;
+		
 		if(e.value == TriggerTypes.REWARD_REDEEM && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))) return true;
 		if(e.value == TriggerTypes.POLL_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]))) return true;
 		if(e.value == TriggerTypes.PREDICTION_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]))) return true;

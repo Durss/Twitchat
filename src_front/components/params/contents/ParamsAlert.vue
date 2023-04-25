@@ -4,32 +4,32 @@
 		
 		<div class="header">{{ $t("alert.header") }}</div>
 
-		<section>
-			<Splitter class="item splitter">{{$t('alert.command_title') }}</Splitter>
+		<Splitter class="splitter">{{$t('alert.command_title') }}</Splitter>
+		<section class="card-item primary">
 			
 			<div>
-				<ParamItem class="item" :paramData="param_chatCommand" />
-				<ToggleBlock :title="$t('global.allowed_users')" :open="false" small class="item">
+				<ParamItem :paramData="param_chatCommand" />
+				<ToggleBlock :title="$t('global.allowed_users')" :open="false" small>
 					<PermissionsForm v-model="chatCommandPerms" />
 				</ToggleBlock>
 			</div>
 		</section>
 
-		<section>
-			<Splitter class="item splitter">{{ $t('alert.actions') }}</Splitter>
+		<Splitter class="splitter">{{ $t('alert.actions') }}</Splitter>
+		<section class="card-item primary">
 	
-			<ParamItem class="item" :paramData="param_message" />
-			<ParamItem class="item" :paramData="param_shake" />
-			<ParamItem class="item" :paramData="param_sound" />
-			<ParamItem class="item" :paramData="param_blink" />
+			<ParamItem :paramData="param_message" />
+			<ParamItem :paramData="param_shake" />
+			<ParamItem :paramData="param_sound" />
+			<ParamItem :paramData="param_blink" />
 	
-			<i18n-t scope="global" tag="div" class="item infos" keypath="alert.actions_triggers">
+			<i18n-t scope="global" tag="div" class="infos" keypath="alert.actions_triggers">
 				<template #LINK>
 					<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("alert.actions_triggers_link") }}</a>
 				</template>
 			</i18n-t>
 	
-			<Button :title="$t('alert.testBt')" icon="test" class="item testBt" @click="testAlert()" />
+			<Button class="testBt" icon="test" secondary @click="testAlert()">{{ $t('alert.testBt') }}</Button>
 		</section>
 	</div>
 </template>
@@ -133,51 +133,32 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsalert{
+	gap: 1em;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	padding-top: 0;
-	
-	section {
-		border-radius: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
-		margin-top: 2em;
-		.splitter {
-			margin: .25em 0 1em 0;
-		}
+	.splitter {
+		margin-top: 1em;
 	}
-
+	
 	&>.icon {
 		height: 4em;
 		display: block;
 		margin: auto;
-		margin-bottom: 1em;
 	}
 
 	.header {
 		text-align: center;
 	}
 
-	.item {
-		&:not(:nth-child(2)) {
-			margin-top: .5em;
-		}
-
-		&.testBt {
-			display: block;
-			margin:auto;
-			margin-top: 1em;
-		}
-
-		&.infos {
-			text-align: center;
-			margin-top: 1em;
-		}
-
-		:deep(input) {
-			max-width: 150px;
-		}
+	.testBt {
+		align-self: center;
+	}
+	section {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 	}
 }
 </style>

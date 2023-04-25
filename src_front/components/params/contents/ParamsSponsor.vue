@@ -60,10 +60,10 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 	public links:{url:string, icon:string, key:string}[] = [
 		{url:"https://paypal.me/durss", icon:"paypal", key:"paypal"},
-		{url:"https://ko-fi.com/durss", icon:"kofi", key:"kofi"},
-		{url:"https://github.com/sponsors/Durss", icon:"github", key:"github"},
-		{url:"https://www.buymeacoffee.com/durss", icon:"coffee", key:"coffee"},
 		{url:"https://www.patreon.com/durss", icon:"patreon", key:"patreon"},
+		{url:"https://ko-fi.com/durss", icon:"kofi", key:"kofi"},
+		{url:"https://www.buymeacoffee.com/durss", icon:"coffee", key:"coffee"},
+		{url:"https://github.com/sponsors/Durss", icon:"github", key:"github"},
 	]
 
 	public getTitle(key:string):string {
@@ -144,12 +144,15 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		}
 
 		.button {
+			* { pointer-events: all;}
+			border-radius: var(--border-radius);
 			.labelHolder {
 				display: flex;
 				flex-direction: column;
 				i {
 					font-style: italic;
 					font-size: .6em;
+					line-height: 1em;
 					align-self: center;
 				}
 			}

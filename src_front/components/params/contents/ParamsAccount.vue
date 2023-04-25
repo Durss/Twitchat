@@ -37,19 +37,7 @@
 		</section>
 
 		<section v-if="isDonor" class="donorHolder">
-			<DonorState class="donorBadge" />
-			<div class="badgesList">
-				<img src="@/assets/icons/donor_placeholder.svg" class="badge" v-for="i in 9-donorLevel" />
-				<DonorState class="badge" v-for="i in donorLevel+1" :level="(donorLevel+1)-i" light />
-			</div>
-
-			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
-			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
-			<i18n-t scope="global" class="infos" tag="div" v-if="publicDonation_loaded" keypath="account.donation_public">
-				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentAbout)">{{ $t("account.about_link") }}.</a>
-				</template>
-			</i18n-t>
+			<DonorState />
 		</section>
 		
 		<section class="dataSync">
@@ -72,12 +60,12 @@ import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
-import DonorState from "../../user/DonorState.vue";
 import ParamItem from '../ParamItem.vue';
 import AppLangSelector from '@/components/AppLangSelector.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type IParameterContent from './IParameterContent';
+import DonorState from '@/components/user/DonorState.vue';
 
 @Component({
 	components:{
@@ -97,7 +85,6 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	public disposed = false;
 	public showCredits = true;
 	public syncEnabled = false;
-	public publicDonation = false;
 	public showAuthorizeBt = false;
 	public showSuggestions = false;
 	public publicDonation_loaded = false;
@@ -121,32 +108,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 
 	public async mounted():Promise<void> {
 		this.syncEnabled = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false";
-		this.publicDonation = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == "true";
 		watch(()=> this.syncEnabled, ()=> DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
-
-		if(this.isDonor) {
-			//Load current anon state of the user's donation
-			const options = {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-			}
-
-			try {
-				const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
-				const json = await anonState.json();
-				if(json.success === true) {
-					this.publicDonation = json.data.public === true;
-				}
-			}catch(error) {
-			}
-			this.publicDonation_loaded = true;
-	
-			watch(()=> this.publicDonation, async ()=> this.updateDonationState());
-		}
 	}
 
 	public beforeUnmount():void {
@@ -214,25 +176,6 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 	}
 
-	private async updateDonationState():Promise<void> {
-		try {
-			const options = {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-				body: JSON.stringify({
-					public:this.publicDonation,
-				})
-			}
-			const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
-			const json = await anonState.json();
-			this.publicDonation = json.data.public !== true;
-		}catch(error) {
-		}
-	}
 }
 </script>
 
@@ -247,13 +190,6 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 			display: block;
 			border-radius: 50%;
 		}
-		margin: auto;
-		padding: .5em;
-		border-top-left-radius: 50%;
-		border-top-right-radius: 50%;
-		border-bottom-left-radius: 0;
-		border-bottom-right-radius: 0;
-		background-color: var(--color-light-fade);
 	}
 
 	.head {
@@ -271,39 +207,6 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 		}
 	}
 
-	.donorHolder {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 1em 0;
-		.donorBadge {
-			margin-top: 1em;
-		}
-	
-		.badgesList {
-			margin-top: .5em;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			justify-content: center;
-			width: 80%;
-			.badge {
-				margin: .25em;
-				height: 3em;
-			}
-		}
-		
-		.toggle {
-			margin-top: 1em;
-		}
-
-		.infos {
-			margin-top: .25em;
-			max-width: 300px;
-			font-size: .8em;
-		}
-	}
-
 	.actions {
 		display: flex;
 		flex-direction: column;
@@ -312,8 +215,6 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 			margin-top: .5em;
 		}
 	}
-
-
 	.scopes {
 		max-width: 400px;
 

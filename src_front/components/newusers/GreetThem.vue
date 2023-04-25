@@ -485,6 +485,11 @@ export default class NewUsers extends Vue {
 				margin-right: .7em;
 				font-variant-numeric: tabular-nums;
 			}
+
+			&>:deep(*) {
+				//avoid being able to click on nicknames, links, ...
+				pointer-events: none;
+			}
 	
 		}
 	}

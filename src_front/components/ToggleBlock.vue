@@ -63,12 +63,24 @@ export default class ToggleBlock extends Vue {
 	@Prop({type:Boolean, default:false})
 	public medium!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public primary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+
 	public opened = false;
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
 		if(!this.opened)				res.push("closed");
 		if(this.error !== false)		res.push("error");
+		if(this.primary !== false)		res.push("primary");
+		if(this.secondary !== false)	res.push("secondary");
+		if(this.alert !== false)		res.push("alert");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
 		return res;
@@ -115,6 +127,7 @@ export default class ToggleBlock extends Vue {
 .toggleblock{
 	align-self: flex-start;
 	border-radius: var(--border-radius);
+	background-color: rgba(125, 125, 125, .2);
 
 	.header {
 		text-align: center;
@@ -177,9 +190,21 @@ export default class ToggleBlock extends Vue {
 		border-radius: var(--border-radius);
 	}
 
-	&.error{
+	&.error, &.alert{
 		.header {
 			background-color: var(--color-alert);
+		}
+	}
+
+	&.primary{
+		.header {
+			background-color: var(--color-primary);
+		}
+	}
+
+	&.secondary{
+		.header {
+			background-color: var(--color-secondary);
 		}
 	}
 

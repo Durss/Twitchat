@@ -48,11 +48,11 @@
 					</div>
 	
 					<div v-else-if="p.id == 216 && p.value === true" class="info config">
-						<Button small :title="$t('global.configure')" @click="$store('params').openParamsPage(contentSpoiler)" />
+						<Button small secondary @click="$store('params').openParamsPage(contentSpoiler)">{{$t('global.configure')}}</Button>
 					</div>
 	
 					<div v-else-if="p.id == 217 && p.value === true" class="info config">
-						<Button small :title="$t('global.configure')" @click="$store('params').openParamsPage(contentAlert)" />
+						<Button small secondary @click="$store('params').openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
 					</div>
 	
 					<div v-else-if="p.id == 12 && fakeMessageData">
@@ -314,10 +314,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 		:deep(input[type='range']) {
 			width: 100%;
 		}
-		
-		:deep(input[type='number']) {
-			flex-basis: 100px;
-		}
 
 		&:not(:last-child) {
 			margin-bottom: 10px;
@@ -325,6 +321,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 		.info {
 			overflow: hidden;
+			padding: 4px;
 			padding-left: calc(@iconSize + 10px);
 			img {
 				height: 1em;

@@ -311,7 +311,7 @@ type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "gi
 	transform-origin: bottom right;
 
 	h1 {
-		color: var(--mainColor_light);
+		color: var(--color-light);
 		align-self: center;
 		margin-bottom: 10px;
 	}

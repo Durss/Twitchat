@@ -5,13 +5,13 @@
 
 		<div class="stats" v-if="!loading">
 			<div v-for="b in badges" :key="'badge_'+b.level" class="item">
-				<DonorState class="badge" :level="b.level" light />
+				<DonorBadge class="badge" :level="b.level" light />
 				<div>x{{b.count}}</div>
 			</div>
 		</div>
 
 		<div class="me" v-if="isDonor && !loading && mePos > -1">
-			<DonorState class="badge" :level="donorLevel" light />
+			<DonorBadge class="badge" :level="donorLevel" light />
 			<div class="pos">#{{mePos+1}}</div>
 			<div class="label">{{userName}}</div>
 		</div>
@@ -25,7 +25,7 @@
 		lockScroll
 		v-slot="{ item }">
 			<div class="item">
-				<DonorState class="badge" :level="item.v" light />
+				<DonorBadge class="badge" :level="item.v" light />
 				<div class="pos">#{{item.index+1}}</div>
 				<span v-if="item.uid == '-1'" class="label">{{ item.login }}</span>
 				<a class="label" v-else :href="'https://twitch.tv/'+item.login" target="_blank">{{item.login}}</a>
@@ -41,11 +41,11 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../../InfiniteList.vue';
-import DonorState from '../../user/DonorState.vue';
+import DonorBadge from '../../user/DonorBadge.vue';
 
 @Component({
 	components:{
-		DonorState,
+		DonorBadge,
 		InfiniteList,
 	}
 })
@@ -184,7 +184,7 @@ export default class ParamsDonorList extends Vue {
 	}
 
 	.list {
-		height: 500px;
+		max-height: 500px;
 		overflow: hidden;
 
 		.item {

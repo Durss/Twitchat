@@ -567,7 +567,7 @@ export default class ParamItem extends Vue {
 		pointer-events: none;
 		background-color: var(--color-light-fader);
 		background: linear-gradient(170deg, var(--color-light-fader) 0%, var(--color-light-transparent) 100%);
-		transition: opacity .25s;
+		transition: opacity .1s;
 	}
 	
 	&.error {
@@ -682,6 +682,11 @@ export default class ParamItem extends Vue {
 						bottom: .5em;
 						transform: unset;
 					}
+				}
+			}
+			&.number {
+				input {
+					flex-basis: 80px;
 				}
 			}
 		}

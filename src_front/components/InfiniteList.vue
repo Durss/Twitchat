@@ -324,7 +324,7 @@ interface IListItem {
 		right: 0;
 		height: 100%;
 		width: @scrollWidth;
-		background: fade(@mainColor_dark, 20%);
+		background: var(--color-dark-fader);
 		border-radius: 1em;
 		.scrollCursor {
 			position: absolute;
@@ -332,7 +332,7 @@ interface IListItem {
 			left:0;
 			cursor: pointer;
 			width: @scrollWidth;
-			background: var(--mainColor_dark);
+			background-color: var(--color-dark-extralight);
 			border-radius: 1em;
 		}	
 	}

@@ -26,10 +26,10 @@
 				<div class="card-item primary">
 					<ParamItem :paramData="pram_extraVotes" @change="onValueChange()" />
 				</div>
-				<div class="card-item primary shrink" v-if="pram_extraVotes.value === true">
+				<div class="card-item primary" v-if="pram_extraVotes.value === true">
 					<ParamItem :paramData="param_points" @change="onValueChange()" />
 				</div>
-				<div class="card-item primary shrink">
+				<div class="card-item primary">
 					<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				</div>
 				
