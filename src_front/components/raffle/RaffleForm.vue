@@ -22,10 +22,10 @@
 
 			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.chat.description") }}</div>
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem class="duration" :paramData="command" :autofocus="true" @change="onValueChange()" />
 				</div>
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="reward" :autofocus="true" @change="onValueChange()" v-if="reward_value.listValues!.length > 1" />
 					<div class="tips">
 						<img src="@/assets/icons/info.svg">
@@ -40,9 +40,9 @@
 						</i18n-t>
 					</div>
 				</div>
-				<ParamItem class="card-item primary" :paramData="enterDuration" @change="onValueChange()" />
-				<ParamItem class="card-item primary" :paramData="maxUsersToggle" @change="onValueChange()" />
-				<ParamItem class="card-item primary" :paramData="ponderateVotes" @change="onValueChange()" />
+				<ParamItem class="card-item" :paramData="enterDuration" @change="onValueChange()" />
+				<ParamItem class="card-item" :paramData="maxUsersToggle" @change="onValueChange()" />
+				<ParamItem class="card-item" :paramData="ponderateVotes" @change="onValueChange()" />
 
 				<Button type="submit" 
 					:aria-label="$t('raffle.chat.startBt_aria')"
@@ -51,17 +51,17 @@
 				
 			<form class="form" v-else-if="mode=='sub' && canListSubs" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.subs.description") }}</div>
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem class="item" :paramData="subs_includeGifters" @change="onValueChange()" />
 				</div>
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem class="item" :paramData="subs_excludeGifted" @change="onValueChange()" />
 				</div>
-				<div class="card-item primary winner" v-if="winner" ref="winnerHolder">
+				<div class="card-item winner" v-if="winner" ref="winnerHolder">
 					<div class="head">Winner</div>
 					<div class="user">🎉 {{winner}} 🎉</div>
 				</div>
-				<div class="card-item primary winner" v-if="winnerTmp">
+				<div class="card-item winner" v-if="winnerTmp">
 					<div class="user">{{winnerTmp}}</div>
 				</div>
 				<Button type="submit"
@@ -89,7 +89,7 @@
 			<form class="form" v-else-if="mode=='manual'" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.list.description") }}</div>
 
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem class="item" :paramData="customEntries" @change="onValueChange()" />
 					<span class="instructions">{{ $t("raffle.list.instructions") }}</span>
 				</div>
@@ -108,7 +108,7 @@
 			</form>
 
 			<ToggleBlock class="configs" v-if="mode=='chat' || triggerMode === false" :title="$t('global.configs')" :open="false" small>
-				<ParamItem class="card-item primary"
+				<ParamItem class="card-item"
 				:paramData="showCountdownOverlay"
 				v-if="mode=='chat'" @change="onValueChange()">
 					<i18n-t scope="global" tag="div" class="details"
@@ -120,17 +120,17 @@
 					</i18n-t>
 				</ParamItem>
 
-				<PostOnChatParam class="card-item primary" botMessageKey="raffleStart"
+				<PostOnChatParam class="card-item" botMessageKey="raffleStart"
 					v-if="mode=='chat' && triggerMode === false"
 					:placeholders="startPlaceholders"
 					titleKey="raffle.configs.postOnChat_start"
 				/>
-				<PostOnChatParam class="card-item primary" botMessageKey="raffle"
+				<PostOnChatParam class="card-item" botMessageKey="raffle"
 					v-if="triggerMode === false"
 					:placeholders="winnerPlaceholders"
 					titleKey="raffle.configs.postOnChat_winner"
 				/>
-				<PostOnChatParam class="card-item primary" botMessageKey="raffleJoin"
+				<PostOnChatParam class="card-item" botMessageKey="raffleJoin"
 					v-if="mode=='chat' && triggerMode === false"
 					:placeholders="joinPlaceholders"
 					titleKey="raffle.configs.postOnChat_join"

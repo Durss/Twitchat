@@ -20,21 +20,21 @@
 				<div class="info" v-if="mode=='emote'" v-html="$t('bingo.form.emote_info', {COUNT:globalEmotes.length})"></div>
 				<div class="info" v-if="mode =='custom'">{{ $t("bingo.form.custom_info") }}</div>
 
-				<ParamItem class="card-item primary" v-if="mode=='num'" :paramData="minValue" autofocus @change="onValueChange()" />
+				<ParamItem class="card-item" v-if="mode=='num'" :paramData="minValue" autofocus @change="onValueChange()" />
 				
-				<ParamItem class="card-item primary" v-if="mode=='num'" :paramData="maxValue" @change="onValueChange()" />
+				<ParamItem class="card-item" v-if="mode=='num'" :paramData="maxValue" @change="onValueChange()" />
 
-				<ParamItem class="card-item primary custom" v-if="mode=='custom'" :paramData="customValue" @change="onValueChange()" />
+				<ParamItem class="card-item custom" v-if="mode=='custom'" :paramData="customValue" @change="onValueChange()" />
 
 				<Button v-if="triggerMode === false" type="submit">{{ $t('bingo.form.startBt') }}</Button>
 	
 				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="triggerMode === false">
-					<PostOnChatParam class="card-item primary" botMessageKey="bingoStart"
+					<PostOnChatParam class="card-item" botMessageKey="bingoStart"
 						:placeholderEnabled="false"
 						titleKey="bingo.form.announce_start"
 						:placeholders="startPlaceholders"
 					/>
-					<PostOnChatParam class="card-item primary" botMessageKey="bingo"
+					<PostOnChatParam class="card-item" botMessageKey="bingo"
 						titleKey="bingo.form.announce_winner"
 						:placeholders="winnerPlaceholders"
 					/>

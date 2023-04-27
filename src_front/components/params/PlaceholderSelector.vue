@@ -65,14 +65,13 @@ export default class PlaceholderSelector extends Vue {
 
 <style scoped lang="less">
 .placeholderselector{
-	font-size: 1.5em;
-	margin-left: 2em;
 	.list {
  		display: grid;
 		grid-template-columns: .75fr 1fr;
 		align-items: stretch;
 		column-gap: 1px;
-		row-gap: .5em;
+		row-gap: .25em;
+		font-size: .8em;
 		&>* {
 			background-color: rgba(0, 0, 0, .4);
 			border-radius: .5em;
@@ -85,10 +84,6 @@ export default class PlaceholderSelector extends Vue {
 			&:nth-child(even) {
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
-			}
-
-			&:not(:nth-last-child(-n+2)) {
-  				margin-bottom: 4px;
 			}
 		}
 		button {

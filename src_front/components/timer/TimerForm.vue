@@ -16,7 +16,7 @@
 				<i18n-t scope="global" class="info" tag="div" keypath="timer.timer_head">
 					<template #CMD><mark>/timerStop</mark></template>
 				</i18n-t>
-				<img class="row demo" src="@/assets/img/param_examples/stop_timer.gif">
+				<img class="demo" src="@/assets/img/param_examples/stop_timer.gif">
 				
 				<Button type="submit" 
 				:aria-label="$t('raffle.chat.startBt_aria')"
@@ -28,9 +28,9 @@
 					<template #CMD><mark>/countdownStop</mark></template>
 				</i18n-t>
 				
-				<img class="row demo" src="@/assets/img/param_examples/stop_countdown.gif">
+				<img class="demo" src="@/assets/img/param_examples/stop_countdown.gif">
 				
-				<div class="row">
+				<div class="card-item">
 					<ParamItem class="item" :paramData="param_duration" :autofocus="true" />
 				</div>
 
@@ -64,7 +64,7 @@ export default class TimerForm extends AbstractSidePanel {
 
 	public mode:"timer"|"countdown" = "timer";
 	
-	public param_duration:TwitchatDataTypes.ParameterData<number>	= {value:60, type:"string"};
+	public param_duration:TwitchatDataTypes.ParameterData<number>	= {value:60, type:"number"};
 
 	public async mounted():Promise<void> {
 		this.param_duration.labelKey = "timer.duration_param";

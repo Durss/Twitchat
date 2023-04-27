@@ -368,8 +368,10 @@ export default class CommandHelper extends Vue {
 		.whoStreams {
 			text-align: center;
 			font-size: .8em;
-			margin-top: .5em;
-			text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+			color: var(--color-light);
+			&:hover {
+				text-decoration: underline;
+			}
 		}
 
 		.missingScope {

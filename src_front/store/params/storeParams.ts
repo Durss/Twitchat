@@ -369,8 +369,8 @@ export const storeParams = defineStore('params', {
 
 		closeParameters():void { this.currentPage = ""; this.currentParamSearch = ""; },
 
-		openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType, subContent?:unknown):void {
-			this.currentPageSubContent = subContent
+		openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamOverlaySectionsStringType|TwitchatDataTypes.ConnexionSectionsStringType):void {
+			this.currentPageSubContent = subContent ?? "";
 			this.currentPage = value;
 		},
 

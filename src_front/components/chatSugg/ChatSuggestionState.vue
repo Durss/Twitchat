@@ -11,7 +11,7 @@
 		:duration="poll.duration*1000 * 60" />
 
 		<div class="content">
-			<div class="card-item primary actions">
+			<div class="card-item actions">
 				<div>{{ $tc('suggestion.state_header', entries.length, [entries.length]) }}</div>
 				
 				<Button icon="chatPoll"
@@ -25,9 +25,9 @@
 			<div class="splitter" v-if="entries.length > 0"></div>
 
 			<TransitionGroup name="list" tag="div" ref="list" class="itemList" v-if="entries.length > 0">
-			<div :class="c.selected? 'card-item primary win' : 'card-item primary'" v-for="(c,index) in entries" :key="c.data.id">
+			<div :class="c.selected? 'card-item secondary win' : 'card-item'" v-for="(c,index) in entries" :key="c.data.id">
 				<div class="header">
-					<img v-if="c.selected" :src="$image('icons/sub.svg')" alt="star">
+					<img v-if="c.selected" :src="$image('icons/sub.svg')" alt="star" class="star">
 					
 					<button class="deleteBt" v-else @click="deleteEntery(c.data)"><img src="@/assets/icons/trash.svg?v="></button>
 					
@@ -178,25 +178,12 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 		min-width: 300px;
 		max-width: 600px;
 		
-		.item {
-			&.win {
-				border: 1px solid var(--color-secondary);
-				img {
-					height: 1em;
-				}
-				.header {
-					background-color: var(--color-secondary);
-				}
-			}
+		.card-item {
 			.title {
 				text-decoration: none;
 			}
 
-			.text {
-				padding-left: .5em;
-			}
-
-			.deleteBt {
+			.deleteBt, .star {
 				height: 1em;
 				align-self: center;
 				transition: transform .1s;

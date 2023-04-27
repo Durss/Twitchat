@@ -9,13 +9,13 @@
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
 			<form @submit.prevent="submitForm()">
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="param_title"
 						v-model="title"
 						v-autofocus="title == ''"
 						@change="onValueChange()" />
 				</div>
-				<div class="card-item primary answers">
+				<div class="card-item answers">
 					<label for="poll_answer">{{ $t("poll.form.answers") }}</label>
 
 					<div class="field" v-for="(a, index) in answers.length" :key="index">
@@ -23,13 +23,13 @@
 						<div class="len">{{answers[index].length}}/25</div>
 					</div>
 				</div>
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="pram_extraVotes" @change="onValueChange()" />
 				</div>
-				<div class="card-item primary" v-if="pram_extraVotes.value === true">
+				<div class="card-item" v-if="pram_extraVotes.value === true">
 					<ParamItem :paramData="param_points" @change="onValueChange()" />
 				</div>
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				</div>
 				

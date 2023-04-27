@@ -42,8 +42,8 @@
 					</li>
 				</ul>
 			</ToggleBlock>
-			<div class="row counter" v-for="c in counters" :key="c.id">
-				<input type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)">
+			<div class="card-item counter" v-for="c in counters" :key="c.id">
+				<input type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)" v-click2Select>
 				<OverlayCounter class="counterExample" embed :staticCounterData="c" />
 			</div>
 		</div>
@@ -110,17 +110,16 @@ export default class OverlayParamsCounter extends Vue {
 <style scoped lang="less">
 .overlayparamscounter{
 	.holder {
+		gap: 1em;
 		display: flex;
 		flex-direction: column;
-		gap:1em;
 		max-height: 400px;
 		overflow-y: auto;
 		.counter {
+			gap:.5em;
 			display: flex;
 			flex-direction: column;
-			padding: .5em;
-			background-color: fade(@mainColor_normal_extralight, 30%);
-			border-radius: @border_radius;
+			flex-shrink: 0;
 			label {
 				font-weight: bold;
 			}
@@ -129,6 +128,11 @@ export default class OverlayParamsCounter extends Vue {
 		.head {
 			margin: 1em 0 .5em 0;
 			font-weight: bold;
+		}
+
+		input {
+			width: 100%;
+			background-color: var(--color-primary);
 		}
 
 		.counterExample {

@@ -196,7 +196,7 @@
 			<slot></slot>
 		</div>
 
-		<div class="error" v-if="errorMessage">{{ errorMessage }}</div>
+		<div class="card-item alert errorMessage" v-if="errorMessage || paramData.errorMessage">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
 	</div>
 </template>
 
@@ -571,9 +571,14 @@ export default class ParamItem extends Vue {
 	}
 	
 	&.error {
-		background-color: var(--color-alert-fade);
 		padding: .5em;
 		border-radius: var(--border-radius);
+		background-color: var(--color-alert-fade);
+		.errorMessage {
+			font-size: .9em;
+			margin-top: .5em;
+			text-align: center;
+		}
 	}
 
 	&.longText {
@@ -657,7 +662,7 @@ export default class ParamItem extends Vue {
 			flex-direction: row;
 			label {
 				flex-grow: 1;
-				flex-basis: 100px;
+				flex-basis: min-content;
 				align-self: stretch;
 				margin: 0;
 				padding-right: 1em;
@@ -675,6 +680,7 @@ export default class ParamItem extends Vue {
 				}
 				.inputHolder {
 					position: relative;
+					flex-grow: 1;
 					.maxlength {
 						font-size: .7em;
 						position: absolute;
@@ -842,11 +848,6 @@ export default class ParamItem extends Vue {
 				display: block;
 			}
 		}
-	}
-
-	.error {
-		margin-top: .5em;
-		text-align: center;
 	}
 }
 </style>

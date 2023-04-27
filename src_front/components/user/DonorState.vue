@@ -6,7 +6,7 @@
 			<DonorBadge class="badge" v-for="i in donorLevel+1" :level="(donorLevel+1)-i" light />
 		</div>
 
-		<div class="card-item primary">
+		<div class="card-item">
 			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
 			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
 			<i18n-t scope="global" class="infos" tag="div" v-if="publicDonation_loaded" keypath="account.donation_public">

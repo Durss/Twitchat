@@ -3,7 +3,7 @@
 		<div class="row" v-for="(p, key) in params" :key="key">
 
 			<div :class="getClasses(p, key as string)">
-				<ParamItem :paramData="p" :secondary="p.type=='slider'" />
+				<ParamItem :paramData="p" />
 				<transition
 					@enter="onShowItem"
 					@leave="onHideItem"
@@ -218,7 +218,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 		&>.item {
 			border-radius: .5em;
-			background-color: var(--color-primary);
+			background-color: var(--color-light-fader);
 			padding: .25em;
 			position: relative;
 			&:not(:first-of-type) {
@@ -248,11 +248,11 @@ export default class ParamsList extends Vue implements IParameterContent {
 				z-index: 0;
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
-				background-color: var(--color-primary-light);
+				background-color: var(--color-light-fader);
 			}
 
 			&.disabled {
-				background-color: var(--color-primary-fade);
+				background-color: var(--color-dark-fade);
 			}
 			
 

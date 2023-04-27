@@ -282,11 +282,15 @@ function buildApp() {
 		}
 	})
 	.directive('click2Select', {
-		mounted(el:HTMLDivElement, binding:unknown) {
+		mounted(el:HTMLElement, binding:unknown) {
 			if((binding as {[key:string]:boolean}).value !== false) {
 				el.style.cursor = "default";
 				el.addEventListener("click", ()=> {
-					el.ownerDocument?.getSelection()?.selectAllChildren(el);
+					if(el.nodeName === "INPUT") {
+						(el as HTMLInputElement).select();
+					}else{
+						el.ownerDocument?.getSelection()?.selectAllChildren(el);
+					}
 				});
 			}
 		}

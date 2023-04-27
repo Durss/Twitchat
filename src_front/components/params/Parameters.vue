@@ -1,12 +1,12 @@
 <template>
-	<div :class="classes" v-if="content != contentClose">
+	<div :class="classes" v-show="content != contentClose">
 		<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 
 		<div class="head">
 			<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
 				<img src="@/assets/icons/back.svg" alt="back">
 			</button>
-			<h1 class="title">{{$t('params.categories.'+content)}}</h1>
+			<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
 		</div>
 
 		<div class="subHolder">
@@ -238,8 +238,6 @@ export default class Parameters extends Vue {
 		this.history = [];
 		await this.$nextTick();
 
-		// gsap.set(this.$refs.holder as HTMLElement, {x:0, opacity:1});
-		// gsap.from(this.$refs.holder as HTMLElement, {duration:.5, x:"100%", ease:"back.out"});
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out"});
@@ -261,7 +259,7 @@ export default class Parameters extends Vue {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.1, scaleX:1.1, ease:"sin.in"});
-		gsap.to(ref, {duration:.1, translateX:"100%", scaleX:1, delay:.1, clearProps:"translateX", ease:"sin.out", onComplete:() => {
+		gsap.to(ref, {duration:.1, translateX:"100%", scaleX:1, delay:.1, clearProps:"all", ease:"sin.out", onComplete:() => {
 			this.closing = false;
 			this.filteredParams = [];
 			this.$store("params").closeParameters();
@@ -436,8 +434,6 @@ export default class Parameters extends Vue {
 			padding-right: 10px;
 			max-height: 100%;
 			overflow: auto;
-			.scroll
-
 			&.default {
 				.donorState {
 					margin-top: 1em;

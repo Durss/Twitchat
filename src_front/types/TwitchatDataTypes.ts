@@ -17,6 +17,13 @@ export namespace TwitchatDataTypes {
 		SPOTIFY: "spotify",
 	} as const;
 	export type ParamOverlaySectionsStringType = typeof ParamOverlaySections[keyof typeof ParamOverlaySections];
+	
+	export const ConnexionSections = {
+		OBS: "obs",
+		SPOTIFY: "spotify",
+		WEBSOCKET: "websocket",
+	} as const;
+	export type ConnexionSectionsStringType = typeof ConnexionSections[keyof typeof ConnexionSections];
 
 	/**
 	 * Parameters menue categories
@@ -395,6 +402,10 @@ export namespace TwitchatDataTypes {
 		 * Show an error state
 		 */
 		error?:boolean;
+		/**
+		 * Optional error message to be displayed
+		 */
+		errorMessage?:string;
 		/**
 		 * Callback called when value is changed (if v-model can't be used)
 		 */

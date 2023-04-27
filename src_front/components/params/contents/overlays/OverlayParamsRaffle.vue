@@ -2,9 +2,9 @@
 	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket']">
 		<div class="holder">
 			
-			<div class="row">
+			<div class="item">
 				<div class="info">{{ $t("overlay.raffle.head") }}</div>
-				<input type="text" v-model="overlayUrl">
+				<input type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.raffle.css") }}</div>
 					<ul>
@@ -14,15 +14,15 @@
 				</ToggleBlock>
 			</div>
 
-			<div class="row center" v-if="overlayExists">
-				<Button :loading="loading" @click="testWheel()" :title="$t('overlay.raffle.testBt')" icon="test" />
+			<div class="item center" v-if="overlayExists">
+				<Button :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
 			</div>
 
-			<div class="row center" v-if="!overlayExists">
+			<div class="item center" v-if="!overlayExists">
 				<span class="error">{{ $t("overlay.raffle.no_overlay") }}</span>
 			</div>
 			
-			<div class="row">
+			<div class="card-item item">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
 					<template #MENU><img src="@/assets/icons/commands.svg" class="icon"></template>
 					<template #CMD><strong>/raffle</strong></template>
@@ -121,19 +121,19 @@ export default class OverlayParamsRaffle extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
-		.row {
-			display: flex;
-			flex-direction: column;
-			padding: .5em;
-			border-radius: .5em;
-			background-color: fade(@mainColor_normal, 15%);
+		.item {
 
 			.info {
 				margin-bottom: .5em;
 			}
 
+			input {
+				width: 100%;
+				background-color: var(--color-primary);
+			}
+
 			&.center {
-				align-items: center;
+				text-align: center;
 			}
 
 			:deep(.icon) {

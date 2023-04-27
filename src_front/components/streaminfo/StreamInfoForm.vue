@@ -30,7 +30,7 @@
 			:open="presets.length == 0 || forceOpenForm" icon="update">
 				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
 				
-				<ParamItem class="card-item primary save" :paramData="param_savePreset" v-if="!presetEditing" />
+				<ParamItem class="card-item save" :paramData="param_savePreset" v-if="!presetEditing" />
 				
 				<div class="actions">
 					<Button class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</Button>

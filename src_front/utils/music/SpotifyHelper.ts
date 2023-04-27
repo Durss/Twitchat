@@ -168,6 +168,8 @@ export default class SpotifyHelper {
 	public async refreshToken(attempt:number = 0):Promise<void> {
 		clearTimeout(this._getTrackTimeout);
 		clearTimeout(this._refreshTimeout);
+		
+		if(!this._token) return;
 	
 		const options = {
 			method:"POST",

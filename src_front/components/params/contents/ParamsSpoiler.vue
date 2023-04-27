@@ -6,7 +6,7 @@
 			<template #TAG><mark>||</mark></template>
 		</i18n-t>
 
-		<section class="card-item primary">
+		<section class="card-item">
 			<p>{{ $t('spoiler.message_example') }}</p>
 			<ChatMessage v-if="spoilerExample" :messageData="spoilerExample" class="example" lightMode />
 		</section>
@@ -14,14 +14,14 @@
 		<Splitter class="splitter">{{ $t("spoiler.command.title") }}</Splitter>
 
 		<section class="form">
-			<div class="card-item primary ">
+			<div class="card-item ">
 				<i18n-t scope="global" tag="div" keypath="spoiler.command.allowed">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
 				<PermissionsForm class="perms" v-model="chatCommandPerms" />
 			</div>
 
-			<div class="card-item primary ">
+			<div class="card-item ">
 				<i18n-t scope="global" tag="div" keypath="spoiler.command.how_to">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>

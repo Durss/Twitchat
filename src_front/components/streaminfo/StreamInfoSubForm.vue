@@ -1,8 +1,8 @@
 <template>
 	<div class="streaminfosubform">
-		<ParamItem class="card-item primary" :paramData="param_title" v-model="localTitle" autofocus @change="$emit('update:title', localTitle)" />
+		<ParamItem class="card-item" :paramData="param_title" v-model="localTitle" autofocus @change="$emit('update:title', localTitle)" />
 
-		<AutoCompleteForm class="card-item primary category"
+		<AutoCompleteForm class="card-item category"
 		:title="$t('stream.form_stream_category')"
 		:maxItems="1"
 		@search="searchCategory" v-slot="{ item }"
@@ -14,14 +14,14 @@
 			</button>
 		</AutoCompleteForm>
 
-		<ParamItem class="card-item primary"
+		<ParamItem class="card-item"
 			:paramData="param_tags"
 			v-model="localTags"
 			autofocus
 			@change="onTagsUpdate()"
 			v-if="param_tags.value!.length < 10" />
 
-		<div class="card-item primary tagList" v-else>
+		<div class="card-item tagList" v-else>
 			<div>{{ $t(param_tags.labelKey!) }}</div>
 			<button type="button" class="tagItem" aria-label="delete tag"
 			v-for="i in param_tags.value"

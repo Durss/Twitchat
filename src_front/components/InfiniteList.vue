@@ -111,7 +111,7 @@ export default class InfiniteList extends Vue {
 	public get holderStyles():StyleValue {
 		if(this.fillWithDuplicates === false) {
 			return {
-				height:this.dataset.length * (this.itemSize + this.itemMargin) + "px",
+				height:this.dataset.length * (this.itemSize + this.itemMargin) + 1 + "px",
 			}
 		}
 		return {};

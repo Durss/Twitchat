@@ -8,14 +8,14 @@
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
 			<form  @submit.prevent="submitForm()">
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="param_title"
 						v-model="title"
 						v-autofocus="title == ''"
 						@change="onValueChange()" />
 				</div>
 
-				<div class="card-item primary answers">
+				<div class="card-item answers">
 					<label for="prediction_answer">{{ $t("prediction.form.outcomes") }}</label>
 					<div v-for="(a, index) in answers"
 					:class="getAnswerClasses(index)"
@@ -40,7 +40,7 @@
 					</div>
 				</div>
 
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="voteDuration" @change="onValueChange()" />
 				</div>
 				

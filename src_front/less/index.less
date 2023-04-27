@@ -105,10 +105,10 @@ pre {
 
 a {
 	// text-decoration: none;
-	color: var(--color-secondary);
+	color: var(--color-secondary-light);
 	cursor: pointer;
 	&:hover {
-		color: var(--color-secondary-light);
+		color: var(--color-secondary-extralight);
 	}
 }
 
@@ -249,12 +249,12 @@ mark {
 
 *::-webkit-scrollbar-track {
 	background: transparent;
+	background-color: var(--color-dark-fade);
 }
 
 *::-webkit-scrollbar-thumb {
 	border-radius:20px;
 	background-color: var(--color-dark-extralight);
-//   box-shadow: rgba(255, 255, 255, 0.25) 0px 0px 1px 1px;
 }
 
 @media (prefers-color-scheme: dark) {

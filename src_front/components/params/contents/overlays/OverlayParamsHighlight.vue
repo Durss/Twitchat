@@ -2,13 +2,9 @@
 	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight']">
 		
 		<div class="holder">
-			<div class="row">{{ $t("overlay.highlight.head") }}</div>
-			
-			<a class="link" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="demo"></a>
-
-			<div class="row">
+			<div class="item">
 				<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
-				<input type="text" id="highlight_overlay_url" v-model="overlayUrl">
+				<input type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.highlight.css") }}</div>
 					<ul>
@@ -60,8 +56,8 @@
 				</ToggleBlock>
 			</div>
 
-			<div class="row center placement">
-				<p>{{ $t("overlay.highlight.message_pos") }}</p>
+			<div class="card-item item center placement">
+				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
 				<div class="table">
 					<div class="item" :class="placement=='tl'? 'selected' : ''">
 						<input type="radio" v-model="placement" value="tl" id="mazePos_tl">
@@ -102,20 +98,17 @@
 				</div>
 			</div>
 
-			<div class="row center">
-				<div>{{ $t("overlay.highlight.clear_instruction") }}</div>
-				<img src="@/assets/img/clearHighlightedMessage.png" alt="example">
-			</div>
-
-			<div class="row center" v-if="overlayExists">
-				<Button @click="testOverlay()" :title="$t('overlay.highlight.testBt')" icon="test" />
+			<div class="item center" v-if="overlayExists">
+				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
 			</div>
 			
-			<div class="row center" v-if="!overlayExists">
+			<div class="item center" v-if="!overlayExists">
 				<span class="error">{{ $t("overlay.highlight.no_overlay") }}</span>
 			</div>
 			
-			<div class="row footer">
+			<a class="item link" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="demo"></a>
+			
+			<div class="card-item item footer">
 				<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
 					<template #URL>
 						<a href="https://featured.chat" target="_blank">featured.chat</a>
@@ -242,10 +235,11 @@ export default class OverlayParamsHighlight extends Vue {
 	.holder {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
+		gap: 1em;
 
 		.link {
 			.demo {
+				.emboss();
 				margin:auto;
 				display: block;
 				max-height: 150px;
@@ -254,15 +248,19 @@ export default class OverlayParamsHighlight extends Vue {
 			}
 		}
 
-		.row {
+		input {
+			width: 100%;
+			background-color: var(--color-primary);
+		}
+
+		.item {
 			display: flex;
 			flex-direction: column;
-			padding: .5em;
 			border-radius: .5em;
-			background-color: fade(@mainColor_normal, 15%);
 
 			&.center {
 				align-items: center;
+				margin: auto;
 			}
 
 			.cssPositionning {
@@ -277,6 +275,7 @@ export default class OverlayParamsHighlight extends Vue {
 					justify-content: center;
 					@btSize: 25px;
 					width: @btSize * 3;
+					margin-top: .5em;
 					.item {
 						width: @btSize;
 						height: @btSize;
@@ -287,9 +286,12 @@ export default class OverlayParamsHighlight extends Vue {
 						border-radius: 5px;
 						background-color: rgba(255, 255, 255, .5);
 						border: 1px solid rgba(0, 0, 0, .15);
+						transition: background-color .2s;
 						&.selected {
-							background-color: var(--mainColor_normal);
-							color: var(--mainColor_light);
+							background-color: var(--color-secondary);
+						}
+						&:hover {
+							background-color: var(--color-secondary-light);
 						}
 						label {
 							margin: 0;

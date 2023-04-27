@@ -1,5 +1,5 @@
 <template>
-	<div class="paramsoverlays">
+	<div class="paramsoverlays parameterContent">
 		<img src="@/assets/icons/overlay.svg" alt="overlay icon" class="icon">
 		<div class="head">{{ $t("overlay.header") }}</div>
 
@@ -8,21 +8,18 @@
 				<template #OBS>
 					<Button class="button"
 						icon="obs"
-						:title="$t('overlay.connection.obsBt')"
 						white
-						@click="$store('params').openParamsPage(contentObs)" />
+						@click="$store('params').openParamsPage(contentObs)">{{ $t('overlay.connection.obsBt') }}</Button>
 				</template>
 				<template #DOCK>
 					<Button class="button"
 						icon="twitchat"
-						:title="$t('overlay.connection.dockBt')"
 						white
-						@click="showDockTutorial = true" v-if="!showDockTutorial" />
+						@click="showDockTutorial = true" v-if="!showDockTutorial">{{ $t('overlay.connection.dockBt') }}</Button>
 					<Button class="button"
 						icon="cross"
-						:title="$t('overlay.connection.closeBt')"
 						white
-						@click="showDockTutorial = false" v-if="showDockTutorial" />
+						@click="showDockTutorial = false" v-if="showDockTutorial">{{ $t('overlay.connection.closeBt') }}</Button>
 				</template>
 			</i18n-t>
 			<div v-if="showDockTutorial" class="dockTuto">
@@ -31,7 +28,7 @@
 			</div>
 		</div>
 
-		<div class="unified" v-if="true || exchangeChannelAvailable">
+		<div class="card-item primary unified" v-if="true || exchangeChannelAvailable">
 			<label for="unified_overlays">{{ $t("overlay.unified") }}</label>
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
@@ -94,24 +91,17 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsoverlays{
-	.parameterContent();
-
 	.connectObs {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
 		align-items: center;
-		color: var(--mainColor_light);
-		background-color: var(--mainColor_alert);
+		color: var(--color-light);
+		background-color: var(--color-alert);
 		padding: .5em;
 		border-radius: .5em;
-		margin-top: 1em;
-		.button {
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-		}
 		.dockTuto {
+			text-align: center;
 			img {
 				margin-top: .5em;
 				max-width: 100%;
@@ -119,9 +109,8 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		}
 	}
 	.block {
-		&:not(:first-of-type) {
-			margin-top: .5em;
-		}
+		width: 100%;
+		flex-grow: 1;
 		:deep(.icon) {
 			width: 1.5em;
 			height: 1.5em;
@@ -134,28 +123,22 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 			animation-delay: 1s;
 			@keyframes blink {
 				0% {
-					border-color: var(--mainColor_highlight);
+					border-color: var(--color-secondary);
 				}
 				50% {
 					border-color: transparent;
 				}
 				100% {
-					border-color: var(--mainColor_highlight);
+					border-color: var(--color-secondary);
 				}
 			}
 		}
 	}
 
 	.unified {
-		border-radius: 1em;
-		background-color: white;
-		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-		padding: .5em;
-		text-align: center;
-		margin-top: 1em;
 		input {
-			margin: .5em;
-			width: 90%;
+			margin: .5em 0;
+			width: 100%;
 		}
 	}
 }

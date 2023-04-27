@@ -16,7 +16,7 @@
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 			
 			<div class="list" v-else>
-				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="card-item primary stream" ref="streamCard" @click.prevent="raid(s)">
+				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="card-item stream" ref="streamCard" @click.prevent="raid(s)">
 					<div class="header">
 						<img class="icon" :src="getProfilePicURL(s)" alt="">
 						<span class="title">{{s.user_name}}</span>
@@ -140,6 +140,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 	
 				&:hover {
 					cursor: pointer;
+					background-color: var(--color-primary);
 					.header {
 						background-color: var(--color-primary-light);
 					}

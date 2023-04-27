@@ -5,7 +5,7 @@
 		<div class="header">{{ $t("alert.header") }}</div>
 
 		<Splitter class="splitter">{{$t('alert.command_title') }}</Splitter>
-		<section class="card-item primary">
+		<section class="card-item">
 			
 			<div>
 				<ParamItem :paramData="param_chatCommand" />
@@ -16,7 +16,7 @@
 		</section>
 
 		<Splitter class="splitter">{{ $t('alert.actions') }}</Splitter>
-		<section class="card-item primary">
+		<section class="card-item">
 	
 			<ParamItem :paramData="param_message" />
 			<ParamItem :paramData="param_shake" />

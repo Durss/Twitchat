@@ -1,14 +1,14 @@
 <template>
 	<ToggleBlock :open="open" class="overlaytimer" :title="$t('overlay.timer.title')" :icons="['countdown']">
 		<div class="holder">
-			<div class="row">
+			<div class="item">
 				<div class="info">
 					<i18n-t scope="global" tag="div" keypath="overlay.timer.head">
 						<template #CMD1><mark>/countdown</mark></template>
 						<template #CMD2><mark>/timerStart</mark></template>
 					</i18n-t>
 				</div>
-				<input type="text" v-model="overlayUrl">
+				<input type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.timer.css") }}</div>
 					<ul>
@@ -32,9 +32,9 @@
 					</ul>
 				</ToggleBlock>
 			</div>
-			<div class="row center">
-				<Button icon="timer" :title="$t('overlay.timer.try_timerBt')" @click.stop="startTimer()" />
-				<Button icon="countdown" :title="$t('overlay.timer.try_countdownBt')" @click.stop="startCountdown()" />
+			<div class="item center actions">
+				<Button icon="timer" @click.stop="startTimer()">{{ $t('overlay.timer.try_timerBt') }}</Button>
+				<Button icon="countdown" @click.stop="startCountdown()">{{ $t('overlay.timer.try_countdownBt') }}</Button>
 			</div>
 		</div>
 	</ToggleBlock>
@@ -70,31 +70,33 @@ export default class OverlayParamsTimer extends Vue {
 	.holder {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
-		.row {
-			display: flex;
-			flex-direction: column;
-			padding: .5em;
-			border-radius: .5em;
-			background-color: fade(@mainColor_normal, 15%);
+		gap: 1em;
+		.item {
 
 			.info {
 				margin-bottom: .5em;
 			}
 
+			input {
+				width: 100%;
+				background-color: var(--color-primary);
+			}
+
 			&.center {
-				align-items: center;
-				.button {
-					&:not(:first-child) {
-						margin-top: .5em;
-					}
-				}
+				text-align: center;
 			}
 		}
 
 		ul {
 			.cssStructure();
 			margin-top: .5em;
+		}
+
+		.actions{
+			margin: auto;
+			display: flex;
+			flex-direction: row;
+			gap: 1em;
 		}
 	}
 	

@@ -8,7 +8,7 @@
 		<div class="content" ref="content">
 			<div class="noResult" v-if="!loading && userCount == 0">no user found :(</div>
 		
-			<div class="card-item primary stats">
+			<div class="card-item stats">
 				<div class="table">
 					<p>Active users last 24h :</p><p>{{activeLast24h}}</p>
 					<p>Active users last 7 days :</p><p>{{activeLast7days}}</p>
@@ -26,7 +26,7 @@
 			<div class="list" ref="list">
 				<a v-for="u in filteredItems"
 					:key="u.id"
-					class="card-item primary user"
+					class="card-item user"
 					ref="userCard"
 					:href="u.user? 'https://twitch.tv/' + u.user.login : '#'"
 					target="_blank"
@@ -263,6 +263,7 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 				color: var(--color-light);
 
 				&:hover {
+						background-color: var(--color-primary);
 					.header {
 						background-color: var(--color-primary-light);
 					}

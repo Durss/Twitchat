@@ -138,6 +138,7 @@ export default class ToggleBlock extends Vue {
 		border-top-left-radius: var(--border-radius);
 		border-top-right-radius: var(--border-radius);
 		border-bottom: 2px solid var(--color-dark-extralight);
+		gap: .5em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -171,7 +172,7 @@ export default class ToggleBlock extends Vue {
 	.content {
 		// .bevel();
 		overflow: hidden;
-		margin: 0 .5em .5em .5em;
+		// margin: 0 .5em .5em .5em;
 		padding: .5em;
 		color: var(--color-light);
 		// background-color: var(--color-dark-fade);
@@ -214,7 +215,6 @@ export default class ToggleBlock extends Vue {
 
 
 	&.small {
-		font-size: .8em;
 		background-color: var(--color-dark-fade);
 		.header {
 			padding: 0;
@@ -225,13 +225,14 @@ export default class ToggleBlock extends Vue {
 				background-color: var(--color-dark-fade);
 			}
 			.title {
+				gap: .25em;
 				text-align: left;
 				align-items: center;
 				flex-direction: row;
-				gap: .25em;
 				line-height: 1.25em;
 				color: var(--color-secondary);
 				text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+				font-size: .8em;
 				&::before {
 					content:"►";
 					margin-left: .3em;
@@ -249,7 +250,7 @@ export default class ToggleBlock extends Vue {
 					transform: rotate(0);
 				}
 				&:hover {
-					background-color: var(--color-dark-extralight);
+					background-color: var(--color-dark-fade);
 				}
 			}
 		}

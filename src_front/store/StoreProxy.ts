@@ -671,7 +671,7 @@ export interface IParamsState {
 	 * Just a storage for an optionnal "currentPage" sub parameter.
 	 * Ex: Used to expand a specific overlay section on the Overlays page.
 	 */
-	currentPageSubContent:unknown;
+	currentPageSubContent:TwitchatDataTypes.ParamOverlaySectionsStringType|TwitchatDataTypes.ConnexionSectionsStringType|"";
 	/**
 	 * Current parameters search
 	 * Set when using the search form at the top of the parameters homepage
@@ -738,7 +738,7 @@ export interface IParamsActions {
 	 * Open a specific parameters page
 	 * @param value 
 	 */
-	openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType, subContent?:string):void;
+	openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamOverlaySectionsStringType|TwitchatDataTypes.ConnexionSectionsStringType):void;
 	/**
 	 * Close parameters
 	 */

@@ -10,7 +10,7 @@
 		"loop_tt":"Boucler la valeur",
 		"user_tt":"Par viewer",
 		"examples":"Exemples :",
-		"user_not_found":"user not found",
+		"user_not_found":"personne introuvable",
 		"form":{
 			"name":"Nom",
 			"value":"Valeur",

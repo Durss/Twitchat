@@ -127,6 +127,9 @@ export default class DonorBadge extends Vue {
 		if(this.light !== false) return;
 		
 		const heart = this.$refs.heart as HTMLDivElement;
+		//For some reason gsap overrides the translate() prop of the object when scalign it.
+		//Following line makes sure the object is properly centered
+		gsap.set(heart, {xPercent:-50, yPercent:-50, left:"50%", top:"50%"});
 		gsap.fromTo(heart, {scale:1.2}, {duration:.35, scale:1, ease:"back.out", repeat:-1, repeatDelay:1.5, onRepeat:()=>{
 			this.burstStars();
 		}});
@@ -134,8 +137,10 @@ export default class DonorBadge extends Vue {
 			this.burstStars();
 		}});
 		
+		
 		this.prevTs = Date.now();
 		this.renderStars(this.prevTs);
+
 	}
 
 	public beforeUnmount():void {
@@ -214,7 +219,7 @@ interface StarData {
 
 <style scoped lang="less">
 .donorbadge{
-	color: var(--color-light);
+	color: #fff;
 	border-radius: 1em;
 	position: relative;
 	// border-radius: 2em;
@@ -226,7 +231,7 @@ interface StarData {
 	filter: drop-shadow(0 0 .5em rgba(0,0,0,.25));
 
 	.heartBg {
-		fill: #BB3C3C;
+		fill: #bc1d1d;
 		height: 100%;
 		position: absolute;
 		top: 0;
@@ -275,7 +280,7 @@ interface StarData {
 		
 		.outline {
 			position: absolute;
-			-webkit-text-stroke: .4em #BB3C3C;
+			-webkit-text-stroke: .4em #bc1d1d;
 		}
 		.text {
 			position: absolute;
@@ -297,7 +302,6 @@ interface StarData {
 			height: 6em;
 			.level {
 				font-size: 2.75em;
-				top:40%;
 			}
 		}
 

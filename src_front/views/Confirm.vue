@@ -1,7 +1,7 @@
 <template>
 	<div class="confirmView" v-if="confirmData">
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
-		<div class="holder card-item" ref="holder">
+		<div class="holder" ref="holder">
 			<!-- <img src="@/assets/icons/lock_fit.svg" class="icon"> -->
 
 			<div class="title" v-html="confirmData.title"></div>
@@ -173,6 +173,8 @@ export default class Confirm extends Vue {
 		width: 400px;
 		box-sizing: border-box;
 		border-radius: 1em;
+		color:var(--color-light);
+		background-color: var(--color-dark-light);
 
 		.icon {
 			display: block;

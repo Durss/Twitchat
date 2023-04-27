@@ -10,7 +10,7 @@
 		<div class="content">
 
 			<form  @submit.prevent="submitChatPoll()">
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="command" autofocus />
 					<div class="example">
 						<span>{{ $t("global.example") }}</span>: 
@@ -22,19 +22,19 @@
 				</div>
 			
 
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="maxLength" />
 				</div>
 
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="duration" />
 				</div>
 
-				<div class="card-item primary">
+				<div class="card-item">
 					<ParamItem :paramData="multiAnswers" />
 				</div>
 
-				<!-- <ToggleBlock small title="Permissions" :open="false" class="card-item primary permissions">
+				<!-- <ToggleBlock small title="Permissions" :open="false" class="card-item permissions">
 					<PermissionsForm v-model="permissions" />
 				</ToggleBlock> -->
 
@@ -48,7 +48,7 @@
 			</i18n-t>
 
 			<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small>
-				<PostOnChatParam class="card-item primary" botMessageKey="chatSuggStart"
+				<PostOnChatParam class="card-item" botMessageKey="chatSuggStart"
 					:placeholderEnabled="false"
 					titleKey="suggestion.announce_start"
 					:placeholders="startPlaceholders"

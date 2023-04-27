@@ -1,5 +1,5 @@
 <template>
-	<div class="paramscounters">
+	<div class="paramscounters parameterContent">
 		<img src="@/assets/icons/count.svg" alt="counter icon" class="icon">
 
 		<div class="head">
@@ -14,53 +14,49 @@
 		</div>
 
 		<section v-if="!showForm">
-			<Button :title="$t('counters.addBt')" icon="add" @click="showForm = true" />
+			<Button icon="add" @click="showForm = true">{{ $t('counters.addBt') }}</Button>
 		</section>
 
-		<section class="examples" v-if="!showForm && $store('counters').counterList.length == 0">
+		<section class="card-item primary examples" v-if="!showForm && counterEntries.length == 0">
 			<h1>{{ $t("counters.examples") }}</h1>
 			<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
 			<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />
 		</section>
 
-		<section v-if="showForm">
+		<section class="card-item" v-if="showForm">
 			<form @submit.prevent="createCounter()">
-				<ParamItem class="item" :paramData="param_title" />
-				<div class="errorDetails" v-if="param_title.error">
-					<span class="text">{{ $t("counters.form.name_conflict") }}</span>
-				</div>
-				<ParamItem class="item" :paramData="param_value" />
-				<ParamItem class="item" :paramData="param_more" />
-				<div class="errorDetails shrink" v-if="param_placeholder.error">
-					<span class="text">{{ $t("counters.form.placholder_conflict") }}</span>
-				</div>
-				<div class="item ctas">
-					<Button type="button" :title="$t('global.cancel')" icon="cross" highlight @click="cancelForm()" />
-					<Button type="submit" v-if="!editedCounter" :title="$t('global.create')" icon="add" :disabled="param_title.value.length == 0" />
-					<Button type="submit" v-else :title="$t('counters.editBt')" icon="edit" :disabled="param_title.value.length == 0" />
+				<ParamItem :paramData="param_title" :errorMessage="param_title.error? $t('counters.form.name_conflict') : ''" />
+				<ParamItem :paramData="param_value" />
+				<ParamItem :paramData="param_more" />
+				<div class="ctas">
+					<Button type="button" icon="cross" alert @click="cancelForm()">{{ $t('global.cancel') }}</Button>
+					<Button type="submit" v-if="!editedCounter" icon="add" :disabled="param_title.value.length == 0">{{ $t('global.create') }}</Button>
+					<Button type="submit" v-else icon="edit" :disabled="param_title.value.length == 0">{{ $t('counters.editBt') }}</Button>
 				</div>
 			</form>
 		</section>
 
 		<ToggleBlock class="counterEntry"
-		v-if="$store('counters').counterList.length > 0"
+		v-if="counterEntries.length > 0"
 		v-for="entry in counterEntries" :key="entry.counter.id"
 		:title="entry.counter.name" medium>
 		
 			<template #right_actions>
-				<button class="placholder" @click.stop="copyPlaceholder($event, entry.counter)" v-tooltip="$t('global.copy')">
-					<mark class="light" v-if="entry.counter.placeholderKey">{{ getCounterPlaceholder(entry.counter) }}</mark>
-				</button>
-				<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
-				<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
-				<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
-				<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><img src="@/assets/icons/user.svg" alt="user"> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-				<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click="editCounter(entry.counter)" />
-				<Button class="actionBt" highlight icon="trash" @click="deleteCounter(entry)" />
+				<div class="actions">
+					<button class="placholder" @click.stop="copyPlaceholder($event, entry.counter)" v-tooltip="$t('global.copy')">
+						<mark class="light" v-if="entry.counter.placeholderKey">{{ getCounterPlaceholder(entry.counter) }}</mark>
+					</button>
+					<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
+					<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
+					<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
+					<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><img src="@/assets/icons/user.svg" alt="user"> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
+					<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click="editCounter(entry.counter)" />
+					<Button class="actionBt" alert icon="trash" @click="deleteCounter(entry)" />
+				</div>
 			</template>
 
 			<div class="content">
-				<ParamItem class="item value" v-if="!entry.counter.perUser"
+				<ParamItem class="value" v-if="!entry.counter.perUser"
 					:paramData="entry.param"
 					@change="onChangeValue(entry)" />
 				
@@ -71,19 +67,16 @@
 							<img src="@/assets/loader/loader.svg" alt="loader" v-show="idToLoading[entry.counter.id] === true && search.length > 0">
 						</div>
 						
-						<Button class="loadAllBt" v-if="search.length === 0 && idToAllLoaded[entry.counter.id] !== true" :title="$t('counters.form.load_all_users')"
+						<Button class="loadAllBt" v-if="search.length === 0 && idToAllLoaded[entry.counter.id] !== true"
 						@click="loadUsers(entry)"
-						:loading="idToLoading[entry.counter.id]" />
+						:loading="idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</Button>
 	
-						<div class="noResult" v-if="idToNoResult[entry.counter.id] === true">
-							user not found
-						</div>
+						<div class="noResult" v-if="idToNoResult[entry.counter.id] === true">{{ $t("counters.user_not_found") }}</div>
 					</template>
 
 					<span class="noResult" v-else>{{ $t("counters.form.no_users") }}</span>
 
-					<template
-					v-if="idToUsers[entry.counter.id] && idToUsers[entry.counter.id]!.length > 0">
+					<template v-if="idToUsers[entry.counter.id] && idToUsers[entry.counter.id]!.length > 0">
 						<div class="sort" v-if="idToUsers[entry.counter.id]!.filter(v=>v.hide !== true).length > 1">
 							<button @click="sortOn(entry, 'name')">
 								{{$t("counters.form.sort_name")}}
@@ -100,12 +93,13 @@
 						:itemMargin="3"
 						lockScroll
 						v-slot="{ item } : {item:UserEntry}">
-							<div class="userItem">
+							<div class="card-item userItem">
 								<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
 								<span class="login" @click="openUserCard(item.user)">{{ item.user.displayName }}</span>
 								<ParamItem class="value"
 									:paramData="item.param"
 									@change="onChangeValue(entry, item)" />
+								<button class="deleteBt" @click="deleteUser(entry, item)"><img src="@/assets/icons/trash.svg"></button>
 							</div>
 						</InfiniteList>
 					</template>
@@ -248,6 +242,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 				}
 			}
 			this.param_placeholder.error = exists;
+			this.param_placeholder.errorMessage = exists? this.$t("counters.form.placholder_conflict") : '';
 		})
 	}
 
@@ -343,6 +338,15 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
 		this.$store("users").openUserCard(user);
+	}
+
+	/**
+	 * Open a user's profile info
+	 */
+	public deleteUser(counterEntry:CounterEntry, userEntry:UserEntry):void {
+		if(!counterEntry.counter.users) return;
+		delete counterEntry.counter.users[userEntry.user.id];
+		this.loadUsers(counterEntry);
 	}
 	
 	/**
@@ -484,7 +488,6 @@ interface UserEntry {
 
 <style scoped lang="less">
 .paramscounters{
-	.parameterContent();
 
 	section {
 		display: flex;
@@ -503,17 +506,9 @@ interface UserEntry {
 				justify-content: space-evenly;
 			}
 
-			&:deep(input) {
-				flex-basis: 10em !important;
-			}
-
 			.errorDetails {
-				background-color: var(--mainColor_alert);
-				color: var(--mainColor_light);
-				padding: 0 .5em .25em .5em;
+				text-align: center;
 				margin-top: -.25em;
-				border-bottom-right-radius: .5em;
-				border-bottom-left-radius: .5em;
 				&.shrink {
 					margin-left: 1.5em;
 				}
@@ -529,80 +524,69 @@ interface UserEntry {
 	.examples{
 		text-align: center;
 		.counterExample {
-			width: auto;
 			font-size: .75em;
-			align-self: center;
 		}
 	}
 
 	.counterEntry {
-		margin-bottom: 1em;
-		.actionBt {
-			width: 1.5em;
-			min-width: 1.5em;
-			border-radius: 0;
+		// width: 100%;
+		width: 400px;
+		max-width: 100%;
+		margin: auto;
+		.actions {
+			gap: .25em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			margin: calc(-.5em - 1px);
 			align-self: stretch;
+			.actionBt {
+				width: 1.5em;
+				min-width: 1.5em;
+				border-radius: 0;
+				align-self: stretch;
+				&:last-child {
+					margin-left: -.25em;//avoid gap between buttons without putting htem in a dedicated container
+				}
+			}
 		}
 		:deep(h2) {
 			text-align: left;
-			margin-left: .5em;
+			margin-right: 1em;
 		}
 
 		mark {
+			color: var(--color-light);
 			font-size: .7em;
 			padding: 2px 5px;
 		}
 
 		.placholder {
 			display: flex;//Dunno why i need this for the button to be properly centered
+			margin-right: .5em;
 		}
 		.info {
-			border: 1px solid var(--mainColor_light);
-			padding: .25em .5em;
-			border-radius: var(--border-radius);
 			font-size: .8em;
+			gap: .25em;
 			display: flex;
 			flex-direction: row;
-			gap: .25em;
-			margin-left: .5em;
 			cursor: default;
 			img {
 				height: 1em;
 			}
 		}
 		.content {
-			display: flex;
-			flex-direction: column;
-			gap: .5em;
-			width: 100%;
-			.button {
-				height: 1em;
-			}
-			.break {
-				height: 0;
-				flex-basis: 100%;
-				padding: 0;
-				&:last-child {
-					display: none;
-				}
-			}
 			.value {
-				font-weight: bold;
-				background-color: var(--mainColor_normal_extralight);
-				padding: .25em .5em;
 				border-radius: var(--border-radius);
 				min-width: 3em;
 				width: 100%;
-				color: darken(@mainColor_normal, 10%);
 				:deep(.content) {
 					.holder{
 						flex-wrap: nowrap;
 					}
 				}
 				:deep(input) {
-					border: none;
 					font-weight: bold;
-					background-color: transparent;
 					text-align: center;
 					flex-basis: unset;
 				}
@@ -632,20 +616,19 @@ interface UserEntry {
 				.noResult {
 					text-align: center;
 					font-style: italic;
-					color:var(--mainColor_alert);
 				}
 
 				.sort {
 					display: flex;
 					flex-direction: row;
 					button {
-						color: var(--mainColor_normal);
+						color: var(--color-light);
 						border-radius: .5em;
-						background-color: fade(@mainColor_normal, 10%);
+						background-color: var(--color-secondary);
 						// border: 1px solid var(--mainColor_normal);
 						box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 						&:hover {
-							background-color: fade(@mainColor_normal, 20%);
+							background-color: var(--color-secondary-light);
 						}
 					}
 					button:nth-child(1) {
@@ -668,11 +651,6 @@ interface UserEntry {
 					align-items: center;
 					gap: 1em;
 					height: 50px;
-					// border: 1px solid var(--mainColor_normal_extralight);
-					box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-					background-color: rgba(255, 255, 255, .5);
-					padding:.25em;
-					border-radius: var(--border-radius);
 					.login {
 						font-weight: bold;
 						flex-grow: 1;
@@ -684,6 +662,15 @@ interface UserEntry {
 					}
 					.value {
 						flex-basis: 100px;
+					}
+					.deleteBt {
+						height: 1.5em;
+						img {
+							height: 100%;
+						}
+						&:hover {
+							transform: scale(1.25);
+						}
 					}
 				}
 			}
