@@ -2,10 +2,10 @@
 	<div :class="classes">
 		<div class="holder">
 			<div class="leftForm">
-				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" bounce @click="toggleParams()" />
-				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" bounce @click="$emit('update:showCommands', true)" />
-				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" bounce @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="onlineUsersTooltip" />
-				<!-- <Button icon="channelPoints" bounce @click="$emit('update:showRewards', true)" /> -->
+				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" />
+				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
+				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="onlineUsersTooltip" />
+				<!-- <Button icon="channelPoints" @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
 			
@@ -166,7 +166,7 @@
 				</div>
 
 				<transition name="blink">
-					<ButtonNotification highlight class="voice"
+					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone'"
 						v-if="voiceBotConfigured"
 						:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
@@ -182,7 +182,7 @@
 				</transition>
 
 				<transition name="blink">
-					<Button highlight class="emergency"
+					<Button class="emergency"
 						v-if="emergencyButtonEnabled"
 						icon="emergency"
 						alert
@@ -198,23 +198,26 @@
 			<transition name="slide">
 				<Button class="muteBt" :aria-label="$t('chat.form.muteTTSBt_aria')"
 					icon="mute"
+					secondary
 					v-if="$store('tts').speaking"
-					v-tooltip="$t('chat.form.muteTTSBt_aria')"
+					v-tooltip="{content:$t('chat.form.muteTTSBt_aria'), placement:'left'}"
 					@click="stopTTS(false)" />
 			</transition>
 
 			<transition name="slide">
 				<Button class="muteBt" :aria-label="$t('chat.form.clearTTSBt_aria')"
 					icon="muteAll"
+					secondary
 					v-if="$store('tts').speaking"
-					v-tooltip="$t('chat.form.clearTTSBt_aria')"
+					v-tooltip="{content:$t('chat.form.clearTTSBt_aria'), placement:'left'}"
 					@click="stopTTS(true)" />
 			</transition>
 
 			<transition name="slide">
 				<Button class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
+					secondary
 					v-if="$store('voice').voicemodParams.voiceIndicator && $store('voice').voicemodCurrentVoice.voiceID != 'nofx'"
-					v-tooltip="$t('chat.form.resetVoiceBt_aria')"
+					v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
 					@click="resetVoiceEffect()">
 					<template #icon>
 						<img :src="'data:image/png;base64,' + $store('voice').voicemodCurrentVoice.image" alt="">
@@ -1010,7 +1013,14 @@ export default class ChatForm extends Vue {
 	}
 	&.emergencyMode {
 		.holder {
-			background-color: var(--mainColor_alert);
+			background-color: var(--color-alert);
+			.inputForm {
+				.inputHolder {
+					.replyTo {
+						background-color: var(--color-alert);
+					}
+				}
+			}
 		}
 	}
 
@@ -1088,13 +1098,6 @@ export default class ChatForm extends Vue {
 							margin-left: .25em;
 						}
 
-						.userlink {
-							font-weight: bold;
-							color: var(--mainColor_warn);
-							&:hover {
-								background-color: var(--color-dark);
-							}
-						}
 					}
 				}
 			}
@@ -1140,11 +1143,12 @@ export default class ChatForm extends Vue {
 				flex-direction: row;
 				align-items: center;
 				white-space: nowrap;
-				color: var(--mainColor_light);
-				background-color: rgba(255,255,255,.25);
+				color: var(--color-light);
+				background-color: var(--color-light-fader);
 				
 				border-radius: .5em;
-				font-size: .7em;
+				font-size: .9em;
+				font-family: var(--font-roboto);
 				padding: .35em;
 				img {
 					height: .7em;
@@ -1159,20 +1163,20 @@ export default class ChatForm extends Vue {
 		top: 0;
 		right: 0;
 		z-index: 1;
-		transform: translate(0, -100%);
+		transform: translate(0, calc(-100% - 5px));
 		display: flex;
 		flex-direction: column;
 
 		.button {
 			// .clearButton();
 			height: auto;
-			background-color: fade(@mainColor_light, 20%);
 			padding: .25em;
 			width: 2em;
 			height: 2em;
 			transform: translate(0, 0);
 			transition: transform .25s;
 			margin-top: .25em;
+			border-radius: var(--border-radius);
 		}
 
 		.voicemodBt {

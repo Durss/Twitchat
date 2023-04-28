@@ -190,7 +190,7 @@
 			:paramData="c"
 			:secondary="secondary"
 			:alert="alert"
-			:noBackground="noBackground"
+			noBackground
 			:childLevel="childLevel+1" />
 
 		<div class="child" ref="param_child_slot" v-if="$slots.default">

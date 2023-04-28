@@ -1,0 +1,104 @@
+/**
+* Common styles for chat messages
+*/
+.chatMessage {
+	color: var(--color-light);
+	font-size: var(--messageSize);
+	font-family: var(--font-inter);
+	border-radius: var(--border-radius);
+	line-height: 1.25em;
+	padding: .25em;
+	&.deleted {
+		opacity: .35;
+		text-decoration: line-through;
+		&:hover{
+			opacity: 1;
+			text-decoration: none;
+		}
+	}
+
+	&.highlight {
+		background-color: var(--color-light-fader);
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+
+		&:hover {
+			background-color: var(--color-light-fade);
+		}
+	}
+
+	&:hover {
+		background-color: var(--color-light-fader);
+	}
+
+	&>.icon, &>.head>.icon {
+		width: 1.25em;
+		height: 1.25em;
+		margin-right: 5px;
+		vertical-align: middle;
+		align-self: flex-start;
+	}
+
+	.chatMessageTime + * {
+		margin-left: 3em;
+	}
+	
+	.userlink {
+		font-weight: bold;
+		color: var(--color-secondary);
+		text-decoration: none;
+		&:hover {
+			background-color: var(--color-dark-fade);
+		}
+	}
+	
+	.quote {
+		font-style: italic;
+		word-break: break-word;
+		margin: 0;
+		margin-top: .5em;
+		display: block;
+		color: var(--color-light);
+		line-height: 1.2em;
+		background-color: rgba(0, 0, 0, 0.2);
+		padding: 0.5em;
+		border-radius: 0.5em;
+		&::before {
+			content: "“";
+			font-family: var(--font-nunito);
+			font-style: normal;
+			font-size: 4em;
+			line-height: .25em;
+			vertical-align: text-bottom;
+			margin-right: .1em;
+			opacity: .5;
+			top: 0.2em;
+			position: relative;
+			pointer-events: none;
+		}
+	}
+
+	.copyBt {
+		height: 1em;
+		margin-right: .25em;
+		vertical-align: middle;
+		cursor: pointer;
+	}
+	
+	.cheermote, .emote {
+		max-height: 2em;
+		vertical-align: middle;
+		object-fit: fill;
+	}
+}
+
+.chatMessageTime {
+	//Set in absolute position with fixed width to avoid reflow
+	//of the chat message everytime the timer changes
+	position: absolute;
+	font-size: .8em;
+	font-family: var(--font-roboto);
+	width: 3em;
+	text-align: right;
+}

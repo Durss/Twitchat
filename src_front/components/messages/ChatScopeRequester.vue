@@ -1,8 +1,8 @@
 <template>
-	<div class="chatscoperequester">
+	<div class="chatscoperequester chatMessage highlight">
 		<button class="closeBt" @click="deleteMessage()"><img src="@/assets/icons/cross.svg"></button>
 
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<img src="@/assets/icons/alert.svg" alt="alert" class="icon">
 
@@ -65,8 +65,6 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatscoperequester{
-	.chatMessageHighlight();
-
 	color: var(--mainColor_light);
 	background-color: var(--mainColor_alert);
 	position: relative;

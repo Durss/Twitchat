@@ -52,12 +52,12 @@ export default class Config {
 			// {platform:"twitch", login:"stupideconomics"},
 			// {platform:"twitch", login:"clothho"},
 			// {platform:"twitch", login:"kaosvmd"},
-			// {platform:"twitch", login:"avamind"},
+			{platform:"twitch", login:"avamind"},
 			// {platform:"twitch", login:"iti63"},
 			// {platform:"twitch", login:"shakawah"},
 			// {platform:"twitch", login:"marikigai"},
 			// {platform:"twitch", login:"iti63"},
-			{platform:"twitch", login:"mewstelle"},
+			// {platform:"twitch", login:"mewstelle"},
 			// {platform:"twitch", login:"gunselsenol"},
 			// {platform:"twitch", login:"encremecanique"},
 			// {platform:"twitch", login:"xurei"},
@@ -86,7 +86,7 @@ export default class Config {
 		// if(!this.IS_PROD) {
 		// 	return true;//Simulate beta env on local
 		// }
-		return document.location.host.indexOf("beta") > -1 || true;
+		return document.location.host.indexOf("beta") > -1 || document.location.host.indexOf("localhost") > -1;
 	}
 
 	public get TWITCH_CLIENT_ID():string { return this._serverConfig.twitch_client_id; }

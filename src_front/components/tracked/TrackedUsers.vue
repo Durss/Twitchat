@@ -8,7 +8,7 @@
 
 		<div class="content">
 			<div class="messageList" ref="messageList">
-				<ChatMessage v-for="(m, index) in messages"
+				<MessageItem v-for="(m, index) in messages"
 					:key="m.id"
 					:messageData="m"
 					:lightMode="true"
@@ -41,12 +41,12 @@ import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import ChatMessage from '../messages/ChatMessage.vue';
+import MessageItem from '../messages/MessageItem.vue';
 
 @Component({
 	components:{
 		Button,
-		ChatMessage,
+		MessageItem,
 		CloseButton,
 		ToggleBlock,
 	},
@@ -173,9 +173,6 @@ export default class TrackedUsers extends AbstractSidePanel {
 			display: flex;
 			flex-direction: column;
 			flex-grow: 1;
-			.message {
-				position: relative;
-			}
 			.message:nth-child(odd) {
 				background-color: var(--color-dark-fade);
 			}

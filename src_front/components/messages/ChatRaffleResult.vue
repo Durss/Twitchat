@@ -1,6 +1,6 @@
 <template>
-	<div class="chatraffleresult">
-		<span class="time" v-if="sParams.appearance.displayTime.value">{{time}}</span>
+	<div class="chatraffleresult chatMessage highlight">
+		<span class="chatMessageTime" v-if="sParams.appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
 		
 		<i18n-t scope="global" tag="div" keypath="chat.raffle.title">
@@ -44,6 +44,5 @@ export default class ChatRaffleResult extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatraffleresult{
-	.chatMessageHighlight();
 }
 </style>

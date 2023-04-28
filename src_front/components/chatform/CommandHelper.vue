@@ -11,17 +11,18 @@
 
 		<div class="commercial" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">
 			<Button aria-label="Start a 30s ad"		v-if="adCooldown == 0" small @click.capture="startAd(30);"	:disabled="!canStartCommercial" icon="coin">{{ $t('cmdmenu.start_ad') }}</Button>
-			<Button aria-label="Start a 60s ad"		v-if="adCooldown == 0" small @click.capture="startAd(60);"	:disabled="!canStartCommercial">60s</Button>
-			<Button aria-label="Start a 90s ad"		v-if="adCooldown == 0" small @click.capture="startAd(90);"	:disabled="!canStartCommercial">90s</Button>
-			<Button aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);"	:disabled="!canStartCommercial">120s</Button>
-			<Button aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">180s</Button>
+			<Button aria-label="Start a 60s ad"		v-if="adCooldown == 0" small @click.capture="startAd(60);"	:disabled="!canStartCommercial">1'00</Button>
+			<Button aria-label="Start a 90s ad"		v-if="adCooldown == 0" small @click.capture="startAd(90);"	:disabled="!canStartCommercial">1'30</Button>
+			<Button aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);"	:disabled="!canStartCommercial">2'00</Button>
+			<Button aria-label="Start a 150s ad"	v-if="adCooldown == 0" small @click.capture="startAd(150);"	:disabled="!canStartCommercial">2'30</Button>
+			<Button aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">3'00</Button>
 			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
-		<ParamItem class="roomParam" :paramData="param_followOnly"		@change="setFollowOnly()"	clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_subOnly"			@change="setSubOnly()"	clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_emotesOnly"		@change="setEmoteOnly()"	clearToggle @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_slowMode"		@change="setSlowMode()"	clearToggle @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_followOnly"	@change="setFollowOnly()"	noBackground @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_subOnly"		@change="setSubOnly()"		noBackground @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_emotesOnly"	@change="setEmoteOnly()"	noBackground @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_slowMode"	@change="setSlowMode()"		noBackground @click="requestRoomSettingsScopes()" />
 		
 		<div class="card-item raid" v-if="$store('stream').currentRaid">
 			<div class="title">
@@ -334,6 +335,27 @@ export default class CommandHelper extends Vue {
 			margin: auto;
 			text-align: center;
 			background-color: var(--color-alert);
+		}
+		.button {
+			padding-left: .5em;
+			padding-right: .5em;
+		}
+		.button:first-child {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+
+		.button:not(:last-child) {
+			border-right: 1px solid var(--color-light);
+		}
+
+		.button:not(:first-child):not(:last-child) {
+			border-radius: 0;
+		}
+
+		.button:last-child {
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
 		}
 	}
 

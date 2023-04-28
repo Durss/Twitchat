@@ -1,6 +1,6 @@
 <template>
-	<div class="chathypetrainresult">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chathypetrainresult chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/train.svg" alt="icon" class="icon">
 		<div class="infoHolder">
 			<i18n-t scope="global" tag="strong" keypath="chat.hype_train.summary_title">
@@ -173,8 +173,6 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chathypetrainresult{
-	.chatMessageHighlight();
-
 	.highlight() {
 		background-color: fade(@mainColor_normal, 50%);
 		border-radius: .5em;

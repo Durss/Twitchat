@@ -7,6 +7,7 @@
 			:errorMessage="error"
 			:secondary="secondary"
 			:alert="alert"
+			:noBackground="noBackground"
 		/>
 
 		<div class="preview" ref="preview" v-if="enabledParam.value === true">
@@ -64,6 +65,9 @@ export default class PostOnChatParam extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public noBackground!:boolean;
 	
 	@Prop
 	public botMessageKey!:TwitchatDataTypes.BotMessageField;

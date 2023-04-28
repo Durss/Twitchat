@@ -180,10 +180,6 @@ export default class PredictionForm extends AbstractSidePanel {
 		this.answers.splice(index, 1);
 	}
 
-	public async close():Promise<void> {
-		super.close();
-	}
-
 	public async submitForm():Promise<void> {
 		this.loading = true;
 		this.error = "";

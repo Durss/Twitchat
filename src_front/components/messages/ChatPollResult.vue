@@ -1,6 +1,6 @@
 <template>
-	<div class="chatpollresult">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatpollresult chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
 		<div class="content">
 			<div class="title">{{messageData.title}}</div>
@@ -86,7 +86,6 @@ export default class ChatPollResult extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatpollresult{
-	.chatMessageHighlight();
 	text-align: center;
 
 	.content {

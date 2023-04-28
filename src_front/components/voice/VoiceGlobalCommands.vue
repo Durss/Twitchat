@@ -4,7 +4,7 @@
 			<div class="head">{{ $t("voice.global_commands") }}</div>
 			
 			<ParamItem class="item" v-for="(i,index) in items"
-				:key="itemsID[index]"
+				:key="itemIDs[index]"
 				:paramData="i"
 				noBackground
 				@change="updateCommands()"
@@ -16,9 +16,9 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoiceAction from '@/utils/voice/VoiceAction';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
-import ParamItem from '../params/ParamItem.vue';
+import { Component, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../ToggleBlock.vue';
+import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
@@ -29,19 +29,13 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class VoiceGlobalCommands extends Vue {
 
-	@Prop({type:Boolean, default:false})
-	public open!:boolean;
+	public modelValue:VoiceAction[] = [];
 
 	public items:TwitchatDataTypes.ParameterData<string>[] = [];
-	public itemsID:string[] = [];
+	public itemIDs:string[] = [];
 	public openLocal:boolean = false;
 
-	public beforeMount():void {
-		this.openLocal = this.open !== false;
-	}
-
 	public mounted():void {
-		// const actions = this.$store("voice").voiceActions;
 		type VAKeys = keyof typeof VoiceAction;
 		const actions = Object.keys(VoiceAction);
 
@@ -61,28 +55,29 @@ export default class VoiceGlobalCommands extends Vue {
 				value:text,
 				labelKey:"voice.commands."+id,
 			});
-			this.itemsID.push(id);
+			this.itemIDs.push(id);
 		}
-		this.updateCommands(true);
+		
+		this.updateCommands();
 	}
 
-	public updateCommands(isInit:boolean = false):void {
+	public updateCommands():void {
 		const data:VoiceAction[] = [];
 		let allDone = true;
 		for (let i = 0; i < this.items.length; i++) {
 			const item = this.items[i];
 			data.push({
-				id:this.itemsID[i],
+				id:this.itemIDs[i],
 				sentences:item.value,
 			})
 
 			allDone &&= item.value != "";
 		}
+
+		this.openLocal = !allDone;
+		
 		this.$emit("update:modelValue", data);
 		this.$emit("update:complete", allDone);
-		if(!isInit && allDone){
-			this.openLocal = false;
-		}
 	}
 
 }

@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/bits.svg" alt="bits" class="icon">
 
@@ -39,7 +39,7 @@ export default class ChatBits extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageCheerData;
 
 	public get classes():string[] {
-		let res = ["chatbits"];
+		let res = ["chatbits", "chatMessage", "highlight"];
 		if(this.messageData.deleted === true) res.push("deleted");
 		return res;
 	}
@@ -59,6 +59,5 @@ export default class ChatBits extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatbits{
-	.chatMessageHighlight();
 }
 </style>

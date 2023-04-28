@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 		<span class="message" v-html="message"></span>
@@ -35,7 +35,7 @@ export default class ChatNotice extends AbstractChatMessage {
 	}
 
 	public get classes():string[] {
-		let res = ["chatnotice"];
+		let res = ["chatnotice", "chatMessage"];
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR) res.push("alert");
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE) {
 			res.push("shield");
@@ -64,8 +64,6 @@ export default class ChatNotice extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatnotice{
-	.chatMessage();
-
 	.message {
 		font-style: italic;
 		opacity: .7;

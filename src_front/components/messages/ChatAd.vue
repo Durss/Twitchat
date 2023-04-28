@@ -1,5 +1,5 @@
 <template>
-	<div class="chatad">
+	<div class="chatad chatMessage">
 		<div class="innerHolder">
 			<div v-if="isSponsor" class="sponsor">
 				<div class="title">{{ $t('chat.sponsor.title') }}</div>
@@ -253,7 +253,6 @@ export default class ChatAd extends Vue {
 
 <style scoped lang="less">
 .chatad{
-	.chatMessage();
 	color:var(--mainColor_normal);
 
 	.innerHolder {

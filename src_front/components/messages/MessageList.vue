@@ -86,10 +86,7 @@
 			<div class="head">
 				<h1 v-if="conversationMode">{{ $t("chat.conversation") }}</h1>
 				<h1 v-if="!conversationMode">{{ $t("chat.history", {USER: conversation[0].user.displayName}) }}</h1>
-				<Button class="button"
-					:aria-label="$t('chat.conversation_closeBt_aria')"
-					icon="cross"
-					@click="onLeaveMessage" />
+				<CloseButton @click="onLeaveMessage" />
 			</div>
 			<div class="messages" ref="conversationMessages">
 				<MessageItem class="message"
@@ -122,11 +119,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
 import MessageItem from './MessageItem.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components: {
 		Button,
 		MessageItem,
+		CloseButton,
 		MessageListFilter,
 	},
 	emits: ["showModal", 'addColumn']
@@ -1594,6 +1593,9 @@ export default class MessageList extends Vue {
 	}
 
 	.messageHolder {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
@@ -1604,7 +1606,6 @@ export default class MessageList extends Vue {
 			flex-direction: row;
 
 			.message {
-				position: relative;
 				flex-grow: 1;
 				&.empty {
 					font-style: italic;
@@ -1675,7 +1676,7 @@ export default class MessageList extends Vue {
 		border-radius: 5px;
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
-		background: var(--mainColor_normal);
+		background: var(--color-primary);
 		color: #fff;
 		white-space: nowrap;
 		font-size: .7em;
@@ -1685,13 +1686,12 @@ export default class MessageList extends Vue {
 		cursor: pointer;
 
 		&:hover {
-			background: var(--mainColor_normal_light);
+			background: var(--color-primary-light);
 		}
 	}
 
 	.lockedLiveHolder {
-		// background: fade(@mainColor_normal, 20%);
-		background: var(--mainColor_dark_light);
+		background: var(--color-primary-fader);
 		border-top: 1px solid fade(#000, 50%);
 		padding-top: .25em;
 
@@ -1775,7 +1775,7 @@ export default class MessageList extends Vue {
 	.conversation {
 		position: absolute;
 		z-index: 4;
-		background-color: var(--mainColor_dark);
+		background-color: var(--color-dark);
 		padding: 10px;
 		left: 0;
 		width: 100%;
@@ -1793,14 +1793,7 @@ export default class MessageList extends Vue {
 			h1 {
 				text-align: center;
 				flex-grow: 1;
-				color: var(--mainColor_light);
-			}
-
-			.button {
-				// .clearButton();
-				width: 1.25em;
-				height: 1.25em;
-				padding: .5em;
+				color: var(--color-light);
 			}
 		}
 
@@ -1808,7 +1801,9 @@ export default class MessageList extends Vue {
 			max-height: 200px;
 			overflow-y: auto;
 			overflow-x: hidden;
-			position: relative
+			.message:nth-child(odd) {
+				background-color: rgba(255, 255, 255, .025);
+			}
 		}
 	}
 

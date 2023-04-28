@@ -29,7 +29,7 @@
 		</div>
 
 		<ToggleBlock class="infos" :open="false" medium v-if="currentChanId == myChannelId" :title="$t('userlist.infoBt')">
-				<p class="info" v-for="e in $tm('userlist.infos')" v-html="e"></p>
+			<p class="info" v-for="e in $tm('userlist.infos')" v-html="e"></p>
 		</ToggleBlock>
 
 		<div class="users" v-if="currentChan">
@@ -232,7 +232,7 @@ interface ChannelUserList {
 
 <style scoped lang="less">
 .userlist{
-	max-width: 500px;
+	max-width: 600px;
 
 	.users {
 		position: sticky;
@@ -252,12 +252,11 @@ interface ChannelUserList {
 
 
 	.infos {
-		font-size: .7em;
+		font-size: .8em;
 		max-width: 600px;
 		margin: auto;
 		margin-top: 1em;
 		.info {
-			font-size: 1.2em;
 			line-height: 1.5em;
 		}
 	}
@@ -268,7 +267,6 @@ interface ChannelUserList {
 		}
 
 		.list {
-			// background-color: var(--color-primary-fade);
 			width: calc(100% - 2em);
 			margin: auto;
 			padding: .25em;
@@ -279,7 +277,6 @@ interface ChannelUserList {
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 			
-
 			.user {
 				display: inline-block;
 				text-overflow: ellipsis;

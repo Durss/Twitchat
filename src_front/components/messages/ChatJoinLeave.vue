@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 
@@ -48,7 +48,7 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 	
 
 	public get classes():string[] {
-		let res = ["chatjoinleave"];
+		let res = ["chatjoinleave", "chatMessage" ,"highlight"];
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.LEAVE) res.push("alert");
 		return res;
 	}
@@ -93,8 +93,6 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatjoinleave{
-	.chatMessageHighlight();
-	
 	flex-wrap: wrap;
 	font-style: italic;
 	line-height: 1.25em;

@@ -130,10 +130,6 @@ export default class PollForm extends AbstractSidePanel {
 		if(this.voiceController) this.voiceController.dispose();
 	}
 
-	public async close():Promise<void> {
-		super.close();
-	}
-
 	public async submitForm():Promise<void> {
 		this.loading = true;
 		this.error = "";

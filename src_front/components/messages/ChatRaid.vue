@@ -1,6 +1,6 @@
 <template>
-	<div class="chatraid">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatraid chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
 
@@ -83,8 +83,6 @@ export default class ChatRaid extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatraid{
-	.chatMessageHighlight();
-
 	.messageHolder {
 		display: flex;
 		flex-direction: column;

@@ -1,6 +1,6 @@
 <template>
-	<div class="chatwatchstreak">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatwatchstreak chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/watchStreak.svg')" alt="notice" class="icon">
 		
@@ -43,7 +43,5 @@ export default class ChatWatchStreak extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatwatchstreak{
-	.chatMessageHighlight();
-	
 }
 </style>

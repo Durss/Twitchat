@@ -173,7 +173,7 @@ export default class EmoteSelector extends Vue {
 				platform:"twitch",
 				login:"global",
 				displayName:"Global",
-				avatarPath:this.$image("icons/emote.svg"),
+				avatarPath:this.$image("icons/twitch.svg"),
 				id:"0",
 				is_raider:false,
 				is_affiliate:false,

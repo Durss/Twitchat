@@ -146,7 +146,7 @@ export default class Slider extends Vue {
 		border-radius: 1em;
 		height: calc(100% - 2px);
 		background-color: var(--color-primary);
-		transition: width .2s;
+		// transition: width .2s;
 		min-width: 1px;
 	}
 

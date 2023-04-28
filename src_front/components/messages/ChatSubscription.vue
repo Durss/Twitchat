@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img v-if="messageData.is_gift" src="@/assets/icons/gift.svg" alt="gift" class="icon">
 		<img v-else-if="messageData.tier == 'prime'" src="@/assets/icons/prime.svg" alt="prime" class="icon">
@@ -114,7 +114,9 @@
 				</i18n-t>
 			</div>
 			
-			<div class="quote" v-if="messageData.message_html" v-html="messageData.message_html"></div>
+			<div class="quote" v-if="messageData.message">
+				<ChatMessageChunksParser :chunks="messageData.message_chunks" />
+			</div>
 		</div>
 
 	</div>
@@ -124,9 +126,12 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
-	components:{},
+	components:{
+		ChatMessageChunksParser,
+	},
 	emits:["onRead"],
 })
 export default class ChatSubscription extends AbstractChatMessage {
@@ -135,7 +140,7 @@ export default class ChatSubscription extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageSubscriptionData;
 
 	public get classes():string[] {
-		let res = ["chatsubscription"];
+		let res = ["chatsubscription", "chatMessage", "highlight"];
 		if(this.messageData.deleted === true) res.push("deleted");
 		return res;
 	}
@@ -163,8 +168,6 @@ export default class ChatSubscription extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatsubscription{
-	.chatMessageHighlight();
-	
 	.additional {
 		opacity: .8;
 	}

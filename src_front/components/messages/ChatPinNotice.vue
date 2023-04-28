@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<img :src="$image(messageData.type=='pinned'? 'icons/pin.svg' : 'icons/unpin.svg')" alt="notice" class="icon">
 
@@ -36,7 +36,7 @@ export default class ChatPinNotice extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessagePinData|TwitchatDataTypes.MessageUnpinData;
 
 	public get classes():string[] {
-		const res = ["chatpinnotice"];
+		const res = ["chatpinnotice", "chatMessage", "highlight"];
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.UNPINNED) {
 			res.push("unpinned");
 		}
@@ -62,8 +62,6 @@ export default class ChatPinNotice extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatpinnotice{
-	.chatMessageHighlight();
-
 	.holder {
 		flex-grow: 1;
 		display: flex;

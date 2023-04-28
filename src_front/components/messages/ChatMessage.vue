@@ -54,7 +54,7 @@
 		
 		<template v-if="messageData.user.is_blocked !== true">
 
-			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+			<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
@@ -448,7 +448,7 @@ export default class ChatMessage extends AbstractChatMessage {
 
 		//Pre compute some classes to reduce watchers count on "classes" getter
 
-		const staticClasses = ["chatmessage"];
+		const staticClasses = ["chatmessageholder", "chatMessage"];
 		if(this.firstTime || this.isPresentation || this.isReturning || this.isFirstToday)	staticClasses.push("hasHeader");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			staticClasses.push("whisper");
@@ -684,9 +684,7 @@ export default class ChatMessage extends AbstractChatMessage {
 </script>
 
 <style scoped lang="less">
-.chatmessage{
-	.chatMessage();
-
+.chatmessageholder {
 	&.highlightSubs { background-color: --highlight_subs; }
 	&.highlightVips { background-color: --highlight_vips; }
 	&.highlightMods { background-color: --highlight_mods; }
@@ -695,7 +693,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	
 	&.highlighted { 
 		.message {
-			background-color: var(--mainColor_normal);
+			background-color: var(--color-primary);
 			color:#fff;
 			padding: 0 .5em;
 		}
@@ -726,13 +724,15 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	&.tracked {
-		border-radius: .25em;
-		background-color: fade(@mainColor_light, 20%);
-		border: 0 solid rgba(255, 255, 255, 1);
-		border-left-width: .75em;
-		padding-left: .3em;
+		border-radius: var(--border-radius);
+		background-color: var(--color-secondary);
+		// border-left-width: .75em;
+		// padding-left: .3em;
+		// border: 1px solid var(--color-secondary);
+		text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
 		.message {
-			color: #fff;
+			// color: var(--color-dark);
+			// texta
 		}
 	}
 
@@ -876,12 +876,6 @@ export default class ChatMessage extends AbstractChatMessage {
 			padding: 0 3px;
 			border-radius: 3px;
 			background-color: var(--mainColor_light);
-		}
-		:deep(.copyBt) {
-			height: 1em;
-			margin-right: .25em;
-			vertical-align: middle;
-			cursor: pointer;
 		}
 
 		:deep(mark) {

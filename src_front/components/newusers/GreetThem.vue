@@ -464,7 +464,6 @@ export default class NewUsers extends Vue {
 		background-color: var(--color-dark-fade);
 		box-shadow: inset 0 2px 4px rgba(0, 0, 0, .3);
 		.message {
-			position: relative;
 			cursor: pointer;
 			overflow: hidden;
 			font-family: var(--font-inter);

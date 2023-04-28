@@ -1,6 +1,6 @@
 <template>
-	<div class="chatautobanjoin">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatautobanjoin chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/mod.svg" alt="mod" class="icon">
 
@@ -23,7 +23,7 @@
 					:title="$t('chat.autoban_join.unbanBt')"
 					@click.stop="unbanUser()" />
 	
-				<Button highlight v-if="canBlock"
+				<Button alert v-if="canBlock"
 					:loading="moderating"
 					icon="ban"
 					:title="$t('chat.autoban_join.banBt')"
@@ -85,8 +85,6 @@ export default class ChatAutobanJoin extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatautobanjoin{
-	.chatMessageHighlight();
-
 	mark {
 		background-color: fade(@mainColor_dark, 50%);
 		border-radius: .5em;

@@ -144,7 +144,7 @@ export default class ChatTipAndTrickAd extends Vue {
 	public startTimer():void { this.$store("timer").timerStart(); }
 	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
 	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
-	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:string):void { this.$store("params").openParamsPage(page, subContent); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamOverlaySectionsStringType|TwitchatDataTypes.ConnexionSectionsStringType):void { this.$store("params").openParamsPage(page, subContent); }
 }
 </script>
 

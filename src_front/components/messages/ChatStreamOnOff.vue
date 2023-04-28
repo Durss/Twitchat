@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<img :src="$image('icons/online.svg')" alt="online" class="icon" v-if="isOnline">
 		<img :src="$image('icons/offline.svg')" alt="offline" class="icon" v-else>
@@ -55,7 +55,7 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData;
 
 	public shoutoutLoading:boolean = false;
-	public classes:string[] = ["chatstreamonoff"];
+	public classes:string[] = ["chatstreamonoff", "chatMessage", "highlight"];
 
 	public get isMe():boolean {
 		return this.messageData.info.user.id == this.$store("auth").twitch.user.id;
@@ -95,8 +95,6 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatstreamonoff{
-	.chatMessageHighlight();
-	
 	background-color: fade(@mainColor_highlight, 25);
 	&:hover {
 		background-color: fade(@mainColor_highlight_light, 25);

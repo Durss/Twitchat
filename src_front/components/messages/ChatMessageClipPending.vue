@@ -1,6 +1,6 @@
 <template>
-	<div class="chatmessageclippending">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatmessageclippending chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/clip.svg')" alt="notice" class="icon">
 		
@@ -96,8 +96,6 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatmessageclippending{
-	.chatMessageHighlight();
-
 	.ctas {
 		margin-top: .25em;
 		display: flex;

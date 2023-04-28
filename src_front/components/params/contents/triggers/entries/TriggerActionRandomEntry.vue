@@ -2,9 +2,9 @@
 	<div class="triggeractionrandomentry">
 		
 		<div class="tabs">
-			<Button :title="$t('triggers.actions.random.number')" bounce :selected="action.mode=='number'" @click="action.mode='number'" icon="dice" />
-			<Button :title="$t('triggers.actions.random.list')" bounce :selected="action.mode=='list'" @click="action.mode='list'" icon="list" />
-			<Button :title="$t('triggers.actions.random.trigger')" bounce :selected="action.mode=='trigger'" @click="action.mode='trigger'" icon="broadcast" />
+			<Button :selected="action.mode=='number'" @click="action.mode='number'" icon="dice">{{$t('triggers.actions.random.number')}}</Button>
+			<Button :selected="action.mode=='list'" @click="action.mode='list'" icon="list">{{$t('triggers.actions.random.list')}}</Button>
+			<Button :selected="action.mode=='trigger'" @click="action.mode='trigger'" icon="broadcast">{{$t('triggers.actions.random.trigger')}}</Button>
 		</div>
 
 		<div class="row item info" v-if="action.mode != 'trigger'">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>

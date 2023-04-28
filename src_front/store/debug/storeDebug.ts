@@ -1,9 +1,9 @@
 import rewardImg from '@/assets/icons/channelPoints.svg';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { watch, type UnwrapRef } from 'vue';
@@ -39,6 +39,18 @@ export const storeDebug = defineStore('debug', {
 				wordsPerSentence: { max: 8, min: 2 }
 			});
 			let message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			for (let i = 0; i < message.length; i++) {
+				if(message.charAt(i) === " ") {
+					if(Math.random() > .92) {
+						const emote = Utils.pickRand(["BOP", "PogChamp", "MyAvatar", "NomNom", "VoHiYo", "LUL", "TwitchUnity", "bleedPurple", "NotLikeThis", "twitchRaid"]);
+						message = message.substring(0, i) + " " + emote + " " + message.substring(i+1);
+						i += emote.length + 1;
+					}
+				}
+			}
+			if(Math.random() > .92) {
+				message += " this-is-a-link.test";
+			}
 			
 			switch(type) {
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
@@ -228,6 +240,12 @@ export const storeDebug = defineStore('debug', {
 							icon,
 						},
 					};
+					if(Math.random() > .75) {
+						let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+						m.message = message;
+						m.message_chunks = chunks;
+						m.message_html =TwitchUtils.messageChunksToHTML(chunks);
+					}
 					data = m;
 					break;
 				}

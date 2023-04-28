@@ -2,7 +2,7 @@
 	<div :class="classes"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img v-if="messageData.restricted" src="@/assets/icons/lock_fit.svg" alt="notice" class="icon">
 		<img v-else src="@/assets/icons/shield.svg" alt="notice" class="icon">
@@ -54,7 +54,7 @@ export default class ChatLowTrustTreatment extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageLowtrustTreatmentData;
 
 	public get classes():string[] {
-		const res:string[] = ["chatlowtrusttreatment"];
+		const res:string[] = ["chatlowtrusttreatment", "chatMessage" ,"highlight"];
 		if(this.messageData.restricted
 		|| this.messageData.monitored) res.push("alert");
 		return res;
@@ -68,7 +68,6 @@ export default class ChatLowTrustTreatment extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatlowtrusttreatment{
-	.chatMessageHighlight();
 	background-color: fade(@mainColor_normal, 10%);
 
 	a {

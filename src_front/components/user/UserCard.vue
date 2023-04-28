@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
 		<div class="holder" ref="holder" v-if="loading">
-			<Button aria-label="close" small icon="cross" class="closeBt" @click="close()" />
+			<CloseButton aria-label="close" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
@@ -13,18 +13,18 @@
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="error">
-			<Button aria-label="close" small icon="cross" class="closeBt" @click="close()" />
+			<CloseButton aria-label="close" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
 				</div>
 			</div>
 
-			<div class="error">{{ $t("error.user_profile") }}</div>
+			<div class="card-item alert error">{{ $t("error.user_profile") }}</div>
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="!loading && !error">
-			<Button aria-label="close" small icon="cross" class="closeBt" @click="close()" />
+			<CloseButton aria-label="close" @click="close()" />
 			<div class="head">
 				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
 					<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
@@ -71,18 +71,20 @@
 			</div>
 			
 			<div class="ctas">
-				<Button :title="$t('usercard.profileBt')" type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
-				<Button :title="$t('usercard.viewercardBt')" type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank" />
-				<Button :title="$t('usercard.trackBt')" v-if="!is_tracked" small icon="magnet" @click="trackUser()" />
-				<Button :title="$t('usercard.untrackBt')" v-if="is_tracked" small icon="magnet" @click="untrackUser()" />
-				<Button :title="ttsReadBtLabel"  v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()" />
+				<Button type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank">{{$t('usercard.profileBt')}}</Button>
+				<Button type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
+				<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
+				<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
+				<Button v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
 			</div>
 
 			<div class="description" v-if="userDescription">{{userDescription}}</div>
 			
 			<div class="scrollable">
-				<div class="messages" v-if="messageHistory.length > 0">
-					<h2>{{ $t("usercard.messages") }}</h2>
+				<div class="card-item messages" v-if="messageHistory.length > 0">
+					<div class="header">
+						<h2 class="title">{{ $t("usercard.messages") }}</h2>
+					</div>
 	
 					<div class="list">
 						<div class="subholder" v-for="m in messageHistory" :key="m.id">
@@ -93,16 +95,18 @@
 					</div>
 				</div>
 				
-				<div class="followings" v-if="!followingsDisabled">
-					<h2>Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
-					<div class="disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
-					<div class="commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
+				<div class="card-item followings" v-if="!followingsDisabled">
+					<div class="header">
+						<h2 class="title">Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
+					</div>
+					<div class="card-item secondary disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
+					<div class="card-item primary commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
 					<transition name="scale">
 						<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
 					</transition>
 	
-					<div v-if="errorFollowings" class="error">Something went wrong while loading followings...</div>
-					<div v-if="suspiciousFollowFrequency" class="warn">This user has or has had a suspicious following behavior</div>
+					<div v-if="errorFollowings" class="card-item alert error">Something went wrong while loading followings...</div>
+					<div v-if="suspiciousFollowFrequency" class="card-item secondary warn">This user has or has had a suspicious following behavior</div>
 	
 					<div class="list" v-if="!errorFollowings" ref="list">
 						<div v-for="u in followings" :class="myFollowings[u.to_id]===true? 'user common' : 'user'">
@@ -131,10 +135,12 @@ import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatModTools from '../messages/components/ChatModTools.vue';
 import MessageItem from '../messages/MessageItem.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 		MessageItem,
 		ChatModTools,
 	}
@@ -497,36 +503,17 @@ export default class UserCard extends Vue {
 
 	&>.holder {
 		.center();
+		display: flex;
+		flex-direction: column;
 		position: absolute;
-		background-color: var(--mainColor_light_extralight);
 		padding: 1em;
+		box-sizing: border-box;
+		border-radius: 1em;
+		color:var(--color-light);
+		background-color: var(--color-dark-light);
 		max-width: 800px;
 		width: 80%;
 		max-height: 100vh;
-		box-sizing: border-box;
-		border-radius: 1em;
-		display: flex;
-		flex-direction: column;
-		overflow: auto;
-
-		.closeBt {
-			// .clearButton();
-			position: absolute;
-			top:1em;
-			right:1em;
-			z-index: 1;
-			width: 1.5em;
-			height: 1.5em;
-			:deep(.icon) {
-				height: unset;
-				width: unset;
-				max-width: unset;
-				max-height: unset;
-			}
-			&:hover {
-				background-color: var(--mainColor_normal_extralight);
-			}
-		}
 
 		.loader {
 			margin: auto;
@@ -537,15 +524,7 @@ export default class UserCard extends Vue {
 		}
 
 		.error, .warn {
-			background-color: var(--mainColor_alert);
-			color: var(--mainColor_light);
-			padding: .25em .5em;
-			border-radius: .5em;
 			text-align: center;
-
-			&.warn {
-				background-color: var(--mainColor_warn);
-			}
 		}
 
 		&>.head {
@@ -633,7 +612,7 @@ export default class UserCard extends Vue {
 			.info {
 				font-size: .7em;
 				border-radius: .5em;
-				border: 1px solid var(--mainColor_normal);
+				border: 1px solid var(--color-light);
 				padding: .25em .5em;
 				.icon {
 					height: 1em;
@@ -716,56 +695,26 @@ export default class UserCard extends Vue {
 
 		.followings, .messages {
 			margin-top: 1em;
-			border-radius: .5em;
-			background-color: fade(@mainColor_normal, 10%);
 			display: flex;
 			flex-direction: column;
-			min-height: 0;//For some reason this makes the holder actually scrollable...
-
-			h2 {
-				padding: .25em;
-				text-align: center;
-				border-top-left-radius: .5em;
-				border-top-right-radius: .5em;
-				color: var(--mainColor_light);
-				background-color: var(--mainColor_normal);
-				border-bottom-color: var(--mainColor_light);
-				.count {
-					font-style: italic;
-					font-size: .8em;
-					font-weight: normal;
-					vertical-align: middle;
-				}
-			}
 
 			&.messages {
-				min-height: unset;
-				margin-bottom: 1em;
 				.list {
-					background-color: var(--mainColor_dark);
-					max-height: 50vh;
+					background-color: var(--color-dark);
+					max-height: min(50vh, 300px);
 					overflow-y: auto;
-					.message{
-						position: relative;
-					}
 				}
 			}
 
 			&.followings {
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
 				min-height: unset;
 				.commonFollow, .disableDate {
 					font-size: .8em;
 					font-style: italic;
-					margin: .5em 0;
-					background-color: fade(@mainColor_normal, 10%);
 					align-self: center;
-				}
-	
-				.disableDate {
-					background-color: fade(@mainColor_warn, 50%);
-					color: var(--mainColor_dark);
-					padding: .5em;
-					border-radius: @border_radius;
 				}
 	
 				.warn {
@@ -793,18 +742,19 @@ export default class UserCard extends Vue {
 				
 				.list {
 					@itemWidth: 150px;
-					padding: .5em;
 					display: grid;
-					// min-height: 13em;
+					gap: .5em;
 					grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 	
 					.user {
+						gap: .25em;
 						display: flex;
 						flex-direction: column;
-						padding: .1em;
 	
 						&.common {
-							background-color: fade(@mainColor_normal, 10%);
+							padding: .25em .5em;
+							border-radius: var(--border-radius);
+							background-color: var(--color-primary-fade);
 						}
 	
 						.login {
@@ -827,7 +777,7 @@ export default class UserCard extends Vue {
 	}
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
 		
 	.usercard{
 

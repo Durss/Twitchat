@@ -216,3 +216,8 @@ export default class MessageItem extends Vue {
 
 }
 </script>
+<style scoped lang="less">
+.message{
+	position: relative;
+}
+</style>

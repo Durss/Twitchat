@@ -52,7 +52,7 @@
 			<Button small @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
 			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
-			<Button small secondary type="link" :href="pubsubHistoryLink" highlight target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
+			<Button small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
 		</div>
 	</div>
 </template>

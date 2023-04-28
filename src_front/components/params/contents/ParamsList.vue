@@ -8,7 +8,7 @@
 					@enter="onShowItem"
 					@leave="onHideItem"
 				>
-					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="info obsConnect">
+					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="card-item alert info obsConnect">
 						<img src="@/assets/icons/alert.svg">
 						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 							<template #LINK>
@@ -41,17 +41,18 @@
 					<div v-else-if="p.id == 215 && p.value === true" class="info config">
 						<PostOnChatParam class="item"
 							botMessageKey="shoutout"
+							noBackground
 							:noToggle="true"
 							titleKey="params.chatShoutout_info"
 							:placeholders="soPlaceholders"
 						/>
 					</div>
 	
-					<div v-else-if="p.id == 216 && p.value === true" class="info config">
+					<div v-else-if="p.id == 216 && p.value === true" class="card-item info config">
 						<Button small secondary @click="$store('params').openParamsPage(contentSpoiler)">{{$t('global.configure')}}</Button>
 					</div>
 	
-					<div v-else-if="p.id == 217 && p.value === true" class="info config">
+					<div v-else-if="p.id == 217 && p.value === true" class="card-item info config">
 						<Button small secondary @click="$store('params').openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
 					</div>
 	
@@ -59,14 +60,13 @@
 						<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
 					</div>
 	
-					<div v-else-if="isMissingScope(p) && p.value == true" class="info scope">
+					<div v-else-if="isMissingScope(p) && p.value == true" class="card-item alert info scope">
 						<img src="@/assets/icons/lock_fit.svg">
 						<p class="label">{{ $t("params.scope_missing") }}</p>
-						<Button small highlight
+						<Button small alert
 							class="grantBt"
-							:title="$t('global.grant_scope')"
 							icon="unlock"
-							@click="requestPermission(p.twitch_scopes!)" />
+							@click="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
 					</div>
 				</transition>
 			</div>
@@ -339,12 +339,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 			}
 	
 			&.obsConnect, &.scope {
-				display: block;
-				border-radius: .25em;
-				margin: .25em auto;
-				background-color: var(--mainColor_light);
-				border: 1px solid var(--mainColor_alert);
-				padding: .25em .5em;
 				margin-left: calc(@iconSize + 10px);
 				text-align: center;
 				p {
@@ -355,12 +349,8 @@ export default class ParamsList extends Vue implements IParameterContent {
 					margin-right: .25em;
 					vertical-align: middle;
 				}
-				a{
-					color: var(--mainColor_alert);
-				}
 				.grantBt {
 					margin: .5em auto;
-					display: block;
 				}
 			}
 	

@@ -4,7 +4,6 @@
 		<VoiceGlobalCommands class="action global"
 			v-model="globalCommands"
 			v-model:complete="globalCommandsOK"
-			:open="actions.length === 0"
 		/>
 
 		<Button icon="add" class="addBt"
@@ -101,7 +100,7 @@ export default class VoiceTriggerList extends Vue {
 
 	public reduceSelectData(option:{label:string, value:string}){ return option.value; }
 
-	public mounted():void {
+	public beforeMount():void {
 		type VAKeys = keyof typeof VoiceAction;
 		this.actions = [];
 		this.actions = JSON.parse(JSON.stringify(this.$store("voice").voiceActions));
@@ -208,7 +207,6 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	public getLabelFromID(id:string|undefined):string {
-		type VAKeys = keyof typeof VoiceAction;
 		if(!id===null) return "ACTION ID NOT FOUND : "+id;
 		let label = this.$t("voice.select_action_placeholder");
 		if(id) {
