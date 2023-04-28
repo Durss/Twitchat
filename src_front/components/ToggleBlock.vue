@@ -210,7 +210,9 @@ export default class ToggleBlock extends Vue {
 	}
 
 	&.medium {
-		font-size: .8em;
+		.header {
+			font-size: .8em;
+		}
 	}
 
 

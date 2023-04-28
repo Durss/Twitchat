@@ -1,25 +1,29 @@
 <template>
 	<form @submit.prevent="connect()" class="obsconnectform">
 		<transition name="fade">
-			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success">{{ $t("obs.connection_success") }}</div>
+			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="card-item primary success">{{ $t("obs.connection_success") }}</div>
 		</transition>
-		<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
-		<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
-		<ParamItem :paramData="obsIP_conf" class="row" v-if="!connected" />
-		
-		<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')" v-if="!connected">
-			<p>{{ $t("obs.how_to1") }}</p>
-			<i18n-t scope="global" tag="p" class="warn" keypath="obs.how_to2">
-				<template #IP><strong>127.0.0.1</strong></template>
-			</i18n-t>
-			<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
-		</ToggleBlock>
 
-		<Button :title="$t('global.connect')" type="submit" class="connectBt" v-if="!connected" :loading="loading" />
-		<Button :title="$t('global.disconnect')" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" icon="cross" />
+		<template v-if="!connected">
+			<ParamItem :paramData="obsPort_conf" class="param" />
+			<ParamItem :paramData="obsPass_conf" class="param" />
+			<ParamItem :paramData="obsIP_conf" class="param" />
+			
+			<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')">
+				<p>{{ $t("obs.how_to1") }}</p>
+				<i18n-t scope="global" tag="p" class="warn" keypath="obs.how_to2">
+					<template #IP><strong>127.0.0.1</strong></template>
+				</i18n-t>
+				<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
+			</ToggleBlock>
+	
+			<Button type="submit" class="connectBt" :loading="loading">{{$t('global.connect')}}</Button>
+		</template>
+		
+		<Button @click="disconnect()" class="connectBt" v-else :loading="loading" icon="cross">{{$t('global.disconnect')}}</Button>
 
 		<transition name="fade">
-			<div v-if="connectError" @click="connectError = false" class="error">
+			<div v-if="connectError" @click="connectError = false" class="card-item alert error">
 				<div>{{ $t("error.obs_ws_connect") }}</div>
 				<div v-if="obsIP_conf.value != '127.0.0.1'">{{ $t("obs.ip_advice") }}</div>
 			</div>
@@ -130,57 +134,37 @@ export default class OBSConnectForm extends Vue {
 
 <style scoped lang="less">
 .obsconnectform{
-
+	gap: .5em;
 	display: flex;
 	flex-direction: column;
 	
-	.info {
-		margin-bottom: 1em;
-	}
-
 	.connectBt {
-		display: block;
 		margin: auto;
 	}
 
 	.error, .success {
-		justify-self: center;
-		color: var(--mainColor_light);
-		display: block;
 		text-align: center;
-		padding: 5px;
-		border-radius: 5px;
-		margin: auto;
-		margin-top: 10px;
-		font-size: .9em;
-
-		&.error {
-			background-color: var(--mainColor_alert);
-		}
-
+		line-height: 1.3em;
 		&.success {
-			background-color: #1c941c;
-			margin-top: 0px;
-			margin-bottom: 10px;
-		}
-		
-		a {
-			color: var(--mainColor_light);
-		}
-
-		div:not(:last-child) {
-			margin-bottom: 1em;
-		}
-		:deep(strong) {
-			background-color: var(--mainColor_light);
-			color: var(--mainColor_alert);
-			padding: 0 0.25em;
-			border-radius: 0.25em;
+			align-self: center;
 		}
 	}
-	.warn {
-		margin-top: 1em;
-		font-style: italic;
+	.info {
+		width: 100%;
+		:deep(.content) {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+	}
+	.param {
+		:deep(.inputHolder) {
+			max-width: 150px !important;
+		}
+		:deep(input) {
+			width: 150px !important;
+		}
 	}
 
 	.fade-enter-active {
@@ -195,23 +179,6 @@ export default class OBSConnectForm extends Vue {
 	.fade-leave-to {
 		opacity: 0;
 		transform: translateY(-10px);
-	}
-
-	:deep(input) {
-		min-width: 100px;
-		//These lines seems stupide AF but they allow the input
-		//to autosize to it's min length
-		width: 0%;
-		flex-grow: 1;
-		max-width: 100px;
-
-		text-align: center;
-		
-		//Hide +/- arrows
-		&::-webkit-outer-spin-button,
-		&::-webkit-inner-spin-button {
-			display: none;
-		}
 	}
 }
 </style>

@@ -1,15 +1,15 @@
 <template>
 	<div class="permissionsform">
-		<ParamItem :paramData="param_broadcaster" class="row" v-model="modelValue.broadcaster" @change="$emit('update:modelValue', modelValue)" />
-		<ParamItem :paramData="param_mods" class="row" v-model="modelValue.mods" @change="$emit('update:modelValue', modelValue)" />
-		<ParamItem :paramData="param_vips" class="row" v-model="modelValue.vips" @change="$emit('update:modelValue', modelValue)" />
-		<ParamItem :paramData="param_subs" class="row" v-model="modelValue.subs" @change="$emit('update:modelValue', modelValue)" />
-		<ParamItem :paramData="param_followers" class="row" v-model="modelValue.follower" @change="$emit('update:modelValue', modelValue)" />
-		<ParamItem :paramData="param_all" class="row" v-model="modelValue.all" @change="$emit('update:modelValue', modelValue)" />
-		<ParamItem :paramData="param_allowed" class="row allow" v-model="modelValue.usersAllowed" @change="$emit('update:modelValue', modelValue)" />
-		<ParamItem :paramData="param_refused" class="row refuse" v-model="modelValue.usersRefused" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem noBackground :paramData="param_broadcaster" class="row" v-model="modelValue.broadcaster" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem noBackground :paramData="param_mods" class="row" v-model="modelValue.mods" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem noBackground :paramData="param_vips" class="row" v-model="modelValue.vips" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem noBackground :paramData="param_subs" class="row" v-model="modelValue.subs" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem noBackground :paramData="param_followers" class="row" v-model="modelValue.follower" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem noBackground :paramData="param_all" class="row" v-model="modelValue.all" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem noBackground :paramData="param_allowed" class="row allow" v-model="modelValue.usersAllowed" @change="$emit('update:modelValue', modelValue)" />
+		<ParamItem noBackground :paramData="param_refused" class="row refuse" v-model="modelValue.usersRefused" @change="$emit('update:modelValue', modelValue)" />
 		
-		<div v-if="noSelection" class="noSelection">{{ $t("global.permissions.nobody") }}</div>
+		<div v-if="noSelection" class="card-item alert">{{ $t("global.permissions.nobody") }}</div>
 	</div>
 </template>
 
@@ -47,8 +47,7 @@ export default class PermissionsForm extends Vue {
 		&& this.modelValue.all === false
 		&& this.modelValue.follower === false
 		&& this.modelValue.broadcaster === false
-		&& this.modelValue.usersAllowed.length === 0
-		&& this.modelValue.usersRefused.length === 0;
+		&& this.modelValue.usersAllowed.length === 0;
 	}
 
 	public beforeMount():void {
@@ -88,13 +87,6 @@ export default class PermissionsForm extends Vue {
 	
 	&>:not(:first-child) {
 		margin-top: .25em;
-	}
-
-	.noSelection {
-		padding: .25em;
-		border-radius: .25em;
-		color: var(--mainColor_light);
-		background-color: fade(@mainColor_alert, 100%);
 	}
 	
 	.row {

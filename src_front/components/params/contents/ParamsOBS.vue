@@ -1,5 +1,5 @@
 <template>
-	<div class="paramsobs">
+	<div class="paramsobs parameterContent">
 		<img src="@/assets/icons/obs.svg" alt="overlay icon" class="icon">
 
 		<div class="head">
@@ -30,7 +30,6 @@
 			:title="$t('obs.permissions_title')">
 				<p class="info">{{ $t("obs.permissions_head") }}</p>
 				<PermissionsForm class="content" v-model="permissions" />
-				{{ permissions }}
 			</ToggleBlock>
 
 			<ToggleBlock class="block mic"
@@ -204,8 +203,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsobs{
-	.parameterContent();
-
 	.loader {
 		display: block;
 		margin: auto;
@@ -307,23 +304,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 		.fade-leave-to {
 			opacity: 0;
 			transform: translateY(-10px);
-		}
-	}
-
-	:deep(input) {
-		min-width: 100px;
-		//These lines seems stupide AF but they allow the input
-		//to autosize to it's min length
-		width: 0%;
-		flex-grow: 1;
-		max-width: 100px;
-
-		text-align: center;
-		
-		//Hide +/- arrows
-		&::-webkit-outer-spin-button,
-		&::-webkit-inner-spin-button {
-			display: none;
 		}
 	}
 }

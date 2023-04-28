@@ -1,11 +1,11 @@
 <template>
 	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify']">
 		<div class="holder">
-			<div class="error" v-if="error" @click="error=''">{{error}}</div>
+			<div>{{ $t("connexions.spotify.usage") }}</div>
 
-			<div class="row">{{ $t("connexions.spotify.usage") }}</div>
+			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
 	
-			<div class="row spotifasshole" v-if="!connected && !authenticating">
+			<div class="spotifasshole" v-if="!connected && !authenticating">
 				<div class="info">
 					<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
 						<template #URL>
@@ -17,21 +17,18 @@
 				</div>
 			</div>
 
-			<form class="row" @submit.prevent="authenticate()" v-if="!connected">
+			<form @submit.prevent="authenticate()" v-if="!connected">
 				<ParamItem class="item" :paramData="paramClient" autofocus @change="authenticate(false)" />
 				<ParamItem class="item" :paramData="paramSecret" @change="authenticate(false)" />
 				<Button class="item" v-if="!connected && !authenticating"
 					type="submit"
-					:title="$t('connexions.spotify.connectBt')"
 					:loading="loading"
-					:disabled="!canConnect" />
+					:disabled="!canConnect">{{ $t('connexions.spotify.connectBt') }}</Button>
 			</form>
 	
-			<div class="row success" v-if="connected && showSuccess">
-				{{ $t("connexions.spotify.success") }}
-			</div>
+			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.spotify.success") }}</div>
 
-			<Button class="connectBt" v-if="connected" :title="$t('connexions.spotify.disconnectBt')" @click="disconnect()" highlight />
+			<Button class="connectBt" v-if="connected" @click="disconnect()" icon="cross" alert>{{ $t('connexions.spotify.disconnectBt') }}</Button>
 	
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">
 		</div>
@@ -129,34 +126,11 @@ export default class ConnectSpotifyForm extends Vue {
 		flex-direction: column;
 		align-items: center;
 		gap: 1em;
-	
-		.error {
-			justify-self: center;
-			color: var(--mainColor_light);
-			display: block;
-			text-align: center;
-			padding: 5px;
-			border-radius: 5px;
-			margin: auto;
-			margin-top: 10px;
-			background-color: var(--mainColor_alert);
-			cursor: pointer;
-		}
-	
-		.row {
+
+		form {
 			display: flex;
 			flex-direction: column;
-			gap:.5em;
-			:deep(input) {
-				flex-basis: 200px;
-			}
-
-			&.success {
-				color: var(--mainColor_light);
-				background-color: var(--mainColor_normal);
-				padding: .25em .5em;
-				border-radius: .5em;
-			}
+			gap: .5em;
 		}
 	
 		&.spotifasshole {

@@ -42,6 +42,10 @@
 			</div>
 			
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
+				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
+					<img src="@/assets/icons/back.svg" alt="back">
+				</button>
+
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
 				<ParamsStreamdeck v-if="content == contentStreamdeck" ref="currentContent" />
 				<ParamsOBS v-if="content == contentObs" ref="currentContent" />
@@ -169,7 +173,7 @@ export default class Parameters extends Vue {
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
-	private keyUpHandler!:(e:KeyboardEvent) => void;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
 	
 	/**
 	 * If true, will display a search field at the top of the view to
@@ -224,12 +228,12 @@ export default class Parameters extends Vue {
 			this.filterParams(value);
 		});
 
-		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
-		document.addEventListener("keyup", this.keyUpHandler);
+		this.keyDownHandler = (e:KeyboardEvent) => this.onKeyDown(e);
+		document.addEventListener("keydown", this.keyDownHandler);
 	}
 
 	public beforeUnmount():void {
-		document.removeEventListener("keyup", this.keyUpHandler);
+		document.removeEventListener("keydown", this.keyDownHandler);
 	}
 
 	public async open():Promise<void> {
@@ -314,8 +318,10 @@ export default class Parameters extends Vue {
 		this.$store("params").openParamsPage(page);
 	}
 
-	private onKeyUp(e:KeyboardEvent):void {
-		if(e.key.toLowerCase() == "escape") {
+	private onKeyDown(e:KeyboardEvent):void {
+		if(this.closed) return;
+		const node = document.activeElement?.nodeName;
+		if(e.key.toLowerCase() == "escape" && node != "INPUT") {
 			this.close();
 		}
 	}
@@ -340,27 +346,27 @@ export default class Parameters extends Vue {
 		height: 3.5em;
 	}
 
+	.backBt {
+		position: absolute;
+		top: 0;
+		left: 0;
+		padding: 1em;
+		height: 3.5em;
+		img {
+			height: 1em;
+			transition: transform .15s;
+		}
+		&:hover {
+			img {
+				transform: scale(1.2);
+			}
+		}
+	}
+
 	.head {
 		display: none;
 		padding: 0 3em 1em 3em;
 		border-bottom: 1px solid var(--color-dark-extralight);
-
-		.backBt {
-			position: absolute;
-			top: 0;
-			left: 0;
-			padding: 1em;
-			height: 3.5em;
-			img {
-				height: 1em;
-				transition: transform .15s;
-			}
-			&:hover {
-				img {
-					transform: scale(1.2);
-				}
-			}
-		}
 	}
 
 	box-sizing: border-box;
@@ -434,6 +440,11 @@ export default class Parameters extends Vue {
 			padding-right: 10px;
 			max-height: 100%;
 			overflow: auto;
+			position: relative;
+			.backBt {
+				top: -1.5em;
+				position: absolute;
+			}
 			&.default {
 				.donorState {
 					margin-top: 1em;

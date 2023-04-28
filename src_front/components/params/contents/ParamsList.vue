@@ -3,7 +3,7 @@
 		<div class="row" v-for="(p, key) in params" :key="key">
 
 			<div :class="getClasses(p, key as string)">
-				<ParamItem :paramData="p" />
+				<ParamItem :paramData="p" noBackground />
 				<transition
 					@enter="onShowItem"
 					@leave="onHideItem"

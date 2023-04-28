@@ -1,11 +1,15 @@
 <template>
 	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" small :open="openLocal">
-		<div class="head">{{ $t("voice.global_commands") }}</div>
-		<ParamItem v-for="(i,index) in items"
-			:key="itemsID[index]"
-			:paramData="i"
-			@change="updateCommands()"
-		/>
+		<div class="content">
+			<div class="head">{{ $t("voice.global_commands") }}</div>
+			
+			<ParamItem class="item" v-for="(i,index) in items"
+				:key="itemsID[index]"
+				:paramData="i"
+				noBackground
+				@change="updateCommands()"
+			/>
+		</div>
 	</ToggleBlock>
 </template>
 
@@ -25,10 +29,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 })
 export default class VoiceGlobalCommands extends Vue {
 
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+	@Prop({type:Boolean, default:false})
 	public open!:boolean;
 
 	public items:TwitchatDataTypes.ParameterData<string>[] = [];
@@ -36,7 +37,7 @@ export default class VoiceGlobalCommands extends Vue {
 	public openLocal:boolean = false;
 
 	public beforeMount():void {
-		this.openLocal = this.open;
+		this.openLocal = this.open !== false;
 	}
 
 	public mounted():void {
@@ -89,16 +90,19 @@ export default class VoiceGlobalCommands extends Vue {
 
 <style scoped lang="less">
 .voiceglobalcommands{
-	:deep(.content) {
+	.content {
+		gap: .25em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-	}
-	.head {
-		margin: .5em 0;
-	}
-	:deep(label) {
-		width:130px;
+		.head {
+			margin: .5em 0;
+
+		}
+		:deep(label) {
+			min-width:100px;
+			text-align: right;
+		}
 	}
 }
 </style>

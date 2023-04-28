@@ -103,10 +103,6 @@ export default class TTUserList extends AbstractSidePanel {
 		return Utils.formatDate(d);
 	}
 
-	public beforeMount():void {
-		
-	}
-
 	public mounted():void {
 		const content = this.$refs.content as HTMLDivElement;
 		content.addEventListener("scroll", (ev:Event):void => {
@@ -118,9 +114,6 @@ export default class TTUserList extends AbstractSidePanel {
 		});
 		super.open();
 		this.updateList();
-	}
-
-	public beforeUnmount():void {
 	}
 
 	public getProfilePicURL(u:UserData):string {

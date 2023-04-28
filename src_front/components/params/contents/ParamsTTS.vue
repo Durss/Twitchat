@@ -23,49 +23,49 @@
 			<Splitter class="splitter">{{ $t("tts.messages.title") }}</Splitter>
 
 			<section>
-				<ParamItem  class="card-item" :paramData="param_readMessages" />
-				<ParamItem  class="card-item" :paramData="param_readWhispers" />
-				<ParamItem  class="card-item" :paramData="param_readFollow" />
-				<ParamItem  class="card-item" :paramData="param_readSubs" />
-				<ParamItem  class="card-item" :paramData="param_readSubgifts" />
-				<ParamItem  class="card-item" :paramData="param_readBits" />
-				<ParamItem  class="card-item" :paramData="param_readRaids" />
-				<ParamItem  class="card-item" :paramData="param_readRewards" />
-				<ParamItem  class="card-item" :paramData="param_readPolls" />
-				<ParamItem  class="card-item" :paramData="param_readPredictions" />
-				<ParamItem  class="card-item" :paramData="param_readBingos" />
-				<ParamItem  class="card-item" :paramData="param_readRaffle" />
-				<ParamItem  class="card-item" :paramData="param_readTimeouts" />
-				<ParamItem  class="card-item" :paramData="param_readBans" />
-				<ParamItem  class="card-item" :paramData="param_readUnbans" />
-				<ParamItem  class="card-item" :paramData="param_readNotices" />
-				<ParamItem  class="card-item" :paramData="param_read1stMessageToday" />
-				<ParamItem  class="card-item" :paramData="param_read1stTimeChatters" />
-				<ParamItem  class="card-item" :paramData="param_readAutomod" />
+				<ParamItem class="card-item" :paramData="param_readMessages" />
+				<ParamItem class="card-item" :paramData="param_readWhispers" />
+				<ParamItem class="card-item" :paramData="param_readFollow" />
+				<ParamItem class="card-item" :paramData="param_readSubs" />
+				<ParamItem class="card-item" :paramData="param_readSubgifts" />
+				<ParamItem class="card-item" :paramData="param_readBits" />
+				<ParamItem class="card-item" :paramData="param_readRaids" />
+				<ParamItem class="card-item" :paramData="param_readRewards" />
+				<ParamItem class="card-item" :paramData="param_readPolls" />
+				<ParamItem class="card-item" :paramData="param_readPredictions" />
+				<ParamItem class="card-item" :paramData="param_readBingos" />
+				<ParamItem class="card-item" :paramData="param_readRaffle" />
+				<ParamItem class="card-item" :paramData="param_readTimeouts" />
+				<ParamItem class="card-item" :paramData="param_readBans" />
+				<ParamItem class="card-item" :paramData="param_readUnbans" />
+				<ParamItem class="card-item" :paramData="param_readNotices" />
+				<ParamItem class="card-item" :paramData="param_read1stMessageToday" />
+				<ParamItem class="card-item" :paramData="param_read1stTimeChatters" />
+				<ParamItem class="card-item" :paramData="param_readAutomod" />
 			</section>
 			
 			<Splitter class="splitter">{{ $t("tts.params.title") }}</Splitter>
 
-			<section>
-				<ParamItem  class="card-item" :paramData="param_voice" />
-				<ParamItem  class="card-item" :paramData="param_volume" />
-				<ParamItem  class="card-item" :paramData="param_rate" />
-				<ParamItem  class="card-item" :paramData="param_pitch" />
-				<form  class="card-item" @submit.prevent="testVoice()">
-					<input  class="card-item center" type="text" v-model="testStr" :placeholder="$t('tts.params.test_placeholder')">
-					<Button  class="card-item center" :title="$t('tts.params.testBt')" icon="tts" type="submit" />
+			<section class="card-item">
+				<ParamItem :paramData="param_voice" />
+				<ParamItem :paramData="param_volume" />
+				<ParamItem :paramData="param_rate" />
+				<ParamItem :paramData="param_pitch" />
+				<form @submit.prevent="testVoice()">
+					<input class="center" type="text" v-model="testStr" :placeholder="$t('tts.params.test_placeholder')">
+					<Button class="center" icon="tts" type="submit">{{ $t('tts.params.testBt') }}</Button>
 				</form>
 			</section>
 
 			<Splitter class="splitter">{{ $t("tts.filters.title") }}</Splitter>
 
 			<section>
-				<ParamItem  class="card-item" :paramData="param_removeEmotes" />
-				<ParamItem  class="card-item shrinkInput" :paramData="param_removeURL" />
-				<ParamItem  class="card-item" :paramData="param_maxDurationToggle" />
-				<ParamItem  class="card-item" :paramData="param_maxLengthToggle" />
-				<ParamItem  class="card-item" :paramData="param_timeoutToggle" />
-				<ParamItem  class="card-item" :paramData="param_inactivityPeriodToggle" />
+				<ParamItem class="card-item" :paramData="param_removeEmotes" />
+				<ParamItem class="card-item shrinkInput" :paramData="param_removeURL" />
+				<ParamItem class="card-item" :paramData="param_maxDurationToggle" />
+				<ParamItem class="card-item" :paramData="param_maxLengthToggle" />
+				<ParamItem class="card-item" :paramData="param_timeoutToggle" />
+				<ParamItem class="card-item" :paramData="param_inactivityPeriodToggle" />
 			</section>
 		</div>
 
@@ -454,7 +454,7 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 			flex-direction: column;
 			gap: .5em;
 			
-			.item {
+			.card-item, &.card-item {
 				&.label {
 					i {
 						font-size: .8em;
@@ -471,14 +471,13 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 						display: inline;
 					}
 				}
-				&.center {
-					display: block;
+				.center {
 					margin-left: auto;
 					margin-right: auto;
 				}
 				&.shrinkInput {
-					:deep(input) {
-						width: auto;
+					:deep(.inputHolder) {
+						flex-basis: 10px;
 					}
 				}
 	

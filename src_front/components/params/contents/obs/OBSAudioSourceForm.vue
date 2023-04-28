@@ -1,14 +1,14 @@
 <template>
 	<div class="obsaudiosourceform">
 		<p class="info">{{ $t("obs.microphone_head") }}</p>
-		<div v-if="!noAudioSource">
+		<template v-if="!noAudioSource">
 			<ParamItem :paramData="obsAllowed_audioSources" class="row" @change="onAudioParamChange()"/>
 			<ParamItem :paramData="obsAllowed_muteCommand" class="row" @change="onAudioParamChange()"/>
 			<ParamItem :paramData="obsAllowed_unmuteCommand" class="row" @change="onAudioParamChange()"/>
-		</div>
-		<div v-else class="noAudioSource">
+		</template>
+		<div v-else class="card-item alert noAudioSource">
 			<div class="label">{{ $t("obs.microphone_empty") }}</div>
-			<Button :title="$t('obs.microphone_reCheck')" @click="listAudioSources(true)" class="connectBt" :loading="loadingAudioSources" />
+			<Button @click="listAudioSources(true)" class="connectBt" icon="refresh" :loading="loadingAudioSources">{{ $t('obs.microphone_reCheck') }}</Button>
 		</div>
 	</div>
 </template>
@@ -119,19 +119,17 @@ export default class OBSAudioSourceForm extends Vue {
 
 <style scoped lang="less">
 .obsaudiosourceform{
-	.info {
-		margin-bottom: 10px;
-	}
+	gap: .5em;
+	display: flex;
+	flex-direction: column;
 
 	.noAudioSource {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		.label {
-			margin-bottom: 10px;
+			margin-bottom: .5em;
 			font-style: italic;
-			background-color: var(--mainColor_light);
-			padding: .25em .5em;
 		}
 	}
 }

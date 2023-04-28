@@ -11,7 +11,7 @@
 				<div class="card-item">
 					<ParamItem :paramData="param_title"
 						v-model="title"
-						v-autofocus="title == ''"
+						:autofocus="title == ''"
 						@change="onValueChange()" />
 				</div>
 

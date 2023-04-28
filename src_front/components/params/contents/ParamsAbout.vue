@@ -7,14 +7,14 @@
 
 		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea']" :open="false">
 			<p class="item">{{ $t("about.suggestion_content1") }}</p>
-			<Button class="item" :title="$t('about.discordBt')" icon="discord" :href="discordURL" target="_blank" type="link" />
+			<Button class="item" icon="discord" :href="discordURL" target="_blank" type="link">{{ $t('about.discordBt') }}</Button>
 			<p class="item" v-html="$t('about.suggestion_content2')"></p>
 		</ToggleBlock>
 
 		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api']" :open="false">
 			<p class="item">{{ $t("about.api_content1") }}</p>
 			<p class="item">{{ $t("about.api_content2") }}</p>
-			<Button class="item" :title="$t('about.documentationBt')" icon="github" :href="apiURL" target="_blank" type="link"/>
+			<Button class="item" icon="github" :href="apiURL" target="_blank" type="link">{{ $t('about.documentationBt') }}</Button>
 		</ToggleBlock>
 
 		<ToggleBlock class="block" :title="$t('about.credits')" :icons="['info']" :open="true">

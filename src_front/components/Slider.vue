@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" @pointerdown="onMouseDown" @wheel="onMouseWheel">
-		<input type="range" v-model="localValue" :min="min" :max="max" :step="step">
+		<input type="range" v-model.number="localValue" :min="min" :max="max" :step="step" @pointerdown.capture.stop="" @input="renderBar()">
 		<div class="fill" :style="fillStyles"></div>
 	</div>
 </template>
@@ -24,10 +24,10 @@ export default class Slider extends Vue {
 	@Prop({type:Boolean, default: false})
 	public disabled!:boolean;
 
-	@Prop({type:Number, default: 90})
+	@Prop({type:Number, default: 0})
 	public modelValue!:number;
 
-	@Prop({type:Number, default: 89})
+	@Prop({type:Number, default: 0})
 	public min!:number;
 
 	@Prop({type:Number, default: 100})
@@ -71,14 +71,26 @@ export default class Slider extends Vue {
 		document.removeEventListener("pointermove", this.mouseMoveHandler)
 	}
 
+	public renderBar():void {
+		this.fillPercent = (this.localValue - this.min)/(this.max - this.min);
+		this.$emit("update:modelValue", this.localValue);
+	}
+
 	public onMouseWheel(e:WheelEvent):void {
-		const add = (e.deltaY > 0)? 1 : -1;
+		const add = (e.deltaY > 0)? -1 : 1;
+		const prevValue = this.localValue;
 		let v = this.localValue + add * this.step;
-		const prevV = v;
+		//Rounding to compensate for bad JS maths.
+		//For JS: 0.2 + 0.1 = 0.30000000000000004
+		v = Math.round(v/this.step) / (1/this.step);
+		const nonClampedValue = v;
 		v = Math.max(this.min, Math.min(this.max, v));
-		if(v === prevV) e.preventDefault();
+		if(v === nonClampedValue) e.preventDefault();
 		this.localValue = v;
-		this.fillPercent = (v - this.min)/(this.max - this.min)
+		this.fillPercent = (v - this.min)/(this.max - this.min);
+		if(this.localValue != prevValue) {
+			this.$emit("update:modelValue", this.localValue);
+		}
 	}
 
 	public onMouseUp(e:PointerEvent):void {
@@ -100,7 +112,9 @@ export default class Slider extends Vue {
 		let percent = Math.max(0, Math.min(1, (e.clientX - bounds.left) / bounds.width));
 		//Compute value and round it to the nearest step
 		let value = percent * (this.max-this.min) + this.min;
-		value = Math.round(value/this.step) * this.step;
+		//using "/(1/step)" instead of " * step" because multiplication has terrible rounding issues.
+		//For example: 3/10 = 0.3   but   3 * .1 = 0.30000000000000004
+		value = Math.round(value/this.step) / (1/this.step);
 		//Set local values
 		this.localValue = value;
 		this.fillPercent = (this.localValue - this.min) / (this.max - this.min);
@@ -142,6 +156,7 @@ export default class Slider extends Vue {
 		left: 0;
 		width: 100%;
 		opacity: 0;
+		z-index: -1;
 	}
 
 	&.disabled {

@@ -8,7 +8,7 @@
 
 		<div class="card-item">
 			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
-			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
+			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" noBackground />
 			<i18n-t scope="global" class="infos" tag="div" v-if="publicDonation_loaded" keypath="account.donation_public">
 				<template #LINK>
 					<a @click="$store('params').openParamsPage(contentAbout)">{{ $t("account.about_link") }}.</a>

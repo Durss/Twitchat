@@ -1,5 +1,5 @@
 <template>
-	<div class="paramsvoicemod">
+	<div class="paramsvoicemod parameterContent">
 		<img src="@/assets/icons/voicemod.svg" alt="voicemod icon" class="icon">
 		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
 			<template #LINK>
@@ -8,26 +8,30 @@
 		</i18n-t>
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
-		<section v-if="connecting">
+		<section v-if="connecting" class="card-item">
 			<img class="item center" src="@/assets/loader/loader.svg" alt="loader">
 			<div class="item center">{{ $t("voicemod.connecting") }}</div>
 		</section>
 
 		<div class="fadeHolder" :style="holderStyles">
 
-			<section class="error" v-if="connectionFailed && !connected" @click="connectionFailed = false">
+			<section class="card-item alert error" v-if="connectionFailed && !connected" @click="connectionFailed = false">
 				<div class="item">{{ $t("voicemod.connect_failed") }}</div>
 			</section>
 
-			<section v-if="connected">
-				<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
-				<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
-				<div class="item"><strong>{{ $t("voicemod.allowed_users") }}</strong></div>
-				<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />
-			</section>
+			<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
 
 			<section v-if="connected">
-				<Splitter>{{ $t("voicemod.voices_title") }}</Splitter>
+				<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
+				<div class="card-item">
+					<div class="item"><strong>{{ $t("voicemod.allowed_users") }}</strong></div>
+					<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />
+				</div>
+			</section>
+
+			<Splitter>{{ $t("voicemod.voices_title") }}</Splitter>
+
+			<section v-if="connected">
 				<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
 				<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
 					<template #LINK>
@@ -161,7 +165,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 					label: v.friendlyName,
 					value: voiceIdToCommand[v.voiceID] ?? "",
 					placeholder: "!command",
-					maxLength: 100,
+					maxLength: 50,
 					iconURL: "data:image/png;base64," + img
 				};
 				this.voiceParams.push( data );
@@ -219,8 +223,6 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsvoicemod{
-	.parameterContent();
-
 	.fadeHolder {
 		transition: opacity .2s;
 	}
@@ -260,8 +262,10 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 				text-align: center;
 			}
 			&.shrinkInput {
+				:deep(.inputHolder) {
+					max-width: 150px;
+				}
 				:deep(input) {
-					width: auto;
 					max-width: 150px;
 				}
 			}
@@ -281,9 +285,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 		}
 
 		&.error {
-			color: var(--mainColor_light);
 			text-align: center;
-			background-color: var(--mainColor_alert);
 		}
 	}
 	

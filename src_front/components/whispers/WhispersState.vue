@@ -75,7 +75,8 @@ export default class WhispersState extends AbstractSidePanel {
 	public get labels():string[] {
 		const me = this.$store("auth").twitch.user.id;
 		return this.uids.map(uid => {
-			return this.$store('chat').whispers[uid].find(v => v.user.id != me)!.user.displayName
+			const m = this.$store('chat').whispers[uid][0];
+			return m.to.id != uid? m.user.displayName : m.to.displayName;
 		});
 	}
  
@@ -154,6 +155,7 @@ export default class WhispersState extends AbstractSidePanel {
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
+			justify-content: center;
 			gap: 10px;
 			.user {
 				display: flex;

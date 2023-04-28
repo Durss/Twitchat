@@ -36,7 +36,7 @@
 			</form>
 		</section>
 
-		<ToggleBlock class="counterEntry"
+		<ToggleBlock class="counterEntry" :open="false"
 		v-if="counterEntries.length > 0"
 		v-for="entry in counterEntries" :key="entry.counter.id"
 		:title="entry.counter.name" medium>

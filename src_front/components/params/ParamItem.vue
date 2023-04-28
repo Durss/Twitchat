@@ -99,7 +99,7 @@
 					class="helpIcon"
 				>
 				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
-				<Slider :min="paramData.min" :max="paramData.max" v-model="paramData.value" :secondary="secondary" :alert="alert" />
+				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value" :secondary="secondary" :alert="alert" />
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
@@ -190,6 +190,7 @@
 			:paramData="c"
 			:secondary="secondary"
 			:alert="alert"
+			:noBackground="noBackground"
 			:childLevel="childLevel+1" />
 
 		<div class="child" ref="param_child_slot" v-if="$slots.default">
@@ -250,6 +251,9 @@ export default class ParamItem extends Vue {
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public noBackground!:boolean;
+
 	public searching:boolean = false;
 	public key:string = Math.random().toString();
 	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
@@ -261,6 +265,10 @@ export default class ParamItem extends Vue {
 
 	public get classes():string[] {
 		const res = ["paramitem"];
+		if(this.noBackground === false) {
+			res.push("card-item");
+			if(this.paramData.value === false) res.push("unselected");
+		}
 		if(this.errorLocal !== false) res.push("error");
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
@@ -497,7 +505,7 @@ export default class ParamItem extends Vue {
 					const childrenItems = this.$refs.param_child as Vue[];
 					divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
 				}
-				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
+				gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05,
 						onComplete:()=> {
 							this.children = [];
 						}});
@@ -534,7 +542,7 @@ export default class ParamItem extends Vue {
 				const childrenItems = this.$refs.param_child as Vue[];
 				divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
 			}
-			gsap.from(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all"});
+			gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
 		}
 	}
 
@@ -548,7 +556,7 @@ export default class ParamItem extends Vue {
 <style scoped lang="less">
 .paramitem{
 	color: var(--color-light);
-	overflow-y: clip;
+	overflow: unset;
 	transition: padding .25s;
 	position: relative;
 	
@@ -614,6 +622,10 @@ export default class ParamItem extends Vue {
 			pointer-events: none;
 		}
 	}
+
+	&.unselected {
+		background-color: var(--color-dark-fade);
+	}
 	
 	.content {
 		display: flex;
@@ -673,7 +685,7 @@ export default class ParamItem extends Vue {
 				label {
 					margin-top: .3em;
 				}
-				&:has(.inputHolder) {
+				&:has(.maxlength) {
 					input {
 						padding-right: 3em;
 					}
@@ -687,6 +699,10 @@ export default class ParamItem extends Vue {
 						right: .5em;
 						bottom: .5em;
 						transform: unset;
+					}
+					input {
+						width: 100%;
+						max-width: unset;
 					}
 				}
 			}
@@ -841,7 +857,7 @@ export default class ParamItem extends Vue {
 			font-size: .9em;
 			&::before {
 				position: absolute;
-				left: -1em;
+				left: -1.5em;
 				top: .2em;
 				font-size: 1.1em;
 				content: "⤷";

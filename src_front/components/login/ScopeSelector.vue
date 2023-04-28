@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/unlock.svg" class="unlockIcon">
 			<p class="head">{{ $tc("login.specific_scope", param_items_requested.length) }}</p>
 			<div class="optionList">
-				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :secondary="!p.value" :paramData="p" @change="onSelectionUpdate()" />
+				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :secondary="!p.value" :paramData="p" @change="onSelectionUpdate()" noBackground />
 			</div>
 		</div>
 		
@@ -15,9 +15,9 @@
 
 		<div ref="permsList" class="permsHolder" v-if="forceFullList || param_items_requested.length == 0">
 			<div class="optionList">
-				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items" :secondary="!p.value" :paramData="p" @change="onSelectionUpdate()" />
+				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items" :secondary="!p.value" :paramData="p" @change="onSelectionUpdate()" noBackground />
 			</div>
-			<ParamItem class="item all" :paramData="params_all" @change="onSelectionUpdate()" />
+			<ParamItem class="item all" :paramData="params_all" @change="onSelectionUpdate()" noBackground />
 		</div>
 	</div>
 </template>

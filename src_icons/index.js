@@ -9,6 +9,7 @@ const themes = [
 	{name:"primary", color:"#078769"},
 	{name:"secondary", color:"#e04e00"},
 	{name:"alert", color:"#b71f1f"},
+	{name:"dark", color:"#18181b"},
 ]
 const root = path.join(__dirname, "../src_front/assets/icons");
 const files = fs.readdirSync(root);

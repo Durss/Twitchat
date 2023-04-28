@@ -1,6 +1,6 @@
 <template>
 	<div class="obsscenes">
-		<div v-if="sceneParams.length == 0" class="noScene">{{ $t("obs.scenes_empty") }}</div>
+		<div v-if="sceneParams.length == 0" class="card-item secondary noScene">{{ $t("obs.scenes_empty") }}</div>
 		<div class="list" v-else>
 			<div class="header">
 				<div>{{ $t("obs.scenes_col_name") }}</div>
@@ -9,6 +9,7 @@
 			<ParamItem v-for="p in sceneParams"
 				class="row"
 				:key="p.label"
+				noBackground
 				:paramData="p"
 				@change="onSceneCommandUpdate()"
 				ref="param"
@@ -72,29 +73,27 @@ export default class OBSScenes extends Vue {
 .obsscenes{
 
 	.noScene {
-		display: block;
-		font-style: italic;
 		text-align: center;
-		background-color: var(--mainColor_light);
-		padding: .25em .5em;
-		margin: auto;
 	}
 
 	.list {
 		@inputWidth:150px;
 		@p:calc(100% - @inputWidth - 10px);
-		background: linear-gradient(90deg, rgba(255,255,255,0) calc(@p - 1px), rgba(145,71,255,1) @p, rgba(255,255,255,0) calc(@p + 1px));
+		background: linear-gradient(90deg, rgba(255,255,255,0) calc(@p - 1px), var(--color-dark) @p, rgba(255,255,255,0) calc(@p + 1px));
 	
 		:deep(input) {
-			min-width: @inputWidth;
+			width: 100% !important;
+		}
+	
+		:deep(.inputHolder) {
+			max-width: @inputWidth !important;
 		}
 	
 		.header {
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
-			background-color: var(--mainColor_normal);
-			color:var(--mainColor_light);
+			background-color: var(--color-dark);
 			padding: 10px;
 			border-top-left-radius: 5px;
 			border-top-right-radius: 5px;

@@ -64,7 +64,7 @@
 			<Splitter class="splitter">{{ $t("automod.options.title") }}</Splitter>
 
 			<section class="card-item options">
-				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" />
+				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" noBackground />
 				<div class="permsTitle">{{ $t("automod.options.exclude_users") }}</div>
 				<PermissionsForm class="perms" v-model="automodData.exludedUsers" />
 			</section>
@@ -329,7 +329,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 						}
 					}
 					.ruleContent {
-						gap: 1em;
+						gap: .5em;
 						display: flex;
 						flex-direction: column;
 		

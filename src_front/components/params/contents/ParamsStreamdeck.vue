@@ -1,11 +1,11 @@
 <template>
-	<div class="paramsstreamdeck">
+	<div class="paramsstreamdeck parameterContent">
 		<img src="@/assets/icons/elgato.svg" alt="overlay icon" class="icon">
 
 		<p class="head">{{ $t("streamdeck.header") }}</p>
 		
 		<ol>
-			<li>
+			<li class="card-item">
 				<span class="index">1.</span>
 				<i18n-t scope="global" tag="span" keypath="streamdeck.step_1.install">
 					<template #OBS_VERSION>
@@ -14,18 +14,16 @@
 				</i18n-t>
 			</li>
 			
-			<li>
+			<li class="card-item">
 				<span class="index">2.</span> 
 				<Button icon="elgato"
-					:title="$t('streamdeck.step_2')"
 					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"
 					type="link"
-					class="button elgatoBt"
-				/>
+					class="button elgatoBt">{{ $t('streamdeck.step_2') }}</Button>
 			</li>
 
-			<li>
+			<li class="card-item">
 				<span class="index">3.</span>
 				<i18n-t scope="global" tag="span" keypath="streamdeck.step_3">
 					<template #TAB_LINK>
@@ -34,14 +32,14 @@
 				</i18n-t>
 			</li>
 
-			<li>
+			<li class="card-item">
 				<span class="index">4.</span>
 				<span>{{ $t("streamdeck.step_4_1") }}</span>
 				<span>{{ $t("streamdeck.step_4_2") }}</span>
 				<img src="@/assets/img/streamdeck_credentials.png" alt="credentials">
 			</li>
 
-			<li>
+			<li class="card-item">
 				<span class="index">5.</span>
 				<span>{{ $t("streamdeck.step_5") }}</span>
 			</li>
@@ -78,16 +76,13 @@ export default class ParamsStreamdeck extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsstreamdeck{
-	.parameterContent();
-	
 	ol {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 		list-style-position: inside;
 		list-style-type: none;
 		li {
-			margin-top: 1em;
-			border-radius: .5em;
-			background-color: fade(@mainColor_normal_extralight, 30%);
-			padding: .5em;
 			width: 100%;
 			line-height: 1.2em;
 			.index {

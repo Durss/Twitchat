@@ -14,11 +14,9 @@
 					:disabled="!canConnect">{{ $t('connexions.triggerSocket.connectBt') }}</Button>
 			</form>
 	
-			<div class="row success" v-if="connected && showSuccess">
-				{{ $t("connexions.triggerSocket.success") }}
-			</div>
+			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.triggerSocket.success") }}</div>
 			
-			<div class="error" v-if="error" @click="error=false">{{$t("error.trigger_socket")}}</div>
+			<div class="card-item alert" v-if="error" @click="error=false">{{$t("error.trigger_socket")}}</div>
 
 			<Button class="connectBt" v-if="connected" @click="disconnect()">{{ $t('connexions.triggerSocket.disconnectBt') }}</Button>
 		</div>

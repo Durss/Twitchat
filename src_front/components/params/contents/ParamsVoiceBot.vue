@@ -1,24 +1,24 @@
 <template>
-	<div class="paramsvoicebot">
+	<div class="paramsvoicebot parameterContent">
 		<img src="@/assets/icons/voice.svg" alt="voice icon" class="icon">
 		<div class="head">{{ $t("voice.header") }}</div>
 		
-		<div v-if="!voiceApiAvailable" class="noApi">
+		<div v-if="!voiceApiAvailable" class="card-item alert noApi">
 			<p>{{ $t("voice.unsupported_browser") }}</p>
-			<p class="infos">{{ $t("voice.unsupported_browser_detail") }}</p>
+			<p>{{ $t("voice.unsupported_browser_detail") }}</p>
 		</div>
 		<div v-else class="infos">{{ $t("voice.supported_browsers") }}</div>
 
-		<div v-if="!voiceApiAvailable || true" class="fallback">
+		<div v-if="!voiceApiAvailable" class="card-item fallback">
 			<p>{{ $t("voice.remote_control") }}</p>
 			<a :href="voicePageUrl" target="_blank">{{voicePageUrl}}</a>
 		</div>
 
 		<div>
 			<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
-			<div class="connectObs" v-if="!obsConnected">
+			<div class="card-item connectObs" v-if="!obsConnected">
 				<div>{{ $t("voice.need_OBS") }}</div>
-				<Button class="button" :title="$t('voice.obs_connectBt')" white @click="$store('params').openParamsPage(contentObs)" />
+				<Button class="button" icon="obs" white @click="$store('params').openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>
 			</div>
 		</div>
 	</div>
@@ -53,7 +53,7 @@ export default class ParamsVoiceBot extends Vue implements IParameterContent {
 	}
 
 	public get voiceApiAvailable():boolean {
-		return VoiceController.instance.apiAvailable && !Config.instance.OBS_DOCK_CONTEXT;
+		return VoiceController.instance.apiAvailable && !Config.instance.OBS_DOCK_CONTEXT && false;
 	}
 
 	public onNavigateBack(): boolean { return false; }
@@ -64,24 +64,15 @@ export default class ParamsVoiceBot extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsvoicebot{
-	.parameterContent();
-	
 	.infos {
 		font-size: .9em;
 		text-align: center;
-	}
-	.form {
-		margin-top: 1em;
 	}
 
 	.noApi, 
 	.connectObs {
 		text-align: center;
-		color: var(--mainColor_light);
-		background-color: var(--mainColor_alert);
-		padding: .5em;
-		border-radius: .5em;
-		margin-top: 1em;
+		line-height: 1.3em;
 
 		.button {
 			margin-top: .5em;
@@ -91,7 +82,6 @@ export default class ParamsVoiceBot extends Vue implements IParameterContent {
 	.fallback {
 		font-size: .8em;
 		line-height: 1.2em;
-		margin-top: 1em;
 		border: 1px solid var(--mainColor_normal);
 		border-radius: .5em;
 		padding: .5em;

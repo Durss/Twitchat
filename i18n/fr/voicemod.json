@@ -9,7 +9,7 @@
 		"show_indicator":"Indiquer quand un effet est actif",
 		"voices_title":"Liste des voix",
 		"voices_infos":"Associez n'importe quel effet à une commande",
-		"voices_triggers":"Pour pluis de contrôle sur l'activation des filtres, rendez-vous dans {LINK}.",
+		"voices_triggers":"Pour plus de contrôle sur l'activation des filtres, rendez-vous dans {LINK}.",
 		"voices_triggers_link":"les triggers"
 	}
 }

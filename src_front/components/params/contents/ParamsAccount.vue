@@ -1,14 +1,14 @@
 <template>
-	<div class="paramsaccount">
+	<div class="paramsaccount parameterContent">
 		
 		<section class="profilePic">
 			<img :src="userPP" alt="profile pic">
 		</section>
-		<section class="head">
+		<section class="card-itemhead">
 			<div v-html="$t('account.connected_as', {USER:'<strong>'+userName+'</strong>'})"></div>
 		</section>
 		
-		<section class="scopes">
+		<section class="card-item scopes">
 			<div class="title"><img src="@/assets/icons/lock_fit.svg">{{$t("account.authorization")}}</div>
 			
 			<ScopeSelector @update="onScopesUpdate" />
@@ -18,31 +18,30 @@
 				:href="oAuthURL"
 				:title="$t('login.authorizeBt')"
 				v-if="showAuthorizeBt"
-				bounce
 				:loading="generatingCSRF"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 				icon="twitch"
 			/>
 		</section>
 
-		<section class="actions">
-			<Button class="button" @click="logout()" icon="logout">{{ $t('global.log_out') }}</Button>
+		<section class="card-item actions">
+			<Button class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</Button>
 			<Button class="button" @click="latestUpdates()" icon="sub">{{ $t('account.updatesBt') }}</Button>
 			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
 		</section>
 
-		<section class="lang">
+		<section class="card-item">
 			<div class="title">{{ $t('account.language') }}</div>
 			<AppLangSelector />
 		</section>
 
-		<section v-if="isDonor" class="donorHolder">
+		<section v-if="isDonor" class="card-item donorState">
 			<DonorState />
 		</section>
 		
-		<section class="dataSync">
-			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" />
-			<Button class="button" v-if="!syncEnabled" @click="eraseData()" bounce :title="$t('account.erase_dataBt')" highlight icon="delete" />
+		<section class="card-item dataSync">
+			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" noBackground />
+			<Button class="button" v-if="!syncEnabled" @click="eraseData()" alert icon="delete">{{ $t('account.erase_dataBt') }}</Button>
 		</section>
 	</div>
 </template>
@@ -181,8 +180,6 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsaccount{
-	.parameterContent();
-
 	.profilePic {
 		img {
 			height: 5em;
@@ -199,7 +196,6 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	.title {
 		text-align: center;
 		font-weight: bold;
-		margin-bottom: .5em;
 		img {
 			height: 1em;
 			margin-right: .5em;
@@ -208,13 +204,13 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	}
 
 	.actions {
-		display: flex;
-		flex-direction: column;
 		align-items: center;
-		&>*:not(:first-child) {
-			margin-top: .5em;
-		}
 	}
+
+	.donorState {
+		overflow: visible;
+	}
+	
 	.scopes {
 		max-width: 400px;
 
@@ -228,12 +224,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	}
 
 	.dataSync {
-		display: flex;
-		flex-direction: column;
 		align-items: center;
-		&>*:not(:first-child) {
-			margin-top: .5em;
-		}
 	}
 
 }
