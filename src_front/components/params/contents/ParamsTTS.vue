@@ -47,10 +47,10 @@
 			<Splitter class="splitter">{{ $t("tts.params.title") }}</Splitter>
 
 			<section class="card-item">
-				<ParamItem :paramData="param_voice" />
-				<ParamItem :paramData="param_volume" />
-				<ParamItem :paramData="param_rate" />
-				<ParamItem :paramData="param_pitch" />
+				<ParamItem noBackground :paramData="param_voice" />
+				<ParamItem noBackground :paramData="param_volume" />
+				<ParamItem noBackground :paramData="param_rate" />
+				<ParamItem noBackground :paramData="param_pitch" />
 				<form @submit.prevent="testVoice()">
 					<input class="center" type="text" v-model="testStr" :placeholder="$t('tts.params.test_placeholder')">
 					<Button class="center" icon="tts" type="submit">{{ $t('tts.params.testBt') }}</Button>

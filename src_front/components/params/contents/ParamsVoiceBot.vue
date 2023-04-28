@@ -14,12 +14,10 @@
 			<a :href="voicePageUrl" target="_blank">{{voicePageUrl}}</a>
 		</div>
 
-		<div>
-			<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
-			<div class="card-item connectObs" v-if="!obsConnected">
-				<div>{{ $t("voice.need_OBS") }}</div>
-				<Button class="button" icon="obs" white @click="$store('params').openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>
-			</div>
+		<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
+		<div class="card-item alert connectObs" v-if="!obsConnected">
+			<div>{{ $t("voice.need_OBS") }}</div>
+			<Button class="button" icon="obs" white @click="$store('params').openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -62,7 +60,6 @@ export default class ParamsVoiceBot extends Vue implements IParameterContent {
 <style scoped lang="less">
 .paramsvoicebot{
 	.infos {
-		font-size: .9em;
 		text-align: center;
 	}
 
@@ -79,9 +76,6 @@ export default class ParamsVoiceBot extends Vue implements IParameterContent {
 	.fallback {
 		font-size: .8em;
 		line-height: 1.2em;
-		border: 1px solid var(--mainColor_normal);
-		border-radius: .5em;
-		padding: .5em;
 	}
 }
 </style>

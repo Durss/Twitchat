@@ -1,16 +1,18 @@
 <template>
 	<div class="voicetriggerlist">
 
-		<VoiceGlobalCommands class="action global"
-			v-model="globalCommands"
-			v-model:complete="globalCommandsOK"
-		/>
+		<div class="card-item form">
+			<VoiceGlobalCommands class="action global"
+				v-model="globalCommands"
+				v-model:complete="globalCommandsOK"
+			/>
+	
+			<Button icon="add" class="addBt"
+				@click="addAction()"
+				v-if="getActionIDs().length > 0 && globalCommandsOK">{{ $t('voice.addBt') }}</Button>
+			<div class="card-item alert error" v-else>{{ $t("voice.fill_global") }}</div>
+		</div>
 
-		<Button icon="add" class="addBt"
-			@click="addAction()"
-			v-if="getActionIDs().length > 0 && globalCommandsOK">{{ $t('voice.addBt') }}</Button>
-
-		<div class="card-item alert error" v-else>{{ $t("voice.fill_global") }}</div>
 
 		<draggable 
 		v-if="actions"
@@ -257,16 +259,20 @@ export default class VoiceTriggerList extends Vue {
 	display: flex;
 	flex-direction: column;
 
-	.addBt {
-		margin:auto;
-	}
-
-	.global {
-		width: 100%;
-	}
-
-	.error {
-		text-align: center;
+	
+	.form {
+		.addBt {
+			margin:auto;
+			display: flex;
+		}
+	
+		.global {
+			width: 100%;
+		}
+	
+		.error {
+			text-align: center;
+		}
 	}
 
 	.actionList {

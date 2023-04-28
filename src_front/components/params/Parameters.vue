@@ -469,6 +469,15 @@ export default class Parameters extends Vue {
 		}
 	}
 
+	&:not(.hasContent) {
+		.head {
+			justify-content: flex-end;
+			.title {
+				padding-left: 2.5em;
+			}
+		}
+	}
+
 }
 
 @media only screen and (max-width: 800px) {
@@ -482,7 +491,7 @@ export default class Parameters extends Vue {
 		.menu {
 			border: none;
 			.head {
-				display:block;
+				display:flex;
 				.title {
 					display: block;
 				}

@@ -19,9 +19,7 @@
 
 		<Splitter>{{ $t("voice.stt_actions") }}</Splitter>
 
-		<section class="card-item block" v-if="sttOnly === false">
-			<VoiceTriggerList />
-		</section>
+		<VoiceTriggerList v-if="sttOnly === false" />
 	</div>
 </template>
 
