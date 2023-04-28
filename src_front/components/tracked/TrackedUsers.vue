@@ -152,6 +152,7 @@ export default class TrackedUsers extends AbstractSidePanel {
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
+			justify-content: center;
 			gap: 10px;
 			.user {
 				display: flex;

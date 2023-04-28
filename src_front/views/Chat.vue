@@ -44,6 +44,7 @@
 			<TrackedUsers			class="popin" v-if="$store('params').currentModal == 'tracked'" @close="$store('params').currentModal = ''" />
 			<WhispersState			class="popin" v-if="$store('params').currentModal == 'whispers'" @close="$store('params').currentModal = ''" />
 			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').currentModal = ''" />
+			<MessageSearch			class="popin" v-if="$store('params').currentModal == 'search'" @close="$store('params').currentModal = ''" />
 		</Teleport>
 
 
@@ -188,6 +189,7 @@ import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
 import ChatSuggestionState from '@/components/chatSugg/ChatSuggestionState.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
 import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
+import MessageSearch from '@/components/chatform/MessageSearch.vue';
 
 @Component({
 	components:{
@@ -212,6 +214,7 @@ import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 		ShoutoutList,
 		TriggersLogs,
 		TrackedUsers,
+		MessageSearch,
 		WhispersState,
 		Accessibility,
 		CommandHelper,

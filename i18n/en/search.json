@@ -1,6 +1,7 @@
 {
 	"search":{
 		"title":"Search results {COUNT}",
+		"subtitle":"Searching: \"{SEARCH}\"",
 		"no_result":"No result for search \"{SEARCH}\""
 	}
 }

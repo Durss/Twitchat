@@ -1168,7 +1168,6 @@ export default class ChatForm extends Vue {
 		flex-direction: column;
 
 		.button {
-			// .clearButton();
 			height: auto;
 			padding: .25em;
 			width: 2em;

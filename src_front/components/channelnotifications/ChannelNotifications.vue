@@ -10,10 +10,6 @@
 			</transition>
 
 			<transition name="slide">
-				<MessageSearch class="content" v-if="$store('chat').searchMessages" />
-			</transition>
-
-			<transition name="slide">
 				<RaidState class="content" v-if="showRaid" />
 			</transition>
 
@@ -31,10 +27,10 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
-import MessageSearch from '../chatform/MessageSearch.vue';
 import BingoState from './BingoState.vue';
 import DeezerState from './DeezerState.vue';
 import HypeTrainState from './HypeTrainState.vue';
@@ -52,13 +48,12 @@ import RaidState from './RaidState.vue';
 		DeezerState,
 		CloseButton,
 		RaffleState,
-		MessageSearch,
 		HypeTrainState,
 		PredictionState,
 	},
 	emits:['close','showDimmer', 'hideDimmer'],
 })
-export default class ChannelNotifications extends Vue {
+export default class ChannelNotifications extends AbstractSidePanel {
 
 	@Prop
 	public currentContent!:TwitchatDataTypes.NotificationTypes;
@@ -79,6 +74,7 @@ export default class ChannelNotifications extends Vue {
 			|| this.showBingo
 			|| this.showRaffle
 			|| this.showDeezer
+			|| this.$store('chat').searchMessages != ""
 		;
 	}
 

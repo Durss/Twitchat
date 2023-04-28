@@ -88,10 +88,10 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatroomsettings{
-	color:var(--mainColor_light);
-	background-color: fade(@mainColor_normal, 50%);
+	color:var(--color-light);
+	background-color: var(--color-primary);
 	&:hover {
-		background-color: fade(@mainColor_normal, 60%);
+		background-color: var(--color-primary-light);
 	}
 
 	.content {
@@ -109,7 +109,6 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 			}
 
 			.unsetBt {
-				// .clearButton();
 				background-color: rgba(255, 255, 255, .1);
 				margin-left: 1em;
 				padding: .75em;

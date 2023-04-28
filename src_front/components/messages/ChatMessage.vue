@@ -877,8 +877,10 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 
 		:deep(mark) {
-			background-color: var(--mainColor_highlight);
-			color: var(--mainColor_light);
+			font-weight: normal;
+			background-color: var(--color-primary);
+			color: var(--color-light);
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, 1);
 			padding: 0px 5px;
 		}
 	}

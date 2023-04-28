@@ -144,7 +144,7 @@ export default class ShoutoutList extends Vue {
 		gap: 1em;
 	
 		.item {
-			color:var(--mainColor_light);
+			color:var(--color-light);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
@@ -155,7 +155,7 @@ export default class ShoutoutList extends Vue {
 				cursor: grabbing;
 			}
 			&:hover {
-				background-color: var(--mainColor_dark_light);
+				background-color: var(--color-light-fader);
 			}
 			.drag {
 				height: .7em;
@@ -163,7 +163,6 @@ export default class ShoutoutList extends Vue {
 			.avatar {
 				height: 2em;
 				border-radius: 50%;
-				border: 2px solid var(--mainColor_light);
 			}
 			.infos {
 				flex-grow: 1;

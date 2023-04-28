@@ -1553,7 +1553,7 @@ export default class MessageList extends Vue {
 	&:not(.alternateOdd) {
 		.messageHolder {
 			.subHolder:nth-child(even) {
-				background-color: rgba(255, 255, 255, .025);
+				background-color: var(--color-dark-light);
 			}
 		}
 	}
@@ -1561,7 +1561,7 @@ export default class MessageList extends Vue {
 	&.alternateOdd {
 		.messageHolder {
 			.subHolder:nth-child(odd) {
-				background-color: rgba(255, 255, 255, .025);
+				background-color: var(--color-dark-light);
 			}
 		}
 	}
@@ -1573,8 +1573,8 @@ export default class MessageList extends Vue {
 	}
 
 	.filteredMessages {
-		color: var(--mainColor_light);
-		background-color: var(--mainColor_normal);
+		color: var(--color-light);
+		background-color: var(--color-primary);
 		padding: .5em;
 		display: flex;
 		align-items: center;
@@ -1609,16 +1609,16 @@ export default class MessageList extends Vue {
 				flex-grow: 1;
 				&.empty {
 					font-style: italic;
-					color: fade(@mainColor_light, 50);
+					color: var(--color-light-fade);
 					text-align: center;
 					font-style: italic;
 					width: 100%;
 					padding: .5em 0;
 				}
 				// &:hover {
-					//Disabled as it causes CSS re renders of all subsequent nodes
-					//which is not ideal for performances
-					// z-index: 2000;
+				// 	// Disabled as it causes CSS re renders of all subsequent nodes
+				// 	// which is not ideal for performances
+				// 	z-index: 2000;
 				// }
 			}
 		}
@@ -1626,8 +1626,8 @@ export default class MessageList extends Vue {
 		.markRead {
 			width: 100%;
 			height: 10000px;
-			background: fade(@mainColor_dark, 80%);
-			border-bottom: 2px solid var(--mainColor_light);
+			background: rgba(0, 0, 0, .7);
+			border-bottom: 2px solid var(--color-light);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -1637,8 +1637,7 @@ export default class MessageList extends Vue {
 		.selected {
 			width: 100%;
 			height: 100%;
-			background-color: fade(@mainColor_normal, 20%);
-			border: 2px solid var(--mainColor_normal);
+			background-color: var(--color-secondary-fade);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -1655,13 +1654,13 @@ export default class MessageList extends Vue {
 
 	.fake {
 		display: inline;
-		background-color: var(--mainColor_light);
+		color:var(--color-secondary);
+		background-color: var(--color-light);
 		border-radius: var(--border-radius);
 		align-self: center;
 		padding: .2em .5em;
 		margin-right: 5px;
 		font-weight: bold;
-		color:var(--mainColor_dark);
 		cursor: default;
 		font-size: var(--messageSize);
 	}
@@ -1700,21 +1699,12 @@ export default class MessageList extends Vue {
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			color: fade(@mainColor_light, 50%);
-			font-size: .6em;
+			color: var(--color-light);
+			font-size: .8em;
 			margin-bottom: .5em;
 			.label {
 				font-style: italic;
 				margin: 0 .5em;
-			}
-			.button {
-				// .clearButton();
-				width: 2em;
-				color: var(--mainColor_light);
-				background-color: fade(@mainColor_light, 20%);
-				&:hover {
-					background-color: fade(@mainColor_light, 30%) !important;
-				}
 			}
 		}
 
@@ -1786,7 +1776,7 @@ export default class MessageList extends Vue {
 		.head {
 			display: flex;
 			flex-direction: row;
-			border-bottom: 1px solid var(--mainColor_dark_light);
+			border-bottom: 1px solid var(--color-light);
 			padding-bottom: 10px;
 			margin-bottom: 10px;
 
