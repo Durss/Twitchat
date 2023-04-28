@@ -63,11 +63,11 @@
 				<div class="userList" v-else>
 					<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
 						<div class="search">
-							<input type="text" :placeholder="$t('counters.form.search')" v-model="search" @input="searchUser(entry.counter)">
-							<img src="@/assets/loader/loader.svg" alt="loader" v-show="idToLoading[entry.counter.id] === true && search.length > 0">
+							<input type="text" :placeholder="$t('counters.form.search')" v-model="search[entry.counter.id]" @input="searchUser(entry.counter)">
+							<img src="@/assets/loader/loader.svg" alt="loader" v-show="idToLoading[entry.counter.id] === true && search[entry.counter.id].length > 0">
 						</div>
 						
-						<Button class="loadAllBt" v-if="search.length === 0 && idToAllLoaded[entry.counter.id] !== true"
+						<Button class="loadAllBt" v-if="search[entry.counter.id].length === 0 && idToAllLoaded[entry.counter.id] !== true"
 						@click="loadUsers(entry)"
 						:loading="idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</Button>
 	
@@ -80,11 +80,11 @@
 						<div class="sort" v-if="idToUsers[entry.counter.id]!.filter(v=>v.hide !== true).length > 1">
 							<button @click="sortOn(entry, 'name')">
 								{{$t("counters.form.sort_name")}}
-								<template v-if="sortType==='name'">{{ sortDirection == 1? "▼" : "▲" }}</template>
+								<template v-if="sortType[entry.counter.id]==='name'">{{ sortDirection[entry.counter.id] == 1? "▼" : "▲" }}</template>
 							</button>
 							<button @click="sortOn(entry, 'points')">
 								{{$t("counters.form.sort_points")}}
-								<template v-if="sortType==='points'">{{ sortDirection == 1? "▼" : "▲" }}</template>
+								<template v-if="sortType[entry.counter.id]==='points'">{{ sortDirection[entry.counter.id] == 1? "▼" : "▲" }}</template>
 							</button>
 						</div>
 						<InfiniteList class="scrollableList"
@@ -96,7 +96,7 @@
 							<div class="card-item userItem">
 								<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
 								<span class="login" @click="openUserCard(item.user)">{{ item.user.displayName }}</span>
-								<ParamItem class="value"
+								<ParamItem class="value" noBackground
 									:paramData="item.param"
 									@change="onChangeValue(entry, item)" />
 								<button class="deleteBt" @click="deleteUser(entry, item)"><img src="@/assets/icons/trash.svg"></button>
@@ -137,7 +137,6 @@ import { gsap } from 'gsap';
 })
 export default class ParamsCounters extends Vue implements IParameterContent {
 
-	public search:string = "";
 	public showForm:boolean = false;
 	public timeoutSearch:number = -1;
 	public timeoutEdit:number = -1;
@@ -146,8 +145,9 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public idToNoResult:{[key:string]:boolean} = {};
 	public idToLoading:{[key:string]:boolean} = {};
 	public idToAllLoaded:{[key:string]:boolean} = {};
-	public sortType:"name"|"points" = "name";
-	public sortDirection:1|-1 = 1;
+	public sortType:{[key:string]:"name"|"points"} = {};
+	public sortDirection:{[key:string]:1|-1} = {};
+	public search:{[key:string]:string} = {};
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
 		placeholderKey:"",
@@ -213,6 +213,13 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		this.param_more.children = [this.param_valueMax_toggle, this.param_valueMin_toggle, this.param_valueLoop_toggle, this.param_userSpecific, this.param_placeholder];
 		this.param_valueMin_toggle.children = [this.param_valueMin_value];
 		this.param_valueMax_toggle.children = [this.param_valueMax_value];
+
+		for (let i = 0; i < this.counterEntries.length; i++) {
+			const element = this.counterEntries[i];
+			this.sortType[element.counter.id] = "name";
+			this.sortDirection[element.counter.id] = 1;
+			this.search[element.counter.id] = "";
+		}
 
 		watch(()=> this.param_title.value, ()=> {
 			const counters = this.$store("counters").counterList;
@@ -357,7 +364,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public searchUser(counter:TwitchatDataTypes.CounterData):void {
 		let preloadedUsers = this.idToUsers[counter.id];
 		this.idToNoResult[counter.id] = false;
-		if(this.search.length == 0) {
+		if(this.search[counter.id].length == 0) {
 			if(this.idToAllLoaded[counter.id] !== true) delete this.idToUsers[counter.id];
 			else if(preloadedUsers) preloadedUsers.forEach(v=> v.hide = false);
 			return;
@@ -369,7 +376,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			for (let i = 0; i < preloadedUsers.length; i++) {
 				const u = preloadedUsers[i];
 				u.hide = false;
-				if(u.user.login.indexOf(this.search) == -1 && u.user.displayName.indexOf(this.search) == -1) {
+				if(u.user.login.indexOf(this.search[counter.id]) == -1 && u.user.displayName.indexOf(this.search[counter.id]) == -1) {
 					u.hide = true;
 				}else{
 					hasResult = true;
@@ -387,7 +394,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		//Users not loaded yet, search user from Twitch API
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = setTimeout(async () => {
-			const users = await TwitchUtils.loadUserInfo(undefined, [this.search]);
+			const users = await TwitchUtils.loadUserInfo(undefined, [this.search[counter.id]]);
 			let found = false;
 			if(users.length > 0) {
 				const u = users[0];
@@ -442,20 +449,20 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 */
 	public sortOn(entry:CounterEntry, type?:"name"|"points"):void {
 		if(type) {
-			if(this.sortType == type) this.sortDirection = -this.sortDirection as 1|-1;
-			else this.sortType = type;
+			if(this.sortType[entry.counter.id] == type) this.sortDirection[entry.counter.id] = -this.sortDirection[entry.counter.id] as 1|-1;
+			else this.sortType[entry.counter.id] = type;
 		}
 		let users = this.idToUsers[entry.counter.id];
 		if(users) {
 			users.sort((a,b)=> {
-				if(this.sortType == "name") {
-					if(a.user.displayName.toLowerCase() > b.user.displayName.toLowerCase()) return this.sortDirection;
-					if(a.user.displayName.toLowerCase() < b.user.displayName.toLowerCase()) return -this.sortDirection;
+				if(this.sortType[entry.counter.id] == "name") {
+					if(a.user.displayName.toLowerCase() > b.user.displayName.toLowerCase()) return this.sortDirection[entry.counter.id];
+					if(a.user.displayName.toLowerCase() < b.user.displayName.toLowerCase()) return -this.sortDirection[entry.counter.id];
 					return 0;
 				}
-				if(this.sortType == "points") {
-					if(a.param.value > b.param.value) return this.sortDirection;
-					if(a.param.value < b.param.value) return -this.sortDirection;
+				if(this.sortType[entry.counter.id] == "points") {
+					if(a.param.value > b.param.value) return this.sortDirection[entry.counter.id];
+					if(a.param.value < b.param.value) return -this.sortDirection[entry.counter.id];
 					return 0;
 				}
 				return 0;
@@ -557,7 +564,7 @@ interface UserEntry {
 
 		mark {
 			color: var(--color-light);
-			font-size: .7em;
+			font-size: .8em;
 			padding: 2px 5px;
 		}
 
@@ -566,7 +573,6 @@ interface UserEntry {
 			margin-right: .5em;
 		}
 		.info {
-			font-size: .8em;
 			gap: .25em;
 			display: flex;
 			flex-direction: row;
