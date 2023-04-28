@@ -3,19 +3,18 @@
 		<ParamItem :paramData="param_action" v-model="triggerData.scheduleParams!.type" />
 		
 		<template v-if="param_action.value == '1'">
-			<ParamItem :paramData="param_repeatDurationCondition">
-				<ParamItem :paramData="param_repeatDurationValue" v-model="triggerData.scheduleParams!.repeatDuration" />
+			<ParamItem noBackground :paramData="param_repeatDurationCondition">
+				<ParamItem noBackground :paramData="param_repeatDurationValue" v-model="triggerData.scheduleParams!.repeatDuration" />
 			</ParamItem>
-			<ParamItem :paramData="param_repeatMessageCondition">
-				<ParamItem :paramData="param_repeatMessageValue" v-model="triggerData.scheduleParams!.repeatMinMessages" />
+			<ParamItem noBackground :paramData="param_repeatMessageCondition">
+				<ParamItem noBackground :paramData="param_repeatMessageValue" v-model="triggerData.scheduleParams!.repeatMinMessages" />
 			</ParamItem>
 		</template>
 		
 		<template v-else-if="param_action.value == '2'">
 			<Button class="addBt"
 				icon="date"
-				:title="$t('triggers.schedule.add_dateBt')"
-				@click="addDate()" />
+				@click="addDate()">{{ $t('triggers.schedule.add_dateBt') }}</Button>
 
 			<div class="dateList"
 			v-if="triggerData.scheduleParams && triggerData.scheduleParams.dates.length > 0">
@@ -23,9 +22,9 @@
 				v-for="(d, index) in triggerData.scheduleParams?.dates"
 				:key="'date'+index">
 					<div class="recurrent">
-						<ParamItem :paramData="params_daily[index]" v-model="d.daily" />
-						<ParamItem :paramData="params_monthly[index]" v-model="d.monthly" />
-						<ParamItem :paramData="params_yearly[index]" v-model="d.yearly" />
+						<ParamItem noBackground :paramData="params_daily[index]" v-model="d.daily" />
+						<ParamItem noBackground :paramData="params_monthly[index]" v-model="d.monthly" />
+						<ParamItem noBackground :paramData="params_yearly[index]" v-model="d.yearly" />
 					</div>
 					<div class="date">
 						<input type="datetime-local" v-model="d.value" />

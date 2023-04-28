@@ -16,12 +16,10 @@
 			<Button class="authorizeBt"
 				type="link"
 				:href="oAuthURL"
-				:title="$t('login.authorizeBt')"
 				v-if="showAuthorizeBt"
 				:loading="generatingCSRF"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-				icon="twitch"
-			/>
+				icon="twitch">{{ $t('login.authorizeBt') }}</Button>
 		</section>
 
 		<section class="card-item actions">

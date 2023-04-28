@@ -27,7 +27,7 @@
 				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500">
 				<Button class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
 			</form>
-			<Button v-else small highlight :title="$t('whispers.add_scope_bt')" icon="unlock" @click="requestTwitchScope()" />
+			<Button v-else small highlight icon="unlock" @click="requestTwitchScope()">{{ $t('whispers.add_scope_bt') }}</Button>
 			
 			<div class="userlist" v-if="uids.length > 0">
 				<div v-for="uid, index in uids" :key="uid" class="user">

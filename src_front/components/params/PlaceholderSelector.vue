@@ -5,9 +5,7 @@
 	>
 		<div class="list">
 			<template v-for="(h,index) in placeholders" :key="h.tag+index">
-				<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">
-					<mark>&#123;{{h.tag}}&#125;</mark>
-				</button>
+				<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
 				
 				<i18n-t scope="global" :keypath="h.descKey" tag="span">
 					<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -67,16 +65,17 @@ export default class PlaceholderSelector extends Vue {
 .placeholderselector{
 	.list {
  		display: grid;
-		grid-template-columns: .75fr 1fr;
+		grid-template-columns: auto 1fr;
 		align-items: stretch;
 		column-gap: 1px;
 		row-gap: .25em;
 		font-size: .8em;
 		&>* {
-			background-color: rgba(0, 0, 0, .4);
+			background-color: var(--color-dark-fade);
 			border-radius: .5em;
 			padding: .25em .5em;
 			&:nth-child(odd) {
+				max-width: 20vw;
 				word-break: break-all;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
@@ -87,12 +86,13 @@ export default class PlaceholderSelector extends Vue {
 			}
 		}
 		button {
-			cursor: pointer;
+			display: inline;
 			text-align: right;
+			font-weight: bold;
 			color: var(--color-light);
-			background-color: var(--color-primary);
+			background-color: var(--color-dark);
 			&:hover {
-				background-color: var(--color-primary-light);
+				background-color: var(--color-dark-light);
 			}
 		}
 	}

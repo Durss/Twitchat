@@ -1,19 +1,21 @@
 <template>
 	<div class="triggerActionchatcommandparams">
-		<ParamItem :paramData="param_cmd" v-model="triggerData.chatCommand" @change="onUpdateCommand()" :error="cmdNameConflict" />
-		<div v-if="cmdNameConflict" class="cmdNameConflict">{{ $t("triggers.actions.chat.conflict") }}</div>
-		
-		<ParamItem class="aliases" :paramData="param_cmdAliases" v-model="triggerData.chatCommandAliases" @change="onUpdateCommand()" :error="cmdAliasConflict" />
-		<div v-if="cmdAliasConflict" class="cmdNameConflict">{{ $t("triggers.actions.chat.conflict") }}</div>
-
-		<ParamItem class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
-		<ParamItem class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
-		<ParamItem class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown!.alert" />
-		
-		<TriggerActionCommandArgumentParams :triggerData="triggerData" />
+		<ParamItem noBackground :paramData="param_cmd" v-model="triggerData.chatCommand" @change="onUpdateCommand()"
+		:error="cmdNameConflict" :errorMessage="cmdNameConflict? $t('triggers.actions.chat.conflict') : ''" />
 			
-		<ToggleBlock :open="false" :title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium>
+		<ToggleBlock class="grow permissions" :open="false" :title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium primary>
 			<PermissionsForm v-model="triggerData.permissions" />
+		</ToggleBlock>
+		
+		<ToggleBlock class="grow" :icons="['params']" :open="false" title="Paramètres avancés" primary medium>
+			<ParamItem noBackground class="aliases" :paramData="param_cmdAliases" v-model="triggerData.chatCommandAliases" @change="onUpdateCommand()"
+			:error="cmdAliasConflict" :errorMessage="cmdAliasConflict? $t('triggers.actions.chat.conflict') : ''" />
+	
+			<ParamItem noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
+			<ParamItem noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
+			<ParamItem noBackground class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown!.alert" />
+			
+			<TriggerActionCommandArgumentParams :triggerData="triggerData" />
 		</ToggleBlock>
 	</div>
 </template>
@@ -79,7 +81,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 		//Make sure no other chat command has the same name
 		const triggers = this.$store("triggers").triggerList;
-		const aliases = this.triggerData.chatCommandAliases?.concat().map(v=>v.toLowerCase()) ?? []
+		const aliases = this.triggerData.chatCommandAliases?.concat().map(v=>v.toLowerCase()).filter(v=>v.length > 0) ?? []
 		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
 		
 		//Check if aliases contain the main command
@@ -89,7 +91,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 		}
 		
 		//Check if any other trigger contain the same command
-		let cmdListLocal = aliases;
+		let cmdListLocal = aliases.concat();
 		if(mainCmd) cmdListLocal.push(mainCmd);
 		for (let i = 0; i < triggers.length; i++) {
 			if(triggers[i].type == TriggerTypes.CHAT_COMMAND
@@ -107,7 +109,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 				//Check if trigger contains an alias of the current trigger
 				for (let j = 0; j < aliases.length; j++) {
 					const alias = aliases[j];
-					if(cmdList.findIndex(v=> v === alias) > -1) {
+					if(alias && cmdList.findIndex(v=> v === alias) > -1) {
 						this.cmdAliasConflict = true;
 					}
 				}
@@ -125,20 +127,6 @@ export default class TriggerActionChatCommandParams extends Vue {
 	flex-direction: column;
 	gap: .5em;
 
-	.cmdNameConflict {
-		background-color: var(--mainColor_alert);
-		color: var(--mainColor_light);
-		text-align: center;
-		margin:auto;
-		margin-top: -.5em;
-		display: block;
-		width: 100%;
-		padding: .25em;
-		margin-bottom: .25em;
-		border-bottom-left-radius: .5em;
-		border-bottom-right-radius: .5em;
-	}
-
 	.cooldown {
 		:deep(input) {
 			flex-basis: 100px;
@@ -154,6 +142,14 @@ export default class TriggerActionChatCommandParams extends Vue {
 				}
 			}
 		}
+	}
+
+	.permissions {
+		margin: auto;
+	}
+
+	.grow {
+		width: 100%;
 	}
 }
 </style>

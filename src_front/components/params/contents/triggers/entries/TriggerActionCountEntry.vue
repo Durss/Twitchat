@@ -32,7 +32,7 @@
 		</div>
 
 		<div class="row item value">
-			<ParamItem :paramData="param_value" v-model="action.addValue" />
+			<ParamItem noBackground :paramData="param_value" v-model="action.addValue" />
 		</div>
 	</div>
 </template>
@@ -165,8 +165,8 @@ export default class TriggerActionCountEntry extends Vue {
 			align-items: center;
 			flex-wrap: wrap;
 			padding: .5em;
-			border-radius: .5em;
-			background-color: rgba(255, 255, 255, 30%);
+			border-radius: var(--border-radius);
+			background-color: var(--color-primary);
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 			.name {
 				font-weight: bold;

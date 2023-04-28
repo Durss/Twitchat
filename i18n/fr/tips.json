@@ -61,8 +61,7 @@
 		},
 		"highlight": {
 			"title": "Mettre un message en avant",
-			"info_1": "Vous pouvez mettre message de tchat en avant sur votre stream.",
-			"info_2": "Configurez l'overlay puis affichez n'importe quel message du tchat sur votre stream en un clique ou depuis des évènements de triggers.",
+			"info": "Vous pouvez mettre un message de tchat ou un clip en avant sur votre stream grâce à un overlay Twitchat dédié.",
 			"config_overlayBt": "Configurer l'overlay",
 			"configure_triggerBt": "Créer des triggers"
 		}

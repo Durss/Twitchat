@@ -8,8 +8,9 @@
 			<input type="text" id="chatcmdparam" v-model="newTag"
 				@keyup.enter="createItem()"
 				@blur="createItem()"
-				:placeholder="$t('triggers.slash_cmd.param_cmd_params_placeholder')">
-			<div class="tags">
+				:placeholder="$t('triggers.slash_cmd.param_cmd_params_placeholder')"
+				maxlength="20">
+			<div class="tags" v-if="triggerData.chatCommandParams && triggerData.chatCommandParams.length > 0">
 				<div class="tag" v-for="item, index in triggerData.chatCommandParams" :key="item.tag">
 					<button class="deleteBt" @click="triggerData.chatCommandParams!.splice(index, 1)"><img src="@/assets/icons/cross.svg" alt="delete"></button>
 					<span v-click2Select @click="copy($event, item)" class="label">{{ "{" }}{{ item.tag }}{{ "}" }}</span>
@@ -127,23 +128,25 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 				align-items: center;
 				gap: .25em;
 				padding: .25em;
+				padding-right: 1em;
 				border-radius: .5em;
-				background-color: fade(@mainColor_normal, 20%);
-				border: 1px solid var(--mainColor_normal);
+				background-color: var(--color-primary);
 				.label {
 					text-transform: uppercase;
 					text-align: right;
 					font-weight: bold;
+					cursor: pointer !important;
 				}
 				.typeSelector {
 					padding: 0 .5em !important;
 				}
 				.deleteBt {
 					display: flex;
+					margin: -.25em;
+					align-self: stretch;
 					img {
-						height: 1em;
-						width: 1em;
-						padding: .1em;
+						height: 100%;
+						padding: .4em;
 					}
 				}
 			}
@@ -151,7 +154,7 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 	}
 	.usage {
 		margin-top: 1em;
-		background-color: fade(@mainColor_normal, 10%);
+		background-color: var(--color-primary-fade);
 		padding: .5em;
 		border-radius: .5em;
 		margin-left: 1.5em;
@@ -175,6 +178,9 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 			grid-template-columns: auto auto 1fr;
 			align-items: center;
 			gap: .25em;
+		}
+		mark {
+			cursor: pointer !important;
 		}
 	}
 }

@@ -7,6 +7,19 @@
 	flex-direction: column;
 	box-shadow: 0 0 5px 3px rgba(0, 0, 0, .4);
 
+	&.embedMode {
+		background-color: unset;
+		box-shadow: unset;
+		padding: 0;
+		&>.content {
+			padding: 0;
+			gap: .25em;
+			form {
+				gap: .25em;
+			}
+		}
+	}
+
 	&>.head {
 		z-index: 1;
 		padding-bottom: 0;

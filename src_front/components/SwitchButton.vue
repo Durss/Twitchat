@@ -4,7 +4,7 @@
 		
 		<div class="toggleHolder">
 			<div class="dash"></div>
-			<ToggleButton class="toggle" v-model="localValue" :big="big" :small="small" :secondary="secondary" :alert="alert" />
+			<ToggleButton class="toggle" v-model="localValue" :big="big" :small="small" :secondary="secondary" :alert="alert" @change="setState(localValue)" />
 			<div class="dash"></div>
 		</div>
 

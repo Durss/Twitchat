@@ -14,7 +14,7 @@
 			<span>s</span>
 		</div>
 
-		<Button class="deleteBt" highlight small icon="cross_alert" @click="$emit('delete')" />
+		<Button class="deleteBt" alert icon="trash" @click="$emit('delete')" />
 	</div>
 </template>
 
@@ -47,6 +47,10 @@ export default class TriggerActionDelayEntry extends Vue {
 		this.delay_local = this.action.delay!.toString();
 	}
 
+	/**
+	 * Increment/Decrement value with up and down keyboard arrows
+	 * @param event 
+	 */
 	public onKeyDown(event:KeyboardEvent):void {
 		let add = 0;
 		switch(event.key) {
@@ -68,8 +72,12 @@ export default class TriggerActionDelayEntry extends Vue {
 		(ce.$el as HTMLInputElement).focus()
 	}
 
+	/**
+	 * Makes sure the value is a number within the min/max range
+	 */
 	public validateValue():void {
 		let v = Math.max(0, Math.min(99999, parseInt(this.delay_local)));
+		if(isNaN(v)) v = 0;
 		this.action.delay = v;
 		this.delay_local = v.toString();
 	}
@@ -82,7 +90,7 @@ export default class TriggerActionDelayEntry extends Vue {
 	margin: auto;
 	width: min-content;
 	border-radius: .5em;
-	background-color: var(--mainColor_light);
+	background-color: var(--color-primary);
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -99,6 +107,7 @@ export default class TriggerActionDelayEntry extends Vue {
 	.deleteBt {
 		align-self: stretch;
 		background-color: transparent;
+		border-radius: 0;
 		&:hover {
 			background-color: fade(@mainColor_alert, 20%) !important;
 		}

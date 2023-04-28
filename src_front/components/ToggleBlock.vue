@@ -259,7 +259,7 @@ export default class ToggleBlock extends Vue {
 
 		.content {
 			padding: .5em;
-			margin-left: 1.4em;
+			// margin-left: 1.4em;
 		}
 	}
 

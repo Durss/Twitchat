@@ -61,8 +61,7 @@
 		},
 		"highlight": {
 			"title": "Highlight chat message",
-			"info_1": "You want to show a viewer's message on your stream?",
-			"info_2": "You can configure an OBS overlay or use a Twitchat Trigger to show it on your stream with a simple click on a button",
+			"info": "You can highlight a chat message or a clip on your stream thanks to the dedicated Twitchat overlay.",
 			"config_overlayBt": "Configure overlay",
 			"configure_triggerBt": "Create triggers"
 		}

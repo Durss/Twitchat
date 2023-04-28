@@ -1,18 +1,12 @@
 <template>
 	<div :class="classes" v-show="content != contentClose">
-		<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
-
-		<div class="head">
-			<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
-				<img src="@/assets/icons/back.svg" alt="back">
-			</button>
-			<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
-		</div>
-
-		<div class="subHolder">
-			<div class="menu">
-				<!-- v-if="content == contentMain && !search || content == contentAd"> -->
-
+		<div class="menu">
+			<!-- v-if="content == contentMain && !search || content == contentAd"> -->
+				<div class="head">
+					<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
+					<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
+				</div>
+			
 				<div class="automaticMessageHolder" ref="adNoDonor"></div>
 
 				<div class="buttonList" v-if="content != contentAd">
@@ -41,11 +35,16 @@
 				<mark class="version" v-if="content != contentAd">v {{appVersion}}</mark>
 			</div>
 			
-			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
+		<div class="contentHolder">
+			<div class="head">
 				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
 					<img src="@/assets/icons/back.svg" alt="back">
 				</button>
+				<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
+				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
+			</div>
 
+			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
 				<ParamsStreamdeck v-if="content == contentStreamdeck" ref="currentContent" />
 				<ParamsOBS v-if="content == contentObs" ref="currentContent" />
@@ -341,110 +340,106 @@ export default class Parameters extends Vue {
 	width: 100%;
 	height: 100%;
 	box-sizing: border-box;
-
-	.closebutton {
-		height: 3.5em;
-	}
-
-	.backBt {
-		position: absolute;
-		top: 0;
-		left: 0;
-		padding: 1em;
-		height: 3.5em;
-		img {
-			height: 1em;
-			transition: transform .15s;
-		}
-		&:hover {
-			img {
-				transform: scale(1.2);
-			}
-		}
-	}
+	display:flex;
+	flex-direction:row;
 
 	.head {
-		display: none;
-		padding: 0 3em 1em 3em;
-		border-bottom: 1px solid var(--color-dark-extralight);
+		position:relative;
+		margin-top: -1em;
+		display: flex;
+		width: 100%;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		.title {
+			display: none;
+			flex-grow: 1;
+			text-align: center;
+		}
+
+		.closebutton {
+			position: unset;
+		}
+
+		.backBt {
+			padding: 1em;
+			img {
+				height: 1em;
+				transition: transform .15s;
+			}
+			&:hover {
+				img {
+					transform: scale(1.2);
+				}
+			}
+		}
 	}
 
-	box-sizing: border-box;
-	.subHolder {
-		//This avoids black space over sticky items inside the content
-		// padding: 30px;
-		box-sizing: border-box;
-		gap: 1em;
+	.menu {
 		height: 100%;
 		display: flex;
-		flex-direction: row;
-		align-items: stretch;
-		justify-content: stretch;
-		justify-items: stretch;
-		flex: 1;
-		
-		.menu {
-			height: 100%;
+		flex-direction: column;
+		gap: 1em;
+		width: fit-content;
+		border-right: 1px solid var(--color-light-fader);
+		padding-right: 5px;
+		overflow-y: auto;
+		.head {
+			display:none;
+		}
+		.automaticMessageHolder {
+			display: none;
+		}
+		.buttonList {
 			display: flex;
 			flex-direction: column;
-			gap: 1em;
-			width: fit-content;
-			border-right: 1px solid var(--color-light-fader);
-			padding-right: 5px;
-			overflow-y: auto;
-			.automaticMessageHolder {
-				display: none;
-			}
-			.buttonList {
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				gap: 10px;
-				&>.button {
-					flex-wrap: nowrap;
-					&.beta1, &.beta2 {
+			justify-content: center;
+			gap: 10px;
+			&>.button {
+				flex-wrap: nowrap;
+				&.beta1, &.beta2 {
+					&::before {
+						content: "beta";
+						position: absolute;
+						top: 10px;
+						right: -50px;
+						background-color: var(--mainColor_normal);
+						color: var(--mainColor_light);
+						padding: 5px 50px;
+						border-radius: 10px;
+						text-transform: uppercase;
+						font-size: 18px;
+						transform: rotate(45deg);
+					}
+					&.beta2 {
 						&::before {
-							content: "beta";
-							position: absolute;
-							top: 10px;
-							right: -50px;
-							background-color: var(--mainColor_normal);
-							color: var(--mainColor_light);
-							padding: 5px 50px;
-							border-radius: 10px;
-							text-transform: uppercase;
-							font-size: 18px;
-							transform: rotate(45deg);
-						}
-						&.beta2 {
-							&::before {
-								background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
-							}
+							background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
 						}
 					}
 				}
 			}
-
-			.version {
-				display: block;
-				margin: 0 auto;
-				padding: .5em;
-				font-style: italic;
-				font-size: .8em;
-			}
 		}
 
+		.version {
+			display: block;
+			margin: 0 auto;
+			padding: .5em;
+			font-style: italic;
+			font-size: .8em;
+		}
+	}
+
+	.contentHolder {
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
 		.content {
-			width: 100%;
-			margin: 2.5em auto 0 auto;
-			padding-right: 10px;
-			max-height: 100%;
+			margin: 0 auto;
+			margin-top: -1em;
+			padding: 0 1em;
+			flex-grow: 1;
 			overflow: auto;
-			position: relative;
-			.backBt {
-				top: -1.5em;
-				position: absolute;
-			}
+			width: 100%;
 			&.default {
 				.donorState {
 					margin-top: 1em;
@@ -479,74 +474,59 @@ export default class Parameters extends Vue {
 @media only screen and (max-width: 800px) {
 	.parameters {
 		.head {
-			display: block;
+			border-bottom: 1px solid var(--color-dark-extralight);
+			.title {
+				display: block;
+			}
 		}
-		.subHolder {
-			padding:0 1em;
-			.menu {
-				border: none;
-				.automaticMessageHolder {
+		.menu {
+			border: none;
+			.head {
+				display:block;
+				.title {
 					display: block;
 				}
-				.search {
-					display: none;
-				}
-				.buttonList {
-					display: flex;
-					flex-direction: row;
-					flex-wrap: wrap;
-					justify-content: center;
-					gap: 10px;
-					width: 100%;
-					&>.button {
-						width: 180px;
-						flex-direction: column;
-						border-radius: var(--border-radius);
-						// :deep(.background) {
-						// 	background-color: var(--color-dark-extralight);
-						// }
-						:deep(.icon) {
-							height: 2em;
-							width: 2em;
-							max-height: unset;
-							max-width: unset;
-							margin: 0 0 .5em 0;
-							object-fit: fill;
-							object-position: center center;
-						}
-						:deep(.label) {
-							white-space: normal;
-						}
-		
-						&.beta1, &.beta2 {
-							&::before {
-								content: "beta";
-								position: absolute;
-								top: 10px;
-								right: -50px;
-								background-color: var(--mainColor_normal);
-								color: var(--mainColor_light);
-								padding: 5px 50px;
-								border-radius: 10px;
-								text-transform: uppercase;
-								font-size: 18px;
-								transform: rotate(45deg);
-							}
-							&.beta2 {
-								&::before {
-									background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
-								}
-							}
-						}
+			}
+			.automaticMessageHolder {
+				display: block;
+			}
+			.search {
+				display: none;
+			}
+			.buttonList {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 10px;
+				width: 100%;
+				&>.button {
+					width: 180px;
+					flex-direction: column;
+					border-radius: var(--border-radius);
+					// :deep(.background) {
+					// 	background-color: var(--color-dark-extralight);
+					// }
+					:deep(.icon) {
+						height: 2em;
+						width: 2em;
+						max-height: unset;
+						max-width: unset;
+						margin: 0 0 .5em 0;
+						object-fit: fill;
+						object-position: center center;
+					}
+					:deep(.label) {
+						white-space: normal;
 					}
 				}
 			}
+		}
 
+		.contentHolder {
+			display:none;
 			.content {
-				margin-top: 0;
-				&.default {
-					display: none;
-				}
+				margin-top: 1em;
 			}
 		}
 
@@ -554,11 +534,8 @@ export default class Parameters extends Vue {
 			.menu {
 				display: none;
 			}
-
-			.content {
-				.title {
-					display: none;
-				}
+			.contentHolder {
+				display:flex;
 			}
 		}
 	}
@@ -566,27 +543,17 @@ export default class Parameters extends Vue {
 
 @media only screen and (max-width: 400px) {
 	.parameters {
-		.subHolder {
-			.menu {
-				margin: 0 auto;
-				.buttonList {
-					flex-direction: column;
-					flex-wrap: nowrap;
-					&>.button {
-						width: unset;
-						flex-direction: unset;
-						:deep(.icon) {
-							height: 1em;
-							width: 1em;
-							max-height: unset;
-							max-width: unset;
-							margin: 0 0 .5em 0;
-							object-fit: fill;
-							object-position: center center;
-						}
-						:deep(.label) {
-							white-space: normal;
-						}
+		.menu {
+			margin: 0 auto;
+			.buttonList {
+				flex-direction: column;
+				flex-wrap: nowrap;
+				&>.button {
+					width: unset;
+					flex-direction: unset;
+					:deep(.icon) {
+						height: 1em;
+						width: 1em;
 					}
 				}
 			}

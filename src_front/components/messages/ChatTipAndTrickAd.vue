@@ -2,112 +2,109 @@
 	<div class="chattipandtrickad">
 		<div v-if="tipIndex===0" class="entry">
 			<img src="@/assets/icons/obs.svg" alt="elgato" class="icon">
-			<h1 class="row">{{ $t("tips.alerts.title") }}</h1>
-			<div class="row">{{ $t("tips.alerts.info_1") }}</div>
-			<div class="row">{{ $t('tips.alerts.info_2') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentTriggers)" />
+			<h1>{{ $t("tips.alerts.title") }}</h1>
+			<div>{{ $t("tips.alerts.info_1") }}</div>
+			<div>{{ $t('tips.alerts.info_2') }}</div>
+			<Button @click.stop="openParamPage(contentTriggers)" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===1" class="entry">
 			<img src="@/assets/icons/elgato.svg" alt="elgato" class="icon">
-			<h1 class="row">{{ $t('tips.streamdeck.title') }}</h1>
-			<div class="row">{{ $t('tips.streamdeck.info_1') }}</div>
-			<div class="row">{{ $t('tips.streamdeck.info_2') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentStreamdeck)" />
+			<h1>{{ $t('tips.streamdeck.title') }}</h1>
+			<div>{{ $t('tips.streamdeck.info_1') }}</div>
+			<div>{{ $t('tips.streamdeck.info_2') }}</div>
+			<Button @click.stop="openParamPage(contentStreamdeck)" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===2" class="entry">
 			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
-			<h1 class="row">{{ $t('tips.obs_stop.title') }}</h1>
-			<div class="row">{{ $t('tips.obs_stop.info_1') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParamItem('features.stopStreamOnRaid')" />
+			<h1>{{ $t('tips.obs_stop.title') }}</h1>
+			<div>{{ $t('tips.obs_stop.info_1') }}</div>
+			<Button @click.stop="openParamItem('features.stopStreamOnRaid')" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===3" class="entry">
 			<img src="@/assets/icons/bingo.svg" alt="bingo" class="icon">
-			<h1 class="row">{{ $t('tips.bingo.title') }}</h1>
-			<div class="row">{{ $t('tips.bingo.info_1') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openModal('bingo')" />
+			<h1>{{ $t('tips.bingo.title') }}</h1>
+			<div>{{ $t('tips.bingo.info_1') }}</div>
+			<Button @click.stop="openModal('bingo')" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===4" class="entry">
 			<img src="@/assets/icons/ticket.svg" alt="raffle" class="icon">
-			<h1 class="row">{{ $t('tips.raffle.title') }}</h1>
-			<div class="row">{{ $t('tips.raffle.info_1') }}</div>
-			<div class="row">{{ $t('tips.raffle.info_2') }}</div>
-			<div class="row">{{ $t('tips.raffle.info_3') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openModal('raffle')" />
+			<h1>{{ $t('tips.raffle.title') }}</h1>
+			<div>{{ $t('tips.raffle.info_1') }}</div>
+			<div>{{ $t('tips.raffle.info_2') }}</div>
+			<div>{{ $t('tips.raffle.info_3') }}</div>
+			<Button @click.stop="openModal('raffle')" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===5" class="entry">
 			<img src="@/assets/icons/obs.svg" alt="obs" class="icon">
-			<h1 class="row">{{ $t('tips.obs.title') }}</h1>
-			<div class="row">{{ $t('tips.obs.info_1') }}</div>
-			<div class="row">{{ $t('tips.obs.info_2') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentObs)" />
+			<h1>{{ $t('tips.obs.title') }}</h1>
+			<div>{{ $t('tips.obs.info_1') }}</div>
+			<div>{{ $t('tips.obs.info_2') }}</div>
+			<Button @click.stop="openParamPage(contentObs)" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===6" class="entry">
 			<img src="@/assets/icons/api.svg" alt="api" class="icon">
-			<h1 class="row">{{ $t('tips.api.title') }}</h1>
-			<div class="row">{{ $t('tips.api.info_1') }}</div>
-			<div class="row">{{ $t('tips.api.info_2') }}</div>
+			<h1>{{ $t('tips.api.title') }}</h1>
+			<div>{{ $t('tips.api.info_1') }}</div>
+			<div>{{ $t('tips.api.info_2') }}</div>
 			<Button icon="github"
 				style="display: inline-block;"
-				:title="$t('tips.api.readBt')"
 				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
 				target="_blank"
-				type="link"
-			/>
+				type="link">{{ $t('tips.api.readBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===7" class="entry">
 			<img src="@/assets/icons/music.svg" alt="music" class="icon">
-			<h1 class="row">{{ $t('tips.music.title') }}</h1>
-			<div class="row" v-html="$t('tips.music.info_1')"></div>
-			<div class="row">{{ $t('tips.music.info_2') }}</div>
-			<div class="row">{{ $t('tips.music.info_3') }}</div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentConnexions)" />
+			<h1>{{ $t('tips.music.title') }}</h1>
+			<div v-html="$t('tips.music.info_1')"></div>
+			<div>{{ $t('tips.music.info_2') }}</div>
+			<div>{{ $t('tips.music.info_3') }}</div>
+			<Button @click.stop="openParamPage(contentConnexions)" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===8" class="entry">
 			<img src="@/assets/icons/overlay.svg" alt="overlay" class="icon">
-			<h1 class="row">{{ $t('tips.overlays.title') }}</h1>
-			<div class="row" v-html="$t('tips.overlays.info_1')"></div>
-			<div class="row" v-html="$t('tips.overlays.info_2')"></div>
-			<Button :title="$t('tips.tryBt')" @click.stop="openParamPage(contentOverlays)" />
+			<h1>{{ $t('tips.overlays.title') }}</h1>
+			<div v-html="$t('tips.overlays.info_1')"></div>
+			<div v-html="$t('tips.overlays.info_2')"></div>
+			<Button @click.stop="openParamPage(contentOverlays)" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===9" class="entry">
 			<img src="@/assets/icons/countdown.svg" alt="timer" class="icon">
-			<h1 class="row">{{ $t('tips.countdown.title') }}</h1>
-			<i18n-t scope="global" class="row" tag="div" keypath="tips.countdown.info_1">
+			<h1>{{ $t('tips.countdown.title') }}</h1>
+			<i18n-t scope="global" tag="div" keypath="tips.countdown.info_1">
 				<template #CMD1><span class="cmd">/timerStart</span></template>
 				<template #CMD2><span class="cmd">/countdown</span></template>
 			</i18n-t>
-			<Button icon="timer" :title="$t('tips.countdown.timer_tryBt')" @click.stop="startTimer()" />
-			<Button icon="countdown" :title="$t('tips.countdown.countdown_tryBt')" @click.stop="startCountdown()" />
+			<Button icon="timer" @click.stop="startTimer()">{{ $t('tips.countdown.timer_tryBt') }}</Button>
+			<Button icon="countdown" @click.stop="startCountdown()">{{ $t('tips.countdown.countdown_tryBt') }}</Button>
 		</div>
 		
 		<div v-if="tipIndex===10" class="entry">
 			<img src="@/assets/icons/obs.svg" alt="obs dock" class="icon">
-			<h1 class="row">{{ $t('tips.dock.title') }}</h1>
-			<div class="row" v-html="$t('tips.dock.info_1')"></div>
-			<div class="row" v-html="$t('tips.dock.info_2')"></div>
-			<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
+			<h1>{{ $t('tips.dock.title') }}</h1>
+			<div v-html="$t('tips.dock.info_1')"></div>
+			<div v-html="$t('tips.dock.info_2')"></div>
+			<img src="@/assets/img/obs_dock.png" alt="obs dock screen">
 		</div>
 		
 		<div v-if="tipIndex===11" class="entry">
 			<img src="@/assets/icons/highlight.svg" alt="chat highlight" class="icon">
-			<h1 class="row">{{ $t('tips.highlight.title') }}</h1>
-			<div class="row">{{ $t('tips.highlight.info_1') }}</div>
-			<div class="row">{{ $t('tips.highlight.info_2') }}</div>
+			<h1>{{ $t('tips.highlight.title') }}</h1>
+			<div>{{ $t('tips.highlight.info') }}</div>
 			
-			<a class="row demo" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="cover"></a>
+			<a class="demo" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="cover"></a>
 
-			<Button class="row" :title="$t('tips.highlight.config_overlayBt')" @click.stop="openParamPage(contentOverlays, contentChatHighlight)" icon="overlay" />
-			<div class="row or">{{ $t("global.or") }}</div>
-			<Button class="row" :title="$t('tips.highlight.configure_triggerBt')" @click.stop="openParamPage(contentTriggers)" icon="broadcast" />
+			<Button @click.stop="openParamPage(contentOverlays, contentChatHighlight)" icon="overlay">{{ $t('tips.highlight.config_overlayBt') }}</Button>
+			<div class="or">{{ $t("global.or") }}</div>
+			<Button @click.stop="openParamPage(contentTriggers)" icon="broadcast">{{ $t('tips.highlight.configure_triggerBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -151,12 +148,13 @@ export default class ChatTipAndTrickAd extends Vue {
 <style scoped lang="less">
 .chattipandtrickad{
 	.entry {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 		.icon {
 			height: 4em;
 			width: 4em;
-			margin-bottom: .5em;
-		}
-		.row:not(:last-child) {
 			margin-bottom: .5em;
 		}
 
@@ -165,14 +163,6 @@ export default class ChatTipAndTrickAd extends Vue {
 			border-radius: .5em;
 			padding: 0 .5em;
 			font-family: 'Courier New', Courier, monospace;
-		}
-		
-		.button {
-			display: block;
-			margin: auto;
-			&:not(:first-of-type) {
-				margin-top: .5em;
-			}
 		}
 		
 		img {

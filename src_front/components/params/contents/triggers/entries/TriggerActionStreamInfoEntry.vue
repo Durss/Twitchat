@@ -1,6 +1,10 @@
 <template>
 	<div class="triggeractionstreaminfoentry">
-		<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" v-if="!loading" :placeholderList="placeholderList" triggerMode />
+		<StreamInfoSubForm v-if="!loading" v-model:title="title"
+		v-model:tags="tags"
+		v-model:category="category"
+		:placeholderList="placeholderList"
+		triggerMode />
 		<img class="loader" src="@/assets/loader/loader.svg" v-else>
 	</div>
 </template>

@@ -76,7 +76,7 @@
 				</div>
 			</div>
 			
-			<Button v-if="!filtering && messageData.activities.length > 0" :title="$t('chat.hype_train.filterBt')" icon="filters" @click="filter()" />
+			<Button v-if="!filtering && messageData.activities.length > 0" icon="filters" @click="filter()">{{ $t('chat.hype_train.filterBt') }}</Button>
 		</div>
 	</div>
 </template>

@@ -1,13 +1,6 @@
 <template>
 	<div :class="classes">
 		<div v-if="flatTriggerList.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div>
-		<Splitter class="head" v-else-if="noEdit===false">
-			<i18n-t scope="global" keypath="triggers.triggers_list">
-				<template #COUNT>
-					<span class="small">({{ flatTriggerList.length }})</span>
-				</template>
-			</i18n-t>
-		</Splitter>
 
 		<SwitchButton v-if="noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
 		
@@ -25,8 +18,8 @@
 			</template>
 		</div>
 		
-		<div class="list" v-show="filterState === true">
-			<ToggleBlock class="category" medium
+		<div class="list category" v-show="filterState === true">
+			<ToggleBlock class="category" medium primary
 			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
 			:title="$t(cat.labelKey)" :icons="[cat.icon]">
 				<div class="item" v-for="item in cat.triggerList" :key="'item_'+item.trigger.id">
@@ -260,7 +253,22 @@ export interface TriggerListEntry {
 	.list {
 		display: flex;
 		flex-direction: column;
-		gap: .25em;
+		gap: 2px;
+		&.category{
+			gap: 1em;
+		}
+		.category {
+			width: 100%;
+			:deep(.header) {
+				position: sticky;
+				top: 0;
+			}
+			:deep(.content) {
+				display: flex;
+				flex-direction: column;
+				gap: .25em;
+			}
+		}
 	}
 
 	.empty {
@@ -268,12 +276,5 @@ export interface TriggerListEntry {
 		font-style: italic;
 	}
 
-	.category {
-		:deep(.content) {
-			display: flex;
-			flex-direction: column;
-			gap: .25em;
-		}
-	}
 }
 </style>

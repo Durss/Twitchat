@@ -177,7 +177,7 @@
 			</div>
 		</div>
 		
-		<PlaceholderSelector class="placeholders" v-if="placeholderTarget && paramData.placeholderList"
+		<PlaceholderSelector class="child placeholders" v-if="placeholderTarget && paramData.placeholderList"
 			:target="placeholderTarget"
 			:placeholders="paramData.placeholderList"
 			v-model="paramData.value"
@@ -364,14 +364,14 @@ export default class ParamItem extends Vue {
 		});
 		
 		watch(() => this.paramData.children, (value) => {
-			this.buildChildren();
+			this.buildChildren(true);
 		});
 		
 		watch(() => this.file, () => {
 			console.log(this.file);
 		});
 		
-		this.buildChildren();
+		this.buildChildren(true);
 		
 		if(this.paramData.listValues && this.paramData.listValues.length > 0) {
 			//Check if the value is on the listValues.
@@ -494,7 +494,7 @@ export default class ParamItem extends Vue {
 		(this.$refs.vueSelect as any).typeAheadSelect();
 	}
 
-	private async buildChildren():Promise<void> {
+	private async buildChildren(isInit:boolean = false):Promise<void> {
 		if(this.paramData.value === false){
 			if(this.children.length > 0 || this.$refs.param_child_slot) {
 				//Hide transition
@@ -533,7 +533,7 @@ export default class ParamItem extends Vue {
 		this.children = children;
 		await this.$nextTick();
 
-		if(children.length > 0 || this.$refs.param_child_slot){
+		if(isInit && (children.length > 0 || this.$refs.param_child_slot)){
 			//Show transitions
 			let divs:HTMLDivElement[] = [];
 			if(this.$refs.param_child_slot) {

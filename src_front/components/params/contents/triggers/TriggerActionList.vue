@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionlist">
-		<div class="description">
+		<div class="card-item primary description">
 			<img src="@/assets/icons/info.svg" class="icon">
 			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
 				<template #SUB_ITEM_NAME>
@@ -21,16 +21,8 @@
 			</i18n-t>
 		</div>
 
-		<div class="params">
-			<ParamItem :paramData="param_name" v-model="triggerData.name" />
-			
-			<div class="queue">
-				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
-					<img src="@/assets/icons/list.svg" class="icon">
-					<span>{{ $t("triggers.trigger_queue") }}</span>
-				</div>
-				<ParamItem class="selector" :paramData="param_queue" v-model="triggerData.queue" />
-			</div>
+		<div class="card-item params">
+			<ParamItem noBackground :paramData="param_name" v-model="triggerData.name" />
 
 			<TriggerActionChatCommandParams
 				v-if="isChatCmd"
@@ -51,9 +43,17 @@
 				v-if="isAnyChatMessageCommand"
 				:triggerData="triggerData"
 			/>
+			
+			<div class="queue">
+				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
+					<img src="@/assets/icons/list.svg" class="icon">
+					<span>{{ $t("triggers.trigger_queue") }}</span>
+				</div>
+				<ParamItem noBackground class="selector" :paramData="param_queue" v-model="triggerData.queue" />
+			</div>
 		</div>
 
-		<div class="conditions">
+		<div class="card-item conditions">
 			<TriggerConditionList :triggerData="triggerData" />
 		</div>
 
@@ -68,7 +68,7 @@
 			item-key="id"
 			ghost-class="ghost"
 			direction="vertical"
-			handle=".action>.header>.orderBt"
+			handle=".action>.header>.actionList>.orderBt"
 			:animation="250"
 			:dragoverBubble="true">
 				<template #item="{element, index}">
@@ -252,7 +252,7 @@ export default class TriggerActionList extends Vue {
 		.listItem {
 			.dash {
 				width: 2px;
-				background-color: var(--mainColor_normal);
+				background-color: var(--color-primary);
 				height: 5px;
 				margin: auto;
 			}
@@ -264,7 +264,7 @@ export default class TriggerActionList extends Vue {
 			border-radius: 50%;
 			width: 1.25em;
 			height: 1.25em;
-			background-color: var(--mainColor_normal);
+			background-color: var(--color-primary);
 			transition: background-color .25s;
 			img {
 				padding: .25em;
@@ -272,16 +272,12 @@ export default class TriggerActionList extends Vue {
 				width: 100%;
 			}
 			&:hover {
-				background-color: var(--mainColor_normal_light);
+				background-color: var(--color-primary-light);
 			}
 		}
 	}
 
 	.params, .conditions, .description {
-		background-color: var(--mainColor_light);
-		padding: .5em;
-		font-size: .9em;
-		border-radius: .5em;
 		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 
 		&.params {
@@ -308,10 +304,8 @@ export default class TriggerActionList extends Vue {
 		.queue {
 			display: flex;
 			flex-grow: 1;
+			align-items: center;
 			width: 100%;
-			&:hover {
-				background-color: fade(@mainColor_normal, 10%);
-			}
 			.info {
 				flex-grow: 1;
 				cursor: pointer;

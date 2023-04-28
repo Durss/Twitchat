@@ -14,113 +14,14 @@
 	transform: translate(-50%, -50%);
 }
 
-.tabMenu() {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	margin-bottom: 1em;
-	gap:1px;
-
-	.button {
-		background-color: var(--mainColor_normal);
-		border-radius: 0;
-		&:not(.selected) {
-			background-color: fade(@mainColor_normal, 50%);
-		}
-
-		&:hover {
-			background-color: fade(@mainColor_normal, 70%);
-		}
-
-		&:first-child {
-			border-top-left-radius: .5em;
-			border-bottom-left-radius: .5em;
-			transform-origin: right center;
-		}
-
-		&:last-child {
-			border-top-right-radius: .5em;
-			border-bottom-right-radius: .5em;
-			transform-origin: left center;
-		}
-	}
-}
-
-.parameterContent() {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	padding-top: 0;
-	
-	&>.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-	}
-
-	&>.head {
-		margin-top: 1em;
-		text-align: center;
-		&.small, &>.small {
-			font-size: .8em;
-			.btExample {
-				height: 1.25em;
-				padding: .25em;
-				border-radius: .25em;
-				background-color: var(--color-alert);
-				vertical-align: middle;
-			}
-		}
-		&>.small {
-			margin-top: .5em;
-		}
-	}
-
-	&>.enableBt {
-		width: min-content;
-		margin: auto;
-		margin-top: 1em;
-		border: 1px solid var(--color-light);
-		border-radius: 1em;
-		padding: .5em 1em !important;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		:deep(label) {
-			white-space: nowrap;
-		}
-	}
-
-	section {
-		margin: 1em auto 1em auto;
-			
-		.warn {
-			overflow: hidden;
-			padding: .5em;
-			padding-left: calc(1em + 10px);
-			background-color: var(--mainColor_light);
-			border-radius: .5em;
-			margin-bottom: .5em;
-			img {
-				height: 1em;
-				margin-right: .5em;
-				vertical-align: middle;
-			}
-			.label {
-				display: inline;
-				color: var(--mainColor_warn);
-			}
-		}
-		
-		.splitter {
-			margin: .25em 0 .25em 0;
-		}
-	}
-}
 
 .triggerActionForm() {
 	.row {
-		border-radius: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
+		@padding: .5em;
+		padding: @padding;
+		color: var(--color-light);
+		border-radius: var(--border-radius);
+		background-color: var(--color-light-fader);
 	}
 	
 	.item {
@@ -130,7 +31,7 @@
 	.info {
 		overflow: hidden;
 		padding: .5em 1em;
-		background-color: var(--mainColor_light);
+		background-color: var(--color-primary);
 		border-radius: .5em;
 		margin-bottom: .5em;
 		font-size: .8em;

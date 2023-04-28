@@ -37,13 +37,13 @@
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
 				
 				<div class="presets">
-					<Button @click="preset('chat')" :title="$t('chat.filters.preset_chat')" icon="whispers" small white />
-					<Button @click="preset('chatSafe')" :title="$t('chat.filters.preset_chatSafe')" icon="shield" small white />
-					<Button @click="preset('moderation')" :title="$t('chat.filters.preset_moderation')" icon="mod" small white />
-					<Button @click="preset('activities')" :title="$t('chat.filters.preset_activities')" icon="stars" small white />
-					<Button @click="preset('moderation&activities')" :title="$t('chat.filters.preset_moderation_and_activities')" icon="stars" small white />
-					<Button @click="preset('games')" :title="$t('chat.filters.preset_games')" icon="bingo" small white />
-					<Button @click="preset('revenues')" :title="$t('chat.filters.preset_revenues')" icon="coin" small white />
+					<Button @click="preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</Button>
+					<Button @click="preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</Button>
+					<Button @click="preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</Button>
+					<Button @click="preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</Button>
+					<Button @click="preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</Button>
+					<Button @click="preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</Button>
+					<Button @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</Button>
 				</div>
 				
 				<div class="paramsList">
@@ -98,8 +98,8 @@
 				<div class="error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
 
 				<div class="ctas">
-					<Button :title="$t('global.cancel')" small icon="cross" highlight v-if="forceConfig" @click="deleteColumn()" />
-					<Button :title="$t('global.create')" small icon="add" white v-if="forceConfig" @click="submitForm()" />
+					<Button small icon="cross" alert v-if="forceConfig" @click="deleteColumn()" >{{ $t('global.cancel') }}</Button>
+					<Button small icon="add" v-if="forceConfig" @click="submitForm()" >{{ $t('global.create') }}</Button>
 				</div>
 
 				<ParamItem class="showPanelsHere"

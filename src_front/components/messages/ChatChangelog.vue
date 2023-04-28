@@ -59,8 +59,7 @@
 		</div>
 		<div class="cta">
 			<Button @click.stop="$emit('close')"
-			:aria-label="$t('changelog.closeBt_aria')"
-			:title="$t('changelog.closeBt')" />
+			:aria-label="$t('changelog.closeBt_aria')">{{ $t('changelog.closeBt') }}</Button>
 		</div>
 	</div>
 </template>

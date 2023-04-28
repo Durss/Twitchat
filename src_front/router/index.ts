@@ -108,7 +108,7 @@ const routes: Array<RouteRecordRaw> = [
 			const sParams = StoreProxy.params;
 			const sMusic = StoreProxy.music;
 			if(!Utils.getQueryParameterByName("error")) {
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ConnexionSections.SPOTIFY);
 				const params:SpotifyAuthResult = {
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,

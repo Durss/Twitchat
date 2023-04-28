@@ -63,8 +63,7 @@ export default class TriggerListItem extends Vue {
 .triggerlistitem{
 	
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-	color: var(--mainColor_normal);
-	background-color: var(--mainColor_light);
+	background-color: var(--color-light-fader);
 	border-radius: .5em;
 	padding: 0;
 	display: flex;
@@ -72,20 +71,18 @@ export default class TriggerListItem extends Vue {
 	min-height: 1.5em;
 	overflow: hidden;
 	&>* {
-		transition: color .25s, background-color .25s;
+		transition: background-color .1s;
 		&:hover {
-			background-color: fade(@mainColor_normal_extralight, 20%);
+			background-color: var(--color-primary);
 		}
 	}
 	.button {
 		display: flex;
 		flex-direction: row;
 		gap: .25em;
-		color: var(--mainColor_normal);
+		color: var(--color-light);
 		padding: 0 .5em 0 0;
 		align-items: center;
-		text-align: left;
-		transition: background-color .25s;
 		flex-grow: 1;
 		overflow: hidden;
 		word-wrap: break-word;
@@ -101,7 +98,7 @@ export default class TriggerListItem extends Vue {
 		align-items: center;
 		padding: 0 .5em;
 		cursor: pointer;
-		border-left: 1px solid var(--mainColor_normal);
+		border-left: 1px solid var(--color-dark-light);
 	}
 	.deleteBt, .testBt {
 		img {

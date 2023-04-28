@@ -2,17 +2,17 @@
 	<div class="triggerconditionlistitem">
 		<img src="@/assets/icons/dragZone.svg" alt="drag" class="dragIcon">
 
-		<ParamItem class="placeholder" :paramData="param_placeholder" @change="updateOperators()" v-model="condition.placeholder" :key="'ph_'+condition.id" />
+		<ParamItem class="placeholder" noBackground :paramData="param_placeholder" @change="updateOperators()" v-model="condition.placeholder" :key="'ph_'+condition.id" />
 
-		<ParamItem class="operator" :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
+		<ParamItem class="operator" noBackground :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
 
-		<ParamItem class="value" :paramData="param_value" v-model="condition.value" :key="'op_'+condition.id" />
+		<ParamItem class="value" noBackground :paramData="param_value" v-model="condition.value" :key="'op_'+condition.id" />
 
 		<div class="ctas">
 			<Button small icon="group"
 				@click="addItem()"
 				v-tooltip="$t('triggers.condition.group_tt')" />
-			<Button highlight small icon="cross"
+			<Button alert small icon="cross"
 				@click="deleteItem()" />
 		</div>
 	</div>
@@ -153,6 +153,17 @@ export default class TriggerConditionListItem extends Vue {
 		display: flex;
 		flex-direction: row;
 		gap: 0;
+		.button {
+			border-radius: 0;
+			&:first-child {
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
+			}
+			&:last-child {
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
+			}
+		}
 	}
 }
 </style>

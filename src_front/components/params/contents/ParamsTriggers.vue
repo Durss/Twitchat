@@ -1,5 +1,5 @@
 <template>
-	<div class="paramstriggers">
+	<div class="paramstriggers parameterContent">
 		<img src="@/assets/icons/broadcast.svg" alt="overlay icon" class="icon">
 
 		<i18n-t scope="global" tag="p" class="head" :keypath="headerKey" v-if="!currentTriggerData">
@@ -12,38 +12,31 @@
 				<Button class="cta resyncBt" small
 					v-if="showOBSResync || showForm"
 					icon="obs"
-					:title="$t('triggers.resyncOBSBt')"
 					@click="listOBSSources()"
 					v-tooltip="$t('triggers.resyncOBSBt_tt')"
-					:loading="loadingOBSScenes"
-				/>
+					:loading="loadingOBSScenes">{{ $t('triggers.resyncOBSBt') }}</Button>
 
 				<Button class="cta resyncBt" small
 					icon="channelPoints"
-					:title="$t('triggers.resyncRewardsBt')"
 					@click="listRewards()"
 					v-tooltip="$t('triggers.resyncRewardsBt_tt')"
-					:loading="loadingOBSScenes"
-				/>
+					:loading="loadingRewards">{{ $t('triggers.resyncRewardsBt') }}</Button>
 
 				<Button class="cta" small
 					v-if="canTestTrigger"
-					:title="$t('triggers.testBt')"
 					icon="test"
-					@click="testTrigger(currentTriggerData!)" />
+					@click="testTrigger(currentTriggerData!)">{{ $t('triggers.testBt') }}</Button>
 			<!-- 
 				<Button class="cta"
 					highlight
-					:title="$t('triggers.deleteBt')"
 					icon="delete"
-					@click="deleteTrigger()" /> -->
+					@click="deleteTrigger()">{{ $t('triggers.deleteBt') }}</Button> -->
 			</div>
 
 			<Button class="createBt"
 				v-if="showList && !showForm"
-				:title="$t('triggers.add_triggerBt')"
 				icon="add"
-				@click="openForm();" />
+				@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
 			
 			<TriggerCreateForm
 				v-if="showForm"
@@ -271,6 +264,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public async listRewards():Promise<void> {
 		this.loadingRewards = true;
 		this.rewards = await this.$store("rewards").loadRewards();
+		await Utils.promisedTimeout(200);//Just make sure the loading is visible in case query runs crazy fast
 		this.loadingRewards = false;
 	}
 
@@ -444,13 +438,10 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramstriggers{
-	.parameterContent();
-	
 	.holder {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
-		margin-top: 1em;
 
 		.createBt {
 			margin: auto;

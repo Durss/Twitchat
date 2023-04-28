@@ -1,11 +1,10 @@
 <template>
-	<div class="triggerconditionlistgroupitem">
+	<div class="triggerconditionlistgroupitem card-item">
 		<template v-for="c in condition" :key="c.id" >
 			<div class="group" v-if="c.type == 'group'">
-				<Button v-if="c.conditions.length > 1" class="operator"
-					small
-					:title="$t('triggers.condition.operators.'+c.operator)"
-					@click="toggleOperator(c)" />
+				<Button class="operator" small
+					v-if="c.conditions.length > 1"
+					@click="toggleOperator(c)">{{ $t('triggers.condition.operators.'+c.operator) }}</Button>
 
 				<draggable class="draggable"
 				v-model="c.conditions" 
@@ -22,7 +21,7 @@
 
 				</draggable>
 
-				<Button class="addBt" small
+				<Button class="addBt"
 					icon="add"
 					@click="addItem(c)"
 					v-tooltip="$t('triggers.condition.add_tt')" />
@@ -116,9 +115,8 @@ export default class TriggerConditionListGroupItem extends Vue {
 	.group {
 		flex-grow: 1;
 		position: relative;
-		padding: .5em;
 		padding-left: 1.25em;
-		background-color: fade(@mainColor_normal, 10%);
+		background-color: var(--color-ldark-fader);
 		border-left: 1px solid var(--mainColor_normal);
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px;
@@ -131,12 +129,11 @@ export default class TriggerConditionListGroupItem extends Vue {
 		}
 		&>.addBt {
 			margin: auto;
-			display: block;
 			display: none;
 		}
 		&:hover {
 			&>.addBt {
-				display: block;
+				display: flex;
 			}
 		}
 

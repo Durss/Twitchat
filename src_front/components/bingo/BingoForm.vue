@@ -6,12 +6,12 @@
 			<h1 class="title">{{ $t("bingo.form.title") }}</h1>
 			
 			<div class="description" v-if="triggerMode === false">{{ $t("bingo.form.description") }}</div>
-		
-			<TabMenu v-model="mode"
-				:values="['num','emote','custom']"
-				:tooltips="[$t('bingo.form.title_number'), $t('bingo.form.title_emote'), $t('bingo.form.title_custom')]"
-				:icons="['number', 'emote', 'edit']" />
 		</div>
+	
+		<TabMenu v-model="mode"
+			:values="['num','emote','custom']"
+			:tooltips="[$t('bingo.form.title_number'), $t('bingo.form.title_emote'), $t('bingo.form.title_custom')]"
+			:icons="['number', 'emote', 'edit']" />
 
 		<div class="content">
 			<form @submit.prevent="onSubmit()">
@@ -85,8 +85,8 @@ export default class BingoForm extends AbstractSidePanel {
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {
-		const res = ["bingoform"];
-		if(this.triggerMode === false) res.push("sidePanel");
+		const res = ["bingoform", "sidePanel"];
+		if(this.triggerMode !== false) res.push("embedMode");
 		return res;
 	}
 
@@ -165,6 +165,5 @@ export default class BingoForm extends AbstractSidePanel {
 			text-align: left;
 		}
 	}
-
 }
 </style>

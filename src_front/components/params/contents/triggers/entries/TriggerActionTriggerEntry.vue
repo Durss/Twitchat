@@ -29,7 +29,7 @@
 				@select="action.triggerId = ''" />
 		</div>
 
-		<ToggleBlock class="row item" :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
+		<ToggleBlock class="item" :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
 			<p>{{ $t("triggers.actions.trigger.warning") }}</p>
 			<strong>{{ $t("global.example") }}</strong>
 			<span v-html="$t('triggers.actions.trigger.warning_example')"></span>

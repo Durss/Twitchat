@@ -9,12 +9,11 @@
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
 			<form @submit.prevent="submitForm()">
-				<div class="card-item">
-					<ParamItem :paramData="param_title"
-						v-model="title"
-						:autofocus="title == ''"
-						@change="onValueChange()" />
-				</div>
+				<ParamItem :paramData="param_title"
+					v-model="title"
+					:autofocus="title == ''"
+					@change="onValueChange()" />
+
 				<div class="card-item answers">
 					<label for="poll_answer">{{ $t("poll.form.answers") }}</label>
 
@@ -23,15 +22,9 @@
 						<div class="len">{{answers[index].length}}/25</div>
 					</div>
 				</div>
-				<div class="card-item">
-					<ParamItem :paramData="pram_extraVotes" @change="onValueChange()" />
-				</div>
-				<div class="card-item" v-if="pram_extraVotes.value === true">
-					<ParamItem :paramData="param_points" @change="onValueChange()" />
-				</div>
-				<div class="card-item">
-					<ParamItem :paramData="param_duration" @change="onValueChange()" />
-				</div>
+				<ParamItem :paramData="pram_extraVotes" @change="onValueChange()" />
+				<ParamItem :paramData="param_points" @change="onValueChange()" v-if="pram_extraVotes.value === true" />
+				<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				
 				<Button type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2">{{ $t('global.submit') }}</Button>
 				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
@@ -43,7 +36,7 @@
 <script lang="ts">
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
 import StoreProxy from '@/store/StoreProxy';
-import type { TriggerActionPollData } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionPollData, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
@@ -87,15 +80,15 @@ export default class PollForm extends AbstractSidePanel {
 	private voiceController!:FormVoiceControllHelper;
 
 	public get classes():string[] {
-		const res = ["pollform"];
-		if(!this.triggerMode) res.push("sidePanel");
+		const res = ["pollform", "sidePanel"];
+		if(this.triggerMode !== false) res.push("embedMode");
 		return res;
 	}
 
 	public async beforeMount():Promise<void> {
 		this.pram_extraVotes.labelKey	= "poll.form.additional_votes";
-		this.param_points.labelKey	= 'poll.form.additional_votes_amount';
-		this.param_duration.labelKey		= 'poll.form.vote_duration';
+		this.param_points.labelKey		= 'poll.form.additional_votes_amount';
+		this.param_duration.labelKey	= 'poll.form.vote_duration';
 
 		if(this.$store("main").tempStoreValue) {
 			const titlePrefill = this.$store("main").tempStoreValue as string;
@@ -191,6 +184,9 @@ export default class PollForm extends AbstractSidePanel {
 			}
 		}
 		&.answers{
+			gap:5px;
+			display: flex;
+			flex-direction: column;
 			label {
 				display: block;
 				margin-bottom: .5em;

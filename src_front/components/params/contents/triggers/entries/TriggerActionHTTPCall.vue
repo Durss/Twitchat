@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionhttpcall">
 		<div class="row item">
-			<ParamItem class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
+			<ParamItem noBackground class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
 			<p class="item securityError" v-if="securityError">{{ $t("triggers.actions.http_ws.protocol_error") }}</p>
 		</div>
 		
@@ -19,9 +19,7 @@
 			</div>
 		</div>
 
-		<div class="row item">
-			<ParamItem class="item" :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
-		</div>
+		<ParamItem class="item" :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
 
 		<i18n-t scope="global" class="example item" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"

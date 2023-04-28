@@ -20,14 +20,12 @@
 				<Button white v-if="canUnban"
 					:loading="moderating"
 					icon="unban"
-					:title="$t('chat.autoban_join.unbanBt')"
-					@click.stop="unbanUser()" />
+					@click.stop="unbanUser()">{{ $t('chat.autoban_join.unbanBt') }}</Button>
 	
 				<Button alert v-if="canBlock"
 					:loading="moderating"
 					icon="ban"
-					:title="$t('chat.autoban_join.banBt')"
-					@click.stop="blockUser()" />
+					@click.stop="blockUser()">{{ $t('chat.autoban_join.banBt') }}</Button>
 			</div>
 		</div>
 	</div>

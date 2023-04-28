@@ -8,8 +8,7 @@
 					<img @click.stop="openParamPage(contentSponsor)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
 					
 					<Button :aria-label="$t('chat.sponsor.tipBt_aria')"
-					@click.stop="openParamPage(contentSponsor)"
-					:title="$t('chat.sponsor.tipBt')" />
+					@click.stop="openParamPage(contentSponsor)">{{ $t('chat.sponsor.tipBt') }}</Button>
 				</div>
 			</div>
 	
@@ -44,11 +43,9 @@
 				</div>
 				<div class="cta">
 					<Button icon="discord"
-						:title="$t('chat.discord.joinBt')"
 						:href="discordURL"
 						target="_blank"
-						type="link"
-					/>
+						type="link">{{ $t('chat.discord.joinBt') }}</Button>
 				</div>
 			</div>
 	
@@ -60,15 +57,11 @@
 					<div v-for="e in $tm('chat.adalert.contents')" v-html="e"></div>
 				</div>
 				<div class="cta">
-					<Button :title="$t('chat.adalert.unacceptableBt')" @click="openModal('gngngn')" />
+					<Button @click="openModal('gngngn')">{{ $t('chat.adalert.unacceptableBt') }}</Button>
 					<Button icon="edit"
-						:title="$t('chat.adalert.customizeBt')"
-						@click="openParamPage(contentMainMenu)"
-					/>
+						@click="openParamPage(contentMainMenu)">{{ $t('chat.adalert.customizeBt') }}</Button>
 					<Button icon="follow"
-						:title="$t('chat.adalert.donateBt')"
-						@click="openParamPage(contentSponsor)"
-					/>
+						@click="openParamPage(contentSponsor)">{{ $t('chat.adalert.donateBt') }}</Button>
 				</div>
 			</div>
 	
@@ -91,11 +84,9 @@
 				</div>
 				<div class="cta">
 					<Button icon="follow"
-						:title="$t('chat.donor.publicBt')"
 						:loading="loading"
 						@click="makeDonationPublic()"
-						v-if="!madeDonationPublic"
-					/>
+						v-if="!madeDonationPublic">{{ $t('chat.donor.publicBt') }}</Button>
 				</div>
 			</div>
 	
@@ -103,8 +94,8 @@
 				<p>{{ $t('chat.donor.close_confirm.info_1') }}</p>
 				<p>{{ $t('chat.donor.close_confirm.info_2') }}</p>
 				<div class="ctaConfirm">
-					<Button :loading="confirmDelay" :title="$t('chat.donor.close_confirm.cancelBt')" @click="showConfirm=false" small highlight />
-					<Button :loading="confirmDelay" :title="$t('chat.donor.close_confirm.confirmBt')" @click="deleteMessage()" small />
+					<Button :loading="confirmDelay" @click="showConfirm=false" small alert>{{ $t('chat.donor.close_confirm.cancelBt') }}</Button>
+					<Button :loading="confirmDelay" @click="deleteMessage()" small>{{ $t('chat.donor.close_confirm.confirmBt') }}</Button>
 				</div>
 			</div>
 		</div>
@@ -253,13 +244,13 @@ export default class ChatAd extends Vue {
 
 <style scoped lang="less">
 .chatad{
-	color:var(--mainColor_normal);
+	color: var(--color-light);
 
 	.innerHolder {
 		border-radius: 1em;
 		overflow: hidden;
 		position: relative;
-		background-color: var(--mainColor_light);
+		background-color: var(--color-dark-light);
 	
 		.confirmClose {
 			position: absolute;
@@ -267,7 +258,7 @@ export default class ChatAd extends Vue {
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background-color: fade(@mainColor_dark, 70%);
+			background-color: var(--color-dark-fade);
 			backdrop-filter: blur(3px);
 			display: flex;
 			align-items: center;
@@ -275,7 +266,7 @@ export default class ChatAd extends Vue {
 			justify-content: center;
 			color: var(--mainColor_light);
 			font-size: 2em;
-			text-shadow: 1px 1px 1px var(--mainColor_dark);
+			text-shadow: 1px 1px 1px var(--color-dark);
 			text-align: center;
 			line-height: 1.2em;
 			.ctaConfirm {
@@ -297,8 +288,7 @@ export default class ChatAd extends Vue {
 	
 		&>div>.title {
 			text-align: center;
-			background: var(--mainColor_normal);
-			color: var(--mainColor_light);
+			background: var(--color-primary);
 			font-weight: bold;
 			padding: .5em;
 			font-size: 1.5em;

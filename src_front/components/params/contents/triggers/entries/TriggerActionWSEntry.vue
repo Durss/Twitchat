@@ -9,7 +9,7 @@
 			</i18n-t>
 		</div>
 	
-		<div class="row item">
+		<div class="item">
 			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			<ParamItem class="item argument" :paramData="param_topic" v-model="action.topic" />
 			<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />

@@ -11,9 +11,7 @@
 		</div>
 
 		<template v-else>
-			<div class="row item">
-				<ParamItem class="item" :paramData="param_action" v-model="action.action" />
-			</div>
+			<ParamItem class="item" :paramData="param_action" v-model="action.action" />
 
 			<div class="row item field">
 				<img src="@/assets/icons/broadcast.svg" class="icon">

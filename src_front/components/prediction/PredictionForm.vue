@@ -10,6 +10,7 @@
 			<form  @submit.prevent="submitForm()">
 				<div class="card-item">
 					<ParamItem :paramData="param_title"
+						noBackground
 						v-model="title"
 						:autofocus="title == ''"
 						@change="onValueChange()" />
@@ -41,7 +42,7 @@
 				</div>
 
 				<div class="card-item">
-					<ParamItem :paramData="voteDuration" @change="onValueChange()" />
+					<ParamItem noBackground :paramData="voteDuration" @change="onValueChange()" />
 				</div>
 				
 				<Button type="submit" :loading="loading" :disabled="!canSubmit">{{ $t('global.submit') }}</Button>
@@ -77,7 +78,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 })
 export default class PredictionForm extends AbstractSidePanel {
 	
-	@Prop({type: Boolean, default: true})
+	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
 
 	@Prop({type: Boolean, default: false})
@@ -98,8 +99,8 @@ export default class PredictionForm extends AbstractSidePanel {
 	private voiceController!:FormVoiceControllHelper;
 
 	public get classes():string[] {
-		const res = ["predictionform"];
-		if(this.triggerMode === false) res.push("sidePanel");
+		const res = ["predictionform", "sidePanel"];
+		if(this.triggerMode !== false) res.push("embedMode");
 		return res;
 	}
 
@@ -223,6 +224,9 @@ export default class PredictionForm extends AbstractSidePanel {
 				text-align: left;
 			}
 			&.answers {
+				gap:5px;
+				display: flex;
+				flex-direction: column;
 				label {
 					display: block;
 					margin-bottom: .5em;
@@ -231,9 +235,6 @@ export default class PredictionForm extends AbstractSidePanel {
 					flex-grow: 1;
 					display: flex;
 					flex-direction: row;
-					&:not(:last-child) {
-						margin-bottom: 5px;
-					}
 					&.red {
 						.inputHolder {
 							input {

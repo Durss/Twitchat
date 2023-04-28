@@ -35,7 +35,7 @@
 			</div>
 			<div class="list actions">
 				<div class="head">Actions</div>
-				<Button class="action" v-for="a in actionList" :title="a.key" small @click="executeAction(a)" />
+				<Button class="action" v-for="a in actionList" small @click="executeAction(a)">{{ a.key }}</Button>
 			</div>
 		</div>
 	</div>

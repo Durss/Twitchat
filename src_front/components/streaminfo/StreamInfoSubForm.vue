@@ -1,5 +1,5 @@
 <template>
-	<div class="streaminfosubform">
+	<div :class="classes">
 		<ParamItem class="card-item" :paramData="param_title" v-model="localTitle" autofocus @change="$emit('update:title', localTitle)" />
 
 		<AutoCompleteForm class="card-item category"
@@ -55,31 +55,20 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class StreamInfoSubForm extends Vue {
 
-	@Prop({
-			type:String,
-			default:""
-		})
+	@Prop({type:String, default:""})
 	public title!:string;
-	@Prop({
-			type:Object,
-			default:[]
-		})
+
+	@Prop({type:Object, default:[]})
 	public tags!:string[];
-	@Prop({
-			type:Object,
-			default:{}
-		})
+
+	@Prop({ type:Object, default:{}})
 	public category!:TwitchDataTypes.StreamCategory;
-	@Prop({
-			type:Boolean,
-			default:false
-		})
+
+	@Prop({type:Boolean, default:false})
 	public triggerMode!:boolean;
+
 	//This is used by the trigger action form.
-	@Prop({
-			type: Array,
-			default:[],
-		})
+	@Prop({ type: Array, default:[]})
 	public placeholderList!:ITriggerPlaceholder[];
 
 	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140};
@@ -88,6 +77,12 @@ export default class StreamInfoSubForm extends Vue {
 	public localTitle:string = "";
 	public localTags:string[] = [];
 	public localCategories:TwitchDataTypes.StreamCategory[] = [];
+
+	public get classes():string[] {
+		let res = ["streaminfosubform"];
+		if(this.triggerMode !== false) res.push("embedMode")
+		return res;
+	}
 
 	public beforeMount():void {
 		this.param_title.labelKey			= 'stream.form_stream_title';
@@ -215,6 +210,10 @@ export default class StreamInfoSubForm extends Vue {
 			transition: .25s all;
 			background-size: contain;
 		}
+	}
+
+	&.embedMode {
+		gap: .25em;
 	}
 }
 </style>

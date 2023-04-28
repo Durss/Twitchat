@@ -67,13 +67,11 @@
 					icon="twitch"
 				>{{ $t('login.authorizeBt') }}</Button>
 	
-				<Button :title="$t('login.retryBt')"
-					highlight
-					v-if="!authenticating && !oAuthURL"
+				<Button v-if="!authenticating && !oAuthURL"
 					@click="generateCSRF()"
 					:loading="generatingCSRF"
-					icon="refresh"
-				/>
+					alert
+					icon="refresh">{{ $t('login.retryBt') }}</Button>
 				
 				<div class="loader" v-if="authenticating">
 					<p>{{ $t("login.authenticating") }}</p>

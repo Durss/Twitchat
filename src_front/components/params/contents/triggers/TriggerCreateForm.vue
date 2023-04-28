@@ -54,14 +54,15 @@
 				</i18n-t>
 
 				<div v-for="e in c.events" :key="e.value" :class="e.beta? 'item beta' : 'item'">
-					<TTButton class="triggerBt"
-						white
-						:title="$t(e.labelKey!)"
-						:icon="getIcon(e)"
+					<TTButton class="triggerBt" small
 						:disabled="disabledEntry(e)"
 						v-tooltip="disabledEntry(e)? $t('triggers.noChannelPoints_tt') : ''"
-						@click.capture="disabledEntry(e)? requestScope(e) : selectTriggerType(e)"
-					/>
+						@click.capture="disabledEntry(e)? requestScope(e) : selectTriggerType(e)">
+						<template #icon>
+							<img :src="getIcon(e)">
+						</template>
+						{{ $t(e.labelKey!) }}
+					</TTButton>
 				</div>
 			</ToggleBlock>
 		</div>
@@ -628,15 +629,15 @@ interface TriggerEntry{
 			}
 			&.beta {
 				:deep(.button) {
-					padding-left: 3.5em;
+					padding-left: 3em;
+					overflow: hidden;
 
 					&::before {
 						content: "beta";
 						position: absolute;
 						left: 0;
 						color:var(--mainColor_light);
-						background-color: var(--mainColor_normal);
-						background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 0%, fade(@mainColor_normal, 100%) 100%);
+						background-color: var(--color-secondary);
 						height: 100%;
 						display: flex;
 						align-items: center;
@@ -696,9 +697,9 @@ interface TriggerEntry{
 
 		.subEventBt {
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-			color: var(--mainColor_normal);
-			background-color: var(--mainColor_light);
-			border-radius: .5em;
+			color: var(--color-light);
+			background-color: var(--color-primary);
+			border-radius: var(--border-radius);
 			padding: 0 .5em;
 			display: flex;
 			flex-direction: row;
@@ -731,14 +732,14 @@ interface TriggerEntry{
 			}
 
 			&:is(div) {
-				color: var(--mainColor_light);
+				color: var(--color-alert);
 				background-color: var(--mainColor_normal);
 				&:not(:first-of-type) {
 					margin-top: 1em;
 				}
 			}
 			&:not(div):hover {
-				background-color: lighten(@mainColor_normal_extralight, 12%) !important;
+				background-color: var(--color-primary-light);
 			}
 		}
 

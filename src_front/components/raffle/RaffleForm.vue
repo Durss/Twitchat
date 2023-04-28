@@ -6,27 +6,25 @@
 			<h1 class="title">{{ $t("raffle.form_title") }}</h1>
 
 			<div class="description">{{ $t("raffle.description") }}</div>
-			
-			<TabMenu v-model="mode"
-				:values="['chat','sub','manual']"
-				:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title')]"
-				:icons="['commands', 'sub', 'list']" />
-			
-			<ToggleBlock v-if="triggerMode === false && mode!='manual'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false" class="legal">
-				<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
-			</ToggleBlock>
 		</div>
+
+		<TabMenu v-model="mode"
+			:values="['chat','sub','manual']"
+			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title')]"
+			:icons="['commands', 'sub', 'list']" />
+		
+		<ToggleBlock v-if="triggerMode === false && mode!='manual'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false" class="legal">
+			<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
+		</ToggleBlock>
 
 		<div class="content">
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
 			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.chat.description") }}</div>
+				<ParamItem class="duration" :paramData="command" :autofocus="true" @change="onValueChange()" />
 				<div class="card-item">
-					<ParamItem class="duration" :paramData="command" :autofocus="true" @change="onValueChange()" />
-				</div>
-				<div class="card-item">
-					<ParamItem :paramData="reward" :autofocus="true" @change="onValueChange()" v-if="reward_value.listValues!.length > 1" />
+					<ParamItem noBackground :paramData="reward" :autofocus="true" @change="onValueChange()" v-if="reward_value.listValues!.length > 1" />
 					<div class="tips">
 						<img src="@/assets/icons/info.svg">
 	
@@ -51,12 +49,8 @@
 				
 			<form class="form" v-else-if="mode=='sub' && canListSubs" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.subs.description") }}</div>
-				<div class="card-item">
-					<ParamItem class="item" :paramData="subs_includeGifters" @change="onValueChange()" />
-				</div>
-				<div class="card-item">
-					<ParamItem class="item" :paramData="subs_excludeGifted" @change="onValueChange()" />
-				</div>
+				<ParamItem class="item" :paramData="subs_includeGifters" @change="onValueChange()" />
+				<ParamItem class="item" :paramData="subs_excludeGifted" @change="onValueChange()" />
 				<div class="card-item winner" v-if="winner" ref="winnerHolder">
 					<div class="head">Winner</div>
 					<div class="user">🎉 {{winner}} 🎉</div>
@@ -90,7 +84,7 @@
 				<div class="info">{{ $t("raffle.list.description") }}</div>
 
 				<div class="card-item">
-					<ParamItem class="item" :paramData="customEntries" @change="onValueChange()" />
+					<ParamItem noBackground class="item" :paramData="customEntries" @change="onValueChange()" />
 					<span class="instructions">{{ $t("raffle.list.instructions") }}</span>
 				</div>
 
@@ -175,21 +169,14 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 })
 export default class RaffleForm extends AbstractSidePanel {
 	
-	@Prop({
-			type: Boolean,
-			default: false
-		})
+	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
-	@Prop({
-			type: Boolean,
-			default: false
-		})
+
+	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
+
 	//This is used by the trigger action form.
-	@Prop({
-			type: Object,
-			default:{},
-		})
+	@Prop({type: Object, default:{}})
 	public action!:TriggerActionRaffleData;
 
 	public pickingEntry = false;
@@ -237,8 +224,8 @@ export default class RaffleForm extends AbstractSidePanel {
 	}
 
 	public get classes():string[] {
-		const res = ["raffleform"];
-		if(this.triggerMode === false) res.push("sidePanel");
+		const res = ["raffleform", "sidePanel"];
+		if(this.triggerMode !== false) res.push("embedMode");
 		return res;
 	}
 

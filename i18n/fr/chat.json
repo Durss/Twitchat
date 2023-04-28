@@ -1,366 +1,366 @@
 {
-	"chat": {
-		"closeBt_aria": "Fermer",
-		"delete_col_confirm_title": "Supprimer colonne ?",
-		"delete_col_confirm_desc": "Voulez-vous supprimer cette colonne ? Vous ne pourrez pas revenir en arrière",
-		"paused": "Chat mis en pause",
-		"no_message": "- aucun message -",
-		"conversation": "Conversation",
-		"history": "Historique de {USER}",
-		"live_chat": "message en live",
-		"live_chat_more_aria": "afficher 1 message en plus",
-		"live_chat_less_aria": "afficher 1 message en moins",
-		"conversation_closeBt_aria": "Fermer la fenêtre",
-		"fake_tag": "fake",
-		"fake_tag_tt": "Ceci est un faux message.<br>Vous êtes seul·e à le voir.",
-		"soBt": "Shoutout",
-		"right_click_hint_highlight":"clic droit",
-		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options !",
-		"form": {
-			"paramsBt_aria": "Parameters",
-			"cmdsBt_aria": "Commandes",
-			"usersBt_aria": "Liste des viewers",
-			"input_placeholder": "message...",
-			"trigger_cmd_disabled": "(trigger désactivé)",
-			"trigger_cmd_disabled_tt": "Le trigger correspondant à cette commande est désactivé. Réactivez-le pour pouvoir utiliser la commande",
-			"stop_spamBt": "Arrêter le spam",
-			"emoteBt_aria": "Emotes",
-			"pollBt_aria": "Sondage",
-			"suggBt_aria": "Suggestions",
-			"predictionBt_aria": "Prédiction",
-			"trackedBt_aria": "Personnes suivies",
-			"raffleBt_aria": "Tirage au sort",
-			"bingoBt_aria": "Bingo",
-			"whispersBt_aria": "Chuchotements",
-			"pinsBt_aria": "Messages épinglés",
-			"saveBt_aria": "Messages conservés",
-			"deezerBt_aria": "Lecteur deezer",
-			"highlightBt_aria": "Fermer le message mis en avant",
-			"voicebot_startBt_aria": "Activer l'assistant vocal",
-			"voicebot_stopBt_aria": "Arrêter l'assistant vocal",
-			"devmodeBt_aria": "Menu développeur",
-			"emergency_startBt_aria": "Démarrer l'urgence",
-			"emergency_stopBt_aria": "Arreter l'ugence",
-			"muteTTSBt_aria": "Couper le TTS",
-			"clearTTSBt_aria": "Vider la file d'attente",
-			"resetVoiceBt_aria": "Désactiver le changement de voix",
-			"shoutoutBt_aria": "Shoutouts en attente",
-			"viewer_count": "Nombre de viewers",
-			"reply_to": "Réponse à {USER} :"
-		},
-		"filters": {
-			"cta": "Options importantes ici",
-			"title": "Filtres",
-			"closeBt_aria": "Fermer les filtres",
-			"header": "Choisissez quels types de messages afficher dans cette colonne",
-			"preset_chat": "Tchat",
-			"preset_chatSafe": "Tchat safe",
-			"preset_moderation": "Modération",
-			"preset_activities": "Activités",
-			"preset_moderation_and_activities": "Modération + Activités",
-			"preset_games": "Jeux",
-			"preset_revenues": "Revenus",
-			"no_selection": "Sélectionnez au moins un filtre",
-			"hide_users": "Masquer des personnes spécifiques",
-			"hide_users_placeholder": "entrez un pseudo...",
-			"scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
-			"whispers_permissions": "Filtrer les personnes autorisées",
-			"show_panels_here":"Afficher \" @:greet.title \" dans cette colonne",
-			"message_types": {
-				"twitchat_ad": "Astuces Twitchat",
-				"ban": "Bans",
-				"unban": "Unbans",
-				"raid": "Raids",
-				"poll": "Sondages",
-				"join": "Entrées",
-				"leave": "Sorties",
-				"cheer": "Bits",
-				"bingo": "Bingos",
-				"raffle": "Tirages au sort",
-				"reward": "Récompenses",
-				"notice": "Infos",
-				"message": "Messages",
-				"whisper": "Chuchotements",
-				"shoutout": "Shoutouts",
-				"following": "Follows",
-				"countdown": "Compte à rebours",
-				"prediction": "Prédictions",
-				"subscription": "Abonnements",
-				"hype_train_summary": "Résultats du train de la hype",
-				"hype_train_cooled_down": "Train de la hype prêt",
-				"community_boost_complete": "Boost de stream",
-				"community_challenge_contribution": "Défis de communauté",
-				"pinned": "Alertes de messages épinglés",
-				"user_watch_streak": "Streams consécutifs vus",
-				"stream_online": "Stream commencé/arrêté"
-			},
-			"message_filters": {
-				"viewers": "Envoyé par des viewers",
-				"vips": "Envoyé par des VIPs",
-				"subs": "Envoyé par des abonné·es",
-				"moderators": "Envoyé par des modérateurices",
-				"partners": "Envoyé par des partenaires",
-				"bots": "Envoyé par des bots",
-				"tracked": "Envoyé par une personne suivie",
-				"deleted": "Messages supprimés",
-				"pinned": "Messages épinglés",
-				"automod": "Messages bloqués",
-				"suspiciousUsers": "Envoyé par des personnes suspectes",
-				"commands": "Commandes (commançant par \"!\")",
-				"short": "Messages courts"
-			},
-			"commands": "Masquer des commandes spécifiques",
-			"commands_placeholder": "entrez une commande...",
-			"tracked_tt": "Messages envoyés par des personnes<br>pour lesquelles vous avez activé<br>le suivit de messages",
-			"short_tt": "Messages plus courts que 4 caractères<br>ou contenant principalement des emotes"
-		},
-		"shoutout": {
-			"received": "{USER} vous a fait une dédicace auprès de {VIEWERS} viewers",
-			"given": "{MODERATOR} a fait une dédicace à {USER} dans le salon {CHANNEL}"
-		},
-		"room_settings": {
-			"title": "Rappel : Le salon {ROOM} a les restrictions suivantes :",
-			"sub_only": "Sub uniquement",
-			"emote_only": "Emote uniquement",
-			"follow_only": "Followers uniquement",
-			"slow_mode": "Mode lent",
-			"chat_delay": "Délai de tchat"
-		},
-		"raffle": {
-			"title": "{USER} a remporté le tirage au sort"
-		},
-		"message": {
-			"first_time": "1er message ici",
-			"first_today": "1er message du jour",
-			"presentation": "Présentation de {USER}",
-			"returning_user": "{USER} est de retour après avoir parlé 2 fois ces 30 derniers jours",
-			"automod": "Automod:",
-			"automod_acceptBt_aria": "Accepter le message",
-			"automod_acceptBt": "Accepter",
-			"automod_rejectBt_aria": "Refuser le message",
-			"automod_rejectBt": "Refuser",
-			"automod_rule": "Règle:",
-			"announcement": "Annonce",
-			"occurrences": "Nombre de fois que<br>ce message a été envoyé",
-			"no_follow": "Ne vous follow pas",
-			"banned_in": " • Banni·e chez {CHANNELS}",
-			"blocked_user": "Ce message a été envoyé par une personne bloquée. Cliquez pour afficher.",
-			"clip_created_by": "Créé par:",
-			"clip_channel": "Chaîne:",
-			"clip_duration": "Durée:",
-			"clip_views": "Vues:",
-			"highlightBt_aria": "Mettre en avant",
-			"highlightBt_tt": "Afficher sur le stream<br><i>(nécessite l'overlay)</i>",
-			"deleted": "<message supprimé>",
-			"deleted_by": "<message supprimé par {USER}>",
-			"disable_ad":"Désactiver",
-			"customize_ad":"Personnaliser",
-			"badges": {
-				"prediction": "Prédiction",
-				"subscriber": "Abonné·e",
-				"vip": "VIP",
-				"prime": "Prime",
-				"moderator": "Modérateur·ice",
-				"twitch_staff": "Twitch staff",
-				"broadcaster": "Diffuseur",
-				"partner": "Partenaire",
-				"founder": "Fondateur·ice",
-				"ambassador": "Ambassadeur·ice"
-			}
-		},
-		"autoban_join": {
-			"unbanBt": "Débannir",
-			"banBt": "Bannir",
-			"message": "{USER} a été banni par l'automod après avoir rejoint le tchat parce que son pseudo correspond à la règle : {RULE}"
-		},
-		"community_challenge":"{USER} a contribué avec {COUNT}pts au défi {TITLE} pour un total de {TOTAL}pts.",
-		"reward": "{USER} a acheté la récompense {REWARD} {COST}",
-		"subscription":{
-			"sub": "{USER} a pris un abonnement de niveau {TIER}.",
-			"sub_prime": "{USER} a pris un abonnement avec Prime.",
-			"resub": "{USER} a renouvelé son abonnement de niveau {TIER}.",
-			"resub_prime": "{USER} a pris un abonnement avec Prime.",
-			"sub_duration": "Abonné·e depuis {COUNT} mois.",
-			"sub_streak": "{COUNT} mois d'abonnement consécutifs.",
-			"sub_advance": "A pris {COUNT} mois d'abonnement en avance",
-			"sub_gift": "{USER} a offert {COUNT} abonnement de niveau {TIER} à {LIST} | {USER} a offert {COUNT} abonnements de niveau {TIER} à {LIST}",
-			"sub_gift_total": "Cette personne a offert {COUNT} abonnements sur cette chaîne.",
-			"sub_gift_months": "{USER} a offert {MONTHS} mois d'abonnement de niveau {TIER} à {LIST}",
-			"sub_gift_upgrade": "{USER} continue l'abonnement offert par {GIFTER}"
-		},
-		"bits": "{USER} a envoyé 1 bit | {USER} a envoyé {BITS} bits",
-		"boosted": "Votre chaîne a été mise en avant auprès de {COUNT} personnes",
-		"train_cooldown": "Le train de la hype peut à nouveau être déclenché !",
-		"follow": "{USER} vous suit",
-		"raid":{
-			"previous_stream": "Dernier stream : {CATEGORY}",
-			"current_stream": "Diffuse {CATEGORY}:",
-			"text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes.",
-			"duration": "Durée: {DURATION}"
-		},
-		"pin": {
-			"pinned":"{MODERATOR} a épinglé le message suivant :",
-			"unpinned":"Le message suivant a été automatiquement désépinglé :",
-			"unpinned_by":"{MODERATOR} a désépinglé le message suivant :"
-		},
-		"join_leave": {
-			"join": "a rejoint le salon {CHANNEL} | ont rejoint le salon {CHANNEL}",
-			"join_aria": "{COUNT} personne ont rejoint la chaine {CHANNEL}",
-			"leave": "a quitté le salon {CHANNEL} | ont quitté le salon {CHANNEL}",
-			"leave_aria": "{COUNT} personnes ont quitté le salon {CHANNEL}",
-			"more": "{COUNT} autre | {COUNT} autres"
-		},
-		"hype_train": {
-			"summary_title": "Train de la hype terminé au {LEVEL} {PERCENT}",
-			"summary_level": "niveau",
-			"filterBt": "Voir les activités",
-			"filtered_title": "Activités du train"
-		},
-		"followbot": {
-			"title": "{COUNT} follow bot potentiels"
-		},
-		"countdown": {
-			"start": "Compte à rebours lancé pour {DURATION}",
-			"complete": "Le compte à rebours de {DURATION} est terminé",
-			"abort": "Le compte à rebours de {DURATION} a été arrêté après {ABORT_DURATION}"
-		},
-		"timer": {
-			"end": "Chronomètre terminé à {DURATION}"
-		},
-		"connect": {
-			"on": "Bienvenue sur la chaine {PLATFORM} de {ROOM}",
-			"off": "Vous avez été déconnecté·e du tchat {PLATFORM}"
-		},
-		"clear": {
-			"title": "Salon {ROOM} effacé{USER}",
-			"title_by": " par {USER}"
-		},
-		"bingo": {
-			"title": "{WINNER} a remporté le bingo avec la réponse {ANSWER}"
-		},
-		"sponsor": {
-			"title": "🍔 J'aime manger 🍔",
-			"head": "Tu apprécies Twitchat ?<br>Ca m'a pris presque <strong>1 an</strong> de travail bénévole à temps plein pour le créer.<br>Je le mets gratuitement à disposition mais, <strong>si tu peux te le permettre</strong> un don me nourrira et emerveillera ma journée !",
-			"tipBt_aria": "Voir les options de dons",
-			"tipBt": "🌞 Emerveiller ma journée 🌞"
-		},
-		"stream": {
-			"online": "La chaîne {USER} est en live.",
-			"offline": "La chaîne {USER} n'est plus en live",
-			"info": "Diffuse {CATEGORY}:"
-		},
-		"discord": {
-			"title": "Rejoins-nous sur Discord",
-			"content": "Tu as une idée d'ajout ou un problème à remonter ?<br>Dis-le moi sur Discord!",
-			"joinBt": "Rejoindre le Discord"
-		},
-		"adalert": {
-			"title": "MESSAGE IMPORTANT",
-			"contents": [
-				"Twitchat est gratuit mais:",
-				"Un message partageant un lien vers Twitchat sera envoyé toutes les 2 heures dans votre tchat <strong>en votre nom</strong>.",
-				"Vous pouvez envoyer ce message depuis un autre bot",
-				"<br>",
-				"Vous pouvez personnaliser le message dans les paramètres.",
-				"Ou faire un don libre pour le supprimer."
-			],
-			"unacceptableBt": "😡😡😡 C'EST INACCEPTABLE 😡😡😡",
-			"customizeBt": "Personnaliser le message",
-			"donateBt": "Faire un don"
-		},
-		"donor": {
-			"title": "❤ Merveilleuse personne ❤",
-			"info_1": "Merci encore pour ton soutien au travers de ton don.",
-			"info_2": "Une liste de toutes les personnes ayant fait un don est disponible dans la {LINK}",
-			"info_2_link": "section À propos",
-			"info_3": "Par défaut les dons sont anonymes mais tu peux le rendre publique !",
-			"thanks": "Merci ❤.",
-			"thanks_change": "Tu peux changer ceci à tout moment dans la {LINK}",
-			"thanks_change_link": "section À propos",
-			"publicBt": "Rendre mon don public",
-			"close_confirm": {
-				"info_1": "Es-tu sûr·e d'avoir lu le message ?",
-				"info_2": "Il est vraiment important",
-				"cancelBt": "Retour",
-				"confirmBt": "Oui, fermer"
-			}
-		},
-		"mod_tools": {
-			"to10": "10s",
-			"to10_aria": "Bannir pour 10 secondes",
-			"to120": "2m",
-			"to120_aria": "Bannir pour 2 minutes",
-			"to30": "30m",
-			"to30_aria": "Bannir pour 30 minutes",
-			"to3600": "1h",
-			"to3600_aria": "Bannir pour 1 heures",
-			"to43200": "12h",
-			"to43200_aria": "Bannir pour 12 heures",
-			"to1w": "1w",
-			"to1w_aria": "Bannir pour 1 semaine",
-			"banBt": "Ban",
-			"blockBt": "Block",
-			"ban_confirm_title": "Bannir {USER}",
-			"ban_confirm_desc": "Voulez-vous vraiment bannir cette personne ?",
-			"block_confirm_title": "Bloquer {USER}",
-			"block_confirm_desc": "Voulez-vous vraiment bloquer cette personnes ?<br>Elle sera supprimée de vos followers."
-		},
-		"context_menu":{
-			"profile": "Profil",
-			"delete": "Supprimer le message",
-			"pin_twitch": "Épingler le message",
-			"unpin_twitch": "Désépingler le message",
-			"track": "Suivre ses messages",
-			"untrack": "Ne plus suivre ses messages",
-			"shoutout": "Faire un shoutout",
-			"answer": "Répondre",
-			"tts": "Lire via TTS",
-			"tts_all": "Lire tous ses messages via TTS",
-			"tts_all_start": "Lire tous ses messages via TTS",
-			"tts_all_stop": "Arrêter de lire ses messages",
-			"highlight": "Mettre en avant",
-			"highlight_loading": "vérification...",
-			"pin": "Epingler le message",
-			"save": "Enregistrer le message",
-			"unsave": "Désenregistrer le message",
-			"ban":"Bannir",
-			"unban":"Débannir",
-			"ban_myRoom":"Bannir chez moi",
-			"unban_myRoom":"Débannir de chez moi",
-			"block":"Bloquer",
-			"unblock":"Débloquer",
-			"to":"Ban temporaire"
-		},
-		"custom_badge": {
-			"label": {
-				"pinned": "",
-				"raider": "",
-				"automod": "automod",
-				"whisper": "chuchotement",
-				"cyphered": "chiffré",
-				"restrictedUser": "restreint·e",
-				"suspiciousUser": "suspect·e",
-				"emergencyBlocked": "bloqué·e",
-				"new_user": "new"
-			},
-			"tooltip": {
-				"raider": "Raider",
-				"pinned": "Epinglé",
-				"new_user": "1er jour sur<br>votre chaîne",
-				"restrictedUser": "Message visible uniquement<br>par vous et vos modérateur·ices",
-				"suspiciousUser": "Personne marquée<br>comme suspecte"
-			}
-		},
-		"scope_request": {
-			"title": "Les filtres de cette colonne de message requièrent une autorisation manquante: | Les filtres de cette colonne de message requièrent des autorisations manquantes:",
-			"openFiltersBt": "Modifier les filtres",
-			"grantBt": "Ouvrir les autorisations"
-		},
-		"marker": {
-			"created": "Marqueur créé avec succès"
-		},
-		"watch_streak":{
-			"label": "{USER} a regardé {COUNT} streams consécutifs ce mois-ci et a déclenché une série de visionnages !"
-		}
-	}
+  "chat": {
+    "closeBt_aria": "Fermer",
+    "delete_col_confirm_title": "Supprimer colonne ?",
+    "delete_col_confirm_desc": "Voulez-vous supprimer cette colonne ? Vous ne pourrez pas revenir en arrière",
+    "paused": "Chat mis en pause",
+    "no_message": "- aucun message -",
+    "conversation": "Conversation",
+    "history": "Historique de {USER}",
+    "live_chat": "message en live",
+    "live_chat_more_aria": "afficher 1 message en plus",
+    "live_chat_less_aria": "afficher 1 message en moins",
+    "conversation_closeBt_aria": "Fermer la fenêtre",
+    "fake_tag": "fake",
+    "fake_tag_tt": "Ceci est un faux message.<br>Vous êtes seul·e à le voir.",
+    "soBt": "Shoutout",
+    "right_click_hint_highlight": "clic droit",
+    "right_click_hint": "PogChamp PogChamp PogChamp Hey ! Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options !",
+    "form": {
+      "paramsBt_aria": "Parameters",
+      "cmdsBt_aria": "Commandes",
+      "usersBt_aria": "Liste des viewers",
+      "input_placeholder": "message...",
+      "trigger_cmd_disabled": "(trigger désactivé)",
+      "trigger_cmd_disabled_tt": "Le trigger correspondant à cette commande est désactivé. Réactivez-le pour pouvoir utiliser la commande",
+      "stop_spamBt": "Arrêter le spam",
+      "emoteBt_aria": "Emotes",
+      "pollBt_aria": "Sondage",
+      "suggBt_aria": "Suggestions",
+      "predictionBt_aria": "Prédiction",
+      "trackedBt_aria": "Personnes suivies",
+      "raffleBt_aria": "Tirage au sort",
+      "bingoBt_aria": "Bingo",
+      "whispersBt_aria": "Chuchotements",
+      "pinsBt_aria": "Messages épinglés",
+      "saveBt_aria": "Messages conservés",
+      "deezerBt_aria": "Lecteur deezer",
+      "highlightBt_aria": "Fermer le message mis en avant",
+      "voicebot_startBt_aria": "Activer l'assistant vocal",
+      "voicebot_stopBt_aria": "Arrêter l'assistant vocal",
+      "devmodeBt_aria": "Menu développeur",
+      "emergency_startBt_aria": "Démarrer l'urgence",
+      "emergency_stopBt_aria": "Arreter l'ugence",
+      "muteTTSBt_aria": "Couper le TTS",
+      "clearTTSBt_aria": "Vider la file d'attente",
+      "resetVoiceBt_aria": "Désactiver le changement de voix",
+      "shoutoutBt_aria": "Shoutouts en attente",
+      "viewer_count": "Nombre de viewers",
+      "reply_to": "Réponse à {USER} :"
+    },
+    "filters": {
+      "cta": "Options importantes ici",
+      "title": "Filtres",
+      "closeBt_aria": "Fermer les filtres",
+      "header": "Choisissez quels types de messages afficher dans cette colonne",
+      "preset_chat": "Tchat",
+      "preset_chatSafe": "Tchat safe",
+      "preset_moderation": "Modération",
+      "preset_activities": "Activités",
+      "preset_moderation_and_activities": "Modération + Activités",
+      "preset_games": "Jeux",
+      "preset_revenues": "Revenus",
+      "no_selection": "Sélectionnez au moins un filtre",
+      "hide_users": "Masquer des personnes spécifiques",
+      "hide_users_placeholder": "entrez un pseudo...",
+      "scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
+      "whispers_permissions": "Filtrer les personnes autorisées",
+      "show_panels_here": "Afficher \" @:greet.title \" dans cette colonne",
+      "message_types": {
+        "twitchat_ad": "Astuces Twitchat",
+        "ban": "Bans",
+        "unban": "Unbans",
+        "raid": "Raids",
+        "poll": "Sondages",
+        "join": "Entrées",
+        "leave": "Sorties",
+        "cheer": "Bits",
+        "bingo": "Bingos",
+        "raffle": "Tirages au sort",
+        "reward": "Récompenses",
+        "notice": "Infos",
+        "message": "Messages",
+        "whisper": "Chuchotements",
+        "shoutout": "Shoutouts",
+        "following": "Follows",
+        "countdown": "Compte à rebours",
+        "prediction": "Prédictions",
+        "subscription": "Abonnements",
+        "hype_train_summary": "Résultats du train de la hype",
+        "hype_train_cooled_down": "Train de la hype prêt",
+        "community_boost_complete": "Boost de stream",
+        "community_challenge_contribution": "Défis de communauté",
+        "pinned": "Alertes de messages épinglés",
+        "user_watch_streak": "Streams consécutifs vus",
+        "stream_online": "Stream commencé/arrêté"
+      },
+      "message_filters": {
+        "viewers": "Envoyé par des viewers",
+        "vips": "Envoyé par des VIPs",
+        "subs": "Envoyé par des abonné·es",
+        "moderators": "Envoyé par des modérateurices",
+        "partners": "Envoyé par des partenaires",
+        "bots": "Envoyé par des bots",
+        "tracked": "Envoyé par une personne suivie",
+        "deleted": "Messages supprimés",
+        "pinned": "Messages épinglés",
+        "automod": "Messages bloqués",
+        "suspiciousUsers": "Envoyé par des personnes suspectes",
+        "commands": "Commandes (commançant par \"!\")",
+        "short": "Messages courts"
+      },
+      "commands": "Masquer des commandes spécifiques",
+      "commands_placeholder": "entrez une commande...",
+      "tracked_tt": "Messages envoyés par des personnes<br>pour lesquelles vous avez activé<br>le suivit de messages",
+      "short_tt": "Messages plus courts que 4 caractères<br>ou contenant principalement des emotes"
+    },
+    "shoutout": {
+      "received": "{USER} vous a fait une dédicace auprès de {VIEWERS} viewers",
+      "given": "{MODERATOR} a fait une dédicace à {USER} dans le salon {CHANNEL}"
+    },
+    "room_settings": {
+      "title": "Rappel : Le salon {ROOM} a les restrictions suivantes :",
+      "sub_only": "Sub uniquement",
+      "emote_only": "Emote uniquement",
+      "follow_only": "Followers uniquement",
+      "slow_mode": "Mode lent",
+      "chat_delay": "Délai de tchat"
+    },
+    "raffle": {
+      "title": "{USER} a remporté le tirage au sort"
+    },
+    "message": {
+      "first_time": "1er message ici",
+      "first_today": "1er message du jour",
+      "presentation": "Présentation de {USER}",
+      "returning_user": "{USER} est de retour après avoir parlé 2 fois ces 30 derniers jours",
+      "automod": "Automod:",
+      "automod_acceptBt_aria": "Accepter le message",
+      "automod_acceptBt": "Accepter",
+      "automod_rejectBt_aria": "Refuser le message",
+      "automod_rejectBt": "Refuser",
+      "automod_rule": "Règle:",
+      "announcement": "Annonce",
+      "occurrences": "Nombre de fois que<br>ce message a été envoyé",
+      "no_follow": "Ne vous follow pas",
+      "banned_in": " • Banni·e chez {CHANNELS}",
+      "blocked_user": "Ce message a été envoyé par une personne bloquée. Cliquez pour afficher.",
+      "clip_created_by": "Créé par:",
+      "clip_channel": "Chaîne:",
+      "clip_duration": "Durée:",
+      "clip_views": "Vues:",
+      "highlightBt_aria": "Mettre en avant",
+      "highlightBt_tt": "Afficher sur le stream<br><i>(nécessite l'overlay)</i>",
+      "deleted": "<message supprimé>",
+      "deleted_by": "<message supprimé par {USER}>",
+      "disable_ad": "Désactiver",
+      "customize_ad": "Personnaliser",
+      "badges": {
+        "prediction": "Prédiction",
+        "subscriber": "Abonné·e",
+        "vip": "VIP",
+        "prime": "Prime",
+        "moderator": "Modérateur·ice",
+        "twitch_staff": "Twitch staff",
+        "broadcaster": "Diffuseur",
+        "partner": "Partenaire",
+        "founder": "Fondateur·ice",
+        "ambassador": "Ambassadeur·ice"
+      }
+    },
+    "autoban_join": {
+      "unbanBt": "Débannir",
+      "banBt": "Bannir",
+      "message": "{USER} a été banni par l'automod après avoir rejoint le tchat parce que son pseudo correspond à la règle : {RULE}"
+    },
+    "community_challenge": "{USER} a contribué avec {COUNT}pts au défi {TITLE} pour un total de {TOTAL}pts.",
+    "reward": "{USER} a acheté la récompense {REWARD} {COST}",
+    "subscription": {
+      "sub": "{USER} a pris un abonnement de niveau {TIER}.",
+      "sub_prime": "{USER} a pris un abonnement avec Prime.",
+      "resub": "{USER} a renouvelé son abonnement de niveau {TIER}.",
+      "resub_prime": "{USER} a pris un abonnement avec Prime.",
+      "sub_duration": "Abonné·e depuis {COUNT} mois.",
+      "sub_streak": "{COUNT} mois d'abonnement consécutifs.",
+      "sub_advance": "A pris {COUNT} mois d'abonnement en avance",
+      "sub_gift": "{USER} a offert {COUNT} abonnement de niveau {TIER} à {LIST} | {USER} a offert {COUNT} abonnements de niveau {TIER} à {LIST}",
+      "sub_gift_total": "Cette personne a offert {COUNT} abonnements sur cette chaîne.",
+      "sub_gift_months": "{USER} a offert {MONTHS} mois d'abonnement de niveau {TIER} à {LIST}",
+      "sub_gift_upgrade": "{USER} continue l'abonnement offert par {GIFTER}"
+    },
+    "bits": "{USER} a envoyé 1 bit | {USER} a envoyé {BITS} bits",
+    "boosted": "Votre chaîne a été mise en avant auprès de {COUNT} personnes",
+    "train_cooldown": "Le train de la hype peut à nouveau être déclenché !",
+    "follow": "{USER} vous suit",
+    "raid": {
+      "previous_stream": "Dernier stream : {CATEGORY}",
+      "current_stream": "Diffuse {CATEGORY}:",
+      "text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes.",
+      "duration": "Durée: {DURATION}"
+    },
+    "pin": {
+      "pinned": "{MODERATOR} a épinglé le message suivant :",
+      "unpinned": "Le message suivant a été automatiquement désépinglé :",
+      "unpinned_by": "{MODERATOR} a désépinglé le message suivant :"
+    },
+    "join_leave": {
+      "join": "a rejoint le salon {CHANNEL} | ont rejoint le salon {CHANNEL}",
+      "join_aria": "{COUNT} personne ont rejoint la chaine {CHANNEL}",
+      "leave": "a quitté le salon {CHANNEL} | ont quitté le salon {CHANNEL}",
+      "leave_aria": "{COUNT} personnes ont quitté le salon {CHANNEL}",
+      "more": "{COUNT} autre | {COUNT} autres"
+    },
+    "hype_train": {
+      "summary_title": "Train de la hype terminé au {LEVEL} {PERCENT}",
+      "summary_level": "niveau",
+      "filterBt": "Voir les activités",
+      "filtered_title": "Activités du train"
+    },
+    "followbot": {
+      "title": "{COUNT} follow bot potentiels"
+    },
+    "countdown": {
+      "start": "Compte à rebours lancé pour {DURATION}",
+      "complete": "Le compte à rebours de {DURATION} est terminé",
+      "abort": "Le compte à rebours de {DURATION} a été arrêté après {ABORT_DURATION}"
+    },
+    "timer": {
+      "end": "Chronomètre terminé à {DURATION}"
+    },
+    "connect": {
+      "on": "Bienvenue sur la chaine {PLATFORM} de {ROOM}",
+      "off": "Vous avez été déconnecté·e du tchat {PLATFORM}"
+    },
+    "clear": {
+      "title": "Salon {ROOM} effacé{USER}",
+      "title_by": " par {USER}"
+    },
+    "bingo": {
+      "title": "{WINNER} a remporté le bingo avec la réponse {ANSWER}"
+    },
+    "sponsor": {
+      "title": "🍔 J'aime manger 🍔",
+      "head": "Tu apprécies Twitchat ?<br>Ca m'a pris presque <strong>1 an</strong> de travail bénévole à temps plein pour le créer.<br>Je le mets gratuitement à disposition mais, <strong>si tu peux te le permettre</strong> un don me nourrira et emerveillera ma journée !",
+      "tipBt_aria": "Voir les options de dons",
+      "tipBt": "🌞 Emerveiller ma journée 🌞"
+    },
+    "stream": {
+      "online": "La chaîne {USER} est en live.",
+      "offline": "La chaîne {USER} n'est plus en live",
+      "info": "Diffuse {CATEGORY}:"
+    },
+    "discord": {
+      "title": "Rejoins-nous sur Discord",
+      "content": "Tu as une idée de fonctionnalité ou un problème à remonter ?<br>Dis-le moi sur Discord !",
+      "joinBt": "Rejoindre le Discord"
+    },
+    "adalert": {
+      "title": "MESSAGE IMPORTANT",
+      "contents": [
+        "Twitchat est gratuit mais:",
+        "Un message partageant un lien vers Twitchat sera envoyé toutes les 2 heures dans votre tchat <strong>en votre nom</strong>.",
+        "Vous pouvez envoyer ce message depuis un autre bot",
+        "<br>",
+        "Vous pouvez personnaliser le message dans les paramètres.",
+        "Ou faire un don libre pour le supprimer."
+      ],
+      "unacceptableBt": "😡😡😡 C'EST INACCEPTABLE 😡😡😡",
+      "customizeBt": "Personnaliser le message",
+      "donateBt": "Faire un don"
+    },
+    "donor": {
+      "title": "❤ Merveilleuse personne ❤",
+      "info_1": "Merci encore pour ton soutien au travers de ton don.",
+      "info_2": "Une liste de toutes les personnes ayant fait un don est disponible dans la {LINK}",
+      "info_2_link": "section À propos",
+      "info_3": "Par défaut les dons sont anonymes mais tu peux le rendre publique !",
+      "thanks": "Merci ❤.",
+      "thanks_change": "Tu peux changer ceci à tout moment dans la {LINK}",
+      "thanks_change_link": "section À propos",
+      "publicBt": "Rendre mon don public",
+      "close_confirm": {
+        "info_1": "Es-tu sûr·e d'avoir lu le message ?",
+        "info_2": "Il est vraiment important",
+        "cancelBt": "Retour",
+        "confirmBt": "Oui, fermer"
+      }
+    },
+    "mod_tools": {
+      "to10": "10s",
+      "to10_aria": "Bannir pour 10 secondes",
+      "to120": "2m",
+      "to120_aria": "Bannir pour 2 minutes",
+      "to30": "30m",
+      "to30_aria": "Bannir pour 30 minutes",
+      "to3600": "1h",
+      "to3600_aria": "Bannir pour 1 heures",
+      "to43200": "12h",
+      "to43200_aria": "Bannir pour 12 heures",
+      "to1w": "1w",
+      "to1w_aria": "Bannir pour 1 semaine",
+      "banBt": "Ban",
+      "blockBt": "Block",
+      "ban_confirm_title": "Bannir {USER}",
+      "ban_confirm_desc": "Voulez-vous vraiment bannir cette personne ?",
+      "block_confirm_title": "Bloquer {USER}",
+      "block_confirm_desc": "Voulez-vous vraiment bloquer cette personnes ?<br>Elle sera supprimée de vos followers."
+    },
+    "context_menu": {
+      "profile": "Profil",
+      "delete": "Supprimer le message",
+      "pin_twitch": "Épingler le message",
+      "unpin_twitch": "Désépingler le message",
+      "track": "Suivre ses messages",
+      "untrack": "Ne plus suivre ses messages",
+      "shoutout": "Faire un shoutout",
+      "answer": "Répondre",
+      "tts": "Lire via TTS",
+      "tts_all": "Lire tous ses messages via TTS",
+      "tts_all_start": "Lire tous ses messages via TTS",
+      "tts_all_stop": "Arrêter de lire ses messages",
+      "highlight": "Mettre en avant",
+      "highlight_loading": "vérification...",
+      "pin": "Epingler le message",
+      "save": "Enregistrer le message",
+      "unsave": "Désenregistrer le message",
+      "ban": "Bannir",
+      "unban": "Débannir",
+      "ban_myRoom": "Bannir chez moi",
+      "unban_myRoom": "Débannir de chez moi",
+      "block": "Bloquer",
+      "unblock": "Débloquer",
+      "to": "Ban temporaire"
+    },
+    "custom_badge": {
+      "label": {
+        "pinned": "",
+        "raider": "",
+        "automod": "automod",
+        "whisper": "chuchotement",
+        "cyphered": "chiffré",
+        "restrictedUser": "restreint·e",
+        "suspiciousUser": "suspect·e",
+        "emergencyBlocked": "bloqué·e",
+        "new_user": "new"
+      },
+      "tooltip": {
+        "raider": "Raider",
+        "pinned": "Epinglé",
+        "new_user": "1er jour sur<br>votre chaîne",
+        "restrictedUser": "Message visible uniquement<br>par vous et vos modérateur·ices",
+        "suspiciousUser": "Personne marquée<br>comme suspecte"
+      }
+    },
+    "scope_request": {
+      "title": "Les filtres de cette colonne de message requièrent une autorisation manquante: | Les filtres de cette colonne de message requièrent des autorisations manquantes:",
+      "openFiltersBt": "Modifier les filtres",
+      "grantBt": "Ouvrir les autorisations"
+    },
+    "marker": {
+      "created": "Marqueur créé avec succès"
+    },
+    "watch_streak": {
+      "label": "{USER} a regardé {COUNT} streams consécutifs ce mois-ci et a déclenché une série de visionnages !"
+    }
+  }
 }

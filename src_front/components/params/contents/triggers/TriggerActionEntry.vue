@@ -13,146 +13,128 @@
 	:icons="icons? icons : []"
 	>
 		<template #left_actions>
-			<Button small
-				icon="dragZone"
-				class="toggleAction orderBt"
-				@mousedown="$emit('startDrag', $event)"
-				v-tooltip="$t('triggers.reorder_tt')"
-			/>
+			<div class="actionList">
+				<Button small
+					icon="dragZone"
+					class="action orderBt"
+					v-tooltip="$t('triggers.reorder_tt')"
+				/>
+			</div>
 		</template>
 		<template #right_actions>
-			<Button small
-				icon="copy"
-				class="toggleAction"
-				@click="$emit('duplicate')"
-				v-tooltip="$t('triggers.actions.common.duplicate_tt')"
-			/>
-			<Button small highlight
-				icon="cross_alert"
-				class="toggleAction delete"
-				@click="$emit('delete')"
-			/>
+			<div class="actionList">
+				<Button small
+					icon="copy"
+					class="action"
+					@click="$emit('duplicate')"
+					v-tooltip="$t('triggers.actions.common.duplicate_tt')"
+					/>
+					<Button small alert
+					icon="trash"
+					class="action delete"
+					@click="$emit('delete')"
+					v-tooltip="$t('global.delete')"
+				/>
+			</div>
 		</template>
 
-		<div>
-			<div v-if="action.type===null" class="typeSelector">
-				<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
-				<Button class="button" white @click="selectActionType('delay')"
-					:title="$t('triggers.actions.common.action_delay')"
-					icon="timer"/>
+		<div v-if="action.type===null" class="typeSelector">
+			<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
+			<Button class="button" @click="selectActionType('delay')"
+				icon="timer">{{ $t('triggers.actions.common.action_delay') }}</Button>
 
-				<Button class="button" white @click="selectActionType('chat')"
-					:title="$t('triggers.actions.common.action_chat')"
-					icon="whispers"/>
-					
-				<Button class="button" white @click.capture="selectActionType('poll')"
-					v-if="hasChannelPoints"
-					:title="$t('triggers.actions.common.action_poll')"
-					icon="poll"
-					:disabled="!canCreatePoll"/>
+			<Button class="button" @click="selectActionType('chat')"
+				icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</Button>
 				
-				<Button class="button" white @click.capture="selectActionType('prediction')"
-					v-if="hasChannelPoints"
-					:title="$t('triggers.actions.common.action_prediction')"
-					icon="prediction"
-					:disabled="!canCreatePrediction"/>
-					
-				<Button class="button" white @click="selectActionType('bingo')"
-					:title="$t('triggers.actions.common.action_bingo')"
-					icon="bingo"/>
+			<Button class="button" @click.capture="selectActionType('poll')"
+				v-if="hasChannelPoints"
+				icon="poll"
+				:disabled="!canCreatePoll">{{ $t('triggers.actions.common.action_poll') }}</Button>
+			
+			<Button class="button" @click.capture="selectActionType('prediction')"
+				v-if="hasChannelPoints"
+				icon="prediction"
+				:disabled="!canCreatePrediction">{{ $t('triggers.actions.common.action_prediction') }}</Button>
 				
-				<Button class="button" white @click="selectActionType('raffle')"
-					:title="$t('triggers.actions.common.action_raffle')"
-					icon="ticket"/>
+			<Button class="button" @click="selectActionType('bingo')"
+				icon="bingo">{{ $t('triggers.actions.common.action_bingo') }}</Button>
+			
+			<Button class="button" @click="selectActionType('raffle')"
+				icon="ticket">{{ $t('triggers.actions.common.action_raffle') }}</Button>
 
-				<Button class="button" white @click="selectActionType('raffle_enter')"
-					v-if="hasUserInfo"
-					:title="$t('triggers.actions.common.action_raffle_enter')"
-					icon="user"/>
-				
-				<Button class="button" white @click="selectActionType('stream_infos')"
-					:title="$t('triggers.actions.common.action_stream_infos')"
-					icon="info"/>
-				
-				<Button class="button" white @click="selectActionType('highlight')"
-					:title="$t('triggers.actions.common.action_highlight')"
-					icon="highlight" />
-				
-				<Button class="button" white @click="selectActionType('count')"
-					:title="$t('triggers.actions.common.action_count')"
-					icon="count"/>
-				
-				<!-- <Button class="button" white @click="selectActionType('countget')"
-					:title="$t('triggers.actions.common.action_countget')"
-					icon="count_placeholder"/> -->
-				
-				<Button class="button" white @click="selectActionType('random')"
-					:title="$t('triggers.actions.common.action_random')"
-					icon="dice"/>
-				
-				<Button class="button" white @click.capture="selectActionType('obs')"
-					:title="$t('triggers.actions.common.action_obs')"
-					icon="obs"
-					:disabled="!obsConnected"
-					v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')"/>
-				
-				<Button class="button" white @click.capture="selectActionType('tts')"
-					:title="$t('triggers.actions.common.action_tts')"
-					icon="tts"
-					:disabled="!$store('tts').params.enabled"
-					v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')"/>
-				
-				<Button class="button" white @click.capture="selectActionType('music')"
-					:title="$t('triggers.actions.common.action_music')"
-					icon="spotify"
-					:disabled="!musicServiceConfigured"
-					v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')"/>
-				
-				<Button class="button" white @click.capture="selectActionType('voicemod')"
-					:title="$t('triggers.actions.common.action_voicemod')"
-					icon="voicemod"
-					:disabled="!voicemodEnabled"
-					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')"/>
-				
-				<Button class="button" white @click="selectActionType('trigger')"
-					:title="$t('triggers.actions.common.action_trigger')"
-					icon="broadcast" />
-				
-				<Button class="button" white @click="selectActionType('triggerToggle')"
-					:title="$t('triggers.actions.common.action_triggerToggle')"
-					icon="broadcast" />
-				
-				<Button class="button" white @click="selectActionType('http')"
-					:title="$t('triggers.actions.common.action_http')"
-					icon="url"/>
-				
-				<Button class="button" white @click.capture="selectActionType('ws')"
-					:title="$t('triggers.actions.common.action_ws')"
-					:disabled="!wsConnected"
-					icon="url"/>
-			</div>
-
-			<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
-			<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" />
-			<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
-			<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
-			<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" />
-			<TriggerActionHighlightEntry v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
-			<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
-			<TriggerActionTriggerToggleEntry v-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
-			<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
-			<TriggerActionWSEntry v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
-			<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
-			<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
-			<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :rewards="rewards" />
-			<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
-			<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
-			<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
-			<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
-			<PredictionForm v-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
-			<div v-if="action.type=='raffle_enter'">{{ $t("triggers.actions.raffle_enter.info") }}</div>
-
+			<Button class="button" @click="selectActionType('raffle_enter')"
+				v-if="hasUserInfo"
+				icon="user">{{ $t('triggers.actions.common.action_raffle_enter') }}</Button>
+			
+			<Button class="button" @click="selectActionType('stream_infos')"
+				icon="info">{{ $t('triggers.actions.common.action_stream_infos') }}</Button>
+			
+			<Button class="button" @click="selectActionType('highlight')"
+				icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</Button>
+			
+			<Button class="button" @click="selectActionType('count')"
+				icon="count">{{ $t('triggers.actions.common.action_count') }}</Button>
+			
+			<!-- <Button class="button" @click="selectActionType('countget')"
+				icon="count_placeholder">{{ $t('triggers.actions.common.action_countget') }}</Button> -->
+			
+			<Button class="button" @click="selectActionType('random')"
+				icon="dice">{{ $t('triggers.actions.common.action_random') }}</Button>
+			
+			<Button class="button" @click.capture="selectActionType('obs')"
+				icon="obs"
+				:disabled="!obsConnected"
+				v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')">{{ $t('triggers.actions.common.action_obs') }}</Button>
+			
+			<Button class="button" @click.capture="selectActionType('tts')"
+				icon="tts"
+				:disabled="!$store('tts').params.enabled"
+				v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</Button>
+			
+			<Button class="button" @click.capture="selectActionType('music')"
+				icon="spotify"
+				:disabled="!musicServiceConfigured"
+				v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
+			
+			<Button class="button" @click.capture="selectActionType('voicemod')"
+				icon="voicemod"
+				:disabled="!voicemodEnabled"
+				v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</Button>
+			
+			<Button class="button" @click="selectActionType('trigger')"
+				icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</Button>
+			
+			<Button class="button" @click="selectActionType('triggerToggle')"
+				icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</Button>
+			
+			<Button class="button" @click="selectActionType('http')"
+				icon="url">{{ $t('triggers.actions.common.action_http') }}</Button>
+			
+			<Button class="button" @click.capture="selectActionType('ws')"
+				:disabled="!wsConnected"
+				icon="url">{{ $t('triggers.actions.common.action_ws') }}</Button>
 		</div>
+
+		<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
+		<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" />
+		<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
+		<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
+		<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" />
+		<TriggerActionHighlightEntry v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
+		<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
+		<TriggerActionTriggerToggleEntry v-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
+		<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
+		<TriggerActionWSEntry v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
+		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :rewards="rewards" />
+		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
+		<RaffleForm v-if="action.type=='raffle'" :action="action" triggerMode />
+		<BingoForm v-if="action.type=='bingo'" :action="action" triggerMode />
+		<PollForm v-if="action.type=='poll'" :action="action" triggerMode />
+		<PredictionForm v-if="action.type=='prediction'" :action="action" triggerMode />
+		<div v-if="action.type=='raffle_enter'" class="raffleEnter">{{ $t("triggers.actions.raffle_enter.info") }}</div>
+
 	</ToggleBlock>
 </template>
 
@@ -369,7 +351,7 @@ export default class TriggerActionEntry extends Vue {
 			}
 			case "music": {
 				if(!this.musicServiceConfigured) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ConnexionSections.SPOTIFY);
 					return;
 				}break
 			}
@@ -458,22 +440,18 @@ export default class TriggerActionEntry extends Vue {
 		}
 	}
 
-	.toggleAction {
-		border-radius: 0;
-		padding: .5em;
+	.actionList {
+		display: flex;
 		align-self: stretch;
-		background-color: transparent;
-		&:hover {
-			background-color: fade(@mainColor_normal, 20%)
-		}
-		&.delete:hover {
-			background-color: fade(@mainColor_alert, 20%)
-		}
-	
-		&.orderBt {
-			cursor: grab;
-			&:active {
-				cursor: grabbing;
+		.action {
+			border-radius: 0;
+			padding: .5em;
+			align-self: stretch;
+			&.orderBt {
+				cursor: grab;
+				&:active {
+					cursor: grabbing;
+				}
 			}
 		}
 	}
@@ -520,6 +498,10 @@ export default class TriggerActionEntry extends Vue {
 		display: block;
 		margin: auto;
 		margin-top: .5em;
+	}
+
+	.raffleEnter{
+		line-height: 1.3em;
 	}
 }
 </style>

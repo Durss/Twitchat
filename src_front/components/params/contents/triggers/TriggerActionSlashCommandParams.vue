@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionslashcommandparams">
-		<ParamItem :paramData="param_command" v-model="triggerData.chatCommand" />
-		<ParamItem :paramData="param_addToContextMenu" v-model="triggerData.addToContextMenu" />
+		<ParamItem noBackground :paramData="param_command" v-model="triggerData.chatCommand" />
+		<ParamItem noBackground :paramData="param_addToContextMenu" v-model="triggerData.addToContextMenu" />
 		
 		<TriggerActionCommandArgumentParams :triggerData="triggerData" />
 	</div>

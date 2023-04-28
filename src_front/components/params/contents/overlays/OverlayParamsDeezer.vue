@@ -11,7 +11,7 @@
 			
 			<div v-if="!deezerConnected" class="warning">{{ $t("overlay.deezer.shit_api") }}</div>
 		
-			<Button v-if="!deezerConnected" :title="$t('overlay.deezer.authBt')" @click="authenticate()" class="authBt" :loading="authenticating" />
+			<Button v-if="!deezerConnected" @click="authenticate()" class="authBt" :loading="authenticating">{{ $t('overlay.deezer.authBt') }}</Button>
 	
 			<div v-if="deezerConnected" class="row">
 				<label for="deezer_overlay_url">{{ $t("$t('overlay.music_common.music_url')") }}</label>
@@ -34,7 +34,7 @@
 				<div class="warning">{{ $t("overlay.deezer.shit_api") }}</div>
 			</div>
 
-			<Button v-if="deezerConnected" :title="$t('global.disconnect')" @click="disconnect()" class="authBt" highlight />
+			<Button v-if="deezerConnected" @click="disconnect()" class="authBt" alert>{{ $t('global.disconnect') }}</Button>
 		</div>
 
 	</ToggleBlock>

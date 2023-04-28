@@ -1,27 +1,18 @@
 <template>
 	<div class="triggeractionrandomentry">
 		
-		<div class="tabs">
-			<Button :selected="action.mode=='number'" @click="action.mode='number'" icon="dice">{{$t('triggers.actions.random.number')}}</Button>
-			<Button :selected="action.mode=='list'" @click="action.mode='list'" icon="list">{{$t('triggers.actions.random.list')}}</Button>
-			<Button :selected="action.mode=='trigger'" @click="action.mode='trigger'" icon="broadcast">{{$t('triggers.actions.random.trigger')}}</Button>
-		</div>
+		<TabMenu v-model="action.mode"
+		:values="['number', 'list', 'trigger']"
+		:icons="['dice', 'list', 'broadcast']"
+		:labels="[$t('triggers.actions.random.number'), $t('triggers.actions.random.list'), $t('triggers.actions.random.trigger')]" />
 
 		<div class="row item info" v-if="action.mode != 'trigger'">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
 		<div class="row item info" v-else-if="action.mode == 'trigger'">{{ $t("triggers.actions.random.trigger_info") }}</div>
 
 		<div class="item" v-if="action.mode == 'number'">
-			<div class="row item name">
-				<ParamItem :paramData="param_max" v-model="action.max" />
-			</div>
-			
-			<div class="row item name">
-				<ParamItem :paramData="param_min" v-model="action.min" />
-			</div>
-	
-			<div class="row item name">
-				<ParamItem :paramData="param_float" v-model="action.float" />
-			</div>
+			<ParamItem class="item" :paramData="param_max" v-model="action.max" />
+			<ParamItem class="item" :paramData="param_min" v-model="action.min" />
+			<ParamItem class="item" :paramData="param_float" v-model="action.float" />
 		</div>
 
 		<div class="item" v-if="action.mode == 'list'">
@@ -29,7 +20,7 @@
 				<label class="item" for="randomEntry_input">{{ $t("triggers.actions.random.list_label") }}</label>
 				<div class="itemForm" v-if="action.list.length < 10000">
 					<textarea rows="2" v-model="itemValue" id="randomEntry_input" :placeholder="$t('triggers.actions.random.list_entry_placeholder')"></textarea>
-					<Button title="Add" icon="add" @click="addItem()" />
+					<Button icon="add" class="addBt" @click="addItem()" :disabled="!itemValue" />
 				</div>
 				
 				<div class="listItem">
@@ -59,8 +50,7 @@
 		</div>
 
 		<div class="item" v-if="action.mode == 'trigger'">
-			<ToggleBlock class="row"
-			small
+			<ToggleBlock small
 			:open="openTriggerList"
 			:title="$t('triggers.actions.random.trigger_select')">
 				<TriggerList class="triggerList"
@@ -69,7 +59,7 @@
 					@select="onSelectTrigger($event)" />
 			</ToggleBlock>
 
-			<div class="row listItem trigger" v-if="action.triggers.length > 0">
+			<div class="listItem trigger" v-if="action.triggers.length > 0">
 				<div v-for="(item, index) in action.triggers" :key="item" class="entry">
 					<button class="action button"
 						v-tooltip="'Delete'"
@@ -87,8 +77,8 @@
 			</div>
 		</div>
 	
-		<div class="row item name" v-if="action.mode != 'trigger'">
-			<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="(param_placeholder.value).length === 0" />
+		<div class="row item" v-if="action.mode != 'trigger'">
+			<ParamItem noBackground :paramData="param_placeholder" v-model="action.placeholder" :error="(param_placeholder.value).length === 0" />
 		</div>
 
 		<i18n-t scope="global" class="example item" tag="div"
@@ -113,10 +103,12 @@ import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerList from '../TriggerList.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
+import TabMenu from '@/components/TabMenu.vue';
 
 @Component({
 	components:{
 		Button,
+		TabMenu,
 		ParamItem,
 		TriggerList,
 		ToggleBlock,
@@ -187,11 +179,6 @@ export default class TriggerActionRandomEntry extends Vue {
 <style scoped lang="less">
 .triggeractionrandomentry{
 	.triggerActionForm();
-	
-	.name:deep(input), .itemSelector {
-		// flex-grow: 1;
-		flex-basis: 200px;
-	}
 
 	.example {
 		font-size: .9em;
@@ -199,7 +186,6 @@ export default class TriggerActionRandomEntry extends Vue {
 		margin: 1em 0 .5em 0;
 	}
 	.tabs {
-		.tabMenu();
 		margin-bottom: .5em;
 	}
 
@@ -211,6 +197,11 @@ export default class TriggerActionRandomEntry extends Vue {
 			font-size: 1em;
 			min-height: 3em;
 			resize: vertical;
+		}
+		.addBt {
+			border-radius: var(--border-radius);
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
 		}
 	}
 
@@ -224,10 +215,14 @@ export default class TriggerActionRandomEntry extends Vue {
 		.entry {
 			display: flex;
 			flex-direction: row;
+			overflow: hidden;
+			color: var(--color-light);
+			border-radius: var(--border-radius);
+			background-color: var(--color-light-fader);
 			.action {
 				width: 1.5em;
 				min-width: 1.5em;
-				background-color: var(--mainColor_alert);
+				background-color: var(--color-alert);
 				padding: .25em;
 				right: 0;
 				border-top-left-radius: .5em;
@@ -250,12 +245,11 @@ export default class TriggerActionRandomEntry extends Vue {
 					align-self: stretch;
 					width: 1.75em;
 					padding: .25em;
-					margin-left: .5em;
 					object-fit: fill;
-					margin-right: .5em;
+					margin-left: .25em;
 				}
 				.label {
-					padding: .5em;
+					padding: .5em .25em;
 					word-break: break-all;
 					white-space: pre-wrap;
 					text-align: left;

@@ -2,7 +2,7 @@
 	<ToggleBlock :open="open" class="overlayparamscounter" :title="$t('overlay.counters.title')" :icons="['count']">
 		<div class="holder" v-if="counters.length == 0">
 			<p>{{ $t("overlay.counters.head_empty") }}</p>
-			<Button :title="$t('overlay.counters.createBt')" icon="add" @click="createCounter()" />
+			<Button icon="add" @click="createCounter()">{{ $t('overlay.counters.createBt') }}</Button>
 			<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
 			<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />
 		</div>

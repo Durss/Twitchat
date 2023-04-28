@@ -36,14 +36,12 @@
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
 			<div class="actions">
 				<Button :aria-label="$t('chat.message.automod_acceptBt_aria')"
-					:title="$t('chat.message.automod_acceptBt')"
 					@click.stop="modMessage(true)"
-					:loading="automodInProgress" />
+					:loading="automodInProgress">{{ $t('chat.message.automod_acceptBt') }}</Button>
 				<Button :aria-label="$t('chat.message.automod_rejectBt_aria')"
-				highlight
-					:title="$t('chat.message.automod_rejectBt')"
+					alert
 					@click.stop="modMessage(false)"
-					:loading="automodInProgress" />
+					:loading="automodInProgress">{{ $t('chat.message.automod_rejectBt') }}</Button>
 			</div>
 		</div>
 		
@@ -137,8 +135,8 @@
 		@click.stop="messageData.user.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
 
 		<div class="ctas" v-if="isAd">
-			<Button :title="$t('chat.message.disable_ad')" @click="disableAd()" icon="cross" />
-			<Button :title="$t('chat.message.customize_ad')" @click="openAdParams()" icon="edit" />
+			<Button @click="disableAd()" icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
+			<Button @click="openAdParams()" icon="edit">{{ $t('chat.message.customize_ad') }}</Button>
 		</div>
 	</div>
 

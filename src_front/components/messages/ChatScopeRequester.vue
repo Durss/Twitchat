@@ -16,8 +16,8 @@
 				</li>
 			</ul>
 
-			<Button class="grantBt" icon="lock_fit" :title="$t('chat.scope_request.grantBt')" @click="requestScopes()" white />
-			<Button class="filterBt" icon="filters" :title="$t('chat.scope_request.openFiltersBt')" @click="openFilters()" white />
+			<Button class="grantBt" icon="lock_fit" @click="requestScopes()">{{ $t('chat.scope_request.grantBt') }}</Button>
+			<Button class="filterBt" icon="filters" @click="openFilters()">{{ $t('chat.scope_request.openFiltersBt') }}</Button>
 		</div>
 	</div>
 </template>
