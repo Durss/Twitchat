@@ -226,7 +226,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		const idsScenesDone:{[key:string]:boolean} = {};
 		for (let i = 0; i < scenes.scenes.length; i++) {
 			const scene = scenes.scenes[i] as {sceneIndex:number, sceneName:string};
-			const list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
+			let list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
 			let items = (list.sceneItems as unknown) as OBSSourceItem[];
 			for (let i = 0; i < items.length; i++) {
 				const v = items[i];
@@ -236,6 +236,10 @@ export default class OBSWebsocket extends EventDispatcher {
 					continue;
 				}
 				idsSourceDone[v.sourceName] = true;
+				if(v.isGroup) {
+					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:v.sourceName});
+					items = items.concat( (res.sceneItems as unknown) as OBSSourceItem[] );
+				}
 				// if(v.sourceType == "OBS_SOURCE_TYPE_SCENE") {
 				// 	console.log("Scene:", v.sourceName);
 				// }
