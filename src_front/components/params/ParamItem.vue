@@ -262,6 +262,7 @@ export default class ParamItem extends Vue {
 	private file:unknown = {};
 	private errorLocal:boolean = false
 	private isLocalUpdate:boolean = false;
+	private childrenExpanded:boolean = false;
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -364,14 +365,14 @@ export default class ParamItem extends Vue {
 		});
 		
 		watch(() => this.paramData.children, (value) => {
-			this.buildChildren(true);
+			this.buildChildren();
 		});
 		
 		watch(() => this.file, () => {
 			console.log(this.file);
 		});
 		
-		this.buildChildren(true);
+		this.buildChildren();
 		
 		if(this.paramData.listValues && this.paramData.listValues.length > 0) {
 			//Check if the value is on the listValues.
@@ -494,8 +495,9 @@ export default class ParamItem extends Vue {
 		(this.$refs.vueSelect as any).typeAheadSelect();
 	}
 
-	private async buildChildren(isInit:boolean = false):Promise<void> {
+	private async buildChildren():Promise<void> {
 		if(this.paramData.value === false){
+			this.childrenExpanded = false;
 			if(this.children.length > 0 || this.$refs.param_child_slot) {
 				//Hide transition
 				let divs:HTMLDivElement[] = [];
@@ -506,12 +508,15 @@ export default class ParamItem extends Vue {
 					divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
 				}
 				gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05,
-						onComplete:()=> {
-							this.children = [];
-						}});
+					onComplete:()=> {
+						this.children = [];
+					}});
 			}
 			return;
 		}
+
+		if(this.childrenExpanded) return;
+		this.childrenExpanded = true;
 
 		const list = this.$store("params").$state;
 		let children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
@@ -533,7 +538,7 @@ export default class ParamItem extends Vue {
 		this.children = children;
 		await this.$nextTick();
 
-		if(isInit && (children.length > 0 || this.$refs.param_child_slot)){
+		if(children.length > 0 || this.$refs.param_child_slot){
 			//Show transitions
 			let divs:HTMLDivElement[] = [];
 			if(this.$refs.param_child_slot) {

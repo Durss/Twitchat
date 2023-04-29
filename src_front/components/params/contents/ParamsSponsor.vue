@@ -1,10 +1,11 @@
 <template>
 	<div class="paramssponsor">
-		<header>
-			<p v-for="i in $tm('sponsor.head')" v-html="i" ref="head"></p>
+		<header class="card-item" ref="head">
+			<img src="@/assets/icons/info.svg" alt="">
+			<p v-for="i in $tm('sponsor.head')" v-html="i"></p>
 		</header>
 
-		<div class="important" ref="instructions">
+		<div class="card-item secondary important" ref="instructions">
 			<i18n-t scope="global" keypath="sponsor.important_content1">
 				<template #LINK>
 					<a class="link" href="https://twitch.tv/durss" target="_blaink" type="link">{{ $t("sponsor.important_content1_link") }}</a>
@@ -126,6 +127,14 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 	header {
 		line-height: 1.5em;
+		p:first-of-type {
+			display: inline;
+		}
+		img {
+			height: 2em;
+			margin-right: .25em;
+			vertical-align: middle;
+		}
 	}
 	
 	.patrick {
@@ -166,11 +175,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 	}
 
 	.important {
-		color: var(--color-light);
-		background-color: var(--color-secondary);
-		font-size: .9em;
-		padding: 1em;
-		border-radius: .5em;
+		text-align: center;
 		line-height: 1.5em;
 
 		.link {

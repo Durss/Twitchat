@@ -74,7 +74,7 @@
 				<div class="automaticMessageHolder" ref="adNoDonor"></div>
 				<div class="automaticMessageHolder" ref="adDonor"></div>
 				<DonorState class="donorState" v-if="isDonor" />
-				<div v-else>flk,fk,s,klfsd</div>
+				<ParamsSponsor v-else />
 				<!-- <ParamsList :category="contentFeatures" ref="currentContent" /> -->
 			</div>
 		</div>
@@ -374,6 +374,12 @@ export default class Parameters extends Vue {
 			}
 		}
 	}
+	
+	.automaticMessageHolder {
+		&:empty {
+			display: none;
+		}
+	}
 
 	.menu {
 		height: 100%;
@@ -441,13 +447,16 @@ export default class Parameters extends Vue {
 			overflow: auto;
 			width: 100%;
 			&.default {
+				gap: 1em;
+				display: flex;
+				flex-direction: column;
 				.donorState {
 					margin-top: 1em;
 				}
 			}
 			&>* {
 				max-width: 600px;
-				margin: auto;
+				margin: 0 auto;
 			}
 		}
 	}

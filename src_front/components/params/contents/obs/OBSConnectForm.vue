@@ -76,7 +76,7 @@ export default class OBSConnectForm extends Vue {
 		if(pass) this.obsPass_conf.value = pass;
 		if(ip) this.obsIP_conf.value = ip;
 
-		if(port && pass) {
+		if(port && ip) {
 			this.connected = OBSWebsocket.instance.connected;
 		}
 
