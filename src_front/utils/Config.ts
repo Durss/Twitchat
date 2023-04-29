@@ -15,7 +15,7 @@ export default class Config {
 	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;
 	public IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10" && document.location.hostname.indexOf("ngrok") == -1;
 	public TWITCH_API_PATH = "https://api.twitch.tv/helix/";
-	public TWITCH_EVENTSUB_PATH = "wss://eventsub-beta.wss.twitch.tv/ws";
+	public TWITCH_EVENTSUB_PATH = "wss://eventsub.wss.twitch.tv/ws";
 	// public TWITCH_API_PATH = "http://localhost:8000/mock/";
 	// public TWITCH_EVENTSUB_PATH = "ws://localhost:8001/eventsub";
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
