@@ -39,6 +39,8 @@ export default class PublicAPI extends EventDispatcher {
 	 * Initializes the public API
 	 */
 	public initialize():void {
+		if(typeof BroadcastChannel == "undefined") return;
+		
 		this._bc = new BroadcastChannel("twitchat");
 
 		//If receiving data from another browser tab, broadcast it
