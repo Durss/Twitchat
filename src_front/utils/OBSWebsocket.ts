@@ -139,11 +139,28 @@ export default class OBSWebsocket extends EventDispatcher {
 		});
 
 		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
-			const res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
+			let res:{sceneItems: JsonObject[]} = {sceneItems:[]};
+			try {
+				res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
+			}catch(error) {
+				console.log("Failed loading scene item, try loading it as a group");
+				//If reaching this point it's most probably because the scene is
+				//actually a group.
+				//Let's try to load its content as a group.
+				try {
+					res = await this.obs.call("GetGroupSceneItemList", {sceneName:e.sceneName});
+				}catch(error){
+					//dunno what could have failed :/
+					console.log("Failed loading it a group as well :/");
+					console.log(error);
+				}
+			}
 			const items = (res.sceneItems as unknown) as OBSSourceItem[];
+			console.log("ITEMS", items);
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
 				if(item.sceneItemId == e.sceneItemId) {
+					console.log("TRIGGER", item, e);
 					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SOURCE_TOGGLE, {item, event:e} as unknown as JsonObject));
 					break;
 				}
@@ -403,20 +420,35 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sceneName 
 	 * @returns 
 	 */
-	public async getSourceOnCurrentScene(sourceName:string, sceneName = ""):Promise<{scene:string, source:OBSSourceItem}|null> {
+	public async getSourceOnCurrentScene(sourceName:string, sceneName = "", isGroup:boolean = false):Promise<{scene:string, source:OBSSourceItem}|null> {
 		if(!sceneName) {
 			const scene = await this.obs.call("GetCurrentProgramScene");
 			sceneName = scene.currentProgramSceneName;
 		}
-		const itemsCall = await this.obs.call("GetSceneItemList", {sceneName});
-		const items = (itemsCall.sceneItems as unknown) as OBSSourceItem[];
+		let items:OBSSourceItem[] = [];
+		if(isGroup) {
+			//Search grouped item
+			const res = await this.obs.call("GetGroupSceneItemList", {sceneName:sceneName});
+			items = (res.sceneItems as unknown) as OBSSourceItem[];
+		}else{
+			//Search scene item
+			const res = await this.obs.call("GetSceneItemList", {sceneName});
+			items = (res.sceneItems as unknown) as OBSSourceItem[];
+		}
 		const item = items.find(v=> v.sourceName == sourceName);
 		if(item) {
 			return {scene:sceneName, source:item};
 		}else{
+			//Item not found check on sub scenes and groups
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
-				if(!item.isGroup && item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+				if(item.isGroup) {
+					//Search on sub group
+					const res = await this.getSourceOnCurrentScene(sourceName, item.sourceName, true);
+					if(res) return res;
+				}else
+				//Search on sub scene
+				if(item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
 					const res = await this.getSourceOnCurrentScene(sourceName, item.sourceName);
 					if(res) return res;
 				}

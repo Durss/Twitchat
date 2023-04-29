@@ -1333,7 +1333,7 @@ export default class TriggerActionHandler {
 					 */
 					}else if(h.tag.toLowerCase().indexOf(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase()) == 0) {
 						const counterPH = h.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
-						const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
+						const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
 						if(counter) {
 							if(counter.perUser === true) {
 								//If it's a per-user counter, get the user's value
