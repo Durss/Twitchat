@@ -21,7 +21,7 @@
 						<PermissionsForm v-model="chatCommandPerms" />
 					</ToggleBlock>
 				</div>
-				<div class="item labeled">
+				<div class="card-item labeled">
 					<img src="@/assets/icons/mod.svg" alt="scene icon" class="icon">
 					<i18n-t scope="global" tag="p" keypath="emergency.start.also">
 						<template #LINK>
@@ -29,7 +29,7 @@
 						</template>
 					</i18n-t>
 				</div>
-				<div class="item">{{ $t("emergency.start.followbot_info") }}</div>
+				<div class="card-item">{{ $t("emergency.start.followbot_info") }}</div>
 			</section>
 
 			<section>
@@ -324,7 +324,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 
 		section {
 
-			.item {
+			.card-item {
 				&.labeled {
 					margin-bottom: .5em;
 					i {
@@ -342,32 +342,11 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 						display: inline;
 					}
 				}
-
-				.hasDurationChild {
-					:deep(.child) {
-						input {
-							flex-basis: 90px !important;
-						}
-					}
-				}
-
-				.chatCommand {
-					:deep(input) {
-						flex-basis:150px;
-					}
-				}
-				
-				&.twitchParams {
-					display: flex;
-					flex-direction: column;
-					gap: .5em
-				}
 			}
 		}
 	}
 
 	.sourceSelector {
-		padding-left: 1.5em;
 	}
 
 }

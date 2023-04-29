@@ -1553,7 +1553,7 @@ export default class MessageList extends Vue {
 	&:not(.alternateOdd) {
 		.messageHolder {
 			.subHolder:nth-child(even) {
-				background-color: var(--color-dark-light);
+				background-color: var(--color-light-fadest);
 			}
 		}
 	}
@@ -1561,7 +1561,7 @@ export default class MessageList extends Vue {
 	&.alternateOdd {
 		.messageHolder {
 			.subHolder:nth-child(odd) {
-				background-color: var(--color-dark-light);
+				background-color: var(--color-light-fadest);
 			}
 		}
 	}
@@ -1678,7 +1678,6 @@ export default class MessageList extends Vue {
 		background: var(--color-primary);
 		color: #fff;
 		white-space: nowrap;
-		font-size: .7em;
 		padding: .7em;
 		transition: background-color .25s;
 		transform-origin: bottom center;

@@ -19,27 +19,29 @@
 				<div class="item">{{ $t("voicemod.connect_failed") }}</div>
 			</section>
 
-			<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
-
-			<section v-if="connected">
-				<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
-				<div class="card-item">
-					<div class="item"><strong>{{ $t("voicemod.allowed_users") }}</strong></div>
-					<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />
-				</div>
-			</section>
-
-			<Splitter>{{ $t("voicemod.voices_title") }}</Splitter>
-
-			<section v-if="connected">
-				<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
-				<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
-					<template #LINK>
-						<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
-					</template>
-				</i18n-t>
-				<ParamItem class="item param shrinkInput" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
-			</section>
+			<template v-if="connected">
+				<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
+	
+				<section>
+					<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
+					<div class="card-item">
+						<div class="item"><strong>{{ $t("voicemod.allowed_users") }}</strong></div>
+						<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />
+					</div>
+				</section>
+	
+				<Splitter>{{ $t("voicemod.voices_title") }}</Splitter>
+	
+				<section>
+					<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
+					<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
+						<template #LINK>
+							<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
+						</template>
+					</i18n-t>
+					<ParamItem class="item param shrinkInput" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
+				</section>
+			</template>
 		</div>
 
 	</div>

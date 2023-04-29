@@ -9,9 +9,15 @@
 				<ParamItem class="item" :paramData="param_port" />
 				<ParamItem class="item" :paramData="param_secured" />
 		
-				<Button type="submit" v-if="!connected"
-					:loading="connecting"
-					:disabled="!canConnect">{{ $t('connexions.triggerSocket.connectBt') }}</Button>
+				<div class="ctas">
+					<Button type="reset" v-if="!connected" alert
+						@click="clearForm()"
+						:loading="connecting"
+						:disabled="!canConnect">{{ $t('connexions.triggerSocket.clearBt') }}</Button>
+					<Button type="submit" v-if="!connected"
+						:loading="connecting"
+						:disabled="!canConnect">{{ $t('connexions.triggerSocket.connectBt') }}</Button>
+				</div>
 			</form>
 	
 			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.triggerSocket.success") }}</div>
@@ -59,7 +65,6 @@ export default class ConnectWebsocket extends Vue {
 	}
 
 	public mounted():void {
-		
 		const paramsStr = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
 		if(paramsStr) {
 			let params = JSON.parse(paramsStr) as SocketParams;
@@ -89,6 +94,11 @@ export default class ConnectWebsocket extends Vue {
 			this.connecting = false;
 			this.error = true;
 		});
+	}
+
+	public clearForm():void {
+		DataStore.remove(DataStore.WEBSOCKET_TRIGGER);
+		WebsocketTrigger.instance.disconnect();
 	}
 
 	public disconnect():void {
@@ -135,6 +145,12 @@ export default class ConnectWebsocket extends Vue {
 				padding: .25em .5em;
 				border-radius: .5em;
 			}
+		}
+		.ctas {
+			gap: 1em;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
 		}
 	}
 	

@@ -929,11 +929,6 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	&.hasHeader {
-		color: #fff;
-		background-color: rgba(255, 255, 255, .15);
-		border-radius: .25em;
-		margin: .25em 0;
-		padding-top: 0;
 		&>.header {
 			display: flex;
 			flex-direction: row;

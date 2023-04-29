@@ -60,7 +60,7 @@
 				@click="scrollTo(u.user)"
 				:loading="buildOffset < index">
 					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
-			</Button>
+				</Button>
 			</template>
 		</div>
 
@@ -402,6 +402,12 @@ export default class EmoteSelector extends Vue {
 			width: 2em;
 			.avatar {
 				width: 100%;
+				border-radius: 50%;
+			}
+			&:hover {
+				.avatar {
+					filter: brightness(150%);
+				}
 			}
 		}
 	}

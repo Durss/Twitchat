@@ -35,18 +35,10 @@
 					</div>
 				</a>
 				<span class="translation" v-if="translateUsername">({{user.login}})</span>
-				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">ID: {{user.id}}</div>
+				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 			</div>
 			
 			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
-			
-			<div class="liveInfo" v-if="currentStream">
-				<div class="head">{{ $t("usercard.streaming") }}</div>
-				<div class="infos">
-					<div class="title">{{currentStream.title}}</div>
-					<div class="game">{{currentStream.game_name}}</div>
-				</div>
-			</div>
 
 			<div class="infoList">
 				<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date.svg" alt="account creation date" class="icon">{{createDate}}</div>
@@ -77,8 +69,18 @@
 				<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
 				<Button v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
 			</div>
+			
+			<div class="card-item secondary liveInfo" v-if="currentStream">
+				<div class="header">
+					<div class="title">{{ $t("usercard.streaming") }}</div>
+				</div>
+				<div class="infos">
+					<div class="title">{{currentStream.title}}</div>
+					<div class="game">{{currentStream.game_name}}</div>
+				</div>
+			</div>
 
-			<div class="description" v-if="userDescription">{{userDescription}}</div>
+			<div class="card-item description" v-if="userDescription">{{userDescription}}</div>
 			
 			<div class="scrollable">
 				<div class="card-item messages" v-if="messageHistory.length > 0">
@@ -503,6 +505,7 @@ export default class UserCard extends Vue {
 
 	&>.holder {
 		.center();
+		gap: 1em;
 		display: flex;
 		flex-direction: column;
 		position: absolute;
@@ -520,7 +523,6 @@ export default class UserCard extends Vue {
 			display: block;
 			width: 2em;
 			height: 2em;
-			margin-top: 1em;
 		}
 
 		.error, .warn {
@@ -532,7 +534,7 @@ export default class UserCard extends Vue {
 			flex-direction: column;
 			align-items: center;
 			width: calc(100% - 3em);
-			margin: .5em auto;
+			margin: 0 auto;
 			a {
 				text-decoration: none;
 			}
@@ -548,7 +550,6 @@ export default class UserCard extends Vue {
 					text-overflow: ellipsis;
 					overflow: hidden;
 					line-height: 1.2em;
-					color: var(--mainColor_normal);
 				}
 
 				.badge {
@@ -564,13 +565,12 @@ export default class UserCard extends Vue {
 			.live {
 				position: relative;
 				display: block;
-				background-color: var(--mainColor_alert);
-				color: var(--mainColor_light);
+				background-color: var(--color-alert);
+				color: var(--color-light);
 				font-weight: bold;
-				font-size: .5em;
+				font-size: .7em;
 				padding: .35em .75em;
 				border-radius: .5em;
-				margin-bottom: -1em;
 				width: min-content;
 				left: 50%;
 				transform: translate(-50%, -50%);
@@ -579,25 +579,22 @@ export default class UserCard extends Vue {
 			}
 
 			.subtitle {
-				font-size: .5em;
+				font-size: .7em;
 				cursor: copy;
 				z-index: 1;
-				margin-bottom: .5em;
-				background: var(--mainColor_light);
 			}
 
 			.avatar {
-				width: 3em;
-				height: 3em;
+				width: 5em;
+				height: 5em;
 				border-radius: 50%;
 				margin: auto;
 				display: block;
-				border: 1px solid var(--mainColor_normal);
 				transition: width .25s, height .25s, border-radius .25s;
 				&:hover {
-					width: 7em;
-					height: 7em;
-					border-radius: 0;
+					width: 10em;
+					height: 10em;
+					border-radius: 5px;
 				}
 			}
 		}
@@ -608,9 +605,8 @@ export default class UserCard extends Vue {
 			flex-wrap: wrap;
 			justify-content: center;
 			gap: .5em;
-			margin-bottom: .5em;
 			.info {
-				font-size: .7em;
+				font-size: .9em;
 				border-radius: .5em;
 				border: 1px solid var(--color-light);
 				padding: .25em .5em;
@@ -624,22 +620,9 @@ export default class UserCard extends Vue {
 
 		.liveInfo {
 			align-self: center;
-			margin-bottom: .5em;
-			.head {
-				color: var(--mainColor_light);
-				background-color: var(--mainColor_normal);
-				border-top-left-radius: .5em;
-				border-top-right-radius: .5em;
-				padding: .25em;
-				text-align: center;
-			}
+			flex-shrink: 0;
 			.infos {
-				padding: .5em;
 				font-size: .8em;
-				border: 1px solid var(--mainColor_normal);
-				border-bottom-left-radius: .5em;
-				border-bottom-right-radius: .5em;
-
 				.game {
 					font-style: italic;
 					font-size: .8em;
@@ -648,11 +631,8 @@ export default class UserCard extends Vue {
 		}
 
 		.modActions {
-			background-color: var(--mainColor_normal);
-			padding: .3em .5em;
-			border-radius: .5em;
+			margin: -.5em 0;
 			align-self: center;
-			margin-bottom: .5em;
 		}
 
 		.ctas {
@@ -664,9 +644,9 @@ export default class UserCard extends Vue {
 		}
 
 		.description {
+			flex-shrink: 0;
+			align-self: center;
 			text-align: center;
-			margin-top: 1em;
-			font-size: .8em;
 			&::before {
 				content: "“";
 				font-family: var(--font-nunito);
@@ -675,7 +655,6 @@ export default class UserCard extends Vue {
 				line-height: .25em;
 				vertical-align: text-bottom;
 				margin-right: .25em;
-				color:--mainColor_normal_extralight
 			}
 			&::after {
 				content: "”";
@@ -685,22 +664,26 @@ export default class UserCard extends Vue {
 				line-height: .25em;
 				margin-left: .25em;
 				vertical-align: text-bottom;
-				color:--mainColor_normal_extralight
 			}
 		}
 
 		.scrollable {
 			overflow-y: auto;
+			gap: 1em;
+			display: flex;
+			flex-direction: column;
+			.card-item {
+				flex-shrink: 0;
+			}
 		}
 
 		.followings, .messages {
-			margin-top: 1em;
 			display: flex;
 			flex-direction: column;
+			background-color: var(--color-dark);
 
 			&.messages {
 				.list {
-					background-color: var(--color-dark);
 					max-height: min(50vh, 300px);
 					overflow-y: auto;
 				}
