@@ -461,7 +461,7 @@ export default class NewUsers extends Vue {
 	.messageList {
 		overflow-y: auto;
 		flex-grow: 1;
-		background-color: var(--color-dark-fade);
+		background-color: var(--color-dark-fadest);
 		box-shadow: inset 0 2px 4px rgba(0, 0, 0, .3);
 		.message {
 			cursor: pointer;

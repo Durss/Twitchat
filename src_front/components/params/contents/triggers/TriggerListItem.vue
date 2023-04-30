@@ -63,7 +63,7 @@ export default class TriggerListItem extends Vue {
 .triggerlistitem{
 	
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-	background-color: var(--color-light-fader);
+	background-color: var(--color-light-fadest);
 	border-radius: .5em;
 	padding: 0;
 	display: flex;

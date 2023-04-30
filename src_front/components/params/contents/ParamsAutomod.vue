@@ -278,7 +278,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 					margin-top: calc(-.5em - 4px);
 					padding: .25em .5em;
 					width: calc(100% - 1.5em);
-					background-color: var(--color-secondary-fade);
+					background-color: var(--color-secondary-fadest);
 					border-bottom-left-radius: .5em;
 					border-bottom-right-radius: .5em;
 					word-wrap: break-word;

@@ -253,7 +253,7 @@ export default class PredictionState extends Vue {
 				@c: var(--color-secondary);
 				transition: background-size .2s;
 				background: linear-gradient(to right, @c 100%, @c 100%);
-				background-color: var(--color-secondary-fader);
+				background-color: var(--color-secondary-fadest);
 				background-repeat: no-repeat;
 				justify-content: space-between;
 				align-items: center;

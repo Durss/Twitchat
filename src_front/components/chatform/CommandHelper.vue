@@ -328,7 +328,7 @@ export default class CommandHelper extends Vue {
 	.commercial {
 		display: flex;
 		flex-direction: row;
-		justify-content: space-between;
+		margin: auto;
 		.cooldown {
 			max-width: 300px;
 			font-size: .8em;
@@ -346,7 +346,7 @@ export default class CommandHelper extends Vue {
 		}
 
 		.button:not(:last-child) {
-			border-right: 1px solid var(--color-light);
+			border-right: 1px solid var(--color-primary-extralight);
 		}
 
 		.button:not(:first-child):not(:last-child) {

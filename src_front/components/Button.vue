@@ -209,7 +209,7 @@ export default class Button extends Vue {
 	}
 
 	&.disabled {
-		cursor: no-drop;
+		cursor: not-allowed;
 		filter: brightness(70%) saturate(70%);
 		.label, .icon {
 			opacity: .35;

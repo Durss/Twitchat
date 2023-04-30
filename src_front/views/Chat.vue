@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="top" ref="top">
-			<div class="scrollable" ref="scrollable">
+			<div class="scrollable" ref="scrollable" @scroll="onScrollColumns()">
 				<div class="column" v-for="c in $store('params').chatColumnsConfig"
 				:ref="'column_'+c.id"
 				:key="c.id"
@@ -743,6 +743,13 @@ export default class Chat extends Vue {
 	}
 
 	/**
+	 * Called when user drags the columns left/right (up/down on vertical layout)
+	 */
+	public onScrollColumns():void {
+
+	}
+
+	/**
 	 * Called when the mouse moves
 	 */
 	private async onMouseMove(e:MouseEvent|TouchEvent|PointerEvent):Promise<void> {
@@ -1025,6 +1032,16 @@ export default class Chat extends Vue {
 		top: 0;
 		left: 0;
 		z-index: 2;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.chat{
+		.scrollable {
+			.column {
+				min-width: 100vw !important;
+			}
+		}
 	}
 }
 </style>

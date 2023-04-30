@@ -12,7 +12,7 @@
     "live_chat_less_aria": "afficher 1 message en moins",
     "conversation_closeBt_aria": "Fermer la fenêtre",
     "fake_tag": "fake",
-    "fake_tag_tt": "Ceci est un faux message.<br>Vous êtes seul·e à le voir.",
+    "fake_tag_tt": "Ceci est un faux message. Vous êtes seul·e à le voir.",
     "soBt": "Shoutout",
     "right_click_hint_highlight": "clic droit",
     "right_click_hint": "PogChamp PogChamp PogChamp Hey ! Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options !",
@@ -66,6 +66,7 @@
       "scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
       "whispers_permissions": "Filtrer les personnes autorisées",
       "show_panels_here": "Afficher \" @:greet.title \" dans cette colonne",
+	  "select_all":"Tout",
       "message_types": {
         "twitchat_ad": "Astuces Twitchat",
         "ban": "Bans",
@@ -111,8 +112,8 @@
       },
       "commands": "Masquer des commandes spécifiques",
       "commands_placeholder": "entrez une commande...",
-      "tracked_tt": "Messages envoyés par des personnes<br>pour lesquelles vous avez activé<br>le suivit de messages",
-      "short_tt": "Messages plus courts que 4 caractères<br>ou contenant principalement des emotes"
+      "tracked_tt": "Messages envoyés par des personnes pour lesquelles vous avez activé le suivit de messages",
+      "short_tt": "Messages plus courts que 4 caractères ou contenant principalement des emotes"
     },
     "shoutout": {
       "received": "{USER} vous a fait une dédicace auprès de {VIEWERS} viewers",
@@ -141,7 +142,7 @@
       "automod_rejectBt": "Refuser",
       "automod_rule": "Règle:",
       "announcement": "Annonce",
-      "occurrences": "Nombre de fois que<br>ce message a été envoyé",
+      "occurrences": "Nombre de fois que ce message a été envoyé",
       "no_follow": "Ne vous follow pas",
       "banned_in": " • Banni·e chez {CHANNELS}",
       "blocked_user": "Ce message a été envoyé par une personne bloquée. Cliquez pour afficher.",
@@ -150,7 +151,7 @@
       "clip_duration": "Durée:",
       "clip_views": "Vues:",
       "highlightBt_aria": "Mettre en avant",
-      "highlightBt_tt": "Afficher sur le stream<br><i>(nécessite l'overlay)</i>",
+      "highlightBt_tt": "Afficher sur le stream <i>(nécessite l'overlay)</i>",
       "deleted": "<message supprimé>",
       "deleted_by": "<message supprimé par {USER}>",
       "disable_ad": "Désactiver",
@@ -346,9 +347,9 @@
       "tooltip": {
         "raider": "Raider",
         "pinned": "Epinglé",
-        "new_user": "1er jour sur<br>votre chaîne",
-        "restrictedUser": "Message visible uniquement<br>par vous et vos modérateur·ices",
-        "suspiciousUser": "Personne marquée<br>comme suspecte"
+        "new_user": "1er jour sur votre chaîne",
+        "restrictedUser": "Message visible uniquement par vous et vos modérateur·ices",
+        "suspiciousUser": "Personne marquée comme suspecte"
       }
     },
     "scope_request": {

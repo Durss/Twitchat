@@ -366,7 +366,8 @@
 			"RETURNING_USER": {
 				"label": "Returning user",
 				"description": "Actions to execute when a user comes back after chatting at least twice in the last 30 days. {INFO}",
-				"description_info":"(ceci n'existe peut-être plus sur Twitch)"
+				"description_info":"(ceci n'existe peut-être plus sur Twitch)",
+				"disabled_reason":"Twitch restricted access to this information. Twitchat cannot use it anymore :("
 			},
 			"PRESENTATION": {
 				"label": "User presentation",

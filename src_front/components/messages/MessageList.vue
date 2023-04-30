@@ -1612,7 +1612,7 @@ export default class MessageList extends Vue {
 				flex-grow: 1;
 				&.empty {
 					font-style: italic;
-					color: var(--color-light-fade);
+					color: var(--color-light-fadest);
 					text-align: center;
 					font-style: italic;
 					width: 100%;
@@ -1640,7 +1640,7 @@ export default class MessageList extends Vue {
 		.selected {
 			width: 100%;
 			height: 100%;
-			background-color: var(--color-secondary-fade);
+			background-color: var(--color-secondary-fadest);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -1694,7 +1694,7 @@ export default class MessageList extends Vue {
 	}
 
 	.lockedLiveHolder {
-		background: var(--color-primary-fader);
+		background: var(--color-primary-fadest);
 		border-top: 1px solid fade(#000, 50%);
 		padding-top: .25em;
 

@@ -154,7 +154,7 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 	}
 	.usage {
 		margin-top: 1em;
-		background-color: var(--color-primary-fade);
+		background-color: var(--color-primary-fadest);
 		padding: .5em;
 		border-radius: .5em;
 		margin-left: 1.5em;

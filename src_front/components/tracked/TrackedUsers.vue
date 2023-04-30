@@ -175,7 +175,7 @@ export default class TrackedUsers extends AbstractSidePanel {
 			flex-direction: column;
 			flex-grow: 1;
 			.message:nth-child(odd) {
-				background-color: var(--color-dark-fade);
+				background-color: var(--color-dark-fadest);
 			}
 		}
 		.refreshBt {

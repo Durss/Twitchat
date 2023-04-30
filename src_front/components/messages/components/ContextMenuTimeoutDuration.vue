@@ -70,7 +70,7 @@ export default class ContextMenuTimeoutDuration extends Vue {
 			pointer-events: none;
 		}
 		opacity: .5;
-		cursor: no-drop;
+		cursor: not-allowed;
 	}
 
 	.field {

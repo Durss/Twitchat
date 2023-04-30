@@ -171,13 +171,13 @@ export default class ScopeSelector extends Vue {
 			width: 100%;
 			text-align: left;
 			border-radius: .5em;
-			background-color: var(--color-secondary-fade);
+			background-color: var(--color-secondary-fader);
 			padding: .25em;
 			opacity: .7;
 			transition: all .2s;
 			&.selected {
 				opacity: 1;
-				background-color: var(--color-primary-fade);
+				background-color: var(--color-primary);
 			}
 		}
 	}
@@ -186,9 +186,6 @@ export default class ScopeSelector extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
-		.item {
-			background-color: transparent;
-		}
 		.unlockIcon {
 			height: 2em;
 		}

@@ -737,7 +737,7 @@ export default class UserCard extends Vue {
 						&.common {
 							padding: .25em .5em;
 							border-radius: var(--border-radius);
-							background-color: var(--color-primary-fade);
+							background-color: var(--color-primary-fadest);
 						}
 	
 						.login {

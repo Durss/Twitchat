@@ -90,7 +90,7 @@ export default class TriggerActionChatEntry extends Vue {
 			border-radius: .5em;
 			cursor: pointer;
 			&:hover {
-				background-color: var(--color-dark-fade);
+				background-color: var(--color-dark-fadest);
 			}
 		}
 	}

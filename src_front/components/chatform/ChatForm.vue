@@ -1144,7 +1144,7 @@ export default class ChatForm extends Vue {
 				align-items: center;
 				white-space: nowrap;
 				color: var(--color-light);
-				background-color: var(--color-light-fader);
+				background-color: var(--color-light-fadest);
 				
 				border-radius: .5em;
 				font-size: .9em;

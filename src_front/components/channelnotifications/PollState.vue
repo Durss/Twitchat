@@ -144,7 +144,7 @@ export default class PollState extends Vue {
 			@c: fade(@mainColor_light, 15%);
 			transition: background-size .2s;
 			background: linear-gradient(to right, @c 100%, @c 100%);
-			background-color: var(--color-secondary-fader);
+			background-color: var(--color-secondary-fadest);
 			background-repeat: no-repeat;
 			justify-content: space-between;
 			&:not(:last-child) {

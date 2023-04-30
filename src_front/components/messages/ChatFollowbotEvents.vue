@@ -78,18 +78,18 @@ export default class ChatFollowbotEvents extends AbstractChatMessage {
 		.user {
 			padding: .25em .25em;
 			.login {
-				background-color: var(--color-dark-fader);
+				background-color: var(--color-dark-fadest);
 				padding: .1em .25em;
 				transition: background-color .1s;
 			}
 			&:nth-child(odd) {
 				.login {
-					background-color: var(--color-light-fader)
+					background-color: var(--color-light-fadest)
 				}
 			}
 			&:hover {
 				.login {
-					background-color: var(--color-dark-fade);
+					background-color: var(--color-dark-fadest);
 				}
 			}
 		}

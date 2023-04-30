@@ -47,7 +47,7 @@ export default class ButtonNotification extends Vue {
 	}
 
 	&:hover {
-		background-color: var(--color-light-fader);
+		background-color: var(--color-light-fadest);
 	}
 
 	.count {

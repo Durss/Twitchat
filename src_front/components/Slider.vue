@@ -1,11 +1,13 @@
 <template>
 	<div :class="classes" @pointerdown="onMouseDown" @wheel="onMouseWheel">
 		<input type="range" v-model.number="localValue" :min="min" :max="max" :step="step" @pointerdown.capture.stop="" @input="renderBar()">
+		<div class="gratuations" :style="gratuationsStyles"></div>
 		<div class="fill" :style="fillStyles"></div>
 	</div>
 </template>
 
 <script lang="ts">
+import { abs } from 'mathjs';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
@@ -30,7 +32,7 @@ export default class Slider extends Vue {
 	@Prop({type:Number, default: 0})
 	public min!:number;
 
-	@Prop({type:Number, default: 100})
+	@Prop({type:Number, default: 30})
 	public max!:number;
 
 	@Prop({type:Number, default: 1})
@@ -54,6 +56,14 @@ export default class Slider extends Vue {
 	public get fillStyles():StyleValue {
 		return {
 			width: (this.fillPercent * 100)+"%"
+		};
+	}
+
+	public get gratuationsStyles():StyleValue {
+		const ratio = Math.abs(this.max - this.min) / this.step;
+		if(ratio > 30) return {};
+		return {
+			backgroundSize: (100/ratio)+"% 50%",
 		};
 	}
 
@@ -132,11 +142,26 @@ export default class Slider extends Vue {
 	height: 1em;
 	position: relative;
 	width: 100%;
-	background-color: var(--color-primary-fader);
+	background-color: var(--color-primary-fadest);
 	border-radius: 1em;
 	touch-action: none;
 	cursor: pointer;
 	overflow: hidden;
+
+	.gratuations {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		@c2: var(--color-primary-light);
+		background: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+		background-size: 100% 50%;
+		background-repeat: repeat-x;
+		background-position: left center;
+		z-index: -1;
+	}
 	
 	.fill {
 		.emboss();
@@ -165,16 +190,24 @@ export default class Slider extends Vue {
 	}
 	
 	&.secondary {
-		background-color: var(--color-secondary-fader);
+		background-color: var(--color-secondary-fadest);
 		.fill {
 			background-color: var(--color-secondary);
+		}
+		.gratuations {
+			@c2: var(--color-secondary-light);
+			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
 		}
 	}
 	
 	&.alert {
-		background-color: var(--color-alert-fader);
+		background-color: var(--color-alert-fadest);
 		.fill {
 			background-color: var(--color-alert);
+		}
+		.gratuations {
+			@c2: var(--color-alert-light);
+			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
 		}
 	}
 }

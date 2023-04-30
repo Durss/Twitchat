@@ -62,7 +62,7 @@ export default class Sponsor extends Vue {
 	overflow: hidden;
 
 	.gradient {
-		background: linear-gradient(180deg, var(--color-primary-fade) 0%, var(--color-secondary-transparent) 100%);
+		background: linear-gradient(180deg, var(--color-primary-fadest) 0%, var(--color-secondary-transparent) 100%);
 		background-size: 100% 100vh;
 		background-repeat: no-repeat;
 		background-position: top center;

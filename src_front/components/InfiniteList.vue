@@ -324,7 +324,7 @@ interface IListItem {
 		right: 0;
 		height: 100%;
 		width: @scrollWidth;
-		background: var(--color-dark-fader);
+		background: var(--color-dark-fadest);
 		border-radius: 1em;
 		.scrollCursor {
 			position: absolute;

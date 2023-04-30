@@ -204,7 +204,7 @@ export default class TriggerActionRandomEntry extends Vue {
 			overflow: hidden;
 			color: var(--color-light);
 			border-radius: var(--border-radius);
-			background-color: var(--color-light-fader);
+			background-color: var(--color-light-fadest);
 			.action {
 				width: 1.5em;
 				min-width: 1.5em;

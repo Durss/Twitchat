@@ -471,12 +471,8 @@ export default class Home extends Vue {
 				flex-direction: row-reverse;
 
 				.screen {
-					&.clickToPlay:before {
-						transform: rotateY(-20deg) translate(-40%, -50%)
-					}
 					img, video {
-						transform: rotateY(-20deg) translate(-50%, -50%) scale(1);
-						transform-origin: right center;
+						transform: rotateY(-5deg) translate(-50%, -50%) scale(.9);
 					}
 				}
 			}
@@ -532,7 +528,7 @@ export default class Home extends Vue {
 					top: 50%;
 					left: 50%;
 					transition: all .5s;
-					transform: rotateY(20deg) translate(-70%, -50%)
+					transform: rotateY(0) translate(-50%, -50%)
 				}
 
 				&.clickToPlay {
@@ -545,8 +541,8 @@ export default class Home extends Vue {
 					width: 100%;
 					max-width: 500px;
 					border-radius: .5em;
-					transform: rotateY(20deg) translate(-50%, -50%) scale(.9);
-					transform-origin: left center;
+					transform: rotateY(5deg) translate(-50%, -50%) scale(.9);
+					transform-origin: center center;
 					// max-width: 500px;
 					transition: all .5s;
 					position: absolute;

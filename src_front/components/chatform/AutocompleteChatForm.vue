@@ -390,15 +390,15 @@ interface CommandItem {
 			}
 
 			&.admin {
-				background-color: var(--color-secondary-fader);
+				background-color: var(--color-secondary-fadest);
 
 				&.selected, &:hover {
-					background-color: var(--color-secondary-fade);
+					background-color: var(--color-secondary-fadest);
 				}
 			}
 
 			&.mod {
-				background-color: var(--color-primary-fader);
+				background-color: var(--color-primary-fadest);
 
 				&.selected, &:hover {
 					background-color: var(--color-primary);

@@ -116,7 +116,7 @@ export default class TriggerConditionListGroupItem extends Vue {
 		flex-grow: 1;
 		position: relative;
 		padding-left: 1.25em;
-		background-color: var(--color-ldark-fader);
+		background-color: var(--color-ldark-fadest);
 		border-left: 1px solid var(--mainColor_normal);
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px;

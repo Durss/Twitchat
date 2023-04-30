@@ -1,12 +1,12 @@
 {
 	"home":{
 		"info":"Made with 💘 by",
-		"head":"Twitchat is a full featured, free and open source chat alternative for streamers",
+		"head":"Alternative Twitch chat for streamers with lots of extra features for enhanced streaming comfort",
 		"openBt":"Open Twitchat",
 		"loginBt":"Log in with Twitch",
 		"streamdeckBt":"Stream Deck™ plugin",
 		"discordBt":"Join Discord",
-		"sponsorBt":"Feed me 🍔",
+		"sponsorBt":"Support me 💝",
 		"features":{
 			"title":"Features",
 			"list":[

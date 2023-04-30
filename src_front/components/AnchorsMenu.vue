@@ -116,7 +116,7 @@ export default class AnchorsMenu extends Vue {
 			flex-direction: row;
 			align-items: center;
 			border-radius: 10em;
-			background-color: var(--color-light-fader);
+			background-color: var(--color-light-fadest);
 			transition: background-color .25s;
 
 			.icon {

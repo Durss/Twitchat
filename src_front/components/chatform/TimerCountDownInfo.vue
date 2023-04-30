@@ -85,7 +85,7 @@ export default class TimerCountDownInfo extends Vue {
 		font-size: .9em;
 		padding: .35em;
 		border-radius: var(--border-radius);
-		background-color: var(--color-light-fader);
+		background-color: var(--color-light-fadest);
 		font-family: var(--font-roboto);
 		text-transform: uppercase;
 

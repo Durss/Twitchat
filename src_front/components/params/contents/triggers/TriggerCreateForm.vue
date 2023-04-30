@@ -56,7 +56,7 @@
 				<div v-for="e in c.events" :key="e.value" :class="e.beta? 'item beta' : 'item'">
 					<TTButton class="triggerBt" small
 						:disabled="disabledEntry(e)"
-						v-tooltip="disabledEntry(e)? $t('triggers.noChannelPoints_tt') : ''"
+						v-tooltip="disabledEntry(e)? $t(e.disabledReasonLabelKey ?? 'triggers.noChannelPoints_tt') : ''"
 						@click.capture="disabledEntry(e)? requestScope(e) : selectTriggerType(e)">
 						<template #icon>
 							<img :src="getIcon(e)">

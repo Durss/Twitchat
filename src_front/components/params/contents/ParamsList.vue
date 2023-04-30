@@ -88,6 +88,7 @@ import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 import type IParameterContent from './IParameterContent';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -110,7 +111,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
-	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected && false; }//TODO
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
 		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};
@@ -175,6 +176,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 	public isDisabled(p:TwitchatDataTypes.ParameterData<unknown>):boolean {
 		if(p.id == 212 && !this.isOBSConnected) return true;
+		if(!TwitchUtils.hasScopes(p.twitch_scopes ?? [])) return true;
 		return false;
 	}
 
@@ -186,7 +188,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public getClasses(p:TwitchatDataTypes.ParameterData<unknown>, key:string):string[] {
 		let res = ["item", key];
 		if(p.icon) res.push("hasIcon");
-		if(p.value === false) res.push("disabled");
+		if(p.value === false) res.push("off");
 		if(this.isDisabled(p)) res.push("disabled");
 		return res;
 	}
@@ -195,13 +197,13 @@ export default class ParamsList extends Vue implements IParameterContent {
 		this.$store("auth").requestTwitchScopes(scopes);
 	}
 
-	public async onShowItem(el:HTMLDivElement, done:()=>void):Promise<void> {
+	public async onShowItem(el:Element, done:()=>void):Promise<void> {
 		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", clearProps:"all", onComplete:()=>{
 			done();
 		}});
 	}
 
-	public onHideItem(el:HTMLDivElement, done:()=>void):void {
+	public onHideItem(el:Element, done:()=>void):void {
 		gsap.to(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
 			done();
 		}});
@@ -251,9 +253,17 @@ export default class ParamsList extends Vue implements IParameterContent {
 				background-color: var(--color-light-fader);
 			}
 
-			&.disabled {
+			&.off {
 				background-color: var(--color-dark-fade);
 			}
+
+			&.disabled {
+				background-color: var(--color-alert-fader);
+				:deep(label) {
+					opacity: .5;
+				}
+			}
+
 			
 
 			// @colorSize: .5em;
@@ -350,6 +360,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 					vertical-align: middle;
 				}
 				.grantBt {
+					display: flex;
 					margin: .5em auto;
 				}
 			}

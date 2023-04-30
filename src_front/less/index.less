@@ -35,22 +35,22 @@
 	// --color-select-transparent: fade(@color-select, 0%);
 	
 	--color-light-fade: fade(@color-light, 40%);
-	--color-dark-fade: fade(@color-dark, 40%);
-	--color-primary-fade: fade(@color-primary, 40%);
-	--color-secondary-fade: fade(@color-secondary, 40%);
-	--color-warn-fade: fade(@color-warn, 40%);
-	--color-alert-fade: fade(@color-alert, 40%);
-	// --color-select-fade: fade(@color-select, 40%);
+	--color-dark-fade: fade(@color-dark, 70%);
+	--color-primary-fade: fade(@color-primary, 70%);
+	--color-secondary-fade: fade(@color-secondary, 70%);
+	--color-warn-fade: fade(@color-warn, 70%);
+	--color-alert-fade: fade(@color-alert, 70%);
+	// --color-select-fade: fade(@color-select, 70%);
 	
-	--color-light-fader: fade(@color-light, 20%);
-	--color-dark-fader: fade(@color-dark, 20%);
-	--color-primary-fader: fade(@color-primary, 20%);
-	--color-secondary-fader: fade(@color-secondary, 20%);
-	--color-warn-fader: fade(@color-warn, 20%);
-	--color-alert-fader: fade(@color-alert, 20%);
-	// --color-select-fader: fade(@color-select, 20%);
+	--color-light-fader: fade(@color-light, 10%);
+	--color-dark-fader: fade(@color-dark, 40%);
+	--color-primary-fader: fade(@color-primary, 40%);
+	--color-secondary-fader: fade(@color-secondary, 40%);
+	--color-warn-fader: fade(@color-warn, 40%);
+	--color-alert-fader: fade(@color-alert, 40%);
+	// --color-select-fader: fade(@color-select, 40%);
 	
-	--color-light-fadest: fade(@color-light, 10%);
+	--color-light-fadest: fade(@color-light, 5%);
 	--color-dark-fadest: fade(@color-dark, 10%);
 	--color-primary-fadest: fade(@color-primary, 10%);
 	--color-secondary-fadest: fade(@color-secondary, 10%);
@@ -145,13 +145,13 @@ h1 {
 
 mark {
 	font-weight: bold;
-	background-color: var(--color-dark-fade);
+	background-color: var(--color-dark-fadest);
 	padding: .1em .25em;
 	border-radius: var(--border-radius);
 }
 
 .home-gradient-bg {
-	background: linear-gradient(180deg, var(--color-primary-fade) 0%, var(--color-secondary-transparent) 100%);
+	background: linear-gradient(180deg, var(--color-primary-fader) 0%, var(--color-secondary-transparent) 100%);
 	background-size: 100% 100vh;
 	background-repeat: no-repeat;
 	background-position: top center;
@@ -163,7 +163,7 @@ mark {
 }
 
 .tippy-box[data-theme~='twitchat'] {
-	@color: fade(@color-secondary, 50%);
+	@color: var(--color-secondary-fader);
     background-color: @color;
 	backdrop-filter: blur(5px);
 	text-shadow: 1px 1px 2px black;
@@ -260,7 +260,7 @@ mark {
 
 *::-webkit-scrollbar-track {
 	background: transparent;
-	background-color: var(--color-dark-fade);
+	background-color: var(--color-dark-fadest);
 }
 
 *::-webkit-scrollbar-thumb {

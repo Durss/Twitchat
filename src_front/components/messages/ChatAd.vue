@@ -83,7 +83,7 @@
 						<template #LINK><a @click="openParamPage(contentAbout)">{{ $t('chat.donor.info_2_link') }}</a></template>
 					</i18n-t>
 					<div>{{ $t('chat.donor.info_3') }}</div>
-					<div v-if="madeDonationPublic">
+					<div class="card-item" v-if="madeDonationPublic">
 						<div>{{ $t('chat.donor.thanks') }}</div>
 						<i18n-t scope="global" tag="div" keypath="chat.donor.thanks_change">
 							<template #LINK><a @click="openParamPage(contentAccount)">{{ $t('chat.donor.thanks_change_link') }}</a></template>

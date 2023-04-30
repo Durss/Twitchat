@@ -7,7 +7,9 @@
 					<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 				</div>
 			
-				<div class="automaticMessageHolder" ref="adNoDonor"></div>
+				<div class="automaticMessageHolder" v-if="!isDonor">
+					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+				</div>
 
 				<div class="buttonList" v-if="content != contentAd">
 					<div class="search">
@@ -30,7 +32,9 @@
 					<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
 				</div>
 
-				<div class="automaticMessageHolder" ref="adDonor"></div>
+				<div class="automaticMessageHolder" v-if="isDonor">
+					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+				</div>
 
 				<mark class="version" v-if="content != contentAd">v {{appVersion}}</mark>
 			</div>
@@ -71,17 +75,13 @@
 
 			<!-- default content for large screen -->
 			<div class="content default" v-else>
-				<div class="automaticMessageHolder" ref="adNoDonor"></div>
-				<div class="automaticMessageHolder" ref="adDonor"></div>
+				<div class="automaticMessageHolder">
+					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+				</div>
 				<DonorState class="donorState" v-if="isDonor" />
 				<ParamsSponsor v-else />
-				<!-- <ParamsList :category="contentFeatures" ref="currentContent" /> -->
 			</div>
 		</div>
-
-		<teleport :to="adTarget" v-if="adTarget">
-			<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
-		</teleport>
 	</div>
 </template>
 
@@ -142,7 +142,6 @@ import DonorState from '../user/DonorState.vue';
 export default class Parameters extends Vue {
 
 	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
-	public adTarget:HTMLDivElement | null = null;
 	
 	private closed:boolean = true;
 	private closing:boolean = false;
@@ -215,11 +214,6 @@ export default class Parameters extends Vue {
 			else this.close();
 
 			if(value != TwitchatDataTypes.ParameterPages.MAIN_MENU) this.filteredParams = [];
-			if(value == TwitchatDataTypes.ParameterPages.MAIN_MENU || value == this.contentAd) {
-				this.$nextTick().then(()=>{
-					this.adTarget = this.$refs[this.isDonor? "adDonor" : "adNoDonor"] as HTMLDivElement;
-				});
-			}
 		});
 
 		watch(() => this.$store("params").currentParamSearch, (value:string) => {
@@ -245,8 +239,6 @@ export default class Parameters extends Vue {
 		gsap.killTweensOf(ref);
 		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out"});
 		gsap.fromTo(ref, {scaleX:1.1}, {duration:.5, delay:.3, scaleX:1, clearProps:"scaleX,translateX", ease:"elastic.out(1)"});
-
-		this.adTarget = this.$refs[this.isDonor? "adDonor" : "adNoDonor"] as HTMLDivElement;
 
 		if(this.search) {
 			await this.$nextTick();
@@ -499,6 +491,7 @@ export default class Parameters extends Vue {
 		}
 		.menu {
 			border: none;
+			width: 100%;
 			.head {
 				display:flex;
 				.title {
@@ -506,7 +499,8 @@ export default class Parameters extends Vue {
 				}
 			}
 			.automaticMessageHolder {
-				display: block;
+				display: block !important;
+				margin: 0 auto;
 			}
 			.search {
 				display: none;
@@ -516,8 +510,9 @@ export default class Parameters extends Vue {
 				flex-direction: row;
 				flex-wrap: wrap;
 				justify-content: center;
-				gap: 10px;
+				gap: 4px;
 				width: 100%;
+				margin: auto;
 				&>.button {
 					width: 180px;
 					flex-direction: column;
@@ -530,9 +525,9 @@ export default class Parameters extends Vue {
 						width: 2em;
 						max-height: unset;
 						max-width: unset;
-						margin: 0 0 .5em 0;
 						object-fit: fill;
 						object-position: center center;
+						margin: 0 0 .5em 0;
 					}
 					:deep(.label) {
 						white-space: normal;
@@ -559,19 +554,21 @@ export default class Parameters extends Vue {
 	}
 }
 
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 410px) {
 	.parameters {
 		.menu {
 			margin: 0 auto;
 			.buttonList {
 				flex-direction: column;
 				flex-wrap: nowrap;
+				max-width: 250px;
 				&>.button {
 					width: unset;
 					flex-direction: unset;
 					:deep(.icon) {
 						height: 1em;
 						width: 1em;
+						margin: 0;
 					}
 				}
 			}

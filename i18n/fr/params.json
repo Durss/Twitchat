@@ -22,7 +22,7 @@
 		"showUserPronouns_based_on": "basé sur {URL1} et {URL2}",
 		"chatShoutout": "Message de shoutout",
 		"chatShoutout_info": "Envoyer ce message lorsque vous effectuez un shoutout",
-		"scope_missing": "Nécessite une autorisation Twitch supplémentaire",
+		"scope_missing": "Nécessite une autorisation Twitch manquante",
 		"chatShoutout_placeholders": {
 			"user": "Nom de la chaîne",
 			"user_link": "URL de la chaîne",

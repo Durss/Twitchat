@@ -25,7 +25,7 @@
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
 					v-model="paramData.value"
 					:secondary="secondary"
-					:alert="alert"
+					:alert="alert || errorLocal"
 					:id="'toggle'+key" />
 			</div>
 			
@@ -99,7 +99,7 @@
 					class="helpIcon"
 				>
 				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
-				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value" :secondary="secondary" :alert="alert" />
+				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value" :secondary="secondary" :alert="alert || errorLocal" />
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
@@ -148,7 +148,7 @@
 				</vue-select>
 				<button class="listSubmitBt"
 				:secondary="secondary"
-				:alert="alert"
+				:alert="alert || errorLocal"
 				@click="submitListItem()" v-if="searching"
 				><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
 			</div>
@@ -170,7 +170,7 @@
 					class="browseBt"
 					type="file"
 					:secondary="secondary"
-					:alert="alert"
+					:alert="alert || errorLocal"
 					:accept="paramData.accept?paramData.accept:'*'"
 					icon="upload"
 				/>
@@ -189,12 +189,13 @@
 			:key="'child_'+index+c.id"
 			:paramData="c"
 			:secondary="secondary"
-			:alert="alert"
+			:alert="alert || errorLocal"
 			noBackground
 			:childLevel="childLevel+1" />
 
-		<div class="child" ref="param_child_slot" v-if="$slots.default">
+		<div class="child" ref="param_child_slot" v-if="$slots.default || $slots.child">
 			<slot></slot>
+			<slot name="child"></slot>
 		</div>
 
 		<div class="card-item alert errorMessage" v-if="(error && errorMessage) || paramData.errorMessage">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
@@ -258,9 +259,9 @@ export default class ParamItem extends Vue {
 	public key:string = Math.random().toString();
 	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
+	public errorLocal:boolean = false
 
 	private file:unknown = {};
-	private errorLocal:boolean = false
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
 
@@ -271,11 +272,11 @@ export default class ParamItem extends Vue {
 			if(this.paramData.value === false) res.push("unselected");
 		}
 		if(this.errorLocal !== false) res.push("error");
+		else if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) res.push("error");
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
-		if(this.paramData.disabled || this.disabled == true
-		|| (this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes))) res.push("disabled");
+		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -339,7 +340,7 @@ export default class ParamItem extends Vue {
 	}
 
 	public beforeMount(): void {
-		this.errorLocal = this.error || this.paramData.error === true;
+		this.setErrorState(this.error || this.paramData.error === true);
 	}
 
 	public mounted():void {
@@ -357,11 +358,11 @@ export default class ParamItem extends Vue {
 		watch(() => this.paramData.value, this.onEdit);
 		
 		watch(() => this.paramData.error, ()=>{
-			this.errorLocal = this.paramData.error === true;
+			this.setErrorState(this.paramData.error === true);
 		});
 		
 		watch(() => this.error, ()=>{
-			this.errorLocal = this.error === true;
+			this.setErrorState(this.error === true);
 		});
 		
 		watch(() => this.paramData.children, (value) => {
@@ -400,7 +401,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.twitch_scopes) {
 			if(TwitchUtils.hasScopes(this.paramData.twitch_scopes)) return;
 			this.paramData.value = false;
-			this.errorLocal = false;
+			this.setErrorState(false);
 			event.stopPropagation();
 			this.$store("auth").requestTwitchScopes(this.paramData.twitch_scopes);
 		}
@@ -555,6 +556,14 @@ export default class ParamItem extends Vue {
 		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
 		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
 	}
+
+	private setErrorState(state:boolean) {
+		if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) {
+			this.errorLocal = true;
+		}else{
+			this.errorLocal = state;
+		}
+	}
 }
 </script>
 
@@ -578,20 +587,9 @@ export default class ParamItem extends Vue {
 		position: absolute;
 		filter: blur(5px);
 		pointer-events: none;
-		background-color: var(--color-light-fader);
-		background: linear-gradient(170deg, var(--color-light-fader) 0%, var(--color-light-transparent) 100%);
+		background-color: var(--color-light-fadest);
+		background: linear-gradient(170deg, var(--color-light-fadest) 0%, var(--color-light-transparent) 100%);
 		transition: opacity .1s;
-	}
-	
-	&.error {
-		padding: .5em;
-		border-radius: var(--border-radius);
-		background-color: var(--color-alert-fade);
-		.errorMessage {
-			font-size: .9em;
-			margin-top: .5em;
-			text-align: center;
-		}
 	}
 
 	&.longText {
@@ -620,16 +618,30 @@ export default class ParamItem extends Vue {
 		}
 	}
 
-	&.disabled {
+	&.disabled:not(.error) {
 		filter: grayscale();
-		cursor: default;
+		cursor: unset;
 		.toggleButton, input, textarea, label {
 			pointer-events: none;
 		}
 	}
+	
+	&.error {
+		cursor: not-allowed;
+		background-color: var(--color-alert-fader) !important;
+		.errorMessage {
+			font-size: .9em;
+			margin-top: .5em;
+			text-align: center;
+		}
+		label {
+			opacity: .5;
+			cursor: unset !important;
+		}
+	}
 
 	&.unselected {
-		background-color: var(--color-dark-fade);
+		background-color: var(--color-dark-fader);
 	}
 	
 	.content {
@@ -733,14 +745,13 @@ export default class ParamItem extends Vue {
 			flex-direction: column;
 			input {
 				flex-basis: unset;
-				-webkit-appearance: none;
+				appearance: none;
 				width: 100%;
 				height: 1em;
 				background: transparent;
-  				background: linear-gradient(90deg, var(--color-dark-light) 50%, var(--color-dark-fader) 50%);
+  				background: linear-gradient(90deg, var(--color-dark-light) 50%, var(--color-dark-fadest) 50%);
 				&::-webkit-slider-thumb {
 					.emboss();
-					-webkit-appearance: none;
 					appearance: none;
 					width: 1em;
 					height: 1em;

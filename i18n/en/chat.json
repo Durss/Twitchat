@@ -12,7 +12,7 @@
 		"live_chat_less_aria": "show 1 less message",
 		"conversation_closeBt_aria": "close conversation",
 		"fake_tag": "fake",
-		"fake_tag_tt": "This is a fake message.<br>Only you can see it.",
+		"fake_tag_tt": "This is a fake message. Only you can see it.",
 		"soBt": "Shoutout",
 		"right_click_hint_highlight":"right clicking",
 		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Try @:chat.right_click_hint_highlight on this message to discover lots of options!",
@@ -65,6 +65,7 @@
 			"scope_missing": "Needs missing authorization. Click to grant permission.",
 			"whispers_permissions": "Filter allowed users",
 			"show_panels_here":"Show \" @:greet.title \" on this column",
+			"select_all":"All",
 			"message_types": {
 				"twitchat_ad": "Twitchat tips & tricks",
 				"ban": "Bans",
@@ -110,8 +111,8 @@
 			},
 			"commands": "Hide specific commands",
 			"commands_placeholder": "type command...",
-			"tracked_tt": "Messages sent by viewers<br>you added to the tracked users",
-			"short_tt": "Messages shorter than 4 chars<br>or containing mostly emotes"
+			"tracked_tt": "Messages sent by viewers you added to the tracked users",
+			"short_tt": "Messages shorter than 4 chars or containing mostly emotes"
 		},
 		"shoutout": {
 			"received": "{USER} gave you a shoutout to {VIEWERS} viewers",
@@ -149,7 +150,7 @@
 			"clip_duration": "Duration:",
 			"clip_views": "Views:",
 			"highlightBt_aria": "Highlight message",
-			"highlightBt_tt": "Show on stream<br><i>(needs overlay)</i>",
+			"highlightBt_tt": "Show on stream <i>(needs overlay)</i>",
 			"deleted": "<message deleted>",
 			"deleted_by": "<message deleted by {USER}>",
 			"disable_ad":"Disable",
@@ -345,8 +346,8 @@
 			"tooltip": {
 				"raider": "Raider",
 				"pinned": "Pinned",
-				"new_user": "First day on<br>your channel",
-				"restrictedUser": "Message only visible by<br>you and your mods",
+				"new_user": "First day on your channel",
+				"restrictedUser": "Message only visible by you and your mods",
 				"suspiciousUser": "User is flaged as suspicious"
 			}
 		},

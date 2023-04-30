@@ -155,7 +155,7 @@ export default class ShoutoutList extends Vue {
 				cursor: grabbing;
 			}
 			&:hover {
-				background-color: var(--color-light-fader);
+				background-color: var(--color-light-fadest);
 			}
 			.drag {
 				height: .7em;

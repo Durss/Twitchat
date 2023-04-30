@@ -22,7 +22,7 @@
 		"showUserPronouns_based_on": "based on {URL1} and {URL2}",
 		"chatShoutout": "Chat message shoutout",
 		"chatShoutout_info": "Send this message when doing a shoutout",
-		"scope_missing": "This feature need you to grant access to a specific Twitch data",
+		"scope_missing": "Needs a missing Twitch permission",
 		"chatShoutout_placeholders": {
 			"user": "User name",
 			"user_link": "User channel URL",
