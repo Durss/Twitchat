@@ -4,13 +4,12 @@
 		"title":"💡 Tips & tricks 💡",
 		"alerts": {
 			"title": "Create your own alerts",
-			"info_1": "With Twitchat you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources and filters.",
-			"info_2": "Add texts, images, videos or sounds on your OBS scene and let Twitchat control them when a specific event occurs. Twitchat can update text sources content with values like the subscriber's name."
+			"info_1": "With Twitchat you can create your own sub/follow/reward/poll/... alerts by controling your OBS sources, their content and their filters."
 		},
 		"streamdeck": {
 			"title": "Stream Deck™ plugin",
 			"info_1": "Twitchat can be controlled from your Stream Deck™.",
-			"info_2": "You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button."
+			"info_2": "You can pause the chat, scroll it, mark messages as read, moderate, pin and highlight messages, open poll/prediction/bingo/raffle state and much more with the push of a button."
 		},
 		"obs_stop": {
 			"title": "Stop your stream on raid",
@@ -22,9 +21,8 @@
 		},
 		"raffle": {
 			"title": "Create a raffle",
-			"info_1": "You can create a raffle in which your viewers can enter by sending a command on chat.",
-			"info_2": "You can then randomly pick one of them.",
-			"info_3": "There's also an option to randomly pick one of your current subscribers/subgifters."
+			"info_1": "Create a raffle your viewers can enter using a chat command or a channel point reward.",
+			"info_2": "A Twitchat overlay can show an animated wheel when picking a winner."
 		},
 		"obs": {
 			"title": "Control OBS from chat",
@@ -39,9 +37,8 @@
 		},
 		"music": {
 			"title": "Control music",
-			"info_1": "Twitchat provides a <strong>Spotify</strong> integration.",
-			"info_2": "This allows you to display the track currently playing on your stream as well as give your viewers control over the playback.",
-			"info_3": "You can create your own song request system."
+			"info_1": "Link Twitchat with Spotify to display the currently playing track on your stream as well as giving your viewers control over the playback from chat or channel point rewards.",
+			"info_2": "You can even create your own song request system!"
 		},
 		"overlays": {
 			"title": "Twitchat overlays",

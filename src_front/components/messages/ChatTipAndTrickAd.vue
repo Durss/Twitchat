@@ -1,10 +1,9 @@
 <template>
-	<div class="chattipandtrickad">
+	<div class="chattipandtrickad" @contextmenu="onRightClick($event)">
 		<div v-if="tipIndex===0" class="entry">
 			<img src="@/assets/icons/obs.svg" alt="elgato" class="icon">
 			<h1>{{ $t("tips.alerts.title") }}</h1>
 			<div>{{ $t("tips.alerts.info_1") }}</div>
-			<div>{{ $t('tips.alerts.info_2') }}</div>
 			<Button @click.stop="openParamPage(contentTriggers)" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
@@ -35,7 +34,6 @@
 			<h1>{{ $t('tips.raffle.title') }}</h1>
 			<div>{{ $t('tips.raffle.info_1') }}</div>
 			<div>{{ $t('tips.raffle.info_2') }}</div>
-			<div>{{ $t('tips.raffle.info_3') }}</div>
 			<Button @click.stop="openModal('raffle')" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
@@ -53,7 +51,6 @@
 			<div>{{ $t('tips.api.info_1') }}</div>
 			<div>{{ $t('tips.api.info_2') }}</div>
 			<Button icon="github"
-				style="display: inline-block;"
 				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
 				target="_blank"
 				type="link">{{ $t('tips.api.readBt') }}</Button>
@@ -64,7 +61,6 @@
 			<h1>{{ $t('tips.music.title') }}</h1>
 			<div v-html="$t('tips.music.info_1')"></div>
 			<div>{{ $t('tips.music.info_2') }}</div>
-			<div>{{ $t('tips.music.info_3') }}</div>
 			<Button @click.stop="openParamPage(contentConnexions)" >{{ $t('tips.tryBt') }}</Button>
 		</div>
 		
@@ -80,8 +76,8 @@
 			<img src="@/assets/icons/countdown.svg" alt="timer" class="icon">
 			<h1>{{ $t('tips.countdown.title') }}</h1>
 			<i18n-t scope="global" tag="div" keypath="tips.countdown.info_1">
-				<template #CMD1><span class="cmd">/timerStart</span></template>
-				<template #CMD2><span class="cmd">/countdown</span></template>
+				<template #CMD1><mark class="cmd">/timerStart</mark></template>
+				<template #CMD2><mark class="cmd">/countdown</mark></template>
 			</i18n-t>
 			<Button icon="timer" @click.stop="startTimer()">{{ $t('tips.countdown.timer_tryBt') }}</Button>
 			<Button icon="countdown" @click.stop="startCountdown()">{{ $t('tips.countdown.countdown_tryBt') }}</Button>
@@ -126,7 +122,7 @@ export default class ChatTipAndTrickAd extends Vue {
 	private maxIndex = 11;
 
 	public get contentOverlays() { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
-	public get contentChatHighlight() { return TwitchatDataTypes.ParamOverlaySections.HIGHLIGHT; }
+	public get contentChatHighlight() { return TwitchatDataTypes.ParamDeepSections.HIGHLIGHT; }
 	public get contentConnexions() { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get contentTriggers() { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 	public get contentObs() { return TwitchatDataTypes.ParameterPages.OBS; }
@@ -141,7 +137,14 @@ export default class ChatTipAndTrickAd extends Vue {
 	public startTimer():void { this.$store("timer").timerStart(); }
 	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
 	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
-	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamOverlaySectionsStringType|TwitchatDataTypes.ConnexionSectionsStringType):void { this.$store("params").openParamsPage(page, subContent); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store("params").openParamsPage(page, subContent); }
+
+	public onRightClick(e:MouseEvent):void {
+		if(e.ctrlKey) {
+			e.preventDefault();
+			this.tipIndex = (this.tipIndex + 1)%(this.maxIndex+1)
+		}
+	}
 }
 </script>
 
@@ -158,13 +161,6 @@ export default class ChatTipAndTrickAd extends Vue {
 			margin-bottom: .5em;
 		}
 
-		.cmd {
-			background-color: fade(@mainColor_normal, 15%);
-			border-radius: .5em;
-			padding: 0 .5em;
-			font-family: 'Courier New', Courier, monospace;
-		}
-		
 		img {
 			max-width: 100%;
 		}
@@ -182,6 +178,9 @@ export default class ChatTipAndTrickAd extends Vue {
 
 		.or {
 			text-transform: uppercase;
+		}
+		.button {
+			font-size: 1rem;
 		}
 	}
 }

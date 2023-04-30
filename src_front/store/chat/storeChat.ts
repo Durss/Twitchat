@@ -586,6 +586,22 @@ export const storeChat = defineStore('chat', {
 			} );
 		},
 
+		sendRightClickHint():void {
+			StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
+				const m = message as TwitchatDataTypes.MessageChatData;
+				const str = StoreProxy.i18n.t("chat.right_click_hint");
+				const chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);
+				//Highlight word
+				TwitchUtils.highlightChunks( chunks, [StoreProxy.i18n.t("chat.right_click_hint_highlight")]);
+				m.message = str;
+				m.message_chunks = chunks;
+				m.message_html = TwitchUtils.messageChunksToHTML(chunks)
+				m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
+				m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat.svg`, import.meta.url).href;
+				m.user.color = "#bb8eff";
+			});
+		},
+
 		
 		async addMessage(message:TwitchatDataTypes.ChatMessageTypes) {
 			const sParams = StoreProxy.params;

@@ -1,5 +1,6 @@
 {
 	"connexions":{
+		"header":"Connectez Twitchat avec des applications tièrces",
 		"spotify":{
 			"refused":"Malheureusement, <strong>Spotify refuse</strong> à Twitchat d'utiliser leur API.",
 			"how_to":"Pour lier Twitchat à Spotify, {URL} et remplis les valeurs ci-dessous :",

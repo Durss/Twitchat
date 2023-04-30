@@ -239,8 +239,8 @@
       "title": "{WINNER} a remporté le bingo avec la réponse {ANSWER}"
     },
     "sponsor": {
-      "title": "🍔 J'aime manger 🍔",
-      "head": "Tu apprécies Twitchat ?<br>Ca m'a pris presque <strong>1 an</strong> de travail bénévole à temps plein pour le créer.<br>Je le mets gratuitement à disposition mais, <strong>si tu peux te le permettre</strong> un don me nourrira et emerveillera ma journée !",
+      "title": "💝 Me soutenir 💝",
+      "head": "Tu apprécies Twitchat ?<br>Ca m'a pris <strong>plus d'un an</strong> de travail sans revenus à temps plein pour le créer.<br>Je le mets gratuitement à disposition mais, <strong>si tu peux te le permettre</strong> un don me nourrira et emerveillera ma journée !",
       "tipBt_aria": "Voir les options de dons",
       "tipBt": "🌞 Emerveiller ma journée 🌞"
     },
@@ -273,10 +273,10 @@
       "info_1": "Merci encore pour ton soutien au travers de ton don.",
       "info_2": "Une liste de toutes les personnes ayant fait un don est disponible dans la {LINK}",
       "info_2_link": "section À propos",
-      "info_3": "Par défaut les dons sont anonymes mais tu peux le rendre publique !",
+      "info_3": "Par défaut les dons sont anonymes mais tu peux rendre tien public !",
       "thanks": "Merci ❤.",
-      "thanks_change": "Tu peux changer ceci à tout moment dans la {LINK}",
-      "thanks_change_link": "section À propos",
+      "thanks_change": "Tu peux changer d'avis à tout moment dans la {LINK}",
+      "thanks_change_link": "section Mon compte",
       "publicBt": "Rendre mon don public",
       "close_confirm": {
         "info_1": "Es-tu sûr·e d'avoir lu le message ?",

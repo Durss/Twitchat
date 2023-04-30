@@ -164,6 +164,7 @@ export default class Button extends Vue {
 	color: var(--color-light);
 	transition: filter .15s, transform .1s;
 	user-select: none;
+	text-decoration: none !important;
 
 	.clickArea {
 		position: absolute;

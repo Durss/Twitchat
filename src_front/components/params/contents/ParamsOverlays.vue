@@ -82,9 +82,7 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 
 	public onNavigateBack(): boolean { return false; }
 
-	public get subContent():TwitchatDataTypes.ParamOverlaySectionsStringType {
-		return (this.$store("params").currentPageSubContent) as TwitchatDataTypes.ParamOverlaySectionsStringType;
-	}
+	public get subContent() { return this.$store("params").currentPageSubContent; }
 
 }
 </script>

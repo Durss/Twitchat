@@ -179,11 +179,19 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 <style scoped lang="less">
 .paramsaccount{
 	.profilePic {
+		.emboss();
+		overflow: hidden;
+		border-radius: 50%;
 		img {
 			height: 5em;
 			width: 5em;
-			display: block;
-			border-radius: 50%;
+			transition: all .25s;
+		}
+		&:hover {
+			img {
+				height: 10em;
+				width: 10em;
+			}
 		}
 	}
 

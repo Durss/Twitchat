@@ -1,10 +1,12 @@
 <template>
 	<div class="chatad chatMessage">
 		<div class="innerHolder">
-			<div v-if="isSponsor" class="sponsor">
-				<div class="title">{{ $t('chat.sponsor.title') }}</div>
+			<div v-if="isSponsor" class="card-item primary sponsor">
+				<div class="header">
+					<div class="title">{{ $t('chat.sponsor.title') }}</div>
+				</div>
 				<div class="content" v-html="$t('chat.sponsor.head')"></div>
-				<div class="cta">
+				<div class="ctas">
 					<img @click.stop="openParamPage(contentSponsor)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
 					
 					<Button :aria-label="$t('chat.sponsor.tipBt_aria')"
@@ -12,13 +14,11 @@
 				</div>
 			</div>
 	
-			<div v-else-if="isUpdate" class="updates">
-				<Button class="closeBt"
-					:aria-label="$t('changelog.closeBt_aria')"
-					@click.stop="deleteMessage()"
-					icon="cross" />
-
-				<div class="title">{{ $t('changelog.title') }}</div>
+			<div v-else-if="isUpdate" class="card-item primary updates">
+				<div class="header">
+					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title">{{ $t('changelog.title') }}</div>
+				</div>
 
 				<ChatChangelog class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
@@ -26,22 +26,26 @@
 				/>
 			</div>
 	
-			<div v-if="isTip" class="tip">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross" class="closeBt" />
-				<div class="title">{{ $t("tips.title") }}</div>
+			<div v-if="isTip" class="card-item primary tip">
+				<div class="header">
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title">{{ $t("tips.title") }}</div>
+				</div>
 				<ChatTipAndTrickAd class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
 				/>
 			</div>
 	
-			<div v-if="isDiscord" class="discord">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross" class="closeBt" />
-				<div class="title">{{ $t('chat.discord.title') }}</div>
+			<div v-if="isDiscord" class="card-item primary discord">
+				<div class="header">
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title">{{ $t('chat.discord.title') }}</div>
+				</div>
 				<div class="content">
 					<img src="@/assets/icons/discord.svg" alt="discord" class="icon">
 					<div v-html="$t('chat.discord.content')"></div>
 				</div>
-				<div class="cta">
+				<div class="ctas">
 					<Button icon="discord"
 						:href="discordURL"
 						target="_blank"
@@ -49,25 +53,29 @@
 				</div>
 			</div>
 	
-			<div v-if="isAdWarning">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" icon="cross" class="closeBt" />
-				<div class="title">{{ $t('chat.adalert.title') }}</div>
+			<div v-if="isAdWarning" class="card-item primary">
+				<div class="header">
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" />
+					<div class="title">{{ $t('chat.adalert.title') }}</div>
+				</div>
 				<div class="content left">
 					<img src="@/assets/icons/twitchat.svg" alt="twitchat" class="icon">
 					<div v-for="e in $tm('chat.adalert.contents')" v-html="e"></div>
 				</div>
-				<div class="cta">
+				<div class="ctas">
 					<Button @click="openModal('gngngn')">{{ $t('chat.adalert.unacceptableBt') }}</Button>
 					<Button icon="edit"
-						@click="openParamPage(contentMainMenu)">{{ $t('chat.adalert.customizeBt') }}</Button>
+						@click="openParamPage(contentMainMenu, 'ad')">{{ $t('chat.adalert.customizeBt') }}</Button>
 					<Button icon="follow"
 						@click="openParamPage(contentSponsor)">{{ $t('chat.adalert.donateBt') }}</Button>
 				</div>
 			</div>
 	
-			<div v-if="isSponsorPublicPrompt" class="sponsorPrompt">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" icon="cross" class="closeBt" />
-				<div class="title">{{$t('chat.donor.title')}}</div>
+			<div v-if="isSponsorPublicPrompt" class="card-item primary sponsorPrompt">
+				<div class="header">
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title">{{$t('chat.donor.title')}}</div>
+				</div>
 				<div class="content">
 					<img src="@/assets/icons/follow.svg" alt="heart" class="icon">
 					<div>{{ $t('chat.donor.info_1') }}</div>
@@ -82,7 +90,7 @@
 						</i18n-t>
 					</div>
 				</div>
-				<div class="cta">
+				<div class="ctas">
 					<Button icon="follow"
 						:loading="loading"
 						@click="makeDonationPublic()"
@@ -91,11 +99,11 @@
 			</div>
 	
 			<div class="confirmClose" ref="confirmClose" v-if="showConfirm">
-				<p>{{ $t('chat.donor.close_confirm.info_1') }}</p>
-				<p>{{ $t('chat.donor.close_confirm.info_2') }}</p>
+				<p class="label">{{ $t('chat.donor.close_confirm.info_1') }}</p>
+				<p class="label">{{ $t('chat.donor.close_confirm.info_2') }}</p>
 				<div class="ctaConfirm">
-					<Button :loading="confirmDelay" @click="showConfirm=false" small alert>{{ $t('chat.donor.close_confirm.cancelBt') }}</Button>
-					<Button :loading="confirmDelay" @click="deleteMessage()" small>{{ $t('chat.donor.close_confirm.confirmBt') }}</Button>
+					<Button :loading="confirmDelay" @click="showConfirm=false" alert>{{ $t('chat.donor.close_confirm.cancelBt') }}</Button>
+					<Button :loading="confirmDelay" @click="deleteMessage()">{{ $t('chat.donor.close_confirm.confirmBt') }}</Button>
 				</div>
 			</div>
 		</div>
@@ -113,11 +121,13 @@ import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatChangelog from './ChatChangelog.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
 		Splitter,
+		CloseButton,
 		ToggleBlock,
 		ChatChangelog,
 		ChatTipAndTrickAd,
@@ -140,7 +150,6 @@ export default class ChatAd extends Vue {
 	public loading:boolean = false;
 	public madeDonationPublic:boolean = false;
 
-	public get isUpdateWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATE_WARNING; }
 	public get isSponsor():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES; }
 	public get isTip():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK; }
@@ -185,7 +194,7 @@ export default class ChatAd extends Vue {
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
 	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
-	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store("params").openParamsPage(page, subContent); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
@@ -244,95 +253,39 @@ export default class ChatAd extends Vue {
 
 <style scoped lang="less">
 .chatad{
-	color: var(--color-light);
-
 	.innerHolder {
-		border-radius: 1em;
-		overflow: hidden;
-		position: relative;
-		background-color: var(--color-dark-light);
-	
 		.confirmClose {
 			position: absolute;
 			top: 0;
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background-color: var(--color-dark-fade);
-			backdrop-filter: blur(3px);
+			background-color: rgba(0, 0, 0, .7);
+			backdrop-filter: blur(5px);
 			display: flex;
 			align-items: center;
 			flex-direction: column;
 			justify-content: center;
-			color: var(--mainColor_light);
-			font-size: 2em;
-			text-shadow: 1px 1px 1px var(--color-dark);
-			text-align: center;
-			line-height: 1.2em;
+			.label {
+				font-size: 2em;
+				text-shadow: 1px 1px 1px var(--color-dark);
+				text-align: center;
+				line-height: 1.2em;
+			}
 			.ctaConfirm {
-				width: 100%;
+				font-size: 1rem;
 				max-width: 250px;
 				margin-top: .5em;
+				gap: 1em;
 				display: flex;
 				flex-direction: row;
 				justify-content: space-evenly;
 			}
 		}
 	
-		.closeBt {
-			position: absolute;
-			top:0;
-			right:0;
-			height: 2.5em;
-		}
-	
-		&>div>.title {
-			text-align: center;
-			background: var(--color-primary);
-			font-weight: bold;
-			padding: .5em;
+		& .header>.title {
 			font-size: 1.5em;
 		}
-	
-		.infos {
-			font-style: italic;
-			text-align: center;
-			padding: .5em;
-			color: var(--mainColor_dark_extralight);
-			mark {
-				border: 1px dashed var(--mainColor_dark_extralight);
-				border-radius: .5em;
-				padding: 0 .25em;
-			}
-		}
-		
-		.version {
-			font-size: 1.25em;
-			text-align: center;
-			padding-top: .5em;
-		}
-		
-		.important {
-			font-size: 1em;
-			padding: .5em;
-			.title {
-				font-size: 2em;
-				margin-bottom: .5em;
-			}
-			.details {
-				padding: 0 1em;
-				.spacing {
-					margin-top: 1em;
-				}
-				.button {
-					display: block;
-					margin: auto;
-					margin-top: .75em;
-					font-size: 1.25em;
-				}
-			}
-		}
-	
 		.content {
 			padding: .5em;
 			&:not(.left) {
@@ -346,26 +299,6 @@ export default class ChatAd extends Vue {
 				display: block;
 			}
 	
-			.block {
-				&:not(:last-of-type) {
-					margin-bottom: .5em;
-				}
-				:deep(.header){
-					color: var(--mainColor_light);
-					background-color: var(--mainColor_normal);
-					&:hover {
-						background-color: lighten(@mainColor_normal, 5%);
-					}
-		
-					.cmd {
-						background-color: fade(@mainColor_normal, 15%);
-						border-radius: .5em;
-						padding: 0 .5em;
-						font-family: 'Courier New', Courier, monospace;
-					}
-				}
-			}
-
 			:deep(mark) {
 				border: 1px dashed fade(#000, 20);
 				background-color: fade(#000, 5);
@@ -374,18 +307,16 @@ export default class ChatAd extends Vue {
 			}
 		}
 	
-		.cta {
+		.ctas {
 			padding: .5em;
+			gap: .5em;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 	
-			.button:not(:first-of-type) {
-				margin-top: .5em;
-			}
-	
 			.sponsorGif {
 				width: 8em;
+				margin-bottom: -.5em;//Compensate for flex gap
 				cursor: pointer;
 			}
 		}

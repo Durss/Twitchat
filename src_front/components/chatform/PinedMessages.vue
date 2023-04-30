@@ -85,7 +85,7 @@ export default class PinedMessages extends AbstractSidePanel {
 	public async chatHighlight(m:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):Promise<void> {
 		if(!this.overlayAvailable) {
 			//Open parameters if overlay is not found
-			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamOverlaySections.HIGHLIGHT);
+			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
 		}else{
 			this.highlightLoading = true;
 			this.$store("chat").highlightChatMessageOverlay(m);

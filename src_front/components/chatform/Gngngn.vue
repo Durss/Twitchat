@@ -4,15 +4,15 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<span class="title">{{ $t('gngngn.title') }}</span>
-				<Button :aria-label="$t('gngngn.closeBt_aria')" icon="cross" class="close" @click="close()" />
+				<CloseButton @click="close()" />
 			</div>
 			<div class="content">
 				<p v-for="e in $tm('gngngn.contents')" v-html="e"></p>
 				<ToggleBlock class="block" :title="$t('gngngn.why_title')" small :open="false">
-					<p>{{ $t('gngngn.why_info') }}</p>
+					<p class="info">{{ $t('gngngn.why_info') }}</p>
 				</ToggleBlock>
 				<ToggleBlock class="block" :title="$t('gngngn.angry')" small :open="false">
-					<p v-for="e in $tm('gngngn.angry_contents')" v-html="e"></p>
+					<p class="info" v-for="e in $tm('gngngn.angry_contents')" v-html="e"></p>
 				</ToggleBlock>
 			</div>
 		</div>
@@ -25,10 +25,12 @@ import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 		ToggleBlock,
 	},
 	emits:["close"]
@@ -59,16 +61,19 @@ export default class Gngngn extends Vue {
 	z-index: 2;
 
 	.holder {
-		// max-height: 625px;
 		line-height: 1.2em;
 		width: 600px;
+		height: fit-content;
 		max-width: 600px;
-		left: unset;
-		transform: unset;
-		margin-left: calc((100vw - 600px)/2);
+		max-height: 100vh;
 
 		.block {
 			margin-top: .5em;
+		}
+
+		.info {
+			font-size: .8em;
+			line-height: 1.3em;
 		}
 	}
 

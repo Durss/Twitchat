@@ -53,22 +53,42 @@ export default class ParamsTwitchatAd extends Vue {
 	public expand!:boolean;
 
 	public collapse:boolean = true;
-	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
+	public blink:boolean = true;
 	
+	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
 	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; }
 	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public get classes():string[] {
 		let res = ["paramstwitchatad", "card-item", "secondary"];
 		if(this.collapse) res.push("collapse");
+		if(this.blink) res.push("blink");
 		return res;
 	}
-	
+
 	public beforeMount():void {
-		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true" && this.expand === false;
+		const subContent = this.$store("params").currentPageSubContent;
+		if(subContent == "ad") {
+			this.blink = true;
+			setTimeout(()=>{
+				this.blink = false;
+				this.$store("params").currentPageSubContent = "";
+			}, 3000);
+		}
+		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true" && this.expand === false && subContent != "ad";
 
 		watch(()=>this.expand, ()=> {
 			if(this.expand !== false) this.collapse = false;
+		})
+		watch(()=>this.$store("params").currentPageSubContent, ()=> {
+			if(this.$store("params").currentPageSubContent === "ad") {
+				this.collapse = false;
+				this.blink = true;
+				setTimeout(()=>{
+					this.blink = false;
+					this.$store("params").currentPageSubContent = "";
+				}, 3000);
+			}
 		})
 	}
 
@@ -78,7 +98,7 @@ export default class ParamsTwitchatAd extends Vue {
 		await this.$nextTick()
 		const content = this.$refs.content as HTMLDivElement;
 		DataStore.set(DataStore.COLLAPSE_PARAM_AD_INFO, false);
-		gsap.from(content, {padding:0, width:0, height:0, duration:.25, ease:"sine.out", clearProps:"all", onComplete:()=>{
+		gsap.from(content, {padding:0, width:0, height:0, duration:.35, ease:"quad.inOut", clearProps:"all", onComplete:()=>{
 			this.$emit("expand");
 		}});
 	}
@@ -87,11 +107,12 @@ export default class ParamsTwitchatAd extends Vue {
 		if(this.collapse) return;
 		const content = this.$refs.content as HTMLDivElement;
 		DataStore.set(DataStore.COLLAPSE_PARAM_AD_INFO, true);
-		gsap.to(content, {padding:0, width:0, height:0, duration:.25, ease:"sine.out", clearProps:"all", onComplete:()=>{
+		gsap.to(content, {padding:0, width:0, height:0, duration:.35, ease:"quad.inOut", clearProps:"all", onComplete:()=>{
 			this.collapse = true;
 			this.$emit("collapse");
 		}});
 	}
+
 }
 </script>
 
@@ -99,6 +120,7 @@ export default class ParamsTwitchatAd extends Vue {
 .paramstwitchatad{
 	position: relative;
 	width: fit-content;
+	border: 5px solid transparent;
 
 	.content {
 		overflow: hidden;
@@ -119,13 +141,22 @@ export default class ParamsTwitchatAd extends Vue {
 			background-color: var(--color-secondary-light);
 		}
 	}
-	.close {
-		position: absolute;
-		top: 0;
-		right: 0;
-		height: 2em;
-		margin: .15em;
-	}
+
+	&.blink {
+		animation: blinkAnimation .5s 3 forwards;
+		animation-delay: 1s;
+		@keyframes blinkAnimation {
+			0% {
+				border-color: var(--color-light);
+			}
+			50% {
+				border-color: transparent;
+			}
+			100% {
+				border-color: var(--color-light);
+			}
+		}
+}
 	.param {
 		margin-top: .5em;
 	}
@@ -137,22 +168,7 @@ export default class ParamsTwitchatAd extends Vue {
 		text-align: center;
 		font-weight: bold;
 	}
-	.details {
-		font-size: .8em;
-	}
-	.donateDetails {
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		line-height: 1.25em;
-		margin: .5em auto 0 auto;
-	}
 
-	&.noAd {
-		font-size: .8em;
-		text-align: center;
-	}
 	.tip {
 		width: 100%;
 		:deep(.header) {

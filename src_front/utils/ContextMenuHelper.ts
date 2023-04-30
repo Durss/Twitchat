@@ -112,7 +112,7 @@ export default class ContextMenuHelper {
 		options[highlightIndex].onClick = () => {
 			if(options[highlightIndex].customClass == "no_overlay") {
 				//Open parameters if overlay is not found
-				StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamOverlaySections.HIGHLIGHT);
+				StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
 			}else{
 				StoreProxy.chat.highlightChatMessageOverlay(message)
 			}

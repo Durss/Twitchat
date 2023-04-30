@@ -156,24 +156,6 @@ export const storeAuth = defineStore('auth', {
 					else router.push({name:"login"});
 					return;
 				}
-				
-
-				/*
-				//Check if all scopes are allowed
-				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
-					if(StoreProxy.auth.twitch.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
-						console.log("Missing scope:", Config.instance.TWITCH_APP_SCOPES[i]);
-						this.authenticated = false;
-						this.newScopesToRequest.push(Config.instance.TWITCH_APP_SCOPES[i]);
-					}
-				}
-
-				//Current token is missing some scopes, redirect to login
-				if(this.newScopesToRequest.length > 0) {
-					if(cb) cb(false);
-					return;
-				}
-				//*/
 
 				this.authenticated = true;
 
@@ -265,19 +247,7 @@ export const storeAuth = defineStore('auth', {
 				//Show "right click message" hint
 				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
 					setTimeout(()=>{
-						StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
-							const m = message as TwitchatDataTypes.MessageChatData;
-							const str = StoreProxy.i18n.t("chat.right_click_hint");
-							const chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);
-							//Highlight word
-							TwitchUtils.highlightChunks( chunks, [StoreProxy.i18n.t("chat.right_click_hint_highlight")]);
-							m.message = str;
-							m.message_chunks = chunks;
-							m.message_html = TwitchUtils.messageChunksToHTML(chunks)
-							m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
-							m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat.svg`, import.meta.url).href;
-							m.user.color = "#bb8eff";
-						});
+						sChat.sendRightClickHint();
 					}, 5000);
 				}else{
 					//Hot fix to make sure new changelog highlights are displayed properly

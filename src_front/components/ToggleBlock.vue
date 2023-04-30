@@ -194,18 +194,27 @@ export default class ToggleBlock extends Vue {
 	&.error, &.alert{
 		.header {
 			background-color: var(--color-alert);
+			&:hover {
+				background-color: var(--color-alert-light);
+			}
 		}
 	}
 
 	&.primary{
 		.header {
 			background-color: var(--color-primary);
+			&:hover {
+				background-color: var(--color-primary-light);
+			}
 		}
 	}
 
 	&.secondary{
 		.header {
 			background-color: var(--color-secondary);
+			&:hover {
+				background-color: var(--color-secondary-light);
+			}
 		}
 	}
 

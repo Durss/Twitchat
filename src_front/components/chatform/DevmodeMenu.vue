@@ -3,6 +3,11 @@
 		<h1>Developer panel</h1>
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
+			<Button small @click="simulateEvent('twitchat_ad', 'discord')" icon="whispers">Discord</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Ad</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Ad warn</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
+			<Button small @click="$store('chat').sendRightClickHint()" icon="whispers">Right click hint</Button>
 			<Button small @click="simulateEvent('join')" icon="enter">Join</Button>
 			<Button small @click="simulateEvent('leave')" icon="leave">Leave</Button>
 			<Button small @click="simulateEvent('ban')" icon="ban">Ban</Button>
@@ -123,12 +128,16 @@ export default class DevmodeMenu extends Vue {
 	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
 		this.$store("debug").simulateMessage(type, async (message)=> {
 			switch(subAction) {
-				case "soReceived":		(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;
-				case "first":			(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
-				case "returning":		(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
-				case "presentation":	(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
-				case "resub":			(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
-				case "giftpaidupgrade": (message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
+				case "discord":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DISCORD; break;
+				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR; break;
+				case "ad_warn":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; break;
+				case "donor_public_prompt":	(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; break;
+				case "soReceived":			(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;
+				case "first":				(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
+				case "returning":			(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
+				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
+				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
+				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
 				case "gift":{
 					const recipients:TwitchatDataTypes.TwitchatUser[] = reactive([]);
 					const count = Math.round(Math.random() * 10) + 1;
@@ -295,10 +304,20 @@ export default class DevmodeMenu extends Vue {
 			await Utils.promisedTimeout(100);
 		}
 	}
-
 }
 
-type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "giftpaidupgrade" | "soReceived";
+type Subaction = "first"
+				| "returning"
+				| "presentation"
+				| "resub"
+				| "gift"
+				| "giftpaidupgrade"
+				| "soReceived"
+				| "ad_warn"
+				| "donor_public_prompt"
+				| "right_click_hint"
+				| "discord"
+				| "ad";
 
 </script>
 

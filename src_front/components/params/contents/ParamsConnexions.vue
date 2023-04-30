@@ -1,5 +1,9 @@
 <template>
-	<div class="paramsconnexions">
+	<div class="paramsconnexions parameterContent">
+		<img src="@/assets/icons/offline.svg" alt="overlay icon" class="icon">
+
+		<p class="head">{{ $t("connexions.header") }}</p>
+
 		<ToggleBlock class="item" title="OBS websocket" :icons="['obs']" :open="subContent == 'obs'" :class="subContent == 'obs'? 'selected' : ''">
 			<OBSConnectForm />
 		</ToggleBlock>
@@ -13,11 +17,10 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { Component, Vue } from 'vue-facing-decorator';
+import type IParameterContent from './IParameterContent';
 import ConnectSpotifyForm from './connexions/ConnectSpotifyForm.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
-import type IParameterContent from './IParameterContent';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -32,16 +35,14 @@ export default class ParamsConnexions extends Vue implements IParameterContent {
 
 	public onNavigateBack(): boolean { return false; }
 
-	public get subContent():TwitchatDataTypes.ConnexionSectionsStringType {
-		return (this.$store("params").currentPageSubContent) as TwitchatDataTypes.ConnexionSectionsStringType;
-	}
+	public get subContent() { return this.$store("params").currentPageSubContent; }
 }
 </script>
 
 <style scoped lang="less">
 .paramsconnexions{
 	.item {
-		margin-bottom: 1em;
+		width: 100%;
 
 		&.selected {
 			border: 5px solid transparent;

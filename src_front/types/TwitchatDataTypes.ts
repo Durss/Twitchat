@@ -9,22 +9,18 @@ export namespace TwitchatDataTypes {
 	
 	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "deezer";
 	
-	export const ParamOverlaySections = {
+	export const ParamDeepSections = {
+		AD: "ad",
+		OBS: "obs",
 		WHEEL: "wheel",
 		TIMER: "timer",
+		SPOTIFY: "spotify",
 		COUNTER: "counter",
 		HIGHLIGHT: "highlight",
-		SPOTIFY: "spotify",
-	} as const;
-	export type ParamOverlaySectionsStringType = typeof ParamOverlaySections[keyof typeof ParamOverlaySections];
-	
-	export const ConnexionSections = {
-		OBS: "obs",
-		SPOTIFY: "spotify",
 		WEBSOCKET: "websocket",
 	} as const;
-	export type ConnexionSectionsStringType = typeof ConnexionSections[keyof typeof ConnexionSections];
-
+	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections];
+	
 	/**
 	 * Parameters menue categories
 	 */
@@ -705,9 +701,8 @@ export namespace TwitchatDataTypes {
 		UPDATES:2,
 		TIP_AND_TRICK:3,
 		DISCORD:4,
-		UPDATE_WARNING:5,
-		TWITCHAT_AD_WARNING:6,
-		TWITCHAT_SPONSOR_PUBLIC_PROMPT:7,
+		TWITCHAT_AD_WARNING:5,
+		TWITCHAT_SPONSOR_PUBLIC_PROMPT:6,
 	} as const;
 	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 
