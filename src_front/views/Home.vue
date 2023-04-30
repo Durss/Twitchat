@@ -566,6 +566,7 @@ export default class Home extends Vue {
 				}
 
 				.description {
+					font-size: 1.25em;
 					line-height: 1.25em;
 					
 					:deep(mark) {
@@ -612,6 +613,7 @@ export default class Home extends Vue {
 			}
 
 			ul {
+				font-size: 1.25em;
 				text-align: left;
 				max-width: 500px;
 				margin: auto;
@@ -653,11 +655,14 @@ export default class Home extends Vue {
 
 @media only screen and (max-width: 900px) {
 	.home {
+		padding-left: 2em;
 
 		.aboveTheFold {
 			.middle {
 				.description {
 					width: 80vw;
+					font-size: 1.3em;
+					margin-bottom: .5em;
 				}
 				.ctas {
 					margin: auto;
@@ -669,9 +674,7 @@ export default class Home extends Vue {
 			width: 80vw;
 			margin: auto;
 			section:not(.more), section:not(.more):nth-of-type(odd) {
-				h2 {
-					font-size: 1.5em !important;
-				}
+				font-size: .8em;
 				.content {
 					flex-direction: column-reverse;
 					background-color: var(--color-dark);
@@ -680,7 +683,6 @@ export default class Home extends Vue {
 					padding-bottom: 1em;
 				}
 				.infos {
-					font-size: 1.25em;
 					width: 100% !important;
 					max-width: 100% !important;
 					margin-bottom: 1em;
@@ -710,6 +712,7 @@ export default class Home extends Vue {
 			max-width: 80vw !important;
 			margin-left:auto;
 			margin-right:auto;
+			font-size: .8em;
 			.icon {
 				order: 3;
 				width: 6em;
@@ -720,12 +723,7 @@ export default class Home extends Vue {
 				max-width: 70vw !important;
 				margin: auto;
 				display: block;
-				font-size: 1.25em;
-				h2 {
-					font-size: 1em !important;
-				}
 				ul {
-					font-size: .7em;
 					width: fit-content;
 				}
 			}
