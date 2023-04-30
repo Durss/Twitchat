@@ -1,7 +1,7 @@
 {
 	"home":{
 		"info":"Fait avec 💘 par",
-		"head":"Twitchat est une alternative gratuite et open-source au chat de Twitch pour streamers",
+		"head":"Twitchat est une alternative boostée aux stéroïdes et open-source au chat Twitch officiel",
 		"openBt":"Lancer Twitchat",
 		"loginBt":"Connexion Twitch",
 		"streamdeckBt":"Plugin Stream Deck™",
@@ -14,25 +14,25 @@
 					"icon":"emergency",
 					"video":"emergency.mp4",
 					"title":"Button d'urgence",
-					"description":"Protégez-vous du doxxing, des raids haineux et des raids de follow bots"
+					"description":"Masquez vos alertes, bannissez vos bots temporairement, activez le shield mode et plus encore via un simple bouton"
 				},
 				{
 					"icon":"pin",
 					"video":"pin.mp4",
-					"title":"Épingler des messages",
-					"description":"Épinglez des messages et retrouvez-les tous dans une liste dédiée"
+					"title":"Enregistrez des messages",
+					"description":"Mettez des messages de côté pour les retrouver plus tard"
 				},
 				{
 					"icon":"elgato",
 					"image":"streamdeck.png",
 					"title":"Stream Deck™",
-					"description":"Mettez le chat en pause, faites-le défiler, marquez des messages comme lus, déclenchez le mode urgence..."
+					"description":"Mettez le chat en pause, faites-le défiler, marquez des messages comme lus, modérez et mettez en avant des messages, déclenchez le mode urgence..."
 				},
 				{
 					"icon":"show",
 					"image":"spoiler.png",
 					"title":"Commande de spoil",
-					"description":"Les messages débutant par <mark>||</mark> seront affichés comme des spoiler.<br>Vos modérateurices peuvent réponde à des messages avec la commande <mark>!spoiler</mark> pour les flagger comme spoilers"
+					"description":"Les messages débutant par <mark>||</mark> seront affichés comme des spoiler.<br>Vos modérateurices peuvent spoiler les messages d'autres viewers"
 				},
 				{
 					"icon":"search",
@@ -56,49 +56,55 @@
 					"icon":"tts",
 					"image":"tts.png",
 					"title":"Lire les messages",
-					"description":"Faites lire n'importe quel message à haute voix"
+					"description":"Twitchat peut lire n'importe quel message à haute voix"
 				},
 				{
 					"icon":"hand",
 					"image":"greet.png",
 					"title":"Saluez vos viewers",
-					"description":"Twitchat conserve le 1er message de chaque viewer dans une liste dédiée pour que vous n'oubliiez pas de les saluer"
+					"description":"Le 1er message de chaque viewer est conservé dans une liste pour ne pas oublier de saluer vos viewers"
 				},
 				{
 					"icon":"checkmark",
 					"image":"readMark.gif",
 					"title":"Marque-page",
-					"description":"Cliquez n'importe quel message pour place le marque-page et vous souvenir où vous avez arreté votre lecture"
+					"description":"Placez un marque-page en cliquant un message pour vous souvenir où vous avez arreté votre lecture"
 				},
 				{
 					"icon":"conversation",
 					"image":"conversation.gif",
 					"title":"Conversations",
-					"description":"Suivez les conversations entre viewer plus efficacement"
+					"description":"Les conversations entre viewers sont regroupées"
 				},
 				{
 					"icon":"ticket",
 					"image":"raffle.gif",
 					"title":"Tirage au sort",
-					"description":"Permettez à vos viewer de rejoindre un tirage au sort et sélectionnez 1 ou plusieurs gagnant·es"
+					"description":"Lancez un tirage au sort et choisissez 1 ou plusieurs gagnant·es"
 				},
 				{
 					"icon":"bingo",
 					"image":"bingo.gif",
 					"title":"Bingo",
-					"description":"Faites deviner un nombre ou une emote aléatoire à vos viewers"
+					"description":"Faites deviner un nombre aléatoire, une emote aléatoire ou un mot personnalisé à vos viewers"
 				},
 				{
 					"icon":"notification",
 					"video":"triggers.mp4",
-					"title":"Alertes personnalisés",
-					"description":"Twitchat propose un système de <strong>Triggers</strong> permettant de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'évènement comme un sub, des bits, un résultat de sondage, une récompense de points de chaîne, ..."
+					"title":"Actions automatisées",
+					"description":"Un système de <strong>Triggers</strong> permet de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'évènements comme les subs, cheers, points de chaîne, ..."
 				},
 				{
 					"icon":"music",
 					"image":"musicPlayer.png",
 					"title":"Spotify",
-					"description":"Lier Twitchat à Spotify pour afficher la musique en cours et les contrôle depuis des Triggers"
+					"description":"Lier Twitchat à Spotify pour afficher la musique en cours ou contrôler la lecture depuis des Triggers"
+				},
+				{
+					"icon":"voicemod",
+					"image":"voicemod.webp",
+					"title":"Voicemod",
+					"description":"Contrôlez <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> depuis Twitchat et automatisez des actions lorsqu'un effet est activé"
 				},
 				{
 					"icon":"params",
@@ -114,7 +120,8 @@
 						"Avoir les infos de stream de la personne qui vous raid",
 						"Savoir quand des personnes entrent ou quittent votre chat",
 						"Remplacer les badges par des versions minifiés",
-						"And much more..."
+						"Recevoir une alerte quand une personne que vous suivez lance un live",
+						"Et bien plus encore..."
 					]
 				}
 			]

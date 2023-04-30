@@ -98,43 +98,32 @@ export default class AnchorsMenu extends Vue {
 	left: 0;
 	top: 50%;
 	transform: translate(0, -50%);
-	border-left: none;
+	gap: 10px;
 	display: flex;
 	flex-direction: column;
-	// align-items: center;
-	padding: 0;
 	padding-left: .5em;
 	z-index: 1;
 
 	.item {
-		@size: 2.5em;
-		@innerSize: @size * .7;
+		@size: 1.75em;
+		@sizeHover: 1.75em;
 		min-width: @size;
-		height: @size;
 		cursor: pointer;
-		transition: margin .25s, height .25s, min-width .25s;
+		transition: all .25s;
 	
 		button {
-			margin-top: @size * .15;
-			margin-left: @size * .15;
-			z-index: 1;
-			padding: 0;
-			min-width: @innerSize;
-			height: @innerSize;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			justify-content: flex-start;
-			border-radius: 1em;
-			transition: all .25s;
-			background-color: fade(@mainColor_light, 15%);
+			border-radius: 10em;
+			background-color: var(--color-light-fader);
+			transition: background-color .25s;
 
 			.icon {
-				width: @innerSize;
-				height: @innerSize;
+				width: @size;
+				height: @size;
 				padding: .2em;
 				object-fit: fill;
-				transition: all .25s;
 			}
 
 			.label {
@@ -142,39 +131,23 @@ export default class AnchorsMenu extends Vue {
 				white-space: nowrap;
 				font-size: .8em;
 				margin: 0 .5em 0 0;
-				color: var(--mainColor_light);
+				color: var(--color-light);
 				overflow: hidden;
-				transition: color .25s;
 			}
 		}
 
 		&.selected {
-			@innerSize: @size * .9;
-			min-width: @innerSize;
-			height: @innerSize;
-			margin: @size * .25 0;
-
+			@size:1.5em;
+			font-size: @size;
+			margin-left: calc((1em - @size ) / 2);
 			button {
-				margin-top: @size * .05;
-				margin-left: @size * .05;
-				min-width: @innerSize;
-				height: @innerSize;
-				outline: 2px solid var(--mainColor_light);
-				.icon {
-					width: @innerSize;
-					height: @innerSize;
-					padding: .3em;
-				}
-				.label {
-					color: var(--mainColor_light);
-				}
+				background-color: var(--color-secondary);
 			}
 		}
 	}
 }
 @media only screen and (max-width: 900px) {
 	.anchorsmenu{
-		padding-left: 0;
 		.item {
 
 			button {
