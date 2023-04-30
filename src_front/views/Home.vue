@@ -562,6 +562,7 @@ export default class Home extends Vue {
 				// padding-left: calc(30vw + 1em);
 				h2 {
 					margin-bottom: .5em;
+					font-size: 2em;
 				}
 
 				.description {
@@ -606,7 +607,7 @@ export default class Home extends Vue {
 		}
 		.infos {
 			h2 {
-				font-size: 3vw;
+				font-size: 2em;
 				margin-bottom: .5em;
 			}
 
@@ -668,6 +669,9 @@ export default class Home extends Vue {
 			width: 80vw;
 			margin: auto;
 			section:not(.more), section:not(.more):nth-of-type(odd) {
+				h2 {
+					font-size: 1.5em !important;
+				}
 				.content {
 					flex-direction: column-reverse;
 					background-color: var(--color-dark);
