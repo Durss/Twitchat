@@ -48,7 +48,7 @@
 				
 				<div class="paramsList">
 
-					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @change="toggleAll()" />
+					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @click.native="toggleAll()" />
 
 					<div class="item" v-for="f in filters"
 					:key="'filter_'+f.storage">
@@ -601,13 +601,14 @@ export default class MessageListFilter extends Vue {
 	}
 
 	/**
-	 * Called when click "all" toggle
+	 * Called when clicking "all" toggle
 	 */
 	public toggleAll():void {
 		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
 		for (let i = 0; i < this.filters.length; i++) {
 			this.filters[i].value = this.param_toggleAll.value;
 		}
+
 		for (const key in this.config.messageFilters) {
 			const k = key as messageFilterTypes;
 			this.config.messageFilters[k] = this.param_toggleAll.value;
@@ -964,12 +965,18 @@ export default class MessageListFilter extends Vue {
 				f.error = true;
 			}
 		}
-		for (let i = 0; i < this.messageFilters.length; i++) {
-			const f = this.messageFilters[i];
-			//Keep missing scopes
-			if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScopes(f.twitch_scopes)) {
-				missingScopes = missingScopes.concat(f.twitch_scopes);
-				f.error = true;
+
+		//If "messages" filter is selected, check for sub filters
+		if(this.filters.find(v=>{
+			return v.storage == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
+		})?.value=== true) {
+			for (let i = 0; i < this.messageFilters.length; i++) {
+				const f = this.messageFilters[i];
+				//Keep missing scopes
+				if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScopes(f.twitch_scopes)) {
+					missingScopes = missingScopes.concat(f.twitch_scopes);
+					f.error = true;
+				}
 			}
 		}
 
@@ -995,6 +1002,20 @@ export default class MessageListFilter extends Vue {
 					return true;
 				})
 			});
+		}else{
+			//Search if a "missing scopes" message exists and delete it as
+			//no scope is missing anymore
+			const list = this.$store("chat").messages;
+			//Only check within the last 100 messages, not a big deal if it
+			//remains in the list in such case and low risks this happens
+			for (let i = list.length-1; i > Math.max(0, list.length - 100); i--) {
+				const m = list[i];
+				if(m.col == this.config.order && m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) {
+					//Message found, delete it
+					this.$store("chat").deleteMessage(m);
+					return;
+				}
+			}
 		}
 	}
 
