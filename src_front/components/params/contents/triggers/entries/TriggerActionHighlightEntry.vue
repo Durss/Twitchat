@@ -1,12 +1,12 @@
 <template>
-	<div class="triggeractionhighlightentry">
-		<i18n-t scope="global" tag="div" class="row info item" keypath="triggers.actions.highlight.header">
+	<div class="triggeractionhighlightentry triggerActionForm">
+		<i18n-t scope="global" tag="div" class="info" keypath="triggers.actions.highlight.header">
 			<template #LINK>
 				<a @click="openHighlightParams()">{{ $t("triggers.actions.highlight.header_link") }}</a>
 			</template>
 		</i18n-t>
-		<ParamItem class="row item show" :paramData="show_conf" v-model="action.show" />
-		<ParamItem class="row item" v-if="show_conf.value === true" :paramData="message_conf" ref="textContent" v-model="action.text" />
+		<ParamItem class="show" :paramData="show_conf" v-model="action.show" />
+		<ParamItem v-if="show_conf.value === true" :paramData="message_conf" ref="textContent" v-model="action.text" />
 	</div>
 </template>
 
@@ -57,6 +57,5 @@ export default class TriggerActionHighlightEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionhighlightentry{
-	.triggerActionForm();
 }
 </style>

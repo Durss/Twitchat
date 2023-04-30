@@ -158,7 +158,7 @@
 			"obs": {
 				"header": "Veuillez {LINK}",
 				"header_link": "connecter OBS",
-				"media_source": "Si vous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} et {CMD2} supprimés pour des raisons de sécurité.",
+				"media_source": "Si vous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} et {CMD2} seront supprimés pour des raisons de sécurité.",
 				"media_source_example": " : si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
 				"param_action": "Action",
 				"param_show_filter": "Visibilité du filtre",
@@ -182,7 +182,7 @@
 				"beta_link": "faites-le moi savoir sur Discord",
 				"warning_title": "Information importante",
 				"warning": "Les tags spéciaux risquent de ne pas être disponible dans le trigger sélectionné.",
-				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponibles car le trigger ne sera pas exécuté par un message de tchat.",
+				"warning_example": ": Si vous exécutez une <strong>Commande de tchat</strong> depuis une <strong>Action programmée</strong>, les tags {'{'}USER{'}'} et {'{'}MESSAGE{'}'} ne seront pas disponibles car le trigger ne sera pas exécuté par un message de tchat.",
 				"select": "Sélectionnez le trigger à exécuter",
 				"selected": "Trigger à exécuter",
 				"loop": "Boucle de dépendance détectée",

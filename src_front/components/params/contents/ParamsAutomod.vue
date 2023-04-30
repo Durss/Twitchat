@@ -39,7 +39,7 @@
 							<ParamItem class="ruleName" :paramData="param_ruleLabel[f.id]" v-model="f.label" />
 							<ParamItem class="rule" :paramData="param_ruleRegex[f.id]" v-model="f.regex"
 								:error="keywordToValid[f.id] === false"
-								:errorMessage="keywordToValid[f.id] === false? $t('automod.rule.invalid_rule') : ''"
+								:errorMessage="$t('automod.rule.invalid_rule')"
 								@change="onRegexChange(f)" />
 						</div>
 					</ToggleBlock>

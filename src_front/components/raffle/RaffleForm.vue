@@ -8,12 +8,12 @@
 			<div class="description">{{ $t("raffle.description") }}</div>
 		</div>
 
-		<TabMenu v-model="mode"
+		<TabMenu class="menu" v-model="mode"
 			:values="['chat','sub','manual']"
 			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title')]"
 			:icons="['commands', 'sub', 'list']" />
 		
-		<ToggleBlock v-if="triggerMode === false && mode!='manual'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false" class="legal">
+		<ToggleBlock class="legal" v-if="triggerMode === false && mode!='manual'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false">
 			<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
 		</ToggleBlock>
 
@@ -397,6 +397,12 @@ export default class RaffleForm extends AbstractSidePanel {
 
 <style scoped lang="less">
 .raffleform{
+
+	.legal {
+		margin: 0 auto;
+		width: 100%;
+		max-width: 600px;
+	}
 
 	.content {
 		.voiceHelper {

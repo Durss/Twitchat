@@ -203,10 +203,10 @@ export default class Home extends Vue {
 			if(icon) {
 				gsap.set(icon, {scale:0});
 			}
-			const label = div.querySelector("h2")?.innerText ?? "";
-			anchors.push({div, label, icon:icon.src, selected:false});
+			anchors.push({div, label: this.sections[i].title, icon:icon.src, selected:false});
 		}
 		this.anchors = anchors;
+		//TODO update anchros labels when changing language
 
 		//Opening transition ATF elements
 		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];

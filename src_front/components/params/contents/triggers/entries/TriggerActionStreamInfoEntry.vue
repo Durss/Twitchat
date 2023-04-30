@@ -1,10 +1,11 @@
 <template>
-	<div class="triggeractionstreaminfoentry">
+	<div class="triggeractionstreaminfoentry triggerActionForm">
 		<StreamInfoSubForm v-if="!loading" v-model:title="title"
-		v-model:tags="tags"
-		v-model:category="category"
-		:placeholderList="placeholderList"
-		triggerMode />
+			v-model:tags="tags"
+			v-model:category="category"
+			:placeholderList="placeholderList"
+			triggerMode />
+		
 		<img class="loader" src="@/assets/loader/loader.svg" v-else>
 	</div>
 </template>
@@ -47,8 +48,6 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 		this.title = this.action.title;
 		this.tags = this.action.tags;
 		this.loading = false;
-		// this.message_conf.labelKey = "triggers.actions.chat.param_message";
-		// this.message_conf.placeholderList = TriggerActionHelpers(this.event.value);
 
 		watch(()=>this.title, ()=> this.onChange());
 		watch(()=>this.tags, ()=> this.onChange());
@@ -67,8 +66,6 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionstreaminfoentry{
-	.triggerActionForm();
-
 	.loader {
 		margin: auto;
 		display: block;

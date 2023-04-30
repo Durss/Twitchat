@@ -1,55 +1,53 @@
 <template>
-	<div class="triggeractionrandomentry">
+	<div class="triggeractionrandomentry triggerActionForm">
 		
 		<TabMenu v-model="action.mode"
 		:values="['number', 'list', 'trigger']"
 		:icons="['dice', 'list', 'broadcast']"
 		:labels="[$t('triggers.actions.random.number'), $t('triggers.actions.random.list'), $t('triggers.actions.random.trigger')]" />
 
-		<div class="row item info" v-if="action.mode != 'trigger'">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
-		<div class="row item info" v-else-if="action.mode == 'trigger'">{{ $t("triggers.actions.random.trigger_info") }}</div>
+		<div class="info" v-if="action.mode != 'trigger'">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
+		<div class="info" v-else-if="action.mode == 'trigger'">{{ $t("triggers.actions.random.trigger_info") }}</div>
 
-		<div class="item" v-if="action.mode == 'number'">
-			<ParamItem class="item" :paramData="param_max" v-model="action.max" />
-			<ParamItem class="item" :paramData="param_min" v-model="action.min" />
-			<ParamItem class="item" :paramData="param_float" v-model="action.float" />
-		</div>
+		<template v-if="action.mode == 'number'">
+			<ParamItem :paramData="param_max" v-model="action.max" />
+			<ParamItem :paramData="param_min" v-model="action.min" />
+			<ParamItem :paramData="param_float" v-model="action.float" />
+		</template>
 
-		<div class="item" v-if="action.mode == 'list'">
-			<div class="row item">
-				<label class="item" for="randomEntry_input">{{ $t("triggers.actions.random.list_label") }}</label>
-				<div class="itemForm" v-if="action.list.length < 10000">
-					<textarea rows="2" v-model="itemValue" id="randomEntry_input" :placeholder="$t('triggers.actions.random.list_entry_placeholder')"></textarea>
-					<Button icon="add" class="addBt" @click="addItem()" :disabled="!itemValue" />
-				</div>
-				
-				<div class="listItem">
-					<div v-for="item, index in action.list" class="entry"
-					@click="indexToEditState[index] = true">
-							
-						<button class="action button"
-						v-tooltip="'Delete'"
-						@click.capture.stop="deleteItem(index)">
-							<img src="@/assets/icons/trash.svg" alt="delete">
-						</button>
+		<div class="card-item" v-if="action.mode == 'list'">
+			<label for="randomEntry_input">{{ $t("triggers.actions.random.list_label") }}</label>
+			<div class="itemForm" v-if="action.list.length < 10000">
+				<textarea rows="2" v-model="itemValue" id="randomEntry_input" :placeholder="$t('triggers.actions.random.list_entry_placeholder')"></textarea>
+				<Button icon="add" class="addBt" @click="addItem()" :disabled="!itemValue" />
+			</div>
+			
+			<div class="listItem">
+				<div v-for="item, index in action.list" class="entry"
+				@click="indexToEditState[index] = true">
+						
+					<button class="action button"
+					v-tooltip="'Delete'"
+					@click.capture.stop="deleteItem(index)">
+						<img src="@/assets/icons/trash.svg" alt="delete">
+					</button>
 
-						<div class="content">
-							<span class="label" v-if="!indexToEditState[index]">
-								<ChatMessageChunksParser :chunks="getChunksFromItem(item)" />
-							</span>
-	
-							<textarea v-if="indexToEditState[index]"
-							maxlength="500"
-							rows="2" v-autofocus
-							@focusout="indexToEditState[index] = false"
-							v-model="action.list[index]">{{ item }}</textarea>
-						</div>
+					<div class="content">
+						<span class="label" v-if="!indexToEditState[index]">
+							<ChatMessageChunksParser :chunks="getChunksFromItem(item)" />
+						</span>
+
+						<textarea v-if="indexToEditState[index]"
+						maxlength="500"
+						rows="2" v-autofocus
+						@focusout="indexToEditState[index] = false"
+						v-model="action.list[index]">{{ item }}</textarea>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="item" v-if="action.mode == 'trigger'">
+		<div v-if="action.mode == 'trigger'">
 			<ToggleBlock small
 			:open="openTriggerList"
 			:title="$t('triggers.actions.random.trigger_select')">
@@ -77,11 +75,9 @@
 			</div>
 		</div>
 	
-		<div class="row item" v-if="action.mode != 'trigger'">
-			<ParamItem noBackground :paramData="param_placeholder" v-model="action.placeholder" :error="(param_placeholder.value).length === 0" />
-		</div>
+		<ParamItem v-if="action.mode != 'trigger'" :paramData="param_placeholder" v-model="action.placeholder" :error="(param_placeholder.value).length === 0" />
 
-		<i18n-t scope="global" class="example item" tag="div"
+		<i18n-t scope="global" class="card-item primary info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
 		v-if="param_placeholder.value.length > 0 && action.mode != 'trigger'">
 			<template #PLACEHOLDER>
@@ -178,16 +174,6 @@ export default class TriggerActionRandomEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionrandomentry{
-	.triggerActionForm();
-
-	.example {
-		font-size: .9em;
-		// text-align: center;
-		margin: 1em 0 .5em 0;
-	}
-	.tabs {
-		margin-bottom: .5em;
-	}
 
 	.itemForm {
 		display: flex;

@@ -1,30 +1,20 @@
 <template>
-	<div class="TriggerActionMusicEntry" v-if="!musicServiceConfigured">
-		<div class="item warn info">
+	<div class="TriggerActionMusicEntry triggerActionForm" v-if="!musicServiceConfigured">
+		<div class="info warn">
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentOverlays)">{{ $t("triggers.actions.music.header_link") }}</a>
+					<a @click="$store('params').openParamsPage(contentOverlays, 'spotify')">{{ $t("triggers.actions.music.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
 	</div>
 
-	<div class="TriggerActionMusicEntry" v-else>
-		<ParamItem class="row item file" :paramData="actions_conf" v-model="action.musicAction" />
-
-		<div class="row item" v-if="showTrackInput" >
-			<ParamItem :paramData="track_conf" v-model="action.track" />
-		</div>
-
-		<div class="row item" v-if="showTrackInput">
-			<ParamItem :paramData="confirmSongRequest_conf" v-model="action.confirmMessage" />
-		</div>
-
-		<div class="row item" v-if="showPlaylistInput">
-			<!-- <div class="item alert">{{ $t("triggers.actions.music.spotify_only") }}</div> -->
-			<ParamItem :paramData="playlist_conf" v-model="action.playlist" />
-		</div>
+	<div class="TriggerActionMusicEntry triggerActionForm" v-else>
+		<ParamItem 							:paramData="actions_conf" v-model="action.musicAction" />
+		<ParamItem v-if="showTrackInput"	:paramData="track_conf" v-model="action.track" />
+		<ParamItem v-if="showTrackInput"	:paramData="confirmSongRequest_conf" v-model="action.confirmMessage" />
+		<ParamItem v-if="showPlaylistInput"	:paramData="playlist_conf" v-model="action.playlist" />
 	</div>
 </template>
 
@@ -85,8 +75,6 @@ export default class TriggerActionMusicEntry extends Vue {
 
 <style scoped lang="less">
 .TriggerActionMusicEntry{
-	.triggerActionForm();
-
 	.item.alert {
 		display: block;
 		width: fit-content;

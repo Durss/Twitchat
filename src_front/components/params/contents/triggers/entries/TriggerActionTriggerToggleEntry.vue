@@ -1,19 +1,19 @@
 <template>
-	<div class="triggeractiontriggertoggleentry">
+	<div class="triggeractiontriggertoggleentry triggerActionForm">
 		
-		<div class="row item field col" v-if="!action.triggerId">
+		<div class="card-item field col" v-if="!action.triggerId">
 			<div class="item title" v-if="rewards.length > 0 && !action.triggerId">{{$t('triggers.actions.triggerToggle.select')}}</div>
 	
 			<TriggerList class="list"
-			noEdit
-			:rewards="rewards"
-			@select="onSelectTrigger($event)" />
+				noEdit
+				:rewards="rewards"
+				@select="onSelectTrigger($event)" />
 		</div>
 
 		<template v-else>
-			<ParamItem class="item" :paramData="param_action" v-model="action.action" />
+			<ParamItem :paramData="param_action" v-model="action.action" />
 
-			<div class="row item field">
+			<div class="card-item field">
 				<img src="@/assets/icons/broadcast.svg" class="icon">
 				<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
 				<TriggerList
@@ -68,8 +68,6 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractiontriggertoggleentry{
-	.triggerActionForm();
-
 	.field {
 		display: flex;
 		flex-direction: row;
@@ -83,19 +81,11 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 			height: 1em;
 			margin-top: -5px;
 		}
-
-		.title {
-			min-width: 150px;
-		}
 		
 		.list {
 			flex-grow: 1;
 			max-height: 300px;
 			overflow-y: auto;
-			border: 1px solid var(--mainColor_normal);
-			border-radius: .5em;
-			background-color: var(--mainColor_normal_extralight);
-			padding: .5em;
 		}
 	}
 }

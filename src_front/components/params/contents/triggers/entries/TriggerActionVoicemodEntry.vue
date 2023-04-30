@@ -1,5 +1,5 @@
 <template>
-	<div class="triggeractionvoicemodentry" v-if="!vmConnected">
+	<div class="triggeractionvoicemodentry triggerActionForm" v-if="!vmConnected">
 		<div class="item info warn">
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.voicemod.header">
@@ -10,13 +10,13 @@
 		</div>
 	</div>
 
-	<div class="triggeractionvoicemodentry" v-else>
+	<div class="triggeractionvoicemodentry triggerActionForm" v-else>
 		<ParamItem :paramData="param_voiceList" v-model="action.voiceID" />
 	</div>
 </template>
 
 <script lang="ts">
-import type { TriggerActionVoicemodData, TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionVoicemodData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -55,6 +55,5 @@ export default class TriggerActionVoicemodEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionvoicemodentry{
-	.triggerActionForm();
 }
 </style>

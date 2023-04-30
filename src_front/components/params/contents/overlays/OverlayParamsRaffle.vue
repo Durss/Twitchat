@@ -7,7 +7,7 @@
 				<input type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.raffle.css") }}</div>
-					<ul>
+					<ul class="cssStructure">
 						<li>.wheel-item { ... }</li>
 						<li>.wheel-item.selected { ... }</li>
 					</ul>
@@ -147,7 +147,6 @@ export default class OverlayParamsRaffle extends Vue {
 			}
 
 			ul {
-				.cssStructure();
 				margin-top: .5em;
 			}
 		}

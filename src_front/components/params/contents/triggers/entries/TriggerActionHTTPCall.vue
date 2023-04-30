@@ -1,27 +1,26 @@
 <template>
-	<div class="triggeractionhttpcall">
-		<div class="row item">
-			<ParamItem noBackground class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
-			<p class="item securityError" v-if="securityError">{{ $t("triggers.actions.http_ws.protocol_error") }}</p>
-		</div>
+	<div class="triggeractionhttpcall triggerActionForm">
+		<ParamItem :paramData="param_url" v-model="action.url"
+			:error="securityError"
+			:errorMessage="$t('triggers.actions.http_ws.protocol_error')" />
 		
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method" />
 
-		<div class="row item">
-			<p class="item" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
+		<div class="card-item tags">
+			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			
 			<div class="params">
 				<template v-for="p in parameters" :key="p.tag" >
-					<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
-					<span>{{ $t(p.placeholder.descKey) }}</span>
-					<ToggleButton v-model="p.enabled" @change="onToggleParam()" />
+					<div class="rowItem tag" @click="p.enabled = !p.enabled; onToggleParam()"><mark>{{ p.placeholder.tag }}</mark></div>
+					<span class="rowItem" @click="p.enabled = !p.enabled; onToggleParam()">{{ $t(p.placeholder.descKey) }}</span>
+					<ToggleButton class="rowItem" v-model="p.enabled" @change="onToggleParam()" />
 				</template>
 			</div>
 		</div>
 
-		<ParamItem class="item" :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
+		<ParamItem :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
 
-		<i18n-t scope="global" class="example item" tag="div"
+		<i18n-t scope="global" class="card-item info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
 		v-if="param_outputPlaceholder.value.length > 0">
 			<template #PLACEHOLDER>
@@ -89,8 +88,6 @@ export default class TriggerActionHTTPCall extends Vue {
 
 <style scoped lang="less">
 .triggeractionhttpcall{
-	.triggerActionForm();
-
 	.argument {
 		padding-left: 1em;
 	}
@@ -104,16 +101,41 @@ export default class TriggerActionHTTPCall extends Vue {
 		border-bottom-right-radius: var(--border-radius);
 	}
 
+	.tags {
+		.title {
+			margin-bottom: .5em;
+		}
+	}
+
 	.params {
 		display: grid;
-		grid-template-columns: 1fr auto 40px;
+		grid-template-columns: 1fr 1fr 40px;
 		align-items: center;
 		gap: .5em;
+		font-size: .8em;
+		position: relative;
+		overflow: hidden;
+		z-index: 0;
 		.tag {
 			text-align: right;
 		}
-		&>* {
+		.rowItem {
+			position: relative;
 			cursor: pointer;
+			&:nth-child(3n+1) {
+				max-width: 20vw;
+			}
+			&:hover::before {
+				content: "";
+				position: absolute;
+				top: 50%;
+				left: -1000px;
+				width: 2000px;
+				height: calc(100% + 4px);
+				background-color: var(--color-primary);
+				transform: translateY(-50%);
+				z-index: -1;
+			}
 		}
 	}
 }

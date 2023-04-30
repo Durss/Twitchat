@@ -63,7 +63,7 @@
         "title": "Titre",
         "artist": "Artiste"
       },
-      "infos": "Permettez à vos viewers d'ajouter des morceaux à la liste de lecture ou contrôler la lecture via les {TRIGGERS}.",
+      "infos": "Permettez à vos viewers d'ajouter des morceaux à la liste de lecture ou de contrôler la lecture via les {TRIGGERS}.",
       "triggerBt": "triggers"
     },
     "spotify": {

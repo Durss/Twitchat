@@ -8,7 +8,7 @@
 			<div class="description" v-if="triggerMode === false">{{ $t("bingo.form.description") }}</div>
 		</div>
 	
-		<TabMenu v-model="mode"
+		<TabMenu class="menu" v-model="mode"
 			:values="['num','emote','custom']"
 			:tooltips="[$t('bingo.form.title_number'), $t('bingo.form.title_emote'), $t('bingo.form.title_custom')]"
 			:icons="['number', 'emote', 'edit']" />
@@ -159,6 +159,7 @@ export default class BingoForm extends AbstractSidePanel {
 
 <style scoped lang="less">
 .bingoform{
+
 	.content > form > .card-item.custom {
 		:deep(input) {
 			flex-basis: 200px;

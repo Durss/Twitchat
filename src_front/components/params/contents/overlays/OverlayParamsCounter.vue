@@ -12,7 +12,7 @@
 			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.counters.css") }}</div>
 				<div class="head">{{$t('overlay.counters.css_example.simple')}}</div>
-				<ul>
+				<ul class="cssStructure">
 					<li>#holder { ... }</li>
 					<li class="sublist">
 						<ul>
@@ -24,7 +24,7 @@
 				</ul>
 				
 				<div class="head">{{$t('overlay.counters.css_example.progress')}}</div>
-				<ul>
+				<ul class="cssStructure">
 					<li>#holder { ... }</li>
 					<li class="sublist">
 						<ul>
@@ -142,7 +142,6 @@ export default class OverlayParamsCounter extends Vue {
 		}
 		
 		ul {
-			.cssStructure();
 			margin-top: .5em;
 		}
 	}

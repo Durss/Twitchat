@@ -1,8 +1,8 @@
 <template>
-	<div class="triggeractioncountgetentry">
-		<div class="row item info">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
+	<div class="triggeractioncountgetentry triggerActionForm">
+		<div class="info">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
 
-		<div class="row item list">
+		<div class="list">
 			<label class="listLabel">
 				<img src="@/assets/icons/count.svg" class="icon">
 				<span>{{ $t(param_counters.labelKey as string) }}</span>
@@ -20,9 +20,7 @@
 			></vue-select>
 		</div>
 
-		<div class="row item name">
-			<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="!param_placeholder.value" />
-		</div>
+		<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="!param_placeholder.value" />
 
 		<i18n-t scope="global" class="example item" tag="div" keypath="triggers.actions.common.custom_placeholder_example" v-if="(param_placeholder.value).length > 0">
 			<template #PLACEHOLDER>
@@ -64,8 +62,6 @@ export default class TriggerActionCountGetEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractioncountgetentry{
-	.triggerActionForm();
-	
 	.name:deep(input), .itemSelector {
 		// flex-grow: 1;
 		flex-basis: 300px;

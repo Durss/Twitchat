@@ -197,7 +197,7 @@
 			<slot></slot>
 		</div>
 
-		<div class="card-item alert errorMessage" v-if="errorMessage || paramData.errorMessage">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
+		<div class="card-item alert errorMessage" v-if="(error && errorMessage) || paramData.errorMessage">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
 	</div>
 </template>
 
@@ -515,9 +515,6 @@ export default class ParamItem extends Vue {
 			return;
 		}
 
-		if(this.childrenExpanded) return;
-		this.childrenExpanded = true;
-
 		const list = this.$store("params").$state;
 		let children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 		for (const key in list) {
@@ -547,8 +544,11 @@ export default class ParamItem extends Vue {
 				const childrenItems = this.$refs.param_child as Vue[];
 				divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
 			}
-			gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
+			if(!this.childrenExpanded) {
+				gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
+			}
 		}
+		this.childrenExpanded = true;
 	}
 
 	public clampValue():void {

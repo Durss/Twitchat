@@ -351,7 +351,7 @@ export default class TriggerActionEntry extends Vue {
 			}
 			case "music": {
 				if(!this.musicServiceConfigured) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ConnexionSections.SPOTIFY);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 					return;
 				}break
 			}
@@ -501,6 +501,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	.raffleEnter{
+		font-size: .9em;
 		line-height: 1.3em;
 	}
 }

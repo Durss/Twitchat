@@ -11,7 +11,7 @@
 				<input type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.timer.css") }}</div>
-					<ul>
+					<ul class="cssStructure">
 						<li>#timer { ... }</li>
 						<li class="sublist">
 							<ul>
@@ -21,7 +21,7 @@
 							</ul>
 						</li>
 					</ul>
-					<ul>
+					<ul class="cssStructure">
 						<li>#countdown { ... }</li>
 						<li class="sublist">
 							<ul>
@@ -88,7 +88,6 @@ export default class OverlayParamsTimer extends Vue {
 		}
 
 		ul {
-			.cssStructure();
 			margin-top: .5em;
 		}
 

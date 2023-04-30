@@ -1,6 +1,6 @@
 <template>
-	<div class="triggeractionwsentry">
-		<div class="item info warn" v-if="!websocketConnected">
+	<div class="triggeractionwsentry triggerActionForm">
+		<div class="card-item info warn" v-if="!websocketConnected">
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.http_ws.need_to_connect">
 				<template #LINK>
@@ -8,18 +8,25 @@
 				</template>
 			</i18n-t>
 		</div>
-	
-		<div class="item">
-			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
-			<ParamItem class="item argument" :paramData="param_topic" v-model="action.topic" />
-			<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />
+
+		<div class="card-item tags">
+			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
+			
+			<div class="params">
+				<template v-for="p in parameters" :key="p.tag" >
+					<div class="rowItem tag" @click="p.enabled = !p.enabled; onToggleParam()"><mark>{{ p.placeholder.tag }}</mark></div>
+					<span class="rowItem" @click="p.enabled = !p.enabled; onToggleParam()">{{ $t(p.placeholder.descKey) }}</span>
+					<ToggleButton class="rowItem" v-model="p.enabled" @change="onToggleParam()" />
+				</template>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionWSData, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionWSData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -27,6 +34,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{
 		ParamItem,
+		ToggleButton,
 	},
 	emits:["update"]
 })
@@ -37,39 +45,25 @@ export default class TriggerActionWSEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public securityError:boolean = false;
-	public param_options:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
 	public param_topic:TwitchatDataTypes.ParameterData<string> = { label:"<mark>topic</mark>", type:"string", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder", maxLength:255 };
 
 	public get websocketConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
 	public beforeMount():void {
-
-		const placeholders = TriggerEventPlaceholders(this.triggerData.type);
-		for (let i = 0; i < placeholders.length; i++) {
-			const p = placeholders[i];
-			this.param_options.push({
-				label:"<mark>"+p.tag.toLowerCase()+"</mark> - ",
-				labelKey:p.descKey,
-				value:!this.action.params || this.action.params.includes(p.tag),
-				type:"boolean",
-				storage:p
-			})
-		}
+		this.parameters = TriggerEventPlaceholders(this.triggerData.type).map(v=> {
+			return  {
+				placeholder:v,
+				enabled:!this.action.params || this.action.params.includes(v.tag),
+			}
+		});
 
 		this.onToggleParam();
 	}
 
 	public onToggleParam():void {
-		const params:string[] = [];
-		for (let i = 0; i < this.param_options.length; i++) {
-			const opt = this.param_options[i];
-			if(opt.value === true) {
-				const data = opt.storage as ITriggerPlaceholder
-				params.push(data.tag);
-			}
-		}
+		const params:string[] = this.parameters.filter(v=>v.enabled).map(v=> v.placeholder.tag);
 		this.action.params = params;
 	}
 
@@ -78,19 +72,43 @@ export default class TriggerActionWSEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionwsentry{
-	.triggerActionForm();
 
-	.argument {
-		padding-left: 1em;
+	.tags {
+		.title {
+			margin-bottom: .5em;
+		}
 	}
 
-	.securityError {
-		color: var(--mainColor_light);
-		background-color: var(--mainColor_alert);
-		margin-top: -.25em;
-		padding: .5em;
-		border-bottom-left-radius: var(--border-radius);
-		border-bottom-right-radius: var(--border-radius);
+	.params {
+		display: grid;
+		grid-template-columns: 1fr 1fr 40px;
+		align-items: center;
+		gap: .5em;
+		font-size: .8em;
+		position: relative;
+		overflow: hidden;
+		z-index: 0;
+		.tag {
+			text-align: right;
+		}
+		.rowItem {
+			position: relative;
+			cursor: pointer;
+			&:nth-child(3n+1) {
+				max-width: 20vw;
+			}
+			&:hover::before {
+				content: "";
+				position: absolute;
+				top: 50%;
+				left: -1000px;
+				width: 2000px;
+				height: calc(100% + 4px);
+				background-color: var(--color-primary);
+				transform: translateY(-50%);
+				z-index: -1;
+			}
+		}
 	}
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
-	<div class="triggeractioncountentry">
-		<div class="row item list">
+	<div class="triggeractioncountentry triggerActionForm">
+		<div class="card-item list">
 			<label class="listLabel">
 				<img src="@/assets/icons/count.svg" class="icon">
 				<span>{{ $t(param_counters.labelKey as string) }}</span>
@@ -18,12 +18,12 @@
 			></vue-select>
 		</div>
 
-		<div class="row item users" v-if="selectedPerUserCounters.length > 0 && userSourceOptions.length > 1">
+		<div class="card-item counterList" v-if="selectedPerUserCounters.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
 				<img src="@/assets/icons/user.svg" class="icon">
 				<span>{{ $tc("triggers.actions.count.user_source_title", selectedPerUserCounters.length) }}</span>
 			</div>
-			<div class="item" v-for="item in selectedPerUserCounters" :key="item.id">
+			<div class="card-item primary" v-for="item in selectedPerUserCounters" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
 				<select :id="'select_'+item.id" v-model="action.counterUserSources[item.id]">
 					<option v-for="opt in userSourceOptions" :value="opt.key">{{ $t(opt.labelKey, {PLACEHOLDER:opt.key.toUpperCase()}) }}</option>
@@ -31,9 +31,7 @@
 			</div>
 		</div>
 
-		<div class="row item value">
-			<ParamItem noBackground :paramData="param_value" v-model="action.addValue" />
-		</div>
+		<ParamItem class="value" :paramData="param_value" v-model="action.addValue" />
 	</div>
 </template>
 
@@ -122,11 +120,9 @@ export default class TriggerActionCountEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractioncountentry{
-	.triggerActionForm();
-	
-	.value:deep(input) {
-		flex-grow: 1;
+	.value:deep(.inputHolder) {
 		flex-basis: 200px;
+		max-width: 200px;
 	}
 	.itemSelector {
 		flex-grow: 1;
@@ -151,7 +147,10 @@ export default class TriggerActionCountEntry extends Vue {
 		}
 	}
 
-	.users {
+	.counterList {
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
 		.head {
 			margin-bottom: .25em;
 			img {
@@ -159,14 +158,11 @@ export default class TriggerActionCountEntry extends Vue {
 				margin-right: .5em;
 			}
 		}
-		.item {
+		.card-item {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			flex-wrap: wrap;
-			padding: .5em;
-			border-radius: var(--border-radius);
-			background-color: var(--color-primary);
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 			.name {
 				font-weight: bold;

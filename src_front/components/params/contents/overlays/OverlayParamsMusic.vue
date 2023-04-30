@@ -1,9 +1,10 @@
 <template>
 	<div class="overlayparamsmusic">
+		<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
 		<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
 		<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 			<div>{{ $t("overlay.music_common.css") }}</div>
-			<ul>
+			<ul class="cssStructure">
 				<li>#music_holder { ... }</li>
 				<li>#music_cover { ... }</li>
 				<li>#music_infos { ... }</li>
@@ -114,9 +115,12 @@ export default class OverlayParamsMusic extends Vue {
 .overlayparamsmusic{
 	display: flex;
 	flex-direction: column;
+
+	&>label {
+		margin-bottom: .5em;
+	}
 	
 	ul {
-		.cssStructure();
 		margin-top: .5em;
 	}
 
@@ -125,13 +129,9 @@ export default class OverlayParamsMusic extends Vue {
 		max-width: 410px;
 		margin: auto;
 		margin-top: 1em;
-		padding: .5em;
-		border-radius: @border_radius;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-
-		>*:not(:first-child) {
-			margin-top: .25em;
-		}
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
 	}
 }
 </style>

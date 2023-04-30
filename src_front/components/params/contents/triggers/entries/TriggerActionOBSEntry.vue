@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" v-if="!obsConnected">
-		<div class="item info warn">
+		<div class="info warn">
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
 				<template #LINK>
@@ -11,23 +11,29 @@
 	</div>
 
 	<div :class="classes" v-else>
-		<ParamItem class="row item source" :paramData="source_conf" v-model="action.sourceName" />
-		<ParamItem class="row item show" :paramData="action_conf" v-model="action.action" />
-		<ParamItem class="row item text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
-		<ParamItem class="row item url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
-		<ParamItem class="row item file" :paramData="media_conf" v-model="action.mediaPath" v-if="isMediaSource && action_conf.value == 'show'" ref="textContent" />
-		<div v-if="showPlaceholderWarning" class="row info security">
+		<ParamItem class="source" :paramData="source_conf" v-model="action.sourceName" />
+		<ParamItem class="show" :paramData="action_conf" v-model="action.action" />
+		<ParamItem class="text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
+		<ParamItem class="url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
+		
+		<ParamItem class="file"
+			v-if="isMediaSource && filter_conf.value == '' && action_conf.value == 'show'"
+			:paramData="media_conf"
+			v-model="action.mediaPath" ref="textContent" />
+
+		<div v-if="showPlaceholderWarning" class="info">
 			<img src="@/assets/icons/alert.svg" alt="info" class="">
-			<i18n-t scope="global" class="label" tag="div" keypath="triggers.actions.obs.media_source">
+			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.media_source">
 				<template #CMD1><mark>..</mark></template>
 				<template #CMD2><mark>/</mark></template>
 			</i18n-t>
-			<br>
-			<strong>{{ $t("global.example") }}</strong>
-			<i18n-t scope="global" class="label" tag="span" keypath="triggers.actions.obs.media_source_example">
-				<template #PATH1><mark>C:/sounds/{MESSAGE}.mp3</mark></template>
-				<template #PATH2><mark>../secretfolder/somesecretfile</mark></template>
-			</i18n-t>
+			<div>
+				<strong>{{ $t("global.example") }}</strong>
+				<i18n-t scope="global" class="label" tag="span" keypath="triggers.actions.obs.media_source_example">
+					<template #PATH1><mark>C:/sounds/{MESSAGE}.mp3</mark></template>
+					<template #PATH2><mark>../secretfolder/somesecretfile</mark></template>
+				</i18n-t>
+			</div>
 		</div>
 	</div>
 </template>
@@ -78,7 +84,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	public getHelpers(key:TriggerTypesValue):ITriggerPlaceholder[] { return TriggerEventPlaceholders(key); }
 
 	public get classes():string[] {
-		const res = ["triggeractionobsentry"];
+		const res = ["triggeractionobsentry", "triggerActionForm"];
 		if(this.isMissingObsEntry) res.push("missingSource");
 		return res;
 	}
@@ -95,6 +101,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	 */
 	public get isTextSource():boolean {
 		return this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind === 'text_gdiplus_v2'
+				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
 
@@ -103,6 +110,7 @@ export default class TriggerActionOBSEntry extends Vue {
 	 */
 	public get isBrowserSource():boolean {
 		return this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind === 'browser_source'
+				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
 
@@ -261,23 +269,9 @@ export default class TriggerActionOBSEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionobsentry{
-	.triggerActionForm();
-
 	.paramitem  {
 		:deep(select), :deep(input) {
 			flex-basis: 250px;
-		}
-	}
-
-	.security {
-		font-size: .8em;
-		mark {
-			font-weight: bold;
-			padding: .25em .5em;
-			border-radius: .5em;
-			line-height: 1.75em;
-			font-size: .9em;
-			background: fade(@mainColor_normal, 15%);
 		}
 	}
 }

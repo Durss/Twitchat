@@ -2,27 +2,29 @@
 	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight']">
 		
 		<div class="holder">
-			<div class="item">
-				<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
-				<input type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
-				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-					<div>{{ $t("overlay.highlight.css") }}</div>
-					<ul>
-						<li>#highlight_holder { ... }</li>
-						<li class="sublist">
-							<ul>
-								<li>#highlight_avatar { ... }</li>
-								<li>#highlight_infos { ... }</li>
-								<li class="sublist">
-									<ul>
-										<li>#highlight_login { ... }</li>
-										<li>#highlight_message { ... }</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-					</ul>
-					<ToggleBlock class="cssPositionning" small title="Holder's positionning">
+			<a class="item demoLink" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="demo"></a>
+			
+			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
+			<input type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
+			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
+				<div>{{ $t("overlay.highlight.css") }}</div>
+				<ul class="cssStructure">
+					<li>#highlight_holder { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>#highlight_avatar { ... }</li>
+							<li>#highlight_infos { ... }</li>
+							<li class="sublist">
+								<ul>
+									<li>#highlight_login { ... }</li>
+									<li>#highlight_message { ... }</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+					<ul class="cssStructure">
 						<li>#highlight_holder.position-tl { ... }</li>
 						<li>#highlight_holder.position-t { ... }</li>
 						<li>#highlight_holder.position-tr { ... }</li>
@@ -32,17 +34,19 @@
 						<li>#highlight_holder.position-bl { ... }</li>
 						<li>#highlight_holder.position-b { ... }</li>
 						<li>#highlight_holder.position-br { ... }</li>
-					</ToggleBlock>
-					<ul>
-						<li>#clip_holder { ... }</li>
-						<li class="sublist">
-							<ul>
-								<li>#clip_player { ... }</li>
-								<li>#clip_progressbar { ... }</li>
-							</ul>
-						</li>
 					</ul>
-					<ToggleBlock class="cssPositionning" small title="Holder's positionning">
+				</ToggleBlock>
+				<ul class="cssStructure">
+					<li>#clip_holder { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>#clip_player { ... }</li>
+							<li>#clip_progressbar { ... }</li>
+						</ul>
+					</li>
+				</ul>
+				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+					<ul class="cssStructure">
 						<li>#clip_holder.position-tl { ... }</li>
 						<li>#clip_holder.position-t { ... }</li>
 						<li>#clip_holder.position-tr { ... }</li>
@@ -52,9 +56,9 @@
 						<li>#clip_holder.position-bl { ... }</li>
 						<li>#clip_holder.position-b { ... }</li>
 						<li>#clip_holder.position-br { ... }</li>
-					</ToggleBlock>
+					</ul>
 				</ToggleBlock>
-			</div>
+			</ToggleBlock>
 
 			<div class="card-item item center placement">
 				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
@@ -105,8 +109,6 @@
 			<div class="item center" v-if="!overlayExists">
 				<span class="error">{{ $t("overlay.highlight.no_overlay") }}</span>
 			</div>
-			
-			<a class="item link" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="demo"></a>
 			
 			<div class="card-item item footer">
 				<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
@@ -235,14 +237,14 @@ export default class OverlayParamsHighlight extends Vue {
 	.holder {
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
+		gap: .5em;
 
-		.link {
+		.demoLink {
 			.demo {
 				.emboss();
 				margin:auto;
 				display: block;
-				max-height: 150px;
+				max-height: 100px;
 				aspect-ratio: 16 / 9;
 				border-radius: .5em;
 			}
@@ -318,7 +320,6 @@ export default class OverlayParamsHighlight extends Vue {
 			}
 			
 			ul {
-				.cssStructure();
 				margin-top: .5em;
 			}
 

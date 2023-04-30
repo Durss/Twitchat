@@ -9,11 +9,7 @@
 				<OverlayMusicPlayer class="player" v-if="currentTrack" :staticTrackData="currentTrack" embed />
 			</div>
 	
-			<div v-if="spotifyConnected">
-				<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
-
-				<OverlayParamsMusic />
-			</div>
+			<OverlayParamsMusic v-if="spotifyConnected" />
 	
 			<i18n-t v-if="spotifyConnected" scope="global" tag="div" keypath="overlay.music_common.infos">
 				<template #TRIGGERS>

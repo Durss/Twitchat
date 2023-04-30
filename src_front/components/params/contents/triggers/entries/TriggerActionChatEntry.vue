@@ -1,17 +1,15 @@
 <template>
-	<div class="triggeractionchatentry">
-		<div class="item">
-			<ParamItem :paramData="message_conf" v-model="action.text"
-			:error="cmdNameConflict"
-			:errorMessage="cmdNameConflict? $t('triggers.actions.chat.loop') : ''">
-				<ToggleBlock class="commands" :title="$t('triggers.actions.chat.commands_list')" small :open="false">
-					<div class="cmd" v-for="c in sortedCommands"
-						v-tooltip="$t('global.placeholder_selector_insert')"
-						@click="insertCommand(c)"
-						v-html="c.cmd.replace(/(\/\S+)/gi, '<mark>$1</mark>').replace(/(?:\{([^}]+)\}?)/gi, ' [$1]')"></div>
-				</ToggleBlock>
-			</ParamItem>
-		</div>
+	<div class="triggeractionchatentry triggerActionForm">
+		<ParamItem :paramData="message_conf" v-model="action.text"
+		:error="cmdNameConflict"
+		:errorMessage="$t('triggers.actions.chat.loop')">
+			<ToggleBlock class="commands" :title="$t('triggers.actions.chat.commands_list')" small :open="false">
+				<div class="cmd" v-for="c in sortedCommands"
+					v-tooltip="$t('global.placeholder_selector_insert')"
+					@click="insertCommand(c)"
+					v-html="c.cmd.replace(/(\/\S+)/gi, '<mark>$1</mark>').replace(/(?:\{([^}]+)\}?)/gi, ' [$1]')"></div>
+			</ToggleBlock>
+		</ParamItem>
 	</div>
 </template>
 
@@ -73,7 +71,6 @@ export default class TriggerActionChatEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionchatentry{
-	.triggerActionForm();
 	.info {
 		line-height: 1.25em;
 	}

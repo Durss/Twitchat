@@ -101,7 +101,6 @@ export default class TabMenu extends Vue {
 	row-gap: 5px;
 	overflow-x: auto;
 	overflow-y: hidden;
-	max-width: 100%;
 	padding: 4px;
 
 	.tabItem {
@@ -139,6 +138,7 @@ export default class TabMenu extends Vue {
 			}
 		}
 		.selectionChip {
+			position: absolute;
 			background-color: var(--color-secondary-light);
 			display: block;
 			height: 10px;
@@ -149,7 +149,8 @@ export default class TabMenu extends Vue {
 			border-bottom-right-radius: 20px;
 			border-bottom-left-radius: 20px;
 			max-width: calc(100% - .5em);
-			transform: translateY(-7px);
+			transform: translateY(3px);
+			bottom: 0;
 		}
 
 

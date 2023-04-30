@@ -1,17 +1,15 @@
 <template>
-	<div class="triggeractiontriggerentry">
+	<div class="triggeractiontriggerentry triggerActionForm">
 			
 		<i18n-t scope="global" class="info" tag="p" keypath="triggers.actions.trigger.beta">
 			<template #LINK>
 				<a :href="discordURL" target="_blank">{{ $t("triggers.actions.trigger.beta_link") }}</a>
 			</template>
-			<template #BR>
-				<br>
-			</template>
+			<template #BR><br></template>
 		</i18n-t>
 
-		<div class="row item field col" v-if="!action.triggerId">
-			<div class="item title" v-if="rewards.length > 0 && !action.triggerId">{{$t('triggers.actions.trigger.select')}}</div>
+		<div class="card-item field col" v-if="!action.triggerId">
+			<div class="title" v-if="rewards.length > 0 && !action.triggerId">{{$t('triggers.actions.trigger.select')}}</div>
 	
 			<TriggerList class="list"
 			noEdit
@@ -19,7 +17,7 @@
 			@select="onSelectTrigger($event)" />
 		</div>
 
-		<div class="row item field" v-else>
+		<div class="card-item field" v-else>
 			<img src="@/assets/icons/broadcast.svg" class="icon">
 			<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
 			<TriggerList
@@ -29,13 +27,15 @@
 				@select="action.triggerId = ''" />
 		</div>
 
-		<ToggleBlock class="item" :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
-			<p>{{ $t("triggers.actions.trigger.warning") }}</p>
-			<strong>{{ $t("global.example") }}</strong>
-			<span v-html="$t('triggers.actions.trigger.warning_example')"></span>
+		<ToggleBlock :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
+			<div class="disclaimer">
+				<p>{{ $t("triggers.actions.trigger.warning") }}</p>
+				<strong>{{ $t("global.example") }}</strong>
+				<span v-html="$t('triggers.actions.trigger.warning_example')"></span>
+			</div>
 		</ToggleBlock>
 		
-		<div v-if="dependencyLoopInfos.length > 0" class="dependencyLoop">
+		<div v-if="dependencyLoopInfos.length > 0" class="card-item alert dependencyLoop">
 			<div class="title">{{ $t("triggers.actions.trigger.loop") }}</div>
 			<div class="head">{{ $t("triggers.actions.trigger.loop_delails") }}</div>
 			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="loopItem">
@@ -158,8 +158,6 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractiontriggerentry{
-	.triggerActionForm();
-
 	.field {
 		display: flex;
 		flex-direction: row;
@@ -173,28 +171,16 @@ export default class TriggerActionTriggerEntry extends Vue {
 			height: 1em;
 			margin-top: -5px;
 		}
-
-		.title {
-			min-width: 150px;
-		}
 		
 		.list {
 			flex-grow: 1;
 			max-height: 300px;
 			overflow-y: auto;
-			border: 1px solid var(--mainColor_normal);
 			border-radius: .5em;
-			background-color: var(--mainColor_normal_extralight);
-			padding: .5em;
 		}
 	}
 
 	.dependencyLoop{
-		background-color: var(--mainColor_alert);
-		color: var(--mainColor_light);
-		padding: .5em;
-		border-radius: .5em;
-		text-align: center;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -216,21 +202,22 @@ export default class TriggerActionTriggerEntry extends Vue {
 					display: block;
 					content:"↓";
 					margin: .25em 0;
+					text-align: center;
 				}
 			}
 
 			&:not(.loopItem ~ .loopItem),//This means "first item with class .loopItem"
 			&:last-child {
 				.loopInfo {
-					background-color: darken(@mainColor_alert, 20%);
+					background-color: var(--color-alert-light);
 				}
 			}
 
 			.loopInfo {
-				border: 1px solid var(--mainColor_light);
 				border-radius: .25em;
 				padding: .25em;
-				background-color: darken(@mainColor_alert, 10%);
+				background-color: var(--color-alert-dark);
+				box-shadow: 3px 3px 3px rgba(0,0,0,.35);
 				img {
 					height: 1em;
 					vertical-align: middle;
@@ -239,5 +226,9 @@ export default class TriggerActionTriggerEntry extends Vue {
 			}
 		}
 	}
+
+	.disclaimer {
+		font-size: .9em;
+	line-height: 1.3em;	}
 }
 </style>

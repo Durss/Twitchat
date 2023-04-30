@@ -2,7 +2,7 @@
 	"timer":{
 		"title":"Chronomètre & Décompte",
 		"description":"Lancez un chronomètre ou un compte à rebours",
-		"timerBt":"Chronomètre",
+		"timerBt":"Chrono",
 		"countdownBt":"Décompte",
 		"duration_param":"Durée (secondes)",
 		"timer_head":"Vous retrouverez le chronomètre dans la barre de tchat. Stoppez-le en cliquant dessus ou via la commande {CMD}.",

@@ -1,15 +1,20 @@
 <template>
 	<div class="triggerActionchatcommandparams">
 		<ParamItem noBackground :paramData="param_cmd" v-model="triggerData.chatCommand" @change="onUpdateCommand()"
-		:error="cmdNameConflict" :errorMessage="cmdNameConflict? $t('triggers.actions.chat.conflict') : ''" />
+			:error="cmdNameConflict"
+			:errorMessage="$t('triggers.actions.chat.conflict')" />
 			
 		<ToggleBlock class="grow permissions" :open="false" :title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium primary>
 			<PermissionsForm v-model="triggerData.permissions" />
 		</ToggleBlock>
 		
 		<ToggleBlock class="grow" :icons="['params']" :open="false" title="Paramètres avancés" primary medium>
-			<ParamItem noBackground class="aliases" :paramData="param_cmdAliases" v-model="triggerData.chatCommandAliases" @change="onUpdateCommand()"
-			:error="cmdAliasConflict" :errorMessage="cmdAliasConflict? $t('triggers.actions.chat.conflict') : ''" />
+			<ParamItem noBackground class="aliases"
+				:paramData="param_cmdAliases"
+				v-model="triggerData.chatCommandAliases"
+				@change="onUpdateCommand()"
+				:error="cmdAliasConflict"
+				:errorMessage="$t('triggers.actions.chat.conflict')" />
 	
 			<ParamItem noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
 			<ParamItem noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />

@@ -25,7 +25,7 @@
 
 		<section class="card-item" v-if="showForm">
 			<form @submit.prevent="createCounter()">
-				<ParamItem :paramData="param_title" :errorMessage="param_title.error? $t('counters.form.name_conflict') : ''" />
+				<ParamItem :paramData="param_title" :errorMessage="$t('counters.form.name_conflict')" />
 				<ParamItem :paramData="param_value" />
 				<ParamItem :paramData="param_more" />
 				<div class="ctas">
