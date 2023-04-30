@@ -53,7 +53,7 @@ export default class ParamsTwitchatAd extends Vue {
 	public expand!:boolean;
 
 	public collapse:boolean = true;
-	public blink:boolean = true;
+	public blink:boolean = false;
 	
 	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
 	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; }

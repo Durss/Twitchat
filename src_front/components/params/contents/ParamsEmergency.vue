@@ -9,14 +9,10 @@
 
 			<section>
 				<Splitter class="splitter">{{ $t("emergency.start.title") }}</Splitter>
-				<div class="item">
-					<ParamItem :paramData="param_autoEnableOnShieldmode" />
-				</div>
-				<div class="item">
-					<ParamItem :paramData="param_autoEnableOnFollowbot" />
-				</div>
-				<div class="item">
-					<ParamItem class="chatCommand" :paramData="param_chatCommand" />
+				<ParamItem :paramData="param_autoEnableOnShieldmode" />
+				<ParamItem :paramData="param_autoEnableOnFollowbot" />
+				<div class="card-item">
+					<ParamItem class="chatCommand" noBackground :paramData="param_chatCommand" />
 					<ToggleBlock :title="$t('emergency.start.chatCommand_users')" :open="false" small>
 						<PermissionsForm v-model="chatCommandPerms" />
 					</ToggleBlock>
@@ -34,23 +30,17 @@
 
 			<section>
 				<Splitter class="splitter">{{ $t("emergency.actions.title") }}</Splitter>
-				<div class="item">
 					<ParamItem :paramData="param_enableShieldMode" />
-				</div>
-				<div class="item twitchParams" v-if="param_enableShieldMode.value == false">
+				<div class="twitchParams" v-if="param_enableShieldMode.value == false">
 					<ParamItem class="hasDurationChild" :paramData="param_followersOnly" />
 					<ParamItem :paramData="param_subsOnly" />
 					<ParamItem :paramData="param_emotesOnly" />
 					<ParamItem class="hasDurationChild" :paramData="param_slowMode" />
 				</div>
-				<div class="item">
-					<ParamItem :paramData="param_noTrigger" />
-				</div>
-				<div class="item">
-					<ParamItem :paramData="param_autoTO" />
-				</div>
+				<ParamItem :paramData="param_noTrigger" />
+				<ParamItem :paramData="param_autoTO" />
 
-				<div class="item" v-if="!obsConnected">
+				<div v-if="!obsConnected">
 					<div class="warn">
 						<img src="@/assets/icons/info.svg" alt="info">
 						<i18n-t scope="global" class="label" tag="p" keypath="emergency.actions.obs_connect">
@@ -62,7 +52,7 @@
 				</div>
 				
 				<div v-else>
-					<div class="card-item item labeled">
+					<div class="card-item labeled">
 						<img src="@/assets/icons/list.svg" alt="scene icon" class="icon">
 						<p>{{ $t("emergency.actions.obs_scene") }}</p>
 						<vue-select class="sourceSelector" label="label"
@@ -74,7 +64,7 @@
 						></vue-select>
 					</div>
 					
-					<div class="card-item item labeled">
+					<div class="card-item labeled">
 						<img src="@/assets/icons/show.svg" alt="sources icon" class="icon">
 						<p>{{ $t("emergency.actions.obs_sources") }} <br><i>{{ $t("emergency.actions.obs_sources_example") }}</i></p>
 						<vue-select class="sourceSelector" label="sourceName"
@@ -326,7 +316,6 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 
 			.card-item {
 				&.labeled {
-					margin-bottom: .5em;
 					i {
 						font-size: .8em;
 					}
@@ -342,11 +331,14 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 						display: inline;
 					}
 				}
+
+			}
+			.twitchParams {
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
 			}
 		}
-	}
-
-	.sourceSelector {
 	}
 
 }

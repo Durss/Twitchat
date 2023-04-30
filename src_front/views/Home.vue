@@ -433,10 +433,10 @@ export default class Home extends Vue {
 
 	.sectionsHolder {
 		//draw middle line
-		background: linear-gradient(90deg, fade(@mainColor_light, 100%) 2px, transparent 1px);
+		background: linear-gradient(90deg, var(--color-light) 2px, transparent 1px);
 		background-position: 100% 0;
 		background-repeat: no-repeat;
-		background-size: calc(50% + 1px) calc(100% - 500px);//500px => more or less the .more{} holder's size. Avoids seeing the line behind the text on display transition
+		background-size: calc(50% + 1px) 100%;
 		.splitter {
 			width: 2em;
 			height: 2em;

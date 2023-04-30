@@ -156,11 +156,9 @@ export default class OBSWebsocket extends EventDispatcher {
 				}
 			}
 			const items = (res.sceneItems as unknown) as OBSSourceItem[];
-			console.log("ITEMS", items);
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
 				if(item.sceneItemId == e.sceneItemId) {
-					console.log("TRIGGER", item, e);
 					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SOURCE_TOGGLE, {item, event:e} as unknown as JsonObject));
 					break;
 				}
@@ -323,7 +321,6 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return {inputs:[]};
 		
 		const kinds = await this.getInputKindList();
-		console.log(kinds);
 		const audioKind = kinds.inputKinds.find(kind=>kind.indexOf("input_capture") > -1);
 		return await this.obs.call("GetInputList", {inputKind:audioKind});
 	}

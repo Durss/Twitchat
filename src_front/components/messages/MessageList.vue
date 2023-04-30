@@ -21,7 +21,7 @@
 		
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
-				<div class="fake" v-if="m.fake === true" v-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
+				<div class="fake" v-if="m.fake === true" v-tooltip="{content:$t('chat.fake_tag_tt'), placement:'right'}">{{$t("chat.fake_tag")}}</div>
 				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
 					@showConversation="openConversation"
@@ -1540,7 +1540,6 @@ export default class MessageList extends Vue {
 	position: relative;
 	flex-direction: column;
 	max-height: 100%;
-	padding-bottom: 0;
 
 	&.lightMode {
 		padding: 0;
@@ -1599,6 +1598,10 @@ export default class MessageList extends Vue {
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
+		//Scrolling is locked to 10px min from the top to avoid infinite
+		//automatic scrolling to prev items, this padding compensates for
+		//this so we can entirely see the 1st message
+		padding-top: 10px;
 
 		.subHolder {
 			position: relative;
@@ -1654,14 +1657,16 @@ export default class MessageList extends Vue {
 
 	.fake {
 		display: inline;
-		color:var(--color-secondary);
-		background-color: var(--color-light);
+		color:var(--color-light);
+		background-color: var(--color-secondary);
 		border-radius: var(--border-radius);
-		align-self: center;
+		align-self: stretch;
 		padding: .2em .5em;
 		margin-right: 5px;
 		font-weight: bold;
 		cursor: default;
+		display: flex;
+		align-items: center;
 		font-size: var(--messageSize);
 	}
 
