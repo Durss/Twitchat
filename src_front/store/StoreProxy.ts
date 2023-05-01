@@ -352,6 +352,10 @@ export interface IChatState {
 	 * Contains the position on screen of the overlay
 	 */
 	chatHighlightOverlayParams: TwitchatDataTypes.ChatHighlightParams;
+	/**
+	 * True when using /spam command to send fake messages on chat
+	 */
+	spamingFakeMessages:boolean;
 }
 
 export interface IChatGetters {

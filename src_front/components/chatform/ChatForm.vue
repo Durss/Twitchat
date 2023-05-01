@@ -12,7 +12,7 @@
 			<form @submit.prevent="" class="inputForm">
 				<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
 				
-				<div class="inputHolder" v-if="!error && !spamming">
+				<div class="inputHolder" v-if="!error && !$store('chat').spamingFakeMessages">
 
 					<div class="replyTo" v-if="$store('chat').replyTo">
 						<button class="closeBt" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross.svg" alt="close"></button>
@@ -32,12 +32,12 @@
 						:placeholder="$t('chat.form.input_placeholder')"
 						:maxlength="maxLength"
 						@keyup.capture.tab="(e)=>onTab(e)"
-						@keydown.enter="(e:Event)=>sendMessage(e)"
+						@keyup.enter="(e:Event)=>sendMessage(e)"
 						@keydown="onKeyDown">
 				</div>
 
 				<Button class="spam" alert
-					v-if="spamming"
+					v-if="$store('chat').spamingFakeMessages"
 					icon="cross"
 					@click="stopSpam()">{{ $t('chat.form.stop_spamBt') }}</Button>
 				
@@ -245,27 +245,23 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { LoremIpsum } from 'lorem-ipsum';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import ButtonNotification from '../ButtonNotification.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
-import ButtonNotification from '../ButtonNotification.vue';
 
 @Component({
 	components:{
@@ -311,14 +307,12 @@ export default class ChatForm extends Vue {
 	public message = "";
 	public error = false;
 	public loading = false;
-	public spamming = false;
 	public censoredViewCount = false;
 	public autoCompleteSearch = "";
 	public autoCompleteEmotes = false;
 	public autoCompleteUsers = false;
 	public autoCompleteCommands = false;
 	public trackedUserCount = 0;
-	public spamInterval = 0;
 	public channelId:string = "";
 	public onlineUsersTooltip:string = "";
 
@@ -398,6 +392,10 @@ export default class ChatForm extends Vue {
 	public async mounted():Promise<void> {
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
+
+			//When using /spam command input is removed from DOM
+			if(!input) return;
+
 			const carretPos = input.selectionStart as number | 0;
 			const isCmd = /^\s*(\/|!)/.test(newVal);
 			
@@ -434,7 +432,6 @@ export default class ChatForm extends Vue {
 	}
 
 	public beforeUnmount():void {
-		clearInterval(this.spamInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
 	}
@@ -526,165 +523,6 @@ export default class ChatForm extends Vue {
 		let noticeMessage:string|undefined;
 		params.forEach((v, i) => { params[i] = v.trim() });
 
-
-		if(cmd == "/chatsugg") {
-			if(event) event.preventDefault();//avoid auto submit of the opening form
-			//Open chat poll form
-			this.$emit("chatpoll");
-			this.message = "";
-		}else
-
-		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
-			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID])) {
-				this.$emit("liveStreams");
-				this.message = "";
-			}
-		}else
-
-		if(cmd == "/poll") {
-			if(event) event.preventDefault();//avoid auto submit of the opening form
-			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS])) {
-				//Open poll form
-				const title = params.join(" ");
-				if(title != "title") {
-					this.$store("main").tempStoreValue = title;
-				}
-				this.$emit("poll");
-				this.message = "";
-			}
-		}else
-
-		if(cmd == "/prediction") {
-			if(event) event.preventDefault();//avoid auto submit of the opening form
-			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
-				//Open prediction form
-				const title = params.join(" ");
-				if(title != "title") {
-					this.$store("main").tempStoreValue = title;
-				}
-				this.$emit("pred");
-				this.message = "";
-			}
-		}else
-
-		if(cmd == "/raffle") {
-			if(event) event.preventDefault();//avoid auto submit of the opening form
-			//Open raffle form
-			this.$emit("raffle");
-			this.message = "";
-		}else
-
-		if(cmd == "/fakeso") {
-			const fakeUsers = await TwitchUtils.getFakeUsers();
-			let user = Utils.pickRand(fakeUsers);
-			if(params[0] && params[0] != "true" && params[0] != "false") {
-				user = await this.$store("users").getUserFrom("twitch", this.channelId, undefined, params[0]);
-				if(!user) return;
-			}
-			const done = params[0] === "true" || params[1] === "true";
-			if(done) user.channelInfo[this.channelId].lastShoutout = Date.now();
-			const userInfos = await TwitchUtils.loadUserInfo([user.id]);
-			user.avatarPath = userInfos[0].profile_image_url;
-			if(!this.$store("users").shoutoutHistory[this.channelId]) {
-				this.$store("users").shoutoutHistory[this.channelId] = [];
-			}
-			this.$store("users").shoutoutHistory[this.channelId]!.push({
-				id:Utils.getUUID(),
-				user,
-				done,
-			})
-		}else
-
-		if(cmd == "/fakesolist") {
-			const fakeUsers = await TwitchUtils.getFakeUsers();
-			for (let i = 0; i < 10; i++) {
-				let user = Utils.pickRand(fakeUsers);
-				const done = i == 0;
-				if(done) user.channelInfo[this.channelId].lastShoutout = Date.now();
-				const userInfos = await TwitchUtils.loadUserInfo([user.id]);
-				user.avatarPath = userInfos[0].profile_image_url;
-				if(!this.$store("users").shoutoutHistory[this.channelId]) {
-					this.$store("users").shoutoutHistory[this.channelId] = [];
-				}
-				this.$store("users").shoutoutHistory[this.channelId]!.push({
-					id:Utils.getUUID(),
-					user,
-					done,
-				})
-			}
-		}else
-
-		if(cmd == "/fake") {
-			this.loading = true;
-			let forcedMessage = params.join(" ");
-
-			const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
-			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
-			forcedMessage = forcedMessage.replace(/\{LOREM\}/gi, message);
-			await this.$store("debug").sendRandomFakeMessage(true, forcedMessage);
-			this.loading = false;
-		}else
-
-		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam") {
-			this.loading = true;
-			this.spamming = true;
-			clearInterval(this.spamInterval);
-			
-			const forcedMessage = params.join(" ");
-			const incMode = params[0] == "inc";
-			let inc = 0;
-
-			this.spamInterval = window.setInterval(()=> {
-				if(incMode) {
-					this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (m)=>{
-						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-							m.message = "Message "+(inc++);
-							m.message_chunks = TwitchUtils.parseMessageToChunks(m.message);
-							m.message_html = m.message;
-							m.todayFirst = false;
-							m.twitch_isFirstMessage = false;
-							m.twitch_isSuspicious = false;
-						}
-					});
-
-				}else{
-					const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
-					const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
-					this.$store("debug").sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message));
-				}
-			}, cmd == "/megaspam"? 50 :  200);
-			this.message = "";
-			this.loading = false;
-		}else
-
-		if(cmd == "/fakewhisper" || cmd == "/fakewhispers") {
-			let count = parseInt(params[0]) || 1;
-			for (let i = 0; i < count; i++) {
-				this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.WHISPER);
-			}
-			this.message = "";
-		}else
-
-		if(cmd == "/gigaspam") {
-			this.loading = true;
-			const count = this.$store("chat").realHistorySize;
-			for (let i = 0; i < count; i++) {
-				const post = i > count - 100;
-				await this.$store("debug").sendRandomFakeMessage(post, undefined,(message:TwitchatDataTypes.ChatMessageTypes)=>{
-					if(!post) {
-						//Push message not posted on tchat to the message history
-						this.$store("chat").messages.push(message);
-					}
-				});
-			}
-			this.message = "";
-			this.loading = false;
-		}else
-
-		if(cmd == "/spamstop") {
-			this.stopSpam();
-		}else
-		
 		if(cmd == "/cypherkey") {
 			//Secret feature hehehe ( ͡~ ͜ʖ ͡°)
 			this.$store("main").setCypherKey(params[0]);
@@ -702,28 +540,10 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
-		if(cmd == "/version") {
-			//App version
-			noticeId = TwitchatDataTypes.TwitchatNoticeType.APP_VERSION;
-			noticeMessage = "Twitchat version "+import.meta.env.PACKAGE_VERSION;
-			this.message = "";
-		}else
-		
 		if(cmd == "/dataversion") {
 			//App version
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.APP_VERSION;
 			noticeMessage = "Twitchat data version "+DataStore.get(DataStore.DATA_VERSION);
-			this.message = "";
-		}else
-		
-		if(cmd == "/logmessages") {
-			//App version
-			console.log(this.$store("chat").messages)
-			this.message = "";
-		}else
-		
-		if(cmd == "/lang") {
-			this.$i18n.locale = params[0];
 			this.message = "";
 		}else
 		
@@ -737,58 +557,6 @@ export default class ChatForm extends Vue {
 			}catch(error) {
 				this.$store("main").alert("Invalid or missing JSON");
 			}
-		}else
-
-		if(cmd == "/userlist") {
-			this.$emit('TTuserList');
-			this.message = "";
-		}else
-
-		if(cmd == "/userdata" || cmd == "/loaduserdata") {
-			if(params.length == 0) {
-				this.$store("main").alert(this.$t('error.username_missing'));
-			}else{
-				this.loading = true;
-				let users:TwitchDataTypes.UserInfo[] = [];
-				try {
-					users = await TwitchUtils.loadUserInfo(undefined, [params[0]])
-				}catch(error) {}
-
-				if(users.length == 0) {
-					this.$store("main").alert(this.$t("error.user_param_not_found", {USER:params[0]}));
-				}else{
-					const options = {
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-							'App-Version': import.meta.env.PACKAGE_VERSION,
-						},
-					}
-					const res = await fetch(Config.instance.API_PATH+"/user/data?uid="+users[0].id, options)
-					if(res.status === 200) {
-						const json = await res.json();
-						if(cmd === "/loaduserdata") {
-							DataStore.loadFromJSON(json.data);
-						}else{
-							//Open JSON on new tab
-							const data = JSON.stringify(json.data);
-							const blob = new Blob([data], { type: 'application/json' });
-							const url = window.URL.createObjectURL(blob);
-							window.open(url, "_blank");
-						}
-					}else{
-						this.$store("main").alert("Unable to load user data");
-					}
-				}
-				this.loading = false;
-			}
-			this.message = "";
-		
-		}else if(cmd == "/bingo" && params[0] != "number" && params[0] != "emote" && params[0] != "custom") {
-				if(event) event.preventDefault();//avoid auto submit of the opening form
-				this.$emit("bingo");
-				this.message = "";
 		}else{
 
 			//Send message
@@ -825,9 +593,7 @@ export default class ChatForm extends Vue {
 	 * Stop spamming fake messages
 	 */
 	public stopSpam():void {
-		clearInterval(this.spamInterval);
-		this.message = "";
-		this.spamming = false;
+		MessengerProxy.instance.stopSpam();
 	}
 
 	/**

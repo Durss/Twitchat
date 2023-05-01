@@ -905,7 +905,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//We don't wait 1s or more, otherwise if TO for 1s the user would be unbanned
 		//before the setTimeout completes
 		setTimeout(()=> {
-			//Test
 			const isTO = !isNaN(duration as number);
 			if(!user.channelInfo[channel_id].is_banned
 			|| user.channelInfo[channel_id].banEndDate && !isTO

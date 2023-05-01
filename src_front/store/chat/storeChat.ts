@@ -32,6 +32,7 @@ export const storeChat = defineStore('chat', {
 		whispers: {},
 		emoteSelectorCache: [],
 		replyTo: null,
+		spamingFakeMessages: false,
 		
 		botMessages: {
 			raffleStart: {

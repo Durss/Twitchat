@@ -619,6 +619,7 @@ export default class Utils {
 
 		switch(trigger.type) {
 
+			case TriggerTypes.SLASH_COMMAND:
 			case TriggerTypes.CHAT_COMMAND: {
 				if(!result.label && trigger.chatCommand) result.label = trigger.chatCommand;
 				break;
