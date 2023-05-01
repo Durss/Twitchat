@@ -1,5 +1,5 @@
 <template>
-	<div class="chatroomsettings chatMessage highlight">
+	<div class="chatroomsettings chatMessage highlight primary">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img class="icon lock" src="@/assets/icons/lock.svg" />
 		<div class="content">
@@ -88,12 +88,6 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatroomsettings{
-	color:var(--color-light);
-	background-color: var(--color-primary);
-	&:hover {
-		background-color: var(--color-primary-light);
-	}
-
 	.content {
 		display: flex;
 		flex-direction: column;

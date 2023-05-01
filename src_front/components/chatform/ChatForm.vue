@@ -630,12 +630,28 @@ export default class ChatForm extends Vue {
 			this.spamming = true;
 			clearInterval(this.spamInterval);
 			
-			let forcedMessage = params.join(" ");
+			const forcedMessage = params.join(" ");
+			const incMode = params[0] == "inc";
+			let inc = 0;
 
 			this.spamInterval = window.setInterval(()=> {
-				const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
-				const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
-				this.$store("debug").sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message));
+				if(incMode) {
+					this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (m)=>{
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							m.message = "Message "+(inc++);
+							m.message_chunks = TwitchUtils.parseMessageToChunks(m.message);
+							m.message_html = m.message;
+							m.todayFirst = false;
+							m.twitch_isFirstMessage = false;
+							m.twitch_isSuspicious = false;
+						}
+					});
+
+				}else{
+					const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
+					const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+					this.$store("debug").sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message));
+				}
 			}, cmd == "/megaspam"? 50 :  200);
 			this.message = "";
 			this.loading = false;
@@ -1207,6 +1223,5 @@ export default class ChatForm extends Vue {
 		transform: translateY(-100%);
 		z-index: 1;
 	}
-
 }
 </style>

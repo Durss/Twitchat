@@ -3,6 +3,7 @@
 	@mouseenter="onHoverList"
 	@mouseleave="onLeaveList"
 	@wheel="onMouseWheel"
+	@touchstart="onTouchStart"
 	@touchmove="onTouchMove">
 		<MessageListFilter class="filters"
 			ref="listFilter"
@@ -174,6 +175,7 @@ export default class MessageList extends Vue {
 	private openConvTimeout!: number;
 	private closeConvTimeout!: number;
 	private prevTouchMove!: TouchEvent;
+	private touchDragOffset: number = 0;
 	private publicApiEventHandler!: (e: TwitchatEvent) => void;
 	private deleteMessageHandler!: (e: GlobalEvent) => void;
 	private addMessageHandler!: (e: GlobalEvent) => void;
@@ -326,7 +328,7 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
 		if (this.pendingMessages.length == 0 && el.scrollTop >= maxScroll - 50) {
-			this.lockScroll = false;
+			this.unlockListRefresh();
 		}
 	}
 
@@ -1042,7 +1044,6 @@ export default class MessageList extends Vue {
 	 * Called when scrolling the list
 	 */
 	private async onScroll(amount:number, event?:WheelEvent):Promise<void> {
-		//"shiftkey" filter avoids pausing chat when scrolling horizontally via shift+wheel
 		if (this.lightMode) return;
 
 		if (amount < 0) {
@@ -1056,7 +1057,7 @@ export default class MessageList extends Vue {
 			const messRefs = el.querySelectorAll(".message");
 			if (messRefs.length == 0) {
 				//If scrolling the chat down before any message shows up, just load next message
-				await this.showNextPendingMessage(true);
+				await this.showNextPendingMessage();
 				return;
 			}
 			
@@ -1068,10 +1069,19 @@ export default class MessageList extends Vue {
 						event.preventDefault();
 						event.stopPropagation();
 					}
-					await this.showNextPendingMessage(true);
+					await this.showNextPendingMessage();
 				}
 			}
 		}
+	}
+
+	/**
+	 * Start scrolling chat on mobile
+	 * Used to set a drag offset to avoid glitchy chat scroll
+	 * when actually trying to scroll horizontally
+	 */
+	public onTouchStart(event: TouchEvent): void {
+		this.touchDragOffset = event.touches[0].clientY;
 	}
 
 	/**
@@ -1082,9 +1092,17 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 		if (this.prevTouchMove) {
 			const direction = event.touches[0].clientY - this.prevTouchMove.touches[0].clientY;
-			//Pause chat if dragging it upward
-			if (direction > 0) this.lockScroll = true;
-			else this.lockScroll = Math.abs(el.scrollTop - maxScroll) != 0;
+			const dragOffset = event.touches[0].clientY - this.touchDragOffset;
+			//Pause chat if dragging it upward for at least 50px
+			if (direction > 0 && dragOffset > 50) this.lockScroll = true;
+			else {
+				const lock = Math.abs(el.scrollTop - maxScroll) != 0;
+				if(!lock) {
+					this.unlockListRefresh();
+				}else{
+					this.lockScroll = true;
+				}
+			}
 		}
 		this.prevTouchMove = event;
 	}
@@ -1152,19 +1170,22 @@ export default class MessageList extends Vue {
 			messageHolder.style.transform = "translateY(0)";
 		}
 
+		//Compute scroll offset before/after which point prev/next messages
+		//should be loaded
+		const offset = Math.min(this.virtualMessageHeight * 5, maxScroll*.25);
 
 		//Show next pending message if at the bottom and scroll isn't locked
-		if (this.virtualScrollY >= maxScroll - 1
-		&& !this.lockScroll
+		if (messageHolder.scrollTop >= maxScroll - offset
 		&& this.pendingMessages.length > 0) {
-			gsap.killTweensOf(messageHolder);
 			await this.showNextPendingMessage();
+			gsap.killTweensOf(messageHolder);
 			
 			//Show older messages if near the top
-		}else if(messageHolder.scrollTop < Math.min(this.virtualMessageHeight * 5, maxScroll*.25)) {
+		}else if(messageHolder.scrollTop < offset) {
 			//Make sure we don't reach the top.
-			//If we did the list would keep scrolling up until reaching the first message
-			messageHolder.scrollTop = this.virtualScrollY = Math.max(10, messageHolder.scrollTop);
+			//If we did the list would keep scrolling up until reaching the first message unless
+			//we bring it back just a little like this
+			messageHolder.scrollTop = this.virtualScrollY = offset + 2;
 			gsap.killTweensOf(messageHolder);
 			this.showPrevMessage();
 		}
@@ -1173,40 +1194,57 @@ export default class MessageList extends Vue {
 	/**
 	 * Get the next pending message and display it to the list
 	 */
-	private async showNextPendingMessage(wheelOrigin = false):Promise<void> {
+	private async showNextPendingMessage():Promise<void> {
 		if (this.pendingMessages.length == 0) return;
+		
+		//Get last currently displayed message reference so we can scroll back
+		//to it after adding new messages
+		const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
+		const messRefs = messagesHolder.querySelectorAll(".messageHolder>.subHolder");
+		let lastMessRef:HTMLDivElement|undefined = undefined;
+		if (messRefs.length > 0) {
+			lastMessRef = messRefs[messRefs.length - 1] as HTMLDivElement;
+		}
 
+		//Add 5 messages
+		let addCount = 5;
 		let message!: TwitchatDataTypes.ChatMessageTypes | undefined;
 		do {
 			message = this.pendingMessages.shift();
-			if(!await this.shouldShowMessage(message!)) message = undefined
-		} while (this.pendingMessages.length > 0 && !message)
-
-		if (message) {
+			//Remove it from locked live list if it exists
 			const index = this.lockedLiveMessages.findIndex(v=>v.id == message!.id);
-			if(index > -1) {
-				this.lockedLiveMessages.splice(index, 1);
-			}
-			this.filteredMessages.push(message);
-			if (this.filteredMessages.length > this.maxMessages) {
-				this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
-			}
-			this.scrollToPrevMessage(wheelOrigin);
-		}
+			if(index > -1) this.lockedLiveMessages.splice(index, 1);
 
+			//Message isn't supposed to be displayed, ignore it
+			if(!await this.shouldShowMessage(message!)) message = undefined;
+			else if(message) {
+				//Add message
+				addCount --;
+				this.filteredMessages.push(message);
+			}
+		} while (this.pendingMessages.length > 0 && addCount > 0)
+		
+		//Reset index so we can scroll upward again even if chat is still paused
+		this.scrollUpIndexOffset = -1;
+		
+		//No message added, stop there
+		if(addCount == 5) return;
+		
+		if (this.filteredMessages.length > this.maxMessages) {
+			this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
+		}
 	}
 
 	/**
-	 * Shows previous message when scrolling upward
+	 * Shows previous messages when scrolling upward
 	 */
 	private async showPrevMessage():Promise<void> {
 		if(!this.lockScroll) return;
 		if(this.loadingOldMessage || this.filteredMessages.length === 0) return;
 		
 		const list = this.$store("chat").messages;
-
 		this.loadingOldMessage = true;
-
+		
 		const removed:TwitchatDataTypes.ChatMessageTypes[]	= [];
 		const lastId:string = this.filteredMessages[0].id;
 		if(this.scrollUpIndexOffset == -1) {

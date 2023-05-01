@@ -64,4 +64,10 @@ export default class ButtonNotification extends Vue {
 		background-color: var(--color-secondary);
 	}
 }
+@media only screen and (max-width: 600px) {
+	.buttonnotification{
+		width: 1.5em;
+		height: 1.5em;
+	}
+}
 </style>

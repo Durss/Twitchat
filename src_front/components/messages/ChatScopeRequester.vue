@@ -1,6 +1,6 @@
 <template>
-	<div class="chatscoperequester chatMessage highlight">
-		<button class="closeBt" @click="deleteMessage()"><img src="@/assets/icons/cross.svg"></button>
+	<div class="chatscoperequester chatMessage highlight alert">
+		<CloseButton @click="deleteMessage()" />
 
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
@@ -16,8 +16,8 @@
 				</li>
 			</ul>
 
-			<Button class="grantBt" icon="lock_fit" @click="requestScopes()">{{ $t('chat.scope_request.grantBt') }}</Button>
-			<Button class="filterBt" icon="filters" @click="openFilters()">{{ $t('chat.scope_request.openFiltersBt') }}</Button>
+			<Button class="grantBt" alert icon="lock_fit" @click="requestScopes()">{{ $t('chat.scope_request.grantBt') }}</Button>
+			<Button class="filterBt" alert icon="filters" @click="openFilters()">{{ $t('chat.scope_request.openFiltersBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -28,10 +28,12 @@ import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/Twitch
 import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 	},
 	emits:["onRead", "openFilters"]
 })
@@ -65,27 +67,12 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatscoperequester{
-	color: var(--mainColor_light);
-	background-color: var(--mainColor_alert);
-	position: relative;
-	align-items: flex-start;
-
-	&:hover {
-		background-color: var(--mainColor_alert_light);
-	}
-	
-	.closeBt {
-		position: absolute;
-		right: .5em;
-		img {
-			height: 1em;
-		}
-	}
 	.info {
 		width: 100%;
 		.title {
 			font-weight: bold;
 			margin-bottom: .5em;
+			width: calc(100% - 2.5em);
 		}
 		.scopes {
 			display: flex;
@@ -104,12 +91,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 		.grantBt, .filterBt {
 			margin: auto;
 			margin-top: .5em;
-			display: block;
-			color: var(--mainColor_dark);
-			font-weight: bold;
-			:deep(.icon) {
-				filter: brightness(0);
-			}
+			display: flex;
 		}
 	}
 }

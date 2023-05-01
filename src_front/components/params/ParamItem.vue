@@ -355,23 +355,15 @@ export default class ParamItem extends Vue {
 			}
 		});
 		
-		watch(() => this.paramData.value, this.onEdit);
+		watch(() => this.paramData.value, () => this.onEdit());
 		
-		watch(() => this.paramData.error, ()=>{
-			this.setErrorState(this.paramData.error === true);
-		});
+		watch(() => this.paramData.error, ()=> this.setErrorState(this.paramData.error === true));
 		
-		watch(() => this.error, ()=>{
-			this.setErrorState(this.error === true);
-		});
+		watch(() => this.error, ()=> this.setErrorState(this.error === true) );
 		
-		watch(() => this.paramData.children, (value) => {
-			this.buildChildren();
-		});
+		watch(() => this.paramData.children, () => this.buildChildren() );
 		
-		watch(() => this.file, () => {
-			console.log(this.file);
-		});
+		watch(() => this.file, () => console.log(this.file) );
 		
 		this.buildChildren();
 		

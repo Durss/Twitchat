@@ -8,6 +8,7 @@
 	border-radius: var(--border-radius);
 	line-height: 1.25em;
 	padding: .25em;
+	transition: background-color .2s;
 	&.deleted {
 		opacity: .35;
 		text-decoration: line-through;
@@ -25,6 +26,30 @@
 
 		&:hover {
 			background-color: var(--color-light-fadest);
+		}
+
+		&.primary {
+			color:var(--color-light);
+			background-color: var(--color-primary);
+			&:hover {
+				background-color: var(--color-primary-light);
+			}
+		}
+
+		&.secondary {
+			color:var(--color-light);
+			background-color: var(--color-secondary);
+			&:hover {
+				background-color: var(--color-secondary-light);
+			}
+		}
+
+		&.alert {
+			color:var(--color-light);
+			background-color: var(--color-alert);
+			&:hover {
+				background-color: var(--color-alert-light);
+			}
 		}
 	}
 
