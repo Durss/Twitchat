@@ -25,6 +25,7 @@
 	--color-warn: @color-warn;
 	--color-alert: @color-alert;
 	// --color-select: @color-select;
+	--color-chatMessage: @color-chatMessage;
 	
 	--color-light-transparent: fade(@color-light, 0%);
 	--color-dark-transparent: fade(@color-dark, 0%);
@@ -35,7 +36,7 @@
 	// --color-select-transparent: fade(@color-select, 0%);
 	
 	--color-light-fade: fade(@color-light, 40%);
-	--color-dark-fade: fade(@color-dark, 70%);
+	--color-dark-fade: fade(@color-dark, 80%);
 	--color-primary-fade: fade(@color-primary, 70%);
 	--color-secondary-fade: fade(@color-secondary, 70%);
 	--color-warn-fade: fade(@color-warn, 70%);
@@ -59,7 +60,7 @@
 	// --color-select-fader: fade(@color-select, 20%);
 	
 	--color-light-light: lighten(@color-light, 10%);
-	--color-dark-light: lighten(@color-dark, 8%);
+	--color-dark-light: lighten(@color-dark, 10%);
 	--color-primary-light: lighten(@color-primary, 5%);
 	--color-secondary-light: lighten(@color-secondary, 13%);
 	--color-warn-light: lighten(@color-warn, 10%);
@@ -84,11 +85,14 @@
 
 	--border-radius:.5em;
 	
+	--highlight-suspicious: #ff8280;
+	--highlight-1st: #ff75e6;
 	--highlight-subs: #528bff;
 	--highlight-vips: #db00b3;
 	--highlight-mods: #00a865;
-	--highlight-partners: #ffee52;
-	--highlight-mention: #ff0000;
+	--highlight-partners: #9147ff;
+	--highlight-mention: #adadb8;
+	--highlight-raider: #f5f500;
 }
 
 body, html {
@@ -145,7 +149,7 @@ h1 {
 
 mark {
 	font-weight: bold;
-	background-color: var(--color-dark-fadest);
+	background-color: var(--color-dark-fader);
 	padding: .1em .25em;
 	border-radius: var(--border-radius);
 }

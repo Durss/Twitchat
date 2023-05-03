@@ -814,7 +814,7 @@ export default class ChatForm extends Vue {
 		position: relative;
 		z-index: 2;
 		box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
-		background-color: var(--color-dark-extralight);
+		background-color: var(--color-dark-light);
 		padding: .25em;
 
 		.leftForm {

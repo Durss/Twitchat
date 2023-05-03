@@ -177,7 +177,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
 	
 	@Prop({type:Boolean, default:false})
-	public lightMode!:boolean;
+	declare lightMode:boolean;
 
 	@Prop({type:Boolean, default:false})
 	public disableConversation!:boolean;
@@ -236,10 +236,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		const res					= this.staticClasses.concat();
 		const message				= this.messageData;
 		const sParams				= this.$store("params");
-		const highlightMods			= sParams.appearance.highlightMods.value === true;
-		const highlightVips			= sParams.appearance.highlightVips.value === true;
-		const highlightSubs			= sParams.appearance.highlightSubs.value === true;
-		const highlightPartners		= sParams.appearance.highlightPartners.value === true;
 		const spoilersEnabled		= sParams.features.spoilersEnabled.value === true;
 		const censorDeletedMessages	= sParams.appearance.censorDeletedMessages.value === true;
 
@@ -254,15 +250,7 @@ export default class ChatMessage extends AbstractChatMessage {
 				res.push("deleted");
 				if(censorDeletedMessages) res.push("censor");
 			}
-			if(!this.lightMode) {
-				if(this.channelInfo.is_moderator
-				&& !this.channelInfo.is_broadcaster && highlightMods)			res.push("highlightMods");
-				else if(this.channelInfo.is_vip && highlightVips)				res.push("highlightVips");
-				else if(this.messageData.user.is_partner && highlightPartners)	res.push("highlightPartners");
-				else if(this.channelInfo.is_subscriber && 
-				!this.channelInfo.is_broadcaster && highlightSubs)				res.push("highlightSubs");
-			}
-			if(spoilersEnabled && this.messageData.spoiler === true)			res.push("spoiler");
+			if(spoilersEnabled && this.messageData.spoiler === true) res.push("spoiler");
 		}
 
 		return res;
@@ -378,10 +366,10 @@ export default class ChatMessage extends AbstractChatMessage {
 
 		if(mess.cyphered) infoBadges.push({type:"cyphered"});
 
-		if(mess.user.is_raider) {
+		if(this.channelInfo.is_raider) {
 			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RAIDER});
 			//Remove "raider" badge from the view when removed from data
-			watch(()=> mess.user.is_raider, () =>{
+			watch(()=> this.channelInfo.is_raider, () =>{
 				for (let i = 0; i < this.infoBadges.length; i++) {
 					const b = this.infoBadges[i];
 					if(b.type == TwitchatDataTypes.MessageBadgeDataType.RAIDER) {
@@ -453,9 +441,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		}else {
 			if(this.messageData.twitch_isSlashMe)		staticClasses.push("slashMe");
 			if(this.messageData.twitch_isHighlighted)	staticClasses.push("highlighted");
-			if(this.messageData.type == "message"
-			&& this.messageData.hasMention)	{
-				staticClasses.push("mention");
+			if(this.messageData.type == "message" && this.messageData.hasMention)	{
 				highlightedWords.push(StoreProxy.auth.twitch.user.login);
 			}
 			if(this.isAnnouncement) {
@@ -683,12 +669,6 @@ export default class ChatMessage extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatmessageholder {
-	&.highlightSubs { background-color: --highlight_subs; }
-	&.highlightVips { background-color: --highlight_vips; }
-	&.highlightMods { background-color: --highlight_mods; }
-	&.highlightPartners { background-color: --highlight_partners; }
-	&.mention { background-color: --highlight_mention; }
-	
 	&.highlighted { 
 		.message {
 			background-color: var(--color-primary);
@@ -723,7 +703,7 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	&.tracked {
 		border-radius: var(--border-radius);
-		background-color: var(--color-secondary);
+		background-color: var(--color-secondary-fadest);
 		// border-left-width: .75em;
 		// padding-left: .3em;
 		// border: 1px solid var(--color-secondary);

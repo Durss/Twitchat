@@ -941,15 +941,11 @@ export namespace TwitchatDataTypes {
 		platform:ChatPlatform;
 		login:string;
 		displayName:string;
+		avatarPath?:string;
 		/**
 		 * Nickname chat color
 		 */
 		color?:string;
-		avatarPath?:string;
-		/**
-		 * Has the user raided us recently?
-		 */
-		is_raider:boolean;
 		/**
 		 * Is a twitch partner?
 		 */
@@ -1034,6 +1030,12 @@ export namespace TwitchatDataTypes {
 		 * true if user talked for the first time ever on our chat during this session
 		 */
 		is_new:boolean;
+		/**
+		 * true if user raided us
+		 * Stays to "true" for the specified amount of duration on the parameters
+		 * then switched back to false
+		 */
+		is_raider:boolean;
 		/**
 		 * Defines if user is a follower of the channel
 		 * null = don't know yet

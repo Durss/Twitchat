@@ -1086,7 +1086,7 @@ export default class MessageListFilter extends Vue {
 	}
 
 	@actionSizes: 26px;
-	@actionPadding: 5px;
+	@actionPadding: 0px;
 	.hoverActions {
 		margin-left: -@actionSizes - @actionPadding * 2;
 		width: @actionSizes + @actionPadding * 2;

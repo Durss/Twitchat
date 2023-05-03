@@ -590,7 +590,8 @@ export default class EventSub {
 		}else{
 			//Raided by someone
 			const user = StoreProxy.users.getUserFrom("twitch", event.to_broadcaster_user_id, event.from_broadcaster_user_id, event.from_broadcaster_user_login, event.from_broadcaster_user_name);
-			
+			user.channelInfo[event.to_broadcaster_user_id].is_raider = true;
+
 			//Check current live info
 			const [currentStream] = await TwitchUtils.loadCurrentStreamInfo([event.from_broadcaster_user_id]);
 			let isLive:boolean = false, title:string = "", category:string = "", duration:number = 0;

@@ -288,7 +288,7 @@ export const storeDebug = defineStore('debug', {
 						channel_id:uid,
 						date:Date.now(),
 						type,
-						user,
+						user:fakeUser,
 						viewers:Math.round(Math.random() * 1500),
 						stream:{
 							title: "Hello world",

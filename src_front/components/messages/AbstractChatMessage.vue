@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch } from 'vue';
@@ -12,6 +12,9 @@ export default class AbstractChatMessage extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
+	
+	@Prop({type:Boolean, default:false})
+	public lightMode!:boolean;
 
 	public time:string = "";
 
@@ -37,6 +40,25 @@ export default class AbstractChatMessage extends Vue {
 			}
 		}
 		this.$el.addEventListener("click", this.clickHandler);
+		this.applyStyles();
+
+		const params = this.$store("params").appearance;
+		watch(()=> params.highlight1stEver.value, ()=> this.applyStyles());
+		watch(()=> params.highlight1stEver_color.value, ()=> this.applyStyles());
+		watch(()=> params.highlight1stToday.value, ()=> this.applyStyles());
+		watch(()=> params.highlight1stToday_color.value, ()=> this.applyStyles());
+		watch(()=> params.highlightMentions.value, ()=> this.applyStyles());
+		watch(()=> params.highlightMentions_color.value, ()=> this.applyStyles());
+		watch(()=> params.raidHighlightUser.value, ()=> this.applyStyles());
+		watch(()=> params.raidHighlightUser_color.value, ()=> this.applyStyles());
+		watch(()=> params.highlightMods.value, ()=> this.applyStyles());
+		watch(()=> params.highlightMods_color.value, ()=> this.applyStyles());
+		watch(()=> params.highlightVips.value, ()=> this.applyStyles());
+		watch(()=> params.highlightVips_color.value, ()=> this.applyStyles());
+		watch(()=> params.highlightPartners.value, ()=> this.applyStyles());
+		watch(()=> params.highlightPartners_color.value, ()=> this.applyStyles());
+		watch(()=> params.highlightSubs.value, ()=> this.applyStyles());
+		watch(()=> params.highlightSubs_color.value, ()=> this.applyStyles());
 	}
 
 	public beforeUnmount():void {
@@ -86,6 +108,66 @@ export default class AbstractChatMessage extends Vue {
 		Utils.copyToClipboard(JSON.stringify(this.messageData));
 		console.log(this.messageData);
 		gsap.fromTo(this.$el, {scale:1.2}, {duration:.5, scale:1, ease:"back.out(1.7)"});
+	}
+
+	/**
+	 * Apply custom highlight colors
+	 */
+	public applyStyles():void {
+		if(this.lightMode !== false) return;
+
+		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return;
+		const holder = this.$el as HTMLElement;
+		const params = this.$store("params").appearance;
+		const chanInfo = this.messageData.user.channelInfo[this.messageData.channel_id];
+		let color = "";
+		if(this.messageData.twitch_isFirstMessage && params.highlight1stEver.value === true) {
+			color = params.highlight1stEver_color.value as string;
+		}else
+		if(this.messageData.todayFirst && params.highlight1stToday.value === true) {
+			color = params.highlight1stToday_color.value as string;
+		}else
+		if(this.messageData.hasMention && params.highlightMentions.value === true) {
+			color = params.highlightMentions_color.value as string;
+		}else
+		if(chanInfo.is_raider && params.raidHighlightUser.value === true) {
+			color = params.raidHighlightUser_color.value as string;
+			//Watch for change to remove border when raider highlight
+			//duration has complete for this user
+			watch(()=> chanInfo.is_raider, () => {
+				this.applyStyles();
+			});
+		}else
+		if(chanInfo.is_moderator && params.highlightMods.value === true) {
+			color = params.highlightMods_color.value as string;
+		}else
+		if(chanInfo.is_vip && params.highlightVips.value === true) {
+			color = params.highlightVips_color.value as string;
+		}else
+		if(this.messageData.user.is_partner && params.highlightPartners.value === true) {
+			color = params.highlightPartners_color.value as string;
+		}else
+		if(chanInfo.is_subscriber && params.highlightSubs.value === true) {
+			color = params.highlightSubs_color.value as string;
+		}
+		if(color) {
+			holder.style.border = "1px solid "+color;
+			holder.style.borderLeftWidth = "10px";
+			holder.style.backgroundColor = color+"20";
+		}else{
+			holder.style.border = "";
+			holder.style.backgroundColor = "";
+		}
+		
+		// raidHighlightUser
+		
+		// highlightMentions
+		// highlightSubs
+		// highlightPartners
+		// highlightVips
+		// highlightMods
+		// highlight1stEver
+		// highlight1stToday
 	}
 
 }

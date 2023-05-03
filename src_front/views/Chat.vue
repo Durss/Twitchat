@@ -114,7 +114,7 @@
 		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
-		<DonorState ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
+		<DonorBadge ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 
 		<UserCard />
 
@@ -180,7 +180,6 @@ import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 import TimerForm from '../components/timer/TimerForm.vue';
-import DonorState from '../components/user/DonorState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
@@ -190,6 +189,7 @@ import ChatSuggestionState from '@/components/chatSugg/ChatSuggestionState.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
 import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 import MessageSearch from '@/components/chatform/MessageSearch.vue';
+import DonorBadge from '@/components/user/DonorBadge.vue';
 
 @Component({
 	components:{
@@ -204,7 +204,7 @@ import MessageSearch from '@/components/chatform/MessageSearch.vue';
 		TimerForm,
 		GreetThem,
 		BingoForm,
-		DonorState,
+		DonorBadge,
 		Parameters,
 		RaffleForm,
 		TTUserList,

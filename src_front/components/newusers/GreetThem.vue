@@ -341,7 +341,8 @@ export default class NewUsers extends Vue {
 			const id = this.localMessages[i].id;
 			if(this.highlightState[id] === true) {
 				this.highlightState[id] = false;
-				(items[i].$el as HTMLDivElement).removeAttribute("style");
+				// (items[i].$el as HTMLDivElement).removeAttribute("style");
+				(items[i].$el as HTMLDivElement).style.opacity = "1";
 			}
 		}
 	}

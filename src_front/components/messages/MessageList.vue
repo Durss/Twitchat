@@ -1129,6 +1129,11 @@ export default class MessageList extends Vue {
 		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
 		let easeValue		= hasResized? 1 : .3;
+
+		//Compute scroll offset before/after which point prev/next messages
+		//should be loaded
+		const scrollPageOffset = Math.min(this.virtualMessageHeight * 5, maxScroll*.25);
+
 		if(hasResized) {
 			//If enhancing size, refresh max message count
 			if(this.prevHeight < holderHeight) {
@@ -1169,23 +1174,20 @@ export default class MessageList extends Vue {
 			this.holderOffsetY = 0;
 			messageHolder.style.transform = "translateY(0)";
 		}
-
-		//Compute scroll offset before/after which point prev/next messages
-		//should be loaded
-		const offset = Math.min(this.virtualMessageHeight * 5, maxScroll*.25);
+		messageHolder.style.paddingTop = (scrollPageOffset+10)+"px";
 
 		//Show next pending message if at the bottom and scroll isn't locked
-		if (messageHolder.scrollTop >= maxScroll - offset
+		if (messageHolder.scrollTop >= maxScroll - scrollPageOffset
 		&& this.pendingMessages.length > 0) {
 			await this.showNextPendingMessage();
 			gsap.killTweensOf(messageHolder);
 			
 			//Show older messages if near the top
-		}else if(messageHolder.scrollTop < offset) {
+		}else if(messageHolder.scrollTop < scrollPageOffset) {
 			//Make sure we don't reach the top.
 			//If we did the list would keep scrolling up until reaching the first message unless
 			//we bring it back just a little like this
-			messageHolder.scrollTop = this.virtualScrollY = offset + 2;
+			messageHolder.scrollTop = this.virtualScrollY = scrollPageOffset + 2;
 			gsap.killTweensOf(messageHolder);
 			this.showPrevMessage();
 		}
@@ -1640,6 +1642,7 @@ export default class MessageList extends Vue {
 		//automatic scrolling to prev items, this padding compensates for
 		//this so we can entirely see the 1st message
 		padding-top: 10px;
+		padding-bottom: 3px;
 
 		.subHolder {
 			position: relative;
@@ -1668,6 +1671,7 @@ export default class MessageList extends Vue {
 			width: 100%;
 			height: 10000px;
 			background: rgba(0, 0, 0, .7);
+			background: var(--color-dark-fade);
 			border-bottom: 2px solid var(--color-light);
 			position: absolute;
 			bottom: 0;

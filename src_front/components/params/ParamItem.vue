@@ -295,7 +295,6 @@ export default class ParamItem extends Vue {
 			}else if(this.paramData.type == "slider") {
 				count = this.paramData.value as number;
 			}
-			
 			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
 		}
 		
@@ -580,8 +579,7 @@ export default class ParamItem extends Vue {
 		filter: blur(5px);
 		pointer-events: none;
 		background-color: var(--color-light-fadest);
-		background: linear-gradient(170deg, var(--color-light-fadest) 0%, var(--color-light-transparent) 100%);
-		transition: opacity .1s;
+		background: linear-gradient(170deg, var(--color-light-fader) 0%, var(--color-light-transparent) 100%);
 	}
 
 	&.longText {
@@ -633,7 +631,7 @@ export default class ParamItem extends Vue {
 	}
 
 	&.unselected {
-		background-color: var(--color-dark-fader);
+		background-color: var(--color-secondary-fadest);
 	}
 	
 	.content {
