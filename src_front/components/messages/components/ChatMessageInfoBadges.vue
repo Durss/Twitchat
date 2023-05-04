@@ -39,6 +39,10 @@ export default class ChatMessageInfoBadges extends Vue {
 			restrictedUser:"shield",
 			suspiciousUser:"shield",
 			emergencyBlocked:"emergency",
+			firstToday:"hand",
+			firstTimeChatter:"firstTime",
+			presentation:"presentation",
+			returningChatter:"returning",
 		};
 		if(hashmap[info.type]) {
 			return this.$image("icons/"+hashmap[info.type]+".svg");
@@ -62,32 +66,26 @@ export default class ChatMessageInfoBadges extends Vue {
 
 	.item {
 		border-radius: .25em;
-		padding: .1em .4em;
-		color: var(--mainColor_light);
-		background-color: var(--mainColor_normal);
+		padding: 1px 5px;
+		color: var(--color-light);
+		background-color: var(--color-primary);
 		white-space: nowrap;
 		cursor: default;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		gap: .25em;
+		gap: 5px;
 
 		&:not(:last-child) {
 			margin-right: .25em;
 		}
 
-		&.whisper {
-			color: var(--mainColor_dark);
-			background-color: var(--mainColor_light);
-		}
-
 		&.automod, &.emergencyBlocked, &.restrictedUser {
-			background-color: var(--mainColor_alert);
+			background-color: var(--color-alert);
 		}
 
 		&.suspiciousUser {
-			background-color: var(--mainColor_light);
-			color: var(--mainColor_alert);
+			background-color: var(--color-secondary);
 			font-weight: bold;
 		}
 

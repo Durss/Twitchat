@@ -3,34 +3,6 @@
 	@contextmenu="onContextMenu($event)"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
-		<template v-if="!automodReasons">
-			<div v-if="firstTime" class="header">
-				<img src="@/assets/icons/firstTime.svg" alt="new" class="icon">
-				<p>{{ $t('chat.message.first_time') }}</p>
-			</div>
-
-			<div v-else-if="isPresentation" class="header">
-				<img src="@/assets/icons/presentation.svg" alt="new" class="icon">
-				<i18n-t scope="global" keypath="chat.message.presentation" tag="p">
-					<template #USER><strong>{{messageData.user.displayName}}</strong></template>
-				</i18n-t>
-			</div>
-
-			<div v-else-if="isReturning" class="header">
-				<img src="@/assets/icons/returning.svg" alt="new" class="icon">
-				<i18n-t scope="global" keypath="chat.message.returning_user" tag="p">
-					<template #USER><strong>{{messageData.user.displayName}}</strong></template>
-				</i18n-t>
-			</div>
-
-			<div v-else-if="isFirstToday && !lightMode" class="header">
-				<img src="@/assets/icons/hand.svg" alt="new" class="icon">
-				<i18n-t scope="global" keypath="chat.message.first_today" tag="p">
-					<template #USER><strong>{{messageData.user.displayName}}</strong></template>
-				</i18n-t>
-			</div>
-		</template>
-
 		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
@@ -190,7 +162,6 @@ export default class ChatMessage extends AbstractChatMessage {
 	
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
-	public firstTime:boolean = false;
 	public showTools:boolean = false;
 	public automodReasons = "";
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
@@ -199,9 +170,6 @@ export default class ChatMessage extends AbstractChatMessage {
 	public infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
 	public isAd:boolean = false;
 	public isAnnouncement:boolean = false;
-	public isPresentation:boolean = false;
-	public isReturning:boolean = false;
-	public isFirstToday:boolean = false;
 	public automodInProgress:boolean = false;
 	public userBannedOnChannels:string = "";
 	public localMessageChunks:TwitchDataTypes.ParseMessageChunk[] = [];
@@ -286,12 +254,12 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Set login color
 	 */
 	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):StyleValue {
-		let color = 0xb454ff;
+		let color = 0xffffff;
 		if(user.color) {
 			color = parseInt(user.color.replace("#", ""), 16);
 		}
 		const hsl = Utils.rgb2hsl(color);
-		const minL = this.isPresentation || this.isAnnouncement || this.firstTime || this.isReturning || this.isFirstToday? .75 : .65;
+		const minL = .65;
 		if(hsl.l < minL) {
 			color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
 		}
@@ -392,7 +360,6 @@ export default class ChatMessage extends AbstractChatMessage {
 			this.canModerateMessage = false;
 			
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
-			this.firstTime = mess.twitch_isFirstMessage === true;
 			this.isAd = this.messageData.is_ad === true;
 			//Add twitchat's automod badge
 			if(mess.automod) {
@@ -418,24 +385,25 @@ export default class ChatMessage extends AbstractChatMessage {
 
 
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
-			this.isPresentation	= this.messageData.twitch_isPresentation === true;
-			this.isReturning	= this.messageData.twitch_isReturning === true;
-			this.isFirstToday	= this.messageData.todayFirst === true && this.$store("params").appearance.highlight1stToday.value === true;
-			watch(()=> mess.twitch_isSuspicious, () =>{
-				this.updateSuspiciousState();
-			});
-			watch(()=> mess.is_saved, () =>{
-				this.updateSavedState();
-			});
-			if(mess.twitch_isRestricted) {
-				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
-			}
+
+			watch(()=> mess.twitch_isSuspicious, () => this.updateSuspiciousState());
+			watch(()=> mess.is_saved, () => this.updateSavedState());
+
+			if(mess.twitch_isRestricted)				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
+			if(mess.twitch_isPresentation === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.PRESENTATION});
+			if(mess.twitch_isReturning === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RETURNING_CHATTER});
+			if(mess.twitch_isFirstMessage === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER});
+			if(mess.todayFirst === true
+			&& mess.twitch_isFirstMessage !== true
+			&& mess.twitch_isPresentation !== true
+			&& mess.twitch_isReturning !== true
+			&& this.lightMode === false
+			&& this.$store("params").appearance.highlight1stToday.value === true) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
 		}
 
 		//Pre compute some classes to reduce watchers count on "classes" getter
 
 		const staticClasses = ["chatmessageholder", "chatMessage"];
-		if(this.firstTime || this.isPresentation || this.isReturning || this.isFirstToday)	staticClasses.push("hasHeader");
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			staticClasses.push("whisper");
 		}else {
@@ -703,22 +671,19 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	&.tracked {
 		border-radius: var(--border-radius);
-		background-color: var(--color-secondary-fadest);
+		color: var(--color-light);
+		background-color: var(--color-secondary-fader);
 		// border-left-width: .75em;
 		// padding-left: .3em;
 		// border: 1px solid var(--color-secondary);
 		text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
-		.message {
-			// color: var(--color-dark);
-			// texta
-		}
 	}
 
 	&.spoiler {
 		.message {
 			color: rgba(0, 0, 0, 0);
-			background-color: var(--mainColor_dark_light);
-			background-image: repeating-linear-gradient(-45deg, #ffffff10, #ffffff10 7px, #ffffff30 7px, #ffffff30 15px);
+			background-color: var(--color-dark-light);
+			background-image: repeating-linear-gradient(-45deg, #ffffff00, #ffffff00 7px, #ffffff30 7px, #ffffff30 15px);
 		}
 		&:hover {
 			.message {
@@ -802,7 +767,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		font-weight: bold;
 		// -webkit-text-stroke: fade(#000, 50%) .25px;
 		&:hover {
-			background-color: fade(@mainColor_light, 10%);
+			background-color: var(--color-dark);
 			border-radius: 3px;
 		}
 		.translation {
@@ -813,31 +778,28 @@ export default class ChatMessage extends AbstractChatMessage {
 			content: ": ";
 			display: inline-block;
 		}
-		&:hover {
-			background-color: fade(@mainColor_dark, 50%);
-		}
 	}
 
 	.occurrenceCount {
 		display: inline-block;
-		background: var(--mainColor_warn);
+		background: var(--color-primary);
 		padding: .2em .4em;
 		margin-right: .25em;
 		font-weight: bold;
 		border-radius: 10px;
-		color:var(--mainColor_dark);
+		color:var(--color-light);
 	}
 
 	.pronoun {
 		border-radius: 3px;
-		color: var(--mainColor_light);
-		border: 1px solid var(--mainColor_light);
-		padding: 0 1px;
+		color: var(--color-light);
+		border: 1px solid var(--color-light);
+		padding: 0 2px;
 		margin-right: .25em;
 	}
 
 	.sharedBan {
-		color: var(--mainColor_alert);
+		color: var(--color-secondary);
 		font-weight: bold;
 		margin-right: .25em;
 	}
@@ -847,13 +809,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		word-break: break-word;
 		:deep(a) {
 			word-break: break-all;
-		}
-		:deep(.highlightedWord) {
-			font-weight: bold;
-			color: var(--mainColor_dark);
-			padding: 0 3px;
-			border-radius: 3px;
-			background-color: var(--mainColor_light);
 		}
 
 		:deep(mark) {
@@ -887,7 +842,6 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 			.subtitle {
 				font-size: .8em;
-				color: fade(@mainColor_light, 70%);
 			}
 			.highlightBt {
 				font-size: 1.25em;
@@ -898,25 +852,11 @@ export default class ChatMessage extends AbstractChatMessage {
 	&.blockedUser {
 		cursor: pointer;
 		.blockedMessage {
-			color: var(--mainColor_alert);
 			font-style: italic;
 		}
 		&:hover {
 			.blockedMessage {
-				color: lighten(@mainColor_alert, 20%);
-			}
-		}
-	}
-
-	&.hasHeader {
-		&>.header {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: center;
-			.icon {
-				height: 1.2em;
-				margin: .25em;
+				color: var(--color-light);
 			}
 		}
 	}
@@ -924,11 +864,11 @@ export default class ChatMessage extends AbstractChatMessage {
 	&.automod {
 		margin-top: .25em;
 		border-radius: .25em;
-		background-color: fade(@mainColor_alert, 50%);
+		background-color: var(--color-secondary-fader);
 		padding-top: 0;
 
 		.automod {
-			background-color: fade(#fff, 90%);
+			background-color: var(--color-secondary);
 			padding: .25em;
 			border-top-left-radius: .5em;
 			border-top-right-radius: .5em;
@@ -944,7 +884,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 
 			.header {
-				color: var(--mainColor_dark);
+				color: var(--color-light);
 				flex-grow: 1;
 			}
 
@@ -964,8 +904,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 	
 	&.whisper, &.cyphered {
-		background-color: var(--mainColor_highlight);
-		// border: 1px dashed var(--mainColor_light);
+		background-color: var(--color-dark-light);
 		@c1: rgba(0,0,0,.8);
 		@c2: rgba(0,0,0,.85);
 		background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
@@ -1005,7 +944,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 
 			.header {
-				color: var(--mainColor_light);
+				color: var(--color-light);
 			}
 		}
 		&.purple {

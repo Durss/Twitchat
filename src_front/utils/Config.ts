@@ -49,28 +49,7 @@ export default class Config {
 		if(this.IS_PROD) return [];
 		return [
 			// {platform:"twitch", login:"durssbot"},
-			// {platform:"twitch", login:"stupideconomics"},
-			// {platform:"twitch", login:"clothho"},
-			// {platform:"twitch", login:"kaosvmd"},
-			{platform:"twitch", login:"avamind"},
-			// {platform:"twitch", login:"iti63"},
-			// {platform:"twitch", login:"shakawah"},
-			// {platform:"twitch", login:"marikigai"},
-			// {platform:"twitch", login:"iti63"},
-			// {platform:"twitch", login:"mewstelle"},
-			// {platform:"twitch", login:"gunselsenol"},
-			// {platform:"twitch", login:"encremecanique"},
-			// {platform:"twitch", login:"xurei"},
-			// {platform:"twitch", login:"durss"},
-			// {platform:"twitch", login:"gom4rt"},
-			// {platform:"twitch", login:"pelerine"},
-			// {platform:"twitch", login:"mistermv"},
-			// {platform:"twitch", login:"mymyhgl"},
-			// {platform:"twitch", login:"sweet_anita"},
-			// {platform:"twitch", login:"littlebigwhale"},
-			// {platform:"twitch", login:"samueletienne"},
-			// {platform:"twitch", login:"andythefrenchy"},
-			// {platform:"twitch", login:"pyka"},
+			{platform:"twitch", login:"lydia__am"},
 		];
 	}
 

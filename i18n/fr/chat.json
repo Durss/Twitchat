@@ -131,10 +131,6 @@
       "title": "{USER} a remporté le tirage au sort"
     },
     "message": {
-      "first_time": "1er message ici",
-      "first_today": "1er message du jour",
-      "presentation": "Présentation de {USER}",
-      "returning_user": "{USER} est de retour après avoir parlé 2 fois ces 30 derniers jours",
       "automod": "Automod:",
       "automod_acceptBt_aria": "Accepter le message",
       "automod_acceptBt": "Accepter",
@@ -342,14 +338,21 @@
         "restrictedUser": "restreint·e",
         "suspiciousUser": "suspect·e",
         "emergencyBlocked": "bloqué·e",
-        "new_user": "new"
+        "new_user": "new",
+		"firstToday":"bonjour",
+		"firstTimeChatter":"1er message",
+		"presentation":"présentation",
+		"returningChatter":"de retour"
       },
       "tooltip": {
         "raider": "Raider",
         "pinned": "Epinglé",
-        "new_user": "1er jour sur votre chaîne",
+        "new_user": "1er jour sur cette chaîne",
         "restrictedUser": "Message visible uniquement par vous et vos modérateur·ices",
-        "suspiciousUser": "Personne marquée comme suspecte"
+        "suspiciousUser": "Personne marquée comme suspecte",
+		"firstToday":"1er message du jour",
+		"firstTimeChatter":"1er message sur cette chaîne",
+		"returningChatter":"A parlé dans le tchat au moins 2 fois au cours des 30 derniers jours"
       }
     },
     "scope_request": {

@@ -34,7 +34,7 @@ export default class ChatMessageChunksParser extends Vue {
 	public copyLink(e:MouseEvent, chunk:TwitchDataTypes.ParseMessageChunk):void {
 		Utils.copyToClipboard(chunk.value);
 		e.stopPropagation();
-		gsap.fromTo(e.currentTarget, {scale:1.5, filter:"brightness(2)"}, {scale:1, filter:"brightness(1)", duration:0.2});
+		gsap.fromTo(e.currentTarget, {scale:1.5, filter:"brightness(4)"}, {scale:1, filter:"brightness(1)", duration:0.2, clearProps:"all"});
 	}
 }
 </script>

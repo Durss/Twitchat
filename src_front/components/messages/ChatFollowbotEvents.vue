@@ -89,7 +89,7 @@ export default class ChatFollowbotEvents extends AbstractChatMessage {
 			}
 			&:hover {
 				.login {
-					background-color: var(--color-dark-fadest);
+					background-color: var(--color-dark-fade);
 				}
 			}
 		}

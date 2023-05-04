@@ -257,9 +257,13 @@ export namespace TwitchatDataTypes {
 		WHISPER: "whisper",
 		CYPHERED: "cyphered",
 		NEW_USER: "new_user",
+		FIRST_MESSAGE_TODAY: "firstToday",
+		PRESENTATION: "presentation",
 		SUSPICIOUS_USER: "suspiciousUser",
 		RESTRICTED_USER: "restrictedUser",
 		EMERGENCY_BLOCKED: "emergencyBlocked",
+		RETURNING_CHATTER: "returningChatter",
+		FIRST_TIME_CHATTER: "firstTimeChatter",
 	} as const;
 	export type MessageBadgeDataStringType = typeof MessageBadgeDataType[keyof typeof MessageBadgeDataType];
 	export interface MessageBadgeData {

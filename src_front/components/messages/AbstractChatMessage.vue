@@ -117,6 +117,10 @@ export default class AbstractChatMessage extends Vue {
 		if(this.lightMode !== false) return;
 
 		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return;
+
+		if(this.messageData.twitch_automod) return;
+		if(this.messageData.automod) return;
+
 		const holder = this.$el as HTMLElement;
 		const params = this.$store("params").appearance;
 		const chanInfo = this.messageData.user.channelInfo[this.messageData.channel_id];
@@ -153,7 +157,7 @@ export default class AbstractChatMessage extends Vue {
 		if(color) {
 			holder.style.border = "1px solid "+color;
 			holder.style.borderLeftWidth = "10px";
-			holder.style.backgroundColor = color+"20";
+			holder.style.backgroundColor = color+"10";
 		}else{
 			holder.style.border = "";
 			holder.style.backgroundColor = "";
