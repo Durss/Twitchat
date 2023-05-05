@@ -185,14 +185,5 @@ export default class TrackedUsers extends AbstractSidePanel {
 		}
 	}
 
-	.noMessage {
-		display: block;
-		margin:auto;
-		color: var(--mainColor_light);
-		font-style: italic;
-		opacity: 0.5;
-	}
-
-
 }
 </style>

@@ -22,7 +22,7 @@
 							<strong>{{messageData.info.category}}</strong>
 						</template>
 					</i18n-t>
-					<p class="title">{{messageData.info.title}}</p>
+					<p class="title quote">{{messageData.info.title}}</p>
 				</div>
 
 				<Button v-if="!isMe && isOnline"
@@ -69,8 +69,9 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 		let aria = "";
 		if(this.isOnline) {
 			aria = this.$t("chat.stream.online", {USER:this.messageData.info.user.displayName});
+			this.classes.push("success");
 		}else{
-			this.classes.push("offline");
+			this.classes.push("offline", "error");
 			aria = this.$t("chat.stream.offline", {USER:this.messageData.info.user.displayName});
 		}
 		this.$store("accessibility").setAriaPolite(aria);
@@ -95,17 +96,6 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatstreamonoff{
-	background-color: fade(@mainColor_highlight, 25);
-	&:hover {
-		background-color: fade(@mainColor_highlight_light, 25);
-	}
-	
-	&.offline {
-		background-color: fade(@mainColor_alert, 25);
-		&:hover {
-			background-color: fade(@mainColor_alert_light, 25);
-		}
-	}
 
 	.messageHolder {
 		display: flex;
@@ -116,7 +106,6 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 	}
 
 	.streamInfo {
-		color: var(--mainColor_light);
 		// background-color: rgba(255, 255, 255, .15);
 		border-radius: .5em;
 		overflow: hidden;

@@ -6,7 +6,7 @@
 			
 			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
 			<input type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
-			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
+			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
 					<li>#highlight_holder { ... }</li>
@@ -106,9 +106,7 @@
 				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
 			</div>
 			
-			<div class="item center" v-if="!overlayExists">
-				<span class="error">{{ $t("overlay.highlight.no_overlay") }}</span>
-			</div>
+			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
 			
 			<div class="card-item item footer">
 				<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
@@ -265,10 +263,6 @@ export default class OverlayParamsHighlight extends Vue {
 				margin: auto;
 			}
 
-			.cssPositionning {
-				margin-left: 1.7em;
-			}
-
 			&.placement {
 				.table {
 					display: flex;
@@ -325,6 +319,13 @@ export default class OverlayParamsHighlight extends Vue {
 
 			img {
 				margin-top: .5em;
+			}
+		}
+
+		.cssToggle {
+			width: 100%;
+			.cssPositionning {
+				margin-left: .6em;
 			}
 		}
 	}

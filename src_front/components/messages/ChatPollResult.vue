@@ -16,11 +16,13 @@
 				<div v-for="o in messageData.choices" :key="o.id" class="choice" :class="getChoiceClasses(o)">
 					<div class="bar" :style="getChoiceStyles(o)">
 						<div class="choiceTitle">
-							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check">
+							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check" v-else>
 							{{o.label}}
 						</div>
 						<div class="users">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon">
+							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/user.svg" alt="user" class="icon" v-else>
 							{{o.votes}}
 						</div>
 					</div>
@@ -123,15 +125,11 @@ export default class ChatPollResult extends AbstractChatMessage {
 					flex-wrap: wrap;
 					padding: 3px;
 					border-radius: 5px;
-					@c: fade(@mainColor_light, 25%);
+					@c: var(--color-light-fade);
 					background: linear-gradient(to right, @c 100%, @c 100%);
-					background-color: fade(@c, 20%);
+					background-color: var(--color-light-fader);
 					background-repeat: no-repeat;
 					justify-content: space-evenly;
-
-					&:hover {
-						outline: 1px solid var(--mainColor_light);
-					}
 
 					.users, .choiceTitle {
 						display: flex;
@@ -139,8 +137,8 @@ export default class ChatPollResult extends AbstractChatMessage {
 						align-items: center;
 						padding: 5px;
 						border-radius: 5px;
-						background-color: rgba(0, 0, 0, .25);
-						font-size: .8em;
+						background-color: var(--color-dark-fade);
+						font-size: .9em;
 
 						.icon {
 							height: 1em;
@@ -157,6 +155,17 @@ export default class ChatPollResult extends AbstractChatMessage {
 							display: none;
 						}
 					}
+				}
+				&.winner {
+					.check { display: inline; }
+					.users, .choiceTitle {
+						color: var(--color-dark);
+						font-weight: bold;
+						background-color: var(--color-light);
+					}
+					// .bar {
+					// 	border: 1px solid var(--color-light);
+					// }
 				}
 			}
 		}

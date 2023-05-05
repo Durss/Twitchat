@@ -10,29 +10,32 @@
 			
 			<div class="details">
 				<div class="row" v-if="bits > 0" v-tooltip="$t('global.tooltips.bits')">
-					<img src="@/assets/icons/bits.svg" class="icon">
+					<img src="@/assets/icons/bits.svg" class="icon" key="bits">
 					<span class="label">{{bits}}</span>
 				</div>
-				<div class="row t1" v-if="subs1 > 0" v-tooltip="$t('global.tooltips.subs1')">
-					<img src="@/assets/icons/sub.svg" class="icon">
-					<!-- <span class="tier">T1</span> -->
-					<span class="label">x{{subs1}}</span>
+				<div class="row subs" v-if="subs1 > 0 || subs2 > 0 || subs3 > 0 || primes > 0" key="subs">
+					<div class="sum">
+						<img src="@/assets/icons/sub.svg" class="icon">
+						<span class="label">{{subs1 + subs2 + subs3 + primes}}</span>
+					</div>
+					<div class="info prime" v-if="primes > 0" v-tooltip="$t('global.tooltips.primes')">
+						<img src="@/assets/icons/prime.svg" class="icon">
+						<span class="label">{{primes}}</span>
+					</div>
+					<div class="info t1" v-if="subs1 > 0"  v-tooltip="$t('global.tooltips.subs1')">
+						<span class="tier">T1</span>
+						<span class="label">{{subs1}}</span>
+					</div>
+					<div class="info t2" v-if="subs2 > 0"  v-tooltip="$t('global.tooltips.subs2')">
+						<span class="tier">T2</span>
+						<span class="label">{{subs2}}</span>
+					</div>
+					<div class="info t3" v-if="subs3 > 0"  v-tooltip="$t('global.tooltips.subs3')">
+						<span class="tier">T3</span>
+						<span class="label">{{subs3}}</span>
+					</div>
 				</div>
-				<div class="row t2" v-if="subs2 > 0" v-tooltip="$t('global.tooltips.subs2')">
-					<img src="@/assets/icons/sub.svg" class="icon">
-					<!-- <span class="tier">T2</span> -->
-					<span class="label">x{{subs2}}</span>
-				</div>
-				<div class="row t3" v-if="subs3 > 0" v-tooltip="$t('global.tooltips.subs3')">
-					<img src="@/assets/icons/sub.svg" class="icon">
-					<!-- <span class="tier">T3</span> -->
-					<span class="label">x{{subs3}}</span>
-				</div>
-				<div class="row" v-if="primes > 0" v-tooltip="$t('global.tooltips.primes')">
-					<img src="@/assets/icons/prime.svg" class="icon">
-					<span class="label">{{primes}}</span>
-				</div>
-				<div class="row" v-if="subgifts > 0" v-tooltip="$t('global.tooltips.subgifts')">
+				<div class="row" v-if="subgifts > 0" v-tooltip="$t('global.tooltips.subgifts')" key="subgifts">
 					<img src="@/assets/icons/gift.svg" class="icon">
 					<span class="label">{{subgifts}}</span>
 				</div>
@@ -47,7 +50,10 @@
 					<img :src="messageData.train.conductor_subs.user.avatarPath" class="avatar">
 
 					<div>
-						<a class="userlink" @click.stop="openUserCard(messageData.train.conductor_subs!.user)">{{messageData.train.conductor_subs.user.displayName}}</a>
+						<a class="userlink"
+						:href="'https://twitch.tv/'+messageData.train.conductor_subs.user.login"
+						target="_blank"
+						@click.stop.prevent="openUserCard(messageData.train.conductor_subs!.user)">{{messageData.train.conductor_subs.user.displayName}}</a>
 	
 						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
 							<template #COUNT>
@@ -65,7 +71,10 @@
 					<img :src="messageData.train.conductor_bits.user.avatarPath" class="avatar">
 
 					<div>
-						<a class="userlink" @click.stop="openUserCard(messageData.train.conductor_bits!.user)">{{messageData.train.conductor_bits.user.displayName}}</a>
+						<a class="userlink"
+						:href="'https://twitch.tv/'+messageData.train.conductor_bits.user.login"
+						target="_blank"
+						@click.stop.prevent="openUserCard(messageData.train.conductor_bits!.user)">{{messageData.train.conductor_bits.user.displayName}}</a>
 						
 						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="getConductorBitsCount()">
 							<template #COUNT>
@@ -174,7 +183,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 <style scoped lang="less">
 .chathypetrainresult{
 	.highlight() {
-		background-color: fade(@mainColor_normal, 50%);
+		background-color: var(--color-primary);
 		border-radius: .5em;
 		padding: 0 .5em;
 	}
@@ -186,7 +195,6 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 	.infoHolder {
 		flex-grow: 1;
 		text-align: center;
-			color:var(--mainColor_light);
 	}
 
 	.details {
@@ -194,6 +202,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 		flex-direction: row;
 		margin: .5em 0;
 		justify-content: center;
+		align-items: center;
 		flex-wrap: wrap;
 		gap: .5em;
 
@@ -212,28 +221,30 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 			.label {
 				font-weight: bold;
 			}
-			.tier {
-				font-weight: bold;
-				display: inline-block;
-				border-radius: .25em;
-				padding: 0 .2em;
-				font-size: .7em;
-				vertical-align: top;
-				margin-right: .5em;
-				color: var(--mainColor_normal);
-				background-color: var(--mainColor_light);
-			}
 
-			// &.t1 {
-				// background-color: #996f21;
-			// }
-
-			&.t2 {
-				background-color: #c247ff;
-			}
-
-			&.t3 {
-				background-color: #fc47ff;
+			&.subs {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: .5em;
+				.tier {
+					font-weight: bold;
+					display: inline-block;
+					// border-radius: .25em;
+					// padding: 0 .2em;
+					font-size: .9em;
+					vertical-align: top;
+					margin-right: .5em;
+					// color: var(--color-dark);
+					// background-color: var(--color-light);
+				}
+				.info {
+					background-color: var(--color-primary-dark);
+					padding: 2px 5px;
+					border-radius: var(--border-radius);
+				}
 			}
 		}
 	}
@@ -246,7 +257,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 			align-items: center;
 			flex-direction: row;
 			gap:.25em;
-			background-color: fade(@mainColor_normal, 50%);
+			background-color: var(--color-primary);
 			border-radius: var(--border-radius);
 			padding: .5em;
 			min-width: 6em;
@@ -263,7 +274,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 				margin-top: -1em;
 				margin-left: -1em;
 				.icon {
-					background-color: fade(@mainColor_normal, 50%);
+					background-color: var(--color-primary);
 					padding: .25em;
 					border-radius: 50%;
 					img {
@@ -278,10 +289,10 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 				border-radius: 50%;
 				margin: auto;
 				display: block;
-				border: 1px solid var(--mainColor_normal);
 			}
 			.userlink {
 				font-size: .9em;
+				color: var(--color-light);
 			}
 			.label {
 				.count {

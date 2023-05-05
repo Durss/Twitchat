@@ -35,7 +35,7 @@
 	& > .header {
 		display: flex;
 		flex-direction: row;
-		background-color: var(--color-light-fader);
+		background-color: var(--color-light-fade);
 		transition: all .2s;
 		margin: -@padding;
 		margin-bottom: @padding;
@@ -65,6 +65,7 @@
 	}
 	
 	&.primary {
+		text-shadow: 1px 1px 0 var(--color-dark-fader);
 		background-color: var(--color-primary);
 		& > .header {
 			background-color: var(--color-primary-dark);
@@ -76,6 +77,7 @@
 	}
 	
 	&.secondary {
+		text-shadow: 1px 1px 0 var(--color-dark-fader);
 		background-color: var(--color-secondary);
 		& > .header {
 			background-color: var(--color-secondary-dark);

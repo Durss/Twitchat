@@ -10,30 +10,30 @@
 		<i18n-t scope="global" v-if="messageData.restricted"
 		keypath="global.moderation_action.user_restricted" tag="p">
 			<template #USER>
-				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
 			</template>
 			<template #MODERATOR>
-				<a @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>
 		
 		<i18n-t scope="global" v-else-if="messageData.monitored"
 		keypath="global.moderation_action.user_monitored" tag="p">
 			<template #USER>
-				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
 			</template>
 			<template #MODERATOR>
-				<a @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>
 		
 		<i18n-t scope="global" v-else
 		keypath="global.moderation_action.user_unflagged" tag="p">
 			<template #USER>
-				<a @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
 			</template>
 			<template #MODERATOR>
-				<a @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>
 	</div>
@@ -68,22 +68,6 @@ export default class ChatLowTrustTreatment extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatlowtrusttreatment{
-	background-color: fade(@mainColor_normal, 10%);
-
-	a {
-		color: var(--mainColor_normal_light);
-		font-weight: bold;
-	}
 	
-	&.alert {
-		background-color: var(--mainColor_alert);
-		color:var(--mainColor_light);
-		&:hover {
-			background-color: var(--mainColor_alert_light);
-		}
-		a {
-			color:var(--mainColor_light);
-		}
-	}
 }
 </style>

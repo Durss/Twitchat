@@ -58,8 +58,8 @@
 					<span>{{ $t("usercard.non_subscribed") }}</span>
 				</div>
 
-				<div class="info" v-if="followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow.svg" alt="follow date" class="icon">{{followDate}}</div>
-				<div class="info" v-else-if="!is_self"><img src="@/assets/icons/unfollow.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
+				<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow.svg" alt="follow date" class="icon">{{followDate}}</div>
+				<div class="info" v-else-if="canListFollowers && !is_self"><img src="@/assets/icons/unfollow.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
 			</div>
 			
 			<div class="ctas">
@@ -213,6 +213,11 @@ export default class UserCard extends Vue {
 	public get canListFollowings():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]); }
 
 	/**
+	 * Get if our followers can be listed
+	 */
+	public get canListFollowers():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
+
+	/**
 	 * Get the "read user's messages" label depedning on its current state
 	 */
 	public get ttsReadBtLabel(): string {
@@ -324,7 +329,7 @@ export default class UserCard extends Vue {
 				if(!user.displayName) user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
-				if(user.channelInfo[this.channelId]?.badges.length == 0) {
+				if(user.channelInfo[this.channelId]?.badges?.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
 					user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
@@ -368,7 +373,7 @@ export default class UserCard extends Vue {
 		}
 
 		this.loading = false;
-		if(!this.error && this.user) {
+		if(!this.error && this.user && !this.followingsDisabled) {
 			this.badges = this.user.channelInfo[this.channelId]?.badges ?? [];
 
 			await this.$nextTick();
@@ -737,7 +742,7 @@ export default class UserCard extends Vue {
 						&.common {
 							padding: .25em .5em;
 							border-radius: var(--border-radius);
-							background-color: var(--color-primary-fadest);
+							background-color: var(--color-primary-fader);
 						}
 	
 						.login {

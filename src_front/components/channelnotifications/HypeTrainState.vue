@@ -315,7 +315,7 @@ export default class HypeTrainState extends Vue {
 			font-size: .7em;
 			vertical-align: middle;
 			margin-left: 15px;
-			background-color: fade(@mainColor_light, 25%);
+			background-color: var(--color-light-fade);
 			padding: 5px;
 			border-radius: 5px;
 		}
@@ -333,7 +333,7 @@ export default class HypeTrainState extends Vue {
 				flex-direction: column;
 				gap:.25em;
 				background-color: var(--color-secondary);
-				border-radius: @border_radius;
+				border-radius: var(--border-radius);
 				padding: .5em;
 				min-width: 6em;
 				
@@ -346,7 +346,7 @@ export default class HypeTrainState extends Vue {
 					margin-left: -.8em;
 					.icon {
 						display: inline;
-						background-color: var(--mainColor_light);
+						background-color: var(--color-secondary);
 						padding: .25em;
 						border-radius: 50%;
 						img {
@@ -362,14 +362,12 @@ export default class HypeTrainState extends Vue {
 					border-radius: 50%;
 					margin: auto;
 					display: block;
-					border: 1px solid var(--mainColor_normal);
 				}
 				.userlink {
 					font-size: .9em;
 					color: var(--color-light);
 				}
 				.label {
-					color: var(--mainColor_normal);
 					.count {
 						font-weight: bold;
 					}

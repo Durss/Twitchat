@@ -33,16 +33,16 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import DeezerHelper from '@/utils/music/DeezerHelper';
-import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import DeezerHelper from '@/utils/music/DeezerHelper';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import { Vue3Marquee } from 'vue3-marquee';
 import 'vue3-marquee/dist/style.css';
-import OBSWebSocket from 'obs-websocket-js';
+import AbstractOberlay from './AbstractOberlay.vue';
 
 @Component({
 	components:{
@@ -50,7 +50,7 @@ import OBSWebSocket from 'obs-websocket-js';
 	},
 	emits:["seek"]
 })
-export default class OverlayMusicPlayer extends Vue {
+export default class OverlayMusicPlayer extends AbstractOberlay {
 	
 	@Prop({
 			type: Boolean,
@@ -167,11 +167,8 @@ export default class OverlayMusicPlayer extends Vue {
 		};
 		
 		if(!this.staticTrackData) {
+			PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
 			//Wait a little to give it time to OBS websocket to establish connexion
-			setTimeout(()=> {
-				PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
-				PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
-			}, 500);
 		}else{
 			this.onTrackChangeLocal();
 			this.progress = 50;
@@ -191,6 +188,10 @@ export default class OverlayMusicPlayer extends Vue {
 
 	public beforeUnmount():void {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
+	}
+
+	public requestInfo():void {
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
 	}
 
 	public onSeek(e:MouseEvent):void {
@@ -294,7 +295,7 @@ export default class OverlayMusicPlayer extends Vue {
 		@maxHeight: ~"min(100vh, 25vw)";
 		display: flex;
 		flex-direction: row;
-		background-color: var(--mainColor_dark);
+		background-color: var(--color-dark);
 		max-height: @maxHeight;
 		max-width: 100%;
 
@@ -305,7 +306,7 @@ export default class OverlayMusicPlayer extends Vue {
 		}
 		
 		.infos {
-			color: var(--mainColor_light);
+			color: var(--color-light);
 			@minFontSize: calc(@maxHeight/3);
 			font-size: ~"min(@{minFontSize}, 50vh)";
 			flex: 1;
@@ -338,6 +339,7 @@ export default class OverlayMusicPlayer extends Vue {
 					.artist, .title {
 						padding-right: 10vw;
 						display: flex;
+						line-height: 1.2em;
 					}
 					.artist {
 						font-weight: bold;
@@ -352,12 +354,16 @@ export default class OverlayMusicPlayer extends Vue {
 
 				.staticInfos {
 					width: 100%;
-					.artist, .title {
-						padding-right: 0;
-						display: block;
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
+					.track {
+						// font-size: .8em;
+						.artist, .title {
+							width: 100%;
+							padding-right: 0 !important;
+							display: block;
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
+						}
 					}
 				}
 			}
@@ -366,7 +372,7 @@ export default class OverlayMusicPlayer extends Vue {
 			height: .24em;
 			max-width: 100%;
 			.fill {
-				background-color: var(--mainColor_light);
+				background-color: var(--color-primary);
 				height: 100%;
 			}
 		}

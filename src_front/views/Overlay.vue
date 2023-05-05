@@ -55,6 +55,7 @@ export default class Overlay extends Vue {
 			height: 10vh;
 			min-width: 200px;
 			min-height: 80px;
+			font-size: 2em;
 		}
 	}
 }

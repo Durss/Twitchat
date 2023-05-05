@@ -1,7 +1,7 @@
 <template>
 	<div class="overlaytimer">
 		<div class="timer" v-if="timerValue" id="timer" ref="timer">
-			<img id="timer_icon" src="@/assets/icons/timer.svg" alt="timer">
+			<img id="timer_icon" src="@/assets/icons/dark/timer.svg" alt="timer">
 			<div id="timer_label">{{timerValue}}</div>
 		</div>
 
@@ -131,7 +131,8 @@ export default class OverlayTimer extends Vue {
 		flex-direction: row;
 		align-items: center;
 		font-size: 2em;
-		background-color: darken(@mainColor_light, 10%);
+		color: var(--color-dark);
+		background-color: var(--color-light);
 		padding: .5em;
 		border-bottom-left-radius: 1em;
 		border-bottom-right-radius: 1em;

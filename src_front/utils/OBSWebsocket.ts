@@ -73,6 +73,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
 			this.connected = true;
+			this.dispatchEvent(new TwitchatEvent("OBS_WEBSOCKET_CONNECTED"));
 		}catch(error) {
 			console.log(error);
 			if(this.autoReconnect) {
@@ -99,6 +100,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
+			this.dispatchEvent(new TwitchatEvent("CustomEvent", e));
 		});
 
 		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {

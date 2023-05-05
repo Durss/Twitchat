@@ -21,7 +21,7 @@ export default class ChatNotice extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageNoticeData;
 	
-	public icon = "info";
+	public icon = "secondary/info";
 
 	/**
 	 * Gets text message with parsed emotes
@@ -40,13 +40,17 @@ export default class ChatNotice extends AbstractChatMessage {
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE) {
 			res.push("shield");
 			if((this.messageData as TwitchatDataTypes.MessageShieldMode).enabled) {
-				res.push("enabled");
+				res.push("highlight", "alert");
+			}else{
+				res.push("highlight", "primary");
 			}
 		}
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE) {
 			res.push("emergency");
 			if((this.messageData as TwitchatDataTypes.MessageEmergencyModeInfo).enabled) {
-				res.push("enabled");
+				res.push("highlight", "alert");
+			}else{
+				res.push("highlight", "primary");
 			}
 		}
 		return res;
@@ -64,45 +68,10 @@ export default class ChatNotice extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatnotice{
-	.message {
-		font-style: italic;
-		opacity: .7;
-		color: var(--mainColor_warn);
-
-		:deep(mark) {
-			margin: 0 .2em;
-			color: lighten(@mainColor_warn, 15%);
-		}
-	}
-
-	&.emergency, &.shield {
-		padding: .5em;
-		border-radius: .5em;
-		background-color: rgba(255, 255, 255, .15);
-		&:hover {
-			background-color: rgba(255, 255, 255, .25);
-		}
-		&.enabled {
-			background-color: var(--mainColor_alert);
-			&:hover {
-				background-color: var(--mainColor_alert_light);
-			}
-		}
+	&:not(.emergency, .shield) {
 		.message {
-			color: var(--mainColor_light);
-			opacity: 1;
-			:deep(mark) {
-				color: inherit;
-			}
-		}
-	}
-
-	&.alert {
-		.message {
-			color: var(--mainColor_alert);
-			:deep(mark) {
-				color: lighten(@mainColor_alert, 10%);
-			}
+			font-style: italic;
+			color: var(--color-secondary);
 		}
 	}
 }

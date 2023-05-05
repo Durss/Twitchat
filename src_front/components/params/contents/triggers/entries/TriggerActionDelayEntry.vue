@@ -95,7 +95,7 @@ export default class TriggerActionDelayEntry extends Vue {
 	flex-direction: row;
 	align-items: center;
 	padding-left: .5em;
-	color: var(--mainColor_normal);
+	color: var(--color-light);
 	overflow: hidden;
 	gap: .5em;
 	line-height: 1.5em;
@@ -106,11 +106,7 @@ export default class TriggerActionDelayEntry extends Vue {
 
 	.deleteBt {
 		align-self: stretch;
-		background-color: transparent;
 		border-radius: 0;
-		&:hover {
-			background-color: fade(@mainColor_alert, 20%) !important;
-		}
 	}
 }
 </style>

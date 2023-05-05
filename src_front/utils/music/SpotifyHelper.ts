@@ -338,6 +338,8 @@ export default class SpotifyHelper {
 	 * track info.
 	 */
 	public async getCurrentTrack():Promise<void> {
+		if(!Config.instance.SPOTIFY_CONNECTED) return;
+		
 		clearTimeout(this._getTrackTimeout);
 
 		const options = {

@@ -388,7 +388,7 @@ export default class NewUsers extends Vue {
 
 <style scoped lang="less">
 .greetThem{
-	background-color: var(--color-dark-light);
+	background-color: var(--color-dark);
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;
@@ -396,7 +396,7 @@ export default class NewUsers extends Vue {
 	max-height: 60vh;
 	z-index: 1;
 	position: relative;
-
+	
 	.header {
 		background-color: var(--color-primary);
 		padding: .5em 0;
@@ -420,7 +420,7 @@ export default class NewUsers extends Vue {
 				height: 1.5em;
 				width: 1.5em;
 				padding: 3px;
-				border-radius: 5px;
+				border-radius: var(--border-radius);
 			}
 		}
 
@@ -462,8 +462,9 @@ export default class NewUsers extends Vue {
 	.messageList {
 		overflow-y: auto;
 		flex-grow: 1;
-		background-color: var(--color-dark-fader);
-		box-shadow: inset 0 2px 4px rgba(0, 0, 0, .3);
+		border: 2px solid var(--color-primary);
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 		.message {
 			cursor: pointer;
 			overflow: hidden;

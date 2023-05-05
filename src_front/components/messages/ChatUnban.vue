@@ -1,5 +1,5 @@
 <template>
-	<div class="chatunban chatMessage highlight">
+	<div class="chatunban chatMessage highlight success">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/unban.svg')" alt="notice" class="icon">
@@ -48,10 +48,5 @@ export default class ChatBan extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatunban{
-	background-color: fade(@mainColor_normal, 10%);
-	
-	.userlink {
-		color: var(--mainColor_normal_light);
-	}
 }
 </style>

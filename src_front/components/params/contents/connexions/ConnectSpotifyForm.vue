@@ -1,20 +1,18 @@
 <template>
 	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify']">
 		<div class="holder">
-			<div>{{ $t("connexions.spotify.usage") }}</div>
+			<div v-if="!connected">{{ $t("connexions.spotify.usage") }}</div>
 
 			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
 	
-			<div class="spotifasshole" v-if="!connected && !authenticating">
-				<div class="info">
-					<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
-						<template #URL>
-							<strong>
-								<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
-							</strong>
-						</template>
-					</i18n-t>
-				</div>
+			<div class="info" v-if="!connected && !authenticating">
+				<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
+					<template #URL>
+						<strong>
+							<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
+						</strong>
+					</template>
+				</i18n-t>
 			</div>
 
 			<form @submit.prevent="authenticate()" v-if="!connected">
@@ -131,17 +129,6 @@ export default class ConnectSpotifyForm extends Vue {
 			display: flex;
 			flex-direction: column;
 			gap: .5em;
-		}
-	
-		&.spotifasshole {
-			margin-top: .5em;
-			.info {
-				color: var(--mainColor_alert);
-				font-size: .9em;
-			}
-			form {
-				margin-top: .5em;
-			}
 		}
 	}
 }

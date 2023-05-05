@@ -2,7 +2,7 @@
   "chat": {
     "closeBt_aria": "Fermer",
     "delete_col_confirm_title": "Supprimer colonne ?",
-    "delete_col_confirm_desc": "Voulez-vous supprimer cette colonne ? Vous ne pourrez pas revenir en arrière",
+    "delete_col_confirm_desc": "Voulez-vous supprimer cette colonne ? Vous ne pourrez pas annuler cette action.",
     "paused": "Chat mis en pause",
     "no_message": "- aucun message -",
     "conversation": "Conversation",
@@ -133,9 +133,7 @@
     "message": {
       "automod": "Automod:",
       "automod_acceptBt_aria": "Accepter le message",
-      "automod_acceptBt": "Accepter",
       "automod_rejectBt_aria": "Refuser le message",
-      "automod_rejectBt": "Refuser",
       "automod_rule": "Règle:",
       "announcement": "Annonce",
       "occurrences": "Nombre de fois que ce message a été envoyé",

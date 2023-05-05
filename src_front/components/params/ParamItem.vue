@@ -848,7 +848,7 @@ export default class ParamItem extends Vue {
 	&.level_4 {
 		.child {
 			@padding:15px;
-			width: calc(100% - @padding);
+			width: 100%;
 		}
 	}
 

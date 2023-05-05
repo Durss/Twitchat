@@ -9,7 +9,7 @@
 
 		<div class="holder" v-if="counters.length > 0">
 			<div>{{ $t("overlay.counters.head") }}</div>
-			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
+			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.counters.css") }}</div>
 				<div class="head">{{$t('overlay.counters.css_example.simple')}}</div>
 				<ul class="cssStructure">
@@ -120,6 +120,7 @@ export default class OverlayParamsCounter extends Vue {
 			display: flex;
 			flex-direction: column;
 			flex-shrink: 0;
+			color: var(--color-dark);
 			label {
 				font-weight: bold;
 			}
@@ -133,6 +134,10 @@ export default class OverlayParamsCounter extends Vue {
 		input {
 			width: 100%;
 			background-color: var(--color-primary);
+		}
+
+		.cssToggle {
+			width: 100%;
 		}
 
 		.counterExample {

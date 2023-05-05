@@ -631,7 +631,6 @@ interface UserEntry {
 						color: var(--color-light);
 						border-radius: .5em;
 						background-color: var(--color-secondary);
-						// border: 1px solid var(--mainColor_normal);
 						box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 						&:hover {
 							background-color: var(--color-secondary-light);

@@ -300,7 +300,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/suggestion") {
-			StoreProxy.params.currentModal = "chatsuggForm";
+			StoreProxy.params.openModal("chatsuggForm")
 			return true;
 		}else
 
@@ -310,7 +310,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/userlist") {
-			StoreProxy.params.currentModal = "TTuserList";
+			StoreProxy.params.openModal("TTuserList")
 			return true;
 		}else
 
@@ -323,7 +323,7 @@ export default class MessengerProxy {
 			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID])) {
 				//If starting a raid with /raid without specifying a user
 				//open live followings list
-				StoreProxy.params.currentModal = "liveStreams";
+				StoreProxy.params.openModal("liveStreams")
 				return true;
 			}
 		}else
@@ -335,7 +335,7 @@ export default class MessengerProxy {
 				if(title != "title") {
 					StoreProxy.main.tempStoreValue = title;
 				}
-				StoreProxy.params.currentModal = "poll";
+				StoreProxy.params.openModal("poll")
 				return true;
 			}
 		}else
@@ -347,14 +347,14 @@ export default class MessengerProxy {
 				if(title != "title") {
 					StoreProxy.main.tempStoreValue = title;
 				}
-				StoreProxy.params.currentModal = "pred";
+				StoreProxy.params.openModal("pred")
 				return true;
 			}
 		}else
 
 		if(cmd == "/raffle") {
 			//Open raffle form
-			StoreProxy.params.currentModal = "raffle";
+			StoreProxy.params.openModal("raffle")
 			return true
 		}else
 
@@ -363,7 +363,7 @@ export default class MessengerProxy {
 			const search = params.join(" ");
 			// this.$emit("search", search);
 			StoreProxy.chat.doSearchMessages(search);
-			StoreProxy.params.currentModal = "search";
+			StoreProxy.params.openModal("search")
 			return true;
 		}else
 

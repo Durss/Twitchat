@@ -104,12 +104,12 @@ export default class PermissionsForm extends Vue {
 			border-radius: 50%;
 			bottom: -.25em;
 			position: relative;
-			background-color: var(--mainColor_highlight);
+			background-color: var(--color-primary);
 		}
 	}
 	.refuse {
 		:deep(.icon) {
-			background-color: var(--mainColor_alert);
+			background-color: var(--color-alert);
 		}
 	}
 

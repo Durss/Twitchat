@@ -1,7 +1,7 @@
 <template>
 	<div class="paramssponsor">
 		<header class="card-item" ref="head">
-			<img src="@/assets/icons/info.svg" alt="">
+			<img src="@/assets/icons/info.svg">
 			<p v-for="i in $tm('sponsor.head')" v-html="i"></p>
 		</header>
 
@@ -131,7 +131,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 			display: inline;
 		}
 		img {
-			height: 2em;
+			height: 1.3em;
 			margin-right: .25em;
 			vertical-align: middle;
 		}

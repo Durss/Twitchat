@@ -18,9 +18,7 @@
 				<Button :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
 			</div>
 
-			<div class="item center" v-if="!overlayExists">
-				<span class="error">{{ $t("overlay.raffle.no_overlay") }}</span>
-			</div>
+			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 			
 			<div class="card-item item">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
@@ -129,21 +127,17 @@ export default class OverlayParamsRaffle extends Vue {
 
 			input {
 				width: 100%;
+				margin-bottom: .5em;
 				background-color: var(--color-primary);
 			}
 
 			&.center {
-				text-align: center;
+				margin: auto;
 			}
 
 			:deep(.icon) {
 				height: 1em;
 				vertical-align: middle;
-			}
-
-			.error {
-				color:var(--mainColor_alert);
-				font-style: italic;
 			}
 
 			ul {

@@ -21,9 +21,9 @@
 			</i18n-t>
 	
 			<div class="numbers">
-				<div class="percent">{{ percent }}%</div>
+				<div class="card-item percent">{{ percent }}%</div>
 		
-				<div class="progress">
+				<div class="card-item progress">
 					<div class="values">
 						<div>{{messageData.challenge.progress}}</div>
 						<div>{{messageData.challenge.goal}}</div>

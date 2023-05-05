@@ -9,7 +9,7 @@
 		</div>
 		<div v-else class="infos">{{ $t("voice.supported_browsers") }}</div>
 
-		<div v-if="!voiceApiAvailable" class="card-item fallback">
+		<div class="card-item fallback">
 			<p>{{ $t("voice.remote_control") }}</p>
 			<a :href="voicePageUrl" target="_blank">{{voicePageUrl}}</a>
 		</div>

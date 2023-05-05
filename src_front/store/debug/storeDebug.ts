@@ -412,6 +412,18 @@ export const storeDebug = defineStore('debug', {
 							return false;//Avoid sending it on chat
 						})
 					}
+
+					const conductor_subs = Utils.pickRand(fakeUsers);
+					const conductor_bits = Utils.pickRand(fakeUsers);
+					//Load avatars if necessary
+					if(!conductor_subs.avatarPath) {
+						const profile = await TwitchUtils.loadUserInfo([conductor_subs.id]);
+						conductor_subs.avatarPath = profile[0].profile_image_url;
+					}
+					if(!conductor_bits.avatarPath) {
+						const profile = await TwitchUtils.loadUserInfo([conductor_bits.id]);
+						conductor_bits.avatarPath = profile[0].profile_image_url;
+					}
 					
 					
 					const m:TwitchatDataTypes.MessageHypeTrainSummaryData = {
@@ -431,7 +443,17 @@ export const storeDebug = defineStore('debug', {
 							level:Math.round(sum/8000),
 							is_new_record:Math.random() > .5,
 							is_boost_train:false,
-							state:'COMPLETED'
+							state:'COMPLETED',
+							conductor_subs:{
+								type:"SUBS",
+								user:conductor_subs,
+								contributions:[{sub_t1:Math.round(Math.random()*100)}]
+							},
+							conductor_bits:{
+								type:"BITS",
+								user:conductor_bits,
+								contributions:[{bits:Math.round(Math.random()*10000)}]
+							},
 						},
 						activities,
 					};
@@ -879,7 +901,7 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitch",
 						type,
 						info: {
-							user,
+							user:fakeUser,
 							title:"Amazing stream!",
 							category:"Just chatting",
 							started_at:Date.now(),
@@ -897,7 +919,7 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitch",
 						type,
 						info: {
-							user,
+							user:fakeUser,
 							title:"Amazing stream!",
 							category:"Just chatting",
 							started_at:Date.now(),

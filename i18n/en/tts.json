@@ -14,7 +14,7 @@
 		},
 		"messages": {
 			"title": "Messages to read",
-			"param_format": "Format",
+			"param_format": "Text to read",
 			"param_readMessages": "Chat messages",
 			"param_readWhispers": "Whispers",
 			"param_readNotices": "Notices (TO, ban, join/leave, emote-only,...)",

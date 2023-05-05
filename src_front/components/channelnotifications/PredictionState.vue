@@ -8,7 +8,7 @@
 			:duration="prediction.duration_s*1000"
 			v-if="!prediction.pendingAnswer" />
 		
-		<div class="outcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
+		<div class="chooseOutcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
 		
 		<div class="choices">
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
@@ -110,7 +110,7 @@ export default class PredictionState extends Vue {
 
 	public setOutcome(c:TwitchatDataTypes.MessagePredictionDataOutcome):void {
 		this.loading = true;
-		this.$confirm(this.$t('prediction.state.outcome_confirm_title', {CHOICE:c.label}), this.$t('prediction.state.outcome_confirm_desc'))
+		this.$confirm(this.$t('prediction.state.outcome_confirm_title'), this.$t('prediction.state.outcome_confirm_desc', {CHOICE:c.label}))
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, c.id);
@@ -166,10 +166,10 @@ export default class PredictionState extends Vue {
 		font-style: italic;
 	}
 	
-	.outcomeTitle {
+	.chooseOutcomeTitle {
 		align-self: stretch;
 		margin-left: 1em;
-		color: var(--mainColor_light);
+		color: var(--color-light);
 		margin-top: -1em;
 		margin-bottom: -.5em;
 		z-index: 1;

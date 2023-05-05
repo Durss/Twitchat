@@ -132,7 +132,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 			background: var(--color-primary);
 			padding: .2em .5em;
 			border-radius: .5em;
-			color:var(--mainColor_light);
+			color:var(--color-light);
 			cursor:pointer;
 
 			.icon {
@@ -147,8 +147,8 @@ export default class TriggersLogs extends AbstractSidePanel {
 
 			.subtitle {
 				font-size: .8em;
-				background: var(--mainColor_light);
-				color: var(--mainColor_normal);
+				background: var(--color-light);
+				color: var(--color-primary);
 				padding: 1.5px 5px;
 				border-radius: 5px;
 			}

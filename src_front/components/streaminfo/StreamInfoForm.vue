@@ -269,34 +269,6 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		}
 	}
 
-	.form {
-		width: 100%;
-	}
-	
-	.autoComplete-item {
-		margin-right: .25em;
-		margin-bottom: .25em;
-		padding: 0;
-		padding-right: .25em;
-		max-width: 100%;
-		:deep(.label) {
-			padding: 4px;
-			white-space: break-spaces;
-		}
-		:deep(.icon) {
-			height: 100%;
-			max-height: 2em;
-			margin-right: .25em;
-		}
-
-		&:hover {
-			&:after {
-				width: 1.25em;
-				height: 1.25em;
-			}
-		}
-	}
-
 	.loader {
 		width: 3em;
 		margin: auto;
@@ -308,42 +280,11 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		gap: 1em;
 		flex-direction: row;
 		justify-content: center;
-		margin-top: 1em;
-	}
-
-	.itemSelector {
 		margin-top: .5em;
 	}
 
-	.tagList {
-		margin-top: .8em;
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		gap: 5px;
-		align-items: center;
-		.tagItem {
-			display: inline;
-			background-color: rgb(240, 240, 240);
-			color: var(--mainColor_normal);
-			font-size: .9em;
-			padding: .25em;
-			border-radius: 4px;
-			transition: all .25s;
-
-			.icon {
-				height: .6em;
-				margin-left: .25em;
-			}
-			&:hover {
-				background: var(--mainColor_normal_extralight);
-				// color: var(--mainColor_light);
-			}
-		}
-	}
-
 	.save {
-		margin-top: 1em;
+		margin-top: .5em;
 	}
 }
 </style>

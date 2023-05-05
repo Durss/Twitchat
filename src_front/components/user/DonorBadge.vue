@@ -309,7 +309,6 @@ interface StarData {
 			.center();
 			font-family: var(--font-nunito);
 			position: absolute;
-			// color: var(--mainColor_alert);
 			color:rgba(0, 0, 0, .4);
 			font-size: 2em;
 			z-index: 1;

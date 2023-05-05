@@ -19,7 +19,7 @@
 		</div>
 		
 		<div class="list category" v-show="filterState === true">
-			<ToggleBlock class="category" medium primary
+			<ToggleBlock class="category" medium
 			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
 			:title="$t(cat.labelKey)" :icons="[cat.icon]">
 				<div class="item" v-for="item in cat.triggerList" :key="'item_'+item.trigger.id">
@@ -239,13 +239,6 @@ export interface TriggerListEntry {
 	flex-direction: column;
 	gap: 1em;
 
-	.head {
-		.small {
-			font-size: .8em;
-			font-weight: normal;
-		}
-	}
-
 	.filterSwitch {
 		margin: auto;
 	}
@@ -266,7 +259,7 @@ export interface TriggerListEntry {
 			:deep(.content) {
 				display: flex;
 				flex-direction: column;
-				gap: .25em;
+				gap: 2px;
 			}
 		}
 	}

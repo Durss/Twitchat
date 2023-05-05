@@ -19,17 +19,17 @@
 	}
 
 	&.highlight {
-		background-color: var(--color-light-fadest);
+		color: var(--color-light);
+		background-color: var(--color-light-fader);
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 
 		&:hover {
-			background-color: var(--color-light-fadest);
+			background-color: var(--color-light-fade);
 		}
 
 		&.primary {
-			color:var(--color-light);
 			background-color: var(--color-primary);
 			&:hover {
 				background-color: var(--color-primary-light);
@@ -49,6 +49,31 @@
 			background-color: var(--color-alert);
 			&:hover {
 				background-color: var(--color-alert-light);
+			}
+			.userlink {
+				color: var(--color-light);
+			}
+		}
+
+		&.success {
+			color:var(--color-light);
+			background-color: var(--color-primary-fadest);
+			&:hover {
+				background-color: var(--color-primary-fader);
+			}
+			.userlink {
+				color: var(--color-primary-light);
+			}
+		}
+
+		&.error {
+			color:var(--color-light);
+			background-color: var(--color-alert-fadest);
+			&:hover {
+				background-color: var(--color-alert-fader);
+			}
+			.userlink {
+				color: var(--color-secondary-light);
 			}
 		}
 	}
@@ -74,7 +99,7 @@
 		color: var(--color-secondary);
 		text-decoration: none;
 		&:hover {
-			background-color: var(--color-dark-fadest);
+			background-color: var(--color-dark-fader);
 		}
 	}
 	
@@ -82,7 +107,6 @@
 		font-style: italic;
 		word-break: break-word;
 		margin: 0;
-		margin-top: .5em;
 		display: block;
 		color: var(--color-light);
 		line-height: 1.2em;
@@ -126,4 +150,5 @@
 	font-family: var(--font-roboto);
 	width: 3em;
 	text-align: right;
+	align-self: flex-start;
 }

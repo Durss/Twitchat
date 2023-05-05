@@ -1,5 +1,5 @@
 <template>
-	<div class="chatban chatMessage highlight">
+	<div class="chatban chatMessage highlight error">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/timeout.svg')" alt="notice" class="icon" v-if="messageData.duration_s">
@@ -72,6 +72,5 @@ export default class ChatBan extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatban{
-	background-color: fade(@mainColor_warn, 15%);
 }
 </style>

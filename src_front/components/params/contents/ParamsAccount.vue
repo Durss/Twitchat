@@ -7,6 +7,12 @@
 		<section class="card-itemhead">
 			<div v-html="$t('account.connected_as', {USER:'<strong>'+userName+'</strong>'})"></div>
 		</section>
+
+		<section class="card-item actions">
+			<Button class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</Button>
+			<Button class="button" @click="latestUpdates()" icon="sub">{{ $t('account.updatesBt') }}</Button>
+			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
+		</section>
 		
 		<section class="card-item scopes">
 			<div class="title"><img src="@/assets/icons/lock_fit.svg">{{$t("account.authorization")}}</div>
@@ -20,12 +26,6 @@
 				:loading="generatingCSRF"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 				icon="twitch">{{ $t('login.authorizeBt') }}</Button>
-		</section>
-
-		<section class="card-item actions">
-			<Button class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</Button>
-			<Button class="button" @click="latestUpdates()" icon="sub">{{ $t('account.updatesBt') }}</Button>
-			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
 		</section>
 
 		<section class="card-item">

@@ -22,7 +22,7 @@
 							<strong>{{messageData.stream.category}}</strong>
 						</template>
 					</i18n-t>
-					<p class="title">{{messageData.stream.title}}</p>
+					<p class="title quote">{{messageData.stream.title}}</p>
 					<div class="duration" v-if="messageData.stream.wasLive">{{$t("chat.raid.duration", {DURATION:formatedDuration})}}</div>
 				</div>
 
@@ -92,11 +92,11 @@ export default class ChatRaid extends AbstractChatMessage {
 	}
 
 	.streamInfo {
-		color: var(--mainColor_light);
 		// background-color: rgba(255, 255, 255, .15);
 		border-radius: .5em;
 		overflow: hidden;
 		width: 100%;
+		gap: 1em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -114,12 +114,6 @@ export default class ChatRaid extends AbstractChatMessage {
 		.soButton {
 			align-self: center;
 		}
-	}
-	.error {
-		color: var(--mainColor_alert_light);
-		background-color: var(--mainColor_dark);
-		border-radius: .5em;
-		padding:.25em .5em;
 	}
 }
 </style>

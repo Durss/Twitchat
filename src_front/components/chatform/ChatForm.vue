@@ -441,7 +441,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void {
-		this.$store("params").currentModal = modal
+		this.$store("params").openModal(modal);
 	}
 
 	/**

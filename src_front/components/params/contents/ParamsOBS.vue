@@ -203,12 +203,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsobs{
-	.loader {
-		display: block;
-		margin: auto;
-		margin-top: 10px;
-	}
-
 	.block:not(:first-of-type) {
 		margin-top: .5em;
 	}
@@ -228,10 +222,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	.block {
 		.info {
 			margin-bottom: 1em;
-		}
-		.warn {
-			font-style: italic;
-			color: var(--mainColor_alert);
 		}
 		&.permissions {
 			.info {
@@ -257,41 +247,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 			margin: auto;
 		}
 
-		.error, .success {
-			justify-self: center;
-			color: var(--mainColor_light);
-			display: block;
-			text-align: center;
-			padding: 5px;
-			border-radius: 5px;
-			margin: auto;
-			margin-top: 10px;
-
-			&.error {
-				background-color: var(--mainColor_alert);
-			}
-
-			&.success {
-				background-color: #1c941c;
-				margin-top: 0px;
-				margin-bottom: 10px;
-			}
-			
-			a {
-				color: var(--mainColor_light);
-			}
-
-			div:not(:last-child) {
-				margin-bottom: 1em;
-			}
-			:deep(strong) {
-				background-color: var(--mainColor_light);
-				color: var(--mainColor_alert);
-				padding: 0 0.25em;
-				border-radius: 0.25em;
-			}
-		}
-	
 		.fade-enter-active {
 			transition: all 0.2s;
 		}

@@ -11,6 +11,8 @@
 	flex-direction: column;
 	gap: 1em;
 	align-items: center;
+	max-height: 50vh;
+	overflow: auto;
 
 	&>.title {
 		display: flex;
@@ -59,4 +61,9 @@
 			overflow-y: auto;
 		}
 	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: var(--color-primary-light);
+	}
+	
 }

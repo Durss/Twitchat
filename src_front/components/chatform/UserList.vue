@@ -300,15 +300,15 @@ interface ChannelUserList {
 				}
 
 				&.noFollow {
-					color: var(--mainColor_warn);
+					color: var(--color-secondary);
 					&:hover {
-						color: var(--mainColor_warn_light);
+						color: var(--color-secondary-light);
 					}
 
 					&::before {
 						content: "";
 						display: inline-block;
-						background-image: url('../../assets/icons/unfollow.svg');
+						background-image: url('../../assets/icons/secondary/unfollow.svg');
 						background-repeat: no-repeat;
 						height: .75em;
 						width: .75em;
@@ -319,6 +319,7 @@ interface ChannelUserList {
 				.icon {
 					display: inline-block;
 					vertical-align: middle;
+					margin-right: .5em;
 					img {
 						height: 1em;
 					}

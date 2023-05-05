@@ -268,7 +268,7 @@ export default class EmergencyFollowsListModal extends Vue {
 
 		.content {
 			padding-top: 0;
-			gap: 1em;
+			gap: .5em;
 			display: flex;
 			flex-direction: column;
 
@@ -293,7 +293,7 @@ export default class EmergencyFollowsListModal extends Vue {
 					will-change: transform;
 
 					&.loading {
-						background-color: var(--mainColor_alert_extralight);
+						background-color: var(--color-primary-fader);
 					}
 
 					.infos {
@@ -364,13 +364,6 @@ export default class EmergencyFollowsListModal extends Vue {
 				align-items: center;
 				flex-wrap: wrap;
 				gap:.5em;
-				.later {
-					background-color: var(--mainColor_warn);
-					&:hover {
-						background-color: var(--mainColor_warn_light);
-
-					}
-				}
 			}
 		}
 	}

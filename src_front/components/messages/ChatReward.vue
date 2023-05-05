@@ -13,7 +13,7 @@
 					<strong>{{ messageData.reward.title }}</strong>
 				</template>
 				<template #COST>
-					<i v-if="messageData.reward.cost > 0">({{ messageData.reward.cost }}pts)</i>
+					<span class="cost" v-if="messageData.reward.cost > 0">({{ messageData.reward.cost }}pts)</span>
 				</template>
 			</i18n-t>
 			<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && messageData.reward.description">{{ messageData.reward.description }}</div>
@@ -62,8 +62,9 @@ export default class ChatReward extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatreward{
-	i {
+	.cost {
 		font-size: .7em;
+		font-style: italic;
 	}
 }
 </style>

@@ -91,7 +91,7 @@
 				:disabled="!$store('tts').params.enabled"
 				v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</Button>
 			
-			<Button class="button" @click.capture="selectActionType('music')"
+			<Button class="beta button" @click.capture="selectActionType('music')"
 				icon="spotify"
 				:disabled="!musicServiceConfigured"
 				v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
@@ -144,7 +144,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventPlaceholders, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
@@ -172,6 +172,7 @@ import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggl
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -247,7 +248,7 @@ export default class TriggerActionEntry extends Vue {
 	public get title():string {
 		if(this.isError) {
 			if(this.action.type == "obs") {
-				return "ERROR - MISSING OBS SOURCE";
+				return "MISSING OBS SOURCE";
 			}
 		}
 
@@ -326,6 +327,10 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		if(this.action.type == "obs") {
+			watch(()=>this.obsSources, ()=> this.checkOBSSource());
+			this.checkOBSSource();
+		}
 	}
 
 	/**
@@ -335,6 +340,10 @@ export default class TriggerActionEntry extends Vue {
 		this.$emit("update");
 	}
 
+	/**
+	 * Called when choosing an action type
+	 * @param type 
+	 */
 	public selectActionType(type:TriggerActionStringTypes):void {
 		switch(type) {
 			case "poll": {
@@ -383,6 +392,14 @@ export default class TriggerActionEntry extends Vue {
 		this.action.type = type;
 	}
 
+	/**
+	 * Updates the error state when obs sources are changed
+	 */
+	private checkOBSSource():void {
+		const action:TriggerActionObsData = this.action as TriggerActionObsData;
+		this.isError = this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1;
+	}
+
 }
 </script>
 
@@ -400,15 +417,8 @@ export default class TriggerActionEntry extends Vue {
 	transition: all .15s;
 	:deep(.header) {
 		padding: 0;
-		overflow: hidden;
-		h2 {
-			padding: .5em;
-		}
-		.subtitle {
-			font-size: .7em;
-			font-weight: normal;
-			vertical-align: middle;
-			font-style: italic;
+		.title {
+			padding: .5em 0;
 		}
 		&>.icon {
 			height: 1.5em !important;
@@ -421,13 +431,14 @@ export default class TriggerActionEntry extends Vue {
 
 	.button {
 		&.beta {
+			overflow: hidden;
 			&::before {
 				content: "beta";
 				position: absolute;
-				left: 0;
-				color:var(--mainColor_light);
-				background-color: var(--mainColor_normal);
-				background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 100%) 0%, fade(@mainColor_normal, 100%) 100%);
+				right: 0;
+				color:var(--color-light);
+				background-color: var(--color-alert);
+				background: linear-gradient(-90deg, var(--color-alert-fadest) 0%, var(--color-alert) 0%, var(--color-alert) 100%);
 				height: 100%;
 				display: flex;
 				align-items: center;
@@ -456,15 +467,6 @@ export default class TriggerActionEntry extends Vue {
 		}
 	}
 
-	&.error {
-		.source {
-			padding: .25em;
-			border-radius: .5em;
-			border: 2px dashed var(--mainColor_alert);
-			background-color: fade(@mainColor_alert, 35%);
-		}
-	}
-
 	.typeSelector {
 		display: flex;
 		flex-direction: column;
@@ -481,23 +483,6 @@ export default class TriggerActionEntry extends Vue {
 				max-width: 1.25em;
 			}
 		}
-	}
-
-	.item:not(:first-of-type) {
-		margin-top: .25em;
-	}
-
-	.url {
-		:deep(input){
-			text-align: left;
-			width: auto;
-			max-width: unset;
-		}
-	}
-	.saveBt {
-		display: block;
-		margin: auto;
-		margin-top: .5em;
 	}
 
 	.raffleEnter{

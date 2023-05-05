@@ -264,10 +264,10 @@ export default class OverlayChatHighlight extends Vue {
 		flex-direction: row;
 		align-items: center;
 		font-size: 1.5em;
-		background-color: darken(@mainColor_light, 10%);
-		padding: .5em;
-		border-top-right-radius: 1em;
-		border-bottom-right-radius: 1em;
+		background-color: var(--color-light);
+		padding: 1em;
+		border-top-right-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
 		max-width: calc(70vw - @margin);
 		min-width: 7em;
@@ -282,16 +282,16 @@ export default class OverlayChatHighlight extends Vue {
 			right: 50%;
 			transform: translateX(50%);
 			border-radius: 0;
-			border-bottom-right-radius: 1em;
-			border-bottom-left-radius: 1em;
+			border-bottom-right-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
 		}
 	
 		&.position-tr {
 			top: .5em;
 			right: 0;
 			border-radius: 0;
-			border-top-left-radius: 1em;
-			border-bottom-left-radius: 1em;
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
 		}
 	
 		&.position-l {
@@ -304,7 +304,7 @@ export default class OverlayChatHighlight extends Vue {
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
-			border-radius: 1em;
+			border-radius: var(--border-radius);
 		}
 	
 		&.position-r {
@@ -312,8 +312,8 @@ export default class OverlayChatHighlight extends Vue {
 			right: 0;
 			transform: translateY(-50%);
 			border-radius: 0;
-			border-top-left-radius: 1em;
-			border-bottom-left-radius: 1em;
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
 		}
 	
 		&.position-bl {
@@ -326,10 +326,9 @@ export default class OverlayChatHighlight extends Vue {
 			right: 50%;
 			transform: translateX(50%);
 			border-radius: 0;
-			border-top-right-radius: 1em;
-			border-top-left-radius: 1em;
+			border-top-right-radius: var(--border-radius);
+			border-top-left-radius: var(--border-radius);
 		}
-	
 	
 		.profilePic {
 			align-self: flex-start;
@@ -345,8 +344,8 @@ export default class OverlayChatHighlight extends Vue {
 			bottom: .5em;
 			right: 0;
 			border-radius: 0;
-			border-top-left-radius: 1em;
-			border-bottom-left-radius: 1em;
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
 		}
 	
 		.infos {
@@ -355,8 +354,9 @@ export default class OverlayChatHighlight extends Vue {
 				margin-bottom: .25em;
 			}
 			.message {
-				color:var(--mainColor_dark);
+				color:var(--color-dark);
 				word-break: break-word;
+				white-space: pre;
 				:deep(.emote) {
 					max-height: 1.25em;
 					vertical-align: middle;
@@ -384,7 +384,7 @@ export default class OverlayChatHighlight extends Vue {
 
 		.clipProgress {
 			height: 10px;
-			background-color: var(--mainColor_alert);
+			background-color: var(--color-primary);
 			transition: width .5s linear;
 		}
 	}

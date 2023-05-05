@@ -94,7 +94,7 @@
 						
 				</div>
 
-				<div class="error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
+				<div class="card-item alert error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
 
 				<div class="ctas">
 					<Button small icon="cross" alert v-if="forceConfig" @click="deleteColumn()" >{{ $t('global.cancel') }}</Button>
@@ -110,8 +110,8 @@
 			</div>
 
 			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
-				<div class="preview missingScope" v-if="missingScope">
-					<img src="@/assets/icons/unlock.svg">
+				<div class="card-item alert missingScope" v-if="missingScope">
+					<img src="@/assets/icons/unlock.svg" class="lockicon">
 					<p>{{ $t("chat.filters.scope_missing") }}</p>
 				</div>
 
@@ -980,14 +980,22 @@ export default class MessageListFilter extends Vue {
 			}
 		}
 
+		//Search if a "missing scopes" message exists and delete it
+		//A new one will be created after if necessary
+		const list = this.$store("chat").messages;
+		//Only check within the last 100 messages, not a big deal if it
+		//remains in the list in such case and low risks this happens
+		for (let i = list.length-1; i > Math.max(0, list.length - 100); i--) {
+			const m = list[i];
+			if(m.col == this.config.order && m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) {
+				//Message found, delete it
+				this.$store("chat").deleteMessage(m);
+				break;
+			}
+		}
+
 		//Send a message on this column to warn for missing scopes
 		if(!this.forceConfig && missingScopes.length > 0) {
-			const prevMessage = this.$store("chat").messages.find(v=> v.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST);
-			if(prevMessage) {
-				//Remove previous scope request, if any, to avoid spamming feed
-				this.$store("chat").deleteMessageByID(prevMessage.id);
-			}
-
 			const dedupeDict:{[key:string]:boolean} = {};
 			this.$store("chat").addMessage({
 				type:TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST,
@@ -1002,20 +1010,6 @@ export default class MessageListFilter extends Vue {
 					return true;
 				})
 			});
-		}else{
-			//Search if a "missing scopes" message exists and delete it as
-			//no scope is missing anymore
-			const list = this.$store("chat").messages;
-			//Only check within the last 100 messages, not a big deal if it
-			//remains in the list in such case and low risks this happens
-			for (let i = list.length-1; i > Math.max(0, list.length - 100); i--) {
-				const m = list[i];
-				if(m.col == this.config.order && m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) {
-					//Message found, delete it
-					this.$store("chat").deleteMessage(m);
-					return;
-				}
-			}
 		}
 	}
 
@@ -1286,15 +1280,11 @@ export default class MessageListFilter extends Vue {
 				}
 			}
 			&>.error {
-				padding: .5em;
-				border-radius: .5em;
 				margin-top: .5em;
 				text-align: center;
 				font-size: .8em;
 				font-weight: bold;
 				cursor: pointer;
-				color:var(--mainColor_alert);
-				background: var(--mainColor_light);
 				
 			}
 			.ctas {
@@ -1334,12 +1324,18 @@ export default class MessageListFilter extends Vue {
 					font-size: .8em;
 					padding: .75em;
 					text-align: center;
-					background-color: var(--color-alert);
-					color: var(--mainColor_dark);
 					font-weight: bold;
 					img {
 						height: 1.5em;
 					}
+				}
+			}
+			.missingScope{
+				margin-bottom: .5em;
+				text-align: center;
+				.lockicon {
+					height: 1.5em;
+					margin-bottom: .25em;
 				}
 			}
 		}

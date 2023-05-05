@@ -116,35 +116,10 @@ export default class ConnectWebsocket extends Vue {
 		align-items: center;
 		gap: 1em;
 	
-		.error {
-			justify-self: center;
-			color: var(--mainColor_light);
-			display: block;
-			text-align: center;
-			padding: 5px;
-			border-radius: 5px;
-			margin: auto;
-			background-color: var(--mainColor_alert);
-			cursor: pointer;
-		}
-	
 		.row {
 			display: flex;
 			flex-direction: column;
 			gap:.5em;
-
-			.item {
-				:deep(input) {
-					flex-basis: 200px;
-				}
-			}
-
-			&.success {
-				color: var(--mainColor_light);
-				background-color: var(--mainColor_normal);
-				padding: .25em .5em;
-				border-radius: .5em;
-			}
 		}
 		.ctas {
 			gap: 1em;

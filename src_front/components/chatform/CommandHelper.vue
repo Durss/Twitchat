@@ -191,7 +191,7 @@ export default class CommandHelper extends Vue {
 				}break;
 			}
 		}
-		this.$store("params").currentModal = type;
+		this.$store("params").openModal(type)
 		this.close();
 	}
 

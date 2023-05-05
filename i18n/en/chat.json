@@ -132,9 +132,7 @@
 		"message": {
 			"automod": "Automod:",
 			"automod_acceptBt_aria": "Accept automoded message",
-			"automod_acceptBt": "Accept",
 			"automod_rejectBt_aria": "Reject automoded message",
-			"automod_rejectBt": "Reject",
 			"automod_rule": "Rule:",
 			"announcement": "Announcement",
 			"occurrences": "Number of times this message has been sent",

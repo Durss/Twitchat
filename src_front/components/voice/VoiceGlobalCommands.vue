@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock class="voiceglobalcommands" title="Global commands" icon="api" small :open="openLocal">
+	<ToggleBlock class="voiceglobalcommands" :title="$t('voice.global_commands_title')" icon="api" small :open="openLocal">
 		<div class="content">
 			<div class="head">{{ $t("voice.global_commands") }}</div>
 			

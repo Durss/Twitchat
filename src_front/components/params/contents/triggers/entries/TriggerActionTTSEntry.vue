@@ -1,5 +1,5 @@
 <template>
-	<div class="triggeractionttsentry triggerActionForm" v-if="!$store('tts').params.enabled">
+	<div class="triggeractionttsentry triggerActionForm" v-if="!$store('tts').params.enabled || true">
 		<div class="info warn">
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.tts.header">

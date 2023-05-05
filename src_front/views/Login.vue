@@ -380,7 +380,7 @@ export default class Login extends Vue {
 			left: -50px;
 			font-weight: bold;
 			background-color: var(--color-secondary);
-			color: var(--mainColor_light);
+			color: var(--color-light);
 			padding: 5px 50px;
 			border-radius: 10px;
 			text-transform: uppercase;
@@ -411,7 +411,7 @@ export default class Login extends Vue {
 			&.betaWarn {
 				.head {
 					border-radius: var(--border-radius);
-					color: var(--mainColor_light);
+					color: var(--color-light);
 					img {
 						height: 2em;
 						margin-bottom: .5em;

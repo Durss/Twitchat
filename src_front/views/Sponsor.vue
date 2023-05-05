@@ -100,11 +100,11 @@ export default class Sponsor extends Vue {
 		right: 10px;
 		font-size: .8em;
 		select{
-			color: var(--mainColor_light);
+			color: var(--color-light);
 			background: none;
 			border: none;
 			option {
-				color: var(--mainColor_normal);
+				color: var(--color-light);
 			}
 		}
 	}

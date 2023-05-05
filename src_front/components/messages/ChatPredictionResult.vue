@@ -16,16 +16,19 @@
 				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
 					<div :style="getOutcomeStyles(o)" class="bar">
 						<div class="outcomeTitle">
-							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check">
+							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check" v-else>
 							{{o.label}}
 						</div>
 						<div class="percent">{{getOutcomePercent(o)}}%</div>
 						<div class="users">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon">
+							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/user.svg" alt="user" class="icon" v-else>
 							{{o.voters}}
 						</div>
 						<div class="points">
-							<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">
+							<img src="@/assets/icons/dark/channelPoints.svg" alt="channelPoints" class="icon" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon" v-else>
 							{{o.votes}}
 						</div>
 					</div>
@@ -104,9 +107,6 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 			width: 100%;
 
 			.outcome {
-				&.winner {
-					.check { display: inline; }
-				}
 
 				&:not(.noColorMode) {
 					&:not(:first-of-type) {
@@ -140,18 +140,14 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 					background-repeat: no-repeat;
 					justify-content: space-evenly;
 
-					&:hover {
-						outline: 1px solid var(--mainColor_light);
-					}
-
 					.percent, .users, .points, .outcomeTitle {
 						display: flex;
 						flex-direction: row;
 						align-items: center;
 						padding: 5px;
 						border-radius: 5px;
-						background-color: rgba(0, 0, 0, .25);
-						font-size: .8em;
+						background-color: var(--color-dark-fade);
+						font-size: .9em;
 						align-self: center;
 
 						.icon {
@@ -163,6 +159,17 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 						font-weight: bold;
 						font-size: 1em;
 					}
+				}
+				&.winner {
+					.check { display: inline; }
+					.percent, .users, .points, .outcomeTitle {
+						color: var(--color-dark);
+						font-weight: bold;
+						background-color: var(--color-light);
+					}
+					// .bar {
+					// 	border: 1px solid var(--color-light);
+					// }
 				}
 			}
 		}

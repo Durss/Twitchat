@@ -321,12 +321,11 @@ export default class Parameters extends Vue {
 
 <style scoped lang="less">
 .parameters{
-	z-index: 3;
 	left: auto;
 	top: 0;
 	right: 0;
 	transform-origin: bottom right;
-	z-index: 2;
+	z-index: 3;
 	padding: 1em;
 	position: absolute;
 	width: 100%;
@@ -395,24 +394,21 @@ export default class Parameters extends Vue {
 			gap: 10px;
 			&>.button {
 				flex-wrap: nowrap;
-				&.beta1, &.beta2 {
+				overflow: hidden;
+				&.beta {
 					&::before {
 						content: "beta";
+						z-index: 1;
 						position: absolute;
-						top: 10px;
-						right: -50px;
-						background-color: var(--mainColor_normal);
-						color: var(--mainColor_light);
-						padding: 5px 50px;
-						border-radius: 10px;
+						top: 2px;
+						right: -25px;
+						background-color: var(--color-alert);
+						color: var(--color-light);
+						padding: 5px 30px;
 						text-transform: uppercase;
-						font-size: 18px;
+						font-size: .7em;
+						font-weight: bold;
 						transform: rotate(45deg);
-					}
-					&.beta2 {
-						&::before {
-							background: linear-gradient(-90deg, fade(@mainColor_normal, 0) 0%, fade(@mainColor_normal, 50%) 30%, fade(@mainColor_normal, 50%) 100%);
-						}
 					}
 				}
 			}
@@ -517,9 +513,6 @@ export default class Parameters extends Vue {
 					width: 180px;
 					flex-direction: column;
 					border-radius: var(--border-radius);
-					// :deep(.background) {
-					// 	background-color: var(--color-dark-extralight);
-					// }
 					:deep(.icon) {
 						height: 2em;
 						width: 2em;
@@ -531,6 +524,14 @@ export default class Parameters extends Vue {
 					}
 					:deep(.label) {
 						white-space: normal;
+					}
+					&.beta {
+						&::before {
+							top: 10px;
+							right: -50px;
+							padding: 5px 50px;
+							font-size: 18px;
+						}
 					}
 				}
 			}
@@ -569,6 +570,14 @@ export default class Parameters extends Vue {
 						height: 1em;
 						width: 1em;
 						margin: 0;
+					}
+					&.beta {
+						&::before {
+							top: 2px;
+							right: -25px;
+							padding: 5px 30px;
+							font-size: .7em;
+						}
 					}
 				}
 			}

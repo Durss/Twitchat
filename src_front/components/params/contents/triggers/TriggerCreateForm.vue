@@ -54,7 +54,7 @@
 				</i18n-t>
 
 				<div v-for="e in c.events" :key="e.value" :class="e.beta? 'item beta' : 'item'">
-					<TTButton class="triggerBt" small
+					<TTButton class="triggerBt"
 						:disabled="disabledEntry(e)"
 						v-tooltip="disabledEntry(e)? $t(e.disabledReasonLabelKey ?? 'triggers.noChannelPoints_tt') : ''"
 						@click.capture="disabledEntry(e)? requestScope(e) : selectTriggerType(e)">
@@ -590,20 +590,6 @@ interface TriggerEntry{
 		display: block;
 	}
 
-	&>.require {
-		text-align: center;
-		margin-top: .5em;
-		background-color: var(--mainColor_warn);
-		padding: .5em;
-		border-radius: .5em;
-		color: var(--mainColor_dark);
-
-		a {
-			color: var(--mainColor_alert);
-			font-weight: bold;
-		}
-	}
-
 	.list {
 		display: flex;
 		flex-direction: column;
@@ -636,7 +622,7 @@ interface TriggerEntry{
 						content: "beta";
 						position: absolute;
 						left: 0;
-						color:var(--mainColor_light);
+						color:var(--color-light);
 						background-color: var(--color-secondary);
 						height: 100%;
 						display: flex;
@@ -681,7 +667,7 @@ interface TriggerEntry{
 					height:100%;
 					left: 0;
 					position: absolute;
-					background-color: var(--mainColor_normal);
+					background-color: var(--color-light);
 				}
 				:deep(.label) {
 					padding-left: .5em;
@@ -732,8 +718,11 @@ interface TriggerEntry{
 			}
 
 			&:is(div) {
-				color: var(--color-alert);
-				background-color: var(--mainColor_normal);
+				//Used for OBS filter section names
+				//Filters are listed by source item, this represents a source item
+				//that has all its filters listed bellow it
+				color: var(--color-light);
+				background-color: var(--color-light-fade);
 				&:not(:first-of-type) {
 					margin-top: 1em;
 				}

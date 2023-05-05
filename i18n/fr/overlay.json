@@ -14,7 +14,7 @@
       "title": "Roue animée",
       "head": "Affiche une roue animée lorsqu'un tirage au sort est lancé.",
       "css": "Changez l'apparence de la roue via ces sélecteurs CSS",
-      "no_overlay": "- overlay non configuré ou masqué -",
+      "no_overlay": "overlay non configuré ou masqué",
       "start": "Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
       "testBt": "Tester"
     },
@@ -42,7 +42,7 @@
       "css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS",
       "message_pos": "Position du message",
       "testBt": "Tester",
-      "no_overlay": "- overlay non configuré ou masqué -",
+      "no_overlay": "overlay non configuré ou masqué",
       "alternative_tool": "Pour une solution dédiée plus complète jetez un oeil à {URL}"
     },
     "music_common": {
@@ -67,8 +67,8 @@
       "triggerBt": "triggers"
     },
     "spotify": {
-		"connectBt":"Connecter Spotify"
-	},
+      "connectBt": "Connecter Spotify"
+    },
     "deezer": {
       "shit_api": "L'API Deezer étant catastrophique, les risques de malfonctions existent. Vous devrez de plus vous reconnecter à chaque lancement de Twitchat.",
       "authBt": "Connexion",

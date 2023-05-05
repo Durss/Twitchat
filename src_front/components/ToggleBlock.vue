@@ -137,7 +137,7 @@ export default class ToggleBlock extends Vue {
 		background-color: var(--color-dark-extralight);
 		border-top-left-radius: var(--border-radius);
 		border-top-right-radius: var(--border-radius);
-		border-bottom: 2px solid var(--color-dark-extralight);
+		border-bottom: 2px solid var(--color-dark-fader);
 		gap: .5em;
 		display: flex;
 		flex-direction: row;
@@ -192,6 +192,7 @@ export default class ToggleBlock extends Vue {
 	}
 
 	&.error, &.alert{
+		background-color: var(--color-alert-dark);
 		.header {
 			background-color: var(--color-alert);
 			&:hover {
@@ -201,6 +202,7 @@ export default class ToggleBlock extends Vue {
 	}
 
 	&.primary{
+		background-color: var(--color-primary-dark);
 		.header {
 			background-color: var(--color-primary);
 			&:hover {
@@ -210,6 +212,7 @@ export default class ToggleBlock extends Vue {
 	}
 
 	&.secondary{
+		background-color: var(--color-secondary-dark);
 		.header {
 			background-color: var(--color-secondary);
 			&:hover {

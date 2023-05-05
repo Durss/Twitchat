@@ -5,6 +5,8 @@ import { Event } from './EventDispatcher';
 * Created : 14/04/2022 
 */
 export default class TwitchatEvent extends Event {
+	public static CUSTOM_OBS_WS_EVENT:TwitchatEventType = "CustomEvent";
+	public static OBS_WEBSOCKET_CONNECTED:TwitchatEventType = "OBS_WEBSOCKET_CONNECTED";
 	public static TEXT_UPDATE:string = "TEXT_UPDATE";
 	public static RAW_TEXT_UPDATE:string = "RAW_TEXT_UPDATE";
 	public static ACTION_BATCH:string = "ACTION_BATCH";
@@ -118,6 +120,8 @@ export default class TwitchatEvent extends Event {
 }
 
 export const TwitchatEventTypeList = [
+	"CustomEvent",
+	"OBS_WEBSOCKET_CONNECTED",
 	"TEXT_UPDATE",
 	"ACTION_BATCH",
 	"SPEECH_END",

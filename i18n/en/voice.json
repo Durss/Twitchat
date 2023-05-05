@@ -18,12 +18,15 @@
 		"select_language":"Select your language:",
 		"sentences":"Trigger sentences",
 		"sentences_count":"(1 per line)",
+		"global_commands_title":"Global commands",
 		"global_commands":"These are the words you'll have to say to navigate through forms",
 		"fill_global":"Fill in all global commands above",
 		"remote":{
 			"title":"This page allows you to control Twitchat and some twitch features with your voice",
 			"commands":"Create your voice commands on Twitchat under <strong>Parameters => @:params.categories.voice </strong> section"
 		},
+		"delete_confirm_title":"Delete action ?",
+		"delete_confirm_desc":"This cannot be undone",
 		"commands":{
 			"ERASE":"Erase",
 			"NEXT":"Next",

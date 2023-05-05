@@ -1,7 +1,7 @@
 <template>
 	<div class="voicetriggerlist">
 
-		<div class="card-item form">
+		<div class="card-istem form">
 			<VoiceGlobalCommands class="action global"
 				v-model="globalCommands"
 				v-model:complete="globalCommandsOK"
@@ -162,8 +162,11 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	public deleteAction(id:string|undefined):void {
-		const index = this.actions.findIndex(v => v.id == id);
-		this.actions.splice(index, 1);
+		this.$store("main").confirm(this.$t("voice.delete_confirm_title"),this.$t("voice.delete_confirm_desc"))
+		.then(()=>{
+			const index = this.actions.findIndex(v => v.id == id);
+			this.actions.splice(index, 1);
+		})
 	}
 
 	public isOpen(id:string|undefined):boolean {

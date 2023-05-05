@@ -17,7 +17,7 @@
 			</section>
 		</template>
 
-		<Splitter>{{ $t("voice.stt_actions") }}</Splitter>
+		<Splitter v-if="sttOnly === false">{{ $t("voice.stt_actions") }}</Splitter>
 
 		<VoiceTriggerList v-if="sttOnly === false" />
 	</div>

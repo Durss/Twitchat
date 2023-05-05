@@ -61,7 +61,7 @@ export default class ContextMenuTimeoutDuration extends Vue {
 .contextmenutimeoutduration{
 	display: flex;
 	flex-direction: row;
-	color: var(--mainColor_light);
+	color: var(--color-light);
 	text-align: center;
 	padding: 0 .25em;
 
@@ -79,23 +79,19 @@ export default class ContextMenuTimeoutDuration extends Vue {
 		align-items: center;
 		border-top-left-radius: var(--border-radius);
 		border-bottom-left-radius: var(--border-radius);
-		border-right: 1px solid var(--mainColor_normal);
 		font-size: 1em;
 		padding: .25em .5em;
 		box-sizing: border-box;
 		font-family: var(--font-inter);
-		color: var(--mainColor_light);
 		background-color: rgba(0, 0, 0, .6);
-		border-color: var(--mainColor_dark_extralight);
 		margin: 0;
 		padding: 0 .5em 0 0;
 	
 		&::placeholder {
 			font-style: italic;
-			color: fade(@mainColor_light, 50%);
 		}
 		input {
-			color: var(--mainColor_light);
+			color: var(--color-light);
 			width: 60px;
 			text-align: right;
 			background-color: transparent;
@@ -104,7 +100,7 @@ export default class ContextMenuTimeoutDuration extends Vue {
 		}
 	}
 	.submit {
-		background-color: var(--mainColor_dark);
+		background-color: var(--color-primary);
 		border-top-right-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		padding: .25em;

@@ -33,6 +33,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -106,6 +107,8 @@ export default class OverlayParamsMusic extends Vue {
 		this.$store("music").musicPlayerParams.erase = this.param_autoHideErase.value;
 
 		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, this.$store("music").musicPlayerParams);
+		//This forces overlay refresh
+		SpotifyHelper.instance.getCurrentTrack();
 	}
 
 }
@@ -132,6 +135,10 @@ export default class OverlayParamsMusic extends Vue {
 		gap: .25em;
 		display: flex;
 		flex-direction: column;
+	}
+
+	input {
+		background-color: var(--color-primary);
 	}
 }
 </style>

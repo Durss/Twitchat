@@ -16,8 +16,8 @@
 				</li>
 			</ul>
 
-			<Button class="grantBt" alert icon="lock_fit" @click="requestScopes()">{{ $t('chat.scope_request.grantBt') }}</Button>
-			<Button class="filterBt" alert icon="filters" @click="openFilters()">{{ $t('chat.scope_request.openFiltersBt') }}</Button>
+			<Button class="grantBt" light alert icon="lock_fit" @click="requestScopes()">{{ $t('chat.scope_request.grantBt') }}</Button>
+			<Button class="filterBt" light alert icon="filters" @click="openFilters()">{{ $t('chat.scope_request.openFiltersBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -78,6 +78,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 			display: flex;
 			flex-direction: column;
 			gap: .25em;
+			list-style-position: inside;
 			li {
 				img {
 					height: 1em;

@@ -30,7 +30,7 @@
 
 			<section>
 				<Splitter class="splitter">{{ $t("emergency.actions.title") }}</Splitter>
-					<ParamItem :paramData="param_enableShieldMode" />
+				<ParamItem :paramData="param_enableShieldMode" />
 				<div class="twitchParams" v-if="param_enableShieldMode.value == false">
 					<ParamItem class="hasDurationChild" :paramData="param_followersOnly" />
 					<ParamItem :paramData="param_subsOnly" />
@@ -41,9 +41,9 @@
 				<ParamItem :paramData="param_autoTO" />
 
 				<div v-if="!obsConnected">
-					<div class="warn">
-						<img src="@/assets/icons/info.svg" alt="info">
-						<i18n-t scope="global" class="label" tag="p" keypath="emergency.actions.obs_connect">
+					<div class="card-item alert">
+						<img src="@/assets/icons/info.svg" alt="info" class="icon">
+						<i18n-t scope="global" class="label" tag="span" keypath="emergency.actions.obs_connect">
 							<template #LINK>
 								<a @click="$store('params').openParamsPage(contentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
 							</template>

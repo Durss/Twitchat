@@ -2,7 +2,7 @@
 	<div class="triggerconditionlistgroupitem card-item">
 		<template v-for="c in condition" :key="c.id" >
 			<div class="group" v-if="c.type == 'group'">
-				<Button class="operator" small
+				<Button class="operator" small noBounce
 					v-if="c.conditions.length > 1"
 					@click="toggleOperator(c)">{{ $t('triggers.condition.operators.'+c.operator) }}</Button>
 
@@ -116,8 +116,7 @@ export default class TriggerConditionListGroupItem extends Vue {
 		flex-grow: 1;
 		position: relative;
 		padding-left: 1.25em;
-		background-color: var(--color-ldark-fadest);
-		border-left: 1px solid var(--mainColor_normal);
+		border-left: 1px solid var(--color-light);
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px;
 		min-height: 2em;
@@ -144,19 +143,12 @@ export default class TriggerConditionListGroupItem extends Vue {
 			z-index: 1;
 			transform-origin: top left;
 			transform: rotate(-90deg) translate(-50%, -50%);
-			background-color: var(--mainColor_normal);
-			color: var(--mainColor_light);
 			font-weight: bold;
 			padding: 1px 5px;
 			font-size: .7em;
-			border-radius: .5em;
-			cursor: pointer;
-			&:hover {
-				background-color: var(--mainColor_normal_light);
-			}
 			:deep(.label) {
-				letter-spacing: .5em;
-				margin-right: -.5em;//Removes space after last letter
+				letter-spacing: .3em;
+				margin-right: -.3em;//Removes space after last letter
 			}
 		}
 	}

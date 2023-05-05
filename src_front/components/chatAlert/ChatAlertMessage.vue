@@ -39,8 +39,8 @@ export default class ChatAlertMessage extends Vue {
 	.center();
 	position: fixed;
 	z-index: 10;
-	background-color: var(--mainColor_alert);
-	color: var(--mainColor_light);
+	background-color: var(--color-alert);
+	color: var(--color-light);
 	font-size: 1.5em;
 	border-radius: 1em;
 	width: 90vw;
@@ -53,8 +53,8 @@ export default class ChatAlertMessage extends Vue {
 		padding: .3em;
 		font-weight: bold;
 		text-align: center;
-		background-color: var(--mainColor_light);
-		color: var(--mainColor_alert);
+		background-color: var(--color-light);
+		color: var(--color-alert);
 	}
 	
 	.message {

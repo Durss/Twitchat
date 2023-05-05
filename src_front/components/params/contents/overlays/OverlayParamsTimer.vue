@@ -79,6 +79,7 @@ export default class OverlayParamsTimer extends Vue {
 
 			input {
 				width: 100%;
+				margin-bottom: .5em;
 				background-color: var(--color-primary);
 			}
 

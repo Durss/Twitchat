@@ -389,6 +389,13 @@ export const storeParams = defineStore('params', {
 			}
 			this.currentParamSearch = StoreProxy.i18n.t(((root as unknown) as TwitchatDataTypes.ParameterData<unknown>).labelKey!);
 		},
+
+		openModal(modal:TwitchatDataTypes.ModalTypes):void {
+			if(this.currentModal == modal) this.closeModal();
+			else this.currentModal = modal;
+		},
+
+		closeModal():void { this.currentModal = "" },
 	} as IParamsActions
 	& ThisType<IParamsActions
 		& UnwrapRef<IParamsState>

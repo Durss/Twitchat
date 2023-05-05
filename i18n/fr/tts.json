@@ -14,7 +14,7 @@
 		},
 		"messages": {
 			"title": "Messages à lire",
-			"param_format": "Format",
+			"param_format": "Texte à lire",
 			"param_readMessages": "Messages de tchat",
 			"param_readWhispers": "Chuchotements",
 			"param_readNotices": "Notifications (TO, ban, entrées/sorties, emote-only,...)",

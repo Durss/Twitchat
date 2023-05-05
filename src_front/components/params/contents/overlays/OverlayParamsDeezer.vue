@@ -99,19 +99,6 @@ export default class OverlayParamsDeezer extends Vue {
 		align-items: center;
 		gap: 1em;
 
-		.error {
-			justify-self: center;
-			color: var(--mainColor_light);
-			display: block;
-			text-align: center;
-			padding: 5px;
-			border-radius: 5px;
-			margin: auto;
-			margin-top: 10px;
-			background-color: var(--mainColor_alert);
-			cursor: pointer;
-		}
-
 		.row {
 			display: flex;
 			flex-direction: column;
@@ -121,7 +108,7 @@ export default class OverlayParamsDeezer extends Vue {
 		&.spotifasshole {
 			margin-top: .5em;
 			.info {
-				color: var(--mainColor_alert);
+				color: var(--color-alert);
 				font-size: .9em;
 			}
 			form {
@@ -130,8 +117,8 @@ export default class OverlayParamsDeezer extends Vue {
 		}
 		
 		.player_holder {
-			border: 1px dashed var(--mainColor_normal);
-			background: fade(@mainColor_normal, 15%);
+			border: 1px dashed var(--color-primary);
+			background: var(--color-primary-fader);
 			border-radius: .25em;
 			margin-left: auto;
 			margin-right: auto;

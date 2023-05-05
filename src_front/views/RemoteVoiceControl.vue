@@ -1,10 +1,9 @@
 <template>
 	<div class="voicecontrol">
-		<div class="blured-background block head">
+		<div class="card-item primary block head">
 			<img src="@/assets/icons/voice.svg" alt="voice icon" class="icon">
 			<p>{{ $t("voice.remote.title") }}</p>
-			<p class="install"><span>{{ $t("obs.install") }}</span> <strong>OBS v28+</strong>
-				<br><i v-html="$t('obs.install_option', {PLUGIN_URL:obswsInstaller})"></i></p>
+			<p class="install"><span>{{ $t("obs.install") }}</span> <strong>OBS v28+</strong></p>
 		</div>
 
 		<ToggleBlock class="block conf"
@@ -14,11 +13,11 @@
 			<OBSConnectForm  class="connectForm" />
 		</ToggleBlock>
 
-		<div class="block tuto">
+		<div class="block card-item tuto">
 			<p v-html="$t('voice.remote.commands')"></p>
 		</div>
 
-		<VoiceControlForm class="block" v-if="connected" sttOnly />
+		<VoiceControlForm class="block card-item" v-if="connected" sttOnly />
 	</div>
 </template>
 
@@ -70,7 +69,6 @@ export default class RemoteVoiceControl extends Vue {
 		max-width: 600px;
 		margin: auto;
 		padding: 0;
-		background-color: var(--mainColor_light);
 		margin: .5em auto;
 
 		&:not(.conf) {
@@ -79,7 +77,6 @@ export default class RemoteVoiceControl extends Vue {
 		
 		&.head {
 			text-align: center;
-
 			.icon {
 				height: 5em;
 				margin-bottom: 1em;

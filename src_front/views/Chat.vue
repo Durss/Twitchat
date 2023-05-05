@@ -10,7 +10,7 @@
 						<GreetThem class="greetThem" v-if="panelsColIndexTarget == c.order && $store('params').features.firstMessage.value === true" />
 	
 						<MessageList ref="messages" class="messages"
-							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store('params').currentModal = v"
+							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store('params').openModal(v)"
 							@addColumn="addColumn"
 							:config="c"
 							filterId="chat"/>
@@ -30,21 +30,21 @@
 		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
-			<PollForm				class="popin" v-if="$store('params').currentModal == 'poll'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
-			<ChatSuggestionForm		class="popin" v-if="$store('params').currentModal == 'chatsuggForm'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
-			<RaffleForm				class="popin" v-if="$store('params').currentModal == 'raffle'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
-			<PredictionForm			class="popin" v-if="$store('params').currentModal == 'pred'" @close="$store('params').currentModal = ''" :voiceControl="voiceControl" />
-			<BingoForm				class="popin" v-if="$store('params').currentModal == 'bingo'" @close="$store('params').currentModal = ''" />
-			<LiveFollowings			class="popin" v-if="$store('params').currentModal == 'liveStreams'" @close="$store('params').currentModal = ''" />
-			<StreamInfoForm			class="popin" v-if="$store('params').currentModal == 'streamInfo'" @close="$store('params').currentModal = ''" />
-			<TTUserList				class="popin" v-if="$store('params').currentModal == 'TTuserList'" @close="$store('params').currentModal = ''" />
-			<PinedMessages			class="popin" v-if="$store('params').currentModal == 'pins'" @close="$store('params').currentModal = ''" />
-			<TimerForm				class="popin" v-if="$store('params').currentModal == 'timer'" @close="$store('params').currentModal = ''" />
-			<TriggersLogs			class="popin" v-if="$store('params').currentModal == 'triggersLogs'" @close="$store('params').currentModal = ''" />
-			<TrackedUsers			class="popin" v-if="$store('params').currentModal == 'tracked'" @close="$store('params').currentModal = ''" />
-			<WhispersState			class="popin" v-if="$store('params').currentModal == 'whispers'" @close="$store('params').currentModal = ''" />
-			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').currentModal = ''" />
-			<MessageSearch			class="popin" v-if="$store('params').currentModal == 'search'" @close="$store('params').currentModal = ''" />
+			<PollForm				class="popin" v-if="$store('params').currentModal == 'poll'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
+			<ChatSuggestionForm		class="popin" v-if="$store('params').currentModal == 'chatsuggForm'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
+			<RaffleForm				class="popin" v-if="$store('params').currentModal == 'raffle'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
+			<PredictionForm			class="popin" v-if="$store('params').currentModal == 'pred'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
+			<BingoForm				class="popin" v-if="$store('params').currentModal == 'bingo'" @close="$store('params').closeModal()" />
+			<LiveFollowings			class="popin" v-if="$store('params').currentModal == 'liveStreams'" @close="$store('params').closeModal()" />
+			<StreamInfoForm			class="popin" v-if="$store('params').currentModal == 'streamInfo'" @close="$store('params').closeModal()" />
+			<TTUserList				class="popin" v-if="$store('params').currentModal == 'TTuserList'" @close="$store('params').closeModal()" />
+			<PinedMessages			class="popin" v-if="$store('params').currentModal == 'pins'" @close="$store('params').closeModal()" />
+			<TimerForm				class="popin" v-if="$store('params').currentModal == 'timer'" @close="$store('params').closeModal()" />
+			<TriggersLogs			class="popin" v-if="$store('params').currentModal == 'triggersLogs'" @close="$store('params').closeModal()" />
+			<TrackedUsers			class="popin" v-if="$store('params').currentModal == 'tracked'" @close="$store('params').closeModal()" />
+			<WhispersState			class="popin" v-if="$store('params').currentModal == 'whispers'" @close="$store('params').closeModal()" />
+			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').closeModal()" />
+			<MessageSearch			class="popin" v-if="$store('params').currentModal == 'search'" @close="$store('params').closeModal()" />
 		</Teleport>
 
 
@@ -58,14 +58,14 @@
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
-				@poll="$store('params').currentModal = 'poll'"
-				@chatpoll="$store('params').currentModal = 'chatsuggForm'"
-				@pred="$store('params').currentModal = 'pred'"
-				@raffle="$store('params').currentModal = 'raffle'"
-				@bingo="$store('params').currentModal = 'bingo'"
-				@liveStreams="$store('params').currentModal = 'liveStreams'"
-				@TTuserList="$store('params').currentModal = 'TTuserList'"
-				@pins="$store('params').currentModal = 'pins'"
+				@poll="$store('params').openModal('poll')"
+				@chatpoll="$store('params').openModal('chatsuggForm')"
+				@pred="$store('params').openModal('pred')"
+				@raffle="$store('params').openModal('raffle')"
+				@bingo="$store('params').openModal('bingo')"
+				@liveStreams="$store('params').openModal('liveStreams')"
+				@TTuserList="$store('params').openModal('TTuserList')"
+				@pins="$store('params').openModal('pins')"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
@@ -84,7 +84,7 @@
 
 		<DevmodeMenu class="contentWindows devmode"
 			v-if="showDevMenu"
-			@triggersLogs="$store('params').currentModal = 'triggersLogs'"
+			@triggersLogs="$store('params').openModal('triggersLogs')"
 			@close="showDevMenu = false" />
 
 		<!-- <MessageList class="contentWindows feed"
@@ -118,11 +118,11 @@
 
 		<UserCard />
 
-		<Changelog v-if="$store('params').currentModal == 'updates'" @close="$store('params').currentModal = ''" />
+		<Changelog v-if="$store('params').currentModal == 'updates'" @close="$store('params').closeModal()" />
 
-		<Gngngn v-if="$store('params').currentModal == 'gngngn'" @close="$store('params').currentModal = ''" />
+		<Gngngn v-if="$store('params').currentModal == 'gngngn'" @close="$store('params').closeModal()" />
 		
-		<Login v-if="$store('params').currentModal == 'login'" @close="$store('params').currentModal = ''" scopeOnly />
+		<Login v-if="$store('params').currentModal == 'login'" @close="$store('params').closeModal()" scopeOnly />
 
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
@@ -343,7 +343,7 @@ export default class Chat extends Vue {
 		//Watch for columns changes
 		watch(() => this.$store('auth').newScopesToRequest, () => {
 			if(this.$store('auth').newScopesToRequest.length === 0) return null;
-			this.$store("params").currentModal = "login";
+			this.$store("params").openModal("login")
 		}, {deep:true});
 
 		//Watch for current modal to be displayed
@@ -515,7 +515,7 @@ export default class Chat extends Vue {
 				break;
 
 			case TwitchatEvent.POLL_START:
-				this.$store('params').currentModal = 'poll';
+				this.$store('params').openModal('poll')
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -531,7 +531,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.PREDICTION_START:
-				this.$store('params').currentModal = 'pred';
+				this.$store('params').openModal('pred')
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -547,7 +547,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.RAFFLE_START:{
-				this.$store('params').currentModal = 'raffle';
+				this.$store('params').openModal('raffle')
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -644,9 +644,9 @@ export default class Chat extends Vue {
 
 		if(modal) {
 			if(this.$store('params').currentModal == modal) {
-				this.$store('params').currentModal = "";
+				this.$store('params').openModal("")
 			}else{
-				this.$store('params').currentModal = modal;
+				this.$store('params').openModal(modal)
 			}
 		}
 	}
@@ -661,7 +661,7 @@ export default class Chat extends Vue {
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
 		if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
 		&& m.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES) {
-			this.$store('params').currentModal = "updates";
+			this.$store('params').openModal("updates")
 		}
 	}
 
@@ -680,7 +680,7 @@ export default class Chat extends Vue {
 	 * Called when searching for a message
 	 */
 	public searchMessage(str:string):void {
-		this.$store('params').currentModal = 'search';
+		this.$store('params').openModal('search')
 	}
 
 	/**

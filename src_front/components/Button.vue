@@ -16,7 +16,7 @@
 
 		<img v-if="icon && loading" :src="$image('loader/loader.svg')" class="loader">
 	
-		<img class="icon" v-if="icon && !loading" :src="$image('icons/'+icon+'.svg')" alt="icon">
+		<img class="icon" v-if="icon && !loading" :src="iconPath" alt="icon">
 		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
 
 		<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
@@ -70,6 +70,9 @@ export default class Button extends Vue {
 	public alert!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public light!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public selected!:boolean;
 
 	@Prop({type:Boolean, default: false})
@@ -77,6 +80,9 @@ export default class Button extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public noBounce!:boolean;
 
 	@Prop({type:String, default: "image/*"})
 	public accept!:string;
@@ -92,11 +98,22 @@ export default class Button extends Vue {
 		return "button";
 	}
 
+	public get iconPath():string {
+		if(this.light !== false) {
+			let color = "primary";
+			if(this.secondary !== false) color = "secondary";
+			if(this.alert !== false) color = "alert";
+			return this.$image('icons/'+color+"/"+this.icon+'.svg');
+		}
+		return this.$image('icons/'+this.icon+'.svg')
+	}
+
 	public get classes():string[] {
 		let list =  ["button"]
 		if(!this.$slots.default) list.push("noTitle");
 		if(this.secondary !== false) list.push("secondary");
 		if(this.alert !== false) list.push("alert");
+		if(this.light !== false) list.push("light");
 		if(this.big !== false) list.push("big");
 		if(this.small !== false) list.push("small");
 		if(this.selected !== false) list.push("selected");
@@ -138,7 +155,7 @@ export default class Button extends Vue {
 	}
 
 	public onRelease(event:MouseEvent):void {
-		if(this.disabled || this.loading) return;
+		if(this.disabled || this.loading || this.noBounce !== false) return;
 		gsap.fromTo(this.$el, {translateY:-3, scaleY:1.1}, {duration:.5, translateY:0, scaleY:1, clearProps:"all", ease:"elastic.out(1.5)", delay:.05});
 	}
 
@@ -319,6 +336,37 @@ export default class Button extends Vue {
 			&:active {
 				.background {
 					background-color: var(--color-alert-dark);
+				}
+			}
+		}
+	}
+
+	&.light {
+		.label {
+			color: var(--color-primary);
+		}
+		&.secondary {
+			.label {
+				color: var(--color-secondary);
+			}
+		}
+		&.alert {
+			.label {
+				color: var(--color-alert);
+			}
+		}
+		.background {
+			background-color: var(--color-light);
+		}
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-light-dark);
+				}
+			}
+			&:active {
+				.background {
+					background-color: var(--color-light-dark);
 				}
 			}
 		}

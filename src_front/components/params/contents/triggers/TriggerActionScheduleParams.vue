@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionscheduleparams">
-		<ParamItem :paramData="param_action" v-model="triggerData.scheduleParams!.type" />
+		<ParamItem noBackground :paramData="param_action" v-model="triggerData.scheduleParams!.type" />
 		
 		<template v-if="param_action.value == '1'">
 			<ParamItem noBackground :paramData="param_repeatDurationCondition">
@@ -28,7 +28,7 @@
 					</div>
 					<div class="date">
 						<input type="datetime-local" v-model="d.value" />
-						<Button class="deleteBt" icon="cross" @click="delDate(index)" small highlight />
+						<Button class="deleteBt" icon="cross" @click="delDate(index)" small alert />
 					</div>
 				</div>
 			</div>
@@ -161,13 +161,13 @@ export default class TriggerActionScheduleParams extends Vue {
 		align-items: center;
 		max-height: 300px;
 		overflow-y: auto;
-		border: 1px solid var(--mainColor_normal);
+		border: 1px solid var(--color-primary);
 		margin: -.5em .5em 0 .5em;
 		border-top: 0;
 		padding: .5em;
 		border-bottom-left-radius: .5em;
 		border-bottom-right-radius: .5em;
-		background-color: fade(@mainColor_normal, 10%);
+		background-color: var(--color-primary-fadest);
 		.row {
 			display: flex;
 			flex-direction: row;
@@ -177,13 +177,14 @@ export default class TriggerActionScheduleParams extends Vue {
 				input {
 					opacity: .5;
 					position: relative;
+					align-items: center;
 					&::before {
 						content:"";
 						position: absolute;
 						height: 2px;
-						background-color: var(--mainColor_normal);
-						width: calc(100% - 1.5em);
-						top: 50%;
+						background-color: var(--color-light);
+						width: calc(100% - 1em);
+						top: 1em;
 					}
 				}
 			}

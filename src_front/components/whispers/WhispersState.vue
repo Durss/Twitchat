@@ -221,10 +221,6 @@ export default class WhispersState extends AbstractSidePanel {
 						padding-left: 0;
 						padding-right: 3em;
 					}
-
-					:deep(a) {
-					color: var(--mainColor_warn);
-					}
 				}
 	
 				:deep( .emote ) {
@@ -242,7 +238,7 @@ export default class WhispersState extends AbstractSidePanel {
 				}
 
 				:deep(a) {
-					color: var(--mainColor_warn_light);
+					color: var(--color-light);
 				}
 			}
 		}

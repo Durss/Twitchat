@@ -88,18 +88,6 @@ export default class TriggerActionHTTPCall extends Vue {
 
 <style scoped lang="less">
 .triggeractionhttpcall{
-	.argument {
-		padding-left: 1em;
-	}
-
-	.securityError {
-		color: var(--mainColor_light);
-		background-color: var(--mainColor_alert);
-		margin-top: -.25em;
-		padding: .5em;
-		border-bottom-left-radius: var(--border-radius);
-		border-bottom-right-radius: var(--border-radius);
-	}
 
 	.tags {
 		.title {

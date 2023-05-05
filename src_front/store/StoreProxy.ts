@@ -761,6 +761,15 @@ export interface IParamsActions {
 	 * @param search 
 	 */
 	searchParamByPath(search:string):void;
+	/**
+	 * Open the specified modal
+	 * @param modal 
+	 */
+	openModal(modal:TwitchatDataTypes.ModalTypes):void;
+	/**
+	 * Closes currently opened modal
+	 */
+	closeModal():void;
 }
 
 

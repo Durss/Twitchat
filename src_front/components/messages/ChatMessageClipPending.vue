@@ -17,7 +17,7 @@
 			</div>
 		</div>
 
-		<div v-if="error" class="error">{{ $t("error.clip_creation") }}</div>
+		<div v-if="error" class="card-item alert">{{ $t("error.clip_creation") }}</div>
 
 	</div>
 </template>
@@ -113,11 +113,6 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 		img {
 			height: 1em;
 		}
-	}
-
-	.error {
-		font-style: italic;
-		color:var(--mainColor_warn);
 	}
 }
 </style>

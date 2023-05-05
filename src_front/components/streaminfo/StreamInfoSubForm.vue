@@ -27,7 +27,7 @@
 			v-for="i in param_tags.value"
 			@click="deleteTag(i)">
 				<span>{{ i }}</span>
-				<img src="@/assets/icons/cross.svg" class="icon">
+				<img src="@/assets/icons/primary/cross.svg" class="icon">
 			</button>
 		</div>
 	</div>
@@ -156,7 +156,7 @@ export default class StreamInfoSubForm extends Vue {
 
 <style scoped lang="less">
 .streaminfosubform{
-	gap: 1em;
+	gap: .5em;
 	display: flex;
 	flex-direction: column;
 
@@ -214,6 +214,32 @@ export default class StreamInfoSubForm extends Vue {
 
 	&.embedMode {
 		gap: .25em;
+	}
+
+	.tagList {
+		margin-top: .8em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 5px;
+		align-items: center;
+		.tagItem {
+			display: inline;
+			background-color: rgb(240, 240, 240);
+			color: var(--color-primary);
+			font-size: 1em;
+			padding: .25em;
+			border-radius: 4px;
+			transition: all .25s;
+
+			.icon {
+				height: .7em;
+				margin-left: .25em;
+			}
+			&:hover {
+				background: var(--color-light-dark);
+			}
+		}
 	}
 }
 </style>

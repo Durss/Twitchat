@@ -8,12 +8,17 @@
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
 			<div class="actions">
 				<Button :aria-label="$t('chat.message.automod_acceptBt_aria')"
+				 	v-tooltip="$t('chat.message.automod_acceptBt_aria')"
+					icon="checkmark"
 					@click.stop="modMessage(true)"
-					:loading="automodInProgress">{{ $t('chat.message.automod_acceptBt') }}</Button>
+					:loading="automodInProgress" />
+
 				<Button :aria-label="$t('chat.message.automod_rejectBt_aria')"
-					alert
+				 	v-tooltip="$t('chat.message.automod_rejectBt_aria')"
+					light alert
+					icon="cross"
 					@click.stop="modMessage(false)"
-					:loading="automodInProgress">{{ $t('chat.message.automod_rejectBt') }}</Button>
+					:loading="automodInProgress" />
 			</div>
 		</div>
 		
@@ -59,15 +64,17 @@
 				v-if="messageData.user.pronounsLabel && $store('params').features.showUserPronouns.value===true"
 				v-tooltip="messageData.user.pronounsTooltip || ''">{{messageData.user.pronounsLabel}}</span>
 			
-			<span @click.stop="openUserCard(messageData.user)"
+			<a :href="'https://twitch.tv/'+messageData.user.login" target="_blank"
+				@click.stop.prevent="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="outNickName($event)"
-				class="login" :style="getLoginStyles(messageData.user)">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></span>
+				class="login" :style="getLoginStyles(messageData.user)">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></a>
 			<template v-if="recipient">
 				<span> ➔ </span>
-				<span class="login"
+				<a :href="'https://twitch.tv/'+recipient.login" target="_blank"
+					class="login"
 					:style="getLoginStyles(recipient)"
-					@click.stop="openUserCard(recipient!)">{{recipient.displayName}}</span>
+					@click.stop.prevent="openUserCard(recipient!)">{{recipient.displayName}}</a>
 			</template>
 			
 			<i18n-t scope="global" class="sharedBan" tag="span"
@@ -765,6 +772,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	.login {
 		cursor: pointer;
 		font-weight: bold;
+		text-decoration: none;
 		// -webkit-text-stroke: fade(#000, 50%) .25px;
 		&:hover {
 			background-color: var(--color-dark);
@@ -864,11 +872,12 @@ export default class ChatMessage extends AbstractChatMessage {
 	&.automod {
 		margin-top: .25em;
 		border-radius: .25em;
-		background-color: var(--color-secondary-fader);
+		background-color: var(--color-alert-fader);
 		padding-top: 0;
+		color: var(--color-light);
 
 		.automod {
-			background-color: var(--color-secondary);
+			background-color: var(--color-alert);
 			padding: .25em;
 			border-top-left-radius: .5em;
 			border-top-right-radius: .5em;

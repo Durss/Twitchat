@@ -552,7 +552,6 @@ export default class TwitchUtils {
 					displayName:"Global",
 					login:"Global",
 					donor:{level:0, state:false, upgrade:false, noAd:false},
-					is_raider:false,
 					is_affiliate:false,
 					is_partner:false,
 					is_tracked:false,
@@ -825,7 +824,7 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets a list of the channels following us (restricted to the authenticated user or their moderators)
+	 * Check if user follows currently authenticated user
 	 * 
 	 * @param userId channelId to get followings list
 	 */

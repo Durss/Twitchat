@@ -84,7 +84,7 @@ export default class ChatAutobanJoin extends AbstractChatMessage {
 <style scoped lang="less">
 .chatautobanjoin{
 	mark {
-		background-color: fade(@mainColor_dark, 50%);
+		background-color: var(--color-secondary-fader);
 		border-radius: .5em;
 		font-weight: bold;
 		padding: .1em .3em;

@@ -38,7 +38,7 @@
 						</i18n-t>
 					</div>
 	
-					<div v-else-if="p.id == 215 && p.value === true" class="info config">
+					<div v-else-if="p.id == 215 && p.value === true" class="config">
 						<PostOnChatParam class="item"
 							botMessageKey="shoutout"
 							noBackground
@@ -48,11 +48,11 @@
 						/>
 					</div>
 	
-					<div v-else-if="p.id == 216 && p.value === true" class="card-item info config">
+					<div v-else-if="p.id == 216 && p.value === true" class="config">
 						<Button small secondary @click="$store('params').openParamsPage(contentSpoiler)">{{$t('global.configure')}}</Button>
 					</div>
 	
-					<div v-else-if="p.id == 217 && p.value === true" class="card-item info config">
+					<div v-else-if="p.id == 217 && p.value === true" class="config">
 						<Button small secondary @click="$store('params').openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
 					</div>
 	
@@ -329,10 +329,10 @@ export default class ParamsList extends Vue implements IParameterContent {
 			margin-bottom: 10px;
 		}
 
-		.info {
+		.info, .config {
 			overflow: hidden;
 			padding: 4px;
-			padding-left: calc(@iconSize + 10px);
+			margin-left: calc(@iconSize + 10px);
 			img {
 				height: 1em;
 				vertical-align: middle;
@@ -344,12 +344,13 @@ export default class ParamsList extends Vue implements IParameterContent {
 					padding: .25em .5em;
 					border-radius: .5em;
 					font-size: .8em;
-					background: fade(@mainColor_normal, 15%);
+					background: red;
 				}
 			}
 	
 			&.obsConnect, &.scope {
 				margin-left: calc(@iconSize + 10px);
+				padding-left: 0;
 				text-align: center;
 				p {
 					font-size: .8em;

@@ -169,7 +169,7 @@ export default class PublicApiTest extends Vue {
 	.connectForm {
 		max-width: 400px;
 		margin: auto;
-		background: var(--mainColor_light);
+		background: var(--color-light);
 
 		text-align: center;
 
@@ -206,7 +206,7 @@ export default class PublicApiTest extends Vue {
 			.head {
 				font-size: 1.5em;
 				text-align: center;
-				color: var(--mainColor_light);
+				color: var(--color-light);
 				margin-bottom: 5px;
 			}
 

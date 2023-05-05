@@ -64,7 +64,7 @@ export default class CommunityBoostInfo extends Vue {
 	flex-direction: row;
 	align-items: center;
 	white-space: nowrap;
-	color: var(--mainColor_light);
+	color: var(--color-light);
 	margin-left: 5px;
 	font-size: 14px;
 	padding: 5px;
@@ -81,11 +81,11 @@ export default class CommunityBoostInfo extends Vue {
 	.count {
 		display: flex;
 		flex-direction: column;
-		font-size: 9px;
+		font-size: 10px;
 		margin-left: 5px;
 		align-items: center;
 		p:nth-child(2) {
-			border-top: 1px solid var(--mainColor_light);
+			border-top: 1px solid var(--color-light);
 		}
 	}
 }

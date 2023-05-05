@@ -197,10 +197,6 @@ export default class Confirm extends Vue {
 			line-height: 1.25em;
 			margin-top: 1em;
 			text-align: center;
-			:deep(strong) {
-				color: var(--mainColor_warn);
-				font-weight: bold;
-			}
 		}
 
 		.buttons {

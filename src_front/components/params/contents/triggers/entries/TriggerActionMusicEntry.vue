@@ -75,16 +75,6 @@ export default class TriggerActionMusicEntry extends Vue {
 
 <style scoped lang="less">
 .TriggerActionMusicEntry{
-	.item.alert {
-		display: block;
-		width: fit-content;
-		border-radius: .25em;
-		margin:auto;
-		margin-bottom: .5em;
-		background-color: var(--mainColor_alert);
-		color: var(--mainColor_light);
-		padding: .25em .5em;
-	}
 
 }
 </style>

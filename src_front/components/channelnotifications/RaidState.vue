@@ -9,10 +9,10 @@
 			</i18n-t>
 		</div>
 
-		<div class="infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
+		<div class="card-item secondary infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
 
 		<ToggleBlock class="bannedAlert" v-if="bannedOnline.length > 0 || timedoutOnline.length > 0"
-		medium :open="false"
+		alert medium :open="false"
 		:title="$tc('raid.banned_users_title', (bannedOnline.length + timedoutOnline.length), {COUNT:(bannedOnline.length + timedoutOnline.length)})">
 		<template #left_actions>
 			<img src="@/assets/icons/alert.svg" class="icon">
@@ -25,17 +25,19 @@
 			<ul class="list">
 				<li class="user" v-for="(u, index) in bannedOnline" :key="index + u.id">
 					<img src="@/assets/icons/ban.svg" v-tooltip="'Timeout'">
-					<a @click.stop="openUserCard(u)" class="login">{{ u.login }}</a>
+					<a :href="'https://twitch.tv/'+u.login" target="_blank"
+					@click.stop.prevent="openUserCard(u)" class="login">{{ u.login }}</a>
 				</li>
 				<li class="user" v-for="(u, index) in timedoutOnline" :key="index + u.id">
 					<img src="@/assets/icons/timeout.svg" v-tooltip="'Timeout'">
-					<a @click.stop="openUserCard(u)" class="login">{{ u.login }}</a>
+					<a :href="'https://twitch.tv/'+u.login" target="_blank"
+					@click.stop.prevent="openUserCard(u)" class="login">{{ u.login }}</a>
 					<span class="duration">({{ getBanDuration(u) }})</span>
 				</li>
 			</ul>
 			<div class="ctas">
-				<Button type="button"
-					icon="copy_alert"
+				<Button ref="copyBt"
+					icon="copy" alert
 					@click="copybannedUsers()">{{ $t('raid.copy_logins') }}</Button>
 			</div>
 		</ToggleBlock>
@@ -53,6 +55,7 @@ import Utils from '@/utils/Utils';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import { gsap } from 'gsap';
 
 @Component({
 	components:{
@@ -101,7 +104,7 @@ export default class RaidState extends Vue {
 			//Debug to add random banned users
 			//@ts-ignore
 			if(!u.channelInfo[me.id]) u.channelInfo[me.id] = {};
-			if(Math.random() > .5) {
+			if(Math.random() > .75) {
 				u.channelInfo[me.id].online = true;
 				u.channelInfo[me.id].is_banned = true;
 				u.channelInfo[me.id].lastActivityDate = Date.now() - 1000;
@@ -152,6 +155,8 @@ export default class RaidState extends Vue {
 	public copybannedUsers():void {
 		const list = this.bannedOnline.concat().concat(this.timedoutOnline);
 		Utils.copyToClipboard(list.map(v=>v.login).join(", "));
+		const bt = this.$refs.copyBt as Vue;
+		gsap.fromTo(bt.$el, {filter:"brightness(3)"}, {filter:"brightness(1)", duration:.25});
 	}
 
 }
@@ -163,7 +168,6 @@ export default class RaidState extends Vue {
 		width: 3em;
 		border-radius: 50%;
 		margin: auto;
-		border: 2px solid var(--mainColor_light);
 	}
 	
 	.icon {
@@ -182,31 +186,20 @@ export default class RaidState extends Vue {
 	}
 
 	.infos {
-		font-size: .7em;
-		padding: .55em;
-		background-color: fade(@mainColor_alert, 50%);
-		border-radius: .5em;
+		font-size: .9em;
+		flex-shrink: 0;
+		text-align: center;
 	}
 
 	.bannedAlert {
-		display: flex;
-		flex-direction: column;
-		font-size: .8em;
-		text-align: left;
 		.icon {
 			height: 1em;
 			margin-left: .5em;
 		}
-		:deep(.header) {
-			background: var(--mainColor_alert);
-			&:hover {
-				background: var(--mainColor_alert_light);
-			}
-		}
-		:deep(.content) {
-			background: darken(@mainColor_alert, 20%);
-		}
 		.list{
+			font-size: .8em;
+			max-height: 200px;
+			overflow: auto;
 			.user {
 				display: flex;
 				flex-direction: row;
@@ -218,9 +211,10 @@ export default class RaidState extends Vue {
 					vertical-align: middle;
 				}
 				.login {
-					color: var(--mainColor_light);
+					color: var(--color-light);
+					text-decoration: none;
 					&:hover {
-						background-color: fade(@mainColor_light, 20%);
+						text-decoration: underline;
 					}
 				}
 				.duration {
@@ -233,9 +227,6 @@ export default class RaidState extends Vue {
 		.ctas {
 			text-align: center;
 			margin-top: .5em;
-			.button {
-				color: var(--mainColor_alert);
-			}
 		}
 	}
 }

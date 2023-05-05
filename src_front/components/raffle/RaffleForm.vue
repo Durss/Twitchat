@@ -418,7 +418,7 @@ export default class RaffleForm extends AbstractSidePanel {
 			.winner {
 				font-weight: bold;
 				gap: 0;
-					color: var(--mainColor_light);
+				color: var(--color-light);
 				background-color: var(--color-secondary);
 				.head {
 					font-size: 1.25em;
@@ -442,7 +442,7 @@ export default class RaffleForm extends AbstractSidePanel {
 					vertical-align: middle;
 				}
 				a{
-					color: var(--mainColor_alert);
+					color: var(--color-alert);
 				}
 				.grantBt {
 					margin: auto;
