@@ -20,7 +20,7 @@
 			<Button type="submit" class="connectBt" :loading="loading">{{$t('global.connect')}}</Button>
 		</template>
 		
-		<Button @click="disconnect()" class="connectBt" v-else :loading="loading" icon="cross">{{$t('global.disconnect')}}</Button>
+		<Button v-else @click="disconnect()" class="connectBt" alert :loading="loading" icon="cross">{{$t('global.disconnect')}}</Button>
 
 		<transition name="fade">
 			<div v-if="connectError" @click="connectError = false" class="card-item alert error">

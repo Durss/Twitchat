@@ -12,6 +12,7 @@
 				<ParamItem :paramData="param_title"
 					v-model="title"
 					:autofocus="title == ''"
+					:tabindex="1"
 					@change="onValueChange()" />
 
 				<div class="card-item answers">

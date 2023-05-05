@@ -16,12 +16,12 @@
 				<div v-for="o in messageData.choices" :key="o.id" class="choice" :class="getChoiceClasses(o)">
 					<div class="bar" :style="getChoiceStyles(o)">
 						<div class="choiceTitle">
-							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="o.votes == maxVotesValue">
 							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check" v-else>
 							{{o.label}}
 						</div>
 						<div class="users">
-							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="o.votes == maxVotesValue">
 							<img src="@/assets/icons/user.svg" alt="user" class="icon" v-else>
 							{{o.votes}}
 						</div>
@@ -46,7 +46,7 @@ export default class ChatPollResult extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePollData;
 
-	private maxVotesValue:number = 0;
+	public maxVotesValue:number = 0;
 	
 	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
 
@@ -70,7 +70,6 @@ export default class ChatPollResult extends AbstractChatMessage {
 	}
 
 	public beforeMount(): void {
-		const winningVoteCount = 0;
 		let max = 0;
 		for (let i = 0; i < this.messageData.choices.length; i++) {
 			const e = this.messageData.choices[i];

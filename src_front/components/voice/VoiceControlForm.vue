@@ -45,15 +45,10 @@ import VoiceTriggerList from './VoiceTriggerList.vue';
 })
 export default class VoiceControlForm extends Vue {
 
-	@Prop({
-			type: Boolean,
-			default: false,
-		})
+	@Prop({type: Boolean, default: false})
 	public sttOnly!:boolean;
-	@Prop({
-			type: Boolean,
-			default: true,
-		})
+	
+	@Prop({type: Boolean, default: true})
 	public voiceApiAvailable!:boolean;
 
 	public lang:string = "";

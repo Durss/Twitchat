@@ -37,6 +37,7 @@
 				>
 				<label :for="'number'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<input v-if="!paramData.noInput" ref="input"
+					:tabindex="tabindex"
 					type="number"
 					v-model.number="paramData.value"
 					v-autofocus="autofocus"
@@ -56,6 +57,7 @@
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder">
 					<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
+						:tabindex="tabindex"
 						v-model="textValue"
 						rows="3"
 						:id="'text'+key"
@@ -63,6 +65,7 @@
 						:placeholder="placeholder"
 						v-autofocus="autofocus"></textarea>
 					<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
+						:tabindex="tabindex"
 						v-model="textValue"
 						v-autofocus="autofocus"
 						:name="paramData.fieldName"
@@ -84,6 +87,7 @@
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder input-field" :style="{backgroundColor: paramData.value as string }">
 					<input ref="input" v-if="!paramData.noInput"
+						:tabindex="tabindex"
 						v-model="textValue"
 						v-autofocus="autofocus"
 						:name="paramData.fieldName"
@@ -254,6 +258,9 @@ export default class ParamItem extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public noBackground!:boolean;
+
+	@Prop({type:Number, default: 0})
+	public tabindex!:number;
 
 	public searching:boolean = false;
 	public key:string = Math.random().toString();

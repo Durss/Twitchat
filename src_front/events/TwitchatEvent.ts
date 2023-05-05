@@ -100,10 +100,6 @@ export default class TwitchatEvent extends Event {
 	public static STOP_TTS:TwitchatActionType = "STOP_TTS";
 	public static ENABLE_STT:TwitchatActionType = "ENABLE_STT";
 	public static DISABLE_STT:TwitchatActionType = "DISABLE_STT";
-	public static POLL_START:TwitchatActionType = "POLL_START";
-	public static POLL_END:TwitchatActionType = "POLL_END";
-	public static PREDICTION_START:TwitchatActionType = "PREDICTION_START";
-	public static PREDICTION_END:TwitchatActionType = "PREDICTION_END";
 	public static RAFFLE_START:TwitchatActionType = "RAFFLE_START";
 	public static RAFFLE_PICK_WINNER:TwitchatActionType = "RAFFLE_PICK_WINNER";
 	public static RAFFLE_END:TwitchatActionType = "RAFFLE_END";
@@ -113,6 +109,12 @@ export default class TwitchatEvent extends Event {
 	public static COUNTER_ADD:TwitchatActionType = "COUNTER_ADD";
 	public static TIMER_ADD:TwitchatActionType = "TIMER_ADD";
 	public static COUNTDOWN_ADD:TwitchatActionType = "COUNTDOWN_ADD";
+	public static CREATE_POLL:TwitchatActionType = "CREATE_POLL";
+	public static STOP_POLL:TwitchatActionType = "STOP_POLL";
+	public static CREATE_PREDICTION:TwitchatActionType = "CREATE_PREDICTION";
+	public static STOP_PREDICTION:TwitchatActionType = "STOP_PREDICTION";
+	public static CREATE_RAFFLE:TwitchatActionType = "CREATE_RAFFLE";
+	public static STOP_RAFFLE:TwitchatActionType = "STOP_RAFFLE";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -168,7 +170,6 @@ export const TwitchatEventTypeList = [
 	"OBS_SCENE_NAME_CHANGED",
 	"OBS_FILTER_NAME_CHANGED",
 ] as const;
-
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
 export const TwitchatActionTypeList = [
@@ -215,10 +216,6 @@ export const TwitchatActionTypeList = [
 	"STOP_TTS",
 	"ENABLE_STT",
 	"DISABLE_STT",
-	"POLL_START",
-	"POLL_END",
-	"PREDICTION_START",
-	"PREDICTION_END",
 	"RAFFLE_START",
 	"RAFFLE_PICK_WINNER",
 	"RAFFLE_END",
@@ -228,5 +225,11 @@ export const TwitchatActionTypeList = [
 	"COUNTER_ADD",
 	"TIMER_ADD",
 	"COUNTDOWN_ADD",
-];
+	"CREATE_POLL",
+	"STOP_POLL",
+	"CREATE_PREDICTION",
+	"STOP_PREDICTION",
+	"CREATE_RAFFLE",
+	"STOP_RAFFLE",
+] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

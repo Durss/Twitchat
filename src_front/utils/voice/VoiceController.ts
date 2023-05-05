@@ -63,6 +63,7 @@ export default class VoiceController {
 	******************/
 
 	public async start(remoteControlMode:boolean):Promise<void> {
+		console.log("START BOT remote mode", remoteControlMode);
 		this.remoteControlMode = remoteControlMode;
 		if(this.started) return;
 		if(this.recognition) {
@@ -73,10 +74,11 @@ export default class VoiceController {
 		
 		//When using voice recognition from a remote page, we get 2 events broadcasted
 		//for temp and final text. We then use these events to execute the voice actions
-		if(this.remoteControlMode) {
+		if(!this.remoteControlMode) {
 			watch(()=>this.sVoice.voiceActions, ()=> {
 				this.buildHashmaps();
 			}, {deep:true});
+			this.buildHashmaps();
 		}
 
 		//@ts-ignore
@@ -172,6 +174,8 @@ export default class VoiceController {
 		
 		PublicAPI.instance.addEventListener(TwitchatEvent.REMOTE_TEMP_TEXT_EVENT, (e:TwitchatEvent)=> {
 			this.finalText = "";
+			// //@ts-ignore
+			// console.log("REMOTE TEMP", e.data.text);
 			this.onTempText((e.data as {text:string}).text);
 		});
 		PublicAPI.instance.addEventListener(TwitchatEvent.REMOTE_FINAL_TEXT_EVENT, (e:TwitchatEvent)=> {
@@ -182,7 +186,7 @@ export default class VoiceController {
 	private parseSentence(str:string):string {
 		//Handle non-global commands
 		for (const key in this.hashmap) {
-			const index = str.indexOf(key);
+			const index = str.toLowerCase().indexOf(key);
 			if(index > -1) {
 				this.lastTriggerKey = key;
 				// str = str.replace(key, "");
@@ -222,13 +226,14 @@ export default class VoiceController {
 			}) 
 		}
 
+		
 		this.splitRegGlobalActions = new RegExp("(?:^|\\s)("+regChunks.join("|")+")(?:$|(?:[^\\s]{1}\\s)?|\\s)", "gi");
 	}
 
 	private triggerAction(action:string, data?:JsonObject):void {
 		if(!action) return;
 
-		// console.log("TRIGGER ACTION", action.id, data);
+		console.log("TRIGGER ACTION", action, data);
 		
 		switch(action) {
 			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}, true, true); return;
@@ -265,6 +270,7 @@ export default class VoiceController {
 		const actionsList:{id:TwitchatActionType, value?:string|JsonObject}[] = [];
 		let hasGlobalAction = false;
 		if(tempText_loc.length > 0) {
+			//Force first build of hashmap if necessary
 			if(!this.splitRegGlobalActions) {
 				this.buildHashmaps();
 			}
@@ -291,6 +297,7 @@ export default class VoiceController {
 		}
 		
 		if(hasGlobalAction) {
+			console.log(actionsList);
 			//If there's just one global action, send it the normal way
 			if(actionsList.length ==1) {
 				const a = actionsList[0];
