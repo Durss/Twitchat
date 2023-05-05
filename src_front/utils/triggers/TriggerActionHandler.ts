@@ -529,7 +529,7 @@ export default class TriggerActionHandler {
 		
 		let isAnExecution = false;
 		//Execute all triggers related to the current trigger event type
-		for await (const trigger of triggers) {
+		for (const trigger of triggers) {
 			if(await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
 				isAnExecution = true;
 			}
@@ -685,7 +685,7 @@ export default class TriggerActionHandler {
 			}
 		}
 
-		for await (const step of trigger.actions) {
+		for (const step of trigger.actions) {
 			const logStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
 			log.steps.push(logStep);
 
@@ -935,7 +935,7 @@ export default class TriggerActionHandler {
 					let uri = step.url;
 					if(!/https?:\/\//gi.test(uri)) uri = "https://"+uri;
 					const url = new URL(uri);
-					for await (const tag of step.queryParams) {
+					for (const tag of step.queryParams) {
 						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
 						url.searchParams.append(tag.toLowerCase(), text);
 					}
@@ -953,7 +953,7 @@ export default class TriggerActionHandler {
 				//Handle WS message trigger action
 				if(step.type == "ws") {
 					const json:{[key:string]:number|string|boolean} = {};
-					for await (const tag of step.params) {
+					for (const tag of step.params) {
 						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
 						json[tag.toLowerCase()] = value;
 						if(step.topic) {
@@ -980,7 +980,7 @@ export default class TriggerActionHandler {
 
 					if(!isNaN(value)) {
 						const ids = step.counters;
-						for await (const c of StoreProxy.counters.counterList) {
+						for (const c of StoreProxy.counters.counterList) {
 							if(ids.indexOf(c.id) > -1) {
 								let user = c.perUser? this.extractUser(trigger, message) : undefined;
 								//Check if this step requests that this counter should update a user
@@ -1274,7 +1274,7 @@ export default class TriggerActionHandler {
 			//No placeholders for this event type, just send back the source text
 			if(!placeholders) return res;
 			
-			for await (const h of placeholders) {
+			for (const h of placeholders) {
 				const chunks:string[] = h.pointer.split(".");
 				let root = message as unknown;
 				let value:string = "";
@@ -1495,7 +1495,7 @@ export default class TriggerActionHandler {
 	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, subEvent?:string|null):Promise<boolean> {
 		let res = false;
 		let index = 0;
-		for await (const c of conditions) {
+		for (const c of conditions) {
 			let localRes = false;
 			if(c.type == "group") {
 				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, subEvent);

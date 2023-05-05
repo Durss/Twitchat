@@ -1653,7 +1653,7 @@ export default class MessageList extends Vue {
 				flex-grow: 1;
 				&.empty {
 					font-style: italic;
-					color: var(--color-light-fadest);
+					color: var(--color-light-fade);
 					text-align: center;
 					font-style: italic;
 					width: 100%;

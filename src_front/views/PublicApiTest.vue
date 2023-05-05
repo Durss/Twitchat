@@ -46,7 +46,7 @@ import Button from '@/components/Button.vue';
 import ParamsOBS from '@/components/params/contents/ParamsOBS.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TwitchatActionTypeList, TwitchatEventTypeList, type TwitchatActionType } from '@/events/TwitchatEvent';
+import { TwitchatActionTypeList, TwitchatEventTypeList, type TwitchatActionType, type TwitchatEventType } from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
@@ -63,8 +63,8 @@ import { Component, Vue } from 'vue-facing-decorator';
 })
 export default class PublicApiTest extends Vue {
 
-	public eventList:{key:string, active:boolean, data:any|null}[] = [];
-	public actionList:{key:string}[] = [];
+	public eventList:{key:TwitchatEventType, active:boolean, data:any|null}[] = [];
+	public actionList:{key:TwitchatActionType}[] = [];
 	
 	public loading = false;
 	public connected = false;
@@ -133,15 +133,14 @@ export default class PublicApiTest extends Vue {
 		OBSWebsocket.instance.disconnect();
 	}
 
-	public async executeAction(action:{key:string}):Promise<void> {
-		console.log(action);
+	public async executeAction(action:{key:TwitchatEventType|TwitchatActionType}):Promise<void> {
 		PublicAPI.instance.broadcast(action.key);
 	}
 
 	private initAPI():void {
 		//@ts-ignore
 		OBSWebsocket.instance.socket.on("CustomEvent",
-		(e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
+		(e:{origin:"twitchat", type:TwitchatEventType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
 			const data = e.data as {id:string};

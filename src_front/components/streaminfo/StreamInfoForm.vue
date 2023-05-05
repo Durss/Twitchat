@@ -43,19 +43,18 @@
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { Component } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
-import ToggleBlock from '../ToggleBlock.vue';
 import StreamInfoSubForm from './StreamInfoSubForm.vue';
-import CloseButton from '../CloseButton.vue';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
 
 @Component({
 	components:{
@@ -94,9 +93,6 @@ export default class StreamInfoForm extends AbstractSidePanel {
 
 	public async mounted():Promise<void> {
 		this.param_savePreset.children = [this.param_namePreset];
-
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
 
 		this.open();
 
@@ -267,6 +263,10 @@ export default class StreamInfoForm extends AbstractSidePanel {
 				}
 			}
 		}
+	}
+
+	.form {
+		width: 100%;
 	}
 
 	.loader {
