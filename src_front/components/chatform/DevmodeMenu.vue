@@ -1,5 +1,5 @@
 <template>
-	<div class="devmodemenu blured-background">
+	<div class="devmodemenu blured-background-window">
 		<h1>Developer panel</h1>
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
@@ -16,7 +16,8 @@
 			<Button small @click="simulateEvent('message', 'returning')" icon="returning">Returning user</Button>
 			<Button small @click="simulateEvent('message', 'presentation')" icon="firstTime">Presentation</Button>
 			<Button small @click="simulateEvent('user_watch_streak')" icon="watchStreak">Watch streak</Button>
-			<Button small @click="simulateEvent('raid')" icon="raid">Incoming raid</Button>
+			<Button small @click="simulateEvent('raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
+			<Button small @click="simulateEvent('raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
 			<Button small @click="startFakeRaid()" icon="raid">Outgoing raid</Button>
 			<Button small @click="simulateEvent('cheer')" icon="bits">Bits</Button>
 			<Button small @click="simulateEvent('subscription')" icon="sub">Sub</Button>
@@ -73,6 +74,7 @@ import gsap from 'gsap';
 import { reactive } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import { typed } from 'mathjs';
 
 @Component({
 	components:{
@@ -128,6 +130,8 @@ export default class DevmodeMenu extends Vue {
 	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
 		this.$store("debug").simulateMessage(type, async (message)=> {
 			switch(subAction) {
+				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
+				case "raidOnline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = true;break;
 				case "discord":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DISCORD; break;
 				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR; break;
 				case "ad_warn":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; break;
@@ -317,6 +321,8 @@ type Subaction = "first"
 				| "donor_public_prompt"
 				| "right_click_hint"
 				| "discord"
+				| "raidOnline"
+				| "raidOffline"
 				| "ad";
 
 </script>
@@ -328,6 +334,7 @@ type Subaction = "first"
 	left: auto;
 	margin-left: auto;
 	transform-origin: bottom right;
+	overflow: hidden;
 
 	h1 {
 		color: var(--color-light);
@@ -336,8 +343,10 @@ type Subaction = "first"
 	}
 
 	.list {
-		height: 400px;
-		max-height: 80%;
+		// height: 400px;
+		// max-height: 80%;
+		height: 100%;
+		margin: auto;
 		overflow-x: hidden;
 		overflow-y: auto;
 		display: flex;

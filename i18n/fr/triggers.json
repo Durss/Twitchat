@@ -215,7 +215,8 @@
 				"select_param": "Choisissez les paramètres à inclure :",
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse.",
 				"need_to_connect": "Cette action nécessite de vous {LINK}",
-				"need_to_connect_link": "connecter à un serveur websocket"
+				"need_to_connect_link": "connecter à un serveur websocket",
+				"topic_description": "Valeur personnalisée"
 			},
 			"count": {
 				"value_label":"Valeur à ajouter ou retirer",

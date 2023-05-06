@@ -84,7 +84,7 @@ export default class CommandHelper extends Vue {
 	private adCooldownInterval = 0;
 
 	public get classes():string[] {
-		const res = ["commandhelper", "blured-background"];
+		const res = ["commandhelper", "blured-background-window"];
 		if(this.hasChannelPoints) res.push("isAffiliate")
 		return res;
 	}

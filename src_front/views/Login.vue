@@ -3,7 +3,7 @@
 
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
-		<div class="holder blured-background" ref="holder">
+		<div class="holder blured-background-window" ref="holder">
 			<div class="head" v-if="!scopeOnly">
 				<img class="icon" src="@/assets/logo.svg" alt="twitch">
 				<div class="beta" v-if="isBeta === true">{{ $t("global.beta") }}</div>
@@ -350,7 +350,7 @@ export default class Login extends Vue {
 	left: 0;
 	z-index: 99;
 	width: 100vw;
-	height: 100vh;
+	height: var(--vh);
 
 	.dimmer {
 		backdrop-filter: blur(10px);
@@ -359,7 +359,7 @@ export default class Login extends Vue {
 		top: 0;
 		left: 0;
 		width: 100vw;
-		height: 100vh;
+		height: var(--vh);
 	}
 
 	.holder {
@@ -479,8 +479,8 @@ export default class Login extends Vue {
 			left: 0;
 			transform: unset;
 			width: 100vw;
-			height: 100vh;
-			min-height: 100vh;
+			height: var(--vh);
+			min-height: var(--vh);
 		}
 	}
 }

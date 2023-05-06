@@ -1,5 +1,5 @@
 <template>
-	<div class="shoutoutlist blured-background">
+	<div class="shoutoutlist blured-background-window">
 		<draggable class="list"
 		v-model="$store('users').shoutoutHistory[channelId]" 
 		direction="vertical"

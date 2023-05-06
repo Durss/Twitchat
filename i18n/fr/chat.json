@@ -188,10 +188,7 @@
     "train_cooldown": "Le train de la hype peut à nouveau être déclenché !",
     "follow": "{USER} vous suit",
     "raid": {
-      "previous_stream": "Dernier stream : {CATEGORY}",
-      "current_stream": "Diffuse {CATEGORY}:",
-      "text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes.",
-      "duration": "Durée: {DURATION}"
+      "text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes."
     },
     "pin": {
       "pinned": "{MODERATOR} a épinglé le message suivant :",
@@ -241,8 +238,7 @@
     },
     "stream": {
       "online": "La chaîne {USER} est en live.",
-      "offline": "La chaîne {USER} n'est plus en live",
-      "info": "Diffuse {CATEGORY}:"
+      "offline": "La chaîne {USER} n'est plus en live"
     },
     "discord": {
       "title": "Rejoins-nous sur Discord",

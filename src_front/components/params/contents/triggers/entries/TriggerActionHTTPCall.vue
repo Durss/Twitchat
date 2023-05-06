@@ -10,11 +10,13 @@
 			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			
 			<div class="params">
-				<template v-for="p in parameters" :key="p.tag" >
-					<div class="rowItem tag" @click="p.enabled = !p.enabled; onToggleParam()"><mark>{{ p.placeholder.tag }}</mark></div>
-					<span class="rowItem" @click="p.enabled = !p.enabled; onToggleParam()">{{ $t(p.placeholder.descKey) }}</span>
-					<ToggleButton class="rowItem" v-model="p.enabled" @change="onToggleParam()" />
-				</template>
+				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
+					<div class="taginfo">
+						<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
+						<span>{{ $t(p.placeholder.descKey) }}</span>
+					</div>
+					<ToggleButton v-model="p.enabled" @change="onToggleParam()" />
+				</div>
 			</div>
 		</div>
 
@@ -96,33 +98,27 @@ export default class TriggerActionHTTPCall extends Vue {
 	}
 
 	.params {
-		display: grid;
-		grid-template-columns: 1fr 1fr 40px;
-		align-items: center;
-		gap: .5em;
+		gap: 2px;
+		display: flex;
+		flex-direction: column;
 		font-size: .8em;
-		position: relative;
-		overflow: hidden;
-		z-index: 0;
-		.tag {
-			text-align: right;
-		}
-		.rowItem {
-			position: relative;
+		.card-item {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
 			cursor: pointer;
-			&:nth-child(3n+1) {
-				max-width: 20vw;
+			&:hover {
+				background-color: var(--color-light-fade);
 			}
-			&:hover::before {
-				content: "";
-				position: absolute;
-				top: 50%;
-				left: -1000px;
-				width: 2000px;
-				height: calc(100% + 4px);
-				background-color: var(--color-primary);
-				transform: translateY(-50%);
-				z-index: -1;
+			.taginfo {
+				gap: .5em;
+				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+
+				.tag {
+					word-break: break-all;
+				}
 			}
 		}
 	}

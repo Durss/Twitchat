@@ -1,5 +1,5 @@
 <template>
-	<div class="emoteselector blured-background">
+	<div class="emoteselector blured-background-window">
 		<div v-if="users.length == 0" class="loader">
 			<img src="@/assets/loader/loader.svg" alt="loader">
 			<p>{{ $t("global.loading") }}</p>

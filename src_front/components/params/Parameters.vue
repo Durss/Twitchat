@@ -474,7 +474,6 @@ export default class Parameters extends Vue {
 			}
 		}
 	}
-
 }
 
 @media only screen and (max-width: 800px) {
@@ -541,6 +540,7 @@ export default class Parameters extends Vue {
 			display:none;
 			.content {
 				margin-top: 1em;
+				padding: 0;
 			}
 		}
 

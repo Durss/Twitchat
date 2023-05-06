@@ -2,7 +2,7 @@
 	<div class="logout">
 		<div class="home-gradient-bg"></div>
 	
-		<div class="holder blured-background">
+		<div class="holder blured-background-window">
 			<div class="head">
 				<img class="icon" src="@/assets/logo.svg" alt="twitch">
 			</div>

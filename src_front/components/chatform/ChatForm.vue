@@ -26,9 +26,11 @@
 						</div>
 					</div>
 
+					<!-- using @input instead of v-model so it works properly on mobile -->
 					<input type="text"
-						v-model="message"
 						ref="input"
+						:value="message"
+						@input="$event => message = ($event.target as HTMLInputElement).value"
 						:placeholder="$t('chat.form.input_placeholder')"
 						:maxlength="maxLength"
 						@keyup.capture.tab="(e)=>onTab(e)"
@@ -42,11 +44,13 @@
 					@click="stopSpam()">{{ $t('chat.form.stop_spamBt') }}</Button>
 				
 				<span @click="error=false" v-if="error" class="error">{{ $t('error.message_send') }}</span>
-				
+			</form>
+			
+			<div class="rightForm">
 				<ButtonNotification :aria-label="$t('chat.form.emoteBt_aria')"
 					icon="emote"
 					@click="$emit('update:showEmotes',true);" />
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.shoutoutBt_aria')"
 						icon="shoutout"
@@ -55,7 +59,7 @@
 						v-if="pendingShoutoutCount > 0"
 						@click="$emit('update:showShoutout',true);" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.pollBt_aria')"
 						icon="poll"
@@ -63,7 +67,7 @@
 						@click="openNotifications('poll')"
 						v-if="$store('poll').data?.id" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.predictionBt_aria')"
 						icon="prediction"
@@ -71,7 +75,7 @@
 						@click="openNotifications('prediction')"
 						v-if="$store('prediction').data?.id" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.trackedBt_aria')"
 						icon="magnet"
@@ -79,7 +83,7 @@
 						v-tooltip="{content:$t('chat.form.trackedBt_aria'), showOnCreate:shouldShowTooltip('tracked'), onHidden:()=>onHideTooltip('tracked')}"
 						@click="openModal('tracked')" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.raffleBt_aria')"
 						v-if="$store('raffle').data && $store('raffle').data!.mode == 'chat'"
@@ -88,7 +92,7 @@
 						v-tooltip="{content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
 						@click="openNotifications('raffle')" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.bingoBt_aria')"
 						icon="bingo"
@@ -96,7 +100,7 @@
 						v-tooltip="{content:$t('chat.form.bingoBt_aria'), showOnCreate:shouldShowTooltip('bingo'), onHidden:()=>onHideTooltip('bingo')}"
 						@click="openNotifications('bingo')" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
 						icon="chatPoll"
@@ -104,7 +108,7 @@
 						@click="openModal('chatsuggState')"
 						v-if="$store('chatSuggestion').data != null" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.whispersBt_aria')"
 						icon="whispers"
@@ -113,7 +117,7 @@
 						v-tooltip="$t('chat.form.whispersBt_aria')"
 						@click="openModal('whispers')" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.pinsBt_aria')"
 						icon="save"
@@ -122,7 +126,7 @@
 						v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:shouldShowTooltip('save'), onHidden:()=>onHideTooltip('save')}"
 						@click="$emit('pins')" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification aria-label="Toggle messages encryption"
 						:icon="$store('main').cypherEnabled? 'lock' : 'unlock'"
@@ -130,7 +134,7 @@
 						v-if="cypherConfigured"
 						v-tooltip="'Send encrypted<br>messages'" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.deezerBt_aria')"
 						icon="deezer"
@@ -138,7 +142,7 @@
 						v-tooltip="$t('chat.form.deezerBt_aria')"
 						@click="openNotifications('deezer')" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.highlightBt_aria')"
 						v-if="chatHighlightEnabled"
@@ -147,13 +151,13 @@
 						v-tooltip="{content:$t('chat.form.highlightBt_aria'), showOnCreate:shouldShowTooltip('highlight'), onHidden:()=>onHideTooltip('highlight')}"
 						@click="removeChatHighlight()" />
 				</transition>
-
+	
 				<CommunityBoostInfo v-if="$store('stream').communityBoostState" />
-
+	
 				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timerStartDate > 0" />
-
+	
 				<CommercialTimer v-if="isCommercial" />
-
+	
 				<div v-if="$store('params').appearance.showViewersCount.value === true
 					&& $store('stream').playbackState && $store('stream').playbackState!.viewers > 0"
 					v-tooltip="$t('chat.form.viewer_count')"
@@ -164,7 +168,7 @@
 					<p v-if="!censoredViewCount">{{$store('stream').playbackState!.viewers}}</p>
 					<img src="@/assets/icons/user.svg" alt="viewers">
 				</div>
-
+	
 				<transition name="blink">
 					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone'"
@@ -173,14 +177,14 @@
 						v-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
 						@click="toggleVoiceBot()" />
 				</transition>
-
+	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.devmodeBt_aria')"
 						icon="debug"
 						@click="$emit('update:showDevMenu',true);"
 						v-if="$store('main').devmode" />
 				</transition>
-
+	
 				<transition name="blink">
 					<Button class="emergency"
 						v-if="emergencyButtonEnabled"
@@ -190,8 +194,7 @@
 						v-tooltip="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
 						@click="toggleEmergencyMode()" />
 				</transition>
-
-			</form>
+			</div>
 		</div>
 
 		<div class="floatingButtons">
@@ -897,15 +900,21 @@ export default class ChatForm extends Vue {
 			.spam {
 				flex-grow: 1;
 			}
+		}
+
+		.rightForm {
+			display: flex;
+			flex-direction: row;
+
 			.button.emergency {
 				padding: .35em;
 				margin-left: .5em;
 			}
-
+	
 			.blink-enter-active {
 				transition: all 1s;
 			}
-
+	
 			.blink-leave-active {
 				transition: all .25s;
 			}
@@ -918,7 +927,7 @@ export default class ChatForm extends Vue {
 			.blink-leave-to {
 				opacity: 0;
 			}
-
+	
 			.viewCount {
 				cursor: pointer;
 				display: flex;
@@ -988,6 +997,26 @@ export default class ChatForm extends Vue {
 		left: 0;
 		transform: translateY(-100%);
 		z-index: 1;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.chatform{
+		.holder {
+			flex-wrap: wrap;
+			justify-content: center;
+			.leftForm {
+				order:2;
+			}
+			.inputForm {
+				order:1;
+				flex-grow: 1;
+				width: 100%;
+			}
+			.rightForm {
+				order:3;
+			}
+		}
 	}
 }
 </style>

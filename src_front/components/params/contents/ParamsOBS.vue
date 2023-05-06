@@ -55,17 +55,16 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import type { StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
+import PermissionsForm from '../../PermissionsForm.vue';
 import ParamItem from '../ParamItem.vue';
+import type IParameterContent from './IParameterContent';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
 import OBSScenes from './obs/OBSScenes.vue';
-import PermissionsForm from '../../PermissionsForm.vue';
-import type IParameterContent from './IParameterContent';
 
 
 @Component({
@@ -102,8 +101,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 		usersAllowed:[],
 		usersRefused:[],
 	}
-
-	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public get holderStyles():StyleValue {
 		return {

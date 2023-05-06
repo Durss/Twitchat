@@ -17,13 +17,13 @@
 
 			<div class="streamInfo">
 				<div class="infos">
-					<i18n-t scope="global" :keypath="messageData.stream.wasLive? 'chat.raid.current_stream' : 'chat.raid.previous_stream'" tag="p">
-						<template #CATEGORY>
-							<strong>{{messageData.stream.category}}</strong>
-						</template>
-					</i18n-t>
-					<p class="title quote">{{messageData.stream.title}}</p>
-					<div class="duration" v-if="messageData.stream.wasLive">{{$t("chat.raid.duration", {DURATION:formatedDuration})}}</div>
+					<div class="title quote">
+						<span>{{messageData.stream.title}}</span>
+						<div class="details">
+							<p class="category">{{messageData.stream.category}}</p>
+							<div class="duration" v-if="messageData.stream.wasLive"><img src="@/assets/icons/timer.svg" class="icon">{{formatedDuration}}</div>
+						</div>
+					</div>
 				</div>
 
 				<Button @click.stop="shoutout()"
@@ -103,12 +103,28 @@ export default class ChatRaid extends AbstractChatMessage {
 		.infos {
 			flex-grow: 1;
 			flex-basis: 200px;
-			.game {
-				font-style: italic;
-			}
-			.duration {
-				font-size: .9em;
-				opacity: .8;
+			opacity: .8;
+			.details {
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				.category, .duration {
+					width: fit-content;
+					margin-right: 0;
+					margin-left: 0;
+					margin-top: .5em;
+					font-size: .9em;
+					display: block;
+					padding: 2px 10px;
+					font-style: normal;
+					border-radius: var(--border-radius);
+					background-color: var(--color-light-fader);
+					.icon {
+						height: 1em;
+						vertical-align: text-top;
+						margin-right: .25em;
+					}
+				}
 			}
 		}
 		.soButton {

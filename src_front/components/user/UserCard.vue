@@ -40,49 +40,49 @@
 			
 			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
 
-			<div class="infoList">
-				<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date.svg" alt="account creation date" class="icon">{{createDate}}</div>
-				
-				<div class="info" v-if="followersCount > -1"><img src="@/assets/icons/follow_outline.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
-				
-				<div class="info" v-if="subState && subStateLoaded">
-					<img src="@/assets/icons/gift.svg" alt="subscribed" class="icon" v-if="subState.is_gift">
-					<img src="@/assets/icons/sub.svg" alt="subscribed" class="icon" v-else>
-					<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
-						<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
-						<template #GIFTER>{{ subState.gifter_name }}</template>
-					</i18n-t>
-				</div>
-				<div class="info" v-else-if="subStateLoaded">
-					<img src="@/assets/icons/sub.svg" alt="subscribed" class="icon">
-					<span>{{ $t("usercard.non_subscribed") }}</span>
-				</div>
-
-				<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow.svg" alt="follow date" class="icon">{{followDate}}</div>
-				<div class="info" v-else-if="canListFollowers && !is_self"><img src="@/assets/icons/unfollow.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
-			</div>
-			
-			<div class="ctas">
-				<Button type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank">{{$t('usercard.profileBt')}}</Button>
-				<Button type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
-				<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
-				<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
-				<Button v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
-			</div>
-			
-			<div class="card-item secondary liveInfo" v-if="currentStream">
-				<div class="header">
-					<div class="title">{{ $t("usercard.streaming") }}</div>
-				</div>
-				<div class="infos">
-					<div class="title">{{currentStream.title}}</div>
-					<div class="game">{{currentStream.game_name}}</div>
-				</div>
-			</div>
-
-			<div class="card-item description" v-if="userDescription">{{userDescription}}</div>
-			
 			<div class="scrollable">
+				<div class="infoList">
+					<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date.svg" alt="account creation date" class="icon">{{createDate}}</div>
+					
+					<div class="info" v-if="followersCount > -1"><img src="@/assets/icons/follow_outline.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
+					
+					<div class="info" v-if="subState && subStateLoaded">
+						<img src="@/assets/icons/gift.svg" alt="subscribed" class="icon" v-if="subState.is_gift">
+						<img src="@/assets/icons/sub.svg" alt="subscribed" class="icon" v-else>
+						<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
+							<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
+							<template #GIFTER>{{ subState.gifter_name }}</template>
+						</i18n-t>
+					</div>
+					<div class="info" v-else-if="subStateLoaded">
+						<img src="@/assets/icons/sub.svg" alt="subscribed" class="icon">
+						<span>{{ $t("usercard.non_subscribed") }}</span>
+					</div>
+
+					<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow.svg" alt="follow date" class="icon">{{followDate}}</div>
+					<div class="info" v-else-if="canListFollowers && !is_self"><img src="@/assets/icons/unfollow.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
+				</div>
+				
+				<div class="ctas">
+					<Button type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank">{{$t('usercard.profileBt')}}</Button>
+					<Button type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
+					<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
+					<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
+					<Button v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
+				</div>
+				
+				<div class="card-item secondary liveInfo" v-if="currentStream">
+					<div class="header">
+						<div class="title">{{ $t("usercard.streaming") }}</div>
+					</div>
+					<div class="infos">
+						<div class="title">{{currentStream.title}}</div>
+						<div class="game">{{currentStream.game_name}}</div>
+					</div>
+				</div>
+
+				<div class="card-item description" v-if="userDescription">{{userDescription}}</div>
+			
 				<div class="card-item messages" v-if="messageHistory.length > 0">
 					<div class="header">
 						<h2 class="title">{{ $t("usercard.messages") }}</h2>
@@ -491,8 +491,8 @@ export default class UserCard extends Vue {
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 100vh;
-	max-height: 100vh;
+	height: var(--vh);
+	max-height: var(--vh);
 
 	&.hidden {
 		display: none;
@@ -521,7 +521,7 @@ export default class UserCard extends Vue {
 		background-color: var(--color-dark-light);
 		max-width: 800px;
 		width: 80%;
-		max-height: 100vh;
+		max-height: var(--vh);
 
 		.loader {
 			margin: auto;
@@ -729,7 +729,7 @@ export default class UserCard extends Vue {
 				}
 				
 				.list {
-					@itemWidth: 150px;
+					@itemWidth: 140px;
 					display: grid;
 					gap: .5em;
 					grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));

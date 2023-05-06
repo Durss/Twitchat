@@ -121,6 +121,7 @@ export default class OverlayParamsCounter extends Vue {
 			flex-direction: column;
 			flex-shrink: 0;
 			color: var(--color-dark);
+			font-size: .9em;
 			label {
 				font-weight: bold;
 			}
@@ -144,10 +145,21 @@ export default class OverlayParamsCounter extends Vue {
 			width: auto;
 			font-size: .75em;
 			align-self: center;
+			max-width: 60vw;
 		}
 		
 		ul {
 			margin-top: .5em;
+		}
+	}
+}
+
+@media only screen and (max-width: 500px) {
+	.overlayparamscounter{
+		.holder {
+			.counter {
+				font-size: .75em;
+			}
 		}
 	}
 }

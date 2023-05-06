@@ -1,6 +1,6 @@
 <template>
 	<div class="publicapitest">
-		<div class="connectForm blured-background">
+		<div class="connectForm blured-background-window">
 			<form @submit.prevent="connect()" v-if="!connected">
 				<ParamItem :paramData="obsPort_conf" class="row" />
 				<ParamItem :paramData="obsPass_conf" class="row" />

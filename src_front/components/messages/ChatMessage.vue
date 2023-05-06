@@ -404,8 +404,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			&& mess.twitch_isFirstMessage !== true
 			&& mess.twitch_isPresentation !== true
 			&& mess.twitch_isReturning !== true
-			&& this.lightMode === false
-			&& this.$store("params").appearance.highlight1stToday.value === true) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
+			&& this.lightMode === false) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
 		}
 
 		//Pre compute some classes to reduce watchers count on "classes" getter

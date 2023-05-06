@@ -1052,6 +1052,34 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Search for live channels
+	 * 
+	 * @param search search term
+	 */
+	public static async searchLiveChannels(search:string):Promise<TwitchDataTypes.LiveChannelSearchResult[]> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		let url = new URL(Config.instance.TWITCH_API_PATH+"search/channels");
+		url.searchParams.append("query", search);
+		url.searchParams.append("first", "20");
+		url.searchParams.append("live_only", "true");
+		const res = await fetch(url, options);
+		if(res.status == 429){
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers);
+			return await this.searchLiveChannels(search);
+		}
+		const json = await res.json();
+		if(json.error) {
+			throw(json);
+		}else{
+			return json.data;
+		}
+	}
+
+	/**
 	 * Search for a stream category
 	 * 
 	 * @param search search term
@@ -1903,7 +1931,8 @@ export default class TwitchUtils {
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers, attemptCount);
 			if(attemptCount<8) {
-				return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, ++attemptCount);
+				attemptCount++;
+				return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, attemptCount);
 			}
 		}
 		return false;
@@ -2639,6 +2668,7 @@ export default class TwitchUtils {
 	private static async onRateLimit(headers:Headers, attemptCount:number = 0):Promise<void> {
 		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now()/1000+1).toString()) * 1000 + 1000;
 		if(attemptCount > 0) resetDate += 1000 * Math.pow(2, attemptCount);//Scale up the time frame 
+		console.log("Rate limit", attemptCount, 1000 * Math.pow(2, attemptCount));
 		await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
 	}
 

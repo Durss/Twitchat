@@ -17,26 +17,22 @@
 						</i18n-t>
 					</div>
 				
-					<div v-else-if="p.id == 201 && p.value === true" class="info greetThem">
-						<i18n-t scope="global" tag="p" class="label"
-						keypath="params.firstMessage_info">
-							<template #URL>
-								<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
-							</template>
-						</i18n-t>
-					</div>
+					<i18n-t v-else-if="p.id == 201 && p.value === true" class="info greetThem" scope="global" tag="div"
+					keypath="params.firstMessage_info">
+						<template #URL>
+							<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
+						</template>
+					</i18n-t>
 					
-					<div v-else-if="p.id == 213 && p.value === true" class="info pronouns">
-						<i18n-t scope="global" tag="p" class="label"
-						keypath="params.showUserPronouns_based_on">
-							<template #URL1>
-								<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
-							</template>
-							<template #URL2>
-								<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
-							</template>
-						</i18n-t>
-					</div>
+					<i18n-t v-else-if="p.id == 213 && p.value === true" class="info pronouns" scope="global" tag="div"
+					keypath="params.showUserPronouns_based_on">
+						<template #URL1>
+							<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
+						</template>
+						<template #URL2>
+							<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
+						</template>
+					</i18n-t>
 	
 					<div v-else-if="p.id == 215 && p.value === true" class="config">
 						<PostOnChatParam class="item"
@@ -367,13 +363,8 @@ export default class ParamsList extends Vue implements IParameterContent {
 			}
 	
 			&.pronouns, &.spoiler, &.greetThem {
-				.label {
-					font-size: .8em;
-				}
-				a {
-					color: var(--color-light);
-					font-weight: bold;
-				}
+				font-size: .8em;
+				opacity: .8;
 			}
 	
 		}

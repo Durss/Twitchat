@@ -96,6 +96,8 @@ export default class OverlayParamsTimer extends Vue {
 			margin: auto;
 			display: flex;
 			flex-direction: row;
+			justify-content: center;
+			flex-wrap: wrap;
 			gap: 1em;
 		}
 	}

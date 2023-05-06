@@ -81,7 +81,6 @@ export default class ParamsAbout extends Vue implements IParameterContent {
 		flex-direction: column;
 		justify-content: flex-start;
 		margin-top: 1em;
-		min-width: 400px;
 
 		.item {
 			margin-bottom: .5em;

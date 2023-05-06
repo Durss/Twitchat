@@ -33,14 +33,13 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import Config from '@/utils/Config';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
-import ToggleBlock from '../../../ToggleBlock.vue';
 import Button from '../../../Button.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ToggleBlock from '../../../ToggleBlock.vue';
+import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
@@ -59,8 +58,6 @@ export default class OBSConnectForm extends Vue {
 	public obsPort_conf:TwitchatDataTypes.ParameterData<number>	= { type:"number", value:4455, min:0, max:65535, step:1 };
 	public obsPass_conf:TwitchatDataTypes.ParameterData<string>	= { type:"password", value:"", };
 	public obsIP_conf:TwitchatDataTypes.ParameterData<string>	= { type:"string", value:"127.0.0.1", };
-
-	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	beforeMount(): void {
 		this.obsPort_conf.labelKey	= "obs.form_port";

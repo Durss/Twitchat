@@ -80,7 +80,8 @@ export default class OverlayParamsSpotify extends Vue {
 			}
 			
 			.player {
-				margin: 0;
+				margin: auto;
+				max-width: 60vw;
 			}
 		}
 	}

@@ -17,12 +17,10 @@
 
 			<div v-if="isOnline && messageData.info" class="streamInfo">
 				<div class="infos">
-					<i18n-t scope="global" keypath="chat.stream.info" tag="p">
-						<template #CATEGORY>
-							<strong>{{messageData.info.category}}</strong>
-						</template>
-					</i18n-t>
-					<p class="title quote">{{messageData.info.title}}</p>
+					<div class="title quote">
+						<span>{{messageData.info.title}}</span>
+						<p class="category">{{messageData.info.category}}</p>
+					</div>
 				</div>
 
 				<Button v-if="!isMe && isOnline"
@@ -106,22 +104,28 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 	}
 
 	.streamInfo {
-		// background-color: rgba(255, 255, 255, .15);
 		border-radius: .5em;
 		overflow: hidden;
 		width: 100%;
+		gap: 1em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
 		.infos {
+			opacity: .8;
 			flex-grow: 1;
 			flex-basis: 200px;
-			.game {
-				font-style: italic;
-			}
-			.duration {
+			.category {
+				width: fit-content;
+				margin-right: 0;
+				margin-left: 0;
+				margin-top: .5em;
 				font-size: .9em;
-				opacity: .8;
+				display: block;
+				padding: 2px 10px;
+				font-style: normal;
+				border-radius: var(--border-radius);
+				background-color: var(--color-light-fader);
 			}
 		}
 		.soButton {

@@ -167,7 +167,7 @@ export default class Button extends Vue {
 .button {
 	.emboss();
 	cursor: pointer;
-	border-radius: 50px;
+	border-radius: var(--border-radius);
 	display: inline-flex;
 	flex-direction: row;
 	position: relative;

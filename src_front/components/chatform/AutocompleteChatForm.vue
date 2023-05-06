@@ -1,5 +1,5 @@
 <template>
-	<div class="autocompletechatform blured-background">
+	<div class="autocompletechatform blured-background-window">
 		<div
 		v-for="(i, index) in filteredItems"
 		:key="i.id"
@@ -63,6 +63,9 @@ export default class AutocompleteChatForm extends Vue {
 	public filteredItems:ListItem[] = [];
 	public triggerCommands:TriggerData[] = [];
 
+	private keyUpHandler!:(e:KeyboardEvent) => void;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
+
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
 		if(index == this.selectedIndex)						res.push('selected');
@@ -75,15 +78,15 @@ export default class AutocompleteChatForm extends Vue {
 		return res;
 	}
 
-	private keyUpHandler!:(e:KeyboardEvent) => void;
-
 	public mounted():void {
 		this.selectedIndex = 0;
 		
 		this.triggerCommands = this.$store("triggers").triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND);
 		
-		this.keyUpHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
+		this.keyUpHandler = (e:KeyboardEvent)=> this.onkeyUp(e);
+		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
 		document.addEventListener("keyup", this.keyUpHandler);
+		document.addEventListener("keydown", this.keyDownHandler);
 
 		watch(()=>this.search, ()=>{
 			this.onSearchChange();
@@ -117,11 +120,26 @@ export default class AutocompleteChatForm extends Vue {
 	/**
 	 * Navigate through list via keyboard
 	 */
-	public onkeyDown(e:KeyboardEvent):void {
+	public onkeyUp(e:KeyboardEvent):void {
 		switch(e.key) {
 			case "Escape":
 				this.$emit("close");
 				break;
+			case "Tab":
+			case "Enter": {
+				e.preventDefault();
+				e.stopPropagation();
+				this.selectItem(this.filteredItems[this.selectedIndex]);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Navigate through list via keyboard
+	 */
+	public onkeyDown(e:KeyboardEvent):void {
+		switch(e.key) {
 			case "PageUp":
 				this.selectedIndex -= 10;
 				e.preventDefault();
@@ -138,13 +156,7 @@ export default class AutocompleteChatForm extends Vue {
 				this.selectedIndex ++;
 				e.preventDefault();
 				break;
-			case "Tab":
-			case "Enter": {
-				e.preventDefault();
-				e.stopPropagation();
-				this.selectItem(this.filteredItems[this.selectedIndex]);
-				break;
-			}
+			default: return;
 		}
 		
 		const len = this.filteredItems.length;
@@ -393,7 +405,7 @@ interface CommandItem {
 				background-color: var(--color-secondary-fadest);
 
 				&.selected, &:hover {
-					background-color: var(--color-secondary-fadest);
+					background-color: var(--color-secondary-fader);
 				}
 			}
 
@@ -401,7 +413,7 @@ interface CommandItem {
 				background-color: var(--color-primary-fadest);
 
 				&.selected, &:hover {
-					background-color: var(--color-primary);
+					background-color: var(--color-primary-fade);
 				}
 			}
 			&.disabled {

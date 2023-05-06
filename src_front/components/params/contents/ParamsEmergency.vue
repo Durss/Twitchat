@@ -51,7 +51,7 @@
 					</div>
 				</div>
 				
-				<div v-else>
+				<template v-else>
 					<div class="card-item labeled">
 						<img src="@/assets/icons/list.svg" alt="scene icon" class="icon">
 						<p>{{ $t("emergency.actions.obs_scene") }}</p>
@@ -76,7 +76,7 @@
 							multiple
 						></vue-select>
 					</div>
-				</div>
+				</template>
 			</section>
 		</div>
 	</div>

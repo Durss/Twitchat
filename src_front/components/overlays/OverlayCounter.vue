@@ -162,8 +162,8 @@ export default class OverlayCounter extends AbstractOberlay {
 	.progressBar {
 		margin: .5em;
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
-		width: 6em * 4;
-		height: 1em * 4;
+		width: 24em;
+		height: 4em;
 		position: relative;
 		background-color: var(--color-light);
 		border-radius: .5em;
@@ -186,7 +186,7 @@ export default class OverlayCounter extends AbstractOberlay {
 			width: 100%;
 			top: 0;
 			left: 0;
-			background: var(--color-secondary);
+			background: var(--color-primary-light);
 			height: 100%;
 			transition: width 1s ease-in-out;
 		}

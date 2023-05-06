@@ -1,5 +1,5 @@
 <template>
-	<div class="rewardslist blured-background">
+	<div class="rewardslist blured-background-window">
 		<div v-if="rewards.length == 0" class="loader">
 			<img src="@/assets/loader/loader.svg" alt="loader">
 			<p>loading...</p>

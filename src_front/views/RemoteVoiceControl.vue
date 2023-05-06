@@ -24,13 +24,12 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Component, Vue } from 'vue-facing-decorator';
-import OBSConnectForm from '../components/params/contents/obs/OBSConnectForm.vue';
-import ParamsOBS from '../components/params/contents/ParamsOBS.vue';
-import ParamItem from '../components/params/ParamItem.vue';
 import ToggleBlock from '../components/ToggleBlock.vue';
+import ParamItem from '../components/params/ParamItem.vue';
+import ParamsOBS from '../components/params/contents/ParamsOBS.vue';
+import OBSConnectForm from '../components/params/contents/obs/OBSConnectForm.vue';
 import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
 
 @Component({
@@ -54,7 +53,6 @@ export default class RemoteVoiceControl extends Vue {
 	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", label:"OBS local IP" };
 
 	public get connected():boolean { return OBSWebsocket.instance.connected; }
-	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public mounted():void {
 		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;

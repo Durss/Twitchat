@@ -1,5 +1,5 @@
 <template>
-	<div class="userlist blured-background">
+	<div class="userlist blured-background-window">
 		
 		<div v-if="currentChan">
 			<template v-for="chan, key in currentChan.users">
@@ -32,7 +32,7 @@
 			<p class="info" v-for="e in $tm('userlist.infos')" v-html="e"></p>
 		</ToggleBlock>
 
-		<div class="users" v-if="currentChan">
+		<div class="users" v-if="userList.length > 1">
 			<TabMenu v-model="currentChanId" :values="userList.map(v=>v.id)" :labels="userList.map(v=>v.displayName)" />
 		</div>
 	</div>

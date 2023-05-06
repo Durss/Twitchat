@@ -282,25 +282,23 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
+					let res = await TwitchUtils.searchLiveChannels(Utils.pickRand(["just chatting", "valorant", "minecraft", "art", "makers & crafting"]));
+					let chan = Utils.pickRand(res);
 					const m:TwitchatDataTypes.MessageRaidData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
 						channel_id:uid,
 						date:Date.now(),
 						type,
-						user:fakeUser,
+						user:StoreProxy.users.getUserFrom("twitch", uid, chan.id, chan.broadcaster_login, chan.display_name),
 						viewers:Math.round(Math.random() * 1500),
 						stream:{
-							title: "Hello world",
-							category: "Just chatting",
-							duration:0,
-							wasLive: false
+							title: chan.title,
+							category: chan.game_name,
+							duration: Date.now() - new Date(chan.started_at).getTime(),
+							wasLive: Math.random() > .5
 						}
 					};
-					if(Math.random() > .5) {
-						m.stream.wasLive = true;
-						m.stream.duration = Math.round(Math.random() * 1000 * 60 * 60 * 8 + 1000 * 60 * 30);
-					}
 					data = m;
 					break;
 				}

@@ -187,10 +187,7 @@
 		"train_cooldown": "Hype train can be started again!",
 		"follow": "{USER} followed you",
 		"raid":{
-			"previous_stream": "Was streaming {CATEGORY}",
-			"current_stream": "Streaming {CATEGORY}:",
-			"text": "{USER} is raiding with a party of {COUNT}.",
-			"duration": "Duration: {DURATION}"
+			"text": "{USER} is raiding with a party of {COUNT}."
 		},
 		"pin": {
 			"pinned":"{MODERATOR} pinned the following message:",
@@ -240,8 +237,7 @@
 		},
 		"stream": {
 			"online": "Channel {USER} is now live.",
-			"offline": "Channel {USER} is now offline",
-			"info": "Streaming {CATEGORY}:"
+			"offline": "Channel {USER} is now offline"
 		},
 		"discord": {
 			"title": "Join us on Discord",

@@ -215,7 +215,8 @@
 				"select_param": "Select parameters to send:",
 				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can be called with HTTP protocol. Use HTTPS for other domains.",
 				"need_to_connect": "This action requires you to {LINK}",
-				"need_to_connect_link": "connect to a websocket server"
+				"need_to_connect_link": "connect to a websocket server",
+				"topic_description": "Custom value"
 			},
 			"count": {
 				"value_label":"Value to add or remove",

@@ -65,7 +65,7 @@ export default class Gngngn extends Vue {
 		width: 600px;
 		height: fit-content;
 		max-width: 600px;
-		max-height: 100vh;
+		max-height: var(--vh);
 
 		.block {
 			margin-top: .5em;
