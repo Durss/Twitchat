@@ -22,6 +22,7 @@
 			<ParamItem :paramData="param_shake" />
 			<ParamItem :paramData="param_sound" />
 			<ParamItem :paramData="param_blink" />
+			<ParamItem :paramData="param_vibrate" />
 	
 			<i18n-t scope="global" tag="div" class="infos" keypath="alert.actions_triggers">
 				<template #LINK>
@@ -64,6 +65,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 	public param_shake:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_shake", value:true};
 	public param_blink:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_blink", value:false};
 	public param_sound:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_sound", value:true};
+	public param_vibrate:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_vibrate", value:true};
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -83,6 +85,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 			message: this.param_message.value,
 			blink: this.param_blink.value,
 			sound: this.param_sound.value,
+			vibrate: this.param_vibrate.value,
 			permissions: this.chatCommandPerms,
 		};
 	}
@@ -98,6 +101,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 			this.param_message.value = params.message;
 			this.param_blink.value = params.blink;
 			this.param_sound.value = params.sound;
+			this.param_vibrate.value = params.vibrate;
 			this.chatCommandPerms = params.permissions;
 		}
 

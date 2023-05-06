@@ -250,6 +250,8 @@ export default class Chat extends Vue {
 	private disposed = false;
 	private mouseX = 0;
 	private mouseY = 0;
+	private frameIndex = 0;
+	private prevFormHeight = 0;
 	private resizing = false;
 	private closingDonorState = false;
 	private draggedCol:TwitchatDataTypes.ChatColumnsConfig|null = null;
@@ -383,6 +385,9 @@ export default class Chat extends Vue {
 				if(params.sound) {
 					new Audio(this.$image("sounds/wizz.mp3")).play();
 				}
+				if(params.vibrate) {
+					window.navigator.vibrate([200, 100, 200, 100, 200, 100, 200, 100, 1000]);
+				}
 			}
 		});
 
@@ -493,7 +498,7 @@ export default class Chat extends Vue {
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif:TwitchatDataTypes.NotificationTypes = "";
 		let modal:TwitchatDataTypes.ModalTypes = "";
-		console.log("EVENT", e.type);
+		
 		switch(e.type) {
 			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
 			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'prediction'; break;
@@ -772,6 +777,16 @@ export default class Chat extends Vue {
 	private async renderFrame():Promise<void> {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
+		
+		if(this.$refs.chatForm && (this.frameIndex++)%60 == 0) {
+			//Compute chat form height every 60 frames
+			const chatForm = (this.$refs.chatForm as Vue).$el as HTMLDivElement;
+			const bounds = chatForm.getBoundingClientRect();
+			if(bounds.height != this.prevFormHeight) {
+				this.prevFormHeight = bounds.height;
+				(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--chat-form-height', bounds.height + 'px');
+			}
+		}
 
 		if(!this.resizing) return;
 		
@@ -1014,7 +1029,7 @@ export default class Chat extends Vue {
 
 	.contentWindows {
 		position: absolute;
-		bottom: 40px;
+		bottom: var(--chat-form-height);
 		left: 0;
 		z-index: 2;
 
@@ -1035,7 +1050,7 @@ export default class Chat extends Vue {
 		position: absolute;
 		top: 0;
 		left: 0;
-		z-index: 2;
+		z-index: 100;
 	}
 }
 
@@ -1054,6 +1069,12 @@ export default class Chat extends Vue {
 					display: none;
 				}
 			}
+		}
+
+		.contentWindows {
+			left: 0;
+			top: 0;
+			width: 100%;
 		}
 	}
 }

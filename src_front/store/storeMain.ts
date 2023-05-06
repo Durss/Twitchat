@@ -44,6 +44,7 @@ export const storeMain = defineStore("main", {
 			shake:true,
 			sound:true,
 			blink:false,
+			vibrate:true,
 			permissions:{
 				broadcaster:true,
 				mods:true,
@@ -197,7 +198,7 @@ export const storeMain = defineStore("main", {
 				
 			}
 
-			//Listen for twitch API event
+			//Listen for twitchat API event
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
 				sTimer.boradcastStates();
 			});

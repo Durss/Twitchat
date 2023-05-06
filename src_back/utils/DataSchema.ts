@@ -705,6 +705,7 @@ import Ajv from "ajv";
 				shake: {type:"boolean"},
 				sound: {type:"boolean"},
 				blink: {type:"boolean"},
+				vibrate: {type:"boolean"},
 				permissions:{ $ref: "defs.json#/definitions/permissions" },
 			}
 		},

@@ -828,6 +828,7 @@ export namespace TwitchatDataTypes {
 		blink:boolean;
 		shake:boolean;
 		sound:boolean;
+		vibrate:boolean;
 		message:boolean;
 	}
 
@@ -2061,6 +2062,9 @@ export namespace TwitchatDataTypes {
 			wasLive: boolean;
 			title: string;
 			category: string;
+			/**
+			 * Stream duration in ms
+			 */
 			duration: number;
 		}
 	}
