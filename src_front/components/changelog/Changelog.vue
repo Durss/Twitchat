@@ -1,11 +1,10 @@
 <template>
-	<div class="changelog">
+	<div class="changelog modal">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
+			<CloseButton @click="close()" />
 			
-			<img src="@/assets/icons/update_purple.svg" alt="emergency" class="icon">
-			
-			<button class="closeBt" @click="close()"><img src="@/assets/icons/cross.svg"></button>
+			<img src="@/assets/icons/update.svg" alt="emergency" class="icon">
 
 			<div class="head">
 				<span class="title">{{$t("changelog.major_title")}}</span>
@@ -14,7 +13,7 @@
 			<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
 
 			<div class="content">
-				<Carousel :items-to-show="1" :wrap-around="true">
+				<Carousel class="carousel" :items-to-show="1" :wrap-around="true">
 					<template #addons>
 						<Navigation />
 						<Pagination />
@@ -28,13 +27,13 @@
 							<img v-if="item.g" class="demo" :src="item.g">
 							<video v-if="item.v" class="demo" :src="item.v" autoplay loop controls></video>
 							
-							<AppLangSelector v-if="item.i=='translate'" class="langSelector" />
+							<AppLangSelector v-if="item.i=='translate'" />
 
 							<div v-if="item.i=='count'">
 								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
 								<div class="counterActions">
-									<Button title="10" :icon="$image('icons/minus_purple.svg')" @click="counterExample.value -=10; progressExample.value -= 10" white />
-									<Button title="10" :icon="$image('icons/add_purple.svg')" @click="counterExample.value +=10; progressExample.value += 10" white />
+									<Button title="10" icon="minus" @click="counterExample.value -=10; progressExample.value -= 10" white />
+									<Button title="10" icon="add" @click="counterExample.value +=10; progressExample.value += 10" white />
 								</div>
 								<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
 								<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />
@@ -48,27 +47,29 @@
 </template>
 
 <script lang="ts">
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import ToggleBlock from '../ToggleBlock.vue';
-import AppLangSelector from '../AppLangSelector.vue';
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
-import 'vue3-carousel/dist/carousel.css'
-import Utils from '@/utils/Utils';
-import OverlayCounter from '../overlays/OverlayCounter.vue';
-import { watch } from 'vue';
 import DataStore from '@/store/DataStore';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
+import gsap from 'gsap';
+import { watch } from 'vue';
+import { Component, Vue } from 'vue-facing-decorator';
+import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
+import 'vue3-carousel/dist/carousel.css';
+import AppLangSelector from '../AppLangSelector.vue';
+import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ToggleBlock from '../ToggleBlock.vue';
+import OverlayCounter from '../overlays/OverlayCounter.vue';
 
 @Component({
 	components:{
+		Slide,
 		Button,
+		Carousel,
+		CloseButton,
 		ToggleBlock,
 		OverlayCounter,
 		AppLangSelector,
-		Carousel,
-		Slide,
 		Pagination,
 		Navigation,
 	},
@@ -80,6 +81,7 @@ export default class Changelog extends Vue {
 	
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
+		placeholderKey:"",
 		loop:false,
 		perUser:false,
 		value:50,
@@ -89,6 +91,7 @@ export default class Changelog extends Vue {
 	}
 	public progressExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
+		placeholderKey:"",
 		loop:false,
 		perUser:false,
 		value:50,
@@ -108,7 +111,7 @@ export default class Changelog extends Vue {
 		const changelogs:TwitchatDataTypes.ChangelogEntry[][] = [
 						this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[],
 					];
-		const allowedTypes = Object.values(TwitchatDataTypes.ParamsCategories) as TwitchatDataTypes.ParamsContentStringType[];
+		const allowedTypes = Object.values(TwitchatDataTypes.ParameterPages) as TwitchatDataTypes.ParameterPagesStringType[];
 		const sParams = this.$store("params");
 		let allowedParams:string[] = [];
 		allowedParams = allowedParams.concat(Object.keys(this.$store("params").features));
@@ -156,14 +159,11 @@ export default class Changelog extends Vue {
 
 <style scoped lang="less">
 .changelog{
-	.modal();
 	z-index: 2;
 	
 	.holder {
-		line-height: 1.2em;
 		width: 600px;
 		max-width: min(600px, 100vw);
-		margin-left: calc((100vw - min(600px, 100%))/2);
 		// height: unset;
 
 		& > .icon {
@@ -178,17 +178,7 @@ export default class Changelog extends Vue {
 		.version {
 			text-align: center;
 			font-style: italic;
-			margin-top: .25em;
-		}
-
-		.closeBt {
-			position: absolute;
-			top: 1em;
-			right: 1em;
-			height: 2em;
-			img {
-				height: 100%;
-			}
+			font-size: .8em;
 		}
 	}
 
@@ -196,15 +186,15 @@ export default class Changelog extends Vue {
 	.content {
 		.item {
 			align-self: flex-start;
+			overflow-y: auto;
 			.inner {
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				gap: 1em;
 				padding: 1em 3em;
-				color:@mainColor_light;
-				border-radius: @border_radius;
-				background-color: @mainColor_normal;
+				color:var(--color-light);
+				border-radius: var(--border-radius);
 				width: calc(100% - 5px);
 
 				.icon {
@@ -212,7 +202,6 @@ export default class Changelog extends Vue {
 				}
 
 				.title {
-					color: @mainColor_light;
 					font-weight: bold;
 					font-size: 2.5em;
 					line-height: 1.25em;
@@ -247,10 +236,7 @@ export default class Changelog extends Vue {
 				}
 
 				.counterExample {
-					color: @mainColor_normal;
-					width: auto;
 					font-size: .75em;
-					align-self: center;
 				}
 			}
 		}
@@ -258,35 +244,40 @@ export default class Changelog extends Vue {
 		:deep(.carousel__next),
 		:deep(.carousel__prev) {
 			height: 100%;
+			position: fixed;
 			svg {
 				transform: scale(2);
-				fill: @mainColor_light;
 				stroke-width: 3px;
+				fill: var(--color-dark);
 				stroke-linejoin: round;
-				stroke: @mainColor_normal;
+				stroke: var(--color-light);
 				paint-order: stroke;
-				filter: drop-shadow(0 2px 0px fade(@mainColor_dark, 50%));
+				filter: drop-shadow(0 2px 0px rgba(0,0,0,.5));
 				transition: transform .25s;
 			}
-			&.carousel__next:hover {
-				svg {
-					transform: scale(2.1) translate(5px);
+			&.carousel__next {
+				right: 6px;
+				&:hover>svg {
+					transform: scale(2.1) translate(3px);
 				}
 			}
-			&.carousel__prev:hover {
-				svg {
-					transform: scale(2.1) translate(-5px);
+			&.carousel__prev {
+				left: 6px;
+				&:hover>svg {
+					transform: scale(2.1) translate(-3px);
 				}
 			}
 		}
-		:deep(.carousel__pagination) {
-			margin-top: 1em;
+		:deep(.carousel__pagination-button) {
+			&:after {
+				background-color: var(--color-light);
+			}
 		}
-	}
-	
-	.langSelector {
-		:deep(label){
-			color:@mainColor_light;
+		:deep(.carousel__pagination-button--active) {
+			&:after {
+				background-color: var(--color-secondary);
+				transform: scaleY(2);
+			}
 		}
 	}
 }

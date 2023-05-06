@@ -261,7 +261,7 @@ Will output this JSON file:
 \
 To make localization easier you can start the following PM2 process that will watch for any file change under `i18n` folder and rebuild the `labels.json` file.
 ```
-pm2 start labels-pom2/json
+pm2 start labels-pm2.json
 ```
 Labels won't automatically be updated on the frontend though _(if anyone knows how to make Vite detect that...)_. To force labels refresh you can use this keyboard shortcut on Twitchat `CTRL+Shift+L`
 <br>
@@ -273,4 +273,4 @@ Run the following command:
 ```
 npm run streamdeck_package
 ```
-The file, compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.
+The compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.

@@ -1,6 +1,6 @@
 <template>
-	<div class="chattimerresult">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chattimerresult chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/timer.svg" alt="icon" class="icon">
 		
@@ -33,6 +33,5 @@ export default class ChatTimerResult extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chattimerresult{
-	.chatMessageHighlight();
 }
 </style>

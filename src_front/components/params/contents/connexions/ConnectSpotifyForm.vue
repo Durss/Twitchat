@@ -1,37 +1,32 @@
 <template>
-	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify_purple']">
+	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify']">
 		<div class="holder">
-			<div class="error" v-if="error" @click="error=''">{{error}}</div>
+			<div v-if="!connected">{{ $t("connexions.spotify.usage") }}</div>
 
-			<div class="row">{{ $t("connexions.spotify.usage") }}</div>
+			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
 	
-			<div class="row spotifasshole" v-if="!connected && !authenticating">
-				<div class="info">
-					<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
-						<template #URL>
-							<strong>
-								<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
-							</strong>
-						</template>
-					</i18n-t>
-				</div>
+			<div class="info" v-if="!connected && !authenticating">
+				<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
+					<template #URL>
+						<strong>
+							<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
+						</strong>
+					</template>
+				</i18n-t>
 			</div>
 
-			<form class="row" @submit.prevent="authenticate()" v-if="!connected">
-				<ParamItem class="item" :paramData="paramClient" autofocus />
-				<ParamItem class="item" :paramData="paramSecret" />
+			<form @submit.prevent="authenticate()" v-if="!connected">
+				<ParamItem class="item" :paramData="paramClient" autofocus @change="authenticate(false)" />
+				<ParamItem class="item" :paramData="paramSecret" @change="authenticate(false)" />
 				<Button class="item" v-if="!connected && !authenticating"
 					type="submit"
-					:title="$t('connexions.spotify.connectBt')"
 					:loading="loading"
-					:disabled="!canConnect" />
+					:disabled="!canConnect">{{ $t('connexions.spotify.connectBt') }}</Button>
 			</form>
 	
-			<div class="row success" v-if="connected && showSuccess">
-				{{ $t("connexions.spotify.success") }}
-			</div>
+			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.spotify.success") }}</div>
 
-			<Button class="connectBt" v-if="connected" :title="$t('connexions.spotify.disconnectBt')" @click="disconnect()" highlight />
+			<Button class="connectBt" v-if="connected" @click="disconnect()" icon="cross" alert>{{ $t('connexions.spotify.disconnectBt') }}</Button>
 	
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">
 		</div>
@@ -42,7 +37,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
@@ -64,31 +58,28 @@ export default class ConnectSpotifyForm extends Vue {
 	public loading = false;
 	public showSuccess = false;
 	public authenticating = false;
-	public paramClient:TwitchatDataTypes.ParameterData = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient"};
-	public paramSecret:TwitchatDataTypes.ParameterData = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
+	public paramClient:TwitchatDataTypes.ParameterData<string> = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient"};
+	public paramSecret:TwitchatDataTypes.ParameterData<string> = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
 
 	public get connected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
 	public get canConnect():boolean {
-		return (this.paramClient.value as string).length >= 30 && (this.paramSecret.value as string).length >= 30;
+		return this.paramClient.value.length >= 30 && this.paramSecret.value.length >= 30;
 	}
 	
-	public authenticate():void {
-		this.loading = true;
-		this.$store("music").setSpotifyCredentials({
-			client: (this.paramClient.value as string).trim(),
-			secret: (this.paramSecret.value as string).trim(),
-		});
-		SpotifyHelper.instance.startAuthFlow();
+	public authenticate(startAuthFlow:boolean = true):void {
+		this.loading = startAuthFlow;
+		SpotifyHelper.instance.setCredentials(
+			this.paramClient.value.trim(),
+			this.paramSecret.value.trim()
+		)
+		if(startAuthFlow) {
+			SpotifyHelper.instance.startAuthFlow();
+		}
 	}
 
 	public async mounted():Promise<void> {
-		const spotifyAppParams = DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
-		if(spotifyAppParams) {
-			const p:{client:string, secret:string} = JSON.parse(spotifyAppParams);
-			SpotifyHelper.instance.setAppParams(p.client, p.secret);
-			this.paramClient.value = p.client;
-			this.paramSecret.value = p.secret;
-		}
+		this.paramClient.value = SpotifyHelper.instance.clientID;
+		this.paramSecret.value = SpotifyHelper.instance.clientSecret;
 
 		const spotifyAuthParams = this.$store("music").spotifyAuthParams;
 		if(spotifyAuthParams) {
@@ -109,6 +100,7 @@ export default class ConnectSpotifyForm extends Vue {
 				}catch(e:unknown) {
 					this.error = (e as {error:string, error_description:string}).error_description;
 					this.showSuccess = false;
+					console.log(e);
 				}
 			}
 
@@ -119,7 +111,7 @@ export default class ConnectSpotifyForm extends Vue {
 	}
 
 	public disconnect():void {
-		this.$store("music").setSpotifyToken(null);
+		SpotifyHelper.instance.disconnect()
 	}
 
 }
@@ -132,45 +124,11 @@ export default class ConnectSpotifyForm extends Vue {
 		flex-direction: column;
 		align-items: center;
 		gap: 1em;
-	
-		.error {
-			justify-self: center;
-			color: @mainColor_light;
-			display: block;
-			text-align: center;
-			padding: 5px;
-			border-radius: 5px;
-			margin: auto;
-			margin-top: 10px;
-			background-color: @mainColor_alert;
-			cursor: pointer;
-		}
-	
-		.row {
+
+		form {
 			display: flex;
 			flex-direction: column;
-			gap:.5em;
-			:deep(input) {
-				flex-basis: 200px;
-			}
-
-			&.success {
-				color: @mainColor_light;
-				background-color: @mainColor_normal;
-				padding: .25em .5em;
-				border-radius: .5em;
-			}
-		}
-	
-		&.spotifasshole {
-			margin-top: .5em;
-			.info {
-				color: @mainColor_alert;
-				font-size: .9em;
-			}
-			form {
-				margin-top: .5em;
-			}
+			gap: .5em;
 		}
 	}
 }

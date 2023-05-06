@@ -9,6 +9,8 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
 
+let currentRaffleData:TwitchatDataTypes.RaffleData | null = null;
+
 export const storeRaffle = defineStore('raffle', {
 	state: () => ({
 		data: null,
@@ -61,9 +63,7 @@ export const storeRaffle = defineStore('raffle', {
 
 		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish:boolean = false) {
 			// this.raffle = null;
-			let data:TwitchatDataTypes.RaffleData|null = this.data;
-			console.log("WINNER:", winner);
-			console.log("      :", data);
+			let data:TwitchatDataTypes.RaffleData|null = currentRaffleData || this.data;
 			if(data) {
 				const winnerLoc = data.entries.find(v=> v.id == winner.id);
 				if(winnerLoc) {
@@ -75,11 +75,10 @@ export const storeRaffle = defineStore('raffle', {
 					if(winnerLoc.user) {
 						if(StoreProxy.params.features.raffleHighlightUser.value) {
 							const user = StoreProxy.users.getUserFrom(winnerLoc.user.platform, winnerLoc.user.channel_id, winnerLoc.user.id);
-							console.log("RAFFLE WINNER:", user);
 							StoreProxy.users.trackUser(user);
 							setTimeout(()=> {
 								StoreProxy.users.untrackUser(user);
-							}, 5 * 60 * 1000);
+							}, (StoreProxy.params.features.raffleHighlightUserDuration.value as number ?? 0) * 1000 * 60);
 						}
 					}
 				}
@@ -126,6 +125,10 @@ export const storeRaffle = defineStore('raffle', {
 			if(publish !== false) {
 				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, (winner as unknown) as JsonObject);
 			}
+
+			if(data.resultCallback) data.resultCallback();
+			
+			currentRaffleData = null;
 		},
 
 		async checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
@@ -177,6 +180,7 @@ export const storeRaffle = defineStore('raffle', {
 
 		async pickWinner(forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void> {
 			const data = forcedData ?? this.data;
+			currentRaffleData = data;
 			if(!data) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
 				return;
@@ -184,85 +188,85 @@ export const storeRaffle = defineStore('raffle', {
 
 			let winner:TwitchatDataTypes.RaffleEntry;
 
-			//Pick from a custom list
-			if(data.mode == "manual") {
-				let id = 0;
-				let customEntries:string[] = [];
-				const customEntriesStr = data.customEntries;
-				if(customEntriesStr?.length > 0) {
-					const splitter = customEntriesStr.split(/\r|\n/).length > 1? "\r|\n" : ",";
-					customEntries = customEntriesStr.split(new RegExp(splitter, ""));
-					customEntries = customEntries.map(v=> v.trim());
-				}else{
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
-					return;
-				}
-				const items:TwitchatDataTypes.RaffleEntry[] = customEntries.map(v=> {
-					return {
-						id:(id++).toString(),
-						label:v,
-						score:1,
-					}
-				});
-				data.entries = items;
-
-			//Pick from subs
-			}else if(data.mode == "sub") {
-				const idToExists:{[key:string]:boolean} = {};
-				let subs = await TwitchUtils.getSubsList();
-				subs = subs.filter(v => {
-					//Avoid duplicates
-					if(idToExists[v.user_id] == true) return false;
-					if(idToExists[v.gifter_id] == true && v.gifter_id) return false;
-					idToExists[v.user_id] = true;
-					idToExists[v.gifter_id] = true;
-					//Filter based on params
-					if(data.subMode_includeGifters == true && subs.find(v2=> v2.gifter_id == v.user_id)) return true;
-					if(data.subMode_excludeGifted == true && v.is_gift) return false;
-					if(v.user_id == v.broadcaster_id) return false;//Exclude self
-					return true;
-				});
-				if(subs.length === 0) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_subs"));
-					return;
-				}
-				
-				const items:TwitchatDataTypes.RaffleEntry[] = subs.map(v=>{
-					return {
-						id:v.user_id,
-						label:v.user_name,
-						score:1,
-					}
-				});
-				data.entries = items;
-			}
-			
-			const list = [];
-			//Ponderate votes by adding one user many times if their
-			//score is greater than 1
-			for (let i = 0; i < data.entries.length; i++) {
-				const u = data.entries[i];
-				if(u.score==1) list.push(u);
-				else {
-					for (let j = 0; j < u.score; j++) {
-						list.push(u);
-					}
-				}
-			}
-
-			if(list.length === 0) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
-				return;
-			}
-
-			if(!data.winners) {
-				data.winners = [];
-			}
-			
-			//Pick a winner that has not already be picked
 			if(forcedWinner) {
 				winner = forcedWinner;
 			}else{
+
+				//Pick from a custom list
+				if(data.mode == "manual") {
+					let id = 0;
+					let customEntries:string[] = [];
+					const customEntriesStr = data.customEntries;
+					if(customEntriesStr?.length > 0) {
+						const splitter = customEntriesStr.split(/\r|\n/).length > 1? "\r|\n" : ",";
+						customEntries = customEntriesStr.split(new RegExp(splitter, ""));
+						customEntries = customEntries.map(v=> v.trim());
+					}else{
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
+						return;
+					}
+					const items:TwitchatDataTypes.RaffleEntry[] = customEntries.map(v=> {
+						return {
+							id:(id++).toString(),
+							label:v,
+							score:1,
+						}
+					});
+					data.entries = items;
+	
+				//Pick from subs
+				}else if(data.mode == "sub") {
+					const idToExists:{[key:string]:boolean} = {};
+					let subs = await TwitchUtils.getSubsList();
+					subs = subs.filter(v => {
+						//Avoid duplicates
+						if(idToExists[v.user_id] == true) return false;
+						if(idToExists[v.gifter_id] == true && v.gifter_id) return false;
+						idToExists[v.user_id] = true;
+						idToExists[v.gifter_id] = true;
+						//Filter based on params
+						if(data.subMode_includeGifters == true && subs.find(v2=> v2.gifter_id == v.user_id)) return true;
+						if(data.subMode_excludeGifted == true && v.is_gift) return false;
+						if(v.user_id == v.broadcaster_id) return false;//Exclude self
+						return true;
+					});
+					if(subs.length === 0) {
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_subs"));
+						return;
+					}
+					
+					const items:TwitchatDataTypes.RaffleEntry[] = subs.map(v=>{
+						return {
+							id:v.user_id,
+							label:v.user_name,
+							score:1,
+						}
+					});
+					data.entries = items;
+				}
+				
+				const list = [];
+				//Ponderate votes by adding one user many times if their
+				//score is greater than 1
+				for (let i = 0; i < data.entries.length; i++) {
+					const u = data.entries[i];
+					if(u.score==1) list.push(u);
+					else {
+						for (let j = 0; j < u.score; j++) {
+							list.push(u);
+						}
+					}
+				}
+	
+				if(list.length === 0) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
+					return;
+				}
+
+				if(!data.winners) {
+					data.winners = [];
+				}
+
 				do{
 					winner = Utils.pickRand(list);
 				}while(data.winners.find(w => w.id == winner.id));
@@ -278,7 +282,7 @@ export const storeRaffle = defineStore('raffle', {
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, wheelOverlayPresenceHandler);
 	
-			//A wheel overlay exists, send its data and wait for it to complete
+			//A wheel overlay exists, send it data and wait for it to complete
 			if(wheelOverlayExists){
 				const list:TwitchatDataTypes.EntryItem[] = data.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.EntryItem=>{
 											return {

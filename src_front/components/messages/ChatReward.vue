@@ -1,6 +1,6 @@
 <template>
-	<div class="chatreward">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div :class="classes">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="icon" alt="reward" class="icon">
 
@@ -13,11 +13,13 @@
 					<strong>{{ messageData.reward.title }}</strong>
 				</template>
 				<template #COST>
-					<i v-if="messageData.reward.cost > 0">({{ messageData.reward.cost }}pts)</i>
+					<span class="cost" v-if="messageData.reward.cost > 0">({{ messageData.reward.cost }}pts)</span>
 				</template>
 			</i18n-t>
 			<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && messageData.reward.description">{{ messageData.reward.description }}</div>
-			<div class="quote" v-if="messageData.message_html" v-html="messageData.message_html"></div>
+			<div class="quote" v-if="messageData.message_html">
+				<ChatMessageChunksParser :chunks="messageData.message_chunks" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -26,15 +28,24 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
-	components:{},
+	components:{
+		ChatMessageChunksParser,
+	},
 	emits:["onRead"],
 })
 export default class ChatReward extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRewardRedeemData;
+
+	public get classes():string[] {
+		let res = ["chatreward", "chatMessage", "highlight"];
+		if(this.messageData.deleted === true) res.push("deleted");
+		return res;
+	}
 
 	public get icon():string {
 		let icon = this.$image('icons/channelPoints.svg');
@@ -51,10 +62,9 @@ export default class ChatReward extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatreward{
-	.chatMessageHighlight();
-	
-	i {
+	.cost {
 		font-size: .7em;
+		font-style: italic;
 	}
 }
 </style>

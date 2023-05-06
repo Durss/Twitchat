@@ -30,22 +30,22 @@ export default class VoiceAction {
 	public static CANCEL:string = "CANCEL";
 	public static CANCEL_IS_GLOBAL:boolean = true;
 
-	public static CREATE_POLL:string = "CREATE_POLL";
+	public static CREATE_POLL:TwitchatActionType = "CREATE_POLL";
 	public static CREATE_POLL_ICON:string = "poll";
 
-	public static STOP_POLL:string = "STOP_POLL";
+	public static STOP_POLL:TwitchatActionType = "STOP_POLL";
 	public static STOP_POLL_ICON:string = "poll";
 
-	public static CREATE_PREDICTION:string = "CREATE_PREDICTION";
+	public static CREATE_PREDICTION:TwitchatActionType = "CREATE_PREDICTION";
 	public static CREATE_PREDICTION_ICON:string = "prediction";
 
-	public static STOP_PREDICTION:string = "STOP_PREDICTION";
+	public static STOP_PREDICTION:TwitchatActionType = "STOP_PREDICTION";
 	public static STOP_PREDICTION_ICON:string = "prediction";
 
-	public static CREATE_RAFFLE:string = "CREATE_RAFFLE";
+	public static CREATE_RAFFLE:TwitchatActionType = "CREATE_RAFFLE";
 	public static CREATE_RAFFLE_ICON:string = "ticket";
 
-	public static STOP_RAFFLE:string = "STOP_RAFFLE";
+	public static STOP_RAFFLE:TwitchatActionType = "STOP_RAFFLE";
 	public static STOP_RAFFLE_ICON:string = "ticket";
 
 

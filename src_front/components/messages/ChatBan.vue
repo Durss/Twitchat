@@ -1,27 +1,27 @@
 <template>
-	<div class="chatban">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatban chatMessage highlight error">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/timeout.svg')" alt="notice" class="icon" v-if="messageData.duration_s">
 		<img :src="$image('icons/ban.svg')" alt="notice" class="icon" v-else>
 		
-		<i18n-t scope="global" v-if="messageData.duration_s" tag="span" keypath="global.moderation_action.timeout_by">
+		<i18n-t scope="global" v-if="messageData.duration_s" tag="span" :keypath="messageData.moderator? 'global.moderation_action.timeout_by': 'global.moderation_action.timeout'">
 			<template #USER>
 				<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 			</template>
 			<template #MODERATOR>
-				<a class="userlink" @click.stop="openUserCard(messageData.moderator)">{{messageData.moderator.displayName}}</a>
+				<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!)">{{messageData.moderator.displayName}}</a>
 			</template>
 			<template #DURATION>
 				<strong>{{ formatedBanDuration }}</strong>
 			</template>
 		</i18n-t>
-		<i18n-t scope="global" v-else tag="span" keypath="global.moderation_action.banned_by">
+		<i18n-t scope="global" v-else tag="span" :keypath="messageData.moderator? 'global.moderation_action.banned_by': 'global.moderation_action.banned'">
 			<template #USER>
 				<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 			</template>
 			<template #MODERATOR>
-				<a class="userlink" @click.stop="openUserCard(messageData.moderator)">{{messageData.moderator.displayName}}</a>
+				<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!)">{{messageData.moderator.displayName}}</a>
 			</template>
 		</i18n-t>
 	</div>
@@ -49,9 +49,17 @@ export default class ChatBan extends AbstractChatMessage {
 	public mounted():void {
 		let aria = "";
 		if(this.messageData.duration_s) {
-			aria = this.$t("global.moderation_action.timeout_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName, DURATION:this.messageData.duration_s});
+			if(this.messageData.moderator) {
+				aria = this.$t("global.moderation_action.timeout_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName, DURATION:this.messageData.duration_s});
+			}else{
+				aria = this.$t("global.moderation_action.timeout", {USER:this.messageData.user.displayName, DURATION:this.messageData.duration_s});
+			}
 		}else{
-			aria = this.$t("global.moderation_action.banned_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName});
+			if(this.messageData.moderator) {
+				aria = this.$t("global.moderation_action.banned_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName});
+			}else{
+				aria = this.$t("global.moderation_action.banned", {USER:this.messageData.user.displayName});
+			}
 		}
 		this.$store("accessibility").setAriaPolite(aria);
 	}
@@ -64,7 +72,5 @@ export default class ChatBan extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatban{
-	.chatMessageHighlight();
-	background-color: fade(@mainColor_warn, 15%);
 }
 </style>

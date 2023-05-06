@@ -42,15 +42,16 @@
 
 		<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"
 			class="progressBar"
+			secondary
 			:duration="timerDuration"
 			:percent="timerPercent"
-			:green="boostMode"
+			:boostMode="boostMode"
 		/>
 
 		<div class="content conductors">
-			<div v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" :data-tooltip="$t('train.conductor_subs_tt')">
+			<div v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
 				<div class="head">
-					<div class="icon"><img src="@/assets/icons/sub_purple.svg"></div>
+					<div class="icon"><img src="@/assets/icons/sub.svg"></div>
 				</div>
 
 				<img :src="conductor_subs.user.avatarPath" class="avatar">
@@ -64,9 +65,9 @@
 				</i18n-t>
 			</div>
 
-			<div v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" :data-tooltip="$t('train.conductor_bits_tt')">
+			<div v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
 				<div class="head">
-					<div class="icon"><img src="@/assets/icons/bits_purple.svg"></div>
+					<div class="icon"><img src="@/assets/icons/bits.svg"></div>
 				</div>
 
 				<img :src="conductor_bits.user.avatarPath" class="avatar">
@@ -145,7 +146,7 @@ export default class HypeTrainState extends Vue {
 	}
 
 	public get classes():string[] {
-		const res = ["hypetrainstate"];
+		const res = ["hypetrainstate", "gameStateWindow"];
 		if(this.boostMode) res.push("boost");
 		return res;
 	}
@@ -289,18 +290,12 @@ export default class HypeTrainState extends Vue {
 		background-color: @c !important;
 	}
 
-	.progressBar {
-		margin: 10px 0;
-		color: @windowStateColor;
-	}
-
 	.content {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
-		color: @mainColor_light;
 
 		h1 {
 			text-align: center;
@@ -315,17 +310,12 @@ export default class HypeTrainState extends Vue {
 			margin-right: 10px;
 		}
 
-		.duration {
-			// font-size: .8em;
-			margin-left: 15px;
-		}
-
-		:deep(.percent) {
+		.percent {
 			font-family: var(--font-azeret);
 			font-size: .7em;
 			vertical-align: middle;
 			margin-left: 15px;
-			background-color: fade(@mainColor_light, 25%);
+			background-color: var(--color-light-fade);
 			padding: 5px;
 			border-radius: 5px;
 		}
@@ -342,8 +332,8 @@ export default class HypeTrainState extends Vue {
 				align-items: center;
 				flex-direction: column;
 				gap:.25em;
-				background-color: @mainColor_light;
-				border-radius: @border_radius;
+				background-color: var(--color-secondary);
+				border-radius: var(--border-radius);
 				padding: .5em;
 				min-width: 6em;
 				
@@ -356,11 +346,11 @@ export default class HypeTrainState extends Vue {
 					margin-left: -.8em;
 					.icon {
 						display: inline;
-						background-color: @mainColor_light;
+						background-color: var(--color-secondary);
 						padding: .25em;
 						border-radius: 50%;
 						img {
-							object-fit: contain;
+							object-fit: fill;
 							width: 1em;
 							height: 1em;
 						}
@@ -372,13 +362,12 @@ export default class HypeTrainState extends Vue {
 					border-radius: 50%;
 					margin: auto;
 					display: block;
-					border: 1px solid @mainColor_normal;
 				}
 				.userlink {
 					font-size: .9em;
+					color: var(--color-light);
 				}
 				.label {
-					color: @mainColor_normal;
 					.count {
 						font-weight: bold;
 					}

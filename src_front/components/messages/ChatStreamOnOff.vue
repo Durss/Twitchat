@@ -1,34 +1,36 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<img :src="$image('icons/online.svg')" alt="online" class="icon" v-if="isOnline">
 		<img :src="$image('icons/offline.svg')" alt="offline" class="icon" v-else>
 
-		<div>
+		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="isOnline? 'chat.stream.online' : 'chat.stream.offline'">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.info.user)">{{messageData.info.user.displayName}}</a>
+					<a class="userlink"
+						:href="'https://twitch.tv/'+messageData.info.user.login"
+						target="_blank"
+						@click.stop.prevent="openUserCard(messageData.info.user)">{{messageData.info.user.displayName}}</a>
 				</template>
 			</i18n-t>
 
 			<div v-if="isOnline && messageData.info" class="streamInfo">
-				<i18n-t scope="global" keypath="chat.stream.info" tag="p">
-					<template #CATEGORY>
-						<strong>{{messageData.info.category}}</strong>
-					</template>
-				</i18n-t>
-				<p class="title">{{messageData.info.title}}</p>
-			</div>
+				<div class="infos">
+					<div class="title quote">
+						<span>{{messageData.info.title}}</span>
+						<p class="category">{{messageData.info.category}}</p>
+					</div>
+				</div>
 
-			<Button v-if="!isMe && isOnline"
-				@click.stop="shoutout()"
-				:title="$t('chat.soBt')"
-				:icon="$image('icons/shoutout_purple.svg')"
-				:loading="shoutoutLoading"
-				white
-				class="soButton"
-			/>
+				<Button v-if="!isMe && isOnline"
+					@click.stop="shoutout()"
+					icon="shoutout"
+					:loading="shoutoutLoading"
+					white
+					class="soButton"
+				>{{ $t('chat.soBt') }}</Button>
+			</div>
 		</div>
 	</div>
 </template>
@@ -51,7 +53,7 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData;
 
 	public shoutoutLoading:boolean = false;
-	public classes:string[] = ["chatstreamonoff"];
+	public classes:string[] = ["chatstreamonoff", "chatMessage", "highlight"];
 
 	public get isMe():boolean {
 		return this.messageData.info.user.id == this.$store("auth").twitch.user.id;
@@ -65,8 +67,9 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 		let aria = "";
 		if(this.isOnline) {
 			aria = this.$t("chat.stream.online", {USER:this.messageData.info.user.displayName});
+			this.classes.push("success");
 		}else{
-			this.classes.push("offline");
+			this.classes.push("offline", "error");
 			aria = this.$t("chat.stream.offline", {USER:this.messageData.info.user.displayName});
 		}
 		this.$store("accessibility").setAriaPolite(aria);
@@ -91,30 +94,43 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatstreamonoff{
-	.chatMessageHighlight();
-	
-	background-color: fade(@mainColor_highlight, 25);
-		&:hover {
-			background-color: fade(@mainColor_highlight_light, 25);
-		}
-	
-	&.offline {
-		background-color: fade(@mainColor_alert, 25);
-		&:hover {
-			background-color: fade(@mainColor_alert_light, 25);
-		}
-	}
-	
-	.streamInfo {
-		margin-top: .5em;
-		width: 100%;
-		.title {
-			font-style: italic;
-		}
+
+	.messageHolder {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		flex-grow: 1;
+		gap: .25em;
 	}
 
-	.soButton {
-		margin-top: .5em;
+	.streamInfo {
+		border-radius: .5em;
+		overflow: hidden;
+		width: 100%;
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		.infos {
+			opacity: .8;
+			flex-grow: 1;
+			flex-basis: 200px;
+			.category {
+				width: fit-content;
+				margin-right: 0;
+				margin-left: 0;
+				margin-top: .5em;
+				font-size: .9em;
+				display: block;
+				padding: 2px 10px;
+				font-style: normal;
+				border-radius: var(--border-radius);
+				background-color: var(--color-light-fader);
+			}
+		}
+		.soButton {
+			align-self: center;
+		}
 	}
 }
 </style>

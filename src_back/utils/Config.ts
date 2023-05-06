@@ -31,7 +31,7 @@ export default class Config {
 	/**
 	 * Validates a token and returns the user data
 	 */
-	public static async getUserFromToken(token):Promise<{
+	public static async getUserFromToken(token:string):Promise<{
 		client_id: string,
 		login: string,
 		scopes: string[],

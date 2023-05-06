@@ -1,8 +1,8 @@
 <template>
-	<div class="emergencyfollowslistmodal">
+	<div class="emergencyfollowslistmodal modal">
 		<div class="dimmer" ref="dimmer"></div>
 		<div class="holder" ref="holder">
-			<img src="@/assets/icons/emergency_purple.svg" alt="emergency" class="icon">
+			<img src="@/assets/icons/emergency.svg" alt="emergency" class="icon">
 			<div class="head">
 				<i18n-t scope="global" keypath="followbot.title" :plural="followers.length" tag="span" class="title">
 					<template #COUNT>{{ followers.length }}</template>
@@ -21,6 +21,7 @@
 					:itemSize="itemSize"
 					:itemMargin="itemMargin"
 					v-model:scrollOffset="scrollOffset"
+					fillWithDuplicates
 					lockScroll
 					nodeType="div"
 					:style="{height:'100%'}"
@@ -37,45 +38,47 @@
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="ban(item)"
-									:data-tooltip="$t('followbot.ban_tt')"
-									highlight
-									:icon="$image('icons/ban.svg')"
+									@mouseover="initTooltip($event, item.id, 'followbot.ban_tt')"
+									alert
+									icon="ban"
 									v-if="item.user.channelInfo[item.channel_id].is_banned !== true" />
 
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="unban(item)"
-									:data-tooltip="$t('followbot.unban_tt')"
-									:icon="$image('icons/unban.svg')"
+									@mouseover="initTooltip($event, item.id, 'followbot.unban_tt')"
+									icon="unban"
 									v-if="item.user.channelInfo[item.channel_id].is_banned === true" />
 
 								<Button small :disabled="batchActionInProgress"
 									:loading="item.loading"
 									@click="unfollow(item)"
-									:data-tooltip="$t('followbot.unfollow_tt')"
-									highlight
-									:icon="$image('icons/unfollow_white.svg')"
+									@mouseover="initTooltip($event, item.id, 'followbot.unfollow_tt')"
+									alert
+									icon="unfollow"
 									v-if="item.user.channelInfo[item.channel_id].is_following == true" />
 
 								<Button class="cardBt" small
-									:data-tooltip="$t('followbot.details_tt')"
-									@click="openCard(item)" :icon="$image('icons/info.svg')" />
+									@mouseover="initTooltip($event, item.id, 'followbot.details_tt')"
+									@click="openCard(item)" icon="info" />
 
 								<Button small @click="removeEntry(item)"
-								:data-tooltip="$t('followbot.ignore_tt')"
-									:icon="$image('icons/trash.svg')" />
+									@mouseover="initTooltip($event, item.id, 'followbot.ignore_tt')"
+									icon="trash" />
 							</div>
 						</div>
 					</InfiniteList>
 				</div>
 				<div class="batchActions">
-					<Button small @click="banAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.banBt')" :icon="$image('icons/ban.svg')" />
-					<Button small @click="unfollowAll()" bounce :loading="batchActionInProgress" :title="$t('followbot.unfollowBt')" :icon="$image('icons/unfollow_white.svg')" />
-					<Button small @click="exportCSV()" bounce :loading="batchActionInProgress" :title="$t('followbot.exportBt')" :icon="$image('icons/save.svg')" />
+					<Button @click="banAll()" :loading="batchActionInProgress" alert icon="ban">{{$t('followbot.banBt')}}</Button>
+					<Button @click="unfollowAll()" :loading="batchActionInProgress" alert icon="unfollow">{{$t('followbot.unfollowBt')}}</Button>
 				</div>
 				<div class="ctas">
-					<Button class="later" @click="reviewLater()" :title="$t('followbot.laterBt')" :icon="$image('icons/countdown.svg')" />
-					<Button highlight @click="clearList()" :title="$t('followbot.finishBt')" :icon="$image('icons/checkmark_white.svg')" />
+					<Button @click="exportCSV()" :loading="batchActionInProgress" secondary icon="save">{{$t('followbot.exportBt')}}</Button>
+					<Button secondary class="later" @click="reviewLater()" icon="countdown">{{$t('followbot.laterBt')}}</Button>
+				</div>
+				<div class="ctas">
+					<Button @click="clearList()" icon="checkmark">{{$t('followbot.finishBt')}}</Button>
 				</div>
 			</div>
 		</div>
@@ -90,6 +93,7 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import InfiniteList from '../InfiniteList.vue';
+import { useTippy } from 'vue-tippy';
 
 @Component({
 	components:{
@@ -109,6 +113,7 @@ export default class EmergencyFollowsListModal extends Vue {
 
 	private today:Date = new Date();
 	private disposed:boolean = false;
+	private tooltipCreated:{[key:string]:boolean} = {}
 
 	public beforeUnmount(): void {
 		this.disposed = true;
@@ -139,8 +144,13 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 
 	public formatDate(date:number):string {
-		const d = new Date(date)
-		return Utils.formatDate(d, true, d.getDate() == this.today.getDate());
+		const d = new Date(date);
+		let res = Utils.formatDate(d, true, d.getDate() == this.today.getDate());
+		if(d.getFullYear() == new Date().getFullYear()) {
+			//Remove year if its the current year
+			res = res.replace(new RegExp("."+d.getFullYear(),"gi"), "");
+		}
+		return res;
 	}
 
 	public openCard(follower:TwitchatDataTypes.MessageFollowingData):void {
@@ -162,9 +172,9 @@ export default class EmergencyFollowsListModal extends Vue {
 	public async unfollow(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		if(follow.user.channelInfo[follow.channel_id].is_following != true) return;
 		follow.loading = true;
-		await TwitchUtils.blockUser(follow.user, follow.channel_id, "spam");
+		await TwitchUtils.blockUser(follow.user, "spam");
 		follow.user.channelInfo[follow.channel_id].is_following = false;
-		await TwitchUtils.unblockUser(follow.user, follow.channel_id);
+		await TwitchUtils.unblockUser(follow.user);
 		follow.loading = false;
 	}
 
@@ -235,43 +245,34 @@ export default class EmergencyFollowsListModal extends Vue {
 		link.click();
 	}
 
+	public initTooltip(event:MouseEvent, key:string, label:string):void {
+		if(this.tooltipCreated[key+"_"+label] === true) return;
+		this.tooltipCreated[key+"_"+label] = true;
+		useTippy(event.currentTarget as HTMLImageElement, {
+			content: this.$t(label),
+		});
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .emergencyfollowslistmodal{
-	
-	.modal();
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 2;
 
 	.holder {
-		z-index: 2;
+		max-width: 600px;
 		
 		& > .icon {
-			margin-top: 20px;
 			height: 3em;
-			vertical-align: middle;
-		}
-		
-		.head {
-			.title {
-				padding-left: 0;
-			}
 		}
 
 		.content {
-			margin-top: 1em;
 			padding-top: 0;
+			gap: .5em;
 			display: flex;
 			flex-direction: column;
 
 			&>.searchField {
-				margin-top: 1em;
 				display: flex;
 				flex-direction: row;
 				justify-content: center;
@@ -282,18 +283,17 @@ export default class EmergencyFollowsListModal extends Vue {
 			}
 
 			&>.list {
-				margin: 1em auto;
 				overflow: hidden;
 				width: 100%;
-				max-width: 800px;
 
 				.user {
 					display: flex;
 					flex-direction: row;
 					align-items: center;
+					will-change: transform;
 
 					&.loading {
-						background-color: @mainColor_alert_extralight;
+						background-color: var(--color-primary-fader);
 					}
 
 					.infos {
@@ -307,12 +307,11 @@ export default class EmergencyFollowsListModal extends Vue {
 							margin-right: .5em;
 						}
 						.name {
-							width: calc(100% - 150px);
-							max-width: calc(100% - 150px);
 							white-space: nowrap;
 							overflow: hidden;
 							text-overflow: ellipsis;
 							display: block;
+							flex-grow: 1;
 						}
 	
 						.icon {
@@ -322,7 +321,25 @@ export default class EmergencyFollowsListModal extends Vue {
 					.ctas {
 						display: flex;
 						flex-direction: row;
-						gap:2px;
+						flex-basis: 6.5em;
+						justify-content: flex-end;
+						&>* {
+							width: 2em;
+						}
+						&>*:not(:last-child) {
+							border-right: 1px solid var(--color-light);
+						}
+						&>*:not(:first-child):not(:last-child) {
+							border-radius: 0;
+						}
+						&>*:first-child {
+							border-top-right-radius: 0;
+							border-bottom-right-radius: 0;
+						}
+						&>*:last-child {
+							border-top-left-radius: 0;
+							border-bottom-left-radius: 0;
+						}
 					}
 				}
 			}
@@ -336,7 +353,6 @@ export default class EmergencyFollowsListModal extends Vue {
 				flex-direction: row;
 				justify-content: center;
 				flex-wrap: wrap;
-				margin-bottom: .5em;
 				gap:.5em;
 			}
 
@@ -348,13 +364,6 @@ export default class EmergencyFollowsListModal extends Vue {
 				align-items: center;
 				flex-wrap: wrap;
 				gap:.5em;
-				.later {
-					background-color: @mainColor_warn;
-					&:hover {
-						background-color: @mainColor_warn_light;
-
-					}
-				}
 			}
 		}
 	}

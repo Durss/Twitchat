@@ -16,6 +16,7 @@ export default class MessengerClientEvent extends Event {
 	public static REFRESH_TOKEN = "REFRESH_TOKEN";
 	public static REWARD = "REWARD";
 	public static NOTICE = "NOTICE";
+	public static WATCH_STREAK = "WATCH_STREAK";
 	public static CONNECTED = "CONNECTED";
 	public static DISCONNECTED = "DISCONNECTED";
 
@@ -31,6 +32,7 @@ export default class MessengerClientEvent extends Event {
 					TwitchatDataTypes.MessageClearChatData |
 					TwitchatDataTypes.MessageRewardRedeemData |
 					TwitchatDataTypes.MessageNoticeData |
+					TwitchatDataTypes.MessageWatchStreakData |
 					string
 					;
 	
@@ -47,6 +49,7 @@ export default class MessengerClientEvent extends Event {
 	constructor(type:"SUB", data:TwitchatDataTypes.MessageSubscriptionData);
 	constructor(type:"REWARD", data:TwitchatDataTypes.MessageRewardRedeemData);
 	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
+	constructor(type:"WATCH_STREAK", data:TwitchatDataTypes.MessageWatchStreakData);
 	constructor(type:"REFRESH_TOKEN");
 	
 	constructor(...params:any[]) {

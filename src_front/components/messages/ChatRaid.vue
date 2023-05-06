@@ -1,11 +1,11 @@
 <template>
-	<div class="chatraid">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatraid chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" keypath="chat.raid.text">
+			<i18n-t scope="global" tag="span" keypath="chat.raid.text" :plural="messageData.viewers">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
 				</template>
@@ -17,22 +17,21 @@
 
 			<div class="streamInfo">
 				<div class="infos">
-					<i18n-t scope="global" :keypath="messageData.stream.wasLive? 'chat.raid.current_stream' : 'chat.raid.previous_stream'" tag="p" :plural="messageData.viewers">
-						<template #CATEGORY>
-							<strong>{{messageData.stream.category}}</strong>
-						</template>
-					</i18n-t>
-					<p class="title">{{messageData.stream.title}}</p>
-					<div class="duration" v-if="messageData.stream.wasLive">{{$t("chat.raid.duration", {DURATION:formatedDuration})}}</div>
+					<div class="title quote">
+						<span>{{messageData.stream.title}}</span>
+						<div class="details">
+							<p class="category">{{messageData.stream.category}}</p>
+							<div class="duration" v-if="messageData.stream.wasLive"><img src="@/assets/icons/timer.svg" class="icon">{{formatedDuration}}</div>
+						</div>
+					</div>
 				</div>
 
 				<Button @click.stop="shoutout()"
 					white
-					:title="$t('chat.soBt')"
-					:icon="$image('icons/shoutout_purple.svg')"
+					icon="shoutout"
 					:loading="shoutoutLoading"
 					class="soButton"
-				/>
+				>{{ $t('chat.soBt') }}</Button>
 			</div>
 		</div>
 
@@ -84,8 +83,6 @@ export default class ChatRaid extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatraid{
-	.chatMessageHighlight();
-
 	.messageHolder {
 		display: flex;
 		flex-direction: column;
@@ -95,33 +92,44 @@ export default class ChatRaid extends AbstractChatMessage {
 	}
 
 	.streamInfo {
-		color: @mainColor_light;
 		// background-color: rgba(255, 255, 255, .15);
 		border-radius: .5em;
 		overflow: hidden;
 		width: 100%;
+		gap: 1em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
 		.infos {
 			flex-grow: 1;
-			.game {
-				font-style: italic;
-			}
-			.duration {
-				font-size: .9em;
-				opacity: .8;
+			flex-basis: 200px;
+			opacity: .8;
+			.details {
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				.category, .duration {
+					width: fit-content;
+					margin-right: 0;
+					margin-left: 0;
+					margin-top: .5em;
+					font-size: .9em;
+					display: block;
+					padding: 2px 10px;
+					font-style: normal;
+					border-radius: var(--border-radius);
+					background-color: var(--color-light-fader);
+					.icon {
+						height: 1em;
+						vertical-align: text-top;
+						margin-right: .25em;
+					}
+				}
 			}
 		}
 		.soButton {
 			align-self: center;
 		}
-	}
-	.error {
-		color: @mainColor_alert_light;
-		background-color: @mainColor_dark;
-		border-radius: .5em;
-		padding:.25em .5em;
 	}
 }
 </style>

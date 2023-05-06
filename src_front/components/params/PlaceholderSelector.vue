@@ -3,12 +3,31 @@
 		:title="$t('global.placeholder_selector_title')"
 		:open="false"
 	>
-		<ul class="list">
-			<li v-for="(h,index) in placeholders" :key="h.tag+index" @click="insert(h)" :data-tooltip="$t('global.placeholder_selector_insert')">
-				<strong>&#123;{{h.tag}}&#125;</strong>
-				{{$t(h.descKey)}}
-			</li>
-		</ul>
+		<div class="list" v-if="localPlaceholders.length > 0">
+			<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
+				<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+				
+				<i18n-t scope="global" :keypath="h.descKey" tag="span">
+					<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+						<mark>{{ value }}</mark>
+					</template>
+				</i18n-t>
+			</template>
+		</div>
+
+		<ToggleBlock class="global" :title="$t('global.placeholder_selector_global')" small v-if="globalPlaceholders.length > 0">
+			<div class="list">
+				<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
+					<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+					
+					<i18n-t scope="global" :keypath="h.descKey" tag="span">
+						<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+							<mark>{{ value }}</mark>
+						</template>
+					</i18n-t>
+				</template>
+			</div>
+		</ToggleBlock>
 	</ToggleBlock>
 </template>
 
@@ -27,10 +46,20 @@ export default class PlaceholderSelector extends Vue {
 
 	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
+
 	@Prop
 	public target!:(HTMLInputElement | HTMLTextAreaElement) | Promise<HTMLInputElement | HTMLTextAreaElement>;
+	
 	@Prop
 	public modelValue!:string;
+	
+	public get localPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
+		return this.placeholders.filter(v=>v.globalTag !== true);
+	}
+	
+	public get globalPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
+		return this.placeholders.filter(v=>v.globalTag === true);
+	}
 
 	/**
 	 * Add a token on the text
@@ -56,24 +85,40 @@ export default class PlaceholderSelector extends Vue {
 
 <style scoped lang="less">
 .placeholderselector{
-	font-size: .8em;
-	padding-left: 2em;
+	.global {
+		margin-top: .25em;
+	}
+
 	.list {
-		list-style-type: none;
-		// padding-left: 1em;
-		li {
-			padding: .25em;
-			cursor: pointer;
+ 		display: grid;
+		grid-template-columns: auto 1fr;
+		align-items: stretch;
+		column-gap: 1px;
+		row-gap: .25em;
+		font-size: .8em;
+		&>* {
+			background-color: var(--color-dark-fadest);
+			border-radius: .5em;
+			padding: .25em .5em;
+			&:nth-child(odd) {
+				max-width: 20vw;
+				word-break: break-all;
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			&:nth-child(even) {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+		}
+		button {
+			display: inline;
+			text-align: right;
+			font-weight: bold;
+			color: var(--color-light);
+			background-color: var(--color-primary);
 			&:hover {
-				background-color: fade(@mainColor_normal, 10%);
-			}
-			&:not(:last-child) {
-				border-bottom: 1px solid @mainColor_normal;
-			}
-			strong {
-				display: inline-block;
-				min-width: 82px;
-				border-right: 1px solid @mainColor_normal;
+				background-color: var(--color-primary-light);
 			}
 		}
 	}

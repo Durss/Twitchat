@@ -1,6 +1,6 @@
 <template>
-	<div class="commercialtimer" :data-tooltip="$t('global.tooltips.commercial')">
-		<img src="@/assets/loader/loader_white.svg" alt="loader" class="loader">
+	<div class="commercialtimer" v-tooltip="$t('global.tooltips.commercial')">
+		<img src="@/assets/loader/loader.svg" alt="loader" class="loader">
 		<div>{{timeLeft}}</div>
 	</div>
 </template>
@@ -50,8 +50,8 @@ export default class CommercialTimer extends Vue {
 	width: 25px;
 	height: 25px;
 	border-radius: 50%;
-	color: @mainColor_light;
-	background-color: @mainColor_alert;
+	color: var(--color-light);
+	background-color: var(--color-alert);
 	position: relative;
 	
 	.loader {

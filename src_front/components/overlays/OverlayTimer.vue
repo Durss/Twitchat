@@ -1,12 +1,12 @@
 <template>
 	<div class="overlaytimer">
 		<div class="timer" v-if="timerValue" id="timer" ref="timer">
-			<img id="timer_icon" src="@/assets/icons/timer_purple.svg" alt="timer">
+			<img id="timer_icon" src="@/assets/icons/dark/timer.svg" alt="timer">
 			<div id="timer_label">{{timerValue}}</div>
 		</div>
 
 		<div class="countdown" v-if="countdownValue" id="countdown" ref="countdown">
-			<img id="countdown_icon" src="@/assets/icons/countdown_purple.svg" alt="countdown">
+			<img id="countdown_icon" src="@/assets/icons/countdown.svg" alt="countdown">
 			<div id="countdown_label">{{countdownValue}}</div>
 		</div>
 	</div>
@@ -131,7 +131,8 @@ export default class OverlayTimer extends Vue {
 		flex-direction: row;
 		align-items: center;
 		font-size: 2em;
-		background-color: darken(@mainColor_light, 10%);
+		color: var(--color-dark);
+		background-color: var(--color-light);
 		padding: .5em;
 		border-bottom-left-radius: 1em;
 		border-bottom-right-radius: 1em;
@@ -141,7 +142,7 @@ export default class OverlayTimer extends Vue {
 		img {
 			height: 1em;
 			width: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: .25em;
 		}
 		&:not(:first-child) {

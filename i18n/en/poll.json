@@ -2,12 +2,16 @@
 	"poll":{
 		"form":{
 			"title":"Create poll",
+			"created_by":"created by {USER}",
 			"closeBt_aria":"Close poll form",
 			"question":"Question",
 			"answers":"Answers (at least 2)",
 			"additional_votes":"Allow additional votes",
 			"additional_votes_amount":"Points per vote",
 			"vote_duration":"Vote duration (minutes)"
+		},
+		"state":{
+			"endBt":"End poll"
 		}
 	}
 }

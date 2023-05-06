@@ -1,10 +1,12 @@
 <template>
-	<div :class="classes" @click="toggle">
+	<div :class="classes" @click.stop="toggle()">
 		<div class="circle"></div>
+		<input type="checkbox" v-model="localValue" class="input">
 	</div>
 </template>
 
 <script lang="ts">
+import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -12,24 +14,44 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	emits: ['update:modelValue', 'change'],
 })
 export default class ToggleButton extends Vue {
-	
+
+	@Prop({type:Boolean, default: false})
+	public big!:boolean;
+
 	@Prop({type:Boolean, default: false})
 	public small!:boolean;
+
 	@Prop({type:Boolean, default: false})
-	public clear!:boolean;
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+
 	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
 
+	public localValue:boolean = false;
+
 	public get classes():string[] {
 		let res = ["togglebutton"];
+		if(this.big !== false) res.push("big");
 		if(this.small !== false) res.push("small");
-		if(this.clear !== false) res.push("clear");
-		if(this.modelValue) res.push("selected");
+		if(this.secondary !== false) res.push("secondary");
+		if(this.alert !== false) res.push("alert");
+		if(this.localValue) res.push("selected");
 		return res;
 	}
 
+	public beforeMount():void {
+		this.localValue = this.modelValue;
+		watch(()=>this.modelValue, ()=>{
+			this.localValue = this.modelValue;
+		})
+	}
+
 	public toggle():void {
-		this.$emit('update:modelValue', !this.modelValue);
+		this.localValue = !this.localValue;
+		this.$emit('update:modelValue', this.localValue);
 		this.$emit('change');
 	}
 
@@ -38,73 +60,83 @@ export default class ToggleButton extends Vue {
 
 <style scoped lang="less">
 .togglebutton{
-	@size: 1em;
+	@size: 1.25em;
 	width: @size * 2;
 	min-width: @size * 2;
 	height: @size;
-	border-radius: 1em;
-	border: 1px solid fade(@mainColor_normal, 50%);
+	border-radius: @size;
 	position: relative;
 	cursor: pointer;
-	transition: all .2s;
-
-	&:hover {
-		border-color: @mainColor_normal_light;
-		background-color: @mainColor_normal_extralight;
-	}
-
-	&.small {
-		@size: .75em;
-		height: @size;
-		width: @size * 2;
-		min-width: @size * 2;
-		.circle {
-			width: calc(@size - 4px);
-			height: calc(@size - 4px);
-		}
-
-		&.selected {
-			.circle {
-				left: calc(@size * 2 - @size + 1px);
-			}
-		}
-	}
-
-	&.clear {
-		border-color: fade(@mainColor_light, 30%);
-		&.selected {
-			background-color: transparent;
-			border-color: @mainColor_light;
-			.circle {
-				background-color: @mainColor_light;
-			}
-		}
-		&:hover {
-			border-color: @mainColor_light;
-			background-color: fade(@mainColor_light, 30%);
-		}
-		.circle {
-			background-color: fade(@mainColor_light, 30%);
-		}
-	}
-
-	&.selected {
-		background-color: @mainColor_normal;
-		.circle {
-			background-color: #ffffff;
-			left: calc(@size * 2 - @size + 1px);
-		}
-	}
+	background: var(--color-dark);
+	.bevel();
 
 	.circle {
-		transition: all .2s;
+		transition: left .2s;
 		position: absolute;
-		top: 1px;
-		left: 1px;
-		background-color: fade(@mainColor_normal, 50%);
+		top: 50%;
+		transform: translateY(-50%);
+		left: 2px;
+		background-color: var(--color-primary);
 		width: calc(@size - 4px);
 		height: calc(@size - 4px);
 		border-radius: 50%;
+	}
+
+	.input {
+		position: absolute;
+		max-height: @size;
+		top: 0;
+		left: 0;
+		opacity: 0.001;
+		z-index: -1;
+		cursor: pointer;
+	}
+
+	&:hover {
+		background-color: var(--color-dark-light);
+	}
+
+	&.selected {
+		opacity: 1;
+		background: var(--color-primary-light);
+		.circle {
+			left: calc(@size * 2 - @size + 1px);
+			background-color: var(--color-light);
+		}
+	}
+
+	
+	&.big {
+		font-size: 1.2em;
+	}
+	
+	&.small {
+		font-size: .8em;
+	}
+
+
+	&.secondary {
+		.circle {
+			background-color: var(--color-secondary);
+		}
+		&.selected {
+			background: var(--color-secondary);
+			.circle {
+				background-color: var(--color-light);
+			}			
+		}
+	}
+
+	&.alert {
+		.circle {
+			background-color: var(--color-alert);
+		}
+		&.selected {
+			background: var(--color-alert);
+			.circle {
+				background-color: var(--color-light);
+			}			
+		}
 	}
 }
 </style>

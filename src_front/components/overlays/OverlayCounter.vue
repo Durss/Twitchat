@@ -26,12 +26,13 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractOberlay from './AbstractOberlay.vue';
 
 @Component({
 	components:{}
 })
-export default class OverlayCounter extends Vue {
+export default class OverlayCounter extends AbstractOberlay {
 
 	@Prop({
 			type: Boolean,
@@ -60,9 +61,7 @@ export default class OverlayCounter extends Vue {
 
 	public get progressStyles():StyleValue {
 		let res:StyleValue = {};
-
 		res.width = this.fillWidth+"%";
-		
 		return res;
 	}
 
@@ -78,13 +77,16 @@ export default class OverlayCounter extends Vue {
 				this.counterUpdateHandler = (e:TwitchatEvent) => this.onCounterUpdate(e);
 	
 				PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_UPDATE, this.counterUpdateHandler);
-				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_GET, {cid:this.id});
 			}
 		}
 
 		watch(()=>this.counter?.value, ()=> {
 			this.onValueUpdate();
 		});
+	}
+
+	public requestInfo():void {
+		PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_GET, {cid:this.id});
 	}
 
 	public beforeUnmount(): void {
@@ -106,6 +108,7 @@ export default class OverlayCounter extends Vue {
 
 	private onValueUpdate():void {
 		if(!this.counter) return;
+		
 		// const duration = Math.min(5, Math.max(.25, Math.abs(this.counter.value - this.localValue) * .025));
 		const duration = 1;
 		gsap.to(this, {duration, localValue:this.counter?.value, ease:"sine.inOut"});
@@ -134,9 +137,9 @@ export default class OverlayCounter extends Vue {
 	.counter {
 		margin: .5em;
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
-		background-color: @mainColor_light;
+		background-color: var(--color-light);
 		padding: 1em;
-		border-radius: .5em;
+		border-radius: var(--border-radius);
 		display: inline-flex;
 		flex-direction: row;
 		align-items: center;
@@ -159,10 +162,10 @@ export default class OverlayCounter extends Vue {
 	.progressBar {
 		margin: .5em;
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
-		width: 6em * 4;
-		height: 1em * 4;
+		width: 24em;
+		height: 4em;
 		position: relative;
-		background-color: @mainColor_light;
+		background-color: var(--color-light);
 		border-radius: .5em;
 		overflow: hidden;
 		.name {
@@ -183,7 +186,7 @@ export default class OverlayCounter extends Vue {
 			width: 100%;
 			top: 0;
 			left: 0;
-			background: @mainColor_normal_extralight;
+			background: var(--color-primary-light);
 			height: 100%;
 			transition: width 1s ease-in-out;
 		}

@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer_purple']">
+	<ToggleBlock :open="open" class="OverlayParamsDeezer" title="Deezer" :icons="['deezer']">
 		<div class="holder">
 
 			<div v-if="!deezerConnected">{{ $t("overlay.music_common.music") }}</div>
@@ -11,7 +11,7 @@
 			
 			<div v-if="!deezerConnected" class="warning">{{ $t("overlay.deezer.shit_api") }}</div>
 		
-			<Button v-if="!deezerConnected" :title="$t('overlay.deezer.authBt')" @click="authenticate()" class="authBt" :loading="authenticating" />
+			<Button v-if="!deezerConnected" @click="authenticate()" class="authBt" :loading="authenticating">{{ $t('overlay.deezer.authBt') }}</Button>
 	
 			<div v-if="deezerConnected" class="row">
 				<label for="deezer_overlay_url">{{ $t("$t('overlay.music_common.music_url')") }}</label>
@@ -21,20 +21,20 @@
 			<div v-if="deezerConnected" class="row">
 				<i18n-t scope="global" tag="div" keypath="overlay.music_common.infos">
 					<template #TRIGGERS>
-						<a @click="$emit('setContent', contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
+						<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
 					</template>
 				</i18n-t>
 
 				<i18n-t scope="global" tag="div" keypath="overlay.deezer.control">
 					<template #ICON>
-						<img src="@/assets/icons/deezer_purple.svg" alt="deezer" class="icon">
+						<img src="@/assets/icons/deezer.svg" alt="deezer" class="icon">
 					</template>
 				</i18n-t>
 
 				<div class="warning">{{ $t("overlay.deezer.shit_api") }}</div>
 			</div>
 
-			<Button v-if="deezerConnected" :title="$t('global.disconnect')" @click="disconnect()" class="authBt" highlight />
+			<Button v-if="deezerConnected" @click="disconnect()" class="authBt" alert>{{ $t('global.disconnect') }}</Button>
 		</div>
 
 	</ToggleBlock>
@@ -43,7 +43,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import DeezerHelper from '@/utils/music/DeezerHelper';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -56,16 +56,18 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 		OverlayParamsMusic,
 		OverlayMusicPlayer,
 	},
-	emits:["setContent"]
+	emits:[]
 })
 export default class OverlayParamsDeezer extends Vue {
+	
+	@Prop({default:false})
+	public open!:boolean;
 
-	public open = false;
 	public authenticating = false;
 	public currentTrack:TwitchatDataTypes.MusicTrackData = {title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get deezerConnected():boolean { return this.$store("music").deezerConnected; }
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
 	public mounted():void {
 		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
@@ -97,19 +99,6 @@ export default class OverlayParamsDeezer extends Vue {
 		align-items: center;
 		gap: 1em;
 
-		.error {
-			justify-self: center;
-			color: @mainColor_light;
-			display: block;
-			text-align: center;
-			padding: 5px;
-			border-radius: 5px;
-			margin: auto;
-			margin-top: 10px;
-			background-color: @mainColor_alert;
-			cursor: pointer;
-		}
-
 		.row {
 			display: flex;
 			flex-direction: column;
@@ -119,7 +108,7 @@ export default class OverlayParamsDeezer extends Vue {
 		&.spotifasshole {
 			margin-top: .5em;
 			.info {
-				color: @mainColor_alert;
+				color: var(--color-alert);
 				font-size: .9em;
 			}
 			form {
@@ -128,8 +117,8 @@ export default class OverlayParamsDeezer extends Vue {
 		}
 		
 		.player_holder {
-			border: 1px dashed @mainColor_normal;
-			background: fade(@mainColor_normal, 15%);
+			border: 1px dashed var(--color-primary);
+			background: var(--color-primary-fader);
 			border-radius: .25em;
 			margin-left: auto;
 			margin-right: auto;

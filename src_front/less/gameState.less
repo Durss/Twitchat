@@ -1,0 +1,69 @@
+/**
+* Represents the style for all windows displayed at the bottom
+* of a column like the current state of a poll, prediction, hype train, ...
+*/
+.gameStateWindow {
+	color: var(--color-light);
+	background-color: var(--color-primary);
+	border-radius: var(--border-radius);
+	padding: 1em;
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	align-items: center;
+	max-height: 50vh;
+	overflow: auto;
+
+	&>.title {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		width: calc(100% - 1em - 10px);
+		word-break: break-word;
+		text-align: center;
+		img {
+			width: 1em;
+			margin-right: .25em;
+		}
+		.highlight {
+			font-size: .8em;
+			color: var(--color-secondary);
+		}
+	}
+	
+	.highlight:not(.button) {
+		background: var(--color-secondary);
+		padding: .2em .5em;
+		border-radius: .5em;
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
+
+	.winners {
+		.count {
+			font-style: italic;
+			font-weight: normal;
+			font-size: .8em;
+		}
+		.entries {
+			padding: 5px;//Makes sure box-filter isn't cut
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: .5em;
+			max-height: calc(2em * 3);
+			overflow-y: auto;
+		}
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: var(--color-primary-light);
+	}
+	
+}

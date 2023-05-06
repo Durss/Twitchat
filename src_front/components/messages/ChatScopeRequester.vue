@@ -1,8 +1,8 @@
 <template>
-	<div class="chatscoperequester">
-		<button class="closeBt" @click="deleteMessage()"><img src="@/assets/icons/cross_white.svg"></button>
+	<div class="chatscoperequester chatMessage highlight alert">
+		<CloseButton @click="deleteMessage()" />
 
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<img src="@/assets/icons/alert.svg" alt="alert" class="icon">
 
@@ -16,8 +16,8 @@
 				</li>
 			</ul>
 
-			<Button class="grantBt" :icon="$image('icons/lock_fit.svg')" :title="$t('chat.scope_request.grantBt')" @click="requestScopes()" white />
-			<Button class="filterBt" :icon="$image('icons/filters.svg')" :title="$t('chat.scope_request.openFiltersBt')" @click="openFilters()" white />
+			<Button class="grantBt" light alert icon="lock_fit" @click="requestScopes()">{{ $t('chat.scope_request.grantBt') }}</Button>
+			<Button class="filterBt" light alert icon="filters" @click="openFilters()">{{ $t('chat.scope_request.openFiltersBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -28,10 +28,12 @@ import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/Twitch
 import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 	},
 	emits:["onRead", "openFilters"]
 })
@@ -41,7 +43,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageScopeRequestData;
 
 	public getScopeImage(s:TwitchScopesString):string {
-		return this.$image("icons/"+TwitchScope2Icon[s]?.replace("_purple", ""));
+		return this.$image("icons/"+TwitchScope2Icon[s]?.replace("", ""));
 	}
 
 	public mounted():void {
@@ -65,34 +67,18 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatscoperequester{
-	.chatMessageHighlight();
-
-	color: @mainColor_light;
-	background-color: @mainColor_alert;
-	position: relative;
-	align-items: flex-start;
-
-	&:hover {
-		background-color: @mainColor_alert_light;
-	}
-	
-	.closeBt {
-		position: absolute;
-		right: .5em;
-		img {
-			height: 1em;
-		}
-	}
 	.info {
 		width: 100%;
 		.title {
 			font-weight: bold;
 			margin-bottom: .5em;
+			width: calc(100% - 2.5em);
 		}
 		.scopes {
 			display: flex;
 			flex-direction: column;
 			gap: .25em;
+			list-style-position: inside;
 			li {
 				img {
 					height: 1em;
@@ -106,12 +92,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 		.grantBt, .filterBt {
 			margin: auto;
 			margin-top: .5em;
-			display: block;
-			color: @mainColor_dark;
-			font-weight: bold;
-			:deep(.icon) {
-				filter: brightness(0);
-			}
+			display: flex;
 		}
 	}
 }

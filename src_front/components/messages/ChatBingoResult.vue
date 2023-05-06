@@ -1,6 +1,6 @@
 <template>
-	<div class="chatbingoresult">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatbingoresult chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/bingo.svg" alt="icon" class="icon">
 
 		<i18n-t scope="global" tag="div" keypath="chat.bingo.title">
@@ -42,8 +42,6 @@ export default class ChatBingoResult extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatbingoresult{
-	.chatMessageHighlight();
-
 	.emote {
 		width: 2em;
 		height: 2em;

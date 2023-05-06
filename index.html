@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=1">
@@ -31,6 +30,13 @@
 	<style>
 		body {
 			background-color: transparent;
+		}
+		body.bg {
+			background-color: #18181b;
+			/* background: linear-gradient(180deg, #07876966 0%, #07876900 100%); */
+			background-size: 100% 100vh;
+			background-repeat: no-repeat;
+			background-position: top center;
 		}
 		#loader-init {
 			position: absolute;
@@ -137,7 +143,7 @@
 	</noscript>
 	
 	<div id="loader-init" style="display: none;">
-		<img src="/loader_white.svg" alt="spinner" class="spinner" id="spinner">
+		<img src="/loader.svg" alt="spinner" class="spinner" id="spinner">
 		<div class="logo">
 			<svg class="letter" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 182.4 260.3" xml:space="preserve">
@@ -342,7 +348,7 @@
 		}
 
 		if(showLoader) {
-			document.body.style.backgroundColor = "#18181b";
+			document.body.classList.add("bg");
 			loader.style.display = "block";
 			renderFrame(Date.now());
 		}

@@ -1,37 +1,40 @@
 <template>
-	<div class="streaminfosubform">
-		<ParamItem class="item" :paramData="param_title" v-model="localTitle" autofocus @change="$emit('update:title', localTitle)" />
+	<div :class="classes">
+		<ParamItem class="card-item" :paramData="param_title" v-model="localTitle" autofocus @change="$emit('update:title', localTitle)" />
 
-		<AutoCompleteForm class="item category"
+		<AutoCompleteForm class="card-item category"
 		:title="$t('stream.form_stream_category')"
 		:maxItems="1"
 		@search="searchCategory" v-slot="{ item }"
 		v-model="localCategories"
 		idKey="id">
-			<Button class="autoComplete-item" small :title="item.name" :icon="item.box_art_url" />
+			<button class="autoComplete-item">
+				<img class="icon" :src="item.box_art_url" alt="">
+				<span class="label">{{ item.name }}</span>
+			</button>
 		</AutoCompleteForm>
 
-		<ParamItem class="item"
-		:paramData="param_tags"
-		v-model="localTags"
-		autofocus
-		@change="onTagsUpdate()"
-		v-if="(param_tags.value as string[])!.length < 10" />
+		<ParamItem class="card-item"
+			:paramData="param_tags"
+			v-model="localTags"
+			autofocus
+			@change="onTagsUpdate()"
+			v-if="param_tags.value!.length < 10" />
 
-		<div class="item tagList" v-else>
+		<div class="card-item tagList" v-else>
 			<div>{{ $t(param_tags.labelKey!) }}</div>
 			<button type="button" class="tagItem" aria-label="delete tag"
-			v-for="i in (param_tags.value as string[])"
+			v-for="i in param_tags.value"
 			@click="deleteTag(i)">
 				<span>{{ i }}</span>
-				<img src="@/assets/icons/cross.svg" class="icon">
+				<img src="@/assets/icons/primary/cross.svg" class="icon">
 			</button>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { ITriggerActionHelper } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -52,39 +55,34 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class StreamInfoSubForm extends Vue {
 
-	@Prop({
-			type:String,
-			default:""
-		})
+	@Prop({type:String, default:""})
 	public title!:string;
-	@Prop({
-			type:Object,
-			default:[]
-		})
-	public tags!:string[];
-	@Prop({
-			type:Object,
-			default:{}
-		})
-	public category!:TwitchDataTypes.StreamCategory;
-	@Prop({
-			type:Boolean,
-			default:false
-		})
-	public triggerMode!:boolean;
-	//This is used by the trigger action form.
-	@Prop({
-			type: Array,
-			default:[],
-		})
-	public placeholderList!:ITriggerActionHelper[];
 
-	public param_title:TwitchatDataTypes.ParameterData	= {value:"", type:"string", maxLength:140};
-	public param_tags:TwitchatDataTypes.ParameterData	= {value:[], type:"editablelist"};
+	@Prop({type:Object, default:[]})
+	public tags!:string[];
+
+	@Prop({ type:Object, default:{}})
+	public category!:TwitchDataTypes.StreamCategory;
+
+	@Prop({type:Boolean, default:false})
+	public triggerMode!:boolean;
+
+	//This is used by the trigger action form.
+	@Prop({ type: Array, default:[]})
+	public placeholderList!:ITriggerPlaceholder[];
+
+	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140};
+	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist"};
 
 	public localTitle:string = "";
 	public localTags:string[] = [];
 	public localCategories:TwitchDataTypes.StreamCategory[] = [];
+
+	public get classes():string[] {
+		let res = ["streaminfosubform"];
+		if(this.triggerMode !== false) res.push("embedMode")
+		return res;
+	}
 
 	public beforeMount():void {
 		this.param_title.labelKey			= 'stream.form_stream_title';
@@ -125,7 +123,7 @@ export default class StreamInfoSubForm extends Vue {
 	 */
 	public deleteTag(t:string):void {
 		if(!this.param_tags.value) this.param_tags.value = [];
-		this.param_tags.value = (this.param_tags.value as string[]).filter(v=> v != t);
+		this.param_tags.value = this.param_tags.value.filter(v=> v != t);
 		this.localTags = this.param_tags.value;
 		this.$emit('update:tags', this.localTags);
 	}
@@ -158,28 +156,40 @@ export default class StreamInfoSubForm extends Vue {
 
 <style scoped lang="less">
 .streaminfosubform{
+	gap: .5em;
+	display: flex;
+	flex-direction: column;
 
-	.item {
-		margin-top: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
-		border-radius: .5em;
+	:deep(.autocomplete) {
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		.autoComplete-item {
+			font-size: .8em;
+			.icon {
+				height: 30px;
+			}
+		}
 	}
-	
+
 	.autoComplete-item {
-		margin-right: .25em;
-		margin-bottom: .25em;
 		padding: 0;
-		padding-right: .25em;
-		max-width: 100%;
-		:deep(.label) {
-			padding: 4px;
+		gap: .5em;
+		margin: auto;
+		display: flex;
+		overflow: hidden;
+		align-items: center;
+		flex-direction: row;
+		border-radius: var(--border-radius);
+		background-color: var(--color-secondary);
+		.label {
+			padding: .5em;
+			color: var(--color-light);
 			white-space: break-spaces;
 		}
-		:deep(.icon) {
-			height: 100%;
-			max-height: 2em;
-			margin-right: .25em;
+		.icon {
+			height: 60px;
 		}
 
 		&:hover {
@@ -188,31 +198,22 @@ export default class StreamInfoSubForm extends Vue {
 				height: 1.25em;
 			}
 		}
-	}
 	
-	.category {
-		display: flex;
-		flex-direction: column;
-		:deep(.selected) {
-			display: inline-block;
-			align-self: center;
-			margin: 0;
-			.button {
-				.icon{
-					max-height: 4em;
-				}
-	
-				&:after {
-					content: "";
-					background-image: url("../../assets/icons/trash.svg");
-					width: 1em;
-					height: 1em;
-					background-repeat: no-repeat;
-					background-position: center;
-					transition: .25s all;
-				}
-			}
+		&:after {
+			content: "";
+			background-image: url("../../assets/icons/trash.svg");
+			width: 1em;
+			height: 1em;
+			margin-right: .5em;
+			background-repeat: no-repeat;
+			background-position: center;
+			transition: .25s all;
+			background-size: contain;
 		}
+	}
+
+	&.embedMode {
+		gap: .25em;
 	}
 
 	.tagList {
@@ -225,22 +226,20 @@ export default class StreamInfoSubForm extends Vue {
 		.tagItem {
 			display: inline;
 			background-color: rgb(240, 240, 240);
-			color: @mainColor_normal;
-			font-size: .9em;
+			color: var(--color-primary);
+			font-size: 1em;
 			padding: .25em;
 			border-radius: 4px;
 			transition: all .25s;
 
 			.icon {
-				height: .6em;
+				height: .7em;
 				margin-left: .25em;
 			}
 			&:hover {
-				background: @mainColor_normal_extralight;
-				// color: @mainColor_light;
+				background: var(--color-light-dark);
 			}
 		}
 	}
-	
 }
 </style>

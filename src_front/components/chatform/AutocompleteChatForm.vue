@@ -1,25 +1,26 @@
 <template>
-	<div class="AutocompleteChatForm">
+	<div class="autocompletechatform blured-background-window">
 		<div
 		v-for="(i, index) in filteredItems"
 		:key="i.id"
 		:ref="'item_'+i.id"
 		:class="getClasses(index, i)"
-		@click="selectItem(i)">
+		@click="selectItem(i)"
+		v-tooltip="{content:i.type=='cmd'? i.tooltipKey : ''}">
 			<img
 				class="image"
 				loading="lazy" 
 				:src="i.emote"
 				:alt="i.label"
-				:data-tooltip="i.label"
+				v-tooltip="i.label"
 				v-if="i.type=='emote'">
 			
 			<img v-else-if="i.type == 'user'" class="image" src="@/assets/icons/user.svg" alt="user">
 
 			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="cmd">
-			<img v-if="i.type == 'cmd' && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" :data-tooltip="$t('global.cmd_admin')">
-			<img v-if="i.type == 'cmd' && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch_white.svg" alt="user" :data-tooltip="$t('global.cmd_twitch')">
-			<img v-if="i.type == 'cmd' && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" :data-tooltip="$t('global.cmd_mod')">
+			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" v-tooltip="$t('global.cmd_admin')">
+			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch.svg" alt="user" v-tooltip="$t('global.cmd_twitch')">
+			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" v-tooltip="$t('global.cmd_mod')">
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
@@ -30,6 +31,7 @@
 </template>
 
 <script lang="ts">
+import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
@@ -59,23 +61,33 @@ export default class AutocompleteChatForm extends Vue {
 
 	public selectedIndex = 0;
 	public filteredItems:ListItem[] = [];
+	public triggerCommands:TriggerData[] = [];
+
+	private keyUpHandler!:(e:KeyboardEvent) => void;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
 
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
 		if(index == this.selectedIndex)						res.push('selected');
-		if(item.type == "cmd" && item.rawCmd.needAdmin)		res.push('admin');
-		if(item.type == "cmd" && item.rawCmd.needModerator)	res.push('mod');
 		if(item.type == "cmd" && item.disabled)				res.push('disabled');
+		if(item.type == "cmd" && item.rawCmd) {
+			if(item.rawCmd.needAdmin)		res.push('admin');
+			if(item.rawCmd.needModerator)	res.push('mod');
+		}
 		res.push(item.type);
 		return res;
 	}
 
-	private keyDownHandler!:(e:KeyboardEvent) => void;
-
 	public mounted():void {
 		this.selectedIndex = 0;
+		
+		this.triggerCommands = this.$store("triggers").triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND);
+		
+		this.keyUpHandler = (e:KeyboardEvent)=> this.onkeyUp(e);
 		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
+		document.addEventListener("keyup", this.keyUpHandler);
 		document.addEventListener("keydown", this.keyDownHandler);
+
 		watch(()=>this.search, ()=>{
 			this.onSearchChange();
 		});
@@ -83,13 +95,17 @@ export default class AutocompleteChatForm extends Vue {
 	}
 
 	public beforeUnmount():void {
-		document.removeEventListener("keydown", this.keyDownHandler);
+		document.removeEventListener("keyup", this.keyUpHandler);
 	}
 
+	/**
+	 * Select an item via click or enter key
+	 * @param item 
+	 */
 	public selectItem(item:ListItem):void {
 		if(item.type == "cmd") {
 			if(item.disabled) {
-				if(item.rawCmd.twitch_scopes) {
+				if(item.rawCmd && item.rawCmd.twitch_scopes) {
 					this.$store("auth").requestTwitchScopes(item.rawCmd.twitch_scopes);
 				}
 			}else{
@@ -101,11 +117,29 @@ export default class AutocompleteChatForm extends Vue {
 		}
 	}
 
-	public onkeyDown(e:KeyboardEvent):void {
+	/**
+	 * Navigate through list via keyboard
+	 */
+	public onkeyUp(e:KeyboardEvent):void {
 		switch(e.key) {
 			case "Escape":
 				this.$emit("close");
 				break;
+			case "Tab":
+			case "Enter": {
+				e.preventDefault();
+				e.stopPropagation();
+				this.selectItem(this.filteredItems[this.selectedIndex]);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Navigate through list via keyboard
+	 */
+	public onkeyDown(e:KeyboardEvent):void {
+		switch(e.key) {
 			case "PageUp":
 				this.selectedIndex -= 10;
 				e.preventDefault();
@@ -122,13 +156,7 @@ export default class AutocompleteChatForm extends Vue {
 				this.selectedIndex ++;
 				e.preventDefault();
 				break;
-			case "Tab":
-			case "Enter": {
-				e.preventDefault();
-				e.stopPropagation();
-				this.selectItem(this.filteredItems[this.selectedIndex]);
-				break;
-			}
+			default: return;
 		}
 		
 		const len = this.filteredItems.length;
@@ -140,6 +168,10 @@ export default class AutocompleteChatForm extends Vue {
 		}
 	}
 
+	/**
+	 * Called when writing somehting.
+	 * Search any item matching the search
+	 */
 	private onSearchChange():void {
 		let res:ListItem[] = [];
 		const sUsers = this.$store("users");
@@ -148,6 +180,7 @@ export default class AutocompleteChatForm extends Vue {
 		const sTTS = this.$store("tts");
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
+			//Search for users
 			if(this.users) {
 				const users = sUsers.users;
 				for (let j = 0; j < users.length; j++) {
@@ -162,6 +195,7 @@ export default class AutocompleteChatForm extends Vue {
 				}
 			}
 
+			//Search for emotes
 			if(this.emotes) {
 				let emotes = TwitchUtils.emotesCache ?? [];
 				if(this.$store("params").appearance.bttvEmotes.value === true) {
@@ -192,12 +226,14 @@ export default class AutocompleteChatForm extends Vue {
 				}
 			}
 
+			//Search for slash commands
 			if(this.commands) {
 				const cmds = sChat.commands;
 				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
 				const isAdmin = sAuth.twitch.user.is_admin === true;
 				const isMod = true;
 				
+				//Search in global slash commands
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1
@@ -227,18 +263,58 @@ export default class AutocompleteChatForm extends Vue {
 						});
 					}
 				}
+
+				//Search on custom slash commands in the triggers
+				for (let i = 0; i < this.triggerCommands.length; i++) {
+					const t = this.triggerCommands[i];
+					if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
+						const params = t.chatCommandParams ?? [];
+						let paramsTxt = params.length > 0? " "+params.map(v=> "{"+v.tag+"}").join(" ") : "";
+						if(!t.enabled) {
+							paramsTxt += " "+this.$t("chat.form.trigger_cmd_disabled")
+						}
+						
+						res.push({
+							type:"cmd",
+							label:t.chatCommand + paramsTxt,
+							cmd:t.chatCommand + paramsTxt,
+							infos:t.name ?? "",
+							id:t.id,
+							disabled:!t.enabled,
+							tooltipKey:t.enabled? "" : this.$t("chat.form.trigger_cmd_disabled_tt"),
+						});
+					}
+				}
+
+				// //Search on chat commands in the triggers
+				// for (let i = 0; i < this.triggerCommands.length; i++) {
+				// 	const t = this.triggerCommands[i];
+				// 	if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
+				// 		res.push({
+				// 			type:"cmd",
+				// 			label:t.chatCommand,
+				// 			cmd:t.chatCommand,
+				// 			infos:t.name ?? "",
+				// 			id:t.id,
+				// 		});
+				// 	}
+				// }
 			}
 
 			res.sort((a,b)=> {
 				if(a.type == "cmd" && b.type == "cmd") {
 					if(a.disabled && !b.disabled) return 1;
 					if(!a.disabled && b.disabled) return -1;
-					if(a.rawCmd.needAdmin && !b.rawCmd.needAdmin) return -1;
-					if(!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
-					if(a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
-					if(!a.rawCmd.needModerator && b.rawCmd.needModerator) return 1;
-					if(a.rawCmd.twitchCmd && !b.rawCmd.twitchCmd) return -1;
-					if(!a.rawCmd.twitchCmd && b.rawCmd.twitchCmd) return 1;
+					if(a.rawCmd && !b.rawCmd) return -1;
+					if(!a.rawCmd && b.rawCmd) return 1;
+					if(a.rawCmd && b.rawCmd) {
+						if(a.rawCmd.needAdmin && !b.rawCmd.needAdmin) return -1;
+						if(!a.rawCmd.needAdmin && b.rawCmd.needAdmin) return 1;
+						if(a.rawCmd.needModerator && !b.rawCmd.needModerator) return -1;
+						if(!a.rawCmd.needModerator && b.rawCmd.needModerator) return 1;
+						if(a.rawCmd.twitchCmd && !b.rawCmd.twitchCmd) return -1;
+						if(!a.rawCmd.twitchCmd && b.rawCmd.twitchCmd) return 1;
+					}
 				}
 				if(a.label < b.label) return -1;
 				if(a.label > b.label) return 1;
@@ -278,14 +354,14 @@ interface CommandItem {
 	infos:string;
 	alias?:string;
 	disabled?:boolean;
-	rawCmd:TwitchatDataTypes.CommandData;
+	tooltipKey?:string;
+	rawCmd?:TwitchatDataTypes.CommandData;
 }
 </script>
 
 <style scoped lang="less">
-.AutocompleteChatForm{
+.autocompletechatform{
 	padding: 10px;
-	background-color: @mainColor_dark;
 	box-shadow: 0px 0px 20px 0px rgba(0,0,0,1);
 	border-radius: 10px;
 	max-width: 100%;
@@ -297,7 +373,6 @@ interface CommandItem {
 	right: 0;
 	overflow-x: hidden;
 	overflow-y: auto;
-
 	max-height: 80vh;
 
 	.item {
@@ -306,9 +381,10 @@ interface CommandItem {
 		align-items: center;
 		flex-wrap: wrap;
 		cursor: pointer;
+		min-height: 1.8em;
 
 		&.selected, &:hover {
-			background-color: fade(@mainColor_light, 20%);
+			background-color: var(--color-dark-extralight);
 		}
 
 		&.cmd {
@@ -326,18 +402,18 @@ interface CommandItem {
 			}
 
 			&.admin {
-				background-color: fade(@mainColor_warn, 15%);
+				background-color: var(--color-secondary-fadest);
 
 				&.selected, &:hover {
-					background-color: fade(@mainColor_warn, 50%);
+					background-color: var(--color-secondary-fader);
 				}
 			}
 
 			&.mod {
-				background-color: fade(@mainColor_normal, 15%);
+				background-color: var(--color-primary-fadest);
 
 				&.selected, &:hover {
-					background-color: fade(@mainColor_normal, 50%);
+					background-color: var(--color-primary-fade);
 				}
 			}
 			&.disabled {
@@ -349,7 +425,7 @@ interface CommandItem {
 
 		.name, .source {
 			color: #fff;
-			font-size: .7em;
+			font-size: .8em;
 		}
 
 		.source {
@@ -359,24 +435,20 @@ interface CommandItem {
 
 		.infos {
 			color: fade(#fff, 70%);
-			font-size: 12px;
+			font-size: .7em;
 			font-style: italic;
 			text-align: right;
-			padding-right: 5px;
+			padding-right: .5em;
 		}
 
 		.image {
-			height: 1.5em;
-			width: 1.5em;
-			padding: .25em;
-			object-fit: contain;
+			width: 1.75em;
+			padding: .2em;
+			object-fit: fill;
 			&.small {
 				height: 1em;
 				width: 1em;
-				padding: .15em;
-				// margin-right: .25em;
-				// border: 1px solid white;
-				// border-radius: 50%;
+				padding: .1em;
 			}
 		}
 		.alias {

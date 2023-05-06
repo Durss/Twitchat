@@ -1,6 +1,6 @@
 <template>
-	<div class="chatclear">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatclear chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<i18n-t scope="global" tag="span" keypath="chat.clear.title">
 			<template #ROOM><strong>#{{room}}</strong></template>
@@ -47,6 +47,5 @@ export default class ChatClear extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatclear{
-	.chatMessageHighlight();
 }
 </style>

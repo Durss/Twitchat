@@ -2,10 +2,11 @@
 	"raffle": {
 		"form_title": "Tirage au sort",
 		"closeBt_aria": "Fermer la fenêtre",
+		"description": "Sélectionnez une personne au hasard",
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Lancer le tirage au sort",
-			"description": "Sélectionner une personne au hasard parmi celles ayant envoyé une commande dans le tchat",
+			"description": "Sélectionner une personne au hasard parmi celles ayant envoyé une commande dans le tchat ou acheté une récompense de points de chaîne",
 			"triggers":"Permettez à vos viewers de rejoindre le tirage au sort avec un sub, un follow, un raid et plus encore depuis {LINK} avec l'action de trigger {ACTION}",
 			"triggers_link":"les triggers"
 		},
@@ -13,14 +14,14 @@
 			"title": "Subs",
 			"description": "Sélectionner une personne parmi vos abonné·es",
 			"startBt_aria": "Lancer le tirage au sort",
-			"startBt": "Lancer <i>({COUNT}) subs</i>"
+			"startBt": "Lancer {COUNT}"
 		},
 		"list": {
 			"title": "Liste",
 			"description": "Définissez une liste d'entrées personnalisées pour le tirage au sort",
 			"instructions": "(Séparez les entrées par une virgule ou un retour à la ligne)",
 			"startBt_aria": "Lancer le tirage au sort",
-			"startBt": "Lancer <i>({COUNT})</i>"
+			"startBt": "Lancer {COUNT}"
 		},
 		"legal": {
 			"title": "Informations juridiques",

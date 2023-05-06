@@ -401,13 +401,28 @@ export default class EventSub {
 	 * @param payload 
 	 */
 	private async updateStreamInfosEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChannelUpdateEvent):Promise<void> {
-		const [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+		let title:string = "";
+		let category:string = "";
+		let tags:string[] = [];
+		let started_at:number = 0;
+		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+		if(streamInfos) {
+			title = streamInfos.title;
+			category = streamInfos.game_name;
+			tags = streamInfos.tags;
+			started_at = new Date(streamInfos.started_at).getTime();
+		}else{
+			let [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id])
+			title = chanInfo.title;
+			category = chanInfo.game_name;
+			tags = chanInfo.tags;
+		}
 
 		StoreProxy.stream.currentStreamInfo = {
-			title:streamInfos.title,
-			category:streamInfos.game_name,
-			tags:streamInfos.tags,
-			started_at:new Date(streamInfos.started_at).getTime(),
+			title,
+			category,
+			tags,
+			started_at,
 			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name)
 		}
 
@@ -432,7 +447,7 @@ export default class EventSub {
 	 * @param payload 
 	 */
 	private followEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.FollowEvent):void {
-		if(StoreProxy.users.isAlreadyFollower("twitch", event.user_id)) return;
+		if(StoreProxy.users.isAFollower("twitch", event.user_id)) return;
 		
 		const channelId = StoreProxy.auth.twitch.user.id;
 
@@ -518,8 +533,10 @@ export default class EventSub {
 		}
 
 		if(renew.message) {
-			message.message = renew.message.text;
-			message.message_html = TwitchUtils.parseEmotesFromObject(renew.message.text, undefined, false, false);
+			const chunks			= TwitchUtils.parseMessageToChunks(renew.message.text, renew.message.emotes, true);
+			message.message			= renew.message.text;
+			message.message_chunks	= chunks;
+			message.message_html	= TwitchUtils.messageChunksToHTML(chunks);
 		}
 		StoreProxy.chat.addMessage(message);
 	}
@@ -534,9 +551,9 @@ export default class EventSub {
 
 		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT
 
-		let message_html = TwitchUtils.parseEmotes(event.message, undefined, false, true);
-		message_html = await TwitchUtils.parseCheermotes(message_html, StoreProxy.auth.twitch.user.id);
 		const channel_id = event.broadcaster_user_id;
+		const chunks = TwitchUtils.parseMessageToChunks(event.message, undefined, true);
+		await TwitchUtils.parseCheermotes(chunks, channel_id);
 		const user = StoreProxy.users.getUserFrom("twitch", channel_id, event.user_id, event.user_login, event.user_name);
 		const message:TwitchatDataTypes.MessageCheerData = {
 			platform:"twitch",
@@ -547,7 +564,8 @@ export default class EventSub {
 			user,
 			bits:event.bits ?? -1,
 			message:event.message,
-			message_html,
+			message_chunks:chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
 		}
 		StoreProxy.chat.addMessage(message);
 	}
@@ -572,7 +590,8 @@ export default class EventSub {
 		}else{
 			//Raided by someone
 			const user = StoreProxy.users.getUserFrom("twitch", event.to_broadcaster_user_id, event.from_broadcaster_user_id, event.from_broadcaster_user_login, event.from_broadcaster_user_name);
-			
+			user.channelInfo[event.to_broadcaster_user_id].is_raider = true;
+
 			//Check current live info
 			const [currentStream] = await TwitchUtils.loadCurrentStreamInfo([event.from_broadcaster_user_id]);
 			let isLive:boolean = false, title:string = "", category:string = "", duration:number = 0;
@@ -720,24 +739,59 @@ export default class EventSub {
 			moderator	= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.moderator_user_id, so_out.moderator_user_login, so_out.moderator_user_name);
 		}
 		
-		const stream = (await TwitchUtils.loadCurrentStreamInfo([user.id]))[0];
+		let title:string = "";
+		let category:string = "";
+		let [stream] = await TwitchUtils.loadCurrentStreamInfo([user.id]);
+		if(!stream) {
+			let [channel] = await TwitchUtils.loadChannelInfo([user.id]);
+			title = channel.title;
+			category = channel.game_name;
+		}else{
+			title = stream.title;
+			category = stream.game_name;
+		}
 		
+		let channel_id = event.broadcaster_user_id;
 		const message:TwitchatDataTypes.MessageShoutoutData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitch",
-			channel_id:event.broadcaster_user_id,
+			channel_id,
 			type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
 			user,
 			viewerCount:event.viewer_count,
 			stream: {
-				category:stream?.game_name ?? "",
-				title:stream?.title ?? "",
+				category,
+				title,
 			},
 			moderator,
 			received,
 		};
 		StoreProxy.chat.addMessage(message);
+
+		//If it's a sent shoutout, store it on the history
+		if(!received) {
+			console.log("ES : Shoutout received");
+			let list = StoreProxy.users.shoutoutHistory[channel_id];
+			if(!list) list = [];
+			let item = list.find(v=>v.done == false && v.user.id === user.id);
+			//Set the last SO date of the user
+			user.channelInfo[channel_id].lastShoutout = Date.now();
+			if(!item) {
+				console.log("ES : Create item");
+				//No matching item found on the list, push it
+				list.push({
+					id:Utils.getUUID(),
+					done:true,
+					user
+				})
+			}else{
+				console.log("ES : Update item", item);
+				//Update existing item
+				item.done = true;
+			}
+			StoreProxy.users.shoutoutHistory[channel_id] = list;
+		}
 	}
 	
 }

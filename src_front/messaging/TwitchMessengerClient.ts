@@ -2,14 +2,22 @@ import rewardImg from '@/assets/icons/reward_highlight.svg';
 import { EventDispatcher } from "@/events/EventDispatcher";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from '@/utils/Config';
+import Utils from "@/utils/Utils";
 import BTTVUtils from "@/utils/emotes/BTTVUtils";
 import FFZUtils from "@/utils/emotes/FFZUtils";
 import SevenTVUtils from "@/utils/emotes/SevenTVUtils";
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import Utils from "@/utils/Utils";
 import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
+
+/**
+ * TYPING IS COMPLETLY BROKEN AFTER UPGRADING TO LATEST tmi.js LIB
+ * Couln't find a way to fix it yet and i'm f***in tired of trying è_é
+ * compilation still works if I delete the types.d.ts from tmi.js module
+ * so F it for now :3
+ */
 
 /**
 * Created : 25/09/2022 
@@ -17,7 +25,7 @@ import MessengerClientEvent from "./MessengerClientEvent";
 export default class TwitchMessengerClient extends EventDispatcher {
 
 	private static _instance:TwitchMessengerClient;
-	private _client!:tmi.Client;
+	private _client!:any;
 	private _connectTimeout:number = -1;
 	private _refreshingToken:boolean = false;
 	private _channelList:string[] = [];
@@ -50,17 +58,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		StoreProxy.users.initBlockedUsers();
 
 		const sParams = StoreProxy.params;
-		if(sParams.appearance.bttvEmotes.value === true) {
+		if(sParams.appearance.bttvEmotes.value === true && sParams.appearance.showEmotes.value === true) {
 			BTTVUtils.instance.enable();
 		}else{
 			BTTVUtils.instance.disable();
 		}
-		if(sParams.appearance.ffzEmotes.value === true) {
+		if(sParams.appearance.ffzEmotes.value === true && sParams.appearance.showEmotes.value === true) {
 			FFZUtils.instance.enable();
 		}else{
 			FFZUtils.instance.disable();
 		}
-		if(sParams.appearance.sevenTVEmotes.value === true) {
+		if(sParams.appearance.sevenTVEmotes.value === true && sParams.appearance.showEmotes.value === true) {
 			SevenTVUtils.instance.enable();
 		}else{
 			SevenTVUtils.instance.disable();
@@ -107,7 +115,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
 				//Check if we're a mod on this channel by testing if the get chatters endpoint
-				//returns something or not
+				//returns something or not (no dedicated API for this ATM)
 				TwitchUtils.getChatters(v.id).then(result => {
 					const amIModThere = result !== false;
 					if(amIModThere) {
@@ -231,7 +239,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public async sendMessage(channelId:string, text:string):Promise<boolean> {
+	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData):Promise<boolean> {
 		//TMI.js doesn't send the message back to their sender if sending
 		//it just after receiving a message (same frame).
 		//If we didn't wait for a frame, the message would be sent properly
@@ -303,13 +311,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/block":{
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) return await TwitchUtils.blockUser(user, channelId);
+					if(user) return await TwitchUtils.blockUser(user);
 					return false;
 				}
 				case "/unblock": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) return await TwitchUtils.unblockUser(user, channelId);
+					if(user) return await TwitchUtils.unblockUser(user);
 					return false;
 				}
 				case "/timeout":{
@@ -352,7 +360,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/commercial": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_COMMERCIAL])) return false;
 					const duration = parseInt(chunks[0]);
-					StoreProxy.stream.startAd(duration);
+					StoreProxy.stream.startCommercial(duration);
 					return true;
 				}
 				case "/shield":  {
@@ -439,8 +447,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 		}
-		
-		this._client.say(this._channelIdToLogin[channelId], text);
+		if(replyTo) {
+			//@ts-ignore
+			this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
+		}else{
+			this._client.say(this._channelIdToLogin[channelId], text);
+		}
 		return true
 	}
 
@@ -451,7 +463,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	* PRIVATE METHODS *
 	*******************/
 	private async initialize():Promise<void> {
-		this._client.on('message', this.message.bind(this));
+		this._client.on('message', this.onMessage.bind(this));
 		this._client.on("join", this.onJoin.bind(this));
 		this._client.on("part", this.onLeave.bind(this));
 		this._client.on('cheer', this.onCheer.bind(this));
@@ -463,7 +475,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
 		this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade.bind(this));
 		this._client.on("ban", this.onBanUser.bind(this));
-		this._client.on("timeout", this.onTimeoutUser.bind(this));
+		this._client.on("timeout", this.onBanUser.bind(this));
 		this._client.on("raided", this.raided.bind(this));
 		this._client.on("disconnected", this.disconnected.bind(this));
 		this._client.on("clearchat", this.clearchat.bind(this));
@@ -582,13 +594,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) || "1000")/1000) as (1|2|3);
 		if(message) {
+			const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
 			res.message = message;
-			res.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
+			res.message_chunks = chunks;
+			res.message_html = TwitchUtils.messageChunksToHTML(res.message_chunks);
 		}
 		return res;
 	}
 
-	private async message(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
+	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		
 		//Ignore anything that's not a message or a /me
 		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
@@ -610,14 +624,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message,
 			answers:[],
 			message_html:"",
-			message_no_emotes:"",
+			message_chunks:[],
 			is_short:false,
 			raw_data:{tags, message}
 		};
 
-		data.message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"], false, tags.sentLocally == true);
-		data.message_no_emotes = Utils.stripHTMLTags(data.message_html);
-		data.is_short = data.message_no_emotes.length / data.message.length < .6 || data.message.length < 4;
+		data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
+		data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
+		data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
 				
 		// If message is an answer, set original message's ref to the answer
 		// Called when using the "answer feature" on twitch chat
@@ -642,6 +656,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
+		data.is_short				= tags["emote-only"] === true;
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
 		const pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
 		if(pinAmount) {
@@ -658,8 +673,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				type:TwitchatDataTypes.TwitchatMessageType.REWARD,
 				user: data.user,
 				reward: {
-					id:"highlighted-message",
-					title:"Highlight my message",
+					id:Config.instance.highlightMyMessageReward.id,
+					title:Config.instance.highlightMyMessageReward.title,
 					cost:-1,
 					description:"",
 					icon:{
@@ -727,9 +742,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
-		let message_html = TwitchUtils.parseEmotes(message, tags["emotes-raw"]);
-		message_html = await TwitchUtils.parseCheermotes(message_html, StoreProxy.auth.twitch.user.id);
 		const channel_id = this.getChannelID(channel);
+		const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
+		await TwitchUtils.parseCheermotes( chunks, channel_id);
+
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.CHEER,
@@ -739,7 +755,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			user:this.getUserFromTags(tags, channel_id),
 			bits:parseFloat(tags.bits as string) ?? -1,
 			message,
-			message_html,
+			message_chunks:chunks,
+			message_html:TwitchUtils.messageChunksToHTML(chunks),
 		}));
 	}
 
@@ -873,16 +890,41 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("DELETE_MESSAGE", msgID));
 	}
 
-	private onBanUser(channel: string, username: string, reason: string):void {
+	private onBanUser(channel: string, username: string, reason: string, duration?: number|{"room-id":string,"target-user-id":string,"tmi-sent-id":string}):void {
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserStateFromLogin(username, channel_id).user;
-		StoreProxy.users.flagBanned("twitch", channel_id, user.id);
-	}
-
-	private onTimeoutUser(channel: string, username: string, reason: string, duration: number):void {
-		const channel_id = this.getChannelID(channel);
-		const user = this.getUserStateFromLogin(username, channel_id).user;
-		StoreProxy.users.flagBanned("twitch", channel_id, user.id, duration);
+		//Wait 900ms before doing anything.
+		//This is a work around an Eventsub limitation.
+		//Eventsub does not allow to be notified for banned users of another channel
+		//as a moderator. The only way to be notified is via IRC, right here.
+		//Eventsub has more details so I kept it as the main source for this info,
+		//but I use this IRC event as a fallback.
+		//We wait 900ms to give it time to Eventsub to receive the event.
+		//If Eventsub sent us the info the user will already be marked as banned, we
+		//can then ignore the event. Otherwise, we send the notificaiton.
+		//We don't wait 1s or more, otherwise if TO for 1s the user would be unbanned
+		//before the setTimeout completes
+		setTimeout(()=> {
+			const isTO = !isNaN(duration as number);
+			if(!user.channelInfo[channel_id].is_banned
+			|| user.channelInfo[channel_id].banEndDate && !isTO
+			|| !user.channelInfo[channel_id].banEndDate && isTO) {
+				
+				const m:TwitchatDataTypes.MessageBanData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					channel_id,
+					type:TwitchatDataTypes.TwitchatMessageType.BAN,
+					user,
+				};
+				
+				if(isTO) m.duration_s = duration as number;
+				
+				StoreProxy.chat.addMessage(m);
+				StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
+			}
+		},900)
 	}
 
 	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {
@@ -897,7 +939,24 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const params = data.params as string[];
 					const tags = data.tags as tmi.ChatUserstate;
 					tags.username = tags.login;
-					this.message(params[0], tags, params[1], false);
+					this.onMessage(params[0], tags, params[1], false);
+				}else
+
+				//Handle viewer milestone (AKA consecutive watched streams)
+				if(((data.tags as tmi.ChatUserstate)["msg-param-category"] as unknown) === "watch-streak") {
+					const tags = data.tags as tmi.ChatUserstate;
+					const channelId = tags["room-id"] as string;
+					const user = this.getUserFromTags(tags, channelId);
+					const eventData:TwitchatDataTypes.MessageWatchStreakData = {
+						channel_id: channelId,
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK,
+						date:Date.now(),
+						platform:"twitch",
+						streak:tags["msg-param-value"] as number,
+						user,
+					};
+					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
 				}
 
 				//Handle subgift summaries

@@ -1,15 +1,14 @@
+import rewardImg from '@/assets/icons/channelPoints.svg';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
+import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { watch, type UnwrapRef } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import rewardImg from '@/assets/icons/channelPoints.svg';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
 
@@ -39,10 +38,45 @@ export const storeDebug = defineStore('debug', {
 				sentencesPerParagraph: { max: 8, min: 4 },
 				wordsPerSentence: { max: 8, min: 2 }
 			});
-			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			let message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			for (let i = 0; i < message.length; i++) {
+				if(message.charAt(i) === " ") {
+					if(Math.random() > .92) {
+						const emote = Utils.pickRand(["BOP", "PogChamp", "MyAvatar", "NomNom", "VoHiYo", "LUL", "TwitchUnity", "bleedPurple", "NotLikeThis", "twitchRaid"]);
+						message = message.substring(0, i) + " " + emote + " " + message.substring(i+1);
+						i += emote.length + 1;
+					}
+				}
+			}
+			if(Math.random() > .92) {
+				message += " this-is-a-link.test";
+			}
 			
 			switch(type) {
+				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					let users = fakeUsers.concat().splice(0,5);
+					let sent = Math.random() > .5;
+					let to = sent ? Utils.pickRand(users) : user;
+					let from = sent ? user : Utils.pickRand(users);
+					const m:TwitchatDataTypes.MessageWhisperData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						user:from,
+						to
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageChatData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -51,8 +85,8 @@ export const storeDebug = defineStore('debug', {
 						type,
 						answers:[],
 						message,
-						message_html:message,
-						message_no_emotes:message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
 						user:fakeUser,
 						is_short:false,
 					};
@@ -74,6 +108,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageWhisperData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -81,7 +116,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						message,
-						message_html:message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						user:fakeUser,
 						to:user
 					};
@@ -90,6 +126,7 @@ export const storeDebug = defineStore('debug', {
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageSubscriptionData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -97,7 +134,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						message,
-						message_html:message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						user:fakeUser,
 						months: Math.random() > .75? Math.floor(Math.random() * 6) + 1 : 0,
 						streakMonths: Math.floor(Math.random() * 46),
@@ -116,6 +154,22 @@ export const storeDebug = defineStore('debug', {
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+					let bits = 0;
+					const cheerList:string[] = [];
+					for (const key in TwitchUtils.cheermoteCache[uid]) {
+						const cheer = TwitchUtils.cheermoteCache[uid][key];
+						const count = cheer.tiers.length;
+						for (let i = 0; i < count; i++) {
+							if(Math.random() > .98) {
+								const value = cheer.tiers[i].min_bits + Math.floor(Math.random()*cheer.tiers[i].min_bits * .99);
+								bits += value;
+								cheerList.push(cheer.prefix+value);
+							}
+						}
+					}
+					message += " "+Utils.shuffle(cheerList).join(" ");
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					await TwitchUtils.parseCheermotes( chunks, uid);
 					const m:TwitchatDataTypes.MessageCheerData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -123,9 +177,10 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						message,
-						message_html:message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						user:fakeUser,
-						bits:Math.round(Math.random() * 1000),
+						bits,
 					};
 					data = m;
 					break;
@@ -185,6 +240,12 @@ export const storeDebug = defineStore('debug', {
 							icon,
 						},
 					};
+					if(Math.random() > .75) {
+						let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+						m.message = message;
+						m.message_chunks = chunks;
+						m.message_html =TwitchUtils.messageChunksToHTML(chunks);
+					}
 					data = m;
 					break;
 				}
@@ -221,25 +282,23 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
+					let res = await TwitchUtils.searchLiveChannels(Utils.pickRand(["just chatting", "valorant", "minecraft", "art", "makers & crafting"]));
+					let chan = Utils.pickRand(res);
 					const m:TwitchatDataTypes.MessageRaidData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
 						channel_id:uid,
 						date:Date.now(),
 						type,
-						user,
+						user:StoreProxy.users.getUserFrom("twitch", uid, chan.id, chan.broadcaster_login, chan.display_name),
 						viewers:Math.round(Math.random() * 1500),
 						stream:{
-							title: "Hello world",
-							category: "Just chatting",
-							duration:0,
-							wasLive: false
+							title: chan.title,
+							category: chan.game_name,
+							duration: Date.now() - new Date(chan.started_at).getTime(),
+							wasLive: Math.random() > .5
 						}
 					};
-					if(Math.random() > .5) {
-						m.stream.wasLive = true;
-						m.stream.duration = Math.round(Math.random() * 1000 * 60 * 60 * 8 + 1000 * 60 * 30);
-					}
 					data = m;
 					break;
 				}
@@ -351,6 +410,18 @@ export const storeDebug = defineStore('debug', {
 							return false;//Avoid sending it on chat
 						})
 					}
+
+					const conductor_subs = Utils.pickRand(fakeUsers);
+					const conductor_bits = Utils.pickRand(fakeUsers);
+					//Load avatars if necessary
+					if(!conductor_subs.avatarPath) {
+						const profile = await TwitchUtils.loadUserInfo([conductor_subs.id]);
+						conductor_subs.avatarPath = profile[0].profile_image_url;
+					}
+					if(!conductor_bits.avatarPath) {
+						const profile = await TwitchUtils.loadUserInfo([conductor_bits.id]);
+						conductor_bits.avatarPath = profile[0].profile_image_url;
+					}
 					
 					
 					const m:TwitchatDataTypes.MessageHypeTrainSummaryData = {
@@ -370,7 +441,17 @@ export const storeDebug = defineStore('debug', {
 							level:Math.round(sum/8000),
 							is_new_record:Math.random() > .5,
 							is_boost_train:false,
-							state:'COMPLETED'
+							state:'COMPLETED',
+							conductor_subs:{
+								type:"SUBS",
+								user:conductor_subs,
+								contributions:[{sub_t1:Math.round(Math.random()*100)}]
+							},
+							conductor_bits:{
+								type:"BITS",
+								user:conductor_bits,
+								contributions:[{bits:Math.round(Math.random()*10000)}]
+							},
 						},
 						activities,
 					};
@@ -392,8 +473,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.MUSIC_START:
-				case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP:
-				case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
+				case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP: {
 					const m:TwitchatDataTypes.MessageMusicAddedToQueueData
 					| TwitchatDataTypes.MessageMusicStartData
 					| TwitchatDataTypes.MessageMusicStopData = {
@@ -402,6 +482,25 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						track: {
+							title: "Mitchiri Neko march",
+							artist: "Mitchiri MitchiriNeko",
+							album: "MitchiriNeko",
+							cover: "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",
+							duration: 1812,
+							url: "https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"
+						}
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
+					const m:TwitchatDataTypes.MessageMusicAddedToQueueData= {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						date:Date.now(),
+						type,
+						trackAdded: {
 							title: "Mitchiri Neko march",
 							artist: "Mitchiri MitchiriNeko",
 							album: "MitchiriNeko",
@@ -448,9 +547,13 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 					const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
 					const count = Math.ceil(Math.random()*9)+1;
+					let totalPoints = 0;
+					let totalUsers = 0;
 					for(let i=0; i < count; i++) {
 						const voters = Math.round(Math.random()*50);
 						const votes = Math.round(Math.random()*1000000);
+						totalPoints += votes;
+						totalUsers += voters;
 						outcomes.push({id:Utils.getUUID(), label:"Option "+(i+1), votes, voters});
 					}
 					const m:TwitchatDataTypes.MessagePredictionData = {
@@ -466,6 +569,8 @@ export const storeDebug = defineStore('debug', {
 						ended_at:Date.now(),
 						pendingAnswer:false,
 						winner:Utils.pickRand(outcomes),
+						totalPoints,
+						totalUsers,
 					};
 					data = m;
 					break;
@@ -686,6 +791,37 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE: {
+					let counter = Utils.pickRand(StoreProxy.counters.counterList ?? []);
+					if(!counter) {
+						counter = {
+							id:Utils.getUUID(),
+							placeholderKey:"",
+							loop:false,
+							max:false,
+							min:false,
+							name:"Fake counter",
+							perUser:false,
+							value:Math.round(Math.random()*9999),
+						}
+					}
+					const m:TwitchatDataTypes.MessageCounterUpdatesData = {
+						platform:"twitchat",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						counter,
+						added:10,
+						added_abs: 10,
+						looped:false,
+						maxed:false,
+						mined:false,
+						value:counter.value,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT: {
 					const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
 						id:Utils.getUUID(),
@@ -769,7 +905,7 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitch",
 						type,
 						info: {
-							user,
+							user:fakeUser,
 							title:"Amazing stream!",
 							category:"Just chatting",
 							started_at:Date.now(),
@@ -787,7 +923,7 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitch",
 						type,
 						info: {
-							user,
+							user:fakeUser,
 							title:"Amazing stream!",
 							category:"Just chatting",
 							started_at:Date.now(),
@@ -863,6 +999,25 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageWatchStreakData = {
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user:fakeUser,
+						channel_id:uid,
+						streak:Utils.pickRand([3,6,9]),//Not sure thera are other valid values than 3
 					};
 					data = m;
 					break;
@@ -1088,10 +1243,17 @@ export const storeDebug = defineStore('debug', {
 					{type:TwitchatDataTypes.TwitchatMessageType.UNBAN, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.RAID, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.POLL, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.BINGO, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.PREDICTION, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN, probability:1},
+					{type:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION, probability:1},
 				];
 	
 				for (let i = 0; i < spamTypes.length; i++) {
@@ -1104,7 +1266,8 @@ export const storeDebug = defineStore('debug', {
 			return await this.simulateMessage(Utils.pickRand(ponderatedRandomList), (data)=> {
 				if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(forcedMessage) {
-						data.message = data.message_html = data.message_no_emotes = forcedMessage;
+						data.message_chunks = TwitchUtils.parseMessageToChunks(forcedMessage, undefined, true);
+						data.message = data.message_html = forcedMessage;
 					}
 					if(Math.random() > .1) return;
 					if(Math.random() > .9) {

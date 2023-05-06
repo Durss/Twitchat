@@ -3,20 +3,23 @@
 		<h1 class="title"><img src="@/assets/icons/prediction.svg">{{prediction.title}}</h1>
 		
 		<ProgressBar class="progress"
+		secondary
 			:percent="progressPercent"
 			:duration="prediction.duration_s*1000"
 			v-if="!prediction.pendingAnswer" />
 		
-		<div class="outcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
+		<div class="chooseOutcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
 		
 		<div class="choices">
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
 				<div class="color" v-if="!prediction.pendingAnswer || !canAnswer"></div>
 				<Button class="winBt"
+					secondary
 					@click="setOutcome(c)"
-					:icon="$image('icons/checkmark_white.svg')"
+					icon="checkmark"
 					v-if="prediction.pendingAnswer && canAnswer"
 					:loading="loading" />
+
 				<div class="bar" :style="getAnswerStyles(c)">
 					<div>{{c.label}}</div>
 					<div class="details">
@@ -27,9 +30,15 @@
 				</div>
 			</div>
 		</div>
-		<div class="item actions" v-if="canAnswer">
-			<Button :title="$t('prediction.state.cancelBt')" @click="deletePrediction()" :loading="loading" highlight />
-		</div>
+
+		<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
+		v-if="prediction.creator && prediction.creator.id != me.id">
+			<template #USER>
+				<a class="userlink" @click.stop="openUserCard()">{{prediction.creator.displayName}}</a>
+			</template>
+		</i18n-t>
+
+		<Button v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{ $t('prediction.state.cancelBt') }}</Button>
 	</div>
 </template>
 
@@ -53,6 +62,8 @@ export default class PredictionState extends Vue {
 	
 	private disposed = false;
 
+	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
+
 	public get prediction():TwitchatDataTypes.MessagePredictionData {
 		return this.$store("prediction").data!;
 	}
@@ -62,7 +73,7 @@ export default class PredictionState extends Vue {
 	}
 
 	public get classes():string[] {
-		let res = ["predictionstate"];
+		let res = ["predictionstate", "gameStateWindow"];
 		if(this.prediction.outcomes.length > 2) res.push("noColorMode");
 		return res;
 	}
@@ -99,13 +110,13 @@ export default class PredictionState extends Vue {
 
 	public setOutcome(c:TwitchatDataTypes.MessagePredictionDataOutcome):void {
 		this.loading = true;
-		this.$confirm(this.$t('prediction.state.outcome_confirm_title', {CHOICE:c.label}), this.$t('prediction.state.outcome_confirm_desc'))
+		this.$confirm(this.$t('prediction.state.outcome_confirm_title'), this.$t('prediction.state.outcome_confirm_desc', {CHOICE:c.label}))
 		.then(async ()=> {
 			try {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, c.id);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alertData = this.$t('error.prediction_outcome');
+				this.$store("main").alert(this.$t('error.prediction_outcome'));
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -121,12 +132,16 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alertData = this.$t('error.prediction_delete');
+				this.$store("main").alert(this.$t('error.prediction_delete'));
 			}
 			this.loading = false;
 		}).catch(()=> {
 			this.loading = false;
 		});
+	}
+
+	public openUserCard():void {
+		this.$store("users").openUserCard(this.prediction.creator!);
 	}
 
 	private renderFrame():void {
@@ -142,12 +157,23 @@ export default class PredictionState extends Vue {
 
 <style scoped lang="less">
 .predictionstate{
-	.gameStateWindow();
 
-	.outcomeTitle {
-		color: @mainColor_light;
-		margin-bottom: 20px;
-		margin-left: 15px;
+	.creator {
+		font-size: .8em;
+		text-align: center;
+		margin-top: 1em;
+		width: calc(100% - 1em - 10px);
+		font-style: italic;
+	}
+	
+	.chooseOutcomeTitle {
+		align-self: stretch;
+		margin-left: 1em;
+		color: var(--color-light);
+		margin-top: -1em;
+		margin-bottom: -.5em;
+		z-index: 1;
+		pointer-events: none;
 		.arrow {
 			display: inline;
 			font-size: 25px;
@@ -177,6 +203,7 @@ export default class PredictionState extends Vue {
 	}
 
 	.choices {
+		align-self: stretch;
 		.choice {
 			display: flex;
 			flex-direction: row;
@@ -187,6 +214,7 @@ export default class PredictionState extends Vue {
 			}
 
 			.color {
+				.emboss();
 				background-color: #387aff;
 				width: 20px;
 				height: 20px;
@@ -214,17 +242,18 @@ export default class PredictionState extends Vue {
 			}
 			
 			.bar {
+				.emboss();
 				flex-grow: 1;
 				display: flex;
 				flex-direction: row;
 				border-radius: 10px;
 				padding: 4px 15px;
 				font-size: 16px;
-				color: @mainColor_light;
-				@c: fade(@mainColor_light, 15%);
+				color: var(--color-light);
+				@c: var(--color-secondary);
 				transition: background-size .2s;
 				background: linear-gradient(to right, @c 100%, @c 100%);
-				background-color: fade(@mainColor_light, 5%);
+				background-color: var(--color-secondary-fadest);
 				background-repeat: no-repeat;
 				justify-content: space-between;
 				align-items: center;

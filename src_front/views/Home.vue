@@ -1,6 +1,6 @@
 <template>
 	<div class="home">
-		<div class="gradient"></div>
+		<div class="home-gradient-bg"></div>
 
 		<div class="aboveTheFold">
 			<div class="lang">
@@ -20,50 +20,49 @@
 					<p>{{ $t("home.head") }}</p>
 				</div>
 				
-				<Button :title="$t('home.loginBt')"
-					white
+				<Button class="loginBt"
+					secondary
 					big
 					ref="loginBt"
-					:to="{name:'login'}"
-					class="loginBt"
-					:icon="$image('icons/twitch.svg')"
+					@click="showLogin = true"
+					icon="twitch"
 					v-if="!hasAuthToken"
-				/>
-				<Button :title="$t('home.openBt')"
-					white
+				>{{ $t('home.loginBt') }}</Button>
+
+				<Button class="loginBt"
+					secondary
 					big
 					ref="loginBt"
-					class="loginBt"
-					:icon="$image('icons/twitch.svg')"
+					icon="twitch"
 					@click="redirectToChat()"
 					v-if="hasAuthToken"
-				/>
+				>{{ $t('home.openBt') }}</Button>
 		
 				<div class="ctas" ref="ctas">
-					<Button :icon="$image('icons/elgato.svg')"
-						:title="$t('home.streamdeckBt')"
+					<Button icon="elgato"
+						primary
 						href="https://apps.elgato.com/plugins/fr.twitchat"
 						target="_blank"
 						type="link"
 						class="elgatoBt"
 						ref="streamDeckBt"
-					/>
+					>{{ $t('home.streamdeckBt') }}</Button>
 			
-					<Button :icon="$image('icons/discord.svg')"
-						:title="$t('home.discordBt')"
+					<Button icon="discord"
+						primary
 						:href="discordURL"
 						target="_blank"
 						type="link"
 						class="discordBt"
 						ref="discordBt"
-					/>
+					>{{ $t('home.discordBt') }}</Button>
 			
-					<Button :icon="$image('icons/coin.svg')"
-						:title="$t('home.sponsorBt')"
+					<Button icon="coin"
+						primary
 						:to="{name:'sponsor'}"
 						class="sponsorBt"
 						ref="sponsorBt"
-					/>
+					>{{ $t('home.sponsorBt') }}</Button>
 				</div>
 			</div>
 	
@@ -78,7 +77,11 @@
 
 				<div class="content" v-if="s.image || s.video">
 					<div class="screen">
-						<video v-if="s.video" loading="lazy" :src="$image('img/homepage/'+s.video)" alt="emergency" autoplay loop @click="toggleVideo($event as PointerEvent)"></video>
+						<video v-if="s.video" loading="lazy" :src="$image('img/homepage/'+s.video)" alt="emergency"
+						autoplay loop
+						@click="toggleVideo($event as PointerEvent)"
+						@pause="onVideoStop($event)"
+						@play="onVideoStart($event)"></video>
 						<img v-if="s.image" loading="lazy" :src="$image('img/homepage/'+s.image)" :alt="s.title">
 					</div>
 					<img :src="$image('icons/'+s.icon+'.svg')" :alt="s.icon" class="icon">
@@ -115,7 +118,9 @@
 			:src="$image('img/homepage/letters/'+getLetter()+'.svg')">
 		</div>
 		
-		<AnchorsMenu :items="anchors" @select="onSelectAnchor" openAnimaton :openDelay="1" />
+		<AnchorsMenu class="anchors" :items="anchors" @select="onSelectAnchor" openAnimaton :openDelay="1" />
+
+		<Login v-show="showLogin" :show="showLogin" @close="showLogin = false" />
 	</div>
 </template>
 
@@ -131,9 +136,11 @@ import Splitter from '../components/Splitter.vue';
 import AnchorsMenu from '../components/AnchorsMenu.vue';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css';
+import Login from './Login.vue';
 
 @Component({
 	components:{
+		Login,
 		Button,
 		Splitter,
 		CountryFlag,
@@ -142,14 +149,15 @@ import 'vue3-country-flag-icon/dist/CountryFlag.css';
 })
 export default class Home extends Vue {
 
+	public showLogin = false;
 	public anchors:TwitchatDataTypes.AnchorData[] = [];
 
 	private index = 0;
-	private disposed = false;
 	private prevTs = 0;
+	private disposed = false;
 	private letterParams:{x:number, y:number, s:number, r:number, o:number}[] = [];
 
-	public get hasAuthToken():boolean { return DataStore.get(DataStore.TWITCH_AUTH_TOKEN) != null; }
+	public get hasAuthToken():boolean { return DataStore.get(DataStore.TWITCH_AUTH_TOKEN) != null && this.$route.name == "home"; }
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public getLetter():string { return Utils.pickRand("twitchat".split("")); }
@@ -180,6 +188,10 @@ export default class Home extends Vue {
 			threshold: .35
 		};
 
+		if(this.$route.name == "login" || this.$route.name == "oauth") {
+			this.showLogin = true;
+		}
+
 		let observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
 
 		//Opening transition of left anchors
@@ -191,10 +203,10 @@ export default class Home extends Vue {
 			if(icon) {
 				gsap.set(icon, {scale:0});
 			}
-			const label = div.querySelector("h2")?.innerText ?? "";
-			anchors.push({div, label, icon:icon.src, selected:false});
+			anchors.push({div, label: this.sections[i].title, icon:icon.src, selected:false});
 		}
 		this.anchors = anchors;
+		//TODO update anchros labels when changing language
 
 		//Opening transition ATF elements
 		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];
@@ -219,8 +231,18 @@ export default class Home extends Vue {
 		const video = event.target as HTMLVideoElement;
 		if(video.paused) video.play();
 		else video.pause();
-		video.classList.toggle("playing");
+	}
+
+	public onVideoStart(event:Event):void {
+		const video = event.target as HTMLVideoElement;
+		video.classList.add("playing");
 		(video.parentElement as HTMLDivElement).classList.remove("clickToPlay");
+	}
+
+	public onVideoStop(event:Event):void {
+		const video = event.target as HTMLVideoElement;
+		video.classList.remove("playing");
+		(video.parentElement as HTMLDivElement).classList.add("clickToPlay");
 	}
 
 	public redirectToChat():void {
@@ -316,7 +338,7 @@ export default class Home extends Vue {
 <style scoped lang="less">
 .home{
 	text-align: center;
-	color: @mainColor_light;
+	color: var(--color-light);
 	min-height: 100%;
 	background-image: url("../assets/img/homepage/grain.png");
 	margin: auto;
@@ -324,20 +346,8 @@ export default class Home extends Vue {
 	position: relative;
 	overflow: hidden;
 
-	.gradient {
-		background: linear-gradient(180deg, fade(darken(@mainColor_normal, 10%), 50%) 0%, fade(@mainColor_normal, 0%) 100%);
-		background-size: 100% 100vh;
-		background-repeat: no-repeat;
-		background-position: top center;
-		width: 100%;
-		height: 100vh;
-		position: absolute;
-		top:0;
-		left:0;
-	}
-
 	.aboveTheFold {
-		height: 100vh;
+		height: max(640px, 100vh);
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
@@ -351,12 +361,8 @@ export default class Home extends Vue {
 			right: 10px;
 			font-size: .8em;
 			select{
-				color: @mainColor_light;
 				background: none;
 				border: none;
-				option {
-					color: @mainColor_normal;
-				}
 			}
 		}
 
@@ -380,10 +386,10 @@ export default class Home extends Vue {
 				margin: auto;
 				margin-bottom: 2em;
 				font-style: italic;
-				opacity: .8;
 				font-size: min(2em, 7vw);
 				width: 90%;
-				max-width: 800px;
+				max-width: min(80vw, 800px);
+				line-height: 1.25em;
 			}
 	
 			.loginBt {
@@ -393,15 +399,12 @@ export default class Home extends Vue {
 			}
 	
 			.ctas {
-				// margin-top: calc(1em - .25em);
-				// margin-bottom: 1em;
-				.button:not(:first-child) {
-					margin-left: .5em;
-					margin-top: .5em;
-				}
-				.button {
-					border-radius: 100px;
-				}
+				// background-color: var(--color-primary);
+				// padding: 2em 1em;
+				display: flex;
+				flex-direction: column;
+				gap: .5em;
+				align-items: center;
 			}
 		}
 
@@ -440,10 +443,10 @@ export default class Home extends Vue {
 
 	.sectionsHolder {
 		//draw middle line
-		background: linear-gradient(90deg, fade(@mainColor_light, 100%) 2px, transparent 1px);
+		background: linear-gradient(90deg, var(--color-light) 2px, transparent 1px);
 		background-position: 100% 0;
 		background-repeat: no-repeat;
-		background-size: calc(50% + 1px) calc(100% - 500px);//500px => more or less the .more{} holder's size. Avoids seeing the line behind the text on display transition
+		background-size: calc(50% + 1px) 100%;
 		.splitter {
 			width: 2em;
 			height: 2em;
@@ -451,7 +454,7 @@ export default class Home extends Vue {
 			margin-top: 15vw;
 			background-color: #fff;
 			border-radius: 50%;
-			border: .5em solid @mainColor_dark;
+			border: .5em solid var(--color-dark);
 		}
 	}
 
@@ -468,12 +471,8 @@ export default class Home extends Vue {
 				flex-direction: row-reverse;
 
 				.screen {
-					&.clickToPlay:before {
-						transform: rotateY(-20deg) translate(-40%, -50%)
-					}
 					img, video {
-						transform: rotateY(-20deg) translate(-50%, -50%) scale(1);
-						transform-origin: right center;
+						transform: rotateY(-5deg) translate(-50%, -50%) scale(.9);
 					}
 				}
 			}
@@ -504,7 +503,7 @@ export default class Home extends Vue {
 			flex-direction: row;
 			max-width: 70vw;
 			margin: auto;
-			color: @mainColor_light;
+			color: var(--color-light);
 			align-items: center;
 			position: relative;
 	
@@ -529,7 +528,7 @@ export default class Home extends Vue {
 					top: 50%;
 					left: 50%;
 					transition: all .5s;
-					transform: rotateY(20deg) translate(-70%, -50%)
+					transform: rotateY(0) translate(-50%, -50%)
 				}
 
 				&.clickToPlay {
@@ -542,9 +541,8 @@ export default class Home extends Vue {
 					width: 100%;
 					max-width: 500px;
 					border-radius: .5em;
-					border: 2px solid white;
-					transform: rotateY(20deg) translate(-50%, -50%) scale(.9);
-					transform-origin: left center;
+					transform: rotateY(5deg) translate(-50%, -50%) scale(.9);
+					transform-origin: center center;
 					// max-width: 500px;
 					transition: all .5s;
 					position: absolute;
@@ -556,23 +554,22 @@ export default class Home extends Vue {
 				max-width: 42%;
 				flex-grow: 1;
 				text-align: center;
-				font-size: min(2em, 3vw);
 				z-index: 1;
 				// padding-left: calc(30vw + 1em);
 				h2 {
 					margin-bottom: .5em;
+					font-size: 2em;
 				}
 
 				.description {
-					font-size: .6em;
+					font-size: 1.25em;
 					line-height: 1.25em;
 					
 					:deep(mark) {
-						background-color: @mainColor_normal;
-						border: 1px dashed @mainColor_normal_extralight;
+						background-color: var(--color-secondary);
 						font-size: .8em;
 						border-radius: .5em;
-						padding: 0 .25em;
+						padding: 2px 10px;
 					}
 				}
 			}
@@ -584,14 +581,14 @@ export default class Home extends Vue {
 				padding: 1em 3%;
 				display: block;
 				background-image: url("../assets/img/homepage/grain.png");
-				background-color: @mainColor_dark;
+				background-color: var(--color-dark);
 			}
 		}
 
 		video {
-			cursor:  url("../assets/img/homepage/pause.png"), default;
+			cursor: pointer;
 			&.playing {
-				cursor:  url("../assets/img/homepage/play.png"), default;
+				cursor: url("../assets/img/homepage/pause.png")  25 25, default;
 			}
 		}
 	}
@@ -599,7 +596,7 @@ export default class Home extends Vue {
 	section.more {
 		margin-top: 10vw;
 		background-image: url("../assets/img/homepage/grain.png");
-		background-color: @mainColor_dark;
+		background-color: var(--color-dark);
 		.icon {
 			height: 6em;
 			padding-top: 1em;
@@ -607,16 +604,19 @@ export default class Home extends Vue {
 		}
 		.infos {
 			h2 {
-				font-size: 3vw;
+				font-size: 2em;
 				margin-bottom: .5em;
 			}
 
 			ul {
+				font-size: 1.25em;
 				text-align: left;
 				max-width: 500px;
 				margin: auto;
+				list-style-position: inside;
 				li {
 					margin-bottom: .5em;
+					line-height: 1.25em;
 				}
 			}
 		}
@@ -651,46 +651,49 @@ export default class Home extends Vue {
 
 @media only screen and (max-width: 900px) {
 	.home {
+		padding-left: 2em;
 
 		.aboveTheFold {
 			.middle {
 				.description {
-					width: calc(100% - 2.5em);
+					width: 80vw;
+					font-size: 1.3em;
+					margin-bottom: .5em;
 				}
 				.ctas {
 					margin: auto;
-					width: calc(100% - 4em);
+					width: 80vw;
 				}
 			}
 		}
 		.sectionsHolder {
-			width: calc(100% - 4em);
+			width: 80vw;
 			margin: auto;
-			section, section:nth-of-type(odd) {
+			section:not(.more), section:not(.more):nth-of-type(odd) {
+				font-size: .8em;
 				.content {
 					flex-direction: column-reverse;
+					background-color: var(--color-dark);
 					background-image: url("../assets/img/homepage/grain.png");
-					background-color: @mainColor_dark;
-					max-width: calc(100% - 1em);
+					width: 80vw;
 					padding-bottom: 1em;
 				}
 				.infos {
-					font-size: max(1.8em, 5vw);
-					width: 100%;
-					max-width: 100%;
+					width: 100% !important;
+					max-width: 100% !important;
 					margin-bottom: 1em;
 				}
 				.icon {
 					order: 3;
-					width: 6em;
-					height: 6em;
+					width: 6em !important;
+					height: 6em !important;
 					padding: 1em 0;
 				}
 				.screen {
-					width: 80%;
-					max-width: 80%;
+					width: 80% !important;
+					max-width: 80% !important;
 					img, video {
-						position: relative;
+						position: relative !important;
 						left: 0;
 						right: 0;
 						transform: unset !important;
@@ -702,9 +705,10 @@ export default class Home extends Vue {
 			}
 		}
 		.more {
-			max-width: calc(100% - 1em);
+			max-width: 80vw !important;
 			margin-left:auto;
 			margin-right:auto;
+			font-size: .8em;
 			.icon {
 				order: 3;
 				width: 6em;
@@ -712,18 +716,17 @@ export default class Home extends Vue {
 				padding: 1em 0;
 			}
 			.infos {
-				font-size: max(1.75em, 5vw);
-
-				h2 {
-					font-size: 1em;
-				}
+				max-width: 70vw !important;
+				margin: auto;
+				display: block;
 				ul {
-					font-size: .5em;
-					max-width: 80%;
-					margin-left: 3em;
 					width: fit-content;
 				}
 			}
+		}
+
+		.anchors {
+			font-size: .8em;
 		}
 	}
 }

@@ -1,23 +1,22 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
+import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, type SocketParams } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, type SocketParams, rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
+import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
+import PublicAPI from '@/utils/PublicAPI';
+import SchedulerHelper from '@/utils/SchedulerHelper';
+import TTSUtils from '@/utils/TTSUtils';
+import Utils from '@/utils/Utils';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import DeezerHelper from '@/utils/music/DeezerHelper';
 import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import SpotifyHelperEvent from '@/utils/music/SpotifyHelperEvent';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import PublicAPI from '@/utils/PublicAPI';
-import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import TTSUtils from '@/utils/TTSUtils';
-import Utils from '@/utils/Utils';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodEvent from '@/utils/voice/VoicemodEvent';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
@@ -28,7 +27,6 @@ export const storeMain = defineStore("main", {
 	state: () => ({
 		latestUpdateIndex: 12,
 		initComplete: false,
-		showParams: false,
 		devmode: false,
 		ahsInstaller: null,
 		alertData:"",
@@ -37,6 +35,7 @@ export const storeMain = defineStore("main", {
 		cypherEnabled: false,
 		tempStoreValue: null,
 		confirmData:null,
+		currentOBSScene:"",
 		accessibility:{
 			ariaPolite:"",
 		},
@@ -46,6 +45,7 @@ export const storeMain = defineStore("main", {
 			shake:true,
 			sound:true,
 			blink:false,
+			vibrate:true,
 			permissions:{
 				broadcaster:true,
 				mods:true,
@@ -102,7 +102,7 @@ export const storeMain = defineStore("main", {
 				const res = await fetch(Config.instance.API_PATH+"/configs");
 				jsonConfigs = await res.json();
 			}catch(error) {
-				this.alertData = "Unable to contact server :(";
+				this.alert("Unable to contact server :(");
 				this.initComplete = true;
 				return;
 			}
@@ -110,12 +110,13 @@ export const storeMain = defineStore("main", {
 			
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};
-			for (const cat in sParams.$state) {
-				const values = sParams.$state[cat as TwitchatDataTypes.ParameterCategory];
+			const pointers = [sParams.features, sParams.appearance];
+			for (let i = 0; i < pointers.length; i++) {
+				const values = pointers[i];
 				for (const key in values) {
-					const p = values[key] as TwitchatDataTypes.ParameterData;
+					const p = values[key] as TwitchatDataTypes.ParameterData<unknown>;
 					if(uniqueIdsCheck[p.id as number] === true) {
-						this.alertData = "Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"";
+						this.alert("Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"");
 						break;
 					}
 					uniqueIdsCheck[p.id as number] = true;
@@ -128,7 +129,7 @@ export const storeMain = defineStore("main", {
 				//@ts-ignore
 				const v = TriggerTypes[key];
 				if(uniqueIdsCheck[v] === true) {
-					this.alertData = "Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"";
+					this.alert("Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"");
 					break;
 				}
 				uniqueIdsCheck[v] = true;
@@ -137,23 +138,18 @@ export const storeMain = defineStore("main", {
 			//Authenticate user
 			const token = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 			if(token && authenticate) {
-				const cypherKey = DataStore.get(DataStore.CYPHER_KEY)
+				SpotifyHelper.instance.connect();
+				const cypherKey = DataStore.get(DataStore.CYPHER_KEY);
 				if(cypherKey) {
 					this.cypherKey = cypherKey;
 					ChatCypherPlugin.instance.initialize(cypherKey);
 				}
-				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.CONNECTED, (e:SpotifyHelperEvent)=>{
-					sMusic.setSpotifyToken(e.token!);
-				});
-				SpotifyHelper.instance.addEventListener(SpotifyHelperEvent.ERROR, (e:SpotifyHelperEvent)=>{
-					this.alertData = e.error as string;
-				});
 				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
 					sMusic.setDeezerConnected(true);
 				});
 				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
 					sMusic.setDeezerConnected(false);
-					this.alertData = StoreProxy.i18n.t("error.deezer.auth_failed");//"Deezer authentication failed";
+					this.alert(StoreProxy.i18n.t("error.deezer.auth_failed"));//"Deezer authentication failed";
 				});
 				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
 					//Execute trigger
@@ -203,7 +199,7 @@ export const storeMain = defineStore("main", {
 				
 			}
 
-			//Listen for twitch API event
+			//Listen for twitchat API event
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
 				sTimer.boradcastStates();
 			});
@@ -226,12 +222,19 @@ export const storeMain = defineStore("main", {
 			});
 			
 			if(authenticate) {
-				//Avoid listening for these events on the overlays
+				//Not not listen for these events on the overlays
+				
+				/**
+				 * Called when a raffle animation (the wheel) completes
+				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent)=> {
 					const data = (e.data as unknown) as {winner:TwitchatDataTypes.RaffleEntry};
 					StoreProxy.raffle.onRaffleComplete(data.winner);
 				});
 				
+				/**
+				 * Called when doing a shoutout to the latest raider
+				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
 					const raider = sStream.lastRaider;
 					if(raider) {
@@ -242,6 +245,9 @@ export const storeMain = defineStore("main", {
 					}
 				});
 				
+				/**
+				 * Called when emergency mode is started or stoped
+				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
 					const enable = (e.data as unknown) as {enabled:boolean};
 					let enabled = enable.enabled;
@@ -250,8 +256,134 @@ export const storeMain = defineStore("main", {
 					sEmergency.setEmergencyMode(enabled)
 				});
 			
+				/**
+				 * Called when asking to pick a raffle winner
+				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
 					StoreProxy.raffle.pickWinner();
+				});
+
+				/**
+				 * Called when switching to another scene
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, (event:TwitchatEvent):void => {
+					this.currentOBSScene = (event.data as {sceneName:string}).sceneName;
+					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
+						sceneName:this.currentOBSScene,
+					}
+					TriggerActionHandler.instance.execute(m);
+					rebuildPlaceholdersCache();
+				});
+	
+				/**
+				 * Called when a source visibility is toggled
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SOURCE_TOGGLE, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {item:OBSSourceItem, event:{sceneItemId:number, sceneItemEnabled:boolean, sceneName:string}};
+					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE,
+						sourceName:data.item.sourceName,
+						sourceItemId:data.event.sceneItemId,
+						visible:data.event.sceneItemEnabled,
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
+
+				/**
+				 * Called when a source is muted or unmuted
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_MUTE_TOGGLE, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {inputName:string, inputMuted:boolean};
+					const m:TwitchatDataTypes.MessageOBSInputMuteToggleData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE,
+						inputName:data.inputName,
+						muted:data.inputMuted,
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
+
+				/**
+				 * Called when a filter visibility is toggled
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_TOGGLE, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {sourceName: string, filterName: string, filterEnabled: boolean};
+					const m:TwitchatDataTypes.MessageOBSFilterToggleData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE,
+						sourceName:data.sourceName,
+						filterName:data.filterName,
+						enabled:data.filterEnabled,
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
+
+				/**
+				 * Called when a playback event occurs on a media source
+				 * @param event 
+				 */
+				function onPlayBackStateChanged(event:TwitchatEvent):void {
+					const data = (event.data as unknown) as {inputName:string};
+					const typeToState:Partial<{[key in TwitchatEventType]:TwitchatDataTypes.MessageOBSPlaybackStateValue}> = {};
+					typeToState[TwitchatEvent.OBS_PLAYBACK_ENDED]		= "complete";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_STARTED]		= "start";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_PAUSED]		= "pause";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_NEXT]		= "next";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_PREVIOUS]	= "prev";
+					typeToState[TwitchatEvent.OBS_PLAYBACK_RESTARTED]	= "restart";
+					const m:TwitchatDataTypes.MessageOBSPlaybackStateUpdateData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
+						inputName:data.inputName,
+						state:typeToState[event.type as TwitchatEventType]!,
+					}
+					TriggerActionHandler.instance.execute(m);
+				}
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_STARTED, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PAUSED, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_NEXT, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PREVIOUS, (e) => onPlayBackStateChanged(e));
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_RESTARTED, (e) => onPlayBackStateChanged(e));
+				
+				/**
+				 * Called when an OBS source is renamed.
+				 * Rename it on all triggers
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, (event:TwitchatEvent):void => {
+					const data = event.data as {oldInputName:string, inputName:string};
+					StoreProxy.triggers.renameOBSSource(data.oldInputName, data.inputName);
+				});
+				
+				/**
+				 * Called when an OBS scene is renamed.
+				 * Rename it on all triggers
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, (event:TwitchatEvent):void => {
+					const data = event.data as {oldSceneName:string, sceneName:string};
+					StoreProxy.triggers.renameOBSScene(data.oldSceneName, data.sceneName);
+				});
+
+				/**
+				 * Called when an OBS Filter is renamed.
+				 * Rename it on all triggers
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, (event:TwitchatEvent):void => {
+					const data = event.data as {sourceName: string; oldFilterName: string; filterName: string};
+					StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
 				});
 			}
 
@@ -324,18 +456,21 @@ export const storeMain = defineStore("main", {
 			const obsMuteUnmuteCommands = DataStore.get(DataStore.OBS_CONF_MUTE_UNMUTE);
 			if(obsMuteUnmuteCommands) {
 				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (sOBS.muteUnmuteCommands as unknown) as JsonObject);
+				// sOBS.muteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
 			}
 			
 			//Init OBS permissions
 			const obsCommandsPermissions = DataStore.get(DataStore.OBS_CONF_PERMISSIONS);
 			if(obsCommandsPermissions) {
 				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (sOBS.commandsPermissions as unknown) as JsonObject);
+				// sOBS.commandsPermissions = JSON.parse(obsCommandsPermissions);
 			}
 
 			//Init TTS actions
 			const tts = DataStore.get(DataStore.TTS_PARAMS);
 			if (tts) {
 				Utils.mergeRemoteObject(JSON.parse(tts), (sTTS.params as unknown) as JsonObject);
+				// sTTS.params = JSON.parse(tts);
 				TTSUtils.instance.enabled = sTTS.params.enabled;
 			}
 			
@@ -343,31 +478,36 @@ export const storeMain = defineStore("main", {
 			const emergency = DataStore.get(DataStore.EMERGENCY_PARAMS);
 			if(emergency) {
 				Utils.mergeRemoteObject(JSON.parse(emergency), (sEmergency.params as unknown) as JsonObject);
+				// sEmergency.params = JSON.parse(emergency);
 			}
 			
 			//Init alert actions
 			const alert = DataStore.get(DataStore.ALERT_PARAMS);
 			if(alert) {
 				Utils.mergeRemoteObject(JSON.parse(alert), (this.chatAlertParams as unknown) as JsonObject);
+				// this.chatAlertParams = JSON.parse(alert);
 			}
 			
 			//Init spoiler param
 			const spoiler = DataStore.get(DataStore.SPOILER_PARAMS);
 			if(spoiler) {
 				Utils.mergeRemoteObject(JSON.parse(spoiler), (sChat.spoilerParams as unknown) as JsonObject);
+				// sChat.spoilerParams = JSON.parse(spoiler);
 			}
 			
 			//Init chat highlight params
 			const chatHighlight = DataStore.get(DataStore.CHAT_HIGHLIGHT_PARAMS);
 			if(chatHighlight) {
 				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (sChat.chatHighlightOverlayParams as unknown) as JsonObject);
+				// sChat.chatHighlightOverlayParams = JSON.parse(chatHighlight);
 			}
 			
 			//Init triggers
 			const triggers = DataStore.get(DataStore.TRIGGERS);
 			if(triggers) {
-				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggers as unknown) as JsonObject);
-				TriggerActionHandler.instance.populate(sTriggers.triggers);
+				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggerList as unknown) as JsonObject);
+				// sTriggers.triggerList = JSON.parse(triggers);
+				TriggerActionHandler.instance.populate(sTriggers.triggerList);
 			}
 				
 			//Init stream info presets
@@ -386,6 +526,7 @@ export const storeMain = defineStore("main", {
 			const musicPlayerParams = DataStore.get(DataStore.MUSIC_PLAYER_PARAMS);
 			if(musicPlayerParams) {
 				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (sMusic.musicPlayerParams as unknown) as JsonObject);
+				// sMusic.musicPlayerParams = JSON.parse(musicPlayerParams);
 			}
 			
 			//Init Voice control actions
@@ -407,18 +548,7 @@ export const storeMain = defineStore("main", {
 				//Merge remote and local to avoid losing potential new
 				//default values on local data
 				Utils.mergeRemoteObject(JSON.parse(botMessages), (sChat.botMessages as unknown) as JsonObject, false);
-			}
-
-			//Init spotify connection
-			const spotifyAuthToken = DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
-			if(spotifyAuthToken && Config.instance.SPOTIFY_CLIENT_ID != "") {
-				sMusic.setSpotifyToken(JSON.parse(spotifyAuthToken));
-			}
-
-			//Init spotify credentials
-			const spotifyAppParams = DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
-			if(spotifyAuthToken && spotifyAppParams) {
-				sMusic.setSpotifyCredentials(JSON.parse(spotifyAppParams));
+				// sChat.botMessages = JSON.parse(botMessages);
 			}
 
 			//Init voicemod
@@ -447,6 +577,7 @@ export const storeMain = defineStore("main", {
 			const automodParams = DataStore.get(DataStore.AUTOMOD_PARAMS);
 			if(automodParams) {
 				Utils.mergeRemoteObject(JSON.parse(automodParams), (sAutomod.params as unknown) as JsonObject);
+				// sAutomod.params = JSON.parse(automodParams);
 				sAutomod.setAutomodParams(sAutomod.params);
 			}
 
@@ -463,7 +594,8 @@ export const storeMain = defineStore("main", {
 			//Init automod
 			const countersParams = DataStore.get(DataStore.COUNTERS);
 			if(countersParams) {
-				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.data as unknown) as JsonObject);
+				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.counterList as unknown) as JsonObject);
+				// sCounters.counterList = JSON.parse(countersParams);
 			}
 			
 			//Reload devmode state
@@ -493,7 +625,12 @@ export const storeMain = defineStore("main", {
 			//If OBS params are on URL or if connection is enabled, connect
 			if(sOBS.connectionEnabled && (port != undefined || pass != undefined || ip != undefined)) {
 				sOBS.connectionEnabled = true;
-				OBSWebsocket.instance.connect(port, pass, true, ip);
+				OBSWebsocket.instance.connect(port, pass, true, ip).then(async (res)=> {
+					if(res) {
+						//Preload current OBS scene
+						this.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
+					}
+				});
 			}
 		},
 
@@ -522,8 +659,6 @@ export const storeMain = defineStore("main", {
 		openTooltip(payload:string) { this.tooltip = payload; },
 		
 		closeTooltip() { this.tooltip = ""; },
-		
-		setShowParams(payload:boolean) { this.$state.showParams = payload; },
 		
 		setCypherKey(payload:string) {
 			this.cypherKey = payload;

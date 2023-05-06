@@ -1,27 +1,23 @@
 <template>
 	<div class="scopeselector">
 		<div class="forced" v-if="param_items_requested.length > 0">
-			<img src="@/assets/icons/unlock_purple.svg" class="unlockIcon">
+			<img src="@/assets/icons/unlock.svg" class="unlockIcon">
 			<p class="head">{{ $tc("login.specific_scope", param_items_requested.length) }}</p>
 			<div class="optionList">
-				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :paramData="p" @change="onSelectionUpdate()" />
+				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :secondary="!p.value" :paramData="p" @change="onSelectionUpdate()" noBackground />
 			</div>
 		</div>
 		
-		<Button class="allowMoreBt"
-			v-if="!forceFullList && param_items_requested.length > 0"
-			:title="$t('login.specific_scope_moreBt')"
-			:icon="$image('icons/lock_fit_purple.svg')"
-			small white
-			@click="expandList()" />
+		<Button v-if="!forceFullList && param_items_requested.length > 0"
+			icon="lock_fit"
+			small secondary
+			@click="expandList()">{{ $t('login.specific_scope_moreBt') }}</Button>
 
 		<div ref="permsList" class="permsHolder" v-if="forceFullList || param_items_requested.length == 0">
-			<div class="allBt">
-				<ToggleButton class="bt" v-model="allBt" />
-			</div>
 			<div class="optionList">
-				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items" :paramData="p" @change="onSelectionUpdate()" />
+				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items" :secondary="!p.value" :paramData="p" @change="onSelectionUpdate()" noBackground />
 			</div>
+			<ParamItem class="item all" :paramData="params_all" @change="onSelectionUpdate()" noBackground />
 		</div>
 	</div>
 </template>
@@ -52,15 +48,17 @@ export default class ScopeSelector extends Vue {
 		})
 	public requestedScopes!:TwitchScopesString[];
 
-	public allBt:boolean = true;
+	public buildIndex = 0;
 	public forceFullList:boolean = false;
-	public param_items:TwitchatDataTypes.ParameterData[] = [];
-	public param_items_requested:TwitchatDataTypes.ParameterData[] = [];
+	public params_all:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"login.grant_all"};
+	public param_items:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public param_items_requested:TwitchatDataTypes.ParameterData<boolean>[] = [];
 
 	private debounce:number = -1;
 
-	public getClasses(p:TwitchatDataTypes.ParameterData):string[] {
+	public getClasses(p:TwitchatDataTypes.ParameterData<boolean>):string[] {
 		let res:string[] = [];
+		if(p.value === true) res.push("selected");
 		if(this.requestedScopes?.indexOf(p.storage as TwitchScopesString) > -1) res.push("forced");
 		return res;
 	}
@@ -106,15 +104,15 @@ export default class ScopeSelector extends Vue {
 				});
 			}
 		}
-		this.allBt = allSelected;
+		this.params_all.value = allSelected;
 	}
 
 	public mounted(): void {
-		watch(()=>this.allBt, ()=> {
+		watch(()=>this.params_all.value, ()=> {
 			for (let i = 0; i < this.param_items.length; i++) {
 				const p = this.param_items[i];
 				if(p.disabled === true) continue;
-				p.value = this.allBt;
+				p.value = this.params_all.value;
 			}
 		});
 
@@ -149,9 +147,9 @@ export default class ScopeSelector extends Vue {
 
 <style scoped lang="less">
 .scopeselector{
+	gap: .5em;
 	display: flex;
 	flex-direction: column;
-	gap: .5em;
 	align-items: center;
 
 	.permsHolder {
@@ -159,61 +157,55 @@ export default class ScopeSelector extends Vue {
 	}
 
 	.optionList {
-		max-height: 250px;
+		//Show 8 items and make sure only half of the last item is
+		//visible so the user knows there are more items to scroll
+		max-height: calc(2em * 8.5);
 		overflow: auto;
 		display: flex;
 		flex-wrap: wrap;
 		flex-direction: row;
 		gap: .25em;
 		padding: .25em;
+		margin-bottom: .5em;
 		.item {
-			font-size: .8em;
 			width: 100%;
 			text-align: left;
 			border-radius: .5em;
-			background-color: fade(@mainColor_normal_extralight, 30%);
+			background-color: var(--color-secondary-fader);
 			padding: .25em;
-
-			&.forced {
-				border: 1px solid @mainColor_normal;
+			opacity: .7;
+			transition: all .2s;
+			&.selected {
+				opacity: 1;
+				background-color: var(--color-primary);
 			}
 		}
 	}
 
 	.forced {
-		background-color: fade(@mainColor_normal, 15%);
-		border-radius: .5em;
-		padding: .5em;
-		.head {
-			display: flex;
-			flex-direction: row;
-			font-size: .8em;
-		}
-		.item {
-			background-color: @mainColor_light;
-		}
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
 		.unlockIcon {
 			height: 2em;
-			margin: auto;
-			display: block;
 		}
 	}
 
-	.allowMoreBt {
-		border: 1px solid @mainColor_normal;
-	}
-
-	.allBt {
-		flex-grow: 1;
-		width: 100%;
-		display: flex;
-		padding-right: calc(.25em + 10px);//10px = scrollbar size
-		justify-content: flex-end;
-		.bt {
-			font-size: .8em;
-			margin-right: .25em;
+	.item.all {
+		margin-right: 1.1em;
+		:deep(label) {
+			text-align: right;
 		}
 	}
-	
+}
+
+@media only screen and (max-width: 600px) {
+	.scopeselector{
+
+		.optionList {
+			max-height: 50vh;
+		}
+	}
+
 }
 </style>

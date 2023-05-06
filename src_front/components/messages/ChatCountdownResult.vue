@@ -1,6 +1,6 @@
 <template>
-	<div class="chatcountdownresult">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatcountdownresult chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/countdown.svg" alt="icon" class="icon">
 		<i18n-t scope="global" tag="div" v-if="aborted" keypath="chat.countdown.abort">
 			<template #DURATION><strong>{{messageData.countdown.duration}}</strong></template>
@@ -48,6 +48,5 @@ export default class ChatCountdownResult extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatcountdownresult{
-	.chatMessageHighlight();
 }
 </style>

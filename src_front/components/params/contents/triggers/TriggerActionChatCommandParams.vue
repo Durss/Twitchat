@@ -1,36 +1,39 @@
 <template>
-	<ToggleBlock
-	medium
-	class="TriggerActionchatcommandparams"
-	:open="true"
-	:title="$t('triggers.actions.chat.params_title')"
-	:icons="['params']">
-
-		<ParamItem class="row" :paramData="param_cmd" @focusout="onUpdateCommand()" :error="cmdNameConflict" />
-		<div v-if="cmdNameConflict" class="cmdNameConflict">{{ $t("triggers.actions.chat.conflict") }}</div>
-
-		<ToggleBlock :open="false" class="row" small :title="$t('triggers.actions.chat.allowed_users')">
+	<div class="triggerActionchatcommandparams">
+		<ParamItem noBackground :paramData="param_cmd" v-model="triggerData.chatCommand" @change="onUpdateCommand()"
+			:error="cmdNameConflict"
+			:errorMessage="$t('triggers.actions.chat.conflict')" />
+			
+		<ToggleBlock class="grow permissions" :open="false" :title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium primary>
 			<PermissionsForm v-model="triggerData.permissions" />
 		</ToggleBlock>
-
-		<ToggleBlock :open="false" class="row" small title="Cooldowns" v-if="triggerData.cooldown">
-			<ParamItem class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown.global" />
-			<ParamItem class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown.user" />
-			<ParamItem class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown.alert" />
+		
+		<ToggleBlock class="grow" :icons="['params']" :open="false" title="Paramètres avancés" primary medium>
+			<ParamItem noBackground class="aliases"
+				:paramData="param_cmdAliases"
+				v-model="triggerData.chatCommandAliases"
+				@change="onUpdateCommand()"
+				:error="cmdAliasConflict"
+				:errorMessage="$t('triggers.actions.chat.conflict')" />
+	
+			<ParamItem noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
+			<ParamItem noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
+			<ParamItem noBackground class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown!.alert" />
+			
+			<TriggerActionCommandArgumentParams :triggerData="triggerData" />
 		</ToggleBlock>
-
-	</ToggleBlock>
+	</div>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
-import { watch } from '@vue/runtime-core';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
 import PermissionsForm from '../../../PermissionsForm.vue';
+import ParamItem from '../../ParamItem.vue';
+import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
 
 @Component({
 	components:{
@@ -38,6 +41,7 @@ import PermissionsForm from '../../../PermissionsForm.vue';
 		ParamItem,
 		ToggleBlock,
 		PermissionsForm,
+		TriggerActionCommandArgumentParams,
 	}
 })
 export default class TriggerActionChatCommandParams extends Vue {
@@ -46,12 +50,12 @@ export default class TriggerActionChatCommandParams extends Vue {
 	public triggerData!:TriggerData;
 
 	public cmdNameConflict = false;
-	public param_cmd:TwitchatDataTypes.ParameterData = { type:"string", value:"", icon:"commands_purple.svg", placeholder:"!command" };
-	public param_globalCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, icon:"timeout_purple.svg", min:0, max:60*60*12 };
-	public param_userCD:TwitchatDataTypes.ParameterData = { type:"number", value:0, icon:"timeout_purple.svg", min:0, max:60*60*12 };
-	public param_alertCD:TwitchatDataTypes.ParameterData = { type:"boolean", value:true, icon:"whispers_purple.svg" };
-
-	private originalCmd!:string;
+	public cmdAliasConflict = false;
+	public param_cmd:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"commands.svg", placeholder:"!command", labelKey:"triggers.actions.chat.param_cmd" };
+	public param_cmdAliases:TwitchatDataTypes.ParameterData<string, string> = { type:"editablelist", value:"", icon:"commands.svg", placeholder:"!alias", labelKey:"triggers.actions.chat.param_cmd_alias", tooltipKey:"triggers.actions.chat.param_cmd_alias_tt", maxLength:10 };
+	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout.svg", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
+	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout.svg", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
+	public param_alertCD:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"whispers.svg", labelKey:"triggers.actions.chat.param_alertCD" };
 
 	public beforeMount():void {
 		if(!this.triggerData.permissions) {
@@ -74,79 +78,83 @@ export default class TriggerActionChatCommandParams extends Vue {
 				alert:true,
 			}
 		}
-		
-		this.param_cmd.labelKey		= "triggers.actions.chat.param_cmd";
-		this.param_globalCD.labelKey= "triggers.actions.chat.param_globalCD";
-		this.param_userCD.labelKey	= "triggers.actions.chat.param_userCD";
-		this.param_alertCD.labelKey	= "triggers.actions.chat.param_alertCD";
-
-		this.populate();
-		watch(()=> this.triggerData, ()=> { this.populate(); }, { deep:true });
-	}
-
-	public populate():void {
-		this.param_cmd.value = 
-		this.originalCmd = this.triggerData.name as string;
 	}
 
 	public onUpdateCommand():void {
 		this.cmdNameConflict = false;
-		//If command name has been changed
-		if(this.originalCmd != this.param_cmd.value) {
-			//Make sure no other chat command has the same name
-			const triggers = this.$store("triggers").triggers;
-			for (const k in triggers) {
-				//Is a chat command?
-				if(k.indexOf(TriggerTypes.CHAT_COMMAND+"_") === 0) {
-					const t = triggers[k] as TriggerData;
-					if(t.name?.toLowerCase() == (this.param_cmd.value as string).toLowerCase()) {
-						this.cmdNameConflict = true;
-						return;
+		this.cmdAliasConflict = false;
+
+		//Make sure no other chat command has the same name
+		const triggers = this.$store("triggers").triggerList;
+		const aliases = this.triggerData.chatCommandAliases?.concat().map(v=>v.toLowerCase()).filter(v=>v.length > 0) ?? []
+		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
+		
+		//Check if aliases contain the main command
+		if(mainCmd && aliases.indexOf(mainCmd) > -1) {
+			this.cmdAliasConflict = true;
+			return;
+		}
+		
+		//Check if any other trigger contain the same command
+		let cmdListLocal = aliases.concat();
+		if(mainCmd) cmdListLocal.push(mainCmd);
+		for (let i = 0; i < triggers.length; i++) {
+			if(triggers[i].type == TriggerTypes.CHAT_COMMAND
+			&& triggers[i].id != this.triggerData.id) {
+				//Create an array with main command and aliases concatenated
+				let cmdList = triggers[i].chatCommandAliases?.concat() ?? [];
+				if(triggers[i].chatCommand) cmdList.push(triggers[i].chatCommand!);
+				cmdList.map(v=>v.toLowerCase());
+
+				//Check if trigger contains the main command of the current trigger
+				if(cmdList.findIndex(v=> v === mainCmd) > -1) {
+					this.cmdNameConflict = true;
+				}
+				
+				//Check if trigger contains an alias of the current trigger
+				for (let j = 0; j < aliases.length; j++) {
+					const alias = aliases[j];
+					if(alias && cmdList.findIndex(v=> v === alias) > -1) {
+						this.cmdAliasConflict = true;
 					}
 				}
 			}
-			this.triggerData.prevKey = TriggerTypes.CHAT_COMMAND+"_"+this.triggerData.name;
 		}
-		//This triggers a save event that will clean the previous key
-		//based on the "prevKey" property value
-		this.triggerData.name = this.param_cmd.value as string;
 	}
 
 }
 </script>
 
 <style scoped lang="less">
-.TriggerActionchatcommandparams{
+.triggerActionchatcommandparams{
 
-	.cmdNameConflict {
-		background-color: @mainColor_alert;
-		color: @mainColor_light;
-		text-align: center;
-		margin:auto;
-		display: block;
-		width: 300px;
-		padding: .25em;
-		border-bottom-left-radius: .5em;
-		border-bottom-right-radius: .5em;
+	display: flex;
+	flex-direction: column;
+	gap: .5em;
+
+	.cooldown {
+		:deep(input) {
+			flex-basis: 100px;
+		}
 	}
 
-	.row{
-		margin:auto;
-		max-width: 300px;
-		&:not(:first-child) {
-			margin-top: .5em;
+	.aliases {
+		:deep(.content) {
+			.holder {
+				flex-direction: row;
+				.listField {
+					flex-basis: 300px;
+				}
+			}
 		}
+	}
 
-		.cooldown {
-			&:not(:first-child) {
-				margin-top: .5em;
-			}
-			:deep(input) {
-				width: 75px;
-				flex-grow: unset;
-				min-width: unset;
-			}
-		}
+	.permissions {
+		margin: auto;
+	}
+
+	.grow {
+		width: 100%;
 	}
 }
 </style>

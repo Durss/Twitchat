@@ -7,7 +7,7 @@ export interface SpotifyAuthToken {
 	access_token:string;
 	token_type:string;//Bearer
 	scope:string;
-	expires_at:number;//In seconds
+	expires_at:number;//In milliseconds
 	expires_in:number;//In seconds
 	refresh_token:string;
 }

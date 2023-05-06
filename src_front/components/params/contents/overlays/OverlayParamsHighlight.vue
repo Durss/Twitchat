@@ -1,31 +1,30 @@
-}<template>
-	<ToggleBlock :open="false" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight_purple']">
-		<div class="row">{{ $t("overlay.highlight.head") }}</div>
-		
-		<iframe src="https://www.youtube.com/embed/x9RCqbRm6A8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<template>
+	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight']">
 		
 		<div class="holder">
-			<div class="row">
-				<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
-				<input type="text" id="highlight_overlay_url" v-model="overlayUrl">
-				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-					<div>{{ $t("overlay.highlight.css") }}</div>
-					<ul>
-						<li>#highlight_holder { ... }</li>
-						<li class="sublist">
-							<ul>
-								<li>#highlight_avatar { ... }</li>
-								<li>#highlight_infos { ... }</li>
-								<li class="sublist">
-									<ul>
-										<li>#highlight_login { ... }</li>
-										<li>#highlight_message { ... }</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-					</ul>
-					<ToggleBlock class="cssPositionning" small title="Holder's positionning">
+			<a class="item demoLink" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="demo"></a>
+			
+			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
+			<input type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
+			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
+				<div>{{ $t("overlay.highlight.css") }}</div>
+				<ul class="cssStructure">
+					<li>#highlight_holder { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>#highlight_avatar { ... }</li>
+							<li>#highlight_infos { ... }</li>
+							<li class="sublist">
+								<ul>
+									<li>#highlight_login { ... }</li>
+									<li>#highlight_message { ... }</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+					<ul class="cssStructure">
 						<li>#highlight_holder.position-tl { ... }</li>
 						<li>#highlight_holder.position-t { ... }</li>
 						<li>#highlight_holder.position-tr { ... }</li>
@@ -35,17 +34,19 @@
 						<li>#highlight_holder.position-bl { ... }</li>
 						<li>#highlight_holder.position-b { ... }</li>
 						<li>#highlight_holder.position-br { ... }</li>
-					</ToggleBlock>
-					<ul>
-						<li>#clip_holder { ... }</li>
-						<li class="sublist">
-							<ul>
-								<li>#clip_player { ... }</li>
-								<li>#clip_progressbar { ... }</li>
-							</ul>
-						</li>
 					</ul>
-					<ToggleBlock class="cssPositionning" small title="Holder's positionning">
+				</ToggleBlock>
+				<ul class="cssStructure">
+					<li>#clip_holder { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>#clip_player { ... }</li>
+							<li>#clip_progressbar { ... }</li>
+						</ul>
+					</li>
+				</ul>
+				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+					<ul class="cssStructure">
 						<li>#clip_holder.position-tl { ... }</li>
 						<li>#clip_holder.position-t { ... }</li>
 						<li>#clip_holder.position-tr { ... }</li>
@@ -55,12 +56,12 @@
 						<li>#clip_holder.position-bl { ... }</li>
 						<li>#clip_holder.position-b { ... }</li>
 						<li>#clip_holder.position-br { ... }</li>
-					</ToggleBlock>
+					</ul>
 				</ToggleBlock>
-			</div>
+			</ToggleBlock>
 
-			<div class="row center placement">
-				<p>{{ $t("overlay.highlight.message_pos") }}</p>
+			<div class="card-item item center placement">
+				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
 				<div class="table">
 					<div class="item" :class="placement=='tl'? 'selected' : ''">
 						<input type="radio" v-model="placement" value="tl" id="mazePos_tl">
@@ -101,21 +102,14 @@
 				</div>
 			</div>
 
-			<div class="row center">
-				<div>{{ $t("overlay.highlight.clear_instruction") }}</div>
-				<img src="@/assets/img/clearHighlightedMessage.png" alt="example">
-			</div>
-
-			<div class="row center" v-if="overlayExists">
-				<Button @click="testOverlay()" :title="$t('overlay.highlight.testBt')" :icon="$image('icons/test.svg')" />
+			<div class="item center" v-if="overlayExists">
+				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
 			</div>
 			
-			<div class="row center" v-if="!overlayExists">
-				<span class="error">{{ $t("overlay.highlight.no_overlay") }}</span>
-			</div>
+			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
 			
-			<div class="row footer">
-				<i18n-t tag="div" keypath="overlay.highlight.alternative_tool">
+			<div class="card-item item footer">
+				<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
 					<template #URL>
 						<a href="https://featured.chat" target="_blank">featured.chat</a>
 					</template>
@@ -134,9 +128,10 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -145,6 +140,9 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 	}
 })
 export default class OverlayParamsHighlight extends Vue {
+	
+	@Prop({default:false})
+	public open!:boolean;
 	
 	public overlayExists = false;
 	public placement:TwitchatDataTypes.ScreenPosition = "bl";
@@ -182,6 +180,21 @@ export default class OverlayParamsHighlight extends Vue {
 		})
 	}
 
+	public mounted():void {
+		if(this.open) {
+			setTimeout(()=> {
+				const target = this.$el;
+				//@ts-ignore
+				if(target.scrollIntoViewIfNeeded) {
+					//@ts-ignore
+					target.scrollIntoViewIfNeeded();//Works everywhere but firefox
+				}else{
+					target.scrollIntoView(false);
+				}
+			}, 500);
+		}
+	}
+
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
@@ -195,7 +208,8 @@ export default class OverlayParamsHighlight extends Vue {
 		});
 		
 		const uid = StoreProxy.auth.twitch.user.id;
-		const text = lorem.generateParagraphs(1);
+		const text = lorem.generateParagraphs(1)+" TakeNRG";
+		const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
 		const message:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			platform:"twitch",
@@ -205,8 +219,8 @@ export default class OverlayParamsHighlight extends Vue {
 			answers: [],
 			channel_id:uid,
 			message: text,
-			message_html: text,
-			message_no_emotes: text,
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
 			is_short: false,
 		}
 		this.$store("chat").highlightChatMessageOverlay(message);
@@ -217,30 +231,36 @@ export default class OverlayParamsHighlight extends Vue {
 
 <style scoped lang="less">
 .overlayparamshighlight{
-	iframe {
-		margin:auto;
-		display: block;
-		margin-top: .5em;
-		max-height: 200px;
-		aspect-ratio: 16 / 9;
-	}
 	
 	.holder {
-		margin-top: 1em;
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
+		gap: .5em;
 
-		.row {
+		.demoLink {
+			.demo {
+				.emboss();
+				margin:auto;
+				display: block;
+				max-height: 100px;
+				aspect-ratio: 16 / 9;
+				border-radius: .5em;
+			}
+		}
+
+		input {
+			width: 100%;
+			background-color: var(--color-primary);
+		}
+
+		.item {
 			display: flex;
 			flex-direction: column;
+			border-radius: .5em;
 
 			&.center {
 				align-items: center;
-			}
-
-			.cssPositionning {
-				margin-left: 1.7em;
+				margin: auto;
 			}
 
 			&.placement {
@@ -251,6 +271,7 @@ export default class OverlayParamsHighlight extends Vue {
 					justify-content: center;
 					@btSize: 25px;
 					width: @btSize * 3;
+					margin-top: .5em;
 					.item {
 						width: @btSize;
 						height: @btSize;
@@ -261,9 +282,12 @@ export default class OverlayParamsHighlight extends Vue {
 						border-radius: 5px;
 						background-color: rgba(255, 255, 255, .5);
 						border: 1px solid rgba(0, 0, 0, .15);
+						transition: background-color .2s;
 						&.selected {
-							background-color: @mainColor_normal;
-							color: @mainColor_light;
+							background-color: var(--color-secondary);
+						}
+						&:hover {
+							background-color: var(--color-secondary-light);
 						}
 						label {
 							margin: 0;
@@ -290,12 +314,18 @@ export default class OverlayParamsHighlight extends Vue {
 			}
 			
 			ul {
-				.cssStructure();
 				margin-top: .5em;
 			}
 
 			img {
 				margin-top: .5em;
+			}
+		}
+
+		.cssToggle {
+			width: 100%;
+			.cssPositionning {
+				margin-left: .6em;
 			}
 		}
 	}

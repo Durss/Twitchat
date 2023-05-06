@@ -31,7 +31,8 @@ export const storeChat = defineStore('chat', {
 		pinedMessages: [],
 		whispers: {},
 		emoteSelectorCache: [],
-		
+		replyTo: null,
+		spamingFakeMessages: false,
 		
 		botMessages: {
 			raffleStart: {
@@ -550,10 +551,10 @@ export const storeChat = defineStore('chat', {
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
-				if(!StoreProxy.auth.twitch.user.donor.state===true || StoreProxy.auth.twitch.user.donor.level < 2) {
+				if(StoreProxy.auth.twitch.user.donor.state!==true || StoreProxy.auth.twitch.user.donor.level < 2) {
 					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.SPONSOR);
 				}
-				//Give more chances to hae anything but the "sponsor" ad
+				//Give more chances to have anything but the "sponsor" ad
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
@@ -566,9 +567,9 @@ export const storeChat = defineStore('chat', {
 					//Force last updates if any not read
 					possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
 				}else{
-					//Add 4 empty slots for every content type available
+					//Add 10 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
-					const len = 4*possibleAds.length;
+					const len = 10 * possibleAds.length;
 					for (let i = 0; i < len; i++) possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.NONE);
 				}
 		
@@ -584,6 +585,22 @@ export const storeChat = defineStore('chat', {
 				type:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
 				adType,
 			} );
+		},
+
+		sendRightClickHint():void {
+			StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
+				const m = message as TwitchatDataTypes.MessageChatData;
+				const str = StoreProxy.i18n.t("chat.right_click_hint");
+				const chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);
+				//Highlight word
+				TwitchUtils.highlightChunks( chunks, [StoreProxy.i18n.t("chat.right_click_hint_highlight")]);
+				m.message = str;
+				m.message_chunks = chunks;
+				m.message_html = TwitchUtils.messageChunksToHTML(chunks)
+				m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
+				m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat.svg`, import.meta.url).href;
+				m.user.color = "#bb8eff";
+			});
 		},
 
 		
@@ -608,6 +625,14 @@ export const storeChat = defineStore('chat', {
 				greetedUsers = JSON.parse(history ?? "{}");
 				//Previously they were stored in an array instead of an object, convert it
 				if(Array.isArray(greetedUsers)) greetedUsers = {};
+				const now = Date.now();
+				for (const key in greetedUsers) {
+					if(greetedUsers[key] < now - 24 * 60 * 60 * 1000) {
+						//Old entry, delete it
+						delete greetedUsers[key];
+					}
+				}
+				DataStore.set(DataStore.GREET_HISTORY, greetedUsers);
 			}
 
 			message = reactive(message);
@@ -628,12 +653,11 @@ export const storeChat = defineStore('chat', {
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 						
 					}else {
-						this.flagMessageAsFirstToday(message, message.user);
 
 						//Check if it's an "ad" message
 						if(message.user.id == sAuth.twitch.user.id
 						//Remove eventual /command from the reference message
-						&& this.botMessages.twitchatAd.message.replace(/\/.*? /gi, "") == message.message) {
+						&& this.botMessages.twitchatAd.message.trim().replace(/(\s)+/g, "$1").replace(/\/.*? /gi, "") == message.message.trim().replace(/(\s)+/g, "$1")) {
 							message.is_ad = true;
 						}
 					}
@@ -665,7 +689,8 @@ export const storeChat = defineStore('chat', {
 							if(m.user.id == message.user.id
 							&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
 							&& message.message.toLowerCase() == m.message.toLowerCase()
-							&& message.type == m.type) {
+							&& message.type == m.type
+							&& message.channel_id == m.channel_id) {
 								if(!m.occurrenceCount) m.occurrenceCount = 0;
 								//Remove message
 								messageList.splice(i, 1);
@@ -831,7 +856,6 @@ export const storeChat = defineStore('chat', {
 
 				//Reward redeem
 				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-					this.flagMessageAsFirstToday(message, message.user);
 	
 					//If a raffle is in progress, check if the user can enter
 					const raffle = sRaffle.data;
@@ -847,18 +871,18 @@ export const storeChat = defineStore('chat', {
 				//Incomming raid
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					sStream.lastRaider = message.user;
-					message.user.is_raider = true;
-					if(sParams.features.raidHighlightUser.value) {
+					message.user.channelInfo[message.channel_id].is_raider = true;
+					if(sParams.appearance.raidHighlightUser.value) {
 						StoreProxy.users.trackUser(message.user);
 					}
 					setTimeout(()=> {
 						const localMess = message as TwitchatDataTypes.MessageRaidData;
-						localMess.user.is_raider = false;
-						if(sParams.features.raidHighlightUser.value) {
-							localMess.user.is_tracked = false;
+						localMess.user.channelInfo[localMess.channel_id].is_raider = false;
+						if(sParams.appearance.raidHighlightUser.value) {
 							StoreProxy.users.untrackUser(localMess.user);
 						}
-					}, 5 * 60 * 1000);
+					}, (sParams.appearance.raidHighlightUserDuration.value as number ?? 0) * 1000 * 60);
+
 					break;
 				}
 
@@ -870,8 +894,8 @@ export const storeChat = defineStore('chat', {
 						for (let i = messageList.length-1; i > len; i--) {
 							const m = messageList[i];
 							if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
-							//If the message is a subgift from the same user and happened with the same tier
-							//in the last 5s, merge it.
+							//If the message is a subgift from the same user with the same tier and
+							//happened in the last 5s, merge it.
 							if(m.tier == message.tier && m.user.id == message.user.id
 							&& Date.now() - m.date < 5000) {
 								if(!m.gift_recipients) m.gift_recipients = [];
@@ -916,7 +940,6 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 					
 					sUsers.flagAsFollower(message.user, message.channel_id);
-					this.flagMessageAsFirstToday(message, message.user);
 
 					//Merge all followbot events into one
 					if(message.followbot === true) {
@@ -993,7 +1016,7 @@ export const storeChat = defineStore('chat', {
 
 				//Ban user
 				case TwitchatDataTypes.TwitchatMessageType.BAN: {
-					this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id);
+					this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id, (message as TwitchatDataTypes.MessageBanData).channel_id);
 					break;
 				}
 			}
@@ -1064,6 +1087,12 @@ export const storeChat = defineStore('chat', {
 					}
 				}
 			}
+
+			//Check if it's a greetable message
+			if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+				const mLoc = message as TwitchatDataTypes.GreetableMessage;
+				this.flagMessageAsFirstToday(mLoc, mLoc.user);
+			}
 			
 			//Limit history size
 			const maxMessages = this.realHistorySize;
@@ -1088,24 +1117,18 @@ export const storeChat = defineStore('chat', {
 			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms ("+(e-s)+") to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
-				//If it's a subgift, wait a little before calling the trigger as subgifts do not
+				//If it's a subgift, wait a little before proceeding as subgifts do not
 				//come all at once but sequentially.
 				//We wait a second and check if the count changed, if nothing changed after a second
-				//consider that everything arrived and call the trigger
-				function checkForChange(message:TwitchatDataTypes.MessageSubscriptionData, prevCount:number):void {
-					const recipientCount = message.gift_recipients?.length ?? 0;
-					if(recipientCount != prevCount) {
-						//Wait a little more
-						setTimeout(()=>checkForChange(message, recipientCount), 1000);
-					}else{
-						TriggerActionHandler.instance.execute(message);
-					}
+				//consider that everything arrived and proceed
+				let recipientCount = -1;
+				while(recipientCount != message.gift_recipients!.length){
+					recipientCount = message.gift_recipients!.length;
+					await Utils.promisedTimeout(1000);
 				}
-				checkForChange(message, message.gift_recipients?.length ?? 0);
-			}else{
-				TriggerActionHandler.instance.execute(message);
 			}
-
+			
+			TriggerActionHandler.instance.execute(message);
 			TTSUtils.instance.addMessageToQueue(message);
 		},
 		
@@ -1157,27 +1180,29 @@ export const storeChat = defineStore('chat', {
 			}
 		},
 
-		delUserMessages(uid:string) {
+		delUserMessages(uid:string, channelId:string) {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
-				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& m.user.id == uid
-				&& !m.deleted) {
+				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
+				const mTyped = m as TwitchatDataTypes.GreetableMessage;
+				if(mTyped.user.id == uid
+				&& mTyped.channel_id == channelId
+				&& !mTyped.deleted) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
 						const wsMessage = {
-							channel:m.channel_id,
-							message:m.message,
+							channel:mTyped.channel_id,
+							message:(m.type == "message")? m.message : "",
 							user:{
-								id:m.user.id,
-								login:m.user.login,
-								displayName:m.user.displayName,
+								id:mTyped.user.id,
+								login:mTyped.user.login,
+								displayName:mTyped.user.displayName,
 							}
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 					}, Math.floor(i/5)*50)
 
-					m.deleted = true;
+					mTyped.deleted = true;
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}
@@ -1186,24 +1211,25 @@ export const storeChat = defineStore('chat', {
 		delChannelMessages(channelId:string):void {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
-				if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& m.channel_id == channelId
-				&& !m.deleted) {
+				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
+				const mTyped = m as TwitchatDataTypes.GreetableMessage;
+				if(mTyped.channel_id == channelId
+				&& !mTyped.deleted) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
 						const wsMessage = {
-							channel:m.channel_id,
-							message:m.message,
+							channel:mTyped.channel_id,
+							message:(m.type == "message")? m.message : "",
 							user:{
-								id:m.user.id,
-								login:m.user.login,
-								displayName:m.user.displayName,
+								id:mTyped.user.id,
+								login:mTyped.user.login,
+								displayName:mTyped.user.displayName,
 							}
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 					}, Math.floor(i/5)*50)
 
-					m.deleted = true;
+					mTyped.deleted = true;
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}
@@ -1321,12 +1347,12 @@ export const storeChat = defineStore('chat', {
 			if(lastActivityDate && lastActivityDate + (5 * 60 * 60 * 1000) > Date.now()) return;
 
 			if(greetedUsers[user.id] && greetedUsers[user.id] > Date.now()) return;
-			if(user.channelInfo[message.channel_id].is_blocked === true) return;//Ignore blocked users
+			if(user.is_blocked === true) return;//Ignore blocked users
 
 			message.todayFirst = true;
 			greetedUsers[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
 			DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
-		}
+		},
 	} as IChatActions
 	& ThisType<IChatActions
 		& UnwrapRef<IChatState>

@@ -53,5 +53,6 @@ console.log("\x1b[32m All files compiled to:", dest, "\x1b[0m");
 
 if(process.argv.includes("--pm2")) {
 	//avoid infinite reoot in pm2 execution context
+	//PM2 will watch for label files change and restart the script automatically
 	process.stdin.resume();
 }

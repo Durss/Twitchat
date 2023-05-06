@@ -1,8 +1,9 @@
 {
 	"whispers": {
 		"title": "Chuchotements",
+		"user_list":"Liste des personnes",
 		"cant_send_1": "Impossible d'envoyer le message.",
-		"cant_send_2": "Vous devez être affilié·e pour envoyer des chuchotements hors Twitch.",
+		"cant_send_2": "Vous devez être affilié·e et avoir activé l'authentification à 2 facteurs pour envoyer des chuchotements hors Twitch.",
 		"input_placeholder": "réponse...",
 		"add_scope_bt":"Autoriser l'envoi de réponses"
 	}

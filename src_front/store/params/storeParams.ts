@@ -1,6 +1,6 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
@@ -10,52 +10,68 @@ import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
+		currentPage:"",
+		currentParamSearch:"",
+		currentPageSubContent:"",
+		currentModal:"",
 		greetThemAutoDelete: 600,
 		features: {
-			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show_purple.svg"},
-			alertMode: 					{save:true, type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert_purple.svg"},
-			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"firstTime_purple.svg", example:"greetThem.png"},
-			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read_purple.svg"},
-			conversationsEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.conversationsEnabled", id:202, icon:"conversation_purple.svg", example:"conversation.gif"},
-			userHistoryEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.userHistoryEnabled", id:203, icon:"conversation_purple.svg", example:"userHistory.gif"},
-			lockAutoScroll: 			{save:true, type:"boolean", value:false, labelKey:"params.lockAutoScroll", id:205, icon:"pause_purple.svg"},
-			liveMessages:				{save:true, type:"boolean", value:true, labelKey:"params.liveMessages", id:219, icon:"whispers_purple.svg", example:"liveMessages.png"},
-			liveAlerts:					{save:true, type:"boolean", value:false, labelKey:"params.liveAlerts", id:220, icon:"online_purple.svg", twitch_scopes:[TwitchScopes.LIST_FOLLOWINGS]},
-			showModTools: 				{save:true, type:"boolean", value:true, labelKey:"params.showModTools", id:206, icon:"ban_purple.svg", twitch_scopes:[TwitchScopes.EDIT_BANNED, TwitchScopes.EDIT_BLOCKED, TwitchScopes.DELETE_MESSAGES]},
-			raidHighlightUser: 			{save:true, type:"boolean", value:true, labelKey:"params.raidHighlightUser", id:209, icon:"raid_purple.svg", example:"raidHighlightUser.png"},
-			firstUserBadge: 			{save:true, type:"boolean", value:true, labelKey:"params.firstUserBadge", id:221, icon:"new_purple.svg", example:"firstUserBadge.png"},
-			raffleHighlightUser:		{save:true, type:"boolean", value:true, labelKey:"params.raffleHighlightUser", id:218, icon:"ticket_purple.svg", example:"raidHighlightUser.png"},
-			groupIdenticalMessage:		{save:true, type:"boolean", value:true, labelKey:"params.groupIdenticalMessage", id:208, icon:"increment_purple.svg", example:"groupIdenticalMessage.gif"},
-			offlineEmoteOnly:			{save:true, type:"boolean", value:false, labelKey:"params.offlineEmoteOnly", id:214, icon:"emote_purple.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]},
-			stopStreamOnRaid:			{save:true, type:"boolean", value:false, labelKey:"params.stopStreamOnRaid", id:212, icon:"obs_purple.svg", twitch_scopes:[TwitchScopes.START_RAID]},
-			showUserPronouns:			{save:true, type:"boolean", value:false, labelKey:"params.showUserPronouns", id:213, icon:"user_purple.svg"},
-			chatShoutout:				{save:true, type:"boolean", value:false, labelKey:"params.chatShoutout", id:215, icon:"shoutout_purple.svg"},
+			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show.svg"},
+			alertMode: 					{save:true, type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert.svg"},
+			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand.svg", example:"greetThem.png"},
+			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read.svg"},
+			conversationsEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.conversationsEnabled", id:202, icon:"conversation.svg", example:"conversation.gif"},
+			userHistoryEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.userHistoryEnabled", id:203, icon:"conversation.svg", example:"userHistory.gif"},
+			lockAutoScroll: 			{save:true, type:"boolean", value:false, labelKey:"params.lockAutoScroll", id:205, icon:"pause.svg"},
+			liveMessages:				{save:true, type:"boolean", value:true, labelKey:"params.liveMessages", id:219, icon:"whispers.svg", example:"liveMessages.png"},
+			liveAlerts:					{save:true, type:"boolean", value:false, labelKey:"params.liveAlerts", id:220, icon:"online.svg", twitch_scopes:[TwitchScopes.LIST_FOLLOWINGS]},
+			showModTools: 				{save:true, type:"boolean", value:true, labelKey:"params.showModTools", id:206, icon:"ban.svg", twitch_scopes:[TwitchScopes.EDIT_BANNED, TwitchScopes.EDIT_BLOCKED, TwitchScopes.DELETE_MESSAGES]},
+			firstUserBadge: 			{save:true, type:"boolean", value:true, labelKey:"params.firstUserBadge", id:221, icon:"sub.svg", example:"firstUserBadge.png"},
+			raffleHighlightUser:		{save:true, type:"boolean", value:true, labelKey:"params.raffleHighlightUser", id:218, icon:"ticket.svg", example:"raidHighlightUser.png"},
+			raffleHighlightUserDuration:{save:true, type:"number", value:5, labelKey:"params.raffleHighlightUserDuration", id:223, icon:"timer.svg", parent:218, min:1, max:60*24*30},
+			groupIdenticalMessage:		{save:true, type:"boolean", value:true, labelKey:"params.groupIdenticalMessage", id:208, icon:"increment.svg", example:"groupIdenticalMessage.gif"},
+			offlineEmoteOnly:			{save:true, type:"boolean", value:false, labelKey:"params.offlineEmoteOnly", id:214, icon:"emote.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]},
+			stopStreamOnRaid:			{save:true, type:"boolean", value:false, labelKey:"params.stopStreamOnRaid", id:212, icon:"obs.svg", twitch_scopes:[TwitchScopes.START_RAID]},
+			showUserPronouns:			{save:true, type:"boolean", value:false, labelKey:"params.showUserPronouns", id:213, icon:"user.svg"},
+			chatShoutout:				{save:true, type:"boolean", value:false, labelKey:"params.chatShoutout", id:215, icon:"shoutout.svg"},
 		},
 		appearance: {
-			splitViewVertical: 			{save:true, type:"boolean", value:false, labelKey:"params.splitViewVertical", id:21, icon:"layout_purple.svg", example:"verticalLayout.png"},
-			censorDeletedMessages: 		{save:true, type:"boolean", value:true, labelKey:"params.censorDeletedMessages", id:25, icon:"hide_purple.svg"},
-			highlightMods: 				{save:true, type:"boolean", value:true, labelKey:"params.highlightMods", id:9, icon:"mod_purple.svg"},
-			highlightVips: 				{save:true, type:"boolean", value:false, labelKey:"params.highlightVips", id:10, icon:"vip_purple.svg"},
-			highlightSubs: 				{save:true, type:"boolean", value:false, labelKey:"params.highlightSubs", id:11, icon:"sub_purple.svg"},
-			highlightPartners: 			{save:true, type:"boolean", value:false, labelKey:"params.highlightPartners", id:26, icon:"partner_purple.svg"},
-			highlightMentions: 			{save:true, type:"boolean", value:true, labelKey:"params.highlightMentions", id:1, icon:"broadcaster_purple.svg"},
-			highlightNonFollowers: 		{save:true, type:"boolean", value:false, labelKey:"params.highlightNonFollowers", id:16, icon:"unfollow_purple.svg", example:"nofollow.png", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS]},
-			highlight1stToday: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stToday", id:28, icon:"hand_purple.svg"},
-			translateNames:				{save:true, type:"boolean", value:true, labelKey:"params.translateNames", id:22, icon:"translate_purple.svg", example:"translate.png"},
-			showRewardsInfos: 			{save:true, type:"boolean", value:false, labelKey:"params.showRewardsInfos", id:23, icon:"channelPoints_purple.svg", example:"rewardDetails.png"},
-			showViewersCount: 			{save:true, type:"boolean", value:true, labelKey:"params.showViewersCount", id:17, icon:"user_purple.svg"},
-			showEmotes: 				{save:true, type:"boolean", value:true, labelKey:"params.showEmotes", id:2, icon:"emote_purple.svg"},
-			bttvEmotes: 				{save:true, type:"boolean", value:false, labelKey:"params.bttvEmotes", id:3, icon:"emote_purple.svg", parent:2},
-			ffzEmotes: 					{save:true, type:"boolean", value:false, labelKey:"params.ffzEmotes", id:19, icon:"emote_purple.svg", parent:2},
-			sevenTVEmotes: 				{save:true, type:"boolean", value:false, labelKey:"params.sevenTVEmotes", id:20, icon:"emote_purple.svg", parent:2},
-			showBadges: 				{save:true, type:"boolean", value:true, labelKey:"params.showBadges", id:4, icon:"badge_purple.svg"},
+			splitViewVertical: 			{save:true, type:"boolean", value:false, labelKey:"params.splitViewVertical", id:21, icon:"layout.svg", example:"verticalLayout.png"},
+			censorDeletedMessages: 		{save:true, type:"boolean", value:true, labelKey:"params.censorDeletedMessages", id:25, icon:"hide.svg"},
+			highlightMods: 				{save:true, type:"boolean", value:true, labelKey:"params.highlightMods", id:9, icon:"mod.svg"},
+			highlightMods_color:		{save:true, type:"color", value:"#00a865", labelKey:"params.highlightColor", id:29, parent:9},
+			highlightVips: 				{save:true, type:"boolean", value:false, labelKey:"params.highlightVips", id:10, icon:"vip.svg"},
+			highlightVips_color:		{save:true, type:"color", value:"#db00b3", labelKey:"params.highlightColor", id:30, parent:10},
+			highlightSubs: 				{save:true, type:"boolean", value:false, labelKey:"params.highlightSubs", id:11, icon:"sub.svg"},
+			highlightSubs_color:		{save:true, type:"color", value:"#528bff", labelKey:"params.highlightColor", id:31, parent:11},
+			highlightPartners: 			{save:true, type:"boolean", value:false, labelKey:"params.highlightPartners", id:26, icon:"partner.svg"},
+			highlightPartners_color:	{save:true, type:"color", value:"#9147ff", labelKey:"params.highlightColor", id:32, parent:26},
+			highlightMentions: 			{save:true, type:"boolean", value:true, labelKey:"params.highlightMentions", id:1, icon:"broadcaster.svg"},
+			highlightMentions_color:	{save:true, type:"color", value:"#adadb8", labelKey:"params.highlightColor", id:33, parent:1},
+			raidHighlightUser: 			{save:true, type:"boolean", value:true, labelKey:"params.raidHighlightUser", id:34, icon:"raid.svg", example:"raidHighlightUser.png"},
+			raidHighlightUser_color:	{save:true, type:"color", value:"#f5f500", labelKey:"params.highlightColor", id:36, parent:34},
+			raidHighlightUserDuration:	{save:true, type:"number", value:5, labelKey:"params.raidHighlightUserDuration", id:35, icon:"timer.svg", parent:34, min:1, max:60*24*30},
+			highlight1stEver: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stEver", id:37, icon:"firstTime.svg"},
+			highlight1stEver_color:		{save:true, type:"color", value:"#ff75e6", labelKey:"params.highlightColor", id:38, parent:37},
+			highlight1stToday: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stToday", id:28, icon:"hand.svg"},
+			highlight1stToday_color:	{save:true, type:"color", value:"#82D408", labelKey:"params.highlightColor", id:39, parent:28},
+			highlightNonFollowers: 		{save:true, type:"boolean", value:false, labelKey:"params.highlightNonFollowers", id:16, icon:"unfollow.svg", example:"nofollow.png", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS]},
+			translateNames:				{save:true, type:"boolean", value:true, labelKey:"params.translateNames", id:22, icon:"translate.svg", example:"translate.png"},
+			showRewardsInfos: 			{save:true, type:"boolean", value:false, labelKey:"params.showRewardsInfos", id:23, icon:"channelPoints.svg", example:"rewardDetails.png"},
+			showViewersCount: 			{save:true, type:"boolean", value:true, labelKey:"params.showViewersCount", id:17, icon:"user.svg"},
+			showEmotes: 				{save:true, type:"boolean", value:true, labelKey:"params.showEmotes", id:2, icon:"emote.svg"},
+			bttvEmotes: 				{save:true, type:"boolean", value:false, labelKey:"params.bttvEmotes", id:3, icon:"emote.svg", parent:2},
+			ffzEmotes: 					{save:true, type:"boolean", value:false, labelKey:"params.ffzEmotes", id:19, icon:"emote.svg", parent:2},
+			sevenTVEmotes: 				{save:true, type:"boolean", value:false, labelKey:"params.sevenTVEmotes", id:20, icon:"emote.svg", parent:2},
+			showBadges: 				{save:true, type:"boolean", value:true, labelKey:"params.showBadges", id:4, icon:"badge.svg"},
 			minimalistBadges: 			{save:true, type:"boolean", value:false, labelKey:"params.minimalistBadges", id:5, parent:4, example:"minibadges.png"},
-			displayTime: 				{save:true, type:"boolean", value:false, labelKey:"params.displayTime", id:6, icon:"timeout_purple.svg"},
-			displayTimeRelative: 		{save:true, type:"boolean", value:false, labelKey:"params.displayTimeRelative", id:27, icon:"timeout_purple.svg", parent:6},
-			dyslexicFont: 				{save:true, type:"boolean", value:false, labelKey:"params.dyslexicFont", id:24, icon:"font_purple.svg"},
+			displayTime: 				{save:true, type:"boolean", value:false, labelKey:"params.displayTime", id:6, icon:"timeout.svg"},
+			displayTimeRelative: 		{save:true, type:"boolean", value:false, labelKey:"params.displayTimeRelative", id:27, icon:"timeout.svg", parent:6},
+			dyslexicFont: 				{save:true, type:"boolean", value:false, labelKey:"params.dyslexicFont", id:24, icon:"font.svg"},
 			defaultSize: 				{save:true, type:"slider", value:4, labelKey:"params.defaultSize", min:1, max:20, step:1, id:12},
 		},
 		chatColumnsConfig:[
@@ -100,6 +116,7 @@ export const storeParams = defineStore('params', {
 					twitchat_ad: false,
 					subscription: false,
 					stream_online: false,
+					user_watch_streak:false,
 					hype_train_summary: false,
 					hype_train_cooled_down: false,
 					community_boost_complete: false,
@@ -162,6 +179,7 @@ export const storeParams = defineStore('params', {
 					twitchat_ad: true,
 					subscription: true,
 					stream_online: true,
+					user_watch_streak:true,
 					hype_train_summary: true,
 					hype_train_cooled_down: true,
 					community_boost_complete: true,
@@ -204,21 +222,21 @@ export const storeParams = defineStore('params', {
 					const v = this[c][key as TwitchatDataTypes.ParameterCategory].value;
 					DataStore.set("p:"+key, v);
 					if(key=="bttvEmotes") {
-						if(v === true) {
+						if(v === true && this.appearance.showEmotes.value === true) {
 							BTTVUtils.instance.enable();
 						}else{
 							BTTVUtils.instance.disable();
 						}
 					}
 					if(key=="ffzEmotes") {
-						if(v === true) {
+						if(v === true && this.appearance.showEmotes.value === true) {
 							FFZUtils.instance.enable();
 						}else{
 							FFZUtils.instance.disable();
 						}
 					}
 					if(key=="sevenTVEmotes") {
-						if(v === true) {
+						if(v === true && this.appearance.showEmotes.value === true) {
 							SevenTVUtils.instance.enable();
 						}else{
 							SevenTVUtils.instance.disable();
@@ -274,6 +292,7 @@ export const storeParams = defineStore('params', {
 					twitchat_ad:false,
 					subscription:false,
 					stream_online: false,
+					user_watch_streak:false,
 					hype_train_summary:false,
 					hype_train_cooled_down:false,
 					community_boost_complete:false,
@@ -329,7 +348,7 @@ export const storeParams = defineStore('params', {
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
 		},
 
-		moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:number):void {
+		moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:-1|1):void {
 			const newPos = column.order + direction;
 			for (let i = 0; i < this.chatColumnsConfig.length; i++) {
 				const c = this.chatColumnsConfig[i];
@@ -351,6 +370,32 @@ export const storeParams = defineStore('params', {
 			//two identical entries as it only displays minutes, not seconds
 			this.greetThemAutoDelete = Math.round(value/60)*60;
 		},
+
+		closeParameters():void { this.currentPage = ""; this.currentParamSearch = ""; },
+
+		openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void {
+			this.currentPageSubContent = subContent ?? "";
+			this.currentPage = value;
+		},
+
+		searchParam(search:string):void { this.currentParamSearch = search; },
+
+		searchParamByPath(path:string):void {
+			const chunks = path.split(".");
+			let root = this.$state;
+			while(chunks.length > 0) {
+				//@ts-ignore
+				root = root[chunks.shift()];
+			}
+			this.currentParamSearch = StoreProxy.i18n.t(((root as unknown) as TwitchatDataTypes.ParameterData<unknown>).labelKey!);
+		},
+
+		openModal(modal:TwitchatDataTypes.ModalTypes):void {
+			if(this.currentModal == modal) this.closeModal();
+			else this.currentModal = modal;
+		},
+
+		closeModal():void { this.currentModal = "" },
 	} as IParamsActions
 	& ThisType<IParamsActions
 		& UnwrapRef<IParamsState>

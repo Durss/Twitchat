@@ -1,6 +1,5 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -9,10 +8,11 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ICountersActions, ICountersGetters, ICountersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 
 export const storeCounters = defineStore('counters', {
 	state: () => ({
-		data: [],
+		counterList: [],
 	} as ICountersState),
 
 
@@ -26,46 +26,59 @@ export const storeCounters = defineStore('counters', {
 
 	actions: {
 		addCounter(data:TwitchatDataTypes.CounterData):void {
-			this.data.push(data);
-			DataStore.set(DataStore.COUNTERS, this.data);
+			this.counterList.push(data);
+			DataStore.set(DataStore.COUNTERS, this.counterList);
+			rebuildPlaceholdersCache();
 		},
+
 		updateCounter(data:TwitchatDataTypes.CounterData):void {
-			for (let i = 0; i < this.data.length; i++) {
-				if(this.data[i].id == data.id) {
+			for (let i = 0; i < this.counterList.length; i++) {
+				if(this.counterList[i].id == data.id) {
 					if(data.perUser) {
-						data.users = this.data[i].users;
+						//Backup users to the new instance
+						data.users = this.counterList[i].users;
 					}else{
 						delete data.users;
 					}
-					this.data.splice(i, 1, data);
+					//If placeholder has been updated, update it on all triggers
+					if((data.placeholderKey ?? "").toLowerCase() != (this.counterList[i].placeholderKey ?? "").toLowerCase()) {
+						StoreProxy.triggers.renameCounterPlaceholder(this.counterList[i].placeholderKey, data.placeholderKey);
+					}
+					//Delete old, add new
+					this.counterList.splice(i, 1, data);
 					break;
 				}
 			}
-			DataStore.set(DataStore.COUNTERS, this.data);
+			DataStore.set(DataStore.COUNTERS, this.counterList);
 
 			if(!data.perUser) {
 				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:data} as unknown as JsonObject);
 			}
+			rebuildPlaceholdersCache();
 		},
 		
 		delCounter(data:TwitchatDataTypes.CounterData):void {
-			for (let i = 0; i < this.data.length; i++) {
-				if(this.data[i].id == data.id) {
-					this.data.splice(i, 1);
+			for (let i = 0; i < this.counterList.length; i++) {
+				if(this.counterList[i].id == data.id) {
+					this.counterList.splice(i, 1);
 					break;
 				}
 			}
-			DataStore.set(DataStore.COUNTERS, this.data);
-			//Delete triggers related to the counter
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_ADD+"_"+data.id);
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_DEL+"_"+data.id);
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_LOOPED+"_"+data.id);
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_MAXED+"_"+data.id);
-			StoreProxy.triggers.deleteTrigger(TriggerTypes.COUNTER_MINED+"_"+data.id);
+			DataStore.set(DataStore.COUNTERS, this.counterList);
+
+			//Delete triggers related to the deleted counter
+			const triggers = StoreProxy.triggers.triggerList;
+			for (let i = 0; i < triggers.length; i++) {
+				const t = triggers[i];
+				if(t.counterId === data.id){
+					StoreProxy.triggers.deleteTrigger(t.id);
+				}
+			}
+			rebuildPlaceholdersCache();
 		},
 
 		increment(id:string, addedValue:number, user?:TwitchatDataTypes.TwitchatUser):void {
-			const c = this.data.find(v=>v.id == id);
+			const c = this.counterList.find(v=>v.id == id);
 			if(!c) return;
 			let value = c.value;
 			if(c.perUser && user) {
@@ -82,11 +95,13 @@ export const storeCounters = defineStore('counters', {
 				platform:"twitchat",
 				value,
 				added: addedValue,
+				added_abs: Math.abs(addedValue),
 				looped:false,
 				maxed:false,
 				mined:false,
 				user,
 			};
+			
 			if(c.max !== false && value >= c.max) {
 				if(value > c.max && c.loop) {
 					const min = c.min || 0;
@@ -120,7 +135,7 @@ export const storeCounters = defineStore('counters', {
 			message.value = value;
 
 			StoreProxy.chat.addMessage(message);
-			DataStore.set(DataStore.COUNTERS, this.data);
+			DataStore.set(DataStore.COUNTERS, this.counterList);
 
 			if(!c.perUser) {
 				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:c});

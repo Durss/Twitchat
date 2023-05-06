@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 		<span class="message" v-html="message"></span>
@@ -21,7 +21,7 @@ export default class ChatNotice extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageNoticeData;
 	
-	public icon = "infos";
+	public icon = "secondary/info";
 
 	/**
 	 * Gets text message with parsed emotes
@@ -35,18 +35,22 @@ export default class ChatNotice extends AbstractChatMessage {
 	}
 
 	public get classes():string[] {
-		let res = ["chatnotice"];
+		let res = ["chatnotice", "chatMessage"];
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_ERROR) res.push("alert");
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE) {
 			res.push("shield");
 			if((this.messageData as TwitchatDataTypes.MessageShieldMode).enabled) {
-				res.push("enabled");
+				res.push("highlight", "alert");
+			}else{
+				res.push("highlight", "primary");
 			}
 		}
 		if(this.messageData.noticeId == TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE) {
 			res.push("emergency");
 			if((this.messageData as TwitchatDataTypes.MessageEmergencyModeInfo).enabled) {
-				res.push("enabled");
+				res.push("highlight", "alert");
+			}else{
+				res.push("highlight", "primary");
 			}
 		}
 		return res;
@@ -64,47 +68,10 @@ export default class ChatNotice extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatnotice{
-	.chatMessage();
-
-	.message {
-		font-style: italic;
-		opacity: .7;
-		color: @mainColor_warn;
-
-		:deep(mark) {
-			margin: 0 .2em;
-			color: lighten(@mainColor_warn, 15%);
-		}
-	}
-
-	&.emergency, &.shield {
-		padding: .5em;
-		border-radius: .5em;
-		background-color: rgba(255, 255, 255, .15);
-		&:hover {
-			background-color: rgba(255, 255, 255, .25);
-		}
-		&.enabled {
-			background-color: @mainColor_alert;
-			&:hover {
-				background-color: @mainColor_alert_light;
-			}
-		}
+	&:not(.emergency, .shield) {
 		.message {
-			color: @mainColor_light;
-			opacity: 1;
-			:deep(mark) {
-				color: inherit;
-			}
-		}
-	}
-
-	&.alert {
-		.message {
-			color: @mainColor_alert;
-			:deep(mark) {
-				color: lighten(@mainColor_alert, 10%);
-			}
+			font-style: italic;
+			color: var(--color-secondary);
 		}
 	}
 }

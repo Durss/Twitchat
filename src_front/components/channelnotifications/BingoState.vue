@@ -1,36 +1,44 @@
 <template>
-	<div class="bingostate">
-		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state_title") }}</h1>
+	<div class="bingostate gameStateWindow">
+		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state.title") }}</h1>
 
-		<div class="item number highlight" v-if="bingoData.guessNumber">
-			<p>{{ $t("bingo.find_number") }}</p>
+		<div class="item card-item winners primary" v-if="bingoData.winners && bingoData.winners.length > 0">
+			<div class="header">
+				<p>{{ $t("raffle.state_winners") }}</p>
+			</div>
+			<div class="entries">
+				<Button v-for="w in bingoData.winners" :key="w.id"
+				small secondary
+				type="link"
+				target="_blank"
+				:href="'https://twitch.tv/'+w.login"
+				@click.prevent="openUserCard(w)">{{ w.displayName }}</Button>
+			</div>
+		</div>
+
+		<div class="goal" v-if="bingoData.guessNumber">
+			<div class="header">
+				<div class="title">{{ $t("bingo.state.find_number") }}</div>
+			</div>
 			<strong class="guess">{{bingoData.numberValue}}</strong>
 		</div>
 		
-		<div class="item emote highlight" v-if="bingoData.guessEmote">
-			<strong>{{ $t("bingo.find_emote") }}</strong>
-			<img :src="bingoData.emoteValue?.twitch?.image.hd">
+		<div class="goal" v-else-if="bingoData.guessEmote">
+			<div class="header">
+				<div class="title">{{ $t("bingo.state.find_emote") }}</div>
+			</div>
+			<img class="emote" :src="bingoData.emoteValue?.twitch?.image.hd">
 			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
 		</div>
 		
-		<div class="item emote highlight" v-if="bingoData.guessCustom">
-			<strong>{{ $t("bingo.find_custom") }}</strong>
+		<div class="goal" v-if="bingoData.guessCustom">
+			<div class="header">
+				<div class="title">{{ $t("bingo.state.find_custom") }}</div>
+			</div>
 			<span class="guess">{{bingoData.customValue}}</span>
 		</div>
 
-		<div class="item winner" v-if="bingoData.winners && bingoData.winners.length > 0">
-			🎉 {{bingoData.winners[0].displayName}} 🎉
-		</div>
-
-		<PostOnChatParam class="item postChat highlight" botMessageKey="bingo"
-			:placeholders="winnerPlaceholders" 
-			titleKey="global.post_winner" />
-
-		<Button class="item"
-			:icon="$image('icons/cross_white.svg')"
-			:title="$t('bingo.closeBt')"
-			highlight
-			@click="closeBingo()" />
+		<Button @click="closeBingo()" alert>{{ $t('bingo.state.closeBt') }}</Button>
 	</div>
 </template>
 
@@ -38,13 +46,12 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 @Component({
 	components:{
 		Button,
-		PostOnChatParam,
-	}
+	},
+	emits:["close"]
 })
 export default class BingoState extends Vue {
 
@@ -61,52 +68,47 @@ export default class BingoState extends Vue {
 		this.$emit("close");
 	}
 
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser | null):void {
+		if(!user) return;
+		this.$store("users").openUserCard(user);
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .bingostate{
-	.gameStateWindow();
 
-	.emote, .number {
+	.goal {
+		.emboss();
+		padding: .5em;
+		border-radius: var(--border-radius);
+		background-color: var(--color-secondary);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		color: @mainColor_normal;
-		
+		gap: .5em;
 		.guess {
-			margin-top: .25em;
 			font-size: 1.5em;
 		}
-
-		img {
-			height: 2em;
-			margin-top: .5em;
-			object-fit: contain;
+		.emote {
+			height: 4em;
+			object-fit: fill;
 			transition: transform .25s;
 			&:hover {
-				transform: scale(2.5);
+				transform: scale(2);
 			}
 		}
-
 		.code {
 			font-style: italic;
 			font-size: .8em;
-			margin-top: .5em;
 		}
 	}
 
-	.postChat {
-		max-width: 320px;
-		font-size: .8em;
-		color: @mainColor_normal;
-	}
-
 	.winner {
-		background: @mainColor_light;
-		padding: .2em .5em;
-		border-radius: .5em;
-		color: @mainColor_normal;
+		background: var(--color-secondary);
+		padding: 1em;
+		border-radius: var(--border-radius);
 		font-weight: bold;
 	}
 

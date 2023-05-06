@@ -1,8 +1,12 @@
 <template>
-	<component :is="nodeType" class="infinitelist" @wheel="onWheel($event)">
+	<component :is="nodeType"
+	:style="holderStyles"
+	:class="holderClasses"
+	@wheel="onWheel($event)">
 		<div v-for="(item, index) in items" :key="index" class="list-item"
 		:style="getStyles(index)">
 			<slot
+				v-if="item.data"
 				:item="item.data"
 				:index="index">
 			</slot>
@@ -61,6 +65,11 @@ export default class InfiniteList extends Vue {
 		})
 	public noScrollbar!:boolean;
 	@Prop({
+			type:Boolean,
+			default:false
+		})
+	public fillWithDuplicates!:boolean;
+	@Prop({
 			type: [Array],
 			default: [],
 			required: true,
@@ -79,6 +88,7 @@ export default class InfiniteList extends Vue {
 	private draggingListOffset:number = 0;
 	private draggingCursor:boolean = false;
 	private disposed:boolean = false;
+	private canScroll:boolean = true;
 	private trackPressed:boolean = false;
 	private dragStartHandler!:(e:MouseEvent|TouchEvent) => void;
 	private dragHandler!:(e:MouseEvent|TouchEvent) => void;
@@ -92,6 +102,21 @@ export default class InfiniteList extends Vue {
 		};
 	}
 
+	public get holderClasses():string[] {
+		let res = ["infinitelist"];
+		if(!this.showScrollbar) res.push("noScroll");
+		return res;
+	}
+
+	public get holderStyles():StyleValue {
+		if(this.fillWithDuplicates === false) {
+			return {
+				height:this.dataset.length * (this.itemSize + this.itemMargin) + 1 + "px",
+			}
+		}
+		return {};
+	}
+
 	public get cursorStyles():StyleValue {
 		return {
 			top:this.cursorY+"px",
@@ -99,7 +124,7 @@ export default class InfiniteList extends Vue {
 		}
 	}
 
-	public get showScrollbar():boolean { return this.noScrollbar === false; }
+	public get showScrollbar():boolean { return this.noScrollbar === false && this.canScroll; }
 
 	public mounted():void {
 		this.scrollOffset_local = this.scrollOffset;
@@ -108,8 +133,8 @@ export default class InfiniteList extends Vue {
 			this.scrollOffset_local = this.scrollOffset;
 		});
 		
-		if(this.showScrollbar){
-			const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
+		const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
+		if(scrollbar){
 			const scrollbarCursor = this.$refs["cursor"] as HTMLDivElement;
 
 			this.dragStartListHandler = (e:TouchEvent) => this.ondragStartList(e);
@@ -132,8 +157,8 @@ export default class InfiniteList extends Vue {
 
 	public beforeUnmount(): void {
 		this.disposed = true;
-		if(this.showScrollbar){
-			const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
+		const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
+		if(scrollbar){
 			const scrollbarCursor = this.$refs["cursor"] as HTMLDivElement;
 			
 			scrollbar.addEventListener("mousedown", this.dragStartHandler);
@@ -216,19 +241,25 @@ export default class InfiniteList extends Vue {
 		}
 
 		const ih = (this.itemSize + this.itemMargin);
+		
+		this.canScroll = this.fillWithDuplicates !== false || this.dataset.length*ih > bounds.height;
+		const vPos = this.canScroll? this.scrollOffset_local_eased : 0;
+		
 		for (let i = 0; i < this.items.length; i++) {
 			const len = this.items.length;
-			let index:number = (i - this.scrollOffset_local_eased/ih)%len;
+			let index:number = (i - vPos/ih)%len;
 			if(index < -1) index += len;
 			let py:number = index * ih;
 			py -= ih;//offset all from one item to top to avoid a gap when scrolling to top	
 			
-			let dataIndex:number = Math.round((py+this.scrollOffset_local_eased)/ih);
-			dataIndex = dataIndex % this.dataset.length;
-			if(dataIndex < 0) dataIndex += this.dataset.length;
+			let dataIndex:number = Math.round((py+vPos)/ih);
+			if(this.fillWithDuplicates !== false) {
+				dataIndex = dataIndex % this.dataset.length;
+				if(dataIndex < 0) dataIndex += this.dataset.length;
+			}
 			
 			this.items[i].py = py;
-			this.items[i].data = this.dataset[dataIndex];
+			this.items[i].data = dataIndex < this.dataset.length? this.dataset[dataIndex] : null;
 		}
 
 		if(this.draggingList) {
@@ -236,8 +267,8 @@ export default class InfiniteList extends Vue {
 			this.draggingListOffset = this.mouseY
 		}
 
-		if(this.showScrollbar){
-			const scrollbar			= this.$refs["scrollbar"] as HTMLDivElement;
+		const scrollbar = this.$refs["scrollbar"] as HTMLDivElement;
+		if(scrollbar){
 			const scrollbar_b		= scrollbar.getBoundingClientRect();
 			const scrollbarCursor	= this.$refs["cursor"] as HTMLDivElement;
 			const scrollbarCursor_b	= scrollbarCursor.getBoundingClientRect();
@@ -281,13 +312,19 @@ interface IListItem {
 		position: absolute;
 	}
 
+	&.noScroll {
+		.list-item {
+			width: 100%;
+		}
+	}
+
 	.scrollbar {
 		position: absolute;
 		top: 0;
 		right: 0;
 		height: 100%;
 		width: @scrollWidth;
-		background: fade(@mainColor_dark, 20%);
+		background: var(--color-dark-fadest);
 		border-radius: 1em;
 		.scrollCursor {
 			position: absolute;
@@ -295,7 +332,7 @@ interface IListItem {
 			left:0;
 			cursor: pointer;
 			width: @scrollWidth;
-			background: @mainColor_dark;
+			background-color: var(--color-dark-extralight);
 			border-radius: 1em;
 		}	
 	}

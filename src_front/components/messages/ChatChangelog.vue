@@ -5,52 +5,52 @@
 		<!-- <div class="infos">Use <mark>/updates</mark> command to open this back</div> -->
 		
 		<div class="content">
-			<ToggleBlock class="block new" :title="$t('changelog.major_title')" :open="false" :icons="['new']">
+			<ToggleBlock class="block new" secondary :title="$t('changelog.major_title')" :open="false" :icons="['sub']">
 				<ul>
 					<li v-for="e in entriesMajor">
 						<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
 
 						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
+							@click.stop="openParamItem(e.a!.param!)">{{e.a.l}}</button>
 							
 						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
+							@click.stop="openParamPage(e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
 				</ul>
 			</ToggleBlock>
-			<ToggleBlock class="block other" :title="$t('changelog.minor_title')" :open="false" :icons="['change']">
+			<ToggleBlock class="block other" primary :title="$t('changelog.minor_title')" :open="false" :icons="['change']">
 				<ul>
 					<li v-for="e in entriesMinor">
 						<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
 
 						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
+							@click.stop="openParamItem(e.a!.param!)">{{e.a.l}}</button>
 							
 						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
+							@click.stop="openParamPage(e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
 				</ul>
 			</ToggleBlock>
-			<ToggleBlock class="block fix" :title="$t('changelog.fixes_title')" :open="false" :icons="['fix']">
+			<ToggleBlock class="block fix" alert :title="$t('changelog.fixes_title')" :open="false" :icons="['fix']">
 				<ul>
 					<li v-for="e in entriesFixes">
 						<img v-if="e.i" :src="$image('icons/'+e.i+'.svg')" class="icon" />
 
 						<button v-if="e.a && e.a.param" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParamItem', e.a!.param!)">{{e.a.l}}</button>
+							@click.stop="openParamItem(e.a!.param!)">{{e.a.l}}</button>
 							
 						<button v-if="e.a && e.a.page" class="testBt"
 							:aria-label="e.a.a ?? ''" small
-							@click.stop="$emit('openParam', e.a!.page!)">{{e.a.l}}</button>
+							@click.stop="openParamPage(e.a!.page!)">{{e.a.l}}</button>
 
 						<span v-html="e.l"></span>
 					</li>
@@ -59,8 +59,7 @@
 		</div>
 		<div class="cta">
 			<Button @click.stop="$emit('close')"
-			:aria-label="$t('changelog.closeBt_aria')"
-			:title="$t('changelog.closeBt')" />
+			:aria-label="$t('changelog.closeBt_aria')">{{ $t('changelog.closeBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -76,7 +75,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 		Button,
 		ToggleBlock,
 	},
-	emits:["openParamItem", "openParam", "close", "onRead"]
+	emits:["close"]
 })
 export default class ChatChangelog extends Vue {
 
@@ -103,7 +102,7 @@ export default class ChatChangelog extends Vue {
 						this.$tm("changelog.minor") as TwitchatDataTypes.ChangelogEntry[],
 						this.$tm("changelog.fix") as TwitchatDataTypes.ChangelogEntry[],
 					];
-		const allowedTypes = Object.values(TwitchatDataTypes.ParamsCategories) as TwitchatDataTypes.ParamsContentStringType[];
+		const allowedTypes = Object.values(TwitchatDataTypes.ParameterPages) as TwitchatDataTypes.ParameterPagesStringType[];
 		const sParams = this.$store("params");
 		let allowedParams:string[] = [];
 		allowedParams = allowedParams.concat(Object.keys(this.$store("params").features));
@@ -125,6 +124,9 @@ export default class ChatChangelog extends Vue {
 		})
 	}
 
+	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
+
 }
 </script>
 
@@ -138,90 +140,6 @@ export default class ChatChangelog extends Vue {
 		margin-bottom: .5em;
 	}
 
-	:deep(.header){
-		color: @mainColor_light;
-		background-color: @mainColor_normal;
-		&:hover {
-			background-color: lighten(@mainColor_normal, 5%);
-		}
-
-		.cmd {
-			background-color: fade(@mainColor_normal, 15%);
-			border-radius: .5em;
-			padding: 0 .5em;
-			font-family: 'Courier New', Courier, monospace;
-		}
-		
-		h2 {
-			padding-right: 1.5em;
-		}
-	}
-	
-	.new {
-		:deep(.header){
-			color: @mainColor_light;
-			background-color: @mainColor_warn;
-			border-bottom-color: darken(@mainColor_warn, 10%);
-			&:hover {
-				background-color: lighten(@mainColor_warn, 5%);
-			}
-		}
-		:deep(.content){
-			color: darken(@mainColor_warn, 5%);
-			background-color: fade(@mainColor_warn_extralight, 25%);
-			.testBt {
-				border-color: @mainColor_warn;
-				color: darken(@mainColor_warn, 5%) !important;
-				&:hover {
-					background: fade(@mainColor_warn, 10%);
-				}
-			}
-			.icon {
-				background: @mainColor_warn;
-			}
-
-			.cmd {
-				background-color: fade(@mainColor_warn, 15%);
-			}
-			mark {
-				border: 1px dashed darken(@mainColor_warn_light, 10%) !important;
-				background-color: fade(@mainColor_warn_extralight, 25%) !important;
-			}
-		}
-	}
-	.fix {
-		:deep(.header){
-			color: @mainColor_light;
-			background-color: @mainColor_alert;
-			border-bottom-color: darken(@mainColor_alert, 10%);
-			&:hover {
-				background-color: lighten(@mainColor_alert, 5%);
-			}
-		}
-		:deep(.content){
-			color: @mainColor_alert;
-			background-color: lighten(@mainColor_alert_extralight, 5%);
-			.testBt {
-				border-color: @mainColor_alert;
-				color: @mainColor_alert !important;
-				&:hover {
-					background: fade(@mainColor_alert, 10%);
-				}
-			}
-			.icon {
-				background: @mainColor_alert;
-			}
-
-			.cmd {
-				background-color: fade(@mainColor_alert, 15%);
-			}
-			mark {
-				border: 1px dashed darken(@mainColor_alert_light, 10%) !important;
-				background-color: fade(@mainColor_alert_extralight, 25%) !important;
-			}
-		}
-	}
-	
 	ul {
 		text-align: left;
 		margin-left: 2em;
@@ -231,14 +149,16 @@ export default class ChatChangelog extends Vue {
 			}
 
 			.testBt {
-				border-radius: .5em;
-				background: transparent;
-				border: 1px solid @mainColor_normal;
+				//Not using a <Button> component to reduce init process
+				.emboss();
+				border-radius: var(--border-radius);
+				background-color: var(--color-secondary);
 				padding: .16em .3em;
 				margin-right: .5em;
-				color: @mainColor_normal !important;
+				color: var(--color-light);
+				transition: background-color .25s;
 				&:hover {
-					background: fade(@mainColor_normal, 10%);
+					background: var(--color-secondary-light);
 				}
 			}
 			.icon {
@@ -249,7 +169,6 @@ export default class ChatChangelog extends Vue {
 				display: inline;
 				margin-right: .5em;
 				vertical-align: bottom;
-				background: @mainColor_normal;
 			}
 			ul {
 				padding-left: 2.5em;

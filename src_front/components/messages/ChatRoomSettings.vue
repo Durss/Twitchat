@@ -1,6 +1,6 @@
 <template>
-	<div class="chatroomsettings">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatroomsettings chatMessage highlight primary">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img class="icon lock" src="@/assets/icons/lock.svg" />
 		<div class="content">
 			<div>
@@ -88,13 +88,6 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatroomsettings{
-	.chatMessageHighlight();
-	color:@mainColor_light;
-	background-color: fade(@mainColor_normal, 50%);
-	&:hover {
-		background-color: fade(@mainColor_normal, 60%);
-	}
-
 	.content {
 		display: flex;
 		flex-direction: column;
@@ -110,7 +103,6 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 			}
 
 			.unsetBt {
-				.clearButton();
 				background-color: rgba(255, 255, 255, .1);
 				margin-left: 1em;
 				padding: .75em;

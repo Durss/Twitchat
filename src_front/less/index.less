@@ -2,12 +2,97 @@
 @import "fonts.less";
 @import "reset.less";
 @import "form.less";
+@import "sidePanel.less";
+@import "gameState.less";
+@import "card.less";
+@import "modal.less";
+@import "parameterContent.less";
+@import "blured-background-window.less";
+@import "chatMessage.less";
+@import "triggerAction.less";
+@import "cssStructure.less";
 
 :root {
 	--font-inter: "Inter";
 	--font-nunito: "Nunito";
 	--font-roboto: "Roboto";
 	--font-azeret: "Azeret";
+
+	--color-light: @color-light;
+	--color-dark: @color-dark;
+	--color-primary: @color-primary;
+	--color-secondary: @color-secondary;
+	--color-warn: @color-warn;
+	--color-alert: @color-alert;
+	// --color-select: @color-select;
+	--color-chatMessage: @color-chatMessage;
+	
+	--color-light-transparent: fade(@color-light, 0%);
+	--color-dark-transparent: fade(@color-dark, 0%);
+	--color-primary-transparent: fade(@color-primary, 0%);
+	--color-secondary-transparent: fade(@color-secondary, 0%);
+	--color-warn-transparent: fade(@color-warn, 0%);
+	--color-alert-transparent: fade(@color-alert, 0%);
+	// --color-select-transparent: fade(@color-select, 0%);
+	
+	--color-light-fade: fade(@color-light, 30%);
+	--color-dark-fade: fade(@color-dark, 80%);
+	--color-primary-fade: fade(@color-primary, 70%);
+	--color-secondary-fade: fade(@color-secondary, 70%);
+	--color-warn-fade: fade(@color-warn, 70%);
+	--color-alert-fade: fade(@color-alert, 70%);
+	// --color-select-fade: fade(@color-select, 70%);
+	
+	--color-light-fader: fade(@color-light, 10%);
+	--color-dark-fader: fade(@color-dark, 40%);
+	--color-primary-fader: fade(@color-primary, 40%);
+	--color-secondary-fader: fade(@color-secondary, 40%);
+	--color-warn-fader: fade(@color-warn, 40%);
+	--color-alert-fader: fade(@color-alert, 40%);
+	// --color-select-fader: fade(@color-select, 40%);
+	
+	--color-light-fadest: fade(@color-light, 5%);
+	--color-dark-fadest: fade(@color-dark, 10%);
+	--color-primary-fadest: fade(@color-primary, 10%);
+	--color-secondary-fadest: fade(@color-secondary, 10%);
+	--color-warn-fadest: fade(@color-warn, 10%);
+	--color-alert-fadest: fade(@color-alert, 20%);
+	// --color-select-fader: fade(@color-select, 20%);
+	
+	--color-light-light: lighten(@color-light, 10%);
+	--color-dark-light: lighten(@color-dark, 10%);
+	--color-primary-light: lighten(@color-primary, 8%);
+	--color-secondary-light: lighten(@color-secondary, 13%);
+	--color-warn-light: lighten(@color-warn, 10%);
+	--color-alert-light: lighten(@color-alert, 10%);
+	// --color-select-light: lighten(@color-select, 10%);
+	
+	--color-light-extralight: lighten(@color-light, 30%);
+	--color-dark-extralight: lighten(@color-dark, 30%);
+	--color-primary-extralight: saturate(lighten(@color-primary, 15%), 100%);
+	--color-secondary-extralight: saturate(lighten(@color-secondary, 30%), 100%);
+	--color-warn-extralight: saturate(lighten(@color-warn, 30%), 100%);
+	--color-alert-extralight: saturate(lighten(@color-alert, 30%), 100%);
+	// --color-select-extralight: lighten(@color-select, 20%);
+	
+	--color-light-dark: darken(@color-light, 10%);
+	--color-dark-dark: darken(@color-dark, 10%);
+	--color-primary-dark: darken(@color-primary, 15%);
+	--color-secondary-dark: darken(@color-secondary, 15%);
+	--color-warn-dark: darken(@color-warn, 10%);
+	--color-alert-dark: darken(@color-alert, 10%);
+	// --color-select-extralight: lighten(@color-select, 20%);
+
+	--border-radius:.5rem;
+	
+	--highlight-suspicious: #ff8280;
+	--highlight-1st: #ff75e6;
+	--highlight-subs: #528bff;
+	--highlight-vips: #db00b3;
+	--highlight-mods: #00a865;
+	--highlight-partners: #9147ff;
+	--highlight-mention: #adadb8;
+	--highlight-raider: #f5f500;
 }
 
 body, html {
@@ -16,11 +101,17 @@ body, html {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
-	color: @mainColor_normal;
+	color: var(--color-al);
 	min-width: 100%;
 	min-height: var(--vh);
+    min-height: -moz-available;
 	min-height: -webkit-fill-available;
+	min-height: fill-available;
 	overflow: hidden;
+}
+
+pre {
+	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
 }
 
 *:focus:not(:focus-visible) {
@@ -29,10 +120,10 @@ body, html {
 
 a {
 	// text-decoration: none;
-	color: @mainColor_alert;
+	color: var(--color-secondary-light);
 	cursor: pointer;
 	&:hover {
-		color: @mainColor_alert_light;
+		color: var(--color-secondary-extralight);
 	}
 }
 
@@ -41,7 +132,58 @@ strong {
 }
 
 h1 {
-	font-size: 1.25em;
+	font-size: 1.5em;
+}
+
+.voiceFocus {
+	border: 2px solid var(--color-secondary);
+}
+
+.errorCard {
+	color: var(--color-light);
+	padding: 5px 10px;
+	border-radius: 5px;
+	text-align: center;
+	background-color: var(--color-alert);
+}
+
+mark {
+	font-weight: bold;
+	background-color: var(--color-dark-fader);
+	padding: .1em .25em;
+	border-radius: var(--border-radius);
+}
+
+.home-gradient-bg {
+	background: linear-gradient(180deg, var(--color-primary-fader) 0%, var(--color-secondary-transparent) 100%);
+	background-size: 100% 100vh;
+	background-repeat: no-repeat;
+	background-position: top center;
+	width: 100%;
+	height: 100vh;
+	position: absolute;
+	top:0;
+	left:0;
+}
+
+.tippy-box[data-theme~='twitchat'] {
+	@color: var(--color-secondary-fade);
+    background-color: @color;
+	backdrop-filter: blur(5px);
+	text-shadow: 1px 1px 2px black;
+	box-shadow: 3px 3px 3px rgba(0,0,0,.35);
+	&[data-placement^='top']  > .tippy-arrow::before {
+		border-top-color: @color;
+	}
+	&[data-placement^='left']  > .tippy-arrow::before {
+		border-left-color: @color;
+	}
+	&[data-placement^='bottom']  > .tippy-arrow::before {
+		border-bottom-color: @color;
+	}
+	&[data-placement^='right']  > .tippy-arrow::before {
+		border-right-color: @color;
+	}
 }
 
 #dz-root {
@@ -75,18 +217,24 @@ h1 {
 				cursor: pointer;
 				.mx-context-menu-item.alert.open,
 				.mx-context-menu-item.alert:hover {
-					background: @mainColor_alert;
+					background: var(--color-alert);
 				}
 				.mx-context-menu-item-wrapper {
+					.mx-context-menu-item {
+						.label {
+							max-width: 180px;
+							white-space: normal;
+						}
+					}
 					.mx-context-menu-item.disabled {
 						.mx-icon-placeholder {
 							opacity: .35;
 						}
 					}
 					.mx-context-menu-item.header {
-						color:@mainColor_light;
+						color:var(--color-light);
 						background: rgba(255,255,255,.2);
-						background: @mainColor_highlight;
+						background: var(--color-primary);
 						margin: -10px 0 0 0;
 						border-bottom-left-radius: 0;
 						border-bottom-right-radius: 0;
@@ -101,7 +249,6 @@ h1 {
 								font-weight: bold;
 								text-align: center;
 								padding-right: 0;
-								max-width: 150px;
 							}
 						}
 					}
@@ -111,25 +258,24 @@ h1 {
 	}
 }
 
-.vs__dropdown-option {
-	&>.listIcon {
-		height: 1em;
-		max-width: 1em;
-		margin-right: .25em;
-	}
-}
-
 *::-webkit-scrollbar {
 	width: 10px;
 }
 
 *::-webkit-scrollbar-track {
 	background: transparent;
+	background-color: var(--color-dark-fadest);
 }
 
 *::-webkit-scrollbar-thumb {
 	border-radius:20px;
-	background-color: rgb(31, 31, 35);
-	border: 1px solid rgba(255, 255, 255, 0.25);
-//   box-shadow: rgba(255, 255, 255, 0.25) 0px 0px 1px 1px;
+	background-color: var(--color-dark-extralight);
+}
+
+@media (prefers-color-scheme: dark) {
+/* Dark theme styles go here */
+}
+
+@media (prefers-color-scheme: light) {
+/* Light theme styles go here */
 }

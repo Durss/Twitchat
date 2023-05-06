@@ -1,6 +1,6 @@
 <template>
-	<div class="chathypetraincooldown">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chathypetraincooldown chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/train.svg" alt="train" class="icon">
 
@@ -27,7 +27,6 @@ export default class ChatHypeTrainCooldown extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chathypetraincooldown{
-	.chatMessageHighlight();
 	
 }
 </style>

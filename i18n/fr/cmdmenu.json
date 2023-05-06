@@ -1,22 +1,25 @@
 {
 	"cmdmenu":{
 		"poll":"Créer un sondage",
-		"prediction":"Créer un prédiction",
+		"prediction":"Créer une prédiction",
 		"raffle":"Créer un tirage au sort",
 		"bingo":"Créer un bingo",
 		"suggestions":"Demander des suggestions",
 		"timer":"Chronomètre & Décompte",
 		"chat":"Effacer le tchat",
 		"info":"Titre du stream",
-		"commercial":"Vous pouvez lancer une publicité dans {DURATION}",
+		"commercial":"Vous pourrez lancer une publicité dans {DURATION}",
 		"raid":"Lancer un raid",
+		"raid_placeholder":"pseudo...",
 		"whoslive":"Qui stream ?",
 		"whoslive_title":"Personnes suivies en live",
 		"scope_grant": "Vous n'avez pas accordé la permission à Twitchat de lancer un raid.",
 		"scope_grantBt": "Accorder la permission",
-		"slowMode": "Slow mode",
-		"followersOnly": "Followers only",
-		"subsOnly": "Subs only",
-		"emotesOnly": "Emotes only"
+		"slowMode": "Mode lent",
+		"followersOnly": "Followers uniquement",
+		"subsOnly": "Subs uniquement",
+		"emotesOnly": "Emotes uniquement",
+		"start_ad": "Pub 30s",
+		"not_affiliate": "Vous devez êtres Partenaire ou Affilié·e Twitch"
 	}
 }

@@ -1,42 +1,39 @@
 <template>
-	<div class="userlist">
+	<div class="userlist blured-background-window">
 		
 		<div v-if="currentChan">
-			<div v-for="chan, key in currentChan.users" :class="'userList '+key">
-				<div class="title" v-if="currentChan.users[key].length > 0">
-					{{getRole(key)}}
-					<i>({{currentChan.users[key].length}})</i>
-				</div>
-				<div class="list" v-if="currentChan.users[key].length > 0">
-					<a :class="userClasses(u)"
-					@click="openUserCard(u)"
-					target="_blank"
-					v-for="u in currentChan.users[key]" :key="u.id">
-						<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
-							<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
-								src="@/assets/icons/timeout.svg"
-								:data-tooltip="getBanDuration(u.channelInfo[currentChanId])">
-							<img v-else src="@/assets/icons/ban.svg" :data-tooltip="$t('userlist.banned_tt')">
-						</div>
-						{{u.displayName}}
-					</a>
-				</div>
-			</div>
+			<template v-for="chan, key in currentChan.users">
+				<ToggleBlock v-if="currentChan.users[key].length > 0" :class="'userList '+key"
+				small
+				:title="getRole(key)"
+				:subtitle="'('+currentChan.users[key].length+')'"
+				:open="key != 'broadcaster'"
+				>
+					<div class="list" v-if="currentChan.users[key].length > 0">
+						<a :class="userClasses(u)"
+						target="_blank"
+						:href="'https://twitch.tv/'+u.login"
+						@click.prevent="openUserCard(u)"
+						v-for="u in currentChan.users[key]" :key="u.id">
+							<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
+								<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
+									src="@/assets/icons/timeout.svg"
+									v-tooltip="getBanDuration(u.channelInfo[currentChanId])">
+								<img v-else src="@/assets/icons/ban.svg" v-tooltip="$t('userlist.banned_tt')">
+							</div>
+							<span>{{u.displayName}}</span>
+						</a>
+					</div>
+				</ToggleBlock>
+			</template>
 		</div>
 
-		<a v-if="currentChanId == channelId" @click="toggleInfos()" class="infoBt">{{ $t('userlist.infoBt') }}</a>
-		<div v-if="showInfo" class="infos" ref="infos">
-			<p v-for="e in $tm('userlist.infos')" v-html="e"></p>
-		</div>
+		<ToggleBlock class="infos" :open="false" medium v-if="currentChanId == myChannelId" :title="$t('userlist.infoBt')">
+			<p class="info" v-for="e in $tm('userlist.infos')" v-html="e"></p>
+		</ToggleBlock>
 
-		<div class="users">
-			<Button v-for="(chan, uid) in channels" :key="uid"
-			v-if="Object.keys(channels).length > 1"
-			white
-			:class="currentChanId == uid? 'current' : ''"
-			@click="currentChan = chan; currentChanId = uid as string;"
-			:title="getBraodcasterTitle(chan)"
-			/>
+		<div class="users" v-if="userList.length > 1">
+			<TabMenu v-model="currentChanId" :values="userList.map(v=>v.id)" :labels="userList.map(v=>v.displayName)" />
 		</div>
 	</div>
 </template>
@@ -49,30 +46,41 @@ import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import TabMenu from '../TabMenu.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Component({
 	components:{
 		Button,
+		TabMenu,
+		ToggleBlock,
 	},
 	emits:["close"]
 })
 export default class UserList extends Vue {
 
 	public showInfo:boolean = false;
-	public channelId!:string;
+	public myChannelId!:string;
 	public channels:{[key:string]:ChannelUserList} = {};
-	public currentChanId:string|null = null;
-	public currentChan:ChannelUserList|null = null;
+	public currentChanId:string = "";
+
+	public get currentChan():ChannelUserList {
+		return this.channels[this.currentChanId]
+	}
 
 	private debounceTo:number = -1;
 
-	public getRole(key:string):string {
-		return (this.$tm("userlist.roles") as {[key:string]:string})[key];
+	public get userList():TwitchatDataTypes.TwitchatUser[] {
+		const list:TwitchatDataTypes.TwitchatUser[] = [];
+		for (const uid in this.channels) {
+			const chan = this.channels[uid];
+			list.push(this.$store("users").getUserFrom(chan.platform, chan.channelId, chan.channelId));
+		}
+		return list;
 	}
 
-	public getBraodcasterTitle(chan:ChannelUserList):string {
-		const user = this.$store("users").getUserFrom(chan.platform, chan.channelId, chan.channelId);
-		return user.displayName + '<i>('+(chan.users.broadcaster.length+chan.users.viewers.length+chan.users.vips.length+chan.users.mods.length)+')</i>'
+	public getRole(key:string):string {
+		return (this.$tm("userlist.roles") as {[key:string]:string})[key];
 	}
 
 	public getBanDuration(chanInfo:TwitchatDataTypes.UserChannelInfo):string {
@@ -90,7 +98,7 @@ export default class UserList extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public beforeMount():void {
-		this.channelId = StoreProxy.auth.twitch.user.id;
+		this.myChannelId = StoreProxy.auth.twitch.user.id;
 	}
 
 	public mounted():void {
@@ -204,11 +212,8 @@ export default class UserList extends Vue {
 			
 			this.channels = channels;
 			if(isInit) {
-				this.currentChan	= this.channels[this.channelId];
-				this.currentChanId	= this.channelId;
+				this.currentChanId	= this.myChannelId;
 			}
-			// const e = Date.now();
-			// console.log(e-s);
 		}, isInit? 0 : 500);
 	}
 }
@@ -227,11 +232,7 @@ interface ChannelUserList {
 
 <style scoped lang="less">
 .userlist{
-	.window();
-
-	overflow-y: auto;
-	font-size: 16px;
-	padding-bottom: 0;
+	max-width: 600px;
 
 	.users {
 		position: sticky;
@@ -240,63 +241,24 @@ interface ChannelUserList {
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		background-color: @mainColor_dark;
-		padding: 1em;
+		padding-top: 1em;
+		padding-bottom: .5em;
 
-		img {
-			height: 1.25em;
-			vertical-align: middle;
-			margin-right: 10px;
-		}
-		
-		button {
-			// color: @mainColor_light;
-			:deep(i) {
-				font-style: italic;
-				font-size: .8em;
-			}
-
-			&:not(:last-child) {
-				margin-right: 10px;
-			}
-
-			&:not(.current) {
-				background-color: transparent;
-				border: 1px solid @mainColor_light;
-				color: @mainColor_light;
-				opacity: .7;
-				&:hover {
-					color: @mainColor_normal;
-				}
-			}
+		:deep(i) {
+			font-size: .8em;
+			font-style: italic;
 		}
 	}
 
-	.infoBt {
-		margin: auto;
-		font-style: italic;
-		margin-top: 1em;
-	}
 
 	.infos {
-		color:@mainColor_light;
-		background-color: @mainColor_dark_light;
-		padding: 1em;
+		font-size: .8em;
+		max-width: 600px;
 		margin: auto;
 		margin-top: 1em;
-		border-radius: .5em;
-		max-width: 500px;
-		p:not(:last-of-type) {
-			margin-bottom: .5em;
+		.info {
+			line-height: 1.5em;
 		}
-		p:first-letter {
-			margin-left: .5em;
-		}
-	}
-
-	i {
-		font-size: .8em;
-		font-weight: normal;
 	}
 
 	.userList {
@@ -304,18 +266,17 @@ interface ChannelUserList {
 			margin-bottom: 20px;
 		}
 
-		.title {
-			color: @mainColor_light;
-			margin-bottom: 5px;
-		}
-
 		.list {
+			width: calc(100% - 2em);
+			margin: auto;
+			padding: .25em;
+			border-bottom-left-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
+
 			@itemWidth: 150px;
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
-			margin-left: 10px;
 			
-
 			.user {
 				display: inline-block;
 				text-overflow: ellipsis;
@@ -326,6 +287,10 @@ interface ChannelUserList {
 				line-height: 1.2em;
 				width: 100%;
 				padding: .25em;
+				color: var(--color-light);
+				&:hover {
+					text-decoration: underline;
+				}
 				// box-shadow: 2px 2px 2px black;
 				&:nth-child(odd) {
 					background-color: fade(white, 2%);
@@ -335,15 +300,15 @@ interface ChannelUserList {
 				}
 
 				&.noFollow {
-					color: @mainColor_warn;
+					color: var(--color-secondary);
 					&:hover {
-						color: @mainColor_warn_light;
+						color: var(--color-secondary-light);
 					}
 
 					&::before {
 						content: "";
 						display: inline-block;
-						background-image: url('../../assets/icons/unfollow.svg');
+						background-image: url('../../assets/icons/secondary/unfollow.svg');
 						background-repeat: no-repeat;
 						height: .75em;
 						width: .75em;
@@ -354,6 +319,7 @@ interface ChannelUserList {
 				.icon {
 					display: inline-block;
 					vertical-align: middle;
+					margin-right: .5em;
 					img {
 						height: 1em;
 					}

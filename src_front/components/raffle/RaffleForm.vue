@@ -1,34 +1,34 @@
 <template>
 	<div :class="classes">
-		<div class="holder" ref="holder">
-			<div class="head" v-if="triggerMode === false">
-				<span class="title">{{ $t("raffle.form_title") }}</span>
-				<Button :aria-label="$t('raffle.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
-			</div>
-			<div class="content">
-				<VoiceGlobalCommandsHelper v-if="voiceControl" class="voiceHelper" />
-				
-				<div class="description" v-if="triggerMode === false">
-					<ToggleBlock :icons="['infos_red']" small :title="$t('raffle.legal.title')" :open="false" class="legal">
-						<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
-					</ToggleBlock>
-				</div>
-				
-				<div class="tabs">
-					<Button :title="$t('raffle.chat.title')" bounce :selected="mode=='chat'" @click="mode='chat'" :icon="$image('icons/commands.svg')" />
-					<Button :title="$t('raffle.subs.title')" bounce :selected="mode=='sub'" @click="mode='sub'" :icon="$image('icons/sub.svg')" v-if="isAffiliate" />
-					<Button :title="$t('raffle.list.title')" bounce :selected="mode=='manual'" @click="mode='manual'" :icon="$image('icons/list.svg')" />
-				</div>
+		<div class="head" v-if="triggerMode === false">
+			<CloseButton :aria-label="$t('global.close')" @click="close()" />
+			
+			<h1 class="title">{{ $t("raffle.form_title") }}</h1>
 
-				<form @submit.prevent="submitForm()" class="form" v-if="mode=='chat'">
-					<div class="info">{{ $t("raffle.chat.description") }}</div>
-					<div class="row">
-						<ParamItem class="item" :paramData="command" :autofocus="true" @change="onValueChange()" />
-						<ParamItem class="item" :paramData="reward" :autofocus="true" @change="onValueChange()" v-if="reward_value.listValues!.length > 1" />
-						<p class="tips">
-							<img src="@/assets/icons/info_purple.svg">
+			<div class="description">{{ $t("raffle.description") }}</div>
+		</div>
 
-							<i18n-t scope="global" tag="span" keypath="raffle.chat.triggers">
+		<TabMenu class="menu" v-model="mode"
+			:values="['chat','sub','manual']"
+			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title')]"
+			:icons="['commands', 'sub', 'list']" />
+		
+		<ToggleBlock class="legal" v-if="triggerMode === false && mode!='manual'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false">
+			<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
+		</ToggleBlock>
+
+		<div class="content">
+			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
+
+			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
+				<div class="info">{{ $t("raffle.chat.description") }}</div>
+				<ParamItem class="duration" :paramData="command" :autofocus="true" @change="onValueChange()" />
+				<div class="card-item">
+					<ParamItem noBackground :paramData="reward" :autofocus="true" @change="onValueChange()" v-if="reward_value.listValues!.length > 1" />
+					<div class="tips">
+						<img src="@/assets/icons/info.svg">
+	
+						<i18n-t scope="global" tag="span" keypath="raffle.chat.triggers">
 							<template #LINK>
 								<a @click="openParam('triggers')">{{ $t("raffle.chat.triggers_link") }}</a>
 							</template>
@@ -36,107 +36,100 @@
 								<strong>{{ $t("triggers.actions.common.action_raffle_enter") }}</strong>
 							</template>
 						</i18n-t>
-						</p>
 					</div>
-					<div class="row">
-						<ParamItem class="item" :paramData="enterDuration" @change="onValueChange()" />
-					</div>
-					<div class="row">
-						<ParamItem class="item" :paramData="maxUsersToggle" @change="onValueChange()" />
-					</div>
-					<div class="row">
-						<ParamItem class="item" :paramData="ponderateVotes" @change="onValueChange()" />
-					</div>
+				</div>
+				<ParamItem class="card-item" :paramData="enterDuration" @change="onValueChange()" />
+				<ParamItem class="card-item" :paramData="maxUsersToggle" @change="onValueChange()" />
+				<ParamItem class="card-item" :paramData="ponderateVotes" @change="onValueChange()" />
 
-					<div class="row" v-if="triggerMode === false">
-						<Button type="submit" 
-						:aria-label="$t('raffle.chat.startBt_aria')"
-						:title="$t('global.start')"
-						:icon="$image('icons/ticket.svg')" />
-					</div>
-				</form>
-					
-				<form @submit.prevent="submitForm()" class="form" v-else-if="mode=='sub' && canListSubs">
-					<div class="info">{{ $t("raffle.subs.description") }}</div>
-					<div class="row">
-						<ParamItem class="item" :paramData="subs_includeGifters" @change="onValueChange()" />
-					</div>
-					<div class="row">
-						<ParamItem class="item" :paramData="subs_excludeGifted" @change="onValueChange()" />
-					</div>
-					<div class="row winner" v-if="winner" ref="winnerHolder">
-						<div class="head">Winner</div>
-						<div class="user">🎉 {{winner.user_name}} 🎉</div>
-					</div>
-					<div class="row winner" v-if="winnerTmp">
-						<div class="user">{{winnerTmp.user_name}}</div>
-					</div>
-					<div class="row" v-if="triggerMode === false">
-						<Button type="submit"
-							:aria-label="$t('raffle.subs.startBt_aria')"
-							:title="$t('raffle.subs.startBt', {COUNT:subsFiltered.length})"
-							:icon="$image('icons/sub.svg')"
-							:loading="pickingEntry"
-						/>
-					</div>
-				</form>
-					
-				<form @submit.prevent="submitForm()" class="form scope" v-else-if="mode=='sub' && !canListSubs">
-					<img src="@/assets/icons/lock_fit_purple.svg">
-					<p class="label">{{ $t("params.scope_missing") }}</p>
-					<Button small highlight
-						class="grantBt"
-						:title="$t('global.grant_scope')"
-						:icon="$image('icons/unlock.svg')"
-						@click="requestSubPermission()" />
-				</form>
+				<Button type="submit" 
+					:aria-label="$t('raffle.chat.startBt_aria')"
+					icon="ticket">{{ $t('global.start') }}</Button>
+			</form>
+				
+			<form class="form" v-else-if="mode=='sub' && canListSubs" @submit.prevent="submitForm()">
+				<div class="info">{{ $t("raffle.subs.description") }}</div>
+				<ParamItem class="item" :paramData="subs_includeGifters" @change="onValueChange()" />
+				<ParamItem class="item" :paramData="subs_excludeGifted" @change="onValueChange()" />
+				<div class="card-item winner" v-if="winner" ref="winnerHolder">
+					<div class="head">Winner</div>
+					<div class="user">🎉 {{winner}} 🎉</div>
+				</div>
+				<div class="card-item winner" v-if="winnerTmp">
+					<div class="user">{{winnerTmp}}</div>
+				</div>
+				<Button type="submit"
+				:aria-label="$t('raffle.subs.startBt_aria')"
+				icon="sub"
+				v-if="triggerMode === false"
+				:loading="pickingEntry">
+					<i18n-t scope="global" keypath="raffle.subs.startBt">
+						<template #COUNT>
+							<i class="small">({{ subsFiltered.length }} subs)</i>
+						</template>
+					</i18n-t>
+				</Button>
+			</form>
+				
+			<form class="card-item secondary form scope" v-else-if="mode=='sub' && !canListSubs" @submit.prevent="submitForm()">
+				<img src="@/assets/icons/lock_fit.svg">
+				<p class="label">{{ $t("params.scope_missing") }}</p>
+				<Button alert small
+					class="grantBt"
+					icon="unlock"
+					@click="requestSubPermission()">{{ $t('global.grant_scope') }}</Button>
+			</form>
 
-				<form @submit.prevent="submitForm()" class="form" v-else-if="mode=='manual'">
-					<div class="info">{{ $t("raffle.list.description") }}</div>
+			<form class="form" v-else-if="mode=='manual'" @submit.prevent="submitForm()">
+				<div class="info">{{ $t("raffle.list.description") }}</div>
 
-					<div class="row">
-						<ParamItem class="item" :paramData="customEntries" @change="onValueChange()" />
-						<i>{{ $t("raffle.list.instructions") }}</i>
-					</div>
+				<div class="card-item">
+					<ParamItem noBackground class="item" :paramData="customEntries" @change="onValueChange()" />
+					<span class="instructions">{{ $t("raffle.list.instructions") }}</span>
+				</div>
 
-					<div class="row" v-if="triggerMode === false">
-						<Button type="submit"
-						:aria-label="$t('raffle.list.startBt_aria')"
-						:title="$t('raffle.list.startBt', {COUNT:customEntriesCount})"
-						:icon="$image('icons/list.svg')" />
-					</div>
-				</form>
+				<Button type="submit"
+				v-if="triggerMode === false"
+				:aria-label="$t('raffle.list.startBt_aria')"
+				:disabled="customEntriesCount == 0"
+				icon="list">
+					<i18n-t scope="global" keypath="raffle.list.startBt">
+						<template #COUNT>
+							<i class="small">({{ customEntriesCount }})</i>
+						</template>
+					</i18n-t>	
+				</Button>
+			</form>
 
-				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="mode=='chat' || triggerMode === false">
-					<ParamItem class="row"
-					:paramData="showCountdownOverlay"
-					v-if="mode=='chat'" @change="onValueChange()">
-						<i18n-t scope="global" tag="div" class="details"
-						v-if="showCountdownOverlay.value === true && mode=='chat'"
-						keypath="raffle.configs.timer_overlay_add">
-							<template #LINK>
-								<a @click="openParam('overlays')">{{ $t("raffle.configs.timer_overlay_add_link") }}</a>
-							</template>
-						</i18n-t>
-					</ParamItem>
-	
-					<PostOnChatParam class="row" botMessageKey="raffleStart"
-						v-if="mode=='chat' && triggerMode === false"
-						:placeholders="startPlaceholders"
-						titleKey="raffle.configs.postOnChat_start"
-					/>
-					<PostOnChatParam class="row" botMessageKey="raffle"
-						v-if="triggerMode === false"
-						:placeholders="winnerPlaceholders"
-						titleKey="raffle.configs.postOnChat_winner"
-					/>
-					<PostOnChatParam class="row" botMessageKey="raffleJoin"
-						v-if="mode=='chat' && triggerMode === false"
-						:placeholders="joinPlaceholders"
-						titleKey="raffle.configs.postOnChat_join"
-					/>
-				</ToggleBlock>
-			</div>
+			<ToggleBlock class="configs" v-if="mode=='chat' || triggerMode === false" :title="$t('global.configs')" :open="false" small>
+				<ParamItem class="card-item"
+				:paramData="showCountdownOverlay"
+				v-if="mode=='chat'" @change="onValueChange()">
+					<i18n-t scope="global" tag="div" class="details"
+					v-if="showCountdownOverlay.value === true && mode=='chat'"
+					keypath="raffle.configs.timer_overlay_add">
+						<template #LINK>
+							<a @click="openParam('overlays')">{{ $t("raffle.configs.timer_overlay_add_link") }}</a>
+						</template>
+					</i18n-t>
+				</ParamItem>
+
+				<PostOnChatParam class="card-item" botMessageKey="raffleStart"
+					v-if="mode=='chat' && triggerMode === false"
+					:placeholders="startPlaceholders"
+					titleKey="raffle.configs.postOnChat_start"
+				/>
+				<PostOnChatParam class="card-item" botMessageKey="raffle"
+					v-if="triggerMode === false"
+					:placeholders="winnerPlaceholders"
+					titleKey="raffle.configs.postOnChat_winner"
+				/>
+				<PostOnChatParam class="card-item" botMessageKey="raffleJoin"
+					v-if="mode=='chat' && triggerMode === false"
+					:placeholders="joinPlaceholders"
+					titleKey="raffle.configs.postOnChat_join"
+				/>
+			</ToggleBlock>
 		</div>
 	</div>
 </template>
@@ -145,71 +138,69 @@
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionRaffleData } from '@/types/TriggerActionDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
-import gsap from 'gsap';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import TabMenu from '../TabMenu.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import ToggleBlock from '../ToggleBlock.vue';
 import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Component({
 	components:{
 		Button,
+		TabMenu,
 		ParamItem,
 		ToggleBlock,
+		CloseButton,
 		PostOnChatParam,
 		VoiceGlobalCommandsHelper,
-	}
+	},
+	emits:["close"]
 })
-export default class RaffleForm extends Vue {
+export default class RaffleForm extends AbstractSidePanel {
 	
-	@Prop({
-			type: Boolean,
-			default: false
-		})
+	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
-	@Prop({
-			type: Boolean,
-			default: false
-		})
+
+	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
+
 	//This is used by the trigger action form.
-	@Prop({
-			type: Object,
-			default:{},
-		})
+	@Prop({type: Object, default:{}})
 	public action!:TriggerActionRaffleData;
 
 	public pickingEntry = false;
-	public winner:TwitchDataTypes.Subscriber|null = null;
-	public winnerTmp:TwitchDataTypes.Subscriber|null = null;
+	public winner:string|null = null;
+	public winnerTmp:string|null = null;
 
 	public mode:"chat"|"sub"|"manual" = "chat";
 		
-	public command:TwitchatDataTypes.ParameterData					= {value:true, type:"boolean", labelKey:"raffle.params.command_join"};
-	public command_value:TwitchatDataTypes.ParameterData			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
-	public reward:TwitchatDataTypes.ParameterData					= {value:false, type:"boolean", labelKey:"raffle.params.reward_join"};
-	public reward_value:TwitchatDataTypes.ParameterData				= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
-	public enterDuration:TwitchatDataTypes.ParameterData			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
-	public maxUsersToggle:TwitchatDataTypes.ParameterData			= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
-	public maxEntries:TwitchatDataTypes.ParameterData				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
-	public ponderateVotes:TwitchatDataTypes.ParameterData			= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
-	public ponderateVotes_vip:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"vip_purple.svg", labelKey:"raffle.params.ponderate_VIP"};
-	public ponderateVotes_sub:TwitchatDataTypes.ParameterData		= {value:0, type:"number", min:0, max:100, icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_sub"};
-	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_subgifter"};
-	public ponderateVotes_follower:TwitchatDataTypes.ParameterData	= {value:0, type:"number", min:0, max:100, icon:"follow_purple.svg", labelKey:"raffle.params.ponderate_follower"};
-	public subs_includeGifters:TwitchatDataTypes.ParameterData		= {value:true, type:"boolean", icon:"gift_purple.svg", labelKey:"raffle.params.ponderate_include_gifter"};
-	public subs_excludeGifted:TwitchatDataTypes.ParameterData		= {value:true, type:"boolean", icon:"sub_purple.svg", labelKey:"raffle.params.ponderate_exclude_gifted"};
-	public showCountdownOverlay:TwitchatDataTypes.ParameterData		= {value:false, type:"boolean", icon:"countdown_purple.svg", labelKey:"raffle.params.countdown"};
-	public customEntries:TwitchatDataTypes.ParameterData			= {value:"", type:"string", longText:true, maxLength:1000000, placeholderKey:"raffle.params.list_placeholder"};
+	public command:TwitchatDataTypes.ParameterData<boolean>					= {value:true, type:"boolean", labelKey:"raffle.params.command_join"};
+	public command_value:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
+	public reward:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.reward_join"};
+	public reward_value:TwitchatDataTypes.ParameterData<string>				= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
+	public enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
+	public maxUsersToggle:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
+	public maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
+	public ponderateVotes:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
+	public ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"vip.svg", labelKey:"raffle.params.ponderate_VIP"};
+	public ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub.svg", labelKey:"raffle.params.ponderate_sub"};
+	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"gift.svg", labelKey:"raffle.params.ponderate_subgifter"};
+	public ponderateVotes_follower:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"follow.svg", labelKey:"raffle.params.ponderate_follower"};
+	public subs_includeGifters:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"gift.svg", labelKey:"raffle.params.ponderate_include_gifter"};
+	public subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"sub.svg", labelKey:"raffle.params.ponderate_exclude_gifted"};
+	public showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown.svg", labelKey:"raffle.configs.countdown"};
+	public customEntries:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", longText:true, maxLength:10000, placeholderKey:"raffle.params.list_placeholder"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
@@ -233,39 +224,40 @@ export default class RaffleForm extends Vue {
 	}
 
 	public get classes():string[] {
-		const res = ["raffleform"];
-		if(this.triggerMode !== false) res.push("triggerMode");
+		const res = ["raffleform", "sidePanel"];
+		if(this.triggerMode !== false) res.push("embedMode");
 		return res;
 	}
 
 	public get customEntriesCount():number {
-		const splitter = (this.customEntries.value as string).split(/\r|\n/).length > 1? "\r|\n" : ",";
-		const list = (this.customEntries.value as string).split(new RegExp(splitter, ""));
+		const splitter = this.customEntries.value.split(/\r|\n/).length > 1? "\r|\n" : ",";
+		const list = this.customEntries.value.split(new RegExp(splitter, ""))
+					.filter((v)=>v.length > 0)
 		return list.length;
 	}
 
 	public get finalData():TwitchatDataTypes.RaffleData {
 		let cmd = "";
 		if(this.command.value === true) {
-			cmd = this.command_value.value? this.command_value.value as string : this.$t("raffle.params.command_placeholder");
+			cmd = this.command_value.value? this.command_value.value : this.$t("raffle.params.command_placeholder");
 		}
 
 		return  {
 			mode:this.mode,
 			command:cmd,
-			reward_id:this.reward_value.value as string,
-			duration_s:this.enterDuration.value as number * 60,
-			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value as number : 0,
+			reward_id:this.reward_value.value,
+			duration_s:this.enterDuration.value * 60,
+			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value : 0,
 			created_at:Date.now(),
 			entries:[],
-			followRatio: this.ponderateVotes_follower.value as number,
-			vipRatio: this.ponderateVotes_vip.value as number,
-			subRatio: this.ponderateVotes_sub.value as number,
-			subgiftRatio: this.ponderateVotes_subgift.value as number,
-			subMode_includeGifters: this.subs_includeGifters.value as boolean,
-			subMode_excludeGifted: this.subs_excludeGifted.value as boolean,
-			showCountdownOverlay: this.showCountdownOverlay.value as boolean,
-			customEntries: this.customEntries.value as string,
+			followRatio: this.ponderateVotes_follower.value,
+			vipRatio: this.ponderateVotes_vip.value,
+			subRatio: this.ponderateVotes_sub.value,
+			subgiftRatio: this.ponderateVotes_subgift.value,
+			subMode_includeGifters: this.subs_includeGifters.value,
+			subMode_excludeGifted: this.subs_excludeGifted.value,
+			showCountdownOverlay: this.showCountdownOverlay.value,
+			customEntries: this.customEntries.value,
 		}
 	}
 
@@ -297,7 +289,7 @@ export default class RaffleForm extends Vue {
 
 		if(this.triggerMode && this.action.raffleData) {
 			this.mode = this.action.raffleData.mode;
-			this.command.value = this.action.raffleData.command
+			this.command.value = this.action.raffleData.command != undefined;
 			this.enterDuration.value = this.action.raffleData.duration_s/60;
 			this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
 			this.maxUsersToggle.value = this.maxEntries.value > 0;
@@ -320,8 +312,7 @@ export default class RaffleForm extends Vue {
 	public async mounted():Promise<void> {
 
 		if(!this.triggerMode) {
-			gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-			gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+			this.open();
 		}
 
 		watch(()=>this.voiceControl, ()=>{
@@ -348,20 +339,31 @@ export default class RaffleForm extends Vue {
 		if(this.voiceController) this.voiceController.dispose();
 	}
 
-	/**
-	 * Close the form
-	 */
-	public async close():Promise<void> {
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
-	}
 
 	/**
 	 * Create a chat raffle
 	 */
 	public async submitForm():Promise<void> {
 		const payload:TwitchatDataTypes.RaffleData = this.finalData;
+		if(this.mode == "sub") {
+			let subs = Utils.shuffle(await TwitchUtils.getSubsList());
+			let interval = setInterval(()=> {
+				this.winnerTmp = Utils.pickRand(subs).user_name;
+			}, 70)
+			this.winner = null;
+			this.pickingEntry = true;
+			await Utils.promisedTimeout(2000);
+			payload.resultCallback = ()=> {
+				clearInterval(interval);
+
+				if(payload.winners
+				&& payload.winners.length > 0) {
+					this.winnerTmp = null;
+					this.winner = payload.winners[payload.winners.length-1].label;
+				}
+			}
+		}
+
 		this.$store("raffle").startRaffle(payload);
 		if(this.mode == "chat") {
 			this.close();
@@ -372,12 +374,11 @@ export default class RaffleForm extends Vue {
 		}
 	}
 	
-	public openParam(page:TwitchatDataTypes.ParamsContentStringType):void {
+	public openParam(page:TwitchatDataTypes.ParameterPagesStringType):void {
 		if(this.triggerMode) {
-			this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
+			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 		}else{
-			this.$store("main").tempStoreValue = "CONTENT:"+page;
-			this.$store("main").setShowParams(true);
+			this.$store("params").openParamsPage(page);
 		}
 	}
 
@@ -385,7 +386,6 @@ export default class RaffleForm extends Vue {
 		if(this.action) {
 			this.action.raffleData = this.finalData;
 		}
-		this.joinPlaceholders[0].example = this.command.value as string;
 	}
 
 	public requestSubPermission():void {
@@ -398,126 +398,40 @@ export default class RaffleForm extends Vue {
 <style scoped lang="less">
 .raffleform{
 
-	&:not(.triggerMode) {
-		.modal();
+	.legal {
+		margin: 0 auto;
+		width: 100%;
+		max-width: 600px;
 	}
 
 	.content {
-
-		.tabs {
-			.tabMenu();
-		}
-
 		.voiceHelper {
 			margin: auto;
 		}
 
-		.description {
-			text-align: center;
-			font-size: .8em;
-			margin-bottom: 1em;
-			.button {
-				margin-top: .5em;
-			}
-			.legal {
-				text-align: justify;
-				color: @mainColor_alert;
-				:deep(.header),
-				:deep(.content) {
-					background-color: fade(@mainColor_alert, 10%);
-				}
-			}
-		}
-
-		.info {
-			text-align: center;
-			opacity: .8;
-		}
-		.row {
-			display: flex;
-			flex-direction: column;
-			background-color: fade(@mainColor_normal_extralight, 30%);
-			padding: .5em;
-			border-radius: .5em;
-			&:not(:first-child) {
-				margin-top: .5em;
-			}
-		}
-
 		.form {
-			display: flex;
-			flex-direction: column;
-			&>.row {
-				display: flex;
-				flex-direction: column;
-				gap:.5em;
 
-				:deep(.list) {
-					flex-direction: row;
-					label {
-						flex-grow: 1;
-					}
-				}
-				:deep(input) {
-					flex-basis: 100px;
+			.small {
+				font-size: .8em;
+			}
+
+			.winner {
+				font-weight: bold;
+				gap: 0;
+				color: var(--color-light);
+				background-color: var(--color-secondary);
+				.head {
+					font-size: 1.25em;
+					padding: .25em;
 					text-align: center;
 				}
-
-				.button {
-					:deep(.label) {
-						display: flex;
-						flex-direction: row;
-						align-items: center;
-						i {
-							font-size: .7em;
-							margin-left: .5em;
-						}
-					}
-				}
-
-				&.winner {
-					margin-top: .5em;
-					border-radius: 10px;
-					font-weight: bold;
-					overflow: hidden;
-					.head {
-						font-size: 1.25em;
-						padding: .25em;
-						text-align: center;
-						color: @mainColor_light;
-						background-color: @mainColor_warn;
-					}
-					.user {
-						padding: .5em;
-						text-align: center;
-						color: @mainColor_warn;
-						background-color: @mainColor_warn_extralight;
-					}
-				}
-
-				i {
-					font-size: .8em;
-				}
-
-				.tips {
-					font-size: .8em;
-					background-color: @mainColor_light;
+				.user {
 					padding: .5em;
-					border-radius: .5em;
-					img {
-						height: 1em;
-						margin-right: .5em;
-					}
+					text-align: center;
 				}
 			}
+
 			&.scope {
-				display: block;
-				border-radius: .25em;
-				margin: .25em auto;
-				background-color: @mainColor_light;
-				border: 1px solid @mainColor_alert;
-				padding: .25em .5em;
-				// margin-left: calc(@iconSize + 10px);
 				text-align: center;
 				p {
 					font-size: .8em;
@@ -528,27 +442,20 @@ export default class RaffleForm extends Vue {
 					vertical-align: middle;
 				}
 				a{
-					color: @mainColor_alert;
+					color: var(--color-alert);
 				}
 				.grantBt {
-					margin: .5em auto;
-					display: block;
+					margin: auto;
 				}
 			}
-		}
 
-		.details {
-			font-size: .8em;
-		}
-
-		.configs {
-			margin: 1em 0;
-			font-size: 1em;
-			:deep(.header) {
-				font-size: .8em;
+			.instructions {
+				display: block;
+				font-size: .9em;
+				font-style: italic;
+				text-align: center;
 			}
 		}
-
 	}
 }
 </style>

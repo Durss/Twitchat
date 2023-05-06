@@ -1,16 +1,32 @@
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
+import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
 
 export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatpoll" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login";
-
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login" | "tracked" | "whispers";
+	
+	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "deezer";
+	
+	export const ParamDeepSections = {
+		AD: "ad",
+		OBS: "obs",
+		WHEEL: "wheel",
+		TIMER: "timer",
+		SPOTIFY: "spotify",
+		COUNTER: "counter",
+		HIGHLIGHT: "highlight",
+		WEBSOCKET: "websocket",
+	} as const;
+	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections];
+	
 	/**
 	 * Parameters menue categories
 	 */
-	export const ParamsCategories = {
-		MAIN_MENU: "",
+	export const ParameterPages = {
+		CLOSE: "",
+		MAIN_MENU: "main",
 		APPEARANCE: "appearance",
 		ACCOUNT: "account",
 		ABOUT: "about",
@@ -31,14 +47,23 @@ export namespace TwitchatDataTypes {
 		AD: "ad",
 		CONNEXIONS: "connexions",
 	} as const;
-	export type ParamsContentStringType = typeof ParamsCategories[keyof typeof ParamsCategories];
+	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 
 	/**
 	 * Contains info about a counter
 	 */
 	export interface CounterData {
 		id:string;
+		/**
+		 * Counter name
+		 */
 		name:string;
+		/**
+		 * Counter placeholder for use in triggers
+		 * If value is "XXX", the placeholder {COUNTER_VALUE_XXX} will be usable
+		 * in all triggers
+		 */
+		placeholderKey:string;
 		/**
 		 * Current counter's value (if not "per user")
 		 */
@@ -56,7 +81,7 @@ export namespace TwitchatDataTypes {
 		 */
 		loop:boolean;
 		/**
-		 * Is the counted global (false) or per user (true)
+		 * Is the counter is global (false) or per user (true)
 		 */
 		perUser:boolean;
 		/**
@@ -163,8 +188,8 @@ export namespace TwitchatDataTypes {
 	 * Generic parameter categories types
 	 */
 	export interface IParameterCategory {
-		appearance:{[key:string]:ParameterData};
-		features:{[key:string]:ParameterData};
+		appearance:{[key:string]:ParameterData<string|number|boolean>};
+		features:{[key:string]:ParameterData<string|number|boolean>};
 	}
 	export type ParameterCategory = keyof IParameterCategory;
 
@@ -175,11 +200,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * true if parameters should be saved server side
 		 */
-		syncDataWithServer:ParameterData;
+		syncDataWithServer:ParameterData<boolean>;
 		/**
 		 * true if user choose to make their donation public
 		 */
-		publicDonation:ParameterData;
+		publicDonation:ParameterData<boolean>;
 	}
 	export type AccountParamsCategory = keyof IAccountParamsCategory;
 
@@ -232,9 +257,13 @@ export namespace TwitchatDataTypes {
 		WHISPER: "whisper",
 		CYPHERED: "cyphered",
 		NEW_USER: "new_user",
+		FIRST_MESSAGE_TODAY: "firstToday",
+		PRESENTATION: "presentation",
 		SUSPICIOUS_USER: "suspiciousUser",
 		RESTRICTED_USER: "restrictedUser",
 		EMERGENCY_BLOCKED: "emergencyBlocked",
+		RETURNING_CHATTER: "returningChatter",
+		FIRST_TIME_CHATTER: "firstTimeChatter",
 	} as const;
 	export type MessageBadgeDataStringType = typeof MessageBadgeDataType[keyof typeof MessageBadgeDataType];
 	export interface MessageBadgeData {
@@ -246,20 +275,20 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Data that populates ParamItem components
 	 */
-	export interface ParameterData {
+	export interface ParameterData<T, U = unknown, V = unknown> {
 		id?:number;
 		/**
 		 * Parameter type
 		 */
-		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist";
+		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color";
 		/**
 		 * Parameter value
 		 */
-		value:boolean|number|string|string[]|undefined;
+		value:T;
 		/**
 		 * List values for the "list" type
 		 */
-		listValues?:ParameterDataListValue[];
+		listValues?:TwitchatDataTypes.ParameterDataListValue<U>[];
 		/**
 		 * List values for the "editablelist" type
 		 */
@@ -336,7 +365,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Children parameters
 		 */
-		children?:ParameterData[];
+		children?:ParameterData<V>[];
 		/**
 		 * File types for browse inputs
 		 */
@@ -354,6 +383,10 @@ export namespace TwitchatDataTypes {
 		 */
 		twitch_scopes?:TwitchScopesString[];
 		/**
+		 * Regex defining which chars are allowed on the field
+		 */
+		allowedCharsRegex?:string;
+		/**
 		 * Tooltip displayed on hover
 		 */
 		tooltip?:string;
@@ -370,16 +403,20 @@ export namespace TwitchatDataTypes {
 		 */
 		error?:boolean;
 		/**
+		 * Optional error message to be displayed
+		 */
+		errorMessage?:string;
+		/**
 		 * Callback called when value is changed (if v-model can't be used)
 		 */
 		editCallback?:(data:any) => void;
 	}
-	export interface ParameterDataListValue {
+	export interface ParameterDataListValue<T> {
 		label?:string;
 		labelKey?:string;
-		value:string | number | boolean | undefined;
+		value:T;
 		icon?:string;
-		[parameter: string]: unknown;
+		// [parameter: string]: unknown;
 	}
 
 	/**
@@ -456,7 +493,12 @@ export namespace TwitchatDataTypes {
 		customEntries:string;
 		winners?:RaffleEntry[];
 		/**
-		 * @deprectaed use duration_s instead. Only hear for typing on data migration
+		 * Only used by raffle form to show winner within the form
+		 * when raffle completes
+		 */
+		resultCallback?:()=>void;
+		/**
+		 * @deprecated use duration_s instead. Only hear for typing on data migration
 		 */
 		duration?:number;
 	}
@@ -573,7 +615,9 @@ export namespace TwitchatDataTypes {
 	export interface PlaceholderEntry {
 		tag:string;
 		descKey:string;
+		descReplacedValues?:{[key:string]:string};
 		example?:string;
+		globalTag?:boolean;
 	}
 
 	/**
@@ -662,9 +706,8 @@ export namespace TwitchatDataTypes {
 		UPDATES:2,
 		TIP_AND_TRICK:3,
 		DISCORD:4,
-		UPDATE_WARNING:5,
-		TWITCHAT_AD_WARNING:6,
-		TWITCHAT_SPONSOR_PUBLIC_PROMPT:7,
+		TWITCHAT_AD_WARNING:5,
+		TWITCHAT_SPONSOR_PUBLIC_PROMPT:6,
 	} as const;
 	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 
@@ -786,6 +829,7 @@ export namespace TwitchatDataTypes {
 		blink:boolean;
 		shake:boolean;
 		sound:boolean;
+		vibrate:boolean;
 		message:boolean;
 	}
 
@@ -903,47 +947,158 @@ export namespace TwitchatDataTypes {
 		platform:ChatPlatform;
 		login:string;
 		displayName:string;
-		color?:string;//Chat color of their nickname
 		avatarPath?:string;
-		is_raider:boolean;//Is the user raided use recently
-		is_partner:boolean;//Is Twitch partner
-		is_affiliate:boolean;//Is Twitch affiliat
+		/**
+		 * Nickname chat color
+		 */
+		color?:string;
+		/**
+		 * Is a twitch partner?
+		 */
+		is_partner:boolean;
+		/**
+		 * Is a twitch affiliate?
+		 */
+		is_affiliate:boolean;
+		/**
+		 * Should this user's messages be highlighted?
+		 */
 		is_tracked:boolean;
+		/**
+		 * Is this a known bot account?
+		 */
 		is_bot:boolean;
+		/**
+		 * Is the user blocked by me?
+		 */
+		is_blocked:boolean;
+		/**
+		 * Is a Twitchat admin?
+		 */
 		is_admin?:boolean;
-		donor:{//Donor state of the user
+		/**
+		 * Twitchat donor state of the user
+		 */
+		donor:{
+			/**
+			 * Is a donor?
+			 */
 			state:boolean,
+			/**
+			 * Donor level
+			 */
 			level:number,
-			noAd:boolean,//True if user is exempt from ads (ex: if to few followers)
-			upgrade:boolean,//true if donor level changed from last time
+			/**
+			 * true if user is exempt from ads (ex: if too few followers)
+			 */
+			noAd:boolean,
+			/**
+			 * true if donor level changed from last time
+			 */
+			upgrade:boolean,
 		};
-		pronouns:string|false|null;//undefined=no loaded yet; false=no pronouns found; string=pronouns loaded
+		/**
+		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code
+		 */
+		pronouns:string|false|null;
+		/**
+		 * Pronouns label
+		 */
 		pronounsLabel:string|false;
+		/**
+		 * Pronouns tooltip
+		 */
 		pronounsTooltip:string|false;
+		/**
+		 * Contains one entry per connected channel with
+		 * channel specific info.
+		 */
 		channelInfo:{[key:string]:UserChannelInfo},
-		temporary?:boolean;//true when the details are loading
-		errored?:boolean;//true if user data loading failed
+		/**
+		 * true when the details are loading
+		 */
+		temporary?:boolean;
+		/**
+		 * true if user data loading failed
+		 */
+		errored?:boolean;
 	}
 
 	/**
 	 * Represents a channel specific user data
 	 */
 	export interface UserChannelInfo {
+		/**
+		 * true if user is connected on the channel's chat
+		 */
 		online:boolean;
-		is_new:boolean;//true if user talked for the first time on our chat during this session
-		is_following:boolean|null;//set to "null" until we actually verified if user is a follower
-		is_blocked:boolean;
+		/**
+		 * true if user talked for the first time ever on our chat during this session
+		 */
+		is_new:boolean;
+		/**
+		 * true if user raided us
+		 * Stays to "true" for the specified amount of duration on the parameters
+		 * then switched back to false
+		 */
+		is_raider:boolean;
+		/**
+		 * Defines if user is a follower of the channel
+		 * null = don't know yet
+		 * true = is a follower
+		 * false = is not a follower
+		 */
+		is_following:boolean|null;
+		/**
+		 * true if user is banned on the channel
+		 */
 		is_banned:boolean;
+		/**
+		 * true if user is a VIP of the channel
+		 */
 		is_vip:boolean;
+		/**
+		 * true if user is a moderator of the channel
+		 */
 		is_moderator:boolean;
+		/**
+		 * true if user is the broadcaster of the channel
+		 */
 		is_broadcaster:boolean;
+		/**
+		 * true if user is subscribed to the channel
+		 */
 		is_subscriber:boolean;
+		/**
+		 * true if user has gifted subs on the channel
+		 */
 		is_gifter:boolean;
+		/**
+		 * Date at which the user followed the channel
+		 * Value = 0 if not checked yet
+		 */
 		following_date_ms:number;
+		/**
+		 * User badges for this channel
+		 */
 		badges:TwitchatUserBadge[];
+		/**
+		 * Date at which the ban expires on this channel
+		 */
 		banEndDate?:number;
+		/**
+		 * Last date the user interracted on this channel
+		 */
 		lastActivityDate?:number;
+		/**
+		 * Number of subgofts the user made on this channel
+		 * Only available after making a subgift
+		 */
 		totalSubgifts?:number;
+		/**
+		 * Store the date at which this user last got a shoutout
+		 */
+		lastShoutout?:number;
 	}
 	
 	/**
@@ -1018,9 +1173,36 @@ export namespace TwitchatDataTypes {
 		a?:{
 			l:string;//label of the button
 			a?:string;//aria-label value of the button
-			page?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
-			param?:TwitchatDataTypes.ParamsContentStringType;//Parameter page to go to
+			page?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
+			param?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
 		}
+	}
+
+	/**
+	 * Contains the info about a past or pending shoutout
+	 */
+	export interface ShoutoutHistoryItem {
+		id:string;
+		/**
+		 * User receiving the shoutout
+		 */
+		user:TwitchatDataTypes.TwitchatUser;
+		/**
+		 * Has the shoutout been actually done ?
+		 */
+		done:boolean;
+		/**
+		 * Is it a fake entry ?
+		 * A fake entry is used when trying to SO someone while there's
+		 * a cooldown but Twitchat doesn't know.
+		 * This happens if we SO soemone when Twitchat isn't started,
+		 * in which case we create an empty item on the history that
+		 * will be used as a reference.
+		 * This flag is set to true so the related user cooldown isn't
+		 * affected by it. Without that the user would get a 1h cooldown
+		 * instead of a 2min cooldown
+		 */
+		fake?:boolean;
 	}
 
 
@@ -1070,17 +1252,21 @@ export namespace TwitchatDataTypes {
 		COUNTER_UPDATE:"counter_update",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		USER_WATCH_STREAK:"user_watch_streak",
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
+		OBS_FILTER_TOGGLE:"obs_filter_toggle",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
+		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
 		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
+		OBS_PLAYBACK_STATE_UPDATE:"obs_playback_state_update",
 		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
 	} as const;
 
@@ -1126,19 +1312,23 @@ export namespace TwitchatDataTypes {
 		stream_offline:true,
 		chat_highlight:false,//Used for "highlight on overlay" events
 		counter_update:false,
+		user_watch_streak:true,
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_source_toggle:false,
+		obs_filter_toggle:false,
 		hype_train_cancel:false,
 		hype_train_summary:true,
 		low_trust_treatment:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
 		music_added_to_queue:false,
+		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
 		hype_train_approaching:false,
 		clip_pending_publication:true,
 		community_boost_complete:true,
+		obs_playback_state_update:false,
 		community_challenge_contribution:true,
 	} as const;
 
@@ -1213,6 +1403,9 @@ export namespace TwitchatDataTypes {
 									| MessageLowtrustTreatmentData
 									| MessageOBSSceneChangedData
 									| MessageOBSSourceToggleData
+									| MessageOBSFilterToggleData
+									| MessageOBSInputMuteToggleData
+									| MessageOBSPlaybackStateUpdateData
 									| MessageRoomSettingsData
 									| MessageStreamOnlineData
 									| MessageStreamOfflineData
@@ -1222,9 +1415,10 @@ export namespace TwitchatDataTypes {
 									| MessageRaidStartData
 									| MessagePinData
 									| MessageScopeRequestData
-									| MessageMarkerCreated
+									| MessageMarkerCreatedData
+									| MessageWatchStreakData
 	;
-
+	
 	/**
 	 * Defines any message that could be deleted.
 	 * Used by TTS to check if the message still exists before reading it
@@ -1258,6 +1452,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.TWITCHAT_AD,
 		TwitchatMessageType.SUBSCRIPTION,
 		TwitchatMessageType.STREAM_ONLINE,//also works for STREAM_OFFLINE
+		TwitchatMessageType.USER_WATCH_STREAK,
 		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
 		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
@@ -1277,9 +1472,36 @@ export namespace TwitchatDataTypes {
 		col?:number;//Use this to send a message on a specific column index
 	}
 
+	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];
+	
+	//Ensure the object contains all requested keys
+	export const GreetableMessageTypesString:Record<GreetableMessageTypes, unknown> ={
+		cheer:true,
+		reward:true,
+		message:true,
+		following:true,
+		subscription:true,
+		user_watch_streak:true,
+	}
+
 	export interface GreetableMessage extends AbstractTwitchatMessage {
+		/**
+		 * Do not use this property.
+		 * It's only here for the GreetableMessageTypes type definition
+		 * @deprecated
+		 */
+		is_greetable_message?:boolean;
+		/**
+		 * Is it the first message of the user today ?
+		 */
 		todayFirst?: boolean;
+		/**
+		 * Channel ID the message has been sent to
+		 */
 		channel_id:string;
+		/**
+		 * User that sent the message
+		 */
 		user:TwitchatUser;
 	}
 
@@ -1287,11 +1509,11 @@ export namespace TwitchatDataTypes {
 	 * A regular user's message 
 	 */
 	export interface MessageChatData extends GreetableMessage {
+		type:"message";
 		/**
 		 * Channel ID the message has been posted in
 		 */
 		channel_id: string;
-		type:"message";
 		/**
 		 * User that posted the message
 		 */
@@ -1301,14 +1523,14 @@ export namespace TwitchatDataTypes {
 		 */
 		message:string;
 		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks:TwitchDataTypes.ParseMessageChunk[];
+		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
 		 */
 		message_html:string;
-		/**
-		 * Text message with emote codes removed
-		 */
-		message_no_emotes:string;
 		/**
 		 * All messages that answered to this message
 		 */
@@ -1326,6 +1548,10 @@ export namespace TwitchatDataTypes {
 		 * True if message has been saved
 		 */
 		is_saved?: boolean;
+		/**
+		 * True if message has been pinned on chat
+		 */
+		is_pinned?: boolean;
 		
 		/**
 		 * Twitchat's automod info
@@ -1435,6 +1661,10 @@ export namespace TwitchatDataTypes {
 		 */
 		message:string;
 		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks:TwitchDataTypes.ParseMessageChunk[];
+		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
 		 */
@@ -1468,15 +1698,19 @@ export namespace TwitchatDataTypes {
 		channel_id: string;
 		type:"poll";
 		/**
-		 * Poll's title
+		 * Poll creator
+		 */
+		creator?: TwitchatUser;
+		/**
+		 * Poll title
 		 */
 		title: string;
 		/**
-		 * Poll's choices
+		 * Poll choices
 		 */
 		choices: MessagePollDataChoice[];
 		/**
-		 * Poll's duration in seconds
+		 * Poll duration in seconds
 		 */
 		duration_s: number;
 		/**
@@ -1511,15 +1745,19 @@ export namespace TwitchatDataTypes {
 		channel_id: string;
 		type:"prediction";
 		/**
-		 * Prediction's title
+		 * Prediction creator
+		 */
+		creator?: TwitchatUser;
+		/**
+		 * Prediction title
 		 */
 		title: string;
 		/**
-		 * Poll's duration in seconds
+		 * Prediction duration in seconds
 		 */
 		duration_s: number;
 		/**
-		 * Prediction's possible outcomes
+		 * Prediction possible outcomes
 		 */
 		outcomes: MessagePredictionDataOutcome[];
 		/**
@@ -1527,17 +1765,25 @@ export namespace TwitchatDataTypes {
 		 */
 		pendingAnswer: boolean;
 		/**
-		 * Timestamp when the poll has been started
+		 * Timestamp when the Prediction has been started
 		 */
 		started_at: number;
 		/**
-		 * Timestamp when the poll has ended
+		 * Timestamp when the Prediction has ended
 		 */
 		ended_at?: number;
 		/**
 		 * Winning choice
 		 */
 		winner?:MessagePredictionDataOutcome;
+		/**
+		 * Total channel points bet
+		 */
+		totalPoints:number;
+		/**
+		 * Total users participating
+		 */
+		totalUsers:number;
 	}
 	export interface MessagePredictionDataOutcome {
 		id: string;
@@ -1586,7 +1832,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a new subscription message
 	 */
-	export interface MessageSubscriptionData extends AbstractTwitchatMessage {
+	export interface MessageSubscriptionData extends GreetableMessage {
 		channel_id: string;
 		type:"subscription";
 		/**
@@ -1638,6 +1884,10 @@ export namespace TwitchatDataTypes {
 		 */
 		message?:string;
 		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		/**
 		 * Otional message sent when sharing our sub with emotes remplaced by HTML tags
 		 */
 		message_html?:string;
@@ -1650,7 +1900,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a bits data
 	 */
-	export interface MessageCheerData extends AbstractTwitchatMessage {
+	export interface MessageCheerData extends GreetableMessage {
 		channel_id: string;
 		type:"cheer";
 		/**
@@ -1665,6 +1915,10 @@ export namespace TwitchatDataTypes {
 		 * Text message
 		 */
 		message: string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
 		/**
 		 * Text message with cheermotes replaced by HTML tags
 		 */
@@ -1695,6 +1949,10 @@ export namespace TwitchatDataTypes {
 		 * Optional message the reward requires the user to send when redeeming it
 		 */
 		message?:string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
 		/**
 		 * Optional message the reward requires the user to send when redeeming it with emotes replaced by HTML tags
 		 */
@@ -1813,6 +2071,9 @@ export namespace TwitchatDataTypes {
 			wasLive: boolean;
 			title: string;
 			category: string;
+			/**
+			 * Stream duration in ms
+			 */
 			duration: number;
 		}
 	}
@@ -2087,7 +2348,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that made the moderation action
 		 */
-		moderator:TwitchatUser;
+		moderator?:TwitchatUser;
 		/**
 		 * Banned user
 		 */
@@ -2167,7 +2428,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Info about the track that's been added to the queue
 		 */
-		track:MusicTrackData|null;
+		trackAdded:MusicTrackData|null;
 		/**
 		 * User that added the track
 		 */
@@ -2308,7 +2569,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents an OBS scene change event
+	 * Represents an OBS source visibility change
 	 */
 	export interface MessageOBSSourceToggleData extends AbstractTwitchatMessage {
 		type:"obs_source_toggle";
@@ -2325,6 +2586,56 @@ export namespace TwitchatDataTypes {
 		 */
 		visible:boolean;
 	}
+
+	/**
+	 * Represents an OBS source filter visibility change
+	 */
+	export interface MessageOBSFilterToggleData extends AbstractTwitchatMessage {
+		type:"obs_filter_toggle";
+		/**
+		 * Name of the parent source of the filter
+		 */
+		sourceName:string;
+		/**
+		 * Filter name
+		 */
+		filterName:string;
+		/**
+		 * true if the filter is now enabled
+		 */
+		enabled:boolean;
+	}
+
+	/**
+	 * Represents an OBS input mute toggle
+	 */
+	export interface MessageOBSInputMuteToggleData extends AbstractTwitchatMessage {
+		type:"obs_input_mute_toggle";
+		/**
+		 * Name of the input that's been toggled
+		 */
+		inputName:string;
+		/**
+		 * true if the input is now muted
+		 */
+		muted:boolean;
+	}
+
+	/**
+	 * Represents an OBS media playback change event
+	 */
+	export interface MessageOBSPlaybackStateUpdateData extends AbstractTwitchatMessage {
+		type:"obs_playback_state_update";
+		/**
+		 * Name of the source which playback started/ended
+		 */
+		inputName:string;
+		/**
+		 * true if the playback has started, false if it ended
+		 */
+		state:MessageOBSPlaybackStateValue;
+	}
+	export type MessageOBSPlaybackStateValue = "start"|"pause"|"complete"|"next"|"prev"|"restart";
 
 	/**
 	 * Represents a pinned message
@@ -2405,11 +2716,15 @@ export namespace TwitchatDataTypes {
 		 */
 		counter:CounterData;
 		/**
-		 * true if counter got incremented
+		 * Value added to the counter
 		 */
 		added:number;
 		/**
-		 * Value that got added/removed from the counter
+		 * Absolute value added to the counter
+		 */
+		added_abs:number;
+		/**
+		 * Current value of the counter
 		 */
 		value:number;
 		/**
@@ -2455,11 +2770,26 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a "marker created" message
 	 */
-	export interface MessageMarkerCreated extends MessageNoticeData {
+	export interface MessageMarkerCreatedData extends MessageNoticeData {
 		/**
 		 * User that created the marker
 		 */
 		user:TwitchatUser;
+	}
+
+	/**
+	 * Represents a user watch streak
+	 */
+	export interface MessageWatchStreakData extends GreetableMessage {
+		type:"user_watch_streak";
+		/**
+		 * User that created the marker
+		 */
+		user:TwitchatUser;
+		/**
+		 * Number of consecutive streams the user watched
+		 */
+		streak:number;
 	}
 
 }

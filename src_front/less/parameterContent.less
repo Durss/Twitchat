@@ -1,0 +1,64 @@
+/**
+* Contains the styles about a parameters page
+*/
+.parameterContent {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding-top: 0;
+	gap: 1em;
+	
+	&>.icon {
+		height: 4em;
+		display: block;
+		margin: auto;
+	}
+
+	&>.head {
+		text-align: center;
+		&.small, &>.small {
+			font-size: .8em;
+			.btExample {
+				height: 1.25em;
+				padding: .25em;
+				border-radius: .25em;
+				background-color: var(--color-alert);
+				vertical-align: middle;
+			}
+		}
+		&>.small {
+			margin-top: .5em;
+		}
+	}
+
+	&>.enableBt {
+		width: fit-content;
+		margin: auto;
+		border-radius: 1em;
+		padding: .5em 1em !important;
+		background-color: var(--color-primary);
+		label {
+			flex-basis: unset !important;
+			align-self: flex-end !important;
+		}
+		&.disabled {
+			background-color: var(--color-primary-fadest);
+		}
+	}
+
+	section {
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
+		margin: auto;
+			
+		.icon {
+			height: 1em;
+			margin-right: .5em;
+		}
+	}
+		
+	.splitter {
+		margin: 2em 0 1em 0;
+	}
+}

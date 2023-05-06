@@ -7,9 +7,10 @@
 		"actions_triggers_link":"Triggers system",
 		"command":"Command",
 		"option_popin":"Show message on popin",
-		"option_shake":"Shake Twitchat",
-		"option_blink":"Blink Twitchat",
+		"option_shake":"Shake interface",
+		"option_blink":"Blink interface",
 		"option_sound":"Play wizz sound",
+		"option_vibrate":"Vibrate phone (mobile only)",
 		"testBt":"Test"
 	}
 }

@@ -1,31 +1,36 @@
 <template>
 	<div :class="classes">
-
-		<Button small
-			aria-label="Close search"
-			:icon="$image('icons/cross_white.svg')"
-			@click="close()"
-			class="closeBt"
-		/>
-		
-		<i18n-t scope="global" tag="h1" keypath="search.title">
-			<template #COUNT><span class="count" v-if="messages.length > 0">({{messages.length}})</span></template>
-		</i18n-t>
-		<div class="messages" v-if="messages.length > 0">
-			<ChatMessage
-				v-for="m in messages"
-				class="message"
-				:ref="'message_'+m.id"
-				:key="m.id"
-				:messageData="m"
-				lightMode
-				:highlightedWords="[search]"
-				:enableWordHighlight="true"
-			/>
+		<div class="head">
+			<div class="title">
+				<img src="@/assets/icons/search.svg" alt="search" class="icon">
+				<i18n-t scope="global" tag="h1" keypath="search.title">
+					<template #COUNT><span class="count" v-if="messages.length > 0"> - {{messages.length}}</span></template>
+				</i18n-t>
+			</div>
+			
+			<i18n-t scope="global" class="description" tag="span" keypath="search.subtitle">
+				<template #SEARCH><span class="search">{{search}}</span></template>
+			</i18n-t>
+			<CloseButton @click="close()" />
 		</div>
 
-		<div class="noResult" v-if="messages.length == 0">
-			{{ $t("search.no_result", {SEARCH:search}) }}
+		<div class="content">
+			<div class="messages" v-if="messages.length > 0">
+				<ChatMessage
+					v-for="m in messages"
+					class="message"
+					:ref="'message_'+m.id"
+					:key="m.id"
+					:messageData="m"
+					lightMode
+					:highlightedWords="[search]"
+					:enableWordHighlight="true"
+				/>
+			</div>
+
+			<div class="noResult" v-if="messages.length == 0">
+				{{ $t("search.no_result", {SEARCH:search}) }}
+			</div>
 		</div>
 	</div>
 </template>
@@ -37,21 +42,24 @@ import { watch } from '@vue/runtime-core';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
+import CloseButton from '../CloseButton.vue';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 		ChatMessage,
 	},
 	emits:["close"]
 })
-export default class MessageSearch extends Vue {
+export default class MessageSearch extends AbstractSidePanel {
 
 	public search = "";
 	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 
 	public get classes():string[] {
-		let res = ["messagesearch"];
+		let res = ["messagesearch", "sidePanel"];
 		if(this.messages.length > 0) res.push("hasResult");
 		return res;
 	}
@@ -61,6 +69,7 @@ export default class MessageSearch extends Vue {
 			this.updateList();
 		});
 		this.updateList();
+		super.open();
 	}
 
 	private async updateList():Promise<void> {
@@ -91,46 +100,34 @@ export default class MessageSearch extends Vue {
 		this.messages = result;
 	}
 
-	public close():void {
-		this.$store("chat").doSearchMessages("");
-	}
-
 }
 </script>
 
 <style scoped lang="less">
 .messagesearch{
-	min-height: 70px;
-	max-height: 10vh;
-	position: relative;
-	display: flex;
-	flex-direction: column;
 
-
-	h1 {
-		text-align: center;
-		color: #ffffff;
-		margin: 10px 0;
-		.count {
-			font-size: .7em;
-			font-weight: normal;
-		}
-	}
-
-	.closeBt {
-		.clearButton();
-		position: absolute;
-		top:5px;
-		right:5px;
-		z-index: 1;
+	.count {
+		font-size: .7em;
+		font-weight: normal;
 	}
 
 	.messages {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 		overflow-y: auto;
 		position: relative;
+		flex-shrink: 0;
 
 		.message {
 			margin: .25em 0;
+			
+			&:nth-child(odd) {
+				background-color: rgba(255, 255, 255, .05);
+				&:hover {
+					background-color: rgba(255, 255, 255, .2);
+				}
+			}
 		}
 	}
 

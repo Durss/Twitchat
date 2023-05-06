@@ -4,13 +4,12 @@
 		"title":"💡 Astuce 💡",
 		"alerts": {
 			"title": "Créez vos propres alertes",
-			"info_1": "Avec Twitchat vous pouvez créer vos propres alertes de sub/follow/reward/poll/... en contrôlant vos sourecs et filtres OBS.",
-			"info_2": "Ajoutez du text, des images, des videos ou des sons dans vos scènes et laissez Twitchat les contrôler quand certains évènements ont lieu. Twitchat peut modifier le contenu des sources en fonction des données de l'évènement choisi (ex: pseudo de la personne qui s'abonne)."
+			"info_1": "Avec Twitchat vous pouvez créer vos propres alertes de sub, follow, sondage, récompenses de points de chaîne,... en contrôlant vos sources OBS, leur contenu et leurs filtres depuis Twitchat."
 		},
 		"streamdeck": {
 			"title": "Plugin Stream Deck™",
 			"info_1": "Contrôlez Twitchat depuis votre Stream Deck™.",
-			"info_2": "Mettez le chat en pause, faîte-le défiler, déplacez le marque-page, ouvrez la fenêtre de sondage/prédiction/bingo/tirage au sort et bien plus encore."
+			"info_2": "Mettez le chat en pause, faîte-le défiler, déplacez le marque-page, modérez, épinglez et mettez en avant des messages, ouvrez la fenêtre de sondage/prédiction/bingo/tirage au sort et bien plus encore."
 		},
 		"obs_stop": {
 			"title": "Couper le stream après un raid",
@@ -22,12 +21,11 @@
 		},
 		"raffle": {
 			"title": "Créer un tirage au sort",
-			"info_1": "Vous pouvez créer un tirage au sort que vos viewers seront invités à rejoindre avec une commande de tchat ou une récompense de points de chaîne.",
-			"info_2": "Vous pourrez ensuite sélectionner une personne au hasard.",
-			"info_3": "En bonus, un overlay permet d'afficher une roue animée lorsque vous effectuez le tirage au sort."
+			"info_1": "Créez un tirage au sort auquel vos viewers pourront participer via une commande de tchat ou une récompense de points de chaîne.",
+			"info_2": "Un overlay Twitchat permet d'afficher une roue animée lorsque vous effectuez le tirage au sort."
 		},
 		"obs": {
-			"title": "Controlez OBS depuis le tchat",
+			"title": "Contrôlez OBS depuis le tchat",
 			"info_1": "Vous avez tendance à oublier de changer de scène ou de vous unmute ?",
 			"info_2": "Permettez à vos modos de le faire pour vous depuis des commandes de tchat !"
 		},
@@ -38,15 +36,14 @@
 			"readBt": "Lire la documentation"
 		},
 		"music": {
-			"title": "Controller la musique",
-			"info_1": "Twitchat intègre <strong>Spotify</strong>.",
-			"info_2": "Cette intégration permet d'afficher le morceau en cours de lecture sur vos overlays et de permettre à votre tchat de controler la lecture via le tchat ou les points de chaîne.",
-			"info_3": "Vous pouvez également créer votre propre système de song request !"
+			"title": "Contrôlez Spotify",
+			"info_1": "Liez Twitchat à Spotify pour afficher le morceau en cours de lecture sur vos overlays ou permettre à vos viewers de contrôler la lecture via le tchat ou des points de chaîne.",
+			"info_2": "Vous pouvez également créer votre propre système de song request !"
 		},
 		"overlays": {
 			"title": "Overlays Twitchat",
 			"info_1": "Twitchat propose quelques <strong>overlays</strong> pour votre stream.",
-			"info_2": "Ils permettent d'afficher <strong>la musique en cours de lecture</strong>, une <strong>roue animée</strong> de tirage au sort, ou encore un <strong>timer</strong> et un <strong>chronomètre</strong>."
+			"info_2": "Ils permettent d'afficher <strong>la musique en cours de lecture</strong>, une <strong>roue animée</strong> de tirage au sort, un <strong>timer</strong>, un <strong>chronomètre</strong> ou encore de <strong>mettre en avant</strong> un message de tchat."
 		},
 		"countdown": {
 			"title": "Chronomètre et Compte à rebours",
@@ -61,8 +58,7 @@
 		},
 		"highlight": {
 			"title": "Mettre un message en avant",
-			"info_1": "Vous pouvez mettre message de tchat en avant sur votre stream.",
-			"info_2": "Configurez l'overlay puis affichez n'importe quel message du tchat sur votre stream en un clique ou depuis des évènements de triggers.",
+			"info": "Vous pouvez mettre un message de tchat ou un clip en avant sur votre stream grâce à un overlay Twitchat dédié.",
 			"config_overlayBt": "Configurer l'overlay",
 			"configure_triggerBt": "Créer des triggers"
 		}

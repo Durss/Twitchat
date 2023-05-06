@@ -1,12 +1,10 @@
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
-import TriggerActionHandler from './triggers/TriggerActionHandler';
 import Utils from './Utils';
 
 /**
@@ -69,13 +67,13 @@ export default class OBSWebsocket extends EventDispatcher {
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
 		if(!forceConnect && StoreProxy.obs.connectionEnabled !== true) return false;
-		if(!ip || ip.length < 5) return false;
 		
 		try {
-			const protocol = ip == "127.0.0.1" ? "ws://" : "wss://";
+			const protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
-			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion:1});
+			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
 			this.connected = true;
+			this.dispatchEvent(new TwitchatEvent("OBS_WEBSOCKET_CONNECTED"));
 		}catch(error) {
 			console.log(error);
 			if(this.autoReconnect) {
@@ -102,38 +100,87 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
 			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
+			this.dispatchEvent(new TwitchatEvent("CustomEvent", e));
 		});
 
 		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {
-			const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
-				id:Utils.getUUID(),
-				date:Date.now(),
-				platform:"twitchat",
-				type:'obs_scene_change',
-				sceneName:e.sceneName,
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, e));
+		});
+
+		this.obs.on("InputMuteStateChanged", (e:{inputName:string, inputMuted:boolean}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_MUTE_TOGGLE, e));
+		});
+
+		//This evet is disabled as it needs the following OBS plugin to be triggered
+		// https://obsproject.com/forum/resources/media-controls.1032/
+		//This plugin provides playback controls for media sources.
+		//Without that plugin only the NEXT and RESTART event seem to be triggered natively.
+		/*
+		this.obs.on("MediaInputActionTriggered", (e:{inputName:string, mediaAction:string}) => {
+			const action:OBSMediaAction = e.mediaAction as OBSMediaAction;
+			let event:string = "";
+			switch(action) {
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE": return;//Ignore
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY": event = TwitchatEvent.OBS_PLAYBACK_STARTED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE": event = TwitchatEvent.OBS_PLAYBACK_PAUSED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP": event = TwitchatEvent.OBS_PLAYBACK_ENDED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART": event = TwitchatEvent.OBS_PLAYBACK_RESTARTED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT": event = TwitchatEvent.OBS_PLAYBACK_NEXT; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS": event = TwitchatEvent.OBS_PLAYBACK_PREVIOUS; break;
 			}
-			TriggerActionHandler.instance.execute(m);
+			this.dispatchEvent(new TwitchatEvent(event, e));
+		});
+		//*/
+
+		this.obs.on("MediaInputPlaybackStarted", async (e:{inputName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_STARTED, e));
+		});
+		
+		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
 		});
 
 		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
-			const res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
+			let res:{sceneItems: JsonObject[]} = {sceneItems:[]};
+			try {
+				res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
+			}catch(error) {
+				console.log("Failed loading scene item, try loading it as a group");
+				//If reaching this point it's most probably because the scene is
+				//actually a group.
+				//Let's try to load its content as a group.
+				try {
+					res = await this.obs.call("GetGroupSceneItemList", {sceneName:e.sceneName});
+				}catch(error){
+					//dunno what could have failed :/
+					console.log("Failed loading it a group as well :/");
+					console.log(error);
+				}
+			}
 			const items = (res.sceneItems as unknown) as OBSSourceItem[];
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
 				if(item.sceneItemId == e.sceneItemId) {
-					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:'obs_source_toggle',
-						sourceName:item.sourceName,
-						sourceItemId:e.sceneItemId,
-						visible:e.sceneItemEnabled,
-					}
-					TriggerActionHandler.instance.execute(m);
+					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SOURCE_TOGGLE, {item, event:e} as unknown as JsonObject));
 					break;
 				}
 			}
+		});
+		
+		this.obs.on("InputNameChanged", async (e:{oldInputName:string, inputName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_INPUT_NAME_CHANGED, e));
+		});
+		
+		this.obs.on("SceneNameChanged", async (e:{oldSceneName:string, sceneName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_NAME_CHANGED, e));
+		});
+
+		this.obs.on("SourceFilterNameChanged", async (e:{sourceName: string, oldFilterName: string, filterName: string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_NAME_CHANGED, e));
+		});
+
+		this.obs.on("SourceFilterEnableStateChanged", async (e:{sourceName: string, filterName: string, filterEnabled: boolean}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_TOGGLE, e));
 		});
 
 		// console.log(await this.obs.call("GetInputList"));
@@ -172,6 +219,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		// const res = await this.getSourceOnCurrentScene("TTImage");
 		// console.log(res);
 
+		//@ts-ignore
+		window.test = this.obs;
 		return true;
 	}
 
@@ -227,7 +276,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		const idsScenesDone:{[key:string]:boolean} = {};
 		for (let i = 0; i < scenes.scenes.length; i++) {
 			const scene = scenes.scenes[i] as {sceneIndex:number, sceneName:string};
-			const list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
+			let list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
 			let items = (list.sceneItems as unknown) as OBSSourceItem[];
 			for (let i = 0; i < items.length; i++) {
 				const v = items[i];
@@ -237,6 +286,10 @@ export default class OBSWebsocket extends EventDispatcher {
 					continue;
 				}
 				idsSourceDone[v.sourceName] = true;
+				if(v.isGroup) {
+					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:v.sourceName});
+					items = items.concat( (res.sceneItems as unknown) as OBSSourceItem[] );
+				}
 				// if(v.sourceType == "OBS_SOURCE_TYPE_SCENE") {
 				// 	console.log("Scene:", v.sourceName);
 				// }
@@ -270,7 +323,6 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return {inputs:[]};
 		
 		const kinds = await this.getInputKindList();
-		console.log(kinds);
 		const audioKind = kinds.inputKinds.find(kind=>kind.indexOf("input_capture") > -1);
 		return await this.obs.call("GetInputList", {inputKind:audioKind});
 	}
@@ -310,6 +362,21 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return;
 		
 		await this.obs.call("SetCurrentProgramScene", {sceneName:name});
+	}
+
+	/**
+	 * Get the current scene
+	 * 
+	 * @returns 
+	 */
+	public async getCurrentScene():Promise<string> {
+		if(!this.connected) return "";
+		let scene = "";
+		try {
+			const res = await this.obs.call("GetCurrentProgramScene");
+			scene = res.currentProgramSceneName;
+		}catch(error) {}
+		return scene;
 	}
 
 	/**
@@ -367,20 +434,35 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sceneName 
 	 * @returns 
 	 */
-	public async getSourceOnCurrentScene(sourceName:string, sceneName = ""):Promise<{scene:string, source:OBSSourceItem}|null> {
+	public async getSourceOnCurrentScene(sourceName:string, sceneName = "", isGroup:boolean = false):Promise<{scene:string, source:OBSSourceItem}|null> {
 		if(!sceneName) {
 			const scene = await this.obs.call("GetCurrentProgramScene");
 			sceneName = scene.currentProgramSceneName;
 		}
-		const itemsCall = await this.obs.call("GetSceneItemList", {sceneName});
-		const items = (itemsCall.sceneItems as unknown) as OBSSourceItem[];
+		let items:OBSSourceItem[] = [];
+		if(isGroup) {
+			//Search grouped item
+			const res = await this.obs.call("GetGroupSceneItemList", {sceneName:sceneName});
+			items = (res.sceneItems as unknown) as OBSSourceItem[];
+		}else{
+			//Search scene item
+			const res = await this.obs.call("GetSceneItemList", {sceneName});
+			items = (res.sceneItems as unknown) as OBSSourceItem[];
+		}
 		const item = items.find(v=> v.sourceName == sourceName);
 		if(item) {
 			return {scene:sceneName, source:item};
 		}else{
+			//Item not found check on sub scenes and groups
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
-				if(!item.isGroup && item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+				if(item.isGroup) {
+					//Search on sub group
+					const res = await this.getSourceOnCurrentScene(sourceName, item.sourceName, true);
+					if(res) return res;
+				}else
+				//Search on sub scene
+				if(item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
 					const res = await this.getSourceOnCurrentScene(sourceName, item.sourceName);
 					if(res) return res;
 				}
@@ -454,7 +536,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 }
 
-export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2";
+export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2" | "vlc_source";
 export type OBSSourceType = "OBS_SOURCE_TYPE_INPUT" | "OBS_SOURCE_TYPE_SCENE";
 
 export interface OBSAudioSource {inputKind:OBSInputKind, inputName:string, unversionedInputKind:string}
@@ -495,3 +577,11 @@ export interface BrowserSourceSettings {
 	url?: string;
 	width?: number;
 }
+
+export type OBSMediaAction = "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT" |
+							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS";

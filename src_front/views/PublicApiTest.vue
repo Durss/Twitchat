@@ -1,6 +1,6 @@
 <template>
 	<div class="publicapitest">
-		<div class="connectForm">
+		<div class="connectForm blured-background-window">
 			<form @submit.prevent="connect()" v-if="!connected">
 				<ParamItem :paramData="obsPort_conf" class="row" />
 				<ParamItem :paramData="obsPass_conf" class="row" />
@@ -16,7 +16,7 @@
 
 				<Button title="Connect" type="submit" class="connectBt" :loading="loading" />
 			</form>
-			<Button v-else title="Disconnect" @click="disconnect()" class="connectBt" :loading="loading" :icon="$image('icons/cross_white.svg')" />
+			<Button v-else title="Disconnect" @click="disconnect()" class="connectBt" :loading="loading" icon="cross" />
 		</div>
 
 		<div class="lists">
@@ -35,7 +35,7 @@
 			</div>
 			<div class="list actions">
 				<div class="head">Actions</div>
-				<Button class="action" v-for="a in actionList" :title="a.key" small @click="executeAction(a)" />
+				<Button class="action" v-for="a in actionList" small @click="executeAction(a)">{{ a.key }}</Button>
 			</div>
 		</div>
 	</div>
@@ -46,7 +46,7 @@ import Button from '@/components/Button.vue';
 import ParamsOBS from '@/components/params/contents/ParamsOBS.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TwitchatActionTypeList, TwitchatEventTypeList, type TwitchatActionType } from '@/events/TwitchatEvent';
+import { TwitchatActionTypeList, TwitchatEventTypeList, type TwitchatActionType, type TwitchatEventType } from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
@@ -63,17 +63,17 @@ import { Component, Vue } from 'vue-facing-decorator';
 })
 export default class PublicApiTest extends Vue {
 
-	public eventList:{key:string, active:boolean, data:any|null}[] = [];
-	public actionList:{key:string}[] = [];
+	public eventList:{key:TwitchatEventType, active:boolean, data:any|null}[] = [];
+	public actionList:{key:TwitchatActionType}[] = [];
 	
 	public loading = false;
 	public connected = false;
 	public connectError = false;
 	public connectSuccess = false;
 	public openConnectForm = false;
-	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
-	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
+	public obsPort_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string> = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
 
 	private idsDone:{[key:string]:boolean} = {};
 
@@ -110,10 +110,10 @@ export default class PublicApiTest extends Vue {
 		this.$store("obs").connectionEnabled = true;
 		
 		const connected = await OBSWebsocket.instance.connect(
-							(this.obsPort_conf.value as number).toString(),
-							this.obsPass_conf.value as string,
+							this.obsPort_conf.value.toString(),
+							this.obsPass_conf.value,
 							false,
-							this.obsIP_conf.value as string
+							this.obsIP_conf.value
 						);
 		if(connected) {
 			this.connected = true;
@@ -133,15 +133,14 @@ export default class PublicApiTest extends Vue {
 		OBSWebsocket.instance.disconnect();
 	}
 
-	public async executeAction(action:{key:string}):Promise<void> {
-		console.log(action);
+	public async executeAction(action:{key:TwitchatEventType|TwitchatActionType}):Promise<void> {
 		PublicAPI.instance.broadcast(action.key);
 	}
 
 	private initAPI():void {
 		//@ts-ignore
 		OBSWebsocket.instance.socket.on("CustomEvent",
-		(e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
+		(e:{origin:"twitchat", type:TwitchatEventType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
 			const data = e.data as {id:string};
@@ -167,10 +166,9 @@ export default class PublicApiTest extends Vue {
 .publicapitest{
 	padding: 1em;
 	.connectForm {
-		.window();
 		max-width: 400px;
 		margin: auto;
-		background: @mainColor_light;
+		background: var(--color-light);
 
 		text-align: center;
 
@@ -207,7 +205,7 @@ export default class PublicApiTest extends Vue {
 			.head {
 				font-size: 1.5em;
 				text-align: center;
-				color: @mainColor_light;
+				color: var(--color-light);
 				margin-bottom: 5px;
 			}
 

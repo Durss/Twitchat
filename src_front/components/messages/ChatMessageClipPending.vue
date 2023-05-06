@@ -1,23 +1,23 @@
 <template>
-	<div class="chatmessageclippending">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatmessageclippending chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/clip.svg')" alt="notice" class="icon">
 		
 		<div class="loading" v-if="loading && !error">
 			<div class="message">{{ $t("global.moderation_action.clip_creating") }}</div>
-			<img class="loader" src="@/assets/loader/loader_white.svg">
+			<img class="loader" src="@/assets/loader/loader.svg">
 		</div>
 
 		<div v-else-if="!error">
 			<div class="message">{{ $t("global.moderation_action.clip_created") }}</div>
 			<div class="ctas">
-				<Button @click="highlight()" :title="$t('chat.hover_actions.highlight')" :icon="$image('icons/highlight.svg')" />
-				<Button type="link" :href="messageData.clipUrl" target="_blank" :title="$t('global.moderation_action.clip_created_publishBt')" :icon="$image('icons/edit.svg')" />
+				<Button @click="highlight()" icon="highlight">{{ $t('chat.context_menu.highlight') }}</Button>
+				<Button type="link" :href="messageData.clipUrl" target="_blank" icon="edit">{{ $t('global.moderation_action.clip_created_publishBt') }}</Button>
 			</div>
 		</div>
 
-		<div v-if="error" class="error">{{ $t("error.clip_creation") }}</div>
+		<div v-if="error" class="card-item alert">{{ $t("error.clip_creation") }}</div>
 
 	</div>
 </template>
@@ -96,8 +96,6 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatmessageclippending{
-	.chatMessageHighlight();
-
 	.ctas {
 		margin-top: .25em;
 		display: flex;
@@ -115,11 +113,6 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 		img {
 			height: 1em;
 		}
-	}
-
-	.error {
-		font-style: italic;
-		color:@mainColor_warn;
 	}
 }
 </style>

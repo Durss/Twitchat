@@ -20,15 +20,43 @@ import Ajv from "ajv";
 				all: {type:"boolean"},
 				usersAllowed: {
 					type:"array",
+					minItems:0,
 					maxItems:10000,
-					items:[{type:"string", maxLength:40}],
+					items:{type:"string", maxLength:40},
 				},
 				usersRefused: {
 					type:"array",
+					minItems:0,
 					maxItems:10000,
-					items:[{type:"string", maxLength:40}],
+					items:{type:"string", maxLength:40},
 				},
 				users: {type:"string", maxLength:1000000},//Keep it a little, remove it once most of the users have migrated their data
+			}
+		},
+		conditionGroup: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				id: {type:"string", maxLength:50},
+				type: {type:"string", maxLength:15},
+				operator: {type:"string", maxLength:15},
+				conditions:{
+					anyOf: [
+						{ $ref: "#/definitions/condition" },
+						{ $ref: "#/definitions/conditionGroup" },
+					]
+				}
+			}
+		},
+		condition: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				id: {type:"string", maxLength:50},
+				type: {type:"string", maxLength:15},
+				placeholder: {type:"string", maxLength:100},
+				operator: {type:"string", maxLength:20},
+				value: {type:"string", maxLength:500},
 			}
 		}
 	},
@@ -48,220 +76,264 @@ import Ajv from "ajv";
 		obsConf_permissions: { $ref: "defs.json#/definitions/permissions" },
 		obsConf_scenes: {
 			type:"array",
+			minItems:0,
 			maxItems:10000,
-			items:[
-				{
-					type:"object",
-					additionalProperties: false,
-					properties:{
-						scene: 
-						{
-							type:"object",
-							additionalProperties: false,
-							properties:{
-								sceneIndex:{type:"integer"},
-								sceneName:{type:"string", maxLength:100},
-							}
-						},
-						command:{type:"string", maxLength:100},
-					}
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties:{
+					scene: 
+					{
+						type:"object",
+						additionalProperties: false,
+						properties:{
+							sceneIndex:{type:"integer"},
+							sceneName:{type:"string", maxLength:100},
+						}
+					},
+					command:{type:"string", maxLength:100},
 				}
-			]
+			}
 		},
 		triggers: {
-			type:["object"],
-			additionalProperties: true,
-			patternProperties: {
-				".*": {
-					type: "object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						name: {type:"string", maxLength:100},
-						queue: {type:"string", maxLength:100},
-						chatCommand: {type:"string", maxLength:100},//Deprecated
-						scheduleParams: {
-							type:"object",
-							properties: {
-								type: {type:"string", maxLength:10},
-								repeatDuration: {type:"number", minimum:0, maximum:48*60},
-								repeatMinMessages: {type:"number", minimum:0, maximum:9999},
-								dates:{
-									type:"array",
-									maxItems:10000,
-									items: [
-										{
+			type:"array",
+			minItems:0,
+			maxItems:10000,
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: {type:"string", maxLength:50},
+					type: {type:"string", maxLength:5},
+					enabled: {type:"boolean"},
+					addToContextMenu: {type:"boolean"},
+					rewardId:{type:"string", maxLength:100},
+					name:{type:"string", maxLength:100},
+					chatCommand:{type:"string", maxLength:100},
+					scheduleName:{type:"string", maxLength:100},
+					obsSource:{type:"string", maxLength:200},
+					obsScene:{type:"string", maxLength:200},
+					obsInput:{type:"string", maxLength:200},
+					obsFilter:{type:"string", maxLength:200},
+					counterId: {type:"string", maxLength:50},
+					queue: {type:"string", maxLength:100},
+					conditions: { $ref: "#/definitions/conditionGroup" },
+					permissions: { $ref: "defs.json#/definitions/permissions" },
+					chatCommandAliases:{
+										type:"array",
+										minItems:0,
+										maxItems:10,
+										items:{type:"string", maxLength:50},
+									},
+					chatCommandParams:{
+										type:"array",
+										minItems:0,
+										maxItems:30,
+										items:{
 											type: "object",
 											additionalProperties: false,
 											properties: {
-												daily: {type:"boolean"},
-												yearly: {type:"boolean"},
-												value: {type:"string", maxLength:20},
+												type:{type:"string", maxLength:20},
+												tag:{type:"string", maxLength:50},
 											}
-										}
-									]
-								}
-							}
-						},
-						permissions: { $ref: "defs.json#/definitions/permissions" },
-						cooldown: {
-							type:"object",
-							properties: {
-								global: {type:"number", minimum:0, maximum:60*60*12},
-								user: {type:"number", minimum:0, maximum:60*60*12},
-								alert: {type:"boolean"},
-							}
-						},
-						actions:{
-							type:"array",
-							maxItems:100,
-							items: [
-								{
+										},
+									},
+					scheduleParams: {
+						type:"object",
+						properties: {
+							type: {type:"string", maxLength:10},
+							repeatDuration: {type:"number", minimum:0, maximum:48*60},
+							repeatMinMessages: {type:"number", minimum:0, maximum:9999},
+							dates:{
+								type:"array",
+								minItems:0,
+								maxItems:10000,
+								items: {
 									type: "object",
 									additionalProperties: false,
 									properties: {
-										id: {type:"string", maxLength:100},
-										sourceName: {type:"string", maxLength:100},
-										show: {
-											anyOf:[
-												{type:"string", maxLength:20},
-												{type:"boolean"},
-											]
-										},
-										delay: {type:"number"},
-										filterName: {type:"string", maxLength:100},
-										text: {type:"string", maxLength:500},
-										url: {type:"string", maxLength:1000},
-										mediaPath: {type:"string", maxLength:1000},
-										type: {type:"string", maxLength:50},
-										musicAction: {type:"string", maxLength:3},
-										track: {type:"string", maxLength:500},
-										confirmMessage: {type:"string", maxLength:500},
-										playlist: {type:"string", maxLength:500},
-										voiceID: {type:"string", maxLength:100},
-										triggerKey: {type:"string", maxLength:100},
-										method: {type:"string", maxLength:10},
-										addValue: {type:"string", maxLength:100},
-										counter: {type:"string", maxLength:40},
-										placeholder:{type:"string", maxLength:20},
-										outputPlaceholder:{type:"string", maxLength:20},
-										min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-										max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-										float: {type:"boolean"},
+										daily: {type:"boolean"},
+										monthly: {type:"boolean"},
+										yearly: {type:"boolean"},
+										value: {type:"string", maxLength:20},
+									}
+								}
+							}
+						}
+					},
+					cooldown: {
+						type:"object",
+						properties: {
+							global: {type:"number", minimum:0, maximum:60*60*12},
+							user: {type:"number", minimum:0, maximum:60*60*12},
+							alert: {type:"boolean"},
+						}
+					},
+					actions:{
+						type:"array",
+						minItems:0,
+						maxItems:100,
+						items: {
+							type: "object",
+							additionalProperties: false,
+							properties: {
+								id: {type:"string", maxLength:100},
+								sourceName: {type:"string", maxLength:100},
+								//remove this property after some time
+								show: {
+									anyOf:[
+										{type:"string", maxLength:20},
+										{type:"boolean"},
+									]
+								},
+								action: {type:"string", maxLength:20},
+								triggerId: {type:"string", maxLength:50},
+								delay: {type:"number"},
+								filterName: {type:"string", maxLength:100},
+								text: {type:"string", maxLength:500},
+								url: {type:"string", maxLength:1000},
+								mediaPath: {type:"string", maxLength:1000},
+								type: {type:"string", maxLength:50},
+								musicAction: {type:"string", maxLength:3},
+								track: {type:"string", maxLength:500},
+								confirmMessage: {type:"string", maxLength:500},
+								playlist: {type:"string", maxLength:500},
+								voiceID: {type:"string", maxLength:100},
+								triggerKey: {type:"string", maxLength:100},
+								method: {type:"string", maxLength:10},
+								addValue: {type:"string", maxLength:100},
+								counter: {type:"string", maxLength:40},
+								counterUserSources: {
+									type:"object",
+									additionalProperties: false,
+									patternProperties: {
+									  ".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
+									},
+								},
+								placeholder:{type:"string", maxLength:20},
+								outputPlaceholder:{type:"string", maxLength:20},
+								min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								float: {type:"boolean"},
+								mode: {type:"string", maxLength:20},
+								title: {type:"string", maxLength:20},
+								categoryId: {type:"string", maxLength:30},
+								topic: {type:"string", maxLength:255},
+								tags: {
+									type:"array",
+									minItems:0,
+									maxItems:20,
+									items:{type:"string", maxLength:10},
+								},
+								list: {
+									type:"array",
+									minItems:0,
+									maxItems:10000,
+									items:{type:"string", maxLength:500},
+								},
+								triggers: {
+									type:"array",
+									minItems:0,
+									maxItems:1000,
+									items:{type:"string", maxLength:100},
+								},
+								counters: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:40},
+								},
+								queryParams: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:50},
+								},
+								params: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:50},
+								},
+								raffleData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
 										mode: {type:"string", maxLength:20},
-										title: {type:"string", maxLength:20},
-										categoryId: {type:"string", maxLength:30},
-										topic: {type:"string", maxLength:255},
-										tags: {
+										command: {type:"string", maxLength:100},
+										reward_id: {type:"string", maxLength:200},
+										duration_s: {type:"number", minimum:0, maximum:120 * 60000},
+										maxEntries: {type:"number", minimum:0, maximum:1000000},
+										created_at: {type:"number", minimum:0, maximum:9999999999999},
+										entries: {
 											type:"array",
-											maxItems:20,
-											items:[{type:"string", maxLength:10}],
-										},
-										list: {
-											type:"array",
+											minItems:0,
 											maxItems:10000,
-											items:[{type:"string", maxLength:500}],
-										},
-										triggers: {
-											type:"array",
-											maxItems:1000,
-											items:[{type:"string", maxLength:100}],
-										},
-										counters: {
-											type:"array",
-											maxItems:100,
-											items:[{type:"string", maxLength:40}],
-										},
-										queryParams: {
-											type:"array",
-											maxItems:100,
-											items:[{type:"string", maxLength:50}],
-										},
-										params: {
-											type:"array",
-											maxItems:100,
-											items:[{type:"string", maxLength:50}],
-										},
-										raffleData: {
-											type: "object",
-											additionalProperties: false,
-											properties: {
-												mode: {type:"string", maxLength:20},
-												command: {type:"string", maxLength:100},
-												reward_id: {type:"string", maxLength:200},
-												duration_s: {type:"number", minimum:0, maximum:120 * 60000},
-												maxEntries: {type:"number", minimum:0, maximum:1000000},
-												created_at: {type:"number", minimum:0, maximum:9999999999999},
-												entries: {
-													type:"array",
-													maxItems:10000,
-													items: [
-														{
-															type: "object",
-															additionalProperties: false,
-															properties: {
-																id:{type:"string", maxLength:100},
-																label:{type:"string", maxLength:200},
-																score:{type:"number", minimum:0, maximum:100},
-															}
-														}
-													]
-												},
-												followRatio: {type:"number", minimum:0, maximum:100},
-												vipRatio: {type:"number", minimum:0, maximum:100},
-												subRatio: {type:"number", minimum:0, maximum:100},
-												subgiftRatio: {type:"number", minimum:0, maximum:100},
-												subMode_includeGifters: {type:"boolean"},
-												subMode_excludeGifted: {type:"boolean"},
-												showCountdownOverlay: {type:"boolean"},
-												customEntries: {type:"string", maxLength:1000000},
-											},
-										},
-										bingoData: {
-											type: "object",
-											additionalProperties: false,
-											properties: {
-												guessNumber: {type:"boolean"},
-												guessEmote: {type:"boolean"},
-												guessCustom: {type:"boolean"},
-												min: {type:"number", minimum:0, maximum:999999999},
-												max: {type:"number", minimum:0, maximum:999999999},
-												customValue: {type:"string", maxLength:1000000},
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													id:{type:"string", maxLength:100},
+													label:{type:"string", maxLength:200},
+													score:{type:"number", minimum:0, maximum:100},
+												}
 											}
 										},
-										pollData: {
-											type: "object",
-											additionalProperties: false,
-											properties: {
-												pointsPerVote: {type:"number", minimum:0, maximum:999999999},
-												voteDuration: {type:"number", minimum:0, maximum:999999999},
-												title: {type:"string", maxLength:60},
-												answers: {
-													type:"array",
-													maxItems:50,
-													items:[{type:"string", maxLength:25}],
-												},
-											}
-										},
-										predictionData: {
-											type: "object",
-											additionalProperties: false,
-											properties: {
-												voteDuration: {type:"number", minimum:0, maximum:999999999},
-												title: {type:"string", maxLength:60},
-												answers: {
-													type:"array",
-													maxItems:50,
-													items:[{type:"string", maxLength:25}],
-												},
-											}
-										}
+										followRatio: {type:"number", minimum:0, maximum:100},
+										vipRatio: {type:"number", minimum:0, maximum:100},
+										subRatio: {type:"number", minimum:0, maximum:100},
+										subgiftRatio: {type:"number", minimum:0, maximum:100},
+										subMode_includeGifters: {type:"boolean"},
+										subMode_excludeGifted: {type:"boolean"},
+										showCountdownOverlay: {type:"boolean"},
+										customEntries: {type:"string", maxLength:1000000},
+									},
+								},
+								bingoData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										guessNumber: {type:"boolean"},
+										guessEmote: {type:"boolean"},
+										guessCustom: {type:"boolean"},
+										min: {type:"number", minimum:0, maximum:999999999},
+										max: {type:"number", minimum:0, maximum:999999999},
+										customValue: {type:"string", maxLength:1000000},
 									}
 								},
-							]
-						}
+								pollData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										pointsPerVote: {type:"number", minimum:0, maximum:999999999},
+										voteDuration: {type:"number", minimum:0, maximum:999999999},
+										title: {type:"string", maxLength:60},
+										answers: {
+											type:"array",
+											minItems:0,
+											maxItems:50,
+											items:{type:"string", maxLength:25},
+										},
+									}
+								},
+								predictionData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										voteDuration: {type:"number", minimum:0, maximum:999999999},
+										title: {type:"string", maxLength:60},
+										answers: {
+											type:"array",
+											minItems:0,
+											maxItems:50,
+											items:{type:"string", maxLength:25},
+										},
+									}
+								}
+							}
+						},
 					}
-				},
+				}
 			}
 		},
 		botMessages: {
@@ -336,39 +408,38 @@ import Ajv from "ajv";
 		},
 		voiceActions: {
 			type:"array",
+			minItems:0,
 			maxItems:1000,
-			items: [
-				{
-					type: "object",
-					additionalProperties: false,
-					properties: {
-						id: {type:"string", maxLength:100},
-						sentences: {type:"string", maxLength:1000000},
-					}
-				},
-			]
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: {type:"string", maxLength:100},
+					sentences: {type:"string", maxLength:1000000},
+				}
+			},
 		},
 		voiceLang: {type:"string", maxLength:20},
 		streamInfoPresets:{
 			type:"array",
+			minItems:0,
 			maxItems:1000,
-			items:[
-				{
-					type:"object",
-					additionalProperties: false,
-					properties:{
-						name:{type:"string", maxLength:50},
-						id:{type:"string", maxLength:10},
-						title:{type:"string", maxLength:200},
-						categoryID:{type:"string", maxLength:10},
-						tags:{
-							type:"array",
-							maxItems:30,
-							items:[{type:"string", maxLength:100}],
-						},
-					}
+			items: {
+				type:"object",
+				additionalProperties: false,
+				properties:{
+					name:{type:"string", maxLength:50},
+					id:{type:"string", maxLength:10},
+					title:{type:"string", maxLength:200},
+					categoryID:{type:"string", maxLength:10},
+					tags:{
+						type:"array",
+						minItems:0,
+						maxItems:30,
+						items:{type:"string", maxLength:100},
+					},
 				}
-			]
+			}
 		},
 		"p:bttvEmotes": {type:"boolean"},
 		"p:ffzEmotes": {type:"boolean"},
@@ -382,18 +453,31 @@ import Ajv from "ajv";
 		"p:firstUserBadge": {type:"boolean"},
 		"p:groupIdenticalMessage": {type:"boolean"},
 		"p:highlightMentions": {type:"boolean"},
+		"p:highlightMentions_color": {type:"string", maxLength:7, minLength:7},
 		"p:highlightMods": {type:"boolean"},
+		"p:highlightMods_color": {type:"string", maxLength:7, minLength:7},
 		"p:highlightNonFollowers": {type:"boolean"},
+		"p:highlightNonFollowers_color": {type:"string", maxLength:7, minLength:7},
 		"p:highlightSubs": {type:"boolean"},
+		"p:highlightSubs_color": {type:"string", maxLength:7, minLength:7},
 		"p:highlightVips": {type:"boolean"},
+		"p:highlightVips_color": {type:"string", maxLength:7, minLength:7},
 		"p:highlightPartners": {type:"boolean"},
+		"p:highlightPartners_color": {type:"string", maxLength:7, minLength:7},
+		"p:highlight1stToday": {type:"boolean"},
+		"p:highlight1stToday_color": {type:"string", maxLength:7, minLength:7},
+		"p:highlight1stEver": {type:"boolean"},
+		"p:highlight1stEver_color": {type:"string", maxLength:7, minLength:7},
+		"p:raidHighlightUser": {type:"boolean"},
+		"p:raidHighlightUserDuration": {type:"number"},
+		"p:raidHighlightUser_color": {type:"string", maxLength:7, minLength:7},
+		"p:raffleHighlightUser": {type:"boolean"},
+		"p:raffleHighlightUserDuration": {type:"number"},
 		"p:lockAutoScroll": {type:"boolean"},
 		"p:liveMessages": {type:"boolean"},
 		"p:liveAlerts": {type:"boolean"},
 		"p:markAsRead": {type:"boolean"},
 		"p:minimalistBadges": {type:"boolean"},
-		"p:raidHighlightUser": {type:"boolean"},
-		"p:raffleHighlightUser": {type:"boolean"},
 		"p:showBadges": {type:"boolean"},
 		"p:showEmotes": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},
@@ -406,7 +490,6 @@ import Ajv from "ajv";
 		"p:translateNames": {type:"boolean"},
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
-		"p:highlight1stToday": {type:"boolean"},
 		"p:chatShoutout": {type:"boolean"},
 		"p:hideUsers": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
 		"p:censorDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
@@ -490,6 +573,7 @@ import Ajv from "ajv";
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"number", minimum:-1, maximum:10},
 		rightClickHintPrompt: {type:"boolean"},
+		triggerSortType: {type:"string", maxLength:20},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,
@@ -547,8 +631,9 @@ import Ajv from "ajv";
 				readUnbansPattern: {type:"string", maxLength:300},
 				readUsers:{
 					type:"array",
+					minItems:0,
 					maxItems:10000,
-					items:[{type:"string", maxLength:50}],
+					items:{type:"string", maxLength:50},
 				},
 				ttsPerms:{ $ref: "defs.json#/definitions/permissions" },
 			}
@@ -569,14 +654,16 @@ import Ajv from "ajv";
 				slowModeDuration:{type:"number"},
 				toUsers:{
 					type:"array",
+					minItems:0,
 					maxItems:1000,
-					items:[{type:"string", maxLength:50}],
+					items:{type:"string", maxLength:50},
 				},
 				obsScene:{type:"string", maxLength:500},
 				obsSources:{
 					type:"array",
+					minItems:0,
 					maxItems:1000,
-					items:[{type:"string", maxLength:100}],
+					items:{type:"string", maxLength:100},
 				},
 				autoEnableOnFollowbot:{type:"boolean"},
 				autoEnableOnShieldmode:{type:"boolean"},
@@ -618,6 +705,7 @@ import Ajv from "ajv";
 				shake: {type:"boolean"},
 				sound: {type:"boolean"},
 				blink: {type:"boolean"},
+				vibrate: {type:"boolean"},
 				permissions:{ $ref: "defs.json#/definitions/permissions" },
 			}
 		},
@@ -678,82 +766,83 @@ import Ajv from "ajv";
 
 		chatColumnsConf: {
 			type:"array",
+			minItems:0,
 			maxItems:100,
-			items:[
-				{
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						id: {type:"string", maxLength:40},
-						commandsBlockList: {
-							type:"array",
-							maxItems:10000,
-							items:[{type:"string", maxLength:100}],
-						},
-						userBlockList: {
-							type:"array",
-							maxItems:10000,
-							items:[{type:"string", maxLength:40}],
-						},
-						liveLockCount: {type:"number", minimum:0, maximum:10},
-						order: {type:"number", minimum:0, maximum:1000},
-						size: {type:"number", minimum:0, maximum:10},
-						whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
-						showPanelsHere: { type:"boolean" },
-						filters:{
-							type:"object",
-							additionalProperties: true,
-							patternProperties: {
-								".*": { type:"boolean" }
-							}
-						},
-						messageFilters:{
-							type:"object",
-							additionalProperties: true,
-							patternProperties: {
-								".*": { type:"boolean" }
-							}
+			items: {
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					id: {type:"string", maxLength:40},
+					commandsBlockList: {
+						type:"array",
+						minItems:0,
+						maxItems:10000,
+						items:{type:"string", maxLength:100},
+					},
+					userBlockList: {
+						type:"array",
+						minItems:0,
+						maxItems:10000,
+						items:{type:"string", maxLength:40},
+					},
+					liveLockCount: {type:"number", minimum:0, maximum:10},
+					order: {type:"number", minimum:0, maximum:1000},
+					size: {type:"number", minimum:0, maximum:10},
+					whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
+					showPanelsHere: { type:"boolean" },
+					filters:{
+						type:"object",
+						additionalProperties: true,
+						patternProperties: {
+							".*": { type:"boolean" }
+						}
+					},
+					messageFilters:{
+						type:"object",
+						additionalProperties: true,
+						patternProperties: {
+							".*": { type:"boolean" }
 						}
 					}
 				}
-			]
+			}
 		},
 
 		counters: {
 			type:"array",
+			minItems:0,
 			maxItems:10000,
-			items:[
-				{
-					type:"object",
-					additionalProperties: false,
-					properties:{
-						id: {type:"string", maxLength:40},
-						name: {type:"string", maxLength:50},
-						value: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-						min: {
-							anyOf:[
-								{type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-								{type:"boolean"},
-							]
-						},
-						max: {
-							anyOf:[
-								{type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-								{type:"boolean"},
-							]
-						},
-						loop: {type:"boolean"},
-						perUser: {type:"boolean"},
-						users: {
-							type:"object",
-							additionalProperties: true,
-							patternProperties: {
-								".*": {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-							}
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties:{
+					id: {type:"string", maxLength:40},
+					name: {type:"string", maxLength:50},
+					placeholderKey: {type:"string", maxLength:15},
+					value: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+					min: {
+						anyOf:[
+							{type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"boolean"},
+						]
+					},
+					max: {
+						anyOf:[
+							{type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"boolean"},
+						]
+					},
+					loop: {type:"boolean"},
+					perUser: {type:"boolean"},
+					users: {
+						type:"object",
+						additionalProperties: true,
+						patternProperties: {
+							".*": {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 						}
 					}
 				}
-			]
+			}
 		},
 
 		websocketTrigger: {
@@ -765,11 +854,19 @@ import Ajv from "ajv";
 				secured: {type:"boolean"},
 			}
 		},
+
+		tooltipAutoOpen: {
+			type:"object",
+			additionalProperties: false,
+			patternProperties: {
+			  ".{1,10}": {type: "number"}
+			},
+		},
 	}
 }
 
 const ajv = new Ajv({
-	strictTuples: false,
+	strictTuples: true,
 	verbose:true,
 	removeAdditional:true,
 	discriminator:true,

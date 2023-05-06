@@ -1,35 +1,36 @@
 <template>
 	<div class="paramsalert">
-		<img src="@/assets/icons/alert_purple.svg" alt="emergency icon" class="icon">
+		<img src="@/assets/icons/alert.svg" alt="emergency icon" class="icon">
 		
 		<div class="header">{{ $t("alert.header") }}</div>
 
-		<section>
-			<Splitter class="item splitter">{{$t('alert.command_title') }}</Splitter>
+		<Splitter class="splitter">{{$t('alert.command_title') }}</Splitter>
+		<section class="card-item">
 			
 			<div>
-				<ParamItem class="item" :paramData="param_chatCommand" />
-				<ToggleBlock :title="$t('global.allowed_users')" :open="false" small class="item">
+				<ParamItem :paramData="param_chatCommand" />
+				<ToggleBlock :title="$t('global.allowed_users')" :open="false" small>
 					<PermissionsForm v-model="chatCommandPerms" />
 				</ToggleBlock>
 			</div>
 		</section>
 
-		<section>
-			<Splitter class="item splitter">{{ $t('alert.actions') }}</Splitter>
+		<Splitter class="splitter">{{ $t('alert.actions') }}</Splitter>
+		<section class="card-item">
 	
-			<ParamItem class="item" :paramData="param_message" />
-			<ParamItem class="item" :paramData="param_shake" />
-			<ParamItem class="item" :paramData="param_sound" />
-			<ParamItem class="item" :paramData="param_blink" />
+			<ParamItem :paramData="param_message" />
+			<ParamItem :paramData="param_shake" />
+			<ParamItem :paramData="param_sound" />
+			<ParamItem :paramData="param_blink" />
+			<ParamItem :paramData="param_vibrate" />
 	
-			<i18n-t scope="global" tag="div" class="item infos" keypath="alert.actions_triggers">
+			<i18n-t scope="global" tag="div" class="infos" keypath="alert.actions_triggers">
 				<template #LINK>
-					<a @click="$emit('setContent', contentTriggers)">{{ $t("alert.actions_triggers_link") }}</a>
+					<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("alert.actions_triggers_link") }}</a>
 				</template>
 			</i18n-t>
 	
-			<Button :title="$t('alert.testBt')" :icon="$image('icons/test.svg')" class="item testBt" @click="testAlert()" />
+			<Button class="testBt" icon="test" secondary @click="testAlert()">{{ $t('alert.testBt') }}</Button>
 		</section>
 	</div>
 </template>
@@ -38,13 +39,15 @@
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
+import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
-import PermissionsForm from '../../PermissionsForm.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -55,13 +58,14 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		PermissionsForm,
 	}
 })
-export default class ParamsAlert extends Vue {
+export default class ParamsAlert extends Vue implements IParameterContent {
 	
-	public param_chatCommand:TwitchatDataTypes.ParameterData = {type:"string", labelKey:"alert.command", value:"!alert"};
-	public param_message:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_popin", value:true};
-	public param_shake:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_shake", value:true};
-	public param_blink:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_blink", value:false};
-	public param_sound:TwitchatDataTypes.ParameterData = {type:"boolean", labelKey:"alert.option_sound", value:true};
+	public param_chatCommand:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"alert.command", value:"!alert"};
+	public param_message:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_popin", value:true};
+	public param_shake:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_shake", value:true};
+	public param_blink:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_blink", value:false};
+	public param_sound:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_sound", value:true};
+	public param_vibrate:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_vibrate", value:true};
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -76,18 +80,19 @@ export default class ParamsAlert extends Vue {
 	
 	public get finalData():TwitchatDataTypes.AlertParamsData {
 		return {
-			chatCmd: this.param_chatCommand.value as string,
-			shake: this.param_shake.value as boolean,
-			message: this.param_message.value as boolean,
-			blink: this.param_blink.value as boolean,
-			sound: this.param_sound.value as boolean,
+			chatCmd: this.param_chatCommand.value,
+			shake: this.param_shake.value,
+			message: this.param_message.value,
+			blink: this.param_blink.value,
+			sound: this.param_sound.value,
+			vibrate: this.param_vibrate.value,
 			permissions: this.chatCommandPerms,
 		};
 	}
 	
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
-	public mounted():void {
+	public beforeMount():void {
 		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.$store("main").chatAlertParams));
 		if(params) {
 			//Prefill forms from storage
@@ -96,6 +101,7 @@ export default class ParamsAlert extends Vue {
 			this.param_message.value = params.message;
 			this.param_blink.value = params.blink;
 			this.param_sound.value = params.sound;
+			this.param_vibrate.value = params.vibrate;
 			this.chatCommandPerms = params.permissions;
 		}
 
@@ -104,9 +110,12 @@ export default class ParamsAlert extends Vue {
 		}, {deep:true});
 	}
 
+	public onNavigateBack(): boolean { return false; }
+
 	public testAlert():void {
 		const uid = StoreProxy.auth.twitch.user.id;
-		const emoteTag = `<img src="https://static-cdn.jtvnw.net/emoticons/v2/133468/default/light/1.0" data-tooltip="<img src='https://static-cdn.jtvnw.net/emoticons/v2/133468/default/light/3.0' height='112' width='112'><br><center>ItsBoshyTime</center>" class="emote">`;
+		const str = "GivePLZ  Read your chat !!! TakeNRG ";
+		const chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);
 		const message:TwitchatDataTypes.MessageChatData = {
 			id:Utils.getUUID(),
 			platform:"twitch",
@@ -115,9 +124,9 @@ export default class ParamsAlert extends Vue {
 			user: this.$store("users").getUserFrom("twitch", uid, uid),
 			answers: [],
 			channel_id:uid,
-			message: "ItsBoshyTime Read your chat !!! ItsBoshyTime",
-			message_html: emoteTag+" Read your chat !!! "+emoteTag,
-			message_no_emotes: "",
+			message: str,
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
 			is_short:false,
 		}
 		this.$store("main").executeChatAlert(message);
@@ -128,51 +137,32 @@ export default class ParamsAlert extends Vue {
 
 <style scoped lang="less">
 .paramsalert{
+	gap: 1em;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	padding-top: 0;
-	
-	section {
-		border-radius: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
-		margin-top: 2em;
-		.splitter {
-			margin: .25em 0 1em 0;
-		}
+	.splitter {
+		margin-top: 1em;
 	}
-
+	
 	&>.icon {
 		height: 4em;
 		display: block;
 		margin: auto;
-		margin-bottom: 1em;
 	}
 
 	.header {
 		text-align: center;
 	}
 
-	.item {
-		&:not(:nth-child(2)) {
-			margin-top: .5em;
-		}
-
-		&.testBt {
-			display: block;
-			margin:auto;
-			margin-top: 1em;
-		}
-
-		&.infos {
-			text-align: center;
-			margin-top: 1em;
-		}
-
-		:deep(input) {
-			max-width: 150px;
-		}
+	.testBt {
+		align-self: center;
+	}
+	section {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 	}
 }
 </style>

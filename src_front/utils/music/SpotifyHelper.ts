@@ -1,25 +1,24 @@
+import TwitchatEvent from "@/events/TwitchatEvent";
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "@/utils/Config";
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
-import Config from "@/utils/Config";
-import { EventDispatcher } from "@/events/EventDispatcher";
-import PublicAPI from "@/utils/PublicAPI";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
-import SpotifyHelperEvent from "./SpotifyHelperEvent";
-import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import TwitchatEvent from "@/events/TwitchatEvent";
-import Utils from "@/utils/Utils";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 23/05/2022 
 */
-export default class SpotifyHelper extends EventDispatcher {
+export default class SpotifyHelper {
 	
-	public isPlaying = false;
 	public currentTrack!:TwitchatDataTypes.MusicTrackData;
-
+	
 	private static _instance:SpotifyHelper;
+	private _isPlaying = false;
 	private _token!:SpotifyAuthToken;
 	private _refreshTimeout!:number;
 	private _getTrackTimeout!:number;
@@ -30,7 +29,7 @@ export default class SpotifyHelper extends EventDispatcher {
 	private _playlistsCache:SearchPlaylistItem[] = [];
 
 	constructor() {
-		super();
+		this.initialize();
 	}
 	
 	/********************
@@ -39,27 +38,19 @@ export default class SpotifyHelper extends EventDispatcher {
 	static get instance():SpotifyHelper {
 		if(!SpotifyHelper._instance) {
 			SpotifyHelper._instance = reactive(new SpotifyHelper()) as SpotifyHelper;
-			SpotifyHelper._instance.initialize();
 		}
 		return SpotifyHelper._instance;
 	}
-	
-	public set token(value:SpotifyAuthToken | null) {
-		if(value == null) {
-			clearTimeout(this._refreshTimeout);
-			clearTimeout(this._getTrackTimeout);
-			return;
-		}
-		this._token = value;
-		this._headers = {
-			"Accept":"application/json",
-			"Content-Type":"application/json",
-			"Authorization":"Bearer "+this._token.access_token,
-		}
-		// if(Date.now() > value.expires_at - 10 * 60 * 1000) {
-		// 	this.refreshToken();
+
+
+	public get clientSecret():string { return this._clientSecret; }
+
+	public get clientID():string {
+		return this._clientID;
+		// if(this._clientID) {
+		// 	return this._clientID;
 		// }else{
-		// 	this.getCurrentTrack();
+		// 	return Config.instance.SPOTIFY_CLIENT_ID;
 		// }
 	}
 	
@@ -68,31 +59,66 @@ export default class SpotifyHelper extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public setAppParams(clientID:string, clientSecret:string):void {
-		this._clientID = clientID;
-		this._clientSecret = clientSecret;
+	public connect():void {
+		const appParams	= DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
+		const authToken	= DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
+		
+		if(appParams) {
+			let credentials		= JSON.parse(appParams);
+			this._clientID		= credentials.client;
+			this._clientSecret	= credentials.secret;
+		}
+		if(authToken) {
+			this._token			= JSON.parse(authToken);
+			if(appParams) this.refreshToken();
+		}
 	}
+	
+	public disconnect():void {
+		clearTimeout(this._refreshTimeout);
+		clearTimeout(this._getTrackTimeout);
+		Config.instance.SPOTIFY_CONNECTED = false;
+		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);
+		rebuildPlaceholdersCache();
+	}
+
+	
+	/**
+	 * Sets spotify app credentials
+	 * 
+	 * @param clientID 
+	 * @param clientSecret 
+	 */
+	public setCredentials(clientId:string, clientSecret:string):void {
+		this._clientID		= clientId;
+		this._clientSecret	= clientSecret;
+		DataStore.set(DataStore.SPOTIFY_APP_PARAMS, {
+			client:clientId,
+			secret:clientSecret,
+		})
+	}
+
 	/**
 	 * Starts the aut flow
 	 */
 	public async startAuthFlow():Promise<void> {
+		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);//Avoid auto reconnect attempt on redirect
 		const headers = {
 			'App-Version': import.meta.env.PACKAGE_VERSION,
 		};
 		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
 		const json = await res.json();
-		const scopes = Config.instance.SPOTIFY_SCOPES.split(" ").join("%20");
-		console.log(scopes);
 
-		let url = "https://accounts.spotify.com/authorize";
-		url += "?client_id="+this.clientID;
-		url += "&response_type=code";
-		url += "&redirect_uri="+encodeURIComponent( document.location.origin+"/spotify/auth" );
-		url += "&scope=+"+scopes;
-		url += "&state="+json.token;
-		url += "&show_dialog=true";
+		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
+		let url = new URL("https://accounts.spotify.com/authorize");
+		url.searchParams.append("client_id", this._clientID);
+		url.searchParams.append("response_type", "code");
+		url.searchParams.append("redirect_uri", redirectURI);
+		url.searchParams.append("scope", Config.instance.SPOTIFY_SCOPES);
+		url.searchParams.append("state", json.token);
+		url.searchParams.append("show_dialog", "true");
 
-		document.location.href = url;
+		document.location.href = url.href;
 	}
 
 	/**
@@ -103,22 +129,37 @@ export default class SpotifyHelper extends EventDispatcher {
 	 */
 	public async authenticate(authCode:string):Promise<void> {
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		let url = Config.instance.API_PATH+"/spotify/auth";
-		url += "?code="+encodeURIComponent(authCode);
-		if(this.clientID && this._clientSecret) {
-			url += "&clientId="+encodeURIComponent(this.clientID);
-			url += "&clientSecret="+encodeURIComponent(this._clientSecret);
+
+		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
+		const options = {
+			method:"POST",
+			headers: {
+				"Authorization": "Basic "+btoa(this.clientID+":"+this.clientSecret),
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: new URLSearchParams({
+				'grant_type': 'authorization_code',
+				'code': authCode,
+				'redirect_uri': redirectURI,
+			})
 		}
-		const headers = {
-			'App-Version': import.meta.env.PACKAGE_VERSION,
-		};
-		const res = await fetch(url, {method:"GET", headers});
-		json = await res.json();
-		if(json.access_token) {
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));
-		}else{
-			throw(json);
+		
+		try {
+			const res = await fetch("https://accounts.spotify.com/api/token", options);
+			if(res.status==200) {
+				json = await res.json();
+			}else{
+				throw("");
+			}
+		}catch(error) {
+			StoreProxy.main.alert("Spotify authentication failed");
+			console.log(error);
+			Config.instance.SPOTIFY_CONNECTED = false;
+			rebuildPlaceholdersCache();
+			throw(error);
 		}
+
+		this.setToken(json);
 	}
 
 	/**
@@ -127,38 +168,29 @@ export default class SpotifyHelper extends EventDispatcher {
 	public async refreshToken(attempt:number = 0):Promise<void> {
 		clearTimeout(this._getTrackTimeout);
 		clearTimeout(this._refreshTimeout);
+		
+		if(!this._token) return;
+	
+		const options = {
+			method:"POST",
+			headers: {
+				"Authorization": "Basic "+btoa(this.clientID+":"+this.clientSecret),
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: new URLSearchParams({
+				'grant_type': 'refresh_token',
+				'refresh_token': this._token.refresh_token,
+			})
+		}
 
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		let url = new URL(Config.instance.API_PATH+"/spotify/refresh_token");
-		url.searchParams.append("token", this._token.refresh_token);
-		if(this.clientID && this._clientSecret) {
-			url.searchParams.append("clientId", this.clientID);
-			url.searchParams.append("clientSecret", this._clientSecret);
-		}
-		const headers = {
-			'App-Version': import.meta.env.PACKAGE_VERSION,
-		};
-		const res = await fetch(url, {method:"GET", headers});
+		const res = await fetch("https://accounts.spotify.com/api/token", options);
 		let refreshSuccess = false;
 		if(res.status == 200) {
 			try {
 				json = await res.json();
 				if(json.access_token) {
-					json.refresh_token = this._token.refresh_token;//Keep refresh token
-			
-					//Refresh token 10min before it actually expires
-					const delay = Math.max(1000, (json.expires_in * 1000) - 10 * 60 * 1000);
-					console.log("[SPOTIFY] Refresh token in ", delay);
-					if(!isNaN(delay)) {
-						this._refreshTimeout = setTimeout(()=>this.refreshToken(), delay);
-					}
-					this._headers = {
-						"Accept":"application/json",
-						"Content-Type":"application/json",
-						"Authorization":"Bearer "+this._token.access_token,
-					}
-					
-					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.CONNECTED, json));
+					this.setToken(json);
 					refreshSuccess = true;
 				}
 			}catch(error) {
@@ -167,14 +199,16 @@ export default class SpotifyHelper extends EventDispatcher {
 			}
 		}
 		if(!refreshSuccess){
+			Config.instance.SPOTIFY_CONNECTED = false;
+
 			//Refresh failed, try again
 			if(attempt < 5) {
 				this._refreshTimeout = setTimeout(()=>{
 					this.refreshToken(++attempt);
 				}, 5000);
 			}else{
-				//Try too many times, give up and show alert
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.token_refresh")));
+				//Tried too many times, give up and show alert
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.spotify.token_refresh"));
 			}
 		}
 	}
@@ -195,7 +229,11 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(!isRetry) return await this.getTrackByID(id, true);
 			else return null;
 		}
-		return await res.json();
+		try {
+			return await res.json();
+		}catch(error) {
+			return null;
+		}
 	}
 
 	/**
@@ -214,12 +252,16 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(!isRetry) return await this.searchTrack(name, true);
 			else return null;
 		}
-		const json = await res.json();
-		const tracks = json.tracks as SearchTrackResult;
-		if(tracks.items.length == 0) {
+		try {
+			const json = await res.json();
+			const tracks = json.tracks as SearchTrackResult;
+			if(tracks.items.length == 0) {
+				return null;
+			}else{
+				return tracks.items[0];
+			}
+		}catch(error) {
 			return null;
-		}else{
-			return tracks.items[0];
 		}
 	}
 
@@ -239,12 +281,16 @@ export default class SpotifyHelper extends EventDispatcher {
 			if(!isRetry) return await this.searchPlaylist(name, true);
 			else return null;
 		}
-		const json = await res.json();
-		const tracks = json.playlists as SearchPlaylistResult;
-		if(tracks.items.length == 0) {
+		try {
+			const json = await res.json();
+			const tracks = json.playlists as SearchPlaylistResult;
+			if(tracks.items.length == 0) {
+				return null;
+			}else{
+				return tracks.items[0];
+			}
+		}catch(error) {
 			return null;
-		}else{
-			return tracks.items[0];
 		}
 	}
 
@@ -270,17 +316,17 @@ export default class SpotifyHelper extends EventDispatcher {
 			else return false;
 		}else
 		if(res.status == 409) {
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
+			StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
 				if(json.error.message) {
-					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
 				}else {
 					throw(new Error(""))
 				}
 			}catch(error) {
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status));
+				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status );
 			}
 		}
 		return false;
@@ -292,6 +338,8 @@ export default class SpotifyHelper extends EventDispatcher {
 	 * track info.
 	 */
 	public async getCurrentTrack():Promise<void> {
+		if(!Config.instance.SPOTIFY_CONNECTED) return;
+		
 		clearTimeout(this._getTrackTimeout);
 
 		const options = {
@@ -317,13 +365,28 @@ export default class SpotifyHelper extends EventDispatcher {
 			return;
 		}
 		
-		let json:SpotifyTrack|null = await res.json();
-		if(json?.currently_playing_type == "episode") {
+		let json:SpotifyTrack|null = null;
+		try {
+			json = await res.json();
+		}catch(error) {
+			return;
+		}
+		if(!json) {
+			this._getTrackTimeout = setTimeout(()=> {
+				this.getCurrentTrack();
+			}, 5000);
+			return;
+		}
+		
+		json = json!;
+
+
+		if(json.currently_playing_type == "episode") {
 			const episode = await this.getEpisodeInfos();
 			if(episode) json = episode;
 		}
 
-		if(json?.item) {
+		if(json.item) {
 			this.currentTrack = {
 				title:json.item.name,
 				artist:json.item.show? json.item.show.name : json.item.artists[0].name,
@@ -332,15 +395,9 @@ export default class SpotifyHelper extends EventDispatcher {
 				duration:json.item.duration_ms,
 				url:json.item.external_urls.spotify,
 			};
-			this.isPlaying = json.is_playing && json.item != null;
+			this._isPlaying = json.is_playing && json.item != null;
 	
-			if(this.isPlaying) {
-				let delay = json.item.duration_ms - json.progress_ms;
-				if(isNaN(delay)) delay = 5000;
-				this._getTrackTimeout = setTimeout(()=> {
-					this.getCurrentTrack();
-				}, Math.min(5000, delay + 1000));
-				
+			if(this._isPlaying) {
 				//Broadcast to the triggers
 				if(!this._lastTrackInfo
 				|| this._lastTrackInfo?.duration != this.currentTrack.duration 
@@ -368,6 +425,12 @@ export default class SpotifyHelper extends EventDispatcher {
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 
 				this._lastTrackInfo = this.currentTrack;
+				
+				let delay = json.item.duration_ms - json.progress_ms;
+				if(isNaN(delay)) delay = 5000;
+				this._getTrackTimeout = setTimeout(()=> {
+					this.getCurrentTrack();
+				}, Math.min(5000, delay + 1000));
 
 			}else{
 				//Broadcast to the overlays
@@ -390,6 +453,8 @@ export default class SpotifyHelper extends EventDispatcher {
 				}
 				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 			}
+		}else{
+			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 		}
 	}
 
@@ -409,7 +474,11 @@ export default class SpotifyHelper extends EventDispatcher {
 			let json:JsonObject;
 			do {
 				const res = await fetch("https://api.spotify.com/v1/me/playlists?limit="+limit+"&offset="+offset, options);
-				json = await res.json();
+				try {
+					json = await res.json();
+				}catch(error) {
+					return null;
+				}
 				offset += limit;
 				playlists = playlists.concat((json.items as unknown) as SearchPlaylistItem[]);
 			}while(json.next);
@@ -479,6 +548,39 @@ export default class SpotifyHelper extends EventDispatcher {
 	private initialize():void {
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>this.getCurrentTrack());
 	}
+	
+	/**
+	 * Set access token
+	 * @param value 
+	 */
+	private setToken(value:SpotifyAuthToken | null) {
+		if(value == null) {
+			this.disconnect();
+			return;
+		}
+		
+		//Backup refresh token from prev token as spotify does not send us back a refrehs
+		//token after refreshing a token.
+		if(this._token?.refresh_token && !value?.refresh_token) value.refresh_token = this._token.refresh_token;
+
+		this._token = value;
+		this._token.expires_at =  Date.now() + this._token.expires_in * 1000;
+		DataStore.set(DataStore.SPOTIFY_AUTH_TOKEN, this._token);
+		
+		this._headers = {
+			"Accept":"application/json",
+			"Content-Type":"application/json",
+			"Authorization":"Bearer "+this._token.access_token,
+		}
+		Config.instance.SPOTIFY_CONNECTED = this._token? this._token.expires_at > Date.now() : false;
+		rebuildPlaceholdersCache();
+		
+		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {
+			this.refreshToken();
+		}else{
+			this.getCurrentTrack();
+		}
+	}
 
 	/**
 	 * Executes a simplea ction that requires no param
@@ -503,24 +605,24 @@ export default class SpotifyHelper extends EventDispatcher {
 			try {
 				const json = await res.json();
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
-					StoreProxy.main.alertData = StoreProxy.i18n.t("music.spotify_play");
+					StoreProxy.main.alert( StoreProxy.i18n.t("music.spotify_play") );
 				}
 			}catch(error){
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status));
+				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
 		}else
 		if(res.status == 409) {
-			this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, StoreProxy.i18n.t("error.spotify.api_rate")));
+			StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
 				if(json.error.message) {
-					this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] "+json.error.message));
+					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
 				}else {
 					throw(new Error(""))
 				}
 			}catch(error) {
-				this.dispatchEvent(new SpotifyHelperEvent(SpotifyHelperEvent.ERROR, null, "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status));
+				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
 		}
 		return false;
@@ -538,15 +640,11 @@ export default class SpotifyHelper extends EventDispatcher {
 			await this.refreshToken();
 			return null;
 		}
-		return await res.json();
-	}
-
-	private get clientID():string {
-		let clientID = Config.instance.SPOTIFY_CLIENT_ID;
-		if(this._clientID) {
-			clientID = this._clientID;
+		try {
+			return await res.json();
+		}catch(error) {
+			return null;
 		}
-		return clientID;
 	}
 
 }

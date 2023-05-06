@@ -5,19 +5,19 @@
 		<OverlayMusicPlayer class="player" v-if="currentTrack" @seek="(percent:number)=>onSeek(percent)" embed />
 
 		<div class="controls" v-if="currentTrack">
-			<Button white small class="bt" @click="showQueue = !showQueue" :icon="$image('icons/list_purple.svg')" />
-			<Button white small class="bt" @click="actionPlay()" :icon="$image('icons/play_purple.svg')" v-if="!playing" />
-			<Button white small class="bt" @click="actionPause()" :icon="$image('icons/pause_purple.svg')" v-if="playing" />
-			<Button white small class="bt" @click="actionNext()" :icon="$image('icons/next_purple.svg')" />
+			<Button small class="bt" @click="showQueue = !showQueue" icon="list" />
+			<Button small class="bt" @click="actionPlay()" icon="play" v-if="!playing" />
+			<Button small class="bt" @click="actionPause()" icon="pause" v-if="playing" />
+			<Button small class="bt" @click="actionNext()" icon="next" />
 			<VolumeBar class="volume" v-model="volume" />
 		</div>
 
 		<div class="queue" v-if="showQueue">
 			<div v-for="(t, index) in queue" :key="t.id" class="item">
 				<Button class="deleteBt"
-				small highlight
+				small alert
 				@click="removeTrack(index)"
-				:icon="$image('icons/cross_white.svg')" />
+				icon="cross" />
 				
 				<div class="infos" @click="playQueueItem(index)">
 					<span class="artist">{{t.artist.name}}</span>
@@ -41,8 +41,8 @@
 					<span class="duration">{{formatDuration(t.duration)}}</span>
 				</div>
 				<div class="actions">
-					<Button @click="play(t)" :icon="$image('icons/play.svg')" small :data-tooltip="$t('music.playBt')" />
-					<Button @click="addToQueue(t)" :icon="$image('icons/list.svg')" small :data-tooltip="$t('music.add_queueBt')" />
+					<Button @click="play(t)" icon="play" small v-tooltip="$t('music.playBt')" />
+					<Button @click="addToQueue(t)" icon="list" small v-tooltip="$t('music.add_queueBt')" />
 				</div>
 			</div>
 		</div>
@@ -153,7 +153,7 @@ export default class DeezerState extends Vue {
 
 <style scoped lang="less">
 .fsdfdsfsdfdsfsd{
-	color: @mainColor_light;
+	color: var(--color-light);
 	position: relative;
 
 	&>.title {
@@ -189,7 +189,7 @@ export default class DeezerState extends Vue {
 		max-width: 300px;
 		margin: auto;
 		margin-bottom: .5em;
-		border: 1px solid @mainColor_light;
+		border: 1px solid var(--color-light);
 		border-radius: .25em;
 		padding: .25em;
 
@@ -246,12 +246,12 @@ export default class DeezerState extends Vue {
 		margin: auto;
 		margin-bottom: .5em;
 		input {
-			color: @mainColor_dark;
-			border-color: @mainColor_dark;
-			background-color: @mainColor_light;
+			color: var(--color-dark);
+			border-color: var(--color-dark);
+			background-color: var(--color-dark);
 			width: 100%;
 			&::placeholder {
-				color: fade(@mainColor_dark_extralight, 50%);
+				color: var(--color-dark-fader);
 			}
 		}
 		.loader {
@@ -274,7 +274,7 @@ export default class DeezerState extends Vue {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		border: 1px solid @mainColor_light;
+		border: 1px solid var(--color-light);
 		border-radius: .25em;
 		min-height: 200px;
 		.entry {

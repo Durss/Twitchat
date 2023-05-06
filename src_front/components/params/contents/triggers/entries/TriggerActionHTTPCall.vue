@@ -1,23 +1,32 @@
 <template>
-	<div class="triggeractionhttpcall">
-		<div class="row item">
-			<ParamItem class="item" :paramData="param_url" v-model="action.url" :error="securityError" />
-			<p class="item securityError" v-if="securityError">{{ $t("triggers.actions.http_ws.protocol_error") }}</p>
-		</div>
+	<div class="triggeractionhttpcall triggerActionForm">
+		<ParamItem :paramData="param_url" v-model="action.url"
+			:error="securityError"
+			:errorMessage="$t('triggers.actions.http_ws.protocol_error')" />
+		
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method" />
-		<div class="row">
-			<p class="item" v-if="param_options.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
-			<ParamItem class="item argument" v-for="p in param_options" :paramData="p" :key="(p.storage as any).tag" @change="onToggleParam()" />
-		</div>
-		<div class="row item">
-			<ParamItem class="item" :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
+
+		<div class="card-item tags">
+			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
+			
+			<div class="params">
+				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
+					<div class="taginfo">
+						<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
+						<span>{{ $t(p.placeholder.descKey) }}</span>
+					</div>
+					<ToggleButton v-model="p.enabled" @change="onToggleParam()" />
+				</div>
+			</div>
 		</div>
 
-		<i18n-t scope="global" class="example item" tag="div"
+		<ParamItem :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
+
+		<i18n-t scope="global" class="card-item info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
-		v-if="(param_outputPlaceholder.value as string).length > 0">
+		v-if="param_outputPlaceholder.value.length > 0">
 			<template #PLACEHOLDER>
-				<mark v-click2Select>{{"{"}}{{(param_outputPlaceholder.value as string).toUpperCase()}}{{"}"}}</mark>
+				<mark v-click2Select>{{"{"}}{{param_outputPlaceholder.value.toUpperCase()}}{{"}"}}</mark>
 			</template>
 		</i18n-t>
 	</div>
@@ -25,7 +34,8 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerActionHelpers, type ITriggerActionHelper, type TriggerActionHTTPCallData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
+import ToggleButton from '@/components/ToggleButton.vue';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionHTTPCallData, type TriggerData, type TriggerActionHTTPCallDataAction } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -33,6 +43,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{
 		ParamItem,
+		ToggleButton,
 	},
 	emits:["update"]
 })
@@ -41,31 +52,23 @@ export default class TriggerActionHTTPCall extends Vue {
 	@Prop
 	public action!:TriggerActionHTTPCallData;
 	@Prop
-	public event!:TriggerEventTypes;
-	@Prop
-	public triggerKey!:string;
+	public triggerData!:TriggerData;
 
 	public securityError:boolean = false;
-	public param_url:TwitchatDataTypes.ParameterData = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
-	public param_method:TwitchatDataTypes.ParameterData = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
-	public param_outputPlaceholder:TwitchatDataTypes.ParameterData = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:20};
-	public param_options:TwitchatDataTypes.ParameterData[] = [];
+	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
+	public param_url:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
+	public param_method:TwitchatDataTypes.ParameterData<TriggerActionHTTPCallDataAction, TriggerActionHTTPCallDataAction> = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
+	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:20};
 
 	public beforeMount():void {
-		this.param_method.listValues	= ["GET","PUT","POST","PATCH","DELETE"]
-		.map(v=>{return {label:v, value:v}})
+		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
 
-		const placeholders = TriggerActionHelpers(this.event.value);
-		for (let i = 0; i < placeholders.length; i++) {
-			const p = placeholders[i];
-			this.param_options.push({
-				label:"<mark>"+p.tag.toLowerCase()+"</mark> - ",
-				labelKey:p.descKey,
-				value:!this.action.queryParams || this.action.queryParams.includes(p.tag),
-				type:"boolean",
-				storage:p
-			})
-		}
+		this.parameters = TriggerEventPlaceholders(this.triggerData.type).map(v=> {
+			return  {
+				placeholder:v,
+				enabled:!this.action.queryParams || this.action.queryParams.includes(v.tag),
+			}
+		});
 
 		watch(()=>this.action.url, ()=> {
 			const url = this.action.url;
@@ -78,14 +81,7 @@ export default class TriggerActionHTTPCall extends Vue {
 	}
 
 	public onToggleParam():void {
-		const params:string[] = [];
-		for (let i = 0; i < this.param_options.length; i++) {
-			const opt = this.param_options[i];
-			if(opt.value === true) {
-				const data = opt.storage as ITriggerActionHelper
-				params.push(data.tag);
-			}
-		}
+		const params:string[] = this.parameters.filter(v=>v.enabled).map(v=> v.placeholder.tag);
 		this.action.queryParams = params;
 	}
 
@@ -94,19 +90,37 @@ export default class TriggerActionHTTPCall extends Vue {
 
 <style scoped lang="less">
 .triggeractionhttpcall{
-	.triggerActionForm();
 
-	.argument {
-		padding-left: 1em;
+	.tags {
+		.title {
+			margin-bottom: .5em;
+		}
 	}
 
-	.securityError {
-		color: @mainColor_light;
-		background-color: @mainColor_alert;
-		margin-top: -.25em;
-		padding: .5em;
-		border-bottom-left-radius: @border_radius;
-		border-bottom-right-radius: @border_radius;
+	.params {
+		gap: 2px;
+		display: flex;
+		flex-direction: column;
+		font-size: .8em;
+		.card-item {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			cursor: pointer;
+			&:hover {
+				background-color: var(--color-light-fade);
+			}
+			.taginfo {
+				gap: .5em;
+				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+
+				.tag {
+					word-break: break-all;
+				}
+			}
+		}
 	}
 }
 </style>

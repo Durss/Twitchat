@@ -1,8 +1,17 @@
 {
 	"login":{
-		"closedBeta":"La beta est fermée :]",
-		"closedBeta2":"Rendez-vous sur la {LINK}",
-		"closedBeta2_link":"version de production",
+		"closed_beta":"La beta est fermée 🤓",
+		"prodBt":"Retourner sur Twitchat.fr",
+		"transfer_details":"Vous pouvez transférer vos paramètres depuis la beta vers la production. Voici le détail de vos paramètres actuels :",
+		"transfer_details_beta":"Beta",
+		"transfer_details_production":"Production",
+		"transfer_details_date":"Dernière update",
+		"transfer_details_version":"Version",
+		"transfer_no_data":"x",
+		"transfer_datatBt":"Transférer mes données",
+		"transfer_confirm_title":"Transférer vos données ?",
+		"transfer_confirm_description":"Cette action copiera tous vos paramètres Twitchat du serveur Beta vers le serveur de Production. Si vous avez effectué des modifications en production elles seront perdues.",
+		"transfer_complete":"Tranfert effectué",
 		"head":"Choisissez ce que vous souhaitez permettre à Twitchat d'effectuer",
 		"update_title":"Une Màj nécessite un nouvelle permission | Une Màj nécessite ces nouvelles permissions",
 		"specific_scope":"L'action demandée nécessite la permission supplémentaire suivante | L'action demandée nécessite les permissions supplémentaires suivantes",
@@ -11,6 +20,7 @@
 		"authorizeBt":"Autoriser",
 		"generatingCSRF":"Patientez...",
 		"retryBt":"Réessayer",
+		"grant_all":"Accorder toutes les permissions",
 		"authenticating":"authentification..."
 	}
 }

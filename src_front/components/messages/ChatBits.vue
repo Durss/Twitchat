@@ -1,6 +1,6 @@
 <template>
-	<div class="chatbits">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div :class="classes">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/bits.svg" alt="bits" class="icon">
 
@@ -14,7 +14,9 @@
 				</template>
 			</i18n-t>
 	
-			<div class="quote" v-if="messageText" v-html="messageText"></div>
+			<div class="quote" v-if="messageData.message_chunks">
+				<ChatMessageChunksParser :chunks="messageData.message_chunks" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -23,9 +25,12 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
-	components:{},
+	components:{
+		ChatMessageChunksParser,
+	},
 	emits:["onRead"],
 })
 export default class ChatBits extends AbstractChatMessage {
@@ -33,10 +38,14 @@ export default class ChatBits extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCheerData;
 
-	public messageText:string = "";
+	public get classes():string[] {
+		let res = ["chatbits", "chatMessage", "highlight"];
+		if(this.messageData.deleted === true) res.push("deleted");
+		return res;
+	}
+
 
 	public mounted():void {
-		this.messageText = this.messageData.message_html ?? this.messageData.message ?? "";
 		const reason = this.$tc("chat.bits", {COUNT:this.messageData.bits, USER:this.messageData.user.displayName});
 		this.$store("accessibility").setAriaPolite(reason+" "+this.messageData.message);
 	}
@@ -50,6 +59,5 @@ export default class ChatBits extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatbits{
-	.chatMessageHighlight();
 }
 </style>

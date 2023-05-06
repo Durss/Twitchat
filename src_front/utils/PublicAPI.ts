@@ -38,7 +38,9 @@ export default class PublicAPI extends EventDispatcher {
 	/**
 	 * Initializes the public API
 	 */
-	public initialize():void {
+	public async initialize():Promise<void> {
+		if(typeof BroadcastChannel == "undefined") return;
+		
 		this._bc = new BroadcastChannel("twitchat");
 
 		//If receiving data from another browser tab, broadcast it
@@ -52,7 +54,7 @@ export default class PublicAPI extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(event.type, data));
 		}
 		
-		this.listenOBS();
+		await this.listenOBS();
 	}
 
 	/**
@@ -90,26 +92,28 @@ export default class PublicAPI extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-	private listenOBS():void {
-		//OBS api not ready yet, wait for it
-		if(!OBSWebsocket.instance.socket) {
-			watch(()=>OBSWebsocket.instance.socket, ()=> {
-				this.listenOBS();
-			});
-			return;
-		}
-		
-		//@ts-ignore
-		OBSWebsocket.instance.socket.on("CustomEvent",
-		(e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
-			if(e.type == undefined) return;
-			if(e.origin != "twitchat") return;
-			const data = e.data as {id:string};
-			if(data.id){
-				if(this._idsDone[data.id] === true) return;
-				this._idsDone[data.id] = true;
+	private listenOBS():Promise<void> {
+		return new Promise((resolve,reject):void => {
+			//OBS api not ready yet, wait for it
+			if(!OBSWebsocket.instance.connected) {
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, () => {
+					this.listenOBS();
+					resolve();
+				});
+				return;
 			}
-			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
-		})
+			
+			OBSWebsocket.instance.addEventListener("CustomEvent", (event:TwitchatEvent) => {
+				const e = event.data as {origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue};
+				if(e.type == undefined) return;
+				if(e.origin != "twitchat") return;
+				const data = e.data as {id:string};
+				if(data.id){
+					if(this._idsDone[data.id] === true) return;
+					this._idsDone[data.id] = true;
+				}
+				this.dispatchEvent(new TwitchatEvent(e.type, e.data));
+			})
+		});
 	}
 }

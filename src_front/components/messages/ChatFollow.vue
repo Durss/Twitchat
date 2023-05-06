@@ -1,6 +1,6 @@
 <template>
-	<div class="chatfollow">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div :class="classes">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/follow.svg" alt="follow" class="icon">
 
@@ -26,6 +26,12 @@ export default class ChatFollow extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageFollowingData;
 
+	public get classes():string[] {
+		let res = ["chatfollow", "chatMessage", "highlight"];
+		if(this.messageData.deleted === true) res.push("deleted");
+		return res;
+	}
+
 	public openUserCard():void {
 		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
@@ -35,7 +41,5 @@ export default class ChatFollow extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatfollow{
-	.chatMessageHighlight();
-	
 }
 </style>

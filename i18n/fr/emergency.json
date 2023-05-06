@@ -27,7 +27,7 @@
 			"autoEnableOnFollowbot":"Activer en cas de raid de followbot",
 			"autoEnableOnFollowbot_tt":"Un raid est détecté si<br>30 follows ont lieu avec moins<br>de 0,5s entre chaque",
 			"autoEnableOnShieldmode":"Synchroniser avec le mode bouclier",
-			"autoEnableOnShieldmode_tt":"Activer/Désactiver le mode bouclier<br>activera/désactivera le mode urgence",
+			"autoEnableOnShieldmode_tt":"Activer / Désactiver le mode bouclier activera / désactivera le mode urgence",
 			"slowMode": "Mode lent",
 			"slowModeDuration": "Cooldown (secondes)",
 			"followersOnly": "Followers only",

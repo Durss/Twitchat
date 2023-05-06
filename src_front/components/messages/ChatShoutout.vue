@@ -1,6 +1,6 @@
 <template>
-	<div class="chatshoutout">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatshoutout chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
 		<img src="@/assets/icons/shoutout.svg" alt="shoutout" class="icon">
 
@@ -73,8 +73,6 @@ export default class ChatShoutout extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatshoutout{
-	.chatMessageHighlight();
-	
 	align-items: flex-start;
 	
 	.info {

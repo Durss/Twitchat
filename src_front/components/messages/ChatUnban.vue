@@ -1,15 +1,15 @@
 <template>
-	<div class="chatunban">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatunban chatMessage highlight success">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/unban.svg')" alt="notice" class="icon">
 		
-		<i18n-t scope="global" tag="span" keypath="global.moderation_action.unbanned_by">
+		<i18n-t scope="global" tag="span" :keypath="messageData.moderator? 'global.moderation_action.unbanned_by' : 'global.moderation_action.unbanned'">
 			<template #USER>
 				<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 			</template>
 			<template #MODERATOR>
-				<a class="userlink" @click.stop="openUserCard(messageData.moderator)">{{messageData.moderator.displayName}}</a>
+				<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!)">{{messageData.moderator.displayName}}</a>
 			</template>
 		</i18n-t>
 	</div>
@@ -30,7 +30,12 @@ export default class ChatBan extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageBanData;
 	
 	public mounted():void {
-		let aria = this.$t("global.moderation_action.unbanned_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName});
+		let aria = "";
+		if(this.messageData.moderator) {
+			aria = this.$t("global.moderation_action.unbanned_by", {MODERATOR:this.messageData.moderator.displayName, USER:this.messageData.user.displayName});
+		}else{
+			aria = this.$t("global.moderation_action.unbanned", {USER:this.messageData.user.displayName});
+		}
 		this.$store("accessibility").setAriaPolite(aria);
 	}
 
@@ -43,11 +48,5 @@ export default class ChatBan extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatunban{
-	.chatMessageHighlight();
-	background-color: fade(@mainColor_normal, 10%);
-	
-	.userlink {
-		color: @mainColor_normal_light;
-	}
 }
 </style>
