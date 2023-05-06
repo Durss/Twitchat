@@ -1,9 +1,10 @@
 <template>
 	<div class="overlayparamsmusic">
+		<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
 		<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
 		<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 			<div>{{ $t("overlay.music_common.css") }}</div>
-			<ul>
+			<ul class="cssStructure">
 				<li>#music_holder { ... }</li>
 				<li>#music_cover { ... }</li>
 				<li>#music_infos { ... }</li>
@@ -32,6 +33,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -45,16 +47,16 @@ import ParamItem from '../../ParamItem.vue';
 })
 export default class OverlayParamsMusic extends Vue {
 
-	public param_noScroll:TwitchatDataTypes.ParameterData				= {type:"boolean", value:false};
-	public param_openFromLeft:TwitchatDataTypes.ParameterData			= {type:"boolean", value:false};
-	public param_autoHide:TwitchatDataTypes.ParameterData				= {type:"boolean", value:false};
-	public param_autoHideErase:TwitchatDataTypes.ParameterData			= {type:"boolean", value:true};
-	public param_showCover:TwitchatDataTypes.ParameterData				= {type:"boolean", value:true};
-	public param_showArtist:TwitchatDataTypes.ParameterData				= {type:"boolean", value:true};
-	public param_showTitle:TwitchatDataTypes.ParameterData				= {type:"boolean", value:true};
-	public param_showProgress:TwitchatDataTypes.ParameterData			= {type:"boolean", value:true};
-	public param_customTemplateToggle:TwitchatDataTypes.ParameterData	= {type:"boolean", value:true};
-	public param_customTemplate:TwitchatDataTypes.ParameterData			= {type:"string", value:"", longText:true};
+	public param_noScroll:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false};
+	public param_openFromLeft:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false};
+	public param_autoHide:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false};
+	public param_autoHideErase:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true};
+	public param_showCover:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:true};
+	public param_showArtist:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true};
+	public param_showTitle:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:true};
+	public param_showProgress:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true};
+	public param_customTemplateToggle:TwitchatDataTypes.ParameterData<boolean>	= {type:"boolean", value:true};
+	public param_customTemplate:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"", longText:true};
 
 	public get overlayUrl():string { return this.$overlayURL("music"); }
 
@@ -99,12 +101,14 @@ export default class OverlayParamsMusic extends Vue {
 	}
 
 	private saveData():void {
-		let template = this.param_customTemplate.value as string;
+		let template = this.param_customTemplate.value;
 		if(!this.param_customTemplateToggle.value) template = "";
 		this.$store("music").musicPlayerParams.customInfoTemplate = template;
-		this.$store("music").musicPlayerParams.erase = this.param_autoHideErase.value as boolean;
+		this.$store("music").musicPlayerParams.erase = this.param_autoHideErase.value;
 
 		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, this.$store("music").musicPlayerParams);
+		//This forces overlay refresh
+		SpotifyHelper.instance.getCurrentTrack();
 	}
 
 }
@@ -114,9 +118,12 @@ export default class OverlayParamsMusic extends Vue {
 .overlayparamsmusic{
 	display: flex;
 	flex-direction: column;
+
+	&>label {
+		margin-bottom: .5em;
+	}
 	
 	ul {
-		.cssStructure();
 		margin-top: .5em;
 	}
 
@@ -125,13 +132,13 @@ export default class OverlayParamsMusic extends Vue {
 		max-width: 410px;
 		margin: auto;
 		margin-top: 1em;
-		padding: .5em;
-		border-radius: @border_radius;
-		background-color: fade(@mainColor_normal_extralight, 30%);
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
+	}
 
-		>*:not(:first-child) {
-			margin-top: .25em;
-		}
+	input {
+		background-color: var(--color-primary);
 	}
 }
 </style>

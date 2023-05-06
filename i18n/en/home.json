@@ -1,12 +1,12 @@
 {
 	"home":{
 		"info":"Made with 💘 by",
-		"head":"Twitchat is a full featured, free and open source chat alternative for streamers",
+		"head":"Alternative Twitch chat for streamers with lots of extra features for enhanced streaming comfort",
 		"openBt":"Open Twitchat",
 		"loginBt":"Log in with Twitch",
 		"streamdeckBt":"Stream Deck™ plugin",
 		"discordBt":"Join Discord",
-		"sponsorBt":"Feed me 🍔",
+		"sponsorBt":"Support me 💝",
 		"features":{
 			"title":"Features",
 			"list":[
@@ -32,7 +32,7 @@
 					"icon":"show",
 					"image":"spoiler.png",
 					"title":"Spoiler command",
-					"description":"Messages starting with <mark>{'|'}{'|'}</mark> will be shown as spoilers.<br>Your mods will be able to set another user's message as spoiler by responding to it with the <mark>!spoiler</mark> command"
+					"description":"Messages starting with <mark>||</mark> will be shown as spoilers.<br>Your mods will be able to set another user's message as spoiler by responding to it with the <mark>!spoiler</mark> command"
 				},
 				{
 					"icon":"search",
@@ -65,7 +65,7 @@
 					"description":"Twitchat remembers the first message of every viewer so you don't forget to greet them"
 				},
 				{
-					"icon":"checkmark_white",
+					"icon":"checkmark",
 					"image":"readMark.gif",
 					"title":"Read mark",
 					"description":"Click any message so you remember where you stopped reading at"

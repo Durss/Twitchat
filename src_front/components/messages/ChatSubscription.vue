@@ -1,6 +1,6 @@
 <template>
-	<div class="chatsubscription">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div :class="classes">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img v-if="messageData.is_gift" src="@/assets/icons/gift.svg" alt="gift" class="icon">
 		<img v-else-if="messageData.tier == 'prime'" src="@/assets/icons/prime.svg" alt="prime" class="icon">
@@ -11,7 +11,7 @@
 			<!-- Subgift -->
 			<div class="holder" v-if="messageData.is_gift">
 				<i18n-t scope="global" tag="span"
-				:keypath="giftRecipients.length > 0? 'chat.subscription.sub_gift' : 'chat.subscription.sub_gift_months'">
+				:keypath="giftRecipients.length > 1? 'chat.subscription.sub_gift' : 'chat.subscription.sub_gift_months'">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 					</template>
@@ -20,6 +20,9 @@
 					</template>
 					<template #COUNT>
 						<strong>{{ messageData.gift_recipients?.length }}</strong>
+					</template>
+					<template #MONTHS>
+						<strong>{{ messageData.months }}</strong>
 					</template>
 					<template #LIST>
 						<span class="additionalUsers" v-if="giftRecipients.length > 0"
@@ -111,7 +114,9 @@
 				</i18n-t>
 			</div>
 			
-			<div class="quote" v-if="messageData.message_html" v-html="messageData.message_html"></div>
+			<div class="quote" v-if="messageData.message">
+				<ChatMessageChunksParser :chunks="messageData.message_chunks" />
+			</div>
 		</div>
 
 	</div>
@@ -121,15 +126,24 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
-	components:{},
+	components:{
+		ChatMessageChunksParser,
+	},
 	emits:["onRead"],
 })
 export default class ChatSubscription extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageSubscriptionData;
+
+	public get classes():string[] {
+		let res = ["chatsubscription", "chatMessage", "highlight"];
+		if(this.messageData.deleted === true) res.push("deleted");
+		return res;
+	}
 
 	public get totalSubgifts():number|undefined {
 		return this.messageData.user.channelInfo[this.messageData.channel_id].totalSubgifts;
@@ -154,8 +168,6 @@ export default class ChatSubscription extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatsubscription{
-	.chatMessageHighlight();
-	
 	.additional {
 		opacity: .8;
 	}

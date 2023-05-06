@@ -1,7 +1,7 @@
 <template>
-	<div class="chatfollowbotevents">
+	<div class="chatfollowbotevents chatMessage highlight">
 		<div class="head" @click.stop="expand = !expand">
-			<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+			<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			<img src="@/assets/icons/shield.svg" class="icon">
 			<img src="@/assets/icons/follow.svg" class="icon">
 			<span class="label">{{  $t("chat.followbot.title", {COUNT:messageData?.users.length}) }}</span>
@@ -41,14 +41,13 @@ export default class ChatFollowbotEvents extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatfollowbotevents{
-	.chatMessageHighlight();
-	color: @mainColor_light;
-	background-color: @mainColor_alert;
+	color: var(--color-light);
+	background-color: var(--color-alert);
 	flex-direction: column;
 	align-items: flex-start;
 	pointer-events: all;
 	&:hover {
-		background-color: @mainColor_alert_light;
+		background-color: var(--color-alert-light);
 	}
 	
 	.head {
@@ -60,9 +59,6 @@ export default class ChatFollowbotEvents extends AbstractChatMessage {
 		width: 100%;
 		.label {
 			flex-grow: 1;
-		}
-		.time {
-			.chatMessageTime();
 		}
 	}
 
@@ -82,18 +78,18 @@ export default class ChatFollowbotEvents extends AbstractChatMessage {
 		.user {
 			padding: .25em .25em;
 			.login {
-				background-color: fade(@mainColor_dark, 10%);
+				background-color: var(--color-dark-fadest);
 				padding: .1em .25em;
-				transition: background-color .15s;
+				transition: background-color .1s;
 			}
 			&:nth-child(odd) {
 				.login {
-					background-color: fade(@mainColor_alert_light, 40%);
+					background-color: var(--color-light-fadest)
 				}
 			}
 			&:hover {
 				.login {
-					background-color: fade(@mainColor_dark, 50%);
+					background-color: var(--color-dark-fade);
 				}
 			}
 		}

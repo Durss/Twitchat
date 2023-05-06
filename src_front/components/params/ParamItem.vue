@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" :data-tooltip="tooltip"
+	<div :class="classes"
 	@mouseenter="$emit('mouseenter', $event, paramData)"
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click.capture="clickItem($event)">
@@ -11,31 +11,33 @@
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					src="@/assets/icons/help.svg"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 					class="helpIcon"
 				>
 				
 				<label :for="'toggle'+key"
 					v-if="label"
 					v-html="label"
+					v-tooltip="{content:tooltip, followCursor:'horizontal'}"
 					@click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
 				
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
 					v-model="paramData.value"
-					:id="'toggle'+key"
-					:clear="clearToggle !== false"
-					:alert="alertToggle !== false" />
+					:secondary="secondary"
+					:alert="alert || errorLocal"
+					:id="'toggle'+key" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					src="@/assets/icons/help.svg"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'number'+key" v-if="label" v-html="label"></label>
+				<label :for="'number'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<input v-if="!paramData.noInput" ref="input"
+					:tabindex="tabindex"
 					type="number"
 					v-model.number="paramData.value"
 					v-autofocus="autofocus"
@@ -48,52 +50,69 @@
 			
 			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					src="@/assets/icons/help.svg"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'text'+key" v-if="label" v-html="label"></label>
-				<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
-					v-model.lazy="textValue"
-					rows="2"
-					:id="'text'+key"
-					:name="paramData.fieldName"
-					:placeholder="placeholder"
-					v-autofocus="autofocus"></textarea>
-				<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
-					v-model.lazy="paramData.value"
-					v-autofocus="autofocus"
-					:name="paramData.fieldName"
-					:id="'text'+key"
-					:type="paramData.type"
-					:placeholder="placeholder"
-					:maxlength="paramData.maxLength? paramData.maxLength : 524288"
-					autocomplete="new-password">
+				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<div class="inputHolder">
+					<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
+						:tabindex="tabindex"
+						v-model="textValue"
+						rows="3"
+						:id="'text'+key"
+						:name="paramData.fieldName"
+						:placeholder="placeholder"
+						v-autofocus="autofocus"></textarea>
+					<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
+						:tabindex="tabindex"
+						v-model="textValue"
+						v-autofocus="autofocus"
+						:name="paramData.fieldName"
+						:id="'text'+key"
+						:type="paramData.type"
+						:placeholder="placeholder"
+						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
+						autocomplete="new-password">
+					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
+				</div>
+			</div>
+			
+			<div v-if="paramData.type == 'color'" class="holder color">
+				<img v-if="paramData.example" alt="help"
+					src="@/assets/icons/help.svg"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					class="helpIcon"
+				>
+				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<div class="inputHolder input-field" :style="{backgroundColor: paramData.value as string }">
+					<input ref="input" v-if="!paramData.noInput"
+						:tabindex="tabindex"
+						v-model="textValue"
+						v-autofocus="autofocus"
+						:name="paramData.fieldName"
+						:id="'text'+key"
+						type="color">
+				</div>
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					src="@/assets/icons/help.svg"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'slider'+key" v-html="label"></label>
-				<input v-if="!paramData.noInput" ref="input" type="range"
-					:min="paramData.min"
-					:max="paramData.max"
-					:step="paramData.step"
-					:id="'slider'+key"
-					v-model.number="paramData.value"
-					v-autofocus="autofocus">
+				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
+				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value" :secondary="secondary" :alert="alert || errorLocal" />
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					src="@/assets/icons/help.svg"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'list'+key" v-html="label"></label>
+				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
 				<select v-if="!paramData.noInput" ref="input"
 					:id="'list'+key"
 					v-model="paramData.value"
@@ -104,11 +123,11 @@
 			
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					src="@/assets/icons/help.svg"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'list'+key" v-html="label"></label>
+				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
 				<vue-select class="listField" label="label"
 					:id="'list'+key"
 					ref="vueSelect"
@@ -131,16 +150,20 @@
 						<div>{{ $t("global.empty_list2") }}</div>
 					</template>
 				</vue-select>
-				<button @click="submitListItem()" v-if="searching" class="listSubmitBt"><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
+				<button class="listSubmitBt"
+				:secondary="secondary"
+				:alert="alert || errorLocal"
+				@click="submitListItem()" v-if="searching"
+				><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
 				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help_purple.svg"
-					:data-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
+					src="@/assets/icons/help.svg"
+					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
 					class="helpIcon"
 				>
-				<label :for="'browse'+key" v-if="label" v-html="label"></label>
+				<label :for="'browse'+key" v-if="label" v-tooltip="tooltip" v-html="label"></label>
 				<input v-if="!paramData.noInput" type="text"
 					class="filePath"
 					v-model="paramData.value"
@@ -150,13 +173,15 @@
 				<Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
+					:secondary="secondary"
+					:alert="alert || errorLocal"
 					:accept="paramData.accept?paramData.accept:'*'"
-					:icon="$image('icons/upload.svg')"
+					icon="upload"
 				/>
 			</div>
 		</div>
 		
-		<PlaceholderSelector class="placeholders" v-if="placeholderTarget && paramData.placeholderList"
+		<PlaceholderSelector class="child placeholders" v-if="placeholderTarget && paramData.placeholderList"
 			:target="placeholderTarget"
 			:placeholders="paramData.placeholderList"
 			v-model="paramData.value"
@@ -167,13 +192,17 @@
 			ref="param_child"
 			:key="'child_'+index+c.id"
 			:paramData="c"
-			:clearToggle="clearToggle"
-			:alertToggle="alertToggle"
+			:secondary="secondary"
+			:alert="alert || errorLocal"
+			noBackground
 			:childLevel="childLevel+1" />
 
-		<div class="child" ref="param_child_slot" v-if="$slots.default">
+		<div class="child" ref="param_child_slot" v-if="$slots.default || $slots.child">
 			<slot></slot>
+			<slot name="child"></slot>
 		</div>
+
+		<div class="card-item alert errorMessage" v-if="(error && errorMessage) || paramData.errorMessage">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
 	</div>
 </template>
 
@@ -186,11 +215,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
+import Slider from '../Slider.vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
 	components:{
 		Button,
+		Slider,
 		ToggleButton,
 		PlaceholderSelector,
 	},
@@ -199,62 +230,60 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 export default class ParamItem extends Vue {
 	
 	@Prop
-	public paramData!:TwitchatDataTypes.ParameterData;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+	public paramData!:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>;
+
+	@Prop({type:Boolean, default:false})
 	public error!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:String, default:""})
+	public errorMessage!:string;
+
+	@Prop({type:Boolean, default:false})
 	public disabled!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean, default:false})
 	public autofocus!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
-	public clearToggle!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
-	public alertToggle!:boolean;
-	@Prop({
-			type:Number,
-			default:0,
-		})
+
+	@Prop({type:Number, default:0})
 	public childLevel!:number;
-	@Prop({
-			type:[String, Number, Boolean, Object, Array],
-			default: null
-		})
+
+	@Prop({type:[String, Number, Boolean, Object, Array], default: null})
 	public modelValue!:string|boolean|number|string[];
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public noBackground!:boolean;
+
+	@Prop({type:Number, default: 0})
+	public tabindex!:number;
 
 	public searching:boolean = false;
 	public key:string = Math.random().toString();
-	public children:TwitchatDataTypes.ParameterData[] = [];
+	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
+	public errorLocal:boolean = false
 
 	private file:unknown = {};
-	private errorLocal:boolean = false
 	private isLocalUpdate:boolean = false;
+	private childrenExpanded:boolean = false;
 
 	public get classes():string[] {
 		const res = ["paramitem"];
+		if(this.noBackground === false) {
+			res.push("card-item");
+			if(this.paramData.value === false) res.push("unselected");
+		}
 		if(this.errorLocal !== false) res.push("error");
-		if(this.clearToggle !== false) res.push("clear");
-		if(this.alertToggle !== false) res.push("alert");
+		else if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) res.push("error");
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
-		if(this.paramData.disabled || this.disabled == true
-		|| (this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes))) res.push("disabled");
+		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -262,21 +291,22 @@ export default class ParamItem extends Vue {
 	public get label():string {
 		if(!this.paramData) return "";
 		let txt = this.paramData.label ?? "";
+		
+		let count = 0;
 		if(this.paramData.labelKey) {
-			const v = parseFloat(this.paramData.value as string) ?? 0;
-			txt += this.$tc(this.paramData.labelKey, v, {VALUE:v.toString()});
+			let v = this.paramData.value;
+			if(this.paramData.type == "number") {
+				count = parseFloat(this.paramData.value as string) ?? 0;
+				if(isNaN(count)) count = 0;
+				v = count.toString();
+			}else if(this.paramData.type == "slider") {
+				count = this.paramData.value as number;
+			}
+			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
 		}
 		
 		if(!txt) return "";
-
-		if(txt.indexOf("{VALUE}") > -1) {
-			if(this.paramData.value || this.paramData.value === 0) {
-				txt = txt.replace(/\{VALUE\}/gi, this.paramData.value.toString());
-			}else{
-				txt = txt.replace(/\{VALUE\}/gi, "x");
-			}
-		}
-		return txt.replace(/(\([^)]+\))/gi, "<span class='small'>$1</span>");
+		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='small'>$1</span>");
 	}
 
 	public get placeholder():string {
@@ -299,6 +329,15 @@ export default class ParamItem extends Vue {
 	}
 
 	public set textValue(value:string) {
+		if(this.paramData.allowedCharsRegex) {
+			const prevValue = value;
+			//Only keep allowed chars if a list is defined
+			value = value.replace(new RegExp("[^"+this.paramData.allowedCharsRegex+"]", "gi"), "");
+			if(value != prevValue) {
+				//set to a new value so a change is detected by vue when modifying it aftewards
+				this.paramData.value = "_____this_is_a_fake_value_you_should_not_use_hehehehehe_____";
+			}
+		}
 		this.paramData.value = value;
 	}
 
@@ -307,7 +346,7 @@ export default class ParamItem extends Vue {
 	}
 
 	public beforeMount(): void {
-		this.errorLocal = this.error || this.paramData.error === true;
+		this.setErrorState(this.error || this.paramData.error === true);
 	}
 
 	public mounted():void {
@@ -322,23 +361,15 @@ export default class ParamItem extends Vue {
 			}
 		});
 		
-		watch(() => this.paramData.value, this.onEdit);
+		watch(() => this.paramData.value, () => this.onEdit());
 		
-		watch(() => this.paramData.error, ()=>{
-			this.errorLocal = this.paramData.error === true;
-		});
+		watch(() => this.paramData.error, ()=> this.setErrorState(this.paramData.error === true));
 		
-		watch(() => this.error, ()=>{
-			this.errorLocal = this.error === true;
-		});
+		watch(() => this.error, ()=> this.setErrorState(this.error === true) );
 		
-		watch(() => this.paramData.children, (value) => {
-			this.buildChildren();
-		});
+		watch(() => this.paramData.children, () => this.buildChildren() );
 		
-		watch(() => this.file, () => {
-			console.log(this.file);
-		});
+		watch(() => this.file, () => console.log(this.file) );
 		
 		this.buildChildren();
 		
@@ -368,7 +399,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.twitch_scopes) {
 			if(TwitchUtils.hasScopes(this.paramData.twitch_scopes)) return;
 			this.paramData.value = false;
-			this.errorLocal = false;
+			this.setErrorState(false);
 			event.stopPropagation();
 			this.$store("auth").requestTwitchScopes(this.paramData.twitch_scopes);
 		}
@@ -407,7 +438,7 @@ export default class ParamItem extends Vue {
 		}
 
 		if(this.paramData.save === true) {
-			this.$store("params").updateParams()
+			this.$store("params").updateParams();
 		}
 		this.$emit("update:modelValue", this.paramData.value);
 		this.$emit("change");
@@ -465,6 +496,7 @@ export default class ParamItem extends Vue {
 
 	private async buildChildren():Promise<void> {
 		if(this.paramData.value === false){
+			this.childrenExpanded = false;
 			if(this.children.length > 0 || this.$refs.param_child_slot) {
 				//Hide transition
 				let divs:HTMLDivElement[] = [];
@@ -474,16 +506,16 @@ export default class ParamItem extends Vue {
 					const childrenItems = this.$refs.param_child as Vue[];
 					divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
 				}
-				gsap.to(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05,
-						onComplete:()=> {
-							this.children = [];
-						}});
+				gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05,
+					onComplete:()=> {
+						this.children = [];
+					}});
 			}
 			return;
 		}
 
 		const list = this.$store("params").$state;
-		let children:TwitchatDataTypes.ParameterData[] = [];
+		let children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 		for (const key in list) {
 			const params = list[key as TwitchatDataTypes.ParameterCategory];
 			for (const key2 in params) {
@@ -511,59 +543,52 @@ export default class ParamItem extends Vue {
 				const childrenItems = this.$refs.param_child as Vue[];
 				divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
 			}
-			gsap.from(divs, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.05, clearProps:"all"});
+			if(!this.childrenExpanded) {
+				gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
+			}
 		}
+		this.childrenExpanded = true;
 	}
 
 	public clampValue():void {
 		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
 		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
 	}
+
+	private setErrorState(state:boolean) {
+		if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) {
+			this.errorLocal = true;
+		}else{
+			this.errorLocal = state;
+		}
+	}
 }
 </script>
 
 <style scoped lang="less">
 .paramitem{
-	overflow-y: clip;
-	border-left: 0 solid transparent;
-	transition: border-left .25s, padding-left .25s;
+	color: var(--color-light);
+	overflow: unset;
+	transition: padding .25s;
+	position: relative;
 	
-	&:not(.disabled)>.content:hover {
-		background-color: fade(@mainColor_normal, 10%);
+	&:not(.disabled)>.content:hover::before {
+		opacity: 1;
 	}
-	
-	&.error {
-		border-left: .25em solid @mainColor_alert;
-		border-bottom: 1px solid @mainColor_alert;
-		padding-left: .25em;
-
-		input, select, textarea, .listField{
-			color:@mainColor_light;
-			background-color: fade(@mainColor_alert, 50%);
-			border-color: @mainColor_alert;
-			&::placeholder {
-				color:fade(@mainColor_light, 50%);
-			}
-		}
-	}
-
-	&.clear {
-		textarea {
-			color: @mainColor_light;
-			border-color: @mainColor_light;
-			background: fade(@mainColor_light, 20%);
-			&::-webkit-scrollbar-thumb {
-				background-color: @mainColor_light;
-			}
-		}
+	&:not(.disabled)>.content::before {
+		content: "";
+		opacity: 0;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		filter: blur(5px);
+		pointer-events: none;
+		background-color: var(--color-light-fadest);
+		background: linear-gradient(170deg, var(--color-light-fader) 0%, var(--color-light-transparent) 100%);
 	}
 
-	&.alert {
-		&>.content:hover {
-			background-color: fade(@mainColor_alert, 10%);
-		}
-	}
-	
 	&.longText {
 		.content {
 			.text {
@@ -571,7 +596,10 @@ export default class ParamItem extends Vue {
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
-				textarea {
+				.inputHolder {
+					width: 100%;
+				}
+				label {
 					flex-basis: unset;
 				}
 			}
@@ -587,12 +615,30 @@ export default class ParamItem extends Vue {
 		}
 	}
 
-	&.disabled {
+	&.disabled:not(.error) {
 		filter: grayscale();
-		cursor: default;
+		cursor: unset;
 		.toggleButton, input, textarea, label {
 			pointer-events: none;
 		}
+	}
+	
+	&.error {
+		cursor: not-allowed;
+		background-color: var(--color-alert-fader) !important;
+		.errorMessage {
+			font-size: .9em;
+			margin-top: .5em;
+			text-align: center;
+		}
+		label {
+			opacity: .5;
+			cursor: unset !important;
+		}
+	}
+
+	&.unselected {
+		background-color: var(--color-secondary-fadest);
 	}
 	
 	.content {
@@ -611,6 +657,7 @@ export default class ParamItem extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+			row-gap: .25em;
 			&:has(input) {
 				flex-wrap: wrap;
 			}
@@ -619,8 +666,9 @@ export default class ParamItem extends Vue {
 		.icon {
 			width: 1em;
 			height: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: .5em;
+			align-self: flex-start;
 		}
 		
 
@@ -634,18 +682,53 @@ export default class ParamItem extends Vue {
 			align-self: flex-start;
 		}
 		
-		.toggle, .number, .text, .list, .browse{
+		.toggle, .number, .text, .list, .browse, .color{
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
 			label {
 				flex-grow: 1;
+				flex-basis: min-content;
+				align-self: stretch;
 				margin: 0;
 				padding-right: 1em;
 				line-height: 1.1em;
 				cursor: pointer;
 			}
+			&.number, &.text {
+				label {
+					margin-top: .3em;
+				}
+				&:has(.maxlength) {
+					input {
+						padding-right: 3em;
+					}
+				}
+				.inputHolder {
+					position: relative;
+					flex-grow: 1;
+					.maxlength {
+						font-size: .7em;
+						position: absolute;
+						right: .5em;
+						bottom: .5em;
+						transform: unset;
+					}
+					input {
+						width: 100%;
+						max-width: unset;
+					}
+				}
+			}
+			&.number {
+				input {
+					flex-basis: 80px;
+				}
+			}
+		}
 
+		.toggle{
+			flex-grow: 1;
 		}
 
 		:deep(.small) {
@@ -655,23 +738,55 @@ export default class ParamItem extends Vue {
 		.slider {
 			flex-grow: 1;
 			display: flex;
+			align-items: flex-start;
 			flex-direction: column;
 			input {
 				flex-basis: unset;
+				appearance: none;
+				width: 100%;
+				height: 1em;
+				background: transparent;
+  				background: linear-gradient(90deg, var(--color-dark-light) 50%, var(--color-dark-fadest) 50%);
+				&::-webkit-slider-thumb {
+					.emboss();
+					appearance: none;
+					width: 1em;
+					height: 1em;
+					border-radius: 50%;
+					background: var(--color-primary);
+					cursor: pointer;
+				}
+				&::-moz-range-thumb {
+					width: 1em;
+					height: 1em;
+					background: #04AA6D;
+					cursor: pointer;
+				}
 			}
-			&:not(.text)>label {
-				text-align: center;
+		}
+
+		.color {
+			.inputHolder {
+				flex-basis: 50px;
+				background-color: white;
+				height: 1.25em;
+				cursor: pointer;
+				position: relative;
+				input {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					opacity: 0;
+					height: 100%;
+					cursor: pointer;
+				}
 			}
 		}
 
 		input {
 			width: 100%;
-		}
-
-		textarea {
-			resize: vertical;
-			margin-top: .25em;
-			flex-grow: 1;
 		}
 
 		.browse {
@@ -686,10 +801,6 @@ export default class ParamItem extends Vue {
 			}
 		}
 
-		// select {
-		// 	max-width: 250px;
-		// }
-
 		input, select, textarea, .listField {
 			transition: background-color .25s;
 			flex-basis: 300px;
@@ -698,6 +809,10 @@ export default class ParamItem extends Vue {
 		}
 
 		.list {
+
+			label {
+				flex-basis: unset;
+			}
 
 			.listField {
 				:deep(.vs__dropdown-toggle) {
@@ -727,6 +842,11 @@ export default class ParamItem extends Vue {
 			}
 		}
 
+		textarea {
+			resize: vertical;
+			min-height: 2em;
+		}
+
 	}
 
 	&.level_1,
@@ -735,10 +855,7 @@ export default class ParamItem extends Vue {
 	&.level_4 {
 		.child {
 			@padding:15px;
-			width: calc(100% - @padding);
-		}
-		.placeholders {
-			padding-left: 0;
+			width: 100%;
 		}
 	}
 
@@ -753,7 +870,7 @@ export default class ParamItem extends Vue {
 			font-size: .9em;
 			&::before {
 				position: absolute;
-				left: -1em;
+				left: -1.5em;
 				top: .2em;
 				font-size: 1.1em;
 				content: "⤷";

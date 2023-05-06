@@ -1,56 +1,64 @@
 <template>
-	<div class="devmodemenu">
+	<div class="devmodemenu blured-background-window">
 		<h1>Developer panel</h1>
 		<div class="list">
-			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" :icon="$image('icons/coin.svg')" /> -->
-			<Button small title="Join" @click="simulateEvent('join')" :icon="$image('icons/enter_white.svg')" />
-			<Button small title="Leave" @click="simulateEvent('leave')" :icon="$image('icons/leave_white.svg')" />
-			<Button small title="Ban" @click="simulateEvent('ban')" :icon="$image('icons/ban.svg')" />
-			<Button small title="Unban" @click="simulateEvent('unban')" :icon="$image('icons/unban.svg')" />
-			<Button small title="First message" @click="simulateEvent('message', 'first')" :icon="$image('icons/firstTime.svg')" />
-			<Button small title="Returning user" @click="simulateEvent('message', 'returning')" :icon="$image('icons/returning.svg')" />
-			<Button small title="Presentation" @click="simulateEvent('message', 'presentation')" :icon="$image('icons/firstTime.svg')" />
-			<Button small title="Incoming raid" @click="simulateEvent('raid')" :icon="$image('icons/raid.svg')" />
-			<Button small title="Outgoing raid" @click="startFakeRaid()" :icon="$image('icons/raid.svg')" />
-			<Button small title="Bits" @click="simulateEvent('cheer')" :icon="$image('icons/bits.svg')" />
-			<Button small title="Sub" @click="simulateEvent('subscription')" :icon="$image('icons/sub.svg')" />
-			<Button small title="ReSub" @click="simulateEvent('subscription', 'resub')" :icon="$image('icons/sub.svg')" />
-			<Button small title="Subgifts" @click="simulateEvent('subscription', 'gift')" :icon="$image('icons/gift.svg')" />
-			<Button small title="Subgift upgrade" @click="simulateEvent('subscription', 'giftpaidupgrade')" :icon="$image('icons/gift.svg')" />
-			<Button small title="Follow" @click="simulateEvent('following')" :icon="$image('icons/follow.svg')" />
-			<Button small title="Reward redeem" @click="simulateEvent('reward')" :icon="$image('icons/channelPoints.svg')" />
-			<Button small title="Challenge contribution" @click="simulateEvent('community_challenge_contribution')" :icon="$image('icons/channelPoints.svg')" />
-			<Button small title="Hype train" @click="simulateHypeTrain()" :icon="$image('icons/train.svg')" />
-			<Button small title="Hype train cooldown" @click="simulateEvent('hype_train_cooled_down')" :icon="$image('icons/train.svg')" />
-			<Button small title="Hype train summary" @click="simulateEvent('hype_train_summary')" :icon="$image('icons/train.svg')" />
-			<Button small title="Community boost" @click="simulateComunityBoost()" :icon="$image('icons/boost.svg')" />
-			<Button small title="Automod Twitch" @click="simulateAutomod()" :icon="$image('icons/automod.svg')" />
-			<Button small title="Automod Twitchat" @click="simulateAutomodTwitchat()" :icon="$image('icons/automod.svg')" />
-			<Button small title="Automod Twitchat join" @click="simulateEvent('autoban_join')" :icon="$image('icons/automod.svg')" />
-			<Button small title="Poll result" @click="simulateEvent('poll')" :icon="$image('icons/poll.svg')" />
-			<Button small title="Prediction result" @click="simulateEvent('prediction')" :icon="$image('icons/prediction.svg')" />
-			<Button small title="Bingo result" @click="simulateEvent('bingo')" :icon="$image('icons/bingo.svg')" />
-			<Button small title="Raffle result" @click="simulateEvent('raffle')" :icon="$image('icons/ticket.svg')" />
-			<Button small title="Countdown result" @click="simulateEvent('countdown')" :icon="$image('icons/timer.svg')" />
-			<Button small title="Pin message" @click="simulateEvent('pinned')" :icon="$image('icons/pin.svg')" />
-			<Button small title="Upin message" @click="simulateEvent('unpinned')" :icon="$image('icons/unpin.svg')" />
-			<Button small title="Clear chat" @click="simulateEvent('clear_chat')" :icon="$image('icons/delete.svg')" />
-			<Button small title="Blocked user" @click="simulateBlockedUser()" :icon="$image('icons/block.svg')" />
-			<Button small title="Suspicious user" @click="simulateSuspicious()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Restricted user" @click="simulateRestricted()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Follow bot item" @click="simulateFollowbotItem()" :icon="$image('icons/block.svg')" />
-			<Button small title="Follow bot raid" @click="simulateFollowbotRaid()" :icon="$image('icons/block.svg')" />
-			<Button small title="Send shoutout" @click="simulateEvent('shoutout')" :icon="$image('icons/shoutout.svg')" />
-			<Button small title="Receive shoutout" @click="simulateEvent('shoutout', 'soReceived')" :icon="$image('icons/shoutout.svg')" />
-			<Button small title="Restrict user" @click="restrictUser()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Monitor user" @click="monitorUser()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Unflag user" @click="unflagUser()" :icon="$image('icons/shield.svg')" />
-			<Button small title="Stream online" @click="simulateEvent('stream_online')" :icon="$image('icons/online.svg')" />
-			<Button small title="Stream offline" @click="simulateEvent('stream_offline')" :icon="$image('icons/offline.svg')" />
-			<Button small title="Clip creation" @click="simulateEvent('clip_pending_publication')" :icon="$image('icons/clip.svg')" />
-			<Button small title="Show triggers logs" @click="openTriggersLogs()" :icon="$image('icons/broadcast.svg')" />
-			<Button small title="Export events history" @click="exportPubsubHistory()" :icon="$image('icons/download.svg')" :loading="generatingHistory" v-if="!pubsubHistoryLink" />
-			<Button small title="Download" type="link" :href="pubsubHistoryLink" highlight target="_blank" :icon="$image('icons/download.svg')" v-if="pubsubHistoryLink"/>
+			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
+			<Button small @click="simulateEvent('twitchat_ad', 'discord')" icon="whispers">Discord</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Ad</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Ad warn</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
+			<Button small @click="$store('chat').sendRightClickHint()" icon="whispers">Right click hint</Button>
+			<Button small @click="simulateEvent('join')" icon="enter">Join</Button>
+			<Button small @click="simulateEvent('leave')" icon="leave">Leave</Button>
+			<Button small @click="simulateEvent('ban')" icon="ban">Ban</Button>
+			<Button small @click="simulateEvent('unban')" icon="unban">Unban</Button>
+			<Button small @click="simulateEvent('message', 'first')" icon="firstTime">First message</Button>
+			<Button small @click="simulateEvent('message', 'returning')" icon="returning">Returning user</Button>
+			<Button small @click="simulateEvent('message', 'presentation')" icon="firstTime">Presentation</Button>
+			<Button small @click="simulateEvent('user_watch_streak')" icon="watchStreak">Watch streak</Button>
+			<Button small @click="simulateEvent('raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
+			<Button small @click="simulateEvent('raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
+			<Button small @click="startFakeRaid()" icon="raid">Outgoing raid</Button>
+			<Button small @click="simulateEvent('cheer')" icon="bits">Bits</Button>
+			<Button small @click="simulateEvent('subscription')" icon="sub">Sub</Button>
+			<Button small @click="simulateEvent('subscription', 'resub')" icon="sub">ReSub</Button>
+			<Button small @click="simulateEvent('subscription', 'gift')" icon="gift">Subgifts</Button>
+			<Button small @click="simulateSubgiftSpam()" icon="gift">Subgift spam</Button>
+			<Button small @click="simulateEvent('subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
+			<Button small @click="simulateEvent('following')" icon="follow">Follow</Button>
+			<Button small @click="simulateEvent('reward')" icon="channelPoints">Reward redeem</Button>
+			<Button small @click="simulateEvent('community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
+			<Button small @click="simulateHypeTrain()" icon="train">Hype train</Button>
+			<Button small @click="simulateEvent('hype_train_cooled_down')" icon="train">Hype train cooldown</Button>
+			<Button small @click="simulateEvent('hype_train_summary')" icon="train">Hype train summary</Button>
+			<Button small @click="simulateComunityBoost()" icon="boost">Community boost</Button>
+			<Button small @click="simulateAutomod()" icon="automod">Automod Twitch</Button>
+			<Button small @click="simulateAutomodTwitchat()" icon="automod">Automod Twitchat</Button>
+			<Button small @click="simulateEvent('autoban_join')" icon="automod">Automod Twitchat join</Button>
+			<Button small @click="simulateEvent('poll')" icon="poll">Poll result</Button>
+			<Button small @click="simulateEvent('prediction')" icon="prediction">Prediction result</Button>
+			<Button small @click="simulateEvent('bingo')" icon="bingo">Bingo result</Button>
+			<Button small @click="simulateEvent('raffle')" icon="ticket">Raffle result</Button>
+			<Button small @click="simulateEvent('countdown')" icon="timer">Countdown result</Button>
+			<Button small @click="simulateEvent('pinned')" icon="pin">Pin message</Button>
+			<Button small @click="simulateEvent('unpinned')" icon="unpin">Upin message</Button>
+			<Button small @click="simulateEvent('clear_chat')" icon="delete">Clear chat</Button>
+			<Button small @click="simulateBlockedUser()" icon="block">Blocked user</Button>
+			<Button small @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
+			<Button small @click="simulateRestricted()" icon="shield">Restricted user</Button>
+			<Button small @click="simulateFollowbotItem()" icon="block">Follow bot item</Button>
+			<Button small @click="simulateFollowbotRaid()" icon="block">Follow bot raid</Button>
+			<Button small @click="simulateEvent('shoutout')" icon="shoutout">Send shoutout</Button>
+			<Button small @click="simulateEvent('shoutout', 'soReceived')" icon="shoutout">Receive shoutout</Button>
+			<Button small @click="restrictUser()" icon="shield">Restrict user</Button>
+			<Button small @click="monitorUser()" icon="shield">Monitor user</Button>
+			<Button small @click="unflagUser()" icon="shield">Unflag user</Button>
+			<Button small @click="simulateEvent('stream_online')" icon="online">Stream online</Button>
+			<Button small @click="simulateEvent('stream_offline')" icon="offline">Stream offline</Button>
+			<Button small @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
+			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
+			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
+			<Button small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
 		</div>
 	</div>
 </template>
@@ -60,11 +68,13 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import EventSub from '@/utils/twitch/EventSub';
 import PubSub from '@/utils/twitch/PubSub';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { reactive } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import { typed } from 'mathjs';
 
 @Component({
 	components:{
@@ -93,15 +103,15 @@ export default class DevmodeMenu extends Vue {
 	private open():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.from(ref, {duration:.2, scaleX:0, delay:.1, clearProps:"scaleX", ease:"back.out"});
-		gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
+		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out"});
+		gsap.fromTo(ref, {scaleX:1.1}, {duration:.5, delay:.3, scaleX:1, clearProps:"scaleX,translateX", ease:"elastic.out(1)"});
 	}
 
 	private close():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});
-		gsap.to(ref, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY, scaleX", ease:"back.in", onComplete:() => {
+		gsap.to(ref, {duration:.1, scaleX:1.1, ease:"sin.in"});
+		gsap.to(ref, {duration:.1, translateX:"100%", scaleX:1, delay:.1, clearProps:"translateX", ease:"sin.out", onComplete:() => {
 			this.$emit("close");
 		}});
 	}
@@ -120,12 +130,18 @@ export default class DevmodeMenu extends Vue {
 	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
 		this.$store("debug").simulateMessage(type, async (message)=> {
 			switch(subAction) {
-				case "soReceived":		(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;
-				case "first":			(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
-				case "returning":		(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
-				case "presentation":	(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
-				case "resub":			(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
-				case "giftpaidupgrade": (message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
+				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
+				case "raidOnline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = true;break;
+				case "discord":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DISCORD; break;
+				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR; break;
+				case "ad_warn":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; break;
+				case "donor_public_prompt":	(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; break;
+				case "soReceived":			(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;
+				case "first":				(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
+				case "returning":			(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
+				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
+				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
+				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
 				case "gift":{
 					const recipients:TwitchatDataTypes.TwitchatUser[] = reactive([]);
 					const count = Math.round(Math.random() * 10) + 1;
@@ -275,39 +291,72 @@ export default class DevmodeMenu extends Vue {
 		StoreProxy.stream.setRaiding(m);
 	}
 
+	public async simulateSubgiftSpam():Promise<void> {
+		let user:TwitchatDataTypes.TwitchatUser;
+		const fakeUsers = await TwitchUtils.getFakeUsers();
+
+		for (let i = 0; i < 30; i++) {
+			this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=> {
+				const m = message as TwitchatDataTypes.MessageSubscriptionData;
+				if(!user) user = m.user;
+				else m.user = user;
+				m.tier = 1;
+				m.is_gift = true;
+				m.gift_recipients = [Utils.pickRand(fakeUsers)];
+				return true;
+			});
+			await Utils.promisedTimeout(100);
+		}
+	}
 }
 
-type Subaction = "first" | "returning" | "presentation" | "resub" | "gift" | "giftpaidupgrade" | "soReceived";
+type Subaction = "first"
+				| "returning"
+				| "presentation"
+				| "resub"
+				| "gift"
+				| "giftpaidupgrade"
+				| "soReceived"
+				| "ad_warn"
+				| "donor_public_prompt"
+				| "right_click_hint"
+				| "discord"
+				| "raidOnline"
+				| "raidOffline"
+				| "ad";
 
 </script>
 
 <style scoped lang="less">
 .devmodemenu{
-	.window();
 	width: min-content;
 	right: 0;
 	left: auto;
 	margin-left: auto;
 	transform-origin: bottom right;
+	overflow: hidden;
 
 	h1 {
-		color: @mainColor_light;
+		color: var(--color-light);
 		align-self: center;
 		margin-bottom: 10px;
 	}
 
 	.list {
-		height: 400px;
-		max-width: 100%;
-		max-height: 80%;
+		// height: 400px;
+		// max-height: 80%;
+		height: 100%;
+		margin: auto;
 		overflow-x: hidden;
 		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: .25em;
+		width: fit-content;
 		.button {
-			width: 100%;
-			margin-bottom: 5px;
-			:deep(.label) {
-				flex-grow: 1;
-			}
+			white-space: nowrap;
+			flex-shrink: 0;
+			flex-wrap: nowrap;
 		}
 	}
 }

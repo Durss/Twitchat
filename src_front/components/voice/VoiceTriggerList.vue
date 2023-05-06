@@ -1,18 +1,18 @@
 <template>
 	<div class="voicetriggerlist">
 
-		<VoiceGlobalCommands class="action global"
-			v-model="globalCommands"
-			v-model:complete="globalCommandsOK"
-			:open="actions.length == 0"
-		/>
+		<div class="card-istem form">
+			<VoiceGlobalCommands class="action global"
+				v-model="globalCommands"
+				v-model:complete="globalCommandsOK"
+			/>
+	
+			<Button icon="add" class="addBt"
+				@click="addAction()"
+				v-if="getActionIDs().length > 0 && globalCommandsOK">{{ $t('voice.addBt') }}</Button>
+			<div class="card-item alert error" v-else>{{ $t("voice.fill_global") }}</div>
+		</div>
 
-		<Button :icon="$image('icons/add.svg')" :title="$t('voice.addBt')" class="addBt"
-			@click="addAction()"
-			v-if="getActionIDs().length > 0 && globalCommandsOK"
-		/>
-
-		<div class="globalWarn" v-else v-t="'voice.fill_global'"></div>
 
 		<draggable 
 		v-if="actions"
@@ -22,6 +22,7 @@
 		ghost-class="ghost"
 		direction="vertical"
 		handle=".action>.header>img"
+		class="actionList"
 		:animation="250"
 		:dragoverBubble="true">
 			<template #item="{element, index}">
@@ -30,35 +31,40 @@
 					medium
 					:open="isOpen(element.id)"
 					:title="getLabelFromID(element.id)"
-					:icons="element.id? ['orderable_white',getIconFromID(element.id)] : ['orderable_white']"
+					:icons="element.id? ['orderable',getIconFromID(element.id)] : ['orderable']"
 					:ref="element.id"
 					class="action"
 				>
 					<template #right_actions>
-						<Button small highlight
-							:icon="$image('icons/cross_white.svg')"
-							class="toggleAction"
+						<Button alert
+							icon="trash"
+							class="deleteAction"
 							@click="deleteAction(element.id)"
 						/>
 					</template>
 
-					<label :for="'select'+index" v-t="'voice.select_action'"></label>
-					<vue-select :id="'select'+index"
-						:placeholder="$t('voice.select_action_placeholder')"
-						v-model="element.id"
-						:reduce="reduceSelectData"
-						:options="getActionIDs(element)"
-						:appendToBody="true"
-						:calculate-position="$placeDropdown"
-					>
-						<template v-slot:option="option">
-							<img class="listIcon" style="{background-color: red;}" :src="$image('icons/'+option.icon+'_purple.svg')" v-if="option.icon" />
-							{{ option.label }}
-						</template>
-					</vue-select>
-
-					<label v-if="element.id" :for="'text'+index"><span>{{ $t("voice.sentences") }}</span> <i>{{ $t("voice.sentences_count") }}</i></label>
-					<textarea v-if="element.id" :id="'text'+index" v-model="element.sentences" rows="5" maxlength="1000"></textarea>
+					<div class="content">
+						<label :for="'select'+index" v-t="'voice.select_action'"></label>
+						
+						<vue-select :id="'select'+index"
+							:placeholder="$t('voice.select_action_placeholder')"
+							v-model="element.id"
+							:reduce="reduceSelectData"
+							:options="getActionIDs(element)"
+							:appendToBody="true"
+							:calculate-position="$placeDropdown"
+						>
+							<template v-slot:option="option">
+								<img class="listIcon" style="{background-color: red;}" :src="$image('icons/dark/'+option.icon+'.svg')" v-if="option.icon" />
+								<span>{{ option.label }}</span>
+							</template>
+						</vue-select>
+	
+						<div class="form">
+							<label v-if="element.id" :for="'text'+index"><span>{{ $t("voice.sentences") }}</span> <i>{{ $t("voice.sentences_count") }}</i></label>
+							<textarea v-if="element.id" :id="'text'+index" v-model="element.sentences" rows="5" maxlength="1000"></textarea>
+						</div>
+					</div>
 					
 				</ToggleBlock>
 			</template>
@@ -96,7 +102,7 @@ export default class VoiceTriggerList extends Vue {
 
 	public reduceSelectData(option:{label:string, value:string}){ return option.value; }
 
-	public mounted():void {
+	public beforeMount():void {
 		type VAKeys = keyof typeof VoiceAction;
 		this.actions = [];
 		this.actions = JSON.parse(JSON.stringify(this.$store("voice").voiceActions));
@@ -156,8 +162,11 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	public deleteAction(id:string|undefined):void {
-		const index = this.actions.findIndex(v => v.id == id);
-		this.actions.splice(index, 1);
+		this.$store("main").confirm(this.$t("voice.delete_confirm_title"),this.$t("voice.delete_confirm_desc"))
+		.then(()=>{
+			const index = this.actions.findIndex(v => v.id == id);
+			this.actions.splice(index, 1);
+		})
 	}
 
 	public isOpen(id:string|undefined):boolean {
@@ -203,7 +212,6 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	public getLabelFromID(id:string|undefined):string {
-		type VAKeys = keyof typeof VoiceAction;
 		if(!id===null) return "ACTION ID NOT FOUND : "+id;
 		let label = this.$t("voice.select_action_placeholder");
 		if(id) {
@@ -247,60 +255,50 @@ export default class VoiceTriggerList extends Vue {
 
 <style scoped lang="less">
 .voicetriggerlist{
-
 	//.listIcon style is on index.less.
 	//Couldn't make it work from the template even in a unscoped tag
 	
-	.addBt {
-		margin:auto;
-		margin-bottom: 1em;
-		display: block;
-	}
+	gap: .5em;
+	display: flex;
+	flex-direction: column;
 
-	.globalWarn {
-		color: @mainColor_light;
-		background-color: @mainColor_warn;
-		padding: .5em;
-		border-radius: .5em;
-		text-align: center;
-	}
-
-	.action {
-		&:not(.global)>:deep(.content) {
-			// border: 1px solid @mainColor_normal;
-			// border-top: none;
-			// border-radius: 0 0 .5em .5em;
-			background-color: @mainColor_light;
-		}
-
-		&:not(:first-of-type) {
-			margin-top: .5em;
-		}
-
-		&.global {
-			margin-bottom: 1em;
-			// :deep(.header) {
-				// background-color: darken(@mainColor_normal, 20%);
-			// }
-		}
-		
-		:deep(.content) {
+	
+	.form {
+		.addBt {
+			margin:auto;
 			display: flex;
-			flex-direction: column;
-	
-			label:not(:first-of-type) {
-				margin-top: .5em;
-			}
-	
-			.saveBt {
-				margin: auto;
-				margin-top: .5em;
-			}
 		}
-		.toggleAction {
-			border-radius: 0;
-			padding: .3em;
+	
+		.global {
+			width: 100%;
+		}
+	
+		.error {
+			text-align: center;
+		}
+	}
+
+	.actionList {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		.action {
 			align-self: stretch;
+			.deleteAction {
+				border-radius: 0;
+				margin: -.5em;
+				align-self: stretch;
+			}
+			.content {
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
+				.form {
+					gap: .5em;
+					display: flex;
+					flex-direction: column;
+				}
+			}
 		}
 	}
 }

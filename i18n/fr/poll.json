@@ -2,12 +2,16 @@
 	"poll":{
 		"form":{
 			"title":"Créer un sondage",
+			"created_by":"créé par {USER}",
 			"closeBt_aria":"Fermer la fenêtre",
 			"question":"Question",
 			"answers":"Réponses (minimun 2)",
 			"additional_votes":"Autoriser les votes supplémentaires",
 			"additional_votes_amount":"Points de chaîne par vote",
 			"vote_duration":"Durée du vote (minutes)"
+		},
+		"state":{
+			"endBt":"Fermer le sondage"
 		}
 	}
 }

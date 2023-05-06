@@ -1,7 +1,7 @@
 <template>
-	<div class="rewardslist">
+	<div class="rewardslist blured-background-window">
 		<div v-if="rewards.length == 0" class="loader">
-			<img src="@/assets/loader/loader_white.svg" alt="loader">
+			<img src="@/assets/loader/loader.svg" alt="loader">
 			<p>loading...</p>
 		</div>
 
@@ -120,10 +120,8 @@ export default class RewardsList extends Vue {
 
 <style scoped lang="less">
 .rewardslist{
-	.window();
-
 	h1 {
-		color: @mainColor_light;
+		color: var(--color-light);
 		align-self: center;
 		margin-bottom: 10px;
 	}
@@ -158,7 +156,7 @@ export default class RewardsList extends Vue {
 			display: flex;
 			flex-direction: column;
 			width: 100px;
-			background-color: @mainColor_dark_light;
+			background-color: var(--color-dark-light);
 			border-radius: 5px;
 			align-items: center;
 			margin-bottom: 5px;
@@ -177,10 +175,6 @@ export default class RewardsList extends Vue {
 				}
 			}
 
-			// &:hover {
-			// 	background-color: @mainColor_dark_extralight;
-			// }
-
 			&:not(:nth-child(3n)) {
 				margin-right: 5px;
 			}
@@ -194,13 +188,13 @@ export default class RewardsList extends Vue {
 				font-size: 10px;
 				padding: 5px;
 				border-radius: 5px;
-				background-color: @mainColor_dark;
-				color: @mainColor_light;
+				background-color: var(--color-dark);
+				color: var(--color-light);
 				margin-bottom: 5px;
 			}
 
 			.title {
-				color: @mainColor_light;
+				color: var(--color-light);
 				font-size: 13px;
 				text-align: center;
 				margin-bottom: 5px;

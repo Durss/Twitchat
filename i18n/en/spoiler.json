@@ -1,7 +1,7 @@
 {
 	"spoiler":{
 		"header":"Messages starting with {TAG} will be masked by default and revealed on hover",
-		"message_example":"Messages example:",
+		"message_example":"Message example:",
 		"command":{
 			"title":"Spoil someone's message",
 			"how_to":"You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the {CMD} command",

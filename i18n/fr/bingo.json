@@ -1,34 +1,40 @@
 {
 	"bingo": {
-		"title":"Créer un Bingo",
-		"closeBt_aria":"Fermer le formulaire",
-		"description":"Le bingo est un jeu pour lequel vos viewiers doivent trouver une valeur spécifique",
-		"title_emote":"Emote",
-		"title_number":"Nombre",
-		"title_custom":"Personnalisé",
-		"min_value":"Valeur minimale",
-		"max_value":"Valeur maximale",
-		"custom_value":"Message",
-		
-		"winner_placeholder":"Pseudo",
-		"goal_placeholder":"Explique ce qu'il faut trouver",
-
-		"number_info":"Vos viewers devront envoyer un nombre compris entre la valeur minimale et maximale <i>(incluses)</i>",
-		"emote_info":"Vos viewers devront envoyer l'une des <strong>{COUNT}</strong> emotes Twitch disponibles <i>(smileys exclus)</i>",
-		"custom_info":"Vos viewers devront envoyer le message suivant",
-		
-		"goal_emote":"Trouver une emotes globale de Twitch",
-		"goal_number":"Trouver un nombre compris entre {MIN} et {MAX}",
-		"goal_custom":"",
-
-		"state_title":"Bingo",
-		"username_placeholder":"Pseudo",
-		"closeBt":"Clore le bingo",
-		"find_custom":"Message à trouver",
-		"find_number":"Nombre à trouver",
-		"find_emote":"Emote à trouver",
-
-		"announce_start":"Annoncer le début du Bingo dans le chat",
-		"announce_winner":"Annoncer gagnant·e dans le chat"
+		"form": {
+			"title":"Créer un Bingo",
+			"closeBt_aria":"Fermer le formulaire",
+			"description":"Faîtes deviner un nombre ou une emote à vos viewers",
+			"title_emote":"Emote",
+			"title_number":"Nombre",
+			"title_custom":"Personnalisé",
+			"min_value":"Valeur minimale",
+			"max_value":"Valeur maximale",
+			"custom_value":"Message",
+			"startBt":"Lancer le bingo",
+			"custom_placeholder":"message...",
+			
+			"winner_placeholder":"Pseudo",
+			"goal_placeholder":"Explique ce qu'il faut trouver",
+	
+			"number_info":"Vos viewers devront envoyer un nombre compris entre la valeur minimale et maximale <i>(incluses)</i>",
+			"emote_info":"Vos viewers devront envoyer l'une des <strong>{COUNT}</strong> emotes Twitch disponibles <i>(smileys exclus)</i>",
+			"custom_info":"Vos viewers devront envoyer le message suivant",
+	
+			"username_placeholder":"Pseudo",
+	
+			"announce_start":"Annoncer le début du Bingo dans le chat",
+			"announce_winner":"Annoncer gagnant·e dans le chat",
+			
+			"goal_emote":"Trouver une emote globale de Twitch",
+			"goal_number":"Trouver un nombre compris entre {MIN} et {MAX}",
+			"goal_custom":""
+		},
+		"state": {
+			"title":"Bingo",
+			"closeBt":"Clore le bingo",
+			"find_custom":"Message à trouver",
+			"find_number":"Nombre à trouver",
+			"find_emote":"Emote à trouver"
+		}
 	}
 }

@@ -170,7 +170,7 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 
-		startAd(duration:number):void {
+		startCommercial(duration:number):void {
 			if(!this.canStartAd) return;
 	
 			if(isNaN(duration)) duration = 30;

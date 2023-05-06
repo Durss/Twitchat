@@ -4,6 +4,7 @@ import { TwitchatDataTypes } from "./TwitchatDataTypes";
 
 
 export type TriggerActionTypes =  TriggerActionEmptyData
+								| TriggerActionDelayData
 								| TriggerActionObsData
 								| TriggerActionChatData
 								| TriggerActionTTSData
@@ -22,47 +23,141 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionCountGetData
 								| TriggerActionRandomData
 								| TriggerActionStreamInfoData
+								| TriggerActionTriggerToggleData
 ;
 
-
-export type TriggerActionStringTypes = "obs"
-									| "chat"
-									| "music"
-									| "tts"
-									| "raffle"
-									| "raffle_enter"
-									| "bingo"
-									| "voicemod"
-									| "highlight"
-									| "trigger"
-									| "http"
-									| "ws"
-									| "prediction"
-									| "poll"
-									| "count"
-									| "countget"
-									| "random"
-									| "stream_infos"
-									| null;
+export type TriggerActionStringTypes = TriggerActionTypes["type"];
 
 export interface TriggerData {
-	enabled:boolean;
-	actions:TriggerActionTypes[];
-	name?:string;
-	queue?:string;
-	prevKey?:string;
-	permissions?:TwitchatDataTypes.PermissionsData;
-	cooldown?:{global:number, user:number, alert:boolean};
-	scheduleParams?:TriggerScheduleData;
+	id:string;
 	/**
-	 * @deprecated Only here for typings on data migration. Use "name" property
+	 * Trigegr type
 	 */
-	chatCommand?:string
+	type:TriggerTypesValue;
+	/**
+	 * Trigger enabled ?
+	 */
+	enabled:boolean;
+	/**
+	 * Trigger action list
+	 */
+	actions:TriggerActionTypes[];
+	/**
+	 * Trigger's custom name
+	 */
+	name?:string;
+	
+	/**
+	 * Reward ID for reward related events
+	 */
+	rewardId?:string;
+	/**
+	 * Chat command name for chat command related events
+	 */
+	chatCommand?:string;
+	/**
+	 * Chat command aliases for chat command related events
+	 */
+	chatCommandAliases?:string[];
+	/**
+	 * Optional chat command params
+	 */
+	chatCommandParams?:TriggerChatCommandParam[];
+	/**
+	 * Schedule name for schedule related events
+	 */
+	scheduleName?:string;
+	/**
+	 * OBS source name for OBS source related events
+	 */
+	obsSource?:string;
+	/**
+	 * OBS scene name for OBS scene related events
+	 */
+	obsScene?:string;
+	/**
+	 * OBS input name for mute/unmute related events
+	 */
+	obsInput?:string;
+	/**
+	 * OBS filter name for filter toggle related events
+	 */
+	obsFilter?:string;
+	/**
+	 * Counter ID for counters related events
+	 */
+	counterId?:string;
+
+	/**
+	 * Execution que for this trigger
+	 */
+	queue?:string;
+	/**
+	 * Trigger's permission for user related trigger events (only chat commands for now)
+	 */
+	permissions?:TwitchatDataTypes.PermissionsData;
+	/**
+	 * Trigger's cooldowns for chat command events
+	 */
+	cooldown?:TriggerCooldownData;
+	/**
+	 * Schedule params for schedule triggers
+	 */
+	scheduleParams?:TriggerScheduleData;
+
+	/**
+	 * Conditions to be matched for the trigger ot be executed
+	 */
+	conditions?:TriggerConditionGroup;
+	/**
+	 * Should this trigger be displayed on the context menu opened when
+	 * right clicking a chat message ?
+	 * Only for slash command triggers
+	 */
+	addToContextMenu?:boolean;
+
+	
+	/**
+	 * @deprecated Only here for typings on data migration.
+	 */
+	prevKey?:string;
+}
+
+export interface TriggerChatCommandParam {
+	type:"TEXT"|"USER";
+	tag:string;
+}
+
+export interface TriggerConditionGroup {
+	id:string;
+	type:"group";
+	conditions:(TriggerCondition | TriggerConditionGroup)[];
+	operator:"OR"|"AND";
+}
+
+export interface TriggerCondition {
+	id:string;
+	type:"condition";
+	placeholder:string;
+	operator:TriggerConditionOperator;
+	value:string;
+}
+
+export const TriggerConditionOperatorList = [">","<",">=","<=","=","!=","contains","not_contains","starts_with","not_starts_with","ends_with","not_ends_with"] as const;
+export type TriggerConditionOperator = typeof TriggerConditionOperatorList[keyof typeof TriggerConditionOperatorList];
+
+export interface TriggerCooldownData {
+	global:number;
+	user:number;
+	/**
+	 * defines if a message should be posted on tchat if command is cooling down
+	 */
+	alert:boolean;
 }
 
 export interface TriggerLog {
 	id:string;
-	triggerId:string;
+	trigger:TriggerData;
 	date:number;
 	testMode:boolean;
 	complete:boolean;
@@ -83,51 +178,71 @@ export interface SocketParams {
 	secured:boolean;
 }
 
-//Main trigger categories displayed on the parameter "Triggers" section
-export const TriggerEventTypeCategories = {
-	GLOBAL: 1,
-	TIMER: 2,
-	COUNTER: 12,
-	TWITCHAT: 3,
-	USER: 4,
-	SUBITS: 5,
-	MOD: 6,
-	HYPETRAIN: 7,
-	GAMES: 8,
-	MUSIC: 9,
-	OBS: 10,
-	MISC: 11,
-} as const;
-export type TriggerEventTypeCategoryValue = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories];
-export interface TriggerEventTypes extends TwitchatDataTypes.ParameterDataListValue {
-	category:TriggerEventTypeCategoryValue;
+
+export interface TriggerEventTypeCategory {
+	id:number,
 	labelKey:string;
-	value:TriggerTypesValue;
+	icon:string;
+};
+//Main trigger categories displayed on the parameter "Triggers" section
+export const TriggerEventTypeCategories:{[key:string]:TriggerEventTypeCategory} = {
+	GLOBAL:		{id:1, labelKey:"triggers.categories.global", icon:"whispers"},
+	TIMER:		{id:2, labelKey:"triggers.categories.timer", icon:"timer"},
+	TWITCHAT:	{id:3, labelKey:"triggers.categories.twitchat", icon:"twitchat"},
+	USER:		{id:4, labelKey:"triggers.categories.user", icon:"user"},
+	SUBITS:		{id:5, labelKey:"triggers.categories.subits", icon:"coin"},
+	MOD:		{id:6, labelKey:"triggers.categories.mod", icon:"mod"},
+	HYPETRAIN:	{id:7, labelKey:"triggers.categories.hypetrain", icon:"train"},
+	GAMES:		{id:8, labelKey:"triggers.categories.games", icon:"ticket"},
+	MUSIC:		{id:9, labelKey:"triggers.categories.music", icon:"spotify"},
+	OBS:		{id:10, labelKey:"triggers.categories.obs", icon:"obs"},
+	MISC:		{id:11, labelKey:"triggers.categories.misc", icon:"broadcast"},
+	COUNTER:	{id:12, labelKey:"triggers.categories.count", icon:"count"},
+} as const;
+export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
+
+export interface TriggerTypeDefinition extends TwitchatDataTypes.ParameterDataListValue<TriggerTypesValue> {
+	category:TriggerEventTypeCategory;
+	labelKey:string;
 	icon:string;
 	beta?:boolean;
+	disabled?:boolean;
+	disabledReasonLabelKey?:string;
+	noToggle?:boolean;
 	descriptionKey?:string;
 	isCategory?:boolean;
 	testMessageType?:TwitchatDataTypes.TwitchatMessageStringType;
 	testNoticeType?:TwitchatDataTypes.TwitchatNoticeStringType;
 }
 
-export interface TriggerMusicEventType extends Omit<TriggerEventTypes, "value"> {
+export interface TriggerMusicEventType extends Omit<TriggerTypeDefinition, "value"> {
 	value:TriggerMusicTypesValue;
 }
 
-export interface TriggerScheduleEventType extends Omit<TriggerEventTypes, "value"> {
+export interface TriggerScheduleEventType extends Omit<TriggerTypeDefinition, "value"> {
 	value:TriggerScheduleTypesValue;
 }
 
 export interface TriggerActionData {
 	type:TriggerActionStringTypes;
 	id:string;
-	delay:number;
+	/**
+	 * @deprecated moved to a dedicated action
+	 */
+	delay?:number;
 }
 
 //Used for temporary trigger data before user selects the trigger type
 export interface TriggerActionEmptyData extends TriggerActionData{
 	type:null;
+}
+
+export interface TriggerActionDelayData extends TriggerActionData{
+	type:"delay";
+	/**
+	 * Delay in seconds
+	 */
+	delay:number;
 }
 
 export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay";
@@ -176,7 +291,7 @@ export interface TriggerActionVoicemodData extends TriggerActionData{
 
 export interface TriggerActionMusicEntryData extends TriggerActionData{
 	type:"music";
-	musicAction:string;
+	musicAction:TriggerMusicTypesValue;
 	track:string;
 	confirmMessage:string;
 	playlist:string;
@@ -190,13 +305,25 @@ export interface TriggerActionHighlightData extends TriggerActionData{
 
 export interface TriggerActionTriggerData extends TriggerActionData{
 	type:"trigger";
-	triggerKey:string;
+	triggerId:string;
+	/**
+	 * @deprecated do not use! only here for data migration typing
+	 */
+	triggerKey?:string;
 }
 
+export type TriggerActionTriggerToggleDataAction = "enable"|"disable"|"toggle";
+export interface TriggerActionTriggerToggleData extends TriggerActionData{
+	type:"triggerToggle";
+	triggerId:string;
+	action:TriggerActionTriggerToggleDataAction;
+}
+
+export type TriggerActionHTTPCallDataAction = "GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
 export interface TriggerActionHTTPCallData extends TriggerActionData{
 	type:"http";
 	url:string;
-	method:"GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
+	method:TriggerActionHTTPCallDataAction;
 	queryParams:string[];
 	outputPlaceholder?:string;
 }
@@ -219,19 +346,37 @@ export interface TriggerActionPredictionData extends TriggerActionData{
 
 export interface TriggerActionCountData extends TriggerActionData{
 	type:"count";
-	addValue:string;//Can be a placeholder, needs to be parseFloat() before updating counter
+	/**
+	 * Value to add.
+	 * Can be a number, an arithmetical operation, placejolders or a bit of all
+	 */
+	addValue:string;
+	/**
+	 * Counter IDs to update
+	 */
 	counters:string[];
+	/**
+	 * Specifies weither a per-user counter should be updated
+	 * based on the user executing the action (SENDER) or a
+	 * user whose name is stored on a placeholder (string type)
+	 */
+	counterUserSources:{[key:string]:TriggerActionCountDataUserSource}
 }
+export type TriggerActionCountDataUserSource = "SENDER"|string;
 
+/**
+ * @deprecated Removed in favor of global counter placeholders
+ */
 export interface TriggerActionCountGetData extends TriggerActionData{
 	type:"countget";
 	counter:string;
 	placeholder:string;
 }
 
+export type TriggerActionRandomDataMode = "list"|"number"|"trigger";
 export interface TriggerActionRandomData extends TriggerActionData{
 	type:"random";
-	mode:"list"|"number"|"trigger";
+	mode:TriggerActionRandomDataMode;
 	min:number;
 	max:number;
 	float:boolean;
@@ -251,7 +396,7 @@ export interface TriggerScheduleData {
 	type:TriggerScheduleTypesValue|"0";
 	repeatDuration:number;
 	repeatMinMessages:number;
-	dates:{daily:boolean, yearly:boolean, value:string}[];
+	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
 
 export const TriggerTypes = {
@@ -317,23 +462,43 @@ export const TriggerTypes = {
 	COUNTER_MINED:"61",
 	COUNTER_LOOPED:"62",
 	RAID_STARTED:"63",
+	SLASH_COMMAND:"64",
+	OBS_INPUT_MUTE:"65",
+	OBS_INPUT_UNMUTE:"66",
+	OBS_PLAYBACK_STARTED:"67",
+	OBS_PLAYBACK_ENDED:"68",
+	OBS_PLAYBACK_PAUSED:"69",//Not actually used as they require an OBS plugin to be triggered
+	OBS_PLAYBACK_RESTARTED:"70",//Not actually used as they require an OBS plugin to be triggered
+	OBS_PLAYBACK_NEXT:"71",//Not actually used as they require an OBS plugin to be triggered
+	OBS_PLAYBACK_PREVIOUS:"72",//Not actually used as they require an OBS plugin to be triggered
+	OBS_FILTER_ON:"73",
+	OBS_FILTER_OFF:"74",
+	USER_WATCH_STREAK:"75",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
+	TWITCHAT_SHOUTOUT_QUEUE:"shoutout_queue",
 } as const;
-export type TriggerTypesValue = typeof TriggerTypes[keyof typeof TriggerTypes];
+export type TriggerTypesKey = keyof typeof TriggerTypes;
+export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
 
 export interface ITriggerPlaceholder {
 	tag:string;
 	descKey:string;
+	descReplacedValues?:{[key:string]:string};
 	pointer:string;
 	isUserID:boolean;
 	numberParsable:boolean;
+	globalTag?:boolean;
 }
 
 export const USER_PLACEHOLDER:string = "USER";
 export const USER_ID_PLACEHOLDER:string = "USER_ID";
+export const COUNTER_VALUE_PLACEHOLDER_PREFIX:string = "COUNTER_VALUE_";
 
+/**
+ * Placeholders related to a trigger action type
+ */
 let actionPlaceholdersCache:Partial<{[key in NonNullable<TriggerActionStringTypes>]:ITriggerPlaceholder[]}>;
 export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITriggerPlaceholder[] {
 	if(!key) return [];
@@ -356,13 +521,29 @@ export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITrigger
 	return map[key] ?? [];
 }
 
-let eventPlaceholdersCache:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}>;
+/**
+ * Cleansup the placeholders cache to force it to be rebuilt next time.
+ * This is used by the counters, when changing the placeholder of a counter
+ * the cache needs to be rebuilt to get those changes.
+ */
+export function rebuildPlaceholdersCache():void { eventPlaceholdersCache = undefined };
+
+/**
+ * Placeholders related to a trigger event type
+ */
+let eventPlaceholdersCache:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}>|undefined;
 export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlaceholder[] {
 	if(eventPlaceholdersCache) {
 		return eventPlaceholdersCache[key] ?? [];
 	}
 
-	const map:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}> = {}
+	const map:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}> = {};
+	//Init all existing triggers to empty placeholder array
+	for (const key in TriggerTypes) {
+		const trigger = TriggerTypes[key as TriggerTypesKey]
+		map[trigger] = [];
+	}
+
 	map[TriggerTypes.ANY_MESSAGE] = 
 	map[TriggerTypes.FIRST_TODAY] = 
 	map[TriggerTypes.FIRST_ALL_TIME] = 
@@ -396,15 +577,18 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.PREDICTION_RESULT] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.prediction_title', pointer:"title", numberParsable:false, isUserID:false},
 		{tag:"WIN", descKey:'triggers.placeholders.prediction_win', pointer:"winner.label", numberParsable:true, isUserID:false},
+		{tag:"TOTAL_POINTS", descKey:'triggers.placeholders.prediction_points', pointer:"totalPoints", numberParsable:true, isUserID:false},
+		{tag:"TOTAL_USERS", descKey:'triggers.placeholders.prediction_users', pointer:"totalUsers", numberParsable:true, isUserID:false},
+		{tag:"WINNING_USERS", descKey:'triggers.placeholders.prediction_users_win', pointer:"winner.voters", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.BINGO_RESULT] = [
-		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"bingoData.winners[].displayName", numberParsable:false, isUserID:false},
+		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"user.displayName", numberParsable:false, isUserID:false},
 		{tag:"WIN_VALUE", descKey:'triggers.placeholders.winner', pointer:"bingoData.numberValue", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.RAFFLE_RESULT] = [
-		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"raffleData.winners[].label", numberParsable:false, isUserID:false},
+		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"winner.label", numberParsable:false, isUserID:false},
 	];
 	
 	map[TriggerTypes.SUB] = [
@@ -584,41 +768,82 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"NAME", descKey:'triggers.placeholders.counter_name', pointer:"counter.name", numberParsable:false, isUserID:false},
 		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"value", numberParsable:true, isUserID:false},
 		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"added", numberParsable:true, isUserID:false},
+		{tag:"UPDATE_ABS", descKey:'triggers.placeholders.counter_update_abs', pointer:"added_abs", numberParsable:true, isUserID:false},
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.counter_username', pointer:"user.displayName", numberParsable:false, isUserID:false},
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.counter_userid', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 
+	map[TriggerTypes.SLASH_COMMAND] = [
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false},
+	];
 
-	//If requesting chat command helpers and there is a music
-	//service available, concat the music service helpers
+	map[TriggerTypes.USER_WATCH_STREAK] = [
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
+		{tag:"STREAK_COUNT", descKey:'triggers.placeholders.watch_streak', pointer:"streak", numberParsable:true, isUserID:false},
+	];
+
+
+	//If a music service is available, concat the music service helpers
 	if(map[key]
 	&& key != TriggerTypes.MUSIC_START
 	&& key != TriggerTypes.TRACK_ADDED_TO_QUEUE
 	&& Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
-		map[key] = map[key]!.concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]!);
+		let tags:ITriggerPlaceholder[] = JSON.parse(JSON.stringify(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]));
+		tags.forEach(v=>v.globalTag = true);
+		map[key] = map[key]!.concat(tags);
+	}
+
+	const counters = StoreProxy.counters.counterList;
+	const counterPlaceholders:ITriggerPlaceholder[] = [];
+	for (let i = 0; i < counters.length; i++) {
+		const c = counters[i];
+		if(c.placeholderKey) {
+			counterPlaceholders.push({tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey, descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter.value", numberParsable:true, isUserID:false, globalTag:true});
+		}
 	}
 	
 	//Add global placeholders where missing
 	let k!:TriggerTypesValue;
 	for (k in map) {
-		if(map[k]!.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
-			map[k]!.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"myStream.title", numberParsable:false, isUserID:false});
+		const entry = map[k]!;
+		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
+			entry.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true});
 		}
-		if(map[k]!.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
-			map[k]!.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"myStream.category", numberParsable:false, isUserID:false});
+		if(entry.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
+			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false, globalTag:true});
 		}
+
+		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1) {
+			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false, globalTag:true});
+		}
+		
+		if(StoreProxy.main.currentOBSScene) {
+			entry.push({tag:"OBS_SCENE", descKey:"triggers.placeholders.obs_scene", pointer:"__obs__.scene", numberParsable:false, isUserID:false, globalTag:true});
+		}
+
+		map[k] = entry.concat(counterPlaceholders);
 	}
 
 	eventPlaceholdersCache = map;
 	return map[key] ?? [];
 }
 
-let eventsCache:TriggerEventTypes[];
-export function TriggerEvents():TriggerEventTypes[] {
+/**
+ * All trigger types details sorted by categories
+ * Their order is reflected on the frontend
+ */
+let eventsCache:TriggerTypeDefinition[];
+export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 	if(eventsCache) return eventsCache;
-
-	const t = StoreProxy.i18n.t;
 	eventsCache = [
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_START.label", value:TriggerTypes.EMERGENCY_MODE_START, descriptionKey:"triggers.events.EMERGENCY_MODE_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_STOP.label", value:TriggerTypes.EMERGENCY_MODE_STOP, descriptionKey:"triggers.events.EMERGENCY_MODE_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", labelKey:"triggers.events.CHAT_ALERT.label", value:TriggerTypes.CHAT_ALERT, descriptionKey:"triggers.events.CHAT_ALERT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"commands", labelKey:"triggers.events.SLASH_COMMAND.label", value:TriggerTypes.SLASH_COMMAND, descriptionKey:"triggers.events.SLASH_COMMAND.description"},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", labelKey:"triggers.events.REWARD_REDEEM.label", value:TriggerTypes.REWARD_REDEEM, isCategory:true, descriptionKey:"triggers.events.REWARD_REDEEM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD, noToggle:true},
@@ -626,10 +851,11 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.label", value:TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
 		{category:TriggerEventTypeCategories.USER, icon:"firstTime", labelKey:"triggers.events.FIRST_ALL_TIME.label", value:TriggerTypes.FIRST_ALL_TIME, descriptionKey:"triggers.events.FIRST_ALL_TIME.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.USER, icon:"firstTime", labelKey:"triggers.events.FIRST_TODAY.label", value:TriggerTypes.FIRST_TODAY, descriptionKey:"triggers.events.FIRST_TODAY.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
-		{category:TriggerEventTypeCategories.USER, icon:"returning", labelKey:"triggers.events.RETURNING_USER.label", value:TriggerTypes.RETURNING_USER, descriptionKey:"triggers.events.RETURNING_USER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{category:TriggerEventTypeCategories.USER, icon:"returning", labelKey:"triggers.events.RETURNING_USER.label", value:TriggerTypes.RETURNING_USER, descriptionKey:"triggers.events.RETURNING_USER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, disabled:true, disabledReasonLabelKey:"triggers.events.RETURNING_USER.disabled_reason"},
 		{category:TriggerEventTypeCategories.USER, icon:"presentation", labelKey:"triggers.events.PRESENTATION.label", value:TriggerTypes.PRESENTATION, descriptionKey:"triggers.events.PRESENTATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.USER, icon:"follow", labelKey:"triggers.events.FOLLOW.label", value:TriggerTypes.FOLLOW, descriptionKey:"triggers.events.FOLLOW.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.FOLLOWING},
 		{category:TriggerEventTypeCategories.USER, icon:"raid", labelKey:"triggers.events.RAID.label", value:TriggerTypes.RAID, descriptionKey:"triggers.events.RAID.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID},
+		{category:TriggerEventTypeCategories.USER, icon:"watchStreak", labelKey:"triggers.events.USER_WATCH_STREAK.label", value:TriggerTypes.USER_WATCH_STREAK, descriptionKey:"triggers.events.USER_WATCH_STREAK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK},
 		{category:TriggerEventTypeCategories.GAMES, icon:"poll", labelKey:"triggers.events.POLL_RESULT.label", value:TriggerTypes.POLL_RESULT, descriptionKey:"triggers.events.POLL_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},
 		{category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_RESULT.label", value:TriggerTypes.PREDICTION_RESULT, descriptionKey:"triggers.events.PREDICTION_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
 		{category:TriggerEventTypeCategories.GAMES, icon:"ticket", labelKey:"triggers.events.RAFFLE_RESULT.label", value:TriggerTypes.RAFFLE_RESULT, descriptionKey:"triggers.events.RAFFLE_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},
@@ -658,29 +884,37 @@ export function TriggerEvents():TriggerEventTypes[] {
 		{category:TriggerEventTypeCategories.MOD, icon:"mod", labelKey:"triggers.events.MOD.label", value:TriggerTypes.MOD, descriptionKey:"triggers.events.MOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
 		{category:TriggerEventTypeCategories.MOD, icon:"unmod", labelKey:"triggers.events.UNMOD.label", value:TriggerTypes.UNMOD, descriptionKey:"triggers.events.UNMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNMOD},
 		{category:TriggerEventTypeCategories.MOD, icon:"raid", labelKey:"triggers.events.RAID_STARTED.label", value:TriggerTypes.RAID_STARTED, descriptionKey:"triggers.events.RAID_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED},
-		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
-		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
-		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
-		{beta:true, category:TriggerEventTypeCategories.TIMER, icon:"date", labelKey:"triggers.events.SCHEDULE.label", value:TriggerTypes.SCHEDULE, descriptionKey:"triggers.events.SCHEDULE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
+		{category:TriggerEventTypeCategories.TIMER, icon:"date", labelKey:"triggers.events.SCHEDULE.label", value:TriggerTypes.SCHEDULE, descriptionKey:"triggers.events.SCHEDULE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_START.label", value:TriggerTypes.TIMER_START, descriptionKey:"triggers.events.TIMER_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_STOP.label", value:TriggerTypes.TIMER_STOP, descriptionKey:"triggers.events.TIMER_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 		{category:TriggerEventTypeCategories.TIMER, icon:"countdown", labelKey:"triggers.events.COUNTDOWN_START.label", value:TriggerTypes.COUNTDOWN_START, descriptionKey:"triggers.events.COUNTDOWN_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
 		{category:TriggerEventTypeCategories.TIMER, icon:"countdown", labelKey:"triggers.events.COUNTDOWN_STOP.label", value:TriggerTypes.COUNTDOWN_STOP, descriptionKey:"triggers.events.COUNTDOWN_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_START.label", value:TriggerTypes.EMERGENCY_MODE_START, descriptionKey:"triggers.events.EMERGENCY_MODE_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_STOP.label", value:TriggerTypes.EMERGENCY_MODE_STOP, descriptionKey:"triggers.events.EMERGENCY_MODE_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", labelKey:"triggers.events.CHAT_ALERT.label", value:TriggerTypes.CHAT_ALERT, descriptionKey:"triggers.events.CHAT_ALERT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
-		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"list", labelKey:"triggers.events.OBS_SCENE.label", value:TriggerTypes.OBS_SCENE, descriptionKey:"triggers.events.OBS_SCENE.description", isCategory:true, noToggle:true},
-		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"show", labelKey:"triggers.events.OBS_SOURCE_ON.label", value:TriggerTypes.OBS_SOURCE_ON, descriptionKey:"triggers.events.OBS_SOURCE_ON.description", isCategory:true, noToggle:true},
-		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"hide", labelKey:"triggers.events.OBS_SOURCE_OFF.label", value:TriggerTypes.OBS_SOURCE_OFF, descriptionKey:"triggers.events.OBS_SOURCE_OFF.description", isCategory:true, noToggle:true},
+		{category:TriggerEventTypeCategories.OBS, icon:"list", labelKey:"triggers.events.OBS_SCENE.label", value:TriggerTypes.OBS_SCENE, descriptionKey:"triggers.events.OBS_SCENE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE},
+		{category:TriggerEventTypeCategories.OBS, icon:"show", labelKey:"triggers.events.OBS_SOURCE_ON.label", value:TriggerTypes.OBS_SOURCE_ON, descriptionKey:"triggers.events.OBS_SOURCE_ON.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE},
+		{category:TriggerEventTypeCategories.OBS, icon:"hide", labelKey:"triggers.events.OBS_SOURCE_OFF.label", value:TriggerTypes.OBS_SOURCE_OFF, descriptionKey:"triggers.events.OBS_SOURCE_OFF.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE},
+		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"mute", labelKey:"triggers.events.OBS_INPUT_MUTE.label", value:TriggerTypes.OBS_INPUT_MUTE, descriptionKey:"triggers.events.OBS_INPUT_MUTE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE},
+		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"unmute", labelKey:"triggers.events.OBS_INPUT_UNMUTE.label", value:TriggerTypes.OBS_INPUT_UNMUTE, descriptionKey:"triggers.events.OBS_INPUT_UNMUTE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE},
+		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"play", labelKey:"triggers.events.OBS_PLAYBACK_STARTED.label", value:TriggerTypes.OBS_PLAYBACK_STARTED, descriptionKey:"triggers.events.OBS_PLAYBACK_STARTED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"stop", labelKey:"triggers.events.OBS_PLAYBACK_ENDED.label", value:TriggerTypes.OBS_PLAYBACK_ENDED, descriptionKey:"triggers.events.OBS_PLAYBACK_ENDED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		//These event require an OBS plugin to be triggered and are not super relevant...
+		//I chose to disable them for now
+		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"pause", labelKey:"triggers.events.OBS_PLAYBACK_PAUSED.label", value:TriggerTypes.OBS_PLAYBACK_PAUSED, descriptionKey:"triggers.events.OBS_PLAYBACK_PAUSED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"loop", labelKey:"triggers.events.OBS_PLAYBACK_RESTARTED.label", value:TriggerTypes.OBS_PLAYBACK_RESTARTED, descriptionKey:"triggers.events.OBS_PLAYBACK_RESTARTED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"next", labelKey:"triggers.events.OBS_PLAYBACK_NEXT.label", value:TriggerTypes.OBS_PLAYBACK_NEXT, descriptionKey:"triggers.events.OBS_PLAYBACK_NEXT.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		// {beta:true, category:TriggerEventTypeCategories.OBS, icon:"prev", labelKey:"triggers.events.OBS_PLAYBACK_PREVIOUS.label", value:TriggerTypes.OBS_PLAYBACK_PREVIOUS, descriptionKey:"triggers.events.OBS_PLAYBACK_PREVIOUS.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},
+		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"graphicFilters", labelKey:"triggers.events.OBS_FILTER_ON.label", value:TriggerTypes.OBS_FILTER_ON, descriptionKey:"triggers.events.OBS_FILTER_ON.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE},
+		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"graphicFiltersOff", labelKey:"triggers.events.OBS_FILTER_OFF.label", value:TriggerTypes.OBS_FILTER_OFF, descriptionKey:"triggers.events.OBS_FILTER_OFF.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE},
 		{category:TriggerEventTypeCategories.MISC, icon:"voicemod", labelKey:"triggers.events.VOICEMOD.label", value:TriggerTypes.VOICEMOD, descriptionKey:"triggers.events.VOICEMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
-		{beta:true, category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.STREAM_ONLINE.label", value:TriggerTypes.STREAM_ONLINE, descriptionKey:"triggers.events.STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE},
-		{beta:true, category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.STREAM_OFFLINE.label", value:TriggerTypes.STREAM_OFFLINE, descriptionKey:"triggers.events.STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},
-		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, noToggle:true},
-		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_DEL.label", value:TriggerTypes.COUNTER_DEL, descriptionKey:"triggers.events.COUNTER_DEL.description", isCategory:true, noToggle:true},
-		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_MAXED.label", value:TriggerTypes.COUNTER_MAXED, descriptionKey:"triggers.events.COUNTER_MAXED.description", isCategory:true, noToggle:true},
-		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_MINED.label", value:TriggerTypes.COUNTER_MINED, descriptionKey:"triggers.events.COUNTER_MINED.description", isCategory:true, noToggle:true},
-		{beta:true, category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_LOOPED.label", value:TriggerTypes.COUNTER_LOOPED, descriptionKey:"triggers.events.COUNTER_LOOPED.description", isCategory:true, noToggle:true},
+		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.STREAM_ONLINE.label", value:TriggerTypes.STREAM_ONLINE, descriptionKey:"triggers.events.STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE},
+		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.STREAM_OFFLINE.label", value:TriggerTypes.STREAM_OFFLINE, descriptionKey:"triggers.events.STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},
+		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
+		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_DEL.label", value:TriggerTypes.COUNTER_DEL, descriptionKey:"triggers.events.COUNTER_DEL.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
+		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_MAXED.label", value:TriggerTypes.COUNTER_MAXED, descriptionKey:"triggers.events.COUNTER_MAXED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
+		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_MINED.label", value:TriggerTypes.COUNTER_MINED, descriptionKey:"triggers.events.COUNTER_MINED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
+		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_LOOPED.label", value:TriggerTypes.COUNTER_LOOPED, descriptionKey:"triggers.events.COUNTER_LOOPED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
+		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
+		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
+		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
 	];
 	return eventsCache;
 }
@@ -700,7 +934,6 @@ let musicCache:TriggerMusicEventType[];
 export function MusicTriggerEvents():TriggerMusicEventType[] {
 	if(musicCache) return musicCache;
 
-	const t = StoreProxy.i18n.t;
 	musicCache = [
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.musicEvents.ADD_TRACK_TO_QUEUE", value:TriggerMusicTypes.ADD_TRACK_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.musicEvents.NEXT_TRACK", value:TriggerMusicTypes.NEXT_TRACK},
@@ -722,7 +955,6 @@ let scheduleCache:TriggerScheduleEventType[];
 export function ScheduleTriggerEvents():TriggerScheduleEventType[] {
 	if(scheduleCache) return scheduleCache;
 
-	const t = StoreProxy.i18n.t;
 	scheduleCache = [
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", labelKey:"triggers.scheduleEvents.REGULAR_REPEAT", value:TriggerScheduleTypes.REGULAR_REPEAT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", labelKey:"triggers.scheduleEvents.SPECIFIC_DATES", value:TriggerScheduleTypes.SPECIFIC_DATES},

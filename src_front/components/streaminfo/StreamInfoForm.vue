@@ -1,78 +1,76 @@
 <template>
-	<div class="streaminfo">
-		<div class="holder" ref="holder">
-			<div class="head">
-				<span class="title">{{ $t("stream.form_title") }}</span>
-				<Button :aria-label="$t('stream.closeBt_aria')" :icon="$image('icons/cross.svg')" @click="close()" class="close" bounce/>
-			</div>
-			
-			<div class="content">
-				<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
+	<div class="streaminfo sidePanel">
+		<div class="head">
+			<h1 class="title">{{ $t("stream.form_title") }}</h1>
+			<CloseButton @click="close()" />
+		</div>
+		
+		<div class="content">
+			<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
+				<div class="list">
 					<div v-for="p in presets" :key="p.id" class="preset">
-						<Button class="button" @click="deletePreset(p)"
-							:icon="$image('icons/trash.svg')"
-							:data-tooltip="$t('stream.preset_deleteBt_tt')" highlight bounce />
+						<Button class="button delete" @click="deletePreset(p)"
+							icon="trash"
+							v-tooltip="$t('stream.preset_deleteBt_tt')" />
 							
 						<Button class="button" @click="editPreset(p)"
-							:icon="$image('icons/edit.svg')"
-							:data-tooltip="$t('stream.preset_editBt_tt')" bounce />
-
+							icon="edit"
+							v-tooltip="$t('stream.preset_editBt_tt')" />
+	
 						<Button class="button" @click="applyPreset(p)"
-							:title="p.name"
-							:data-tooltip="$t('stream.preset_setBt_tt')" :loading="saving" bounce />
+							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving">{{ p.name }}</Button>
 					</div>
-				</ToggleBlock>
-				
-
-				<div class="content" v-if="loading">
-					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
 				</div>
-
-				<ToggleBlock v-else :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
-				:open="presets.length == 0 || forceOpenForm" icon="update">
-					<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
-					
-					<ParamItem class="item" :paramData="param_savePreset" v-if="!presetEditing" />
-					
-					<div class="actions">
-						<Button :title="$t('global.cancel')" class="submitBt" @click="cancelPresetEdit()" :loading="saving" highlight v-if="presetEditing" />
-						<Button :title="$t('global.submit')" class="submitBt" @click="updateStreamInfo()" :loading="saving" />
-					</div>
-				</ToggleBlock>
-			</div>
+			</ToggleBlock>
 			
+		
+			<img v-if="loading" src="@/assets/loader/loader.svg" alt="loading" class="loader">
+
+			<ToggleBlock v-else class="form" :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
+			:open="presets.length == 0 || forceOpenForm" icon="update">
+				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
+				
+				<ParamItem class="card-item save" :paramData="param_savePreset" v-if="!presetEditing" />
+				
+				<div class="actions">
+					<Button class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</Button>
+					<Button class="submitBt" @click="updateStreamInfo()" :loading="saving">{{$t('global.submit')}}</Button>
+				</div>
+			</ToggleBlock>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { Component } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
-import ToggleBlock from '../ToggleBlock.vue';
 import StreamInfoSubForm from './StreamInfoSubForm.vue';
 
 @Component({
 	components:{
 		Button,
 		ParamItem,
+		CloseButton,
 		ToggleBlock,
 		AutoCompleteForm,
 		StreamInfoSubForm,
 	},
 	emits:["close"]
 })
-export default class StreamInfoForm extends Vue {
+export default class StreamInfoForm extends AbstractSidePanel {
 
-	public param_savePreset:TwitchatDataTypes.ParameterData		= {value:false, type:"boolean"};
-	public param_namePreset:TwitchatDataTypes.ParameterData		= {value:"", type:"string", placeholder:"", maxLength:50};
+	public param_savePreset:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean"};
+	public param_namePreset:TwitchatDataTypes.ParameterData<string>		= {value:"", type:"string", placeholder:"", maxLength:50};
 
 	public title:string = "";
 	public tags:string[] = [];
@@ -96,18 +94,11 @@ export default class StreamInfoForm extends Vue {
 	public async mounted():Promise<void> {
 		this.param_savePreset.children = [this.param_namePreset];
 
-		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
-		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
+		this.open();
 
 		await Utils.promisedTimeout(250);
 
 		this.populate();
-	}
-
-	public async close():Promise<void> {
-		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$emit('close');
-		}});
 	}
 
 	/**
@@ -117,7 +108,7 @@ export default class StreamInfoForm extends Vue {
 		this.saving = true;
 		if(this.param_savePreset.value === true || this.presetEditing) {
 			const preset:TwitchatDataTypes.StreamInfoPreset = {
-				name:this.presetEditing?.name ?? this.param_namePreset.value as string,
+				name:this.presetEditing?.name ?? this.param_namePreset.value,
 				id:Utils.getUUID(),
 				title:this.title,
 			}
@@ -238,35 +229,28 @@ export default class StreamInfoForm extends Vue {
 
 <style scoped lang="less">
 .streaminfo{
-	.modal();
-
-	.item {
-		margin-top: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
-		border-radius: .5em;
-	}
-
 	.presets {
-		margin-bottom: 1em;
+		width: 100%;
+		.list{
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			gap: .5em;
+		}
 		.preset {
 			display: inline-flex;
 			flex-direction: row;
-			margin-right: .5em;
-			margin-bottom: .5em;
 			.button:nth-child(1) {
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
 				margin-right: 1px;
+				width: 1.75em;
 				transform-origin: right center;
-				width: 1.5em;
-				min-width: 1.5em;
 			}
 			.button:nth-child(2) {
+				width: 1.75em;
 				border-radius: 0;
 				margin-right: 1px;
-				width: 1.5em;
-				min-width: 1.5em;
 			}
 			.button:nth-child(3) {
 				border-top-left-radius: 0;
@@ -280,29 +264,9 @@ export default class StreamInfoForm extends Vue {
 			}
 		}
 	}
-	
-	.autoComplete-item {
-		margin-right: .25em;
-		margin-bottom: .25em;
-		padding: 0;
-		padding-right: .25em;
-		max-width: 100%;
-		:deep(.label) {
-			padding: 4px;
-			white-space: break-spaces;
-		}
-		:deep(.icon) {
-			height: 100%;
-			max-height: 2em;
-			margin-right: .25em;
-		}
 
-		&:hover {
-			&:after {
-				width: 1.25em;
-				height: 1.25em;
-			}
-		}
+	.form {
+		width: 100%;
 	}
 
 	.loader {
@@ -313,45 +277,14 @@ export default class StreamInfoForm extends Vue {
 
 	.actions {
 		display: flex;
+		gap: 1em;
 		flex-direction: row;
-		margin-top: 1em;
 		justify-content: center;
-		.button {
-			&:not(:last-child) {
-				margin-right: .5em;
-			}
-		}
-	}
-
-	.itemSelector {
 		margin-top: .5em;
 	}
 
-	.tagList {
-		margin-top: .8em;
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		gap: 5px;
-		align-items: center;
-		.tagItem {
-			display: inline;
-			background-color: rgb(240, 240, 240);
-			color: @mainColor_normal;
-			font-size: .9em;
-			padding: .25em;
-			border-radius: 4px;
-			transition: all .25s;
-
-			.icon {
-				height: .6em;
-				margin-left: .25em;
-			}
-			&:hover {
-				background: @mainColor_normal_extralight;
-				// color: @mainColor_light;
-			}
-		}
+	.save {
+		margin-top: .5em;
 	}
 }
 </style>

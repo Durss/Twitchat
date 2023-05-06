@@ -1,21 +1,28 @@
 import StoreProxy from "@/store/StoreProxy";
+import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import { LoremIpsum } from "lorem-ipsum";
+import DataStore from "@/store/DataStore";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 /**
 * Created : 26/09/2022 
 */
 export default class MessengerProxy {
-
+	
 	private static _instance:MessengerProxy;
 
 	private joinSpool:{channelId:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
 	private leaveSpool:{channelId:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
 	private joinSpoolTimeout:number = -1;
 	private leaveSpoolTimeout:number = -1;
+	private spamInterval:number = -1;
 	
 	constructor() {
 	
@@ -45,7 +52,11 @@ export default class MessengerProxy {
 	 * @param channelId 
 	 * @return if the message has been sent properly (chat field is cleared if this returns true)
 	 */
-	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):Promise<boolean> {
+	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string, replyTo?:TwitchatDataTypes.MessageChatData):Promise<boolean> {
+		if(replyTo) {
+			targetPlatforms = [replyTo.platform!];
+			channelId = replyTo.channel_id;
+		}
 		const hasPlatform = targetPlatforms && targetPlatforms.length>0;
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
 
@@ -54,8 +65,8 @@ export default class MessengerProxy {
 		// console.log("Send message:", message);
 		// console.log("          to:", channelId);
 		// console.log("          on:", targetPlatforms);
-		if(!hasPlatform || targetPlatforms.indexOf("twitch")>-1) {
-			if(!TwitchMessengerClient.instance.sendMessage(channelId, message)) {
+		if(!hasPlatform || targetPlatforms!.indexOf("twitch")>-1) {
+			if(!TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo)) {
 				return false;
 			}
 		}
@@ -74,6 +85,11 @@ export default class MessengerProxy {
 
 	public disconnect():void {
 		TwitchMessengerClient.instance.disconnect();
+	}
+
+	public stopSpam():void {
+		clearInterval(this.spamInterval);
+		StoreProxy.chat.spamingFakeMessages = false;
 	}
 	
 	
@@ -97,6 +113,7 @@ export default class MessengerProxy {
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.CONNECTED, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.DISCONNECTED, (e:MessengerClientEvent)=> this.onMessage(e));
 		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.REFRESH_TOKEN, (e:MessengerClientEvent)=> this.onRefreshToken(e));
+		TwitchMessengerClient.instance.addEventListener(MessengerClientEvent.WATCH_STREAK, (e:MessengerClientEvent)=> this.onMessage(e));
 	}
 
 	/**
@@ -205,6 +222,32 @@ export default class MessengerProxy {
 		const cmd = params.shift()?.toLowerCase();
 		params.forEach((v, i) => { params[i] = v.trim() });
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
+		
+		//Check if the command matches one of the custom slash commands
+		//created on the triggers
+		let triggerCommands = StoreProxy.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand);
+		for (let i = 0; i < triggerCommands.length; i++) {
+			const t = triggerCommands[i];
+			if(cmd == t.chatCommand!.toLowerCase()) {
+				const me = StoreProxy.auth.twitch.user;
+				const chunks = TwitchUtils.parseMessageToChunks(message);
+				const messageData:TwitchatDataTypes.MessageChatData = {
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					channel_id:me.id,
+					date:Date.now(),
+					id:Utils.getUUID(),
+					message:message,
+					message_chunks:chunks,
+					message_html:TwitchUtils.messageChunksToHTML(chunks),
+					user:me,
+					is_short:false,
+					answers:[],
+				}
+				TriggerActionHandler.instance.executeTrigger(t, messageData, false, t.chatCommand);
+				return true;
+			}
+		}
 
 		if(cmd == "/devmode") {
 			StoreProxy.main.toggleDevMode();
@@ -256,9 +299,63 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/suggestion") {
+			StoreProxy.params.openModal("chatsuggForm")
+			return true;
+		}else
+
 		if(cmd == "/voice") {
 			//change voicemod voice
 			//TODO
+		}else
+
+		if(cmd == "/userlist") {
+			StoreProxy.params.openModal("TTuserList")
+			return true;
+		}else
+
+		if(cmd == "/logmessages") {
+			console.log(StoreProxy.chat.messages)
+			return true;
+		}else
+
+		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
+			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID])) {
+				//If starting a raid with /raid without specifying a user
+				//open live followings list
+				StoreProxy.params.openModal("liveStreams")
+				return true;
+			}
+		}else
+
+		if(cmd == "/poll") {
+			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS])) {
+				//Open poll form
+				const title = params.join(" ");
+				if(title != "title") {
+					StoreProxy.main.tempStoreValue = title;
+				}
+				StoreProxy.params.openModal("poll")
+				return true;
+			}
+		}else
+
+		if(cmd == "/prediction") {
+			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
+				//Open prediction form
+				const title = params.join(" ");
+				if(title != "title") {
+					StoreProxy.main.tempStoreValue = title;
+				}
+				StoreProxy.params.openModal("pred")
+				return true;
+			}
+		}else
+
+		if(cmd == "/raffle") {
+			//Open raffle form
+			StoreProxy.params.openModal("raffle")
+			return true
 		}else
 
 		if(cmd == "/search") {
@@ -266,6 +363,7 @@ export default class MessengerProxy {
 			const search = params.join(" ");
 			// this.$emit("search", search);
 			StoreProxy.chat.doSearchMessages(search);
+			StoreProxy.params.openModal("search")
 			return true;
 		}else
 
@@ -283,7 +381,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/commercial") {
-			StoreProxy.stream.startAd(params.length > 0? parseInt(params[0]) : 30);
+			StoreProxy.stream.startCommercial(params.length > 0? parseInt(params[0]) : 30);
 			return true;
 		}else
 
@@ -439,6 +537,151 @@ export default class MessengerProxy {
 			}
 			
 			StoreProxy.bingo.startBingo(payload);
+			return true;
+		}else
+		
+		if(cmd == "/fakeso") {
+			const fakeUsers = await TwitchUtils.getFakeUsers();
+			let user = Utils.pickRand(fakeUsers);
+			if(params[0] && params[0] != "true" && params[0] != "false") {
+				user = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0]);
+				if(!user) return true;
+			}
+			const done = params[0] === "true" || params[1] === "true";
+			if(done) user.channelInfo[channelId].lastShoutout = Date.now();
+			const userInfos = await TwitchUtils.loadUserInfo([user.id]);
+			user.avatarPath = userInfos[0].profile_image_url;
+			if(!StoreProxy.users.shoutoutHistory[channelId]) {
+				StoreProxy.users.shoutoutHistory[channelId] = [];
+			}
+			StoreProxy.users.shoutoutHistory[channelId]!.push({
+				id:Utils.getUUID(),
+				user,
+				done,
+			})
+			return true;
+		}else
+
+		if(cmd == "/fakesolist") {
+			const fakeUsers = await TwitchUtils.getFakeUsers();
+			for (let i = 0; i < 10; i++) {
+				let user = Utils.pickRand(fakeUsers);
+				const done = i == 0;
+				if(done) user.channelInfo[channelId].lastShoutout = Date.now();
+				const userInfos = await TwitchUtils.loadUserInfo([user.id]);
+				user.avatarPath = userInfos[0].profile_image_url;
+				if(!StoreProxy.users.shoutoutHistory[channelId]) {
+					StoreProxy.users.shoutoutHistory[channelId] = [];
+				}
+				StoreProxy.users.shoutoutHistory[channelId]!.push({
+					id:Utils.getUUID(),
+					user,
+					done,
+				})
+			}
+			return true;
+		}else
+
+		if(cmd == "/fake") {
+			let forcedMessage = params.join(" ");
+
+			const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
+			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+			forcedMessage = forcedMessage.replace(/\{LOREM\}/gi, message);
+			await StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage);
+			return true;
+		}else
+
+		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam") {
+			StoreProxy.chat.spamingFakeMessages = true;
+
+			clearInterval(this.spamInterval);
+			
+			const forcedMessage = params.join(" ");
+			const incMode = params[0] == "inc";
+			let inc = 0;
+
+			this.spamInterval = window.setInterval(()=> {
+				if(incMode) {
+					StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (m)=>{
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							m.message = "Message "+(inc++);
+							m.message_chunks = TwitchUtils.parseMessageToChunks(m.message);
+							m.message_html = m.message;
+							m.todayFirst = false;
+							m.twitch_isFirstMessage = false;
+							m.twitch_isSuspicious = false;
+						}
+					});
+
+				}else{
+					const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
+					const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
+					StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message));
+				}
+			}, cmd == "/megaspam"? 50 :  200);
+			return true;
+		}else
+
+		if(cmd == "/fakewhisper" || cmd == "/fakewhispers") {
+			let count = parseInt(params[0]) || 1;
+			for (let i = 0; i < count; i++) {
+				StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.WHISPER);
+			}
+			return true;
+		}else
+
+		if(cmd == "/gigaspam") {
+			const count = StoreProxy.chat.realHistorySize;
+			for (let i = 0; i < count; i++) {
+				const post = i > count - 100;
+				await StoreProxy.debug.sendRandomFakeMessage(post, undefined,(message:TwitchatDataTypes.ChatMessageTypes)=>{
+					if(!post) {
+						//Push message not posted on tchat to the message history
+						StoreProxy.chat.messages.push(message);
+					}
+				});
+			}
+			return true;
+		}else
+
+		if(cmd == "/userdata" || cmd == "/loaduserdata") {
+			if(params.length == 0) {
+				StoreProxy.main.alert(StoreProxy.i18n.t('error.username_missing'));
+			}else{
+				let users:TwitchDataTypes.UserInfo[] = [];
+				try {
+					users = await TwitchUtils.loadUserInfo(undefined, [params[0]]);
+				}catch(error) {}
+
+				if(users.length == 0) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:params[0]}));
+				}else{
+					const options = {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
+							'App-Version': import.meta.env.PACKAGE_VERSION,
+						},
+					}
+					const res = await fetch(Config.instance.API_PATH+"/user/data?uid="+users[0].id, options)
+					if(res.status === 200) {
+						const json = await res.json();
+						if(cmd === "/loaduserdata") {
+							DataStore.loadFromJSON(json.data);
+						}else{
+							//Open JSON on new tab
+							const data = JSON.stringify(json.data);
+							const blob = new Blob([data], { type: 'application/json' });
+							const url = window.URL.createObjectURL(blob);
+							window.open(url, "_blank");
+						}
+					}else{
+						StoreProxy.main.alert("Unable to load user data");
+					}
+				}
+			}
 			return true;
 		}
 		

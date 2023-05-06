@@ -46,7 +46,7 @@ export default class MiddlewareController extends AbstractController {
 		
 		//CORS headers
 		this.server.register(require('@fastify/cors'), { 
-			origin:[/localhost/i, /twitchat\.fr/i],
+			origin:[/localhost/i, /twitchat\.fr/i, /192\.168\.1\.10/],
 			methods:['GET', 'PUT', 'POST', 'DELETE'],
 			decorateReply: true,
 			exposedHeaders:["x-ratelimit-reset"]

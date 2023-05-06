@@ -1,8 +1,7 @@
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { reactive } from "vue";
 import rewardImg from '@/assets/icons/reward_highlight.svg';
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import StoreProxy from "@/store/StoreProxy";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { reactive } from "vue";
 
 /**
  * Created by Durss
@@ -19,7 +18,6 @@ export default class Config {
 	// public TWITCH_API_PATH = "http://localhost:8000/mock/";
 	// public TWITCH_EVENTSUB_PATH = "ws://localhost:8001/eventsub";
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
-	public OBS_WEBSOCKET_INSTALLER = "https://github.com/obsproject/obs-websocket/releases/tag/5.0.1";
 	public MAX_PREDICTION_OUTCOMES = 10;
 	public SPOTIFY_CONNECTED = false;
 	public DEEZER_CONNECTED = false;
@@ -49,24 +47,9 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			{platform:"twitch", login:"durssbot"},
-			// {platform:"twitch", login:"iti63"},
-			// {platform:"twitch", login:"shakawah"},
-			// {platform:"twitch", login:"marikigai"},
-			// {platform:"twitch", login:"iti63"},
+			// {platform:"twitch", login:"durssbot"},
+			// {platform:"twitch", login:"lydia__am"},
 			// {platform:"twitch", login:"mewstelle"},
-			// {platform:"twitch", login:"gunselsenol"},
-			// {platform:"twitch", login:"encremecanique"},
-			// {platform:"twitch", login:"xurei"},
-			// {platform:"twitch", login:"durss"},
-			// {platform:"twitch", login:"gom4rt"},
-			// {platform:"twitch", login:"pelerine"},
-			// {platform:"twitch", login:"mistermv"},
-			// {platform:"twitch", login:"mymyhgl"},
-			// {platform:"twitch", login:"sweet_anita"},
-			// {platform:"twitch", login:"littlebigwhale"},
-			// {platform:"twitch", login:"samueletienne"},
-			// {platform:"twitch", login:"andythefrenchy"},
 		];
 	}
 
@@ -82,7 +65,7 @@ export default class Config {
 		// if(!this.IS_PROD) {
 		// 	return true;//Simulate beta env on local
 		// }
-		return document.location.host.indexOf("beta") > -1;
+		return document.location.host.indexOf("beta") > -1 || document.location.host.indexOf("localhost") > -1;
 	}
 
 	public get TWITCH_CLIENT_ID():string { return this._serverConfig.twitch_client_id; }
@@ -104,9 +87,9 @@ export default class Config {
 	public get highlightMyMessageReward():TwitchDataTypes.Reward {
 		const img = rewardImg;
 		return {
-			broadcaster_name: StoreProxy.auth.twitch.user.displayName,
-			broadcaster_login: StoreProxy.auth.twitch.user.login,
-			broadcaster_id: StoreProxy.auth.twitch.user.id,
+			broadcaster_name: "Durss",
+			broadcaster_login: "durss",
+			broadcaster_id: "29961813",
 			id: "highlighted-message",
 			image:{
 				url_1x:img,

@@ -1,15 +1,21 @@
 <template>
 	<div class="alert" v-if="message && message.length > 0" @click="close()">
+		<CloseButton />
 		<p v-html="message" class="label"></p>
 	</div>
 </template>
 
 <script lang="ts">
+import CloseButton from '@/components/CloseButton.vue';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 
-@Component({})
+@Component({
+	components:{
+		CloseButton,
+	},
+})
 export default class AlertView extends Vue {
 
 	public message = "";
@@ -30,6 +36,7 @@ export default class AlertView extends Vue {
 			this.$el.removeAttribute("style");
 			gsap.killTweensOf(this.$el);
 			gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
+			clearTimeout(this.timeout);
 			this.timeout = setTimeout(()=> this.close(), this.message.length*80 +2000);
 		}else if(this.message) {
 			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {
@@ -48,8 +55,8 @@ export default class AlertView extends Vue {
 <style lang="less" scoped>
 
 .alert {
-	background-color: @mainColor_alert;
-	color: @mainColor_light;
+	background-color: var(--color-alert);
+	color: var(--color-light);
 	padding: 20px 0;
 	height: auto;
 	width: 100%;
@@ -64,18 +71,8 @@ export default class AlertView extends Vue {
 	.label {
 		max-width: 600px;
 		margin: auto;
-		padding: 10px 30px 10px 10px;
 		text-align: center;
-		&::after {
-			content: "X";
-			font-family: var(--font-inter);
-			color: #fff;
-			position: absolute;
-			top: 10px;
-			right: 10px;
-			padding-left: 20px;
-			font-size: 20px;
-		}
+		line-height: 1.3em;
 	}
 }
 </style>

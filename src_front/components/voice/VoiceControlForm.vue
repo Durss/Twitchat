@@ -1,23 +1,25 @@
 <template>
-	<div class="voicecontrolform">
-		<section>
-			<label v-if="voiceApiAvailable" for="langSelector">{{ $t("voice.select_language") }}</label>
-			<LangSelector v-if="voiceApiAvailable" id="langSelector" v-model:lang="lang" class="langSelector" />
-			<Button v-if="voiceApiAvailable && !started && lang" :title="$t('voice.startBt')" class="startBt" @click="startBot()" :icon="$image('icons/voice.svg')" />
-			<Button v-if="voiceApiAvailable && started" :title="$t('voice.stopBt')" class="stopBt" @click="stopBot()" highlight :icon="$image('icons/stop.svg')" />
+	<div class="voicecontrolform parameterContent">
+		<section class="card-item block" v-if="voiceApiAvailable">
+			<label for="langSelector">{{ $t("voice.select_language") }}</label>
+			<LangSelector id="langSelector" v-model:lang="lang" class="langSelector" />
+			<Button v-if="!started && lang" class="startBt" @click="startBot()" icon="voice">{{$t("voice.startBt")}}</Button>
+			<Button v-if="started" class="stopBt" @click="stopBot()" highlight icon="stop">{{$t("voice.stopBt")}}</Button>
 		</section>
 		
-		<section class="block" v-if="!voiceApiAvailable || started || tempText || finalText">
+		<template v-if="!voiceApiAvailable || started || tempText || finalText">
 			<Splitter>{{ $t("voice.stt_preview") }}</Splitter>
-			<div class="temp" v-if="tempText && !finalText">{{tempText}}</div>
-			<div class="final" v-if="finalText">{{finalText}}</div>
-			<div class="empty" v-if="!tempText && !finalText">_</div>
-		</section>
+			
+			<section class="card-item block">
+				<div class="temp" v-if="tempText && !finalText">{{tempText}}</div>
+				<div class="final" v-if="finalText">{{finalText}}</div>
+				<div class="empty" v-if="!tempText && !finalText">...</div>
+			</section>
+		</template>
 
-		<section v-if="sttOnly === false">
-			<Splitter>{{ $t("voice.stt_actions") }}</Splitter>
-			<VoiceTriggerList class="block" />
-		</section>
+		<Splitter v-if="sttOnly === false">{{ $t("voice.stt_actions") }}</Splitter>
+
+		<VoiceTriggerList v-if="sttOnly === false" />
 	</div>
 </template>
 
@@ -43,15 +45,10 @@ import VoiceTriggerList from './VoiceTriggerList.vue';
 })
 export default class VoiceControlForm extends Vue {
 
-	@Prop({
-			type: Boolean,
-			default: false,
-		})
+	@Prop({type: Boolean, default: false})
 	public sttOnly!:boolean;
-	@Prop({
-			type: Boolean,
-			default: true,
-		})
+	
+	@Prop({type: Boolean, default: true})
 	public voiceApiAvailable!:boolean;
 
 	public lang:string = "";
@@ -93,31 +90,19 @@ export default class VoiceControlForm extends Vue {
 
 	.langSelector {
 		width:100%;
-		margin: .5em 0;
 	}
 	
 	.startBt, .stopBt{
-		display: block;
 		margin: auto;
 	}
 
 	.block {
-		margin-top: .5em;
-
+		width: 100%;
 		.temp {
 			font-style: italic;
 		}
 		.empty {
 			text-align: center;
-		}
-	}
-
-	section {
-		border-radius: .5em;
-		background-color: fade(@mainColor_normal_extralight, 30%);
-		padding: .5em;
-		&:not(:first-of-type) {
-			margin-top: 1em;
 		}
 	}
 

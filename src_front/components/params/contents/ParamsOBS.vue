@@ -1,6 +1,6 @@
 <template>
-	<div class="paramsobs">
-		<img src="@/assets/icons/obs_purple.svg" alt="overlay icon" class="icon">
+	<div class="paramsobs parameterContent">
+		<img src="@/assets/icons/obs.svg" alt="overlay icon" class="icon">
 
 		<div class="head">
 			<p>{{ $t("obs.header") }}</p>
@@ -18,7 +18,7 @@
 		<div class="fadeHolder" :style="holderStyles">
 			<ToggleBlock class="block conf"
 			:open="openConnectForm"
-			:icons="['info_purple']"
+			:icons="['info']"
 			:title="$t('obs.credentials_form_title')">
 				<OBSConnectForm  class="connectForm" />
 			</ToggleBlock>
@@ -26,17 +26,16 @@
 			<ToggleBlock class="block permissions"
 			v-if="connected"
 			:open="false"
-			:icons="['lock_purple']"
+			:icons="['lock']"
 			:title="$t('obs.permissions_title')">
 				<p class="info">{{ $t("obs.permissions_head") }}</p>
 				<PermissionsForm class="content" v-model="permissions" />
-				{{ permissions }}
 			</ToggleBlock>
 
 			<ToggleBlock class="block mic"
 			v-if="connected"
 			:open="false"
-			:icons="['microphone_purple']"
+			:icons="['microphone']"
 			:title="$t('obs.microphone_title')">
 				<OBSAudioSourceForm />
 			</ToggleBlock>
@@ -44,7 +43,7 @@
 			<ToggleBlock class="block scenes"
 			v-if="connected"
 			:open="false"
-			:icons="['list_purple']"
+			:icons="['list']"
 			:title="$t('obs.scenes_title')">
 				<OBSScenes />
 			</ToggleBlock>
@@ -56,16 +55,16 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import type { StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
+import PermissionsForm from '../../PermissionsForm.vue';
 import ParamItem from '../ParamItem.vue';
+import type IParameterContent from './IParameterContent';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
 import OBSScenes from './obs/OBSScenes.vue';
-import PermissionsForm from '../../PermissionsForm.vue';
 
 
 @Component({
@@ -77,9 +76,9 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		PermissionsForm,
 		OBSAudioSourceForm,
 	},
-	emits:["setContent"]
+	emits:[]
 })
-export default class ParamsOBS extends Vue {
+export default class ParamsOBS extends Vue implements IParameterContent {
 
 	public loading = false;
 	public connected = false;
@@ -87,10 +86,10 @@ export default class ParamsOBS extends Vue {
 	public connectSuccess = false;
 	public showPermissions = false;
 	public openConnectForm = false;
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", label:"Enabled", value:false};
-	public obsPort_conf:TwitchatDataTypes.ParameterData = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
-	public obsPass_conf:TwitchatDataTypes.ParameterData = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", label:"Enabled", value:false};
+	public obsPort_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string> = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
@@ -102,8 +101,6 @@ export default class ParamsOBS extends Vue {
 		usersAllowed:[],
 		usersRefused:[],
 	}
-
-	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
 
 	public get holderStyles():StyleValue {
 		return {
@@ -117,7 +114,7 @@ export default class ParamsOBS extends Vue {
 		const pass = DataStore.get(DataStore.OBS_PASS);
 		const ip = DataStore.get(DataStore.OBS_IP);
 
-		if(port != undefined) this.obsPort_conf.value = port;
+		if(port != undefined) this.obsPort_conf.value = parseInt(port);
 		if(pass != undefined) this.obsPass_conf.value = pass;
 		if(ip != undefined) this.obsIP_conf.value = ip;
 
@@ -144,6 +141,8 @@ export default class ParamsOBS extends Vue {
 		});
 	}
 
+	public onNavigateBack(): boolean { return false; }
+
 	/**
 	 * Connect to OBS websocket
 	 */
@@ -152,10 +151,10 @@ export default class ParamsOBS extends Vue {
 		this.connectSuccess = false;
 		this.connectError = false;
 		const connected = await OBSWebsocket.instance.connect(
-							(this.obsPort_conf.value as number).toString(),
-							this.obsPass_conf.value as string,
+							this.obsPort_conf.value.toString(),
+							this.obsPass_conf.value,
 							false,
-							this.obsIP_conf.value as string
+							this.obsIP_conf.value
 						);
 		if(connected) {
 			this.paramUpdate();
@@ -187,7 +186,7 @@ export default class ParamsOBS extends Vue {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		this.$store("obs").connectionEnabled = this.param_enabled.value as boolean;
+		this.$store("obs").connectionEnabled = this.param_enabled.value;
 		DataStore.set(DataStore.OBS_PORT, this.obsPort_conf.value);
 		DataStore.set(DataStore.OBS_PASS, this.obsPass_conf.value);
 		DataStore.set(DataStore.OBS_IP, this.obsIP_conf.value);
@@ -201,14 +200,6 @@ export default class ParamsOBS extends Vue {
 
 <style scoped lang="less">
 .paramsobs{
-	.parameterContent();
-
-	.loader {
-		display: block;
-		margin: auto;
-		margin-top: 10px;
-	}
-
 	.block:not(:first-of-type) {
 		margin-top: .5em;
 	}
@@ -228,10 +219,6 @@ export default class ParamsOBS extends Vue {
 	.block {
 		.info {
 			margin-bottom: 1em;
-		}
-		.warn {
-			font-style: italic;
-			color: @mainColor_alert;
 		}
 		&.permissions {
 			.info {
@@ -257,41 +244,6 @@ export default class ParamsOBS extends Vue {
 			margin: auto;
 		}
 
-		.error, .success {
-			justify-self: center;
-			color: @mainColor_light;
-			display: block;
-			text-align: center;
-			padding: 5px;
-			border-radius: 5px;
-			margin: auto;
-			margin-top: 10px;
-
-			&.error {
-				background-color: @mainColor_alert;
-			}
-
-			&.success {
-				background-color: #1c941c;
-				margin-top: 0px;
-				margin-bottom: 10px;
-			}
-			
-			a {
-				color: @mainColor_light;
-			}
-
-			div:not(:last-child) {
-				margin-bottom: 1em;
-			}
-			:deep(strong) {
-				background-color: @mainColor_light;
-				color: @mainColor_alert;
-				padding: 0 0.25em;
-				border-radius: 0.25em;
-			}
-		}
-	
 		.fade-enter-active {
 			transition: all 0.2s;
 		}
@@ -304,23 +256,6 @@ export default class ParamsOBS extends Vue {
 		.fade-leave-to {
 			opacity: 0;
 			transform: translateY(-10px);
-		}
-	}
-
-	:deep(input) {
-		min-width: 100px;
-		//These lines seems stupide AF but they allow the input
-		//to autosize to it's min length
-		width: 0%;
-		flex-grow: 1;
-		max-width: 100px;
-
-		text-align: center;
-		
-		//Hide +/- arrows
-		&::-webkit-outer-spin-button,
-		&::-webkit-inner-spin-button {
-			display: none;
 		}
 	}
 }

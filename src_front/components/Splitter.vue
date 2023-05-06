@@ -25,17 +25,15 @@ export default class Splitter extends Vue {
 	justify-content: center;
 	align-items: center;
 	text-align: center;
+	color: var(--color-light);
 	
 	span {
 		padding: 0 1em;
 	}
 	.line {
 		flex-grow: 1;
-		background-color: @mainColor_normal;
+		background-color: var(--color-light);
 		height: 1px;
-		// border-top: 1px solid @mainColor_normal;
-		// border-bottom: 1px solid @mainColor_normal;
-		// height: 10px;
 	}
 }
 </style>

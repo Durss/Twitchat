@@ -5,6 +5,8 @@ import { Event } from './EventDispatcher';
 * Created : 14/04/2022 
 */
 export default class TwitchatEvent extends Event {
+	public static CUSTOM_OBS_WS_EVENT:TwitchatEventType = "CustomEvent";
+	public static OBS_WEBSOCKET_CONNECTED:TwitchatEventType = "OBS_WEBSOCKET_CONNECTED";
 	public static TEXT_UPDATE:string = "TEXT_UPDATE";
 	public static RAW_TEXT_UPDATE:string = "RAW_TEXT_UPDATE";
 	public static ACTION_BATCH:string = "ACTION_BATCH";
@@ -35,10 +37,24 @@ export default class TwitchatEvent extends Event {
 	public static RAFFLE_RESULT:TwitchatEventType = "RAFFLE_RESULT";
 	public static EMERGENCY_MODE:TwitchatEventType = "EMERGENCY_MODE";
 	public static CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
+	public static CHAT_HIGHLIGHT_OVERLAY_CONFIRM:TwitchatEventType = "CHAT_HIGHLIGHT_OVERLAY_CONFIRM";
 	public static VOICEMOD_CHANGE:TwitchatEventType = "VOICEMOD_CHANGE";
 	public static SET_COLS_COUNT:TwitchatEventType = "SET_COLS_COUNT";
 	public static COUNTER_UPDATE:TwitchatEventType = "COUNTER_UPDATE";
 	public static COUNTER_LIST:TwitchatEventType = "COUNTER_LIST";
+	public static OBS_SCENE_CHANGE:TwitchatEventType = "OBS_SCENE_CHANGE";
+	public static OBS_SOURCE_TOGGLE:TwitchatEventType = "OBS_SOURCE_TOGGLE";
+	public static OBS_MUTE_TOGGLE:TwitchatEventType = "OBS_MUTE_TOGGLE";
+	public static OBS_FILTER_TOGGLE:TwitchatEventType = "OBS_FILTER_TOGGLE";
+	public static OBS_PLAYBACK_ENDED:TwitchatEventType = "OBS_PLAYBACK_ENDED";
+	public static OBS_PLAYBACK_STARTED:TwitchatEventType = "OBS_PLAYBACK_STARTED";
+	public static OBS_PLAYBACK_PAUSED:TwitchatEventType = "OBS_PLAYBACK_PAUSED";
+	public static OBS_PLAYBACK_RESTARTED:TwitchatEventType = "OBS_PLAYBACK_RESTARTED";
+	public static OBS_PLAYBACK_NEXT:TwitchatEventType = "OBS_PLAYBACK_NEXT";
+	public static OBS_PLAYBACK_PREVIOUS:TwitchatEventType = "OBS_PLAYBACK_PREVIOUS";
+	public static OBS_INPUT_NAME_CHANGED:TwitchatEventType = "OBS_INPUT_NAME_CHANGED";
+	public static OBS_SCENE_NAME_CHANGED:TwitchatEventType = "OBS_SCENE_NAME_CHANGED";
+	public static OBS_FILTER_NAME_CHANGED:TwitchatEventType = "OBS_FILTER_NAME_CHANGED";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -84,10 +100,6 @@ export default class TwitchatEvent extends Event {
 	public static STOP_TTS:TwitchatActionType = "STOP_TTS";
 	public static ENABLE_STT:TwitchatActionType = "ENABLE_STT";
 	public static DISABLE_STT:TwitchatActionType = "DISABLE_STT";
-	public static POLL_START:TwitchatActionType = "POLL_START";
-	public static POLL_END:TwitchatActionType = "POLL_END";
-	public static PREDICTION_START:TwitchatActionType = "PREDICTION_START";
-	public static PREDICTION_END:TwitchatActionType = "PREDICTION_END";
 	public static RAFFLE_START:TwitchatActionType = "RAFFLE_START";
 	public static RAFFLE_PICK_WINNER:TwitchatActionType = "RAFFLE_PICK_WINNER";
 	public static RAFFLE_END:TwitchatActionType = "RAFFLE_END";
@@ -97,6 +109,12 @@ export default class TwitchatEvent extends Event {
 	public static COUNTER_ADD:TwitchatActionType = "COUNTER_ADD";
 	public static TIMER_ADD:TwitchatActionType = "TIMER_ADD";
 	public static COUNTDOWN_ADD:TwitchatActionType = "COUNTDOWN_ADD";
+	public static CREATE_POLL:TwitchatActionType = "CREATE_POLL";
+	public static STOP_POLL:TwitchatActionType = "STOP_POLL";
+	public static CREATE_PREDICTION:TwitchatActionType = "CREATE_PREDICTION";
+	public static STOP_PREDICTION:TwitchatActionType = "STOP_PREDICTION";
+	public static CREATE_RAFFLE:TwitchatActionType = "CREATE_RAFFLE";
+	public static STOP_RAFFLE:TwitchatActionType = "STOP_RAFFLE";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -104,6 +122,8 @@ export default class TwitchatEvent extends Event {
 }
 
 export const TwitchatEventTypeList = [
+	"CustomEvent",
+	"OBS_WEBSOCKET_CONNECTED",
 	"TEXT_UPDATE",
 	"ACTION_BATCH",
 	"SPEECH_END",
@@ -131,12 +151,25 @@ export const TwitchatEventTypeList = [
 	"RAFFLE_RESULT",
 	"EMERGENCY_MODE",
 	"CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
+	"CHAT_HIGHLIGHT_OVERLAY_CONFIRM",
 	"VOICEMOD_CHANGE",
 	"SET_COLS_COUNT",
 	"COUNTER_UPDATE",
 	"COUNTER_LIST",
+	"OBS_SCENE_CHANGE",
+	"OBS_SOURCE_TOGGLE",
+	"OBS_MUTE_TOGGLE",
+	"OBS_FILTER_TOGGLE",
+	"OBS_PLAYBACK_ENDED",
+	"OBS_PLAYBACK_STARTED",
+	"OBS_PLAYBACK_PAUSED",
+	"OBS_PLAYBACK_RESTARTED",
+	"OBS_PLAYBACK_NEXT",
+	"OBS_PLAYBACK_PREVIOUS",
+	"OBS_INPUT_NAME_CHANGED",
+	"OBS_SCENE_NAME_CHANGED",
+	"OBS_FILTER_NAME_CHANGED",
 ] as const;
-
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
 export const TwitchatActionTypeList = [
@@ -183,10 +216,6 @@ export const TwitchatActionTypeList = [
 	"STOP_TTS",
 	"ENABLE_STT",
 	"DISABLE_STT",
-	"POLL_START",
-	"POLL_END",
-	"PREDICTION_START",
-	"PREDICTION_END",
 	"RAFFLE_START",
 	"RAFFLE_PICK_WINNER",
 	"RAFFLE_END",
@@ -196,5 +225,11 @@ export const TwitchatActionTypeList = [
 	"COUNTER_ADD",
 	"TIMER_ADD",
 	"COUNTDOWN_ADD",
-];
+	"CREATE_POLL",
+	"STOP_POLL",
+	"CREATE_PREDICTION",
+	"STOP_PREDICTION",
+	"CREATE_RAFFLE",
+	"STOP_RAFFLE",
+] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

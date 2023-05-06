@@ -1,29 +1,33 @@
 <template>
 	<div class="logout">
-		<div class="head">
-			<img class="icon" src="@/assets/logo.svg" alt="twitch">
-		</div>
-
-		<div class="content">
-			<div>{{ $t("logout.title") }}</div>
-			<div class="link">
-				<a @click="showDetails = !showDetails" v-if="!showDetails">{{ $t("logout.are_you") }}</a>
+		<div class="home-gradient-bg"></div>
+	
+		<div class="holder blured-background-window">
+			<div class="head">
+				<img class="icon" src="@/assets/logo.svg" alt="twitch">
 			</div>
-			<div class="details" v-if="showDetails">
-				<p class="row"><strong>{{ $t("logout.details_head") }}</strong></p>
-				<p class="row">{{ $t("logout.details_1") }}</p>
-				<p class="row">{{ $t("logout.details_2") }}</p>
-				
-				<Button class="row" type="link"
-					href="https://www.twitch.tv/settings/connections"
-					target=_blank
-					:title="$t('logout.settingBt')"
-				/>
-				<p class="row" v-html="$t('logout.details_3')"></p>
-				
-				<img src="@/assets/img/logout.png" alt="logout">
+	
+			<div class="content">
+				<div v-if="!showDetails">{{ $t("logout.title") }}</div>
+				<div class="link" v-if="!showDetails">
+					<a @click="showDetails = !showDetails">{{ $t("logout.are_you") }}</a>
+				</div>
+				<div class="details" v-if="showDetails">
+					<p><strong>{{ $t("logout.details_head") }}</strong></p>
+					<p>{{ $t("logout.details_1") }}</p>
+					<p>{{ $t("logout.details_2") }}</p>
+					
+					<Button type="link"
+						href="https://www.twitch.tv/settings/connections"
+						target=_blank
+					>{{ $t('logout.settingBt') }}</Button>
+					
+					<p v-html="$t('logout.details_3')"></p>
+					
+					<img src="@/assets/img/logout.png" alt="logout">
+				</div>
+				<Button :to="{name:'login'}" class="login">{{ $t('global.log_in') }}</Button>
 			</div>
-			<Button :to="{name:'login'}" :title="$t('global.log_in')" class="login" />
 		</div>
 	</div>
 </template>
@@ -44,29 +48,37 @@ export default class Logout extends Vue {
 
 <style scoped lang="less">
 .logout{
-	.center();
-	.block();
-	position: absolute;
-	width: 400px;
-	z-index: 1;
+	.holder {
+		.center();
+		color: var(--color-light);
+		position: fixed;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+		width: max-content;
+		max-width: 600px;
+		
+		.head {
+			align-self: center;
+			.icon {
+				height: 50px;
+			}
+		}
 	
-	.head {
-		margin-bottom:0;
-		.icon {
-			height: 50px;
-		}
-	}
-
-	.content {
-		text-align: center;
-		.link, .details, .login {
-			margin-top: 20px;
-		}
-		img {
-			max-width: 100%;
-		}
-		.row {
-			margin-bottom: 1em;
+		.content {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1em;
+			.details {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				text-align: center;
+				gap: .5em;
+				line-height: 1.5em;
+			}
 		}
 	}
 

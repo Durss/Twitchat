@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark_white' : 'cross_alert')+'.svg')" alt="notice" class="icon">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark' : 'cross')+'.svg')" alt="notice" class="icon">
 		
 		<i18n-t scope="global" tag="span" v-if="messageData.type == 'connect'" keypath="chat.connect.on">
 			<template #PLATFORM><strong>{{messageData.platform}}</strong></template>
@@ -32,7 +32,7 @@ export default class ChatConnect extends AbstractChatMessage {
 	public channelName:string = "";
 
 	public get classes():string[]{
-		const res = ["chatconnect"];
+		const res = ["chatconnect", "chatMessage"];
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.DISCONNECT) {
 			res.push("disconnect");
 		}
@@ -56,13 +56,10 @@ export default class ChatConnect extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatconnect{
-	.chatMessage();
-	
 	font-style: italic;
-	opacity: .7;
 
 	&.disconnect {
-		color: @mainColor_alert_light;
+		color: var(--color-alert);
 	}
 	
 }

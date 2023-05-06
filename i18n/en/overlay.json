@@ -1,84 +1,78 @@
 {
-	"overlay":{
-		"header": "Add overlays to your stream",
-		"unified": "Include all overlays in one single browser source:",
-		"css_customization": "CSS customization",
-
-		"connection":{
-			"title":"The overlays need you to {OBS} or {DOCK}",
-			"obsBt":"connect with OBS",
-			"dockBt":"dock Twitchat in OBS",
-			"closeBt":"Close",
-			"dock_tutorial": "On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong> and add Twitchat this way"
-		},
-
-		"raffle":{
-			"title":"Wheel",
-			"head":"When doing a raffle, this page will display a wheel that'll animate to pick a winner.",
-			"css":"You can change the appearance of the wheel by overriding these CSS values on OBS browser source params",
-			"no_overlay":"- overlay not configured or hidden -",
-			"start":"To start a raffle, open the commands menu {MENU} or use the {CMD} command.",
-			"testBt":"Test"
-		},
-
-		"timer":{
-			"title":"Timer & Countdown",
-			"head":"When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display the ellapsed or remaining time.",
-			"css":"You can change the appearance of the timers by overriding these CSS values on OBS browser source params",
-			"try_timerBt":"Try timer",
-			"try_countdownBt":"Try countdown (2min)"
-		},
-		
-		"counters":{
-			"title":"Counters",
-			"head":"Add any of your counters to your stream by setting hteir URL on a browser source",
-			"head_empty":"Create counters, update them from chat commands, channel point rewards, sub alerts, etc... and show their progression on your stream.",
-			"createBt":"Create a counter",
-			"css":"Change counters appearance via those CSS selectors",
-			"css_example":{
-				"simple":"Simple counter",
-				"progress":"Progression bar"
-			}
-		},
-		
-		"highlight":{
-			"title":"Message highlight",
-			"head":"If you add this overlay on OBS you'll be able to display any chat message and clips on your stream like this:",
-			"instruction":"Set this in an OBS browser source to display the highlighted message:",
-			"css":"You can change the appearance of the message by overriding these CSS IDs on OBS browser source params",
-			"message_pos":"Message position",
-			"clear_instruction":"To clear the currently highlighted message click this button on the chat bar",
-			"testBt":"Send test message",
-			"no_overlay":"- overlay not configured or hidden -",
-			"alternative_tool":"Check out {URL} for a dedicated tool doing this with much more options"
-		},
-
-		"music_common":{
-			"music":"Display the currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.",
-			"music_url":"Set this URL in an OBS browser source to display currently playing track:",
-			"css":"You can change the appearance of the player by overriding these CSS IDs on OBS browser source params",
-			"no_scroll":"Disable scrolling",
-			"open_from_left":"Open from left",
-			"auto_hide":"Keep player visible if nothing is playing",
-			"auto_hide_erase":"Erase track infos when nothing is playing",
-			"show_cover":"Show cover",
-			"show_artist":"Show artist",
-			"show_title":"Show title",
-			"show_progress":"Show progress bar",
-			"custom_template_toggle":"Use custom template",
-			"custom_template":"Template (HTML accepted)",
-			"custom_template_placeholders":{
-				"title":"Track title",
-				"artist":"Track artist"
-			},
-			"infos":"You can allow your viewers to control playback or add musics to the queue from chat commands thanks to the {TRIGGERS}.",
-			"triggerBt":"triggers"
-		},
-
-		"deezer":{
-			"shit_api":"Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.",
-			"authBt":"Authenticate",
-			"control":"Click on the {ICON} icon deezer on the bottom right of the screen to add tracks, view the queue, and control the playback."
-		}
-	}
+  "overlay": {
+    "header": "Add overlays to your stream",
+    "unified": "Include all overlays in one single browser source:",
+    "css_customization": "CSS customization",
+    "connection": {
+      "title": "The overlays need you to {OBS} or {DOCK}",
+      "obsBt": "connect with OBS",
+      "dockBt": "dock Twitchat in OBS",
+      "closeBt": "Close",
+      "dock_tutorial": "On OBS, open <strong>Docks</strong> => <strong>Custom Browser Docks</strong> and add Twitchat this way"
+    },
+    "raffle": {
+      "title": "Animated wheel",
+      "head": "Shows an animated wheel when doing a raffle.",
+      "css": "You can change the appearance of the wheel by overriding these CSS values on OBS browser source params",
+      "no_overlay": "overlay not configured or hidden",
+      "start": "To start a raffle, open the commands menu {MENU} or use the {CMD} command.",
+      "testBt": "Test"
+    },
+    "timer": {
+      "title": "Timer & Countdown",
+      "head": "When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display the ellapsed or remaining time.",
+      "css": "You can change the appearance of the timers by overriding these CSS values on OBS browser source params",
+      "try_timerBt": "Try timer",
+      "try_countdownBt": "Try countdown (2min)"
+    },
+    "counters": {
+      "title": "Counters",
+      "head": "Add any of your counters to your stream by setting hteir URL on a browser source",
+      "head_empty": "Create counters, update them from chat commands, channel point rewards, sub alerts, etc... and show their progression on your stream.",
+      "createBt": "Create a counter",
+      "css": "Change counters appearance via those CSS selectors",
+      "css_example": {
+        "simple": "Simple counter",
+        "progress": "Progression bar"
+      }
+    },
+    "highlight": {
+      "title": "Message highlight",
+      "instruction": "Shows a user's message or a clip on your stream:",
+      "css": "You can change the appearance of the message by overriding these CSS IDs on OBS browser source params",
+      "message_pos": "Message position",
+      "testBt": "Send test message",
+      "no_overlay": "overlay not configured or hidden",
+      "alternative_tool": "Check out {URL} for a dedicated tool doing this with much more options"
+    },
+    "music_common": {
+      "music": "Display currently playing track on your overlay and allow your users to add tracks to the queue or control the playback.",
+      "music_url": "Set this URL in an OBS browser source to display currently playing track:",
+      "css": "You can change the appearance of the player by overriding these CSS IDs on OBS browser source params",
+      "no_scroll": "Disable scrolling",
+      "open_from_left": "Open from left",
+      "auto_hide": "Keep player visible if nothing is playing",
+      "auto_hide_erase": "Erase track infos when nothing is playing",
+      "show_cover": "Show cover",
+      "show_artist": "Show artist",
+      "show_title": "Show title",
+      "show_progress": "Show progress bar",
+      "custom_template_toggle": "Use custom template",
+      "custom_template": "Template (HTML accepted)",
+      "custom_template_placeholders": {
+        "title": "Track title",
+        "artist": "Track artist"
+      },
+      "infos": "You can allow your viewers to control playback or add musics to the queue from chat commands thanks to the {TRIGGERS}.",
+      "triggerBt": "triggers"
+    },
+    "spotify": {
+      "connectBt": "Connect Spotify"
+    },
+    "deezer": {
+      "shit_api": "Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.",
+      "authBt": "Authenticate",
+      "control": "Click on the {ICON} icon deezer on the bottom right of the screen to add tracks, view the queue, and control the playback."
+    }
+  }
 }

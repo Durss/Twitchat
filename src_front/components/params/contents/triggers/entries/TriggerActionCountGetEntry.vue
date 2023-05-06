@@ -1,31 +1,30 @@
 <template>
-	<div class="triggeractioncountgetentry">
-		<div class="row item info">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
+	<div class="triggeractioncountgetentry triggerActionForm">
+		<div class="info">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
 
-		<div class="row item list">
+		<div class="list">
 			<label class="listLabel">
-				<img src="@/assets/icons/count_purple.svg" class="icon">
+				<img src="@/assets/icons/count.svg" class="icon">
 				<span>{{ $t(param_counters.labelKey as string) }}</span>
 			</label>
+			
 			<vue-select class="itemSelector"
 				label="label"
 				:placeholder="$t('triggers.actions.count.select_placeholder')"
 				v-model="action.counter"
 				:options="param_counters.listValues"
 				:calculate-position="$placeDropdown"
-				:reduce="(v:TwitchatDataTypes.ParameterDataListValue) => v.value" 
-				:selectable="(v:TwitchatDataTypes.ParameterDataListValue) => (param_counters.value as string[]).indexOf(v.value as string) == -1"
+				:reduce="(v:TwitchatDataTypes.ParameterDataListValue<string>) => v.value" 
+				:selectable="(v:TwitchatDataTypes.ParameterDataListValue<string>) => action.counter != v.value"
 				appendToBody
 			></vue-select>
 		</div>
 
-		<div class="row item name">
-			<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="!param_placeholder.value" />
-		</div>
+		<ParamItem :paramData="param_placeholder" v-model="action.placeholder" :error="!param_placeholder.value" />
 
-		<i18n-t scope="global" class="example item" tag="div" keypath="triggers.actions.countget.example" v-if="(param_placeholder.value as string).length > 0">
+		<i18n-t scope="global" class="example item" tag="div" keypath="triggers.actions.common.custom_placeholder_example" v-if="(param_placeholder.value).length > 0">
 			<template #PLACEHOLDER>
-				<mark v-click2Select>{{"{"}}{{(param_placeholder.value as string).toUpperCase()}}{{"}"}}</mark>
+				<mark v-click2Select>{{"{"}}{{(param_placeholder.value).toUpperCase()}}{{"}"}}</mark>
 			</template>
 		</i18n-t>
 	</div>
@@ -47,11 +46,11 @@ export default class TriggerActionCountGetEntry extends Vue {
 	@Prop
 	public action!:TriggerActionCountGetData;
 
-	public param_counters:TwitchatDataTypes.ParameterData = {type:"list", labelKey:"triggers.actions.countget.select_label", value:[], listValues:[]}
-	public param_placeholder:TwitchatDataTypes.ParameterData = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder_purple.svg"}
+	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.countget.select_label", value:[], listValues:[]}
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder.svg"}
 
 	public beforeMount(): void {
-		const counters:TwitchatDataTypes.ParameterDataListValue[] = this.$store("counters").data.map(v=>{
+		const counters:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store("counters").counterList.map(v=>{
 			return {value:v.id, label:v.name};
 		});
 		
@@ -63,8 +62,6 @@ export default class TriggerActionCountGetEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractioncountgetentry{
-	.triggerActionForm();
-	
 	.name:deep(input), .itemSelector {
 		// flex-grow: 1;
 		flex-basis: 300px;
@@ -83,7 +80,7 @@ export default class TriggerActionCountGetEntry extends Vue {
 		.icon {
 			width: 1em;
 			height: 1em;
-			object-fit: contain;
+			object-fit: fill;
 			margin-right: 0.5em;
 		}
 	}

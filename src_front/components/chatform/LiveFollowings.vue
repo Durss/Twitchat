@@ -1,38 +1,39 @@
 <template>
-	<div class="livefollowings">
+	<div class="livefollowings sidePanel">
+		
+		<div class="head">
+			<h1><img src="@/assets/icons/user.svg" alt="user" class="icon">{{$t('cmdmenu.whoslive_title')}}</h1>
+			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
+		</div>
+		
 		<div class="content">
 			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
-			
-			<button class="header" @click="close()" :aria-label="$t('liveusers.closeBt_aria')">
-				<img src="@/assets/icons/cross_white.svg" alt="close">
-				<span><img src="@/assets/icons/user.svg" alt="user" class="icon">{{$t('cmdmenu.whoslive_title')}}</span>
-			</button>
 
-			<div class="noResult" v-if="needScope">
-				<div>{{ $t("liveusers.scope_grant") }}</div>
-				<Button highlight :icon="$image('icons/unlock.svg')" :title="$t('liveusers.scope_grantBt')" @click="grantPermission()" />
+			<div class="needScope" v-if="needScope">
+				<span>{{ $t("liveusers.scope_grant") }}</span>
+				<Button icon="unlock" @click="grantPermission()">{{ $t('liveusers.scope_grantBt') }}</Button>
 			</div>
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 			
 			<div class="list" v-else>
-				<div v-for="s in streams" :key="s.id" class="stream" ref="streamCard" @click="raid(s)">
+				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="card-item stream" ref="streamCard" @click.prevent="raid(s)">
 					<div class="header">
-						<img :src="getProfilePicURL(s)" alt="">
-						<span class="login">{{s.user_name}}</span>
+						<img class="icon" :src="getProfilePicURL(s)" alt="">
+						<span class="title">{{s.user_name}}</span>
 					</div>
 					<div class="details">
 						<span class="title">{{s.title}}</span>
-						<span class="game">{{s.game_name}}</span>
+						<mark class="game">{{s.game_name}}</mark>
+						<div class="footer">
+							<span class="viewers"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{s.viewer_count}}</span>
+							<span class="duration"><img src="@/assets/icons/timeout.svg" alt="user" class="icon">{{computeDuration(s.started_at)}}</span>
+						</div>
+						<div class="raidBt">
+							<img src="@/assets/icons/raid.svg" alt="raid">
+							Raid
+						</div>
 					</div>
-					<div class="footer">
-						<span class="viewers"><img src="@/assets/icons/user_purple.svg" alt="user" class="icon">{{s.viewer_count}}</span>
-						<span class="duration"><img src="@/assets/icons/timeout_purple.svg" alt="user" class="icon">{{computeDuration(s.started_at)}}</span>
-					</div>
-					<div class="raidBt">
-						<img src="@/assets/icons/raid_purple.svg" alt="raid">
-						Raid
-					</div>
-				</div>
+				</a>
 			</div>
 		</div>
 	</div>
@@ -40,47 +41,33 @@
 
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 	}
 })
-export default class LiveFollowings extends Vue {
+export default class LiveFollowings extends AbstractSidePanel {
 
 	public streams:TwitchDataTypes.StreamInfo[] = [];
 	public loading = true;
 	public needScope = false;
 
-	private clickHandler!:(e:MouseEvent) => void;
-	
 	public mounted():void {
 		this.needScope = !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]);
-		this.clickHandler = (e:MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
 		if(!this.needScope) this.updateList();
+		super.open();
 	}
 
-	public beforeUnmount():void {
-		document.removeEventListener("mousedown", this.clickHandler);
-	}
-
-	private onClick(e:MouseEvent):void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref && target) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if(target != ref) {
-			this.$emit("close");
-		}
-	}
 
 	public computeDuration(start:string):string {
 		const s = new Date(start);
@@ -90,10 +77,6 @@ export default class LiveFollowings extends Vue {
 
 	public getProfilePicURL(s:TwitchDataTypes.StreamInfo):string {
 		return s.user_info.profile_image_url.replace("300x300", "70x70");
-	}
-
-	public async close():Promise<void> {
-		this.$emit('close');
 	}
 
 	public async grantPermission():Promise<void> {
@@ -123,182 +106,109 @@ export default class LiveFollowings extends Vue {
 
 <style scoped lang="less">
 .livefollowings{
-	.modal();
-
 	.loader {
 		.center();
 		position: absolute;
 	}
 
-	.noResult {
+	.noResult, .needScope {
 		.center();
 		position: absolute;
 		text-align: center;
 		padding: 1em;
-		border-radius: @border_radius;
-		background-color: @mainColor_light;
+		border-radius: var(--border-radius);
+		background-color: var(--color-light);
+		color: var(--color-primary);
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
 	}
 
 	.content {
-		width: 100%;
-		height: 100%;
-		overflow: auto;
-		background-color: @mainColor_dark;
-		@gap: .5em;
-
-		&>.header {
-			color: @mainColor_light;
-			background-color: @mainColor_normal;
-			padding: .5em;
-			display: flex;
-			align-items: center;
-			width: 100%;
-			margin-bottom: .5em;
-			img {
-				height: 1em;
-			}
-			span {
-				flex-grow: 1;
-				text-align: center;
-				.icon {
-					height: .7em;
-					margin-right: .5em;
-				}
-			}
-		}
 
 		.list {
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			justify-content: center;
+			@itemWidth: 200px;
+			display: grid;
+			gap: .5em;
+			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 
 			.stream {
-				display: block;
-				border-radius: 10px;
-				background-color: @mainColor_light;
-				width: calc(50% - @gap);
-				margin-bottom: @gap;
-				overflow: hidden;
 				display: flex;
 				flex-direction: column;
-				position: relative;
-				transition: border .2s;
-	
-				&:nth-child(odd) {
-					margin-right: @gap;
-				}
+				text-decoration: none;
+				color: var(--color-light);
 	
 				&:hover {
 					cursor: pointer;
-					// border: 5px solid red;
+					background-color: var(--color-primary);
 					.header {
-						background-color: @mainColor_normal_extralight;
+						background-color: var(--color-primary-light);
 					}
-					.raidBt {
-						opacity: 1;
-					}
-					.details, .footer {
-						opacity: 0;
-					}
-				}
-	
-				.header {
-					display: flex;
-					flex-direction: row;
-					background-color: @mainColor_normal;
-					transition: all .2s;
-	
-					img {
-						border-top-right-radius: 50%;
-						border-bottom-right-radius: 50%;
-						height: 30px;
-						background-color: @mainColor_light;
-					}
-					.login {
-						padding: 5px;
-						flex-grow: 1;
-						text-align: center;
-						color: @mainColor_light;
-						text-overflow: ellipsis;
-						overflow: hidden;
+					.details {
+						.title, .game, .footer {
+							opacity: 0;
+						}
+						.raidBt {
+							opacity: 1;
+						}
 					}
 				}
 	
 				.details {
-					font-size: 14px;
+					font-size: .8em;
+					gap: .5em;
 					display: flex;
 					flex-direction: column;
-					padding: 5px 10px;
 					flex-grow: 1;
 					transition: all .2s;
+					position: relative;
 					.title {
 						font-size: 1em;
+						max-width: 100%;
+						overflow-wrap: break-word;
 					}
 					.game {
-						font-size: .8em;
-						margin-top: .5em;
-						background-color: fade(@mainColor_normal, 15%);
-						align-self: flex-start;
+						font-size: .9em;
 						padding: .25em .5em;
-						width: auto;
-						border-radius: 1em;
+						width: fit-content;
+						max-width: 100%;
+						overflow-wrap: break-word;
 					}
-				}
 	
-				.footer {
-					font-size: 16px;
-					display: flex;
-					flex-direction: row;
-					justify-content: space-between;
-					padding: 0px 10px;
-					padding-bottom: 5px;
-					transition: all .2s;
-					.icon {
-						height: 14px;
-						width: 14px;
-						object-fit: contain;
-						vertical-align: middle;
-						margin-right: 5px;
+					.footer {
+						font-size: .9em;
+						display: flex;
+						flex-direction: row;
+						flex-grow: 1;
+						justify-content: space-between;
+						align-content: flex-end;
+						flex-wrap: wrap;//Necessary for the "align-content" to work
+						.icon {
+							height: 1em;
+							width: 1em;
+							object-fit: fill;
+							vertical-align: middle;
+							margin-right: .5em;
+						}
 					}
-				}
-	
-				.raidBt{
-					// align-self: center;
-					.center();
-					margin-top: 10px;
-					position: absolute;
-					opacity: 0;
-					transition: all .2s;
-					display:flex;
-					flex-direction: row;
-					align-items: center;
-					img {
-						width: 40px;
-						vertical-align: middle;
-						margin-right: .5em;
+		
+					.raidBt{
+						.center();
+						position: absolute;
+						opacity: 0;
+						transition: all .2s;
+						display:flex;
+						flex-direction: row;
+						align-items: center;
+						img {
+							width: 40px;
+							vertical-align: middle;
+							margin-right: .5em;
+						}
 					}
 				}
 			}
 		}
 	}
-}
-
-@media only screen and (max-width: 400px) {
-.livefollowings{
-	.content {
-		.list {
-			.stream {
-				width: 100%;
-				&:nth-child(odd) {
-					margin-right: 0;
-				}
-			}
-		}
-	}
-}
 }
 </style>

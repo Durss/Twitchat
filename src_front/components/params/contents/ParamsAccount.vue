@@ -1,60 +1,45 @@
 <template>
-	<div class="paramsaccount">
+	<div class="paramsaccount parameterContent">
 		
 		<section class="profilePic">
 			<img :src="userPP" alt="profile pic">
 		</section>
-		<section class="head">
+		<section class="card-itemhead">
 			<div v-html="$t('account.connected_as', {USER:'<strong>'+userName+'</strong>'})"></div>
 		</section>
+
+		<section class="card-item actions">
+			<Button class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</Button>
+			<Button class="button" @click="latestUpdates()" icon="sub">{{ $t('account.updatesBt') }}</Button>
+			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
+		</section>
 		
-		<section class="scopes">
-			<div class="title"><img src="@/assets/icons/lock_fit_purple.svg">{{$t("account.authorization")}}</div>
+		<section class="card-item scopes">
+			<div class="title"><img src="@/assets/icons/lock_fit.svg">{{$t("account.authorization")}}</div>
 			
 			<ScopeSelector @update="onScopesUpdate" />
 
 			<Button class="authorizeBt"
 				type="link"
 				:href="oAuthURL"
-				:title="$t('login.authorizeBt')"
 				v-if="showAuthorizeBt"
-				bounce
 				:loading="generatingCSRF"
-				:data-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-				:icon="$image('icons/twitch_white.svg')"
-			/>
+				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
+				icon="twitch">{{ $t('login.authorizeBt') }}</Button>
 		</section>
 
-		<section class="actions">
-			<Button class="button" @click="latestUpdates()" :title="$t('account.updatesBt')" :icon="$image('icons/new.svg')" bounce />
-			<Button class="button" @click="logout()" :title="$t('global.log_out')" :icon="$image('icons/logout.svg')" highlight bounce />
-			<Button class="button" @click="ahs()" :title="$t('account.installBt')" :icon="$image('icons/twitchat.svg')" v-if="canInstall" />
-		</section>
-
-		<section class="lang">
+		<section class="card-item">
 			<div class="title">{{ $t('account.language') }}</div>
 			<AppLangSelector />
 		</section>
 
-		<section v-if="isDonor" class="donorHolder">
-			<DonorState class="donorBadge" />
-			<div class="badgesList">
-				<img src="@/assets/icons/donor_placeholder.svg" class="badge" v-for="i in 9-donorLevel" />
-				<DonorState class="badge" v-for="i in donorLevel+1" :level="(donorLevel+1)-i" light />
-			</div>
-
-			<img src="@/assets/loader/loader.svg" alt="loader" v-if="!publicDonation_loaded">
-			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" />
-			<i18n-t scope="global" class="infos" tag="div" v-if="publicDonation_loaded" keypath="account.donation_public">
-				<template #LINK>
-					<a @click="$emit('setContent', contentAbout)">{{ $t("account.about_link") }}.</a>
-				</template>
-			</i18n-t>
+		<section v-if="isDonor" class="card-item donorState">
+			<DonorState />
 		</section>
 		
-		<section class="dataSync">
-			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" />
-			<Button class="button" v-if="!syncEnabled" @click="eraseData()" bounce :title="$t('account.erase_dataBt')" highlight :icon="$image('icons/delete.svg')" />
+		<section class="card-item dataSync">
+			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" noBackground />
+			<Button class="button" v-if="!syncEnabled" @click="eraseData()" alert icon="delete">{{ $t('account.erase_dataBt') }}</Button>
 		</section>
 	</div>
 </template>
@@ -72,11 +57,12 @@ import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
-import DonorState from "../../user/DonorState.vue";
 import ParamItem from '../ParamItem.vue';
 import AppLangSelector from '@/components/AppLangSelector.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import type IParameterContent from './IParameterContent';
+import DonorState from '@/components/user/DonorState.vue';
 
 @Component({
 	components:{
@@ -87,16 +73,15 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		ScopeSelector,
 		AppLangSelector,
 	},
-	emits:["setContent"],
+	emits:[],
 })
-export default class ParamsAccount extends Vue {
+export default class ParamsAccount extends Vue implements IParameterContent {
 
 	public oAuthURL = "";
 	public showObs = false;
 	public disposed = false;
 	public showCredits = true;
 	public syncEnabled = false;
-	public publicDonation = false;
 	public showAuthorizeBt = false;
 	public showSuggestions = false;
 	public publicDonation_loaded = false;
@@ -109,48 +94,25 @@ export default class ParamsAccount extends Vue {
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
-	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ABOUT; } 
+	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 	public get userPP():string {
 		let pp:string|undefined = StoreProxy.auth.twitch.user.avatarPath;
 		if(!pp) {
-			pp = this.$image("icons/user_purple.svg");
+			pp = this.$image("icons/user.svg");
 		}
 		return pp;
 	}
 
 	public async mounted():Promise<void> {
 		this.syncEnabled = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false";
-		this.publicDonation = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == "true";
 		watch(()=> this.syncEnabled, ()=> DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
-
-		if(this.isDonor) {
-			//Load current anon state of the user's donation
-			const options = {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-			}
-
-			try {
-				const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
-				const json = await anonState.json();
-				if(json.success === true) {
-					this.publicDonation = json.data.public === true;
-				}
-			}catch(error) {
-			}
-			this.publicDonation_loaded = true;
-	
-			watch(()=> this.publicDonation, async ()=> this.updateDonationState());
-		}
 	}
 
 	public beforeUnmount():void {
 		this.disposed = true;
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	public logout():void {
 		this.$store("auth").logout();
@@ -158,7 +120,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	public latestUpdates():void {
-		this.$store("main").showParams = false;
+		this.$store("params").closeParameters();
 		this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 	}
 
@@ -184,7 +146,7 @@ export default class ParamsAccount extends Vue {
 			OBSWebsocket.instance.disconnect();
 			VoicemodWebSocket.instance.disconnect();
 			TTSUtils.instance.enabled = false;
-			TriggerActionHandler.instance.populate({});
+			TriggerActionHandler.instance.populate([]);
 			DataStore.set(DataStore.SYNC_DATA_TO_SERVER, false);
 		})
 	}
@@ -211,61 +173,35 @@ export default class ParamsAccount extends Vue {
 		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 	}
 
-	private async updateDonationState():Promise<void> {
-		try {
-			const options = {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-				body: JSON.stringify({
-					public:this.publicDonation,
-				})
-			}
-			const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
-			const json = await anonState.json();
-			this.publicDonation = json.data.public !== true;
-		}catch(error) {
-		}
-	}
 }
 </script>
 
 <style scoped lang="less">
 .paramsaccount{
-	.parameterContent();
-	align-items: center;
-
 	.profilePic {
+		.emboss();
+		overflow: hidden;
+		border-radius: 50%;
 		img {
 			height: 5em;
 			width: 5em;
-			display: block;
-			border-radius: 50%;
+			transition: all .25s;
 		}
-		margin: auto;
-		padding: .5em;
-		border-top-left-radius: 50%;
-		border-top-right-radius: 50%;
-		border-bottom-left-radius: 0;
-		border-bottom-right-radius: 0;
-		background-color: fade(@mainColor_normal_extralight, 30%);
+		&:hover {
+			img {
+				height: 10em;
+				width: 10em;
+			}
+		}
 	}
 
 	.head {
 		margin-top: 0;
 	}
 	
-	.button {
-		display: block;
-	}
-	
 	.title {
 		text-align: center;
 		font-weight: bold;
-		margin-bottom: .5em;
 		img {
 			height: 1em;
 			margin-right: .5em;
@@ -273,49 +209,14 @@ export default class ParamsAccount extends Vue {
 		}
 	}
 
-	.donorHolder {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 1em 0;
-		.donorBadge {
-			margin-top: 1em;
-		}
-	
-		.badgesList {
-			margin-top: .5em;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			justify-content: center;
-			width: 80%;
-			.badge {
-				margin: .25em;
-				height: 3em;
-			}
-		}
-		
-		.toggle {
-			margin-top: 1em;
-		}
-
-		.infos {
-			margin-top: .25em;
-			max-width: 300px;
-			font-size: .8em;
-		}
-	}
-
 	.actions {
-		display: flex;
-		flex-direction: column;
 		align-items: center;
-		&>*:not(:first-child) {
-			margin-top: .5em;
-		}
 	}
 
-
+	.donorState {
+		overflow: visible;
+	}
+	
 	.scopes {
 		max-width: 400px;
 
@@ -329,12 +230,7 @@ export default class ParamsAccount extends Vue {
 	}
 
 	.dataSync {
-		display: flex;
-		flex-direction: column;
 		align-items: center;
-		&>*:not(:first-child) {
-			margin-top: .5em;
-		}
 	}
 
 }

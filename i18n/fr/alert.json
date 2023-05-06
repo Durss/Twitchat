@@ -7,9 +7,10 @@
 		"actions_triggers_link":"Triggers",
 		"command":"Commande",
 		"option_popin":"Afficher le message en Pop-in",
-		"option_shake":"Faire trembler Twitchat",
-		"option_blink":"Faire clignoter Twitchat",
+		"option_shake":"Secouer l'interface",
+		"option_blink":"Faire clignoter l'interface",
 		"option_sound":"Son de wizz",
+		"option_vibrate":"Faire vibrer (sur mobile uniquement)",
 		"testBt":"Tester"
 	}
 }

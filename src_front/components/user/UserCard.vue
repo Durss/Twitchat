@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
 		<div class="holder" ref="holder" v-if="loading">
-			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<CloseButton aria-label="close" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
@@ -13,76 +13,80 @@
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="error">
-			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<CloseButton aria-label="close" @click="close()" />
 			<div class="head">
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
 				</div>
 			</div>
 
-			<div class="error">{{ $t("error.user_profile") }}</div>
+			<div class="card-item alert error">{{ $t("error.user_profile") }}</div>
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="!loading && !error">
-			<Button aria-label="close" small :icon="$image('icons/cross.svg')" class="closeBt" @click="close()" />
+			<CloseButton aria-label="close" @click="close()" />
 			<div class="head">
 				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
 					<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 					<div class="live" v-if="currentStream">LIVE</div>
 					<div class="title">
-						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" :data-tooltip="b.title">
+						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 						<span class="label">{{user.displayName}}</span>
 					</div>
 				</a>
 				<span class="translation" v-if="translateUsername">({{user.login}})</span>
-				<div class="subtitle" :data-tooltip="$t('global.copy')" @click="copyID()" ref="userID">ID: {{user.id}}</div>
+				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 			</div>
 			
 			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
-			
-			<div class="liveInfo" v-if="currentStream">
-				<div class="head">{{ $t("usercard.streaming") }}</div>
-				<div class="infos">
-					<div class="title">{{currentStream.title}}</div>
-					<div class="game">{{currentStream.game_name}}</div>
-				</div>
-			</div>
 
-			<div class="infoList">
-				<div class="info" :data-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date_purple.svg" alt="account creation date" class="icon">{{createDate}}</div>
-				
-				<div class="info" v-if="followersCount > -1"><img src="@/assets/icons/follow_outline_purple.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
-				
-				<div class="info" v-if="subState && subStateLoaded">
-					<img src="@/assets/icons/gift_purple.svg" alt="subscribed" class="icon" v-if="subState.is_gift">
-					<img src="@/assets/icons/sub_purple.svg" alt="subscribed" class="icon" v-else>
-					<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
-						<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
-						<template #GIFTER>{{ subState.gifter_name }}</template>
-					</i18n-t>
-				</div>
-				<div class="info" v-else-if="subStateLoaded">
-					<img src="@/assets/icons/sub_purple.svg" alt="subscribed" class="icon">
-					<span>{{ $t("usercard.non_subscribed") }}</span>
-				</div>
-
-				<div class="info" v-if="followDate && !is_self" :data-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow_purple.svg" alt="follow date" class="icon">{{followDate}}</div>
-				<div class="info" v-else-if="!is_self"><img src="@/assets/icons/unfollow_purple.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
-			</div>
-			
-			<div class="ctas">
-				<Button :title="$t('usercard.profileBt')" type="link" small :icon="$image('icons/newtab.svg')" :href="'https://www.twitch.tv/'+user!.login" target="_blank" />
-				<Button :title="$t('usercard.viewercardBt')" type="link" small :icon="$image('icons/newtab.svg')" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank" />
-				<Button :title="$t('usercard.trackBt')" v-if="!is_tracked" small :icon="$image('icons/magnet.svg')" @click="trackUser()" />
-				<Button :title="$t('usercard.untrackBt')" v-if="is_tracked" small :icon="$image('icons/magnet.svg')" @click="untrackUser()" />
-				<Button :title="ttsReadBtLabel"  v-if="$store('tts').params.enabled === true" small :icon="$image('icons/tts.svg')" @click="toggleReadUser()" />
-			</div>
-
-			<div class="description" v-if="userDescription">{{userDescription}}</div>
-			
 			<div class="scrollable">
-				<div class="messages" v-if="messageHistory.length > 0">
-					<h2>{{ $t("usercard.messages") }}</h2>
+				<div class="infoList">
+					<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date.svg" alt="account creation date" class="icon">{{createDate}}</div>
+					
+					<div class="info" v-if="followersCount > -1"><img src="@/assets/icons/follow_outline.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
+					
+					<div class="info" v-if="subState && subStateLoaded">
+						<img src="@/assets/icons/gift.svg" alt="subscribed" class="icon" v-if="subState.is_gift">
+						<img src="@/assets/icons/sub.svg" alt="subscribed" class="icon" v-else>
+						<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
+							<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
+							<template #GIFTER>{{ subState.gifter_name }}</template>
+						</i18n-t>
+					</div>
+					<div class="info" v-else-if="subStateLoaded">
+						<img src="@/assets/icons/sub.svg" alt="subscribed" class="icon">
+						<span>{{ $t("usercard.non_subscribed") }}</span>
+					</div>
+
+					<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow.svg" alt="follow date" class="icon">{{followDate}}</div>
+					<div class="info" v-else-if="canListFollowers && !is_self"><img src="@/assets/icons/unfollow.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
+				</div>
+				
+				<div class="ctas">
+					<Button type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank">{{$t('usercard.profileBt')}}</Button>
+					<Button type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
+					<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
+					<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
+					<Button v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
+				</div>
+				
+				<div class="card-item secondary liveInfo" v-if="currentStream">
+					<div class="header">
+						<div class="title">{{ $t("usercard.streaming") }}</div>
+					</div>
+					<div class="infos">
+						<div class="title">{{currentStream.title}}</div>
+						<div class="game">{{currentStream.game_name}}</div>
+					</div>
+				</div>
+
+				<div class="card-item description" v-if="userDescription">{{userDescription}}</div>
+			
+				<div class="card-item messages" v-if="messageHistory.length > 0">
+					<div class="header">
+						<h2 class="title">{{ $t("usercard.messages") }}</h2>
+					</div>
 	
 					<div class="list">
 						<div class="subholder" v-for="m in messageHistory" :key="m.id">
@@ -93,16 +97,18 @@
 					</div>
 				</div>
 				
-				<div class="followings" v-if="!followingsDisabled">
-					<h2>Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
-					<div class="disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
-					<div class="commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
+				<div class="card-item followings" v-if="!followingsDisabled">
+					<div class="header">
+						<h2 class="title">Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
+					</div>
+					<div class="card-item secondary disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
+					<div class="card-item primary commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
 					<transition name="scale">
 						<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
 					</transition>
 	
-					<div v-if="errorFollowings" class="error">Something went wrong while loading followings...</div>
-					<div v-if="suspiciousFollowFrequency" class="warn">This user has or has had a suspicious following behavior</div>
+					<div v-if="errorFollowings" class="card-item alert error">Something went wrong while loading followings...</div>
+					<div v-if="suspiciousFollowFrequency" class="card-item secondary warn">This user has or has had a suspicious following behavior</div>
 	
 					<div class="list" v-if="!errorFollowings" ref="list">
 						<div v-for="u in followings" :class="myFollowings[u.to_id]===true? 'user common' : 'user'">
@@ -131,10 +137,12 @@ import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ChatModTools from '../messages/components/ChatModTools.vue';
 import MessageItem from '../messages/MessageItem.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 		MessageItem,
 		ChatModTools,
 	}
@@ -203,6 +211,11 @@ export default class UserCard extends Vue {
 	 * Get if our followings can be listed
 	 */
 	public get canListFollowings():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]); }
+
+	/**
+	 * Get if our followers can be listed
+	 */
+	public get canListFollowers():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
 
 	/**
 	 * Get the "read user's messages" label depedning on its current state
@@ -316,7 +329,7 @@ export default class UserCard extends Vue {
 				if(!user.displayName) user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
-				if(user.channelInfo[this.channelId]?.badges.length == 0) {
+				if(user.channelInfo[this.channelId]?.badges?.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
 					user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
@@ -347,7 +360,7 @@ export default class UserCard extends Vue {
 					channel_id: this.channelId,
 					message: "",
 					message_html: "",
-					message_no_emotes: "",
+					message_chunks: [],
 					answers:[],
 					is_short:false,
 				}
@@ -360,7 +373,7 @@ export default class UserCard extends Vue {
 		}
 
 		this.loading = false;
-		if(!this.error && this.user) {
+		if(!this.error && this.user && !this.followingsDisabled) {
 			this.badges = this.user.channelInfo[this.channelId]?.badges ?? [];
 
 			await this.$nextTick();
@@ -478,8 +491,8 @@ export default class UserCard extends Vue {
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 100vh;
-	max-height: 100vh;
+	height: var(--vh);
+	max-height: var(--vh);
 
 	&.hidden {
 		display: none;
@@ -497,55 +510,28 @@ export default class UserCard extends Vue {
 
 	&>.holder {
 		.center();
-		position: absolute;
-		background-color: @mainColor_light_extralight;
-		padding: 1em;
-		max-width: 800px;
-		width: 80%;
-		max-height: 100vh;
-		box-sizing: border-box;
-		border-radius: 1em;
+		gap: 1em;
 		display: flex;
 		flex-direction: column;
-		overflow: auto;
-
-		.closeBt {
-			.clearButton();
-			position: absolute;
-			top:1em;
-			right:1em;
-			z-index: 1;
-			width: 1.5em;
-			height: 1.5em;
-			:deep(.icon) {
-				height: unset;
-				width: unset;
-				max-width: unset;
-				max-height: unset;
-			}
-			&:hover {
-				background-color: @mainColor_normal_extralight;
-			}
-		}
+		position: absolute;
+		padding: 1em;
+		box-sizing: border-box;
+		border-radius: 1em;
+		color:var(--color-light);
+		background-color: var(--color-dark-light);
+		max-width: 800px;
+		width: 80%;
+		max-height: var(--vh);
 
 		.loader {
 			margin: auto;
 			display: block;
 			width: 2em;
 			height: 2em;
-			margin-top: 1em;
 		}
 
 		.error, .warn {
-			background-color: @mainColor_alert;
-			color: @mainColor_light;
-			padding: .25em .5em;
-			border-radius: .5em;
 			text-align: center;
-
-			&.warn {
-				background-color: @mainColor_warn;
-			}
 		}
 
 		&>.head {
@@ -553,7 +539,7 @@ export default class UserCard extends Vue {
 			flex-direction: column;
 			align-items: center;
 			width: calc(100% - 3em);
-			margin: .5em auto;
+			margin: 0 auto;
 			a {
 				text-decoration: none;
 			}
@@ -569,7 +555,6 @@ export default class UserCard extends Vue {
 					text-overflow: ellipsis;
 					overflow: hidden;
 					line-height: 1.2em;
-					color: @mainColor_normal;
 				}
 
 				.badge {
@@ -585,13 +570,12 @@ export default class UserCard extends Vue {
 			.live {
 				position: relative;
 				display: block;
-				background-color: @mainColor_alert;
-				color: @mainColor_light;
+				background-color: var(--color-alert);
+				color: var(--color-light);
 				font-weight: bold;
-				font-size: .5em;
+				font-size: .7em;
 				padding: .35em .75em;
 				border-radius: .5em;
-				margin-bottom: -1em;
 				width: min-content;
 				left: 50%;
 				transform: translate(-50%, -50%);
@@ -600,25 +584,22 @@ export default class UserCard extends Vue {
 			}
 
 			.subtitle {
-				font-size: .5em;
+				font-size: .7em;
 				cursor: copy;
 				z-index: 1;
-				margin-bottom: .5em;
-				background: @mainColor_light;
 			}
 
 			.avatar {
-				width: 3em;
-				height: 3em;
+				width: 5em;
+				height: 5em;
 				border-radius: 50%;
 				margin: auto;
 				display: block;
-				border: 1px solid @mainColor_normal;
 				transition: width .25s, height .25s, border-radius .25s;
 				&:hover {
-					width: 7em;
-					height: 7em;
-					border-radius: 0;
+					width: 10em;
+					height: 10em;
+					border-radius: 5px;
 				}
 			}
 		}
@@ -629,11 +610,10 @@ export default class UserCard extends Vue {
 			flex-wrap: wrap;
 			justify-content: center;
 			gap: .5em;
-			margin-bottom: .5em;
 			.info {
-				font-size: .7em;
+				font-size: .9em;
 				border-radius: .5em;
-				border: 1px solid @mainColor_normal;
+				border: 1px solid var(--color-light);
 				padding: .25em .5em;
 				.icon {
 					height: 1em;
@@ -645,22 +625,9 @@ export default class UserCard extends Vue {
 
 		.liveInfo {
 			align-self: center;
-			margin-bottom: .5em;
-			.head {
-				color: @mainColor_light;
-				background-color: @mainColor_normal;
-				border-top-left-radius: .5em;
-				border-top-right-radius: .5em;
-				padding: .25em;
-				text-align: center;
-			}
+			flex-shrink: 0;
 			.infos {
-				padding: .5em;
 				font-size: .8em;
-				border: 1px solid @mainColor_normal;
-				border-bottom-left-radius: .5em;
-				border-bottom-right-radius: .5em;
-
 				.game {
 					font-style: italic;
 					font-size: .8em;
@@ -669,11 +636,8 @@ export default class UserCard extends Vue {
 		}
 
 		.modActions {
-			background-color: @mainColor_normal;
-			padding: .3em .5em;
-			border-radius: .5em;
+			margin: -.5em 0;
 			align-self: center;
-			margin-bottom: .5em;
 		}
 
 		.ctas {
@@ -685,9 +649,9 @@ export default class UserCard extends Vue {
 		}
 
 		.description {
+			flex-shrink: 0;
+			align-self: center;
 			text-align: center;
-			margin-top: 1em;
-			font-size: .8em;
 			&::before {
 				content: "“";
 				font-family: var(--font-nunito);
@@ -696,7 +660,6 @@ export default class UserCard extends Vue {
 				line-height: .25em;
 				vertical-align: text-bottom;
 				margin-right: .25em;
-				color:@mainColor_normal_extralight
 			}
 			&::after {
 				content: "”";
@@ -706,66 +669,40 @@ export default class UserCard extends Vue {
 				line-height: .25em;
 				margin-left: .25em;
 				vertical-align: text-bottom;
-				color:@mainColor_normal_extralight
 			}
 		}
 
 		.scrollable {
 			overflow-y: auto;
+			gap: 1em;
+			display: flex;
+			flex-direction: column;
+			.card-item {
+				flex-shrink: 0;
+			}
 		}
 
 		.followings, .messages {
-			margin-top: 1em;
-			border-radius: .5em;
-			background-color: fade(@mainColor_normal, 10%);
 			display: flex;
 			flex-direction: column;
-			min-height: 0;//For some reason this makes the holder actually scrollable...
-
-			h2 {
-				padding: .25em;
-				text-align: center;
-				border-top-left-radius: .5em;
-				border-top-right-radius: .5em;
-				color: @mainColor_light;
-				background-color: @mainColor_normal;
-				border-bottom-color: @mainColor_light;
-				.count {
-					font-style: italic;
-					font-size: .8em;
-					font-weight: normal;
-					vertical-align: middle;
-				}
-			}
+			background-color: var(--color-dark);
 
 			&.messages {
-				min-height: unset;
-				margin-bottom: 1em;
 				.list {
-					background-color: @mainColor_dark;
-					max-height: 50vh;
+					max-height: min(50vh, 300px);
 					overflow-y: auto;
-					.message{
-						position: relative;
-					}
 				}
 			}
 
 			&.followings {
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
 				min-height: unset;
 				.commonFollow, .disableDate {
 					font-size: .8em;
 					font-style: italic;
-					margin: .5em 0;
-					background-color: fade(@mainColor_normal, 10%);
 					align-self: center;
-				}
-	
-				.disableDate {
-					background-color: fade(@mainColor_warn, 50%);
-					color: @mainColor_dark;
-					padding: .5em;
-					border-radius: @border_radius;
 				}
 	
 				.warn {
@@ -792,19 +729,20 @@ export default class UserCard extends Vue {
 				}
 				
 				.list {
-					@itemWidth: 150px;
-					padding: .5em;
+					@itemWidth: 140px;
 					display: grid;
-					// min-height: 13em;
+					gap: .5em;
 					grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 	
 					.user {
+						gap: .25em;
 						display: flex;
 						flex-direction: column;
-						padding: .1em;
 	
 						&.common {
-							background-color: fade(@mainColor_normal, 10%);
+							padding: .25em .5em;
+							border-radius: var(--border-radius);
+							background-color: var(--color-primary-fader);
 						}
 	
 						.login {
@@ -827,7 +765,7 @@ export default class UserCard extends Vue {
 	}
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
 		
 	.usercard{
 

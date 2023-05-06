@@ -1,6 +1,6 @@
 {
 	"name": "twitchat",
-	"version": "8.8.10",
+	"version": "8.20.0",
 	"private": true,
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
@@ -68,10 +68,12 @@
 		"vite": "^2.9.12",
 		"vite-plugin-package-version": "^1.0.2",
 		"vue": "^3.2.41",
-		"vue-facing-decorator": "^2.1.14",
+		"vue-contenteditable": "^4.1.0",
+		"vue-facing-decorator": "^2.1.15",
 		"vue-i18n": "^9.2.2",
 		"vue-router": "^4.0.12",
 		"vue-select": "^4.0.0-beta.6",
+		"vue-tippy": "^6.0.0",
 		"vue-tsc": "^1.0.9",
 		"vue3-carousel": "^0.2.9",
 		"vue3-country-flag-icon": "^0.1.2",

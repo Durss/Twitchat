@@ -4,6 +4,6 @@
 		"copy_logins": "Copy logins",
 		"banned_users": "You may want to tel {USER}'s moderators that the following banned users may join their channel:",
 		"banned_users_title": "1 banned user may join the raid |{COUNT} banned users may join the raid",
-		"cant_force": "Twitch provides no API to start the raid before the timer ends sorry you'll have to wait {TIMER}s :("
+		"cant_force": "Twitch provides no API to start the raid before the timer ends sorry :("
 	}
 }

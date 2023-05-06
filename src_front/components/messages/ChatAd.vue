@@ -1,114 +1,109 @@
 <template>
-	<div class="chatad">
+	<div class="chatad chatMessage">
 		<div class="innerHolder">
-			<div v-if="isSponsor" class="sponsor">
-				<div class="title">{{ $t('chat.sponsor.title') }}</div>
+			<div v-if="isSponsor" class="card-item primary sponsor">
+				<div class="header">
+					<div class="title">{{ $t('chat.sponsor.title') }}</div>
+				</div>
 				<div class="content" v-html="$t('chat.sponsor.head')"></div>
-				<div class="cta">
+				<div class="ctas">
 					<img @click.stop="openParamPage(contentSponsor)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
 					
 					<Button :aria-label="$t('chat.sponsor.tipBt_aria')"
-					@click.stop="openParamPage(contentSponsor)"
-					:title="$t('chat.sponsor.tipBt')" />
+					@click.stop="openParamPage(contentSponsor)">{{ $t('chat.sponsor.tipBt') }}</Button>
 				</div>
 			</div>
 	
-			<div v-else-if="isUpdate" class="updates">
-				<Button class="closeBt"
-					:aria-label="$t('changelog.closeBt_aria')"
-					@click.stop="deleteMessage()"
-					:icon="$image('icons/cross_white.svg')" />
-
-				<div class="title">{{ $t('changelog.title') }}</div>
+			<div v-else-if="isUpdate" class="card-item primary updates">
+				<div class="header">
+					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title">{{ $t('changelog.title') }}</div>
+				</div>
 
 				<ChatChangelog class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
 					@close="(v:any)=> deleteMessage()"
-					@openParam="(v:any)=> openParamPage(v)"
-					@openParamItem="(v:string)=> openSpecificParam(v)"
 				/>
 			</div>
 	
-			<div v-if="isTip" class="tip">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">{{ $t("tips.title") }}</div>
+			<div v-if="isTip" class="card-item primary tip">
+				<div class="header">
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title">{{ $t("tips.title") }}</div>
+				</div>
 				<ChatTipAndTrickAd class="content"
 					@showModal="(v:string)=> $emit('showModal', v)"
-					@openParam="(v:any)=> openParamPage(v)"
-					@openParamItem="(v:string)=> openSpecificParam(v)"
 				/>
 			</div>
 	
-			<div v-if="isDiscord" class="discord">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">{{ $t('chat.discord.title') }}</div>
+			<div v-if="isDiscord" class="card-item primary discord">
+				<div class="header">
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title">{{ $t('chat.discord.title') }}</div>
+				</div>
 				<div class="content">
-					<img src="@/assets/icons/discord_purple.svg" alt="discord" class="icon">
+					<img src="@/assets/icons/discord.svg" alt="discord" class="icon">
 					<div v-html="$t('chat.discord.content')"></div>
 				</div>
-				<div class="cta">
-					<Button :icon="$image('icons/discord.svg')"
-						:title="$t('chat.discord.joinBt')"
+				<div class="ctas">
+					<Button icon="discord"
 						:href="discordURL"
 						target="_blank"
-						type="link"
-					/>
+						type="link">{{ $t('chat.discord.joinBt') }}</Button>
 				</div>
 			</div>
 	
-			<div v-if="isAdWarning">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">{{ $t('chat.adalert.title') }}</div>
+			<div v-if="isAdWarning" class="card-item primary">
+				<div class="header">
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" />
+					<div class="title">{{ $t('chat.adalert.title') }}</div>
+				</div>
 				<div class="content left">
-					<img src="@/assets/icons/twitchat_purple.svg" alt="twitchat" class="icon">
+					<img src="@/assets/icons/twitchat.svg" alt="twitchat" class="icon">
 					<div v-for="e in $tm('chat.adalert.contents')" v-html="e"></div>
 				</div>
-				<div class="cta">
-					<Button :title="$t('chat.adalert.unacceptableBt')" @click="openModal('gngngn')" />
-					<Button :icon="$image('icons/edit.svg')"
-						:title="$t('chat.adalert.customizeBt')"
-						@click="openParamPage(contentMainMenu)"
-					/>
-					<Button :icon="$image('icons/follow.svg')"
-						:title="$t('chat.adalert.donateBt')"
-						@click="openParamPage(contentSponsor)"
-					/>
+				<div class="ctas">
+					<Button @click="openModal('gngngn')">{{ $t('chat.adalert.unacceptableBt') }}</Button>
+					<Button icon="edit"
+						@click="openParamPage(contentMainMenu, 'ad')">{{ $t('chat.adalert.customizeBt') }}</Button>
+					<Button icon="follow"
+						@click="openParamPage(contentSponsor)">{{ $t('chat.adalert.donateBt') }}</Button>
 				</div>
 			</div>
 	
-			<div v-if="isSponsorPublicPrompt" class="sponsorPrompt">
-				<Button :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" :icon="$image('icons/cross_white.svg')" class="closeBt" />
-				<div class="title">{{$t('chat.donor.title')}}</div>
+			<div v-if="isSponsorPublicPrompt" class="card-item primary sponsorPrompt">
+				<div class="header">
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title">{{$t('chat.donor.title')}}</div>
+				</div>
 				<div class="content">
-					<img src="@/assets/icons/follow_purple.svg" alt="heart" class="icon">
+					<img src="@/assets/icons/follow.svg" alt="heart" class="icon">
 					<div>{{ $t('chat.donor.info_1') }}</div>
 					<i18n-t scope="global" tag="div" keypath="chat.donor.info_2">
 						<template #LINK><a @click="openParamPage(contentAbout)">{{ $t('chat.donor.info_2_link') }}</a></template>
 					</i18n-t>
 					<div>{{ $t('chat.donor.info_3') }}</div>
-					<div v-if="madeDonationPublic">
+					<div class="card-item" v-if="madeDonationPublic">
 						<div>{{ $t('chat.donor.thanks') }}</div>
 						<i18n-t scope="global" tag="div" keypath="chat.donor.thanks_change">
 							<template #LINK><a @click="openParamPage(contentAccount)">{{ $t('chat.donor.thanks_change_link') }}</a></template>
 						</i18n-t>
 					</div>
 				</div>
-				<div class="cta">
-					<Button :icon="$image('icons/follow.svg')"
-						:title="$t('chat.donor.publicBt')"
+				<div class="ctas">
+					<Button icon="follow"
 						:loading="loading"
 						@click="makeDonationPublic()"
-						v-if="!madeDonationPublic"
-					/>
+						v-if="!madeDonationPublic">{{ $t('chat.donor.publicBt') }}</Button>
 				</div>
 			</div>
 	
 			<div class="confirmClose" ref="confirmClose" v-if="showConfirm">
-				<p>{{ $t('chat.donor.close_confirm.info_1') }}</p>
-				<p>{{ $t('chat.donor.close_confirm.info_2') }}</p>
+				<p class="label">{{ $t('chat.donor.close_confirm.info_1') }}</p>
+				<p class="label">{{ $t('chat.donor.close_confirm.info_2') }}</p>
 				<div class="ctaConfirm">
-					<Button :loading="confirmDelay" :title="$t('chat.donor.close_confirm.cancelBt')" @click="showConfirm=false" small highlight />
-					<Button :loading="confirmDelay" :title="$t('chat.donor.close_confirm.confirmBt')" @click="deleteMessage()" small />
+					<Button :loading="confirmDelay" @click="showConfirm=false" alert>{{ $t('chat.donor.close_confirm.cancelBt') }}</Button>
+					<Button :loading="confirmDelay" @click="deleteMessage()">{{ $t('chat.donor.close_confirm.confirmBt') }}</Button>
 				</div>
 			</div>
 		</div>
@@ -126,11 +121,13 @@ import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatChangelog from './ChatChangelog.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Button,
 		Splitter,
+		CloseButton,
 		ToggleBlock,
 		ChatChangelog,
 		ChatTipAndTrickAd,
@@ -153,7 +150,6 @@ export default class ChatAd extends Vue {
 	public loading:boolean = false;
 	public madeDonationPublic:boolean = false;
 
-	public get isUpdateWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATE_WARNING; }
 	public get isSponsor():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR; }
 	public get isUpdate():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES; }
 	public get isTip():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK; }
@@ -165,22 +161,22 @@ export default class ChatAd extends Vue {
 	
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 
-	public get contentAppearance():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.APPEARANCE; } 
-	public get contentAccount():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ACCOUNT; } 
-	public get contentAbout():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ABOUT; } 
-	public get contentFeatures():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.FEATURES; } 
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; } 
-	public get contentSponsor():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPONSOR; } 
-	public get contentStreamdeck():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.STREAMDECK; } 
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
-	public get contentOverlays():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OVERLAYS; } 
-	public get contentEmergency():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.EMERGENCY; } 
-	public get contentSpoiler():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.SPOILER; } 
-	public get contentAlert():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.ALERT; } 
-	public get contentTts():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TTS; } 
-	public get contentVoice():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.VOICE; } 
-	public get contentAutomod():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.AUTOMOD; } 
-	public get contentMainMenu():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.MAIN_MENU; } 
+	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; } 
+	public get contentAccount():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ACCOUNT; } 
+	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
+	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; } 
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; } 
+	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
+	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
+	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; } 
+	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; } 
+	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
+	public get contentTts():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; } 
+	public get contentVoice():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICE; } 
+	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
+	public get contentMainMenu():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; } 
 
 	public async getSvgIcon(name:string) {
 		const module = await import(`../../assets/icons/${name}.svg`);
@@ -196,17 +192,9 @@ export default class ChatAd extends Vue {
 		this.kofiIcon = await this.getSvgIcon("kofi");
 	}
 
-	public openParamPage(page:TwitchatDataTypes.ParamsContentStringType):void {
-		this.$store("main").tempStoreValue = "CONTENT:"+page;
-		this.$store("main").setShowParams(true);
-	}
-
-	public openSpecificParam(id:string):void {
-		this.$store("main").tempStoreValue = "SEARCH:"+id;
-		this.$store("main").setShowParams(true);
-	}
-
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
+	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store("params").openParamsPage(page, subContent); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
@@ -265,97 +253,39 @@ export default class ChatAd extends Vue {
 
 <style scoped lang="less">
 .chatad{
-	.chatMessage();
-	color:@mainColor_normal;
-
 	.innerHolder {
-		border-radius: 1em;
-		overflow: hidden;
-		position: relative;
-		background-color: @mainColor_light;
-	
 		.confirmClose {
 			position: absolute;
 			top: 0;
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background-color: fade(@mainColor_dark, 70%);
-			backdrop-filter: blur(3px);
+			background-color: rgba(0, 0, 0, .7);
+			backdrop-filter: blur(5px);
 			display: flex;
 			align-items: center;
 			flex-direction: column;
 			justify-content: center;
-			color: @mainColor_light;
-			font-size: 2em;
-			text-shadow: 1px 1px 1px @mainColor_dark;
-			text-align: center;
-			line-height: 1.2em;
+			.label {
+				font-size: 2em;
+				text-shadow: 1px 1px 1px var(--color-dark);
+				text-align: center;
+				line-height: 1.2em;
+			}
 			.ctaConfirm {
-				width: 100%;
+				font-size: 1rem;
 				max-width: 250px;
 				margin-top: .5em;
+				gap: 1em;
 				display: flex;
 				flex-direction: row;
 				justify-content: space-evenly;
 			}
 		}
 	
-		.closeBt {
-			position: absolute;
-			top:0;
-			right:0;
-			height: 2.5em;
-		}
-	
-		&>div>.title {
-			text-align: center;
-			background: @mainColor_normal;
-			color: @mainColor_light;
-			font-weight: bold;
-			padding: .5em;
+		& .header>.title {
 			font-size: 1.5em;
 		}
-	
-		.infos {
-			font-style: italic;
-			text-align: center;
-			padding: .5em;
-			color: @mainColor_dark_extralight;
-			mark {
-				border: 1px dashed @mainColor_dark_extralight;
-				border-radius: .5em;
-				padding: 0 .25em;
-			}
-		}
-		
-		.version {
-			font-size: 1.25em;
-			text-align: center;
-			padding-top: .5em;
-		}
-		
-		.important {
-			font-size: 1em;
-			padding: .5em;
-			.title {
-				font-size: 2em;
-				margin-bottom: .5em;
-			}
-			.details {
-				padding: 0 1em;
-				.spacing {
-					margin-top: 1em;
-				}
-				.button {
-					display: block;
-					margin: auto;
-					margin-top: .75em;
-					font-size: 1.25em;
-				}
-			}
-		}
-	
 		.content {
 			padding: .5em;
 			&:not(.left) {
@@ -369,26 +299,6 @@ export default class ChatAd extends Vue {
 				display: block;
 			}
 	
-			.block {
-				&:not(:last-of-type) {
-					margin-bottom: .5em;
-				}
-				:deep(.header){
-					color: @mainColor_light;
-					background-color: @mainColor_normal;
-					&:hover {
-						background-color: lighten(@mainColor_normal, 5%);
-					}
-		
-					.cmd {
-						background-color: fade(@mainColor_normal, 15%);
-						border-radius: .5em;
-						padding: 0 .5em;
-						font-family: 'Courier New', Courier, monospace;
-					}
-				}
-			}
-
 			:deep(mark) {
 				border: 1px dashed fade(#000, 20);
 				background-color: fade(#000, 5);
@@ -397,18 +307,16 @@ export default class ChatAd extends Vue {
 			}
 		}
 	
-		.cta {
+		.ctas {
 			padding: .5em;
+			gap: .5em;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 	
-			.button:not(:first-of-type) {
-				margin-top: .5em;
-			}
-	
 			.sponsorGif {
 				width: 8em;
+				margin-bottom: -.5em;//Compensate for flex gap
 				cursor: pointer;
 			}
 		}

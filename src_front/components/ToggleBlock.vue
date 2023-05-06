@@ -2,19 +2,17 @@
 	<div :class="classes">
 		<div class="header" @click.stop="toggle()">
 			<slot name="left_actions"></slot>
-			<Button small
-				:icon="$image('icons/orderable_white.svg')"
-				class="orderBt"
-				warn
-				v-if="orderable!==false"
-				@mousedown="$emit('startDrag', $event)"
-				:data-tooltip="$t('triggers.reorder_tt')"
-			/>
+			
 			<img v-for="icon in localIcons" :src="$image('icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
-			<h2 v-html="localTitle"></h2>
+			
+			<div class="title" v-if="title || subtitle">
+				<h2 v-if="title">{{ title }}</h2>
+				<h3 v-if="subtitle">{{ subtitle }}</h3>
+			</div>
+
 			<slot name="right_actions"></slot>
 		</div>
-		<div class="content" v-if="showContent" ref="content">
+		<div class="content" v-if="opened" ref="content">
 			<slot></slot>
 		</div>
 	</div>
@@ -27,10 +25,11 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from './Button.vue';
 
 /**
- * To add actions on the right of the header (like a delete button)
+ * To add actions on the right or left of the header
  * use the template tag like this :
  * 	<ToggleBlock>
  * 		<template #right_actions>...</template>
+ * 		<template #left_actions>...</template>
  * 	</ToggleBlock>
  */
 
@@ -43,66 +42,58 @@ import Button from './Button.vue';
 })
 export default class ToggleBlock extends Vue {
 
-	@Prop
+	@Prop({type:Array, default:[]})
 	public icons!:string[];
+	
 	@Prop
 	public title!:string;
-	@Prop({
-			type:Boolean,
-			default:true,
-		})
-	public open!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
-	public error!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
-	public small!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
-	public medium!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
-	public orderable!:boolean;
-	@Prop({
-			type:String,
-			default:"",
-		})
-	public errorTitle!:string;
 
-	public showContent = false;
+	@Prop({type:String, default:""})
+	public subtitle!:string;
+
+	@Prop({type:Boolean, default:true})
+	public open!:boolean;
+
+	@Prop({type:Boolean, default:false})
+	public error!:boolean;
+
+	@Prop({type:Boolean, default:false})
+	public small!:boolean;
+
+	@Prop({type:Boolean, default:false})
+	public medium!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public primary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+
+	public opened = false;
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
-		if(!this.showContent)			res.push("closed");
+		if(!this.opened)				res.push("closed");
 		if(this.error !== false)		res.push("error");
+		if(this.primary !== false)		res.push("primary");
+		if(this.secondary !== false)	res.push("secondary");
+		if(this.alert !== false)		res.push("alert");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
-		if(this.icons?.length > 0)		res.push("hasIcon");
 		return res;
 	}
 
-	public get localTitle():string {
-		if(this.error && this.errorTitle) return this.errorTitle;
-		return this.title;
-	}
-
 	public get localIcons():string[] {
-		const icons = this.icons;
+		const icons = this.icons.concat();
 		if(this.error) icons.push("automod");
 		return icons;
 	}
 
 	public beforeMount():void {
-		this.showContent = this.open;
+		this.opened = this.open;
 	}
 
 	public mounted():void {
@@ -113,17 +104,17 @@ export default class ToggleBlock extends Vue {
 
 	public async toggle(forcedState?:boolean):Promise<void> {
 		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
-		let open = !this.showContent;
+		let open = !this.opened;
 		if(forcedState !== undefined) {
 			open = forcedState;
-			if(open == this.showContent) return;//Already in the proper state, ignore
+			if(open == this.opened) return;//Already in the proper state, ignore
 		}
 		gsap.killTweensOf(this.$refs.content as HTMLDivElement);
 		if(!open) {
-			params.onComplete = ()=>{ this.showContent = false; }
+			params.onComplete = ()=>{ this.opened = false; }
 			gsap.to(this.$refs.content as HTMLDivElement, params);
 		}else {
-			this.showContent = true;
+			this.opened = true;
 			await this.$nextTick();
 			gsap.from(this.$refs.content as HTMLDivElement, params);
 		}
@@ -134,178 +125,155 @@ export default class ToggleBlock extends Vue {
 
 <style scoped lang="less">
 .toggleblock{
+	align-self: flex-start;
+	border-radius: var(--border-radius);
+	background-color: rgba(125, 125, 125, .2);
+
+	.header {
+		text-align: center;
+		padding: .5em;
+		overflow: hidden;
+		cursor: pointer;
+		background-color: var(--color-dark-extralight);
+		border-top-left-radius: var(--border-radius);
+		border-top-right-radius: var(--border-radius);
+		border-bottom: 2px solid var(--color-dark-fader);
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		transition: background-color .25s;
+		.title {
+			font-size: 1.2em;
+			flex-grow: 1;
+			color: var(--color-light);
+			display: flex;
+			flex-direction: column;
+			gap: 0;
+			h3 {
+				font-size: .8em;
+				font-weight: normal;
+				font-style: italic;
+			}
+		}
+		&:hover {
+			background-color: var(--color-primary-light);
+		}
+
+		:deep(.icon) {
+			height: 1em;
+			width: 1em;
+			object-fit: fill;
+			display: block;
+			margin:auto;
+		}
+	}
+
+	.content {
+		// .bevel();
+		overflow: hidden;
+		// margin: 0 .5em .5em .5em;
+		padding: .5em;
+		color: var(--color-light);
+		// background-color: var(--color-dark-fadest);
+	}
+
 	&.closed {
 		.header {
 			border-bottom: none;
-			border-bottom-left-radius: 1em;
-			border-bottom-right-radius: 1em;
+			border-bottom-left-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
 		}
 	}
 
-	&:not(.small):not(.medium){
-		&>.header {
-			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+	&:not(.small) {
+		.emboss();
+		border-radius: var(--border-radius);
+	}
+
+	&.error, &.alert{
+		background-color: var(--color-alert-dark);
+		.header {
+			background-color: var(--color-alert);
+			&:hover {
+				background-color: var(--color-alert-light);
+			}
 		}
 	}
+
+	&.primary{
+		background-color: var(--color-primary-dark);
+		.header {
+			background-color: var(--color-primary);
+			&:hover {
+				background-color: var(--color-primary-light);
+			}
+		}
+	}
+
+	&.secondary{
+		background-color: var(--color-secondary-dark);
+		.header {
+			background-color: var(--color-secondary);
+			&:hover {
+				background-color: var(--color-secondary-light);
+			}
+		}
+	}
+
+	&.medium {
+		.header {
+			font-size: .8em;
+		}
+	}
+
 
 	&.small {
-		font-size: .8em;
+		background-color: var(--color-dark-fadest);
 		.header {
-			background-color: fade(@mainColor_normal, 15%);
-			border: none;
 			padding: 0;
-			border-radius: 0;
+			background-color: transparent;
+			border-bottom-left-radius: var(--border-radius);
+			border-bottom: none;
 			&:hover {
-				background-color: fade(@mainColor_normal, 15%);
+				background-color: var(--color-dark-fadest);
 			}
-			h2 {
+			.title {
+				gap: .25em;
 				text-align: left;
+				align-items: center;
+				flex-direction: row;
+				line-height: 1.25em;
+				color: var(--color-secondary);
+				text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+				font-size: .8em;
 				&::before {
-					content:"▼";
-					margin-right: .25em;
+					content:"►";
+					margin-left: .3em;
+					transform: rotate(90deg);
+					transition: transform .25s;
 				}
-			}
-			.icon {
-				height: 1em;
-				width: 1em;
 			}
 		}
 
 		&.closed {
+			background-color: transparent;
 			.header {
-				background-color: transparent;
-				h2::before {
-					content:"►";
+				border-radius: var(--border-radius);
+				.title::before {
+					transform: rotate(0);
 				}
-			}
-		}
-
-		&.hasIcon {
-			.header {
-				h2::before {
-					content: "";
-					margin-right: .5em;
+				&:hover {
+					background-color: var(--color-dark-fadest);
 				}
 			}
 		}
 
 		.content {
-			background-color: fade(@mainColor_normal, 10%);
 			padding: .5em;
-			margin-left: 1.4em;
-			border-radius: 0;
+			// margin-left: 1.4em;
 		}
 	}
 
-	&.medium {
-		@radius: .5em;
-		font-size: .9em;
-		&.closed {
-			.header {
-				border-bottom-left-radius: @radius;
-				border-bottom-right-radius: @radius;
-			}
-		}
-		&.deletable {
-			&>.header {
-				padding: 0;
-			}
-		}
-		&>.header {
-			padding: 0;
-			border-top-left-radius: @radius;
-			border-top-right-radius: @radius;
-			color: @mainColor_light;
-			background-color: @mainColor_normal;
-			border-bottom-color: @mainColor_light;
-			overflow: hidden;
-			&:hover {
-				background-color: lighten(@mainColor_normal, 10%);
-			}
-
-			.icon {
-				margin-left: .25em;
-				height: 1em;
-				width: 1em;
-			}
-
-			h2 {
-				// transition: background-color .25s;
-				// background-color: @mainColor_normal;
-				padding: .25em;
-				// &:hover {
-				// 	background-color: lighten(@mainColor_normal, 10%);
-				// }
-			}
-
-			.orderBt {
-				border-radius: 0;
-				padding: .3em;
-				align-self: stretch;
-				width: 2.5em;
-			}
-		}
-		&>.content {
-			padding: .5em;
-			border-bottom-left-radius: @radius;
-			border-bottom-right-radius: @radius;
-			// background-color: #f2eef8;
-		}
-	}
-
-	.icon {
-		height: 1.5em;
-		width: 1.5em;
-		object-fit: contain;
-		display: block;
-		margin:auto;
-		&.suggestion {
-			height: 2em;
-		}
-	}
-
-	.header {
-		border-bottom: 2px solid @mainColor_normal;
-		// border-left: 3px solid @mainColor_normal;
-		border-top-left-radius: 1em;
-		border-top-right-radius: 1em;
-		text-align: center;
-		padding: .5em;
-		cursor: pointer;
-		background-color: white;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		transition: background-color .25s;
-		h2 {
-			flex-grow: 1;
-		}
-		&:hover {
-			background-color: darken(@mainColor_light, 3%);
-		}
-		:deep(span) {
-			font-weight: normal;
-			font-style: italic;
-			font-size: .8em;
-		}
-	}
-
-	.content {
-		overflow: hidden;
-		padding: 1em;
-		background-color: fade(@mainColor_normal, 10%);
-		border-bottom-left-radius: 1em;
-		border-bottom-right-radius: 1em;
-		&>:deep(img) {
-			margin: .5em auto;
-			max-width: 100%;
-		}
-	}
-
-	&.error{
-		.header {
-			border: 2px dashed @mainColor_alert;
-		}
-	}
 }
 </style>

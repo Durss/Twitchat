@@ -1,59 +1,59 @@
 <template>
-	<div class="ttuserlist">
+	<div class="ttuserlist sidePanel">
+		<div class="head">
+			<CloseButton @click="close" />
+			<h1 class="title"><img src="@/assets/icons/user.svg" class="icon" />Twitchat users : {{userCount}}</h1>
+		</div>
+
 		<div class="content" ref="content">
-			<div class="title">
-				<p><img src="@/assets/icons/user.svg" class="icon" />{{userCount}} users</p>
-				<Button aria-label="Close users list" small :icon="$image('icons/cross_white.svg')" class="closeBt" @click="close()" />
-			</div>
-			
 			<div class="noResult" v-if="!loading && userCount == 0">no user found :(</div>
 		
-			<div class="stats">
+			<div class="card-item stats">
 				<div class="table">
 					<p>Active users last 24h :</p><p>{{activeLast24h}}</p>
 					<p>Active users last 7 days :</p><p>{{activeLast7days}}</p>
 					<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
 				</div>
 				<div class="ctas">
-					<Button small :disabled="loading" title="Reload" :icon="$image('icons/refresh.svg')" @click="updateList()" />
+					<Button small :loading="loading" icon="refresh" @click="updateList()">Reload</Button>
 					<div class="partners"><label @click="onlyPartners = !onlyPartners">Partners:</label><ToggleButton v-model="onlyPartners" clear /></div>
-					<!-- <Button small :disabled="loading" title="Load 24h" :icon="$image('icons/user.svg')" @click="loadTimeframe(1)" />
-					<Button small :disabled="loading" title="Load 7d" :icon="$image('icons/user.svg')" @click="loadTimeframe(7)" />
-					<Button small :disabled="loading" title="Load 30d" :icon="$image('icons/user.svg')" @click="loadTimeframe(30)" /> -->
+					<!-- <Button small :disabled="loading" title="Load 24h" icon="user" @click="loadTimeframe(1)" />
+					<Button small :disabled="loading" title="Load 7d" icon="user" @click="loadTimeframe(7)" />
+					<Button small :disabled="loading" title="Load 30d" icon="user" @click="loadTimeframe(30)" /> -->
 				</div>
 			</div>
-
+	
 			<div class="list" ref="list">
 				<a v-for="u in filteredItems"
 					:key="u.id"
-					class="user"
+					class="card-item user"
 					ref="userCard"
 					:href="u.user? 'https://twitch.tv/' + u.user.login : '#'"
 					target="_blank"
 				>
 					<div class="header" v-if="u.user">
-						<img :src="getProfilePicURL(u)" alt="profile" class="avatar">
+						<img :src="getProfilePicURL(u)" alt="profile" class="icon">
 						
-						<span class="login">
+						<span class="title">
 							{{u.user.login}}
 							<img src="@/assets/icons/partner.svg" alt="partner" class="partner" v-if="u.user.broadcaster_type == 'partner'">
 						</span>
 					</div>
 					<div class="header error" v-else>
-						<img src="@/assets/icons/user_purple.svg" alt="profile" class="avatar">
-						<span class="login">#{{u.id}}</span>
+						<img src="@/assets/icons/user.svg" alt="profile" class="icon">
+						<span class="title">#{{u.id}}</span>
 					</div>
 					<div class="details">{{formatDate(u)}}</div>
-
+	
 				</a>
 			</div>
 			
 			<Button class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
 			small title="Load more"
-			:icon="$image('icons/user.svg')"
+			icon="user"
 			@click="loadNextUsers()" />
-
-			<img class="loader" src="@/assets/loader/loader_white.svg" alt="loader" v-if="loading">
+	
+			<img class="loader" src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
 		</div>
 	</div>
 </template>
@@ -67,29 +67,29 @@ import Utils from '@/utils/Utils';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
+import CloseButton from '../CloseButton.vue';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 
 @Component({
 	components:{
 		Button,
+		CloseButton,
 		ToggleButton,
 	},
 	emits:["close"]
 })
-export default class TTUserList extends Vue {
+export default class TTUserList extends AbstractSidePanel {
 
 	public users:UserData[] = [];
 	public usersSpool:UserData[] = [];
 	public loading:boolean = true;
 	public onlyPartners:boolean = false;
 	public showLoadMoreBt:boolean = false;
-	public token:string = "";
 	public spoolChunkSize:number = 200;
 	public userCount:number = 0;
 	public activeLast24h:number = 0;
 	public activeLast7days:number = 0;
 	public activeLast30days:number = 0;
-
-	private clickHandler!:(e:MouseEvent) => void;
 
 	public get filteredItems():UserData[] {
 		if(this.onlyPartners) {
@@ -103,13 +103,7 @@ export default class TTUserList extends Vue {
 		return Utils.formatDate(d);
 	}
 
-	public beforeMount():void {
-		this.token = this.$store("main").tempStoreValue as string;
-	}
-
 	public mounted():void {
-		this.clickHandler = (e:MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
 		const content = this.$refs.content as HTMLDivElement;
 		content.addEventListener("scroll", (ev:Event):void => {
 			if ((content.clientHeight + content.scrollTop) >= content.scrollHeight) {
@@ -118,31 +112,13 @@ export default class TTUserList extends Vue {
 				}
 			}
 		});
+		super.open();
 		this.updateList();
-	}
-
-	public beforeUnmount():void {
-		document.removeEventListener("mousedown", this.clickHandler);
-	}
-
-	private onClick(e:MouseEvent):void {
-		let target = e.target as HTMLDivElement;
-		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref && target) {
-			target = target.parentElement as HTMLDivElement;
-		}
-		if(target != ref) {
-			this.$emit("close");
-		}
 	}
 
 	public getProfilePicURL(u:UserData):string {
 		if(!u.user.profile_image_url) return  this.$image("icons/user.svg");
 		return u.user.profile_image_url.replace("300x300", "70x70");
-	}
-
-	public async close():Promise<void> {
-		this.$emit('close');
 	}
 
 	public async updateList():Promise<void> {
@@ -228,8 +204,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 
 <style scoped lang="less">
 .ttuserlist{
-	.modal();
-
 	.noResult {
 		.center();
 		position: absolute;
@@ -237,40 +211,14 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 	}
 
 	.content {
-		width: 100%;
-		height: 100%;
-		overflow: auto;
-		background-color: @mainColor_dark;
-
-		.title {
-			text-align: center;
-			margin-bottom: .5em;
-			color: @mainColor_light;
-			background-color: @mainColor_normal;
-			display: flex;
-			flex-direction: row;
-			p {
-				padding: .5em;
-				padding-left: 2em;//Makes sure title is visually centered
-				flex-grow: 1;
-			}
-			.closeBt {
-				padding: .5em;
-			}
-			.icon {
-				height: 1em;
-				margin-right: .5em;
-				vertical-align: middle;
-			}
-		}
 
 		.stats {
+			flex-shrink: 0;
 			.table {
 				display: grid;
 				grid-template-columns: auto auto;
-				font-size: .8em;
 				padding: 0 1em;
-				color: @mainColor_light;
+				color: var(--color-light);
 				p:nth-child(odd) {
 					text-align: right;
 					margin-right: .5em;
@@ -288,7 +236,7 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 
 				.partners {
 					display: flex;
-					color: @mainColor_light;
+					color: var(--color-light);
 					label {
 						cursor: pointer;
 						margin-right: .5em;
@@ -298,71 +246,38 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 		}
 
 		.list {
-			padding: .5em;
 			@itemWidth: 200px;
 			display: grid;
-			gap: 5px;
+			gap: .5em;
 			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 
 			.user {
-				display: block;
-				border-radius: 10px;
-				background-color: @mainColor_light;
-				// width: @itemWidth;
-				overflow: hidden;
-				display: flex;
-				flex-direction: column;
-				position: relative;
-				transition: border .2s;
 				text-decoration: none;
-				color: @mainColor_normal;
-				cursor: pointer;
+				color: var(--color-light);
 
 				&:hover {
+						background-color: var(--color-primary);
 					.header {
-						background-color: @mainColor_normal_light;
+						background-color: var(--color-primary-light);
 					}
 				}
 	
 				.header {
-					display: flex;
-					flex-direction: row;
-					background-color: @mainColor_normal;
-					transition: all .2s;
-					
-					&.error {
-						background-color: @mainColor_alert;
-					}
-	
-					.avatar {
-						height: 30px;
-						border-top-right-radius: 50%;
-						border-bottom-right-radius: 50%;
-						background-color: @mainColor_light;
-					}
-
 					.partner {
 						width: .8em;
 						vertical-align: middle;
 					}
-
-					.login {
-						padding: 5px;
-						flex-grow: 1;
-						text-align: center;
-						color: @mainColor_light;
-						font-size: .8em;
-						text-overflow: ellipsis;
-						overflow: hidden;
+					
+					&.error {
+						background-color: var(--color-alert);
+						.icon {
+							background-color: var(--color-dark);
+						}
 					}
 				}
 	
 				.details {
-					font-size: 14px;
-					display: flex;
-					flex-direction: column;
-					padding: 5px 10px;
-					flex-grow: 1;
+					font-size: .8em;
 				}
 			}
 		}
@@ -372,21 +287,5 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 			display: block;
 		}
 	}
-}
-
-	
-@media only screen and (max-width: 400px) {
-.ttuserlist{
-	.content {
-		.list {
-			.user {
-				width: 100%;
-				&:nth-child(odd) {
-					margin-right: 0;
-				}
-			}
-		}
-	}
-}
 }
 </style>

@@ -1,4 +1,5 @@
-import { TriggerTypes, type TriggerActionObsDataAction, type TriggerActionTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
+import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
+import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
@@ -51,23 +52,36 @@ export default class DataStore {
 	public static TWITCHAT_AD_NEXT_DATE:string = "adNextTS";
 	public static TWITCHAT_SPONSOR_PUBLIC_PROMPT:string = "sponsorPublicPrompt";
 	public static TWITCHAT_RIGHT_CLICK_HINT_PROMPT:string = "rightClickHintPrompt";
-	public static INTERFACE_SCALE:string = "interfaceScale";
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
 	public static COUNTERS:string = "counters";
 	public static LANGUAGE:string = "lang";
 	public static CHAT_COL_CTA:string = "chatColCTA";
 	public static WEBSOCKET_TRIGGER:string = "websocketTrigger";
-	/**
-	 * @deprecated Only here for typings on data migration
-	 */
-	public static LEFT_COL_SIZE:string = "leftColSize";
-
+	public static REDIRECT:string = "redirect";
+	public static TRIGGER_SORT_TYPE:string = "triggerSortType";
+	public static TOOLTIP_AUTO_OPEN:string = "tooltipAutoOpen";
+	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
 	private static saveTO:number = -1;
 	private static dataImported:boolean = false;
 	private static rawStore:{[key:string]:(JsonValue|unknown)} = {};
+
+	/**
+	 * These values won't be saved to the server
+	 */
+	private static UNSYNCED_DATA:string[] = [
+		this.OBS_PASS,
+		this.TWITCH_AUTH_TOKEN,
+		this.SPOTIFY_AUTH_TOKEN,
+		this.SPOTIFY_APP_PARAMS,
+		this.GREET_HISTORY,
+		this.SYNC_DATA_TO_SERVER,
+		this.CHAT_COL_CTA,
+		this.REDIRECT,
+		this.TOOLTIP_AUTO_OPEN,
+	]
 	
 	
 	/********************
@@ -104,9 +118,12 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 1;
+		let latestVersion = 39;
 		
 		if(v < 11) {
-			return {};
+			const res:{[key:string]:unknown} = {};
+			res[this.DATA_VERSION] = latestVersion;
+			return res;
 		}
 		
 		if(v<=12) {
@@ -204,6 +221,23 @@ export default class DataStore {
 		if(v==35) {
 			this.migrateOBSTriggerActions(data);
 			v = 36;
+		}
+		if(v==36) {
+			this.migrateTriggersData(data);
+			v = 37;
+		}
+		if(v==37) {
+			this.populateCounterPlaceholder(data);
+			v = 38;
+		}
+		if(v==38) {
+			this.addWatchStreakFilter(data);
+			v = latestVersion;
+		}
+		if(v==39) {
+			//Removed custom interface scale now that OBS handles it natively on docks
+			delete data["interfaceScale"];
+			v = latestVersion;
 		}
 
 		data[this.DATA_VERSION] = v;
@@ -316,7 +350,24 @@ export default class DataStore {
 			}
 		}
 
+		const backup:{[key:string]:JsonValue} = {};
+		for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
+			const key = this.UNSYNCED_DATA[i];
+			if(!items[key]) continue;
+			backup[key] = items[key];
+		}
+		backup[this.DATA_VERSION] = items[this.DATA_VERSION];
+
 		const json = await this.migrateData(items);//Migrate remote data if necessary
+
+		//Clear storage to remove potentially old data
+		localStorage.clear();
+
+		for (const key in backup) {
+			if(backup[key]) {
+				json[key] = backup[key];
+			}
+		}
 
 		//Update localstorage data
 		for (const key in json) {
@@ -343,20 +394,11 @@ export default class DataStore {
 		return new Promise((resolve) => {
 			this.saveTO = setTimeout(async () => {
 				const data = JSON.parse(JSON.stringify(this.rawStore));
-				//Do not save sensitive data to server
-				delete data[this.OBS_PASS];
-				delete data[this.TWITCH_AUTH_TOKEN];
-				delete data[this.SPOTIFY_AUTH_TOKEN];
-				delete data[this.SPOTIFY_APP_PARAMS];
-				
-				//Things unnecessary to save server side
-				delete data[this.GREET_HISTORY];
-				delete data[this.SYNC_DATA_TO_SERVER];
-				delete data[this.INTERFACE_SCALE];
-				delete data[this.CHAT_COL_CTA];
-				delete data.deezerEnabled;
-				delete data.redirect;
-				delete data["p:shoutoutLabel"];//Old data that some people still have
+
+				//Do not save sensitive and useless data to server
+				for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
+					delete data[ this.UNSYNCED_DATA[i] ];
+				}
 				
 				//Remove automod items the user asked not to sync to server
 				const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
@@ -879,8 +921,10 @@ export default class DataStore {
 		delete data["p:splitView"];
 		delete data["p:splitViewSwitch"];
 		delete data["p:emergencyButton"];
+		delete data["p:shoutoutLabel"];
 		delete data["leftColSize"];
 		delete data["activityFeedFilters"];
+		delete data["deezerEnabled"];
 	}
 
 	/**
@@ -957,5 +1001,210 @@ export default class DataStore {
 		}
 
 		data[DataStore.TRIGGERS] = triggers;
+	}
+
+	/**
+	 * Migrates triggers data to the new triggers system
+	 * @param data 
+	 */
+	private static migrateTriggersData(data:any):void {
+		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
+		if(Array.isArray(triggers)) return;//Already migrated to new data format
+		if(!triggers) return;
+		const triggerList:TriggerData[] = [];
+		let events:TriggerTypeDefinition[] = TriggerTypesDefinitionList();
+		const allowedKeys:{[key:string]:boolean} = {};
+		events.forEach(v => allowedKeys[v.value] = true);
+		for (const key in triggers) {
+			const t = triggers[key];
+			const chunks = key.split("_");
+			const triggerKey = chunks.shift();
+			const subkey = chunks.join("_");
+			if(!triggerKey || !allowedKeys[triggerKey]) continue;//Ignore potentially old trigger types
+			t.id = Utils.getUUID();
+			t.type = triggerKey as TriggerTypesValue;
+			switch(t.type) {
+				case TriggerTypes.CHAT_COMMAND: t.chatCommand = t.name; break;
+				case TriggerTypes.REWARD_REDEEM: t.rewardId = subkey; break;
+				case TriggerTypes.SCHEDULE: t.rewardId = t.name; break;
+				case TriggerTypes.OBS_SCENE: t.obsScene = t.name =subkey; break;
+				case TriggerTypes.OBS_SOURCE_ON: t.obsSource = t.name = subkey; break;
+				case TriggerTypes.OBS_SOURCE_OFF: t.obsSource = t.name = subkey; break;
+				case TriggerTypes.COUNTER_LOOPED:
+				case TriggerTypes.COUNTER_MAXED:
+				case TriggerTypes.COUNTER_MINED:
+				case TriggerTypes.COUNTER_DEL:
+				case TriggerTypes.COUNTER_ADD: t.counterId = subkey; break;
+			}
+			if(t.queue == "") delete t.queue;
+			if(t.name == "") delete t.name;
+
+			for (let i = 0; i < t.actions.length; i++) {
+				const a = t.actions[i];
+				a.id = Utils.getUUID();//Override old useless IDs that were Math.random() values
+
+				//Migrate OBS actions
+				if(a.type == "obs") {
+					if(a.show == true) a.action = "show";
+					if(a.show == false) a.action = "hide";
+					if(a.show == "replay") a.action = "replay";
+					delete a.show;
+				}
+				//Convert delays to dedicated actions
+				if(a.delay && a.delay > 0) {
+					const newAction:TriggerActionDelayData = { delay:a.delay!, id:Utils.getUUID(), type:"delay"};
+					t.actions.splice(i+1, 0, newAction);
+					i++;//Skip newly added action
+				}
+				delete a.delay;
+			}
+			triggerList.push(t);
+		}
+
+		function keyToTrigger(key:string):TriggerData|null {
+			const type = key.split("_")[0] as TriggerTypesValue;
+			const subType = key.replace(type+"_", "").toLowerCase();
+			switch(type) {
+				case TriggerTypes.CHAT_COMMAND: {
+					const item = triggerList.find(v => v.type == type && v.chatCommand?.toLowerCase() == subType.toLowerCase() );
+					if(item) return item
+					break;
+				}
+				case TriggerTypes.REWARD_REDEEM: {
+					const item = triggerList.find(v => v.type == type && v.rewardId?.toLowerCase() == subType );
+					if(item) return item
+					break;
+				}
+				case TriggerTypes.COUNTER_LOOPED: 
+				case TriggerTypes.COUNTER_MAXED: 
+				case TriggerTypes.COUNTER_MINED: 
+				case TriggerTypes.COUNTER_ADD: 
+				case TriggerTypes.COUNTER_DEL: {
+					const item = triggerList.find(v => v.type == type && v.rewardId?.toLowerCase() == subType );
+					if(item) return item
+					break;
+				}
+				default: {
+					const item = triggerList.find(v => v.type == type );
+					if(item) return item
+				}
+			}
+			return null;
+		}
+
+		//Migrate any trigger action using triggers
+		for (let j = 0; j < triggerList.length; j++) {
+			const t = triggerList[j];
+			
+			for (let i = 0; i < t.actions.length; i++) {
+				const a = t.actions[i];
+				//Migrate random entries
+				if(a.type === "random" && a.triggers) {
+					const ids = [];
+					for (let h = 0; h < a.triggers.length; h++) {
+						const trigger = keyToTrigger(a.triggers[h]);
+						if(trigger) ids.push(trigger.id);
+					}
+					console.log("Migrated random ", a.triggers, ids);
+					a.triggers = ids;
+				}else
+				//Migrate random entries
+				if(a.type === "trigger" && a.triggerKey) {
+					const trigger = keyToTrigger(a.triggerKey);
+					console.log("Migrated trigger ", a.triggerKey, trigger);
+					delete a.triggerKey;
+					if(trigger) a.triggerId = trigger.id;
+				}
+			}
+		}
+		
+
+		console.log(triggerList);
+
+		data[DataStore.TRIGGERS] = triggerList;
+	}
+
+	/**
+	 * Adds the placeholder value to any existing counter and 
+	 * update any trigger using the "read counter" action to remove it
+	 * and replace that placeholder by the counter's placeholder
+	 */
+	private static populateCounterPlaceholder(data:any):void {
+		const counters:TwitchatDataTypes.CounterData[] = data[DataStore.COUNTERS];
+
+		if(!counters) return;
+
+		//Add "placeholderKey" value on every existing counters
+		const slugCount:{[key:string]:number} = {};
+		for (let i = 0; i < counters.length; i++) {
+			const c = counters[i];
+			
+			if(!c.placeholderKey)  {
+				let slug = Utils.slugify(c.name);
+				if(slug.length == 0) slug = "C";
+				//If an identical slug exists, suffix it with its index
+				if(slugCount[slug] != undefined) slug += slugCount[slug];
+				else slugCount[slug] = 0;
+				//Increment slug count for this slug
+				slugCount[slug] ++;
+
+				c.placeholderKey = slug.toUpperCase();
+			}
+		}
+
+		//Delete all "counterget" trigger actions and replace all related
+		//placeholders by the new placeholderKey value of the counters
+		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
+		if(triggers) {
+			//Parse all triggers
+			for (const key in triggers) {
+				const oldPlaceholderToNew:{[key:string]:string} = {};
+				//Parse all current trigger actions
+				for (let i = 0; i < triggers[key].actions.length; i++) {
+					const a = triggers[key].actions[i];
+					//If action is a "read counter value", delete it and replace any subsequent
+					//placeholders by the new counter placeholder
+					if(a.type == "countget") {
+						const c = counters.find(v => v.id == a.counter);
+						if(c) {
+							//Counter exists grab its placeholder key
+							oldPlaceholderToNew[a.placeholder] = c.placeholderKey.slice(0, 15);
+						}else{
+							//Counter doesn't exists, set a placeholder user will understand
+							oldPlaceholderToNew[a.placeholder] = "DELETED_COUNTER";
+						}
+						// console.log(a.placeholder, "=>", oldPlaceholderToNew["{"+a.placeholder+"}"]);
+						triggers[key].actions.splice(i, 1);
+						i--;
+					}else if(Object.keys(oldPlaceholderToNew).length > 0) {
+						// console.log("PLACHOLDER DICT", oldPlaceholderToNew);
+						let json = JSON.stringify(a);
+						for (const placeholder in oldPlaceholderToNew) {
+							const oldSafe = placeholder.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+							const newPlaceholder = TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholderToNew[placeholder];
+							// console.log("Replace ", oldSafe, "by", newPlaceholder);
+							//Nuclear way to replace placeholders
+							json = json.replace(new RegExp("\\{"+oldSafe+"\\}", "gi"), "{"+newPlaceholder+"}");
+						}
+						triggers[key].actions[i] = JSON.parse(json);
+					}
+				}
+			}
+		}
+
+		data[DataStore.COUNTERS] = counters;
+		data[DataStore.TRIGGERS] = triggers;
+	}
+
+	/**
+	 * Enable the "watch streak" notifications on all columns
+	 */
+	public static addWatchStreakFilter(data:any):void {
+		const cols:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
+
+		if(!cols) return;
+		cols.forEach(v=>v.filters.user_watch_streak = true);
+		data[DataStore.CHAT_COLUMNS_CONF] = cols;
+
 	}
 }

@@ -1,6 +1,7 @@
 {
 	"timer":{
 		"title":"Timer & Countdown",
+		"description":"Start a timer or a countdown",
 		"timerBt":"Timer",
 		"countdownBt":"Countdown",
 		"duration_param":"Duration (seconds)",

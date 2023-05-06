@@ -15,11 +15,19 @@
 			"name": "Name",
 			"value": "Value",
 			"more": "More options",
+			"placholder": "Custom placeholder {'{'}COUNTER_VALUE_{VALUE}{'}'}",
+			"placholder_tt": "This value will allow you<br>to get this counter's value<br>in any trigger action",
+			"placholder_conflict": "Another counter already uses this placeholder",
+			"name_conflict": "Another counter with the same name already exists",
 			"value_min": "Min value",
 			"value_max": "Max value",
 			"value_loop": "Loop value when reaching min or max",
 			"value_user": "Every user has their own counter",
-			"search":"Search user..."
+			"load_all_users": "Load all users",
+			"no_users": "no user yet",
+			"search":"Search user...",
+			"sort_name":"Name",
+			"sort_points":"Points"
 		},
 		"delete_confirm": {
 			"title": "Delete ?",

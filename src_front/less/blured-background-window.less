@@ -1,0 +1,17 @@
+.blured-background-window {
+	padding: .5em;
+	backdrop-filter: blur(10px);
+	background-color: var(--color-dark-light);
+	background: linear-gradient(180deg, fade(@color-dark, 80%) 0%, fade(@color-dark, 70%) 50%, fade(@color-dark,50%) 100% );
+	box-shadow: 0px 0px 10px 2px rgba(0,0,0,.5);
+	border-radius: .5em;
+	display: flex;
+	flex-direction: column;
+	transform-origin: bottom left;
+	overflow-y: auto;
+	max-height: calc(var(--vh) - var(--chat-form-height));
+	max-width: 100vw;
+	& > * {
+		flex-shrink: 0;//Avoid items from being crushed vertically
+	}
+}

@@ -1,28 +1,25 @@
 <template>
-	<div class="paramsoverlays">
-		<img src="@/assets/icons/overlay_purple.svg" alt="overlay icon" class="icon">
+	<div class="paramsoverlays parameterContent">
+		<img src="@/assets/icons/overlay.svg" alt="overlay icon" class="icon">
 		<div class="head">{{ $t("overlay.header") }}</div>
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">
 			<i18n-t scope="global" keypath="overlay.connection.title">
 				<template #OBS>
 					<Button class="button"
-						:icon="$image('icons/obs_purple.svg')"
-						:title="$t('overlay.connection.obsBt')"
+						icon="obs"
 						white
-						@click="$emit('setContent', contentObs)" />
+						@click="$store('params').openParamsPage(contentObs)">{{ $t('overlay.connection.obsBt') }}</Button>
 				</template>
 				<template #DOCK>
 					<Button class="button"
-						:icon="$image('icons/twitchat_purple.svg')"
-						:title="$t('overlay.connection.dockBt')"
+						icon="twitchat"
 						white
-						@click="showDockTutorial = true" v-if="!showDockTutorial" />
+						@click="showDockTutorial = true" v-if="!showDockTutorial">{{ $t('overlay.connection.dockBt') }}</Button>
 					<Button class="button"
-						:icon="$image('icons/cross.svg')"
-						:title="$t('overlay.connection.closeBt')"
+						icon="cross"
 						white
-						@click="showDockTutorial = false" v-if="showDockTutorial" />
+						@click="showDockTutorial = false" v-if="showDockTutorial">{{ $t('overlay.connection.closeBt') }}</Button>
 				</template>
 			</i18n-t>
 			<div v-if="showDockTutorial" class="dockTuto">
@@ -31,17 +28,17 @@
 			</div>
 		</div>
 
-		<div class="unified" v-if="true || exchangeChannelAvailable">
+		<div class="card-item primary unified" v-if="true || exchangeChannelAvailable">
 			<label for="unified_overlays">{{ $t("overlay.unified") }}</label>
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
 		
-		<OverlayParamsRaffle class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsTimer class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsCounter class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsHighlight class="block" v-if="true || exchangeChannelAvailable" @setContent="(v:string) => $emit('setContent', v)" />
-		<OverlayParamsSpotify class="block" v-if="true || exchangeChannelAvailable && spotifyConfigured" @setContent="(v:string) => $emit('setContent', v)" />
-		<!-- <OverlayParamsDeezer class="block" v-if="true || exchangeChannelAvailable && deezerConfigured" @setContent="(v:string) => $emit('setContent', v)" /> -->
+		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
+		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
+		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
+		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
+		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
+		<!-- <OverlayParamsDeezer class="block" /> -->
 	</div>
 </template>
 
@@ -51,12 +48,13 @@ import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
+import type IParameterContent from './IParameterContent';
+import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 import OverlayParamsDeezer from './overlays/OverlayParamsDeezer.vue';
 import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
 import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
-import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 
 @Component({
 	components:{
@@ -68,9 +66,9 @@ import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 		OverlayParamsCounter,
 		OverlayParamsHighlight,
 	},
-	emits:["setContent"]
+	emits:[]
 })
-export default class ParamsOverlays extends Vue {
+export default class ParamsOverlays extends Vue implements IParameterContent {
 
 	public showDockTutorial:boolean = false;
 	
@@ -79,32 +77,29 @@ export default class ParamsOverlays extends Vue {
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
 	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
-	public get contentObs():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.OBS; }
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
+
+	public onNavigateBack(): boolean { return false; }
+
+	public get subContent() { return this.$store("params").currentPageSubContent; }
 
 }
 </script>
 
 <style scoped lang="less">
 .paramsoverlays{
-	.parameterContent();
-
 	.connectObs {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
 		align-items: center;
-		color: @mainColor_light;
-		background-color: @mainColor_alert;
+		color: var(--color-light);
+		background-color: var(--color-alert);
 		padding: .5em;
 		border-radius: .5em;
-		margin-top: 1em;
-		.button {
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-		}
 		.dockTuto {
+			text-align: center;
 			img {
 				margin-top: .5em;
 				max-width: 100%;
@@ -112,25 +107,36 @@ export default class ParamsOverlays extends Vue {
 		}
 	}
 	.block {
-		&:not(:first-of-type) {
-			margin-top: .5em;
-		}
+		width: 100%;
+		flex-grow: 1;
 		:deep(.icon) {
 			width: 1.5em;
 			height: 1.5em;
 		}
+
+		&.selected {
+			border: 5px solid transparent;
+			border-radius: 1em;
+			animation: blink .5s 3 forwards;
+			animation-delay: 1s;
+			@keyframes blink {
+				0% {
+					border-color: var(--color-secondary);
+				}
+				50% {
+					border-color: transparent;
+				}
+				100% {
+					border-color: var(--color-secondary);
+				}
+			}
+		}
 	}
 
 	.unified {
-		border-radius: 1em;
-		background-color: white;
-		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-		padding: .5em;
-		text-align: center;
-		margin-top: 1em;
 		input {
-			margin: .5em;
-			width: 90%;
+			margin: .5em 0;
+			width: 100%;
 		}
 	}
 }

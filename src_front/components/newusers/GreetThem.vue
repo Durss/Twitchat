@@ -1,26 +1,28 @@
 <template>
 	<div class="greetThem" v-show="localMessages.length > 0" :style="styles">
-		<div class="header" @click="toggleList()">
-			<Button class="scrollBt clearButton"
-				:aria-label="$t(scrollDownAuto? 'greet.auto_scroll_off_aria' : 'greet.auto_scroll_on_aria')"
-				:icon="$image('icons/scroll'+(scrollDownAuto? 'Down' : 'Up')+'.svg')"
-				:data-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
-				@click.stop="toggleScroll()" />
-
-			<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
-
-			<Button class="clearBt clearButton"
-				:icon="$image('icons/delete.svg')"
-				:data-tooltip="$t('greet.clearBt')"
-				@click.stop="clearAll()" />
-		</div>
-
-		<div class="topForm" v-if="showList">
-			<div class="row">
-				<label><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
-				<select v-model.number="$store('params').greetThemAutoDelete">
-					<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
-				</select>
+		<div class="header">
+			<div class="title" @click="toggleList()">
+				<ButtonNotification class="scrollBt clearButton"
+					:aria-label="$t(scrollDownAuto? 'greet.auto_scroll_off_aria' : 'greet.auto_scroll_on_aria')"
+					:icon="'scroll'+(scrollDownAuto? 'Down' : 'Up')"
+					v-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
+					@click.stop="toggleScroll()" />
+	
+				<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
+	
+				<ButtonNotification class="clearBt clearButton"
+					icon="delete"
+					v-tooltip="$t('greet.clearBt')"
+					@click.stop="clearAll()" />
+			</div>
+	
+			<div class="topForm" v-if="showList">
+				<div class="row">
+					<label><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
+					<select v-model.number="$store('params').greetThemAutoDelete">
+						<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
+					</select>
+				</div>
 			</div>
 		</div>
 		
@@ -53,14 +55,13 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import ButtonNotification from '../ButtonNotification.vue';
 import MessageItem from '../messages/MessageItem.vue';
 
 @Component({
 	components:{
-		Button,
+		ButtonNotification,
 		MessageItem,
 	}
 })
@@ -292,6 +293,8 @@ export default class NewUsers extends Vue {
 	 * Called when rolling over an item
 	 */
 	public onMouseOver(e:MouseEvent, index:number):void {
+		if(this.resizing) return;
+		
 		this.overIndex = index;
 		let items = this.$refs.message as Vue[];
 		if(this.streakMode) {
@@ -326,22 +329,6 @@ export default class NewUsers extends Vue {
 		}else{
 			this.mouseY = (e as TouchEvent).touches[0].clientY;
 		}
-	// 	if(!this.resizing) return;
-	// 	const py = e.clientY;
-	// 	const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
-	// 	const maxHeight = .6;
-	// 	this.windowHeight = Math.min(maxHeight, (py - bounds.top) / bounds.height);
-		
-	// 	await this.$nextTick();
-
-	// 	const boundsEl = (this.$el as HTMLDivElement).getBoundingClientRect();
-	// 	const prev = (py - bounds.top) / bounds.height;
-	// 	const next = (boundsEl.height - bounds.top) / bounds.height;
-	// 	this.maxHeightPos = boundsEl.height;
-	// 	this.maxHeightSize = Math.min(bounds.height * maxHeight - boundsEl.height, py - boundsEl.height);
-
-	// 	this.showMaxHeight = (prev-next)*100 > 2;
-	// 	Store.set(Store.GREET_AUTO_HEIGHT, this.windowHeight);
 	}
 
 	/**
@@ -354,7 +341,8 @@ export default class NewUsers extends Vue {
 			const id = this.localMessages[i].id;
 			if(this.highlightState[id] === true) {
 				this.highlightState[id] = false;
-				(items[i].$el as HTMLDivElement).removeAttribute("style");
+				// (items[i].$el as HTMLDivElement).removeAttribute("style");
+				(items[i].$el as HTMLDivElement).style.opacity = "1";
 			}
 		}
 	}
@@ -382,49 +370,6 @@ export default class NewUsers extends Vue {
 		}
 	}
 
-	/**
-	 * Animates a newly added item
-	 */
-	public enter(el:HTMLElement, done:()=>void):void {
-		gsap.from(el, {
-			duration:0.2,
-			height:0,
-			scaleY:0,
-			margin:0,
-			padding:0,
-			ease:'sine.in',
-			clearProps:'all',
-			onComplete:()=>{
-				done();
-			}
-		});
-	}
-
-	/**
-	 * Animates an item when removed from the list
-	 */
-	public leave(el:Element, done:()=>void):void {
-		let delay = (parseInt((el as HTMLElement).dataset.index as string)-this.indexOffset) * 0.075;
-		if(delay > .75) {
-			done();
-		}else{
-			gsap.to(el, {
-				duration:0.15,
-				height:0,
-				scaleY:0,
-				margin:0,
-				padding:0,
-				// fontSize:0,
-				delay,
-				ease:'sine.in',
-				clearProps:'all',
-				onComplete:()=>{
-					done();
-				}
-			});
-		}
-	}
-
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
@@ -443,8 +388,7 @@ export default class NewUsers extends Vue {
 
 <style scoped lang="less">
 .greetThem{
-	// background-color: #218bac;
-	background-color: @windowStateColor;
+	background-color: var(--color-dark);
 	box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
 	display: flex;
 	flex-direction: column;
@@ -452,62 +396,64 @@ export default class NewUsers extends Vue {
 	max-height: 60vh;
 	z-index: 1;
 	position: relative;
-
+	
 	.header {
-		padding: 10px 0;
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		cursor: pointer;
-		h1 {
-			text-align: center;
-			color: #ffffff;
-			margin: 0 10px;
-
-			.count {
-				// font-style: italic;
-				font-size: .65em;
-				font-weight: normal;
-			}
-		}
-		.clearBt, .scrollBt {
-			height: 1.5em;
-			width: 1.5em;
-			padding: 3px;
-			border-radius: 5px;
-		}
-	}
-
-	.topForm {
-		display: flex;
-		flex-direction: column;
-		background-color: rgba(0, 0, 0, .2);
-		align-items: center;
-		padding: 4px 0;
-		.row {
+		background-color: var(--color-primary);
+		padding: .5em 0;
+		.title {
 			display: flex;
 			flex-direction: row;
-			align-items: center;
-			font-size: .8em;
-
-			label {
-				margin: 0;
-				margin-right: 5px;
-				color: @mainColor_light;
-				img {
-					height: .8em;
-					margin-right: 3px;
+			justify-content: center;
+			cursor: pointer;
+			h1 {
+				text-align: center;
+				color: #ffffff;
+				margin: 0 10px;
+	
+				.count {
+					// font-style: italic;
+					font-size: .65em;
+					font-weight: normal;
 				}
 			}
-			select {
+			.clearBt, .scrollBt {
+				height: 1.5em;
+				width: 1.5em;
+				padding: 3px;
+				border-radius: var(--border-radius);
+			}
+		}
+
+		.topForm {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: .5em;
+			.row {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
 				font-size: .8em;
-				padding: 0px 2px;
-				border-radius: 5px;
-				color: @mainColor_light;
-				background-color: rgba(0,0,0,.5);
-				border-color:  rgba(0, 0, 0, .8);
-				option {
-					background-color: @mainColor_dark;
+
+				label {
+					margin: 0;
+					margin-right: 5px;
+					color: var(--color-light);
+					img {
+						height: .8em;
+						margin-right: 3px;
+					}
+				}
+				select {
+					font-size: .8em;
+					padding: 0px 2px;
+					border-radius: 5px;
+					color: var(--color-light);
+					background-color: rgba(0,0,0,.5);
+					border-color:  rgba(0, 0, 0, .8);
+					option {
+						background-color: var(--color-dark);
+					}
 				}
 			}
 		}
@@ -515,16 +461,19 @@ export default class NewUsers extends Vue {
 
 	.messageList {
 		overflow-y: auto;
-
+		flex-grow: 1;
+		border: 2px solid var(--color-primary);
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 		.message {
-			position: relative;
 			cursor: pointer;
 			overflow: hidden;
 			font-family: var(--font-inter);
 			color: #fff;
 			transition: background-color .25s;
 			border: 1px solid transparent;
-			padding: 0 0 0 .5em;
+			padding: .2em .5em;
+			margin: 0;
 
 			&:nth-child(odd) {
 				background-color: fade(#ffffff, 5%);
@@ -536,6 +485,11 @@ export default class NewUsers extends Vue {
 				vertical-align: middle;
 				margin-right: .7em;
 				font-variant-numeric: tabular-nums;
+			}
+
+			&>:deep(*) {
+				//avoid being able to click on nicknames, links, ...
+				pointer-events: none;
 			}
 	
 		}
@@ -549,22 +503,6 @@ export default class NewUsers extends Vue {
 		// background-color: fade(red, 50%);
 		cursor: ns-resize;
 		user-select: none;
-	}
-
-	.gripMax {
-		width: 100%;
-		position: absolute;
-		top: 0;
-		font-size: 10px;
-		text-transform: uppercase;
-		cursor: ns-resize;
-		user-select: none;
-		color: @mainColor_light;
-		border-bottom: 1px dashed @mainColor_light;
-		background-color: fade(@windowStateColor,60%);
-		display: flex;
-		align-items: flex-end;
-		padding-bottom: 5px;
 	}
 
 }

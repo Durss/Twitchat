@@ -1,18 +1,18 @@
 <template>
-	<div class="triggeractionhighlightentry">
-		<i18n-t scope="global" tag="div" class="row info item" keypath="triggers.actions.highlight.header">
+	<div class="triggeractionhighlightentry triggerActionForm">
+		<i18n-t scope="global" tag="div" class="info" keypath="triggers.actions.highlight.header">
 			<template #LINK>
 				<a @click="openHighlightParams()">{{ $t("triggers.actions.highlight.header_link") }}</a>
 			</template>
 		</i18n-t>
-		<ParamItem class="row item show" :paramData="show_conf" v-model="action.show" />
-		<ParamItem class="row item" v-if="show_conf.value === true" :paramData="message_conf" ref="textContent" v-model="action.text" />
+		<ParamItem class="show" :paramData="show_conf" v-model="action.show" />
+		<ParamItem v-if="show_conf.value === true" :paramData="message_conf" ref="textContent" v-model="action.text" />
 	</div>
 </template>
 
 <script lang="ts">
+import { TriggerEventPlaceholders, type TriggerActionHighlightData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { TriggerEventPlaceholders, type TriggerActionHighlightData, type TriggerEventTypes } from '@/types/TriggerActionDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 
@@ -21,26 +21,26 @@ import ParamItem from '../../../ParamItem.vue';
 	components:{
 		ParamItem,
 	},
-	emits:["update", "setContent"]
+	emits:["update"]
 })
 export default class TriggerActionHighlightEntry extends Vue {
 	
 	@Prop
 	public action!:TriggerActionHighlightData;
 	@Prop
-	public event!:TriggerEventTypes;
+	public triggerData!:TriggerData;
 
-	private showHideValues:TwitchatDataTypes.ParameterDataListValue[] = [];
+	private showHideValues:TwitchatDataTypes.ParameterDataListValue<boolean>[] = [];
 	
-	public show_conf:TwitchatDataTypes.ParameterData = { type:"list", value:false, listValues:[], icon:"show_purple.svg" };
-	public message_conf:TwitchatDataTypes.ParameterData = { type:"string", longText:true, value:"", icon:"highlight_purple.svg", maxLength:500};
+	public show_conf:TwitchatDataTypes.ParameterData<boolean, boolean> = { type:"list", value:false, listValues:[], icon:"show.svg" };
+	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"highlight.svg", maxLength:500};
 	
 	public beforeMount():void {
 		this.showHideValues = [
 			{labelKey:"global.hide", value:false},
 			{labelKey:"global.show", value:true},
 		];
-		this.message_conf.placeholderList = TriggerEventPlaceholders(this.event.value);
+		this.message_conf.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		this.show_conf.labelKey		= "triggers.actions.highlight.param_visibility";
 		this.message_conf.labelKey	= "triggers.actions.highlight.param_message";
 		this.show_conf.value		= this.showHideValues[1].value;
@@ -49,7 +49,7 @@ export default class TriggerActionHighlightEntry extends Vue {
 	}
 
 	public openHighlightParams(){
-		this.$emit("setContent", TwitchatDataTypes.ParamsCategories.OVERLAYS);
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 	}
 
 }
@@ -57,6 +57,5 @@ export default class TriggerActionHighlightEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionhighlightentry{
-	.triggerActionForm();
 }
 </style>

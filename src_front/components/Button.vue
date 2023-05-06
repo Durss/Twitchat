@@ -2,27 +2,29 @@
 	<component
 	:class="classes"
 	:is="nodeType"
-	:type="type=='checkbox'? null : type"
+	:type="type"
 	:target="target"
 	:to="to"
 	:href="type=='link'? to : null"
 	@click.stop="onClick($event)"
-	:style="progressStyle"
+	@mouseup="onRelease($event)"
 	v-model="modelValue">
-		<img :src="parsedIcon" v-if="parsedIcon && !isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'">
-		<div v-html="parsedIcon" v-if="parsedIcon && isIconSVG" alt="icon" class="icon" :class="loading? 'hide' : 'show'"></div>
+		<span v-if="loading" class="loadingBorder"></span>
+		<span class="background">
+			<span class="select" v-if="selected"></span>
+		</span>
 
-		<div class="checkboxContent" v-if="type=='checkbox'">
-			<div class="checkmark">
-				<img :src="checkMarkIcon" v-if="checked" alt="icon" class="img">
-			</div>
-			<span class="label" :class="loading? 'hide' : 'show'" v-if="title" v-html="title"></span>
-			<slot class="label"></slot>
-			<input type="checkbox" :name="name" :id="name" class="checkboxInput" ref="checkbox" v-model="checked" v-if="type=='checkbox'" />
-		</div>
+		<img v-if="icon && loading" :src="$image('loader/loader.svg')" class="loader">
+	
+		<img class="icon" v-if="icon && !loading" :src="iconPath" alt="icon">
+		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
 
-		<img src="@/assets/loader/loader_white.svg" alt="loader" class="spinner" v-if="loading">
-		<span class="label" :class="loading? 'hide' : 'show'" v-if="title && type!='checkbox'" v-html="title"></span>
+		<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
+
+		<div class="clickArea"></div>
+
+		<!-- <img v-if="selected" class="icon" src="@/assets/icons/checkmark.svg" alt="checkmark"> -->
+		
 		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
 	</component>
 </template>
@@ -30,7 +32,6 @@
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -43,99 +44,81 @@ export default class Button extends Vue {
 
 	@Prop
 	public icon!:string;
-	@Prop
-	public iconSelected!:string;
-	@Prop
-	public title!:string;
-	@Prop
-	public name!:string;
+
 	@Prop({type:Boolean, default: false})
 	public loading!:boolean;
+
 	@Prop({type:String, default:'button'})
 	public type!:string;
+
 	@Prop
 	public target!:string;
+
 	@Prop
 	public to!:unknown;
-	@Prop({default: -1, type:Number})
-	public percent!:number;
+
 	@Prop({type:Boolean, default: false})
-	public white!:boolean;
-	@Prop({type:Boolean, default: false},)
 	public big!:boolean;
-	@Prop({type:Boolean, default: false},)
+
+	@Prop({type:Boolean, default: false})
 	public small!:boolean;
-	@Prop({type:Boolean, default: false},)
-	public highlight!:boolean;
-	@Prop({type:Boolean, default: false},)
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public light!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public selected!:boolean;
-	@Prop({type:Boolean, default: false},)
+
+	@Prop({type:Boolean, default: false})
 	public disabled!:boolean;
-	@Prop({type:Boolean, default: false},)
+
+	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
-	@Prop({type:Boolean, default: false},)
-	public bounce!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public noBounce!:boolean;
+
 	@Prop({type:String, default: "image/*"})
 	public accept!:string;
+
 	@Prop
 	public file!:string;
 	
-	public pInterpolated = -1;
 	public checked = false;
-	
-	public get isIconSVG():boolean {
-		return this.parsedIcon.indexOf("<") != -1;
-	}
-	
-	public get checkMarkIcon():string {
-		if(this.white !== false) {
-			return this.$image('icons/checkmark_white.svg');
-		}else{
-			return this.$image('icons/checkmark.svg');
-		}
-	}
 
 	public get nodeType():string {
 		if(this.to) return "router-link";
-		if(this.type == "checkbox") return "div";
 		if(this.type == "link") return "a";
 		return "button";
 	}
 
-	public get parsedIcon():string {
-		if(this.selected !== false && this.iconSelected) {
-			return this.iconSelected;
-		}else{
-			return this.icon;
+	public get iconPath():string {
+		if(this.light !== false) {
+			let color = "primary";
+			if(this.secondary !== false) color = "secondary";
+			if(this.alert !== false) color = "alert";
+			return this.$image('icons/'+color+"/"+this.icon+'.svg');
 		}
-	}
-
-	public get progressStyle():StyleValue {
-		if(this.pInterpolated> -1 && this.pInterpolated<100) {
-			let p:number = Math.round(this.pInterpolated);
-			let color = "255, 255, 255";
-			let alpha = .5;
-			if(this.white !== false) {
-				color = "75, 201, 194"
-				alpha = .3;
-			}
-			return {backgroundImage: "linear-gradient(to right, rgba("+color+",0) "+p+"%,rgba("+color+",0) "+p+"%,rgba("+color+","+alpha+") "+p+"%,rgba("+color+","+alpha+") 100%)"};
-		}else{
-			return {};
-		}
+		return this.$image('icons/'+this.icon+'.svg')
 	}
 
 	public get classes():string[] {
 		let list =  ["button"]
-		if(!this.title) list.push("noTitle");
-		if(this.white !== false) list.push("white");
+		if(!this.$slots.default) list.push("noTitle");
+		if(this.secondary !== false) list.push("secondary");
+		if(this.alert !== false) list.push("alert");
+		if(this.light !== false) list.push("light");
 		if(this.big !== false) list.push("big");
 		if(this.small !== false) list.push("small");
-		if(this.highlight !== false) list.push("highlight");
 		if(this.selected !== false) list.push("selected");
 		if(this.loading !== false) list.push("disabled", "loading");
 		else if(this.disabled !== false) list.push("disabled");
-		if(this.type == "checkbox") list.push("checkbox");
 		return list;
 	}
 
@@ -148,12 +131,6 @@ export default class Button extends Vue {
 		
 		watch(() => this.modelValue, (val:boolean) => {
 			this.checked = val;
-		});
-		
-		watch(() => this.percent, (val:number) => {
-			let duration = val < this.pInterpolated? 0 : .35;
-			gsap.killTweensOf(this);
-			gsap.to(this, {duration, pInterpolated:val, ease:"sine.inout"});
 		});
 	}
 
@@ -174,11 +151,12 @@ export default class Button extends Vue {
 			event.stopPropagation();
 			return;
 		}
-		if(this.bounce) {
-			gsap.fromTo(this.$el, {scaleX:.7}, {duration:1.4, scale:1, clearProps:"scaleX", ease:"elastic.out(2)"});
-			gsap.fromTo(this.$el, {scaleY:.7}, {duration:1.2, scale:1, clearProps:"all", ease:"elastic.out(2)", delay:.05});
-		}
 		this.$emit("click", event);
+	}
+
+	public onRelease(event:MouseEvent):void {
+		if(this.disabled || this.loading || this.noBounce !== false) return;
+		gsap.fromTo(this.$el, {translateY:-3, scaleY:1.1}, {duration:.5, translateY:0, scaleY:1, clearProps:"all", ease:"elastic.out(1.5)", delay:.05});
 	}
 
 }
@@ -187,306 +165,233 @@ export default class Button extends Vue {
 <style lang="less" scoped>
 
 .button {
-	position: relative;//Necessary for loader spinning absolute placement
-	display: inline-flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: row;
-	white-space: nowrap;
-	// transition: all .25s;
-	overflow: hidden;
-	// touch-action: none;
-	user-select: none;
+	.emboss();
 	cursor: pointer;
-	border: none;
-	padding: .25em .8em;
-	font-size: 1em;
-	color: @mainColor_light;
-	background-color: @mainColor_normal;
-	transition: color .25s, background-color .25s;
-	box-sizing: border-box;
-	text-align: center;
-	border-radius: @border_radius;
-	will-change: transform;
+	border-radius: var(--border-radius);
+	display: inline-flex;
+	flex-direction: row;
+	position: relative;
+	flex-wrap: wrap;
+	padding: .3em 1em;
+	row-gap: 0;
+	column-gap: .5em;
+	align-items: center;
+	justify-content: center;
 	text-decoration: none;
-	min-height: calc(1em + .5em);
+	color: var(--color-light);
+	transition: filter .15s, transform .1s;
+	user-select: none;
+	text-decoration: none !important;
 
-	&:hover {
-		color: @mainColor_light;
-		background-color: @mainColor_normal_light;
+	.clickArea {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+		background: transparent;
 	}
 
-	&.dark {
-		color: #fff;
-		background-color: @mainColor_dark;
-
-		&:hover {
-			background-color: @mainColor_dark_light;
+	.loadingBorder {
+		@offset: 0px;
+		position: absolute;
+		z-index: -1;
+		top: -@offset;
+		left: -@offset;
+		border-radius: inherit;
+		background-color: var(--color-light);
+		background: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%);
+		background-repeat: repeat-x;
+		background-size:  200% 100%;
+		width: calc(100% + @offset*2);
+		height: calc(100% + @offset*2);
+		animation: glowing 1s linear infinite;
+		
+		@keyframes glowing {
+			0% { background-position: 200% 0; }
+			100% { background-position: 0 0; }
 		}
 	}
-
-	&.white {
-		color: @mainColor_normal;
-		background-color: @mainColor_light;
-
-		&:hover {
-			background-color: lighten(@mainColor_normal_extralight, 12%) !important;
-		}
+	
+	.background {
+		border-radius: inherit;
+		position: absolute;
+		top:0;
+		left:0;
+		width: 100%;
+		height: 100%;
+		transition: all .15s;
+		background-color: var(--color-primary);
 	}
 
 	&.disabled {
 		cursor: not-allowed;
-		color: fade(@mainColor_dark, 25%);
-		&.dark {
-			color: fade(#000, 25%);
-			background-color: fade(@mainColor_dark_extralight, 50%);
-		}
-		&.white {
-			opacity: .5;
-			color: @mainColor_normal;
-			background-color: @mainColor_light;
-			.icon {
-				opacity: 1;
-			}
+		filter: brightness(70%) saturate(70%);
+		.label, .icon {
+			opacity: .35;
 		}
 	}
-
 	&.loading {
 		cursor: wait;
-	}
-
-	&>*:not(.browse) {
-		pointer-events: none;
-	}
-
-	&.noTitle {
-		margin: 0;
-		padding: .35em;
-		.icon {
-			height: 100%;
-			max-height: 1em;
-			min-width: 1em;
-			margin: 0;
-			padding: 0;
-		}
-
-		&.big {
-			padding: .9em;
-			font-size: 1.25em;
+		
+		.background {
+			top: 1px;
+			left: 1px;
+			width: calc(100% - 2px);
+			height: calc(100% - 2px);
 		}
 	}
 
-	&.checkbox {
-		background: none;
-		padding: 0;
-		border-radius: 0;
-		margin: 0;
-		display: inline-block;
-
-		.checkboxInput {
-			pointer-events: all;
-			opacity: .001;
-			position: absolute;
-			padding: 0;
-			margin: 0;
+	&:not(.disabled){
+		&:hover {
+			.background {
+				background-color: var(--color-primary-light);
+			}
+		}
+	
+		&:active{
+			transform: translateY(2px);
+			.clickArea{
+				top: -2px;
+			}
+			.background {
+				background-color: var(--color-primary-dark);
+				box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), 0px 0px 0px rgba(0, 0, 0, 0);
+			}
+		}
+	}
+	.loader {
+		width: 1em;
+		height: 1em;
+		z-index: 0;
+		object-fit: contain;
+	}
+	.icon, .label {
+		transition: all .25s;
+		z-index: 0;
+	}
+	.label {
+		line-height: 1em;
+		text-align: center;
+		flex-grow: 1;
+		// flex-basis: 50px;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		display: block;
+		line-height: 1.25em;//Makes sure letters like g or p are not cut on the bottom
+		&:empty {
+			display: none;
+		}
+	}
+	.icon {
+		height: 1em;
+		max-width: 1em;
+		justify-self: center;
+		:deep(img) {
 			width: 100%;
 			height: 100%;
-			left: 0;
-			top: 0;
-			z-index: 1000;
-			cursor: pointer;
 		}
 	}
-
-	.checkboxContent {
-		cursor: pointer;
-		display: flex;
-		flex-direction: row;
-		width: 100%;
-		height: 100%;
-		align-items: center;
-
-		.checkmark {
-			border: 1px solid @mainColor_normal;
-			border-radius: .25em;
-			padding: 0;
-			width: 1em;
-			height: 1em;
-			box-sizing: border-box;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			.img {
-				width: 80%;
-				margin: 0;
-				padding: 0;
-			}
-		}
-
-		.label {
-			flex-grow: 1;
-			margin-left: .35em;
-			justify-self: flex-start;
-			text-align: left;
-			width: max-content;
-			color: @mainColor_normal;
-			// overflow: visible;
-		}
-		
-		&:hover {
-			background: none;
-			.checkmark {
-				background-color: fade(@mainColor_normal; 30%);
-			}
-		}
-	}
-
-	.icon {
-		max-height: 1em;
-		height: 1em;
-		margin-right: .5em;
-		vertical-align: text-top;
-	}
-
-	.spinner {
-		.center;
-		position: absolute;
-		vertical-align: middle;
-		height: 1.5em;
-		width: 1.5em;
-	}
-
-	.label {
-		// flex-grow: 1;
-		white-space: nowrap;
-		// overflow: hidden;
-	}
-
-	.label, .icon {
-		opacity: 1;
-		transition: opacity .2s;
-		&.hide {
-			opacity: .25;
-		}
-	}
-
-	.browse {
-		opacity: 0;
-		position: absolute;
-		z-index: 0;
-		left: 0;
-		width: 100%;
-		height: 200%;//Hack to avoid browse button from locking cursor:pointer by putting it out of button's bounds
-		cursor: pointer;
-		font-size: 0px;
-	}
-
-	&.white {
-		color: @mainColor_normal;
-		background-color: #fff;
-		.label, .icon {
-			&.hide {
-				opacity: .4;
-			}
-		}
-		&:not(.loading):hover {
-			background-color: @mainColor_normal_extralight;
-		}
-		&.loading {
-			background-color: fade(#ffffff, 50%);
-		}
-		.checkboxContent {
-			.checkmark {
-				border-color: #fff;
-			}
-			.label {
-				color: #fff;
-			}
-		}
-	}
-
 	&.big {
-		padding: .5em 1em;
-		font-size: 1.25em;
-		min-height: calc(1.25em + 2em);
-		&.checkbox {
-			padding: 0;
-			.checkboxContent {
-				.checkmark {
-					border-radius: 1em;
-					width: 2em;
-					height: 2em;
-				}
-			}
-		}
-		.icon {
-			max-height: 1.5em;
-			height: 1.5em;
-		}
+		font-size: 1.4em;
 	}
 
 	&.small {
-		padding: .2em;
-		border-radius: .3em;
-		font-size: .85em;
-		min-height: calc(.85em + .1em);
-		&:not(.noTitle) {
-			.icon {
-				margin-right: .2em;
-			}
+		font-size: .8em;
+	}
+
+	&.noTitle {
+		padding: .3em;
+	}
+
+	&.secondary {
+		.background {
+			background-color: var(--color-secondary);
 		}
-		&.checkbox {
-			padding: 0;
-			.checkboxContent {
-				.checkmark {
-					width: .8em;
-					height: .8em;
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-secondary-light);
+				}
+			}
+			&:active {
+				.background {
+					background-color: var(--color-secondary-dark);
 				}
 			}
 		}
 	}
 
-	&.highlight {
-		color: #ffffff;
-		background-color: @mainColor_alert;
-		&.disabled {
-			background-color: fade(@mainColor_alert,50%);
+	&.alert {
+		.background {
+			background-color: var(--color-alert);
 		}
-		.label, .icon {
-			&.hide {
-				opacity: .4;
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-alert-light);
+				}
 			}
-		}
-		&:not(.loading):hover {
-			background-color: @mainColor_alert_light;
-		}
-		&.loading {
-			background-color: fade(@mainColor_alert, 50%);
-		}
-		&.selected {
-			background-color: @mainColor_alert_extralight;
+			&:active {
+				.background {
+					background-color: var(--color-alert-dark);
+				}
+			}
 		}
 	}
 
-	&.selected:not(.highlight) {
-		background-color: @mainColor_warn;
-		color: #fff;
-		&.disabled {
-			background-color: fade(@mainColor_warn,50%);
+	&.light {
+		.label {
+			color: var(--color-primary);
 		}
-		&:hover {
-			background-color: @mainColor_warn_light;
+		&.secondary {
+			.label {
+				color: var(--color-secondary);
+			}
+		}
+		&.alert {
+			.label {
+				color: var(--color-alert);
+			}
+		}
+		.background {
+			background-color: var(--color-light);
+		}
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-light-dark);
+				}
+			}
+			&:active {
+				.background {
+					background-color: var(--color-light-dark);
+				}
+			}
 		}
 	}
-	
-	&.disabled {
-		color: fade(@mainColor_light, 45%);
-		background-color: fade(@mainColor_normal, 30%);
-		&:hover {
-			background-color: fade(@mainColor_normal, 30%);
-		}
+
+	&.selected {
 		.icon {
-			opacity: .4;
+			filter: invert();
+		}
+		.label {
+			color: var(--color-dark);
+			font-weight: bold;
+		}
+		.background{
+			background-color: var(--color-primary-extralight);
+		}
+		&.secondary {
+			.background{
+				background-color: var(--color-secondary-extralight);
+			}
+		}
+		&.alert {
+			.background{
+				background-color: var(--color-alert-extralight);
+			}
 		}
 	}
 }
@@ -497,10 +402,6 @@ export default class Button extends Vue {
 			padding: .5em;
 			font-size: 1.2em;
 			min-height: calc(1.2em + .5em);
-		}
-		&:not(.big) {
-			font-size: .85em;
-			min-height: calc(.85em + .5em);
 		}
 	}
 }

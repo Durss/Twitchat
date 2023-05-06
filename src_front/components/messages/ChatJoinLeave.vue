@@ -1,11 +1,14 @@
 <template>
 	<div :class="classes">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
 
 		<span v-if="userList.length > 0" v-for="u, index in userList" :key="u.id">
-			<a class="userlink" @click.prevent="openUserCard(u)">{{u.displayName}}</a>
+			<a class="userlink"
+			:href="'https://twitch.tv/'+u.login"
+			target="_blank"
+			@click.prevent="openUserCard(u)">{{u.displayName}}</a>
 			<span v-if="index < userList.length - 2 + remainingOffset">,&nbsp;</span>
 			<span v-else-if="index < userList.length - 1 + remainingOffset">&nbsp;{{$t("global.and")}}&nbsp;</span>
 		</span>
@@ -48,8 +51,9 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 	
 
 	public get classes():string[] {
-		let res = ["chatjoinleave"];
-		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.LEAVE) res.push("alert");
+		let res = ["chatjoinleave", "chatMessage", "highlight"];
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.LEAVE) res.push("error");
+		else res.push("success");
 		return res;
 	}
 
@@ -93,34 +97,20 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatjoinleave{
-	.chatMessageHighlight();
-	
 	flex-wrap: wrap;
 	font-style: italic;
-	line-height: 1.25em;
-	background-color: fade(@mainColor_warn, 10%);
-	&:hover {
-		background-color: fade(@mainColor_warn, 20%);
-	}
+	line-height: 1.3em;
 
 	.channel, .count {
-		color: @mainColor_warn_light;
 		opacity: .7;
-	}
-
-	&.alert {
-		background-color: fade(@mainColor_alert, 10%);
-		&:hover {
-			background-color: fade(@mainColor_alert, 20%);
-		}
-		a, .channel, .count {
-			color: @mainColor_alert_light;
-			opacity: .9;
-		}
 	}
 
 	.userlink {
 		font-weight: normal;
+		&:hover {
+			text-decoration: underline;
+			// background-color: var(--color-dark);
+		}
 	}
 
 }

@@ -1,52 +1,54 @@
 <template>
 	<div :class="classes">
 		<div class="top" ref="top">
-			<div class="scrollable" ref="scrollable">
+			<div class="scrollable" ref="scrollable" @scroll="onScrollColumns()">
 				<div class="column" v-for="c in $store('params').chatColumnsConfig"
 				:ref="'column_'+c.id"
 				:key="c.id"
 				:style="getColStyles(c)">
 					<div class="subHolder">
-						<GreetThem class="greetThem"
-						v-if="$store('params').features.firstMessage.value === true && (c.showPanelsHere || $store('params').chatColumnsConfig.length == 1)" />
+						<GreetThem class="greetThem" v-if="panelsColIndexTarget == c.order && $store('params').features.firstMessage.value === true" />
 	
 						<MessageList ref="messages" class="messages"
-							@showModal="(v:TwitchatDataTypes.ModalTypes) => currentModal = v"
+							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store('params').openModal(v)"
 							@addColumn="addColumn"
 							:config="c"
 							filterId="chat"/>
 					</div>
 		
-					<div class="dragBt" ref="splitter"
-					v-if="$store('params').chatColumnsConfig.length > 1
-					&& (c.order == 0 || $store('params').chatColumnsConfig.length > 2)"
-					@dblclick="expandCol(c)"
-					@pointerdown="startDrag($event, c)"
-					@pointerup="startDrag($event, c)">
+					<div class="dragBt"
+						v-if="$store('params').chatColumnsConfig.length > 1
+						&& (c.order == 0 || $store('params').chatColumnsConfig.length > 2)"
+						@dblclick="expandCol(c)"
+						@pointerdown="startDrag($event, c)">
 						<div class="grip"></div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<Teleport v-if="formsColumnTarget" :to="formsColumnTarget">
+		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
-			<PollForm			class="popin" v-if="currentModal == 'poll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-			<ChatSuggestionForm	class="popin" v-if="currentModal == 'chatpoll'" @close="currentModal = ''" :voiceControl="voiceControl" />
-			<RaffleForm			class="popin" v-if="currentModal == 'raffle'" @close="currentModal = ''" :voiceControl="voiceControl" />
-			<PredictionForm		class="popin" v-if="currentModal == 'pred'" @close="currentModal = ''" :voiceControl="voiceControl" />
-			<BingoForm			class="popin" v-if="currentModal == 'bingo'" @close="currentModal = ''" />
-			<LiveFollowings		class="popin" v-if="currentModal == 'liveStreams'" @close="currentModal = ''" />
-			<StreamInfoForm		class="popin" v-if="currentModal == 'streamInfo'" @close="currentModal = ''" />
-			<TTUserList			class="popin" v-if="currentModal == 'TTuserList'" @close="currentModal = ''" />
-			<PinedMessages		class="popin" v-if="currentModal == 'pins'" @close="currentModal = ''" />
-			<TimerForm			class="popin" v-if="currentModal == 'timer'" @close="currentModal = ''" />
-			<TriggersLogs		class="popin" v-if="currentModal == 'triggersLogs'" @close="currentModal = ''" />
+			<PollForm				class="popin" v-if="$store('params').currentModal == 'poll'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
+			<ChatSuggestionForm		class="popin" v-if="$store('params').currentModal == 'chatsuggForm'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
+			<RaffleForm				class="popin" v-if="$store('params').currentModal == 'raffle'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
+			<PredictionForm			class="popin" v-if="$store('params').currentModal == 'pred'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
+			<BingoForm				class="popin" v-if="$store('params').currentModal == 'bingo'" @close="$store('params').closeModal()" />
+			<LiveFollowings			class="popin" v-if="$store('params').currentModal == 'liveStreams'" @close="$store('params').closeModal()" />
+			<StreamInfoForm			class="popin" v-if="$store('params').currentModal == 'streamInfo'" @close="$store('params').closeModal()" />
+			<TTUserList				class="popin" v-if="$store('params').currentModal == 'TTuserList'" @close="$store('params').closeModal()" />
+			<PinedMessages			class="popin" v-if="$store('params').currentModal == 'pins'" @close="$store('params').closeModal()" />
+			<TimerForm				class="popin" v-if="$store('params').currentModal == 'timer'" @close="$store('params').closeModal()" />
+			<TriggersLogs			class="popin" v-if="$store('params').currentModal == 'triggersLogs'" @close="$store('params').closeModal()" />
+			<TrackedUsers			class="popin" v-if="$store('params').currentModal == 'tracked'" @close="$store('params').closeModal()" />
+			<WhispersState			class="popin" v-if="$store('params').currentModal == 'whispers'" @close="$store('params').closeModal()" />
+			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').closeModal()" />
+			<MessageSearch			class="popin" v-if="$store('params').currentModal == 'search'" @close="$store('params').closeModal()" />
 		</Teleport>
 
 
-		<Teleport v-if="formsColumnTarget" :to="formsColumnTarget">
+		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
 			<ChannelNotifications
 				:currentContent="currentNotificationContent"
 				@close="currentNotificationContent=''"
@@ -56,20 +58,21 @@
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
-				@poll="currentModal = 'poll'"
-				@chatpoll="currentModal = 'chatpoll'"
-				@pred="currentModal = 'pred'"
-				@raffle="currentModal = 'raffle'"
-				@bingo="currentModal = 'bingo'"
-				@liveStreams="currentModal = 'liveStreams'"
-				@TTuserList="currentModal = 'TTuserList'"
-				@pins="currentModal = 'pins'"
+				@poll="$store('params').openModal('poll')"
+				@chatpoll="$store('params').openModal('chatsuggForm')"
+				@pred="$store('params').openModal('pred')"
+				@raffle="$store('params').openModal('raffle')"
+				@bingo="$store('params').openModal('bingo')"
+				@liveStreams="$store('params').openModal('liveStreams')"
+				@TTuserList="$store('params').openModal('TTuserList')"
+				@pins="$store('params').openModal('pins')"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
 				v-model:showRewards="showRewards" @update:showRewards="(v:boolean) => showRewards = v"
 				v-model:showCommands="showCommands" @update:showCommands="(v:boolean) => showCommands = v"
 				v-model:showChatUsers="showChatUsers" @update:showChatUsers="(v:boolean) => showChatUsers = v"
+				v-model:showShoutout="showShoutout" @update:showShoutout="(v:boolean) => showShoutout = v"
 				v-model:showDevMenu="showDevMenu" @update:showDevMenu="(v:boolean) => showDevMenu = v"
 			/>
 		</div>
@@ -81,7 +84,7 @@
 
 		<DevmodeMenu class="contentWindows devmode"
 			v-if="showDevMenu"
-			@triggersLogs="currentModal = 'triggersLogs'"
+			@triggersLogs="$store('params').openModal('triggersLogs')"
 			@close="showDevMenu = false" />
 
 		<!-- <MessageList class="contentWindows feed"
@@ -91,7 +94,6 @@
 
 		<CommandHelper class="contentWindows actions"
 			v-if="showCommands"
-			@openModal="openModal"
 			@close="showCommands = false"
 		/>
 
@@ -103,20 +105,24 @@
 		<UserList class="contentWindows users"
 			v-if="showChatUsers"
 			@close="showChatUsers = false" />
+
+		<ShoutoutList class="contentWindows shoutout"
+			v-if="showShoutout"
+			@close="showShoutout = false" />
 		
 		<Parameters />
 		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
-		<DonorState ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
+		<DonorBadge ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 
 		<UserCard />
 
-		<Changelog v-if="currentModal == 'updates'" @close="currentModal = ''" />
+		<Changelog v-if="$store('params').currentModal == 'updates'" @close="$store('params').closeModal()" />
 
-		<Gngngn v-if="currentModal == 'gngngn'" @close="currentModal = ''" />
+		<Gngngn v-if="$store('params').currentModal == 'gngngn'" @close="$store('params').closeModal()" />
 		
-		<Login v-if="currentModal == 'login'" @close="currentModal = ''" scopeOnly />
+		<Login v-if="$store('params').currentModal == 'login'" @close="$store('params').closeModal()" scopeOnly />
 
 		<Teleport to="body">
 			<div class="deezerCTA" v-if="needUserInteraction">
@@ -137,6 +143,7 @@
 <script lang="ts">
 import BingoForm from '@/components/bingo/BingoForm.vue';
 import Button from '@/components/Button.vue';
+import Changelog from '@/components/changelog/Changelog.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
 import CommandHelper from '@/components/chatform/CommandHelper.vue';
@@ -146,16 +153,18 @@ import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
 import UserList from '@/components/chatform/UserList.vue';
+import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
 import Parameters from '@/components/params/Parameters.vue';
-import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
+import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
+import EventBus from '@/events/EventBus';
+import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
-import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
@@ -164,22 +173,23 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
+import type { JsonObject } from 'type-fest';
 import { Component, Vue } from 'vue-facing-decorator';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
-import TimerForm from '../components/timer/TimerForm.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
-import DonorState from '../components/user/DonorState.vue';
+import TimerForm from '../components/timer/TimerForm.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
-import Changelog from '@/components/changelog/Changelog.vue';
-import type { JsonObject } from 'type-fest';
-import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
-import EventBus from '@/events/EventBus';
-import GlobalEvent from '@/events/GlobalEvent';
 import Login from './Login.vue';
+import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
+import ChatSuggestionState from '@/components/chatSugg/ChatSuggestionState.vue';
+import WhispersState from '@/components/whispers/WhispersState.vue';
+import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
+import MessageSearch from '@/components/chatform/MessageSearch.vue';
+import DonorBadge from '@/components/user/DonorBadge.vue';
 
 @Component({
 	components:{
@@ -194,14 +204,18 @@ import Login from './Login.vue';
 		TimerForm,
 		GreetThem,
 		BingoForm,
-		DonorState,
+		DonorBadge,
 		Parameters,
 		RaffleForm,
 		TTUserList,
 		MessageList,
 		DevmodeMenu,
 		RewardsList,
+		ShoutoutList,
 		TriggersLogs,
+		TrackedUsers,
+		MessageSearch,
+		WhispersState,
 		Accessibility,
 		CommandHelper,
 		EmoteSelector,
@@ -212,6 +226,7 @@ import Login from './Login.vue';
 		VoiceTranscript,
 		ChatAlertMessage,
 		ChatSuggestionForm,
+		ChatSuggestionState,
 		ChannelNotifications,
 		EmergencyFollowsListModal,
 	},
@@ -223,17 +238,20 @@ export default class Chat extends Vue {
 	public showRewards = false;
 	public showDevMenu = false;
 	public showCommands = false;
-	public voiceControl = false;
+	public voiceControl = true;
+	public showShoutout = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;
+	public panelsColIndexTarget = 0;
 	public forceEmergencyFollowClose = false;
-	public currentModal:TwitchatDataTypes.ModalTypes = "";
-	public currentNotificationContent = "";
-	public formsColumnTarget:HTMLDivElement|null = null;
+	public panelsColumnTarget:HTMLDivElement|null = null;
+	public currentNotificationContent:TwitchatDataTypes.NotificationTypes = "";
 	
 	private disposed = false;
 	private mouseX = 0;
 	private mouseY = 0;
+	private frameIndex = 0;
+	private prevFormHeight = 0;
 	private resizing = false;
 	private closingDonorState = false;
 	private draggedCol:TwitchatDataTypes.ChatColumnsConfig|null = null;
@@ -327,15 +345,16 @@ export default class Chat extends Vue {
 		//Watch for columns changes
 		watch(() => this.$store('auth').newScopesToRequest, () => {
 			if(this.$store('auth').newScopesToRequest.length === 0) return null;
-			this.currentModal = "login";
+			this.$store("params").openModal("login")
 		}, {deep:true});
 
 		//Watch for current modal to be displayed
-		watch(()=>this.currentModal, ()=>{
+		watch(()=>this.$store("params").currentModal, (value)=>{
 			this.voiceControl = false;
 
-			if(this.formsColumnTarget && this.currentModal) {
-				const col = this.formsColumnTarget.parentNode as HTMLDivElement;
+			//Make sure the column holding modals is visible
+			if(this.panelsColumnTarget && value) {
+				const col = this.panelsColumnTarget.parentNode as HTMLDivElement;
 				const scrollable = this.$refs.scrollable as HTMLDivElement;
 				const scrollTo = {x:col.offsetLeft - (scrollable.offsetWidth-col.offsetWidth), y:col.offsetTop - (scrollable.offsetHeight - col.offsetHeight)/2};
 				gsap.to(scrollable, {duration: .75, ease:"sine.inOut", scrollTo});
@@ -365,6 +384,9 @@ export default class Chat extends Vue {
 				}
 				if(params.sound) {
 					new Audio(this.$image("sounds/wizz.mp3")).play();
+				}
+				if(params.vibrate) {
+					window.navigator.vibrate([200, 100, 200, 100, 200, 100, 200, 100, 1000]);
 				}
 			}
 		});
@@ -396,10 +418,8 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_START, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_END, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_START, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_END, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_CREATE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_CREATE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
@@ -412,6 +432,10 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		this.renderFrame();
 		requestWakeLock();
@@ -439,10 +463,6 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_START, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_END, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_START, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_END, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
@@ -455,6 +475,10 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 	}
 
@@ -468,19 +492,16 @@ export default class Chat extends Vue {
 		}});
 	}
 
-	public openModal(type:TwitchatDataTypes.ModalTypes):void {
-		this.currentModal = type;
-	}
-
 	/**
 	 * Called when requesting an action from the public API
 	 */
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
-		let notif = "";
+		let notif:TwitchatDataTypes.NotificationTypes = "";
 		let modal:TwitchatDataTypes.ModalTypes = "";
+		
 		switch(e.type) {
 			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
-			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'pred'; break;
+			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'prediction'; break;
 			case TwitchatEvent.BINGO_TOGGLE: notif = 'bingo'; break;
 			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
 			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
@@ -502,12 +523,12 @@ export default class Chat extends Vue {
 				this.$store("params").updateParams()
 				break;
 
-			case TwitchatEvent.POLL_START:
-				this.currentModal = 'poll';
+			case TwitchatEvent.CREATE_POLL:
+				this.$store('params').openModal('poll')
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
-			case TwitchatEvent.POLL_CREATE:{
+			case TwitchatEvent.STOP_POLL:{
 				const poll = this.$store("poll").data;
 				if(!poll) return;
 				try {
@@ -518,12 +539,12 @@ export default class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.PREDICTION_START:
-				this.currentModal = 'pred';
+			case TwitchatEvent.CREATE_PREDICTION:
+				this.$store('params').openModal('pred')
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
-			case TwitchatEvent.PREDICTION_CREATE:{
+			case TwitchatEvent.STOP_PREDICTION:{
 				const prediction = this.$store("prediction").data;
 				if(!prediction) return;
 				try {
@@ -535,7 +556,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.RAFFLE_START:{
-				this.currentModal = 'raffle';
+				this.$store('params').openModal('raffle')
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -563,7 +584,7 @@ export default class Chat extends Vue {
 
 			case TwitchatEvent.COUNTER_GET: {
 				const id = (e.data as JsonObject).cid;
-				const counter = this.$store("counters").data.find(v=>v.id == id);
+				const counter = this.$store("counters").counterList.find(v=>v.id == id);
 				if(counter) {
 					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:(counter as unknown) as JsonObject});
 				}
@@ -573,7 +594,7 @@ export default class Chat extends Vue {
 			case TwitchatEvent.COUNTER_ADD: {
 				const id = (e.data as JsonObject).counterId as string;
 				const value = parseInt((e.data as JsonObject).countAdd as string);
-				const counter = this.$store("counters").data.find(v=>v.id == id);
+				const counter = this.$store("counters").counterList.find(v=>v.id == id);
 				if(counter && !isNaN(value)) {
 					this.$store("counters").increment(id, value);
 				}
@@ -581,7 +602,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.COUNTER_GET_ALL: {
-				const counters = this.$store("counters").data.map(v=> {
+				const counters = this.$store("counters").counterList.map(v=> {
 					return {
 						id:v.id,
 						name:v.name,
@@ -631,10 +652,10 @@ export default class Chat extends Vue {
 		}
 
 		if(modal) {
-			if(this.currentModal == modal) {
-				this.currentModal = "";
+			if(this.$store('params').currentModal == modal) {
+				this.$store('params').openModal("")
 			}else{
-				this.currentModal = modal;
+				this.$store('params').openModal(modal)
 			}
 		}
 	}
@@ -649,11 +670,11 @@ export default class Chat extends Vue {
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
 		if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
 		&& m.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES) {
-			this.currentModal = "updates";
+			this.$store('params').openModal("updates")
 		}
 	}
 
-	public setCurrentNotification(value:string):void {
+	public setCurrentNotification(value:TwitchatDataTypes.NotificationTypes):void {
 		this.currentNotificationContent = value;
 	}
 
@@ -668,7 +689,7 @@ export default class Chat extends Vue {
 	 * Called when searching for a message
 	 */
 	public searchMessage(str:string):void {
-		this.currentModal = 'search';
+		this.$store('params').openModal('search')
 	}
 
 	/**
@@ -677,6 +698,7 @@ export default class Chat extends Vue {
 	public startDrag(event:PointerEvent, col:TwitchatDataTypes.ChatColumnsConfig):void {
 		this.resizing = true;
 		this.draggedCol = col;
+		this.onMouseMove(event);
 		(event.target as HTMLDivElement).setPointerCapture(event.pointerId);
 	}
 
@@ -730,15 +752,22 @@ export default class Chat extends Vue {
 	}
 
 	/**
+	 * Called when user drags the columns left/right (up/down on vertical layout)
+	 */
+	public onScrollColumns():void {
+
+	}
+
+	/**
 	 * Called when the mouse moves
 	 */
-	private async onMouseMove(e:MouseEvent|TouchEvent):Promise<void> {
-		if(e.type == "mousemove") {
-			this.mouseX = (e as MouseEvent).clientX;
-			this.mouseY = (e as MouseEvent).clientY;
-		}else{
-			this.mouseX = (e as TouchEvent).touches[0].clientX;
-			this.mouseY = (e as TouchEvent).touches[0].clientY;
+	private async onMouseMove(e:MouseEvent|TouchEvent|PointerEvent):Promise<void> {
+		if("clientX" in e) {
+			this.mouseX = e.clientX;
+			this.mouseY = e.clientY;
+		}else if("touches" in e) {
+			this.mouseX = e.touches[0].clientX;
+			this.mouseY = e.touches[0].clientY;
 		}
 	}
 
@@ -748,6 +777,16 @@ export default class Chat extends Vue {
 	private async renderFrame():Promise<void> {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
+		
+		if(this.$refs.chatForm && (this.frameIndex++)%60 == 0) {
+			//Compute chat form height every 60 frames
+			const chatForm = (this.$refs.chatForm as Vue).$el as HTMLDivElement;
+			const bounds = chatForm.getBoundingClientRect();
+			if(bounds.height != this.prevFormHeight) {
+				this.prevFormHeight = bounds.height;
+				(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--chat-form-height', bounds.height + 'px');
+			}
+		}
 
 		if(!this.resizing) return;
 		
@@ -791,10 +830,12 @@ export default class Chat extends Vue {
 		const cols = this.$store('params').chatColumnsConfig;
 		cols.sort((a,b)=> a.order - b.order);
 		let colId = "";
+		let index = 0;
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c.showPanelsHere == true) {
 				colId = c.id;
+				index = i;
 			}
 		}
 		
@@ -803,9 +844,11 @@ export default class Chat extends Vue {
 
 		if(!selectedCol) {
 			//Fallback to last col if none is selected
-			selectedCol = (this.$refs["column_"+cols[cols.length-1].id] as HTMLDivElement[])[0];
+			index = cols.length-1;
+			selectedCol = (this.$refs["column_"+cols[index].id] as HTMLDivElement[])[0];
 		}
-		this.formsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
+		this.panelsColIndexTarget = index;
+		this.panelsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 	}
 }
 
@@ -854,23 +897,23 @@ export default class Chat extends Vue {
 							top: 50%;
 							width: 100%;
 							height: 1px;
-							background: @mainColor_dark_light;
+							background: var(--color-dark-extralight);
 							&::before {
 								height: 5px;
 								width: 40px;
 								background: linear-gradient(90deg,
-												@mainColor_dark_light 30%,
-												@mainColor_dark 30%,
-												@mainColor_dark 35%,
-												@mainColor_dark_light 35%,
-												@mainColor_dark_light 45%,
-												@mainColor_dark 45%,
-												@mainColor_dark 50%,
-												@mainColor_dark_light 50%,
-												@mainColor_dark_light 60%,
-												@mainColor_dark 60%,
-												@mainColor_dark 65%,
-												@mainColor_dark_light 65%,
+												var(--color-dark-extralight) 30%,
+												var(--color-dark) 30%,
+												var(--color-dark) 35%,
+												var(--color-dark-extralight) 35%,
+												var(--color-dark-extralight) 45%,
+												var(--color-dark) 45%,
+												var(--color-dark) 50%,
+												var(--color-dark-extralight) 50%,
+												var(--color-dark-extralight) 60%,
+												var(--color-dark) 60%,
+												var(--color-dark) 65%,
+												var(--color-dark-extralight) 65%,
 											);
 							}
 						}
@@ -880,17 +923,6 @@ export default class Chat extends Vue {
 		}
 	}
 
-	.contentWindows {
-		&.emotes {
-			right: 0;
-			left: auto;
-			max-width: 50vw;
-			margin: auto;
-		}
-		&.actions, &.emotes, &.devmode {
-			max-height: calc(100vh - 60px);
-		}
-	}
 	.tts {
 		position: absolute;
 		bottom: 0;
@@ -940,7 +972,7 @@ export default class Chat extends Vue {
 						left: 50%;
 						height: 100%;
 						width: 1px;
-						background: @mainColor_dark_light;
+						background: var(--color-dark-extralight);
 						&::before {
 							content:"";
 							position: absolute;
@@ -948,20 +980,20 @@ export default class Chat extends Vue {
 							display: block;
 							width: 5px;
 							height: 40px;
-							background: @mainColor_dark_light;
+							background: var(--color-dark-light);
 							background: linear-gradient(0deg,
-											@mainColor_dark_light 30%,
-											@mainColor_dark 30%,
-											@mainColor_dark 35%,
-											@mainColor_dark_light 35%,
-											@mainColor_dark_light 45%,
-											@mainColor_dark 45%,
-											@mainColor_dark 50%,
-											@mainColor_dark_light 50%,
-											@mainColor_dark_light 60%,
-											@mainColor_dark 60%,
-											@mainColor_dark 65%,
-											@mainColor_dark_light 65%,
+											var(--color-dark-extralight) 30%,
+											var(--color-dark) 30%,
+											var(--color-dark) 35%,
+											var(--color-dark-extralight) 35%,
+											var(--color-dark-extralight) 45%,
+											var(--color-dark) 45%,
+											var(--color-dark) 50%,
+											var(--color-dark-extralight) 50%,
+											var(--color-dark-extralight) 60%,
+											var(--color-dark) 60%,
+											var(--color-dark) 65%,
+											var(--color-dark-extralight) 65%,
 										);
 						}
 					}
@@ -993,14 +1025,11 @@ export default class Chat extends Vue {
 		left:0;
 		height: 100%;
 		width: 100%;
-		:deep(.holder) {
-			max-height: 100% !important;
-		}
 	}
 
 	.contentWindows {
 		position: absolute;
-		bottom: 40px;
+		bottom: var(--chat-form-height);
 		left: 0;
 		z-index: 2;
 
@@ -1021,7 +1050,32 @@ export default class Chat extends Vue {
 		position: absolute;
 		top: 0;
 		left: 0;
-		z-index: 2;
+		z-index: 100;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.chat{
+		.scrollable {
+			// overflow-x: hidden !important;
+			scroll-snap-type: x mandatory;
+			overflow-x: scroll;
+			.column {
+				scroll-snap-align: center;
+				min-width: 100vw !important;//"!important" here to prioritize it before inlined styles
+				width: 100vw !important;//"!important" here to prioritize it before inlined styles
+				padding: 0 1px;
+				.dragBt {
+					display: none;
+				}
+			}
+		}
+
+		.contentWindows {
+			left: 0;
+			top: 0;
+			width: 100%;
+		}
 	}
 }
 </style>
@@ -1034,7 +1088,7 @@ export default class Chat extends Vue {
 		transform: translate(-50%, -50%);
 		z-index: 6;
 		pointer-events: none;
-		color: @mainColor_normal;
+		color: var(--color-primary);
 		text-align: center;
 		text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
 

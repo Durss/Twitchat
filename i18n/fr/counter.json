@@ -10,16 +10,24 @@
 		"loop_tt":"Boucler la valeur",
 		"user_tt":"Par viewer",
 		"examples":"Exemples :",
-		"user_not_found":"user not found",
+		"user_not_found":"personne introuvable",
 		"form":{
 			"name":"Nom",
 			"value":"Valeur",
 			"more":"Plus d'options",
+			"placholder": "Placeholder personnalisé {'{'}COUNTER_VALUE_{VALUE}{'}'}",
+			"placholder_tt": "Cette valeur vous permettra<br>de récupérer la valeur du<br>compteur dans n'importe<br>quelle action de trigger",
+			"placholder_conflict": "Un autre compteur utilise déjà ce placeholder",
+			"name_conflict": "Un autre compteur du même nom existe déjà",
 			"value_min":"Valeur min",
 			"value_max":"Valeur max",
 			"value_loop":"Boucler la valeur lorsque le maximum ou le minimum est atteint",
 			"value_user": "Chaque viewer possède son propre compteur",
-			"search":"Chercher quelqu'un..."
+			"load_all_users": "Charger tous les viewers",
+			"no_users": "aucun compteur viewer pour le moment",
+			"search":"Chercher quelqu'un...",
+			"sort_name":"Nom",
+			"sort_points":"Points"
 		},
 		"delete_confirm":{
 			"title":"Supprimer ?",

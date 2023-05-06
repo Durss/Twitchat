@@ -37,6 +37,7 @@ let twitchUserBatchIdTimeout = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
+		shoutoutHistory: {},
 		userCard: null,
 		blockedUsers: {
 			twitchat:{},
@@ -76,7 +77,6 @@ export const storeUsers = defineStore('users', {
 
 	getters: {
 		users():TwitchatDataTypes.TwitchatUser[] { return userList; },
-		moderators():{[key:string]:{[key:string]:true}} { return moderatorsCache; },
 	},
 
 
@@ -93,7 +93,7 @@ export const storeUsers = defineStore('users', {
 		/**
 		 * Registers the bots hashmap of a platform
 		 */
-		isAlreadyFollower(platform:TwitchatDataTypes.ChatPlatform, id:string):boolean {
+		isAFollower(platform:TwitchatDataTypes.ChatPlatform, id:string):boolean {
 			return  this.myFollowers[platform][id] != undefined;
 		},
 
@@ -138,7 +138,7 @@ export const storeUsers = defineStore('users', {
 		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false):TwitchatDataTypes.TwitchatUser {
 			const s = Date.now();
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
-			//Search for the requested  via hashmaps for fast accesses
+			//Search for the requested user via hashmaps for fast accesses
 			let hashmaps = userMaps[platform];
 			if(!hashmaps){
 				hashmaps = {
@@ -148,11 +148,15 @@ export const storeUsers = defineStore('users', {
 				};
 				userMaps[platform] = hashmaps;
 			}
-			if(login)													login = login.toLowerCase();
+
+			//Cleanup any "@" here so we don't have to do that for every commands
+			if(login)													login = login.replace("@", "").toLowerCase().trim();
+			if(displayName)												displayName = displayName.replace("@", "").trim();
+			
 			if(id && hashmaps.idToUser[id])								user = hashmaps.idToUser[id];
 			if(login && hashmaps.loginToUser[login])					user = hashmaps.loginToUser[login];
 			if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];
-			// if(user) return user;
+			
 			const userExisted = user != undefined;
 
 			if(!user) {
@@ -167,7 +171,6 @@ export const storeUsers = defineStore('users', {
 						pronouns:null,
 						pronounsLabel:false,
 						pronounsTooltip:false,
-						is_raider:false,
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
@@ -181,8 +184,8 @@ export const storeUsers = defineStore('users', {
 						},
 						channelInfo:{},
 					};
-					user = userData;
-				}
+					user = reactive(userData);
+				}else
 				//If we don't have enough info, create a temp user object and load
 				//its details from the API then register it if found.
 				if(!login || !id || !displayName) {
@@ -195,7 +198,6 @@ export const storeUsers = defineStore('users', {
 						pronouns:null,
 						pronounsLabel:false,
 						pronounsTooltip:false,
-						is_raider:false,
 						is_partner:false,
 						is_affiliate:false,
 						is_tracked:false,
@@ -209,7 +211,7 @@ export const storeUsers = defineStore('users', {
 						},
 						channelInfo:{},
 					};
-					user = userData;
+					user = reactive(userData);
 				}
 
 				// user = reactive(user!);
@@ -218,7 +220,7 @@ export const storeUsers = defineStore('users', {
 			//This just makes the rest of the code know that the user
 			//actually exists as it cannot be undefined anymore once
 			//we're here.
-			user = reactive(user!);
+			user = user!;
 
 			if(channelId) {
 				//Init channel data for this user if not already existing
@@ -238,6 +240,7 @@ export const storeUsers = defineStore('users', {
 						is_new:false,
 						following_date_ms,
 						is_following,
+						is_raider:false,
 						is_banned:false,
 						is_vip:false,
 						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true || channelId == user.id,
@@ -254,7 +257,7 @@ export const storeUsers = defineStore('users', {
 			}
 			
 			if(!user.temporary) {
-				if(getPronouns && user.id && user.login && user.pronouns == null) this.checkPronouns(user);
+				if(getPronouns && user.id && user.login && user.pronouns == null) this.loadUserPronouns(user);
 				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
 				
@@ -329,14 +332,14 @@ export const storeUsers = defineStore('users', {
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
 								userLocal.avatarPath		= apiUser.profile_image_url;
-								if(!userLocal.displayName || userLocal.displayName == tmpDisplayName)
-									userLocal.displayName	= apiUser.display_name;
-								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
-								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
-								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
-								//If user was temporary, load more info
-								delete userLocal.temporary;
-								if(getPronouns && userLocal.id && userLocal.login) this.checkPronouns(userLocal);
+								if(!userLocal.displayName
+								|| userLocal.displayName == tmpDisplayName) userLocal.displayName = apiUser.display_name;
+								if(userLocal.id)							hashmaps!.idToUser[userLocal.id] = userLocal;
+								if(userLocal.login)							hashmaps!.loginToUser[userLocal.login] = userLocal;
+								if(userLocal.displayName)					hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
+								
+								//Load pronouns if requested
+								if(getPronouns && userLocal.id && userLocal.login) this.loadUserPronouns(userLocal);
 
 								//Set moderator state for all connected channels
 								for (const chan in moderatorsCache) {
@@ -370,6 +373,9 @@ export const storeUsers = defineStore('users', {
 						twitchUserBatchIdTimeout = to;
 					}
 				}
+			}else 
+			if(platform != "twitch" && user.temporary) {
+				user.temporary = false;//Avoid blocking promise execution on caller
 			}
 			
 			//Attribute a random color to the user (overwrite that externally if necessary)
@@ -545,8 +551,8 @@ export const storeUsers = defineStore('users', {
 			return false;
 		},
 
-		//Check for user's pronouns
-		checkPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+		//load user's pronouns
+		loadUserPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			// console.log("Check pronouns?", user.login, user.id, user.pronouns, !user.id, !user.login, user.pronouns != undefined);
 			if(!user.id || !user.login || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return Promise.resolve();
 			// console.log("Load pronouns !", user.login);
@@ -621,7 +627,30 @@ export const storeUsers = defineStore('users', {
 			
 			if(user.platform == "twitch") {
 				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-					await TwitchUtils.sendShoutout(channelId, user);
+					let res = await TwitchUtils.sendShoutout(channelId, user);
+					if(res === false) {
+						console.log("Shoutout: failed");
+						//Shoutout not executed, add it to the pending triggers
+						if(!this.shoutoutHistory[channelId]) {
+							//No entry exist yet, create a list
+							this.shoutoutHistory[channelId] = [];
+							//Add a fake SO entry that will be used as a reference for pending ones
+							this.shoutoutHistory[channelId]!.push({
+								id:Utils.getUUID(),
+								done:true,
+								fake:true,
+								user
+							});
+							user.channelInfo[channelId].lastShoutout = Date.now();
+						}
+						this.shoutoutHistory[channelId]!.push({
+							id:Utils.getUUID(),
+							done:false,
+							user
+						});
+						return;
+					}
+					console.log("Shoutout: success");
 				}else{
 					StoreProxy.auth.requestTwitchScopes([TwitchScopes.SHOUTOUT]);
 					return;
@@ -647,6 +676,35 @@ export const storeUsers = defineStore('users', {
 					}else{
 						//Warn user doesn't exist
 						StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:user}));
+					}
+				}
+			}
+		},
+
+		executePendingShoutouts():void {
+			//Parse all channels
+			for (const channelId in this.shoutoutHistory) {
+				let lastSo:TwitchatDataTypes.ShoutoutHistoryItem|null = null;
+				const list = this.shoutoutHistory[channelId];
+				if(!list) continue;
+
+				//Parse all shoutouts
+				for (let i = 0; i < list.length; i++) {
+					const item = list[i];
+					//Search for last SO done
+					if(item.done === true) {
+						lastSo = item;
+						continue;
+					}
+					if(lastSo) {
+						const userLastSODate = item.user.channelInfo[channelId]?.lastShoutout || 0;
+						const userCooldown = userLastSODate && lastSo.fake !== true? 60 * 60 * 1000 : 2 * 60 * 1000; //1h cooldown for a user that got a SO, 2min if this user got no SO yet
+						const elapsed = Date.now() - (lastSo.user.channelInfo[channelId]?.lastShoutout || 0);
+						if(elapsed > userCooldown + 1000) {//Adding 1s delay
+							item.user.channelInfo[channelId].lastShoutout = Date.now();
+							this.shoutout(channelId, item.user);
+						}
+						break;
 					}
 				}
 			}

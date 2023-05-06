@@ -6,7 +6,7 @@
 <template>
 	<form :class="classes" @click="onClick()">
 		<div class="field" @keyup.enter="timeoutUser()"><input type="text" v-model="duration">s</div>
-		<button @click="timeoutUser()" class="submit" type="submit"><img src="@/assets/icons/checkmark_white.svg" alt="check"></button>
+		<button @click="timeoutUser()" class="submit" type="submit"><img src="@/assets/icons/checkmark.svg" alt="check"></button>
 	</form>
 </template>
 
@@ -61,7 +61,7 @@ export default class ContextMenuTimeoutDuration extends Vue {
 .contextmenutimeoutduration{
 	display: flex;
 	flex-direction: row;
-	color: @mainColor_light;
+	color: var(--color-light);
 	text-align: center;
 	padding: 0 .25em;
 
@@ -70,32 +70,28 @@ export default class ContextMenuTimeoutDuration extends Vue {
 			pointer-events: none;
 		}
 		opacity: .5;
-		cursor: no-drop;
+		cursor: not-allowed;
 	}
 
 	.field {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		border-top-left-radius: @border_radius;
-		border-bottom-left-radius: @border_radius;
-		border-right: 1px solid @mainColor_normal;
+		border-top-left-radius: var(--border-radius);
+		border-bottom-left-radius: var(--border-radius);
 		font-size: 1em;
 		padding: .25em .5em;
 		box-sizing: border-box;
 		font-family: var(--font-inter);
-		color: @mainColor_light;
 		background-color: rgba(0, 0, 0, .6);
-		border-color: @mainColor_dark_extralight;
 		margin: 0;
 		padding: 0 .5em 0 0;
 	
 		&::placeholder {
 			font-style: italic;
-			color: fade(@mainColor_light, 50%);
 		}
 		input {
-			color: @mainColor_light;
+			color: var(--color-light);
 			width: 60px;
 			text-align: right;
 			background-color: transparent;
@@ -104,9 +100,9 @@ export default class ContextMenuTimeoutDuration extends Vue {
 		}
 	}
 	.submit {
-		background-color: @mainColor_dark;
-		border-top-right-radius: @border_radius;
-		border-bottom-right-radius: @border_radius;
+		background-color: var(--color-primary);
+		border-top-right-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 		padding: .25em;
 		img {
 			height: .8em;

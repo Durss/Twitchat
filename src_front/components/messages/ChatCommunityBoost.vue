@@ -1,6 +1,6 @@
 <template>
-	<div class="chatcommunityboost">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatcommunityboost chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/boost.svg" alt="boost" class="icon">
 
@@ -31,7 +31,6 @@ export default class ChatCommunityBoost extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatcommunityboost{
-	.chatMessageHighlight();
 	
 }
 </style>

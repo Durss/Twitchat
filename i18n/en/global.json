@@ -40,6 +40,7 @@
 		"obs_connect_link": "connect with OBS",
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
 		"placeholder_selector_insert": "Insert",
+		"placeholder_selector_global": "Global placeholders",
 		"chat_alert_title": "{USER} says",
 		"date_days": "d",
 		"ad_default": "Hey, i'm using GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",
@@ -49,6 +50,7 @@
 		"hypetrain_emotes":"Twitch provides no way for external tools to get Hype Train emotes sorry :(",
 		"empty_list1":"No entry exist.",
 		"empty_list2":"Write to create one.",
+		"no_result":"No result",
 		"tooltips": {
 			"commercial": "Commercial",
 			"boost": "Channel boosted",

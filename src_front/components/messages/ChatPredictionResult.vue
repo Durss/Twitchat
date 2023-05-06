@@ -1,23 +1,34 @@
 <template>
-	<div class="chatpredictionresult">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatpredictionresult chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<img src="@/assets/icons/prediction.svg" alt="icon" class="icon">
 		<div class="content">
 			<div class="title">{{messageData.title}}</div>
+
+			<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
+			v-if="messageData.creator && messageData.creator.id != me.id">
+				<template #USER>
+					<a class="userlink" @click.stop="openUserCard()">{{messageData.creator.displayName}}</a>
+				</template>
+			</i18n-t>
+
 			<div class="outcomes">
 				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
 					<div :style="getOutcomeStyles(o)" class="bar">
 						<div class="outcomeTitle">
-							<img src="@/assets/icons/checkmark_white.svg" alt="checkmark" class="check">
+							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check" v-else>
 							{{o.label}}
 						</div>
 						<div class="percent">{{getOutcomePercent(o)}}%</div>
 						<div class="users">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon">
+							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/user.svg" alt="user" class="icon" v-else>
 							{{o.voters}}
 						</div>
 						<div class="points">
-							<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">
+							<img src="@/assets/icons/dark/channelPoints.svg" alt="channelPoints" class="icon" v-if="messageData.winner?.id === o.id">
+							<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon" v-else>
 							{{o.votes}}
 						</div>
 					</div>
@@ -40,6 +51,8 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePredictionData;
+
+	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
 
 	public getOutcomeClasses(o:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
 		const res = ["outcome"];
@@ -65,12 +78,15 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 		};
 	}
 
+	public openUserCard():void {
+		this.$store("users").openUserCard(this.messageData.creator!);
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .chatpredictionresult{
-	.chatMessageHighlight();
 	text-align: center;
 
 	.content {
@@ -78,18 +94,19 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 		.title {
 			font-weight: bold;
 			font-size: 1.2em;
-			margin-bottom: 5px;
+		}
+		.creator {
+			font-size: .8em;
+			font-style: italic;
 		}
 		.outcomes {
+			margin-top: 5px;
 			display: flex;
 			flex-direction: column;
 			gap: 2px;
 			width: 100%;
 
 			.outcome {
-				&.winner {
-					.check { display: inline; }
-				}
 
 				&:not(.noColorMode) {
 					&:not(:first-of-type) {
@@ -123,18 +140,14 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 					background-repeat: no-repeat;
 					justify-content: space-evenly;
 
-					&:hover {
-						outline: 1px solid @mainColor_light;
-					}
-
 					.percent, .users, .points, .outcomeTitle {
 						display: flex;
 						flex-direction: row;
 						align-items: center;
 						padding: 5px;
 						border-radius: 5px;
-						background-color: rgba(0, 0, 0, .25);
-						font-size: .8em;
+						background-color: var(--color-dark-fade);
+						font-size: .9em;
 						align-self: center;
 
 						.icon {
@@ -146,6 +159,17 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 						font-weight: bold;
 						font-size: 1em;
 					}
+				}
+				&.winner {
+					.check { display: inline; }
+					.percent, .users, .points, .outcomeTitle {
+						color: var(--color-dark);
+						font-weight: bold;
+						background-color: var(--color-light);
+					}
+					// .bar {
+					// 	border: 1px solid var(--color-light);
+					// }
 				}
 			}
 		}

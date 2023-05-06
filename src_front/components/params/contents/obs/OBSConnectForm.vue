@@ -1,25 +1,29 @@
 <template>
 	<form @submit.prevent="connect()" class="obsconnectform">
 		<transition name="fade">
-			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="success">{{ $t("obs.connection_success") }}</div>
+			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="card-item primary success">{{ $t("obs.connection_success") }}</div>
 		</transition>
-		<ParamItem :paramData="obsPort_conf" class="row" v-if="!connected" />
-		<ParamItem :paramData="obsPass_conf" class="row" v-if="!connected" />
-		<ParamItem :paramData="obsIP_conf" class="row" v-if="!connected" />
-		
-		<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')" v-if="!connected">
-			<p>{{ $t("obs.how_to1") }}</p>
-			<i18n-t scope="global" tag="p" class="warn" keypath="obs.how_to2">
-				<template #IP><strong>127.0.0.1</strong></template>
-			</i18n-t>
-			<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
-		</ToggleBlock>
 
-		<Button :title="$t('global.connect')" type="submit" class="connectBt" v-if="!connected" :loading="loading" />
-		<Button :title="$t('global.disconnect')" @click="disconnect()" class="connectBt" v-if="connected" :loading="loading" :icon="$image('icons/cross_white.svg')" />
+		<template v-if="!connected">
+			<ParamItem :paramData="obsPort_conf" class="param" />
+			<ParamItem :paramData="obsPass_conf" class="param" />
+			<ParamItem :paramData="obsIP_conf" class="param" />
+			
+			<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')">
+				<p>{{ $t("obs.how_to1") }}</p>
+				<i18n-t scope="global" tag="p" class="warn" keypath="obs.how_to2">
+					<template #IP><strong>127.0.0.1</strong></template>
+				</i18n-t>
+				<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
+			</ToggleBlock>
+	
+			<Button type="submit" class="connectBt" :loading="loading">{{$t('global.connect')}}</Button>
+		</template>
+		
+		<Button v-else @click="disconnect()" class="connectBt" alert :loading="loading" icon="cross">{{$t('global.disconnect')}}</Button>
 
 		<transition name="fade">
-			<div v-if="connectError" @click="connectError = false" class="error">
+			<div v-if="connectError" @click="connectError = false" class="card-item alert error">
 				<div>{{ $t("error.obs_ws_connect") }}</div>
 				<div v-if="obsIP_conf.value != '127.0.0.1'">{{ $t("obs.ip_advice") }}</div>
 			</div>
@@ -29,14 +33,13 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import Config from '@/utils/Config';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
-import ToggleBlock from '../../../ToggleBlock.vue';
 import Button from '../../../Button.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ToggleBlock from '../../../ToggleBlock.vue';
+import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
@@ -52,11 +55,9 @@ export default class OBSConnectForm extends Vue {
 	public connected:boolean = false;
 	public connectError:boolean = false;
 	public connectSuccess:boolean = false;
-	public obsPort_conf:TwitchatDataTypes.ParameterData	= { type:"number", value:4455, min:0, max:65535, step:1 };
-	public obsPass_conf:TwitchatDataTypes.ParameterData	= { type:"password", value:"", };
-	public obsIP_conf:TwitchatDataTypes.ParameterData	= { type:"string", value:"127.0.0.1", };
-
-	public get obswsInstaller():string { return Config.instance.OBS_WEBSOCKET_INSTALLER; }
+	public obsPort_conf:TwitchatDataTypes.ParameterData<number>	= { type:"number", value:4455, min:0, max:65535, step:1 };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string>	= { type:"password", value:"", };
+	public obsIP_conf:TwitchatDataTypes.ParameterData<string>	= { type:"string", value:"127.0.0.1", };
 
 	beforeMount(): void {
 		this.obsPort_conf.labelKey	= "obs.form_port";
@@ -72,7 +73,7 @@ export default class OBSConnectForm extends Vue {
 		if(pass) this.obsPass_conf.value = pass;
 		if(ip) this.obsIP_conf.value = ip;
 
-		if(port && pass) {
+		if(port && ip) {
 			this.connected = OBSWebsocket.instance.connected;
 		}
 
@@ -92,10 +93,10 @@ export default class OBSConnectForm extends Vue {
 		this.connectSuccess = false;
 		this.connectError = false;
 		const connected = await OBSWebsocket.instance.connect(
-							(this.obsPort_conf.value as number).toString(),
-							this.obsPass_conf.value as string,
+							this.obsPort_conf.value.toString(),
+							this.obsPass_conf.value,
 							false,
-							this.obsIP_conf.value as string,
+							this.obsIP_conf.value,
 							true
 						);
 		if(connected) {
@@ -130,57 +131,37 @@ export default class OBSConnectForm extends Vue {
 
 <style scoped lang="less">
 .obsconnectform{
-
+	gap: .5em;
 	display: flex;
 	flex-direction: column;
 	
-	.info {
-		margin-bottom: 1em;
-	}
-
 	.connectBt {
-		display: block;
 		margin: auto;
 	}
 
 	.error, .success {
-		justify-self: center;
-		color: @mainColor_light;
-		display: block;
 		text-align: center;
-		padding: 5px;
-		border-radius: 5px;
-		margin: auto;
-		margin-top: 10px;
-		font-size: .9em;
-
-		&.error {
-			background-color: @mainColor_alert;
-		}
-
+		line-height: 1.3em;
 		&.success {
-			background-color: #1c941c;
-			margin-top: 0px;
-			margin-bottom: 10px;
-		}
-		
-		a {
-			color: @mainColor_light;
-		}
-
-		div:not(:last-child) {
-			margin-bottom: 1em;
-		}
-		:deep(strong) {
-			background-color: @mainColor_light;
-			color: @mainColor_alert;
-			padding: 0 0.25em;
-			border-radius: 0.25em;
+			align-self: center;
 		}
 	}
-	.warn {
-		margin-top: 1em;
-		font-style: italic;
+	.info {
+		width: 100%;
+		:deep(.content) {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+	}
+	.param {
+		:deep(.inputHolder) {
+			max-width: 150px !important;
+		}
+		:deep(input) {
+			width: 150px !important;
+		}
 	}
 
 	.fade-enter-active {
@@ -195,23 +176,6 @@ export default class OBSConnectForm extends Vue {
 	.fade-leave-to {
 		opacity: 0;
 		transform: translateY(-10px);
-	}
-
-	:deep(input) {
-		min-width: 100px;
-		//These lines seems stupide AF but they allow the input
-		//to autosize to it's min length
-		width: 0%;
-		flex-grow: 1;
-		max-width: 100px;
-
-		text-align: center;
-		
-		//Hide +/- arrows
-		&::-webkit-outer-spin-button,
-		&::-webkit-inner-spin-button {
-			display: none;
-		}
 	}
 }
 </style>

@@ -1,0 +1,32 @@
+/**
+ * Contains the styles about a trigger action entry form.
+ * Ex: chat message, counter update, OBS control, ...
+ */
+.triggerActionForm {
+	gap: .25em;
+	display: flex;
+	flex-direction: column;
+
+	.info {
+		overflow: hidden;
+		padding: .5em 1em;
+		background-color: var(--color-primary);
+		border-radius: .5em;
+		font-size: .8em;
+		img {
+			height: 1em;
+			margin-right: .25em;
+			vertical-align: middle;
+		}
+		.label {
+			display: inline;
+		}
+		&.warn {
+			background-color: var(--color-alert);
+			a {
+				color: var(--color-light);
+				text-decoration: underline;
+			}
+		}
+	}
+}

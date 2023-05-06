@@ -1,6 +1,6 @@
 <template>
-	<div class="paramsvoicemod">
-		<img src="@/assets/icons/voicemod_purple.svg" alt="voicemod icon" class="icon">
+	<div class="paramsvoicemod parameterContent">
+		<img src="@/assets/icons/voicemod.svg" alt="voicemod icon" class="icon">
 		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
 			<template #LINK>
 				<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
@@ -8,34 +8,40 @@
 		</i18n-t>
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
-		<section v-if="connecting">
+		<section v-if="connecting" class="card-item">
 			<img class="item center" src="@/assets/loader/loader.svg" alt="loader">
 			<div class="item center">{{ $t("voicemod.connecting") }}</div>
 		</section>
 
 		<div class="fadeHolder" :style="holderStyles">
 
-			<section class="error" v-if="connectionFailed && !connected" @click="connectionFailed = false">
+			<section class="card-item alert error" v-if="connectionFailed && !connected" @click="connectionFailed = false">
 				<div class="item">{{ $t("voicemod.connect_failed") }}</div>
 			</section>
 
-			<section v-if="connected">
+			<template v-if="connected">
 				<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
-				<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
-				<div class="item"><strong>{{ $t("voicemod.allowed_users") }}</strong></div>
-				<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />
-			</section>
-
-			<section v-if="connected">
+	
+				<section>
+					<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
+					<div class="card-item">
+						<div class="item"><strong>{{ $t("voicemod.allowed_users") }}</strong></div>
+						<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />
+					</div>
+				</section>
+	
 				<Splitter>{{ $t("voicemod.voices_title") }}</Splitter>
-				<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
-				<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
-					<template #LINK>
-						<a @click="$emit('setContent', contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
-					</template>
-				</i18n-t>
-				<ParamItem class="item param shrinkInput" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
-			</section>
+	
+				<section>
+					<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
+					<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
+						<template #LINK>
+							<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
+						</template>
+					</i18n-t>
+					<ParamItem class="item param shrinkInput" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
+				</section>
+			</template>
 		</div>
 
 	</div>
@@ -43,12 +49,14 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import VoicemodWebSocket, { type VoicemodTypes } from '@/utils/voice/VoicemodWebSocket';
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type { VoicemodTypes } from '@/utils/voice/VoicemodTypes';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -56,17 +64,17 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		ParamItem,
 		PermissionsForm,
 	},
-	emits:["setContent"]
+	emits:[]
 })
-export default class ParamsVoicemod extends Vue {
+export default class ParamsVoicemod extends Vue implements IParameterContent {
 
 	public connected:boolean = false;
 	public connecting:boolean = false;
 	public connectionFailed:boolean = false;
 	public voices:VoicemodTypes.Voice[] = [];
-	public voiceParams:TwitchatDataTypes.ParameterData[] = [];
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
-	public param_voiceIndicator:TwitchatDataTypes.ParameterData = {type:"boolean", value:true, example:"voicemod_reset.png"};
+	public voiceParams:TwitchatDataTypes.ParameterData<string>[] = [];
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
+	public param_voiceIndicator:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, example:"voicemod_reset.png"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
@@ -79,7 +87,7 @@ export default class ParamsVoicemod extends Vue {
 		usersRefused:[],
 	}
 	
-	public get contentTriggers():TwitchatDataTypes.ParamsContentStringType { return TwitchatDataTypes.ParamsCategories.TRIGGERS; } 
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
 	public get holderStyles():StyleValue {
 		return {
@@ -93,6 +101,8 @@ export default class ParamsVoicemod extends Vue {
 		this.param_voiceIndicator.labelKey	= "voicemod.show_indicator";
 		this.prefill();
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	/**
 	 * Called when toggling the "enabled" state
@@ -151,13 +161,13 @@ export default class ParamsVoicemod extends Vue {
 		for (let i = 0; i < loadTotal; i++) {
 			const v = this.voices[i];
 			VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID).then((img:string)=>{
-				const data:TwitchatDataTypes.ParameterData = {
+				const data:TwitchatDataTypes.ParameterData<string> = {
 					type: "string",
 					storage: v,
 					label: v.friendlyName,
 					value: voiceIdToCommand[v.voiceID] ?? "",
 					placeholder: "!command",
-					maxLength: 100,
+					maxLength: 50,
 					iconURL: "data:image/png;base64," + img
 				};
 				this.voiceParams.push( data );
@@ -177,15 +187,15 @@ export default class ParamsVoicemod extends Vue {
 
 		for (let i = 0; i < this.voiceParams.length; i++) {
 			const p = this.voiceParams[i];
-			const cmd = (p.value as string).trim().toLowerCase();
+			const cmd = p.value.trim().toLowerCase();
 			if(cmd.length > 0) {
 				commandToVoiceID[cmd] = (p.storage as VoicemodTypes.Voice).voiceID;
 			}
 		}
 
 		const data:TwitchatDataTypes.VoicemodParamsData = {
-			enabled: this.param_enabled.value as boolean,
-			voiceIndicator: this.param_voiceIndicator.value as boolean,
+			enabled: this.param_enabled.value,
+			voiceIndicator: this.param_voiceIndicator.value,
 			chatCmdPerms:this.permissions,
 			commandToVoiceID,
 		}
@@ -215,8 +225,6 @@ export default class ParamsVoicemod extends Vue {
 
 <style scoped lang="less">
 .paramsvoicemod{
-	.parameterContent();
-
 	.fadeHolder {
 		transition: opacity .2s;
 	}
@@ -256,8 +264,10 @@ export default class ParamsVoicemod extends Vue {
 				text-align: center;
 			}
 			&.shrinkInput {
+				:deep(.inputHolder) {
+					max-width: 150px;
+				}
 				:deep(input) {
-					width: auto;
 					max-width: 150px;
 				}
 			}
@@ -277,9 +287,7 @@ export default class ParamsVoicemod extends Vue {
 		}
 
 		&.error {
-			color: @mainColor_light;
 			text-align: center;
-			background-color: @mainColor_alert;
 		}
 	}
 	

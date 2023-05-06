@@ -156,24 +156,6 @@ export const storeAuth = defineStore('auth', {
 					else router.push({name:"login"});
 					return;
 				}
-				
-
-				/*
-				//Check if all scopes are allowed
-				for (let i = 0; i < Config.instance.TWITCH_APP_SCOPES.length; i++) {
-					if(StoreProxy.auth.twitch.scopes.indexOf(Config.instance.TWITCH_APP_SCOPES[i]) == -1) {
-						console.log("Missing scope:", Config.instance.TWITCH_APP_SCOPES[i]);
-						this.authenticated = false;
-						this.newScopesToRequest.push(Config.instance.TWITCH_APP_SCOPES[i]);
-					}
-				}
-
-				//Current token is missing some scopes, redirect to login
-				if(this.newScopesToRequest.length > 0) {
-					if(cb) cb(false);
-					return;
-				}
-				//*/
 
 				this.authenticated = true;
 
@@ -213,7 +195,10 @@ export const storeAuth = defineStore('auth', {
 	
 				const sMain = StoreProxy.main;
 				const sChat = StoreProxy.chat;
+				const sRewards = StoreProxy.rewards;
 				
+				await DataStore.migrateLocalStorage();
+
 				//If asked to sync data with server, load them
 				if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
 					if(!await DataStore.loadRemoteData()) {
@@ -223,8 +208,6 @@ export const storeAuth = defineStore('auth', {
 						sMain.alert("An error occured while loading your parameters");
 						return;
 					}
-				}else{
-					await DataStore.migrateLocalStorage();
 				}
 				//Parse data from storage
 				await sMain.loadDataFromStorage();
@@ -234,6 +217,7 @@ export const storeAuth = defineStore('auth', {
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
 				EventSub.instance.connect();
+				sRewards.loadRewards();
 
 				//Preload stream info
 				TwitchUtils.loadChannelInfo([this.twitch.user.id]).then(v=> {
@@ -263,16 +247,7 @@ export const storeAuth = defineStore('auth', {
 				//Show "right click message" hint
 				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
 					setTimeout(()=>{
-						StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
-							const m = message as TwitchatDataTypes.MessageChatData;
-							const str = StoreProxy.i18n.t("chat.right_click_hint");
-							console.log(StoreProxy.i18n.locale);
-							m.message = str;
-							m.message_html = TwitchUtils.parseEmotes(str, undefined, false, true).replace(/&lt;(\/?mark)&gt;/gi, "<$1>");
-							m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
-							m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat_purple.svg`, import.meta.url).href;
-							m.user.color = "#bb8eff";
-						});
+						sChat.sendRightClickHint();
 					}, 5000);
 				}else{
 					//Hot fix to make sure new changelog highlights are displayed properly

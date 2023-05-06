@@ -53,16 +53,16 @@ export default class AppLangSelector extends Vue {
 			text-align: center;
 			flex-grow: 1;
 			padding: .5em;
-			border-radius: @border_radius;
+			border-radius: var(--border-radius);
 			margin: 0;
-			color:@mainColor_normal;
+			color:var(--color-light);
 			cursor: pointer;
 			border-bottom: 1px solid rgba(0, 0, 0, .25);
 			border-right: 1px solid rgba(0, 0, 0, .25);
 			border-left: 1px solid rgba(0, 0, 0, .25);
-			background-color: fade(#000000, 5%);
+			background-color: var(--color-primary);
 			&::before{
-				content: "◌";
+				content: "●";
 				position: absolute;
 				left: .5em;
 			}
@@ -79,10 +79,9 @@ export default class AppLangSelector extends Vue {
 		}
 		input[type="radio"]:checked+label {
 			font-weight: bold;
-			background-color: @mainColor_light;
-			color:@mainColor_normal;
+			background-color: var(--color-secondary);
 			&::before{
-				content: "●";
+				content: "◌";
 			}
 		}
 	}

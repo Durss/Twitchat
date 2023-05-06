@@ -1,6 +1,6 @@
 <template>
-	<div class="chatcommunitychallengecontribution">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatcommunitychallengecontribution chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/channelPoints.svg" alt="reward" class="icon">
 
@@ -20,14 +20,16 @@
 				</template>
 			</i18n-t>
 	
-			<div class="percent">{{ percent }}%</div>
-	
-			<div class="progress">
-				<div class="values">
-					<div>{{messageData.challenge.progress}}</div>
-					<div>{{messageData.challenge.goal}}</div>
+			<div class="numbers">
+				<div class="card-item percent">{{ percent }}%</div>
+		
+				<div class="card-item progress">
+					<div class="values">
+						<div>{{messageData.challenge.progress}}</div>
+						<div>{{messageData.challenge.goal}}</div>
+					</div>
+					<p>pts</p>
 				</div>
-				<p>pts</p>
 			</div>
 		</div>
 	</div>
@@ -59,9 +61,6 @@ export default class ChatCommunityChallengeContribution extends AbstractChatMess
 
 <style scoped lang="less">
 .chatcommunitychallengecontribution{
-	.chatMessageHighlight();
-
-	
 	.holder {
 		display: flex;
 		flex-wrap: wrap;
@@ -73,27 +72,32 @@ export default class ChatCommunityChallengeContribution extends AbstractChatMess
 		}
 	}
 
-	.icon, .time {
+	.icon, .chatMessageTime {
 		align-self: center;
 	}
 
-	.percent {
-		font-size: 2em;
-		font-weight: bold;
-	}
-
-	.progress {
-		font-size: .8em;
-		color:@mainColor_light;
+	.numbers {
+		gap:.5em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		margin-left: 1em;
-		.values {
-			text-align: right;
-			margin-right: .25em;
-			div:first-child {
-				border-bottom: 1px solid @mainColor_light;
+		justify-content: center;
+		flex-grow: 1;
+		.percent {
+			font-size: 2em;
+			font-weight: bold;
+		}
+		
+		.progress {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			.values {
+				text-align: right;
+				margin-right: .25em;
+				div:first-child {
+					border-bottom: 1px solid var(--color-light);
+				}
 			}
 		}
 	}

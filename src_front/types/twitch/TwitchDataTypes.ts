@@ -226,9 +226,10 @@ export namespace TwitchDataTypes {
 		theme_mode: "light" | "dark";
 	}
 	export interface ParseMessageChunk {
-		type: "text" | "emote";
+		type: "text" | "emote" | "cheermote" | "url" | "highlight";
 		emote?: string;
-		label?: string;
+		emoteHD?: string;
+		href?: string;
 		value: string;
 	}
 
@@ -341,6 +342,22 @@ export namespace TwitchDataTypes {
 		name: string;
 		box_art_url: string;
 	}
+
+	export interface LiveChannelSearchResult {
+		broadcaster_language: string
+		broadcaster_login: string
+		display_name: string
+		game_id: string
+		game_name: string
+		id: string
+		is_live: boolean
+		tag_ids: any[]
+		tags: any[]
+		thumbnail_url: string
+		title: string
+		started_at: string
+	}
+	  
 
 	export interface StreamTag {
 		tag_id: string;

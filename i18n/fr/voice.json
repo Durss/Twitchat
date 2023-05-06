@@ -10,7 +10,7 @@
 
 		"addBt":"Ajouter une action vocale",
 		"startBt":"Activer l'assistant",
-		"stopBt":"Désactiver l'assistant",
+		"stopBt":"Arrêter l'assistant",
 		"stt_preview":"Reconnaissance live",
 		"stt_actions":"Actions vocales",
 		"select_action":"Action à exécuter",
@@ -18,12 +18,15 @@
 		"select_language":"Sélectionnez votre langue :",
 		"sentences":"Phrases de déclenchement",
 		"sentences_count":"(1 par ligne)",
+		"global_commands_title":"Commandes globales",
 		"global_commands":"Mots que vous aurez à dire pour naviguer dans les formulaires",
 		"fill_global":"Remplissez toutes les commandes globale au-dessus",
 		"remote":{
 			"title":"Cette page permet de contrôler Twitchat et quelques fonctionnalités Twitch avec votre voix",
 			"commands":"Créez des commandes vocales dans Twitchat <strong>Parameters => @:params.categories.voice </strong> section"
 		},
+		"delete_confirm_title":"Supprimer l'action ?",
+		"delete_confirm_desc":"La suppression est irreversible.",
 		"commands":{
 			"ERASE":"Effacer",
 			"NEXT":"Suite",

@@ -1,11 +1,12 @@
 <template>
-	<div class="paramsautomod">
-		<img src="@/assets/icons/mod_purple.svg" alt="emergency icon" class="icon">
+	<div class="paramsautomod parameterContent">
+		<img src="@/assets/icons/mod.svg" alt="emergency icon" class="icon">
 		
 		<div class="head">{{ $t("automod.header") }}</div>
+		
 		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
 	
-		<div class="disclaimers">
+		<div class="card-item disclaimers">
 			<ToggleBlock class="infos first" :title="$t('automod.disclaimers.why.title')" small :open="false">
 				<p v-for="label in $tm('automod.disclaimers.why.contents')" v-html="label"></p>
 			</ToggleBlock>
@@ -16,45 +17,54 @@
 	
 		<div class="fadeHolder" :style="holderStyles">
 	
-			<section>
-				<Splitter class="item splitter">{{ $t("automod.rule.title") }}</Splitter>
-				<div class="list" v-if="automodData.keywordsFilters.length > 0">
-					<ToggleBlock class="block" medium
+			<Splitter class="splitter">{{ $t("automod.rule.title") }}</Splitter>
+
+			<section class="card-item">
+				<div class="ruleList" v-if="automodData.keywordsFilters.length > 0">
+					<ToggleBlock class="rule" medium primary
 					v-for="f in automodData.keywordsFilters"
 					:key="f.id"
 					:title="f.label.length > 0? f.label : $t('automod.rule.new')"
 					:open="keywordToOpen[f.id]">
 						<template #right_actions>
-							<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear :data-tooltip="$t('automod.rule.toggle_tt')" />
-							<Button :icon="$image('icons/cross_white.svg')" highlight small class="deleteBt" @click.stop="deleteRule(f)" />
+							<div class="actions">
+								<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
+								<Button icon="trash" alert small class="deleteBt" @click.stop="deleteRule(f)" />
+							</div>
 						</template>
-						<ParamItem class="item sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" :data-tooltip="$t('automod.rule.sync_tt')" />
-							<ParamItem class="item emergency" :paramData="param_ruleEmergency[f.id]" v-model="f.emergency" :data-tooltip="$t('automod.rule.emergency_tt')" />
-						<ParamItem class="item onlyFirst" :paramData="param_ruleOnlyFirst[f.id]" v-model="f.firstTimeChatters" :data-tooltip="$t('automod.rule.firstTime_tt')" />
-						<ParamItem class="item ruleName" :paramData="param_ruleLabel[f.id]" v-model="f.label" />
-						<ParamItem class="item rule" :paramData="param_ruleRegex[f.id]" v-model="f.regex" :error="keywordToValid[f.id] === false" @change="onRegexChange(f)" />
-						<div class="regError" v-if="keywordToValid[f.id] === false">{{ $t("automod.rule.invalid_rule") }}</div>
+						<div class="ruleContent">
+							<ParamItem class="sync" :paramData="param_ruleSync[f.id]" v-model="f.serverSync" v-tooltip="$t('automod.rule.sync_tt')" />
+							<ParamItem class="emergency" :paramData="param_ruleEmergency[f.id]" v-model="f.emergency" v-tooltip="$t('automod.rule.emergency_tt')" />
+							<ParamItem class="onlyFirst" :paramData="param_ruleOnlyFirst[f.id]" v-model="f.firstTimeChatters" v-tooltip="$t('automod.rule.firstTime_tt')" />
+							<ParamItem class="ruleName" :paramData="param_ruleLabel[f.id]" v-model="f.label" />
+							<ParamItem class="rule" :paramData="param_ruleRegex[f.id]" v-model="f.regex"
+								:error="keywordToValid[f.id] === false"
+								:errorMessage="$t('automod.rule.invalid_rule')"
+								@change="onRegexChange(f)" />
+						</div>
 					</ToggleBlock>
 				</div>
-				<Button :title="$t('automod.rule.add')" :icon="$image('icons/add.svg')" class="addBt" @click="addRule()" />
+				<Button icon="add" class="addBt" @click="addRule()">{{ $t('automod.rule.add') }}</Button>
 			</section>
 			
-			<section class="testForm">
-				<Splitter class="item splitter">{{ $t("automod.test.title") }}</Splitter>
+			<Splitter class="splitter">{{ $t("automod.test.title") }}</Splitter>
+
+			<section class="card-item testForm">
 				<input type="text" v-model="testStr" :placeholder="$t('automod.test.input_placeholder')">
-				<div class="result" v-if="testClean" :data-tooltip="$t('automod.test.result_tt')">{{testClean}}</div>
-				<div class="matchingRules" v-if="blockedBy.length > 0">
+				<div class="result" v-if="testClean" v-tooltip="$t('automod.test.result_tt')">{{testClean}}</div>
+				<div class="card-item secondary matchingRules" v-if="blockedBy.length > 0">
 					<p class="title">{{ $t("automod.test.blocked_title", blockedBy.length) }}</p>
 					<ul>
 						<li v-for="r in blockedBy">{{r.label}}</li>
 					</ul>
 				</div>
-				<div class="pass" v-else-if="testStr.length > 0">{{ $t("automod.test.no_block") }}</div>
+				<div class="card-item primary pass" v-else-if="testStr.length > 0">{{ $t("automod.test.no_block") }}</div>
 			</section>
 
-			<section class="options">
-				<Splitter class="item splitter">{{ $t("automod.options.title") }}</Splitter>
-				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" />
+			<Splitter class="splitter">{{ $t("automod.options.title") }}</Splitter>
+
+			<section class="card-item options">
+				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" noBackground />
 				<div class="permsTitle">{{ $t("automod.options.exclude_users") }}</div>
 				<PermissionsForm class="perms" v-model="automodData.exludedUsers" />
 			</section>
@@ -75,6 +85,7 @@ import ToggleBlock from '../../ToggleBlock.vue';
 import ToggleButton from '../../ToggleButton.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
+import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
@@ -86,16 +97,16 @@ import PermissionsForm from '../../PermissionsForm.vue';
 		PermissionsForm,
 	}
 })
-export default class ParamsAutomod extends Vue {
+export default class ParamsAutomod extends Vue implements IParameterContent {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
-	public param_enabled:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
-	public param_banUserNames:TwitchatDataTypes.ParameterData = {type:"boolean", value:false};
-	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_ruleEmergency:{[key:string]:TwitchatDataTypes.ParameterData} = {};
-	public param_ruleOnlyFirst:{[key:string]:TwitchatDataTypes.ParameterData} = {};
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
+	public param_banUserNames:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
+	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_ruleEmergency:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_ruleOnlyFirst:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public keywordToValid:{[key:string]:boolean} = {};
 	public keywordToOpen:{[key:string]:boolean} = {};
 	public automodData!:TwitchatDataTypes.AutomodParamsData;
@@ -109,7 +120,9 @@ export default class ParamsAutomod extends Vue {
 	 * Check if the current test matches any of the rules
 	 */
 	public get blockedBy():TwitchatDataTypes.AutomodParamsKeywordFilterData[] {
-		let matchedRules:TwitchatDataTypes.AutomodParamsKeywordFilterData[] = [];
+		if(this.testClean.length == 0) return [];
+
+		let matchingRules:TwitchatDataTypes.AutomodParamsKeywordFilterData[] = [];
 		for (let i = 0; i < this.automodData.keywordsFilters.length; i++) {
 			const f = this.automodData.keywordsFilters[i];
 			if(f.regex.length === 0) continue;
@@ -121,11 +134,11 @@ export default class ParamsAutomod extends Vue {
 			}
 			if(valid) {
 				if(reg.test(this.testClean)) {
-					matchedRules.push(f);
+					matchingRules.push(f);
 				}
 			}
 		}
-		return matchedRules;
+		return matchingRules;
 	}
 
 	/**
@@ -156,6 +169,8 @@ export default class ParamsAutomod extends Vue {
 		// const e = performance.now();
 		// console.log(e-s);
 	}
+
+	public onNavigateBack(): boolean { return false; }
 
 	/**
 	 * Add a rule
@@ -212,11 +227,11 @@ export default class ParamsAutomod extends Vue {
 	private initRule(data:TwitchatDataTypes.AutomodParamsKeywordFilterData):void {
 		this.keywordToOpen[data.id]			= data.label.length === 0 || data.regex.length === 0;
 		this.keywordToValid[data.id]		= true;
-		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'string', value:'', maxLength:100};
+		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'string', value:'', maxLength:30};
 		this.param_ruleRegex[data.id]		= {labelKey:"automod.rule.keywords", type:'string', value:'', maxLength:5000, longText:true};
 		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'boolean', value:false};
-		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency_purple.svg"};
-		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime_purple.svg"};
+		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency.svg"};
+		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime.svg"};
 	}
 
 }
@@ -224,17 +239,9 @@ export default class ParamsAutomod extends Vue {
 
 <style scoped lang="less">
 .paramsautomod{
-	.parameterContent();
-
 	.disclaimers {
-		display: flex;
-		flex-direction: column;
-		margin-top: 1em;
-		padding: .5em;
-		border-radius: .5em;
-		background-color: fade(@mainColor_normal, 10%);
-
 		.infos {
+			line-height: 1.3em;
 			p {
 				min-height: 1em;
 			}
@@ -242,81 +249,8 @@ export default class ParamsAutomod extends Vue {
 	}
 
 	.options{
-		.permsTitle {
-			margin-top: .5em;
-			margin-bottom: .5em;
-		}
 		.perms {
-			width: 80%;
-		}
-	}
-	
-	.testForm {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		max-width: 300px;
-		padding: .5em;
-		border-radius: .5em;
-		background-color: fade(@mainColor_normal, 10%);
-
-		*:not(:first-child) {
-			margin-top
-			: .25em;
-		}
-		.result {
-			text-align: center;
-			margin:auto;
-			margin-top: 0;
-			padding: .25em .5em;
-			width: calc(100% - .75em);
-			background-color: fade(@mainColor_light, 50%);
-			border-bottom-left-radius: .5em;
-			border-bottom-right-radius: .5em;
-			word-wrap: break-word;
-			font-size: .8em;
-		}
-
-		.pass {
-			margin:auto;
-			margin-top: .5em;
-			padding: .25em .5em;
-			width: calc(100% - .75em);
-			color: @mainColor_light;
-			background-color: @mainColor_highlight;
-			border-radius: .5em;
-			text-align: center;
-			font-size: .8em;
-		}
-
-		.matchingRules {
-			margin:auto;
-			margin-top: .5em;
-			padding: .25em .5em;
-			width: calc(100% - .75em);
-			color: @mainColor_light;
-			background-color: @mainColor_alert;
-			border-radius: .5em;
-
-			.title {
-				font-size: .8em;
-				font-weight: bold;
-			}
-
-			ul {
-				li {
-					font-size: .8em;
-					list-style-type: disc;
-					list-style-position: inside;
-				}
-			}
-		}
-	}
-
-
-	.item {
-		&:not(:first-child) {
-			margin-top: .5em;
+			width: 100%;
 		}
 	}
 
@@ -325,62 +259,84 @@ export default class ParamsAutomod extends Vue {
 
 		section {
 	
-			.addBt {
-				margin: auto;
-				margin-top: 1em;
-				display: block;
+			&.testForm {
+				display: flex;
+				flex-direction: column;
+				max-width: 300px;
+
+				input {
+					z-index: 1;
+				}
+
+				*:not(:first-child) {
+					margin-top
+					: .25em;
+				}
+				.result {
+					margin:auto;
+					text-align: center;
+					margin-top: calc(-.5em - 4px);
+					padding: .25em .5em;
+					width: calc(100% - 1.5em);
+					background-color: var(--color-secondary-fadest);
+					border-bottom-left-radius: .5em;
+					border-bottom-right-radius: .5em;
+					word-wrap: break-word;
+					font-size: .9em;
+				}
+
+				.pass {
+					text-align: center;
+				}
+
+				.matchingRules {
+					.title {
+						font-weight: bold;
+					}
+
+					ul {
+						li {
+							list-style-position: inside;
+						}
+					}
+				}
 			}
 	
-			.list {
-				margin-top: 1em;
-
-				.block {
-
-					&:deep(h2) {
-						margin-left: calc(2em + 20px + .5em);//Make sure title is centered
-					}
-					&:deep(.content) {
-						background-color: @mainColor_light;
-					}
-
-					.deleteBt {
-						border-radius: 0;
-						height: 100%;
-						margin-left: .5em;
-					}
-					
+			.addBt {
+				margin: auto;
+			}
 	
-					.sync {
-						width: min-content;
-						margin: auto;
-						:deep(label) {
-							white-space: nowrap;
+			.ruleList {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: .5em;
+
+				.rule {
+					.actions {
+						gap: .5em;
+						display: flex;
+						flex-direction: row;
+						margin-left: 1em;
+						.deleteBt {
+							margin: calc(-.5em - 1px);
+							margin-left: 0;
+							border-radius: 0;
+							:deep(.icon){
+								height: 1.5em;
+							}
 						}
 					}
-	
-					.ruleName {
-						:deep(input) {
-							width: auto;
-							flex-grow: 1;
+					.ruleContent {
+						gap: .5em;
+						display: flex;
+						flex-direction: column;
+		
+						.sync {
+							width: fit-content;
+							margin: auto;
 						}
-					}
-
-					.rule {
-						:deep(textarea) {
-							font-family: var(--font-inter);
-							font-size: .9em;
-						}
-					}
-					
-	
-					.regError {
-						text-align: center;
-						color: @mainColor_light;
-						background-color: @mainColor_alert;
-						padding: .5em;
-						font-size: .8em;
-						border-bottom-left-radius: .5em;
-						border-bottom-right-radius: .5em;
 					}
 				}
 			}

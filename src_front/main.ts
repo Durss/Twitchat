@@ -30,6 +30,7 @@ import { storeParams } from './store/params/storeParams';
 import { storePoll } from './store/poll/storePoll';
 import { storePrediction } from './store/prediction/storePrediction';
 import { storeRaffle } from './store/raffle/storeRaffle';
+import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeStream } from './store/stream/storeStream';
@@ -39,8 +40,20 @@ import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
-import ContextMenu from '@imengyu/vue3-context-menu'
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
+import ContextMenu from '@imengyu/vue3-context-menu';
+import VueTippy from "vue-tippy";
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/animations/scale.css'
+import { setDefaultProps } from 'vue-tippy';
+
+setDefaultProps({
+	theme:"twitchat",
+	animation:"scale",
+	duration:100,
+	allowHTML:true,
+	maxWidth:250,
+});
 
 const pinia = createPinia();
 gsap.registerPlugin(ScrollToPlugin);
@@ -175,7 +188,7 @@ function buildApp() {
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters") => {
+	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards") => {
 		switch(id) {
 			case "main": return StoreProxy.main;
 			case "account": return StoreProxy.account;
@@ -201,6 +214,7 @@ function buildApp() {
 			case "accessibility": return StoreProxy.accessibility;
 			case "admin": return StoreProxy.admin;
 			case "counters": return StoreProxy.counters;
+			case "rewards": return StoreProxy.rewards;
 		}
 	}
 	
@@ -210,6 +224,7 @@ function buildApp() {
 	//Init stores before instanciating the router because the
 	//router needs to access some stores
 	StoreProxy.i18n = i18n.global;
+	StoreProxy.image = image;
 	StoreProxy.main = storeMain();
 	StoreProxy.account = storeAccount();
 	StoreProxy.auth = storeAuth();
@@ -225,6 +240,7 @@ function buildApp() {
 	StoreProxy.poll = storePoll();
 	StoreProxy.prediction = storePrediction();
 	StoreProxy.raffle = storeRaffle();
+	StoreProxy.rewards = storeRewards();
 	StoreProxy.stream = storeStream();
 	StoreProxy.timer = storeTimer();
 	StoreProxy.triggers = (storeTriggers() as unknown) as ITriggersState & ITriggersGetters & ITriggersActions & { $state: ITriggersState; $reset:()=>void };;
@@ -236,10 +252,15 @@ function buildApp() {
 	StoreProxy.accessibility = storeAccessibility();
 	StoreProxy.admin = storeAdmin();
 	StoreProxy.counters = storeCounters();
+	StoreProxy.router = router;
 	
 	app.use(router)
-	app.use(i18n)
-	app.use(ContextMenu)
+	.use(i18n)
+	.use(ContextMenu)
+	.use(VueTippy,{
+		directive: "tooltip",
+		component: "tooltip",
+	})
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.provide("$image", image)
@@ -261,11 +282,15 @@ function buildApp() {
 		}
 	})
 	.directive('click2Select', {
-		mounted(el:HTMLDivElement, binding:unknown) {
+		mounted(el:HTMLElement, binding:unknown) {
 			if((binding as {[key:string]:boolean}).value !== false) {
 				el.style.cursor = "default";
 				el.addEventListener("click", ()=> {
-					el.ownerDocument?.getSelection()?.selectAllChildren(el);
+					if(el.nodeName === "INPUT") {
+						(el as HTMLInputElement).select();
+					}else{
+						el.ownerDocument?.getSelection()?.selectAllChildren(el);
+					}
 				});
 			}
 		}

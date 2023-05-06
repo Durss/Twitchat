@@ -12,36 +12,40 @@
 		"live_chat_less_aria": "show 1 less message",
 		"conversation_closeBt_aria": "close conversation",
 		"fake_tag": "fake",
-		"fake_tag_tt": "This is a fake message.<br>Only you can see it.",
+		"fake_tag_tt": "This is a fake message. Only you can see it.",
 		"soBt": "Shoutout",
-		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Try <mark>right clicking</mark> on this message to discover lots of options!",
+		"right_click_hint_highlight":"right clicking",
+		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Try @:chat.right_click_hint_highlight on this message to discover lots of options!",
 		"form": {
-			"paramsBt_aria": "Open parameters",
-			"cmdsBt_aria": "Open chat commands",
-			"usersBt_aria": "Open users list",
+			"paramsBt_aria": "Parameters",
+			"cmdsBt_aria": "Chat commands",
+			"usersBt_aria": "Users list",
 			"input_placeholder": "message...",
+			"trigger_cmd_disabled_tt": "The trigger related to this command is disabled. Enable it abck to use it.",
 			"stop_spamBt": "Stop spam",
-			"emoteBt_aria": "Open emotes list",
-			"pollBt_aria": "Open current poll",
-			"suggBt_aria": "Open current chat suggestions",
-			"predictionBt_aria": "Open current prediction",
-			"trackedBt_aria": "Open tracked users",
-			"raffleBt_aria": "Open current raffle",
-			"bingoBt_aria": "Open current bingo",
-			"whispersBt_aria": "Open whispers",
-			"pinsBt_aria": "Open pinned messages",
-			"saveBt_aria": "Open saved messages",
-			"deezerBt_aria": "Open deezer player",
+			"emoteBt_aria": "Emotes list",
+			"pollBt_aria": "Current poll",
+			"suggBt_aria": "Current chat suggestions",
+			"predictionBt_aria": "Current prediction",
+			"trackedBt_aria": "Tracked users",
+			"raffleBt_aria": "Current raffle",
+			"bingoBt_aria": "Current bingo",
+			"whispersBt_aria": "Whispers",
+			"pinsBt_aria": "Pinned messages",
+			"saveBt_aria": "Saved messages",
+			"deezerBt_aria": "Deezer player",
 			"highlightBt_aria": "Close highlighted message",
 			"voicebot_startBt_aria": "Start voice bot",
 			"voicebot_stopBt_aria": "Stop voice bot",
-			"devmodeBt_aria": "Open dev mode options",
+			"devmodeBt_aria": "Dev mode options",
 			"emergency_startBt_aria": "Start emergency",
 			"emergency_stopBt_aria": "Stop emergency",
-			"muteTTSBt_aria": "Mute TTS",
-			"clearTTSBt_aria": "clear TTS queue",
+			"muteTTSBt_aria": "Skip TTS",
+			"clearTTSBt_aria": "Skip all pending TTS",
 			"resetVoiceBt_aria": "Reset voice effect",
-			"viewer_count": "Viewer count"
+			"shoutoutBt_aria": "Pending shoutouts",
+			"viewer_count": "Viewer count",
+			"reply_to": "Replying to {USER}:"
 		},
 		"filters": {
 			"cta": "Important options here",
@@ -61,6 +65,7 @@
 			"scope_missing": "Needs missing authorization. Click to grant permission.",
 			"whispers_permissions": "Filter allowed users",
 			"show_panels_here":"Show \" @:greet.title \" on this column",
+			"select_all":"All",
 			"message_types": {
 				"twitchat_ad": "Twitchat tips & tricks",
 				"ban": "Bans",
@@ -86,6 +91,7 @@
 				"community_boost_complete": "Community boosts",
 				"community_challenge_contribution": "Community challenge",
 				"pinned": "Un/Pinned message notices",
+				"user_watch_streak": "Consecutive watch streak",
 				"stream_online": "Stream online/offline"
 			},
 			"message_filters": {
@@ -105,8 +111,8 @@
 			},
 			"commands": "Hide specific commands",
 			"commands_placeholder": "type command...",
-			"tracked_tt": "Messages sent by viewers<br>you added to the tracked users",
-			"short_tt": "Messages shorter than 4 chars<br>or containing mostly emotes"
+			"tracked_tt": "Messages sent by viewers you added to the tracked users",
+			"short_tt": "Messages shorter than 4 chars or containing mostly emotes"
 		},
 		"shoutout": {
 			"received": "{USER} gave you a shoutout to {VIEWERS} viewers",
@@ -124,15 +130,9 @@
 			"title": "{USER} won the raffle"
 		},
 		"message": {
-			"first_time": "First time on your channel",
-			"first_today": "1st message today",
-			"presentation": "{USER} presentation",
-			"returning_user": "{USER} is returning after chatting twice the last 30 days",
 			"automod": "Automod:",
 			"automod_acceptBt_aria": "Accept automoded message",
-			"automod_acceptBt": "Accept",
 			"automod_rejectBt_aria": "Reject automoded message",
-			"automod_rejectBt": "Reject",
 			"automod_rule": "Rule:",
 			"announcement": "Announcement",
 			"occurrences": "Number of times this message has been sent",
@@ -144,7 +144,7 @@
 			"clip_duration": "Duration:",
 			"clip_views": "Views:",
 			"highlightBt_aria": "Highlight message",
-			"highlightBt_tt": "Show on stream<br><i>(needs overlay)</i>",
+			"highlightBt_tt": "Show on stream <i>(needs overlay)</i>",
 			"deleted": "<message deleted>",
 			"deleted_by": "<message deleted by {USER}>",
 			"disable_ad":"Disable",
@@ -179,7 +179,7 @@
 			"sub_advance": "Subscribed for {COUNT} months in advance.",
 			"sub_gift": "{USER} gifted {COUNT} Tier {TIER} to {LIST}",
 			"sub_gift_total": "They gifted {COUNT} sub on this channel. | They gifted {COUNT} subs on this channel.",
-			"sub_gift_months": "{USER} gifted {COUNT} months of Tier {TIER} to",
+			"sub_gift_months": "{USER} gifted {MONTHS} months of Tier {TIER} to {LIST}",
 			"sub_gift_upgrade": "{USER} is continuing the Gift Sub they got from {GIFTER}"
 		},
 		"bits": "{USER} sent {BITS} bit | {USER} sent {BITS} bits",
@@ -187,10 +187,7 @@
 		"train_cooldown": "Hype train can be started again!",
 		"follow": "{USER} followed you",
 		"raid":{
-			"previous_stream": "Was streaming {CATEGORY}",
-			"current_stream": "Streaming {CATEGORY}:",
-			"text": "{USER} is raiding with a party of {COUNT}.",
-			"duration": "Duration: {DURATION}"
+			"text": "{USER} is raiding with a party of {COUNT}."
 		},
 		"pin": {
 			"pinned":"{MODERATOR} pinned the following message:",
@@ -233,15 +230,14 @@
 			"title": "{WINNER} won the bingo with answer {ANSWER}"
 		},
 		"sponsor": {
-			"title": "🍔 I like food 🍔",
-			"head": "Are you enjoying Twitchat?<br>Twitchat took almost <strong>1 year</strong> of full-time work to create.<br>It is free for you to use but, <strong>if you can afford it</strong> any tip would make my day brighter!",
+			"title": "💝 Support me 💝",
+			"head": "Are you enjoying Twitchat?<br>Twitchat took <strong>more than 1 year</strong> of full-time work with no revenue to create.<br>It is free for you to use but, <strong>if you can afford it</strong> any tip would make my day brighter!",
 			"tipBt_aria": "Open tip options",
 			"tipBt": "🌞 Make my day brighter 🌞"
 		},
 		"stream": {
 			"online": "Channel {USER} is now live.",
-			"offline": "Channel {USER} is now offline",
-			"info": "Streaming {CATEGORY}:"
+			"offline": "Channel {USER} is now offline"
 		},
 		"discord": {
 			"title": "Join us on Discord",
@@ -300,16 +296,20 @@
 			"block_confirm_desc": "Are you sure you want to block this user?<br>They will be removed from your followers."
 		},
 		"context_menu":{
-			"profile": "Open profile",
+			"profile": "Profile",
 			"delete": "Delete message",
+			"pin_twitch": "Pin message",
+			"unpin_twitch": "Unpin message",
 			"track": "Track user",
 			"untrack": "Untrack user",
 			"shoutout": "Shoutout user",
+			"answer": "Answer",
 			"tts": "Read with TTS",
-			"tts_all": "Read all messages<br>with TTS",
-			"tts_all_start": "Read all their<br>messages with TTS",
-			"tts_all_stop": "Stop reading<br>their messages",
+			"tts_all": "Read all messages with TTS",
+			"tts_all_start": "Read all their messages with TTS",
+			"tts_all_stop": "Stop reading their messages",
 			"highlight": "Highlight message",
+			"highlight_loading": "loading status...",
 			"pin": "Pin message",
 			"save": "Save message",
 			"unsave": "Unsave message",
@@ -331,14 +331,21 @@
 				"restrictedUser": "restricted",
 				"suspiciousUser": "suspicious",
 				"emergencyBlocked": "blocked",
-				"new_user": "new"
+				"new_user": "new",
+				"firstToday":"hello",
+				"firstTimeChatter":"1st message",
+				"presentation":"presentation",
+				"returningChatter":"returning"
 			},
 			"tooltip": {
 				"raider": "Raider",
 				"pinned": "Pinned",
-				"new_user": "First day on<br>your channel",
-				"restrictedUser": "Message only visible by<br>you and your mods",
-				"suspiciousUser": "User is flaged as suspicious"
+				"new_user": "First day on this channel",
+				"restrictedUser": "Message only visible by you and your mods",
+				"suspiciousUser": "User is flaged as suspicious",
+				"firstToday":"First message of this user today",
+				"firstTimeChatter":"First message of this user on this channel",
+				"returningChatter":"This user chatted here twice in the last 30 days"
 			}
 		},
 		"scope_request": {
@@ -348,6 +355,9 @@
 		},
 		"marker": {
 			"created": "Marker created successfully"
+		},
+		"watch_streak":{
+			"label": "{USER} watched {COUNT} consecutive streams this month and sparked a watch streak!"
 		}
 	}
 }

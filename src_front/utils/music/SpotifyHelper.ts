@@ -1,5 +1,4 @@
 import TwitchatEvent from "@/events/TwitchatEvent";
-import router from "@/router";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -9,6 +8,7 @@ import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 23/05/2022 
@@ -79,6 +79,7 @@ export default class SpotifyHelper {
 		clearTimeout(this._getTrackTimeout);
 		Config.instance.SPOTIFY_CONNECTED = false;
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);
+		rebuildPlaceholdersCache();
 	}
 
 	
@@ -108,7 +109,7 @@ export default class SpotifyHelper {
 		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
 		const json = await res.json();
 
-		const redirectURI = document.location.origin + router.resolve({name:"spotify/auth"}).href;
+		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
 		let url = new URL("https://accounts.spotify.com/authorize");
 		url.searchParams.append("client_id", this._clientID);
 		url.searchParams.append("response_type", "code");
@@ -129,7 +130,7 @@ export default class SpotifyHelper {
 	public async authenticate(authCode:string):Promise<void> {
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
 
-		const redirectURI = document.location.origin + router.resolve({name:"spotify/auth"}).href;
+		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
 		const options = {
 			method:"POST",
 			headers: {
@@ -154,11 +155,11 @@ export default class SpotifyHelper {
 			StoreProxy.main.alert("Spotify authentication failed");
 			console.log(error);
 			Config.instance.SPOTIFY_CONNECTED = false;
+			rebuildPlaceholdersCache();
 			throw(error);
 		}
 
 		this.setToken(json);
-		Config.instance.SPOTIFY_CONNECTED = true;
 	}
 
 	/**
@@ -167,6 +168,8 @@ export default class SpotifyHelper {
 	public async refreshToken(attempt:number = 0):Promise<void> {
 		clearTimeout(this._getTrackTimeout);
 		clearTimeout(this._refreshTimeout);
+		
+		if(!this._token) return;
 	
 		const options = {
 			method:"POST",
@@ -335,6 +338,8 @@ export default class SpotifyHelper {
 	 * track info.
 	 */
 	public async getCurrentTrack():Promise<void> {
+		if(!Config.instance.SPOTIFY_CONNECTED) return;
+		
 		clearTimeout(this._getTrackTimeout);
 
 		const options = {
@@ -374,6 +379,7 @@ export default class SpotifyHelper {
 		}
 		
 		json = json!;
+
 
 		if(json.currently_playing_type == "episode") {
 			const episode = await this.getEpisodeInfos();
@@ -549,9 +555,7 @@ export default class SpotifyHelper {
 	 */
 	private setToken(value:SpotifyAuthToken | null) {
 		if(value == null) {
-			clearTimeout(this._refreshTimeout);
-			clearTimeout(this._getTrackTimeout);
-			Config.instance.SPOTIFY_CONNECTED = false;
+			this.disconnect();
 			return;
 		}
 		
@@ -569,6 +573,7 @@ export default class SpotifyHelper {
 			"Authorization":"Bearer "+this._token.access_token,
 		}
 		Config.instance.SPOTIFY_CONNECTED = this._token? this._token.expires_at > Date.now() : false;
+		rebuildPlaceholdersCache();
 		
 		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {
 			this.refreshToken();

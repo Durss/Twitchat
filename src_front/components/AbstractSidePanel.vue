@@ -1,0 +1,54 @@
+<script lang="ts">
+import { gsap } from "gsap";
+import { ComponentBase, Vue } from 'vue-facing-decorator';
+
+@ComponentBase({
+    name: "AbstractSidePanel"
+})
+export default class AbstractSidePanel extends Vue {
+
+	private closed:boolean = true;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
+
+	public mounted():void {
+		this.keyDownHandler = (e:KeyboardEvent) => this.onKeyDown(e);
+		document.addEventListener("keydown", this.keyDownHandler);
+	}
+
+	public beforeUnmount():void {
+		document.removeEventListener("keydown", this.keyDownHandler);
+	}
+
+	/**
+	 * Open animation
+	 */
+	public async open():Promise<void> {
+		this.closed = false;
+		gsap.set(this.$el as HTMLElement, {translateY:0});
+		gsap.from(this.$el as HTMLElement, {duration:.4, translateY:"100%", clearProps:"transform", ease:"back.out"});
+	}
+
+	/**
+	 * Close animation
+	 */
+	public async close():Promise<void> {
+		gsap.to(this.$el as HTMLElement, {duration:.25, translateY:"-100%", clearProps:"transform", ease:"back.in", onComplete:()=> {
+			this.$emit('close');
+		}});
+	}
+
+	/**
+	 * Close the window whan hitting escape key
+	 * @param e 
+	 */
+	private onKeyDown(e:KeyboardEvent):void {
+		if(this.closed) return;
+		const node = document.activeElement?.nodeName;
+		if(e.key.toLowerCase() == "escape" && node != "INPUT") {
+			this.closed = true;
+			this.close();
+		}
+	}
+
+}
+</script>

@@ -1,6 +1,6 @@
 <template>
-	<div class="chatautobanjoin">
-		<span class="time" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+	<div class="chatautobanjoin chatMessage highlight">
+		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/mod.svg" alt="mod" class="icon">
 
@@ -19,15 +19,13 @@
 			<div class="ctas" v-if="canUnban || canBlock">
 				<Button white v-if="canUnban"
 					:loading="moderating"
-					:icon="$image('icons/unban_purple.svg')"
-					:title="$t('chat.autoban_join.unbanBt')"
-					@click.stop="unbanUser()" />
+					icon="unban"
+					@click.stop="unbanUser()">{{ $t('chat.autoban_join.unbanBt') }}</Button>
 	
-				<Button highlight v-if="canBlock"
+				<Button alert v-if="canBlock"
 					:loading="moderating"
-					:icon="$image('icons/ban.svg')"
-					:title="$t('chat.autoban_join.banBt')"
-					@click.stop="blockUser()" />
+					icon="ban"
+					@click.stop="blockUser()">{{ $t('chat.autoban_join.banBt') }}</Button>
 			</div>
 		</div>
 	</div>
@@ -85,10 +83,8 @@ export default class ChatAutobanJoin extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatautobanjoin{
-	.chatMessageHighlight();
-
 	mark {
-		background-color: fade(@mainColor_dark, 50%);
+		background-color: var(--color-secondary-fader);
 		border-radius: .5em;
 		font-weight: bold;
 		padding: .1em .3em;

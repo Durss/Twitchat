@@ -1,50 +1,70 @@
 <template>
-	<div class="emoteselector">
+	<div class="emoteselector blured-background-window">
 		<div v-if="users.length == 0" class="loader">
-			<img src="@/assets/loader/loader_white.svg" alt="loader">
+			<img src="@/assets/loader/loader.svg" alt="loader">
 			<p>{{ $t("global.loading") }}</p>
 		</div>
 
-		<input v-if="users.length > 0" type="text" v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
-
-		<div class="list" v-if="users.length > 0 && filter">
-			<div v-if="filter" class="item">
+		<div class="list search" v-if="users.length > 0 && filter">
+			<div class="item">
 				<div class="emotes">
+					<div v-if="filteredEmotes.length == 0">{{ $t("global.no_result") }}</div>
 					<img
 						class="emote"
 						v-for="e in filteredEmotes"
-						:key="e.id"
+						:key="e.id+e.code"
+						:ref="e.id+e.code"
 						loading="lazy" 
 						:src="e.images.url_1x"
 						:alt="e.code"
-						:data-tooltip="'<img src='+e.images.url_4x+' width=\'112\' class=\'emote\'><br><center>'+e.code+'</center>'"
+						@mouseover="openTooltip($event, e)"
 						@click="$emit('select', e.code)">
 				</div>
 			</div>
 		</div>
 
 		<div class="list" v-if="users.length > 0 && !filter">
-			<div v-for="u in users" :key="u.user.id" class="item">
-				<div class="head">
-					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
-					<div class="login">{{u.user.displayName}}</div>
-				</div>
+			<template v-for="u, index in users" :key="u.user.id">
+				<template class="item" v-if="buildOffset >= index">
+					
+					<div class="anchor" :ref="'user_'+u.user.id"></div>
 
-				<div v-if="u.user.id=='477339272'" class="hypetrain">{{ $t("global.hypetrain_emotes") }}</div>
-
-				<div class="emotes">
-					<img
-						class="emote"
-						v-for="e in u.emotes"
-						:key="e.id"
-						loading="lazy" 
-						:src="e.images.url_1x"
-						:alt="e.code"
-						:data-tooltip="'<img src='+e.images.url_4x+' width=\'112\' class=\'emote\'><br><center>'+e.code+'</center>'"
-						@click="$emit('select', e.code)">
-				</div>
-			</div>
+					<div class="card-header sticky">
+						<img class="icon" :src="u.user.avatarPath" alt="profile pic">
+						<div class="title">{{u.user.displayName}}</div>
+					</div>
+	
+					<div v-if="u.user.id=='477339272'" class="hypetrain">{{ $t("global.hypetrain_emotes") }}</div>
+	
+					<div class="emotes" v-else>
+						<img
+							class="emote"
+							v-for="e in u.emotes"
+							:key="e.id+e.code"
+							:ref="e.id+e.code"
+							:id="'emote_'+e.id+e.code"
+							loading="lazy" 
+							:src="e.images.url_1x"
+							:alt="e.code"
+							@mouseover="openTooltip($event, e)"
+							@click="$emit('select', e.code)">
+					</div>
+				</template>
+			</template>
 		</div>
+
+		<div class="card-item userList" v-if="users.length > 0 && !filter">
+			<template v-for="u, index in users" :key="u.user.id">
+				<Button class="user"
+				v-tooltip="u.user.displayName"
+				@click="scrollTo(u.user)"
+				:loading="buildOffset < index">
+					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
+				</Button>
+			</template>
+		</div>
+
+		<input v-if="users.length > 0" type="text" v-autofocus v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
 	</div>
 </template>
 
@@ -57,16 +77,23 @@ import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
+import { useTippy } from 'vue-tippy';
+import Button from '../Button.vue';
 
 @Component({
-	components:{},
+	components:{
+		Button,
+	},
 	emits:["close", "select"]
 })
 export default class EmoteSelector extends Vue {
 
 	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 	public filter = "";
+	public buildOffset = 0;
 
+	private buildTimeout = -1;
+	private tooltipCreated:{[key:string]:boolean} = {};
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public get filteredEmotes():TwitchatDataTypes.Emote[] {
@@ -127,7 +154,6 @@ export default class EmoteSelector extends Vue {
 				displayName:"TwitchHypeTrain",
 				avatarPath:this.$image("img/hypetrain_avatar.png"),
 				id:"477339272",
-				is_raider:false,
 				is_affiliate:false,
 				is_partner:false,
 				is_tracked:false,
@@ -146,9 +172,8 @@ export default class EmoteSelector extends Vue {
 				platform:"twitch",
 				login:"global",
 				displayName:"Global",
-				avatarPath:this.$image("icons/emote.svg"),
+				avatarPath:this.$image("icons/twitch.svg"),
 				id:"0",
-				is_raider:false,
 				is_affiliate:false,
 				is_partner:false,
 				is_tracked:false,
@@ -189,7 +214,6 @@ export default class EmoteSelector extends Vue {
 						displayName:"BTTV",
 						avatarPath:this.$image("icons/emote.svg"),
 						id:"1",
-						is_raider:false,
 						is_affiliate:false,
 						is_partner:false,
 						is_tracked:false,
@@ -214,7 +238,6 @@ export default class EmoteSelector extends Vue {
 						displayName:"7TV",
 						avatarPath:this.$image("icons/emote.svg"),
 						id:"2",
-						is_raider:false,
 						is_affiliate:false,
 						is_partner:false,
 						is_tracked:false,
@@ -239,7 +262,6 @@ export default class EmoteSelector extends Vue {
 						displayName:"FFZ",
 						avatarPath:this.$image("icons/emote.svg"),
 						id:"3",
-						is_raider:false,
 						is_affiliate:false,
 						is_partner:false,
 						is_tracked:false,
@@ -264,24 +286,52 @@ export default class EmoteSelector extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
+		this.buildNextUser();
 	}
 
 	public beforeUnmount():void {
+		clearTimeout(this.buildTimeout);
 		document.removeEventListener("mousedown", this.clickHandler);
+	}
+	
+	/**
+	 * Create tooltip only when hovering the image.
+	 * This avoids huge lag on build if creating tooltip on every items
+	 * at once.
+	 * 
+	 * @param event 
+	 * @param emote 
+	 */
+	public openTooltip(event:MouseEvent, emote:TwitchatDataTypes.Emote):void {
+		if(this.tooltipCreated[emote.code] === true) return;
+		this.tooltipCreated[emote.code] = true;
+		useTippy(event.currentTarget as HTMLImageElement, {
+			content: "<img src="+emote.images.url_4x+" width=\"112\" class=\"emote\"><br><center>"+emote.code+"</center>",
+		});
+	}
+
+	/**
+	 * Scrolls list ot a specific user
+	 * @param user 
+	 */
+	public scrollTo(user:TwitchatDataTypes.TwitchatUser):void {
+		const [holder] = this.$refs["user_"+user.id] as  HTMLDivElement[];
+		holder.scrollIntoView();
 	}
 
 	private open():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.from(ref, {duration:.2, scaleX:0, delay:.1, clearProps:"scaleX", ease:"back.out"});
-		gsap.from(ref, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
+		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out"});
+		gsap.fromTo(ref, {scaleX:1.1}, {duration:.5, delay:.3, scaleX:1, clearProps:"scaleX,translateX", ease:"elastic.out(1)"});
 	}
 
 	private close():void {
+		clearTimeout(this.buildTimeout);
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});
-		gsap.to(ref, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY, scaleX", ease:"back.in", onComplete:() => {
+		gsap.to(ref, {duration:.1, scaleX:1.1, ease:"sin.in"});
+		gsap.to(ref, {duration:.1, translateX:"100%", scaleX:1, delay:.1, clearProps:"translateX", ease:"sin.out", onComplete:() => {
 			this.$emit("close");
 		}});
 	}
@@ -297,21 +347,64 @@ export default class EmoteSelector extends Vue {
 		}
 	}
 
+	/**
+	 * This increments a counter that's used as the reference
+	 * for building users.
+	 * A user is built only if its index is greater or equal
+	 * to the current build offset.
+	 * This avoids huge lag on open if user is subbed to lots
+	 * of channels.
+	 */
+	private buildNextUser():void {
+		if(this.buildOffset >= this.users.length) return;
+
+		const u = this.users[this.buildOffset];
+		this.buildTimeout = setTimeout(()=>{
+			this.buildOffset ++;
+			this.buildNextUser();
+		}, Math.min(250, u.emotes.length * 5));
+	}
 
 }
 </script>
 
 <style scoped lang="less">
 .emoteselector{
-	.window();
 	width: min-content;
 	left: auto;
 	right: 0;
 	margin-left: auto;
 	transform-origin: bottom right;
+	overflow-y: hidden;
 
 	&>*:not(:last-child) {
 		margin-bottom: 5px;
+	}
+
+	.userList {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: .5em;
+		max-height: 6em;
+		overflow-y: auto;
+		justify-content: center;
+		margin: .5em 0;
+		.user {
+			cursor: pointer;
+			padding: 0;
+			height: 2em;
+			width: 2em;
+			.avatar {
+				width: 100%;
+				border-radius: 50%;
+			}
+			&:hover {
+				.avatar {
+					filter: brightness(150%);
+				}
+			}
+		}
 	}
 
 	.loader {
@@ -329,68 +422,56 @@ export default class EmoteSelector extends Vue {
 	}
 
 	.list {
-		height: 400px;
-		width: 399px;
+		width: 400px;
 		max-width: 100%;
-		max-height: 80%;
 		overflow-x: hidden;
 		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
+		flex-shrink: 1;
+		color: var(--color-light);
+		.anchor {
+			background: red;
+			transform: translateY(.5em);
+		}
 
-		.item {
-			&:not(:last-child) {
-				margin-bottom: 20px;
-			}
-			.head {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				background-color: @mainColor_normal;
-				border-radius: 20px;
-				.avatar {
-					height: 25px;
-					border-radius: 50%;
-					margin-right: 10px;
-				}
-				.login {
-					color: @mainColor_light;
-					flex-grow: 1;
-					font-size: 15px;
-				}
-			}
-			.emotes {
-				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				justify-content: center;
-				background-color: fade(@mainColor_normal, 30%);
-				color:@mainColor_light;
-				width: calc(100% - 2em);
-				margin: auto;
-				border-bottom-left-radius: @border_radius;
-				border-bottom-right-radius: @border_radius;
-				.emote {
-					height: 33px;
-					width: 33px;
-					padding: 3px;
-					cursor: pointer;
-					border-radius: 5px;
-					border: 1px solid transparent;
-					&:hover {
-						border-color: fade(@mainColor_light, 70%);
-					}
+		.sticky {
+			top:	0;
+			position: sticky;
+		}
+		.emotes, .hypetrain {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			margin-bottom: 1em;
+			.emote {
+				height: 33px;
+				width: 33px;
+				padding: 2px;
+				cursor: pointer;
+				border: 1px solid transparent;
+				border-radius: 5px;
+				object-fit: contain;
+				&:hover {
+					border-color: var(--color-secondary);
 				}
 			}
+		}
 
-			.hypetrain {
-				font-size: .7em;
-				text-align: center;
-				background-color: fade(@mainColor_normal, 30%);
-				color:@mainColor_light;
-				padding: .5em;
-				width: calc(100% - 2em);
-				margin: auto;
-				border-bottom-left-radius: @border_radius;
-				border-bottom-right-radius: @border_radius;
+		.hypetrain {
+			font-size: .9em;
+			text-align: center;
+			line-height: 1.3em;
+		}
+
+		&.search {
+			.item {
+				.emotes {
+					border-radius: var(--border-radius);
+					// background-color: transparent;
+				}
 			}
 		}
 

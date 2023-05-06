@@ -1,5 +1,6 @@
 {
 	"connexions":{
+		"header":"Connectez Twitchat avec des applications tièrces",
 		"spotify":{
 			"refused":"Malheureusement, <strong>Spotify refuse</strong> à Twitchat d'utiliser leur API.",
 			"how_to":"Pour lier Twitchat à Spotify, {URL} et remplis les valeurs ci-dessous :",
@@ -16,6 +17,7 @@
 			"secured":"Sécurisé",
 			"success":"Connexion au serveur socket établie",
 			"usage":"Connectez-vous à un serveur websocket (ex: Chataigne) puis envoyez-lui des données depuis les Triggers.",
+			"clearBt":"Effacer",
 			"connectBt":"Connecter",
 			"disconnectBt":"Déconnecter"
 		}

@@ -32,8 +32,11 @@ export default class FFZUtils {
 	 */
 	public get emotes():TwitchatDataTypes.Emote[] {
 		const res:TwitchatDataTypes.Emote[] = [];
+		const emotesDone:{[key:string]:boolean} = {};
 		for (const key in this.globalEmotesHashmaps) {
 			const e = this.globalEmotesHashmaps[key];
+			if(emotesDone[e.id]) continue;
+			emotesDone[e.id] = true;
 			res.push({
 				id: e.id.toString(),
 				code: e.name,
@@ -51,6 +54,8 @@ export default class FFZUtils {
 			const chan = this.channelEmotesHashmaps[chanId];
 			for (const key in chan) {
 				const e = chan[key];
+				if(emotesDone[e.id]) continue;
+				emotesDone[e.id] = true;
 				res.push({
 					id: e.id.toString(),
 					code: e.name,

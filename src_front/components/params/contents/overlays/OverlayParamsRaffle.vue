@@ -1,30 +1,28 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket_purple']">
+	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket']">
 		<div class="holder">
-			<div class="row">{{ $t("overlay.raffle.head") }}</div>
-
-			<div class="row">
-				<input type="text" v-model="overlayUrl">
+			
+			<div class="item">
+				<div class="info">{{ $t("overlay.raffle.head") }}</div>
+				<input type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.raffle.css") }}</div>
-					<ul>
+					<ul class="cssStructure">
 						<li>.wheel-item { ... }</li>
 						<li>.wheel-item.selected { ... }</li>
 					</ul>
 				</ToggleBlock>
 			</div>
 
-			<div class="row center" v-if="overlayExists">
-				<Button :loading="loading" @click="testWheel()" :title="$t('overlay.raffle.testBt')" :icon="$image('icons/test.svg')" />
+			<div class="item center" v-if="overlayExists">
+				<Button :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
 			</div>
 
-			<div class="row center" v-if="!overlayExists">
-				<span class="error">{{ $t("overlay.raffle.no_overlay") }}</span>
-			</div>
+			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 			
-			<div class="row">
+			<div class="card-item item">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
-					<template #MENU><img src="@/assets/icons/commands_purple.svg" class="icon"></template>
+					<template #MENU><img src="@/assets/icons/commands.svg" class="icon"></template>
 					<template #CMD><strong>/raffle</strong></template>
 				</i18n-t>
 			</div>
@@ -39,7 +37,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import type { JsonArray } from "type-fest";
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -51,8 +49,10 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	}
 })
 export default class OverlayParamsRaffle extends Vue {
+	
+	@Prop({default:false})
+	public open!:boolean;
 
-	public open = false;
 	public loading = false;
 	public overlayExists = false;
 
@@ -119,12 +119,20 @@ export default class OverlayParamsRaffle extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
-		.row {
-			display: flex;
-			flex-direction: column;
+		.item {
+
+			.info {
+				margin-bottom: .5em;
+			}
+
+			input {
+				width: 100%;
+				margin-bottom: .5em;
+				background-color: var(--color-primary);
+			}
 
 			&.center {
-				align-items: center;
+				margin: auto;
 			}
 
 			:deep(.icon) {
@@ -132,13 +140,7 @@ export default class OverlayParamsRaffle extends Vue {
 				vertical-align: middle;
 			}
 
-			.error {
-				color:@mainColor_alert;
-				font-style: italic;
-			}
-
 			ul {
-				.cssStructure();
 				margin-top: .5em;
 			}
 		}

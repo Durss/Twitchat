@@ -1,5 +1,5 @@
 <template>
-	<div class="communityboostinfo" :data-tooltip="$t('global.tooltips.boost')" @click="smallMode=!smallMode">
+	<div class="communityboostinfo" v-tooltip="$t('global.tooltips.boost')" @click="smallMode=!smallMode">
 		<div class="col">
 			<img src="@/assets/icons/boost.svg" alt="boost">{{roundProgressPercent}}%
 		</div>
@@ -64,7 +64,7 @@ export default class CommunityBoostInfo extends Vue {
 	flex-direction: row;
 	align-items: center;
 	white-space: nowrap;
-	color: @mainColor_light;
+	color: var(--color-light);
 	margin-left: 5px;
 	font-size: 14px;
 	padding: 5px;
@@ -81,11 +81,11 @@ export default class CommunityBoostInfo extends Vue {
 	.count {
 		display: flex;
 		flex-direction: column;
-		font-size: 9px;
+		font-size: 10px;
 		margin-left: 5px;
 		align-items: center;
 		p:nth-child(2) {
-			border-top: 1px solid @mainColor_light;
+			border-top: 1px solid var(--color-light);
 		}
 	}
 }

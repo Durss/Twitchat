@@ -2,6 +2,7 @@
 	"raffle": {
 		"form_title": "Create Raffle",
 		"closeBt_aria": "Close raffle form",
+		"description": "Select one of your viewers randomly",
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Start raffle",
@@ -13,14 +14,14 @@
 			"title": "Subs",
 			"description": "Randomly pick someone amongst all your current subscribers",
 			"startBt_aria": "Pick a sub",
-			"startBt": "Pick a sub <i>({COUNT})</i>"
+			"startBt": "Pick a sub {COUNT}"
 		},
 		"list": {
 			"title": "List",
 			"description": "Set a custom list of entries and randomly pick one",
 			"instructions": "(Seperate entries with a coma or a line break)",
 			"startBt_aria": "Pick an item",
-			"startBt": "Pick an item <i>({COUNT})</i>"
+			"startBt": "Pick an item {COUNT}"
 		},
 		"legal": {
 			"title": "Legal concerns",

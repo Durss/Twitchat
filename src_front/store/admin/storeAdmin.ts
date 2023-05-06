@@ -30,7 +30,7 @@ export const storeAdmin = defineStore('Admin', {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
-			const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+users[0].id, {method:"POST", headers});
+			const res = await fetch(Config.instance.API_PATH+"/admin/beta/user?uid="+users[0].id, {method:"POST", headers});
 			try {
 				if(res.status === 200 && (await res.json()).success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -66,7 +66,7 @@ export const storeAdmin = defineStore('Admin', {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
-			const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+users[0].id, {method:"DELETE", headers});
+			const res = await fetch(Config.instance.API_PATH+"/admin/beta/user?uid="+users[0].id, {method:"DELETE", headers});
 			try {
 				if(res.status === 200 && (await res.json()).success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -97,7 +97,7 @@ export const storeAdmin = defineStore('Admin', {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
-			const res = await fetch(Config.instance.API_PATH+"/beta/user/all", {method:"DELETE", headers});
+			const res = await fetch(Config.instance.API_PATH+"/admin/beta/user/all", {method:"DELETE", headers});
 			try {
 				if(res.status === 200 && (await res.json()).success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -133,7 +133,7 @@ export const storeAdmin = defineStore('Admin', {
 				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
 				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
-			const res = await fetch(Config.instance.API_PATH+"/beta/user/migrateToProduction?uid="+users[0].id, {method:"POST", headers});
+			const res = await fetch(Config.instance.API_PATH+"/admin/beta/user/migrateToProduction?uid="+users[0].id, {method:"POST", headers});
 			try {
 				if(res.status === 200 && (await res.json()).success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {

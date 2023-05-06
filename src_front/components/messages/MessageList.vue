@@ -3,6 +3,7 @@
 	@mouseenter="onHoverList"
 	@mouseleave="onLeaveList"
 	@wheel="onMouseWheel"
+	@touchstart="onTouchStart"
 	@touchmove="onTouchMove">
 		<MessageListFilter class="filters"
 			ref="listFilter"
@@ -21,7 +22,7 @@
 		
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
-				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
+				<div class="fake" v-if="m.fake === true" v-tooltip="{content:$t('chat.fake_tag_tt'), placement:'right'}">{{$t("chat.fake_tag")}}</div>
 				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
 					@showConversation="openConversation"
@@ -58,21 +59,21 @@
 		<div class="lockedLiveHolder" v-if="!lightMode && lockScroll && lockedLiveMessages.length > 0">
 			<div class="subHolder" v-for="m in lockedLiveMessages"
 			:key="m.id" :ref="'message_live_' + m.id">
-				<div class="fake" v-if="m.fake === true" :data-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
+				<div class="fake" v-if="m.fake === true" v-tooltip="$t('chat.fake_tag_tt')">{{$t("chat.fake_tag")}}</div>
 				<MessageItem :messageData="m"
 					disableConversation
 				/>
 			</div>
 			<div class="footer">
 				<Button	:aria-label="$t('chat.live_chat_less_aria')"
-					:icon="$image('icons/minus.svg')"
+					icon="minus"
 					:disabled="config.liveLockCount == 1"
 					@click="incrementLockedLiveCount(-1)"/>
 
 				<span class="label">{{ $t("chat.live_chat") }}</span>
 
 				<Button	:aria-label="$t('chat.live_chat_more_aria')"
-					:icon="$image('icons/add.svg')"
+					icon="add"
 					:disabled="config.liveLockCount == 10 || config.liveLockCount>=pendingMessages.length"
 					@click="incrementLockedLiveCount(1)"/>
 			</div>
@@ -86,10 +87,7 @@
 			<div class="head">
 				<h1 v-if="conversationMode">{{ $t("chat.conversation") }}</h1>
 				<h1 v-if="!conversationMode">{{ $t("chat.history", {USER: conversation[0].user.displayName}) }}</h1>
-				<Button class="button"
-					:aria-label="$t('chat.conversation_closeBt_aria')"
-					:icon="$image('icons/cross_white.svg')"
-					@click="onLeaveMessage" />
+				<CloseButton @click="onLeaveMessage" />
 			</div>
 			<div class="messages" ref="conversationMessages">
 				<MessageItem class="message"
@@ -122,11 +120,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
 import MessageItem from './MessageItem.vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components: {
 		Button,
 		MessageItem,
+		CloseButton,
 		MessageListFilter,
 	},
 	emits: ["showModal", 'addColumn']
@@ -175,6 +175,7 @@ export default class MessageList extends Vue {
 	private openConvTimeout!: number;
 	private closeConvTimeout!: number;
 	private prevTouchMove!: TouchEvent;
+	private touchDragOffset: number = 0;
 	private publicApiEventHandler!: (e: TwitchatEvent) => void;
 	private deleteMessageHandler!: (e: GlobalEvent) => void;
 	private addMessageHandler!: (e: GlobalEvent) => void;
@@ -327,7 +328,7 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
 		if (this.pendingMessages.length == 0 && el.scrollTop >= maxScroll - 50) {
-			this.lockScroll = false;
+			this.unlockListRefresh();
 		}
 	}
 
@@ -418,6 +419,10 @@ export default class MessageList extends Vue {
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
 		if(this.customActivitiesDisplayed) return false;
 		if(m.col != undefined && m.col != this.config.order) return false;
+		
+		if (m.deleted && this.config.messageFilters.deleted === false) {
+			return false;
+		}
 
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
@@ -454,9 +459,6 @@ export default class MessageList extends Vue {
 				//displayed even if all the viewers/mod/vip/sub filters are off
 				if ((m.twitch_automod || m.twitch_isRestricted)) {
 					return this.config.messageFilters.automod !== false;
-				}
-				if (m.deleted) {
-					return this.config.messageFilters.deleted !== false;
 				}
 				if (m.twitch_isSuspicious) {
 					return this.config.messageFilters.suspiciousUsers !== false;
@@ -601,7 +603,7 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
-				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK && this.config.filters.twitchat_ad === true) return true;
+				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK) return this.config.filters.twitchat_ad === true;
 				//Force other ad types to first columns
 				return this.config.order == 0;
 			}
@@ -617,6 +619,11 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: {
 				return true
 			}
+
+			case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
+				return this.config.filters.user_watch_streak !== false;
+			}
+
 			default: return false;
 		}
 	}
@@ -792,28 +799,31 @@ export default class MessageList extends Vue {
 						break;
 					}
 				}
-				
-				//Moving read mark upward
-				if(count < 0) {
-					for (let i = currentMessageIndex; i > 0; i--) {
-						const m = messageList[i];
-						if(await this.shouldShowMessage(m)) count ++;
-						if(count === 1) {
-							this.markedAsReadDate = m.date;
-							this.replaceReadMarker();
-							break;
+
+				if(currentMessageIndex > -1) {
+					//Moving read mark upward
+					if(count < 0) {
+						for (let i = currentMessageIndex; i > 0; i--) {
+							const m = messageList[i];
+							if(await this.shouldShowMessage(m)) count ++;
+							if(count === 1) {
+								this.markedAsReadDate = m.date;
+								this.replaceReadMarker();
+								break;
+							}
 						}
-					}
-					
-				//Moving read mark downward
-				}else if(count > 0){
-					for (let i = currentMessageIndex; i < messageList.length; i++) {
-						const m = messageList[i];
-						if(await this.shouldShowMessage(m)) count --;
-						if(count === -1) {
-							this.markedAsReadDate = m.date;
-							this.replaceReadMarker();
-							break;
+						
+					//Moving read mark downward
+					}else if(count > 0){
+						console.log(messageList);
+						for (let i = currentMessageIndex; i < messageList.length; i++) {
+							const m = messageList[i];
+							if(await this.shouldShowMessage(m)) count --;
+							if(count === -1) {
+								this.markedAsReadDate = m.date;
+								this.replaceReadMarker();
+								break;
+							}
 						}
 					}
 				}
@@ -909,37 +919,39 @@ export default class MessageList extends Vue {
 						break;
 					}
 				}
-				
-				//Moving selection upward
-				if(count < 0) {
-					for (let i = currentMessageIndex; i > 0; i--) {
-						const m = messageList[i];
-						if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count ++;
-						if(count === add) {
-							this.selectionDate = m.date;
-							this.replaceReadMarker();
-							break;
+
+				if(currentMessageIndex > -1) {
+					//Moving selection upward
+					if(count < 0) {
+						for (let i = currentMessageIndex; i > 0; i--) {
+							const m = messageList[i];
+							if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count ++;
+							if(count === add) {
+								this.selectionDate = m.date;
+								this.replaceReadMarker();
+								break;
+							}
+						}
+						
+					//Moving selection downward
+					}else if(count > 0){
+						for (let i = currentMessageIndex; i < messageList.length; i++) {
+							const m = messageList[i];
+							if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count --;
+							if(count === -add) {
+								this.selectionDate = m.date;
+								this.replaceReadMarker();
+								break;
+							}
 						}
 					}
-					
-				//Moving selection downward
-				}else if(count > 0){
-					for (let i = currentMessageIndex; i < messageList.length; i++) {
-						const m = messageList[i];
-						if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count --;
-						if(count === -add) {
-							this.selectionDate = m.date;
-							this.replaceReadMarker();
-							break;
-						}
-					}
+					clearTimeout(this.selectionTimeout);
+					this.selectionTimeout = setTimeout(()=>{
+						this.selectedItem = null;
+						this.selectedMessage = null;
+						this.selectionDate = 0;
+					}, 5000);
 				}
-				clearTimeout(this.selectionTimeout);
-				this.selectionTimeout = setTimeout(()=>{
-					this.selectedItem = null;
-					this.selectedMessage = null;
-					this.selectionDate = 0;
-				}, 5000);
 				break;
 			}
 
@@ -1032,7 +1044,6 @@ export default class MessageList extends Vue {
 	 * Called when scrolling the list
 	 */
 	private async onScroll(amount:number, event?:WheelEvent):Promise<void> {
-		//"shiftkey" filter avoids pausing chat when scrolling horizontally via shift+wheel
 		if (this.lightMode) return;
 
 		if (amount < 0) {
@@ -1046,7 +1057,7 @@ export default class MessageList extends Vue {
 			const messRefs = el.querySelectorAll(".message");
 			if (messRefs.length == 0) {
 				//If scrolling the chat down before any message shows up, just load next message
-				await this.showNextPendingMessage(true);
+				await this.showNextPendingMessage();
 				return;
 			}
 			
@@ -1058,10 +1069,19 @@ export default class MessageList extends Vue {
 						event.preventDefault();
 						event.stopPropagation();
 					}
-					await this.showNextPendingMessage(true);
+					await this.showNextPendingMessage();
 				}
 			}
 		}
+	}
+
+	/**
+	 * Start scrolling chat on mobile
+	 * Used to set a drag offset to avoid glitchy chat scroll
+	 * when actually trying to scroll horizontally
+	 */
+	public onTouchStart(event: TouchEvent): void {
+		this.touchDragOffset = event.touches[0].clientY;
 	}
 
 	/**
@@ -1072,9 +1092,17 @@ export default class MessageList extends Vue {
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 		if (this.prevTouchMove) {
 			const direction = event.touches[0].clientY - this.prevTouchMove.touches[0].clientY;
-			//Pause if dragging up
-			if (direction > 0) this.lockScroll = true;
-			else this.lockScroll = Math.abs(el.scrollTop - maxScroll) != 0;
+			const dragOffset = event.touches[0].clientY - this.touchDragOffset;
+			//Pause chat if dragging it upward for at least 50px
+			if (direction > 0 && dragOffset > 50) this.lockScroll = true;
+			else {
+				const lock = Math.abs(el.scrollTop - maxScroll) != 0;
+				if(!lock) {
+					this.unlockListRefresh();
+				}else{
+					this.lockScroll = true;
+				}
+			}
 		}
 		this.prevTouchMove = event;
 	}
@@ -1101,6 +1129,11 @@ export default class MessageList extends Vue {
 		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
 		let easeValue		= hasResized? 1 : .3;
+
+		//Compute scroll offset before/after which point prev/next messages
+		//should be loaded
+		const scrollPageOffset = Math.min(this.virtualMessageHeight * 5, maxScroll*.25);
+
 		if(hasResized) {
 			//If enhancing size, refresh max message count
 			if(this.prevHeight < holderHeight) {
@@ -1141,20 +1174,20 @@ export default class MessageList extends Vue {
 			this.holderOffsetY = 0;
 			messageHolder.style.transform = "translateY(0)";
 		}
-
+		messageHolder.style.paddingTop = (scrollPageOffset+10)+"px";
 
 		//Show next pending message if at the bottom and scroll isn't locked
-		if (this.virtualScrollY >= maxScroll - 1
-		&& !this.lockScroll
+		if (messageHolder.scrollTop >= maxScroll - scrollPageOffset
 		&& this.pendingMessages.length > 0) {
-			gsap.killTweensOf(messageHolder);
 			await this.showNextPendingMessage();
+			gsap.killTweensOf(messageHolder);
 			
 			//Show older messages if near the top
-		}else if(messageHolder.scrollTop < Math.min(this.virtualMessageHeight * 5, maxScroll*.25)) {
+		}else if(messageHolder.scrollTop < scrollPageOffset) {
 			//Make sure we don't reach the top.
-			//If we did the list would keep scrolling up until reaching the first message
-			messageHolder.scrollTop = this.virtualScrollY = Math.max(10, messageHolder.scrollTop);
+			//If we did the list would keep scrolling up until reaching the first message unless
+			//we bring it back just a little like this
+			messageHolder.scrollTop = this.virtualScrollY = scrollPageOffset + 2;
 			gsap.killTweensOf(messageHolder);
 			this.showPrevMessage();
 		}
@@ -1163,40 +1196,57 @@ export default class MessageList extends Vue {
 	/**
 	 * Get the next pending message and display it to the list
 	 */
-	private async showNextPendingMessage(wheelOrigin = false):Promise<void> {
+	private async showNextPendingMessage():Promise<void> {
 		if (this.pendingMessages.length == 0) return;
+		
+		//Get last currently displayed message reference so we can scroll back
+		//to it after adding new messages
+		const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
+		const messRefs = messagesHolder.querySelectorAll(".messageHolder>.subHolder");
+		let lastMessRef:HTMLDivElement|undefined = undefined;
+		if (messRefs.length > 0) {
+			lastMessRef = messRefs[messRefs.length - 1] as HTMLDivElement;
+		}
 
+		//Add 5 messages
+		let addCount = 5;
 		let message!: TwitchatDataTypes.ChatMessageTypes | undefined;
 		do {
 			message = this.pendingMessages.shift();
-			if(!await this.shouldShowMessage(message!)) message = undefined
-		} while (this.pendingMessages.length > 0 && !message)
-
-		if (message) {
+			//Remove it from locked live list if it exists
 			const index = this.lockedLiveMessages.findIndex(v=>v.id == message!.id);
-			if(index > -1) {
-				this.lockedLiveMessages.splice(index, 1);
-			}
-			this.filteredMessages.push(message);
-			if (this.filteredMessages.length > this.maxMessages) {
-				this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
-			}
-			this.scrollToPrevMessage(wheelOrigin);
-		}
+			if(index > -1) this.lockedLiveMessages.splice(index, 1);
 
+			//Message isn't supposed to be displayed, ignore it
+			if(!await this.shouldShowMessage(message!)) message = undefined;
+			else if(message) {
+				//Add message
+				addCount --;
+				this.filteredMessages.push(message);
+			}
+		} while (this.pendingMessages.length > 0 && addCount > 0)
+		
+		//Reset index so we can scroll upward again even if chat is still paused
+		this.scrollUpIndexOffset = -1;
+		
+		//No message added, stop there
+		if(addCount == 5) return;
+		
+		if (this.filteredMessages.length > this.maxMessages) {
+			this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
+		}
 	}
 
 	/**
-	 * Shows previous message when scrolling upward
+	 * Shows previous messages when scrolling upward
 	 */
 	private async showPrevMessage():Promise<void> {
 		if(!this.lockScroll) return;
 		if(this.loadingOldMessage || this.filteredMessages.length === 0) return;
 		
 		const list = this.$store("chat").messages;
-
 		this.loadingOldMessage = true;
-
+		
 		const removed:TwitchatDataTypes.ChatMessageTypes[]	= [];
 		const lastId:string = this.filteredMessages[0].id;
 		if(this.scrollUpIndexOffset == -1) {
@@ -1385,7 +1435,7 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Called on a message is clicked
+	 * Called when a message is clicked
 	 */
 	public toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEvent): void {
 
@@ -1481,7 +1531,7 @@ export default class MessageList extends Vue {
 		const el = this.$el as HTMLDivElement;
 		const sizesRatio = [.4,.5,.6,.7,.8,.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3];
 		const size = this.$store("params").appearance.defaultSize.value as number;
-		this.virtualMessageHeight = (32 + 9) * sizesRatio[size];//32 = min content height ; 9 = top+bottom padding
+		this.virtualMessageHeight = (32 + 9) * sizesRatio[size-1];//32 = min content height ; 9 = top+bottom padding
 		const newCount = Math.ceil(el.offsetHeight/this.virtualMessageHeight) + 10;
 		if(newCount != this.maxMessages) {
 			this.fullListRefresh();
@@ -1530,7 +1580,6 @@ export default class MessageList extends Vue {
 	position: relative;
 	flex-direction: column;
 	max-height: 100%;
-	padding-bottom: 0;
 
 	&.lightMode {
 		padding: 0;
@@ -1543,7 +1592,7 @@ export default class MessageList extends Vue {
 	&:not(.alternateOdd) {
 		.messageHolder {
 			.subHolder:nth-child(even) {
-				background-color: rgba(255, 255, 255, .025);
+				background-color: var(--color-light-fadest);
 			}
 		}
 	}
@@ -1551,7 +1600,7 @@ export default class MessageList extends Vue {
 	&.alternateOdd {
 		.messageHolder {
 			.subHolder:nth-child(odd) {
-				background-color: rgba(255, 255, 255, .025);
+				background-color: var(--color-light-fadest);
 			}
 		}
 	}
@@ -1563,8 +1612,8 @@ export default class MessageList extends Vue {
 	}
 
 	.filteredMessages {
-		color: @mainColor_light;
-		background-color: @mainColor_normal;
+		color: var(--color-light);
+		background-color: var(--color-primary);
 		padding: .5em;
 		display: flex;
 		align-items: center;
@@ -1583,9 +1632,17 @@ export default class MessageList extends Vue {
 	}
 
 	.messageHolder {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 		overflow-y: auto;
 		overflow-x: hidden;
 		flex-grow: 1;
+		//Scrolling is locked to 10px min from the top to avoid infinite
+		//automatic scrolling to prev items, this padding compensates for
+		//this so we can entirely see the 1st message
+		padding-top: 10px;
+		padding-bottom: 3px;
 
 		.subHolder {
 			position: relative;
@@ -1593,19 +1650,19 @@ export default class MessageList extends Vue {
 			flex-direction: row;
 
 			.message {
-				position: relative;
 				flex-grow: 1;
 				&.empty {
 					font-style: italic;
-					color: fade(@mainColor_light, 50);
+					color: var(--color-light-fade);
 					text-align: center;
 					font-style: italic;
 					width: 100%;
+					padding: .5em 0;
 				}
 				// &:hover {
-					//Disabled as it causes CSS re renders of all subsequent nodes
-					//which is not ideal for performances
-					// z-index: 2000;
+				// 	// Disabled as it causes CSS re renders of all subsequent nodes
+				// 	// which is not ideal for performances
+				// 	z-index: 2000;
 				// }
 			}
 		}
@@ -1613,8 +1670,9 @@ export default class MessageList extends Vue {
 		.markRead {
 			width: 100%;
 			height: 10000px;
-			background: fade(@mainColor_dark, 80%);
-			border-bottom: 2px solid @mainColor_light;
+			background: rgba(0, 0, 0, .7);
+			background: var(--color-dark-fade);
+			border-bottom: 2px solid var(--color-light);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -1624,8 +1682,7 @@ export default class MessageList extends Vue {
 		.selected {
 			width: 100%;
 			height: 100%;
-			background-color: fade(@mainColor_normal, 20%);
-			border: 2px solid @mainColor_normal;
+			background-color: var(--color-secondary-fadest);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -1642,14 +1699,16 @@ export default class MessageList extends Vue {
 
 	.fake {
 		display: inline;
-		background-color: @mainColor_light;
-		border-radius: @border_radius;
-		align-self: center;
+		color:var(--color-light);
+		background-color: var(--color-secondary);
+		border-radius: var(--border-radius);
+		align-self: stretch;
 		padding: .2em .5em;
 		margin-right: 5px;
 		font-weight: bold;
-		color:@mainColor_dark;
 		cursor: default;
+		display: flex;
+		align-items: center;
 		font-size: var(--messageSize);
 	}
 
@@ -1663,23 +1722,21 @@ export default class MessageList extends Vue {
 		border-radius: 5px;
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
-		background: @mainColor_normal;
+		background: var(--color-primary);
 		color: #fff;
 		white-space: nowrap;
-		font-size: .7em;
 		padding: .7em;
 		transition: background-color .25s;
 		transform-origin: bottom center;
 		cursor: pointer;
 
 		&:hover {
-			background: @mainColor_normal_light;
+			background: var(--color-primary-light);
 		}
 	}
 
 	.lockedLiveHolder {
-		// background: fade(@mainColor_normal, 20%);
-		background: @mainColor_dark_light;
+		background: var(--color-primary-fadest);
 		border-top: 1px solid fade(#000, 50%);
 		padding-top: .25em;
 
@@ -1688,21 +1745,12 @@ export default class MessageList extends Vue {
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			color: fade(@mainColor_light, 50%);
-			font-size: .6em;
+			color: var(--color-light);
+			font-size: .8em;
 			margin-bottom: .5em;
 			.label {
 				font-style: italic;
 				margin: 0 .5em;
-			}
-			.button {
-				.clearButton();
-				width: 2em;
-				color: @mainColor_light;
-				background-color: fade(@mainColor_light, 20%);
-				&:hover {
-					background-color: fade(@mainColor_light, 30%) !important;
-				}
 			}
 		}
 
@@ -1763,7 +1811,7 @@ export default class MessageList extends Vue {
 	.conversation {
 		position: absolute;
 		z-index: 4;
-		background-color: @mainColor_dark;
+		background-color: var(--color-dark);
 		padding: 10px;
 		left: 0;
 		width: 100%;
@@ -1774,21 +1822,14 @@ export default class MessageList extends Vue {
 		.head {
 			display: flex;
 			flex-direction: row;
-			border-bottom: 1px solid @mainColor_dark_light;
+			border-bottom: 1px solid var(--color-light);
 			padding-bottom: 10px;
 			margin-bottom: 10px;
 
 			h1 {
 				text-align: center;
 				flex-grow: 1;
-				color: @mainColor_light;
-			}
-
-			.button {
-				.clearButton();
-				width: 1.25em;
-				height: 1.25em;
-				padding: .5em;
+				color: var(--color-light);
 			}
 		}
 
@@ -1796,7 +1837,9 @@ export default class MessageList extends Vue {
 			max-height: 200px;
 			overflow-y: auto;
 			overflow-x: hidden;
-			position: relative
+			.message:nth-child(odd) {
+				background-color: rgba(255, 255, 255, .025);
+			}
 		}
 	}
 

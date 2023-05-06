@@ -1,19 +1,19 @@
 <template>
 	<div class="chatmodtools" @mouseleave="closeToOptions()">
-		<img src="@/assets/icons/ban.svg" alt="ban" :data-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()">
+		<img src="@/assets/icons/ban.svg" alt="ban" v-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()">
 		<img src="@/assets/icons/timeout.svg" alt="timeout"
 		@click.stop="openToOptions()"
-		data-tooltip="Timeout">
+		v-tooltip="'Timeout'">
 		<div class="toOptions" v-if="showToOptions" ref="toOptions" @mouseenter="resetCloseTimeout()">
-			<Button :aria-label="$t('chat.mod_tools.to10_aria')" @click.stop="timeoutUser(10)" :title="$t('chat.mod_tools.to10')" small />
-			<Button :aria-label="$t('chat.mod_tools.to120_aria')" @click.stop="timeoutUser(120)" :title="$t('chat.mod_tools.to120')" small />
-			<Button :aria-label="$t('chat.mod_tools.to30_aria')" @click.stop="timeoutUser(1800)" :title="$t('chat.mod_tools.to30')" small />
-			<Button :aria-label="$t('chat.mod_tools.to3600_aria')" @click.stop="timeoutUser(3600)" :title="$t('chat.mod_tools.to3600')" small />
-			<Button :aria-label="$t('chat.mod_tools.to43200_aria')" @click.stop="timeoutUser(3600*12)" :title="$t('chat.mod_tools.to43200')" small />
-			<Button :aria-label="$t('chat.mod_tools.to1w_aria')" @click.stop="timeoutUser(3600*24*7)" :title="$t('chat.mod_tools.to1w')" small />
+			<Button alert :aria-label="$t('chat.mod_tools.to10_aria')"			@click.stop="timeoutUser(10)" small>{{$t('chat.mod_tools.to10')}}</Button>
+			<Button alert :aria-label="$t('chat.mod_tools.to120_aria')"			@click.stop="timeoutUser(120)" small>{{$t('chat.mod_tools.to120')}}</Button>
+			<Button alert :aria-label="$t('chat.mod_tools.to30_aria')"			@click.stop="timeoutUser(1800)" small>{{$t('chat.mod_tools.to30')}}</Button>
+			<Button alert :aria-label="$t('chat.mod_tools.to3600_aria')"			@click.stop="timeoutUser(3600)" small>{{$t('chat.mod_tools.to3600')}}</Button>
+			<Button alert :aria-label="$t('chat.mod_tools.to43200_aria')"			@click.stop="timeoutUser(3600*12)" small>{{$t('chat.mod_tools.to43200')}}</Button>
+			<Button alert :aria-label="$t('chat.mod_tools.to1w_aria')"			@click.stop="timeoutUser(3600*24*7)" small>{{$t('chat.mod_tools.to1w')}}</Button>
 		</div>
-		<img src="@/assets/icons/trash.svg" alt="trash" :data-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete">
-		<img src="@/assets/icons/block.svg" alt="trash" :data-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false">
+		<img src="@/assets/icons/trash.svg" alt="trash" v-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete">
+		<img src="@/assets/icons/block.svg" alt="trash" v-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false">
 	</div>
 </template>
 
@@ -144,9 +144,17 @@ export default class ChatModTools extends Vue {
 		flex-direction: row;
 		bottom: 0;
 		.button {
-			.clearButton();
-			padding: 0 .2em;
+			border-radius: 0;
+			padding: 0 .25em;
 			margin-right: 1px;
+			&:first-child{
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
+			}
+			&:last-child{
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
+			}
 		}
 	}
 }

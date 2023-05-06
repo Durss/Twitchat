@@ -340,7 +340,7 @@ export namespace PubSubDataTypes {
 		config: {
 			channel_id: string;
 			is_enabled: boolean;
-			is_whitelisted: boolean;
+			islisted: boolean;
 			kickoff: {
 				num_of_events: number;
 				min_points: number;
@@ -350,28 +350,8 @@ export namespace PubSubDataTypes {
 			level_duration: number;
 			difficulty: string;
 			reward_end_date?: number;
-			participation_conversion_rates: {
-				"BITS.CHEER": number;
-				"BITS.EXTENSION": number;
-				"BITS.POLL": number;
-				"SUBS.TIER_1_GIFTED_SUB": number;
-				"SUBS.TIER_1_SUB": number;
-				"SUBS.TIER_2_GIFTED_SUB": number;
-				"SUBS.TIER_2_SUB": number;
-				"SUBS.TIER_3_GIFTED_SUB": number;
-				"SUBS.TIER_3_SUB": number;
-			};
-			notification_thresholds: {
-				"BITS.CHEER": number;
-				"BITS.EXTENSION": number;
-				"BITS.POLL": number;
-				"SUBS.TIER_1_GIFTED_SUB": number;
-				"SUBS.TIER_1_SUB": number;
-				"SUBS.TIER_2_GIFTED_SUB": number;
-				"SUBS.TIER_2_SUB": number;
-				"SUBS.TIER_3_GIFTED_SUB": number;
-				"SUBS.TIER_3_SUB": number;
-			};
+			participation_conversion_rates: HypeTrainConductorContribution;
+			notification_thresholds: HypeTrainConductorContribution;
 			difficulty_settings: {
 				MEDIUM: {
 					value: number;
@@ -430,11 +410,7 @@ export namespace PubSubDataTypes {
 			theme_color: string;
 			has_conductor_badges: boolean;
 		};
-		participations: {
-			"SUBS.TIER_1_GIFTED_SUB": number;
-			"SUBS.TIER_1_SUB": number;
-			"SUBS.TIER_3_SUB": number;
-		};
+		participations: HypeTrainConductorContribution;
 		conductors: unknown;
 		progress: HypeProgressInfo;
 		is_boost_train: boolean;
@@ -444,13 +420,43 @@ export namespace PubSubDataTypes {
 		user_id: string;
 		user_login: string;
 		user_display_name: string;
+		/**
+		 * Contains the total points of the train
+		 * Same value as progress.total
+		 */
 		sequence_id: number;
-		action: string;
-		source: string;
+		/**
+		 * Action that triggered this event
+		 */
+		action: HypeTrainActionContribution;
+		source: "SUBS" | "BITS";
+		/**
+		 * Number of subgifts or bits that triggered this event
+		 */
 		quantity: number;
+		/**
+		 * Progress info of the trian
+		 */
 		progress: HypeProgressInfo;
+		/**
+		 * true if it's a boost train
+		 */
 		is_boost_train: boolean;
-		is_large_event: boolean;//Seems to mean "new all-time record"
+		/**
+		 * Event triggered by a large amount of subgifts or bits
+		 */
+		is_large_event: boolean;
+	}
+
+	export interface HypeTrainActionContribution {
+		"CHEER": number;
+		"EXTENSION": number;
+		"TIER_1_GIFTED_SUB": number;
+		"TIER_1_SUB": number;
+		"TIER_2_GIFTED_SUB": number;
+		"TIER_2_SUB": number;
+		"TIER_3_GIFTED_SUB": number;
+		"TIER_3_SUB": number;
 	}
 
 	export interface HypeTrainConductorUpdate {
@@ -466,12 +472,13 @@ export namespace PubSubDataTypes {
 
 	export interface HypeTrainConductorContribution {
 		"BITS.CHEER": number;
-		"SUBS.TIER_1_SUB": number;
-		"SUBS.TIER_2_SUB": number;
-		"SUBS.TIER_3_SUB": number;
+		"BITS.EXTENSION": number;
 		"SUBS.TIER_1_GIFTED_SUB": number;
+		"SUBS.TIER_1_SUB": number;
 		"SUBS.TIER_2_GIFTED_SUB": number;
+		"SUBS.TIER_2_SUB": number;
 		"SUBS.TIER_3_GIFTED_SUB": number;
+		"SUBS.TIER_3_SUB": number;
 	}
 
 	export interface HypeTrainLevelUp {
