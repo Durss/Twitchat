@@ -365,6 +365,21 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Get the current scene
+	 * 
+	 * @returns 
+	 */
+	public async getCurrentScene():Promise<string> {
+		if(!this.connected) return "";
+		let scene = "";
+		try {
+			const res = await this.obs.call("GetCurrentProgramScene");
+			scene = res.currentProgramSceneName;
+		}catch(error) {}
+		return scene;
+	}
+
+	/**
 	 * Change the content of a text source
 	 * 
 	 * @param sourceName 

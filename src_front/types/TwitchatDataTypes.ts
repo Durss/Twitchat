@@ -81,7 +81,7 @@ export namespace TwitchatDataTypes {
 		 */
 		loop:boolean;
 		/**
-		 * Is the counted global (false) or per user (true)
+		 * Is the counter is global (false) or per user (true)
 		 */
 		perUser:boolean;
 		/**
@@ -617,6 +617,7 @@ export namespace TwitchatDataTypes {
 		descKey:string;
 		descReplacedValues?:{[key:string]:string};
 		example?:string;
+		globalTag?:boolean;
 	}
 
 	/**

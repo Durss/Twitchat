@@ -323,7 +323,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.opened = !this.action.type || this.totalItems <= 2;
+		this.opened = !this.action.type;
 	}
 
 	public async mounted():Promise<void> {

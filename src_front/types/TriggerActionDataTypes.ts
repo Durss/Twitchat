@@ -489,6 +489,7 @@ export interface ITriggerPlaceholder {
 	pointer:string;
 	isUserID:boolean;
 	numberParsable:boolean;
+	globalTag?:boolean;
 }
 
 export const USER_PLACEHOLDER:string = "USER";
@@ -785,13 +786,14 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 
-	//If requesting chat command helpers and there is a music
-	//service available, concat the music service helpers
+	//If a music service is available, concat the music service helpers
 	if(map[key]
 	&& key != TriggerTypes.MUSIC_START
 	&& key != TriggerTypes.TRACK_ADDED_TO_QUEUE
 	&& Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
-		map[key] = map[key]!.concat(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]!);
+		let tags:ITriggerPlaceholder[] = JSON.parse(JSON.stringify(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]));
+		tags.forEach(v=>v.globalTag = true);
+		map[key] = map[key]!.concat(tags);
 	}
 
 	const counters = StoreProxy.counters.counterList;
@@ -799,7 +801,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	for (let i = 0; i < counters.length; i++) {
 		const c = counters[i];
 		if(c.placeholderKey) {
-			counterPlaceholders.push({tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey, descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter.value", numberParsable:true, isUserID:false});
+			counterPlaceholders.push({tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey, descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter.value", numberParsable:true, isUserID:false, globalTag:true});
 		}
 	}
 	
@@ -808,14 +810,18 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	for (k in map) {
 		const entry = map[k]!;
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
-			entry.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false});
+			entry.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true});
 		}
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
-			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false});
+			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false, globalTag:true});
 		}
 
 		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1) {
-			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false});
+			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false, globalTag:true});
+		}
+		
+		if(StoreProxy.main.currentOBSScene) {
+			entry.push({tag:"OBS_SCENE", descKey:"triggers.placeholders.obs_scene", pointer:"__obs__.scene", numberParsable:false, isUserID:false, globalTag:true});
 		}
 
 		map[k] = entry.concat(counterPlaceholders);

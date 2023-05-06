@@ -3,8 +3,8 @@
 		:title="$t('global.placeholder_selector_title')"
 		:open="false"
 	>
-		<div class="list">
-			<template v-for="(h,index) in placeholders" :key="h.tag+index">
+		<div class="list" v-if="localPlaceholders.length > 0">
+			<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
 				<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
 				
 				<i18n-t scope="global" :keypath="h.descKey" tag="span">
@@ -14,6 +14,20 @@
 				</i18n-t>
 			</template>
 		</div>
+
+		<ToggleBlock class="global" :title="$t('global.placeholder_selector_global')" small v-if="globalPlaceholders.length > 0">
+			<div class="list">
+				<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
+					<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+					
+					<i18n-t scope="global" :keypath="h.descKey" tag="span">
+						<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+							<mark>{{ value }}</mark>
+						</template>
+					</i18n-t>
+				</template>
+			</div>
+		</ToggleBlock>
 	</ToggleBlock>
 </template>
 
@@ -38,6 +52,14 @@ export default class PlaceholderSelector extends Vue {
 	
 	@Prop
 	public modelValue!:string;
+	
+	public get localPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
+		return this.placeholders.filter(v=>v.globalTag !== true);
+	}
+	
+	public get globalPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
+		return this.placeholders.filter(v=>v.globalTag === true);
+	}
 
 	/**
 	 * Add a token on the text
@@ -63,6 +85,10 @@ export default class PlaceholderSelector extends Vue {
 
 <style scoped lang="less">
 .placeholderselector{
+	.global {
+		margin-top: .25em;
+	}
+
 	.list {
  		display: grid;
 		grid-template-columns: auto 1fr;

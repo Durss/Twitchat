@@ -332,7 +332,8 @@
 			"counter_username": "Pseudo (pour les compteurs utilisateur)",
 			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)",
 			"counter_global_value": "Valeur du compteur {NAME}",
-			"watch_streak": "Nombre de streams consécutifs vus"
+			"watch_streak": "Nombre de streams consécutifs vus",
+			"obs_scene": "Scène OBS courante"
 		},
 		"events": {
 			"CHAT_COMMAND": {

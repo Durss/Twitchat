@@ -96,6 +96,10 @@ export interface IMainState {
 	 * Message to be displayed by the chat alert feature
 	 */
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
+	/**
+	 * Contains the name of the current OBS scene (if OBS is connected)
+	 */
+	currentOBSScene:string;
 }
 
 export interface IMainGetters {

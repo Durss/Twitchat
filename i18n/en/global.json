@@ -40,6 +40,7 @@
 		"obs_connect_link": "connect with OBS",
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
 		"placeholder_selector_insert": "Insert",
+		"placeholder_selector_global": "Global placeholders",
 		"chat_alert_title": "{USER} says",
 		"date_days": "d",
 		"ad_default": "Hey, i'm using GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",

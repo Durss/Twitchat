@@ -332,7 +332,8 @@
 			"counter_username": "User name (for user specific counters)",
 			"counter_userid": "User ID (for user specific counters)",
 			"counter_global_value": "Get {NAME} counter value",
-			"watch_streak": "Watch streak count"
+			"watch_streak": "Watch streak count",
+			"obs_scene": "Current OBS scene name"
 		},
 		"events": {
 			"CHAT_COMMAND": {

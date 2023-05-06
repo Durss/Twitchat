@@ -1,6 +1,6 @@
 import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, type SocketParams } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, type SocketParams, rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
@@ -35,6 +35,7 @@ export const storeMain = defineStore("main", {
 		cypherEnabled: false,
 		tempStoreValue: null,
 		confirmData:null,
+		currentOBSScene:"",
 		accessibility:{
 			ariaPolite:"",
 		},
@@ -266,14 +267,16 @@ export const storeMain = defineStore("main", {
 				 * Called when switching to another scene
 				 */
 				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, (event:TwitchatEvent):void => {
+					this.currentOBSScene = (event.data as {sceneName:string}).sceneName;
 					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:"twitchat",
 						type:TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
-						sceneName:(event.data as {sceneName:string}).sceneName,
+						sceneName:this.currentOBSScene,
 					}
 					TriggerActionHandler.instance.execute(m);
+					rebuildPlaceholdersCache();
 				});
 	
 				/**
@@ -393,7 +396,6 @@ export const storeMain = defineStore("main", {
 			const ip = Utils.getQueryParameterByName("obs_ip");
 			//If OBS params are on URL, connect
 			if(port != null && ip != null) {
-				console.log("CONNECT", port, ip);
 				sOBS.connectionEnabled = true;
 				OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}
@@ -623,7 +625,12 @@ export const storeMain = defineStore("main", {
 			//If OBS params are on URL or if connection is enabled, connect
 			if(sOBS.connectionEnabled && (port != undefined || pass != undefined || ip != undefined)) {
 				sOBS.connectionEnabled = true;
-				OBSWebsocket.instance.connect(port, pass, true, ip);
+				OBSWebsocket.instance.connect(port, pass, true, ip).then(async (res)=> {
+					if(res) {
+						//Preload current OBS scene
+						this.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
+					}
+				});
 			}
 		},
 
