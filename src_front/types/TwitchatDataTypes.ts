@@ -1775,6 +1775,14 @@ export namespace TwitchatDataTypes {
 		 * Winning choice
 		 */
 		winner?:MessagePredictionDataOutcome;
+		/**
+		 * Total channel points bet
+		 */
+		totalPoints:number;
+		/**
+		 * Total users participating
+		 */
+		totalUsers:number;
 	}
 	export interface MessagePredictionDataOutcome {
 		id: string;

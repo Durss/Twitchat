@@ -425,10 +425,14 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+StoreProxy.auth.twitch.user.id, options);
 		const json = await res.json();
 		if(res.status == 200) {
+			let totalPoints = 0;
+			let totalUsers = 0;
 			const src = json.data[0] as TwitchDataTypes.Prediction;
 			if(src.status == "ACTIVE" || src.status == "LOCKED") {
 				const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
 				src.outcomes.forEach(v=> {
+					totalPoints += v.channel_points;
+					totalUsers += v.users;
 					outcomes.push({
 						id:v.id,
 						label:v.title,
@@ -447,6 +451,8 @@ export default class TwitchUtils {
 					title:src.title,
 					outcomes,
 					pendingAnswer:src.status == "LOCKED",
+					totalPoints,
+					totalUsers,
 				}
 				StoreProxy.prediction.setPrediction(prediction);
 			}else{

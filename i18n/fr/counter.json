@@ -15,7 +15,7 @@
 			"name":"Nom",
 			"value":"Valeur",
 			"more":"Plus d'options",
-			"placholder": "Placeholder {'{'}COUNTER_VALUE_{VALUE}{'}'}",
+			"placholder": "Placeholder personnalisé {'{'}COUNTER_VALUE_{VALUE}{'}'}",
 			"placholder_tt": "Cette valeur vous permettra<br>de récupérer la valeur du<br>compteur dans n'importe<br>quelle action de trigger",
 			"placholder_conflict": "Un autre compteur utilise déjà ce placeholder",
 			"name_conflict": "Un autre compteur du même nom existe déjà",

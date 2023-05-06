@@ -90,9 +90,9 @@ export default class PlaceholderSelector extends Vue {
 			text-align: right;
 			font-weight: bold;
 			color: var(--color-light);
-			background-color: var(--color-dark);
+			background-color: var(--color-primary);
 			&:hover {
-				background-color: var(--color-dark-light);
+				background-color: var(--color-primary-light);
 			}
 		}
 	}

@@ -974,10 +974,14 @@ export default class PubSub extends EventDispatcher {
 			StoreProxy.prediction.setPrediction(null);
 			return;
 		}
+		let totalPoints = 0;
+		let totalUsers = 0;
 		const isComplete = localObj.event.status == "RESOLVED";
 		const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
 		for (let i = 0; i < localObj.event.outcomes.length; i++) {
 			const c = localObj.event.outcomes[i];
+			totalPoints += c.total_points;
+			totalUsers += c.total_users;
 			outcomes.push({
 				id: c.id,
 				label: c.title,
@@ -998,6 +1002,8 @@ export default class PubSub extends EventDispatcher {
 			pendingAnswer: localObj.event.status === "RESOLVE_PENDING" || localObj.event.status === "LOCKED",
 			started_at: new Date(localObj.event.created_at).getTime(),
 			duration_s: localObj.event.prediction_window_seconds,
+			totalPoints,
+			totalUsers,
 		};
 		if(localObj.event.ended_at) {
 			prediction.ended_at = new Date(localObj.event.ended_at).getTime()

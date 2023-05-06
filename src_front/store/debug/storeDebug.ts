@@ -547,9 +547,13 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 					const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
 					const count = Math.ceil(Math.random()*9)+1;
+					let totalPoints = 0;
+					let totalUsers = 0;
 					for(let i=0; i < count; i++) {
 						const voters = Math.round(Math.random()*50);
 						const votes = Math.round(Math.random()*1000000);
+						totalPoints += votes;
+						totalUsers += voters;
 						outcomes.push({id:Utils.getUUID(), label:"Option "+(i+1), votes, voters});
 					}
 					const m:TwitchatDataTypes.MessagePredictionData = {
@@ -565,6 +569,8 @@ export const storeDebug = defineStore('debug', {
 						ended_at:Date.now(),
 						pendingAnswer:false,
 						winner:Utils.pickRand(outcomes),
+						totalPoints,
+						totalUsers,
 					};
 					data = m;
 					break;

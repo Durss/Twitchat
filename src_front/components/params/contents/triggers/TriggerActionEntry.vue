@@ -397,7 +397,7 @@ export default class TriggerActionEntry extends Vue {
 	 */
 	private checkOBSSource():void {
 		const action:TriggerActionObsData = this.action as TriggerActionObsData;
-		this.isError = this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1;
+		this.isError = this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1 && this.obsConnected;
 	}
 
 }

@@ -576,6 +576,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.PREDICTION_RESULT] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.prediction_title', pointer:"title", numberParsable:false, isUserID:false},
 		{tag:"WIN", descKey:'triggers.placeholders.prediction_win', pointer:"winner.label", numberParsable:true, isUserID:false},
+		{tag:"TOTAL_POINTS", descKey:'triggers.placeholders.prediction_points', pointer:"totalPoints", numberParsable:true, isUserID:false},
+		{tag:"TOTAL_USERS", descKey:'triggers.placeholders.prediction_users', pointer:"totalUsers", numberParsable:true, isUserID:false},
+		{tag:"WINNING_USERS", descKey:'triggers.placeholders.prediction_users_win', pointer:"winner.voters", numberParsable:true, isUserID:false},
 	];
 	
 	map[TriggerTypes.BINGO_RESULT] = [

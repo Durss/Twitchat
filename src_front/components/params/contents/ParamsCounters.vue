@@ -39,7 +39,7 @@
 		<ToggleBlock class="counterEntry" :open="false"
 		v-if="counterEntries.length > 0"
 		v-for="entry in counterEntries" :key="entry.counter.id"
-		:title="entry.counter.name" medium>
+		:title="entry.counter.name">
 		
 			<template #right_actions>
 				<div class="actions">
@@ -53,13 +53,13 @@
 			</template>
 
 			<div class="content">
-				<div class="placeholder">
+				<!-- <div class="placeholder">
 					<span>Placeholder: </span>
 					<button @click.stop="copyPlaceholder($event, entry.counter)" v-tooltip="$t('global.copy')">
 						<mark v-if="entry.counter.placeholderKey">{{ getCounterPlaceholder(entry.counter) }}</mark>
 					</button>
-				</div>
-				
+				</div> -->
+
 				<ParamItem class="value" v-if="!entry.counter.perUser"
 					:paramData="entry.param"
 					@change="onChangeValue(entry)" />
