@@ -43,9 +43,6 @@
 		
 			<template #right_actions>
 				<div class="actions">
-					<button class="placholder" @click.stop="copyPlaceholder($event, entry.counter)" v-tooltip="$t('global.copy')">
-						<mark class="light" v-if="entry.counter.placeholderKey">{{ getCounterPlaceholder(entry.counter) }}</mark>
-					</button>
 					<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
 					<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
 					<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
@@ -56,6 +53,13 @@
 			</template>
 
 			<div class="content">
+				<div class="placeholder">
+					<span>Placeholder: </span>
+					<button @click.stop="copyPlaceholder($event, entry.counter)" v-tooltip="$t('global.copy')">
+						<mark v-if="entry.counter.placeholderKey">{{ getCounterPlaceholder(entry.counter) }}</mark>
+					</button>
+				</div>
+				
 				<ParamItem class="value" v-if="!entry.counter.perUser"
 					:paramData="entry.param"
 					@change="onChangeValue(entry)" />
@@ -237,6 +241,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		})
 
 		watch(()=> this.param_placeholder.value, ()=> {
+			if(!this.param_placeholder.value) return;
+			//Check if a placeholder with the same name already exists
 			const counters = this.$store("counters").counterList;
 			const placeholder = this.param_placeholder.value.toLowerCase();
 			let exists = false;
@@ -259,9 +265,29 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 * Create a new counter
 	 */
 	public createCounter(): void {
+		let placeholderKey = this.param_placeholder.value;
+		if(!placeholderKey){
+			//No placeholder define, create a default one from the counter's name
+			placeholderKey = Utils.slugify(this.param_title.value).toUpperCase();
+			//Load all placeholders
+			let hashmap:{[key:string]:boolean} = {};
+			for (let i = 0; i < this.counterEntries.length; i++) {
+				const c = this.counterEntries[i];
+				if(this.editedCounter && c.counter.id == this.editedCounter.id) continue;
+				hashmap[c.counter.placeholderKey] = true;
+			}
+			//If a placeholder with the same name exists, adds an increment suffix
+			//until a slot is available
+			if(hashmap[placeholderKey]) {
+				let index = 1;
+				while(hashmap[placeholderKey+"_"+index]) index ++;
+				placeholderKey = placeholderKey+"_"+index;
+			}
+		}
+
 		const data:TwitchatDataTypes.CounterData = {
 			id:this.editedCounter? this.editedCounter.id : Utils.getUUID(),
-			placeholderKey:this.param_placeholder.value,
+			placeholderKey,
 			name:this.param_title.value,
 			value:this.param_value.value,
 			max:this.param_valueMax_toggle.value === true? this.param_valueMax_value.value : false,
@@ -537,8 +563,8 @@ interface UserEntry {
 
 	.counterEntry {
 		// width: 100%;
-		width: 400px;
-		max-width: 100%;
+		width: calc(100% - 2em);
+		max-width: 400px;
 		margin: auto;
 		.actions {
 			gap: .25em;
@@ -582,6 +608,14 @@ interface UserEntry {
 			}
 		}
 		.content {
+			.placeholder {
+				column-gap: .25em;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: center;
+				margin-bottom: .5em;
+			}
 			.value {
 				border-radius: var(--border-radius);
 				min-width: 3em;
