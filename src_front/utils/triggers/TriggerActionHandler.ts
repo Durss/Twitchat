@@ -556,12 +556,9 @@ export default class TriggerActionHandler {
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
 		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS]
-		if(!noLogs.includes(trigger.type)) {
-			this.logHistory.unshift(log);
-		}
-		if(this.logHistory.length > 100) {
-			this.logHistory.pop();
-		}
+		if(!noLogs.includes(trigger.type))	this.logHistory.unshift(log);
+		//Only keep last 100 triggers
+		if(this.logHistory.length > 100)	this.logHistory.pop();
 	
 		//Special case for friends stream start/stop notifications
 		if(trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
@@ -569,13 +566,13 @@ export default class TriggerActionHandler {
 			return true;
 		}
 	
-		//Special case for friends stream start/stop notifications
+		//Special case for pending shoutouts
 		if(trigger.type == TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE) {
 			StoreProxy.users.executePendingShoutouts();
 			return true;
 		}
 		
-		//Special case for twitchat's ad, generate trigger data
+		//Special case for twitchat's ad
 		if(trigger.type == TriggerTypes.TWITCHAT_AD) {
 			let text:string = StoreProxy.chat.botMessages.twitchatAd.message;
 			//If no link is found on the message, send default message
@@ -589,18 +586,15 @@ export default class TriggerActionHandler {
 		// console.log("PARSE STEPS", eventType, trigger, message);
 		let canExecute = true;
 
-		if(!testMode
-		&& trigger.permissions
-		&& trigger.cooldown
-		&& message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+		if(!testMode && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			const triggerId = trigger.id;
 			const now = Date.now();
 			
 			//check permissions
-			if(!await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
+			if(trigger.permissions && !await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
 				log.messages.push({date:Date.now(), value:"User is not allowed"});
 				canExecute = false;
-			}else{
+			}else if(trigger.cooldown){
 				//Apply cooldowns if any
 
 				//Global cooldown
@@ -627,9 +621,42 @@ export default class TriggerActionHandler {
 				else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 			}
 		}
+
+		//Declare dynamic placeholders dictionary
+		const dynamicPlaceholders:{[key:string]:string|number} = {};
+		//Create dynamic placeholders only if trigger is planned for execution so far.
+		//These are necessary to check for conditions.
+		//For example, if there's a custom chat command param, it may be used on the
+		//trigger's condition system, in which case we need it before checking if the
+		//conditions are matched
+		if(canExecute) {
+			//Handle optional chat command custom params
+			if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
+			&& trigger.chatCommandParams && trigger.chatCommandParams.length > 0) {
+				let res = message.message.trim()
+
+				//Remove sub event from the text (the command)
+				let subEvent_regSafe = "";
+				if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				res = res.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
+
+				res = res.replace(/\s+/gi, ' ');//replace consecutive white spaces
+				const params = res.split(" ");
+
+				//Add all params in the dynamic placeholders
+				for (let i = 0; i < trigger.chatCommandParams.length; i++) {
+					const param = trigger.chatCommandParams[i];
+					dynamicPlaceholders[param.tag] = params[i] || "";
+					log.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+param.tag+"}\" => \""+params[i]+"\""});
+				}
+			}
+		}
 		
 		//check execution conditions
-		if(!testMode && trigger.conditions && trigger.conditions.conditions.length > 0 && !await this.checkConditions(trigger.conditions.operator, [trigger.conditions], trigger, message, log, subEvent)) {
+		if(!testMode
+		&& trigger.conditions
+		&& trigger.conditions.conditions.length > 0
+		&& !await this.checkConditions(trigger.conditions.operator, [trigger.conditions], trigger, message, log, dynamicPlaceholders, subEvent)) {
 			log.messages.push({date:Date.now(), value:"Execution conditions not fulfilled"});
 			canExecute = false;
 		}
@@ -639,12 +666,7 @@ export default class TriggerActionHandler {
 		
 		log.skipped = !canExecute;
 
-		// console.log(trigger);
-		// console.log(message);
-		// console.log(canExecute);
-
-		// if(!canExecute) console.log("Cant execute:", message, trigger);
-
+		//Stop there if previous conditions aren't matched
 		if(!canExecute) return false;
 			
 		//Wait for potential previous trigger of the exact same type to finish its execution
@@ -660,29 +682,6 @@ export default class TriggerActionHandler {
 		await prom;
 		if(eventBusy) {
 			log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
-		}
-
-		const dynamicPlaceholders:{[key:string]:string|number} = {};
-
-		//Handle optional chat command custom params
-		if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
-		&& trigger.chatCommandParams && trigger.chatCommandParams.length > 0) {
-			let res = message.message.trim()
-
-			//Remove sub event from the text (the command)
-			let subEvent_regSafe = "";
-			if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			res = res.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
-
-			res = res.replace(/\s+/gi, ' ');//replace consecutive white spaces
-			const params = res.split(" ");
-
-			//Add all params in the dynamic placeholders
-			for (let i = 0; i < trigger.chatCommandParams.length; i++) {
-				const param = trigger.chatCommandParams[i];
-				dynamicPlaceholders[param.tag] = params[i] || "";
-				log.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+param.tag+"}\" => \""+params[i]+"\""});
-			}
 		}
 
 		for (const step of trigger.actions) {
@@ -1499,16 +1498,16 @@ export default class TriggerActionHandler {
 	 * @param log 
 	 * @param subEvent 
 	 */
-	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, subEvent?:string|null):Promise<boolean> {
+	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, dynamicPlaceholders:{[key:string]:string|number}, subEvent?:string|null):Promise<boolean> {
 		let res = false;
 		let index = 0;
 		for (const c of conditions) {
 			let localRes = false;
 			if(c.type == "group") {
-				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, subEvent);
+				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, dynamicPlaceholders, subEvent);
 			}else{
-				const value = await this.parsePlaceholders({}, [], trigger, message, "{"+c.placeholder+"}", subEvent);
-				const expectation = c.value;
+				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
+				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value, subEvent);
 				switch(c.operator) {
 					case "<": localRes = parseInt(value) < parseInt(expectation); break;
 					case "<=": localRes = parseInt(value) <= parseInt(expectation); break;
