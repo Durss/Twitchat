@@ -1335,6 +1335,12 @@ export default class TriggerActionHandler {
 						if(!value) value = "-none-";
 
 					/**
+					 * If the placeholder requests for the current OBS scene
+					 */
+					}else if(h.tag.toLowerCase().indexOf("viewer_count") == 0) {
+						value = StoreProxy.stream.playbackState?.viewers.toString() || "0";
+
+					/**
 					 * If the placeholder requests for a counter's value
 					 */
 					}else if(h.tag.toLowerCase().indexOf(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase()) == 0) {

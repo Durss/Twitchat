@@ -820,8 +820,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false, globalTag:true});
 		}
 		
-		if(StoreProxy.main.currentOBSScene) {
+		if(entry.findIndex(v=>v.tag == "OBS_SCENE") == -1 && StoreProxy.main.currentOBSScene) {
 			entry.push({tag:"OBS_SCENE", descKey:"triggers.placeholders.obs_scene", pointer:"__obs__.scene", numberParsable:false, isUserID:false, globalTag:true});
+		}
+		
+		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
+			entry.push({tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__stream__.viewers", numberParsable:true, isUserID:false, globalTag:true});
 		}
 
 		map[k] = entry.concat(counterPlaceholders);
