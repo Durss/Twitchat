@@ -5,7 +5,10 @@
 			<CloseButton @click="close" />
 		</div>
 		
-		<Button class="refreshBt" @click="refreshList()" icon="refresh" :loading="reloading">Refresh</Button>
+		<div class="ctas">
+			<Button @click="refreshList()" icon="refresh" :loading="reloading">Refresh</Button>
+			<Button @click="clearList()" icon="trash" alert>Clear</Button>
+		</div>
 		
 		<div class="content empty" v-if="logs.length == 0 && !reloading">
 			- No history -
@@ -90,7 +93,6 @@ export default class TriggersLogs extends AbstractSidePanel {
 		this.open();
 	}
 
-
 	public refreshList():void {
 		this.reloading = true;
 		setTimeout(()=>{
@@ -98,14 +100,21 @@ export default class TriggersLogs extends AbstractSidePanel {
 		}, 500)
 	}
 
+	public clearList():void {
+		TriggerActionHandler.instance.logHistory = [];
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .triggerslogs{
-	.refreshBt {
-		flex-shrink: 0;
-		margin: auto;
+	.ctas {
+		margin-top: 1em;
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
 	}
 
 	.entries {
@@ -122,7 +131,6 @@ export default class TriggersLogs extends AbstractSidePanel {
 	.entry {
 		display: flex;
 		flex-direction: column;
-		font-size: .8em;
 		gap: .25em;
 		.head {
 			display: flex;

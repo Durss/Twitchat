@@ -91,7 +91,7 @@
 				:disabled="!$store('tts').params.enabled"
 				v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</Button>
 			
-			<Button class="beta button" @click.capture="selectActionType('music')"
+			<Button class="button" @click.capture="selectActionType('music')"
 				icon="spotify"
 				:disabled="!musicServiceConfigured"
 				v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>

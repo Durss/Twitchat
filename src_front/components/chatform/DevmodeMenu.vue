@@ -335,6 +335,8 @@ type Subaction = "first"
 	margin-left: auto;
 	transform-origin: bottom right;
 	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 
 	h1 {
 		color: var(--color-light);
@@ -343,9 +345,7 @@ type Subaction = "first"
 	}
 
 	.list {
-		// height: 400px;
-		// max-height: 80%;
-		height: 100%;
+		flex-shrink: 1;
 		margin: auto;
 		overflow-x: hidden;
 		overflow-y: auto;

@@ -96,7 +96,7 @@ export default class TriggerActionCountEntry extends Vue {
 		
 		this.param_counters.listValues = counters;
 
-		this.param_value.placeholderList = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable==false);
+		this.param_value.placeholderList = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable==true);
 
 		watch(()=>this.selectedPerUserCounters, ()=> this.updatePerUserCounterSources());
 		this.updatePerUserCounterSources();

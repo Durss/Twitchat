@@ -9,6 +9,7 @@ import DataStore from '../DataStore';
 import type { ICountersActions, ICountersGetters, ICountersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 export const storeCounters = defineStore('counters', {
 	state: () => ({
@@ -49,12 +50,72 @@ export const storeCounters = defineStore('counters', {
 					break;
 				}
 			}
+
 			DataStore.set(DataStore.COUNTERS, this.counterList);
 
-			if(!data.perUser) {
-				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:data} as unknown as JsonObject);
-			}
+			this.broadcastCounterValue(data.id);
 			rebuildPlaceholdersCache();
+		},
+
+		broadcastCounterValue(id:string):void {
+			let counter = this.counterList.find(v=> v.id == id);
+			if(!counter) return;
+			
+			if(counter.perUser) {
+				//Clone counter object
+				counter = JSON.parse(JSON.stringify(counter)) as TwitchatDataTypes.CounterData;
+				//Convert hashmap to sortable array
+				const list = counter.users ?? {};
+				let users = Object.keys(list).map(v=> ({uid:v, value:list[v]}));
+				users.sort((a,b)=>{
+					if(a.value > b.value) return -1;
+					if(a.value < b.value) return 1;
+					return 0;
+				})
+				//Only keep top 20 users to avoid clogging WS tunnel
+				users = users.splice(0, 20);
+				const chanId = StoreProxy.auth.twitch.user.id;
+				let loadedUsers = 0;
+				counter.leaderboard = [];
+				if(users.length == 0) {
+					//If there are no user, broadcast right away
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter} as unknown as JsonObject);
+				}else{
+					///...otherwise load users details
+					users.forEach(v=> {
+						StoreProxy.users.getUserFrom("twitch", chanId, v.uid, undefined, undefined, async (res)=> {
+							loadedUsers ++;
+							if(!res.errored) {
+								if(!res.avatarPath) {
+									//Avatar is missing, get it from twitch
+									let data = await TwitchUtils.loadUserInfo([res.id]);
+									if(data?.length > 0) {
+										res.avatarPath = data[0].profile_image_url;
+									}
+								}
+								//Add user to leaderboard
+								counter!.leaderboard!.push({
+									avatar:res.avatarPath!,
+									login:res.displayName,
+									points:v.value
+								})
+							}
+							//All users ready, broadcast change
+							if(loadedUsers == users.length) {
+								//Sort them by score DESC
+								counter!.leaderboard!.sort((a,b)=>{
+									if(a.points > b.points) return -1;
+									if(a.points < b.points) return 1;
+									return 0;
+								})
+								PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter} as unknown as JsonObject);
+							}
+						});
+					})
+				}
+			}else{
+				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter} as unknown as JsonObject);
+			}
 		},
 		
 		delCounter(data:TwitchatDataTypes.CounterData):void {
@@ -137,9 +198,7 @@ export const storeCounters = defineStore('counters', {
 			StoreProxy.chat.addMessage(message);
 			DataStore.set(DataStore.COUNTERS, this.counterList);
 
-			if(!c.perUser) {
-				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:c});
-			}
+			this.broadcastCounterValue(c.id);
 		},
 		
 	} as ICountersActions

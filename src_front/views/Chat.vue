@@ -583,11 +583,8 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.COUNTER_GET: {
-				const id = (e.data as JsonObject).cid;
-				const counter = this.$store("counters").counterList.find(v=>v.id == id);
-				if(counter) {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter:(counter as unknown) as JsonObject});
-				}
+				const id = (e.data as JsonObject).cid as string;
+				this.$store("counters").broadcastCounterValue(id);
 				break;
 			}
 

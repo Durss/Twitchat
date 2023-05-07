@@ -114,7 +114,7 @@
 		@click.stop="messageData.user.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
 
 		<div class="ctas" v-if="isAd">
-			<Button @click="disableAd()" icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
+			<Button @click="disableAd()" alert icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
 			<Button @click="openAdParams()" icon="edit">{{ $t('chat.message.customize_ad') }}</Button>
 		</div>
 	</div>

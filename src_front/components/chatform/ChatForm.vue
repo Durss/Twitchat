@@ -930,6 +930,7 @@ export default class ChatForm extends Vue {
 	
 			.viewCount {
 				cursor: pointer;
+				gap: .25em;
 				display: flex;
 				flex-direction: row;
 				align-items: center;

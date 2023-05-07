@@ -130,7 +130,8 @@
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
 				"param_message": "Message to send on your chat",
 				"conflict": "A command with this name already exists",
-				"allowed_users": "Users allowed to use this command",
+				"allowed_users": "Allowed users",
+				"advanced_params": "Advanced parameters",
 				"param_cmd": "Command",
 				"param_cmd_alias": "Aliases",
 				"param_cmd_alias_tt": "Optional alternative commands",
@@ -333,7 +334,8 @@
 			"counter_userid": "User ID (for user specific counters)",
 			"counter_global_value": "Get {NAME} counter value",
 			"watch_streak": "Watch streak count",
-			"obs_scene": "Current OBS scene name"
+			"obs_scene": "Current OBS scene name",
+			"viewer_count": "Viewers watching your stream"
 		},
 		"events": {
 			"CHAT_COMMAND": {

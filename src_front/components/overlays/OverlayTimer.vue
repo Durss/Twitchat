@@ -19,11 +19,12 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
+import AbstractOberlay from './AbstractOberlay.vue';
 
 @Component({
 	components:{}
 })
-export default class OverlayTimer extends Vue {
+export default class OverlayTimer extends AbstractOberlay {
 
 	public timerValue:string = "";
 	public countdownValue:string = "";
@@ -47,8 +48,6 @@ export default class OverlayTimer extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdownEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_TIMER_OVERLAY_PRESENCE, this.timerPresenceHandler);
 
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TIMERS);
-
 		this.intervalUpdate = setInterval(()=>{ this.computeValues() }, 1000)
 	}
 
@@ -59,6 +58,10 @@ export default class OverlayTimer extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_START, this.countdownEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdownEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_TIMER_OVERLAY_PRESENCE, this.timerPresenceHandler);
+	}
+
+	public requestInfo():void {
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TIMERS);
 	}
 
 	public async onTimerEvent(e:TwitchatEvent):Promise<void> {

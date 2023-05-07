@@ -88,6 +88,16 @@ export namespace TwitchatDataTypes {
 		 * Users counters values
 		 */
 		users?:{[key:string]:number};
+		/**
+		 * Only available for counters overlay related to a "per user" counter
+		 * Contains user info necessary for display on screen.
+		 * Only contains 10 first users
+		 */
+		leaderboard?:{
+			login:string,
+			avatar:string,
+			points:number
+		}[];
 	}
 
 	/**

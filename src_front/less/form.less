@@ -96,6 +96,15 @@ button {
 	border-top: 1px solid rgba(0, 0, 0, .2);
 }
 
+.vs__selected-options > .vs__search {
+	margin: 0;
+	border-radius: var(--border-radius);
+	&::placeholder {
+		font-style: italic;
+		color: var(--color-light-fade);
+	}
+}
+
 .vs__dropdown-option {
 	&.vs__dropdown-option--highlight {
 		background-color: var(--color-primary);

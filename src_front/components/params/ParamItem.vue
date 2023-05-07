@@ -45,7 +45,8 @@
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
-					@blur="clampValue()">
+					@blur="clampValue()"
+					@input="$emit('input')">
 			</div>
 			
 			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
@@ -63,7 +64,8 @@
 						:id="'text'+key"
 						:name="paramData.fieldName"
 						:placeholder="placeholder"
-						v-autofocus="autofocus"></textarea>
+						v-autofocus="autofocus"
+						@input="$emit('input')"></textarea>
 					<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
@@ -73,7 +75,8 @@
 						:type="paramData.type"
 						:placeholder="placeholder"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
-						autocomplete="new-password">
+						autocomplete="new-password"
+						@input="$emit('input')">
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
 			</div>
@@ -92,7 +95,8 @@
 						v-autofocus="autofocus"
 						:name="paramData.fieldName"
 						:id="'text'+key"
-						type="color">
+						type="color"
+						@input="$emit('input')">
 				</div>
 			</div>
 			
@@ -225,7 +229,7 @@ import Slider from '../Slider.vue';
 		ToggleButton,
 		PlaceholderSelector,
 	},
-	emits: ["change", "update:modelValue", "mouseenter", "mouseleave"]
+	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input"]
 })
 export default class ParamItem extends Vue {
 	
@@ -696,9 +700,6 @@ export default class ParamItem extends Vue {
 				cursor: pointer;
 			}
 			&.number, &.text {
-				label {
-					margin-top: .3em;
-				}
 				&:has(.maxlength) {
 					input {
 						padding-right: 3em;

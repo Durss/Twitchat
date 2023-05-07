@@ -130,7 +130,8 @@
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
 				"param_message": "Message à envoyer dans le tchat",
 				"conflict": "Une commande du même nom existe déjà",
-				"allowed_users": "Personnes autorisées à utiliser la commande",
+				"allowed_users": "Personnes autorisées",
+				"advanced_params": "Paramètres avancés",
 				"param_cmd": "Commande",
 				"param_cmd_alias": "Alias",
 				"param_cmd_alias_tt": "Commandes alternatives optionnelles",
@@ -333,7 +334,8 @@
 			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)",
 			"counter_global_value": "Valeur du compteur {NAME}",
 			"watch_streak": "Nombre de streams consécutifs vus",
-			"obs_scene": "Scène OBS courante"
+			"obs_scene": "Scène OBS courante",
+			"viewer_count": "Nombre de viewers"
 		},
 		"events": {
 			"CHAT_COMMAND": {

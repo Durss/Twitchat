@@ -11,7 +11,7 @@
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
 
-				<div class="buttonList" v-if="content != contentAd">
+				<div class="buttonList">
 					<div class="search">
 						<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
 					</div>
@@ -36,7 +36,7 @@
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
 
-				<mark class="version" v-if="content != contentAd">v {{appVersion}}</mark>
+				<mark class="version">v {{appVersion}}</mark>
 			</div>
 			
 		<div class="contentHolder">
@@ -78,8 +78,8 @@
 				<div class="automaticMessageHolder">
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
-				<DonorState class="donorState" v-if="isDonor" />
-				<ParamsSponsor v-else />
+				<DonorState class="donorState" v-if="isDonor && content != contentAd" />
+				<ParamsSponsor v-else-if="content != contentAd" />
 			</div>
 		</div>
 	</div>

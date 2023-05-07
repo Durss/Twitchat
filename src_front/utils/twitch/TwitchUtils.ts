@@ -208,8 +208,7 @@ export default class TwitchUtils {
 				users = users.concat(json.data);
 			}else if(result.status == 429){
 				//Rate limit reached, try again after it's reset to fulle
-				const resetDate = parseInt(result.headers.get("Ratelimit-Reset") as string ?? (Date.now()+1).toString) * 1000;
-				await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+				await this.onRateLimit(result.headers, 1);
 				return await this.loadUserInfo(ids, logins)
 			}
 		}

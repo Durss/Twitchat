@@ -1489,6 +1489,11 @@ export interface ICountersActions {
 	 */
 	updateCounter(data:TwitchatDataTypes.CounterData):void;
 	/**
+	 * Broadcast a counter's value on public API
+	 * @param id 
+	 */
+	broadcastCounterValue(id:string):void;
+	/**
 	 * Delete a counter
 	 * @param data 
 	 */

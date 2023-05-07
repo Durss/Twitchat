@@ -277,8 +277,12 @@ export default class TriggerActionList extends Vue {
 		}
 	}
 
-	.params, .conditions, .description {
+	&>.params, &>.conditions, &>.description {
 		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+
+		&.description {
+			line-height: 1.3em;
+		}
 
 		&.params {
 			display: flex;

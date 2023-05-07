@@ -68,7 +68,7 @@
 					<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
 						<div class="search">
 							<input type="text" :placeholder="$t('counters.form.search')" v-model="search[entry.counter.id]" @input="searchUser(entry.counter)">
-							<img src="@/assets/loader/loader.svg" alt="loader" v-show="idToLoading[entry.counter.id] === true && search[entry.counter.id].length > 0">
+							<img src="@/assets/loader/loader.svg" alt="loader" v-show="idToLoading[entry.counter.id] === true">
 						</div>
 						
 						<Button class="loadAllBt" v-if="search[entry.counter.id].length === 0 && idToAllLoaded[entry.counter.id] !== true"
@@ -102,7 +102,7 @@
 								<span class="login" @click="openUserCard(item.user)">{{ item.user.displayName }}</span>
 								<ParamItem class="value" noBackground
 									:paramData="item.param"
-									@change="onChangeValue(entry, item)" />
+									@input="onChangeValue(entry, item)" />
 								<button class="deleteBt" @click="deleteUser(entry, item)"><img src="@/assets/icons/trash.svg"></button>
 							</div>
 						</InfiniteList>
@@ -379,7 +379,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public deleteUser(counterEntry:CounterEntry, userEntry:UserEntry):void {
 		if(!counterEntry.counter.users) return;
 		delete counterEntry.counter.users[userEntry.user.id];
-		this.loadUsers(counterEntry);
+		this.idToUsers[counterEntry.counter.id] = this.idToUsers[counterEntry.counter.id]!.filter(v=>v.user.id != userEntry.user.id);
+		this.$store("counters").updateCounter(counterEntry.counter);
 	}
 	
 	/**
