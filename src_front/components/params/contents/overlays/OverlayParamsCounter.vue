@@ -4,7 +4,7 @@
 			<p>{{ $t("overlay.counters.head_empty") }}</p>
 			<Button icon="add" @click="createCounter()">{{ $t('overlay.counters.createBt') }}</Button>
 			<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
-			<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />
+			<OverlayCounter class="padding counterExample" embed :staticCounterData="progressExample" />
 		</div>
 
 		<div class="holder" v-if="counters.length > 0">
@@ -41,10 +41,31 @@
 						</ul>
 					</li>
 				</ul>
+				
+				<div class="head">{{$t('overlay.counters.css_example.leaderboard')}}</div>
+				<ul class="cssStructure">
+					<li>#holder { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>.user { ... }</li>
+							<li class="sublist">
+								<ul>
+									<li>.points { ... }</li>
+									<li>.avatar { ... }</li>
+									<li>.login { ... }</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
 			</ToggleBlock>
-			<div class="card-item counter" v-for="c in counters" :key="c.id">
-				<input type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)" v-click2Select>
-				<OverlayCounter class="counterExample" embed :staticCounterData="c" />
+
+			<div class="counterList">
+				<div class="card-item counter" v-for="c in counters" :key="c.id">
+					<div class="title">{{ c.name }}</div>
+					<input type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)" v-click2Select>
+					<!-- <OverlayCounter class="counterExample" embed :staticCounterData="c" v-if="!c.perUser" /> -->
+				</div>
 			</div>
 		</div>
 
@@ -94,7 +115,6 @@ export default class OverlayParamsCounter extends Vue {
 	}
 	
 	public get counters():TwitchatDataTypes.CounterData[] {
-		// return [];
 		return this.$store('counters').counterList;
 	}
 
@@ -113,17 +133,30 @@ export default class OverlayParamsCounter extends Vue {
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
-		max-height: 400px;
-		overflow-y: auto;
-		.counter {
-			gap:.5em;
+		.counterList {
+			gap: 1em;
 			display: flex;
 			flex-direction: column;
-			flex-shrink: 0;
-			color: var(--color-dark);
-			font-size: .9em;
-			label {
-				font-weight: bold;
+			max-height: 400px;
+			overflow-y: auto;
+			.counter {
+				flex-shrink: 0;
+				gap: 1em;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+
+				.title {
+					font-weight: bold;
+				}
+	
+				input {
+					// width: 100%;
+					max-width: 60%;
+					flex-grow: 1;
+					background-color: var(--color-primary);
+				}
 			}
 		}
 
@@ -132,35 +165,21 @@ export default class OverlayParamsCounter extends Vue {
 			font-weight: bold;
 		}
 
-		input {
-			width: 100%;
-			background-color: var(--color-primary);
-		}
-
 		.cssToggle {
 			width: 100%;
 		}
 
 		.counterExample {
-			width: auto;
 			font-size: .75em;
 			align-self: center;
-			max-width: 60vw;
-		}
-		
-		ul {
-			margin-top: .5em;
-		}
-	}
-}
-
-@media only screen and (max-width: 500px) {
-	.overlayparamscounter{
-		.holder {
-			.counter {
-				font-size: .75em;
+			color: var(--color-dark);
+			&.padding {
+				//Counters contain internal padding.
+				//This negative padding compensate for it
+				margin-top: -1em;
 			}
 		}
 	}
 }
+
 </style>
