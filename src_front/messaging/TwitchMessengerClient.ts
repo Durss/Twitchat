@@ -797,7 +797,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.is_gift = true;
 		data.streakMonths = streakMonths
 		if(typeof tags["msg-param-sender-count"] == "string") {
-			//TODO this is probably a mistake as this sender-count contains the total of subgift ont he channel
+			//TODO this is probably a mistake as this sender-count contains the total of subgift on the channel
 			data.months = parseInt(tags["msg-param-sender-count"] ?? "1");
 		}
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
@@ -907,8 +907,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		setTimeout(()=> {
 			const isTO = !isNaN(duration as number);
 			if(!user.channelInfo[channel_id].is_banned
-			|| user.channelInfo[channel_id].banEndDate && !isTO
-			|| !user.channelInfo[channel_id].banEndDate && isTO) {
+			//if user is TOed and it's a perma ban
+			|| (user.channelInfo[channel_id].banEndDate && !isTO)
+			//if user is not TOed and it's a TO
+			|| (!user.channelInfo[channel_id].banEndDate && isTO)) {
 				
 				const m:TwitchatDataTypes.MessageBanData = {
 					id:Utils.getUUID(),
