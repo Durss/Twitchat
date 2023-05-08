@@ -291,6 +291,7 @@
 			"bits": "Number of bits",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
+			"stream_viewers": "Viewers count",
 			"stream_duration": "Stream duration (ms)",
 			"stream_live": "\"true\" if user was live when raiding",
 			"viewers": "Viewers count",

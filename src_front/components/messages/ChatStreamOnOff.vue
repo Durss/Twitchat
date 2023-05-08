@@ -27,7 +27,7 @@
 					@click.stop="shoutout()"
 					icon="shoutout"
 					:loading="shoutoutLoading"
-					white
+					small
 					class="soButton"
 				>{{ $t('chat.soBt') }}</Button>
 			</div>
@@ -107,7 +107,8 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 		border-radius: .5em;
 		overflow: hidden;
 		width: 100%;
-		gap: 1em;
+		row-gap: .5em;
+		column-gap: 1em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;

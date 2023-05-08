@@ -82,6 +82,7 @@
       "timeout_by": "{MODERATOR} a banni {USER} pour {DURATION}s",
       "banned": "{USER} a été banni·e",
       "banned_by": "{MODERATOR} a banni {USER}",
+      "unbanBt": "Unban",
       "unbanned": "Le bannissmenet de {USER} a été levé",
       "unbanned_by": "{MODERATOR} a levé le bannissement de {USER}",
       "mod": "{USER} ajouté comme modérateur·ice de cette chaîne",

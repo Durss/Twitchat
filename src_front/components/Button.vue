@@ -182,6 +182,7 @@ export default class Button extends Vue {
 	transition: filter .15s, transform .1s;
 	user-select: none;
 	text-decoration: none !important;
+	font-size: 1rem;
 
 	.clickArea {
 		position: absolute;
@@ -280,6 +281,7 @@ export default class Button extends Vue {
 		overflow: hidden;
 		display: block;
 		line-height: 1.25em;//Makes sure letters like g or p are not cut on the bottom
+		text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
 		&:empty {
 			display: none;
 		}
@@ -294,11 +296,11 @@ export default class Button extends Vue {
 		}
 	}
 	&.big {
-		font-size: 1.4em;
+		font-size: 1.4rem;
 	}
 
 	&.small {
-		font-size: .8em;
+		font-size: .8rem;
 	}
 
 	&.noTitle {
@@ -306,6 +308,9 @@ export default class Button extends Vue {
 	}
 
 	&.secondary {
+		.label {
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+		}
 		.background {
 			background-color: var(--color-secondary);
 		}
@@ -324,6 +329,9 @@ export default class Button extends Vue {
 	}
 
 	&.alert {
+		.label {
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+		}
 		.background {
 			background-color: var(--color-alert);
 		}
@@ -379,6 +387,7 @@ export default class Button extends Vue {
 		.label {
 			color: var(--color-dark);
 			font-weight: bold;
+			text-shadow: unset;
 		}
 		.background{
 			background-color: var(--color-primary-extralight);
@@ -400,7 +409,7 @@ export default class Button extends Vue {
 	.button {
 		&.noTitle.big, &.big {
 			padding: .5em;
-			font-size: 1.2em;
+			font-size: 1.2rem;
 			min-height: calc(1.2em + .5em);
 		}
 	}

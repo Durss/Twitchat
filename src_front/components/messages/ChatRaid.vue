@@ -27,7 +27,7 @@
 				</div>
 
 				<Button @click.stop="shoutout()"
-					white
+					small
 					icon="shoutout"
 					:loading="shoutoutLoading"
 					class="soButton"
@@ -96,7 +96,8 @@ export default class ChatRaid extends AbstractChatMessage {
 		border-radius: .5em;
 		overflow: hidden;
 		width: 100%;
-		gap: 1em;
+		row-gap: .5em;
+		column-gap: 1em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;

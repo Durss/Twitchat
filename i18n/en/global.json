@@ -82,6 +82,7 @@
 			"timeout_by": "{MODERATOR} has banned {USER} for {DURATION}s",
 			"banned": "{USER} has been banned",
 			"banned_by": "{USER} has been banned by {MODERATOR}",
+			"unbanBt": "Unban",
 			"unbanned": "{USER} has been unbanned",
 			"unbanned_by": "{USER} has been unbanned by {MODERATOR}",
 			"mod": "{USER} has been added to your mods",
