@@ -185,10 +185,11 @@
 			</div>
 		</div>
 		
-		<PlaceholderSelector class="child placeholders" v-if="placeholderTarget && paramData.placeholderList"
+		<PlaceholderSelector class="placeholders" v-if="paramData.placeholderList"
 			:target="placeholderTarget"
 			:placeholders="paramData.placeholderList"
 			v-model="paramData.value"
+			@insert="insertPlaceholder"
 		/>
 
 		<ParamItem v-for="(c, index) in children"
@@ -287,6 +288,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
+		if(this.paramData.icon) res.push("hasIcon");
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
@@ -386,10 +388,11 @@ export default class ParamItem extends Vue {
 		}
 
 		if(this.paramData.placeholderList && this.paramData.placeholderList.length > 0) {
-			if(this.paramData.type != "string") {
-				throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
+			if(this.paramData.type == "string") {
+				this.placeholderTarget = this.$el.querySelector("textarea,input");
+			// }else{
+				// throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
 			}
-			this.placeholderTarget = this.$el.querySelector("textarea,input");
 		}
 	}
 
@@ -557,6 +560,12 @@ export default class ParamItem extends Vue {
 	public clampValue():void {
 		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
 		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
+	}
+
+	public insertPlaceholder(tag:string):void {
+		if(this.paramData.type == "editablelist") {
+			(this.paramData.value as string[]).push(tag);
+		}
 	}
 
 	private setErrorState(state:boolean) {
@@ -855,7 +864,6 @@ export default class ParamItem extends Vue {
 	&.level_3,
 	&.level_4 {
 		.child {
-			@padding:15px;
 			width: 100%;
 		}
 	}
@@ -877,6 +885,12 @@ export default class ParamItem extends Vue {
 				content: "⤷";
 				display: block;
 			}
+		}
+	}
+
+	&.hasIcon {
+		.placeholders {
+			padding-left:1.5em;
 		}
 	}
 }

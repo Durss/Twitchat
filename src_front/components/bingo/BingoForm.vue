@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import type { TriggerActionBingoData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionBingoData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Prop } from 'vue-facing-decorator';
@@ -77,6 +77,9 @@ export default class BingoForm extends AbstractSidePanel {
 	@Prop({type: Object, default:{}})
 	public action!:TriggerActionBingoData;
 
+	@Prop
+	public triggerData!:TriggerData;
+
 	public globalEmotes:TwitchatDataTypes.Emote[] = [];
 	public mode:"num"|"emote"|"custom" = "num";
 	public minValue:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:999999999};
@@ -106,7 +109,7 @@ export default class BingoForm extends AbstractSidePanel {
 			{
 				tag:"GOAL", descKey:'bingo.form.goal_placeholder',
 				example:this.mode == "emote"? this.$t('bingo.form.goal_emote')
-					: this.$t('bingo.form.goal_number', {MIN:this.minValue.value, MAX:this.maxValue.value})
+											: this.$t('bingo.form.goal_number', {MIN:this.minValue.value, MAX:this.maxValue.value})
 			}
 		];
 	}
@@ -129,6 +132,10 @@ export default class BingoForm extends AbstractSidePanel {
 		let emotes = await TwitchUtils.getEmotes();
 		emotes = emotes.filter(v => v.is_public === true);
 		this.globalEmotes = emotes;
+
+		if(this.triggerMode !== false) {
+			this.customValue.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
+		}
 	}
 
 	public mounted(): void {

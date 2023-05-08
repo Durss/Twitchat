@@ -182,7 +182,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
 	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop.svg"};
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user.svg"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast.svg", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9-_"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast.svg", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
 
 	public get counterEntries():CounterEntry[] {

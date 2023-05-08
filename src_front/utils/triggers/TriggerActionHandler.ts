@@ -845,11 +845,15 @@ export default class TriggerActionHandler {
 				if(step.type == "poll") {
 					try {
 						if(step.pollData.title && step.pollData.answers.length >= 2) {
+							let answers:string[] = [];
+							for (const a of step.pollData.answers) {
+								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a))
+							}
 							await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
-							step.pollData.title,
-							step.pollData.answers.concat(),
-							step.pollData.voteDuration * 60,
-							step.pollData.pointsPerVote);
+								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pollData.title),
+								answers,
+								step.pollData.voteDuration * 60,
+								step.pollData.pointsPerVote);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"Cannot create poll as it's missing either the title or answers"});
 						}
@@ -863,10 +867,14 @@ export default class TriggerActionHandler {
 				if(step.type == "prediction") {
 					try {
 						if(step.predictionData.title && step.predictionData.answers.length >= 2) {
+							let answers:string[] = [];
+							for (const a of step.predictionData.answers) {
+								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a))
+							}
 							await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id,
-							step.predictionData.title,
-							step.predictionData.answers.concat(),
-							step.predictionData.voteDuration * 60);
+								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.predictionData.title),
+								answers,
+								step.predictionData.voteDuration * 60);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"Cannot create prediction as it's missing either the title or answers"});
 						}
@@ -878,7 +886,12 @@ export default class TriggerActionHandler {
 				
 				//Handle raffle action
 				if(step.type == "raffle") {
-					StoreProxy.raffle.startRaffle(JSON.parse(JSON.stringify(step.raffleData)));
+					let data:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(step.raffleData));
+					if(data.customEntries) {
+						//Parse placeholders on custom erntries
+						data.customEntries = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customEntries);
+					}
+					StoreProxy.raffle.startRaffle(data);
 				}else
 				
 				//Handle raffle enter action
@@ -888,7 +901,11 @@ export default class TriggerActionHandler {
 				
 				//Handle bingo action
 				if(step.type == "bingo") {
-					StoreProxy.bingo.startBingo(JSON.parse(JSON.stringify(step.bingoData)));
+					const data:TwitchatDataTypes.BingoConfig = JSON.parse(JSON.stringify(step.bingoData));
+					if(data.customValue) {
+						data.customValue = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customValue);
+					}
+					StoreProxy.bingo.startBingo(data);
 				}else
 				
 				//Handle voicemod action
@@ -1077,9 +1094,13 @@ export default class TriggerActionHandler {
 				//Handle stream info update trigger action
 				if(step.type == "stream_infos") {
 					if(step.title) {
-						//TODO parse placeholders on infos
-						logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\"{"+step.title+"}\" Tags:\"{"+step.tags+"}\" CategoryID:\"{"+step.categoryId+"}\" "});
-						await StoreProxy.stream.setStreamInfos("twitch", step.title, step.categoryId, StoreProxy.auth.twitch.user.id, step.tags);
+						let title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.title);
+						let tags = [];
+						for (const tag of step.tags) {
+							tags.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, tag));
+						}
+						logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\""+title+"\" Tags:\""+tags+"\" CategoryID:\""+step.categoryId+"\""});
+						await StoreProxy.stream.setStreamInfos("twitch", title, step.categoryId, StoreProxy.auth.twitch.user.id, tags);
 					}
 				}else
 

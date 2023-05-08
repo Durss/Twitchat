@@ -22,12 +22,17 @@
 						<input type="text" id="poll_answer" v-model="answers[index]" maxlength="25" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
 						<div class="len">{{answers[index].length}}/25</div>
 					</div>
+					
+					<PlaceholderSelector class="child placeholders" v-if="placeholderList.length > 0"
+						copyMode
+						:placeholders="placeholderList"
+					/>
 				</div>
-				<ParamItem :paramData="pram_extraVotes" @change="onValueChange()" />
-				<ParamItem :paramData="param_points" @change="onValueChange()" v-if="pram_extraVotes.value === true" />
+				<ParamItem :paramData="param_extraVotes" @change="onValueChange()" />
+				<ParamItem :paramData="param_points" @change="onValueChange()" v-if="param_extraVotes.value === true" />
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				
-				<Button type="submit" :loading="loading" :disabled="title.length < 1 || answers.length < 2">{{ $t('global.submit') }}</Button>
+				<Button type="submit" v-if="triggerMode === false" :loading="loading" :disabled="title.length < 1 || answers.length < 2">{{ $t('global.submit') }}</Button>
 				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
 			</form>
 		</div>
@@ -37,7 +42,7 @@
 <script lang="ts">
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
 import StoreProxy from '@/store/StoreProxy';
-import type { TriggerActionPollData, TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionPollData, type TriggerData, type ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
@@ -47,12 +52,14 @@ import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
+import PlaceholderSelector from '../params/PlaceholderSelector.vue';
 
 @Component({
 	components:{
 		Button,
 		ParamItem,
 		CloseButton,
+		PlaceholderSelector,
 		VoiceGlobalCommandsHelper,
 	},
 	emits:['close']
@@ -69,14 +76,18 @@ export default class PollForm extends AbstractSidePanel {
 	@Prop({type: Object, default:{}})
 	public action!:TriggerActionPollData;
 
+	@Prop
+	public triggerData!:TriggerData;
+
 	public loading:boolean = false;
 	public error = "";
 	public title = "";
 	public answers:string[] = ["","","","",""];
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:60, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
-	public pram_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean"};
+	public param_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean"};
 	public param_points:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:99999, step:1};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30};
+	public placeholderList:ITriggerPlaceholder[] = [];
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -87,7 +98,7 @@ export default class PollForm extends AbstractSidePanel {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.pram_extraVotes.labelKey	= "poll.form.additional_votes";
+		this.param_extraVotes.labelKey	= "poll.form.additional_votes";
 		this.param_points.labelKey		= 'poll.form.additional_votes_amount';
 		this.param_duration.labelKey	= 'poll.form.vote_duration';
 
@@ -95,6 +106,11 @@ export default class PollForm extends AbstractSidePanel {
 			const titlePrefill = this.$store("main").tempStoreValue as string;
 			if(titlePrefill) this.title = titlePrefill;
 			this.$store("main").tempStoreValue = null;
+		}
+		
+		if(this.triggerMode !== false) {
+			this.placeholderList = 
+			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		}
 	}
 
@@ -106,7 +122,7 @@ export default class PollForm extends AbstractSidePanel {
 		});
 
 		if(this.triggerMode && this.action.pollData) {
-			this.pram_extraVotes.value = this.action.pollData.pointsPerVote > 0;
+			this.param_extraVotes.value = this.action.pollData.pointsPerVote > 0;
 			this.param_points.value = this.action.pollData.pointsPerVote ?? 1;
 			this.param_duration.value = this.action.pollData.voteDuration;
 			this.title = this.action.pollData.title;
@@ -115,7 +131,7 @@ export default class PollForm extends AbstractSidePanel {
 			}
 		}
 		
-		if(!this.triggerMode) {
+		if(this.triggerMode === false) {
 			super.open();
 		}
 	}

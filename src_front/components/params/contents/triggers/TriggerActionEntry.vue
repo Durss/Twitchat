@@ -129,10 +129,10 @@
 		<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
 		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :rewards="rewards" />
 		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
-		<RaffleForm v-if="action.type=='raffle'" :action="action" triggerMode />
-		<BingoForm v-if="action.type=='bingo'" :action="action" triggerMode />
-		<PollForm v-if="action.type=='poll'" :action="action" triggerMode />
-		<PredictionForm v-if="action.type=='prediction'" :action="action" triggerMode />
+		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
+		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
+		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
+		<PredictionForm v-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
 		<div v-if="action.type=='raffle_enter'" class="raffleEnter">{{ $t("triggers.actions.raffle_enter.info") }}</div>
 
 	</ToggleBlock>

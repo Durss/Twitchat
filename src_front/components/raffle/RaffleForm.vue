@@ -43,6 +43,7 @@
 				<ParamItem class="card-item" :paramData="ponderateVotes" @change="onValueChange()" />
 
 				<Button type="submit" 
+					v-if="triggerMode === false"
 					:aria-label="$t('raffle.chat.startBt_aria')"
 					icon="ticket">{{ $t('global.start') }}</Button>
 			</form>
@@ -101,7 +102,7 @@
 				</Button>
 			</form>
 
-			<ToggleBlock class="configs" v-if="mode=='chat' || triggerMode === false" :title="$t('global.configs')" :open="false" small>
+			<ToggleBlock class="configs" v-if="mode=='chat' && triggerMode === false" :title="$t('global.configs')" :open="false" small>
 				<ParamItem class="card-item"
 				:paramData="showCountdownOverlay"
 				v-if="mode=='chat'" @change="onValueChange()">
@@ -137,7 +138,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
-import type { TriggerActionRaffleData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionRaffleData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
@@ -178,6 +179,9 @@ export default class RaffleForm extends AbstractSidePanel {
 	//This is used by the trigger action form.
 	@Prop({type: Object, default:{}})
 	public action!:TriggerActionRaffleData;
+
+	@Prop
+	public triggerData!:TriggerData;
 
 	public pickingEntry = false;
 	public winner:string|null = null;
@@ -287,20 +291,24 @@ export default class RaffleForm extends AbstractSidePanel {
 			});
 		}
 
-		if(this.triggerMode && this.action.raffleData) {
-			this.mode = this.action.raffleData.mode;
-			this.command.value = this.action.raffleData.command != undefined;
-			this.enterDuration.value = this.action.raffleData.duration_s/60;
-			this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
-			this.maxUsersToggle.value = this.maxEntries.value > 0;
-			this.ponderateVotes_follower.value = this.action.raffleData.followRatio ?? 0;
-			this.ponderateVotes_vip.value = this.action.raffleData.vipRatio ?? 0;
-			this.ponderateVotes_sub.value = this.action.raffleData.subRatio ?? 0;
-			this.ponderateVotes_subgift.value = this.action.raffleData.subgiftRatio ?? 0;
-			this.subs_includeGifters.value = this.action.raffleData.subMode_includeGifters ?? false;
-			this.subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
-			this.showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
-			this.customEntries.value = this.action.raffleData.customEntries;
+		if(this.triggerMode !== false) {
+			if(this.action.raffleData) {
+				this.mode = this.action.raffleData.mode;
+				this.command.value = this.action.raffleData.command != undefined;
+				this.enterDuration.value = this.action.raffleData.duration_s/60;
+				this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
+				this.maxUsersToggle.value = this.maxEntries.value > 0;
+				this.ponderateVotes_follower.value = this.action.raffleData.followRatio ?? 0;
+				this.ponderateVotes_vip.value = this.action.raffleData.vipRatio ?? 0;
+				this.ponderateVotes_sub.value = this.action.raffleData.subRatio ?? 0;
+				this.ponderateVotes_subgift.value = this.action.raffleData.subgiftRatio ?? 0;
+				this.subs_includeGifters.value = this.action.raffleData.subMode_includeGifters ?? false;
+				this.subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
+				this.showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
+				this.customEntries.value = this.action.raffleData.customEntries;
+			}
+
+			this.customEntries.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		}else{
 			this.showCountdownOverlay.value = DataStore.get(DataStore.RAFFLE_OVERLAY_COUNTDOWN) === "true";
 		}

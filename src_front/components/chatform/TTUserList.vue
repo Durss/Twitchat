@@ -210,8 +210,13 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 		text-align: center;
 	}
 
+	.head {
+		max-width: 100%;
+	}
+
 	.content {
 
+		max-width: 100%;
 		.stats {
 			flex-shrink: 0;
 			.table {

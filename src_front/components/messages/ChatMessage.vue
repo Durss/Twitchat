@@ -184,7 +184,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
 	private canModerateMessage:boolean = false;
-	private canModerateUser:boolean = false;
+	private canModerateUser_local:boolean = false;
 	
 	
 	public get showNofollow():boolean{
@@ -355,10 +355,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			});
 		}
 
-		this.canModerateUser = (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster
-						|| (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator
-							&& !this.messageData.user.channelInfo[this.messageData.channel_id].is_moderator))
-						&& this.messageData.user.id != StoreProxy.auth.twitch.user.id;
+		this.canModerateUser_local = super.canModerateUser(this.messageData.user, this.messageData.channel_id);
 	
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
@@ -382,13 +379,13 @@ export default class ChatMessage extends AbstractChatMessage {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
 			}
 			
-			this.canModerateMessage = this.canModerateUser
+			this.canModerateMessage = this.canModerateUser_local
 									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
 									&& this.canModerateMessage//if not sent by broadcaster
-									&& this.canModerateUser;//If we're a mod or the broadcaster
+									&& this.canModerateUser_local;//If we're a mod or the broadcaster
 
 
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
@@ -596,7 +593,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			const el = e.target as HTMLElement;
 			if(el.tagName == "A") return;
 		}
-		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser);
+		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser_local);
 	}
 	
 	/**
