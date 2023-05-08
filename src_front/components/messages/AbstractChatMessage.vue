@@ -21,6 +21,21 @@ export default class AbstractChatMessage extends Vue {
 	private refreshTimeout:number = -1;
 	private clickHandler!:(e:MouseEvent)=>void;
 
+	/**
+	 * Check if the currently authenticated user can moderate the message
+	 */
+	public canModerateUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
+		const authenticatedUser = this.$store("auth").twitch.user;
+		return (
+					//If broadcaster of the channel... or
+					authenticatedUser.channelInfo[channelId].is_broadcaster ||
+					//If moderator on this channel and user to moderate isn't also a moderator
+					(authenticatedUser.channelInfo[channelId].is_moderator && !user.channelInfo[channelId].is_moderator)
+				) &&
+				//If not self
+				user.id != authenticatedUser.id;
+	}
+
 	public beforeMount() {
 		this.refreshDate();
 		//Watch for "relative" param update to refresh time accordingly
@@ -40,25 +55,29 @@ export default class AbstractChatMessage extends Vue {
 			}
 		}
 		this.$el.addEventListener("click", this.clickHandler);
-		this.applyStyles();
 
-		const params = this.$store("params").appearance;
-		watch(()=> params.highlight1stEver.value, ()=> this.applyStyles());
-		watch(()=> params.highlight1stEver_color.value, ()=> this.applyStyles());
-		watch(()=> params.highlight1stToday.value, ()=> this.applyStyles());
-		watch(()=> params.highlight1stToday_color.value, ()=> this.applyStyles());
-		watch(()=> params.highlightMentions.value, ()=> this.applyStyles());
-		watch(()=> params.highlightMentions_color.value, ()=> this.applyStyles());
-		watch(()=> params.raidHighlightUser.value, ()=> this.applyStyles());
-		watch(()=> params.raidHighlightUser_color.value, ()=> this.applyStyles());
-		watch(()=> params.highlightMods.value, ()=> this.applyStyles());
-		watch(()=> params.highlightMods_color.value, ()=> this.applyStyles());
-		watch(()=> params.highlightVips.value, ()=> this.applyStyles());
-		watch(()=> params.highlightVips_color.value, ()=> this.applyStyles());
-		watch(()=> params.highlightPartners.value, ()=> this.applyStyles());
-		watch(()=> params.highlightPartners_color.value, ()=> this.applyStyles());
-		watch(()=> params.highlightSubs.value, ()=> this.applyStyles());
-		watch(()=> params.highlightSubs_color.value, ()=> this.applyStyles());
+		//Apply styles and watch for params change for caht messages
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			this.applyStyles();
+	
+			const params = this.$store("params").appearance;
+			watch(()=> params.highlight1stEver.value, ()=> this.applyStyles());
+			watch(()=> params.highlight1stEver_color.value, ()=> this.applyStyles());
+			watch(()=> params.highlight1stToday.value, ()=> this.applyStyles());
+			watch(()=> params.highlight1stToday_color.value, ()=> this.applyStyles());
+			watch(()=> params.highlightMentions.value, ()=> this.applyStyles());
+			watch(()=> params.highlightMentions_color.value, ()=> this.applyStyles());
+			watch(()=> params.raidHighlightUser.value, ()=> this.applyStyles());
+			watch(()=> params.raidHighlightUser_color.value, ()=> this.applyStyles());
+			watch(()=> params.highlightMods.value, ()=> this.applyStyles());
+			watch(()=> params.highlightMods_color.value, ()=> this.applyStyles());
+			watch(()=> params.highlightVips.value, ()=> this.applyStyles());
+			watch(()=> params.highlightVips_color.value, ()=> this.applyStyles());
+			watch(()=> params.highlightPartners.value, ()=> this.applyStyles());
+			watch(()=> params.highlightPartners_color.value, ()=> this.applyStyles());
+			watch(()=> params.highlightSubs.value, ()=> this.applyStyles());
+			watch(()=> params.highlightSubs_color.value, ()=> this.applyStyles());
+		}
 	}
 
 	public beforeUnmount():void {
@@ -162,16 +181,6 @@ export default class AbstractChatMessage extends Vue {
 			holder.style.border = "";
 			holder.style.backgroundColor = "";
 		}
-		
-		// raidHighlightUser
-		
-		// highlightMentions
-		// highlightSubs
-		// highlightPartners
-		// highlightVips
-		// highlightMods
-		// highlight1stEver
-		// highlight1stToday
 	}
 
 }
