@@ -40,7 +40,7 @@ export default class ChatAlertMessage extends Vue {
 	position: fixed;
 	z-index: 10;
 	background-color: var(--color-alert);
-	color: var(--color-light);
+	color: var(--color-button);
 	font-size: 1.5em;
 	border-radius: 1em;
 	width: 90vw;

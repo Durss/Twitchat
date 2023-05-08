@@ -46,7 +46,10 @@
 			
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
-					<img src="@/assets/icons/list.svg" class="icon">
+					<picture>
+						<source srcset="@/assets/icons/dark/list.svg" media="(prefers-color-scheme: light)">
+						<img src="@/assets/icons/list.svg" class="icon">
+					</picture>
 					<span>{{ $t("triggers.trigger_queue") }}</span>
 				</div>
 				<ParamItem noBackground class="selector" :paramData="param_queue" v-model="triggerData.queue" />

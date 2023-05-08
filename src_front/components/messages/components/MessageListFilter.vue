@@ -116,7 +116,10 @@
 				</div>
 
 				<div class="preview" v-if="loadingPreview">
-					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+					<picture>
+						<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+						<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+					</picture>
 				</div>
 	
 				<div class="preview" v-for="m in previewData" :key="'preview_'+m.id" @click="clickPreview($event)">

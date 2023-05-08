@@ -1,6 +1,9 @@
 <template>
 	<div class="paramsemergency parameterContent">
-		<img src="@/assets/icons/emergency.svg" alt="emergency icon" class="icon">
+		<picture>
+			<source srcset="@/assets/icons/dark/emergency.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/icons/emergency.svg" alt="emergency icon" class="icon">
+		</picture>
 		
 		<p class="head">{{ $t("emergency.header") }}</p>
 		<ParamItem class="enableBt" :paramData="param_enable" />
@@ -18,7 +21,10 @@
 					</ToggleBlock>
 				</div>
 				<div class="card-item labeled">
-					<img src="@/assets/icons/mod.svg" alt="scene icon" class="icon">
+					<picture>
+						<source srcset="@/assets/icons/dark/mod.svg" media="(prefers-color-scheme: light)">
+						<img src="@/assets/icons/mod.svg" alt="scene icon" class="icon">
+					</picture>
 					<i18n-t scope="global" tag="p" keypath="emergency.start.also">
 						<template #LINK>
 							<a @click="$store('params').openParamsPage(contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
@@ -53,7 +59,10 @@
 				
 				<template v-else>
 					<div class="card-item labeled">
-						<img src="@/assets/icons/list.svg" alt="scene icon" class="icon">
+						<picture>
+							<source srcset="@/assets/icons/dark/list.svg" media="(prefers-color-scheme: light)">
+							<img src="@/assets/icons/list.svg" alt="scene icon" class="icon">
+						</picture>
 						<p>{{ $t("emergency.actions.obs_scene") }}</p>
 						<vue-select class="sourceSelector" label="label"
 							:placeholder="$t('emergency.actions.obs_scene_select')"
@@ -65,7 +74,10 @@
 					</div>
 					
 					<div class="card-item labeled">
-						<img src="@/assets/icons/show.svg" alt="sources icon" class="icon">
+						<picture>
+							<source srcset="@/assets/icons/dark/show.svg" media="(prefers-color-scheme: light)">
+							<img src="@/assets/icons/show.svg" alt="sources icon" class="icon">
+						</picture>
 						<p>{{ $t("emergency.actions.obs_sources") }} <br><i>{{ $t("emergency.actions.obs_sources_example") }}</i></p>
 						<vue-select class="sourceSelector" label="sourceName"
 							:placeholder="$t('emergency.actions.obs_sources_select')"

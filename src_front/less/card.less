@@ -65,8 +65,11 @@
 	}
 	
 	&.primary {
-		text-shadow: 1px 1px 0 var(--color-dark-fader);
+		color: var(--color-button);
 		background-color: var(--color-primary);
+		@media (prefers-color-scheme: dark) {
+			text-shadow: 1px 1px 0 var(--color-dark-fader);
+		}
 		& > .header {
 			background-color: var(--color-primary-dark);
 		}
@@ -77,8 +80,10 @@
 	}
 	
 	&.secondary {
-		text-shadow: 1px 1px 0 var(--color-dark-fader);
 		background-color: var(--color-secondary);
+		@media (prefers-color-scheme: dark) {
+			text-shadow: 1px 1px 0 var(--color-dark-fader);
+		}
 		& > .header {
 			background-color: var(--color-secondary-dark);
 		}
@@ -94,8 +99,15 @@
 			background-color: var(--color-alert-dark);
 		}
 		a {
+			font-weight: bold;
 			color: var(--color-light);
 			text-decoration: underline;
+		}
+		@media (prefers-color-scheme: light) {
+			color: var(--color-dark);
+			a {
+				color: var(--color-dark);
+			}
 		}
 	}
 }

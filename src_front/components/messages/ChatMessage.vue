@@ -261,19 +261,31 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Set login color
 	 */
 	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):StyleValue {
+		let colorStr = user.color ?? "#ffffff";
 		let color = 0xffffff;
 		if(user.color) {
 			color = parseInt(user.color.replace("#", ""), 16);
 		}
-		const hsl = Utils.rgb2hsl(color);
-		const minL = .65;
-		if(hsl.l < minL) {
-			color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
+		if(!Utils.isLightMode) {
+			const hsl = Utils.rgb2hsl(color);
+			const minL = .65;
+			if(hsl.l < minL) {
+				color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
+			}
+			colorStr = color.toString(16);
+		}else{
+			const hsl = Utils.rgb2hsl(color);
+			const maxL = .4;
+			const minS = 1;
+			if(hsl.l > maxL) {
+				color = Utils.hsl2rgb(hsl.h, Math.max(hsl.s, minS), Math.min(hsl.l, maxL));
+			}
+			colorStr = color.toString(16);
 		}
-		let colorStr = color.toString(16);
 		while(colorStr.length < 6) colorStr = "0"+colorStr;
+		colorStr = "#"+colorStr;
 		let res = {
-			color: "#"+colorStr,
+			color: colorStr,
 		};
 		return res;
 	}
@@ -686,6 +698,9 @@ export default class ChatMessage extends AbstractChatMessage {
 		.message {
 			color: rgba(0, 0, 0, 0);
 			background-color: var(--color-dark-light);
+			@media (prefers-color-scheme: light) {
+				background-color: #999;
+			}
 			background-image: repeating-linear-gradient(-45deg, #ffffff00, #ffffff00 7px, #ffffff30 7px, #ffffff30 15px);
 		}
 		&:hover {

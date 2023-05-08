@@ -68,7 +68,10 @@
 					<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
 						<div class="search">
 							<input type="text" :placeholder="$t('counters.form.search')" v-model="search[entry.counter.id]" @input="searchUser(entry.counter)">
-							<img src="@/assets/loader/loader.svg" alt="loader" v-show="idToLoading[entry.counter.id] === true">
+							<picture v-show="idToLoading[entry.counter.id] === true">
+								<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+								<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+							</picture>
 						</div>
 						
 						<Button class="loadAllBt" v-if="search[entry.counter.id].length === 0 && idToAllLoaded[entry.counter.id] !== true"

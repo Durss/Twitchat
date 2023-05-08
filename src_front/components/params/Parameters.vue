@@ -42,7 +42,10 @@
 		<div class="contentHolder">
 			<div class="head">
 				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
-					<img src="@/assets/icons/back.svg" alt="back">
+					<picture>
+						<source srcset="@/assets/icons/dark/back.svg" media="(prefers-color-scheme: light)">
+						<img src="@/assets/icons/back.svg" alt="back">
+					</picture>
 				</button>
 				<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
 				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
@@ -379,7 +382,7 @@ export default class Parameters extends Vue {
 		gap: 1em;
 		width: fit-content;
 		border-right: 1px solid var(--color-light-fader);
-		padding-right: 5px;
+		padding-right: 1em;
 		overflow-y: auto;
 		.head {
 			display:none;

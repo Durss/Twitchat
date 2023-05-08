@@ -1,6 +1,9 @@
 <template>
 	<div class="buttonnotification" @click="onClick($event)">
-		<img :src="$image('icons/'+icon+'.svg')">
+		<picture>
+			<source :srcset="$image('icons/dark/'+icon+'.svg')" media="(prefers-color-scheme: light)">
+			<img :src="$image('icons/'+icon+'.svg')">
+		</picture>
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>

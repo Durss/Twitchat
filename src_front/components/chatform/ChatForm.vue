@@ -10,7 +10,10 @@
 
 			
 			<form @submit.prevent="" class="inputForm">
-				<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
+				<picture v-if="loading">
+					<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+				</picture>
 				
 				<div class="inputHolder" v-if="!error && !$store('chat').spamingFakeMessages">
 
@@ -166,7 +169,10 @@
 				>
 					<p v-if="censoredViewCount">x</p>
 					<p v-if="!censoredViewCount">{{$store('stream').playbackState!.viewers}}</p>
-					<img src="@/assets/icons/user.svg" alt="viewers">
+					<picture>
+						<source srcset="@/assets/icons/dark/user.svg" media="(prefers-color-scheme: light)">
+						<img src="@/assets/icons/user.svg" alt="viewers">
+					</picture>
 				</div>
 	
 				<transition name="blink">
@@ -817,7 +823,7 @@ export default class ChatForm extends Vue {
 		position: relative;
 		z-index: 2;
 		box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
-		background-color: var(--color-dark-light);
+		background-color: var(--background-color-secondary);
 		padding: .25em;
 
 		.leftForm {

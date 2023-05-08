@@ -75,7 +75,10 @@
 				
 				<div class="loader" v-if="authenticating">
 					<p>{{ $t("login.authenticating") }}</p>
-					<img src="@/assets/loader/loader.svg" alt="loader">
+					<picture>
+						<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+						<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+					</picture>
 				</div>
 			</div>
 	

@@ -149,7 +149,7 @@ export default class SwitchButton extends Vue {
 	&.secondary {
 		color: var(--color-secondary);
 		.toggle {
-			background-color: var(--color-secondary-fadest);
+			background-color: var(--color-secondary-fadest) !important;
 			:deep(.circle) {
 				background-color: var(--color-secondary-light);
 			}
@@ -171,7 +171,7 @@ export default class SwitchButton extends Vue {
 	&.alert {
 		color: var(--color-alert);
 		.toggle {
-			background-color: var(--color-alert-fadest);
+			background-color: var(--color-alert-fadest) !important;
 			:deep(.circle) {
 				background-color: var(--color-alert-light);
 			}

@@ -1,7 +1,9 @@
 <template>
 	<div class="triggercreateform">
-
-		<img src="@/assets/loader/loader.svg" v-if="showLoading" class="loader">
+		<picture v-if="showLoading">
+			<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+		</picture>
 
 		<i18n-t scope="global" tag="div" class="require"
 		v-if="needObsConnect"
@@ -683,7 +685,7 @@ interface TriggerEntry{
 
 		.subEventBt {
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-			color: var(--color-light);
+			color: var(--color-button);
 			background-color: var(--color-primary);
 			border-radius: var(--border-radius);
 			padding: 0 .5em;

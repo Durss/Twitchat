@@ -1,7 +1,10 @@
 <template>
 	<div class="paramsdonorlist">
 		<div v-if="error">{{ $t("error.donor_loading") }}</div>
-		<img src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
+		<picture v-if="loading">
+			<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+		</picture>
 
 		<div class="stats" v-if="!loading">
 			<div v-for="b in badges" :key="'badge_'+b.level" class="item">

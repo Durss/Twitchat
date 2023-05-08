@@ -1,8 +1,11 @@
 <template>
-	<div class="paramsspoiler">
-		<img src="@/assets/icons/show.svg" alt="emergency icon" class="icon">
+	<div class="paramsspoiler parameterContent">
+		<picture>
+			<source srcset="@/assets/icons/dark/show.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/icons/show.svg" alt="spoiler icon" class="icon">
+		</picture>
 
-		<i18n-t scope="global" tag="p" class="header" keypath="spoiler.header">
+		<i18n-t scope="global" tag="p" class="head" keypath="spoiler.header">
 			<template #TAG><mark>||</mark></template>
 		</i18n-t>
 
@@ -25,7 +28,7 @@
 				<i18n-t scope="global" tag="div" keypath="spoiler.command.how_to">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
-				<img class="example" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
+				<img class="tuto" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
 			</div>
 		</section>
 
@@ -114,34 +117,10 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsspoiler {
-	gap: 1em;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	padding-top: 0;
-
-	.splitter {
-		margin-top: 1em;
-	}
-
-	section {
-		margin: 0 1em;
-	}
-
-	&>.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-	}
-
-	.header {
-		text-align: center;
-	}
 
 	.example {
-		background-color: var(--color-dark);
+		background-color: var(--background-color-primary);
 		padding: .5em;
-		border-radius: var(--border-radius);
 		position: relative;
 	}
 
@@ -151,10 +130,10 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 		flex-direction: column;
 		align-items: stretch;
 
-		.example {
+		.tuto {
 			max-width: 100%;
 			margin: auto;
-			margin-top: 1em;
+			margin-top: .5em;
 			display: block;
 		}
 

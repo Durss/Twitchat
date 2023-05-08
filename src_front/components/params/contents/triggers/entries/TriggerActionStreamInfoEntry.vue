@@ -6,7 +6,10 @@
 			:placeholderList="placeholderList"
 			triggerMode />
 		
-		<img class="loader" src="@/assets/loader/loader.svg" v-else>
+		<picture v-else>
+			<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+		</picture>
 	</div>
 </template>
 

@@ -8,7 +8,8 @@
 	padding-top: 0;
 	gap: 1em;
 	
-	&>.icon {
+	&>.icon,
+	&>picture .icon {
 		height: 4em;
 		display: block;
 		margin: auto;
@@ -37,12 +38,19 @@
 		border-radius: 1em;
 		padding: .5em 1em !important;
 		background-color: var(--color-primary);
+		transition: background-color .25s;
 		label {
-			flex-basis: unset !important;
 			align-self: flex-end !important;
 		}
-		&.disabled {
-			background-color: var(--color-primary-fadest);
+		@media (prefers-color-scheme: light) {
+			label {
+				color: var(--color-dark);
+			}
+			&.unselected {
+				label {
+					color: var(--color-light) !important;
+				}
+			}
 		}
 	}
 

@@ -1,7 +1,10 @@
 <template>
 	<div class="emoteselector blured-background-window">
 		<div v-if="users.length == 0" class="loader">
-			<img src="@/assets/loader/loader.svg" alt="loader">
+			<picture>
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 			<p>{{ $t("global.loading") }}</p>
 		</div>
 
@@ -395,6 +398,7 @@ export default class EmoteSelector extends Vue {
 			padding: 0;
 			height: 2em;
 			width: 2em;
+			border-radius: 50%;
 			.avatar {
 				width: 100%;
 				border-radius: 50%;
@@ -415,7 +419,7 @@ export default class EmoteSelector extends Vue {
 			height: 30px;
 		}
 		p {
-			color: #fff;
+			color: var(--color-light);
 			font-style: italic;
 			font-size: 16px;
 		}

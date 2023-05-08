@@ -24,7 +24,10 @@
 			</ToggleBlock>
 			
 		
-			<img v-if="loading" src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			<picture v-if="loading">
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 
 			<ToggleBlock v-else class="form" :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
 			:open="presets.length == 0 || forceOpenForm" icon="update">

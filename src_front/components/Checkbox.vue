@@ -1,7 +1,10 @@
 <template>
 	<div class="checkbox">
 		<div class="checkmark">
-			<img :src="checkMarkIcon" v-if="checked" alt="icon" class="img">
+			<picture v-if="checked">
+				<source srcset="@/assets/icons/dark/checkmark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/icons/checkmark.svg" class="icon">
+			</picture>
 		</div>
 		<span class="label" v-if="$slots.default"><slot></slot></span>
 		<input type="checkbox" class="checkboxInput" ref="checkbox" v-model="checked" @change="onChange()" />
@@ -31,10 +34,6 @@ export default class Checkbox extends Vue {
 	@Prop({type:Array, default: [true, false]})
 	public values!:unknown[];
 	
-	public get checkMarkIcon():string {
-		return this.$image('icons/checkmark.svg');
-	}
-
 	public onChange():void {
 		this.$emit("update:modelValue", this.checked? this.values[0] || true : this.values[1] || false);
 	}
@@ -62,7 +61,7 @@ export default class Checkbox extends Vue {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		.img {
+		picture {
 			width: 80%;
 			margin: 0;
 			padding: 0;

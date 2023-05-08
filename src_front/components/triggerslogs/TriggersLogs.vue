@@ -14,6 +14,13 @@
 			- No history -
 		</div>
 		
+		<div class="content empty" v-else-if="reloading">
+			<picture>
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
+		</div>
+		
 		<div class="content entries" v-else-if="!reloading">
 			<div v-for="item in logs" :key="item.id" class="entry">
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
@@ -57,11 +64,10 @@
 import type { TriggerData, TriggerLog } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
 
 @Component({
 	components:{
@@ -101,7 +107,8 @@ export default class TriggersLogs extends AbstractSidePanel {
 	}
 
 	public clearList():void {
-		TriggerActionHandler.instance.logHistory = [];
+		TriggerActionHandler.instance.logHistory.splice(0);
+		this.refreshList();
 	}
 
 }
@@ -109,6 +116,9 @@ export default class TriggersLogs extends AbstractSidePanel {
 
 <style scoped lang="less">
 .triggerslogs{
+	.head {
+		flex-shrink: 1;
+	}
 	.ctas {
 		margin-top: 1em;
 		gap: .5em;
@@ -140,7 +150,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 			background: var(--color-primary);
 			padding: .2em .5em;
 			border-radius: .5em;
-			color:var(--color-light);
+			color: var(--color-button);
 			cursor:pointer;
 
 			.icon {

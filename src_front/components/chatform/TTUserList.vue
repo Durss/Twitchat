@@ -53,7 +53,10 @@
 			icon="user"
 			@click="loadNextUsers()" />
 	
-			<img class="loader" src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
+			<picture v-if="loading">
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 		</div>
 	</div>
 </template>

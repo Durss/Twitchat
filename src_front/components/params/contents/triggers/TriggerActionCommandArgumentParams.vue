@@ -2,7 +2,10 @@
 	<div class="triggeractioncommandargumentparams">
 		<div class="form">
 			<div>
-				<img src="@/assets/icons/placeholder.svg" class="icon">
+				<picture>
+					<source srcset="@/assets/icons/dark/placeholder.svg" media="(prefers-color-scheme: light)">
+					<img src="@/assets/icons/placeholder.svg" class="icon">
+				</picture>
 				<label for="chatcmdparam" v-tooltip="$t('triggers.slash_cmd.param_cmd_params_tt')">{{ $t("triggers.slash_cmd.param_cmd_params") }}</label>
 			</div>
 			<input type="text" id="chatcmdparam" v-model="newTag"

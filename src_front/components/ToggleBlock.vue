@@ -199,6 +199,12 @@ export default class ToggleBlock extends Vue {
 				background-color: var(--color-alert-light);
 			}
 		}
+		@media (prefers-color-scheme: light) {
+			background-color: var(--color-alert-fadest);
+			.title {
+				color: var(--color-button);
+			}
+		}
 	}
 
 	&.primary{
@@ -209,6 +215,12 @@ export default class ToggleBlock extends Vue {
 				background-color: var(--color-primary-light);
 			}
 		}
+		@media (prefers-color-scheme: light) {
+			background-color: var(--color-primary-fadest);
+			.title {
+				color: var(--color-button);
+			}
+		}
 	}
 
 	&.secondary{
@@ -217,6 +229,12 @@ export default class ToggleBlock extends Vue {
 			background-color: var(--color-secondary);
 			&:hover {
 				background-color: var(--color-secondary-light);
+			}
+		}
+		@media (prefers-color-scheme: light) {
+			background-color: var(--color-secondary-fadest);
+			.title {
+				color: var(--color-button);
 			}
 		}
 	}
@@ -245,7 +263,9 @@ export default class ToggleBlock extends Vue {
 				flex-direction: row;
 				line-height: 1.25em;
 				color: var(--color-secondary);
-				text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+				@media (prefers-color-scheme: dark) {
+					text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+				}
 				font-size: .8em;
 				&::before {
 					content:"►";

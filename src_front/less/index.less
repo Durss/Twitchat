@@ -17,6 +17,12 @@
 	--font-nunito: "Nunito";
 	--font-roboto: "Roboto";
 	--font-azeret: "Azeret";
+	
+	--background-color-primary: #18181b;
+	--background-color-secondary: #303036;
+
+	--color-button: @color-light;
+	--color-button-selected: @color-dark;
 
 	--color-light: @color-light;
 	--color-dark: @color-dark;
@@ -85,13 +91,16 @@ body, html {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
-	color: var(--color-al);
 	min-width: 100%;
 	min-height: var(--vh);
     min-height: -moz-available;
 	min-height: -webkit-fill-available;
 	min-height: fill-available;
 	overflow: hidden;
+
+	&.bg {
+		background-color: var(--background-color-primary) !important;
+	}
 }
 
 pre {
@@ -256,8 +265,40 @@ mark {
 	background-color: var(--color-dark-extralight);
 }
 
-@media (prefers-color-scheme: dark) {
-/* Dark theme styles go here */
+@media (prefers-color-scheme: light) {
+	:root {
+		--background-color-primary: #ffffff;
+		--background-color-secondary: #efeff1;
+
+		--color-chatMessage: #101010;
+
+		@c-dark: @color-light;
+		@c-light: @color-dark;
+
+		--color-light: @color-dark;
+		--color-dark: @color-light;
+		
+		--color-light-transparent: fade(@c-light, 0%);
+		--color-dark-transparent: fade(@c-dark, 0%);
+		
+		--color-light-fade: fade(@c-light, 30%);
+		--color-dark-fade: fade(@c-dark, 80%);
+		
+		--color-light-fader: fade(@c-light, 10%);
+		--color-dark-fader: fade(@c-dark, 40%);
+		
+		--color-light-fadest: fade(@c-light, 5%);
+		--color-dark-fadest: fade(@c-dark, 10%);
+		
+		--color-light-light: lighten(@c-light, 10%);
+		--color-dark-light: lighten(@c-dark, 10%);
+		
+		--color-light-extralight: lighten(@c-light, 30%);
+		--color-dark-extralight: lighten(@c-dark, 30%);
+		
+		--color-light-dark: darken(@c-light, 10%);
+		--color-dark-dark: darken(@c-dark, 10%);
+	}
 }
 
 @media (prefers-color-scheme: light) {

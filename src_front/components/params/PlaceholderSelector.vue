@@ -114,7 +114,7 @@ export default class PlaceholderSelector extends Vue {
 		row-gap: .25em;
 		font-size: .8em;
 		&>* {
-			background-color: var(--color-dark-fadest);
+			background-color: var(--color-light-fadest);
 			border-radius: .5em;
 			padding: .25em .5em;
 			&:nth-child(odd) {
@@ -132,7 +132,7 @@ export default class PlaceholderSelector extends Vue {
 			display: inline;
 			text-align: right;
 			font-weight: bold;
-			color: var(--color-light);
+			color: var(--color-button);
 			background-color: var(--color-primary);
 			&:hover {
 				background-color: var(--color-primary-light);

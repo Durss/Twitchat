@@ -67,7 +67,7 @@ export default class ChatMessageInfoBadges extends Vue {
 	.item {
 		border-radius: .25em;
 		padding: 1px 5px;
-		color: var(--color-light);
+		color: var(--color-button);
 		background-color: var(--color-primary);
 		white-space: nowrap;
 		cursor: default;

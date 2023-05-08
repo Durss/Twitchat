@@ -179,15 +179,9 @@ export default class TriggerList extends Vue {
 			
 			//Parse trigger
 			const info = Utils.getTriggerDisplayInfo(trigger);
-			let icon = "";
-			if(info.iconURL) {
-				icon = info.iconURL;
-			}else{
-				icon = this.$image('icons/'+info.icon+'.svg');
-			}
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
 			const buildIndex = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
-			const entry:TriggerListEntry = { index:buildIndex, label:info.label, trigger, icon, canTest };
+			const entry:TriggerListEntry = { index:buildIndex, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest };
 			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
 			idToCategory[triggerType.category.id].triggerList.push(entry);
 		}
@@ -229,6 +223,7 @@ export interface TriggerListEntry {
 	icon:string;
 	canTest:boolean;
 	trigger:TriggerData;
+	iconURL?:string;
 	iconBgColor?:string;
 }
 </script>

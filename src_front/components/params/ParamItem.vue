@@ -4,17 +4,23 @@
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click.capture="clickItem($event)">
 		<div class="content">
-			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
+			<picture>
+				<source :srcset="$image('icons/dark/'+paramData.icon)" media="(prefers-color-scheme: light)">
+				<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
+			</picture>
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="icon">
 
 			<div v-if="paramData.type == 'boolean'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
-					class="helpIcon"
-				>
+				<picture v-if="paramData.example">
+					<source srcset="@/assets/icons/dark/help.svg" media="(prefers-color-scheme: light)">
+					<img alt="help"
+						src="@/assets/icons/help.svg"
+						v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+						class="helpIcon"
+					>
+				</picture>
 				
 				<label :for="'toggle'+key"
 					v-if="label"
@@ -30,11 +36,15 @@
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<picture v-if="paramData.example">
+					<source srcset="@/assets/icons/dark/help.svg" media="(prefers-color-scheme: light)">
+					<img alt="help"
+						src="@/assets/icons/help.svg"
+						v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+						class="helpIcon"
+					>
+				</picture>
+
 				<label :for="'number'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<input v-if="!paramData.noInput" ref="input"
 					:tabindex="tabindex"
@@ -50,11 +60,15 @@
 			</div>
 			
 			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<picture v-if="paramData.example">
+					<source srcset="@/assets/icons/dark/help.svg" media="(prefers-color-scheme: light)">
+					<img alt="help"
+						src="@/assets/icons/help.svg"
+						v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+						class="helpIcon"
+					>
+				</picture>
+
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder">
 					<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
@@ -82,11 +96,15 @@
 			</div>
 			
 			<div v-if="paramData.type == 'color'" class="holder color">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<picture v-if="paramData.example">
+					<source srcset="@/assets/icons/dark/help.svg" media="(prefers-color-scheme: light)">
+					<img alt="help"
+						src="@/assets/icons/help.svg"
+						v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+						class="helpIcon"
+					>
+				</picture>
+
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder input-field" :style="{backgroundColor: paramData.value as string }">
 					<input ref="input" v-if="!paramData.noInput"
@@ -101,21 +119,29 @@
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<picture v-if="paramData.example">
+					<source srcset="@/assets/icons/dark/help.svg" media="(prefers-color-scheme: light)">
+					<img alt="help"
+						src="@/assets/icons/help.svg"
+						v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+						class="helpIcon"
+					>
+				</picture>
+
 				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
 				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value" :secondary="secondary" :alert="alert || errorLocal" />
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<picture v-if="paramData.example">
+					<source srcset="@/assets/icons/dark/help.svg" media="(prefers-color-scheme: light)">
+					<img alt="help"
+						src="@/assets/icons/help.svg"
+						v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+						class="helpIcon"
+					>
+				</picture>
+
 				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
 				<select v-if="!paramData.noInput" ref="input"
 					:id="'list'+key"
@@ -126,11 +152,15 @@
 			</div>
 			
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<picture v-if="paramData.example">
+					<source srcset="@/assets/icons/dark/help.svg" media="(prefers-color-scheme: light)">
+					<img alt="help"
+						src="@/assets/icons/help.svg"
+						v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+						class="helpIcon"
+					>
+				</picture>
+
 				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
 				<vue-select class="listField" label="label"
 					:id="'list'+key"
@@ -162,11 +192,15 @@
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<picture v-if="paramData.example">
+					<source srcset="@/assets/icons/dark/help.svg" media="(prefers-color-scheme: light)">
+					<img alt="help"
+						src="@/assets/icons/help.svg"
+						v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+						class="helpIcon"
+					>
+				</picture>
+				
 				<label :for="'browse'+key" v-if="label" v-tooltip="tooltip" v-html="label"></label>
 				<input v-if="!paramData.noInput" type="text"
 					class="filePath"
@@ -676,12 +710,16 @@ export default class ParamItem extends Vue {
 			}
 		}
 
-		.icon {
+		picture {
 			width: 1em;
 			height: 1em;
-			object-fit: fill;
-			margin-right: .5em;
 			align-self: flex-start;
+			margin-right: .5em;
+			.icon {
+				width: 1em;
+				height: 1em;
+				object-fit: fill;
+			}
 		}
 		
 

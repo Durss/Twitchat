@@ -1,6 +1,9 @@
 <template>
 	<button class="closebutton">
-		<img src="@/assets/icons/cross.svg" alt="close">
+		<picture>
+			<source srcset="@/assets/icons/dark/cross.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/icons/cross.svg" alt="close">
+		</picture>
 	</button>
 </template>
 

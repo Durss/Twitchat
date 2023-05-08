@@ -120,6 +120,46 @@
 			<ToggleBlock title="Small box" subtitle="subtitle" small key="toggle4">
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
+			
+			<ToggleBlock title="Title" primary subtitle="subtitle" key="toggle5">
+				<template #left_actions>
+					<img src="@/assets/icons/dragZone.svg" class="icon">
+				</template>
+				<template #right_actions>
+					<img src="@/assets/icons/cross.svg" class="icon">
+				</template>
+				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+			</ToggleBlock>
+			
+			<ToggleBlock title="Medium box" primary medium key="toggle6">
+				<template #left_actions>
+					<img src="@/assets/icons/dragZone.svg" class="icon">
+				</template>
+				<template #right_actions>
+					<img src="@/assets/icons/cross.svg" class="icon">
+				</template>
+				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+			</ToggleBlock>
+			
+			<ToggleBlock title="Title" secondary subtitle="subtitle" key="toggle7">
+				<template #left_actions>
+					<img src="@/assets/icons/dragZone.svg" class="icon">
+				</template>
+				<template #right_actions>
+					<img src="@/assets/icons/cross.svg" class="icon">
+				</template>
+				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+			</ToggleBlock>
+			
+			<ToggleBlock title="Medium box" secondary medium key="toggle8">
+				<template #left_actions>
+					<img src="@/assets/icons/dragZone.svg" class="icon">
+				</template>
+				<template #right_actions>
+					<img src="@/assets/icons/cross.svg" class="icon">
+				</template>
+				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+			</ToggleBlock>
 		</div>
 
 		<Splitter>Progress bar</Splitter>

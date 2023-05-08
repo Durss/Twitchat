@@ -1,6 +1,9 @@
 <template>
 	<div class="paramsautomod parameterContent">
-		<img src="@/assets/icons/mod.svg" alt="emergency icon" class="icon">
+		<picture>
+			<source srcset="@/assets/icons/dark/mod.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/icons/mod.svg" alt="mod icon" class="icon">
+		</picture>
 		
 		<div class="head">{{ $t("automod.header") }}</div>
 		

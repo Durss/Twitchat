@@ -178,7 +178,7 @@ export default class Button extends Vue {
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
-	color: var(--color-light);
+	color: var(--color-button);
 	transition: filter .15s, transform .1s;
 	user-select: none;
 	text-decoration: none !important;
@@ -201,8 +201,8 @@ export default class Button extends Vue {
 		top: -@offset;
 		left: -@offset;
 		border-radius: inherit;
-		background-color: var(--color-light);
-		background: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%);
+		background-color: var(--color-primary);
+		background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.7) 40%, rgba(255,255,255,.7) 60%, rgba(255,255,255,0) 65%);
 		background-repeat: repeat-x;
 		background-size:  200% 100%;
 		width: calc(100% + @offset*2);
@@ -229,13 +229,15 @@ export default class Button extends Vue {
 	&.disabled {
 		cursor: not-allowed;
 		filter: brightness(70%) saturate(70%);
+		@media (prefers-color-scheme: light) {
+			filter: brightness(120%) saturate(70%);
+		}
 		.label, .icon {
 			opacity: .35;
 		}
 	}
 	&.loading {
 		cursor: wait;
-		
 		.background {
 			top: 1px;
 			left: 1px;
@@ -326,6 +328,9 @@ export default class Button extends Vue {
 				}
 			}
 		}
+		.loadingBorder {
+			background-color: var(--color-secondary);
+		}
 	}
 
 	&.alert {
@@ -346,6 +351,9 @@ export default class Button extends Vue {
 					background-color: var(--color-alert-dark);
 				}
 			}
+		}
+		.loadingBorder {
+			background-color: var(--color-alert);
 		}
 	}
 
@@ -385,7 +393,7 @@ export default class Button extends Vue {
 			filter: invert();
 		}
 		.label {
-			color: var(--color-dark);
+			color: var(--color-button-selected);
 			font-weight: bold;
 			text-shadow: unset;
 		}

@@ -28,7 +28,10 @@
 
 			<Button class="connectBt" v-if="connected" @click="disconnect()" icon="cross" alert>{{ $t('connexions.spotify.disconnectBt') }}</Button>
 	
-			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="authenticating">
+			<picture v-if="authenticating">
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 		</div>
 
 	</ToggleBlock>

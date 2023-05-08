@@ -278,7 +278,6 @@ export default class PredictionForm extends AbstractSidePanel {
 							@c:#3798ff;
 							color: @c;
 							border: 2px solid @c;
-							text-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
 						}
 						.len {
 							font-size: .7em;

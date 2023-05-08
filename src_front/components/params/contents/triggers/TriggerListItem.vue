@@ -3,7 +3,11 @@
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
-			<img v-if="entryData.icon" :src="entryData.icon" :style="{backgroundColor:entryData.iconBgColor}">
+			<img v-if="entryData.iconURL" :src="entryData.iconURL" :style="{backgroundColor:entryData.iconBgColor}">
+			<picture v-else-if="entryData.icon">
+				<source :srcset="$image('icons/dark/'+entryData.icon+'.svg')" media="(prefers-color-scheme: light)">
+				<img :src="$image('icons/'+entryData.icon+'.svg')" :style="{backgroundColor:entryData.iconBgColor}">
+			</picture>
 			<span>{{entryData.label}}</span>
 		</button>
 
@@ -19,13 +23,19 @@
 		v-if="noEdit === false"
 		:disabled="!entryData.canTest"
 		v-tooltip="$t('triggers.testBt')">
-			<img src="@/assets/icons/test.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
+			<picture>
+				<source srcset="@/assets/icons/dark/test.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/icons/test.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
+			</picture>
 		</button>
 
 		<button class="deleteBt" @click="$emit('delete',entryData)"
 		v-if="noEdit === false"
 		v-tooltip="$t('triggers.deleteBt')">
-			<img src="@/assets/icons/trash.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
+			<picture>
+				<source srcset="@/assets/icons/dark/trash.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/icons/trash.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
+			</picture>
 		</button>
 	</div>
 </template>
@@ -70,12 +80,6 @@ export default class TriggerListItem extends Vue {
 	flex-direction: row;
 	min-height: 1.5em;
 	overflow: hidden;
-	&>* {
-		transition: background-color .1s;
-		&:hover {
-			background-color: var(--color-primary);
-		}
-	}
 	.button {
 		display: flex;
 		flex-direction: row;
@@ -112,6 +116,12 @@ export default class TriggerListItem extends Vue {
 			img {
 				opacity: .35;
 			}
+		}
+	}
+	&>* {
+		transition: background-color .1s;
+		&:hover {
+			background-color: var(--color-light-fader);
 		}
 	}
 }

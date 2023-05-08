@@ -1,8 +1,11 @@
 <template>
-	<div class="paramsalert">
-		<img src="@/assets/icons/alert.svg" alt="emergency icon" class="icon">
+	<div class="paramsalert parameterContent">
+		<picture>
+			<source srcset="@/assets/icons/dark/alert.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/icons/alert.svg" alt="alert icon" class="icon">
+		</picture>
 		
-		<div class="header">{{ $t("alert.header") }}</div>
+		<div class="head">{{ $t("alert.header") }}</div>
 
 		<Splitter class="splitter">{{$t('alert.command_title') }}</Splitter>
 		<section class="card-item">
@@ -137,24 +140,6 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsalert{
-	gap: 1em;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	padding-top: 0;
-	.splitter {
-		margin-top: 1em;
-	}
-	
-	&>.icon {
-		height: 4em;
-		display: block;
-		margin: auto;
-	}
-
-	.header {
-		text-align: center;
-	}
 
 	.testBt {
 		align-self: center;

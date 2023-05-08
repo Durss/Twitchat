@@ -84,7 +84,6 @@ import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 import type IParameterContent from './IParameterContent';
-import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -310,7 +309,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 			// }
 
 			.chatMessage {
-				background-color: var(--color-dark);
+				background-color: var(--background-color-primary);
 				padding: 1em;
 				border-radius: .5em;
 				transition: font-size .25s;

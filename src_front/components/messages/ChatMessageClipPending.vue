@@ -6,7 +6,10 @@
 		
 		<div class="loading" v-if="loading && !error">
 			<div class="message">{{ $t("global.moderation_action.clip_creating") }}</div>
-			<img class="loader" src="@/assets/loader/loader.svg">
+			<picture>
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 		</div>
 
 		<div v-else-if="!error">

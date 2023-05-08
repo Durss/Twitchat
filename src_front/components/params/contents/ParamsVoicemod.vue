@@ -1,6 +1,10 @@
 <template>
 	<div class="paramsvoicemod parameterContent">
-		<img src="@/assets/icons/voicemod.svg" alt="voicemod icon" class="icon">
+		<picture>
+			<source srcset="@/assets/icons/dark/voicemod.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/icons/voicemod.svg" alt="voicemod" class="icon">
+		</picture>
+		
 		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
 			<template #LINK>
 				<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
@@ -9,7 +13,10 @@
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting" class="card-item">
-			<img class="item center" src="@/assets/loader/loader.svg" alt="loader">
+			<picture class="item center">
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 			<div class="item center">{{ $t("voicemod.connecting") }}</div>
 		</section>
 

@@ -1,6 +1,9 @@
 <template>
 	<div class="paramstriggers parameterContent">
-		<img src="@/assets/icons/broadcast.svg" alt="overlay icon" class="icon">
+		<picture>
+			<source srcset="@/assets/icons/dark/broadcast.svg" media="(prefers-color-scheme: light)">
+			<img src="@/assets/icons/broadcast.svg" alt="triggers icon" class="icon">
+		</picture>
 
 		<i18n-t scope="global" tag="p" class="head" :keypath="headerKey" v-if="!currentTriggerData">
 			<template #COUNT><strong>{{ eventsCount }}</strong></template>
@@ -46,8 +49,6 @@
 				:obsSources="obsSources"
 				:obsInputs="obsInputs"
 				:rewards="rewards" />
-				
-			<img src="@/assets/loader/loader.svg" v-if="showLoading" class="loader">
 				
 			<TriggerActionList
 				v-if="currentTriggerData"
@@ -98,7 +99,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public eventsCount:number = 0;
 	public showList:boolean = true;
 	public showForm:boolean = false;
-	public showLoading:boolean = false;
 	public loadingRewards:boolean = false;
 	public loadingOBSScenes:boolean = false;
 	public headerKey:string = "triggers.header";

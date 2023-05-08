@@ -8,7 +8,10 @@
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
 				</div>
-				<img src="@/assets/loader/loader.svg" alt="loader" class="loader">
+				<picture>
+					<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+				</picture>
 			</div>
 		</div>
 
@@ -104,7 +107,10 @@
 					<div class="card-item secondary disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
 					<div class="card-item primary commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
 					<transition name="scale">
-						<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loadingFollowings">
+						<picture v-if="loadingFollowings">
+							<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+							<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+						</picture>
 					</transition>
 	
 					<div v-if="errorFollowings" class="card-item alert error">Something went wrong while loading followings...</div>

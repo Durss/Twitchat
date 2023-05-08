@@ -7,7 +7,10 @@
 		</div>
 		
 		<div class="content">
-			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
+			<picture v-if="loading">
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 
 			<div class="needScope" v-if="needScope">
 				<span>{{ $t("liveusers.scope_grant") }}</span>
@@ -25,8 +28,18 @@
 						<span class="title">{{s.title}}</span>
 						<mark class="game">{{s.game_name}}</mark>
 						<div class="footer">
-							<span class="viewers"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{s.viewer_count}}</span>
-							<span class="duration"><img src="@/assets/icons/timeout.svg" alt="user" class="icon">{{computeDuration(s.started_at)}}</span>
+							<span class="viewers">
+								<picture>
+									<source srcset="@/assets/icons/dark/user.svg" media="(prefers-color-scheme: light)">
+									<img src="@/assets/icons/user.svg" alt="user" class="icon">
+								</picture>
+								{{s.viewer_count}}</span>
+							<span class="duration">
+								<picture>
+									<source srcset="@/assets/icons/dark/timeout.svg" media="(prefers-color-scheme: light)">
+									<img src="@/assets/icons/timeout.svg" alt="user" class="icon">
+								</picture>
+								{{computeDuration(s.started_at)}}</span>
 						</div>
 						<div class="raidBt">
 							<img src="@/assets/icons/raid.svg" alt="raid">
@@ -150,6 +163,8 @@ export default class LiveFollowings extends AbstractSidePanel {
 						}
 						.raidBt {
 							opacity: 1;
+							font-size: 2em;
+							color: var(--color-button);
 						}
 					}
 				}
