@@ -143,6 +143,7 @@ export const storeCounters = defineStore('counters', {
 			if(!c) return;
 			let value = c.value;
 			if(c.perUser && user) {
+				if(user.temporary || user.errored) return;
 				if(!c.users) c.users = {};
 				value = c.users[user.id] || 0;
 			}

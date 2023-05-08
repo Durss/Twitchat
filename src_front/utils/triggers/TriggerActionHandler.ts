@@ -1012,7 +1012,7 @@ export default class TriggerActionHandler {
 									if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
 										channelId = (message as TwitchatDataTypes.GreetableMessage).channel_id;
 									}
-									//Load user
+									//Load user details
 									await new Promise<void>((resolve, reject)=> {
 										//FIXME that hardcoded platform "twitch" will break if adding a new platform
 										//I can't just use "message.platform" as this contains "twitchat" for messages
@@ -1030,7 +1030,7 @@ export default class TriggerActionHandler {
 										});
 									})
 								}
-								if(!c.perUser || user) StoreProxy.counters.increment(c.id, value, user);
+								if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, value, user);
 								let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
 								if(user) logMessage += " (for @"+user.displayName+")";
 								logStep.messages.push({date:Date.now(), value:logMessage});
@@ -1287,12 +1287,12 @@ export default class TriggerActionHandler {
 			// console.log(src);
 			// console.log(subEvent);
 
-			let placeholders = TriggerEventPlaceholders(trigger.type).concat();//Clone it to avoid modifying original
-			if(actionPlaceholder.length > 0)placeholders = placeholders.concat(actionPlaceholder);
+			let placeholders = TriggerEventPlaceholders(trigger.type).concat() ?? [];//Clone it to avoid modifying original
+			if(actionPlaceholder.length > 0) placeholders = placeholders.concat(actionPlaceholder);
 			// console.log(placeholders);
 			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
-			if(!placeholders) return res;
+			if(placeholders.length == 0) return res;
 			
 			for (const h of placeholders) {
 				const chunks:string[] = h.pointer.split(".");

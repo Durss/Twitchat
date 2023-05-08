@@ -200,8 +200,12 @@ export default class TwitchUtils {
 		//Split by 100 max to comply with API limitations
 		while(items.length > 0) {
 			const param = ids ? "id" : "login";
-			const params = param+"="+items.splice(0,100).join("&"+param+"=");
-			const url = Config.instance.TWITCH_API_PATH+"users?"+params;
+			const url = new URL(Config.instance.TWITCH_API_PATH+"users");
+			items.splice(0, 100).forEach(v=> {
+				//If ID contains something else than numbers, ignore it to avoid crashing the whole query
+				if(param == "id" && !/^[0-9]+$/.test(v)) return;
+				url.searchParams.append(param, v);
+			});
 			const result = await fetch(url, {headers:this.headers});
 			if(result.status === 200) {
 				const json = await result.json();
@@ -232,10 +236,11 @@ export default class TwitchUtils {
 		while(items.length > 0) {
 			const url = new URL(Config.instance.TWITCH_API_PATH+"streams");
 			const param = ids ? "user_id" : "user_login";
-			const list = items.splice(0,100);
-			for (let i = 0; i < list.length; i++) {
-				url.searchParams.append(param, list[i]);
-			}
+			items.splice(0, 100).forEach(v=> {
+				//If ID contains something else than numbers, ignore it to avoid crashing the whole query
+				if(param == "user_id" && !/^[0-9]+$/.test(v)) return;
+				url.searchParams.append(param, v);
+			});
 
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
