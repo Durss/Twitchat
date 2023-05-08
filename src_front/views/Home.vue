@@ -206,7 +206,7 @@ export default class Home extends Vue {
 			anchors.push({div, label: this.sections[i].title, icon:icon.src, selected:false});
 		}
 		this.anchors = anchors;
-		//TODO update anchros labels when changing language
+		//TODO update anchors labels when changing language
 
 		//Opening transition ATF elements
 		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];

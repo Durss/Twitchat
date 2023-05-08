@@ -432,7 +432,7 @@ export default class EventSub {
 			platform:"twitch",
 			channel_id:event.broadcaster_user_id,
 			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			message:StoreProxy.i18n.t("stream.notification", {TITLE:event.title}),
+			message:StoreProxy.i18n.t("stream.notification", {TITLE:event.title, CATEGORY:event.category_name}),
 			noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
 			title:event.title,
 			category:event.category_name
