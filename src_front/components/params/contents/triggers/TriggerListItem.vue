@@ -4,10 +4,7 @@
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
 			<img v-if="entryData.iconURL" :src="entryData.iconURL" :style="{backgroundColor:entryData.iconBgColor}">
-			<picture v-else-if="entryData.icon">
-				<source :srcset="$image('icons/dark/'+entryData.icon+'.svg')" media="(prefers-color-scheme: light)">
-				<img :src="$image('icons/'+entryData.icon+'.svg')" :style="{backgroundColor:entryData.iconBgColor}">
-			</picture>
+			<Icon v-else-if="entryData.icon" :name="entryData.icon" class="icon" :style="{backgroundColor:entryData.iconBgColor}" />
 			<span>{{entryData.label}}</span>
 		</button>
 
@@ -23,19 +20,13 @@
 		v-if="noEdit === false"
 		:disabled="!entryData.canTest"
 		v-tooltip="$t('triggers.testBt')">
-			<picture>
-				<source srcset="@/assets/icons/dark/test.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/icons/test.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
-			</picture>
+			<Icon name="test" class="icon" />
 		</button>
 
 		<button class="deleteBt" @click="$emit('delete',entryData)"
 		v-if="noEdit === false"
 		v-tooltip="$t('triggers.deleteBt')">
-			<picture>
-				<source srcset="@/assets/icons/dark/trash.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/icons/trash.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
-			</picture>
+			<Icon name="trash" class="icon" />
 		</button>
 	</div>
 </template>

@@ -40,18 +40,19 @@
 		background-color: var(--color-primary);
 		transition: background-color .25s;
 		label {
+			color: var(--color-light);
 			align-self: flex-end !important;
 		}
-		@media (prefers-color-scheme: light) {
-			label {
-				color: var(--color-dark);
-			}
-			&.unselected {
-				label {
-					color: var(--color-light) !important;
-				}
-			}
-		}
+		// @media (prefers-color-scheme: light) {
+		// 	label {
+		// 		color: var(--color-dark);
+		// 	}
+		// 	&.unselected {
+		// 		label {
+		// 			color: var(--color-light) !important;
+		// 		}
+		// 	}
+		// }
 	}
 
 	section {
@@ -68,5 +69,16 @@
 		
 	.splitter {
 		margin: 2em 0 1em 0;
+	}
+}
+
+body.light .parameterContent {
+	
+	&>.enableBt {
+		&.unselected {
+			label {
+				color: var(--color-dark);
+			}
+		}
 	}
 }

@@ -197,13 +197,13 @@ export default class RaffleForm extends AbstractSidePanel {
 	public maxUsersToggle:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
 	public maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
 	public ponderateVotes:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
-	public ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"vip.svg", labelKey:"raffle.params.ponderate_VIP"};
-	public ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub.svg", labelKey:"raffle.params.ponderate_sub"};
-	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"gift.svg", labelKey:"raffle.params.ponderate_subgifter"};
-	public ponderateVotes_follower:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"follow.svg", labelKey:"raffle.params.ponderate_follower"};
-	public subs_includeGifters:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"gift.svg", labelKey:"raffle.params.ponderate_include_gifter"};
-	public subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"sub.svg", labelKey:"raffle.params.ponderate_exclude_gifted"};
-	public showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown.svg", labelKey:"raffle.configs.countdown"};
+	public ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"vip", labelKey:"raffle.params.ponderate_VIP"};
+	public ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_sub"};
+	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"gift", labelKey:"raffle.params.ponderate_subgifter"};
+	public ponderateVotes_follower:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"follow", labelKey:"raffle.params.ponderate_follower"};
+	public subs_includeGifters:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"gift", labelKey:"raffle.params.ponderate_include_gifter"};
+	public subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"sub", labelKey:"raffle.params.ponderate_exclude_gifted"};
+	public showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown", labelKey:"raffle.configs.countdown"};
 	public customEntries:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", longText:true, maxLength:10000, placeholderKey:"raffle.params.list_placeholder"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];

@@ -38,10 +38,10 @@ export default class TriggerActionMusicEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music.svg" };
-	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music.svg", maxLength:500 };
-	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
-	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info.svg", maxLength:500 };
+	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music" };
+	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music", maxLength:500 };
+	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
+	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info", maxLength:500 };
 
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }

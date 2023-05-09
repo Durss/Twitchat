@@ -37,7 +37,6 @@
 		},
 		"params": {
 			"title": "Paramètres de la voix",
-			"param_enabled": "Activer",
 			"param_volume": "Volume {VALUE}",
 			"param_rate": "Vitesse {VALUE}",
 			"param_pitch": "Pitch {VALUE}",

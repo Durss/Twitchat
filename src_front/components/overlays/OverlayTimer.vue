@@ -1,12 +1,12 @@
 <template>
 	<div class="overlaytimer">
 		<div class="timer" v-if="timerValue" id="timer" ref="timer">
-			<img id="timer_icon" src="@/assets/icons/dark/timer.svg" alt="timer">
+			<Icon id="timer_icon" name="timer" theme="dark"/>
 			<div id="timer_label">{{timerValue}}</div>
 		</div>
 
 		<div class="countdown" v-if="countdownValue" id="countdown" ref="countdown">
-			<img id="countdown_icon" src="@/assets/icons/countdown.svg" alt="countdown">
+			<Icon id="countdown_icon" name="countdown" theme="dark"/>
 			<div id="countdown_label">{{countdownValue}}</div>
 		</div>
 	</div>

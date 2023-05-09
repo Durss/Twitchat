@@ -1,10 +1,7 @@
 <template>
 	<div class="checkbox">
 		<div class="checkmark">
-			<picture v-if="checked">
-				<source srcset="@/assets/icons/dark/checkmark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/icons/checkmark.svg" class="icon">
-			</picture>
+			<Icon v-if="checked" class="icon" name="checkmark"/>
 		</div>
 		<span class="label" v-if="$slots.default"><slot></slot></span>
 		<input type="checkbox" class="checkboxInput" ref="checkbox" v-model="checked" @change="onChange()" />

@@ -218,12 +218,20 @@
 			<ParamItem :paramData="param_listEdit" />
 			<ParamItem :paramData="param_listEdit" error />
 		</div>
+
+		<Splitter>Icons</Splitter>
+
+		<div class="card-item section icons">
+			<Icon name="errored icon" class="icon" />
+			<Icon v-for="(icon, index) in iconList" :name="icon" class="icon" :key="icon" :title="icon" @click="reloadIcon(index)" />
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Checkbox from '@/components/Checkbox.vue';
+import Icon from '@/components/Icon.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
 import Slider from '@/components/Slider.vue';
 import Splitter from '@/components/Splitter.vue';
@@ -237,6 +245,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
+		Icon,
 		Button,
 		Slider,
 		TabMenu,
@@ -257,6 +266,7 @@ export default class ComponentList extends Vue {
 	public loading:boolean = false;
 	public selected:boolean = false;
 	public progresses:number[] = [];
+	public iconList:string[] = [];
 
 	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"Enabled"};
 	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ff0000", label:"Color"};
@@ -267,9 +277,12 @@ export default class ComponentList extends Vue {
 	public param_list:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[{value:"item1",label:"Item 1"}, {value:"item2",label:"Item 2"},{value:"item1",label:"Item 3"}], label:"List"};
 	public param_listEdit:TwitchatDataTypes.ParameterData<string[], string> = {type:"editablelist", value:["Item 2"], maxLength:2, options:["Item 1", "Item 2", "Item 3"], label:"Editable List"};
 	
-	public mounted():void {
+	public async mounted():Promise<void> {
 		this.resetProgressbars();
 		this.renderFrame();
+		let iconList = import.meta.glob("@/assets/icons/*.svg");
+		const keys = Object.keys(iconList).map(v=>v.replace(/.*\/(.*?).svg/, "$1"));
+		this.iconList = keys;
 	}
 	
 	public beforeUnmount():void {
@@ -278,6 +291,13 @@ export default class ComponentList extends Vue {
 	
 	public resetProgressbars():void {
 		this.progresses = [.25,.25,.25,.25,.95];
+	}
+	
+	public async reloadIcon(index:number):Promise<void> {
+		let prevName = this.iconList[index];
+		this.iconList[index] = "";
+		await this.$nextTick();
+		this.iconList[index] = prevName;
 	}
 
 	private renderFrame():void {
@@ -300,6 +320,17 @@ export default class ComponentList extends Vue {
 	
 	.section {
 		margin: 0 2em;
+	}
+
+	.icons {
+		gap: 5px;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		.icon {
+			width: 4em;
+			height: 4em;
+		}
 	}
 
 	.buttons {
@@ -384,6 +415,7 @@ export default class ComponentList extends Vue {
 		flex-direction: column;
 		gap: 1em;
 		align-items: center;
+		color: var(--color-text);
 		&>* {
 			width: 600px;
 		}

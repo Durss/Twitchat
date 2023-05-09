@@ -13,6 +13,14 @@
 @import "cssStructure.less";
 
 :root {
+	@color-dark: #18181b;
+	@color-light: #EEEEEE;
+	@color-primary: #008667;
+	@color-secondary: #e04e00;
+	@color-alert: #b71f1f;
+	@color-text: #c0c0c0;
+	@color-chatMessage: #c0c0c0;
+	
 	--font-inter: "Inter";
 	--font-nunito: "Nunito";
 	--font-roboto: "Roboto";
@@ -20,16 +28,107 @@
 	
 	--background-color-primary: #18181b;
 	--background-color-secondary: #303036;
+	--background-color-fade: rgba(255,255,255,.5);
+	--background-color-fader: rgba(255,255,255,.15);
+	--background-color-fadest: rgba(255,255,255,.05);
+	--splitter-color: rgba(255,255,255,.2);
+
+	--text-shadow-contrast: 1px 1px 0 rgba(0,0,0,.7);
 
 	--color-button: @color-light;
 	--color-button-selected: @color-dark;
-
+	
 	--color-light: @color-light;
 	--color-dark: @color-dark;
 	--color-primary: @color-primary;
 	--color-secondary: @color-secondary;
 	--color-alert: @color-alert;
-	--color-chatMessage: @color-chatMessage;
+	--color-text: @color-text;
+	--color-text-fade: fade(@color-text, 50%);
+	--color-text-light: #fff;
+	
+	--color-light-transparent: fade(@color-light, 0%);
+	--color-dark-transparent: fade(@color-dark, 0%);
+	--color-primary-transparent: fade(@color-primary, 0%);
+	--color-secondary-transparent: fade(@color-secondary, 0%);
+	--color-alert-transparent: fade(@color-alert, 0%);
+	
+	--color-light-fade: fade(@color-light, 30%);
+	--color-dark-fade: fade(@color-dark, 80%);
+	--color-primary-fade: fade(@color-primary, 70%);
+	--color-secondary-fade: fade(@color-secondary, 70%);
+	--color-alert-fade: fade(@color-alert, 70%);
+	
+	--color-light-fader: fade(@color-light, 10%);
+	--color-dark-fader: fade(@color-dark, 40%);
+	--color-primary-fader: fade(@color-primary, 40%);
+	--color-secondary-fader: fade(@color-secondary, 40%);
+	--color-alert-fader: fade(@color-alert, 40%);
+	
+	--color-light-fadest: fade(@color-light, 5%);
+	--color-dark-fadest: fade(@color-dark, 15%);
+	--color-primary-fadest: fade(@color-primary, 15%);
+	--color-secondary-fadest: fade(@color-secondary, 15%);
+	--color-alert-fadest: fade(@color-alert, 20%);
+	
+	--color-light-light: lighten(@color-light, 10%);
+	--color-dark-light: lighten(@color-dark, 10%);
+	--color-primary-light: lighten(@color-primary, 8%);
+	--color-secondary-light: lighten(@color-secondary, 13%);
+	--color-alert-light: lighten(@color-alert, 10%);
+	
+	--color-light-extralight: lighten(@color-light, 30%);
+	--color-dark-extralight: lighten(@color-dark, 30%);
+	--color-primary-extralight: saturate(lighten(@color-primary, 15%), 100%);
+	--color-secondary-extralight: saturate(lighten(@color-secondary, 30%), 100%);
+	--color-alert-extralight: saturate(lighten(@color-alert, 30%), 100%);
+	
+	--color-light-dark: darken(@color-light, 10%);
+	--color-dark-dark: darken(@color-dark, 10%);
+	--color-primary-dark: darken(@color-primary, 15%);
+	--color-secondary-dark: darken(@color-secondary, 15%);
+	--color-alert-dark: darken(@color-alert, 10%);
+
+	--border-radius:.5rem;
+	
+	--icon-color: var(--color-light);
+	
+	--highlight-suspicious: #ff8280;
+	--highlight-1st: #ff75e6;
+	--highlight-subs: #528bff;
+	--highlight-vips: #db00b3;
+	--highlight-mods: #00a865;
+	--highlight-partners: #9147ff;
+	--highlight-mention: #adadb8;
+	--highlight-raider: #f5f500;
+}
+body.light {
+	@color-dark: #18181b;
+	@color-light: #EEEEEE;
+	@color-primary: #039372;
+	@color-secondary: #ff5900;
+	@color-alert: #b71f1f;
+	@color-text: #101010;
+
+	--background-color-primary: #ffffff;
+	--background-color-secondary: #efeff1;
+	--background-color-fade: rgba(0,0,0,.5);
+	--background-color-fader: rgba(0,0,0,.15);
+	--background-color-fadest: rgba(0,0,0,.05);
+	--splitter-color: rgba(0,0,0,.2);
+
+	--text-shadow-contrast: ,none;
+
+	--color-button: @color-light;
+	--color-button-selected: @color-dark;
+	
+	--color-light: @color-light;
+	--color-dark: @color-dark;
+	--color-primary: @color-primary;
+	--color-secondary: @color-secondary;
+	--color-alert: @color-alert;
+	--color-text: @color-text;
+	--color-text-fade: fade(@color-text, 30%);
 	
 	--color-light-transparent: fade(@color-light, 0%);
 	--color-dark-transparent: fade(@color-dark, 0%);
@@ -74,6 +173,8 @@
 	--color-alert-dark: darken(@color-alert, 10%);
 
 	--border-radius:.5rem;
+	
+	--icon-color: var(--color-dark);
 	
 	--highlight-suspicious: #ff8280;
 	--highlight-1st: #ff75e6;
@@ -142,7 +243,7 @@ h1 {
 
 mark {
 	font-weight: bold;
-	background-color: var(--color-dark-fader);
+	background-color: var(--background-color-fader);
 	padding: .1em .25em;
 	border-radius: var(--border-radius);
 }
@@ -265,42 +366,11 @@ mark {
 	background-color: var(--color-dark-extralight);
 }
 
-@media (prefers-color-scheme: light) {
-	:root {
-		--background-color-primary: #ffffff;
-		--background-color-secondary: #efeff1;
-
-		--color-chatMessage: #101010;
-
-		@c-dark: @color-light;
-		@c-light: @color-dark;
-
-		--color-light: @color-dark;
-		--color-dark: @color-light;
-		
-		--color-light-transparent: fade(@c-light, 0%);
-		--color-dark-transparent: fade(@c-dark, 0%);
-		
-		--color-light-fade: fade(@c-light, 30%);
-		--color-dark-fade: fade(@c-dark, 80%);
-		
-		--color-light-fader: fade(@c-light, 10%);
-		--color-dark-fader: fade(@c-dark, 40%);
-		
-		--color-light-fadest: fade(@c-light, 5%);
-		--color-dark-fadest: fade(@c-dark, 10%);
-		
-		--color-light-light: lighten(@c-light, 10%);
-		--color-dark-light: lighten(@c-dark, 10%);
-		
-		--color-light-extralight: lighten(@c-light, 30%);
-		--color-dark-extralight: lighten(@c-dark, 30%);
-		
-		--color-light-dark: darken(@c-light, 10%);
-		--color-dark-dark: darken(@c-dark, 10%);
+body.light {
+	a {
+		color: var(--color-secondary);
+		&:hover {
+			color: var(--color-secondary-light);
+		}
 	}
-}
-
-@media (prefers-color-scheme: light) {
-/* Light theme styles go here */
 }

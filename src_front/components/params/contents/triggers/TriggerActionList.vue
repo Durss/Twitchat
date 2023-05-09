@@ -46,10 +46,7 @@
 			
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
-					<picture>
-						<source srcset="@/assets/icons/dark/list.svg" media="(prefers-color-scheme: light)">
-						<img src="@/assets/icons/list.svg" class="icon">
-					</picture>
+					<Icon name="list" class="icon" />
 					<span>{{ $t("triggers.trigger_queue") }}</span>
 				</div>
 				<ParamItem noBackground class="selector" :paramData="param_queue" v-model="triggerData.queue" />
@@ -142,7 +139,7 @@ export default class TriggerActionList extends Vue {
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
 	
-	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date.svg", placeholder:"...", labelKey:"triggers.trigger_name" };
+	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string[]> = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 
 	/**

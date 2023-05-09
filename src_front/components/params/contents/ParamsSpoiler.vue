@@ -1,9 +1,6 @@
 <template>
 	<div class="paramsspoiler parameterContent">
-		<picture>
-			<source srcset="@/assets/icons/dark/show.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/icons/show.svg" alt="spoiler icon" class="icon">
-		</picture>
+		<Icon name="show" class="icon" />
 
 		<i18n-t scope="global" tag="p" class="head" keypath="spoiler.header">
 			<template #TAG><mark>||</mark></template>
@@ -17,14 +14,14 @@
 		<Splitter class="splitter">{{ $t("spoiler.command.title") }}</Splitter>
 
 		<section class="form">
-			<div class="card-item ">
-				<i18n-t scope="global" tag="div" keypath="spoiler.command.allowed">
+			<div class="card-item">
+				<i18n-t scope="global" tag="div" keypath="spoiler.command.allowed" class="title">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
 				<PermissionsForm class="perms" v-model="chatCommandPerms" />
 			</div>
 
-			<div class="card-item ">
+			<div class="card-item">
 				<i18n-t scope="global" tag="div" keypath="spoiler.command.how_to">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
@@ -122,6 +119,10 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 		background-color: var(--background-color-primary);
 		padding: .5em;
 		position: relative;
+	}
+
+	.title {
+		margin-bottom: .5em;
 	}
 
 	.form {

@@ -388,7 +388,7 @@ export default class NewUsers extends Vue {
 
 <style scoped lang="less">
 .greetThem{
-	background-color: var(--color-dark);
+	background-color: var(--background-color-secondary);
 	display: flex;
 	flex-direction: column;
 	min-height: calc(75px + 1.5em);
@@ -464,12 +464,11 @@ export default class NewUsers extends Vue {
 		border: 2px solid var(--color-primary);
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
-		box-shadow: 0 5px 5px 0 rgba(0,0,0,0.5);
+		box-shadow: 0 2px 2px 0 rgba(0,0,0,0.5);
 		.message {
 			cursor: pointer;
 			overflow: hidden;
 			font-family: var(--font-inter);
-			color: var(--color-light);
 			transition: background-color .25s;
 			border: 1px solid transparent;
 			padding: .2em .5em;
@@ -477,14 +476,6 @@ export default class NewUsers extends Vue {
 
 			&:nth-child(odd) {
 				background-color: fade(#ffffff, 5%);
-			}
-
-			:deep(.time) {
-				color: fade(#ffffff, 75%);
-				font-size: .8em;
-				vertical-align: middle;
-				margin-right: .7em;
-				font-variant-numeric: tabular-nums;
 			}
 
 			&>:deep(*) {

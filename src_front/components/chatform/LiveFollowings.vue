@@ -29,16 +29,10 @@
 						<mark class="game">{{s.game_name}}</mark>
 						<div class="footer">
 							<span class="viewers">
-								<picture>
-									<source srcset="@/assets/icons/dark/user.svg" media="(prefers-color-scheme: light)">
-									<img src="@/assets/icons/user.svg" alt="user" class="icon">
-								</picture>
+								<Icon class="icon" name="user"/>
 								{{s.viewer_count}}</span>
 							<span class="duration">
-								<picture>
-									<source srcset="@/assets/icons/dark/timeout.svg" media="(prefers-color-scheme: light)">
-									<img src="@/assets/icons/timeout.svg" alt="user" class="icon">
-								</picture>
+								<Icon class="icon" name="timeout"/>
 								{{computeDuration(s.started_at)}}</span>
 						</div>
 						<div class="raidBt">

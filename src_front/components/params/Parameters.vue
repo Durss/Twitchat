@@ -42,10 +42,7 @@
 		<div class="contentHolder">
 			<div class="head">
 				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
-					<picture>
-						<source srcset="@/assets/icons/dark/back.svg" media="(prefers-color-scheme: light)">
-						<img src="@/assets/icons/back.svg" alt="back">
-					</picture>
+					<Icon name="back"/>
 				</button>
 				<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
 				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
@@ -357,12 +354,12 @@ export default class Parameters extends Vue {
 
 		.backBt {
 			padding: 1em;
-			img {
+			.icon {
 				height: 1em;
 				transition: transform .15s;
 			}
 			&:hover {
-				img {
+				.icon {
 					transform: scale(1.2);
 				}
 			}
@@ -381,7 +378,7 @@ export default class Parameters extends Vue {
 		flex-direction: column;
 		gap: 1em;
 		width: fit-content;
-		border-right: 1px solid var(--color-light-fader);
+		border-right: 1px solid var(--splitter-color);
 		padding-right: 1em;
 		overflow-y: auto;
 		.head {

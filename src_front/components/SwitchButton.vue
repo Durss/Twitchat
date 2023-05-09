@@ -83,7 +83,7 @@ export default class SwitchButton extends Vue {
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	color: var(--color-light);
+	color: var(--color-text);
 	cursor: pointer;
 	gap: .5em;
 
@@ -115,7 +115,7 @@ export default class SwitchButton extends Vue {
 		transition: all .25s;
 		opacity: .6;
 		font-weight: bold;
-		text-shadow: 1px 1px 0 var(--color-dark);
+		text-shadow: var(--text-shadow-contrast);
 		&:first-of-type{
 			opacity: 1;
 			text-align: right;

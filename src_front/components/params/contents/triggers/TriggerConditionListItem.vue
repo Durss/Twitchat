@@ -1,9 +1,6 @@
 <template>
 	<div class="triggerconditionlistitem">
-		<picture class="dragIcon">
-			<source srcset="@/assets/icons/dark/dragZone.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/icons/dragZone.svg" class="icon">
-		</picture>
+		<Icon name="dragZone" class="dragIcon" />
 
 		<ParamItem class="placeholder" noBackground :paramData="param_placeholder" @change="updateOperators()" v-model="condition.placeholder" :key="'ph_'+condition.id" />
 
@@ -143,9 +140,6 @@ export default class TriggerConditionListItem extends Vue {
 		cursor: grab;
 		&:active {
 			cursor: grabbing;
-		}
-		img {
-			width: 100%;
 		}
 	}
 	.placeholder, .operator {

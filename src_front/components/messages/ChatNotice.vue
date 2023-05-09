@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
-		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
+		<Icon :name="icon" :theme="theme" />
 		<span class="message" v-html="message"></span>
 	</div>
 </template>
@@ -21,7 +21,8 @@ export default class ChatNotice extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageNoticeData;
 	
-	public icon = "secondary/info";
+	public icon = "info";
+	public theme = "secondary";
 
 	/**
 	 * Gets text message with parsed emotes
@@ -58,8 +59,8 @@ export default class ChatNotice extends AbstractChatMessage {
 
 	public mounted():void {
 		switch(this.messageData.noticeId) {
-			case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:		this.icon = "shield"; break;
-			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; break;
+			case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:		this.icon = "shield"; this.theme="light"; break;
+			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; this.theme="light"; break;
 		}
 		this.$store("accessibility").setAriaPolite(this.message);
 	}

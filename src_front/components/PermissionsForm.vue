@@ -30,15 +30,15 @@ export default class PermissionsForm extends Vue {
 	@Prop
 	public modelValue!:TwitchatDataTypes.PermissionsData;
 	
-	public param_broadcaster:TwitchatDataTypes.ParameterData<boolean>		= { type:"boolean", labelKey:"global.permissions.broadcaster", value:true, icon:"broadcaster.svg" };
-	public param_mods:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.mods", value:true, icon:"mod.svg" };
-	public param_vips:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.vips", value:false, icon:"vip.svg" };
-	public param_subs:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.subs", value:false, icon:"sub.svg" };
-	public param_followers_ms:TwitchatDataTypes.ParameterData<number>		= { type:"number", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, icon:"timer.svg" };
-	public param_all:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.all", value:false, icon:"user.svg" };
-	public param_allowed:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_allowed", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"checkmark.svg" };
-	public param_refused:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_refused", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"cross.svg" };
-	public param_followers:TwitchatDataTypes.ParameterData<boolean, unknown, number> = { type:"boolean", labelKey:"global.permissions.follow", value:false, icon:"follow.svg", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS] };
+	public param_broadcaster:TwitchatDataTypes.ParameterData<boolean>		= { type:"boolean", labelKey:"global.permissions.broadcaster", value:true, icon:"broadcaster" };
+	public param_mods:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.mods", value:true, icon:"mod" };
+	public param_vips:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.vips", value:false, icon:"vip" };
+	public param_subs:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.subs", value:false, icon:"sub" };
+	public param_followers_ms:TwitchatDataTypes.ParameterData<number>		= { type:"number", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, icon:"timer" };
+	public param_all:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.all", value:false, icon:"user" };
+	public param_allowed:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_allowed", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"checkmark" };
+	public param_refused:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_refused", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"cross" };
+	public param_followers:TwitchatDataTypes.ParameterData<boolean, unknown, number> = { type:"boolean", labelKey:"global.permissions.follow", value:false, icon:"follow", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS] };
 
 	public get noSelection():boolean {
 		return this.modelValue.mods === false

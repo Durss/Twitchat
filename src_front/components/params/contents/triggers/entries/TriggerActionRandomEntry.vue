@@ -30,7 +30,7 @@
 					v-tooltip="'Delete'"
 					@click.capture.stop="deleteItem(index)">
 						<img src="@/assets/icons/trash.svg" alt="delete">
-					</button>
+.svg					</button>
 
 					<div class="content">
 						<span class="label" v-if="!indexToEditState[index]">
@@ -68,7 +68,7 @@
 					<div class="content">
 						<img v-if="getTriggerInfo(item).iconURL" :src="getTriggerInfo(item).iconURL" class="icon"
 						:style="getTriggerInfo(item).iconBgColor? {backgroundColor:getTriggerInfo(item).iconBgColor, objectFit: 'contain'} : {}">
-						<img v-else :src="$image('icons/'+getTriggerInfo(item).icon+'.svg')" class="icon">
+						<img v-else :src="$image('icons/'+getTriggerInfo(item).icon+'')" class="icon">
 						<span class="label">{{ getTriggerInfo(item).label }}</span>
 					</div>
 				</div>
@@ -122,11 +122,11 @@ export default class TriggerActionRandomEntry extends Vue {
 	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
 
-	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min.svg"};
-	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max.svg"};
-	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice.svg"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder.svg", allowedCharsRegex:"A-z0-9-_"};
-	public param_listMode:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice.svg"};
+	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
+	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
+	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
+	public param_listMode:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
 
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
 		const t = this.$store("triggers").triggerList.find(v=>v.id === triggerId);

@@ -308,7 +308,7 @@ interface ChannelUserList {
 					&::before {
 						content: "";
 						display: inline-block;
-						background-image: url('../../assets/icons/secondary/unfollow.svg');
+						background-image: url('../../assets/icons/unfollow.svg');
 						background-repeat: no-repeat;
 						height: .75em;
 						width: .75em;

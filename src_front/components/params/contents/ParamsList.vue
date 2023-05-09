@@ -211,11 +211,11 @@ export default class ParamsList extends Vue implements IParameterContent {
 .paramslist{
 	.row {
 		position: relative;
-		@iconSize: 1.5em;
+		@iconSize: 1.25em;
 
 		&>.item {
 			border-radius: .5em;
-			background-color: var(--color-light-fader);
+			background-color: var(--background-color-fadest);
 			padding: .25em;
 			position: relative;
 			&:not(:first-of-type) {
@@ -225,6 +225,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 				z-index: 1;
 				height: @iconSize;
 				width: @iconSize;
+				min-width: @iconSize;
 			}
 			:deep(.child) {
 				width:calc(100% - @iconSize - .5em);
@@ -245,7 +246,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 				z-index: 0;
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
-				background-color: var(--color-light-fader);
+				background-color: var(--background-color-fadest);
 			}
 
 			&.off {

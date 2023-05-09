@@ -1,9 +1,6 @@
 <template>
 	<div class="buttonnotification" @click="onClick($event)">
-		<picture>
-			<source :srcset="$image('icons/dark/'+icon+'.svg')" media="(prefers-color-scheme: light)">
-			<img :src="$image('icons/'+icon+'.svg')">
-		</picture>
+		<Icon :name="icon" class="icon" />
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>
@@ -43,7 +40,7 @@ export default class ButtonNotification extends Vue {
 	border-radius: var(--border-radius);
 	position: relative;
 
-	img {
+	.icon {
 		height: 1em;
 		width: 1em;
 		object-fit: contain;

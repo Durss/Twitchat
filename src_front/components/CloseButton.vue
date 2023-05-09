@@ -1,20 +1,20 @@
 <template>
 	<button class="closebutton">
-		<picture>
-			<source srcset="@/assets/icons/dark/cross.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/icons/cross.svg" alt="close">
-		</picture>
+		<Icon class="icon" name="cross" :theme="theme"/>
 	</button>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
 export default class CloseButton extends Vue {
+
+	@Prop({type:String, default:""})
+	public theme!:string;
 
 }
 </script>
@@ -26,12 +26,12 @@ export default class CloseButton extends Vue {
 	right: 0;
 	padding: 1em;
 	cursor: pointer;
-	img {
+	.icon {
 		height: 1em;
 		transition: transform .15s;
 	}
 	&:hover {
-		img {
+		.icon {
 			transform: scale(1.2);
 		}
 	}

@@ -174,7 +174,7 @@ export default class ToggleBlock extends Vue {
 		overflow: hidden;
 		// margin: 0 .5em .5em .5em;
 		padding: .5em;
-		color: var(--color-light);
+		color: var(--color-text);
 		// background-color: var(--color-dark-fadest);
 	}
 
@@ -192,15 +192,12 @@ export default class ToggleBlock extends Vue {
 	}
 
 	&.error, &.alert{
-		background-color: var(--color-alert-dark);
+		background-color: var(--color-alert-fadest);
 		.header {
 			background-color: var(--color-alert);
 			&:hover {
 				background-color: var(--color-alert-light);
 			}
-		}
-		@media (prefers-color-scheme: light) {
-			background-color: var(--color-alert-fadest);
 			.title {
 				color: var(--color-button);
 			}
@@ -208,15 +205,12 @@ export default class ToggleBlock extends Vue {
 	}
 
 	&.primary{
-		background-color: var(--color-primary-dark);
+		background-color: var(--color-primary-fadest);
 		.header {
 			background-color: var(--color-primary);
 			&:hover {
 				background-color: var(--color-primary-light);
 			}
-		}
-		@media (prefers-color-scheme: light) {
-			background-color: var(--color-primary-fadest);
 			.title {
 				color: var(--color-button);
 			}
@@ -224,15 +218,12 @@ export default class ToggleBlock extends Vue {
 	}
 
 	&.secondary{
-		background-color: var(--color-secondary-dark);
+		background-color: var(--color-secondary-fadest);
 		.header {
 			background-color: var(--color-secondary);
 			&:hover {
 				background-color: var(--color-secondary-light);
 			}
-		}
-		@media (prefers-color-scheme: light) {
-			background-color: var(--color-secondary-fadest);
 			.title {
 				color: var(--color-button);
 			}

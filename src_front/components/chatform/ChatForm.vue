@@ -169,10 +169,7 @@
 				>
 					<p v-if="censoredViewCount">x</p>
 					<p v-if="!censoredViewCount">{{$store('stream').playbackState!.viewers}}</p>
-					<picture>
-						<source srcset="@/assets/icons/dark/user.svg" media="(prefers-color-scheme: light)">
-						<img src="@/assets/icons/user.svg" alt="viewers">
-					</picture>
+					<Icon class="icon" name="user"/>
 				</div>
 	
 				<transition name="blink">
@@ -822,7 +819,7 @@ export default class ChatForm extends Vue {
 		flex-direction: row;
 		position: relative;
 		z-index: 2;
-		box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
+		box-shadow: 0px -2px 2px 0px rgba(0,0,0,.5);
 		background-color: var(--background-color-secondary);
 		padding: .25em;
 
@@ -948,7 +945,7 @@ export default class ChatForm extends Vue {
 				font-size: .9em;
 				font-family: var(--font-roboto);
 				padding: .35em;
-				img {
+				.icon {
 					height: .7em;
 					margin-left: .1em;
 				}

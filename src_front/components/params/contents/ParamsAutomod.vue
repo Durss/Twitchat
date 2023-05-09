@@ -1,9 +1,6 @@
 <template>
 	<div class="paramsautomod parameterContent">
-		<picture>
-			<source srcset="@/assets/icons/dark/mod.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/icons/mod.svg" alt="mod icon" class="icon">
-		</picture>
+		<Icon name="mod" class="icon" />
 		
 		<div class="head">{{ $t("automod.header") }}</div>
 		
@@ -155,7 +152,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 	}
 
 	public beforeMount():void {
-		this.param_enabled.labelKey		= "global.enabled";
+		this.param_enabled.labelKey		= "global.enable";
 		this.automodData				= reactive(JSON.parse(JSON.stringify(this.$store("automod").params)));
 		this.param_enabled.value		= this.automodData.enabled;
 		this.param_banUserNames.value	= this.automodData.banUserNames;
@@ -233,8 +230,8 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 		this.param_ruleLabel[data.id]		= {labelKey:"automod.rule.name", type:'string', value:'', maxLength:30};
 		this.param_ruleRegex[data.id]		= {labelKey:"automod.rule.keywords", type:'string', value:'', maxLength:5000, longText:true};
 		this.param_ruleSync[data.id]		= {labelKey:"automod.rule.sync", type:'boolean', value:false};
-		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency.svg"};
-		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime.svg"};
+		this.param_ruleEmergency[data.id]	= {labelKey:"automod.rule.emergency", type:'boolean', value:false, icon:"emergency"};
+		this.param_ruleOnlyFirst[data.id]	= {labelKey:"automod.rule.firstTime", type:'boolean', value:false, icon:"firstTime"};
 	}
 
 }

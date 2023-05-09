@@ -16,13 +16,11 @@
 				<div v-for="o in messageData.choices" :key="o.id" class="choice" :class="getChoiceClasses(o)">
 					<div class="bar" :style="getChoiceStyles(o)">
 						<div class="choiceTitle">
-							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="o.votes == maxVotesValue">
-							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check" v-else>
+							<Icon class="check" name="checkmark" :theme="o.votes == maxVotesValue?'dark' : 'light'"/>
 							{{o.label}}
 						</div>
 						<div class="users">
-							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="o.votes == maxVotesValue">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon" v-else>
+							<Icon class="icon" name="user" :theme="o.votes == maxVotesValue?'dark' : 'light'"/>
 							{{o.votes}}
 						</div>
 					</div>

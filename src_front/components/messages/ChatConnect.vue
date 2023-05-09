@@ -1,10 +1,7 @@
 <template>
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<picture>
-			<source :srcset="$image('icons/dark/'+(messageData.type=='connect'? 'checkmark' : 'cross')+'.svg')" media="(prefers-color-scheme: light)">
-			<img :src="$image('icons/'+(messageData.type=='connect'? 'checkmark' : 'cross')+'.svg')" alt="notice" class="icon">
-		</picture>
+		<Icon class="icon" :name="(messageData.type=='connect'? 'checkmark' : 'cross')"/>
 		
 		<i18n-t scope="global" tag="span" v-if="messageData.type == 'connect'" keypath="chat.connect.on">
 			<template #PLATFORM><strong>{{messageData.platform}}</strong></template>

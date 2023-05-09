@@ -1,7 +1,7 @@
 .card-header {
 	display: flex;
 	flex-direction: row;
-	background-color: var(--color-dark-light);
+	background-color: var(--background-color-fadest);
 	border-radius: var(--border-radius);
 	padding: .5em;
 	
@@ -28,9 +28,8 @@
 	@padding: .5em;
 	overflow: hidden;
 	padding: @padding;
-	color: var(--color-light);
 	border-radius: var(--border-radius);
-	background-color: var(--color-light-fader);
+	background-color: var(--background-color-fadest);
 
 	& > .header {
 		display: flex;
@@ -73,13 +72,14 @@
 		& > .header {
 			background-color: var(--color-primary-dark);
 		}
-		a {
+		a:not(.button) {
 			color: var(--color-light);
 			text-decoration: underline;
 		}
 	}
 	
 	&.secondary {
+		color: var(--color-text-light);
 		background-color: var(--color-secondary);
 		@media (prefers-color-scheme: dark) {
 			text-shadow: 1px 1px 0 var(--color-dark-fader);
@@ -87,7 +87,7 @@
 		& > .header {
 			background-color: var(--color-secondary-dark);
 		}
-		a {
+		a:not(.button) {
 			color: var(--color-light);
 			text-decoration: underline;
 		}
@@ -98,14 +98,14 @@
 		& > .header {
 			background-color: var(--color-alert-dark);
 		}
-		a {
+		a:not(.button) {
 			font-weight: bold;
 			color: var(--color-light);
 			text-decoration: underline;
 		}
 		@media (prefers-color-scheme: light) {
 			color: var(--color-dark);
-			a {
+			a:not(.button) {
 				color: var(--color-dark);
 			}
 		}

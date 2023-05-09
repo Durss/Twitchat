@@ -55,7 +55,7 @@
 							:calculate-position="$placeDropdown"
 						>
 							<template v-slot:option="option">
-								<img class="listIcon" style="{background-color: red;}" :src="$image('icons/dark/'+option.icon+'.svg')" v-if="option.icon" />
+								<Icon v-if="option.icon" :name="option.icon" class="icon" them="dark" style="{background-color: red;}" />
 								<span>{{ option.label }}</span>
 							</template>
 						</vue-select>

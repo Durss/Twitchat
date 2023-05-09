@@ -1,9 +1,6 @@
 <template>
 	<div class="paramstriggers parameterContent">
-		<picture>
-			<source srcset="@/assets/icons/dark/broadcast.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/icons/broadcast.svg" alt="triggers icon" class="icon">
-		</picture>
+		<Icon name="broadcast" class="icon" />
 
 		<i18n-t scope="global" tag="p" class="head" :keypath="headerKey" v-if="!currentTriggerData">
 			<template #COUNT><strong>{{ eventsCount }}</strong></template>

@@ -1,9 +1,6 @@
 <template>
 	<div class="paramsvoicemod parameterContent">
-		<picture>
-			<source srcset="@/assets/icons/dark/voicemod.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/icons/voicemod.svg" alt="voicemod" class="icon">
-		</picture>
+		<Icon name="voicemod" class="icon" />
 		
 		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
 			<template #LINK>
@@ -104,7 +101,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	}
 
 	public mounted():void {
-		this.param_enabled.labelKey			= "global.enabled";
+		this.param_enabled.labelKey			= "global.enable";
 		this.param_voiceIndicator.labelKey	= "voicemod.show_indicator";
 		this.prefill();
 	}

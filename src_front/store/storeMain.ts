@@ -26,6 +26,7 @@ import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } fro
 export const storeMain = defineStore("main", {
 	state: () => ({
 		latestUpdateIndex: 12,
+		theme:"dark",
 		initComplete: false,
 		devmode: false,
 		ahsInstaller: null,
@@ -69,6 +70,31 @@ export const storeMain = defineStore("main", {
 
 	
 	actions: {
+
+		/**
+		 * Called with do argument when doing CTRL+Shift+K to to
+		 * switch between dark and light mode.
+		 * Also called when user requests a specific theme
+		 */
+		toggleTheme(forced?:"light"|"dark"):void {
+			let list = document.body.classList;
+			if(forced == "light") {
+				list.remove("dark");
+				list.add("light");
+			}else
+			if(forced == "dark") {
+				list.remove("light");
+				list.add("dark");
+			}else
+			if(list.contains("dark")) {
+				list.remove("dark");
+				list.add("light");
+			}else
+			if(list.contains("light")) {
+				list.remove("light");
+				list.add("dark");
+			}
+		},
 
 		/**
 		 * Here for debug purpose.

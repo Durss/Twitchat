@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { TriggerEventPlaceholders, type TriggerActionChatData, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
@@ -34,7 +34,7 @@ export default class TriggerActionTTSEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
 	
 	public get contentTTS():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; }
 

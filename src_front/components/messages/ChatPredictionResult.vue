@@ -16,19 +16,16 @@
 				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
 					<div :style="getOutcomeStyles(o)" class="bar">
 						<div class="outcomeTitle">
-							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="messageData.winner?.id === o.id">
-							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check" v-else>
+							<Icon class="check" name="checkmark" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
 							{{o.label}}
 						</div>
 						<div class="percent">{{getOutcomePercent(o)}}%</div>
 						<div class="users">
-							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="messageData.winner?.id === o.id">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon" v-else>
+							<Icon class="icon" name="user" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
 							{{o.voters}}
 						</div>
 						<div class="points">
-							<img src="@/assets/icons/dark/channelPoints.svg" alt="channelPoints" class="icon" v-if="messageData.winner?.id === o.id">
-							<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon" v-else>
+							<Icon class="icon" name="channelPoints" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
 							{{o.votes}}
 						</div>
 					</div>

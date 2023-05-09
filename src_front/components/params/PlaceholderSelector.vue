@@ -113,6 +113,7 @@ export default class PlaceholderSelector extends Vue {
 		column-gap: 1px;
 		row-gap: .25em;
 		font-size: .8em;
+		color: var(--color-text);
 		&>* {
 			background-color: var(--color-light-fadest);
 			border-radius: .5em;

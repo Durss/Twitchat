@@ -1,9 +1,6 @@
 <template>
 	<div class="paramsalert parameterContent">
-		<picture>
-			<source srcset="@/assets/icons/dark/alert.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/icons/alert.svg" alt="alert icon" class="icon">
-		</picture>
+		<Icon name="alert" class="icon" />
 		
 		<div class="head">{{ $t("alert.header") }}</div>
 

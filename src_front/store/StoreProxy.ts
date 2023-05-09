@@ -52,6 +52,10 @@ export interface IMainState {
 	 */
 	latestUpdateIndex: number;
 	/**
+	 * Theme, light or dark mode
+	 */
+	theme: "light" | "dark";
+	/**
 	 * app ready ?
 	 */
 	initComplete: boolean;
@@ -107,7 +111,11 @@ export interface IMainGetters {
 
 export interface IMainActions {
 	/**
-	 * Reoad all labels (use CTRL+Shift+M)
+	 * Toggle current theme (dark/light)
+	 */
+	toggleTheme():Promise<void>;
+	/**
+	 * Reload all labels (use CTRL+Shift+M)
 	 */
 	reloadLabels():Promise<void>;
 	/**

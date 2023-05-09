@@ -71,7 +71,7 @@ export default class TriggerActionCountEntry extends Vue {
 	}
 
 	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
-	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add.svg"}
+	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add"}
 
 	public get selectedPerUserCounters():TwitchatDataTypes.CounterData[] {
 		return this.$store("counters").counterList

@@ -1,6 +1,6 @@
 <template>
 	<div class="paramscounters parameterContent">
-		<img src="@/assets/icons/count.svg" alt="counter icon" class="icon">
+		<Icon name="counter" class="icon" />
 
 		<div class="head">
 			<i18n-t scope="global"  tag="p" keypath="counters.header">
@@ -68,10 +68,7 @@
 					<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
 						<div class="search">
 							<input type="text" :placeholder="$t('counters.form.search')" v-model="search[entry.counter.id]" @input="searchUser(entry.counter)">
-							<picture v-show="idToLoading[entry.counter.id] === true">
-								<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-								<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-							</picture>
+							<Icon name="loader" class="loader" v-show="idToLoading[entry.counter.id] === true" />
 						</div>
 						
 						<Button class="loadAllBt" v-if="search[entry.counter.id].length === 0 && idToAllLoaded[entry.counter.id] !== true"
@@ -179,13 +176,13 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:50, labelKey:"counters.form.name"};
 	public param_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
 	public param_more:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.more"};
-	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min.svg"};
+	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min"};
 	public param_valueMin_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
-	public param_valueMax_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max.svg"};
+	public param_valueMax_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max"};
 	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
-	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop.svg"};
-	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user.svg"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast.svg", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
+	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop"};
+	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
 
 	public get counterEntries():CounterEntry[] {

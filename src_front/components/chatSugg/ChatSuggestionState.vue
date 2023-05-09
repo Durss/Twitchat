@@ -29,7 +29,7 @@
 				<div class="header">
 					<img v-if="c.selected" :src="$image('icons/sub.svg')" alt="star" class="star">
 					
-					<button class="deleteBt" v-else @click="deleteEntery(c.data)"><img src="@/assets/icons/trash.svg?v="></button>
+					<button class="deleteBt" v-else @click="deleteEntery(c.data)"><img src="@/assets/icons/trash.svg"></button>
 					
 					<a class="title" target="_blank"
 					:href="'https://twitch.tv/'+c.data.user.login"

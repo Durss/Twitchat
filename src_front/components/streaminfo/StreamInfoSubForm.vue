@@ -27,7 +27,8 @@
 			v-for="i in param_tags.value"
 			@click="deleteTag(i)">
 				<span>{{ i }}</span>
-				<img src="@/assets/icons/primary/cross.svg" class="icon">
+				<Icon name="cross" theme="primary" class="icon" />
+				<Icon name="alert" class="icon" />
 			</button>
 		</div>
 	</div>

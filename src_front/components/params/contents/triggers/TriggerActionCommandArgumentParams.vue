@@ -2,10 +2,7 @@
 	<div class="triggeractioncommandargumentparams">
 		<div class="form">
 			<div>
-				<picture>
-					<source srcset="@/assets/icons/dark/placeholder.svg" media="(prefers-color-scheme: light)">
-					<img src="@/assets/icons/placeholder.svg" class="icon">
-				</picture>
+				<Icon name="placeholder" class="icon" />
 				<label for="chatcmdparam" v-tooltip="$t('triggers.slash_cmd.param_cmd_params_tt')">{{ $t("triggers.slash_cmd.param_cmd_params") }}</label>
 			</div>
 			<input type="text" id="chatcmdparam" v-model="newTag"
@@ -65,7 +62,7 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 	public usage:string = "";
 	public newTag:string = "";
 	public params:TriggerChatCommandParam[] = [];
-	public param_cmdParams:TwitchatDataTypes.ParameterData<string[]> = { type:"editablelist", value:[], icon:"placeholder.svg", labelKey:"triggers.slash_cmd.param_cmd_params", placeholderKey:"triggers.slash_cmd.param_cmd_params_placeholder", tooltipKey:"triggers.slash_cmd.param_cmd_params_tt", maxLength:30 };
+	public param_cmdParams:TwitchatDataTypes.ParameterData<string[]> = { type:"editablelist", value:[], icon:"placeholder", labelKey:"triggers.slash_cmd.param_cmd_params", placeholderKey:"triggers.slash_cmd.param_cmd_params_placeholder", tooltipKey:"triggers.slash_cmd.param_cmd_params_tt", maxLength:30 };
 
 	public mounted():void {
 		this.updateUsage();
