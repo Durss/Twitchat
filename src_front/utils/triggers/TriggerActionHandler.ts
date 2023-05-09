@@ -1461,7 +1461,7 @@ export default class TriggerActionHandler {
 		for (let i = 0; i < channels.length; i++) {
 			const c = channels[i];
 			liveChannels[c.user_id] = {
-				user:StoreProxy.users.getUserFrom("twitch", c.user_id, c.user_id, c.user_login, c.user_name),
+				user:StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, c.user_id, c.user_login, c.user_name),
 				category:c.game_name,
 				title:c.title,
 				tags: c.tags,

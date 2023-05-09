@@ -626,6 +626,7 @@ export const storeUsers = defineStore('users', {
 			let streamCategory = "";
 			
 			if(user.platform == "twitch") {
+				console.log(user);
 				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
 					let res = await TwitchUtils.sendShoutout(channelId, user);
 					if(res === false) {
