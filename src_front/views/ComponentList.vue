@@ -8,48 +8,50 @@
 				<Checkbox v-model="loading">loading mode</Checkbox>
 				<Checkbox v-model="type" :values="['link', 'button']">&lt;a&gt; mode</Checkbox>
 				<Checkbox v-model="selected">selected mode</Checkbox>
+				<Checkbox v-model="disabled">disabled</Checkbox>
 			</div>
 			
 			<div class="list">
-				<Button href="https://twitchat.fr" target="_blank" :type="type" big :loading="loading" :selected="selected">Normal big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary big :loading="loading" :selected="selected">Secondary big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert big :loading="loading" :selected="selected">Alert big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" big :disabled="disabled" :loading="loading" :selected="selected">Normal big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" :loading="loading" :selected="selected">Normal</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary :loading="loading" :selected="selected">Secondary</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert :loading="loading" :selected="selected">Alert</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" :disabled="disabled" :loading="loading" :selected="selected">Normal</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert :disabled="disabled" :loading="loading" :selected="selected">Alert</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" small :loading="loading" :selected="selected">Normal small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary small :loading="loading" :selected="selected">Secondary small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert small :loading="loading" :selected="selected">Alert small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" small :disabled="disabled" :loading="loading" :selected="selected">Normal small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected">Normal big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :loading="loading" :selected="selected">Secondary big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :loading="loading" :selected="selected">Alert big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Normal big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected">Normal icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :loading="loading" :selected="selected">Secondary icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :loading="loading" :selected="selected">Alert icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Normal icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected">Alert icon</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected">Normal small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :loading="loading" :selected="selected">Secondary small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :loading="loading" :selected="selected">Alert small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Normal small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected" />
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected" />
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected" />
 			</div>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected">Full width button</Button>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected">Full width button</Button>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected">Full width button</Button>
+			
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
 		</div>
 
 		<Splitter>Switch buttons</Splitter>
@@ -265,6 +267,7 @@ export default class ComponentList extends Vue {
 	public disposed:boolean = false;
 	public loading:boolean = false;
 	public selected:boolean = false;
+	public disabled:boolean = false;
 	public progresses:number[] = [];
 	public iconList:string[] = [];
 

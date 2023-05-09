@@ -179,7 +179,7 @@ export default class Button extends Vue {
 	justify-content: center;
 	text-decoration: none;
 	color: var(--color-button);
-	transition: filter .15s, transform .1s;
+	transition: filter .15s, transform .1s, opacity .15s;
 	user-select: none;
 	text-decoration: none !important;
 	font-size: 1rem;
@@ -228,12 +228,13 @@ export default class Button extends Vue {
 
 	&.disabled {
 		cursor: not-allowed;
-		filter: brightness(70%) saturate(70%);
-		@media (prefers-color-scheme: light) {
-			filter: brightness(120%) saturate(70%);
-		}
+		opacity: .4;
+		// filter: brightness(70%) saturate(70%);
+		// @media (prefers-color-scheme: light) {
+		// 	filter: brightness(120%) saturate(70%);
+		// }
 		.label, .icon {
-			opacity: .35;
+			opacity: .75;
 		}
 	}
 	&.loading {
