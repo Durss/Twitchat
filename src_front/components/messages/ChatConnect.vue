@@ -34,7 +34,7 @@ export default class ChatConnect extends AbstractChatMessage {
 	public get classes():string[]{
 		const res = ["chatconnect", "chatMessage"];
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.DISCONNECT) {
-			res.push("disconnect");
+			res.push("highlight", "error");
 		}
 		return res;
 	}
@@ -57,10 +57,5 @@ export default class ChatConnect extends AbstractChatMessage {
 <style scoped lang="less">
 .chatconnect{
 	font-style: italic;
-
-	&.disconnect {
-		color: var(--color-alert);
-	}
-	
 }
 </style>
