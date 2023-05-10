@@ -113,7 +113,7 @@ export interface IMainActions {
 	/**
 	 * Toggle current theme (dark/light)
 	 */
-	toggleTheme():Promise<void>;
+	toggleTheme(forced?:"light"|"dark"):Promise<void>;
 	/**
 	 * Reload all labels (use CTRL+Shift+M)
 	 */

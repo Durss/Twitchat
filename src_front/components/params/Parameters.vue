@@ -80,6 +80,7 @@
 				</div>
 				<DonorState class="donorState" v-if="isDonor && content != contentAd" />
 				<ParamsSponsor v-else-if="content != contentAd" />
+				<ThemeSelector />
 			</div>
 		</div>
 	</div>
@@ -112,6 +113,7 @@ import ParamsConnexions from './contents/ParamsConnexions.vue';
 import type IParameterContent from './contents/IParameterContent';
 import CloseButton from '../CloseButton.vue';
 import DonorState from '../user/DonorState.vue';
+import ThemeSelector from '../ThemeSelector.vue';
 
 @Component({
 	components:{
@@ -127,6 +129,7 @@ import DonorState from '../user/DonorState.vue';
 		ParamsSpoiler,
 		ParamsAccount,
 		ParamsSponsor,
+		ThemeSelector,
 		ParamsCounters,
 		ParamsOverlays,
 		ParamsTriggers,

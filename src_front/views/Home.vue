@@ -13,6 +13,7 @@
 			<div class="logo" ref="logo">
 				<img src="@/assets/logo.svg" alt="Twitchat">
 				<p class="small"><span>{{ $t("home.info") }}</span> <a href="https://www.durss.ninja" target="_blank">Durss</a></p>
+				<ThemeSelector class="themeSelector" />
 			</div>
 
 			<div class="middle">
@@ -68,7 +69,7 @@
 	
 			<div class="splitter" ref="featuresTitle" @click="onSelectAnchor(anchors[0])">
 				<div>{{ $t("home.features.title") }}</div>
-				<img src="@/assets/img/homepage/scrollDown.svg" alt="scroll down">
+				<Icon name="arrowDown" alt="scroll down" class="icon" />
 			</div>
 		</div>
 
@@ -84,7 +85,7 @@
 						@play="onVideoStart($event)"></video>
 						<img v-if="s.image" loading="lazy" :src="$image('img/homepage/'+s.image)" :alt="s.title">
 					</div>
-					<img :src="$image('icons/'+s.icon+'.svg')" :alt="s.icon" class="icon">
+					<Icon :name="s.icon" :alt="s.icon" class="icon" />
 					<div class="infos">
 						<h2>{{s.title}}</h2>
 						<div class="description" v-html="s.description"></div>
@@ -92,7 +93,7 @@
 				</div>
 				
 				<div class="content" v-else>
-					<img :src="$image('icons/'+s.icon+'.svg')" :alt="s.icon" class="icon">
+					<Icon :name="s.icon" :alt="s.icon" class="icon" />
 					<div class="infos">
 						<h2>{{s.title}}</h2>
 						<div class="description">
@@ -137,6 +138,7 @@ import AnchorsMenu from '../components/AnchorsMenu.vue';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css';
 import Login from './Login.vue';
+import ThemeSelector from '@/components/ThemeSelector.vue';
 
 @Component({
 	components:{
@@ -145,6 +147,7 @@ import Login from './Login.vue';
 		Splitter,
 		CountryFlag,
 		AnchorsMenu,
+		ThemeSelector,
 	}
 })
 export default class Home extends Vue {
@@ -203,7 +206,7 @@ export default class Home extends Vue {
 			if(icon) {
 				gsap.set(icon, {scale:0});
 			}
-			anchors.push({div, label: this.sections[i].title, icon:icon.src, selected:false});
+			anchors.push({div, label: this.sections[i].title, icon:this.sections[i].icon, selected:false});
 		}
 		this.anchors = anchors;
 		//TODO update anchors labels when changing language
@@ -335,16 +338,59 @@ export default class Home extends Vue {
 }
 </script>
 
+<style lang="less">
+body.light {
+	.home {
+		@bg:#eee;
+		background-color: @bg;
+
+		.sectionsHolder {
+			.splitter {
+				border: .5em solid @bg;
+			}
+		}
+
+		section:not(.more) {
+			.content {
+				.icon {
+					background-color: @bg;
+				}
+			}
+		}
+
+		section.more {
+			background-color: @bg;
+		}
+	}
+}
+
+
+@media only screen and (max-width: 900px) {
+body.light {
+	.home {
+		.sectionsHolder {
+			section:not(.more), section:not(.more):nth-of-type(odd) {
+				.content {
+					background-color: #eee;
+				}
+			}
+		}
+	}
+}
+}
+</style>
 <style scoped lang="less">
 .home{
 	text-align: center;
-	color: var(--color-light);
 	min-height: 100%;
-	background-image: url("../assets/img/homepage/grain.png");
+	background-image: url("../assets/img/homepage/grain_dark.png");
 	margin: auto;
 	padding-bottom: 2em;
 	position: relative;
 	overflow: hidden;
+	color: var(--color-text);
+	@bg:#18181b;
+	background-color: @bg;
 
 	.aboveTheFold {
 		height: max(640px, 100vh);
@@ -354,6 +400,11 @@ export default class Home extends Vue {
 		padding: 4em 0;
 		position: relative;
 		z-index: 1;
+
+		.themeSelector {
+			margin: .5em;
+			display: inline-block;
+		}
 
 		.lang {
 			position: absolute;
@@ -417,7 +468,7 @@ export default class Home extends Vue {
 			cursor: pointer;
 			position: relative;
 			padding-bottom: 1em;
-			img {
+			.icon {
 				margin-top: .5em;
 				width: 1em;
 				transform: translate(-50%);
@@ -425,7 +476,7 @@ export default class Home extends Vue {
 				transition: all .5s ease-in-out;
 			}
 			&:hover {
-				img {
+				.icon {
 					margin-top: .75em;
 				}
 			}
@@ -443,7 +494,7 @@ export default class Home extends Vue {
 
 	.sectionsHolder {
 		//draw middle line
-		background: linear-gradient(90deg, var(--color-light) 2px, transparent 1px);
+		background: linear-gradient(90deg, var(--color-text) 2px, transparent 1px);
 		background-position: 100% 0;
 		background-repeat: no-repeat;
 		background-size: calc(50% + 1px) 100%;
@@ -452,9 +503,9 @@ export default class Home extends Vue {
 			height: 2em;
 			margin: auto;
 			margin-top: 15vw;
-			background-color: #fff;
+			background-color: var(--color-text);
 			border-radius: 50%;
-			border: .5em solid var(--color-dark);
+			border: .5em solid @bg;
 		}
 	}
 
@@ -503,7 +554,6 @@ export default class Home extends Vue {
 			flex-direction: row;
 			max-width: 70vw;
 			margin: auto;
-			color: var(--color-light);
 			align-items: center;
 			position: relative;
 	
@@ -581,7 +631,7 @@ export default class Home extends Vue {
 				padding: 1em 3%;
 				display: block;
 				background-image: url("../assets/img/homepage/grain.png");
-				background-color: var(--color-dark);
+				background-color: @bg;
 			}
 		}
 
@@ -593,10 +643,27 @@ export default class Home extends Vue {
 		}
 	}
 
+	.sectionsHolder {
+		//draw middle line
+		background: linear-gradient(90deg, var(--color-text) 2px, transparent 1px);
+		background-position: 100% 0;
+		background-repeat: no-repeat;
+		background-size: calc(50% + 1px) 100%;
+		.splitter {
+			width: 2em;
+			height: 2em;
+			margin: auto;
+			margin-top: 15vw;
+			background-color: var(--color-text);
+			border-radius: 50%;
+			border: .5em solid @bg;
+		}
+	}
+
 	section.more {
 		margin-top: 10vw;
 		background-image: url("../assets/img/homepage/grain.png");
-		background-color: var(--color-dark);
+		background-color: @bg;
 		.icon {
 			height: 6em;
 			padding-top: 1em;

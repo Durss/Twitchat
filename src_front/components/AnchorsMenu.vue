@@ -6,7 +6,7 @@
 		@click="selectItem(a)"
 		ref="item">
 			<button>
-				<img :src="a.icon" class="icon">
+				<Icon :name="a.icon" class="icon" />
 				<div class="label">{{a.label}}</div>
 			</button>
 		</div>
@@ -25,20 +25,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 })
 export default class AnchorsMenu extends Vue {
 
-	@Prop({
-			type:Array,
-			default:[],
-		})
+	@Prop({type:Array, default:[]})
 	public items!:TwitchatDataTypes.AnchorData[];
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+	
+	@Prop({type:Boolean, default:false})
 	public openAnimaton!:boolean;
-	@Prop({
-			type:Number,
-			default:0,
-		})
+
+	@Prop({type:Number, default:0})
 	public openDelay!:number;
 
 	public getClasses(a:TwitchatDataTypes.AnchorData):string[] {
@@ -58,7 +51,7 @@ export default class AnchorsMenu extends Vue {
 		if(labels.length > 0) gsap.set(labels, {padding:0, margin:0, width:0});
 		if(this.openAnimaton !== false && this.$refs.item) {
 			const delay = this.openDelay ?? 0;
-			gsap.from(this.$refs.item as HTMLDivElement[], {duration:.3, x:-50, stagger:0.035, ease:"back.out(3)", delay});
+			gsap.from(this.$refs.item as HTMLDivElement[], {duration:.3, x:-50, stagger:0.035, ease:"back.out(3)", delay, clearProps:"all"});
 		}
 	}
 
@@ -67,7 +60,7 @@ export default class AnchorsMenu extends Vue {
 		const label = target.querySelector(".label");
 		gsap.killTweensOf(label);
 		label?.removeAttribute("style");
-		gsap.from(label, {duration:.25, padding:0, margin:0, width:0});
+		gsap.from(label, {duration:.25, padding:0, margin:0, width:0, clearProps:"all"});
 	}
 
 	public mouseLeave(event:MouseEvent):void {
@@ -116,32 +109,38 @@ export default class AnchorsMenu extends Vue {
 			flex-direction: row;
 			align-items: center;
 			border-radius: 10em;
-			background-color: var(--color-light-fadest);
+			background-color: var(--background-color-primary);
 			transition: background-color .25s;
+			box-shadow: 0 0 5px 0px rgba(0, 0, 0, .5);
 
 			.icon {
 				width: @size;
 				height: @size;
-				padding: .2em;
+				padding: 5px;
 				object-fit: fill;
 			}
 
 			.label {
 				flex-grow: 1;
 				white-space: nowrap;
-				font-size: .8em;
-				margin: 0 .5em 0 0;
-				color: var(--color-light);
+				margin: 0 .5em;
+				color: var(--color-text);
 				overflow: hidden;
 			}
 		}
 
 		&.selected {
-			@size:1.5em;
+			@size:1.25em;
 			font-size: @size;
 			margin-left: calc((1em - @size ) / 2);
 			button {
-				background-color: var(--color-secondary);
+				background-color: var(--color-primary);
+				.label {
+					font-size: 1rem;
+				}
+				.icon {
+					filter:brightness(100);
+				}
 			}
 		}
 	}
