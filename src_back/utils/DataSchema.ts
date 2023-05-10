@@ -555,6 +555,7 @@ import Ajv from "ajv";
 		v: {type:"integer"},
 		collapseParamAdInfo: {type:"boolean"},
 		lang: {type:"string", maxLength:4},
+		theme: {type:"string", maxLength:10},
 		obsIP: {type:"string", maxLength:20},
 		obsPort: {type:"integer"},
 		updateIndex: {type:"integer"},

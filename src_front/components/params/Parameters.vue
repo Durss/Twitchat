@@ -36,6 +36,8 @@
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
 
+				<ThemeSelector class="themeSelector" />
+
 				<mark class="version">v {{appVersion}}</mark>
 			</div>
 			
@@ -80,7 +82,6 @@
 				</div>
 				<DonorState class="donorState" v-if="isDonor && content != contentAd" />
 				<ParamsSponsor v-else-if="content != contentAd" />
-				<ThemeSelector />
 			</div>
 		</div>
 	</div>
@@ -416,6 +417,12 @@ export default class Parameters extends Vue {
 					}
 				}
 			}
+		}
+
+		.themeSelector {
+			display: block;
+			margin: 0 auto;
+			flex-shrink: 0;
 		}
 
 		.version {

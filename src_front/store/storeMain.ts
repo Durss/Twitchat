@@ -76,24 +76,27 @@ export const storeMain = defineStore("main", {
 		 * switch between dark and light mode.
 		 * Also called when user requests a specific theme
 		 */
-		toggleTheme(forced?:"light"|"dark"):void {
+		toggleTheme(theme?:"light"|"dark"):void {
 			let list = document.body.classList;
-			if(forced == "light") {
+			if(theme == "light") {
 				list.remove("dark");
 				list.add("light");
 			}else
-			if(forced == "dark") {
+			if(theme == "dark") {
 				list.remove("light");
 				list.add("dark");
 			}else
 			if(list.contains("dark")) {
 				list.remove("dark");
 				list.add("light");
+				theme = "light";
 			}else
 			if(list.contains("light")) {
 				list.remove("light");
 				list.add("dark");
+				theme = "dark";
 			}
+			DataStore.set(DataStore.THEME, theme);
 		},
 
 		/**
