@@ -458,6 +458,7 @@ export default class TriggerActionEntry extends Vue {
 			border-radius: 0;
 			padding: .5em;
 			align-self: stretch;
+			box-shadow: unset;
 			&.orderBt {
 				cursor: grab;
 				&:active {

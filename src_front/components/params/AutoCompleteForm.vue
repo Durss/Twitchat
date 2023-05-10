@@ -3,7 +3,7 @@
 		<div class="form">
 			<label :for="key">{{title}}</label>
 			<div class="inputHolder">
-				<img :src="$image('loader/loader.svg')" alt="loading" class="loader" v-if="loading">
+				<Icon name="loader" class="loader" v-if="loading" />
 				<input :id="key" type="text"
 					@keyup="onSearchChange()" @focus="onFocus()"
 					v-model="search"

@@ -1,7 +1,7 @@
 <template>
 	<div class="chatpredictionresult chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img src="@/assets/icons/prediction.svg" alt="icon" class="icon">
+		<Icon name="prediction" alt="icon" class="icon"/>
 		<div class="content">
 			<div class="title">{{messageData.title}}</div>
 
@@ -143,7 +143,8 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 						align-items: center;
 						padding: 5px;
 						border-radius: 5px;
-						background-color: var(--color-dark-fade);
+						color: var(--color-text-light);
+						background-color: var(--background-color-fade);
 						font-size: .9em;
 						align-self: center;
 

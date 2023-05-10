@@ -2,12 +2,11 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img v-if="messageData.is_gift" src="@/assets/icons/gift.svg" alt="gift" class="icon">
-		<img v-else-if="messageData.tier == 'prime'" src="@/assets/icons/prime.svg" alt="prime" class="icon">
-		<img v-else src="@/assets/icons/sub.svg" alt="sub" class="icon">
+		<Icon v-if="messageData.is_gift" name="gift" alt="gift" class="icon"/>
+		<Icon v-else-if="messageData.tier == 'prime'" name="prime" alt="prime" class="icon"/>
+		<Icon v-else name="sub" alt="sub" class="icon"/>
 
 		<div>
-
 			<!-- Subgift -->
 			<div class="holder" v-if="messageData.is_gift">
 				<i18n-t scope="global" tag="span"

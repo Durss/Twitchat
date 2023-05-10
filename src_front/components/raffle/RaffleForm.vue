@@ -3,7 +3,7 @@
 		<div class="head" v-if="triggerMode === false">
 			<CloseButton :aria-label="$t('global.close')" @click="close()" />
 			
-			<h1 class="title">{{ $t("raffle.form_title") }}</h1>
+			<h1 class="title"><Icon name="ticket" class="icon" />{{ $t("raffle.form_title") }}</h1>
 
 			<div class="description">{{ $t("raffle.description") }}</div>
 		</div>

@@ -2,7 +2,7 @@
 	<div class="chatraid chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
+		<Icon name="raid" alt="raid" class="icon"/>
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" keypath="chat.raid.text" :plural="messageData.viewers">
@@ -14,14 +14,15 @@
 				</template>
 			</i18n-t>
 
-
 			<div class="streamInfo">
 				<div class="infos">
 					<div class="title quote">
 						<span>{{messageData.stream.title}}</span>
 						<div class="details">
 							<p class="category">{{messageData.stream.category}}</p>
-							<div class="duration" v-if="messageData.stream.wasLive"><img src="@/assets/icons/timer.svg" class="icon">{{formatedDuration}}</div>
+							<div class="duration" v-if="messageData.stream.wasLive">
+								<Icon name="timer" class="icon" theme="dark" />{{formatedDuration}}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -89,48 +90,6 @@ export default class ChatRaid extends AbstractChatMessage {
 		align-items: flex-start;
 		flex-grow: 1;
 		gap: .25em;
-	}
-
-	.streamInfo {
-		// background-color: rgba(255, 255, 255, .15);
-		border-radius: .5em;
-		overflow: hidden;
-		width: 100%;
-		row-gap: .5em;
-		column-gap: 1em;
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		.infos {
-			flex-grow: 1;
-			flex-basis: 200px;
-			opacity: .8;
-			.details {
-				gap: .5em;
-				display: flex;
-				flex-direction: row;
-				.category, .duration {
-					width: fit-content;
-					margin-right: 0;
-					margin-left: 0;
-					margin-top: .5em;
-					font-size: .9em;
-					display: block;
-					padding: 2px 10px;
-					font-style: normal;
-					border-radius: var(--border-radius);
-					background-color: var(--color-light-fader);
-					.icon {
-						height: 1em;
-						vertical-align: text-top;
-						margin-right: .25em;
-					}
-				}
-			}
-		}
-		.soButton {
-			align-self: center;
-		}
 	}
 }
 </style>

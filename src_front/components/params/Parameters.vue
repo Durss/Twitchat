@@ -330,6 +330,7 @@ export default class Parameters extends Vue {
 	position: absolute;
 	width: 100%;
 	height: 100%;
+	max-height: calc(var(--vh) - var(--chat-form-height));
 	box-sizing: border-box;
 	display:flex;
 	flex-direction:row;
@@ -478,6 +479,7 @@ export default class Parameters extends Vue {
 
 @media only screen and (max-width: 800px) {
 	.parameters {
+		max-height: var(--vh);
 		.head {
 			border-bottom: 1px solid var(--color-dark-extralight);
 			.title {

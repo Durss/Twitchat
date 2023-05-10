@@ -237,6 +237,7 @@ export const storeDebug = defineStore('debug', {
 							cost:reward.cost,
 							description:reward.prompt,
 							title:reward.title,
+							color:reward.background_color,
 							icon,
 						},
 					};

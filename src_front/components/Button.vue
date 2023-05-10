@@ -16,7 +16,7 @@
 
 		<img v-if="icon && loading" :src="$image('loader/loader.svg')" class="loader">
 	
-		<img class="icon" v-if="icon && !loading" :src="iconPath" alt="icon">
+		<Icon class="icon" v-if="icon && !loading" :name="icon" :theme="theme" alt="icon" />
 		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
 
 		<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
@@ -91,21 +91,12 @@ export default class Button extends Vue {
 	public file!:string;
 	
 	public checked = false;
+	public theme = "light";
 
 	public get nodeType():string {
 		if(this.to) return "router-link";
 		if(this.type == "link") return "a";
 		return "button";
-	}
-
-	public get iconPath():string {
-		if(this.light !== false) {
-			let color = "primary";
-			if(this.secondary !== false) color = "secondary";
-			if(this.alert !== false) color = "alert";
-			return this.$image('icons/'+color+"/"+this.icon+'.svg');
-		}
-		return this.$image('icons/'+this.icon+'.svg')
 	}
 
 	public get classes():string[] {
@@ -124,6 +115,7 @@ export default class Button extends Vue {
 
 	public mounted():void {
 		this.checked = this.modelValue;
+		if(this.light) this.theme = this.alert !== false? "alert" : this.secondary !== false? "secondary" : "";
 
 		watch(() => this.checked, (val:boolean) => {
 			this.$emit("update:modelValue", val);
@@ -229,10 +221,6 @@ export default class Button extends Vue {
 	&.disabled {
 		cursor: not-allowed;
 		opacity: .4;
-		// filter: brightness(70%) saturate(70%);
-		// @media (prefers-color-scheme: light) {
-		// 	filter: brightness(120%) saturate(70%);
-		// }
 		.label, .icon {
 			opacity: .75;
 		}
@@ -336,7 +324,7 @@ export default class Button extends Vue {
 
 	&.alert {
 		.label {
-			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+			text-shadow: none;
 		}
 		.background {
 			background-color: var(--color-alert);
@@ -420,6 +408,18 @@ export default class Button extends Vue {
 			padding: .5em;
 			font-size: 1.2rem;
 			min-height: calc(1.2em + .5em);
+		}
+	}
+}
+</style>
+
+
+
+<style lang="less">
+body.light {
+	.button {
+		.loadingBorder {
+			background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%) !important;
 		}
 	}
 }

@@ -3,7 +3,7 @@
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
-			<img v-if="entryData.iconURL" :src="entryData.iconURL" :style="{backgroundColor:entryData.iconBgColor}">
+			<img v-if="entryData.iconURL" :src="entryData.iconURL" class="icon" :style="{backgroundColor:entryData.iconBgColor}">
 			<Icon v-else-if="entryData.icon" :name="entryData.icon" class="icon" :style="{backgroundColor:entryData.iconBgColor}" />
 			<span>{{entryData.label}}</span>
 		</button>
@@ -64,7 +64,7 @@ export default class TriggerListItem extends Vue {
 .triggerlistitem{
 	
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-	background-color: var(--color-light-fadest);
+	background-color: var(--background-color-fadest);
 	border-radius: .5em;
 	padding: 0;
 	display: flex;
@@ -75,13 +75,13 @@ export default class TriggerListItem extends Vue {
 		display: flex;
 		flex-direction: row;
 		gap: .25em;
-		color: var(--color-light);
+		color: var(--color-text);
 		padding: 0 .5em 0 0;
 		align-items: center;
 		flex-grow: 1;
 		overflow: hidden;
 		word-wrap: break-word;
-		img {
+		.icon {
 			height: 1.5em;
 			width: 1.5em;
 			padding: .25em;
@@ -96,7 +96,7 @@ export default class TriggerListItem extends Vue {
 		border-left: 1px solid var(--color-dark-light);
 	}
 	.deleteBt, .testBt {
-		img {
+		.icon {
 			height: .9em;
 			padding: 0 .5em;
 		}
@@ -104,7 +104,7 @@ export default class TriggerListItem extends Vue {
 		&:disabled,
 		&[disabled] {
 			pointer-events: none;
-			img {
+			.icon {
 				opacity: .35;
 			}
 		}
@@ -112,7 +112,7 @@ export default class TriggerListItem extends Vue {
 	&>* {
 		transition: background-color .1s;
 		&:hover {
-			background-color: var(--color-light-fader);
+			background-color: var(--background-color-fader);
 		}
 	}
 }

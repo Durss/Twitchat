@@ -148,7 +148,7 @@
 			},
 			"music": {
 				"header": "Veuillez lier Spotify dans la {LINK}",
-				"header_link": "section overlays",
+				"header_link": "section connexion",
 				"param_actions": "Action",
 				"param_actions_default": "Selectionnez une action...",
 				"param_track": "Morceau à ajouter (nom, URL ou ID)",

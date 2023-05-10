@@ -4,7 +4,7 @@
 			
 			<div class="item">
 				<div class="info">{{ $t("overlay.raffle.head") }}</div>
-				<input type="text" v-model="overlayUrl" v-click2Select>
+				<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.raffle.css") }}</div>
 					<ul class="cssStructure">
@@ -22,7 +22,7 @@
 			
 			<div class="card-item item">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
-					<template #MENU><img src="@/assets/icons/commands.svg" class="icon"></template>
+					<template #MENU><Icon name="commands" class="icon" /></template>
 					<template #CMD><strong>/raffle</strong></template>
 				</i18n-t>
 			</div>
@@ -128,7 +128,6 @@ export default class OverlayParamsRaffle extends Vue {
 			input {
 				width: 100%;
 				margin-bottom: .5em;
-				background-color: var(--color-primary);
 			}
 
 			&.center {

@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
-		<img :src="$image(messageData.type=='pinned'? 'icons/pin.svg' : 'icons/unpin.svg')" alt="notice" class="icon">
+		<Icon :name="messageData.type=='pinned'? 'pin' : 'unpin'" alt="notice" class="icon" />
 
 		<div class="holder">
 			<i18n-t scope="global" tag="div" :keypath="labelKey">
@@ -71,7 +71,7 @@ export default class ChatPinNotice extends AbstractChatMessage {
 			width: 100%;
 			flex-grow: 1;
 			font-size: 1em;
-			background-color: var(--color-dark);
+			background-color: var(--background-color-primary);
 		}
 	}
 

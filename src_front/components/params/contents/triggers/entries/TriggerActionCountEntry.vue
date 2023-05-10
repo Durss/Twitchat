@@ -174,8 +174,8 @@ export default class TriggerActionCountEntry extends Vue {
 			select{
 				width: 100%;//Allows proper auto size
 				flex-grow: 1;
-				max-width: 200px;
-				flex-basis: 200px;
+				max-width: 300px;
+				flex-basis: 300px;
 			}
 		}
 	}

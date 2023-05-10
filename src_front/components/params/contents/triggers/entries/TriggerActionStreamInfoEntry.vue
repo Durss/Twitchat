@@ -6,10 +6,7 @@
 			:placeholderList="placeholderList"
 			triggerMode />
 		
-		<picture v-else>
-			<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-		</picture>
+		<Icon v-else name="loader" class="loader" />
 	</div>
 </template>
 
@@ -69,9 +66,11 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionstreaminfoentry{
+	min-height: 2em;//Makes sure the loader is visible on trigger open
 	.loader {
+		height: 2em;
+		width: 2em;
 		margin: auto;
-		display: block;
 	}
 }
 </style>

@@ -14,7 +14,7 @@ export default class Utils {
 	 * Check if user browser them is light mode
 	 */
 	public static get isLightMode():boolean {
-		return window.matchMedia("(prefers-color-scheme: light)").matches
+		return document.body.classList.contains("light");
 	}
 
 	/**

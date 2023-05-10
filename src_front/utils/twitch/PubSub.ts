@@ -875,6 +875,7 @@ export default class PubSub extends EventDispatcher {
 				title:localObj.redemption.reward.title,
 				cost:localObj.redemption.reward.cost,
 				description:localObj.redemption.reward.prompt,
+				color:localObj.redemption.reward.background_color,
 				icon:{
 					sd:img.url_2x,
 					hd:img.url_4x,

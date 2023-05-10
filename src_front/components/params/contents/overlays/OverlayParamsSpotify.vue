@@ -1,22 +1,23 @@
 <template>
 	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify']">
-		<div class="holder">
-	
-			<div v-if="!spotifyConnected">{{ $t("overlay.music_common.music") }}</div>
+		<div class="holder" v-if="spotifyConnected">
 	
 			<div class="card-item playerHolder">
 				<div class="label">{{ $t("global.example") }}</div>
 				<OverlayMusicPlayer class="player" v-if="currentTrack" :staticTrackData="currentTrack" embed />
 			</div>
 	
-			<OverlayParamsMusic v-if="spotifyConnected" />
+			<OverlayParamsMusic />
 	
-			<i18n-t v-if="spotifyConnected" scope="global" tag="div" keypath="overlay.music_common.infos">
+			<i18n-t scope="global" tag="div" keypath="overlay.music_common.infos">
 				<template #TRIGGERS>
 					<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
 				</template>
 			</i18n-t>
 
+		</div>
+		<div class="holder" v-else>
+			<div>{{ $t("overlay.music_common.music") }}</div>
 			<Button @click="$store('params').openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</Button>
 		</div>
 

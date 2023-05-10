@@ -85,7 +85,7 @@ export default class TriggerActionChatEntry extends Vue {
 		.cmd {
 			font-size: .8em;
 			line-height: 1.5em;
-			background-color: var(--color-dark);
+			background-color: var(--background-color-fadest);
 			padding: .1em;
 			border-radius: .5em;
 			cursor: pointer;

@@ -342,6 +342,10 @@ export namespace TwitchatDataTypes {
 		 */
 		icon?:string;
 		/**
+		 * Forces a theme for the icon
+		 */
+		iconTheme?:"light"|"dark"|"primary"|"secondary"|"alert";
+		/**
 		 * Icon URL to display on the left
 		 */
 		iconURL?:string;
@@ -1954,6 +1958,7 @@ export namespace TwitchatDataTypes {
 			cost:number;
 			description:string;
 			icon:TwitchatImage;
+			color:string;
 		};
 		/**
 		 * Optional message the reward requires the user to send when redeeming it

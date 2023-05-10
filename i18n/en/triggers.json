@@ -148,7 +148,7 @@
 			},
 			"music": {
 				"header": "This feature needs you to connect with Spotify under the {LINK}",
-				"header_link": "overlays section",
+				"header_link": "connections section",
 				"param_actions": "Action",
 				"param_actions_default": "Select an action...",
 				"param_track": "Track to add (name or URL)",

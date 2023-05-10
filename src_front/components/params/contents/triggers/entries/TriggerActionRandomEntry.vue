@@ -30,7 +30,7 @@
 					v-tooltip="'Delete'"
 					@click.capture.stop="deleteItem(index)">
 						<img src="@/assets/icons/trash.svg" alt="delete">
-.svg					</button>
+					</button>
 
 					<div class="content">
 						<span class="label" v-if="!indexToEditState[index]">
@@ -68,7 +68,7 @@
 					<div class="content">
 						<img v-if="getTriggerInfo(item).iconURL" :src="getTriggerInfo(item).iconURL" class="icon"
 						:style="getTriggerInfo(item).iconBgColor? {backgroundColor:getTriggerInfo(item).iconBgColor, objectFit: 'contain'} : {}">
-						<img v-else :src="$image('icons/'+getTriggerInfo(item).icon+'')" class="icon">
+						<Icon v-else :name="getTriggerInfo(item).icon" class="icon" />
 						<span class="label">{{ getTriggerInfo(item).label }}</span>
 					</div>
 				</div>
@@ -202,7 +202,7 @@ export default class TriggerActionRandomEntry extends Vue {
 			display: flex;
 			flex-direction: row;
 			overflow: hidden;
-			color: var(--color-light);
+			color: var(--color-text);
 			border-radius: var(--border-radius);
 			background-color: var(--color-light-fadest);
 			.action {
@@ -223,7 +223,7 @@ export default class TriggerActionRandomEntry extends Vue {
 				flex-grow: 1;
 				border-top-right-radius: .5em;
 				border-bottom-right-radius: .5em;
-				background-color: var(--color-light-fadest);
+				background-color: var(--background-color-fadest);
 				font-size: .9em;
 				display: flex;
 				align-items: center;

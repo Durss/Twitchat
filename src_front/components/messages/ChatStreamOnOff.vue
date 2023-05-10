@@ -2,8 +2,8 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
-		<img :src="$image('icons/online.svg')" alt="online" class="icon" v-if="isOnline">
-		<img :src="$image('icons/offline.svg')" alt="offline" class="icon" v-else>
+		<Icon name="online" alt="online" class="icon" v-if="isOnline"/>
+		<Icon name="offline" alt="offline" class="icon" v-else/>
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="isOnline? 'chat.stream.online' : 'chat.stream.offline'">

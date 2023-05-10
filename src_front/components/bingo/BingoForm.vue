@@ -2,8 +2,8 @@
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
 			<CloseButton :aria-label="$t('global.close')" @click="close()" />
-
-			<h1 class="title">{{ $t("bingo.form.title") }}</h1>
+			
+			<h1 class="title"><Icon name="bingo" class="icon" />{{ $t("bingo.form.title") }}</h1>
 			
 			<div class="description" v-if="triggerMode === false">{{ $t("bingo.form.description") }}</div>
 		</div>

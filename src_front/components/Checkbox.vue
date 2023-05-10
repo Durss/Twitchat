@@ -49,7 +49,7 @@ export default class Checkbox extends Vue {
 	position: relative;
 
 	.checkmark {
-		border: 1px solid var(--color-light);
+		border: 1px solid var(--color-text);
 		border-radius: .25em;
 		padding: 0;
 		width: 1em;
@@ -71,14 +71,13 @@ export default class Checkbox extends Vue {
 		justify-self: flex-start;
 		text-align: left;
 		width: max-content;
-		color: var(--color-light);
-		// overflow: visible;
+		color:var(--color-text);
 	}
 	
 	&:hover {
 		background: none;
 		.checkmark {
-			background-color: var(--color-dark-light)
+			background-color: var(--background-color-fader)
 		}
 	}
 

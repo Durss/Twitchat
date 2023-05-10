@@ -2,7 +2,7 @@
 	<div class="emergencyfollowslistmodal modal">
 		<div class="dimmer" ref="dimmer"></div>
 		<div class="holder" ref="holder">
-			<img src="@/assets/icons/emergency.svg" alt="emergency" class="icon">
+			<Icon name="emergency" alt="emergency" class="icon"/>
 			<div class="head">
 				<i18n-t scope="global" keypath="followbot.title" :plural="followers.length" tag="span" class="title">
 					<template #COUNT>{{ followers.length }}</template>

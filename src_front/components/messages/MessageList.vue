@@ -1592,7 +1592,7 @@ export default class MessageList extends Vue {
 	&:not(.alternateOdd) {
 		.messageHolder {
 			.subHolder:nth-child(even) {
-				background-color: var(--color-light-fadest);
+				background-color: var(--background-color-fadest);
 			}
 		}
 	}
@@ -1600,7 +1600,7 @@ export default class MessageList extends Vue {
 	&.alternateOdd {
 		.messageHolder {
 			.subHolder:nth-child(odd) {
-				background-color: var(--color-light-fadest);
+				background-color: var(--background-color-fadest);
 			}
 		}
 	}
@@ -1670,9 +1670,9 @@ export default class MessageList extends Vue {
 		.markRead {
 			width: 100%;
 			height: 10000px;
-			background: rgba(0, 0, 0, .7);
-			background: var(--color-dark-fade);
-			border-bottom: 2px solid var(--color-light);
+			background: var(--grayout);
+			border-bottom: 2px solid var(--splitter-color);
+			box-shadow: 0px 0 5px 0px rgba(0, 0, 0, .5);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -1811,25 +1811,25 @@ export default class MessageList extends Vue {
 	.conversation {
 		position: absolute;
 		z-index: 4;
-		background-color: var(--color-dark);
+		background-color: var(--background-color-secondary);
 		padding: 10px;
 		left: 0;
 		width: 100%;
 		max-width: 100%;
-		box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+		box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, .5);
 		transform: translateY(-100%);
 
 		.head {
 			display: flex;
 			flex-direction: row;
-			border-bottom: 1px solid var(--color-light);
+			border-bottom: 1px solid var(--splitter-color);
 			padding-bottom: 10px;
 			margin-bottom: 10px;
+			color: var(--color-text);
 
 			h1 {
 				text-align: center;
 				flex-grow: 1;
-				color: var(--color-light);
 			}
 		}
 

@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsoverlays parameterContent">
-		<img src="@/assets/icons/overlay.svg" alt="overlay icon" class="icon">
+		<Icon name="overlay" class="icon" />
 		<div class="head">{{ $t("overlay.header") }}</div>
 
 		<div class="connectObs" v-if="!exchangeChannelAvailable">

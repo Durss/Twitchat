@@ -27,19 +27,16 @@
 		</div>
 
 		<div class="list" v-if="users.length > 0 && !filter">
-			<template v-for="u, index in users" :key="u.user.id">
-				<template class="item" v-if="buildOffset >= index">
-					
-					<div class="anchor" :ref="'user_'+u.user.id"></div>
-
-					<div class="card-header sticky">
-						<img class="icon" :src="u.user.avatarPath" alt="profile pic">
-						<div class="title">{{u.user.displayName}}</div>
-					</div>
-	
-					<div v-if="u.user.id=='477339272'" class="hypetrain">{{ $t("global.hypetrain_emotes") }}</div>
-	
-					<div class="emotes" v-else>
+			<div class="userEtry" v-for="u, index in users" :key="u.user.id" :ref="'user_'+u.user.id">
+				<div class="sticky">
+					<img class="icon" :src="u.user.avatarPath" alt="profile pic">
+					<div class="title">{{u.user.displayName}}</div>
+				</div>
+				
+				<div v-if="u.user.id=='477339272'" class="hypetrain">{{ $t("global.hypetrain_emotes") }}</div>
+				
+				<template class="item" v-else-if="buildOffset >= index">
+					<div class="emotes">
 						<img
 							class="emote"
 							v-for="e in u.emotes"
@@ -53,7 +50,7 @@
 							@click="$emit('select', e.code)">
 					</div>
 				</template>
-			</template>
+			</div>
 		</div>
 
 		<div class="card-item userList" v-if="users.length > 0 && !filter">
@@ -434,15 +431,35 @@ export default class EmoteSelector extends Vue {
 		flex-direction: column;
 		gap: .5em;
 		flex-shrink: 1;
-		color: var(--color-light);
-		.anchor {
-			background: red;
-			transform: translateY(.5em);
-		}
+		color: var(--color-text);
 
 		.sticky {
-			top:	0;
+			top: 0;
 			position: sticky;
+			backdrop-filter: opacity(0%);
+
+			display: flex;
+			flex-direction: row;
+			background-color: var(--background-color-fader);
+			border-radius: 2em;
+			padding: .5em;
+			
+			& > .icon {
+				height: 2em;
+				margin-top: -.5em;
+				margin-left: -.5em;
+				margin-bottom: -.5em;
+				border-radius: 50%;
+			}
+			& > .title {
+				align-self: center;
+				flex-grow: 1;
+				text-align: center;
+				overflow-wrap: break-word;
+				overflow: hidden;
+				font-weight: bold;
+				padding: 0 .5em
+			}
 		}
 		.emotes, .hypetrain {
 			display: flex;

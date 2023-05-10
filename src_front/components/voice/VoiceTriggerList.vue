@@ -21,7 +21,7 @@
 		item-key="id"
 		ghost-class="ghost"
 		direction="vertical"
-		handle=".action>.header>img"
+		handle=".action>.header>.dragZone"
 		class="actionList"
 		:animation="250"
 		:dragoverBubble="true">
@@ -31,10 +31,14 @@
 					medium
 					:open="isOpen(element.id)"
 					:title="getLabelFromID(element.id)"
-					:icons="element.id? ['orderable',getIconFromID(element.id)] : ['orderable']"
 					:ref="element.id"
 					class="action"
 				>
+					<template #left_actions>
+						<Icon name="dragZone" class="dragZone" />
+						<Icon :name="getIconFromID(element.id)" v-if="element.id" />
+					</template>
+
 					<template #right_actions>
 						<Button alert
 							icon="trash"

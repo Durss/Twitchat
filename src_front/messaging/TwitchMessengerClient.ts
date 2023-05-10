@@ -677,6 +677,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					title:Config.instance.highlightMyMessageReward.title,
 					cost:-1,
 					description:"",
+					color:Config.instance.highlightMyMessageReward.background_color,
 					icon:{
 						sd:rewardImg,
 					}

@@ -1,9 +1,9 @@
 <template>
 	<div class="chatmodtools" @mouseleave="closeToOptions()">
-		<img src="@/assets/icons/ban.svg" alt="ban" v-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()">
-		<img src="@/assets/icons/timeout.svg" alt="timeout"
+		<Icon name="ban" alt="ban" v-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()"/>
+		<Icon name="timeout" alt="timeout"
 		@click.stop="openToOptions()"
-		v-tooltip="'Timeout'">
+		v-tooltip="'Timeout'" />
 		<div class="toOptions" v-if="showToOptions" ref="toOptions" @mouseenter="resetCloseTimeout()">
 			<Button alert :aria-label="$t('chat.mod_tools.to10_aria')"			@click.stop="timeoutUser(10)" small>{{$t('chat.mod_tools.to10')}}</Button>
 			<Button alert :aria-label="$t('chat.mod_tools.to120_aria')"			@click.stop="timeoutUser(120)" small>{{$t('chat.mod_tools.to120')}}</Button>
@@ -12,8 +12,8 @@
 			<Button alert :aria-label="$t('chat.mod_tools.to43200_aria')"			@click.stop="timeoutUser(3600*12)" small>{{$t('chat.mod_tools.to43200')}}</Button>
 			<Button alert :aria-label="$t('chat.mod_tools.to1w_aria')"			@click.stop="timeoutUser(3600*24*7)" small>{{$t('chat.mod_tools.to1w')}}</Button>
 		</div>
-		<img src="@/assets/icons/trash.svg" alt="trash" v-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete">
-		<img src="@/assets/icons/block.svg" alt="trash" v-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false">
+		<Icon name="trash" alt="trash" v-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete"/>
+		<Icon name="block" alt="trash" v-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false"/>
 	</div>
 </template>
 
@@ -125,7 +125,7 @@ export default class ChatModTools extends Vue {
 	display: flex;
 	flex-direction: row;
 
-	img {
+	.icon {
 		opacity: 0.75;
 		height: 1em;
 		vertical-align: middle;

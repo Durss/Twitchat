@@ -1,9 +1,13 @@
 <template>
 	<div class="raidstate gameStateWindow">
-		<img v-if="user && user.avatarPath" :src="user.avatarPath" alt="avatar" class="avatar">
-		<div>
+		<div class="head">
+			<a v-if="user && user.avatarPath" :href="'https://twitch.tv/'+user.login" target="_blank">
+				<img :src="user.avatarPath" alt="avatar" class="avatar">
+			</a>
 			<i18n-t scope="global" tag="span" keypath="raid.raiding">
-				<template #USER><strong>{{raidInfo.user.displayName}}</strong></template>
+				<template #USER>
+					<a :href="'https://twitch.tv/'+raidInfo.user.login" target="_blank">{{raidInfo.user.displayName}}</a>
+				</template>
 				<template #VIEWERS><strong>{{raidInfo.viewerCount}}</strong></template>
 				<template #TIMER><span class="timer">{{timeLeft}}s</span></template>
 			</i18n-t>
@@ -164,10 +168,16 @@ export default class RaidState extends Vue {
 
 <style scoped lang="less">
 .raidstate{
-	.avatar {
-		width: 3em;
-		border-radius: 50%;
-		margin: auto;
+
+	.head {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		.avatar {
+			width: 3em;
+			border-radius: 50%;
+			margin: auto;
+		}
 	}
 	
 	.icon {

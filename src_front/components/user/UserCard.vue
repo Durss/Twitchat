@@ -1,5 +1,5 @@
 <template>
-	<div class="usercard" v-if="user">
+	<div class="usercard modal" v-if="user">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
 		<div class="holder" ref="holder" v-if="loading">
@@ -8,10 +8,7 @@
 				<div class="title">
 					<span class="label">{{user.displayName}}</span>
 				</div>
-				<picture>
-					<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-				</picture>
+				<Icon name="loader" alt="loading" class="loader"/>
 			</div>
 		</div>
 
@@ -45,25 +42,25 @@
 
 			<div class="scrollable">
 				<div class="infoList">
-					<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><img src="@/assets/icons/date.svg" alt="account creation date" class="icon">{{createDate}}</div>
+					<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><Icon name="date" alt="account creation date" class="icon"/>{{createDate}}</div>
 					
-					<div class="info" v-if="followersCount > -1"><img src="@/assets/icons/follow_outline.svg" class="icon">{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
+					<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
 					
 					<div class="info" v-if="subState && subStateLoaded">
-						<img src="@/assets/icons/gift.svg" alt="subscribed" class="icon" v-if="subState.is_gift">
-						<img src="@/assets/icons/sub.svg" alt="subscribed" class="icon" v-else>
+						<Icon name="gift" alt="subscribed" class="icon" v-if="subState.is_gift"/>
+						<Icon name="sub" alt="subscribed" class="icon" v-else/>
 						<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
 							<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
 							<template #GIFTER>{{ subState.gifter_name }}</template>
 						</i18n-t>
 					</div>
 					<div class="info" v-else-if="subStateLoaded">
-						<img src="@/assets/icons/sub.svg" alt="subscribed" class="icon">
+						<Icon name="sub" alt="subscribed" class="icon"/>
 						<span>{{ $t("usercard.non_subscribed") }}</span>
 					</div>
 
-					<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><img src="@/assets/icons/follow.svg" alt="follow date" class="icon">{{followDate}}</div>
-					<div class="info" v-else-if="canListFollowers && !is_self"><img src="@/assets/icons/unfollow.svg" alt="no follow" class="icon">{{$t('usercard.not_following')}}</div>
+					<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><Icon name="follow" alt="follow date" class="icon"/>{{followDate}}</div>
+					<div class="info" v-else-if="canListFollowers && !is_self"><Icon name="unfollow" alt="no follow" class="icon"/>{{$t('usercard.not_following')}}</div>
 				</div>
 				
 				<div class="ctas">
@@ -80,7 +77,7 @@
 					</div>
 					<div class="infos">
 						<div class="title">{{currentStream.title}}</div>
-						<div class="game">{{currentStream.game_name}}</div>
+						<mark class="game">{{currentStream.game_name}}</mark>
 					</div>
 				</div>
 
@@ -109,7 +106,7 @@
 					<transition name="scale">
 						<picture v-if="loadingFollowings">
 							<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-							<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+							<Icon name="loader" alt="loading" class="loader"/>
 						</picture>
 					</transition>
 	
@@ -504,29 +501,8 @@ export default class UserCard extends Vue {
 		display: none;
 	}
 
-	.dimmer {
-		backdrop-filter: blur(2px);
-		background-color: rgba(0,0,0,.7);
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-	}
-
 	&>.holder {
-		.center();
-		gap: 1em;
-		display: flex;
-		flex-direction: column;
-		position: absolute;
-		padding: 1em;
-		box-sizing: border-box;
-		border-radius: 1em;
-		color:var(--color-light);
-		background-color: var(--color-dark-light);
-		max-width: 800px;
-		width: 80%;
+		
 		max-height: var(--vh);
 
 		.loader {
@@ -619,7 +595,7 @@ export default class UserCard extends Vue {
 			.info {
 				font-size: .9em;
 				border-radius: .5em;
-				border: 1px solid var(--color-light);
+				border: 1px solid var(--color-text);
 				padding: .25em .5em;
 				.icon {
 					height: 1em;
@@ -633,10 +609,9 @@ export default class UserCard extends Vue {
 			align-self: center;
 			flex-shrink: 0;
 			.infos {
-				font-size: .8em;
 				.game {
-					font-style: italic;
-					font-size: .8em;
+					margin-top: .25em;
+					display: inline-block;
 				}
 			}
 		}
@@ -691,7 +666,6 @@ export default class UserCard extends Vue {
 		.followings, .messages {
 			display: flex;
 			flex-direction: column;
-			background-color: var(--color-dark);
 
 			&.messages {
 				.list {

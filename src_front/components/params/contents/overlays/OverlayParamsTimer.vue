@@ -8,7 +8,7 @@
 						<template #CMD2><mark>/timerStart</mark></template>
 					</i18n-t>
 				</div>
-				<input type="text" v-model="overlayUrl" v-click2Select>
+				<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.timer.css") }}</div>
 					<ul class="cssStructure">
@@ -80,7 +80,6 @@ export default class OverlayParamsTimer extends Vue {
 			input {
 				width: 100%;
 				margin-bottom: .5em;
-				background-color: var(--color-primary);
 			}
 
 			&.center {

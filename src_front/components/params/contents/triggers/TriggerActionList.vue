@@ -59,7 +59,7 @@
 
 		<div class="list">
 			<button class="addBt" @click="addActionAt(0)">
-				<img src="@/assets/icons/add.svg">
+				<img src="@/assets/icons/add.svg" class="icon">
 			</button>
 
 			<draggable 
@@ -88,7 +88,7 @@
 						/>
 						<div class="dash"></div>
 						<button class="addBt" @click="addActionAt(index+1)">
-							<img src="@/assets/icons/add.svg">
+							<img src="@/assets/icons/add.svg" class="icon">
 						</button>
 					</div>
 				</template>
@@ -266,7 +266,7 @@ export default class TriggerActionList extends Vue {
 			height: 1.25em;
 			background-color: var(--color-primary);
 			transition: background-color .25s;
-			img {
+			.icon {
 				padding: .25em;
 				height: 100%;
 				width: 100%;

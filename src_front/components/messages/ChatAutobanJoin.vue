@@ -18,11 +18,13 @@
 	
 			<div class="ctas" v-if="canUnban || canBlock">
 				<Button white v-if="canUnban"
+					small
 					:loading="moderating"
 					icon="unban"
 					@click.stop="unbanUser()">{{ $t('chat.autoban_join.unbanBt') }}</Button>
 	
 				<Button alert v-if="canBlock"
+					small
 					:loading="moderating"
 					icon="ban"
 					@click.stop="blockUser()">{{ $t('chat.autoban_join.banBt') }}</Button>
@@ -83,13 +85,6 @@ export default class ChatAutobanJoin extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatautobanjoin{
-	mark {
-		background-color: var(--color-secondary-fader);
-		border-radius: .5em;
-		font-weight: bold;
-		padding: .1em .3em;
-	}
-
 	.ctas {
 		display: block;
 		width: 100%;

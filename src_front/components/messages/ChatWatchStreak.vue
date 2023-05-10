@@ -2,7 +2,7 @@
 	<div class="chatwatchstreak chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img :src="$image('icons/watchStreak.svg')" alt="notice" class="icon">
+		<Icon name="watchStreak" alt="notice" class="icon"/>
 		
 		<i18n-t scope="global" tag="span" keypath="chat.watch_streak.label">
 			<template #USER>

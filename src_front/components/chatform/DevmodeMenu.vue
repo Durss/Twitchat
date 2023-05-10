@@ -339,7 +339,7 @@ type Subaction = "first"
 	flex-direction: column;
 
 	h1 {
-		color: var(--color-light);
+		color: var(--color-text);
 		align-self: center;
 		margin-bottom: 10px;
 	}

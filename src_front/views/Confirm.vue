@@ -1,14 +1,12 @@
 <template>
-	<div class="confirmView" v-if="confirmData">
+	<div class="confirmView modal" v-if="confirmData">
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
 		<div class="holder" ref="holder">
-			<!-- <img src="@/assets/icons/lock_fit.svg" class="icon"> -->
-
 			<div class="title" v-html="confirmData.title"></div>
 			
 			<VoiceGlobalCommandsHelper v-if="voiceControl" :confirmMode="true" />
 
-			<div class="description" v-html="confirmData.description"></div>
+			<div class="description" v-if="confirmData.description" v-html="confirmData.description"></div>
 			<div class="buttons">
 				<Button class="button" @click.stop="answer()" type="cancel" alert>{{ confirmData.noLabel ?? $t('global.cancel') }}</Button>
 				<Button class="button" @click.stop="answer(true)">{{ confirmData.yesLabel ?? $t('global.yes') }}</Button>
@@ -151,30 +149,9 @@ export default class Confirm extends Vue {
 .confirmView {
 	z-index: 99;
 	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-
-	.dimmer {
-		backdrop-filter: blur(2px);
-		background-color: rgba(0,0,0,.7);
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-	}
 
 	&>.holder {
-		.center();
-		position: absolute;
-		padding: 1em;
 		width: 400px;
-		box-sizing: border-box;
-		border-radius: 1em;
-		color:var(--color-light);
-		background-color: var(--color-dark-light);
 
 		.icon {
 			display: block;
@@ -200,6 +177,7 @@ export default class Confirm extends Vue {
 		}
 
 		.buttons {
+			width: 100%;
 			display: flex;
 			flex-direction: row;
 			margin: auto;

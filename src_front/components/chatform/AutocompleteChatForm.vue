@@ -8,7 +8,7 @@
 		@click="selectItem(i)"
 		v-tooltip="{content:i.type=='cmd'? i.tooltipKey : ''}">
 			<img
-				class="image"
+				class="image emote"
 				loading="lazy" 
 				:src="i.emote"
 				:alt="i.label"
@@ -382,9 +382,10 @@ interface CommandItem {
 		flex-wrap: wrap;
 		cursor: pointer;
 		min-height: 1.8em;
+		color: var(--text-color);
 
 		&.selected, &:hover {
-			background-color: var(--color-dark-extralight);
+			background-color: var(--background-color-fader);
 		}
 
 		&.cmd {
@@ -413,7 +414,7 @@ interface CommandItem {
 				background-color: var(--color-primary-fadest);
 
 				&.selected, &:hover {
-					background-color: var(--color-primary-fade);
+					background-color: var(--color-primary-fader);
 				}
 			}
 			&.disabled {
@@ -424,7 +425,7 @@ interface CommandItem {
 		}
 
 		.name, .source {
-			color: #fff;
+			
 			font-size: .8em;
 		}
 
@@ -434,7 +435,6 @@ interface CommandItem {
 		}
 
 		.infos {
-			color: fade(#fff, 70%);
 			font-size: .7em;
 			font-style: italic;
 			text-align: right;
@@ -445,6 +445,9 @@ interface CommandItem {
 			width: 1.75em;
 			padding: .2em;
 			object-fit: fill;
+			&:not(.emote) {
+				filter: var(--filter-brightness);
+			}
 			&.small {
 				height: 1em;
 				width: 1em;

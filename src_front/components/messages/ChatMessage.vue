@@ -23,7 +23,7 @@
 		</div>
 		
 		<div v-if="isAnnouncement" class="announcementHolder">
-			<img src="@/assets/icons/announcement.svg">
+			<Icon name="announcement" />
 			<div class="header"><strong>{{ $t('chat.message.announcement') }}</strong></div>
 		</div>
 		
@@ -33,11 +33,10 @@
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
-			<img v-if="!disableConversation && isConversation && $store('params').features.conversationsEnabled.value && !lightMode"
+			<Icon v-if="!disableConversation && isConversation && $store('params').features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
-				src="@/assets/icons/conversation.svg"
-				alt="conversation"
-				@click.stop="$emit('showConversation', $event, messageData)">
+				name="conversation"
+				@click.stop="$emit('showConversation', $event, messageData)" />
 
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
@@ -50,10 +49,10 @@
 					v-tooltip="b.label"></span>
 			</div>
 			
-			<img class="noFollowBadge" v-if="showNofollow"
-				src="@/assets/icons/unfollow.svg"
+			<Icon class="noFollowBadge" v-if="showNofollow"
+				name="unfollow"
 				:alt="$t('chat.message.no_follow')"
-				v-tooltip="$t('chat.message.no_follow')">
+				v-tooltip="$t('chat.message.no_follow')" />
 
 			<div class="occurrenceCount"
 				ref="occurrenceCount"
@@ -607,6 +606,16 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser_local);
 	}
+
+	/**
+	 * Apply custom highlight colors
+	 */
+	public applyStyles():void {
+		//Do not apply highlights on announcement.
+		//Styles would conflict
+		if(this.isAnnouncement) return;
+		super.applyStyles();
+	}
 	
 	/**
 	 * Called when suspicious state of the user changes
@@ -685,23 +694,18 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	&.tracked {
-		border-radius: var(--border-radius);
-		color: var(--color-light);
+		color: var(--color-text);
 		background-color: var(--color-secondary-fader);
-		// border-left-width: .75em;
-		// padding-left: .3em;
-		// border: 1px solid var(--color-secondary);
-		text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
+		text-shadow: var(--text-shadow-contrast);
 	}
 
 	&.spoiler {
 		.message {
 			color: rgba(0, 0, 0, 0);
-			background-color: var(--color-dark-light);
-			@media (prefers-color-scheme: light) {
-				background-color: #999;
-			}
-			background-image: repeating-linear-gradient(-45deg, #ffffff00, #ffffff00 7px, #ffffff30 7px, #ffffff30 15px);
+			@c1: var(--background-color-fadest);
+			@c2: var(--background-color-fader);
+			background-color: var(--background-color-fader);
+			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
 		}
 		&:hover {
 			.message {
@@ -786,7 +790,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		text-decoration: none;
 		// -webkit-text-stroke: fade(#000, 50%) .25px;
 		&:hover {
-			background-color: var(--color-dark);
+			background-color: var(--background-color-fader);
 			border-radius: 3px;
 		}
 		.translation {
@@ -811,8 +815,8 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	.pronoun {
 		border-radius: 3px;
-		color: var(--color-light);
-		border: 1px solid var(--color-light);
+		color: var(--color-text);
+		border: 1px solid var(--color-text);
 		padding: 0 2px;
 		margin-right: .25em;
 	}
@@ -834,7 +838,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			font-weight: normal;
 			background-color: var(--color-primary);
 			color: var(--color-light);
-			text-shadow: 1px 1px 0 rgba(0, 0, 0, 1);
+			text-shadow: var(--text-shadow-contrast);
 			padding: 0px 5px;
 		}
 	}
@@ -873,11 +877,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		.blockedMessage {
 			font-style: italic;
 		}
-		&:hover {
-			.blockedMessage {
-				color: var(--color-light);
-			}
-		}
 	}
 
 	&.automod {
@@ -885,7 +884,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		border-radius: .25em;
 		background-color: var(--color-alert-fader);
 		padding-top: 0;
-		color: var(--color-light);
 
 		.automod {
 			background-color: var(--color-alert);
@@ -917,6 +915,10 @@ export default class ChatMessage extends AbstractChatMessage {
 				}
 			}
 		}
+
+		.login {
+			color: var(--color-text) !important;
+		}
 	}
 
 	&.cyphered {
@@ -924,9 +926,9 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 	
 	&.whisper, &.cyphered {
-		background-color: var(--color-dark-light);
-		@c1: rgba(0,0,0,.8);
-		@c2: rgba(0,0,0,.85);
+		background-color: var(--color-text-inverse);
+		@c1: rgba(0,0,0,0);
+		@c2: var(--background-color-fadest);
 		background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
 		.message{
 			font-style: italic;
@@ -954,7 +956,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			margin-bottom: .25em;
 			flex-direction: row;
 			justify-content: center;
-			background-color: rgba(255, 255, 255, .1);
+			background-color: var(--background-color-fader);
 			width: calc(100% + .5em);
 			margin-left: -.25em;
 
@@ -964,20 +966,20 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 
 			.header {
-				color: var(--color-light);
+				color: var(--color-text);
 			}
 		}
 		&.purple {
-			border-image-source: linear-gradient(#9146ff,#ff75e6);
+			border-image-source: linear-gradient(#9146ff,#ff75e6) !important;
 		}
 		&.blue {
-			border-image-source: linear-gradient(#00d6d6,#9146ff);;
+			border-image-source: linear-gradient(#00d6d6,#9146ff) !important;
 		}
 		&.green {
-			border-image-source: linear-gradient(#00db84,#57bee6);
+			border-image-source: linear-gradient(#00db84,#57bee6) !important;
 		}
 		&.orange {
-			border-image-source: linear-gradient(#ffb31a,#e0e000);
+			border-image-source: linear-gradient(#ffb31a,#e0e000) !important;
 		}
 
 		padding: 0 .25em;

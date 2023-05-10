@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img src="@/assets/icons/bits.svg" alt="bits" class="icon">
+		<Icon name="bits" alt="bits" class="icon"/>
 
 		<div class="holder">
 			<i18n-t scope="global" tag="span" keypath="chat.bits" :plural="messageData.bits">

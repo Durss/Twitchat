@@ -1,6 +1,6 @@
 <template>
 	<div class="paramscounters parameterContent">
-		<Icon name="counter" class="icon" />
+		<Icon name="count" class="icon" />
 
 		<div class="head">
 			<i18n-t scope="global"  tag="p" keypath="counters.header">
@@ -43,10 +43,10 @@
 		
 			<template #right_actions>
 				<div class="actions">
-					<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
-					<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
-					<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
-					<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><img src="@/assets/icons/user.svg" alt="user"> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
+					<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
+					<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
+					<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
+					<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
 					<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click="editCounter(entry.counter)" />
 					<Button class="actionBt" alert icon="trash" @click="deleteCounter(entry)" />
 				</div>
@@ -103,7 +103,7 @@
 								<ParamItem class="value" noBackground
 									:paramData="item.param"
 									@input="onChangeValue(entry, item)" />
-								<button class="deleteBt" @click="deleteUser(entry, item)"><img src="@/assets/icons/trash.svg"></button>
+								<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" /></button>
 							</div>
 						</InfiniteList>
 					</template>
@@ -220,8 +220,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 
 		for (let i = 0; i < this.counterEntries.length; i++) {
 			const element = this.counterEntries[i];
-			this.sortType[element.counter.id] = "name";
-			this.sortDirection[element.counter.id] = 1;
+			this.sortType[element.counter.id] = "points";
+			this.sortDirection[element.counter.id] = -1;
 			this.search[element.counter.id] = "";
 		}
 

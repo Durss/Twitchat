@@ -3,7 +3,11 @@
 		<div class="header" @click.stop="toggle()">
 			<slot name="left_actions"></slot>
 			
-			<img v-for="icon in localIcons" :src="$image('icons/'+icon+'.svg')" :key="icon" :alt="icon" class="icon">
+			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
+				class="icon"
+				:name="icon"
+				:theme="error !== false || alert !== false || primary !== false || secondary !== false? 'light': ''"
+				/>
 			
 			<div class="title" v-if="title || subtitle">
 				<h2 v-if="title">{{ title }}</h2>
@@ -127,14 +131,14 @@ export default class ToggleBlock extends Vue {
 .toggleblock{
 	align-self: flex-start;
 	border-radius: var(--border-radius);
-	background-color: rgba(125, 125, 125, .2);
+	background-color: var(--background-color-fadest);
 
 	.header {
 		text-align: center;
 		padding: .5em;
 		overflow: hidden;
 		cursor: pointer;
-		background-color: var(--color-dark-extralight);
+		background-color: var(--toggle-block-header-background);
 		border-top-left-radius: var(--border-radius);
 		border-top-right-radius: var(--border-radius);
 		border-bottom: 2px solid var(--color-dark-fader);
@@ -146,7 +150,7 @@ export default class ToggleBlock extends Vue {
 		.title {
 			font-size: 1.2em;
 			flex-grow: 1;
-			color: var(--color-light);
+			color: var(--color-text);
 			display: flex;
 			flex-direction: column;
 			gap: 0;
@@ -157,7 +161,7 @@ export default class ToggleBlock extends Vue {
 			}
 		}
 		&:hover {
-			background-color: var(--color-primary-light);
+			background-color: var(--toggle-block-header-background-hover);
 		}
 
 		:deep(.icon) {
@@ -254,9 +258,7 @@ export default class ToggleBlock extends Vue {
 				flex-direction: row;
 				line-height: 1.25em;
 				color: var(--color-secondary);
-				@media (prefers-color-scheme: dark) {
-					text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
-				}
+				text-shadow: var(--text-shadow-contrast);
 				font-size: .8em;
 				&::before {
 					content:"►";

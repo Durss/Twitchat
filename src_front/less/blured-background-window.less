@@ -1,8 +1,8 @@
 .blured-background-window {
 	padding: .5em;
 	backdrop-filter: blur(10px);
-	background-color: var(--color-dark-light);
-	background: linear-gradient(180deg, var(--color-dark-fade) 0%, var(--color-dark-fader) 50%, var(--color-dark-fadest) 100% );
+	background-color: rgba(0, 0, 0, .5);
+	background: linear-gradient(180deg, rgba(0,0,0,.5) 0%, rgba(0,0,0,.6) 50%, rgba(0,0,0,.5) 100% );
 	box-shadow: 0px 0px 10px 2px rgba(0,0,0,.5);
 	border-radius: .5em;
 	display: flex;
@@ -14,4 +14,13 @@
 	& > * {
 		flex-shrink: 0;//Avoid items from being crushed vertically
 	}
+}
+
+body.light {
+	.blured-background-window {
+		padding: .5em;
+		backdrop-filter: blur(10px);
+		background-color: rgba(255, 255, 255, .5);
+		background: linear-gradient(180deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,.5) 100% );
+	}	
 }

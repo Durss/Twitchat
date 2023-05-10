@@ -3,7 +3,7 @@
 		<div class="head">
 			<CloseButton @click="close" />
 			
-			<h1 class="title"><img src="@/assets/icons/whispers.svg" class="icon">{{ $t('whispers.title') }}</h1>
+			<h1 class="title"><Icon name="whispers" class="icon"/>{{ $t('whispers.title') }}</h1>
 			<div class="description">{{ users[selectedUserIndex].displayName }}</div>
 		</div>
 	
@@ -201,7 +201,8 @@ export default class WhispersState extends AbstractSidePanel {
 				max-width: 80%;
 				border-radius: .5em;
 				font-size: var(--messageSize);
-				background-color: var(--color-primary);
+				color: var(--color-text);
+				background-color: var(--color-primary-fadest);
 
 				.chatMessageTime + *{
 					padding-left: 3em;
@@ -215,7 +216,7 @@ export default class WhispersState extends AbstractSidePanel {
 					flex-direction: row-reverse;
 					align-self: flex-end;
 					margin-right: 0;
-					background-color: var(--color-secondary);
+					background-color: var(--color-secondary-fadest);
 
 					.chatMessageTime + *{
 						padding-left: 0;
@@ -234,11 +235,11 @@ export default class WhispersState extends AbstractSidePanel {
 					vertical-align: middle;
 					object-fit: fill;
 					margin-right: .25em;
-					filter: brightness(100);
+					filter: var(--filter-brightness);
 				}
 
 				:deep(a) {
-					color: var(--color-light);
+					color: var(--color-text);
 				}
 			}
 		}

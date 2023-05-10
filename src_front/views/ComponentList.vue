@@ -91,10 +91,10 @@
 		<div class="card-item section toggleBlocks">
 			<ToggleBlock title="Title" subtitle="subtitle" key="toggle1">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
@@ -111,10 +111,10 @@
 			
 			<ToggleBlock title="Medium box" medium key="toggle2">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
@@ -225,7 +225,12 @@
 
 		<div class="card-item section icons">
 			<Icon name="errored icon" class="icon" />
-			<Icon v-for="(icon, index) in iconList" :name="icon" class="icon" :key="icon" :title="icon" @click="reloadIcon(index)" />
+			<Icon v-for="(icon, index) in iconList"
+				class="icon"
+				:key="icon"
+				:name="icon"
+				@click="reloadIcon(index)"
+				@mouseover="openTooltip($event, icon)" />
 		</div>
 	</div>
 </template>
@@ -244,6 +249,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
+import { useTippy } from 'vue-tippy';
 
 @Component({
 	components:{
@@ -279,6 +285,8 @@ export default class ComponentList extends Vue {
 	public param_number:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, label:"Count"};
 	public param_list:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[{value:"item1",label:"Item 1"}, {value:"item2",label:"Item 2"},{value:"item1",label:"Item 3"}], label:"List"};
 	public param_listEdit:TwitchatDataTypes.ParameterData<string[], string> = {type:"editablelist", value:["Item 2"], maxLength:2, options:["Item 1", "Item 2", "Item 3"], label:"Editable List"};
+
+	private tooltipCreated:{[key:string]:boolean} = {};
 	
 	public async mounted():Promise<void> {
 		this.resetProgressbars();
@@ -302,6 +310,23 @@ export default class ComponentList extends Vue {
 		await this.$nextTick();
 		this.iconList[index] = prevName;
 	}
+	
+	/**
+	 * Create tooltip only when hovering the image.
+	 * This avoids huge lag on build if creating tooltip on every items
+	 * at once.
+	 * 
+	 * @param event 
+	 * @param iconName 
+	 */
+	public openTooltip(event:MouseEvent, iconName:string):void {
+		if(this.tooltipCreated[iconName] === true) return;
+		this.tooltipCreated[iconName] = true;
+		useTippy(event.currentTarget as HTMLImageElement, {
+			content: iconName,
+		});
+	}
+
 
 	private renderFrame():void {
 		if(this.disposed) return;

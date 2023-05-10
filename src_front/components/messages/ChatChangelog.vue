@@ -144,13 +144,13 @@ export default class ChatChangelog extends Vue {
 		text-align: left;
 		margin-left: 2em;
 		:deep(li) {
+			color: var(--color-text-light);
 			&:not(:last-child) {
 				margin-bottom:.5em;
 			}
 
 			.testBt {
 				//Not using a <Button> component to reduce init process
-				.emboss();
 				border-radius: var(--border-radius);
 				background-color: var(--color-secondary);
 				padding: .16em .3em;

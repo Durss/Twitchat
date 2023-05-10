@@ -885,12 +885,12 @@ export default class ChatForm extends Vue {
 							opacity: .8;
 							margin-left: .25em;
 						}
-
 					}
 				}
 			}
 			input {
 				width: 100%;
+				color: var(--color-text);
 			}
 			.error {
 				cursor: pointer;

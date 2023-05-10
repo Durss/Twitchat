@@ -12,7 +12,9 @@
 				maxlength="20">
 			<div class="tags" v-if="triggerData.chatCommandParams && triggerData.chatCommandParams.length > 0">
 				<div class="tag" v-for="item, index in triggerData.chatCommandParams" :key="item.tag">
-					<button class="deleteBt" @click="triggerData.chatCommandParams!.splice(index, 1)"><img src="@/assets/icons/cross.svg" alt="delete"></button>
+					<button class="deleteBt" @click="triggerData.chatCommandParams!.splice(index, 1)">
+						<img src="@/assets/icons/cross.svg" alt="delete" class="deleteIcon">
+					</button>
 					<span v-click2Select @click="copy($event, item)" class="label">{{ "{" }}{{ item.tag }}{{ "}" }}</span>
 					<!-- <select class="typeSelector" v-model="item.type" v-tooltip="$t('triggers.slash_cmd.param_cmd_params_type_tt')">
 						<option value="TEXT">Text</option>
@@ -31,7 +33,7 @@
 				<div class="values">
 					<template v-for="(p, index) in triggerData.chatCommandParams">
 						<mark @click="copy($event, p)" v-click2Select>{{ "{" }}{{ p.tag.toUpperCase() }}{{ "}" }}</mark>
-						<img src="@/assets/icons/right.svg" class="arrow">
+						<Icon name="right" class="arrow" />
 						<span>"{{ usage.replace(/\s+/gi, ' ').split(" ")[index+1] }}"</span>
 					</template>
 				</div>
@@ -122,13 +124,13 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 			flex-direction: row;
 			flex-wrap: wrap;
 			gap: .5em;
+			color: var(--color-text-light);
 			.tag {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
 				gap: .25em;
 				padding: .25em;
-				padding-right: 1em;
 				border-radius: .5em;
 				background-color: var(--color-primary);
 				.label {
@@ -142,11 +144,18 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 				}
 				.deleteBt {
 					display: flex;
+					//Using negative margin compasated by inverse margin on .deleteIcon
+					//so the close button starts at the very sides of the item
 					margin: -.25em;
 					align-self: stretch;
-					img {
-						height: 100%;
-						padding: .4em;
+					transition: transform .2s;
+					.deleteIcon {
+						height: 1em;
+						margin: .25em;
+						vertical-align: middle;
+					}
+					&:hover {
+						transform: scale(1.1);
 					}
 				}
 			}

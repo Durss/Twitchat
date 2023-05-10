@@ -2,15 +2,12 @@
 	<div class="livefollowings sidePanel">
 		
 		<div class="head">
-			<h1><img src="@/assets/icons/user.svg" alt="user" class="icon">{{$t('cmdmenu.whoslive_title')}}</h1>
+			<h1><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
 			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
 		</div>
 		
 		<div class="content">
-			<picture v-if="loading">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon name="loader" alt="loading" class="loader" v-if="loading" />
 
 			<div class="needScope" v-if="needScope">
 				<span>{{ $t("liveusers.scope_grant") }}</span>
@@ -143,7 +140,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 				display: flex;
 				flex-direction: column;
 				text-decoration: none;
-				color: var(--color-light);
+				color: var(--color-text);
 	
 				&:hover {
 					cursor: pointer;

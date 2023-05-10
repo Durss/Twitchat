@@ -1,7 +1,7 @@
 <template>
 	<div class="chatraffleresult chatMessage highlight">
 		<span class="chatMessageTime" v-if="sParams.appearance.displayTime.value">{{time}}</span>
-		<img src="@/assets/icons/ticket.svg" alt="icon" class="icon">
+		<Icon name="ticket" alt="icon" class="icon"/>
 		
 		<i18n-t scope="global" tag="div" keypath="chat.raffle.title">
 			<template #USER v-if="user">

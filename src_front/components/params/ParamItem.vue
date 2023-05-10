@@ -4,13 +4,13 @@
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click.capture="clickItem($event)">
 		<div class="content">
-			<Icon :name="paramData.icon" v-if="paramData.icon" class="icon" />
+			<Icon :theme="paramData.iconTheme" :name="paramData.icon" v-if="paramData.icon" class="icon" />
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="icon">
 
 			<div v-if="paramData.type == 'boolean'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
-				<Icon class="helpIcon" name="help" v-if="paramData.example"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 				
@@ -28,7 +28,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
-				<Icon class="helpIcon" name="help" v-if="paramData.example"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -47,7 +47,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
-				<Icon class="helpIcon" name="help" v-if="paramData.example"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -78,7 +78,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'color'" class="holder color">
-				<Icon class="helpIcon" name="help" v-if="paramData.example"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -96,7 +96,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
-				<Icon class="helpIcon" name="help" v-if="paramData.example"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -105,7 +105,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
-				<Icon class="helpIcon" name="help" v-if="paramData.example"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -119,7 +119,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
-				<Icon class="helpIcon" name="help" v-if="paramData.example"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -154,7 +154,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
-				<Icon class="helpIcon" name="help" v-if="paramData.example"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 				
@@ -628,7 +628,7 @@ export default class ParamItem extends Vue {
 	
 	&.error {
 		cursor: not-allowed;
-		background-color: var(--color-alert-fader) !important;
+		background-color: var(--color-alert-fadest) !important;
 		.errorMessage {
 			font-size: .9em;
 			margin-top: .5em;

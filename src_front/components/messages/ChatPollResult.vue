@@ -1,7 +1,7 @@
 <template>
 	<div class="chatpollresult chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
+		<Icon name="poll" alt="icon" class="icon"/>
 		<div class="content">
 			<div class="title">{{messageData.title}}</div>
 
@@ -122,9 +122,9 @@ export default class ChatPollResult extends AbstractChatMessage {
 					flex-wrap: wrap;
 					padding: 3px;
 					border-radius: 5px;
-					@c: var(--color-light-fade);
+					@c: var(--background-color-fader);
 					background: linear-gradient(to right, @c 100%, @c 100%);
-					background-color: var(--color-light-fader);
+					background-color: var(--background-color-fader);
 					background-repeat: no-repeat;
 					justify-content: space-evenly;
 
@@ -134,7 +134,8 @@ export default class ChatPollResult extends AbstractChatMessage {
 						align-items: center;
 						padding: 5px;
 						border-radius: 5px;
-						background-color: var(--color-dark-fade);
+						color: var(--color-text-light);
+						background-color: var(--background-color-fade);
 						font-size: .9em;
 
 						.icon {

@@ -63,7 +63,7 @@
 			<div class="counterList">
 				<div class="card-item counter" v-for="c in counters" :key="c.id">
 					<div class="title">{{ c.name }}</div>
-					<input type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)" v-click2Select>
+					<input class="primary" type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)" v-click2Select>
 					<!-- <OverlayCounter class="counterExample" embed :staticCounterData="c" v-if="!c.perUser" /> -->
 				</div>
 			</div>
@@ -152,10 +152,8 @@ export default class OverlayParamsCounter extends Vue {
 				}
 	
 				input {
-					// width: 100%;
 					max-width: 60%;
 					flex-grow: 1;
-					background-color: var(--color-primary);
 				}
 			}
 		}

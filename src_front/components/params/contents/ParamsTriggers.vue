@@ -333,11 +333,12 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 								id:twitchReward.id,
 								cost:twitchReward.cost,
 								description:twitchReward.prompt,
+								title:twitchReward.title,
+								color:twitchReward.background_color,
 								icon:{
 									sd:twitchReward.image?.url_1x ?? "",
 									hd:twitchReward.image?.url_4x,
 								},
-								title:twitchReward.title,
 							};
 						}
 					}else 

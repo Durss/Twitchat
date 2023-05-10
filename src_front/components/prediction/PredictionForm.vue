@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
 			<CloseButton @click="close()" />
-			<h1>{{ $t("prediction.form.title") }}</h1>
+			<h1><Icon name="prediction" class="icon" />{{ $t("prediction.form.title") }}</h1>
 		</div>
 		<div class="content">
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
@@ -13,6 +13,7 @@
 						noBackground
 						v-model="title"
 						:autofocus="title == ''"
+						:tabindex="1"
 						@change="onValueChange()" />
 				</div>
 
@@ -278,6 +279,7 @@ export default class PredictionForm extends AbstractSidePanel {
 							@c:#3798ff;
 							color: @c;
 							border: 2px solid @c;
+							text-shadow: var(--text-shadow-contrast);
 						}
 						.len {
 							font-size: .7em;

@@ -3,7 +3,7 @@
 
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
-		<div class="holder blured-background-window" ref="holder">
+		<div class="holder bslured-background-window" ref="holder">
 			<div class="head" v-if="!scopeOnly">
 				<img class="icon" src="@/assets/logo.svg" alt="twitch">
 				<div class="beta" v-if="isBeta === true">{{ $t("global.beta") }}</div>
@@ -375,7 +375,13 @@ export default class Login extends Vue {
 		gap: 1em;
 		width: 380px;
 		z-index: 1;
-		color: var(--color-light);
+		color: var(--color-text);
+		background-color: var(--background-color-secondary);
+		padding: .5em;
+		box-shadow: 0px 0px 10px 2px rgba(0,0,0,.5);
+		border-radius: .5em;
+		overflow-y: auto;
+		max-width: 100vw;
 
 		.beta {
 			position: absolute;

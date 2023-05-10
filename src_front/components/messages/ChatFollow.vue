@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img src="@/assets/icons/follow.svg" alt="follow" class="icon">
+		<Icon name="follow" alt="follow" class="icon" />
 
 		<i18n-t scope="global" tag="span" keypath="chat.follow">
 			<template #USER>

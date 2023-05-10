@@ -1,7 +1,7 @@
 <template>
 	<div class="chathypetrainresult chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img src="@/assets/icons/train.svg" alt="icon" class="icon">
+		<Icon name="train" alt="icon" class="icon"/>
 		<div class="infoHolder">
 			<i18n-t scope="global" tag="strong" keypath="chat.hype_train.summary_title">
 				<template #LEVEL><mark>{{$t("chat.hype_train.summary_level")}} {{messageData.train.level}}</mark></template>
@@ -43,9 +43,7 @@
 
 			<div class="conductors">
 				<div v-if="messageData.train.conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
-					<div class="head">
-						<div class="icon"><img src="@/assets/icons/sub.svg"></div>
-					</div>
+					<Icon name="sub" />
 
 					<img :src="messageData.train.conductor_subs.user.avatarPath" class="avatar">
 
@@ -64,9 +62,7 @@
 				</div>
 
 				<div v-if="messageData.train.conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
-					<div class="head">
-						<div class="icon"><img src="@/assets/icons/bits.svg"></div>
-					</div>
+					<Icon name="bits" />
 
 					<img :src="messageData.train.conductor_bits.user.avatarPath" class="avatar">
 
@@ -183,6 +179,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 <style scoped lang="less">
 .chathypetrainresult{
 	.highlight() {
+		color: var(--color-text-light);
 		background-color: var(--color-primary);
 		border-radius: .5em;
 		padding: 0 .5em;
@@ -219,7 +216,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 				vertical-align: top;
 			}
 			.label {
-				font-weight: bold;
+				font-weight: normal;
 			}
 
 			&.subs {
@@ -237,13 +234,15 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 					font-size: .9em;
 					vertical-align: top;
 					margin-right: .5em;
+					font-weight: normal;
 					// color: var(--color-dark);
 					// background-color: var(--color-light);
 				}
 				.info {
-					background-color: var(--color-primary-dark);
+					background-color: var(--background-color-fader);
 					padding: 2px 5px;
 					border-radius: var(--border-radius);
+					font-size: .8em;
 				}
 			}
 		}
@@ -256,8 +255,9 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 			display: inline-flex;
 			align-items: center;
 			flex-direction: row;
+			position: relative;
 			gap:.25em;
-			background-color: var(--color-primary);
+			background-color: var(--background-color-fader);
 			border-radius: var(--border-radius);
 			padding: .5em;
 			min-width: 6em;
@@ -266,22 +266,15 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 				margin-left: 1em;
 			}
 			
-			.head {
+			.icon {
 				position: absolute;
-				display: flex;
-				flex-direction: column;
-				align-self: flex-start;
-				margin-top: -1em;
-				margin-left: -1em;
-				.icon {
-					background-color: var(--color-primary);
-					padding: .25em;
-					border-radius: 50%;
-					img {
-						width: 1em;
-						height: 1em;
-					}
-				}
+				top: -.5em;
+				left: -.5em;
+				background-color: var(--background-color-fader);
+				padding: .25em;
+				border-radius: 50%;
+				width: 1.5em;
+				height: 1.5em;
 			}
 			.avatar {
 				width: 2em;
@@ -292,9 +285,10 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 			}
 			.userlink {
 				font-size: .9em;
-				color: var(--color-light);
+				color: var(--color-text);
 			}
 			.label {
+				color: var(--color-text-text);
 				.count {
 					font-weight: bold;
 				}

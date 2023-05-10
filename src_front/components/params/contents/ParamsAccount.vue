@@ -15,7 +15,7 @@
 		</section>
 		
 		<section class="card-item scopes">
-			<div class="title"><img src="@/assets/icons/lock_fit.svg">{{$t("account.authorization")}}</div>
+			<div class="title"><Icon name="lock_fit" class="icon" />{{$t("account.authorization")}}</div>
 			
 			<ScopeSelector @update="onScopesUpdate" />
 
@@ -202,7 +202,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	.title {
 		text-align: center;
 		font-weight: bold;
-		img {
+		.icon {
 			height: 1em;
 			margin-right: .5em;
 			vertical-align: text-top;

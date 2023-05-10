@@ -2,9 +2,8 @@
 	<div :class="classes">
 		<div class="head">
 			<CloseButton @click="close()" />
-			<h1 class="title"><img src="@/assets/icons/magnet.svg" class="icon">{{ $t('tracked.title') }}</h1>
+			<h1 class="title"><Icon name="magnet" class="icon" />{{ $t('tracked.title') }}</h1>
 		</div>
-
 
 		<div class="content">
 			<div class="messageList" ref="messageList">

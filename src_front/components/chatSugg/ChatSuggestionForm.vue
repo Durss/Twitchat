@@ -3,7 +3,7 @@
 		<div class="head">
 			<CloseButton @click="close()" />
 
-			<h1>{{ $t('suggestion.title') }}</h1>
+			<h1><Icon name="chatPoll" class="icon" />{{ $t('suggestion.title') }}</h1>
 
 			<div class="description">{{ $t('suggestion.info') }}</div>
 		</div>

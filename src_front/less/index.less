@@ -18,19 +18,33 @@
 	@color-primary: #008667;
 	@color-secondary: #e04e00;
 	@color-alert: #b71f1f;
-	@color-text: #c0c0c0;
+	@color-text: #eee;
+	@color-text-inverse: #000;
 	@color-chatMessage: #c0c0c0;
+
+	--vh: 100vh;//Overridden via JS on App.vue
+	--chat-form-height: 40px;//Overridden via JS on Chat.vue
 	
 	--font-inter: "Inter";
 	--font-nunito: "Nunito";
 	--font-roboto: "Roboto";
 	--font-azeret: "Azeret";
+
+	--box-shadow: 0 0 4px 2px rgba(0, 0, 0, .5);
+
+	--filter-brightness: brightness(100);
 	
 	--background-color-primary: #18181b;
 	--background-color-secondary: #303036;
 	--background-color-fade: rgba(255,255,255,.5);
 	--background-color-fader: rgba(255,255,255,.15);
 	--background-color-fadest: rgba(255,255,255,.05);
+
+	--grayout: fade(@color-dark, 70%);
+
+	--toggle-block-header-background: #60606c;
+	--toggle-block-header-background-hover: #747482;
+
 	--splitter-color: rgba(255,255,255,.2);
 
 	--text-shadow-contrast: 1px 1px 0 rgba(0,0,0,.7);
@@ -43,9 +57,11 @@
 	--color-primary: @color-primary;
 	--color-secondary: @color-secondary;
 	--color-alert: @color-alert;
+	--color-chat-message: @color-chatMessage;
 	--color-text: @color-text;
 	--color-text-fade: fade(@color-text, 50%);
 	--color-text-light: #fff;
+	--color-text-inverse: @color-text-inverse;
 	
 	--color-light-transparent: fade(@color-light, 0%);
 	--color-dark-transparent: fade(@color-dark, 0%);
@@ -102,22 +118,35 @@
 	--highlight-mention: #adadb8;
 	--highlight-raider: #f5f500;
 }
+
 body.light {
 	@color-dark: #18181b;
 	@color-light: #EEEEEE;
 	@color-primary: #039372;
-	@color-secondary: #ff5900;
+	@color-secondary: #e04e00;
 	@color-alert: #b71f1f;
 	@color-text: #101010;
+	@color-text-inverse: #eee;
+	@color-chatMessage: #101010;
+
+	--box-shadow: 0 0 10px 1px rgba(0, 0, 0, .5);
+
+	--filter-brightness: brightness(0);
 
 	--background-color-primary: #ffffff;
 	--background-color-secondary: #efeff1;
 	--background-color-fade: rgba(0,0,0,.5);
 	--background-color-fader: rgba(0,0,0,.15);
-	--background-color-fadest: rgba(0,0,0,.05);
+	--background-color-fadest: rgba(0,0,0,.075);
+
+	--grayout: fade(@color-light, 70%);
+
+	--toggle-block-header-background: #bbbbbb;
+	--toggle-block-header-background-hover: #d1d1d1;
+
 	--splitter-color: rgba(0,0,0,.2);
 
-	--text-shadow-contrast: ,none;
+	--text-shadow-contrast: 1px 1px 0 rgba(255,255,255,.1);
 
 	--color-button: @color-light;
 	--color-button-selected: @color-dark;
@@ -127,8 +156,10 @@ body.light {
 	--color-primary: @color-primary;
 	--color-secondary: @color-secondary;
 	--color-alert: @color-alert;
+	--color-chat-message: @color-chatMessage;
 	--color-text: @color-text;
 	--color-text-fade: fade(@color-text, 30%);
+	--color-text-inverse: @color-text-inverse;
 	
 	--color-light-transparent: fade(@color-light, 0%);
 	--color-dark-transparent: fade(@color-dark, 0%);
@@ -262,9 +293,11 @@ mark {
 
 .tippy-box[data-theme~='twitchat'] {
 	@color: var(--color-secondary-fade);
+	color:var(--color-text-light);
     background-color: @color;
+	font-size: 1rem;
 	backdrop-filter: blur(5px);
-	text-shadow: 1px 1px 2px black;
+	text-shadow: 0px 0px 5px rgba(0,0,0,1);//var(--text-shadow-contrast);
 	box-shadow: 3px 3px 3px rgba(0,0,0,.35);
 	&[data-placement^='top']  > .tippy-arrow::before {
 		border-top-color: @color;
@@ -367,7 +400,7 @@ mark {
 }
 
 body.light {
-	a {
+	a:not(.button, button) {
 		color: var(--color-secondary);
 		&:hover {
 			color: var(--color-secondary-light);

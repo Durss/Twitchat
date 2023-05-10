@@ -675,6 +675,7 @@ export const storeChat = defineStore('chat', {
 					if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
 						const original = message.message;
 						message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
+						message.message_chunks = TwitchUtils.parseMessageToChunks(message.message);
 						message.cyphered = message.message != original;
 					}
 

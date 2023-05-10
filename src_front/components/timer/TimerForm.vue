@@ -2,7 +2,7 @@
 	<div class="timerform sidePanel">
 		<div class="head">
 			<CloseButton @click="close()" />
-			<h1>{{ $t("timer.title") }}</h1>
+			<h1><Icon name="timer" class="icon" />{{ $t("timer.title") }}</h1>
 			<div class="description">{{ $t("timer.description") }}</div>
 		</div>
 		
