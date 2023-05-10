@@ -343,6 +343,7 @@ body.light {
 	.home {
 		@bg:#eee;
 		background-color: @bg;
+		background-image: url("../assets/img/homepage/grain_dark.png");
 
 		.sectionsHolder {
 			.splitter {
@@ -383,7 +384,7 @@ body.light {
 .home{
 	text-align: center;
 	min-height: 100%;
-	background-image: url("../assets/img/homepage/grain_dark.png");
+	background-image: url("../assets/img/homepage/grain.png");
 	margin: auto;
 	padding-bottom: 2em;
 	position: relative;
