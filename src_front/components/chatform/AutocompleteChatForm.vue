@@ -382,7 +382,7 @@ interface CommandItem {
 		flex-wrap: wrap;
 		cursor: pointer;
 		min-height: 1.8em;
-		color: var(--text-color);
+		color: var(--color-text);
 
 		&.selected, &:hover {
 			background-color: var(--background-color-fader);
@@ -425,7 +425,6 @@ interface CommandItem {
 		}
 
 		.name, .source {
-			
 			font-size: .8em;
 		}
 
