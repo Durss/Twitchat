@@ -35,10 +35,10 @@
 			</i18n-t>
 
 			<div class="streamInfo">
-				<div class="infos">
+				<div class="infos" v-if="messageData.stream.title">
 					<div class="title quote">
 						<span>{{messageData.stream.title}}</span>
-						<div class="details">
+						<div class="details" v-if="messageData.stream.category">
 							<p class="category">{{messageData.stream.category}}</p>
 						</div>
 					</div>

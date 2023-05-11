@@ -20,7 +20,7 @@
 				</div>
 			</div>
 
-			<div class="card-item alert error">{{ $t("error.user_profile") }}</div>
+			<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
 		</div>
 
 		<div class="holder" ref="holder" v-else-if="!loading && !error">
@@ -110,7 +110,7 @@
 						</picture>
 					</transition>
 	
-					<div v-if="errorFollowings" class="card-item alert error">Something went wrong while loading followings...</div>
+					<div v-if="errorFollowings" class="card-item alert errorMessage">Something went wrong while loading followings...</div>
 					<div v-if="suspiciousFollowFrequency" class="card-item secondary warn">This user has or has had a suspicious following behavior</div>
 	
 					<div class="list" v-if="!errorFollowings" ref="list">
@@ -512,7 +512,7 @@ export default class UserCard extends Vue {
 			height: 2em;
 		}
 
-		.error, .warn {
+		.errorMessage, .warn {
 			text-align: center;
 		}
 
@@ -671,6 +671,7 @@ export default class UserCard extends Vue {
 				.list {
 					max-height: min(50vh, 300px);
 					overflow-y: auto;
+					text-align: left;
 				}
 			}
 

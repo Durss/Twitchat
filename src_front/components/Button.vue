@@ -115,7 +115,7 @@ export default class Button extends Vue {
 
 	public mounted():void {
 		this.checked = this.modelValue;
-		if(this.light) this.theme = this.alert !== false? "alert" : this.secondary !== false? "secondary" : "";
+		if(this.light) this.theme = this.alert !== false? "alert" : this.secondary !== false? "secondary" : "primary";
 
 		watch(() => this.checked, (val:boolean) => {
 			this.$emit("update:modelValue", val);

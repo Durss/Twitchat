@@ -1,20 +1,20 @@
 <template>
 	<div class="shoutoutlist blured-background-window">
 		<draggable class="list"
-		v-model="$store('users').shoutoutHistory[channelId]" 
+		v-model="soList" 
 		direction="vertical"
 		group="users"
 		item-key="id"
 		:animation="250">
 			<template #item="{element, index}:{element:TwitchatDataTypes.ShoutoutHistoryItem, index:number}">
-				<div class="item" v-if="element.done === false">
+				<div class="item">
 					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store('users').shoutoutHistory[channelId]!.length > 1" >
+					<Button class="deleteBt" icon="cross" small alert @click="deleteItem(element)" />
 					<img v-if="element.user.avatarPath" :src="element.user.avatarPath" class="avatar">
 					<div class="infos">
 						<span class="user">{{ element.user.displayName }}</span>
 						<span class="delay"><img src="@/assets/icons/timer.svg" class="icon"> {{ idToCooldown[element.id] }}s</span>
 					</div>
-					<Button icon="cross" small @click="deleteItem(element)" />
 				</div>
 			</template>
 		</draggable>
@@ -45,6 +45,11 @@ export default class ShoutoutList extends Vue {
 	private refreshInterval:number = -1;
 	private clickHandler!:(e:MouseEvent) => void;
 
+	public get soList():TwitchatDataTypes.ShoutoutHistoryItem[] {
+		if(!this.$store('users').shoutoutHistory[this.channelId]) return [];
+		return this.$store('users').shoutoutHistory[this.channelId]!.filter(v=>v.done !== true);
+	}
+
 	public beforeMount():void {
 		this.channelId = this.$store("auth").twitch.user.id;
 	}
@@ -61,8 +66,6 @@ export default class ShoutoutList extends Vue {
 		watch(()=>this.$store("users").shoutoutHistory, ()=> {
 			this.computeCooldowns();
 		}, {deep:true});
-		
-		console.log(this.$store("users").shoutoutHistory[this.channelId]);
 	}
 
 	public beforeUnmount():void {
@@ -79,7 +82,7 @@ export default class ShoutoutList extends Vue {
 		this.idToCooldown = {};
 		let cooldownOffset = 1000;
 		let userDone:{[key:string]:boolean} = {};
-		console.log(dateOffset);
+		
 		for (let i = lastSODoneIndex+1; i < list.length; i++) {
 			const item = list[i];
 			const userLastSODate = item.user.channelInfo[this.channelId]?.lastShoutout || 0;
@@ -97,6 +100,8 @@ export default class ShoutoutList extends Vue {
 	public deleteItem(item:TwitchatDataTypes.ShoutoutHistoryItem):void {
 		const index = this.$store("users").shoutoutHistory[this.channelId]!.findIndex(v=>v.id == item.id);
 		this.$store("users").shoutoutHistory[this.channelId]!.splice(index, 1);
+		console.log(this.$store("users").shoutoutHistory[this.channelId]);
+		if(this.soList.length === 0) this.close();
 	}
 
 	private open():void {
@@ -132,7 +137,7 @@ export default class ShoutoutList extends Vue {
 
 <style scoped lang="less">
 .shoutoutlist{
-	width: min-content;
+	width: fit-content;
 	left: auto;
 	right: 0;
 	margin-left: auto;
@@ -179,6 +184,10 @@ export default class ShoutoutList extends Vue {
 						height: 1em;
 					}
 				}
+			}
+
+			.deleteBt {
+				flex-shrink: 0;
 			}
 		}
 	}

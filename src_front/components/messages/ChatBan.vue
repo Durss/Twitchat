@@ -1,5 +1,5 @@
 <template>
-	<div class="chatban chatMessage highlight error">
+	<div class="chatban chatMessage highlight alert">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="timeout" class="icon" v-if="messageData.duration_s" />
@@ -25,7 +25,7 @@
 					<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!)">{{messageData.moderator.displayName}}</a>
 				</template>
 			</i18n-t>
-			<Button secondary small icon="unban" :loading="unbanning" v-if="showUnbanBt" @click="unbanUser()">{{ $t("global.moderation_action.unbanBt") }}</Button>
+			<Button light alert small icon="unban" :loading="unbanning" v-if="showUnbanBt" @click="unbanUser()">{{ $t("global.moderation_action.unbanBt") }}</Button>
 		</div>
 	</div>
 </template>

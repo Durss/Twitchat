@@ -194,7 +194,7 @@ export default class EventSub {
 	 * Create all eventsub subscriptions
 	 */
 	private async createSubscriptions(sessionId:string):Promise<void> {
-		// console.log("EVENTSUB : Create subscriptions");
+		console.log("EVENTSUB : Create subscriptions");
 		const myUID = StoreProxy.auth.twitch.user.id;
 		let uids = [myUID];
 		if(Config.instance.debugChans.length > 0) {
@@ -334,11 +334,6 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_REMOVE: {
 				this.modRemoveEvent(topic, payload.event as TwitchEventSubDataTypes.ModeratorRemoveEvent);
-				break;
-			}
-
-			case TwitchEventSubDataTypes.SubscriptionTypes.RAID: {
-				this.raidEvent(topic, payload.event as TwitchEventSubDataTypes.RaidEvent);
 				break;
 			}
 
