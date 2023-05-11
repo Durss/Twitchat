@@ -21,7 +21,7 @@
 						<strong>{{ messageData.gift_recipients?.length }}</strong>
 					</template>
 					<template #MONTHS>
-						<strong>{{ messageData.months }}</strong>
+						<strong>{{ messageData.months > 0? messageData.months : 1 }}</strong>
 					</template>
 					<template #LIST>
 						<span class="additionalUsers" v-if="giftRecipients.length > 0"
