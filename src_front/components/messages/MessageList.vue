@@ -420,8 +420,8 @@ export default class MessageList extends Vue {
 		if(this.customActivitiesDisplayed) return false;
 		if(m.col != undefined && m.col != this.config.order) return false;
 		
-		if (m.deleted && this.config.messageFilters.deleted === false) {
-			return false;
+		if (m.deleted) {
+			return this.config.messageFilters.deleted === true;
 		}
 
 		switch (m.type) {
