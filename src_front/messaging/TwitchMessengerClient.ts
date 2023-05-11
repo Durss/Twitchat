@@ -683,6 +683,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				},
 				message:data.message,
+				message_chunks:data.message_chunks,
 				message_html:data.message_html,
 			}
 			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));
