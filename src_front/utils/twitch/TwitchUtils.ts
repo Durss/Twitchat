@@ -1766,15 +1766,18 @@ export default class TwitchUtils {
 	public static async raidChannel(channel:string):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.START_RAID])) return false;
 		
-		let channelId = "";
+		let user!:TwitchDataTypes.UserInfo;
 		try {
-			channelId = (await this.loadUserInfo(undefined, [channel]))[0].id;
+			user = (await this.loadUserInfo(undefined, [channel]))[0];
 		}catch(error) {
 			StoreProxy.main.alert("User "+channel+" not found");
 			return false;
 		}
 		
-		if(!channelId) return false;
+		if(!user || !user.id) return false;
+
+		let storedUser = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, user.id, user.login, user.display_name);
+		storedUser.avatarPath = user.profile_image_url;
 
 		const options = {
 			method:"POST",
@@ -1782,7 +1785,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"raids");
 		url.searchParams.append("from_broadcaster_id", StoreProxy.auth.twitch.user.id);
-		url.searchParams.append("to_broadcaster_id", channelId);
+		url.searchParams.append("to_broadcaster_id", user.id);
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;

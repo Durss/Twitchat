@@ -6,11 +6,23 @@
 			</a>
 			<i18n-t scope="global" tag="span" keypath="raid.raiding">
 				<template #USER>
-					<a :href="'https://twitch.tv/'+raidInfo.user.login" target="_blank">{{raidInfo.user.displayName}}</a>
+					<a :href="'https://twitch.tv/'+raidInfo.user.login" target="_blank" class="userLink">
+						<img src="@/assets/icons/newTab.svg" alt="open in new tab">
+						{{raidInfo.user.displayName}}
+					</a>
 				</template>
-				<template #VIEWERS><strong>{{raidInfo.viewerCount}}</strong></template>
+				<template #VIEWERS>
+					<strong @click="censorCount = true" class="viewerCount" v-if="!censorCount">{{raidInfo.viewerCount}}</strong>
+					<strong @click="censorCount = false" class="viewerCount censored" v-else>x</strong>
+				</template>
 				<template #TIMER><span class="timer">{{timeLeft}}s</span></template>
 			</i18n-t>
+	
+			<div class="roomSettings" v-if="roomSettings">
+				<mark v-if="roomSettings.subOnly == true">{{ $t("raid.emote_only") }}</mark>
+				<mark v-if="roomSettings.followOnly != false">{{ $t("raid.sub_only") }}</mark>
+				<mark v-if="roomSettings.emotesOnly == true">{{ $t("raid.follower_only") }}</mark>
+			</div>
 		</div>
 
 		<div class="card-item secondary infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
@@ -70,9 +82,11 @@ import { gsap } from 'gsap';
 export default class RaidState extends Vue {
 
 	public timeLeft = "";
+	public censorCount = false;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
 	public timedoutOnline:TwitchatDataTypes.TwitchatUser[] = [];
+	public roomSettings:TwitchatDataTypes.IRoomSettings|null = null;
 
 	private timerDuration = 90000;
 	private timerStart = 0;
@@ -91,10 +105,14 @@ export default class RaidState extends Vue {
 		this.timerInterval = window.setInterval(()=> {
 			this.updateTimer();
 		}, 250);
+
+		this.censorCount = this.$store('params').appearance.showViewersCount.value !== true;
 		
 		const raid = this.$store("stream").currentRaid;
 		if(raid) {
 			this.user = raid.user;
+			console.log(this.user);
+			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
 		}
 
 		const userlist = this.$store("users").users;
@@ -178,6 +196,26 @@ export default class RaidState extends Vue {
 			border-radius: 50%;
 			margin: auto;
 		}
+
+		.userLink {
+			color: var(--color-text-light);
+			img {
+				height: 1em;
+				vertical-align: middle;
+			}
+		}
+
+		.viewerCount {
+			cursor: pointer;
+			&.censored {
+				padding: 0 .25em;
+				border-radius: var(--border-radius);
+				background-color: var(--background-color-fader);
+				&:hover {
+					background-color: var(--background-color-fadest);
+				}
+			}
+		}
 	}
 	
 	.icon {
@@ -199,6 +237,18 @@ export default class RaidState extends Vue {
 		font-size: .9em;
 		flex-shrink: 0;
 		text-align: center;
+	}
+
+	.roomSettings {
+		gap: .5em;
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: row;
+		margin-top: .25em;
+		mark {
+			background-color: rgba(0,0,0,.25);
+			padding: .2em .5em;
+		}
 	}
 
 	.bannedAlert {

@@ -683,6 +683,12 @@ export default class PubSub extends EventDispatcher {
 						startedAt:Date.now(),
 						timerDuration_s:90,
 					};
+					
+					//Load user's avatar if not already available
+					if(!infos.user.avatarPath) {
+						let user = (await TwitchUtils.loadUserInfo([infos.user.id]))[0];
+						infos.user.avatarPath = user.profile_image_url;
+					}
 					StoreProxy.stream.setRaiding(infos);
 					break;
 				}
