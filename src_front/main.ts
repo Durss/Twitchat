@@ -322,6 +322,7 @@ function buildApp() {
 		
 		if(e.code == "Semicolon" && e.ctrlKey && e.shiftKey) {
 			i18n.global.locale = i18n.global.locale == "fr"? "en" : "fr";
+			DataStore.set(DataStore.LANGUAGE, i18n.global.locale);
 		}
 	})
 }

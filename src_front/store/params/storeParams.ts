@@ -55,7 +55,7 @@ export const storeParams = defineStore('params', {
 			raidHighlightUser: 			{save:true, type:"boolean", value:true, labelKey:"params.raidHighlightUser", id:34, icon:"raid", example:"raidHighlightUser.png"},
 			raidHighlightUser_color:	{save:true, type:"color", value:"#f5f500", labelKey:"params.highlightColor", id:36, parent:34},
 			raidHighlightUserDuration:	{save:true, type:"number", value:5, labelKey:"params.raidHighlightUserDuration", id:35, icon:"timer", parent:34, min:1, max:60*24*30},
-			highlight1stEver: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stEver", id:37, icon:"firstsvg"},
+			highlight1stEver: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stEver", id:37, icon:"firstTime"},
 			highlight1stEver_color:		{save:true, type:"color", value:"#ff75e6", labelKey:"params.highlightColor", id:38, parent:37},
 			highlight1stToday: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stToday", id:28, icon:"hand"},
 			highlight1stToday_color:	{save:true, type:"color", value:"#82D408", labelKey:"params.highlightColor", id:39, parent:28},

@@ -6,6 +6,7 @@
 	display: flex;
 	flex-direction: column;
 	box-shadow: 0 0 5px 3px rgba(0, 0, 0, .4);
+	max-width: var(--vw);
 
 	&.embedMode {
 		background-color: unset;
@@ -58,6 +59,7 @@
 		max-width: 600px;
 		width: 100%;
 		margin: 0 auto;
+		flex-shrink: 0;
 	}
 
 	.info {

@@ -167,7 +167,7 @@ export const storeCounters = defineStore('counters', {
 			if(c.max !== false && value >= c.max) {
 				if(value > c.max && c.loop) {
 					const min = c.min || 0;
-					value = min + value % c.max;
+					value = min + (value - c.max);
 					message.looped = true;
 				}else{
 					value = c.max || 0;

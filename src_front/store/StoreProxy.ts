@@ -535,7 +535,7 @@ export interface IDebugActions {
 	 * @param forcedMessage 
 	 * @param hook 
 	 */
-	sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<TwitchatDataTypes.ChatMessageTypes>;
+	sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<TwitchatDataTypes.ChatMessageTypes>;
 }
 
 

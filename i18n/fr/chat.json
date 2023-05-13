@@ -145,7 +145,7 @@
       "clip_duration": "Durée:",
       "clip_views": "Vues:",
       "highlightBt_aria": "Mettre en avant",
-      "highlightBt_tt": "Afficher sur le stream <i>(nécessite l'overlay)</i>",
+      "highlightBt_tt": "Afficher sur le stream<br><i>(nécessite l'overlay)</i>",
       "deleted": "<message supprimé>",
       "deleted_by": "<message supprimé par {USER}>",
       "disable_ad": "Désactiver",

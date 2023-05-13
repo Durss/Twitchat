@@ -23,6 +23,7 @@
 	@color-chatMessage: #c0c0c0;
 
 	--vh: 100vh;//Overridden via JS on App.vue
+	--vw: 100vw;//Overridden for demoMode
 	--chat-form-height: 40px;//Overridden via JS on Chat.vue
 	
 	--font-inter: "Inter";
@@ -233,6 +234,14 @@ body, html {
 	&.bg {
 		background-color: var(--background-color-primary) !important;
 	}
+
+}
+
+body.demoMode {
+	// --vw: 320px;
+	* {
+		cursor: none !important;
+	}
 }
 
 pre {
@@ -317,7 +326,7 @@ mark {
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 100vw !important;
+	width: var(--vw) !important;
 	height: 100vh !important;
 	background: rgba(255, 0, 0, .25);
 	z-index: 5;

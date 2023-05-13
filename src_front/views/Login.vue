@@ -352,7 +352,7 @@ export default class Login extends Vue {
 	top: 0;
 	left: 0;
 	z-index: 99;
-	width: 100vw;
+	width: var(--vw);
 	height: var(--vh);
 
 	.dimmer {
@@ -361,7 +361,7 @@ export default class Login extends Vue {
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 100vw;
+		width: var(--vw);
 		height: var(--vh);
 	}
 
@@ -381,7 +381,7 @@ export default class Login extends Vue {
 		box-shadow: 0px 0px 10px 2px rgba(0,0,0,.5);
 		border-radius: .5em;
 		overflow-y: auto;
-		max-width: 100vw;
+		max-width: var(--vw);
 
 		.beta {
 			position: absolute;
@@ -487,7 +487,7 @@ export default class Login extends Vue {
 			top: 0;
 			left: 0;
 			transform: unset;
-			width: 100vw;
+			width: var(--vw);
 			height: var(--vh);
 			min-height: var(--vh);
 		}

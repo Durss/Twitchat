@@ -1035,13 +1035,13 @@ export default class Chat extends Vue {
 		}
 
 		&.users {
-			max-height: 80vh;
+			max-height: 500px;
 			width: 100%;
 		}
 	}
 
 	.blinkLayer {
-		width: 100vw;
+		width: var(--vw);
 		height: 100vh;
 		background-color: fade(#c00, 70%);
 		position: absolute;
@@ -1059,8 +1059,8 @@ export default class Chat extends Vue {
 			overflow-x: scroll;
 			.column {
 				scroll-snap-align: center;
-				min-width: 100vw !important;//"!important" here to prioritize it before inlined styles
-				width: 100vw !important;//"!important" here to prioritize it before inlined styles
+				min-width: var(--vw) !important;//"!important" here to prioritize it before inlined styles
+				width: var(--vw) !important;//"!important" here to prioritize it before inlined styles
 				padding: 0 1px;
 				.dragBt {
 					display: none;

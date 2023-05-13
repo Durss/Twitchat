@@ -163,7 +163,7 @@ export default class Changelog extends Vue {
 	
 	.holder {
 		width: 600px;
-		max-width: min(600px, 100vw);
+		max-width: min(600px, var(--vw));
 		// height: unset;
 
 		& > .icon {

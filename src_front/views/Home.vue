@@ -639,7 +639,7 @@ body.light {
 		video {
 			cursor: pointer;
 			&.playing {
-				cursor: url("../assets/img/homepage/pause.png")  25 25, default;
+				cursor: url("../assets/img/homepage/pause.png") 25 25, default;
 			}
 		}
 	}
