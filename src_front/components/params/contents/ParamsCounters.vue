@@ -70,10 +70,18 @@
 							<input type="text" :placeholder="$t('counters.form.search')" v-model="search[entry.counter.id]" @input="searchUser(entry.counter)">
 							<Icon name="loader" class="loader" v-show="idToLoading[entry.counter.id] === true" />
 						</div>
+							
+						<Button class="resetBt" v-if="search[entry.counter.id].length === 0"
+							secondary
+							@click="resetUsers(entry)">{{ $t('counters.form.reset_all_users') }}</Button>
+						
+						<Button class="clearBt" v-if="search[entry.counter.id].length === 0"
+							alert
+							@click="clearUsers(entry)">{{ $t('counters.form.clear_all_users') }}</Button>
 						
 						<Button class="loadAllBt" v-if="search[entry.counter.id].length === 0 && idToAllLoaded[entry.counter.id] !== true"
-						@click="loadUsers(entry)"
-						:loading="idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</Button>
+							@click="loadUsers(entry)"
+							:loading="idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</Button>
 	
 						<div class="noResult" v-if="idToNoResult[entry.counter.id] === true">{{ $t("counters.user_not_found") }}</div>
 					</template>
@@ -468,6 +476,48 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	/**
+	 * Reset all user counters to 0 or min value
+	 * @param entry 
+	 */
+	public resetUsers(entry:CounterEntry):void {
+		this.$confirm(this.$t("counters.reset_users_confirm.title"), this.$t("counters.reset_users_confirm.desc")).then(()=>{
+			//Reset counter data
+			let value:number = entry.counter.min != false? entry.counter.min : 0;
+			for (const key in entry.counter.users!) {
+				console.log("RESET ",key);
+				entry.counter.users[key] = value;
+			}
+
+			//Reset view data
+			if(this.idToUsers[entry.counter.id]) {
+				for (let i = 0; i < this.idToUsers[entry.counter.id]!.length; i++) {
+					const u = this.idToUsers[entry.counter.id]![i];
+					u.param.value = 0;
+				}
+			}
+
+			this.$store("counters").updateCounter(entry.counter);
+		});
+	}
+
+	/**
+	 * Clears all users of a counter
+	 * @param entry 
+	 */
+	public clearUsers(entry:CounterEntry):void {
+		this.$confirm(this.$t("counters.delete_users_confirm.title"), this.$t("counters.delete_users_confirm.desc")).then(()=>{
+			//Reset counter data
+			entry.counter.users = {};
+	
+			//Reset view data
+			this.idToUsers[entry.counter.id] = [];
+	
+			this.$store("counters").updateCounter(entry.counter);
+		})
+
+	}
+
+	/**
 	 * Sorts users on the requested field.
 	 * If sorting is already made on the specified field it reverses the order.
 	 * Otherwise it simply sorts on the specified field in the latest order direction
@@ -558,7 +608,8 @@ interface UserEntry {
 	.examples{
 		text-align: center;
 		.counterExample {
-			font-size: .75em;
+			color: var(--color-dark);
+			font-size: .5em;
 		}
 	}
 
@@ -650,7 +701,7 @@ interface UserEntry {
 					}
 				}
 
-				.loadAllBt {
+				.loadAllBt, .clearBt, .resetBt {
 					margin: auto;
 				}
 
@@ -660,23 +711,28 @@ interface UserEntry {
 				}
 
 				.sort {
+					gap: 1px;
 					display: flex;
 					flex-direction: row;
 					button {
 						color: var(--color-light);
 						border-radius: .5em;
-						background-color: var(--color-secondary);
+						background-color: var(--color-primary);
 						box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 						&:hover {
-							background-color: var(--color-secondary-light);
+							background-color: var(--color-primary-light);
 						}
 					}
 					button:nth-child(1) {
 						flex-grow: 1;
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
 					}
 					button:nth-child(2) {
 						flex-basis: 130px;
 						text-align: center;
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
 					}
 				}
 
@@ -689,11 +745,12 @@ interface UserEntry {
 					display: flex;
 					flex-direction: row;
 					align-items: center;
-					gap: 1em;
+					gap: .5em;
 					height: 50px;
 					.login {
 						font-weight: bold;
 						flex-grow: 1;
+						text-overflow: ellipsis;
 						cursor: pointer;
 					}
 					.avatar {
@@ -704,12 +761,17 @@ interface UserEntry {
 						flex-basis: 100px;
 					}
 					.deleteBt {
-						height: 1.5em;
+						width: 1.5em;
+						padding: 1em .5em;
+						flex-shrink: 0;
+						flex-basis: 1.5em;
+						margin-right: -.5em;
+						background-color: var(--color-alert);
 						img {
 							height: 100%;
 						}
 						&:hover {
-							transform: scale(1.25);
+							background-color: var(--color-alert-light);
 						}
 					}
 				}
