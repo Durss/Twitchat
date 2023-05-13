@@ -446,15 +446,14 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		}
 	
 		.ctas {
+			column-gap: 1em;
+			row-gap: .25em;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
 			margin-top: .5em;
 			flex-wrap: wrap;
-			.cta:not(:last-child) {
-				margin-right: 1em;
-			}
 		}
 	}
 }

@@ -233,6 +233,7 @@ export default class OverlaysRaffleWheel extends Vue {
 				gsap.from(item, {duration:.5, x:"-100%", delay, ease:"quad.inOut"});
 				let tween = gsap.from(item, {duration:1.5, rotation:(angle*4)+"deg", delay:delay+.2, ease:"elastic.out(1.5,.4)"});
 				if(i == 0){
+					//* Comment to avoid rotation
 					tween.eventCallback("onComplete", ()=>{
 						this.animStep = 2;
 						this.endOffset = this.selectedItemIndex*this.itemSize - this.listHeight/2 + this.itemSize/2;
@@ -242,6 +243,7 @@ export default class OverlaysRaffleWheel extends Vue {
 							this.onAnimationComplete();
 						}});
 					});
+					//*/
 				}
 				if(i === items.length-1) {
 					this.animStep = 1;

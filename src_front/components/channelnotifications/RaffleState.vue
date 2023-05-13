@@ -21,7 +21,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="item card-item winners primary" v-if="raffleData.winners && raffleData.winners.length > 0">
+		<div class="item card-item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
 			<div class="header">
 				<i18n-t class="title" scope="global" tag="p" keypath="raffle.state_winners">
 					<template #COUNT>
@@ -146,6 +146,10 @@ export default class RaffleState extends Vue {
 			height: 1em;
 			margin-right: .5em;
 		}
+	}
+
+	.winners {
+		flex-shrink: 0;
 	}
 }
 </style>

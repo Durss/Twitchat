@@ -11,7 +11,7 @@
 
 			<ul class="scopes">
 				<li v-for="s in messageData.twitch_scopes" :key="s">
-					<img :src="getScopeImage(s)">
+					<Icon v-if="getScopeImage(s)" :name="getScopeImage(s)" theme="light" />
 					<span>{{ $t("global.twitch_scopes."+s) }}</span>
 				</li>
 			</ul>
@@ -43,7 +43,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageScopeRequestData;
 
 	public getScopeImage(s:TwitchScopesString):string {
-		return this.$image("icons/"+TwitchScope2Icon[s]?.replace("", ""));
+		return TwitchScope2Icon[s] ?? "";
 	}
 
 	public mounted():void {
@@ -80,7 +80,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 			gap: .25em;
 			list-style-position: inside;
 			li {
-				img {
+				.icon {
 					height: 1em;
 					width: 1em;
 					margin-right: .5em;

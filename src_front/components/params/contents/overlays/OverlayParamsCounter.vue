@@ -146,13 +146,14 @@ export default class OverlayParamsCounter extends Vue {
 				flex-direction: row;
 				justify-content: space-between;
 				align-items: center;
+				flex-wrap: wrap;
 
 				.title {
 					font-weight: bold;
+					flex-basis: 200px;
 				}
 	
 				input {
-					max-width: 60%;
 					flex-grow: 1;
 				}
 			}

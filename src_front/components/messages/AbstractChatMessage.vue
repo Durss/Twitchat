@@ -1,5 +1,7 @@
 <script lang="ts">
+import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch } from 'vue';
@@ -181,6 +183,25 @@ export default class AbstractChatMessage extends Vue {
 			holder.style.border = "";
 			holder.style.backgroundColor = "";
 		}
+	}
+
+	/**
+	 * Check if the "chat highlight" overlay exists or not
+	 */
+	protected getHighlightOverPresence():Promise<boolean> {
+		return new Promise((resolve, reject)=> {
+			const timeout = setTimeout(() =>{
+				resolve(false);
+				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+			}, 1000)
+			let handler = (e:TwitchatEvent)=> {
+				clearTimeout(timeout)
+				resolve(true);
+				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+			}
+			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
+		})
 	}
 
 }

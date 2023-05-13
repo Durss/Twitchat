@@ -15,7 +15,7 @@
 						:href="'https://twitch.tv/'+u.login"
 						@click.prevent="openUserCard(u)"
 						v-for="u in currentChan.users[key]" :key="u.id">
-							<Icon name="unfollow" v-if="u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
+							<Icon name="unfollow" v-if="$store('params').appearance.highlightNonFollowers.value === true && u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
 							<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
 								<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
 									src="@/assets/icons/timeout.svg"
@@ -316,9 +316,7 @@ interface ChannelUserList {
 					display: inline-block;
 					vertical-align: middle;
 					margin-right: .5em;
-					img {
-						height: 1em;
-					}
+					height: 1em;
 				}
 			}
 		}

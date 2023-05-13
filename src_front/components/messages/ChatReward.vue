@@ -72,6 +72,7 @@ export default class ChatReward extends AbstractChatMessage {
 		padding: .25em;
 		height: 2em;
 		width: 2em;
+		flex-shrink: 0;
 	}
 }
 </style>

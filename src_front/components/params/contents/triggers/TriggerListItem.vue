@@ -96,6 +96,7 @@ export default class TriggerListItem extends Vue {
 		border-left: 1px solid var(--color-dark-light);
 	}
 	.deleteBt, .testBt {
+		flex-shrink: 0;
 		.icon {
 			height: .9em;
 			padding: 0 .5em;

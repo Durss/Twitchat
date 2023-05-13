@@ -144,7 +144,7 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 						padding: 5px;
 						border-radius: 5px;
 						color: var(--color-text-light);
-						background-color: var(--background-color-fade);
+						background-color: rgba(0,0,0,.5);//var(--background-color-fade);
 						font-size: .9em;
 						align-self: center;
 
@@ -163,7 +163,7 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 					.percent, .users, .points, .outcomeTitle {
 						color: var(--color-dark);
 						font-weight: bold;
-						background-color: var(--color-light);
+						background-color: rgba(255,255,255,.7);//var(--color-light);
 					}
 					// .bar {
 					// 	border: 1px solid var(--color-light);

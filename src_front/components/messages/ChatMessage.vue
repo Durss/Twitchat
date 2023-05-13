@@ -89,10 +89,10 @@
 			</span>
 			
 			<br v-if="clipInfo">
-			<div v-if="clipInfo" class="clip" @click.stop="openClip()">
-				<img :src="clipInfo.thumbnail_url" alt="thumbnail">
+			<div v-if="clipInfo" class="clip">
+				<img :src="clipInfo.thumbnail_url" alt="thumbnail" @click.stop="openClip()">
 				<div class="infos">
-					<div class="title">{{clipInfo.title}}</div>
+					<div class="title" @click.stop="openClip()">{{clipInfo.title}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_created_by")}} {{clipInfo.creator_name}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_channel")}} {{clipInfo.broadcaster_name}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_duration")}} {{clipInfo.duration}}s</div>
@@ -173,6 +173,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
+	public highlightOverlayAvailable:boolean = false;
 	public infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
 	public isAd:boolean = false;
 	public isAnnouncement:boolean = false;
@@ -452,6 +453,11 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 		
 		if(clipId != "") {
+			this.clipHighlightLoading = true;
+			super.getHighlightOverPresence().then(res => {
+				this.highlightOverlayAvailable = res;
+				this.clipHighlightLoading = false;
+			 });
 			//Do it asynchronously blocking rendering
 			(async()=> {
 				let clip = await TwitchUtils.getClipById(clipId);
@@ -549,6 +555,13 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Send a clip to the overlay
 	 */
 	public async clipHighlight():Promise<void> {
+		super.getHighlightOverPresence().then(res => {
+			this.highlightOverlayAvailable = res;
+		});
+		if(!this.highlightOverlayAvailable) {
+			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "highlight");
+			return;
+		}
 		this.clipHighlightLoading = true;
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
 			clip:{
@@ -560,7 +573,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
 		this.$store("chat").isChatMessageHighlighted = true;
-		await Utils.promisedTimeout(2000);
+		await Utils.promisedTimeout(1000);
 		this.clipHighlightLoading = false;
 	}
 
@@ -797,7 +810,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			font-weight: normal;
 			font-size: .9em;
 		}
-		&:nth-last-child(2)::after{
+		&::after{
 			content: ": ";
 			display: inline-block;
 		}
@@ -853,6 +866,8 @@ export default class ChatMessage extends AbstractChatMessage {
 		position: relative;
 
 		img {
+			cursor: pointer;
+			object-fit: cover;
 			max-width: min(50%, 200px);
 		}
 
@@ -862,6 +877,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			.title {
 				font-weight: bold;
 				margin-bottom: .25em;
+				cursor: pointer;
 			}
 			.subtitle {
 				font-size: .8em;

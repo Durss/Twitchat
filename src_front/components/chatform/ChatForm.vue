@@ -18,7 +18,7 @@
 				<div class="inputHolder" v-if="!error && !$store('chat').spamingFakeMessages">
 
 					<div class="replyTo" v-if="$store('chat').replyTo">
-						<button class="closeBt" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross.svg" alt="close"></button>
+						<button class="closeBt" type="button" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross.svg" alt="close"></button>
 						<div class="content">
 							<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
 								<template #USER>
@@ -574,6 +574,7 @@ export default class ChatForm extends Vue {
 				const replyTo = this.$store("chat").replyTo ?? undefined;
 				if(await MessengerProxy.instance.sendMessage(this.message, undefined, undefined, replyTo)) {
 					this.message = "";
+					this.$store("chat").replyTo = null;
 				}
 				this.loading = false;
 			}catch(error) {
@@ -908,6 +909,7 @@ export default class ChatForm extends Vue {
 		.rightForm {
 			display: flex;
 			flex-direction: row;
+			align-items: center;
 
 			.button.emergency {
 				padding: .35em;
@@ -938,8 +940,8 @@ export default class ChatForm extends Vue {
 				flex-direction: row;
 				align-items: center;
 				white-space: nowrap;
-				color: var(--color-light);
-				background-color: var(--color-light-fadest);
+				color: var(--color-text);
+				background-color: var(--background-color-fader);
 				
 				border-radius: .5em;
 				font-size: .9em;

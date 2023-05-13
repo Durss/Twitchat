@@ -757,7 +757,7 @@ export default class UserCard extends Vue {
 		&>.holder {
 			max-width: unset;
 			height: 100%;
-			width: 100vw;
+			width: var(--vw);
 			top: 0;
 			left: 0;
 			transform: none;

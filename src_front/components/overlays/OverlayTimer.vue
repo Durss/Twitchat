@@ -137,12 +137,12 @@ export default class OverlayTimer extends AbstractOberlay {
 		color: var(--color-dark);
 		background-color: var(--color-light);
 		padding: .5em;
-		border-bottom-left-radius: 1em;
-		border-bottom-right-radius: 1em;
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
 		font-family: var(--font-roboto);
 
-		img {
+		.icon {
 			height: 1em;
 			width: 1em;
 			object-fit: fill;

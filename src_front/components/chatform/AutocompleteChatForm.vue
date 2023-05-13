@@ -96,6 +96,7 @@ export default class AutocompleteChatForm extends Vue {
 
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
+		document.removeEventListener("keydown", this.keyDownHandler);
 	}
 
 	/**
@@ -160,6 +161,8 @@ export default class AutocompleteChatForm extends Vue {
 		}
 		
 		const len = this.filteredItems.length;
+		if(len === 0) return;
+		
 		this.selectedIndex = this.selectedIndex%len;
 		if(this.selectedIndex < 0) this.selectedIndex = len-1;
 		let el = this.$refs["item_"+this.filteredItems[this.selectedIndex].id] as HTMLElement[];

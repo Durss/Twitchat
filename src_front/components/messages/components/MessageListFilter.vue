@@ -36,17 +36,17 @@
 				
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
 				
-				<div class="presets">
-					<Button @click="preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</Button>
-					<Button @click="preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</Button>
-					<Button @click="preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</Button>
-					<Button @click="preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</Button>
-					<Button @click="preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</Button>
-					<Button @click="preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</Button>
-					<Button @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</Button>
-				</div>
-				
 				<div class="paramsList">
+					
+					<div class="presets">
+						<Button @click="preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</Button>
+						<Button @click="preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</Button>
+						<Button @click="preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</Button>
+						<Button @click="preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</Button>
+						<Button @click="preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</Button>
+						<Button @click="preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</Button>
+						<Button @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</Button>
+					</div>
 
 					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @click.native="toggleAll()" />
 
@@ -1163,6 +1163,7 @@ export default class MessageListFilter extends Vue {
 		animation-timing-function: cubic-bezier(.5, 0.05, 1, .5);
 		animation-iteration-count: infinite;
 		pointer-events: all;
+		color: var(--color-text-light);
 		.label {
 			font-size: .8em;
 		}
@@ -1226,14 +1227,6 @@ export default class MessageListFilter extends Vue {
 			.showPanelsHere {
 				font-size: .9em;
 			}
-			.presets {
-				display: flex;
-				gap: .25em;
-				flex-direction: row;
-				justify-content: space-around;
-				flex-wrap: wrap;
-				justify-content: center;
-			}
 
 			.paramsList {
 				flex: 1;
@@ -1243,6 +1236,15 @@ export default class MessageListFilter extends Vue {
 				gap: 2px;
 				display: flex;
 				flex-direction: column;
+				.presets {
+					display: flex;
+					gap: .25em;
+					flex-direction: row;
+					justify-content: space-around;
+					flex-wrap: wrap;
+					justify-content: center;
+					margin-bottom: 1em;
+				}
 
 				.toggleAll {
 					padding: 0 .5em;

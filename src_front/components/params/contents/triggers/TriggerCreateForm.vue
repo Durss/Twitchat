@@ -644,6 +644,7 @@ interface TriggerEntry{
 			margin-bottom: 2px;
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 			padding: .25em .5em;
+			flex-wrap: nowrap;
 			:deep(.label) {
 				flex-grow: 1;
 				display: flex;
