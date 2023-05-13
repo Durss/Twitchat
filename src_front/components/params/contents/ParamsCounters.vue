@@ -484,7 +484,6 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			//Reset counter data
 			let value:number = entry.counter.min != false? entry.counter.min : 0;
 			for (const key in entry.counter.users!) {
-				console.log("RESET ",key);
 				entry.counter.users[key] = value;
 			}
 
