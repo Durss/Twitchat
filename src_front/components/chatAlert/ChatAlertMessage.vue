@@ -2,7 +2,7 @@
 	<div class="chatalertmessage" @click="message = null" v-if="message" v-tooltip="$t('global.close')">
 		<div class="user">{{ $t("global.chat_alert_title", {USER:message.user.displayName}) }}</div>
 		<div class="message">
-			<ChatMessageChunksParser :chunks="message.message_chunks" />
+			<ChatMessageChunksParser :chunks="chunks" />
 		</div>
 	</div>
 </template>
@@ -12,6 +12,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 @Component({
 	components:{
@@ -21,6 +22,15 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 export default class ChatAlertMessage extends Vue {
 
 	public message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData | null = null;
+
+	public get chunks():TwitchDataTypes.ParseMessageChunk[] {
+		let chunks = this.message!.message_chunks.concat();
+		const cmd = this.$store("main").chatAlertParams.chatCmd.trim().toLowerCase().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+		let clone = JSON.parse(JSON.stringify(chunks[0]));
+		clone.value = clone.value.replace(new RegExp("^"+cmd, "gi"), "");
+		chunks[0] = clone;
+		return chunks;
+	}
 
 	public mounted():void {
 		watch(() => this.$store("main").chatAlert, async (message) => {
