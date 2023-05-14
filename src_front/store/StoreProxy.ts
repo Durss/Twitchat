@@ -104,6 +104,11 @@ export interface IMainState {
 	 * Contains the name of the current OBS scene (if OBS is connected)
 	 */
 	currentOBSScene:string;
+	/**
+	 * Hashmap linking an icon name to its SVG to avoid spamming useless
+	 * requests
+	 */
+	iconCache:{[key:string]:string};
 }
 
 export interface IMainGetters {

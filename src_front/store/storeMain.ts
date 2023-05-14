@@ -37,6 +37,7 @@ export const storeMain = defineStore("main", {
 		tempStoreValue: null,
 		confirmData:null,
 		currentOBSScene:"",
+		iconCache:{},
 		accessibility:{
 			ariaPolite:"",
 		},

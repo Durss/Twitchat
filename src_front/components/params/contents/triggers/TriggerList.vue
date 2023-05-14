@@ -42,7 +42,7 @@ import SwitchButton from '@/components/SwitchButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import DataStore from '@/store/DataStore';
-import { TriggerTypesDefinitionList, type TriggerData, type TriggerEventTypeCategoryID, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -113,7 +113,6 @@ export default class TriggerList extends Vue {
 		watch(()=>this.filterState, ()=> {
 			const sortType:SortTypes = this.filterState === true? "category" : "list";
 			DataStore.set(DataStore.TRIGGER_SORT_TYPE, sortType);
-			this.startSequentialBuild();
 		});
 		
 		this.startSequentialBuild();
@@ -124,14 +123,14 @@ export default class TriggerList extends Vue {
 	}
 
 	private startSequentialBuild():void {
-		this.buildIndex = 0;
+		this.buildIndex = -1;
 		clearInterval(this.buildInterval);
 		this.buildInterval = setInterval(()=> {
 			this.buildIndex ++;
 			if(this.buildIndex > Math.floor(this.flatTriggerList.length/this.buildBatchSize)) {
 				clearInterval(this.buildInterval);
 			}
-		}, 30);
+		}, 60);
 	}
 
 	/**

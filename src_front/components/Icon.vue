@@ -48,6 +48,10 @@ export default class Icon extends Vue {
 	}
 	
 	private async loadImage():Promise<void> {
+		if(this.$store("main").iconCache[this.name]) {
+			this.svg = this.$store("main").iconCache[this.name];
+			return;
+		}
 	
 		try {
 			const imgRes = await fetch(this.$image("icons/"+this.name+".svg"));
@@ -58,6 +62,7 @@ export default class Icon extends Vue {
 				.replace(/<style[^<]*<\/ ?style>/gim, "")//Cleanup styles
 				.replace(/<!--[^<]*-->/g, "")//Cleanup comments
 				.replace(/<\?xml[^<]*>/g, "");//cleanup <xml> header
+				this.$store("main").iconCache[this.name] = this.svg;
 			}
 		}catch(error) {
 			this.error = true;
