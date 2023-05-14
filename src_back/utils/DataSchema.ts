@@ -329,6 +329,29 @@ import Ajv from "ajv";
 											items:{type:"string", maxLength:25},
 										},
 									}
+								},
+								suggData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										command: {type:"string", maxLength:30},
+										maxLength: {type:"number", minimum:0, maximum:500},
+										duration: {type:"number", minimum:0, maximum:1440},
+										allowMultipleAnswers: {type:"boolean"},
+										startTime: {type:"number", maximum:999999999999999},
+										choices: {
+											type:"array",
+											minItems:0,
+											maxItems:0,
+											items: {type:"string", maxLength:0},//Not the right type but it will never be filled
+										},
+										winners: {
+											type:"array",
+											minItems:0,
+											maxItems:0,
+											items: {type:"string", maxLength:0},//Not the right type but it will never be filled
+										},
+									}
 								}
 							}
 						},

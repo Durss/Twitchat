@@ -103,6 +103,7 @@
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
 				"action_bingo": "Lancer un bingo",
+				"action_chatSugg": "Suggestions de tchat",
 				"action_raffle": "Lancer un tirage au sort",
 				"action_raffle_enter": "Participer au tirage au sort",
 				"action_highlight": "Mettre en avant sur le stream",

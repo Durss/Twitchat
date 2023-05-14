@@ -908,6 +908,15 @@ export default class TriggerActionHandler {
 					StoreProxy.bingo.startBingo(data);
 				}else
 				
+				//Handle chat suggesiton action
+				if(step.type == "chatSugg") {
+					const data:TwitchatDataTypes.ChatSuggestionData = JSON.parse(JSON.stringify(step.suggData));
+					data.startTime = Date.now();
+					data.choices = [];
+					data.winners = [];
+					StoreProxy.chatSuggestion.setChatSuggestion(data);
+				}else
+				
 				//Handle voicemod action
 				if(step.type == "voicemod") {
 					if(step.voiceID) {

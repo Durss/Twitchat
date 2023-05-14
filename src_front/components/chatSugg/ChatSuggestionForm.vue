@@ -1,17 +1,17 @@
 <template>
-	<div class="chatpollform sidePanel">
-		<div class="head">
+	<div :class="classes">
+		<div class="head" v-if="triggerMode === false">
 			<CloseButton @click="close()" />
 
 			<h1><Icon name="chatPoll" class="icon" />{{ $t('suggestion.title') }}</h1>
 
 			<div class="description">{{ $t('suggestion.info') }}</div>
 		</div>
-		<div class="content">
 
+		<div class="content">
 			<form  @submit.prevent="submitChatPoll()">
 				<div class="card-item">
-					<ParamItem :paramData="command" autofocus />
+					<ParamItem :paramData="command" autofocus @change="changeValue()" />
 					<div class="example">
 						<span>{{ $t("global.example") }}</span>: 
 						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
@@ -23,31 +23,31 @@
 			
 
 				<div class="card-item">
-					<ParamItem :paramData="maxLength" />
+					<ParamItem :paramData="maxLength" @change="changeValue()" />
 				</div>
 
 				<div class="card-item">
-					<ParamItem :paramData="duration" />
+					<ParamItem :paramData="duration" @change="changeValue()" />
 				</div>
 
 				<div class="card-item">
-					<ParamItem :paramData="multiAnswers" />
+					<ParamItem :paramData="multiAnswers" @change="changeValue()" />
 				</div>
 
 				<!-- <ToggleBlock small title="Permissions" :open="false" class="card-item permissions">
 					<PermissionsForm v-model="permissions" />
 				</ToggleBlock> -->
 
-				<Button type="submit">{{ $t('global.submit') }}</Button>
+				<Button v-if="triggerMode === false" type="submit">{{ $t('global.submit') }}</Button>
 			</form>
 
-			<i18n-t scope="global" tag="div" keypath="suggestion.alternative_tool" class="card-item alternativeTool">
+			<i18n-t v-if="triggerMode === false" scope="global" tag="div" keypath="suggestion.alternative_tool" class="card-item alternativeTool">
 				<template #LINK>
 					<a href="https://www.janvier.tv/sondage" target="_blank">{{ $t("suggestion.alternative_tool_link") }}</a>
 				</template>
 			</i18n-t>
 
-			<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small>
+			<ToggleBlock v-if="triggerMode === false" :title="$t('global.configs')" class="configs" :open="false" small>
 				<PostOnChatParam class="card-item" botMessageKey="chatSuggStart"
 					:placeholderEnabled="false"
 					titleKey="suggestion.announce_start"
@@ -60,7 +60,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
@@ -68,6 +68,7 @@ import PermissionsForm from '../PermissionsForm.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
+import type { TriggerActionChatSuggestions, TriggerData } from '@/types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -81,6 +82,16 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	emits:["close"]
 })
 export default class ChatSuggestionForm extends AbstractSidePanel {
+
+	@Prop({type: Boolean, default: false})
+	public triggerMode!:boolean;
+	
+	//This is used by the trigger action form.
+	@Prop({type: Object, default:{}})
+	public action!:TriggerActionChatSuggestions;
+
+	@Prop
+	public triggerData!:TriggerData;
 	
 	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:30};
 	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24};
@@ -96,6 +107,12 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 		follower_duration_ms:0,
 		usersAllowed:[],
 		usersRefused:[],
+	}
+
+	public get classes():string[] {
+		const res = ["chatpollform", "sidePanel"];
+		if(this.triggerMode !== false) res.push("embedMode");
+		return res;
 	}
 
 	public get example():string {
@@ -114,19 +131,8 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 		];
 	}
 
-	public beforeMount(): void {
-		this.command.labelKey		= "suggestion.command";
-		this.maxLength.labelKey		= "suggestion.maxLength";
-		this.duration.labelKey		= "suggestion.duration";
-		this.multiAnswers.labelKey	= "suggestion.multiAnswers";
-	}
-
-	public async mounted():Promise<void> {
-		super.open();
-	}
-
-	public submitChatPoll():void {
-		const data:TwitchatDataTypes.ChatSuggestionData = {
+	public get dataObject():TwitchatDataTypes.ChatSuggestionData {
+		return {
 			startTime:Date.now(),
 			command:this.command.value.trim(),
 			maxLength:this.maxLength.value,
@@ -135,15 +141,50 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 			choices:[],
 			winners:[],
 		}
-		this.$store("chatSuggestion").setChatSuggestion(data);
+	}
+
+	public beforeMount(): void {
+		this.command.labelKey		= "suggestion.command";
+		this.maxLength.labelKey		= "suggestion.maxLength";
+		this.duration.labelKey		= "suggestion.duration";
+		this.multiAnswers.labelKey	= "suggestion.multiAnswers";
+
+		if(this.triggerMode) {
+			if(this.action.suggData) {
+				this.command.value = this.action.suggData.command;
+				this.maxLength.value = this.action.suggData.maxLength;
+				this.duration.value = this.action.suggData.duration;
+				this.multiAnswers.value = this.action.suggData.allowMultipleAnswers;
+			}else{
+				this.action.suggData = this.dataObject;
+			}
+		}
+	}
+
+	public async mounted():Promise<void> {
+		if(!this.triggerMode) {
+			super.open();
+		}
+	}
+
+	public submitChatPoll():void {
+		this.$store("chatSuggestion").setChatSuggestion(this.dataObject);
 		this.close();
+	}
+
+	public changeValue():void {
+		if(this.triggerMode) {
+			this.action.suggData.command = this.command.value;
+			this.action.suggData.maxLength = this.maxLength.value;
+			this.action.suggData.duration = this.duration.value;
+			this.action.suggData.allowMultipleAnswers = this.multiAnswers.value;
+		}
 	}
 }
 </script>
 
 <style scoped lang="less">
 .chatpollform{
-
 	.example {
 		// .bevel();
 		// padding: .8em;

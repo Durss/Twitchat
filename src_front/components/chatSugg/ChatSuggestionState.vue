@@ -129,9 +129,9 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 	}
 
 	public closePoll():void {
-		this.$confirm(this.$t("suggestion.state_close_confirm_title"),
-					this.$t("suggestion.state_close_confirm_desc"))
-		.then(()=> {
+		this.$confirm(this.$t("suggestion.state_close_confirm_title"), this.$t("suggestion.state_close_confirm_desc"))
+		.then(async ()=> {
+			await super.close();
 			this.$store("chatSuggestion").setChatSuggestion(null);
 		}).catch(()=>{});
 	}

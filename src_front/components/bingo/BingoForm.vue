@@ -5,7 +5,7 @@
 			
 			<h1 class="title"><Icon name="bingo" class="icon" />{{ $t("bingo.form.title") }}</h1>
 			
-			<div class="description" v-if="triggerMode === false">{{ $t("bingo.form.description") }}</div>
+			<div class="description">{{ $t("bingo.form.description") }}</div>
 		</div>
 	
 		<TabMenu class="menu" v-model="mode"

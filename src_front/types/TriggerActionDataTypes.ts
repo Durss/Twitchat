@@ -24,6 +24,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionRandomData
 								| TriggerActionStreamInfoData
 								| TriggerActionTriggerToggleData
+								| TriggerActionChatSuggestions
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -342,6 +343,11 @@ export interface TriggerActionPollData extends TriggerActionData{
 export interface TriggerActionPredictionData extends TriggerActionData{
 	type:"prediction";
 	predictionData:TwitchatDataTypes.PredictionConfig;
+}
+
+export interface TriggerActionChatSuggestions extends TriggerActionData{
+	type:"chatSugg";
+	suggData:TwitchatDataTypes.ChatSuggestionData;
 }
 
 export interface TriggerActionCountData extends TriggerActionData{
