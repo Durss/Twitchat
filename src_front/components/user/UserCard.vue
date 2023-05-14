@@ -32,9 +32,10 @@
 					<div class="title">
 						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 						<span class="label">{{user.displayName}}</span>
+						<span class="translation" v-if="true || translateUsername">({{user.login}})</span>
 					</div>
 				</a>
-				<span class="translation" v-if="translateUsername">({{user.login}})</span>
+				<span v-if="user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
 				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 			</div>
 			
@@ -354,6 +355,7 @@ export default class UserCard extends Vue {
 						this.subStateLoaded = true;
 					 })
 				}
+				this.$store("users").loadUserPronouns(user);
 				this.fakeModMessage = {
 					id:Utils.getUUID(),
 					platform:"twitch",
@@ -539,13 +541,18 @@ export default class UserCard extends Vue {
 					line-height: 1.2em;
 				}
 
+				.translation {
+					font-style: italic;
+					font-size: .8em;
+					margin-left: .25em;
+				}
+
 				.badge {
 					height: .8em;
 				}
 			}
 
-			.translation {
-				font-size: 1em;
+			.pronouns {
 				font-style: italic;
 			}
 
