@@ -1656,17 +1656,6 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			if(removeMod) {
-				const m:TwitchatDataTypes.MessageModerationAction = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					channel_id:channelId,
-					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-					noticeId:TwitchatDataTypes.TwitchatNoticeType.UNMOD,
-					user,
-					message:"User "+user.login+" has been unmod",//TODO translate
-				};
-				StoreProxy.chat.addMessage(m);
 				StoreProxy.users.flagUnmod("twitch", channelId, user.id);
 			}else{
 				StoreProxy.users.flagMod("twitch", channelId, user.id);

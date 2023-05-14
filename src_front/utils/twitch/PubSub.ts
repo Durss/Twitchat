@@ -441,22 +441,6 @@ export default class PubSub extends EventDispatcher {
 
 
 
-		}else if(data.type == "moderator_added") {
-			const localObj = data.data as PubSubDataTypes.ModeratorAdded;
-			const m:TwitchatDataTypes.MessageModerationAction = {
-				id:Utils.getUUID(),
-				date:Date.now(),
-				platform:"twitch",
-				channel_id:channelId,
-				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-				user:StoreProxy.users.getUserFrom("twitch", localObj.channel_id, localObj.target_user_id, localObj.target_user_login),
-				noticeId:TwitchatDataTypes.TwitchatNoticeType.MOD,
-				message: "User "+localObj.target_user_login+" has been added to your mods by "+localObj.created_by,
-			};
-			StoreProxy.chat.addMessage(m);
-
-
-
 		}else if(data.type == "vip_added") {
 			const localObj = data.data as PubSubDataTypes.VIPAdded;
 			const m:TwitchatDataTypes.MessageModerationAction = {
@@ -590,13 +574,6 @@ export default class PubSub extends EventDispatcher {
 				noticeId,
 			};
 			const t = StoreProxy.i18n.t;
-			const username = localObj.args?.[0];
-			let user!:TwitchatDataTypes.TwitchatUser;
-			if(username) {
-				user = await new Promise((resolve)=> {
-					StoreProxy.users.getUserFrom("twitch", channelId, undefined, username, undefined, (u)=> resolve(u));
-				});
-			}
 
 			switch(localObj.moderation_action) {
 				case "clear": {
@@ -617,64 +594,18 @@ export default class PubSub extends EventDispatcher {
 					StoreProxy.chat.addMessage(message);
 					break;
 				}
-				case "timeout": {
-					return;//Moved to EventSub
-					// const duration = localObj.args && localObj.args.length > 1? localObj.args[1] : "600";
-					// moderatedUser = user;
-					// noticeId = TwitchatDataTypes.TwitchatNoticeType.TIMEOUT;
-					// noticeText = t("global.moderation_action.timeout", {MODERATOR:localObj.created_by, USER:user.displayName, DURATION:duration});
-					// noticeText = localObj.created_by+" has banned "+user.displayName+" for "+duration+" seconds";
-					// (m as TwitchatDataTypes.MessageTimeoutData).duration_s = parseInt(duration);
-					// (m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
-					// StoreProxy.users.flagBanned("twitch", channelId, user.id, parseInt(duration));
-					// break;
-				}
-				case "ban": {
-					return;//Moved to EventSub
-					// moderatedUser = user;
-					// noticeId = TwitchatDataTypes.TwitchatNoticeType.BAN;
-					// noticeText = t("global.moderation_action.banned_by", {USER:user.displayName, MODERATOR:localObj.created_by});
-					// (m as TwitchatDataTypes.MessageTimeoutData).moderator = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by, localObj.created_by);
-					// StoreProxy.users.flagBanned("twitch", channelId, user.id);
-					// break;
-				}
-				case "untimeout":
-				case "unban": {
-					return;//Moved to EventSub
-					// moderatedUser = user;
-					// noticeId = TwitchatDataTypes.TwitchatNoticeType.UNBAN;
-					// noticeText = t("global.moderation_action.unbanned_by", {USER:user.displayName, MODERATOR:localObj.created_by});
-					// StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
-					break;
-				}
-				case "mod": {
-					moderatedUser = user;
-					noticeId = TwitchatDataTypes.TwitchatNoticeType.MOD;
-					noticeText = t("global.moderation_action.modded_by", {USER:user.displayName, MODERATOR:localObj.created_by});
-					StoreProxy.users.flagMod("twitch", channelId, user.id);
-					break;
-				}
-				// case "unmod": {//Does not actually exists
-				// 	moderatedUser = user;
-				// 	noticeId = TwitchatDataTypes.TwitchatNoticeType.UNMOD;
-				// 	noticeText = "User "+user.displayName+" has been unmod by "+localObj.created_by;
-				// 	StoreProxy.users.flagUnmod("twitch", channelId, user.id);
-				// 	break;
-				// }
+
 				case "vip": {
-					moderatedUser = user;
+					const username = localObj.args?.[0];
+					moderatedUser! = await new Promise((resolve)=> {
+						StoreProxy.users.getUserFrom("twitch", channelId, undefined, username, undefined, (u)=> resolve(u));
+					});
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.VIP;
-					noticeText = t("global.moderation_action.viped_by", {USER:user.displayName, MODERATOR:localObj.created_by});
-					StoreProxy.users.flagVip("twitch", channelId, user.id);
+					noticeText = t("global.moderation_action.viped_by", {USER:moderatedUser.displayName, MODERATOR:localObj.created_by});
+					StoreProxy.users.flagVip("twitch", channelId, moderatedUser.id);
 					break;
 				}
-				// case "unvip": {//Does not actually exists
-				// 	moderatedUser = user;
-				// 	noticeId = TwitchatDataTypes.TwitchatNoticeType.UNVIP;
-				// 	noticeText = "User "+user.displayName+" has been unVIP by "+localObj.created_by;
-				// 	StoreProxy.users.flagUnvip("twitch", channelId, user.id);
-				// 	break;
-				// }
+
 				case "raid": {
 					const infos:TwitchatDataTypes.RaidInfo = {
 						channel_id: channelId,
@@ -692,16 +623,19 @@ export default class PubSub extends EventDispatcher {
 					StoreProxy.stream.setRaiding(infos);
 					break;
 				}
+
 				case "unraid": {
 					StoreProxy.stream.setRaiding(undefined);
 					break;
 				}
+				
 				case "delete": {
 					const [login, message, messageId] = localObj.args!;
 					const deleter = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by);
 					StoreProxy.chat.deleteMessageByID(messageId, deleter, false);
 					break;
 				}
+
 				default:
 					console.log("Unhandled event type: "+localObj.moderation_action);
 					break;

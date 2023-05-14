@@ -629,6 +629,8 @@ export default class EventSub {
 	 * @param event 
 	 */
 	public banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):void {
+		console.log("ES: ban", event);
+		console.log(JSON.parse(JSON.stringify(event)));
 		const bannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name)
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		const m:TwitchatDataTypes.MessageBanData = {
@@ -645,12 +647,13 @@ export default class EventSub {
 			m.duration_s = Math.round((new Date(event.ends_at).getTime() - new Date(event.banned_at).getTime()) / 1000);
 		}
 		
+		console.log("ES: ban", event);
 		StoreProxy.users.flagBanned("twitch", event.broadcaster_user_id, event.user_id, m.duration_s);
 		StoreProxy.chat.addMessage(m);
 	}
 	
 	public unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
-		const unbannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name)
+		const unbannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		const m:TwitchatDataTypes.MessageUnbanData = {
 			id:Utils.getUUID(),
@@ -667,11 +670,37 @@ export default class EventSub {
 	}
 	
 	public modAddEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorAddEvent):void {
-		//TODO
+		const modedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
+		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
+		const m:TwitchatDataTypes.MessageModerationAction = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.MOD,
+			user:modedUser,
+			message: StoreProxy.i18n.t("global.moderation_action.modded_by", {USER:modedUser.displayName, MODERATOR:moderator.displayName}),
+		};
+		StoreProxy.users.flagMod("twitch", event.broadcaster_user_id, modedUser.id);
+		StoreProxy.chat.addMessage(m);
 	}
 	
 	public modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
-		//TODO
+		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
+		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
+		const m:TwitchatDataTypes.MessageModerationAction = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.MOD,
+			user:modedUser,
+			message: StoreProxy.i18n.t("global.moderation_action.unmodded_by", {USER:modedUser.displayName, MODERATOR:moderator.displayName}),
+		};
+		StoreProxy.users.flagUnmod("twitch", event.broadcaster_user_id, modedUser.id);
+		StoreProxy.chat.addMessage(m);
 	}
 
 	/**

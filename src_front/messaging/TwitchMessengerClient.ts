@@ -781,7 +781,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
-		data.streakMonths = streakMonths
+		data.streakMonths = streakMonths;
 		if(typeof tags["msg-param-gift-months"] == "string") {
 			data.months = parseInt(tags["msg-param-gift-months"] ?? "1");
 		}
@@ -797,10 +797,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private anonsubgift(channel: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.AnonSubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
-		data.streakMonths = streakMonths
-		if(typeof tags["msg-param-sender-count"] == "string") {
-			//TODO this is probably a mistake as this sender-count contains the total of subgift on the channel
-			data.months = parseInt(tags["msg-param-sender-count"] ?? "1");
+		data.streakMonths = streakMonths;
+		if(typeof tags["msg-param-gift-months"] == "string") {
+			data.months = parseInt(tags["msg-param-gift-months"] ?? "1");
 		}
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
@@ -893,8 +892,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private onBanUser(channel: string, username: string, reason: string, duration?: number|{"room-id":string,"target-user-id":string,"tmi-sent-id":string}):void {
-		const channel_id = this.getChannelID(channel);
-		const user = this.getUserStateFromLogin(username, channel_id).user;
 		//Wait 900ms before doing anything.
 		//This is a work around an Eventsub limitation.
 		//Eventsub does not allow to be notified for banned users of another channel
@@ -907,11 +904,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//We don't wait 1s or more, otherwise if TO for 1s the user would be unbanned
 		//before the setTimeout completes
 		setTimeout(()=> {
+			const channel_id = this.getChannelID(channel);
+			const user = this.getUserStateFromLogin(username, channel_id).user;
 			const isTO = !isNaN(duration as number);
 			if(!user.channelInfo[channel_id].is_banned
 			//if user is TOed and it's a perma ban
 			|| (user.channelInfo[channel_id].banEndDate && !isTO)
-			//if user is not TOed and it's a TO
+			//if user is perma banned and it's a TO
 			|| (!user.channelInfo[channel_id].banEndDate && isTO)) {
 				
 				const m:TwitchatDataTypes.MessageBanData = {
@@ -928,7 +927,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				StoreProxy.chat.addMessage(m);
 				StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
 			}
-		},900)
+		},990)
 	}
 
 	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {
