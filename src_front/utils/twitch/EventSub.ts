@@ -629,8 +629,6 @@ export default class EventSub {
 	 * @param event 
 	 */
 	public banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):void {
-		console.log("ES: ban", event);
-		console.log(JSON.parse(JSON.stringify(event)));
 		const bannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name)
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		const m:TwitchatDataTypes.MessageBanData = {
@@ -647,7 +645,6 @@ export default class EventSub {
 			m.duration_s = Math.round((new Date(event.ends_at).getTime() - new Date(event.banned_at).getTime()) / 1000);
 		}
 		
-		console.log("ES: ban", event);
 		StoreProxy.users.flagBanned("twitch", event.broadcaster_user_id, event.user_id, m.duration_s);
 		StoreProxy.chat.addMessage(m);
 	}

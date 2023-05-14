@@ -372,13 +372,13 @@ export default class TriggerActionEntry extends Vue {
 			}
 			case "obs": {
 				if(!this.obsConnected) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 					return;
 				}break
 			}
 			case "ws": {
 				if(!this.wsConnected) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
 					return;
 				}break
 			}

@@ -79,7 +79,7 @@ export default class TriggerList extends Vue {
 	 * Number of items to instanciate per frame
 	 * Avoids a huge lag at open if there are hundred of triggers
 	 */
-	public buildBatchSize = 50;
+	public buildBatchSize = 25;
 
 	public get flatTriggerList():TriggerListEntry[] {
 		let list:TriggerListEntry[] = [];

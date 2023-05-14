@@ -1008,32 +1008,50 @@ export default class TriggerActionHandler {
 									log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 									//Convert placeholder to a string value
 									const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.counterUserSources[c.id].toUpperCase()+"}")
-									let channelId = StoreProxy.auth.twitch.user.id;
-									if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
-										channelId = (message as TwitchatDataTypes.GreetableMessage).channel_id;
-									}
-									//Load user details
-									await new Promise<void>((resolve, reject)=> {
-										//FIXME that hardcoded platform "twitch" will break if adding a new platform
-										//I can't just use "message.platform" as this contains "twitchat" for messages
-										//like raffle and bingo result which. Full user loading only happens if "twitch"
-										//platform is specified, the user would remain in a temporary state in such case
-										StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, (userData)=>{
-											if(userData.errored || userData.temporary) {
-												log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
-												user = undefined;
-											}else{
-												user = userData;
-												log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+									if(login) {
+										//Not ideal but if there are multiple users they're concatenated in
+										//a single coma seperated string (placeholder parsing is made for display :/).
+										//Here we split it on comas just in case there are multiple user names
+										let list = login.split(",");
+										console.log("LIST =>", list);
+										for (let displayName of list) {
+											displayName = displayName.trim();
+											console.log("User",displayName);
+											let channelId = StoreProxy.auth.twitch.user.id;
+											if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+												channelId = (message as TwitchatDataTypes.GreetableMessage).channel_id;
 											}
-											resolve();
-										});
-									})
+											//Load user details
+											await new Promise<void>((resolve, reject)=> {
+												//FIXME that hardcoded platform "twitch" will break if adding a new platform
+												//I can't just use "message.platform" as this contains "twitchat" for messages
+												//like raffle and bingo results. Full user loading only happens if "twitch"
+												//platform is specified, the user would remain in a temporary state otherwise
+												StoreProxy.users.getUserFrom("twitch", channelId, undefined, undefined, displayName, (userData)=>{
+													if(userData.errored || userData.temporary) {
+														log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
+														user = undefined;
+													}else{
+														user = userData;
+														log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+													}
+													resolve();
+												});
+											});
+
+											if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, value, user);
+											let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
+											if(user) logMessage += " (for @"+user.displayName+")";
+											logStep.messages.push({date:Date.now(), value:logMessage});
+										}
+									}
+								}else{
+
+									if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, value, user);
+									let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
+									if(user) logMessage += " (for @"+user.displayName+")";
+									logStep.messages.push({date:Date.now(), value:logMessage});
 								}
-								if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, value, user);
-								let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
-								if(user) logMessage += " (for @"+user.displayName+")";
-								logStep.messages.push({date:Date.now(), value:logMessage});
 							}
 						}
 					}

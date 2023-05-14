@@ -136,7 +136,6 @@ export const storeUsers = defineStore('users', {
 		 * @returns 
 		 */
 		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false):TwitchatDataTypes.TwitchatUser {
-			console.warn("GET USER", channelId, id, login, displayName);
 			const s = Date.now();
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested user via hashmaps for fast accesses
@@ -162,7 +161,6 @@ export const storeUsers = defineStore('users', {
 			const userExisted = user != undefined;
 
 			if(!user) {
-				console.log("CREATE USER", channelId, id, login, displayName);
 				//Create user if enough given info
 				if(id && login) {
 					if(!displayName) displayName = login;
@@ -388,7 +386,6 @@ export const storeUsers = defineStore('users', {
 			if(user.login)			hashmaps.loginToUser[user.login] = user;
 			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
 
-			console.log("PUSH USER", user.login, user.id);
 			userList.push(user);
 
 			if(user.temporary != true) {
@@ -478,7 +475,6 @@ export const storeUsers = defineStore('users', {
 				const u = userList[i];
 				if(u.id === uid) console.log(channelId, u.channelInfo[channelId], JSON.parse(JSON.stringify(u.channelInfo)));
 				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
-					console.log("FLAG BAN ", userList[i].channelInfo[channelId]);
 					u.channelInfo[channelId].is_banned = true;
 					u.channelInfo[channelId].is_moderator = false;//When banned or timed out twitch removes the mod role
 					if(duration_s) {
@@ -632,11 +628,9 @@ export const storeUsers = defineStore('users', {
 			let streamCategory = "";
 			
 			if(user.platform == "twitch") {
-				console.log(user);
 				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
 					let res = await TwitchUtils.sendShoutout(channelId, user);
 					if(res === false) {
-						console.log("Shoutout: failed");
 						//Shoutout not executed, add it to the pending triggers
 						if(!this.shoutoutHistory[channelId]) {
 							//No entry exist yet, create a list

@@ -88,7 +88,7 @@ export default class TriggerActionDelayEntry extends Vue {
 <style scoped lang="less">
 .triggeractiondelayentry{
 	margin: auto;
-	width: min-content;
+	width: fit-content;
 	border-radius: .5em;
 	background-color: var(--color-primary);
 	display: flex;
@@ -107,6 +107,7 @@ export default class TriggerActionDelayEntry extends Vue {
 	.deleteBt {
 		align-self: stretch;
 		border-radius: 0;
+		flex-shrink: 0;
 	}
 }
 </style>
