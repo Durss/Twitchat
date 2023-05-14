@@ -24,6 +24,7 @@ export default class TwitchatEvent extends Event {
 	public static MESSAGE_FIRST_ALL_TIME:TwitchatEventType = "MESSAGE_FIRST_ALL_TIME";
 	public static MESSAGE_WHISPER:TwitchatEventType = "MESSAGE_WHISPER";
 	public static FOLLOW:TwitchatEventType = "FOLLOW";
+	public static REWARD_REDEEM:TwitchatEventType = "REWARD_REDEEM";
 	public static POLL_PROGRESS:TwitchatEventType = "POLL_PROGRESS";
 	public static PREDICTION_PROGRESS:TwitchatEventType = "PREDICTION_PROGRESS";
 	public static MENTION:TwitchatEventType = "MENTION";
@@ -139,6 +140,7 @@ export const TwitchatEventTypeList = [
 	"MESSAGE_FIRST_ALL_TIME",
 	"MESSAGE_WHISPER",
 	"FOLLOW",
+	"REWARD_REDEEM",
 	"MENTION",
 	"CURRENT_TRACK",
 	"TRACK_ADDED_TO_QUEUE",

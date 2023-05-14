@@ -621,7 +621,6 @@ export default class MessengerProxy {
 			}
 			let inc = 0;
 			StoreProxy.chat.spamingFakeMessages = !countMode;
-					console.log(StoreProxy.rewards.rewardList);
 			
 			this.spamInterval = window.setInterval(()=> {
 				if(incMode) {

@@ -6,15 +6,15 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler'
 import TTSUtils from '@/utils/TTSUtils'
+import Utils from '@/utils/Utils'
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler'
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes'
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
-import Utils from '@/utils/Utils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia'
-import type { JsonObject } from 'type-fest'
+import type { JsonObject, JsonArray } from 'type-fest'
 import { reactive, type UnwrapRef } from 'vue'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
 
@@ -866,6 +866,23 @@ export const storeChat = defineStore('chat', {
 					&& message.reward.id === raffle.reward_id) {
 						sRaffle.checkRaffleJoin(message);
 					}
+	
+					const wsMessage = {
+						channel:message.channel_id,
+						message:message.message,
+						message_chunks:(message.message_chunks as unknown) as JsonArray,
+						user: {
+							id:message.user.id,
+							login:message.user.login,
+							displayName:message.user.displayName,
+						},
+						reward:{
+							id:message.reward.id,
+							cost:message.reward.cost,
+							title:message.reward.title,
+						},
+					}
+					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
 					break;
 				}
 
