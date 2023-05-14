@@ -1,6 +1,7 @@
 <template>
 	<ToggleBlock :open="open" class="overlaytimer" :title="$t('overlay.timer.title')" :icons="['countdown']">
 		<div class="holder">
+			<a class="item demoLink" href="https://www.youtube.com/watch?v=x_OnsPRA8Bs" target="_blank"><img src="@/assets/img/param_examples/timerVideo.jpg" class="demo"></a>
 			<div class="item">
 				<div class="info">
 					<i18n-t scope="global" tag="div" keypath="overlay.timer.head">
@@ -71,6 +72,18 @@ export default class OverlayParamsTimer extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
+
+		.demoLink {
+			.demo {
+				.emboss();
+				margin:auto;
+				display: block;
+				max-height: 100px;
+				aspect-ratio: 16 / 9;
+				border-radius: .5em;
+			}
+		}
+		
 		.item {
 
 			.info {

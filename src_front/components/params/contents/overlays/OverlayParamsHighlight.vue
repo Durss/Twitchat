@@ -2,7 +2,7 @@
 	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight']">
 		
 		<div class="holder">
-			<a class="item demoLink" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="demo"></a>
+			<a class="item demoLink" href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.jpg" class="demo"></a>
 			
 			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
 			<input class="primary" type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>

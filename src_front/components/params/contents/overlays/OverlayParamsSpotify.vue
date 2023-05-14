@@ -1,6 +1,7 @@
 <template>
 	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify']">
 		<div class="holder" v-if="spotifyConnected">
+			<a class="item demoLink" href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank"><img src="@/assets/img/param_examples/spotifyVideo.jpg" class="demo"></a>
 	
 			<div class="card-item playerHolder">
 				<div class="label">{{ $t("global.example") }}</div>
@@ -17,6 +18,8 @@
 
 		</div>
 		<div class="holder" v-else>
+			<a class="item demoLink" href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank"><img src="@/assets/img/param_examples/spotifyVideo.jpg" class="demo"></a>
+			
 			<div>{{ $t("overlay.music_common.music") }}</div>
 			<Button @click="$store('params').openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</Button>
 		</div>
@@ -69,6 +72,17 @@ export default class OverlayParamsSpotify extends Vue {
 		flex-direction: column;
 		align-items: center;
 		gap: 1em;
+
+		.demoLink {
+			.demo {
+				.emboss();
+				margin:auto;
+				display: block;
+				max-height: 100px;
+				aspect-ratio: 16 / 9;
+				border-radius: .5em;
+			}
+		}
 	
 		.playerHolder {
 			width: 100%;

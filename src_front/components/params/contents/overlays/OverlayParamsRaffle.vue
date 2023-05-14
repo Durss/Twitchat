@@ -1,6 +1,7 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket']">
 		<div class="holder">
+			<a class="item demoLink" href="https://www.youtube.com/watch?v=VB4FDqB5kMo" target="_blank"><img src="@/assets/img/param_examples/wheelVideo.jpg" class="demo"></a>
 			
 			<div class="item">
 				<div class="info">{{ $t("overlay.raffle.head") }}</div>
@@ -119,6 +120,17 @@ export default class OverlayParamsRaffle extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
+
+		.demoLink {
+			.demo {
+				.emboss();
+				margin:auto;
+				display: block;
+				max-height: 100px;
+				aspect-ratio: 16 / 9;
+				border-radius: .5em;
+			}
+		}
 		.item {
 
 			.info {
