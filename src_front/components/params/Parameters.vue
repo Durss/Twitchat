@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" v-show="content != contentClose">
+	<div :class="classes" v-show="!closed">
 		<div class="menu">
 			<!-- v-if="content == contentMain && !search || content == contentAd"> -->
 				<div class="head">
@@ -146,8 +146,8 @@ import ThemeSelector from '../ThemeSelector.vue';
 export default class Parameters extends Vue {
 
 	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
+	public closed:boolean = true;
 	
-	private closed:boolean = true;
 	private closing:boolean = false;
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
@@ -214,8 +214,8 @@ export default class Parameters extends Vue {
 				this.history.push(value);
 			 }
 			
-			if(value != TwitchatDataTypes.ParameterPages.CLOSE) this.open();
-			else this.close();
+			if(value == TwitchatDataTypes.ParameterPages.CLOSE) this.close();
+			else this.open();
 
 			if(value != TwitchatDataTypes.ParameterPages.MAIN_MENU) this.filteredParams = [];
 		});
@@ -235,14 +235,15 @@ export default class Parameters extends Vue {
 
 	public async open():Promise<void> {
 		if(!this.closed) return;
-		this.closed = false;
 		this.history = [];
 		await this.$nextTick();
-
+		
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out"});
 		gsap.fromTo(ref, {scaleX:1.1}, {duration:.5, delay:.3, scaleX:1, clearProps:"scaleX,translateX", ease:"elastic.out(1)"});
+
+		this.closed = false;
 
 		if(this.search) {
 			await this.$nextTick();
@@ -254,12 +255,12 @@ export default class Parameters extends Vue {
 	public async close():Promise<void> {
 		if(this.closing || this.closed) return;
 		this.closing = true;
-		this.closed = true;
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.1, scaleX:1.1, ease:"sin.in"});
 		gsap.to(ref, {duration:.1, translateX:"100%", scaleX:1, delay:.1, clearProps:"all", ease:"sin.out", onComplete:() => {
 			this.closing = false;
+			this.closed = true;
 			this.filteredParams = [];
 			this.$store("params").closeParameters();
 		}});
