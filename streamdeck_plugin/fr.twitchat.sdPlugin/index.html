@@ -65,6 +65,7 @@
 		let pluginUUID = null;
 		let reconnectTimeout = null;
 		let connecting = false;
+		let selectionTimeout = -1;
 		const settingsCache = {
 			OBSWS_PORT: "4455",
 			OBSWS_PASS: "",
@@ -142,14 +143,21 @@
 							});
 							actionName = "CHAT_FEED_SELECT_CHOOSING_ACTION";
 						}
+						clearTimeout(selectionTimeout);
+						selectionTimeout = setTimeout(()=>{
+							payload.settings.selectMode = true;
+							$SD.setSettings(context, payload.settings);
+							callTwitchat("CHAT_FEED_SELECT_ACTION_CANCEL");
+							console.log("CANCEL SELECT");
+						}, 5000);
 						break;
 					}
 				}
 				// console.log(actionName, params);
 				callTwitchat(actionName, params);
 			},
-
-			onDialPress: (action, payload, context) => {
+			
+			onDialUp: (action, payload, context) => {
 				let actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				const col = payload.settings.colIndex ?? 0;
 				switch(actionName) {
@@ -248,8 +256,8 @@
 					actions.onKeyUp(myAction, payload, context);
 				});
 		
-				myAction.onDialPress(({ action, context, device, event, payload }) => {
-					actions.onDialPress(myAction, payload, context);
+				myAction.onDialUp(({ action, context, device, event, payload }) => {
+					actions.onDialUp(myAction, payload, context);
 				});
 		
 				myAction.onDialRotate(({ action, context, device, event, payload }) => {

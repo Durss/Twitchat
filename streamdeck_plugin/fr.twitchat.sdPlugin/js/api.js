@@ -1,240 +1,349 @@
 /// <reference path="events.js"/>
 
-class ELGSDApi {
-	port;
-	uuid;
-	messageType;
-	actionInfo;
-	websocket;
-	language;
-	localization;
-	appInfo;
-	on = EventEmitter.on;
-	emit = EventEmitter.emit;
+class ELGSDPlugin {
+    #data = {};
+    #language = 'en';
+    #localization;
+    test = new Set();
+    on = EventEmitter.on;
+    emit = EventEmitter.emit;
 
-	/**
-	 * Connect to Stream Deck
-	 * @param {string} port
-	 * @param {string} uuid
-	 * @param {string} messageType
-	 * @param {string} appInfoString
-	 * @param {string} actionString
-	 */
-	connect(port, uuid, messageType, appInfoString, actionString) {
-		this.port = port;
-		this.uuid = uuid;
-		this.messageType = messageType;
-		this.actionInfo = actionString ? JSON.parse(actionString) : null;
-		this.appInfo = JSON.parse(appInfoString);
-		this.language = this.appInfo?.application?.language ?? null;
+    localizationLoaded = false;
+    constructor () {
+        // super();
+        if(ELGSDPlugin.__instance) {
+            return ELGSDPlugin.__instance;
+        }
 
-		if (this.websocket) {
-			this.websocket.close();
-			this.websocket = null;
-		}
+        ELGSDPlugin.__instance = this;
+        const pathArr = location.pathname.split("/");
+        const idx = pathArr.findIndex(f => f.endsWith('sdPlugin'));
+        this.#data.__filename = pathArr[pathArr.length - 1];
+        this.#data.__dirname = pathArr[pathArr.length - 2];
+        this.#data.__folderpath = `${pathArr.slice(0, idx + 1).join("/")}/`;
+        this.#data.__folderroot = `${pathArr.slice(0, idx).join("/")}/`;
+        this.#data.__parentdir = `${pathArr.slice(0, idx-1).join("/")}/`;
+    }
 
-		this.websocket = new WebSocket('ws://127.0.0.1:' + this.port);
+    set language(value) {
+        this.#language = value;
+        this.loadLocalization(this.#data.__folderpath).then(l => {
+            this.emit('languageChanged', value);
+        });
+    }
 
-		this.websocket.onopen = () => {
-			const json = {
-				event: this.messageType,
-				uuid: this.uuid,
-			};
+    get language() {
+        return this.#language;
+    }
 
-			this.websocket.send(JSON.stringify(json));
+    set localization(value) {
+        this.#localization = value;
+        this.localizeUI();
+        this.emit('localizationChanged', value);
+    }
 
-			this.emit(Events.connected, {
-				connection: this.websocket,
-				port: this.port,
-				uuid: this.uuid,
-				actionInfo: this.actionInfo,
-				appInfo: this.appInfo,
-				messageType: this.messageType,
-			});
-		};
+    get localization() {
+        return this.#localization;
+    }
 
-		this.websocket.onerror = (evt) => {
-			const error = `WEBSOCKET ERROR: ${evt}, ${evt.data}, ${SocketErrors[evt?.code]}`;
-			console.warn(error);
-			this.logMessage(error);
-		};
+    get __filename() {
+        return this.#data.__filename;
+    }
 
-		this.websocket.onclose = (evt) => {
-			console.warn('WEBSOCKET CLOSED:', SocketErrors[evt?.code]);
-		};
+    get __dirname() {
+        return this.#data.__dirname;
+    }
 
-		this.websocket.onmessage = (evt) => {
-			const data = evt?.data ? JSON.parse(evt.data) : null;
+    get __folderpath() {
+        return this.#data.__folderpath;
+    }
+    get __folderroot() {
+        return this.#data.__folderroot;
+    }
+    get data() {
+        return this.#data;
+    }
 
-			const { action, event } = data;
-			const message = action ? `${action}.${event}` : event;
-			if (message && message !== '') this.emit(message, data);
-		};
-	}
+    /**
+    * Finds the original key of the string value
+    * Note: This is used by the localization UI to find the original key (not used here)
+    * @param {string} str
+    * @returns {string}
+    */
 
-	/**
-	 * Write to log file
-	 * @param {string} message
-	 */
-	logMessage(message) {
-		if (!message) {
-			console.error('A message is required for logMessage.');
-		}
+    localizedString(str) {
+        return Object.keys(this.localization).find(e => e == str);
+    }
 
-		try {
-			if (this.websocket) {
-				const json = {
-					event: Events.logMessage,
-					payload: {
-						message: message,
-					},
-				};
-				this.websocket.send(JSON.stringify(json));
-			} else {
-				console.error('Websocket not defined');
-			}
-		} catch (e) {
-			console.error('Websocket not defined');
-		}
-	}
+    /**
+   * Returns the localized string or the original string if not found
+   * @param {string} str
+   * @returns {string}
+   */
 
-	/**
-	 * Fetches the specified language json file
-	 * @param {string} pathPrefix
-	 * @returns {Promise<void>}
-	 */
-	async loadLocalization(pathPrefix) {
-		try {
-			if (!pathPrefix) {
-				console.error('A path to localization json is required for loadLocalization.');
-			}
-			const manifest = await this.readJson(`${pathPrefix}${this.language}.json`);
-			this.localization = manifest['Localization'] ?? null;
-			window.$localizedStrings = this.localization;
+    localize(s) {
+        if(typeof s === 'undefined') return '';
+        let str = String(s);
+        try {
+            str = this.localization[str] || str;
+        } catch(b) {}
+        return str;
+    };
 
-			this.emit('localizationLoaded', this.localization);
+    /**
+    * Searches the document tree to find elements with data-localize attributes
+    * and replaces their values with the localized string
+    * @returns {<void>}
+    */
 
-			return this.localization;
-		} catch (e) {
-			console.error('Error loading localization', e);
-		}
-	}
+    localizeUI = () => {
+        const el = document.querySelector('.sdpi-wrapper');
+        if(!el) return console.warn("No element found to localize");
+        const selectorsList = '[data-localize]';
+        // see if we have any data-localize attributes
+        // that means we can skip the rest of the DOM
+        el.querySelectorAll(selectorsList).forEach(e => {
+            const s = e.innerText.trim();
+            e.innerHTML = e.innerHTML.replace(s, this.localize(s));
+            if(e.placeholder && e.placeholder.length) {
+                e.placeholder = this.localize(e.placeholder);
+            }
+            if(e.title && e.title.length) {
+                e.title = this.localize(e.title);
+            }
+        });
+    };
+    /**
+     * Fetches the specified language json file
+     * @param {string} pathPrefix
+     * @returns {Promise<void>}
+     */
+async loadLocalization(pathPrefix) {
+    if(!pathPrefix) {
+        pathPrefix = this.#data.__folderpath;
+    }
+    // here we save the promise to the JSON-reader result,
+    // which we can later re-use to see, if the strings are already loaded 
+    this.localizationLoaded = this.readJson(`${pathPrefix}${this.language}.json`);
+    const manifest = await this.localizationLoaded;
+    this.localization = manifest['Localization'] ?? null;
+    window.$localizedStrings = this.localization;
+    this.emit('localizationLoaded', this.localization);
 
-	/**
-	 *
-	 * @param {string} path
-	 * @returns {Promise<any>} json
-	 */
-	async readJson(path) {
-		if (!path) {
-			console.error('A path is required to readJson.');
-		}
+    return this.localization;
+}
 
-		return new Promise((resolve, reject) => {
-			const req = new XMLHttpRequest();
-			req.onerror = reject;
-			req.overrideMimeType('application/json');
-			req.open('GET', path, true);
-			req.onreadystatechange = (response) => {
-				if (req.readyState === 4) {
-					const jsonString = response?.target?.response;
-					if (jsonString) {
-						resolve(JSON.parse(response?.target?.response));
-					} else {
-						reject();
-					}
-				}
-			};
+    /**
+     *
+     * @param {string} path
+     * @returns {Promise<any>} json
+     */
+    async readJson(path) {
+        if(!path) {
+            console.error('A path is required to readJson.');
+        }
 
-			req.send();
-		});
-	}
+        return new Promise((resolve, reject) => {
+            const req = new XMLHttpRequest();
+            req.onerror = reject;
+            req.overrideMimeType('application/json');
+            req.open('GET', path, true);
+            req.onreadystatechange = (response) => {
+                if(req.readyState === 4) {
+                    const jsonString = response?.target?.response;
+                    if(jsonString) {
+                        resolve(JSON.parse(response?.target?.response));
+                    } else {
+                        reject();
+                    }
+                }
+            };
 
-	/**
-	 * Send JSON payload to StreamDeck
-	 * @param {string} context
-	 * @param {string} event
-	 * @param {object} [payload]
-	 */
-	send(context, event, payload = {}) {
-		this.websocket && this.websocket.send(JSON.stringify({ context, event, ...payload }));
-	}
+            req.send();
+        });
+    }
+}
 
-	/**
-	 * Save the plugin's persistent data
-	 * @param {object} payload
-	 */
-	setGlobalSettings(payload) {
-		this.send(this.uuid, Events.setGlobalSettings, {
-			payload: payload,
-		});
-	}
+class ELGSDApi extends ELGSDPlugin {
+    port;
+    uuid;
+    messageType;
+    actionInfo;
+    websocket;
+    appInfo;
+    #data = {};
+    
+    /**
+     * Connect to Stream Deck
+     * @param {string} port
+     * @param {string} uuid
+     * @param {string} messageType
+     * @param {string} appInfoString
+     * @param {string} actionString
+     */
+    connect(port, uuid, messageType, appInfoString, actionString) {
+        this.port = port;
+        this.uuid = uuid;
+        this.messageType = messageType;
+        this.actionInfo = actionString ? JSON.parse(actionString) : null;
+        this.appInfo = JSON.parse(appInfoString);
+        this.language = this.appInfo?.application?.language ?? null;
 
-	/**
-	 * Request the plugin's persistent data. StreamDeck does not return the data, but trigger the plugin/property inspectors didReceiveGlobalSettings event
-	 */
-	getGlobalSettings() {
-		this.send(this.uuid, Events.getGlobalSettings);
-	}
+        if(this.websocket) {
+            this.websocket.close();
+            this.websocket = null;
+        }
 
-	/**
-	 * Opens a URL in the default web browser
-	 * @param {string} url
-	 */
-	openUrl(url) {
-		if (!url) {
-			console.error('A url is required for openUrl.');
-		}
+        this.websocket = new WebSocket('ws://127.0.0.1:' + this.port);
 
-		this.send(this.uuid, Events.openUrl, {
-			payload: {
-				url,
-			},
-		});
-	}
+        this.websocket.onopen = () => {
+            const json = {
+                event: this.messageType,
+                uuid: this.uuid,
+            };
 
-	/**
-	 * Registers a callback function for when Stream Deck is connected
-	 * @param {function} fn
-	 * @returns ELGSDStreamDeck
-	 */
-	onConnected(fn) {
-		if (!fn) {
-			console.error('A callback function for the connected event is required for onConnected.');
-		}
+            this.websocket.send(JSON.stringify(json));
 
-		this.on(Events.connected, (jsn) => fn(jsn));
-		return this;
-	}
+            this.emit(Events.connected, {
+                connection: this.websocket,
+                port: this.port,
+                uuid: this.uuid,
+                actionInfo: this.actionInfo,
+                appInfo: this.appInfo,
+                messageType: this.messageType,
+            });
+        };
 
-	/**
-	 * Registers a callback function for the didReceiveGlobalSettings event, which fires when calling getGlobalSettings
-	 * @param {function} fn
-	 */
-	onDidReceiveGlobalSettings(fn) {
-		if (!fn) {
-			console.error(
-				'A callback function for the didReceiveGlobalSettings event is required for onDidReceiveGlobalSettings.'
-			);
-		}
+        this.websocket.onerror = (evt) => {
+            const error = `WEBSOCKET ERROR: ${evt}, ${evt.data}, ${SocketErrors[evt?.code]}`;
+            console.warn(error);
+            this.logMessage(error);
+        };
 
-		this.on(Events.didReceiveGlobalSettings, (jsn) => fn(jsn));
-		return this;
-	}
+        this.websocket.onclose = (evt) => {
+            console.warn('WEBSOCKET CLOSED:', SocketErrors[evt?.code]);
+        };
 
-	/**
-	 * Registers a callback function for the didReceiveSettings event, which fires when calling getSettings
-	 * @param {string} action
-	 * @param {function} fn
-	 */
-	onDidReceiveSettings(action, fn) {
-		if (!fn) {
-			console.error(
-				'A callback function for the didReceiveSettings event is required for onDidReceiveSettings.'
-			);
-		}
+        this.websocket.onmessage = (evt) => {
+            const data = evt?.data ? JSON.parse(evt.data) : null;
 
-		this.on(`${action}.${Events.didReceiveSettings}`, (jsn) => fn(jsn));
-		return this;
-	}
+            const {action, event} = data;
+            const message = action ? `${action}.${event}` : event;
+            if(message && message !== '') this.emit(message, data);
+        };
+    }
+
+    /**
+     * Write to log file
+     * @param {string} message
+     */
+    logMessage(message) {
+        if(!message) {
+            console.error('A message is required for logMessage.');
+        }
+
+        try {
+            if(this.websocket) {
+                const json = {
+                    event: Events.logMessage,
+                    payload: {
+                        message: message,
+                    },
+                };
+                this.websocket.send(JSON.stringify(json));
+            } else {
+                console.error('Websocket not defined');
+            }
+        } catch(e) {
+            console.error('Websocket not defined');
+        }
+    }
+
+    /**
+     * Send JSON payload to StreamDeck
+     * @param {string} context
+     * @param {string} event
+     * @param {object} [payload]
+     */
+    send(context, event, payload = {}) {
+        this.websocket && this.websocket.send(JSON.stringify({context, event, ...payload}));
+    }
+
+    /**
+     * Save the plugin's persistent data
+     * @param {object} payload
+     */
+    setGlobalSettings(payload) {
+        this.send(this.uuid, Events.setGlobalSettings, {
+            payload: payload,
+        });
+    }
+
+    /**
+     * Request the plugin's persistent data. StreamDeck does not return the data, but trigger the plugin/property inspectors didReceiveGlobalSettings event
+     */
+    getGlobalSettings() {
+        this.send(this.uuid, Events.getGlobalSettings);
+    }
+
+    /**
+     * Opens a URL in the default web browser
+     * @param {string} url
+     */
+    openUrl(url) {
+        if(!url) {
+            console.error('A url is required for openUrl.');
+        }
+
+        this.send(this.uuid, Events.openUrl, {
+            payload: {
+                url,
+            },
+        });
+    }
+
+    /**
+     * Registers a callback function for when Stream Deck is connected
+     * @param {function} fn
+     * @returns ELGSDStreamDeck
+     */
+    onConnected(fn) {
+        if(!fn) {
+            console.error('A callback function for the connected event is required for onConnected.');
+        }
+
+        this.on(Events.connected, (jsn) => fn(jsn));
+        return this;
+    }
+
+    /**
+     * Registers a callback function for the didReceiveGlobalSettings event, which fires when calling getGlobalSettings
+     * @param {function} fn
+     */
+    onDidReceiveGlobalSettings(fn) {
+        if(!fn) {
+            console.error(
+                'A callback function for the didReceiveGlobalSettings event is required for onDidReceiveGlobalSettings.'
+            );
+        }
+
+        this.on(Events.didReceiveGlobalSettings, (jsn) => fn(jsn));
+        return this;
+    }
+
+    /**
+     * Registers a callback function for the didReceiveSettings event, which fires when calling getSettings
+     * @param {string} action
+     * @param {function} fn
+     */
+    onDidReceiveSettings(action, fn) {
+        if(!fn) {
+            console.error(
+                'A callback function for the didReceiveSettings event is required for onDidReceiveSettings.'
+            );
+        }
+
+        this.on(`${action}.${Events.didReceiveSettings}`, (jsn) => fn(jsn));
+        return this;
+    }
 }

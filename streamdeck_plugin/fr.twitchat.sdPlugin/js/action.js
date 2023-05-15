@@ -161,14 +161,38 @@ class ELGSDAction {
 	}
 
 	/**
-	 * Registers a callback function for the onDialPress event, which fires when a SD+ dial was pressed or released
-	 * @param {function} fn
+	 * Registers a callback function for the dialPress event, which fires when a SD+ dial was pressed or released
+	 * @deprecated Use onDialUp and onDialDown instead
 	 */
 	onDialPress(fn) {
 		if (!fn) {
-			console.error('A callback function for the onDialPress event is required for onDialPress.');
+			console.error('A callback function for the dialPress event is required for onDialPress.');
 		}
 		this.on(`${this.UUID}.${Events.dialPress}`, (jsn) => fn(jsn));
+		return this;
+	}
+
+	/**
+	 * Registers a callback function for the dialDown event, which fires when a SD+ dial was pressed
+	 * @param {function} fn
+	 */
+	onDialDown(fn) {
+		if (!fn) {
+			console.error('A callback function for the dialDown event is required for onDialDown.');
+		}
+		this.on(`${this.UUID}.${Events.dialDown}`, (jsn) => fn(jsn));
+		return this;
+	}
+
+	/**
+	 * Registers a callback function for the dialUp event, which fires when a pressed SD+ dial was released
+	 * @param {function} fn
+	 */
+	onDialUp(fn) {
+		if (!fn) {
+			console.error('A callback function for the dialUp event is required for onDialUp.');
+		}
+		this.on(`${this.UUID}.${Events.dialUp}`, (jsn) => fn(jsn));
 		return this;
 	}
 
@@ -178,7 +202,9 @@ class ELGSDAction {
 	 */
 	onTouchTap(fn) {
 		if (!fn) {
-			console.error('A callback function for the onTouchTap event is required for onTouchTap.');
+			console.error(
+				'A callback function for the onTouchTap event is required for onTouchTap.'
+			);
 		}
 		this.on(`${this.UUID}.${Events.touchTap}`, (jsn) => fn(jsn));
 		return this;
