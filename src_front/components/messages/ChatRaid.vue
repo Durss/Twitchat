@@ -5,12 +5,13 @@
 		<Icon name="raid" alt="raid" class="icon"/>
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" keypath="chat.raid.text" :plural="messageData.viewers">
+			<i18n-t scope="global" tag="span" keypath="chat.raid.text" :plural="showCount? messageData.viewers : 2">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
 				</template>
 				<template #COUNT>
-					<strong>{{ messageData.viewers }}</strong>
+					<strong @click.stop="showCount = !showCount" v-if="showCount">{{ messageData.viewers }}</strong>
+					<mark class="censored" @click.stop="showCount = !showCount" v-else>???</mark>
 				</template>
 			</i18n-t>
 
@@ -58,9 +59,11 @@ export default class ChatRaid extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageRaidData;
 
 	public shoutoutLoading = false;
+	public showCount = false;
 	public formatedDuration = "";
 
 	public beforeMount():void {
+		this.showCount = this.$store('params').appearance.showRaidViewersCount.value !== false;
 		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
 	}
 
@@ -90,6 +93,10 @@ export default class ChatRaid extends AbstractChatMessage {
 		align-items: flex-start;
 		flex-grow: 1;
 		gap: .25em;
+	}
+
+	.censored {
+		cursor: pointer;
 	}
 }
 </style>

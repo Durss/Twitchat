@@ -32,7 +32,7 @@
 					<div class="title">
 						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 						<span class="label">{{user.displayName}}</span>
-						<span class="translation" v-if="true || translateUsername">({{user.login}})</span>
+						<span class="translation" v-if="translateUsername">({{user.login}})</span>
 					</div>
 				</a>
 				<span v-if="user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
