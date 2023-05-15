@@ -244,7 +244,7 @@ export default class UserCard extends Vue {
 		if(!this.user) return [];
 
 		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban"]
+		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"]
 		const uid:string = this.user.id;
 		for (let i = 0; i < this.$store("chat").messages.length; i++) {
 			const mess = this.$store("chat").messages[i];
@@ -258,6 +258,8 @@ export default class UserCard extends Vue {
 			}else if((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
 				messageList.push(mess);
 			}else if(mess.type == "subscription" && mess.user.id == uid) {
+				messageList.push(mess);
+			}else if(mess.type == "cheer" && mess.user.id == uid) {
 				messageList.push(mess);
 			}else if(mess.type == "reward" && mess.user.id == uid) {
 				messageList.push(mess);

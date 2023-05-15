@@ -20,7 +20,7 @@
 	@color-alert: #b71f1f;
 	@color-text: #eee;
 	@color-text-inverse: #000;
-	@color-chatMessage: #c0c0c0;
+	@color-chatMessage: #e0e0e0;
 
 	--vh: 100vh;//Overridden via JS on App.vue
 	--vw: 100vw;//Overridden for demoMode
@@ -122,7 +122,7 @@
 
 body.light {
 	@color-dark: #18181b;
-	@color-light: #EEEEEE;
+	@color-light: #FFFFFF;
 	@color-primary: #039372;
 	@color-secondary: #e04e00;
 	@color-alert: #b71f1f;
@@ -135,7 +135,7 @@ body.light {
 	--filter-brightness: brightness(0);
 
 	--background-color-primary: #ffffff;
-	--background-color-secondary: #efeff1;
+	--background-color-secondary: #eeeeee;
 	--background-color-fade: rgba(0,0,0,.5);
 	--background-color-fader: rgba(0,0,0,.15);
 	--background-color-fadest: rgba(0,0,0,.075);
@@ -301,13 +301,14 @@ mark {
 }
 
 .tippy-box[data-theme~='twitchat'] {
-	@color: var(--color-secondary-fade);
+	// @color: var(--color-secondary-fade);
+	@color: var(--color-secondary);
 	color:var(--color-text-light);
     background-color: @color;
 	font-size: 1rem;
-	backdrop-filter: blur(5px);
-	text-shadow: 0px 0px 5px rgba(0,0,0,1);//var(--text-shadow-contrast);
-	box-shadow: 3px 3px 3px rgba(0,0,0,.35);
+	// backdrop-filter: blur(5px);
+	// text-shadow: 0px 0px 5px rgba(0,0,0,1);//var(--text-shadow-contrast);
+	// box-shadow: 3px 3px 3px rgba(0,0,0,.35);
 	&[data-placement^='top']  > .tippy-arrow::before {
 		border-top-color: @color;
 	}

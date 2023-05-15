@@ -64,6 +64,7 @@ export const storeParams = defineStore('params', {
 			showRewardsInfos: 			{save:true, type:"boolean", value:false, labelKey:"params.showRewardsInfos", id:23, icon:"channelPoints", example:"rewardDetails.png"},
 			showViewersCount: 			{save:true, type:"boolean", value:true, labelKey:"params.showViewersCount", id:17, icon:"user"},
 			showRaidViewersCount: 		{save:true, type:"boolean", value:true, labelKey:"params.showRaidViewersCount", id:40, icon:"raid"},
+			alternateMessageBackground:	{save:true, type:"boolean", value:true, labelKey:"params.alternateMessageBackground", id:41, icon:"whispers"},
 			showEmotes: 				{save:true, type:"boolean", value:true, labelKey:"params.showEmotes", id:2, icon:"emote"},
 			bttvEmotes: 				{save:true, type:"boolean", value:false, labelKey:"params.bttvEmotes", id:3, icon:"emote", parent:2},
 			ffzEmotes: 					{save:true, type:"boolean", value:false, labelKey:"params.ffzEmotes", id:19, icon:"emote", parent:2},

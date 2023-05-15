@@ -1022,10 +1022,8 @@ export default class TriggerActionHandler {
 										//a single coma seperated string (placeholder parsing is made for display :/).
 										//Here we split it on comas just in case there are multiple user names
 										let list = login.split(",");
-										console.log("LIST =>", list);
 										for (let displayName of list) {
 											displayName = displayName.trim();
-											console.log("User",displayName);
 											let channelId = StoreProxy.auth.twitch.user.id;
 											if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
 												channelId = (message as TwitchatDataTypes.GreetableMessage).channel_id;

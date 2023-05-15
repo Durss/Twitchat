@@ -98,7 +98,7 @@
 
 				<div class="ctas">
 					<Button small icon="cross" alert v-if="forceConfig" @click="deleteColumn()" >{{ $t('global.cancel') }}</Button>
-					<Button small icon="add" secondary v-if="forceConfig" @click="submitForm()" >{{ $t('global.create') }}</Button>
+					<Button small icon="add" v-if="forceConfig" @click="submitForm()" >{{ $t('global.create') }}</Button>
 				</div>
 
 				<ParamItem class="showPanelsHere"

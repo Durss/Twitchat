@@ -67,7 +67,7 @@ export default class ToggleButton extends Vue {
 	border-radius: @size;
 	position: relative;
 	cursor: pointer;
-	background-color: var(--background-color-fade);
+	background-color: var(--background-color-fader);
 	.bevel();
 
 	.circle {

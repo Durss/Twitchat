@@ -10,15 +10,20 @@
 		"tryBt": "Try it 👇",
 		"highlights": [
 			{
-				"i": "translate",
-				"l": "Twitchat speaks baguette<br>😍🥖",
-				"d": "1 year after the very first Twitchat version, the holy grail of the French community is here:<br>Twitchat <strong>exists in French</strong> 🥳<br><br>Try changing the language 👇"
+				"i": "theme",
+				"l": "New design",
+				"d": "Comes with a real dark mode as well as a light mode so all eyes are satisfied!"
 			},
 			{
-				"i": "edit",
-				"l": "Customize chat display",
-				"g": "update_images/columns.gif",
-				"d": "Create as many chat columns as you want and choose which message types to display on each of them."
+				"i": "commands",
+				"l": "Custom /commands",
+				"g": "update_images/customCmd.png",
+				"d": "Create your own /commands with the new dedicated trigger.<br><br>These commands won't be sent on chat and can be added to the default moderation options on the context menu."
+			},
+			{
+				"i": "broadcast",
+				"l": "Triggers on steroïds",
+				"d": "You can now create multiple triggers for the same event.<br>Triggers can have execution conditions.<br>Create"
 			},
 			{
 				"i": "lock_fit",

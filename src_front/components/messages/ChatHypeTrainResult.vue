@@ -81,7 +81,7 @@
 				</div>
 			</div>
 			
-			<Button v-if="!filtering && messageData.activities.length > 0" icon="filters" @click="filter()">{{ $t('chat.hype_train.filterBt') }}</Button>
+			<Button v-if="!filtering && messageData.activities.length > 0" small icon="filters" @click="filter()">{{ $t('chat.hype_train.filterBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -243,6 +243,9 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 					padding: 2px 5px;
 					border-radius: var(--border-radius);
 					font-size: .8em;
+					.icon {
+						vertical-align: middle;
+					}
 				}
 			}
 		}

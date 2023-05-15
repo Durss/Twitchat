@@ -334,7 +334,7 @@
 				"emergencyBlocked": "blocked",
 				"new_user": "new",
 				"firstToday":"hello",
-				"firstTimeChatter":"1st message",
+				"firstTimeChatter":"1st",
 				"presentation":"introduction",
 				"returningChatter":"returning"
 			},
@@ -344,8 +344,8 @@
 				"new_user": "First day on this channel",
 				"restrictedUser": "Message only visible by you and your mods",
 				"suspiciousUser": "User is flaged as suspicious",
-				"firstToday":"First message of this user today",
-				"firstTimeChatter":"First message of this user on this channel",
+				"firstToday":"First message today",
+				"firstTimeChatter":"First message on this channel",
 				"returningChatter":"This user chatted here twice in the last 30 days"
 			}
 		},

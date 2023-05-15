@@ -62,7 +62,7 @@ export default class ChatMessageInfoBadges extends Vue {
 .chatmessageinfobadges{
 	display: inline-flex;
 	flex-direction: row;
-	align-items: center;
+	align-items: stretch;
 
 	.item {
 		border-radius: .25em;

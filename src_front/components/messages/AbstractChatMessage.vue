@@ -177,7 +177,7 @@ export default class AbstractChatMessage extends Vue {
 		}
 		if(color) {
 			holder.style.border = "1px solid "+color;
-			holder.style.borderLeftWidth = "10px";
+			// holder.style.borderLeftWidth = "10px";
 			holder.style.backgroundColor = color+"10";
 		}else{
 			holder.style.border = "";

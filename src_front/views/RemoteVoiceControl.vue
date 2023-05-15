@@ -68,6 +68,7 @@ export default class RemoteVoiceControl extends Vue {
 		margin: auto;
 		padding: 0;
 		margin: .5em auto;
+		color: var(--color-text);
 
 		&:not(.conf) {
 			padding: 1em;

@@ -507,6 +507,7 @@ import Ajv from "ajv";
 		"p:splitViewVertical": {type:"boolean"},
 		"p:showUserPronouns": {type:"boolean"},
 		"p:showViewersCount": {type:"boolean"},
+		"p:alternateMessageBackground": {type:"boolean"},
 		"p:showRaidViewersCount": {type:"boolean"},
 		"p:offlineEmoteOnly": {type:"boolean"},
 		"p:stopStreamOnRaid": {type:"boolean"},

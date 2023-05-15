@@ -111,7 +111,6 @@ export default class RaidState extends Vue {
 		const raid = this.$store("stream").currentRaid;
 		if(raid) {
 			this.user = raid.user;
-			console.log(this.user);
 			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
 		}
 

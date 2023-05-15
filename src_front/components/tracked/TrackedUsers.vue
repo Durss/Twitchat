@@ -6,14 +6,16 @@
 		</div>
 
 		<div class="content">
-			<div class="messageList" ref="messageList">
+			<div class="messageList" ref="messageList" v-if="messages.length > 0">
 				<MessageItem v-for="(m, index) in messages"
 					:key="m.id"
 					:messageData="m"
 					:lightMode="true"
 					:disableConversation="true"
 					class="message" />
+				
 			</div>
+			<div class="messageList empty" v-else>no message</div>
 			
 			<Button class="refreshBt clearButton"
 				@click="refreshMessages()"
@@ -33,7 +35,7 @@
 <script lang="ts">
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
@@ -67,12 +69,30 @@ export default class TrackedUsers extends AbstractSidePanel {
 
 	public selectUser(user:TwitchatDataTypes.TwitchatUser):void {
 		this.selectedUser = user;
+		const uid = user.id;
 		let list:TwitchatDataTypes.ChatMessageTypes[] = [];
-		const messages = this.$store("chat").messages;
-		for (let i = 0; i < messages.length; i++) {
-			const m = messages[i];
-			if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			&& m.user.id == user.id) list.push(m);
+		const messageList = this.$store("chat").messages;
+		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"];
+		// for (let i = messageList.length-1; i > Math.max(0, messageList.length-100); i--) {
+		for (let i = 0; i < messageList.length; i++) {
+			const mess = messageList[i];
+			if(!allowedTypes.includes(mess.type)) continue;
+			if(mess.type == "shoutout" && mess.user.id == uid) {
+				list.push(mess);
+			}else if(mess.type == "following" && mess.user.id == uid) {
+				list.push(mess);
+			}else if((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
+				list.push(mess);
+			}else if((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
+				list.push(mess);
+			}else if(mess.type == "subscription" && mess.user.id == uid) {
+				list.push(mess);
+			}else if(mess.type == "cheer" && mess.user.id == uid) {
+				list.push(mess);
+			}else if(mess.type == "reward" && mess.user.id == uid) {
+				list.push(mess);
+			}
+			if (list.length > 100) break;//Limit to 100 for perf reasons
 		}
 		this.messages = list;
 
@@ -174,7 +194,13 @@ export default class TrackedUsers extends AbstractSidePanel {
 			flex-direction: column;
 			flex-grow: 1;
 			.message:nth-child(odd) {
-				background-color: var(--color-dark-fadest);
+				background-color: var(--background-color-fadest);
+			}
+
+			&.empty {
+				align-items: center;
+				justify-content: center;
+				font-style: italic;
 			}
 		}
 		.refreshBt {

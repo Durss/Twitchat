@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<CloseButton @click="close()" />
 			
-			<img src="@/assets/icons/update.svg" alt="emergency" class="icon">
+			<Icon name="update" class="icon" />
 
 			<div class="head">
 				<span class="title">{{$t("changelog.major_title")}}</span>
@@ -21,13 +21,16 @@
 					
 					<Slide v-for="(item, index) in items" :key="index" class="item">
 						<div class="inner">
-							<img :src="$image('icons/'+item.i+'.svg')" class="icon">
+							<Icon :name="item.i" class="icon" />
 							<span class="title" v-html="item.l"></span>
 							<span class="description" v-html="item.d"></span>
 							<img v-if="item.g" class="demo" :src="item.g">
 							<video v-if="item.v" class="demo" :src="item.v" autoplay loop controls></video>
 							
-							<AppLangSelector v-if="item.i=='translate'" />
+							<div v-if="item.i=='theme'">
+								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
+								<ThemeSelector />
+							</div>
 
 							<div v-if="item.i=='count'">
 								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
@@ -47,7 +50,6 @@
 </template>
 
 <script lang="ts">
-import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -55,9 +57,9 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
-import AppLangSelector from '../AppLangSelector.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
+import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
 
@@ -69,7 +71,7 @@ import OverlayCounter from '../overlays/OverlayCounter.vue';
 		CloseButton,
 		ToggleBlock,
 		OverlayCounter,
-		AppLangSelector,
+		ThemeSelector,
 		Pagination,
 		Navigation,
 	},
@@ -149,9 +151,11 @@ export default class Changelog extends Vue {
 		gsap.to(this.$refs.holder as HTMLDivElement, {y:"-150px", ease:"back.in", opacity:0, duration:.5, onComplete:()=>{
 			this.$emit('close');
 		}});
-		if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
-			DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
-		}
+
+		//TODO uncomment that
+		// if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
+		// 	DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
+		// }
 	}
 
 }
@@ -193,7 +197,7 @@ export default class Changelog extends Vue {
 				align-items: center;
 				gap: 1em;
 				padding: 1em 3em;
-				color:var(--color-light);
+				color:var(--color-text);
 				border-radius: var(--border-radius);
 				width: calc(100% - 5px);
 
@@ -210,7 +214,7 @@ export default class Changelog extends Vue {
 				.description {
 					text-align: justify;
 					font-size: 1em;
-					line-height: 1.25em;
+					line-height: 1.5em;
 				}
 
 				.demo {
@@ -225,6 +229,7 @@ export default class Changelog extends Vue {
 
 				.tryBt {
 					margin-bottom: .5em;
+					font-weight: bold;
 				}
 
 				.counterActions {
@@ -270,7 +275,7 @@ export default class Changelog extends Vue {
 		}
 		:deep(.carousel__pagination-button) {
 			&:after {
-				background-color: var(--color-light);
+				background-color: var(--color-text);
 			}
 		}
 		:deep(.carousel__pagination-button--active) {

@@ -69,12 +69,12 @@ export default class ChannelNotifications extends AbstractSidePanel {
 	public get showDeezer():boolean { return this.currentContent == 'deezer' && this.$store("music").deezerConnected; }
 
 	public get showClose():boolean {
-		return this.showPoll
+		return (this.showPoll
 			|| this.showPrediction
 			|| this.showBingo
 			|| this.showRaffle
 			|| this.showDeezer
-			|| this.$store('chat').searchMessages != ""
+			|| this.$store('chat').searchMessages != "")
 		;
 	}
 

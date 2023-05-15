@@ -186,6 +186,7 @@ export default class MessageList extends Vue {
 		let res = ["messagelist"];
 		if (this.lightMode) res.push("lightMode");
 		if (this.lockScroll) res.push("lockScroll");
+		if (this.$store("params").appearance.alternateMessageBackground.value !== false) res.push("alertnateBackground");
 		return res;
 	}
 
@@ -950,6 +951,7 @@ export default class MessageList extends Vue {
 						this.selectedItem = null;
 						this.selectedMessage = null;
 						this.selectionDate = 0;
+						PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SELECT_ACTION_CANCEL);
 					}, 5000);
 				}
 				break;
@@ -1589,18 +1591,21 @@ export default class MessageList extends Vue {
 		}
 	}
 
-	&:not(.alternateOdd) {
-		.messageHolder {
-			.subHolder:nth-child(even) {
-				background-color: var(--background-color-fadest);
+	&.alertnateBackground {
+
+		&:not(.alternateOdd) {
+			.messageHolder {
+				.subHolder:nth-child(even) {
+					background-color: var(--background-color-fadest);
+				}
 			}
 		}
-	}
-
-	&.alternateOdd {
-		.messageHolder {
-			.subHolder:nth-child(odd) {
-				background-color: var(--background-color-fadest);
+	
+		&.alternateOdd {
+			.messageHolder {
+				.subHolder:nth-child(odd) {
+					background-color: var(--background-color-fadest);
+				}
 			}
 		}
 	}
@@ -1662,6 +1667,8 @@ export default class MessageList extends Vue {
 				// &:hover {
 				// 	// Disabled as it causes CSS re renders of all subsequent nodes
 				// 	// which is not ideal for performances
+				//	// It made it so hovering a message behind the "read mark" layer
+				//	// would make it appear over it
 				// 	z-index: 2000;
 				// }
 			}
@@ -1682,7 +1689,8 @@ export default class MessageList extends Vue {
 		.selected {
 			width: 100%;
 			height: 100%;
-			background-color: var(--color-secondary-fadest);
+			background-color: var(--color-alert-fadest);
+			outline: 1px solid var(--color-alert);
 			position: absolute;
 			bottom: 0;
 			left: 0;
