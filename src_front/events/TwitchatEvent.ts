@@ -44,6 +44,7 @@ export default class TwitchatEvent extends Event {
 	public static SET_COLS_COUNT:TwitchatEventType = "SET_COLS_COUNT";
 	public static COUNTER_UPDATE:TwitchatEventType = "COUNTER_UPDATE";
 	public static COUNTER_LIST:TwitchatEventType = "COUNTER_LIST";
+	public static TRIGGER_LIST:TwitchatEventType = "TRIGGER_LIST";
 	public static OBS_SCENE_CHANGE:TwitchatEventType = "OBS_SCENE_CHANGE";
 	public static OBS_SOURCE_TOGGLE:TwitchatEventType = "OBS_SOURCE_TOGGLE";
 	public static OBS_MUTE_TOGGLE:TwitchatEventType = "OBS_MUTE_TOGGLE";
@@ -107,8 +108,11 @@ export default class TwitchatEvent extends Event {
 	public static RAFFLE_END:TwitchatActionType = "RAFFLE_END";
 	public static GET_COLS_COUNT:TwitchatActionType = "GET_COLS_COUNT";
 	public static COUNTER_GET_ALL:TwitchatActionType = "COUNTER_GET_ALL";
+	public static TRIGGERS_GET_ALL:TwitchatActionType = "TRIGGERS_GET_ALL";
 	public static COUNTER_GET:TwitchatActionType = "COUNTER_GET";
 	public static COUNTER_ADD:TwitchatActionType = "COUNTER_ADD";
+	public static EXECUTE_TRIGGER:TwitchatActionType = "EXECUTE_TRIGGER";
+	public static SEND_MESSAGE:TwitchatActionType = "SEND_MESSAGE";
 	public static TIMER_ADD:TwitchatActionType = "TIMER_ADD";
 	public static COUNTDOWN_ADD:TwitchatActionType = "COUNTDOWN_ADD";
 	public static CREATE_POLL:TwitchatActionType = "CREATE_POLL";
@@ -160,6 +164,7 @@ export const TwitchatEventTypeList = [
 	"SET_COLS_COUNT",
 	"COUNTER_UPDATE",
 	"COUNTER_LIST",
+	"TRIGGER_LIST",
 	"OBS_SCENE_CHANGE",
 	"OBS_SOURCE_TOGGLE",
 	"OBS_MUTE_TOGGLE",
@@ -225,6 +230,9 @@ export const TwitchatActionTypeList = [
 	"RAFFLE_END",
 	"GET_COLS_COUNT",
 	"COUNTER_GET_ALL",
+	"TRIGGERS_GET_ALL",
+	"EXECUTE_TRIGGER",
+	"SEND_MESSAGE",
 	"COUNTER_GET",
 	"COUNTER_ADD",
 	"TIMER_ADD",

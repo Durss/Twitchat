@@ -141,19 +141,22 @@
 </template>
 
 <script lang="ts">
-import BingoForm from '@/components/bingo/BingoForm.vue';
 import Button from '@/components/Button.vue';
+import BingoForm from '@/components/bingo/BingoForm.vue';
 import Changelog from '@/components/changelog/Changelog.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
+import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
+import ChatSuggestionState from '@/components/chatSugg/ChatSuggestionState.vue';
 import ChatForm from '@/components/chatform/ChatForm.vue';
 import CommandHelper from '@/components/chatform/CommandHelper.vue';
 import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
+import MessageSearch from '@/components/chatform/MessageSearch.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
+import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
 import UserList from '@/components/chatform/UserList.vue';
-import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
 import Parameters from '@/components/params/Parameters.vue';
@@ -161,15 +164,21 @@ import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
+import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
+import DonorBadge from '@/components/user/DonorBadge.vue';
+import WhispersState from '@/components/whispers/WhispersState.vue';
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import MessengerProxy from '@/messaging/MessengerProxy';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import DeezerHelper from '@/utils/music/DeezerHelper';
 import PublicAPI from '@/utils/PublicAPI';
+import Utils from '@/utils/Utils';
+import DeezerHelper from '@/utils/music/DeezerHelper';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -184,12 +193,6 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
-import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
-import ChatSuggestionState from '@/components/chatSugg/ChatSuggestionState.vue';
-import WhispersState from '@/components/whispers/WhispersState.vue';
-import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
-import MessageSearch from '@/components/chatform/MessageSearch.vue';
-import DonorBadge from '@/components/user/DonorBadge.vue';
 
 @Component({
 	components:{
@@ -429,6 +432,8 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.EXECUTE_TRIGGER, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.TRIGGERS_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
@@ -436,6 +441,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		this.renderFrame();
 		requestWakeLock();
@@ -472,6 +478,8 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.EXECUTE_TRIGGER, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.TRIGGERS_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
@@ -479,6 +487,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 	}
 
@@ -597,6 +606,29 @@ export default class Chat extends Vue {
 				}
 				break;
 			}
+			case TwitchatEvent.EXECUTE_TRIGGER: {
+				const id = (e.data as JsonObject).triggerId as string;
+				const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);
+				if(trigger) {
+					console.log("TRIGGER", trigger);
+					const me = this.$store("auth").twitch.user;
+					const fakeMessage:TwitchatDataTypes.MessageChatData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						channel_id:me.id,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						message:"",
+						message_chunks:[],
+						message_html:"",
+						user:me,
+						is_short:false,
+						answers:[],
+					}
+					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, true);
+				}
+				break;
+			}
 
 			case TwitchatEvent.COUNTER_GET_ALL: {
 				const counters = this.$store("counters").counterList.map(v=> {
@@ -612,8 +644,30 @@ export default class Chat extends Vue {
 				break;
 			}
 
+			case TwitchatEvent.TRIGGERS_GET_ALL: {
+				const triggers = this.$store("triggers").triggerList.map(v=> {
+					return {
+						id:v.id,
+						name:Utils.getTriggerDisplayInfo(v).label,
+					}
+				});
+				if(triggers) {
+					PublicAPI.instance.broadcast(TwitchatEvent.TRIGGER_LIST, {triggers});
+				}
+				break;
+			}
+
 			case TwitchatEvent.CLEAR_CHAT_HIGHLIGHT: {
 				this.$store("chat").highlightChatMessageOverlay();
+				break;
+			}
+
+			case TwitchatEvent.SEND_MESSAGE: {
+				const message = (e.data as JsonObject).message as string;
+				console.log("MESSAGE", e.data, message);
+				if(message) {
+					MessengerProxy.instance.sendMessage(message);
+				}
 				break;
 			}
 			

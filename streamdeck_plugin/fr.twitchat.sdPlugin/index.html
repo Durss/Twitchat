@@ -17,7 +17,7 @@
 
 <body>
 	<script>
-		const uuidList = [
+		const actionsList = [
 			"fr.twitchat.action.greet-feed-read-all",
 			"fr.twitchat.action.greet-feed-read",
 			"fr.twitchat.action.chat-feed-read-all",
@@ -46,6 +46,8 @@
 			"fr.twitchat.action.countdown-add",
 			"fr.twitchat.action.counter-add",
 			"fr.twitchat.action.raffle-start",
+			"fr.twitchat.action.execute-trigger",
+			"fr.twitchat.action.send-message",
 		];
 
 		const SELECT_ACTIONS = [
@@ -80,34 +82,34 @@
 				const actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				const col = payload.settings.colIndex ?? 0;
 				let params = payload.settings;
-				params.col = col;
 				switch(actionName) {
 					case "GREET_FEED_READ":{
-						params = {col, count: payload.settings.readCount};
+						params = {count: payload.settings.readCount};
 						break;
 					}
 					case "CHAT_FEED_READ":{
-						params = {col, count: payload.settings.readCount};
+						params = {count: payload.settings.readCount};
 						break;
 					}
 					case "CHAT_FEED_SCROLL_UP":{
-						params = {col, scrollBy: payload.settings.scrollAmount};
+						params = {scrollBy: payload.settings.scrollAmount};
 						break;
 					}
 					case "CHAT_FEED_SCROLL_DOWN":{
-						params = {col, scrollBy: payload.settings.scrollAmount};
+						params = {scrollBy: payload.settings.scrollAmount};
 						break;
 					}
 					case "TIMER":
 					case "COUNTDOWN":{
-						params = {col, scrollBy: payload.settings.timeAdd};
+						params = {scrollBy: payload.settings.timeAdd};
 						break;
 					}
 					case "COUNT":{
-						params = {col, scrollBy: payload.settings.countAdd};
+						params = {scrollBy: payload.settings.countAdd};
 						break;
 					}
 				}
+				if(col) params.col = col;
 				// console.log(actionName, params);
 				callTwitchat(actionName, params)
 			},
@@ -248,8 +250,8 @@
 				$SD.getGlobalSettings();
 			});
 
-			for (let i = 0; i < uuidList.length; i++) {
-				const uuid = uuidList[i];
+			for (let i = 0; i < actionsList.length; i++) {
+				const uuid = actionsList[i];
 				
 				const myAction = new Action(uuid);
 				myAction.onKeyUp(({ action, context, device, event, payload }) => {
@@ -271,6 +273,7 @@
 				myAction.onPropertyInspectorDidAppear(({ action, context, device, event }) => {
 					callTwitchat("GET_COLS_COUNT");
 					callTwitchat("COUNTER_GET_ALL");
+					callTwitchat("TRIGGERS_GET_ALL");
 				});
 		
 				myAction.onSendToPlugin(({ action, context, device, event, payload }) => {
@@ -350,6 +353,11 @@
 						}
 						case "COUNTER_LIST":{
 							settingsCache.COUNTER_LIST = e.data.counters;
+							actions.SetGlobalSettings(settingsCache);
+							break;
+						}
+						case "TRIGGER_LIST":{
+							settingsCache.TRIGGER_LIST = e.data.triggers;
 							actions.SetGlobalSettings(settingsCache);
 							break;
 						}
