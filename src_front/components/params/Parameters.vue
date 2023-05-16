@@ -51,6 +51,9 @@
 			</div>
 
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
+				<div class="search">
+					<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
+				</div>
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
 				<ParamsStreamdeck v-if="content == contentStreamdeck" ref="currentContent" />
 				<ParamsOBS v-if="content == contentObs" ref="currentContent" />
@@ -195,7 +198,7 @@ export default class Parameters extends Vue {
 
 	public get classes():string[] {
 		let res = ["parameters", "sidePanel"];
-		if(this.content != "main") res.push("hasContent");
+		if(this.content != "main" || this.search) res.push("hasContent");
 		return res;
 	}
 
@@ -458,6 +461,19 @@ export default class Parameters extends Vue {
 				max-width: 600px;
 				margin: 0 auto;
 			}
+
+			.search {
+				display: none;
+				width: 100%;
+				margin-bottom: 1em;
+				input {
+					// min-width: 250px;
+					width: 100%;
+					max-width: 250px;
+					margin: auto;
+					display: block;
+				}
+			}
 		}
 	}
 
@@ -511,7 +527,16 @@ export default class Parameters extends Vue {
 				margin: 0 auto;
 			}
 			.search {
-				display: none;
+				// display: none;
+				width: 100%;
+				margin-bottom: 1em;
+				input {
+					// min-width: 250px;
+					width: 100%;
+					max-width: 250px;
+					margin: auto;
+					display: block;
+				}
 			}
 			.buttonList {
 				display: flex;
@@ -554,6 +579,10 @@ export default class Parameters extends Vue {
 			.content {
 				margin-top: 1em;
 				padding: 0;
+
+				.search {
+					display: block;
+				}
 			}
 		}
 
