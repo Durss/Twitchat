@@ -1017,6 +1017,7 @@ export default class TriggerActionHandler {
 									log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 									//Convert placeholder to a string value
 									const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.counterUserSources[c.id].toUpperCase()+"}")
+									log.messages.push({date:Date.now(), value:"...extracted user is \""+login+"\""});
 									if(login) {
 										//Not ideal but if there are multiple users they're concatenated in
 										//a single coma seperated string (placeholder parsing is made for display :/).

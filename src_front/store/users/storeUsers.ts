@@ -20,6 +20,7 @@ interface BatchItem {
 //Having this list reactive kills performances while being
 //unnecessary
 const userList:TwitchatDataTypes.TwitchatUser[] = [];
+//FIXME few duplicates happen in the userlist
 
 const unbanFlagTimeouts:{[key:string]:number} = {};
 const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
@@ -190,10 +191,11 @@ export const storeUsers = defineStore('users', {
 				//If we don't have enough info, create a temp user object and load
 				//its details from the API then register it if found.
 				if(!login || !id || !displayName) {
+					if(!login && displayName) login = displayName.toLowerCase();
 					const userData:TwitchatDataTypes.TwitchatUser = {
 						platform:platform,
 						id:id??Utils.getUUID(),
-						login:login??displayName??"",
+						login:login??"",
 						displayName:displayName??login??"",
 						temporary:true,
 						pronouns:null,
@@ -212,6 +214,7 @@ export const storeUsers = defineStore('users', {
 						},
 						channelInfo:{},
 					};
+					
 					user = reactive(userData);
 				}
 
