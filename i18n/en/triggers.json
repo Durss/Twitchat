@@ -221,16 +221,18 @@
 				"topic_description": "Custom value"
 			},
 			"count": {
-				"value_label":"Value to add or remove",
+				"value_label":"Value",
 				"select_label":"Counters to update",
 				"select_placeholder":"Select a counter...",
+				"select_action":"Action",
+				"select_action_placeholder":"Select action...",
+				"action_add":"Add value",
+				"action_del":"Substract value",
+				"action_set":"Set value",
 				"user_source_title":"Select the user to update for this counter: | Select the user to update for those counters:",
 				"user_source_sender":"User using the command",
+				"user_source_everyone":"All users",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
-			},
-			"countget": {
-				"placeholder_label":"Placeholder name",
-				"select_label":"Counter to fetch"
 			},
 			"random":{
 				"min_label":"Min value (included)",

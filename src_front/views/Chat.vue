@@ -173,6 +173,7 @@ import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import StoreProxy from '@/store/StoreProxy';
+import type { TriggerActionCountDataAction } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
@@ -599,13 +600,15 @@ export default class Chat extends Vue {
 
 			case TwitchatEvent.COUNTER_ADD: {
 				const id = (e.data as JsonObject).counterId as string;
+				const action = (e.data as JsonObject).action as TriggerActionCountDataAction;
 				const value = parseInt((e.data as JsonObject).countAdd as string);
 				const counter = this.$store("counters").counterList.find(v=>v.id == id);
 				if(counter && !isNaN(value)) {
-					this.$store("counters").increment(id, value);
+					this.$store("counters").increment(id, action || "ADD", value);
 				}
 				break;
 			}
+			
 			case TwitchatEvent.EXECUTE_TRIGGER: {
 				const id = (e.data as JsonObject).triggerId as string;
 				const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);

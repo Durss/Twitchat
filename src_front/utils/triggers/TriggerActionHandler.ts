@@ -1002,6 +1002,7 @@ export default class TriggerActionHandler {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/,/gi, ".");
 					const value = MathJS.evaluate(text);
+					if(!step.action) step.action = "ADD";
 
 					if(!isNaN(value)) {
 						const ids = step.counters;
@@ -1013,7 +1014,8 @@ export default class TriggerActionHandler {
 								if(c.perUser
 								&& step.counterUserSources
 								&& step.counterUserSources[c.id]
-								&& step.counterUserSources[c.id] != "SENDER") {
+								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
+								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE) {
 									log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 									//Convert placeholder to a string value
 									const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.counterUserSources[c.id].toUpperCase()+"}")
@@ -1047,15 +1049,29 @@ export default class TriggerActionHandler {
 												});
 											});
 
-											if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, value, user);
-											let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
+											if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
+											let logMessage = "Update \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
 											if(user) logMessage += " (for @"+user.displayName+")";
 											logStep.messages.push({date:Date.now(), value:logMessage});
 										}
 									}
+
+								//Check if requested to edit all users of a counter
+								}else if(c.perUser
+								&& c.users
+								&& step.counterUserSources
+								&& step.counterUserSources[c.id]
+								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE){
+									logStep.messages.push({date:Date.now(), value:"Update all users, \""+step.action+"\" "+value+" ("+text+")"});
+									console.log("counter", c);
+									for (const uid in c.users) {
+										StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
+									}
+
+								//Standard counter edition (either current user or a non-per-user counter)
 								}else{
 
-									if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, value, user);
+									if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
 									let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
 									if(user) logMessage += " (for @"+user.displayName+")";
 									logStep.messages.push({date:Date.now(), value:logMessage});

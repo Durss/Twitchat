@@ -221,16 +221,18 @@
 				"topic_description": "Valeur personnalisée"
 			},
 			"count": {
-				"value_label":"Valeur à ajouter ou retirer",
+				"value_label":"Valeur",
 				"select_label":"Compteurs à mettre à jour",
 				"select_placeholder":"Sélectionnez un compteur...",
+				"select_action":"Action",
+				"select_action_placeholder":"Selectionnez une action...",
+				"action_add":"Ajouter",
+				"action_del":"Soustraire",
+				"action_set":"Remplacer la valeur",
 				"user_source_title":"Sélectionnez l'utilisateur mettre à jour pour ce compteur : | Sélectionnez l'utilisateur mettre à jour pour ces compteurs :",
 				"user_source_sender":"Personne utilisant la commande",
+				"user_source_everyone":"Toutes les personnes",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
-			},
-			"countget": {
-				"placeholder_label":"Nom du placeholder",
-				"select_label":"Compteur à lire"
 			},
 			"random":{
 				"min_label":"Valeur min (inclus)",

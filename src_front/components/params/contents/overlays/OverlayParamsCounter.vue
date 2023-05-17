@@ -2,7 +2,7 @@
 	<ToggleBlock :open="open" class="overlayparamscounter" :title="$t('overlay.counters.title')" :icons="['count']">
 		
 		
-		<div class="holder" v-if="counters.length == 0 || true">
+		<div class="holder" v-if="counters.length == 0">
 			<a class="item demoLink" href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD" target="_blank"><img src="@/assets/img/param_examples/counterVideo.jpg" class="demo"></a>
 
 			<p>{{ $t("overlay.counters.head_empty") }}</p>

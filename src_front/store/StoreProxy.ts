@@ -1,4 +1,4 @@
-import type { TriggerData } from "@/types/TriggerActionDataTypes";
+import type { TriggerActionCountDataAction, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
@@ -1509,11 +1509,18 @@ export interface ICountersActions {
 	delCounter(data:TwitchatDataTypes.CounterData):void;
 	/**
 	 * Add a value to the specified counter
+	 * When edditing a per-user counter it's possible to either give a user
+	 * instance of the user to update and all related triggers (looped, maxed, mined,...)
+	 * will be executed.
+	 * If updating LOTS of users at once, it's preferable to only give the userId to
+	 * in which case triggers won't be executed
 	 * @param id 
+	 * @param action 
 	 * @param value 
 	 * @param user 
+	 * @param userId 
 	 */
-	increment(id:string, value:number, user?:TwitchatDataTypes.TwitchatUser):void;
+	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
 }
 
 

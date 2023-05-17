@@ -31,14 +31,14 @@
 			</div>
 		</div>
 
-		<ParamItem class="value" :paramData="param_value" v-model="action.addValue" />
+		<ParamItem :paramData="param_action" v-model="action.action" />
+		<ParamItem :paramData="param_value" v-model="action.addValue" />
 	</div>
 </template>
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
-import { TriggerEventPlaceholders, type TriggerActionCountData, type TriggerData, type TriggerActionCountDataUserSource } from '@/types/TriggerActionDataTypes';
+import { COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerActionCountDataActionList, TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionCountData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -57,40 +57,61 @@ export default class TriggerActionCountEntry extends Vue {
 
 	private userPLaceholders:ITriggerPlaceholder[] = [];
 
-	public get userSourceOptions():{key:TriggerActionCountDataUserSource, labelKey:string}[] {
-		const res:{key:TriggerActionCountDataUserSource, labelKey:string}[] = [{labelKey:"triggers.actions.count.user_source_sender", key:"SENDER"}]
+	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
+	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add"}
+	public param_action:TwitchatDataTypes.ParameterData<string, string> = {type:"list", labelKey:"triggers.actions.count.select_action", value:"", listValues:[]}
+
+	/**
+	 * Build user trigger source list
+	 */
+	public get userSourceOptions():{key:string, labelKey:string}[] {
+		const res:{key:string, labelKey:string}[] = [
+			//Add static sources "sender" and "everyone"
+			{labelKey:"triggers.actions.count.user_source_sender", key:COUNTER_EDIT_SOURCE_SENDER},
+			{labelKey:"triggers.actions.count.user_source_everyone", key:COUNTER_EDIT_SOURCE_EVERYONE}
+		];
+
+		//Add command's placeholders
 		if(this.triggerData.chatCommandParams) {
 			this.triggerData.chatCommandParams.forEach(v=> {
 				res.push({labelKey:"triggers.actions.count.user_source_placeholder", key:v.tag});
 			});
 		}
+
+		//Add global placeholders that may contain a user name
 		this.userPLaceholders.filter(v=>v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX)==-1).forEach(v=> {
 			res.push({labelKey:"triggers.actions.count.user_source_placeholder", key:v.tag});
 		})
 		return res;
 	}
 
-	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
-	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add"}
-
+	/**
+	 * Get counter data of any per-user counter added to the selection
+	 */
 	public get selectedPerUserCounters():TwitchatDataTypes.CounterData[] {
 		return this.$store("counters").counterList
 		.filter(v=>v.perUser === true && this.action.counters.findIndex(v2=>v2 === v.id) > -1);
 	}
 
 	public beforeMount(): void {
+		//If trigger is related to a counter event (looped, maxed, mined) remove it
+		//from the editable counter to avoid infinite loop
 		const counters:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store("counters").counterList.map(v=>{
 			return {value:v.id, label:v.name};
 		}).filter(v=> {
 			return v.value != this.triggerData.counterId
 		});
 		
+		//Init counter's action if necessary
+		if(!this.action.action) this.action.action = "ADD";
+		//Init counter's list if necessary
 		if(!this.action.counters) this.action.counters = [];
 
+		//Check if selected counter still exists
 		for (let i = 0; i < this.action.counters.length; i++) {
 			const cid = this.action.counters[i];
 			if(counters.findIndex(v=>v.value == cid) === -1) {
-				//Counter not found, user probably deleted it
+				//Counter not found, user probably remove it
 				this.action.counters.splice(i,1);
 				i--;
 			}
@@ -101,10 +122,22 @@ export default class TriggerActionCountEntry extends Vue {
 		this.userPLaceholders = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable !== true)
 		this.param_value.placeholderList = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable == true);
 
+		//Populate action list from types definition
+		let actionList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+		for (let i = 0; i < TriggerActionCountDataActionList.length; i++) {
+			const value = TriggerActionCountDataActionList[i];
+			actionList.push({value, labelKey:"triggers.actions.count.action_"+value.toLowerCase()});
+		}
+		this.param_action.listValues = actionList;
+
 		watch(()=>this.selectedPerUserCounters, ()=> this.updatePerUserCounterSources());
 		this.updatePerUserCounterSources();
 	}
 
+	/**
+	 * Initialize the "counterUserSources" data property if not
+	 * existing yet and set "SENDER" default value
+	 */
 	private updatePerUserCounterSources():void {
 		//Init per-user counter sources if necessary
 		for (let i = 0; i < this.selectedPerUserCounters.length; i++) {
@@ -113,7 +146,7 @@ export default class TriggerActionCountEntry extends Vue {
 				this.action.counterUserSources = {};
 			}
 			if(!this.action.counterUserSources[c.id]) {
-				this.action.counterUserSources[c.id] = "SENDER";
+				this.action.counterUserSources[c.id] = COUNTER_EDIT_SOURCE_SENDER;
 			}
 		}
 	}
@@ -123,10 +156,6 @@ export default class TriggerActionCountEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractioncountentry{
-	.value:deep(.inputHolder) {
-		flex-basis: 200px;
-		max-width: 200px;
-	}
 	.itemSelector {
 		flex-grow: 1;
 		flex-basis: 300px;
