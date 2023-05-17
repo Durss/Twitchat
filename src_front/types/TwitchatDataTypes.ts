@@ -655,6 +655,8 @@ export namespace TwitchatDataTypes {
 		category:string;
 		tags:string[];
 		started_at:number;
+		live:boolean;
+		viewers:number;
 	}
 	export type StreamInfoKeys = keyof StreamInfo;
 

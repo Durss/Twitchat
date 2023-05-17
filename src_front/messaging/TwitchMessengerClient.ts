@@ -114,6 +114,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			chans.forEach(async v=> {
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
+
 				//Check if we're a mod on this channel by testing if the get chatters endpoint
 				//returns something or not (no dedicated API for this ATM)
 				TwitchUtils.getChatters(v.id).then(result => {
@@ -127,6 +128,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				})
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
+				
+				//Init stream info
+				StoreProxy.stream.currentStreamInfo[v.id] = {
+					title:"",
+					category:"",
+					live:false,
+					started_at:0,
+					tags:[],
+					user:u,
+					viewers:0,
+				}
 				
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);

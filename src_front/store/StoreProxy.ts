@@ -887,10 +887,6 @@ export interface IStreamState {
 	 */
 	currentRaid: TwitchatDataTypes.RaidInfo|undefined;
 	/**
-	 * Latest playback info (viewer count)
-	 */
-	playbackState: PubSubDataTypes.PlaybackInfo|undefined;
-	/**
 	 * Current community boost info if any
 	 */
 	communityBoostState: TwitchatDataTypes.CommunityBoost|undefined;
@@ -905,7 +901,7 @@ export interface IStreamState {
 	/**
 	 * Current stream info
 	 */
-	currentStreamInfo: TwitchatDataTypes.StreamInfo|undefined;
+	currentStreamInfo: {[key in string]:TwitchatDataTypes.StreamInfo|undefined};
 	/**
 	 * Date at which the current commercial will end
 	 */

@@ -125,7 +125,8 @@
       "emote_only": "Emote uniquement",
       "follow_only": "Followers uniquement",
       "slow_mode": "Mode lent",
-      "chat_delay": "Délai de tchat"
+      "chat_delay": "Délai de tchat",
+	  "unsetBt": "retirer"
     },
     "raffle": {
       "title": "{USER} a remporté le tirage au sort"

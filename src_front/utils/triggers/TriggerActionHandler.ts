@@ -1362,30 +1362,24 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					}else if(h.tag.toLowerCase().indexOf("my_stream") == 0 && StoreProxy.stream.currentStreamInfo) {
+					}else if(h.pointer.toLowerCase().indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
 						const pointer = h.pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys
-						value = StoreProxy.stream.currentStreamInfo[pointer].toString();
-						if(!value) value = "-none-";
+						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointer]?.toString() || "";
+						if(!value) value = pointer == "viewers"? "0" : "-none-";
 
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					}else if(h.tag.toLowerCase().indexOf("trigger_name") == 0) {
+					}else if(h.pointer.toLowerCase().indexOf("__trigger__") == 0) {
 						value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
 						if(!value) value = "-no name-";
 
 					/**
 					 * If the placeholder requests for the current OBS scene
 					 */
-					}else if(h.tag.toLowerCase().indexOf("obs_scene") == 0) {
+					}else if(h.pointer.toLowerCase().indexOf("__obs__") == 0) {
 						value = StoreProxy.main.currentOBSScene;
 						if(!value) value = "-none-";
-
-					/**
-					 * If the placeholder requests for the current OBS scene
-					 */
-					}else if(h.tag.toLowerCase().indexOf("viewer_count") == 0) {
-						value = StoreProxy.stream.playbackState?.viewers.toString() || "0";
 
 					/**
 					 * If the placeholder requests for a counter's value
@@ -1407,6 +1401,8 @@ export default class TriggerActionHandler {
 						}
 
 					}else{
+						console.log(StoreProxy.auth.twitch.user.id)
+						console.log(StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id])
 						console.warn("Unable to find pointer for helper", h);
 						value = "";
 					}
@@ -1491,6 +1487,8 @@ export default class TriggerActionHandler {
 				category:c.game_name,
 				title:c.title,
 				tags: c.tags,
+				live:true,
+				viewers:c.viewer_count,
 				started_at:new Date(c.started_at).getTime(),
 			}
 		}
@@ -1515,6 +1513,8 @@ export default class TriggerActionHandler {
 						type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
 						info: this.liveChannelCache[uid],
 					}
+					this.liveChannelCache[uid].viewers = 0;
+					this.liveChannelCache[uid].live = false;
 					StoreProxy.chat.addMessage(message);
 					dateOffset ++;
 				}

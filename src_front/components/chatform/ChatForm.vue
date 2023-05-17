@@ -162,13 +162,13 @@
 				<CommercialTimer v-if="isCommercial" />
 	
 				<div v-if="$store('params').appearance.showViewersCount.value === true
-					&& $store('stream').playbackState && $store('stream').playbackState!.viewers > 0"
+					&& streamInfo && streamInfo.viewers > 0"
 					v-tooltip="$t('chat.form.viewer_count')"
 					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
 					<p v-if="censoredViewCount">x</p>
-					<p v-if="!censoredViewCount">{{$store('stream').playbackState!.viewers}}</p>
+					<p v-if="!censoredViewCount">{{streamInfo.viewers}}</p>
 					<Icon class="icon" name="user"/>
 				</div>
 	
@@ -334,6 +334,10 @@ export default class ChatForm extends Vue {
 
 	public get emergencyButtonEnabled():boolean {
 		return this.$store("emergency").params.enabled === true;
+	}
+
+	public get streamInfo():TwitchatDataTypes.StreamInfo | undefined {
+		return this.$store('stream').currentStreamInfo[this.$store("auth").twitch.user.id];
 	}
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }

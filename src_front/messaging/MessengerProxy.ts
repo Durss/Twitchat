@@ -693,7 +693,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/userdata" || cmd == "/loaduserdata") {
 			if(params.length == 0) {
-				StoreProxy.main.alert(StoreProxy.i18n.t('error.username_missing'));
+				StoreProxy.main.alert(StoreProxy.i18n.t('error.user_param_missing'));
 			}else{
 				let users:TwitchDataTypes.UserInfo[] = [];
 				try {

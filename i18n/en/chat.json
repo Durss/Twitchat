@@ -125,7 +125,8 @@
 			"emote_only": "Emote only",
 			"follow_only": "Followers only",
 			"slow_mode": "Slow mode",
-			"chat_delay": "Chat delay"
+			"chat_delay": "Chat delay",
+			"unsetBt": "unset"
 		},
 		"raffle": {
 			"title": "{USER} won the raffle"

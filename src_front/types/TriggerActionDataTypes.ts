@@ -831,7 +831,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 		
 		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
-			entry.push({tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__stream__.viewers", numberParsable:true, isUserID:false, globalTag:true});
+			entry.push({tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true});
 		}
 
 		map[k] = entry.concat(counterPlaceholders);

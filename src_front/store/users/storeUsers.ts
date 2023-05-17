@@ -476,7 +476,6 @@ export const storeUsers = defineStore('users', {
 		flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void {
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
-				if(u.id === uid) console.log(channelId, u.channelInfo[channelId], JSON.parse(JSON.stringify(u.channelInfo)));
 				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					u.channelInfo[channelId].is_banned = true;
 					u.channelInfo[channelId].is_moderator = false;//When banned or timed out twitch removes the mod role
@@ -629,6 +628,17 @@ export const storeUsers = defineStore('users', {
 		async shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			let streamTitle = "";
 			let streamCategory = "";
+
+			if(user.errored) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.user_not_found"));
+				return;
+			}
+			
+			if(!StoreProxy.stream.currentStreamInfo[channelId]
+			|| !StoreProxy.stream.currentStreamInfo[channelId]?.live) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_offline"));
+				return;
+			}
 			
 			if(user.platform == "twitch") {
 				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {

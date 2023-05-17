@@ -349,6 +349,7 @@ export default class Button extends Vue {
 	&.light {
 		.label {
 			color: var(--color-primary);
+			text-shadow: unset;
 		}
 		&.secondary {
 			.label {

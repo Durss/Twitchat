@@ -400,12 +400,14 @@ export default class EventSub {
 		let category:string = "";
 		let tags:string[] = [];
 		let started_at:number = 0;
+		let viewers:number = 0;
 		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
 		if(streamInfos) {
 			title = streamInfos.title;
 			category = streamInfos.game_name;
 			tags = streamInfos.tags;
 			started_at = new Date(streamInfos.started_at).getTime();
+			viewers = streamInfos.viewer_count;
 		}else{
 			let [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id])
 			title = chanInfo.title;
@@ -413,11 +415,13 @@ export default class EventSub {
 			tags = chanInfo.tags;
 		}
 
-		StoreProxy.stream.currentStreamInfo = {
+		StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
 			title,
 			category,
 			tags,
 			started_at,
+			viewers,
+			live: false,
 			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name)
 		}
 
@@ -707,38 +711,43 @@ export default class EventSub {
 	 */
 	private async streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
+		const streamInfo:TwitchatDataTypes.StreamInfo = {
+			tags:[],
+			title: "",
+			category:"",
+			live:false,
+			viewers:0,
+			started_at:Date.now(),
+			user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+		};
 		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
 			date:Date.now(),
 			id:Utils.getUUID(),
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
-			info: {
-				tags:[],
-				title: "",
-				category:"",
-				started_at:Date.now(),
-				user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
-			}
+			info: streamInfo,
 		}
 
-		//Stream online
+		//Stream offline
 		if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF) {
 			StoreProxy.stream.setPlaybackState(event.broadcaster_user_id, undefined);
 			StoreProxy.stream.setStreamStop(event.broadcaster_user_id);
 			((message as unknown) as TwitchatDataTypes.MessageStreamOfflineData).type = TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE;
 			
-		//Stream offline
+		//Stream online
 		}else if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON) {
 			//Load stream info
 			const [streamInfo] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
 			if(streamInfo) {
 				message.info.started_at = new Date(streamInfo.started_at).getTime();
+				message.info.live = true;
 				message.info.title = streamInfo.title;
 				message.info.category = streamInfo.game_name;
 				StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
 			}
 		}
 		StoreProxy.chat.addMessage(message);
+		StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = streamInfo;
 	}
 
 	/**

@@ -2,14 +2,14 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import Config from "@/utils/Config";
+import Utils from "@/utils/Utils";
 import EventSub from "@/utils/twitch/EventSub";
 import PubSub from "@/utils/twitch/PubSub";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import Utils from "@/utils/Utils";
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
@@ -220,15 +220,38 @@ export const storeAuth = defineStore('auth', {
 				sRewards.loadRewards();
 
 				//Preload stream info
-				TwitchUtils.loadChannelInfo([this.twitch.user.id]).then(v=> {
-					const infos = v[0];
-					StoreProxy.stream.currentStreamInfo = {
-						title:infos.title,
-						category:infos.game_name,
-						started_at:Date.now(),
-						tags:[],
-						user:this.twitch.user,
+				TwitchUtils.loadCurrentStreamInfo([this.twitch.user.id]).then(async v=> {
+					let title = "";
+					let category = "";
+					let started_at = 0;
+					let tags:string[] = [];
+					let viewers = 0;
+					let live = false;
+					if(v.length ==0){
+						let [info] = await TwitchUtils.loadChannelInfo([this.twitch.user.id])
+						title		= info.title;
+						tags		= info.tags;
+						category	= info.game_name;
+					}else{
+						live		= true;
+						title		= v[0].title;
+						tags		= v[0].tags;
+						category	= v[0].game_name;
+						viewers		= v[0].viewer_count;
+						started_at	= new Date(v[0].started_at).getTime();
+
 					}
+					StoreProxy.stream.currentStreamInfo[this.twitch.user.id] = {
+						title,
+						category,
+						started_at,
+						tags,
+						live,
+						viewers,
+						user:this.twitch.user,
+					};
+					console.log(StoreProxy.stream.currentStreamInfo)
+					console.log(this.twitch.user.id);
 				});
 
 				//Warn the user about the automatic "ad" message sent every 2h
