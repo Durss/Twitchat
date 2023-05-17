@@ -541,7 +541,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Execute a specific trigger
 	 */
-	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string):Promise<boolean> {
+	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}):Promise<boolean> {
 		let log:TriggerLog = {
 			id:Utils.getUUID(),
 			trigger,
@@ -622,8 +622,6 @@ export default class TriggerActionHandler {
 			}
 		}
 
-		//Declare dynamic placeholders dictionary
-		const dynamicPlaceholders:{[key:string]:string|number} = {};
 		//Create dynamic placeholders only if trigger is planned for execution so far.
 		//These are necessary to check for conditions.
 		//For example, if there's a custom chat command param, it may be used on the
@@ -661,8 +659,14 @@ export default class TriggerActionHandler {
 			canExecute = false;
 		}
 
-		if(!trigger || !trigger.actions || trigger.actions.length == 0) canExecute = false;
-		if(!trigger.enabled && !testMode) canExecute = false;
+		if(!trigger || !trigger.actions || trigger.actions.length == 0) {
+			canExecute = false;
+			log.messages.push({date:Date.now(), value:"Trigger has no child actions"});
+		}
+		if(!trigger.enabled && !testMode) {
+			canExecute = false;
+			log.messages.push({date:Date.now(), value:"Trigger is disabled"});
+		}
 		
 		log.skipped = !canExecute;
 
@@ -931,8 +935,12 @@ export default class TriggerActionHandler {
 						if(trigger) {
 							// console.log("Exect sub trigger", step.triggerKey);
 							logStep.messages.push({date:Date.now(), value:"Call trigger \""+step.triggerId+"\""});
-							await this.executeTrigger(trigger, message, testMode);
+							await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders);
+						}else{
+							logStep.messages.push({date:Date.now(), value:"❌ Call trigger, trigger \""+step.triggerId+"\" not found"});
 						}
+					}else{
+						logStep.messages.push({date:Date.now(), value:"❌ Call trigger, no trigger defined"});
 					}
 				}else
 				
@@ -1125,7 +1133,7 @@ export default class TriggerActionHandler {
 							if(trigger) {
 								// console.log("Exec sub trigger", step.triggerKey);
 								logStep.messages.push({date:Date.now(), value:"Call random trigger \""+triggerId+"\""});
-								await this.executeTrigger(trigger, message, testMode);
+								await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders);
 							}
 						}else{
 							logStep.messages.push({date:Date.now(), value:"Random trigger not found for ID \""+triggerId+"\""});
