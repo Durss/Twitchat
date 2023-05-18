@@ -171,7 +171,6 @@ export default class Button extends Vue {
 	justify-content: center;
 	text-decoration: none;
 	color: var(--color-button);
-	transition: filter .15s, transform .1s, opacity .15s;
 	user-select: none;
 	text-decoration: none !important;
 	font-size: 1rem;
@@ -220,9 +219,11 @@ export default class Button extends Vue {
 
 	&.disabled {
 		cursor: not-allowed;
-		opacity: .4;
+		.background {
+			opacity: .4;
+		}
 		.label, .icon {
-			opacity: .75;
+			opacity: .4;
 		}
 	}
 	&.loading {

@@ -30,16 +30,6 @@
 				>{{ $t('home.loginBt') }}</Button>
 
 				<div class="ctas" ref="ctas">
-					<Button icon="elgato"
-						big
-						href="https://apps.elgato.com/plugins/fr.twitchat"
-						target="_blank"
-						type="link"
-						class="elgatoBt"
-						ref="streamDeckBt"
-						v-tooltip="{content:$t('home.streamdeckBt'), placement:'bottom'}"
-					></Button>
-			
 					<Button icon="discord"
 						big
 						:href="discordURL"
@@ -48,6 +38,16 @@
 						class="discordBt"
 						ref="discordBt"
 						v-tooltip="{content:$t('home.discordBt'), placement:'bottom'}"
+					></Button>
+
+					<Button icon="elgato"
+						big
+						href="https://apps.elgato.com/plugins/fr.twitchat"
+						target="_blank"
+						type="link"
+						class="elgatoBt"
+						ref="streamDeckBt"
+						v-tooltip="{content:$t('home.streamdeckBt'), placement:'bottom'}"
 					></Button>
 			
 					<Button icon="youtube"
@@ -215,7 +215,7 @@ export default class Home extends Vue {
 		//TODO update anchors labels when changing language
 
 		//Opening transition ATF elements
-		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "youtubeBt", "sponsorBt","featuresTitle"];
+		const refs = ["loginBt", "logo", "description", "discordBt", "streamDeckBt", "youtubeBt", "sponsorBt", "featuresTitle"];
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
 			let el = this.$refs[refs[i]] as HTMLElement | Vue;
