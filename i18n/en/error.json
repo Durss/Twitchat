@@ -34,6 +34,7 @@
 		"marker_creation": "Marker creation failed. Make sure you enabled VOD and that you're live",
 		"trigger_socket": "Unable to connect to socket server",
 		"shoutout_offline": "You must be live to make a shoutout",
+		"shoutout_pending": "This user already has a pending shoutout",
 		"spotify": {
 			"api_rate": "[SPOTIFY] API rate limits exceeded",
 			"token_refresh": "[SPOTIFY] token refresh failed"

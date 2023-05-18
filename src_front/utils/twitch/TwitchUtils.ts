@@ -2119,7 +2119,8 @@ export default class TwitchUtils {
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			followers = await TwitchUtils.getFollowers(null, 100);
 			for (let i = 0; i < followers.length; i++) {
-				this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name,undefined, true, false));
+				const user = StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name,undefined, true, false);
+				this.fakeUsersCache.push(user);
 			}
 		}
 
@@ -2151,6 +2152,22 @@ export default class TwitchUtils {
 		while(this.fakeUsersCache.length < count) {
 			const [entry] = additional.splice(Math.floor(Math.random() * additional.length), 1);
 			this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, entry.id, entry.login, entry.displayName,undefined, false, false));
+		}
+
+		//Get users that are missing avatars
+		let missingAvatars:TwitchatDataTypes.TwitchatUser[] = [];
+		for (let i = 0; i < this.fakeUsersCache.length; i++) {
+			const u = this.fakeUsersCache[i];
+			if(!u.avatarPath) missingAvatars.push(u);
+		}
+
+		//Load missing avatars
+		if(missingAvatars.length > 0) {
+			let res = await TwitchUtils.loadUserInfo(missingAvatars.map(v=>v.id));
+			res.forEach(u=> {
+				let user = missingAvatars.find(v=>v.id === u.id);
+				if(user) user.avatarPath = u.profile_image_url;
+			})
 		}
 
 		return this.fakeUsersCache;

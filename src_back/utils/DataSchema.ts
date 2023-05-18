@@ -219,6 +219,7 @@ import Ajv from "ajv";
 								title: {type:"string", maxLength:20},
 								categoryId: {type:"string", maxLength:30},
 								topic: {type:"string", maxLength:255},
+								pattern: {type:"string", maxLength:15},
 								tags: {
 									type:"array",
 									minItems:0,

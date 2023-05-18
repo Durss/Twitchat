@@ -540,7 +540,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 		
-		if(cmd == "/fakeso") {
+		if(cmd == "/fakeso" || cmd == "/fakeshoutout") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			let user = Utils.pickRand(fakeUsers);
 			if(params[0] && params[0] != "true" && params[0] != "false") {

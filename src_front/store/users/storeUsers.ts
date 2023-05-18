@@ -629,6 +629,9 @@ export const storeUsers = defineStore('users', {
 			let streamTitle = "";
 			let streamCategory = "";
 
+			//Init history if necessary
+			if(!this.shoutoutHistory[channelId]) this.shoutoutHistory[channelId] = [];
+
 			if(user.errored) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.user_not_found"));
 				return;
@@ -642,9 +645,22 @@ export const storeUsers = defineStore('users', {
 			
 			if(user.platform == "twitch") {
 				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-					let res = await TwitchUtils.sendShoutout(channelId, user);
-					if(res === false) {
-						//Shoutout not executed, add it to the pending triggers
+					//Check if user already has a pending shoutout
+					if(this.shoutoutHistory[channelId]!.filter(v=>v.done !== true && v.fake !== true && v.user.id == user.id)) {
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_pending"));
+						return;
+					}
+					
+					//Check if a SO are pending
+					let addToQueue = this.shoutoutHistory[channelId]!.filter(v=>v.done !== true && v.fake !== true).length > 0 || 0;
+					if(!addToQueue) {
+						//If no pending SO, try to execute it
+						let res = await TwitchUtils.sendShoutout(channelId, user);
+						if(res === false) addToQueue = true;
+					}
+
+					//Shoutout not executed, add it to the pending queue
+					if(addToQueue) {
 						if(!this.shoutoutHistory[channelId]) {
 							//No entry exist yet, create a list
 							this.shoutoutHistory[channelId] = [];

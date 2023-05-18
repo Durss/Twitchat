@@ -421,8 +421,9 @@ export default class MessageList extends Vue {
 		if(this.customActivitiesDisplayed) return false;
 		if(m.col != undefined && m.col != this.config.order) return false;
 		
+		//If message is deleted, keep it only if requested to show messages AND deleted messages
 		if (m.deleted) {
-			return this.config.messageFilters.deleted === true;
+			return this.config.messageFilters.deleted === true && this.config.filters.message === true;
 		}
 
 		switch (m.type) {

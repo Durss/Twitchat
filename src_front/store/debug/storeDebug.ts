@@ -911,6 +911,8 @@ export const storeDebug = defineStore('debug', {
 							category:"Just chatting",
 							started_at:Date.now(),
 							tags:[],
+							live:false,
+							viewers:0,
 						}
 					};
 					data = m;
@@ -929,6 +931,8 @@ export const storeDebug = defineStore('debug', {
 							category:"Just chatting",
 							started_at:Date.now(),
 							tags:[],
+							live:false,
+							viewers:0,
 						}
 					};
 					data = m;

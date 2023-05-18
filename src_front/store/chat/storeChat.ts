@@ -565,13 +565,15 @@ export const storeChat = defineStore('chat', {
 				const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
 				if(isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
 					//Force last updates if any not read
-					possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
-				}else{
+					// possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
+					StoreProxy.params.openModal("updates");
+				}
+				// else{
 					//Add 10 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
 					const len = 10 * possibleAds.length;
 					for (let i = 0; i < len; i++) possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.NONE);
-				}
+				// }
 		
 				adType = Utils.pickRand(possibleAds);
 				// adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR;//TODO comment this line

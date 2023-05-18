@@ -8,45 +8,60 @@
 		"minor_title": "Autres nouveautés",
 		"fixes_title": "Correctifs",
 		"tryBt": "Essayez 👇",
+		"get_streamdeck": "Plugin Stream Deck™",
 		"highlights": [
 			{
-				"i": "translate",
-				"l": "Twitchat speaks baguette<br>😍🥖",
-				"d": "1 an après la toute 1ère version de Twitchat, le saint graal de la communauté Française est là :<br>Twitchat est traductible et <strong>traduit en Français</strong> 🥳<br><br>Essaie de changer de langue 👇"
+				"i": "theme",
+				"l": "Nouveau design",
+				"d": "LIvré avec un thème sombre et un thème clair pour satisfaire tous les yeux !"
 			},
 			{
-				"i": "edit",
-				"l": "Personnalisez l'affichage",
-				"g": "update_images/columns.gif",
-				"d": "Créez autant de colonnes que vous le souhaitez et définissez quels types de message afficher dans chacune d'entre elles."
-			},
-			{
-				"i": "lock_fit",
-				"l": "Permissions affinées",
-				"g": "update_images/permissions_short.gif",
-				"d": "Choisissez quelles données et fonctionnalités de votre compte Twitch vous souhaitez permettre à Twitchat d'utiliser."
+				"i": "shoutout",
+				"l": "File de Shoutouts",
+				"g": "update_images/shoutout_queue.gif",
+				"d": "Vous êtes la voiture de balais de 2h du matin qui reçoit des séries de raids ?<br>Faites tous les Shoutouts d'un coup, Twitchat les exécutera automatiquement dès que possible.<br>Re priorisez leur exécution ou supprimez-les si nécessaire."
 			},
 			{
 				"i": "count",
-				"l": "Compteurs",
-				"d": "Créez des compteurs personnalisés, modifiez-les depuis des commandes de tchat, des subs, des récompenses de point de chaîne,... et affichez leur progression sur votre stream."
+				"l": "Overlay de classement",
+				"d": "Créez un compteur utilisateur et affichez son classement grâce au nouvel overlay dédié."
+			},
+			{
+				"i": "whispers",
+				"l": "Personnalisez les surbrillances",
+				"g": "update_images/highlights.png",
+				"d": "Modifiez les couleurs de surbrillance pour chaque type de message à votre guise."
+			},
+			{
+				"i": "commands",
+				"l": "/commandes",
+				"g": "update_images/customCmd.png",
+				"d": "Créez vos propres /commandes via le nouveau trigger dédié.<br><br>Ces commandes ne seront pas envoyées en tchat et peuvent être ajoutée aux options de modération du menu contextuel."
+			},
+			{
+				"i": "raid",
+				"l": "Anti-stress",
+				"g": "update_images/raid_viewers.png",
+				"d": "Une nouvelle option permet de censurer le nombre de raiders débarquant chez vous.<br>Cliquez pour révéler le nombre quand vous vous sentez moralement prêt·e à encaisser la fame."
 			},
 			{
 				"i": "elgato",
-				"l": "Stream Deck +",
-				"v": "update_images/sdplus.mp4",
-				"d": "Scroller votre tchat, déplacer le marque-page et modérer les messages sans utiliser votre souris n'a jamais été aussi simple grâce aux molettes du Stream Deck +"
+				"l": "Stream Deck™",
+				"d": "Le plugin Twitchat possède 3 nouvelles actions :<br>• Executer un trigger<br>• Lancer un tirage au sort<br>• Envoyer un message <i>(peut être une commande Twitch, une commande Twitchat, ou une commande définie dans les triggers)</i>"
 			},
 			{
-				"i": "shieldMode",
-				"l": "Mode bouclier",
-				"g": "update_images/shieldMode.gif",
-				"d": "Synchronisez le mode urgence avec le mode bouclier. Activer le mode bouclier activera le mode urgence et inversement."
+				"i": "broadcast",
+				"l": "Triggers sous steroïdes",
+				"d": "• Plusieurs triggers peuvent être créés pour un même évènement<br>• Des conditions d'exécution peuvent être définies<br>• Ajoutez des alias à vos commandes<br>• Édition/lecture des compteurs simplifiée<br>• 6 nouveau triggers relatifs aux sources audio OBS, aux sources media et aux filtres<br>• Nouvelle action dédiée pour les \"délais\"<br>• Nouvelle action pour faire vibrer votre téléphone<br>• Nouvelle action pour activer/désactiver d'autres triggers<br>• Nouvelle action pour lancer une session de Suggestion de Tchat"
 			},
 			{
-				"i": "emote",
-				"l": "Emote only",
-				"d": "Vous souhaitez empêcher que l'on parle dans votre tchat quand vous êtes hors live ?<br><br>Twitchat peut automatiquement le passer en emote-only en fin de stream et désactiver l'emote-only en début de live."
+				"i": "vibratePhone",
+				"l": "Bbzzz bzzzz",
+				"d": "Vous utilisez Twitchat sur mobile ? Permettez à vos modos ou viewers d'attirer votre attention en faisant vibrer votre téléphone.<br><br>Rendez-vous dans l'option \"Apparence => Alertes de tchat\". Ou utilisez l'action de trigger \"Vibrer téléphone\"."
+			},
+			{
+				"i": "donate",
+				"d": "Tu aimes Twitchat ?<br>Tu apprécies ces mises à jour ?<br>Pense à faire un don pour m'aider 😇"
 			}
 		],
 		"major": [

@@ -8,50 +8,60 @@
 		"minor_title": "Other updates",
 		"fixes_title": "Fixes",
 		"tryBt": "Try it 👇",
+		"get_streamdeck": "Get Stream Deck™ plugin",
 		"highlights": [
 			{
 				"i": "theme",
 				"l": "New design",
-				"d": "Comes with a real dark mode as well as a light mode so all eyes are satisfied!"
+				"d": "Comes both in dark and light mode to finally satisfy all eyes!"
+			},
+			{
+				"i": "shoutout",
+				"l": "Shoutout queue",
+				"g": "update_images/shoutout_queue.gif",
+				"d": "Getting raided multiple times in row?<br>Stop forgetting to shoutout them!<br>Just send all the shoutouts, they will be queued and sent automatically as soon as possible.<br>Reorder and delete them later if necessary."
+			},
+			{
+				"i": "count",
+				"l": "Leaderboard overlay",
+				"d": "Create a user specific counter and show its leaderbord on your stream thanks to the new dedicated overlay."
+			},
+			{
+				"i": "whispers",
+				"l": "Customize highlights",
+				"g": "update_images/highlights.png",
+				"d": "Customize colors for every kind highlighted messages."
 			},
 			{
 				"i": "commands",
 				"l": "Custom /commands",
 				"g": "update_images/customCmd.png",
-				"d": "Create your own /commands with the new dedicated trigger.<br><br>These commands won't be sent on chat and can be added to the default moderation options on the context menu."
+				"d": "Create your own /commands with the new dedicated trigger.<br><br>These commands won't be sent on chat and can be added to the default moderation options on the context menu for easy and fast access."
+			},
+			{
+				"i": "raid",
+				"l": "Hide raiders count",
+				"g": "update_images/raid_viewers.png",
+				"d": "Numbers are source of stress?<br>A new option allows to censor the number of incoming raiders. Reveal it with a click!"
+			},
+			{
+				"i": "elgato",
+				"l": "Stream Deck™",
+				"d": "Latest Twitchat plugin comes with 3 new actions:<br>• Execute a trigger<br>• Start a raffle animation<br>• Send a message <i>(can be a Twitch command, a Twitchat command, or a trigger command)</i>"
 			},
 			{
 				"i": "broadcast",
 				"l": "Triggers on steroïds",
-				"d": "You can now create multiple triggers for the same event.<br>Triggers can have execution conditions.<br>Create"
+				"d": "• You can now create multiple triggers for the same event.<br>• Triggers can have execution conditions.<br>• Chat commands can have aliases<br>• Counter read and edition made easier<br>• 6 new trigger events related to OBS audio sources, media sources, and filters<br>• New dedicated \"delay\" action<br>• New action to vibrate a mobile device<br>• New action to automate Chat Suggestions session<br>• New action to enable or disable other triggers"
 			},
 			{
-				"i": "lock_fit",
-				"l": "Custom permissions",
-				"g": "update_images/permissions.gif",
-				"d": "Choose which data and features of your Twitch account you want to allow Twitchat to use."
+				"i": "vibratePhone",
+				"l": "Bbzzz bzzzz",
+				"d": "Using Twitchat on mobile? Let your mods or viewers get your attention by making your phone vibrate.<br><br>Head over the \"Appearance => Chat alerts\" option to enable it. Or use the \"Vibrate phone\" trigger action"
 			},
 			{
-				"i": "count",
-				"l": "Counters",
-				"d": "Create custom counters, update them from chat commands, subs, channel point rewards,... and show their progress on your stream."
-			},
-			{
-				"i": "elgato",
-				"l": "Steam Deck +",
-				"v": "update_images/sdplus.mp4",
-				"d": "Scrolling your chat, moving the read mark and moderate messages without touching your mouse has never been this easy thanks to the dials of the Stream Deck +"
-			},
-			{
-				"i": "shieldMode",
-				"l": "Shield mode",
-				"g": "update_images/shieldMode.gif",
-				"d": "Sync emergency mode with shield mode. Enabling shield mode will enable emergency mode and vice versa."
-			},
-			{
-				"i": "emote",
-				"l": "Emote only",
-				"d": "Do you want to prevent people from talking in your chat when you're not live?<br><br>Twitchat can automatically switch to emote-only at the end of the stream and disable emote-only at the beginning of the live stream."
+				"i": "donate",
+				"d": "You like Twitchat?<br>You like these updates?<br>Please consider donating 😇"
 			}
 		],
 		"major": [

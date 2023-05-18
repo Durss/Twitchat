@@ -96,7 +96,7 @@
 			<h1>{{ $t('tips.highlight.title') }}</h1>
 			<div>{{ $t('tips.highlight.info') }}</div>
 			
-			<a class="demo" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.jpg" class="cover"></a>
+			<a class="demo" href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.jpg" class="cover"></a>
 
 			<Button @click.stop="openParamPage(contentOverlays, contentChatHighlight)" icon="overlay">{{ $t('tips.highlight.config_overlayBt') }}</Button>
 			<div class="or">{{ $t("global.or") }}</div>

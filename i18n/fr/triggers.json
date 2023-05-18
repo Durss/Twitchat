@@ -125,6 +125,7 @@
 				"action_countget": "Lire un compteur",
 				"action_random": "Valeur aléatoire",
 				"action_stream_infos": "Changer les infos de stream",
+				"action_vibrate": "Vibrer téléphone",
 				"custom_placeholder_example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder."
 			},
 			"chat": {
@@ -249,6 +250,10 @@
 			},
 			"raffle_enter":{
 				"info":"La personne déclanchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
+			},
+			"vibrate":{
+				"info":"Cette action ne fonctionne que si vous utilisez Twitchat sur un périphérique mobile.",
+				"pattern":"Séquence de vibrations"
 			}
 		},
 		"categories": {

@@ -168,8 +168,6 @@ import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
-import EventBus from '@/events/EventBus';
-import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import StoreProxy from '@/store/StoreProxy';
@@ -263,7 +261,6 @@ export default class Chat extends Vue {
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
-	private addMessageHandler!: (e: GlobalEvent) => void;
 	
 	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean; }
 	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
@@ -409,7 +406,6 @@ export default class Chat extends Vue {
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
-		this.addMessageHandler = (e: GlobalEvent) => this.onAddMessage(e);
 
 		document.addEventListener("mouseup", this.mouseUpHandler);
 		document.addEventListener("touchend", this.mouseUpHandler);
@@ -443,7 +439,6 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
-		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		this.renderFrame();
 		requestWakeLock();
 	}
@@ -489,7 +484,6 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 	}
 
 	public closeDonorCard():void {
@@ -608,7 +602,7 @@ export default class Chat extends Vue {
 				}
 				break;
 			}
-			
+
 			case TwitchatEvent.EXECUTE_TRIGGER: {
 				const id = (e.data as JsonObject).triggerId as string;
 				const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);
@@ -628,7 +622,7 @@ export default class Chat extends Vue {
 						is_short:false,
 						answers:[],
 					}
-					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, true);
+					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
 				}
 				break;
 			}
@@ -711,20 +705,6 @@ export default class Chat extends Vue {
 			}else{
 				this.$store('params').openModal(modal)
 			}
-		}
-	}
-
-	/**
-	 * Called when a message is added.
-	 * If its the changelog message, open up the highlighted changelog
-	 */
-	private async onAddMessage(e: GlobalEvent): Promise<void> {
-		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
-		// const maxScroll = (el.scrollHeight - el.offsetHeight);
-		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
-		if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
-		&& m.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES) {
-			this.$store('params').openModal("updates")
 		}
 	}
 

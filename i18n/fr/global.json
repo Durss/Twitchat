@@ -87,7 +87,7 @@
       "unbanned": "Le bannissmenet de {USER} a été levé",
       "unbanned_by": "{MODERATOR} a levé le bannissement de {USER}",
       "mod": "{USER} ajouté comme modérateur·ice de cette chaîne",
-      "modded_by": "{USER} a été ajouté·e comme modérateur·ices de cette chaîne par {MODERATOR}",
+      "modded_by": "{USER} a été ajouté·e comme modérateur·ice de cette chaîne par {MODERATOR}",
       "unmodded": "{USER} a été retiré·e des modérateurs·ices de cette chaîne",
       "unmodded_by": "{USER} a été retiré des modérateurs·ices de cette chaîne par {MODERATOR}",
       "vip": "{USER} a été ajouté·e comme VIP de cette chaîne",

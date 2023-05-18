@@ -7,7 +7,7 @@
 		item-key="id"
 		:animation="250">
 			<template #item="{element, index}:{element:TwitchatDataTypes.ShoutoutHistoryItem, index:number}">
-				<div class="item">
+				<div class="item" v-if="element.done !== true">
 					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store('users').shoutoutHistory[channelId]!.length > 1" >
 					<Button class="deleteBt" icon="cross" small alert @click="deleteItem(element)" />
 					<img v-if="element.user.avatarPath" :src="element.user.avatarPath" class="avatar">
@@ -46,8 +46,11 @@ export default class ShoutoutList extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public get soList():TwitchatDataTypes.ShoutoutHistoryItem[] {
-		if(!this.$store('users').shoutoutHistory[this.channelId]) return [];
-		return this.$store('users').shoutoutHistory[this.channelId]!.filter(v=>v.done !== true);
+		return this.$store('users').shoutoutHistory[this.channelId]!;
+	}
+
+	public set soList(value:TwitchatDataTypes.ShoutoutHistoryItem[]) {
+		this.$store('users').shoutoutHistory[this.channelId] = value;
 	}
 
 	public beforeMount():void {

@@ -68,7 +68,7 @@ import PermissionsForm from '../PermissionsForm.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import type { TriggerActionChatSuggestions, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionChatSuggestionsData, TriggerData } from '@/types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -88,7 +88,7 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 	
 	//This is used by the trigger action form.
 	@Prop({type: Object, default:{}})
-	public action!:TriggerActionChatSuggestions;
+	public action!:TriggerActionChatSuggestionsData;
 
 	@Prop
 	public triggerData!:TriggerData;
