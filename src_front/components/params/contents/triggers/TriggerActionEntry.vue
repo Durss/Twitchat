@@ -111,6 +111,9 @@
 				<Button class="button" @click="selectActionType('triggerToggle')"
 					icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</Button>
 				
+				<Button class="button" @click="selectActionType('vibrate')"
+					icon="vibrate" >{{ $t('triggers.actions.common.action_vibrate') }}</Button>
+				
 				<Button class="button" @click="selectActionType('http')"
 					icon="url">{{ $t('triggers.actions.common.action_http') }}</Button>
 				
@@ -134,6 +137,7 @@
 		<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
 		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :rewards="rewards" />
 		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
+		<TriggerActionVibratePhoneEntry v-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -180,6 +184,7 @@ import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggleEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
+import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 
 @Component({
 	components:{
@@ -205,6 +210,7 @@ import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
 		TriggerActionStreamInfoEntry,
+		TriggerActionVibratePhoneEntry,
 		TriggerActionTriggerToggleEntry,
 	},
 	emits:["delete", "duplicate"]
@@ -327,6 +333,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "random") icons.push( 'dice_placeholder' );
 		if(this.action.type == "stream_infos") icons.push( 'info' );
 		if(this.action.type == "delay") icons.push( 'timer' );
+		if(this.action.type == "vibrate") icons.push( 'vibrate' );
 		return icons;
 	}
 

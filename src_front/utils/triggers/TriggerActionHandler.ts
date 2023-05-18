@@ -6,7 +6,7 @@ import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
-import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesValue, type TriggerTypesKey } from "../../types/TriggerActionDataTypes";
+import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
 import Config from "../Config";
 import OBSWebsocket from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
@@ -19,7 +19,6 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
-import { TriggerTypesDefinitionList } from "../../types/TriggerActionDataTypes";
 
 /**
 * Created : 22/04/2022 
@@ -1151,6 +1150,15 @@ export default class TriggerActionHandler {
 						}
 						logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\""+title+"\" Tags:\""+tags+"\" CategoryID:\""+step.categoryId+"\""});
 						await StoreProxy.stream.setStreamInfos("twitch", title, step.categoryId, StoreProxy.auth.twitch.user.id, tags);
+					}
+				}else
+
+				//Handle mobile device vibration action
+				if(step.type == "vibrate") {
+					if(step.pattern) {
+						let pattern:number[] = TriggerActionDataTypes.VIBRATION_PATTERNS.find(v=>v.id == step.pattern)?.pattern || [];
+						logStep.messages.push({date:Date.now(), value:"Vibrate device with pattern \""+step.pattern+"\" => \"["+pattern+"]\""});
+						window.navigator.vibrate(pattern);
 					}
 				}else
 

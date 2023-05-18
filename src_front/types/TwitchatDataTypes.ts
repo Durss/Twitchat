@@ -1211,8 +1211,8 @@ export namespace TwitchatDataTypes {
 		 * Is it a fake entry ?
 		 * A fake entry is used when trying to SO someone while there's
 		 * a cooldown but Twitchat doesn't know.
-		 * This happens if we SO soemone when Twitchat isn't started,
-		 * in which case we create an empty item on the history that
+		 * This happens if we SO somone when Twitchat isn't started,
+		 * in this case we create an empty item on the history that
 		 * will be used as a reference.
 		 * This flag is set to true so the related user cooldown isn't
 		 * affected by it. Without that the user would get a 1h cooldown

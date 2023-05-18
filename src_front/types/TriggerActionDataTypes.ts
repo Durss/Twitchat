@@ -24,7 +24,8 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionRandomData
 								| TriggerActionStreamInfoData
 								| TriggerActionTriggerToggleData
-								| TriggerActionChatSuggestions
+								| TriggerActionChatSuggestionsData
+								| TriggerActionVibrateData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -344,9 +345,14 @@ export interface TriggerActionPredictionData extends TriggerActionData{
 	predictionData:TwitchatDataTypes.PredictionConfig;
 }
 
-export interface TriggerActionChatSuggestions extends TriggerActionData{
+export interface TriggerActionChatSuggestionsData extends TriggerActionData{
 	type:"chatSugg";
 	suggData:TwitchatDataTypes.ChatSuggestionData;
+}
+
+export interface TriggerActionVibrateData extends TriggerActionData{
+	type:"vibrate";
+	pattern:string;
 }
 
 export const TriggerActionCountDataActionList = ["ADD", "DEL", "SET"] as const;
@@ -411,6 +417,16 @@ export interface TriggerScheduleData {
 	repeatMinMessages:number;
 	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
+
+export const VIBRATION_PATTERNS = [
+	{id:"1", label:"∿_∿", pattern:[110, 50, 110]},
+	{id:"2", label:"∿_∿_∿", pattern:[110, 50, 110, 50, 110]},
+	{id:"3", label:"∿_∿∿∿∿", pattern:[110, 50, 800]},
+	{id:"4", label:"∿_∿_∿_∿_∿", pattern:[110, 50, 110, 50, 110, 50, 110, 50, 110]},
+	{id:"5", label:"∿∿∿∿∿∿∿∿", pattern:[1100]},
+	{id:"6", label:"∿___∿_∿_∿∿∿", pattern:[110, 400, 110, 50, 110, 50, 400]},
+	{id:"7", label:"∿∿∿___∿∿∿___∿∿∿", pattern:[250, 250, 250, 250, 250]},
+]
 
 export const TriggerTypes = {
 	FIRST_ALL_TIME:"1",
