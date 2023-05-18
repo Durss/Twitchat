@@ -3,7 +3,7 @@
 
 		<div class="userlist" id="holder" v-if="counter.perUser === true">
 			<TransitionGroup name="list">
-				<div class="user" ref="user" v-for="u in counter.leaderboard!" :key="u.login">
+				<div class="user" ref="user" v-for="u in counter.leaderboard!" :key="u.login" :id="'user'+u.login">
 					<div class="points">{{ u.points }}</div>
 					<img class="avatar" v-if="u.avatar" :src="u.avatar">
 					<div class="login">{{ u.login }}</div>
@@ -76,8 +76,14 @@ export default class OverlayCounter extends AbstractOberlay {
 
 	public beforeMount(): void {
 		if(this.embed !== false) {
-			this.counter = this.staticCounterData;
-			this.setCounterData(this.counter);
+			if(this.staticCounterData.perUser && this.staticCounterData.leaderboard) {
+				watch(()=>this.staticCounterData.leaderboard, ()=> {
+					this.setCounterData(JSON.parse(JSON.stringify(this.staticCounterData)));
+				}, {deep:true})
+				this.setCounterData(JSON.parse(JSON.stringify(this.staticCounterData)));
+			}else{
+				this.setCounterData(this.staticCounterData);
+			}
 			this.onValueUpdate();
 		}else{
 			this.id = this.$route.query.cid as string ?? "";
@@ -102,6 +108,9 @@ export default class OverlayCounter extends AbstractOberlay {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_UPDATE, this.counterUpdateHandler);
 	}
 
+	/**
+	 * Called when API sends fresh counter data
+	 */
 	private async onCounterUpdate(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
 			const c = ((e.data as unknown) as {counter:TwitchatDataTypes.CounterData}).counter;
@@ -110,6 +119,10 @@ export default class OverlayCounter extends AbstractOberlay {
 		}
 	}
 
+	/**
+	 * Called when global value of the counter is updated
+	 * Interpolates the text value
+	 */
 	private onValueUpdate():void {
 		if(!this.counter) return;
 		
@@ -126,7 +139,21 @@ export default class OverlayCounter extends AbstractOberlay {
 		this.fillWidth = (percent*100);
 	}
 
+	/**
+	 * Set local counter data.
+	 * Makes users appear if displaying a leaderboard
+	 */
 	private setCounterData(data:TwitchatDataTypes.CounterData):void {
+		if(this.counter && this.counter.leaderboard && data.leaderboard) {
+			//Diff old/new values and highlight updated items
+			for (let i = 0; i < this.counter.leaderboard.length; i++) {
+				const prevUser = this.counter.leaderboard[i];
+				let newUser = data.leaderboard.find(v=>v.login == prevUser.login);
+				if(!newUser || newUser.points == prevUser.points) continue;
+				gsap.fromTo("#user"+prevUser.login, {outlineWidth:7}, {outlineWidth:0, duration:.5, ease:"sine.inOut"});
+				gsap.fromTo("#user"+prevUser.login, {filter:"brightness(2)"}, {filter:"brightness(1)", duration:.5, ease:"sine.in"});
+			}
+		}
 		this.counter = data;
 		this.progrressMode = this.counter.min === false && this.counter.max === false;
 
@@ -135,7 +162,7 @@ export default class OverlayCounter extends AbstractOberlay {
 			this.$nextTick().then(()=>{
 				const userList = this.$refs.user;
 				if(userList) {
-					gsap.fromTo(userList, {opacity:0, x:-200}, {opacity:1, x:0, duration:1, stagger:.025, ease:"elastic.out", clearProps:"all"});
+					gsap.fromTo(userList, {opacity:0, x:-200}, {opacity:1, x:0, delay:.5, duration:1, stagger:.025, ease:"elastic.out", clearProps:"all"});
 				}
 			})
 		}
@@ -257,6 +284,7 @@ export default class OverlayCounter extends AbstractOberlay {
 			align-items: center;
 			overflow: hidden;
 			width: fit-content;
+			outline: 0px solid var(--color-secondary);
 			.avatar {
 				width: 2.5em;
 				height: 2.5em;
@@ -288,16 +316,16 @@ export default class OverlayCounter extends AbstractOberlay {
 	.list-move,
 	.list-enter-active,
 	.list-leave-active {
-		transition: all 500ms cubic-bezier(0.680, -0.550, 0.265, 1.550);
+		opacity: 1;
+		transition: transform .5s cubic-bezier(0.680, -0.550, 0.265, 1.550), opacity .5s;
 	}
 
 	.list-enter-from,
 	.list-leave-to {
 		opacity: 0;
-		transform: translateX(-100%);
+		transform: translateX(-50%);
 	}
 	.list-leave-active {
-		opacity: 1;
 		position: absolute;
 	}
 }
