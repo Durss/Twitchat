@@ -79,8 +79,7 @@ export default class App extends Vue {
 	}
 
 	private onMouseDown(e:MouseEvent):boolean {
-
-		console.log("okok");
+		//Avoid showing cursor on interaction when using demo mode
 		return false;
 	}
 

@@ -82,7 +82,6 @@ export default class TwitchatEvent extends Event {
 	public static POLL_TOGGLE:TwitchatActionType = "POLL_TOGGLE";
 	public static POLL_CREATE:TwitchatActionType = "POLL_CREATE";
 	public static PREDICTION_TOGGLE:TwitchatActionType = "PREDICTION_TOGGLE";
-	public static PREDICTION_CREATE:TwitchatActionType = "PREDICTION_CREATE";
 	public static BINGO_TOGGLE:TwitchatActionType = "BINGO_TOGGLE";
 	public static RAFFLE_TOGGLE:TwitchatActionType = "RAFFLE_TOGGLE";
 	public static VIEWERS_COUNT_TOGGLE:TwitchatActionType = "VIEWERS_COUNT_TOGGLE";
@@ -204,7 +203,6 @@ export const TwitchatActionTypeList = [
 	"POLL_TOGGLE",
 	"POLL_CREATE",
 	"PREDICTION_TOGGLE",
-	"PREDICTION_CREATE",
 	"BINGO_TOGGLE",
 	"RAFFLE_TOGGLE",
 	"VIEWERS_COUNT_TOGGLE",

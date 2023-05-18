@@ -249,6 +249,7 @@ export interface TriggerListEntry {
 			:deep(.header) {
 				position: sticky;
 				top: 0;
+				z-index: 1;
 			}
 			:deep(.content) {
 				display: flex;

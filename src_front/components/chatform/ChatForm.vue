@@ -268,6 +268,7 @@ import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
+import EventSub from '@/utils/twitch/EventSub';
 
 @Component({
 	components:{

@@ -78,7 +78,6 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 	public async mounted():Promise<void> {
 		if(this.animate !== false) {
 			const refs = ["head","instructions","patrick","button"];
-			await this.$nextTick();
 			for (let i = 0; i < refs.length; i++) {
 				let el = this.$refs[refs[i]];
 				let list:unknown[] = [];

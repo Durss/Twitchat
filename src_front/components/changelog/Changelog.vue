@@ -160,7 +160,10 @@ export default class Changelog extends Vue {
 			this.isFirstCounterDisplay = false;
 			setTimeout(()=> {
 				this.addUserCounter();
-			}, 1000);
+			}, 1500);
+			setTimeout(()=> {
+				this.addUserCounter();
+			}, 2000);
 		}
 	}
 
@@ -217,7 +220,7 @@ export default class Changelog extends Vue {
 	
 	.holder {
 		width: 600px;
-		max-width: min(600px, var(--vw));
+		max-width: ~"min(600px, var(--vw))";
 		// height: unset;
 
 		.head {

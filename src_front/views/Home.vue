@@ -22,48 +22,51 @@
 				</div>
 				
 				<Button class="loginBt"
-					secondary
+					light
 					big
 					ref="loginBt"
 					@click="showLogin = true"
 					icon="twitch"
-					v-if="!hasAuthToken"
 				>{{ $t('home.loginBt') }}</Button>
 
-				<Button class="loginBt"
-					secondary
-					big
-					ref="loginBt"
-					icon="twitch"
-					@click="redirectToChat()"
-					v-if="hasAuthToken"
-				>{{ $t('home.openBt') }}</Button>
-		
 				<div class="ctas" ref="ctas">
 					<Button icon="elgato"
-						primary
+						big
 						href="https://apps.elgato.com/plugins/fr.twitchat"
 						target="_blank"
 						type="link"
 						class="elgatoBt"
 						ref="streamDeckBt"
-					>{{ $t('home.streamdeckBt') }}</Button>
+						v-tooltip="{content:$t('home.streamdeckBt'), placement:'bottom'}"
+					></Button>
 			
 					<Button icon="discord"
-						primary
+						big
 						:href="discordURL"
 						target="_blank"
 						type="link"
 						class="discordBt"
 						ref="discordBt"
-					>{{ $t('home.discordBt') }}</Button>
+						v-tooltip="{content:$t('home.discordBt'), placement:'bottom'}"
+					></Button>
 			
-					<Button icon="coin"
-						primary
+					<Button icon="youtube"
+						big
+						:href="youtubeURL"
+						target="_blank"
+						type="link"
+						class="youtubeBt"
+						ref="youtubeBt"
+						v-tooltip="{content:$t('home.youtubeBt'), placement:'bottom'}"
+					></Button>
+			
+					<Button
+						big light
 						:to="{name:'sponsor'}"
 						class="sponsorBt"
 						ref="sponsorBt"
-					>{{ $t('home.sponsorBt') }}</Button>
+						v-tooltip="{content:$t('home.sponsorBt'), placement:'bottom'}"
+					>💝</Button>
 				</div>
 			</div>
 	
@@ -160,9 +163,9 @@ export default class Home extends Vue {
 	private disposed = false;
 	private letterParams:{x:number, y:number, s:number, r:number, o:number}[] = [];
 
-	public get hasAuthToken():boolean { return DataStore.get(DataStore.TWITCH_AUTH_TOKEN) != null && this.$route.name == "home"; }
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
+	public get youtubeURL():string { return Config.instance.YOUTUBE_URL; }
 	public getLetter():string { return Utils.pickRand("twitchat".split("")); }
 
 	public get sections():{
@@ -212,7 +215,7 @@ export default class Home extends Vue {
 		//TODO update anchors labels when changing language
 
 		//Opening transition ATF elements
-		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];
+		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "youtubeBt", "sponsorBt","featuresTitle"];
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
 			let el = this.$refs[refs[i]] as HTMLElement | Vue;
@@ -397,7 +400,7 @@ body.light {
 		height: max(640px, 100vh);
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
+		// justify-content: space-between;
 		padding: 4em 0;
 		position: relative;
 		z-index: 1;
@@ -434,9 +437,9 @@ body.light {
 		}
 
 		.middle {
+			flex-grow: 1;
 			.description {
-				margin: auto;
-				margin-bottom: 2em;
+				margin: 2em auto;
 				font-style: italic;
 				font-size: min(2em, 7vw);
 				width: 90%;
@@ -454,9 +457,64 @@ body.light {
 				// background-color: var(--color-primary);
 				// padding: 2em 1em;
 				display: flex;
-				flex-direction: column;
+				flex-direction: row;
 				gap: .5em;
+				justify-content: center;
 				align-items: center;
+
+				.elgatoBt {
+					:deep(.background) {
+						background-color: #1c40ff !important;
+					}
+					&:hover {
+						:deep(.background) {
+							background-color: lighten(#1c40ff, 10%) !important;
+						}
+					}
+				}
+				.discordBt {
+					:deep(.background) {
+						background-color: #5865f2 !important;
+					}
+					&:hover {
+						:deep(.background) {
+							background-color: lighten(#5865f2, 10%) !important;
+						}
+					}
+				}
+				.youtubeBt {
+					:deep(.background) {
+						background-color: #ff0000 !important;
+					}
+					&:hover {
+						:deep(.background) {
+							background-color: lighten(#ff0000, 10%) !important;
+						}
+					}
+				}
+
+				.button {
+					border-radius: 50%;
+					padding: 6px;
+					width: 2em;
+					height: 2em;
+					transition: transform .25s;
+					:deep(.icon) {
+						width: 100%;
+						height: 100%;
+						max-width: 100%;
+						max-height: 100%;
+					}
+					:deep(.label) {
+						font-size: 1.2em;
+					}
+					&:hover {
+						transform: scale(1.1);
+					}
+				}
+				.sponsorBt {
+					padding: 0;
+				}
 			}
 		}
 
@@ -726,7 +784,6 @@ body.light {
 				.description {
 					width: 80vw;
 					font-size: 1.3em;
-					margin-bottom: .5em;
 				}
 				.ctas {
 					margin: auto;

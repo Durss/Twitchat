@@ -18,7 +18,8 @@ export default class Config {
 	// public TWITCH_API_PATH = "http://localhost:8000/mock/";
 	// public TWITCH_EVENTSUB_PATH = "ws://localhost:8001/eventsub";
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
-	public DEMO_MODE = false;//replaces cursor by huge fake one
+	public YOUTUBE_URL = "https://www.youtube.com/@Twitchat/videos";
+	public DEMO_MODE = true;//replaces cursor by huge fake one
 	public MAX_PREDICTION_OUTCOMES = 10;
 	public SPOTIFY_CONNECTED = false;
 	public DEEZER_CONNECTED = false;
@@ -49,7 +50,6 @@ export default class Config {
 		if(this.IS_PROD) return [];
 		return [
 			// {platform:"twitch", login:"durssbot"},
-			{platform:"twitch", login:"hanawins"},
 		];
 	}
 

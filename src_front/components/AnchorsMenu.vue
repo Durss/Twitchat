@@ -123,7 +123,7 @@ export default class AnchorsMenu extends Vue {
 			.label {
 				flex-grow: 1;
 				white-space: nowrap;
-				margin: 0 .5em;
+				margin: 0 1em 0 .5em;
 				color: var(--color-text);
 				overflow: hidden;
 			}
@@ -137,6 +137,7 @@ export default class AnchorsMenu extends Vue {
 				background-color: var(--color-primary);
 				.label {
 					font-size: 1rem;
+					color: var(--color-light);
 				}
 				.icon {
 					filter:brightness(100);

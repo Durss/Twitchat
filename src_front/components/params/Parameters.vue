@@ -51,7 +51,7 @@
 			</div>
 
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
-				<div class="search">
+				<div class="search" v-if="search || content == contentAppearance || content == contentFeatures">
 					<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
 				</div>
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />

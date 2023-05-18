@@ -419,7 +419,6 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_CREATE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_CREATE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
@@ -1089,11 +1088,11 @@ export default class Chat extends Vue {
 }
 
 @media only screen and (max-width: 600px) {
-	.chat{
+	.chat:not(.splitVertical){
 		.scrollable {
 			// overflow-x: hidden !important;
 			scroll-snap-type: x mandatory;
-			overflow-x: scroll;
+			overflow-x: auto;
 			.column {
 				scroll-snap-align: center;
 				min-width: var(--vw) !important;//"!important" here to prioritize it before inlined styles

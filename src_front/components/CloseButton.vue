@@ -25,6 +25,7 @@ export default class CloseButton extends Vue {
 	top: 0;
 	right: 0;
 	padding: 1em;
+	z-index: 1;
 	cursor: pointer;
 	.icon {
 		height: 1em;
