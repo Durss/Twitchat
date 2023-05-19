@@ -47,7 +47,7 @@
 			{
 				"i": "elgato",
 				"l": "Stream Deck™",
-				"d": "Latest Twitchat plugin comes with 3 new actions:<br>• Execute a trigger<br>• Start a raffle animation<br>• Send a message <i>(can be a Twitch command, a Twitchat command, or a trigger command)</i>"
+				"d": "Latest Twitchat plugin comes with 5 new actions:<br>• Execute any trigger<br>• Enable, disable or toggle the state of any trigger<br>• Start a raffle animation<br>• Send a message <i>(can be a Twitch command, a Twitchat command, or a trigger command)</i><br>• New option on the counter edition action"
 			},
 			{
 				"i": "broadcast",

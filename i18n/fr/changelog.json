@@ -47,7 +47,7 @@
 			{
 				"i": "elgato",
 				"l": "Stream Deck™",
-				"d": "Le plugin Twitchat possède 3 nouvelles actions :<br>• Executer un trigger<br>• Lancer un tirage au sort<br>• Envoyer un message <i>(peut être une commande Twitch, une commande Twitchat, ou une commande définie dans les triggers)</i>"
+				"d": "Le plugin Twitchat possède 5 nouvelles actions :<br>• Executer un trigger<br>• Activer, désactiver ou inverser l'état d'un trigger<br>• Lancer un tirage au sort<br>• Envoyer un message <i>(peut être une commande Twitch, une commande Twitchat, ou une commande définie dans les triggers)</i><br>• Nouvelles options sur l'action d'édition de compteur"
 			},
 			{
 				"i": "broadcast",
