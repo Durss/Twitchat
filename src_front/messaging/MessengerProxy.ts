@@ -386,7 +386,8 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/updates") {
-			StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+			// StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+			StoreProxy.params.openModal("updates");
 			return true;
 		}else
 
@@ -558,6 +559,7 @@ export default class MessengerProxy {
 				id:Utils.getUUID(),
 				user,
 				done,
+				executeIn:0
 			})
 			return true;
 		}else
@@ -566,17 +568,18 @@ export default class MessengerProxy {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			for (let i = 0; i < 10; i++) {
 				let user = Utils.pickRand(fakeUsers);
-				const done = i == 0;
-				if(done) user.channelInfo[channelId].lastShoutout = Date.now();
 				const userInfos = await TwitchUtils.loadUserInfo([user.id]);
 				user.avatarPath = userInfos[0].profile_image_url;
 				if(!StoreProxy.users.shoutoutHistory[channelId]) {
 					StoreProxy.users.shoutoutHistory[channelId] = [];
+					//Set the SO date offset for this user to now
+					user.channelInfo[channelId].lastShoutout = Date.now();
 				}
 				StoreProxy.users.shoutoutHistory[channelId]!.push({
 					id:Utils.getUUID(),
 					user,
-					done,
+					done: false,
+					executeIn:0
 				})
 			}
 			return true;

@@ -231,7 +231,7 @@
 				"action_del":"Soustraire",
 				"action_set":"Remplacer la valeur",
 				"user_source_title":"Sélectionnez l'utilisateur mettre à jour pour ce compteur : | Sélectionnez l'utilisateur mettre à jour pour ces compteurs :",
-				"user_source_sender":"Personne utilisant la commande",
+				"user_source_sender":"Personne déclenchant le trigger",
 				"user_source_everyone":"Toutes les personnes",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
@@ -249,7 +249,7 @@
 				"list_entry_placeholder":"ajouter une entrée..."
 			},
 			"raffle_enter":{
-				"info":"La personne déclanchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
+				"info":"La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
 			},
 			"vibrate":{
 				"info":"Cette action ne fonctionne que si vous utilisez Twitchat sur un périphérique mobile.",

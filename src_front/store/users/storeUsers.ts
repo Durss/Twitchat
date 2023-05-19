@@ -2,9 +2,10 @@ import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { reactive, type UnwrapRef } from 'vue';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
@@ -625,67 +626,76 @@ export const storeUsers = defineStore('users', {
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNTRACK_USER, user));
 		},
 
-		async shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+		async shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser, fromQueue:boolean = false):Promise<boolean> {
 			let streamTitle = "";
 			let streamCategory = "";
+			let executed = false;
+			let canExecute = true;
 
 			//Init history if necessary
 			if(!this.shoutoutHistory[channelId]) this.shoutoutHistory[channelId] = [];
 
+			//If user is in an error state, stop there
 			if(user.errored) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.user_not_found"));
-				return;
+				canExecute = false;
 			}
 			
+			//Check if we're live
 			if(!StoreProxy.stream.currentStreamInfo[channelId]
 			|| !StoreProxy.stream.currentStreamInfo[channelId]?.live) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_offline"));
-				return;
+				canExecute = false;
 			}
 			
-			if(user.platform == "twitch") {
-				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-					//Check if user already has a pending shoutout
-					if(this.shoutoutHistory[channelId]!.filter(v=>v.done !== true && v.fake !== true && v.user.id == user.id)) {
+			if(user.platform == "twitch" && canExecute) {
+				//Has necessary authorization been granted?
+				if(!TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
+					StoreProxy.auth.requestTwitchScopes([TwitchScopes.SHOUTOUT]);
+				}else{
+					//Check if user already has a pending shoutout (if SO isn't executed by a pending one)
+					if(!fromQueue && this.shoutoutHistory[channelId]!.filter(v=>v.done == false && v.user.id == user.id).length > 0) {
 						StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_pending"));
-						return;
-					}
-					
-					//Check if a SO are pending
-					let addToQueue = this.shoutoutHistory[channelId]!.filter(v=>v.done !== true && v.fake !== true).length > 0 || 0;
-					if(!addToQueue) {
-						//If no pending SO, try to execute it
-						let res = await TwitchUtils.sendShoutout(channelId, user);
-						if(res === false) addToQueue = true;
-					}
 
-					//Shoutout not executed, add it to the pending queue
-					if(addToQueue) {
-						if(!this.shoutoutHistory[channelId]) {
-							//No entry exist yet, create a list
-							this.shoutoutHistory[channelId] = [];
-							//Add a fake SO entry that will be used as a reference for pending ones
+					}else{
+
+						//Check if there are pending SO
+						let addToQueue = this.shoutoutHistory[channelId]!.filter(v=>v.done == false).length > 0;
+						if(!addToQueue || fromQueue) {
+							//If no pending SO or if SO executed from pending list, try to execute it
+							let res = await TwitchUtils.sendShoutout(channelId, user);
+							//If API call failed, add the SO to queue.
+							//It fails if an SO has been made before and Twitchat
+							//didn't know about (because not yet started)
+							if(res === false) {
+								addToQueue = !fromQueue;
+							}else {
+								executed = true;
+								addToQueue = false;
+							}
+							//Set the last SO date offset for this user to now
+							user.channelInfo[channelId].lastShoutout = Date.now();
+							//Set the last SO date offset for this channel to now
+							StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate = Date.now();
+						}
+	
+						//Shoutout not executed, add it to the pending queue
+						if(addToQueue) {
+							//Add pending SO
 							this.shoutoutHistory[channelId]!.push({
 								id:Utils.getUUID(),
-								done:true,
-								fake:true,
-								user
+								executeIn:0,
+								done:false,
+								user,
 							});
-							user.channelInfo[channelId].lastShoutout = Date.now();
 						}
-						this.shoutoutHistory[channelId]!.push({
-							id:Utils.getUUID(),
-							done:false,
-							user
-						});
-						return;
+						if(!executed) {
+							this.executePendingShoutouts();
+						}
 					}
-					console.log("Shoutout: success");
-				}else{
-					StoreProxy.auth.requestTwitchScopes([TwitchScopes.SHOUTOUT]);
-					return;
 				}
 			}
+			
 			if(StoreProxy.params.features.chatShoutout.value === true){
 				if(user.platform == "twitch") {
 					const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
@@ -709,34 +719,50 @@ export const storeUsers = defineStore('users', {
 					}
 				}
 			}
+			return executed;
 		},
 
 		executePendingShoutouts():void {
 			//Parse all channels
 			for (const channelId in this.shoutoutHistory) {
-				let lastSo:TwitchatDataTypes.ShoutoutHistoryItem|null = null;
 				const list = this.shoutoutHistory[channelId];
-				if(!list) continue;
-
-				//Parse all shoutouts
+				if(!list || list.length == 0) continue;
+				
+				// console.log(new Date(StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate));
+				let elapsed = Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate;
+				let cooldown = -elapsed;
+				//Compute cooldowns for every pending shoutouts
 				for (let i = 0; i < list.length; i++) {
-					const item = list[i];
-					//Search for last SO done
-					if(item.done === true) {
-						lastSo = item;
-						continue;
-					}
-					if(lastSo) {
-						const userLastSODate = item.user.channelInfo[channelId]?.lastShoutout || 0;
-						const userCooldown = userLastSODate && lastSo.fake !== true? 60 * 60 * 1000 : 2 * 60 * 1000; //1h cooldown for a user that got a SO, 2min if this user got no SO yet
-						const elapsed = Date.now() - (lastSo.user.channelInfo[channelId]?.lastShoutout || 0);
-						if(elapsed > userCooldown + 1000) {//Adding 1s delay
-							item.user.channelInfo[channelId].lastShoutout = Date.now();
-							this.shoutout(channelId, item.user);
-						}
-						break;
+					const so = list[i];
+					const userLastSoDate = so.user.channelInfo[channelId].lastShoutout || 0;
+					const virtualElapsed = Date.now() - userLastSoDate + cooldown;
+
+					//Compute minimum cooldown to wait for this SO
+					cooldown += Math.max(Config.instance.TWITCH_SHOUTOUT_COOLDOWN_SAME_USER - virtualElapsed, Config.instance.TWITCH_SHOUTOUT_COOLDOWN);
+					
+					so.executeIn = cooldown;
+					
+					//If cooldown has fully elapsed, execute SO
+					if(so.executeIn <= 0) {
+						console.log(so.user.login, so.executeIn);
+						//Remove it from list
+						list.splice(i,1);
+						//Execute SO
+						this.shoutout(channelId, so.user, true).then(result => {
+							//SO failed
+							if(!result) {
+								//Update last SO date for this user to update its cooldown
+								so.user.channelInfo[channelId].lastShoutout = Date.now();
+								//Bring it back to bottom
+								list.push(so);
+								//Force timers refresh
+								so.executeIn = 0;
+								this.executePendingShoutouts();
+							}
+						})
 					}
 				}
+
 			}
 		},
 

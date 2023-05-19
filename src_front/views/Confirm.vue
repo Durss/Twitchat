@@ -45,7 +45,7 @@ export default class Confirm extends Vue {
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
-		document.addEventListener("keydown", this.keyDownHandler);
+		document.addEventListener("keydown", this.keyDownHandler, {capture:true});
 		watch(() => this.$store("main").confirmData, async () => {
 			await Utils.promisedTimeout(50);
 			this.onConfirmChanged();
@@ -54,7 +54,7 @@ export default class Confirm extends Vue {
 
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
-		document.removeEventListener("keydown", this.keyDownHandler);
+		document.removeEventListener("keydown", this.keyDownHandler, {capture:true});
 	}
 
 	public async onConfirmChanged():Promise<void> {
@@ -106,6 +106,12 @@ export default class Confirm extends Vue {
 		if(!this.confirmData) return;
 		if(e.key == "Enter" || e.key == " ") {//Enter / space
 			this.submitPressed = true;
+			e.preventDefault();
+		}
+		if(e.key == "Escape") {//escape
+			this.answer(false);
+			e.preventDefault();
+			e.stopPropagation();
 		}
 	}
 
@@ -116,11 +122,6 @@ export default class Confirm extends Vue {
 				this.answer(true);
 				this.submitPressed = false;
 			}
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		if(e.key == "Escape") {//escape
-			this.answer(false);
 			e.preventDefault();
 			e.stopPropagation();
 		}

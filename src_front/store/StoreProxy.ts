@@ -1365,8 +1365,9 @@ export interface IUsersActions {
 	 * Sends a shoutout to a user
 	 * @param channelId 
 	 * @param user 
+	 * @returns if SO has been done or not
 	 */
-	shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<void>;
+	shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser, fromQueue?:boolean):Promise<boolean>;
 	/**
 	 * Execute any pending shoutout
 	 */

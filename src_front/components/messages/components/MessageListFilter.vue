@@ -48,7 +48,7 @@
 						<Button @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</Button>
 					</div>
 
-					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @click.native="toggleAll()" />
+					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @change="toggleAll()" />
 
 					<div class="item" v-for="f in filters"
 					:key="'filter_'+f.storage">
@@ -1300,8 +1300,8 @@ export default class MessageListFilter extends Vue {
 			z-index: 1;
 			.preview {
 				background-color: var(--background-color-primary);
-				padding: .25em .5em;
-				border-radius: .5em;
+				padding: .25em;
+				border-radius: var(--border-radius);
 				cursor: pointer;
 				.message {
 					pointer-events: none;

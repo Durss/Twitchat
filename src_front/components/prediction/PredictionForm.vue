@@ -254,7 +254,7 @@ export default class PredictionForm extends AbstractSidePanel {
 						.inputHolder {
 							input {
 								@c:#f50e9b;
-								color: @c;
+								// color: @c;
 								border-color: @c;
 							}
 						}
@@ -277,7 +277,8 @@ export default class PredictionForm extends AbstractSidePanel {
 							border-width: 3px;
 							text-align: left;
 							@c:#3798ff;
-							color: @c;
+							// color: @c;
+							color: var(--color-text);
 							border: 2px solid @c;
 							text-shadow: var(--text-shadow-contrast);
 						}

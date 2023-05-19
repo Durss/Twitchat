@@ -913,6 +913,7 @@ export const storeDebug = defineStore('debug', {
 							tags:[],
 							live:false,
 							viewers:0,
+							lastSoDoneDate:0,
 						}
 					};
 					data = m;
@@ -933,6 +934,7 @@ export const storeDebug = defineStore('debug', {
 							tags:[],
 							live:false,
 							viewers:0,
+							lastSoDoneDate:0,
 						}
 					};
 					data = m;

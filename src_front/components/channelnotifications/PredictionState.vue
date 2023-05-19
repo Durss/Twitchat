@@ -161,7 +161,6 @@ export default class PredictionState extends Vue {
 	.creator {
 		font-size: .8em;
 		text-align: center;
-		margin-top: 1em;
 		width: calc(100% - 1em - 10px);
 		font-style: italic;
 	}

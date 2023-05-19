@@ -231,7 +231,7 @@
 				"action_del":"Substract value",
 				"action_set":"Set value",
 				"user_source_title":"Select the user to update for this counter: | Select the user to update for those counters:",
-				"user_source_sender":"User using the command",
+				"user_source_sender":"User calling the trigger",
 				"user_source_everyone":"All users",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
@@ -657,7 +657,7 @@
 				"description": "Actions to execute when starting a raid to another channel"
 			},
 			"SLASH_COMMAND": {
-				"label": "Create custom slash command",
+				"label": "Custom slash command",
 				"description": "Actions to execute when using command {SUB_ITEM_NAME}.{INFO}",
 				"description_info": "(Only you can use this type of command and it will never be sent on chat)"
 			},

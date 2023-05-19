@@ -558,6 +558,12 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
+		if(cmd == "/gngngn") {
+			//App version
+			console.log(this.$store("users").shoutoutHistory);
+			this.message = "";
+		}else
+		
 		if(cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {

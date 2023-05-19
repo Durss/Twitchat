@@ -1433,8 +1433,6 @@ export default class TriggerActionHandler {
 						}
 
 					}else{
-						console.log(StoreProxy.auth.twitch.user.id)
-						console.log(StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id])
 						console.warn("Unable to find pointer for helper", h);
 						value = "";
 					}
@@ -1522,6 +1520,7 @@ export default class TriggerActionHandler {
 				live:true,
 				viewers:c.viewer_count,
 				started_at:new Date(c.started_at).getTime(),
+				lastSoDoneDate:0,
 			}
 		}
 

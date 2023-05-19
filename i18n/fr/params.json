@@ -12,6 +12,7 @@
 		"lockAutoScroll": "Mettre le tchat en pause au survol",
 		"showModTools": "Icônes de modération (TO,ban,suppression)",
 		"raidHighlightUser": "Mettre en avant les messages d'un·e raider",
+		"raidHighlightUserTrack": "Activer le suivi de messages du raider",
 		"raidHighlightUserDuration": "Mettre en avant durant {VALUE} minute | Mettre en avant durant {VALUE} minutes",
 		"raffleHighlightUser": "Mettre en avant les messages d'un·e gagnant·e de tirage au sort",
 		"raffleHighlightUserDuration": "Mettre en avant durant {VALUE} minute | Mettre en avant durant {VALUE} minutes",

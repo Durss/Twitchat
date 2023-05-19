@@ -116,7 +116,6 @@ export interface TriggerData {
 	 * Only for slash command triggers
 	 */
 	addToContextMenu?:boolean;
-
 	
 	/**
 	 * @deprecated Only here for typings on data migration.
@@ -227,6 +226,12 @@ export interface TriggerScheduleEventType extends Omit<TriggerTypeDefinition, "v
 export interface TriggerActionData {
 	type:TriggerActionStringTypes;
 	id:string;
+	/**
+	 * If true, the trigger's conditions must be matched
+	 * If not defined or false, the trigger must ahve no condition
+	 * or the condition must not be matched
+	 */
+	condition?:boolean;
 	/**
 	 * @deprecated moved to a dedicated action
 	 */

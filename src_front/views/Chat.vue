@@ -346,7 +346,7 @@ export default class Chat extends Vue {
 		//Watch for columns changes
 		watch(() => this.$store('auth').newScopesToRequest, () => {
 			if(this.$store('auth').newScopesToRequest.length === 0) return null;
-			this.$store("params").openModal("login")
+			this.$store("params").openModal("login");
 		}, {deep:true});
 
 		//Watch for current modal to be displayed
@@ -509,12 +509,12 @@ export default class Chat extends Vue {
 			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
 			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
 				this.$store("params").appearance.showViewersCount.value = !this.$store("params").appearance.showViewersCount.value;
-				this.$store("params").updateParams()
+				this.$store("params").updateParams();
 				break;
 
 			case TwitchatEvent.MOD_TOOLS_TOGGLE:
 				this.$store("params").features.showModTools.value = !this.$store("params").features.showModTools.value;
-				this.$store("params").updateParams()
+				this.$store("params").updateParams();
 				break;
 
 			case TwitchatEvent.GET_COLS_COUNT:
@@ -523,11 +523,11 @@ export default class Chat extends Vue {
 
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
 				this.$store("params").appearance.censorDeletedMessages.value = !this.$store("params").appearance.censorDeletedMessages.value;
-				this.$store("params").updateParams()
+				this.$store("params").updateParams();
 				break;
 
 			case TwitchatEvent.CREATE_POLL:
-				this.$store('params').openModal('poll')
+				this.$store('params').openModal('poll');
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -543,7 +543,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.CREATE_PREDICTION:
-				this.$store('params').openModal('pred')
+				this.$store('params').openModal('pred');
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -593,7 +593,7 @@ export default class Chat extends Vue {
 
 			case TwitchatEvent.COUNTER_ADD: {
 				const id = (e.data as JsonObject).counterId as string;
-				const action = (e.data as JsonObject).action as TriggerActionCountDataAction;
+				const action = (e.data as JsonObject).counterAction as TriggerActionCountDataAction;
 				const value = parseInt((e.data as JsonObject).countAdd as string);
 				const counter = this.$store("counters").counterList.find(v=>v.id == id);
 				if(counter && !isNaN(value)) {
@@ -700,9 +700,9 @@ export default class Chat extends Vue {
 
 		if(modal) {
 			if(this.$store('params').currentModal == modal) {
-				this.$store('params').openModal("")
+				this.$store('params').openModal("");
 			}else{
-				this.$store('params').openModal(modal)
+				this.$store('params').openModal(modal);
 			}
 		}
 	}
@@ -722,7 +722,7 @@ export default class Chat extends Vue {
 	 * Called when searching for a message
 	 */
 	public searchMessage(str:string):void {
-		this.$store('params').openModal('search')
+		this.$store('params').openModal('search');
 	}
 
 	/**

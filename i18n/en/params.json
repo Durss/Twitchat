@@ -12,6 +12,7 @@
 		"lockAutoScroll": "Pause chat on hover",
 		"showModTools": "Show mod tools (TO,ban,delete)",
 		"raidHighlightUser": "Highlight raider's messages",
+		"raidHighlightUserTrack": "Track raider's messages",
 		"raidHighlightUserDuration": "Highlight for {VALUE} minute | Highlight for {VALUE} minutes",
 		"raffleHighlightUser": "Highlight raffle winner's messages",
 		"raffleHighlightUserDuration": "Highlight for {VALUE} minute | Highlight for {VALUE} minutes",

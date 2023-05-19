@@ -73,6 +73,7 @@ import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -143,10 +144,9 @@ export default class Changelog extends Vue {
 			this.$emit('close');
 		}});
 
-		//TODO uncomment that
-		// if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
-		// 	DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
-		// }
+		if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
+			DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
+		}
 	}
 
 	/**

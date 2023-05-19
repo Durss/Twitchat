@@ -45,6 +45,7 @@ export default class EventSub {
 	 * Connect to Eventsub
 	 */
 	public async connect(disconnectPrevious:boolean = true):Promise<void> {
+		return;//TODO remove
 
 		clearTimeout(this.reconnectTimeout);
 
@@ -422,7 +423,8 @@ export default class EventSub {
 			started_at,
 			viewers,
 			live: false,
-			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name)
+			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+			lastSoDoneDate:0,
 		}
 
 		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
@@ -719,6 +721,7 @@ export default class EventSub {
 			viewers:0,
 			started_at:Date.now(),
 			user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+			lastSoDoneDate:0,
 		};
 		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
 			date:Date.now(),
@@ -812,14 +815,16 @@ export default class EventSub {
 				//No matching item found on the list, push it
 				list.push({
 					id:Utils.getUUID(),
+					executeIn:0,
 					done:true,
-					user
+					user,
 				})
 			}else{
 				console.log("ES : Update item", item);
 				//Update existing item
 				item.done = true;
 			}
+			StoreProxy.stream.currentStreamInfo[channel_id]!.lastSoDoneDate = Date.now();
 			StoreProxy.users.shoutoutHistory[channel_id] = list;
 		}
 	}

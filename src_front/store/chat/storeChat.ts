@@ -892,13 +892,15 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					sStream.lastRaider = message.user;
 					message.user.channelInfo[message.channel_id].is_raider = true;
-					if(sParams.appearance.raidHighlightUser.value) {
+					if(sParams.appearance.raidHighlightUser.value
+					&& sParams.appearance.raidHighlightUserTrack.value === true) {
 						StoreProxy.users.trackUser(message.user);
 					}
 					setTimeout(()=> {
 						const localMess = message as TwitchatDataTypes.MessageRaidData;
 						localMess.user.channelInfo[localMess.channel_id].is_raider = false;
-						if(sParams.appearance.raidHighlightUser.value) {
+						if(sParams.appearance.raidHighlightUser.value
+						&& sParams.appearance.raidHighlightUserTrack.value === true) {
 							StoreProxy.users.untrackUser(localMess.user);
 						}
 					}, (sParams.appearance.raidHighlightUserDuration.value as number ?? 0) * 1000 * 60);

@@ -227,7 +227,7 @@ export const storeAuth = defineStore('auth', {
 					let tags:string[] = [];
 					let viewers = 0;
 					let live = false;
-					if(v.length ==0){
+					if(v.length == 0){
 						let [info] = await TwitchUtils.loadChannelInfo([this.twitch.user.id])
 						title		= info.title;
 						tags		= info.tags;
@@ -249,9 +249,8 @@ export const storeAuth = defineStore('auth', {
 						live,
 						viewers,
 						user:this.twitch.user,
+						lastSoDoneDate:0,
 					};
-					console.log(StoreProxy.stream.currentStreamInfo)
-					console.log(this.twitch.user.id);
 				});
 
 				//Warn the user about the automatic "ad" message sent every 2h

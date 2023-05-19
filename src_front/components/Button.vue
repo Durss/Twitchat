@@ -10,9 +10,7 @@
 	@mouseup="onRelease($event)"
 	v-model="modelValue">
 		<span v-if="loading" class="loadingBorder"></span>
-		<span class="background">
-			<span class="select" v-if="selected"></span>
-		</span>
+		<span class="background"></span>
 
 		<img v-if="icon && loading" :src="$image('loader/loader.svg')" class="loader">
 	
@@ -218,12 +216,10 @@ export default class Button extends Vue {
 	}
 
 	&.disabled {
+		opacity: .5;
 		cursor: not-allowed;
-		.background {
-			opacity: .4;
-		}
 		.label, .icon {
-			opacity: .4;
+			opacity: .5;
 		}
 	}
 	&.loading {

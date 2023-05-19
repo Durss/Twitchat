@@ -130,14 +130,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				u.channelInfo[u.id].online = true;
 				
 				//Init stream info
-				StoreProxy.stream.currentStreamInfo[v.id] = {
-					title:"",
-					category:"",
-					live:false,
-					started_at:0,
-					tags:[],
-					user:u,
-					viewers:0,
+				if(!StoreProxy.stream.currentStreamInfo[v.id]) {
+					//Don't init if already existing. Authenticated user's stream info
+					//are loaded during auth process
+					StoreProxy.stream.currentStreamInfo[v.id] = {
+						title:"",
+						category:"",
+						live:false,
+						started_at:0,
+						tags:[],
+						user:u,
+						viewers:0,
+						lastSoDoneDate:0,
+					}
 				}
 				
 				TwitchUtils.loadUserBadges(v.id);

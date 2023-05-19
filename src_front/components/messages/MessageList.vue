@@ -328,7 +328,9 @@ export default class MessageList extends Vue {
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
-		if (this.pendingMessages.length == 0 && el.scrollTop >= maxScroll - 50) {
+		if (this.pendingMessages.length == 0
+		&& el.scrollTop >= maxScroll - 50
+		&& !this.customActivitiesDisplayed) {
 			this.unlockListRefresh();
 		}
 	}

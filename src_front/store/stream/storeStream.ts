@@ -55,7 +55,8 @@ export const storeStream = defineStore('stream', {
 					viewers,
 					started_at:start,
 					category:category.name,
-					user:StoreProxy.auth.twitch.user
+					user:StoreProxy.auth.twitch.user,
+					lastSoDoneDate:0,
 				}
 			}
 		},

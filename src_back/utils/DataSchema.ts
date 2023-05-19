@@ -493,6 +493,7 @@ import Ajv from "ajv";
 		"p:highlight1stEver": {type:"boolean"},
 		"p:highlight1stEver_color": {type:"string", maxLength:7, minLength:7},
 		"p:raidHighlightUser": {type:"boolean"},
+		"p:raidHighlightUserTrack": {type:"boolean"},
 		"p:raidHighlightUserDuration": {type:"number"},
 		"p:raidHighlightUser_color": {type:"string", maxLength:7, minLength:7},
 		"p:raffleHighlightUser": {type:"boolean"},

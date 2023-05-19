@@ -498,7 +498,6 @@ body.light {
 					padding: 6px;
 					width: 2em;
 					height: 2em;
-					transition: transform .25s;
 					:deep(.icon) {
 						width: 100%;
 						height: 100%;
@@ -509,6 +508,7 @@ body.light {
 						font-size: 1.2em;
 					}
 					&:hover {
+						transition: transform .25s;
 						transform: scale(1.1);
 					}
 				}

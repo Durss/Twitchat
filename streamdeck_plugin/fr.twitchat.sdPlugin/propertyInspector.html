@@ -145,6 +145,19 @@
 				data-chat-feed-scroll-down>
 		</div>
 
+		<div class="sdpi-item hidden" id="select_single"
+		data-counter-add>
+			<div class="sdpi-item-label">Operation</div>
+			<select class="sdpi-item-value select"
+			id="counterAction"
+			oninput="onChangeValue(Number(event.target.value))"
+			data-counter-add>
+				<option value="ADD">Add points</option>
+				<option value="DEL">Substract points</option>
+				<option value="SET">Set points</option>
+			</select>
+		</div>
+
 		<div class="sdpi-item hidden"
 		data-timer-add
 		data-countdown-add
@@ -298,7 +311,7 @@
 					counterSelector.appendChild(opt);
 				}
 			}
-			
+
 			//Populate triggers selector
 			const triggerSelector = document.getElementById("triggerId");
 			if(triggerSelector) {
