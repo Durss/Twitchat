@@ -48,6 +48,7 @@ export default class Icon extends Vue {
 	}
 	
 	private async loadImage():Promise<void> {
+		// this.$store("main").iconCache = {};//Disable cache for debug
 		if(this.$store("main").iconCache[this.name]) {
 			this.svg = this.$store("main").iconCache[this.name];
 			return;
@@ -61,7 +62,9 @@ export default class Icon extends Vue {
 				this.svg = (await imgRes.text())
 				.replace(/<style[^<]*<\/ ?style>/gim, "")//Cleanup styles
 				.replace(/<!--[^<]*-->/g, "")//Cleanup comments
-				.replace(/<\?xml[^<]*>/g, "");//cleanup <xml> header
+				.replace(/<\?xml[^<]*>/g, "")//cleanup <xml> header
+				.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+				.replace(/>\s+</g, '><');//cleanup spaces between tags
 				this.$store("main").iconCache[this.name] = this.svg;
 			}
 		}catch(error) {

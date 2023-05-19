@@ -117,7 +117,7 @@ export default class ChannelNotifications extends AbstractSidePanel {
 .channelnotifications{
 	width: 100%;
 	pointer-events:none;
-
+	
 	.holder {
 		position: relative;
 		pointer-events:all;

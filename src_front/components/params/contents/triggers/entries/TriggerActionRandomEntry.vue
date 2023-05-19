@@ -34,12 +34,12 @@
 
 					<div class="content">
 						<span class="label" v-if="!indexToEditState[index]">
-							<ChatMessageChunksParser :chunks="getChunksFromItem(item)" />
+							<ChatMessageChunksParser :chunks="getChunksFromItem(item)" v-if="buildIndex >= index" />
 						</span>
 
 						<textarea v-if="indexToEditState[index]"
 						maxlength="500"
-						rows="2" v-autofocus
+						rows="4" v-autofocus
 						@focusout="indexToEditState[index] = false"
 						v-model="action.list[index]">{{ item }}</textarea>
 					</div>
@@ -112,6 +112,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerList from '../TriggerList.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import TabMenu from '@/components/TabMenu.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -131,6 +132,8 @@ export default class TriggerActionRandomEntry extends Vue {
 	public rewards!:TwitchDataTypes.Reward[];
 
 	public itemValue:string = "";
+	public buildIndex:number = 0;
+	public disposed:boolean = false;
 	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
 	public triggerList:{id:string, label:string, icon?:string, iconURL?:string, iconBG?:string}[] = [];
@@ -156,6 +159,7 @@ export default class TriggerActionRandomEntry extends Vue {
 		if(this.action.disableAfterExec == undefined) this.action.disableAfterExec = this.param_disableAfterExec.value;
 		if(!this.action.triggers) this.action.triggers = [];
 		if(!this.action.list) this.action.list = [];
+		this.buildIndex = 0;
 
 		//Remove deleted triggers
 		const triggers = this.$store("triggers").triggerList;
@@ -172,6 +176,22 @@ export default class TriggerActionRandomEntry extends Vue {
 				iconBG: infos.iconBgColor,
 			})
 		})
+
+		watch(()=>this.action.mode, ()=> {
+			this.onSwitchMode();
+		});
+		this.onSwitchMode();
+	}
+
+	public beforeUnmount():void {
+		this.disposed = true;
+	}
+
+	public onSwitchMode():void {
+		this.buildIndex = 5;
+		setTimeout(()=> {
+			this.buildNextListBatch();
+		}, 250);
 	}
 
 	public getChunksFromItem(src:string):TwitchDataTypes.ParseMessageChunk[] {
@@ -193,6 +213,19 @@ export default class TriggerActionRandomEntry extends Vue {
 
 	public onSelectTrigger(id:string):void {
 		this.action.triggers.unshift(id);
+	}
+
+	public buildNextListBatch():void {
+		if(this.disposed) return;
+		if(this.action.mode != "list") return;
+		if(this.buildIndex >= this.action.list.length) return;
+		
+		this.buildIndex += 10;
+		console.log(this.buildIndex);
+		
+		setTimeout(()=> {
+			this.buildNextListBatch();
+		}, 30)
 	}
 
 }
@@ -225,6 +258,7 @@ export default class TriggerActionRandomEntry extends Vue {
 		max-height: 300px;
 		overflow-y: auto;
 		.entry {
+			flex-shrink: 0;
 			display: flex;
 			flex-direction: row;
 			overflow: hidden;
@@ -248,7 +282,7 @@ export default class TriggerActionRandomEntry extends Vue {
 				flex-grow: 1;
 				border-top-right-radius: .5em;
 				border-bottom-right-radius: .5em;
-				background-color: var(--color-primary);
+				background-color: var(--color-light-fadest);
 				font-size: .9em;
 				display: flex;
 				align-items: center;
@@ -261,7 +295,7 @@ export default class TriggerActionRandomEntry extends Vue {
 				.label {
 					padding: .5em .25em;
 					word-break: break-all;
-					white-space: pre-wrap;
+					white-space: pre-line;
 					text-align: left;
 					align-self: flex-start;
 				}
@@ -269,6 +303,9 @@ export default class TriggerActionRandomEntry extends Vue {
 					font-size: 1em;
 					min-width: calc(100% - 2em);
 					resize: vertical;
+				}
+				:deep(.copyBt) {
+					height: 1em;
 				}
 			}
 		}
@@ -301,6 +338,7 @@ export default class TriggerActionRandomEntry extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
+				flex-shrink: 0;
 				background-color: var(--background-color-fadest);
 				transition: background-color .2s;
 				cursor: pointer;

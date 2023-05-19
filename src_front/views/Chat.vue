@@ -1079,7 +1079,7 @@ export default class Chat extends Vue {
 		position: absolute;
 		bottom: var(--chat-form-height);
 		left: 0;
-		z-index: 2;
+		z-index: 4;
 
 		&.emotes {
 			max-width: 100%;
