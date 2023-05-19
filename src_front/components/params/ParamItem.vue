@@ -273,6 +273,8 @@ export default class ParamItem extends Vue {
 		if(this.noBackground === false) {
 			res.push("card-item");
 			if(this.paramData.value === false) res.push("unselected");
+		}else{
+			res.push("no-bg");
 		}
 		if(this.errorLocal !== false) res.push("error");
 		else if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) res.push("error");
@@ -574,6 +576,7 @@ export default class ParamItem extends Vue {
 	overflow: unset;
 	transition: padding .25s;
 	position: relative;
+	transition: opacity .2s;
 	
 	&:not(.disabled)>.content:hover::before {
 		opacity: 1;
@@ -591,6 +594,10 @@ export default class ParamItem extends Vue {
 		background-color: var(--background-color-fadest);
 		background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
 	}
+
+	// &:not(.no-bg) {
+	// 	transition: background-color .2s;
+	// }
 
 	&.longText {
 		.content {
@@ -641,7 +648,9 @@ export default class ParamItem extends Vue {
 	}
 
 	&.unselected {
-		background-color: var(--color-secondary-fadest);
+		opacity: .4;
+		// background-color: var(--background-color-fadest);
+		// background-color: var(--color-secondary-fadest);
 	}
 	
 	.content {

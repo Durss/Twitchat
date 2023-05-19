@@ -111,6 +111,7 @@ export default class TwitchatEvent extends Event {
 	public static COUNTER_GET:TwitchatActionType = "COUNTER_GET";
 	public static COUNTER_ADD:TwitchatActionType = "COUNTER_ADD";
 	public static EXECUTE_TRIGGER:TwitchatActionType = "EXECUTE_TRIGGER";
+	public static TOGGLE_TRIGGER:TwitchatActionType = "TOGGLE_TRIGGER";
 	public static SEND_MESSAGE:TwitchatActionType = "SEND_MESSAGE";
 	public static TIMER_ADD:TwitchatActionType = "TIMER_ADD";
 	public static COUNTDOWN_ADD:TwitchatActionType = "COUNTDOWN_ADD";
@@ -230,6 +231,7 @@ export const TwitchatActionTypeList = [
 	"COUNTER_GET_ALL",
 	"TRIGGERS_GET_ALL",
 	"EXECUTE_TRIGGER",
+	"TOGGLE_TRIGGER",
 	"SEND_MESSAGE",
 	"COUNTER_GET",
 	"COUNTER_ADD",

@@ -215,6 +215,8 @@ import Ajv from "ajv";
 								min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								float: {type:"boolean"},
+								skipDisabled: {type:"boolean"},
+								disableAfterExec: {type:"boolean"},
 								mode: {type:"string", maxLength:20},
 								title: {type:"string", maxLength:20},
 								categoryId: {type:"string", maxLength:30},

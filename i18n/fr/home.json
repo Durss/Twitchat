@@ -95,7 +95,7 @@
 					"description":"Un système de <strong>Triggers</strong> permet de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'évènements comme les subs, cheers, points de chaîne, ..."
 				},
 				{
-					"icon":"music",
+					"icon":"spotify",
 					"image":"musicPlayer.png",
 					"title":"Spotify",
 					"description":"Lier Twitchat à Spotify pour afficher la musique en cours ou contrôler la lecture depuis des Triggers"

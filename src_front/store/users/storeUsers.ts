@@ -695,7 +695,7 @@ export const storeUsers = defineStore('users', {
 					}
 				}
 			}
-			
+
 			if(StoreProxy.params.features.chatShoutout.value === true){
 				if(user.platform == "twitch") {
 					const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
@@ -728,7 +728,6 @@ export const storeUsers = defineStore('users', {
 				const list = this.shoutoutHistory[channelId];
 				if(!list || list.length == 0) continue;
 				
-				// console.log(new Date(StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate));
 				let elapsed = Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate;
 				let cooldown = -elapsed;
 				//Compute cooldowns for every pending shoutouts
@@ -744,7 +743,6 @@ export const storeUsers = defineStore('users', {
 					
 					//If cooldown has fully elapsed, execute SO
 					if(so.executeIn <= 0) {
-						console.log(so.user.login, so.executeIn);
 						//Remove it from list
 						list.splice(i,1);
 						//Execute SO

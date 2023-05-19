@@ -47,16 +47,28 @@
 			</div>
 		</div>
 
-		<div v-if="action.mode == 'trigger'">
-			<ToggleBlock small
-			:open="openTriggerList"
-			:title="$t('triggers.actions.random.trigger_select')">
-				<TriggerList class="triggerList"
-					noEdit
-					:rewards="rewards"
-					@select="onSelectTrigger($event)" />
-			</ToggleBlock>
+		<template v-if="action.mode == 'trigger'">
+			<ParamItem :paramData="param_skipDisabled" v-model="action.skipDisabled" />
 
+			<ParamItem :paramData="param_disableAfterExec" v-model="action.disableAfterExec" />
+
+			<div class="card-item triggerList" medium primary
+			:open="openTriggerList">
+				<div class="title" @click="openTriggerList = !openTriggerList">
+					<span :class="openTriggerList? 'arrow open' : 'arrow'">►</span>
+					<span>{{ $t("triggers.actions.random.trigger_select") }}</span>
+				</div>
+				<div class="list" v-if="openTriggerList">
+					<div class="item"
+					v-for="item in triggerList" :key="item.id"
+					@click="onSelectTrigger(item.id)">
+						<img class="icon" :src="item.iconURL" v-if="item.iconURL" :style="{backgroundColor:item.iconBG}">
+						<Icon class="icon" :name="item.icon" v-else-if="item.icon" />
+						<span class="label">{{ item.label }}</span>
+					</div>
+				</div>
+			</div>
+			
 			<div class="listItem trigger" v-if="action.triggers.length > 0">
 				<div v-for="(item, index) in action.triggers" :key="item" class="entry">
 					<button class="action button"
@@ -67,13 +79,13 @@
 
 					<div class="content">
 						<img v-if="getTriggerInfo(item).iconURL" :src="getTriggerInfo(item).iconURL" class="icon"
-						:style="getTriggerInfo(item).iconBgColor? {backgroundColor:getTriggerInfo(item).iconBgColor, objectFit: 'contain'} : {}">
+						:style="getTriggerInfo(item).iconBgColor? {backgroundColor:getTriggerInfo(item).iconBgColor} : {}">
 						<Icon v-else :name="getTriggerInfo(item).icon" class="icon" />
 						<span class="label">{{ getTriggerInfo(item).label }}</span>
 					</div>
 				</div>
 			</div>
-		</div>
+		</template>
 	
 		<ParamItem v-if="action.mode != 'trigger'" :paramData="param_placeholder" v-model="action.placeholder" :error="(param_placeholder.value).length === 0" />
 
@@ -121,12 +133,14 @@ export default class TriggerActionRandomEntry extends Vue {
 	public itemValue:string = "";
 	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
+	public triggerList:{id:string, label:string, icon?:string, iconURL?:string, iconBG?:string}[] = [];
 
 	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
 	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
 	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.countget.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
-	public param_listMode:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.random.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
+	public param_skipDisabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.trigger_skipDisabled", value:true, icon:"skip"};
+	public param_disableAfterExec:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.trigger_disableAfterExec", value:false, icon:"disable"};
 
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
 		const t = this.$store("triggers").triggerList.find(v=>v.id === triggerId);
@@ -138,6 +152,8 @@ export default class TriggerActionRandomEntry extends Vue {
 		if(this.action.mode == undefined) this.action.mode = "number";
 		if(this.action.max == undefined) this.action.max = this.param_max.value;
 		if(this.action.min == undefined) this.action.min = this.param_min.value;
+		if(this.action.skipDisabled == undefined) this.action.skipDisabled = this.param_skipDisabled.value;
+		if(this.action.disableAfterExec == undefined) this.action.disableAfterExec = this.param_disableAfterExec.value;
 		if(!this.action.triggers) this.action.triggers = [];
 		if(!this.action.list) this.action.list = [];
 
@@ -145,6 +161,17 @@ export default class TriggerActionRandomEntry extends Vue {
 		const triggers = this.$store("triggers").triggerList;
 		this.action.triggers = this.action.triggers.filter(v=> triggers.findIndex(w => v === w.id) > -1);
 		this.openTriggerList = this.action.triggers.length == 0;
+		
+		triggers.forEach(t=> {
+			let infos = Utils.getTriggerDisplayInfo(t);
+			this.triggerList.push({
+				id:t.id,
+				label: infos.label,
+				icon: infos.icon,
+				iconURL: infos.iconURL,
+				iconBG: infos.iconBgColor,
+			})
+		})
 	}
 
 	public getChunksFromItem(src:string):TwitchDataTypes.ParseMessageChunk[] {
@@ -164,8 +191,8 @@ export default class TriggerActionRandomEntry extends Vue {
 		this.action.triggers.splice(index, 1);
 	}
 
-	public onSelectTrigger(v:TriggerData):void {
-		this.action.triggers.unshift(v.id);
+	public onSelectTrigger(id:string):void {
+		this.action.triggers.unshift(id);
 	}
 
 }
@@ -197,14 +224,12 @@ export default class TriggerActionRandomEntry extends Vue {
 		gap: .25em;
 		max-height: 300px;
 		overflow-y: auto;
-		margin-top: .5em;
 		.entry {
 			display: flex;
 			flex-direction: row;
 			overflow: hidden;
 			color: var(--color-text);
 			border-radius: var(--border-radius);
-			background-color: var(--color-light-fadest);
 			.action {
 				width: 1.5em;
 				min-width: 1.5em;
@@ -223,7 +248,7 @@ export default class TriggerActionRandomEntry extends Vue {
 				flex-grow: 1;
 				border-top-right-radius: .5em;
 				border-bottom-right-radius: .5em;
-				background-color: var(--background-color-fadest);
+				background-color: var(--color-primary);
 				font-size: .9em;
 				display: flex;
 				align-items: center;
@@ -231,8 +256,7 @@ export default class TriggerActionRandomEntry extends Vue {
 					align-self: stretch;
 					width: 1.75em;
 					padding: .25em;
-					object-fit: fill;
-					margin-left: .25em;
+					object-fit: contain;
 				}
 				.label {
 					padding: .5em .25em;
@@ -251,8 +275,49 @@ export default class TriggerActionRandomEntry extends Vue {
 	}
 
 	.triggerList {
-		max-height: 300px;
-		overflow-y: auto;
+		flex-grow: 1;
+		width: 100%;
+		.title {
+			cursor: pointer;
+			.arrow {
+				display: inline-block;
+				margin-right: .5em;
+				transition: transform .2s;
+				&.open{
+					transform: rotate(90deg);
+				}
+			}
+		}
+		.list {
+			gap: 2px;
+			display: flex;
+			flex-direction: column;
+			max-height: 200px;
+			overflow-y: auto;
+			margin-top: .5em;
+			padding: 0 1.5em;
+			.item {
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				background-color: var(--background-color-fadest);
+				transition: background-color .2s;
+				cursor: pointer;
+				border-radius: var(--border-radius);
+				padding: 2px;
+				font-size: .9em;
+				.icon {
+					height: 1.5em;
+					width: 1.5em;
+					border-radius: var(--border-radius);
+					object-fit: contain;
+				}
+				&:hover {
+					background-color: var(--background-color-fader);
+				}
+			}
+		}
 	}
 }
 </style>

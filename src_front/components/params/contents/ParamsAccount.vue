@@ -121,7 +121,8 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 
 	public latestUpdates():void {
 		this.$store("params").closeParameters();
-		this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+		this.$store("params").openModal("updates");
+		// this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 	}
 
 	public ahs():void {

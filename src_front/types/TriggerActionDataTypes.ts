@@ -407,6 +407,16 @@ export interface TriggerActionRandomData extends TriggerActionData{
 	placeholder:string;
 	list:string[];
 	triggers:string[];
+	/**
+	 * If true, disabled triggers should be skipped when picking
+	 * a random one.
+	 */
+	skipDisabled?:boolean;
+	/**
+	 * Should the randomly executed trigger be disabled after
+	 * its execution?
+	 */
+	disableAfterExec?:boolean;
 }
 
 export interface TriggerActionStreamInfoData extends TriggerActionData{

@@ -429,6 +429,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.EXECUTE_TRIGGER, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.TOGGLE_TRIGGER, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.TRIGGERS_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
@@ -474,6 +475,7 @@ export default class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.EXECUTE_TRIGGER, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.TOGGLE_TRIGGER, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.TRIGGERS_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
@@ -606,7 +608,6 @@ export default class Chat extends Vue {
 				const id = (e.data as JsonObject).triggerId as string;
 				const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);
 				if(trigger) {
-					console.log("TRIGGER", trigger);
 					const me = this.$store("auth").twitch.user;
 					const fakeMessage:TwitchatDataTypes.MessageChatData = {
 						platform:"twitch",
@@ -622,6 +623,20 @@ export default class Chat extends Vue {
 						answers:[],
 					}
 					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
+				}
+				break;
+			}
+
+			case TwitchatEvent.TOGGLE_TRIGGER: {
+				const id = (e.data as JsonObject).triggerId as string;
+				const action = (e.data as JsonObject).triggerAction as string || "enable";
+				const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);
+				if(trigger) {
+					switch(action.toLowerCase()){
+						case "enable":	trigger.enabled = true; break;
+						case "disable":	trigger.enabled = false; break;
+						case "toggle":	trigger.enabled = !trigger.enabled; break;
+					}
 				}
 				break;
 			}

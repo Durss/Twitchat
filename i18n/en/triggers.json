@@ -42,6 +42,7 @@
 		"count": {
 			"require": "This trigger need you to first {URL}",
 			"require_url": "create counters"
+
 		},
 		"rewards": {
 			"require": "This trigger needs to {URL}",
@@ -244,9 +245,12 @@
 				"list":"List",
 				"trigger":"Triggers",
 				"trigger_info":"Execute a random trigger amgonst the selected ones",
-				"trigger_select":"Select a trigger",
+				"trigger_select":"Select one or more triggers",
+				"trigger_skipDisabled":"Ignore disabled triggers during random selection",
+				"trigger_disableAfterExec":"Disable selected trigger after executing it",
 				"list_label":"Pick a random entry amongst these ones:",
-				"list_entry_placeholder":"add entry..."
+				"list_entry_placeholder":"add entry...",
+				"placeholder_label":"Placeholder name"
 			},
 			"raffle_enter":{
 				"info":"The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."

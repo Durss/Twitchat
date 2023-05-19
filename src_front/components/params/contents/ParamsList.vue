@@ -218,6 +218,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 			background-color: var(--background-color-fadest);
 			padding: .25em;
 			position: relative;
+			transition: opacity .2s;
 			&:not(:first-of-type) {
 				margin-top: 10px;
 			}
@@ -250,14 +251,13 @@ export default class ParamsList extends Vue implements IParameterContent {
 			}
 
 			&.off {
-				background-color: var(--color-secondary-fadest);
+				opacity: .5;
+				background-color: var(--background-color-fadest);
+				// background-color: var(--color-secondary-fadest);
 			}
 
 			&.disabled {
-				background-color: var(--color-alert-fader);
-				:deep(label) {
-					opacity: .5;
-				}
+				opacity: .4;
 			}
 
 			

@@ -540,7 +540,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Execute a specific trigger
 	 */
-	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}):Promise<boolean> {
+	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}, ignoreDisableState:boolean = false):Promise<boolean> {
 		let log:TriggerLog = {
 			id:Utils.getUUID(),
 			trigger,
@@ -662,7 +662,7 @@ export default class TriggerActionHandler {
 			canExecute = false;
 			log.messages.push({date:Date.now(), value:"Trigger has no child actions"});
 		}
-		if(!trigger.enabled && !testMode) {
+		if(!trigger.enabled && !testMode && !ignoreDisableState) {
 			canExecute = false;
 			log.messages.push({date:Date.now(), value:"Trigger is disabled"});
 		}
@@ -1126,16 +1126,33 @@ export default class TriggerActionHandler {
 					
 					}else if(step.mode == "trigger") {
 						//Pick an item from a custom list
-						const triggerId = Utils.pickRand(step.triggers);
-						if(triggerId) {
-							const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == triggerId);
-							if(trigger) {
-								// console.log("Exec sub trigger", step.triggerKey);
-								logStep.messages.push({date:Date.now(), value:"Call random trigger \""+triggerId+"\""});
-								await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders);
-							}
+						const triggerList = StoreProxy.triggers.triggerList;
+						const hashmap:{[key:string]:TriggerData} = {};
+						triggerList.forEach(t => hashmap[t.id] = t);
+
+						let triggers = step.triggers;
+						//If requesting to ignore disabled triggers, filter them out
+						//Testing with "!== false" because the prop was added later and might be
+						//missing and I want it to be "true" by default
+						if(step.skipDisabled !== false) triggers = triggers.filter(t => hashmap[t].enabled);
+						if(triggers.length === 0) {
+							logStep.messages.push({date:Date.now(), value:"Empty trigger list or all triggers disabled"});
 						}else{
-							logStep.messages.push({date:Date.now(), value:"Random trigger not found for ID \""+triggerId+"\""});
+							//Pick a random trigger
+							const triggerId = Utils.pickRand(triggers);
+							if(triggerId) {
+								const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == triggerId);
+								if(trigger) {
+									// console.log("Exec sub trigger", step.triggerKey);
+									logStep.messages.push({date:Date.now(), value:"Call random trigger \""+triggerId+"\""});
+									await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders, true);
+									if(step.disableAfterExec === true) {
+										trigger.enabled = false;
+									}
+								}else{
+									logStep.messages.push({date:Date.now(), value:"Random trigger not found for ID \""+triggerId+"\""});
+								}
+							}
 						}
 					}
 				}else

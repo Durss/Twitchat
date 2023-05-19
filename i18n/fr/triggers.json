@@ -244,9 +244,12 @@
 				"list":"Liste",
 				"trigger":"Triggers",
 				"trigger_info":"Executer un trigger aléatoire parmi ceux sélectionnés",
-				"trigger_select":"Sélectionnez un trigger",
+				"trigger_select":"Sélectionnez un ou plusieurs triggers",
+				"trigger_skipDisabled":"Ignorer les triggers désactivés lors du tirage",
+				"trigger_disableAfterExec":"Désactiver le trigger sélectionné après exécution",
 				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
-				"list_entry_placeholder":"ajouter une entrée..."
+				"list_entry_placeholder":"ajouter une entrée...",
+				"placeholder_label":"Nom du placeholder"
 			},
 			"raffle_enter":{
 				"info":"La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
