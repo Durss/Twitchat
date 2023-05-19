@@ -66,106 +66,19 @@
 		],
 		"major": [
 			{
-				"i": "translate",
-				"l": "<strong>Version Française</strong> disponible !"
-			},
-			{
-				"i": "list",
-				"l": "<strong>Nouvelle liste de messages</strong>. Vous pouvez maintenant créer autant de colonnes que vous le souhaitez et choisir les types de messages à afficher dans chacune."
-			},
-			{
-				"i": "count",
+				"i": "icon",
 				"a": {
-					"a": "ouvrir les compteurs",
-					"l": "test",
-					"page": "counters"
+					"a": "alt text",
+					"l": "button label",
+					"page": "pageID",
+					"param": "param.id"
 				},
-				"l": "Créez des <strong>compteurs</strong> personnalisés, modifiez leur valeur depuis des commandes de tchat, récompenses de points de chaîne, ... et affichez leur progression sur votre stream"
-			},
-			{
-				"i": "font",
-				"a": {
-					"a": "ouvrir le paramètre",
-					"l": "test",
-					"param": "appearance.dyslexicFont"
-				},
-				"l": "Possibilité d'afficher les textes avec une <strong>police d'écriture pour dyslexiques</strong>"
-			},
-			{
-				"i": "emote",
-				"a": {
-					"a": "ouvrir le paramètre",
-					"l": "test",
-					"param": "features.offlineEmoteOnly"
-				},
-				"l": "<strong>Emote-only</strong>: possibilité d'automatiquement passer votre tchat en emote-only en fin de stream"
-			},
-			{
-				"i": "hand",
-				"l": "<strong>Restrictions</strong>: Au lancement, un message récapitulera les éventuelles restrictions de votre tchat <i>(follow-only, sub-only, slow-mode,...)</i>"
-			},
-			{
-				"i": "list",
-				"l": "<strong>Ne râtez plus les nouveaux messages</strong> y compris lorsque vous remontez lire les anciens. Les 3 messages les plus récent seront affichés en bas de liste"
-			},
-			{
-				"i": "shieldMode",
-				"a": {
-					"a": "ouvrir le paramètre",
-					"l": "test",
-					"page": "emergency"
-				},
-				"l": "Possibilité de synchroniser le mode urgence sur le <strong>mode bouclier</strong> de twitch"
-			},
-			{
-				"i": "shoutout",
-				"l": "Vous serez notifié·e lorsque vous effectuerez ou receverez un <strong>shoutout</strong>"
-			},
-			{
-				"i": "broadcast",
-				"a": {
-					"a": "ouvrir le paramètre",
-					"l": "test",
-					"page": "triggers"
-				},
-				"l": "<strong>19 nouveaux triggers</strong>:<ul><li>Lorsque que quelqu'un envoie une \"presentation\"</li><li>Quand le train de la hype peut à nouveau être démarré</li><li>Quand vous effectuez un shoutout</li><li>Quand vous recevez un shoutout</li><li>Quand vous changez de scène OBS</li><li>Quand une source OBS est affichée/masquée</li><li>Quand un message est épinglé/désépinglé</li><li>Quand le mode bouclier est activé/désactivé</li><li>Quand le stream est lancé</li><li>Quand le stream est arrêté</li><li>5 évènements liés aux compteurs</li><li>Quand vous lancez un raid</li></ul>"
-			},
-			{
-				"i": "broadcast",
-				"a": {
-					"a": "open triggers params",
-					"l": "try it",
-					"page": "triggers"
-				},
-				"l": "<strong>5 nouvelles actions de trigger</strong>:<ul><li>Mettre à jour les infos de stream</li><li>Mettre à jour un compteur</li><li>Lire un compteur</li><li>Generer une valeur aléatoire</li><li>Appeler un endpoint HTTP</li></ul>"
-			},
-			{
-				"i": "commands",
-				"l": "<strong>4 nouvelles commandes</strong> pour ajouter/enlever du temps à un chronomètre ou un compte à rebours: <mark>/timeradd</mark>, <mark>/timerremove</mark>, <mark>/countdownadd</mark>, <mark>/countdownremove</mark>"
+				"l": "description"
 			}
 		],
 		"minor": [
-			{"l":"Toutes les commandes peuvent être utilisées depuis les triggers"},
-			{"l":"1 nouvelle action de trigger <strong>\"Appel HTTP\"</strong> pour les développeur si vous souhaitez appeler quoi que ce soit en réponse à un évènement"},
-			{"l":"La liste des personnes présentes dans le tchat affiche la <strong>durée de timeout</strong> restante pour les personnes bannies temporairement"},
-			{"l":"Vous pouvez lancer un <strong>bingo</strong> avec des valeurs arbitraires"},
-			{"l":"Les messages retenus par le <strong>partage de banissements</strong> seront maintenant affichés"},
-			{"l":"En cas de <strong>raid de followbots</strong>, toutes les notifications seront regroupées en 1 seule dépliable"},
-			{"l":"Démarrez le <strong>mode bouclier</strong> depuis le bouton d'urgence"},
-			{"l":"Durée maximum du <strong>tirage au sort</strong> étendue à 24h"},
-			{"l":"Possibilité de mettre en <strong>surbrillance</strong> les messages des <strong>partenaires</strong>"},
-			{"l":"Les emotes BTTV/FFZ/7TV sont maintenant affichées dans les sélecteurs"},
-			{"l":"Si une commande de chat est en cooldown, la personne pourra être prévenue du temps restant à attendre"},
-			{"l":"Lorsque plein de messages sont en attente de lecture par le TTS, un bouton permet de vider la file d'attente"},
-			{"l":"Les <strong>conducteurs de train</strong> de la hype sont affichés"},
-			{"l":"Le résumé du <strong>Train de la hype</strong> affiche les abbonements T1, T2 et T3 séparément"},
-			{"l":"Nouvelle commande <strong>/greetduration</strong> pour modifier la durée après laquelle effacer automatiquement les messages de la partie \"Dites bonjour\""},
-			{"l":"Supression de l'intégragrion Deezer suite à la désactivation de cette possibilité par Deezer"},
-			{"l":"Chaque type de trigger possède maintenant sa propre <strong>file d'exécution</strong>. Vous pouvez créer des files d'exécution personnalisées pour que des triggers de type différents s'exécutent de manière séquentielle et non parallèle."}
 		],
 		"fixes": [
-			{"l":"Le TTS pour les résultats de prédictions ne disait parfois pas le titre de l'entrée gagnante"},
-			{"l":"Les infos de la musique en cours n'étaient pas toujours injectées dans les triggers"}
 		]
 	}
 }
