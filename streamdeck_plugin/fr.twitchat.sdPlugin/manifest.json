@@ -431,6 +431,20 @@
 			"UUID": "fr.twitchat.action.execute-trigger"
 		},
 		{
+			"Icon": "icons/TOGGLE_TRIGGER_default",
+			"Name": "Enable/disable a trigger",
+			"States": [
+				{
+					"Image": "icons/TOGGLE_TRIGGER",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.toggle-trigger"
+		},
+		{
 			"Icon": "icons/SEND_MESSAGE_default",
 			"Name": "Send a message",
 			"States": [

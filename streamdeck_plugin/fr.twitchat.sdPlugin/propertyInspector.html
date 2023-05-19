@@ -115,6 +115,7 @@
 				<strong class="hidden" data-timer-add>Add or remove time from current timer</strong>
 				<strong class="hidden" data-counter-add>Add or remove points from a counter</strong>
 				<strong class="hidden" data-execute-trigger>Execute a trigger. If the selected trigger uses placeholders they won't be available when executed from here</strong>
+				<strong class="hidden" data-toggle-trigger>Enable or disable any trigger.</strong>
 				<strong class="hidden" data-send-message>Send a message. You can use any Twitch or Twitchat commands as well as custom chat commands created on the triggers</strong>
 			</div>
 		</div>
@@ -216,12 +217,35 @@
 		</div>
 
 		<div class="sdpi-item hidden" id="select_single"
+		data-toggle-trigger>
+			<div class="sdpi-item-label">Action</div>
+			<select class="sdpi-item-value select"
+			id="triggerAction"
+			oninput="onChangeValue(Number(event.target.value))"
+			data-toggle-trigger>
+				<option value="ENABLE">Enable trigger</option>
+				<option value="DISABLE">Disable trigger</option>
+				<option value="TOGGLE">Toggle trigger state</option>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
 		data-execute-trigger>
-			<div class="sdpi-item-label">Trigger to execute</div>
+			<div class="sdpi-item-label" data-execute-trigger>Trigger to execute</div>
 			<select class="sdpi-item-value select"
 				id="triggerId"
 				oninput="onChangeValue(event.target.value)"
 				data-execute-trigger>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-toggle-trigger>
+			<div class="sdpi-item-label" data-toggle-trigger>Trigger to update</div>
+			<select class="sdpi-item-value select"
+				id="triggerId"
+				oninput="onChangeValue(event.target.value)"
+				data-toggle-trigger>
 			</select>
 		</div>
 
