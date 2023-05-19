@@ -649,16 +649,28 @@ export default class TriggerActionHandler {
 			}
 		}
 		
+		let actions = trigger.actions;
+		
 		//check execution conditions
+		let passesCondition = true;
+		let hasConditions = trigger.conditions && trigger.conditions.conditions.length > 0
 		if(!testMode
-		&& trigger.conditions
-		&& trigger.conditions.conditions.length > 0
-		&& !await this.checkConditions(trigger.conditions.operator, [trigger.conditions], trigger, message, log, dynamicPlaceholders, subEvent)) {
-			log.messages.push({date:Date.now(), value:"Execution conditions not fulfilled"});
-			canExecute = false;
+		&& hasConditions
+		&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
+			log.messages.push({date:Date.now(), value:"Conditions not fulfilled"});
+			passesCondition = false;
+		}else if(hasConditions) {
+			log.messages.push({date:Date.now(), value:"Conditions fulfilled"});
 		}
 
-		if(!trigger || !trigger.actions || trigger.actions.length == 0) {
+		//Filter actions to execute based on whether the condition is matched or not
+		if(hasConditions) {
+			actions = trigger.actions.filter(t=> {
+				return t.condition == passesCondition || (t.condition !== false && passesCondition);
+			});
+		}
+
+		if(!trigger || !actions || actions.length == 0) {
 			canExecute = false;
 			log.messages.push({date:Date.now(), value:"Trigger has no child actions"});
 		}
@@ -687,7 +699,8 @@ export default class TriggerActionHandler {
 			log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
 		}
 
-		for (const step of trigger.actions) {
+		for (const step of actions) {
+			console.log("Exect step", step);
 			const logStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
 			log.steps.push(logStep);
 

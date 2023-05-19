@@ -65,6 +65,7 @@
 			"createBt":"Créer une condition",
 			"add_tt":"Ajouter une condition",
 			"group_tt":"Créer un sous groupe et ajouter une condition",
+			"placeholder_cmd_param":"Paramètre de commande {NAME}",
 			"operators":{
 				">":">",
 				"<":"<",
@@ -80,7 +81,8 @@
 				"not_ends_with":"Ne termine pas par",
 				"AND":"ET",
 				"OR":"OU"
-			}
+			},
+			"tab_menu_title": "Editer les actions validées ou rejetées par la condition"
 		},
 		"slash_cmd":{
 			"param_cmd": "Commande",

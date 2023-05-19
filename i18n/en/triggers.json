@@ -66,6 +66,7 @@
 			"createBt":"Create a condition",
 			"add_tt":"Add condition",
 			"group_tt":"Create a sub group and add a condition",
+			"placeholder_cmd_param":"Command param {NAME}",
 			"operators":{
 				">":">",
 				"<":"<",
@@ -81,7 +82,8 @@
 				"not_ends_with":"Not ending with",
 				"AND":"AND",
 				"OR":"OR"
-			}
+			},
+			"tab_menu_title": "Edit actions matching or not matching the condition"
 		},
 		"slash_cmd":{
 			"param_cmd": "Command",

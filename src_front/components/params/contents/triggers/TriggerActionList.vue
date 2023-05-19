@@ -57,13 +57,21 @@
 			<TriggerConditionList :triggerData="triggerData" />
 		</div>
 
+		<div class="card-item conditionsTabs" v-if="hasCondition">
+			<div class="head">{{ $t("triggers.condition.tab_menu_title") }}</div>
+			<TabMenu v-model="matchingCondition"
+					:values="[true, false]"
+					:icons="['checkmark', 'cross']"
+					:themes="['', 'alert']" />
+		</div>
+
 		<div class="list">
 			<button class="addBt" @click="addActionAt(0)">
 				<img src="@/assets/icons/add.svg" class="icon">
 			</button>
 
 			<draggable 
-			v-model="triggerData.actions" 
+			v-model="actionList" 
 			group="actions" 
 			item-key="id"
 			ghost-class="ghost"
@@ -78,7 +86,6 @@
 							class="action"
 							:action="element"
 							:index="index"
-							:totalItems="triggerData.actions.length"
 							:obsSources="obsSources"
 							:obsInputs="obsInputs"
 							:rewards="rewards"
@@ -99,7 +106,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerActionData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -113,10 +120,12 @@ import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
+import TabMenu from '@/components/TabMenu.vue';
 
 @Component({
 	components:{
 		Button,
+		TabMenu,
 		draggable,
 		ParamItem,
 		TriggerActionEntry,
@@ -139,6 +148,7 @@ export default class TriggerActionList extends Vue {
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
 	
+	public matchingCondition:boolean = true;
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string[]> = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 
@@ -150,10 +160,24 @@ export default class TriggerActionList extends Vue {
 		return item?.descriptionKey;
 	}
 
+	/**
+	 * Get a trigger's description
+	 */
+	public get actionList():TriggerActionData[] {
+		let res = this.triggerData.actions;
+		if(this.hasCondition) {
+			return res.filter(t=> {
+				return t.condition == this.matchingCondition || (t.condition !== false && this.matchingCondition);
+			})
+		}
+		return res;
+	}
+
 	public get isChatCmd():boolean { return this.triggerData.type === TriggerTypes.CHAT_COMMAND; }
 	public get isSchedule():boolean { return this.triggerData.type === TriggerTypes.SCHEDULE; }
 	public get isSlashCommand():boolean { return this.triggerData.type === TriggerTypes.SLASH_COMMAND; }
 	public get isAnyChatMessageCommand():boolean { return this.triggerData.type === TriggerTypes.ANY_MESSAGE; }
+	public get hasCondition():boolean { return this.triggerData.conditions != undefined && this.triggerData.conditions.conditions.length > 0; }
 
 	/**
 	 * Get a trigger's sub type's label (reward name, counter name, ...)
@@ -236,6 +260,9 @@ export default class TriggerActionList extends Vue {
 			id:Utils.getUUID(),
 			type:null,
 		}
+		if(this.hasCondition) {
+			action.condition = this.matchingCondition;
+		}
 		this.triggerData.actions.splice(index, 0, action);
 	}
 
@@ -277,8 +304,18 @@ export default class TriggerActionList extends Vue {
 		}
 	}
 
-	&>.params, &>.conditions, &>.description {
+	&>.params, &>.conditions, &>.conditionsTabs, &>.description {
 		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+
+		&>.head {
+			text-align: center;
+			margin-bottom: .5em;
+		}
+
+		.tabmenu {
+			margin: auto;
+			width: fit-content;
+		}
 
 		&.description {
 			line-height: 1.3em;

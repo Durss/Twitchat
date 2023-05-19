@@ -229,8 +229,6 @@ export default class TriggerActionEntry extends Vue {
 	public rewards!:TwitchDataTypes.Reward[];
 	@Prop
 	public index!:number;
-	@Prop
-	public totalItems!:number;
 
 	public opened = false;
 	public isError = false;

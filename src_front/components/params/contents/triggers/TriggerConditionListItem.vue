@@ -25,6 +25,7 @@ import { TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionG
 import Utils from '@/utils/Utils';
 import ParamItem from '../../ParamItem.vue';
 import Button from '@/components/Button.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -49,8 +50,33 @@ export default class TriggerConditionListItem extends Vue {
 	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:""}
 
 	public beforeMount():void {
+		this.buildSourceList();
+		this.updateOperators();
+
+		//Watch for changes on the chat command params to rebuild source list
+		watch(()=> this.triggerData.chatCommandParams, ()=> {
+			this.buildSourceList();
+		}, {deep:true});
+	}
+
+	/**
+	 * Create the source list used as the first operator of the condition
+	 */
+	public buildSourceList():void {
+		//Add commmand params
+		let placeholderList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+			if(this.triggerData.chatCommandParams) {
+			this.triggerData.chatCommandParams.forEach(v=> {
+				placeholderList.push({
+					value:v.tag,
+					label: this.$t('triggers.condition.placeholder_cmd_param', {NAME:"{"+v.tag.toUpperCase()+"}"}),
+				})
+			})
+		}
+			
+		//Add trigger's placeholders
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
-		this.param_placeholder.listValues = placeholders.map(v=> {
+		placeholderList = placeholderList.concat(placeholders.map(v=> {
 			let name = "";
 			//If it's a counter tag, get counter's name
 			if(v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) > -1) {
@@ -62,9 +88,9 @@ export default class TriggerConditionListItem extends Vue {
 				label: this.$t(v.descKey, {NAME:"\""+name+"\""}),
 				value:v.tag,
 			}
-		}),
-
-		this.updateOperators();
+		}));
+		
+		this.param_placeholder.listValues = placeholderList;
 	}
 
 	/**
@@ -74,6 +100,7 @@ export default class TriggerConditionListItem extends Vue {
 	public updateOperators():void {
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
 		const placeholderRef = placeholders.find(v=> v.tag == this.condition.placeholder);
+		const cmParamsRef = this.triggerData.chatCommandParams?.find(v=> v.tag == this.condition.placeholder);
 
 		this.param_operator.listValues = TriggerConditionOperatorList.map(v=> {
 				return {
@@ -82,7 +109,7 @@ export default class TriggerConditionListItem extends Vue {
 				}
 			}).filter(v=> {
 				//Remove arithmetical operators if placeholder isn't parsable as number
-				if(!placeholderRef || placeholderRef.numberParsable !== true) {
+				if((!placeholderRef || placeholderRef.numberParsable !== true) && !cmParamsRef) {
 					return ![">","<",">=","<="].includes(v.value);
 				}
 				return true;
