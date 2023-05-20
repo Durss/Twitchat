@@ -81,8 +81,7 @@
 				"not_ends_with":"Ne termine pas par",
 				"AND":"ET",
 				"OR":"OU"
-			},
-			"tab_menu_title": "Editer les actions validées ou rejetées par la condition"
+			}
 		},
 		"slash_cmd":{
 			"param_cmd": "Commande",

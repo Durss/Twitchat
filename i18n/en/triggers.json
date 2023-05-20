@@ -82,8 +82,7 @@
 				"not_ends_with":"Not ending with",
 				"AND":"AND",
 				"OR":"OR"
-			},
-			"tab_menu_title": "Edit actions matching or not matching the condition"
+			}
 		},
 		"slash_cmd":{
 			"param_cmd": "Command",

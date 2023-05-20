@@ -2,7 +2,7 @@
 	<div class="triggerconditionlist">
 		<div>{{ $t("triggers.condition.title") }}</div>
 
-		<Button v-if="!triggerData.conditions || triggerData.conditions.conditions.length == 0" icon="add"
+		<Button small v-if="!triggerData.conditions || triggerData.conditions.conditions.length == 0" icon="add"
 		@click="addCondition()">{{ $t('triggers.condition.createBt') }}</Button>
 
 		<TriggerConditionListGroupItem v-else class="list" :triggerData="triggerData" :parentCondition="triggerData.conditions" :condition="[triggerData.conditions]" />
