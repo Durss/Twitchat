@@ -13,13 +13,13 @@
 			{
 				"i": "theme",
 				"l": "Nouveau design",
-				"d": "LIvré avec un thème sombre et un thème clair pour satisfaire tous les yeux !"
+				"d": "Livré avec un thème sombre et un thème clair pour satisfaire tous les yeux !"
 			},
 			{
 				"i": "shoutout",
 				"l": "File de Shoutouts",
 				"g": "update_images/shoutout_queue.gif",
-				"d": "Vous êtes la voiture de balais de 2h du matin qui reçoit des séries de raids ?<br>Faites tous les Shoutouts d'un coup, Twitchat les exécutera automatiquement dès que possible.<br>Re priorisez leur exécution ou supprimez-les si nécessaire."
+				"d": "Vous êtes la voiture-balais de 2h du matin qui reçoit des séries de raids ?<br>Faites tous les Shoutouts d'un coup, Twitchat les exécutera automatiquement dès que possible.<br>Re priorisez leur exécution ou supprimez-les si nécessaire."
 			},
 			{
 				"i": "count",
@@ -36,7 +36,7 @@
 				"i": "commands",
 				"l": "/commandes",
 				"g": "update_images/customCmd.png",
-				"d": "Créez vos propres /commandes via le nouveau trigger dédié.<br><br>Ces commandes ne seront pas envoyées en tchat et peuvent être ajoutée aux options de modération du menu contextuel."
+				"d": "Créez vos propres /commandes via le nouveau trigger dédié.<br><br>Ces commandes ne seront pas envoyées en tchat et peuvent être ajoutées aux options de modération du menu contextuel."
 			},
 			{
 				"i": "raid",
@@ -51,8 +51,8 @@
 			},
 			{
 				"i": "broadcast",
-				"l": "Triggers sous steroïdes",
-				"d": "• Plusieurs triggers peuvent être créés pour un même évènement<br>• Des conditions d'exécution peuvent être définies<br>• Ajoutez des alias à vos commandes<br>• Édition/lecture des compteurs simplifiée<br>• 6 nouveau triggers relatifs aux sources audio OBS, aux sources media et aux filtres<br>• Nouvelle action dédiée pour les \"délais\"<br>• Nouvelle action pour faire vibrer votre téléphone<br>• Nouvelle action pour activer/désactiver d'autres triggers<br>• Nouvelle action pour lancer une session de Suggestion de Tchat"
+				"l": "Triggers sous stéroïdes",
+				"d": "• Plusieurs triggers peuvent être créés pour un même évènement<br>• Des conditions d'exécution peuvent être définies<br>• Ajoutez des alias à vos commandes<br>• Édition/lecture des compteurs simplifiée<br>• 6 nouveaux triggers relatifs aux sources audio OBS, aux sources media et aux filtres<br>• Nouvelle action dédiée pour les \"délais\"<br>• Nouvelle action pour faire vibrer votre téléphone<br>• Nouvelle action pour activer/désactiver d'autres triggers<br>• Nouvelle action pour lancer une session de Suggestions de Tchat"
 			},
 			{
 				"i": "vibratePhone",

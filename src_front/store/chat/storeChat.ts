@@ -689,21 +689,38 @@ export const storeChat = defineStore('chat', {
 						for (let i = len-1; i > end; i--) {
 							const m = messageList[i];
 							if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
-							if(m.user.id == message.user.id
-							&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
-							&& message.message.toLowerCase() == m.message.toLowerCase()
-							&& message.type == m.type
-							&& message.channel_id == m.channel_id) {
-								if(!m.occurrenceCount) m.occurrenceCount = 0;
-								//Remove message
-								messageList.splice(i, 1);
-								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
-								m.occurrenceCount ++;
-								//Update timestamp
-								m.date = Date.now();
-								message = m;
-								break;
+							if(m.user.id != message.user.id) continue;
+							if(message.type != m.type) continue;
+							if(m.date < Date.now() - 30000 || i < len-30) continue;//"i < len-20" more or less means "if message is still visible on screen"
+							if(message.message.toLowerCase() != m.message.toLowerCase()) continue;
+							if(message.spoiler != m.spoiler) continue;
+							if(message.deleted != m.deleted) continue;
+							if(message.channel_id != m.channel_id) continue;
+							//If whisper target isn't the same, skip it
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
+								&& m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+								if(m.to.id != message.to.id) continue;
 							}
+
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+								&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+								//If highlight state isn't the same, skip it
+								if(m.twitch_isHighlighted != message.twitch_isHighlighted) continue;
+								//Don't merge automoded
+								if(message.automod || m.automod) continue;
+								if(message.twitch_automod || m.twitch_automod) continue;
+								//Don't merge answers to messages
+								if(message.answersTo || m.answersTo) continue;
+							}
+							if(!m.occurrenceCount) m.occurrenceCount = 0;
+							//Remove message
+							messageList.splice(i, 1);
+							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
+							m.occurrenceCount ++;
+							//Update timestamp
+							m.date = Date.now();
+							message = m;
+							break;
 						}
 					}
 
