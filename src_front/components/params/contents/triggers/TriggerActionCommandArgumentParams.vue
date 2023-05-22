@@ -23,7 +23,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="usage" v-if="triggerData.chatCommandParams && triggerData.chatCommandParams.length > 0">
+		<!-- <div class="usage" v-if="triggerData.chatCommandParams && triggerData.chatCommandParams.length > 0">
 			<div class="example">
 				<div class="label">● {{ $t("triggers.slash_cmd.param_cmd_params_example") }}</div>
 				<input type="text" v-model="usage">
@@ -38,7 +38,7 @@
 					</template>
 				</div>
 			</div>
-		</div>
+		</div> -->
 	</div>
 </template>
 
