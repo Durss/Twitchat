@@ -631,6 +631,7 @@ export const storeUsers = defineStore('users', {
 			let streamCategory = "";
 			let executed = false;
 			let canExecute = true;
+			let sendChatSO = true;
 
 			//Init history if necessary
 			if(!this.shoutoutHistory[channelId]) this.shoutoutHistory[channelId] = [];
@@ -639,6 +640,7 @@ export const storeUsers = defineStore('users', {
 			if(user.errored) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.user_not_found"));
 				canExecute = false;
+				sendChatSO = false;
 			}
 			
 			//Check if we're live
@@ -646,6 +648,7 @@ export const storeUsers = defineStore('users', {
 			|| !StoreProxy.stream.currentStreamInfo[channelId]?.live) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_offline"));
 				canExecute = false;
+				sendChatSO = false;
 			}
 			
 			if(user.platform == "twitch" && canExecute) {
@@ -671,6 +674,7 @@ export const storeUsers = defineStore('users', {
 								addToQueue = !fromQueue;
 							}else {
 								executed = true;
+								sendChatSO = true;
 								addToQueue = false;
 							}
 							//Set the last SO date offset for this user to now
@@ -690,13 +694,14 @@ export const storeUsers = defineStore('users', {
 							});
 						}
 						if(!executed) {
+							//Force timers refresh
 							this.executePendingShoutouts();
 						}
 					}
 				}
 			}
 
-			if(StoreProxy.params.features.chatShoutout.value === true){
+			if(sendChatSO && StoreProxy.params.features.chatShoutout.value === true){
 				if(user.platform == "twitch") {
 					const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
 					if(userInfos?.length > 0) {
@@ -745,6 +750,7 @@ export const storeUsers = defineStore('users', {
 					if(so.executeIn <= 0) {
 						//Remove it from list
 						list.splice(i,1);
+						i--
 						//Execute SO
 						this.shoutout(channelId, so.user, true).then(result => {
 							//SO failed
