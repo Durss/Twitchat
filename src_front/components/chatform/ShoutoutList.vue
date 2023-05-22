@@ -1,15 +1,15 @@
 <template>
 	<div class="shoutoutlist blured-background-window">
 		<draggable class="list"
-		v-model="$store('users').shoutoutHistory[channelId]" 
+		v-model="$store('users').pendingShoutouts[channelId]" 
 		direction="vertical"
 		group="users"
 		item-key="id"
 		:animation="250"
 		@end="onMoveItem">
 			<template #item="{element, index}:{element:TwitchatDataTypes.ShoutoutHistoryItem, index:number}">
-				<div class="item" v-if="element.done !== true">
-					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store('users').shoutoutHistory[channelId]!.length > 1" >
+				<div class="item">
+					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store('users').pendingShoutouts[channelId]!.length > 1" >
 					<Button class="deleteBt" icon="cross" small alert @click="deleteItem(element)" />
 					<img v-if="element.user.avatarPath && getDelay(element.executeIn) > 0" :src="element.user.avatarPath" class="avatar">
 					<Icon name="loader" v-if="getDelay(element.executeIn) <= 0" class="loader" />
@@ -73,7 +73,7 @@ export default class ShoutoutList extends Vue {
 		}, 1000);
 
 		//Watch for any change on the list and reset the local timer
-		watch(()=>this.$store("users").shoutoutHistory[this.channelId], ()=> {
+		watch(()=>this.$store("users").pendingShoutouts[this.channelId], ()=> {
 			this.timerOffset = 0;
 		}, {deep:true});
 	}
@@ -90,10 +90,10 @@ export default class ShoutoutList extends Vue {
 	}
 
 	public deleteItem(item:TwitchatDataTypes.ShoutoutHistoryItem):void {
-		const list = this.$store("users").shoutoutHistory[this.channelId]!;
+		const list = this.$store("users").pendingShoutouts[this.channelId]!;
 		const index = list.findIndex(v=>v.id == item.id);
 		list.splice(index, 1);
-		if(list.filter(v=>v.done !== true).length === 0) this.close();
+		if(list.length === 0) this.close();
 	}
 
 	private open():void {

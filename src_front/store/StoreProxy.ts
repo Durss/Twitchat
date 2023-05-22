@@ -1199,7 +1199,7 @@ export interface IUsersState {
 	 * If doing a shoutout while the endpoint is cooling down
 	 * the user is added to this list for later process
 	 */
-	shoutoutHistory:Partial<{[key:string]:TwitchatDataTypes.ShoutoutHistoryItem[]}>;
+	pendingShoutouts:Partial<{[key:string]:TwitchatDataTypes.ShoutoutHistoryItem[]}>;
 }
 
 export interface IUsersGetters {

@@ -45,6 +45,7 @@
 				</div>
 
 				<Button @click.stop="shoutout()"
+					v-if="messageData.received"
 					small
 					icon="shoutout"
 					:loading="shoutoutLoading"

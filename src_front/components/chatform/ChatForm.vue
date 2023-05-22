@@ -386,10 +386,10 @@ export default class ChatForm extends Vue {
 	public get isCommercial():boolean { return this.$store("stream").commercialEnd != 0; }
 
 	public get pendingShoutoutCount():number {
-		const list = this.$store('users').shoutoutHistory[this.channelId];
+		const list = this.$store('users').pendingShoutouts[this.channelId];
 		if(!list) return 0;
 
-		return list.filter(v=>v.done === false).length;
+		return list.length;
 	}
 
 	public beforeMount(): void {
@@ -560,7 +560,8 @@ export default class ChatForm extends Vue {
 		
 		if(cmd == "/gngngn") {
 			//App version
-			console.log(this.$store("users").shoutoutHistory);
+			console.log(this.$store("users").pendingShoutouts);
+			console.log(this.$store("stream").currentStreamInfo);
 			this.message = "";
 		}else
 		
@@ -959,7 +960,7 @@ export default class ChatForm extends Vue {
 				font-family: var(--font-roboto);
 				padding: .35em;
 				.icon {
-					height: .7em;
+					height: 1em;
 					margin-left: .1em;
 				}
 			}

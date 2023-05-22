@@ -39,7 +39,7 @@ let twitchUserBatchIdTimeout = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
-		shoutoutHistory: {},
+		pendingShoutouts: {},
 		userCard: null,
 		blockedUsers: {
 			twitchat:{},
@@ -633,8 +633,8 @@ export const storeUsers = defineStore('users', {
 			let canExecute = true;
 			let sendChatSO = true;
 
-			//Init history if necessary
-			if(!this.shoutoutHistory[channelId]) this.shoutoutHistory[channelId] = [];
+			//Init queue if necessary
+			if(!this.pendingShoutouts[channelId]) this.pendingShoutouts[channelId] = [];
 
 			//If user is in an error state, stop there
 			if(user.errored) {
@@ -656,14 +656,15 @@ export const storeUsers = defineStore('users', {
 				if(!TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
 					StoreProxy.auth.requestTwitchScopes([TwitchScopes.SHOUTOUT]);
 				}else{
-					//Check if user already has a pending shoutout (if SO isn't executed by a pending one)
-					if(!fromQueue && this.shoutoutHistory[channelId]!.filter(v=>v.done == false && v.user.id == user.id).length > 0) {
+					//Check if user already has a pending shoutout (if current SO isn't executed by a pending one)
+					if(!fromQueue && this.pendingShoutouts[channelId]!.filter(v=>v.user.id == user.id).length > 0) {
 						StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_pending"));
 
 					}else{
 
-						//Check if there are pending SO
-						let addToQueue = this.shoutoutHistory[channelId]!.filter(v=>v.done == false).length > 0;
+						//Check if there are pending SO or if last SO was done earlier than the minimum cooldown
+						let addToQueue = this.pendingShoutouts[channelId]!.length > 0
+									  || Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate < Config.instance.TWITCH_SHOUTOUT_COOLDOWN;
 						if(!addToQueue || fromQueue) {
 							//If no pending SO or if SO executed from pending list, try to execute it
 							let res = await TwitchUtils.sendShoutout(channelId, user);
@@ -678,7 +679,16 @@ export const storeUsers = defineStore('users', {
 								addToQueue = false;
 							}
 							//Set the last SO date offset for this user to now
-							user.channelInfo[channelId].lastShoutout = Date.now();
+							let soDate = Date.now();
+							if(!fromQueue) {
+								//If not executed from queue that means twitchat didn't know about
+								//a previously made SO. In this case we offset the virtual SO date
+								//of the current user in such a way it will have to wait the minimum
+								//cooldown duration. After that if it fails again it will switch
+								//to the maximum one because this line won't be executed
+								soDate -= Config.instance.TWITCH_SHOUTOUT_COOLDOWN_SAME_USER - Config.instance.TWITCH_SHOUTOUT_COOLDOWN;
+							}
+							user.channelInfo[channelId].lastShoutout = soDate;
 							//Set the last SO date offset for this channel to now
 							StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate = Date.now();
 						}
@@ -686,10 +696,9 @@ export const storeUsers = defineStore('users', {
 						//Shoutout not executed, add it to the pending queue
 						if(addToQueue) {
 							//Add pending SO
-							this.shoutoutHistory[channelId]!.push({
+							this.pendingShoutouts[channelId]!.push({
 								id:Utils.getUUID(),
 								executeIn:0,
-								done:false,
 								user,
 							});
 						}
@@ -729,8 +738,8 @@ export const storeUsers = defineStore('users', {
 
 		executePendingShoutouts():void {
 			//Parse all channels
-			for (const channelId in this.shoutoutHistory) {
-				const list = this.shoutoutHistory[channelId];
+			for (const channelId in this.pendingShoutouts) {
+				const list = this.pendingShoutouts[channelId];
 				if(!list || list.length == 0) continue;
 				
 				let elapsed = Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate;

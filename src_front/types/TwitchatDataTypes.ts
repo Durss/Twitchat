@@ -1205,10 +1205,6 @@ export namespace TwitchatDataTypes {
 		 */
 		user:TwitchatDataTypes.TwitchatUser;
 		/**
-		 * Has the shoutout been actually done ?
-		 */
-		done:boolean;
-		/**
 		 * Remaining duration before execution
 		 */
 		executeIn:number;

@@ -804,30 +804,22 @@ export default class EventSub {
 		};
 		StoreProxy.chat.addMessage(message);
 
-		//If it's a sent shoutout, store it on the history
+		//If it's a sent shoutout, cleanup first pending SO foudn for this user
 		if(!received) {
-			console.log("ES : Shoutout received");
-			let list = StoreProxy.users.shoutoutHistory[channel_id];
+			StoreProxy.stream.currentStreamInfo[channel_id]!.lastSoDoneDate = Date.now();
+
+			console.log("ES : Shoutout sent");
+			let list = StoreProxy.users.pendingShoutouts[channel_id];
 			if(!list) list = [];
-			let item = list.find(v=>v.done == false && v.user.id === user.id);
+			let index = list.findIndex(v=>v.user.id === user.id);
 			//Set the last SO date of the user
 			user.channelInfo[channel_id].lastShoutout = Date.now();
-			if(!item) {
-				console.log("ES : Create item");
-				//No matching item found on the list, push it
-				list.push({
-					id:Utils.getUUID(),
-					executeIn:0,
-					done:true,
-					user,
-				})
-			}else{
-				console.log("ES : Update item", item);
+			if(index > -1) {
+				console.log("ES : Remove item", list[index]);
 				//Update existing item
-				item.done = true;
+				list.splice(index, 1);
 			}
-			StoreProxy.stream.currentStreamInfo[channel_id]!.lastSoDoneDate = Date.now();
-			StoreProxy.users.shoutoutHistory[channel_id] = list;
+			StoreProxy.users.pendingShoutouts[channel_id] = list;
 		}
 	}
 	

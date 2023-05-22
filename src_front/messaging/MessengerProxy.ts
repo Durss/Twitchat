@@ -552,10 +552,10 @@ export default class MessengerProxy {
 			if(done) user.channelInfo[channelId].lastShoutout = Date.now();
 			const userInfos = await TwitchUtils.loadUserInfo([user.id]);
 			user.avatarPath = userInfos[0].profile_image_url;
-			if(!StoreProxy.users.shoutoutHistory[channelId]) {
-				StoreProxy.users.shoutoutHistory[channelId] = [];
+			if(!StoreProxy.users.pendingShoutouts[channelId]) {
+				StoreProxy.users.pendingShoutouts[channelId] = [];
 			}
-			StoreProxy.users.shoutoutHistory[channelId]!.push({
+			StoreProxy.users.pendingShoutouts[channelId]!.push({
 				id:Utils.getUUID(),
 				user,
 				done,
@@ -570,12 +570,12 @@ export default class MessengerProxy {
 				let user = Utils.pickRand(fakeUsers);
 				const userInfos = await TwitchUtils.loadUserInfo([user.id]);
 				user.avatarPath = userInfos[0].profile_image_url;
-				if(!StoreProxy.users.shoutoutHistory[channelId]) {
-					StoreProxy.users.shoutoutHistory[channelId] = [];
+				if(!StoreProxy.users.pendingShoutouts[channelId]) {
+					StoreProxy.users.pendingShoutouts[channelId] = [];
 					//Set the SO date offset for this user to now
 					user.channelInfo[channelId].lastShoutout = Date.now();
 				}
-				StoreProxy.users.shoutoutHistory[channelId]!.push({
+				StoreProxy.users.pendingShoutouts[channelId]!.push({
 					id:Utils.getUUID(),
 					user,
 					done: false,
