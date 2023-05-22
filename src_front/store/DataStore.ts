@@ -118,7 +118,7 @@ export default class DataStore {
 	 * Makes asynchronous data migrations after being authenticated
 	 */
 	public static async migrateData(data:any):Promise<any> {
-		let v = parseInt(data[this.DATA_VERSION]) || 1;
+		let v = parseInt(data[this.DATA_VERSION]) || 12;
 		let latestVersion = 39;
 		
 		if(v < 11) {
