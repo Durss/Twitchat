@@ -200,16 +200,19 @@ export default class TwitchUtils {
 		//Split by 100 max to comply with API limitations
 		while(items.length > 0) {
 			const param = ids ? "id" : "login";
-			const params = param+"="+items.splice(0,100).join("&"+param+"=");
-			const url = Config.instance.TWITCH_API_PATH+"users?"+params;
+			const url = new URL(Config.instance.TWITCH_API_PATH+"users");
+			items.splice(0, 100).forEach(v=> {
+				//If ID contains something else than numbers, ignore it to avoid crashing the whole query
+				if(param == "id" && !/^[0-9]+$/.test(v)) return;
+				url.searchParams.append(param, v);
+			});
 			const result = await fetch(url, {headers:this.headers});
 			if(result.status === 200) {
 				const json = await result.json();
 				users = users.concat(json.data);
 			}else if(result.status == 429){
 				//Rate limit reached, try again after it's reset to fulle
-				const resetDate = parseInt(result.headers.get("Ratelimit-Reset") as string ?? (Date.now()+1).toString) * 1000;
-				await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+				await this.onRateLimit(result.headers, 1);
 				return await this.loadUserInfo(ids, logins)
 			}
 		}
@@ -233,10 +236,11 @@ export default class TwitchUtils {
 		while(items.length > 0) {
 			const url = new URL(Config.instance.TWITCH_API_PATH+"streams");
 			const param = ids ? "user_id" : "user_login";
-			const list = items.splice(0,100);
-			for (let i = 0; i < list.length; i++) {
-				url.searchParams.append(param, list[i]);
-			}
+			items.splice(0, 100).forEach(v=> {
+				//If ID contains something else than numbers, ignore it to avoid crashing the whole query
+				if(param == "user_id" && !/^[0-9]+$/.test(v)) return;
+				url.searchParams.append(param, v);
+			});
 
 			const result = await fetch(url, { headers:this.headers });
 			const json = await result.json();
@@ -1652,17 +1656,6 @@ export default class TwitchUtils {
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			if(removeMod) {
-				const m:TwitchatDataTypes.MessageModerationAction = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					channel_id:channelId,
-					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-					noticeId:TwitchatDataTypes.TwitchatNoticeType.UNMOD,
-					user,
-					message:"User "+user.login+" has been unmod",//TODO translate
-				};
-				StoreProxy.chat.addMessage(m);
 				StoreProxy.users.flagUnmod("twitch", channelId, user.id);
 			}else{
 				StoreProxy.users.flagMod("twitch", channelId, user.id);
@@ -1762,15 +1755,18 @@ export default class TwitchUtils {
 	public static async raidChannel(channel:string):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.START_RAID])) return false;
 		
-		let channelId = "";
+		let user!:TwitchDataTypes.UserInfo;
 		try {
-			channelId = (await this.loadUserInfo(undefined, [channel]))[0].id;
+			user = (await this.loadUserInfo(undefined, [channel]))[0];
 		}catch(error) {
 			StoreProxy.main.alert("User "+channel+" not found");
 			return false;
 		}
 		
-		if(!channelId) return false;
+		if(!user || !user.id) return false;
+
+		let storedUser = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, user.id, user.login, user.display_name);
+		storedUser.avatarPath = user.profile_image_url;
 
 		const options = {
 			method:"POST",
@@ -1778,7 +1774,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"raids");
 		url.searchParams.append("from_broadcaster_id", StoreProxy.auth.twitch.user.id);
-		url.searchParams.append("to_broadcaster_id", channelId);
+		url.searchParams.append("to_broadcaster_id", user.id);
 		const res = await fetch(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
@@ -2123,7 +2119,8 @@ export default class TwitchUtils {
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			followers = await TwitchUtils.getFollowers(null, 100);
 			for (let i = 0; i < followers.length; i++) {
-				this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name,undefined, true, false));
+				const user = StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name,undefined, true, false);
+				this.fakeUsersCache.push(user);
 			}
 		}
 
@@ -2155,6 +2152,22 @@ export default class TwitchUtils {
 		while(this.fakeUsersCache.length < count) {
 			const [entry] = additional.splice(Math.floor(Math.random() * additional.length), 1);
 			this.fakeUsersCache.push(StoreProxy.users.getUserFrom("twitch", channelId, entry.id, entry.login, entry.displayName,undefined, false, false));
+		}
+
+		//Get users that are missing avatars
+		let missingAvatars:TwitchatDataTypes.TwitchatUser[] = [];
+		for (let i = 0; i < this.fakeUsersCache.length; i++) {
+			const u = this.fakeUsersCache[i];
+			if(!u.avatarPath) missingAvatars.push(u);
+		}
+
+		//Load missing avatars
+		if(missingAvatars.length > 0) {
+			let res = await TwitchUtils.loadUserInfo(missingAvatars.map(v=>v.id));
+			res.forEach(u=> {
+				let user = missingAvatars.find(v=>v.id === u.id);
+				if(user) user.avatarPath = u.profile_image_url;
+			})
 		}
 
 		return this.fakeUsersCache;

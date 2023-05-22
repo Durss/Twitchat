@@ -257,7 +257,7 @@ export default class OverlayChatHighlight extends Vue {
 <style scoped lang="less">
 .overlaychathighlight{
 	.holder {
-		@margin: .5em;
+		@margin: 5vh;
 
 		position: absolute;
 		display: inline-flex;
@@ -269,7 +269,7 @@ export default class OverlayChatHighlight extends Vue {
 		border-top-right-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
-		max-width: calc(70vw - @margin);
+		max-width: calc(60vw - @margin);
 		min-width: 7em;
 	
 		&.position-tl {
@@ -355,8 +355,7 @@ export default class OverlayChatHighlight extends Vue {
 			}
 			.message {
 				color:var(--color-dark);
-				word-break: break-word;
-				white-space: pre;
+				white-space: pre-wrap;
 				:deep(.emote) {
 					max-height: 1.25em;
 					vertical-align: middle;

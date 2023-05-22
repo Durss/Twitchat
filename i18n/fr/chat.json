@@ -125,7 +125,8 @@
       "emote_only": "Emote uniquement",
       "follow_only": "Followers uniquement",
       "slow_mode": "Mode lent",
-      "chat_delay": "Délai de tchat"
+      "chat_delay": "Délai de tchat",
+	  "unsetBt": "retirer"
     },
     "raffle": {
       "title": "{USER} a remporté le tirage au sort"
@@ -145,7 +146,7 @@
       "clip_duration": "Durée:",
       "clip_views": "Vues:",
       "highlightBt_aria": "Mettre en avant",
-      "highlightBt_tt": "Afficher sur le stream <i>(nécessite l'overlay)</i>",
+      "highlightBt_tt": "Afficher sur le stream<br><i>(nécessite l'overlay)</i>",
       "deleted": "<message supprimé>",
       "deleted_by": "<message supprimé par {USER}>",
       "disable_ad": "Désactiver",
@@ -334,7 +335,7 @@
         "emergencyBlocked": "bloqué·e",
         "new_user": "new",
 		"firstToday":"bonjour",
-		"firstTimeChatter":"1er message",
+		"firstTimeChatter":"1er",
 		"presentation":"présentation",
 		"returningChatter":"de retour"
       },

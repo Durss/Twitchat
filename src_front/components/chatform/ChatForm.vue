@@ -10,12 +10,15 @@
 
 			
 			<form @submit.prevent="" class="inputForm">
-				<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
+				<picture v-if="loading">
+					<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+				</picture>
 				
 				<div class="inputHolder" v-if="!error && !$store('chat').spamingFakeMessages">
 
 					<div class="replyTo" v-if="$store('chat').replyTo">
-						<button class="closeBt" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross.svg" alt="close"></button>
+						<button class="closeBt" type="button" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross.svg" alt="close"></button>
 						<div class="content">
 							<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
 								<template #USER>
@@ -159,14 +162,14 @@
 				<CommercialTimer v-if="isCommercial" />
 	
 				<div v-if="$store('params').appearance.showViewersCount.value === true
-					&& $store('stream').playbackState && $store('stream').playbackState!.viewers > 0"
+					&& streamInfo && streamInfo.viewers > 0"
 					v-tooltip="$t('chat.form.viewer_count')"
 					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
 					<p v-if="censoredViewCount">x</p>
-					<p v-if="!censoredViewCount">{{$store('stream').playbackState!.viewers}}</p>
-					<img src="@/assets/icons/user.svg" alt="viewers">
+					<p v-if="!censoredViewCount">{{streamInfo.viewers}}</p>
+					<Icon class="icon" name="user"/>
 				</div>
 	
 				<transition name="blink">
@@ -265,6 +268,7 @@ import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
+import EventSub from '@/utils/twitch/EventSub';
 
 @Component({
 	components:{
@@ -333,6 +337,10 @@ export default class ChatForm extends Vue {
 		return this.$store("emergency").params.enabled === true;
 	}
 
+	public get streamInfo():TwitchatDataTypes.StreamInfo | undefined {
+		return this.$store('stream').currentStreamInfo[this.$store("auth").twitch.user.id];
+	}
+
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
 		if(Config.instance.OBS_DOCK_CONTEXT) return false;
@@ -378,10 +386,10 @@ export default class ChatForm extends Vue {
 	public get isCommercial():boolean { return this.$store("stream").commercialEnd != 0; }
 
 	public get pendingShoutoutCount():number {
-		const list = this.$store('users').shoutoutHistory[this.channelId];
+		const list = this.$store('users').pendingShoutouts[this.channelId];
 		if(!list) return 0;
 
-		return list.filter(v=>v.done === false).length;
+		return list.length;
 	}
 
 	public beforeMount(): void {
@@ -550,6 +558,13 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
+		if(cmd == "/gngngn") {
+			//App version
+			console.log(this.$store("users").pendingShoutouts);
+			console.log(this.$store("stream").currentStreamInfo);
+			this.message = "";
+		}else
+		
 		if(cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {
@@ -571,6 +586,7 @@ export default class ChatForm extends Vue {
 				const replyTo = this.$store("chat").replyTo ?? undefined;
 				if(await MessengerProxy.instance.sendMessage(this.message, undefined, undefined, replyTo)) {
 					this.message = "";
+					this.$store("chat").replyTo = null;
 				}
 				this.loading = false;
 			}catch(error) {
@@ -816,8 +832,8 @@ export default class ChatForm extends Vue {
 		flex-direction: row;
 		position: relative;
 		z-index: 2;
-		box-shadow: 0px -2px 2px 0px rgba(0,0,0,1);
-		background-color: var(--color-dark-light);
+		box-shadow: 0px -2px 2px 0px rgba(0,0,0,.5);
+		background-color: var(--background-color-secondary);
 		padding: .25em;
 
 		.leftForm {
@@ -882,12 +898,12 @@ export default class ChatForm extends Vue {
 							opacity: .8;
 							margin-left: .25em;
 						}
-
 					}
 				}
 			}
 			input {
 				width: 100%;
+				color: var(--color-text);
 			}
 			.error {
 				cursor: pointer;
@@ -905,6 +921,7 @@ export default class ChatForm extends Vue {
 		.rightForm {
 			display: flex;
 			flex-direction: row;
+			align-items: center;
 
 			.button.emergency {
 				padding: .35em;
@@ -930,19 +947,20 @@ export default class ChatForm extends Vue {
 	
 			.viewCount {
 				cursor: pointer;
+				gap: .25em;
 				display: flex;
 				flex-direction: row;
 				align-items: center;
 				white-space: nowrap;
-				color: var(--color-light);
-				background-color: var(--color-light-fadest);
+				color: var(--color-text);
+				background-color: var(--background-color-fader);
 				
 				border-radius: .5em;
 				font-size: .9em;
 				font-family: var(--font-roboto);
 				padding: .35em;
-				img {
-					height: .7em;
+				.icon {
+					height: 1em;
 					margin-left: .1em;
 				}
 			}
@@ -996,7 +1014,7 @@ export default class ChatForm extends Vue {
 		top: 0;
 		left: 0;
 		transform: translateY(-100%);
-		z-index: 1;
+		z-index: 5;
 	}
 }
 

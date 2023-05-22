@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" v-show="content != contentClose">
+	<div :class="classes" v-show="!closed">
 		<div class="menu">
 			<!-- v-if="content == contentMain && !search || content == contentAd"> -->
 				<div class="head">
@@ -11,7 +11,7 @@
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
 
-				<div class="buttonList" v-if="content != contentAd">
+				<div class="buttonList">
 					<div class="search">
 						<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
 					</div>
@@ -36,19 +36,24 @@
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
 
-				<mark class="version" v-if="content != contentAd">v {{appVersion}}</mark>
+				<ThemeSelector class="themeSelector" />
+
+				<mark class="version">v {{appVersion}}</mark>
 			</div>
 			
 		<div class="contentHolder">
 			<div class="head">
 				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
-					<img src="@/assets/icons/back.svg" alt="back">
+					<Icon name="back"/>
 				</button>
 				<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
 				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 			</div>
 
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
+				<div class="search" v-if="search || content == contentAppearance || content == contentFeatures">
+					<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
+				</div>
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
 				<ParamsStreamdeck v-if="content == contentStreamdeck" ref="currentContent" />
 				<ParamsOBS v-if="content == contentObs" ref="currentContent" />
@@ -78,8 +83,8 @@
 				<div class="automaticMessageHolder">
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
-				<DonorState class="donorState" v-if="isDonor" />
-				<ParamsSponsor v-else />
+				<DonorState class="donorState" v-if="isDonor && content != contentAd" />
+				<ParamsSponsor v-else-if="content != contentAd" />
 			</div>
 		</div>
 	</div>
@@ -112,6 +117,7 @@ import ParamsConnexions from './contents/ParamsConnexions.vue';
 import type IParameterContent from './contents/IParameterContent';
 import CloseButton from '../CloseButton.vue';
 import DonorState from '../user/DonorState.vue';
+import ThemeSelector from '../ThemeSelector.vue';
 
 @Component({
 	components:{
@@ -127,6 +133,7 @@ import DonorState from '../user/DonorState.vue';
 		ParamsSpoiler,
 		ParamsAccount,
 		ParamsSponsor,
+		ThemeSelector,
 		ParamsCounters,
 		ParamsOverlays,
 		ParamsTriggers,
@@ -142,8 +149,8 @@ import DonorState from '../user/DonorState.vue';
 export default class Parameters extends Vue {
 
 	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
+	public closed:boolean = true;
 	
-	private closed:boolean = true;
 	private closing:boolean = false;
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
@@ -191,7 +198,7 @@ export default class Parameters extends Vue {
 
 	public get classes():string[] {
 		let res = ["parameters", "sidePanel"];
-		if(this.content != "main") res.push("hasContent");
+		if(this.content != "main" || this.search) res.push("hasContent");
 		return res;
 	}
 
@@ -210,8 +217,8 @@ export default class Parameters extends Vue {
 				this.history.push(value);
 			 }
 			
-			if(value != TwitchatDataTypes.ParameterPages.CLOSE) this.open();
-			else this.close();
+			if(value == TwitchatDataTypes.ParameterPages.CLOSE) this.close();
+			else this.open();
 
 			if(value != TwitchatDataTypes.ParameterPages.MAIN_MENU) this.filteredParams = [];
 		});
@@ -231,14 +238,15 @@ export default class Parameters extends Vue {
 
 	public async open():Promise<void> {
 		if(!this.closed) return;
-		this.closed = false;
 		this.history = [];
 		await this.$nextTick();
-
+		
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out"});
 		gsap.fromTo(ref, {scaleX:1.1}, {duration:.5, delay:.3, scaleX:1, clearProps:"scaleX,translateX", ease:"elastic.out(1)"});
+
+		this.closed = false;
 
 		if(this.search) {
 			await this.$nextTick();
@@ -250,12 +258,12 @@ export default class Parameters extends Vue {
 	public async close():Promise<void> {
 		if(this.closing || this.closed) return;
 		this.closing = true;
-		this.closed = true;
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.1, scaleX:1.1, ease:"sin.in"});
 		gsap.to(ref, {duration:.1, translateX:"100%", scaleX:1, delay:.1, clearProps:"all", ease:"sin.out", onComplete:() => {
 			this.closing = false;
+			this.closed = true;
 			this.filteredParams = [];
 			this.$store("params").closeParameters();
 		}});
@@ -330,6 +338,7 @@ export default class Parameters extends Vue {
 	position: absolute;
 	width: 100%;
 	height: 100%;
+	max-height: calc(var(--vh) - var(--chat-form-height));
 	box-sizing: border-box;
 	display:flex;
 	flex-direction:row;
@@ -354,12 +363,12 @@ export default class Parameters extends Vue {
 
 		.backBt {
 			padding: 1em;
-			img {
+			.icon {
 				height: 1em;
 				transition: transform .15s;
 			}
 			&:hover {
-				img {
+				.icon {
 					transform: scale(1.2);
 				}
 			}
@@ -378,8 +387,8 @@ export default class Parameters extends Vue {
 		flex-direction: column;
 		gap: 1em;
 		width: fit-content;
-		border-right: 1px solid var(--color-light-fader);
-		padding-right: 5px;
+		border-right: 1px solid var(--splitter-color);
+		padding-right: 1em;
 		overflow-y: auto;
 		.head {
 			display:none;
@@ -414,6 +423,12 @@ export default class Parameters extends Vue {
 			}
 		}
 
+		.themeSelector {
+			display: block;
+			margin: 0 auto;
+			flex-shrink: 0;
+		}
+
 		.version {
 			display: block;
 			margin: 0 auto;
@@ -445,6 +460,19 @@ export default class Parameters extends Vue {
 			&>* {
 				max-width: 600px;
 				margin: 0 auto;
+			}
+
+			.search {
+				display: none;
+				width: 100%;
+				margin-bottom: 1em;
+				input {
+					// min-width: 250px;
+					width: 100%;
+					max-width: 250px;
+					margin: auto;
+					display: block;
+				}
 			}
 		}
 	}
@@ -478,6 +506,7 @@ export default class Parameters extends Vue {
 
 @media only screen and (max-width: 800px) {
 	.parameters {
+		max-height: var(--vh);
 		.head {
 			border-bottom: 1px solid var(--color-dark-extralight);
 			.title {
@@ -498,7 +527,16 @@ export default class Parameters extends Vue {
 				margin: 0 auto;
 			}
 			.search {
-				display: none;
+				// display: none;
+				width: 100%;
+				margin-bottom: 1em;
+				input {
+					// min-width: 250px;
+					width: 100%;
+					max-width: 250px;
+					margin: auto;
+					display: block;
+				}
 			}
 			.buttonList {
 				display: flex;
@@ -541,6 +579,10 @@ export default class Parameters extends Vue {
 			.content {
 				margin-top: 1em;
 				padding: 0;
+
+				.search {
+					display: block;
+				}
 			}
 		}
 

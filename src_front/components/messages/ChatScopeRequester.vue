@@ -1,6 +1,6 @@
 <template>
 	<div class="chatscoperequester chatMessage highlight alert">
-		<CloseButton @click="deleteMessage()" />
+		<CloseButton @click="deleteMessage()" theme="light" />
 
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
@@ -11,13 +11,13 @@
 
 			<ul class="scopes">
 				<li v-for="s in messageData.twitch_scopes" :key="s">
-					<img :src="getScopeImage(s)">
+					<Icon v-if="getScopeImage(s)" :name="getScopeImage(s)" theme="light" />
 					<span>{{ $t("global.twitch_scopes."+s) }}</span>
 				</li>
 			</ul>
 
-			<Button class="grantBt" light alert icon="lock_fit" @click="requestScopes()">{{ $t('chat.scope_request.grantBt') }}</Button>
-			<Button class="filterBt" light alert icon="filters" @click="openFilters()">{{ $t('chat.scope_request.openFiltersBt') }}</Button>
+			<Button class="grantBt" small light alert icon="lock_fit" @click="requestScopes()">{{ $t('chat.scope_request.grantBt') }}</Button>
+			<Button class="filterBt" small light alert icon="filters" @click="openFilters()">{{ $t('chat.scope_request.openFiltersBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -43,7 +43,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageScopeRequestData;
 
 	public getScopeImage(s:TwitchScopesString):string {
-		return this.$image("icons/"+TwitchScope2Icon[s]?.replace("", ""));
+		return TwitchScope2Icon[s] ?? "";
 	}
 
 	public mounted():void {
@@ -80,7 +80,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 			gap: .25em;
 			list-style-position: inside;
 			li {
-				img {
+				.icon {
 					height: 1em;
 					width: 1em;
 					margin-right: .5em;

@@ -2,10 +2,10 @@
 	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight']">
 		
 		<div class="holder">
-			<a class="item demoLink" href="https://www.youtube.com/watch?v=YBAwbEGWECQ" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.png" class="demo"></a>
+			<a class="item demoLink" href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.jpg" class="demo"></a>
 			
 			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
-			<input type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
+			<input class="primary" type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
 			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
@@ -250,7 +250,6 @@ export default class OverlayParamsHighlight extends Vue {
 
 		input {
 			width: 100%;
-			background-color: var(--color-primary);
 		}
 
 		.item {

@@ -4,40 +4,54 @@
 		<div class="holder" ref="holder">
 			<CloseButton @click="close()" />
 			
-			<img src="@/assets/icons/update.svg" alt="emergency" class="icon">
-
 			<div class="head">
+				<Icon name="firstTime" class="icon" />
 				<span class="title">{{$t("changelog.major_title")}}</span>
+				<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
 			</div>
 
-			<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
 
 			<div class="content">
-				<Carousel class="carousel" :items-to-show="1" :wrap-around="true">
+				<Carousel class="carousel" :items-to-show="1" :wrap-around="true" @slide-end="onSlideEnd">
 					<template #addons>
 						<Navigation />
 						<Pagination />
 					</template>
 					
 					<Slide v-for="(item, index) in items" :key="index" class="item">
-						<div class="inner">
-							<img :src="$image('icons/'+item.i+'.svg')" class="icon">
+						<div class="inner" v-if="item.i != 'donate'">
+							<Icon :name="item.i" class="icon" />
 							<span class="title" v-html="item.l"></span>
 							<span class="description" v-html="item.d"></span>
 							<img v-if="item.g" class="demo" :src="item.g">
 							<video v-if="item.v" class="demo" :src="item.v" autoplay loop controls></video>
 							
-							<AppLangSelector v-if="item.i=='translate'" />
+							<div v-if="item.i=='theme'">
+								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
+								<ThemeSelector />
+							</div>
+							
+							<div v-if="item.i=='elgato'">
+								<Button href="https://apps.elgato.com/plugins/fr.twitchat"
+								target="_blank"
+								icon="elgato"
+								type="link">{{ $t("changelog.get_streamdeck") }}</Button>
+							</div>
 
 							<div v-if="item.i=='count'">
 								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
 								<div class="counterActions">
-									<Button title="10" icon="minus" @click="counterExample.value -=10; progressExample.value -= 10" white />
-									<Button title="10" icon="add" @click="counterExample.value +=10; progressExample.value += 10" white />
+									<Button icon="add" @click="addUserCounter()" :disabled="userExample.leaderboard!.length >= 7"></Button>
+									<Button icon="trash" @click="delUserCounter()" :disabled="userExample.leaderboard!.length < 2"></Button>
+									<Button icon="dice" @click="randomUserCounter()"></Button>
 								</div>
-								<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
-								<OverlayCounter class="counterExample" embed :staticCounterData="progressExample" />
+								<OverlayCounter class="counterExample" embed :staticCounterData="userExample" />
 							</div>
+						</div>
+						<div v-else class="inner donate">
+							<div class="emoji">🥺</div>
+							<div class="description" v-html="item.d"></div>
+							<Button icon="coin" href="https://twitchat.fr/sponsor" target="_blank" type="link">{{ $t("about.sponsor") }}</Button>
 						</div>
 					</Slide>
 				</Carousel>
@@ -47,19 +61,19 @@
 </template>
 
 <script lang="ts">
-import DataStore from '@/store/DataStore';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
-import AppLangSelector from '../AppLangSelector.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
+import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -69,7 +83,7 @@ import OverlayCounter from '../overlays/OverlayCounter.vue';
 		CloseButton,
 		ToggleBlock,
 		OverlayCounter,
-		AppLangSelector,
+		ThemeSelector,
 		Pagination,
 		Navigation,
 	},
@@ -78,26 +92,20 @@ import OverlayCounter from '../overlays/OverlayCounter.vue';
 export default class Changelog extends Vue {
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+
+	private isFirstCounterDisplay = true;
 	
-	public counterExample:TwitchatDataTypes.CounterData = {
+	public userExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
 		placeholderKey:"",
 		loop:false,
-		perUser:false,
+		perUser:true,
 		value:50,
 		name:"My awesome counter",
 		min:false,
 		max:false,
-	}
-	public progressExample:TwitchatDataTypes.CounterData = {
-		id:Utils.getUUID(),
-		placeholderKey:"",
-		loop:false,
-		perUser:false,
-		value:50,
-		name:"My awesome counter",
-		min:0,
-		max:75,
+		users:{},
+		leaderboard:[],
 	}
 
 	public get items():TwitchatDataTypes.ChangelogEntry[] {
@@ -105,43 +113,29 @@ export default class Changelog extends Vue {
 	}
 
 	public mounted(): void {
-		//Make sure changelog entries are valid.
-		//Checks for all the button actions to make sure their values
-		//are correct
-		const changelogs:TwitchatDataTypes.ChangelogEntry[][] = [
-						this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[],
-					];
-		const allowedTypes = Object.values(TwitchatDataTypes.ParameterPages) as TwitchatDataTypes.ParameterPagesStringType[];
-		const sParams = this.$store("params");
-		let allowedParams:string[] = [];
-		allowedParams = allowedParams.concat(Object.keys(this.$store("params").features));
-		allowedParams = allowedParams.concat(Object.keys(this.$store("params").appearance));
-		changelogs.forEach(v=> {
-			if(!Array.isArray(v))return;
-			v.forEach(v=>{
-				if(v.a && v.a.page && !allowedTypes.includes(v.a.page)) {
-					this.$store("main").alert("Invalid parameter page \""+v.a.page+"\" for changelog entry \""+v.l+"\"");
-				}
-				if(v.a && v.a.param) {
-					const chunks:string[] = v.a.param.split(".");
-					//@ts-ignore
-					if(!sParams[chunks[0]]?.[chunks[1]]) {
-						this.$store("main").alert("Invalid parameter value \""+v.a.param+"\" for changelog entry \""+v.l+"\"");
-					}
-				}
-			})
-		});
-
-		watch(()=>this.progressExample.value, ()=>{
-			//Clamp progress counter value
-			let v = this.progressExample.value;
-			v = Math.max(this.progressExample.min as number, v);
-			v = Math.min(this.progressExample.max as number, v);
-			this.progressExample.value = v;
+		TwitchUtils.getFakeUsers().then(res => {
+			this.userExample.leaderboard = [];
+			for (let i = 0; i < 3; i++) {
+				let points = Math.round(Math.random()*10);
+				this.userExample.users![res[i].id] = points;
+				this.userExample.leaderboard.push({
+					avatar:res[i].avatarPath || "",
+					login:res[i].displayName,
+					points,
+				});
+			}
+			this.userExample.leaderboard!.sort((a,b)=> {
+				return b.points - a.points;
+			});
 		});
 		
-		gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
-		gsap.from(this.$refs.holder as HTMLDivElement, {y:"-150px", ease:"back.out", opacity:0, duration:.5});
+		gsap.set(this.$el as HTMLDivElement, {opacity:0});
+		//Leave the view a bit of time to render to avoid lag during transition
+		setTimeout(()=> {
+			gsap.set(this.$el as HTMLDivElement, {opacity:1});
+			gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
+			gsap.from(this.$refs.holder as HTMLDivElement, {marginTop:"150px", ease:"back.out", opacity:0, duration:1, clearProps:"all"});
+		}, 250);
 	}
 
 	public close():void {
@@ -149,9 +143,72 @@ export default class Changelog extends Vue {
 		gsap.to(this.$refs.holder as HTMLDivElement, {y:"-150px", ease:"back.in", opacity:0, duration:.5, onComplete:()=>{
 			this.$emit('close');
 		}});
+
 		if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
 			DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
 		}
+	}
+
+	/**
+	 * Called when sliding to a new card
+	 * @param currentSlideIndex 
+	 * @param prevSlideIndex 
+	 * @param slidesCount 
+	 */
+	public onSlideEnd(data:{currentSlideIndex:number, prevSlideIndex:number, slidesCount:number}):void {
+		if(data.currentSlideIndex && this.isFirstCounterDisplay) {
+			this.isFirstCounterDisplay = false;
+			setTimeout(()=> {
+				this.addUserCounter();
+			}, 1500);
+			setTimeout(()=> {
+				this.addUserCounter();
+			}, 2000);
+		}
+	}
+
+	/**
+	 * Add a user to the counter
+	 */
+	public addUserCounter():void {
+		TwitchUtils.getFakeUsers().then(res => {
+			// console.log(res);
+			for (let i = 0; i < res.length; i++) {
+				const user = res[i];
+				//User already in the list, ignore it
+				if(this.userExample.leaderboard!.findIndex(v=>v.login == user.displayName) > -1) continue;
+				
+				let points = Math.round(Math.random()*10);
+				this.userExample.users![res[i].id] = points;
+				this.userExample.leaderboard!.push({
+					avatar:res[i].avatarPath || "",
+					login:res[i].displayName,
+					points,
+				});
+				break;
+			}
+			this.userExample.leaderboard!.sort((a,b)=> {
+				return b.points - a.points;
+			});
+		});
+	}
+
+	/**
+	 * Delete a random user from the counter
+	 */
+	public delUserCounter():void {
+		this.userExample.leaderboard?.splice( Math.floor(Math.random() * this.userExample.leaderboard.length), 1 )
+	}
+
+	/**
+	 * Add a random value to a random user counter
+	 */
+	public randomUserCounter():void {
+		let add = Math.round((Math.random()-Math.random()) * 5);
+		Utils.pickRand(this.userExample.leaderboard!).points += add || 1;
+		this.userExample.leaderboard!.sort((a,b)=> {
+			return b.points - a.points;
+		});
 	}
 
 }
@@ -163,14 +220,20 @@ export default class Changelog extends Vue {
 	
 	.holder {
 		width: 600px;
-		max-width: min(600px, 100vw);
+		max-width: ~"min(600px, var(--vw))";
 		// height: unset;
 
-		& > .icon {
-			height: 3em;
-			margin-top: 1em;
-		}
 		.head {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			.icon {
+				height: 3em;
+				max-height: 3em;
+				width: unset;
+				max-width: unset;
+				margin-bottom: .5em;
+			}
 			.title {
 				padding-left: 0;
 			}
@@ -179,6 +242,7 @@ export default class Changelog extends Vue {
 			text-align: center;
 			font-style: italic;
 			font-size: .8em;
+			opacity: .5;
 		}
 	}
 
@@ -193,7 +257,7 @@ export default class Changelog extends Vue {
 				align-items: center;
 				gap: 1em;
 				padding: 1em 3em;
-				color:var(--color-light);
+				color:var(--color-text);
 				border-radius: var(--border-radius);
 				width: calc(100% - 5px);
 
@@ -210,7 +274,7 @@ export default class Changelog extends Vue {
 				.description {
 					text-align: justify;
 					font-size: 1em;
-					line-height: 1.25em;
+					line-height: 1.5em;
 				}
 
 				.demo {
@@ -225,6 +289,7 @@ export default class Changelog extends Vue {
 
 				.tryBt {
 					margin-bottom: .5em;
+					font-weight: bold;
 				}
 
 				.counterActions {
@@ -233,10 +298,20 @@ export default class Changelog extends Vue {
 					justify-content: center;
 					gap: .5em;
 					margin-bottom: 1em;
+					.button {
+						width: 2em;
+					}
 				}
 
 				.counterExample {
 					font-size: .75em;
+					color: var(--color-dark);
+				}
+
+				&.donate {
+					.emoji {
+						font-size: 7em;
+					}
 				}
 			}
 		}
@@ -270,7 +345,7 @@ export default class Changelog extends Vue {
 		}
 		:deep(.carousel__pagination-button) {
 			&:after {
-				background-color: var(--color-light);
+				background-color: var(--color-text);
 			}
 		}
 		:deep(.carousel__pagination-button--active) {

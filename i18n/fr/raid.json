@@ -4,6 +4,9 @@
 		"copy_logins": "Copier les logins",
 		"banned_users": "Vous pouvez prévenir les modérateur·ices de {USER} que les personnes bannies suivantes risque d'arriver sur sa chaîne:",
 		"banned_users_title": "1 personne bannie chez vous risque de se joindre au raid |{COUNT} personnes bannies chez vous risquent de se joindre au raid",
-		"cant_force": "Twitch ne fournit aucune API pour forcer le raid avant la fin du compte à rebours désolé :("
+		"cant_force": "Twitch ne fournit aucune API pour forcer le raid avant la fin du compte à rebours désolé :(",
+		"emote_only": "Emote only",
+		"sub_only": "Sub only",
+		"follower_only": "Follower only"
 	}
 }

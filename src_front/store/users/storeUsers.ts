@@ -2,9 +2,10 @@ import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { reactive, type UnwrapRef } from 'vue';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
@@ -20,6 +21,7 @@ interface BatchItem {
 //Having this list reactive kills performances while being
 //unnecessary
 const userList:TwitchatDataTypes.TwitchatUser[] = [];
+//FIXME few duplicates happen in the userlist
 
 const unbanFlagTimeouts:{[key:string]:number} = {};
 const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
@@ -37,7 +39,7 @@ let twitchUserBatchIdTimeout = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
-		shoutoutHistory: {},
+		pendingShoutouts: {},
 		userCard: null,
 		blockedUsers: {
 			twitchat:{},
@@ -150,12 +152,13 @@ export const storeUsers = defineStore('users', {
 			}
 
 			//Cleanup any "@" here so we don't have to do that for every commands
-			if(login)													login = login.replace("@", "").toLowerCase().trim();
-			if(displayName)												displayName = displayName.replace("@", "").trim();
+			if(login)		login = login.replace("@", "").toLowerCase().trim();
+			if(displayName)	displayName = displayName.replace("@", "").trim();
 			
-			if(id && hashmaps.idToUser[id])								user = hashmaps.idToUser[id];
-			if(login && hashmaps.loginToUser[login])					user = hashmaps.loginToUser[login];
-			if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];
+			//Search user on hashmaps
+			if(id && hashmaps.idToUser[id])									user = hashmaps.idToUser[id];
+			else if(login && hashmaps.loginToUser[login])					user = hashmaps.loginToUser[login];
+			else if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];
 			
 			const userExisted = user != undefined;
 
@@ -189,10 +192,11 @@ export const storeUsers = defineStore('users', {
 				//If we don't have enough info, create a temp user object and load
 				//its details from the API then register it if found.
 				if(!login || !id || !displayName) {
+					if(!login && displayName) login = displayName.toLowerCase();
 					const userData:TwitchatDataTypes.TwitchatUser = {
 						platform:platform,
 						id:id??Utils.getUUID(),
-						login:login??displayName??"",
+						login:login??"",
 						displayName:displayName??login??"",
 						temporary:true,
 						pronouns:null,
@@ -211,6 +215,7 @@ export const storeUsers = defineStore('users', {
 						},
 						channelInfo:{},
 					};
+					
 					user = reactive(userData);
 				}
 
@@ -472,13 +477,13 @@ export const storeUsers = defineStore('users', {
 		flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void {
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
-				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
-					userList[i].channelInfo[channelId].is_banned = true;
-					userList[i].channelInfo[channelId].is_moderator = false;//When banned or timed out twitch removes the mod role
+				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
+					u.channelInfo[channelId].is_banned = true;
+					u.channelInfo[channelId].is_moderator = false;//When banned or timed out twitch removes the mod role
 					if(duration_s) {
-						userList[i].channelInfo[channelId].banEndDate = Date.now() + duration_s * 1000;
+						u.channelInfo[channelId].banEndDate = Date.now() + duration_s * 1000;
 					}else{
-						delete userList[i].channelInfo[channelId].banEndDate;
+						delete u.channelInfo[channelId].banEndDate;
 					}
 					break;
 				}
@@ -621,42 +626,91 @@ export const storeUsers = defineStore('users', {
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.UNTRACK_USER, user));
 		},
 
-		async shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+		async shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser, fromQueue:boolean = false):Promise<boolean> {
 			let streamTitle = "";
 			let streamCategory = "";
+			let executed = false;
+			let canExecute = true;
+			let sendChatSO = true;
+
+			//Init queue if necessary
+			if(!this.pendingShoutouts[channelId]) this.pendingShoutouts[channelId] = [];
+
+			//If user is in an error state, stop there
+			if(user.errored) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.user_not_found"));
+				canExecute = false;
+				sendChatSO = false;
+			}
 			
-			if(user.platform == "twitch") {
-				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-					let res = await TwitchUtils.sendShoutout(channelId, user);
-					if(res === false) {
-						console.log("Shoutout: failed");
-						//Shoutout not executed, add it to the pending triggers
-						if(!this.shoutoutHistory[channelId]) {
-							//No entry exist yet, create a list
-							this.shoutoutHistory[channelId] = [];
-							//Add a fake SO entry that will be used as a reference for pending ones
-							this.shoutoutHistory[channelId]!.push({
-								id:Utils.getUUID(),
-								done:true,
-								fake:true,
-								user
-							});
-							user.channelInfo[channelId].lastShoutout = Date.now();
-						}
-						this.shoutoutHistory[channelId]!.push({
-							id:Utils.getUUID(),
-							done:false,
-							user
-						});
-						return;
-					}
-					console.log("Shoutout: success");
-				}else{
+			//Check if we're live
+			if(!StoreProxy.stream.currentStreamInfo[channelId]
+			|| !StoreProxy.stream.currentStreamInfo[channelId]?.live) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_offline"));
+				canExecute = false;
+				sendChatSO = false;
+			}
+			
+			if(user.platform == "twitch" && canExecute) {
+				//Has necessary authorization been granted?
+				if(!TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
 					StoreProxy.auth.requestTwitchScopes([TwitchScopes.SHOUTOUT]);
-					return;
+				}else{
+					//Check if user already has a pending shoutout (if current SO isn't executed by a pending one)
+					if(!fromQueue && this.pendingShoutouts[channelId]!.filter(v=>v.user.id == user.id).length > 0) {
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_pending"));
+
+					}else{
+
+						//Check if there are pending SO or if last SO was done earlier than the minimum cooldown
+						let addToQueue = this.pendingShoutouts[channelId]!.length > 0
+									  || Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate < Config.instance.TWITCH_SHOUTOUT_COOLDOWN;
+						if(!addToQueue || fromQueue) {
+							//If no pending SO or if SO executed from pending list, try to execute it
+							let res = await TwitchUtils.sendShoutout(channelId, user);
+							//If API call failed, add the SO to queue.
+							//It fails if an SO has been made before and Twitchat
+							//didn't know about (because not yet started)
+							if(res === false) {
+								addToQueue = !fromQueue;
+							}else {
+								executed = true;
+								sendChatSO = true;
+								addToQueue = false;
+							}
+							//Set the last SO date offset for this user to now
+							let soDate = Date.now();
+							if(!fromQueue) {
+								//If not executed from queue that means twitchat didn't know about
+								//a previously made SO. In this case we offset the virtual SO date
+								//of the current user in such a way it will have to wait the minimum
+								//cooldown duration. After that if it fails again it will switch
+								//to the maximum one because this line won't be executed
+								soDate -= Config.instance.TWITCH_SHOUTOUT_COOLDOWN_SAME_USER - Config.instance.TWITCH_SHOUTOUT_COOLDOWN;
+							}
+							user.channelInfo[channelId].lastShoutout = soDate;
+							//Set the last SO date offset for this channel to now
+							StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate = Date.now();
+						}
+	
+						//Shoutout not executed, add it to the pending queue
+						if(addToQueue) {
+							//Add pending SO
+							this.pendingShoutouts[channelId]!.push({
+								id:Utils.getUUID(),
+								executeIn:0,
+								user,
+							});
+						}
+						if(!executed) {
+							//Force timers refresh
+							this.executePendingShoutouts();
+						}
+					}
 				}
 			}
-			if(StoreProxy.params.features.chatShoutout.value === true){
+
+			if(sendChatSO && StoreProxy.params.features.chatShoutout.value === true){
 				if(user.platform == "twitch") {
 					const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
 					if(userInfos?.length > 0) {
@@ -679,34 +733,49 @@ export const storeUsers = defineStore('users', {
 					}
 				}
 			}
+			return executed;
 		},
 
 		executePendingShoutouts():void {
 			//Parse all channels
-			for (const channelId in this.shoutoutHistory) {
-				let lastSo:TwitchatDataTypes.ShoutoutHistoryItem|null = null;
-				const list = this.shoutoutHistory[channelId];
-				if(!list) continue;
-
-				//Parse all shoutouts
+			for (const channelId in this.pendingShoutouts) {
+				const list = this.pendingShoutouts[channelId];
+				if(!list || list.length == 0) continue;
+				
+				let elapsed = Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate;
+				let cooldown = -elapsed;
+				//Compute cooldowns for every pending shoutouts
 				for (let i = 0; i < list.length; i++) {
-					const item = list[i];
-					//Search for last SO done
-					if(item.done === true) {
-						lastSo = item;
-						continue;
-					}
-					if(lastSo) {
-						const userLastSODate = item.user.channelInfo[channelId]?.lastShoutout || 0;
-						const userCooldown = userLastSODate && lastSo.fake !== true? 60 * 60 * 1000 : 2 * 60 * 1000; //1h cooldown for a user that got a SO, 2min if this user got no SO yet
-						const elapsed = Date.now() - (lastSo.user.channelInfo[channelId]?.lastShoutout || 0);
-						if(elapsed > userCooldown + 1000) {//Adding 1s delay
-							item.user.channelInfo[channelId].lastShoutout = Date.now();
-							this.shoutout(channelId, item.user);
-						}
-						break;
+					const so = list[i];
+					const userLastSoDate = so.user.channelInfo[channelId].lastShoutout || 0;
+					const virtualElapsed = Date.now() - userLastSoDate + cooldown;
+
+					//Compute minimum cooldown to wait for this SO
+					cooldown += Math.max(Config.instance.TWITCH_SHOUTOUT_COOLDOWN_SAME_USER - virtualElapsed, Config.instance.TWITCH_SHOUTOUT_COOLDOWN);
+					
+					so.executeIn = cooldown;
+					
+					//If cooldown has fully elapsed, execute SO
+					if(so.executeIn <= 0) {
+						//Remove it from list
+						list.splice(i,1);
+						i--
+						//Execute SO
+						this.shoutout(channelId, so.user, true).then(result => {
+							//SO failed
+							if(!result) {
+								//Update last SO date for this user to update its cooldown
+								so.user.channelInfo[channelId].lastShoutout = Date.now();
+								//Bring it back to bottom
+								list.push(so);
+								//Force timers refresh
+								so.executeIn = 0;
+								this.executePendingShoutouts();
+							}
+						})
 					}
 				}
+
 			}
 		},
 

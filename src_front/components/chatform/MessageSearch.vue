@@ -4,7 +4,7 @@
 			<div class="title">
 				<img src="@/assets/icons/search.svg" alt="search" class="icon">
 				<i18n-t scope="global" tag="h1" keypath="search.title">
-					<template #COUNT><span class="count" v-if="messages.length > 0"> - {{messages.length}}</span></template>
+					<template #COUNT><span class="count" v-if="messages.length > 0"> | {{messages.length}}</span></template>
 				</i18n-t>
 			</div>
 			
@@ -39,11 +39,11 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import ChatMessage from '../messages/ChatMessage.vue';
-import CloseButton from '../CloseButton.vue';
+import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
+import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ChatMessage from '../messages/ChatMessage.vue';
 
 @Component({
 	components:{
@@ -72,7 +72,14 @@ export default class MessageSearch extends AbstractSidePanel {
 		super.open();
 	}
 
+	public async close():Promise<void> {
+		this.$store("chat").doSearchMessages("");
+		super.close();
+	}
+
 	private async updateList():Promise<void> {
+		if(this.$store("chat").searchMessages.length === 0) return;
+
 		if(this.search != this.$store("chat").searchMessages) {
 			//If search has changed clear all current results
 			//to make sure items are properly updated.

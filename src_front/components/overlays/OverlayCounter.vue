@@ -1,7 +1,17 @@
 <template>
 	<div class="overlaycounter" v-if="counter">
 
-		<div class="counter" id="holder" v-if="counter.min === false && counter.max === false">
+		<div class="userlist" id="holder" v-if="counter.perUser === true">
+			<TransitionGroup name="list">
+				<div class="user" ref="user" v-for="u in counter.leaderboard!" :key="u.login" :id="'user'+u.login">
+					<div class="points">{{ u.points }}</div>
+					<img class="avatar" v-if="u.avatar" :src="u.avatar">
+					<div class="login">{{ u.login }}</div>
+				</div>
+			</TransitionGroup>
+		</div>
+
+		<div class="counter" id="holder" v-else-if="counter.min === false && counter.max === false">
 			<span class="name" id="name">{{ counter.name }}</span>
 			<span class="spacer" id="spacer"></span>
 			<span class="value" id="value">{{ valueFormated }}</span>
@@ -34,11 +44,9 @@ import AbstractOberlay from './AbstractOberlay.vue';
 })
 export default class OverlayCounter extends AbstractOberlay {
 
-	@Prop({
-			type: Boolean,
-			default: false,
-		})
+	@Prop({type: Boolean, default: false})
 	public embed!:boolean;
+
 	@Prop
 	public staticCounterData!:TwitchatDataTypes.CounterData;
 
@@ -48,6 +56,7 @@ export default class OverlayCounter extends AbstractOberlay {
 	public counter:TwitchatDataTypes.CounterData|null = null;
 
 	private id:string = "";
+	private firstRender:boolean = true;
 
 	private counterUpdateHandler!:(e:TwitchatEvent) => void;
 
@@ -67,8 +76,14 @@ export default class OverlayCounter extends AbstractOberlay {
 
 	public beforeMount(): void {
 		if(this.embed !== false) {
-			this.counter = this.staticCounterData;
-			this.setCounterData(this.counter);
+			if(this.staticCounterData.perUser && this.staticCounterData.leaderboard) {
+				watch(()=>this.staticCounterData.leaderboard, ()=> {
+					this.setCounterData(JSON.parse(JSON.stringify(this.staticCounterData)));
+				}, {deep:true})
+				this.setCounterData(JSON.parse(JSON.stringify(this.staticCounterData)));
+			}else{
+				this.setCounterData(this.staticCounterData);
+			}
 			this.onValueUpdate();
 		}else{
 			this.id = this.$route.query.cid as string ?? "";
@@ -93,19 +108,21 @@ export default class OverlayCounter extends AbstractOberlay {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_UPDATE, this.counterUpdateHandler);
 	}
 
+	/**
+	 * Called when API sends fresh counter data
+	 */
 	private async onCounterUpdate(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
 			const c = ((e.data as unknown) as {counter:TwitchatDataTypes.CounterData}).counter;
 			if(c.id != this.id) return;
-			// if(this.counter) {
-			// 	const duration = Math.min(.25, Math.max(1, Math.abs(this.counter.value - c.value) * .1));
-			// 	gsap.to(this.counter, {duration, value:c.value});
-			// 	await Utils.promisedTimeout(duration * 1000);
-			// }
 			this.setCounterData(c);
 		}
 	}
 
+	/**
+	 * Called when global value of the counter is updated
+	 * Interpolates the text value
+	 */
 	private onValueUpdate():void {
 		if(!this.counter) return;
 		
@@ -122,10 +139,44 @@ export default class OverlayCounter extends AbstractOberlay {
 		this.fillWidth = (percent*100);
 	}
 
+	/**
+	 * Set local counter data.
+	 * Makes users appear if displaying a leaderboard
+	 */
 	private setCounterData(data:TwitchatDataTypes.CounterData):void {
+		if(this.counter && this.counter.leaderboard && data.leaderboard) {
+			//Diff old/new values and highlight updated items
+			for (let i = 0; i < this.counter.leaderboard.length; i++) {
+				const prevUser = this.counter.leaderboard[i];
+				let newUser = data.leaderboard.find(v=>v.login == prevUser.login);
+				if(!newUser || newUser.points == prevUser.points) continue;
+				gsap.fromTo("#user"+prevUser.login, {outlineWidth:7}, {outlineWidth:0, duration:.5, ease:"sine.inOut"});
+				gsap.fromTo("#user"+prevUser.login, {filter:"brightness(2)"}, {filter:"brightness(1)", duration:.5, ease:"sine.in"});
+			}
+		}
 		this.counter = data;
 		this.progrressMode = this.counter.min === false && this.counter.max === false;
+
+		if(this.firstRender) {
+			this.firstRender = false;
+			this.$nextTick().then(()=>{
+				const userList = this.$refs.user;
+				if(userList) {
+					gsap.fromTo(userList, {opacity:0, x:-200}, {opacity:1, x:0, delay:.5, duration:1, stagger:.025, ease:"elastic.out", clearProps:"all"});
+				}
+			})
+		}
 	}
+	
+	// public onEnter(el:Element, done:()=>void):void {
+	// 	console.log("ENTER");
+	// 	gsap.fromTo(el, {opacity:0, x:-200}, {opacity:1, x:0, duration:1, ease:"elastic.out", onComplete:()=>done()});
+	// }
+
+	// public onLeave(el:Element, done:()=>void):void {
+	// 	console.log("LEAVE");
+	// 	gsap.to(el, {opacity:0, x:-200, duration:1, ease:"back.in", onComplete:()=>done()});
+	// }
 
 }
 </script>
@@ -162,10 +213,10 @@ export default class OverlayCounter extends AbstractOberlay {
 	.progressBar {
 		margin: .5em;
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
+		background-color: var(--color-light);
 		width: 24em;
 		height: 4em;
 		position: relative;
-		background-color: var(--color-light);
 		border-radius: .5em;
 		overflow: hidden;
 		.name {
@@ -216,5 +267,66 @@ export default class OverlayCounter extends AbstractOberlay {
 		}
 	}
 
+	.userlist {
+		width: fit-content;
+		.user {
+			gap: .5em;
+			margin: .5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
+			background-color: var(--color-light);
+			border-radius: 1rem;
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			overflow: hidden;
+			width: fit-content;
+			outline: 0px solid var(--color-secondary);
+			.avatar {
+				width: 2.5em;
+				height: 2.5em;
+				border-radius: 50%;
+			}
+			.login {
+				font-size: 1.5em;
+				padding: .5em;
+				padding-left: 0;
+				max-width: 10em;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			.points {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				align-self: stretch;
+				padding: .25em;
+				min-width: 2em;
+				font-weight: bold;
+				background-color: var(--color-primary);
+				color: var(--color-light);
+				font-size: 1.5em;
+			}
+		}
+	}
+	
+	.list-move,
+	.list-enter-active,
+	.list-leave-active {
+		opacity: 1;
+		transition: transform .5s cubic-bezier(0.680, -0.550, 0.265, 1.550), opacity .5s;
+	}
+
+	.list-enter-from,
+	.list-leave-to {
+		opacity: 0;
+		transform: translateX(-50%);
+	}
+	.list-leave-active {
+		position: absolute;
+	}
 }
 </style>

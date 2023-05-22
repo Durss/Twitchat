@@ -16,6 +16,6 @@
 		"form_save_preset_name":"Preset name",
 		"form_save_preset_name_placeholder":"name...",
 		"stream_info_preset_edit": "Error editing stream info preset",
-		"notification":"Stream title changed to \"{TITLE}\""
+		"notification":"Changed stream info to \"{TITLE}\" on \"{CATEGORY}\""
 	}
 }

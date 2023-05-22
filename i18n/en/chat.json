@@ -21,6 +21,7 @@
 			"cmdsBt_aria": "Chat commands",
 			"usersBt_aria": "Users list",
 			"input_placeholder": "message...",
+			"trigger_cmd_disabled": "(disabled trigger)",
 			"trigger_cmd_disabled_tt": "The trigger related to this command is disabled. Enable it abck to use it.",
 			"stop_spamBt": "Stop spam",
 			"emoteBt_aria": "Emotes list",
@@ -124,7 +125,8 @@
 			"emote_only": "Emote only",
 			"follow_only": "Followers only",
 			"slow_mode": "Slow mode",
-			"chat_delay": "Chat delay"
+			"chat_delay": "Chat delay",
+			"unsetBt": "unset"
 		},
 		"raffle": {
 			"title": "{USER} won the raffle"
@@ -144,7 +146,7 @@
 			"clip_duration": "Duration:",
 			"clip_views": "Views:",
 			"highlightBt_aria": "Highlight message",
-			"highlightBt_tt": "Show on stream <i>(needs overlay)</i>",
+			"highlightBt_tt": "Show on stream<br><i>(needs overlay)</i>",
 			"deleted": "<message deleted>",
 			"deleted_by": "<message deleted by {USER}>",
 			"disable_ad":"Disable",
@@ -333,8 +335,8 @@
 				"emergencyBlocked": "blocked",
 				"new_user": "new",
 				"firstToday":"hello",
-				"firstTimeChatter":"1st message",
-				"presentation":"presentation",
+				"firstTimeChatter":"1st",
+				"presentation":"introduction",
 				"returningChatter":"returning"
 			},
 			"tooltip": {
@@ -343,8 +345,8 @@
 				"new_user": "First day on this channel",
 				"restrictedUser": "Message only visible by you and your mods",
 				"suspiciousUser": "User is flaged as suspicious",
-				"firstToday":"First message of this user today",
-				"firstTimeChatter":"First message of this user on this channel",
+				"firstToday":"First message today",
+				"firstTimeChatter":"First message on this channel",
 				"returningChatter":"This user chatted here twice in the last 30 days"
 			}
 		},

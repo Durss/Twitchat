@@ -5,6 +5,7 @@ import { Event } from './EventDispatcher';
 * Created : 14/04/2022 
 */
 export default class TwitchatEvent extends Event {
+	public static TWITCHAT_READY:TwitchatEventType = "TWITCHAT_READY";
 	public static CUSTOM_OBS_WS_EVENT:TwitchatEventType = "CustomEvent";
 	public static OBS_WEBSOCKET_CONNECTED:TwitchatEventType = "OBS_WEBSOCKET_CONNECTED";
 	public static TEXT_UPDATE:string = "TEXT_UPDATE";
@@ -23,6 +24,7 @@ export default class TwitchatEvent extends Event {
 	public static MESSAGE_FIRST_ALL_TIME:TwitchatEventType = "MESSAGE_FIRST_ALL_TIME";
 	public static MESSAGE_WHISPER:TwitchatEventType = "MESSAGE_WHISPER";
 	public static FOLLOW:TwitchatEventType = "FOLLOW";
+	public static REWARD_REDEEM:TwitchatEventType = "REWARD_REDEEM";
 	public static POLL_PROGRESS:TwitchatEventType = "POLL_PROGRESS";
 	public static PREDICTION_PROGRESS:TwitchatEventType = "PREDICTION_PROGRESS";
 	public static MENTION:TwitchatEventType = "MENTION";
@@ -42,6 +44,7 @@ export default class TwitchatEvent extends Event {
 	public static SET_COLS_COUNT:TwitchatEventType = "SET_COLS_COUNT";
 	public static COUNTER_UPDATE:TwitchatEventType = "COUNTER_UPDATE";
 	public static COUNTER_LIST:TwitchatEventType = "COUNTER_LIST";
+	public static TRIGGER_LIST:TwitchatEventType = "TRIGGER_LIST";
 	public static OBS_SCENE_CHANGE:TwitchatEventType = "OBS_SCENE_CHANGE";
 	public static OBS_SOURCE_TOGGLE:TwitchatEventType = "OBS_SOURCE_TOGGLE";
 	public static OBS_MUTE_TOGGLE:TwitchatEventType = "OBS_MUTE_TOGGLE";
@@ -79,7 +82,6 @@ export default class TwitchatEvent extends Event {
 	public static POLL_TOGGLE:TwitchatActionType = "POLL_TOGGLE";
 	public static POLL_CREATE:TwitchatActionType = "POLL_CREATE";
 	public static PREDICTION_TOGGLE:TwitchatActionType = "PREDICTION_TOGGLE";
-	public static PREDICTION_CREATE:TwitchatActionType = "PREDICTION_CREATE";
 	public static BINGO_TOGGLE:TwitchatActionType = "BINGO_TOGGLE";
 	public static RAFFLE_TOGGLE:TwitchatActionType = "RAFFLE_TOGGLE";
 	public static VIEWERS_COUNT_TOGGLE:TwitchatActionType = "VIEWERS_COUNT_TOGGLE";
@@ -105,8 +107,12 @@ export default class TwitchatEvent extends Event {
 	public static RAFFLE_END:TwitchatActionType = "RAFFLE_END";
 	public static GET_COLS_COUNT:TwitchatActionType = "GET_COLS_COUNT";
 	public static COUNTER_GET_ALL:TwitchatActionType = "COUNTER_GET_ALL";
+	public static TRIGGERS_GET_ALL:TwitchatActionType = "TRIGGERS_GET_ALL";
 	public static COUNTER_GET:TwitchatActionType = "COUNTER_GET";
 	public static COUNTER_ADD:TwitchatActionType = "COUNTER_ADD";
+	public static EXECUTE_TRIGGER:TwitchatActionType = "EXECUTE_TRIGGER";
+	public static TOGGLE_TRIGGER:TwitchatActionType = "TOGGLE_TRIGGER";
+	public static SEND_MESSAGE:TwitchatActionType = "SEND_MESSAGE";
 	public static TIMER_ADD:TwitchatActionType = "TIMER_ADD";
 	public static COUNTDOWN_ADD:TwitchatActionType = "COUNTDOWN_ADD";
 	public static CREATE_POLL:TwitchatActionType = "CREATE_POLL";
@@ -122,7 +128,8 @@ export default class TwitchatEvent extends Event {
 }
 
 export const TwitchatEventTypeList = [
-	"CustomEvent",
+	"CustomEvent",//Do not uppercase/change this ! it matches an OBS-WS event
+	"TWITCHAT_READY",
 	"OBS_WEBSOCKET_CONNECTED",
 	"TEXT_UPDATE",
 	"ACTION_BATCH",
@@ -137,6 +144,7 @@ export const TwitchatEventTypeList = [
 	"MESSAGE_FIRST_ALL_TIME",
 	"MESSAGE_WHISPER",
 	"FOLLOW",
+	"REWARD_REDEEM",
 	"MENTION",
 	"CURRENT_TRACK",
 	"TRACK_ADDED_TO_QUEUE",
@@ -156,6 +164,7 @@ export const TwitchatEventTypeList = [
 	"SET_COLS_COUNT",
 	"COUNTER_UPDATE",
 	"COUNTER_LIST",
+	"TRIGGER_LIST",
 	"OBS_SCENE_CHANGE",
 	"OBS_SOURCE_TOGGLE",
 	"OBS_MUTE_TOGGLE",
@@ -195,7 +204,6 @@ export const TwitchatActionTypeList = [
 	"POLL_TOGGLE",
 	"POLL_CREATE",
 	"PREDICTION_TOGGLE",
-	"PREDICTION_CREATE",
 	"BINGO_TOGGLE",
 	"RAFFLE_TOGGLE",
 	"VIEWERS_COUNT_TOGGLE",
@@ -221,6 +229,10 @@ export const TwitchatActionTypeList = [
 	"RAFFLE_END",
 	"GET_COLS_COUNT",
 	"COUNTER_GET_ALL",
+	"TRIGGERS_GET_ALL",
+	"EXECUTE_TRIGGER",
+	"TOGGLE_TRIGGER",
+	"SEND_MESSAGE",
 	"COUNTER_GET",
 	"COUNTER_ADD",
 	"TIMER_ADD",

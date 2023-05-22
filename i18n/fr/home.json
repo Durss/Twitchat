@@ -1,32 +1,32 @@
 {
 	"home":{
 		"info":"Fait avec 💘 par",
-		"head":"Un tchat Twitch rempli de fonctionnalités avancées pour une interaction optimale avec vos viewers",
-		"openBt":"Lancer Twitchat",
-		"loginBt":"Connexion Twitch",
+		"head":"Twitchat est une alternative au tchat Twitch pour un confort de stream optimal",
+		"loginBt":"Connexion",
 		"streamdeckBt":"Plugin Stream Deck™",
 		"discordBt":"Rejoins Discord",
+		"youtubeBt":"Chaîne Youtube",
 		"sponsorBt":"Me soutenir 💝",
 		"features":{
 			"title":"Fonctionnalités",
 			"list":[
 				{
 					"icon":"emergency",
-					"video":"emergency.mp4",
+					"video":"emergency.webm",
 					"title":"Button d'urgence",
-					"description":"Masquez vos alertes, bannissez vos bots temporairement, activez le shield mode et plus encore via un simple bouton"
+					"description":"Masquez vos alertes, changez de scène, bannissez vos bots temporairement et activez le shield mode d'un simple bouton"
 				},
 				{
 					"icon":"pin",
-					"video":"pin.mp4",
+					"video":"save.webm",
 					"title":"Enregistrez des messages",
 					"description":"Mettez des messages de côté pour les retrouver plus tard"
 				},
 				{
 					"icon":"elgato",
-					"image":"streamdeck.png",
+					"image":"streamdeck.jpg",
 					"title":"Stream Deck™",
-					"description":"Mettez le chat en pause, faites-le défiler, marquez des messages comme lus, modérez et mettez en avant des messages, déclenchez le mode urgence..."
+					"description":"Scrollez le tchat, déplacez le marque apge, modérez et mettez des messages en avant, déclenchez le mode urgence, ..."
 				},
 				{
 					"icon":"show",
@@ -42,19 +42,19 @@
 				},
 				{
 					"icon":"alert",
-					"video":"alert.mp4",
+					"video":"alert.webm",
 					"title":"Commande d'alerte",
 					"description":"Permettez à vos modérateurices de vous alerter en cas d'urgence"
 				},
 				{
 					"icon":"voice",
-					"video":"voiceControl.mp4",
+					"video":"voiceControl.webm",
 					"title":"Contrôle vocal",
 					"description":"Utilisez votre voix pour contrôlez le chat, gérer vos sondages et prédictions, déclencher le mode urgence, ..."
 				},
 				{
 					"icon":"tts",
-					"image":"tts.png",
+					"image":"tts.gif",
 					"title":"Lire les messages",
 					"description":"Twitchat peut lire n'importe quel message à haute voix"
 				},
@@ -66,13 +66,13 @@
 				},
 				{
 					"icon":"checkmark",
-					"image":"readMark.gif",
+					"video":"readMark.webm",
 					"title":"Marque-page",
 					"description":"Placez un marque-page en cliquant un message pour vous souvenir où vous avez arreté votre lecture"
 				},
 				{
 					"icon":"conversation",
-					"image":"conversation.gif",
+					"video":"conversation.webm",
 					"title":"Conversations",
 					"description":"Les conversations entre viewers sont regroupées"
 				},
@@ -86,16 +86,16 @@
 					"icon":"bingo",
 					"image":"bingo.gif",
 					"title":"Bingo",
-					"description":"Faites deviner un nombre aléatoire, une emote aléatoire ou un mot personnalisé à vos viewers"
+					"description":"Faites deviner un nombre aléatoire, une emote aléatoire ou un message personnalisé à vos viewers"
 				},
 				{
-					"icon":"notification",
-					"video":"triggers.mp4",
+					"icon":"broadcast",
+					"image":"triggers.png",
 					"title":"Actions automatisées",
 					"description":"Un système de <strong>Triggers</strong> permet de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'évènements comme les subs, cheers, points de chaîne, ..."
 				},
 				{
-					"icon":"music",
+					"icon":"spotify",
 					"image":"musicPlayer.png",
 					"title":"Spotify",
 					"description":"Lier Twitchat à Spotify pour afficher la musique en cours ou contrôler la lecture depuis des Triggers"

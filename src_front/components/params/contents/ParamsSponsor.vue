@@ -1,7 +1,7 @@
 <template>
 	<div class="paramssponsor">
 		<header class="card-item" ref="head">
-			<img src="@/assets/icons/info.svg">
+			<Icon name="info" class="icon" />
 			<p v-for="i in $tm('sponsor.head')" v-html="i"></p>
 		</header>
 
@@ -75,10 +75,9 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		return res;
 	}
 
-	public async mounted():Promise<void> {
+	public mounted():void {
 		if(this.animate !== false) {
 			const refs = ["head","instructions","patrick","button"];
-			await this.$nextTick();
 			for (let i = 0; i < refs.length; i++) {
 				let el = this.$refs[refs[i]];
 				let list:unknown[] = [];
@@ -90,9 +89,9 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 				for (let j = 0; j < list.length; j++) {
 					let item = list[j];
 					if((item as Vue).$el) item = (item as Vue).$el as HTMLElement;
-					const delay = (i+j)*.1+.5;
-					gsap.fromTo(item as HTMLElement, {opacity:0, y:-20, scale:.85}, 
-									{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
+					const delay = (i+j)*.1;
+					gsap.set(item as HTMLElement, { opacity:0, y:-20, scale:.85 });
+					gsap.to(item as HTMLElement, { duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay });
 					
 				}
 			}
@@ -130,7 +129,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		p:first-of-type {
 			display: inline;
 		}
-		img {
+		.icon {
 			height: 1.3em;
 			margin-right: .25em;
 			vertical-align: middle;

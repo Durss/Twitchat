@@ -2,31 +2,31 @@
 	"home":{
 		"info":"Made with 💘 by",
 		"head":"Alternative Twitch chat for streamers with lots of extra features for enhanced streaming comfort",
-		"openBt":"Open Twitchat",
-		"loginBt":"Log in with Twitch",
+		"loginBt":"Connect",
 		"streamdeckBt":"Stream Deck™ plugin",
 		"discordBt":"Join Discord",
+		"youtubeBt":"Youtube channel",
 		"sponsorBt":"Support me 💝",
 		"features":{
 			"title":"Features",
 			"list":[
 				{
 					"icon":"emergency",
-					"video":"emergency.mp4",
+					"video":"emergency.webm",
 					"title":"Emergency button",
 					"description":"Protect yourself from doxxing, hate raids and follow bot raids with the simple click of a configurable button"
 				},
 				{
 					"icon":"pin",
-					"video":"pin.mp4",
-					"title":"Pin messages",
-					"description":"Pin any message and find them back in a dedicated list"
+					"video":"save.webm",
+					"title":"Save messages",
+					"description":"Save any message and find them back in a dedicated list"
 				},
 				{
 					"icon":"elgato",
-					"image":"streamdeck.png",
+					"image":"streamdeck.jpg",
 					"title":"Stream Deck™",
-					"description":"You can pause the chat, scroll it, mark messages as read, open poll/prediction/bingo/raffle state and much more with the push of a button"
+					"description":"Scroll chat feed, move read mark, moderate messages, highlight them on stream, start emergency mode, ..."
 				},
 				{
 					"icon":"show",
@@ -42,19 +42,19 @@
 				},
 				{
 					"icon":"alert",
-					"video":"alert.mp4",
+					"video":"alert.webm",
 					"title":"Alert command",
 					"description":"Let your moderator get your attention with a configurable alert command"
 				},
 				{
 					"icon":"voice",
-					"video":"voiceControl.mp4",
+					"video":"voiceControl.webm",
 					"title":"Voice control",
 					"description":"Control the chat, create polls and predictions and much more with your voice thanks to the voice bot"
 				},
 				{
 					"icon":"tts",
-					"image":"tts.png",
+					"image":"tts.gif",
 					"title":"Read messages out loud",
 					"description":"You can make Twitchat read any messages the way you want"
 				},
@@ -66,13 +66,13 @@
 				},
 				{
 					"icon":"checkmark",
-					"image":"readMark.gif",
+					"video":"readMark.webm",
 					"title":"Read mark",
 					"description":"Click any message so you remember where you stopped reading at"
 				},
 				{
 					"icon":"conversation",
-					"image":"conversation.gif",
+					"video":"conversation.webm",
 					"title":"Conversations",
 					"description":"Follow conversation between viewers with the simple click of a button"
 				},
@@ -86,19 +86,25 @@
 					"icon":"bingo",
 					"image":"bingo.gif",
 					"title":"Create a Bingo",
-					"description":"Let your viewers guess a random number or emote"
+					"description":"Let your viewers guess a random number, emote or message"
 				},
 				{
-					"icon":"notification",
-					"video":"triggers.mp4",
-					"title":"Create your own alerts",
-					"description":"Twitchat provides a <strong>Trigger</strong> system to control OBS, send messages on chat or control Spotify based on many events like a sub, cheers, a poll result, channel points rewards, ..."
+					"icon":"broadcast",
+					"image":"triggers.png",
+					"title":"Automate actions",
+					"description":"Twitchat provides a <strong>Trigger</strong> system to control OBS, send messages on chat, control Spotify, create commands, react to channel points events, subs, cheers, polls, predictions, ..."
 				},
 				{
-					"icon":"music",
+					"icon":"spotify",
 					"image":"musicPlayer.png",
 					"title":"Spotify",
 					"description":"Connect Twitchat with Spotify to display the current track on your stream or allow your viewers to add tracks to the queue"
+				},
+				{
+					"icon":"voicemod",
+					"image":"voicemod.webp",
+					"title":"Voicemod",
+					"description":"Control <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> from Twitchat and automate actions when effect is changed"
 				},
 				{
 					"icon":"params",

@@ -186,6 +186,7 @@ export default class MessageList extends Vue {
 		let res = ["messagelist"];
 		if (this.lightMode) res.push("lightMode");
 		if (this.lockScroll) res.push("lockScroll");
+		if (this.$store("params").appearance.alternateMessageBackground.value !== false) res.push("alertnateBackground");
 		return res;
 	}
 
@@ -327,7 +328,9 @@ export default class MessageList extends Vue {
 		const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const maxScroll = (el.scrollHeight - el.offsetHeight);
 
-		if (this.pendingMessages.length == 0 && el.scrollTop >= maxScroll - 50) {
+		if (this.pendingMessages.length == 0
+		&& el.scrollTop >= maxScroll - 50
+		&& !this.customActivitiesDisplayed) {
 			this.unlockListRefresh();
 		}
 	}
@@ -420,8 +423,9 @@ export default class MessageList extends Vue {
 		if(this.customActivitiesDisplayed) return false;
 		if(m.col != undefined && m.col != this.config.order) return false;
 		
-		if (m.deleted && this.config.messageFilters.deleted === false) {
-			return false;
+		//If message is deleted, keep it only if requested to show messages AND deleted messages
+		if (m.deleted) {
+			return this.config.messageFilters.deleted === true && this.config.filters.message === true;
 		}
 
 		switch (m.type) {
@@ -950,6 +954,7 @@ export default class MessageList extends Vue {
 						this.selectedItem = null;
 						this.selectedMessage = null;
 						this.selectionDate = 0;
+						PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SELECT_ACTION_CANCEL);
 					}, 5000);
 				}
 				break;
@@ -1589,18 +1594,21 @@ export default class MessageList extends Vue {
 		}
 	}
 
-	&:not(.alternateOdd) {
-		.messageHolder {
-			.subHolder:nth-child(even) {
-				background-color: var(--color-light-fadest);
+	&.alertnateBackground {
+
+		&:not(.alternateOdd) {
+			.messageHolder {
+				.subHolder:nth-child(even) {
+					background-color: var(--background-color-fadest);
+				}
 			}
 		}
-	}
-
-	&.alternateOdd {
-		.messageHolder {
-			.subHolder:nth-child(odd) {
-				background-color: var(--color-light-fadest);
+	
+		&.alternateOdd {
+			.messageHolder {
+				.subHolder:nth-child(odd) {
+					background-color: var(--background-color-fadest);
+				}
 			}
 		}
 	}
@@ -1662,6 +1670,8 @@ export default class MessageList extends Vue {
 				// &:hover {
 				// 	// Disabled as it causes CSS re renders of all subsequent nodes
 				// 	// which is not ideal for performances
+				//	// It made it so hovering a message behind the "read mark" layer
+				//	// would make it appear over it
 				// 	z-index: 2000;
 				// }
 			}
@@ -1670,9 +1680,9 @@ export default class MessageList extends Vue {
 		.markRead {
 			width: 100%;
 			height: 10000px;
-			background: rgba(0, 0, 0, .7);
-			background: var(--color-dark-fade);
-			border-bottom: 2px solid var(--color-light);
+			background: var(--grayout);
+			border-bottom: 2px solid var(--splitter-color);
+			box-shadow: 0px 0 5px 0px rgba(0, 0, 0, .5);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -1682,7 +1692,8 @@ export default class MessageList extends Vue {
 		.selected {
 			width: 100%;
 			height: 100%;
-			background-color: var(--color-secondary-fadest);
+			background-color: var(--color-alert-fadest);
+			outline: 1px solid var(--color-alert);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -1811,25 +1822,25 @@ export default class MessageList extends Vue {
 	.conversation {
 		position: absolute;
 		z-index: 4;
-		background-color: var(--color-dark);
+		background-color: var(--background-color-secondary);
 		padding: 10px;
 		left: 0;
 		width: 100%;
 		max-width: 100%;
-		box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+		box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, .5);
 		transform: translateY(-100%);
 
 		.head {
 			display: flex;
 			flex-direction: row;
-			border-bottom: 1px solid var(--color-light);
+			border-bottom: 1px solid var(--splitter-color);
 			padding-bottom: 10px;
 			margin-bottom: 10px;
+			color: var(--color-text);
 
 			h1 {
 				text-align: center;
 				flex-grow: 1;
-				color: var(--color-light);
 			}
 		}
 

@@ -1,7 +1,7 @@
 <template>
 	<div class="scopeselector">
 		<div class="forced" v-if="param_items_requested.length > 0">
-			<img src="@/assets/icons/unlock.svg" class="unlockIcon">
+			<Icon name="unlock" class="unlockIcon" />
 			<p class="head">{{ $tc("login.specific_scope", param_items_requested.length) }}</p>
 			<div class="optionList">
 				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested" :secondary="!p.value" :paramData="p" @change="onSelectionUpdate()" noBackground />
@@ -15,7 +15,10 @@
 
 		<div ref="permsList" class="permsHolder" v-if="forceFullList || param_items_requested.length == 0">
 			<div class="optionList">
-				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items" :secondary="!p.value" :paramData="p" @change="onSelectionUpdate()" noBackground />
+				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items"
+					:secondary="!p.value"
+					:paramData="p" @change="onSelectionUpdate()"
+					noBackground />
 			</div>
 			<ParamItem class="item all" :paramData="params_all" @change="onSelectionUpdate()" noBackground />
 		</div>
@@ -89,6 +92,7 @@ export default class ScopeSelector extends Vue {
 					type:"boolean",
 					value:true,
 					icon:TwitchScope2Icon[s],
+					iconTheme:"light",
 					storage:s,
 				});
 			}else{
@@ -99,6 +103,7 @@ export default class ScopeSelector extends Vue {
 					type:"boolean",
 					value:selected,
 					icon:TwitchScope2Icon[s],
+					iconTheme:"light",
 					disabled:disabled.indexOf(s.toLowerCase()) > -1,
 					storage:s,
 				});
@@ -171,6 +176,7 @@ export default class ScopeSelector extends Vue {
 			width: 100%;
 			text-align: left;
 			border-radius: .5em;
+			color: var(--color-text-light);
 			background-color: var(--color-secondary-fader);
 			padding: .25em;
 			opacity: .7;
@@ -207,5 +213,18 @@ export default class ScopeSelector extends Vue {
 		}
 	}
 
+}
+</style>
+
+<style lang="less">
+.scopeselector{
+	.optionList {
+		.item:not(.selected) {
+			color: var(--color-text) !important;
+			.icon {
+				filter:invert();
+			}
+		}
+	}
 }
 </style>

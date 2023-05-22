@@ -1,10 +1,11 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket']">
 		<div class="holder">
+			<a class="item demoLink" href="https://www.youtube.com/watch?v=VB4FDqB5kMo" target="_blank"><img src="@/assets/img/param_examples/wheelVideo.jpg" class="demo"></a>
 			
 			<div class="item">
 				<div class="info">{{ $t("overlay.raffle.head") }}</div>
-				<input type="text" v-model="overlayUrl" v-click2Select>
+				<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.raffle.css") }}</div>
 					<ul class="cssStructure">
@@ -22,7 +23,7 @@
 			
 			<div class="card-item item">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
-					<template #MENU><img src="@/assets/icons/commands.svg" class="icon"></template>
+					<template #MENU><Icon name="commands" class="icon" /></template>
 					<template #CMD><strong>/raffle</strong></template>
 				</i18n-t>
 			</div>
@@ -119,6 +120,17 @@ export default class OverlayParamsRaffle extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
+
+		.demoLink {
+			.demo {
+				.emboss();
+				margin:auto;
+				display: block;
+				max-height: 100px;
+				aspect-ratio: 16 / 9;
+				border-radius: .5em;
+			}
+		}
 		.item {
 
 			.info {
@@ -128,7 +140,6 @@ export default class OverlayParamsRaffle extends Vue {
 			input {
 				width: 100%;
 				margin-bottom: .5em;
-				background-color: var(--color-primary);
 			}
 
 			&.center {

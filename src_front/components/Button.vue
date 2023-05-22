@@ -10,13 +10,11 @@
 	@mouseup="onRelease($event)"
 	v-model="modelValue">
 		<span v-if="loading" class="loadingBorder"></span>
-		<span class="background">
-			<span class="select" v-if="selected"></span>
-		</span>
+		<span class="background"></span>
 
 		<img v-if="icon && loading" :src="$image('loader/loader.svg')" class="loader">
 	
-		<img class="icon" v-if="icon && !loading" :src="iconPath" alt="icon">
+		<Icon class="icon" v-if="icon && !loading" :name="icon" :theme="theme" alt="icon" />
 		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
 
 		<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
@@ -91,21 +89,12 @@ export default class Button extends Vue {
 	public file!:string;
 	
 	public checked = false;
+	public theme = "light";
 
 	public get nodeType():string {
 		if(this.to) return "router-link";
 		if(this.type == "link") return "a";
 		return "button";
-	}
-
-	public get iconPath():string {
-		if(this.light !== false) {
-			let color = "primary";
-			if(this.secondary !== false) color = "secondary";
-			if(this.alert !== false) color = "alert";
-			return this.$image('icons/'+color+"/"+this.icon+'.svg');
-		}
-		return this.$image('icons/'+this.icon+'.svg')
 	}
 
 	public get classes():string[] {
@@ -124,6 +113,7 @@ export default class Button extends Vue {
 
 	public mounted():void {
 		this.checked = this.modelValue;
+		if(this.light) this.theme = this.alert !== false? "alert" : this.secondary !== false? "secondary" : "primary";
 
 		watch(() => this.checked, (val:boolean) => {
 			this.$emit("update:modelValue", val);
@@ -178,10 +168,10 @@ export default class Button extends Vue {
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
-	color: var(--color-light);
-	transition: filter .15s, transform .1s;
+	color: var(--color-button);
 	user-select: none;
 	text-decoration: none !important;
+	font-size: 1rem;
 
 	.clickArea {
 		position: absolute;
@@ -200,8 +190,8 @@ export default class Button extends Vue {
 		top: -@offset;
 		left: -@offset;
 		border-radius: inherit;
-		background-color: var(--color-light);
-		background: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%);
+		background-color: var(--color-primary);
+		background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.7) 40%, rgba(255,255,255,.7) 60%, rgba(255,255,255,0) 65%);
 		background-repeat: repeat-x;
 		background-size:  200% 100%;
 		width: calc(100% + @offset*2);
@@ -226,15 +216,14 @@ export default class Button extends Vue {
 	}
 
 	&.disabled {
+		opacity: .5;
 		cursor: not-allowed;
-		filter: brightness(70%) saturate(70%);
 		.label, .icon {
-			opacity: .35;
+			opacity: .5;
 		}
 	}
 	&.loading {
 		cursor: wait;
-		
 		.background {
 			top: 1px;
 			left: 1px;
@@ -280,6 +269,7 @@ export default class Button extends Vue {
 		overflow: hidden;
 		display: block;
 		line-height: 1.25em;//Makes sure letters like g or p are not cut on the bottom
+		text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
 		&:empty {
 			display: none;
 		}
@@ -294,11 +284,11 @@ export default class Button extends Vue {
 		}
 	}
 	&.big {
-		font-size: 1.4em;
+		font-size: 1.4rem;
 	}
 
 	&.small {
-		font-size: .8em;
+		font-size: .8rem;
 	}
 
 	&.noTitle {
@@ -306,6 +296,9 @@ export default class Button extends Vue {
 	}
 
 	&.secondary {
+		.label {
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+		}
 		.background {
 			background-color: var(--color-secondary);
 		}
@@ -321,9 +314,15 @@ export default class Button extends Vue {
 				}
 			}
 		}
+		.loadingBorder {
+			background-color: var(--color-secondary);
+		}
 	}
 
 	&.alert {
+		.label {
+			text-shadow: none;
+		}
 		.background {
 			background-color: var(--color-alert);
 		}
@@ -339,11 +338,15 @@ export default class Button extends Vue {
 				}
 			}
 		}
+		.loadingBorder {
+			background-color: var(--color-alert);
+		}
 	}
 
 	&.light {
 		.label {
 			color: var(--color-primary);
+			text-shadow: unset;
 		}
 		&.secondary {
 			.label {
@@ -377,8 +380,9 @@ export default class Button extends Vue {
 			filter: invert();
 		}
 		.label {
-			color: var(--color-dark);
+			color: var(--color-button-selected);
 			font-weight: bold;
+			text-shadow: unset;
 		}
 		.background{
 			background-color: var(--color-primary-extralight);
@@ -400,8 +404,20 @@ export default class Button extends Vue {
 	.button {
 		&.noTitle.big, &.big {
 			padding: .5em;
-			font-size: 1.2em;
+			font-size: 1.2rem;
 			min-height: calc(1.2em + .5em);
+		}
+	}
+}
+</style>
+
+
+
+<style lang="less">
+body.light {
+	.button {
+		.loadingBorder {
+			background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%) !important;
 		}
 	}
 }

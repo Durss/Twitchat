@@ -33,6 +33,8 @@
 		"mod_message": "La modération du message a échoué...",
 		"marker_creation": "La création du marqueur a échoué. Assurez-vous d'avoir activé la VOD et d'être en live",
 		"trigger_socket": "La connexion au serveur socket a échoué",
+		"shoutout_offline": "Vous devez être en live pour effectuer un shoutout",
+		"shoutout_pending": "Cette personne a déjà un shoutout en attente",
 		"spotify": {
 			"api_rate": "[SPOTIFY] Maximum de requête atteint",
 			"token_refresh": "[SPOTIFY] Mise à jour du token échouée"
@@ -41,12 +43,12 @@
 			"auth_failed": "L'authentification à deezer a échoué"
 		},
 		"message_send": "Une erreur a eu lieu lors de l'envoi du message :(",
-		"username_missing": "Nom d'utilisateur manquant",
 		"prediction_outcome": "Une erreur a eu lieu lors de la sélection de l'entrée gagnante",
 		"prediction_delete": "Une erreur a eu lieu lors de la suppression de la prédiction",
 		"prediction_error": "Unable to create prediction: {MESSAGE}",
 		"invalid_bingo": "Paramètres de bingo invalides: ",
 		"shoutout_cooldown": "Vous devez attendre avant de pouvoir effectuer un autre shoutout",
+		"user_not_found": "L'utilisateur demandé n'existe pas",
 		"clip_creation": "La création du clip a échoué",
 		"beta_transfer": "Le transfer des vos données vers la production a échoué",
 		"raffle": {

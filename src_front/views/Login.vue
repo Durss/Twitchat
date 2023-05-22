@@ -3,7 +3,7 @@
 
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
-		<div class="holder blured-background-window" ref="holder">
+		<div class="holder bslured-background-window" ref="holder">
 			<div class="head" v-if="!scopeOnly">
 				<img class="icon" src="@/assets/logo.svg" alt="twitch">
 				<div class="beta" v-if="isBeta === true">{{ $t("global.beta") }}</div>
@@ -75,7 +75,10 @@
 				
 				<div class="loader" v-if="authenticating">
 					<p>{{ $t("login.authenticating") }}</p>
-					<img src="@/assets/loader/loader.svg" alt="loader">
+					<picture>
+						<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+						<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+					</picture>
 				</div>
 			</div>
 	
@@ -349,7 +352,7 @@ export default class Login extends Vue {
 	top: 0;
 	left: 0;
 	z-index: 99;
-	width: 100vw;
+	width: var(--vw);
 	height: var(--vh);
 
 	.dimmer {
@@ -358,7 +361,7 @@ export default class Login extends Vue {
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 100vw;
+		width: var(--vw);
 		height: var(--vh);
 	}
 
@@ -372,7 +375,13 @@ export default class Login extends Vue {
 		gap: 1em;
 		width: 380px;
 		z-index: 1;
-		color: var(--color-light);
+		color: var(--color-text);
+		background-color: var(--background-color-secondary);
+		padding: .5em;
+		box-shadow: 0px 0px 10px 2px rgba(0,0,0,.5);
+		border-radius: .5em;
+		overflow-y: auto;
+		max-width: var(--vw);
 
 		.beta {
 			position: absolute;
@@ -478,7 +487,7 @@ export default class Login extends Vue {
 			top: 0;
 			left: 0;
 			transform: unset;
-			width: 100vw;
+			width: var(--vw);
 			height: var(--vh);
 			min-height: var(--vh);
 		}

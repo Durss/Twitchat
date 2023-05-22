@@ -1,41 +1,14 @@
-.card-header {
-	display: flex;
-	flex-direction: row;
-	background-color: var(--color-dark-light);
-	border-radius: var(--border-radius);
-	padding: .5em;
-	
-	& > .icon {
-		height: 2em;
-		margin-top: -.5em;
-		margin-left: -.5em;
-		margin-bottom: -.5em;
-		border-radius: 50%;
-	}
-	& > .title {
-		align-self: center;
-		flex-grow: 1;
-		text-align: center;
-		overflow-wrap: break-word;
-		overflow: hidden;
-		font-weight: bold;
-		padding: 0 .5em
-	}
-}
-
-
 .card-item {
 	@padding: .5em;
 	overflow: hidden;
 	padding: @padding;
-	color: var(--color-light);
 	border-radius: var(--border-radius);
-	background-color: var(--color-light-fader);
+	background-color: var(--background-color-fadest);
 
 	& > .header {
 		display: flex;
 		flex-direction: row;
-		background-color: var(--color-light-fade);
+		background-color: var(--background-color-fader);
 		transition: all .2s;
 		margin: -@padding;
 		margin-bottom: @padding;
@@ -50,13 +23,12 @@
 			border-top-right-radius: 50%;
 			border-bottom-right-radius: 50%;
 			border-left: none;
-			background-color: var(--color-dark-fader);
 		}
 		& > .title {
 			align-self: center;
 			flex-grow: 1;
 			text-align: center;
-			color: var(--color-light);
+			color: var(--color-text);
 			overflow-wrap: break-word;
 			overflow: hidden;
 			line-height: 1.3em;
@@ -65,37 +37,50 @@
 	}
 	
 	&.primary {
-		text-shadow: 1px 1px 0 var(--color-dark-fader);
+		color: var(--color-button);
 		background-color: var(--color-primary);
 		& > .header {
-			background-color: var(--color-primary-dark);
+			background-color: var(--color-primary-light);
+			.title {
+				color: var(--color-dark);
+			}
 		}
-		a {
+		a:not(.button) {
 			color: var(--color-light);
 			text-decoration: underline;
+			&:hover {
+				text-decoration: none;
+			}
 		}
 	}
 	
 	&.secondary {
-		text-shadow: 1px 1px 0 var(--color-dark-fader);
+		color: var(--color-text-light);
 		background-color: var(--color-secondary);
 		& > .header {
-			background-color: var(--color-secondary-dark);
+			background-color: var(--color-secondary-light);
 		}
-		a {
+		a:not(.button) {
 			color: var(--color-light);
 			text-decoration: underline;
+			&:hover {
+				text-decoration: none;
+			}
 		}
 	}
 	
 	&.alert {
+		color: var(--color-text-light);
 		background-color: var(--color-alert);
 		& > .header {
-			background-color: var(--color-alert-dark);
+			background-color: var(--color-alert-light);
 		}
-		a {
+		a:not(.button) {
 			color: var(--color-light);
 			text-decoration: underline;
+			&:hover {
+				text-decoration: none;
+			}
 		}
 	}
 }

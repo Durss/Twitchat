@@ -6,8 +6,8 @@
 			<mark class="cmd" v-if="raffleData.command">{{raffleData.command}}</mark>
 		</h1>
 
-		<ProgressBar class="progress" secondary v-if="progressPercent < 1"
-			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : progressPercent"
+		<ProgressBar class="progress" secondary v-if="timerPercent < 1"
+			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : timerPercent"
 			:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
 		/>
 
@@ -21,7 +21,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="item card-item winners primary" v-if="raffleData.winners && raffleData.winners.length > 0">
+		<div class="item card-item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
 			<div class="header">
 				<i18n-t class="title" scope="global" tag="p" keypath="raffle.state_winners">
 					<template #COUNT>
@@ -31,7 +31,7 @@
 			</div>
 			<div class="entries">
 				<template v-for="w in raffleData.winners" :key="w.label">
-					<Button v-if="w.user" small secondary
+					<Button v-if="w.user" small
 					type="link"
 					target="_blank"
 					:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
@@ -60,7 +60,6 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ProgressBar from '../ProgressBar.vue';
@@ -75,7 +74,8 @@ import ProgressBar from '../ProgressBar.vue';
 export default class RaffleState extends Vue {
 
 	public picking = false;
-	public progressPercent = 0;
+	public disposed = false;
+	public timerPercent:number = 0;
 	public raffleData!:TwitchatDataTypes.RaffleData;
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	
@@ -91,17 +91,19 @@ export default class RaffleState extends Vue {
 	}
 
 	public beforeMount():void {
-
 		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
 		this.raffleData			= this.$store("raffle").data!;
-		const ellapsed			= Date.now() - new Date(this.raffleData.created_at).getTime();
-		const duration			= this.raffleData.duration_s * 1000;
-		const timeLeft			= duration - ellapsed;
-		this.progressPercent	= ellapsed/duration;
-		gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 
 		//Check if wheel's overlay exists
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+	}
+	
+	public mounted():void {
+		this.renderFrame();
+	}
+	
+	public beforeUnmount():void {
+		this.disposed = true;
 	}
 
 	public closeRaffle():void {
@@ -127,6 +129,14 @@ export default class RaffleState extends Vue {
 		this.picking = false;
 	}
 
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+		const ellapsed	= Date.now() - new Date(this.raffleData.created_at).getTime();
+		const duration	= this.raffleData.duration_s * 1000;
+		this.timerPercent = 1 - (duration-ellapsed)/duration;
+	}
+
 }
 </script>
 
@@ -146,6 +156,10 @@ export default class RaffleState extends Vue {
 			height: 1em;
 			margin-right: .5em;
 		}
+	}
+
+	.winners {
+		flex-shrink: 0;
 	}
 }
 </style>

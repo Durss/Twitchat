@@ -1,5 +1,9 @@
 <template>
 	<div class="triggeractiondelayentry" @click="setFocus()">
+		<Icon name="dragZone"
+			class="orderBt"
+			v-tooltip="$t('triggers.reorder_tt')" />
+
 		<img src="@/assets/icons/timer.svg" class="icon">
 
 		<div>
@@ -88,7 +92,7 @@ export default class TriggerActionDelayEntry extends Vue {
 <style scoped lang="less">
 .triggeractiondelayentry{
 	margin: auto;
-	width: min-content;
+	width: fit-content;
 	border-radius: .5em;
 	background-color: var(--color-primary);
 	display: flex;
@@ -107,6 +111,18 @@ export default class TriggerActionDelayEntry extends Vue {
 	.deleteBt {
 		align-self: stretch;
 		border-radius: 0;
+		flex-shrink: 0;
+	}
+
+	.orderBt {
+		cursor: grab;
+		height: .8em;
+		vertical-align: middle;
+		line-height: 1em;
+		user-select: none;
+		&:active {
+			cursor: grabbing;
+		}
 	}
 }
 </style>

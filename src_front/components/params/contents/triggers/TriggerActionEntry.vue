@@ -40,79 +40,87 @@
 
 		<div v-if="action.type===null" class="typeSelector">
 			<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
-			<Button class="button" @click="selectActionType('delay')"
-				icon="timer">{{ $t('triggers.actions.common.action_delay') }}</Button>
-
-			<Button class="button" @click="selectActionType('chat')"
-				icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</Button>
+			<div class="list">
+				<Button class="button" @click="selectActionType('delay')"
+					icon="timer">{{ $t('triggers.actions.common.action_delay') }}</Button>
+	
+				<Button class="button" @click="selectActionType('chat')"
+					icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</Button>
+					
+				<Button class="button" @click.capture="selectActionType('poll')"
+					v-if="hasChannelPoints"
+					icon="poll"
+					:disabled="!canCreatePoll">{{ $t('triggers.actions.common.action_poll') }}</Button>
 				
-			<Button class="button" @click.capture="selectActionType('poll')"
-				v-if="hasChannelPoints"
-				icon="poll"
-				:disabled="!canCreatePoll">{{ $t('triggers.actions.common.action_poll') }}</Button>
-			
-			<Button class="button" @click.capture="selectActionType('prediction')"
-				v-if="hasChannelPoints"
-				icon="prediction"
-				:disabled="!canCreatePrediction">{{ $t('triggers.actions.common.action_prediction') }}</Button>
+				<Button class="button" @click.capture="selectActionType('prediction')"
+					v-if="hasChannelPoints"
+					icon="prediction"
+					:disabled="!canCreatePrediction">{{ $t('triggers.actions.common.action_prediction') }}</Button>
+					
+				<Button class="button" @click="selectActionType('bingo')"
+					icon="bingo">{{ $t('triggers.actions.common.action_bingo') }}</Button>
 				
-			<Button class="button" @click="selectActionType('bingo')"
-				icon="bingo">{{ $t('triggers.actions.common.action_bingo') }}</Button>
-			
-			<Button class="button" @click="selectActionType('raffle')"
-				icon="ticket">{{ $t('triggers.actions.common.action_raffle') }}</Button>
-
-			<Button class="button" @click="selectActionType('raffle_enter')"
-				v-if="hasUserInfo"
-				icon="user">{{ $t('triggers.actions.common.action_raffle_enter') }}</Button>
-			
-			<Button class="button" @click="selectActionType('stream_infos')"
-				icon="info">{{ $t('triggers.actions.common.action_stream_infos') }}</Button>
-			
-			<Button class="button" @click="selectActionType('highlight')"
-				icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</Button>
-			
-			<Button class="button" @click="selectActionType('count')"
-				icon="count">{{ $t('triggers.actions.common.action_count') }}</Button>
-			
-			<!-- <Button class="button" @click="selectActionType('countget')"
-				icon="count_placeholder">{{ $t('triggers.actions.common.action_countget') }}</Button> -->
-			
-			<Button class="button" @click="selectActionType('random')"
-				icon="dice">{{ $t('triggers.actions.common.action_random') }}</Button>
-			
-			<Button class="button" @click.capture="selectActionType('obs')"
-				icon="obs"
-				:disabled="!obsConnected"
-				v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')">{{ $t('triggers.actions.common.action_obs') }}</Button>
-			
-			<Button class="button" @click.capture="selectActionType('tts')"
-				icon="tts"
-				:disabled="!$store('tts').params.enabled"
-				v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</Button>
-			
-			<Button class="beta button" @click.capture="selectActionType('music')"
-				icon="spotify"
-				:disabled="!musicServiceConfigured"
-				v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
-			
-			<Button class="button" @click.capture="selectActionType('voicemod')"
-				icon="voicemod"
-				:disabled="!voicemodEnabled"
-				v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</Button>
-			
-			<Button class="button" @click="selectActionType('trigger')"
-				icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</Button>
-			
-			<Button class="button" @click="selectActionType('triggerToggle')"
-				icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</Button>
-			
-			<Button class="button" @click="selectActionType('http')"
-				icon="url">{{ $t('triggers.actions.common.action_http') }}</Button>
-			
-			<Button class="button" @click.capture="selectActionType('ws')"
-				:disabled="!wsConnected"
-				icon="url">{{ $t('triggers.actions.common.action_ws') }}</Button>
+				<Button class="button" @click="selectActionType('raffle')"
+					icon="ticket">{{ $t('triggers.actions.common.action_raffle') }}</Button>
+	
+				<Button class="button" @click="selectActionType('raffle_enter')"
+					v-if="hasUserInfo"
+					icon="user">{{ $t('triggers.actions.common.action_raffle_enter') }}</Button>
+				
+				<Button class="button" @click="selectActionType('stream_infos')"
+					icon="info">{{ $t('triggers.actions.common.action_stream_infos') }}</Button>
+					
+				<Button class="button" @click="selectActionType('chatSugg')"
+					icon="chatPoll">{{ $t('triggers.actions.common.action_chatSugg') }}</Button>
+				
+				<Button class="button" @click="selectActionType('highlight')"
+					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</Button>
+				
+				<Button class="button" @click="selectActionType('count')"
+					icon="count">{{ $t('triggers.actions.common.action_count') }}</Button>
+				
+				<!-- <Button class="button" @click="selectActionType('countget')"
+					icon="count_placeholder">{{ $t('triggers.actions.common.action_countget') }}</Button> -->
+				
+				<Button class="button" @click="selectActionType('random')"
+					icon="dice">{{ $t('triggers.actions.common.action_random') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('obs')"
+					icon="obs"
+					:disabled="!obsConnected"
+					v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')">{{ $t('triggers.actions.common.action_obs') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('tts')"
+					icon="tts"
+					:disabled="!$store('tts').params.enabled"
+					v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('music')"
+					icon="spotify"
+					:disabled="!musicServiceConfigured"
+					v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('voicemod')"
+					icon="voicemod"
+					:disabled="!voicemodEnabled"
+					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</Button>
+				
+				<Button class="button" @click="selectActionType('trigger')"
+					icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</Button>
+				
+				<Button class="button" @click="selectActionType('triggerToggle')"
+					icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</Button>
+				
+				<Button class="button" @click="selectActionType('vibrate')"
+					icon="vibrate" >{{ $t('triggers.actions.common.action_vibrate') }}</Button>
+				
+				<Button class="button" @click="selectActionType('http')"
+					icon="url">{{ $t('triggers.actions.common.action_http') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('ws')"
+					:disabled="!wsConnected"
+					icon="url">{{ $t('triggers.actions.common.action_ws') }}</Button>
+			</div>
 		</div>
 
 		<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
@@ -129,10 +137,12 @@
 		<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
 		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :rewards="rewards" />
 		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
-		<RaffleForm v-if="action.type=='raffle'" :action="action" triggerMode />
-		<BingoForm v-if="action.type=='bingo'" :action="action" triggerMode />
-		<PollForm v-if="action.type=='poll'" :action="action" triggerMode />
-		<PredictionForm v-if="action.type=='prediction'" :action="action" triggerMode />
+		<TriggerActionVibratePhoneEntry v-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
+		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
+		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
+		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
+		<PredictionForm v-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
+		<ChatSuggestionForm v-if="action.type=='chatSugg'" :action="action" :triggerData="triggerData" triggerMode />
 		<div v-if="action.type=='raffle_enter'" class="raffleEnter">{{ $t("triggers.actions.raffle_enter.info") }}</div>
 
 	</ToggleBlock>
@@ -140,20 +150,22 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
@@ -161,18 +173,18 @@ import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 import TriggerActionCountGetEntry from './entries/TriggerActionCountGetEntry.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
-import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
+import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
 import TriggerActionRandomEntry from './entries/TriggerActionRandomEntry.vue';
 import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry.vue';
+import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggleEntry.vue';
-import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
-import { watch } from 'vue';
+import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 
 @Component({
 	components:{
@@ -183,6 +195,7 @@ import { watch } from 'vue';
 		RaffleForm,
 		ToggleBlock,
 		PredictionForm,
+		ChatSuggestionForm,
 		TriggerActionWSEntry,
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
@@ -197,6 +210,7 @@ import { watch } from 'vue';
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
 		TriggerActionStreamInfoEntry,
+		TriggerActionVibratePhoneEntry,
 		TriggerActionTriggerToggleEntry,
 	},
 	emits:["delete", "duplicate"]
@@ -215,8 +229,6 @@ export default class TriggerActionEntry extends Vue {
 	public rewards!:TwitchDataTypes.Reward[];
 	@Prop
 	public index!:number;
-	@Prop
-	public totalItems!:number;
 
 	public opened = false;
 	public isError = false;
@@ -319,6 +331,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "random") icons.push( 'dice_placeholder' );
 		if(this.action.type == "stream_infos") icons.push( 'info' );
 		if(this.action.type == "delay") icons.push( 'timer' );
+		if(this.action.type == "vibrate") icons.push( 'vibrate' );
 		return icons;
 	}
 
@@ -372,13 +385,13 @@ export default class TriggerActionEntry extends Vue {
 			}
 			case "obs": {
 				if(!this.obsConnected) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 					return;
 				}break
 			}
 			case "ws": {
 				if(!this.wsConnected) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS);
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
 					return;
 				}break
 			}
@@ -458,6 +471,7 @@ export default class TriggerActionEntry extends Vue {
 			border-radius: 0;
 			padding: .5em;
 			align-self: stretch;
+			box-shadow: unset;
 			&.orderBt {
 				cursor: grab;
 				&:active {
@@ -468,19 +482,24 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	.typeSelector {
-		display: flex;
-		flex-direction: column;
 		.info {
 			align-self: center;
 			font-weight: bold;
 			margin-bottom: .5em;
 		}
-		.button {
-			&:not(:last-child) {
-				margin-bottom: .25em;
-			}
-			:deep(.icon) {
-				max-width: 1.25em;
+
+		.list {
+			gap: 3px;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			flex-grow: 1;
+			.button {
+				flex-grow: 1;
+				flex-basis: 250px;
+				:deep(.icon) {
+					max-width: 1.25em;
+				}
 			}
 		}
 	}

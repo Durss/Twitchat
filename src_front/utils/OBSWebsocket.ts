@@ -19,6 +19,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	private obs!:OBSWebSocket;
 	private reconnectTimeout!:number;
 	private autoReconnect:boolean = false;
+	private connectInfo:{port:string, ip:string, pass:string} = {port:"",ip:"",pass:""};
 	
 	constructor() {
 		super();
@@ -69,6 +70,9 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!forceConnect && StoreProxy.obs.connectionEnabled !== true) return false;
 		
 		try {
+			this.connectInfo.ip = ip;
+			this.connectInfo.port = port;
+			this.connectInfo.pass = pass;
 			const protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
@@ -84,104 +88,6 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 			return false;
 		}
-
-		this.obs.addListener("ConnectionClosed", ()=> {
-			this.connected = false;
-			if(this.autoReconnect) {
-				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = setTimeout(()=> {
-					this.connect(port, pass, autoReconnect, ip);
-				}, 5000);
-			}
-		});
-
-		//@ts-ignore "CustomEvent" not yet defined on OBS-ws signatures
-		this.obs.on("CustomEvent", (e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
-			if(e.type == undefined) return;
-			if(e.origin != "twitchat") return;
-			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
-			this.dispatchEvent(new TwitchatEvent("CustomEvent", e));
-		});
-
-		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, e));
-		});
-
-		this.obs.on("InputMuteStateChanged", (e:{inputName:string, inputMuted:boolean}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_MUTE_TOGGLE, e));
-		});
-
-		//This evet is disabled as it needs the following OBS plugin to be triggered
-		// https://obsproject.com/forum/resources/media-controls.1032/
-		//This plugin provides playback controls for media sources.
-		//Without that plugin only the NEXT and RESTART event seem to be triggered natively.
-		/*
-		this.obs.on("MediaInputActionTriggered", (e:{inputName:string, mediaAction:string}) => {
-			const action:OBSMediaAction = e.mediaAction as OBSMediaAction;
-			let event:string = "";
-			switch(action) {
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE": return;//Ignore
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY": event = TwitchatEvent.OBS_PLAYBACK_STARTED; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE": event = TwitchatEvent.OBS_PLAYBACK_PAUSED; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP": event = TwitchatEvent.OBS_PLAYBACK_ENDED; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART": event = TwitchatEvent.OBS_PLAYBACK_RESTARTED; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT": event = TwitchatEvent.OBS_PLAYBACK_NEXT; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS": event = TwitchatEvent.OBS_PLAYBACK_PREVIOUS; break;
-			}
-			this.dispatchEvent(new TwitchatEvent(event, e));
-		});
-		//*/
-
-		this.obs.on("MediaInputPlaybackStarted", async (e:{inputName:string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_STARTED, e));
-		});
-		
-		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
-		});
-
-		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
-			let res:{sceneItems: JsonObject[]} = {sceneItems:[]};
-			try {
-				res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
-			}catch(error) {
-				console.log("Failed loading scene item, try loading it as a group");
-				//If reaching this point it's most probably because the scene is
-				//actually a group.
-				//Let's try to load its content as a group.
-				try {
-					res = await this.obs.call("GetGroupSceneItemList", {sceneName:e.sceneName});
-				}catch(error){
-					//dunno what could have failed :/
-					console.log("Failed loading it a group as well :/");
-					console.log(error);
-				}
-			}
-			const items = (res.sceneItems as unknown) as OBSSourceItem[];
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
-				if(item.sceneItemId == e.sceneItemId) {
-					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SOURCE_TOGGLE, {item, event:e} as unknown as JsonObject));
-					break;
-				}
-			}
-		});
-		
-		this.obs.on("InputNameChanged", async (e:{oldInputName:string, inputName:string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_INPUT_NAME_CHANGED, e));
-		});
-		
-		this.obs.on("SceneNameChanged", async (e:{oldSceneName:string, sceneName:string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_NAME_CHANGED, e));
-		});
-
-		this.obs.on("SourceFilterNameChanged", async (e:{sourceName: string, oldFilterName: string, filterName: string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_NAME_CHANGED, e));
-		});
-
-		this.obs.on("SourceFilterEnableStateChanged", async (e:{sourceName: string, filterName: string, filterEnabled: boolean}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_TOGGLE, e));
-		});
 
 		// console.log(await this.obs.call("GetInputList"));
 
@@ -533,6 +439,102 @@ export default class OBSWebsocket extends EventDispatcher {
 	*******************/
 	private initialize():void {
 		this.obs = new OBSWebSocket();
+
+		this.obs.addListener("ConnectionClosed", ()=> {
+			this.connected = false;
+			if(this.autoReconnect) {
+				clearTimeout(this.reconnectTimeout);
+				this.reconnectTimeout = setTimeout(()=> {
+					this.connect(this.connectInfo.port, this.connectInfo.pass, this.autoReconnect, this.connectInfo.ip);
+				}, 5000);
+			}
+		});
+
+		//@ts-ignore "CustomEvent" not yet defined on OBS-ws signatures
+		this.obs.on("CustomEvent", (e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
+			if(e.type == undefined) return;
+			if(e.origin != "twitchat") return;
+			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
+			this.dispatchEvent(new TwitchatEvent("CustomEvent", e));
+		});
+
+		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, e));
+		});
+
+		this.obs.on("InputMuteStateChanged", (e:{inputName:string, inputMuted:boolean}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_MUTE_TOGGLE, e));
+		});
+
+		//This event is disabled as its very specific to media sources with playback control
+		//which are probably not much used
+		/*
+		this.obs.on("MediaInputActionTriggered", (e:{inputName:string, mediaAction:string}) => {
+			const action:OBSMediaAction = e.mediaAction as OBSMediaAction;
+			let event:string = "";
+			switch(action) {
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE": return;//Ignore
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY": event = TwitchatEvent.OBS_PLAYBACK_STARTED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE": event = TwitchatEvent.OBS_PLAYBACK_PAUSED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP": event = TwitchatEvent.OBS_PLAYBACK_ENDED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART": event = TwitchatEvent.OBS_PLAYBACK_RESTARTED; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT": event = TwitchatEvent.OBS_PLAYBACK_NEXT; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS": event = TwitchatEvent.OBS_PLAYBACK_PREVIOUS; break;
+			}
+			this.dispatchEvent(new TwitchatEvent(event, e));
+		});
+		//*/
+
+		this.obs.on("MediaInputPlaybackStarted", async (e:{inputName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_STARTED, e));
+		});
+		
+		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
+		});
+
+		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
+			let res:{sceneItems: JsonObject[]} = {sceneItems:[]};
+			try {
+				res = await this.obs.call("GetSceneItemList", {sceneName:e.sceneName});
+			}catch(error) {
+				console.log("Failed loading scene item, try loading it as a group");
+				//If reaching this point it's most probably because the scene is
+				//actually a group.
+				//Let's try to load its content as a group.
+				try {
+					res = await this.obs.call("GetGroupSceneItemList", {sceneName:e.sceneName});
+				}catch(error){
+					//dunno what could have failed :/
+					console.log("Failed loading it a group as well :/");
+					console.log(error);
+				}
+			}
+			const items = (res.sceneItems as unknown) as OBSSourceItem[];
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if(item.sceneItemId == e.sceneItemId) {
+					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SOURCE_TOGGLE, {item, event:e} as unknown as JsonObject));
+					break;
+				}
+			}
+		});
+		
+		this.obs.on("InputNameChanged", async (e:{oldInputName:string, inputName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_INPUT_NAME_CHANGED, e));
+		});
+		
+		this.obs.on("SceneNameChanged", async (e:{oldSceneName:string, sceneName:string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_NAME_CHANGED, e));
+		});
+
+		this.obs.on("SourceFilterNameChanged", async (e:{sourceName: string, oldFilterName: string, filterName: string}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_NAME_CHANGED, e));
+		});
+
+		this.obs.on("SourceFilterEnableStateChanged", async (e:{sourceName: string, filterName: string, filterEnabled: boolean}) => {
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_TOGGLE, e));
+		});
 	}
 }
 

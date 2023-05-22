@@ -51,7 +51,7 @@ export default class EventSub {
 		if(disconnectPrevious && this.socket) {
 			this.cleanupSocket(this.socket);
 		}
-
+		
 		//Delete all previous event sub subscriptions
 		/*
 		try {
@@ -194,7 +194,7 @@ export default class EventSub {
 	 * Create all eventsub subscriptions
 	 */
 	private async createSubscriptions(sessionId:string):Promise<void> {
-		// console.log("EVENTSUB : Create subscriptions");
+		console.log("EVENTSUB : Create subscriptions");
 		const myUID = StoreProxy.auth.twitch.user.id;
 		let uids = [myUID];
 		if(Config.instance.debugChans.length > 0) {
@@ -223,6 +223,23 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_ADD, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_REMOVE, "1");
 				}
+				if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
+				}
+				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
+				}
+				
+				//Don't need to listen for this event for anyone else but the broadcaster
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
+				
+				//Used by online/offline triggers
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+
+				/*
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
@@ -243,21 +260,7 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
 				}
-				if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
-				}
-				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
-				}
-				
-				//Don't need to listen for this event for anyone else but the broadcaster
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
-				
-				//Used by online/offline triggers
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+				//*/
 				
 				//Not using those as IRC does it better
 				// if(TwitchUtils.hasScope(TwitchScopes.LIST_SUBS)) {
@@ -337,11 +340,6 @@ export default class EventSub {
 				break;
 			}
 
-			case TwitchEventSubDataTypes.SubscriptionTypes.RAID: {
-				this.raidEvent(topic, payload.event as TwitchEventSubDataTypes.RaidEvent);
-				break;
-			}
-
 			case TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON:
 			case TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF: {
 				this.streamStartStopEvent(topic, payload.event as TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent);
@@ -405,12 +403,14 @@ export default class EventSub {
 		let category:string = "";
 		let tags:string[] = [];
 		let started_at:number = 0;
+		let viewers:number = 0;
 		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
 		if(streamInfos) {
 			title = streamInfos.title;
 			category = streamInfos.game_name;
 			tags = streamInfos.tags;
 			started_at = new Date(streamInfos.started_at).getTime();
+			viewers = streamInfos.viewer_count;
 		}else{
 			let [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id])
 			title = chanInfo.title;
@@ -418,12 +418,15 @@ export default class EventSub {
 			tags = chanInfo.tags;
 		}
 
-		StoreProxy.stream.currentStreamInfo = {
+		StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
 			title,
 			category,
 			tags,
 			started_at,
-			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name)
+			viewers,
+			live: false,
+			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+			lastSoDoneDate:0,
 		}
 
 		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
@@ -432,7 +435,7 @@ export default class EventSub {
 			platform:"twitch",
 			channel_id:event.broadcaster_user_id,
 			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			message:StoreProxy.i18n.t("stream.notification", {TITLE:event.title}),
+			message:StoreProxy.i18n.t("stream.notification", {TITLE:event.title, CATEGORY:event.category_name}),
 			noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
 			title:event.title,
 			category:event.category_name
@@ -655,7 +658,7 @@ export default class EventSub {
 	}
 	
 	public unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
-		const unbannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name)
+		const unbannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		const m:TwitchatDataTypes.MessageUnbanData = {
 			id:Utils.getUUID(),
@@ -672,11 +675,37 @@ export default class EventSub {
 	}
 	
 	public modAddEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorAddEvent):void {
-		//TODO
+		const modedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
+		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
+		const m:TwitchatDataTypes.MessageModerationAction = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.MOD,
+			user:modedUser,
+			message: StoreProxy.i18n.t("global.moderation_action.modded_by", {USER:modedUser.displayName, MODERATOR:moderator.displayName}),
+		};
+		StoreProxy.users.flagMod("twitch", event.broadcaster_user_id, modedUser.id);
+		StoreProxy.chat.addMessage(m);
 	}
 	
 	public modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
-		//TODO
+		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
+		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
+		const m:TwitchatDataTypes.MessageModerationAction = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+			noticeId:TwitchatDataTypes.TwitchatNoticeType.MOD,
+			user:modedUser,
+			message: StoreProxy.i18n.t("global.moderation_action.unmodded_by", {USER:modedUser.displayName, MODERATOR:moderator.displayName}),
+		};
+		StoreProxy.users.flagUnmod("twitch", event.broadcaster_user_id, modedUser.id);
+		StoreProxy.chat.addMessage(m);
 	}
 
 	/**
@@ -686,38 +715,44 @@ export default class EventSub {
 	 */
 	private async streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
+		const streamInfo:TwitchatDataTypes.StreamInfo = {
+			tags:[],
+			title: "",
+			category:"",
+			live:false,
+			viewers:0,
+			started_at:Date.now(),
+			user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+			lastSoDoneDate:0,
+		};
 		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
 			date:Date.now(),
 			id:Utils.getUUID(),
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
-			info: {
-				tags:[],
-				title: "",
-				category:"",
-				started_at:Date.now(),
-				user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
-			}
+			info: streamInfo,
 		}
 
-		//Stream online
+		//Stream offline
 		if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF) {
 			StoreProxy.stream.setPlaybackState(event.broadcaster_user_id, undefined);
 			StoreProxy.stream.setStreamStop(event.broadcaster_user_id);
 			((message as unknown) as TwitchatDataTypes.MessageStreamOfflineData).type = TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE;
 			
-		//Stream offline
+		//Stream online
 		}else if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON) {
 			//Load stream info
 			const [streamInfo] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
 			if(streamInfo) {
 				message.info.started_at = new Date(streamInfo.started_at).getTime();
+				message.info.live = true;
 				message.info.title = streamInfo.title;
 				message.info.category = streamInfo.game_name;
 				StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
 			}
 		}
 		StoreProxy.chat.addMessage(message);
+		StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = streamInfo;
 	}
 
 	/**
@@ -769,28 +804,22 @@ export default class EventSub {
 		};
 		StoreProxy.chat.addMessage(message);
 
-		//If it's a sent shoutout, store it on the history
+		//If it's a sent shoutout, cleanup first pending SO found for this user
 		if(!received) {
-			console.log("ES : Shoutout received");
-			let list = StoreProxy.users.shoutoutHistory[channel_id];
+			StoreProxy.stream.currentStreamInfo[channel_id]!.lastSoDoneDate = Date.now();
+
+			console.log("ES : Shoutout sent");
+			let list = StoreProxy.users.pendingShoutouts[channel_id];
 			if(!list) list = [];
-			let item = list.find(v=>v.done == false && v.user.id === user.id);
+			let index = list.findIndex(v=>v.user.id === user.id);
 			//Set the last SO date of the user
 			user.channelInfo[channel_id].lastShoutout = Date.now();
-			if(!item) {
-				console.log("ES : Create item");
-				//No matching item found on the list, push it
-				list.push({
-					id:Utils.getUUID(),
-					done:true,
-					user
-				})
-			}else{
-				console.log("ES : Update item", item);
+			if(index > -1) {
+				console.log("ES : Remove item", list[index]);
 				//Update existing item
-				item.done = true;
+				list.splice(index, 1);
 			}
-			StoreProxy.users.shoutoutHistory[channel_id] = list;
+			StoreProxy.users.pendingShoutouts[channel_id] = list;
 		}
 	}
 	

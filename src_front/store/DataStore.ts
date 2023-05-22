@@ -61,6 +61,7 @@ export default class DataStore {
 	public static REDIRECT:string = "redirect";
 	public static TRIGGER_SORT_TYPE:string = "triggerSortType";
 	public static TOOLTIP_AUTO_OPEN:string = "tooltipAutoOpen";
+	public static THEME:string = "theme";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

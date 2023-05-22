@@ -3,13 +3,24 @@ input, textarea, select, .input-field {
 	border: none;
 	font-size: 1em;
 	padding: .25em .5em;
-	color: var(--color-light);
-	background-color: var(--color-dark-fadest);
+	color: inherit;
+	background-color: var(--background-color-fader);
 	border-radius: var(--border-radius);
 	font-family: var(--font-inter);
 
+	&.primary {
+		color: var(--color-light);
+		background-color: var(--color-primary);
+	}
+
+	&.secondary {
+		color: var(--color-light);
+		background-color: var(--color-primary);
+	}
+
 	option {
-		background-color: var(--color-dark);
+		color: var(--color-text);
+		background-color: var(--background-color-secondary);
 	}
 	
 	&:disabled {
@@ -19,7 +30,7 @@ input, textarea, select, .input-field {
 	
 	&::placeholder {
 		font-style: italic;
-		color: var(--color-light-fade);
+		color: var(--color-text-fade);
 	}
 	&:-webkit-autofill,
 	&:-webkit-autofill:hover, 
@@ -65,7 +76,7 @@ button {
 	.bevel();
 	box-sizing: border-box !important;
 	border-radius: --border-radius !important;
-	background-color: var(--color-dark-fadest) !important;
+	background-color: var(--background-color-fader) !important;
 
 	.vs__deselect {
 		svg {
@@ -82,18 +93,27 @@ button {
 		font-size: 1em !important;
 		&::placeholder {
 			font-style: italic;
-			color: var(--color-light-fadest);
+			color: var(--color-text-fadest);
 		}
 	}
 }
 .vs__open-indicator, .vs__clear {
-	fill: var(--color-light)
+	fill: var(--color-text)
 }
 .vs--single .vs__selected {
-	color: var(--color-light) !important;
+	color: var(--color-text) !important;
 }
 .vs__dropdown-menu {
 	border-top: 1px solid rgba(0, 0, 0, .2);
+}
+
+.vs__selected-options > .vs__search {
+	margin: 0;
+	border-radius: var(--border-radius);
+	&::placeholder {
+		font-style: italic;
+		color: var(--color-text-fade);
+	}
 }
 
 .vs__dropdown-option {

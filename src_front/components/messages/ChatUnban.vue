@@ -2,7 +2,7 @@
 	<div class="chatunban chatMessage highlight success">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img :src="$image('icons/unban.svg')" alt="notice" class="icon">
+		<Icon name="unban" alt="notice" class="icon"/>
 		
 		<i18n-t scope="global" tag="span" :keypath="messageData.moderator? 'global.moderation_action.unbanned_by' : 'global.moderation_action.unbanned'">
 			<template #USER>

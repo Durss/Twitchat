@@ -2,7 +2,7 @@
 	<div :class="classes"
 	@click="open()"
 	v-if="$store('auth').twitch.user.donor.state || !$store('auth').twitch.user.donor.noAd">
-		<CloseButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" />
+		<CloseButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
 
 		<img src="@/assets/icons/twitchat.svg"
 			alt="twitchat"

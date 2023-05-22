@@ -13,6 +13,7 @@
 			<div class="logo" ref="logo">
 				<img src="@/assets/logo.svg" alt="Twitchat">
 				<p class="small"><span>{{ $t("home.info") }}</span> <a href="https://www.durss.ninja" target="_blank">Durss</a></p>
+				<ThemeSelector class="themeSelector" />
 			</div>
 
 			<div class="middle">
@@ -21,54 +22,57 @@
 				</div>
 				
 				<Button class="loginBt"
-					secondary
+					light
 					big
 					ref="loginBt"
 					@click="showLogin = true"
 					icon="twitch"
-					v-if="!hasAuthToken"
 				>{{ $t('home.loginBt') }}</Button>
 
-				<Button class="loginBt"
-					secondary
-					big
-					ref="loginBt"
-					icon="twitch"
-					@click="redirectToChat()"
-					v-if="hasAuthToken"
-				>{{ $t('home.openBt') }}</Button>
-		
 				<div class="ctas" ref="ctas">
-					<Button icon="elgato"
-						primary
-						href="https://apps.elgato.com/plugins/fr.twitchat"
-						target="_blank"
-						type="link"
-						class="elgatoBt"
-						ref="streamDeckBt"
-					>{{ $t('home.streamdeckBt') }}</Button>
-			
 					<Button icon="discord"
-						primary
+						big
 						:href="discordURL"
 						target="_blank"
 						type="link"
 						class="discordBt"
 						ref="discordBt"
-					>{{ $t('home.discordBt') }}</Button>
+						v-tooltip="{content:$t('home.discordBt'), placement:'bottom'}"
+					></Button>
+
+					<Button icon="elgato"
+						big
+						href="https://apps.elgato.com/plugins/fr.twitchat"
+						target="_blank"
+						type="link"
+						class="elgatoBt"
+						ref="streamDeckBt"
+						v-tooltip="{content:$t('home.streamdeckBt'), placement:'bottom'}"
+					></Button>
 			
-					<Button icon="coin"
-						primary
+					<Button icon="youtube"
+						big
+						:href="youtubeURL"
+						target="_blank"
+						type="link"
+						class="youtubeBt"
+						ref="youtubeBt"
+						v-tooltip="{content:$t('home.youtubeBt'), placement:'bottom'}"
+					></Button>
+			
+					<Button
+						big light
 						:to="{name:'sponsor'}"
 						class="sponsorBt"
 						ref="sponsorBt"
-					>{{ $t('home.sponsorBt') }}</Button>
+						v-tooltip="{content:$t('home.sponsorBt'), placement:'bottom'}"
+					>💝</Button>
 				</div>
 			</div>
 	
 			<div class="splitter" ref="featuresTitle" @click="onSelectAnchor(anchors[0])">
 				<div>{{ $t("home.features.title") }}</div>
-				<img src="@/assets/img/homepage/scrollDown.svg" alt="scroll down">
+				<Icon name="arrowDown" alt="scroll down" class="icon" />
 			</div>
 		</div>
 
@@ -84,7 +88,7 @@
 						@play="onVideoStart($event)"></video>
 						<img v-if="s.image" loading="lazy" :src="$image('img/homepage/'+s.image)" :alt="s.title">
 					</div>
-					<img :src="$image('icons/'+s.icon+'.svg')" :alt="s.icon" class="icon">
+					<Icon :name="s.icon" :alt="s.icon" class="icon" />
 					<div class="infos">
 						<h2>{{s.title}}</h2>
 						<div class="description" v-html="s.description"></div>
@@ -92,7 +96,7 @@
 				</div>
 				
 				<div class="content" v-else>
-					<img :src="$image('icons/'+s.icon+'.svg')" :alt="s.icon" class="icon">
+					<Icon :name="s.icon" :alt="s.icon" class="icon" />
 					<div class="infos">
 						<h2>{{s.title}}</h2>
 						<div class="description">
@@ -137,6 +141,7 @@ import AnchorsMenu from '../components/AnchorsMenu.vue';
 import CountryFlag from 'vue3-country-flag-icon';
 import 'vue3-country-flag-icon/dist/CountryFlag.css';
 import Login from './Login.vue';
+import ThemeSelector from '@/components/ThemeSelector.vue';
 
 @Component({
 	components:{
@@ -145,6 +150,7 @@ import Login from './Login.vue';
 		Splitter,
 		CountryFlag,
 		AnchorsMenu,
+		ThemeSelector,
 	}
 })
 export default class Home extends Vue {
@@ -157,9 +163,9 @@ export default class Home extends Vue {
 	private disposed = false;
 	private letterParams:{x:number, y:number, s:number, r:number, o:number}[] = [];
 
-	public get hasAuthToken():boolean { return DataStore.get(DataStore.TWITCH_AUTH_TOKEN) != null && this.$route.name == "home"; }
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
+	public get youtubeURL():string { return Config.instance.YOUTUBE_URL; }
 	public getLetter():string { return Utils.pickRand("twitchat".split("")); }
 
 	public get sections():{
@@ -203,13 +209,13 @@ export default class Home extends Vue {
 			if(icon) {
 				gsap.set(icon, {scale:0});
 			}
-			anchors.push({div, label: this.sections[i].title, icon:icon.src, selected:false});
+			anchors.push({div, label: this.sections[i].title, icon:this.sections[i].icon, selected:false});
 		}
 		this.anchors = anchors;
-		//TODO update anchros labels when changing language
+		//TODO update anchors labels when changing language
 
 		//Opening transition ATF elements
-		const refs = ["loginBt","logo","description","streamDeckBt", "discordBt", "sponsorBt","featuresTitle"];
+		const refs = ["loginBt", "logo", "description", "discordBt", "streamDeckBt", "youtubeBt", "sponsorBt", "featuresTitle"];
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
 			let el = this.$refs[refs[i]] as HTMLElement | Vue;
@@ -335,25 +341,74 @@ export default class Home extends Vue {
 }
 </script>
 
+<style lang="less">
+body.light {
+	.home {
+		@bg:#eee;
+		background-color: @bg;
+		background-image: url("../assets/img/homepage/grain_dark.png");
+
+		.sectionsHolder {
+			.splitter {
+				border: .5em solid @bg;
+			}
+		}
+
+		section:not(.more) {
+			.content {
+				.icon {
+					background-color: @bg;
+				}
+			}
+		}
+
+		section.more {
+			background-color: @bg;
+		}
+	}
+}
+
+
+@media only screen and (max-width: 900px) {
+body.light {
+	.home {
+		.sectionsHolder {
+			section:not(.more), section:not(.more):nth-of-type(odd) {
+				.content {
+					background-color: #eee;
+				}
+			}
+		}
+	}
+}
+}
+</style>
 <style scoped lang="less">
 .home{
 	text-align: center;
-	color: var(--color-light);
 	min-height: 100%;
 	background-image: url("../assets/img/homepage/grain.png");
 	margin: auto;
 	padding-bottom: 2em;
 	position: relative;
 	overflow: hidden;
+	color: var(--color-text);
+	@bg:#18181b;
+	background-color: @bg;
 
 	.aboveTheFold {
 		height: max(640px, 100vh);
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
+		// justify-content: space-between;
 		padding: 4em 0;
 		position: relative;
 		z-index: 1;
+
+		.themeSelector {
+			margin: .5em;
+			display: inline-block;
+		}
 
 		.lang {
 			position: absolute;
@@ -382,9 +437,9 @@ export default class Home extends Vue {
 		}
 
 		.middle {
+			flex-grow: 1;
 			.description {
-				margin: auto;
-				margin-bottom: 2em;
+				margin: 2em auto;
 				font-style: italic;
 				font-size: min(2em, 7vw);
 				width: 90%;
@@ -402,9 +457,64 @@ export default class Home extends Vue {
 				// background-color: var(--color-primary);
 				// padding: 2em 1em;
 				display: flex;
-				flex-direction: column;
+				flex-direction: row;
 				gap: .5em;
+				justify-content: center;
 				align-items: center;
+
+				.elgatoBt {
+					:deep(.background) {
+						background-color: #1c40ff !important;
+					}
+					&:hover {
+						:deep(.background) {
+							background-color: lighten(#1c40ff, 10%) !important;
+						}
+					}
+				}
+				.discordBt {
+					:deep(.background) {
+						background-color: #5865f2 !important;
+					}
+					&:hover {
+						:deep(.background) {
+							background-color: lighten(#5865f2, 10%) !important;
+						}
+					}
+				}
+				.youtubeBt {
+					:deep(.background) {
+						background-color: #ff0000 !important;
+					}
+					&:hover {
+						:deep(.background) {
+							background-color: lighten(#ff0000, 10%) !important;
+						}
+					}
+				}
+
+				.button {
+					border-radius: 50%;
+					padding: 6px;
+					width: 2em;
+					height: 2em;
+					:deep(.icon) {
+						width: 100%;
+						height: 100%;
+						max-width: 100%;
+						max-height: 100%;
+					}
+					:deep(.label) {
+						font-size: 1.2em;
+					}
+					&:hover {
+						transition: transform .25s;
+						transform: scale(1.1);
+					}
+				}
+				.sponsorBt {
+					padding: 0;
+				}
 			}
 		}
 
@@ -417,7 +527,7 @@ export default class Home extends Vue {
 			cursor: pointer;
 			position: relative;
 			padding-bottom: 1em;
-			img {
+			.icon {
 				margin-top: .5em;
 				width: 1em;
 				transform: translate(-50%);
@@ -425,7 +535,7 @@ export default class Home extends Vue {
 				transition: all .5s ease-in-out;
 			}
 			&:hover {
-				img {
+				.icon {
 					margin-top: .75em;
 				}
 			}
@@ -443,7 +553,7 @@ export default class Home extends Vue {
 
 	.sectionsHolder {
 		//draw middle line
-		background: linear-gradient(90deg, var(--color-light) 2px, transparent 1px);
+		background: linear-gradient(90deg, var(--color-text) 2px, transparent 1px);
 		background-position: 100% 0;
 		background-repeat: no-repeat;
 		background-size: calc(50% + 1px) 100%;
@@ -452,9 +562,9 @@ export default class Home extends Vue {
 			height: 2em;
 			margin: auto;
 			margin-top: 15vw;
-			background-color: #fff;
+			background-color: var(--color-text);
 			border-radius: 50%;
-			border: .5em solid var(--color-dark);
+			border: .5em solid @bg;
 		}
 	}
 
@@ -503,7 +613,6 @@ export default class Home extends Vue {
 			flex-direction: row;
 			max-width: 70vw;
 			margin: auto;
-			color: var(--color-light);
 			align-items: center;
 			position: relative;
 	
@@ -581,22 +690,39 @@ export default class Home extends Vue {
 				padding: 1em 3%;
 				display: block;
 				background-image: url("../assets/img/homepage/grain.png");
-				background-color: var(--color-dark);
+				background-color: @bg;
 			}
 		}
 
 		video {
 			cursor: pointer;
 			&.playing {
-				cursor: url("../assets/img/homepage/pause.png")  25 25, default;
+				cursor: url("../assets/img/homepage/pause.png") 25 25, default;
 			}
+		}
+	}
+
+	.sectionsHolder {
+		//draw middle line
+		background: linear-gradient(90deg, var(--color-text) 2px, transparent 1px);
+		background-position: 100% 0;
+		background-repeat: no-repeat;
+		background-size: calc(50% + 1px) 100%;
+		.splitter {
+			width: 2em;
+			height: 2em;
+			margin: auto;
+			margin-top: 15vw;
+			background-color: var(--color-text);
+			border-radius: 50%;
+			border: .5em solid @bg;
 		}
 	}
 
 	section.more {
 		margin-top: 10vw;
 		background-image: url("../assets/img/homepage/grain.png");
-		background-color: var(--color-dark);
+		background-color: @bg;
 		.icon {
 			height: 6em;
 			padding-top: 1em;
@@ -658,7 +784,6 @@ export default class Home extends Vue {
 				.description {
 					width: 80vw;
 					font-size: 1.3em;
-					margin-bottom: .5em;
 				}
 				.ctas {
 					margin: auto;

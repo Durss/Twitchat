@@ -15,11 +15,13 @@ export default class AbstractOberlay extends Vue {
 		if(!OBSWebsocket.instance.connected) {
 			this.obsWebsocketConnectedHandler = () => this.requestInfo();
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, this.obsWebsocketConnectedHandler);
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.TWITCHAT_READY, this.obsWebsocketConnectedHandler);
 		}
 	}
 
 	public beforeUnmount():void {
 		OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, this.obsWebsocketConnectedHandler);
+		OBSWebsocket.instance.removeEventListener(TwitchatEvent.TWITCHAT_READY, this.obsWebsocketConnectedHandler);
 	}
 
 	/**

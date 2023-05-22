@@ -1,7 +1,7 @@
 <template>
 	<div class="chatpredictionresult chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img src="@/assets/icons/prediction.svg" alt="icon" class="icon">
+		<Icon name="prediction" alt="icon" class="icon"/>
 		<div class="content">
 			<div class="title">{{messageData.title}}</div>
 
@@ -16,19 +16,16 @@
 				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
 					<div :style="getOutcomeStyles(o)" class="bar">
 						<div class="outcomeTitle">
-							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="messageData.winner?.id === o.id">
-							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check" v-else>
+							<Icon class="check" name="checkmark" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
 							{{o.label}}
 						</div>
 						<div class="percent">{{getOutcomePercent(o)}}%</div>
 						<div class="users">
-							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="messageData.winner?.id === o.id">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon" v-else>
+							<Icon class="icon" name="user" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
 							{{o.voters}}
 						</div>
 						<div class="points">
-							<img src="@/assets/icons/dark/channelPoints.svg" alt="channelPoints" class="icon" v-if="messageData.winner?.id === o.id">
-							<img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon" v-else>
+							<Icon class="icon" name="channelPoints" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
 							{{o.votes}}
 						</div>
 					</div>
@@ -146,7 +143,8 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 						align-items: center;
 						padding: 5px;
 						border-radius: 5px;
-						background-color: var(--color-dark-fade);
+						color: var(--color-text-light);
+						background-color: rgba(0,0,0,.5);//var(--background-color-fade);
 						font-size: .9em;
 						align-self: center;
 
@@ -165,7 +163,7 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 					.percent, .users, .points, .outcomeTitle {
 						color: var(--color-dark);
 						font-weight: bold;
-						background-color: var(--color-light);
+						background-color: rgba(255,255,255,.7);//var(--color-light);
 					}
 					// .bar {
 					// 	border: 1px solid var(--color-light);

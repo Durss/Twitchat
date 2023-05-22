@@ -46,6 +46,7 @@ import VueTippy from "vue-tippy";
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/scale.css'
 import { setDefaultProps } from 'vue-tippy';
+import Icon from './components/Icon.vue';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -263,6 +264,7 @@ function buildApp() {
 	})
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
+	.component("Icon", Icon)
 	.provide("$image", image)
 	.provide("$store", storeAccess)
 	.provide("$confirm", confirm)
@@ -314,8 +316,13 @@ function buildApp() {
 			StoreProxy.main.reloadLabels();
 		}
 		
+		if(e.code == "KeyK" && e.ctrlKey && e.shiftKey) {
+			StoreProxy.main.toggleTheme();
+		}
+		
 		if(e.code == "Semicolon" && e.ctrlKey && e.shiftKey) {
 			i18n.global.locale = i18n.global.locale == "fr"? "en" : "fr";
+			DataStore.set(DataStore.LANGUAGE, i18n.global.locale);
 		}
 	})
 }

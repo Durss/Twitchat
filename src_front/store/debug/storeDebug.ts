@@ -237,6 +237,7 @@ export const storeDebug = defineStore('debug', {
 							cost:reward.cost,
 							description:reward.prompt,
 							title:reward.title,
+							color:reward.background_color,
 							icon,
 						},
 					};
@@ -910,6 +911,9 @@ export const storeDebug = defineStore('debug', {
 							category:"Just chatting",
 							started_at:Date.now(),
 							tags:[],
+							live:false,
+							viewers:0,
+							lastSoDoneDate:0,
 						}
 					};
 					data = m;
@@ -928,6 +932,9 @@ export const storeDebug = defineStore('debug', {
 							category:"Just chatting",
 							started_at:Date.now(),
 							tags:[],
+							live:false,
+							viewers:0,
+							lastSoDoneDate:0,
 						}
 					};
 					data = m;
@@ -1231,7 +1238,7 @@ export const storeDebug = defineStore('debug', {
 			return data;
 		},
 		
-		async sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<TwitchatDataTypes.ChatMessageTypes> {
+		async sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<TwitchatDataTypes.ChatMessageTypes> {
 			if(ponderatedRandomList.length === 0) {
 				const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
 					{type:TwitchatDataTypes.TwitchatMessageType.MESSAGE, probability:100},
@@ -1263,36 +1270,39 @@ export const storeDebug = defineStore('debug', {
 				}
 			}
 
-			return await this.simulateMessage(Utils.pickRand(ponderatedRandomList), (data)=> {
+			const messageType = forcedType? forcedType : Utils.pickRand(ponderatedRandomList);
+			return await this.simulateMessage(messageType, (data)=> {
 				if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(forcedMessage) {
 						data.message_chunks = TwitchUtils.parseMessageToChunks(forcedMessage, undefined, true);
 						data.message = data.message_html = forcedMessage;
-					}
-					if(Math.random() > .1) return;
-					if(Math.random() > .9) {
-						data.twitch_isFirstMessage = true;
-					}else if(Math.random() > .9) {
-						data.twitch_isPresentation = true;
-					}else if(Math.random() > .9) {
-						data.deleted = true;
-					}else if(Math.random() > .9) {
-						if(Math.random() > .35) {
-							data.twitch_isSuspicious = true;
-						}else{
-							data.twitch_isRestricted = true;
+					}else{
+						if(Math.random() < .1)  {
+							if(Math.random() > .9) {
+								data.twitch_isFirstMessage = true;
+							}else if(Math.random() > .9) {
+								data.twitch_isPresentation = true;
+							}else if(Math.random() > .9) {
+								data.deleted = true;
+							}else if(Math.random() > .9) {
+								if(Math.random() > .35) {
+									data.twitch_isSuspicious = true;
+								}else{
+									data.twitch_isRestricted = true;
+								}
+								const users:TwitchatDataTypes.TwitchatUser[] = [];
+								const list = StoreProxy.users.users;
+								for (let i = 0; i < list.length; i++) {
+									users.push(list[i]);
+									if(Math.random() > .3) break;
+								}
+								data.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })
+							}
 						}
-						const users:TwitchatDataTypes.TwitchatUser[] = [];
-						const list = StoreProxy.users.users;
-						for (let i = 0; i < list.length; i++) {
-							users.push(list[i]);
-							if(Math.random() > .3) break;
-						}
-						data.twitch_sharedBanChannels = users.map(v=> { return {id:v.id, login:v.login}; })
 					}
-					if(hook) {
-						hook(data);
-					}
+				}
+				if(hook) {
+					hook(data);
 				}
 			}, postOnChat);
 		},

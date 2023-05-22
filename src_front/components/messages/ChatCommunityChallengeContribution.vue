@@ -2,7 +2,7 @@
 	<div class="chatcommunitychallengecontribution chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img src="@/assets/icons/channelPoints.svg" alt="reward" class="icon">
+		<Icon name="channelPoints" alt="reward" class="icon"/>
 
 		<div class="holder">
 			<i18n-t scope="global" tag="span" keypath="chat.community_challenge" class="label">

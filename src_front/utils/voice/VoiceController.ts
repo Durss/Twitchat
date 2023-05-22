@@ -63,7 +63,6 @@ export default class VoiceController {
 	******************/
 
 	public async start(remoteControlMode:boolean):Promise<void> {
-		console.log("START BOT remote mode", remoteControlMode);
 		this.remoteControlMode = remoteControlMode;
 		if(this.started) return;
 		if(this.recognition) {
@@ -227,13 +226,13 @@ export default class VoiceController {
 		}
 
 		
-		this.splitRegGlobalActions = new RegExp("(?:^|\\s)("+regChunks.join("|")+")(?:$|(?:[^\\s]{1}\\s)?|\\s)", "gi");
+		this.splitRegGlobalActions = new RegExp("(?:^|\\s)("+regChunks.join("|")+")(?:(?:[^\\s]{0,1}$)|(?:[^\\s]{1}\\s)?|\\s)", "gi");
 	}
 
 	private triggerAction(action:string, data?:JsonObject):void {
 		if(!action) return;
 
-		console.log("TRIGGER ACTION", action, data);
+		// console.log("TRIGGER ACTION", action, data);
 		
 		switch(action) {
 			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}, true, true); return;

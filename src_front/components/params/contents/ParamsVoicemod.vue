@@ -1,6 +1,7 @@
 <template>
 	<div class="paramsvoicemod parameterContent">
-		<img src="@/assets/icons/voicemod.svg" alt="voicemod icon" class="icon">
+		<Icon name="voicemod" class="icon" />
+		
 		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
 			<template #LINK>
 				<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
@@ -9,7 +10,10 @@
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting" class="card-item">
-			<img class="item center" src="@/assets/loader/loader.svg" alt="loader">
+			<picture class="item center">
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 			<div class="item center">{{ $t("voicemod.connecting") }}</div>
 		</section>
 
@@ -97,7 +101,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	}
 
 	public mounted():void {
-		this.param_enabled.labelKey			= "global.enabled";
+		this.param_enabled.labelKey			= "global.enable";
 		this.param_voiceIndicator.labelKey	= "voicemod.show_indicator";
 		this.prefill();
 	}

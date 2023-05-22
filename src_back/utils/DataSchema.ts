@@ -215,10 +215,14 @@ import Ajv from "ajv";
 								min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								float: {type:"boolean"},
+								condition: {type:"boolean"},
+								skipDisabled: {type:"boolean"},
+								disableAfterExec: {type:"boolean"},
 								mode: {type:"string", maxLength:20},
 								title: {type:"string", maxLength:20},
 								categoryId: {type:"string", maxLength:30},
 								topic: {type:"string", maxLength:255},
+								pattern: {type:"string", maxLength:15},
 								tags: {
 									type:"array",
 									minItems:0,
@@ -327,6 +331,29 @@ import Ajv from "ajv";
 											minItems:0,
 											maxItems:50,
 											items:{type:"string", maxLength:25},
+										},
+									}
+								},
+								suggData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										command: {type:"string", maxLength:30},
+										maxLength: {type:"number", minimum:0, maximum:500},
+										duration: {type:"number", minimum:0, maximum:1440},
+										allowMultipleAnswers: {type:"boolean"},
+										startTime: {type:"number", maximum:999999999999999},
+										choices: {
+											type:"array",
+											minItems:0,
+											maxItems:0,
+											items: {type:"string", maxLength:0},//Not the right type but it will never be filled
+										},
+										winners: {
+											type:"array",
+											minItems:0,
+											maxItems:0,
+											items: {type:"string", maxLength:0},//Not the right type but it will never be filled
 										},
 									}
 								}
@@ -469,6 +496,7 @@ import Ajv from "ajv";
 		"p:highlight1stEver": {type:"boolean"},
 		"p:highlight1stEver_color": {type:"string", maxLength:7, minLength:7},
 		"p:raidHighlightUser": {type:"boolean"},
+		"p:raidHighlightUserTrack": {type:"boolean"},
 		"p:raidHighlightUserDuration": {type:"number"},
 		"p:raidHighlightUser_color": {type:"string", maxLength:7, minLength:7},
 		"p:raffleHighlightUser": {type:"boolean"},
@@ -484,6 +512,8 @@ import Ajv from "ajv";
 		"p:splitViewVertical": {type:"boolean"},
 		"p:showUserPronouns": {type:"boolean"},
 		"p:showViewersCount": {type:"boolean"},
+		"p:alternateMessageBackground": {type:"boolean"},
+		"p:showRaidViewersCount": {type:"boolean"},
 		"p:offlineEmoteOnly": {type:"boolean"},
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
@@ -555,6 +585,7 @@ import Ajv from "ajv";
 		v: {type:"integer"},
 		collapseParamAdInfo: {type:"boolean"},
 		lang: {type:"string", maxLength:4},
+		theme: {type:"string", maxLength:10},
 		obsIP: {type:"string", maxLength:20},
 		obsPort: {type:"integer"},
 		updateIndex: {type:"integer"},

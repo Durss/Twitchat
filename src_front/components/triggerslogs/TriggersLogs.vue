@@ -5,10 +5,20 @@
 			<CloseButton @click="close" />
 		</div>
 		
-		<Button class="refreshBt" @click="refreshList()" icon="refresh" :loading="reloading">Refresh</Button>
+		<div class="ctas">
+			<Button @click="refreshList()" icon="refresh" :loading="reloading">Refresh</Button>
+			<Button @click="clearList()" icon="trash" alert>Clear</Button>
+		</div>
 		
 		<div class="content empty" v-if="logs.length == 0 && !reloading">
 			- No history -
+		</div>
+		
+		<div class="content empty" v-else-if="reloading">
+			<picture>
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 		</div>
 		
 		<div class="content entries" v-else-if="!reloading">
@@ -54,11 +64,10 @@
 import type { TriggerData, TriggerLog } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
 
 @Component({
 	components:{
@@ -90,7 +99,6 @@ export default class TriggersLogs extends AbstractSidePanel {
 		this.open();
 	}
 
-
 	public refreshList():void {
 		this.reloading = true;
 		setTimeout(()=>{
@@ -98,14 +106,25 @@ export default class TriggersLogs extends AbstractSidePanel {
 		}, 500)
 	}
 
+	public clearList():void {
+		TriggerActionHandler.instance.logHistory.splice(0);
+		this.refreshList();
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .triggerslogs{
-	.refreshBt {
-		flex-shrink: 0;
-		margin: auto;
+	.head {
+		flex-shrink: 1;
+	}
+	.ctas {
+		margin-top: 1em;
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
 	}
 
 	.entries {
@@ -122,7 +141,6 @@ export default class TriggersLogs extends AbstractSidePanel {
 	.entry {
 		display: flex;
 		flex-direction: column;
-		font-size: .8em;
 		gap: .25em;
 		.head {
 			display: flex;
@@ -132,7 +150,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 			background: var(--color-primary);
 			padding: .2em .5em;
 			border-radius: .5em;
-			color:var(--color-light);
+			color: var(--color-button);
 			cursor:pointer;
 
 			.icon {

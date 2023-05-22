@@ -1,11 +1,12 @@
 .sidePanel {
-	color: var(--color-light);
-	background-color: var(--color-dark-light);
+	color: var(--color-text);
+	background-color: var(--background-color-secondary);
 	border-radius: var(--border-radius);
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
 	box-shadow: 0 0 5px 3px rgba(0, 0, 0, .4);
+	max-width: var(--vw);
 
 	&.embedMode {
 		background-color: unset;
@@ -27,7 +28,7 @@
 		flex-direction: column;
 		gap: .5em;
 		padding: 1em;
-		border-bottom: 1px solid var(--color-dark-extralight);
+		border-bottom: 1px solid var(--splitter-color);
 		width: 100%;
 		max-width: 600px;
 		margin: auto;
@@ -58,6 +59,7 @@
 		max-width: 600px;
 		width: 100%;
 		margin: 0 auto;
+		flex-shrink: 0;
 	}
 
 	.info {

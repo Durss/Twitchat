@@ -10,23 +10,23 @@
 			</div>
 			<div class="restriction" v-if="messageData.settings.subOnly" ref="sub">
 				<span><img class="icon" src="@/assets/icons/sub.svg" />{{$t("chat.room_settings.sub_only")}}</span>
-				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('sub')" />
+				<Button v-if="isMod" class="unsetBt" @click="unset('sub')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
 			</div>
 			<div class="restriction" v-if="messageData.settings.emotesOnly" ref="emote">
 				<span><img class="icon" src="@/assets/icons/emote.svg" />{{$t("chat.room_settings.emote_only")}}</span>
-				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('emote')" />
+				<Button v-if="isMod" class="unsetBt" @click="unset('emote')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
 			</div>
 			<div class="restriction" v-if="typeof messageData.settings.followOnly == 'number'" ref="follow">
 				<span><img class="icon" src="@/assets/icons/follow.svg" />{{$t("chat.room_settings.follow_only")}}</span>
-				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('follow')" />
+				<Button v-if="isMod" class="unsetBt" @click="unset('follow')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
 			</div>
 			<div class="restriction" v-if="messageData.settings.slowMode" ref="slow">
 				<span><img class="icon" src="@/assets/icons/slow.svg" />{{$t("chat.room_settings.slow_mode")}} ({{messageData.settings.slowMode}}s)</span>
-				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('slow')" />
+				<Button v-if="isMod" class="unsetBt" @click="unset('slow')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
 			</div>
 			<div class="restriction" v-if="messageData.settings.chatDelay" ref="delay">
 				<span><img class="icon" src="@/assets/icons/timer.svg" />{{$t("chat.room_settings.chat_delay")}} ({{messageData.settings.chatDelay}}s)</span>
-				<Button v-if="isMod" title="unset" small class="unsetBt" @click="unset('delay')" />
+				<Button v-if="isMod" class="unsetBt" @click="unset('delay')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
 			</div>
 		</div>
 	</div>
@@ -105,7 +105,7 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 			.unsetBt {
 				background-color: rgba(255, 255, 255, .1);
 				margin-left: 1em;
-				padding: .75em;
+				// padding: .75em;
 			}
 		}
 		.icon {

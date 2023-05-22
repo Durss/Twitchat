@@ -2,12 +2,12 @@
 * Common styles for chat messages
 */
 .chatMessage {
-	color: var(--color-chatMessage);
+	color: var(--color-chat-message);
 	font-size: var(--messageSize);
 	font-family: var(--font-inter);
 	border-radius: var(--border-radius);
 	line-height: 1.25em;
-	padding: .25em;
+	padding: 4px;
 	transition: background-color .2s;
 	&.deleted {
 		opacity: .35;
@@ -19,17 +19,17 @@
 	}
 
 	&.highlight {
-		color: var(--color-light);
-		background-color: var(--color-light-fader);
+		background-color: var(--background-color-fadest);
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 
 		&:hover {
-			background-color: var(--color-light-fade);
+			background-color: var(--background-color-fader);
 		}
 
 		&.primary {
+			color: var(--color-light);
 			background-color: var(--color-primary);
 			&:hover {
 				background-color: var(--color-primary-light);
@@ -37,7 +37,7 @@
 		}
 
 		&.secondary {
-			color:var(--color-light);
+			color: var(--color-light);
 			background-color: var(--color-secondary);
 			&:hover {
 				background-color: var(--color-secondary-light);
@@ -45,7 +45,7 @@
 		}
 
 		&.alert {
-			color:var(--color-light);
+			color: var(--color-light);
 			background-color: var(--color-alert);
 			&:hover {
 				background-color: var(--color-alert-light);
@@ -56,7 +56,6 @@
 		}
 
 		&.success {
-			color:var(--color-light);
 			background-color: var(--color-primary-fadest);
 			&:hover {
 				background-color: var(--color-primary-fader);
@@ -67,7 +66,6 @@
 		}
 
 		&.error {
-			color:var(--color-light);
 			background-color: var(--color-alert-fadest);
 			&:hover {
 				background-color: var(--color-alert-fader);
@@ -79,12 +77,15 @@
 	}
 
 	&:hover {
-		background-color: var(--color-light-fadest);
+		background-color: var(--background-color-fadest);
 	}
 
-	&>.icon, &>.head>.icon {
+	&>.icon,
+	&>.head>.icon {
 		width: 1.25em;
 		height: 1.25em;
+		min-width: 1.25em;
+		min-height: 1.25em;
 		margin-right: 5px;
 		vertical-align: middle;
 		align-self: flex-start;
@@ -108,9 +109,9 @@
 		word-break: break-word;
 		margin: 0;
 		display: block;
-		color: var(--color-light);
+		color: var(--color-text);
 		line-height: 1.2em;
-		background-color: rgba(0, 0, 0, 0.2);
+		background-color: var(--background-color-fader);
 		padding: 0.5em;
 		border-radius: 0.5em;
 		&::before {
@@ -119,7 +120,7 @@
 			font-style: normal;
 			font-size: 3em;
 			line-height: .25em;
-			color: var(--color-light);
+			color: var(--color-text);
 			vertical-align: text-bottom;
 			margin-right: .1em;
 			opacity: .5;
@@ -128,18 +129,53 @@
 			pointer-events: none;
 		}
 	}
-
-	.copyBt {
-		height: 1em;
-		margin-right: .25em;
-		vertical-align: middle;
-		cursor: pointer;
-	}
 	
 	.cheermote, .emote {
 		max-height: 2em;
 		vertical-align: middle;
 		object-fit: fill;
+	}
+
+	.streamInfo {
+		// background-color: rgba(255, 255, 255, .15);
+		border-radius: .5em;
+		overflow: hidden;
+		width: 100%;
+		row-gap: .5em;
+		column-gap: 1em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		.infos {
+			flex-grow: 1;
+			flex-basis: 200px;
+			.details {
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				.category, .duration {
+					width: fit-content;
+					margin-right: 0;
+					margin-left: 0;
+					margin-top: .5em;
+					font-size: .9em;
+					display: block;
+					padding: 2px 10px;
+					font-style: normal;
+					border-radius: var(--border-radius);
+					color: var(--color-dark);
+					background-color: rgba(255,255,255,.75);
+					.icon {
+						height: 1em;
+						vertical-align: text-top;
+						margin-right: .25em;
+					}
+				}
+			}
+		}
+		.soButton {
+			align-self: center;
+		}
 	}
 }
 
@@ -152,4 +188,21 @@
 	width: 3em;
 	text-align: right;
 	align-self: flex-start;
+}
+
+body.light {
+	.chatMessage {
+
+		&.success {
+			.userlink {
+				color: var(--color-primary);
+			}
+		}
+
+		&.error {
+			.userlink {
+				color: var(--color-alert);
+			}
+		}
+	}
 }

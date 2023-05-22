@@ -3,6 +3,7 @@
 		<h1>Developer panel</h1>
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
+			<Button small @click="simulateEvent('message', 'clip')" icon="clip">Clip link</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'discord')" icon="whispers">Discord</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Ad</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Ad warn</Button>
@@ -142,6 +143,15 @@ export default class DevmodeMenu extends Vue {
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
+				case "clip": {
+					const m = message as TwitchatDataTypes.MessageChatData;
+					let str = "Check out this clip https://www.twitch.tv/twitch/clip/UnusualFriendlyLasagnaOpieOP-ot8P67E0N6trA6hW";
+					let chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);
+					m.message = str;
+					m.message_chunks = chunks;
+					m.message_html = str;
+					break;
+				}
 				case "gift":{
 					const recipients:TwitchatDataTypes.TwitchatUser[] = reactive([]);
 					const count = Math.round(Math.random() * 10) + 1;
@@ -323,7 +333,8 @@ type Subaction = "first"
 				| "discord"
 				| "raidOnline"
 				| "raidOffline"
-				| "ad";
+				| "ad"
+				| "clip";
 
 </script>
 
@@ -335,17 +346,17 @@ type Subaction = "first"
 	margin-left: auto;
 	transform-origin: bottom right;
 	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 
 	h1 {
-		color: var(--color-light);
+		color: var(--color-text);
 		align-self: center;
 		margin-bottom: 10px;
 	}
 
 	.list {
-		// height: 400px;
-		// max-height: 80%;
-		height: 100%;
+		flex-shrink: 1;
 		margin: auto;
 		overflow-x: hidden;
 		overflow-y: auto;

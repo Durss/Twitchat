@@ -21,7 +21,7 @@
 		item-key="id"
 		ghost-class="ghost"
 		direction="vertical"
-		handle=".action>.header>img"
+		handle=".action>.header>.dragZone"
 		class="actionList"
 		:animation="250"
 		:dragoverBubble="true">
@@ -31,10 +31,14 @@
 					medium
 					:open="isOpen(element.id)"
 					:title="getLabelFromID(element.id)"
-					:icons="element.id? ['orderable',getIconFromID(element.id)] : ['orderable']"
 					:ref="element.id"
 					class="action"
 				>
+					<template #left_actions>
+						<Icon name="dragZone" class="dragZone" />
+						<Icon :name="getIconFromID(element.id)" v-if="element.id" />
+					</template>
+
 					<template #right_actions>
 						<Button alert
 							icon="trash"
@@ -55,7 +59,7 @@
 							:calculate-position="$placeDropdown"
 						>
 							<template v-slot:option="option">
-								<img class="listIcon" style="{background-color: red;}" :src="$image('icons/dark/'+option.icon+'.svg')" v-if="option.icon" />
+								<Icon v-if="option.icon" :name="option.icon" class="listIcon" theme="dark" style="{background-color: red;}" />
 								<span>{{ option.label }}</span>
 							</template>
 						</vue-select>
@@ -139,7 +143,7 @@ export default class VoiceTriggerList extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.triggerHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.triggerHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_CREATE, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_CREATE, this.triggerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.triggerHandler);
 	}
 
 	public beforeUnmount():void {
@@ -154,7 +158,7 @@ export default class VoiceTriggerList extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.triggerHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.triggerHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_CREATE, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_CREATE, this.triggerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.triggerHandler);
 	}
 
 	public addAction():void {

@@ -26,14 +26,16 @@
 		
 		<div class="card-item raid" v-if="$store('stream').currentRaid">
 			<div class="title">
-				<img src="@/assets/icons/raid.svg" alt="raid">
+				<Icon name="raid" />
 				Raiding {{$store('stream').currentRaid!.user.displayName}}
 			</div>
 			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross" alert>{{ $t("global.cancel") }}</Button>
 		</div>
 
 		<div class="card-item raid" v-else>
-			<label class="title" for="raid_input"><img src="@/assets/icons/raid.svg" alt="raid">{{$t('cmdmenu.raid')}}</label>
+			<label class="title" for="raid_input">
+				<Icon name="raid" />{{$t('cmdmenu.raid')}}
+			</label>
 			<form @submit.prevent="raid()" v-if="canRaid">
 				<input id="raid_input" type="text" :placeholder="$t('cmdmenu.raid_placeholder')" v-model="raidUser" maxlength="50">
 				<Button class="button"
@@ -175,20 +177,25 @@ export default class CommandHelper extends Vue {
 				if(!TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
 					this.$store("auth").requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
 					return;
-				}break;
+				}
+				if(!this.canCreatePoll) return;
+				break;
 			}
 			case "pred": {
 				if(!this.hasChannelPoints) return;
 				if(!TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
 					this.$store("auth").requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
 					return;
-				}break;
+				}
+				if(!this.canCreatePrediction) return;
+				break;
 			}
 			case "streamInfo": {
 				if(!TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])) {
 					this.$store("auth").requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
 					return;
-				}break;
+				}
+				break;
 			}
 		}
 		this.$store("params").openModal(type)
@@ -324,6 +331,7 @@ export default class CommandHelper extends Vue {
 .commandhelper{
 	gap:10px;
 	overflow-x: hidden;
+	color: var(--color-text);
 
 	.commercial {
 		display: flex;
@@ -365,7 +373,7 @@ export default class CommandHelper extends Vue {
 		gap: .5em;
 		.title {
 			align-self: center;
-			img {
+			.icon {
 				height: .9em;
 				margin-right: .5em;
 			}
@@ -390,7 +398,7 @@ export default class CommandHelper extends Vue {
 		.whoStreams {
 			text-align: center;
 			font-size: .8em;
-			color: var(--color-light);
+			color: var(--color-text);
 			&:hover {
 				text-decoration: underline;
 			}

@@ -53,7 +53,10 @@
 			icon="user"
 			@click="loadNextUsers()" />
 	
-			<img class="loader" src="@/assets/loader/loader.svg" alt="loader" v-if="loading">
+			<picture v-if="loading">
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 		</div>
 	</div>
 </template>
@@ -210,8 +213,13 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 		text-align: center;
 	}
 
+	.head {
+		max-width: 100%;
+	}
+
 	.content {
 
+		max-width: 100%;
 		.stats {
 			flex-shrink: 0;
 			.table {

@@ -1,7 +1,7 @@
 <template>
 	<div class="checkbox">
 		<div class="checkmark">
-			<img :src="checkMarkIcon" v-if="checked" alt="icon" class="img">
+			<Icon v-if="checked" class="icon" name="checkmark"/>
 		</div>
 		<span class="label" v-if="$slots.default"><slot></slot></span>
 		<input type="checkbox" class="checkboxInput" ref="checkbox" v-model="checked" @change="onChange()" />
@@ -31,10 +31,6 @@ export default class Checkbox extends Vue {
 	@Prop({type:Array, default: [true, false]})
 	public values!:unknown[];
 	
-	public get checkMarkIcon():string {
-		return this.$image('icons/checkmark.svg');
-	}
-
 	public onChange():void {
 		this.$emit("update:modelValue", this.checked? this.values[0] || true : this.values[1] || false);
 	}
@@ -53,7 +49,7 @@ export default class Checkbox extends Vue {
 	position: relative;
 
 	.checkmark {
-		border: 1px solid var(--color-light);
+		border: 1px solid var(--color-text);
 		border-radius: .25em;
 		padding: 0;
 		width: 1em;
@@ -62,7 +58,7 @@ export default class Checkbox extends Vue {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		.img {
+		picture {
 			width: 80%;
 			margin: 0;
 			padding: 0;
@@ -75,14 +71,13 @@ export default class Checkbox extends Vue {
 		justify-self: flex-start;
 		text-align: left;
 		width: max-content;
-		color: var(--color-light);
-		// overflow: visible;
+		color:var(--color-text);
 	}
 	
 	&:hover {
 		background: none;
 		.checkmark {
-			background-color: var(--color-dark-light)
+			background-color: var(--background-color-fader)
 		}
 	}
 

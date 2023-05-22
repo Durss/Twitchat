@@ -37,7 +37,6 @@ export default class Sponsor extends Vue {
 
 	public async mounted():Promise<void> {
 		const refs = ["backBt"];
-		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
 			let el = this.$refs[refs[i]] as HTMLElement | Vue;
 			if((el as Vue).$el) el = (el as Vue).$el as HTMLElement;

@@ -62,12 +62,12 @@ export default class ChatMessageInfoBadges extends Vue {
 .chatmessageinfobadges{
 	display: inline-flex;
 	flex-direction: row;
-	align-items: center;
+	align-items: stretch;
 
 	.item {
 		border-radius: .25em;
 		padding: 1px 5px;
-		color: var(--color-light);
+		color: var(--color-button);
 		background-color: var(--color-primary);
 		white-space: nowrap;
 		cursor: default;

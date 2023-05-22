@@ -1,7 +1,7 @@
 <template>
 	<div class="chatpollresult chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img src="@/assets/icons/poll.svg" alt="icon" class="icon">
+		<Icon name="poll" alt="icon" class="icon"/>
 		<div class="content">
 			<div class="title">{{messageData.title}}</div>
 
@@ -16,13 +16,11 @@
 				<div v-for="o in messageData.choices" :key="o.id" class="choice" :class="getChoiceClasses(o)">
 					<div class="bar" :style="getChoiceStyles(o)">
 						<div class="choiceTitle">
-							<img src="@/assets/icons/dark/checkmark.svg" alt="checkmark" class="check" v-if="o.votes == maxVotesValue">
-							<img src="@/assets/icons/checkmark.svg" alt="checkmark" class="check" v-else>
+							<Icon class="check" name="checkmark" :theme="o.votes == maxVotesValue?'dark' : 'light'"/>
 							{{o.label}}
 						</div>
 						<div class="users">
-							<img src="@/assets/icons/dark/user.svg" alt="user" class="icon" v-if="o.votes == maxVotesValue">
-							<img src="@/assets/icons/user.svg" alt="user" class="icon" v-else>
+							<Icon class="icon" name="user" :theme="o.votes == maxVotesValue?'dark' : 'light'"/>
 							{{o.votes}}
 						</div>
 					</div>
@@ -111,11 +109,9 @@ export default class ChatPollResult extends AbstractChatMessage {
 				flex-wrap: wrap;
 				gap: 2px;
 				&.winner {
-
 					.bar > .choiceTitle > .check {
 						display: block;
 					}
-
 				}
 				.bar {
 					width: 100%;
@@ -124,9 +120,9 @@ export default class ChatPollResult extends AbstractChatMessage {
 					flex-wrap: wrap;
 					padding: 3px;
 					border-radius: 5px;
-					@c: var(--color-light-fade);
+					@c: var(--background-color-fader);
 					background: linear-gradient(to right, @c 100%, @c 100%);
-					background-color: var(--color-light-fader);
+					background-color: var(--background-color-fader);
 					background-repeat: no-repeat;
 					justify-content: space-evenly;
 
@@ -136,7 +132,8 @@ export default class ChatPollResult extends AbstractChatMessage {
 						align-items: center;
 						padding: 5px;
 						border-radius: 5px;
-						background-color: var(--color-dark-fade);
+						color: var(--color-text-light);
+						background-color: rgba(0,0,0,.5);//var(--background-color-fade);
 						font-size: .9em;
 
 						.icon {
@@ -160,7 +157,7 @@ export default class ChatPollResult extends AbstractChatMessage {
 					.users, .choiceTitle {
 						color: var(--color-dark);
 						font-weight: bold;
-						background-color: var(--color-light);
+						background-color: rgba(255,255,255,.7);//var(--color-light);
 					}
 					// .bar {
 					// 	border: 1px solid var(--color-light);

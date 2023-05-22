@@ -64,12 +64,12 @@ export default class TriggerActionOBSEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 	
-	public action_conf:TwitchatDataTypes.ParameterData<string, TriggerActionObsDataAction> = { type:"list", value:"show", listValues:[], icon:"show.svg" };
-	public source_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], icon:"list.svg", children:[] };
+	public action_conf:TwitchatDataTypes.ParameterData<string, TriggerActionObsDataAction> = { type:"list", value:"show", listValues:[], icon:"show" };
+	public source_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], icon:"list", children:[] };
 	public filter_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[] };
-	public text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
-	public url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url.svg", placeholder:"http://..." };
-	public media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url.svg", placeholder:"C:/..." };
+	public text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
+	public url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"http://..." };
+	public media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"C:/..." };
 	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];

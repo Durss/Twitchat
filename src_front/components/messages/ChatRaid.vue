@@ -2,18 +2,18 @@
 	<div class="chatraid chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
+		<Icon name="raid" alt="raid" class="icon"/>
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" keypath="chat.raid.text" :plural="messageData.viewers">
+			<i18n-t scope="global" tag="span" keypath="chat.raid.text" :plural="showCount? messageData.viewers : 2">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
 				</template>
 				<template #COUNT>
-					<strong>{{ messageData.viewers }}</strong>
+					<strong @click.stop="showCount = !showCount" v-if="showCount">{{ messageData.viewers }}</strong>
+					<mark class="censored" @click.stop="showCount = !showCount" v-else>???</mark>
 				</template>
 			</i18n-t>
-
 
 			<div class="streamInfo">
 				<div class="infos">
@@ -21,13 +21,15 @@
 						<span>{{messageData.stream.title}}</span>
 						<div class="details">
 							<p class="category">{{messageData.stream.category}}</p>
-							<div class="duration" v-if="messageData.stream.wasLive"><img src="@/assets/icons/timer.svg" class="icon">{{formatedDuration}}</div>
+							<div class="duration" v-if="messageData.stream.wasLive">
+								<Icon name="timer" class="icon" theme="dark" />{{formatedDuration}}
+							</div>
 						</div>
 					</div>
 				</div>
 
 				<Button @click.stop="shoutout()"
-					white
+					small
 					icon="shoutout"
 					:loading="shoutoutLoading"
 					class="soButton"
@@ -57,9 +59,11 @@ export default class ChatRaid extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageRaidData;
 
 	public shoutoutLoading = false;
+	public showCount = false;
 	public formatedDuration = "";
 
 	public beforeMount():void {
+		this.showCount = this.$store('params').appearance.showRaidViewersCount.value !== false;
 		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
 	}
 
@@ -91,45 +95,8 @@ export default class ChatRaid extends AbstractChatMessage {
 		gap: .25em;
 	}
 
-	.streamInfo {
-		// background-color: rgba(255, 255, 255, .15);
-		border-radius: .5em;
-		overflow: hidden;
-		width: 100%;
-		gap: 1em;
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		.infos {
-			flex-grow: 1;
-			flex-basis: 200px;
-			opacity: .8;
-			.details {
-				gap: .5em;
-				display: flex;
-				flex-direction: row;
-				.category, .duration {
-					width: fit-content;
-					margin-right: 0;
-					margin-left: 0;
-					margin-top: .5em;
-					font-size: .9em;
-					display: block;
-					padding: 2px 10px;
-					font-style: normal;
-					border-radius: var(--border-radius);
-					background-color: var(--color-light-fader);
-					.icon {
-						height: 1em;
-						vertical-align: text-top;
-						margin-right: .25em;
-					}
-				}
-			}
-		}
-		.soButton {
-			align-self: center;
-		}
+	.censored {
+		cursor: pointer;
 	}
 }
 </style>

@@ -67,7 +67,7 @@ export default class ToggleButton extends Vue {
 	border-radius: @size;
 	position: relative;
 	cursor: pointer;
-	background: var(--color-dark);
+	background-color: var(--background-color-fader);
 	.bevel();
 
 	.circle {
@@ -93,7 +93,7 @@ export default class ToggleButton extends Vue {
 	}
 
 	&:hover {
-		background-color: var(--color-dark-light);
+		background-color: var(--background-color-fader);
 	}
 
 	&.selected {
@@ -101,7 +101,11 @@ export default class ToggleButton extends Vue {
 		background: var(--color-primary-light);
 		.circle {
 			left: calc(@size * 2 - @size + 1px);
-			background-color: var(--color-light);
+			background-color: var(--color-button);
+		}
+
+		&:hover {
+			background-color: var(--color-primary-extralight);
 		}
 	}
 
@@ -122,8 +126,8 @@ export default class ToggleButton extends Vue {
 		&.selected {
 			background: var(--color-secondary);
 			.circle {
-				background-color: var(--color-light);
-			}			
+				background-color: var(--color-button);
+			}
 		}
 	}
 
@@ -134,8 +138,24 @@ export default class ToggleButton extends Vue {
 		&.selected {
 			background: var(--color-alert);
 			.circle {
-				background-color: var(--color-light);
-			}			
+				background-color: var(--color-button);
+			}
+		}
+	}
+
+	@media (prefers-color-scheme: light) {
+		background: var(--color-light-fader);
+		&:hover {
+			background: var(--color-light-fade);
+		}
+		&.selected:hover {
+			background-color: var(--color-primary-extralight);
+			&.secondary {
+				background: var(--color-secondary-light);
+			}
+			&.alert {
+				background: var(--color-alert-light);
+			}
 		}
 	}
 }

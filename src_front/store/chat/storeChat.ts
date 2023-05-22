@@ -6,15 +6,15 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin'
 import PublicAPI from '@/utils/PublicAPI'
 import SchedulerHelper from '@/utils/SchedulerHelper'
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler'
 import TTSUtils from '@/utils/TTSUtils'
+import Utils from '@/utils/Utils'
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler'
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes'
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
-import Utils from '@/utils/Utils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia'
-import type { JsonObject } from 'type-fest'
+import type { JsonObject, JsonArray } from 'type-fest'
 import { reactive, type UnwrapRef } from 'vue'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
 
@@ -565,13 +565,15 @@ export const storeChat = defineStore('chat', {
 				const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
 				if(isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
 					//Force last updates if any not read
-					possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
-				}else{
+					// possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
+					StoreProxy.params.openModal("updates");
+				}
+				// else{
 					//Add 10 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
 					const len = 10 * possibleAds.length;
 					for (let i = 0; i < len; i++) possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.NONE);
-				}
+				// }
 		
 				adType = Utils.pickRand(possibleAds);
 				// adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR;//TODO comment this line
@@ -675,6 +677,7 @@ export const storeChat = defineStore('chat', {
 					if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
 						const original = message.message;
 						message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
+						message.message_chunks = TwitchUtils.parseMessageToChunks(message.message);
 						message.cyphered = message.message != original;
 					}
 
@@ -686,21 +689,38 @@ export const storeChat = defineStore('chat', {
 						for (let i = len-1; i > end; i--) {
 							const m = messageList[i];
 							if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
-							if(m.user.id == message.user.id
-							&& (m.date > Date.now() - 30000 || i > len-20)//"i > len-20" more or less means "if message is still visible on screen"
-							&& message.message.toLowerCase() == m.message.toLowerCase()
-							&& message.type == m.type
-							&& message.channel_id == m.channel_id) {
-								if(!m.occurrenceCount) m.occurrenceCount = 0;
-								//Remove message
-								messageList.splice(i, 1);
-								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
-								m.occurrenceCount ++;
-								//Update timestamp
-								m.date = Date.now();
-								message = m;
-								break;
+							if(m.user.id != message.user.id) continue;
+							if(message.type != m.type) continue;
+							if(m.date < Date.now() - 30000 || i < len-30) continue;//"i < len-20" more or less means "if message is still visible on screen"
+							if(message.message.toLowerCase() != m.message.toLowerCase()) continue;
+							if(message.spoiler != m.spoiler) continue;
+							if(message.deleted != m.deleted) continue;
+							if(message.channel_id != m.channel_id) continue;
+							//If whisper target isn't the same, skip it
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
+								&& m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+								if(m.to.id != message.to.id) continue;
 							}
+
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+								&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+								//If highlight state isn't the same, skip it
+								if(m.twitch_isHighlighted != message.twitch_isHighlighted) continue;
+								//Don't merge automoded
+								if(message.automod || m.automod) continue;
+								if(message.twitch_automod || m.twitch_automod) continue;
+								//Don't merge answers to messages
+								if(message.answersTo || m.answersTo) continue;
+							}
+							if(!m.occurrenceCount) m.occurrenceCount = 0;
+							//Remove message
+							messageList.splice(i, 1);
+							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
+							m.occurrenceCount ++;
+							//Update timestamp
+							m.date = Date.now();
+							message = m;
+							break;
 						}
 					}
 
@@ -865,6 +885,23 @@ export const storeChat = defineStore('chat', {
 					&& message.reward.id === raffle.reward_id) {
 						sRaffle.checkRaffleJoin(message);
 					}
+	
+					const wsMessage = {
+						channel:message.channel_id,
+						message:message.message,
+						message_chunks:(message.message_chunks as unknown) as JsonArray,
+						user: {
+							id:message.user.id,
+							login:message.user.login,
+							displayName:message.user.displayName,
+						},
+						reward:{
+							id:message.reward.id,
+							cost:message.reward.cost,
+							title:message.reward.title,
+						},
+					}
+					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
 					break;
 				}
 
@@ -872,13 +909,15 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					sStream.lastRaider = message.user;
 					message.user.channelInfo[message.channel_id].is_raider = true;
-					if(sParams.appearance.raidHighlightUser.value) {
+					if(sParams.appearance.raidHighlightUser.value
+					&& sParams.appearance.raidHighlightUserTrack.value === true) {
 						StoreProxy.users.trackUser(message.user);
 					}
 					setTimeout(()=> {
 						const localMess = message as TwitchatDataTypes.MessageRaidData;
 						localMess.user.channelInfo[localMess.channel_id].is_raider = false;
-						if(sParams.appearance.raidHighlightUser.value) {
+						if(sParams.appearance.raidHighlightUser.value
+						&& sParams.appearance.raidHighlightUserTrack.value === true) {
 							StoreProxy.users.untrackUser(localMess.user);
 						}
 					}, (sParams.appearance.raidHighlightUserDuration.value as number ?? 0) * 1000 * 60);

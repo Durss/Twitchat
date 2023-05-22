@@ -42,7 +42,7 @@ import SwitchButton from '@/components/SwitchButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import DataStore from '@/store/DataStore';
-import { TriggerTypesDefinitionList, type TriggerData, type TriggerEventTypeCategoryID, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -79,7 +79,7 @@ export default class TriggerList extends Vue {
 	 * Number of items to instanciate per frame
 	 * Avoids a huge lag at open if there are hundred of triggers
 	 */
-	public buildBatchSize = 50;
+	public buildBatchSize = 25;
 
 	public get flatTriggerList():TriggerListEntry[] {
 		let list:TriggerListEntry[] = [];
@@ -113,7 +113,6 @@ export default class TriggerList extends Vue {
 		watch(()=>this.filterState, ()=> {
 			const sortType:SortTypes = this.filterState === true? "category" : "list";
 			DataStore.set(DataStore.TRIGGER_SORT_TYPE, sortType);
-			this.startSequentialBuild();
 		});
 		
 		this.startSequentialBuild();
@@ -124,14 +123,14 @@ export default class TriggerList extends Vue {
 	}
 
 	private startSequentialBuild():void {
-		this.buildIndex = 0;
+		this.buildIndex = -1;
 		clearInterval(this.buildInterval);
 		this.buildInterval = setInterval(()=> {
 			this.buildIndex ++;
 			if(this.buildIndex > Math.floor(this.flatTriggerList.length/this.buildBatchSize)) {
 				clearInterval(this.buildInterval);
 			}
-		}, 30);
+		}, 60);
 	}
 
 	/**
@@ -179,15 +178,9 @@ export default class TriggerList extends Vue {
 			
 			//Parse trigger
 			const info = Utils.getTriggerDisplayInfo(trigger);
-			let icon = "";
-			if(info.iconURL) {
-				icon = info.iconURL;
-			}else{
-				icon = this.$image('icons/'+info.icon+'.svg');
-			}
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
 			const buildIndex = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
-			const entry:TriggerListEntry = { index:buildIndex, label:info.label, trigger, icon, canTest };
+			const entry:TriggerListEntry = { index:buildIndex, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest };
 			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
 			idToCategory[triggerType.category.id].triggerList.push(entry);
 		}
@@ -229,6 +222,7 @@ export interface TriggerListEntry {
 	icon:string;
 	canTest:boolean;
 	trigger:TriggerData;
+	iconURL?:string;
 	iconBgColor?:string;
 }
 </script>
@@ -255,6 +249,7 @@ export interface TriggerListEntry {
 			:deep(.header) {
 				position: sticky;
 				top: 0;
+				z-index: 1;
 			}
 			:deep(.content) {
 				display: flex;

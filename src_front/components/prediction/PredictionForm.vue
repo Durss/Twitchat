@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
 			<CloseButton @click="close()" />
-			<h1>{{ $t("prediction.form.title") }}</h1>
+			<h1><Icon name="prediction" class="icon" />{{ $t("prediction.form.title") }}</h1>
 		</div>
 		<div class="content">
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
@@ -13,6 +13,7 @@
 						noBackground
 						v-model="title"
 						:autofocus="title == ''"
+						:tabindex="1"
 						@change="onValueChange()" />
 				</div>
 
@@ -38,14 +39,19 @@
 							v-if="answers.length > 2 && (index < answers.length-1 || answers.length == 10)"
 							@click="deleteAnswer(index)"
 						/>
+					
 					</div>
+					<PlaceholderSelector class="child placeholders" v-if="placeholderList.length > 0"
+						copyMode
+						:placeholders="placeholderList"
+					/>
 				</div>
 
 				<div class="card-item">
 					<ParamItem noBackground :paramData="voteDuration" @change="onValueChange()" />
 				</div>
 				
-				<Button type="submit" :loading="loading" :disabled="!canSubmit">{{ $t('global.submit') }}</Button>
+				<Button type="submit" v-if="triggerMode === false" :loading="loading" :disabled="!canSubmit">{{ $t('global.submit') }}</Button>
 				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
 			</form>
 		</div>
@@ -54,7 +60,7 @@
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TriggerActionPredictionData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionPredictionData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -66,12 +72,14 @@ import CloseButton from '../CloseButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
+import PlaceholderSelector from '../params/PlaceholderSelector.vue';
 
 @Component({
 	components:{
 		Button,
 		ParamItem,
 		CloseButton,
+		PlaceholderSelector,
 		VoiceGlobalCommandsHelper,
 	},
 	emits:['close']
@@ -88,11 +96,14 @@ export default class PredictionForm extends AbstractSidePanel {
 	@Prop({type: Object, default:{}})
 	public action!:TriggerActionPredictionData;
 
-	public loading = false;
+	@Prop
+	public triggerData!:TriggerData;
 
+	public loading = false;
 	public error = "";
 	public title = "";
 	public answers:string[] = ["", ""];
+	public placeholderList:ITriggerPlaceholder[] = [];
 	public voteDuration:TwitchatDataTypes.ParameterData<number> = {value:10, type:"number", min:1, max:30};
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:45, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
 
@@ -130,6 +141,10 @@ export default class PredictionForm extends AbstractSidePanel {
 			if(titlePrefill) this.title = titlePrefill;
 			this.$store("main").tempStoreValue = null;
 		}
+		if(this.triggerMode !== false) {
+			this.placeholderList = 
+			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
+		}
 	}
 
 	public async mounted():Promise<void> {
@@ -147,7 +162,7 @@ export default class PredictionForm extends AbstractSidePanel {
 			}
 		}
 
-		if(!this.triggerMode) {
+		if(this.triggerMode === false) {
 			super.open();
 		}
 
@@ -239,7 +254,7 @@ export default class PredictionForm extends AbstractSidePanel {
 						.inputHolder {
 							input {
 								@c:#f50e9b;
-								color: @c;
+								// color: @c;
 								border-color: @c;
 							}
 						}
@@ -262,9 +277,10 @@ export default class PredictionForm extends AbstractSidePanel {
 							border-width: 3px;
 							text-align: left;
 							@c:#3798ff;
-							color: @c;
+							// color: @c;
+							color: var(--color-text);
 							border: 2px solid @c;
-							text-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
+							text-shadow: var(--text-shadow-contrast);
 						}
 						.len {
 							font-size: .7em;

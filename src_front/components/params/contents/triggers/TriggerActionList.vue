@@ -46,7 +46,7 @@
 			
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
-					<img src="@/assets/icons/list.svg" class="icon">
+					<Icon name="list" class="icon" />
 					<span>{{ $t("triggers.trigger_queue") }}</span>
 				</div>
 				<ParamItem noBackground class="selector" :paramData="param_queue" v-model="triggerData.queue" />
@@ -56,39 +56,51 @@
 		<div class="card-item conditions">
 			<TriggerConditionList :triggerData="triggerData" />
 		</div>
+		
+		<div :class="listClasses">
+			<div v-if="hasCondition" class="conditionSelector">
+				<Button icon="cross" alert @click="matchingCondition = false" :selected="matchingCondition == false" />
+				<img src="@/assets/icons/condition.svg" class="conditionLink" />
+				<Button icon="checkmark" @click="matchingCondition = true" :selected="matchingCondition == true" />
+			</div>
+			<svg class="conditionJoint" v-if="hasCondition" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+				width="104.8px" height="24.4px" viewBox="0 0 104.8 24.4" style="enable-background:new 0 0 104.8 24.4;" xml:space="preserve">
+				<polygon class="false" style="fill:#B71F1F;" points="0,24.4 0,0 2,0 2,22.4 52.4,22.4 52.4,24.4 "/>
+				<polygon class="true" style="fill:#008667;" points="52.4,24.4 52.4,22.4 102.8,22.4 102.8,0 104.8,0 104.8,24.4 "/>
+			</svg>
 
-		<div class="list">
+			<div class="dash long"></div>
+
 			<button class="addBt" @click="addActionAt(0)">
-				<img src="@/assets/icons/add.svg">
+				<img src="@/assets/icons/add.svg" class="icon">
 			</button>
 
 			<draggable 
-			v-model="triggerData.actions" 
+			v-model="actionList" 
 			group="actions" 
 			item-key="id"
 			ghost-class="ghost"
 			direction="vertical"
-			handle=".action>.header>.actionList>.orderBt"
+			handle=".orderBt"
 			:animation="250"
 			:dragoverBubble="true">
-				<template #item="{element, index}">
+				<template #item="{element, index}:{element:TriggerActionTypes, index:number}">
 					<div class="listItem">
 						<div class="dash"></div>
 						<TriggerActionEntry
 							class="action"
 							:action="element"
 							:index="index"
-							:totalItems="triggerData.actions.length"
 							:obsSources="obsSources"
 							:obsInputs="obsInputs"
 							:rewards="rewards"
 							:triggerData="triggerData"
-							@delete="deleteAction(index)"
+							@delete="deleteAction(element.id)"
 							@duplicate="duplicateAction(element, index)"
 						/>
 						<div class="dash"></div>
 						<button class="addBt" @click="addActionAt(index+1)">
-							<img src="@/assets/icons/add.svg">
+							<img src="@/assets/icons/add.svg" class="icon">
 						</button>
 					</div>
 				</template>
@@ -99,7 +111,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerActionData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -113,10 +125,12 @@ import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
+import TabMenu from '@/components/TabMenu.vue';
 
 @Component({
 	components:{
 		Button,
+		TabMenu,
 		draggable,
 		ParamItem,
 		TriggerActionEntry,
@@ -139,7 +153,8 @@ export default class TriggerActionList extends Vue {
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
 	
-	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date.svg", placeholder:"...", labelKey:"triggers.trigger_name" };
+	public matchingCondition:boolean = true;
+	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string[]> = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 
 	/**
@@ -150,10 +165,49 @@ export default class TriggerActionList extends Vue {
 		return item?.descriptionKey;
 	}
 
+	/**
+	 * Get a trigger's description
+	 */
+	public get actionList():TriggerActionTypes[] {
+		let res = this.triggerData.actions;
+		if(this.hasCondition) {
+			return res.filter(t=> {
+				return t.condition == this.matchingCondition || (t.condition !== false && this.matchingCondition);
+			})
+		}
+		return res;
+	}
+
+	public set actionList(value:TriggerActionTypes[]) {
+		if(this.hasCondition) {
+			// return res.filter(t=> {
+			// 	return t.condition == this.matchingCondition || (t.condition !== false && this.matchingCondition);
+			// })
+			
+			//Remove all sorted actions from the original trigger data
+			for (let i = 0; i < this.triggerData.actions.length; i++) {
+				const item = this.triggerData.actions[i];
+				if(value.findIndex(v=> v.id == item.id) == -1) continue;
+				this.triggerData.actions.splice(i, 1);
+				i--;
+			}
+			//Push sorted actions
+			this.triggerData.actions = this.triggerData.actions.concat(value);
+		}else{
+			this.triggerData.actions = value;
+		}
+	}
+
 	public get isChatCmd():boolean { return this.triggerData.type === TriggerTypes.CHAT_COMMAND; }
 	public get isSchedule():boolean { return this.triggerData.type === TriggerTypes.SCHEDULE; }
 	public get isSlashCommand():boolean { return this.triggerData.type === TriggerTypes.SLASH_COMMAND; }
 	public get isAnyChatMessageCommand():boolean { return this.triggerData.type === TriggerTypes.ANY_MESSAGE; }
+	public get hasCondition():boolean { return this.triggerData.conditions != undefined && this.triggerData.conditions.conditions.length > 0; }
+	public get listClasses():string[] {
+		const res = ["list"];
+		if(this.hasCondition && !this.matchingCondition) res.push("alert");
+		return res;
+	}
 
 	/**
 	 * Get a trigger's sub type's label (reward name, counter name, ...)
@@ -208,12 +262,10 @@ export default class TriggerActionList extends Vue {
 	/**
 	 * Called when deleting an action item
 	 */
-	public deleteAction(index:number):void {
+	public deleteAction(actionId:string):void {
 		this.$confirm(this.$t("triggers.delete_action_confirm")).then(async ()=> {
-			// if(this.actionList.length == 1) this.canSave = false;
+			let index = this.triggerData.actions.findIndex(v=>v.id == actionId);
 			this.triggerData.actions.splice(index, 1);
-			// await this.$nextTick();
-			// this.canSave = true;
 		}).catch(()=> {});
 	}
 
@@ -236,6 +288,9 @@ export default class TriggerActionList extends Vue {
 			id:Utils.getUUID(),
 			type:null,
 		}
+		if(this.hasCondition) {
+			action.condition = this.matchingCondition;
+		}
 		this.triggerData.actions.splice(index, 0, action);
 	}
 
@@ -249,12 +304,45 @@ export default class TriggerActionList extends Vue {
 	gap: 1em;
 
 	.list {
-		.listItem {
-			.dash {
-				width: 2px;
-				background-color: var(--color-primary);
-				height: 5px;
-				margin: auto;
+		.conditionSelector {
+			display: flex;
+			flex-direction: row;
+			align-items: flex-end;
+			margin: auto;
+			width: fit-content;
+			.button {
+				margin-bottom: 3px;
+				&:not(.selected) {
+					opacity: .5;
+				}
+			}
+			.icon {
+				width: 75px;
+			}
+		}
+		.conditionJoint {
+			display: block;
+			margin: auto;
+			width: 105px;
+			.true {
+				fill-opacity:1;
+			}
+			.false {
+				fill-opacity:.25;
+			}
+		}
+		.tabmenu {
+			width: fit-content;
+			border: 2px solid var(--color-primary);
+			margin: auto;
+		}
+		.dash {
+			width: 2px;
+			background-color: var(--color-primary);
+			height: 10px;
+			margin: auto;
+			&.long {
+				height:15px;
 			}
 		}
 	
@@ -266,7 +354,7 @@ export default class TriggerActionList extends Vue {
 			height: 1.25em;
 			background-color: var(--color-primary);
 			transition: background-color .25s;
-			img {
+			.icon {
 				padding: .25em;
 				height: 100%;
 				width: 100%;
@@ -275,10 +363,46 @@ export default class TriggerActionList extends Vue {
 				background-color: var(--color-primary-light);
 			}
 		}
+		
+		&.alert {
+			.addBt {
+				background-color: var(--color-alert);
+				&:hover {
+					background-color: var(--color-alert-light);
+				}
+			}
+
+			.dash {
+				background-color: var(--color-alert);
+			}
+
+			.conditionJoint {
+				.true {
+					fill-opacity:.25;
+				}
+				.false {
+					fill-opacity:1;
+				}
+			}
+		}
 	}
 
-	.params, .conditions, .description {
+	&>.params, &>.conditions, &>.description {
 		box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+
+		&>.head {
+			text-align: center;
+			margin-bottom: .5em;
+		}
+
+		.tabmenu {
+			margin: auto;
+			width: fit-content;
+		}
+
+		&.description {
+			line-height: 1.3em;
+		}
 
 		&.params {
 			display: flex;
@@ -313,6 +437,11 @@ export default class TriggerActionList extends Vue {
 			.selector {
 				flex-basis: 300px;
 			}
+		}
+
+		&.conditions {
+			border: 2px solid var(--color-primary);
+			margin-bottom: -1em;
 		}
 	}
 }

@@ -386,7 +386,8 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/updates") {
-			StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+			// StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+			StoreProxy.params.openModal("updates");
 			return true;
 		}else
 
@@ -540,7 +541,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 		
-		if(cmd == "/fakeso") {
+		if(cmd == "/fakeso" || cmd == "/fakeshoutout") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			let user = Utils.pickRand(fakeUsers);
 			if(params[0] && params[0] != "true" && params[0] != "false") {
@@ -551,13 +552,13 @@ export default class MessengerProxy {
 			if(done) user.channelInfo[channelId].lastShoutout = Date.now();
 			const userInfos = await TwitchUtils.loadUserInfo([user.id]);
 			user.avatarPath = userInfos[0].profile_image_url;
-			if(!StoreProxy.users.shoutoutHistory[channelId]) {
-				StoreProxy.users.shoutoutHistory[channelId] = [];
+			if(!StoreProxy.users.pendingShoutouts[channelId]) {
+				StoreProxy.users.pendingShoutouts[channelId] = [];
 			}
-			StoreProxy.users.shoutoutHistory[channelId]!.push({
+			StoreProxy.users.pendingShoutouts[channelId]!.push({
 				id:Utils.getUUID(),
 				user,
-				done,
+				executeIn:0
 			})
 			return true;
 		}else
@@ -566,17 +567,17 @@ export default class MessengerProxy {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			for (let i = 0; i < 10; i++) {
 				let user = Utils.pickRand(fakeUsers);
-				const done = i == 0;
-				if(done) user.channelInfo[channelId].lastShoutout = Date.now();
 				const userInfos = await TwitchUtils.loadUserInfo([user.id]);
 				user.avatarPath = userInfos[0].profile_image_url;
-				if(!StoreProxy.users.shoutoutHistory[channelId]) {
-					StoreProxy.users.shoutoutHistory[channelId] = [];
+				if(!StoreProxy.users.pendingShoutouts[channelId]) {
+					StoreProxy.users.pendingShoutouts[channelId] = [];
+					//Set the SO date offset for this user to now
+					user.channelInfo[channelId].lastShoutout = Date.now();
 				}
-				StoreProxy.users.shoutoutHistory[channelId]!.push({
+				StoreProxy.users.pendingShoutouts[channelId]!.push({
 					id:Utils.getUUID(),
 					user,
-					done,
+					executeIn:0
 				})
 			}
 			return true;
@@ -588,19 +589,40 @@ export default class MessengerProxy {
 			const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
 			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 			forcedMessage = forcedMessage.replace(/\{LOREM\}/gi, message);
-			await StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage);
+			await StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage, (m)=>{
+				if(Config.instance.DEMO_MODE) m.fake = false;
+			});
 			return true;
 		}else
 
 		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam") {
-			StoreProxy.chat.spamingFakeMessages = true;
-
+			
 			clearInterval(this.spamInterval);
 			
-			const forcedMessage = params.join(" ");
 			const incMode = params[0] == "inc";
-			let inc = 0;
+			let count = parseInt(params[0]);
+			const countMode = count.toString() == params[0];
+			let spamDelay = cmd == "/megaspam"? 50 : 200;
+			//Check if spamming only a specific count of messages
+			if(countMode) {
+				params.splice(0, 1);
+				spamDelay = 300;
+			}
+			const forcedMessage = params.join(" ");
 
+			//Check if forcing a specific reward redeem
+			let forcedType:TwitchatDataTypes.TwitchatMessageStringType|undefined = countMode? TwitchatDataTypes.TwitchatMessageType.MESSAGE : undefined;
+			if(params[0] === "reward") {
+				forcedType = TwitchatDataTypes.TwitchatMessageType.REWARD;
+				spamDelay = 500;
+			}
+			if(params[0] === "follow") {
+				forcedType = TwitchatDataTypes.TwitchatMessageType.FOLLOWING;
+				spamDelay = 500;
+			}
+			let inc = 0;
+			StoreProxy.chat.spamingFakeMessages = !countMode;
+			
 			this.spamInterval = window.setInterval(()=> {
 				if(incMode) {
 					StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (m)=>{
@@ -615,11 +637,36 @@ export default class MessengerProxy {
 					});
 
 				}else{
+					if(count == 1) clearInterval(this.spamInterval);
+					count --;
 					const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
 					const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
-					StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message));
+					StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message), (m)=>{
+						if(Config.instance.DEMO_MODE) m.fake = false;
+						//Force a specific reward via "/spam reward {REWARD_ID}"
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+						&& forcedType == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+							let rewardId = params[1];
+							console.log(rewardId);
+							let reward = StoreProxy.rewards.rewardList.find(v=>v.id == rewardId);
+							if(reward) {
+								console.log(reward);
+								m.reward = {
+									color: reward.background_color,
+									cost: reward.cost,
+									description: reward.prompt,
+									icon: {
+										sd: reward.image!.url_1x,
+										hd: reward.image!.url_4x,
+									},
+									id: rewardId, 
+									title: reward.title
+								}
+							}
+						}
+					}, forcedType);
 				}
-			}, cmd == "/megaspam"? 50 :  200);
+			}, spamDelay);
 			return true;
 		}else
 
@@ -647,7 +694,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/userdata" || cmd == "/loaduserdata") {
 			if(params.length == 0) {
-				StoreProxy.main.alert(StoreProxy.i18n.t('error.username_missing'));
+				StoreProxy.main.alert(StoreProxy.i18n.t('error.user_param_missing'));
 			}else{
 				let users:TwitchDataTypes.UserInfo[] = [];
 				try {

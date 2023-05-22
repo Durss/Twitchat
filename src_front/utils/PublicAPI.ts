@@ -54,6 +54,9 @@ export default class PublicAPI extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(event.type, data));
 		}
 		
+		//Broadcast only to other browser tabs
+		this.broadcast(TwitchatEvent.TWITCHAT_READY);
+		
 		await this.listenOBS();
 	}
 
@@ -102,6 +105,8 @@ export default class PublicAPI extends EventDispatcher {
 				});
 				return;
 			}
+
+			this.broadcast(TwitchatEvent.TWITCHAT_READY);
 			
 			OBSWebsocket.instance.addEventListener("CustomEvent", (event:TwitchatEvent) => {
 				const e = event.data as {origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue};

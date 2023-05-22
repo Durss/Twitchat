@@ -1,6 +1,6 @@
 <template>
 	<div class="paramscounters parameterContent">
-		<img src="@/assets/icons/count.svg" alt="counter icon" class="icon">
+		<Icon name="count" class="icon" />
 
 		<div class="head">
 			<i18n-t scope="global"  tag="p" keypath="counters.header">
@@ -43,10 +43,10 @@
 		
 			<template #right_actions>
 				<div class="actions">
-					<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><img src="@/assets/icons/min.svg" alt="min">{{ entry.counter.min }}</span>
-					<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><img src="@/assets/icons/max.svg" alt="max">{{ entry.counter.max }}</span>
-					<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><img src="@/assets/icons/loop.svg" alt="loop"></span>
-					<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><img src="@/assets/icons/user.svg" alt="user"> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
+					<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
+					<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
+					<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
+					<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
 					<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click="editCounter(entry.counter)" />
 					<Button class="actionBt" alert icon="trash" @click="deleteCounter(entry)" />
 				</div>
@@ -68,12 +68,20 @@
 					<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
 						<div class="search">
 							<input type="text" :placeholder="$t('counters.form.search')" v-model="search[entry.counter.id]" @input="searchUser(entry.counter)">
-							<img src="@/assets/loader/loader.svg" alt="loader" v-show="idToLoading[entry.counter.id] === true && search[entry.counter.id].length > 0">
+							<Icon name="loader" class="loader" v-show="idToLoading[entry.counter.id] === true" />
 						</div>
+							
+						<Button class="resetBt" v-if="search[entry.counter.id].length === 0"
+							secondary
+							@click="resetUsers(entry)">{{ $t('counters.form.reset_all_users') }}</Button>
+						
+						<Button class="clearBt" v-if="search[entry.counter.id].length === 0"
+							alert
+							@click="clearUsers(entry)">{{ $t('counters.form.clear_all_users') }}</Button>
 						
 						<Button class="loadAllBt" v-if="search[entry.counter.id].length === 0 && idToAllLoaded[entry.counter.id] !== true"
-						@click="loadUsers(entry)"
-						:loading="idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</Button>
+							@click="loadUsers(entry)"
+							:loading="idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</Button>
 	
 						<div class="noResult" v-if="idToNoResult[entry.counter.id] === true">{{ $t("counters.user_not_found") }}</div>
 					</template>
@@ -102,8 +110,8 @@
 								<span class="login" @click="openUserCard(item.user)">{{ item.user.displayName }}</span>
 								<ParamItem class="value" noBackground
 									:paramData="item.param"
-									@change="onChangeValue(entry, item)" />
-								<button class="deleteBt" @click="deleteUser(entry, item)"><img src="@/assets/icons/trash.svg"></button>
+									@input="onChangeValue(entry, item)" />
+								<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" /></button>
 							</div>
 						</InfiniteList>
 					</template>
@@ -176,13 +184,13 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:50, labelKey:"counters.form.name"};
 	public param_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
 	public param_more:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.more"};
-	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min.svg"};
+	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min"};
 	public param_valueMin_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
-	public param_valueMax_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max.svg"};
+	public param_valueMax_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_max", icon:"max"};
 	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
-	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop.svg"};
-	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user.svg"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast.svg", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9-_"};
+	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop"};
+	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
 
 	public get counterEntries():CounterEntry[] {
@@ -220,8 +228,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 
 		for (let i = 0; i < this.counterEntries.length; i++) {
 			const element = this.counterEntries[i];
-			this.sortType[element.counter.id] = "name";
-			this.sortDirection[element.counter.id] = 1;
+			this.sortType[element.counter.id] = "points";
+			this.sortDirection[element.counter.id] = -1;
 			this.search[element.counter.id] = "";
 		}
 
@@ -379,7 +387,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public deleteUser(counterEntry:CounterEntry, userEntry:UserEntry):void {
 		if(!counterEntry.counter.users) return;
 		delete counterEntry.counter.users[userEntry.user.id];
-		this.loadUsers(counterEntry);
+		this.idToUsers[counterEntry.counter.id] = this.idToUsers[counterEntry.counter.id]!.filter(v=>v.user.id != userEntry.user.id);
+		this.$store("counters").updateCounter(counterEntry.counter);
 	}
 	
 	/**
@@ -464,6 +473,47 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			this.sortOn(entry);
 		}
 		this.idToLoading[entry.counter.id] = false;
+	}
+
+	/**
+	 * Reset all user counters to 0 or min value
+	 * @param entry 
+	 */
+	public resetUsers(entry:CounterEntry):void {
+		this.$confirm(this.$t("counters.reset_users_confirm.title"), this.$t("counters.reset_users_confirm.desc")).then(()=>{
+			//Reset counter data
+			let value:number = entry.counter.min != false? entry.counter.min : 0;
+			for (const key in entry.counter.users!) {
+				entry.counter.users[key] = value;
+			}
+
+			//Reset view data
+			if(this.idToUsers[entry.counter.id]) {
+				for (let i = 0; i < this.idToUsers[entry.counter.id]!.length; i++) {
+					const u = this.idToUsers[entry.counter.id]![i];
+					u.param.value = 0;
+				}
+			}
+
+			this.$store("counters").updateCounter(entry.counter);
+		});
+	}
+
+	/**
+	 * Clears all users of a counter
+	 * @param entry 
+	 */
+	public clearUsers(entry:CounterEntry):void {
+		this.$confirm(this.$t("counters.delete_users_confirm.title"), this.$t("counters.delete_users_confirm.desc")).then(()=>{
+			//Reset counter data
+			entry.counter.users = {};
+	
+			//Reset view data
+			this.idToUsers[entry.counter.id] = [];
+	
+			this.$store("counters").updateCounter(entry.counter);
+		})
+
 	}
 
 	/**
@@ -557,7 +607,8 @@ interface UserEntry {
 	.examples{
 		text-align: center;
 		.counterExample {
-			font-size: .75em;
+			color: var(--color-dark);
+			font-size: .5em;
 		}
 	}
 
@@ -649,7 +700,7 @@ interface UserEntry {
 					}
 				}
 
-				.loadAllBt {
+				.loadAllBt, .clearBt, .resetBt {
 					margin: auto;
 				}
 
@@ -659,23 +710,28 @@ interface UserEntry {
 				}
 
 				.sort {
+					gap: 1px;
 					display: flex;
 					flex-direction: row;
 					button {
 						color: var(--color-light);
 						border-radius: .5em;
-						background-color: var(--color-secondary);
+						background-color: var(--color-primary);
 						box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 						&:hover {
-							background-color: var(--color-secondary-light);
+							background-color: var(--color-primary-light);
 						}
 					}
 					button:nth-child(1) {
 						flex-grow: 1;
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
 					}
 					button:nth-child(2) {
 						flex-basis: 130px;
 						text-align: center;
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
 					}
 				}
 
@@ -688,11 +744,12 @@ interface UserEntry {
 					display: flex;
 					flex-direction: row;
 					align-items: center;
-					gap: 1em;
+					gap: .5em;
 					height: 50px;
 					.login {
 						font-weight: bold;
 						flex-grow: 1;
+						text-overflow: ellipsis;
 						cursor: pointer;
 					}
 					.avatar {
@@ -703,12 +760,17 @@ interface UserEntry {
 						flex-basis: 100px;
 					}
 					.deleteBt {
-						height: 1.5em;
+						width: 1.5em;
+						padding: 1em .5em;
+						flex-shrink: 0;
+						flex-basis: 1.5em;
+						margin-right: -.5em;
+						background-color: var(--color-alert);
 						img {
 							height: 100%;
 						}
 						&:hover {
-							transform: scale(1.25);
+							background-color: var(--color-alert-light);
 						}
 					}
 				}

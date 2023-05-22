@@ -2,9 +2,9 @@
 	<div class="chatshoutout chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
-		<img src="@/assets/icons/shoutout.svg" alt="shoutout" class="icon">
+		<Icon name="shoutout" alt="shoutout" class="icon"/>
 
-		<div class="info">
+		<div class="messageHolder">
 			<i18n-t scope="global" tag="span"
 			v-if="messageData.received" keypath="chat.shoutout.received">
 				<template #CHANNEL>
@@ -34,9 +34,23 @@
 				</template>
 			</i18n-t>
 
-			<div v-if="messageData.received" class="streamInfo">
-				<p>Streaming <strong>{{messageData.stream.category}}</strong>:</p>
-				<p class="title">{{messageData.stream.title}}</p>
+			<div class="streamInfo">
+				<div class="infos" v-if="messageData.stream.title">
+					<div class="title quote">
+						<span>{{messageData.stream.title}}</span>
+						<div class="details" v-if="messageData.stream.category">
+							<p class="category">{{messageData.stream.category}}</p>
+						</div>
+					</div>
+				</div>
+
+				<Button @click.stop="shoutout()"
+					v-if="messageData.received"
+					small
+					icon="shoutout"
+					:loading="shoutoutLoading"
+					class="soButton"
+				>{{ $t('chat.soBt') }}</Button>
 			</div>
 		</div>
 	</div>
@@ -46,15 +60,20 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import Button from '../Button.vue';
 
 @Component({
-	components:{},
+	components:{
+		Button,
+	},
 	emits:["onRead"]
 })
 export default class ChatShoutout extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageShoutoutData;
+
+	public shoutoutLoading = false;
 
 	public get channel():TwitchatDataTypes.TwitchatUser {
 		return this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
@@ -68,6 +87,17 @@ export default class ChatShoutout extends AbstractChatMessage {
 		this.$store("users").openUserCard(user);
 	}
 
+	public async shoutout():Promise<void> {
+		this.shoutoutLoading = true;
+		try {
+			await this.$store("users").shoutout(this.$store("auth").twitch.user.id, this.messageData.user);
+		}catch(error) {
+			this.$store("main").alert(this.$t("error.shoutout"));
+			console.log(error);
+		}
+		this.shoutoutLoading = false;
+	}
+
 }
 </script>
 
@@ -75,13 +105,12 @@ export default class ChatShoutout extends AbstractChatMessage {
 .chatshoutout{
 	align-items: flex-start;
 	
-	.info {
-		.streamInfo {
-			width: 100%;
-			.title {
-				font-style: italic;
-			}
-		}
+	.messageHolder {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		flex-grow: 1;
+		gap: .25em;
 	}
 }
 </style>

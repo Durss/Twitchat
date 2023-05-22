@@ -193,7 +193,7 @@ export default class PostOnChatParam extends Vue {
 		padding: .25em .5em;
 		border-radius: .5em;
 		box-sizing: border-box;
-		background-color: var(--color-dark);
+		background-color: var(--background-color-primary);
 		overflow: hidden;
 	}
 	

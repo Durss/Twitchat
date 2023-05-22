@@ -33,6 +33,8 @@
 		"mod_message": "Something went wrong when moderating the message...",
 		"marker_creation": "Marker creation failed. Make sure you enabled VOD and that you're live",
 		"trigger_socket": "Unable to connect to socket server",
+		"shoutout_offline": "You must be live to make a shoutout",
+		"shoutout_pending": "This user already has a pending shoutout",
 		"spotify": {
 			"api_rate": "[SPOTIFY] API rate limits exceeded",
 			"token_refresh": "[SPOTIFY] token refresh failed"
@@ -41,12 +43,12 @@
 			"auth_failed": "Deezer authentication failed"
 		},
 		"message_send": "Woops... something went wrong when sending the message :(",
-		"username_missing": "Missing user name",
 		"prediction_outcome": "An error occurred while chosing prediction's outcome",
 		"prediction_delete": "An error occurred while deleting the prediction",
 		"prediction_error": "Unable to create prediction: {MESSAGE}",
 		"invalid_bingo": "Invalid bingo parameters: ",
 		"shoutout_cooldown": "You need to wait a little before doing another shoutout",
+		"user_not_found": "User does not exist",
 		"clip_creation": "Clip creation failed",
 		"beta_transfer": "An error occured when transfering your data to production",
 		"raffle": {

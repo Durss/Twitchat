@@ -24,6 +24,8 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionRandomData
 								| TriggerActionStreamInfoData
 								| TriggerActionTriggerToggleData
+								| TriggerActionChatSuggestionsData
+								| TriggerActionVibrateData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -31,7 +33,7 @@ export type TriggerActionStringTypes = TriggerActionTypes["type"];
 export interface TriggerData {
 	id:string;
 	/**
-	 * Trigegr type
+	 * Trigger type
 	 */
 	type:TriggerTypesValue;
 	/**
@@ -87,9 +89,8 @@ export interface TriggerData {
 	 * Counter ID for counters related events
 	 */
 	counterId?:string;
-
 	/**
-	 * Execution que for this trigger
+	 * Execution queue for this trigger
 	 */
 	queue?:string;
 	/**
@@ -115,7 +116,6 @@ export interface TriggerData {
 	 * Only for slash command triggers
 	 */
 	addToContextMenu?:boolean;
-
 	
 	/**
 	 * @deprecated Only here for typings on data migration.
@@ -226,6 +226,12 @@ export interface TriggerScheduleEventType extends Omit<TriggerTypeDefinition, "v
 export interface TriggerActionData {
 	type:TriggerActionStringTypes;
 	id:string;
+	/**
+	 * If true, the trigger's conditions must be matched
+	 * If not defined or false, the trigger must ahve no condition
+	 * or the condition must not be matched
+	 */
+	condition?:boolean;
 	/**
 	 * @deprecated moved to a dedicated action
 	 */
@@ -344,6 +350,18 @@ export interface TriggerActionPredictionData extends TriggerActionData{
 	predictionData:TwitchatDataTypes.PredictionConfig;
 }
 
+export interface TriggerActionChatSuggestionsData extends TriggerActionData{
+	type:"chatSugg";
+	suggData:TwitchatDataTypes.ChatSuggestionData;
+}
+
+export interface TriggerActionVibrateData extends TriggerActionData{
+	type:"vibrate";
+	pattern:string;
+}
+
+export const TriggerActionCountDataActionList = ["ADD", "DEL", "SET"] as const;
+export type TriggerActionCountDataAction = typeof TriggerActionCountDataActionList[number];
 export interface TriggerActionCountData extends TriggerActionData{
 	type:"count";
 	/**
@@ -357,12 +375,18 @@ export interface TriggerActionCountData extends TriggerActionData{
 	counters:string[];
 	/**
 	 * Specifies weither a per-user counter should be updated
-	 * based on the user executing the action (SENDER) or a
-	 * user whose name is stored on a placeholder (string type)
+	 * based on the user executing the action (@see COUNTER_EDIT_SOURCE_SENDER)
+	 * or if everyone should be updated (@see COUNTER_EDIT_SOURCE_EVERYONE)
+	 * or a user whose name is stored on a placeholder (string name of the placeholder)
 	 */
-	counterUserSources:{[key:string]:TriggerActionCountDataUserSource}
+	counterUserSources:{[key:string]:string};
+	/**
+	 * Action to execute on the counter's value
+	 * Set as optionnal because added afterwards and missing from counters created before that.
+	 * Default action to execute if data is missing should be "add"
+	 */
+	action?:TriggerActionCountDataAction;
 }
-export type TriggerActionCountDataUserSource = "SENDER"|string;
 
 /**
  * @deprecated Removed in favor of global counter placeholders
@@ -383,6 +407,16 @@ export interface TriggerActionRandomData extends TriggerActionData{
 	placeholder:string;
 	list:string[];
 	triggers:string[];
+	/**
+	 * If true, disabled triggers should be skipped when picking
+	 * a random one.
+	 */
+	skipDisabled?:boolean;
+	/**
+	 * Should the randomly executed trigger be disabled after
+	 * its execution?
+	 */
+	disableAfterExec?:boolean;
 }
 
 export interface TriggerActionStreamInfoData extends TriggerActionData{
@@ -398,6 +432,16 @@ export interface TriggerScheduleData {
 	repeatMinMessages:number;
 	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
+
+export const VIBRATION_PATTERNS = [
+	{id:"1", label:"∿_∿", pattern:[110, 50, 110]},
+	{id:"2", label:"∿_∿_∿", pattern:[110, 50, 110, 50, 110]},
+	{id:"3", label:"∿_∿∿∿∿", pattern:[110, 50, 800]},
+	{id:"4", label:"∿_∿_∿_∿_∿", pattern:[110, 50, 110, 50, 110, 50, 110, 50, 110]},
+	{id:"5", label:"∿∿∿∿∿∿∿∿", pattern:[1100]},
+	{id:"6", label:"∿___∿_∿_∿∿∿", pattern:[110, 400, 110, 50, 110, 50, 400]},
+	{id:"7", label:"∿∿∿___∿∿∿___∿∿∿", pattern:[250, 250, 250, 250, 250]},
+]
 
 export const TriggerTypes = {
 	FIRST_ALL_TIME:"1",
@@ -495,6 +539,8 @@ export interface ITriggerPlaceholder {
 export const USER_PLACEHOLDER:string = "USER";
 export const USER_ID_PLACEHOLDER:string = "USER_ID";
 export const COUNTER_VALUE_PLACEHOLDER_PREFIX:string = "COUNTER_VALUE_";
+export const COUNTER_EDIT_SOURCE_SENDER:string = "SENDER";
+export const COUNTER_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
 
 /**
  * Placeholders related to a trigger action type
@@ -628,7 +674,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"stream.title", numberParsable:false, isUserID:false},
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false},
-		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_category', pointer:"viewers", numberParsable:true, isUserID:false},
+		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_viewers', pointer:"viewers", numberParsable:true, isUserID:false},
 		{tag:"DURATION", descKey:'triggers.placeholders.stream_duration', pointer:"stream.duration", numberParsable:true, isUserID:false},
 		{tag:"WAS_LIVE", descKey:'triggers.placeholders.stream_live', pointer:"stream.wasLive", numberParsable:false, isUserID:false},
 	];
@@ -820,8 +866,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false, globalTag:true});
 		}
 		
-		if(StoreProxy.main.currentOBSScene) {
+		if(entry.findIndex(v=>v.tag == "OBS_SCENE") == -1 && StoreProxy.main.currentOBSScene) {
 			entry.push({tag:"OBS_SCENE", descKey:"triggers.placeholders.obs_scene", pointer:"__obs__.scene", numberParsable:false, isUserID:false, globalTag:true});
+		}
+		
+		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
+			entry.push({tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true});
 		}
 
 		map[k] = entry.concat(counterPlaceholders);
@@ -844,7 +894,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", labelKey:"triggers.events.CHAT_ALERT.label", value:TriggerTypes.CHAT_ALERT, descriptionKey:"triggers.events.CHAT_ALERT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"commands", labelKey:"triggers.events.SLASH_COMMAND.label", value:TriggerTypes.SLASH_COMMAND, descriptionKey:"triggers.events.SLASH_COMMAND.description"},
-		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
+		{category:TriggerEventTypeCategories.GLOBAL, icon:"chatCommand", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", labelKey:"triggers.events.REWARD_REDEEM.label", value:TriggerTypes.REWARD_REDEEM, isCategory:true, descriptionKey:"triggers.events.REWARD_REDEEM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD, noToggle:true},
 		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.label", value:TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},

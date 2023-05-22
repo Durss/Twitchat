@@ -114,6 +114,9 @@
 				<strong class="hidden" data-countdown-add>Add or remove time from current countdown</strong>
 				<strong class="hidden" data-timer-add>Add or remove time from current timer</strong>
 				<strong class="hidden" data-counter-add>Add or remove points from a counter</strong>
+				<strong class="hidden" data-execute-trigger>Execute a trigger. If the selected trigger uses placeholders they won't be available when executed from here</strong>
+				<strong class="hidden" data-toggle-trigger>Enable or disable any trigger.</strong>
+				<strong class="hidden" data-send-message>Send a message. You can use any Twitch or Twitchat commands as well as custom chat commands created on the triggers</strong>
 			</div>
 		</div>
 
@@ -141,6 +144,19 @@
 				oninput="onChangeValue(Number(event.target.value))"
 				data-chat-feed-scroll-up
 				data-chat-feed-scroll-down>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-counter-add>
+			<div class="sdpi-item-label">Operation</div>
+			<select class="sdpi-item-value select"
+			id="counterAction"
+			oninput="onChangeValue(Number(event.target.value))"
+			data-counter-add>
+				<option value="ADD">Add points</option>
+				<option value="DEL">Substract points</option>
+				<option value="SET">Set points</option>
+			</select>
 		</div>
 
 		<div class="sdpi-item hidden"
@@ -198,6 +214,48 @@
 				oninput="onChangeValue(event.target.value)"
 				data-counter-add>
 			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-toggle-trigger>
+			<div class="sdpi-item-label">Action</div>
+			<select class="sdpi-item-value select"
+			id="triggerAction"
+			oninput="onChangeValue(Number(event.target.value))"
+			data-toggle-trigger>
+				<option value="ENABLE">Enable trigger</option>
+				<option value="DISABLE">Disable trigger</option>
+				<option value="TOGGLE">Toggle trigger state</option>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-execute-trigger>
+			<div class="sdpi-item-label" data-execute-trigger>Trigger to execute</div>
+			<select class="sdpi-item-value select"
+				id="triggerId"
+				oninput="onChangeValue(event.target.value)"
+				data-execute-trigger>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-toggle-trigger>
+			<div class="sdpi-item-label" data-toggle-trigger>Trigger to update</div>
+			<select class="sdpi-item-value select"
+				id="triggerId"
+				oninput="onChangeValue(event.target.value)"
+				data-toggle-trigger>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-send-message>
+			<div class="sdpi-item-label">Message</div>
+			<input class="sdpi-item-value hidden" data-sync type="text"
+				id="message"
+				oninput="onChangeValue(event.target.value)"
+				data-send-message>
 		</div>
 		
 		<!-- <div class="sdpi-item">
@@ -275,6 +333,20 @@
 					opt.value = counter.id,
 					opt.innerText = counter.name;
 					counterSelector.appendChild(opt);
+				}
+			}
+
+			//Populate triggers selector
+			const triggerSelector = document.getElementById("triggerId");
+			if(triggerSelector) {
+				triggerSelector.innerHTML = "";
+				for (let i = 0; i < settings.TRIGGER_LIST.length; i++) {
+					const trigger = settings.TRIGGER_LIST[i];
+
+					const opt = document.createElement("option");
+					opt.value = trigger.id,
+					opt.innerText = trigger.name;
+					triggerSelector.appendChild(opt);
 				}
 			}
 

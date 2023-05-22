@@ -16,7 +16,7 @@
 	
 			<div v-else-if="isUpdate" class="card-item primary updates">
 				<div class="header">
-					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" />
+					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" theme="dark" />
 					<div class="title">{{ $t('changelog.title') }}</div>
 				</div>
 
@@ -28,7 +28,7 @@
 	
 			<div v-if="isTip" class="card-item primary tip">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" theme="dark" />
 					<div class="title">{{ $t("tips.title") }}</div>
 				</div>
 				<ChatTipAndTrickAd class="content"
@@ -38,7 +38,7 @@
 	
 			<div v-if="isDiscord" class="card-item primary discord">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" theme="dark" />
 					<div class="title">{{ $t('chat.discord.title') }}</div>
 				</div>
 				<div class="content">
@@ -55,7 +55,7 @@
 	
 			<div v-if="isAdWarning" class="card-item primary">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" />
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" theme="dark" />
 					<div class="title">{{ $t('chat.adalert.title') }}</div>
 				</div>
 				<div class="content left">
@@ -73,7 +73,7 @@
 	
 			<div v-if="isSponsorPublicPrompt" class="card-item primary sponsorPrompt">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" theme="dark" />
 					<div class="title">{{$t('chat.donor.title')}}</div>
 				</div>
 				<div class="content">

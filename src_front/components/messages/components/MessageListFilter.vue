@@ -25,7 +25,7 @@
 			</button>
 		</div>
 
-		<div class="holder" v-if="expand || forceConfig" @click="clickPreview($event)">
+		<div class="holder blured-background-window" v-if="expand || forceConfig" @click="clickPreview($event)">
 			<div class="content">
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
@@ -36,19 +36,19 @@
 				
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
 				
-				<div class="presets">
-					<Button @click="preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</Button>
-					<Button @click="preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</Button>
-					<Button @click="preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</Button>
-					<Button @click="preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</Button>
-					<Button @click="preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</Button>
-					<Button @click="preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</Button>
-					<Button @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</Button>
-				</div>
-				
 				<div class="paramsList">
+					
+					<div class="presets">
+						<Button @click="preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</Button>
+						<Button @click="preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</Button>
+						<Button @click="preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</Button>
+						<Button @click="preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</Button>
+						<Button @click="preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</Button>
+						<Button @click="preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</Button>
+						<Button @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</Button>
+					</div>
 
-					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @click.native="toggleAll()" />
+					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @change="toggleAll()" />
 
 					<div class="item" v-for="f in filters"
 					:key="'filter_'+f.storage">
@@ -98,7 +98,7 @@
 
 				<div class="ctas">
 					<Button small icon="cross" alert v-if="forceConfig" @click="deleteColumn()" >{{ $t('global.cancel') }}</Button>
-					<Button small icon="add" secondary v-if="forceConfig" @click="submitForm()" >{{ $t('global.create') }}</Button>
+					<Button small icon="add" v-if="forceConfig" @click="submitForm()" >{{ $t('global.create') }}</Button>
 				</div>
 
 				<ParamItem class="showPanelsHere"
@@ -116,7 +116,7 @@
 				</div>
 
 				<div class="preview" v-if="loadingPreview">
-					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+					<Icon name="loader" class="loader" />
 				</div>
 	
 				<div class="preview" v-for="m in previewData" :key="'preview_'+m.id" @click="clickPreview($event)">
@@ -179,7 +179,7 @@ export default class MessageListFilter extends Vue {
 	public missingScope:boolean = false;
 	public previewIndex:number = 0;
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
-	public param_hideUsers:TwitchatDataTypes.ParameterData<string, string> = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide.svg", maxLength:1000000};
+	public param_hideUsers:TwitchatDataTypes.ParameterData<string, string> = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide", maxLength:1000000};
 	public param_showPanelsHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_panels_here"};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
@@ -257,32 +257,32 @@ export default class MessageListFilter extends Vue {
 		
 		//@ts-ignore
 		this.typeToIcon = {};
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD]							= "twitchat.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BAN]									= "ban.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= "unban.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAID]									= "raid.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.POLL]									= "poll.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN]									= "enter.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.LEAVE]								= "leave.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.CHEER]								= "bits.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BINGO]								= "bingo.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAFFLE]								= "ticket.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PINNED]								= "pin.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.REWARD]								= "channelPoints.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.NOTICE]								= "info.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MESSAGE]								= "user.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.WHISPER]								= "whispers.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT]								= "shoutout.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= "follow.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "countdown.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "watchStreak.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost.svg";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]		= "channelPoints.svg";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD]							= "twitchat";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BAN]									= "ban";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= "unban";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAID]									= "raid";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.POLL]									= "poll";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN]									= "enter";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.LEAVE]								= "leave";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.CHEER]								= "bits";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BINGO]								= "bingo";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAFFLE]								= "ticket";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PINNED]								= "pin";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.REWARD]								= "channelPoints";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.NOTICE]								= "info";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MESSAGE]								= "user";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.WHISPER]								= "whispers";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT]								= "shoutout";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= "follow";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "countdown";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "watchStreak";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]		= "channelPoints";
 		
 		//@ts-ignore
 		this.typeToScopes = {};
@@ -343,19 +343,19 @@ export default class MessageListFilter extends Vue {
 			if(f === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const keyToLabel = this.$tm("chat.filters.message_filters") as {[key in messageFilterTypes]:string}
 				const keyToIcon:{[key in messageFilterTypes]:string} = {
-					viewers:"user.svg",
-					vips:"vip.svg",
-					subs:"sub.svg",
-					moderators:"mod.svg",
-					partners:"partner.svg",
-					bots:"bot.svg",
-					deleted:"delete.svg",
-					automod:"shield.svg",
-					suspiciousUsers:"shield.svg",
-					commands:"commands.svg",
+					viewers:"user",
+					vips:"vip",
+					subs:"sub",
+					moderators:"mod",
+					partners:"partner",
+					bots:"bot",
+					deleted:"delete",
+					automod:"shield",
+					suspiciousUsers:"shield",
+					commands:"commands",
 					short:"",
-					tracked:"magnet.svg",
-					pinned:"pin.svg",
+					tracked:"magnet",
+					pinned:"pin",
 				};
 				this.messageKeyToScope = {
 					viewers:[],
@@ -414,7 +414,7 @@ export default class MessageListFilter extends Vue {
 								value:this.config.commandsBlockList,
 								labelKey:'chat.filters.commands',
 								placeholderKey:"chat.filters.commands_placeholder",
-								icon:"hide.svg",
+								icon:"hide",
 								maxLength:1000000,
 								editCallback:(data:string[])=> {
 									this.config.commandsBlockList = data;
@@ -1019,8 +1019,7 @@ export default class MessageListFilter extends Vue {
 <style scoped lang="less">
 .messagelistfilter{
 	padding: 0;
-	color: var(--color-light);
-	background: var(--color-primary-fade);
+	color: var(--color-text);
 	max-height: 100%;
 	height: 100%;
 	width: 100%;
@@ -1164,6 +1163,7 @@ export default class MessageListFilter extends Vue {
 		animation-timing-function: cubic-bezier(.5, 0.05, 1, .5);
 		animation-iteration-count: infinite;
 		pointer-events: all;
+		color: var(--color-text-light);
 		.label {
 			font-size: .8em;
 		}
@@ -1227,14 +1227,6 @@ export default class MessageListFilter extends Vue {
 			.showPanelsHere {
 				font-size: .9em;
 			}
-			.presets {
-				display: flex;
-				gap: .25em;
-				flex-direction: row;
-				justify-content: space-around;
-				flex-wrap: wrap;
-				justify-content: center;
-			}
 
 			.paramsList {
 				flex: 1;
@@ -1244,6 +1236,15 @@ export default class MessageListFilter extends Vue {
 				gap: 2px;
 				display: flex;
 				flex-direction: column;
+				.presets {
+					display: flex;
+					gap: .25em;
+					flex-direction: row;
+					justify-content: space-around;
+					flex-wrap: wrap;
+					justify-content: center;
+					margin-bottom: 1em;
+				}
 
 				.toggleAll {
 					padding: 0 .5em;
@@ -1256,12 +1257,6 @@ export default class MessageListFilter extends Vue {
 				.item{
 					flex-shrink: 0;
 					font-size: .9em;
-					&.whispersPermissions {
-						border-left: 1px solid white;
-						padding-left: .75em;
-						margin-left: .5em;
-						margin-bottom: 1em;
-					}
 					:deep(.child) {
 						font-size: .9rem;
 						width: calc(100% - .5em);
@@ -1304,9 +1299,9 @@ export default class MessageListFilter extends Vue {
 			top: 99999px;
 			z-index: 1;
 			.preview {
-				background-color: var(--color-dark);
-				padding: .25em .5em;
-				border-radius: .5em;
+				background-color: var(--background-color-primary);
+				padding: .25em;
+				border-radius: var(--border-radius);
 				cursor: pointer;
 				.message {
 					pointer-events: none;
@@ -1315,6 +1310,7 @@ export default class MessageListFilter extends Vue {
 					text-align: center;
 					margin: auto;
 					display: block;
+					height: 2em;
 				}
 	
 				&:not(:last-child) {

@@ -84,7 +84,6 @@ import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 import type IParameterContent from './IParameterContent';
-import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -107,7 +106,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
-	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected && false; }//TODO
+	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
 		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};
@@ -212,13 +211,14 @@ export default class ParamsList extends Vue implements IParameterContent {
 .paramslist{
 	.row {
 		position: relative;
-		@iconSize: 1.5em;
+		@iconSize: 1.25em;
 
 		&>.item {
 			border-radius: .5em;
-			background-color: var(--color-light-fader);
+			background-color: var(--background-color-fadest);
 			padding: .25em;
 			position: relative;
+			transition: opacity .2s;
 			&:not(:first-of-type) {
 				margin-top: 10px;
 			}
@@ -226,6 +226,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 				z-index: 1;
 				height: @iconSize;
 				width: @iconSize;
+				min-width: @iconSize;
 			}
 			:deep(.child) {
 				width:calc(100% - @iconSize - .5em);
@@ -246,18 +247,17 @@ export default class ParamsList extends Vue implements IParameterContent {
 				z-index: 0;
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
-				background-color: var(--color-light-fader);
+				background-color: var(--background-color-fadest);
 			}
 
 			&.off {
-				background-color: var(--color-secondary-fadest);
+				opacity: .5;
+				background-color: var(--background-color-fadest);
+				// background-color: var(--color-secondary-fadest);
 			}
 
 			&.disabled {
-				background-color: var(--color-alert-fader);
-				:deep(label) {
-					opacity: .5;
-				}
+				opacity: .4;
 			}
 
 			
@@ -310,7 +310,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 			// }
 
 			.chatMessage {
-				background-color: var(--color-dark);
+				background-color: var(--background-color-primary);
 				padding: 1em;
 				border-radius: .5em;
 				transition: font-size .25s;

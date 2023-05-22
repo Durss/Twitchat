@@ -15,12 +15,12 @@ export const storeStream = defineStore('stream', {
 		communityBoostState: undefined,
 		streamInfoPreset: [],
 		lastRaider: undefined,
-		currentStreamInfo: undefined,
 		shieldModeEnabled: false,
 		canStartAd: true,
 		commercialEnd: 0,//Date.now() + 120000,
 		startAdCooldown: 0,
 		roomSettings:{},//channelId => settings
+		currentStreamInfo: {},//channelId => infos
 	} as IStreamState),
 
 
@@ -37,14 +37,27 @@ export const storeStream = defineStore('stream', {
 			if(platform == "twitch") {
 				await TwitchUtils.setStreamInfos(channelId, title, categoryID, tags);
 				const category = await TwitchUtils.getCategoryByID(categoryID);
-				this.currentStreamInfo = {
-					title,
-					tags:[],
-					category:category.name,
-					started_at:Date.now(),
-					user:StoreProxy.auth.twitch.user
+				let viewers = 0;
+				let live = false;
+				let start = Date.now();
+				let tagList:string[] = [];
+				if(this.currentStreamInfo[channelId]) {
+					live = this.currentStreamInfo[channelId]!.live;
+					start = this.currentStreamInfo[channelId]!.started_at;
+					tagList = this.currentStreamInfo[channelId]!.tags;
+					viewers = this.currentStreamInfo[channelId]!.viewers;
 				}
-				if(tags) this.currentStreamInfo.tags = tags;
+				if(tags) tagList = tags;
+				this.currentStreamInfo[channelId] = {
+					tags:tagList,
+					title,
+					live,
+					viewers,
+					started_at:start,
+					category:category.name,
+					user:StoreProxy.auth.twitch.user,
+					lastSoDoneDate:0,
+				}
 			}
 		},
 
@@ -105,7 +118,16 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 
-		setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined) { this.playbackState = value; },
+		setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined) {
+			if(!this.currentStreamInfo[channelId]) return;
+			if(!value) {
+				this.currentStreamInfo[channelId]!.live = false;
+				this.currentStreamInfo[channelId]!.viewers = 0;
+			}else{
+				this.currentStreamInfo[channelId]!.live = true;
+				this.currentStreamInfo[channelId]!.viewers = value?.viewers;
+			}
+		},
 
 		setStreamStart(channelId:string):void{
 			const emoteOnly = StoreProxy.params.features.offlineEmoteOnly.value;

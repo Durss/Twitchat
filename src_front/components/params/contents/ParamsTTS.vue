@@ -1,6 +1,6 @@
 <template>
 	<div class="paramstts parameterContent">
-		<img src="@/assets/icons/tts.svg" alt="tts icon" class="icon">
+		<Icon name="tts" class="icon" />
 
 		<p class="head">{{ $t("tts.header") }}</p>
 		<ParamItem  class="card-item enableBt" :paramData="param_enabled" />
@@ -119,44 +119,44 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 	public param_removeURL:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, label:""};
 	public param_replaceURL:TwitchatDataTypes.ParameterData<string> = {type:"string", value:'link', label:""};
 
-	public param_readMessages:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"user.svg" };
+	public param_readMessages:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"user" };
 	public param_readMessagesPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderMessages, maxLength:300};
-	public param_readWhispers:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"whispers.svg" };
+	public param_readWhispers:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"whispers" };
 	public param_readWhispersPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderMessages, maxLength:300};
-	public param_readNotices:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"info.svg" };
+	public param_readNotices:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"info" };
 	public param_readNoticesPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderNotices, maxLength:300};
-	public param_readTimeouts:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"timeout.svg" };
+	public param_readTimeouts:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"timeout" };
 	public param_readTimeoutsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderTimeouts, maxLength:300};
-	public param_readBans:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"ban.svg" };
+	public param_readBans:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"ban" };
 	public param_readBansPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderBans, maxLength:300};
-	public param_readUnbans:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"unban.svg" };
+	public param_readUnbans:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"unban" };
 	public param_readUnbansPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderUnbans, maxLength:300};
-	public param_readRewards:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, label:"", icon:"channelPoints.svg"};
+	public param_readRewards:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, label:"", icon:"channelPoints"};
 	public param_readRewardsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderRewards, maxLength:300};
-	public param_readSubs:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"sub.svg" };
+	public param_readSubs:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"sub" };
 	public param_readSubsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderSubs, maxLength:300};
-	public param_readSubgifts:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"gift.svg" };
+	public param_readSubgifts:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"gift" };
 	public param_readSubgiftsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderSubgifts, maxLength:300};
-	public param_readBits:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"bits.svg" };
+	public param_readBits:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"bits" };
 	public param_readBitsMinAmount:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, label:"Minimum bits amount", min:0, max:1000000 };
 	public param_readBitsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderBits, maxLength:300};
-	public param_readRaids:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"raid.svg" };
+	public param_readRaids:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"raid" };
 	public param_readRaidsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderRaids, maxLength:300};
-	public param_readFollow:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"follow.svg" };
+	public param_readFollow:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"follow" };
 	public param_readFollowPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderFollows, maxLength:300};
-	public param_readPolls:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"poll.svg" };
+	public param_readPolls:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"poll" };
 	public param_readPollsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderPolls, maxLength:300};
-	public param_readPredictions:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"prediction.svg" };
+	public param_readPredictions:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"prediction" };
 	public param_readPredictionsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderPredictions, maxLength:300};
-	public param_readBingos:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"bingo.svg" };
+	public param_readBingos:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"bingo" };
 	public param_readBingosPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderBingo, maxLength:300};
-	public param_readRaffle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"ticket.svg" };
+	public param_readRaffle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"ticket" };
 	public param_readRafflePattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderRaffles, maxLength:300};
-	public param_read1stMessageToday:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"firstTime.svg" };
+	public param_read1stMessageToday:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"firstTime" };
 	public param_read1stMessageTodayPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholder1stMessageToday, maxLength:300};
-	public param_read1stTimeChatters:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"firstTime.svg" };
+	public param_read1stTimeChatters:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"firstTime" };
 	public param_read1stTimeChattersPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholder1stTimeChatters, maxLength:300};
-	public param_readAutomod:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"automod.svg" };
+	public param_readAutomod:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"", icon:"automod" };
 	public param_readAutomodPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderAutomod, maxLength:300};
 	public param_ttsPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
@@ -245,7 +245,7 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 
 		this.testStr								= this.$t("tts.params.test_message");
 
-		this.param_enabled.labelKey					= "tts.params.param_enabled";
+		this.param_enabled.labelKey					= "global.enable";
 		this.param_volume.labelKey					= "tts.params.param_volume";
 		this.param_rate.labelKey					= "tts.params.param_rate";
 		this.param_pitch.labelKey					= "tts.params.param_pitch";

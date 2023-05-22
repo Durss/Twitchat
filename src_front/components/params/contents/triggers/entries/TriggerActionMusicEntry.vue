@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentOverlays, 'spotify')">{{ $t("triggers.actions.music.header_link") }}</a>
+					<a @click="$store('params').openParamsPage(contentConnexions, 'spotify')">{{ $t("triggers.actions.music.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -38,15 +38,16 @@ export default class TriggerActionMusicEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music.svg" };
-	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music.svg", maxLength:500 };
-	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
-	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info.svg", maxLength:500 };
+	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music" };
+	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music", maxLength:500 };
+	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
+	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info", maxLength:500 };
 
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
 	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
 	public mounted():void {
 		//List all available trigger types

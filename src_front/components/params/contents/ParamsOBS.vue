@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsobs parameterContent">
-		<img src="@/assets/icons/obs.svg" alt="overlay icon" class="icon">
+		<Icon name="obs" alt="overlay icon" class="icon" />
 
 		<div class="head">
 			<p>{{ $t("obs.header") }}</p>

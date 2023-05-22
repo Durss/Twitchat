@@ -3,25 +3,31 @@
 		<ParamItem noBackground :paramData="param_cmd" v-model="triggerData.chatCommand" @change="onUpdateCommand()"
 			:error="cmdNameConflict"
 			:errorMessage="$t('triggers.actions.chat.conflict')" />
-			
-		<ToggleBlock class="grow permissions" :open="false" :title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium primary>
-			<PermissionsForm v-model="triggerData.permissions" />
-		</ToggleBlock>
 		
-		<ToggleBlock class="grow" :icons="['params']" :open="false" title="Paramètres avancés" primary medium>
-			<ParamItem noBackground class="aliases"
-				:paramData="param_cmdAliases"
-				v-model="triggerData.chatCommandAliases"
-				@change="onUpdateCommand()"
-				:error="cmdAliasConflict"
-				:errorMessage="$t('triggers.actions.chat.conflict')" />
-	
-			<ParamItem noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
-			<ParamItem noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
-			<ParamItem noBackground class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown!.alert" />
+		<div class="moreOptions">
+			<ToggleBlock class="block permissions" :open="false"
+			:title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium primary>
+				<PermissionsForm v-model="triggerData.permissions" />
+			</ToggleBlock>
 			
-			<TriggerActionCommandArgumentParams :triggerData="triggerData" />
-		</ToggleBlock>
+			<ToggleBlock class="block" secondary :icons="['params']" :open="false"
+			:title="$t('triggers.actions.chat.advanced_params')" primary medium>
+				<div class="advancedParams">
+					<ParamItem secondary noBackground class="aliases"
+						:paramData="param_cmdAliases"
+						v-model="triggerData.chatCommandAliases"
+						@change="onUpdateCommand()"
+						:error="cmdAliasConflict"
+						:errorMessage="$t('triggers.actions.chat.conflict')" />
+			
+					<ParamItem secondary noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
+					<ParamItem secondary noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
+					<ParamItem secondary noBackground class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown!.alert" />
+					
+					<TriggerActionCommandArgumentParams :triggerData="triggerData" />
+				</div>
+			</ToggleBlock>
+		</div>
 	</div>
 </template>
 
@@ -51,11 +57,11 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 	public cmdNameConflict = false;
 	public cmdAliasConflict = false;
-	public param_cmd:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"commands.svg", placeholder:"!command", labelKey:"triggers.actions.chat.param_cmd" };
-	public param_cmdAliases:TwitchatDataTypes.ParameterData<string, string> = { type:"editablelist", value:"", icon:"commands.svg", placeholder:"!alias", labelKey:"triggers.actions.chat.param_cmd_alias", tooltipKey:"triggers.actions.chat.param_cmd_alias_tt", maxLength:10 };
-	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout.svg", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
-	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout.svg", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
-	public param_alertCD:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"whispers.svg", labelKey:"triggers.actions.chat.param_alertCD" };
+	public param_cmd:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"chatCommand", placeholder:"!command", labelKey:"triggers.actions.chat.param_cmd" };
+	public param_cmdAliases:TwitchatDataTypes.ParameterData<string, string> = { type:"editablelist", value:"", icon:"commands", placeholder:"!alias", labelKey:"triggers.actions.chat.param_cmd_alias", tooltipKey:"triggers.actions.chat.param_cmd_alias_tt", maxLength:10 };
+	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
+	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
+	public param_alertCD:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"whispers", labelKey:"triggers.actions.chat.param_alertCD" };
 
 	public beforeMount():void {
 		if(!this.triggerData.permissions) {
@@ -150,11 +156,29 @@ export default class TriggerActionChatCommandParams extends Vue {
 	}
 
 	.permissions {
-		margin: auto;
+		// margin: auto;
 	}
 
 	.grow {
-		width: 100%;
+		// width: 100%;
+	}
+	.moreOptions {
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+
+		.block {
+			&:not(.closed) {
+				width: 100%;
+			}
+		}
+	}
+	.advancedParams {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 	}
 }
 </style>

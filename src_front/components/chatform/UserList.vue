@@ -15,6 +15,7 @@
 						:href="'https://twitch.tv/'+u.login"
 						@click.prevent="openUserCard(u)"
 						v-for="u in currentChan.users[key]" :key="u.id">
+							<Icon name="unfollow" v-if="$store('params').appearance.highlightNonFollowers.value === true && u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
 							<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
 								<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
 									src="@/assets/icons/timeout.svg"
@@ -287,7 +288,7 @@ interface ChannelUserList {
 				line-height: 1.2em;
 				width: 100%;
 				padding: .25em;
-				color: var(--color-light);
+				color: var(--color-text);
 				&:hover {
 					text-decoration: underline;
 				}
@@ -305,14 +306,9 @@ interface ChannelUserList {
 						color: var(--color-secondary-light);
 					}
 
-					&::before {
-						content: "";
-						display: inline-block;
-						background-image: url('../../assets/icons/secondary/unfollow.svg');
-						background-repeat: no-repeat;
+					.icon {
 						height: .75em;
-						width: .75em;
-						margin-right: .25em;
+						vertical-align: top;
 					}
 				}
 
@@ -320,9 +316,7 @@ interface ChannelUserList {
 					display: inline-block;
 					vertical-align: middle;
 					margin-right: .5em;
-					img {
-						height: 1em;
-					}
+					height: 1em;
 				}
 			}
 		}

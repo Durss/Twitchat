@@ -77,7 +77,9 @@ export default class ProgressBar extends Vue {
 .progressbar{
 	height: 5px;
 	width: 100%;
-	background: var(--color-dark);
+	@bg: #555;
+	@bg: var(--grayout);
+	background: @bg;
 	position: relative;
 	@shadow: 0 4px 4px rgba(0, 0, 0, .5);
 	
@@ -95,7 +97,7 @@ export default class ProgressBar extends Vue {
 		position: absolute;
 		font-family: var(--font-roboto);
 		background-color: var(--color-primary);
-		color: var(--color-light);
+		color: var(--color-button);
 		top: 0;
 		font-size: 15px;
 		padding: 2px 5px;
@@ -106,7 +108,7 @@ export default class ProgressBar extends Vue {
 		will-change: transform;
 		@c:var(--color-primary);
 		background-color: @c;
-		background: linear-gradient(90deg, @c 0%, @c 50%, var(--color-dark) 50%, var(--color-dark) 100%);
+		background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 		background-size: 200% 100%;
 	}
 
@@ -117,7 +119,7 @@ export default class ProgressBar extends Vue {
 		}
 		.timer {
 			background-color: @c;
-			background: linear-gradient(90deg, @c 0%, @c 50%, var(--color-dark) 50%, var(--color-dark) 100%);
+			background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 			background-size: 200% 100%;
 		}
 	}
@@ -129,7 +131,7 @@ export default class ProgressBar extends Vue {
 		}
 		.timer {
 			background-color: @c;
-			background: linear-gradient(90deg, @c 0%, @c 50%, var(--color-dark) 50%, var(--color-dark) 100%);
+			background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 			background-size: 200% 100%;
 		}
 	}
@@ -141,7 +143,7 @@ export default class ProgressBar extends Vue {
 		}
 		.timer {
 			background-color: @c;
-			background: linear-gradient(90deg, @c 0%, @c 50%, var(--color-dark) 50%, var(--color-dark) 100%);
+			background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
 			background-size: 200% 100%;
 		}
 	}

@@ -6,9 +6,9 @@
 		:ref="'item_'+i.id"
 		:class="getClasses(index, i)"
 		@click="selectItem(i)"
-		v-tooltip="{content:i.type=='cmd'? i.tooltipKey : ''}">
+		v-tooltip="{content:i.type=='cmdS'? i.tooltipKey : ''}">
 			<img
-				class="image"
+				class="image emote"
 				loading="lazy" 
 				:src="i.emote"
 				:alt="i.label"
@@ -17,15 +17,16 @@
 			
 			<img v-else-if="i.type == 'user'" class="image" src="@/assets/icons/user.svg" alt="user">
 
-			<img v-else-if="i.type == 'cmd'" class="image" src="@/assets/icons/commands.svg" alt="cmd">
-			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" v-tooltip="$t('global.cmd_admin')">
-			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch.svg" alt="user" v-tooltip="$t('global.cmd_twitch')">
-			<img v-if="i.type == 'cmd' && i.rawCmd && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" v-tooltip="$t('global.cmd_mod')">
+			<img v-else-if="i.type == 'cmdS'" class="image" src="@/assets/icons/commands.svg" alt="cmd">
+			<img v-else-if="i.type == 'cmdC'" class="image" src="@/assets/icons/chatCommand.svg" alt="cmd">
+			<img v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" v-tooltip="$t('global.cmd_admin')">
+			<img v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch.svg" alt="user" v-tooltip="$t('global.cmd_twitch')">
+			<img v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" v-tooltip="$t('global.cmd_mod')">
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
-			<div class="infos" v-if="i.type == 'cmd' && i.infos">{{i.infos}}</div>
-			<div class="name alias" v-else-if="i.type=='cmd' && i.alias">(alias: {{i.alias}})</div>
+			<div class="infos" v-if="i.type == 'cmdS' && i.infos">{{i.infos}}</div>
+			<div class="name alias" v-else-if="i.type=='cmdS' && i.alias">(alias: {{i.alias}})</div>
 		</div>
 	</div>
 </template>
@@ -69,8 +70,8 @@ export default class AutocompleteChatForm extends Vue {
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
 		if(index == this.selectedIndex)						res.push('selected');
-		if(item.type == "cmd" && item.disabled)				res.push('disabled');
-		if(item.type == "cmd" && item.rawCmd) {
+		if(item.type == "cmdS" && item.disabled)				res.push('disabled');
+		if(item.type == "cmdS" && item.rawCmd) {
 			if(item.rawCmd.needAdmin)		res.push('admin');
 			if(item.rawCmd.needModerator)	res.push('mod');
 		}
@@ -96,6 +97,7 @@ export default class AutocompleteChatForm extends Vue {
 
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
+		document.removeEventListener("keydown", this.keyDownHandler);
 	}
 
 	/**
@@ -103,7 +105,7 @@ export default class AutocompleteChatForm extends Vue {
 	 * @param item 
 	 */
 	public selectItem(item:ListItem):void {
-		if(item.type == "cmd") {
+		if(item.type == "cmdS") {
 			if(item.disabled) {
 				if(item.rawCmd && item.rawCmd.twitch_scopes) {
 					this.$store("auth").requestTwitchScopes(item.rawCmd.twitch_scopes);
@@ -160,6 +162,8 @@ export default class AutocompleteChatForm extends Vue {
 		}
 		
 		const len = this.filteredItems.length;
+		if(len === 0) return;
+		
 		this.selectedIndex = this.selectedIndex%len;
 		if(this.selectedIndex < 0) this.selectedIndex = len-1;
 		let el = this.$refs["item_"+this.filteredItems[this.selectedIndex].id] as HTMLElement[];
@@ -252,7 +256,7 @@ export default class AutocompleteChatForm extends Vue {
 						if(e.needChannelPoints === true && !hasChannelPoints) continue;
 						
 						res.push({
-							type:"cmd",
+							type:"cmdS",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),
 							cmd:e.cmd,
 							infos:e.details,
@@ -275,7 +279,7 @@ export default class AutocompleteChatForm extends Vue {
 						}
 						
 						res.push({
-							type:"cmd",
+							type:t.type == TriggerTypes.CHAT_COMMAND? "cmdC" : "cmdS",
 							label:t.chatCommand + paramsTxt,
 							cmd:t.chatCommand + paramsTxt,
 							infos:t.name ?? "",
@@ -302,7 +306,7 @@ export default class AutocompleteChatForm extends Vue {
 			}
 
 			res.sort((a,b)=> {
-				if(a.type == "cmd" && b.type == "cmd") {
+				if(a.type == "cmdS" && b.type == "cmdS") {
 					if(a.disabled && !b.disabled) return 1;
 					if(!a.disabled && b.disabled) return -1;
 					if(a.rawCmd && !b.rawCmd) return -1;
@@ -347,7 +351,7 @@ interface EmoteItem {
 }
 
 interface CommandItem {
-	type:"cmd";
+	type:"cmdS"|"cmdC";
 	id:string;
 	label:string;
 	cmd:string;
@@ -376,15 +380,17 @@ interface CommandItem {
 	max-height: 80vh;
 
 	.item {
+		gap: 5px;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		flex-wrap: wrap;
 		cursor: pointer;
 		min-height: 1.8em;
+		color: var(--color-text);
 
 		&.selected, &:hover {
-			background-color: var(--color-dark-extralight);
+			background-color: var(--background-color-fader);
 		}
 
 		&.cmd {
@@ -413,7 +419,7 @@ interface CommandItem {
 				background-color: var(--color-primary-fadest);
 
 				&.selected, &:hover {
-					background-color: var(--color-primary-fade);
+					background-color: var(--color-primary-fader);
 				}
 			}
 			&.disabled {
@@ -424,8 +430,8 @@ interface CommandItem {
 		}
 
 		.name, .source {
-			color: #fff;
 			font-size: .8em;
+			flex-grow:1;
 		}
 
 		.source {
@@ -434,17 +440,20 @@ interface CommandItem {
 		}
 
 		.infos {
-			color: fade(#fff, 70%);
 			font-size: .7em;
 			font-style: italic;
 			text-align: right;
 			padding-right: .5em;
+			opacity: .8;
 		}
 
 		.image {
 			width: 1.75em;
 			padding: .2em;
 			object-fit: fill;
+			&:not(.emote) {
+				filter: var(--filter-brightness);
+			}
 			&.small {
 				height: 1em;
 				width: 1em;

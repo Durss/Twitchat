@@ -1,6 +1,6 @@
 <template>
 	<div class="tabmenu">
-		<div v-for="item in items"
+		<div v-for="item, index in items"
 		:class="value == item.value? 'tabItem tabSelected' : 'tabItem'">
 			<Button class="tabButton" @click="setValue(item.value)"
 				autoHideLabel
@@ -8,8 +8,8 @@
 				:icon="item.icon"
 				:big="big"
 				:small="small"
-				:secondary="secondary"
-				:alert="alert"
+				:secondary="themes && themes.length > index && themes[index] == 'secondary' || secondary"
+				:alert="themes && themes.length > index && themes[index] == 'alert' || alert"
 				:selected="value == item.value">{{ item.label }}</Button>
 			
 			<Transition name="slide">
@@ -54,6 +54,9 @@ export default class TabMenu extends Vue {
 
 	@Prop({type:Array<String>, default:[]})
 	public tooltips!:string[];
+
+	@Prop({type:Array<String>, default:[]})
+	public themes!:string[];
 
 	@Prop()
 	public modelValue!:unknown;

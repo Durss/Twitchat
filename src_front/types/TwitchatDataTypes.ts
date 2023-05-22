@@ -88,6 +88,16 @@ export namespace TwitchatDataTypes {
 		 * Users counters values
 		 */
 		users?:{[key:string]:number};
+		/**
+		 * Only available for counters overlay related to a "per user" counter
+		 * Contains user info necessary for display on screen.
+		 * Only contains 10 first users
+		 */
+		leaderboard?:{
+			login:string,
+			avatar:string,
+			points:number
+		}[];
 	}
 
 	/**
@@ -331,6 +341,10 @@ export namespace TwitchatDataTypes {
 		 * Icon name to display on le left (see files on "src_front/assets/icons")
 		 */
 		icon?:string;
+		/**
+		 * Forces a theme for the icon
+		 */
+		iconTheme?:"light"|"dark"|"primary"|"secondary"|"alert";
 		/**
 		 * Icon URL to display on the left
 		 */
@@ -641,6 +655,9 @@ export namespace TwitchatDataTypes {
 		category:string;
 		tags:string[];
 		started_at:number;
+		live:boolean;
+		viewers:number;
+		lastSoDoneDate:number;
 	}
 	export type StreamInfoKeys = keyof StreamInfo;
 
@@ -1188,21 +1205,9 @@ export namespace TwitchatDataTypes {
 		 */
 		user:TwitchatDataTypes.TwitchatUser;
 		/**
-		 * Has the shoutout been actually done ?
+		 * Remaining duration before execution
 		 */
-		done:boolean;
-		/**
-		 * Is it a fake entry ?
-		 * A fake entry is used when trying to SO someone while there's
-		 * a cooldown but Twitchat doesn't know.
-		 * This happens if we SO soemone when Twitchat isn't started,
-		 * in which case we create an empty item on the history that
-		 * will be used as a reference.
-		 * This flag is set to true so the related user cooldown isn't
-		 * affected by it. Without that the user would get a 1h cooldown
-		 * instead of a 2min cooldown
-		 */
-		fake?:boolean;
+		executeIn:number;
 	}
 
 
@@ -1944,6 +1949,7 @@ export namespace TwitchatDataTypes {
 			cost:number;
 			description:string;
 			icon:TwitchatImage;
+			color:string;
 		};
 		/**
 		 * Optional message the reward requires the user to send when redeeming it

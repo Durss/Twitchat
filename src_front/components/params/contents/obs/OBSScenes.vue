@@ -79,7 +79,7 @@ export default class OBSScenes extends Vue {
 	.list {
 		@inputWidth:150px;
 		@p:calc(100% - @inputWidth - 10px);
-		background: linear-gradient(90deg, rgba(255,255,255,0) calc(@p - 1px), var(--color-dark) @p, rgba(255,255,255,0) calc(@p + 1px));
+		background: linear-gradient(90deg, rgba(255,255,255,0) calc(@p - 1px), var(--background-color-secondary) @p, rgba(255,255,255,0) calc(@p + 1px));
 	
 		:deep(input) {
 			width: 100% !important;
@@ -93,7 +93,7 @@ export default class OBSScenes extends Vue {
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
-			background-color: var(--color-dark);
+			background-color: var(--background-color-secondary);
 			padding: 10px;
 			border-top-left-radius: 5px;
 			border-top-right-radius: 5px;

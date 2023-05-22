@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img :src="icon" alt="reward" class="icon">
+		<img :src="icon" alt="reward" class="icon" :style="{backgroundColor:messageData.reward.color}">
 
 		<div class="holder">
 			<i18n-t scope="global" tag="span" keypath="chat.reward">
@@ -65,6 +65,14 @@ export default class ChatReward extends AbstractChatMessage {
 	.cost {
 		font-size: .7em;
 		font-style: italic;
+	}
+
+	.icon {
+		border-radius: var(--border-radius);
+		padding: .25em;
+		height: 2em;
+		width: 2em;
+		flex-shrink: 0;
 	}
 }
 </style>

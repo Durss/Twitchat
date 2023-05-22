@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsvoicebot parameterContent">
-		<img src="@/assets/icons/voice.svg" alt="voice icon" class="icon">
+		<Icon name="voice" alt="voice icon" class="icon"/>
 		<div class="head">{{ $t("voice.header") }}</div>
 		
 		<div v-if="!voiceApiAvailable" class="card-item alert noApi">
@@ -15,6 +15,7 @@
 		</div>
 
 		<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
+		
 		<div class="card-item alert connectObs" v-if="!obsConnected">
 			<div>{{ $t("voice.need_OBS") }}</div>
 			<Button class="button" icon="obs" white @click="$store('params').openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>

@@ -65,6 +65,7 @@
 			"createBt":"Créer une condition",
 			"add_tt":"Ajouter une condition",
 			"group_tt":"Créer un sous groupe et ajouter une condition",
+			"placeholder_cmd_param":"Paramètre de commande {NAME}",
 			"operators":{
 				">":">",
 				"<":"<",
@@ -103,6 +104,7 @@
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
 				"action_bingo": "Lancer un bingo",
+				"action_chatSugg": "Suggestions de tchat",
 				"action_raffle": "Lancer un tirage au sort",
 				"action_raffle_enter": "Participer au tirage au sort",
 				"action_highlight": "Mettre en avant sur le stream",
@@ -124,13 +126,15 @@
 				"action_countget": "Lire un compteur",
 				"action_random": "Valeur aléatoire",
 				"action_stream_infos": "Changer les infos de stream",
+				"action_vibrate": "Vibrer téléphone",
 				"custom_placeholder_example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder."
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
 				"param_message": "Message à envoyer dans le tchat",
 				"conflict": "Une commande du même nom existe déjà",
-				"allowed_users": "Personnes autorisées à utiliser la commande",
+				"allowed_users": "Personnes autorisées",
+				"advanced_params": "Paramètres avancés",
 				"param_cmd": "Commande",
 				"param_cmd_alias": "Alias",
 				"param_cmd_alias_tt": "Commandes alternatives optionnelles",
@@ -147,7 +151,7 @@
 			},
 			"music": {
 				"header": "Veuillez lier Spotify dans la {LINK}",
-				"header_link": "section overlays",
+				"header_link": "section connexion",
 				"param_actions": "Action",
 				"param_actions_default": "Selectionnez une action...",
 				"param_track": "Morceau à ajouter (nom, URL ou ID)",
@@ -219,16 +223,18 @@
 				"topic_description": "Valeur personnalisée"
 			},
 			"count": {
-				"value_label":"Valeur à ajouter ou retirer",
+				"value_label":"Valeur",
 				"select_label":"Compteurs à mettre à jour",
 				"select_placeholder":"Sélectionnez un compteur...",
+				"select_action":"Action",
+				"select_action_placeholder":"Selectionnez une action...",
+				"action_add":"Ajouter",
+				"action_del":"Soustraire",
+				"action_set":"Remplacer la valeur",
 				"user_source_title":"Sélectionnez l'utilisateur mettre à jour pour ce compteur : | Sélectionnez l'utilisateur mettre à jour pour ces compteurs :",
-				"user_source_sender":"Personne utilisant la commande",
+				"user_source_sender":"Personne déclenchant le trigger",
+				"user_source_everyone":"Toutes les personnes",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
-			},
-			"countget": {
-				"placeholder_label":"Nom du placeholder",
-				"select_label":"Compteur à lire"
 			},
 			"random":{
 				"min_label":"Valeur min (inclus)",
@@ -239,12 +245,19 @@
 				"list":"Liste",
 				"trigger":"Triggers",
 				"trigger_info":"Executer un trigger aléatoire parmi ceux sélectionnés",
-				"trigger_select":"Sélectionnez un trigger",
+				"trigger_select":"Sélectionnez un ou plusieurs triggers",
+				"trigger_skipDisabled":"Ignorer les triggers désactivés lors du tirage",
+				"trigger_disableAfterExec":"Désactiver le trigger sélectionné après exécution",
 				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
-				"list_entry_placeholder":"ajouter une entrée..."
+				"list_entry_placeholder":"ajouter une entrée...",
+				"placeholder_label":"Nom du placeholder"
 			},
 			"raffle_enter":{
-				"info":"La personne déclanchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
+				"info":"La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
+			},
+			"vibrate":{
+				"info":"Cette action ne fonctionne que si vous utilisez Twitchat sur un périphérique mobile.",
+				"pattern":"Séquence de vibrations"
 			}
 		},
 		"categories": {
@@ -290,6 +303,7 @@
 			"bits": "Nombre de bits",
 			"stream_title": "Titre du stream",
 			"stream_category": "Catégorie du stream",
+			"stream_viewers": "Nombre de viewers",
 			"stream_duration": "Durée du stream (ms)",
 			"stream_live": "\"true\" si la personne était en stream au moment du raid",
 			"viewers": "Nombre de viewers",
@@ -333,7 +347,8 @@
 			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)",
 			"counter_global_value": "Valeur du compteur {NAME}",
 			"watch_streak": "Nombre de streams consécutifs vus",
-			"obs_scene": "Scène OBS courante"
+			"obs_scene": "Scène OBS courante",
+			"viewer_count": "Nombre de viewers"
 		},
 		"events": {
 			"CHAT_COMMAND": {

@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsconnexions parameterContent">
-		<img src="@/assets/icons/offline.svg" alt="overlay icon" class="icon">
+		<Icon name="offline" alt="connections icon" class="icon" />
 
 		<p class="head">{{ $t("connexions.header") }}</p>
 

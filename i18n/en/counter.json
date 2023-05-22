@@ -24,6 +24,8 @@
 			"value_loop": "Loop value when reaching min or max",
 			"value_user": "Every user has their own counter",
 			"load_all_users": "Load all users",
+			"clear_all_users": "Delete all users",
+			"reset_all_users": "Reset all users",
 			"no_users": "no user yet",
 			"search":"Search user...",
 			"sort_name":"Name",
@@ -32,6 +34,14 @@
 		"delete_confirm": {
 			"title": "Delete ?",
 			"desc": "Counter's data will be lost."
+		},
+		"reset_users_confirm":{
+			"title": "Reset?",
+			"desc": "Reset all users to zero?"
+		},
+		"delete_users_confirm":{
+			"title": "Delete?",
+			"desc": "Delete all users?"
 		}
 	}
 }

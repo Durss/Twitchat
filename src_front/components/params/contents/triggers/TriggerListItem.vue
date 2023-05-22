@@ -3,7 +3,8 @@
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
-			<img v-if="entryData.icon" :src="entryData.icon" :style="{backgroundColor:entryData.iconBgColor}">
+			<img v-if="entryData.iconURL" :src="entryData.iconURL" class="icon" :style="{backgroundColor:entryData.iconBgColor}">
+			<Icon v-else-if="entryData.icon" :name="entryData.icon" class="icon" :style="{backgroundColor:entryData.iconBgColor}" />
 			<span>{{entryData.label}}</span>
 		</button>
 
@@ -19,13 +20,13 @@
 		v-if="noEdit === false"
 		:disabled="!entryData.canTest"
 		v-tooltip="$t('triggers.testBt')">
-			<img src="@/assets/icons/test.svg" :alt="$t('triggers.testBt')" :aria-label="$t('triggers.testBt')">
+			<Icon name="test" class="icon" />
 		</button>
 
 		<button class="deleteBt" @click="$emit('delete',entryData)"
 		v-if="noEdit === false"
 		v-tooltip="$t('triggers.deleteBt')">
-			<img src="@/assets/icons/trash.svg" :alt="$t('triggers.deleteBt')" :aria-label="$t('triggers.deleteBt')">
+			<Icon name="trash" class="icon" />
 		</button>
 	</div>
 </template>
@@ -63,30 +64,24 @@ export default class TriggerListItem extends Vue {
 .triggerlistitem{
 	
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-	background-color: var(--color-light-fadest);
+	background-color: var(--background-color-fadest);
 	border-radius: .5em;
 	padding: 0;
 	display: flex;
 	flex-direction: row;
 	min-height: 1.5em;
 	overflow: hidden;
-	&>* {
-		transition: background-color .1s;
-		&:hover {
-			background-color: var(--color-primary);
-		}
-	}
 	.button {
 		display: flex;
 		flex-direction: row;
 		gap: .25em;
-		color: var(--color-light);
+		color: var(--color-text);
 		padding: 0 .5em 0 0;
 		align-items: center;
 		flex-grow: 1;
 		overflow: hidden;
 		word-wrap: break-word;
-		img {
+		.icon {
 			height: 1.5em;
 			width: 1.5em;
 			padding: .25em;
@@ -101,7 +96,8 @@ export default class TriggerListItem extends Vue {
 		border-left: 1px solid var(--color-dark-light);
 	}
 	.deleteBt, .testBt {
-		img {
+		flex-shrink: 0;
+		.icon {
 			height: .9em;
 			padding: 0 .5em;
 		}
@@ -109,9 +105,15 @@ export default class TriggerListItem extends Vue {
 		&:disabled,
 		&[disabled] {
 			pointer-events: none;
-			img {
+			.icon {
 				opacity: .35;
 			}
+		}
+	}
+	&>* {
+		transition: background-color .1s;
+		&:hover {
+			background-color: var(--background-color-fader);
 		}
 	}
 }

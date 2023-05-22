@@ -38,6 +38,13 @@
 			background-repeat: no-repeat;
 			background-position: top center;
 		}
+		body.bg.light {
+			background-color: #ffffff;
+			/* background: linear-gradient(180deg, #07876966 0%, #07876900 100%); */
+			background-size: 100% 100vh;
+			background-repeat: no-repeat;
+			background-position: top center;
+		}
 		#loader-init {
 			position: absolute;
 			transform: translate(-50%, -50%);
@@ -91,6 +98,21 @@
 
 <body>
 	<script type="text/javascript">
+		try {
+			let theme = localStorage.getItem("twitchat_theme");
+			//Apply theme from storage
+			if(theme) {
+				document.body.classList.add(theme === "light"? "light" : "dark");
+			}else
+			//Apply theme from browser pref
+			if(matchMedia("(prefers-color-scheme: light)").matches){
+				document.body.classList.add("light");
+			}else{
+				document.body.classList.add("dark");
+			}
+		}catch(error){
+			console.log(error);
+		}
 		/**
 		 * Check for script loading error
 		 * Tries to load it with cache cleaning 10 more times
@@ -118,7 +140,7 @@
 			//Stop spamming script refresh after 10 attempts
 			if(counter <= 10) {
 				setTimeout(()=>{
-					document.head.removeChild(script);
+					script.parentNode.removeChild(script);
 					let s = document.createElement('script');
 					s.defer = true;
 					s.type = script.type;
@@ -131,7 +153,7 @@
 				document.getElementById("error").style.display = "flex";
 			}
 		}
-		document.querySelectorAll("script").forEach(function(script) {
+		document.querySelectorAll("script").forEach((script) => {
 			if(/index.*\.js/.test(script.src)) {
 				script.addEventListener("error", (error)=>onLoadError(error, script));
 			}
@@ -358,7 +380,7 @@
 			incrementClose = 1;
 		}
 	</script>
-	<script type="module" onerror="onLoadError()" src="/src_front/main.ts"></script>
+	<script type="module" onerror="onLoadError('woops...', this)" src="/src_front/main.ts"></script>
 </body>
 
 </html>

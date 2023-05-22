@@ -318,6 +318,8 @@ export default class HypeTrainState extends Vue {
 			background-color: var(--color-light-fade);
 			padding: 5px;
 			border-radius: 5px;
+			text-shadow: var(--text-shadow-contrast);
+			letter-spacing: 1px;
 		}
 
 		&.conductors {

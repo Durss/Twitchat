@@ -13,77 +13,200 @@
 @import "cssStructure.less";
 
 :root {
+	@color-dark: #18181b;
+	@color-light: #EEEEEE;
+	@color-primary: #008667;
+	@color-secondary: #e04e00;
+	@color-alert: #b71f1f;
+	@color-text: #eee;
+	@color-text-inverse: #000;
+	@color-chatMessage: #e0e0e0;
+
+	--vh: 100vh;//Overridden via JS on App.vue
+	--vw: 100vw;//Overridden for demoMode
+	--chat-form-height: 40px;//Overridden via JS on Chat.vue
+	
 	--font-inter: "Inter";
 	--font-nunito: "Nunito";
 	--font-roboto: "Roboto";
 	--font-azeret: "Azeret";
 
+	--box-shadow: 0 0 4px 2px rgba(0, 0, 0, .5);
+
+	--filter-brightness: brightness(100);
+	
+	--background-color-primary: #18181b;
+	--background-color-secondary: #303036;
+	--background-color-fade: rgba(255,255,255,.5);
+	--background-color-fader: rgba(255,255,255,.15);
+	--background-color-fadest: rgba(255,255,255,.05);
+
+	--grayout: fade(@color-dark, 70%);
+
+	--toggle-block-header-background: #60606c;
+	--toggle-block-header-background-hover: #747482;
+
+	--splitter-color: rgba(255,255,255,.2);
+
+	--text-shadow-contrast: 1px 1px 0 rgba(0,0,0,.7);
+
+	--color-button: @color-light;
+	--color-button-selected: @color-dark;
+	
 	--color-light: @color-light;
 	--color-dark: @color-dark;
 	--color-primary: @color-primary;
 	--color-secondary: @color-secondary;
-	--color-warn: @color-warn;
 	--color-alert: @color-alert;
-	// --color-select: @color-select;
-	--color-chatMessage: @color-chatMessage;
+	--color-chat-message: @color-chatMessage;
+	--color-text: @color-text;
+	--color-text-fade: fade(@color-text, 50%);
+	--color-text-light: #fff;
+	--color-text-inverse: @color-text-inverse;
 	
 	--color-light-transparent: fade(@color-light, 0%);
 	--color-dark-transparent: fade(@color-dark, 0%);
 	--color-primary-transparent: fade(@color-primary, 0%);
 	--color-secondary-transparent: fade(@color-secondary, 0%);
-	--color-warn-transparent: fade(@color-warn, 0%);
 	--color-alert-transparent: fade(@color-alert, 0%);
-	// --color-select-transparent: fade(@color-select, 0%);
 	
 	--color-light-fade: fade(@color-light, 30%);
 	--color-dark-fade: fade(@color-dark, 80%);
 	--color-primary-fade: fade(@color-primary, 70%);
 	--color-secondary-fade: fade(@color-secondary, 70%);
-	--color-warn-fade: fade(@color-warn, 70%);
 	--color-alert-fade: fade(@color-alert, 70%);
-	// --color-select-fade: fade(@color-select, 70%);
 	
 	--color-light-fader: fade(@color-light, 10%);
 	--color-dark-fader: fade(@color-dark, 40%);
 	--color-primary-fader: fade(@color-primary, 40%);
 	--color-secondary-fader: fade(@color-secondary, 40%);
-	--color-warn-fader: fade(@color-warn, 40%);
 	--color-alert-fader: fade(@color-alert, 40%);
-	// --color-select-fader: fade(@color-select, 40%);
 	
 	--color-light-fadest: fade(@color-light, 5%);
-	--color-dark-fadest: fade(@color-dark, 10%);
-	--color-primary-fadest: fade(@color-primary, 10%);
-	--color-secondary-fadest: fade(@color-secondary, 10%);
-	--color-warn-fadest: fade(@color-warn, 10%);
+	--color-dark-fadest: fade(@color-dark, 15%);
+	--color-primary-fadest: fade(@color-primary, 15%);
+	--color-secondary-fadest: fade(@color-secondary, 15%);
 	--color-alert-fadest: fade(@color-alert, 20%);
-	// --color-select-fader: fade(@color-select, 20%);
 	
 	--color-light-light: lighten(@color-light, 10%);
 	--color-dark-light: lighten(@color-dark, 10%);
 	--color-primary-light: lighten(@color-primary, 8%);
 	--color-secondary-light: lighten(@color-secondary, 13%);
-	--color-warn-light: lighten(@color-warn, 10%);
 	--color-alert-light: lighten(@color-alert, 10%);
-	// --color-select-light: lighten(@color-select, 10%);
 	
 	--color-light-extralight: lighten(@color-light, 30%);
 	--color-dark-extralight: lighten(@color-dark, 30%);
 	--color-primary-extralight: saturate(lighten(@color-primary, 15%), 100%);
 	--color-secondary-extralight: saturate(lighten(@color-secondary, 30%), 100%);
-	--color-warn-extralight: saturate(lighten(@color-warn, 30%), 100%);
 	--color-alert-extralight: saturate(lighten(@color-alert, 30%), 100%);
-	// --color-select-extralight: lighten(@color-select, 20%);
 	
 	--color-light-dark: darken(@color-light, 10%);
 	--color-dark-dark: darken(@color-dark, 10%);
 	--color-primary-dark: darken(@color-primary, 15%);
 	--color-secondary-dark: darken(@color-secondary, 15%);
-	--color-warn-dark: darken(@color-warn, 10%);
 	--color-alert-dark: darken(@color-alert, 10%);
-	// --color-select-extralight: lighten(@color-select, 20%);
 
 	--border-radius:.5rem;
+	
+	--icon-color: var(--color-light);
+	
+	--highlight-suspicious: #ff8280;
+	--highlight-1st: #ff75e6;
+	--highlight-subs: #528bff;
+	--highlight-vips: #db00b3;
+	--highlight-mods: #00a865;
+	--highlight-partners: #9147ff;
+	--highlight-mention: #adadb8;
+	--highlight-raider: #f5f500;
+}
+
+body.light {
+	@color-dark: #18181b;
+	@color-light: #FFFFFF;
+	@color-primary: #039372;
+	@color-secondary: #e04e00;
+	@color-alert: #b71f1f;
+	@color-text: #101010;
+	@color-text-inverse: #eee;
+	@color-chatMessage: #101010;
+
+	--box-shadow: 0 0 10px 1px rgba(0, 0, 0, .5);
+
+	--filter-brightness: brightness(0);
+
+	--background-color-primary: #ffffff;
+	--background-color-secondary: #eeeeee;
+	--background-color-fade: rgba(0,0,0,.5);
+	--background-color-fader: rgba(0,0,0,.15);
+	--background-color-fadest: rgba(0,0,0,.075);
+
+	--grayout: fade(@color-light, 70%);
+
+	--toggle-block-header-background: #bbbbbb;
+	--toggle-block-header-background-hover: #d1d1d1;
+
+	--splitter-color: rgba(0,0,0,.2);
+
+	--text-shadow-contrast: 1px 1px 0 rgba(255,255,255,.1);
+
+	--color-button: @color-light;
+	--color-button-selected: @color-dark;
+	
+	--color-light: @color-light;
+	--color-dark: @color-dark;
+	--color-primary: @color-primary;
+	--color-secondary: @color-secondary;
+	--color-alert: @color-alert;
+	--color-chat-message: @color-chatMessage;
+	--color-text: @color-text;
+	--color-text-fade: fade(@color-text, 30%);
+	--color-text-inverse: @color-text-inverse;
+	
+	--color-light-transparent: fade(@color-light, 0%);
+	--color-dark-transparent: fade(@color-dark, 0%);
+	--color-primary-transparent: fade(@color-primary, 0%);
+	--color-secondary-transparent: fade(@color-secondary, 0%);
+	--color-alert-transparent: fade(@color-alert, 0%);
+	
+	--color-light-fade: fade(@color-light, 30%);
+	--color-dark-fade: fade(@color-dark, 80%);
+	--color-primary-fade: fade(@color-primary, 70%);
+	--color-secondary-fade: fade(@color-secondary, 70%);
+	--color-alert-fade: fade(@color-alert, 70%);
+	
+	--color-light-fader: fade(@color-light, 10%);
+	--color-dark-fader: fade(@color-dark, 40%);
+	--color-primary-fader: fade(@color-primary, 40%);
+	--color-secondary-fader: fade(@color-secondary, 40%);
+	--color-alert-fader: fade(@color-alert, 40%);
+	
+	--color-light-fadest: fade(@color-light, 5%);
+	--color-dark-fadest: fade(@color-dark, 10%);
+	--color-primary-fadest: fade(@color-primary, 10%);
+	--color-secondary-fadest: fade(@color-secondary, 10%);
+	--color-alert-fadest: fade(@color-alert, 20%);
+	
+	--color-light-light: lighten(@color-light, 10%);
+	--color-dark-light: lighten(@color-dark, 10%);
+	--color-primary-light: lighten(@color-primary, 8%);
+	--color-secondary-light: lighten(@color-secondary, 13%);
+	--color-alert-light: lighten(@color-alert, 10%);
+	
+	--color-light-extralight: lighten(@color-light, 30%);
+	--color-dark-extralight: lighten(@color-dark, 30%);
+	--color-primary-extralight: saturate(lighten(@color-primary, 15%), 100%);
+	--color-secondary-extralight: saturate(lighten(@color-secondary, 30%), 100%);
+	--color-alert-extralight: saturate(lighten(@color-alert, 30%), 100%);
+	
+	--color-light-dark: darken(@color-light, 10%);
+	--color-dark-dark: darken(@color-dark, 10%);
+	--color-primary-dark: darken(@color-primary, 15%);
+	--color-secondary-dark: darken(@color-secondary, 15%);
+	--color-alert-dark: darken(@color-alert, 10%);
+
+	--border-radius:.5rem;
+	
+	--icon-color: var(--color-dark);
 	
 	--highlight-suspicious: #ff8280;
 	--highlight-1st: #ff75e6;
@@ -101,13 +224,24 @@ body, html {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-family: var(--font-inter), Helvetica, Arial, sans-serif;
-	color: var(--color-al);
 	min-width: 100%;
 	min-height: var(--vh);
     min-height: -moz-available;
 	min-height: -webkit-fill-available;
 	min-height: fill-available;
 	overflow: hidden;
+
+	&.bg {
+		background-color: var(--background-color-primary) !important;
+	}
+
+}
+
+body.demoMode {
+	// --vw: 320px;
+	* {
+		cursor: none !important;
+	}
 }
 
 pre {
@@ -125,6 +259,13 @@ a {
 	&:hover {
 		color: var(--color-secondary-extralight);
 	}
+}
+
+.copyBt {
+	height: 1em;
+	margin-right: .25em;
+	vertical-align: middle;
+	cursor: pointer;
 }
 
 strong {
@@ -149,13 +290,13 @@ h1 {
 
 mark {
 	font-weight: bold;
-	background-color: var(--color-dark-fader);
+	background-color: var(--background-color-fader);
 	padding: .1em .25em;
 	border-radius: var(--border-radius);
 }
 
 .home-gradient-bg {
-	background: linear-gradient(180deg, var(--color-primary-fader) 0%, var(--color-secondary-transparent) 100%);
+	background: linear-gradient(180deg, var(--color-primary-fader) 0%, transparent 100%);
 	background-size: 100% 100vh;
 	background-repeat: no-repeat;
 	background-position: top center;
@@ -167,11 +308,14 @@ mark {
 }
 
 .tippy-box[data-theme~='twitchat'] {
-	@color: var(--color-secondary-fade);
+	// @color: var(--color-secondary-fade);
+	@color: var(--color-secondary);
+	color:var(--color-text-light);
     background-color: @color;
-	backdrop-filter: blur(5px);
-	text-shadow: 1px 1px 2px black;
-	box-shadow: 3px 3px 3px rgba(0,0,0,.35);
+	font-size: 1rem;
+	// backdrop-filter: blur(5px);
+	// text-shadow: 0px 0px 5px rgba(0,0,0,1);//var(--text-shadow-contrast);
+	// box-shadow: 3px 3px 3px rgba(0,0,0,.35);
 	&[data-placement^='top']  > .tippy-arrow::before {
 		border-top-color: @color;
 	}
@@ -190,7 +334,7 @@ mark {
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 100vw !important;
+	width: var(--vw) !important;
 	height: 100vh !important;
 	background: rgba(255, 0, 0, .25);
 	z-index: 5;
@@ -272,10 +416,11 @@ mark {
 	background-color: var(--color-dark-extralight);
 }
 
-@media (prefers-color-scheme: dark) {
-/* Dark theme styles go here */
-}
-
-@media (prefers-color-scheme: light) {
-/* Light theme styles go here */
+body.light {
+	a:not(.button, button) {
+		color: var(--color-secondary);
+		&:hover {
+			color: var(--color-secondary-light);
+		}
+	}
 }

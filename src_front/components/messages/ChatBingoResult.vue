@@ -1,7 +1,7 @@
 <template>
 	<div class="chatbingoresult chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		<img src="@/assets/icons/bingo.svg" alt="icon" class="icon">
+		<Icon name="bingo" alt="icon" class="icon"/>
 
 		<i18n-t scope="global" tag="div" keypath="chat.bingo.title">
 			<template #WINNER>

@@ -34,7 +34,7 @@ export default class TriggerActionChatEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 	
-	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers.svg", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
 	
 	public get cmdNameConflict():boolean {
 		if(!this.action.text) return false;
@@ -85,7 +85,7 @@ export default class TriggerActionChatEntry extends Vue {
 		.cmd {
 			font-size: .8em;
 			line-height: 1.5em;
-			background-color: var(--color-dark);
+			background-color: var(--background-color-fadest);
 			padding: .1em;
 			border-radius: .5em;
 			cursor: pointer;

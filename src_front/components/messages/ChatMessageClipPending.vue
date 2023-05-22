@@ -2,18 +2,21 @@
 	<div class="chatmessageclippending chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img :src="$image('icons/clip.svg')" alt="notice" class="icon">
+		<Icon name="clip" alt="notice" class="icon"/>
 		
 		<div class="loading" v-if="loading && !error">
 			<div class="message">{{ $t("global.moderation_action.clip_creating") }}</div>
-			<img class="loader" src="@/assets/loader/loader.svg">
+			<picture>
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<Icon name="loader" alt="loading" class="loader"/>
+			</picture>
 		</div>
 
 		<div v-else-if="!error">
 			<div class="message">{{ $t("global.moderation_action.clip_created") }}</div>
 			<div class="ctas">
-				<Button @click="highlight()" icon="highlight">{{ $t('chat.context_menu.highlight') }}</Button>
-				<Button type="link" :href="messageData.clipUrl" target="_blank" icon="edit">{{ $t('global.moderation_action.clip_created_publishBt') }}</Button>
+				<Button small @click="highlight()" icon="highlight">{{ $t('chat.context_menu.highlight') }}</Button>
+				<Button small type="link" :href="messageData.clipUrl" target="_blank" icon="edit">{{ $t('global.moderation_action.clip_created_publishBt') }}</Button>
 			</div>
 		</div>
 

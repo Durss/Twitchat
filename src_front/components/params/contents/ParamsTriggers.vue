@@ -1,6 +1,6 @@
 <template>
 	<div class="paramstriggers parameterContent">
-		<img src="@/assets/icons/broadcast.svg" alt="overlay icon" class="icon">
+		<Icon name="broadcast" class="icon" />
 
 		<i18n-t scope="global" tag="p" class="head" :keypath="headerKey" v-if="!currentTriggerData">
 			<template #COUNT><strong>{{ eventsCount }}</strong></template>
@@ -46,8 +46,6 @@
 				:obsSources="obsSources"
 				:obsInputs="obsInputs"
 				:rewards="rewards" />
-				
-			<img src="@/assets/loader/loader.svg" v-if="showLoading" class="loader">
 				
 			<TriggerActionList
 				v-if="currentTriggerData"
@@ -98,7 +96,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public eventsCount:number = 0;
 	public showList:boolean = true;
 	public showForm:boolean = false;
-	public showLoading:boolean = false;
 	public loadingRewards:boolean = false;
 	public loadingOBSScenes:boolean = false;
 	public headerKey:string = "triggers.header";
@@ -336,11 +333,12 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 								id:twitchReward.id,
 								cost:twitchReward.cost,
 								description:twitchReward.prompt,
+								title:twitchReward.title,
+								color:twitchReward.background_color,
 								icon:{
 									sd:twitchReward.image?.url_1x ?? "",
 									hd:twitchReward.image?.url_4x,
 								},
-								title:twitchReward.title,
 							};
 						}
 					}else 
@@ -448,15 +446,14 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		}
 	
 		.ctas {
+			column-gap: 1em;
+			row-gap: .25em;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
 			margin-top: .5em;
 			flex-wrap: wrap;
-			.cta:not(:last-child) {
-				margin-right: 1em;
-			}
 		}
 	}
 }

@@ -1,20 +1,22 @@
 <template>
 	<div class="shoutoutlist blured-background-window">
 		<draggable class="list"
-		v-model="$store('users').shoutoutHistory[channelId]" 
+		v-model="$store('users').pendingShoutouts[channelId]" 
 		direction="vertical"
 		group="users"
 		item-key="id"
-		:animation="250">
+		:animation="250"
+		@end="onMoveItem">
 			<template #item="{element, index}:{element:TwitchatDataTypes.ShoutoutHistoryItem, index:number}">
-				<div class="item" v-if="element.done === false">
-					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store('users').shoutoutHistory[channelId]!.length > 1" >
-					<img v-if="element.user.avatarPath" :src="element.user.avatarPath" class="avatar">
+				<div class="item">
+					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store('users').pendingShoutouts[channelId]!.length > 1" >
+					<Button class="deleteBt" icon="cross" small alert @click="deleteItem(element)" />
+					<img v-if="element.user.avatarPath && getDelay(element.executeIn) > 0" :src="element.user.avatarPath" class="avatar">
+					<Icon name="loader" v-if="getDelay(element.executeIn) <= 0" class="loader" />
 					<div class="infos">
 						<span class="user">{{ element.user.displayName }}</span>
-						<span class="delay"><img src="@/assets/icons/timer.svg" class="icon"> {{ idToCooldown[element.id] }}s</span>
+						<span class="delay"><img src="@/assets/icons/timer.svg" class="icon"> {{ getFormatedDuration(element.executeIn) }}s</span>
 					</div>
-					<Button icon="cross" small @click="deleteItem(element)" />
 				</div>
 			</template>
 		</draggable>
@@ -25,10 +27,10 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
-import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import Button from '../Button.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -40,10 +42,16 @@ import Button from '../Button.vue';
 export default class ShoutoutList extends Vue {
 
 	public channelId:string = "";
-	public idToCooldown:{[key:string]:string} = {};
+	public timerOffset:number = 0;
 
 	private refreshInterval:number = -1;
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public getDelay(duration:number) { return Math.floor(duration - (this.timerOffset * 1000)); }
+
+	public getFormatedDuration(duration:number):string {
+		return Utils.formatDuration(Math.max(0, Math.floor(duration - (this.timerOffset * 1000))));
+	}
 
 	public beforeMount():void {
 		this.channelId = this.$store("auth").twitch.user.id;
@@ -53,50 +61,39 @@ export default class ShoutoutList extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
-		this.computeCooldowns();
+		
+		//This interval updates a local timer used to keep updating
+		//times even if source data are not actually updated.
+		//The source data are updated, as of today, every 5s as defined
+		//by the SchedulerHelper that executes only every 5s.
+		//This local timer offset is here to get the view updating every
+		//seconds even though the data entries are updated every 5s.
 		this.refreshInterval = setInterval(()=> {
-			this.computeCooldowns();
+			this.timerOffset ++;
 		}, 1000);
 
-		watch(()=>this.$store("users").shoutoutHistory, ()=> {
-			this.computeCooldowns();
+		//Watch for any change on the list and reset the local timer
+		watch(()=>this.$store("users").pendingShoutouts[this.channelId], ()=> {
+			this.timerOffset = 0;
 		}, {deep:true});
-		
-		console.log(this.$store("users").shoutoutHistory[this.channelId]);
 	}
+
 
 	public beforeUnmount():void {
 		document.removeEventListener("mousedown", this.clickHandler);
 		clearTimeout(this.refreshInterval);
 	}
 
-	public computeCooldowns():void {
-		const list = this.$store("users").shoutoutHistory[this.channelId];
-		if(!list) return;
-		const lastSODoneIndex = list.filter(v=>v.done === true).findLastIndex(v=>v.done === true);
-		const lastSODone = list[lastSODoneIndex];
-		let dateOffset = lastSODone? lastSODone.user.channelInfo[this.channelId].lastShoutout as number : 0;
-		this.idToCooldown = {};
-		let cooldownOffset = 1000;
-		let userDone:{[key:string]:boolean} = {};
-		console.log(dateOffset);
-		for (let i = lastSODoneIndex+1; i < list.length; i++) {
-			const item = list[i];
-			const userLastSODate = item.user.channelInfo[this.channelId]?.lastShoutout || 0;
-			let userCooldown = userLastSODate &&  lastSODone.fake !== false? 60 * 60 * 1000 : 2 * 60 * 1000; //1h cooldown for a user that got a SO, 2min if this user got no SO yet
-			if(userDone[item.user.id] === true) {
-				userCooldown = 60 * 60 * 1000;
-			}
-			let cooldown = Math.max(0, userCooldown + cooldownOffset - (Date.now() - dateOffset));
-			this.idToCooldown[item.id] = Utils.formatDuration(cooldown);
-			cooldownOffset += userCooldown + 1000;
-			userDone[item.user.id] = true;
-		}
+	public onMoveItem():void {
+		//Forces timers refresh
+		this.$store("users").executePendingShoutouts();
 	}
 
 	public deleteItem(item:TwitchatDataTypes.ShoutoutHistoryItem):void {
-		const index = this.$store("users").shoutoutHistory[this.channelId]!.findIndex(v=>v.id == item.id);
-		this.$store("users").shoutoutHistory[this.channelId]!.splice(index, 1);
+		const list = this.$store("users").pendingShoutouts[this.channelId]!;
+		const index = list.findIndex(v=>v.id == item.id);
+		list.splice(index, 1);
+		if(list.length === 0) this.close();
 	}
 
 	private open():void {
@@ -132,11 +129,12 @@ export default class ShoutoutList extends Vue {
 
 <style scoped lang="less">
 .shoutoutlist{
-	width: min-content;
+	width: fit-content;
 	left: auto;
 	right: 0;
 	margin-left: auto;
 	transform-origin: bottom right;
+	color:var(--color-light);
 
 	.list {
 		display: flex;
@@ -144,7 +142,6 @@ export default class ShoutoutList extends Vue {
 		gap: 1em;
 	
 		.item {
-			color:var(--color-light);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
@@ -157,10 +154,13 @@ export default class ShoutoutList extends Vue {
 			&:hover {
 				background-color: var(--color-light-fadest);
 			}
+			&:has(.loader) {
+				pointer-events: none;
+			}
 			.drag {
 				height: .7em;
 			}
-			.avatar {
+			.avatar, .loader {
 				height: 2em;
 				border-radius: 50%;
 			}
@@ -179,6 +179,10 @@ export default class ShoutoutList extends Vue {
 						height: 1em;
 					}
 				}
+			}
+
+			.deleteBt {
+				flex-shrink: 0;
 			}
 		}
 	}

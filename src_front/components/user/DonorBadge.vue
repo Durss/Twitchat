@@ -309,7 +309,7 @@ interface StarData {
 			.center();
 			font-family: var(--font-nunito);
 			position: absolute;
-			color:rgba(0, 0, 0, .4);
+			color:rgba(0, 0, 0, .7);
 			font-size: 2em;
 			z-index: 1;
 			pointer-events: none;
@@ -403,9 +403,6 @@ interface StarData {
 	&.lvl_6 {
 		.beatingHeart>.image>.heart_st0, .star{
 			fill: url(#header-shape-gradient-6) #ffd900;
-		}
-		.beatingHeart>.level {
-			color: rgba(0, 0, 0, .7);
 		}
 	}
 	&.lvl_7 {

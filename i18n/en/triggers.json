@@ -42,6 +42,7 @@
 		"count": {
 			"require": "This trigger need you to first {URL}",
 			"require_url": "create counters"
+
 		},
 		"rewards": {
 			"require": "This trigger needs to {URL}",
@@ -65,6 +66,7 @@
 			"createBt":"Create a condition",
 			"add_tt":"Add condition",
 			"group_tt":"Create a sub group and add a condition",
+			"placeholder_cmd_param":"Command param {NAME}",
 			"operators":{
 				">":">",
 				"<":"<",
@@ -103,6 +105,7 @@
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
 				"action_bingo": "Start a bingo",
+				"action_chatSugg": "Chat suggestions",
 				"action_raffle": "Start a raffle",
 				"action_raffle_enter": "Enter raffle",
 				"action_highlight": "Highlight on stream",
@@ -124,13 +127,15 @@
 				"action_countget": "Get a counter value",
 				"action_random": "Random value",
 				"action_stream_infos": "Set stream infos",
+				"action_vibrate": "Vibrate phone",
 				"custom_placeholder_example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value."
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
 				"param_message": "Message to send on your chat",
 				"conflict": "A command with this name already exists",
-				"allowed_users": "Users allowed to use this command",
+				"allowed_users": "Allowed users",
+				"advanced_params": "Advanced parameters",
 				"param_cmd": "Command",
 				"param_cmd_alias": "Aliases",
 				"param_cmd_alias_tt": "Optional alternative commands",
@@ -147,7 +152,7 @@
 			},
 			"music": {
 				"header": "This feature needs you to connect with Spotify under the {LINK}",
-				"header_link": "overlays section",
+				"header_link": "connections section",
 				"param_actions": "Action",
 				"param_actions_default": "Select an action...",
 				"param_track": "Track to add (name or URL)",
@@ -219,16 +224,18 @@
 				"topic_description": "Custom value"
 			},
 			"count": {
-				"value_label":"Value to add or remove",
+				"value_label":"Value",
 				"select_label":"Counters to update",
 				"select_placeholder":"Select a counter...",
+				"select_action":"Action",
+				"select_action_placeholder":"Select action...",
+				"action_add":"Add value",
+				"action_del":"Substract value",
+				"action_set":"Set value",
 				"user_source_title":"Select the user to update for this counter: | Select the user to update for those counters:",
-				"user_source_sender":"User using the command",
+				"user_source_sender":"User calling the trigger",
+				"user_source_everyone":"All users",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
-			},
-			"countget": {
-				"placeholder_label":"Placeholder name",
-				"select_label":"Counter to fetch"
 			},
 			"random":{
 				"min_label":"Min value (included)",
@@ -239,12 +246,19 @@
 				"list":"List",
 				"trigger":"Triggers",
 				"trigger_info":"Execute a random trigger amgonst the selected ones",
-				"trigger_select":"Select a trigger",
+				"trigger_select":"Select one or more triggers",
+				"trigger_skipDisabled":"Ignore disabled triggers during random selection",
+				"trigger_disableAfterExec":"Disable selected trigger after executing it",
 				"list_label":"Pick a random entry amongst these ones:",
-				"list_entry_placeholder":"add entry..."
+				"list_entry_placeholder":"add entry...",
+				"placeholder_label":"Placeholder name"
 			},
 			"raffle_enter":{
 				"info":"The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."
+			},
+			"vibrate":{
+				"info":"This action only works when using Twitchat on a mobile device.",
+				"pattern":"Vibration pattern"
 			}
 		},
 		"categories": {
@@ -290,6 +304,7 @@
 			"bits": "Number of bits",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
+			"stream_viewers": "Viewers count",
 			"stream_duration": "Stream duration (ms)",
 			"stream_live": "\"true\" if user was live when raiding",
 			"viewers": "Viewers count",
@@ -333,7 +348,8 @@
 			"counter_userid": "User ID (for user specific counters)",
 			"counter_global_value": "Get {NAME} counter value",
 			"watch_streak": "Watch streak count",
-			"obs_scene": "Current OBS scene name"
+			"obs_scene": "Current OBS scene name",
+			"viewer_count": "Viewers watching your stream"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -646,7 +662,7 @@
 				"description": "Actions to execute when starting a raid to another channel"
 			},
 			"SLASH_COMMAND": {
-				"label": "Create custom slash command",
+				"label": "Custom slash command",
 				"description": "Actions to execute when using command {SUB_ITEM_NAME}.{INFO}",
 				"description_info": "(Only you can use this type of command and it will never be sent on chat)"
 			},

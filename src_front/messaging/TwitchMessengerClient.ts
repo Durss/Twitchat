@@ -114,6 +114,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			chans.forEach(async v=> {
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
+
 				//Check if we're a mod on this channel by testing if the get chatters endpoint
 				//returns something or not (no dedicated API for this ATM)
 				TwitchUtils.getChatters(v.id).then(result => {
@@ -127,6 +128,22 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				})
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[u.id].online = true;
+				
+				//Init stream info
+				if(!StoreProxy.stream.currentStreamInfo[v.id]) {
+					//Don't init if already existing. Authenticated user's stream info
+					//are loaded during auth process
+					StoreProxy.stream.currentStreamInfo[v.id] = {
+						title:"",
+						category:"",
+						live:false,
+						started_at:0,
+						tags:[],
+						user:u,
+						viewers:0,
+						lastSoDoneDate:0,
+					}
+				}
 				
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
@@ -677,11 +694,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					title:Config.instance.highlightMyMessageReward.title,
 					cost:-1,
 					description:"",
+					color:Config.instance.highlightMyMessageReward.background_color,
 					icon:{
 						sd:rewardImg,
 					}
 				},
 				message:data.message,
+				message_chunks:data.message_chunks,
 				message_html:data.message_html,
 			}
 			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));
@@ -779,7 +798,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.SubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
-		data.streakMonths = streakMonths
+		data.streakMonths = streakMonths;
 		if(typeof tags["msg-param-gift-months"] == "string") {
 			data.months = parseInt(tags["msg-param-gift-months"] ?? "1");
 		}
@@ -795,10 +814,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private anonsubgift(channel: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.AnonSubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
-		data.streakMonths = streakMonths
-		if(typeof tags["msg-param-sender-count"] == "string") {
-			//TODO this is probably a mistake as this sender-count contains the total of subgift ont he channel
-			data.months = parseInt(tags["msg-param-sender-count"] ?? "1");
+		data.streakMonths = streakMonths;
+		if(typeof tags["msg-param-gift-months"] == "string") {
+			data.months = parseInt(tags["msg-param-gift-months"] ?? "1");
 		}
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
@@ -891,8 +909,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private onBanUser(channel: string, username: string, reason: string, duration?: number|{"room-id":string,"target-user-id":string,"tmi-sent-id":string}):void {
-		const channel_id = this.getChannelID(channel);
-		const user = this.getUserStateFromLogin(username, channel_id).user;
 		//Wait 900ms before doing anything.
 		//This is a work around an Eventsub limitation.
 		//Eventsub does not allow to be notified for banned users of another channel
@@ -905,10 +921,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//We don't wait 1s or more, otherwise if TO for 1s the user would be unbanned
 		//before the setTimeout completes
 		setTimeout(()=> {
+			const channel_id = this.getChannelID(channel);
+			const user = this.getUserStateFromLogin(username, channel_id).user;
 			const isTO = !isNaN(duration as number);
 			if(!user.channelInfo[channel_id].is_banned
-			|| user.channelInfo[channel_id].banEndDate && !isTO
-			|| !user.channelInfo[channel_id].banEndDate && isTO) {
+			//if user is TOed and it's a perma ban
+			|| (user.channelInfo[channel_id].banEndDate && !isTO)
+			//if user is perma banned and it's a TO
+			|| (!user.channelInfo[channel_id].banEndDate && isTO)) {
 				
 				const m:TwitchatDataTypes.MessageBanData = {
 					id:Utils.getUUID(),
@@ -924,7 +944,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				StoreProxy.chat.addMessage(m);
 				StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
 			}
-		},900)
+		},990)
 	}
 
 	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {

@@ -60,11 +60,11 @@ export default class TriggerActionScheduleParams extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public param_action:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"date.svg" };
-	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"timeout.svg" };
-	public param_repeatDurationValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:20, icon:"timeout.svg", min:0, max:48*60 };
-	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"whispers.svg" };
-	public param_repeatMessageValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:100, icon:"whispers.svg", min:1, max:9999 };
+	public param_action:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"date" };
+	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"timeout" };
+	public param_repeatDurationValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:20, icon:"timeout", min:0, max:48*60 };
+	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"whispers" };
+	public param_repeatMessageValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:100, icon:"whispers", min:1, max:9999 };
 	public params_daily:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public params_monthly:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public params_yearly:TwitchatDataTypes.ParameterData<boolean>[] = [];

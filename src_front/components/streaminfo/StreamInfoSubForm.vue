@@ -27,7 +27,8 @@
 			v-for="i in param_tags.value"
 			@click="deleteTag(i)">
 				<span>{{ i }}</span>
-				<img src="@/assets/icons/primary/cross.svg" class="icon">
+				<Icon name="cross" theme="primary" class="icon" />
+				<Icon name="alert" class="icon" />
 			</button>
 		</div>
 	</div>
@@ -91,13 +92,18 @@ export default class StreamInfoSubForm extends Vue {
 
 		// this.param_title.placeholderList	= this.placeholderList;
 
-		watch(()=>this.title, ()=> { this.populate(); })
-		watch(()=>this.tags, ()=> { this.populate(); })
-		watch(()=>this.category, ()=> { this.populate(); })
+		watch(()=>this.title, ()=> { this.populate(); });
+		watch(()=>this.tags, ()=> { this.populate(); });
+		watch(()=>this.category, ()=> { this.populate(); });
 		watch(()=>this.localCategories, ()=> {
 			const value = this.localCategories.length > 0? this.localCategories[0] : null;
 			this.$emit('update:category', value);
-		})
+		});
+
+		if(this.triggerMode !== false) {
+			this.param_tags.placeholderList = this.placeholderList;
+			this.param_title.placeholderList = this.placeholderList;
+		}
 
 		this.populate();
 	}
@@ -142,6 +148,10 @@ export default class StreamInfoSubForm extends Vue {
 	 * Makes sure a tag is valid
 	 */
 	private sanitizeTag(value:string):string {
+		if(this.triggerMode !== false) {
+			//Allow curly brackets and underscores so we can use placeholders as tags
+			return Utils.replaceDiacritics(value).replace(/[^a-z0-9{}_]/gi, "").substring(0, 25);
+		}
 		return Utils.replaceDiacritics(value).replace(/[^a-z0-9]/gi, "").substring(0, 25);
 	}
 

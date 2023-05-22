@@ -1,4 +1,4 @@
-import type { TriggerData } from "@/types/TriggerActionDataTypes";
+import type { TriggerActionCountDataAction, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
@@ -52,6 +52,10 @@ export interface IMainState {
 	 */
 	latestUpdateIndex: number;
 	/**
+	 * Theme, light or dark mode
+	 */
+	theme: "light" | "dark";
+	/**
 	 * app ready ?
 	 */
 	initComplete: boolean;
@@ -100,6 +104,11 @@ export interface IMainState {
 	 * Contains the name of the current OBS scene (if OBS is connected)
 	 */
 	currentOBSScene:string;
+	/**
+	 * Hashmap linking an icon name to its SVG to avoid spamming useless
+	 * requests
+	 */
+	iconCache:{[key:string]:string};
 }
 
 export interface IMainGetters {
@@ -107,7 +116,11 @@ export interface IMainGetters {
 
 export interface IMainActions {
 	/**
-	 * Reoad all labels (use CTRL+Shift+M)
+	 * Toggle current theme (dark/light)
+	 */
+	toggleTheme(forced?:"light"|"dark"):Promise<void>;
+	/**
+	 * Reload all labels (use CTRL+Shift+M)
 	 */
 	reloadLabels():Promise<void>;
 	/**
@@ -527,7 +540,7 @@ export interface IDebugActions {
 	 * @param forcedMessage 
 	 * @param hook 
 	 */
-	sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void):Promise<TwitchatDataTypes.ChatMessageTypes>;
+	sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<TwitchatDataTypes.ChatMessageTypes>;
 }
 
 
@@ -874,10 +887,6 @@ export interface IStreamState {
 	 */
 	currentRaid: TwitchatDataTypes.RaidInfo|undefined;
 	/**
-	 * Latest playback info (viewer count)
-	 */
-	playbackState: PubSubDataTypes.PlaybackInfo|undefined;
-	/**
 	 * Current community boost info if any
 	 */
 	communityBoostState: TwitchatDataTypes.CommunityBoost|undefined;
@@ -892,7 +901,7 @@ export interface IStreamState {
 	/**
 	 * Current stream info
 	 */
-	currentStreamInfo: TwitchatDataTypes.StreamInfo|undefined;
+	currentStreamInfo: {[key in string]:TwitchatDataTypes.StreamInfo|undefined};
 	/**
 	 * Date at which the current commercial will end
 	 */
@@ -1190,7 +1199,7 @@ export interface IUsersState {
 	 * If doing a shoutout while the endpoint is cooling down
 	 * the user is added to this list for later process
 	 */
-	shoutoutHistory:Partial<{[key:string]:TwitchatDataTypes.ShoutoutHistoryItem[]}>;
+	pendingShoutouts:Partial<{[key:string]:TwitchatDataTypes.ShoutoutHistoryItem[]}>;
 }
 
 export interface IUsersGetters {
@@ -1356,8 +1365,9 @@ export interface IUsersActions {
 	 * Sends a shoutout to a user
 	 * @param channelId 
 	 * @param user 
+	 * @returns if SO has been done or not
 	 */
-	shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser):Promise<void>;
+	shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser, fromQueue?:boolean):Promise<boolean>;
 	/**
 	 * Execute any pending shoutout
 	 */
@@ -1489,17 +1499,29 @@ export interface ICountersActions {
 	 */
 	updateCounter(data:TwitchatDataTypes.CounterData):void;
 	/**
+	 * Broadcast a counter's value on public API
+	 * @param id 
+	 */
+	broadcastCounterValue(id:string):void;
+	/**
 	 * Delete a counter
 	 * @param data 
 	 */
 	delCounter(data:TwitchatDataTypes.CounterData):void;
 	/**
 	 * Add a value to the specified counter
+	 * When edditing a per-user counter it's possible to either give a user
+	 * instance of the user to update and all related triggers (looped, maxed, mined,...)
+	 * will be executed.
+	 * If updating LOTS of users at once, it's preferable to only give the userId to
+	 * in which case triggers won't be executed
 	 * @param id 
+	 * @param action 
 	 * @param value 
 	 * @param user 
+	 * @param userId 
 	 */
-	increment(id:string, value:number, user?:TwitchatDataTypes.TwitchatUser):void;
+	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
 }
 
 

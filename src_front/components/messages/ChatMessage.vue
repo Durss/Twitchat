@@ -23,7 +23,7 @@
 		</div>
 		
 		<div v-if="isAnnouncement" class="announcementHolder">
-			<img src="@/assets/icons/announcement.svg">
+			<Icon name="announcement" />
 			<div class="header"><strong>{{ $t('chat.message.announcement') }}</strong></div>
 		</div>
 		
@@ -33,11 +33,10 @@
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
-			<img v-if="!disableConversation && isConversation && $store('params').features.conversationsEnabled.value && !lightMode"
+			<Icon v-if="!disableConversation && isConversation && $store('params').features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
-				src="@/assets/icons/conversation.svg"
-				alt="conversation"
-				@click.stop="$emit('showConversation', $event, messageData)">
+				name="conversation"
+				@click.stop="$emit('showConversation', $event, messageData)" />
 
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
@@ -50,10 +49,10 @@
 					v-tooltip="b.label"></span>
 			</div>
 			
-			<img class="noFollowBadge" v-if="showNofollow"
-				src="@/assets/icons/unfollow.svg"
+			<Icon class="noFollowBadge" v-if="showNofollow"
+				name="unfollow"
 				:alt="$t('chat.message.no_follow')"
-				v-tooltip="$t('chat.message.no_follow')">
+				v-tooltip="$t('chat.message.no_follow')" />
 
 			<div class="occurrenceCount"
 				ref="occurrenceCount"
@@ -90,10 +89,10 @@
 			</span>
 			
 			<br v-if="clipInfo">
-			<div v-if="clipInfo" class="clip" @click.stop="openClip()">
-				<img :src="clipInfo.thumbnail_url" alt="thumbnail">
+			<div v-if="clipInfo" class="clip">
+				<img :src="clipInfo.thumbnail_url" alt="thumbnail" @click.stop="openClip()">
 				<div class="infos">
-					<div class="title">{{clipInfo.title}}</div>
+					<div class="title" @click.stop="openClip()">{{clipInfo.title}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_created_by")}} {{clipInfo.creator_name}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_channel")}} {{clipInfo.broadcaster_name}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_duration")}} {{clipInfo.duration}}s</div>
@@ -114,7 +113,7 @@
 		@click.stop="messageData.user.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
 
 		<div class="ctas" v-if="isAd">
-			<Button @click="disableAd()" icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
+			<Button @click="disableAd()" alert icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
 			<Button @click="openAdParams()" icon="edit">{{ $t('chat.message.customize_ad') }}</Button>
 		</div>
 	</div>
@@ -174,6 +173,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
+	public highlightOverlayAvailable:boolean = false;
 	public infoBadges:TwitchatDataTypes.MessageBadgeData[] = [];
 	public isAd:boolean = false;
 	public isAnnouncement:boolean = false;
@@ -184,7 +184,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
 	private canModerateMessage:boolean = false;
-	private canModerateUser:boolean = false;
+	private canModerateUser_local:boolean = false;
 	
 	
 	public get showNofollow():boolean{
@@ -261,19 +261,31 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Set login color
 	 */
 	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):StyleValue {
+		let colorStr = user.color ?? "#ffffff";
 		let color = 0xffffff;
 		if(user.color) {
 			color = parseInt(user.color.replace("#", ""), 16);
 		}
-		const hsl = Utils.rgb2hsl(color);
-		const minL = .65;
-		if(hsl.l < minL) {
-			color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
+		if(!Utils.isLightMode) {
+			const hsl = Utils.rgb2hsl(color);
+			const minL = .65;
+			if(hsl.l < minL) {
+				color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
+			}
+			colorStr = color.toString(16);
+		}else{
+			const hsl = Utils.rgb2hsl(color);
+			const maxL = .4;
+			const minS = 1;
+			if(hsl.l > maxL) {
+				color = Utils.hsl2rgb(hsl.h, Math.max(hsl.s, minS), Math.min(hsl.l, maxL));
+			}
+			colorStr = color.toString(16);
 		}
-		let colorStr = color.toString(16);
 		while(colorStr.length < 6) colorStr = "0"+colorStr;
+		colorStr = "#"+colorStr;
 		let res = {
-			color: "#"+colorStr,
+			color: colorStr,
 		};
 		return res;
 	}
@@ -355,10 +367,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			});
 		}
 
-		this.canModerateUser = (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_broadcaster
-						|| (StoreProxy.auth.twitch.user.channelInfo[this.messageData.channel_id].is_moderator
-							&& !this.messageData.user.channelInfo[this.messageData.channel_id].is_moderator))
-						&& this.messageData.user.id != StoreProxy.auth.twitch.user.id;
+		this.canModerateUser_local = super.canModerateUser(this.messageData.user, this.messageData.channel_id);
 	
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
@@ -382,13 +391,13 @@ export default class ChatMessage extends AbstractChatMessage {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
 			}
 			
-			this.canModerateMessage = this.canModerateUser
+			this.canModerateMessage = this.canModerateUser_local
 									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
 									&& this.canModerateMessage//if not sent by broadcaster
-									&& this.canModerateUser;//If we're a mod or the broadcaster
+									&& this.canModerateUser_local;//If we're a mod or the broadcaster
 
 
 			this.isAnnouncement	= this.messageData.twitch_announcementColor != undefined;
@@ -444,6 +453,11 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 		
 		if(clipId != "") {
+			this.clipHighlightLoading = true;
+			super.getHighlightOverPresence().then(res => {
+				this.highlightOverlayAvailable = res;
+				this.clipHighlightLoading = false;
+			 });
 			//Do it asynchronously blocking rendering
 			(async()=> {
 				let clip = await TwitchUtils.getClipById(clipId);
@@ -541,6 +555,13 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Send a clip to the overlay
 	 */
 	public async clipHighlight():Promise<void> {
+		super.getHighlightOverPresence().then(res => {
+			this.highlightOverlayAvailable = res;
+		});
+		if(!this.highlightOverlayAvailable) {
+			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "highlight");
+			return;
+		}
 		this.clipHighlightLoading = true;
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
 			clip:{
@@ -552,7 +573,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
 		this.$store("chat").isChatMessageHighlighted = true;
-		await Utils.promisedTimeout(2000);
+		await Utils.promisedTimeout(1000);
 		this.clipHighlightLoading = false;
 	}
 
@@ -596,7 +617,17 @@ export default class ChatMessage extends AbstractChatMessage {
 			const el = e.target as HTMLElement;
 			if(el.tagName == "A") return;
 		}
-		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser);
+		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser_local);
+	}
+
+	/**
+	 * Apply custom highlight colors
+	 */
+	public applyStyles():void {
+		//Do not apply highlights on announcement.
+		//Styles would conflict
+		if(this.isAnnouncement) return;
+		super.applyStyles();
 	}
 	
 	/**
@@ -676,20 +707,18 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	&.tracked {
-		border-radius: var(--border-radius);
-		color: var(--color-light);
+		color: var(--color-text);
 		background-color: var(--color-secondary-fader);
-		// border-left-width: .75em;
-		// padding-left: .3em;
-		// border: 1px solid var(--color-secondary);
-		text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
+		text-shadow: var(--text-shadow-contrast);
 	}
 
 	&.spoiler {
 		.message {
 			color: rgba(0, 0, 0, 0);
-			background-color: var(--color-dark-light);
-			background-image: repeating-linear-gradient(-45deg, #ffffff00, #ffffff00 7px, #ffffff30 7px, #ffffff30 15px);
+			@c1: var(--background-color-fadest);
+			@c2: var(--background-color-fader);
+			background-color: var(--background-color-fader);
+			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
 		}
 		&:hover {
 			.message {
@@ -774,14 +803,14 @@ export default class ChatMessage extends AbstractChatMessage {
 		text-decoration: none;
 		// -webkit-text-stroke: fade(#000, 50%) .25px;
 		&:hover {
-			background-color: var(--color-dark);
+			background-color: var(--background-color-fader);
 			border-radius: 3px;
 		}
 		.translation {
 			font-weight: normal;
 			font-size: .9em;
 		}
-		&:nth-last-child(2)::after{
+		&::after{
 			content: ": ";
 			display: inline-block;
 		}
@@ -799,8 +828,8 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	.pronoun {
 		border-radius: 3px;
-		color: var(--color-light);
-		border: 1px solid var(--color-light);
+		color: var(--color-text);
+		border: 1px solid var(--color-text);
 		padding: 0 2px;
 		margin-right: .25em;
 	}
@@ -822,7 +851,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			font-weight: normal;
 			background-color: var(--color-primary);
 			color: var(--color-light);
-			text-shadow: 1px 1px 0 rgba(0, 0, 0, 1);
+			text-shadow: var(--text-shadow-contrast);
 			padding: 0px 5px;
 		}
 	}
@@ -837,6 +866,8 @@ export default class ChatMessage extends AbstractChatMessage {
 		position: relative;
 
 		img {
+			cursor: pointer;
+			object-fit: cover;
 			max-width: min(50%, 200px);
 		}
 
@@ -846,6 +877,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			.title {
 				font-weight: bold;
 				margin-bottom: .25em;
+				cursor: pointer;
 			}
 			.subtitle {
 				font-size: .8em;
@@ -861,11 +893,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		.blockedMessage {
 			font-style: italic;
 		}
-		&:hover {
-			.blockedMessage {
-				color: var(--color-light);
-			}
-		}
 	}
 
 	&.automod {
@@ -873,7 +900,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		border-radius: .25em;
 		background-color: var(--color-alert-fader);
 		padding-top: 0;
-		color: var(--color-light);
 
 		.automod {
 			background-color: var(--color-alert);
@@ -905,6 +931,10 @@ export default class ChatMessage extends AbstractChatMessage {
 				}
 			}
 		}
+
+		.login {
+			color: var(--color-text) !important;
+		}
 	}
 
 	&.cyphered {
@@ -912,9 +942,9 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 	
 	&.whisper, &.cyphered {
-		background-color: var(--color-dark-light);
-		@c1: rgba(0,0,0,.8);
-		@c2: rgba(0,0,0,.85);
+		background-color: var(--color-text-inverse);
+		@c1: rgba(0,0,0,0);
+		@c2: var(--background-color-fadest);
 		background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
 		.message{
 			font-style: italic;
@@ -942,7 +972,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			margin-bottom: .25em;
 			flex-direction: row;
 			justify-content: center;
-			background-color: rgba(255, 255, 255, .1);
+			background-color: var(--background-color-fader);
 			width: calc(100% + .5em);
 			margin-left: -.25em;
 
@@ -952,20 +982,20 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 
 			.header {
-				color: var(--color-light);
+				color: var(--color-text);
 			}
 		}
 		&.purple {
-			border-image-source: linear-gradient(#9146ff,#ff75e6);
+			border-image-source: linear-gradient(#9146ff,#ff75e6) !important;
 		}
 		&.blue {
-			border-image-source: linear-gradient(#00d6d6,#9146ff);;
+			border-image-source: linear-gradient(#00d6d6,#9146ff) !important;
 		}
 		&.green {
-			border-image-source: linear-gradient(#00db84,#57bee6);
+			border-image-source: linear-gradient(#00db84,#57bee6) !important;
 		}
 		&.orange {
-			border-image-source: linear-gradient(#ffb31a,#e0e000);
+			border-image-source: linear-gradient(#ffb31a,#e0e000) !important;
 		}
 
 		padding: 0 .25em;

@@ -8,48 +8,50 @@
 				<Checkbox v-model="loading">loading mode</Checkbox>
 				<Checkbox v-model="type" :values="['link', 'button']">&lt;a&gt; mode</Checkbox>
 				<Checkbox v-model="selected">selected mode</Checkbox>
+				<Checkbox v-model="disabled">disabled</Checkbox>
 			</div>
 			
 			<div class="list">
-				<Button href="https://twitchat.fr" target="_blank" :type="type" big :loading="loading" :selected="selected">Normal big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary big :loading="loading" :selected="selected">Secondary big</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert big :loading="loading" :selected="selected">Alert big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" big :disabled="disabled" :loading="loading" :selected="selected">Normal big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" :loading="loading" :selected="selected">Normal</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary :loading="loading" :selected="selected">Secondary</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert :loading="loading" :selected="selected">Alert</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" :disabled="disabled" :loading="loading" :selected="selected">Normal</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert :disabled="disabled" :loading="loading" :selected="selected">Alert</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" small :loading="loading" :selected="selected">Normal small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary small :loading="loading" :selected="selected">Secondary small</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" alert small :loading="loading" :selected="selected">Alert small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" small :disabled="disabled" :loading="loading" :selected="selected">Normal small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected">Normal big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :loading="loading" :selected="selected">Secondary big icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :loading="loading" :selected="selected">Alert big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Normal big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected">Normal icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :loading="loading" :selected="selected">Secondary icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :loading="loading" :selected="selected">Alert icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Normal icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected">Alert icon</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected">Normal small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :loading="loading" :selected="selected">Secondary small icon</Button>
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :loading="loading" :selected="selected">Alert small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Normal small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small icon</Button>
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</Button>
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected" />
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected" />
 				
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :loading="loading" :selected="selected" />
-				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected" />
+				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected" />
 			</div>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :loading="loading" :selected="selected">Full width button</Button>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :loading="loading" :selected="selected">Full width button</Button>
-			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :loading="loading" :selected="selected">Full width button</Button>
+			
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
+			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
 		</div>
 
 		<Splitter>Switch buttons</Splitter>
@@ -89,10 +91,10 @@
 		<div class="card-item section toggleBlocks">
 			<ToggleBlock title="Title" subtitle="subtitle" key="toggle1">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
@@ -109,6 +111,20 @@
 			
 			<ToggleBlock title="Medium box" medium key="toggle2">
 				<template #left_actions>
+					<Icon name="dragZone" class="icon" />
+				</template>
+				<template #right_actions>
+					<Icon name="cross" class="icon" />
+				</template>
+				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+			</ToggleBlock>
+
+			<ToggleBlock title="Small box" subtitle="subtitle" small key="toggle4">
+				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+			</ToggleBlock>
+			
+			<ToggleBlock title="Title" primary subtitle="subtitle" key="toggle5">
+				<template #left_actions>
 					<img src="@/assets/icons/dragZone.svg" class="icon">
 				</template>
 				<template #right_actions>
@@ -116,8 +132,34 @@
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-
-			<ToggleBlock title="Small box" subtitle="subtitle" small key="toggle4">
+			
+			<ToggleBlock title="Medium box" primary medium key="toggle6">
+				<template #left_actions>
+					<img src="@/assets/icons/dragZone.svg" class="icon">
+				</template>
+				<template #right_actions>
+					<img src="@/assets/icons/cross.svg" class="icon">
+				</template>
+				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+			</ToggleBlock>
+			
+			<ToggleBlock title="Title" secondary subtitle="subtitle" key="toggle7">
+				<template #left_actions>
+					<img src="@/assets/icons/dragZone.svg" class="icon">
+				</template>
+				<template #right_actions>
+					<img src="@/assets/icons/cross.svg" class="icon">
+				</template>
+				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
+			</ToggleBlock>
+			
+			<ToggleBlock title="Medium box" secondary medium key="toggle8">
+				<template #left_actions>
+					<img src="@/assets/icons/dragZone.svg" class="icon">
+				</template>
+				<template #right_actions>
+					<img src="@/assets/icons/cross.svg" class="icon">
+				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
 		</div>
@@ -178,12 +220,25 @@
 			<ParamItem :paramData="param_listEdit" />
 			<ParamItem :paramData="param_listEdit" error />
 		</div>
+
+		<Splitter>Icons</Splitter>
+
+		<div class="card-item section icons">
+			<Icon name="errored icon" class="icon" />
+			<Icon v-for="(icon, index) in iconList"
+				class="icon"
+				:key="icon"
+				:name="icon"
+				@click="reloadIcon(index)"
+				@mouseover="openTooltip($event, icon)" />
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Checkbox from '@/components/Checkbox.vue';
+import Icon from '@/components/Icon.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
 import Slider from '@/components/Slider.vue';
 import Splitter from '@/components/Splitter.vue';
@@ -194,9 +249,11 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
+import { useTippy } from 'vue-tippy';
 
 @Component({
 	components:{
+		Icon,
 		Button,
 		Slider,
 		TabMenu,
@@ -216,7 +273,9 @@ export default class ComponentList extends Vue {
 	public disposed:boolean = false;
 	public loading:boolean = false;
 	public selected:boolean = false;
+	public disabled:boolean = false;
 	public progresses:number[] = [];
+	public iconList:string[] = [];
 
 	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"Enabled"};
 	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ff0000", label:"Color"};
@@ -226,10 +285,15 @@ export default class ComponentList extends Vue {
 	public param_number:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, label:"Count"};
 	public param_list:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[{value:"item1",label:"Item 1"}, {value:"item2",label:"Item 2"},{value:"item1",label:"Item 3"}], label:"List"};
 	public param_listEdit:TwitchatDataTypes.ParameterData<string[], string> = {type:"editablelist", value:["Item 2"], maxLength:2, options:["Item 1", "Item 2", "Item 3"], label:"Editable List"};
+
+	private tooltipCreated:{[key:string]:boolean} = {};
 	
-	public mounted():void {
+	public async mounted():Promise<void> {
 		this.resetProgressbars();
 		this.renderFrame();
+		let iconList = import.meta.glob("@/assets/icons/*.svg");
+		const keys = Object.keys(iconList).map(v=>v.replace(/.*\/(.*?).svg/, "$1"));
+		this.iconList = keys;
 	}
 	
 	public beforeUnmount():void {
@@ -239,6 +303,30 @@ export default class ComponentList extends Vue {
 	public resetProgressbars():void {
 		this.progresses = [.25,.25,.25,.25,.95];
 	}
+	
+	public async reloadIcon(index:number):Promise<void> {
+		let prevName = this.iconList[index];
+		this.iconList[index] = "";
+		await this.$nextTick();
+		this.iconList[index] = prevName;
+	}
+	
+	/**
+	 * Create tooltip only when hovering the image.
+	 * This avoids huge lag on build if creating tooltip on every items
+	 * at once.
+	 * 
+	 * @param event 
+	 * @param iconName 
+	 */
+	public openTooltip(event:MouseEvent, iconName:string):void {
+		if(this.tooltipCreated[iconName] === true) return;
+		this.tooltipCreated[iconName] = true;
+		useTippy(event.currentTarget as HTMLImageElement, {
+			content: iconName,
+		});
+	}
+
 
 	private renderFrame():void {
 		if(this.disposed) return;
@@ -260,6 +348,17 @@ export default class ComponentList extends Vue {
 	
 	.section {
 		margin: 0 2em;
+	}
+
+	.icons {
+		gap: 5px;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		.icon {
+			width: 4em;
+			height: 4em;
+		}
 	}
 
 	.buttons {
@@ -344,6 +443,7 @@ export default class ComponentList extends Vue {
 		flex-direction: column;
 		gap: 1em;
 		align-items: center;
+		color: var(--color-text);
 		&>* {
 			width: 600px;
 		}

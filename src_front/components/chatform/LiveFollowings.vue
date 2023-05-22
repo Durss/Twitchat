@@ -2,12 +2,12 @@
 	<div class="livefollowings sidePanel">
 		
 		<div class="head">
-			<h1><img src="@/assets/icons/user.svg" alt="user" class="icon">{{$t('cmdmenu.whoslive_title')}}</h1>
+			<h1><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
 			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
 		</div>
 		
 		<div class="content">
-			<img src="@/assets/loader/loader.svg" alt="loader" class="loader" v-if="loading">
+			<Icon name="loader" alt="loading" class="loader" v-if="loading" />
 
 			<div class="needScope" v-if="needScope">
 				<span>{{ $t("liveusers.scope_grant") }}</span>
@@ -25,8 +25,12 @@
 						<span class="title">{{s.title}}</span>
 						<mark class="game">{{s.game_name}}</mark>
 						<div class="footer">
-							<span class="viewers"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{s.viewer_count}}</span>
-							<span class="duration"><img src="@/assets/icons/timeout.svg" alt="user" class="icon">{{computeDuration(s.started_at)}}</span>
+							<span class="viewers">
+								<Icon class="icon" name="user"/>
+								{{s.viewer_count}}</span>
+							<span class="duration">
+								<Icon class="icon" name="timeout"/>
+								{{computeDuration(s.started_at)}}</span>
 						</div>
 						<div class="raidBt">
 							<img src="@/assets/icons/raid.svg" alt="raid">
@@ -136,7 +140,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 				display: flex;
 				flex-direction: column;
 				text-decoration: none;
-				color: var(--color-light);
+				color: var(--color-text);
 	
 				&:hover {
 					cursor: pointer;
@@ -150,6 +154,8 @@ export default class LiveFollowings extends AbstractSidePanel {
 						}
 						.raidBt {
 							opacity: 1;
+							font-size: 2em;
+							color: var(--color-button);
 						}
 					}
 				}

@@ -1,7 +1,7 @@
 <template>
 	<div class="streaminfo sidePanel">
 		<div class="head">
-			<h1 class="title">{{ $t("stream.form_title") }}</h1>
+			<h1 class="title"><Icon name="info" class="icon" />{{ $t("stream.form_title") }}</h1>
 			<CloseButton @click="close()" />
 		</div>
 		
@@ -10,11 +10,11 @@
 				<div class="list">
 					<div v-for="p in presets" :key="p.id" class="preset">
 						<Button class="button delete" @click="deletePreset(p)"
-							icon="trash"
+							icon="trash" alert
 							v-tooltip="$t('stream.preset_deleteBt_tt')" />
 							
 						<Button class="button" @click="editPreset(p)"
-							icon="edit"
+							icon="edit" secondary
 							v-tooltip="$t('stream.preset_editBt_tt')" />
 	
 						<Button class="button" @click="applyPreset(p)"
@@ -24,7 +24,10 @@
 			</ToggleBlock>
 			
 		
-			<img v-if="loading" src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			<picture v-if="loading">
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 
 			<ToggleBlock v-else class="form" :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
 			:open="presets.length == 0 || forceOpenForm" icon="update">

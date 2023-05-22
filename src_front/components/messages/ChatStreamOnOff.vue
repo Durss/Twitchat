@@ -2,8 +2,8 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 
-		<img :src="$image('icons/online.svg')" alt="online" class="icon" v-if="isOnline">
-		<img :src="$image('icons/offline.svg')" alt="offline" class="icon" v-else>
+		<Icon name="online" alt="online" class="icon" v-if="isOnline"/>
+		<Icon name="offline" alt="offline" class="icon" v-else/>
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="isOnline? 'chat.stream.online' : 'chat.stream.offline'">
@@ -27,7 +27,7 @@
 					@click.stop="shoutout()"
 					icon="shoutout"
 					:loading="shoutoutLoading"
-					white
+					small
 					class="soButton"
 				>{{ $t('chat.soBt') }}</Button>
 			</div>
@@ -107,7 +107,8 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 		border-radius: .5em;
 		overflow: hidden;
 		width: 100%;
-		gap: 1em;
+		row-gap: .5em;
+		column-gap: 1em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;

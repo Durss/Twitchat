@@ -1,7 +1,7 @@
 <template>
 	<div class="overlayparamsmusic">
 		<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
-		<input type="text" id="spotify_overlay_url" v-model="overlayUrl">
+		<input class="primary" type="text" id="spotify_overlay_url" v-model="overlayUrl">
 		<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 			<div>{{ $t("overlay.music_common.css") }}</div>
 			<ul class="cssStructure">
@@ -137,8 +137,5 @@ export default class OverlayParamsMusic extends Vue {
 		flex-direction: column;
 	}
 
-	input {
-		background-color: var(--color-primary);
-	}
 }
 </style>

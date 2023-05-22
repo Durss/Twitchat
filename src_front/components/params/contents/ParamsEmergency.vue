@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsemergency parameterContent">
-		<img src="@/assets/icons/emergency.svg" alt="emergency icon" class="icon">
+		<Icon name="emergency" class="icon" />
 		
 		<p class="head">{{ $t("emergency.header") }}</p>
 		<ParamItem class="enableBt" :paramData="param_enable" />
@@ -18,7 +18,7 @@
 					</ToggleBlock>
 				</div>
 				<div class="card-item labeled">
-					<img src="@/assets/icons/mod.svg" alt="scene icon" class="icon">
+					<Icon name="mod" class="icon" />
 					<i18n-t scope="global" tag="p" keypath="emergency.start.also">
 						<template #LINK>
 							<a @click="$store('params').openParamsPage(contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
@@ -53,7 +53,7 @@
 				
 				<template v-else>
 					<div class="card-item labeled">
-						<img src="@/assets/icons/list.svg" alt="scene icon" class="icon">
+						<Icon name="list" class="icon" />
 						<p>{{ $t("emergency.actions.obs_scene") }}</p>
 						<vue-select class="sourceSelector" label="label"
 							:placeholder="$t('emergency.actions.obs_scene_select')"
@@ -65,7 +65,7 @@
 					</div>
 					
 					<div class="card-item labeled">
-						<img src="@/assets/icons/show.svg" alt="sources icon" class="icon">
+						<Icon name="show" class="icon" />
 						<p>{{ $t("emergency.actions.obs_sources") }} <br><i>{{ $t("emergency.actions.obs_sources_example") }}</i></p>
 						<vue-select class="sourceSelector" label="sourceName"
 							:placeholder="$t('emergency.actions.obs_sources_select')"
@@ -107,19 +107,19 @@ import type IParameterContent from './IParameterContent';
 export default class ParamsEmergency extends Vue implements IParameterContent {
 
 	public param_enable:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false};
-	public param_enableShieldMode:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, icon:"shieldMode.svg", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
-	public param_chatCommand:TwitchatDataTypes.ParameterData<string>					= {type:"string", value:"!emergency", icon:"commands.svg"};
+	public param_enableShieldMode:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, icon:"shieldMode", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
+	public param_chatCommand:TwitchatDataTypes.ParameterData<string>					= {type:"string", value:"!emergency", icon:"commands"};
 	public param_obsScene:TwitchatDataTypes.ParameterData<string, string>				= {type:"list", value:""};
-	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, icon:"follow.svg", tooltip:""};
-	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData<boolean>		= {type:"boolean", value:true, icon:"shieldMode.svg", tooltip:"", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
-	public param_slowMode:TwitchatDataTypes.ParameterData<boolean, string, number>		= {type:"boolean", value:false,	icon:"timer.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_autoEnableOnFollowbot:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, icon:"follow", tooltip:""};
+	public param_autoEnableOnShieldmode:TwitchatDataTypes.ParameterData<boolean>		= {type:"boolean", value:true, icon:"shieldMode", tooltip:"", twitch_scopes:[TwitchScopes.SHIELD_MODE]};
+	public param_slowMode:TwitchatDataTypes.ParameterData<boolean, string, number>		= {type:"boolean", value:false,	icon:"timer", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
 	public param_slowModeDuration:TwitchatDataTypes.ParameterData<number>				= {type:"number", value:10, max:1800, min:1};
-	public param_followersOnly:TwitchatDataTypes.ParameterData<boolean, string, number>	= {type:"boolean", value:false,	icon:"follow.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_followersOnly:TwitchatDataTypes.ParameterData<boolean, string, number>	= {type:"boolean", value:false,	icon:"follow", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
 	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData<number>			= {type:"number", value:30, max:129600, min:1};
-	public param_subsOnly:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false,	icon:"sub.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_emotesOnly:TwitchatDataTypes.ParameterData<boolean>					= {type:"boolean", value:false,	icon:"emote.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_autoTO:TwitchatDataTypes.ParameterData<string[], string>				= {type:"editablelist", value:[], longText:true, icon:"timeout.svg", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
-	public param_noTrigger:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:true, icon:"broadcast.svg"};
+	public param_subsOnly:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false,	icon:"sub", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_emotesOnly:TwitchatDataTypes.ParameterData<boolean>					= {type:"boolean", value:false,	icon:"emote", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_autoTO:TwitchatDataTypes.ParameterData<string[], string>				= {type:"editablelist", value:[], longText:true, icon:"timeout", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]};
+	public param_noTrigger:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:true, icon:"broadcast"};
 	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue<string>|null = null;
@@ -177,7 +177,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.param_enable.labelKey					= "global.enabled";
+		this.param_enable.labelKey					= "global.enable";
 		this.param_enableShieldMode.labelKey		= "emergency.params.shieldmode";
 		this.param_chatCommand.labelKey				= "emergency.params.chatCommand";
 		this.param_autoEnableOnFollowbot.labelKey	= "emergency.params.autoEnableOnFollowbot";
@@ -318,14 +318,6 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 				&.labeled {
 					i {
 						font-size: .8em;
-					}
-					.icon {
-						width: 1.2em;
-						max-height: 1.2em;
-						margin-right: .5em;
-						margin-bottom: 2px;
-						display: inline;
-						vertical-align: middle;
 					}
 					p {
 						display: inline;

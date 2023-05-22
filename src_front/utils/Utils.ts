@@ -10,6 +10,16 @@ import TwitchUtils from './twitch/TwitchUtils';
  */
 export default class Utils {
 
+	/**
+	 * Check if user browser them is light mode
+	 */
+	public static get isLightMode():boolean {
+		return document.body.classList.contains("light");
+	}
+
+	/**
+	 * Generates a random UUID
+	 */
 	public static getUUID():string {
 		if(crypto.randomUUID) {
 			return crypto.randomUUID();
@@ -192,7 +202,7 @@ export default class Utils {
 
 	/**
 	 * Converts an RGB color to HSL
-	 * @returns h:360 - s:0-1 - l:0-1
+	 * @returns h:0-360 - s:0-1 - l:0-1
 	 */
 	public static rgb2hsl(color:number):{h:number,s:number,l:number} {
 		const r:number = (color >> 16 & 0xff) / 0xff;
@@ -204,7 +214,7 @@ export default class Utils {
 	}
 
 	/**
-	 * Converts an HTSL color to RGB
+	 * Converts an HSL color to RGB
 	 * @param h 0-360
 	 * @param s 0-1
 	 * @param l 0-1
@@ -215,6 +225,31 @@ export default class Utils {
 		const f = (n:number,k:number=(n+h/30)%12) => l - a*Math.max(Math.min(k-3,9-k,1),-1);
 		return ((f(0)*0xff)<<16) | ((f(8)*0xff)<<8) | (f(4)*0xff);
 	}
+
+	/**
+	 * Converts an RGB color to HSV
+	 * @returns h:0-360 - s:0-1 - l:0-1
+	 */
+	public static rgb2hsv(color:number):{h:number,s:number,v:number} {
+		const r:number = (color >> 16 & 0xff) / 0xff;
+		const g:number = (color >> 8 & 0xff) / 0xff;
+		const b:number = (color & 0xff) / 0xff;
+		let v=Math.max(r,g,b), c=v-Math.min(r,g,b);
+		let h= c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
+		return {h:60*(h<0?h+6:h), s:v&&c/v, v};
+	}
+
+	/**
+	 * Converts an HSV color to RGB
+	 * @param h 0-360
+	 * @param s 0-1
+	 * @param l 0-1
+	 * @returns 
+	 */
+	public static hsv2rgb(h:number,s:number,v:number):number {                              
+		let f= (n:number,k=(n+h/60)%6) => v - v*s*Math.max( Math.min(k,4-k,1), 0);
+		return f(5)<<16 | f(3)<<8 | f(1);
+	}  
 
 	/**
 	 * Check if a user matches a permission criterias

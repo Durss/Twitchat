@@ -6,7 +6,7 @@ import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
-import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesValue, type TriggerTypesKey } from "../../types/TriggerActionDataTypes";
+import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
 import Config from "../Config";
 import OBSWebsocket from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
@@ -19,7 +19,6 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
-import { TriggerTypesDefinitionList } from "../../types/TriggerActionDataTypes";
 
 /**
 * Created : 22/04/2022 
@@ -541,7 +540,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Execute a specific trigger
 	 */
-	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string):Promise<boolean> {
+	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}, ignoreDisableState:boolean = false):Promise<boolean> {
 		let log:TriggerLog = {
 			id:Utils.getUUID(),
 			trigger,
@@ -556,12 +555,9 @@ export default class TriggerActionHandler {
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
 		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS]
-		if(!noLogs.includes(trigger.type)) {
-			this.logHistory.unshift(log);
-		}
-		if(this.logHistory.length > 100) {
-			this.logHistory.pop();
-		}
+		if(!noLogs.includes(trigger.type))	this.logHistory.unshift(log);
+		//Only keep last 100 triggers
+		if(this.logHistory.length > 100)	this.logHistory.pop();
 	
 		//Special case for friends stream start/stop notifications
 		if(trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
@@ -569,13 +565,13 @@ export default class TriggerActionHandler {
 			return true;
 		}
 	
-		//Special case for friends stream start/stop notifications
+		//Special case for pending shoutouts
 		if(trigger.type == TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE) {
 			StoreProxy.users.executePendingShoutouts();
 			return true;
 		}
 		
-		//Special case for twitchat's ad, generate trigger data
+		//Special case for twitchat's ad
 		if(trigger.type == TriggerTypes.TWITCHAT_AD) {
 			let text:string = StoreProxy.chat.botMessages.twitchatAd.message;
 			//If no link is found on the message, send default message
@@ -589,18 +585,15 @@ export default class TriggerActionHandler {
 		// console.log("PARSE STEPS", eventType, trigger, message);
 		let canExecute = true;
 
-		if(!testMode
-		&& trigger.permissions
-		&& trigger.cooldown
-		&& message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+		if(!testMode && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			const triggerId = trigger.id;
 			const now = Date.now();
 			
 			//check permissions
-			if(!await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
+			if(trigger.permissions && !await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
 				log.messages.push({date:Date.now(), value:"User is not allowed"});
 				canExecute = false;
-			}else{
+			}else if(trigger.cooldown){
 				//Apply cooldowns if any
 
 				//Global cooldown
@@ -627,24 +620,68 @@ export default class TriggerActionHandler {
 				else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 			}
 		}
+
+		//Create dynamic placeholders only if trigger is planned for execution so far.
+		//These are necessary to check for conditions.
+		//For example, if there's a custom chat command param, it may be used on the
+		//trigger's condition system, in which case we need it before checking if the
+		//conditions are matched
+		if(canExecute) {
+			//Handle optional chat command custom params
+			if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
+			&& trigger.chatCommandParams && trigger.chatCommandParams.length > 0) {
+				let res = message.message.trim()
+
+				//Remove sub event from the text (the command)
+				let subEvent_regSafe = "";
+				if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				res = res.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
+
+				res = res.replace(/\s+/gi, ' ');//replace consecutive white spaces
+				const params = res.split(" ");
+
+				//Add all params in the dynamic placeholders
+				for (let i = 0; i < trigger.chatCommandParams.length; i++) {
+					const param = trigger.chatCommandParams[i];
+					dynamicPlaceholders[param.tag] = params[i] || "";
+					log.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+param.tag+"}\" => \""+params[i]+"\""});
+				}
+			}
+		}
+		
+		let actions = trigger.actions;
 		
 		//check execution conditions
-		if(!testMode && trigger.conditions && trigger.conditions.conditions.length > 0 && !await this.checkConditions(trigger.conditions.operator, [trigger.conditions], trigger, message, log, subEvent)) {
-			log.messages.push({date:Date.now(), value:"Execution conditions not fulfilled"});
-			canExecute = false;
+		let passesCondition = true;
+		let hasConditions = trigger.conditions && trigger.conditions.conditions.length > 0
+		if(!testMode
+		&& hasConditions
+		&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
+			log.messages.push({date:Date.now(), value:"Conditions not fulfilled"});
+			passesCondition = false;
+		}else if(hasConditions) {
+			log.messages.push({date:Date.now(), value:"Conditions fulfilled"});
 		}
 
-		if(!trigger || !trigger.actions || trigger.actions.length == 0) canExecute = false;
-		if(!trigger.enabled && !testMode) canExecute = false;
+		//Filter actions to execute based on whether the condition is matched or not
+		if(hasConditions) {
+			actions = trigger.actions.filter(t=> {
+				return t.condition == passesCondition || (t.condition !== false && passesCondition);
+			});
+		}
+
+		if(!trigger || !actions || actions.length == 0) {
+			canExecute = false;
+			log.messages.push({date:Date.now(), value:"Trigger has no child actions"});
+		}
+		if(!trigger.enabled && !testMode && !ignoreDisableState) {
+			canExecute = false;
+			log.messages.push({date:Date.now(), value:"Trigger is disabled"});
+		}
 		
 		log.skipped = !canExecute;
 
-		// console.log(trigger);
-		// console.log(message);
-		// console.log(canExecute);
-
-		// if(!canExecute) console.log("Cant execute:", message, trigger);
-
+		//Stop there if previous conditions aren't matched
 		if(!canExecute) return false;
 			
 		//Wait for potential previous trigger of the exact same type to finish its execution
@@ -662,30 +699,8 @@ export default class TriggerActionHandler {
 			log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
 		}
 
-		const dynamicPlaceholders:{[key:string]:string|number} = {};
-
-		//Handle optional chat command custom params
-		if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
-		&& trigger.chatCommandParams && trigger.chatCommandParams.length > 0) {
-			let res = message.message.trim()
-
-			//Remove sub event from the text (the command)
-			let subEvent_regSafe = "";
-			if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			res = res.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
-
-			res = res.replace(/\s+/gi, ' ');//replace consecutive white spaces
-			const params = res.split(" ");
-
-			//Add all params in the dynamic placeholders
-			for (let i = 0; i < trigger.chatCommandParams.length; i++) {
-				const param = trigger.chatCommandParams[i];
-				dynamicPlaceholders[param.tag] = params[i] || "";
-				log.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+param.tag+"}\" => \""+params[i]+"\""});
-			}
-		}
-
-		for (const step of trigger.actions) {
+		for (const step of actions) {
+			console.log("Exect step", step);
 			const logStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
 			log.steps.push(logStep);
 
@@ -846,11 +861,15 @@ export default class TriggerActionHandler {
 				if(step.type == "poll") {
 					try {
 						if(step.pollData.title && step.pollData.answers.length >= 2) {
+							let answers:string[] = [];
+							for (const a of step.pollData.answers) {
+								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a))
+							}
 							await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
-							step.pollData.title,
-							step.pollData.answers.concat(),
-							step.pollData.voteDuration * 60,
-							step.pollData.pointsPerVote);
+								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pollData.title),
+								answers,
+								step.pollData.voteDuration * 60,
+								step.pollData.pointsPerVote);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"Cannot create poll as it's missing either the title or answers"});
 						}
@@ -864,10 +883,14 @@ export default class TriggerActionHandler {
 				if(step.type == "prediction") {
 					try {
 						if(step.predictionData.title && step.predictionData.answers.length >= 2) {
+							let answers:string[] = [];
+							for (const a of step.predictionData.answers) {
+								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a))
+							}
 							await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id,
-							step.predictionData.title,
-							step.predictionData.answers.concat(),
-							step.predictionData.voteDuration * 60);
+								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.predictionData.title),
+								answers,
+								step.predictionData.voteDuration * 60);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"Cannot create prediction as it's missing either the title or answers"});
 						}
@@ -879,7 +902,12 @@ export default class TriggerActionHandler {
 				
 				//Handle raffle action
 				if(step.type == "raffle") {
-					StoreProxy.raffle.startRaffle(JSON.parse(JSON.stringify(step.raffleData)));
+					let data:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(step.raffleData));
+					if(data.customEntries) {
+						//Parse placeholders on custom erntries
+						data.customEntries = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customEntries);
+					}
+					StoreProxy.raffle.startRaffle(data);
 				}else
 				
 				//Handle raffle enter action
@@ -889,7 +917,20 @@ export default class TriggerActionHandler {
 				
 				//Handle bingo action
 				if(step.type == "bingo") {
-					StoreProxy.bingo.startBingo(JSON.parse(JSON.stringify(step.bingoData)));
+					const data:TwitchatDataTypes.BingoConfig = JSON.parse(JSON.stringify(step.bingoData));
+					if(data.customValue) {
+						data.customValue = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customValue);
+					}
+					StoreProxy.bingo.startBingo(data);
+				}else
+				
+				//Handle chat suggesiton action
+				if(step.type == "chatSugg") {
+					const data:TwitchatDataTypes.ChatSuggestionData = JSON.parse(JSON.stringify(step.suggData));
+					data.startTime = Date.now();
+					data.choices = [];
+					data.winners = [];
+					StoreProxy.chatSuggestion.setChatSuggestion(data);
 				}else
 				
 				//Handle voicemod action
@@ -906,8 +947,12 @@ export default class TriggerActionHandler {
 						if(trigger) {
 							// console.log("Exect sub trigger", step.triggerKey);
 							logStep.messages.push({date:Date.now(), value:"Call trigger \""+step.triggerId+"\""});
-							await this.executeTrigger(trigger, message, testMode);
+							await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders);
+						}else{
+							logStep.messages.push({date:Date.now(), value:"❌ Call trigger, trigger \""+step.triggerId+"\" not found"});
 						}
+					}else{
+						logStep.messages.push({date:Date.now(), value:"❌ Call trigger, no trigger defined"});
 					}
 				}else
 				
@@ -977,6 +1022,7 @@ export default class TriggerActionHandler {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/,/gi, ".");
 					const value = MathJS.evaluate(text);
+					if(!step.action) step.action = "ADD";
 
 					if(!isNaN(value)) {
 						const ids = step.counters;
@@ -988,36 +1034,68 @@ export default class TriggerActionHandler {
 								if(c.perUser
 								&& step.counterUserSources
 								&& step.counterUserSources[c.id]
-								&& step.counterUserSources[c.id] != "SENDER") {
+								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
+								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE) {
 									log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 									//Convert placeholder to a string value
 									const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.counterUserSources[c.id].toUpperCase()+"}")
-									let channelId = StoreProxy.auth.twitch.user.id;
-									if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
-										channelId = (message as TwitchatDataTypes.GreetableMessage).channel_id;
-									}
-									//Load user
-									await new Promise<void>((resolve, reject)=> {
-										//FIXME that hardcoded platform "twitch" will break if adding a new platform
-										//I can't just use "message.platform" as this contains "twitchat" for messages
-										//like raffle and bingo result which. Full user loading only happens if "twitch"
-										//platform is specified, the user would remain in a temporary state in such case
-										StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, (userData)=>{
-											if(userData.errored || userData.temporary) {
-												log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
-												user = undefined;
-											}else{
-												user = userData;
-												log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+									log.messages.push({date:Date.now(), value:"...extracted user is \""+login+"\""});
+									if(login) {
+										//Not ideal but if there are multiple users they're concatenated in
+										//a single coma seperated string (placeholder parsing is made for display :/).
+										//Here we split it on comas just in case there are multiple user names
+										let list = login.split(",");
+										for (let displayName of list) {
+											displayName = displayName.trim();
+											let channelId = StoreProxy.auth.twitch.user.id;
+											if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+												channelId = (message as TwitchatDataTypes.GreetableMessage).channel_id;
 											}
-											resolve();
-										});
-									})
+											//Load user details
+											await new Promise<void>((resolve, reject)=> {
+												//FIXME that hardcoded platform "twitch" will break if adding a new platform
+												//I can't just use "message.platform" as this contains "twitchat" for messages
+												//like raffle and bingo results. Full user loading only happens if "twitch"
+												//platform is specified, the user would remain in a temporary state otherwise
+												StoreProxy.users.getUserFrom("twitch", channelId, undefined, undefined, displayName, (userData)=>{
+													if(userData.errored || userData.temporary) {
+														log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
+														user = undefined;
+													}else{
+														user = userData;
+														log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+													}
+													resolve();
+												});
+											});
+
+											if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
+											let logMessage = "Update \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
+											if(user) logMessage += " (for @"+user.displayName+")";
+											logStep.messages.push({date:Date.now(), value:logMessage});
+										}
+									}
+
+								//Check if requested to edit all users of a counter
+								}else if(c.perUser
+								&& c.users
+								&& step.counterUserSources
+								&& step.counterUserSources[c.id]
+								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE){
+									logStep.messages.push({date:Date.now(), value:"Update all users, \""+step.action+"\" "+value+" ("+text+")"});
+									console.log("counter", c);
+									for (const uid in c.users) {
+										StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
+									}
+
+								//Standard counter edition (either current user or a non-per-user counter)
+								}else{
+
+									if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
+									let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
+									if(user) logMessage += " (for @"+user.displayName+")";
+									logStep.messages.push({date:Date.now(), value:logMessage});
 								}
-								if(!c.perUser || user) StoreProxy.counters.increment(c.id, value, user);
-								let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
-								if(user) logMessage += " (for @"+user.displayName+")";
-								logStep.messages.push({date:Date.now(), value:logMessage});
 							}
 						}
 					}
@@ -1061,16 +1139,33 @@ export default class TriggerActionHandler {
 					
 					}else if(step.mode == "trigger") {
 						//Pick an item from a custom list
-						const triggerId = Utils.pickRand(step.triggers);
-						if(triggerId) {
-							const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == triggerId);
-							if(trigger) {
-								// console.log("Exec sub trigger", step.triggerKey);
-								logStep.messages.push({date:Date.now(), value:"Call random trigger \""+triggerId+"\""});
-								await this.executeTrigger(trigger, message, testMode);
-							}
+						const triggerList = StoreProxy.triggers.triggerList;
+						const hashmap:{[key:string]:TriggerData} = {};
+						triggerList.forEach(t => hashmap[t.id] = t);
+
+						let triggers = step.triggers;
+						//If requesting to ignore disabled triggers, filter them out
+						//Testing with "!== false" because the prop was added later and might be
+						//missing and I want it to be "true" by default
+						if(step.skipDisabled !== false) triggers = triggers.filter(t => hashmap[t].enabled);
+						if(triggers.length === 0) {
+							logStep.messages.push({date:Date.now(), value:"Empty trigger list or all triggers disabled"});
 						}else{
-							logStep.messages.push({date:Date.now(), value:"Random trigger not found for ID \""+triggerId+"\""});
+							//Pick a random trigger
+							const triggerId = Utils.pickRand(triggers);
+							if(triggerId) {
+								const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == triggerId);
+								if(trigger) {
+									// console.log("Exec sub trigger", step.triggerKey);
+									logStep.messages.push({date:Date.now(), value:"Call random trigger \""+triggerId+"\""});
+									await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders, true);
+									if(step.disableAfterExec === true) {
+										trigger.enabled = false;
+									}
+								}else{
+									logStep.messages.push({date:Date.now(), value:"Random trigger not found for ID \""+triggerId+"\""});
+								}
+							}
 						}
 					}
 				}else
@@ -1078,9 +1173,22 @@ export default class TriggerActionHandler {
 				//Handle stream info update trigger action
 				if(step.type == "stream_infos") {
 					if(step.title) {
-						//TODO parse placeholders on infos
-						logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\"{"+step.title+"}\" Tags:\"{"+step.tags+"}\" CategoryID:\"{"+step.categoryId+"}\" "});
-						await StoreProxy.stream.setStreamInfos("twitch", step.title, step.categoryId, StoreProxy.auth.twitch.user.id, step.tags);
+						let title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.title);
+						let tags = [];
+						for (const tag of step.tags) {
+							tags.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, tag));
+						}
+						logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\""+title+"\" Tags:\""+tags+"\" CategoryID:\""+step.categoryId+"\""});
+						await StoreProxy.stream.setStreamInfos("twitch", title, step.categoryId, StoreProxy.auth.twitch.user.id, tags);
+					}
+				}else
+
+				//Handle mobile device vibration action
+				if(step.type == "vibrate") {
+					if(step.pattern) {
+						let pattern:number[] = TriggerActionDataTypes.VIBRATION_PATTERNS.find(v=>v.id == step.pattern)?.pattern || [];
+						logStep.messages.push({date:Date.now(), value:"Vibrate device with pattern \""+step.pattern+"\" => \"["+pattern+"]\""});
+						window.navigator.vibrate(pattern);
 					}
 				}else
 
@@ -1267,12 +1375,12 @@ export default class TriggerActionHandler {
 			// console.log(src);
 			// console.log(subEvent);
 
-			let placeholders = TriggerEventPlaceholders(trigger.type).concat();//Clone it to avoid modifying original
-			if(actionPlaceholder.length > 0)placeholders = placeholders.concat(actionPlaceholder);
+			let placeholders = TriggerEventPlaceholders(trigger.type).concat() ?? [];//Clone it to avoid modifying original
+			if(actionPlaceholder.length > 0) placeholders = placeholders.concat(actionPlaceholder);
 			// console.log(placeholders);
 			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
-			if(!placeholders) return res;
+			if(placeholders.length == 0) return res;
 			
 			for (const h of placeholders) {
 				const chunks:string[] = h.pointer.split(".");
@@ -1316,22 +1424,22 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					}else if(h.tag.toLowerCase().indexOf("my_stream") == 0 && StoreProxy.stream.currentStreamInfo) {
+					}else if(h.pointer.toLowerCase().indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
 						const pointer = h.pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys
-						value = StoreProxy.stream.currentStreamInfo[pointer].toString();
-						if(!value) value = "-none-";
+						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointer]?.toString() || "";
+						if(!value) value = pointer == "viewers"? "0" : "-none-";
 
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					}else if(h.tag.toLowerCase().indexOf("trigger_name") == 0) {
+					}else if(h.pointer.toLowerCase().indexOf("__trigger__") == 0) {
 						value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
 						if(!value) value = "-no name-";
 
 					/**
 					 * If the placeholder requests for the current OBS scene
 					 */
-					}else if(h.tag.toLowerCase().indexOf("obs_scene") == 0) {
+					}else if(h.pointer.toLowerCase().indexOf("__obs__") == 0) {
 						value = StoreProxy.main.currentOBSScene;
 						if(!value) value = "-none-";
 
@@ -1435,11 +1543,14 @@ export default class TriggerActionHandler {
 		for (let i = 0; i < channels.length; i++) {
 			const c = channels[i];
 			liveChannels[c.user_id] = {
-				user:StoreProxy.users.getUserFrom("twitch", c.user_id, c.user_id, c.user_login, c.user_name),
+				user:StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, c.user_id, c.user_login, c.user_name),
 				category:c.game_name,
 				title:c.title,
 				tags: c.tags,
+				live:true,
+				viewers:c.viewer_count,
 				started_at:new Date(c.started_at).getTime(),
+				lastSoDoneDate:0,
 			}
 		}
 
@@ -1463,6 +1574,8 @@ export default class TriggerActionHandler {
 						type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
 						info: this.liveChannelCache[uid],
 					}
+					this.liveChannelCache[uid].viewers = 0;
+					this.liveChannelCache[uid].live = false;
 					StoreProxy.chat.addMessage(message);
 					dateOffset ++;
 				}
@@ -1499,16 +1612,16 @@ export default class TriggerActionHandler {
 	 * @param log 
 	 * @param subEvent 
 	 */
-	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, subEvent?:string|null):Promise<boolean> {
+	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, dynamicPlaceholders:{[key:string]:string|number}, subEvent?:string|null):Promise<boolean> {
 		let res = false;
 		let index = 0;
 		for (const c of conditions) {
 			let localRes = false;
 			if(c.type == "group") {
-				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, subEvent);
+				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, dynamicPlaceholders, subEvent);
 			}else{
-				const value = await this.parsePlaceholders({}, [], trigger, message, "{"+c.placeholder+"}", subEvent);
-				const expectation = c.value;
+				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
+				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value, subEvent);
 				switch(c.operator) {
 					case "<": localRes = parseInt(value) < parseInt(expectation); break;
 					case "<=": localRes = parseInt(value) <= parseInt(expectation); break;

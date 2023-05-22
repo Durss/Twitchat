@@ -1,7 +1,10 @@
 <template>
 	<div class="rewardslist blured-background-window">
 		<div v-if="rewards.length == 0" class="loader">
-			<img src="@/assets/loader/loader.svg" alt="loader">
+			<picture>
+				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
+				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
+			</picture>
 			<p>loading...</p>
 		</div>
 

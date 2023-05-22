@@ -58,10 +58,10 @@ export default class VoiceGlobalCommands extends Vue {
 			this.itemIDs.push(id);
 		}
 		
-		this.updateCommands();
+		this.updateCommands(true);
 	}
 
-	public updateCommands():void {
+	public updateCommands(isInit:boolean = false):void {
 		const data:VoiceAction[] = [];
 		let allDone = true;
 		for (let i = 0; i < this.items.length; i++) {
@@ -74,8 +74,12 @@ export default class VoiceGlobalCommands extends Vue {
 			allDone &&= item.value != "";
 		}
 
-		this.openLocal = !allDone;
-		
+		//Do not change open state when editing field otherwise the form
+		//would close after writing the first letter of the last field
+		if(isInit || !allDone) {
+			this.openLocal = !allDone;
+		}
+	
 		this.$emit("update:modelValue", data);
 		this.$emit("update:complete", allDone);
 	}

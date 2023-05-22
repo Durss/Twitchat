@@ -4,17 +4,15 @@
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click.capture="clickItem($event)">
 		<div class="content">
-			<img :src="$image('icons/'+paramData.icon)" v-if="paramData.icon" class="icon">
+			<Icon :theme="paramData.iconTheme" :name="paramData.icon" v-if="paramData.icon" class="icon" />
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="icon">
 
 			<div v-if="paramData.type == 'boolean'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
-					class="helpIcon"
-				>
+				/>
 				
 				<label :for="'toggle'+key"
 					v-if="label"
@@ -30,11 +28,10 @@
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
 				<label :for="'number'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<input v-if="!paramData.noInput" ref="input"
 					:tabindex="tabindex"
@@ -45,15 +42,15 @@
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
-					@blur="clampValue()">
+					@blur="clampValue()"
+					@input="$emit('input')">
 			</div>
 			
 			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder">
 					<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
@@ -63,7 +60,8 @@
 						:id="'text'+key"
 						:name="paramData.fieldName"
 						:placeholder="placeholder"
-						v-autofocus="autofocus"></textarea>
+						v-autofocus="autofocus"
+						@input="$emit('input')"></textarea>
 					<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
@@ -73,17 +71,17 @@
 						:type="paramData.type"
 						:placeholder="placeholder"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
-						autocomplete="new-password">
+						autocomplete="new-password"
+						@input="$emit('input')">
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
 			</div>
 			
 			<div v-if="paramData.type == 'color'" class="holder color">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder input-field" :style="{backgroundColor: paramData.value as string }">
 					<input ref="input" v-if="!paramData.noInput"
@@ -92,26 +90,25 @@
 						v-autofocus="autofocus"
 						:name="paramData.fieldName"
 						:id="'text'+key"
-						type="color">
+						type="color"
+						@input="$emit('input')">
 				</div>
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
 				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
 				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value" :secondary="secondary" :alert="alert || errorLocal" />
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
 				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
 				<select v-if="!paramData.noInput" ref="input"
 					:id="'list'+key"
@@ -122,11 +119,10 @@
 			</div>
 			
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
 				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
 				<vue-select class="listField" label="label"
 					:id="'list'+key"
@@ -158,11 +154,10 @@
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
-				<img v-if="paramData.example" alt="help"
-					src="@/assets/icons/help.svg"
-					v-tooltip="'<img src='+$image('img/param_examples/'+paramData.example)+'>'"
-					class="helpIcon"
-				>
+				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+				
 				<label :for="'browse'+key" v-if="label" v-tooltip="tooltip" v-html="label"></label>
 				<input v-if="!paramData.noInput" type="text"
 					class="filePath"
@@ -181,10 +176,11 @@
 			</div>
 		</div>
 		
-		<PlaceholderSelector class="child placeholders" v-if="placeholderTarget && paramData.placeholderList"
+		<PlaceholderSelector class="placeholders" v-if="paramData.placeholderList"
 			:target="placeholderTarget"
 			:placeholders="paramData.placeholderList"
 			v-model="paramData.value"
+			@insert="insertPlaceholder"
 		/>
 
 		<ParamItem v-for="(c, index) in children"
@@ -225,7 +221,7 @@ import Slider from '../Slider.vue';
 		ToggleButton,
 		PlaceholderSelector,
 	},
-	emits: ["change", "update:modelValue", "mouseenter", "mouseleave"]
+	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input"]
 })
 export default class ParamItem extends Vue {
 	
@@ -277,12 +273,15 @@ export default class ParamItem extends Vue {
 		if(this.noBackground === false) {
 			res.push("card-item");
 			if(this.paramData.value === false) res.push("unselected");
+		}else{
+			res.push("no-bg");
 		}
 		if(this.errorLocal !== false) res.push("error");
 		else if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) res.push("error");
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
+		if(this.paramData.icon) res.push("hasIcon");
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
@@ -382,10 +381,11 @@ export default class ParamItem extends Vue {
 		}
 
 		if(this.paramData.placeholderList && this.paramData.placeholderList.length > 0) {
-			if(this.paramData.type != "string") {
-				throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
+			if(this.paramData.type == "string") {
+				this.placeholderTarget = this.$el.querySelector("textarea,input");
+			// }else{
+				// throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
 			}
-			this.placeholderTarget = this.$el.querySelector("textarea,input");
 		}
 	}
 
@@ -555,6 +555,12 @@ export default class ParamItem extends Vue {
 		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
 	}
 
+	public insertPlaceholder(tag:string):void {
+		if(this.paramData.type == "editablelist") {
+			(this.paramData.value as string[]).push(tag);
+		}
+	}
+
 	private setErrorState(state:boolean) {
 		if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) {
 			this.errorLocal = true;
@@ -567,10 +573,10 @@ export default class ParamItem extends Vue {
 
 <style scoped lang="less">
 .paramitem{
-	color: var(--color-light);
 	overflow: unset;
 	transition: padding .25s;
 	position: relative;
+	transition: opacity .2s;
 	
 	&:not(.disabled)>.content:hover::before {
 		opacity: 1;
@@ -585,9 +591,13 @@ export default class ParamItem extends Vue {
 		position: absolute;
 		filter: blur(5px);
 		pointer-events: none;
-		background-color: var(--color-light-fadest);
-		background: linear-gradient(170deg, var(--color-light-fader) 0%, var(--color-light-transparent) 100%);
+		background-color: var(--background-color-fadest);
+		background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
 	}
+
+	// &:not(.no-bg) {
+	// 	transition: background-color .2s;
+	// }
 
 	&.longText {
 		.content {
@@ -625,7 +635,7 @@ export default class ParamItem extends Vue {
 	
 	&.error {
 		cursor: not-allowed;
-		background-color: var(--color-alert-fader) !important;
+		background-color: var(--color-alert-fadest) !important;
 		.errorMessage {
 			font-size: .9em;
 			margin-top: .5em;
@@ -638,7 +648,9 @@ export default class ParamItem extends Vue {
 	}
 
 	&.unselected {
-		background-color: var(--color-secondary-fadest);
+		opacity: .4;
+		// background-color: var(--background-color-fadest);
+		// background-color: var(--color-secondary-fadest);
 	}
 	
 	.content {
@@ -666,9 +678,8 @@ export default class ParamItem extends Vue {
 		.icon {
 			width: 1em;
 			height: 1em;
-			object-fit: fill;
-			margin-right: .5em;
 			align-self: flex-start;
+			margin-right: .5em;
 		}
 		
 
@@ -696,9 +707,6 @@ export default class ParamItem extends Vue {
 				cursor: pointer;
 			}
 			&.number, &.text {
-				label {
-					margin-top: .3em;
-				}
 				&:has(.maxlength) {
 					input {
 						padding-right: 3em;
@@ -854,7 +862,6 @@ export default class ParamItem extends Vue {
 	&.level_3,
 	&.level_4 {
 		.child {
-			@padding:15px;
 			width: 100%;
 		}
 	}
@@ -876,6 +883,12 @@ export default class ParamItem extends Vue {
 				content: "⤷";
 				display: block;
 			}
+		}
+	}
+
+	&.hasIcon {
+		.placeholders {
+			padding-left:1.5em;
 		}
 	}
 }

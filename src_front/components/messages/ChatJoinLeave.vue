@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<img :src="$image('icons/'+icon+'.svg')" alt="notice" class="icon">
+		<Icon :name="icon" alt="notice" class="icon" :theme="theme"/>
 
 		<span v-if="userList.length > 0" v-for="u, index in userList" :key="u.id">
 			<a class="userlink"
@@ -47,6 +47,7 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 	public remainingOffset:number = 0;
 	public remainingCount:number = 0;
 	public icon:string = "enter";
+	public theme:string = "primary";
 	public channelName:string = "";
 	
 
@@ -73,9 +74,11 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.JOIN) {
 			message = this.$t("chat.join_leave.join_aria", {COUNT:this.messageData.users.length, CHANNEL:this.channelName})
 			this.icon = "enter";
+			this.theme = "primary";
 		}else{
 			message = this.$t("chat.join_leave.leave_aria", {COUNT:this.messageData.users.length, CHANNEL:this.channelName})
 			this.icon = "leave";
+			this.theme = "secondary";
 		}
 		this.$store("accessibility").setAriaPolite(message);
 	}

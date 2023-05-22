@@ -5,7 +5,7 @@
 	>
 		<div class="list" v-if="localPlaceholders.length > 0">
 			<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
-				<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+				<button type="button" @click="$event => insert(h, $event)" v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
 				
 				<i18n-t scope="global" :keypath="h.descKey" tag="span">
 					<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -18,7 +18,7 @@
 		<ToggleBlock class="global" :title="$t('global.placeholder_selector_global')" small v-if="globalPlaceholders.length > 0">
 			<div class="list">
 				<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
-					<button @click="insert(h)" v-tooltip="$t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+					<button type="button" @click="$event => insert(h, $event)" v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
 					
 					<i18n-t scope="global" :keypath="h.descKey" tag="span">
 						<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -34,13 +34,15 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
+import { gsap } from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
 		ToggleBlock,
 	},
-	emits:["update:modelValue"]
+	emits:["update:modelValue", "insert"]
 })
 export default class PlaceholderSelector extends Vue {
 
@@ -53,6 +55,9 @@ export default class PlaceholderSelector extends Vue {
 	@Prop
 	public modelValue!:string;
 	
+	@Prop({default:false})
+	public copyMode!:boolean;
+	
 	public get localPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
 		return this.placeholders.filter(v=>v.globalTag !== true);
 	}
@@ -64,21 +69,33 @@ export default class PlaceholderSelector extends Vue {
 	/**
 	 * Add a token on the text
 	 */
-	public async insert(h:TwitchatDataTypes.PlaceholderEntry):Promise<void> {
-		let target = this.target as HTMLInputElement | HTMLTextAreaElement;
-		if((this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then) {
-			target = await(new Promise((resolve)=>{
-				(this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then((input:HTMLInputElement | HTMLTextAreaElement)=>{
-					resolve(input);
-				});
-			}))
+	public async insert(h:TwitchatDataTypes.PlaceholderEntry, event:MouseEvent):Promise<void> {
+		console.log(this.target);
+		if(this.target) {
+			let target = this.target as HTMLInputElement | HTMLTextAreaElement;
+			//target can be a promise returning the actual target, if it's a promise
+			//wait for it to complete.
+			if((this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then) {
+				target = await(new Promise((resolve)=>{
+					(this.target as Promise<HTMLInputElement | HTMLTextAreaElement>).then((input:HTMLInputElement | HTMLTextAreaElement)=>{
+						resolve(input);
+					});
+				}))
+			}
+			const tag = "{"+h.tag+"}";
+			let carretPos = target.selectionStart as number | 0;
+			if(!carretPos) carretPos = 0;
+			//Insert tag
+			const text = target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
+			this.$emit("update:modelValue", text);
+		}else{
+			this.$emit("insert", "{"+h.tag+"}");
 		}
-		const tag = "{"+h.tag+"}";
-		let carretPos = target.selectionStart as number | 0;
-		if(!carretPos) carretPos = 0;
-		//Insert tag
-		const text = target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
-		this.$emit("update:modelValue", text);
+
+		if(this.copyMode !== false) {
+			Utils.copyToClipboard("{"+h.tag+"}");
+		}
+		gsap.fromTo(event.target, {scaleY:1.5, filter:"brightness(5)"}, {scaleY:1, filter:"brightness(1)", duration:.25, ease:"sine.out"});
 	}
 }
 </script>
@@ -96,8 +113,9 @@ export default class PlaceholderSelector extends Vue {
 		column-gap: 1px;
 		row-gap: .25em;
 		font-size: .8em;
+		color: var(--color-text);
 		&>* {
-			background-color: var(--color-dark-fadest);
+			background-color: var(--color-light-fadest);
 			border-radius: .5em;
 			padding: .25em .5em;
 			&:nth-child(odd) {
@@ -115,7 +133,7 @@ export default class PlaceholderSelector extends Vue {
 			display: inline;
 			text-align: right;
 			font-weight: bold;
-			color: var(--color-light);
+			color: var(--color-button);
 			background-color: var(--color-primary);
 			&:hover {
 				background-color: var(--color-primary-light);
