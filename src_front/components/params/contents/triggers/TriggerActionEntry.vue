@@ -489,7 +489,7 @@ export default class TriggerActionEntry extends Vue {
 		}
 
 		.list {
-			gap: 0 2px;
+			gap: 3px;
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
@@ -497,9 +497,6 @@ export default class TriggerActionEntry extends Vue {
 			.button {
 				flex-grow: 1;
 				flex-basis: 250px;
-				&:not(:last-child) {
-					margin-bottom: .25em;
-				}
 				:deep(.icon) {
 					max-width: 1.25em;
 				}

@@ -1013,7 +1013,7 @@ export default class ChatForm extends Vue {
 		top: 0;
 		left: 0;
 		transform: translateY(-100%);
-		z-index: 1;
+		z-index: 5;
 	}
 }
 

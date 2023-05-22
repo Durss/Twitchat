@@ -380,6 +380,7 @@ interface CommandItem {
 	max-height: 80vh;
 
 	.item {
+		gap: 5px;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -430,6 +431,7 @@ interface CommandItem {
 
 		.name, .source {
 			font-size: .8em;
+			flex-grow:1;
 		}
 
 		.source {
@@ -442,6 +444,7 @@ interface CommandItem {
 			font-style: italic;
 			text-align: right;
 			padding-right: .5em;
+			opacity: .8;
 		}
 
 		.image {

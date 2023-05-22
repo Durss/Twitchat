@@ -253,6 +253,13 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 
 	.conductors{
 		margin: .5em 0;
+		flex-wrap: wrap;
+		display: inline-flex;
+		align-items: center;
+		flex-direction: row;
+		position: relative;
+		justify-content: center;
+		gap: 1em;
 		
 		.conductor {
 			display: inline-flex;
@@ -264,10 +271,6 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 			border-radius: var(--border-radius);
 			padding: .5em;
 			min-width: 6em;
-
-			&:not(:first-child) {
-				margin-left: 1em;
-			}
 			
 			.icon {
 				position: absolute;
