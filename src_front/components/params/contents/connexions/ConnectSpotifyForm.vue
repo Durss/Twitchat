@@ -61,8 +61,8 @@ export default class ConnectSpotifyForm extends Vue {
 	public loading = false;
 	public showSuccess = false;
 	public authenticating = false;
-	public paramClient:TwitchatDataTypes.ParameterData<string> = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient"};
-	public paramSecret:TwitchatDataTypes.ParameterData<string> = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret"};
+	public paramClient:TwitchatDataTypes.ParameterData<string> = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient", maxLength:32};
+	public paramSecret:TwitchatDataTypes.ParameterData<string> = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret", maxLength:32};
 
 	public get connected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
 	public get canConnect():boolean {

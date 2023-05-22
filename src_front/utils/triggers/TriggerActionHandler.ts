@@ -435,6 +435,7 @@ export default class TriggerActionHandler {
 
 		for (let i = 0; i < triggers.length; i++) {
 			const t = triggers[i];
+			if(!t || !t.type) continue;
 			let keys:string[] = [t.type as string];
 			switch(t.type) {
 				case TriggerTypes.CHAT_COMMAND: {
