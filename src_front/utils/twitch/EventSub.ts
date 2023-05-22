@@ -45,14 +45,13 @@ export default class EventSub {
 	 * Connect to Eventsub
 	 */
 	public async connect(disconnectPrevious:boolean = true):Promise<void> {
-		return;//TODO remove
 
 		clearTimeout(this.reconnectTimeout);
 
 		if(disconnectPrevious && this.socket) {
 			this.cleanupSocket(this.socket);
 		}
-
+		
 		//Delete all previous event sub subscriptions
 		/*
 		try {
@@ -224,6 +223,23 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_ADD, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_REMOVE, "1");
 				}
+				if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
+				}
+				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
+				}
+				
+				//Don't need to listen for this event for anyone else but the broadcaster
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
+				
+				//Used by online/offline triggers
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+
+				/*
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
@@ -244,21 +260,7 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
 				}
-				if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
-				}
-				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
-				}
-				
-				//Don't need to listen for this event for anyone else but the broadcaster
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
-				
-				//Used by online/offline triggers
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+				//*/
 				
 				//Not using those as IRC does it better
 				// if(TwitchUtils.hasScope(TwitchScopes.LIST_SUBS)) {
