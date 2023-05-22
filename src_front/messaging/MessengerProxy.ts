@@ -558,7 +558,6 @@ export default class MessengerProxy {
 			StoreProxy.users.pendingShoutouts[channelId]!.push({
 				id:Utils.getUUID(),
 				user,
-				done,
 				executeIn:0
 			})
 			return true;
@@ -578,7 +577,6 @@ export default class MessengerProxy {
 				StoreProxy.users.pendingShoutouts[channelId]!.push({
 					id:Utils.getUUID(),
 					user,
-					done: false,
 					executeIn:0
 				})
 			}

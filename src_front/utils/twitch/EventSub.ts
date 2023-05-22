@@ -804,7 +804,7 @@ export default class EventSub {
 		};
 		StoreProxy.chat.addMessage(message);
 
-		//If it's a sent shoutout, cleanup first pending SO foudn for this user
+		//If it's a sent shoutout, cleanup first pending SO found for this user
 		if(!received) {
 			StoreProxy.stream.currentStreamInfo[channel_id]!.lastSoDoneDate = Date.now();
 
