@@ -534,7 +534,7 @@ export const storeMain = defineStore("main", {
 			
 			//Init triggers
 			const triggers = DataStore.get(DataStore.TRIGGERS);
-			if(triggers) {
+			if(triggers && triggers != "undefined") {//Dunno how some users ended up having "undefined" as JSON T_T...
 				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggerList as unknown) as JsonObject);
 				// sTriggers.triggerList = JSON.parse(triggers);
 				TriggerActionHandler.instance.populate(sTriggers.triggerList);
