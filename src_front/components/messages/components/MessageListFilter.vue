@@ -29,9 +29,7 @@
 			<div class="content">
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
-					<button :aria-label="$t('chat.filters.closeBt_aria')" class="closeBt" @click="closeFilters()" v-if="!forceConfig">
-						<img src="@/assets/icons/cross.svg" :alt="$t('chat.filters.closeBt_aria')" class="icon">
-					</button>
+					<CloseButton @click="closeFilters()" v-if="!forceConfig" />
 				</div>
 				
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
@@ -144,6 +142,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import MessageItem from '../MessageItem.vue';
+import CloseButton from '@/components/CloseButton.vue';
 
 @Component({
 	components:{
@@ -153,6 +152,7 @@ import MessageItem from '../MessageItem.vue';
 		ToggleBlock,
 		ToggleButton,
 		PermissionsForm,
+		CloseButton,
 	},
 	emits: ['submit', 'add', 'change'],
 })
@@ -1206,18 +1206,6 @@ export default class MessageListFilter extends Vue {
 				.title {
 					flex-grow: 1;
 					text-align: center;
-				}
-				.closeBt {
-					background: none;
-					border: none;
-					padding: 0;
-					width: 1em;
-					height: 1em;
-					cursor: pointer;
-					.icon {
-						height: 100%;
-						width: 100%;
-					}
 				}
 			}
 
