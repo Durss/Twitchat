@@ -28,7 +28,7 @@
 			<div class="head">
 				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
 					<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
-					<div class="live" v-if="currentStream">LIVE</div>
+					<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
 					<div class="title">
 						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 						<span class="label">{{user.displayName}}</span>
@@ -567,11 +567,19 @@ export default class UserCard extends Vue {
 				font-size: .7em;
 				padding: .35em .75em;
 				border-radius: .5em;
-				width: min-content;
+				width: fit-content;
 				left: 50%;
 				transform: translate(-50%, -50%);
 				z-index: 1;
 				box-shadow: 0 -.25em .5em rgba(0, 0, 0, .5);
+
+				.viewers {
+					font-weight: normal;
+					.icon {
+						height: .8em;
+						margin-left: 2px;
+					}
+				}
 			}
 
 			.subtitle {
