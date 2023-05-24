@@ -1,8 +1,8 @@
 <template>
 	<div class="triggerActionchatcommandparams">
 		<ParamItem noBackground :paramData="param_cmd" v-model="triggerData.chatCommand" @change="onUpdateCommand()"
-			:error="cmdNameConflict"
-			:errorMessage="$t('triggers.actions.chat.conflict')" />
+			:error="cmdNameConflict || slashCmdAlert"
+			:errorMessage="$t(slashCmdAlert? 'triggers.actions.chat.use_slash_cmd' : 'triggers.actions.chat.conflict')" />
 		
 		<div class="moreOptions">
 			<ToggleBlock class="block permissions" :open="false"
@@ -55,6 +55,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
+	public slashCmdAlert = false;
 	public cmdNameConflict = false;
 	public cmdAliasConflict = false;
 	public param_cmd:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"chatCommand", placeholder:"!command", labelKey:"triggers.actions.chat.param_cmd" };
@@ -89,6 +90,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 	public onUpdateCommand():void {
 		this.cmdNameConflict = false;
 		this.cmdAliasConflict = false;
+		this.slashCmdAlert = this.param_cmd.value.trim().charAt(0) == "/";
 
 		//Make sure no other chat command has the same name
 		const triggers = this.$store("triggers").triggerList;

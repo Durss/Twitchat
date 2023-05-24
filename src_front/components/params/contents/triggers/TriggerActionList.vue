@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionlist">
-		<div class="card-item primary description">
+		<div class="card-item secondary description">
 			<img src="@/assets/icons/info.svg" class="icon">
 			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
 				<template #SUB_ITEM_NAME>
