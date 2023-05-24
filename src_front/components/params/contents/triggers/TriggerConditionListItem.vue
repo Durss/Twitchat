@@ -169,14 +169,12 @@ export default class TriggerConditionListItem extends Vue {
 			cursor: grabbing;
 		}
 	}
-	.placeholder, .operator {
-		flex-basis: 100px;
-		flex-grow: 1;
-	}
-	.value {
-		flex-grow: 1;
+	.operator {
+		flex-basis: 150px;
+		flex-shrink: 0;
 	}
 	.ctas {
+		flex-shrink: 0;
 		display: flex;
 		flex-direction: row;
 		gap: 0;

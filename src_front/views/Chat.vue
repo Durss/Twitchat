@@ -934,6 +934,7 @@ export default class Chat extends Vue {
 					
 					.subHolder {
 						height: calc(100% - 14px);//14px => dragbar height
+						overflow: hidden;
 					}
 					.dragBt {
 						padding: 3px 0;

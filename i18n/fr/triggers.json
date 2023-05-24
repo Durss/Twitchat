@@ -141,7 +141,8 @@
 				"param_globalCD": "Cooldown global ({VALUE}s)",
 				"param_userCD": "Cooldown utilisateur ({VALUE}s)",
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
-				"commands_list":"Commandes de tchat"
+				"commands_list":"Commandes de tchat",
+				"use_slash_cmd":"Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande"
 			},
 			"highlight": {
 				"header": "{LINK} de mise en avant pour utiliser cette action.",

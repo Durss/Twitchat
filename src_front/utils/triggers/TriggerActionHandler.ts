@@ -701,7 +701,6 @@ export default class TriggerActionHandler {
 		}
 
 		for (const step of actions) {
-			console.log("Exect step", step);
 			const logStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
 			log.steps.push(logStep);
 

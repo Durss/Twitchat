@@ -53,9 +53,7 @@
 			</div>
 		</div>
 
-		<div class="card-item conditions">
-			<TriggerConditionList :triggerData="triggerData" />
-		</div>
+		<TriggerConditionList class="card-item conditions" :triggerData="triggerData" />
 		
 		<div :class="listClasses">
 			<div v-if="hasCondition" class="conditionSelector">
