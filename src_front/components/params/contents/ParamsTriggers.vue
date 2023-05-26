@@ -31,7 +31,7 @@
 					v-if="currentTriggerData"
 					alert small
 					icon="delete"
-					@click="deleteTrigger(currentTriggerData.id)">{{ $t('triggers.deleteBt') }}</Button>
+					@click="deleteTrigger(currentTriggerData!.id)">{{ $t('triggers.deleteBt') }}</Button>
 			</div>
 
 			<Button class="createBt"

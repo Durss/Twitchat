@@ -2685,7 +2685,7 @@ export default class TwitchUtils {
 	 * @param attemptCount 
 	 */
 	private static async onRateLimit(headers:Headers, attemptCount:number = 0):Promise<void> {
-		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now()/1000+1).toString()) * 1000 + 1000;
+		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 		if(attemptCount > 0) resetDate += 1000 * Math.pow(2, attemptCount);//Scale up the time frame 
 		console.log("Rate limit", attemptCount, 1000 * Math.pow(2, attemptCount));
 		await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);

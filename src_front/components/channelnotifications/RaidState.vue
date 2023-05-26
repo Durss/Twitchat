@@ -19,9 +19,9 @@
 			</i18n-t>
 	
 			<div class="roomSettings" v-if="roomSettings">
-				<mark v-if="roomSettings.subOnly == true">{{ $t("raid.emote_only") }}</mark>
-				<mark v-if="roomSettings.followOnly != false">{{ $t("raid.sub_only") }}</mark>
-				<mark v-if="roomSettings.emotesOnly == true">{{ $t("raid.follower_only") }}</mark>
+				<mark v-if="roomSettings.subOnly == true">{{ $t("raid.sub_only") }}</mark>
+				<mark v-if="roomSettings.followOnly !== false">{{ $t("raid.follower_only") }}</mark>
+				<mark v-if="roomSettings.emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
 			</div>
 		</div>
 
