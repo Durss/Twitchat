@@ -217,12 +217,14 @@ export default class ScopeSelector extends Vue {
 </style>
 
 <style lang="less">
-.scopeselector{
-	.optionList {
-		.item:not(.selected) {
-			color: var(--color-text) !important;
-			.icon {
-				filter:invert();
+body.light {
+	.scopeselector{
+		.optionList {
+			.item:not(.selected) {
+				color: var(--color-text) !important;
+				.icon {
+					filter:invert();
+				}
 			}
 		}
 	}

@@ -495,11 +495,14 @@ export namespace TwitchatDataTypes {
 		reward_id?:string;
 		duration_s:number;
 		maxEntries:number;
+		multipleJoin:boolean;
 		created_at:number;
 		entries:RaffleEntry[];
 		vipRatio:number;
 		followRatio:number;
 		subRatio:number;
+		subT2Ratio:number;
+		subT3Ratio:number;
 		subgiftRatio:number;
 		subMode_includeGifters:boolean;
 		subMode_excludeGifted:boolean;
@@ -518,6 +521,7 @@ export namespace TwitchatDataTypes {
 	}
 	export interface RaffleEntry extends EntryItem {
 		score:number;
+		joinCount:number;
 		user?:{
 			id:string;
 			channel_id:string;

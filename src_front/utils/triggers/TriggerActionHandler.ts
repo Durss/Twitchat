@@ -1455,6 +1455,8 @@ export default class TriggerActionHandler {
 								let user = this.extractUser(trigger, message);
 								if(user && counter.users && counter.users[user.id]) {
 									value = counter.users[user.id].toString();
+								}else{
+									value = "0";
 								}
 							}else{
 								//Simple counter, just get its value

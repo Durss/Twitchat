@@ -352,8 +352,8 @@ export default class UserCard extends Vue {
 					this.followersCount = v;
 				});
 				if(TwitchUtils.hasScopes([TwitchScopes.CHECK_SUBSCRIBER_STATE])) {
-					 TwitchUtils.getSubscriptionState(u.id).then(v=> {
-						this.subState = v;
+					 TwitchUtils.getSubscriptionState([u.id]).then(v=> {
+						this.subState = v.length > 0 ? v[0] : null;
 						this.subStateLoaded = true;
 					 })
 				}
@@ -551,6 +551,7 @@ export default class UserCard extends Vue {
 
 				.badge {
 					height: .8em;
+					margin-right: 3px;
 				}
 			}
 

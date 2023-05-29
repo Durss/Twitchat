@@ -12,12 +12,12 @@
 			:values="['chat','sub','manual']"
 			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title')]"
 			:icons="['commands', 'sub', 'list']" />
-		
-		<ToggleBlock class="legal" v-if="triggerMode === false && mode!='manual'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false">
-			<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
-		</ToggleBlock>
-
+			
 		<div class="content">
+			<ToggleBlock class="legal tips" v-if="triggerMode === false && mode!='manual'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false">
+				<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
+			</ToggleBlock>
+
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
 			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
@@ -39,6 +39,7 @@
 					</div>
 				</div>
 				<ParamItem class="card-item" :paramData="enterDuration" @change="onValueChange()" />
+				<ParamItem class="card-item" :paramData="multipleJoin" @change="onValueChange()" />
 				<ParamItem class="card-item" :paramData="maxUsersToggle" @change="onValueChange()" />
 				<ParamItem class="card-item" :paramData="ponderateVotes" @change="onValueChange()" />
 
@@ -196,11 +197,14 @@ export default class RaffleForm extends AbstractSidePanel {
 	public enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
 	public maxUsersToggle:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
 	public maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
+	public multipleJoin:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join"};
 	public ponderateVotes:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
 	public ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"vip", labelKey:"raffle.params.ponderate_VIP"};
 	public ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_sub"};
+	public ponderateVotes_subT2:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_subT2", twitch_scopes:[TwitchScopes.CHECK_SUBSCRIBER_STATE]};
+	public ponderateVotes_subT3:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_subT3", twitch_scopes:[TwitchScopes.CHECK_SUBSCRIBER_STATE]};
 	public ponderateVotes_subgift:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"gift", labelKey:"raffle.params.ponderate_subgifter"};
-	public ponderateVotes_follower:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"follow", labelKey:"raffle.params.ponderate_follower"};
+	public ponderateVotes_follower:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"follow", labelKey:"raffle.params.ponderate_follower", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS]};
 	public subs_includeGifters:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"gift", labelKey:"raffle.params.ponderate_include_gifter"};
 	public subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>		= {value:true, type:"boolean", icon:"sub", labelKey:"raffle.params.ponderate_exclude_gifted"};
 	public showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown", labelKey:"raffle.configs.countdown"};
@@ -252,11 +256,14 @@ export default class RaffleForm extends AbstractSidePanel {
 			reward_id:this.reward_value.value,
 			duration_s:this.enterDuration.value * 60,
 			maxEntries:this.maxUsersToggle.value ? this.maxEntries.value : 0,
+			multipleJoin:this.multipleJoin.value,
 			created_at:Date.now(),
 			entries:[],
 			followRatio: this.ponderateVotes_follower.value,
 			vipRatio: this.ponderateVotes_vip.value,
 			subRatio: this.ponderateVotes_sub.value,
+			subT2Ratio: this.ponderateVotes_subT2.value,
+			subT3Ratio: this.ponderateVotes_subT3.value,
 			subgiftRatio: this.ponderateVotes_subgift.value,
 			subMode_includeGifters: this.subs_includeGifters.value,
 			subMode_excludeGifted: this.subs_excludeGifted.value,
@@ -298,9 +305,12 @@ export default class RaffleForm extends AbstractSidePanel {
 				this.enterDuration.value = this.action.raffleData.duration_s/60;
 				this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
 				this.maxUsersToggle.value = this.maxEntries.value > 0;
+				this.multipleJoin.value = this.action.raffleData.multipleJoin === true;
 				this.ponderateVotes_follower.value = this.action.raffleData.followRatio ?? 0;
 				this.ponderateVotes_vip.value = this.action.raffleData.vipRatio ?? 0;
 				this.ponderateVotes_sub.value = this.action.raffleData.subRatio ?? 0;
+				this.ponderateVotes_subT2.value = this.action.raffleData.subT2Ratio ?? 0;
+				this.ponderateVotes_subT3.value = this.action.raffleData.subT3Ratio ?? 0;
 				this.ponderateVotes_subgift.value = this.action.raffleData.subgiftRatio ?? 0;
 				this.subs_includeGifters.value = this.action.raffleData.subMode_includeGifters ?? false;
 				this.subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
@@ -314,7 +324,14 @@ export default class RaffleForm extends AbstractSidePanel {
 		}
 
 		this.maxUsersToggle.children = [this.maxEntries];
-		this.ponderateVotes.children = [this.ponderateVotes_vip, this.ponderateVotes_follower, this.ponderateVotes_sub, this.ponderateVotes_subgift];
+		this.ponderateVotes.children = [
+											this.ponderateVotes_vip,
+											this.ponderateVotes_follower,
+											this.ponderateVotes_sub,
+											this.ponderateVotes_subT2,
+											this.ponderateVotes_subT3,
+											this.ponderateVotes_subgift
+										];
 	}
 
 	public async mounted():Promise<void> {

@@ -95,6 +95,7 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 					id:v.data.id,
 					label:v.data.user.displayName+" : "+v.data.label,
 					score:1,
+					joinCount:1,
 				}
 			}),
 			customEntries:"",
@@ -102,7 +103,10 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 			followRatio:1,
 			subgiftRatio:1,
 			subRatio:1,
+			subT2Ratio:1,
+			subT3Ratio:1,
 			vipRatio:1,
+			multipleJoin:false,
 			subMode_excludeGifted:false,
 			subMode_includeGifters:false,
 			maxEntries:0,
