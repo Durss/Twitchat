@@ -511,6 +511,7 @@ import Ajv from "ajv";
 		"p:minimalistBadges": {type:"boolean"},
 		"p:showBadges": {type:"boolean"},
 		"p:showEmotes": {type:"boolean"},
+		"p:autoRemod": {type:"boolean"},
 		"p:showModTools": {type:"boolean"},
 		"p:splitViewVertical": {type:"boolean"},
 		"p:showUserPronouns": {type:"boolean"},

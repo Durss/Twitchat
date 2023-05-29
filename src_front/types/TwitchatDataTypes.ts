@@ -1120,6 +1120,10 @@ export namespace TwitchatDataTypes {
 		 * Store the date at which this user last got a shoutout
 		 */
 		lastShoutout?:number;
+		/**
+		 * Defines if the user should be moded back after their timeout completes
+		 */
+		autoRemod?:boolean;
 	}
 	
 	/**

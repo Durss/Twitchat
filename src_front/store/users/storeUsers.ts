@@ -479,7 +479,12 @@ export const storeUsers = defineStore('users', {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					u.channelInfo[channelId].is_banned = true;
-					u.channelInfo[channelId].is_moderator = false;//When banned or timed out twitch removes the mod role
+					if(StoreProxy.params.features.autoRemod.value == true) {
+						//When banned or timed out twitch removes the mod role
+						//This flag reminds us to flag them back as mod when timeout completes
+						u.channelInfo[channelId].autoRemod = true;
+					}
+					u.channelInfo[channelId].is_moderator = false;
 					if(duration_s) {
 						u.channelInfo[channelId].banEndDate = Date.now() + duration_s * 1000;
 					}else{
@@ -495,6 +500,20 @@ export const storeUsers = defineStore('users', {
 				//Auto unflag the user once timeout expires
 				unbanFlagTimeouts[uid] = setTimeout(()=> {
 					StoreProxy.users.flagUnbanned("twitch", channelId, uid);
+					//If requested to re grant mod role after a moderator timeout completes, do it
+					if(StoreProxy.params.features.autoRemod.value == true) {
+						for (let i = 0; i < userList.length; i++) {
+							const u = userList[i];
+							if(u.id === uid
+							&& platform == u.platform
+							&& platform == "twitch"
+							&& u.channelInfo[channelId].autoRemod === true) {
+								u.channelInfo[channelId].autoRemod = false;
+								TwitchUtils.addRemoveModerator(false, channelId, u);
+								break;
+							}
+						}
+					}
 				}, duration_s*1000)
 			}
 			StoreProxy.chat.delUserMessages(uid, channelId);
