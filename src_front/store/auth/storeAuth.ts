@@ -263,7 +263,6 @@ export const storeAuth = defineStore('auth', {
 					res.forEach(u=> {
 						const user = StoreProxy.users.getUserFrom("twitch", this.twitch.user.id, u.user_id, u.user_login, u.user_name);
 						user.channelInfo[this.twitch.user.id].is_moderator = true;
-						console.log(user);
 					})
 				});
 
