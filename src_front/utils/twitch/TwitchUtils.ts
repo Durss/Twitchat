@@ -959,7 +959,7 @@ export default class TwitchUtils {
 	 * Needs "user:read:subscriptions" scope
 	 */
 	public static async getSubscriptionState(userIds:string[]):Promise<TwitchDataTypes.Subscriber[]> {
-		if(!this.hasScopes([TwitchScopes.CHECK_SUBSCRIBER_STATE])) return [];
+		if(!this.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) return [];
 		
 		let list:TwitchDataTypes.Subscriber[] = [];
 		do {

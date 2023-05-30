@@ -351,11 +351,11 @@ export default class UserCard extends Vue {
 				TwitchUtils.getFollowerCount(u.id).then(v=> {
 					this.followersCount = v;
 				});
-				if(TwitchUtils.hasScopes([TwitchScopes.CHECK_SUBSCRIBER_STATE])) {
-					 TwitchUtils.getSubscriptionState([u.id]).then(v=> {
+				if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
+					TwitchUtils.getSubscriptionState([u.id]).then(v=> {
 						this.subState = v.length > 0 ? v[0] : null;
 						this.subStateLoaded = true;
-					 })
+					});
 				}
 				this.$store("users").loadUserPronouns(user);
 				this.fakeModMessage = {
