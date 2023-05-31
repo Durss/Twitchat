@@ -53,6 +53,8 @@ export default class TriggerConditionListItem extends Vue {
 		this.buildSourceList();
 		this.updateOperators();
 
+		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();
+
 		//Watch for changes on the chat command params to rebuild source list
 		watch(()=> this.triggerData.chatCommandParams, ()=> {
 			this.buildSourceList();
@@ -68,7 +70,7 @@ export default class TriggerConditionListItem extends Vue {
 			if(this.triggerData.chatCommandParams) {
 			this.triggerData.chatCommandParams.forEach(v=> {
 				placeholderList.push({
-					value:v.tag,
+					value:v.tag.toUpperCase(),
 					label: this.$t('triggers.condition.placeholder_cmd_param', {NAME:"{"+v.tag.toUpperCase()+"}"}),
 				})
 			})
@@ -86,7 +88,7 @@ export default class TriggerConditionListItem extends Vue {
 			}
 			return {
 				label: this.$t(v.descKey, {NAME:"\""+name+"\""}),
-				value:v.tag,
+				value:v.tag.toUpperCase(),
 			}
 		}));
 		
