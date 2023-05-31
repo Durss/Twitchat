@@ -28,6 +28,7 @@
 		"trigger_queue":"File d'exécution",
 		"trigger_queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez-les à une même file d'exécution.",
 		"trigger_queue_input_placeholder": "file d'exécution...",
+		"missing_trigger": "TRIGGER SUPPRIMÉ",
 		"missing_counter": "COMPTEUR SUPPRIMÉ",
 		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",

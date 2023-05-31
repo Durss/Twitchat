@@ -18,7 +18,7 @@
 			</template>
 		</div>
 		
-		<div class="list category" v-show="filterState === true">
+		<div class="list category" v-show="filterState === true" v-if="noEdit === false">
 			<ToggleBlock class="category" medium
 			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
 			:title="$t(cat.labelKey)" :icons="[cat.icon]">
