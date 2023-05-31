@@ -10,6 +10,8 @@
 			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			
 			<div class="params">
+				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @change="toggleAll()" v-if="parameters.length > 3" />
+
 				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
 					<div class="taginfo">
 						<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
@@ -59,6 +61,7 @@ export default class TriggerActionHTTPCall extends Vue {
 	public param_url:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
 	public param_method:TwitchatDataTypes.ParameterData<TriggerActionHTTPCallDataAction, TriggerActionHTTPCallDataAction> = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
 	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:30, allowedCharsRegex:"A-z0-9_"};
+	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 
 	public beforeMount():void {
 		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
@@ -83,6 +86,13 @@ export default class TriggerActionHTTPCall extends Vue {
 	public onToggleParam():void {
 		const params:string[] = this.parameters.filter(v=>v.enabled).map(v=> v.placeholder.tag);
 		this.action.queryParams = params;
+	}
+
+	/**
+	 * Called when clicking "all" toggle
+	 */
+	public toggleAll():void {
+		this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
 	}
 
 }
@@ -120,6 +130,15 @@ export default class TriggerActionHTTPCall extends Vue {
 					word-break: break-all;
 				}
 			}
+		}
+		.toggleAll {
+			justify-self: flex-end;
+			align-self: flex-end;
+			margin-bottom: 2px;
+			// margin-right: 2.25em;
+			width: fit-content;
+			margin-right: .5em;
+			margin-bottom: .5em;
 		}
 	}
 }
