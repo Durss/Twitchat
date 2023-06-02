@@ -167,6 +167,15 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 				}
 			}, 1000);
 		}, {deep:true});
+
+		//Check for OBS connection change event.
+		//if connection has been established, load scenes and sources
+		watch(()=>OBSWebsocket.instance.connected, async ()=> {
+			if(OBSWebsocket.instance.connected) {
+				await this.listOBSScenes();
+				await this.listOBSSources();
+			}
+		})
 	}
 
 	public beforeUnmount():void {

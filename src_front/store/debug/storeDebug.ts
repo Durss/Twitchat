@@ -750,7 +750,8 @@ export const storeDebug = defineStore('debug', {
 						type,
 						id:Utils.getUUID(),
 						date:Date.now(),
-						sceneName:"Lorem ipsum"
+						sceneName:"Lorem ipsum",
+						previousSceneName:"Dolor sit amet"
 					};
 					data = m;
 					break;

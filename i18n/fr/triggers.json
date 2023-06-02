@@ -350,7 +350,9 @@
 			"counter_global_value": "Valeur du compteur {NAME}",
 			"watch_streak": "Nombre de streams consécutifs vus",
 			"obs_scene": "Scène OBS courante",
-			"viewer_count": "Nombre de viewers"
+			"viewer_count": "Nombre de viewers",
+			"obs_scene_name": "Nom de la nouvelle scène OBS",
+			"obs_scene_name_previous": "Nom de la scène OBS précédente"
 		},
 		"events": {
 			"CHAT_COMMAND": {

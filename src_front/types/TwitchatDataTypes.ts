@@ -2580,6 +2580,10 @@ export namespace TwitchatDataTypes {
 		 * Name of the OBS scene we switched to
 		 */
 		sceneName:string;
+		/**
+		 * Name of the OBS scene we're coming from
+		 */
+		previousSceneName:string;
 	}
 
 	/**

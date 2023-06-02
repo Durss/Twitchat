@@ -350,7 +350,9 @@
 			"counter_global_value": "{NAME} counter value",
 			"watch_streak": "Watch streak count",
 			"obs_scene": "Current OBS scene name",
-			"viewer_count": "Viewers watching your stream"
+			"viewer_count": "Viewers watching your stream",
+			"obs_scene_name": "Name of the new OBS scene",
+			"obs_scene_name_previous": "Name of the previous OBS scene"
 		},
 		"events": {
 			"CHAT_COMMAND": {

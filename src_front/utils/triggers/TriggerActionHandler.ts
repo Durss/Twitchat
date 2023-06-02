@@ -251,7 +251,6 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE: {
 				const event = message.enabled? TriggerTypes.OBS_FILTER_ON : TriggerTypes.OBS_FILTER_OFF;
 				const subKey = message.sourceName.toLowerCase() + this.HASHMAP_KEY_SPLITTER + message.filterName.toLowerCase();
-				console.log(event, subKey);
 				if(await this.executeTriggersByType(event, message, testMode, subKey)) {
 					return;
 				}break;
@@ -1473,7 +1472,8 @@ export default class TriggerActionHandler {
 				// console.log("Pointer:", h.tag, "=>", h.pointer, "=> value:", value);
 
 				//Remove command from final text
-				if(typeof value == "string" && subEvent_regSafe) {
+				if(typeof value == "string" && subEvent_regSafe
+				&& (trigger.type == TriggerActionDataTypes.TriggerTypes.CHAT_COMMAND || trigger.type == TriggerActionDataTypes.TriggerTypes.SLASH_COMMAND)) {
 					value = value.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
 				}
 			

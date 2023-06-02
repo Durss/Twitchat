@@ -560,7 +560,7 @@ export default class ChatForm extends Vue {
 		
 		if(cmd == "/gngngn") {
 			//App version
-			console.log(this.$store("raffle").data?.entries);
+			console.log(this.$store("chat").messages);
 			this.message = "";
 		}else
 		

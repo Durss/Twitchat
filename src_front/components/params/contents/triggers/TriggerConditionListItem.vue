@@ -58,6 +58,7 @@ export default class TriggerConditionListItem extends Vue {
 		//Watch for changes on the chat command params to rebuild source list
 		watch(()=> this.triggerData.chatCommandParams, ()=> {
 			this.buildSourceList();
+			this.updateOperators();
 		}, {deep:true});
 	}
 

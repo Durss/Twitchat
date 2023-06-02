@@ -296,15 +296,20 @@ export const storeMain = defineStore("main", {
 				/**
 				 * Called when switching to another scene
 				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, (event:TwitchatEvent):void => {
-					this.currentOBSScene = (event.data as {sceneName:string}).sceneName;
-					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
-						sceneName:this.currentOBSScene,
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {
+					if(!this.currentOBSScene) {
+						this.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
 					}
+					const e = event.data as {sceneName:string};
+					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
+						sceneName: e.sceneName,
+						previousSceneName: this.currentOBSScene,
+					};
+					this.currentOBSScene = e.sceneName;
 					TriggerActionHandler.instance.execute(m);
 					rebuildPlaceholdersCache();
 				});
