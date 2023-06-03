@@ -1132,22 +1132,15 @@ export const storeChat = defineStore('chat', {
 				const mLoc = message as TwitchatDataTypes.GreetableMessage;
 				this.flagMessageAsFirstToday(mLoc, mLoc.user);
 			}
-			
-			//Limit history size
-			const maxMessages = this.realHistorySize;
-			if(messageList.length >= maxMessages) {
-				// const firstMess = messages[0];
-				// if(firstMess.type == "message") {
-				// 	//reduce memory leak risks
-				// 	firstMess.answers = [];
-				// 	delete firstMess.answersTo;
-				// }
-				messageList = messageList.slice(-maxMessages);
-			}
-
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
+			
+				//Limit history size
+				while(messageList.length >= this.realHistorySize) {
+					messageList.shift();
+				}
+	
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
 			}
 
