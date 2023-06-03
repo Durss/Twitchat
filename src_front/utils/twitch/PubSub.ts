@@ -21,6 +21,7 @@ export default class PubSub extends EventDispatcher {
 	private hypeTrainApproachingTimer!:number;
 	private hypeTrainProgressTimer!:number;
 	private history:{date:string, message:PubSubDataTypes.SocketMessage}[] = [];
+	private rewardsParsed:{[key:string]:boolean} = {};
 	
 	constructor() {
 		super();
@@ -430,7 +431,8 @@ export default class PubSub extends EventDispatcher {
 
 
 		//Manage rewards
-		}else if(data.type == "reward-redeemed" && topic!.toLowerCase().indexOf("channel-points-channel") > -1) {
+		}else if(data.type == "reward-redeemed" &&
+		(topic!.toLowerCase().indexOf("channel-points-channel") > -1 || topic!.toLowerCase().indexOf("community-points-channel") > -1)) {
 			const localObj = data.data as  PubSubDataTypes.RewardData;
 			this.rewardEvent(localObj);
 
@@ -804,6 +806,14 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a user redeems a reward
 	 */
 	private rewardEvent(localObj:PubSubDataTypes.RewardData):void {
+		//We subscribe to 2 different events for rewards, one that works on our channel and
+		//one that works on other user's channel.
+		//Because of this we receive events twice. We filter that here.
+		//TODO check if it's usefull to subscribe to "channel-points-channel-v1" for the broadcaster
+		//or if the "community-points-channel-v1" could be enough to avoid those duplicates
+		if(this.rewardsParsed[localObj.redemption.id] === true) return;
+		this.rewardsParsed[localObj.redemption.id] = true;
+
 		const channelId = localObj.redemption.channel_id;
 		const img = localObj.redemption.reward.image ?? localObj.redemption.reward.default_image;
 		const m:TwitchatDataTypes.MessageRewardRedeemData = {
