@@ -1,7 +1,7 @@
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -453,25 +453,53 @@ export const storeUsers = defineStore('users', {
 		},
 
 		flagBlocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
+			let user!:TwitchatDataTypes.TwitchatUser;
 			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform) {
-					userList[i].is_blocked = true;
+					user = userList[i];
+					user.is_blocked = true;
 					break;
 				}
 			}
+
+			if(!user) return;
+
+			let m:TwitchatDataTypes.MessageNoticeData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				message: StoreProxy.i18n.t("global.moderation_action.blocked", {USER:user.displayName}),
+				noticeId: TwitchatDataTypes.TwitchatNoticeType.BLOCKED,
+				platform,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+			}
+			StoreProxy.chat.addMessage(m);
 		},
 		
 		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
-			delete this.blockedUsers[platform][uid];
+			let user!:TwitchatDataTypes.TwitchatUser;
+			this.blockedUsers[platform][uid] = true;
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform) {
-					userList[i].is_blocked = false;
+					user = userList[i];
+					user.is_blocked = false;
 					break;
 				}
 			}
+
+			if(!user) return;
+
+			let m:TwitchatDataTypes.MessageNoticeData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				message: StoreProxy.i18n.t("global.moderation_action.unblocked", {USER:user.displayName}),
+				noticeId: TwitchatDataTypes.TwitchatNoticeType.UNBLOCKED,
+				platform,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+			}
+			StoreProxy.chat.addMessage(m);
 		},
 
 		flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void {

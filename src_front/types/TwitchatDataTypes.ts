@@ -1368,6 +1368,8 @@ export namespace TwitchatDataTypes {
 		CYPHER_KEY:"cypherKey",//When configuring/removing a cypher key (secret feature hehehe ( ͡~ ͜ʖ ͡°) )
 		MARKER_CREATED:"markerCreated",
 		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
+		BLOCKED:"blocked",//When a user is blocked
+		UNBLOCKED:"unblocked",//When a user is unblocked
 	} as const;
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 

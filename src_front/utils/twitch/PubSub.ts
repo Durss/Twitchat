@@ -121,7 +121,9 @@ export default class PubSub extends EventDispatcher {
 					subscriptions.push("predictions-channel-v1."+uid);//Get prediction events
 					subscriptions.push("polls."+uid);//Get poll events
 					subscriptions.push("stream-chat-room-v1."+uid);//Host events (RIP)
-					// subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
+					//TODO check if we're mod on the "uid" channel
+					subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
+					subscriptions.push("automod-queue."+myUID+"."+uid);
 					subscriptions.push("low-trust-users."+myUID+"."+uid);
 					// subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
 					// subscriptions.push("channel-ad-poll-update-events."+uid);

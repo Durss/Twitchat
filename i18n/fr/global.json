@@ -79,6 +79,8 @@
       "year": "an | ans"
     },
     "moderation_action": {
+      "blocked": "{USER} a été bloqué",
+      "unblocked": "{USER} a été débloqué",
       "timeout": "{USER} banni·e pour {DURATION}s",
       "timeout_by": "{MODERATOR} a banni {USER} pour {DURATION}s",
       "banned": "{USER} a été banni·e",
