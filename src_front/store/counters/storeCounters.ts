@@ -168,12 +168,14 @@ export const storeCounters = defineStore('counters', {
 			let looped = false;
 			let maxed = false;
 			let mined = false;
+			let canReloop = false;
 			
 			if(c.max !== false && counterValue >= c.max) {
 				if(counterValue > c.max && c.loop) {
 					const min = c.min || 0;
-					counterValue = min + (counterValue - c.max);
+					counterValue = min + counterValue - c.max;
 					looped = true;
+					canReloop = counterValue > c.max;
 				}else{
 					counterValue = c.max || 0;
 					maxed = true;
@@ -183,15 +185,12 @@ export const storeCounters = defineStore('counters', {
 					const max = c.max || 0;
 					counterValue = max - (c.min - counterValue);
 					looped = true;
+					canReloop = counterValue < c.min;
 				}else{
 					counterValue = c.min || 0;
 					mined = true;
 				}
 			}
-			//Final clamping just in case we add or remove more than the available range
-			//to a looped value.
-			if(c.min && counterValue < c.min) counterValue = c.min;
-			if(c.max && counterValue > c.max) counterValue = c.max;
 			
 			if(c.perUser) {
 				if(user) {
@@ -229,6 +228,13 @@ export const storeCounters = defineStore('counters', {
 			DataStore.set(DataStore.COUNTERS, this.counterList);
 
 			this.broadcastCounterValue(c.id);
+
+			//If counter is over/below the max/min value and should be looped
+			//simulate another update to generate another trigger event as
+			//much as needed
+			if(canReloop) {
+				this.increment(id, action, 0, user, userId);
+			}
 		},
 		
 	} as ICountersActions
