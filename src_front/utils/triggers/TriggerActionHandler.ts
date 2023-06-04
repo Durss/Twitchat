@@ -1380,99 +1380,115 @@ export default class TriggerActionHandler {
 			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
 			if(placeholders.length == 0) return res;
+
 			
 			for (const h of placeholders) {
 				const chunks:string[] = h.pointer.split(".");
 				let root = message as unknown;
 				let value:string = "";
+				let cleanSubevent = true;
 				h.tag = h.tag.toUpperCase();
 
-				try {
-					//Dynamically search for the requested prop's value within the object
-					for (let i = 0; i < chunks.length; i++) {
-						let isArray = false;
-						//key ends by [] it's because it's an array
-						if(/\[\]$/g.test(chunks[i])){
-							chunks[i] = chunks[i].replace("[]", "");
-							isArray = true;
-						}
-						root = (root as {[key:string]:unknown})[chunks[i]];
-						if(isArray) {
-							root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+1]]).join(", ");
-							break;
-						}
-					}
-					if(typeof root === "number") root = root.toString();
-					value = root as string;
-				}catch(error) {
-					/**
-					 * If the placeholder requests for the current track and we're ending up here
-					 * this means that the message does not contain the actual track.
-					 * In this case we go get the currently playing track
-					 */
-					if(h.tag.toLowerCase().indexOf("current_track") == 0) {
-						//That replace() is dirty but I'm too lazy to do that in a more generic way :(
-						const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
-						if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
-							value = SpotifyHelper.instance.currentTrack[pointer]?.toString();
-						}else if(Config.instance.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
-							value = DeezerHelper.instance.currentTrack[pointer]?.toString();
-						}
-						if(!value) value = "-none-";
-
+				//Special pointers parsing.
+				//Pointers starting with "__" are parsed here
+				if(h.pointer.indexOf("__")==0) {
+					let pointer = h.pointer.toLowerCase();
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					}else if(h.pointer.toLowerCase().indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
+					if(pointer.indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
 						const pointer = h.pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys
 						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointer]?.toString() || "";
 						if(!value) value = pointer == "viewers"? "0" : "-none-";
-
+	
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					}else if(h.pointer.toLowerCase().indexOf("__trigger__") == 0) {
+					}else if(pointer === "__trigger__") {
 						value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
 						if(!value) value = "-no name-";
-
+	
 					/**
 					 * If the placeholder requests for the current OBS scene
 					 */
-					}else if(h.pointer.toLowerCase().indexOf("__obs__") == 0) {
-						value = StoreProxy.main.currentOBSScene;
-						if(!value) value = "-none-";
-
+					}else if(pointer === "__obs__") {
+						value = StoreProxy.main.currentOBSScene || "-none-";
+	
 					/**
-					 * If the placeholder requests for a counter's value
+					 * If the placeholder requests for the current command
 					 */
-					}else if(h.tag.toLowerCase().indexOf(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase()) == 0) {
-						const counterPH = h.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
-						const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
-						if(counter) {
-							if(counter.perUser === true) {
-								//If it's a per-user counter, get the user's value
-								let user = this.extractUser(trigger, message);
-								if(user && counter.users && counter.users[user.id]) {
-									value = counter.users[user.id].toString();
-								}else{
-									value = "0";
-								}
-							}else{
-								//Simple counter, just get its value
-								value = counter.value.toString();
+					}else if(pointer === "__command__") {
+						value = subEvent || "-none-";
+						cleanSubevent = false;
+					}
+				}else{
+
+					//Dynamic parsing of the pointer
+					try {
+						//Dynamically search for the requested prop's value within the object
+						for (let i = 0; i < chunks.length; i++) {
+							let isArray = false;
+							//key ends by [] it's because it's an array
+							if(/\[\]$/g.test(chunks[i])){
+								chunks[i] = chunks[i].replace("[]", "");
+								isArray = true;
+							}
+							root = (root as {[key:string]:unknown})[chunks[i]];
+							if(isArray) {
+								root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+1]]).join(", ");
+								break;
 							}
 						}
-
-					}else{
-						console.warn("Unable to find pointer for helper", h);
-						value = "";
+						if(typeof root === "number") root = root.toString();
+						value = root as string;
+					}catch(error) {
+						/**
+						 * If the placeholder requests for the current track and we're ending up here
+						 * this means that the message does not contain the actual track.
+						 * In this case we go get the currently playing track
+						 */
+						if(h.tag.toLowerCase().indexOf("current_track") == 0) {
+							//That replace() is dirty but I'm too lazy to do that in a more generic way :(
+							const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
+							if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
+								value = SpotifyHelper.instance.currentTrack[pointer]?.toString();
+							}else if(Config.instance.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
+								value = DeezerHelper.instance.currentTrack[pointer]?.toString();
+							}
+							if(!value) value = "-none-";
+	
+						/**
+						 * If the placeholder requests for a counter's value
+						 */
+						}else if(h.tag.toLowerCase().indexOf(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase()) == 0) {
+							const counterPH = h.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
+							const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
+							if(counter) {
+								if(counter.perUser === true) {
+									//If it's a per-user counter, get the user's value
+									let user = this.extractUser(trigger, message);
+									if(user && counter.users && counter.users[user.id]) {
+										value = counter.users[user.id].toString();
+									}else{
+										value = "0";
+									}
+								}else{
+									//Simple counter, just get its value
+									value = counter.value.toString();
+								}
+							}
+	
+						}else{
+							console.warn("Unable to find pointer for helper", h);
+							value = "";
+						}
 					}
 				}
 
 				// console.log("Pointer:", h.tag, "=>", h.pointer, "=> value:", value);
 
 				//Remove command from final text
-				if(typeof value == "string" && subEvent_regSafe
+				if(cleanSubevent && typeof value == "string" && subEvent_regSafe
 				&& (trigger.type == TriggerActionDataTypes.TriggerTypes.CHAT_COMMAND || trigger.type == TriggerActionDataTypes.TriggerTypes.SLASH_COMMAND)) {
 					value = value.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
 				}

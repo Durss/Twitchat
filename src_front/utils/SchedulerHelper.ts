@@ -247,7 +247,7 @@ export default class SchedulerHelper {
 
 			//Special case for ad 
 			if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
-				if(Config.instance.BETA_MODE) continue;//No ad on beta
+				// if(Config.instance.BETA_MODE) continue;//No ad on beta
 				//No ad for donors unless requested
 				if(StoreProxy.auth.twitch.user.donor.state
 				&& !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;

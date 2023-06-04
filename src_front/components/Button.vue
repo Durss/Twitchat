@@ -278,6 +278,7 @@ export default class Button extends Vue {
 		height: 1em;
 		max-width: 1em;
 		justify-self: center;
+		line-height: 1em;
 		:deep(img) {
 			width: 100%;
 			height: 100%;

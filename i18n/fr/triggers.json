@@ -352,7 +352,8 @@
 			"obs_scene": "Scène OBS courante",
 			"viewer_count": "Nombre de viewers",
 			"obs_scene_name": "Nom de la nouvelle scène OBS",
-			"obs_scene_name_previous": "Nom de la scène OBS précédente"
+			"obs_scene_name_previous": "Nom de la scène OBS précédente",
+			"command": "Nom de la commande"
 		},
 		"events": {
 			"CHAT_COMMAND": {
