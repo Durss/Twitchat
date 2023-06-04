@@ -1420,6 +1420,27 @@ export default class TriggerActionHandler {
 					}else if(pointer === "__command__") {
 						value = subEvent || "-none-";
 						cleanSubevent = false;
+	
+					/**
+					 * If the placeholder requests for a counter's value
+					 */
+					}else if(pointer.indexOf("__counter__") == 0) {
+						const counterPH = h.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
+						const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
+						if(counter) {
+							if(counter.perUser === true) {
+								//If it's a per-user counter, get the user's value
+								let user = this.extractUser(trigger, message);
+								if(user && counter.users && counter.users[user.id]) {
+									value = counter.users[user.id].toString();
+								}else{
+									value = "0";
+								}
+							}else{
+								//Simple counter, just get its value
+								value = counter.value.toString();
+							}
+						}
 					}
 				}else{
 
@@ -1442,6 +1463,7 @@ export default class TriggerActionHandler {
 						if(typeof root === "number") root = root.toString();
 						value = root as string;
 					}catch(error) {
+						console.log(error);
 						/**
 						 * If the placeholder requests for the current track and we're ending up here
 						 * this means that the message does not contain the actual track.
@@ -1456,28 +1478,7 @@ export default class TriggerActionHandler {
 								value = DeezerHelper.instance.currentTrack[pointer]?.toString();
 							}
 							if(!value) value = "-none-";
-	
-						/**
-						 * If the placeholder requests for a counter's value
-						 */
-						}else if(h.tag.toLowerCase().indexOf(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase()) == 0) {
-							const counterPH = h.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
-							const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
-							if(counter) {
-								if(counter.perUser === true) {
-									//If it's a per-user counter, get the user's value
-									let user = this.extractUser(trigger, message);
-									if(user && counter.users && counter.users[user.id]) {
-										value = counter.users[user.id].toString();
-									}else{
-										value = "0";
-									}
-								}else{
-									//Simple counter, just get its value
-									value = counter.value.toString();
-								}
-							}
-	
+							
 						}else{
 							console.warn("Unable to find pointer for helper", h);
 							value = "";

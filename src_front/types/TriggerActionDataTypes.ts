@@ -859,7 +859,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	for (let i = 0; i < counters.length; i++) {
 		const c = counters[i];
 		if(c.placeholderKey) {
-			counterPlaceholders.push({tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey, descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter.value", numberParsable:true, isUserID:false, globalTag:true});
+			counterPlaceholders.push({tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey, descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter__.value", numberParsable:true, isUserID:false, globalTag:true});
 		}
 	}
 	
