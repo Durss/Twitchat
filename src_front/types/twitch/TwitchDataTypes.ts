@@ -330,7 +330,7 @@ export namespace TwitchDataTypes {
 		gifter_login: string;
 		gifter_name: string;
 		is_gift: boolean;
-		tier: string;
+		tier: "1000"|"2000"|"3000"|"prime";
 		plan_name: string;
 		user_id: string;
 		user_name: string;

@@ -495,11 +495,14 @@ export namespace TwitchatDataTypes {
 		reward_id?:string;
 		duration_s:number;
 		maxEntries:number;
+		multipleJoin:boolean;
 		created_at:number;
 		entries:RaffleEntry[];
 		vipRatio:number;
 		followRatio:number;
 		subRatio:number;
+		subT2Ratio:number;
+		subT3Ratio:number;
 		subgiftRatio:number;
 		subMode_includeGifters:boolean;
 		subMode_excludeGifted:boolean;
@@ -518,6 +521,7 @@ export namespace TwitchatDataTypes {
 	}
 	export interface RaffleEntry extends EntryItem {
 		score:number;
+		joinCount:number;
 		user?:{
 			id:string;
 			channel_id:string;
@@ -1116,6 +1120,10 @@ export namespace TwitchatDataTypes {
 		 * Store the date at which this user last got a shoutout
 		 */
 		lastShoutout?:number;
+		/**
+		 * Defines if the user should be moded back after their timeout completes
+		 */
+		autoRemod?:boolean;
 	}
 	
 	/**
@@ -1360,6 +1368,8 @@ export namespace TwitchatDataTypes {
 		CYPHER_KEY:"cypherKey",//When configuring/removing a cypher key (secret feature hehehe ( ͡~ ͜ʖ ͡°) )
 		MARKER_CREATED:"markerCreated",
 		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
+		BLOCKED:"blocked",//When a user is blocked
+		UNBLOCKED:"unblocked",//When a user is unblocked
 	} as const;
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 
@@ -2572,6 +2582,10 @@ export namespace TwitchatDataTypes {
 		 * Name of the OBS scene we switched to
 		 */
 		sceneName:string;
+		/**
+		 * Name of the OBS scene we're coming from
+		 */
+		previousSceneName:string;
 	}
 
 	/**

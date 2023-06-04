@@ -10,6 +10,7 @@
 		"conversationsEnabled": "Group conversations<br>(allows to display conversations between users seperately)",
 		"userHistoryEnabled": "See all user's messages when hovering their name",
 		"lockAutoScroll": "Pause chat on hover",
+		"autoRemod": "Give back moderators their role after their timeout ends",
 		"showModTools": "Show mod tools (TO,ban,delete)",
 		"raidHighlightUser": "Highlight raider's messages",
 		"raidHighlightUserTrack": "Track raider's messages",

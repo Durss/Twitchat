@@ -38,10 +38,10 @@
 						</span>
 
 						<textarea v-if="indexToEditState[index]"
-						maxlength="500"
-						rows="4" v-autofocus
-						@focusout="indexToEditState[index] = false"
-						v-model="action.list[index]">{{ item }}</textarea>
+							maxlength="500"
+							rows="4" v-autofocus
+							@focusout="indexToEditState[index] = false"
+							v-model="action.list[index]">{{ item }}</textarea>
 					</div>
 				</div>
 			</div>
@@ -58,15 +58,7 @@
 					<span :class="openTriggerList? 'arrow open' : 'arrow'">►</span>
 					<span>{{ $t("triggers.actions.random.trigger_select") }}</span>
 				</div>
-				<div class="list" v-if="openTriggerList">
-					<div class="item"
-					v-for="item in triggerList" :key="item.id"
-					@click="onSelectTrigger(item.id)">
-						<img class="icon" :src="item.iconURL" v-if="item.iconURL" :style="{backgroundColor:item.iconBG}">
-						<Icon class="icon" :name="item.icon" v-else-if="item.icon" />
-						<span class="label">{{ item.label }}</span>
-					</div>
-				</div>
+				<SimpleTriggerList class="list" @select="onSelectTrigger" v-if="openTriggerList" />
 			</div>
 			
 			<div class="listItem trigger" v-if="action.triggers.length > 0">
@@ -77,12 +69,13 @@
 						<img src="@/assets/icons/trash.svg" alt="delete">
 					</button>
 
-					<div class="content">
+					<!-- <div class="content">
 						<img v-if="getTriggerInfo(item).iconURL" :src="getTriggerInfo(item).iconURL" class="icon"
 						:style="getTriggerInfo(item).iconBgColor? {backgroundColor:getTriggerInfo(item).iconBgColor} : {}">
 						<Icon v-else :name="getTriggerInfo(item).icon" class="icon" />
 						<span class="label">{{ getTriggerInfo(item).label }}</span>
-					</div>
+					</div> -->
+					<SimpleTriggerList class="item" :filteredItemId="item" />
 				</div>
 			</div>
 		</template>
@@ -113,6 +106,7 @@ import TriggerList from '../TriggerList.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import TabMenu from '@/components/TabMenu.vue';
 import { watch } from 'vue';
+import SimpleTriggerList from '../SimpleTriggerList.vue';
 
 @Component({
 	components:{
@@ -121,6 +115,7 @@ import { watch } from 'vue';
 		ParamItem,
 		TriggerList,
 		ToggleBlock,
+		SimpleTriggerList,
 		ChatMessageChunksParser,
 	},
 })
@@ -136,7 +131,6 @@ export default class TriggerActionRandomEntry extends Vue {
 	public disposed:boolean = false;
 	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
-	public triggerList:{id:string, label:string, icon?:string, iconURL?:string, iconBG?:string}[] = [];
 
 	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
 	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
@@ -166,17 +160,6 @@ export default class TriggerActionRandomEntry extends Vue {
 		this.action.triggers = this.action.triggers.filter(v=> triggers.findIndex(w => v === w.id) > -1);
 		this.openTriggerList = this.action.triggers.length == 0;
 		
-		triggers.forEach(t=> {
-			let infos = Utils.getTriggerDisplayInfo(t);
-			this.triggerList.push({
-				id:t.id,
-				label: infos.label,
-				icon: infos.icon,
-				iconURL: infos.iconURL,
-				iconBG: infos.iconBgColor,
-			})
-		})
-
 		watch(()=>this.action.mode, ()=> {
 			this.onSwitchMode();
 		});
@@ -257,6 +240,7 @@ export default class TriggerActionRandomEntry extends Vue {
 		gap: .25em;
 		max-height: 300px;
 		overflow-y: auto;
+		margin-top: .25em;
 		.entry {
 			flex-shrink: 0;
 			display: flex;
@@ -282,10 +266,11 @@ export default class TriggerActionRandomEntry extends Vue {
 				flex-grow: 1;
 				border-top-right-radius: .5em;
 				border-bottom-right-radius: .5em;
-				background-color: var(--color-light-fadest);
+				background-color: var(--color-primary);
 				font-size: .9em;
 				display: flex;
 				align-items: center;
+				padding-left: .25em;
 				.icon {
 					align-self: stretch;
 					width: 1.75em;
@@ -309,6 +294,17 @@ export default class TriggerActionRandomEntry extends Vue {
 				}
 			}
 		}
+
+		&.trigger {
+			.item {
+				width: 100%;
+				pointer-events: none;
+				background-color: var(--color-primary);
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+				padding-left: .5em;
+			}
+		}
 	}
 
 	.triggerList {
@@ -326,35 +322,7 @@ export default class TriggerActionRandomEntry extends Vue {
 			}
 		}
 		.list {
-			gap: 2px;
-			display: flex;
-			flex-direction: column;
-			max-height: 200px;
-			overflow-y: auto;
 			margin-top: .5em;
-			padding: 0 1.5em;
-			.item {
-				gap: .5em;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				flex-shrink: 0;
-				background-color: var(--background-color-fadest);
-				transition: background-color .2s;
-				cursor: pointer;
-				border-radius: var(--border-radius);
-				padding: 2px;
-				font-size: .9em;
-				.icon {
-					height: 1.5em;
-					width: 1.5em;
-					border-radius: var(--border-radius);
-					object-fit: contain;
-				}
-				&:hover {
-					background-color: var(--background-color-fader);
-				}
-			}
 		}
 	}
 }

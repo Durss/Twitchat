@@ -831,6 +831,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"STREAK_COUNT", descKey:'triggers.placeholders.watch_streak', pointer:"streak", numberParsable:true, isUserID:false},
 	];
 
+	map[TriggerTypes.OBS_SCENE] = [
+		{tag:"NEW_SCENE_NAME", descKey:'triggers.placeholders.obs_scene_name', pointer:"sceneName", numberParsable:false, isUserID:false},
+		{tag:"PREVIOUS_SCENE_NAME", descKey:'triggers.placeholders.obs_scene_name_previous', pointer:"previousSceneName", numberParsable:false, isUserID:false},
+	];
+
 
 	//If a music service is available, concat the music service helpers
 	if(map[key]

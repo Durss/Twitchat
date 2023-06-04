@@ -955,32 +955,31 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets the subscription state of a user to a channel
+	 * Gets the subscription state of spacific users to the authenticated user
 	 * Needs "user:read:subscriptions" scope
 	 */
-	public static async getSubscriptionState(userId:string, channelId?:string):Promise<TwitchDataTypes.Subscriber|null> {
-		if(!this.hasScopes([TwitchScopes.CHECK_SUBSCRIBER_STATE])) return null;
+	public static async getSubscriptionState(userIds:string[]):Promise<TwitchDataTypes.Subscriber[]> {
+		if(!this.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) return [];
 		
-		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
-		const url = new URL(Config.instance.TWITCH_API_PATH+"subscriptions");
-		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("user_id", userId);
-		const res = await fetch(url, {
-			method:"GET",
-			headers:this.headers,
-		});
-		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
-			return await this.getSubscriptionState(userId, channelId);
-		}
-		try {
-			const json:{data:TwitchDataTypes.Subscriber[], pagination?:{cursor?:string}} = await res.json();
-			if(json.data?.length > 0) {
-				return json.data[0];
+		let list:TwitchDataTypes.Subscriber[] = [];
+		do {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"subscriptions");
+			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+			userIds.splice(0, 100).forEach(v=> {
+				url.searchParams.append("user_id", v);
+			})
+			const res = await fetch(url, {
+				method:"GET",
+				headers:this.headers,
+			});
+			if(res.status == 200) {
+				const json:{data:TwitchDataTypes.Subscriber[], pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+			}else{
+				//ignore :3
 			}
-		}catch(error) {}
-		return null;
+		}while(userIds.length > 0)
+		return list;
 	}
 
 	/**
@@ -2685,7 +2684,7 @@ export default class TwitchUtils {
 	 * @param attemptCount 
 	 */
 	private static async onRateLimit(headers:Headers, attemptCount:number = 0):Promise<void> {
-		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now()/1000+1).toString()) * 1000 + 1000;
+		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 		if(attemptCount > 0) resetDate += 1000 * Math.pow(2, attemptCount);//Scale up the time frame 
 		console.log("Rate limit", attemptCount, 1000 * Math.pow(2, attemptCount));
 		await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);

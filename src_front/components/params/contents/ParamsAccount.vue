@@ -10,7 +10,7 @@
 
 		<section class="card-item actions">
 			<Button class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</Button>
-			<Button class="button" @click="latestUpdates()" icon="sub">{{ $t('account.updatesBt') }}</Button>
+			<Button class="button" @click="latestUpdates()" icon="update">{{ $t('account.updatesBt') }}</Button>
 			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
 		</section>
 		

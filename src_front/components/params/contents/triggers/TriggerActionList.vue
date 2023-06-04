@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionlist">
-		<div class="card-item primary description">
+		<div class="card-item secondary description">
 			<img src="@/assets/icons/info.svg" class="icon">
 			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
 				<template #SUB_ITEM_NAME>
@@ -53,9 +53,7 @@
 			</div>
 		</div>
 
-		<div class="card-item conditions">
-			<TriggerConditionList :triggerData="triggerData" />
-		</div>
+		<TriggerConditionList class="card-item conditions" :triggerData="triggerData" />
 		
 		<div :class="listClasses">
 			<div v-if="hasCondition" class="conditionSelector">
@@ -76,7 +74,7 @@
 			</button>
 
 			<draggable 
-			v-model="actionList" 
+			v-model="filteredActionList" 
 			group="actions" 
 			item-key="id"
 			ghost-class="ghost"
@@ -99,7 +97,7 @@
 							@duplicate="duplicateAction(element, index)"
 						/>
 						<div class="dash"></div>
-						<button class="addBt" @click="addActionAt(index+1)">
+						<button class="addBt" @click="addActionAfter(element.id)">
 							<img src="@/assets/icons/add.svg" class="icon">
 						</button>
 					</div>
@@ -168,7 +166,7 @@ export default class TriggerActionList extends Vue {
 	/**
 	 * Get a trigger's description
 	 */
-	public get actionList():TriggerActionTypes[] {
+	public get filteredActionList():TriggerActionTypes[] {
 		let res = this.triggerData.actions;
 		if(this.hasCondition) {
 			return res.filter(t=> {
@@ -178,11 +176,11 @@ export default class TriggerActionList extends Vue {
 		return res;
 	}
 
-	public set actionList(value:TriggerActionTypes[]) {
+	/**
+	 * Get filtered actions depending on condition result if any
+	 */
+	public set filteredActionList(value:TriggerActionTypes[]) {
 		if(this.hasCondition) {
-			// return res.filter(t=> {
-			// 	return t.condition == this.matchingCondition || (t.condition !== false && this.matchingCondition);
-			// })
 			
 			//Remove all sorted actions from the original trigger data
 			for (let i = 0; i < this.triggerData.actions.length; i++) {
@@ -255,7 +253,7 @@ export default class TriggerActionList extends Vue {
 	public beforeMount():void {
 		this.param_queue.options = this.$store("triggers").queues;
 		if(this.triggerData.actions.length === 0) {
-			this.addActionAt(this.triggerData.actions.length-1);
+			this.addActionAt(0);
 		}
 	}
 
@@ -279,8 +277,18 @@ export default class TriggerActionList extends Vue {
 	}
 
 	/**
-	 * Adds an action at the specified index
-	 * @param index 
+	 * Adds an action after the specified trigger ID
+	 * @param id 
+	 */
+	public addActionAfter(id:string):void {
+		let index = this.triggerData.actions.findIndex(v=>v.id == id);
+		if(index == -1) return;
+		this.addActionAt(index + 1);
+	}
+
+	/**
+	 * Adds an action at the top of the list
+	 * @param id 
 	 */
 	public addActionAt(index:number):void {
 		const action:TriggerActionEmptyData = {

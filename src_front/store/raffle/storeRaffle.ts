@@ -90,10 +90,13 @@ export const storeRaffle = defineStore('raffle', {
 					entries:[winner],
 					winners:[winner],
 					customEntries:"",
+					multipleJoin:false,
 					duration_s:0,
 					followRatio:1,
 					subgiftRatio:1,
 					subRatio:1,
+					subT2Ratio:1,
+					subT3Ratio:1,
 					vipRatio:1,
 					subMode_excludeGifted:false,
 					subMode_includeGifters:false,
@@ -139,36 +142,34 @@ export const storeRaffle = defineStore('raffle', {
 
 			const messageCast = message as TwitchatDataTypes.GreetableMessage;
 
-			const sUsers = StoreProxy.users;
 			const sChat = StoreProxy.chat;
 			const raffle = this.data;
 			const ellapsed = Date.now() - new Date(raffle.created_at).getTime();
-			//Check if within time frame and max users count isn't reached and that user
-			//hasn't already entered
+
+			//Check if within time frame and max users count isn't reached
 			if(ellapsed <= raffle.duration_s * 1000
-			&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)
-			&& !raffle.entries.find(v=>v.id == messageCast.user.id)) {
-				let score = 1;
+			&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)) {
 				const user = messageCast.user;
-				//Apply ratios if any is defined
-				if(raffle.vipRatio > 0 && user.channelInfo[messageCast.channel_id].is_vip)			score += raffle.vipRatio;
-				if(raffle.subRatio > 0 && user.channelInfo[messageCast.channel_id].is_subscriber)	score += raffle.subRatio;
-				if(raffle.subgiftRatio > 0 && user.channelInfo[messageCast.channel_id].is_gifter)	score += raffle.subgiftRatio;
-				if(raffle.followRatio > 0) {
-					//Check if user is following
-					if(user.channelInfo[messageCast.channel_id].is_following === undefined) sUsers.checkFollowerState(user, messageCast.channel_id);
-					if(user.channelInfo[messageCast.channel_id].is_following === true) score += raffle.followRatio;
+				const existingEntry = raffle.entries.find(v=>v.id == user.id);
+				if(existingEntry) {
+					//User already entered, increment their score or stop there
+					//depending on the raffle's param
+					if(this.data.multipleJoin !== true) return;
+					existingEntry.joinCount ++;
+				}else{
+					//User is not already on the list, create it
+					raffle.entries.push( {
+						score:0,
+						joinCount:1,
+						label:user.displayName,
+						id:user.id,
+						user:{
+							id:messageCast.user.id,
+							platform:messageCast.platform,
+							channel_id:messageCast.channel_id,
+						}
+					} );
 				}
-				raffle.entries.push( {
-					score,
-					label:user.displayName,
-					id:user.id,
-					user:{
-						id:messageCast.user.id,
-						platform:messageCast.platform,
-						channel_id:messageCast.channel_id,
-					}
-				} );
 				
 				if(sChat.botMessages.raffleJoin.enabled) {
 					let message = sChat.botMessages.raffleJoin.message;
@@ -184,6 +185,80 @@ export const storeRaffle = defineStore('raffle', {
 			if(!data) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
 				return;
+			}
+			
+			const sUsers = StoreProxy.users;
+			const userList:{channel_id:string, user:TwitchatDataTypes.TwitchatUser, entry:TwitchatDataTypes.RaffleEntry}[] = [];
+			data.entries.forEach(v=> {
+				//Skip if it's not a user or if the score has already been computed
+				if(!v.user || v.score > 0) return;
+				const user = sUsers.getUserFrom(v.user.platform, v.user.channel_id, v.user.id);
+				userList.push({user, channel_id:v.user.channel_id, entry:v});
+			});
+			
+			//Compute weighted scores if necessary
+			if(!forcedWinner && userList.length > 0) {
+				
+				//Requesting weigted values for T2 or T3 subscribers if necessary
+				if((data.subT2Ratio || data.subT3Ratio) && userList.length > 0) {
+					//load all subscribers states
+					const res = await TwitchUtils.getSubscriptionState(userList.map(v=>v.user.id));
+					res.forEach(v=> {
+						const userListEntry = userList.find(w => w.user.id == v.user_id);
+						
+						//User not found on the API results, user is not subscribed
+						if(!userListEntry) return;
+	
+						const user = userListEntry.user;
+						const entry = userListEntry.entry;
+						const channel_id = userListEntry.channel_id;
+						user.channelInfo[channel_id].is_subscriber = true;
+						//Sub tier 3
+						if(data.subT3Ratio > 0
+							&& v.tier == "3000")	entry.score += data.subT3Ratio ?? 0;
+						//Sub tier 2
+						else if(data.subT2Ratio > 0
+							&& v.tier == "2000")	entry.score += data.subT2Ratio ?? 0;
+						//Sub tier 1 & prime
+						else if(data.subRatio > 0)	entry.score += data.subRatio;
+
+						//If user has been gifted, update the state of the gifter.
+						//IRC should already have sent this info if the user wrote on chat.
+						//This is just a bonus step just in case.
+						if(v.gifter_id) {
+							//Check if gifter is part of the raffle entries
+							let gifter = userList.find(w=>w.user.id == v.gifter_id);
+							if(gifter) {
+								const user = sUsers.getUserFrom(gifter.user.platform, channel_id, v.gifter_id, v.gifter_login, v.gifter_name);
+								if(user) user.channelInfo[channel_id].is_gifter = true;
+							}
+						}
+					})
+				}
+
+				//Apply other ratios
+				for (const v of userList) {
+					const channel_id	= v.channel_id;
+					const user			= sUsers.getUserFrom(v.user.platform, channel_id, v.user.id);
+					//Apply VIP ratio
+					if(data.vipRatio > 0 && user.channelInfo[channel_id].is_vip)		v.entry.score += data.vipRatio;
+					//Apply sub gifter ratio
+					if(data.subgiftRatio > 0 && user.channelInfo[channel_id].is_gifter)	v.entry.score += data.subgiftRatio;
+					//Apply follower ratio
+					if(data.followRatio > 0) {
+						//If user follow state isn't loaded yet, get it
+						if(user.channelInfo[channel_id].is_following === undefined) await sUsers.checkFollowerState(user, channel_id);
+						if(user.channelInfo[channel_id].is_following === true) v.entry.score += data.followRatio;
+					}
+					//Apply sub T1 ratio (value comes from IRC).
+					//If there's a T2 or T3 ratio, don't apply the T1 ratio here, wealready got it before
+					//by checking the actual subscription states of all users from the API.
+					//IRC doesn't say if the user is subscribed at tier 2 or 3, only tier 1 and prime.
+					if(data.subRatio > 0
+					&& (!data.subT2Ratio || data.subT2Ratio == 0)
+					&& (!data.subT3Ratio || data.subT3Ratio == 0)
+					&& user.channelInfo[channel_id].is_subscriber)	v.entry.score += data.subRatio;
+				}
 			}
 
 			let winner:TwitchatDataTypes.RaffleEntry;
@@ -210,6 +285,7 @@ export const storeRaffle = defineStore('raffle', {
 							id:(id++).toString(),
 							label:v,
 							score:1,
+							joinCount:1,
 						}
 					});
 					data.entries = items;
@@ -240,6 +316,7 @@ export const storeRaffle = defineStore('raffle', {
 							id:v.user_id,
 							label:v.user_name,
 							score:1,
+							joinCount:1,
 						}
 					});
 					data.entries = items;
@@ -250,9 +327,12 @@ export const storeRaffle = defineStore('raffle', {
 				//score is greater than 1
 				for (let i = 0; i < data.entries.length; i++) {
 					const u = data.entries[i];
-					if(u.score==1) list.push(u);
+					const joinCount = Math.max(1, u.score) * Math.max(1, u.joinCount);
+					//@ts-ignore
+					u.fakeScore = joinCount;
+					if(joinCount==1) list.push(u);
 					else {
-						for (let j = 0; j < u.score; j++) {
+						for (let j = 0; j < joinCount; j++) {
 							list.push(u);
 						}
 					}

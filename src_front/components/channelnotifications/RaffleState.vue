@@ -21,17 +21,21 @@
 			</i18n-t>
 		</div>
 
+		<div class="item entries" v-if="cumulatedEntryCount != raffleData.entries?.length">
+			<img src="@/assets/icons/ticket.svg" alt="ticket">
+			<i18n-t scope="global" tag="p" keypath="raffle.state_users_cumulated" :plural="cumulatedEntryCount"
+			v-if="cumulatedEntryCount != raffleData.maxEntries">
+				<template #COUNT>
+					<span>{{cumulatedEntryCount}}</span>
+				</template>
+			</i18n-t>
+		</div>
+
 		<div class="item card-item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
-			<div class="header">
-				<i18n-t class="title" scope="global" tag="p" keypath="raffle.state_winners">
-					<template #COUNT>
-						<span class="count">({{raffleData.winners.length}})</span>
-					</template>
-				</i18n-t>
-			</div>
 			<div class="entries">
 				<template v-for="w in raffleData.winners" :key="w.label">
-					<Button v-if="w.user" small
+					<Button v-if="w.user" small light
+					icon="sub"
 					type="link"
 					target="_blank"
 					:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
@@ -41,18 +45,17 @@
 			</div>
 		</div>
 
-		<Button class="item"
-			icon="ticket"
-			@click="pickWinner()"
-			secondary
-			:loading="picking"
-			v-if="canPick">{{ $t('raffle.state_pickBt') }}</Button>
-
-		<Button class="item"
-			icon="cross"
-			highlight
-			alert
-			@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</Button>
+		<div class="ctas">
+			<Button icon="cross"
+				highlight
+				alert
+				@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</Button>
+			<Button icon="ticket"
+				@click="pickWinner()"
+				secondary
+				:loading="picking"
+				v-if="canPick">{{ $t('raffle.state_pickBt') }}</Button>
+		</div>
 	</div>
 </template>
 
@@ -83,6 +86,14 @@ export default class RaffleState extends Vue {
 		return (this.raffleData.entries && this.raffleData.entries.length > 0)
 			&& (this.raffleData.winners == undefined
 			|| this.raffleData.winners?.length < this.raffleData.entries.length)
+	}
+
+	public get cumulatedEntryCount():number {
+		let count = 0;
+		this.raffleData.entries.forEach(v=> {
+			count += v.joinCount;
+		})
+		return count;
 	}
 	
 	public getUserFromEntry(entry:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.TwitchatUser|null {
@@ -154,12 +165,22 @@ export default class RaffleState extends Vue {
 		font-style: italic;
 		img {
 			height: 1em;
+			width: 1em;
+			object-fit: fill;
 			margin-right: .5em;
 		}
 	}
 
 	.winners {
 		flex-shrink: 0;
+	}
+
+	.ctas {
+		gap: 1em;
+		row-gap: .5em;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
 	}
 }
 </style>

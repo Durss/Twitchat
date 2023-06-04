@@ -26,11 +26,12 @@
 					v-if="canTestTrigger"
 					icon="test"
 					@click="testTrigger(currentTriggerData!)">{{ $t('triggers.testBt') }}</Button>
-			<!-- 
+			
 				<Button class="cta"
-					highlight
+					v-if="currentTriggerData"
+					alert small
 					icon="delete"
-					@click="deleteTrigger()">{{ $t('triggers.deleteBt') }}</Button> -->
+					@click="deleteTrigger(currentTriggerData!.id)">{{ $t('triggers.deleteBt') }}</Button>
 			</div>
 
 			<Button class="createBt"
@@ -166,6 +167,15 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 				}
 			}, 1000);
 		}, {deep:true});
+
+		//Check for OBS connection change event.
+		//if connection has been established, load scenes and sources
+		watch(()=>OBSWebsocket.instance.connected, async ()=> {
+			if(OBSWebsocket.instance.connected) {
+				await this.listOBSScenes();
+				await this.listOBSSources();
+			}
+		})
 	}
 
 	public beforeUnmount():void {
@@ -430,6 +440,19 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 				}, false);
 			}
 		}
+	}
+
+	/**
+	 * Delete a trigger
+	 * @param id 
+	 */
+	public deleteTrigger(id:string):void {
+		this.$store("main").confirm(this.$t("triggers.delete_confirm")).then(()=>{
+			this.$store("triggers").deleteTrigger(id);
+			this.showList = true;
+			this.showForm = false;
+			this.currentTriggerData = null;
+		}).catch(error=>{});
 	}
 }
 </script>

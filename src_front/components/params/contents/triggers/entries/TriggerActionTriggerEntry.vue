@@ -11,20 +11,13 @@
 		<div class="card-item field col" v-if="!action.triggerId">
 			<div class="title" v-if="rewards.length > 0 && !action.triggerId">{{$t('triggers.actions.trigger.select')}}</div>
 	
-			<TriggerList class="list"
-			noEdit
-			:rewards="rewards"
-			@select="onSelectTrigger($event)" />
+			<SimpleTriggerList class="list" @select="onSelectTrigger" />
 		</div>
 
 		<div class="card-item field" v-else>
 			<img src="@/assets/icons/broadcast.svg" class="icon">
 			<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
-			<TriggerList
-				noEdit
-				:triggerId="action.triggerId"
-				:rewards="rewards"
-				@select="action.triggerId = ''" />
+			<SimpleTriggerList :filteredItemId="action.triggerId" @click="action.triggerId = ''" />
 		</div>
 
 		<ToggleBlock :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
@@ -58,11 +51,13 @@ import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import TriggerList from '../TriggerList.vue';
+import SimpleTriggerList from '../SimpleTriggerList.vue';
 
 @Component({
 	components:{
 		ToggleBlock,
 		TriggerList,
+		SimpleTriggerList,
 	}
 })
 export default class TriggerActionTriggerEntry extends Vue {
@@ -75,7 +70,6 @@ export default class TriggerActionTriggerEntry extends Vue {
 	public rewards!:TwitchDataTypes.Reward[];
 
 	public dependencyLoopInfos:{label: string, icon: string, iconURL?: string | undefined, iconBgColor?: string | undefined}[] = [];
-	public triggerList:{triggerKey:string, label?:string, labelKey?:string, trigger:TriggerData, info:TriggerTypeDefinition}[] = [];
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
@@ -100,7 +94,9 @@ export default class TriggerActionTriggerEntry extends Vue {
 		this.buildDependencyLoop();
 	}
 
-	public onSelectTrigger(trigger:TriggerData):void {
+	public onSelectTrigger(id:string):void {
+		const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);
+		if(!trigger) return;
 		this.action.triggerId = trigger.id;
 		this.buildDependencyLoop();
 	}
@@ -117,7 +113,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 		}
 	}
 
-	private recursiveLoopCheck(base:TriggerData):TriggerData[] {
+	private recursiveLoopCheck(base:TriggerData, doneIds:{[key:string]:boolean} = {}):TriggerData[] {
 		if(!this.action.triggerId) return [];
 		const triggers = this.$store("triggers").triggerList;
 		let found:TriggerData[] = [];
@@ -137,11 +133,16 @@ export default class TriggerActionTriggerEntry extends Vue {
 				if(a.triggerId == this.triggerData.id) {
 					found.push(base);
 					break;
-				}else if(a.triggerId) {
+				//If it's not the current trigger and this trigger has not yet been parsed, check deeper
+				//Ignore if the trigger was already parsed to avoid detecting a loop external to the
+				//current trigger. For exemple, if the selected trigger leads to a dependency loop
+				//that is not part of the current trigger, this would lead to an infinite recursion.
+				}else if(a.triggerId && doneIds[a.triggerId] !== true) {
+					doneIds[a.triggerId] = true;
 					//Check deeper
 					const t = triggers.find(v=>v.id == a.triggerId);
 					if(t) {
-						const list = this.recursiveLoopCheck( t );
+						const list = this.recursiveLoopCheck( t, doneIds );
 						if(list.length > 0) {
 							found.push(base);
 							found = found.concat( list );
@@ -175,8 +176,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 		.list {
 			flex-grow: 1;
 			max-height: 300px;
-			overflow-y: auto;
-			border-radius: .5em;
+			width: 100%;
 		}
 	}
 

@@ -26,7 +26,7 @@
 		"legal": {
 			"title": "Legal concerns",
 			"contents": [
-				"Depending on your country's legislation, making your viewers win something while using the \"sub\" ponderation option or randomly picking a winner amongst your subs might be illegal.",
+				"Depending on your country's legislation, picking a winner amongst your subs or giving them more chances to win might be illegal.",
 				"You may want to check this out before doing a giveaway."
 			]
 		},
@@ -52,9 +52,12 @@
 			"duration": "Raffle duration (minutes)",
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",
-			"ponderate": "Ponderate entries (additional points given for every matching criteria)",
+			"multiple_join": "Users can join multiple times",
+			"ponderate": "Weight entries (additional points given for every matching criteria)",
 			"ponderate_VIP": "VIP",
-			"ponderate_sub": "Subscriber",
+			"ponderate_sub": "Subscriber T1/prime",
+			"ponderate_subT2": "Subscriber T2",
+			"ponderate_subT3": "Subscriber T3",
 			"ponderate_subgifter": "Sub gifter",
 			"ponderate_follower": "Follower",
 			"ponderate_include_gifter": "Include sub gifters (user not sub but that subgifted someone else)",
@@ -64,7 +67,7 @@
 		},
 		"state_title": "Raffle",
 		"state_users": "{COUNT} entered",
-		"state_winners": "Winners{COUNT} :",
+		"state_users_cumulated": "{COUNT} tickets",
 		"state_pickBt": "Pick a winner",
 		"state_stopBt": "Stop Raffle"
 	}

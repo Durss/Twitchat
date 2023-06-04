@@ -197,20 +197,25 @@ export const storeAuth = defineStore('auth', {
 				const sChat = StoreProxy.chat;
 				const sRewards = StoreProxy.rewards;
 				
-				await DataStore.migrateLocalStorage();
+				try {
+					await DataStore.migrateLocalStorage();
 
-				//If asked to sync data with server, load them
-				if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
-					if(!await DataStore.loadRemoteData()) {
-						//Force data sync popup to show up if remote
-						//data have been deleted
-						// DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
-						sMain.alert("An error occured while loading your parameters");
-						return;
+					//If asked to sync data with server, load them
+					if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
+						if(!await DataStore.loadRemoteData()) {
+							//Force data sync popup to show up if remote
+							//data have been deleted
+							// DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
+							sMain.alert("An error occured while loading your parameters");
+							return;
+						}
 					}
+
+					//Parse data from storage
+					await sMain.loadDataFromStorage();
+				}catch(error) {
+					sMain.alert("An error occured when loading your parameters. Please try with another browser. Contact me on twitter or twitch @durss.");
 				}
-				//Parse data from storage
-				await sMain.loadDataFromStorage();
 
 				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
 
@@ -251,6 +256,14 @@ export const storeAuth = defineStore('auth', {
 						user:this.twitch.user,
 						lastSoDoneDate:0,
 					};
+				});
+
+				//Preload moderators of the channel and flag them accordingly
+				TwitchUtils.getModerators(this.twitch.user.id).then(async res=> {
+					res.forEach(u=> {
+						const user = StoreProxy.users.getUserFrom("twitch", this.twitch.user.id, u.user_id, u.user_login, u.user_name);
+						user.channelInfo[this.twitch.user.id].is_moderator = true;
+					})
 				});
 
 				//Warn the user about the automatic "ad" message sent every 2h

@@ -26,7 +26,7 @@
 		"legal": {
 			"title": "Informations juridiques",
 			"contents": [
-				"Selon la loi en vigueur dans votre pays, effectuer un tirage au sort parmi vos subs peut s'avérer être illégal.",
+				"Selon la loi en vigueur dans votre pays, effectuer un tirage au sort parmi vos subs ou leur donner plus de chances peut s'avérer illégal.",
 				"Il est conseillé de vous renseigner avant d'utiliser ce type de tirage au sort."
 			]
 		},
@@ -52,9 +52,12 @@
 			"duration": "Durée du tirage (minutes)",
 			"limit_users": "Limiter le nombre de participant·es",
 			"max_users": "Maximum",
+			"multiple_join": "Autoriser à participer plusieurs fois",
 			"ponderate": "Pondérer les participations (chaque critère rempli comptera pour X participations)",
 			"ponderate_VIP": "VIP",
-			"ponderate_sub": "Subs",
+			"ponderate_sub": "Sub T1/prime",
+			"ponderate_subT2": "Sub T2",
+			"ponderate_subT3": "Sub T3",
 			"ponderate_subgifter": "Sub gifter",
 			"ponderate_follower": "Follower",
 			"ponderate_include_gifter": "Inclure les sub gifters (a offert des abonnements sans forcément être abonné·e)",
@@ -64,7 +67,7 @@
 		},
 		"state_title": "Tirage au sort",
 		"state_users": "0 entrée | 1 entrée | {COUNT} entrées",
-		"state_winners": "Gagnants{COUNT} :",
+		"state_users_cumulated": "0 ticket | 1 ticket | {COUNT} tickets",
 		"state_pickBt": "Tirer au sort",
 		"state_stopBt": "Clore le tirage"
 	}

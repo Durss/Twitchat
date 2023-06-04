@@ -28,6 +28,7 @@
 		"trigger_queue":"File d'exécution",
 		"trigger_queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez-les à une même file d'exécution.",
 		"trigger_queue_input_placeholder": "file d'exécution...",
+		"missing_trigger": "TRIGGER SUPPRIMÉ",
 		"missing_counter": "COMPTEUR SUPPRIMÉ",
 		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
@@ -141,7 +142,8 @@
 				"param_globalCD": "Cooldown global ({VALUE}s)",
 				"param_userCD": "Cooldown utilisateur ({VALUE}s)",
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
-				"commands_list":"Commandes de tchat"
+				"commands_list":"Commandes de tchat",
+				"use_slash_cmd":"Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande"
 			},
 			"highlight": {
 				"header": "{LINK} de mise en avant pour utiliser cette action.",
@@ -348,7 +350,9 @@
 			"counter_global_value": "Valeur du compteur {NAME}",
 			"watch_streak": "Nombre de streams consécutifs vus",
 			"obs_scene": "Scène OBS courante",
-			"viewer_count": "Nombre de viewers"
+			"viewer_count": "Nombre de viewers",
+			"obs_scene_name": "Nom de la nouvelle scène OBS",
+			"obs_scene_name_previous": "Nom de la scène OBS précédente"
 		},
 		"events": {
 			"CHAT_COMMAND": {

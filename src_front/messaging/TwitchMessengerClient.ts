@@ -434,7 +434,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/raid":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_RAID])) return false;
-					return await TwitchUtils.raidChannel(chunks[0]);
+					return await TwitchUtils.raidChannel(chunks[0].replace("^@", "").toLowerCase());
 				}
 				case "/unraid":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_RAID])) return false;
@@ -447,7 +447,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/whisper":
 				case "/w": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_WRITE])) return false;
-					const login = chunks[0];
+					const login = chunks[0].replace("^@", "").toLowerCase();
 					return await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 				}
 				case "/marker":  {

@@ -28,8 +28,9 @@
 		"trigger_queue":"Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
 		"trigger_queue_input_placeholder": "execution queue...",
-		"missing_counter": "COUNTER DELETED",
-		"missing_reward": "REWARD DELETED",
+		"missing_trigger": "DELETED TRIGGER",
+		"missing_counter": "DELETED COUNTER",
+		"missing_reward": "DELETED REWARD",
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"music": {
 			"require": "This trigger need you to connect with Spotify under the {URL}",
@@ -346,10 +347,12 @@
 			"counter_update_abs": "Value added (absolute value)",
 			"counter_username": "User name (for user specific counters)",
 			"counter_userid": "User ID (for user specific counters)",
-			"counter_global_value": "Get {NAME} counter value",
+			"counter_global_value": "{NAME} counter value",
 			"watch_streak": "Watch streak count",
 			"obs_scene": "Current OBS scene name",
-			"viewer_count": "Viewers watching your stream"
+			"viewer_count": "Viewers watching your stream",
+			"obs_scene_name": "Name of the new OBS scene",
+			"obs_scene_name_previous": "Name of the previous OBS scene"
 		},
 		"events": {
 			"CHAT_COMMAND": {

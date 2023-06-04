@@ -393,7 +393,7 @@ interface CommandItem {
 			background-color: var(--background-color-fader);
 		}
 
-		&.cmd {
+		&.cmdS, &.cmdC {
 			// display: flex;
 			// flex-direction: row;
 			// justify-content: space-between;

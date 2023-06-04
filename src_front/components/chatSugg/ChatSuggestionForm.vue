@@ -11,7 +11,7 @@
 		<div class="content">
 			<form  @submit.prevent="submitChatPoll()">
 				<div class="card-item">
-					<ParamItem :paramData="command" autofocus @change="changeValue()" />
+					<ParamItem noBackground :paramData="command" autofocus @change="changeValue()" />
 					<div class="example">
 						<span>{{ $t("global.example") }}</span>: 
 						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
@@ -21,18 +21,11 @@
 					</div>
 				</div>
 			
+				<ParamItem :paramData="maxLength" @change="changeValue()" />
 
-				<div class="card-item">
-					<ParamItem :paramData="maxLength" @change="changeValue()" />
-				</div>
+				<ParamItem :paramData="duration" @change="changeValue()" />
 
-				<div class="card-item">
-					<ParamItem :paramData="duration" @change="changeValue()" />
-				</div>
-
-				<div class="card-item">
-					<ParamItem :paramData="multiAnswers" @change="changeValue()" />
-				</div>
+				<ParamItem :paramData="multiAnswers" @change="changeValue()" />
 
 				<!-- <ToggleBlock small title="Permissions" :open="false" class="card-item permissions">
 					<PermissionsForm v-model="permissions" />
@@ -48,7 +41,7 @@
 			</i18n-t>
 
 			<ToggleBlock v-if="triggerMode === false" :title="$t('global.configs')" class="configs" :open="false" small>
-				<PostOnChatParam class="card-item" botMessageKey="chatSuggStart"
+				<PostOnChatParam botMessageKey="chatSuggStart"
 					:placeholderEnabled="false"
 					titleKey="suggestion.announce_start"
 					:placeholders="startPlaceholders"
@@ -189,7 +182,7 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 		// .bevel();
 		// padding: .8em;
 		margin-left: auto;
-		margin-top: 5px;
+		margin-top: 10px;
 		border-radius: var(--border-radius);
 		font-size: .8em;
 		text-align: right;

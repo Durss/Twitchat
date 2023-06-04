@@ -70,7 +70,6 @@ export default class PlaceholderSelector extends Vue {
 	 * Add a token on the text
 	 */
 	public async insert(h:TwitchatDataTypes.PlaceholderEntry, event:MouseEvent):Promise<void> {
-		console.log(this.target);
 		if(this.target) {
 			let target = this.target as HTMLInputElement | HTMLTextAreaElement;
 			//target can be a promise returning the actual target, if it's a promise

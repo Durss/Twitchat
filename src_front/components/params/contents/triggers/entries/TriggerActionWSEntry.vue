@@ -13,7 +13,8 @@
 			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			
 			<div class="params">
-				<!-- <ParamItem class="topic" :paramData="param_topic" v-model="action.topic" /> -->
+				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @change="toggleAll()" v-if="parameters.length > 3" />
+				
 				<div class="card-item">
 					<label for="ws_action_topic" class="taginfo">
 						<div class="tag"><mark>TOPIC</mark></div>
@@ -22,6 +23,7 @@
 					<input id="ws_action_topic" type="text" v-model="action.topic"
 					:placeholder="$t('triggers.actions.http_ws.topic_placeholder')" maxlength="255">
 				</div>
+
 				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
 					<div class="taginfo">
 						<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
@@ -57,7 +59,7 @@ export default class TriggerActionWSEntry extends Vue {
 	public triggerData!:TriggerData;
 
 	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
-	// public param_topic:TwitchatDataTypes.ParameterData<string> = { label:"<mark>topic</mark><br>Custom topic", type:"string", value:"", placeholderKey:"triggers.actions.http_ws.topic_placeholder", maxLength:255 };
+	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 
 	public get websocketConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
@@ -76,6 +78,13 @@ export default class TriggerActionWSEntry extends Vue {
 	public onToggleParam():void {
 		const params:string[] = this.parameters.filter(v=>v.enabled).map(v=> v.placeholder.tag);
 		this.action.params = params;
+	}
+
+	/**
+	 * Called when clicking "all" toggle
+	 */
+	public toggleAll():void {
+		this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
 	}
 
 }
@@ -117,6 +126,15 @@ export default class TriggerActionWSEntry extends Vue {
 			input {
 				font-size: 1rem;
 			}
+		}
+		.toggleAll {
+			justify-self: flex-end;
+			align-self: flex-end;
+			margin-bottom: 2px;
+			// margin-right: 2.25em;
+			width: fit-content;
+			margin-right: .5em;
+			margin-bottom: .5em;
 		}
 	}
 }

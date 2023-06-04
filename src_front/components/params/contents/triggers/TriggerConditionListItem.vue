@@ -53,9 +53,12 @@ export default class TriggerConditionListItem extends Vue {
 		this.buildSourceList();
 		this.updateOperators();
 
+		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();
+
 		//Watch for changes on the chat command params to rebuild source list
 		watch(()=> this.triggerData.chatCommandParams, ()=> {
 			this.buildSourceList();
+			this.updateOperators();
 		}, {deep:true});
 	}
 
@@ -68,7 +71,7 @@ export default class TriggerConditionListItem extends Vue {
 			if(this.triggerData.chatCommandParams) {
 			this.triggerData.chatCommandParams.forEach(v=> {
 				placeholderList.push({
-					value:v.tag,
+					value:v.tag.toUpperCase(),
 					label: this.$t('triggers.condition.placeholder_cmd_param', {NAME:"{"+v.tag.toUpperCase()+"}"}),
 				})
 			})
@@ -86,7 +89,7 @@ export default class TriggerConditionListItem extends Vue {
 			}
 			return {
 				label: this.$t(v.descKey, {NAME:"\""+name+"\""}),
-				value:v.tag,
+				value:v.tag.toUpperCase(),
 			}
 		}));
 		
@@ -169,14 +172,12 @@ export default class TriggerConditionListItem extends Vue {
 			cursor: grabbing;
 		}
 	}
-	.placeholder, .operator {
-		flex-basis: 100px;
-		flex-grow: 1;
-	}
-	.value {
-		flex-grow: 1;
+	.operator {
+		flex-basis: 150px;
+		flex-shrink: 0;
 	}
 	.ctas {
+		flex-shrink: 0;
 		display: flex;
 		flex-direction: row;
 		gap: 0;

@@ -5,7 +5,7 @@
 			<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
 		</picture>
 
-		<i18n-t scope="global" tag="div" class="require"
+		<i18n-t scope="global" tag="div" class="card-item alert require"
 		v-if="needObsConnect"
 		keypath="triggers.obs.require">
 			<template #URL>
@@ -13,7 +13,7 @@
 			</template>
 		</i18n-t>
 
-		<i18n-t scope="global" tag="div" class="require"
+		<i18n-t scope="global" tag="div" class="card-item alert require"
 		v-if="needRewards"
 		keypath="triggers.rewards.require">
 			<template #URL>
@@ -334,6 +334,7 @@ export default class TriggerCreateForm extends Vue {
 						isCategory:false,
 					};
 				});
+				console.log(list);
 				this.subtriggerList = list;
 				this.$emit("updateHeader", "triggers.header_select_obs_scene");
 			}
@@ -590,6 +591,9 @@ interface TriggerEntry{
 		height: 2em;
 		margin: auto;
 		display: block;
+	}
+	& > .require {
+		text-align: center;
 	}
 
 	.list {
