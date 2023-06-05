@@ -173,6 +173,7 @@ export default class TrackedUsers extends AbstractSidePanel {
 			flex-wrap: wrap;
 			justify-content: center;
 			gap: 10px;
+			flex-shrink: 0;
 			.user {
 				display: flex;
 				flex-direction: row;
@@ -193,6 +194,10 @@ export default class TrackedUsers extends AbstractSidePanel {
 			display: flex;
 			flex-direction: column;
 			flex-grow: 1;
+
+			.message {
+				flex-shrink: 0;
+			}
 			.message:nth-child(odd) {
 				background-color: var(--background-color-fadest);
 			}

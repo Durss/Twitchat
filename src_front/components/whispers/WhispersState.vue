@@ -167,6 +167,7 @@ export default class WhispersState extends AbstractSidePanel {
 			flex-wrap: wrap;
 			justify-content: center;
 			gap: 10px;
+			flex-shrink: 0;
 			.user {
 				display: flex;
 				flex-direction: row;
@@ -203,6 +204,7 @@ export default class WhispersState extends AbstractSidePanel {
 				font-size: var(--messageSize);
 				color: var(--color-text);
 				background-color: var(--color-primary-fadest);
+				flex-shrink: 0;
 
 				.chatMessageTime + *{
 					padding-left: 3em;
@@ -248,6 +250,7 @@ export default class WhispersState extends AbstractSidePanel {
 			gap: 0;
 			flex-direction: row;
 			align-items: stretch;
+			flex-shrink: 0;
 			input {
 				flex-grow: 1;
 				border-top-right-radius: 0;

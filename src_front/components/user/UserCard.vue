@@ -526,6 +526,7 @@ export default class UserCard extends Vue {
 			align-items: center;
 			width: calc(100% - 3em);
 			margin: 0 auto;
+			flex-shrink: 0;//necessery for shit old safari -_-
 			a {
 				text-decoration: none;
 			}
@@ -610,6 +611,7 @@ export default class UserCard extends Vue {
 			flex-wrap: wrap;
 			justify-content: center;
 			gap: .5em;
+			flex-shrink: 0;//necessery for shit old safari -_-
 			.info {
 				font-size: .9em;
 				border-radius: .5em;
@@ -637,6 +639,7 @@ export default class UserCard extends Vue {
 		.modActions {
 			margin: -.5em 0;
 			align-self: center;
+			flex-shrink: 0;//necessery for shit old safari -_-
 		}
 
 		.ctas {
@@ -644,7 +647,8 @@ export default class UserCard extends Vue {
 			flex-direction: row;
 			justify-content: center;
 			flex-wrap: wrap;
-			gap: .5em
+			gap: .5em;
+			flex-shrink: 0;//necessery for shit old safari -_-
 		}
 
 		.description {

@@ -8,17 +8,17 @@
 				<template #OBS>
 					<Button class="button"
 						icon="obs"
-						white
+						light
 						@click="$store('params').openParamsPage(contentObs)">{{ $t('overlay.connection.obsBt') }}</Button>
 				</template>
 				<template #DOCK>
 					<Button class="button"
 						icon="twitchat"
-						white
+						light
 						@click="showDockTutorial = true" v-if="!showDockTutorial">{{ $t('overlay.connection.dockBt') }}</Button>
 					<Button class="button"
 						icon="cross"
-						white
+						light
 						@click="showDockTutorial = false" v-if="showDockTutorial">{{ $t('overlay.connection.closeBt') }}</Button>
 				</template>
 			</i18n-t>

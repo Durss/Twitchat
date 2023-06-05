@@ -354,7 +354,10 @@ mark {
 }
 
 #mx-menu-default-container {
+	top: 0;//necessery for shit old safari -_-
+	overflow: unset;//necessery for shit old safari -_-
 	.mx-menu-ghost-host{
+		overflow: unset;//necessery for shit old safari -_-
 		.mx-context-menu {
 			box-shadow: rgba(0, 0, 0, 0.5) 1px 1px 2px 2px;
 			.mx-context-menu-items {
@@ -392,7 +395,6 @@ mark {
 								font-size: 1.1em;
 								font-weight: bold;
 								text-align: center;
-								padding-right: 0;
 							}
 						}
 					}

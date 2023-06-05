@@ -132,6 +132,7 @@ export default class PinedMessages extends AbstractSidePanel {
 
 				.message {
 					flex-grow: 1;
+					flex-shrink: 0;
 					color: var(--color-light);
 				}
 

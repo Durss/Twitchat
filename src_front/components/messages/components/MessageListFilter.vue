@@ -1103,8 +1103,8 @@ export default class MessageListFilter extends Vue {
 			min-height: @actionSizes;
 			border-radius: .25em;
 			.icon {
-				height: 100%;
 				width: 100%;
+				max-height: 100%;
 			}
 			&:hover {
 				background-color: var(--color-primary-light);
@@ -1224,6 +1224,7 @@ export default class MessageListFilter extends Vue {
 				gap: 2px;
 				display: flex;
 				flex-direction: column;
+				flex-shrink: 0;
 				.presets {
 					display: flex;
 					gap: .25em;

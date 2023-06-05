@@ -17,8 +17,8 @@
 			</i18n-t>
 	
 			<div class="ctas" v-if="canUnban || canBlock">
-				<Button white v-if="canUnban"
-					small
+				<Button  v-if="canUnban"
+					small light
 					:loading="moderating"
 					icon="unban"
 					@click.stop="unbanUser()">{{ $t('chat.autoban_join.unbanBt') }}</Button>

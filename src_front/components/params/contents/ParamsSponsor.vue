@@ -183,6 +183,10 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 		.readToggle {
 			display: inline-block;
+			//Kinda dirty but to lazy to find a clean solution.
+			//Basically disables the fading of the form if option is
+			//unselected
+			opacity: 1 !important;
 		}
 	}
 }

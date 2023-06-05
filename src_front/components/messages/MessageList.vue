@@ -1581,10 +1581,10 @@ export default class MessageList extends Vue {
 
 <style scoped lang="less">
 .messagelist {
-	display: flex;
 	position: relative;
-	flex-direction: column;
 	max-height: 100%;
+	display: flex;
+	flex-direction: column;
 
 	&.lightMode {
 		padding: 0;
@@ -1656,6 +1656,7 @@ export default class MessageList extends Vue {
 			position: relative;
 			display: flex;
 			flex-direction: row;
+			flex-shrink: 0;
 
 			.message {
 				flex-grow: 1;
@@ -1709,7 +1710,7 @@ export default class MessageList extends Vue {
 	}
 
 	.fake {
-		display: inline;
+		display: flex;
 		color:var(--color-light);
 		background-color: var(--color-secondary);
 		border-radius: var(--border-radius);
@@ -1718,7 +1719,6 @@ export default class MessageList extends Vue {
 		margin-right: 5px;
 		font-weight: bold;
 		cursor: default;
-		display: flex;
 		align-items: center;
 		font-size: var(--messageSize);
 	}
@@ -1774,6 +1774,7 @@ export default class MessageList extends Vue {
 			}
 			.message {
 				flex-grow: 1;
+				max-width: 100%;//necessary for shit old safari to avoid message expanding full width
 			}
 		}
 	}

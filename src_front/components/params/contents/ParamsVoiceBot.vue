@@ -18,7 +18,7 @@
 		
 		<div class="card-item alert connectObs" v-if="!obsConnected">
 			<div>{{ $t("voice.need_OBS") }}</div>
-			<Button class="button" icon="obs" white @click="$store('params').openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>
+			<Button class="button" icon="obs" light @click="$store('params').openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>
 		</div>
 	</div>
 </template>

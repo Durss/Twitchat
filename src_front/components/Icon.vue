@@ -79,8 +79,9 @@ export default class Icon extends Vue {
 .icon{
 	display: inline-block;
 	:deep(svg) {
-		width: 100%;
-		height: 100%;
+		width: auto;
+		max-width: 100%;
+		max-height: 100%;
 		object-fit: cover;
 		* {
 			fill: var(--icon-color) !important;
