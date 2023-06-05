@@ -159,7 +159,6 @@ export default class TrackedUsers extends AbstractSidePanel {
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
-		max-width: 800px;
 		width: 100%;
 		margin:auto;
 
