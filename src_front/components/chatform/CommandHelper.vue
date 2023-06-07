@@ -336,7 +336,7 @@ export default class CommandHelper extends Vue {
 	.commercial {
 		display: flex;
 		flex-direction: row;
-		margin: auto;
+		margin: 0 auto;
 		.cooldown {
 			max-width: 300px;
 			font-size: .8em;
