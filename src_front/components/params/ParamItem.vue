@@ -282,6 +282,7 @@ export default class ParamItem extends Vue {
 		if(this.label == '') res.push("noLabel");
 		if(this.childLevel > 0) res.push("child");
 		if(this.paramData.icon) res.push("hasIcon");
+		if(this.paramData.maxLength) res.push("maxLength");
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		res.push("level_"+this.childLevel);
 		return res;
@@ -652,6 +653,17 @@ export default class ParamItem extends Vue {
 		// background-color: var(--background-color-fadest);
 		// background-color: var(--color-secondary-fadest);
 	}
+
+	&.maxLength {
+		.content {
+			.number, .text {
+				input {
+					padding-right: 3em;
+				}
+
+			}
+		}
+	}
 	
 	.content {
 		display: flex;
@@ -707,11 +719,6 @@ export default class ParamItem extends Vue {
 				cursor: pointer;
 			}
 			&.number, &.text {
-				&:has(.maxlength) {
-					input {
-						padding-right: 3em;
-					}
-				}
 				.inputHolder {
 					position: relative;
 					flex-grow: 1;
