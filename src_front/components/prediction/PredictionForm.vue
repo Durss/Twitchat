@@ -73,6 +73,7 @@ import ParamItem from '../params/ParamItem.vue';
 import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 import PlaceholderSelector from '../params/PlaceholderSelector.vue';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -144,6 +145,9 @@ export default class PredictionForm extends AbstractSidePanel {
 		if(this.triggerMode !== false) {
 			this.placeholderList = 
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
+		}else{
+			let d = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10;
+			this.voteDuration.value = d;
 		}
 	}
 
@@ -210,6 +214,7 @@ export default class PredictionForm extends AbstractSidePanel {
 			return;
 		}
 		this.loading = false;
+		DataStore.set(DataStore.PREDICTION_DEFAULT_DURATION, this.voteDuration.value);
 		super.close();
 	}
 

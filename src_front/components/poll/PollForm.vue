@@ -53,6 +53,7 @@ import CloseButton from '../CloseButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 import PlaceholderSelector from '../params/PlaceholderSelector.vue';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -111,6 +112,9 @@ export default class PollForm extends AbstractSidePanel {
 		if(this.triggerMode !== false) {
 			this.placeholderList = 
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
+		}else{
+			let d = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2;
+			this.param_duration.value = d;
 		}
 	}
 
@@ -163,7 +167,8 @@ export default class PollForm extends AbstractSidePanel {
 			return;
 		}
 		this.loading = false;
-		this.close(); 
+		DataStore.set(DataStore.POLL_DEFAULT_DURATION, this.param_duration.value);
+		this.close();
 	}
 
 	/**
