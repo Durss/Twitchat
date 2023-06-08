@@ -630,6 +630,14 @@
 				"label": "Filter disabled",
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is disabled"
 			},
+			"OBS_START_STREAM": {
+				"label": "Start streaming",
+				"description": "Actions to execute when starting stream"
+			},
+			"OBS_STOP_STREAM": {
+				"label": "Stop streaming",
+				"description": "Actions to execute when stoping stream"
+			},
 			"STREAM_ONLINE": {
 				"label": "Stream start",
 				"description": "Actions to execute when stream starts {INFO}",

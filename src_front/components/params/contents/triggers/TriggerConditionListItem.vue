@@ -50,15 +50,13 @@ export default class TriggerConditionListItem extends Vue {
 	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:""}
 
 	public beforeMount():void {
-		this.buildSourceList();
-		this.updateOperators();
-
 		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();
+		
+		this.buildSourceList();
 
 		//Watch for changes on the chat command params to rebuild source list
 		watch(()=> this.triggerData.chatCommandParams, ()=> {
 			this.buildSourceList();
-			this.updateOperators();
 		}, {deep:true});
 	}
 
@@ -94,6 +92,7 @@ export default class TriggerConditionListItem extends Vue {
 		}));
 		
 		this.param_placeholder.listValues = placeholderList;
+		this.updateOperators();
 	}
 
 	/**

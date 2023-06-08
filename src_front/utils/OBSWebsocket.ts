@@ -535,6 +535,12 @@ export default class OBSWebsocket extends EventDispatcher {
 		this.obs.on("SourceFilterEnableStateChanged", async (e:{sourceName: string, filterName: string, filterEnabled: boolean}) => {
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_TOGGLE, e));
 		});
+
+		this.obs.on("StreamStateChanged", async (e:{outputActive: boolean, outputState: string}) => {
+			if(e.outputState == "OBS_WEBSOCKET_OUTPUT_STARTED" || e.outputState == "OBS_WEBSOCKET_OUTPUT_STOPPED") {
+				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_STREAM_STATE, e));
+			}
+		});
 	}
 }
 

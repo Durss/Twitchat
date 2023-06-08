@@ -62,6 +62,8 @@ export default class DataStore {
 	public static TRIGGER_SORT_TYPE:string = "triggerSortType";
 	public static TOOLTIP_AUTO_OPEN:string = "tooltipAutoOpen";
 	public static THEME:string = "theme";
+	public static POLL_DEFAULT_DURATION:string = "pollDuration";
+	public static PREDICTION_DEFAULT_DURATION:string = "predictionDuration";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -82,6 +84,8 @@ export default class DataStore {
 		this.CHAT_COL_CTA,
 		this.REDIRECT,
 		this.TOOLTIP_AUTO_OPEN,
+		this.POLL_DEFAULT_DURATION,
+		this.PREDICTION_DEFAULT_DURATION,
 	]
 	
 	

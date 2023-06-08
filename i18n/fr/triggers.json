@@ -632,6 +632,14 @@
 				"label": "Filtre désactivé",
 				"description": "Actions à exécuter lorsque le filtre OBS {SUB_ITEM_NAME} est désactivé"
 			},
+			"OBS_START_STREAM": {
+				"label": "Lancement du stream",
+				"description": "Actions à executer lorsque vous démarrez le stream"
+			},
+			"OBS_STOP_STREAM": {
+				"label": "Arrêt du stream",
+				"description": "Actions à executer lorsque vous arrêtez le stream"
+			},
 			"STREAM_ONLINE": {
 				"label": "Début de stream",
 				"description": "Actions à exécuter lorsque le stream débute {INFO}",

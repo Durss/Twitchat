@@ -1263,6 +1263,8 @@ export namespace TwitchatDataTypes {
 		CHAT_HIGHLIGHT:"chat_highlight",
 		FOLLOWBOT_LIST:"followbot_list",
 		COUNTER_UPDATE:"counter_update",
+		OBS_STOP_STREAM:"obs_stop_stream",
+		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
 		USER_WATCH_STREAK:"user_watch_streak",
@@ -1325,9 +1327,11 @@ export namespace TwitchatDataTypes {
 		stream_offline:true,
 		chat_highlight:false,//Used for "highlight on overlay" events
 		counter_update:false,
+		obs_stop_stream:false,
 		user_watch_streak:true,
 		hype_train_start:false,
 		obs_scene_change:false,
+		obs_start_stream:false,
 		obs_source_toggle:false,
 		obs_filter_toggle:false,
 		hype_train_cancel:false,
@@ -1418,6 +1422,8 @@ export namespace TwitchatDataTypes {
 									| MessageLowtrustTreatmentData
 									| MessageOBSSceneChangedData
 									| MessageOBSSourceToggleData
+									| MessageOBSStartStreamData
+									| MessageOBSStopStreamData
 									| MessageOBSFilterToggleData
 									| MessageOBSInputMuteToggleData
 									| MessageOBSPlaybackStateUpdateData
@@ -2605,6 +2611,20 @@ export namespace TwitchatDataTypes {
 		 * true if the source is now visible
 		 */
 		visible:boolean;
+	}
+
+	/**
+	 * Represents an OBS start stream event
+	 */
+	export interface MessageOBSStartStreamData extends AbstractTwitchatMessage {
+		type:"obs_start_stream";
+	}
+
+	/**
+	 * Represents an OBS stop stream event
+	 */
+	export interface MessageOBSStopStreamData extends AbstractTwitchatMessage {
+		type:"obs_stop_stream";
 	}
 
 	/**

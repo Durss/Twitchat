@@ -365,6 +365,25 @@ export const storeMain = defineStore("main", {
 				});
 
 				/**
+				 * Called when streaming is started/stoped on OBS
+				 */
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_STREAM_STATE, (event:TwitchatEvent):void => {
+					const data = (event.data as unknown) as {outputActive: boolean, outputState: string};
+					let m:TwitchatDataTypes.MessageOBSStartStreamData | TwitchatDataTypes.MessageOBSStopStreamData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.OBS_START_STREAM,
+					};
+					if(!data.outputActive){
+						m = {...m,
+							type: TwitchatDataTypes.TwitchatMessageType.OBS_STOP_STREAM,
+						};
+					}
+					TriggerActionHandler.instance.execute(m);
+				});
+
+				/**
 				 * Called when a playback event occurs on a media source
 				 * @param event 
 				 */

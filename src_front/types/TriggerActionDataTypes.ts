@@ -518,6 +518,8 @@ export const TriggerTypes = {
 	OBS_FILTER_ON:"73",
 	OBS_FILTER_OFF:"74",
 	USER_WATCH_STREAK:"75",
+	OBS_START_STREAM:"76",
+	OBS_STOP_STREAM:"77",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -954,6 +956,8 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.OBS, icon:"list", labelKey:"triggers.events.OBS_SCENE.label", value:TriggerTypes.OBS_SCENE, descriptionKey:"triggers.events.OBS_SCENE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE},
 		{category:TriggerEventTypeCategories.OBS, icon:"show", labelKey:"triggers.events.OBS_SOURCE_ON.label", value:TriggerTypes.OBS_SOURCE_ON, descriptionKey:"triggers.events.OBS_SOURCE_ON.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE},
 		{category:TriggerEventTypeCategories.OBS, icon:"hide", labelKey:"triggers.events.OBS_SOURCE_OFF.label", value:TriggerTypes.OBS_SOURCE_OFF, descriptionKey:"triggers.events.OBS_SOURCE_OFF.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE},
+		{category:TriggerEventTypeCategories.OBS, icon:"online", labelKey:"triggers.events.OBS_START_STREAM.label", value:TriggerTypes.OBS_START_STREAM, descriptionKey:"triggers.events.OBS_START_STREAM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_START_STREAM},
+		{category:TriggerEventTypeCategories.OBS, icon:"offline", labelKey:"triggers.events.OBS_STOP_STREAM.label", value:TriggerTypes.OBS_STOP_STREAM, descriptionKey:"triggers.events.OBS_STOP_STREAM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_STOP_STREAM},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"mute", labelKey:"triggers.events.OBS_INPUT_MUTE.label", value:TriggerTypes.OBS_INPUT_MUTE, descriptionKey:"triggers.events.OBS_INPUT_MUTE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"unmute", labelKey:"triggers.events.OBS_INPUT_UNMUTE.label", value:TriggerTypes.OBS_INPUT_UNMUTE, descriptionKey:"triggers.events.OBS_INPUT_UNMUTE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE},
 		{beta:true, category:TriggerEventTypeCategories.OBS, icon:"play", labelKey:"triggers.events.OBS_PLAYBACK_STARTED.label", value:TriggerTypes.OBS_PLAYBACK_STARTED, descriptionKey:"triggers.events.OBS_PLAYBACK_STARTED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE},

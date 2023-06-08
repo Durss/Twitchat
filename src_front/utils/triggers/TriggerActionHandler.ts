@@ -263,6 +263,18 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.OBS_START_STREAM: {
+				if(await this.executeTriggersByType(TriggerTypes.OBS_START_STREAM, message, testMode)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.OBS_STOP_STREAM: {
+				if(await this.executeTriggersByType(TriggerTypes.OBS_STOP_STREAM, message, testMode)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE: {
 				const stateToType:{[key in TwitchatDataTypes.MessageOBSPlaybackStateValue]:TriggerTypesValue} = {
 					"complete": TriggerTypes.OBS_PLAYBACK_ENDED,
