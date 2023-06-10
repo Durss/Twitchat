@@ -60,12 +60,12 @@ export default class OverlayUlule extends Vue {
 
 		this.title = Utils.getQueryParameterByName("title") || projectData.name_en || projectData.name_fr || projectData.name_ca || projectData.name_de || projectData.name_es || projectData.name_it || projectData.name_pt || projectData.name_nl;
 		this.mainGoal = projectData.goal;
+		this.currentGoal = this.mainGoal;
 		// this.value = Utils.pickRand([27562,95545,130015,101258]);
 		this.value = projectData.amount_raised;
 
 		if(goals) {
 			let customGoals = goals.split(/[^a-z0-9_]+/gi).map(v=> parseInt(v)).filter(v=> !isNaN(v)).sort((a,b)=>a-b);
-			this.currentGoal = this.mainGoal;
 			for (let i = 1; i < customGoals.length; i++) {
 				const g = customGoals[i];
 				const gP = customGoals[i-1];
