@@ -38,6 +38,7 @@
 		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
+		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
 		<!-- <OverlayParamsDeezer class="block" /> -->
 	</div>
 </template>
@@ -55,12 +56,14 @@ import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
 import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
+import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
 
 @Component({
 	components:{
 		Button,
-		OverlayParamsRaffle,
+		OverlayParamsUlule,
 		OverlayParamsTimer,
+		OverlayParamsRaffle,
 		OverlayParamsDeezer,
 		OverlayParamsSpotify,
 		OverlayParamsCounter,

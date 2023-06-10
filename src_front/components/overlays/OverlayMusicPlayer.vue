@@ -42,7 +42,7 @@ import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import { Vue3Marquee } from 'vue3-marquee';
 import 'vue3-marquee/dist/style.css';
-import AbstractOberlay from './AbstractOberlay.vue';
+import AbstractOverlay from './AbstractOverlay.vue';
 
 @Component({
 	components:{
@@ -50,7 +50,7 @@ import AbstractOberlay from './AbstractOberlay.vue';
 	},
 	emits:["seek"]
 })
-export default class OverlayMusicPlayer extends AbstractOberlay {
+export default class OverlayMusicPlayer extends AbstractOverlay {
 	
 	@Prop({
 			type: Boolean,

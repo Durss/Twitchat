@@ -9,6 +9,7 @@ import SpotifyController from './controllers/SpotifyController';
 import BetaController from './controllers/BetaController';
 import FileServeController from './controllers/FileServeController';
 import MiddlewareController from './controllers/MiddlewareController';
+import UluleController from './controllers/UluleController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -40,6 +41,7 @@ new DonorController(server).initialize();
 new UserController(server).initialize();
 new SpotifyController(server).initialize();
 new BetaController(server).initialize();
+new UluleController(server).initialize();
 
 //Start server
 start();

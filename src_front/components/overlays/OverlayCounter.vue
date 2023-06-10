@@ -37,12 +37,12 @@ import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractOberlay from './AbstractOberlay.vue';
+import AbstractOverlay from './AbstractOverlay.vue';
 
 @Component({
 	components:{}
 })
-export default class OverlayCounter extends AbstractOberlay {
+export default class OverlayCounter extends AbstractOverlay {
 
 	@Prop({type: Boolean, default: false})
 	public embed!:boolean;

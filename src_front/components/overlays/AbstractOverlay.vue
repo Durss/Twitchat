@@ -4,9 +4,9 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import { ComponentBase, Vue } from 'vue-facing-decorator';
 
 @ComponentBase({
-    name: "AbstractOberlay"
+    name: "AbstractOverlay"
 })
-export default class AbstractOberlay extends Vue {
+export default class AbstractOverlay extends Vue {
 
 	private obsWebsocketConnectedHandler!:() => void;
 

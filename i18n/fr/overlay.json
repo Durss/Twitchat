@@ -74,6 +74,17 @@
 			"shit_api": "L'API Deezer étant catastrophique, les risques de malfonctions existent. Vous devrez de plus vous reconnecter à chaque lancement de Twitchat.",
 			"authBt": "Connexion",
 			"control": "Cliquez sur l'icone {ICON} en bas à droite de l'écran pour ajouter des morceaux, voir la liste de lecture, et controler la lecture."
+		},
+		"ulule": {
+			"title":"Ulule",
+			"css": "Changez l'apparence de la barre de progression via ces sélecteurs CSS",
+			"description":"Affichez une barre de progression pour votre projet {LINK}.",
+			"description_link":"Ulule",
+			"project_name":"URL de votre projet Ulule",
+			"project_title":"Titre personnalisé",
+			"project_goals":"Paliers de dons",
+			"project_currency":"Devise",
+			"project_goals_tt":"Si vous avez plusieurs paliers de dons, spécifiez-les ici afin que la barre de progression ne reste pas pleine lorsque l'objectif principal est atteint."
 		}
 	}
 }

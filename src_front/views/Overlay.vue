@@ -5,6 +5,7 @@
 		<OverlayChatHighlight v-if="overlay=='chathighlight' || overlay=='unified'" />
 		<OverlayTimer v-if="overlay=='timer' || overlay=='unified'" />
 		<OverlayCounter v-if="overlay=='counter'" />
+		<OverlayUlule v-if="overlay=='ulule'" />
 	</div>
 </template>
 
@@ -15,9 +16,11 @@ import OverlaysRaffleWheel from '../components/overlays/OverlaysRaffleWheel.vue'
 import OverlayTimer from '../components/overlays/OverlayTimer.vue';
 import OverlayChatHighlight from '../components/overlays/OverlayChatHighlight.vue';
 import OverlayCounter from '../components/overlays/OverlayCounter.vue';
+import OverlayUlule from '@/components/overlays/OverlayUlule.vue';
 
 @Component({
 	components:{
+		OverlayUlule,
 		OverlayTimer,
 		OverlayCounter,
 		OverlayMusicPlayer,

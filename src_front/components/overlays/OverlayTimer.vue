@@ -19,12 +19,12 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
-import AbstractOberlay from './AbstractOberlay.vue';
+import AbstractOverlay from './AbstractOverlay.vue';
 
 @Component({
 	components:{}
 })
-export default class OverlayTimer extends AbstractOberlay {
+export default class OverlayTimer extends AbstractOverlay {
 
 	public timerValue:string = "";
 	public countdownValue:string = "";

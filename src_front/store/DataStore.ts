@@ -64,6 +64,10 @@ export default class DataStore {
 	public static THEME:string = "theme";
 	public static POLL_DEFAULT_DURATION:string = "pollDuration";
 	public static PREDICTION_DEFAULT_DURATION:string = "predictionDuration";
+	public static ULULE_PROJECT:string = "ululeProject";
+	public static ULULE_GOALS:string = "ululeGoals";
+	public static ULULE_TITLE:string = "ululeTitle";
+	public static ULULE_CURRENCY:string = "ululeCurrency";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

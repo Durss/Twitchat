@@ -14,6 +14,7 @@ export namespace TwitchatDataTypes {
 		OBS: "obs",
 		WHEEL: "wheel",
 		TIMER: "timer",
+		ULULE: "ulule",
 		SPOTIFY: "spotify",
 		COUNTER: "counter",
 		HIGHLIGHT: "highlight",

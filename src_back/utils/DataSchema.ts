@@ -609,6 +609,10 @@ import Ajv from "ajv";
 		donorLevel: {type:"number", minimum:-1, maximum:10},
 		rightClickHintPrompt: {type:"boolean"},
 		triggerSortType: {type:"string", maxLength:20},
+		ululeProject: {type:"string", maxLength:200},
+		ululeGoals: {type:"string", maxLength:200},
+		ululeTitle: {type:"string", maxLength:100},
+		ululeCurrency: {type:"string", maxLength:2},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,

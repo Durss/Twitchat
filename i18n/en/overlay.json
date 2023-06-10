@@ -74,6 +74,17 @@
 			"shit_api": "Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.",
 			"authBt": "Authenticate",
 			"control": "Click on the {ICON} icon deezer on the bottom right of the screen to add tracks, view the queue, and control the playback."
+		},
+		"ulule": {
+			"title":"Ulule",
+			"css": "You can change the appearance of the progress bar by overriding these CSS IDs on OBS browser source params",
+			"description":"Integrate a progress bar for your {LINK} project.",
+			"description_link":"Ulule",
+			"project_name":"URL of your Ulule project",
+			"project_title":"Custom title",
+			"project_goals":"Donation goals",
+			"project_currency":"Currency",
+			"project_goals_tt":"If you have multiple donation tiers, specify them here so the progress doesn't remains filled once the main goal has been reached"
 		}
 	}
 }

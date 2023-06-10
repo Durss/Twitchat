@@ -18,7 +18,6 @@
 							<ul>
 								<li>#timer_icon { ... }</li>
 								<li>#timer_label { ... }</li>
-
 							</ul>
 						</li>
 					</ul>
