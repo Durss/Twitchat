@@ -55,28 +55,34 @@ export default class OverlayUlule extends Vue {
 		const headers = {'App-Version': import.meta.env.PACKAGE_VERSION};
 		const url = new URL(Config.instance.API_PATH+"/ulule/project");
 		url.searchParams.append("project", project);
-		const apiRes = await fetch(url, {method:"GET", headers});
-		const projectData:UluleTypes.Project = await apiRes.json();
-
-		this.title = Utils.getQueryParameterByName("title") || projectData.name_en || projectData.name_fr || projectData.name_ca || projectData.name_de || projectData.name_es || projectData.name_it || projectData.name_pt || projectData.name_nl;
-		this.mainGoal = projectData.goal;
-		this.currentGoal = this.mainGoal;
-		// this.value = Utils.pickRand([27562,95545,130015,101258]);
-		this.value = projectData.amount_raised;
-
-		if(goals) {
-			let customGoals = goals.split(/[^a-z0-9_]+/gi).map(v=> parseInt(v)).filter(v=> !isNaN(v)).sort((a,b)=>a-b);
-			for (let i = 1; i < customGoals.length; i++) {
-				const g = customGoals[i];
-				const gP = customGoals[i-1];
-				if(gP <= this.value && g > this.value) {
-					this.currentGoal = g;
-					break;
+		try {
+			const apiRes = await fetch(url, {method:"GET", headers});
+			if(apiRes.status == 200) {
+				const projectData:UluleTypes.Project = await apiRes.json();
+		
+				this.title = Utils.getQueryParameterByName("title") || projectData.name_en || projectData.name_fr || projectData.name_ca || projectData.name_de || projectData.name_es || projectData.name_it || projectData.name_pt || projectData.name_nl;
+				this.mainGoal = projectData.goal;
+				this.currentGoal = this.mainGoal;
+				// this.value = Utils.pickRand([27562,95545,130015,101258]);
+				this.value = projectData.amount_raised;
+		
+				if(goals) {
+					let customGoals = goals.split(/[^a-z0-9_]+/gi).map(v=> parseInt(v)).filter(v=> !isNaN(v)).sort((a,b)=>a-b);
+					for (let i = 1; i < customGoals.length; i++) {
+						const g = customGoals[i];
+						const gP = customGoals[i-1];
+						if(gP <= this.value && g > this.value) {
+							this.currentGoal = g;
+							break;
+						}
+					}
 				}
+		
+				gsap.to(this, {percent:Math.round(this.value / this.currentGoal * 100), duration:.5, ease:"sine.out"});
 			}
+		}catch(error){
+			//ignore
 		}
-
-		gsap.to(this, {percent:Math.round(this.value / this.currentGoal * 100), duration:.5, ease:"sine.out"});
 
 		this.timeout = setTimeout(()=>{
 			this.refreshData();
