@@ -387,6 +387,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 						if(counter) {
 							m.counter = counter;
 							switch(trigger.type) {
+								case TriggerTypes.COUNTER_EDIT:
 								case TriggerTypes.COUNTER_ADD: m.added = m.added_abs = 10; break;
 								case TriggerTypes.COUNTER_DEL: m.added = -10; m.added_abs = 10; break;
 								case TriggerTypes.COUNTER_LOOPED: m.looped = true; break;

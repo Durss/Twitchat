@@ -8,7 +8,7 @@
 		"header_select_obs_source": "Choisissez une source OBS",
 		"header_select_obs_input": "Choisissez l'entrée audio OBS",
 		"header_select_obs_filter": "Choisissez le filtre OBS",
-		"trigger_name":"Nom personnalisé",
+		"trigger_name": "Nom personnalisé",
 		"add_triggerBt": "Ajouter un trigger",
 		"testBt": "Tester le trigger",
 		"deleteBt": "Supprimer",
@@ -25,7 +25,7 @@
 		"triggers_list_cat": "Catégories",
 		"triggers_none": "Vous n'avez créé aucun trigger pour l'instant",
 		"create_counterBt": "Créez des compteurs",
-		"trigger_queue":"File d'exécution",
+		"trigger_queue": "File d'exécution",
 		"trigger_queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez-les à une même file d'exécution.",
 		"trigger_queue_input_placeholder": "file d'exécution...",
 		"missing_trigger": "TRIGGER SUPPRIMÉ",
@@ -61,30 +61,30 @@
 			"param_repeatMessageCondition": "Répéter après réception de messages",
 			"param_repeatMessageValue": "Exécuter après {VALUE} message reçus | Exécuter après {VALUE} messages reçus"
 		},
-		"condition":{
-			"title":"Conditions d'exécution",
-			"createBt":"Créer une condition",
-			"add_tt":"Ajouter une condition",
-			"group_tt":"Créer un sous groupe et ajouter une condition",
-			"placeholder_cmd_param":"Paramètre de commande {NAME}",
-			"operators":{
-				">":">",
-				"<":"<",
-				">=":">=",
-				"<=":"<=",
-				"=":"=",
-				"!=":"!=",
-				"contains":"Contient",
-				"not_contains":"Ne contient pas",
-				"starts_with":"Commence par",
-				"not_starts_with":"Ne commence pas par",
-				"ends_with":"Termine par",
-				"not_ends_with":"Ne termine pas par",
-				"AND":"ET",
-				"OR":"OU"
+		"condition": {
+			"title": "Conditions d'exécution",
+			"createBt": "Créer une condition",
+			"add_tt": "Ajouter une condition",
+			"group_tt": "Créer un sous groupe et ajouter une condition",
+			"placeholder_cmd_param": "Paramètre de commande {NAME}",
+			"operators": {
+				">": ">",
+				"<": "<",
+				">=": ">=",
+				"<=": "<=",
+				"=": "=",
+				"!=": "!=",
+				"contains": "Contient",
+				"not_contains": "Ne contient pas",
+				"starts_with": "Commence par",
+				"not_starts_with": "Ne commence pas par",
+				"ends_with": "Termine par",
+				"not_ends_with": "Ne termine pas par",
+				"AND": "ET",
+				"OR": "OU"
 			}
 		},
-		"slash_cmd":{
+		"slash_cmd": {
 			"param_cmd": "Commande",
 			"param_cmd_placeholder": "/commande...",
 			"param_ctx_menu": "Ajouter aux options de modération (click droit sur un message)",
@@ -97,10 +97,10 @@
 		},
 		"actions": {
 			"common": {
-				"select_action":"Sélectionnez le type d'action à exécuter",
+				"select_action": "Sélectionnez le type d'action à exécuter",
 				"duplicate_tt": "Dupliquer",
 				"next_delay": "Délai avant l'action suivante (secondes)",
-				"dynamic_placeholder_info":"Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
+				"dynamic_placeholder_info": "Cette action permet de créer un placeholder personnalisé que vous pourrez utiliser dans toutes les actions suivantes.",
 				"delete": "Supprimer",
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
@@ -128,7 +128,7 @@
 				"action_random": "Valeur aléatoire",
 				"action_stream_infos": "Changer les infos de stream",
 				"action_vibrate": "Vibrer téléphone",
-				"custom_placeholder_example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder."
+				"custom_placeholder_example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder."
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -142,8 +142,8 @@
 				"param_globalCD": "Cooldown global ({VALUE}s)",
 				"param_userCD": "Cooldown utilisateur ({VALUE}s)",
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
-				"commands_list":"Commandes de tchat",
-				"use_slash_cmd":"Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande"
+				"commands_list": "Commandes de tchat",
+				"use_slash_cmd": "Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande"
 			},
 			"highlight": {
 				"header": "{LINK} de mise en avant pour utiliser cette action.",
@@ -215,9 +215,9 @@
 			"http_ws": {
 				"url": "URL à appeler",
 				"method": "Méthode",
-				"topic_placeholder":"valeur personnalisée...",
-				"output_placeholder":"Enregistrer le résultat de la requête dans le placeholder",
-				"output_placeholder_placeholder":"placeholder...",
+				"topic_placeholder": "valeur personnalisée...",
+				"output_placeholder": "Enregistrer le résultat de la requête dans le placeholder",
+				"output_placeholder_placeholder": "placeholder...",
 				"select_param": "Choisissez les paramètres à inclure :",
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse.",
 				"need_to_connect": "Cette action nécessite de vous {LINK}",
@@ -225,41 +225,41 @@
 				"topic_description": "Valeur personnalisée"
 			},
 			"count": {
-				"value_label":"Valeur",
-				"select_label":"Compteurs à mettre à jour",
-				"select_placeholder":"Sélectionnez un compteur...",
-				"select_action":"Action",
-				"select_action_placeholder":"Selectionnez une action...",
-				"action_add":"Ajouter",
-				"action_del":"Soustraire",
-				"action_set":"Remplacer la valeur",
-				"user_source_title":"Sélectionnez l'utilisateur mettre à jour pour ce compteur : | Sélectionnez l'utilisateur mettre à jour pour ces compteurs :",
-				"user_source_sender":"Personne déclenchant le trigger",
-				"user_source_everyone":"Toutes les personnes",
-				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
+				"value_label": "Valeur",
+				"select_label": "Compteurs à mettre à jour",
+				"select_placeholder": "Sélectionnez un compteur...",
+				"select_action": "Action",
+				"select_action_placeholder": "Selectionnez une action...",
+				"action_add": "Ajouter",
+				"action_del": "Soustraire",
+				"action_set": "Remplacer la valeur",
+				"user_source_title": "Sélectionnez l'utilisateur mettre à jour pour ce compteur : | Sélectionnez l'utilisateur mettre à jour pour ces compteurs :",
+				"user_source_sender": "Personne déclenchant le trigger",
+				"user_source_everyone": "Toutes les personnes",
+				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
-			"random":{
-				"min_label":"Valeur min (inclus)",
-				"max_label":"Valeur max (inclus)",
-				"float_label":"Autoriser les nombres à virgule",
-				"example":"Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur aléatoire.",
-				"number":"Nombre",
-				"list":"Liste",
-				"trigger":"Triggers",
-				"trigger_info":"Executer un trigger aléatoire parmi ceux sélectionnés",
-				"trigger_select":"Sélectionnez un ou plusieurs triggers",
-				"trigger_skipDisabled":"Ignorer les triggers désactivés lors du tirage",
-				"trigger_disableAfterExec":"Désactiver le trigger sélectionné après exécution",
-				"list_label":"Choisir une entrée aléatoirement parmi les suivantes:",
-				"list_entry_placeholder":"ajouter une entrée...",
-				"placeholder_label":"Nom du placeholder"
+			"random": {
+				"min_label": "Valeur min (inclus)",
+				"max_label": "Valeur max (inclus)",
+				"float_label": "Autoriser les nombres à virgule",
+				"example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur aléatoire.",
+				"number": "Nombre",
+				"list": "Liste",
+				"trigger": "Triggers",
+				"trigger_info": "Executer un trigger aléatoire parmi ceux sélectionnés",
+				"trigger_select": "Sélectionnez un ou plusieurs triggers",
+				"trigger_skipDisabled": "Ignorer les triggers désactivés lors du tirage",
+				"trigger_disableAfterExec": "Désactiver le trigger sélectionné après exécution",
+				"list_label": "Choisir une entrée aléatoirement parmi les suivantes:",
+				"list_entry_placeholder": "ajouter une entrée...",
+				"placeholder_label": "Nom du placeholder"
 			},
-			"raffle_enter":{
-				"info":"La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
+			"raffle_enter": {
+				"info": "La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
 			},
-			"vibrate":{
-				"info":"Cette action ne fonctionne que si vous utilisez Twitchat sur un périphérique mobile.",
-				"pattern":"Séquence de vibrations"
+			"vibrate": {
+				"info": "Cette action ne fonctionne que si vous utilisez Twitchat sur un périphérique mobile.",
+				"pattern": "Séquence de vibrations"
 			}
 		},
 		"categories": {
@@ -277,7 +277,7 @@
 			"count": "Compteurs"
 		},
 		"placeholders": {
-			"trigger_name":"Nom du trigger actuel",
+			"trigger_name": "Nom du trigger actuel",
 			"user": "Pseudo",
 			"user_id": "ID utilisateur",
 			"user_avatar": "URL de l'avatar",
@@ -289,9 +289,9 @@
 			"poll_win": "Titre de l'entrée gagnante",
 			"prediction_title": "Titre de la prédiction",
 			"prediction_win": "Titre de l'entrée gagnante",
-			"prediction_points":"Total de points chaîne misés",
-			"prediction_users":"Nombre de participants",
-			"prediction_users_win":"Nombre de votant pour l'entrée gagnante",
+			"prediction_points": "Total de points chaîne misés",
+			"prediction_users": "Nombre de participants",
+			"prediction_users_win": "Nombre de votant pour l'entrée gagnante",
 			"winner": "Pseudo de la personne",
 			"sub_tier": "Niveau de l'abonnement: 1, 2 ou 3",
 			"sub_message": "Message de la personne",
@@ -392,7 +392,7 @@
 				"label": "Viewer de retour",
 				"description": "Actions à exécuter lorsqu'une personne écrit dans votre tchat après avoir parlé 2 fois au cours des 30 derniers jours.{INFO}",
 				"description_info": "(ceci n'existe peut-être plus dans Twitch)",
-				"disabled_reason":"Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus l'utiliser :("
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus l'utiliser :("
 			},
 			"PRESENTATION": {
 				"label": "Présentation",
@@ -649,6 +649,10 @@
 				"label": "Arrêt du stream",
 				"description": "Actions à exécuter lorsque le stream est arrêté {INFO}",
 				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
+			},
+			"COUNTER_EDIT": {
+				"label": "Compteur modifié",
+				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} est modifié"
 			},
 			"COUNTER_ADD": {
 				"label": "Ajout à un compteur",

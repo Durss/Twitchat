@@ -1043,7 +1043,8 @@ export default class DataStore {
 				case TriggerTypes.COUNTER_MAXED:
 				case TriggerTypes.COUNTER_MINED:
 				case TriggerTypes.COUNTER_DEL:
-				case TriggerTypes.COUNTER_ADD: t.counterId = subkey; break;
+				case TriggerTypes.COUNTER_ADD:
+				case TriggerTypes.COUNTER_EDIT: t.counterId = subkey; break;
 			}
 			if(t.queue == "") delete t.queue;
 			if(t.name == "") delete t.name;

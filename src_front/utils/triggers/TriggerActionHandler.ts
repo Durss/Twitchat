@@ -343,6 +343,7 @@ export default class TriggerActionHandler {
 				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;
 				if(message.mined) type = TriggerTypes.COUNTER_MINED;
 				if(message.looped) type = TriggerTypes.COUNTER_LOOPED;
+				await this.executeTriggersByType(TriggerTypes.COUNTER_EDIT, message, testMode, message.counter.id);
 				if(await this.executeTriggersByType(type, message, testMode, message.counter.id)) {
 					return;
 				}break;
@@ -478,6 +479,7 @@ export default class TriggerActionHandler {
 				case TriggerTypes.OBS_INPUT_MUTE:
 				case TriggerTypes.OBS_INPUT_UNMUTE: keys[0] += this.HASHMAP_KEY_SPLITTER + t.obsInput; break;
 
+				case TriggerTypes.COUNTER_EDIT:
 				case TriggerTypes.COUNTER_ADD:
 				case TriggerTypes.COUNTER_DEL:
 				case TriggerTypes.COUNTER_LOOPED:
@@ -1359,9 +1361,9 @@ export default class TriggerActionHandler {
 				logStep.messages.push({date:Date.now(), value:"[EXCEPTION] step execution thrown an error: "+JSON.stringify(error)});
 			}
 			logStep.messages.push({date:Date.now(), value:"Step execution complete"});
-
-			delete this.triggerTypeToQueue[queueKey];
 		}
+		
+		delete this.triggerTypeToQueue[queueKey];
 
 		resolverTriggerType();
 		log.complete = true;

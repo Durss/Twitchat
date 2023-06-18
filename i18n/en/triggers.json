@@ -648,6 +648,10 @@
 				"description": "Actions to execute when stream stops {INFO}",
 				"description_info":"(you might have to wait +1min before receiving that info)"
 			},
+			"COUNTER_EDIT": {
+				"label": "A counter is modified",
+				"description": "Actions to execute when value of the counter {SUB_ITEM_NAME} is modified"
+			},
 			"COUNTER_ADD": {
 				"label": "Value added to a counter",
 				"description": "Actions to execute when a value is added to the {SUB_ITEM_NAME} counter"

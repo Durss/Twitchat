@@ -447,7 +447,8 @@ export default class TriggerCreateForm extends Vue {
 			}
 		}else
 		
-		if(e.value == TriggerTypes.COUNTER_ADD
+		if(e.value == TriggerTypes.COUNTER_EDIT
+		|| e.value == TriggerTypes.COUNTER_ADD
 		|| e.value == TriggerTypes.COUNTER_DEL
 		|| e.value == TriggerTypes.COUNTER_LOOPED
 		|| e.value == TriggerTypes.COUNTER_MAXED
@@ -508,6 +509,7 @@ export default class TriggerCreateForm extends Vue {
 			case TriggerTypes.OBS_INPUT_MUTE:
 			case TriggerTypes.OBS_INPUT_UNMUTE: this.temporaryTrigger.obsInput = entry.value; break;
 
+			case TriggerTypes.COUNTER_EDIT:
 			case TriggerTypes.COUNTER_ADD:
 			case TriggerTypes.COUNTER_DEL:
 			case TriggerTypes.COUNTER_LOOPED:

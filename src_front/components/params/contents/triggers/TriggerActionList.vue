@@ -240,11 +240,13 @@ export default class TriggerActionList extends Vue {
 			case TriggerTypes.OBS_FILTER_OFF:
 				return this.triggerData.obsFilter + " ("+this.triggerData.obsSource+")" || "...";
 
+			case TriggerTypes.COUNTER_EDIT:
 			case TriggerTypes.COUNTER_ADD:
 			case TriggerTypes.COUNTER_DEL:
 			case TriggerTypes.COUNTER_LOOPED:
 			case TriggerTypes.COUNTER_MAXED:
 			case TriggerTypes.COUNTER_MINED:
+				console.log("OKFDOKFOKDKF", this.triggerData.counterId);
 				return this.$store("counters").counterList.find(v=>v.id == this.triggerData.counterId)?.name ?? "COUNTER NOT FOUND";
 		}
 		return "...";

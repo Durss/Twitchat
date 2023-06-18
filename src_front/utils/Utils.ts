@@ -703,7 +703,8 @@ export default class Utils {
 				break;
 			}
 
-			case TriggerTypes.COUNTER_ADD: prefix = "+";;
+			case TriggerTypes.COUNTER_EDIT: prefix = "🖊";
+			case TriggerTypes.COUNTER_ADD: prefix = "+";
 			case TriggerTypes.COUNTER_DEL: if(!prefix) prefix = "-";
 			case TriggerTypes.COUNTER_LOOPED: if(!prefix) prefix = "⟳";
 			case TriggerTypes.COUNTER_MAXED: if(!prefix) prefix = "⤒";
