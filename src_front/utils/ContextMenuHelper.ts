@@ -216,9 +216,6 @@ export default class ContextMenuHelper {
 						label: t("chat.context_menu.to"),
 						customClass:classesBan,
 						icon: this.getIcon("icons/timeout.svg"),
-						onClick: () => {
-							this.timeoutUser(message, 1);
-						},
 						children: [
 							{
 								label: "1s",

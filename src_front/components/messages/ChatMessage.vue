@@ -612,14 +612,11 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * @param e 
 	 */
 	public onContextMenu(e:MouseEvent|TouchEvent):void {
-		console.log("ON CONTEXT MENU", this.contextMenuOff)
 		if(this.contextMenuOff !== false) return;
-		console.log(e.target);
 		if(e.target) {
 			const el = e.target as HTMLElement;
 			if(el.tagName == "A") return;
 		}
-		console.log("OPEN", this.messageData);
 		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser_local);
 	}
 

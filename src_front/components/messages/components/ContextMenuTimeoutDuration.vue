@@ -4,9 +4,9 @@
 	ContextMenu component may be catching event or something, dunno...
 -->
 <template>
-	<form :class="classes" @click="onClick()">
-		<div class="field" @keyup.enter="timeoutUser()"><input type="text" v-model="duration">s</div>
-		<button @click="timeoutUser()" class="submit" type="submit"><img src="@/assets/icons/checkmark.svg" alt="check"></button>
+	<form :class="classes" @click="onClick()" @submit.prevent="">
+		<div class="field" @keyup.enter.capture="timeoutUser"><input type="text" v-model="duration">s</div>
+		<button @click="timeoutUser" class="submit" type="submit"><img src="@/assets/icons/checkmark.svg" alt="check"></button>
 	</form>
 </template>
 
@@ -14,6 +14,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import ContextMenu from "@imengyu/vue3-context-menu";
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -42,8 +43,11 @@ export default class ContextMenuTimeoutDuration extends Vue {
 	/**
 	 * Timeouts the user for a custom duration
 	 */
-	public timeoutUser():void {
+	public timeoutUser(event:Event):void {
+		event.stopPropagation();
+		event.preventDefault();
 		TwitchUtils.banUser(this.user, this.channelId, this.duration);
+		ContextMenu.closeContextMenu();
 	}
 
 	/**
