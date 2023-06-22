@@ -256,9 +256,9 @@ export default class ParamsList extends Vue implements IParameterContent {
 				// background-color: var(--color-secondary-fadest);
 			}
 
-			&.disabled {
-				opacity: .4;
-			}
+			// &.disabled {
+			// 	opacity: .4;
+			// }
 
 			
 

@@ -50,7 +50,7 @@
 
 					<div class="item" v-for="f in filters"
 					:key="'filter_'+f.storage">
-						<ParamItem :paramData="f"
+						<ParamItem :paramData="f" autoFade
 						@change="saveData()"
 						@mouseleave="mouseLeaveItem"
 						@mouseenter="mouseEnterItem"
@@ -65,7 +65,7 @@
 							</template>
 							<template #child v-if="f.storage == messageType && config.filters.message === true">
 								<div class="subFilters">
-									<ParamItem class="item"
+									<ParamItem class="item" autoFade
 										v-if="config.filters.message === true"
 										key="subfilter_blockUsers"
 										:childLevel="1"
@@ -74,7 +74,7 @@
 										@change="saveData()"
 										v-model="config.userBlockList" />
 								
-									<ParamItem class="item" v-for="f in messageFilters"
+									<ParamItem class="item" v-for="f in messageFilters" autoFade
 										v-if="config.filters.message === true"
 										:key="'subfilter_'+f.storage"
 										:childLevel="1"

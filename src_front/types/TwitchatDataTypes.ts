@@ -12,6 +12,7 @@ export namespace TwitchatDataTypes {
 	export const ParamDeepSections = {
 		AD: "ad",
 		OBS: "obs",
+		HEAT: "heat",
 		WHEEL: "wheel",
 		TIMER: "timer",
 		ULULE: "ulule",

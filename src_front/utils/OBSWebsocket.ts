@@ -162,11 +162,16 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async getScenes():Promise<{
 		currentProgramSceneName: string;
 		currentPreviewSceneName: string;
-		scenes: JsonArray;
+		scenes: {sceneIndex:number, sceneName:string}[];
 	}> {
 		if(!this.connected) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
 		
-		return await this.obs.call("GetSceneList");
+		let res = await this.obs.call("GetSceneList");
+		return res as {
+			currentProgramSceneName: string;
+			currentPreviewSceneName: string;
+			scenes: {sceneIndex:number, sceneName:string}[];
+		};
 	}
 	
 	/**
@@ -174,38 +179,136 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * 
 	 * @returns 
 	 */
-	public async getSources():Promise<OBSSourceItem[]> {
+	public async getSources(currentSceneOnly:boolean = false):Promise<OBSSourceItem[]> {
 		if(!this.connected) return [];
-		const scenes = await this.getScenes();
+		const scenesResult = await this.getScenes();
+		let sceneList:OBSSceneItemParented[] = scenesResult.scenes;
+		if(currentSceneOnly) {
+			let currentScene  = await this.getCurrentScene();
+			sceneList = sceneList.filter(v=>v.sceneName == currentScene);
+		}
 		let sources:OBSSourceItem[] = [];
-		const idsSourceDone:{[key:string]:boolean} = {};
-		const idsScenesDone:{[key:string]:boolean} = {};
-		for (let i = 0; i < scenes.scenes.length; i++) {
-			const scene = scenes.scenes[i] as {sceneIndex:number, sceneName:string};
+		const sourceDone:{[key:string]:boolean} = {};
+		const scenesDone:{[key:string]:boolean} = {};
+		
+		//Parse all scene items
+		for (const scene of sceneList) {
+			if(scenesDone[scene.sceneName] == true) continue;
+			scenesDone[scene.sceneName] = true;
+
 			let list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
 			let items = (list.sceneItems as unknown) as OBSSourceItem[];
-			for (let i = 0; i < items.length; i++) {
-				const v = items[i];
-				if(idsSourceDone[v.sourceName] == true) {
-					items.splice(i, 1);
-					i--;
-					continue;
+
+			//Parse all scene sources
+			for (const source of items) {
+				if(sourceDone[source.sourceName] == true) continue;
+
+				sourceDone[source.sourceName] = true;
+				
+				//Get group children
+				if(source.isGroup) {
+					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.sourceName});
+					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
+					items = items.concat( groupItems );
 				}
-				idsSourceDone[v.sourceName] = true;
-				if(v.isGroup) {
-					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:v.sourceName});
-					items = items.concat( (res.sceneItems as unknown) as OBSSourceItem[] );
+
+				//Check recursively on child scene if we requested the sources only from the current scene
+				if(source.sourceType == "OBS_SOURCE_TYPE_SCENE" && currentSceneOnly) {
+					sceneList.push({sceneIndex:-1, sceneName:source.sourceName, parentScene:scene});
 				}
-				// if(v.sourceType == "OBS_SOURCE_TYPE_SCENE") {
-				// 	console.log("Scene:", v.sourceName);
-				// }
-				// if(v.sourceType == "OBS_SOURCE_TYPE_INPUT") {
-				// 	console.log("Input:", v.sourceName);
-				// }
 			}
 			sources = sources.concat(items);
 		}
+
+		//Dedupe results
+		let itemsDone:{[key:string]:boolean} = {};
+		for (let i = 0; i < sources.length; i++) {
+			if(itemsDone[sources[i].sourceName] === true) {
+				sources.splice(i, 1)!
+				i--;
+			}
+			itemsDone[sources[i].sourceName] = true;
+		}
+
 		return sources;
+	}
+	
+	/**
+	 * Get all the sources references
+	 * 
+	 * @returns 
+	 */
+	public async getSourceDisplayRects(sourceName:string):Promise<SourceTransform[]> {
+		if(!this.connected) return [];
+		const currentScene  = await this.getCurrentScene();
+		let sceneList:{name:string, parentScene?:string, parentItemId?:number, parentTransform?:SourceTransform}[] = [{name:currentScene}];
+		const transforms:SourceTransform[] = [];
+		const sourceDone:{[key:string]:boolean} = {};
+		const scenesDone:{[key:string]:boolean} = {};
+		const itemNameToTransform:{[key:string]:SourceTransform} = {};
+		
+		//Parse all scene items
+		for (const scene of sceneList) {
+			
+			if(scenesDone[scene.name] == true) continue;
+			scenesDone[scene.name] = true;
+
+			let list = await this.obs.call("GetSceneItemList", {sceneName:scene.name});
+			let items = (list.sceneItems as unknown) as OBSSourceItem[];
+
+			//Parse all scene sources
+			for (const source of items) {
+				sourceDone[source.sourceName] = true;
+				
+				if(source.isGroup) {
+					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.sourceName});
+					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
+					items = items.concat( groupItems );
+				}
+
+				if(source.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+					let sourceTransform = await this.getSceneItemTransform(scene.name, source.sceneItemId);
+					if(scene.parentTransform) {
+						const pt = scene.parentTransform;
+						sourceTransform.positionX += pt.positionX;
+						sourceTransform.positionY += pt.positionY;
+						sourceTransform.cropLeft += pt.cropLeft;
+						sourceTransform.cropTop += pt.cropTop;
+						sourceTransform.cropRight += pt.cropRight;
+						sourceTransform.cropBottom += pt.cropBottom;
+						sourceTransform.scaleX *= pt.scaleX;
+						sourceTransform.scaleY *= pt.scaleY;
+						sourceTransform.rotation += pt.rotation;
+					}
+					itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
+					sceneList.push( {
+									name:source.sourceName,
+									parentScene:scene.name,
+									parentItemId:source.sceneItemId,
+									parentTransform:sourceTransform,
+								} );
+				}
+
+				if(source.sourceName == sourceName) {
+					let sourceTransform = await this.getSceneItemTransform(scene.name, source.sceneItemId);
+					if(scene.parentTransform) {
+						const pt = scene.parentTransform;
+						sourceTransform.positionX += pt.positionX;
+						sourceTransform.positionY += pt.positionY;
+						sourceTransform.cropLeft += pt.cropLeft;
+						sourceTransform.cropTop += pt.cropTop;
+						sourceTransform.cropRight += pt.cropRight;
+						sourceTransform.cropBottom += pt.cropBottom;
+						sourceTransform.scaleX *= pt.scaleX;
+						sourceTransform.scaleY *= pt.scaleY;
+						sourceTransform.rotation += pt.rotation;
+					}
+					itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
+					transforms.push(sourceTransform)
+				}
+			}
+		}
+		return transforms;
 	}
 	
 	/**
@@ -411,6 +514,55 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Gets the settings of a source
+	 * 
+	 * @param sourceName 
+	 */
+	public async getSourceSettings(sourceName:string):Promise<{
+		inputSettings: JsonObject;
+		inputKind: string;
+	}> {
+		if(!this.connected) return {
+			inputSettings: {},
+			inputKind: "",
+		};
+
+		const settings = await this.obs.call("GetInputSettings", {inputName: sourceName});
+		return settings;
+	}
+
+	/**
+	 * Gets the settings of a source
+	 * 
+	 * @param sourceName 
+	 */
+	public async getSceneItemTransform(sceneName:string, sceneItemId:number):Promise<SourceTransform> {
+		if(!this.connected) return {
+			alignment: 0,
+			boundsAlignment: 0,
+			boundsHeight: 0,
+			boundsType: "OBS_BOUNDS_NONE",
+			boundsWidth: 0,
+			cropBottom: 0,
+			cropLeft: 0,
+			cropRight: 0,
+			cropTop: 0,
+			height: 0,
+			positionX: 0,
+			positionY: 0,
+			rotation: 0,
+			scaleX: 0,
+			scaleY: 0,
+			sourceHeight: 0,
+			sourceWidth: 0,
+			width: 0,
+		};
+
+		const settings = await this.obs.call("GetSceneItemTransform", {sceneName, sceneItemId});
+		return (settings as unknown) as SourceTransform;
+	}
+
+	/**
 	 * Change the URL of an media (ffmpeg) source
 	 * 
 	 * @param sourceName 
@@ -556,9 +708,16 @@ export interface OBSSourceItem {
 	sourceName:string;
 	sourceType:OBSSourceType;
 }
+
 export interface OBSSceneItem {
 	sceneIndex:number;
 	sceneName:string;
+}
+
+export interface OBSSceneItemParented {
+	sceneIndex:number;
+	sceneName:string;
+	parentScene?:OBSSceneItem;
 }
 
 export interface OBSInputItem {
@@ -585,6 +744,28 @@ export interface BrowserSourceSettings {
 	url?: string;
 	width?: number;
 }
+
+export interface SourceTransform {
+	alignment: number
+	boundsAlignment: number
+	boundsHeight: number
+	boundsType: string
+	boundsWidth: number
+	cropBottom: number
+	cropLeft: number
+	cropRight: number
+	cropTop: number
+	height: number
+	positionX: number
+	positionY: number
+	rotation: number
+	scaleX: number
+	scaleY: number
+	sourceHeight: number
+	sourceWidth: number
+	width: number
+}
+  
 
 export type OBSMediaAction = "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE" |
 							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY" |

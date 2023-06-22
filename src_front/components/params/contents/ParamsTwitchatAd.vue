@@ -159,12 +159,6 @@ export default class ParamsTwitchatAd extends Vue {
 }
 	.param {
 		margin-top: .5em;
-		:deep(.paramitem) {
-			//Kinda dirty but to lazy to find a clean solution.
-			//Basically disables the fading of the form if option is
-			//unselected
-			opacity: 1 !important;
-		}
 	}
 	img {
 		display: block;

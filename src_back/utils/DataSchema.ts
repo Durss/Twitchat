@@ -525,67 +525,6 @@ import Ajv from "ajv";
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
 		"p:chatShoutout": {type:"boolean"},
-		"p:hideUsers": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:censorDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showSelf": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:blockedCommands": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:ignoreListCommands": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:ignoreCommands": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showSlashMe": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showBots": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:keepDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:firstTimeMessage": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:keepHighlightMyMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:historySize": {type:"integer", minimum:50, maximum:500},//Keep it a little, remove it once most of the users have migrated their data
-		"p:notifyJoinLeave": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:raidStreamInfo": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:receiveWhispers": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showWhispersOnChat": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showCheers": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showFollow": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showHypeTrain": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showNotifications": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showRaids": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showRewards": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showRewardsInfos": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showSubs": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:splitView": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:splitViewSwitch": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
-		leftColSize: {type:"number"},//Keep it a little to avoid loosing data, remove it later
-		activityFeedFilters: {//Keep it a little to avoid loosing data, remove it later
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				sub:{
-					type:"boolean",
-				},
-				follow:{
-					type:"boolean",
-				},
-				bits:{
-					type:"boolean",
-				},
-				raid:{
-					type:"boolean",
-				},
-				rewards:{
-					type:"boolean",
-				},
-				poll:{
-					type:"boolean",
-				},
-				prediction:{
-					type:"boolean",
-				},
-				bingo:{
-					type:"boolean",
-				},
-				raffle:{
-					type:"boolean",
-				}
-			}
-		},
 		v: {type:"integer"},
 		collapseParamAdInfo: {type:"boolean"},
 		lang: {type:"string", maxLength:4},
@@ -613,6 +552,7 @@ import Ajv from "ajv";
 		ululeGoals: {type:"string", maxLength:200},
 		ululeTitle: {type:"string", maxLength:100},
 		ululeCurrency: {type:"string", maxLength:2},
+		heatEnabled: {type:"boolean"},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,

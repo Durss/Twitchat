@@ -10,6 +10,8 @@
 
 		<ConnectSpotifyForm class="item" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
 		
+		<ConnectHeat class="item" :open="subContent == 'heat'" :class="subContent == 'heat'? 'selected' : ''" />
+		
 		<ConnectWebsocket class="item" :open="subContent == 'websocket'" :class="subContent == 'websocket'? 'selected' : ''" />
 	</div>
 </template>
@@ -21,10 +23,12 @@ import type IParameterContent from './IParameterContent';
 import ConnectSpotifyForm from './connexions/ConnectSpotifyForm.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
+import ConnectHeat from './connexions/ConnectHeat.vue';
 
 @Component({
 	components:{
 		ToggleBlock,
+		ConnectHeat,
 		OBSConnectForm,
 		ConnectWebsocket,
 		ConnectSpotifyForm,

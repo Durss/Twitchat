@@ -22,6 +22,7 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
+import HeatSocket from '@/utils/twitch/HeatSocket';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -439,6 +440,12 @@ export const storeMain = defineStore("main", {
 					const data = event.data as {sourceName: string; oldFilterName: string; filterName: string};
 					StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
 				});
+
+				if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
+					//TODO update this with connected user ID instead of hardcoded test ID
+					// HeatSocket.instance.connect( this.$store("auth").twitch.user.id );
+					HeatSocket.instance.connect("104731856");
+				}
 			}
 
 			PublicAPI.instance.initialize();
