@@ -353,7 +353,11 @@
 			"viewer_count": "Nombre de viewers",
 			"obs_scene_name": "Nom de la nouvelle scène OBS",
 			"obs_scene_name_previous": "Nom de la scène OBS précédente",
-			"command": "Nom de la commande"
+			"command": "Nom de la commande",
+			"hype_chat_paid": "Somme payée",
+			"hype_chat_currency": "Monnaie de paiement (ex: USD, EUR, CHF, ...)",
+			"hype_chat_duration": "Durée d'affichage du message en secondes",
+			"hype_chat_level": "Niveau du paiement (de 0 à 9)"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -687,6 +691,10 @@
 			"USER_WATCH_STREAK": {
 				"label": "Série de visionnage",
 				"description": "Actions à exécuter lorsque quelqu'un partage sa série de visionnages"
+			},
+			"HYPE_CHAT": {
+				"label": "Hype chat",
+				"description": "Actions à exécuter lorsque quelqu'un paye pour un Hype Chat"
 			}
 		},
 		"musicEvents": {

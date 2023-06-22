@@ -191,6 +191,7 @@
 			:secondary="secondary"
 			:alert="alert || errorLocal"
 			noBackground
+			:autoFade="autoFade"
 			:childLevel="childLevel+1" />
 
 		<div class="child" ref="param_child_slot" v-if="$slots.default || $slots.child">
@@ -275,7 +276,7 @@ export default class ParamItem extends Vue {
 		const res = ["paramitem"];
 		if(this.noBackground === false) {
 			res.push("card-item");
-			if(this.paramData.value === false) res.push("unselected");
+			if(this.paramData.value !== true) res.push("unselected");
 		}else{
 			res.push("no-bg");
 		}
@@ -654,8 +655,6 @@ export default class ParamItem extends Vue {
 
 	&.unselected.autoFade {
 		opacity: .4;
-		// background-color: var(--background-color-fadest);
-		// background-color: var(--color-secondary-fadest);
 	}
 
 	&.maxLength {

@@ -662,6 +662,18 @@ export const storeChat = defineStore('chat', {
 						&& this.botMessages.twitchatAd.message.trim().replace(/(\s)+/g, "$1").replace(/\/.*? /gi, "") == message.message.trim().replace(/(\s)+/g, "$1")) {
 							message.is_ad = true;
 						}
+
+						if(message.twitch_hypeChat) {
+							//Push a dedicated hype chat message
+							const hypeChatMessage:TwitchatDataTypes.MessageHypeChatData = {
+								date:Date.now(),
+								id:Utils.getUUID(),
+								message,
+								platform:message.platform,
+								type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
+							}
+							this.addMessage(hypeChatMessage);
+						}
 					}
 					
 					//Check if the message contains a mention

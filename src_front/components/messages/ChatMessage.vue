@@ -170,6 +170,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
 	public showTools:boolean = false;
 	public automodReasons = "";
+	public hypeChat:TwitchatDataTypes.HypeChatData|null = null;
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public clipInfo:TwitchDataTypes.ClipInfo|null = null;
 	public clipHighlightLoading:boolean = false;
@@ -214,6 +215,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		const spoilersEnabled		= sParams.features.spoilersEnabled.value === true;
 		const censorDeletedMessages	= sParams.appearance.censorDeletedMessages.value === true;
 
+		if(this.hypeChat)						res.push("hypeChat");
 		if(this.automodReasons)					res.push("automod");
 		if(this.messageData.user.is_blocked)	res.push("blockedUser");
 		if(this.disableConversation !== false)	res.push("disableConversation");
@@ -390,6 +392,10 @@ export default class ChatMessage extends AbstractChatMessage {
 			if(!this.lightMode && mess.twitch_automod) {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
 			}
+			//Manage twitch automod content
+			if(!this.lightMode && mess.twitch_hypeChat) {
+				this.hypeChat = mess.twitch_hypeChat;
+			}
 			
 			this.canModerateMessage = this.canModerateUser_local
 									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
@@ -409,11 +415,17 @@ export default class ChatMessage extends AbstractChatMessage {
 			if(mess.twitch_isPresentation === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.PRESENTATION});
 			if(mess.twitch_isReturning === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RETURNING_CHATTER});
 			if(mess.twitch_isFirstMessage === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER});
+			
 			if(mess.todayFirst === true
 			&& mess.twitch_isFirstMessage !== true
 			&& mess.twitch_isPresentation !== true
 			&& mess.twitch_isReturning !== true
 			&& this.lightMode === false) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
+
+			if(mess.twitch_hypeChat) {
+				let currency = {"EUR":"€","USD":"$"}[mess.twitch_hypeChat.currency] || mess.twitch_hypeChat.currency;
+				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.HYPE_CHAT, label:currency + mess.twitch_hypeChat.amount});
+			}
 		}
 
 		//Pre compute some classes to reduce watchers count on "classes" getter

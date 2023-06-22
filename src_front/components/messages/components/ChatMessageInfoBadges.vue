@@ -43,6 +43,7 @@ export default class ChatMessageInfoBadges extends Vue {
 			firstTimeChatter:"firstTime",
 			presentation:"presentation",
 			returningChatter:"returning",
+			hypeChat:"hypeChat",
 		};
 		if(hashmap[info.type]) {
 			return this.$image("icons/"+hashmap[info.type]+".svg");

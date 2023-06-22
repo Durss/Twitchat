@@ -93,7 +93,8 @@
 				"community_challenge_contribution": "Community challenge",
 				"pinned": "Un/Pinned message notices",
 				"user_watch_streak": "Consecutive watch streak",
-				"stream_online": "Stream online/offline"
+				"stream_online": "Stream online/offline",
+				"hype_chat": "Hype chat"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -347,7 +348,8 @@
 				"suspiciousUser": "User is flaged as suspicious",
 				"firstToday":"First message today",
 				"firstTimeChatter":"First message on this channel",
-				"returningChatter":"This user chatted here twice in the last 30 days"
+				"returningChatter":"This user chatted here twice in the last 30 days",
+				"hypeChat":"Hype chat. User paid for this message"
 			}
 		},
 		"scope_request": {

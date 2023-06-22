@@ -521,6 +521,7 @@ export const TriggerTypes = {
 	OBS_START_STREAM:"76",
 	OBS_STOP_STREAM:"77",
 	COUNTER_EDIT:"78",
+	HYPE_CHAT:"79",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -602,6 +603,16 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false},
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false},
+	];
+
+	map[TriggerTypes.HYPE_CHAT] = [
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"message.user.displayName", numberParsable:false, isUserID:false},
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"message.user.id", numberParsable:false, isUserID:true},
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message.message", numberParsable:true, isUserID:false},
+		{tag:"PAID_AMOUNT", descKey:'triggers.placeholders.hype_chat_paid', pointer:"message.twitch_hypeChat.amount", numberParsable:true, isUserID:false},
+		{tag:"PAID_CURRENCY", descKey:'triggers.placeholders.hype_chat_currency', pointer:"message.twitch_hypeChat.currency", numberParsable:false, isUserID:false},
+		{tag:"PAID_LEVEL", descKey:'triggers.placeholders.hype_chat_level', pointer:"message.twitch_hypeChat.level", numberParsable:true, isUserID:false},
+		{tag:"PIN_DURATION", descKey:'triggers.placeholders.hype_chat_duration', pointer:"message.twitch_hypeChat.duration_s", numberParsable:true, isUserID:false},
 	];
 
 	//Clone to break reference and add chat command specific placeholder
@@ -929,6 +940,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.SUBITS, icon:"sub", labelKey:"triggers.events.SUB.label", value:TriggerTypes.SUB, descriptionKey:"triggers.events.SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"gift", labelKey:"triggers.events.SUBGIFT.label", value:TriggerTypes.SUBGIFT, descriptionKey:"triggers.events.SUBGIFT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.CHEER.label", value:TriggerTypes.CHEER, descriptionKey:"triggers.events.CHEER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHEER},
+		{category:TriggerEventTypeCategories.SUBITS, icon:"hypeChat", labelKey:"triggers.events.HYPE_CHAT.label", value:TriggerTypes.HYPE_CHAT, descriptionKey:"triggers.events.HYPE_CHAT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_APPROACHING.label", value:TriggerTypes.HYPE_TRAIN_APPROACHING, descriptionKey:"triggers.events.HYPE_TRAIN_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_START.label", value:TriggerTypes.HYPE_TRAIN_START, descriptionKey:"triggers.events.HYPE_TRAIN_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_PROGRESS.label", value:TriggerTypes.HYPE_TRAIN_PROGRESS, descriptionKey:"triggers.events.HYPE_TRAIN_PROGRESS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS},

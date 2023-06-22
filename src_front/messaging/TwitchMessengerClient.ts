@@ -675,9 +675,18 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
 		data.is_short				= tags["emote-only"] === true;
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
-		const pinAmount:number|undefined = tags["pinned-chat-paid-canonical-amount"];
-		if(pinAmount) {
-			data.elevatedInfo	= {amount:pinAmount, duration_s:{"5":30, "10":60, "25":90, "50":120, "100":150}[pinAmount] ?? 30};
+		const hypeChatPaidAmount:number = parseInt(tags["pinned-chat-paid-amount"]);
+		if(!isNaN(hypeChatPaidAmount) && hypeChatPaidAmount > 0) {
+			const exponent:number	= parseInt(tags["pinned-chat-paid-exponent"]) || 2;
+			const levelName:string	= tags["chat-paid-level"];
+			const levelName2Index:{[key:string]:number}	= {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9};
+			const levelIndex:number	= levelName2Index[levelName] ?? 0;
+			data.twitch_hypeChat	= {
+										level:levelIndex,
+										amount:hypeChatPaidAmount/Math.pow(10, exponent),
+										currency:tags["pinned-chat-paid-currency"],
+										duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][levelIndex] ?? 30
+									};
 		}
 
 		//Send reward redeem message if the message comes from an "highlight my message" reward

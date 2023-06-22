@@ -353,7 +353,11 @@
 			"viewer_count": "Viewers watching your stream",
 			"obs_scene_name": "Name of the new OBS scene",
 			"obs_scene_name_previous": "Name of the previous OBS scene",
-			"command": "Command name"
+			"command": "Command name",
+			"hype_chat_paid": "Paid amount",
+			"hype_chat_currency": "Currency used to pay (ex: USD, EUR, CHF, ...)",
+			"hype_chat_duration": "Display duration in seconds",
+			"hype_chat_level": "Paid level (from 0 to 9)"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -685,6 +689,10 @@
 			"USER_WATCH_STREAK": {
 				"label": "Watch streak",
 				"description": "Actions to execute when a user share their watch streak"
+			},
+			"HYPE_CHAT": {
+				"label": "Hype chat",
+				"description": "Actions to execute when a user pays for a hype chat message"
 			}
 		},
 		"musicEvents": {

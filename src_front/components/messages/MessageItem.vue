@@ -130,6 +130,10 @@
 	<ChatWatchStreak class="message"
 		v-else-if="messageData.type == 'user_watch_streak'"
 		:messageData="messageData" />
+
+	<ChatHypeChatMessage class="message"
+		v-else-if="messageData.type == 'hype_chat'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -169,6 +173,7 @@ import ChatSubscription from './ChatSubscription.vue';
 import ChatTimerResult from './ChatTimerResult.vue';
 import ChatUnban from './ChatUnban.vue';
 import ChatWatchStreak from './ChatWatchStreak.vue';
+import ChatHypeChatMessage from './ChatHypeChatMessage.vue';
 
 @Component({
 	components:{
@@ -201,6 +206,7 @@ import ChatWatchStreak from './ChatWatchStreak.vue';
 		ChatFollowbotEvents,
 		ChatHypeTrainResult,
 		ChatCountdownResult,
+		ChatHypeChatMessage,
 		ChatPredictionResult,
 		ChatHypeTrainCooldown,
 		ChatLowTrustTreatment,
