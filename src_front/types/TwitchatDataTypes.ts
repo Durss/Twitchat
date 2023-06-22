@@ -268,6 +268,7 @@ export namespace TwitchatDataTypes {
 		WHISPER: "whisper",
 		CYPHERED: "cyphered",
 		NEW_USER: "new_user",
+		HYPE_CHAT: "hypeChat",
 		FIRST_MESSAGE_TODAY: "firstToday",
 		PRESENTATION: "presentation",
 		SUSPICIOUS_USER: "suspiciousUser",
@@ -1188,6 +1189,29 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Contains a Hype chat message details
+	 */
+	export interface HypeChatData {
+		/**
+		 * Display duration
+		 */
+		duration_s:number;
+		/**
+		 * Paid amount
+		 */
+		amount:number;
+		/**
+		 * Currency example : "EUR" "USD" "CHF"
+		 */
+		currency:string;
+		/**
+		 * Hype chat paid level.
+		 * From 0 to 9
+		 */
+		level:number;
+	}
+
+	/**
 	 * Represents a change log encry
 	 */
 	export interface ChangelogEntry {
@@ -1245,6 +1269,7 @@ export namespace TwitchatDataTypes {
 		UNPINNED:"unpinned",
 		SHOUTOUT:"shoutout",
 		VOICEMOD:"voicemod",
+		HYPE_CHAT:"hype_chat",
 		FOLLOWING:"following",
 		COUNTDOWN:"countdown",
 		CLEAR_CHAT:"clear_chat",
@@ -1308,6 +1333,7 @@ export namespace TwitchatDataTypes {
 		connect:true,
 		shoutout:true,
 		unpinned:true,
+		hype_chat:true,
 		voicemod:false,
 		following:true,
 		countdown:true,
@@ -1439,6 +1465,7 @@ export namespace TwitchatDataTypes {
 									| MessageScopeRequestData
 									| MessageMarkerCreatedData
 									| MessageWatchStreakData
+									| MessageHypeChatData
 	;
 	
 	/**
@@ -1469,6 +1496,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.WHISPER,
 		TwitchatMessageType.SHOUTOUT,
 		TwitchatMessageType.FOLLOWING,
+		TwitchatMessageType.HYPE_CHAT,
 		TwitchatMessageType.COUNTDOWN,
 		TwitchatMessageType.PREDICTION,
 		TwitchatMessageType.TWITCHAT_AD,
@@ -1612,11 +1640,11 @@ export namespace TwitchatDataTypes {
 		 * anyways as long as this prop is set to true
 		 */
 		bypassBotFilter?: boolean;
-		/**
-		 * Temporary twitch experiment that allowed to pay to make our message visible longer
-		 */
-		elevatedInfo?:{duration_s:number, amount:number};
 		
+		/**
+		 * CIs defined if user paied for their message
+		 */
+		twitch_hypeChat?:HypeChatData;
 		/**
 		 * Twitch automod info if the message has been held by automod
 		 */
@@ -2831,6 +2859,18 @@ export namespace TwitchatDataTypes {
 		 * Number of consecutive streams the user watched
 		 */
 		streak:number;
+	}
+
+	/**
+	 * Represents a hype chat message
+	 * These messages are also sent as standard messages
+	 */
+	export interface MessageHypeChatData extends AbstractTwitchatMessage {
+		type:"hype_chat";
+		/**
+		 * User that created the marker
+		 */
+		message:MessageChatData;
 	}
 
 }

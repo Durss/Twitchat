@@ -965,7 +965,7 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					const m:TwitchatDataTypes.MessageBanData = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.BAN,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -987,7 +987,7 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					const m:TwitchatDataTypes.MessageUnbanData = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.UNBAN,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1006,7 +1006,7 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					const m:TwitchatDataTypes.MessageRaidStartData = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1023,13 +1023,38 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					const m:TwitchatDataTypes.MessageWatchStreakData = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user:fakeUser,
 						channel_id:uid,
 						streak:Utils.pickRand([3,6,9]),//Not sure thera are other valid values than 3
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						});
+					}
+					const userMessage:TwitchatDataTypes.MessageChatData = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false, false) as TwitchatDataTypes.MessageChatData;
+					const level = Utils.pickRand([0,1,2,3,4,5,6,7,8,9]);
+					userMessage.twitch_hypeChat = {
+						level,
+						amount:[1.2,6,12,24,60,120,240,360,480,600][level],
+						currency:Utils.pickRand(["EUR","USD","CHF"]),
+						duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][level]
+					}
+					const m:TwitchatDataTypes.MessageHypeChatData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						message:userMessage,
 					};
 					data = m;
 					break;
@@ -1061,7 +1086,7 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					const m:TwitchatDataTypes.MessageModerationAction = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1081,7 +1106,7 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					const m:TwitchatDataTypes.MessageModerationAction = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1101,7 +1126,7 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					const m:TwitchatDataTypes.MessageModerationAction = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1121,7 +1146,7 @@ export const storeDebug = defineStore('debug', {
 						})
 					}
 					const m:TwitchatDataTypes.MessageModerationAction = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1138,7 +1163,7 @@ export const storeDebug = defineStore('debug', {
 					const title = "Let's have some fun !";
 					const category = "Just chatting";
 					const m:TwitchatDataTypes.MessageStreamInfoUpdate = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1154,7 +1179,7 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE: {
 					const m:TwitchatDataTypes.MessageEmergencyModeInfo = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1169,7 +1194,7 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE: {
 					const m:TwitchatDataTypes.MessageShieldMode = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1186,7 +1211,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatNoticeType.TTS: {
 					const keys = ["tts.on_notice", "tts.off_notice"];
 					const m:TwitchatDataTypes.MessageNoticeData = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1205,7 +1230,7 @@ export const storeDebug = defineStore('debug', {
 					});
 					const title = lorem.generateSentences(1);
 					const m:TwitchatDataTypes.MessageStreamInfoUpdate = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1221,7 +1246,7 @@ export const storeDebug = defineStore('debug', {
 
 				default: {
 					const m:TwitchatDataTypes.MessageNoticeData = {
-						platform:"twitchat",
+						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						date:Date.now(),
 						id:Utils.getUUID(),

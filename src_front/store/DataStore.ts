@@ -127,7 +127,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 39;
+		let latestVersion = 41;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -241,11 +241,15 @@ export default class DataStore {
 		}
 		if(v==38) {
 			this.addWatchStreakFilter(data);
-			v = latestVersion;
+			v = 39;
 		}
 		if(v==39) {
 			//Removed custom interface scale now that OBS handles it natively on docks
 			delete data["interfaceScale"];
+			v = 40;
+		}
+		if(v==40) {
+			this.enableHypeChatFilters(data);
 			v = latestVersion;
 		}
 
@@ -1214,6 +1218,18 @@ export default class DataStore {
 
 		if(!cols) return;
 		cols.forEach(v=>v.filters.user_watch_streak = true);
+		data[DataStore.CHAT_COLUMNS_CONF] = cols;
+
+	}
+
+	/**
+	 * Enable the "hype chat" notifications on all columns
+	 */
+	public static enableHypeChatFilters(data:any):void {
+		const cols:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
+
+		if(!cols) return;
+		cols.forEach(v=>v.filters.hype_chat = true);
 		data[DataStore.CHAT_COLUMNS_CONF] = cols;
 
 	}
