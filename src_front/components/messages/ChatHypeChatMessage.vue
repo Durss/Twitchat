@@ -101,6 +101,14 @@ export default class ChatHypeChatMessage extends AbstractChatMessage {
 				text-decoration: none;
 				margin-right: .25em;
 			}
+			:deep(a) {
+				color: #ffffff;
+			}
+			:deep(.copyBt) {
+				svg path {
+					fill: #ffffff !important;
+				}
+			}
 		}
 	}
 	.price {

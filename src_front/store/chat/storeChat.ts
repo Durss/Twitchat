@@ -672,7 +672,6 @@ export const storeChat = defineStore('chat', {
 								platform:message.platform,
 								type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
 							}
-							console.log("ADD", hypeChatMessage);
 							this.addMessage(hypeChatMessage);
 						}
 					}
