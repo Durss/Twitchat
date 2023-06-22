@@ -191,6 +191,7 @@
 			:secondary="secondary"
 			:alert="alert || errorLocal"
 			noBackground
+			:autoFade="autoFade"
 			:childLevel="childLevel+1" />
 
 		<div class="child" ref="param_child_slot" v-if="$slots.default || $slots.child">
@@ -255,6 +256,9 @@ export default class ParamItem extends Vue {
 	@Prop({type:Boolean, default: false})
 	public noBackground!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public autoFade!:boolean;
+
 	@Prop({type:Number, default: 0})
 	public tabindex!:number;
 
@@ -280,6 +284,7 @@ export default class ParamItem extends Vue {
 		else if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) res.push("error");
 		if(this.paramData.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
+		if(this.autoFade !== false) res.push("autoFade");
 		if(this.childLevel > 0) res.push("child");
 		if(this.paramData.icon) res.push("hasIcon");
 		if(this.paramData.maxLength) res.push("maxLength");
@@ -648,10 +653,8 @@ export default class ParamItem extends Vue {
 		}
 	}
 
-	&.unselected {
+	&.unselected.autoFade {
 		opacity: .4;
-		// background-color: var(--background-color-fadest);
-		// background-color: var(--color-secondary-fadest);
 	}
 
 	&.maxLength {
