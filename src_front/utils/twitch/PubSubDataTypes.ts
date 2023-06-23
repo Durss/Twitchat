@@ -429,7 +429,7 @@ export namespace PubSubDataTypes {
 		 * Action that triggered this event
 		 */
 		action: HypeTrainActionContribution;
-		source: "SUBS" | "BITS";
+		source: "SUBS" | "BITS" | "EXPLICIT_PURCHASE";
 		/**
 		 * Number of subgifts or bits that triggered this event
 		 */
@@ -457,7 +457,9 @@ export namespace PubSubDataTypes {
 		"TIER_2_SUB": number;
 		"TIER_3_GIFTED_SUB": number;
 		"TIER_3_SUB": number;
+		"PAID_PINNED_CHAT": number;
 	}
+
 
 	export interface HypeTrainConductorUpdate {
 		source: "SUBS" | "BITS";
@@ -491,6 +493,13 @@ export namespace PubSubDataTypes {
 		ended_at: number;
 		ending_reason: "COMPLETED" | "EXPIRE";
 		is_boost_train: boolean;
+		participation_totals:HypeTrainParticipation[]
+	}
+
+	export interface HypeTrainParticipation {
+		source: "SUBS" | "BITS" | "EXPLICIT_PURCHASE",
+		action: keyof HypeTrainActionContribution,
+		quantity: number
 	}
 
 	interface HypeProgressInfo {

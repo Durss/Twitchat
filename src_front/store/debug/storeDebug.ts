@@ -386,10 +386,11 @@ export const storeDebug = defineStore('debug', {
 										TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 										TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 										TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
-										TwitchatDataTypes.TwitchatMessageType.CHEER
+										TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
+										TwitchatDataTypes.TwitchatMessageType.CHEER,
 									]
 						const t = Utils.pickRand(types);
-						this.simulateMessage(t, (message)=> {
+						await this.simulateMessage(t, (message)=> {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 								//Simulate subgifts
 								if(Math.random() > .8) {
@@ -408,8 +409,7 @@ export const storeDebug = defineStore('debug', {
 								sum += message.bits;
 							}
 							activities.push(message as (TwitchatDataTypes.MessageSubscriptionData | TwitchatDataTypes.MessageCheerData));
-							return false;//Avoid sending it on chat
-						})
+						}, false, false);
 					}
 
 					const conductor_subs = Utils.pickRand(fakeUsers);
@@ -1046,7 +1046,7 @@ export const storeDebug = defineStore('debug', {
 					userMessage.twitch_hypeChat = {
 						level,
 						amount:[1.2,6,12,24,60,120,240,360,480,600][level],
-						currency:Utils.pickRand(["EUR","USD","CHF"]),
+						currency:Utils.pickRand(["EUR","USD","CHF","CA"]),
 						duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][level]
 					}
 					const m:TwitchatDataTypes.MessageHypeChatData = {
@@ -1276,6 +1276,7 @@ export const storeDebug = defineStore('debug', {
 					{type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING, probability:3},
 					{type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, probability:2},
 					{type:TwitchatDataTypes.TwitchatMessageType.CHEER, probability:2},
+					{type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.BAN, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.UNBAN, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.RAID, probability:1},

@@ -64,7 +64,8 @@
 			"column_edit": "Edit filters",
 			"column_add": "Add column",
 			"column_delete": "Delete column",
-			"column_move": "Move column"
+			"column_move": "Move column",
+			"hype_chat": "Hype chat"
 		},
 		"badges": {
 			"subscriber": "{DURATION} subscriber",

@@ -13,6 +13,7 @@
 					<img src="@/assets/icons/bits.svg" class="icon" key="bits">
 					<span class="label">{{bits}}</span>
 				</div>
+
 				<div class="row subs" v-if="subs1 > 0 || subs2 > 0 || subs3 > 0 || primes > 0" key="subs">
 					<div class="sum">
 						<img src="@/assets/icons/sub.svg" class="icon">
@@ -35,10 +36,17 @@
 						<span class="label">{{subs3}}</span>
 					</div>
 				</div>
+
 				<div class="row" v-if="subgifts > 0" v-tooltip="$t('global.tooltips.subgifts')" key="subgifts">
 					<img src="@/assets/icons/gift.svg" class="icon">
 					<span class="label">{{subgifts}}</span>
 				</div>
+
+				<div class="row" v-for="v in hypeChats" v-tooltip="$t('global.tooltips.hype_chat')">
+					<img src="@/assets/icons/hypeChat.svg" class="icon" key="paid">
+					<span class="label">{{v}}</span>
+				</div>
+				
 			</div>
 
 			<div class="conductors">
@@ -116,6 +124,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 	public subgifts:number = 0;
 	public primes:number = 0;
 	public bits:number = 0;
+	public hypeChats:string[] = []
 	
 	public getConductorSubCount():number {
 		let count = 0;
@@ -142,6 +151,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 
 	public mounted():void {
 		this.reachPercent = Math.round(this.messageData.train.currentValue / this.messageData.train.goal * 100);
+		const hypeChatCurrencyToTotal:{[key:string]:number} = {};
 		for (let i = 0; i < this.messageData.activities.length; i++) {
 			const el = this.messageData.activities[i];
 			switch(el.type) {
@@ -157,11 +167,28 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 					}
 					break;
 				}
+
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 					this.bits += el.bits;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
+					const hypeChat = el.message.twitch_hypeChat!;
+					if(!hypeChatCurrencyToTotal[hypeChat.currency]) {
+						hypeChatCurrencyToTotal[hypeChat.currency] = 0;
+					}
+					hypeChatCurrencyToTotal[hypeChat.currency] += hypeChat.amount;
+					break;
+				}
 			}
+		}
+
+		this.hypeChats = [];
+		for (const key in hypeChatCurrencyToTotal) {
+			const total = hypeChatCurrencyToTotal[key];
+			const currency = {"EUR":"€", "USD":"$"}[key] || key;
+			this.hypeChats.push( currency +" "+ total );
 		}
 	}
 
@@ -241,12 +268,12 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 					// background-color: var(--color-light);
 				}
 				.info {
-					background-color: var(--background-color-fader);
-					padding: 2px 5px;
+					background-color: rgba(0, 0, 0, .3);
+					padding: 0px 5px;
 					border-radius: var(--border-radius);
 					font-size: .8em;
 					.icon {
-						vertical-align: middle;
+						vertical-align: text-top;
 					}
 				}
 			}
