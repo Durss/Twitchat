@@ -2058,7 +2058,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Chat activities related to this hype train
 		 */
-		activities: (MessageSubscriptionData|MessageCheerData)[];
+		activities: (MessageSubscriptionData|MessageCheerData|MessageHypeChatData)[];
 	}
 
 	/**

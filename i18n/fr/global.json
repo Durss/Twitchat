@@ -64,7 +64,8 @@
       "column_edit": "Editer les filtres",
       "column_add": "Ajouter une colonne",
       "column_delete": "Supprimer la colonne",
-      "column_move": "Déplacer la colonne"
+      "column_move": "Déplacer la colonne",
+	  "hype_chat": "Hype chat"
     },
     "badges": {
       "subscriber": "Abonné·e depuis {DURATION}",
