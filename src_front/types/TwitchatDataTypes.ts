@@ -34,6 +34,7 @@ export namespace TwitchatDataTypes {
 		ABOUT: "about",
 		FEATURES: "features",
 		OBS: "obs",
+		HEAT: "heat",
 		SPONSOR: "sponsor",
 		STREAMDECK: "streamdeck",
 		TRIGGERS: "triggers",

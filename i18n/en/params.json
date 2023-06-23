@@ -83,6 +83,7 @@
 			"spoiler": "Spoiler",
 			"sponsor": "Donate",
 			"streamdeck": "Stream Deck",
+			"heat": "Heat",
 			"triggers": "Triggers",
 			"tts": "Text to speech",
 			"voice": "Voice control",
@@ -98,7 +99,9 @@
 			"bingo": "/announce 🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
 			"shoutout": "/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			"twitchatAd": "/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Check it out KomodoHype",
-			"chatSuggStart": "/announce Make your suggestion by typing \"{CMD} your suggestion\". Your suggestion must be less than {LENGTH} chars."
+			"chatSuggStart": "/announce Make your suggestion by typing \"{CMD} your suggestion\". Your suggestion must be less than {LENGTH} chars.",
+			"heatSpotify": "[NOW PLAYING] \"{ADDED_TRACK_TITLE}\" by \"{ADDED_TRACK_ARTIST}\" - {ADDED_TRACK_URL}",
+			"heatUlule": ""
 		},
 		"commands": {
 			"updates": "Show latest Twitchat updates",

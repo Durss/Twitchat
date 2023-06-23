@@ -357,7 +357,10 @@
 			"hype_chat_paid": "Paid amount",
 			"hype_chat_currency": "Currency used to pay (ex: USD, EUR, CHF, ...)",
 			"hype_chat_duration": "Display duration in seconds",
-			"hype_chat_level": "Paid level (from 0 to 9)"
+			"hype_chat_level": "Paid level (from 0 to 9)",
+			"ulule_campaign_url": "Campaign URL",
+			"ulule_campaign_name": "Campaign name",
+			"ulule_campaign_name_example": "My awesome project"
 		},
 		"events": {
 			"CHAT_COMMAND": {

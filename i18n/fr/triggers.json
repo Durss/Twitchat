@@ -357,7 +357,10 @@
 			"hype_chat_paid": "Somme payée",
 			"hype_chat_currency": "Monnaie de paiement (ex: USD, EUR, CHF, ...)",
 			"hype_chat_duration": "Durée d'affichage du message en secondes",
-			"hype_chat_level": "Niveau du paiement (de 0 à 9)"
+			"hype_chat_level": "Niveau du paiement (de 0 à 9)",
+			"ulule_campaign_url": "URL de la campagne",
+			"ulule_campaign_name": "Nom de la campagne",
+			"ulule_campaign_name_example": "Mon super projet"
 		},
 		"events": {
 			"CHAT_COMMAND": {

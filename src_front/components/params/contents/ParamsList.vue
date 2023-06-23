@@ -3,11 +3,7 @@
 		<div class="row" v-for="(p, key) in params" :key="key">
 
 			<div :class="getClasses(p, key as string)">
-				<ParamItem :paramData="p" noBackground />
-				<transition
-					@enter="onShowItem"
-					@leave="onHideItem"
-				>
+				<ParamItem :paramData="p" noBackground>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="card-item alert info obsConnect">
 						<img src="@/assets/icons/alert.svg">
 						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
@@ -64,7 +60,7 @@
 							icon="unlock"
 							@click="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
 					</div>
-				</transition>
+				</ParamItem>
 			</div>
 
 		</div>
@@ -78,7 +74,6 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
@@ -190,18 +185,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 	public requestPermission(scopes:TwitchScopesString[]):void {
 		this.$store("auth").requestTwitchScopes(scopes);
-	}
-
-	public async onShowItem(el:Element, done:()=>void):Promise<void> {
-		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", clearProps:"all", onComplete:()=>{
-			done();
-		}});
-	}
-
-	public onHideItem(el:Element, done:()=>void):void {
-		gsap.to(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
-			done();
-		}});
 	}
 
 }
@@ -323,7 +306,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 		.info, .config {
 			overflow: hidden;
 			padding: 4px;
-			margin-left: calc(@iconSize + 10px);
 			img {
 				height: 1em;
 				vertical-align: middle;

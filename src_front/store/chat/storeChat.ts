@@ -67,6 +67,14 @@ export const storeChat = defineStore('chat', {
 				enabled:false,
 				message:StoreProxy.i18n.tm("params.botMessages.chatSuggStart"),
 			},
+			heatSpotify: {
+				enabled:false,
+				message:StoreProxy.i18n.tm("params.botMessages.heatSpotify"),
+			},
+			heatUlule: {
+				enabled:false,
+				message:StoreProxy.i18n.tm("params.botMessages.heatUlule"),
+			},
 		},
 		commands: [
 			{

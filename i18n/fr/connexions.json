@@ -20,16 +20,6 @@
 			"clearBt":"Effacer",
 			"connectBt":"Connecter",
 			"disconnectBt":"Déconnecter"
-		},
-		
-		"heat": {
-			"usage":[
-				"Heat est une extension Twitch permettant aux viewers d'interagir avec votre stream en cliquant dessus. Ne fonctionne que sur desktop !",
-				"Connecter Twitchat et Heat vous permettra d'effectuer des actions lorsque quelqu'un clique sur votre stream.",
-				"Certains overlays Twitchat intègrent un comportement Heat. Par exemple l'overlay Spotify peut envoyer les infos du morceau en cours en cliquant dessus et l'overlay Ulule peut envoyer le lien vers la campagne."
-			],
-			"install":"Installer l'extension",
-			"donate":"Soutenez Scott, le créateur de l'extension Heat."
 		}
 	}
 }

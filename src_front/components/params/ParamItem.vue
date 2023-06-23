@@ -194,10 +194,14 @@
 			:autoFade="autoFade"
 			:childLevel="childLevel+1" />
 
-		<div class="child" ref="param_child_slot" v-if="$slots.default || $slots.child">
-			<slot></slot>
-			<slot name="child"></slot>
-		</div>
+		<transition
+		@enter="onShowItem"
+		@leave="onHideItem">
+			<div class="child" ref="param_child_slot" v-if="($slots.default || $slots.child) && paramData.value === true">
+				<slot></slot>
+				<slot name="child"></slot>
+			</div>
+		</transition>
 
 		<div class="card-item alert errorMessage" v-if="(error && errorMessage) || paramData.errorMessage">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
 	</div>
@@ -502,16 +506,12 @@ export default class ParamItem extends Vue {
 
 	private async buildChildren():Promise<void> {
 		if(this.paramData.value === false){
+			//Collapse children
 			this.childrenExpanded = false;
-			if(this.children.length > 0 || this.$refs.param_child_slot) {
+			if(this.children.length > 0) {
 				//Hide transition
-				let divs:HTMLDivElement[] = [];
-				if(this.$refs.param_child_slot) {
-					divs = [this.$refs.param_child_slot as HTMLDivElement];
-				}else{
-					const childrenItems = this.$refs.param_child as Vue[];
-					divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
-				}
+				const childrenItems = this.$refs.param_child as Vue[];
+				let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
 				gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05,
 					onComplete:()=> {
 						this.children = [];
@@ -540,18 +540,11 @@ export default class ParamItem extends Vue {
 		this.children = children;
 		await this.$nextTick();
 
-		if(children.length > 0 || this.$refs.param_child_slot){
+		if(children.length > 0 && !this.childrenExpanded){
 			//Show transitions
-			let divs:HTMLDivElement[] = [];
-			if(this.$refs.param_child_slot) {
-				divs = [this.$refs.param_child_slot as HTMLDivElement];
-			}else{
-				const childrenItems = this.$refs.param_child as Vue[];
-				divs = childrenItems.map(v => v.$el) as HTMLDivElement[];
-			}
-			if(!this.childrenExpanded) {
-				gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
-			}
+			const childrenItems = this.$refs.param_child as Vue[];
+			let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
+			gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
 		}
 		this.childrenExpanded = true;
 	}
@@ -573,6 +566,18 @@ export default class ParamItem extends Vue {
 		}else{
 			this.errorLocal = state;
 		}
+	}
+
+	public async onShowItem(el:Element, done:()=>void):Promise<void> {
+		gsap.from(el, {overflow:"hidden", height:0, duration:.2, marginTop:0, ease:"sine.out", clearProps:"all", onComplete:()=>{
+			done();
+		}});
+	}
+	
+	public onHideItem(el:Element, done:()=>void):void {
+		gsap.to(el, {overflow:"hidden", height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
+			done();
+		}});
 	}
 }
 </script>

@@ -7,6 +7,7 @@
 				<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
 			</template>
 		</i18n-t>
+
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting" class="card-item">
@@ -77,8 +78,8 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	public connectionFailed:boolean = false;
 	public voices:VoicemodTypes.Voice[] = [];
 	public voiceParams:TwitchatDataTypes.ParameterData<string>[] = [];
-	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
-	public param_voiceIndicator:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, example:"voicemod_reset.png"};
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
+	public param_voiceIndicator:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, example:"voicemod_reset.png", labelKey:"voicemod.show_indicator"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
@@ -101,8 +102,6 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	}
 
 	public mounted():void {
-		this.param_enabled.labelKey			= "global.enable";
-		this.param_voiceIndicator.labelKey	= "voicemod.show_indicator";
 		this.prefill();
 	}
 
