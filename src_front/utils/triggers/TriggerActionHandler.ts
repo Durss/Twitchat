@@ -73,6 +73,14 @@ export default class TriggerActionHandler {
 	 */
 	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false):Promise<void> {
 
+		//Check if it's a greetable message
+		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+			const mLoc = message as TwitchatDataTypes.GreetableMessage;
+			if(mLoc.todayFirst === true) {
+				await this.executeTriggersByType(TriggerTypes.FIRST_TODAY, message, testMode);
+			}
+		}
+
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				//Only trigger one of "first ever", "first today" or "returning" trigger
@@ -83,7 +91,8 @@ export default class TriggerActionHandler {
 					await this.executeTriggersByType(TriggerTypes.FIRST_ALL_TIME, message, testMode);
 				}else
 				if(message.todayFirst === true) {
-					await this.executeTriggersByType(TriggerTypes.FIRST_TODAY, message, testMode);
+					//Do nothing, it's already done before the switch
+					//Keep this condition to avoid aving both returning and today first triggerd
 				}else
 				if(message.twitch_isReturning === true) {
 					await this.executeTriggersByType(TriggerTypes.RETURNING_USER, message, testMode);
