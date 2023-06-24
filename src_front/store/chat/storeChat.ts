@@ -621,6 +621,8 @@ export const storeChat = defineStore('chat', {
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 
+			message = reactive(message);
+
 			if(!greetedUsersInitialized) {
 				greetedUsersInitialized = true;
 				const history = DataStore.get(DataStore.GREET_HISTORY);
@@ -637,7 +639,11 @@ export const storeChat = defineStore('chat', {
 				DataStore.set(DataStore.GREET_HISTORY, greetedUsers);
 			}
 
-			message = reactive(message);
+			//Check if it's a greetable message
+			if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+				const mLoc = message as TwitchatDataTypes.GreetableMessage;
+				this.flagMessageAsFirstToday(mLoc, mLoc.user);
+			}
 
 			switch(message.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
@@ -1139,11 +1145,6 @@ export const storeChat = defineStore('chat', {
 				}
 			}
 
-			//Check if it's a greetable message
-			if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
-				const mLoc = message as TwitchatDataTypes.GreetableMessage;
-				this.flagMessageAsFirstToday(mLoc, mLoc.user);
-			}
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
