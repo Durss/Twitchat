@@ -21,6 +21,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	private autoReconnect:boolean = false;
 	private connectInfo:{port:string, ip:string, pass:string} = {port:"",ip:"",pass:""};
 	
+	private sceneCacheKeySplitter:string = "_-___-___-_";
+	//Key : "sceneName" + sceneCacheKeySplitter + "sourceName"
+	private sceneSourceCache:{[key:string]:{ts:number, value:{scene:string, source:OBSSourceItem}}} = {};
+	
 	constructor() {
 		super();
 	}
@@ -125,8 +129,6 @@ export default class OBSWebsocket extends EventDispatcher {
 		// const res = await this.getSourceOnCurrentScene("TTImage");
 		// console.log(res);
 
-		//@ts-ignore
-		window.test = this.obs;
 		return true;
 	}
 
@@ -248,7 +250,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		const itemNameToTransform:{[key:string]:SourceTransform} = {};
 		
 		//Parse all scene items
-		for (const scene of sceneList) {
+		for (let j = 0; j < sceneList.length; j++) {
+			const scene = sceneList[j];
 			
 			if(scenesDone[scene.name] == true) continue;
 			scenesDone[scene.name] = true;
@@ -257,54 +260,59 @@ export default class OBSWebsocket extends EventDispatcher {
 			let items = (list.sceneItems as unknown) as OBSSourceItem[];
 
 			//Parse all scene sources
-			for (const source of items) {
+			for (let i=0; i < items.length; i++) {
+				const source = items[i]
 				sourceDone[source.sourceName] = true;
 				
 				if(source.isGroup) {
 					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.sourceName});
 					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
 					items = items.concat( groupItems );
-				}
-
-				if(source.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+				}else{
+					
 					let sourceTransform = await this.getSceneItemTransform(scene.name, source.sceneItemId);
-					if(scene.parentTransform) {
-						const pt = scene.parentTransform;
-						sourceTransform.positionX += pt.positionX;
-						sourceTransform.positionY += pt.positionY;
-						sourceTransform.cropLeft += pt.cropLeft;
-						sourceTransform.cropTop += pt.cropTop;
-						sourceTransform.cropRight += pt.cropRight;
-						sourceTransform.cropBottom += pt.cropBottom;
-						sourceTransform.scaleX *= pt.scaleX;
-						sourceTransform.scaleY *= pt.scaleY;
-						sourceTransform.rotation += pt.rotation;
-					}
-					itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
-					sceneList.push( {
-									name:source.sourceName,
-									parentScene:scene.name,
-									parentItemId:source.sceneItemId,
-									parentTransform:sourceTransform,
-								} );
-				}
+					
+					let center = this.getSourceCenterFromTransform(sourceTransform);
+					sourceTransform.centerX = center.x;
+					sourceTransform.centerY = center.y;
 
-				if(source.sourceName == sourceName) {
-					let sourceTransform = await this.getSceneItemTransform(scene.name, source.sceneItemId);
-					if(scene.parentTransform) {
-						const pt = scene.parentTransform;
-						sourceTransform.positionX += pt.positionX;
-						sourceTransform.positionY += pt.positionY;
-						sourceTransform.cropLeft += pt.cropLeft;
-						sourceTransform.cropTop += pt.cropTop;
-						sourceTransform.cropRight += pt.cropRight;
-						sourceTransform.cropBottom += pt.cropBottom;
-						sourceTransform.scaleX *= pt.scaleX;
-						sourceTransform.scaleY *= pt.scaleY;
-						sourceTransform.rotation += pt.rotation;
+					if(source.sourceName == "_TwitchatDemo" || source.sourceName == "SpotifyPlayer") {
+						console.log(source.sourceName, sourceTransform);
 					}
-					itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
-					transforms.push(sourceTransform)
+	
+	
+					if(source.sourceName == sourceName) {
+						if(scene.parentTransform) {
+							//Apply parent rotation to the center so we get a center
+							//position on the global space
+							const pt = scene.parentTransform;
+							let rotated = this.rotatePointAround(
+															{x:sourceTransform.centerX, y:sourceTransform.centerX},
+															{x:pt.positionX, y:pt.positionY},
+															pt.rotation
+															);
+															sourceTransform.centerX = rotated.x * pt.scaleX;
+							sourceTransform.centerX = rotated.x;
+							sourceTransform.centerY = rotated.y;
+							const scaled = this.applyParentScale({x:sourceTransform.centerX, y:sourceTransform.centerY}, pt);
+							sourceTransform.centerX = scaled.x;
+							sourceTransform.centerY = scaled.y;
+						}
+	
+						itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
+						transforms.push(sourceTransform)
+					
+					}else
+					if(source.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+						
+						itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
+						sceneList.push( {
+										name:source.sourceName,
+										parentScene:scene.name,
+										parentItemId:source.sceneItemId,
+										parentTransform:sourceTransform,
+									} );
+					}
 				}
 			}
 		}
@@ -444,6 +452,14 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @returns 
 	 */
 	public async getSourceOnCurrentScene(sourceName:string, sceneName = "", isGroup:boolean = false):Promise<{scene:string, source:OBSSourceItem}|null> {
+		const cacheKey = sceneName + this.sceneCacheKeySplitter + sourceName;
+
+		//Searching for a source in the scene tree may take quite much time depending on the number
+		//of sources and nested scenes. If the resource has already been queried, send back cached data
+		if(this.sceneSourceCache[cacheKey]) {
+			return this.sceneSourceCache[cacheKey].value;
+		}
+
 		if(!sceneName) {
 			const scene = await this.obs.call("GetCurrentProgramScene");
 			sceneName = scene.currentProgramSceneName;
@@ -460,7 +476,9 @@ export default class OBSWebsocket extends EventDispatcher {
 		}
 		const item = items.find(v=> v.sourceName == sourceName);
 		if(item) {
-			return {scene:sceneName, source:item};
+			const res = {scene:sceneName, source:item};
+			this.sceneSourceCache[cacheKey] = {ts:Date.now(), value:res};
+			return res;
 		}else{
 			//Item not found check on sub scenes and groups
 			for (let i = 0; i < items.length; i++) {
@@ -559,7 +577,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		};
 
 		const settings = await this.obs.call("GetSceneItemTransform", {sceneName, sceneItemId});
-		return (settings as unknown) as SourceTransform;
+		return (settings.sceneItemTransform as unknown) as SourceTransform;
 	}
 
 	/**
@@ -673,10 +691,26 @@ export default class OBSWebsocket extends EventDispatcher {
 		});
 		
 		this.obs.on("InputNameChanged", async (e:{oldInputName:string, inputName:string}) => {
+			//Migrate all caches refering to the old source name to the new source name
+			for (const key in this.sceneSourceCache) {
+				const [scene, source] = key.split(this.sceneCacheKeySplitter);
+				if(source == e.oldInputName) {
+					this.sceneSourceCache[ scene + this.sceneCacheKeySplitter + e.inputName ] = this.sceneSourceCache[key];
+					delete this.sceneSourceCache[key];
+				}
+			}
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_INPUT_NAME_CHANGED, e));
 		});
 		
 		this.obs.on("SceneNameChanged", async (e:{oldSceneName:string, sceneName:string}) => {
+			//Migrate all caches refering to the old scene name to the new scene name
+			for (const key in this.sceneSourceCache) {
+				const [scene, source] = key.split(this.sceneCacheKeySplitter);
+				if(scene == e.oldSceneName) {
+					this.sceneSourceCache[ e.sceneName + this.sceneCacheKeySplitter + source ] = this.sceneSourceCache[key];
+					delete this.sceneSourceCache[key];
+				}
+			}
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_NAME_CHANGED, e));
 		});
 
@@ -693,6 +727,121 @@ export default class OBSWebsocket extends EventDispatcher {
 				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_STREAM_STATE, e));
 			}
 		});
+	}
+
+	/**
+	 * Get the center of a rectangle depending on its pivot point placement
+	 * 
+	 * @param pivotType 
+	 * @param pivotX 
+	 * @param pivotY 
+	 * @param width 
+	 * @param height 
+	 * @param rotation_deg 
+	 */
+	private getSourceCenterFromTransform(transform:SourceTransform) {
+		let a = -transform.rotation * Math.PI / 180;
+		let width = transform.width - transform.cropLeft - transform.cropRight;
+		let height = transform.height - transform.cropTop - transform.cropBottom;
+		let w = width / 2;
+		let h = height / 2;
+
+		//Define width and height offset depending on the pivot point type
+		switch (transform.alignment) {
+			//center
+			case 0: break;
+			//center left
+			case 1:
+				w = 0;
+				break;
+			//center right
+			case 2:
+				w *= 2;
+				break;
+			//top center
+			case 4:
+				h = 0;
+				break;
+			//top left
+			case 5:
+				w = 0;
+				h = 0;
+				break;
+			//top right
+			case 6:
+				w *= 2;
+				h = 0;
+				break;
+			//bottom center
+			case 8:
+				h *= 2;
+				break;
+			//bottom left
+			case 9:
+				w = 0;
+				h *= 2;
+				break;
+			//bottom right
+			case 10:
+				w *= 2;
+				h *= 2;
+				break;
+			default:
+				break;
+		}
+
+		//Get top left corner coordinates
+		let cosTheta = Math.cos(a);
+		let sinTheta = Math.sin(a);
+		let displacementX = w * cosTheta + h * sinTheta;
+		let displacementY = h * cosTheta - w * sinTheta;
+		let px = transform.positionX - displacementX;
+		let py = transform.positionY - displacementY;
+
+		//Get center point coordinates
+		displacementX = (width / 2) * cosTheta + (height / 2) * sinTheta;
+		displacementY = (height / 2) * cosTheta - (width / 2) * sinTheta;
+		let cx = px + displacementX;
+		let cy = py + displacementY;
+
+		return { x: cx, y: cy };
+	}
+
+	/**
+	 * Rotates a point around another arbitrary point
+	 * @param point 
+	 * @param center 
+	 * @param angle_deg 
+	 */
+	private rotatePointAround(point:{x:number, y:number}, center:{x:number, y:number}, angle_deg:number) {
+		let angle_rad = angle_deg * Math.PI / 180;
+		const { x, y } = point;
+		const { x:cx, y:cy } = center;
+		
+		const cosTheta = Math.cos(angle_rad);
+		const sinTheta = Math.sin(angle_rad);
+		
+		// Calculate the new coordinates
+		const newX = cosTheta * (x - cx) - sinTheta * (y - cy) + cx;
+		const newY = sinTheta * (x - cx) + cosTheta * (y - cy) + cy;
+		
+		return { x: newX, y: newY };
+	}
+
+	/**
+	 * Apply scale 
+	 * @param point 
+	 * @param origin 
+	 * @param scale 
+	 */
+	private applyParentScale(point:{x:number, y:number}, parentTransform:SourceTransform) {
+		const translatedX = point.x - parentTransform.positionX;
+		const translatedY = point.y - parentTransform.positionY;
+		const scaledX = translatedX * parentTransform.scaleX;
+		const scaledY = translatedY * parentTransform.scaleY;
+		const x = scaledX + parentTransform.positionX;
+		const y = scaledY + parentTransform.positionY;
+		return { x, y };
 	}
 }
 
@@ -746,24 +895,27 @@ export interface BrowserSourceSettings {
 }
 
 export interface SourceTransform {
-	alignment: number
-	boundsAlignment: number
-	boundsHeight: number
-	boundsType: string
-	boundsWidth: number
-	cropBottom: number
-	cropLeft: number
-	cropRight: number
-	cropTop: number
-	height: number
-	positionX: number
-	positionY: number
-	rotation: number
-	scaleX: number
-	scaleY: number
-	sourceHeight: number
-	sourceWidth: number
-	width: number
+	alignment: number;
+	boundsAlignment: number;
+	boundsHeight: number;
+	boundsType: string;
+	boundsWidth: number;
+	cropBottom: number;
+	cropLeft: number;
+	cropRight: number;
+	cropTop: number;
+	height: number;
+	positionX: number;
+	positionY: number;
+	rotation: number;
+	scaleX: number;
+	scaleY: number;
+	sourceHeight: number;
+	sourceWidth: number;
+	width: number;
+	centerX? :number;
+	centerY? :number;
+	globalRotation? :number;
 }
   
 

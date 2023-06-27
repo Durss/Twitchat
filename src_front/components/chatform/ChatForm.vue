@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="holder">
+		<div class="holder" @click="debug">
 			<div class="leftForm">
 				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" />
 				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
@@ -269,6 +269,7 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import EventSub from '@/utils/twitch/EventSub';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 
 @Component({
 	components:{
@@ -430,7 +431,6 @@ export default class ChatForm extends Vue {
 				}
 			}
 		});
-
 		// try {
 		// 	await TwitchUtils.loadRewards();
 		// }catch(e) {
@@ -445,6 +445,12 @@ export default class ChatForm extends Vue {
 	public beforeUnmount():void {
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
+	}
+
+	public debug():void {
+		OBSWebsocket.instance.getSourceDisplayRects("SpotifyPlayer").then(res=> {
+			console.log(res[0]);
+		});
 	}
 
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void {

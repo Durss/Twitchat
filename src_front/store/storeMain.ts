@@ -444,7 +444,7 @@ export const storeMain = defineStore("main", {
 				if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
 					//TODO update this with connected user ID instead of hardcoded test ID
 					// HeatSocket.instance.connect( this.$store("auth").twitch.user.id );
-					HeatSocket.instance.connect("104731856");
+					HeatSocket.instance.connect("474992309");
 				}
 			}
 

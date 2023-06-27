@@ -325,7 +325,7 @@ export default class Parameters extends Vue {
 	private onKeyDown(e:KeyboardEvent):void {
 		if(this.closed) return;
 		const node = document.activeElement?.nodeName;
-		if(e.key.toLowerCase() == "escape" && node != "INPUT") {
+		if(e.key?.toLowerCase() == "escape" && node != "INPUT") {
 			this.close();
 		}
 	}
