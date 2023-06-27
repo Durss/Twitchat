@@ -17,7 +17,7 @@
 		"resyncRewardsBt": "Resync les récompenses",
 		"resyncRewardsBt_tt": "Si vous avez modifié vos récompenses de points de chaîne, cliquez pour récupérer les changements",
 		"delete_confirm": "Supprimer ce trigger ?",
-		"delete_action_confirm": "Supprimer l'action ?",
+		"delete_action_confirm": "Supprimer l'action ?",
 		"reorder_tt": "Réordonner",
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e ou n'avez pas autorisé Twitchat à contrôler ceci",
 		"triggers_list": "Vos triggers {COUNT}",
@@ -357,7 +357,10 @@
 			"hype_chat_paid": "Somme payée",
 			"hype_chat_currency": "Monnaie de paiement (ex: USD, EUR, CHF, ...)",
 			"hype_chat_duration": "Durée d'affichage du message en secondes",
-			"hype_chat_level": "Niveau du paiement (de 0 à 9)"
+			"hype_chat_level": "Niveau du paiement (de 0 à 9)",
+			"ulule_campaign_url": "URL de la campagne",
+			"ulule_campaign_name": "Nom de la campagne",
+			"ulule_campaign_name_example": "Mon super projet"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -653,6 +656,18 @@
 				"label": "Arrêt du stream",
 				"description": "Actions à exécuter lorsque le stream est arrêté {INFO}",
 				"description_info": "(il peut falloir attendre +1min pour recevoir cette info)"
+			},
+			"FOLLOWED_STREAM_ONLINE": {
+				"label": "Début de stream d'une personne que vous suivez",
+				"description": "Actions à exécuter lorsqu'une personne que vous suivez débute un stream {INFO}",
+				"description_info": "(il peut falloir attendre jusqu'à 5min pour recevoir cette info)",
+				"disabled_reason":"Vous devez autoriser Twitchat à lister les personnes que vous suivez"
+			},
+			"FOLLOWED_STREAM_OFFLINE": {
+				"label": "Arrêt du stream d'une personne que vous suivez",
+				"description": "Actions à exécuter lorsqu'une personne que vous suivez arrête son stream {INFO}",
+				"description_info": "(il peut falloir attendre jusqu'à 5min pour recevoir cette info)",
+				"disabled_reason":"Vous devez autoriser Twitchat à lister les personnes que vous suivez"
 			},
 			"COUNTER_EDIT": {
 				"label": "Compteur modifié",

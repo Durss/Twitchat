@@ -522,6 +522,8 @@ export const TriggerTypes = {
 	OBS_STOP_STREAM:"77",
 	COUNTER_EDIT:"78",
 	HYPE_CHAT:"79",
+	FOLLOWED_STREAM_ONLINE:"80",
+	FOLLOWED_STREAM_OFFLINE:"81",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -802,6 +804,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true},
 	];
 	
+	map[TriggerTypes.FOLLOWED_STREAM_ONLINE] =
+	map[TriggerTypes.FOLLOWED_STREAM_OFFLINE] = 
 	map[TriggerTypes.STREAM_ONLINE] =
 	map[TriggerTypes.STREAM_OFFLINE] = [
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"info.user.displayName", numberParsable:false, isUserID:false},
@@ -809,7 +813,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"info.user.title", numberParsable:false, isUserID:false},
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"info.user.category", numberParsable:false, isUserID:false},
 	];
-
+	
 	
 	map[TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.challenge_title', pointer:"challenge.title", numberParsable:false, isUserID:false},
@@ -987,6 +991,8 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"voicemod", labelKey:"triggers.events.VOICEMOD.label", value:TriggerTypes.VOICEMOD, descriptionKey:"triggers.events.VOICEMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
 		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.STREAM_ONLINE.label", value:TriggerTypes.STREAM_ONLINE, descriptionKey:"triggers.events.STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE},
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.STREAM_OFFLINE.label", value:TriggerTypes.STREAM_OFFLINE, descriptionKey:"triggers.events.STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},
+		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.label", value:TriggerTypes.FOLLOWED_STREAM_ONLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.disabled_reason"},
+		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.label", value:TriggerTypes.FOLLOWED_STREAM_OFFLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.disabled_reason"},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_EDIT.label", value:TriggerTypes.COUNTER_EDIT, descriptionKey:"triggers.events.COUNTER_EDIT.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"add", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"minus", labelKey:"triggers.events.COUNTER_DEL.label", value:TriggerTypes.COUNTER_DEL, descriptionKey:"triggers.events.COUNTER_DEL.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
