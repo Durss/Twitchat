@@ -340,7 +340,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/timeout":{
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
-					if(user) return await TwitchUtils.banUser(user, channelId, parseInt(chunks[1]), chunks[2]);
+					if(user) return await TwitchUtils.banUser(user, channelId, parseInt(chunks[1]), chunks.splice(2).join(" "));
 					return false;
 				}
 				case "/untimeout": {
