@@ -638,11 +638,11 @@
 				"description": "Actions to execute when {SUB_ITEM_NAME} OBS filter is disabled"
 			},
 			"OBS_START_STREAM": {
-				"label": "Start streaming",
+				"label": "Start streaming (OBS)",
 				"description": "Actions to execute when starting stream"
 			},
 			"OBS_STOP_STREAM": {
-				"label": "Stop streaming",
+				"label": "Stop streaming (OBS)",
 				"description": "Actions to execute when stoping stream"
 			},
 			"STREAM_ONLINE": {
@@ -654,6 +654,18 @@
 				"label": "Stream stop",
 				"description": "Actions to execute when stream stops {INFO}",
 				"description_info":"(you might have to wait +1min before receiving that info)"
+			},
+			"FOLLOWED_STREAM_ONLINE": {
+				"label": "Followed stream start",
+				"description": "Actions to execute when one of your following starts a stream {INFO}",
+				"description_info":"(you might have to wait up to 5min before receiving that info)",
+				"disabled_reason":"You must allow Twitchat to list your followings"
+			},
+			"FOLLOWED_STREAM_OFFLINE": {
+				"label": "Followed stream stop",
+				"description": "Actions to execute when one of your following stops a stream {INFO}",
+				"description_info":"(you might have to wait up to 5min before receiving that info)",
+				"disabled_reason":"You must allow Twitchat to list your followings"
 			},
 			"COUNTER_EDIT": {
 				"label": "A counter is modified",

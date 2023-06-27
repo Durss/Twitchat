@@ -249,6 +249,8 @@ export default class TriggerCreateForm extends Vue {
 		if(e.value == TriggerTypes.MOD && !TwitchUtils.hasScopes([TwitchScopes.EDIT_MODS])) return true;
 		if(e.value == TriggerTypes.UNMOD && !TwitchUtils.hasScopes([TwitchScopes.EDIT_MODS])) return true;
 		if(e.value == TriggerTypes.STREAM_INFO_UPDATE && !TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])) return true;
+		if(e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE && !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return true;
+		if(e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE && !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return true;
 
 		if(!TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])
 		&& (e.value == TriggerTypes.HYPE_TRAIN_CANCELED
@@ -279,6 +281,8 @@ export default class TriggerCreateForm extends Vue {
 		if(e.value == TriggerTypes.MOD && !TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return;
 		if(e.value == TriggerTypes.UNMOD && !TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return;
 		if(e.value == TriggerTypes.STREAM_INFO_UPDATE && !TwitchUtils.requestScopes([TwitchScopes.SET_STREAM_INFOS])) return;
+		if(e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE && !TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
+		if(e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE && !TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
 
 		if((e.value == TriggerTypes.HYPE_TRAIN_CANCELED
 			|| e.value == TriggerTypes.HYPE_TRAIN_APPROACHING

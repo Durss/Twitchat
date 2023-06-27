@@ -324,13 +324,15 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:{
-				if(await this.executeTriggersByType(TriggerTypes.STREAM_ONLINE, message, testMode)) {
+				let event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_ONLINE : TriggerTypes.FOLLOWED_STREAM_ONLINE;
+				if(await this.executeTriggersByType(event, message, testMode)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE:{
-				if(await this.executeTriggersByType(TriggerTypes.STREAM_OFFLINE, message, testMode)) {
+				let event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_OFFLINE : TriggerTypes.FOLLOWED_STREAM_OFFLINE;
+				if(await this.executeTriggersByType(event, message, testMode)) {
 					return;
 				}break;
 			}
@@ -1492,7 +1494,7 @@ export default class TriggerActionHandler {
 						if(typeof root === "number") root = root.toString();
 						value = root as string;
 					}catch(error) {
-						console.log(error);
+						
 						/**
 						 * If the placeholder requests for the current track and we're ending up here
 						 * this means that the message does not contain the actual track.
