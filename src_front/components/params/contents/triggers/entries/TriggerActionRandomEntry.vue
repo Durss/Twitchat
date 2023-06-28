@@ -123,7 +123,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionRandomData;
+	declare action:TriggerActionRandomData;
 	
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
