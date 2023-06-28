@@ -42,18 +42,20 @@ import { COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({
 	components:{
 		ParamItem,
 	},
 })
-export default class TriggerActionCountEntry extends Vue {
+export default class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionCountData;
+	declare action:TriggerActionCountData;
+
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
 	private userPLaceholders:ITriggerPlaceholder[] = [];
 
@@ -119,9 +121,6 @@ export default class TriggerActionCountEntry extends Vue {
 		
 		this.param_counters.listValues = counters;
 
-		this.userPLaceholders = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable !== true)
-		this.param_value.placeholderList = TriggerEventPlaceholders(this.triggerData.type).filter(v=>v.numberParsable == true);
-
 		//Populate action list from types definition
 		let actionList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 		for (let i = 0; i < TriggerActionCountDataActionList.length; i++) {
@@ -149,6 +148,14 @@ export default class TriggerActionCountEntry extends Vue {
 				this.action.counterUserSources[c.id] = COUNTER_EDIT_SOURCE_SENDER;
 			}
 		}
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		this.userPLaceholders = list.filter(v=>v.numberParsable !== true)
+		this.param_value.placeholderList = list.filter(v=>v.numberParsable == true);
 	}
 
 }

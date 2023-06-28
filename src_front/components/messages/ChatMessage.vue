@@ -423,7 +423,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			&& this.lightMode === false) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
 
 			if(mess.twitch_hypeChat) {
-				let currency = {"EUR":"€","USD":"$"}[mess.twitch_hypeChat.currency] || mess.twitch_hypeChat.currency;
+				let currency = {EUR:"€",USD:"$", GBP:"£"}[mess.twitch_hypeChat.currency] || mess.twitch_hypeChat.currency;
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.HYPE_CHAT, label:currency + mess.twitch_hypeChat.amount});
 			}
 		}

@@ -150,7 +150,7 @@ export default class DevmodeMenu extends Vue {
 					m.twitch_hypeChat = {
 						level,
 						amount:[1.2,6,12,24,60,120,240,360,480,600][level],
-						currency:Utils.pickRand(["EUR","USD","CHF"]),
+						currency:Utils.pickRand(["EUR","USD","CHF", "GBP"]),
 						duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][level]
 					};
 					break;

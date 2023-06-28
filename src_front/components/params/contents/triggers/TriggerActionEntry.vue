@@ -79,9 +79,6 @@
 				<Button class="button" @click="selectActionType('count')"
 					icon="count">{{ $t('triggers.actions.common.action_count') }}</Button>
 				
-				<!-- <Button class="button" @click="selectActionType('countget')"
-					icon="count_placeholder">{{ $t('triggers.actions.common.action_countget') }}</Button> -->
-				
 				<Button class="button" @click="selectActionType('random')"
 					icon="dice">{{ $t('triggers.actions.common.action_random') }}</Button>
 				
@@ -127,15 +124,14 @@
 		<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" />
 		<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
 		<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
-		<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" />
+		<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" :triggerData="triggerData" />
 		<TriggerActionHighlightEntry v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
 		<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionTriggerToggleEntry v-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
 		<TriggerActionWSEntry v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
-		<TriggerActionCountGetEntry v-if="action.type=='countget'" :action="action" />
-		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :rewards="rewards" />
+		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
 		<TriggerActionVibratePhoneEntry v-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
@@ -170,8 +166,6 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
-import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
-import TriggerActionCountGetEntry from './entries/TriggerActionCountGetEntry.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
@@ -185,6 +179,7 @@ import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggl
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
+import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 
 @Component({
 	components:{
@@ -202,11 +197,10 @@ import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneE
 		TriggerActionHTTPCall,
 		TriggerActionChatEntry,
 		TriggerActionDelayEntry,
-		TriggerActionMusicEntry,
 		TriggerActionCountEntry,
+		TriggerActionMusicEntry,
 		TriggerActionRandomEntry,
 		TriggerActionTriggerEntry,
-		TriggerActionCountGetEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
 		TriggerActionStreamInfoEntry,
@@ -327,7 +321,6 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "poll") icons.push( 'poll' );
 		if(this.action.type == "prediction") icons.push( 'prediction' );
 		if(this.action.type == "count") icons.push( 'count' );
-		if(this.action.type == "countget") icons.push( 'count_placeholder' );
 		if(this.action.type == "random") icons.push( 'dice_placeholder' );
 		if(this.action.type == "stream_infos") icons.push( 'info' );
 		if(this.action.type == "delay") icons.push( 'timer' );

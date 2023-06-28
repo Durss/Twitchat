@@ -292,7 +292,14 @@ export interface TriggerActionBingoData extends TriggerActionData{
 
 export interface TriggerActionVoicemodData extends TriggerActionData{
 	type:"voicemod";
+	/**
+	 * Voice ID to enabled when "voice" mode is selected
+	 */
 	voiceID:string;
+	/**
+	 * Placeholder containing the voice name
+	 */
+	placeholder:string
 }
 
 export interface TriggerActionMusicEntryData extends TriggerActionData{
@@ -540,6 +547,7 @@ export interface ITriggerPlaceholder {
 	isUserID:boolean;
 	numberParsable:boolean;
 	globalTag?:boolean;
+	customTag?:boolean;
 }
 
 export const USER_PLACEHOLDER:string = "USER";

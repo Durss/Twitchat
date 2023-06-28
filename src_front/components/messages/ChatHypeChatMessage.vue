@@ -41,7 +41,7 @@ export default class ChatHypeChatMessage extends AbstractChatMessage {
 	
 	public get currency():string {
 		let curr = this.messageData.message.twitch_hypeChat!.currency;
-		return {EUR:"€",USD:"$"}[curr] || curr;
+		return {EUR:"€",USD:"$", GBP:"£"}[curr] || curr;
 	}
 	
 	public beforeMount():void {

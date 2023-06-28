@@ -94,19 +94,20 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
-import TriggerList from '../TriggerList.vue';
-import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import TabMenu from '@/components/TabMenu.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
+import type { TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
+import { Component, Prop } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
+import TriggerList from '../TriggerList.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({
 	components:{
@@ -119,12 +120,16 @@ import SimpleTriggerList from '../SimpleTriggerList.vue';
 		ChatMessageChunksParser,
 	},
 })
-export default class TriggerActionRandomEntry extends Vue {
+export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	public action!:TriggerActionRandomData;
+	
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
+	
+	@Prop
+	declare triggerData:TriggerData;
 
 	public itemValue:string = "";
 	public buildIndex:number = 0;

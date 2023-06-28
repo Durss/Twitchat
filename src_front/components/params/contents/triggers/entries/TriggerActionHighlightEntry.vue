@@ -11,10 +11,11 @@
 </template>
 
 <script lang="ts">
-import { TriggerEventPlaceholders, type TriggerActionHighlightData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder, TriggerActionHighlightData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 
 @Component({
@@ -23,12 +24,13 @@ import ParamItem from '../../../ParamItem.vue';
 	},
 	emits:["update"]
 })
-export default class TriggerActionHighlightEntry extends Vue {
+export default class TriggerActionHighlightEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
-	public action!:TriggerActionHighlightData;
+	declare action:TriggerActionHighlightData;
+
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
 	private showHideValues:TwitchatDataTypes.ParameterDataListValue<boolean>[] = [];
 	
@@ -40,7 +42,6 @@ export default class TriggerActionHighlightEntry extends Vue {
 			{labelKey:"global.hide", value:false},
 			{labelKey:"global.show", value:true},
 		];
-		this.message_conf.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		this.show_conf.labelKey		= "triggers.actions.highlight.param_visibility";
 		this.message_conf.labelKey	= "triggers.actions.highlight.param_message";
 		this.show_conf.value		= this.showHideValues[1].value;
@@ -50,6 +51,13 @@ export default class TriggerActionHighlightEntry extends Vue {
 
 	public openHighlightParams(){
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		this.message_conf.placeholderList = list;
 	}
 
 }

@@ -32,6 +32,7 @@
 		"missing_counter": "COMPTEUR SUPPRIMÉ",
 		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
+		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"music": {
 			"require": "Cet évènement nécessite de lier Spotify avec Twitchat dans {URL}",
 			"require_url": "les overlays"
@@ -210,7 +211,9 @@
 			"voicemod": {
 				"header": "Veuillez {LINK}",
 				"header_link": "connecter Voicemod",
-				"param_voice": "Voix"
+				"param_voice": "Voix",
+				"tab_voice":"Voix",
+				"tab_placeholder":"Voix aléatoire"
 			},
 			"http_ws": {
 				"url": "URL à appeler",

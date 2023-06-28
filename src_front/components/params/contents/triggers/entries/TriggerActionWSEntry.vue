@@ -39,10 +39,11 @@
 <script lang="ts">
 import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionWSData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder, TriggerActionWSData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({
 	components:{
@@ -51,12 +52,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["update"]
 })
-export default class TriggerActionWSEntry extends Vue {
+export default class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionWSData;
+	declare action:TriggerActionWSData;
+
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
 	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
@@ -65,12 +67,6 @@ export default class TriggerActionWSEntry extends Vue {
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
 	public beforeMount():void {
-		this.parameters = TriggerEventPlaceholders(this.triggerData.type).map(v=> {
-			return  {
-				placeholder:v,
-				enabled:!this.action.params || this.action.params.includes(v.tag),
-			}
-		});
 
 		this.onToggleParam();
 	}
@@ -85,6 +81,18 @@ export default class TriggerActionWSEntry extends Vue {
 	 */
 	public toggleAll():void {
 		this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		this.parameters = list.map(v=> {
+			return  {
+				placeholder:v,
+				enabled:!this.action.params || this.action.params.includes(v.tag),
+			}
+		});
 	}
 
 }
