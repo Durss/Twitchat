@@ -46,6 +46,7 @@ import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({
 	components:{
@@ -53,16 +54,16 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	},
 	emits:[]
 })
-export default class TriggerActionOBSEntry extends Vue {
+export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionObsData;
+	declare action:TriggerActionObsData;
+	@Prop
+	declare triggerData:TriggerData;
 	@Prop
 	public obsSources!:OBSSourceItem[];
 	@Prop
 	public obsInputs!:OBSInputItem[];
-	@Prop
-	public triggerData!:TriggerData;
 	
 	public action_conf:TwitchatDataTypes.ParameterData<string, TriggerActionObsDataAction> = { type:"list", value:"show", listValues:[], icon:"show" };
 	public source_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], icon:"list", children:[] };
@@ -126,10 +127,6 @@ export default class TriggerActionOBSEntry extends Vue {
 
 	public async beforeMount():Promise<void> {
 		if(this.action.action == undefined) this.action.action = "show";
-
-		this.text_conf.placeholderList	= TriggerEventPlaceholders(this.triggerData.type);
-		this.url_conf.placeholderList	= TriggerEventPlaceholders(this.triggerData.type);
-		this.media_conf.placeholderList	= TriggerEventPlaceholders(this.triggerData.type);
 
 		this.action_conf.labelKey	= "triggers.actions.obs.param_action";
 		this.source_conf.labelKey	= "triggers.actions.obs.param_source";
@@ -262,6 +259,15 @@ export default class TriggerActionOBSEntry extends Vue {
 			delete this.action.filterName;
 		}
 		this.updateActionsList();
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		this.text_conf.placeholderList	= list;
+		this.url_conf.placeholderList	= list;
+		this.media_conf.placeholderList	= list;
 	}
 
 }

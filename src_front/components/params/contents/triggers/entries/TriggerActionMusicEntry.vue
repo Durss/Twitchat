@@ -19,11 +19,12 @@
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 
 @Component({
@@ -31,12 +32,13 @@ import ParamItem from '../../../ParamItem.vue';
 		ParamItem,
 	},
 })
-export default class TriggerActionMusicEntry extends Vue {
+export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionMusicEntryData;
+	declare action:TriggerActionMusicEntryData;
+	
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
 	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music" };
 	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music", maxLength:500 };
@@ -62,13 +64,17 @@ export default class TriggerActionMusicEntry extends Vue {
 		this.confirmSongRequest_conf.labelKey	= "triggers.actions.music.param_confirmSongRequest";
 		this.playlist_conf.labelKey				= "triggers.actions.music.param_playlist";
 
-		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
-		placeholders = placeholders.concat(TriggerActionPlaceholders("music"));
+	}
 
-		this.track_conf.placeholderList = placeholders;
-		this.confirmSongRequest_conf.placeholderList = placeholders;
-		this.playlist_conf.placeholderList = placeholders;
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		list = list.concat(TriggerActionPlaceholders("music"));
 
+		this.track_conf.placeholderList = list;
+		this.confirmSongRequest_conf.placeholderList = list;
+		this.playlist_conf.placeholderList = list;
 	}
 
 }

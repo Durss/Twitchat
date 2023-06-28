@@ -101,8 +101,8 @@ export default class StreamInfoSubForm extends Vue {
 		});
 
 		if(this.triggerMode !== false) {
-			this.param_tags.placeholderList = this.placeholderList;
-			this.param_title.placeholderList = this.placeholderList;
+			watch(()=>this.placeholderList, ()=> { this.populatePlaceholders(); });
+			this.populatePlaceholders();
 		}
 
 		this.populate();
@@ -159,6 +159,11 @@ export default class StreamInfoSubForm extends Vue {
 		this.localTitle = this.param_title.value = this.title;
 		this.localTags = this.param_tags.value = this.tags;
 		this.localCategories = this.category? [this.category] : [];
+	}
+
+	private populatePlaceholders():void {
+		this.param_tags.placeholderList = this.placeholderList;
+		this.param_title.placeholderList = this.placeholderList;
 	}
 
 }

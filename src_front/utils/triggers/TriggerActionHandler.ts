@@ -966,7 +966,21 @@ export default class TriggerActionHandler {
 				//Handle voicemod action
 				if(step.type == "voicemod") {
 					if(step.voiceID) {
+						//Select a voice by its ID
+						logStep.messages.push({date:Date.now(), value:"Enable voicemod filter with ID \""+step.voiceID+"\""});
 						VoicemodWebSocket.instance.enableVoiceEffect(step.voiceID)
+					}else
+					if(step.placeholder) {
+						//Select a voice by its name
+						let voiceName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.placeholder+"}", subEvent);
+						voiceName = voiceName.toLowerCase().trim();
+						let voice = VoicemodWebSocket.instance.voices.find(v=> v.friendlyName.toLowerCase().trim() === voiceName);
+						if(voice) {
+							logStep.messages.push({date:Date.now(), value:"Enable voicemod filter \""+voice.friendlyName+"\""});
+							VoicemodWebSocket.instance.enableVoiceEffect(voice.voiceID);
+						}else{
+							logStep.messages.push({date:Date.now(), value:"❌No voicemod filter found with name \""+voiceName+"\""});
+						}
 					}
 				}else
 				

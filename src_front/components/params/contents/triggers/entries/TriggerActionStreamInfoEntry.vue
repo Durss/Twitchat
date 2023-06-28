@@ -13,12 +13,13 @@
 <script lang="ts">
 import StreamInfoSubForm from '@/components/streaminfo/StreamInfoSubForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionStreamInfoData, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import type { ITriggerPlaceholder, TriggerActionStreamInfoData, TriggerData } from '@/types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -28,12 +29,12 @@ import ParamItem from '../../../ParamItem.vue';
 	},
 	emits:["update"]
 })
-export default class TriggerActionStreamInfoEntry extends Vue {
+export default class TriggerActionStreamInfoEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionStreamInfoData;
+	declare action:TriggerActionStreamInfoData;
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
 	public loading:boolean = true;
 	public title:string = "";
@@ -52,13 +53,19 @@ export default class TriggerActionStreamInfoEntry extends Vue {
 		watch(()=>this.title, ()=> this.onChange());
 		watch(()=>this.tags, ()=> this.onChange());
 		watch(()=>this.category, ()=> this.onChange());
-		this.placeholderList	= TriggerEventPlaceholders(this.triggerData.type);
 	}
 
 	private onChange():void {
 		this.action.categoryId	= this.category?.id ?? "";
 		this.action.title		= this.title;
 		this.action.tags		= this.tags;
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		this.placeholderList = list;
 	}
 
 }

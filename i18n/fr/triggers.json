@@ -17,7 +17,7 @@
 		"resyncRewardsBt": "Resync les récompenses",
 		"resyncRewardsBt_tt": "Si vous avez modifié vos récompenses de points de chaîne, cliquez pour récupérer les changements",
 		"delete_confirm": "Supprimer ce trigger ?",
-		"delete_action_confirm": "Supprimer l'action ?",
+		"delete_action_confirm": "Supprimer l'action ?",
 		"reorder_tt": "Réordonner",
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e ou n'avez pas autorisé Twitchat à contrôler ceci",
 		"triggers_list": "Vos triggers {COUNT}",
@@ -32,6 +32,7 @@
 		"missing_counter": "COMPTEUR SUPPRIMÉ",
 		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
+		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"music": {
 			"require": "Cet évènement nécessite de lier Spotify avec Twitchat dans {URL}",
 			"require_url": "les overlays"
@@ -210,7 +211,9 @@
 			"voicemod": {
 				"header": "Veuillez {LINK}",
 				"header_link": "connecter Voicemod",
-				"param_voice": "Voix"
+				"param_voice": "Voix",
+				"tab_voice":"Voix",
+				"tab_placeholder":"Voix aléatoire"
 			},
 			"http_ws": {
 				"url": "URL à appeler",

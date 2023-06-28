@@ -187,7 +187,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 		this.hypeChats = [];
 		for (const key in hypeChatCurrencyToTotal) {
 			const total = hypeChatCurrencyToTotal[key];
-			const currency = {"EUR":"€", "USD":"$"}[key] || key;
+			const currency = {EUR:"€", USD:"$", GBP:"£"}[key] || key;
 			this.hypeChats.push( currency +" "+ total );
 		}
 	}

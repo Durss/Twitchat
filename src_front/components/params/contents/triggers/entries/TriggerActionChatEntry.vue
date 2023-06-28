@@ -15,10 +15,11 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventPlaceholders, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({
 	components:{
@@ -27,14 +28,15 @@ import ParamItem from '../../../ParamItem.vue';
 	},
 	emits:["update"]
 })
-export default class TriggerActionChatEntry extends Vue {
+export default class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionChatData;
+	declare action:TriggerActionChatData;
+
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 	
-	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500, labelKey:"triggers.actions.chat.param_message" };
 	
 	public get cmdNameConflict():boolean {
 		if(!this.action.text) return false;
@@ -62,8 +64,13 @@ export default class TriggerActionChatEntry extends Vue {
 	}
 
 	public beforeMount():void {
-		this.message_conf.labelKey = "triggers.actions.chat.param_message";
-		this.message_conf.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		this.message_conf.placeholderList = list;
 	}
 
 }

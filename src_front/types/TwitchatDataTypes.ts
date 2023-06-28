@@ -434,6 +434,7 @@ export namespace TwitchatDataTypes {
 		labelKey?:string;
 		value:T;
 		icon?:string;
+		disabled?:boolean;
 		// [parameter: string]: unknown;
 	}
 
@@ -1203,7 +1204,7 @@ export namespace TwitchatDataTypes {
 		 */
 		amount:number;
 		/**
-		 * Currency example : "EUR" "USD" "CHF"
+		 * Currency example : "EUR" "USD" "CHF" "GBP"
 		 */
 		currency:string;
 		/**

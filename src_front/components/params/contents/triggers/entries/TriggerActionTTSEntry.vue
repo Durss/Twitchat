@@ -16,10 +16,11 @@
 </template>
 
 <script lang="ts">
-import { TriggerEventPlaceholders, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -27,20 +28,23 @@ import ParamItem from '../../../ParamItem.vue';
 	},
 	emits:["update"]
 })
-export default class TriggerActionTTSEntry extends Vue {
+export default class TriggerActionTTSEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
-	public action!:TriggerActionChatData;
+	declare action:TriggerActionChatData;
+	
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
-	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
+	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500, labelKey:"triggers.actions.tts.param_message" };
 	
 	public get contentTTS():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; }
 
-	public beforeMount():void {
-		this.message_conf.labelKey = "triggers.actions.tts.param_message";
-		this.message_conf.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		this.message_conf.placeholderList = list;
 	}
 
 }

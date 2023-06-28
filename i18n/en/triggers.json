@@ -32,6 +32,7 @@
 		"missing_counter": "DELETED COUNTER",
 		"missing_reward": "DELETED REWARD",
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
+		"random_placeholder": "Random value placeholder {NAME}",
 		"music": {
 			"require": "This trigger need you to connect with Spotify under the {URL}",
 			"require_url": "overlays section"
@@ -210,7 +211,9 @@
 			"voicemod": {
 				"header": "This feature needs you to {LINK}",
 				"header_link": "connect with Voicemod",
-				"param_voice": "Voice"
+				"param_voice": "Voice",
+				"tab_voice":"Specific voice",
+				"tab_random":"Random voice"
 			},
 			"http_ws": {
 				"url": "URL to call",

@@ -35,12 +35,13 @@
 </template>
 
 <script lang="ts">
-import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionHTTPCallData, type TriggerData, type TriggerActionHTTPCallDataAction } from '@/types/TriggerActionDataTypes';
+import ParamItem from '@/components/params/ParamItem.vue';
+import type { ITriggerPlaceholder, TriggerActionHTTPCallData, TriggerActionHTTPCallDataAction, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({
 	components:{
@@ -49,12 +50,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["update"]
 })
-export default class TriggerActionHTTPCall extends Vue {
+export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionHTTPCallData;
+	declare action:TriggerActionHTTPCallData;
+	
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
 	public securityError:boolean = false;
 	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
@@ -65,13 +67,6 @@ export default class TriggerActionHTTPCall extends Vue {
 
 	public beforeMount():void {
 		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
-
-		this.parameters = TriggerEventPlaceholders(this.triggerData.type).map(v=> {
-			return  {
-				placeholder:v,
-				enabled:!this.action.queryParams || this.action.queryParams.includes(v.tag),
-			}
-		});
 
 		watch(()=>this.action.url, ()=> {
 			const url = this.action.url;
@@ -93,6 +88,18 @@ export default class TriggerActionHTTPCall extends Vue {
 	 */
 	public toggleAll():void {
 		this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+		this.parameters = list.map(v=> {
+			return  {
+				placeholder:v,
+				enabled:!this.action.queryParams || this.action.queryParams.includes(v.tag),
+			}
+		});
 	}
 
 }
