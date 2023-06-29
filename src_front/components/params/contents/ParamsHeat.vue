@@ -12,8 +12,10 @@
 		
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
-		<HeatOverlayClick />
-		<HeatAreaClick />
+		<div class="fadeHolder" :style="holderStyles">
+			<HeatOverlayClick />
+			<HeatAreaClick />
+		</div>
 	</div>
 </template>
 
@@ -26,6 +28,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import HeatOverlayClick from './heat/HeatOverlayClick.vue';
 import HeatAreaClick from './heat/HeatAreaClick.vue';
+import type { StyleValue } from 'vue';
 
 @Component({
 	components:{
@@ -40,6 +43,12 @@ export default class ParamsHeat extends Vue {
 	
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
 
+	public get holderStyles():StyleValue {
+	return {
+		opacity:this.param_enabled.value === true? 1 : .5,
+		pointerEvents:this.param_enabled.value === true? "all" : "none",
+	};
+}
 
 	public beforeMount():void {
 		if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
@@ -57,8 +66,8 @@ export default class ParamsHeat extends Vue {
 	 */
 	public toggleState():void {
 		if(this.param_enabled.value) {
-			// HeatSocket.instance.connect( this.$store("auth").twitch.user.id );
-			HeatSocket.instance.connect( "55807620" );
+			HeatSocket.instance.connect( this.$store("auth").twitch.user.id );
+			// HeatSocket.instance.connect( "55807620" );
 		}else{
 			HeatSocket.instance.disconnect();
 		}
@@ -72,6 +81,12 @@ export default class ParamsHeat extends Vue {
 .paramsheat{
 	.installBt {
 		margin-top: .5em;
+	}
+
+	.fadeHolder {
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
 	}
 }
 </style>
