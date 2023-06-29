@@ -237,17 +237,32 @@ export default class OBSWebsocket extends EventDispatcher {
 	
 	/**
 	 * Get all the sources references
+	 * Returns original OBS transforms augmented with these global coordinate space values
+	 * to make manipulation easier :
+	 * 
+	 *	globalCenterX
+	 *	globalCenterY
+	 *	globalScaleX
+	 *	globalScaleY
+	 *	globalRotation
+	 *	globalTL
+	 *	globalTR
+	 *	globalBL
+	 *	globalBR
 	 * 
 	 * @returns 
 	 */
 	public async getSourceDisplayRects(sourceName:string):Promise<SourceTransform[]> {
 		if(!this.connected) return [];
 		const currentScene  = await this.getCurrentScene();
+		const videoSettings = await this.obs.call("GetVideoSettings");
 		let sceneList:{name:string, parentScene?:string, parentItemId?:number, parentTransform?:SourceTransform}[] = [{name:currentScene}];
 		const transforms:SourceTransform[] = [];
 		const sourceDone:{[key:string]:boolean} = {};
 		const scenesDone:{[key:string]:boolean} = {};
 		const itemNameToTransform:{[key:string]:SourceTransform} = {};
+		const canvasW:number = videoSettings.baseWidth;
+		const canvasH:number = videoSettings.baseHeight;
 		
 		//Parse all scene items
 		for (let j = 0; j < sceneList.length; j++) {
@@ -271,41 +286,63 @@ export default class OBSWebsocket extends EventDispatcher {
 				}else{
 					
 					let sourceTransform = await this.getSceneItemTransform(scene.name, source.sceneItemId);
+					if(!sourceTransform.globalScaleX) {
+						sourceTransform.globalScaleX = 1;
+						sourceTransform.globalScaleY = 1;
+					}
 					
-					let center = this.getSourceCenterFromTransform(sourceTransform);
-					sourceTransform.centerX = center.x;
-					sourceTransform.centerY = center.y;
+					//Compute the center of the source on the local space
+					let coords = this.getSourceCenterFromTransform(sourceTransform);
+					sourceTransform.globalCenterX = coords.cx;
+					sourceTransform.globalCenterY = coords.cy;
 
-					if(source.sourceName == "_TwitchatDemo" || source.sourceName == "SpotifyPlayer") {
-						console.log(source.sourceName, sourceTransform);
+					if(scene.parentTransform) {
+						//Apply parent rotation
+						const pt = scene.parentTransform;
+						let rotated = this.rotatePointAround(
+														{
+															x:sourceTransform.globalCenterX + pt.globalCenterX! - canvasW/2,
+															y:sourceTransform.globalCenterY + pt.globalCenterY! - canvasH/2,
+														},
+														{x:pt.globalCenterX!, y:pt.globalCenterY!},
+														pt.rotation
+														);
+						sourceTransform.globalCenterX = rotated.x;
+						sourceTransform.globalCenterY = rotated.y;
+
+						//Propagate scale and rotation to children
+						sourceTransform.rotation += pt.rotation;
+						sourceTransform.globalScaleX! *= pt.globalScaleX!;
+						sourceTransform.globalScaleY! *= pt.globalScaleY!;
+
+						//Apply parent scale
+						const scaled = this.applyParentScale({x:sourceTransform.globalCenterX, y:sourceTransform.globalCenterY}, pt);
+						sourceTransform.globalCenterX = scaled.x;
+						sourceTransform.globalCenterY = scaled.y;
 					}
 	
-	
+					//Is it a source we're searching for ?
 					if(source.sourceName == sourceName) {
-						if(scene.parentTransform) {
-							//Apply parent rotation to the center so we get a center
-							//position on the global space
-							const pt = scene.parentTransform;
-							let rotated = this.rotatePointAround(
-															{x:sourceTransform.centerX, y:sourceTransform.centerX},
-															{x:pt.positionX, y:pt.positionY},
-															pt.rotation
-															);
-															sourceTransform.centerX = rotated.x * pt.scaleX;
-							sourceTransform.centerX = rotated.x;
-							sourceTransform.centerY = rotated.y;
-							const scaled = this.applyParentScale({x:sourceTransform.centerX, y:sourceTransform.centerY}, pt);
-							sourceTransform.centerX = scaled.x;
-							sourceTransform.centerY = scaled.y;
-						}
-	
 						itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
-						transforms.push(sourceTransform)
+						let px = sourceTransform.globalCenterX!;
+						let py = sourceTransform.globalCenterY!;
+						const hw = (sourceTransform.width * sourceTransform.globalScaleX!) / 2
+						const hh = (sourceTransform.height * sourceTransform.globalScaleY!) / 2
+						const angle_rad = sourceTransform.rotation * Math.PI / 180;
+						const cos_angle = Math.cos(angle_rad);
+						const sin_angle = Math.sin(angle_rad);
+						sourceTransform.globalBL = [px - hw * cos_angle - hh * sin_angle, py - hw * sin_angle + hh * cos_angle];
+						sourceTransform.globalBR = [px + hw * cos_angle - hh * sin_angle, py + hw * sin_angle + hh * cos_angle];
+						sourceTransform.globalTL = [px - hw * cos_angle + hh * sin_angle, py - hw * sin_angle - hh * cos_angle];
+						sourceTransform.globalTR = [px + hw * cos_angle + hh * sin_angle, py + hw * sin_angle - hh * cos_angle]
+						transforms.push(sourceTransform);
 					
 					}else
+					//If it's a scene item, add it to the scene list
 					if(source.sourceType == "OBS_SOURCE_TYPE_SCENE") {
-						
 						itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
+						sourceTransform.globalScaleX = sourceTransform.scaleX;
+						sourceTransform.globalScaleY = sourceTransform.scaleY;
 						sceneList.push( {
 										name:source.sourceName,
 										parentScene:scene.name,
@@ -317,6 +354,17 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 		}
 		return transforms;
+	}
+
+	/**
+	 * Update the transform's props of a source
+	 * @param sceneName 
+	 * @param sceneItemId 
+	 * @param transform 
+	 */
+	public async setSourceTransform(sceneName:string, sceneItemId:number, transform:Partial<SourceTransform>):Promise<void> {
+		if(!this.connected) return;
+		await this.obs.call("SetSceneItemTransform", {sceneName, sceneItemId, sceneItemTransform:transform});
 	}
 	
 	/**
@@ -804,7 +852,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		let cx = px + displacementX;
 		let cy = py + displacementY;
 
-		return { x: cx, y: cy };
+		return { x: px, y: py, cx, cy };
 	}
 
 	/**
@@ -835,12 +883,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param scale 
 	 */
 	private applyParentScale(point:{x:number, y:number}, parentTransform:SourceTransform) {
-		const translatedX = point.x - parentTransform.positionX;
-		const translatedY = point.y - parentTransform.positionY;
-		const scaledX = translatedX * parentTransform.scaleX;
-		const scaledY = translatedY * parentTransform.scaleY;
-		const x = scaledX + parentTransform.positionX;
-		const y = scaledY + parentTransform.positionY;
+		const translatedX = point.x - parentTransform.globalCenterX!;
+		const translatedY = point.y - parentTransform.globalCenterY!;
+		const scaledX = translatedX * parentTransform.globalScaleX!;
+		const scaledY = translatedY * parentTransform.globalScaleY!;
+		const x = scaledX + parentTransform.globalCenterX!;
+		const y = scaledY + parentTransform.globalCenterY!;
 		return { x, y };
 	}
 }
@@ -913,9 +961,42 @@ export interface SourceTransform {
 	sourceHeight: number;
 	sourceWidth: number;
 	width: number;
-	centerX? :number;
-	centerY? :number;
+	/**
+	 * Center X of the source on the global space
+	 */
+	globalCenterX? :number;
+	/**
+	 * Center Y of the source on the global space
+	 */
+	globalCenterY? :number;
+	/**
+	 * Scale X of the source on the global space
+	 */
+	globalScaleX? :number;
+	/**
+	 * Scale Y of the source on the global space
+	 */
+	globalScaleY? :number;
+	/**
+	 * Rotation of the source on the global space
+	 */
 	globalRotation? :number;
+	/**
+	 * Top Left corner coordinates on the global space
+	 */
+	globalTL? :number[];
+	/**
+	 * Top Right corner coordinates on the global space
+	 */
+	globalTR? :number[];
+	/**
+	 * Bottom Left corner coordinates on the global space
+	 */
+	globalBL? :number[];
+	/**
+	 * Bottom Left corner coordinates on the global space
+	 */
+	globalBR? :number[];
 }
   
 
