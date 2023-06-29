@@ -1404,6 +1404,8 @@ export default class TriggerActionHandler {
 		let subEvent_regSafe = "";
 		if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
+		const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
+
 		try {
 			// console.log("===== PARSE TEXT =====");
 			// console.log(eventType);
@@ -1441,16 +1443,16 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					}else if(pointer.indexOf("__ulule__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
+					}else if(pointer.indexOf("__ulule__") == 0 && ululeProject) {
 						const pointer = h.pointer.replace('__ulule__.', '');
 						switch(pointer) {
-							case "url": value = DataStore.get(DataStore.ULULE_PROJECT); break;
+							case "url": value = ululeProject; break;
 							case "name": {
 								//This is a dirty duplicate of what's in OverlayParamsUlule.
 								//Think about a cleaner way to do this
 								const headers = {'App-Version': import.meta.env.PACKAGE_VERSION};
 								const url = new URL(Config.instance.API_PATH+"/ulule/project");
-								let project = DataStore.get(DataStore.ULULE_PROJECT).replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
+								let project = ululeProject.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
 								url.searchParams.append("project", project);
 								try {
 									const apiRes = await fetch(url, {method:"GET", headers});

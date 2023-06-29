@@ -246,7 +246,6 @@ export default class TriggerActionList extends Vue {
 			case TriggerTypes.COUNTER_LOOPED:
 			case TriggerTypes.COUNTER_MAXED:
 			case TriggerTypes.COUNTER_MINED:
-				console.log("OKFDOKFOKDKF", this.triggerData.counterId);
 				return this.$store("counters").counterList.find(v=>v.id == this.triggerData.counterId)?.name ?? "COUNTER NOT FOUND";
 		}
 		return "...";
