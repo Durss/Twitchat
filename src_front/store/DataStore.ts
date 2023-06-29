@@ -1177,14 +1177,24 @@ export default class DataStore {
 				//Parse all current trigger actions
 				for (let i = 0; i < triggers[key].actions.length; i++) {
 					const a = triggers[key].actions[i];
+					//@ts-ignore
 					//If action is a "read counter value", delete it and replace any subsequent
 					//placeholders by the new counter placeholder
 					if(a.type == "countget") {
+						// Actual type
+						// {
+						// 	type:"countget";
+						// 	counter:string;
+						// 	placeholder:string;
+						// }
+						//@ts-ignore
 						const c = counters.find(v => v.id == a.counter);
 						if(c) {
+							//@ts-ignore
 							//Counter exists grab its placeholder key
 							oldPlaceholderToNew[a.placeholder] = c.placeholderKey.slice(0, 15);
 						}else{
+							//@ts-ignore
 							//Counter doesn't exists, set a placeholder user will understand
 							oldPlaceholderToNew[a.placeholder] = "DELETED_COUNTER";
 						}

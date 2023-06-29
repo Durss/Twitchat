@@ -53,7 +53,6 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "poll") return true;
 					if(v.type == "prediction") return true;
 					if(v.type == "count") return true;
-					if(v.type == "countget") return true;
 					if(v.type == "random") return true;
 					if(v.type == "stream_infos") return true;
 					if(v.type == "delay") return true;
