@@ -1,6 +1,7 @@
 {
 	"heat": {
 		"header": "Heat is a Twitch extension allowing your viewers to interact with your stream by clicking on it",
+		"debug_interaction": "Simulate click",
 		"overlay_interaction": "Interactive Twitchat overlays",
 		"zone_interaction": "Custom interactive areas",
 		"overlay_spotify": {
@@ -16,6 +17,9 @@
 			"Connecting Twitchat with Heat will allow you to execute custom actions when your viewers click on your stream.",
 			"Some Twitchat overlays also integrate a Heat behavior. For example, Spotify overlay can send current track info when a viewer clicks on it. Or Ulule overlay can send the campaign link."
 		],
+		"debug":{
+			"description": "Heat only works when you're live. To help you test things without going live, click on the area bellow to simulate a click."
+		},
 		"install":"Install extension Heat",
 		"donate":"Please consider donating to Scott, Heat's creator."
 	}

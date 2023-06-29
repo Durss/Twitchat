@@ -62,14 +62,10 @@ export default class HeatSocket extends EventDispatcher {
 			
             let data = JSON.parse(message.data);
 			if(data.type==="click") {
-				let event = new HeatEvent(HeatEvent.CLICK,
-											{ x: data.x as number, y:data.y as number },
-											data.id,
-											data.modifiers?.ctrl === true,
-											data.modifiers?.alt === true,
-											data.modifiers?.shift === true
-											);
-				this.dispatchEvent(event);
+				this.fireEvent(data.id, data.x as number, data.y as number,
+					data.modifiers?.ctrl === true,
+					data.modifiers?.alt === true,
+					data.modifiers?.shift === true);
 			}
 
 			if (data.type == "system") {
@@ -100,6 +96,23 @@ export default class HeatSocket extends EventDispatcher {
 		});
 	}
 
+	/**
+	 * Fire a click event
+	 */
+	public fireEvent(uid:string, px:number, py:number, alt:boolean, ctrl:boolean, shift:boolean) {
+		let event = new HeatEvent(HeatEvent.CLICK,
+									{ x: px, y:py },
+									uid,
+									ctrl,
+									alt,
+									shift,
+									);
+		this.dispatchEvent(event);
+	}
+
+	/**
+	 * Cu socket connection
+	 */
 	public disconnect():void {
 		if(!this.ws) return;
 

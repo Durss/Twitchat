@@ -669,6 +669,16 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return;
 		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
 	}
+
+	/**
+	 * Restart playing of a media source
+	 * 
+	 * @param sourceName 
+	 */
+	public async getScreenshot(sourceName:string):Promise<void> {
+		if(!this.connected) return;
+		await this.obs.call('GetSourceScreenshot',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
+	}
 	
 	
 	

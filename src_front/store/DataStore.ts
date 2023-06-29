@@ -909,7 +909,6 @@ export default class DataStore {
 		delete data["level"];
 		delete data["isDonor"];
 		delete data["p:hideUsers"];
-		delete data["p:censorDeletedMessages"];
 		delete data["p:showSelf"];
 		delete data["p:blockedCommands"];
 		delete data["p:ignoreListCommands"];
@@ -930,7 +929,6 @@ export default class DataStore {
 		delete data["p:showNotifications"];
 		delete data["p:showRaids"];
 		delete data["p:showRewards"];
-		delete data["p:showRewardsInfos"];
 		delete data["p:showSubs"];
 		delete data["p:splitView"];
 		delete data["p:splitViewSwitch"];

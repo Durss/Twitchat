@@ -448,17 +448,6 @@ export default class ChatForm extends Vue {
 	}
 
 	public debug():void {
-		OBSWebsocket.instance.getSourcesDisplayRects().then(async (res)=> {
-			// OBSWebsocket.instance.setSourceTransform("_Discord", 10, {positionX:t.centerX!, positionY:t.centerY!});
-			for (let i = 0; i < res.sources.length; i++) {
-				const el = res.sources[i];
-				// await OBSWebsocket.instance.setSourceTransform(el.sceneName, el.source.sceneItemId, {positionX:el.transform.globalCenterX!, positionY:el.transform.globalCenterY!});
-				// await OBSWebsocket.instance.setSourceTransform("_test", 2, {positionX:el.transform.globalCenterX!, positionY:el.transform.globalCenterY!});
-				await OBSWebsocket.instance.setSourceTransform("_Discord", 11, {positionX:el.transform.globalCenterX!, positionY:el.transform.globalCenterY!});
-				await Utils.promisedTimeout(50);
-			}
-			// OBSWebsocket.instance.setSourceTransform("_test", 2, {positionX:px, positionY:py});
-		});
 	}
 
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void {

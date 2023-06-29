@@ -541,6 +541,8 @@ import Ajv from "ajv";
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
 		"p:chatShoutout": {type:"boolean"},
+		"p:showRewardsInfos": {type:"boolean"},
+		"p:censorDeletedMessages": {type:"boolean"},
 		v: {type:"integer"},
 		collapseParamAdInfo: {type:"boolean"},
 		lang: {type:"string", maxLength:4},

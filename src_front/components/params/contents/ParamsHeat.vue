@@ -5,7 +5,7 @@
 		<div class="head">
 			<p>{{ $t("heat.header") }}</p>
 			<Button class="installBt" href="https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk"
-				type="link" small secondary
+				type="link" secondary
 				icon="newtab"
 				target="_blank">{{ $t("heat.install") }}</Button>
 		</div>
@@ -15,6 +15,7 @@
 		<div class="fadeHolder" :style="holderStyles">
 			<HeatOverlayClick />
 			<HeatAreaClick />
+			<HeatDebug />
 		</div>
 	</div>
 </template>
@@ -29,11 +30,13 @@ import ParamItem from '../ParamItem.vue';
 import HeatOverlayClick from './heat/HeatOverlayClick.vue';
 import HeatAreaClick from './heat/HeatAreaClick.vue';
 import type { StyleValue } from 'vue';
+import HeatDebug from './heat/HeatDebug.vue';
 
 @Component({
 	components:{
 		Button,
 		ParamItem,
+		HeatDebug,
 		HeatAreaClick,
 		HeatOverlayClick,
 	},

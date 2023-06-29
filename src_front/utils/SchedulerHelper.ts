@@ -2,7 +2,6 @@ import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { TriggerScheduleTypes, TriggerTypes, type TriggerData } from "../types/TriggerActionDataTypes";
-import Config from "./Config";
 import Utils from "./Utils";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
 
