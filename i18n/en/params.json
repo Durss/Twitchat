@@ -100,8 +100,8 @@
 			"shoutout": "/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",
 			"twitchatAd": "/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Check it out KomodoHype",
 			"chatSuggStart": "/announce Make your suggestion by typing \"{CMD} your suggestion\". Your suggestion must be less than {LENGTH} chars.",
-			"heatSpotify": "[NOW PLAYING] \"{ADDED_TRACK_TITLE}\" by \"{ADDED_TRACK_ARTIST}\" - {ADDED_TRACK_URL}",
-			"heatUlule": ""
+			"heatSpotify": "SingsNote \"{CURRENT_TRACK_TITLE}\" by \"{CURRENT_TRACK_ARTIST}\" - {CURRENT_TRACK_URL}",
+			"heatUlule": "Support \"{ULULE_CAMPAIGN_NAME}\" campaign - {ULULE_CAMPAIGN_URL}"
 		},
 		"commands": {
 			"updates": "Show latest Twitchat updates",

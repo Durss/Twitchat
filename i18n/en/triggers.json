@@ -363,7 +363,10 @@
 			"hype_chat_level": "Paid level (from 0 to 9)",
 			"ulule_campaign_url": "Campaign URL",
 			"ulule_campaign_name": "Campaign name",
-			"ulule_campaign_name_example": "My awesome project"
+			"ulule_campaign_name_example": "My awesome project",
+			"heat_anonymous": "Is click from an anonymous user ?",
+			"heat_coord_x": "X coordinate of the click in percent (0 <-> 100)",
+			"heat_coord_y": "Y coordinate of the click in percent (0 <-> 100)"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -711,6 +714,10 @@
 			"HYPE_CHAT": {
 				"label": "Hype chat",
 				"description": "Actions to execute when a user pays for a hype chat message"
+			},
+			"HEAT_CLICK": {
+				"label": "Heat click",
+				"description": "Actions to execute when a user clicks on your stream"
 			}
 		},
 		"musicEvents": {

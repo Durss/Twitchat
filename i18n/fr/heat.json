@@ -2,14 +2,14 @@
 	"heat": {
 		"header": "Heat est une extension Twitch permettant à vos viewer d'interagir en cliquant sur votre stream",
 		"overlay_interaction": "Overlays Twitchat interactifs",
-		"overlay_interaction_description": "Permettez à vos viewer de cliquer sur certains overlays pour envoyer des informations en tchat.",
+		"zone_interaction": "Zones interactives personnalisées",
 		"overlay_spotify": {
 			"title": "Overlay Spotify",
-			"description": "Message à envoyer lorsqu'une personne clique sur l'overlay"
+			"description": "Envoyer un message lorsque quelqu'un clique sur l'overlay Spotify"
 		},
 		"overlay_ulule": {
 			"title": "Overlay Ulule",
-			"description": "Message à envoyer lorsqu'une personne clique sur l'overlay"
+			"description": "Envoyer un message lorsque quelqu'un clique sur l'overlay Ulule"
 		},
 		"usage":[
 			"Heat est une extension Twitch permettant aux viewers d'interagir avec votre stream en cliquant dessus. Ne fonctionne que sur desktop !",

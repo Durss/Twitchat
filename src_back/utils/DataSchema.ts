@@ -434,6 +434,22 @@ import Ajv from "ajv";
 						message: {type:"string", maxLength:500},
 					}
 				},
+				heatSpotify: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:500},
+					}
+				},
+				heatUlule: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						enabled: {type:"boolean"},
+						message: {type:"string", maxLength:500},
+					}
+				},
 			}
 		},
 		voiceActions: {

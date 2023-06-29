@@ -19,6 +19,8 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
+import DataStore from "@/store/DataStore";
+import type { UluleTypes } from "@/types/UluleTypes";
 
 /**
 * Created : 22/04/2022 
@@ -355,6 +357,12 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK:{
+				if(await this.executeTriggersByType(TriggerTypes.HEAT_CLICK, message, testMode)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
 				let type:TriggerTypesValue = message.added > 0? TriggerTypes.COUNTER_ADD : TriggerTypes.COUNTER_DEL;
 				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;
@@ -616,6 +624,7 @@ export default class TriggerActionHandler {
 		// console.log("PARSE STEPS", eventType, trigger, message);
 		let canExecute = true;
 
+		//If it's a chat message check for permissions and cooldowns
 		if(!testMode && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			const triggerId = trigger.id;
 			const now = Date.now();
@@ -688,10 +697,10 @@ export default class TriggerActionHandler {
 		if(!testMode
 		&& hasConditions
 		&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
-			log.messages.push({date:Date.now(), value:"Conditions not fulfilled"});
+			log.messages.push({date:Date.now(), value:"❌ Conditions not fulfilled"});
 			passesCondition = false;
 		}else if(hasConditions) {
-			log.messages.push({date:Date.now(), value:"Conditions fulfilled"});
+			log.messages.push({date:Date.now(), value:"✔ Conditions fulfilled"});
 		}
 
 		//Filter actions to execute based on whether the condition is matched or not
@@ -1145,23 +1154,6 @@ export default class TriggerActionHandler {
 					}
 				}else
 
-				//Handle counter read trigger actions
-				if(step.type == "countget") {
-					const counter = StoreProxy.counters.counterList.find(v => v.id == step.counter);
-					if(counter) {
-						let value = counter.value || 0;
-						if(counter.perUser) {
-							let user = this.extractUser(trigger, message);
-							if(user && counter.users) {
-								value = counter.users[user.id] || 0;
-							}
-						}
-						logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"\"} with value \""+value+"\""});
-						dynamicPlaceholders[step.placeholder] = value;
-					}
-					
-				}else
-
 				//Handle random generator trigger action
 				if(step.type == "random") {
 					if(step.mode == "number" && step.placeholder) {
@@ -1442,9 +1434,36 @@ export default class TriggerActionHandler {
 					 * If the placeholder requests for the current stream info
 					 */
 					if(pointer.indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
-						const pointer = h.pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys
+						const pointer = h.pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys;
 						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointer]?.toString() || "";
 						if(!value) value = pointer == "viewers"? "0" : "-none-";
+
+					/**
+					 * If the placeholder requests for the current stream info
+					 */
+					}else if(pointer.indexOf("__ulule__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
+						const pointer = h.pointer.replace('__ulule__.', '');
+						switch(pointer) {
+							case "url": value = DataStore.get(DataStore.ULULE_PROJECT); break;
+							case "name": {
+								//This is a dirty duplicate of what's in OverlayParamsUlule.
+								//Think about a cleaner way to do this
+								const headers = {'App-Version': import.meta.env.PACKAGE_VERSION};
+								const url = new URL(Config.instance.API_PATH+"/ulule/project");
+								let project = DataStore.get(DataStore.ULULE_PROJECT).replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
+								url.searchParams.append("project", project);
+								try {
+									const apiRes = await fetch(url, {method:"GET", headers});
+									if(apiRes.status == 200) {
+										const projectData:UluleTypes.Project = await apiRes.json();
+										value = Utils.getQueryParameterByName("title") || projectData.name_en || projectData.name_fr || projectData.name_ca || projectData.name_de || projectData.name_es || projectData.name_it || projectData.name_pt || projectData.name_nl;
+									}
+								}catch(error){
+									value = "";
+								}
+								break;
+							}
+						}
 	
 					/**
 					 * If the placeholder requests for the current stream info

@@ -70,10 +70,9 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
-		list = list.concat(TriggerActionPlaceholders("music"));
 
 		this.track_conf.placeholderList = list;
-		this.confirmSongRequest_conf.placeholderList = list;
+		this.confirmSongRequest_conf.placeholderList = list.concat(TriggerActionPlaceholders("music"));
 		this.playlist_conf.placeholderList = list;
 	}
 

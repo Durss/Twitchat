@@ -96,12 +96,12 @@
 			"raffle": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort 🎉🎉🎉",
 			"raffleJoin": "VoteYea {'@'}{USER} tu as rejoint le tirage au sort.",
 			"bingoStart": "/announce 🎉🎉🎉 Un bingo a débuté 🎉🎉🎉 {GOAL}",
-			"bingo": "/announce 🎉🎉🎉 Bravo {'@'}{USER} tu as remporté le bingo 🎉🎉🎉",
+			"bingo": "/announce 🎉🎉🎉 {USER} remporte le bingo 🎉🎉🎉",
 			"shoutout": "/announce Allez voir {USER} {URL} . Son dernier stream était \"{TITLE}\" dans la catagorie \"{CATEGORY}\".",
 			"twitchatAd": "/announcepurple Tu stream sur Twitch ? J'utilise GivePLZ twitchat.fr TakeNRG, une alternative de chat complète pour streamer. Jettes-y un œil KomodoHype",
 			"chatSuggStart": "/announce Faites votre suggestion envoyant \"{CMD} votre suggestion\". Votre suggestion doit faire moins de {LENGTH} caractères.",
-			"heatSpotify": "SingsNote - \"{ADDED_TRACK_TITLE}\" par \"{ADDED_TRACK_ARTIST}\" - {ADDED_TRACK_URL}",
-			"heatUlule": ""
+			"heatSpotify": "SingsNote \"{CURRENT_TRACK_TITLE}\" par \"{CURRENT_TRACK_ARTIST}\" - {CURRENT_TRACK_URL}",
+			"heatUlule": "Soutenez la campagne \"{ULULE_CAMPAIGN_NAME}\" - {ULULE_CAMPAIGN_URL}"
 		},
 		"commands": {
 			"updates": "Dernières mises à jour",

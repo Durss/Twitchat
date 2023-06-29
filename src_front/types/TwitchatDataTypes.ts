@@ -178,6 +178,8 @@ export namespace TwitchatDataTypes {
 		shoutout:BotMessageEntry;
 		twitchatAd:BotMessageEntry;
 		chatSuggStart:BotMessageEntry;
+		heatSpotify:BotMessageEntry;
+		heatUlule:BotMessageEntry;
 	}
 	export interface BotMessageEntry {
 		enabled:boolean;
@@ -1279,6 +1281,7 @@ export namespace TwitchatDataTypes {
 		CHAT_ALERT:"chat_alert",
 		DISCONNECT:"disconnect",
 		PREDICTION:"prediction",
+		HEAT_CLICK:"heat_click",
 		MUSIC_STOP:"music_stop",
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
@@ -1343,6 +1346,7 @@ export namespace TwitchatDataTypes {
 		clear_chat:true,
 		disconnect:true,
 		prediction:true,
+		heat_click:false,
 		chat_alert:false,
 		music_stop:false,
 		twitchat_ad:true,
@@ -1469,6 +1473,7 @@ export namespace TwitchatDataTypes {
 									| MessageMarkerCreatedData
 									| MessageWatchStreakData
 									| MessageHypeChatData
+									| MessageHeatClickData
 	;
 	
 	/**
@@ -2874,6 +2879,39 @@ export namespace TwitchatDataTypes {
 		 * User that created the marker
 		 */
 		message:MessageChatData;
+	}
+
+	/**
+	 * Represents a hype chat message
+	 * These messages are also sent as standard messages
+	 */
+	export interface MessageHeatClickData extends AbstractTwitchatMessage {
+		type:"heat_click";
+		/**
+		 * User that clicked.
+		 * "null" for anonymous users
+		 */
+		user:TwitchatUser | null;
+		/**
+		 * Is it an anonymous user?
+		 */
+		anonymous:boolean;
+		/**
+		 * Is CTRL key pressed
+		 */
+		ctrl:boolean;
+		/**
+		 * Is SHIFT key pressed
+		 */
+		shift:boolean;
+		/**
+		 * Is ALT key pressed
+		 */
+		alt:boolean;
+		/**
+		 * Coordinates of the click in percent
+		 */
+		coords:{x:number, y:number};
 	}
 
 }

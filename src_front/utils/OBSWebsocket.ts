@@ -24,6 +24,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	private sceneCacheKeySplitter:string = "_-___-___-_";
 	//Key : "sceneName" + sceneCacheKeySplitter + "sourceName"
 	private sceneSourceCache:{[key:string]:{ts:number, value:{scene:string, source:OBSSourceItem}}} = {};
+	private sceneDisplayRectsCache:{[key:string]:{ts:number, value:{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}}} = {};
+	private sceneToCaching:{[key:string]:boolean} = {};
 	
 	constructor() {
 		super();
@@ -236,7 +238,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 	
 	/**
-	 * Get all the sources references
+	 * Get all sources currently on screen with their coordinates.
 	 * Returns original OBS transforms augmented with these global coordinate space values
 	 * to make manipulation easier :
 	 * 
@@ -252,12 +254,26 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * 
 	 * @returns 
 	 */
-	public async getSourceDisplayRects(sourceName:string):Promise<SourceTransform[]> {
-		if(!this.connected) return [];
+	public async getSourcesDisplayRects():Promise<{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}> {
+		if(!this.connected) return {canvas:{width:1920, height:1080}, sources:[]};
 		const currentScene  = await this.getCurrentScene();
+		
+		//If current scene is cached, just send back cached data
+		const cache = this.sceneDisplayRectsCache[currentScene];
+		if(cache && Date.now()-cache.ts < 30000) return this.sceneDisplayRectsCache[currentScene].value;
+
+		//If caching is in progress from a previous request, wait a little
+		if(this.sceneToCaching[currentScene]) {
+			await Utils.promisedTimeout(1000);
+			return this.getSourcesDisplayRects();
+		}
+
+		//Flag scene as being cached
+		this.sceneToCaching[currentScene] = true;
+
 		const videoSettings = await this.obs.call("GetVideoSettings");
 		let sceneList:{name:string, parentScene?:string, parentItemId?:number, parentTransform?:SourceTransform}[] = [{name:currentScene}];
-		const transforms:SourceTransform[] = [];
+		const transforms:{source:OBSSourceItem, sceneName:string, transform:SourceTransform}[] = [];
 		const sourceDone:{[key:string]:boolean} = {};
 		const scenesDone:{[key:string]:boolean} = {};
 		const itemNameToTransform:{[key:string]:SourceTransform} = {};
@@ -321,8 +337,8 @@ export default class OBSWebsocket extends EventDispatcher {
 						sourceTransform.globalCenterY = scaled.y;
 					}
 	
-					//Is it a source we're searching for ?
-					if(source.sourceName == sourceName) {
+					//Is it a source
+					if(source.sourceType == "OBS_SOURCE_TYPE_INPUT") {
 						itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
 						let px = sourceTransform.globalCenterX!;
 						let py = sourceTransform.globalCenterY!;
@@ -334,8 +350,8 @@ export default class OBSWebsocket extends EventDispatcher {
 						sourceTransform.globalBL = [px - hw * cos_angle - hh * sin_angle, py - hw * sin_angle + hh * cos_angle];
 						sourceTransform.globalBR = [px + hw * cos_angle - hh * sin_angle, py + hw * sin_angle + hh * cos_angle];
 						sourceTransform.globalTL = [px - hw * cos_angle + hh * sin_angle, py - hw * sin_angle - hh * cos_angle];
-						sourceTransform.globalTR = [px + hw * cos_angle + hh * sin_angle, py + hw * sin_angle - hh * cos_angle]
-						transforms.push(sourceTransform);
+						sourceTransform.globalTR = [px + hw * cos_angle + hh * sin_angle, py + hw * sin_angle - hh * cos_angle];
+						transforms.push({transform:sourceTransform, sceneName:scene.name, source});
 					
 					}else
 					//If it's a scene item, add it to the scene list
@@ -353,7 +369,11 @@ export default class OBSWebsocket extends EventDispatcher {
 				}
 			}
 		}
-		return transforms;
+
+		const res = {canvas:{width:canvasW, height:canvasH}, sources:transforms};
+		this.sceneDisplayRectsCache[currentScene] = {ts:Date.now(), value:res};
+		this.sceneToCaching[currentScene] = false;
+		return res;
 	}
 
 	/**

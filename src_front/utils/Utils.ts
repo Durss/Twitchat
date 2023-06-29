@@ -741,4 +741,32 @@ export default class Utils {
 			.replace(/^-+/, '')          // Remove hyphens at the beginning of the string
 			.replace(/-+$/, '');         // Remove hyphens at the end of the string
 	}
+
+	/**
+	 * Test if given point coordinates is inside 
+	 * @param polygon 
+	 * @param px 
+	 * @param py 
+	 */
+	public static isPointInsidePolygon(point:{x:number, y:number}, polygon:number[][]) {
+		let intersections = 0;
+		const n = polygon.length;
+		const px = point.x;
+		const py = point.y;
+
+		for (var i = 0; i < n; i++) {
+			var x1 = polygon[i][0];
+			var y1 = polygon[i][1];
+			var x2 = polygon[(i + 1) % n][0];
+			var y2 = polygon[(i + 1) % n][1];
+
+			if ((y1 <= py && py < y2) || (y2 <= py && py < y1)) {
+				if (px < (x2 - x1) * (py - y1) / (y2 - y1) + x1) {
+					intersections++;
+				}
+			}
+		}
+
+		return intersections % 2 === 1;
+	}
 }

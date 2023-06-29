@@ -17,6 +17,7 @@ import OverlayTimer from '../components/overlays/OverlayTimer.vue';
 import OverlayChatHighlight from '../components/overlays/OverlayChatHighlight.vue';
 import OverlayCounter from '../components/overlays/OverlayCounter.vue';
 import OverlayUlule from '@/components/overlays/OverlayUlule.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -40,6 +41,14 @@ export default class Overlay extends Vue {
 
 	public mounted():void {
 		this.overlay = this.$router.currentRoute.value.params.id as string;
+
+		//Add a GUID to the parameters.
+		//This is used to match an OBS source with a spacific overlay
+		if(!this.$router.currentRoute.value.query.guid) {
+			const query = JSON.parse(JSON.stringify(this.$route.query));
+			query.guid = Utils.getUUID();
+			this.$router.replace({path: this.$route.path, query})
+		}
 	}
 
 }

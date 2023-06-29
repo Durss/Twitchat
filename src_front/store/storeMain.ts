@@ -1,6 +1,6 @@
 import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, type SocketParams, rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, type SocketParams, rebuildPlaceholdersCache, type TriggerData, type TriggerActionChatData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
@@ -23,6 +23,8 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
 import HeatSocket from '@/utils/twitch/HeatSocket';
+import HeatEvent from '@/events/HeatEvent';
+import MessengerProxy from '@/messaging/MessengerProxy';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -441,10 +443,96 @@ export const storeMain = defineStore("main", {
 					StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
 				});
 
+				HeatSocket.instance.addEventListener(HeatEvent.CLICK, async (event:HeatEvent):Promise<void> => {
+					//Stop there if coordinates are missing, can't do anything with it
+					if(!event.coordinates) return;
+
+					const isTrigger = StoreProxy.triggers.triggerList.find(v=>v.type == TriggerTypes.HEAT_CLICK);
+					const isOverlay = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
+
+					//If nothing requests for heat click events, ignore it
+					if(!isTrigger && !isOverlay) return;
+
+					const anonymous = parseInt(event.uid || "anon").toString() === event.uid;
+					let user!:TwitchatDataTypes.TwitchatUser;
+					if(!anonymous) {
+						//Load user data
+						user = await new Promise((resolve)=> {
+							StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.uid, undefined, undefined, (user)=>{
+								resolve(user);
+							});
+						})
+					}
+
+					if(isTrigger) {
+						const message:TwitchatDataTypes.MessageHeatClickData = {
+							date:Date.now(),
+							id:Utils.getUUID(),
+							platform:"twitchat",
+							type:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK,
+							user,
+							anonymous,
+							alt:event.alt === true,
+							ctrl:event.ctrl === true,
+							shift:event.shift === true,
+							coords:event.coordinates
+						}
+						TriggerActionHandler.instance.execute(message);
+					}
+
+					if(isOverlay && OBSWebsocket.instance.connected) {
+						const rects = await OBSWebsocket.instance.getSourcesDisplayRects();
+						const spotifyRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"music"}}).href;
+						const ululeRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"ulule"}}).href;
+
+						//Init trigger data
+						const action:TriggerActionChatData = {
+							id:Utils.getUUID(),
+							text:"",
+							type:'chat',
+						}
+						const trigger:TriggerData = {
+							id:Utils.getUUID(),
+							type:TriggerTypes.TWITCHAT_MESSAGE,
+							enabled:true,
+							actions:[action]
+						}
+						const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
+
+						for (let i = 0; i < rects.sources.length; i++) {
+							const rect = rects.sources[i];
+							const x = rects.canvas.width * event.coordinates.x;
+							const y = rects.canvas.height * event.coordinates.y;
+							const bounds = rect.transform;
+							const polygon = [bounds.globalTL!, bounds.globalTR!, bounds.globalBR!, bounds.globalBL!];
+							const isInside = Utils.isPointInsidePolygon({x,y}, polygon);
+
+							//Click is outside overlay, ingore it
+							if(!isInside) continue;
+
+							if(rect.source.inputKind == "browser_source") {
+								let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
+								const url:string = settings.inputSettings.url as string;
+
+								//Spotify overlay
+								if(url.indexOf(spotifyRoute) > -1 && StoreProxy.chat.botMessages.heatSpotify.enabled) {
+									action.text = StoreProxy.chat.botMessages.heatSpotify.message;
+									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
+								}
+								if(url.indexOf(ululeRoute) > -1) {
+									action.text = StoreProxy.chat.botMessages.heatUlule.message;
+									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
+								}
+							}
+						}
+					}
+
+				});
+
 				if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
 					//TODO update this with connected user ID instead of hardcoded test ID
 					// HeatSocket.instance.connect( this.$store("auth").twitch.user.id );
-					HeatSocket.instance.connect("474992309");
+					HeatSocket.instance.connect("55807620");
 				}
 			}
 

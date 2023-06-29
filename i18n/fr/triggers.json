@@ -363,7 +363,10 @@
 			"hype_chat_level": "Niveau du paiement (de 0 à 9)",
 			"ulule_campaign_url": "URL de la campagne",
 			"ulule_campaign_name": "Nom de la campagne",
-			"ulule_campaign_name_example": "Mon super projet"
+			"ulule_campaign_name_example": "Mon super projet",
+			"heat_anonymous": "L'utilsateur·ice est anonyme ?",
+			"heat_coord_x": "Coordonnées X du clic en pourcents (0 <-> 100)",
+			"heat_coord_y": "Coordonnées Y du clic en pourcents (0 <-> 100)"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -713,6 +716,10 @@
 			"HYPE_CHAT": {
 				"label": "Hype chat",
 				"description": "Actions à exécuter lorsque quelqu'un paye pour un Hype Chat"
+			},
+			"HEAT_CLICK": {
+				"label": "Interraction Heat",
+				"description": "Actions à exécuter lorsque quelqu'un click sur le stream"
 			}
 		},
 		"musicEvents": {
