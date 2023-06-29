@@ -475,7 +475,10 @@ export const storeMain = defineStore("main", {
 							alt:event.alt === true,
 							ctrl:event.ctrl === true,
 							shift:event.shift === true,
-							coords:event.coordinates
+							coords:{
+								x:event.coordinates.x * 100,
+								y:event.coordinates.y * 100,
+							}
 						}
 						TriggerActionHandler.instance.execute(message);
 					}

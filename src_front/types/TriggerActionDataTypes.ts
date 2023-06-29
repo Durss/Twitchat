@@ -864,6 +864,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"USER_ANONYMOUS", descKey:'triggers.placeholders.heat_anonymous', pointer:"anonymous", numberParsable:false, isUserID:false},
 		{tag:"COORD_X", descKey:'triggers.placeholders.heat_coord_x', pointer:"coords.x", numberParsable:true, isUserID:false},
 		{tag:"COORD_Y", descKey:'triggers.placeholders.heat_coord_y', pointer:"coords.y", numberParsable:true, isUserID:false},
+		{tag:"KEY_ALT", descKey:'triggers.placeholders.heat_key_alt', pointer:"coords.alt", numberParsable:false, isUserID:false},
+		{tag:"KEY_SHIFT", descKey:'triggers.placeholders.heat_key_shift', pointer:"coords.shift", numberParsable:false, isUserID:false},
+		{tag:"KEY_CTRL", descKey:'triggers.placeholders.heat_key_ctrl', pointer:"coords.ctrl", numberParsable:false, isUserID:false},
 	];
 
 

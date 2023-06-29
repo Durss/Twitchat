@@ -366,7 +366,10 @@
 			"ulule_campaign_name_example": "Mon super projet",
 			"heat_anonymous": "L'utilsateur·ice est anonyme ?",
 			"heat_coord_x": "Coordonnées X du clic en pourcents (0 <-> 100)",
-			"heat_coord_y": "Coordonnées Y du clic en pourcents (0 <-> 100)"
+			"heat_coord_y": "Coordonnées Y du clic en pourcents (0 <-> 100)",
+			"heat_key_alt": "Touche ALT enfoncée ?",
+			"heat_key_shift": "Touche SHIFT enfoncée ?",
+			"heat_key_ctrl": "Touche CTRL enfoncée ?"
 		},
 		"events": {
 			"CHAT_COMMAND": {
