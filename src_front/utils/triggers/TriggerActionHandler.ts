@@ -593,7 +593,7 @@ export default class TriggerActionHandler {
 		};
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
-		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS]
+		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS,TriggerTypes.TWITCHAT_MESSAGE]
 		if(!noLogs.includes(trigger.type))	this.logHistory.unshift(log);
 		//Only keep last 100 triggers
 		if(this.logHistory.length > 100)	this.logHistory.pop();
@@ -625,40 +625,41 @@ export default class TriggerActionHandler {
 		let canExecute = true;
 
 		//If it's a chat message check for permissions and cooldowns
-		if(!testMode && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+		if(!testMode) {
 			const triggerId = trigger.id;
 			const now = Date.now();
-			
-			//check permissions
-			if(trigger.permissions && !await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
-				log.messages.push({date:Date.now(), value:"User is not allowed"});
-				canExecute = false;
-			}else if(trigger.cooldown){
-				//Apply cooldowns if any
 
-				//Global cooldown
-				if(this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
-					const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";
+			if("user" in message && message.user
+			&& "channel_id" in message && message.channel_id) {
+				//check user's permissions
+				if(trigger.permissions && !await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
+					log.messages.push({date:Date.now(), value:"❌ User "+message.user.login+" is not allowed"});
 					canExecute = false;
-					if(trigger.cooldown.alert !== false) {
-						const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
-						MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+				}else if(trigger.cooldown){
+					//User cooldown
+					const key = triggerId+this.HASHMAP_KEY_SPLITTER+message.user.id;
+					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
+						const remaining_s = Utils.formatDuration(this.userCooldowns[key] - now + 1000) + "s";
+						canExecute = false;
+						if(trigger.cooldown.alert !== false) {
+							const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
+							MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+						}
 					}
+					else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 				}
-				else if(trigger.cooldown.global > 0) this.globalCooldowns[triggerId] = now + trigger.cooldown.global * 1000;
-
-				//User cooldown
-				const key = triggerId+this.HASHMAP_KEY_SPLITTER+message.user.id;
-				if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
-					const remaining_s = Utils.formatDuration(this.userCooldowns[key] - now + 1000) + "s";
-					canExecute = false;
-					if(trigger.cooldown.alert !== false) {
-						const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
-						MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
-					}
-				}
-				else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 			}
+	
+			//Global cooldown
+			if(trigger.cooldown && this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
+				canExecute = false;
+				if(trigger.cooldown.alert !== false && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";
+					const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
+					MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+				}
+			}
+			else if(trigger.cooldown && trigger.cooldown.global > 0) this.globalCooldowns[triggerId] = now + trigger.cooldown.global * 1000;
 		}
 
 		//Create dynamic placeholders only if trigger is planned for execution so far.
