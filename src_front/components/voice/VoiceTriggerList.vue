@@ -275,6 +275,7 @@ export default class VoiceTriggerList extends Vue {
 	
 		.global {
 			width: 100%;
+			margin-bottom: .5em;
 		}
 	
 		.error {

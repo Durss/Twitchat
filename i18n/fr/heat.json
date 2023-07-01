@@ -1,9 +1,14 @@
 {
 	"heat": {
 		"header": "Heat est une extension Twitch permettant à vos viewer d'interagir en cliquant sur votre stream",
+		"install":"Installer l'extension Heat",
+		"donate":"🎁 Soutenez Scott, le créateur de l'extension Heat",
 		"debug_interaction": "Simuler un clic",
 		"overlay_interaction": "Overlays Twitchat interactifs",
 		"zone_interaction": "Zones interactives personnalisées",
+		"param_cooldown": "Cooldown ({VALUE}s)",
+		"param_anon": "Autorisez les personnes anonymes à interagir",
+		"anonymous": "Par défaut les interactions sont anonymes. Pour ne pas être anonymes, les viewers doivent cliquer sur l'extension, aller dans \"Gérer les accès\" puis cliquer \"Autoriser\"",
 		"overlay_spotify": {
 			"title": "Overlay Spotify",
 			"description": "Envoyer un message lorsque quelqu'un clique sur l'overlay Spotify"
@@ -12,15 +17,12 @@
 			"title": "Overlay Ulule",
 			"description": "Envoyer un message lorsque quelqu'un clique sur l'overlay Ulule"
 		},
-		"usage":[
-			"Heat est une extension Twitch permettant aux viewers d'interagir avec votre stream en cliquant dessus. Ne fonctionne que sur desktop !",
-			"Connecter Twitchat et Heat vous permettra d'effectuer des actions lorsque quelqu'un clique sur votre stream.",
-			"Certains overlays Twitchat intègrent un comportement Heat. Par exemple l'overlay Spotify peut envoyer les infos du morceau en cours en cliquant dessus et l'overlay Ulule peut envoyer le lien vers la campagne."
-		],
 		"debug":{
-			"description": "Heat ne fonctionne que lorsque vous êtes en live. Afin de pouvoir faire des tests sans lancer un live, cliquez dans la zone ci-dessous pour simuler un clic."
+			"description": "Heat ne fonctionne que lorsque vous êtes en live. Afin de pouvoir faire des tests sans lancer un live, cliquez dans la zone ci-dessous pour simuler une interaction."
 		},
-		"install":"Installer l'extension Heat",
-		"donate":"Soutenez Scott, le créateur de l'extension Heat."
+		"areas":{
+			"description": "Définissez des zones cliquables personnalisées puis détectez lorsqu'elles sont cliquées depuis {TRIGGER_LINK}.",
+			"trigger_link": "les triggers"
+		}
 	}
 }

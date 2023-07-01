@@ -8,7 +8,10 @@
 				:botMessageKey="botMessageKeys[index]" noBackground
 				:titleKey="'heat.overlay_'+code+'.description'"
 				:placeholders="placeholders[code]"
-			/>
+			>
+				<ParamItem :paramData="param_cooldown[code]" @change="onUpdateValue" />
+				<ParamItem :paramData="param_allowAnon[code]" @change="onUpdateValue" class="marginTop" />
+			</PostOnChatParam>
 		</div>
 	</ToggleBlock>
 </template>
@@ -19,9 +22,12 @@ import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDat
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
 import PostOnChatParam from '../../PostOnChatParam.vue';
+import ParamItem from '../../ParamItem.vue';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
+		ParamItem,
 		ToggleBlock,
 		PostOnChatParam,
 	},
@@ -29,9 +35,11 @@ import PostOnChatParam from '../../PostOnChatParam.vue';
 })
 export default class HeatOverlayClick extends Vue {
 	
-	public overlayTypes:string[] = ["spotify", "ulule"];
-	public botMessageKeys:string[] = ["heatSpotify", "heatUlule"];
-	public placeholders:{[key:string]:TwitchatDataTypes.PlaceholderEntry[]} = {};
+	public overlayTypes:OverlayKey[] = ["spotify", "ulule"];
+	public botMessageKeys:TwitchatDataTypes.BotMessageField[] = ["heatSpotify", "heatUlule"];
+	public placeholders:Partial<{[key in OverlayKey]:TwitchatDataTypes.PlaceholderEntry[]}> = {};
+	public param_cooldown:Partial<{[key in OverlayKey]:TwitchatDataTypes.ParameterData<number>}> = {};
+	public param_allowAnon:Partial<{[key in OverlayKey]:TwitchatDataTypes.ParameterData<boolean>}> = {};
 
 	public mounted():void {
 		this.placeholders["spotify"] = TriggerEventPlaceholders(TriggerTypes.MUSIC_START);
@@ -40,9 +48,24 @@ export default class HeatOverlayClick extends Vue {
 			{tag:"ULULE_CAMPAIGN_NAME", descKey:"triggers.placeholders.ulule_campaign_name", example:this.$t("triggers.placeholders.ulule_campaign_name_example")},
 			{tag:"ULULE_CAMPAIGN_URL", descKey:"triggers.placeholders.ulule_campaign_url", example:"https://www.ulule.com"},
 		];
+
+		this.param_cooldown
+		for (let i = 0; i < this.overlayTypes.length; i++) {
+			const code = this.overlayTypes[i];
+			this.param_cooldown[code] = {type:"number", value:this.$store("chat").botMessages[this.botMessageKeys[i]].cooldown || 10, min:0, max:3600, labelKey:"heat.param_cooldown", icon:"timer"};
+			this.param_allowAnon[code] = {type:"boolean", value:this.$store("chat").botMessages[this.botMessageKeys[i]].allowAnon === true, labelKey:"heat.param_anon", icon:"user", tooltipKey:"heat.anonymous"};
+		}
+	}
+
+	public onUpdateValue():void {
+		this.$store("chat").botMessages.heatUlule.cooldown = this.param_cooldown.ulule?.value;
+		this.$store("chat").botMessages.heatSpotify.cooldown = this.param_cooldown.spotify?.value;
+		DataStore.set(DataStore.BOT_MESSAGES, this.$store("chat").botMessages);
 	}
 
 }
+
+type OverlayKey = "spotify" | "ulule";
 </script>
 
 <style scoped lang="less">
@@ -53,6 +76,10 @@ export default class HeatOverlayClick extends Vue {
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
+	}
+
+	.marginTop {
+		margin-top: .25em;
 	}
 }
 </style>

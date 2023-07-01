@@ -667,11 +667,10 @@ export default class ParamItem extends Vue {
 
 	&.maxLength {
 		.content {
-			.number, .text {
+			.text {
 				input {
 					padding-right: 3em;
 				}
-
 			}
 		}
 	}

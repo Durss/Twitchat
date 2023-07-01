@@ -671,13 +671,16 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
-	 * Restart playing of a media source
+	 * Get a screenshot of a source.
+	 * Takes a screenshot of the current scene if no sourceName is defined
 	 * 
 	 * @param sourceName 
 	 */
-	public async getScreenshot(sourceName:string):Promise<void> {
-		if(!this.connected) return;
-		await this.obs.call('GetSourceScreenshot',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
+	public async getScreenshot(sourceName?:string):Promise<string> {
+		if(!this.connected) return "";
+		if(!sourceName) sourceName = await this.getCurrentScene();
+		let res = await this.obs.call('GetSourceScreenshot',{'sourceName':sourceName, imageFormat:"jpeg"});
+		return res.imageData;
 	}
 	
 	

@@ -58,7 +58,17 @@ import Ajv from "ajv";
 				operator: {type:"string", maxLength:20},
 				value: {type:"string", maxLength:500},
 			}
-		}
+		},
+		botMessage: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled: {type:"boolean"},
+				allowAnon: {type:"boolean"},
+				message: {type:"string", maxLength:500},
+				cooldown: {type:"number", minimum:0, maximum:3600},
+			}
+		},
 	},
 
 	type:"object",
@@ -370,86 +380,16 @@ import Ajv from "ajv";
 			type:"object",
 			additionalProperties: false,
 			properties: {
-				raffleStart: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				raffleJoin: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				raffle: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				bingoStart: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				bingo: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				shoutout: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				twitchatAd: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				chatSuggStart: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				heatSpotify: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				heatUlule: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
+				raffleStart: { $ref: "#/definitions/botMessage" },
+				raffleJoin: { $ref: "#/definitions/botMessage" },
+				raffle: { $ref: "#/definitions/botMessage" },
+				bingoStart: { $ref: "#/definitions/botMessage" },
+				bingo: { $ref: "#/definitions/botMessage" },
+				shoutout: { $ref: "#/definitions/botMessage" },
+				twitchatAd: { $ref: "#/definitions/botMessage" },
+				chatSuggStart: { $ref: "#/definitions/botMessage" },
+				heatSpotify: { $ref: "#/definitions/botMessage" },
+				heatUlule: { $ref: "#/definitions/botMessage" },
 			}
 		},
 		voiceActions: {

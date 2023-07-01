@@ -17,6 +17,8 @@
 			<HeatAreaClick />
 			<HeatDebug />
 		</div>
+
+		<a href="https://ko-fi.com/scottmadethis" target="_blank" class="donate">{{ $t("heat.donate") }}</a>
 	</div>
 </template>
 
@@ -70,7 +72,6 @@ export default class ParamsHeat extends Vue {
 	public toggleState():void {
 		if(this.param_enabled.value) {
 			HeatSocket.instance.connect( this.$store("auth").twitch.user.id );
-			// HeatSocket.instance.connect( "55807620" );
 		}else{
 			HeatSocket.instance.disconnect();
 		}
@@ -90,6 +91,12 @@ export default class ParamsHeat extends Vue {
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
+	}
+
+	.donate {
+		text-align: center;
+		font-style: italic;
+		text-decoration: none;
 	}
 }
 </style>

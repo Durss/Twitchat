@@ -7,7 +7,7 @@ export default class HeatEvent extends Event {
 
 	public static CLICK = "CLICK";
 	
-	constructor(eventType:string, public coordinates?:{x:number, y:number}, public uid?:string, public ctrl?:boolean, public alt?:boolean, public shift?:boolean) {
+	constructor(eventType:string, public coordinates?:{x:number, y:number}, public uid?:string, public ctrl?:boolean, public alt?:boolean, public shift?:boolean, public testMode?:boolean) {
 		super(eventType);
 	}
 	

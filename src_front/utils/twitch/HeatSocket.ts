@@ -1,5 +1,6 @@
 import { EventDispatcher } from "@/events/EventDispatcher";
 import HeatEvent from "@/events/HeatEvent";
+import StoreProxy from "@/store/StoreProxy";
 import { reactive } from "vue";
 
 /**
@@ -25,6 +26,7 @@ export default class HeatSocket extends EventDispatcher {
 	static get instance():HeatSocket {
 		if(!HeatSocket._instance) {
 			HeatSocket._instance = reactive(new HeatSocket()) as HeatSocket;
+			HeatSocket._instance.initialize();
 		}
 		return HeatSocket._instance;
 	}
@@ -99,13 +101,14 @@ export default class HeatSocket extends EventDispatcher {
 	/**
 	 * Fire a click event
 	 */
-	public fireEvent(uid:string, px:number, py:number, alt:boolean, ctrl:boolean, shift:boolean) {
+	public fireEvent(uid:string, px:number, py:number, alt:boolean, ctrl:boolean, shift:boolean, testMode:boolean = false) {
 		let event = new HeatEvent(HeatEvent.CLICK,
 									{ x: px, y:py },
 									uid,
 									ctrl,
 									alt,
 									shift,
+									testMode
 									);
 		this.dispatchEvent(event);
 	}
@@ -128,4 +131,14 @@ export default class HeatSocket extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+
+	private initialize():void {
+		
+		//Create a global method that can be called from a popup
+		//@ts-ignore
+		window.simulateHeatClick = (x:number,y:number, altKey:boolean, ctrlKey:boolean, shiftKey:boolean):void => {
+			const uid = StoreProxy.auth.twitch.user.id
+			this.fireEvent(uid, x,y, altKey, ctrlKey, shiftKey, true);
+		};
+	}
 }

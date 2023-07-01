@@ -184,6 +184,12 @@ export namespace TwitchatDataTypes {
 	export interface BotMessageEntry {
 		enabled:boolean;
 		message:string;
+		cooldown?:number;
+		/**
+		 * Used for Heat interactions.
+		 * Specifies weither anonymous users are allowed to interact with it or not
+		 */
+		allowAnon?:boolean;
 	}
 	export type BotMessageField = keyof IBotMessage;
 

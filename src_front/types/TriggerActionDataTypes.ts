@@ -146,7 +146,13 @@ export const TriggerConditionOperatorList = [">","<",">=","<=","=","!=","contain
 export type TriggerConditionOperator = typeof TriggerConditionOperatorList[keyof typeof TriggerConditionOperatorList];
 
 export interface TriggerCooldownData {
+	/**
+	 * Global cooldown in seconds
+	 */
 	global:number;
+	/**
+	 * User cooldown in seconds
+	 */
 	user:number;
 	/**
 	 * defines if a message should be posted on tchat if command is cooling down

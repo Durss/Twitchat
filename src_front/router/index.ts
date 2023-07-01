@@ -4,6 +4,7 @@ import Utils from '@/utils/Utils'
 import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes'
 import Chat from '@/views/Chat.vue'
 import ComponentList from '@/views/ComponentList.vue'
+import HeatDebugPopout from '@/views/HeatDebugPopout.vue'
 import Home from '@/views/Home.vue'
 import Logout from '@/views/Logout.vue'
 import Overlay from '@/views/Overlay.vue'
@@ -94,6 +95,15 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/voice',
 		name: 'voice',
 		component: RemoteVoiceControl,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
+	},
+	{
+		path: '/heatDebug',
+		name: 'heatDebug',
+		component: HeatDebugPopout,
 		meta: {
 			overflow:true,
 			needAuth:false,

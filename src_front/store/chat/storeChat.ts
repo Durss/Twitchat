@@ -70,10 +70,14 @@ export const storeChat = defineStore('chat', {
 			heatSpotify: {
 				enabled:false,
 				message:StoreProxy.i18n.tm("params.botMessages.heatSpotify"),
+				cooldown:10,
+				allowAnon:false,
 			},
 			heatUlule: {
 				enabled:false,
 				message:StoreProxy.i18n.tm("params.botMessages.heatUlule"),
+				cooldown:10,
+				allowAnon:false,
 			},
 		},
 		commands: [

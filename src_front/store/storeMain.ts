@@ -453,12 +453,13 @@ export const storeMain = defineStore("main", {
 					//If nothing requests for heat click events, ignore it
 					if(!isTrigger && !isOverlay) return;
 
+					const channelId = StoreProxy.auth.twitch.user.id;
 					const anonymous = parseInt(event.uid || "anon").toString() === event.uid;
 					let user!:TwitchatDataTypes.TwitchatUser;
 					if(!anonymous) {
 						//Load user data
 						user = await new Promise((resolve)=> {
-							StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.uid, undefined, undefined, (user)=>{
+							StoreProxy.users.getUserFrom("twitch", channelId, event.uid, undefined, undefined, (user)=>{
 								resolve(user);
 							});
 						})
@@ -468,7 +469,7 @@ export const storeMain = defineStore("main", {
 						const message:TwitchatDataTypes.MessageHeatClickData = {
 							date:Date.now(),
 							id:Utils.getUUID(),
-							platform:"twitchat",
+							platform:"twitch",
 							type:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK,
 							user,
 							anonymous,
@@ -498,7 +499,12 @@ export const storeMain = defineStore("main", {
 							id:Utils.getUUID(),
 							type:TriggerTypes.TWITCHAT_MESSAGE,
 							enabled:true,
-							actions:[action]
+							actions:[action],
+							cooldown: {
+								user: 0,
+								global: 30,
+								alert:false,
+							}
 						}
 						const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
 
@@ -512,6 +518,8 @@ export const storeMain = defineStore("main", {
 
 							//Click is outside overlay, ingore it
 							if(!isInside) continue;
+							
+							const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 
 							if(rect.source.inputKind == "browser_source") {
 								let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
@@ -519,12 +527,24 @@ export const storeMain = defineStore("main", {
 
 								//Spotify overlay
 								if(url.indexOf(spotifyRoute) > -1 && StoreProxy.chat.botMessages.heatSpotify.enabled) {
+									//If anon users are not allowed, skip
+									if(anonymous && StoreProxy.chat.botMessages.heatSpotify.allowAnon !== true) continue;
+									//If user is banned, skip
+									if(user.channelInfo[channelId]?.is_banned) continue;
+									
+									trigger.id = "heat_spotify_overlay";
 									action.text = StoreProxy.chat.botMessages.heatSpotify.message;
-									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
+									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, event.testMode == true);
 								}
-								if(url.indexOf(ululeRoute) > -1) {
+								if(url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
+									//If anon users are not allowed, skip
+									if(anonymous && StoreProxy.chat.botMessages.heatUlule.allowAnon !== true) continue;
+									//If user is banned, skip
+									if(user.channelInfo[channelId]?.is_banned) continue;
+
+									trigger.id = "heat_ulule_overlay";
 									action.text = StoreProxy.chat.botMessages.heatUlule.message;
-									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
+									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, event.testMode == true);
 								}
 							}
 						}
@@ -533,9 +553,7 @@ export const storeMain = defineStore("main", {
 				});
 
 				if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
-					//TODO update this with connected user ID instead of hardcoded test ID
 					HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );
-					// HeatSocket.instance.connect("55807620");
 				}
 			}
 

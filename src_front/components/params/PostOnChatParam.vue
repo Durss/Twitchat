@@ -8,23 +8,29 @@
 			:secondary="secondary"
 			:alert="alert"
 			:noBackground="noBackground"
-		/>
+		>
+		
+			<PlaceholderSelector class="placeholders"
+				v-if="placeholderTarget && placeholders"
+				v-model="textParam.value"
+				:target="placeholderTarget"
+				:placeholders="placeholders"
+				@change="saveParams()"
+			/>
 
-		<div class="preview" ref="preview" v-if="enabledParam.value === true">
-			<ChatMessage class="message"
-				v-if="adPreview"
-				lightMode
-				contextMenuOff
-				:messageData="adPreview" />
-		</div>
+			<div class="margin preview" ref="preview">
+				<ChatMessage class="message"
+					v-if="adPreview"
+					lightMode
+					contextMenuOff
+					:messageData="adPreview" />
+			</div>
+		
+			<div class="margin">
+				<slot></slot>
+			</div>
+		</ParamItem>
 
-		<PlaceholderSelector class="placeholders"
-			v-if="placeholderTarget && placeholders && enabledParam.value===true"
-			v-model="textParam.value"
-			:target="placeholderTarget"
-			:placeholders="placeholders"
-			@change="saveParams()"
-		/>
 	</div>
 </template>
 
@@ -32,7 +38,6 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatMessage from '../messages/ChatMessage.vue';
@@ -78,8 +83,8 @@ export default class PostOnChatParam extends Vue {
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";
-	public enabledParam:TwitchatDataTypes.ParameterData<boolean> = { value:false, type:"boolean", maxLength:500};
-	public textParam:TwitchatDataTypes.ParameterData<string> = { value:"", type:"string", longText:true};
+	public enabledParam:TwitchatDataTypes.ParameterData<boolean> = { value:false, type:"boolean"};
+	public textParam:TwitchatDataTypes.ParameterData<string> = { value:"", type:"string", longText:true, maxLength:500};
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 
@@ -125,8 +130,6 @@ export default class PostOnChatParam extends Vue {
 			this.isFirstRender = false;
 			await this.$nextTick();
 			this.placeholderTarget = (this.$refs.paramItem as ParamItem).$el.getElementsByTagName("textarea")[0];
-			const holder = this.$refs.preview as HTMLDivElement;
-			gsap.from(holder, {duration:.25, height:0, margin:0, paddingTop:0, paddingBottom:0, clearProps:"all"});
 		}
 		this.updatePreview();
 	}
@@ -189,7 +192,6 @@ export default class PostOnChatParam extends Vue {
 	
 	.preview {
 		display: none;
-		margin-left: 1.5em;
 		padding: .25em .5em;
 		border-radius: .5em;
 		box-sizing: border-box;
@@ -197,10 +199,14 @@ export default class PostOnChatParam extends Vue {
 		overflow: hidden;
 	}
 	
-	&:focus-within {
+	&:focus-within:not(input) {
 		.preview {
 			display: block;
 		}
+	}
+
+	.margin {
+		margin-top: .5em;
 	}
 }
 </style>
