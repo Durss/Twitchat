@@ -1,3 +1,4 @@
+import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
 import type { TriggerActionCountDataAction, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -40,6 +41,7 @@ export default class StoreProxy {
 	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState, $reset:()=>void};
 	public static counters:ICountersState & ICountersGetters & ICountersActions & {$state:ICountersState, $reset:()=>void};
 	public static rewards:IRewardsState & IRewardsGetters & IRewardsActions & {$state:IRewardsState, $reset:()=>void};
+	public static heat:IHeatState & IHeatGetters & IHeatActions & {$state:IHeatState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -1542,4 +1544,40 @@ export interface IRewardsActions {
 	 * Load twitch channel point rewards
 	 */
 	loadRewards():Promise<TwitchDataTypes.Reward[]>;
+}
+
+
+
+
+export interface IHeatState {
+	/**
+	 * List of clickable areas
+	 */
+	screenList:HeatScreen[];
+}
+
+export interface IHeatGetters {
+}
+
+export interface IHeatActions {
+	/**
+	 * Create a new screen.
+	 */
+	createScreen():void;
+	/**
+	 * Duplicate a screen by its ID
+	 */
+	duplicateScreen(id:string):void;
+	/**
+	 * Delete a screen by its ID
+	*/
+	deleteScreen(id:string):void;
+	/**
+	 * Update an existing screen
+	 */
+	updateScreen(data:HeatScreen):void;
+	/**
+	 * Save screens to server
+	 */
+	saveScreens():void;
 }

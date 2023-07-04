@@ -22,7 +22,11 @@
 		},
 		"areas":{
 			"description": "Define custom clickable areas and detect when they're clicked on the {TRIGGER_LINK}.",
-			"trigger_link": "triggers section"
+			"trigger_link": "triggers section",
+			"delete_confirm": {
+				"title":"Delete area?",
+				"description":"This cannot be undone."
+			}
 		}
 	}
 }

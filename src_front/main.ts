@@ -47,6 +47,7 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/scale.css'
 import { setDefaultProps } from 'vue-tippy';
 import Icon from './components/Icon.vue';
+import { storeHeat } from './store/heat/storeHeat';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -189,7 +190,7 @@ function buildApp() {
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards") => {
+	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat") => {
 		switch(id) {
 			case "main": return StoreProxy.main;
 			case "account": return StoreProxy.account;
@@ -216,6 +217,7 @@ function buildApp() {
 			case "admin": return StoreProxy.admin;
 			case "counters": return StoreProxy.counters;
 			case "rewards": return StoreProxy.rewards;
+			case "heat": return StoreProxy.heat;
 		}
 	}
 	
@@ -253,6 +255,7 @@ function buildApp() {
 	StoreProxy.accessibility = storeAccessibility();
 	StoreProxy.admin = storeAdmin();
 	StoreProxy.counters = storeCounters();
+	StoreProxy.heat = storeHeat();
 	StoreProxy.router = router;
 	
 	app.use(router)

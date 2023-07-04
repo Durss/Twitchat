@@ -22,7 +22,11 @@
 		},
 		"areas":{
 			"description": "Définissez des zones cliquables personnalisées puis détectez lorsqu'elles sont cliquées depuis {TRIGGER_LINK}.",
-			"trigger_link": "les triggers"
+			"trigger_link": "les triggers",
+			"delete_confirm": {
+				"title":"Supprimer la zone ?",
+				"description":"La suppression ne pourra pas être annulée."
+			}
 		}
 	}
 }

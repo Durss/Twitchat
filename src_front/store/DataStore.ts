@@ -69,6 +69,7 @@ export default class DataStore {
 	public static ULULE_TITLE:string = "ululeTitle";
 	public static ULULE_CURRENCY:string = "ululeCurrency";
 	public static HEAT_ENABLED:string = "heatEnabled";
+	public static HEAT_SCREENS:string = "heatScreens";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

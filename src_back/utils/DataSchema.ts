@@ -792,6 +792,29 @@ import Ajv from "ajv";
 			}
 		},
 
+		heatScreens: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				id: {type:"string", maxLength:40},
+				areas: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						id: {type:"string", maxLength:40},
+						points: {
+							type:"object",
+							additionalProperties: false,
+							properties: {
+								x: {type:"number", minimum:0, maximum:1},
+								y: {type:"number", minimum:0, maximum:1},
+							}
+						},
+					}
+				},
+			}
+		},
+
 		tooltipAutoOpen: {
 			type:"object",
 			additionalProperties: false,

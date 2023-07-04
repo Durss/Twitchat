@@ -36,6 +36,8 @@
 		"hide": "Hide",
 		"copy": "Copy",
 		"stop": "Stop",
+		"edit": "Edit",
+		"duplicate": "Duplicate",
 		"loading": "Loading...",
 		"obs_connect": "This feature needs you to {LINK}",
 		"obs_connect_link": "connect with OBS",

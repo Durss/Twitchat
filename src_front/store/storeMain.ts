@@ -583,6 +583,7 @@ export const storeMain = defineStore("main", {
 			const sOBS = StoreProxy.obs;
 			const sTTS = StoreProxy.tts;
 			const sChat = StoreProxy.chat;
+			const sHeat = StoreProxy.heat;
 			const sVoice = StoreProxy.voice;
 			const sMusic = StoreProxy.music;
 			const sStream = StoreProxy.stream;
@@ -766,6 +767,13 @@ export const storeMain = defineStore("main", {
 			if(countersParams) {
 				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.counterList as unknown) as JsonObject);
 				// sCounters.counterList = JSON.parse(countersParams);
+			}
+
+			//Init heat screens
+			const heatScreensParams = DataStore.get(DataStore.HEAT_SCREENS);
+			if(heatScreensParams) {
+				Utils.mergeRemoteObject(JSON.parse(heatScreensParams), (sHeat.screenList as unknown) as JsonObject);
+				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
 			}
 			
 			//Reload devmode state

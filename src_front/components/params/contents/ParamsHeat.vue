@@ -14,7 +14,7 @@
 
 		<div class="fadeHolder" :style="holderStyles">
 			<HeatOverlayClick />
-			<HeatAreaClick />
+			<HeatScreenList />
 			<HeatDebug />
 		</div>
 
@@ -30,7 +30,7 @@ import HeatSocket from '@/utils/twitch/HeatSocket';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import HeatOverlayClick from './heat/HeatOverlayClick.vue';
-import HeatAreaClick from './heat/HeatAreaClick.vue';
+import HeatScreenList from './heat/HeatScreenList.vue';
 import type { StyleValue } from 'vue';
 import HeatDebug from './heat/HeatDebug.vue';
 
@@ -39,7 +39,7 @@ import HeatDebug from './heat/HeatDebug.vue';
 		Button,
 		ParamItem,
 		HeatDebug,
-		HeatAreaClick,
+		HeatScreenList,
 		HeatOverlayClick,
 	},
 	emits:[],
