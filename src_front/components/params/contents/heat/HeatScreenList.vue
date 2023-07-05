@@ -26,7 +26,6 @@ import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { HeatScreen } from '@/types/HeatDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Component, Vue } from 'vue-facing-decorator';
 import HeatScreenEditor from './areas/HeatScreenEditor.vue';
 import HeatScreenPreview from './areas/HeatScreenPreview.vue';
@@ -45,7 +44,6 @@ export default class HeatScreenList extends Vue {
 	public currentScreen:HeatScreen|null = null;
 
 	public async beforeMount():Promise<void> {
-		const scenes = await OBSWebsocket.instance.getScenes();
 	}
 
 	public openTriggers():void {

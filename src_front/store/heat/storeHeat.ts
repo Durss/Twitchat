@@ -62,6 +62,16 @@ export const storeHeat = defineStore('heat', {
 		},
 
 		saveScreens():void {
+			for (let i = 0; i < this.screenList.length; i++) {
+				const screen = this.screenList[i];
+				for (let j = 0; j < screen.areas.length; j++) {
+					const a = screen.areas[j];
+					if(a.points.length == 0) {
+						screen.areas.splice(j, 1);
+						j--;
+					}
+				}
+			}
 			DataStore.set(DataStore.HEAT_SCREENS, this.screenList);
 		}
 
