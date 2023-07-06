@@ -265,7 +265,9 @@
 				"pattern": "Séquence de vibrations"
 			},
 			"heat":{
-				"select_area":"Selectinnez une ou plusieurs zones à cliquer pour déclencher ce trigger"
+				"select_area":"Selectionnez une ou plusieurs zones à cliquer pour déclencher ce trigger",
+				"no_area":"Vous n'avez créé aucune zone cliquable",
+				"create_areaBt":"Créer des zones cliquable"
 			}
 		},
 		"categories": {
@@ -725,7 +727,7 @@
 			},
 			"HEAT_CLICK": {
 				"label": "Interraction Heat",
-				"description": "Actions à exécuter lorsque quelqu'un click sur le stream"
+				"description": "Actions à exécuter lorsque quelqu'un clique sur le stream"
 			}
 		},
 		"musicEvents": {

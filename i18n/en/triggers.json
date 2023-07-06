@@ -265,7 +265,9 @@
 				"pattern":"Vibration pattern"
 			},
 			"heat":{
-				"select_area":"Select one or multiple areas to be clicked to execute this trigger"
+				"select_area":"Select one or multiple areas to be clicked to execute this trigger",
+				"no_area":"You created no clickable area",
+				"create_areaBt":"Create clickable areas"
 			}
 		},
 		"categories": {

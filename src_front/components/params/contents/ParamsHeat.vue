@@ -14,7 +14,7 @@
 
 		<div class="fadeHolder" :style="holderStyles">
 			<HeatOverlayClick />
-			<HeatScreenList />
+			<HeatScreenList :open="subContent == 'heatAreas'" :class="subContent == 'heatAreas'? 'selected' : ''" />
 			<HeatDebug />
 		</div>
 
@@ -47,13 +47,15 @@ import HeatDebug from './heat/HeatDebug.vue';
 export default class ParamsHeat extends Vue {
 	
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
+		
+	public get subContent() { return this.$store("params").currentPageSubContent; }
 
 	public get holderStyles():StyleValue {
-	return {
-		opacity:this.param_enabled.value === true? 1 : .5,
-		pointerEvents:this.param_enabled.value === true? "all" : "none",
-	};
-}
+		return {
+			opacity:this.param_enabled.value === true? 1 : .5,
+			pointerEvents:this.param_enabled.value === true? "all" : "none",
+		};
+	}
 
 	public beforeMount():void {
 		if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
@@ -91,6 +93,25 @@ export default class ParamsHeat extends Vue {
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
+		
+
+		.selected {
+			border: 5px solid transparent;
+			border-radius: 1em;
+			animation: blink .5s 3 forwards;
+			animation-delay: 1s;
+			@keyframes blink {
+				0% {
+					border-color: var(--color-secondary);
+				}
+				50% {
+					border-color: transparent;
+				}
+				100% {
+					border-color: var(--color-secondary);
+				}
+			}
+		}
 	}
 
 	.donate {
