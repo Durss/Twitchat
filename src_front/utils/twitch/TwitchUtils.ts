@@ -1571,8 +1571,8 @@ export default class TwitchUtils {
 			return {
 				chatDelay:data.non_moderator_chat_delay === false? undefined : data.non_moderator_chat_delay_duration as number,
 				emotesOnly:data.emote_mode === true,
-				followOnly:data.follower_mode === false? undefined : data.follower_mode_duration,
-				slowMode:data.slow_mode === false? undefined : data.slow_mode_wait_time,
+				followOnly:data.follower_mode === false? false : data.follower_mode_duration,
+				slowMode:data.slow_mode === false? false : data.slow_mode_wait_time,
 				subOnly:data.subscriber_mode,
 			}
 		}else

@@ -1,11 +1,11 @@
 <template>
-	<div class="chatraid chatMessage highlight">
+	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="raid" alt="raid" class="icon"/>
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" keypath="chat.raid.text" :plural="showCount? messageData.viewers : 2">
+			<i18n-t scope="global" class="message" tag="span" keypath="chat.raid.text" :plural="showCount? messageData.viewers : 2">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
 				</template>
@@ -15,7 +15,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="streamInfo">
+			<div class="streamInfo" v-if="$store('params').appearance.showRaidStreamInfo.value == true">
 				<div class="infos">
 					<div class="title quote">
 						<span>{{messageData.stream.title}}</span>
@@ -35,8 +35,15 @@
 					class="soButton"
 				>{{ $t('chat.soBt') }}</Button>
 			</div>
-		</div>
 
+			<Button v-else
+				@click.stop="shoutout()"
+				small
+				icon="shoutout"
+				:loading="shoutoutLoading"
+				class="soButton"
+			>{{ $t('chat.soBt') }}</Button>
+		</div>
 	</div>
 </template>
 
@@ -62,11 +69,18 @@ export default class ChatRaid extends AbstractChatMessage {
 	public showCount = false;
 	public formatedDuration = "";
 
+	public get classes():string[] {
+		const res = ["chatraid","chatMessage","highlight"];
+		if(this.$store('params').appearance.showRaidStreamInfo.value !== true) {
+			res.push("rowMode");
+		}
+		return res;
+	}
+
 	public beforeMount():void {
 		this.showCount = this.$store('params').appearance.showRaidViewersCount.value !== false;
 		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
 	}
-
 
 	public openUserCard():void {
 		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
@@ -97,6 +111,22 @@ export default class ChatRaid extends AbstractChatMessage {
 
 	.censored {
 		cursor: pointer;
+	}
+
+	&.rowMode {
+		.messageHolder {
+			flex-wrap: wrap;
+			flex-direction: row;
+			gap: 1em;
+			.message {
+				flex-grow: 1;
+				flex-basis: 150px;
+			}
+	
+			.soButton {
+				flex-shrink: 0;
+			}
+		}
 	}
 }
 </style>

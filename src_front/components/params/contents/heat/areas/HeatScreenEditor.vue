@@ -1,46 +1,73 @@
 <template>
 	<div class="heatscreeneditor">
+
+		<div class="form">
+			<Button icon="back" class="backBt" @click="$emit('close')">{{ $t("global.back") }}</Button>
+			<ParamItem :paramData="params_target" @change="$emit('update')" v-model="screen.activeOBSScene"/>
+		</div>
+
 		<div ref="editor" :class="editorClasses" @pointerdown="$event => addPoint($event)">
+			<div ref="background" class="background" v-if="params_showOBS.value"></div>
 			<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
 				<g v-for="area in screen.areas" :key="'area_'+screen.id">
 					<polygon :points="getSVGPoints(area.points)"
 						:class="fillClasses(area)"
+						@contextmenu.prevent="onRightClickArea(area)"
 						@pointerdown.stop="startDragArea($event, area)" />
 
 					<circle v-for="p, index in area.points" :key="screen.id+'_'+index"
 						:cx="(p.x*100)+'%'"
 						:cy="(p.y*100)+'%'"
 						r="2%"
+						:class="pointClasses(area, index)"
+						@click="selectPoint(area, index)"
 						@dblclick="resetCurrentArea()"
-						@contextmenu.prevent="area.points.splice(index, 1)"
+						@contextmenu.prevent="onRightClickPoint(area, index)"
 						@pointerdown.stop="startDragPoint($event, p, area, index)"/>
 				</g>
 			</svg>
+		</div>
+
+		<div class="form">
+			<ParamItem :paramData="params_showOBS" v-if="obsConnected" class="shrink" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import Button from '@/components/Button.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
 import type { HeatArea, HeatScreen } from '@/types/HeatDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
-import type { CSSProperties } from 'vue';
+import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
-	components:{},
-	emits:["update"],
+	components:{
+		Button,
+		ParamItem,
+	},
+	emits:["update", "close"],
 })
 export default class HeatScreenEditor extends Vue {
 
 	@Prop
 	public screen!:HeatScreen;
+
+	public params_showOBS:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, labelKey:"heat.areas.show_obs" };
+	public params_target:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", labelKey:"heat.areas.target" };
 	
 	private editMode:null | "add" | "append" | "delete" = null;
 	private currentArea:HeatArea | null = null;
+	private currentPointIndex:number = -1
 	private draggedArea:HeatArea |  null = null;
 	private draggedPoint:{x:number, y:number} |  null = null;
 	private draggOffset:{x:number, y:number}= {x:0, y:0};
+	private obsScreener:number = -1;
+
+	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private mouseUpHandler!:(e:PointerEvent) => void;
 	private mouseMoveHandler!:(e:PointerEvent) => void;
 
@@ -49,9 +76,12 @@ export default class HeatScreenEditor extends Vue {
 		if(this.editMode) res.push(this.editMode);
 		return res;
 	}
+
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	
 	public async beforeMount():Promise<void> {
-		const scenes = await OBSWebsocket.instance.getScenes();
+
+		this.params_target.listValues = [{value:"", labelKey:"heat.areas.target_always"}];
 
 		if(this.screen.areas.length == 0) {
 			this.screen.areas.push({
@@ -60,14 +90,29 @@ export default class HeatScreenEditor extends Vue {
 			});
 		}
 
+		this.keyDownHandler = (e:KeyboardEvent) => this.onKeyDown(e);
 		this.mouseUpHandler = (e:PointerEvent) => this.onMouseUp(e);
 		this.mouseMoveHandler = (e:PointerEvent) => this.onMouseMove(e);
 
+		document.addEventListener("keydown", this.keyDownHandler, true);
 		document.addEventListener("pointerup", this.mouseUpHandler);
 		document.addEventListener("pointermove", this.mouseMoveHandler);
+		
+		if(OBSWebsocket.instance.connected){
+			this.refreshImage();
+			const scenes = await OBSWebsocket.instance.getScenes();
+			scenes.scenes.forEach(v=> {
+				this.params_target.listValues!.push({value:v.sceneName, label:v.sceneName});
+			})
+		}else{
+			watch(()=>OBSWebsocket.instance.connected, ()=>{
+				this.refreshImage();
+			});
+		}
 	}
 
 	public beforeUnmount():void {
+		document.removeEventListener("keydown", this.keyDownHandler, true);
 		document.removeEventListener("pointerup", this.mouseUpHandler);
 		document.removeEventListener("pointermove", this.mouseMoveHandler);
 	}
@@ -75,6 +120,12 @@ export default class HeatScreenEditor extends Vue {
 	public fillClasses(area:HeatArea):string[] {
 		if(area.id != this.currentArea?.id) return [];
 		return ["selected"]
+	}
+
+	public pointClasses(area:HeatArea, index:number):string[] {
+		if(area.id != this.currentArea?.id) return [];
+		if(index == this.currentPointIndex) return ["selected"];
+		return [];
 	}
 
 	public getSVGPoints(p:{x:number, y:number}[]):string {
@@ -94,11 +145,13 @@ export default class HeatScreenEditor extends Vue {
 		if(areaIndex > -1) {
 			console.log("INTERSECTION FOUND");
 			this.currentArea = this.screen.areas[areaIndex];
+			this.currentPointIndex = pointIndex;
 			this.currentArea.points.splice(pointIndex, 0, {x, y});
 
 		}else if(this.currentArea) {
 			console.log("PUSH TO current AREA");
 			this.currentArea.points.push({x, y});
+			this.currentPointIndex = this.currentArea.points.length -1;
 
 		}else {
 			console.log("CREATE NEW");
@@ -106,21 +159,42 @@ export default class HeatScreenEditor extends Vue {
 				id:Utils.getUUID(),
 				points:[{x, y}],
 			};
+			this.currentPointIndex = 0;
 			this.screen.areas.push(this.currentArea);
 		}
 
 		this.$emit("update");
 	}
 
+	public selectPoint(area:HeatArea, index:number):void {
+		this.currentArea = area;
+		this.currentPointIndex = index;
+	}
+
+	public onRightClickArea(area:HeatArea):void {
+		if(area.id == this.currentArea?.id) {
+			this.resetCurrentArea();
+		}
+	}
+
+	public onRightClickPoint(area:HeatArea, pointIndex:number):void {
+		area.points.splice(pointIndex, 1);
+		this.currentPointIndex = -1;
+	}
+
 	public resetCurrentArea():void {
 		this.currentArea = null;
+		this.currentPointIndex = -1;
 	}
 
 	public startDragPoint(event:PointerEvent, point:{x:number, y:number}, area:HeatArea, index:number):void {
 		if(event.ctrlKey) {
 			area.points.splice(index, 1);
+			this.currentPointIndex = -1;
 		}else{
 			this.draggedPoint = point;
+			this.currentArea = area;
+			this.currentPointIndex = index;
 		}
 	}
 
@@ -128,10 +202,59 @@ export default class HeatScreenEditor extends Vue {
 		if(this.editMode == "append") {
 			this.addPoint(event);
 		}else{
+			this.currentPointIndex = -1;
 			this.currentArea = area;
 			this.draggedArea = area;
 			this.draggOffset.x = event.x;
 			this.draggOffset.y = event.y;
+		}
+	}
+
+	public onKeyDown(event:KeyboardEvent):void {
+		//Delete an area or a point
+		if((event.key == "Delete" || event.key == "Backspace") && this.currentArea) {
+			const index = this.screen.areas.findIndex(v=>v.id == this.currentArea!.id);
+			if(index > -1) {
+				if(this.currentPointIndex) {
+					this.currentArea.points.splice(this.currentPointIndex, 1);
+				}else{
+					this.screen.areas.splice(index, 1);
+				}
+				this.$emit("update");
+			}
+		}
+
+		//Unselect an area
+		if(event.key == "Escape" && this.currentArea) {
+			event.stopPropagation();
+			event.preventDefault();
+			this.resetCurrentArea();
+		}
+
+		//Move area or point with arrows
+		if(this.currentArea) {
+			const editor = this.$refs.editor as HTMLDivElement;
+			const bounds = editor.getBoundingClientRect();
+			const scale = event.ctrlKey? 50 : event.shiftKey? 10 : 1;
+			let addX = 0;
+			let addY = 0;
+			if(event.key == "ArrowLeft")	addX = -1/bounds.width * scale;
+			if(event.key == "ArrowRight")	addX = 1/bounds.width * scale;
+			if(event.key == "ArrowUp")		addY = -1/bounds.height * scale;
+			if(event.key == "ArrowDown")	addY = 1/bounds.height * scale;
+			
+			if(this.currentPointIndex > -1) {
+				this.currentArea.points[this.currentPointIndex].x += addX;
+				this.currentArea.points[this.currentPointIndex].y += addY;
+			}else {
+				for (let i = 0; i < this.currentArea.points.length; i++) {
+					const point = this.currentArea.points[i];
+					point.x += addX;
+					point.y += addY;
+				}
+			}
+			event.preventDefault();
+			event.stopPropagation();
 		}
 	}
 
@@ -155,23 +278,41 @@ export default class HeatScreenEditor extends Vue {
 		if(areaIndex > -1 && pointIndex > -1) this.editMode = "append";
 
 		if(this.draggedPoint) {
+			//Move a single point
 			this.draggedPoint.x = (event.x - bounds.x)/bounds.width;
 			this.draggedPoint.y = (event.y - bounds.y)/bounds.height;
 		}
 
 		if(this.draggedArea) {
+			const centroid = this.computeCentroid(this.draggedArea.points);
+			centroid.x *= bounds.width;
+			centroid.y *= bounds.height;
+			let offsetX = event.x - this.draggOffset.x
+			let offsetY = event.y - this.draggOffset.y
+
+			//Limit area position to avoid losing it out of screen
+			if(centroid.x + offsetX < 0) offsetX -= centroid.x + offsetX;
+			if(centroid.x + offsetX > bounds.width) offsetX += bounds.width - (centroid.x + offsetX);
+			if(centroid.y + offsetY < 0) offsetY -= centroid.y + offsetY;
+			if(centroid.y + offsetY > bounds.height) offsetY += bounds.height - (centroid.y + offsetY);
+
+			//Move all points
 			for (let i = 0; i < this.draggedArea.points.length; i++) {
 				const point = this.draggedArea.points[i];
-				point.x += (event.x - this.draggOffset.x)/bounds.width;
-				point.y += (event.y - this.draggOffset.y)/bounds.height;
+				point.x += offsetX/bounds.width;
+				point.y += offsetY/bounds.height;
 			}
 			this.draggOffset.x = event.x;
 			this.draggOffset.y = event.y;
 		}
 	}
 
+	/**
+	 * Checks if the given coordinates are near any of the areas segments
+	 * @param x 
+	 * @param y 
+	 */
 	private getSegmentUnderPoint(x:number, y:number):number[] {
-		
 		const editor = this.$refs.editor as HTMLDivElement;
 		const bounds = editor.getBoundingClientRect();
 		x = (x - bounds.x)/bounds.width;
@@ -187,7 +328,7 @@ export default class HeatScreenEditor extends Vue {
 			for (let j = 1; j < area.points.length+1; j++) {
 				const prevP = area.points[j-1];
 				//Make sure we loop the index to check segment between last and first point
-				const point = area.points[j%area.points.length];
+				const point = area.points[j % area.points.length];
 				//Compute size of the segment
 				const dist = Math.sqrt(Math.pow(point.x * 1920 - prevP.x * 1920, 2) + Math.pow(point.y * 1080 - prevP.y * 1080, 2));
 				//Compute distance between start point and cusrsor
@@ -205,6 +346,39 @@ export default class HeatScreenEditor extends Vue {
 		return [areaIndex, pointIndex];
 	}
 
+	/**
+	 * Compute the centroid coordinates of a polygon
+	 * @param points 
+	 */
+	private computeCentroid(points:{x:number, y:number}[]) {
+		let cx = 0;
+		let cy = 0;
+		const n = points.length;
+		for (let i = 0; i < n; i++) {
+			cx += points[i].x;
+			cy += points[i].y;
+		}
+		cx /= n;
+		cy /= n;
+
+		return { x: cx, y: cy };
+	}
+
+	/**
+	 * Grabs an OBS screenshot to set it as area's background
+	 */
+	private async refreshImage():Promise<void> {
+		const area = (this.$refs.background as HTMLDivElement);
+		//@ts-ignore
+		if(area && this.params_showOBS.value == true) {
+			const image = await OBSWebsocket.instance.getScreenshot();
+			area.style.backgroundImage = "url("+image+")";
+		}
+
+		clearTimeout(this.obsScreener);
+		this.obsScreener = setTimeout(()=>this.refreshImage(), 60);
+	}
+
 }
 </script>
 
@@ -216,11 +390,26 @@ export default class HeatScreenEditor extends Vue {
 		width: 100%;
 		aspect-ratio: 16/9;
 		cursor: crosshair;
+		user-select: none;
+		position: relative;
+		.background {
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			opacity: .5;
+			position: absolute;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center center;
+		}
 		// &.delete {
 		// 	cursor: crosshair;
 		// }
 
 		svg {
+			position: relative;
+			z-index: 1;
 			:deep(polygon) {
 				fill: var(--color-text-fader);
 				stroke-width: 5px;
@@ -239,6 +428,10 @@ export default class HeatScreenEditor extends Vue {
 			:deep(circle) {
 				fill: var(--color-text);
 				cursor: pointer;
+
+				&.selected {
+					fill: var(--color-secondary);
+				}
 			}
 		}
 
@@ -250,6 +443,27 @@ export default class HeatScreenEditor extends Vue {
 			:deep(polygon) {
 				cursor: inherit;
 			}
+		}
+	}
+
+	.form {
+		display: flex;
+		flex-direction: column;
+		gap: .25em;
+		margin-top: .5em;
+		
+		&:first-of-type {
+			margin-top: 0;
+			margin-bottom: .5em;
+		}
+
+		.shrink {
+			align-self: center;
+		}
+
+		.backBt {
+			text-transform: capitalize;
+			align-self: center;
 		}
 	}
 }

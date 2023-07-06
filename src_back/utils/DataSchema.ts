@@ -474,6 +474,7 @@ import Ajv from "ajv";
 		"p:showViewersCount": {type:"boolean"},
 		"p:alternateMessageBackground": {type:"boolean"},
 		"p:showRaidViewersCount": {type:"boolean"},
+		"p:showRaidStreamInfo": {type:"boolean"},
 		"p:offlineEmoteOnly": {type:"boolean"},
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
@@ -797,6 +798,8 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				id: {type:"string", maxLength:40},
+				enabled: {type:"boolean"},
+				activeOBSScene: {type:"string", maxLength:100},
 				areas: {
 					type:"object",
 					additionalProperties: false,

@@ -23,6 +23,9 @@
 		"areas":{
 			"description": "Définissez des zones cliquables personnalisées puis détectez lorsqu'elles sont cliquées depuis {TRIGGER_LINK}.",
 			"trigger_link": "les triggers",
+			"target":"Zones actives quand la scène OBS active est",
+			"target_always":"N'importe laquelle",
+			"show_obs":"Afficher capture OBS",
 			"delete_confirm": {
 				"title":"Supprimer la zone ?",
 				"description":"La suppression ne pourra pas être annulée."

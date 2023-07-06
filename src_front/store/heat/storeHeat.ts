@@ -25,7 +25,9 @@ export const storeHeat = defineStore('heat', {
 		createScreen():void {
 			this.screenList.push({
 				id:Utils.getUUID(),
-				areas:[]
+				areas:[],
+				activeOBSScene:"",
+				enabled:true,
 			});
 
 			this.saveScreens();
@@ -36,6 +38,7 @@ export const storeHeat = defineStore('heat', {
 			if(!screen) return;
 
 			screen = JSON.parse(JSON.stringify(screen));
+			screen!.id = Utils.getUUID();
 
 			this.screenList.push(screen!);
 

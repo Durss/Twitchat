@@ -23,6 +23,9 @@
 		"areas":{
 			"description": "Define custom clickable areas and detect when they're clicked on the {TRIGGER_LINK}.",
 			"trigger_link": "triggers section",
+			"target":"Zones active when current OBS scene is",
+			"target_always":"Any",
+			"show_obs":"Show OBS screen",
 			"delete_confirm": {
 				"title":"Delete area?",
 				"description":"This cannot be undone."

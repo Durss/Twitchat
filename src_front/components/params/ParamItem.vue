@@ -220,6 +220,7 @@ import Button from '../Button.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 import Slider from '../Slider.vue';
+import { useSlots, type VNode } from 'vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -836,6 +837,7 @@ export default class ParamItem extends Vue {
 		.list {
 
 			label {
+				margin-top: .4em;
 				flex-basis: unset;
 			}
 

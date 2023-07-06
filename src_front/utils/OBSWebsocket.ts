@@ -26,6 +26,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	private sceneSourceCache:{[key:string]:{ts:number, value:{scene:string, source:OBSSourceItem}}} = {};
 	private sceneDisplayRectsCache:{[key:string]:{ts:number, value:{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}}} = {};
 	private sceneToCaching:{[key:string]:boolean} = {};
+	private cachedScreen:{ts:number, screen:string} = {ts:0, screen:""};
 	
 	constructor() {
 		super();
@@ -677,9 +678,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName 
 	 */
 	public async getScreenshot(sourceName?:string):Promise<string> {
+		if(Date.now() - this.cachedScreen.ts < 60) return this.cachedScreen.screen;
 		if(!this.connected) return "";
 		if(!sourceName) sourceName = await this.getCurrentScene();
 		let res = await this.obs.call('GetSourceScreenshot',{'sourceName':sourceName, imageFormat:"jpeg"});
+		this.cachedScreen.ts = Date.now();
+		this.cachedScreen.screen = res.imageData;
 		return res.imageData;
 	}
 	

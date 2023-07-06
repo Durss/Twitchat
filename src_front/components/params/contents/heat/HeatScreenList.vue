@@ -1,22 +1,34 @@
 <template>
 	<ToggleBlock class="HeatScreenList" :title="$t('heat.zone_interaction')" :open="true" :icons="['polygon']">
 		<div class="content">
-			<i18n-t scope="global" tag="div" keypath="heat.areas.description">
+			<i18n-t scope="global" tag="div" keypath="heat.areas.description" v-if="!currentScreen">
 				<template #TRIGGER_LINK>
 					<a @click="openTriggers()">{{ $t("heat.areas.trigger_link") }}</a>
 				</template>
 			</i18n-t>
 
-			<div class="areaList" v-if="!currentScreen">
-				<HeatScreenPreview class="item" v-for="screen in $store('heat').screenList" :screen="screen" :key="screen.id"
-				@click="editScreen(screen)"
-				@delete="deleteScreen"
-				@duplicate="duplicateScreen"></HeatScreenPreview>
+			<draggable class="areaList" v-if="!currentScreen"
+			v-model="$store('heat').screenList" 
+			group="actions" 
+			item-key="id"
+			ghost-class="ghost"
+			direction="vertical"
+			draggable=".item"
+			:animation="250"
+			:dragoverBubble="true">
+				<template #item="{element, index}:{element:HeatScreen, index:number}">
+					<HeatScreenPreview class="item" :screen="element" :key="index"
+						@update="editScreen(element, true)"
+						@click="editScreen(element)"
+						@delete="deleteScreen"
+						@duplicate="duplicateScreen" />
+				</template>
+				<template #footer>
+					<Button slot="footer" class="item" icon="add" @click="createScreen"></Button>
+				</template>
+			</draggable>
 
-				<Button class="item" icon="add" @click="createScreen"></Button>
-			</div>
-
-			<HeatScreenEditor v-else :screen="currentScreen" @update="editScreen(currentScreen)" />
+			<HeatScreenEditor v-else :screen="currentScreen" @update="editScreen(currentScreen)" @close="currentScreen = null" />
 		</div>
 	</ToggleBlock>
 </template>
@@ -29,10 +41,12 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
 import HeatScreenEditor from './areas/HeatScreenEditor.vue';
 import HeatScreenPreview from './areas/HeatScreenPreview.vue';
+import draggable from 'vuedraggable';
 
 @Component({
 	components:{
 		Button,
+		draggable,
 		ToggleBlock,
 		HeatScreenEditor,
 		HeatScreenPreview,
@@ -60,8 +74,10 @@ export default class HeatScreenList extends Vue {
 	/**
 	 * Called when clicking edit button
 	 */
-	public editScreen(screen:HeatScreen):void {
-		this.currentScreen = screen;
+	public editScreen(screen:HeatScreen, saveOnly = false):void {
+		if(!saveOnly) {
+			this.currentScreen = screen;
+		}
 		this.$store("heat").updateScreen(screen);
 	}
 
