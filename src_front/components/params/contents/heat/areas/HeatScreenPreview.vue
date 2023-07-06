@@ -81,7 +81,7 @@ export default class HeatScreenPreview extends Vue {
 		position: absolute;
 		bottom: 0;
 		left: 0;
-		filter: drop-shadow(1px 1px 1px #000000) drop-shadow(-1px -1px 1px #000000);
+		filter: drop-shadow(1px 1px 1px var(--color-text-inverse)) drop-shadow(-1px -1px 1px var(--color-text-inverse));
 
 		.icon {
 			height: 1em;
