@@ -457,7 +457,7 @@ export const storeMain = defineStore("main", {
 					if(!isTrigger && !isOverlay) return;
 
 					const channelId = StoreProxy.auth.twitch.user.id;
-					const anonymous = parseInt(event.uid || "anon").toString() === event.uid;
+					const anonymous = parseInt(event.uid || "anon").toString() !== event.uid;
 					let user!:TwitchatDataTypes.TwitchatUser;
 					if(!anonymous) {
 						//Load user data
@@ -467,6 +467,7 @@ export const storeMain = defineStore("main", {
 							});
 						})
 					}
+					console.log(anonymous, event.uid);
 
 					//If there are heat triggers, execute them
 					if(isTrigger) {
