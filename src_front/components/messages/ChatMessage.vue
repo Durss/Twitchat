@@ -223,7 +223,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(!this.lightMode && this.messageData.user.is_tracked)	res.push("tracked");
 
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			if(message.deleted)	{
+			if(message.deleted || message.cleared)	{
 				res.push("deleted");
 				if(censorDeletedMessages) res.push("censor");
 			}

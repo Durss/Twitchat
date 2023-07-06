@@ -415,8 +415,9 @@ export interface IChatActions {
 	/**
 	 * Delete all messages of a channel
 	 * @param channelId 
+	 * @param clearMode if set to true, messages won't be flagged as deleted
 	 */
-	delChannelMessages(channelId:string):void;
+	delChannelMessages(channelId:string, clearMode:boolean):void;
 	/**
 	 * Deletes the messages of a user
 	 */

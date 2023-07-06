@@ -1532,8 +1532,22 @@ export namespace TwitchatDataTypes {
 		id:string;
 		date:number;
 		platform:ChatPlatform;
+		/**
+		 * true if message has been deleted
+		 */
 		deleted?:boolean;
+		/**
+		 * true if message has been part of the cleared messages
+		 * when using /clear command
+		 */
+		cleared?:boolean;
+		/**
+		 * Is it a fake message ?
+		 */
 		fake?:boolean;
+		/**
+		 * Optional column index to display the message to
+		 */
 		col?:number;//Use this to send a message on a specific column index
 	}
 
