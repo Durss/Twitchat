@@ -28,7 +28,7 @@
 				</template>
 			</draggable>
 
-			<HeatScreenEditor v-else :screen="currentScreen" @update="editScreen(currentScreen)" @close="currentScreen = null" />
+			<HeatScreenEditor v-else :screen="currentScreen" @update="editScreen(currentScreen!, true)" @close="currentScreen = null" />
 		</div>
 	</ToggleBlock>
 </template>
