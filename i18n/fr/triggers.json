@@ -727,7 +727,8 @@
 			},
 			"HEAT_CLICK": {
 				"label": "Interraction Heat",
-				"description": "Actions à exécuter lorsque quelqu'un clique sur le stream"
+				"description": "Actions à exécuter lorsque quelqu'un clique sur le stream {INFO}",
+				"description_info": "(Requiert l'extension Twitch \"Heat\". Consultez la section Heat pour l'installer)"
 			}
 		},
 		"musicEvents": {

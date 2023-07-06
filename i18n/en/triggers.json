@@ -725,7 +725,8 @@
 			},
 			"HEAT_CLICK": {
 				"label": "Heat click",
-				"description": "Actions to execute when a user clicks on your stream"
+				"description": "Actions to execute when a user clicks on your stream {INFO}",
+				"description_info": "(Needs Twitch extension \"Heat\". See Heat section to install it)"
 			}
 		},
 		"musicEvents": {
