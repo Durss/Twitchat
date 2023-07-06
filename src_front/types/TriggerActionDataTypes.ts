@@ -118,6 +118,10 @@ export interface TriggerData {
 	 * Contains IDs of the clickable areas
 	 */
 	heatAreaIds?:string[];
+	/**
+	 * Defines if anonymous clicks should be allowed or not
+	 */
+	heatAllowAnon?:boolean;
 
 	/**
 	 * @deprecated Only here for typings on data migration.

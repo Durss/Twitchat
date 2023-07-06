@@ -588,7 +588,9 @@ export default class TriggerActionHandler {
 						if(t.heatAreaIds && t.heatAreaIds.indexOf(a.id) > -1) {
 							const isInside = Utils.isPointInsidePolygon({x:m.coords.x/100, y:m.coords.y/100}, a.points);
 							//If click is inside the area, execute the trigger
-							if(isInside && await this.executeTrigger(t, message, testMode, subEvent, ttsID)) {
+							if(isInside
+							&& (t.heatAllowAnon === true || !m.anonymous)
+							&& await this.executeTrigger(t, message, testMode, subEvent, ttsID)) {
 								isAnExecution = true;
 							}
 						}

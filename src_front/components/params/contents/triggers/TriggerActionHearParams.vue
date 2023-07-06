@@ -1,5 +1,7 @@
 <template>
 	<div class="triggeractionhearparams">
+		<ParamItem noBackground :paramData="param_allowAnon" v-model="triggerData.heatAllowAnon" />
+		
 		<div>
 			<Icon name="polygon" />{{ $t("triggers.actions.heat.select_area") }}
 		</div>
@@ -27,11 +29,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
 import Button from '@/components/Button.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
 		Icon,
 		Button,
+		ParamItem,
 		HeatScreenPreview,
 	},
 	emits:[],
@@ -40,6 +44,8 @@ export default class TriggerActionHearParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
+	
+	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"user", tooltipKey:"heat.anonymous"};
 
 	public mounted():void {
 		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
@@ -83,6 +89,10 @@ export default class TriggerActionHearParams extends Vue {
 
 <style scoped lang="less">
 .triggeractionhearparams{
+	gap: .5em;
+	display: flex;
+	flex-direction: column;
+	
 	.icon {
 		height: 1em;
 		width: 1em;

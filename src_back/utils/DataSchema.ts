@@ -129,6 +129,7 @@ import Ajv from "ajv";
 					queue: {type:"string", maxLength:100},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
+					heatAllowAnon: {type:"boolean"},
 					heatAreaIds:{
 										type:"array",
 										minItems:0,
