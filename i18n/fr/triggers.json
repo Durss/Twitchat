@@ -263,6 +263,9 @@
 			"vibrate": {
 				"info": "Cette action ne fonctionne que si vous utilisez Twitchat sur un périphérique mobile.",
 				"pattern": "Séquence de vibrations"
+			},
+			"heat":{
+				"select_area":"Selectinnez une ou plusieurs zones à cliquer pour déclencher ce trigger"
 			}
 		},
 		"categories": {

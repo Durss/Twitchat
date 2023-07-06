@@ -26,6 +26,7 @@
 			"target":"Zones actives quand la scène OBS active est",
 			"target_always":"N'importe laquelle",
 			"show_obs":"Afficher capture OBS",
+			"connect_obs":"🔗 Connecter OBS",
 			"delete_confirm": {
 				"title":"Supprimer la zone ?",
 				"description":"La suppression ne pourra pas être annulée."

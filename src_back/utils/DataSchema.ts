@@ -129,6 +129,12 @@ import Ajv from "ajv";
 					queue: {type:"string", maxLength:100},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
+					heatAreaIds:{
+										type:"array",
+										minItems:0,
+										maxItems:100,
+										items:{type:"string", maxLength:40},
+									},
 					chatCommandAliases:{
 										type:"array",
 										minItems:0,

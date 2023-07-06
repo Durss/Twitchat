@@ -559,17 +559,50 @@ export default class TriggerActionHandler {
 	 */
 	private async executeTriggersByType(triggerType:TriggerTypesValue, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string):Promise<boolean> {
 		let key = triggerType as string;
+		let isAnExecution = false;
 		if(subEvent) key += this.HASHMAP_KEY_SPLITTER + subEvent;
 		key = key.toLowerCase();
 
 		let triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
-		
-		let isAnExecution = false;
-		//Execute all triggers related to the current trigger event type
-		for (const trigger of triggers) {
-			if(await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
-				isAnExecution = true;
+
+		//Special case for heat triggers.
+		//Check if the click is within one of its expected areas
+		if(triggerType == TriggerTypes.HEAT_CLICK) {
+			const screens = StoreProxy.heat.screenList;
+			const m = message as TwitchatDataTypes.MessageHeatClickData;
+			const obsScene = StoreProxy.main.currentOBSScene;
+			//Parse all screens
+			for (let i = 0; i < screens.length; i++) {
+				const s = screens[i];
+				//Screen disabled, ignore it
+				if(!s.enabled) continue;
+				//Check if requested OBS scene is active
+				if(s.activeOBSScene && s.activeOBSScene != obsScene) continue;
+				//Parse all areas
+				for (let j = 0; j < s.areas.length; j++) {
+					const a = s.areas[j];
+					//Parse all triggers
+					for (let k = 0; k < triggers.length; k++) {
+						const t = triggers[k];
+						if(t.heatAreaIds && t.heatAreaIds.indexOf(a.id) > -1) {
+							const isInside = Utils.isPointInsidePolygon({x:m.coords.x/100, y:m.coords.y/100}, a.points);
+							//If click is inside the area, execute the trigger
+							if(isInside && await this.executeTrigger(t, message, testMode, subEvent, ttsID)) {
+								isAnExecution = true;
+							}
+						}
+					}
+				}
+			}
+
+		}else{
+			
+			//Execute all triggers related to the current trigger event type
+			for (const trigger of triggers) {
+				if(await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
+					isAnExecution = true;
+				}
 			}
 		}
 

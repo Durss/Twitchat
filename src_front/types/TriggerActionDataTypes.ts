@@ -104,7 +104,6 @@ export interface TriggerData {
 	 * Schedule params for schedule triggers
 	 */
 	scheduleParams?:TriggerScheduleData;
-
 	/**
 	 * Conditions to be matched for the trigger ot be executed
 	 */
@@ -115,7 +114,11 @@ export interface TriggerData {
 	 * Only for slash command triggers
 	 */
 	addToContextMenu?:boolean;
-	
+	/**
+	 * Contains IDs of the clickable areas
+	 */
+	heatAreaIds?:string[];
+
 	/**
 	 * @deprecated Only here for typings on data migration.
 	 */

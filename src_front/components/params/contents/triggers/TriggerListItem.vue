@@ -23,6 +23,12 @@
 			<Icon name="test" class="icon" />
 		</button>
 
+		<button class="duplicateBt" @click="$emit('duplicate',entryData)"
+		v-if="noEdit === false"
+		v-tooltip="$t('global.duplicate')">
+			<Icon name="copy" class="icon" />
+		</button>
+
 		<button class="deleteBt" @click="$emit('delete',entryData)"
 		v-if="noEdit === false"
 		v-tooltip="$t('triggers.deleteBt')">
@@ -41,7 +47,7 @@ import type { TriggerListEntry } from "./TriggerList.vue";
 	components:{
 		ToggleButton,
 	},
-	emits:["changeState", "delete", "test", "select"],
+	emits:["changeState", "delete", "test", "select", "duplicate"],
 })
 export default class TriggerListItem extends Vue {
 
@@ -95,7 +101,7 @@ export default class TriggerListItem extends Vue {
 		cursor: pointer;
 		border-left: 1px solid var(--color-dark-light);
 	}
-	.deleteBt, .testBt {
+	.deleteBt, .testBt, .duplicateBt {
 		flex-shrink: 0;
 		.icon {
 			height: .9em;

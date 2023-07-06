@@ -748,17 +748,17 @@ export default class Utils {
 	 * @param px 
 	 * @param py 
 	 */
-	public static isPointInsidePolygon(point:{x:number, y:number}, polygon:number[][]) {
+	public static isPointInsidePolygon(point:{x:number, y:number}, polygon:{x:number,y:number}[]) {
 		let intersections = 0;
 		const n = polygon.length;
 		const px = point.x;
 		const py = point.y;
 
 		for (var i = 0; i < n; i++) {
-			var x1 = polygon[i][0];
-			var y1 = polygon[i][1];
-			var x2 = polygon[(i + 1) % n][0];
-			var y2 = polygon[(i + 1) % n][1];
+			var x1 = polygon[i].x;
+			var y1 = polygon[i].y;
+			var x2 = polygon[(i + 1) % n].x;
+			var y2 = polygon[(i + 1) % n].y;
 
 			if ((y1 <= py && py < y2) || (y2 <= py && py < y1)) {
 				if (px < (x2 - x1) * (py - y1) / (y2 - y1) + x1) {

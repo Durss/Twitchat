@@ -3,7 +3,7 @@
 
 		<div class="form">
 			<Button icon="back" class="backBt" @click="$emit('close')">{{ $t("global.back") }}</Button>
-			<ParamItem :paramData="params_target" @change="$emit('update')" v-model="screen.activeOBSScene"/>
+			<ParamItem :paramData="params_target" @change="onSelectOBSScene()" v-model="screen.activeOBSScene"/>
 		</div>
 
 		<div ref="editor" :class="editorClasses" @pointerdown="$event => addPoint($event)">
@@ -38,7 +38,7 @@
 import Button from '@/components/Button.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { HeatArea, HeatScreen } from '@/types/HeatDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -81,8 +81,6 @@ export default class HeatScreenEditor extends Vue {
 	
 	public async beforeMount():Promise<void> {
 
-		this.params_target.listValues = [{value:"", labelKey:"heat.areas.target_always"}];
-
 		if(this.screen.areas.length == 0) {
 			this.screen.areas.push({
 				id:Utils.getUUID(),
@@ -98,23 +96,38 @@ export default class HeatScreenEditor extends Vue {
 		document.addEventListener("pointerup", this.mouseUpHandler);
 		document.addEventListener("pointermove", this.mouseMoveHandler);
 		
-		if(OBSWebsocket.instance.connected){
-			this.refreshImage();
-			const scenes = await OBSWebsocket.instance.getScenes();
-			scenes.scenes.forEach(v=> {
-				this.params_target.listValues!.push({value:v.sceneName, label:v.sceneName});
-			})
-		}else{
-			watch(()=>OBSWebsocket.instance.connected, ()=>{
-				this.refreshImage();
-			});
-		}
+		watch(()=>OBSWebsocket.instance.connected, ()=>{
+			this.populateOBSScenes();
+		});
+		this.populateOBSScenes();
+		this.refreshImage();
 	}
 
 	public beforeUnmount():void {
 		document.removeEventListener("keydown", this.keyDownHandler, true);
 		document.removeEventListener("pointerup", this.mouseUpHandler);
 		document.removeEventListener("pointermove", this.mouseMoveHandler);
+	}
+
+	public async populateOBSScenes():Promise<void> {
+		this.params_target.listValues = [{value:"", labelKey:"heat.areas.target_always"}];
+		
+		if(OBSWebsocket.instance.connected){
+			const scenes = await OBSWebsocket.instance.getScenes();
+			scenes.scenes.forEach(v=> {
+				this.params_target.listValues!.push({value:v.sceneName, label:v.sceneName});
+			});
+		}else{
+			this.params_target.listValues!.push({value:"obs", labelKey:"heat.areas.connect_obs"});
+		}
+	}
+
+	public onSelectOBSScene():void {
+		if(this.params_target.value == "obs") {
+			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
+			return;
+		}
+		this.$emit('update')
 	}
 
 	public fillClasses(area:HeatArea):string[] {
@@ -215,7 +228,7 @@ export default class HeatScreenEditor extends Vue {
 		if((event.key == "Delete" || event.key == "Backspace") && this.currentArea) {
 			const index = this.screen.areas.findIndex(v=>v.id == this.currentArea!.id);
 			if(index > -1) {
-				if(this.currentPointIndex) {
+				if(this.currentPointIndex > -1) {
 					this.currentArea.points.splice(this.currentPointIndex, 1);
 				}else{
 					this.screen.areas.splice(index, 1);
@@ -231,6 +244,32 @@ export default class HeatScreenEditor extends Vue {
 			this.resetCurrentArea();
 		}
 
+		//Copy current area to clipboard
+		if(event.key == "c" && event.ctrlKey && this.currentArea) {
+			const wrapper = {
+				dataType:"heatarea",
+				data:this.currentArea,
+			}
+			Utils.copyToClipboard(JSON.stringify(wrapper));
+		}
+
+		//Paste an area from clipboard
+		if(event.key == "v" && event.ctrlKey) {
+			navigator.clipboard.readText().then(text=> {
+				try {
+					const json = JSON.parse(text);
+					if(json.dataType=="heatarea") {
+						const area = json.data;
+						area.id = Utils.getUUID();
+						this.screen.areas.push(area);
+						this.currentArea = area;
+						this.$emit("update");
+					}
+				}
+				catch(error){}
+			});
+		}
+
 		//Move area or point with arrows
 		if(this.currentArea) {
 			const editor = this.$refs.editor as HTMLDivElement;
@@ -243,18 +282,20 @@ export default class HeatScreenEditor extends Vue {
 			if(event.key == "ArrowUp")		addY = -1/bounds.height * scale;
 			if(event.key == "ArrowDown")	addY = 1/bounds.height * scale;
 			
-			if(this.currentPointIndex > -1) {
-				this.currentArea.points[this.currentPointIndex].x += addX;
-				this.currentArea.points[this.currentPointIndex].y += addY;
-			}else {
-				for (let i = 0; i < this.currentArea.points.length; i++) {
-					const point = this.currentArea.points[i];
-					point.x += addX;
-					point.y += addY;
+			if(addX != 0 || addY != 0) {
+				if(this.currentPointIndex > -1) {
+					this.currentArea.points[this.currentPointIndex].x += addX;
+					this.currentArea.points[this.currentPointIndex].y += addY;
+				}else {
+					for (let i = 0; i < this.currentArea.points.length; i++) {
+						const point = this.currentArea.points[i];
+						point.x += addX;
+						point.y += addY;
+					}
 				}
+				event.preventDefault();
+				event.stopPropagation();
 			}
-			event.preventDefault();
-			event.stopPropagation();
 		}
 	}
 
@@ -370,8 +411,9 @@ export default class HeatScreenEditor extends Vue {
 	private async refreshImage():Promise<void> {
 		const area = (this.$refs.background as HTMLDivElement);
 		//@ts-ignore
-		if(area && this.params_showOBS.value == true) {
-			const image = await OBSWebsocket.instance.getScreenshot();
+		if(area && this.params_showOBS.value == true && OBSWebsocket.instance.connected) {
+			const scene = this.params_target.value? this.params_target.value : undefined;
+			const image = await OBSWebsocket.instance.getScreenshot(scene);
 			area.style.backgroundImage = "url("+image+")";
 		}
 

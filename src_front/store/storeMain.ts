@@ -1,6 +1,7 @@
+import HeatEvent from '@/events/HeatEvent';
 import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, type SocketParams, rebuildPlaceholdersCache, type TriggerData, type TriggerActionChatData } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
@@ -14,6 +15,7 @@ import DeezerHelper from '@/utils/music/DeezerHelper';
 import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import HeatSocket from '@/utils/twitch/HeatSocket';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodEvent from '@/utils/voice/VoicemodEvent';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
@@ -22,9 +24,6 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
-import HeatSocket from '@/utils/twitch/HeatSocket';
-import HeatEvent from '@/events/HeatEvent';
-import MessengerProxy from '@/messaging/MessengerProxy';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -443,6 +442,10 @@ export const storeMain = defineStore("main", {
 					StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
 				});
 
+				/**
+				 * Called when a user clicks on the stream
+				 * Detects for a few twitch overlay being clicked as well as all the custom areas
+				 */
 				HeatSocket.instance.addEventListener(HeatEvent.CLICK, async (event:HeatEvent):Promise<void> => {
 					//Stop there if coordinates are missing, can't do anything with it
 					if(!event.coordinates) return;
@@ -465,6 +468,7 @@ export const storeMain = defineStore("main", {
 						})
 					}
 
+					//If there are heat triggers, execute them
 					if(isTrigger) {
 						const message:TwitchatDataTypes.MessageHeatClickData = {
 							date:Date.now(),
@@ -484,6 +488,8 @@ export const storeMain = defineStore("main", {
 						TriggerActionHandler.instance.execute(message);
 					}
 
+					//If there are clickable overlays defined (spotify, ulule)
+					//and OBS websocket is connected, check if they're clicked
 					if(isOverlay && OBSWebsocket.instance.connected) {
 						const rects = await OBSWebsocket.instance.getSourcesDisplayRects();
 						const spotifyRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"music"}}).href;
@@ -803,12 +809,7 @@ export const storeMain = defineStore("main", {
 			//If OBS params are on URL or if connection is enabled, connect
 			if(sOBS.connectionEnabled && (port != undefined || pass != undefined || ip != undefined)) {
 				sOBS.connectionEnabled = true;
-				OBSWebsocket.instance.connect(port, pass, true, ip).then(async (res)=> {
-					if(res) {
-						//Preload current OBS scene
-						this.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
-					}
-				});
+				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}
 		},
 

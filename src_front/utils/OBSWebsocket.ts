@@ -96,6 +96,8 @@ export default class OBSWebsocket extends EventDispatcher {
 			return false;
 		}
 
+		StoreProxy.main.currentOBSScene = await this.getCurrentScene();
+
 		// console.log(await this.obs.call("GetInputList"));
 
 		/* LIST ALL INPUT KINDS
@@ -348,10 +350,10 @@ export default class OBSWebsocket extends EventDispatcher {
 						const angle_rad = sourceTransform.rotation * Math.PI / 180;
 						const cos_angle = Math.cos(angle_rad);
 						const sin_angle = Math.sin(angle_rad);
-						sourceTransform.globalBL = [px - hw * cos_angle - hh * sin_angle, py - hw * sin_angle + hh * cos_angle];
-						sourceTransform.globalBR = [px + hw * cos_angle - hh * sin_angle, py + hw * sin_angle + hh * cos_angle];
-						sourceTransform.globalTL = [px - hw * cos_angle + hh * sin_angle, py - hw * sin_angle - hh * cos_angle];
-						sourceTransform.globalTR = [px + hw * cos_angle + hh * sin_angle, py + hw * sin_angle - hh * cos_angle];
+						sourceTransform.globalBL = {x:px - hw * cos_angle - hh * sin_angle, y:py - hw * sin_angle + hh * cos_angle};
+						sourceTransform.globalBR = {x:px + hw * cos_angle - hh * sin_angle, y:py + hw * sin_angle + hh * cos_angle};
+						sourceTransform.globalTL = {x:px - hw * cos_angle + hh * sin_angle, y:py - hw * sin_angle - hh * cos_angle};
+						sourceTransform.globalTR = {x:px + hw * cos_angle + hh * sin_angle, y:py + hw * sin_angle - hh * cos_angle};
 						transforms.push({transform:sourceTransform, sceneName:scene.name, source});
 					
 					}else
@@ -1021,19 +1023,19 @@ export interface SourceTransform {
 	/**
 	 * Top Left corner coordinates on the global space
 	 */
-	globalTL? :number[];
+	globalTL? :{x:number, y:number};
 	/**
 	 * Top Right corner coordinates on the global space
 	 */
-	globalTR? :number[];
+	globalTR? :{x:number, y:number};
 	/**
 	 * Bottom Left corner coordinates on the global space
 	 */
-	globalBL? :number[];
+	globalBL? :{x:number, y:number};
 	/**
 	 * Bottom Left corner coordinates on the global space
 	 */
-	globalBR? :number[];
+	globalBR? :{x:number, y:number};
 }
   
 

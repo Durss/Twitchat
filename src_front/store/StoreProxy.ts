@@ -1099,6 +1099,11 @@ export interface ITriggersActions {
 	 */
 	deleteTrigger(id:string):void;
 	/**
+	 * Duplicate a trigger by its ID
+	 * @param id
+	 */
+	duplicateTrigger(id:string):void;
+	/**
 	 * Called when an OBS source is renamed.
 	 * Parses all triggers that have a reference to that source
 	 * and rename it everywhere

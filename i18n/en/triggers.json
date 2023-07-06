@@ -263,6 +263,9 @@
 			"vibrate":{
 				"info":"This action only works when using Twitchat on a mobile device.",
 				"pattern":"Vibration pattern"
+			},
+			"heat":{
+				"select_area":"Select one or multiple areas to be clicked to execute this trigger"
 			}
 		},
 		"categories": {

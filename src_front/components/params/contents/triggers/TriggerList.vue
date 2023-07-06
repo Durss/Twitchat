@@ -12,6 +12,7 @@
 					:noEdit="noEdit" :entryData="item"
 					@changeState="onChangeTrigger()"
 					@delete="deleteTrigger($event)"
+					@duplicate="duplicateTrigger($event)"
 					@test="$emit('testTrigger',$event)"
 					@select="$emit('select', $event)"
 					/>
@@ -27,6 +28,7 @@
 						v-if="buildIndex >= item.index"
 						@changeState="onChangeTrigger()"
 						@delete="deleteTrigger($event)"
+						@duplicate="duplicateTrigger($event)"
 						@test="$emit('testTrigger',$event)"
 						@select="$emit('select', $event)"
 					 />
@@ -200,6 +202,12 @@ export default class TriggerList extends Vue {
 			this.populateTriggers();
 		}).catch(error=>{});
 	}
+
+	public duplicateTrigger(entry:TriggerListEntry):void {
+		console.log(entry.trigger.id);
+		this.$store("triggers").duplicateTrigger(entry.trigger.id);
+		this.populateTriggers();
+}
 
 	public onChangeTrigger():void {
 		this.$store("triggers").saveTriggers();

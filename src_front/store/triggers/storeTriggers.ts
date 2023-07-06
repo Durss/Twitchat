@@ -1,10 +1,11 @@
 import DataStore from '@/store/DataStore';
-import { TriggerTypes, type TriggerActionTypes, type TriggerData, COUNTER_VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
+import Utils from '@/utils/Utils';
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
@@ -76,6 +77,19 @@ export const storeTriggers = defineStore('triggers', {
 		deleteTrigger(id:string) {
 			this.triggerList = this.triggerList.filter(v=> v.id != id);
 			this.saveTriggers();
+		},
+
+		duplicateTrigger(id:string) {
+			const trigger = this.triggerList.find(v=> v.id === id);
+			if(trigger) {
+				const clone:TriggerData = JSON.parse(JSON.stringify(trigger));
+				clone.id = Utils.getUUID();
+				let name = clone.name || Utils.getTriggerDisplayInfo(clone).label;
+				name += " (CLONE)";
+				clone.name = name;
+				this.triggerList.push(clone);
+				this.saveTriggers();
+			}
 		},
 
 		saveTriggers():void {

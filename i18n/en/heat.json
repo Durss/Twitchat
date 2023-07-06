@@ -26,6 +26,7 @@
 			"target":"Zones active when current OBS scene is",
 			"target_always":"Any",
 			"show_obs":"Show OBS screen",
+			"connect_obs":"🔗 Connect with OBS",
 			"delete_confirm": {
 				"title":"Delete area?",
 				"description":"This cannot be undone."

@@ -2915,7 +2915,7 @@ export namespace TwitchatDataTypes {
 		 */
 		alt:boolean;
 		/**
-		 * Coordinates of the click in percent
+		 * Coordinates of the click in percent (0-100)
 		 */
 		coords:{x:number, y:number};
 	}

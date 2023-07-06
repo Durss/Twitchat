@@ -43,6 +43,11 @@
 				v-if="isAnyChatMessageCommand"
 				:triggerData="triggerData"
 			/>
+
+			<TriggerActionHearParams
+				v-if="isHeatTrigger"
+				:triggerData="triggerData"
+			/>
 			
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
@@ -124,6 +129,7 @@ import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.v
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
 import TabMenu from '@/components/TabMenu.vue';
+import TriggerActionHearParams from './TriggerActionHearParams.vue';
 
 @Component({
 	components:{
@@ -133,6 +139,7 @@ import TabMenu from '@/components/TabMenu.vue';
 		ParamItem,
 		TriggerActionEntry,
 		TriggerConditionList,
+		TriggerActionHearParams,
 		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
 		TriggerActionSlashCommandParams,
@@ -200,6 +207,7 @@ export default class TriggerActionList extends Vue {
 	public get isSchedule():boolean { return this.triggerData.type === TriggerTypes.SCHEDULE; }
 	public get isSlashCommand():boolean { return this.triggerData.type === TriggerTypes.SLASH_COMMAND; }
 	public get isAnyChatMessageCommand():boolean { return this.triggerData.type === TriggerTypes.ANY_MESSAGE; }
+	public get isHeatTrigger():boolean { return this.triggerData.type === TriggerTypes.HEAT_CLICK; }
 	public get hasCondition():boolean { return this.triggerData.conditions != undefined && this.triggerData.conditions.conditions.length > 0; }
 	public get listClasses():string[] {
 		const res = ["list"];
