@@ -467,7 +467,6 @@ export const storeMain = defineStore("main", {
 							});
 						})
 					}
-					console.log(anonymous, event.uid);
 
 					//If there are heat triggers, execute them
 					if(isTrigger) {
@@ -478,6 +477,7 @@ export const storeMain = defineStore("main", {
 							type:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK,
 							user,
 							anonymous,
+							channel_id:channelId,
 							alt:event.alt === true,
 							ctrl:event.ctrl === true,
 							shift:event.shift === true,

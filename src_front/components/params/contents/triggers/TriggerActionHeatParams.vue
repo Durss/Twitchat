@@ -1,6 +1,8 @@
 <template>
-	<div class="triggeractionhearparams">
+	<div class="TriggerActionHeatParams">
 		<ParamItem noBackground :paramData="param_allowAnon" v-model="triggerData.heatAllowAnon" />
+		<ParamItem secondary noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
+		<ParamItem secondary noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
 		
 		<div>
 			<Icon name="polygon" />{{ $t("triggers.actions.heat.select_area") }}
@@ -40,21 +42,33 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
-export default class TriggerActionHearParams extends Vue {
+export default class TriggerActionHeatParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
 	
 	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"user", tooltipKey:"heat.anonymous"};
+	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
+	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
+
+	public beforeMount():void {
+		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
+		if(!this.triggerData.cooldown) {
+			this.triggerData.cooldown = {
+				global:0,
+				user:0,
+				alert:false,
+			}
+		}
+	}
 
 	public mounted():void {
-		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
 		
 		//Cleanup any area ID from the trigger that does not exist anymore
 		//in the screens definitions
 		const screenList = this.$store('heat').screenList;
-		for (let i = 0; i < this.triggerData.heatAreaIds.length; i++) {
-			const id = this.triggerData.heatAreaIds[i];
+		for (let i = 0; i < this.triggerData.heatAreaIds!.length; i++) {
+			const id = this.triggerData.heatAreaIds![i];
 			let found = false;
 			for (let j = 0; j < screenList.length; j++) {
 				if(screenList[j].areas.findIndex(v=>v.id==id) > -1) {
@@ -62,7 +76,7 @@ export default class TriggerActionHearParams extends Vue {
 				}
 			}
 			if(!found) {
-				this.triggerData.heatAreaIds.splice(i, 1);
+				this.triggerData.heatAreaIds!.splice(i, 1);
 				i--;
 			}
 		}
@@ -88,7 +102,7 @@ export default class TriggerActionHearParams extends Vue {
 </script>
 
 <style scoped lang="less">
-.triggeractionhearparams{
+.TriggerActionHeatParams{
 	gap: .5em;
 	display: flex;
 	flex-direction: column;

@@ -282,6 +282,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		const itemNameToTransform:{[key:string]:SourceTransform} = {};
 		const canvasW:number = videoSettings.baseWidth;
 		const canvasH:number = videoSettings.baseHeight;
+
 		
 		//Parse all scene items
 		for (let j = 0; j < sceneList.length; j++) {
@@ -291,20 +292,20 @@ export default class OBSWebsocket extends EventDispatcher {
 			scenesDone[scene.name] = true;
 
 			let list = await this.obs.call("GetSceneItemList", {sceneName:scene.name});
-			let items = (list.sceneItems as unknown) as OBSSourceItem[];
+			let items:{parent:string, item:OBSSourceItem}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
 
 			//Parse all scene sources
 			for (let i=0; i < items.length; i++) {
 				const source = items[i]
-				sourceDone[source.sourceName] = true;
+				sourceDone[source.item.sourceName] = true;
 				
-				if(source.isGroup) {
-					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.sourceName});
+				if(source.item.isGroup) {
+					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.item.sourceName});
 					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
-					items = items.concat( groupItems );
+					items = items.concat( groupItems.map(v=>{ return {parent:source.item.sourceName, item:v}}) );
 				}else{
 					
-					let sourceTransform = await this.getSceneItemTransform(scene.name, source.sceneItemId);
+					let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
 					if(!sourceTransform.globalScaleX) {
 						sourceTransform.globalScaleX = 1;
 						sourceTransform.globalScaleY = 1;
@@ -340,9 +341,9 @@ export default class OBSWebsocket extends EventDispatcher {
 						sourceTransform.globalCenterY = scaled.y;
 					}
 	
-					//Is it a source
-					if(source.sourceType == "OBS_SOURCE_TYPE_INPUT") {
-						itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
+					//Is it a source?
+					if(source.item.sourceType == "OBS_SOURCE_TYPE_INPUT") {
+						itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
 						let px = sourceTransform.globalCenterX!;
 						let py = sourceTransform.globalCenterY!;
 						const hw = (sourceTransform.width * sourceTransform.globalScaleX!) / 2
@@ -354,18 +355,18 @@ export default class OBSWebsocket extends EventDispatcher {
 						sourceTransform.globalBR = {x:px + hw * cos_angle - hh * sin_angle, y:py + hw * sin_angle + hh * cos_angle};
 						sourceTransform.globalTL = {x:px - hw * cos_angle + hh * sin_angle, y:py - hw * sin_angle - hh * cos_angle};
 						sourceTransform.globalTR = {x:px + hw * cos_angle + hh * sin_angle, y:py + hw * sin_angle - hh * cos_angle};
-						transforms.push({transform:sourceTransform, sceneName:scene.name, source});
+						transforms.push({transform:sourceTransform, sceneName:source.parent, source:source.item});
 					
 					}else
 					//If it's a scene item, add it to the scene list
-					if(source.sourceType == "OBS_SOURCE_TYPE_SCENE") {
-						itemNameToTransform[source.sourceName+"_"+source.sceneItemId] = sourceTransform;
+					if(source.item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+						itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
 						sourceTransform.globalScaleX = sourceTransform.scaleX;
 						sourceTransform.globalScaleY = sourceTransform.scaleY;
 						sceneList.push( {
-										name:source.sourceName,
-										parentScene:scene.name,
-										parentItemId:source.sceneItemId,
+										name:source.item.sourceName,
+										parentScene:source.parent,
+										parentItemId:source.item.sceneItemId,
 										parentTransform:sourceTransform,
 									} );
 					}

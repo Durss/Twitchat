@@ -44,7 +44,7 @@
 				:triggerData="triggerData"
 			/>
 
-			<TriggerActionHearParams
+			<TriggerActionHeatParams
 				v-if="isHeatTrigger"
 				:triggerData="triggerData"
 			/>
@@ -129,7 +129,7 @@ import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.v
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
 import TabMenu from '@/components/TabMenu.vue';
-import TriggerActionHearParams from './TriggerActionHearParams.vue';
+import TriggerActionHeatParams from './TriggerActionHeatParams.vue';
 
 @Component({
 	components:{
@@ -139,7 +139,7 @@ import TriggerActionHearParams from './TriggerActionHearParams.vue';
 		ParamItem,
 		TriggerActionEntry,
 		TriggerConditionList,
-		TriggerActionHearParams,
+		TriggerActionHeatParams: TriggerActionHeatParams,
 		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
 		TriggerActionSlashCommandParams,

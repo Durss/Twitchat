@@ -2894,6 +2894,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageHeatClickData extends AbstractTwitchatMessage {
 		type:"heat_click";
+		channel_id: string;
 		/**
 		 * User that clicked.
 		 * "null" for anonymous users

@@ -750,6 +750,10 @@ export default class ParamItem extends Vue {
 				input {
 					flex-basis: 80px;
 				}
+
+				label {
+					margin-top: .4em;
+				}
 			}
 		}
 

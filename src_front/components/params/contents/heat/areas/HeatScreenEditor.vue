@@ -3,7 +3,7 @@
 
 		<div class="form">
 			<Button icon="back" class="backBt" @click="$emit('close')">{{ $t("global.back") }}</Button>
-			<ParamItem :paramData="params_target" @change="onSelectOBSScene()" v-model="screen.activeOBSScene"/>
+			<ParamItem :paramData="params_target" @change="onSelectOBSScene()"/>
 		</div>
 
 		<div ref="editor" :class="editorClasses" @pointerdown="$event => addPoint($event)">
@@ -110,6 +110,7 @@ export default class HeatScreenEditor extends Vue {
 	}
 
 	public async populateOBSScenes():Promise<void> {
+
 		this.params_target.listValues = [{value:"", labelKey:"heat.areas.target_always"}];
 		
 		if(OBSWebsocket.instance.connected){
@@ -120,6 +121,7 @@ export default class HeatScreenEditor extends Vue {
 		}else{
 			this.params_target.listValues!.push({value:"obs", labelKey:"heat.areas.connect_obs"});
 		}
+		this.params_target.value = this.screen.activeOBSScene;
 	}
 
 	public onSelectOBSScene():void {
@@ -127,7 +129,8 @@ export default class HeatScreenEditor extends Vue {
 			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
 			return;
 		}
-		this.$emit('update')
+		this.screen.activeOBSScene = this.params_target.value;
+		this.$emit('update');
 	}
 
 	public fillClasses(area:HeatArea):string[] {
