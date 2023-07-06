@@ -1,8 +1,5 @@
 <template>
 	<div class="TriggerActionHeatParams">
-		<ParamItem noBackground :paramData="param_allowAnon" v-model="triggerData.heatAllowAnon" />
-		<ParamItem secondary noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
-		<ParamItem secondary noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
 		
 		<div>
 			<Icon name="polygon" />{{ $t("triggers.actions.heat.select_area") }}
@@ -21,6 +18,15 @@
 			<span class="label">{{ $t("triggers.actions.heat.no_area") }}</span>
 			<Button @click="openHeatParams()">{{ $t("triggers.actions.heat.create_areaBt") }}</Button>
 		</div>
+
+		<ParamItem noBackground :paramData="param_allowAnon" v-model="triggerData.heatAllowAnon" />
+		<ParamItem secondary noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
+		<ParamItem secondary noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
+
+		<ToggleBlock class="permissions" :open="false"
+		:title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium primary>
+			<PermissionsForm v-model="triggerData.permissions" />
+		</ToggleBlock>
 	</div>
 </template>
 
@@ -32,12 +38,16 @@ import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
 import Button from '@/components/Button.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../../ParamItem.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import PermissionsForm from '@/components/PermissionsForm.vue';
 
 @Component({
 	components:{
 		Icon,
 		Button,
 		ParamItem,
+		ToggleBlock,
+		PermissionsForm,
 		HeatScreenPreview,
 	},
 	emits:[],
@@ -53,6 +63,19 @@ export default class TriggerActionHeatParams extends Vue {
 
 	public beforeMount():void {
 		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
+		if(!this.triggerData.permissions) {
+			this.triggerData.permissions = {
+				broadcaster:true,
+				mods:true,
+				vips:true,
+				subs:true,
+				all:true,
+				follower:true,
+				follower_duration_ms:0,
+				usersAllowed:[],
+				usersRefused:[],
+			}
+		}
 		if(!this.triggerData.cooldown) {
 			this.triggerData.cooldown = {
 				global:0,
@@ -135,6 +158,10 @@ export default class TriggerActionHeatParams extends Vue {
 		.label {
 			color: var(--color-secondary);
 		}
+	}
+
+	.permissions {
+		align-self: center;
 	}
 }
 </style>

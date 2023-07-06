@@ -173,7 +173,7 @@
 			"users_placeholder": "username...",
 			"nobody": "Nobody is allowed by the current selection",
 			"follow": "Followers",
-			"follow_duration": "Must be a follower for 0 day | Must be a follower for 1 day | Must be a follower for {'{'}VALUE{'}'} days"
+			"follow_duration": "Must be a follower for 0 day | Must be a follower for 1 day | Must be a follower for {VALUE} days"
 		}
 	}
 }

@@ -172,7 +172,7 @@
       "users_placeholder": "pseudo...",
       "nobody": "Personne n'est autorisé par la sélection actuelle",
       "follow": "Followers",
-      "follow_duration": "Doit follow depuis au moins 0 jour | Doit follow depuis au moins 1 jour | Doit follow depuis au moins {'{'}VALUE{'}'} jours"
+      "follow_duration": "Doit follow depuis au moins 0 jour | Doit follow depuis au moins 1 jour | Doit follow depuis au moins {VALUE} jours"
     }
   }
 }
