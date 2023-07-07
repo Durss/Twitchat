@@ -6,10 +6,7 @@
 		
 		<div class="loading" v-if="loading && !error">
 			<div class="message">{{ $t("global.moderation_action.clip_creating") }}</div>
-			<picture>
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<Icon name="loader" alt="loading" class="loader"/>
-			</picture>
+			<Icon name="loader" alt="loading" class="loader"/>
 		</div>
 
 		<div v-else-if="!error">
@@ -113,7 +110,7 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 		gap: .5em;
 		align-items: center;
 		font-style: italic;
-		img {
+		.icon {
 			height: 1em;
 		}
 	}

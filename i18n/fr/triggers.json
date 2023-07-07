@@ -374,7 +374,8 @@
 			"heat_coord_y": "Coordonnées Y du clic en pourcents (0 <-> 100)",
 			"heat_key_alt": "Touche ALT enfoncée ?",
 			"heat_key_shift": "Touche SHIFT enfoncée ?",
-			"heat_key_ctrl": "Touche CTRL enfoncée ?"
+			"heat_key_ctrl": "Touche CTRL enfoncée ?",
+			"clip_url": "URL du clip"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -729,6 +730,11 @@
 				"label": "Interraction Heat",
 				"description": "Actions à exécuter lorsque quelqu'un clique sur le stream {INFO}",
 				"description_info": "(Requiert l'extension Twitch \"Heat\". Consultez la section Heat pour l'installer)"
+			},
+			"CLIP_CREATED": {
+				"label": "Clip créé",
+				"description": "Actions à exécuter lorsque quelqu'un clip est créé depuis Twitchat {INFO}",
+				"description_info": "(appelé seulement lorsqu'un clip est créé via la commande /clip depuis Twitchat)"
 			}
 		},
 		"musicEvents": {

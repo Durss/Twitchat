@@ -363,6 +363,12 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE:{
+				if(await this.executeTriggersByType(TriggerTypes.CLIP_CREATED, message, testMode)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
 				let type:TriggerTypesValue = message.added > 0? TriggerTypes.COUNTER_ADD : TriggerTypes.COUNTER_DEL;
 				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;
@@ -911,13 +917,42 @@ export default class TriggerActionHandler {
 								message.user.displayName = twitchUser.display_name;
 							}
 						}
-						let info:TwitchatDataTypes.ChatHighlightInfo = {
-							message:text,
-							user,
-							params:StoreProxy.chat.chatHighlightOverlayParams,
-						};
-						log.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
-						PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
+
+
+						//If it has a clip link, get its info and highlight the message
+						//as a clip
+						let clipId = "";
+						if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
+							const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"<']+)/i);
+							clipId = matches? matches[1] : "";
+						}else
+						if(/clips\.twitch\.tv\//gi.test(text)) {
+							const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"<']+)/i);
+							clipId = matches? matches[1] : "";
+						}
+						if(clipId) {
+							let clip = await TwitchUtils.getClipById(clipId);
+						
+							const data:TwitchatDataTypes.ChatHighlightInfo = {
+								clip:{
+									url: clip!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
+									mp4: clip!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+									duration: clip!.duration,
+								},
+								params:StoreProxy.chat.chatHighlightOverlayParams,
+							}
+							PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+
+						}else{
+							//Highlight user message as text
+							let info:TwitchatDataTypes.ChatHighlightInfo = {
+								message:text,
+								user,
+								params:StoreProxy.chat.chatHighlightOverlayParams,
+							};
+							log.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
+							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
+						}
 						StoreProxy.chat.isChatMessageHighlighted = true;
 					}else{
 						PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})

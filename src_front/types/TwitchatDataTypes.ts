@@ -1325,6 +1325,7 @@ export namespace TwitchatDataTypes {
 		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
+		CLIP_CREATION_COMPLETE:"clip_creation_complete",
 		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 		OBS_PLAYBACK_STATE_UPDATE:"obs_playback_state_update",
@@ -1391,6 +1392,7 @@ export namespace TwitchatDataTypes {
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
 		hype_train_approaching:false,
+		clip_creation_complete:false,
 		clip_pending_publication:true,
 		community_boost_complete:true,
 		obs_playback_state_update:false,
@@ -2369,7 +2371,7 @@ export namespace TwitchatDataTypes {
 	 * Represents a created clip pending publivation
 	 */
 	export interface MessageClipCreate extends AbstractTwitchatMessage {
-		type:"clip_pending_publication";
+		type:"clip_pending_publication" | "clip_creation_complete";
 		/**
 		 * Path to clip
 		 */

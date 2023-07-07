@@ -374,7 +374,8 @@
 			"heat_coord_y": "Y coordinate of the click in percent (0 <-> 100)",
 			"heat_key_alt": "Is ALT key pressed ?",
 			"heat_key_shift": "Is SHIFT key pressed ?",
-			"heat_key_ctrl": "Is CTRL key pressed ?"
+			"heat_key_ctrl": "Is CTRL key pressed ?",
+			"clip_url": "Clip URL"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -727,6 +728,11 @@
 				"label": "Heat click",
 				"description": "Actions to execute when a user clicks on your stream {INFO}",
 				"description_info": "(Needs Twitch extension \"Heat\". See Heat section to install it)"
+			},
+			"CLIP_CREATED": {
+				"label": "Clip created",
+				"description": "Actions to execute when a a clip is created from Twitchat {INFO}",
+				"description_info": "(only called after using /clip command from Twitchat)"
 			}
 		},
 		"musicEvents": {

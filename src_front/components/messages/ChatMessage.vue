@@ -459,12 +459,10 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(/twitch\.tv\/[^/]+\/clip\//gi.test(text)) {
 			const matches = text.match(/twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"<']+)/i);
 			clipId = matches? matches[1] : "";
-			// if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?twitch\.[^/]{2,10}\/[^/]+\/clip\/([^/?\s\\"]+)/, "");
 		}else
 		if(/clips\.twitch\.tv\//gi.test(text)) {
 			const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"<']+)/i);
 			clipId = matches? matches[1] : "";
-			// if(clipId != "") text = text.replace(/(https?:\/\/)?(www\.)?clips\.twitch\.[^/]{2,10}\/([^/?\s\\"]+)/, "");
 		}
 		
 		if(clipId != "") {
@@ -473,7 +471,7 @@ export default class ChatMessage extends AbstractChatMessage {
 				this.highlightOverlayAvailable = res;
 				this.clipHighlightLoading = false;
 			 });
-			//Do it asynchronously blocking rendering
+			//Do it asynchronously to avoid blocking rendering
 			(async()=> {
 				let clip = await TwitchUtils.getClipById(clipId);
 				if(clip) {

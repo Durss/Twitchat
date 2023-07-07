@@ -1312,7 +1312,7 @@ export default class TwitchUtils {
 	public static async createClip():Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.CLIPS])) return false;
 
-		const message:TwitchatDataTypes.MessageClipCreate = {
+		let message:TwitchatDataTypes.MessageClipCreate = {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitch",
@@ -1341,12 +1341,28 @@ export default class TwitchUtils {
 				const clip = await TwitchUtils.getClipById(message.clipID);
 				if(clip) {
 					clearInterval(interval);
-					message.clipData = {
+					const clipData = {
 						url:clip.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
 						mp4:clip.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 						duration:clip.duration,
 					};
+					message.clipData = clipData;
 					message.loading = false;
+
+					//Send a message dedicated to the creation complete to execute related
+					//triggers once clip loading completed
+					message = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE,
+						clipUrl: json.data[0].edit_url,
+						clipID: json.data[0].id,
+						error:false,
+						loading:false,
+						clipData,
+					};
+					StoreProxy.chat.addMessage(message);
 				}
 
 				//If after 15s the clip is still not returned by the API, consider it failed

@@ -4,6 +4,7 @@
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
 			<Button small @click="simulateEvent('message', 'clip')" icon="clip">Clip link</Button>
+			<Button small @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'discord')" icon="whispers">Discord</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Ad</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Ad warn</Button>
@@ -57,7 +58,6 @@
 			<Button small @click="unflagUser()" icon="shield">Unflag user</Button>
 			<Button small @click="simulateEvent('stream_online')" icon="online">Stream online</Button>
 			<Button small @click="simulateEvent('stream_offline')" icon="offline">Stream offline</Button>
-			<Button small @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
 			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
 			<Button small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
@@ -177,6 +177,11 @@ export default class DevmodeMenu extends Vue {
 					m.gift_count = recipients.length;
 					break;
 				}
+			}
+			if(type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {
+				setTimeout(()=>{
+					this.simulateEvent(TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE);
+				}, 2000);
 			}
 			this.$store("chat").addMessage(message);
 		}, false);

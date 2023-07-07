@@ -352,6 +352,7 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE:
 				case TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION: {
 					const m:TwitchatDataTypes.MessageClipCreate = {
 						id:Utils.getUUID(),
@@ -364,11 +365,19 @@ export const storeDebug = defineStore('debug', {
 						error:false,
 					};
 
-					setTimeout(()=>{
-						m.clipID = "xxx";
-						m.clipUrl = "https://durss.ninja";
+					function fillClipInfo(m:TwitchatDataTypes.MessageClipCreate):void {
+						m.clipID = "UnusualFriendlyLasagnaOpieOP-ot8P67E0N6trA6hW";
+						m.clipUrl = "https://www.twitch.tv/twitch/clip/UnusualFriendlyLasagnaOpieOP-ot8P67E0N6trA6hW";
 						m.loading = false;
-					}, 2000);
+					}
+
+					if(type == TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE) {
+						fillClipInfo(m);
+					}else{
+						setTimeout(()=>{
+							fillClipInfo(m);
+						}, 2000);
+					}
 					
 					data = m;
 					break;
