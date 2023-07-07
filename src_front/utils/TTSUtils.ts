@@ -305,11 +305,10 @@ export default class TTSUtils {
 				const is_automod = paramsTTS.readAutomod == true && (message.twitch_automod != undefined || message.automod != undefined);
 				const is_firstToday = paramsTTS.read1stMessageToday === true && message.todayFirst === true;
 				const is_1stTimeChatter = paramsTTS.read1stTimeChatters === true && message.twitch_isFirstMessage === true;
-				const canRead = (paramsTTS.readMessages && message.automod == undefined && message.twitch_automod == undefined)
+				const canRead = (paramsTTS.readMessages && message.automod == undefined && message.twitch_automod == undefined && message.spoiler !== true)
 							|| is_firstToday
 							|| is_1stTimeChatter
-							|| is_automod
-							|| message.spoiler !== true;
+							|| is_automod;
 					
 				if(is_firstToday || is_1stTimeChatter || is_automod) {
 					force = true;
