@@ -631,6 +631,7 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				permissions:{ $ref: "defs.json#/definitions/permissions" },
+				autoSpoilNewUsers:{type:"boolean"},
 			}
 		},
 		chatHighlightParams: {

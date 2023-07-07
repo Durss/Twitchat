@@ -152,6 +152,7 @@
 			"deleted_by": "<message supprimé par {USER}>",
 			"disable_ad": "Désactiver",
 			"customize_ad": "Personnaliser",
+			"stop_autospoil":"Arrêter de spoiler les messages de cette personne automatiquement",
 			"badges": {
 				"prediction": "Prédiction",
 				"subscriber": "Abonné·e",

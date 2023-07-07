@@ -2,6 +2,7 @@
 	"spoiler":{
 		"header":"Le contenu de tout message commençant par {TAG} sera masqué par défaut et révélé au survol",
 		"message_example":"Exemple :",
+		"autospoil_new_users":"Afficher les messages d'une personne parlant pour la 1ère fois dans le tchat en spoiler",
 		"command":{
 			"title":"Spoiler un autre message",
 			"how_to":"Vous pouvez permettre à vos modos de spoiler le message d'un autre viewer en répondant au message avec la commande {CMD}",

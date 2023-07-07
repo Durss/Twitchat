@@ -152,6 +152,7 @@
 			"deleted_by": "<message deleted by {USER}>",
 			"disable_ad":"Disable",
 			"customize_ad":"Customize",
+			"stop_autospoil":"Stop auto spoiling this user's messages",
 			"badges": {
 				"prediction": "Prediction",
 				"subscriber": "Subscriber",

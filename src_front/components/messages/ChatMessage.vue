@@ -38,6 +38,9 @@
 				name="conversation"
 				@click.stop="$emit('showConversation', $event, messageData)" />
 
+			<Button class="noAutospoilBt" v-if="messageData.type == 'message' && messageData.autospoiled === true"
+			@click="stopAutoSpoil()" alert small icon="show" v-tooltip="$t('chat.message.stop_autospoil')" />
+
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
@@ -641,6 +644,16 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(this.isAnnouncement) return;
 		super.applyStyles();
 	}
+
+	/**
+	 * Stop auto spoiling this user's messages
+	 */
+	public stopAutoSpoil():void {
+		const m = this.messageData as TwitchatDataTypes.MessageChatData;
+		m.spoiler = false;
+		m.autospoiled = false;
+		m.user.noAutospoil = true;
+	}
 	
 	/**
 	 * Called when suspicious state of the user changes
@@ -743,6 +756,12 @@ export default class ChatMessage extends AbstractChatMessage {
 		&:not(:hover):deep(.emote) {
 			opacity: 0;
 		}
+		&:not(:hover)>.message:deep(a) {
+			opacity: 0;
+		}
+		&:not(:hover)>.message:deep(svg) {
+			opacity: 0;
+		}
 	}
 
 	.icon {
@@ -766,7 +785,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		margin-right: .4em;
 	}
 
-	.infoBadges {
+	.infoBadges, .noAutospoilBt {
 		margin-right: .4em;
 	}
 

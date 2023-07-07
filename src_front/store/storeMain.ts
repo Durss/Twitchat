@@ -458,7 +458,7 @@ export const storeMain = defineStore("main", {
 
 					const channelId = StoreProxy.auth.twitch.user.id;
 					const anonymous = parseInt(event.uid || "anon").toString() !== event.uid;
-					let user!:TwitchatDataTypes.TwitchatUser;
+					let user!:Partial<TwitchatDataTypes.TwitchatUser>;
 					if(!anonymous) {
 						//Load user data
 						user = await new Promise((resolve)=> {
@@ -466,6 +466,25 @@ export const storeMain = defineStore("main", {
 								resolve(user);
 							});
 						})
+					}else{
+						//Create a fake partial user with only ID set so the trigger's cooldowns
+						//can properly be applied later.
+						const channelInfo:{[key:string]:TwitchatDataTypes.UserChannelInfo} = {};
+						channelInfo[channelId] = {
+							badges:[],
+							following_date_ms:-1,
+							is_banned:false,
+							is_broadcaster:false,
+							is_following:false,
+							is_gifter:false,
+							is_moderator:false,
+							is_new:false,
+							is_raider:false,
+							is_subscriber:false,
+							is_vip:false,
+							online:true,
+						}
+						user = { id:event.uid || "anon", channelInfo };
 					}
 
 					//If there are heat triggers, execute them
@@ -509,7 +528,7 @@ export const storeMain = defineStore("main", {
 							actions:[action],
 							cooldown: {
 								user: 0,
-								global: 30,
+								global: 0,
 								alert:false,
 							}
 						}
@@ -537,20 +556,22 @@ export const storeMain = defineStore("main", {
 									//If anon users are not allowed, skip
 									if(anonymous && StoreProxy.chat.botMessages.heatSpotify.allowAnon !== true) continue;
 									//If user is banned, skip
-									if(user.channelInfo[channelId]?.is_banned) continue;
+									if(user.channelInfo![channelId]?.is_banned) continue;
 									
 									trigger.id = "heat_spotify_overlay";
 									action.text = StoreProxy.chat.botMessages.heatSpotify.message;
+									trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
 									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, event.testMode == true);
 								}
 								if(url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
 									//If anon users are not allowed, skip
 									if(anonymous && StoreProxy.chat.botMessages.heatUlule.allowAnon !== true) continue;
 									//If user is banned, skip
-									if(user.channelInfo[channelId]?.is_banned) continue;
+									if(user.channelInfo![channelId]?.is_banned) continue;
 
 									trigger.id = "heat_ulule_overlay";
 									action.text = StoreProxy.chat.botMessages.heatUlule.message;
+									trigger.cooldown!.global = StoreProxy.chat.botMessages.heatUlule.cooldown!;
 									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, event.testMode == true);
 								}
 							}

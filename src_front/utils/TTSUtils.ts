@@ -308,7 +308,8 @@ export default class TTSUtils {
 				const canRead = (paramsTTS.readMessages && message.automod == undefined && message.twitch_automod == undefined)
 							|| is_firstToday
 							|| is_1stTimeChatter
-							|| is_automod;
+							|| is_automod
+							|| message.spoiler !== true;
 					
 				if(is_firstToday || is_1stTimeChatter || is_automod) {
 					force = true;

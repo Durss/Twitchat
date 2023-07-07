@@ -38,6 +38,7 @@ export namespace TwitchatDataTypes {
 		HEAT: "heat",
 		SPONSOR: "sponsor",
 		STREAMDECK: "streamdeck",
+		GOXLR: "goxlr",
 		TRIGGERS: "triggers",
 		COUNTERS: "counters",
 		OVERLAYS: "overlays",
@@ -853,6 +854,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface SpoilerParamsData {
 		permissions:PermissionsData;
+		autoSpoilNewUsers:boolean;
 	}
 	
 	/**
@@ -1057,6 +1059,11 @@ export namespace TwitchatDataTypes {
 		 * true if user data loading failed
 		 */
 		errored?:boolean;
+		/**
+		 * If set to true, this user's messages won't be automatically set
+		 * as spoiler if the related option is enabled on the spoiler section
+		 */
+		noAutospoil?:boolean;
 	}
 
 	/**
@@ -1663,6 +1670,11 @@ export namespace TwitchatDataTypes {
 		 * true if should be displayed as a spoiler
 		 */
 		spoiler?: boolean;
+		/**
+		 * true if message has been automatically set as spoiler
+		 * e.g: when "auto spoil 1st time chatters" option is enabled
+		 */
+		autospoiled?: boolean;
 		/**
 		 * This is used to messages sent by extensions can bypass the bots filter.
 		 * If user chose to hide bots messages, this message will be displayed
@@ -2913,7 +2925,7 @@ export namespace TwitchatDataTypes {
 		 * User that clicked.
 		 * "null" for anonymous users
 		 */
-		user:TwitchatUser | null;
+		user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "login"> | null;
 		/**
 		 * Is it an anonymous user?
 		 */

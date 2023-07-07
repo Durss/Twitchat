@@ -542,6 +542,7 @@ export const storeChat = defineStore('chat', {
 				usersAllowed:[],
 				usersRefused:[],
 			},
+			autoSpoilNewUsers:false,
 		},
 
 		isChatMessageHighlighted: false,
@@ -899,6 +900,15 @@ export const storeChat = defineStore('chat', {
 									break;
 								}
 							}
+						}
+
+						//If it's a new user and "autospoil new users" option is enabled,
+						//set the message as a spoiler
+						if(message.user.channelInfo[message.channel_id].is_new === true
+						&& this.spoilerParams.autoSpoilNewUsers === true
+						&& message.user.noAutospoil !== true) {
+							message.spoiler = true;
+							message.autospoiled = true;
 						}
 					}
 					break;

@@ -15,17 +15,19 @@
 
 		<section class="form">
 			<div class="card-item">
-				<i18n-t scope="global" tag="div" keypath="spoiler.command.allowed" class="title">
-					<template #CMD><mark>!spoiler</mark></template>
-				</i18n-t>
-				<PermissionsForm class="perms" v-model="chatCommandPerms" />
-			</div>
-
-			<div class="card-item">
 				<i18n-t scope="global" tag="div" keypath="spoiler.command.how_to">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
 				<img class="tuto" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
+			</div>
+
+			<ParamItem :paramData="param_autospoil" @change="save()" />
+
+			<div class="card-item">
+				<i18n-t scope="global" tag="div" keypath="spoiler.command.allowed" class="title">
+					<template #CMD><mark>!spoiler</mark></template>
+				</i18n-t>
+				<PermissionsForm class="perms" v-model="chatCommandPerms" />
 			</div>
 		</section>
 
@@ -64,10 +66,12 @@ import { Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
+import ParamItem from '../ParamItem.vue';
 
 @Component({
 	components: {
 		Splitter,
+		ParamItem,
 		ChatMessage,
 		PermissionsForm,
 	}
@@ -75,6 +79,7 @@ import type IParameterContent from './IParameterContent';
 export default class ParamsSpoiler extends Vue implements IParameterContent {
 
 	public spoilerExample!: TwitchatDataTypes.MessageChatData;
+	public param_autospoil:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"spoiler.autospoil_new_users", icon:"firstTime"};
 
 	public chatCommandPerms: TwitchatDataTypes.PermissionsData = {
 		broadcaster: true,
@@ -100,14 +105,17 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 			this.chatCommandPerms = this.$store("chat").spoilerParams.permissions;
 		}
 
-		watch(() => this.chatCommandPerms, () => {
-			this.$store("chat").setSpoilerParams({
-				permissions: this.chatCommandPerms
-			});
-		}, { deep: true })
+		watch(() => this.chatCommandPerms, () => this.save(), { deep: true })
 	}
 
 	public onNavigateBack(): boolean { return false; }
+
+	public save():void {
+		this.$store("chat").setSpoilerParams({
+			permissions: this.chatCommandPerms,
+			autoSpoilNewUsers: this.param_autospoil.value,
+		});
+	}
 
 }
 </script>

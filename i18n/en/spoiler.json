@@ -2,6 +2,7 @@
 	"spoiler":{
 		"header":"Messages starting with {TAG} will be masked by default and revealed on hover",
 		"message_example":"Message example:",
+		"autospoil_new_users":"Display all messages of 1st time chatter as spoilers",
 		"command":{
 			"title":"Spoil someone's message",
 			"how_to":"You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the {CMD} command",

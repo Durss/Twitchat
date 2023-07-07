@@ -1331,7 +1331,7 @@ export interface IUsersActions {
 	 * @param user 
 	 * @param channelId 
 	 */
-	checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean>;
+	checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id">, channelId:string):Promise<boolean>;
 	/**
 	 * Load pronouns of a user
 	 * @param user 
