@@ -24,6 +24,7 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
+import { rotate } from 'mathjs';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -294,6 +295,36 @@ export const storeMain = defineStore("main", {
 				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
 					StoreProxy.raffle.pickWinner();
 				});
+			
+				/**
+				 * Called when music player is clicked on the unified overlay
+				 */
+				PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, (e:TwitchatEvent)=> {
+					const data = e.data as {x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string};
+					//Init trigger data
+					const action:TriggerActionChatData = {
+						id:Utils.getUUID(),
+						text:"",
+						type:'chat',
+					}
+					const trigger:TriggerData = {
+						id:Utils.getUUID(),
+						type:TriggerTypes.TWITCHAT_MESSAGE,
+						enabled:true,
+						actions:[action],
+						cooldown: {
+							user: 0,
+							global: 0,
+							alert:false,
+						}
+					}
+									
+					const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
+					trigger.id = "heat_spotify_overlay";
+					action.text = StoreProxy.chat.botMessages.heatSpotify.message;
+					trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
+					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, data.testMode == true);
+				});
 
 				/**
 				 * Called when switching to another scene
@@ -458,7 +489,7 @@ export const storeMain = defineStore("main", {
 
 					const channelId = StoreProxy.auth.twitch.user.id;
 					const anonymous = parseInt(event.uid || "anon").toString() !== event.uid;
-					let user!:Partial<TwitchatDataTypes.TwitchatUser>;
+					let user!:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo">;
 					if(!anonymous) {
 						//Load user data
 						user = await new Promise((resolve)=> {
@@ -484,7 +515,7 @@ export const storeMain = defineStore("main", {
 							is_vip:false,
 							online:true,
 						}
-						user = { id:event.uid || "anon", channelInfo };
+						user = { id:event.uid || "anon", login:"anon", channelInfo };
 					}
 
 					//If there are heat triggers, execute them
@@ -532,24 +563,48 @@ export const storeMain = defineStore("main", {
 								alert:false,
 							}
 						}
-						const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
+						const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_heat_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
+							
+						const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
+						const px = event.coordinates.x;
+						const py = event.coordinates.y;
 
 						for (let i = 0; i < rects.sources.length; i++) {
 							const rect = rects.sources[i];
-							const x = rects.canvas.width * event.coordinates.x;
-							const y = rects.canvas.height * event.coordinates.y;
+							const x = rects.canvas.width * px;
+							const y = rects.canvas.height * py;
 							const bounds = rect.transform;
 							const polygon = [bounds.globalTL!, bounds.globalTR!, bounds.globalBR!, bounds.globalBL!];
 							const isInside = Utils.isPointInsidePolygon({x,y}, polygon);
 
 							//Click is outside overlay, ingore it
 							if(!isInside) continue;
-							
-							const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 
 							if(rect.source.inputKind == "browser_source") {
 								let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
 								const url:string = settings.inputSettings.url as string;
+
+								//Compute click position relative to the browser source
+								const rotatedClick = Utils.rotatePointAround({x, y},
+																		{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
+																		-rect.transform.globalRotation!);
+								const rotatedTL = Utils.rotatePointAround(rect.transform.globalTL!,
+																		{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
+																		-rect.transform.globalRotation!);
+								rotatedClick.x -= rotatedTL.x;
+								rotatedClick.y -= rotatedTL.y;
+								const percentX = rotatedClick.x / rect.transform.width / rect.transform.globalScaleX!;
+								const percentY = rotatedClick.y / rect.transform.height / rect.transform.globalScaleY!;
+
+								//Send click info to browser source
+								OBSWebsocket.instance.socket.call("CallVendorRequest", {
+									requestType:"emit_event",
+									vendorName:"obs-browser",
+									requestData:{
+										event_name:"heat-click",
+										event_data:{x:percentX, y:percentY, uid:user.id, login:user.login, testMode:event.testMode, alt:event.alt, ctrl:event.ctrl, shift:event.shift, page:await Utils.sha256(url)},
+									}
+								});
 
 								//Spotify overlay
 								if(url.indexOf(spotifyRoute) > -1 && StoreProxy.chat.botMessages.heatSpotify.enabled) {
@@ -580,7 +635,7 @@ export const storeMain = defineStore("main", {
 
 				});
 
-				if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
+				if(DataStore.get(DataStore.HEAT_ENABLED) === "true" && StoreProxy.auth.twitch.user) {
 					HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );
 				}
 			}

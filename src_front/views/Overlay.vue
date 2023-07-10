@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<OverlaysRaffleWheel v-if="overlay=='wheel' || overlay=='unified'" />
-		<OverlayMusicPlayer class="music" v-if="overlay=='music' || overlay=='unified'" :embed="overlay=='unified'" keepEmbedTransitions />
+		<OverlayMusicPlayer v-if="overlay=='music' || overlay=='unified'" :embed="overlay=='unified'" keepEmbedTransitions ref="music" class="music" />
 		<OverlayChatHighlight v-if="overlay=='chathighlight' || overlay=='unified'" />
 		<OverlayTimer v-if="overlay=='timer' || overlay=='unified'" />
 		<OverlayCounter v-if="overlay=='counter'" />
@@ -18,6 +18,8 @@ import OverlayChatHighlight from '../components/overlays/OverlayChatHighlight.vu
 import OverlayCounter from '../components/overlays/OverlayCounter.vue';
 import OverlayUlule from '@/components/overlays/OverlayUlule.vue';
 import Utils from '@/utils/Utils';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/events/TwitchatEvent';
 
 @Component({
 	components:{
@@ -33,21 +35,55 @@ export default class Overlay extends Vue {
 
 	public overlay = "";
 
+	private heatEventHandler!:(event:{detail:{x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}) => void;
+
 	public get classes():string[] {
 		const res:string[] = ["overlay"];
 		if(this.overlay == "unified") res.push("unified")
 		return res;
 	}
 
-	public mounted():void {
+	public beforeMount():void {
 		this.overlay = this.$router.currentRoute.value.params.id as string;
+	}
 
-		//Add a GUID to the parameters.
-		//This is used to match an OBS source with a spacific overlay
-		if(!this.$router.currentRoute.value.query.guid) {
-			const query = JSON.parse(JSON.stringify(this.$route.query));
-			query.guid = Utils.getUUID();
-			this.$router.replace({path: this.$route.path, query})
+	public mounted():void {
+		// //Add a GUID to the parameters.
+		// //This is used to match an OBS source with a spacific overlay
+		// if(!this.$router.currentRoute.value.query.guid) {
+		// 	const query = JSON.parse(JSON.stringify(this.$route.query));
+		// 	query.guid = Utils.getUUID();
+		// 	this.$router.replace({path: this.$route.path, query})
+		// }
+		if(this.overlay === "unified") {
+			console.log("CREATE HANDLER");
+			this.heatEventHandler = (e) => this.onHeatClick(e);
+			//@ts-ignore
+			window.addEventListener("heat-click", this.heatEventHandler);
+		}
+	}
+	
+	public beforeUnmount():void {
+		//@ts-ignore
+		window.removeEventListener("heat-click", this.heatEventHandler);
+	}
+
+	private async onHeatClick(event:{detail:{x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> {
+		//Check if the heat event is for the current page
+		const hash = await Utils.sha256(document.location.href);
+		if(event.detail.page != hash) return;
+
+		const px = event.detail.x * document.body.clientWidth;
+		const py = event.detail.y * document.body.clientHeight;
+		const player = (this.$refs.music as Vue).$el;
+		const bounds = player.getBoundingClientRect();
+
+		// Check if the point is over the player
+		if(px >= bounds.left &&
+		px <= bounds.right &&
+		py >= bounds.top &&
+		py <= bounds.bottom) {
+			PublicAPI.instance.broadcast(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, event.detail);
 		}
 	}
 

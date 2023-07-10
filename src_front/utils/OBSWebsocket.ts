@@ -309,6 +309,7 @@ export default class OBSWebsocket extends EventDispatcher {
 					if(!sourceTransform.globalScaleX) {
 						sourceTransform.globalScaleX = 1;
 						sourceTransform.globalScaleY = 1;
+						sourceTransform.globalRotation = 0;
 					}
 					
 					//Compute the center of the source on the local space
@@ -319,7 +320,7 @@ export default class OBSWebsocket extends EventDispatcher {
 					if(scene.parentTransform) {
 						//Apply parent rotation
 						const pt = scene.parentTransform;
-						let rotated = this.rotatePointAround(
+						let rotated = Utils.rotatePointAround(
 														{
 															x:sourceTransform.globalCenterX + pt.globalCenterX! - canvasW/2,
 															y:sourceTransform.globalCenterY + pt.globalCenterY! - canvasH/2,
@@ -332,6 +333,7 @@ export default class OBSWebsocket extends EventDispatcher {
 
 						//Propagate scale and rotation to children
 						sourceTransform.rotation += pt.rotation;
+						sourceTransform.globalRotation = sourceTransform.rotation;
 						sourceTransform.globalScaleX! *= pt.globalScaleX!;
 						sourceTransform.globalScaleY! *= pt.globalScaleY!;
 
@@ -351,6 +353,7 @@ export default class OBSWebsocket extends EventDispatcher {
 						const angle_rad = sourceTransform.rotation * Math.PI / 180;
 						const cos_angle = Math.cos(angle_rad);
 						const sin_angle = Math.sin(angle_rad);
+						sourceTransform.globalRotation = sourceTransform.rotation;
 						sourceTransform.globalBL = {x:px - hw * cos_angle - hh * sin_angle, y:py - hw * sin_angle + hh * cos_angle};
 						sourceTransform.globalBR = {x:px + hw * cos_angle - hh * sin_angle, y:py + hw * sin_angle + hh * cos_angle};
 						sourceTransform.globalTL = {x:px - hw * cos_angle + hh * sin_angle, y:py - hw * sin_angle - hh * cos_angle};
@@ -893,27 +896,6 @@ export default class OBSWebsocket extends EventDispatcher {
 		let cy = py + displacementY;
 
 		return { x: px, y: py, cx, cy };
-	}
-
-	/**
-	 * Rotates a point around another arbitrary point
-	 * @param point 
-	 * @param center 
-	 * @param angle_deg 
-	 */
-	private rotatePointAround(point:{x:number, y:number}, center:{x:number, y:number}, angle_deg:number) {
-		let angle_rad = angle_deg * Math.PI / 180;
-		const { x, y } = point;
-		const { x:cx, y:cy } = center;
-		
-		const cosTheta = Math.cos(angle_rad);
-		const sinTheta = Math.sin(angle_rad);
-		
-		// Calculate the new coordinates
-		const newX = cosTheta * (x - cx) - sinTheta * (y - cy) + cx;
-		const newY = sinTheta * (x - cx) + cosTheta * (y - cy) + cy;
-		
-		return { x: newX, y: newY };
 	}
 
 	/**

@@ -50,13 +50,10 @@
 			
 			<Button class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
 			small title="Load more"
-			icon="user"
+			icon="add"
 			@click="loadNextUsers()" />
 	
-			<picture v-if="loading">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon class="loader" name="loader" v-if="loading" />
 		</div>
 	</div>
 </template>
@@ -292,7 +289,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 
 		.loadBt, .loader {
 			margin: auto;
-			display: block;
 		}
 	}
 }

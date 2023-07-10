@@ -769,4 +769,39 @@ export default class Utils {
 
 		return intersections % 2 === 1;
 	}
+
+	/**
+	 * Rotates a point around another arbitrary point
+	 * @param point 
+	 * @param center 
+	 * @param angle_deg 
+	 */
+	public static rotatePointAround(point:{x:number, y:number}, center:{x:number, y:number}, angle_deg:number):{x:number, y:number} {
+		let angle_rad = angle_deg * Math.PI / 180;
+		const { x, y } = point;
+		const { x:cx, y:cy } = center;
+		
+		const cosTheta = Math.cos(angle_rad);
+		const sinTheta = Math.sin(angle_rad);
+		
+		// Calculate the new coordinates
+		const newX = cosTheta * (x - cx) - sinTheta * (y - cy) + cx;
+		const newY = sinTheta * (x - cx) + cosTheta * (y - cy) + cy;
+		
+		return { x: newX, y: newY };
+	}
+
+	/**
+	 * Computes SHA-256 hash of given input
+	 * @param input 
+	 */
+	public static async sha256(input:string):Promise<string> {
+		const encoder = new TextEncoder();
+		const data = encoder.encode(input);
+		const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
+		const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+		return hashHex;
+	}
+	  
 }

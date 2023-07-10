@@ -4,15 +4,17 @@ import Utils from '@/utils/Utils'
 import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes'
 import Chat from '@/views/Chat.vue'
 import ComponentList from '@/views/ComponentList.vue'
-import HeatDebugPopout from '@/views/HeatDebugPopout.vue'
 import Home from '@/views/Home.vue'
 import Logout from '@/views/Logout.vue'
-import Overlay from '@/views/Overlay.vue'
-import PublicApiTest from '@/views/PublicApiTest.vue'
-import RemoteVoiceControl from '@/views/RemoteVoiceControl.vue'
 import Sponsor from '@/views/Sponsor.vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
+
+const Overlay = () => import('@/views/Overlay.vue');
+const PublicApiTest = () => import('@/views/PublicApiTest.vue');
+const HeatClickDebug = () => import('@/views/HeatClickDebug.vue');
+const HeatDebugPopout = () => import('@/views/HeatDebugPopout.vue');
+const RemoteVoiceControl = () => import('@/views/RemoteVoiceControl.vue');
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -136,6 +138,17 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/overlay/:id(.*)',
 		name: 'overlay',
 		component: Overlay,
+		meta: {
+			needAuth:false,
+			public:true,
+			noBG:true,
+			overflow:false,
+		}
+	},
+	{
+		path: '/heatclick',
+		name: 'heatclick',
+		component: HeatClickDebug,
 		meta: {
 			needAuth:false,
 			public:true,

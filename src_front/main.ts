@@ -106,8 +106,6 @@ function buildApp() {
 		const transparent = to.meta.noBG;
 		if(transparent) {
 			document.body.style.backgroundColor = "transparent";
-		}else{
-			document.body.style.backgroundColor = "#18181b";
 		}
 	
 		//If landing on homepage, redirect to chat if an auth token is available
