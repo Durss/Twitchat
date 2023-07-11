@@ -31,7 +31,7 @@
 
 			<ToggleBlock v-else class="form" :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
 			:open="presets.length == 0 || forceOpenForm" icon="update">
-				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" />
+				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" v-model:branded="branded" v-model:labels="labels" />
 				
 				<ParamItem class="card-item save" :paramData="param_savePreset" v-if="!presetEditing" />
 				
@@ -72,11 +72,13 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 })
 export default class StreamInfoForm extends AbstractSidePanel {
 
-	public param_savePreset:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean"};
-	public param_namePreset:TwitchatDataTypes.ParameterData<string>		= {value:"", type:"string", placeholder:"", maxLength:50};
+	public param_savePreset:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"stream.form_save_preset"};
+	public param_namePreset:TwitchatDataTypes.ParameterData<string>		= {value:"", type:"string", maxLength:50, labelKey:"stream.form_save_preset_name", placeholderKey:"stream.form_save_preset_name_placeholder"};
 
 	public title:string = "";
 	public tags:string[] = [];
+	public branded:boolean = false;
+	public labels:{id:string, enabled:boolean}[] = [];
 	public category:TwitchDataTypes.StreamCategory|null = null;
 
 	public saving:boolean = false;
@@ -89,9 +91,6 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	}
 
 	public beforeMount(): void {
-		this.param_savePreset.labelKey		= 'stream.form_save_preset';
-		this.param_namePreset.labelKey		= 'stream.form_save_preset_name';
-		this.param_namePreset.placeholderKey= 'stream.form_save_preset_name_placeholder';
 	}
 
 	public async mounted():Promise<void> {
@@ -115,6 +114,8 @@ export default class StreamInfoForm extends AbstractSidePanel {
 				id:Utils.getUUID(),
 				title:this.title,
 			}
+			preset.labels = this.labels;
+			preset.branded = this.branded;
 			if(this.category) preset.categoryID = this.category.id
 			if(this.tags.length > 0) preset.tags = this.tags.concat();
 			if(this.presetEditing) preset.id = this.presetEditing.id;
@@ -124,7 +125,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		if(!this.presetEditing) {
 			try {
 				const channelId = StoreProxy.auth.twitch.user.id;
-				await this.$store("stream").setStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags);
+				await this.$store("stream").setStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels);
 			}catch(error) {
 				this.$store("main").alert( this.$t("error.stream_info_updating") );
 			}
@@ -159,6 +160,9 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		
 		try {
 			this.title = p.title;
+			this.labels = p.labels || [];
+			this.branded = p.branded === true;
+			console.log(p);
 			if(p.categoryID) {
 				const game = await TwitchUtils.getCategoryByID(p.categoryID);
 				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
@@ -182,7 +186,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		this.saving = true;
 		try {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			await this.$store("stream").setStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags);
+			await this.$store("stream").setStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels);
 		}catch(error) {
 			this.$store("main").alert( this.$t("error.stream_info_updating") );
 		}
@@ -196,29 +200,31 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	private async populate():Promise<void> {
 		this.loading = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
+		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([channelId]);
+		const [channelInfos] = await TwitchUtils.loadChannelInfo([channelId]);
 		try {
-			let [infos] = await TwitchUtils.loadCurrentStreamInfo([channelId]);
 			let title:string = "";
 			let gameId:string = "";
 			let tags:string[] = [];
-			if(infos) {
-				title = infos.title;
-				gameId = infos.game_id;
-				tags = infos.tags;
+			if(streamInfos) {
+				title = streamInfos.title;
+				gameId = streamInfos.game_id;
+				tags = streamInfos.tags;
 			}else{
 				//Fallback to channel info if we're not live
-				const [chanInfos] = await TwitchUtils.loadChannelInfo([channelId]);
-				title = chanInfos.title;
-				gameId = chanInfos.game_id;
-				tags = chanInfos.tags;
+				title = channelInfos.title;
+				gameId = channelInfos.game_id;
+				tags = channelInfos.tags;
 			}
 			this.title = title;
+			this.branded = channelInfos.is_branded_content === true;
+			this.labels = channelInfos.content_classification_labels.map(v=> { return {id:v, enabled:true}});
+			this.tags = tags.concat();
 			if(gameId) {
 				const game = await TwitchUtils.getCategoryByID(gameId);
 				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
 				this.category = game;
 			}
-			this.tags = tags.concat();
 		}catch(error) {
 			console.log(error);
 			this.$store("main").alert( this.$t("error.stream_info_loading") );

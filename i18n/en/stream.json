@@ -16,6 +16,8 @@
 		"form_save_preset_name":"Preset name",
 		"form_save_preset_name_placeholder":"name...",
 		"stream_info_preset_edit": "Error editing stream info preset",
-		"notification":"Changed stream info to \"{TITLE}\" on \"{CATEGORY}\""
+		"notification":"Changed stream info to \"{TITLE}\" on \"{CATEGORY}\"",
+		"form_branded":"Branded Content",
+		"form_labels_title":"Content Classification"
 	}
 }

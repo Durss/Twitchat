@@ -59,6 +59,8 @@ export namespace TwitchDataTypes {
 		title: string;
 		delay: number;
 		tags: string[];
+		is_branded_content:boolean;
+		content_classification_labels:string[];
 	}
 
 	export interface UserInfo {

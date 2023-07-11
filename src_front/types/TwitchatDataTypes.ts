@@ -650,6 +650,8 @@ export namespace TwitchatDataTypes {
 		title: string;
 		categoryID?: string;
 		tags?: string[];
+		branded?:boolean;
+		labels?:{id:string, enabled:boolean}[];
 		/**
 		 * @deprecated Only here for typings on data migration. Removed in favor of the new "tags" prop
 		 */

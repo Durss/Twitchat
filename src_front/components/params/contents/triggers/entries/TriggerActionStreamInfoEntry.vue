@@ -3,6 +3,8 @@
 		<StreamInfoSubForm v-if="!loading" v-model:title="title"
 			v-model:tags="tags"
 			v-model:category="category"
+			v-model:branded="branded"
+			v-model:labels="labels"
 			:placeholderList="placeholderList"
 			triggerMode />
 		
@@ -39,6 +41,8 @@ export default class TriggerActionStreamInfoEntry extends AbstractTriggerActionE
 	public loading:boolean = true;
 	public title:string = "";
 	public tags:string[] = [];
+	public branded:boolean = false;
+	public labels:{id:string, enabled:boolean}[] = [];
 	public category:TwitchDataTypes.StreamCategory|null = null;
 	public placeholderList:ITriggerPlaceholder[] = [];
 
@@ -48,17 +52,23 @@ export default class TriggerActionStreamInfoEntry extends AbstractTriggerActionE
 		}
 		this.title = this.action.title;
 		this.tags = this.action.tags;
+		this.branded = this.action.branded === true;
+		this.labels = this.action.labels || []
 		this.loading = false;
 
 		watch(()=>this.title, ()=> this.onChange());
 		watch(()=>this.tags, ()=> this.onChange());
 		watch(()=>this.category, ()=> this.onChange());
+		watch(()=>this.labels, ()=> this.onChange());
+		watch(()=>this.branded, ()=> this.onChange());
 	}
 
 	private onChange():void {
 		this.action.categoryId	= this.category?.id ?? "";
 		this.action.title		= this.title;
 		this.action.tags		= this.tags;
+		this.action.branded		= this.branded;
+		this.action.labels		= this.labels;
 	}
 
 	/**

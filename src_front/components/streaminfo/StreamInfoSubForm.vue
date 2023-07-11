@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<ParamItem class="card-item" :paramData="param_title" v-model="localTitle" autofocus @change="$emit('update:title', localTitle)" />
+		<ParamItem :paramData="param_title" autofocus @change="$emit('update:title', param_title.value)" />
 
 		<AutoCompleteForm class="card-item category"
 		:title="$t('stream.form_stream_category')"
@@ -14,14 +14,12 @@
 			</button>
 		</AutoCompleteForm>
 
-		<ParamItem class="card-item"
-			:paramData="param_tags"
+		<ParamItem :paramData="param_tags"
 			v-model="localTags"
-			autofocus
 			@change="onTagsUpdate()"
 			v-if="param_tags.value!.length < 10" />
 
-		<div class="card-item tagList" v-else>
+		<div class="tagList" v-else>
 			<div>{{ $t(param_tags.labelKey!) }}</div>
 			<button type="button" class="tagItem" aria-label="delete tag"
 			v-for="i in param_tags.value"
@@ -30,6 +28,17 @@
 				<Icon name="cross" theme="primary" class="icon" />
 				<Icon name="alert" class="icon" />
 			</button>
+		</div>
+
+		<ParamItem :paramData="param_branded" @change="$emit('update:branded', param_branded.value)" />
+
+		<div class="card-item labels">
+			<div>{{ $t("stream.form_labels_title") }}</div>
+			<Icon class="loader" name="loader" v-if="loadingLabels" />
+			<ParamItem class="label" v-for="label in param_labels"
+				noBackground
+				:paramData="label"
+				@change="onLabelsUpdate()" />
 		</div>
 	</div>
 </template>
@@ -45,14 +54,16 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		Button,
 		ParamItem,
 		AutoCompleteForm,
 	},
-	emits:["update:title", "update:tags", "update:category"]
+	emits:["update:title", "update:tags", "update:category", "update:branded", "update:labels"]
 })
 export default class StreamInfoSubForm extends Vue {
 
@@ -65,6 +76,12 @@ export default class StreamInfoSubForm extends Vue {
 	@Prop({ type:Object, default:{}})
 	public category!:TwitchDataTypes.StreamCategory;
 
+	@Prop({ type:Boolean, default:false})
+	public branded!:boolean;
+
+	@Prop({ type:Object, default:[]})
+	public labels!:{id:string, enabled:boolean}[];
+
 	@Prop({type:Boolean, default:false})
 	public triggerMode!:boolean;
 
@@ -72,12 +89,14 @@ export default class StreamInfoSubForm extends Vue {
 	@Prop({ type: Array, default:[]})
 	public placeholderList!:ITriggerPlaceholder[];
 
-	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140};
-	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist"};
+	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140, labelKey:"stream.form_stream_title", placeholderKey:"stream.form_stream_title_placeholder"};
+	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist", labelKey:"stream.form_stream_tags"};
+	public param_branded:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"stream.form_branded"};
+	public param_labels:TwitchatDataTypes.ParameterData<boolean>[]	= [];
 
-	public localTitle:string = "";
 	public localTags:string[] = [];
 	public localCategories:TwitchDataTypes.StreamCategory[] = [];
+	public loadingLabels:boolean = true;
 
 	public get classes():string[] {
 		let res = ["streaminfosubform"];
@@ -86,15 +105,12 @@ export default class StreamInfoSubForm extends Vue {
 	}
 
 	public beforeMount():void {
-		this.param_title.labelKey			= 'stream.form_stream_title';
-		this.param_title.placeholderKey		= 'stream.form_stream_title_placeholder';
-		this.param_tags.labelKey			= 'stream.form_stream_tags';
-
-		// this.param_title.placeholderList	= this.placeholderList;
 
 		watch(()=>this.title, ()=> { this.populate(); });
 		watch(()=>this.tags, ()=> { this.populate(); });
 		watch(()=>this.category, ()=> { this.populate(); });
+		watch(()=>this.labels, ()=> { this.populate(); });
+		watch(()=>this.branded, ()=> { this.populate(); });
 		watch(()=>this.localCategories, ()=> {
 			const value = this.localCategories.length > 0? this.localCategories[0] : null;
 			this.$emit('update:category', value);
@@ -145,6 +161,17 @@ export default class StreamInfoSubForm extends Vue {
 	}
 
 	/**
+	 * Called when a label is un/selected
+	 */
+	public onLabelsUpdate():void {
+		const labels:{id:string, enabled:boolean}[] = [];
+		for (let i = 0; i < this.param_labels.length; i++) {
+			labels.push( {id:this.param_labels[i].storage as string, enabled:this.param_labels[i].value === true});
+		}
+		this.$emit('update:labels', labels);
+	}
+
+	/**
 	 * Makes sure a tag is valid
 	 */
 	private sanitizeTag(value:string):string {
@@ -155,10 +182,31 @@ export default class StreamInfoSubForm extends Vue {
 		return Utils.replaceDiacritics(value).replace(/[^a-z0-9]/gi, "").substring(0, 25);
 	}
 
-	private populate():void {
-		this.localTitle = this.param_title.value = this.title;
-		this.localTags = this.param_tags.value = this.tags;
-		this.localCategories = this.category? [this.category] : [];
+	private async populate():Promise<void> {
+		this.param_title.value	= this.param_title.value = this.title;
+		this.localTags			= this.param_tags.value = this.tags;
+		this.localCategories 	= this.category? [this.category] : [];
+		const labels	 		= this.labels? this.labels : [];
+
+		if(this.param_labels.length === 0) {
+			this.loadingLabels = true;
+			//Load classification labels from Twitch
+			const res = await TwitchUtils.getContentClassificationLabels();
+			this.loadingLabels = false;
+			for (let i = 0; i < res.length; i++) {
+				const label = res[i];
+				//This label is automatically set from game selection, no need to make it selectable
+				if(label.id == "MatureGame") continue;
+				this.param_labels.push({value:false, type:"boolean", storage:label.id, label:label.name, tooltip:label.description})
+			}
+		}
+
+		//Set classification label states
+		for (let i = 0; i < this.param_labels.length; i++) {
+			if(labels.find(v=>v.id === this.param_labels[i].storage as string)?.enabled === true) {
+				this.param_labels[i].value = true;
+			}
+		}
 	}
 
 	private populatePlaceholders():void {
@@ -254,6 +302,19 @@ export default class StreamInfoSubForm extends Vue {
 			&:hover {
 				background: var(--color-light-dark);
 			}
+		}
+	}
+
+	.labels {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		.label {
+			margin-left: 1em;
+		}
+
+		.loader {
+			margin: auto;
 		}
 	}
 }

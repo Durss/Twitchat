@@ -16,6 +16,8 @@
 		"form_save_preset_name":"",
 		"form_save_preset_name_placeholder":"nom...",
 		"stream_info_preset_edit": "Mise à jour du preset échouée",
-		"notification":"Info de stream modifiées pour \"{TITLE}\" dans la categorie \"{CATEGORY}\""
+		"notification":"Info de stream modifiées pour \"{TITLE}\" dans la categorie \"{CATEGORY}\"",
+		"form_branded":"Contenu promotionnel",
+		"form_labels_title":"Classification de contenu"
 	}
 }

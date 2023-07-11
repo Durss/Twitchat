@@ -1139,7 +1139,7 @@ export default class TwitchUtils {
 	/**
 	 * Update stream's title and game
 	 */
-	public static async setStreamInfos(channelId:string, title?:string, categoryID?:string, tags:string[] = []):Promise<boolean> {
+	public static async setStreamInfos(channelId:string, title?:string, categoryID?:string, tags:string[] = [], branded:boolean = false, labels:{id:string, enabled:boolean}[] = []):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.SET_STREAM_INFOS])) return false;
 		
 		const options = {
@@ -1148,6 +1148,8 @@ export default class TwitchUtils {
 			body: JSON.stringify({
 				title,
 				game_id:categoryID,
+				is_branded_content:branded,
+				content_classification_labels:labels.map(v=> { return {id:v.id, is_enabled:v.enabled} }),
 				//Make sure tags size and chars are valid
 				tags:tags.map(v=> Utils.replaceDiacritics(v).replace(/[^a-z0-9]/gi, "").substring(0, 25).trim()),
 				// delay:"0",
@@ -1166,6 +1168,25 @@ export default class TwitchUtils {
 			return true;
 		}else{
 			return false;
+		}
+	}
+
+	/**
+	 * Update stream's title and game
+	 */
+	public static async getContentClassificationLabels():Promise<{id:string, description:string, name:string}[]> {
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH+"content_classification_labels");
+		url.searchParams.append("locale", StoreProxy.i18n.t("global.lang"));
+		const res = await fetch(url.href, options);
+		const json = await res.json();
+		if(json.error) {
+			throw(json);
+		}else{
+			return json.data || json.Data;
 		}
 	}
 

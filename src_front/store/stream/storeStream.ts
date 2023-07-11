@@ -33,9 +33,9 @@ export const storeStream = defineStore('stream', {
 
 
 	actions: {
-		async setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[]):Promise<void> {
+		async setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:string[]):Promise<void> {
 			if(platform == "twitch") {
-				await TwitchUtils.setStreamInfos(channelId, title, categoryID, tags);
+				await TwitchUtils.setStreamInfos(channelId, title, categoryID, tags, branded, labels);
 				const category = await TwitchUtils.getCategoryByID(categoryID);
 				let viewers = 0;
 				let live = false;
