@@ -1286,7 +1286,7 @@ export default class TriggerActionHandler {
 							tags.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, tag));
 						}
 						logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\""+title+"\" Tags:\""+tags+"\" CategoryID:\""+step.categoryId+"\""});
-						await StoreProxy.stream.setStreamInfos("twitch", title, step.categoryId, StoreProxy.auth.twitch.user.id, tags);
+						await StoreProxy.stream.setStreamInfos("twitch", title, step.categoryId, StoreProxy.auth.twitch.user.id, tags, step.branded === true, step.labels || []);
 					}
 				}else
 

@@ -434,6 +434,8 @@ export interface TriggerActionStreamInfoData extends TriggerActionData{
 	title:string;
 	categoryId:string;
 	tags:string[];
+	branded?:boolean;
+	labels?:{id:string, enabled:boolean}[];
 }
 
 export interface TriggerScheduleData {

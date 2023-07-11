@@ -240,6 +240,20 @@ import Ajv from "ajv";
 								categoryId: {type:"string", maxLength:30},
 								topic: {type:"string", maxLength:255},
 								pattern: {type:"string", maxLength:15},
+								branded:{type:"boolean"},
+								labels:{
+									type:"array",
+									minItems:0,
+									maxItems:10,
+									items:{
+										type:"object",
+										additionalProperties: false,
+										properties:{
+											id:{type:"string", maxLength:40},
+											enabled:{type:"boolean"},
+										}
+									},
+								},
 								tags: {
 									type:"array",
 									minItems:0,
@@ -425,11 +439,25 @@ import Ajv from "ajv";
 					id:{type:"string", maxLength:10},
 					title:{type:"string", maxLength:200},
 					categoryID:{type:"string", maxLength:10},
+					branded:{type:"boolean"},
 					tags:{
 						type:"array",
 						minItems:0,
 						maxItems:30,
 						items:{type:"string", maxLength:100},
+					},
+					labels:{
+						type:"array",
+						minItems:0,
+						maxItems:10,
+						items:{
+							type:"object",
+							additionalProperties: false,
+							properties:{
+								id:{type:"string", maxLength:40},
+								enabled:{type:"boolean"},
+							}
+						},
 					},
 				}
 			}
