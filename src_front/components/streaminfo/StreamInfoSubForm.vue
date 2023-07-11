@@ -184,6 +184,7 @@ export default class StreamInfoSubForm extends Vue {
 
 	private async populate():Promise<void> {
 		this.param_title.value	= this.param_title.value = this.title;
+		this.param_branded.value= this.branded === true;
 		this.localTags			= this.param_tags.value = this.tags;
 		this.localCategories 	= this.category? [this.category] : [];
 		const labels	 		= this.labels? this.labels : [];
