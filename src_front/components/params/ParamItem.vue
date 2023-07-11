@@ -306,16 +306,18 @@ export default class ParamItem extends Vue {
 		let txt = this.paramData.label ?? "";
 		
 		let count = 0;
+		let v = this.paramData.value;
+		if(this.paramData.type == "number") {
+			count = parseFloat(this.paramData.value as string) ?? 0;
+			if(isNaN(count)) count = 0;
+			v = count.toString();
+		}else if(this.paramData.type == "slider") {
+			count = this.paramData.value as number;
+		}
 		if(this.paramData.labelKey) {
-			let v = this.paramData.value;
-			if(this.paramData.type == "number") {
-				count = parseFloat(this.paramData.value as string) ?? 0;
-				if(isNaN(count)) count = 0;
-				v = count.toString();
-			}else if(this.paramData.type == "slider") {
-				count = this.paramData.value as number;
-			}
 			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
+		}else{
+			txt = txt.replace(/\{VALUE\}/gi, count.toString());
 		}
 		
 		if(!txt) return "";

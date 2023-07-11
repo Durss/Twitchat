@@ -11,6 +11,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const Overlay = () => import('@/views/Overlay.vue');
+const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
 const PublicApiTest = () => import('@/views/PublicApiTest.vue');
 const HeatClickDebug = () => import('@/views/HeatClickDebug.vue');
 const HeatDebugPopout = () => import('@/views/HeatDebugPopout.vue');
@@ -154,6 +155,15 @@ const routes: Array<RouteRecordRaw> = [
 			public:true,
 			noBG:true,
 			overflow:false,
+		}
+	},
+	{
+		path: '/goxlr',
+		name: 'goxlr',
+		component: GoXLRDebug,
+		meta: {
+			needAuth:false,
+			public:true,
 		}
 	},
 	{

@@ -133,11 +133,10 @@ export default class HeatSocket extends EventDispatcher {
 	*******************/
 
 	private initialize():void {
-		
 		//Create a global method that can be called from a popup
 		//@ts-ignore
 		window.simulateHeatClick = (x:number,y:number, altKey:boolean, ctrlKey:boolean, shiftKey:boolean):void => {
-			const uid = StoreProxy.auth.twitch.user.id
+			const uid = StoreProxy.auth.twitch.user.id;
 			this.fireEvent(uid, x,y, altKey, ctrlKey, shiftKey, true);
 		};
 	}

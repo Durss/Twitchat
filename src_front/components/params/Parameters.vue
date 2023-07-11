@@ -28,7 +28,7 @@
 					<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat">{{$t('params.categories.heat')}}</Button>
 					<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
 					<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
-					<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR">{{$t('params.categories.goxlr')}}</Button>
+					<!-- <Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR">{{$t('params.categories.goxlr')}}</Button> -->
 					<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
 					<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
 					<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>

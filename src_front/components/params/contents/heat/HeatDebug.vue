@@ -30,13 +30,6 @@ export default class HeatDebug extends Vue {
 	}
 
 	public goFullscreen():void {
-		// if (document.fullscreenElement) {
-		// 	document.exitFullscreen();
-		// }else{
-		// 	const area = (this.$refs.areaHolder as HTMLDivElement);
-		// 	area.requestFullscreen({navigationUI:'show'});
-		// }
-
 		let params = `scrollbars=no,resizable=yes,status=no,location=no,toolbar=no,directories=no,menubar=no,width=1080,height=800,left=600,top=100`;
 		const url = new URL(document.location.origin + this.$router.resolve({name:"heatDebug"}).href);
 		

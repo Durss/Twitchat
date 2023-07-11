@@ -19,8 +19,7 @@ export default class HeatClickDebug extends Vue {
 		window.addEventListener("heat-click", async (event:{detail:{x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> => {
 			const hash = await Utils.sha256(document.location.href)
 			if(event.detail.page != hash) return;
-			console.log("HEAT CLICK!");
-			console.log(event);
+			
 			const pointer = this.$refs.pointer as HTMLDivElement;
 			pointer.style.left = (event.detail.x * document.body.clientWidth) + "px";
 			pointer.style.top = (event.detail.y * document.body.clientHeight) + "px";
