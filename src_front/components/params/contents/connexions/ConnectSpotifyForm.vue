@@ -26,12 +26,19 @@
 	
 			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.spotify.success") }}</div>
 
-			<Button class="connectBt" v-if="connected" @click="disconnect()" icon="cross" alert>{{ $t('connexions.spotify.disconnectBt') }}</Button>
+			<template v-if="connected">
+				<i18n-t scope="global" tag="div" keypath="connexions.spotify.usage_connected">
+					<template #OVERLAY>
+						<a @click="openOverlays()">{{ $t("connexions.spotify.usage_connected_overlay") }}</a>
+					</template>
+					<template #TRIGGERS>
+						<a @click="openTriggers()">{{ $t("connexions.spotify.usage_connected_triggers") }}</a>
+					</template>
+				</i18n-t>
+				<Button class="connectBt" @click="disconnect()" icon="cross" alert>{{ $t('connexions.spotify.disconnectBt') }}</Button>
+			</template>
 	
-			<picture v-if="authenticating">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon v-if="authenticating" name="loader" />
 		</div>
 
 	</ToggleBlock>
@@ -40,7 +47,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -115,6 +122,14 @@ export default class ConnectSpotifyForm extends Vue {
 
 	public disconnect():void {
 		SpotifyHelper.instance.disconnect()
+	}
+
+	public openOverlays():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+	}
+	
+	public openTriggers():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
 
 }

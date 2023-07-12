@@ -8,6 +8,8 @@
 
 		<div class="holder">
 
+			<div v-if="$store('triggers').triggerList?.length == 0">{{ $t("triggers.usage") }}</div>
+
 			<div class="ctas" v-if="showForm || currentTriggerData">
 				<Button class="cta resyncBt" small
 					v-if="showOBSResync || showForm"

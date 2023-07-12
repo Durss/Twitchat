@@ -8,6 +8,7 @@
 		"header_select_obs_source": "Choisissez une source OBS",
 		"header_select_obs_input": "Choisissez l'entrée audio OBS",
 		"header_select_obs_filter": "Choisissez le filtre OBS",
+		"usage": "Les Triggers permettent d'exécuter des actions en réponse à des évènements. Vous pouvez créer des choses simples comme des commandes de tchat et d'autres plus complexes comme un système de song request si vous avez lié Spotify à Twitchat.",
 		"trigger_name": "Nom personnalisé",
 		"add_triggerBt": "Ajouter un trigger",
 		"testBt": "Tester le trigger",
