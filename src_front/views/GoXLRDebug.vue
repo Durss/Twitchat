@@ -18,6 +18,14 @@
 				<ParamItem noBackground :paramData="param_echoStyle" @change="setEchoStyle" />
 				<ParamItem noBackground :paramData="param_echoAmount" @change="setEchoAmount" />
 			</div>
+
+			<div class="card-item">
+				<div>Enable preset</div>
+				<div class="presets">
+					<Button v-for="i in 6" @click="setActivePreset(i-1)" :selected="selectedPresetIndex == i-1">{{ i }}</Button>
+				</div>
+				<Button @click="toggleFX()" :selected="fxEnabled">Toggle FX</Button>
+			</div>
 		</div>
 
 	</div>
@@ -41,7 +49,9 @@ import { Component, Vue } from 'vue-facing-decorator';
 export default class GoXLRDebug extends Vue {
 
 	public error:boolean = false;
+	public fxEnabled:boolean = false;
 	public connecting:boolean = false;
+	public selectedPresetIndex:number = 0;
 	public param_ip:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"127.0.0.1", label:"IP"};
 	public param_port:TwitchatDataTypes.ParameterData<number> = {type:"number", value:14564, label:"Port"};
 	
@@ -70,6 +80,11 @@ export default class GoXLRDebug extends Vue {
 			console.log(error);
 			this.error = true;
 		}
+		const state = GoXLRSocket.instance.status;
+		if(state) {
+			this.fxEnabled = state.effects.is_enabled;
+			this.selectedPresetIndex = parseInt(state.effects.active_preset.replace(/\D/gi, ""));
+		}
 		this.connecting = false;
 	}
 
@@ -87,6 +102,17 @@ export default class GoXLRDebug extends Vue {
 
 	public setEchoAmount():void {
 		GoXLRSocket.instance.setEchoAmount(this.param_echoAmount.value);
+	}
+
+	public setActivePreset(index:number):void {
+		this.selectedPresetIndex = index;
+		const name = ["Preset1","Preset2","Preset3","Preset4","Preset5","Preset6"][index] as "Preset1"|"Preset2"|"Preset3"|"Preset4"|"Preset5"|"Preset6";
+		GoXLRSocket.instance.setActiveEffectPreset(name);
+	}
+
+	public toggleFX():void {
+		this.fxEnabled = !this.fxEnabled;
+		GoXLRSocket.instance.setFXEnabled(this.fxEnabled);
 	}
 
 }
@@ -117,6 +143,12 @@ export default class GoXLRDebug extends Vue {
 		margin: auto;
 		margin-top: 1em;
 		max-width: 800px;
+	}
+
+	.card-item {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 	}
 }
 </style>

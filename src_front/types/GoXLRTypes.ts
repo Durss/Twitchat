@@ -34,7 +34,7 @@ export namespace GoXLRTypes {
 		cough_button: CoughButton;
 		lighting: Lighting;
 		effects: Effects;
-		sampler: Sampler2;
+		sampler: MixerSampler;
 		settings: Settings;
 		button_down: ButtonDown;
 		profile_name: string;
@@ -65,13 +65,13 @@ export namespace GoXLRTypes {
 	}
 
 	export interface FaderStatus {
-		A: A;
-		B: B;
-		C: C;
-		D: D;
+		A: FaderStatusEntry;
+		B: FaderStatusEntry;
+		C: FaderStatusEntry;
+		D: FaderStatusEntry;
 	}
 
-	export interface A {
+	export interface FaderStatusEntry {
 		channel: string;
 		mute_type: string;
 		scribble: Scribble;
@@ -79,48 +79,6 @@ export namespace GoXLRTypes {
 	}
 
 	export interface Scribble {
-		file_name: string;
-		bottom_text: string;
-		left_text: string;
-		inverted: boolean;
-	}
-
-	export interface B {
-		channel: string;
-		mute_type: string;
-		scribble: Scribble2;
-		mute_state: string;
-	}
-
-	export interface Scribble2 {
-		file_name: string;
-		bottom_text: string;
-		left_text: string;
-		inverted: boolean;
-	}
-
-	export interface C {
-		channel: string;
-		mute_type: string;
-		scribble: Scribble3;
-		mute_state: string;
-	}
-
-	export interface Scribble3 {
-		file_name: string;
-		bottom_text: string;
-		left_text: string;
-		inverted: boolean;
-	}
-
-	export interface D {
-		channel: string;
-		mute_type: string;
-		scribble: Scribble4;
-		mute_state: string;
-	}
-
-	export interface Scribble4 {
 		file_name: string;
 		bottom_text: string;
 		left_text: string;
@@ -143,11 +101,11 @@ export namespace GoXLRTypes {
 	}
 
 	export interface Equaliser {
-		gain: Gain;
-		frequency: Frequency;
+		gain: EqualiserGain;
+		frequency: EqualiserFrequency;
 	}
 
-	export interface Gain {
+	export interface EqualiserGain {
 		Equalizer125Hz: number;
 		Equalizer63Hz: number;
 		Equalizer2KHz: number;
@@ -160,7 +118,7 @@ export namespace GoXLRTypes {
 		Equalizer16KHz: number;
 	}
 
-	export interface Frequency {
+	export interface EqualiserFrequency {
 		Equalizer8KHz: number;
 		Equalizer16KHz: number;
 		Equalizer4KHz: number;
@@ -174,11 +132,11 @@ export namespace GoXLRTypes {
 	}
 
 	export interface EqualiserMini {
-		gain: Gain2;
-		frequency: Frequency2;
+		gain: EqualiserMiniGain;
+		frequency: EqualiserMiniFrequency;
 	}
 
-	export interface Gain2 {
+	export interface EqualiserMiniGain {
 		Equalizer90Hz: number;
 		Equalizer1KHz: number;
 		Equalizer8KHz: number;
@@ -187,7 +145,7 @@ export namespace GoXLRTypes {
 		Equalizer500Hz: number;
 	}
 
-	export interface Frequency2 {
+	export interface EqualiserMiniFrequency {
 		Equalizer1KHz: number;
 		Equalizer90Hz: number;
 		Equalizer250Hz: number;
@@ -236,17 +194,17 @@ export namespace GoXLRTypes {
 	}
 
 	export interface Router {
-		Microphone: Microphone;
-		Chat: Chat;
-		Music: Music;
-		Game: Game;
-		Console: Console;
-		LineIn: LineIn;
-		System: System;
-		Samples: Samples;
+		Microphone: RouterEntry;
+		Chat: RouterEntry;
+		Music: RouterEntry;
+		Game: RouterEntry;
+		Console: RouterEntry;
+		LineIn: RouterEntry;
+		System: RouterEntry;
+		Samples: RouterEntry;
 	}
 
-	export interface Microphone {
+	export interface RouterEntry {
 		Headphones: boolean;
 		BroadcastMix: boolean;
 		ChatMic: boolean;
@@ -254,61 +212,6 @@ export namespace GoXLRTypes {
 		LineOut: boolean;
 	}
 
-	export interface Chat {
-		Headphones: boolean;
-		BroadcastMix: boolean;
-		ChatMic: boolean;
-		Sampler: boolean;
-		LineOut: boolean;
-	}
-
-	export interface Music {
-		Headphones: boolean;
-		BroadcastMix: boolean;
-		ChatMic: boolean;
-		Sampler: boolean;
-		LineOut: boolean;
-	}
-
-	export interface Game {
-		Headphones: boolean;
-		BroadcastMix: boolean;
-		ChatMic: boolean;
-		Sampler: boolean;
-		LineOut: boolean;
-	}
-
-	export interface Console {
-		Headphones: boolean;
-		BroadcastMix: boolean;
-		ChatMic: boolean;
-		Sampler: boolean;
-		LineOut: boolean;
-	}
-
-	export interface LineIn {
-		Headphones: boolean;
-		BroadcastMix: boolean;
-		ChatMic: boolean;
-		Sampler: boolean;
-		LineOut: boolean;
-	}
-
-	export interface System {
-		Headphones: boolean;
-		BroadcastMix: boolean;
-		ChatMic: boolean;
-		Sampler: boolean;
-		LineOut: boolean;
-	}
-
-	export interface Samples {
-		Headphones: boolean;
-		BroadcastMix: boolean;
-		ChatMic: boolean;
-		Sampler: boolean;
-		LineOut: boolean;
-	}
 
 	export interface CoughButton {
 		is_toggle: boolean;
@@ -320,8 +223,8 @@ export namespace GoXLRTypes {
 		animation: Animation;
 		faders: Faders;
 		buttons: Buttons;
-		simple: Simple;
-		sampler: Sampler;
+		simple: LightingSimple;
+		sampler: LightingSampler;
 		encoders: Encoders;
 	}
 
@@ -333,362 +236,106 @@ export namespace GoXLRTypes {
 		waterfall_direction: string;
 	}
 
-	export interface Faders {
-		D: D2;
-		A: A2;
-		B: B2;
-		C: C2;
-	}
-
-	export interface D2 {
-		style: string;
-		colours: Colours;
-	}
-
-	export interface Colours {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface A2 {
-		style: string;
-		colours: Colours2;
-	}
-
-	export interface Colours2 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface B2 {
-		style: string;
-		colours: Colours3;
-	}
-
-	export interface Colours3 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface C2 {
-		style: string;
-		colours: Colours4;
-	}
-
-	export interface Colours4 {
-		colour_one: string;
-		colour_two: string;
-	}
-
 	export interface Buttons {
-		EffectFx: EffectFx;
-		EffectMegaphone: EffectMegaphone;
-		EffectSelect4: EffectSelect4
-		Bleep: Bleep;
-		Fader4Mute: Fader4Mute;
-		EffectSelect5: EffectSelect5
-		Fader2Mute: Fader2Mute;
-		EffectHardTune: EffectHardTune;
-		EffectRobot: EffectRobot;
-		EffectSelect2: EffectSelect2
-		Cough: Cough;
-		Fader3Mute: Fader3Mute;
-		EffectSelect6: EffectSelect6
-		Fader1Mute: Fader1Mute;
-		EffectSelect3: EffectSelect3
-		EffectSelect1: EffectSelect1
+		EffectFx: Button;
+		EffectMegaphone: Button;
+		EffectSelect4: Button
+		Bleep: Button;
+		Fader4Mute: Button;
+		EffectSelect5: Button
+		Fader2Mute: Button;
+		EffectHardTune: Button;
+		EffectRobot: Button;
+		EffectSelect2: Button
+		Cough: Button;
+		Fader3Mute: Button;
+		EffectSelect6: Button
+		Fader1Mute: Button;
+		EffectSelect3: Button
+		EffectSelect1: Button
 	}
 
-	export interface EffectFx {
+	export interface Button {
 		off_style: string;
-		colours: Colours5;
+		colours: ButtonColour;
 	}
 
-	export interface Colours5 {
+	export interface ButtonColour {
 		colour_one: string;
 		colour_two: string;
 	}
 
-	export interface EffectMegaphone {
+	export interface Faders {
+		D: Button;
+		A: Button;
+		B: Button;
+		C: Button;
+	}
+
+	export interface LightingSimple {
+		Global: LightingSimpleEntry;
+		Accent: LightingSimpleEntry;
+		Scribble1: LightingSimpleEntry;
+		Scribble2: LightingSimpleEntry;
+		Scribble3: LightingSimpleEntry;
+		Scribble4: LightingSimpleEntry;
+	}
+
+	export interface LightingSimpleEntry {
+		colour_one: string;
+	}
+
+	export interface LightingSampler {
+		SamplerSelectC: LightingSamplerEntry;
+		SamplerSelectB: LightingSamplerEntry;
+		SamplerSelectA: LightingSamplerEntry;
+	}
+
+	export interface LightingSamplerEntry {
 		off_style: string;
-		colours: Colours6;
+		colours: ColourConfig;
 	}
 
-	export interface Colours6 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface EffectSelect4 {
-		off_style: string;
-		colours: Colours7;
-	}
-
-	export interface Colours7 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface Bleep {
-		off_style: string;
-		colours: Colours8;
-	}
-
-	export interface Colours8 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface Fader4Mute {
-		off_style: string;
-		colours: Colours9;
-	}
-
-	export interface Colours9 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface EffectSelect5 {
-		off_style: string;
-		colours: Colours10;
-	}
-
-	export interface Colours10 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface Fader2Mute {
-		off_style: string;
-		colours: Colours11;
-	}
-
-	export interface Colours11 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface EffectHardTune {
-		off_style: string;
-		colours: Colours12;
-	}
-
-	export interface Colours12 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface EffectRobot {
-		off_style: string;
-		colours: Colours13;
-	}
-
-	export interface Colours13 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface EffectSelect2 {
-		off_style: string;
-		colours: Colours14;
-	}
-
-	export interface Colours14 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface Cough {
-		off_style: string;
-		colours: Colours15;
-	}
-
-	export interface Colours15 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface Fader3Mute {
-		off_style: string;
-		colours: Colours16;
-	}
-
-	export interface Colours16 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface EffectSelect6 {
-		off_style: string;
-		colours: Colours17;
-	}
-
-	export interface Colours17 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface Fader1Mute {
-		off_style: string;
-		colours: Colours18;
-	}
-
-	export interface Colours18 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface EffectSelect3 {
-		off_style: string;
-		colours: Colours19;
-	}
-
-	export interface Colours19 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface EffectSelect1 {
-		off_style: string;
-		colours: Colours20;
-	}
-
-	export interface Colours20 {
-		colour_one: string;
-		colour_two: string;
-	}
-
-	export interface Simple {
-		Global: Global;
-		Accent: Accent;
-		Scribble1: Scribble1
-		Scribble2: Scribble22
-		Scribble3: Scribble32
-		Scribble4: Scribble42
-	}
-
-	export interface Global {
-		colour_one: string;
-	}
-
-	export interface Accent {
-		colour_one: string;
-	}
-
-	export interface Scribble1 {
-		colour_one: string;
-	}
-
-	export interface Scribble22 {
-		colour_one: string;
-	}
-
-	export interface Scribble32 {
-		colour_one: string;
-	}
-
-	export interface Scribble42 {
-		colour_one: string;
-	}
-
-	export interface Sampler {
-		SamplerSelectC: SamplerSelectC;
-		SamplerSelectB: SamplerSelectB;
-		SamplerSelectA: SamplerSelectA;
-	}
-
-	export interface SamplerSelectC {
-		off_style: string;
-		colours: Colours21;
-	}
-
-	export interface Colours21 {
-		colour_one: string;
-		colour_two: string;
-		colour_three: string;
-	}
-
-	export interface SamplerSelectB {
-		off_style: string;
-		colours: Colours22;
-	}
-
-	export interface Colours22 {
-		colour_one: string;
-		colour_two: string;
-		colour_three: string;
-	}
-
-	export interface SamplerSelectA {
-		off_style: string;
-		colours: Colours23;
-	}
-
-	export interface Colours23 {
+	export interface ColourConfig {
 		colour_one: string;
 		colour_two: string;
 		colour_three: string;
 	}
 
 	export interface Encoders {
-		Echo: Echo;
-		Gender: Gender;
-		Reverb: Reverb;
-		Pitch: Pitch;
-	}
-
-	export interface Echo {
-		colour_one: string;
-		colour_two: string;
-		colour_three: string;
-	}
-
-	export interface Gender {
-		colour_one: string;
-		colour_two: string;
-		colour_three: string;
-	}
-
-	export interface Reverb {
-		colour_one: string;
-		colour_two: string;
-		colour_three: string;
-	}
-
-	export interface Pitch {
-		colour_one: string;
-		colour_two: string;
-		colour_three: string;
+		Echo: ColourConfig;
+		Gender: ColourConfig;
+		Reverb: ColourConfig;
+		Pitch: ColourConfig;
 	}
 
 	export interface Effects {
 		is_enabled: boolean;
 		active_preset: string;
 		preset_names: PresetNames;
-		current: Current;
+		current: CurrentEffect;
 	}
 
 	export interface PresetNames {
-		Preset4: string
-		Preset6: string
 		Preset1: string
 		Preset2: string
 		Preset3: string
+		Preset4: string
 		Preset5: string
+		Preset6: string
 	}
 
-	export interface Current {
-		reverb: Reverb2;
-		echo: Echo2;
-		pitch: Pitch2;
-		gender: Gender2;
+	export interface CurrentEffect {
+		reverb: Reverb;
+		echo: Echo;
+		pitch: Pitch;
+		gender: Gender;
 		megaphone: Megaphone;
 		robot: Robot;
 		hard_tune: HardTune;
 	}
 
-	export interface Reverb2 {
+	export interface Reverb {
 		style: string;
 		amount: number;
 		decay: number;
@@ -703,7 +350,7 @@ export namespace GoXLRTypes {
 		mod_depth: number;
 	}
 
-	export interface Echo2 {
+	export interface Echo {
 		style: string;
 		amount: number;
 		feedback: number;
@@ -716,13 +363,13 @@ export namespace GoXLRTypes {
 		feedback_xfb_r_to_l: number;
 	}
 
-	export interface Pitch2 {
+	export interface Pitch {
 		style: string;
 		amount: number;
 		character: number;
 	}
 
-	export interface Gender2 {
+	export interface Gender {
 		style: string;
 		amount: number;
 	}
@@ -761,135 +408,33 @@ export namespace GoXLRTypes {
 		source: string;
 	}
 
-	export interface Sampler2 {
-		processing_state: ProcessingState;
+	export interface MixerSampler {
+		processing_state: MixerSamplerProcessingState;
 		active_bank: string;
 		clear_active: boolean;
 		record_buffer: number;
-		banks: Banks;
+		banks: MixerSamplerBanks;
 	}
 
-	export interface ProcessingState {
+	export interface MixerSamplerProcessingState {
 		progress: unknown;
 		last_error: unknown;
 	}
 
-	export interface Banks {
-		B: B3;
-		A: A3;
-		C: C3;
+	export interface MixerSamplerBanks {
+		B: Bank;
+		A: Bank;
+		C: Bank;
 	}
 
-	export interface B3 {
-		TopLeft: TopLeft;
-		TopRight: TopRight;
-		BottomRight: BottomRight;
-		BottomLeft: BottomLeft;
+	export interface Bank {
+		BottomRight: BankButton;
+		TopLeft: BankButton;
+		BottomLeft: BankButton;
+		TopRight: BankButton;
 	}
 
-	export interface TopLeft {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface TopRight {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface BottomRight {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface BottomLeft {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface A3 {
-		BottomLeft: BottomLeft2;
-		TopLeft: TopLeft2;
-		BottomRight: BottomRight2;
-		TopRight: TopRight2;
-	}
-
-	export interface BottomLeft2 {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface TopLeft2 {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface BottomRight2 {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	};
-
-	export interface TopRight2 {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface C3 {
-		BottomRight: BottomRight3;
-		TopLeft: TopLeft3;
-		BottomLeft: BottomLeft3;
-		TopRight: TopRight3;
-	}
-
-	export interface BottomRight3 {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface TopLeft3 {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface BottomLeft3 {
-		function: string;
-		order: string;
-		samples: unknown[];
-		is_playing: boolean;
-		is_recording: boolean;
-	}
-
-	export interface TopRight3 {
+	export interface BankButton {
 		function: string;
 		order: string;
 		samples: unknown[];

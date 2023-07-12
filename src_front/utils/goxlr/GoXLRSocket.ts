@@ -1,3 +1,4 @@
+import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { reactive } from "vue";
 
@@ -15,7 +16,7 @@ export default class GoXLRSocket {
 	private _socket!: WebSocket;
 	private _autoReconnect: boolean = false;
 	private _id:number = 1;
-	private _idToPromise:{[id:number]:(data:unknown) => void} = {};
+	private _idToPromiseResolver:{[id:number]:<T>(data:T) => void} = {};
 	private _deviceId:string = "";
 	private _status:GoXLRTypes.Status | null = null;
 	
@@ -33,6 +34,8 @@ export default class GoXLRSocket {
 		}
 		return GoXLRSocket._instance;
 	}
+
+	public get status():GoXLRTypes.Mixer|null { return this._status? this._status.mixers[this._deviceId] : null; }
 	
 	
 	
@@ -49,10 +52,6 @@ export default class GoXLRSocket {
 
 			this._socket.onopen = () => {
 				console.log("🎤 GoXLR connection succeed");
-				this._connecting = false;
-				this.connected = true;
-				this._autoReconnect = true;
-
 				this.getDeviceStatus();
 			};
 
@@ -176,6 +175,18 @@ export default class GoXLRSocket {
 	 * @param bmp
 	 */
 	public setEchoTempo(bpm:number):Promise<unknown> { return this.execCommand("SetEchoTempo", bpm); }
+
+	/**
+	 * Sets the currently active preset
+	 * @param name
+	 */
+	public setActiveEffectPreset(name:"Preset1"|"Preset2"|"Preset3"|"Preset4"|"Preset5"|"Preset6"):Promise<unknown> { return this.execCommand("SetActiveEffectPreset", name); }
+
+	/**
+	 * Enable/Disable FX
+	 * @param enabled
+	 */
+	public setFXEnabled(enabled:boolean):Promise<unknown> { return this.execCommand("SetFXEnabled", enabled); }
 	
 	
 	
@@ -194,15 +205,16 @@ export default class GoXLRSocket {
 	private execCommand(command:GoXLRCommands, data?:unknown):Promise<unknown> {
 		return new Promise((resolve, reject) => {
 			const id = this._id ++;
+			this._idToPromiseResolver[id] = resolve;
+
 			const cmdChunks:unknown[] = [this._deviceId];
 			if(data) {
 				const values:{[id:string]:unknown} = {};
 				values[command] = data;
 				cmdChunks.push(values);
 			}
-			const json = {id,"data":{"Command":cmdChunks}};
+			const json = {id, data:{Command:cmdChunks}};
 			this._socket.send(JSON.stringify(json));
-			this._idToPromise[id] = resolve;
 		})
 	}
 
@@ -210,38 +222,48 @@ export default class GoXLRSocket {
 	 * Called when a message is received from Voicemod app
 	 */
 	private onSocketMessage(event:any):void {
-		const json:any = JSON.parse(event.data).data;
+		const json:any = JSON.parse(event.data);
 
 		if(json.Error) {
 			console.error("🎤 GoXLR error status", json);
 		}else
-		if (json.id && this._idToPromise[json.id]) {
+		if (json.id && this._idToPromiseResolver[json.id]) {
 			//Resolve related promise
-			this._idToPromise[json.id](json);
+			this._idToPromiseResolver[json.id](json.data);
+			delete this._idToPromiseResolver[json.id];
 		}
 	}
 
 	/**
 	 * Get the current device status
 	 */
-	private getDeviceStatus():Promise<GoXLRTypes.Status> {
+	private getDeviceStatus():Promise<{Status:GoXLRTypes.Status}> {
 		//Request connected device list
 		const id = this._id ++;
-		this._socket.send(JSON.stringify({"id":id,"data":"GetStatus"}));
-		return new Promise((resolve) => {
-			new Promise((resolve, reject)=> {
-				this._idToPromise[id] = resolve;
-			}).then(result => {
-				const castResult = result as {Status:GoXLRTypes.Status};
-				this._deviceId = Object.keys(castResult.Status.mixers)[0];
-				//If no status was loaded yet, execute init promise resolver
-				if(!this._status) {
-					this._initResolver();
-				}
-				this._status = castResult.Status;
-				resolve(this._status);
-			})
-		})
+		const prom = new Promise<{Status:GoXLRTypes.Status}>((resolve, reject) => {
+			this._idToPromiseResolver[id] = <T>(data:T) => resolve(data as {Status:GoXLRTypes.Status});
+		});
+		prom.then(result => {
+			console.log(result.Status);
+			this._deviceId = Object.keys(result.Status.mixers)[0];
+			if(!this._deviceId) {
+				StoreProxy.main.alert("No GoXLR device found");
+			}else{
+				console.error("🎤 GoXLR device ID is", this._deviceId);
+			}
+			//If no status was loaded yet, execute init promise resolver
+			if(!this._status) {
+				this._connecting = false;
+				this.connected = true;
+				this._autoReconnect = true;
+				this._initResolver();
+			}
+			this._status = result.Status;
+		});
+
+		this._socket.send(JSON.stringify({id, data:"GetStatus"}));
+
+		return prom;
 
 	}
 }
