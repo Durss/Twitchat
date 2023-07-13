@@ -2,8 +2,8 @@
 	<div class="donorstate">
 		<DonorBadge class="donorBadge" />
 		<div class="badgesList">
+			<DonorBadge class="badge" v-for="i in donorLevel+1" :level="i-1" light />
 			<img src="@/assets/icons/donor_placeholder.svg" class="badge" v-for="i in 9-donorLevel" />
-			<DonorBadge class="badge" v-for="i in donorLevel+1" :level="(donorLevel+1)-i" light />
 		</div>
 
 		<div class="card-item">
@@ -21,7 +21,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
+import ApiController from '@/utils/ApiController';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../params/ParamItem.vue';
@@ -48,18 +48,8 @@ export default class DonorState extends Vue {
 
 		if(this.isDonor) {
 			//Load current anon state of the user's donation
-			const options = {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-			}
-
 			try {
-				const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
-				const json = await anonState.json();
+				const {json} = await ApiController.call("user/donor/anon");
 				if(json.success === true) {
 					this.publicDonation = json.data.public === true;
 				}
@@ -73,20 +63,7 @@ export default class DonorState extends Vue {
 
 	private async updateDonationState():Promise<void> {
 		try {
-			const options = {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-				body: JSON.stringify({
-					public:this.publicDonation,
-				})
-			}
-			const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
-			const json = await anonState.json();
-			this.publicDonation = json.data.public !== true;
+			await ApiController.call("user/donor/anon", "POST", {public:this.publicDonation});
 		}catch(error) {
 		}
 	}

@@ -42,6 +42,7 @@ export default class StoreProxy {
 	public static counters:ICountersState & ICountersGetters & ICountersActions & {$state:ICountersState, $reset:()=>void};
 	public static rewards:IRewardsState & IRewardsGetters & IRewardsActions & {$state:IRewardsState, $reset:()=>void};
 	public static heat:IHeatState & IHeatGetters & IHeatActions & {$state:IHeatState, $reset:()=>void};
+	public static patreon:IPatreonState & IPatreonGetters & IPatreonActions & {$state:IPatreonState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -1575,4 +1576,24 @@ export interface IHeatActions {
 	 * Save screens to server
 	 */
 	saveScreens():void;
+}
+
+
+
+
+export interface IPatreonState {
+	/**
+	 * Spotify app params
+	 */
+	patreonAuthParams: SpotifyAuthResult|null;
+	/**
+	 * Current Spotify auth token
+	 */
+	patreonAuthToken: SpotifyAuthToken|null;
+}
+
+export interface IPatreonGetters {
+}
+
+export interface IPatreonActions {
 }

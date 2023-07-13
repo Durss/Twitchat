@@ -4,6 +4,7 @@ import router from "@/router";
 import DataStore from "@/store/DataStore";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import ApiController from "@/utils/ApiController";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import EventSub from "@/utils/twitch/EventSub";
@@ -42,11 +43,8 @@ export const storeAuth = defineStore('auth', {
 			//Refresh token if going to expire within the next 5 minutes
 			if(twitchAuthResult) {
 				try {
-					const headers = {
-						'App-Version': import.meta.env.PACKAGE_VERSION,
-					};
-					const res			= await fetch(Config.instance.API_PATH+"/auth/twitch/refreshtoken?token="+twitchAuthResult.refresh_token, {method:"GET", headers});
-					twitchAuthResult	= await res.json();
+					const res 			= await ApiController.call("auth/twitch/refreshtoken", "GET", {token:twitchAuthResult.refresh_token});
+					twitchAuthResult	= res.json;
 				}catch(error) {
 					if(callback) callback(false);
 					return;
@@ -87,11 +85,8 @@ export const storeAuth = defineStore('auth', {
 				let twitchAuthResult:TwitchDataTypes.AuthTokenResult = storeValue? JSON.parse(storeValue) : undefined;
 				if(code) {
 					//Convert oAuth code to access_token
-					const headers = {
-						'App-Version': import.meta.env.PACKAGE_VERSION,
-					};
-					const res = await fetch(Config.instance.API_PATH+"/auth/twitch?code="+code, {method:"GET", headers});
-					twitchAuthResult = await res.json();
+					const res = await ApiController.call("auth/twitch", "GET", {code});
+					twitchAuthResult = res.json;
 					twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 					DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
 					clearTimeout(refreshTokenTO);
@@ -132,11 +127,8 @@ export const storeAuth = defineStore('auth', {
 				this.twitch.expires_in		= userRes.expires_in;
 
 				if(Config.instance.BETA_MODE) {
-					const headers = {
-						'App-Version': import.meta.env.PACKAGE_VERSION,
-					};
-					const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+userRes.user_id, {method:"GET", headers});
-					if(res.status != 200 || (await res.json()).data.beta !== true) {
+					const res = await ApiController.call("beta/user", "GET", {uid:userRes.user_id});
+					if(res.status != 200 || res.json.data.beta !== true) {
 						if(cb) cb(false, true);
 						else router.push({name:"login", params:{betaReason:"true"}});
 						return;
@@ -161,30 +153,15 @@ export const storeAuth = defineStore('auth', {
 
 				//Check if user is part of the donors nor an admin
 				try {
-					const options = {
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							"Authorization": "Bearer "+this.twitch.access_token,
-						},
-					}
-					
-					const userStateRes = await fetch(Config.instance.API_PATH+"/user", options);
+					const res = await ApiController.call("user");
 
 					const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 					const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
-					const userJSON:{
-						data:{
-							isAdmin:boolean,
-							isDonor:boolean,
-							level:number,
-						}
-					} = await userStateRes.json();
 					
-					this.twitch.user.donor.state	= userJSON.data.isDonor === true;
-					this.twitch.user.donor.level	= userJSON.data.level;
-					this.twitch.user.donor.upgrade	= userJSON.data.level != prevLevel;
-					if(userJSON.data.isAdmin === true) this.twitch.user.is_admin = true;
+					this.twitch.user.donor.state	= res.json.data.isDonor === true;
+					this.twitch.user.donor.level	= res.json.data.level;
+					this.twitch.user.donor.upgrade	= res.json.data.level != prevLevel;
+					if(res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
 
 					//Async loading of followers count to define if user is exempt
 					//from ads or not

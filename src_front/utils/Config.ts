@@ -76,6 +76,7 @@ export default class Config {
 	public get TWITCH_APP_SCOPES():string[] { return this._serverConfig.twitch_scopes; }
 	public get SPOTIFY_CLIENT_ID():string { return this._serverConfig.spotify_client_id; }
 	public get SPOTIFY_SCOPES():string { return this._serverConfig.spotify_scopes; }
+	public get PATREON_CLIENT_ID():string { return this._serverConfig.patreon_client_id; }
 
 	public get MUSIC_SERVICE_CONFIGURED():boolean { return this.SPOTIFY_CONFIGURED; }
 	public get SPOTIFY_CONFIGURED():boolean { return this.SPOTIFY_CLIENT_ID?.length > 20; }

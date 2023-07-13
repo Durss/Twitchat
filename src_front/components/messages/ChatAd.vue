@@ -115,13 +115,14 @@ import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import CloseButton from '../CloseButton.vue';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatChangelog from './ChatChangelog.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
-import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
@@ -229,18 +230,7 @@ export default class ChatAd extends Vue {
 	public async makeDonationPublic():Promise<void> {
 		this.loading = true;
 		try {
-			const options = {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-				body: JSON.stringify({
-					public:true,
-				})
-			}
-			await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
+			ApiController.call("user/donor/anon", "POST", {public:true});
 		}catch(error) {
 		}
 		this.loading = false;

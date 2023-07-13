@@ -3,6 +3,7 @@ import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
 import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiController from '@/utils/ApiController';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -121,7 +122,6 @@ export const storeMain = defineStore("main", {
 			const sAuth = StoreProxy.auth;
 			const sTimer = StoreProxy.timer;
 			const sVoice = StoreProxy.voice;
-			const sMusic = StoreProxy.music;
 			const sUsers = StoreProxy.users;
 			const sStream = StoreProxy.stream;
 			const sParams = StoreProxy.params;
@@ -129,8 +129,8 @@ export const storeMain = defineStore("main", {
 
 			//Load app configs (cliend ID, scopes, ...)
 			try {
-				const res = await fetch(Config.instance.API_PATH+"/configs");
-				jsonConfigs = await res.json();
+				const res = await ApiController.call("configs");
+				jsonConfigs = res.json;
 			}catch(error) {
 				this.alert("Unable to contact server :(");
 				this.initComplete = true;

@@ -52,6 +52,7 @@ import Config from '@/utils/Config';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
+import ApiController from '@/utils/ApiController';
 
 @Component({
 	components:{
@@ -96,13 +97,9 @@ export default class ConnectSpotifyForm extends Vue {
 			this.open = true;	
 			this.authenticating = true;
 
-			const headers = {
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+spotifyAuthParams.csrf, {method:"POST", headers});
-			const csrf = await csrfRes.json();
+			const {json:csrf} = await ApiController.call("auth/CSRFToken", "POST", {token:spotifyAuthParams.csrf});
 			if(!csrf.success) {
-				this.$store("main").alert = csrf.message;
+				this.$store("main").alert(csrf.message || "Spotify authentication failed");
 			}else{
 				try {
 					await SpotifyHelper.instance.authenticate(spotifyAuthParams.code);

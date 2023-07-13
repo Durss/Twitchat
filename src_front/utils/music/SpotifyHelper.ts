@@ -1,14 +1,15 @@
 import TwitchatEvent from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
+import ApiController from "../ApiController";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
-import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 23/05/2022 
@@ -103,11 +104,7 @@ export default class SpotifyHelper {
 	 */
 	public async startAuthFlow():Promise<void> {
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);//Avoid auto reconnect attempt on redirect
-		const headers = {
-			'App-Version': import.meta.env.PACKAGE_VERSION,
-		};
-		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
-		const json = await res.json();
+		const {json} = await ApiController.call("auth/CSRFToken");
 
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
 		let url = new URL("https://accounts.spotify.com/authorize");

@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import Config from '@/utils/Config';
+import ApiController from '@/utils/ApiController';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -84,12 +84,13 @@ export default class ParamsDonorList extends Vue {
 		try {
 			const headers = TwitchUtils.headers;
 			headers['App-Version'] = import.meta.env.PACKAGE_VERSION;
-			const res = await fetch(Config.instance.API_PATH+"/user/donor/all", {method: "GET", headers});
-			const json = await res.json();
+			const {json} = await ApiController.call("user/donor/all", "GET");
+			
 			this.localList = json.data.list;
 			this.computeStats();
 			await this.loadNext();
 		}catch(error) {
+			console.log(error);
 			this.error = true;
 		}
 		this.loading = false;

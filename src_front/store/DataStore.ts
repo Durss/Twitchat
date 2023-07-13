@@ -1,9 +1,9 @@
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
+import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionDelayData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Config from "@/utils/Config";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import ApiController from "@/utils/ApiController";
 import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { JsonValue } from "type-fest";
 import StoreProxy from "./StoreProxy";
 
@@ -268,17 +268,12 @@ export default class DataStore {
 		if(!this.store) this.init();
 
 		try {
-			const headers = {
-				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"GET", headers});
+			const res = await ApiController.call("user/data");
 			if(importToLS) {
 				// console.log("Import to local storage...");
 				//Import data to local storage.
-				const json = await res.json();
-				if(json.success === true) {
-					await this.loadFromJSON(json.data);
+				if(res.json.success === true) {
+					await this.loadFromJSON(res.json.data);
 				}
 			}
 			return res.status != 404;
@@ -426,12 +421,7 @@ export default class DataStore {
 					}
 				}
 	
-				const headers = {
-					"Content-Type": "application/json",
-					'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				}
-				await fetch(Config.instance.API_PATH+"/user/data", {method:"POST", headers, body:JSON.stringify(data)});
+				await ApiController.call("user/data", "POST", data);
 				
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves

@@ -1,16 +1,17 @@
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import ApiController from "@/utils/ApiController";
 import Config from "@/utils/Config";
-import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
-import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
-import { LoremIpsum } from "lorem-ipsum";
-import DataStore from "@/store/DataStore";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 /**
 * Created : 26/09/2022 
 */
@@ -704,22 +705,13 @@ export default class MessengerProxy {
 				if(users.length == 0) {
 					StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:params[0]}));
 				}else{
-					const options = {
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-							'App-Version': import.meta.env.PACKAGE_VERSION,
-						},
-					}
-					const res = await fetch(Config.instance.API_PATH+"/user/data?uid="+users[0].id, options)
+					const res = await ApiController.call("user/data", "GET", {uid:users[0].id});
 					if(res.status === 200) {
-						const json = await res.json();
 						if(cmd === "/loaduserdata") {
-							DataStore.loadFromJSON(json.data);
+							DataStore.loadFromJSON(res.json.data);
 						}else{
 							//Open JSON on new tab
-							const data = JSON.stringify(json.data);
+							const data = JSON.stringify(res.json.data);
 							const blob = new Blob([data], { type: 'application/json' });
 							const url = window.URL.createObjectURL(blob);
 							window.open(url, "_blank");

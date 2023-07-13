@@ -151,4 +151,5 @@ interface Credentials {
 	spotify_redirect_uri: string;
 	
 	patreon_client_id:string;
+	patreon_client_secret:string;
 }

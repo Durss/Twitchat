@@ -48,6 +48,7 @@ import 'tippy.js/animations/scale.css'
 import { setDefaultProps } from 'vue-tippy';
 import Icon from './components/Icon.vue';
 import { storeHeat } from './store/heat/storeHeat';
+import { storePatreon } from './store/patreon/storePatreon';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -254,6 +255,7 @@ function buildApp() {
 	StoreProxy.admin = storeAdmin();
 	StoreProxy.counters = storeCounters();
 	StoreProxy.heat = storeHeat();
+	StoreProxy.patreon = storePatreon();
 	StoreProxy.router = router;
 	
 	app.use(router)

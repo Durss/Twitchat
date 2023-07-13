@@ -1,4 +1,5 @@
 import MessengerProxy from "@/messaging/MessengerProxy";
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import * as MathJS from 'mathjs';
@@ -7,6 +8,7 @@ import { reactive } from "vue";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
+import ApiController from "../ApiController";
 import Config from "../Config";
 import OBSWebsocket from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
@@ -18,8 +20,6 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
-import DataStore from "@/store/DataStore";
-import type { UluleTypes } from "@/types/UluleTypes";
 
 /**
 * Created : 22/04/2022 
@@ -1484,7 +1484,7 @@ export default class TriggerActionHandler {
 						if(!value) value = pointer == "viewers"? "0" : "-none-";
 
 					/**
-					 * If the placeholder requests for the current stream info
+					 * If the placeholder requests for Ulule info
 					 */
 					}else if(pointer.indexOf("__ulule__") == 0 && ululeProject) {
 						const pointer = h.pointer.replace('__ulule__.', '');
@@ -1493,15 +1493,11 @@ export default class TriggerActionHandler {
 							case "name": {
 								//This is a dirty duplicate of what's in OverlayParamsUlule.
 								//Think about a cleaner way to do this
-								const headers = {'App-Version': import.meta.env.PACKAGE_VERSION};
-								const url = new URL(Config.instance.API_PATH+"/ulule/project");
 								let project = ululeProject.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
-								url.searchParams.append("project", project);
 								try {
-									const apiRes = await fetch(url, {method:"GET", headers});
+									const apiRes = await ApiController.call("ulule/project", "GET", {project});
 									if(apiRes.status == 200) {
-										const projectData:UluleTypes.Project = await apiRes.json();
-										value = Utils.getQueryParameterByName("title") || projectData.name_en || projectData.name_fr || projectData.name_ca || projectData.name_de || projectData.name_es || projectData.name_it || projectData.name_pt || projectData.name_nl;
+										value = Utils.getQueryParameterByName("title") || apiRes.json.name_en || apiRes.json.name_fr || apiRes.json.name_ca || apiRes.json.name_de || apiRes.json.name_es || apiRes.json.name_it || apiRes.json.name_pt || apiRes.json.name_nl;
 									}
 								}catch(error){
 									value = "";
@@ -1511,7 +1507,7 @@ export default class TriggerActionHandler {
 						}
 	
 					/**
-					 * If the placeholder requests for the current stream info
+					 * If the placeholder requests for trigger's info
 					 */
 					}else if(pointer === "__trigger__") {
 						value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;

@@ -147,7 +147,7 @@ export default class BetaController extends AbstractController {
 	private async migrateUserAdmin(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.adminGuard(request, response)) return;
 		
-		const params = request.query as any;
+		const params:any = request.body;
 
 		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, params.uid+".json");
 		const betaFile = path.join(Config.USER_DATA_PATH, params.uid+".json");
