@@ -11,8 +11,6 @@ import SchedulerHelper from '@/utils/SchedulerHelper';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
-import DeezerHelper from '@/utils/music/DeezerHelper';
-import DeezerHelperEvent from '@/utils/music/DeezerHelperEvent';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import HeatSocket from '@/utils/twitch/HeatSocket';
@@ -24,7 +22,6 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
-import { rotate } from 'mathjs';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -177,13 +174,6 @@ export const storeMain = defineStore("main", {
 					this.cypherKey = cypherKey;
 					ChatCypherPlugin.instance.initialize(cypherKey);
 				}
-				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECTED, ()=>{
-					sMusic.setDeezerConnected(true);
-				});
-				DeezerHelper.instance.addEventListener(DeezerHelperEvent.CONNECT_ERROR, ()=>{
-					sMusic.setDeezerConnected(false);
-					this.alert(StoreProxy.i18n.t("error.deezer.auth_failed"));//"Deezer authentication failed";
-				});
 				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
 					//Execute trigger
 					const trigger:TwitchatDataTypes.MessageVoicemodData = {

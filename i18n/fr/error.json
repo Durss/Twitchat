@@ -39,9 +39,6 @@
 			"api_rate": "[SPOTIFY] Maximum de requête atteint",
 			"token_refresh": "[SPOTIFY] Mise à jour du token échouée"
 		},
-		"deezer": {
-			"auth_failed": "L'authentification à deezer a échoué"
-		},
 		"message_send": "Une erreur a eu lieu lors de l'envoi du message :(",
 		"prediction_outcome": "Une erreur a eu lieu lors de la sélection de l'entrée gagnante",
 		"prediction_delete": "Une erreur a eu lieu lors de la suppression de la prédiction",

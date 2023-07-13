@@ -34,7 +34,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 
 # Features
 - [x] Enable an emergency button with custom actions to prevent from follow bots and doxxing
-- [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify or Deezer when an event occurs
+- [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify when an event occurs
 - [x] Control Twitchat and create polls or predictions with your voice
 - [x] Read your messages and alerts out loud thank to the include text-to-speech
 - [x] Pin messages and find them back later
@@ -45,7 +45,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 - [x] Alert command to make Twitchat shake, blink, emit sound and display a message over everything else
 - [x] Edit your stream's info from Twitchat with possibility to create pressets
 - [x] Create a timer or a countdown with a simple command and show it on your stream
-- [x] Control spotify or deezer from chat commands *(create your own song request system)* and show currently playing track on your stream
+- [x] Control spotify from chat commands *(create your own song request system)* and show currently playing track on your stream
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
 - [x] Track a user to make sure not to miss their messages

@@ -610,11 +610,6 @@ export interface IMusicState {
 	 */
 	spotifyAuthToken: SpotifyAuthToken|null;
 	/**
-	 * Is deezer connected
-	 * @deprecated not used since deezer killed the possibility to control playback
-	 */
-	deezerConnected: boolean;
-	/**
 	 * Music player overlay params.
 	 */
 	musicPlayerParams:TwitchatDataTypes.MusicPlayerParamsData,
@@ -630,12 +625,6 @@ export interface IMusicActions {
 	 * @param value 
 	 */
 	setSpotifyAuthResult(value:SpotifyAuthResult|null):void;
-	/**
-	 * Sets if deezer is connected or not
-	 * @param value 
-	 * @deprecated not used since deezer killed the possibility to control playback
-	 */
-	setDeezerConnected(value:boolean):void;
 }
 
 

@@ -150,11 +150,5 @@ interface Credentials {
 	spotify_scopes: string;
 	spotify_redirect_uri: string;
 	
-	deezer_scopes: string;
-	deezer_client_id: string;
-	deezer_client_secret: string;
-	deezer_redirect_uri: string;
-	deezer_dev_client_id: string;
-	deezer_dev_client_secret: string;
-	deezer_dev_redirect_uri: string;
+	patreon_client_id:string;
 }

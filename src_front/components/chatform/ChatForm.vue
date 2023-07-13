@@ -139,14 +139,6 @@
 				</transition>
 	
 				<transition name="blink">
-					<ButtonNotification :aria-label="$t('chat.form.deezerBt_aria')"
-						icon="deezer"
-						v-if="$store('music').deezerConnected"
-						v-tooltip="$t('chat.form.deezerBt_aria')"
-						@click="openNotifications('deezer')" />
-				</transition>
-	
-				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.highlightBt_aria')"
 						v-if="chatHighlightEnabled"
 						class="chatHighlight"

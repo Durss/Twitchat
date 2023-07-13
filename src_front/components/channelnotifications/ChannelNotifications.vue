@@ -6,7 +6,6 @@
 				<PredictionState class="content" v-else-if="showPrediction" />
 				<RaffleState class="content" v-else-if="showRaffle" />
 				<BingoState class="content" v-else-if="showBingo" />
-				<DeezerState class="content" v-else-if="showDeezer" />
 			</transition>
 
 			<transition name="slide">
@@ -32,7 +31,6 @@ import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
 import BingoState from './BingoState.vue';
-import DeezerState from './DeezerState.vue';
 import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
@@ -45,7 +43,6 @@ import RaidState from './RaidState.vue';
 		PollState,
 		RaidState,
 		BingoState,
-		DeezerState,
 		CloseButton,
 		RaffleState,
 		HypeTrainState,
@@ -66,14 +63,12 @@ export default class ChannelNotifications extends AbstractSidePanel {
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store("prediction").data?.id != null; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store("raffle").data != null && this.$store("raffle").data!.mode == "chat"; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store("bingo").data != null; }
-	public get showDeezer():boolean { return this.currentContent == 'deezer' && this.$store("music").deezerConnected; }
 
 	public get showClose():boolean {
 		return (this.showPoll
 			|| this.showPrediction
 			|| this.showBingo
 			|| this.showRaffle
-			|| this.showDeezer
 			|| this.$store('chat').searchMessages != "")
 		;
 	}

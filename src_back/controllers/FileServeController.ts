@@ -61,9 +61,7 @@ export default class FileServeController extends AbstractController {
 			spotify_scopes:Config.credentials.spotify_scopes,
 			spotify_client_id:Config.credentials.spotify_client_id,
 			
-			deezer_scopes:Config.credentials.deezer_scopes,
-			deezer_client_id:Config.credentials.deezer_client_id,
-			deezer_dev_client_id:Config.credentials.deezer_dev_client_id,
+			patreon_client_id:Config.credentials.patreon_client_id,
 		}));
 	}
 

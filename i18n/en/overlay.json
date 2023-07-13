@@ -70,11 +70,6 @@
 		"spotify": {
 			"connectBt": "Connect Spotify"
 		},
-		"deezer": {
-			"shit_api": "Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.",
-			"authBt": "Authenticate",
-			"control": "Click on the {ICON} icon deezer on the bottom right of the screen to add tracks, view the queue, and control the playback."
-		},
 		"ulule": {
 			"title":"Ulule",
 			"css": "You can change the appearance of the progress bar by overriding these CSS IDs on OBS browser source params",

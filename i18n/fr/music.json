@@ -1,9 +1,7 @@
 {
 	"music": {
-		"deezer_interact": "Deezer requiert que vous cliquiez ici pour pouvoir jouer de la musique.",
 		"spotify_play": "Spotify oblige à d'abord jouer de la musique avant de le contrôler depuis Twitchat",
 		"spotify_refused": "Vous avez refusé l'accès à votre compte Spotify",
-		"state_title": "Deezer",
 		"search_track": "chercher... ",
 		"playBt": "Jouer",
 		"add_queueBt": "Ajouter à la file d'attente"

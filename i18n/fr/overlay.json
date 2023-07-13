@@ -70,11 +70,6 @@
 		"spotify": {
 			"connectBt": "Connecter Spotify"
 		},
-		"deezer": {
-			"shit_api": "L'API Deezer étant catastrophique, les risques de malfonctions existent. Vous devrez de plus vous reconnecter à chaque lancement de Twitchat.",
-			"authBt": "Connexion",
-			"control": "Cliquez sur l'icone {ICON} en bas à droite de l'écran pour ajouter des morceaux, voir la liste de lecture, et controler la lecture."
-		},
 		"ulule": {
 			"title":"Ulule",
 			"css": "Changez l'apparence de la barre de progression via ces sélecteurs CSS",

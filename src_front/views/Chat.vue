@@ -124,14 +124,6 @@
 		
 		<Login v-if="$store('params').currentModal == 'login'" @close="$store('params').closeModal()" scopeOnly />
 
-		<Teleport to="body">
-			<div class="deezerCTA" v-if="needUserInteraction">
-				<img src="@/assets/icons/deezer_color.svg" alt="deezer" class="icon">
-				<div class="title">{{ $t("global.click") }}</div>
-				<div class="message">{{ $t("music.deezer_interact") }}</div>
-			</div>
-		</Teleport>
-
 		<ChatAlertMessage />
 		
 		<Accessibility />
@@ -176,7 +168,6 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import DeezerHelper from '@/utils/music/DeezerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
@@ -263,7 +254,6 @@ export default class Chat extends Vue {
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
 	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean; }
-	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
 	public get showEmergencyFollows():boolean { return this.$store("emergency").follows.length > 0 && !this.$store("emergency").emergencyStarted; }
 
 	public get classes():string[] {
@@ -1127,31 +1117,4 @@ export default class Chat extends Vue {
 		}
 	}
 }
-</style>
-<style lang="less">
-	.deezerCTA {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		background: rgba(255, 0, 0, .25);
-		transform: translate(-50%, -50%);
-		z-index: 6;
-		pointer-events: none;
-		color: var(--color-primary);
-		text-align: center;
-		text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
-
-		.icon {
-			height: 4em;
-		}
-
-		.title {
-			font-size: 3em;
-			font-weight: bold;
-			margin: .25em 0;
-		}
-		.message {
-			font-size: 1.5em;
-		}
-	}
 </style>

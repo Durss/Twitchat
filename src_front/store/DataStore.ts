@@ -937,7 +937,6 @@ export default class DataStore {
 		delete data["p:shoutoutLabel"];
 		delete data["leftColSize"];
 		delete data["activityFeedFilters"];
-		delete data["deezerEnabled"];
 	}
 
 	/**

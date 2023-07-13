@@ -11,7 +11,9 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const Overlay = () => import('@/views/Overlay.vue');
+const TermsOfUse = () => import('@/views/TermsOfUse.vue');
 const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
+const PrivacyPolicy = () => import('@/views/PrivacyPolicy.vue');
 const PublicApiTest = () => import('@/views/PublicApiTest.vue');
 const HeatClickDebug = () => import('@/views/HeatClickDebug.vue');
 const HeatDebugPopout = () => import('@/views/HeatDebugPopout.vue');
@@ -136,6 +138,29 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: '/patreon/auth',
+		name: 'patreon/auth',
+		redirect:() => {
+			// const sMain = StoreProxy.main;
+			// const sParams = StoreProxy.params;
+			// const sMusic = StoreProxy.music;
+			// if(!Utils.getQueryParameterByName("error")) {
+			// 	sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+			// 	const params:SpotifyAuthResult = {
+			// 		code:Utils.getQueryParameterByName("code") as string,
+			// 		csrf:Utils.getQueryParameterByName("state") as string,
+			// 	}
+			// 	sMusic.setSpotifyAuthResult(params);
+			// }else{
+			// 	sMain.alert( StoreProxy.i18n.t("music.spotify_refused") );
+			// }
+			return {name:"chat", query:{}};
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
 		path: '/overlay/:id(.*)',
 		name: 'overlay',
 		component: Overlay,
@@ -164,6 +189,26 @@ const routes: Array<RouteRecordRaw> = [
 		meta: {
 			needAuth:false,
 			public:true,
+		}
+	},
+	{
+		path: '/privacypolicy',
+		name: 'privacypolicy',
+		component: PrivacyPolicy,
+		meta: {
+			needAuth:false,
+			public:true,
+			overflow:true,
+		}
+	},
+	{
+		path: '/termsofuse',
+		name: 'termsofuse',
+		component: TermsOfUse,
+		meta: {
+			needAuth:false,
+			public:true,
+			overflow:true,
 		}
 	},
 	{

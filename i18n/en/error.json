@@ -39,9 +39,6 @@
 			"api_rate": "[SPOTIFY] API rate limits exceeded",
 			"token_refresh": "[SPOTIFY] token refresh failed"
 		},
-		"deezer": {
-			"auth_failed": "Deezer authentication failed"
-		},
 		"message_send": "Woops... something went wrong when sending the message :(",
 		"prediction_outcome": "An error occurred while chosing prediction's outcome",
 		"prediction_delete": "An error occurred while deleting the prediction",

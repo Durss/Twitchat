@@ -208,7 +208,7 @@ export default class GoXLRSocket {
 			this._idToPromiseResolver[id] = resolve;
 
 			const cmdChunks:unknown[] = [this._deviceId];
-			if(data) {
+			if(data != undefined) {
 				const values:{[id:string]:unknown} = {};
 				values[command] = data;
 				cmdChunks.push(values);

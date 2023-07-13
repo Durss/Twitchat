@@ -483,6 +483,9 @@ body.light {
 					}
 				}
 				.youtubeBt {
+					:deep(.icon) {
+						height: auto !important;
+					}
 					:deep(.background) {
 						background-color: #ff0000 !important;
 					}

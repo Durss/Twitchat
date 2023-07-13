@@ -22,7 +22,6 @@ export default class Config {
 	public DEMO_MODE = false;//replaces cursor by huge fake one
 	public MAX_PREDICTION_OUTCOMES = 10;
 	public SPOTIFY_CONNECTED = false;
-	public DEEZER_CONNECTED = false;
 	public AD_MIN_FOLLOWERS_COUNT = 50;
 	public TWITCH_SHOUTOUT_COOLDOWN = 2 * 60 * 1000;
 	public TWITCH_SHOUTOUT_COOLDOWN_SAME_USER = 60 * 60 * 1000;
@@ -77,16 +76,13 @@ export default class Config {
 	public get TWITCH_APP_SCOPES():string[] { return this._serverConfig.twitch_scopes; }
 	public get SPOTIFY_CLIENT_ID():string { return this._serverConfig.spotify_client_id; }
 	public get SPOTIFY_SCOPES():string { return this._serverConfig.spotify_scopes; }
-	public get DEEZER_CLIENT_ID():string { return this.IS_PROD? this._serverConfig.deezer_client_id : this._serverConfig.deezer_dev_client_id; }
-	public get DEEZER_SCOPES():string { return this._serverConfig.deezer_scopes; }
 
-	public get MUSIC_SERVICE_CONFIGURED():boolean { return this.SPOTIFY_CONFIGURED || this.DEEZER_CONFIGURED; }
+	public get MUSIC_SERVICE_CONFIGURED():boolean { return this.SPOTIFY_CONFIGURED; }
 	public get SPOTIFY_CONFIGURED():boolean { return this.SPOTIFY_CLIENT_ID?.length > 20; }
-	public get DEEZER_CONFIGURED():boolean { return this.DEEZER_CLIENT_ID?.length > 5; }
 
 	public get MUSIC_SERVICE_CONFIGURED_AND_CONNECTED():boolean {
 		if(!this.MUSIC_SERVICE_CONFIGURED) return false;
-		return this.SPOTIFY_CONNECTED || this.DEEZER_CONNECTED;
+		return this.SPOTIFY_CONNECTED;
 	}
 
 	public get highlightMyMessageReward():TwitchDataTypes.Reward {
@@ -151,8 +147,5 @@ export interface ServerConfig {
 	twitch_scopes: string[];
 	spotify_client_id: string;
 	spotify_scopes: string;
-	deezer_scopes: string;
-	deezer_client_id: string;
-	deezer_dev_client_id: string;
-
+	patreon_client_id: string;
 }

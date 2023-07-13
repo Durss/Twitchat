@@ -13,7 +13,6 @@ import PublicAPI from "../PublicAPI";
 import TTSUtils from "../TTSUtils";
 import Utils from "../Utils";
 import WebsocketTrigger from "../WebsocketTrigger";
-import DeezerHelper from "../music/DeezerHelper";
 import type { SearchTrackItem } from "../music/SpotifyDataTypes";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
@@ -1338,21 +1337,6 @@ export default class TriggerActionHandler {
 									}
 								}
 							}
-							if(Config.instance.DEEZER_CONNECTED) {
-								const tracks = await DeezerHelper.instance.searchTracks(m);
-								if(tracks) {
-									const track = tracks[0];
-									DeezerHelper.instance.addToQueue(track);
-									data = {
-										title:track.title,
-										artist:track.artist.name,
-										album:track.album.title,
-										cover:track.album.cover_medium,
-										duration:track.duration,
-										url:track.link,
-									};
-								}
-							}
 
 							//A track has been found and added
 							if(data) {
@@ -1395,9 +1379,6 @@ export default class TriggerActionHandler {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Next track success: "+res});
 								});
 							}
-							if(Config.instance.DEEZER_CONNECTED) {
-								DeezerHelper.instance.nextTrack();
-							}
 						}else
 						
 						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
@@ -1406,9 +1387,6 @@ export default class TriggerActionHandler {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Pause success: "+res});
 								});
 							}
-							if(Config.instance.DEEZER_CONNECTED) {
-								DeezerHelper.instance.pause();
-							}
 						}else
 						
 						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
@@ -1416,9 +1394,6 @@ export default class TriggerActionHandler {
 								SpotifyHelper.instance.resume().then(res=> {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Resume success: "+res});
 								});
-							}
-							if(Config.instance.DEEZER_CONNECTED) {
-								DeezerHelper.instance.resume();
 							}
 						}else
 						
@@ -1441,9 +1416,6 @@ export default class TriggerActionHandler {
 									MessengerProxy.instance.sendMessage("Playlist not found", platforms);
 								}
 							}
-							// if(Config.instance.DEEZER_CONNECTED) {
-							// 	DeezerHelper.instance.resume();
-							// }
 						}
 					}catch(error) {
 						console.error(error);
@@ -1611,8 +1583,6 @@ export default class TriggerActionHandler {
 							const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
 							if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
 								value = SpotifyHelper.instance.currentTrack[pointer]?.toString();
-							}else if(Config.instance.DEEZER_CONNECTED && DeezerHelper.instance.currentTrack) {
-								value = DeezerHelper.instance.currentTrack[pointer]?.toString();
 							}
 							if(!value) value = "-none-";
 							
