@@ -2155,7 +2155,8 @@ export default class TwitchUtils {
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			followers = await TwitchUtils.getFollowers(null, 100);
 			for (let i = 0; i < followers.length; i++) {
-				const user = StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name,undefined, true, false);
+				const user = StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name, undefined, true, false);
+				user.channelInfo[channelId].following_date_ms = new Date(followers[i].followed_at).getTime();
 				this.fakeUsersCache.push(user);
 			}
 		}

@@ -134,11 +134,11 @@ export const storeRaffle = defineStore('raffle', {
 			currentRaffleData = null;
 		},
 
-		async checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
-			if(!this.data || this.data.mode != "chat") return;
+		checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):boolean {
+			if(!this.data || this.data.mode != "chat") return false;
 
-			if(!("user" in message)) return;
-			if(!("channel_id" in message)) return;
+			if(!("user" in message)) return false;
+			if(!("channel_id" in message)) return false;
 
 			const messageCast = message as TwitchatDataTypes.GreetableMessage;
 
@@ -154,7 +154,7 @@ export const storeRaffle = defineStore('raffle', {
 				if(existingEntry) {
 					//User already entered, increment their score or stop there
 					//depending on the raffle's param
-					if(this.data.multipleJoin !== true) return;
+					if(this.data.multipleJoin !== true) return false;
 					existingEntry.joinCount ++;
 				}else{
 					//User is not already on the list, create it
@@ -176,7 +176,9 @@ export const storeRaffle = defineStore('raffle', {
 					message = message.replace(/\{USER\}/gi, user.displayName)
 					MessengerProxy.instance.sendMessage(message, [user.platform]);
 				}
+				return true;
 			}
+			return false;
 		},
 
 		async pickWinner(forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void> {
@@ -247,11 +249,11 @@ export const storeRaffle = defineStore('raffle', {
 					//Apply follower ratio
 					if(data.followRatio > 0) {
 						//If user follow state isn't loaded yet, get it
-						if(user.channelInfo[channel_id].is_following === undefined) await sUsers.checkFollowerState(user, channel_id);
+						if(user.channelInfo[channel_id].is_following === null) await sUsers.checkFollowerState(user, channel_id);
 						if(user.channelInfo[channel_id].is_following === true) v.entry.score += data.followRatio;
 					}
 					//Apply sub T1 ratio (value comes from IRC).
-					//If there's a T2 or T3 ratio, don't apply the T1 ratio here, wealready got it before
+					//If there's a T2 or T3 ratio, don't apply the T1 ratio here, we already got it before
 					//by checking the actual subscription states of all users from the API.
 					//IRC doesn't say if the user is subscribed at tier 2 or 3, only tier 1 and prime.
 					if(data.subRatio > 0

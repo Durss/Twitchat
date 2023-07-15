@@ -980,7 +980,7 @@ export default class TriggerActionHandler {
 								step.pollData.voteDuration * 60,
 								step.pollData.pointsPerVote);
 						}else{
-							logStep.messages.push({date:Date.now(), value:"Cannot create poll as it's missing either the title or answers"});
+							logStep.messages.push({date:Date.now(), value:"❌ Cannot create poll as it's missing either the title or answers"});
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
@@ -1001,7 +1001,7 @@ export default class TriggerActionHandler {
 								answers,
 								step.predictionData.voteDuration * 60);
 						}else{
-							logStep.messages.push({date:Date.now(), value:"Cannot create prediction as it's missing either the title or answers"});
+							logStep.messages.push({date:Date.now(), value:"❌ Cannot create prediction as it's missing either the title or answers"});
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
@@ -1021,7 +1021,11 @@ export default class TriggerActionHandler {
 				
 				//Handle raffle enter action
 				if(step.type == "raffle_enter") {
-					StoreProxy.raffle.checkRaffleJoin(message);
+					if(StoreProxy.raffle.checkRaffleJoin(message)) {
+						logStep.messages.push({date:Date.now(), value:"❌ Cannot join raffle. Either user already entered or no raffle has been started, or raffle entries are closed"});
+					}else{
+						logStep.messages.push({date:Date.now(), value:"✔ User joined the raffle"});
+					}
 				}else
 				
 				//Handle bingo action
@@ -1058,7 +1062,7 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"Enable voicemod filter \""+voice.friendlyName+"\""});
 							VoicemodWebSocket.instance.enableVoiceEffect(voice.voiceID);
 						}else{
-							logStep.messages.push({date:Date.now(), value:"❌No voicemod filter found with name \""+voiceName+"\""});
+							logStep.messages.push({date:Date.now(), value:"❌ No voicemod filter found with name \""+voiceName+"\""});
 						}
 					}
 				}else
@@ -1133,7 +1137,7 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"Sending WS message: "+json});
 							WebsocketTrigger.instance.sendMessage(json);
 						}else{
-							logStep.messages.push({date:Date.now(), value:"Websocket not connected. Cannot send data: "+json});
+							logStep.messages.push({date:Date.now(), value:"❌ Websocket not connected. Cannot send data: "+json});
 						}
 					}catch(error) {
 						console.error(error);
@@ -1323,7 +1327,7 @@ export default class TriggerActionHandler {
 								}
 								if(track) {
 									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
-										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Add to queue success: true"});
+										logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success: true"});
 										data = {
 											title:track.name,
 											artist:track.artists[0].name,
@@ -1333,7 +1337,7 @@ export default class TriggerActionHandler {
 											url:track.external_urls.spotify,
 										};
 									}else{
-										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Add to queue success: false"});
+										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue success: false"});
 									}
 								}
 							}
@@ -1419,12 +1423,12 @@ export default class TriggerActionHandler {
 						}
 					}catch(error) {
 						console.error(error);
-						logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Exception: "+ error});
+						logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Exception: "+ error});
 					}
 				}
 					
 			}catch(error) {
-				logStep.messages.push({date:Date.now(), value:"[EXCEPTION] step execution thrown an error: "+JSON.stringify(error)});
+				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+JSON.stringify(error)});
 			}
 			logStep.messages.push({date:Date.now(), value:"Step execution complete"});
 		}
