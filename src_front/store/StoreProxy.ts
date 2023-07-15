@@ -858,7 +858,7 @@ export interface IRaffleActions {
 	 * any currently opened raffle
 	 * @param message 
 	 */
-	checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
+	checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):boolean;
 	/**
 	 * Pick a random winner amongst the users that joined the raffmle
 	 * @param forcedData 
@@ -1596,4 +1596,5 @@ export interface IPatreonGetters {
 }
 
 export interface IPatreonActions {
+	setPatreonAuthResult(value:{code:string,csrf:string}|null):void;
 }

@@ -126,7 +126,7 @@ export default class TTUserList extends AbstractSidePanel {
 		this.users = [];
 		this.usersSpool = [];
 		try {
-			const json = await ApiController.call<{success:boolean, message:string, users:{id:string, date:number, user:TwitchDataTypes.UserInfo}[]}>("user/all");
+			const {json} = await ApiController.call("user/all");
 			if(json.success) {
 				const users = json.users;
 				this.activeLast24h = 0;

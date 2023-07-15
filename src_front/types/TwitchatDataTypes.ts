@@ -17,6 +17,7 @@ export namespace TwitchatDataTypes {
 		TIMER: "timer",
 		ULULE: "ulule",
 		SPOTIFY: "spotify",
+		PATREON: "patreon",
 		COUNTER: "counter",
 		HIGHLIGHT: "highlight",
 		WEBSOCKET: "websocket",

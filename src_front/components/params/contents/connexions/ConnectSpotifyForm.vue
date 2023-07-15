@@ -108,6 +108,7 @@ export default class ConnectSpotifyForm extends Vue {
 					this.error = (e as {error:string, error_description:string}).error_description;
 					this.showSuccess = false;
 					console.log(e);
+					this.$store("main").alert("Oops... something went wrong");
 				}
 			}
 

@@ -141,19 +141,20 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/patreon/auth',
 		name: 'patreon/auth',
 		redirect:() => {
-			// const sMain = StoreProxy.main;
-			// const sParams = StoreProxy.params;
-			// const sMusic = StoreProxy.music;
-			// if(!Utils.getQueryParameterByName("error")) {
-			// 	sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
-			// 	const params:SpotifyAuthResult = {
-			// 		code:Utils.getQueryParameterByName("code") as string,
-			// 		csrf:Utils.getQueryParameterByName("state") as string,
-			// 	}
-			// 	sMusic.setSpotifyAuthResult(params);
-			// }else{
-			// 	sMain.alert( StoreProxy.i18n.t("music.spotify_refused") );
-			// }
+			const sMain = StoreProxy.main;
+			const sParams = StoreProxy.params;
+			const sPatreon = StoreProxy.patreon;
+			if(Utils.getQueryParameterByName("code")) {
+				const params = {
+					code:Utils.getQueryParameterByName("code") as string,
+					csrf:Utils.getQueryParameterByName("state") as string,
+				}
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.PATREON);
+				console.log(sPatreon);
+				sPatreon.setPatreonAuthResult(params);
+			}else{
+				sMain.alert( StoreProxy.i18n.t("error.patreon_denied") );
+			}
 			return {name:"chat", query:{}};
 		},
 		meta: {

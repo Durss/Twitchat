@@ -3,6 +3,8 @@ import type { UluleTypes } from "@/types/UluleTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { ServerConfig } from "./Config";
 import Config from "./Config";
+import type { PatreonData } from "./patreon/PatreonDataTypes";
+import type { TenorGif } from "@/types/TenorDataTypes";
 
 /**
 * Created : 13/07/2023 
@@ -175,11 +177,9 @@ type ApiEndpoints =  {
 	},
 	"spotify/auth": {
 		GET: {},
-		POST: {},
 	},
 	"spotify/refresh_token": {
 		GET: {},
-		POST: {},
 	},
 	"ulule/project" : {
 		GET: UluleTypes.Project,
@@ -203,7 +203,7 @@ type ApiEndpoints =  {
 				id:string, 
 				date:number, 
 				user:TwitchDataTypes.UserInfo
-			},
+			}[],
 		},
 	},
 	"user/data": {
@@ -216,4 +216,47 @@ type ApiEndpoints =  {
 			message?:string,
 		},
 	},
+	"patreon/authenticate": {
+		POST: {
+			success:boolean,
+			message?:string,
+			data: {
+				access_token: string,
+				expires_in: number,
+				token_type: string,
+				scope: string,
+				refresh_token: string,
+				version: string,
+				expires_at: number,
+			}
+		}
+	},
+	"patreon/refresh_token": {
+		POST: {
+			success:boolean,
+			message?:string,
+			data: {
+				access_token: string,
+				refresh_token: string,
+				expires_in: number,
+				scope: string,
+				token_type: string,
+				expires_at: number,
+			}
+		}
+	},
+	"patreon/user": {
+		GET: {
+			success:boolean,
+			message?:string,
+			data: PatreonData.UserData,
+		}
+	},
+	"tenor/search": {
+		GET: {
+			success:boolean,
+			message?:string,
+			data: TenorGif[],
+		}
+	}
 }

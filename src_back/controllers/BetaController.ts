@@ -96,7 +96,7 @@ export default class BetaController extends AbstractController {
 	private async addUser(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.adminGuard(request, response)) return;
 		
-		const params = request.query as any;
+		const params = request.body as any;
 		let userList:string[] = [];
 		if(fs.existsSync(Config.betaList)) {
 			userList = JSON.parse(fs.readFileSync(Config.betaList, "utf8"));

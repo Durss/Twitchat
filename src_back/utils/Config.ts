@@ -152,4 +152,7 @@ interface Credentials {
 	
 	patreon_client_id:string;
 	patreon_client_secret:string;
+	patreon_scopes:string;
+
+	tenor_secret:string;
 }

@@ -70,6 +70,7 @@ export default class DataStore {
 	public static ULULE_CURRENCY:string = "ululeCurrency";
 	public static HEAT_ENABLED:string = "heatEnabled";
 	public static HEAT_SCREENS:string = "heatScreens";
+	public static PATREON_AUTH_TOKEN:string = "patreonAuthToken";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -92,6 +93,7 @@ export default class DataStore {
 		this.TOOLTIP_AUTO_OPEN,
 		this.POLL_DEFAULT_DURATION,
 		this.PREDICTION_DEFAULT_DURATION,
+		this.PATREON_AUTH_TOKEN,
 	]
 	
 	

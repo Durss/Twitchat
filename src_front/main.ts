@@ -189,7 +189,7 @@ function buildApp() {
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat") => {
+	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat"|"patreon") => {
 		switch(id) {
 			case "main": return StoreProxy.main;
 			case "account": return StoreProxy.account;
@@ -217,6 +217,7 @@ function buildApp() {
 			case "counters": return StoreProxy.counters;
 			case "rewards": return StoreProxy.rewards;
 			case "heat": return StoreProxy.heat;
+			case "patreon": return StoreProxy.patreon;
 		}
 	}
 	

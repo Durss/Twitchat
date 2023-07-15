@@ -1,8 +1,8 @@
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
-import { type IPatreonActions, type IPatreonGetters, type IPatreonState } from '../StoreProxy';
+import type { IPatreonActions, IPatreonGetters, IPatreonState } from '../StoreProxy';
 
-export const storePatreon = defineStore('poll', {
+export const storePatreon = defineStore('patreon', {
 	state: () => ({
 		patreonAuthParams: null,
 		patreonAuthToken: null,
@@ -18,10 +18,11 @@ export const storePatreon = defineStore('poll', {
 
 
 	actions: {
+		setPatreonAuthResult(value) { this.patreonAuthParams = value; },
 	} as IPatreonActions
 	& ThisType<IPatreonActions
 		& UnwrapRef<IPatreonState>
-		& _StoreWithState<"poll", IPatreonState, IPatreonGetters, IPatreonActions>
+		& _StoreWithState<"patreon", IPatreonState, IPatreonGetters, IPatreonActions>
 		& _StoreWithGetters<IPatreonGetters>
 		& PiniaCustomProperties
 	>,

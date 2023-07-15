@@ -62,6 +62,7 @@ export default class FileServeController extends AbstractController {
 			spotify_client_id:Config.credentials.spotify_client_id,
 			
 			patreon_client_id:Config.credentials.patreon_client_id,
+			patreon_scopes:Config.credentials.patreon_scopes,
 		}));
 	}
 

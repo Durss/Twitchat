@@ -1,0 +1,9 @@
+{
+	"patreon": {
+		"linkBt":"Link Patreon",
+		"success":"You Patreon account is now linked",
+		"info":"Unlock premium features by {LINK}.",
+		"info_link":"supporting me on Patreon",
+		"connected":"Your Patreon account is linked to Twitchat."
+	}
+}

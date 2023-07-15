@@ -23,6 +23,7 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
+import PatreonHelper from '@/utils/patreon/PatreonHelper';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -169,6 +170,7 @@ export const storeMain = defineStore("main", {
 			const token = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 			if(token && authenticate) {
 				SpotifyHelper.instance.connect();
+				PatreonHelper.instance.connect();
 				const cypherKey = DataStore.get(DataStore.CYPHER_KEY);
 				if(cypherKey) {
 					this.cypherKey = cypherKey;

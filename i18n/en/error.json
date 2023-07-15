@@ -52,6 +52,8 @@
 			"pick_winner_no_raffle":"You must start a raffle before picking a winner",
 			"pick_winner_no_subs":"You cannot start a raffle amongst your subs. No user is subscribed to your channel at the moment.",
 			"pick_winner_no_entry":"No user entered current raffle"
-		}
+		},
+		"patreon_denied": "You refused to grant access to your Patreon profile",
+		"patreon_disconected": "Your Patreon account has been disconected"
 	}
 }
