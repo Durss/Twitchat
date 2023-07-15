@@ -107,14 +107,15 @@ export default class PatreonHelper {
 	private async refreshToken():Promise<void> {
 		const res = await ApiController.call("patreon/refresh_token", "POST", {token:this._token?.refresh_token});
 		if(res.status == 200 && res.json) {
-			this.connected = true;
 			this._token = {
 				access_token: res.json.data.access_token,
 				refresh_token: res.json.data.refresh_token,
 				expires_at: Date.now() + res.json.data.expires_in * 1000,
 			}
+
+			DataStore.set(DataStore.PATREON_AUTH_TOKEN, this._token);
+			this.connected = true;
 			
-			console.log("REFRESH", res.json);
 			clearTimeout(this._refreshTimeout);
 			this._refreshTimeout = setTimeout(()=> {
 				this.refreshToken();
@@ -122,6 +123,7 @@ export default class PatreonHelper {
 		}else{
 			this._token = null;
 			this.connected = false;
+			DataStore.remove(DataStore.PATREON_AUTH_TOKEN);
 			StoreProxy.main.alert(StoreProxy.i18n.t("error.patreon_disconected"));
 		}
 	}

@@ -108,10 +108,6 @@ export default class PatreonController extends AbstractController {
 		const result = await fetch(url, options);
 		const json = await result.json();
 
-		console.log(url);
-		console.log(token);
-		console.log(json);
-
 		if(json.error) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
