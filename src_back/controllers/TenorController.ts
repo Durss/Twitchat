@@ -9,10 +9,10 @@ import Config from "../utils/Config";
 */
 export default class TenorController extends AbstractController {
 
-	private lastDate:number = 0;
+	private lastApiCallDate:number = 0;
 	private timeout:NodeJS.Timeout|number = -1;
 	private rateLimit:number = 1100;//Actual limit is 1s, adding 100ms for security
-	private queue:{request:FastifyRequest, response:FastifyReply}[] = [];
+	private queue:(()=>void)[] = [];
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -41,17 +41,19 @@ export default class TenorController extends AbstractController {
 	public async getSearchGif(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		//If a query has been executed less than the "rateLimit" duration ago, add the
 		//request to queue.
-		if(Date.now() - this.lastDate < this.rateLimit) {
-			this.queue.push({request, response});
+		if(Date.now() - this.lastApiCallDate < this.rateLimit) {
+			await new Promise<void>((resolver)=> {
+				this.queue.push(resolver);
+				const duration = this.rateLimit - (Date.now() - this.lastApiCallDate);
+	
+				clearTimeout(this.timeout);
+				this.timeout = setTimeout(()=> {
+					this.queue.shift()();
+				}, duration);
+			})
 
-			clearTimeout(this.timeout);
-			this.timeout = setTimeout(()=> {
-				let entry = this.queue.shift();
-				this.getSearchGif(entry.request, entry.response);
-			}, this.rateLimit - (Date.now() - this.lastDate));
-
-			return;
 		}
+
 		const params = request.query as any;
 		const search = params.search;
 
@@ -76,16 +78,24 @@ export default class TenorController extends AbstractController {
 			return;
 		}
 
+		if(json.error) {
+			response.header('Content-Type', 'application/json');
+			response.status(json.error.code);
+			response.send(JSON.stringify({message:json.error, success:false}));
+			return;
+		}
+
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, data:json.results}));
+
+		this.lastApiCallDate = Date.now();
 
 		//Execute any pending queries
 		if(this.queue.length > 0) {
 			clearTimeout(this.timeout);
 			this.timeout = setTimeout(()=> {
-				let entry = this.queue.shift();
-				this.getSearchGif(entry.request, entry.response);
+				this.queue.shift()();
 			}, this.rateLimit);
 		}
 	}

@@ -262,6 +262,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import EventSub from '@/utils/twitch/EventSub';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import ApiController from '@/utils/ApiController';
 
 @Component({
 	components:{
@@ -556,6 +557,7 @@ export default class ChatForm extends Vue {
 		if(cmd == "/gngngn") {
 			//App version
 			console.log(this.$store("chat").messages);
+			console.log(await ApiController.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
 		}else
 		

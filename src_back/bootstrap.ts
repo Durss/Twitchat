@@ -11,6 +11,7 @@ import FileServeController from './controllers/FileServeController';
 import MiddlewareController from './controllers/MiddlewareController';
 import UluleController from './controllers/UluleController';
 import PatreonController from './controllers/PatreonController';
+import TenorController from './controllers/TenorController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -44,6 +45,7 @@ new SpotifyController(server).initialize();
 new BetaController(server).initialize();
 new UluleController(server).initialize();
 new PatreonController(server).initialize();
+new TenorController(server).initialize();
 
 //Start server
 start();
