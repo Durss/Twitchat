@@ -16,6 +16,7 @@ import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchT
 */
 export default class SpotifyHelper {
 	
+	public connected:boolean = false;
 	public currentTrack!:TwitchatDataTypes.MusicTrackData;
 	
 	private static _instance:SpotifyHelper;
@@ -78,7 +79,7 @@ export default class SpotifyHelper {
 	public disconnect():void {
 		clearTimeout(this._refreshTimeout);
 		clearTimeout(this._getTrackTimeout);
-		Config.instance.SPOTIFY_CONNECTED = false;
+		this.connected = false;
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);
 		rebuildPlaceholdersCache();
 	}
@@ -151,7 +152,7 @@ export default class SpotifyHelper {
 		}catch(error) {
 			StoreProxy.main.alert("Spotify authentication failed");
 			console.log(error);
-			Config.instance.SPOTIFY_CONNECTED = false;
+			this.connected = false;
 			rebuildPlaceholdersCache();
 			throw(error);
 		}
@@ -196,7 +197,7 @@ export default class SpotifyHelper {
 			}
 		}
 		if(!refreshSuccess){
-			Config.instance.SPOTIFY_CONNECTED = false;
+			this.connected = false;
 
 			//Refresh failed, try again
 			if(attempt < 5) {
@@ -335,7 +336,7 @@ export default class SpotifyHelper {
 	 * track info.
 	 */
 	public async getCurrentTrack():Promise<void> {
-		if(!Config.instance.SPOTIFY_CONNECTED) return;
+		if(!this.connected) return;
 		
 		clearTimeout(this._getTrackTimeout);
 
@@ -569,7 +570,7 @@ export default class SpotifyHelper {
 			"Content-Type":"application/json",
 			"Authorization":"Bearer "+this._token.access_token,
 		}
-		Config.instance.SPOTIFY_CONNECTED = this._token? this._token.expires_at > Date.now() : false;
+		this.connected = this._token? this._token.expires_at > Date.now() : false;
 		rebuildPlaceholdersCache();
 		
 		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {

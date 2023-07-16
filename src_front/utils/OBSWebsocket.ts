@@ -525,6 +525,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sourceName 
 	 * @param sceneName 
 	 * @returns 
+	 * //TODO replace all this with a GetSceneItemId call? https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getsceneitemid
 	 */
 	public async getSourceOnCurrentScene(sourceName:string, sceneName = "", isGroup:boolean = false):Promise<{scene:string, source:OBSSourceItem}|null> {
 		const cacheKey = sceneName + this.sceneCacheKeySplitter + sourceName;

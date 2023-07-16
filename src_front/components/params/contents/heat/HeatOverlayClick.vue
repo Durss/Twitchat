@@ -18,12 +18,12 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import DataStore from '@/store/DataStore';
 import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
-import PostOnChatParam from '../../PostOnChatParam.vue';
 import ParamItem from '../../ParamItem.vue';
-import DataStore from '@/store/DataStore';
+import PostOnChatParam from '../../PostOnChatParam.vue';
 
 @Component({
 	components:{
@@ -59,7 +59,9 @@ export default class HeatOverlayClick extends Vue {
 
 	public onUpdateValue():void {
 		this.$store("chat").botMessages.heatUlule.cooldown = this.param_cooldown.ulule?.value;
+		this.$store("chat").botMessages.heatUlule.allowAnon = this.param_allowAnon.ulule?.value;
 		this.$store("chat").botMessages.heatSpotify.cooldown = this.param_cooldown.spotify?.value;
+		this.$store("chat").botMessages.heatSpotify.allowAnon = this.param_allowAnon.spotify?.value;
 		DataStore.set(DataStore.BOT_MESSAGES, this.$store("chat").botMessages);
 	}
 

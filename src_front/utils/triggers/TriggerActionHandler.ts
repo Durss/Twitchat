@@ -1306,13 +1306,13 @@ export default class TriggerActionHandler {
 				if(step.type == "music") {
 					try {
 						logStep.messages.push({date:Date.now(), value:"[MUSIC] Execute music action: "+step.musicAction});
-						logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected? "+Config.instance.SPOTIFY_CONNECTED});
+						logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected? "+SpotifyHelper.instance.connected});
 						//Adding a track to the queue
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 							//Convert placeholders if any
 							const m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.track, subEvent);
 							let data:TwitchatDataTypes.MusicTrackData|null = null;
-							if(Config.instance.SPOTIFY_CONNECTED) {
+							if(SpotifyHelper.instance.connected) {
 								let track:SearchTrackItem|null = null;
 								if(/open\.spotify\.com\/track\/.*/gi.test(m)) {
 									//Full URL specified, extract the ID from it
@@ -1378,7 +1378,7 @@ export default class TriggerActionHandler {
 						}else
 						
 						if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
-							if(Config.instance.SPOTIFY_CONNECTED) {
+							if(SpotifyHelper.instance.connected) {
 								SpotifyHelper.instance.nextTrack().then(res=>{
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Next track success: "+res});
 								});
@@ -1386,7 +1386,7 @@ export default class TriggerActionHandler {
 						}else
 						
 						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
-							if(Config.instance.SPOTIFY_CONNECTED) {
+							if(SpotifyHelper.instance.connected) {
 								SpotifyHelper.instance.pause().then(res=> {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Pause success: "+res});
 								});
@@ -1394,7 +1394,7 @@ export default class TriggerActionHandler {
 						}else
 						
 						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
-							if(Config.instance.SPOTIFY_CONNECTED) {
+							if(SpotifyHelper.instance.connected) {
 								SpotifyHelper.instance.resume().then(res=> {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Resume success: "+res});
 								});
@@ -1406,7 +1406,7 @@ export default class TriggerActionHandler {
 							if(message.type == "message") {
 								m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
 							}
-							if(Config.instance.SPOTIFY_CONNECTED) {
+							if(SpotifyHelper.instance.connected) {
 								let id:string|null = null;
 								if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
 									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
@@ -1581,7 +1581,7 @@ export default class TriggerActionHandler {
 						if(h.tag.toLowerCase().indexOf("current_track") == 0) {
 							//That replace() is dirty but I'm too lazy to do that in a more generic way :(
 							const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
-							if(Config.instance.SPOTIFY_CONNECTED && SpotifyHelper.instance.currentTrack) {
+							if(SpotifyHelper.instance.connected && SpotifyHelper.instance.currentTrack) {
 								value = SpotifyHelper.instance.currentTrack[pointer]?.toString();
 							}
 							if(!value) value = "-none-";

@@ -21,7 +21,6 @@ export default class Config {
 	public YOUTUBE_URL = "https://www.youtube.com/@Twitchat/videos";
 	public DEMO_MODE = false;//replaces cursor by huge fake one
 	public MAX_PREDICTION_OUTCOMES = 10;
-	public SPOTIFY_CONNECTED = false;
 	public AD_MIN_FOLLOWERS_COUNT = 50;
 	public TWITCH_SHOUTOUT_COOLDOWN = 2 * 60 * 1000;
 	public TWITCH_SHOUTOUT_COOLDOWN_SAME_USER = 60 * 60 * 1000;
@@ -78,14 +77,6 @@ export default class Config {
 	public get SPOTIFY_SCOPES():string { return this._serverConfig.spotify_scopes; }
 	public get PATREON_CLIENT_ID():string { return this._serverConfig.patreon_client_id; }
 	public get PATREON_SCOPES():string { return this._serverConfig.patreon_scopes; }
-
-	public get MUSIC_SERVICE_CONFIGURED():boolean { return this.SPOTIFY_CONFIGURED; }
-	public get SPOTIFY_CONFIGURED():boolean { return this.SPOTIFY_CLIENT_ID?.length > 20; }
-
-	public get MUSIC_SERVICE_CONFIGURED_AND_CONNECTED():boolean {
-		if(!this.MUSIC_SERVICE_CONFIGURED) return false;
-		return this.SPOTIFY_CONNECTED;
-	}
 
 	public get highlightMyMessageReward():TwitchDataTypes.Reward {
 		const img = rewardImg;

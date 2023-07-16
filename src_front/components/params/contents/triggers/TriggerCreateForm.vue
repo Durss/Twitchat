@@ -108,6 +108,7 @@ import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
 import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 
 @Component({
 	components:{
@@ -140,7 +141,7 @@ export default class TriggerCreateForm extends Vue {
 	public temporaryTrigger:TriggerData|null = null;
 	public eventCategories:{category:TriggerEventTypeCategory, events:TriggerTypeDefinition[]}[] = [];
 
-	public get musicServiceAvailable():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get musicServiceAvailable():boolean { return SpotifyHelper.instance.connected; }
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 

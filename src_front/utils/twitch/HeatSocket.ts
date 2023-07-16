@@ -40,7 +40,7 @@ export default class HeatSocket extends EventDispatcher {
 	 * Connect to Heat server
 	 * @param channelId 
 	 */
-	public connect(channelId:string):void {
+	public async connect(channelId:string):Promise<void> {
 		this.disconnect();
 
 		this.socketIndex ++;
@@ -48,54 +48,57 @@ export default class HeatSocket extends EventDispatcher {
 
         let url = `wss://heat-api.j38.net/channel/${channelId}`;
         console.log(`Connecting to ${url}.`);
-        this.ws = new WebSocket(url);
-
-        // Initial connection.
-        this.ws.addEventListener('open', () => {
-			if(localSocketIndex != this.socketIndex) {console.log("IGNORE OPEN"); return;}
-			
-			this.connected = true;
-            console.log(`Connection open to Heat API server, channel ${channelId}.`);
-        });
-
-        // Message received.
-        this.ws.addEventListener('message', (message) => {
-			if(localSocketIndex != this.socketIndex) {console.log("IGNORE MESSAGE"); return;}
-			
-            let data = JSON.parse(message.data);
-			if(data.type==="click") {
-				this.fireEvent(data.id, data.x as number, data.y as number,
-					data.modifiers?.ctrl === true,
-					data.modifiers?.alt === true,
-					data.modifiers?.shift === true);
-			}
-
-			if (data.type == "system") {
-				console.log("System message: " + data.message);
-			}
-		});
-
-		// Error handling.
-		this.ws.addEventListener('error', (event) => {
-			console.log("Error:");
-			console.log(event);
-
-			if(localSocketIndex != this.socketIndex) {console.log("IGNORE ERROR"); return;}
-			
-			this.connected = false;
-		});
-
-		// Handle close and reconnect.
-		this.ws.addEventListener('close', (event) => {
-			console.log("Connection closed:");
-			console.log(event);
-
-			if(localSocketIndex != this.socketIndex) {console.log("IGNORE CLOSE"); return;}
-
-			this.connected = false;
-			this.ws = null
-			this.reconnectTimeout = setTimeout(() => { this.connect(channelId); }, 1000)
-		});
+		return new Promise((resolve)=> {
+			this.ws = new WebSocket(url);
+	
+			// Initial connection.
+			this.ws.addEventListener('open', () => {
+				if(localSocketIndex != this.socketIndex) {console.log("IGNORE OPEN"); return;}
+				
+				this.connected = true;
+				console.log(`Connection open to Heat API server, channel ${channelId}.`);
+			});
+	
+			// Message received.
+			this.ws.addEventListener('message', (message) => {
+				if(localSocketIndex != this.socketIndex) {console.log("IGNORE MESSAGE"); return;}
+				
+				let data = JSON.parse(message.data);
+				if(data.type==="click") {
+					this.fireEvent(data.id, data.x as number, data.y as number,
+						data.modifiers?.ctrl === true,
+						data.modifiers?.alt === true,
+						data.modifiers?.shift === true);
+				}
+	
+				if (data.type == "system") {
+					console.log("System message: " + data.message);
+					resolve();
+				}
+			});
+	
+			// Error handling.
+			this.ws.addEventListener('error', (event) => {
+				console.log("Error:");
+				console.log(event);
+	
+				if(localSocketIndex != this.socketIndex) {console.log("IGNORE ERROR"); return;}
+				
+				this.connected = false;
+			});
+	
+			// Handle close and reconnect.
+			this.ws.addEventListener('close', (event) => {
+				console.log("Connection closed:");
+				console.log(event);
+	
+				if(localSocketIndex != this.socketIndex) {console.log("IGNORE CLOSE"); return;}
+	
+				this.connected = false;
+				this.ws = null
+				this.reconnectTimeout = setTimeout(() => { this.connect(channelId); }, 1000)
+			});
+		})
 	}
 
 	/**

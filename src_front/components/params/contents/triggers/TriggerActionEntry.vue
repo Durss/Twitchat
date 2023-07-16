@@ -180,6 +180,7 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 
 @Component({
 	components:{
@@ -228,7 +229,7 @@ export default class TriggerActionEntry extends Vue {
 	public isError = false;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get musicServiceConfigured():boolean { return SpotifyHelper.instance.connected; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }

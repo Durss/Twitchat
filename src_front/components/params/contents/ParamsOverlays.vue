@@ -46,6 +46,7 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import type IParameterContent from './IParameterContent';
@@ -75,7 +76,7 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
-	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
+	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected; }
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 

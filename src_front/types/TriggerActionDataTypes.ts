@@ -1,6 +1,7 @@
 import StoreProxy from "@/store/StoreProxy";
 import Config from "../utils/Config";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
+import SpotifyHelper from "@/utils/music/SpotifyHelper";
 
 
 export type TriggerActionTypes =  TriggerActionEmptyData
@@ -894,7 +895,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	if(map[key]
 	&& key != TriggerTypes.MUSIC_START
 	&& key != TriggerTypes.TRACK_ADDED_TO_QUEUE
-	&& Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED) {
+	&& SpotifyHelper.instance.connected) {
 		let tags:ITriggerPlaceholder[] = JSON.parse(JSON.stringify(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]));
 		tags.forEach(v=>v.globalTag = true);
 		map[key] = map[key]!.concat(tags);

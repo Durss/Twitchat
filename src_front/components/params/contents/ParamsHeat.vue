@@ -1,5 +1,5 @@
 <template>
-	<div class="paramsheat parameterContent">
+	<div class="paramsheat parameterContent" @keyup="onKeyUp">
 		<Icon name="heat" alt="heat icon" class="icon" />
 
 		<div class="head">
@@ -11,6 +11,8 @@
 		</div>
 		
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
+		<Icon name="loader" v-if="connecting" />
+		<ParamItem :paramData="param_debugChan" v-if="debugMode" @change="changeChannel" />
 
 		<div class="fadeHolder" :style="holderStyles">
 			<HeatOverlayClick />
@@ -46,7 +48,13 @@ import HeatDebug from './heat/HeatDebug.vue';
 })
 export default class ParamsHeat extends Vue {
 	
+	public param_debugChan:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Channel ID", icon:"debug"};
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
+	public debugMode:boolean = false;
+	public connecting:boolean = false;
+
+	private debouncer:number = -1;
+	private keyupHandler!:(e:KeyboardEvent) => void;
 		
 	public get subContent() { return this.$store("params").currentPageSubContent; }
 
@@ -61,12 +69,29 @@ export default class ParamsHeat extends Vue {
 		if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
 			this.param_enabled.value = true;
 		}
+		this.param_debugChan.value = this.$store("auth").twitch.user.id;
+
+		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
+		document.addEventListener("keyup", this.keyupHandler);
 	}
 	
 	public beforeUnmount():void {
+		document.removeEventListener("keyup", this.keyupHandler);
 	}
 
 	public onNavigateBack(): boolean { return false; }
+
+	/**
+	 * Called when debug channel ID is updated
+	 */
+	public changeChannel():void {
+		clearTimeout(this.debouncer);
+		this.debouncer = setTimeout(async ()=> {
+			this.connecting = true;
+			await HeatSocket.instance.connect(this.param_debugChan.value);
+			this.connecting = false;
+		}, 500);
+	}
 
 	/**
 	 * Called when toggling the "enabled" state
@@ -78,6 +103,13 @@ export default class ParamsHeat extends Vue {
 			HeatSocket.instance.disconnect();
 		}
 		DataStore.set(DataStore.HEAT_ENABLED, this.param_enabled.value);
+	}
+
+	public onKeyUp(e:KeyboardEvent):void {
+		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
+			this.debugMode = !this.debugMode;
+			e.preventDefault();
+		}
 	}
 
 }

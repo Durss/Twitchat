@@ -48,11 +48,10 @@
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
+import ApiController from '@/utils/ApiController';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
-import ApiController from '@/utils/ApiController';
 
 @Component({
 	components:{
@@ -72,7 +71,7 @@ export default class ConnectSpotifyForm extends Vue {
 	public paramClient:TwitchatDataTypes.ParameterData<string> = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient", maxLength:32};
 	public paramSecret:TwitchatDataTypes.ParameterData<string> = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret", maxLength:32};
 
-	public get connected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
+	public get connected():boolean { return SpotifyHelper.instance.connected; }
 	public get canConnect():boolean {
 		return this.paramClient.value.length >= 30 && this.paramSecret.value.length >= 30;
 	}
