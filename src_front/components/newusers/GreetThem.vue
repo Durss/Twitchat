@@ -11,9 +11,14 @@
 				<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
 	
 				<ButtonNotification class="clearBt clearButton"
-					icon="delete"
+					icon="checkmark"
 					v-tooltip="$t('greet.clearBt')"
 					@click.stop="clearAll()" />
+	
+				<ButtonNotification class="clearBt clearButton"
+					icon="date"
+					v-tooltip="$t('greet.resetBt')"
+					@click.stop="resetHistory()" />
 			</div>
 	
 			<div class="topForm" v-if="showList">
@@ -286,6 +291,15 @@ export default class NewUsers extends Vue {
 		let deleteCount = this.localMessages.length;
 		this.$confirm(this.$t("greet.clear_confirm_title"), this.$t("greet.clear_confirm_description"), null).then(() => {
 			this.localMessages.splice(0, deleteCount);
+		});
+	}
+
+	/**
+	 * Reset greeting history
+	 */
+	public resetHistory():void {
+		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null).then(() => {
+			this.$store("chat").resetGreetingHistory();
 		});
 	}
 

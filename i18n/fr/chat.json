@@ -313,6 +313,7 @@
 			"tts_all_stop": "Arrêter de lire ses messages",
 			"highlight": "Mettre en avant",
 			"highlight_loading": "vérification...",
+			"rename": "Personnaliser pseudo",
 			"pin": "Epingler le message",
 			"save": "Enregistrer le message",
 			"unsave": "Désenregistrer le message",

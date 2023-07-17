@@ -484,6 +484,10 @@ export interface IChatActions {
 	 * @param user 
 	 */
 	flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void;
+	/**
+	 * Reset the greeting history.
+	 */
+	resetGreetingHistory():void
 }
 
 

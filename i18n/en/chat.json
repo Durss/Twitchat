@@ -313,6 +313,7 @@
 			"tts_all_stop": "Stop reading their messages",
 			"highlight": "Highlight message",
 			"highlight_loading": "loading status...",
+			"rename": "Rename user",
 			"pin": "Pin message",
 			"save": "Save message",
 			"unsave": "Unsave message",

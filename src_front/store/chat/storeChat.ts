@@ -1424,6 +1424,20 @@ export const storeChat = defineStore('chat', {
 			greetedUsers[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
 			DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
 		},
+
+		resetGreetingHistory():void {
+			const users = StoreProxy.users.users;
+			//Reset last activity date of all users on all channels
+			for (let i = 0; i < users.length; i++) {
+				const u = users[i];
+				for (const chan in u.channelInfo) {
+					u.channelInfo[chan].lastActivityDate = 0;
+				}
+			}
+			greetedUsers = {};
+			//Reset greeting history
+			DataStore.remove(DataStore.GREET_HISTORY);
+		},
 	} as IChatActions
 	& ThisType<IChatActions
 		& UnwrapRef<IChatState>
