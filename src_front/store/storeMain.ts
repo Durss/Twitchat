@@ -661,6 +661,7 @@ export const storeMain = defineStore("main", {
 			const sHeat = StoreProxy.heat;
 			const sVoice = StoreProxy.voice;
 			const sMusic = StoreProxy.music;
+			const sUsers = StoreProxy.users;
 			const sStream = StoreProxy.stream;
 			const sParams = StoreProxy.params;
 			const sTriggers = StoreProxy.triggers;
@@ -849,6 +850,12 @@ export const storeMain = defineStore("main", {
 			if(heatScreensParams) {
 				Utils.mergeRemoteObject(JSON.parse(heatScreensParams), (sHeat.screenList as unknown) as JsonObject);
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
+			}
+
+			//Init custom user names
+			const customUsernamesParams = DataStore.get(DataStore.CUSTOM_USERNAMES);
+			if(customUsernamesParams) {
+				sUsers.customUsernames = JSON.parse(customUsernamesParams);
 			}
 			
 			//Reload devmode state

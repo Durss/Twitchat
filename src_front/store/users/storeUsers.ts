@@ -10,6 +10,7 @@ import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _
 import { reactive, type UnwrapRef } from 'vue';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import DataStore from '../DataStore';
 
 interface BatchItem {
 	channelId?:string;
@@ -33,7 +34,7 @@ const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 const twitchUserBatchLoginToLoad:BatchItem[] = [];
 const twitchUserBatchIdToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser, cb?:(user:TwitchatDataTypes.TwitchatUser) => void}[] = [];
 const tmpDisplayName = "...loading...";
-let moderatorsCache:{[key:string]:{[key:string]:true}} = {}
+const moderatorsCache:{[key:string]:{[key:string]:true}} = {};
 let twitchUserBatchLoginTimeout = -1;
 let twitchUserBatchIdTimeout = -1;
 
@@ -41,6 +42,7 @@ export const storeUsers = defineStore('users', {
 	state: () => ({
 		pendingShoutouts: {},
 		userCard: null,
+		customUsernames: {},
 		blockedUsers: {
 			twitchat:{},
 			twitch:{},
@@ -171,6 +173,7 @@ export const storeUsers = defineStore('users', {
 						id:id ?? "",
 						login:login ?? "",
 						displayName:displayName ?? "",
+						displayNameOriginal:displayName ?? "",
 						pronouns:null,
 						pronounsLabel:false,
 						pronounsTooltip:false,
@@ -198,6 +201,7 @@ export const storeUsers = defineStore('users', {
 						id:id??Utils.getUUID(),
 						login:login??"",
 						displayName:displayName??login??"",
+						displayNameOriginal:displayName??login??"",
 						temporary:true,
 						pronouns:null,
 						pronounsLabel:false,
@@ -221,6 +225,18 @@ export const storeUsers = defineStore('users', {
 
 				// user = reactive(user!);
 			}
+
+			//Override "displayName" property by a getter that returns either the 
+			//"displayNameOriginal" value or the "customUsername" if any is defined
+			//This is to avoid updating "displayName" accessors everywhere on the app.
+			Object.defineProperty(user, 'displayName', {
+				set: function(name) {
+					this.originalDisplayName = name;
+				},
+				get: function() {
+					return StoreProxy.users.customUsernames[this.id] || this.originalDisplayName || this.login
+				}}
+			);
 			
 			//This just makes the rest of the code know that the user
 			//actually exists as it cannot be undefined anymore once
@@ -826,6 +842,16 @@ export const storeUsers = defineStore('users', {
 
 			}
 		},
+
+		setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string):void {
+			if(!name) {
+				delete this.customUsernames[user.id];
+			}else{
+				this.customUsernames[user.id] = name;
+			}
+			
+			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+		}
 
 	} as IUsersActions
 	& ThisType<IUsersActions

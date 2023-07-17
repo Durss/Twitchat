@@ -547,6 +547,14 @@ import Ajv from "ajv";
 		ululeTitle: {type:"string", maxLength:100},
 		ululeCurrency: {type:"string", maxLength:2},
 		heatEnabled: {type:"boolean"},
+		customUsernames: {
+			type:"object",
+			additionalProperties: false,
+			maxProperties:1000,
+			patternProperties: {
+			  ".{1,20}": {type: "string", maxLength:25}
+			},
+		},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,

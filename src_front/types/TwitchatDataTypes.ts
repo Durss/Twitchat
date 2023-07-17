@@ -987,6 +987,7 @@ export namespace TwitchatDataTypes {
 		platform:ChatPlatform;
 		login:string;
 		displayName:string;
+		displayNameOriginal:string;
 		avatarPath?:string;
 		/**
 		 * Nickname chat color

@@ -71,6 +71,7 @@ export default class DataStore {
 	public static HEAT_ENABLED:string = "heatEnabled";
 	public static HEAT_SCREENS:string = "heatScreens";
 	public static PATREON_AUTH_TOKEN:string = "patreonAuthToken";
+	public static CUSTOM_USERNAMES:string = "customUsernames";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

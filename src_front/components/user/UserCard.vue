@@ -29,12 +29,21 @@
 				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
 					<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 					<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
-					<div class="title">
-						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
-						<span class="label">{{user.displayName}}</span>
-						<span class="translation" v-if="translateUsername">({{user.login}})</span>
-					</div>
 				</a>
+				<div class="title">
+					<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
+					<template v-if="!edittingLogin">
+						<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
+							<span class="label">{{user.displayName}}</span>
+							<span class="translation" v-if="translateUsername">({{user.login}})</span>
+						</a>
+						<button class="editLoginBt" @click="editLogin()" v-tooltip="$t('usercard.edit_loginBt_tt')"><Icon name="edit" theme="secondary" /></button>
+					</template>
+					<form v-else class="editLoginForm" @submit.prevent="submitCustomLogin()">
+						<input class="" type="text" :placeholder="$t('global.login_placeholder')" v-model="customLogin" ref="customUsername">
+						<Button type="submit" icon="checkmark"></Button>
+					</form>
+				</div>
 				<span v-if="user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
 				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 			</div>
@@ -158,6 +167,8 @@ export default class UserCard extends Vue {
 	public suspiciousFollowFrequency:boolean = false;
 	public loading:boolean = true;
 	public loadingFollowings:boolean = true;
+	public edittingLogin:boolean = true;
+	public customLogin:string = "";
 	public createDate:string = "";
 	public followDate:string = "";
 	public userDescription:string = "";
@@ -172,7 +183,6 @@ export default class UserCard extends Vue {
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public subState:TwitchDataTypes.Subscriber|null = null;
 	public subStateLoaded:boolean = false;
-	public modChans:TwitchatDataTypes.TwitchatUser[] = [];
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 
@@ -309,19 +319,18 @@ export default class UserCard extends Vue {
 		this.commonFollowCount = 0;
 		this.followersCount = -1;
 		this.followDate = "";
+		this.currentStream = null;
 		this.subState = null;
 		this.subStateLoaded = false;
-		this.modChans = [
-			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "684410546", "mewstelle", "Mewstelle"),
-			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "43809079", "shakawah", "Shakawah"),
-			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "642638701", "fibertooth", "fibertooth"),
-		];
+		this.customLogin = "";
+		this.edittingLogin = false;
 		try {
 			let user = this.user!;
 			const loadFromLogin = user.temporary;
 			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
+				this.customLogin = this.$store("users").customUsernames[u.id] || u.display_name;
 				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.userDescription = u.description;
 				user.avatarPath = u.profile_image_url;
@@ -370,7 +379,7 @@ export default class UserCard extends Vue {
 					message_chunks: [],
 					answers:[],
 					is_short:false,
-				}
+				};
 			}else{
 				this.error = true;
 			}
@@ -420,6 +429,22 @@ export default class UserCard extends Vue {
 	
 	public untrackUser():void {
 		this.$store("users").untrackUser(this.user!);
+	}
+
+	public editLogin():void {
+		this.edittingLogin = true;
+		this.$nextTick().then(()=> {
+			(this.$refs.customUsername as HTMLInputElement).focus();
+		})
+	}
+
+	public submitCustomLogin():void {
+		this.edittingLogin = false;
+		this.$store("users").setCustomUsername(this.user!, this.customLogin);
+		//Update customLogin from the actual displayname.
+		//If clearing the custom login, the real display name is loaded back to the
+		//"displayName" getter .
+		this.customLogin = this.user!.displayName;
 	}
 
 	/**
@@ -484,7 +509,13 @@ export default class UserCard extends Vue {
 
 	private onKeyUp(e:KeyboardEvent):void {
 		if(e.key == "Escape") {
-			this.close();
+			if(this.edittingLogin) {
+				this.edittingLogin = false;
+			}else{
+				this.close();
+			}
+			e.preventDefault();
+			e.stopPropagation();
 		}
 	}
 
@@ -553,6 +584,33 @@ export default class UserCard extends Vue {
 				.badge {
 					height: .8em;
 					margin-right: 3px;
+				}
+
+				.editLoginBt {
+					height: .7em;
+					margin-left: .25em;
+					.icon {
+						height: 100%;
+						:deep(svg) {
+							vertical-align: top;
+						}
+					}
+				}
+
+				.editLoginForm {
+					font-size: 1rem;
+					display: flex;
+					flex-direction: row;
+
+					.button {
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
+					}
+
+					input {
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
+					}
 				}
 			}
 

@@ -1180,6 +1180,10 @@ export interface IUsersState {
 		channelId?:string,
 	}|null;
 	/**
+	 * Contains custom user names used for display on place of the actual username
+	 */
+	customUsernames:{[key:string]:string};
+	/**
 	 * List of blocked users by platform
 	 */
 	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
@@ -1374,6 +1378,12 @@ export interface IUsersActions {
 	 * Execute any pending shoutout
 	 */
 	executePendingShoutouts():void;
+	/**
+	 * Defines a custom username to the given user
+	 * @param user 
+	 * @param name 
+	 */
+	setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string):void;
 }
 
 

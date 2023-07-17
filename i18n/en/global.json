@@ -20,6 +20,7 @@
 		"start": "Start",
 		"search": "Search",
 		"close": "Close",
+		"login_placeholder": "login...",
 		"search_placeholder": "search...",
 		"select_placeholder": "select...",
 		"cooldown": "📛 {'@'}{USER} wait {DURATION}",

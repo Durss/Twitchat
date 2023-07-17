@@ -560,6 +560,7 @@ export default class TwitchUtils {
 					id:"0",
 					platform:"twitch",
 					displayName:"Global",
+					displayNameOriginal:"Global",
 					login:"Global",
 					donor:{level:0, state:false, upgrade:false, noAd:false},
 					is_affiliate:false,
