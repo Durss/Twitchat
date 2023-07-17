@@ -263,6 +263,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import EventSub from '@/utils/twitch/EventSub';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import ApiController from '@/utils/ApiController';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 
 @Component({
 	components:{
@@ -395,6 +396,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		console.log(SpotifyHelper.instance.currentTrack);
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 

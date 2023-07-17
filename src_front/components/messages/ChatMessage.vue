@@ -70,6 +70,7 @@
 				@click.stop.prevent="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="outNickName($event)"
+				data-login
 				class="login" :style="getLoginStyles(messageData.user)">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></a>
 			<template v-if="recipient">
 				<span> ➔ </span>
@@ -628,8 +629,9 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(this.contextMenuOff !== false) return;
 		if(e.target) {
 			const el = e.target as HTMLElement;
-			if(el.tagName == "A") return;
+			if(el.tagName == "A" && el.dataset.login === undefined) return;
 		}
+		if(window.getSelection()?.isCollapsed == false) return;
 		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser_local);
 	}
 
