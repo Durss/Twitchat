@@ -1,5 +1,15 @@
 {
 	"goxlr":{
-		
+		"header":"Contrôlez votre GoXLR depuis Twitchat. Nécessite {LINK}.",
+		"header_link":"GoXLR utility",
+		"connecting":"connexion à Voicemod...",
+		"connect_failed":"Impossible de se connecter à Voicemod",
+		"allowed_users":"Personnes autorisées à utiliser les commandes:",
+		"params_title":"Paramètres",
+		"show_indicator":"Indiquer quand un effet est actif",
+		"voices_title":"Liste des voix",
+		"voices_infos":"Associez n'importe quel effet à une commande",
+		"voices_triggers":"Pour plus de contrôle sur l'activation des filtres, rendez-vous dans {LINK}.",
+		"voices_triggers_link":"les triggers"
 	}
 }

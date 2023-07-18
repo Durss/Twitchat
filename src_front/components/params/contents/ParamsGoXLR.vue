@@ -1,10 +1,10 @@
 <template>
-	<div class="paramsgoxlr">
-		<Icon name="voicemod" class="icon" />
+	<div class="paramsgoxlr parameterContent">
+		<Icon name="goxlr" class="icon" />
 		
-		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
+		<i18n-t scope="global" class="head" tag="div" keypath="goxlr.header">
 			<template #LINK>
-				<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
+				<a href="https://github.com/GoXLR-on-Linux/goxlr-utility/releases/latest" target="_blank">{{ $t("goxlr.header_link") }}</a>
 			</template>
 		</i18n-t>
 
@@ -15,7 +15,7 @@
 				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
 				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
 			</picture>
-			<div class="item center">{{ $t("voicemod.connecting") }}</div>
+			<div class="item center">{{ $t("goxlr.connecting") }}</div>
 		</section>
 
 		<div class="fadeHolder" :style="holderStyles">

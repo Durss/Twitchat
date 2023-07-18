@@ -93,6 +93,20 @@ export default class Config {
 		});
 	}
 
+	public static get PATREON_TOKEN_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../patreonToken.json"),
+			prod: path.join(__dirname, "../patreonToken.json"),
+		});
+	}
+
+	public static get PATREON_MEMBERS_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../patreonMembers.json"),
+			prod: path.join(__dirname, "../patreonMembers.json"),
+		});
+	}
+
 	/**
 	 * Extract a data from an hasmap depending on the current environment.
 	 * @param map
@@ -153,6 +167,9 @@ interface Credentials {
 	patreon_client_id:string;
 	patreon_client_secret:string;
 	patreon_scopes:string;
+	patreon_redirect_uri:string;
+	patreon_redirect_uri_server:string;
+	patreon_webhook_secret:string;
 
 	tenor_secret:string;
 }

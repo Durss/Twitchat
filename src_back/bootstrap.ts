@@ -34,18 +34,23 @@ fs.mkdirSync(Config.betaDataFolder, { recursive: true });
 fs.mkdirSync(Config.donorsDataFolder, { recursive: true });
 
 const server:FastifyInstance = Fastify({logger: false});
-
-//Create controllers
-new MiddlewareController(server).initialize();
-new FileServeController(server).initialize();
-new AuthController(server).initialize();
-new DonorController(server).initialize();
-new UserController(server).initialize();
-new SpotifyController(server).initialize();
-new BetaController(server).initialize();
-new UluleController(server).initialize();
-new PatreonController(server).initialize();
-new TenorController(server).initialize();
-
-//Start server
-start();
+server.register(import('fastify-raw-body'), {
+  field: 'rawBody', // change the default request.rawBody property name
+  encoding: 'utf8', // set it to false to set rawBody as a Buffer **Default utf8**
+  runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
+}).then(()=> {
+	//Create controllers
+	new MiddlewareController(server).initialize();
+	new FileServeController(server).initialize();
+	new AuthController(server).initialize();
+	new DonorController(server).initialize();
+	new UserController(server).initialize();
+	new SpotifyController(server).initialize();
+	new BetaController(server).initialize();
+	new UluleController(server).initialize();
+	new PatreonController(server).initialize();
+	new TenorController(server).initialize();
+	
+	//Start server
+	start();
+})

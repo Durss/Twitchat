@@ -28,7 +28,7 @@
 					<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat">{{$t('params.categories.heat')}}</Button>
 					<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
 					<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
-					<!-- <Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR">{{$t('params.categories.goxlr')}}</Button> -->
+					<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR">{{$t('params.categories.goxlr')}}</Button>
 					<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
 					<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
 					<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
@@ -73,6 +73,7 @@
 				<ParamsCounters v-if="content == contentCounters" ref="currentContent" />
 				<ParamsConnexions v-if="content == contentConnexions" ref="currentContent" />
 				<ParamsHeat v-if="content == contentHeat" ref="currentContent" />
+				<ParamsGoXLR v-if="content == contentGoXLR" ref="currentContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == contentSponsor" ref="currentContent" />
 
@@ -99,29 +100,30 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ThemeSelector from '../ThemeSelector.vue';
+import DonorState from '../user/DonorState.vue';
+import type IParameterContent from './contents/IParameterContent';
 import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsAlert from './contents/ParamsAlert.vue';
 import ParamsAutomod from './contents/ParamsAutomod.vue';
+import ParamsConnexions from './contents/ParamsConnexions.vue';
 import ParamsCounters from './contents/ParamsCounters.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
+import ParamsGoXLR from './contents/ParamsGoXLR.vue';
+import ParamsHeat from './contents/ParamsHeat.vue';
 import ParamsList from './contents/ParamsList.vue';
 import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsSpoiler from './contents/ParamsSpoiler.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
-import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTTS from './contents/ParamsTTS.vue';
+import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
-import ParamsConnexions from './contents/ParamsConnexions.vue';
-import type IParameterContent from './contents/IParameterContent';
-import CloseButton from '../CloseButton.vue';
-import DonorState from '../user/DonorState.vue';
-import ThemeSelector from '../ThemeSelector.vue';
-import ParamsHeat from './contents/ParamsHeat.vue';
 
 @Component({
 	components:{
@@ -134,6 +136,7 @@ import ParamsHeat from './contents/ParamsHeat.vue';
 		CloseButton,
 		ParamsAbout,
 		ParamsAlert,
+		ParamsGoXLR,
 		ParamsAutomod,
 		ParamsSpoiler,
 		ParamsAccount,
