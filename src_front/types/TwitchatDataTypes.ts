@@ -986,8 +986,19 @@ export namespace TwitchatDataTypes {
 		id:string;
 		platform:ChatPlatform;
 		login:string;
+		/**
+		 * Get the display name of the user.
+		 * Returns eith the actual twitch display name, or the custom one defined
+		 * on twitchat.
+		 */
 		displayName:string;
+		/**
+		 * Original twitch display name of the user
+		 */
 		displayNameOriginal:string;
+		/**
+		 * URL of the avatar
+		 */
 		avatarPath?:string;
 		/**
 		 * Nickname chat color

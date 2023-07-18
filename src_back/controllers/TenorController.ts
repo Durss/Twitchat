@@ -11,7 +11,8 @@ export default class TenorController extends AbstractController {
 
 	private lastApiCallDate:number = 0;
 	private timeout:NodeJS.Timeout|number = -1;
-	private rateLimit:number = 1100;//Actual limit is 1s, adding 100ms for security
+	// private rateLimit:number = 1100;//Actual limit is 1s, adding 100ms for security
+	private rateLimit:number = 50;//Documented limit is 1 request per second, but, given a google exec) the actual one is WAY below that so y set a 50ms rate-limit.
 	private queue:(()=>void)[] = [];
 	
 	constructor(public server:FastifyInstance) {

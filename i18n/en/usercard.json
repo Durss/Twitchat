@@ -5,6 +5,7 @@
 		"follow_date_tt":"Follows you since",
 		"not_following":"Not following you",
 		"streaming":"Streaming",
+		"add_badgeBt_tt":"Add custom badge (32*32px)",
 		"edit_loginBt_tt":"Customize login",
 		"profileBt":"Profile",
 		"viewercardBt":"Viewer card",
@@ -15,6 +16,17 @@
 		"non_subscribed":"not a subscriber",
 		"subscribed":"subscribed at tier {TIER}",
 		"subgifted":"subgifted at tier {TIER} by {GIFTER}",
-		"following_end":"Due to Twitch restrictions, this section will disapear after the {DATE}"
+		"following_end":"Due to Twitch restrictions, this section will disapear after the {DATE}",
+		"manage_badges":"Manage custom badges",
+		"manage_badgesBt":"Manage",
+		"remove_badgesBt":"Remove",
+		"delete_badge":"Delete badge",
+		"delete_badge_confirm":{
+			"title":"Delete badge?",
+			"description":"Associated users will lose the badge. This cannot be undone."
+		},
+		"replace_badge_file":"Replace image",
+		"badge_users":"Users associated to this badge",
+		"badge_users_none":"none"
 	}
 }

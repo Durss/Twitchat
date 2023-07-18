@@ -43,6 +43,8 @@ export const storeUsers = defineStore('users', {
 		pendingShoutouts: {},
 		userCard: null,
 		customUsernames: {},
+		customUserBadges: {},
+		customBadgeList:[],
 		blockedUsers: {
 			twitchat:{},
 			twitch:{},
@@ -349,15 +351,13 @@ export const storeUsers = defineStore('users', {
 								// console.log("User found", apiUser.login, apiUser.id);
 								userLocal.id				= apiUser.id;
 								userLocal.login				= apiUser.login;
-								userLocal.displayName		= apiUser.display_name;
+								userLocal.displayName		= userLocal.displayNameOriginal = apiUser.display_name;
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
 								userLocal.avatarPath		= apiUser.profile_image_url;
-								if(!userLocal.displayName
-								|| userLocal.displayName == tmpDisplayName) userLocal.displayName = apiUser.display_name;
-								if(userLocal.id)							hashmaps!.idToUser[userLocal.id] = userLocal;
-								if(userLocal.login)							hashmaps!.loginToUser[userLocal.login] = userLocal;
-								if(userLocal.displayName)					hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
+								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
+								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
+								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
 								
 								//Load pronouns if requested
 								if(getPronouns && userLocal.id && userLocal.login) this.loadUserPronouns(userLocal);
@@ -844,6 +844,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string):void {
+			name = name.trim();
 			if(!name) {
 				delete this.customUsernames[user.id];
 			}else{
@@ -851,6 +852,65 @@ export const storeUsers = defineStore('users', {
 			}
 			
 			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+		},
+
+		addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string):void {
+			let id = "";
+			//add badge to global list if necessary
+			const existingIndex = this.customBadgeList.findIndex(v=>v.img == img);
+			if(existingIndex == -1) {
+				id = Utils.getUUID();
+				this.customBadgeList.push({id, img});
+			}else{
+				id = this.customBadgeList[existingIndex].id;
+			}
+
+			if(user) {
+				if(!this.customUserBadges[user.id]) this.customUserBadges[user.id] = [];
+				//Add badge to the user if necessary
+				if(this.customUserBadges[user.id].findIndex(v => v.id == id)==-1) {
+					this.customUserBadges[user.id].push({id, platform:"twitch"});
+				}
+				DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+			}
+
+			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
+		},
+
+		removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string):void {
+			if(!this.customUserBadges[user.id]) return;
+
+			const index = this.customUserBadges[user.id].findIndex(v => v.id == badgeId);
+			this.customUserBadges[user.id].splice(index, 1);
+
+			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+		},
+
+		updateCustomBadgeImage(badgeId:string, img:string):void {
+			const index = this.customBadgeList.findIndex(v=>v.id == badgeId);
+			if(index > -1) {
+				this.customBadgeList[index].img = img;
+			}
+			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
+		},
+
+		deleteCustomBadge(badgeId:string):void {
+			//Remove any reference of the badge from the users
+			const userBadges = this.customUserBadges;
+			for (const uid in userBadges) {
+				const index = userBadges[uid].findIndex(v=> v.id == badgeId);
+				if(index > -1) {
+					userBadges[uid].splice(index, 1);
+				}
+			}
+
+			const index = this.customBadgeList.findIndex(v=>v.id == badgeId);
+			if(index > -1) {
+				this.customBadgeList.splice(index, 1);
+			}
+
+			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
 		}
 
 	} as IUsersActions

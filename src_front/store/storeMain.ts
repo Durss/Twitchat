@@ -1,7 +1,7 @@
 import HeatEvent from '@/events/HeatEvent';
 import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData, TriggerEventPlaceholders } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
@@ -608,6 +608,7 @@ export const storeMain = defineStore("main", {
 									trigger.id = "heat_spotify_overlay";
 									action.text = StoreProxy.chat.botMessages.heatSpotify.message;
 									trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
+									
 									TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, event.testMode == true);
 								}
 								if(url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
@@ -852,10 +853,22 @@ export const storeMain = defineStore("main", {
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
 			}
 
-			//Init custom user names
+			//Init custom user display names
 			const customUsernamesParams = DataStore.get(DataStore.CUSTOM_USERNAMES);
 			if(customUsernamesParams) {
 				sUsers.customUsernames = JSON.parse(customUsernamesParams);
+			}
+
+			//Init custom user badges links (associations between user IDs and badge indices)
+			const customUserbadgesParams = DataStore.get(DataStore.CUSTOM_USER_BADGES);
+			if(customUserbadgesParams) {
+				sUsers.customUserBadges = JSON.parse(customUserbadgesParams);
+			}
+
+			//Init custom user badge list
+			const customBadgeListParams = DataStore.get(DataStore.CUSTOM_BADGE_LIST);
+			if(customBadgeListParams) {
+				sUsers.customBadgeList = JSON.parse(customBadgeListParams);
 			}
 			
 			//Reload devmode state

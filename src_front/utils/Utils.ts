@@ -803,5 +803,30 @@ export default class Utils {
 		const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
 		return hashHex;
 	}
-	  
+
+	/**
+	 * Converts a file input to a base64 image
+	 * @param input 
+	 */
+	public static async fileToBase64Img(input:File):Promise<string> {
+		return new Promise<string>((resolve, reject)=> {
+			var img = new Image();
+			img.onload = (event)=>{
+				//Scale down image to a 32x32px image
+				const size = 32;
+				const sourceCanvas	= document.createElement("canvas");
+				sourceCanvas.width	= size;
+				sourceCanvas.height	= size;
+				const sourceContext	= sourceCanvas.getContext('2d')!;
+				sourceContext.drawImage(img, 0, 0, size, size);
+				const base64Img = sourceCanvas.toDataURL();
+				resolve(base64Img);
+			};
+			img.onerror = ()=>{
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.badge_file_loading_failed"));
+			};
+			img.src = URL.createObjectURL(input);
+		})
+	}
+
 }

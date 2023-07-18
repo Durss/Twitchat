@@ -198,6 +198,7 @@ export default class SpotifyHelper {
 		}
 		if(!refreshSuccess){
 			this.connected = false;
+			rebuildPlaceholdersCache();
 
 			//Refresh failed, try again
 			if(attempt < 5) {

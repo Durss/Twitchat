@@ -54,6 +54,7 @@
 			"pick_winner_no_entry":"Aucune personne n'a rejoint le tirage au sort"
 		},
 		"patreon_denied": "Vous avez refusé l'accès à votre profil Patreon",
-		"patreon_disconected": "Votre compte Patreon a été deconnecté"
+		"patreon_disconected": "Votre compte Patreon a été deconnecté",
+		"badge_file_loading_failed": "Une erreur a eu lieu lors du chargement de l'image"
 	}
 }

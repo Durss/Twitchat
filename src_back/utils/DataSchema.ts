@@ -555,6 +555,34 @@ import Ajv from "ajv";
 			  ".{1,20}": {type: "string", maxLength:25}
 			},
 		},
+		customBadgeList: {
+			type:"object",
+			additionalProperties: false,
+			maxProperties:100,
+			patternProperties: {
+				".{40}": {type: "string", maxLength:6000}
+			},
+		},
+		customUserBadges: {
+			type:"object",
+			additionalProperties: false,
+			maxProperties:1000,
+			patternProperties: {
+			  ".{1,10}": {
+					type:"array",
+					minItems:0,
+					maxItems:100,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:40},
+							platform: {type:"string", maxLength:15},
+						},
+					},
+				},
+			},
+		},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,

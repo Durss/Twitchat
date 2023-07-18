@@ -23,7 +23,7 @@
 			<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
 		</div>
 
-		<div class="holder" ref="holder" v-else-if="!loading && !error">
+		<div class="holder" ref="holder" v-else-if="!loading && !error && !manageBadges">
 			<CloseButton aria-label="close" @click="close()" />
 			<div class="head">
 				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
@@ -31,7 +31,12 @@
 					<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
 				</a>
 				<div class="title">
+					<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" />
+					
 					<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
+
+					<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" />
+					
 					<template v-if="!edittingLogin">
 						<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
 							<span class="label">{{user.displayName}}</span>
@@ -39,11 +44,13 @@
 						</a>
 						<button class="editLoginBt" @click="editLogin()" v-tooltip="$t('usercard.edit_loginBt_tt')"><Icon name="edit" theme="secondary" /></button>
 					</template>
+					
 					<form v-else class="editLoginForm" @submit.prevent="submitCustomLogin()">
-						<input class="" type="text" :placeholder="$t('global.login_placeholder')" v-model="customLogin" ref="customUsername">
+						<input class="" type="text" :placeholder="$t('global.login_placeholder')" v-model="customLogin" ref="customUsername" maxlength="25">
 						<Button type="submit" icon="checkmark"></Button>
 					</form>
 				</div>
+				<span v-if="user.displayName != user.displayNameOriginal" class="pronouns">({{ user.displayNameOriginal }})</span>
 				<span v-if="user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
 				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 			</div>
@@ -131,26 +138,33 @@
 					</div>
 				</div>
 			</div>
-			</div>
+		</div>
+
+		<div class="holder" ref="holder" v-else-if="manageBadges">
+			<CustomBadgesManager class="scrollable" @close="manageBadges = false" />
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import ChatModTools from '../messages/components/ChatModTools.vue';
-import MessageItem from '../messages/MessageItem.vue';
 import CloseButton from '../CloseButton.vue';
+import MessageItem from '../messages/MessageItem.vue';
+import ChatModTools from '../messages/components/ChatModTools.vue';
+import CustomUserBadges from './CustomUserBadges.vue';
+import CustomBadgeSelector from './CustomBadgeSelector.vue';
+import CustomBadgesManager from './CustomBadgesManager.vue';
 
 @Component({
 	components:{
@@ -158,6 +172,9 @@ import CloseButton from '../CloseButton.vue';
 		CloseButton,
 		MessageItem,
 		ChatModTools,
+		CustomUserBadges,
+		CustomBadgeSelector,
+		CustomBadgesManager,
 	}
 })
 export default class UserCard extends Vue {
@@ -168,6 +185,7 @@ export default class UserCard extends Vue {
 	public loading:boolean = true;
 	public loadingFollowings:boolean = true;
 	public edittingLogin:boolean = true;
+	public manageBadges:boolean = false;
 	public customLogin:string = "";
 	public createDate:string = "";
 	public followDate:string = "";
@@ -324,6 +342,7 @@ export default class UserCard extends Vue {
 		this.subStateLoaded = false;
 		this.customLogin = "";
 		this.edittingLogin = false;
+		this.manageBadges = false;
 		try {
 			let user = this.user!;
 			const loadFromLogin = user.temporary;
@@ -431,13 +450,20 @@ export default class UserCard extends Vue {
 		this.$store("users").untrackUser(this.user!);
 	}
 
+	/**
+	 * Start custom display name edition
+	 */
 	public editLogin():void {
 		this.edittingLogin = true;
 		this.$nextTick().then(()=> {
 			(this.$refs.customUsername as HTMLInputElement).focus();
+			(this.$refs.customUsername as HTMLInputElement).select();
 		})
 	}
 
+	/**
+	 * Called when setting a custom display name
+	 */
 	public submitCustomLogin():void {
 		this.edittingLogin = false;
 		this.$store("users").setCustomUsername(this.user!, this.customLogin);
@@ -445,6 +471,14 @@ export default class UserCard extends Vue {
 		//If clearing the custom login, the real display name is loaded back to the
 		//"displayName" getter .
 		this.customLogin = this.user!.displayName;
+	}
+
+	/**
+	 * Removes a custom badge from the user
+	 * @param id 
+	 */
+	removeCustomBadge(id:string):void {
+		this.$store("users").removeCustomBadge(this.user!, id);
 	}
 
 	/**
@@ -456,11 +490,17 @@ export default class UserCard extends Vue {
 		this.$store("tts").ttsReadUser(this.user!, read);
 	}
 
+	/**
+	 * Push user ID to clipboard
+	 */
 	public copyID():void {
 		Utils.copyToClipboard(this.user!.id);
 		gsap.from(this.$refs.userID as HTMLDivElement, {scale:1.5, ease:"back.out"});
 	}
 
+	/**
+	 * Check how many followers we have in common
+	 */
 	public computeCommonFollows():void {
 		this.commonFollowCount = 0;
 		for (let i = 0; i < this.followings.length; i++) {
@@ -569,6 +609,13 @@ export default class UserCard extends Vue {
 				justify-content: center;
 				width:100%;
 
+				.customBadges {
+					font-size: .8em;
+					margin-right: .25em;
+					align-self: flex-end;
+					z-index: 2;
+				}
+
 				.label {
 					text-overflow: ellipsis;
 					overflow: hidden;
@@ -581,9 +628,12 @@ export default class UserCard extends Vue {
 					margin-left: .25em;
 				}
 
-				.badge {
+				.badge, :deep(.customUserBadge) {
 					height: .8em;
 					margin-right: 3px;
+					&.customUserBadge {
+						cursor: not-allowed;
+					}
 				}
 
 				.editLoginBt {

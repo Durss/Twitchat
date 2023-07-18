@@ -543,7 +543,7 @@ export const TriggerTypes = {
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
 	TWITCHAT_SHOUTOUT_QUEUE:"shoutout_queue",
-	TWITCHAT_MESSAGE:"message",
+	TWITCHAT_MESSAGE:"twitchat_message",
 } as const;
 export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
@@ -598,7 +598,7 @@ export function rebuildPlaceholdersCache():void { eventPlaceholdersCache = undef
  */
 let eventPlaceholdersCache:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder[]}>|undefined;
 export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlaceholder[] {
-	if(eventPlaceholdersCache) {
+	if(eventPlaceholdersCache && eventPlaceholdersCache[key]) {
 		return eventPlaceholdersCache[key] ?? [];
 	}
 
@@ -890,17 +890,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"CLIP", descKey:'triggers.placeholders.clip_url', pointer:"clipUrl", numberParsable:false, isUserID:false},
 	];
 
-
-	//If a music service is available, concat the music service helpers
-	if(map[key]
-	&& key != TriggerTypes.MUSIC_START
-	&& key != TriggerTypes.TRACK_ADDED_TO_QUEUE
-	&& SpotifyHelper.instance.connected) {
-		let tags:ITriggerPlaceholder[] = JSON.parse(JSON.stringify(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]));
-		tags.forEach(v=>v.globalTag = true);
-		map[key] = map[key]!.concat(tags);
-	}
-
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -913,7 +902,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	//Add global placeholders where missing
 	let k!:TriggerTypesValue;
 	for (k in map) {
-		const entry = map[k]!;
+		let entry = map[k]!;
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
 			entry.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"});
 		}
@@ -940,6 +929,16 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		
 		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
 			entry.push({tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true, example:"333"});
+		}
+		
+
+		//If a music service is available, concat the music service helpers
+		if(k != TriggerTypes.MUSIC_START
+		&& k != TriggerTypes.TRACK_ADDED_TO_QUEUE
+		&& SpotifyHelper.instance.connected) {
+			let tags:ITriggerPlaceholder[] = JSON.parse(JSON.stringify(map[TriggerTypes.TRACK_ADDED_TO_QUEUE]));
+			tags.forEach(v=>v.globalTag = true);
+			entry = entry.concat(tags);
 		}
 
 		map[k] = entry.concat(counterPlaceholders);

@@ -1181,8 +1181,18 @@ export interface IUsersState {
 	}|null;
 	/**
 	 * Contains custom user names used for display on place of the actual username
+	 * Associates a user ID to a custom display name
 	 */
 	customUsernames:{[key:string]:string};
+	/**
+	 * Contains custom user badges references.
+	 * Associates a user ID to custom badge ID from the customBadgeList array
+	 */
+	customUserBadges:{[key:string]:{platform:TwitchatDataTypes.ChatPlatform, id:string}[]};
+	/**
+	 * Contains custom user badges
+	 */
+	customBadgeList:{id:string, img:string}[];
 	/**
 	 * List of blocked users by platform
 	 */
@@ -1384,6 +1394,25 @@ export interface IUsersActions {
 	 * @param name 
 	 */
 	setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string):void;
+	/**
+	 * Adds a custom badge to the given user
+	 */
+	addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string):void;
+	/**
+	 * Removes a custom badge from the given user
+	 */
+	removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string):void;
+	/**
+	 * Update the image of the given custom badge
+	 * @param badgeId 
+	 * @param img 
+	 */
+	updateCustomBadgeImage(badgeId:string, img:string):void;
+	/**
+	 * Deletes the given custom badge
+	 * Removes any references from users
+	 */
+	deleteCustomBadge(badgeId:string):void;
 }
 
 

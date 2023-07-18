@@ -54,6 +54,7 @@
 			"pick_winner_no_entry":"No user entered current raffle"
 		},
 		"patreon_denied": "You refused to grant access to your Patreon profile",
-		"patreon_disconected": "Your Patreon account has been disconected"
+		"patreon_disconected": "Your Patreon account has been disconected",
+		"badge_file_loading_failed": "Something went wrong loading the given image"
 	}
 }

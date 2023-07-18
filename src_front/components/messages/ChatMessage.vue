@@ -51,6 +51,8 @@
 					:class="b.class"
 					v-tooltip="b.label"></span>
 			</div>
+
+			<CustomUserBadges :user="messageData.user" />
 			
 			<Icon class="noFollowBadge" v-if="showNofollow"
 				name="unfollow"
@@ -143,11 +145,13 @@ import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
+import CustomUserBadges from '../user/CustomUserBadges.vue';
 
 @Component({
 	components:{
 		Button,
 		ChatModTools,
+		CustomUserBadges,
 		ChatMessageInfoBadges,
 		ChatMessageChunksParser,
 	},
@@ -792,39 +796,39 @@ export default class ChatMessage extends AbstractChatMessage {
 	.userBadges {
 		display: inline;
 		margin-right: .4em;
+	}
 
-		.badge {
-			width: 1em;
+	.badge, :deep(.customUserBadge) {
+		width: 1em;
+		height: 1em;
+		vertical-align: middle;
+		margin-right: .25em;
+		
+		&.mini {
+			display: inline-block;
+			width: .4em;
 			height: 1em;
-			vertical-align: middle;
-			margin-right: .25em;
-			
-			&.mini {
-				display: inline-block;
-				width: .4em;
-				height: 1em;
-				margin: 0 1px 0px 0;
-				&.prediction {
-					width: 1em;
-					border-radius: 50%;
-					margin-right: .25em;
-					&.pink{ background-color: #f50e9b;}
-					&.blue{ background-color: #387aff;}
-				}
-				&.vip{ background-color: #e00bb9;}
-				&.subscriber{ background-color: #9147ff;}
-				&.premium{ background-color: #00a3ff;}
-				&.moderator{ background-color: #39db00;}
-				&.staff{ background-color: #666666;}
-				&.broadcaster{ background-color: #ff0000;}
-				&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
-				&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
-				&.ambassador{ background: linear-gradient(0deg, #40e4cb 0%, #9048ff 100%); }
+			margin: 0 1px 0px 0;
+			&.prediction {
+				width: 1em;
+				border-radius: 50%;
+				margin-right: .25em;
+				&.pink{ background-color: #f50e9b;}
+				&.blue{ background-color: #387aff;}
 			}
+			&.vip{ background-color: #e00bb9;}
+			&.subscriber{ background-color: #9147ff;}
+			&.premium{ background-color: #00a3ff;}
+			&.moderator{ background-color: #39db00;}
+			&.staff{ background-color: #666666;}
+			&.broadcaster{ background-color: #ff0000;}
+			&.partner{ background: linear-gradient(0deg, rgba(145,71,255,1) 0%, rgba(145,71,255,1) 40%, rgba(255,255,255,1) 41%, rgba(255,255,255,1) 59%, rgba(145,71,255,1) 60%, rgba(145,71,255,1) 100%); }
+			&.founder{ background: linear-gradient(0deg, #e53fcc 0%, #884ef6 100%); }
+			&.ambassador{ background: linear-gradient(0deg, #40e4cb 0%, #9048ff 100%); }
+		}
 
-			&:last-child {
-				margin-right: 0;
-			}
+		&:last-child {
+			margin-right: 0;
 		}
 	}
 

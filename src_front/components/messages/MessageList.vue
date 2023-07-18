@@ -65,17 +65,15 @@
 				/>
 			</div>
 			<div class="footer">
-				<Button	:aria-label="$t('chat.live_chat_less_aria')"
-					icon="minus"
+				<button :aria-label="$t('chat.live_chat_less_aria')"
 					:disabled="config.liveLockCount == 1"
-					@click="incrementLockedLiveCount(-1)"/>
+					@click="incrementLockedLiveCount(-1)"><Icon name="minus" /></button>
 
 				<span class="label">{{ $t("chat.live_chat") }}</span>
 
-				<Button	:aria-label="$t('chat.live_chat_more_aria')"
-					icon="add"
+				<button :aria-label="$t('chat.live_chat_more_aria')"
 					:disabled="config.liveLockCount == 10 || config.liveLockCount>=pendingMessages.length"
-					@click="incrementLockedLiveCount(1)"/>
+					@click="incrementLockedLiveCount(1)"><Icon name="add" /></button>
 			</div>
 		</div>
 
@@ -1766,6 +1764,19 @@ export default class MessageList extends Vue {
 			.label {
 				font-style: italic;
 				margin: 0 .5em;
+			}
+			button {
+				height: 1.5em;
+				width: 1.5em;
+				padding: 2px;
+				border-radius: var(--border-radius);
+				&:hover {
+					background-color: var(--color-text-fadest);
+				}
+
+				.icon {
+					height: 100%;
+				}
 			}
 		}
 

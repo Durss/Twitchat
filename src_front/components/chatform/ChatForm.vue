@@ -556,7 +556,7 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
-		if(cmd == "/gngngn") {
+		if(cmd == "/tenorgifload") {
 			//App version
 			console.log(this.$store("chat").messages);
 			console.log(await ApiController.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
