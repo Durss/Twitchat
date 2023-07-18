@@ -120,9 +120,17 @@ export interface TriggerData {
 	 */
 	heatAreaIds?:string[];
 	/**
+	 * Contains the OBS source the user must click
+	 */
+	heatObsSource?:string;
+	/**
 	 * Defines if anonymous clicks should be allowed or not
 	 */
 	heatAllowAnon?:boolean;
+	/**
+	 * Defines if user must click on an OBS source or a custom zone
+	 */
+	heatClickSource?:"obs" | "area";
 
 	/**
 	 * @deprecated Only here for typings on data migration.

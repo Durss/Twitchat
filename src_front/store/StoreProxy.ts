@@ -1,3 +1,4 @@
+import type HeatEvent from "@/events/HeatEvent";
 import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
 import type { TriggerActionCountDataAction, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -1619,6 +1620,11 @@ export interface IHeatActions {
 	 * Save screens to server
 	 */
 	saveScreens():void;
+	/**
+	 * Handles a heat click event
+	 * @param event 
+	 */
+	handleClickEvent(event:HeatEvent):Promise<void>;
 }
 
 

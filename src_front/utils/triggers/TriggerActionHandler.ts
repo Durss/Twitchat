@@ -259,8 +259,8 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE: {
 				const event = message.enabled? TriggerTypes.OBS_FILTER_ON : TriggerTypes.OBS_FILTER_OFF;
-				const subKey = message.sourceName.toLowerCase() + this.HASHMAP_KEY_SPLITTER + message.filterName.toLowerCase();
-				if(await this.executeTriggersByType(event, message, testMode, subKey)) {
+				const subEvent = message.sourceName.toLowerCase() + this.HASHMAP_KEY_SPLITTER + message.filterName.toLowerCase();
+				if(await this.executeTriggersByType(event, message, testMode, subEvent)) {
 					return;
 				}break;
 			}
@@ -356,7 +356,8 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK:{
-				if(await this.executeTriggersByType(TriggerTypes.HEAT_CLICK, message, testMode)) {
+				const subEvent = message.areaId || message.obsSource;
+				if(await this.executeTriggersByType(TriggerTypes.HEAT_CLICK, message, testMode, subEvent)) {
 					return;
 				}break;
 			}
@@ -514,6 +515,17 @@ export default class TriggerActionHandler {
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
 				case TriggerTypes.COUNTER_MINED: keys[0] += this.HASHMAP_KEY_SPLITTER + t.counterId; break;
+				
+				case TriggerTypes.HEAT_CLICK: {
+					if(t.heatClickSource == "obs" && t.heatObsSource) {
+						keys[0] += this.HASHMAP_KEY_SPLITTER + t.heatObsSource;
+					}else if(t.heatClickSource == "area" && t.heatAreaIds){
+						for (let i = 0; i < t.heatAreaIds.length; i++) {
+							keys.push(t.type + this.HASHMAP_KEY_SPLITTER + t.heatAreaIds[i]);
+						}
+					}
+					break;
+				}
 			}
 
 			for (let i = 0; i < keys.length; i++) {
@@ -563,56 +575,22 @@ export default class TriggerActionHandler {
 	 */
 	private async executeTriggersByType(triggerType:TriggerTypesValue, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string):Promise<boolean> {
 		let key = triggerType as string;
-		let isAnExecution = false;
+		let executed = false;
 		if(subEvent) key += this.HASHMAP_KEY_SPLITTER + subEvent;
 		key = key.toLowerCase();
 
-		let triggers = this.triggerType2Triggers[ key ];
+		
+		const triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
-
-		//Special case for heat triggers.
-		//Check if the click is within one of its expected areas
-		if(triggerType == TriggerTypes.HEAT_CLICK) {
-			const screens = StoreProxy.heat.screenList;
-			const m = message as TwitchatDataTypes.MessageHeatClickData;
-			const obsScene = StoreProxy.main.currentOBSScene;
-			//Parse all screens
-			for (let i = 0; i < screens.length; i++) {
-				const s = screens[i];
-				//Screen disabled, ignore it
-				if(!s.enabled) continue;
-				//Check if requested OBS scene is active
-				if(s.activeOBSScene && s.activeOBSScene != obsScene) continue;
-				//Parse all areas
-				for (let j = 0; j < s.areas.length; j++) {
-					const a = s.areas[j];
-					//Parse all triggers
-					for (let k = 0; k < triggers.length; k++) {
-						const t = triggers[k];
-						if(t.heatAreaIds && t.heatAreaIds.indexOf(a.id) > -1) {
-							const isInside = Utils.isPointInsidePolygon({x:m.coords.x/100, y:m.coords.y/100}, a.points);
-							//If click is inside the area, execute the trigger
-							if(isInside
-							&& (t.heatAllowAnon === true || !m.anonymous)
-							&& await this.executeTrigger(t, message, testMode, subEvent, ttsID)) {
-								isAnExecution = true;
-							}
-						}
-					}
-				}
-			}
-
-		}else{
-			
-			//Execute all triggers related to the current trigger event type
-			for (const trigger of triggers) {
-				if(await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
-					isAnExecution = true;
-				}
+		
+		//Execute all triggers related to the current trigger event type
+		for (const trigger of triggers) {
+			if(await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
+				executed = true;
 			}
 		}
 
-		return isAnExecution;
+		return executed;
 	}
 
 	/**

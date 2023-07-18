@@ -9,6 +9,10 @@
 		"param_cooldown": "Cooldown ({VALUE}s)",
 		"param_anon": "Allow anonymous users to interact",
 		"anonymous": "User interactions are anonymous by default. To not be anonymous, viewers have to open the extension params, go on \"Manage access\" then click \"Grant\"",
+		"click_source":"User should click on...",
+		"click_source_obs":"An OBS source",
+		"click_source_area":"A custom area",
+		"obs_source":"OBS source",
 		"overlay_spotify": {
 			"title": "Spotify overlay",
 			"description": "Send a message when Spotify overlay is clicked"
@@ -23,7 +27,7 @@
 		"areas":{
 			"description": "Define custom clickable areas and detect when they're clicked on the {TRIGGER_LINK}.",
 			"trigger_link": "triggers section",
-			"target":"Zones active when current OBS scene is",
+			"target":"Areas active when current OBS scene is",
 			"target_always":"Any",
 			"show_obs":"Show OBS screen",
 			"connect_obs":"🔗 Connect with OBS",

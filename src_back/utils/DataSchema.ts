@@ -130,6 +130,8 @@ import Ajv from "ajv";
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
 					heatAllowAnon: {type:"boolean"},
+					heatObsSource: {type:"string", maxLength:100},
+					heatClickSource: {type:"string", maxLength:10},
 					heatAreaIds:{
 										type:"array",
 										minItems:0,

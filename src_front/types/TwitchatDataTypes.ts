@@ -2963,6 +2963,14 @@ export namespace TwitchatDataTypes {
 		 * Coordinates of the click in percent (0-100)
 		 */
 		coords:{x:number, y:number};
+		/**
+		 * Clicked area ID
+		 */
+		areaId?:string;
+		/**
+		 * Clicked OBS source
+		 */
+		obsSource?:string;
 	}
 
 }

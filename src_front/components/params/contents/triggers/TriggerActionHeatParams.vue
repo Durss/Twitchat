@@ -5,18 +5,26 @@
 			<Icon name="polygon" />{{ $t("triggers.actions.heat.select_area") }}
 		</div>
 		
-		<div class="screenList" v-if="$store('heat').screenList.length > 0">
-			<HeatScreenPreview class="screen"
-			v-for="screen in $store('heat').screenList" :key="screen.id"
-			selectAreaMode
-			@select="(id:string) => onSelectArea(id)"
-			:selectedAreas="triggerData.heatAreaIds"
-			:screen="screen" />
-		</div>
-
-		<div class="noArea" v-else>
-			<span class="label">{{ $t("triggers.actions.heat.no_area") }}</span>
-			<Button @click="openHeatParams()">{{ $t("triggers.actions.heat.create_areaBt") }}</Button>
+		<ParamItem noBackground :paramData="param_clickSource" v-model="triggerData.heatClickSource" />
+		
+		<template v-if="param_clickSource.value=='area'">
+			<div class="screenList" v-if="$store('heat').screenList.length > 0">
+				<HeatScreenPreview class="screen"
+				v-for="screen in $store('heat').screenList" :key="screen.id"
+				selectAreaMode
+				@select="(id:string) => onSelectArea(id)"
+				:selectedAreas="triggerData.heatAreaIds"
+				:screen="screen" />
+			</div>
+	
+			<div class="card-item secondary noArea" v-else>
+				<span class="label">{{ $t("triggers.actions.heat.no_area") }}</span>
+				<Button @click="openHeatParams()">{{ $t("triggers.actions.heat.create_areaBt") }}</Button>
+			</div>
+		</template>
+		
+		<div v-else>
+			<ParamItem noBackground :paramData="param_obsSources" v-model="triggerData.heatObsSource" />
 		</div>
 
 		<ParamItem noBackground :paramData="param_allowAnon" v-model="triggerData.heatAllowAnon" />
@@ -31,15 +39,16 @@
 </template>
 
 <script lang="ts">
-import Icon from '@/components/Icon.vue';
-import type { TriggerData } from '@/types/TriggerActionDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
-import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
 import Button from '@/components/Button.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ParamItem from '../../ParamItem.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
+import Icon from '@/components/Icon.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import type { TriggerData } from '@/types/TriggerActionDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { OBSSourceItem } from '@/utils/OBSWebsocket';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
+import ParamItem from '../../ParamItem.vue';
+import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
 
 @Component({
 	components:{
@@ -56,7 +65,11 @@ export default class TriggerActionHeatParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
+	@Prop
+	public obsSources!:OBSSourceItem[];
 	
+	public param_clickSource:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", listValues:[], labelKey:"heat.click_source", icon:"click"};
+	public param_obsSources:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", listValues:[], labelKey:"heat.obs_source", icon:"obs"};
 	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"user", tooltipKey:"heat.anonymous"};
 	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
 	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
@@ -86,6 +99,15 @@ export default class TriggerActionHeatParams extends Vue {
 	}
 
 	public mounted():void {
+		
+		this.param_clickSource.listValues = [
+			{value:'obs', labelKey:"heat.click_source_obs"},
+			{value:'area', labelKey:"heat.click_source_area"}
+		];
+
+		this.param_obsSources.listValues = (this.obsSources || []).map(v=>{
+			return {value:v.sourceName, label:v.sourceName};
+		});
 		
 		//Cleanup any area ID from the trigger that does not exist anymore
 		//in the screens definitions
@@ -154,10 +176,6 @@ export default class TriggerActionHeatParams extends Vue {
 		flex-direction: column;
 		align-items: center;
 		margin-top: .5em;
-
-		.label {
-			color: var(--color-secondary);
-		}
 	}
 
 	.permissions {

@@ -70,7 +70,6 @@ export default class HeatScreenPreview extends Vue {
 
 <style scoped lang="less">
 .heatscreenpreview{
-	cursor: pointer;
 	position: relative;
 	border-radius: var(--border-radius);
 	border: 1px dashed var(--color-primary);
@@ -137,12 +136,15 @@ export default class HeatScreenPreview extends Vue {
 
 	svg {
 		:deep(polygon) {
+			cursor: pointer;
 			fill: var(--color-text);
 			fill: var(--color-alert-light);
 			opacity: .6;
 			&:hover {
 				fill: var(--color-alert-light);
 				opacity: 1;
+				stroke: var(--color-text);
+				stroke-width: 1rem;
 			}
 			&.selected {
 				opacity: 1;

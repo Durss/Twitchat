@@ -46,6 +46,7 @@
 
 			<TriggerActionHeatParams
 				v-if="isHeatTrigger"
+				:obsSources="obsSources"
 				:triggerData="triggerData"
 			/>
 			

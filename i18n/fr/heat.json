@@ -9,6 +9,10 @@
 		"param_cooldown": "Cooldown ({VALUE}s)",
 		"param_anon": "Autorisez les personnes anonymes à interagir",
 		"anonymous": "Par défaut les interactions sont anonymes. Pour ne pas être anonymes, les viewers doivent cliquer sur l'extension, aller dans \"Gérer les accès\" puis cliquer \"Autoriser\"",
+		"click_source":"L'utilisateur·ice doit cliquer sur...",
+		"click_source_obs":"Une source OBS",
+		"click_source_area":"Une zone personnalisée",
+		"obs_source":"Source OBS",
 		"overlay_spotify": {
 			"title": "Overlay Spotify",
 			"description": "Envoyer un message lorsque quelqu'un clique sur l'overlay Spotify"
