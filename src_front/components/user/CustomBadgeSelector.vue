@@ -1,6 +1,6 @@
 <template>
 	<div class="custombadgeselector">
-		<tooltip tag="button" interactive>
+		<tooltip tag="div" interactive>
 			<template #default>
 				<Button class="addBt"
 				type="file"
@@ -74,20 +74,20 @@ export default class CustomBadgeSelector extends Vue {
 	position: relative;
 	
 	.addBt {
-		height: 1em;
-		width: 1em;
+		height: 1.2em;//Dunno why i need these weird values
+		width: 1.2em;//Dunno why i need these weird values
 		border: 1px dashed var(--color-secondary);
 		padding: 2px;
 		box-shadow: unset;
 		border-radius: 0;
 		.icon {
-			height: 1em;
-			max-width: 1em;
+			height: 100%;
+			max-width: 100%;
 			justify-self: center;
 			line-height: 1em;
 			:deep(svg) {
 				//No idea why i need this *ù@& to get icon properly centered vertically...
-				height: .7em;
+				height: .8em;
 				vertical-align: top;
 			}
 		}

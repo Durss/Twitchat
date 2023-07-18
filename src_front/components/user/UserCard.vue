@@ -612,7 +612,6 @@ export default class UserCard extends Vue {
 				.customBadges {
 					font-size: .8em;
 					margin-right: .25em;
-					align-self: flex-end;
 					z-index: 2;
 				}
 
