@@ -91,7 +91,8 @@
 			"voice": "Assistant vocal",
 			"voicemod": "Voicemod",
 			"connexions": "Connexions",
-			"counters": "Compteurs"
+			"counters": "Compteurs",
+			"premium": "Premium"
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} !",

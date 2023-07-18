@@ -12,13 +12,18 @@
 			<Button icon="patreon" @click="authenticate()" :loading="redirecting">{{ $t("patreon.linkBt") }}</Button>
 		</template>
 	
-		<div class="card-item primary" v-if="connected && showSuccess">{{ $t("patreon.success") }}</div>
-
 		<template v-if="connected">
 			<span>{{ $t("patreon.connected") }}</span>
+			<template v-if="isMember==true">
+				<span class="card-item primary">{{ $t("patreon.is_member") }}</span>
+				<span class="details on">{{ $t("patreon.is_member_details") }}</span>
+			</template>
+			<template v-else-if="isMember==false && !authenticating">
+				<span class="card-item secondary">{{ $t("patreon.is_not_member") }}</span>
+				<span class="details off">{{ $t("patreon.is_not_member_details") }}</span>
+			</template>
 
-			<Button @click="disconnect()" icon="cross">{{ $t("global.disconnect") }}</Button>
-			<Button @click="copyData()" icon="copy" secondary>Copy data</Button>
+			<Button @click="disconnect()" alert icon="cross">{{ $t("global.disconnect") }}</Button>
 		</template>
 	</div>
 </template>
@@ -27,7 +32,6 @@
 import Button from '@/components/Button.vue';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
-import Utils from '@/utils/Utils';
 import PatreonHelper from '@/utils/patreon/PatreonHelper';
 import { Component, Vue } from 'vue-facing-decorator';
 
@@ -40,17 +44,16 @@ import { Component, Vue } from 'vue-facing-decorator';
 export default class ParamsAccountPatreon extends Vue {
 
 	public redirecting:boolean = false;
-	public showSuccess:boolean = false;
 	public authenticating:boolean = false;
 
 	private csrfToken:string = "";
 
 	public get connected():boolean { return PatreonHelper.instance.connected; }
+	public get isMember():boolean { return PatreonHelper.instance.isMember; }
 
 	public async mounted():Promise<void> {
 		
 		// PatreonHelper.instance.connect();
-		
 		const authParams = this.$store("patreon").patreonAuthParams;
 		if(authParams) {
 			this.authenticating = true;
@@ -61,9 +64,7 @@ export default class ParamsAccountPatreon extends Vue {
 			}else{
 				try {
 					await PatreonHelper.instance.authenticate(authParams.code);
-					this.showSuccess = true;
 				}catch(e:unknown) {
-					this.showSuccess = false;
 					console.log(e);
 					this.$store("main").alert("Oops... something went wrong");
 				}
@@ -73,18 +74,6 @@ export default class ParamsAccountPatreon extends Vue {
 			this.$store("patreon").setPatreonAuthResult(null);
 		}
 
-		if(this.connected) {
-			const res = await PatreonHelper.instance.getUser();
-			if(res && res.success) {
-				// this.isDonor = res.data.data.relationships.campaign.data.id
-			}
-		}
-
-	}
-
-	public async copyData():Promise<void> {
-		const res = await PatreonHelper.instance.getUser();
-		Utils.copyToClipboard(JSON.stringify(res));
 	}
 
 	public async disconnect():Promise<void> {
@@ -114,5 +103,11 @@ export default class ParamsAccountPatreon extends Vue {
 	flex-direction: column;
 	align-items: center;
 	gap: .5em;
+
+	.details{
+		&.off {
+			color: var(--color-secondary);
+		}
+	}
 }
 </style>

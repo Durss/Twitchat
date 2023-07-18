@@ -1,9 +1,12 @@
 {
 	"patreon": {
 		"linkBt":"Lier Patreon",
-		"success":"Votre compte Patreon est maintenant connecté",
 		"info":"Débloquez des fonctionnalités premium en me {LINK}.",
 		"info_link":"supportant sur Patreon",
-		"connected":"Votre compte Patreon est lié à Twitchat."
+		"connected":"Votre compte Patreon est lié à Twitchat.",
+		"is_member":"💝 Merci de faire partie des donateur·ices sur Patreon 💝",
+		"is_member_details":"Vous bénéficiez de toutes les fonctionnalités premium !",
+		"is_not_member":"Vous ne faites pas partie des donateur·ices sur Patreon 😥",
+		"is_not_member_details":"Vous ne bénéficiez pas des fonctionnalités premium"
 	}
 }

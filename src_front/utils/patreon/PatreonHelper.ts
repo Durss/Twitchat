@@ -1,8 +1,7 @@
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { reactive } from "vue";
 import ApiController from "../ApiController";
-import DataStore from "@/store/DataStore";
-import type { PatreonData } from "./PatreonDataTypes";
 
 /**
 * Created : 13/07/2023 
@@ -13,7 +12,8 @@ export default class PatreonHelper {
 
 	public connected:boolean = false;
 
-	private _refreshTimeout:number = 0
+	private _isMember:boolean = false;
+	private _refreshTimeout:number = 0;
 	private _token:AuthTokenInfo | null = null;
 	
 	constructor() {
@@ -31,6 +31,8 @@ export default class PatreonHelper {
 		return PatreonHelper._instance;
 	}
 
+	public get isMember():boolean { return this._isMember; }
+
 	public get redirectURI():string { return document.location.origin + StoreProxy.router.resolve({name:"patreon/auth"}).href; }
 	
 	
@@ -40,12 +42,15 @@ export default class PatreonHelper {
 	/**
 	 * Connects the user from stored data
 	 */
-	public connect():void {
+	public async connect():Promise<void> {
 		const token	= DataStore.get(DataStore.PATREON_AUTH_TOKEN);
 		
 		if(token) {
 			this._token = JSON.parse(token);
-			this.refreshToken();
+			await this.refreshToken();
+			if(this.connected) {
+				this.getIsMember();
+			}
 		}
 	}
 	
@@ -73,6 +78,7 @@ export default class PatreonHelper {
 			};
 	
 			DataStore.set(DataStore.PATREON_AUTH_TOKEN, this._token);
+			await this.getIsMember();
 			this.connected = true;
 	
 			clearTimeout(this._refreshTimeout);
@@ -85,10 +91,11 @@ export default class PatreonHelper {
 	/**
 	 * Get the user's data
 	 */
-	public async getUser():Promise<{success: boolean,message?: string | undefined,data: PatreonData.UserData}|null> {
+	public async getIsMember() {
 		if(!this._token) return null;
 		
-		const res = await ApiController.call("patreon/user", "GET", {token:this._token.access_token});
+		const res = await ApiController.call("patreon/isMember", "GET", {token:this._token.access_token});
+		this._isMember = res.json.data.isMember;
 		return res.json;
 	}
 	

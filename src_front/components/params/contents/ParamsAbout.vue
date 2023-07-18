@@ -36,6 +36,11 @@
 			<ParamsDonorList />
 		</ToggleBlock>
 
+		<div class="footer">
+			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
+			<a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a>
+		</div>
+
 	</div>
 </template>
 
@@ -102,6 +107,14 @@ export default class ParamsAbout extends Vue implements IParameterContent {
 				margin-top: 1em;
 			}
 		}
+	}
+
+	.footer {
+		margin-top: 1em;
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 }
 </style>

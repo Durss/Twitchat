@@ -168,6 +168,10 @@ interface Credentials {
 	patreon_client_secret:string;
 	patreon_scopes:string;
 	patreon_redirect_uri:string;
+	
+	patreon_my_uid:string;
+	patreon_client_id_server:string;
+	patreon_client_secret_server:string;
 	patreon_redirect_uri_server:string;
 	patreon_webhook_secret:string;
 

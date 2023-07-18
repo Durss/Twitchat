@@ -11,6 +11,10 @@
 		"important_content2":"Without that I can't know who I should grant the donor badge to.",
 		"donate_rate":"Donation percent<br>I receive",
 		"checkbox":"I read the instructions",
+		"premium":"Premium subscription",
+		"premium_subtitle":"Unlock additional features",
+		"premium_details":"Unlock premium features by supporting me monthly on Patreon.",
+		"donate_patreonBt":"Subscribe on Patreon",
 		"donate_option":{
 			"paypal":"Donate on Paypal",
 			"paypal_rate":"95-100%",

@@ -245,11 +245,11 @@ type ApiEndpoints =  {
 			}
 		}
 	},
-	"patreon/user": {
+	"patreon/isMember": {
 		GET: {
 			success:boolean,
 			message?:string,
-			data: PatreonData.UserData,
+			data: {isMember:boolean},
 		}
 	},
 	"tenor/search": {

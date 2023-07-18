@@ -21,6 +21,25 @@
 		<img src="@/assets/img/eating.gif" alt="eating" class="patrick" ref="patrick" />
 
 		<div class="buttons">
+			<Button type="link" ref="premium"
+				big secondary
+				icon="sub"
+				v-if="!standaloneMode"
+				@click="clickPremium()">
+					<div class="labelHolder">
+						<span v-html="$t('sponsor.premium')"></span>
+						<i>{{ $t("sponsor.premium_details") }}</i>
+					</div>
+			</Button>
+
+			<ToggleBlock class="premium" ref="premium" v-else
+			secondary :open="false" :icons="['sub']"
+			:title="$t('sponsor.premium')"
+			:subtitle="$t('sponsor.premium_subtitle')">
+				<p>{{ $t("sponsor.premium_details") }}</p>
+				<Button class="patreonBt" href="https://www.patreon.com/durss" target="_blank" type="link" secondary>{{ $t("sponsor.donate_patreonBt") }}</Button>
+			</ToggleBlock>
+
 			<Button v-for="link in links" type="link" ref="button"
 				:href="link.url" target="_blank"
 				big primary
@@ -39,17 +58,19 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Splitter from '@/components/Splitter.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
 		Button,
 		Splitter,
 		ParamItem,
+		ToggleBlock,
 	}
 })
 export default class ParamsSponsor extends Vue implements IParameterContent {
@@ -58,6 +79,8 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 	public animate!:boolean;
 
 	public checkbox:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"sponsor.checkbox"}
+
+	public get standaloneMode():boolean { return this.$route.name == "sponsor"; }
 
 	public links:{url:string, icon:string, key:string}[] = [
 		{url:"https://paypal.me/durss", icon:"paypal", key:"paypal"},
@@ -77,7 +100,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 	public mounted():void {
 		if(this.animate !== false) {
-			const refs = ["head","instructions","patrick","button"];
+			const refs = ["head","instructions","patrick","premium","button"];
 			for (let i = 0; i < refs.length; i++) {
 				let el = this.$refs[refs[i]];
 				let list:unknown[] = [];
@@ -96,6 +119,10 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 				}
 			}
 		}
+	}
+
+	public clickPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	public clickItem():void {
@@ -146,6 +173,27 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		flex-direction: column;
 		margin-top: -1em;
 		gap: .5em;
+
+		.premium {
+			width: 100%;
+			font-size: 1.25em;
+			:deep(.header) {
+				padding: .75em 1em;
+				.icon {
+					height: 1.4em;
+					width: 1.4em;
+				}
+				h2 {
+					font-weight: normal;
+				}
+				h3 {
+					font-size: .6em;
+				}
+			}
+			.patreonBt {
+				margin-top: .5em;
+			}
+		}
 
 		:deep(.label) {
 			flex-grow: 1;

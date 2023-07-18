@@ -12,6 +12,7 @@ import Logger from "../utils/Logger";
 export default class PatreonController extends AbstractController {
 
 	private localScopes:string = "w:campaigns.webhook campaigns.members";
+	private isFirstAuth:boolean = true;
 	private campaignId:string = "";
 	private members:string[] = [];
 	private tokenRefresh!:NodeJS.Timeout;
@@ -30,7 +31,7 @@ export default class PatreonController extends AbstractController {
 	* PUBLIC METHODS *
 	******************/
 	public async initialize():Promise<void> {
-		this.server.get('/api/patreon/user', async (request, response) => await this.getUser(request, response));
+		this.server.get('/api/patreon/isMember', async (request, response) => await this.getIsMember(request, response));
 		this.server.get('/api/patreon/serverauth', async (request, response) => await this.getServerAuth(request, response));
 		this.server.post('/api/patreon/webhook', async (request, response) => await this.postWebhookTrigger(request, response));
 		this.server.post('/api/patreon/authenticate', async (request, response) => await this.postAuthenticate(request, response));
@@ -106,7 +107,7 @@ export default class PatreonController extends AbstractController {
 	 * @param request 
 	 * @param response 
 	 */
-	public async getUser(request:FastifyRequest, response:FastifyReply):Promise<void> {
+	public async getIsMember(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const token:string = (request.query as any).token;
 		const url = "https://www.patreon.com/api/oauth2/v2/identity?include=memberships&fields%5Buser%5D=about,created,first_name,last_name,image_url,url,vanity&fields%5Bcampaign%5D=summary,is_monthly";
 		const options = {
@@ -124,9 +125,24 @@ export default class PatreonController extends AbstractController {
 			response.status(500);
 			response.send({success:false, message:json.error});
 		}else{
+			const members:PatreonMember[] = JSON.parse(fs.readFileSync(Config.PATREON_MEMBERS_PATH, "utf-8"));
+			const memberships = json.data.relationships.memberships.data as {id:string, type:string}[];
+			
+			//Flag myself as donor from my ID as the campaign holder isn't flag as
+			//a donor of himself on patreon's data
+			let isMember = Config.credentials.patreon_my_uid === json.data.id;
+			
+			for (let i = 0; i < memberships.length; i++) {
+				const m = memberships[i];
+				if(members.findIndex(v=>v.id === m.id) > -1) {
+					isMember = true;
+					break;
+				}
+			}
+			
 			response.header('Content-Type', 'application/json');
 			response.status(200);
-			response.send(JSON.stringify({success:true, data:json}));
+			response.send(JSON.stringify({success:true, data:{isMember}}));
 		}
 	}
 
@@ -156,8 +172,8 @@ export default class PatreonController extends AbstractController {
 			const url = new URL("https://www.patreon.com/api/oauth2/token");
 			url.searchParams.append("grant_type", "refresh_token");
 			url.searchParams.append("refresh_token", token.refresh_token);
-			url.searchParams.append("client_id", Config.credentials.patreon_client_id);
-			url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
+			url.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
+			url.searchParams.append("client_secret", Config.credentials.patreon_client_secret_server);
 	
 			const result = await fetch(url, {method:"POST"});
 			const json = await result.json();
@@ -168,10 +184,15 @@ export default class PatreonController extends AbstractController {
 				this.logout();
 			}else{
 				const token:PatreonToken = json;
-				Logger.success("Patreon: API ready");
+				if(this.isFirstAuth){
+					Logger.success("Patreon: API ready");
+				}
 				fs.writeFileSync(Config.PATREON_TOKEN_PATH, JSON.stringify(token), "utf-8");
 				await this.getCampaignID();
-				await this.refreshPatrons();
+				await this.refreshPatrons(this.isFirstAuth);
+				this.isFirstAuth = false;
+
+				//Schedule token refresh
 				clearTimeout(this.tokenRefresh);
 				this.tokenRefresh = setTimeout(()=>{
 					this.authenticateLocal();
@@ -181,7 +202,7 @@ export default class PatreonController extends AbstractController {
 		}else{
 			const url = new URL("https://www.patreon.com/oauth2/authorize");
 			url.searchParams.append("response_type", "code");
-			url.searchParams.append("client_id", Config.credentials.patreon_client_id);
+			url.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
 			url.searchParams.append("redirect_uri", Config.credentials.patreon_redirect_uri_server);
 			url.searchParams.append("scope", this.localScopes);
 			url.searchParams.append("state", "");
@@ -201,8 +222,8 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("grant_type", "authorization_code");
 		url.searchParams.append("code", code);
 		url.searchParams.append("redirect_uri", Config.credentials.patreon_redirect_uri_server);
-		url.searchParams.append("client_id", Config.credentials.patreon_client_id);
-		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
+		url.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
+		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret_server);
 
 		const result = await fetch(url, {method:"POST"});
 		const json = await result.json();
@@ -230,24 +251,25 @@ export default class PatreonController extends AbstractController {
 	 * @param response 
 	 */
 	public async postWebhookTrigger(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const body:any = request.body;
-		Logger.success("Patreon: webhook called");
 		const event = request.headers["x-patreon-event"];
 		const signature = request.headers["x-patreon-signature"];
 		
 		const hash = crypto.createHmac('md5', Config.credentials.patreon_webhook_secret)
+		//@ts-ignore no typings for "rowBody" that is added by fastify-raw-body
 		.update(request.rawBody)
 		.digest('hex');
 		
 		if(signature != hash) {
+			Logger.warn("Patreon: Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");
 			return;
 		}
 
+		Logger.success("Patreon: received webhook event \""+event+"\"");
 		response.status(200);
 		response.send("OK");
-		this.refreshPatrons();
+		this.refreshPatrons(true);
 	}
 
 	/**
@@ -255,7 +277,7 @@ export default class PatreonController extends AbstractController {
 	 * @param request 
 	 * @param response 
 	 */
-	public async refreshPatrons(offset?:string):Promise<void> {
+	public async refreshPatrons(verbose:boolean = true, offset?:string):Promise<void> {
 		if(!offset) this.members = [];
 
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns/"+this.campaignId+"/members");
@@ -271,7 +293,8 @@ export default class PatreonController extends AbstractController {
 			headers:{
 				authorization:"Bearer "+token.access_token
 			}
-		}
+		};
+		
 		const result = await fetch(url, options);
 		const json = await result.json();
 		if(json.errors) {
@@ -280,22 +303,24 @@ export default class PatreonController extends AbstractController {
 			console.log(json);
 			this.logout();
 		}else{
-			Logger.info("Patreon: "+json.data.length+" members loaded");
+			if(verbose)Logger.info("Patreon: "+json.data.length+" members loaded");
 			// console.log(json);
 			const next = json.meta.pagination?.cursors?.next;
 			const members = json.data.filter(v=>v.attributes.patron_status === "active_patron")
 			.map(v =>{
-				return {
+				const member:PatreonMember = {
 					id:v.id,
 					name:v.attributes.full_name,
 					total:parseFloat(v.attributes.lifetime_support_cents)/100,
-				}
+				};
+				return member;
 			});
 			this.members = this.members.concat(members);
 			fs.writeFileSync(Config.PATREON_MEMBERS_PATH, JSON.stringify(this.members), "utf-8");
 			if(next) {
-				this.refreshPatrons(next);
-			}else{
+				//load next page
+				this.refreshPatrons(verbose, next);
+			}else if(verbose) {
 				Logger.success("Patreon: members list loading complete");
 			}
 		}
@@ -340,4 +365,10 @@ interface PatreonToken {
 	scope: string;
 	token_type: string;
 	expires_at: number;
+}
+
+interface PatreonMember {
+	id: string;
+	name: string;
+	total: number;
 }

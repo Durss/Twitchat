@@ -149,7 +149,7 @@ const routes: Array<RouteRecordRaw> = [
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.PATREON);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				console.log(sPatreon);
 				sPatreon.setPatreonAuthResult(params);
 			}else{

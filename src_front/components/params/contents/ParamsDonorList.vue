@@ -58,6 +58,7 @@ export default class ParamsDonorList extends Vue {
 	public itemSize = 40;
 	public scrollOffset = 0;
 	public loading = true;
+	public disposed = false;
 	
 	private loadingPage = false;
 	private localList:{uid:string, v:number}[] = [];
@@ -78,6 +79,10 @@ export default class ParamsDonorList extends Vue {
 			}
 		});
 	}
+
+	public beforeUnmount():void {
+		this.disposed = true;
+	}
 	
 	private async loadList():Promise<void> {
 		this.error = false;
@@ -85,6 +90,7 @@ export default class ParamsDonorList extends Vue {
 			const headers = TwitchUtils.headers;
 			headers['App-Version'] = import.meta.env.PACKAGE_VERSION;
 			const {json} = await ApiController.call("user/donor/all", "GET");
+			if(this.disposed) return;
 			
 			this.localList = json.data.list;
 			this.computeStats();
@@ -107,7 +113,7 @@ export default class ParamsDonorList extends Vue {
 			const item = {
 							uid:items[i].uid,
 							v:items[i].v,
-							login:users.find(v => v.id === items[i].uid)?.display_name ?? this.$t("donor.anon"),
+							login:users.find(v => v.id === items[i].uid)?.display_name || this.$t("donor.anon"),
 							index:res.length + this.itemList.length,
 						};
 			res.push(item)

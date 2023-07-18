@@ -91,7 +91,8 @@
 			"voice": "Voice control",
 			"voicemod": "Voicemod",
 			"connexions": "Connections",
-			"counters": "Counters"
+			"counters": "Counters",
+			"premium": "Premium"
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",

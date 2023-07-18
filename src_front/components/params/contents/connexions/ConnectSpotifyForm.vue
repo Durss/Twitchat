@@ -21,7 +21,7 @@
 				<Button class="item" v-if="!connected && !authenticating"
 					type="submit"
 					:loading="loading"
-					:disabled="!canConnect">{{ $t('connexions.spotify.connectBt') }}</Button>
+					:disabled="!canConnect">{{ $t('global.connect') }}</Button>
 			</form>
 	
 			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.spotify.success") }}</div>
@@ -35,7 +35,7 @@
 						<a @click="openTriggers()">{{ $t("connexions.spotify.usage_connected_triggers") }}</a>
 					</template>
 				</i18n-t>
-				<Button class="connectBt" @click="disconnect()" icon="cross" alert>{{ $t('connexions.spotify.disconnectBt') }}</Button>
+				<Button class="connectBt" @click="disconnect()" icon="cross" alert>{{ $t('global.disconnect') }}</Button>
 			</template>
 	
 			<Icon v-if="authenticating" name="loader" />

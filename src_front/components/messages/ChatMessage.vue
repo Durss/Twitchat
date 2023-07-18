@@ -605,7 +605,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 	
 	/**
-	 * Disable ad if a donator or redirect to ad params otherwise
+	 * Disable ad if a donor or redirect to ad params otherwise
 	 */
 	public disableAd():void{
 		//If we're a donor, just disable the ad and delete the message as a feedback

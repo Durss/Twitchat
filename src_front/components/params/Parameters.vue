@@ -32,6 +32,7 @@
 					<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
 					<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
 					<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
+					<Button icon="sub"			@click="openPage(contentPremium)"		:selected="content==contentPremium" secondary>{{$t('params.categories.premium')}}</Button>
 				</div>
 
 				<div class="automaticMessageHolder" v-if="isDonor">
@@ -74,6 +75,7 @@
 				<ParamsConnexions v-if="content == contentConnexions" ref="currentContent" />
 				<ParamsHeat v-if="content == contentHeat" ref="currentContent" />
 				<ParamsGoXLR v-if="content == contentGoXLR" ref="currentContent" />
+				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == contentSponsor" ref="currentContent" />
 
@@ -124,6 +126,7 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
+import ParamsPremium from './contents/ParamsPremium.vue';
 
 @Component({
 	components:{
@@ -137,6 +140,7 @@ import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 		ParamsAbout,
 		ParamsAlert,
 		ParamsGoXLR,
+		ParamsPremium,
 		ParamsAutomod,
 		ParamsSpoiler,
 		ParamsAccount,
@@ -187,6 +191,7 @@ export default class Parameters extends Vue {
 	public get contentVoice():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICE; }
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	

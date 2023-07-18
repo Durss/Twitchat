@@ -9,9 +9,7 @@
 			"usage_connected":"Vous pouvez afficher le morceau en cours de lecture grâce à {OVERLAY} dédié oupermettre à vos viewers de contrôler la lecture en créant des {TRIGGERS}.",
 			"usage_connected_overlay":"l'overlay",
 			"usage_connected_triggers":"triggers",
-			"success":"Spotify est maintenant connecté",
-			"connectBt":"Connecter",
-			"disconnectBt":"Déconnecter"
+			"success":"Spotify est maintenant connecté"
 		},
 		
 		"triggerSocket":{
@@ -20,9 +18,7 @@
 			"secured":"Sécurisé",
 			"success":"Connexion au serveur socket établie",
 			"usage":"Connectez-vous à un serveur websocket (ex: Chataigne) puis envoyez-lui des données depuis les Triggers.",
-			"clearBt":"Effacer",
-			"connectBt":"Connecter",
-			"disconnectBt":"Déconnecter"
+			"clearBt":"Effacer"
 		}
 	}
 }

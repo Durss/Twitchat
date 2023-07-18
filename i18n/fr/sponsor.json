@@ -11,6 +11,10 @@
 		"important_content2":"Sans ça je ne pourrai pas savoir à qui attribuer le badge donateur·ice.",
 		"checkbox":"J'ai lu les instructions",
 		"donate_rate":"Pourcentage du don<br>que je reçois",
+		"premium":"Abonnement premium",
+		"premium_subtitle":"Débloquez des fonctionnalités bonus",
+		"premium_details":"En vous abonnant mensuellement sur Patreon vous bénéficierez de fonctionalités premium supplémentaires.",
+		"donate_patreonBt":"M'abonner sur Patreon",
 		"donate_option":{
 			"paypal":"Donner sur Paypal",
 			"paypal_rate":"95-100%",

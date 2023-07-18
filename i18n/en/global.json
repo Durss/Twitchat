@@ -56,6 +56,8 @@
 		"empty_list1":"No entry exist.",
 		"empty_list2":"Write to create one.",
 		"no_result":"No result",
+		"terms":"Terms of use",
+		"privacy":"Privacy policy",
 		"tooltips": {
 			"commercial": "Commercial",
 			"boost": "Channel boosted",

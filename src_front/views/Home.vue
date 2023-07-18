@@ -113,6 +113,8 @@
 
 		<div class="footer">
 			<p><span>{{ $t("home.footer.title") }}</span> <a href="https://github.com/Durss/Twitchat" target="_blank">Github</a></p>
+			<p><a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a></p>
+			<p><a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a></p>
 			<p class="note" v-html="$t('home.footer.disclaimer')"></p>
 		</div>
 
@@ -759,10 +761,10 @@ body.light {
 		text-align: center;
 		font-size: .8em;
 		padding-bottom: 2em;
+		line-height: 1.5em;
 
 		.note {
 			font-style: italic;
-			margin-top: .5em;
 			font-size: .9em;
 			opacity: .8;
 		}

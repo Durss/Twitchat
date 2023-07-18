@@ -70,11 +70,13 @@ export default class ContextMenuHelper {
 				});
 		
 		//Shoutout
-		options.push({ 
-					label: t("chat.context_menu.shoutout"),
-					icon: this.getIcon("icons/shoutout.svg"),
-					onClick: () => StoreProxy.users.shoutout(message.channel_id, user),
-				});
+		if(canModerateUser) {
+			options.push({ 
+				label: t("chat.context_menu.shoutout"),
+				icon: this.getIcon("icons/shoutout.svg"),
+				onClick: () => StoreProxy.users.shoutout(message.channel_id, user),
+			});
+		}
 
 		//Reply
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {

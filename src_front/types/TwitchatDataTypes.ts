@@ -52,6 +52,7 @@ export namespace TwitchatDataTypes {
 		VOICEMOD: "voicemod",
 		AD: "ad",
 		CONNEXIONS: "connexions",
+		PREMIUM: "premium",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 

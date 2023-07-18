@@ -9,9 +9,7 @@
 			"usage_connected":"You can now display the currently playing track thanks to the dedicated {OVERLAY} or allow your viewers to control playback by creating {TRIGGERS}.",
 			"usage_connected_overlay":"overlay",
 			"usage_connected_triggers":"triggers",
-			"success":"Spotify is now connected",
-			"connectBt":"Connect",
-			"disconnectBt":"Disonnect"
+			"success":"Spotify is now connected"
 		},
 		
 		"triggerSocket":{
@@ -20,9 +18,7 @@
 			"secured":"Secured",
 			"success":"Socket is now connected",
 			"usage":"Connect to an external websocket server (ex: Chataigne) and send it data from any Trigger.",
-			"clearBt":"Clear",
-			"connectBt":"Connect",
-			"disconnectBt":"Disonnect"
+			"clearBt":"Clear"
 		}
 	}
 }
