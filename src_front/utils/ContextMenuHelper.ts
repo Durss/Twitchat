@@ -168,13 +168,6 @@ export default class ContextMenuHelper {
 					onClick: () => StoreProxy.users.openUserCard(user, message.channel_id),
 				});
 
-		//Rename user
-		options.push({ 
-					label: t("chat.context_menu.rename"),
-					icon: this.getIcon("icons/user.svg"),
-					onClick: () => StoreProxy.users.openUserCard(user, message.channel_id),
-				});
-
 		//Moderation actions
 		if(canModerateMessage) {
 			//Add splitter after previous item
