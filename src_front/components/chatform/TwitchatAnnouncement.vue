@@ -243,6 +243,7 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 				}
 				.text {
 					margin-top: .5em;
+					white-space: pre-line;
 				}
 			}
 		}
