@@ -216,7 +216,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 			}
 			this.title = title;
 			this.branded = channelInfos.is_branded_content === true;
-			this.labels = channelInfos.content_classification_labels.map(v=> { return {id:v, enabled:true}});
+			this.labels = channelInfos.content_classification_labels.filter(v=>v != "MatureGame").map(v=> { return {id:v, enabled:true}});
 			this.tags = tags.concat();
 			if(gameId) {
 				const game = await TwitchUtils.getCategoryByID(gameId);
