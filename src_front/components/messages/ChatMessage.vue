@@ -27,7 +27,7 @@
 			<div class="header"><strong>{{ $t('chat.message.announcement') }}</strong></div>
 		</div>
 		
-		<template v-if="messageData.user.is_blocked !== true">
+		<template v-if="messageData.user.is_blocked !== true || messageData.user.stop_block_censor === true">
 
 			<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 			
@@ -115,8 +115,8 @@
 		</template>
 
 		<span class="blockedMessage"
-		v-if="messageData.user.is_blocked === true"
-		@click.stop="messageData.user.is_blocked = false">{{ $t("chat.message.blocked_user") }}</span>
+		v-if="messageData.user.is_blocked === true && !messageData.user.stop_block_censor"
+		@click.stop="messageData.user.stop_block_censor = true">{{ $t("chat.message.blocked_user") }}</span>
 
 		<div class="ctas" v-if="isAd">
 			<Button @click="disableAd()" alert icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
@@ -927,6 +927,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		cursor: pointer;
 		.blockedMessage {
 			font-style: italic;
+			color: var(--color-alert);
 		}
 	}
 

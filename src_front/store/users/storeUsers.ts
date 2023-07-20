@@ -189,6 +189,7 @@ export const storeUsers = defineStore('users', {
 							level:0,
 							noAd:false,
 							upgrade:false,
+							earlyDonor:false,
 						},
 						channelInfo:{},
 					};
@@ -218,6 +219,7 @@ export const storeUsers = defineStore('users', {
 							level:0,
 							noAd:false,
 							upgrade:false,
+							earlyDonor:false,
 						},
 						channelInfo:{},
 					};

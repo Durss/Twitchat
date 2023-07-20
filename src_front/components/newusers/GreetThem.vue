@@ -286,12 +286,7 @@ export default class NewUsers extends Vue {
 	 * Removes all messages
 	 */
 	public clearAll():void {
-		//Store the count of messages to delete so if new messages are added
-		//while confirming the clear, these new messages are kept
-		let deleteCount = this.localMessages.length;
-		this.$confirm(this.$t("greet.clear_confirm_title"), this.$t("greet.clear_confirm_description"), null).then(() => {
-			this.localMessages.splice(0, deleteCount);
-		});
+		this.localMessages = [];
 	}
 
 	/**

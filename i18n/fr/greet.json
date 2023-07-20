@@ -3,8 +3,6 @@
 		"title":"Dites bonjour",
 		"never":"jamais",
 		"clearBt":"Marquer tous les messages comme lus",
-		"clear_confirm_title":"Tout effacer",
-		"clear_confirm_description":"Voulez-vous marquer tous les messages comme lus ?",
 		"resetBt":"Réinitialiser l'historique",
 		"reset_confirm_title":"Réinitialiser",
 		"reset_confirm_description":"L'historique des bonjours sera réinitialisé. Le prochain message de toutes les personne sera considéré comme leur 1er du stream.",

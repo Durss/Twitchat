@@ -20,7 +20,7 @@
 					<div class="title quote">
 						<span>{{messageData.stream.title}}</span>
 						<div class="details">
-							<p class="category">{{messageData.stream.category}}</p>
+							<p class="category" v-if="messageData.stream.category">{{messageData.stream.category}}</p>
 							<div class="duration" v-if="messageData.stream.wasLive">
 								<Icon name="timer" class="icon" theme="dark" />{{formatedDuration}}
 							</div>

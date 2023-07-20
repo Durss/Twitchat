@@ -1026,6 +1026,13 @@ export namespace TwitchatDataTypes {
 		 */
 		is_blocked:boolean;
 		/**
+		 * When a user is blocked, their messages are censored until we click
+		 * on of them in which case messages stop being censored until next 
+		 * app start.
+		 * This flag is here for this, stopping censor to ignore "is_blocked" state
+		 */
+		stop_block_censor?:boolean;
+		/**
 		 * Is a Twitchat admin?
 		 */
 		is_admin?:boolean;

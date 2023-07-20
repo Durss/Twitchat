@@ -2,9 +2,7 @@
 	"greet":{
 		"title":"Greet them",
 		"never":"never",
-		"clearBt":"Clear all messages",
-		"clear_confirm_title":"Clear all",
-		"clear_confirm_description":"Do you want to clear all messages?",
+		"clearBt":"Mark all messages as read",
 		"resetBt":"Reset greet history",
 		"reset_confirm_title":"Reset",
 		"reset_confirm_description":"This will reset the greetings history. Next messages of all users will be considered as their first message today.",
