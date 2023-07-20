@@ -66,7 +66,8 @@
 		"search_no_result": "no result",
 		"ad_collapse_aria": "Collapse content",
 		"ad_info": "Message sent on your chat every 2 hours (if you received at least 100 messages and have more than 50 followers)",
-		"ad_disable_info1": "To disable this message, make any donation bellow 💝",
+		"ad_disable_info": "To disable this message, make any donation bellow 💝",
+		"ad_disableBt": "Donate",
 		"ad_bot_info_title": "Can this message be sent by nightbot / wizebot / ... ?",
 		"ad_bot_info_content": "Yes<br><br>By default the message is posted with your account.<br>But you can configure any other bot to send that message if you wish.<br><br>Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.",
 		"categories": {

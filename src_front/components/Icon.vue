@@ -90,14 +90,14 @@ export default class Icon extends Vue {
 	&.light {
 		:deep(svg) {
 			* {
-				fill: @color-light !important;
+				fill: var(--color-light) !important;
 			}
 		}
 	}
 	&.dark {
 		:deep(svg) {
 			* {
-				fill: @color-dark !important;
+				fill: var(--color-dark) !important;
 			}
 		}
 	}

@@ -10,9 +10,9 @@
 
 		<ConnectSpotifyForm class="item" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
 
-		<ToggleBlock class="item" title="Patreon" :icons="['patreon']" :open="subContent == 'patreon'" :class="subContent == 'patreon'? 'selected' : ''">
+		<!-- <ToggleBlock class="item" title="Patreon" :icons="['patreon']" :open="subContent == 'patreon'" :class="subContent == 'patreon'? 'selected' : ''">
 			<ParamsAccountPatreon />
-		</ToggleBlock>
+		</ToggleBlock> -->
 		
 		<ConnectWebsocket class="item" :open="subContent == 'websocket'" :class="subContent == 'websocket'? 'selected' : ''" />
 	</div>

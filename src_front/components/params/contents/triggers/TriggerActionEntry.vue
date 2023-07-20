@@ -67,8 +67,10 @@
 					v-if="hasUserInfo"
 					icon="user">{{ $t('triggers.actions.common.action_raffle_enter') }}</Button>
 				
-				<Button class="button" @click="selectActionType('stream_infos')"
-					icon="info">{{ $t('triggers.actions.common.action_stream_infos') }}</Button>
+				<Button class="button" @click.capture="selectActionType('stream_infos')"
+					icon="info"
+					:disabled="!canEditStreamInfo"
+					v-tooltip="canEditStreamInfo? '' : $t('triggers.actions.common.action_stream_infos_tt')">{{ $t('triggers.actions.common.action_stream_infos') }}</Button>
 					
 				<Button class="button" @click="selectActionType('chatSugg')"
 					icon="chatPoll">{{ $t('triggers.actions.common.action_chatSugg') }}</Button>
@@ -94,8 +96,8 @@
 				
 				<Button class="button" @click.capture="selectActionType('music')"
 					icon="spotify"
-					:disabled="!musicServiceConfigured"
-					v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
+					:disabled="!spotifyConnected"
+					v-tooltip="spotifyConnected? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('voicemod')"
 					icon="voicemod"
@@ -229,11 +231,12 @@ export default class TriggerActionEntry extends Vue {
 	public isError = false;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get musicServiceConfigured():boolean { return SpotifyHelper.instance.connected; }
+	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
+	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get hasChannelPoints():boolean {
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
@@ -352,6 +355,7 @@ export default class TriggerActionEntry extends Vue {
 	 * @param type 
 	 */
 	public selectActionType(type:TriggerActionStringTypes):void {
+		console.log(type);
 		switch(type) {
 			case "poll": {
 				if(!this.canCreatePoll) {
@@ -365,8 +369,14 @@ export default class TriggerActionEntry extends Vue {
 					return;
 				}break
 			}
+			case "stream_infos": {
+				if(!this.canEditStreamInfo) {
+					this.$store("auth").requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
+					return;
+				}break
+			}
 			case "music": {
-				if(!this.musicServiceConfigured) {
+				if(!this.spotifyConnected) {
 					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 					return;
 				}break

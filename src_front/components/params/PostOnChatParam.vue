@@ -1,5 +1,7 @@
 <template>
-	<div class="postonchatparam">
+	<div class="postonchatparam"
+	@focus.native="showMessage = true"
+	@blur.native="showMessage = false">
 		<ParamItem class="parameter" ref="paramItem"
 			:clearToggle="clearToggle"
 			:paramData="enabledParam"
@@ -11,24 +13,21 @@
 		>
 		
 			<PlaceholderSelector class="placeholders"
-				v-if="placeholderTarget && placeholders"
+				v-if="placeholderTarget && placeholders && showMessage"
 				v-model="textParam.value"
 				:target="placeholderTarget"
 				:placeholders="placeholders"
 				@change="saveParams()"
 			/>
 
-			<div class="margin preview" ref="preview">
+			<div class="preview" ref="preview" v-if="adPreview && showMessage">
 				<ChatMessage class="message"
-					v-if="adPreview"
 					lightMode
 					contextMenuOff
 					:messageData="adPreview" />
 			</div>
 		
-			<div class="margin">
-				<slot></slot>
-			</div>
+			<slot></slot>
 		</ParamItem>
 
 	</div>
@@ -83,12 +82,14 @@ export default class PostOnChatParam extends Vue {
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";
+	public showMessage:boolean = false;
 	public enabledParam:TwitchatDataTypes.ParameterData<boolean> = { value:false, type:"boolean"};
 	public textParam:TwitchatDataTypes.ParameterData<string> = { value:"", type:"string", longText:true, maxLength:500};
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 
 	private isFirstRender:boolean = true;
+	private focusHandler!:(e:FocusEvent) => void;
 
 	public async mounted():Promise<void> {
 		const data					= this.$store("chat").botMessages[ this.botMessageKey ];
@@ -101,14 +102,33 @@ export default class PostOnChatParam extends Vue {
 			this.enabledParam.icon	= this.icon;
 		}
 
-		watch(()=>this.textParam.value, ()=> this.saveParams())
-		watch(()=>this.enabledParam.value, ()=> this.saveParams())
-		watch(()=>this.placeholders, ()=> this.updatePreview(), {deep:true})
+		watch(()=>this.textParam.value, ()=> this.saveParams());
+		watch(()=>this.enabledParam.value, ()=> this.saveParams());
+		watch(()=>this.placeholders, ()=> this.updatePreview(), {deep:true});
+
+		this.focusHandler = (e:FocusEvent) => this.onFocus(e);
+		document.addEventListener("mouseup", this.focusHandler);
 
 		await this.$nextTick();
 		this.saveParams(false);
 	}
 
+	public beforeUnmount():void {
+		document.removeEventListener("mouseup", this.focusHandler);
+	}
+	
+	public onFocus(e:FocusEvent):void {
+		let target = document.activeElement as HTMLElement;
+		while(target != this.$el && target != document.body) {
+			target = (target as HTMLElement).parentElement!;
+		}
+		this.showMessage = (target == this.$el);
+	}
+	
+	public onBlur(e:FocusEvent):void {
+		this.showMessage = false;
+	}
+	
 	public async saveParams(saveToStore = true):Promise<void> {
 		//Avoid useless save on mount
 		if(saveToStore){
@@ -191,22 +211,11 @@ export default class PostOnChatParam extends Vue {
 	}
 	
 	.preview {
-		display: none;
 		padding: .25em .5em;
 		border-radius: .5em;
 		box-sizing: border-box;
 		background-color: var(--background-color-primary);
 		overflow: hidden;
-	}
-	
-	&:focus-within:not(input) {
-		.preview {
-			display: block;
-		}
-	}
-
-	.margin {
-		margin-top: .5em;
 	}
 }
 </style>

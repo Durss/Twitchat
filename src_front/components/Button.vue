@@ -67,6 +67,9 @@ export default class Button extends Vue {
 	public alert!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public light!:boolean;
 
 	@Prop({type:Boolean, default: false})
@@ -104,6 +107,7 @@ export default class Button extends Vue {
 		if(!this.$slots.default) list.push("noTitle");
 		if(this.secondary !== false) list.push("secondary");
 		if(this.alert !== false) list.push("alert");
+		if(this.premium !== false) list.push("premium");
 		if(this.light !== false) list.push("light");
 		if(this.transparent !== false) list.push("transparent");
 		if(this.big !== false) list.push("big");
@@ -362,6 +366,30 @@ export default class Button extends Vue {
 		}
 	}
 
+	&.premium {
+		.label {
+			text-shadow: none;
+		}
+		.background {
+			background-color: var(--color-premium);
+		}
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-premium-light);
+				}
+			}
+			&:active {
+				.background {
+					background-color: var(--color-premium-dark);
+				}
+			}
+		}
+		.loadingBorder {
+			background-color: var(--color-premium);
+		}
+	}
+
 	&.light {
 		.label {
 			color: var(--color-primary);
@@ -375,6 +403,11 @@ export default class Button extends Vue {
 		&.alert {
 			.label {
 				color: var(--color-alert);
+			}
+		}
+		&.premium {
+			.label {
+				color: var(--color-premium);
 			}
 		}
 		.background {
@@ -407,6 +440,11 @@ export default class Button extends Vue {
 		&.alert {
 			.label {
 				color: var(--color-alert);
+			}
+		}
+		&.premium {
+			.label {
+				color: var(--color-premium);
 			}
 		}
 		&.light {
@@ -451,6 +489,11 @@ export default class Button extends Vue {
 		&.alert {
 			.background{
 				background-color: var(--color-alert-extralight);
+			}
+		}
+		&.premium {
+			.background{
+				background-color: var(--color-premium-extralight);
 			}
 		}
 	}

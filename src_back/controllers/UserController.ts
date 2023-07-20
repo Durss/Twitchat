@@ -11,6 +11,7 @@ import AbstractController from "./AbstractController";
 */
 export default class UserController extends AbstractController {
 
+	private earlyDonors:{[key:string]:boolean} = {};
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -30,6 +31,11 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.setUserData(request, response));
+
+		const uids:string[] = JSON.parse(fs.readFileSync(Config.EARLY_TWITCHAT_DONORS, "utf-8"));
+		for (let i = 0; i < uids.length; i++) {
+			this.earlyDonors[uids[i]] = true;
+		}
 		
 		//Old endpoint URL.
 		//It's just here to make sure people running on the old version won't have issues
@@ -82,9 +88,14 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		const data:{isDonor:boolean, level:number, isAdmin?:true} = {isDonor:isDonor && level > -1, level};
+		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true} = {isDonor:isDonor && level > -1, level};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
+		}
+
+		//Is user an early donor of twitchat?
+		if(this.earlyDonors[userInfo.user_id] === true) {
+			data.isEarlyDonor = true;
 		}
 
 		response.header('Content-Type', 'application/json');

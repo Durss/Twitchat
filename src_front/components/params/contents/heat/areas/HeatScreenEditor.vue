@@ -236,8 +236,10 @@ export default class HeatScreenEditor extends Vue {
 				}else{
 					this.screen.areas.splice(index, 1);
 				}
+				this.currentArea = null;
 				this.$emit("update");
 			}
+			event.preventDefault();
 		}
 
 		//Unselect an area

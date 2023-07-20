@@ -1,6 +1,19 @@
 <template>
 	<div class="paramsaccountpatreon">
+		
 		<Icon name="loader" v-if="authenticating" />
+
+		<div class="earlyDonor" v-else-if="$store('auth').twitch.user.donor.earlyDonor === true">
+			<div class="card-item premium head">
+				<Icon name="gift" />
+				<div>{{ $t("premium.early_donor1") }}</div>
+			</div>
+			<i18n-t class="info" scope="global" tag="div" keypath="premium.early_donor2">
+				<template #LINK>
+					<a href="https://www.patreon.com/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
+				</template>
+			</i18n-t>
+		</div>
 
 		<template v-else-if="!connected">
 			<i18n-t scope="global" tag="div" keypath="patreon.info">
@@ -9,13 +22,13 @@
 				</template>
 			</i18n-t>
 			
-			<Button icon="patreon" @click="authenticate()" :loading="redirecting">{{ $t("patreon.linkBt") }}</Button>
+			<Button icon="patreon" @click="authenticate()" :loading="redirecting" premium>{{ $t("patreon.linkBt") }}</Button>
 		</template>
 	
-		<template v-if="connected">
+		<template v-else-if="connected">
 			<span>{{ $t("patreon.connected") }}</span>
 			<template v-if="isMember==true">
-				<span class="card-item primary">{{ $t("patreon.is_member") }}</span>
+				<span class="card-item premium">{{ $t("patreon.is_member") }}</span>
 				<span class="details on">{{ $t("patreon.is_member_details") }}</span>
 			</template>
 			<template v-else-if="isMember==false && !authenticating">
@@ -107,6 +120,23 @@ export default class ParamsAccountPatreon extends Vue {
 	.details{
 		&.off {
 			color: var(--color-secondary);
+		}
+	}
+
+	.earlyDonor {
+		.head {
+			gap: 1em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			font-size: 1.25em;
+			flex-shrink: 1;
+			.icon {
+				flex-basis: 7em;
+			}
+		}
+		.info {
+			margin-top: .5em;
 		}
 	}
 }

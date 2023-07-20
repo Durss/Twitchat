@@ -158,9 +158,10 @@ export const storeAuth = defineStore('auth', {
 					const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 					const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
 					
-					this.twitch.user.donor.state	= res.json.data.isDonor === true;
-					this.twitch.user.donor.level	= res.json.data.level;
-					this.twitch.user.donor.upgrade	= res.json.data.level != prevLevel;
+					this.twitch.user.donor.state		= res.json.data.isDonor === true;
+					this.twitch.user.donor.level		= res.json.data.level;
+					this.twitch.user.donor.upgrade		= res.json.data.level != prevLevel;
+					this.twitch.user.donor.earlyDonor	= res.json.data.isEarlyDonor === true;
 					if(res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
 
 					//Async loading of followers count to define if user is exempt

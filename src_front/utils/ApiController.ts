@@ -190,6 +190,7 @@ type ApiEndpoints =  {
 			data:{
 				isAdmin:boolean,
 				isDonor:boolean,
+				isEarlyDonor:boolean,
 				level:number,
 			}
 		},

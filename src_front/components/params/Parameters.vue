@@ -7,7 +7,7 @@
 					<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 				</div>
 			
-				<div class="automaticMessageHolder" v-if="!isDonor">
+				<div class="automaticMessageHolder" v-if="!isDonor && !closed">
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
 
@@ -28,14 +28,14 @@
 					<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat">{{$t('params.categories.heat')}}</Button>
 					<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
 					<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
-					<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR">{{$t('params.categories.goxlr')}}</Button>
+					<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR" class="premiumIndicator">{{$t('params.categories.goxlr')}}</Button>
 					<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
 					<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
 					<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
-					<Button icon="sub"			@click="openPage(contentPremium)"		:selected="content==contentPremium" secondary>{{$t('params.categories.premium')}}</Button>
+					<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" premium>{{$t('params.categories.premium')}}</Button>
 				</div>
 
-				<div class="automaticMessageHolder" v-if="isDonor">
+				<div class="automaticMessageHolder" v-if="isDonor && !closed">
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
 
@@ -87,7 +87,7 @@
 			<!-- default content for large screen -->
 			<div class="content default" v-else>
 				<div class="automaticMessageHolder">
-					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+					<ParamsTwitchatAd :expand="content == contentAd && !closed" @collapse="openPage('main')" />
 				</div>
 				<DonorState class="donorState" v-if="isDonor && content != contentAd" />
 				<ParamsSponsor v-else-if="content != contentAd" />
@@ -289,7 +289,7 @@ export default class Parameters extends Vue {
 		this.$store("params").currentParamSearch = "";
 		
 		//Check if current content wants to override the navigation
-		if(content && content.onNavigateBack() === true) return;
+		if(content && content.onNavigateBack && content.onNavigateBack() === true) return;
 
 		this.history.pop();//Remove current page from history
 		this.openPage(this.history.pop() || TwitchatDataTypes.ParameterPages.MAIN_MENU);
@@ -433,6 +433,12 @@ export default class Parameters extends Vue {
 						font-size: .7em;
 						font-weight: bold;
 						transform: rotate(45deg);
+					}
+				}
+
+				&.premiumIndicator {
+					:deep(.background) {
+						border-left: 3px solid var(--color-premium);
 					}
 				}
 			}

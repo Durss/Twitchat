@@ -13,13 +13,6 @@ import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
 
 /**
- * TYPING IS COMPLETLY BROKEN AFTER UPGRADING TO LATEST tmi.js LIB
- * Couln't find a way to fix it yet and i'm f***in tired of trying è_é
- * compilation still works if I delete the types.d.ts from tmi.js module
- * so F it for now :3
- */
-
-/**
 * Created : 25/09/2022 
 */
 export default class TwitchMessengerClient extends EventDispatcher {

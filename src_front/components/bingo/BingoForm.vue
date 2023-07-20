@@ -29,12 +29,12 @@
 				<Button v-if="triggerMode === false" type="submit">{{ $t('bingo.form.startBt') }}</Button>
 	
 				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="triggerMode === false">
-					<PostOnChatParam class="card-item" botMessageKey="bingoStart"
+					<PostOnChatParam botMessageKey="bingoStart"
 						:placeholderEnabled="false"
 						titleKey="bingo.form.announce_start"
 						:placeholders="startPlaceholders"
 					/>
-					<PostOnChatParam class="card-item" botMessageKey="bingo"
+					<PostOnChatParam botMessageKey="bingo"
 						titleKey="bingo.form.announce_winner"
 						:placeholders="winnerPlaceholders"
 					/>

@@ -83,4 +83,19 @@
 			}
 		}
 	}
+	
+	&.premium {
+		color: var(--color-text-light);
+		background-color: var(--color-premium);
+		& > .header {
+			background-color: var(--color-premium-light);
+		}
+		a:not(.button) {
+			color: var(--color-light);
+			text-decoration: underline;
+			&:hover {
+				text-decoration: none;
+			}
+		}
+	}
 }

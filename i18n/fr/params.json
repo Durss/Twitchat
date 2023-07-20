@@ -66,7 +66,8 @@
 		"search_no_result": "aucun résultat",
 		"ad_collapse_aria": "fermer",
 		"ad_info": "Message envoyé toutes les 2 heures (si vous avez reçu au moins 100 messages et avez plus de 50 followers)",
-		"ad_disable_info1": "Pour désactiver ce message faites un don libre ci-dessous 💝",
+		"ad_disable_info": "Pour désactiver ce message faites un don libre ci-dessous 💝",
+		"ad_disableBt": "Faire un don",
 		"ad_bot_info_title": "Puis-je envoyer ce message avec nightbot / wizebot / ... ?",
 		"ad_bot_info_content": "Oui<br><br>Par défaut le message est envoyé en votre nom.<br>Mais vous pouvez configurer ce message sur n'importe quel bot si vous préférez.<br><br>Twitchat n'enverra pas ce message tant qu'un message contenant <strong>twitchat.fr</strong> sera envoyé dans le tchat au moins toutes les 2h.",
 		"categories": {

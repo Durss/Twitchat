@@ -1,6 +1,14 @@
 {
 	"premium":{
 		"header":"Support Twitchat and unlock premium features",
-		"description":"Twitchat remains almost entirely free, but it represents an enormous amount of work. To help me financially some features are exclusive to people supporting me on Patreon monthly."
+		"description":"Twitchat remains almost entirely free, but it represents an enormous amount of work. To help me financially some features are exclusive to people supporting me on Patreon monthly.",
+		"early_donor1":"As a thank you for supporting me from the early days of Twitchat, premium features are offered you 💝",
+		"early_donor2":"Although it would be very appreciated, you don't need to subribe monthly on {LINK} to use premium features.",
+		"early_donor2_link":"Patreon",
+		"features_title":"Premium features",
+		"features":[
+			"Control your GoXLR from chat commands, channel point rewards, ...",
+			"Disable the \"twitchat.fr\" link sent every 2h on your chat"
+		]
 	}
 }

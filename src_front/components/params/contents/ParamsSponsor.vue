@@ -22,8 +22,8 @@
 
 		<div class="buttons">
 			<Button type="link" ref="premium"
-				big secondary
-				icon="sub"
+				big premium
+				icon="premium"
 				v-if="!standaloneMode"
 				@click="clickPremium()">
 					<div class="labelHolder">
@@ -33,10 +33,11 @@
 			</Button>
 
 			<ToggleBlock class="premium" ref="premium" v-else
-			secondary :open="false" :icons="['sub']"
+			premium :open="false" :icons="['premium']"
 			:title="$t('sponsor.premium')"
 			:subtitle="$t('sponsor.premium_subtitle')">
 				<p>{{ $t("sponsor.premium_details") }}</p>
+				<PremiumFeatureList class="premiumFeatureList" />
 				<Button class="patreonBt" href="https://www.patreon.com/durss" target="_blank" type="link" secondary>{{ $t("sponsor.donate_patreonBt") }}</Button>
 			</ToggleBlock>
 
@@ -64,6 +65,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import PremiumFeatureList from '@/components/premium/PremiumFeatureList.vue';
 
 @Component({
 	components:{
@@ -71,6 +73,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 		Splitter,
 		ParamItem,
 		ToggleBlock,
+		PremiumFeatureList,
 	}
 })
 export default class ParamsSponsor extends Vue implements IParameterContent {
@@ -176,7 +179,6 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 		.premium {
 			width: 100%;
-			font-size: 1.25em;
 			:deep(.header) {
 				padding: .75em 1em;
 				.icon {
@@ -193,6 +195,13 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 			.patreonBt {
 				margin-top: .5em;
 			}
+
+			.premiumFeatureList{
+				font-size: 1rem;
+				width: 80%;
+				margin: auto;
+				margin-top: .5em;
+			}
 		}
 
 		:deep(.label) {
@@ -202,6 +211,11 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		.button {
 			* { pointer-events: all;}
 			border-radius: var(--border-radius);
+			:deep(.label) {
+				flex-shrink: 1;
+				flex-grow: 0;
+				width: calc(100% - .6em - 1em);
+			}
 			.labelHolder {
 				display: flex;
 				flex-direction: column;

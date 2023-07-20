@@ -108,6 +108,16 @@ export default class Config {
 	}
 
 	/**
+	 * List of user ID that supported twitchat with 10€ or more
+	 */
+	public static get EARLY_TWITCHAT_DONORS(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../earlyDonors.json"),
+			prod: path.join(__dirname, "../earlyDonors.json"),
+		});
+	}
+
+	/**
 	 * Extract a data from an hasmap depending on the current environment.
 	 * @param map
 	 * @returns {any}

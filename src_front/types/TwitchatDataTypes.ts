@@ -1049,6 +1049,10 @@ export namespace TwitchatDataTypes {
 			 * true if donor level changed from last time
 			 */
 			upgrade:boolean,
+			/**
+			 * true if user is part of the early twitchat donors
+			 */
+			earlyDonor:boolean,
 		};
 		/**
 		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code

@@ -76,6 +76,9 @@ export default class ToggleBlock extends Vue {
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
+
 	public opened = false;
 
 	public get classes():string[] {
@@ -85,6 +88,7 @@ export default class ToggleBlock extends Vue {
 		if(this.primary !== false)		res.push("primary");
 		if(this.secondary !== false)	res.push("secondary");
 		if(this.alert !== false)		res.push("alert");
+		if(this.premium !== false)		res.push("premium");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
 		return res;
@@ -201,6 +205,19 @@ export default class ToggleBlock extends Vue {
 			background-color: var(--color-alert);
 			&:hover {
 				background-color: var(--color-alert-light);
+			}
+			.title {
+				color: var(--color-button);
+			}
+		}
+	}
+
+	&.premium{
+		background-color: var(--color-premium-fadest);
+		.header {
+			background-color: var(--color-premium);
+			&:hover {
+				background-color: var(--color-premium-light);
 			}
 			.title {
 				color: var(--color-button);

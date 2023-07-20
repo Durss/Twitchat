@@ -129,6 +129,7 @@
 				"action_countget": "Lire un compteur",
 				"action_random": "Valeur aléatoire",
 				"action_stream_infos": "Changer les infos de stream",
+				"action_stream_infos_tt": "Vous devez autoriser Twitchat à modifier vos informations de stream",
 				"action_vibrate": "Vibrer téléphone",
 				"custom_placeholder_example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder."
 			},
