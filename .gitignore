@@ -6,6 +6,7 @@ node_modules
 /server
 /userData_fake_production
 credentials.json
+announcements.json
 donors
 beta
 env.conf

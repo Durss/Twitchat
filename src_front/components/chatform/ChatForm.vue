@@ -1009,6 +1009,9 @@ export default class ChatForm extends Vue {
 									margin-right: .5em;
 								}
 							}
+							.message {
+								white-space: pre-line;
+							}
 						}
 					}
 				}
