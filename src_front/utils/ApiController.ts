@@ -5,6 +5,7 @@ import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import type { PatreonData } from "./patreon/PatreonDataTypes";
 import type { TenorGif } from "@/types/TenorDataTypes";
+import Utils from "./Utils";
 
 /**
 * Created : 13/07/2023 
@@ -29,7 +30,7 @@ export default class ApiController {
 	 * @param data 
 	 * @param method 
 	 */
-	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:any):Promise<{status:number, json:ApiResponse<ApiEndpoints, U, M>}> {
+	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:any, attemptIndex:number = 0):Promise<{status:number, json:ApiResponse<ApiEndpoints, U, M>}> {
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
 		const headers:{[key:string]:string} = {
 			"Content-Type": "application/json",
@@ -52,6 +53,10 @@ export default class ApiController {
 			}
 		}
 		const res = await fetch(url, options);
+		if(res.status != 200 && attemptIndex < 5) {
+			await Utils.promisedTimeout(1000);
+			return this.call(endpoint, method, data, attemptIndex+1);
+		}
 		let json:any = {};
 		try {
 			json = await res.json();
