@@ -562,7 +562,7 @@ export default class TwitchUtils {
 					displayName:"Global",
 					displayNameOriginal:"Global",
 					login:"Global",
-					donor:{level:0, state:false, upgrade:false, noAd:false},
+					donor:{level:0, state:false, upgrade:false, noAd:false, earlyDonor:false},
 					is_affiliate:false,
 					is_partner:false,
 					is_tracked:false,
@@ -1165,11 +1165,7 @@ export default class TwitchUtils {
 			await this.onRateLimit(res.headers);
 			return await this.setStreamInfos(channelId, title, categoryID, tags);
 		}
-		if(res.status == 204) {
-			return true;
-		}else{
-			return false;
-		}
+		return res.status == 204;
 	}
 
 	/**

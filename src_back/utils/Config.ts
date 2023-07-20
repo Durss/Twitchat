@@ -107,6 +107,13 @@ export default class Config {
 		});
 	}
 
+	public static get ANNOUNCEMENTS_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../announcements.json"),
+			prod: path.join(__dirname, "../announcements.json"),
+		});
+	}
+
 	/**
 	 * List of user ID that supported twitchat with 10€ or more
 	 */

@@ -8,6 +8,7 @@
 		"timer":"Chronomètre & Décompte",
 		"chat":"Effacer le tchat",
 		"info":"Titre du stream",
+		"announcement":"Annonce Twitchat",
 		"commercial":"Vous pourrez lancer une publicité dans {DURATION}",
 		"raid":"Lancer un raid",
 		"raid_placeholder":"pseudo...",

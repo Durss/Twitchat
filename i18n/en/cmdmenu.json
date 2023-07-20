@@ -8,6 +8,7 @@
 		"timer":"Timer",
 		"chat":"Clear chat",
 		"info":"Stream info",
+		"announcement":"Twitchat announce",
 		"commercial":"You can start a new commercial in {DURATION}",
 		"raid":"Raid someone",
 		"raid_placeholder":"user name...",

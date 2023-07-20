@@ -74,6 +74,7 @@ export default class DataStore {
 	public static CUSTOM_USERNAMES:string = "customUsernames";
 	public static CUSTOM_BADGE_LIST:string = "customBadgeList";
 	public static CUSTOM_USER_BADGES:string = "customUserBadges";
+	public static ANNOUNCEMENTS_READ:string = "announcementsRead";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -97,6 +98,7 @@ export default class DataStore {
 		this.POLL_DEFAULT_DURATION,
 		this.PREDICTION_DEFAULT_DURATION,
 		this.PATREON_AUTH_TOKEN,
+		this.ANNOUNCEMENTS_READ,
 	]
 	
 	

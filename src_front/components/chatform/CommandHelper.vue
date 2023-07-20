@@ -8,6 +8,7 @@
 		<Button @click.capture="openModal('timer');"		icon="timer"		>{{$t('cmdmenu.timer')}}</Button>
 		<Button @click.capture="clearChat();"				icon="clearChat"	:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</Button>
 		<Button @click.capture="openModal('streamInfo');"	icon="info"			:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</Button>
+		<Button @click.capture="openModal('twitchatAnnouncement');"	icon="announcement"	v-if="isAdmin" secondary>{{$t('cmdmenu.announcement')}}</Button>
 
 		<div class="commercial" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">
 			<Button aria-label="Start a 30s ad"		v-if="adCooldown == 0" small @click.capture="startAd(30);"	:disabled="!canStartCommercial" icon="coin">{{ $t('cmdmenu.start_ad') }}</Button>
@@ -55,9 +56,9 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -99,6 +100,7 @@ export default class CommandHelper extends Vue {
 	public get canStartCommercial():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints; }
 	public get canClearChat():boolean { return TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]); }
 	public get canRaid():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_RAID]); }
+	public get isAdmin():boolean { return this.$store("auth").twitch.user.is_admin === true; }
 
 	public get canCreatePrediction():boolean {
 		if(!this.hasChannelPoints) return false;

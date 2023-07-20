@@ -1,0 +1,22 @@
+{
+	"announcement":{
+		"title":"Twitchat announcement",
+		"subtitle":"Send an announce to Twitchat users",
+		"param_title":"Title",
+		"param_dateStart":"Start date",
+		"param_dateEnd":"End date (optionnel)",
+		"param_text":"Message",
+		"param_versionMax":"Twitchat max version (optional)",
+		"param_important":"Important notification (will be sent to people already live)",
+		"postBt":"Publish",
+		"list":"Announcement list",
+		"create_confirm":{
+			"title":"Publish announcement?",
+			"description":"Twitchat users will see the announcement at the specified date."
+		},
+		"delete_confirm":{
+			"title":"Delete announcement?",
+			"description":"This cannot be undone."
+		}
+	}
+}

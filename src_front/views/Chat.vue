@@ -45,6 +45,7 @@
 			<WhispersState			class="popin" v-if="$store('params').currentModal == 'whispers'" @close="$store('params').closeModal()" />
 			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').closeModal()" />
 			<MessageSearch			class="popin" v-if="$store('params').currentModal == 'search'" @close="$store('params').closeModal()" />
+			<TwitchatAnnouncement	class="popin" v-if="$store('params').currentModal == 'twitchatAnnouncement'" @close="$store('params').closeModal()" />
 		</Teleport>
 
 
@@ -183,6 +184,7 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
+import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
 
 @Component({
 	components:{
@@ -220,6 +222,7 @@ import Login from './Login.vue';
 		ChatAlertMessage,
 		ChatSuggestionForm,
 		ChatSuggestionState,
+		TwitchatAnnouncement,
 		ChannelNotifications,
 		EmergencyFollowsListModal,
 	},

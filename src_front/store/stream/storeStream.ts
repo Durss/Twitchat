@@ -33,9 +33,11 @@ export const storeStream = defineStore('stream', {
 
 
 	actions: {
-		async setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<void> {
+		async setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean> {
 			if(platform == "twitch") {
-				await TwitchUtils.setStreamInfos(channelId, title, categoryID, tags, branded, labels);
+				if(!await TwitchUtils.setStreamInfos(channelId, title, categoryID, tags, branded, labels)) {
+					return false;
+				}
 				const category = await TwitchUtils.getCategoryByID(categoryID);
 				let viewers = 0;
 				let live = false;
@@ -58,7 +60,9 @@ export const storeStream = defineStore('stream', {
 					user:StoreProxy.auth.twitch.user,
 					lastSoDoneDate:0,
 				}
+				return true;
 			}
+			return false;
 		},
 
 		setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined) {

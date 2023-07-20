@@ -123,10 +123,8 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		}
 		//If not editing, update the stream info
 		if(!this.presetEditing) {
-			try {
-				const channelId = StoreProxy.auth.twitch.user.id;
-				await this.$store("stream").setStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels);
-			}catch(error) {
+			const channelId = StoreProxy.auth.twitch.user.id;
+			if(!await this.$store("stream").setStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
 				this.$store("main").alert( this.$t("error.stream_info_updating") );
 			}
 		}else {

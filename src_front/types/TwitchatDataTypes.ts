@@ -5,7 +5,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login" | "tracked" | "whispers";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login" | "tracked" | "whispers" | "twitchatAnnouncement";
 	
 	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout";
 	
@@ -306,7 +306,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Parameter type
 		 */
-		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color";
+		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color"|"date"|"datetime";
 		/**
 		 * Parameter value
 		 */
@@ -1280,6 +1280,19 @@ export namespace TwitchatDataTypes {
 		 * Remaining duration before execution
 		 */
 		executeIn:number;
+	}
+
+	/**
+	 * Represents a twitchat announcement message
+	 */
+	export interface TwitchatAnnouncementData{
+		id:string;
+		dateStart:number;
+		important:boolean;
+		title:{[key:string]:string};
+		text:{[key:string]:string};
+		dateEnd?:number;
+		versionMax?:string;
 	}
 
 
