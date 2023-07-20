@@ -68,7 +68,7 @@ export default class TriggerActionHeatParams extends Vue {
 	@Prop
 	public obsSources!:OBSSourceItem[];
 	
-	public param_clickSource:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", listValues:[], labelKey:"heat.click_source", icon:"click"};
+	public param_clickSource:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"obs", listValues:[], labelKey:"heat.click_source", icon:"click"};
 	public param_obsSources:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", listValues:[], labelKey:"heat.obs_source", icon:"obs"};
 	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"user", tooltipKey:"heat.anonymous"};
 	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };

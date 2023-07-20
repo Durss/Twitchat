@@ -11,10 +11,7 @@
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting" class="card-item">
-			<picture class="item center">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon class="item center" name="loader" />
 			<div class="item center">{{ $t("voicemod.connecting") }}</div>
 		</section>
 
@@ -62,9 +59,11 @@ import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type { VoicemodTypes } from '@/utils/voice/VoicemodTypes';
 import type IParameterContent from './IParameterContent';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		Splitter,
 		ParamItem,
 		PermissionsForm,

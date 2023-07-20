@@ -1,9 +1,6 @@
 <template>
 	<div class="triggercreateform">
-		<picture v-if="showLoading">
-			<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-		</picture>
+		<Icon class="loader" name="loader" v-if="showLoading" />
 
 		<i18n-t scope="global" tag="div" class="card-item alert require"
 		v-if="needObsConnect"
@@ -596,6 +593,7 @@ interface TriggerEntry{
 
 	.loader {
 		height: 2em;
+		width: 2em;
 		margin: auto;
 		display: block;
 	}

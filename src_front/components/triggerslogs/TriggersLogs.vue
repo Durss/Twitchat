@@ -15,10 +15,7 @@
 		</div>
 		
 		<div class="content empty" v-else-if="reloading">
-			<picture>
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon class="loader" name="loader" />
 		</div>
 		
 		<div class="content entries" v-else-if="!reloading">
@@ -68,9 +65,11 @@ import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		Button,
 		CloseButton,
 	},

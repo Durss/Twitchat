@@ -86,7 +86,6 @@ export default class FileServeController extends AbstractController {
 	private getAnnouncements(request:FastifyRequest, response:FastifyReply):void {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		console.log("Send cached");
 		response.send(this.cachedAnnouncements);
 	}
 

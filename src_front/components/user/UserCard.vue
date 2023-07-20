@@ -121,10 +121,7 @@
 					<div class="card-item secondary disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
 					<div class="card-item primary commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
 					<transition name="scale">
-						<picture v-if="loadingFollowings">
-							<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-							<Icon name="loader" alt="loading" class="loader"/>
-						</picture>
+						<Icon class="loader" name="loader" v-if="loadingFollowings" />
 					</transition>
 	
 					<div v-if="errorFollowings" class="card-item alert errorMessage">Something went wrong while loading followings...</div>

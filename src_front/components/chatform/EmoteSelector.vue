@@ -1,10 +1,7 @@
 <template>
 	<div class="emoteselector blured-background-window">
 		<div v-if="users.length == 0" class="loader">
-			<picture>
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon class="loader" name="loader" />
 			<p>{{ $t("global.loading") }}</p>
 		</div>
 
@@ -79,9 +76,11 @@ import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 import Button from '../Button.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		Button,
 	},
 	emits:["close", "select"]
@@ -163,7 +162,7 @@ export default class EmoteSelector extends Vue {
 				pronounsLabel:false,
 				pronounsTooltip:false,
 				channelInfo:{},
-				donor:{state:false, level:0, upgrade:false, noAd:false},
+				donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 				is_bot:false,
 			});
 	
@@ -184,7 +183,7 @@ export default class EmoteSelector extends Vue {
 				pronounsLabel:false,
 				pronounsTooltip:false,
 				channelInfo:{},
-				donor:{state:false, level:0, upgrade:false, noAd:false},
+				donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 				is_bot:false,
 			});
 	
@@ -225,7 +224,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 						is_bot:true,
 					},
 					emotes: BTTVUtils.instance.emotes,
@@ -250,7 +249,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 						is_bot:true,
 					},
 					emotes: SevenTVUtils.instance.emotes,
@@ -275,7 +274,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 						is_bot:true,
 					},
 					emotes: FFZUtils.instance.emotes,

@@ -23,11 +23,9 @@
 				</div>
 			</ToggleBlock>
 			
-		
-			<picture v-if="loading">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<div class="card-item primary" v-if="updateSuccess" @click="updateSuccess = false">OOOOOK</div>
+			
+			<Icon class="loader" name="loader" v-if="loading" />
 
 			<ToggleBlock v-else class="form" :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
 			:open="presets.length == 0 || forceOpenForm" icon="update">
@@ -78,6 +76,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	public title:string = "";
 	public tags:string[] = [];
 	public branded:boolean = false;
+	public updateSuccess:boolean = false;
 	public labels:{id:string, enabled:boolean}[] = [];
 	public category:TwitchDataTypes.StreamCategory|null = null;
 
@@ -182,10 +181,13 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	 */
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
-		try {
-			const channelId = StoreProxy.auth.twitch.user.id;
-			await this.$store("stream").setStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels);
-		}catch(error) {
+		const channelId = StoreProxy.auth.twitch.user.id;
+		if(await this.$store("stream").setStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels)) {
+			this.updateSuccess = true;
+			setTimeout(()=>{
+				this.updateSuccess = false;
+			}, 3000);
+		}else{
 			this.$store("main").alert( this.$t("error.stream_info_updating") );
 		}
 		this.saving = false;

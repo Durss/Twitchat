@@ -11,10 +11,7 @@
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting" class="card-item">
-			<picture class="item center">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon class="loader" name="loader" />
 			<div class="item center">{{ $t("goxlr.connecting") }}</div>
 		</section>
 
@@ -40,9 +37,11 @@ import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		Splitter,
 		ParamItem,
 		PermissionsForm,

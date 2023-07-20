@@ -10,10 +10,7 @@
 
 			
 			<form @submit.prevent="" class="inputForm">
-				<picture v-if="loading">
-					<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-				</picture>
+				<Icon class="loader" name="loader" v-if="loading" />
 				
 				<div class="inputHolder" v-if="!error && !$store('chat').spamingFakeMessages">
 
@@ -278,6 +275,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import ApiController from '@/utils/ApiController';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
